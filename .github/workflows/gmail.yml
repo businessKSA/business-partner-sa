@@ -47,7 +47,7 @@ jobs:
           def main():
               try:
                   # Using Business Partner Workspace email
-                  USER_EMAIL = "business@businesspartner.sa"
+                  USER_EMAIL = "business@businesspartnerksa.com"
                   
                   print(f"Starting Gmail API test with domain-wide delegation")
                   print(f"Target user: {USER_EMAIL}")
