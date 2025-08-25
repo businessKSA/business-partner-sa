@@ -1,0 +1,90 @@
+name: OIDC Debug
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  debug-oidc:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Request OIDC Token and Decode Claims
+        run: |
+          echo "Requesting GitHub OIDC token with audience=google..."
+          
+          # Request OIDC token from GitHub
+          RESPONSE=$(curl -sL \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            -H "Content-Type: application/json" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=google")
+          
+          # Extract the token from response
+          TOKEN=$(echo "$RESPONSE" | grep -o '"value":"[^"]*' | sed 's/"value":"//')
+          
+          if [ -z "$TOKEN" ]; then
+            echo "Failed to obtain OIDC token"
+            echo "Response: $RESPONSE"
+            exit 0
+          fi
+          
+          echo "Successfully obtained OIDC token"
+          echo "================================================"
+          
+          # Split JWT into parts
+          HEADER=$(echo "$TOKEN" | cut -d. -f1)
+          PAYLOAD=$(echo "$TOKEN" | cut -d. -f2)
+          SIGNATURE=$(echo "$TOKEN" | cut -d. -f3)
+          
+          # Function to decode base64url
+          decode_base64url() {
+            local input=$1
+            # Add padding if needed
+            local padding=$((4 - ${#input} % 4))
+            if [ $padding -ne 4 ]; then
+              input="${input}$(printf '=%.0s' $(seq 1 $padding))"
+            fi
+            # Replace URL-safe characters and decode
+            echo "$input" | tr '_-' '/+' | base64 -d 2>/dev/null || echo "{}"
+          }
+          
+          echo "JWT Header:"
+          echo "----------"
+          decode_base64url "$HEADER" | python3 -m json.tool || decode_base64url "$HEADER"
+          
+          echo ""
+          echo "JWT Payload (Claims):"
+          echo "--------------------"
+          DECODED_PAYLOAD=$(decode_base64url "$PAYLOAD")
+          echo "$DECODED_PAYLOAD" | python3 -m json.tool || echo "$DECODED_PAYLOAD"
+          
+          echo ""
+          echo "Key Claims Summary:"
+          echo "-------------------"
+          
+          # Extract key claims using grep and sed (works even if python json.tool fails)
+          echo "Issuer (iss): $(echo "$DECODED_PAYLOAD" | grep -o '"iss":"[^"]*' | sed 's/"iss":"//')"
+          echo "Subject (sub): $(echo "$DECODED_PAYLOAD" | grep -o '"sub":"[^"]*' | sed 's/"sub":"//')"
+          echo "Audience (aud): $(echo "$DECODED_PAYLOAD" | grep -o '"aud":"[^"]*' | sed 's/"aud":"//')"
+          echo "Repository: $(echo "$DECODED_PAYLOAD" | grep -o '"repository":"[^"]*' | sed 's/"repository":"//')"
+          echo "Workflow: $(echo "$DECODED_PAYLOAD" | grep -o '"workflow":"[^"]*' | sed 's/"workflow":"//')"
+          echo "Ref: $(echo "$DECODED_PAYLOAD" | grep -o '"ref":"[^"]*' | sed 's/"ref":"//')"
+          echo "Actor: $(echo "$DECODED_PAYLOAD" | grep -o '"actor":"[^"]*' | sed 's/"actor":"//')"
+          echo "Job Workflow Ref: $(echo "$DECODED_PAYLOAD" | grep -o '"job_workflow_ref":"[^"]*' | sed 's/"job_workflow_ref":"//')"
+          
+          # Calculate expiration time
+          EXP=$(echo "$DECODED_PAYLOAD" | grep -o '"exp":[0-9]*' | sed 's/"exp"://')
+          IAT=$(echo "$DECODED_PAYLOAD" | grep -o '"iat":[0-9]*' | sed 's/"iat"://')
+          
+          if [ -n "$IAT" ] && [ -n "$EXP" ]; then
+            echo "Issued At: $(date -d @$IAT 2>/dev/null || echo "timestamp: $IAT")"
+            echo "Expires At: $(date -d @$EXP 2>/dev/null || echo "timestamp: $EXP")"
+          fi
+          
+          echo ""
+          echo "================================================"
+          echo "OIDC token successfully decoded!"
