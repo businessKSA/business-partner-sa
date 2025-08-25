@@ -3,9 +3,10 @@ name: Gmail Test
 on:
   workflow_dispatch:
 
+# These permissions are required for Workload Identity Federation
 permissions:
-  id-token: write
-  contents: read
+  id-token: write   # To request the OIDC JWT token
+  contents: read    # To checkout the repository
 
 jobs:
   gmail-test:
@@ -15,13 +16,44 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Debug GitHub Context
+        run: |
+          echo "GitHub Repository: ${{ github.repository }}"
+          echo "GitHub Ref: ${{ github.ref }}"
+          echo "GitHub SHA: ${{ github.sha }}"
+          echo "GitHub Actor: ${{ github.actor }}"
+          echo "GitHub Workflow: ${{ github.workflow }}"
+          echo "GitHub Run ID: ${{ github.run_id }}"
+          echo "GitHub Run Number: ${{ github.run_number }}"
+          
       - name: Authenticate to Google Cloud
+        id: auth
         uses: google-github-actions/auth@v2
+        continue-on-error: true
         with:
           workload_identity_provider: 'projects/1070166723049/locations/global/workloadIdentityPools/gmail-wif-pool/providers/github'
           service_account: 'gmail-wif-sa@website-leads2-470118.iam.gserviceaccount.com'
           token_format: 'access_token'
           create_credentials_file: true
+          
+      - name: Check Authentication Status
+        run: |
+          if [ "${{ steps.auth.outcome }}" == "failure" ]; then
+            echo "❌ Workload Identity Federation authentication failed"
+            echo ""
+            echo "Possible causes:"
+            echo "1. The Workload Identity Pool might not be configured for this repository"
+            echo "2. The service account might not have the correct permissions"
+            echo "3. The attribute mapping in the pool provider might need adjustment"
+            echo ""
+            echo "To fix this, ensure the WIF pool is configured with:"
+            echo "- Repository: businessKSA/business-partner-sa"
+            echo "- Attribute mapping includes repository attribute"
+            echo "- Service account has been granted access to impersonate users"
+            exit 1
+          else
+            echo "✅ Authentication successful"
+          fi
           
       - name: Set up Python
         uses: actions/setup-python@v4
