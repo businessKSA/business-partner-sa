@@ -12,33 +12,73 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Request OIDC Token and Decode Claims
+      - name: Display GitHub Context
+        continue-on-error: true
+        run: |
+          echo "================================================"
+          echo "GitHub Context Variables:"
+          echo "================================================"
+          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
+          echo "GITHUB_ACTOR: $GITHUB_ACTOR"
+          echo "GITHUB_SHA: $GITHUB_SHA"
+          echo "GITHUB_WORKFLOW: $GITHUB_WORKFLOW"
+          echo "GITHUB_RUN_ID: $GITHUB_RUN_ID"
+          echo "GITHUB_RUN_NUMBER: $GITHUB_RUN_NUMBER"
+          echo "GITHUB_JOB: $GITHUB_JOB"
+          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+          echo "GITHUB_SERVER_URL: $GITHUB_SERVER_URL"
+          echo "GITHUB_API_URL: $GITHUB_API_URL"
+          echo "RUNNER_OS: $RUNNER_OS"
+          echo "================================================"
+          echo ""
+
+      - name: Request OIDC Token
+        id: get_token
+        continue-on-error: true
         run: |
           echo "Requesting GitHub OIDC token with audience=google..."
+          echo ""
+          
+          # Show the token request URLs
+          echo "Token Request URL: $ACTIONS_ID_TOKEN_REQUEST_URL"
+          echo "Token available: $([ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ] && echo 'Yes' || echo 'No')"
+          echo ""
           
           # Request OIDC token from GitHub
           RESPONSE=$(curl -sL \
             -H "Accept: application/json" \
             -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             -H "Content-Type: application/json" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=google")
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=google" 2>&1)
+          
+          echo "Raw Response:"
+          echo "$RESPONSE"
+          echo ""
           
           # Extract the token from response
           TOKEN=$(echo "$RESPONSE" | grep -o '"value":"[^"]*' | sed 's/"value":"//')
           
           if [ -z "$TOKEN" ]; then
-            echo "Failed to obtain OIDC token"
-            echo "Response: $RESPONSE"
+            echo "❌ Failed to obtain OIDC token"
+            echo "RESPONSE=$RESPONSE" >> $GITHUB_OUTPUT
+            echo "TOKEN=" >> $GITHUB_OUTPUT
             exit 0
           fi
           
-          echo "Successfully obtained OIDC token"
-          echo "================================================"
+          echo "✅ Successfully obtained OIDC token"
+          echo "TOKEN=$TOKEN" >> $GITHUB_OUTPUT
+          echo ""
+
+      - name: Decode JWT Header
+        if: steps.get_token.outputs.TOKEN != ''
+        continue-on-error: true
+        run: |
+          TOKEN="${{ steps.get_token.outputs.TOKEN }}"
           
           # Split JWT into parts
           HEADER=$(echo "$TOKEN" | cut -d. -f1)
-          PAYLOAD=$(echo "$TOKEN" | cut -d. -f2)
-          SIGNATURE=$(echo "$TOKEN" | cut -d. -f3)
           
           # Function to decode base64url
           decode_base64url() {
@@ -52,39 +92,168 @@ jobs:
             echo "$input" | tr '_-' '/+' | base64 -d 2>/dev/null || echo "{}"
           }
           
+          echo "================================================"
           echo "JWT Header:"
-          echo "----------"
-          decode_base64url "$HEADER" | python3 -m json.tool || decode_base64url "$HEADER"
+          echo "================================================"
           
+          DECODED_HEADER=$(decode_base64url "$HEADER")
+          
+          # Try to pretty print with available tools
+          if command -v jq &> /dev/null; then
+            echo "$DECODED_HEADER" | jq . 2>/dev/null || echo "$DECODED_HEADER"
+          elif command -v python3 &> /dev/null; then
+            echo "$DECODED_HEADER" | python3 -m json.tool 2>/dev/null || echo "$DECODED_HEADER"
+          else
+            echo "$DECODED_HEADER"
+          fi
           echo ""
-          echo "JWT Payload (Claims):"
-          echo "--------------------"
+
+      - name: Decode JWT Payload (Claims)
+        if: steps.get_token.outputs.TOKEN != ''
+        continue-on-error: true
+        run: |
+          TOKEN="${{ steps.get_token.outputs.TOKEN }}"
+          
+          # Split JWT into parts
+          PAYLOAD=$(echo "$TOKEN" | cut -d. -f2)
+          
+          # Function to decode base64url
+          decode_base64url() {
+            local input=$1
+            # Add padding if needed
+            local padding=$((4 - ${#input} % 4))
+            if [ $padding -ne 4 ]; then
+              input="${input}$(printf '=%.0s' $(seq 1 $padding))"
+            fi
+            # Replace URL-safe characters and decode
+            echo "$input" | tr '_-' '/+' | base64 -d 2>/dev/null || echo "{}"
+          }
+          
+          echo "================================================"
+          echo "JWT Payload (All Claims):"
+          echo "================================================"
+          
           DECODED_PAYLOAD=$(decode_base64url "$PAYLOAD")
-          echo "$DECODED_PAYLOAD" | python3 -m json.tool || echo "$DECODED_PAYLOAD"
           
-          echo ""
-          echo "Key Claims Summary:"
-          echo "-------------------"
-          
-          # Extract key claims using grep and sed (works even if python json.tool fails)
-          echo "Issuer (iss): $(echo "$DECODED_PAYLOAD" | grep -o '"iss":"[^"]*' | sed 's/"iss":"//')"
-          echo "Subject (sub): $(echo "$DECODED_PAYLOAD" | grep -o '"sub":"[^"]*' | sed 's/"sub":"//')"
-          echo "Audience (aud): $(echo "$DECODED_PAYLOAD" | grep -o '"aud":"[^"]*' | sed 's/"aud":"//')"
-          echo "Repository: $(echo "$DECODED_PAYLOAD" | grep -o '"repository":"[^"]*' | sed 's/"repository":"//')"
-          echo "Workflow: $(echo "$DECODED_PAYLOAD" | grep -o '"workflow":"[^"]*' | sed 's/"workflow":"//')"
-          echo "Ref: $(echo "$DECODED_PAYLOAD" | grep -o '"ref":"[^"]*' | sed 's/"ref":"//')"
-          echo "Actor: $(echo "$DECODED_PAYLOAD" | grep -o '"actor":"[^"]*' | sed 's/"actor":"//')"
-          echo "Job Workflow Ref: $(echo "$DECODED_PAYLOAD" | grep -o '"job_workflow_ref":"[^"]*' | sed 's/"job_workflow_ref":"//')"
-          
-          # Calculate expiration time
-          EXP=$(echo "$DECODED_PAYLOAD" | grep -o '"exp":[0-9]*' | sed 's/"exp"://')
-          IAT=$(echo "$DECODED_PAYLOAD" | grep -o '"iat":[0-9]*' | sed 's/"iat"://')
-          
-          if [ -n "$IAT" ] && [ -n "$EXP" ]; then
-            echo "Issued At: $(date -d @$IAT 2>/dev/null || echo "timestamp: $IAT")"
-            echo "Expires At: $(date -d @$EXP 2>/dev/null || echo "timestamp: $EXP")"
+          # Try to pretty print with available tools
+          if command -v jq &> /dev/null; then
+            echo "$DECODED_PAYLOAD" | jq . 2>/dev/null || echo "$DECODED_PAYLOAD"
+          elif command -v python3 &> /dev/null; then
+            echo "$DECODED_PAYLOAD" | python3 -m json.tool 2>/dev/null || echo "$DECODED_PAYLOAD"
+          else
+            echo "$DECODED_PAYLOAD"
           fi
           
+          # Store for next step
+          echo "$DECODED_PAYLOAD" > /tmp/jwt_payload.json
+
+      - name: Extract and Compare Key Claims
+        if: steps.get_token.outputs.TOKEN != ''
+        continue-on-error: true
+        run: |
+          if [ -f /tmp/jwt_payload.json ]; then
+            DECODED_PAYLOAD=$(cat /tmp/jwt_payload.json)
+            
+            echo ""
+            echo "================================================"
+            echo "Key Claims vs GitHub Context Comparison:"
+            echo "================================================"
+            
+            # Extract key claims using grep and sed (works even without jq)
+            ISS=$(echo "$DECODED_PAYLOAD" | grep -o '"iss":"[^"]*' | sed 's/"iss":"//')
+            SUB=$(echo "$DECODED_PAYLOAD" | grep -o '"sub":"[^"]*' | sed 's/"sub":"//')
+            AUD=$(echo "$DECODED_PAYLOAD" | grep -o '"aud":"[^"]*' | sed 's/"aud":"//')
+            REPOSITORY=$(echo "$DECODED_PAYLOAD" | grep -o '"repository":"[^"]*' | sed 's/"repository":"//')
+            REPOSITORY_OWNER=$(echo "$DECODED_PAYLOAD" | grep -o '"repository_owner":"[^"]*' | sed 's/"repository_owner":"//')
+            ACTOR=$(echo "$DECODED_PAYLOAD" | grep -o '"actor":"[^"]*' | sed 's/"actor":"//')
+            WORKFLOW=$(echo "$DECODED_PAYLOAD" | grep -o '"workflow":"[^"]*' | sed 's/"workflow":"//')
+            REF=$(echo "$DECODED_PAYLOAD" | grep -o '"ref":"[^"]*' | sed 's/"ref":"//')
+            SHA=$(echo "$DECODED_PAYLOAD" | grep -o '"sha":"[^"]*' | sed 's/"sha":"//')
+            RUN_ID=$(echo "$DECODED_PAYLOAD" | grep -o '"run_id":"[^"]*' | sed 's/"run_id":"//')
+            RUN_NUMBER=$(echo "$DECODED_PAYLOAD" | grep -o '"run_number":"[^"]*' | sed 's/"run_number":"//')
+            JOB_WORKFLOW_REF=$(echo "$DECODED_PAYLOAD" | grep -o '"job_workflow_ref":"[^"]*' | sed 's/"job_workflow_ref":"//')
+            EVENT_NAME=$(echo "$DECODED_PAYLOAD" | grep -o '"event_name":"[^"]*' | sed 's/"event_name":"//')
+            
+            # Display comparisons
+            echo "Issuer (iss):           $ISS"
+            echo "Subject (sub):          $SUB"
+            echo "Audience (aud):         $AUD"
+            echo ""
+            echo "Repository:"
+            echo "  Claim:                $REPOSITORY"
+            echo "  GitHub Context:       $GITHUB_REPOSITORY"
+            echo "  Match:                $([ "$REPOSITORY" = "$GITHUB_REPOSITORY" ] && echo '✅' || echo '❌')"
+            echo ""
+            echo "Repository Owner:       $REPOSITORY_OWNER"
+            echo ""
+            echo "Actor:"
+            echo "  Claim:                $ACTOR"
+            echo "  GitHub Context:       $GITHUB_ACTOR"
+            echo "  Match:                $([ "$ACTOR" = "$GITHUB_ACTOR" ] && echo '✅' || echo '❌')"
+            echo ""
+            echo "Workflow:               $WORKFLOW"
+            echo "  GitHub Context:       $GITHUB_WORKFLOW"
+            echo ""
+            echo "Ref:"
+            echo "  Claim:                $REF"
+            echo "  GitHub Context:       $GITHUB_REF"
+            echo "  Match:                $([ "$REF" = "$GITHUB_REF" ] && echo '✅' || echo '❌')"
+            echo ""
+            echo "SHA:"
+            echo "  Claim:                $SHA"
+            echo "  GitHub Context:       $GITHUB_SHA"
+            echo "  Match:                $([ "$SHA" = "$GITHUB_SHA" ] && echo '✅' || echo '❌')"
+            echo ""
+            echo "Run ID:                 $RUN_ID"
+            echo "Run Number:             $RUN_NUMBER"
+            echo "Job Workflow Ref:       $JOB_WORKFLOW_REF"
+            echo "Event Name:             $EVENT_NAME"
+            
+            # Calculate expiration time
+            EXP=$(echo "$DECODED_PAYLOAD" | grep -o '"exp":[0-9]*' | sed 's/"exp"://')
+            IAT=$(echo "$DECODED_PAYLOAD" | grep -o '"iat":[0-9]*' | sed 's/"iat"://')
+            NBF=$(echo "$DECODED_PAYLOAD" | grep -o '"nbf":[0-9]*' | sed 's/"nbf"://')
+            
+            echo ""
+            echo "Timestamps:"
+            if [ -n "$IAT" ]; then
+              echo "  Issued At (iat):      $(date -u -d @$IAT '+%Y-%m-%d %H:%M:%S UTC' 2>/dev/null || echo "timestamp: $IAT")"
+            fi
+            if [ -n "$NBF" ]; then
+              echo "  Not Before (nbf):     $(date -u -d @$NBF '+%Y-%m-%d %H:%M:%S UTC' 2>/dev/null || echo "timestamp: $NBF")"
+            fi
+            if [ -n "$EXP" ]; then
+              echo "  Expires At (exp):     $(date -u -d @$EXP '+%Y-%m-%d %H:%M:%S UTC' 2>/dev/null || echo "timestamp: $EXP")"
+            fi
+          fi
+
+      - name: Summary
+        if: always()
+        continue-on-error: true
+        run: |
           echo ""
           echo "================================================"
-          echo "OIDC token successfully decoded!"
+          echo "OIDC Debug Summary:"
+          echo "================================================"
+          
+          if [ -n "${{ steps.get_token.outputs.TOKEN }}" ]; then
+            echo "✅ OIDC token successfully obtained and decoded"
+            echo ""
+            echo "This token can be used for Workload Identity Federation with:"
+            echo "- Google Cloud Platform"
+            echo "- AWS"
+            echo "- Azure"
+            echo "- Any OIDC-compatible service"
+            echo ""
+            echo "The 'audience' claim was set to: google"
+            echo "To use a different audience, modify the curl command in the workflow"
+          else
+            echo "❌ Failed to obtain OIDC token"
+            echo ""
+            echo "Possible issues:"
+            echo "1. The workflow might not have 'id-token: write' permission"
+            echo "2. The GitHub Actions environment variables might not be available"
+            echo "3. There might be a network issue reaching the GitHub OIDC provider"
+          fi
+          
+          echo "================================================"
