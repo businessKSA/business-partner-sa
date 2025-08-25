@@ -1,0 +1,36 @@
+---
+import { type Language, type TranslationObject } from '../utils/i18n';
+
+interface Props {
+  lang: Language;
+  t: TranslationObject;
+}
+
+const { lang, t } = Astro.props;
+---
+
+<section id="setup" class="section steps">
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: 3rem;">{t.steps.title}</h2>
+    
+    <div class="grid grid-2" style="gap: 3rem;">
+      <div>
+        {t.steps.phases.map((phase, index) => (
+          <div class="step">
+            <h3>{phase.title}</h3>
+            <ul>
+              {phase.items.map(item => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      
+      <div class="card" style="background: var(--brand); color: white; height: fit-content;">
+        <h3 style="color: white; margin-bottom: 1rem;">{t.steps.interim.title}</h3>
+        <p style="opacity: 0.9;">{t.steps.interim.subtitle}</p>
+      </div>
+    </div>
+  </div>
+</section>

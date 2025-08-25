@@ -1,0 +1,39 @@
+---
+import { type Language, type TranslationObject } from '../utils/i18n';
+
+interface Props {
+  lang: Language;
+  t: TranslationObject;
+}
+
+const { lang, t } = Astro.props;
+---
+
+<section id="packages" class="section packages">
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: 3rem;">{t.packages.title}</h2>
+    
+    <div class="grid grid-3">
+      {t.packages.items.map(pkg => (
+        <div class={`card package-card ${pkg.featured ? 'featured' : ''}`}>
+          <div class="package-header">
+            <h3 style="color: white; margin: 0;">{pkg.name}</h3>
+            <small style="opacity: 0.9;">{pkg.nameEn}</small>
+          </div>
+          
+          <div class="package-price">{pkg.price}</div>
+          
+          <ul class="package-features">
+            {pkg.features.map(feature => (
+              <li>{feature}</li>
+            ))}
+          </ul>
+          
+          <a href={`${lang === 'ar' ? '' : '/en'}/#contact`} class="btn btn-primary" style="width: 100%; justify-content: center;">
+            {lang === 'ar' ? 'اختر الباقة' : 'Choose Package'}
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

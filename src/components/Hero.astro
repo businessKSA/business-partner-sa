@@ -1,0 +1,45 @@
+---
+import { type Language, type TranslationObject } from '../utils/i18n';
+
+interface Props {
+  lang: Language;
+  t: TranslationObject;
+}
+
+const { lang, t } = Astro.props;
+---
+
+<section id="home" class="hero">
+  <div class="container hero-content">
+    <div class="hero-badge">
+      {t.hero.badge}
+    </div>
+    
+    <h1>{t.hero.title}</h1>
+    <p>{t.hero.subtitle}</p>
+    
+    <div class="hero-cta">
+      <a href={`${lang === 'ar' ? '' : '/en'}/#contact`} class="btn btn-primary">
+        {t.hero.ctaPrimary}
+      </a>
+      <a href={`${lang === 'ar' ? '' : '/en'}/#services`} class="btn btn-secondary">
+        {t.hero.ctaSecondary}
+      </a>
+    </div>
+    
+    <div class="hero-stats">
+      <div class="stat-card">
+        <span class="stat-number">{t.hero.stats.founded.number}</span>
+        <span class="stat-label">{t.hero.stats.founded.label}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{t.hero.stats.experience.number}</span>
+        <span class="stat-label">{t.hero.stats.experience.label}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{t.hero.stats.packages.number}</span>
+        <span class="stat-label">{t.hero.stats.packages.label}</span>
+      </div>
+    </div>
+  </div>
+</section>

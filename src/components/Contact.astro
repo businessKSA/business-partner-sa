@@ -1,0 +1,132 @@
+---
+import { type Language, type TranslationObject } from '../utils/i18n';
+
+interface Props {
+  lang: Language;
+  t: TranslationObject;
+}
+
+const { lang, t } = Astro.props;
+---
+
+<section id="contact" class="section contact">
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: 3rem;">{t.contact.title}</h2>
+    
+    <div class="contact-content">
+      <form id="contact-form" style="max-width: none;">
+        <div class="form-group">
+          <label for="name">{t.contact.form.name}</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="company">{t.contact.form.company}</label>
+          <input type="text" id="company" name="company" />
+        </div>
+        
+        <div class="form-group">
+          <label for="email">{t.contact.form.email}</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">{t.contact.form.phone}</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            pattern="^(?:\+?966|0)?5\d{8}$" 
+            placeholder="05XXXXXXXX"
+            required 
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="services">{t.contact.form.services}</label>
+          <select id="services" name="services">
+            <option value="">-- {lang === 'ar' ? 'اختر الخدمة' : 'Select Service'} --</option>
+            {t.services.items.map(service => (
+              <option value={service.title}>{service.title}</option>
+            ))}
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="message">{t.contact.form.message}</label>
+          <textarea id="message" name="message" rows="5"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+          {t.contact.form.submit}
+        </button>
+        
+        <p style="font-size: 0.9rem; color: var(--muted); margin-top: 1rem; text-align: center;">
+          {t.contact.form.privacy}
+        </p>
+      </form>
+      
+      <div class="company-details">
+        <h3>{t.contact.company.title}</h3>
+        
+        <div class="detail-item">
+          <span class="detail-label">{t.contact.company.details.phone}:</span>
+          <a href="tel:+966503793356">{t.contact.company.values.phone}</a>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">{t.contact.company.details.email}:</span>
+          <a href="mailto:business@businesspartner.sa">{t.contact.company.values.email}</a>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">{t.contact.company.details.website}:</span>
+          <a href="https://businesspartner.sa" target="_blank">{t.contact.company.values.website}</a>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">{t.contact.company.details.address}:</span>
+          <span>{t.contact.company.values.address}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">{t.contact.company.details.cr}:</span>
+          <span>{t.contact.company.values.cr}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">{t.contact.company.details.vat}:</span>
+          <span>{t.contact.company.values.vat}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">{t.contact.company.details.unified}:</span>
+          <span>{t.contact.company.values.unified}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Mock form submission - replace with actual API call
+      alert(`Form submitted successfully!\n\n${JSON.stringify(data, null, 2)}`);
+      
+      // TODO: Integrate with actual email service or API
+      // fetch('/api/contact', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(data)
+      // });
+    });
+  }
+</script>

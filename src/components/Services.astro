@@ -1,0 +1,25 @@
+---
+import { type Language, type TranslationObject } from '../utils/i18n';
+
+interface Props {
+  lang: Language;
+  t: TranslationObject;
+}
+
+const { lang, t } = Astro.props;
+---
+
+<section id="services" class="section services">
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: 3rem;">{t.services.title}</h2>
+    
+    <div class="grid grid-3">
+      {t.services.items.map(service => (
+        <div class="card">
+          <h3 style="margin-bottom: 1rem; color: var(--brand);">{service.title}</h3>
+          <p style="color: var(--muted);">{service.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,16 +1,28 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Features from '../components/Features.astro';
+import Steps from '../components/Steps.astro';
+import Services from '../components/Services.astro';
+import Packages from '../components/Packages.astro';
+import Contact from '../components/Contact.astro';
+import CallFab from '../components/CallFab.astro';
+import Footer from '../components/Footer.astro';
+import { pickT } from '../utils/i18n';
 
+const lang = 'ar';
+const t = pickT(lang);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout lang={lang} t={t}>
+  <Header lang={lang} t={t} />
+  <Hero lang={lang} t={t} />
+  <Features lang={lang} t={t} />
+  <Steps lang={lang} t={t} />
+  <Services lang={lang} t={t} />
+  <Packages lang={lang} t={t} />
+  <Contact lang={lang} t={t} />
+  <CallFab />
+  <Footer lang={lang} t={t} />
+</BaseLayout>

@@ -1,0 +1,90 @@
+---
+import { htmlLangDir, buildHreflang, type Language, type TranslationObject } from '../utils/i18n';
+import '../styles/global.css';
+
+interface Props {
+  lang: Language;
+  t: TranslationObject;
+}
+
+const { lang, t } = Astro.props;
+const { lang: htmlLang, dir } = htmlLangDir(lang);
+const alternateLinks = buildHreflang(lang);
+---
+
+<!DOCTYPE html>
+<html lang={htmlLang} dir={dir}>
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  
+  <title>{t.meta.title}</title>
+  <meta name="description" content={t.meta.description} />
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href={lang === 'ar' ? 'https://businesspartner.sa/' : 'https://businesspartner.sa/en/'} />
+  
+  <!-- Hreflang Links -->
+  {alternateLinks.map(link => (
+    <link rel="alternate" hreflang={link.hreflang} href={`https://businesspartner.sa${link.href}`} />
+  ))}
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content={t.meta.title} />
+  <meta property="og:description" content={t.meta.description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={lang === 'ar' ? 'https://businesspartner.sa/' : 'https://businesspartner.sa/en/'} />
+  <meta property="og:image" content="https://businesspartner.sa/logo.svg" />
+  <meta property="og:locale" content={lang === 'ar' ? 'ar_SA' : 'en_US'} />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={t.meta.title} />
+  <meta name="twitter:description" content={t.meta.description} />
+  <meta name="twitter:image" content="https://businesspartner.sa/logo.svg" />
+  
+  <!-- JSON-LD Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": lang === 'ar' ? "شريك الأعمال للخدمات" : "Business Partner Services Company",
+    "url": "https://businesspartner.sa",
+    "logo": "https://businesspartner.sa/logo.svg",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+966503793356",
+      "contactType": "customer service",
+      "email": "business@businesspartner.sa"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Riyadh",
+      "addressCountry": "SA",
+      "streetAddress": lang === 'ar' ? "الرياض – حي العارض – شارع ريحانة بنت زيد" : "Riyadh – Al-Arid – Rayhana bint Zayd St."
+    }
+  })} />
+  
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": lang === 'ar' ? "شريك الأعمال للخدمات" : "Business Partner Services Company",
+    "description": t.meta.description,
+    "url": "https://businesspartner.sa",
+    "telephone": "+966503793356",
+    "email": "business@businesspartner.sa",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Riyadh",
+      "addressCountry": "SA"
+    },
+    "priceRange": "SAR 7,500 - 20,000"
+  })} />
+</head>
+<body>
+  <main>
+    <slot />
+  </main>
+</body>
+</html>
