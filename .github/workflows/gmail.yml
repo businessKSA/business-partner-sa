@@ -1,0 +1,130 @@
+name: Gmail Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  gmail-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/1070166723049/locations/global/workloadIdentityPools/gmail-wif-pool/providers/github'
+          service_account: 'gmail-wif-sa@website-leads2-470118.iam.gserviceaccount.com'
+          token_format: 'access_token'
+          create_credentials_file: true
+          
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install google-api-python-client google-auth google-auth-httplib2
+          
+      - name: Test Gmail API with Domain-Wide Delegation
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+        run: |
+          python3 << 'EOF'
+          import json
+          import os
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          from googleapiclient.errors import HttpError
+          
+          def main():
+              try:
+                  # NOTE: Replace with your actual Workspace email
+                  USER_EMAIL = "you@yourdomain.com"  # REPLACE THIS!
+                  
+                  print(f"Starting Gmail API test with domain-wide delegation")
+                  print(f"Target user: {USER_EMAIL}")
+                  print("-" * 50)
+                  
+                  # Load credentials from the file created by the auth action
+                  creds_file = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+                  
+                  if not creds_file or not os.path.exists(creds_file):
+                      print("Error: Credentials file not found")
+                      print(f"GOOGLE_APPLICATION_CREDENTIALS: {creds_file}")
+                      return
+                  
+                  # Create credentials with domain-wide delegation
+                  credentials = service_account.Credentials.from_service_account_file(
+                      creds_file,
+                      scopes=['https://www.googleapis.com/auth/gmail.readonly'],
+                      subject=USER_EMAIL  # Impersonate this user
+                  )
+                  
+                  print("Credentials loaded successfully")
+                  print(f"Service Account: {credentials.service_account_email}")
+                  print(f"Impersonating: {USER_EMAIL}")
+                  print("-" * 50)
+                  
+                  # Build the Gmail API service
+                  service = build('gmail', 'v1', credentials=credentials)
+                  
+                  # Call the Gmail API - list labels
+                  print("Fetching Gmail labels...")
+                  results = service.users().labels().list(userId='me').execute()
+                  labels = results.get('labels', [])
+                  
+                  if not labels:
+                      print('No labels found.')
+                  else:
+                      print(f"Found {len(labels)} labels:")
+                      print("-" * 50)
+                      for label in labels:
+                          label_name = label['name']
+                          label_type = label.get('type', 'user')
+                          label_id = label['id']
+                          
+                          # Add some formatting for system labels
+                          if label_type == 'system':
+                              print(f"  📁 {label_name} (System) - ID: {label_id}")
+                          else:
+                              print(f"  📌 {label_name} (User) - ID: {label_id}")
+                  
+                  print("-" * 50)
+                  print("✅ Gmail API test completed successfully!")
+                  
+              except HttpError as error:
+                  print(f"❌ An HTTP error occurred: {error}")
+                  print(f"Error details: {error.resp.status} - {error.content}")
+                  
+              except Exception as e:
+                  print(f"❌ An error occurred: {str(e)}")
+                  print(f"Error type: {type(e).__name__}")
+                  
+                  # Additional debugging info
+                  if 'credentials' in locals():
+                      print(f"Debug - Service Account: {credentials.service_account_email}")
+                      print(f"Debug - Scopes: {credentials.scopes}")
+                      print(f"Debug - Subject: {getattr(credentials, '_subject', 'Not set')}")
+          
+          if __name__ == "__main__":
+              main()
+          EOF
+          
+      - name: Display Workflow Information
+        if: always()
+        run: |
+          echo "================================================"
+          echo "Workflow Information:"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "================================================"
