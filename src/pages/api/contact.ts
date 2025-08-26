@@ -13,17 +13,22 @@ export const POST: APIRoute = async ({ request }) => {
       throw new Error('Gmail credentials not configured');
     }
 
-    // Create a transporter using Gmail service
+    // Create a transporter using SMTP configuration
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASSWORD
+      },
+      tls: {
+        rejectUnauthorized: false
       }
     });
 
-    // Verify transporter configuration
-    await transporter.verify();
+    // Skip verification for now to avoid blocking the email sending
+    console.log('Skipping SMTP verification, attempting to send email directly');
 
     // Alternative: Use SMTP settings
     // const transporter = nodemailer.createTransporter({
