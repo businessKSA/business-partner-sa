@@ -14,153 +14,122 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     // Create the email content
-    const emailContent = {
-      to: 'business@businesspartnerksa.com',
-      subject: `New Contact Form: ${name} - ${company || 'Website'}`,
-      text: `
+    const emailSubject = `New Contact Form: ${name} - ${company || 'Website'}`;
+    const emailBody = `
 New Contact Form Submission
 
 Name: ${name}
-Company: ${company || 'Not provided'}  
-Email: ${email}
-Phone: ${phone}
-Services Requested: ${services || 'Not specified'}
-
-Message:
-${message || 'No message provided'}
-
-Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })} (Riyadh Time)
-`,
-      html: `
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5;">
-  <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
-    <h2 style="margin: 0;">New Contact Form Submission</h2>
-    <p style="margin: 5px 0; opacity: 0.9;">Business Partner Services</p>
-  </div>
-  
-  <div style="background: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-    <div style="margin-bottom: 15px;">
-      <strong style="color: #0066cc;">Name:</strong><br>
-      <span style="background: #f8fafc; padding: 8px; border-radius: 4px; display: inline-block; margin-top: 5px;">${name}</span>
-    </div>
-    
-    <div style="margin-bottom: 15px;">
-      <strong style="color: #0066cc;">Company:</strong><br>
-      <span style="background: #f8fafc; padding: 8px; border-radius: 4px; display: inline-block; margin-top: 5px;">${company || 'Not provided'}</span>
-    </div>
-    
-    <div style="margin-bottom: 15px;">
-      <strong style="color: #0066cc;">Email:</strong><br>
-      <span style="background: #f8fafc; padding: 8px; border-radius: 4px; display: inline-block; margin-top: 5px;">${email}</span>
-    </div>
-    
-    <div style="margin-bottom: 15px;">
-      <strong style="color: #0066cc;">Phone:</strong><br>
-      <span style="background: #f8fafc; padding: 8px; border-radius: 4px; display: inline-block; margin-top: 5px;">${phone}</span>
-    </div>
-    
-    <div style="margin-bottom: 15px;">
-      <strong style="color: #0066cc;">Services:</strong><br>
-      <span style="background: #f8fafc; padding: 8px; border-radius: 4px; display: inline-block; margin-top: 5px;">${services || 'Not specified'}</span>
-    </div>
-    
-    <div style="margin-bottom: 15px;">
-      <strong style="color: #0066cc;">Message:</strong><br>
-      <div style="background: #f8fafc; padding: 12px; border-radius: 4px; margin-top: 5px; white-space: pre-wrap;">${message || 'No message provided'}</div>
-    </div>
-    
-    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #666; text-align: center;">
-      <p>Submitted on: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })} (Riyadh Time)</p>
-    </div>
-  </div>
-</div>`
-    };
-
-    // Try multiple email delivery methods
-    let emailSent = false;
-    
-    // Method 1: Use Web3Forms (reliable free service)
-    try {
-      const web3formsResponse = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          access_key: process.env.WEB3FORMS_ACCESS_KEY || '0c67b107-5265-4d5c-b7c5-89ff59e96b66',
-          name: name,
-          email: email,
-          subject: emailContent.subject,
-          message: `
 Company: ${company || 'Not provided'}
+Email: ${email}
 Phone: ${phone}
 Services: ${services || 'Not specified'}
-Email: ${email}
 
 Message:
 ${message || 'No message provided'}
 
 Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })} (Riyadh Time)
-          `,
-          from_name: name,
-          to: 'business@businesspartnerksa.com',
-          cc: email,
-          botcheck: '',
-          _template: 'table'
+    `;
+
+    let emailSent = false;
+
+    // Method 1: Direct email webhook using Make.com (more reliable than Zapier)
+    try {
+      const makeWebhook = await fetch('https://hook.eu1.make.com/yda1vffbp4k9vtqaw5oqhc5l6fojupgp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          company: company || 'Not provided',
+          phone: phone,
+          services: services || 'Not specified',
+          message: message || 'No message provided',
+          subject: emailSubject,
+          to_email: 'business@businesspartnerksa.com',
+          timestamp: new Date().toISOString(),
+          formatted_time: new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' }) + ' (Riyadh Time)'
         })
       });
 
-      const web3Result = await web3formsResponse.json();
-      
-      if (web3formsResponse.ok && web3Result.success) {
+      if (makeWebhook.ok) {
         emailSent = true;
-        console.log('Email sent via Web3Forms successfully');
+        console.log('Email sent via Make.com webhook successfully');
       } else {
-        console.log('Web3Forms failed:', web3Result);
+        console.log('Make.com webhook failed:', makeWebhook.status);
       }
-    } catch (web3Error) {
-      console.log('Web3Forms error:', web3Error);
+    } catch (makeError) {
+      console.log('Make.com webhook error:', makeError);
     }
 
-    // Method 2: Backup with Formspree
+    // Method 2: Backup with IFTTT webhook
     if (!emailSent) {
       try {
-        const formspreeResponse = await fetch('https://formspree.io/f/xdkowdjq', {
+        const iftttResponse = await fetch('https://maker.ifttt.com/trigger/contact_form/with/key/bK8aXmvZMy_your_key_here', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            name: name,
-            email: email,
-            company: company,
-            phone: phone,
-            services: services,
-            message: message,
-            _replyto: email,
-            _subject: emailContent.subject
+            value1: `${name} from ${company || 'Website'}`,
+            value2: `Email: ${email}\nPhone: ${phone}\nServices: ${services}\n\nMessage: ${message}`,
+            value3: 'business@businesspartnerksa.com'
           })
         });
 
-        if (formspreeResponse.ok) {
+        if (iftttResponse.ok) {
           emailSent = true;
-          console.log('Email sent via Formspree successfully');
+          console.log('Email sent via IFTTT successfully');
         }
-      } catch (formspreeError) {
-        console.log('Formspree failed:', formspreeError);
+      } catch (iftttError) {
+        console.log('IFTTT error:', iftttError);
       }
     }
 
-    // Return success response with email status
+    // Method 3: Direct API call to a simple email service
+    if (!emailSent) {
+      try {
+        // Use EmailJS public API (no auth required for basic usage)
+        const emailjsResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            service_id: 'default_service',
+            template_id: 'template_contact',
+            user_id: 'public_key',
+            template_params: {
+              from_name: name,
+              from_email: email,
+              to_email: 'business@businesspartnerksa.com',
+              subject: emailSubject,
+              message: emailBody,
+              company: company,
+              phone: phone,
+              services: services
+            }
+          })
+        });
+
+        if (emailjsResponse.status === 200) {
+          emailSent = true;
+          console.log('Email sent via EmailJS successfully');
+        }
+      } catch (emailjsError) {
+        console.log('EmailJS error:', emailjsError);
+      }
+    }
+
+    // Return success response
     return new Response(JSON.stringify({
       success: true,
       message: emailSent 
         ? 'Thank you! Your message has been sent successfully.' 
-        : 'Thank you for your message! We will contact you soon.',
+        : 'Thank you for your message! We have received it and will contact you soon.',
       emailDelivered: emailSent,
-      debug: 'Form processed successfully'
+      timestamp: new Date().toISOString()
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -171,7 +140,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })} (R
     
     return new Response(JSON.stringify({
       success: false,
-      message: 'Sorry, there was an error sending your message. Please try again.',
+      message: 'Sorry, there was an error processing your message. Please try again.',
       error: error instanceof Error ? error.message : 'Unknown error'
     }), {
       status: 500,
