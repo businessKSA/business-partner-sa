@@ -112,21 +112,64 @@ const { lang, t } = Astro.props;
   const form = document.getElementById('contact-form') as HTMLFormElement;
   
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const originalText = submitButton.textContent;
+      
+      // Show loading state
+      submitButton.disabled = true;
+      submitButton.textContent = document.documentElement.lang === 'ar' ? 'جاري الإرسال...' : 'Sending...';
       
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
       
-      // Mock form submission - replace with actual API call
-      alert(`Form submitted successfully!\n\n${JSON.stringify(data, null, 2)}`);
-      
-      // TODO: Integrate with actual email service or API
-      // fetch('/api/contact', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data)
-      // });
+      try {
+        // Send to API endpoint
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Success message
+          const successMsg = document.documentElement.lang === 'ar' 
+            ? 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.'
+            : 'Your message has been sent successfully! We will contact you soon.';
+          
+          alert(successMsg);
+          
+          // Reset form
+          form.reset();
+          
+          // Log success for debugging
+          console.log('Email sent successfully:', result);
+        } else {
+          // Error message
+          const errorMsg = document.documentElement.lang === 'ar'
+            ? 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى.'
+            : 'An error occurred while sending your message. Please try again.';
+          
+          alert(errorMsg);
+          console.error('Email send failed:', result);
+        }
+      } catch (error) {
+        // Network or other error
+        const errorMsg = document.documentElement.lang === 'ar'
+          ? 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.'
+          : 'A connection error occurred. Please try again.';
+        
+        alert(errorMsg);
+        console.error('Error submitting form:', error);
+      } finally {
+        // Restore button state
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+      }
     });
   }
 </script>

@@ -11,6 +11,8 @@ import CallFab from '../components/CallFab.astro';
 import Footer from '../components/Footer.astro';
 import { pickT } from '../utils/i18n';
 
+export const prerender = true; // Pre-render this page at build time
+
 const lang = 'ar';
 const t = pickT(lang);
 ---
