@@ -8,17 +8,22 @@ export const POST: APIRoute = async ({ request }) => {
     const data = await request.json();
     const { name, company, email, phone, services, message } = data;
 
+    // Validate required environment variables
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+      throw new Error('Gmail credentials not configured');
+    }
+
     // Create a transporter using Gmail service
-    // For production, use environment variables for credentials
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        // Use environment variables in production
-        // For now, using Gmail App Password method
-        user: process.env.GMAIL_USER || 'business@businesspartnerksa.com',
-        pass: process.env.GMAIL_APP_PASSWORD || 'your-app-password-here'
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
       }
     });
+
+    // Verify transporter configuration
+    await transporter.verify();
 
     // Alternative: Use SMTP settings
     // const transporter = nodemailer.createTransporter({
@@ -129,30 +134,22 @@ export const POST: APIRoute = async ({ request }) => {
     );
   } catch (error) {
     console.error('Error sending email:', error);
-    
-    // In development, return success even if email fails
-    // This allows testing without email configuration
-    if (process.env.NODE_ENV !== 'production') {
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'Development mode: Email simulated',
-          debug: 'Email would be sent in production'
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
+    console.error('Environment check:', {
+      hasGmailUser: !!process.env.GMAIL_USER,
+      hasGmailPassword: !!process.env.GMAIL_APP_PASSWORD,
+      gmailUserLength: process.env.GMAIL_USER?.length || 0,
+      gmailPasswordLength: process.env.GMAIL_APP_PASSWORD?.length || 0
+    });
     
     return new Response(
       JSON.stringify({ 
         success: false, 
         message: 'Failed to send email',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        debug: process.env.NODE_ENV !== 'production' ? {
+          hasGmailUser: !!process.env.GMAIL_USER,
+          hasGmailPassword: !!process.env.GMAIL_APP_PASSWORD
+        } : undefined
       }),
       {
         status: 500,
