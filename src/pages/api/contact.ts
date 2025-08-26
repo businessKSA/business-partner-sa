@@ -76,45 +76,91 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })} (R
 </div>`
     };
 
-    // Try to send via Formspree (free service that handles form submissions)
+    // Try multiple email delivery methods
+    let emailSent = false;
+    
+    // Method 1: Use Web3Forms (reliable free service)
     try {
-      const formspreeResponse = await fetch('https://formspree.io/f/xdkowdjq', {
+      const web3formsResponse = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: JSON.stringify({
+          access_key: process.env.WEB3FORMS_ACCESS_KEY || '0c67b107-5265-4d5c-b7c5-89ff59e96b66',
           name: name,
           email: email,
-          company: company,
-          phone: phone,
-          services: services,
-          message: message,
-          _replyto: email,
-          _subject: emailContent.subject
+          subject: emailContent.subject,
+          message: `
+Company: ${company || 'Not provided'}
+Phone: ${phone}
+Services: ${services || 'Not specified'}
+Email: ${email}
+
+Message:
+${message || 'No message provided'}
+
+Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })} (Riyadh Time)
+          `,
+          from_name: name,
+          to: 'business@businesspartnerksa.com',
+          cc: email,
+          botcheck: '',
+          _template: 'table'
         })
       });
 
-      if (formspreeResponse.ok) {
-        return new Response(JSON.stringify({
-          success: true,
-          message: 'Thank you! Your message has been sent successfully.'
-        }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
+      const web3Result = await web3formsResponse.json();
+      
+      if (web3formsResponse.ok && web3Result.success) {
+        emailSent = true;
+        console.log('Email sent via Web3Forms successfully');
+      } else {
+        console.log('Web3Forms failed:', web3Result);
       }
-    } catch (formspreeError) {
-      console.log('Formspree failed:', formspreeError);
+    } catch (web3Error) {
+      console.log('Web3Forms error:', web3Error);
     }
 
-    // Fallback - always return success for now
-    // The form data is logged in the console for debugging
+    // Method 2: Backup with Formspree
+    if (!emailSent) {
+      try {
+        const formspreeResponse = await fetch('https://formspree.io/f/xdkowdjq', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            company: company,
+            phone: phone,
+            services: services,
+            message: message,
+            _replyto: email,
+            _subject: emailContent.subject
+          })
+        });
+
+        if (formspreeResponse.ok) {
+          emailSent = true;
+          console.log('Email sent via Formspree successfully');
+        }
+      } catch (formspreeError) {
+        console.log('Formspree failed:', formspreeError);
+      }
+    }
+
+    // Return success response with email status
     return new Response(JSON.stringify({
       success: true,
-      message: 'Thank you for your message! We will contact you soon.',
-      debug: 'Form submitted and logged successfully'
+      message: emailSent 
+        ? 'Thank you! Your message has been sent successfully.' 
+        : 'Thank you for your message! We will contact you soon.',
+      emailDelivered: emailSent,
+      debug: 'Form processed successfully'
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
