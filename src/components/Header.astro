@@ -1,9 +1,9 @@
 ---
-import { type Language, type TranslationObject } from '../utils/i18n';
+import LanguageToggle from './LanguageToggle.astro';
 
 interface Props {
-  lang: Language;
-  t: TranslationObject;
+  lang: 'ar' | 'en';
+  t: any;
 }
 
 const { lang, t } = Astro.props;
@@ -11,49 +11,95 @@ const { lang, t } = Astro.props;
 
 <header class="header">
   <div class="container header-content">
-    <a href={lang === 'ar' ? '/' : '/en/'} class="logo">
-      <img src="/logo.svg" alt="Business Partner Services" />
+    <a href={lang === 'ar' ? '/ar/' : '/en/'} class="logo">
+      <img src="/logo.png" alt="Business Partner" />
       <span>{lang === 'ar' ? 'شريك الأعمال' : 'Business Partner'}</span>
     </a>
     
     <nav class="nav">
-      <a href={`${lang === 'ar' ? '' : '/en'}/#home`}>{t.nav.home}</a>
-      <a href={`${lang === 'ar' ? '' : '/en'}/#services`}>{t.nav.services}</a>
-      <a href={`${lang === 'ar' ? '' : '/en'}/#packages`}>{t.nav.packages}</a>
-      <a href={`${lang === 'ar' ? '' : '/en'}/#setup`}>{t.nav.setup}</a>
-      <a href={`${lang === 'ar' ? '' : '/en'}/#contact`}>{t.nav.contact}</a>
+      <a href={`${lang === 'ar' ? '/ar' : '/en'}/#home`}>{t.nav.home}</a>
+      <a href={`${lang === 'ar' ? '/ar' : '/en'}/#services`}>{t.nav.services}</a>
+      <a href={`${lang === 'ar' ? '/ar' : '/en'}/#packages`}>{t.nav.packages}</a>
+      <a href={`${lang === 'ar' ? '/ar' : '/en'}/#contact`}>{t.nav.contact}</a>
       
-      <a href={lang === 'ar' ? '/en/' : '/'} class="lang-toggle" id="lang-toggle">
-        {t.nav.language}
-      </a>
+      <LanguageToggle currentLocale={lang} />
     </nav>
   </div>
 </header>
 
-<script>
-  const langToggle = document.getElementById('lang-toggle');
-  if (langToggle) {
-    langToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      const currentLang = document.documentElement.lang;
-      const newUrl = currentLang === 'ar' ? '/en/' : '/';
-      
-      // Store preference
-      localStorage.setItem('preferred-language', currentLang === 'ar' ? 'en' : 'ar');
-      
-      // Navigate
-      window.location.href = newUrl;
-    });
+<style>
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  // Apply stored language preference on load
-  document.addEventListener('DOMContentLoaded', () => {
-    const storedLang = localStorage.getItem('preferred-language');
-    const currentLang = document.documentElement.lang;
-    
-    if (storedLang && storedLang !== currentLang) {
-      const newUrl = storedLang === 'ar' ? '/' : '/en/';
-      window.location.href = newUrl;
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .logo img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .nav a:hover {
+    color: white;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .header-content {
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
-  });
-</script>
+
+    .nav {
+      gap: 1rem;
+    }
+
+    .nav a:not(:last-child) {
+      display: none;
+    }
+
+    .logo span {
+      display: none;
+    }
+  }
+</style>

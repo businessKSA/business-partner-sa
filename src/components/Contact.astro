@@ -1,9 +1,7 @@
 ---
-import { type Language, type TranslationObject } from '../utils/i18n';
-
 interface Props {
-  lang: Language;
-  t: TranslationObject;
+  lang: 'ar' | 'en';
+  t: any;
 }
 
 const { lang, t } = Astro.props;
@@ -16,13 +14,13 @@ const { lang, t } = Astro.props;
     <div class="contact-content">
       <form id="contact-form" style="max-width: none;">
         <div class="form-group">
-          <label for="name">{t.contact.form.name}</label>
-          <input type="text" id="name" name="name" required />
+          <label for="entityName">{t.contact.form.entityName}</label>
+          <input type="text" id="entityName" name="entityName" required />
         </div>
         
         <div class="form-group">
-          <label for="company">{t.contact.form.company}</label>
-          <input type="text" id="company" name="company" />
+          <label for="contactName">{t.contact.form.contactName}</label>
+          <input type="text" id="contactName" name="contactName" required />
         </div>
         
         <div class="form-group">
@@ -43,27 +41,18 @@ const { lang, t } = Astro.props;
         </div>
         
         <div class="form-group">
-          <label for="services">{t.contact.form.services}</label>
-          <select id="services" name="services">
-            <option value="">-- {lang === 'ar' ? 'اختر الخدمة' : 'Select Service'} --</option>
-            {t.services.items.map(service => (
-              <option value={service.title}>{service.title}</option>
-            ))}
-          </select>
+          <label for="message">{t.contact.form.message}</label>
+          <textarea id="message" name="message" rows="4"></textarea>
         </div>
         
-        <div class="form-group">
-          <label for="message">{t.contact.form.message}</label>
-          <textarea id="message" name="message" rows="5"></textarea>
-        </div>
+        <!-- Hidden language field -->
+        <input type="hidden" name="lang" value={lang} />
         
         <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-          {t.contact.form.submit}
+          <span class="submit-text">{t.contact.form.submit}</span>
         </button>
         
-        <p style="font-size: 0.9rem; color: var(--muted); margin-top: 1rem; text-align: center;">
-          {t.contact.form.privacy}
-        </p>
+        <div id="form-message" style="margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none;"></div>
       </form>
       
       <div class="company-details">
@@ -108,67 +97,112 @@ const { lang, t } = Astro.props;
   </div>
 </section>
 
+<style>
+  .form-message {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+  }
+  
+  .form-message.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+  
+  .form-message.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+  
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>
+
 <script>
   const form = document.getElementById('contact-form') as HTMLFormElement;
+  const messageDiv = document.getElementById('form-message') as HTMLDivElement;
+  
+  function showMessage(message: string, type: 'success' | 'error') {
+    messageDiv.textContent = message;
+    messageDiv.className = `form-message ${type}`;
+    messageDiv.style.display = 'block';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      messageDiv.style.display = 'none';
+    }, 5000);
+  }
   
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-      const originalText = submitButton.textContent;
+      const submitText = submitButton.querySelector('.submit-text') as HTMLSpanElement;
+      const originalText = submitText.textContent;
+      const lang = document.documentElement.lang as 'ar' | 'en';
       
       // Show loading state
       submitButton.disabled = true;
-      submitButton.textContent = document.documentElement.lang === 'ar' ? 'جاري الإرسال...' : 'Sending...';
+      submitText.textContent = lang === 'ar' ? 'جاري الإرسال...' : 'Sending...';
       
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
       
       try {
-        // Send to API endpoint
-        const response = await fetch('/api/contact', {
+        // Get lead endpoint from environment or fallback
+        const leadEndpoint = import.meta.env.PUBLIC_LEAD_ENDPOINT || '/api/contact';
+        
+        // Send to lead endpoint
+        const response = await fetch(leadEndpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            entityName: data.entityName,
+            contactName: data.contactName,
+            email: data.email,
+            phone: data.phone,
+            message: data.message,
+            lang: data.lang,
+            source: 'businesspartner.sa',
+            timestamp: new Date().toISOString()
+          })
         });
         
-        const result = await response.json();
-        
-        if (result.success) {
+        if (response.ok) {
           // Success message
-          const successMsg = document.documentElement.lang === 'ar' 
+          const successMsg = lang === 'ar' 
             ? 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.'
             : 'Your message has been sent successfully! We will contact you soon.';
           
-          alert(successMsg);
+          showMessage(successMsg, 'success');
           
           // Reset form
           form.reset();
           
-          // Log success for debugging
-          console.log('Email sent successfully:', result);
+          console.log('Lead submitted successfully');
         } else {
-          // Error message
-          const errorMsg = document.documentElement.lang === 'ar'
-            ? 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى.'
-            : 'An error occurred while sending your message. Please try again.';
-          
-          alert(errorMsg);
-          console.error('Email send failed:', result);
+          throw new Error(`HTTP ${response.status}`);
         }
       } catch (error) {
-        // Network or other error
-        const errorMsg = document.documentElement.lang === 'ar'
-          ? 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.'
-          : 'A connection error occurred. Please try again.';
+        // Error message
+        const errorMsg = lang === 'ar'
+          ? 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى.'
+          : 'An error occurred while sending your message. Please try again.';
         
-        alert(errorMsg);
-        console.error('Error submitting form:', error);
+        showMessage(errorMsg, 'error');
+        console.error('Error submitting lead:', error);
       } finally {
         // Restore button state
         submitButton.disabled = false;
-        submitButton.textContent = originalText;
+        submitText.textContent = originalText;
       }
     });
   }

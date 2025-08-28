@@ -1,8 +1,8 @@
 export const en = {
   // Meta
   meta: {
-    title: 'Business Partner Services - Company Formation & Operations in Saudi Arabia',
-    description: 'We form and operate your Saudi entity fast and compliant. Company formation, foreign investment, and WPS payroll services.',
+    title: 'Business Partner - We Manage Your Government Platforms',
+    description: 'We manage your most essential government platforms so your business runs 24/7! Expert management of Qiwa, GOSI, Muqeem/Absher Business with expertise and efficiency.',
   },
 
   // Navigation
@@ -17,15 +17,15 @@ export const en = {
 
   // Hero
   hero: {
-    badge: 'Since 2008 — Formation, Operations & Compliance',
-    title: 'We form and operate your Saudi entity — fast and compliant',
-    subtitle: 'Company formation, foreign investment (MISA), WPS payroll, and government portals (Qiwa, GOSI, ZATCA, Baladi, Absher/Muqeem).',
+    badge: 'Since 2008 — Government Platform Management',
+    title: 'We manage your most essential government platforms so your business runs 24/7!',
+    subtitle: 'Complete management of Qiwa, GOSI, Muqeem/Absher Business with 15+ years expertise. We ensure full compliance and help you avoid penalties.',
     ctaPrimary: 'Start now',
-    ctaSecondary: 'Explore services',
+    ctaSecondary: 'Learn about our services',
     stats: {
       founded: { number: '2008', label: 'Founded' },
-      experience: { number: '10+', label: 'Years of expertise' },
-      packages: { number: '3', label: 'Service packages' },
+      experience: { number: '15+', label: 'Years expertise' },
+      packages: { number: '2', label: 'Service plans' },
     },
   },
 
@@ -34,16 +34,16 @@ export const en = {
     title: 'Why Business Partner?',
     items: [
       {
-        title: 'Compliance & Governance',
-        subtitle: 'Qiwa • GOSI • ZATCA • Baladi • Absher',
+        title: 'Comprehensive 24/7 Management',
+        subtitle: 'Continuous monitoring of all your government platforms',
       },
       {
-        title: 'Fast execution',
-        subtitle: 'Streamlined procedures',
+        title: '15+ Years Expertise',
+        subtitle: 'Specialized team in Saudi regulations and systems',
       },
       {
-        title: 'One-roof services',
-        subtitle: 'Financial • Admin • Legal',
+        title: 'Compliance Guarantee',
+        subtitle: 'Avoid penalties and violations',
       },
     ],
   },
@@ -73,57 +73,47 @@ export const en = {
 
   // Services
   services: {
-    title: 'Our Services',
+    title: 'Our Core Services',
     items: [
       {
-        title: 'Company & Institution Formation',
-        description: 'Names, CR & licenses, authority files, work visas',
+        title: 'Qiwa Platform Management',
+        description: 'Contracts, visas, sponsorship transfers, Nitaqat compliance, violations',
       },
       {
-        title: 'Foreign Investment (MISA)',
-        description: '100% foreign ownership & expedited process',
+        title: 'GOSI Management',
+        description: 'Add/remove contributors, certificates, billing, audit documents',
       },
       {
-        title: 'Legal Services',
-        description: 'Representation, notarization, arbitration, contracts, enforcement',
-      },
-      {
-        title: 'Payroll & WPS',
-        description: 'Wage Protection System and full compliance',
-      },
-      {
-        title: 'E-Services & Portals',
-        description: 'Government portal integration and management',
-      },
-      {
-        title: 'Consulting & Design',
-        description: 'Business consulting and organizational structure design',
+        title: 'Muqeem/Absher Business Management',
+        description: 'Iqama issue/renewal, exit re-entry visas, final exit, sponsorship transfer',
       },
     ],
   },
 
   // Packages
   packages: {
-    title: 'Packages & pricing',
+    title: 'Service Packages',
     items: [
       {
-        name: 'Silver',
-        nameEn: 'Silver',
-        price: 'from SAR 7,500 / year',
-        features: ['Qiwa • GOSI • CR • Baladi • Absher • ZATCA'],
-      },
-      {
-        name: 'Gold',
-        nameEn: 'Gold',
-        price: 'from SAR 13,500 / year',
-        features: ['Monthly compliance', 'Labor appointments', 'Zakat/VAT certificates'],
+        name: 'Core Plan',
+        nameEn: 'Core Plan',
+        price: 'SAR 999 / month',
+        features: [
+          'Qiwa Platform Management (contracts, visas, sponsorship transfers, Nitaqat)',
+          'GOSI Management (contributors, certificates, billing)',
+          'Muqeem/Absher Business Management (Iqama, exit re-entry visas)'
+        ],
         featured: true,
       },
       {
-        name: 'Platinum',
-        nameEn: 'Platinum',
-        price: 'from SAR 20,000 / year',
-        features: ['Work regulations • Nitaqat', 'Late fee exemptions', 'GOSI installments', 'Baladi transfer'],
+        name: 'Mudad Add-on',
+        nameEn: 'Mudad Add-on',
+        price: '+SAR 199 / month',
+        features: [
+          'Employee add/remove in Mudad',
+          'Bank-linked payroll processing',
+          'Compliance violations resolution and settlements'
+        ],
       },
     ],
   },
