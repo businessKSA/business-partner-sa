@@ -13,7 +13,6 @@ const { lang, t } = Astro.props;
   <div class="container header-content">
     <a href={lang === 'ar' ? '/ar/' : '/en/'} class="logo">
       <img src="/logo.png" alt="Business Partner" />
-      <span>{lang === 'ar' ? 'شريك الأعمال' : 'Business Partner'}</span>
     </a>
     
     <nav class="nav">
@@ -33,10 +32,11 @@ const { lang, t } = Astro.props;
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(249, 250, 251, 0.95);
     backdrop-filter: blur(10px);
     z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
 
   .header-content {
@@ -55,14 +55,14 @@ const { lang, t } = Astro.props;
     align-items: center;
     gap: 0.75rem;
     text-decoration: none;
-    color: white;
+    color: #1e293b;
     font-weight: 600;
     font-size: 1.1rem;
   }
 
   .logo img {
-    width: 40px;
-    height: 40px;
+    width: 160px;
+    height: 160px;
     object-fit: contain;
   }
 
@@ -73,14 +73,14 @@ const { lang, t } = Astro.props;
   }
 
   .nav a {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(30, 41, 59, 0.8);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
   }
 
   .nav a:hover {
-    color: white;
+    color: #1e293b;
   }
 
   /* Mobile responsive */
@@ -90,15 +90,16 @@ const { lang, t } = Astro.props;
       padding-right: 1rem;
     }
 
+    .logo img {
+      width: 120px;
+      height: 120px;
+    }
+
     .nav {
       gap: 1rem;
     }
 
     .nav a:not(:last-child) {
-      display: none;
-    }
-
-    .logo span {
       display: none;
     }
   }

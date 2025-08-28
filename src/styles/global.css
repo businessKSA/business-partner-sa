@@ -420,7 +420,7 @@ h4 { font-size: 1.25rem; }
   position: fixed;
   bottom: 2rem;
   inset-inline-start: 2rem;
-  background: var(--accent);
+  background: var(--brand);
   color: white;
   width: 60px;
   height: 60px;
@@ -439,7 +439,7 @@ h4 { font-size: 1.25rem; }
 
 .call-fab:hover {
   transform: scale(1.1);
-  background: #059669;
+  background: #0052a3;
 }
 
 /* Footer */

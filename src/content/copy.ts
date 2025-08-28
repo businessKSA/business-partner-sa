@@ -3,7 +3,7 @@ export const copy = {
     // Meta
     meta: {
       title: 'شريك الأعمال - ندير لك منصاتك الحكومية',
-      description: 'ندير لك منصاتك الحكومية الأهم لضمان سير أعمالك على مدار الساعة! إدارة قوى، التأمينات، مقيم/أبشر بيزنس بخبرة وكفاءة.',
+      description: 'ندير لك منصاتك الحكومية الأهم لضمان سير أعمالك على مدار الساعة! إدارة قوى، التأمينات، مقيم/أبشر أعمال بخبرة وكفاءة.',
     },
 
     // Navigation
@@ -18,15 +18,15 @@ export const copy = {
 
     // Hero
     hero: {
-      badge: 'من 2008 — إدارة المنصات الحكومية',
+      badge: '',
       title: 'ندير لك منصاتك الحكومية الأهم لضمان سير أعمالك على مدار الساعة!',
-      subtitle: 'إدارة متكاملة لمنصات قوى، التأمينات الاجتماعية، مقيم/أبشر بيزنس بخبرة +15 سنة. نضمن امتثالك الكامل وتجنب الغرامات.',
+      subtitle: 'إدارة متكاملة لمنصات قوى، التأمينات الاجتماعية، مقيم/أبشر أعمال بخبرة +15 سنة. نضمن امتثالك الكامل وتجنب الغرامات.',
       ctaPrimary: 'ابدأ الآن',
       ctaSecondary: 'تعرف على خدماتنا',
       stats: {
         founded: { number: '2008', label: 'منذ' },
         experience: { number: '15+', label: 'سنة خبرة' },
-        packages: { number: '2', label: 'خطة خدمات' },
+        packages: { number: '500+', label: 'عميل راضي' },
       },
     },
 
@@ -62,7 +62,7 @@ export const copy = {
           description: 'إضافة/حذف المشتركين، الشهادات، الفواتير، أوراق التدقيق',
         },
         {
-          title: 'إدارة مقيم/أبشر بيزنس',
+          title: 'إدارة مقيم/أبشر أعمال',
           description: 'إصدار/تجديد الإقامة، تأشيرات الخروج والعودة، النهائي، نقل الكفالة',
         },
       ],
@@ -79,16 +79,16 @@ export const copy = {
           features: [
             'إدارة منصة قوى (العقود، التأشيرات، نقل الكفالة، نطاقات)',
             'إدارة التأمينات الاجتماعية (المشتركين، الشهادات، الفواتير)',
-            'إدارة مقيم/أبشر بيزنس (الإقامة، تأشيرات الخروج والعودة)'
+            'إدارة مقيم/أبشر أعمال (الإقامة، تأشيرات الخروج والعودة)'
           ],
           featured: true,
         },
         {
-          name: 'إضافة مُداد',
+          name: 'إضافة إدارة منصة مدد لتحويل الرواتب',
           nameEn: 'Mudad Add-on',
           price: '+199 ريال / شهرياً',
           features: [
-            'إضافة/حذف الموظفين في مُداد',
+            'إضافة/حذف الموظفين في منصة مُدد',
             'معالجة الرواتب المربوطة بالبنك',
             'حل مخالفات الامتثال والتسويات'
           ],
@@ -158,7 +158,7 @@ export const copy = {
 
     // Footer
     footer: {
-      copyright: '© 2024 شريك الأعمال. جميع الحقوق محفوظة.',
+      copyright: '© 2025 شريك الأعمال. جميع الحقوق محفوظة.',
       website: 'www.businesspartner.sa',
     },
 
@@ -190,7 +190,7 @@ export const copy = {
 
     // Hero
     hero: {
-      badge: 'Since 2008 — Government Platform Management',
+      badge: '',
       title: 'We manage your most essential government platforms so your business runs 24/7!',
       subtitle: 'Complete management of Qiwa, GOSI, Muqeem/Absher Business with 15+ years expertise. We ensure full compliance and help you avoid penalties.',
       ctaPrimary: 'Start now',
@@ -198,7 +198,7 @@ export const copy = {
       stats: {
         founded: { number: '2008', label: 'Founded' },
         experience: { number: '15+', label: 'Years expertise' },
-        packages: { number: '2', label: 'Service plans' },
+        packages: { number: '500+', label: 'Satisfied clients' },
       },
     },
 
@@ -256,7 +256,7 @@ export const copy = {
           featured: true,
         },
         {
-          name: 'Mudad Add-on',
+          name: 'Mudad Payroll Add-on',
           nameEn: 'Mudad Add-on',
           price: '+SAR 199 / month',
           features: [
@@ -330,7 +330,7 @@ export const copy = {
 
     // Footer
     footer: {
-      copyright: '© 2024 Business Partner. All rights reserved.',
+      copyright: '© 2025 Business Partner. All rights reserved.',
       website: 'www.businesspartner.sa',
     },
 

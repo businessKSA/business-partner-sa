@@ -10,8 +10,8 @@ export default defineConfig({
   output: 'server', // Enable SSR for API routes
   adapter: vercel(),
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'ar'],
+    defaultLocale: 'ar',
+    locales: ['ar', 'en'],
     routing: {
       prefixDefaultLocale: false,
       redirectToDefaultLocale: false
