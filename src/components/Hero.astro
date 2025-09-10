@@ -19,12 +19,9 @@ const { lang, t } = Astro.props;
     <p>{t.hero.subtitle}</p>
     
     <div class="hero-cta">
-      <a href={`${lang === 'ar' ? '' : '/en'}/#contact`} class="btn btn-primary">
-        {t.hero.ctaPrimary}
-      </a>
-      <a href={`${lang === 'ar' ? '' : '/en'}/#services`} class="btn btn-secondary">
-        {t.hero.ctaSecondary}
-      </a>
+      <div id="calendar-button-container">
+        <!-- Google Calendar button will be injected here -->
+      </div>
     </div>
     
     <div class="hero-stats">
@@ -43,3 +40,57 @@ const { lang, t } = Astro.props;
     </div>
   </div>
 </section>
+
+<style>
+  #calendar-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50px;
+  }
+  
+  /* Override Google Calendar button styles to match our design */
+  :global(.SOqnTe) {
+    font-size: 1.1rem !important;
+    padding: 0.875rem 2rem !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  :global(.SOqnTe:hover) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  /* RTL support for Arabic */
+  html[dir="rtl"] #calendar-button-container {
+    direction: rtl;
+  }
+</style>
+
+<!-- Google Calendar Appointment Scheduling -->
+<link href="https://calendar.google.com/calendar/scheduling-button-script.css" rel="stylesheet">
+<script src="https://calendar.google.com/calendar/scheduling-button-script.js" async></script>
+<script>
+  const lang = document.documentElement.lang;
+  const buttonLabel = lang === 'ar' ? 'احجز استشارة مجانية' : 'Schedule Free Consultation';
+  
+  window.addEventListener('load', function() {
+    const container = document.getElementById('calendar-button-container');
+    if (container && window.calendar && window.calendar.schedulingButton) {
+      // Create a script element as target
+      const scriptTarget = document.createElement('script');
+      container.appendChild(scriptTarget);
+      
+      calendar.schedulingButton.load({
+        url: 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ2dEkUfuxOfgFcfw1Moc5I_rOIl0u3zLY9USobvBbKJKQdJEiqtBiNH-zHjON-wy2RsPK4WUSSN?gv=true',
+        color: '#039BE5',
+        label: buttonLabel,
+        target: scriptTarget,
+      });
+    }
+  });
+</script>
