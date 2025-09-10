@@ -51,23 +51,37 @@ const { lang, t } = Astro.props;
   
   /* Override Google Calendar button styles to match our design */
   :global(.SOqnTe) {
-    font-size: 1.1rem !important;
-    padding: 0.875rem 2rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 1.5rem !important;
     border-radius: 8px !important;
-    font-weight: 600 !important;
-    text-transform: none !important;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    text-decoration: none !important;
     transition: all 0.3s ease !important;
+    border: none !important;
+    cursor: pointer !important;
+    background: #0066cc !important;
+    color: white !important;
+    text-transform: none !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    box-shadow: none !important;
   }
   
   :global(.SOqnTe:hover) {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+    background: #0052a3 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: none !important;
   }
   
   /* RTL support for Arabic */
   html[dir="rtl"] #calendar-button-container {
     direction: rtl;
+  }
+  
+  html[lang="ar"] :global(.SOqnTe) {
+    font-family: 'Segoe UI', 'Tahoma', 'Arabic UI Text', sans-serif !important;
   }
 </style>
 
