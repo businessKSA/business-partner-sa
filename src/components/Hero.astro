@@ -53,26 +53,26 @@ const { lang, t } = Astro.props;
   :global(.SOqnTe) {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.5rem !important;
-    padding: 0.75rem 1.5rem !important;
-    border-radius: 8px !important;
-    font-weight: 500 !important;
-    font-size: 1rem !important;
+    gap: 0.75rem !important;
+    padding: 1rem 2.5rem !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 1.2rem !important;
     text-decoration: none !important;
     transition: all 0.3s ease !important;
     border: none !important;
     cursor: pointer !important;
-    background: #0066cc !important;
+    background: #10b981 !important;
     color: white !important;
     text-transform: none !important;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    box-shadow: none !important;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2) !important;
   }
   
   :global(.SOqnTe:hover) {
-    background: #0052a3 !important;
-    transform: translateY(-1px) !important;
-    box-shadow: none !important;
+    background: #059669 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3) !important;
   }
   
   /* RTL support for Arabic */
@@ -101,7 +101,7 @@ const { lang, t } = Astro.props;
       
       calendar.schedulingButton.load({
         url: 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ2dEkUfuxOfgFcfw1Moc5I_rOIl0u3zLY9USobvBbKJKQdJEiqtBiNH-zHjON-wy2RsPK4WUSSN?gv=true',
-        color: '#039BE5',
+        color: '#10b981',
         label: buttonLabel,
         target: scriptTarget,
       });
