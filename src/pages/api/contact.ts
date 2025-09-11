@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { createGmailService } from '../../utils/gmail.js';
 
 export const prerender = false;
 
@@ -42,9 +43,87 @@ This lead was submitted through businesspartner.sa contact form
     let emailSent = false;
     let errorDetails = '';
 
-    // Method 1: Web3Forms (most reliable, free)
+    // Create HTML version of the email
+    const htmlBody = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #ffffff;">
+      <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">🚀 New Business Inquiry</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">businesspartner.sa</p>
+      </div>
+      
+      <div style="background: #f8fafc; padding: 30px; border-radius: 0 0 12px 12px; border: 1px solid #e2e8f0;">
+        <h2 style="color: #0066cc; margin-bottom: 20px; font-size: 20px;">📝 Contact Details</h2>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 500; width: 120px;">👤 Name:</td>
+              <td style="padding: 8px 0; color: #1e293b;">${contactName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 500;">🏢 Company:</td>
+              <td style="padding: 8px 0; color: #1e293b;">${entityName || 'Not provided'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 500;">📧 Email:</td>
+              <td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #0066cc; text-decoration: none;">${email}</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 500;">📱 Phone:</td>
+              <td style="padding: 8px 0;"><a href="tel:${phone}" style="color: #0066cc; text-decoration: none;">${phone}</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 500;">🌐 Language:</td>
+              <td style="padding: 8px 0; color: #1e293b;">${lang === 'ar' ? 'Arabic' : 'English'}</td>
+            </tr>
+          </table>
+        </div>
+
+        ${message ? `
+        <h3 style="color: #0066cc; margin-bottom: 15px; font-size: 18px;">💬 Message</h3>
+        <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #0066cc; margin-bottom: 20px;">
+          <p style="color: #1e293b; line-height: 1.6; margin: 0;">${message}</p>
+        </div>
+        ` : ''}
+
+        <div style="background: #e2e8f0; padding: 15px; border-radius: 8px; margin-top: 20px;">
+          <p style="margin: 0; color: #64748b; font-size: 14px;">
+            ⏰ <strong>Submitted:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })} (Riyadh Time)
+          </p>
+        </div>
+      </div>
+      
+      <div style="text-align: center; padding: 20px; color: #64748b; font-size: 12px;">
+        <p>This lead was submitted through businesspartner.sa contact form</p>
+      </div>
+    </div>
+    `;
+
+    // Method 1: Gmail API (Direct Google Workspace integration)
     try {
-      const web3FormsResponse = await fetch('https://api.web3forms.com/submit', {
+      const gmailService = createGmailService();
+      if (gmailService) {
+        const success = await gmailService.sendEmail({
+          to: 'business@businesspartner.sa',
+          subject: emailSubject,
+          htmlBody: htmlBody,
+          textBody: emailBody
+        });
+
+        if (success) {
+          emailSent = true;
+          console.log('Email sent via Gmail API successfully');
+        }
+      }
+    } catch (gmailError) {
+      console.log('Gmail API error:', gmailError);
+      errorDetails += `Gmail API: ${gmailError}. `;
+    }
+
+    // Method 2: Web3Forms (fallback)
+    if (!emailSent) {
+      try {
+        const web3FormsResponse = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,12 +156,13 @@ This lead was submitted through businesspartner.sa contact form
         console.log('Web3Forms failed:', web3Result.message);
         errorDetails += `Web3Forms: ${web3Result.message}. `;
       }
-    } catch (web3Error) {
-      console.log('Web3Forms error:', web3Error);
-      errorDetails += `Web3Forms: ${web3Error}. `;
+      } catch (web3Error) {
+        console.log('Web3Forms error:', web3Error);
+        errorDetails += `Web3Forms: ${web3Error}. `;
+      }
     }
 
-    // Method 2: Fallback using a simple contact service (Netlify Forms style)
+    // Method 3: Fallback using a simple contact service (Netlify Forms style)
     if (!emailSent) {
       try {
         // Create a formatted plain text version for fallback
