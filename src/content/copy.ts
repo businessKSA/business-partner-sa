@@ -125,7 +125,7 @@ export const copy = {
 
     // Contact
     contact: {
-      title: 'كلّمني الحين وخلنا نبدأ فورا',
+      title: 'تواصل معنا لنبدأ فورا',
       form: {
         entityName: 'اسم الشركة',
         contactName: 'اسمك',
