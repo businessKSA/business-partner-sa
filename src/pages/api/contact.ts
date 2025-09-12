@@ -14,8 +14,12 @@ export const POST: APIRoute = async ({ request }) => {
       timestamp: new Date().toISOString()
     });
 
-    // Create the email content
-    const emailSubject = `New Lead: ${contactName} - ${entityName || 'businesspartner.sa'}`;
+    // Create the email content with proper encoding for international characters
+    const rawSubject = `New Lead: ${contactName} - ${entityName || 'businesspartner.sa'}`;
+    // Encode subject for international characters using RFC 2047
+    const emailSubject = /[\u0080-\uFFFF]/.test(rawSubject) 
+      ? `=?UTF-8?B?${Buffer.from(rawSubject, 'utf8').toString('base64')}?=`
+      : rawSubject;
     const emailBody = `
 New Contact Form Submission from Business Partner Website
 
