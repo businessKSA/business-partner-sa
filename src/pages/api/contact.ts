@@ -104,7 +104,7 @@ This lead was submitted through businesspartner.sa contact form
       const gmailService = createGmailService();
       if (gmailService) {
         const success = await gmailService.sendEmail({
-          to: 'business@businesspartner.sa',
+          to: 'business@businesspartnerksa.com',
           subject: emailSubject,
           htmlBody: htmlBody,
           textBody: emailBody

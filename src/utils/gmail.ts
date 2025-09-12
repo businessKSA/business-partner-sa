@@ -75,15 +75,15 @@ export class GmailService {
     try {
       // Create Gmail client with domain-wide delegation (impersonation)
       const client = await this.auth.getClient();
-      client.subject = process.env.GOOGLE_SUBJECT || 'business@businesspartner.sa';
+      client.subject = process.env.GOOGLE_SUBJECT || 'business@businesspartnerksa.com';
       
       const gmail = google.gmail({ version: 'v1', auth: client });
 
       // Create the email message in RFC 2822 format
       const message = [
         `To: ${to}`,
-        `From: Business Partner <${process.env.GOOGLE_SUBJECT || 'business@businesspartner.sa'}>`,
-        `Reply-To: ${process.env.GOOGLE_SUBJECT || 'business@businesspartner.sa'}`,
+        `From: Business Partner <${process.env.GOOGLE_SUBJECT || 'business@businesspartnerksa.com'}>`,
+        `Reply-To: ${process.env.GOOGLE_SUBJECT || 'business@businesspartnerksa.com'}`,
         `Subject: ${subject}`,
         `MIME-Version: 1.0`,
         `Content-Type: multipart/alternative; boundary="boundary123"`,
