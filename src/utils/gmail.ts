@@ -1,4 +1,5 @@
-import { google } from 'googleapis';
+// Gmail API disabled for production deployment
+// import { google } from 'googleapis';
 
 interface EmailParams {
   to: string;
@@ -33,7 +34,7 @@ export class GmailService {
 }
 
 // Alternative simpler approach using nodemailer with Gmail SMTP
-import nodemailer from 'nodemailer';
+// import nodemailer from 'nodemailer';
 
 export class GmailSMTPService {
   private transporter: any;
@@ -73,24 +74,7 @@ export class GmailSMTPService {
 
 // Export factory function
 export function createGmailService(): GmailService | GmailSMTPService | null {
-  // Always try to create Gmail service (it has hardcoded fallback credentials)
-  try {
-    const service = new GmailService();
-    console.log('Created Gmail service successfully');
-    return service;
-  } catch (error) {
-    console.error('Failed to create Gmail service:', error);
-  }
-
-  // Check if we have OAuth2 credentials for SMTP as fallback
-  if (process.env.GMAIL_CLIENT_ID && process.env.GMAIL_CLIENT_SECRET) {
-    try {
-      return new GmailSMTPService();
-    } catch (error) {
-      console.error('Failed to create Gmail SMTP service:', error);
-    }
-  }
-
-  console.warn('No Gmail credentials found in environment variables');
+  // Gmail API is disabled for production deployment to avoid private key decoding issues
+  console.log('Gmail API disabled for production - using FormSubmit backup service');
   return null;
 }
