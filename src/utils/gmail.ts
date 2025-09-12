@@ -1,5 +1,5 @@
-// Gmail API disabled for production deployment
-// import { google } from 'googleapis';
+// Gmail SMTP approach using nodemailer - simple and reliable  
+import * as nodemailer from 'nodemailer';
 
 interface EmailParams {
   to: string;
@@ -9,57 +9,46 @@ interface EmailParams {
 }
 
 export class GmailService {
-  private auth: any;
-
-  constructor() {
-    // Try to load from environment variables first
-    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-    let privateKey = process.env.GOOGLE_PRIVATE_KEY;
-    
-    // For production deployment, we'll disable Gmail API to avoid the private key decoding issue
-    // The form will work reliably with FormSubmit backup service
-    const serviceAccount = null;
-
-    // Skip Gmail API setup to avoid private key decoding issues on serverless platforms
-    // The contact form will work reliably with FormSubmit backup service
-    console.log('Gmail API disabled for production deployment - using FormSubmit backup service');
-    this.auth = null;
-  }
-
-  async sendEmail({ to, subject, htmlBody, textBody }: EmailParams): Promise<boolean> {
-    // Gmail API is disabled for production deployment
-    console.log('Gmail API disabled - skipping email send via Gmail');
-    return false;
-  }
-}
-
-// Alternative simpler approach using nodemailer with Gmail SMTP
-// import nodemailer from 'nodemailer';
-
-export class GmailSMTPService {
   private transporter: any;
 
   constructor() {
-    this.transporter = nodemailer.createTransporter({
-      service: 'gmail',
-      auth: {
-        type: 'OAuth2',
-        user: process.env.GMAIL_USER,
-        clientId: process.env.GMAIL_CLIENT_ID,
-        clientSecret: process.env.GMAIL_CLIENT_SECRET,
-        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-      },
-    });
+    try {
+      // Use Gmail SMTP with app password
+      const gmailUser = 'business@businesspartner.sa';
+      const gmailPassword = process.env.GMAIL_APP_PASSWORD || 'ymmvfrwmhfuthnsp';
+      
+      this.transporter = nodemailer.createTransporter({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailPassword
+        },
+        tls: {
+          rejectUnauthorized: false
+        }
+      });
+
+      console.log('Gmail SMTP transporter initialized successfully for:', gmailUser);
+    } catch (error) {
+      console.error('Failed to initialize Gmail SMTP:', error);
+      this.transporter = null;
+    }
   }
 
   async sendEmail({ to, subject, htmlBody, textBody }: EmailParams): Promise<boolean> {
+    if (!this.transporter) {
+      console.log('Gmail SMTP not initialized - skipping email send');
+      return false;
+    }
+
     try {
       const mailOptions = {
-        from: `Business Partner <${process.env.GMAIL_USER}>`,
+        from: 'Business Partner <business@businesspartner.sa>',
         to: to,
         subject: subject,
         text: textBody,
         html: htmlBody,
+        replyTo: 'business@businesspartner.sa'
       };
 
       const result = await this.transporter.sendMail(mailOptions);
@@ -72,9 +61,36 @@ export class GmailSMTPService {
   }
 }
 
+// Legacy class - kept for compatibility
+export class GmailSMTPService {
+  private transporter: any;
+
+  constructor() {
+    console.log('GmailSMTPService deprecated - use main GmailService instead');
+    this.transporter = null;
+  }
+
+  async sendEmail({ to, subject, htmlBody, textBody }: EmailParams): Promise<boolean> {
+    console.log('GmailSMTPService deprecated - use main GmailService instead');
+    return false;
+  }
+}
+
 // Export factory function
-export function createGmailService(): GmailService | GmailSMTPService | null {
-  // Gmail API is disabled for production deployment to avoid private key decoding issues
-  console.log('Gmail API disabled for production - using FormSubmit backup service');
-  return null;
+export function createGmailService(): GmailService | null {
+  // Create Gmail SMTP service
+  try {
+    const gmailService = new GmailService();
+    // Check if transporter exists by accessing private property via instance check
+    if (gmailService && (gmailService as any).transporter) {
+      console.log('Gmail SMTP service created successfully');
+      return gmailService;
+    } else {
+      console.log('Gmail SMTP service creation failed - no valid transporter');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error creating Gmail SMTP service:', error);
+    return null;
+  }
 }

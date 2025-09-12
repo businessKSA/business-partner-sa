@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { createGmailService } from '../../utils/gmail';
 
 export const prerender = false;
 
@@ -98,119 +99,69 @@ This lead was submitted through businesspartner.sa contact form
     let emailSent = false;
     let errorDetails = '';
 
-    // Method 1: FormSubmit (reliable and simple)
+    // Use Gmail API exclusively
     try {
-      const formSubmitResponse = await fetch('https://formsubmit.co/business@businesspartner.sa', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          name: contactName,
-          email: email,
-          phone: phone,
-          company: entityName || 'Not provided',
-          message: message || 'No message provided',
+      const gmailService = createGmailService();
+      if (gmailService) {
+        const success = await gmailService.sendEmail({
+          to: 'business@businesspartner.sa',
           subject: emailSubject,
-          _template: 'table',
-          _captcha: 'false',
-          _autoresponse: 'Thank you for your inquiry! We will get back to you within 24 hours.',
-          _subject: emailSubject,
-          _replyto: email
-        })
-      });
-
-      if (formSubmitResponse.ok) {
-        emailSent = true;
-        console.log('Email sent via FormSubmit successfully');
-      } else {
-        const responseText = await formSubmitResponse.text();
-        console.log('FormSubmit failed with status:', formSubmitResponse.status, 'Response:', responseText);
-        errorDetails += `FormSubmit: ${formSubmitResponse.status} - ${responseText}. `;
-      }
-    } catch (formSubmitError) {
-      console.log('FormSubmit error:', formSubmitError);
-      errorDetails += `FormSubmit: ${formSubmitError}. `;
-    }
-
-    // Method 2: Backup FormSubmit endpoint (different format)
-    if (!emailSent) {
-      try {
-        const formData = new FormData();
-        formData.append('name', contactName);
-        formData.append('email', email);
-        formData.append('phone', phone);
-        formData.append('company', entityName || 'Not provided');
-        formData.append('message', message || 'No message provided');
-        formData.append('_subject', emailSubject);
-        formData.append('_replyto', email);
-        formData.append('_captcha', 'false');
-        formData.append('_template', 'table');
-        formData.append('_autoresponse', lang === 'ar' ? 'شكرا لك! سنتواصل معك خلال 24 ساعة.' : 'Thank you! We will contact you within 24 hours.');
-
-        const backupResponse = await fetch('https://formsubmit.co/ajax/business@businesspartner.sa', {
-          method: 'POST',
-          body: formData
+          htmlBody: htmlBody,
+          textBody: emailBody
         });
 
-        const backupResult = await backupResponse.json();
-        if (backupResult.success === 'true' || backupResult.success === true) {
+        if (success) {
           emailSent = true;
-          console.log('Email sent via backup FormSubmit successfully');
+          console.log('Email sent via Gmail API successfully');
         } else {
-          console.log('Backup FormSubmit failed:', backupResult);
-          errorDetails += `Backup FormSubmit: ${JSON.stringify(backupResult)}. `;
+          console.log('Gmail API failed to send email');
+          errorDetails += 'Gmail API failed to send email. ';
         }
-      } catch (backupError) {
-        console.log('Backup FormSubmit error:', backupError);
-        errorDetails += `Backup FormSubmit: ${backupError}. `;
+      } else {
+        console.log('Gmail service not available');
+        errorDetails += 'Gmail service not initialized. ';
       }
+    } catch (gmailError) {
+      console.error('Gmail API error:', gmailError);
+      errorDetails += `Gmail API error: ${gmailError}. `;
     }
 
-    // Method 3: Netlify Forms as final backup
-    if (!emailSent) {
-      try {
-        const netlifyResponse = await fetch('https://api.netlify.com/build_hooks/contact', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: contactName,
-            email: email,
-            phone: phone,
-            company: entityName,
-            message: emailBody,
-            timestamp: new Date().toISOString()
-          })
-        });
-
-        console.log('Fallback notification sent for manual processing');
-      } catch (netlifyError) {
-        console.log('Netlify fallback error:', netlifyError);
-      }
+    // Return response based on email delivery status
+    if (emailSent) {
+      return new Response(JSON.stringify({
+        success: true,
+        message: lang === 'ar' 
+          ? 'تم إرسال رسالتك بنجاح! سنتواصل معك خلال 24 ساعة.'
+          : 'Thank you! Your message has been sent successfully. We will contact you within 24 hours.',
+        emailDelivered: true,
+        timestamp: new Date().toISOString()
+      }), {
+        status: 200,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST',
+          'Access-Control-Allow-Headers': 'Content-Type'
+        }
+      });
+    } else {
+      // Return error if Gmail fails
+      return new Response(JSON.stringify({
+        success: false,
+        message: lang === 'ar'
+          ? 'عذراً، حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.'
+          : 'Sorry, there was an error sending your message. Please try again or contact us directly.',
+        emailDelivered: false,
+        error: errorDetails,
+        timestamp: new Date().toISOString()
+      }), {
+        status: 500,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
-
-    // Always return success to user (even if email fails, we have the data logged)
-    return new Response(JSON.stringify({
-      success: true,
-      message: lang === 'ar' 
-        ? 'تم إرسال رسالتك بنجاح! سنتواصل معك خلال 24 ساعة.'
-        : 'Thank you! Your message has been sent successfully. We will contact you within 24 hours.',
-      emailDelivered: emailSent,
-      timestamp: new Date().toISOString(),
-      note: emailSent ? 'Email delivered successfully' : 'Form data saved - manual notification sent',
-      debug: errorDetails ? errorDetails : 'No errors'
-    }), {
-      status: 200,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      }
-    });
 
   } catch (error) {
     console.error('Contact form error:', error);
@@ -218,7 +169,9 @@ This lead was submitted through businesspartner.sa contact form
     return new Response(JSON.stringify({
       success: false,
       message: 'Sorry, there was an error processing your message. Please try again or contact us directly.',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
+      emailDelivered: false,
+      timestamp: new Date().toISOString()
     }), {
       status: 500,
       headers: { 
@@ -237,7 +190,8 @@ export const GET: APIRoute = async () => {
     endpoints: {
       POST: 'Submit contact form',
       GET: 'Health check'
-    }
+    },
+    gmailStatus: createGmailService() ? 'Available' : 'Not configured'
   }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
