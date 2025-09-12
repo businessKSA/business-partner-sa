@@ -1,5 +1,5 @@
-// Gmail SMTP approach using nodemailer - simple and reliable  
-import * as nodemailer from 'nodemailer';
+// Gmail API implementation using service account with domain-wide delegation
+import { google } from 'googleapis';
 
 interface EmailParams {
   to: string;
@@ -9,88 +9,146 @@ interface EmailParams {
 }
 
 export class GmailService {
-  private transporter: any;
+  private auth: any;
+  private initialized: boolean = false;
 
   constructor() {
     try {
-      // Use Gmail SMTP with app password
-      const gmailUser = 'business@businesspartner.sa';
-      const gmailPassword = process.env.GMAIL_APP_PASSWORD || 'ymmvfrwmhfuthnsp';
+      const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+      let privateKey = process.env.GOOGLE_PRIVATE_KEY;
       
-      this.transporter = nodemailer.createTransporter({
-        service: 'gmail',
-        auth: {
-          user: gmailUser,
-          pass: gmailPassword
-        },
-        tls: {
-          rejectUnauthorized: false
+      if (!clientEmail || !privateKey) {
+        console.log('Gmail API credentials not found in environment variables');
+        this.auth = null;
+        return;
+      }
+
+      // Clean up the private key - handle various formats
+      privateKey = privateKey
+        .replace(/\\n/g, '\n')
+        .replace(/^"|"$/g, '')
+        .trim();
+      
+      // Ensure proper formatting
+      if (!privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
+        privateKey = '-----BEGIN PRIVATE KEY-----\n' + privateKey;
+      }
+      if (!privateKey.endsWith('-----END PRIVATE KEY-----')) {
+        privateKey = privateKey + '\n-----END PRIVATE KEY-----';
+      }
+
+      const serviceAccount = {
+        type: 'service_account',
+        project_id: process.env.GOOGLE_PROJECT_ID || 'website-leads2-470118',
+        private_key_id: '81594dedc1c879f7e2d7daf92c047ef8711b031e',
+        private_key: privateKey,
+        client_email: clientEmail,
+        client_id: process.env.GOOGLE_CLIENT_ID || '101640889148438469286',
+        auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+        token_uri: 'https://oauth2.googleapis.com/token',
+        auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+        client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(clientEmail)}`,
+        universe_domain: 'googleapis.com'
+      };
+
+      this.auth = new google.auth.GoogleAuth({
+        credentials: serviceAccount,
+        scopes: [
+          'https://www.googleapis.com/auth/gmail.send'
+        ]
+      });
+
+      this.initialized = true;
+      console.log('Gmail API service account initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize Gmail API:', error);
+      this.auth = null;
+    }
+  }
+
+  async sendEmail({ to, subject, htmlBody, textBody }: EmailParams): Promise<boolean> {
+    if (!this.auth || !this.initialized) {
+      console.log('Gmail API not initialized - skipping email send');
+      return false;
+    }
+
+    try {
+      // Create Gmail client with domain-wide delegation (impersonation)
+      const client = await this.auth.getClient();
+      client.subject = process.env.GMAIL_IMPERSONATE_USER || 'business@businesspartner.sa';
+      
+      const gmail = google.gmail({ version: 'v1', auth: client });
+
+      // Create the email message in RFC 2822 format
+      const message = [
+        `To: ${to}`,
+        `From: Business Partner <${process.env.GMAIL_IMPERSONATE_USER || 'business@businesspartner.sa'}>`,
+        `Reply-To: ${process.env.GMAIL_IMPERSONATE_USER || 'business@businesspartner.sa'}`,
+        `Subject: ${subject}`,
+        `MIME-Version: 1.0`,
+        `Content-Type: multipart/alternative; boundary="boundary123"`,
+        ``,
+        `--boundary123`,
+        `Content-Type: text/plain; charset=UTF-8`,
+        `Content-Transfer-Encoding: 7bit`,
+        ``,
+        textBody,
+        ``,
+        `--boundary123`,
+        `Content-Type: text/html; charset=UTF-8`,
+        `Content-Transfer-Encoding: 7bit`,
+        ``,
+        htmlBody,
+        ``,
+        `--boundary123--`
+      ].join('\n');
+
+      // Encode the message in base64url format
+      const encodedMessage = Buffer.from(message)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+      await gmail.users.messages.send({
+        userId: 'me',
+        requestBody: {
+          raw: encodedMessage
         }
       });
 
-      console.log('Gmail SMTP transporter initialized successfully for:', gmailUser);
-    } catch (error) {
-      console.error('Failed to initialize Gmail SMTP:', error);
-      this.transporter = null;
-    }
-  }
-
-  async sendEmail({ to, subject, htmlBody, textBody }: EmailParams): Promise<boolean> {
-    if (!this.transporter) {
-      console.log('Gmail SMTP not initialized - skipping email send');
-      return false;
-    }
-
-    try {
-      const mailOptions = {
-        from: 'Business Partner <business@businesspartner.sa>',
-        to: to,
-        subject: subject,
-        text: textBody,
-        html: htmlBody,
-        replyTo: 'business@businesspartner.sa'
-      };
-
-      const result = await this.transporter.sendMail(mailOptions);
-      console.log('Email sent successfully via Gmail SMTP:', result.messageId);
+      console.log('Email sent successfully via Gmail API');
       return true;
     } catch (error) {
-      console.error('Gmail SMTP error:', error);
+      console.error('Gmail API error:', error);
+      
+      // Check if it's a domain-wide delegation issue
+      if (error?.message?.includes('Precondition check failed') || error?.message?.includes('FAILED_PRECONDITION')) {
+        console.log('Domain-wide delegation may not be fully propagated yet. Please wait a few minutes and try again.');
+      }
+      
       return false;
     }
   }
-}
 
-// Legacy class - kept for compatibility
-export class GmailSMTPService {
-  private transporter: any;
-
-  constructor() {
-    console.log('GmailSMTPService deprecated - use main GmailService instead');
-    this.transporter = null;
-  }
-
-  async sendEmail({ to, subject, htmlBody, textBody }: EmailParams): Promise<boolean> {
-    console.log('GmailSMTPService deprecated - use main GmailService instead');
-    return false;
+  isInitialized(): boolean {
+    return this.initialized && this.auth !== null;
   }
 }
 
 // Export factory function
 export function createGmailService(): GmailService | null {
-  // Create Gmail SMTP service
   try {
     const gmailService = new GmailService();
-    // Check if transporter exists by accessing private property via instance check
-    if (gmailService && (gmailService as any).transporter) {
-      console.log('Gmail SMTP service created successfully');
+    if (gmailService.isInitialized()) {
+      console.log('Gmail API service created successfully');
       return gmailService;
     } else {
-      console.log('Gmail SMTP service creation failed - no valid transporter');
+      console.log('Gmail API service creation failed - missing credentials');
       return null;
     }
   } catch (error) {
-    console.error('Error creating Gmail SMTP service:', error);
+    console.error('Error creating Gmail service:', error);
     return null;
   }
 }
