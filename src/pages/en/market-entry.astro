@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';س
+import Footer from '../../components/Footer.astro';
 import CallFab from '../../components/CallFab.astro';
-import { getContent } from '../../en/content/copy';
+import { getContent } from '../../content/copy';
 
 export const prerender = true;
 
@@ -15,7 +15,7 @@ const t = getContent(locale);
   <Header lang={locale} t={t} />
 
   <main style="padding: 80px 20px; max-width: 1200px; margin: 0 auto;">
-    
+
     <section style="text-align:center; padding:80px 0;">
       <h1 style="font-size:48px; margin-bottom:20px;">
         Launch Your Business in Saudi Arabia
@@ -26,32 +26,58 @@ const t = getContent(locale);
       </h2>
 
       <p style="max-width:850px; margin:0 auto 40px; font-size:20px; line-height:1.7;">
-        Business Partner AI helps founders, investors, and international companies establish, launch, and grow in Saudi Arabia through company setup, government services, office sourcing, recruitment, relocation, and strategic partnerships.
+        Business Partner helps founders, investors, and international companies establish, launch, and grow in Saudi Arabia through complete market entry, licensing, compliance, GRO, HR, and operational support.
       </p>
 
       <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
-        <a href="/contact" style="padding:16px 32px; background:#0B5FFF; color:white; text-decoration:none; border-radius:10px;">
+        <a href="/en/contact"
+           style="padding:16px 32px; background:#0B5FFF; color:white; text-decoration:none; border-radius:10px;">
           Book Discovery Call
         </a>
 
-        <a href="https://wa.me/966503793356" style="padding:16px 32px; border:2px solid #0B5FFF; color:#0B5FFF; text-decoration:none; border-radius:10px;">
+        <a href="https://wa.me/966530540231"
+           target="_blank"
+           style="padding:16px 32px; border:2px solid #0B5FFF; color:#0B5FFF; text-decoration:none; border-radius:10px;">
           Talk on WhatsApp
         </a>
       </div>
     </section>
 
     <section style="padding:60px 0;">
-      <h2 style="text-align:center; margin-bottom:40px;">Our Services</h2>
+      <h2 style="font-size:36px; margin-bottom:30px;">What We Do</h2>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; text-align:center;">
-        <div>Company Formation</div>
-        <div>Government Relations (GRO)</div>
-        <div>Office & Workspace Solutions</div>
-        <div>Executive Housing & Relocation</div>
-        <div>Recruitment & Outsourcing</div>
-        <div>Business Matchmaking</div>
-        <div>Compliance Support</div>
-        <div>Market Entry Advisory</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;">
+
+        <div style="padding:25px; border:1px solid #eee; border-radius:16px;">
+          <h3>Company Formation</h3>
+          <p>MISA setup, CR issuance, legal entity formation, and licensing.</p>
+        </div>
+
+        <div style="padding:25px; border:1px solid #eee; border-radius:16px;">
+          <h3>Government Relations (GRO)</h3>
+          <p>Qiwa, GOSI, Muqeem, Balady, Mudad, ZATCA, and compliance support.</p>
+        </div>
+
+        <div style="padding:25px; border:1px solid #eee; border-radius:16px;">
+          <h3>HR & Workforce Solutions</h3>
+          <p>Recruitment, onboarding, payroll coordination, and workforce outsourcing.</p>
+        </div>
+
+        <div style="padding:25px; border:1px solid #eee; border-radius:16px;">
+          <h3>Office & Real Estate Setup</h3>
+          <p>Workspace sourcing, furnished offices, compounds, and operational setup.</p>
+        </div>
+
+        <div style="padding:25px; border:1px solid #eee; border-radius:16px;">
+          <h3>Business Advisory</h3>
+          <p>Market entry strategy, partnerships, launch execution, and scaling support.</p>
+        </div>
+
+        <div style="padding:25px; border:1px solid #eee; border-radius:16px;">
+          <h3>Premium Residency Support</h3>
+          <p>Guidance for investor and entrepreneur residency pathways.</p>
+        </div>
+
       </div>
     </section>
 
