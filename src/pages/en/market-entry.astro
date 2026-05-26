@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';س
+import CallFab from '../../components/CallFab.astro';
+import { getContent } from '../../content/copy';
+
+export const prerender = true;
+
+const locale = 'en';
+const t = getContent(locale);
+---
+
+<BaseLayout lang={locale} t={t}>
+  <Header lang={locale} t={t} />
+
+  <main style="padding: 80px 20px; max-width: 1200px; margin: 0 auto;">
+    
+    <section style="text-align:center; padding:80px 0;">
+      <h1 style="font-size:48px; margin-bottom:20px;">
+        Launch Your Business in Saudi Arabia
+      </h1>
+
+      <h2 style="font-size:28px; color:#666; margin-bottom:30px;">
+        Fast. Compliant. Fully Supported.
+      </h2>
+
+      <p style="max-width:850px; margin:0 auto 40px; font-size:20px; line-height:1.7;">
+        Business Partner AI helps founders, investors, and international companies establish, launch, and grow in Saudi Arabia through company setup, government services, office sourcing, recruitment, relocation, and strategic partnerships.
+      </p>
+
+      <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+        <a href="/contact" style="padding:16px 32px; background:#0B5FFF; color:white; text-decoration:none; border-radius:10px;">
+          Book Discovery Call
+        </a>
+
+        <a href="https://wa.me/966503793356" style="padding:16px 32px; border:2px solid #0B5FFF; color:#0B5FFF; text-decoration:none; border-radius:10px;">
+          Talk on WhatsApp
+        </a>
+      </div>
+    </section>
+
+    <section style="padding:60px 0;">
+      <h2 style="text-align:center; margin-bottom:40px;">Our Services</h2>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; text-align:center;">
+        <div>Company Formation</div>
+        <div>Government Relations (GRO)</div>
+        <div>Office & Workspace Solutions</div>
+        <div>Executive Housing & Relocation</div>
+        <div>Recruitment & Outsourcing</div>
+        <div>Business Matchmaking</div>
+        <div>Compliance Support</div>
+        <div>Market Entry Advisory</div>
+      </div>
+    </section>
+
+  </main>
+
+  <CallFab />
+  <Footer lang={locale} t={t} />
+</BaseLayout>
