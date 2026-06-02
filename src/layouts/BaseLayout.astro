@@ -1,23 +1,90 @@
+---
+import { htmlLangDir, buildHreflang, type Language, type TranslationObject } from '../utils/i18n';
+import '../styles/global.css';
+
+interface Props {
+  lang: Language;
+  t: TranslationObject;
+}
+
+const { lang, t } = Astro.props;
+const { lang: htmlLang, dir } = htmlLangDir(lang);
+const alternateLinks = buildHreflang(lang);
+---
+
+<!DOCTYPE html>
+<html lang={htmlLang} dir={dir}>
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  
+  <title>{t.meta.title}</title>
+  <meta name="description" content={t.meta.description} />
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href={lang === 'ar' ? 'https://businesspartner.sa/' : 'https://businesspartner.sa/en/'} />
+  
+  <!-- Hreflang Links -->
+  {alternateLinks.map(link => (
+    <link rel="alternate" hreflang={link.hreflang} href={`https://businesspartner.sa${link.href}`} />
+  ))}
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content={t.meta.title} />
+  <meta property="og:description" content={t.meta.description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={lang === 'ar' ? 'https://businesspartner.sa/' : 'https://businesspartner.sa/en/'} />
+  <meta property="og:image" content="https://businesspartner.sa/logo.svg" />
+  <meta property="og:locale" content={lang === 'ar' ? 'ar_SA' : 'en_US'} />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={t.meta.title} />
+  <meta name="twitter:description" content={t.meta.description} />
+  <meta name="twitter:image" content="https://businesspartner.sa/logo.svg" />
+  
+  <!-- JSON-LD Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": lang === 'ar' ? "شريك الأعمال للخدمات" : "Business Partner Services Company",
+    "url": "https://businesspartner.sa",
+    "logo": "https://businesspartner.sa/logo.svg",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+966503793356",
+      "contactType": "customer service",
+      "email": "business@businesspartner.sa"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Riyadh",
+      "addressCountry": "SA",
+      "streetAddress": lang === 'ar' ? "الرياض – حي العارض – شارع ريحانة بنت زيد" : "Riyadh – Al-Arid – Rayhana bint Zayd St."
+    }
+  })} />
+  
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": lang === 'ar' ? "شريك الأعمال للخدمات" : "Business Partner Services Company",
+    "description": t.meta.description,
+    "url": "https://businesspartner.sa",
+    "telephone": "+966503793356",
+    "email": "business@businesspartner.sa",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Riyadh",
+      "addressCountry": "SA"
+    },
+    "priceRange": "SAR 7,500 - 20,000"
+  })} />
+</head>
 <body>
   <main>
     <slot />
   </main>
-
-  <a
-    href="https://wa.me/966507034157?text=السلام عليكم، أرغب في الاستفسار عن خدمات Business Partner"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="WhatsApp Business Partner"
-    style="position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; background-color: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 6px 18px rgba(0,0,0,0.25); z-index: 99999;"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 32 32"
-      width="34"
-      height="34"
-      fill="white"
-    >
-      <path d="M16.01 3C8.83 3 3 8.74 3 15.82c0 2.49.73 4.9 2.11 6.97L3 29l6.4-2.07a13.1 13.1 0 006.61 1.8h.01c7.18 0 13.01-5.74 13.01-12.82C29.03 8.74 23.2 3 16.01 3zm7.57 18.09c-.32.89-1.86 1.7-2.56 1.81-.68.11-1.54.16-2.49-.14-.58-.18-1.33-.43-2.3-.84-4.05-1.73-6.69-5.77-6.89-6.04-.2-.27-1.64-2.18-1.64-4.16 0-1.98 1.04-2.95 1.41-3.35.36-.4.79-.49 1.06-.49.27 0 .53.01.76.02.24.01.56-.09.88.69.32.78 1.09 2.7 1.19 2.89.1.18.17.4.03.66-.13.27-.2.43-.4.66-.2.22-.42.49-.6.66-.2.19-.41.4-.18.79.22.39 1 1.63 2.14 2.64 1.47 1.3 2.71 1.7 3.1 1.89.39.18.61.15.84-.09.22-.24.95-1.1 1.21-1.48.25-.38.5-.31.84-.18.34.13 2.16 1.01 2.53 1.19.37.18.62.27.71.42.09.15.09.87-.23 1.76z"/>
-    </svg>
-  </a>
 </body>
+</html>
