@@ -111,9 +111,9 @@ const catEn = (key) => (CAT_META[key] ? CAT_META[key].en : key);
 const catAr = (key) => { const c = categories.find((x) => x.key === key); return c ? c.ar : key; };
 // Category label in current language.
 const catLabel = (key) => (LANG === "ar" ? catAr(key) : catEn(key));
-// Localize an Arabic price label for the English tree (numbers + ﷼ kept).
-function priceLabel(s) {
-  const l = (s.price && s.price.label) || "";
+// Localize an Arabic price label string for the English tree (numbers + ﷼ kept).
+function localizeLabel(l) {
+  l = l || "";
   if (LANG === "ar") return l;
   return l
     .replace("يبدأ من", "From")
@@ -124,6 +124,9 @@ function priceLabel(s) {
     .replace("شهرياً", "monthly")
     .replace("لكل مرشّح", "per candidate");
 }
+const priceLabel = (s) => localizeLabel((s.price && s.price.label) || "");
+// ASCII-safe id from any string (keeps Arabic out of element ids / data-id).
+const asciiId = (pfx, str) => pfx + "-" + String(str).split("").reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) >>> 0, 5381).toString(36);
 const saudiFlag =
   '<svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></svg>';
 
@@ -141,7 +144,9 @@ const parseAmount = (str) => {
 
 // Add-to-cart + Buy-now pair. Item carried in data-* attributes; cart lives in localStorage (see main.js).
 function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false }) {
-  const data = `data-id="${esc(id)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount != null ? amount : ""}" data-price="${esc(priceLabel || "")}" data-kind="${esc(kind)}"`;
+  // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
+  const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
+  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount != null ? amount : ""}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
     <button type="button" class="btn btn-wa buy-now" ${data}>${L("Buy now", "اشترِ الآن")}</button>
@@ -389,7 +394,7 @@ function faqOf(s, ov) {
     faq.push({
       q: "How much are the fees for this service?",
       a:
-        (s.price.amount != null ? `Business Partner's fee for this service is ${s.price.label}. ` : "This service is quoted individually based on your case. ") +
+        (s.price.amount != null ? `Business Partner's fee for this service is ${localizeLabel(s.price.label)}. ` : "This service is quoted individually based on your case. ") +
         (s.govFeesSeparate ? "Government fees are separate from our fees and are disclosed before we start." : "VAT is added."),
     });
     faq.push({ q: "Who is this service for?", a: `This service is available to ${audienceOf(s, ov)}.` });
@@ -411,122 +416,156 @@ function serviceQuickFacts(s, ov) {
 /* ---------- pages ---------- */
 function buildHome() {
   const h = site.home;
+  // Parallel English content (index-aligned with the Arabic data in site.json).
+  const EN = {
+    heroTitle: "One operating partner for every business requirement in Saudi Arabia",
+    heroSubtitle: "From company formation and foreign investment to licensing, HR and government compliance — we get it done clearly and quickly, and follow it through to issuance.",
+    heroCta: "Start now", heroCtaSecondary: "Browse services",
+    why: { title: "Why Business Partner", items: [
+      { title: "Smart agent on WhatsApp", text: "Answers your questions 24/7, identifies the right service for your case, and starts preparing your document list automatically." },
+      { title: "Fast execution", text: "Ready-made tracks and precise knowledge of the regulations save time — we start as soon as your documents are complete." },
+      { title: "Full transparency", text: "Clear fees, with government fees separate and disclosed. You know what you pay and why before you begin." },
+    ]},
+    coreTitle: "Our core services", coreSubtitle: "90+ services classified per the official catalog — covering your business journey from formation to operation.",
+    cards: [
+      { title: "Company Formation", text: "CR registration, LLC formation, entity conversions, and more." },
+      { title: "Foreign Investment", text: "MISA license, 100% foreign company, foreign branch, and partnerships." },
+      { title: "Premium Residency", text: "Choosing the right product and managing the application to issuance — no sponsor." },
+      { title: "Government Relations", text: "Qiwa, HR, Muqeem, GOSI, Balady, and sector licensing." },
+      { title: "HR Services", text: "Managing Qiwa, GOSI and Mudad, contracts, sponsorship transfer and compliance." },
+      { title: "Recruitment & Hiring", text: "Talent attraction and end-to-end recruitment procedures." },
+    ],
+    allServices: "All services", packagesDetails: "Package details",
+    agentEyebrow: "The killer feature", agentTitle: "The killer feature: the smart agent on WhatsApp",
+    agentText: "Instead of waiting for office hours, the smart agent replies instantly, any time — it understands your case, recognises your client type (individual/business, Saudi/Gulf/foreign), gives you the right requirements and documents, and starts preparing your request immediately. When a human decision is needed, it hands you to our team at once.",
+    agentBullets: ["Instant reply 24/7, no waiting", "Identifies the right service and track for your case", "Prepares your document list automatically", "Hands you to a human expert when needed"],
+    agentCta: "Try the smart agent now", agentLearn: "Meet the agents system",
+    bubbleYou: "You", bubbleQ: "I want to set up a foreign company — what documents do I need?",
+    bubbleAgent: "Smart agent · now", bubbleA: "Sure! I need the parent company's attested Commercial Registration, financial statements, and a board resolution. Shall I prepare the full list for you?",
+    trustEyebrow: "Trust in numbers",
+    stats: [
+      { label: "Clients served" }, { label: "Years of experience in the Saudi market" },
+      { label: "Services in the official catalog" }, { label: "Government authorities we deal with" },
+    ],
+    whyEyebrow: "Why us", servicesEyebrow: "Services", packagesEyebrow: "Packages", reviewsEyebrow: "Client reviews",
+    reviewsItems: [
+      { text: "They completed my company formation quickly and every step was clear from the start.", name: "Client — retail sector", role: "Company formation" },
+      { text: "The agent on WhatsApp answered me at night and prepared my document list right away.", name: "Client — investor", role: "Foreign investment" },
+      { text: "Clear fees with no surprises, and they followed through until the license was issued.", name: "Client — industrial sector", role: "Industrial license" },
+    ],
+    finalTitle: "Ready to start?", finalText: "Send us your enquiry on WhatsApp now — the smart agent replies instantly and sets your next step.", finalCta: "Start on WhatsApp",
+  };
+
   const whyCards = h.why.items
-    .map(
-      (it) => `<div class="card feature"><div class="card-icon">${I[it.icon] || I.check}</div>
-      <h3>${esc(it.title)}</h3><p>${esc(it.text)}</p></div>`
-    )
+    .map((it, i) => `<div class="card feature"><div class="card-icon">${I[it.icon] || I.check}</div>
+      <h3>${L(EN.why.items[i].title, it.title)}</h3><p>${L(EN.why.items[i].text, it.text)}</p></div>`)
     .join("");
   const svcCards = h.coreServices.cards
-    .map(
-      (c) => `<a class="card svc-card" href="/services#${slugCat(c.category)}">
+    .map((c, i) => `<a class="card svc-card" href="${u("/services")}#${slugCat(c.category)}">
       <div class="card-icon">${I.building}</div>
-      <h3>${esc(c.title)}</h3><p class="desc">${esc(c.text)}</p>
-      <span class="card-link">استعرض الخدمات ${I.arrow}</span></a>`
-    )
+      <h3>${L(EN.cards[i].title, c.title)}</h3><p class="desc">${L(EN.cards[i].text, c.text)}</p>
+      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`)
     .join("");
   const pkgCards = site.packages.tiers
-    .map(
-      (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${esc(t.nameAr)}</div>
+    .map((t) => `<div class="pkg${t.highlight ? " pop" : ""}">
+      <div class="pk-name">${L(t.nameEn || t.nameAr, t.nameAr)}</div>
       ${t.price ? `<div class="pk-price">${esc(t.price)}</div>` : ""}
-      <p class="pk-for">${esc(t.for)}</p>
-      <ul>${t.features.slice(0, 4).map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
-      <a class="btn ${t.highlight ? "btn-primary" : "btn-ghost"}" href="/packages">تفاصيل الباقة</a>
-    </div>`
-    )
+      <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
+      <ul>${t.features.slice(0, 4).map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
+      <a class="btn ${t.highlight ? "btn-primary" : "btn-ghost"}" href="${u("/packages")}">${L("Package details", "تفاصيل الباقة")}</a>
+    </div>`)
     .join("");
-  const agentBullets = h.agent.bullets.map((b) => `<li>${I.check}<span>${esc(b)}</span></li>`).join("");
-  const stats = h.stats.items.map((s) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${esc(s.label)}</div></div>`).join("");
+  const agentBullets = h.agent.bullets.map((b, i) => `<li>${I.check}<span>${L(EN.agentBullets[i], b)}</span></li>`).join("");
+  const stats = h.stats.items.map((s, i) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(EN.stats[i].label, s.label)}</div></div>`).join("");
   const quotes = h.testimonials.items
-    .map((q) => `<div class="quote"><p>${esc(q.text)}</p><div class="who">${esc(q.name)}</div><div class="role">${esc(q.role)}</div></div>`)
+    .map((q, i) => `<div class="quote"><p>${L(EN.reviewsItems[i].text, q.text)}</p><div class="who">${L(EN.reviewsItems[i].name, q.name)}</div><div class="role">${L(EN.reviewsItems[i].role, q.role)}</div></div>`)
     .join("");
 
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <p class="hero-tagline">شركاء نجاحك</p>
-    <h1>${esc(h.heroTitle)}</h1>
-    <p class="lead">${esc(h.heroSubtitle)}</p>
-    <div class="hero-actions">${waBtn(h.heroCta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="/services">${esc(h.heroCtaSecondary)}</a></div>
+    <p class="hero-tagline">${L("Partnering for your success", "شركاء نجاحك")}</p>
+    <h1>${L(EN.heroTitle, h.heroTitle)}</h1>
+    <p class="lead">${L(EN.heroSubtitle, h.heroSubtitle)}</p>
+    <div class="hero-actions">${waBtn2(EN.heroCta, h.heroCta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="${u("/services")}">${L(EN.heroCtaSecondary, h.heroCtaSecondary)}</a></div>
     <div class="hero-badges">
-      <span class="hero-badge">${I.check}رد فوري 24/7</span>
-      <span class="hero-badge">${I.check}+90 خدمة حكومية</span>
-      <span class="hero-badge">${I.check}أتعاب شفافة</span>
+      <span class="hero-badge">${I.check}${L("Instant reply 24/7", "رد فوري 24/7")}</span>
+      <span class="hero-badge">${I.check}${L("90+ government services", "+90 خدمة حكومية")}</span>
+      <span class="hero-badge">${I.check}${L("Transparent fees", "أتعاب شفافة")}</span>
     </div>
   </div></section>
 
   <section class="section section--navy trust-band"><div class="container">
-    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${esc(h.stats.eyebrow || "أرقام ثقة")}</span><h2 style="color:#fff">${esc(h.stats.title)}</h2></div>
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(EN.trustEyebrow, h.stats.eyebrow || "أرقام ثقة")}</span><h2 style="color:#fff">${L("Numbers we're proud of", h.stats.title)}</h2></div>
     <div class="stats">${stats}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">لماذا نحن</span><h2>${esc(h.why.title)}</h2></div>
+    <div class="section-head"><span class="eyebrow">${L(EN.whyEyebrow, "لماذا نحن")}</span><h2>${L(EN.why.title, h.why.title)}</h2></div>
     <div class="grid grid-3">${whyCards}</div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">الخدمات</span><h2>${esc(h.coreServices.title)}</h2><p>${esc(h.coreServices.subtitle)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(EN.servicesEyebrow, "الخدمات")}</span><h2>${L(EN.coreTitle, h.coreServices.title)}</h2><p>${L(EN.coreSubtitle, h.coreServices.subtitle)}</p></div>
     <div class="grid grid-3">${svcCards}</div>
-    <div class="center mt-32"><a class="btn btn-primary" href="/services">كل الخدمات ${I.arrow}</a></div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services")}">${L(EN.allServices, "كل الخدمات")} ${I.arrow}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">الباقات</span><h2>${esc(site.packages.title)}</h2><p>${esc(site.packages.subtitle)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(EN.packagesEyebrow, "الباقات")}</span><h2>${L(site.packages.titleEn || site.packages.title, site.packages.title)}</h2><p>${L(site.packages.subtitleEn || site.packages.subtitle, site.packages.subtitle)}</p></div>
     <div class="grid grid-3">${pkgCards}</div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
     <div class="agent"><div class="agent-inner">
       <div>
-        <span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">الميزة القاتلة</span>
-        <h2>${esc(h.agent.title)}</h2>
-        <p>${esc(h.agent.text)}</p>
+        <span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(EN.agentEyebrow, "الميزة القاتلة")}</span>
+        <h2>${L(EN.agentTitle, h.agent.title)}</h2>
+        <p>${L(EN.agentText, h.agent.text)}</p>
         <ul class="agent-list">${agentBullets}</ul>
-        <div class="hero-actions">${waBtn(h.agent.cta, "btn-white", true)}<a class="btn btn-lg" href="/ai-agents" style="border-color:rgba(255,255,255,.5);color:#fff">تعرّف على منظومة الوكلاء</a></div>
+        <div class="hero-actions">${waBtn2(EN.agentCta, h.agent.cta, "btn-white", true)}<a class="btn btn-lg" href="${u("/ai-agents")}" style="border-color:rgba(255,255,255,.5);color:#fff">${L(EN.agentLearn, "تعرّف على منظومة الوكلاء")}</a></div>
       </div>
       <div class="agent-visual">
-        <div class="bubble"><span>أنت</span>أبغى أأسس شركة أجنبية، وش المستندات؟</div>
-        <div class="bubble me"><span>الوكيل الذكي · الآن</span>تمام! أحتاج السجل التجاري للشركة الأم مصدّق، القوائم المالية، وقرار مجلس الإدارة. أجهّز لك القائمة كاملة؟</div>
+        <div class="bubble"><span>${L(EN.bubbleYou, "أنت")}</span>${L(EN.bubbleQ, "أبغى أأسس شركة أجنبية، وش المستندات؟")}</div>
+        <div class="bubble me"><span>${L(EN.bubbleAgent, "الوكيل الذكي · الآن")}</span>${L(EN.bubbleA, "تمام! أحتاج السجل التجاري للشركة الأم مصدّق، القوائم المالية، وقرار مجلس الإدارة. أجهّز لك القائمة كاملة؟")}</div>
       </div>
     </div></div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">آراء العملاء</span><h2>${esc(h.testimonials.title)}</h2><p>${esc(h.testimonials.note)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(EN.reviewsEyebrow, "آراء العملاء")}</span><h2>${L("Client reviews", h.testimonials.title)}</h2><p>${L("We'll add our clients' real stories here soon, once publishing is approved.", h.testimonials.note)}</p></div>
     <div class="grid grid-3">${quotes}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${esc(h.finalCta.title)}</h2><p>${esc(h.finalCta.text)}</p>${waBtn(h.finalCta.cta, "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L(EN.finalTitle, h.finalCta.title)}</h2><p>${L(EN.finalText, h.finalCta.text)}</p>${waBtn2(EN.finalCta, h.finalCta.cta, "btn-white", true)}</div>
   </div></section>`;
 
-  return page({ title: "بيزنس بارتنر — شريك تشغيل أعمالك في السعودية", desc: esc(site.brand.shortBio), active: "/", body });
+  return page({ title: Lraw("Business Partner — your business operating partner in Saudi Arabia", "بيزنس بارتنر — شريك تشغيل أعمالك في السعودية"), desc: Lraw(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio), active: "/", body });
 }
 
 function buildAbout() {
   const a = site.about;
-  const secs = a.sections.map((s) => `<div class="card"><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`).join("");
-  const vals = a.values.map((v) => `<div class="card feature"><div class="card-icon">${I.check}</div><h3>${esc(v.title)}</h3><p>${esc(v.text)}</p></div>`).join("");
+  const secs = a.sections.map((s) => `<div class="card"><h3>${L(s.titleEn || s.title, s.title)}</h3><p>${L(s.textEn || s.text, s.text)}</p></div>`).join("");
+  const vals = a.values.map((v) => `<div class="card feature"><div class="card-icon">${I.check}</div><h3>${L(v.titleEn || v.title, v.title)}</h3><p>${L(v.textEn || v.text, v.text)}</p></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">من نحن</span>
-    <h1>${esc(a.title)}</h1>
-    <p class="lead">${esc(a.lead)}</p>
-    <div class="hero-actions">${waBtn("تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="/services">استعرض الخدمات</a></div>
+    <span class="eyebrow">${L("About", "من نحن")}</span>
+    <h1>${L(a.titleEn || a.title, a.title)}</h1>
+    <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
+    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
   </div></section>
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">وعدنا</span><h2>${esc(a.promise)}</h2></div>
+    <div class="section-head"><span class="eyebrow">${L("Our promise", "وعدنا")}</span><h2>${L(a.promiseEn || a.promise, a.promise)}</h2></div>
     <div class="grid grid-3">${secs}</div>
   </div></section>
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">قيمنا</span><h2>ما الذي يوجّه عملنا</h2></div>
+    <div class="section-head"><span class="eyebrow">${L("Our values", "قيمنا")}</span><h2>${L(a.headingValuesEn || "ما الذي يوجّه عملنا", "ما الذي يوجّه عملنا")}</h2></div>
     <div class="grid grid-4">${vals}</div>
   </div></section>
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>جاهز نبدأ رحلتك؟</h2><p>الوكيل الذكي يرد فوراً على واتساب ويحدد لك الخطوة التالية.</p>${waBtn("ابدأ الآن", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready to start your journey?", "جاهز نبدأ رحلتك؟")}</h2><p>${L("The smart agent replies instantly on WhatsApp and sets your next step.", "الوكيل الذكي يرد فوراً على واتساب ويحدد لك الخطوة التالية.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "من نحن — بيزنس بارتنر", desc: esc(a.lead), active: "/about", body });
+  return page({ title: Lraw("About — Business Partner", "من نحن — بيزنس بارتنر"), desc: Lraw(a.leadEn || a.lead, a.lead), active: "/about", body });
 }
 
 function buildServicesIndex() {
@@ -652,49 +691,49 @@ function buildAiAgents() {
   const a = site.aiAgents;
   const steps = a.how.steps
     .map(
-      (s) => `<div class="step"><div class="step-n">${esc(s.n)}</div><div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div></div>`
+      (s) => `<div class="step"><div class="step-n">${esc(s.n)}</div><div><h3>${L(s.titleEn || s.title, s.title)}</h3><p>${L(s.textEn || s.text, s.text)}</p></div></div>`
     )
     .join("");
   const cards = a.agents
     .map(
       (g) => `<div class="pkg${g.highlight ? " pop" : ""}">
-      <div class="pk-name">${esc(g.name)}<small>${esc(g.tagline)}</small></div>
-      <div class="pk-price">${esc(g.price)}</div>
-      <p class="pk-for">${esc(g.for)}</p>
-      <ul>${g.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
-      ${cartBtns({ id: "agent-" + esc(g.name).replace(/\s+/g, "-"), nameEn: g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
-      ${waBtn("اطلب هذا الوكيل على واتساب", "btn-ghost")}
+      <div class="pk-name">${L(g.nameEn || g.name, g.name)}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
+      <div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>
+      <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
+      <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
+      ${cartBtns({ id: "agent-" + esc((g.nameEn || g.name)).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
+      ${waBtn2("Order this agent on WhatsApp", "اطلب هذا الوكيل على واتساب", "btn-ghost")}
     </div>`
     )
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">الوكلاء الأذكياء</span>
-    <h1>${esc(a.title)}</h1>
-    <p class="lead">${esc(a.lead)}</p>
-    <div class="hero-actions">${waBtn(a.cta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="#agents">استعرض الوكلاء</a></div>
+    <span class="eyebrow">${L("AI Agents", "الوكلاء الأذكياء")}</span>
+    <h1>${L(a.titleEn || a.title, a.title)}</h1>
+    <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
+    <div class="hero-actions">${waBtn2(a.ctaEn || a.cta, a.cta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="#agents">${L(a.learnEn || "استعرض الوكلاء", "استعرض الوكلاء")}</a></div>
     <div class="hero-badges">
-      <span class="hero-badge">${I.check}مراقبة 24/7</span>
-      <span class="hero-badge">${I.check}تنفيذ ذاتي</span>
-      <span class="hero-badge">${I.check}موافقة ودفع فقط</span>
+      <span class="hero-badge">${I.check}${L("24/7 monitoring", "مراقبة 24/7")}</span>
+      <span class="hero-badge">${I.check}${L("Autonomous execution", "تنفيذ ذاتي")}</span>
+      <span class="hero-badge">${I.check}${L("Approval & payment only", "موافقة ودفع فقط")}</span>
     </div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(a.how.eyebrow)}</span><h2>${esc(a.how.title)}</h2></div>
+    <div class="section-head"><span class="eyebrow">${L(a.how.eyebrowEn || a.how.eyebrow, a.how.eyebrow)}</span><h2>${L(a.how.titleEn || a.how.title, a.how.title)}</h2></div>
     <div class="steps-grid">${steps}</div>
   </div></section>
 
   <section class="section" id="agents"><div class="container">
-    <div class="section-head"><span class="eyebrow">المنظومة</span><h2>${esc(a.packagesTitle)}</h2><p>${esc(a.packagesSubtitle)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
     <div class="grid grid-3">${cards}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${esc(a.pricingNote)}</p></div>
+    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="cta-band"><h2>جاهز تشوف الوكلاء يشتغلون؟</h2><p>احجز عرضاً توضيحياً مع فريقنا، ونصمّم لك المنظومة على مقاس منشأتك.</p>${waBtn(a.cta, "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready to see the agents at work?", "جاهز تشوف الوكلاء يشتغلون؟")}</h2><p>${L("Book a demo with our team and we'll design the system to fit your entity.", "احجز عرضاً توضيحياً مع فريقنا، ونصمّم لك المنظومة على مقاس منشأتك.")}</p>${waBtn2(a.ctaEn || a.cta, a.cta, "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الوكلاء الأذكياء — بيزنس بارتنر", desc: esc(a.lead.slice(0, 155)), active: "/ai-agents", body });
+  return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
 
 function buildPackages() {
@@ -702,29 +741,29 @@ function buildPackages() {
   const tiers = p.tiers
     .map(
       (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${esc(t.nameAr)}</div>
+      <div class="pk-name">${L(t.nameEn || t.name || t.nameAr, t.nameAr)}</div>
       ${t.price ? `<div class="pk-price">${esc(t.price)}</div>` : ""}
-      <p class="pk-for">${esc(t.for)}</p>
-      <ul>${t.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
-      ${cartBtns({ id: "pkg-" + esc(t.nameAr).replace(/\s+/g, "-"), nameEn: t.nameEn || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || "تواصل معنا للتسعير", kind: "package", ghost: !t.highlight })}
-      ${waBtn("تواصل معنا للتسعير", "btn-ghost")}
+      <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
+      <ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
+      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
+      ${waBtn2("Contact us for pricing", "تواصل معنا للتسعير", "btn-ghost")}
     </div>`
     )
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">الباقات</span>
-    <h1>${esc(p.title)}</h1>
-    <p class="lead">${esc(p.subtitle)}</p>
+    <span class="eyebrow">${L("Packages", "الباقات")}</span>
+    <h1>${L(p.titleEn || p.title, p.title)}</h1>
+    <p class="lead">${L(p.subtitleEn || p.subtitle, p.subtitle)}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="grid grid-3">${tiers}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${esc(p.note)}</p></div>
+    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(p.noteEn || p.note, p.note)}</p></div>
   </div></section>
   <section class="section section--gray"><div class="container">
-    <div class="cta-band"><h2>محتار أي باقة تناسبك؟</h2><p>الوكيل الذكي يسألك بضعة أسئلة ويرشّح لك الباقة الأنسب في دقائق.</p>${waBtn("ساعدني أختار", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Not sure which package fits you?", "محتار أي باقة تناسبك؟")}</h2><p>${L("The smart agent asks a few questions and recommends the best package in minutes.", "الوكيل الذكي يسألك بضعة أسئلة ويرشّح لك الباقة الأنسب في دقائق.")}</p>${waBtn2("Help me choose", "ساعدني أختار", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الباقات — بيزنس بارتنر", desc: esc(p.subtitle), active: "/packages", body });
+  return page({ title: Lraw("Packages — Business Partner", "الباقات — بيزنس بارتنر"), desc: Lraw(p.subtitleEn || p.subtitle, p.subtitle), active: "/packages", body });
 }
 
 // Category display metadata (icon + English label) keyed by catalog category.
@@ -803,7 +842,7 @@ function buildCalculator() {
             <div class="calc-line calc2-vat"><span class="k">${L("+ VAT 15% (on fees)", "+ ضريبة القيمة المضافة 15% (على الأتعاب)")}</span><span class="v" id="calc2-vat">—</span></div>
           </div>
           <div class="calc2-warn" id="calc2-warn" hidden>${I.doc}<span>${L("Some selected services are priced on request (a quote after review). They are not included in the totals.", "بعض الخدمات المختارة تُسعّر حسب الطلب (عرض بعد المراجعة) ولا تدخل في الإجمالي.")}</span></div>
-          <a class="btn btn-primary btn-lg" id="calc2-quote" href="/checkout" style="width:100%">${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
+          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/checkout")}" style="width:100%">${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
           <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or discuss on WhatsApp", "أو ناقشنا على واتساب")}</span></a>
           <p class="calc-note">${L("Estimates from the official catalog; final pricing may vary by your case. Government fees are separate.", "تقديرات من الكتالوج الرسمي وقد تختلف حسب حالتك. الرسوم الحكومية منفصلة.")}</p>
         </div>
@@ -818,142 +857,142 @@ function buildTourism() {
   const t = site.tourism;
   const b = site.businessTourism;
   const ev = t.events;
-  const evFeats = ev.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
+  const evFeats = ev.features.map((f, i) => `<li>${I.check}<span>${L((ev.featuresEn && ev.featuresEn[i]) || f, f)}</span></li>`).join("");
   const items = b.includes.items
-    .map((it) => `<div class="card feature"><div class="card-icon">${I.globe}</div><h3>${esc(it.title)}</h3><p>${esc(it.text)}</p></div>`)
+    .map((it) => `<div class="card feature"><div class="card-icon">${I.globe}</div><h3>${L(it.titleEn || it.title, it.title)}</h3><p>${L(it.textEn || it.text, it.text)}</p></div>`)
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">السياحة والفعاليات</span>
-    <h1>${esc(t.title)}</h1>
-    <p class="lead">${esc(t.lead)}</p>
+    <span class="eyebrow">${L("Tourism & events", "السياحة والفعاليات")}</span>
+    <h1>${L(t.titleEn || t.title, t.title)}</h1>
+    <p class="lead">${L(t.leadEn || t.lead, t.lead)}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="#events">${I.building}<span>فعاليات الموظفين</span></a>
-      <a class="btn btn-ghost btn-lg" href="#investor">${I.globe}<span>سياحة الأعمال للمستثمر</span></a>
+      <a class="btn btn-primary btn-lg" href="#events">${I.building}<span>${L("Staff events", "فعاليات الموظفين")}</span></a>
+      <a class="btn btn-ghost btn-lg" href="#investor">${I.globe}<span>${L("Investor business tourism", "سياحة الأعمال للمستثمر")}</span></a>
     </div>
   </div></section>
 
   <section class="section" id="events"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(ev.eyebrow)}</span><h2>${esc(ev.title)}</h2></div>
+    <div class="section-head"><span class="eyebrow">${L(ev.eyebrowEn || ev.eyebrow, ev.eyebrow)}</span><h2>${L(ev.titleEn || ev.title, ev.title)}</h2></div>
     <div class="svc-layout">
       <div class="svc-main">
-        <p class="lead-p">${esc(ev.text)}</p>
+        <p class="lead-p">${L(ev.textEn || ev.text, ev.text)}</p>
         <ul class="feat-list" style="margin-top:22px">${evFeats}</ul>
       </div>
       <aside class="svc-aside"><div class="order-box">
         <div class="price-big">${esc(ev.price)}</div>
-        <div class="price-note">${esc(ev.note)}</div>
-        ${waBtn("اطلب فعالية", "btn-wa")}
-        <a class="btn btn-ghost" href="/contact">تواصل معنا</a>
+        <div class="price-note">${L(ev.noteEn || ev.note, ev.note)}</div>
+        ${waBtn2("Request an event", "اطلب فعالية", "btn-wa")}
+        <a class="btn btn-ghost" href="${u("/contact")}">${L("Contact us", "تواصل معنا")}</a>
       </div></aside>
     </div>
   </div></section>
 
   <section class="section section--gray" id="investor"><div class="container">
-    <div class="section-head"><span class="eyebrow">النوع الثاني · سياحة الأعمال للمستثمر</span><h2>${esc(b.title)}</h2><p>${esc(b.lead)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Type two · investor business tourism", "النوع الثاني · سياحة الأعمال للمستثمر")}</span><h2>${L(b.titleEn || b.title, b.title)}</h2><p>${L(b.leadEn || b.lead, b.lead)}</p></div>
     <div class="grid grid-3">${items}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${esc(b.note)} السعر يُحدَّد حسب البرنامج — تواصل معنا للتسعير.</p></div>
-    <div class="center mt-32">${waBtn(b.cta, "btn-primary", true)}</div>
+    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L((b.noteEn || b.note) + " The price is set by program — contact us for pricing.", b.note + " السعر يُحدَّد حسب البرنامج — تواصل معنا للتسعير.")}</p></div>
+    <div class="center mt-32">${waBtn2(b.ctaEn || b.cta, b.cta, "btn-primary", true)}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>جاهز نرتّب لك؟</h2><p>سواء فعالية لموظفيك أو رحلة استكشاف للسوق السعودي — نصمّمها على مقاسك.</p>${waBtn("تواصل معنا", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready for us to arrange it?", "جاهز نرتّب لك؟")}</h2><p>${L("Whether an event for your staff or an exploratory trip to the Saudi market — we tailor it to you.", "سواء فعالية لموظفيك أو رحلة استكشاف للسوق السعودي — نصمّمها على مقاسك.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "السياحة والفعاليات — بيزنس بارتنر", desc: esc(t.lead.slice(0, 155)), active: "/tourism", body });
+  return page({ title: Lraw("Tourism & events — Business Partner", "السياحة والفعاليات — بيزنس بارتنر"), desc: Lraw((t.leadEn || t.lead).slice(0, 155), t.lead.slice(0, 155)), active: "/tourism", body });
 }
 
 function buildSaudi() {
   const s = site.saudiArabia;
-  const targets = s.vision.targets.map((t) => `<div class="stat"><div class="num">${esc(t.value)}</div><div class="lbl">${esc(t.label)}</div></div>`).join("");
+  const targets = s.vision.targets.map((t) => `<div class="stat"><div class="num">${esc(t.value)}</div><div class="lbl">${L(t.labelEn || t.label, t.label)}</div></div>`).join("");
   const sectors = s.sectors.items
     .map(
-      (it) => `<a class="card svc-card" href="/services#${slugCat(it.category)}">
+      (it) => `<a class="card svc-card" href="${u("/services")}#${slugCat(it.category)}">
       <div class="card-icon">${I.building}</div>
-      <h3>${esc(it.title)}</h3><p class="desc">${esc(it.text)}</p>
-      <span class="card-link">استعرض الخدمات ${I.arrow}</span></a>`
+      <h3>${L(it.titleEn || it.title, it.title)}</h3><p class="desc">${L(it.textEn || it.text, it.text)}</p>
+      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`
     )
     .join("");
   const articles = s.knowledge.articles
     .map(
-      (a) => `<a class="card article-card" href="${a.link}">
-      <span class="tag">${I.doc}دليل معرفي</span>
-      <h3>${esc(a.title)}</h3><p class="desc">${esc(a.excerpt)}</p>
-      <span class="card-link">اقرأ المزيد ${I.arrow}</span></a>`
+      (a) => `<a class="card article-card" href="${u(a.link)}">
+      <span class="tag">${I.doc}${L("Knowledge guide", "دليل معرفي")}</span>
+      <h3>${L(a.titleEn || a.title, a.title)}</h3><p class="desc">${L(a.excerptEn || a.excerpt, a.excerpt)}</p>
+      <span class="card-link">${L("Read more", "اقرأ المزيد")} ${I.arrow}</span></a>`
     )
     .join("");
   const entities = s.entities.items
     .map(
-      (e) => `<a class="card entity-card" href="${e.link}">
-      <div class="entity-head"><h3>${esc(e.name)}</h3><span class="entity-gov">${esc(e.gov)}</span></div>
-      <p class="desc"><strong>ماذا تفعل؟</strong> ${esc(e.what)}</p>
-      <p class="desc"><strong>كيف نخدمك؟</strong> ${esc(e.help)}</p>
-      <span class="card-link">الخدمات ذات العلاقة ${I.arrow}</span></a>`
+      (e) => `<a class="card entity-card" href="${u(e.link)}">
+      <div class="entity-head"><h3>${L(e.nameEn || e.name, e.name)}</h3><span class="entity-gov">${L(e.govEn || e.gov, e.gov)}</span></div>
+      <p class="desc"><strong>${L("What it does:", "ماذا تفعل؟")}</strong> ${L(e.whatEn || e.what, e.what)}</p>
+      <p class="desc"><strong>${L("How we serve you:", "كيف نخدمك؟")}</strong> ${L(e.helpEn || e.help, e.help)}</p>
+      <span class="card-link">${L("Related services", "الخدمات ذات العلاقة")} ${I.arrow}</span></a>`
     )
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">السعودية</span>
-    <h1>${esc(s.title)}</h1>
-    <p class="lead">${esc(s.lead)}</p>
-    <div class="hero-actions">${waBtn("ابدأ استثمارك", "btn-primary")}<a class="btn btn-ghost" href="/services">استعرض الخدمات</a></div>
+    <span class="eyebrow">${L("Saudi Arabia", "السعودية")}</span>
+    <h1>${L(s.titleEn || s.title, s.title)}</h1>
+    <p class="lead">${L(s.leadEn || s.lead, s.lead)}</p>
+    <div class="hero-actions">${waBtn2("Start your investment", "ابدأ استثمارك", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
   </div></section>
 
   <section class="section section--navy"><div class="container">
-    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${esc(s.vision.eyebrow)}</span><h2 style="color:#fff">${esc(s.vision.title)}</h2></div>
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(s.vision.eyebrowEn || s.vision.eyebrow, s.vision.eyebrow)}</span><h2 style="color:#fff">${L(s.vision.titleEn || s.vision.title, s.vision.title)}</h2></div>
     <div class="stats">${targets}</div>
-    <p class="center" style="color:rgba(255,255,255,.6);font-size:.85rem;margin-top:26px">${esc(s.vision.source)}</p>
+    <p class="center" style="color:rgba(255,255,255,.6);font-size:.85rem;margin-top:26px">${L(s.vision.sourceEn || s.vision.source, s.vision.source)}</p>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(s.sectors.eyebrow)}</span><h2>${esc(s.sectors.title)}</h2><p>${esc(s.sectors.subtitle)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(s.sectors.eyebrowEn || s.sectors.eyebrow, s.sectors.eyebrow)}</span><h2>${L(s.sectors.titleEn || s.sectors.title, s.sectors.title)}</h2><p>${L(s.sectors.subtitleEn || s.sectors.subtitle, s.sectors.subtitle)}</p></div>
     <div class="grid grid-3">${sectors}</div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(s.entities.eyebrow)}</span><h2>${esc(s.entities.title)}</h2><p>${esc(s.entities.subtitle)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(s.entities.eyebrowEn || s.entities.eyebrow, s.entities.eyebrow)}</span><h2>${L(s.entities.titleEn || s.entities.title, s.entities.title)}</h2><p>${L(s.entities.subtitleEn || s.entities.subtitle, s.entities.subtitle)}</p></div>
     <div class="grid grid-3">${entities}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(s.knowledge.eyebrow)}</span><h2>${esc(s.knowledge.title)}</h2><p>${esc(s.knowledge.subtitle)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(s.knowledge.eyebrowEn || s.knowledge.eyebrow, s.knowledge.eyebrow)}</span><h2>${L(s.knowledge.titleEn || s.knowledge.title, s.knowledge.title)}</h2><p>${L(s.knowledge.subtitleEn || s.knowledge.subtitle, s.knowledge.subtitle)}</p></div>
     <div class="grid grid-3">${articles}</div>
-    <div class="cta-band" style="margin-top:40px"><h2>تبي دليلاً مفصّلاً لحالتك؟</h2><p>الوكيل الذكي يجهّز لك خطوات خدمتك ومتطلباتها فوراً على واتساب.</p>${waBtn("اسأل الوكيل الذكي", "btn-white", true)}</div>
+    <div class="cta-band" style="margin-top:40px"><h2>${L("Want a detailed guide for your case?", "تبي دليلاً مفصّلاً لحالتك؟")}</h2><p>${L("The smart agent prepares your service steps and requirements instantly on WhatsApp.", "الوكيل الذكي يجهّز لك خطوات خدمتك ومتطلباتها فوراً على واتساب.")}</p>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "السعودية — بيانات وأدلة الاستثمار | بيزنس بارتنر", desc: esc(s.lead.slice(0, 155)), active: "/saudi-arabia", body });
+  return page({ title: Lraw("Saudi Arabia — investment data & guides | Business Partner", "السعودية — بيانات وأدلة الاستثمار | بيزنس بارتنر"), desc: Lraw((s.leadEn || s.lead).slice(0, 155), s.lead.slice(0, 155)), active: "/saudi-arabia", body });
 }
 
 function buildNews() {
   const n = site.news;
   const updates = n.platformUpdates.items
     .map(
-      (u) => `<div class="card"><div class="update-head"><span class="update-badge">${esc(u.platform)}</span></div>
-      <p>${esc(u.text)}</p></div>`
+      (it) => `<div class="card"><div class="update-head"><span class="update-badge">${L(it.platformEn || it.platform, it.platform)}</span></div>
+      <p>${L(it.textEn || it.text, it.text)}</p></div>`
     )
     .join("");
   const stories = n.successStories.items
-    .map((q) => `<div class="quote"><p>${esc(q.text)}</p><div class="role">${esc(q.tag)}</div></div>`)
+    .map((q) => `<div class="quote"><p>${L(q.textEn || q.text, q.text)}</p><div class="role">${L(q.tagEn || q.tag, q.tag)}</div></div>`)
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">الأخبار</span>
-    <h1>${esc(n.title)}</h1>
-    <p class="lead">${esc(n.lead)}</p>
+    <span class="eyebrow">${L("News", "الأخبار")}</span>
+    <h1>${L(n.titleEn || n.title, n.title)}</h1>
+    <p class="lead">${L(n.leadEn || n.lead, n.lead)}</p>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(n.platformUpdates.eyebrow)}</span><h2>${esc(n.platformUpdates.title)}</h2><p>${esc(n.platformUpdates.subtitle)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(n.platformUpdates.eyebrowEn || n.platformUpdates.eyebrow, n.platformUpdates.eyebrow)}</span><h2>${L(n.platformUpdates.titleEn || n.platformUpdates.title, n.platformUpdates.title)}</h2><p>${L(n.platformUpdates.subtitleEn || n.platformUpdates.subtitle, n.platformUpdates.subtitle)}</p></div>
     <div class="grid grid-3">${updates}</div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(n.successStories.eyebrow)}</span><h2>${esc(n.successStories.title)}</h2><p>${esc(n.successStories.note)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(n.successStories.eyebrowEn || n.successStories.eyebrow, n.successStories.eyebrow)}</span><h2>${L(n.successStories.titleEn || n.successStories.title, n.successStories.title)}</h2><p>${L(n.successStories.noteEn || n.successStories.note, n.successStories.note)}</p></div>
     <div class="grid grid-3">${stories}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${esc(n.partnerships.eyebrow)}</span><h2>${esc(n.partnerships.title)}</h2><p>${esc(n.partnerships.note)}</p>${waBtn("تواصل للشراكة", "btn-white", true)}</div>
+    <div class="cta-band"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(n.partnerships.eyebrowEn || n.partnerships.eyebrow, n.partnerships.eyebrow)}</span><h2>${L(n.partnerships.titleEn || n.partnerships.title, n.partnerships.title)}</h2><p>${L(n.partnerships.noteEn || n.partnerships.note, n.partnerships.note)}</p>${waBtn2("Contact for partnership", "تواصل للشراكة", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الأخبار والتحديثات — بيزنس بارتنر", desc: esc(n.lead.slice(0, 155)), active: "/news", body });
+  return page({ title: Lraw("News & updates — Business Partner", "الأخبار والتحديثات — بيزنس بارتنر"), desc: Lraw((n.leadEn || n.lead).slice(0, 155), n.lead.slice(0, 155)), active: "/news", body });
 }
 
 function buildCareers() {
@@ -961,101 +1000,101 @@ function buildCareers() {
   const recs = services.filter((x) => x.category === "Recruitment");
   const recCards = recs
     .map(
-      (x) => `<a class="card svc-card" href="/services/${x.slug}">
-      <span class="tag">${esc(x.categoryAr)}</span>
-      <h3>${esc(x.name)}</h3>
-      <div class="foot"><span class="price">${esc(x.price.label)}</span><span class="card-link">التفاصيل ${I.arrow}</span></div></a>`
+      (x) => `<a class="card svc-card" href="${u("/services/" + x.slug)}">
+      <span class="tag">${L(catEn(x.category), catAr(x.category))}</span>
+      <h3>${esc(sName(x))}</h3>
+      <div class="foot"><span class="price">${esc(priceLabel(x))}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div></a>`
     )
     .join("");
   const f = c.seeker.fields;
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">الوظائف</span>
-    <h1>${esc(c.title)}</h1>
-    <p class="lead">${esc(c.lead)}</p>
+    <span class="eyebrow">${L("Careers", "الوظائف")}</span>
+    <h1>${L("Careers & recruitment", c.title)}</h1>
+    <p class="lead">${L("Whether you're an employer looking for talent or a job seeker looking for the right opportunity — Business Partner connects both sides.", c.lead)}</p>
     <div class="path-switch">
-      <a class="btn btn-primary" href="#employers">${I.building}<span>أنا صاحب عمل</span></a>
-      <a class="btn btn-ghost" href="#seekers">${I.users}<span>أبحث عن عمل</span></a>
+      <a class="btn btn-primary" href="#employers">${I.building}<span>${L("I'm an employer", "أنا صاحب عمل")}</span></a>
+      <a class="btn btn-ghost" href="#seekers">${I.users}<span>${L("I'm looking for a job", "أبحث عن عمل")}</span></a>
     </div>
   </div></section>
 
   <section class="section" id="employers"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(c.employer.eyebrow)}</span><h2>${esc(c.employer.title)}</h2><p>${esc(c.employer.text)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("For employers", c.employer.eyebrow)}</span><h2>${L("Recruit the right talent", c.employer.title)}</h2><p>${L("From executive search to local recruitment and bulk hiring — we manage the recruitment process end to end.", c.employer.text)}</p></div>
     <div class="grid grid-3">${recCards}</div>
-    <div class="callout" style="max-width:760px;margin:32px auto 0"><span class="ico">💡</span><p><strong>التوظيف المحلي (السعودة):</strong> الأتعاب = نصف الراتب الشهري للموظف. مثال: راتب 4,000 ﷼ ← أتعابنا 2,000 ﷼.</p></div>
-    <div class="center mt-32">${waBtn(c.employer.cta, "btn-primary", true)}</div>
+    <div class="callout" style="max-width:760px;margin:32px auto 0"><span class="ico">💡</span><p><strong>${L("Local recruitment (Saudization):", "التوظيف المحلي (السعودة):")}</strong> ${L("our fee = half the employee's monthly salary. Example: a 4,000 ﷼ salary → our fee 2,000 ﷼.", "الأتعاب = نصف الراتب الشهري للموظف. مثال: راتب 4,000 ﷼ ← أتعابنا 2,000 ﷼.")}</p></div>
+    <div class="center mt-32">${waBtn2("Request recruitment", c.employer.cta, "btn-primary", true)}</div>
   </div></section>
 
   <section class="section section--gray" id="seekers"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(c.seeker.eyebrow)}</span><h2>${esc(c.seeker.title)}</h2><p>${esc(c.seeker.text)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("For job seekers", c.seeker.eyebrow)}</span><h2>${L("Submit your CV", c.seeker.title)}</h2><p>${L("Upload your CV and register your specialty to join our candidate pool. We match you to opportunities that fit your experience and reach out when a suitable role opens.", c.seeker.text)}</p></div>
     <div style="max-width:640px;margin:0 auto">
       <form class="calc-form cv-form" id="cv-form" novalidate>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-name">${esc(f.name)}</label><input id="c-name" name="name" type="text" required></div>
-          <div class="field"><label for="c-phone">${esc(f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
+          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
+          <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-email">${esc(f.email)}</label><input id="c-email" name="email" type="email"></div>
-          <div class="field"><label for="c-exp">${esc(f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="مثال: 3 سنوات"></div>
+          <div class="field"><label for="c-email">${L("Email", f.email)}</label><input id="c-email" name="email" type="email"></div>
+          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="${Lraw("e.g. 3 years", "مثال: 3 سنوات")}"></div>
         </div>
-        <div class="field"><label for="c-field">${esc(f.field)}</label><input id="c-field" name="field" type="text" placeholder="مثال: محاسبة، تسويق، هندسة"></div>
+        <div class="field"><label for="c-field">${L("Field / specialty", f.field)}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accounting, marketing, engineering", "مثال: محاسبة، تسويق، هندسة")}"></div>
         <div class="field">
-          <label>${esc(f.cv)}</label>
+          <label>${L("CV (PDF)", f.cv)}</label>
           <label class="file-drop" for="c-cv" id="cv-drop">
             <span class="file-ico">${I.upload}</span>
-            <span class="file-text" id="cv-filename">اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word</span>
+            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
           </label>
           <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" required hidden>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${esc(c.seeker.cta || "أرسل سيرتك الذاتية")}</span></button>
-        <p class="form-note" id="cv-note">${esc(c.seeker.note)}</p>
-        <div class="form-success" id="cv-success" hidden>✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة. يمكنك أيضاً متابعتنا على واتساب.</div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Send your CV", c.seeker.cta || "أرسل سيرتك الذاتية")}</span></button>
+        <p class="form-note" id="cv-note">${L("Upload your CV directly from the button (PDF/Word) to reach our team and join the candidate pool. (Automated pipeline — n8n & Notion — coming soon.)", c.seeker.note)}</p>
+        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up. You can also follow us on WhatsApp.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة. يمكنك أيضاً متابعتنا على واتساب.")}</div>
       </form>
-      <div class="center mt-16">${waBtn("أو أرسلها عبر واتساب", "btn-ghost")}</div>
+      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
     </div>
   </div></section>`;
-  return page({ title: "الوظائف والتوظيف — بيزنس بارتنر", desc: esc(c.lead.slice(0, 155)), active: "/careers", body });
+  return page({ title: Lraw("Careers & recruitment — Business Partner", "الوظائف والتوظيف — بيزنس بارتنر"), desc: Lraw("Careers and recruitment with Business Partner — for employers and job seekers.", c.lead.slice(0, 155)), active: "/careers", body });
 }
 
 function buildContact() {
   const c = site.contact;
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">تواصل معنا</span>
-    <h1>نجاوبك فوراً</h1>
-    <p class="lead">أسرع طريقة للتواصل هي الوكيل الذكي على واتساب — يرد 24/7. أو املأ النموذج ونعاود التواصل معك.</p>
+    <span class="eyebrow">${L("Contact us", "تواصل معنا")}</span>
+    <h1>${L("We reply instantly", "نجاوبك فوراً")}</h1>
+    <p class="lead">${L("The fastest way to reach us is the smart agent on WhatsApp — it replies 24/7. Or fill in the form and we'll get back to you.", "أسرع طريقة للتواصل هي الوكيل الذكي على واتساب — يرد 24/7. أو املأ النموذج ونعاود التواصل معك.")}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="contact-grid">
       <div>
-        <h2>معلومات التواصل</h2>
+        <h2>${L("Contact information", "معلومات التواصل")}</h2>
         <ul class="info-list">
-          <li><span class="ico">${I.wa}</span><div><div class="k">واتساب — الوكيل الذكي</div><a class="v" href="${WA}" target="_blank" rel="noopener">${esc(c.whatsappAgent)}</a></div></li>
-          <li><span class="ico">${I.wa}</span><div><div class="k">واتساب — الدعم البشري</div><a class="v" href="${WA_SUPPORT}" target="_blank" rel="noopener">${esc(c.whatsappSupport)}</a></div></li>
-          ${site.whatsappChannel ? `<li><span class="ico">${I.channel}</span><div><div class="k">قناة واتساب</div><a class="v" href="${site.whatsappChannel}" target="_blank" rel="noopener">تابع قناتنا في واتساب</a></div></li>` : ""}
-          <li><span class="ico">${I.phone}</span><div><div class="k">التواصل الهاتفي</div><a class="v" href="tel:${esc(c.phoneIntl)}">${esc(c.phone)}</a></div></li>
-          <li><span class="ico">${I.mail}</span><div><div class="k">البريد الإلكتروني</div><a class="v" href="mailto:${esc(c.email)}">${esc(c.email)}</a></div></li>
-          <li><span class="ico">${I.pin}</span><div><div class="k">العنوان</div><div class="v">${esc(c.address)}</div></div></li>
-          <li><span class="ico">${I.clock}</span><div><div class="k">أوقات العمل</div><div class="v">${esc(c.hours)}</div></div></li>
+          <li><span class="ico">${I.wa}</span><div><div class="k">${L("WhatsApp — smart agent", "واتساب — الوكيل الذكي")}</div><a class="v" href="${WA}" target="_blank" rel="noopener">${esc(c.whatsappAgent)}</a></div></li>
+          <li><span class="ico">${I.wa}</span><div><div class="k">${L("WhatsApp — human support", "واتساب — الدعم البشري")}</div><a class="v" href="${WA_SUPPORT}" target="_blank" rel="noopener">${esc(c.whatsappSupport)}</a></div></li>
+          ${site.whatsappChannel ? `<li><span class="ico">${I.channel}</span><div><div class="k">${L("WhatsApp channel", "قناة واتساب")}</div><a class="v" href="${site.whatsappChannel}" target="_blank" rel="noopener">${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</a></div></li>` : ""}
+          <li><span class="ico">${I.phone}</span><div><div class="k">${L("Phone", "التواصل الهاتفي")}</div><a class="v" href="tel:${esc(c.phoneIntl)}">${esc(c.phone)}</a></div></li>
+          <li><span class="ico">${I.mail}</span><div><div class="k">${L("Email", "البريد الإلكتروني")}</div><a class="v" href="mailto:${esc(c.email)}">${esc(c.email)}</a></div></li>
+          <li><span class="ico">${I.pin}</span><div><div class="k">${L("Address", "العنوان")}</div><div class="v">${L(c.addressEn || c.address, c.address)}</div></div></li>
+          <li><span class="ico">${I.clock}</span><div><div class="k">${L("Working hours", "أوقات العمل")}</div><div class="v">${L(c.hoursEn || c.hours, c.hours)}</div></div></li>
         </ul>
         <div class="map-embed">
-          <iframe src="https://www.google.com/maps?q=${encodeURIComponent("حي الملقا الرياض")}&output=embed" loading="lazy" title="موقع بيزنس بارتنر"></iframe>
+          <iframe src="https://www.google.com/maps?q=${encodeURIComponent("حي الملقا الرياض")}&output=embed" loading="lazy" title="${Lraw("Business Partner location", "موقع بيزنس بارتنر")}"></iframe>
         </div>
       </div>
       <div>
-        <h2>أرسل رسالتك</h2>
+        <h2>${L("Send your message", "أرسل رسالتك")}</h2>
         <form class="calc-form" action="${WA}" method="get" target="_blank" onsubmit="return true">
-          <div class="field"><label for="f-name">الاسم</label><input id="f-name" name="name" type="text" placeholder="اسمك الكامل" required></div>
-          <div class="field"><label for="f-phone">رقم الجوال</label><input id="f-phone" name="phone" type="tel" placeholder="05xxxxxxxx"></div>
-          <div class="field"><label for="f-service">الخدمة المطلوبة</label><input id="f-service" name="service" type="text" placeholder="مثال: تأسيس شركة، إقامة مميزة"></div>
-          <div class="field"><label for="f-msg">تفاصيل طلبك</label><textarea id="f-msg" name="message" rows="4" placeholder="اكتب استفسارك هنا"></textarea></div>
-          ${waBtn("أرسل عبر واتساب", "btn-wa")}
-          <p class="form-note">بالضغط على الزر يفتح واتساب لإكمال إرسال طلبك للوكيل الذكي مباشرة.</p>
+          <div class="field"><label for="f-name">${L("Name", "الاسم")}</label><input id="f-name" name="name" type="text" placeholder="${Lraw("Your full name", "اسمك الكامل")}" required></div>
+          <div class="field"><label for="f-phone">${L("Mobile", "رقم الجوال")}</label><input id="f-phone" name="phone" type="tel" placeholder="05xxxxxxxx"></div>
+          <div class="field"><label for="f-service">${L("Service needed", "الخدمة المطلوبة")}</label><input id="f-service" name="service" type="text" placeholder="${Lraw("e.g. company formation, premium residency", "مثال: تأسيس شركة، إقامة مميزة")}"></div>
+          <div class="field"><label for="f-msg">${L("Your request details", "تفاصيل طلبك")}</label><textarea id="f-msg" name="message" rows="4" placeholder="${Lraw("Write your enquiry here", "اكتب استفسارك هنا")}"></textarea></div>
+          ${waBtn2("Send via WhatsApp", "أرسل عبر واتساب", "btn-wa")}
+          <p class="form-note">${L("Tapping the button opens WhatsApp to send your request straight to the smart agent.", "بالضغط على الزر يفتح واتساب لإكمال إرسال طلبك للوكيل الذكي مباشرة.")}</p>
         </form>
       </div>
     </div>
   </div></section>`;
-  return page({ title: "اتصل بنا — بيزنس بارتنر", desc: "تواصل مع بيزنس بارتنر عبر واتساب أو الهاتف أو البريد — رد فوري من الوكيل الذكي 24/7.", active: "/contact", body });
+  return page({ title: Lraw("Contact — Business Partner", "اتصل بنا — بيزنس بارتنر"), desc: Lraw("Contact Business Partner via WhatsApp, phone or email — instant reply from the smart agent 24/7.", "تواصل مع بيزنس بارتنر عبر واتساب أو الهاتف أو البريد — رد فوري من الوكيل الذكي 24/7."), active: "/contact", body });
 }
 
 function buildCart() {
@@ -1071,7 +1110,7 @@ function buildCart() {
       <div class="cart-main">
         <div id="cart-items"></div>
         <div class="cart-empty" id="cart-empty" hidden><p>${L("Your cart is empty. Browse services and packages and add what suits you.", cm.cartEmpty)}</p>
-          <a class="btn btn-primary" href="/services">${L("Browse services", "تصفّح الخدمات")}</a></div>
+          <a class="btn btn-primary" href="${u("/services")}">${L("Browse services", "تصفّح الخدمات")}</a></div>
       </div>
       <aside class="cart-aside">
         <div class="order-box">
@@ -1079,14 +1118,14 @@ function buildCart() {
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="cart-subtotal">—</span></div>
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="cart-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
-          <a class="btn btn-primary btn-lg" id="cart-checkout" href="/checkout" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
+          <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
-          <p class="calc-note">${esc(cm.vatNote)}</p>
+          <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
         </div>
       </aside>
     </div>
   </div></section>`;
-  return page({ title: "السلة — بيزنس بارتنر", desc: "سلة طلباتك من خدمات وباقات بيزنس بارتنر.", active: "/cart", body });
+  return page({ title: Lraw("Cart — Business Partner", "السلة — بيزنس بارتنر"), desc: Lraw("Your cart of Business Partner services and packages.", "سلة طلباتك من خدمات وباقات بيزنس بارتنر."), active: "/cart", path: "/cart", body });
 }
 
 function buildCheckout() {
@@ -1124,11 +1163,11 @@ function buildCheckout() {
           <div class="bank-box">
             <div class="bank-head">${I.bank}<strong>${L("Bank transfer details", "بيانات التحويل البنكي")}</strong></div>
             <ul class="bank-list">
-              <li><span class="k">${L("Beneficiary", "المستفيد")}</span><span class="v">${esc(bank.beneficiary)}</span></li>
+              <li><span class="k">${L("Beneficiary", "المستفيد")}</span><span class="v">${L(bank.beneficiaryEn || bank.beneficiary, bank.beneficiary)}</span></li>
               <li><span class="k">${L("Bank", "البنك")}</span><span class="v">${esc(bank.bankName)}</span></li>
               <li><span class="k">IBAN</span><span class="v">${esc(bank.iban)}</span></li>
             </ul>
-            <p class="calc-note">${esc(bank.note)}</p>
+            <p class="calc-note">${L(bank.noteEn || bank.note, bank.note)}</p>
           </div>
           <h2>${L("Upload transfer receipt", "ارفع إيصال التحويل")}</h2>
           <div class="field">
@@ -1148,12 +1187,12 @@ function buildCheckout() {
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="co-subtotal">—</span></div>
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="co-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="co-total">—</span></div>
-          <a class="btn btn-ghost" href="/cart" style="width:100%">${L("Edit cart", "تعديل السلة")}</a>
+          <a class="btn btn-ghost" href="${u("/cart")}" style="width:100%">${L("Edit cart", "تعديل السلة")}</a>
         </div>
       </aside>
     </div>
   </div></section>`;
-  return page({ title: "إتمام الطلب — بيزنس بارتنر", desc: "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل.", active: "/cart", body });
+  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body });
 }
 
 function buildAccount() {
@@ -1182,7 +1221,7 @@ function buildAccount() {
         <div class="field"><label for="rg-pass">${L("Password", "كلمة المرور")}</label><input id="rg-pass" type="password" required></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Create account", "إنشاء الحساب")}</button>
       </form>
-      <p class="form-note">${esc(ac.demoNote)}</p>
+      <p class="form-note">${L(ac.demoNoteEn || ac.demoNote, ac.demoNote)}</p>
     </div>
 
     <div class="account-dash" id="account-dash" hidden>
@@ -1192,14 +1231,14 @@ function buildAccount() {
       </div>
       <div class="dash-grid">
         <div class="dash-card"><h3>${L("My orders", "طلباتي")}</h3><div id="dash-orders"><p class="text-soft">${L("No orders yet.", "لا توجد طلبات بعد.")}</p></div>
-          <a class="btn btn-ghost" href="/services">${L("Browse services", "تصفّح الخدمات")}</a></div>
+          <a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "تصفّح الخدمات")}</a></div>
         <div class="dash-card"><h3>${L("My documents", "مستنداتي")}</h3><div id="dash-uploads"><p class="text-soft">${L("No uploads yet.", "لا توجد ملفات بعد.")}</p></div>
-          <a class="btn btn-ghost" href="/checkout">${L("Upload via an order", "ارفع عبر طلب")}</a></div>
+          <a class="btn btn-ghost" href="${u("/checkout")}">${L("Upload via an order", "ارفع عبر طلب")}</a></div>
       </div>
       <div class="callout" style="margin-top:24px"><span class="ico">💡</span><p>${L("This is a front-end preview. Secure partner accounts (Notion CRM + verification) are being connected.", ac.demoNote)}</p></div>
     </div>
   </div></section>`;
-  return page({ title: "منصّة العملاء — بيزنس بارتنر", desc: "سجّل دخولك لمتابعة طلباتك ومستنداتك مع بيزنس بارتنر.", active: "/account", body });
+  return page({ title: Lraw("Client portal — Business Partner", "منصّة العملاء — بيزنس بارتنر"), desc: Lraw("Sign in to track your orders and documents with Business Partner.", "سجّل دخولك لمتابعة طلباتك ومستنداتك مع بيزنس بارتنر."), active: "/account", path: "/account", body });
 }
 
 /* ---------- write ---------- */

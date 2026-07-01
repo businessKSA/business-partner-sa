@@ -97,37 +97,12 @@
   }
 })();
 
-/* ---------- Language toggle (English-primary; Saudi flag → Arabic) ---------- */
+/* ---------- Language context (fixed per URL tree: / = EN, /ar/ = AR) ---------- */
 var BP = window.BP = window.BP || {};
 (function () {
   "use strict";
-  function getLang() { try { return localStorage.getItem("bp_lang") || "en"; } catch (e) { return "en"; } }
-  BP.lang = getLang();
-
-  function apply(lang) {
-    BP.lang = lang;
-    try { localStorage.setItem("bp_lang", lang); } catch (e) {}
-    var d = document.documentElement;
-    d.lang = lang;
-    d.dir = lang === "ar" ? "rtl" : "ltr";
-    d.setAttribute("data-lang", lang);
-    // Swap all marked text nodes
-    var nodes = document.querySelectorAll(".i18n");
-    for (var i = 0; i < nodes.length; i++) {
-      var n = nodes[i];
-      var t = lang === "ar" ? n.getAttribute("data-ar") : n.getAttribute("data-en");
-      if (t != null) n.textContent = t;
-    }
-    // Toggle label shows the OTHER language you can switch to
-    var lbl = document.querySelector("#lang-toggle .lang-label");
-    if (lbl) lbl.textContent = lang === "ar" ? "EN" : "العربية";
-    // Let other modules (cart etc.) re-render
-    document.dispatchEvent(new CustomEvent("bp:langchange", { detail: { lang: lang } }));
-  }
-
-  document.addEventListener("DOMContentLoaded", function () { apply(getLang()); });
-  var btn = document.getElementById("lang-toggle");
-  if (btn) btn.addEventListener("click", function () { apply(BP.lang === "ar" ? "en" : "ar"); });
+  // Language is decided at build time (separate EN and AR page trees); read it from the document.
+  BP.lang = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0 ? "ar" : "en";
   BP.t = function (en, ar) { return BP.lang === "ar" ? ar : en; };
   BP.money = function (n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }) + " ﷼"; };
 })();
