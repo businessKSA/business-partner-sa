@@ -26,6 +26,7 @@ copyAsset("Facebook Cover Photo.png", "cover.png");
 const site = read("data/site.json");
 const services = read("data/services.json");
 const categories = read("data/categories.json");
+const svcI18n = read("data/service-i18n.json");
 
 // Apply catalog overrides (price/name/description) from site.json to the list,
 // so cards, the calculator, and detail pages all reflect them.
@@ -72,10 +73,57 @@ const I = {
   bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M4 10v8M20 10v8M8 10v8M16 10v8M3 21h18"/></svg>',
 };
 
-/* ---------- bilingual helper ---------- */
-/* Emits a text node that the client-side i18n engine swaps on flag toggle.
-   Default rendered text is English (site is English-primary). */
-const L = (en, ar) => `<span class="i18n" data-en="${esc(en)}" data-ar="${esc(ar)}">${esc(en)}</span>`;
+/* ---------- bilingual build-time engine ----------
+   The whole site is generated twice: English (LANG='en') at root paths,
+   and Arabic (LANG='ar') under the /ar/ prefix. L() picks the string for the
+   current build language; u() prefixes internal links for the Arabic tree. */
+let LANG = "en";
+const L = (en, ar) => esc(LANG === "ar" ? ar : en);
+// Raw (unescaped) variant for when the caller needs plain text (title/desc/attributes).
+const Lraw = (en, ar) => (LANG === "ar" ? ar : en);
+// Internal-link prefixer: keeps external/anchor/asset links untouched.
+const u = (href) => {
+  if (LANG !== "ar") return href;
+  if (!href || href[0] !== "/" || href.startsWith("/assets") || href.startsWith("/api") || href.startsWith("/ar/") || href === "/ar") return href === "/" ? "/ar/" : href;
+  return "/ar" + href;
+};
+// Service name in the current build language (bilingual map → override → catalog).
+function sName(s) {
+  const m = svcI18n[s.code] || {};
+  const ov = site.overrides[s.slug];
+  if (LANG === "ar") return m.ar || (ov && ov.name) || s.name;
+  return m.en || (ov && ov.nameEn) || s.name;
+}
+// Arabic name regardless of current build language (for cart data attributes).
+const sNameArOf = (s) => { const m = svcI18n[s.code] || {}; const ov = site.overrides[s.slug]; return m.ar || (ov && ov.name) || s.name; };
+// Service description in the current language. Overrides win; otherwise a template
+// is built from the localized name + category (catalog descriptions are Arabic-only).
+function sDesc(s) {
+  const ov = site.overrides[s.slug];
+  if (LANG === "ar") {
+    if (ov && ov.description) return ov.description;
+    return `نتولّى في بيزنس بارتنر تنفيذ خدمة «${sName(s)}» نيابةً عنك ضمن ${catAr(s.category)} — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.`;
+  }
+  if (ov && ov.descriptionEn) return ov.descriptionEn;
+  return `Business Partner handles “${sName(s)}” on your behalf within ${catEn(s.category)} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.`;
+}
+const catEn = (key) => (CAT_META[key] ? CAT_META[key].en : key);
+const catAr = (key) => { const c = categories.find((x) => x.key === key); return c ? c.ar : key; };
+// Category label in current language.
+const catLabel = (key) => (LANG === "ar" ? catAr(key) : catEn(key));
+// Localize an Arabic price label for the English tree (numbers + ﷼ kept).
+function priceLabel(s) {
+  const l = (s.price && s.price.label) || "";
+  if (LANG === "ar") return l;
+  return l
+    .replace("يبدأ من", "From")
+    .replace("نسبة من قيمة الصفقة", "% of deal value")
+    .replace("نصف الراتب الشهري", "Half the monthly salary")
+    .replace("/ شهرياً", "/ monthly")
+    .replace("/ لكل مرشّح", "/ per candidate")
+    .replace("شهرياً", "monthly")
+    .replace("لكل مرشّح", "per candidate");
+}
 const saudiFlag =
   '<svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></svg>';
 
@@ -101,9 +149,17 @@ function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", gh
 }
 
 /* ---------- layout ---------- */
-function head(title, desc) {
+// Path of the same page in the other language.
+function mirrorUrl(path) {
+  const p = path || "/";
+  if (LANG === "ar") return p; // Arabic → English root path
+  return p === "/" ? "/ar/" : "/ar" + p; // English → Arabic prefixed path
+}
+function head(title, desc, path) {
+  const enUrl = path || "/";
+  const arUrl = enUrl === "/" ? "/ar/" : "/ar" + enUrl;
   return `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -113,15 +169,16 @@ function head(title, desc) {
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
+<meta property="og:locale" content="${LANG === "ar" ? "ar_SA" : "en_US"}">
 <meta name="theme-color" content="#0B1B5A">
+<link rel="alternate" hreflang="en" href="${enUrl}">
+<link rel="alternate" hreflang="ar" href="${arUrl}">
+<link rel="alternate" hreflang="x-default" href="${enUrl}">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css">
-<script>
-(function(){try{var l=localStorage.getItem('bp_lang')||'en';var d=document.documentElement;d.lang=l;d.dir=(l==='ar')?'rtl':'ltr';d.setAttribute('data-lang',l);}catch(e){}})();
-</script>
 </head>
 <body>`;
 }
@@ -140,24 +197,30 @@ const NAV_EN = {
   "/contact": "Contact",
 };
 
-function langToggle() {
-  return `<button class="lang-toggle" id="lang-toggle" aria-label="Switch language / تبديل اللغة">
-    ${saudiFlag}<span class="lang-label">العربية</span></button>`;
+const NAV_AR = {
+  "/": "الرئيسية", "/about": "من نحن", "/services": "الخدمات", "/ai-agents": "الوكلاء الأذكياء",
+  "/tourism": "السياحة", "/packages": "الباقات", "/calculator": "الحاسبة", "/saudi-arabia": "السعودية",
+  "/news": "الأخبار", "/careers": "الوظائف", "/contact": "تواصل معنا",
+};
+
+function langToggle(path) {
+  return `<a class="lang-toggle" href="${mirrorUrl(path)}" aria-label="Switch language / تبديل اللغة">
+    ${saudiFlag}<span class="lang-label">${LANG === "ar" ? "English" : "العربية"}</span></a>`;
 }
 
-function header(active) {
+function header(active, path) {
   const links = site.nav
-    .map((n) => `<a href="${n.href}"${n.href === active ? ' class="active"' : ""}>${L(NAV_EN[n.href] || n.label, n.label)}</a>`)
+    .map((n) => `<a href="${u(n.href)}"${n.href === active ? ' class="active"' : ""}>${L(NAV_EN[n.href] || n.label, NAV_AR[n.href] || n.label)}</a>`)
     .join("");
   return `<header class="site-header"><div class="container header-inner">
-  <a class="logo" href="/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
+  <a class="logo" href="${u("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="nav" aria-label="Main navigation">${links}<a class="btn btn-wa nav-cta" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Start on WhatsApp", "ابدأ على واتساب")}</span></a></nav>
   <div class="header-cta">
-    ${langToggle()}
-    <a class="icon-btn" href="/account" aria-label="Account / حسابي">${I.user}</a>
-    <a class="icon-btn cart-link" href="/cart" aria-label="Cart / السلة">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    ${waBtn2("Start now", "ابدأ الآن", "btn-primary")}
-    <button class="nav-toggle" aria-label="Menu / القائمة" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    ${langToggle(path)}
+    <a class="icon-btn" href="${u("/account")}" aria-label="${Lraw("Account", "حسابي")}">${I.user}</a>
+    <a class="icon-btn cart-link" href="${u("/cart")}" aria-label="${Lraw("Cart", "السلة")}">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
+    <a class="btn btn-wa btn-primary" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Start now", "ابدأ الآن")}</span></a>
+    <button class="nav-toggle" aria-label="${Lraw("Menu", "القائمة")}" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header>`;
 }
@@ -166,71 +229,73 @@ function footer() {
   const c = site.contact;
   const svcLinks = categories
     .slice(0, 6)
-    .map((cat) => `<li><a href="/services#${slugCat(cat.key)}">${esc(cat.ar)}</a></li>`)
+    .map((cat) => `<li><a href="${u("/services")}#${slugCat(cat.key)}">${L(CAT_META[cat.key] ? CAT_META[cat.key].en : cat.key, cat.ar)}</a></li>`)
     .join("");
+  const fl = (href, en, ar) => `<li><a href="${u(href)}">${L(en, ar)}</a></li>`;
   return `<footer class="site-footer"><div class="container">
   <div class="footer-grid">
     <div>
       <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
-      <p>${esc(site.brand.shortBio)}</p>
-      <p class="footer-tag">شركاء نجاحك</p>
+      <p>${L(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio)}</p>
+      <p class="footer-tag">${L("Partnering for your success", "شركاء نجاحك")}</p>
     </div>
-    <div class="footer-col"><h4>روابط</h4><ul>
-      <li><a href="/about">من نحن</a></li>
-      <li><a href="/services">الخدمات</a></li>
-      <li><a href="/ai-agents">الوكلاء الأذكياء</a></li>
-      <li><a href="/tourism">السياحة والفعاليات</a></li>
-      <li><a href="/packages">الباقات</a></li>
-      <li><a href="/saudi-arabia">السعودية</a></li>
-      <li><a href="/news">الأخبار</a></li>
-      <li><a href="/careers">الوظائف</a></li>
-      <li><a href="/calculator">الحاسبة</a></li>
-      <li><a href="/account">منصّة العملاء</a></li>
-      <li><a href="/cart">السلة</a></li>
-      <li><a href="/contact">اتصل بنا</a></li>
+    <div class="footer-col"><h4>${L("Links", "روابط")}</h4><ul>
+      ${fl("/about", "About", "من نحن")}
+      ${fl("/services", "Services", "الخدمات")}
+      ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
+      ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
+      ${fl("/packages", "Packages", "الباقات")}
+      ${fl("/saudi-arabia", "Saudi Arabia", "السعودية")}
+      ${fl("/news", "News", "الأخبار")}
+      ${fl("/careers", "Careers", "الوظائف")}
+      ${fl("/calculator", "Calculator", "الحاسبة")}
+      ${fl("/account", "Client portal", "منصّة العملاء")}
+      ${fl("/cart", "Cart", "السلة")}
+      ${fl("/contact", "Contact", "اتصل بنا")}
     </ul></div>
-    <div class="footer-col"><h4>خدمات مختارة</h4><ul>${svcLinks}</ul></div>
-    <div class="footer-col"><h4>تواصل</h4><ul class="footer-contact">
+    <div class="footer-col"><h4>${L("Selected services", "خدمات مختارة")}</h4><ul>${svcLinks}</ul></div>
+    <div class="footer-col"><h4>${L("Contact", "تواصل")}</h4><ul class="footer-contact">
       <li>${I.phone}<span>${esc(c.phone)}</span></li>
       <li>${I.mail}<span>${esc(c.email)}</span></li>
-      <li>${I.pin}<span>${esc(c.address)}</span></li>
-      <li>${I.wa}<a href="${WA}" target="_blank" rel="noopener">الوكيل الذكي على واتساب</a></li>
-      ${site.whatsappChannel ? `<li>${I.channel}<a href="${site.whatsappChannel}" target="_blank" rel="noopener">تابع قناتنا في واتساب</a></li>` : ""}
+      <li>${I.pin}<span>${L(c.addressEn || c.address, c.address)}</span></li>
+      <li>${I.wa}<a href="${WA}" target="_blank" rel="noopener">${L("Smart agent on WhatsApp", "الوكيل الذكي على واتساب")}</a></li>
+      ${site.whatsappChannel ? `<li>${I.channel}<a href="${site.whatsappChannel}" target="_blank" rel="noopener">${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</a></li>` : ""}
     </ul></div>
   </div>
   <div class="footer-bottom">
-    <span>© ${new Date().getFullYear()} بيزنس بارتنر · جميع الحقوق محفوظة</span>
-    <span>${esc(c.hours)}</span>
+    <span>${L("© " + new Date().getFullYear() + " Business Partner · All rights reserved", "© " + new Date().getFullYear() + " بيزنس بارتنر · جميع الحقوق محفوظة")}</span>
+    <span>${L(c.hoursEn || c.hours, c.hours)}</span>
   </div>
 </div></footer>`;
 }
 
 function waFab() {
-  return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="تواصل عبر واتساب">${I.wa}<span class="lbl">تحدث مع الوكيل الذكي</span></a>`;
+  return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="${Lraw("Contact on WhatsApp", "تواصل عبر واتساب")}">${I.wa}<span class="lbl">${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>`;
 }
 
 function advisorWidget() {
-  return `<button class="advisor-fab" id="advisor-fab" aria-label="افتح المستشار الذكي">${I.robot}<span class="lbl">المستشار</span></button>
-  <section class="advisor-panel" id="advisor-panel" hidden aria-label="المستشار الذكي">
+  return `<button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open the smart advisor", "افتح المستشار الذكي")}">${I.robot}<span class="lbl">${L("Advisor", "المستشار")}</span></button>
+  <section class="advisor-panel" id="advisor-panel" hidden aria-label="${Lraw("Smart advisor", "المستشار الذكي")}">
     <header class="advisor-head">
-      <div class="advisor-title">${I.robot}<div><strong>المستشار الذكي</strong><span>يجاوبك عن الخدمات والإجراءات</span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="إغلاق">${I.close}</button>
+      <div class="advisor-title">${I.robot}<div><strong>${L("Smart Advisor", "المستشار الذكي")}</strong><span>${L("Answers about services & procedures", "يجاوبك عن الخدمات والإجراءات")}</span></div></div>
+      <button class="advisor-close" id="advisor-close" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
     </header>
     <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">مرحباً 👋 أنا المستشار الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.</div>
+      <div class="advisor-msg bot">${L("Hi 👋 I'm the Business Partner smart advisor. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "مرحباً 👋 أنا المستشار الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
     </div>
     <form class="advisor-form" id="advisor-form">
-      <input id="advisor-input" type="text" autocomplete="off" placeholder="اكتب سؤالك هنا…" aria-label="اكتب سؤالك">
-      <button type="submit" aria-label="إرسال">${I.send}</button>
+      <input id="advisor-input" type="text" autocomplete="off" placeholder="${Lraw("Type your question here…", "اكتب سؤالك هنا…")}" aria-label="${Lraw("Type your question", "اكتب سؤالك")}">
+      <button type="submit" aria-label="${Lraw("Send", "إرسال")}">${I.send}</button>
     </form>
-    <a class="advisor-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>تفضّل التحدث مع فريقنا على واتساب؟</span></a>
+    <a class="advisor-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Prefer to chat with our team on WhatsApp?", "تفضّل التحدث مع فريقنا على واتساب؟")}</span></a>
   </section>`;
 }
 
-function page({ title, desc, active, body, script = "" }) {
+function page({ title, desc, active, path, body, script = "" }) {
+  const p = path || active || "/";
   return (
-    head(title, desc) +
-    header(active) +
+    head(title, desc, p) +
+    header(active, p) +
     `<main>${body}</main>` +
     footer() +
     waFab() +
@@ -242,53 +307,104 @@ function page({ title, desc, active, body, script = "" }) {
 const slugCat = (key) => "cat-" + key.toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "");
 
 /* ---------- service helpers ---------- */
+// Government-platform names → English.
+const GOV_EN = {
+  "الغرفة التجارية": "Chamber of Commerce",
+  "المركز السعودي للأعمال": "Saudi Business Center",
+  "أبشر أعمال": "Absher Business",
+  "متعدد الجهات": "Multiple authorities",
+  "وزارة الاستثمار MISA": "Ministry of Investment (MISA)",
+  "الإقامة المميزة": "Premium Residency Center",
+  "بلدي": "Balady",
+  "التأمينات GOSI": "GOSI",
+  "الدفاع المدني": "Civil Defense",
+  "مدد": "Mudad",
+  "مقيم": "Muqeem",
+  "قوى": "Qiwa",
+  "الملكية الفكرية SAIP": "SAIP (Intellectual Property)",
+  "سُبل": "Subul",
+  "الزكاة والضريبة ZATCA": "ZATCA",
+  "وزارة الموارد البشرية": "Ministry of Human Resources",
+  "بدون جهة حكومية": "No government authority",
+};
+const govLabel = (g) => (LANG === "ar" ? g : (GOV_EN[g] || g));
+
 function audienceOf(s, ov) {
-  if (ov && ov.audience) return ov.audience;
-  if (s.targetClient) return s.targetClient;
-  return "أفراد ومنشآت";
+  if (LANG === "ar") {
+    if (ov && ov.audience) return ov.audience;
+    if (s.targetClient) return s.targetClient;
+    return "أفراد ومنشآت";
+  }
+  if (ov && ov.audienceEn) return ov.audienceEn;
+  return "Individuals & businesses";
 }
 function documentsOf(s, ov) {
-  if (ov && ov.documents) return ov.documents;
-  const base = [
-    "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)",
-    "المستندات الخاصة بنشاطك أو بطلب الخدمة",
-    "سداد الرسوم المقررة للجهة المختصة",
+  if (LANG === "ar") {
+    if (ov && ov.documents) return ov.documents;
+    return [
+      "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)",
+      "المستندات الخاصة بنشاطك أو بطلب الخدمة",
+      "سداد الرسوم المقررة للجهة المختصة",
+    ];
+  }
+  if (ov && ov.documentsEn) return ov.documentsEn;
+  return [
+    "Official documents (Commercial Registration or ID as applicable)",
+    "Documents specific to your activity or request",
+    "Payment of the fees due to the relevant authority",
   ];
-  return base;
 }
 function featuresOf(s, ov) {
-  if (ov && ov.features) return ov.features;
-  const feats = [];
-  if (s.deliverables && s.deliverables.length) feats.push(...s.deliverables.slice(0, 4));
-  feats.push("ننجز الإجراء نيابةً عنك من البداية حتى الإصدار");
-  feats.push("أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة");
-  feats.push("دعم الوكيل الذكي على واتساب 24/7");
-  return feats.slice(0, 7);
+  if (LANG === "ar") {
+    if (ov && ov.features) return ov.features;
+    const feats = [];
+    if (s.deliverables && s.deliverables.length) feats.push(...s.deliverables.slice(0, 4));
+    feats.push("ننجز الإجراء نيابةً عنك من البداية حتى الإصدار");
+    feats.push("أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة");
+    feats.push("دعم الوكيل الذكي على واتساب 24/7");
+    return feats.slice(0, 7);
+  }
+  if (ov && ov.featuresEn) return ov.featuresEn;
+  return [
+    "We complete the procedure on your behalf, from start to issuance",
+    "Clear fees, with government fees separate and disclosed",
+    "Smart-agent support on WhatsApp 24/7",
+  ];
 }
 function faqOf(s, ov) {
-  if (ov && ov.faq) return ov.faq;
+  if (ov && ov.faq && LANG === "ar") return ov.faq;
+  if (ov && ov.faqEn && LANG === "en") return ov.faqEn;
   const faq = [];
-  faq.push({
-    q: "كم تبلغ أتعاب هذه الخدمة؟",
-    a:
-      (s.price.amount != null ? `أتعاب بيزنس بارتنر لهذه الخدمة ${s.price.label}. ` : "تُسعّر هذه الخدمة بعرض مخصّص حسب حالتك. ") +
-      (s.govFeesSeparate ? "الرسوم الحكومية منفصلة عن الأتعاب وتُعلن قبل البدء." : "وتُضاف ضريبة القيمة المضافة."),
-  });
-  faq.push({ q: "لمن هذه الخدمة؟", a: `هذه الخدمة متاحة لـ${audienceOf(s, ov)}.` });
-  if (s.govPlatform) faq.push({ q: "ما الجهة المختصة؟", a: `تُقدَّم الخدمة عبر ${s.govPlatform}، ونتولّى نحن التقديم والمتابعة معها.` });
-  faq.push({
-    q: "كيف أبدأ؟",
-    a: "تواصل معنا على واتساب، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً.",
-  });
+  if (LANG === "ar") {
+    faq.push({
+      q: "كم تبلغ أتعاب هذه الخدمة؟",
+      a:
+        (s.price.amount != null ? `أتعاب بيزنس بارتنر لهذه الخدمة ${s.price.label}. ` : "تُسعّر هذه الخدمة بعرض مخصّص حسب حالتك. ") +
+        (s.govFeesSeparate ? "الرسوم الحكومية منفصلة عن الأتعاب وتُعلن قبل البدء." : "وتُضاف ضريبة القيمة المضافة."),
+    });
+    faq.push({ q: "لمن هذه الخدمة؟", a: `هذه الخدمة متاحة لـ${audienceOf(s, ov)}.` });
+    if (s.govPlatform) faq.push({ q: "ما الجهة المختصة؟", a: `تُقدَّم الخدمة عبر ${govLabel(s.govPlatform)}، ونتولّى نحن التقديم والمتابعة معها.` });
+    faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا على واتساب، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
+  } else {
+    faq.push({
+      q: "How much are the fees for this service?",
+      a:
+        (s.price.amount != null ? `Business Partner's fee for this service is ${s.price.label}. ` : "This service is quoted individually based on your case. ") +
+        (s.govFeesSeparate ? "Government fees are separate from our fees and are disclosed before we start." : "VAT is added."),
+    });
+    faq.push({ q: "Who is this service for?", a: `This service is available to ${audienceOf(s, ov)}.` });
+    if (s.govPlatform) faq.push({ q: "Which authority handles it?", a: `The service is delivered through ${govLabel(s.govPlatform)}; we handle the filing and follow-up with it.` });
+    faq.push({ q: "How do I start?", a: "Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately." });
+  }
   return faq;
 }
 
 function serviceQuickFacts(s, ov) {
   const facts = [];
-  facts.push(`<span class="chip">${I.tag}${esc(s.categoryAr)}</span>`);
-  if (ov && ov.duration) facts.push(`<span class="chip">${I.clock}${esc(ov.duration)}</span>`);
+  facts.push(`<span class="chip">${I.tag}${L(catEn(s.category), catAr(s.category))}</span>`);
+  if (ov && ov.duration) facts.push(`<span class="chip">${I.clock}${L(ov.durationEn || ov.duration, ov.duration)}</span>`);
   facts.push(`<span class="chip">${I.users}${esc(audienceOf(s, ov))}</span>`);
-  if (s.govPlatform) facts.push(`<span class="chip">${I.building}${esc(s.govPlatform)}</span>`);
+  if (s.govPlatform) facts.push(`<span class="chip">${I.building}${esc(govLabel(s.govPlatform))}</span>`);
   return facts.join("");
 }
 
@@ -414,23 +530,24 @@ function buildAbout() {
 }
 
 function buildServicesIndex() {
-  const catNav = categories.map((c) => `<a href="#${slugCat(c.key)}">${esc(c.ar)}</a>`).join("");
+  const catNav = categories.map((c) => `<a href="#${slugCat(c.key)}">${L(catEn(c.key), c.ar)}</a>`).join("");
   const blocks = categories
     .map((cat) => {
       const list = services.filter((s) => s.category === cat.key);
       const cards = list
-        .map(
-          (s) => `<a class="card svc-card" href="/services/${s.slug}">
-        <span class="tag">${esc(s.categoryAr)}</span>
-        <h3>${esc(s.name)}</h3>
-        <p class="desc">${esc((s.description || "").slice(0, 120))}${(s.description || "").length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price">${esc(s.price.label)}</span><span class="card-link">التفاصيل ${I.arrow}</span></div>
-      </a>`
-        )
+        .map((s) => {
+          const d = sDesc(s);
+          return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
+        <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
+        <h3>${esc(sName(s))}</h3>
+        <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
+        <div class="foot"><span class="price">${esc(priceLabel(s))}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+      </a>`;
+        })
         .join("");
       return `<div class="cat-block" id="${slugCat(cat.key)}">
-        <h2>${esc(cat.ar)} <span class="count">${cat.count} خدمة</span></h2>
-        <p>خدمات ${esc(cat.ar)} — بأتعاب واضحة من الكتالوج الرسمي.</p>
+        <h2>${L(catEn(cat.key), cat.ar)} <span class="count">${cat.count} ${L("services", "خدمة")}</span></h2>
+        <p>${L(catEn(cat.key) + " services — clear fees from the official catalog.", "خدمات " + cat.ar + " — بأتعاب واضحة من الكتالوج الرسمي.")}</p>
         <div class="grid grid-3">${cards}</div>
       </div>`;
     })
@@ -439,34 +556,34 @@ function buildServicesIndex() {
   const misaTiers = mf.tiers
     .map(
       (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${esc(t.nameAr)}</div>
-      <div class="pk-price">${esc(t.price)}<span class="pk-price-sub">+ رسوم حكومية منفصلة</span></div>
-      <p class="pk-for">${esc(t.for)}</p>
-      <p style="color:var(--text-soft);font-size:.95rem;flex:1">${esc(t.text)}</p>
+      <div class="pk-name">${L(t.nameEn || t.nameAr, t.nameAr)}</div>
+      <div class="pk-price">${L(priceLabel({ price: { label: t.price } }), t.price)}<span class="pk-price-sub">${L("+ separate government fees", "+ رسوم حكومية منفصلة")}</span></div>
+      <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
+      <p style="color:var(--text-soft);font-size:.95rem;flex:1">${L(t.textEn || t.text, t.text)}</p>
       <div style="margin-top:20px">${cartBtns({ id: "misa-" + esc(t.nameAr).replace(/\s+/g, "-"), nameEn: t.nameEn || t.nameAr, nameAr: t.nameAr, amount: parseAmount(t.price), priceLabel: t.price, kind: "misa", ghost: !t.highlight })}</div>
     </div>`
     )
     .join("");
   const misaSection = `
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(mf.eyebrow)}</span><h2>${esc(mf.title)}</h2><p>${esc(mf.subtitle)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(mf.eyebrowEn || mf.eyebrow, mf.eyebrow)}</span><h2>${L(mf.titleEn || mf.title, mf.title)}</h2><p>${L(mf.subtitleEn || mf.subtitle, mf.subtitle)}</p></div>
     <div class="grid grid-3">${misaTiers}</div>
-    <div class="callout" style="max-width:720px;margin:32px auto 0"><span class="ico">💡</span><p>${esc(mf.note)}</p></div>
+    <div class="callout" style="max-width:720px;margin:32px auto 0"><span class="ico">💡</span><p>${L(mf.noteEn || mf.note, mf.note)}</p></div>
   </div></section>`;
 
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">الخدمات</span>
-    <h1>كل خدماتنا في مكان واحد</h1>
-    <p class="lead">${services.length} خدمة مصنّفة حسب الكتالوج الرسمي لـ بيزنس بارتنر — لكل خدمة صفحة كاملة بالمستندات والمميزات والأسعار.</p>
+    <span class="eyebrow">${L("Services", "الخدمات")}</span>
+    <h1>${L("All our services in one place", "كل خدماتنا في مكان واحد")}</h1>
+    <p class="lead">${L(services.length + " services classified per Business Partner's official catalog — each with a full page of documents, features and pricing.", services.length + " خدمة مصنّفة حسب الكتالوج الرسمي لـ بيزنس بارتنر — لكل خدمة صفحة كاملة بالمستندات والمميزات والأسعار.")}</p>
   </div></section>
   ${misaSection}
   <section class="section"><div class="container">
     <nav class="cat-nav">${catNav}</nav>
     ${blocks}
-    <div class="cta-band" style="margin-top:20px"><h2>ما لقيت خدمتك؟</h2><p>أرسل لنا استفسارك، والوكيل الذكي يحدد الخدمة المناسبة لحالتك فوراً.</p>${waBtn("اسأل الوكيل الذكي", "btn-white", true)}</div>
+    <div class="cta-band" style="margin-top:20px"><h2>${L("Didn't find your service?", "ما لقيت خدمتك؟")}</h2><p>${L("Send us your enquiry and the smart agent finds the right service for your case instantly.", "أرسل لنا استفسارك، والوكيل الذكي يحدد الخدمة المناسبة لحالتك فوراً.")}</p>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الخدمات — بيزنس بارتنر", desc: `${services.length} خدمة حكومية وتجارية بأتعاب واضحة من الكتالوج الرسمي.`, active: "/services", body });
+  return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services with clear fees from the official catalog.", services.length + " خدمة حكومية وتجارية بأتعاب واضحة من الكتالوج الرسمي."), active: "/services", body });
 }
 
 function buildServiceDetail(s) {
@@ -474,8 +591,8 @@ function buildServiceDetail(s) {
   const docs = documentsOf(s, ov);
   const feats = featuresOf(s, ov);
   const faq = faqOf(s, ov);
-  const genericDocsNote = !(ov && ov.documents)
-    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>يحدد الوكيل الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك على واتساب.</p></div>`
+  const genericDocsNote = !(ov && (ov.documents || ov.documentsEn))
+    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>${L("The smart agent confirms the exact document list for your case as soon as you reach out on WhatsApp.", "يحدد الوكيل الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك على واتساب.")}</p></div>`
     : "";
   const docsHtml = docs.map((d) => `<li>${I.doc}<span>${esc(d)}</span></li>`).join("");
   const featsHtml = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
@@ -487,46 +604,48 @@ function buildServiceDetail(s) {
     .join("");
 
   const facts = [];
-  facts.push(`<li><span class="k">الفئة</span><span class="v">${esc(s.categoryAr)}</span></li>`);
-  if (ov && ov.duration) facts.push(`<li><span class="k">المدة</span><span class="v">${esc(ov.duration)}</span></li>`);
-  facts.push(`<li><span class="k">متاح لـ</span><span class="v">${esc(audienceOf(s, ov))}</span></li>`);
-  if (s.govPlatform) facts.push(`<li><span class="k">الجهة</span><span class="v">${esc(s.govPlatform)}</span></li>`);
-  facts.push(`<li><span class="k">الكود</span><span class="v">${esc(s.code)}</span></li>`);
+  facts.push(`<li><span class="k">${L("Category", "الفئة")}</span><span class="v">${L(catEn(s.category), catAr(s.category))}</span></li>`);
+  if (ov && ov.duration) facts.push(`<li><span class="k">${L("Duration", "المدة")}</span><span class="v">${L(ov.durationEn || ov.duration, ov.duration)}</span></li>`);
+  facts.push(`<li><span class="k">${L("Available to", "متاح لـ")}</span><span class="v">${esc(audienceOf(s, ov))}</span></li>`);
+  if (s.govPlatform) facts.push(`<li><span class="k">${L("Authority", "الجهة")}</span><span class="v">${esc(govLabel(s.govPlatform))}</span></li>`);
+  facts.push(`<li><span class="k">${L("Code", "الكود")}</span><span class="v">${esc(s.code)}</span></li>`);
 
-  const priceNote = (s.price && s.price.note)
-    ? s.price.note
-    : (s.govFeesSeparate
-      ? "الأتعاب لا تشمل الرسوم الحكومية وضريبة القيمة المضافة."
-      : "الأتعاب لا تشمل ضريبة القيمة المضافة.");
+  const priceNote = (s.price && (LANG === "ar" ? s.price.note : s.price.noteEn))
+    ? (LANG === "ar" ? s.price.note : s.price.noteEn)
+    : L(
+        s.govFeesSeparate ? "Fees exclude government fees and VAT." : "Fees exclude VAT.",
+        s.govFeesSeparate ? "الأتعاب لا تشمل الرسوم الحكومية وضريبة القيمة المضافة." : "الأتعاب لا تشمل ضريبة القيمة المضافة."
+      );
+  const arrow = LANG === "ar" ? "←" : "→";
 
   const body = `
   <section class="svc-hero"><div class="container">
-    <div class="breadcrumb"><a href="/">الرئيسية</a> ← <a href="/services">الخدمات</a> ← <a href="/services#${slugCat(s.category)}">${esc(s.categoryAr)}</a></div>
-    <h1>${esc(s.name)}</h1>
+    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${u("/services")}#${slugCat(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
+    <h1>${esc(sName(s))}</h1>
     <div class="svc-meta">${serviceQuickFacts(s, ov)}</div>
   </div></section>
   <div class="container"><div class="svc-layout">
     <div class="svc-main">
-      <section><h2>وصف الخدمة</h2><p class="lead-p">${esc((ov && ov.description) || s.description || "نتولّى في بيزنس بارتنر تنفيذ هذه الخدمة نيابةً عنك من البداية حتى الإصدار، بمعرفة دقيقة بالأنظمة والإجراءات.")}</p></section>
-      <section><h2>المستندات المطلوبة</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
-      <section><h2>مميزات الخدمة مع بيزنس بارتنر</h2><ul class="feat-list">${featsHtml}</ul></section>
-      <section><h2>الأسئلة الشائعة</h2>${faqHtml}</section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>ميزة بيزنس بارتنر:</strong> الوكيل الذكي على واتساب يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.</p></div></section>
+      <section><h2>${L("Service description", "وصف الخدمة")}</h2><p class="lead-p">${esc(sDesc(s))}</p></section>
+      <section><h2>${L("Required documents", "المستندات المطلوبة")}</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
+      <section><h2>${L("Service features with Business Partner", "مميزات الخدمة مع بيزنس بارتنر")}</h2><ul class="feat-list">${featsHtml}</ul></section>
+      <section><h2>${L("Frequently asked questions", "الأسئلة الشائعة")}</h2>${faqHtml}</section>
+      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The WhatsApp smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "الوكيل الذكي على واتساب يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
     </div>
     <aside class="svc-aside">
       <div class="order-box">
-        <div class="price-big">${esc(s.price.label)}</div>
+        <div class="price-big">${esc(priceLabel(s))}</div>
         <div class="price-note">${esc(priceNote)}</div>
-        ${cartBtns({ id: s.code || s.slug, nameEn: s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label, kind: "service" })}
-        ${waBtn("اطلب هذه الخدمة على واتساب", "btn-ghost")}
-        <a class="btn btn-ghost" href="/calculator?service=${encodeURIComponent(s.code)}">احسب التكلفة</a>
-        <p class="mini">رد فوري من الوكيل الذكي 24/7</p>
+        ${cartBtns({ id: s.code || s.slug, nameEn: svcI18n[s.code] ? svcI18n[s.code].en : s.name, nameAr: sNameArOf(s), amount: s.price.amount, priceLabel: s.price.label, kind: "service" })}
+        ${waBtn2("Order this service on WhatsApp", "اطلب هذه الخدمة على واتساب", "btn-ghost")}
+        <a class="btn btn-ghost" href="${u("/calculator")}?service=${encodeURIComponent(s.code)}">${L("Calculate the cost", "احسب التكلفة")}</a>
+        <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
       </div>
     </aside>
   </div></div>`;
-  const desc = ((ov && ov.description) || s.description || s.name).slice(0, 155);
-  return page({ title: `${s.name} — بيزنس بارتنر`, desc: esc(desc), active: "/services", body });
+  const desc = sDesc(s).slice(0, 155);
+  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc: esc(desc), active: "/services", path: `/services/${s.slug}`, body });
 }
 
 function buildAiAgents() {
@@ -608,42 +727,91 @@ function buildPackages() {
   return page({ title: "الباقات — بيزنس بارتنر", desc: esc(p.subtitle), active: "/packages", body });
 }
 
+// Category display metadata (icon + English label) keyed by catalog category.
+const CAT_META = {
+  "Company Formation": { icon: "🏢", en: "Company Formation" },
+  "Foreign Investment": { icon: "🌍", en: "Foreign Investment" },
+  "Premium Residency": { icon: "🪪", en: "Premium Residency" },
+  "Government Relations": { icon: "🏛️", en: "Government Relations" },
+  "HR Services": { icon: "👥", en: "HR Services" },
+  "Recruitment": { icon: "🧑‍💼", en: "Recruitment & Hiring" },
+  "Business Support": { icon: "🧰", en: "Business Support" },
+  "Real Estate": { icon: "🏗️", en: "Real Estate" },
+  "AI Automation": { icon: "🤖", en: "AI & Automation" },
+  "Tourism": { icon: "✈️", en: "Tourism" },
+};
+
+// Classify a catalog price into a calculator price type.
+function priceType(s) {
+  const pm = s.pricingModel || "";
+  const label = (s.price && s.price.label) || "";
+  if (s.price && s.price.amount == null) return "onrequest"; // Percent / proposal-only
+  if (pm === "Percent" || /نسبة/.test(label)) return "onrequest";
+  if (pm === "Monthly" || /شهري/.test(label)) return "monthly";
+  if (pm === "Starting From" || /يبدأ من|starting/i.test(label)) return "from";
+  if (pm === "Per Candidate" || /مرشّح|candidate/i.test(label)) return "percandidate";
+  return "once";
+}
+
 function buildCalculator() {
-  const mini = services.map((s) => ({
-    code: s.code,
-    name: s.name,
-    categoryAr: s.categoryAr,
-    govFeesSeparate: s.govFeesSeparate,
-    price: { amount: s.price.amount, label: s.price.label },
-  }));
+  // Group live catalog services by category (source: official Notion catalog → services.json).
+  const groups = categories.map((cat) => {
+    const list = services.filter((s) => s.category === cat.key);
+    const chips = [...new Set(list.map((s) => s.govPlatform).filter((g) => g && g !== "—" && g !== "بدون جهة حكومية"))].map(govLabel);
+    const meta = CAT_META[cat.key] || { icon: "•", en: cat.key };
+    return {
+      key: cat.key,
+      icon: meta.icon,
+      nameEn: meta.en,
+      nameAr: cat.ar,
+      chips,
+      items: list.map((s) => {
+        const m = svcI18n[s.code] || {};
+        const ov = site.overrides[s.slug];
+        return {
+          id: s.code,
+          nameEn: m.en || (ov && ov.nameEn) || s.name,
+          nameAr: m.ar || (ov && ov.name) || s.name,
+          slug: s.slug,
+          amount: s.price.amount,
+          label: s.price.label,
+          ptype: priceType(s),
+          gov: s.govFeesSeparate,
+        };
+      }),
+    };
+  });
+
   const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">حاسبة التكلفة</span>
-    <h1>احسب تكلفة خدمتك في ثوانٍ</h1>
-    <p class="lead">اختر الخدمة ليظهر لك أتعاب بيزنس بارتنر وضريبة القيمة المضافة تقديرياً. الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.</p>
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Cost calculator", "حاسبة التكلفة")}</span>
+    <h1>${L("Build your service basket and see the cost", "كوّن سلّة خدماتك واعرف التكلفة")}</h1>
+    <p class="lead">${L("Pick services from the official catalog by category. The basket totals your one-time and monthly Business Partner fees instantly. Government fees (where applicable) are separate and announced before starting.", "اختر خدماتك حسب التصنيف من الكتالوج الرسمي. تتحدّث السلّة تلقائياً بإجمالي أتعاب بيزنس بارتنر لمرة واحدة والشهرية. الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.")}</p>
   </div></section>
   <section class="section"><div class="container">
-    <div class="calc-wrap" id="calc">
-      <div class="calc-form">
-        <div class="field"><label for="calc-service">الخدمة</label>
-          <select id="calc-service"></select></div>
-        <div class="field"><label for="calc-qty">العدد</label>
-          <input id="calc-qty" type="number" min="1" value="1"></div>
-        <p class="form-note">الأرقام تقديرية بناءً على الكتالوج الرسمي، وقد تختلف حسب تفاصيل حالتك. للسعر النهائي، تواصل مع الوكيل الذكي.</p>
-      </div>
-      <div class="calc-result">
-        <h3>ملخص التقدير</h3>
-        <div class="calc-line"><span class="k">أتعاب بيزنس بارتنر</span><span class="v" id="calc-fee">—</span></div>
-        <div class="calc-line"><span class="k">ضريبة القيمة المضافة (15%)</span><span class="v" id="calc-vat">—</span></div>
-        <div class="calc-line" id="calc-gov" style="display:none"><span class="k">الرسوم الحكومية</span><span class="v">منفصلة — تُعلن قبل البدء</span></div>
-        <div class="calc-total"><span class="k">الإجمالي التقديري</span><span class="v" id="calc-total">—</span></div>
-        <p class="calc-note" id="calc-extra-note"></p>
-        <a class="btn btn-wa" id="calc-wa" data-wa="${WA}" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>اطلب عرضاً دقيقاً</span></a>
-      </div>
+    <div class="calc2" id="calc2">
+      <div class="calc2-cats" id="calc2-cats"></div>
+      <aside class="calc2-cart">
+        <div class="order-box calc2-box">
+          <h3>${L("Your basket", "سلّتك")}</h3>
+          <div class="calc2-selected" id="calc2-selected">
+            <p class="calc2-empty" id="calc2-empty">${L("No services selected yet. Tap a service to add it.", "لم تختر أي خدمة بعد. اضغط على أي خدمة لإضافتها.")}</p>
+          </div>
+          <div class="calc2-totals">
+            <div class="calc-line"><span class="k">${L("One-time fees", "أتعاب لمرة واحدة")}</span><span class="v" id="calc2-once">0 ﷼</span></div>
+            <div class="calc-line"><span class="k">${L("Monthly fees", "أتعاب شهرية")}</span><span class="v" id="calc2-monthly">0 ﷼</span></div>
+            <div class="calc-line calc2-vat"><span class="k">${L("+ VAT 15% (on fees)", "+ ضريبة القيمة المضافة 15% (على الأتعاب)")}</span><span class="v" id="calc2-vat">—</span></div>
+          </div>
+          <div class="calc2-warn" id="calc2-warn" hidden>${I.doc}<span>${L("Some selected services are priced on request (a quote after review). They are not included in the totals.", "بعض الخدمات المختارة تُسعّر حسب الطلب (عرض بعد المراجعة) ولا تدخل في الإجمالي.")}</span></div>
+          <a class="btn btn-primary btn-lg" id="calc2-quote" href="/checkout" style="width:100%">${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
+          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or discuss on WhatsApp", "أو ناقشنا على واتساب")}</span></a>
+          <p class="calc-note">${L("Estimates from the official catalog; final pricing may vary by your case. Government fees are separate.", "تقديرات من الكتالوج الرسمي وقد تختلف حسب حالتك. الرسوم الحكومية منفصلة.")}</p>
+        </div>
+      </aside>
     </div>
   </div></section>
-  <script>window.BP_SERVICES = ${JSON.stringify(mini)};</script>`;
-  return page({ title: "حاسبة التكلفة — بيزنس بارتنر", desc: "احسب تكلفة أي خدمة من خدمات بيزنس بارتنر تقديرياً مع ضريبة القيمة المضافة.", active: "/calculator", body });
+  <script>window.BP_CALC = ${JSON.stringify(groups)};window.BP_CALC_LANG = ${JSON.stringify(LANG)};</script>`;
+  return page({ title: Lraw("Cost calculator — Business Partner", "حاسبة التكلفة — بيزنس بارتنر"), desc: Lraw("Build a basket of Business Partner services and see one-time and monthly fees from the official catalog.", "كوّن سلّة من خدمات بيزنس بارتنر واعرف الأتعاب لمرة واحدة والشهرية من الكتالوج الرسمي."), active: "/calculator", body });
 }
 
 function buildTourism() {
@@ -1041,40 +1209,50 @@ function write(rel, html) {
   fs.writeFileSync(full, html);
 }
 
-write("index.html", buildHome());
-write("about.html", buildAbout());
-write("services.html", buildServicesIndex());
-write("ai-agents.html", buildAiAgents());
-write("tourism.html", buildTourism());
-write("packages.html", buildPackages());
-// Retire the old /business-tourism page (merged into /tourism).
-if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.join(ROOT, "business-tourism.html"));
-write("calculator.html", buildCalculator());
-write("saudi-arabia.html", buildSaudi());
-write("news.html", buildNews());
-write("careers.html", buildCareers());
-write("contact.html", buildContact());
-write("cart.html", buildCart());
-write("checkout.html", buildCheckout());
-write("account.html", buildAccount());
-// Remove the retired blog page if a prior build produced it.
-if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
-// Clean the services directory so removed catalog rows don't leave stale pages.
-const svcDir = path.join(ROOT, "services");
-if (fs.existsSync(svcDir)) {
-  for (const f of fs.readdirSync(svcDir)) {
-    if (f.endsWith(".html")) fs.unlinkSync(path.join(svcDir, f));
+// Clean previously-generated pages (both trees) so stale files don't linger.
+for (const dir of [ROOT, path.join(ROOT, "ar")]) {
+  if (!fs.existsSync(dir)) continue;
+  for (const f of fs.readdirSync(dir)) {
+    if (f.endsWith(".html")) fs.unlinkSync(path.join(dir, f));
   }
+  const sd = path.join(dir, "services");
+  if (fs.existsSync(sd)) for (const f of fs.readdirSync(sd)) if (f.endsWith(".html")) fs.unlinkSync(path.join(sd, f));
 }
-services.forEach((s) => write(`services/${s.slug}.html`, buildServiceDetail(s)));
+if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.join(ROOT, "business-tourism.html"));
+if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 
-// sitemap.xml
+let pageCount = 0;
+for (const lang of ["en", "ar"]) {
+  LANG = lang;
+  const pre = lang === "ar" ? "ar/" : "";
+  write(`${pre}index.html`, buildHome());
+  write(`${pre}about.html`, buildAbout());
+  write(`${pre}services.html`, buildServicesIndex());
+  write(`${pre}ai-agents.html`, buildAiAgents());
+  write(`${pre}tourism.html`, buildTourism());
+  write(`${pre}packages.html`, buildPackages());
+  write(`${pre}calculator.html`, buildCalculator());
+  write(`${pre}saudi-arabia.html`, buildSaudi());
+  write(`${pre}news.html`, buildNews());
+  write(`${pre}careers.html`, buildCareers());
+  write(`${pre}contact.html`, buildContact());
+  write(`${pre}cart.html`, buildCart());
+  write(`${pre}checkout.html`, buildCheckout());
+  write(`${pre}account.html`, buildAccount());
+  services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
+  pageCount += 14 + services.length;
+}
+LANG = "en";
+
+// sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const urls = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account"]
-  .concat(services.map((s) => `/services/${s.slug}`))
-  .map((u) => `  <url><loc>${base}${u}</loc></url>`)
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account"]
+  .concat(services.map((s) => `/services/${s.slug}`));
+const urls = paths
+  .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])
+  .map((p) => `  <url><loc>${base}${p}</loc></url>`)
   .join("\n");
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 
-console.log(`Generated ${11 + services.length} pages + sitemap.`);
+console.log(`Generated ${pageCount} pages (en + ar) + sitemap.`);

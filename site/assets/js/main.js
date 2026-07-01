@@ -447,6 +447,128 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
+/* ---------- Services calculator (accordion + basket) ---------- */
+(function () {
+  "use strict";
+  var root = document.getElementById("calc2");
+  if (!root || !window.BP_CALC) return;
+  var groups = window.BP_CALC;
+  var isAr = (window.BP_CALC_LANG || "en") === "ar";
+  var VAT = 0.15;
+  var selected = {}; // id -> item
+  var catsEl = document.getElementById("calc2-cats");
+
+  function nm(x) { return isAr ? x.nameAr : x.nameEn; }
+  function money(n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 0 }) + " ﷼"; }
+  function t(en, ar) { return isAr ? ar : en; }
+
+  function priceText(it) {
+    if (it.ptype === "onrequest") return t("On request", "حسب الطلب");
+    if (it.ptype === "monthly") return money(it.amount) + t(" / mo", " / شهرياً");
+    if (it.ptype === "from") return t("From ", "من ") + money(it.amount);
+    if (it.ptype === "percandidate") return money(it.amount) + t(" / candidate", " / لكل مرشّح");
+    return money(it.amount);
+  }
+
+  // Build accordions
+  groups.forEach(function (g, gi) {
+    if (!g.items.length) return;
+    var acc = document.createElement("div");
+    acc.className = "calc2-cat";
+    var chips = g.chips.slice(0, 6).map(function (c) { return '<span class="calc2-chip">' + esc(c) + "</span>"; }).join("");
+    acc.innerHTML =
+      '<button type="button" class="calc2-cathead" aria-expanded="' + (gi === 0 ? "true" : "false") + '">' +
+        '<span class="calc2-caticon">' + g.icon + "</span>" +
+        '<span class="calc2-cattitle">' + esc(nm(g)) + '<span class="calc2-catcount">' + g.items.length + " " + t("services", "خدمة") + "</span></span>" +
+        '<span class="calc2-chev">▾</span>' +
+      "</button>" +
+      (chips ? '<div class="calc2-chips">' + chips + "</div>" : "") +
+      '<div class="calc2-list"' + (gi === 0 ? "" : ' hidden') + "></div>";
+    var list = acc.querySelector(".calc2-list");
+    g.items.forEach(function (it) {
+      var row = document.createElement("button");
+      row.type = "button";
+      row.className = "calc2-item";
+      row.setAttribute("data-id", it.id);
+      row.innerHTML = '<span class="calc2-check">' + '</span><span class="calc2-iname">' + esc(nm(it)) + "</span>" +
+        '<span class="calc2-iprice">' + esc(priceText(it)) + "</span>";
+      row.addEventListener("click", function () { toggle(it, row); });
+      list.appendChild(row);
+    });
+    var head = acc.querySelector(".calc2-cathead");
+    head.addEventListener("click", function () {
+      var open = head.getAttribute("aria-expanded") === "true";
+      head.setAttribute("aria-expanded", open ? "false" : "true");
+      list.hidden = open;
+      var chipsEl = acc.querySelector(".calc2-chips");
+    });
+    catsEl.appendChild(acc);
+  });
+
+  function toggle(it, row) {
+    if (selected[it.id]) { delete selected[it.id]; row.classList.remove("on"); }
+    else { selected[it.id] = it; row.classList.add("on"); }
+    render();
+  }
+
+  function render() {
+    var wrap = document.getElementById("calc2-selected");
+    var empty = document.getElementById("calc2-empty");
+    var ids = Object.keys(selected);
+    var once = 0, monthly = 0, hasReq = false;
+    ids.forEach(function (id) {
+      var it = selected[id];
+      if (it.ptype === "onrequest") hasReq = true;
+      else if (it.ptype === "monthly") monthly += it.amount || 0;
+      else once += it.amount || 0;
+    });
+    if (!ids.length) {
+      wrap.innerHTML = '<p class="calc2-empty" id="calc2-empty">' + t("No services selected yet. Tap a service to add it.", "لم تختر أي خدمة بعد. اضغط على أي خدمة لإضافتها.") + "</p>";
+    } else {
+      wrap.innerHTML = ids.map(function (id) {
+        var it = selected[id];
+        return '<div class="calc2-sel"><span>' + esc(nm(it)) + "</span><span class=\"calc2-selp\">" + esc(priceText(it)) +
+          '</span><button type="button" class="calc2-rm" data-id="' + id + '" aria-label="remove">✕</button></div>';
+      }).join("");
+    }
+    document.getElementById("calc2-once").textContent = money(once);
+    document.getElementById("calc2-monthly").textContent = money(monthly);
+    var vat = (once + monthly) * VAT;
+    document.getElementById("calc2-vat").textContent = (once + monthly) ? money(vat) : "—";
+    document.getElementById("calc2-warn").hidden = !hasReq;
+  }
+
+  document.addEventListener("click", function (e) {
+    var rm = e.target.closest(".calc2-rm");
+    if (rm) {
+      var id = rm.getAttribute("data-id");
+      delete selected[id];
+      var row = catsEl.querySelector('.calc2-item[data-id="' + id + '"]');
+      if (row) row.classList.remove("on");
+      render();
+    }
+  });
+
+  // "Request official quote" → push selected into the cart, go to checkout
+  var quote = document.getElementById("calc2-quote");
+  if (quote) quote.addEventListener("click", function (e) {
+    var ids = Object.keys(selected);
+    if (!ids.length || !window.BP || !BP.cart) return; // let default nav happen
+    e.preventDefault();
+    var cart = BP.cart.read();
+    ids.forEach(function (id) {
+      var it = selected[id];
+      if (cart.some(function (c) { return c.id === it.id; })) return;
+      cart.push({ id: it.id, nameEn: it.nameEn, nameAr: it.nameAr, amount: it.ptype === "onrequest" || it.ptype === "from" ? (it.ptype === "from" ? it.amount : null) : it.amount, price: priceText(it), kind: "service", qty: 1 });
+    });
+    BP.cart.write(cart);
+    location.href = quote.getAttribute("href");
+  });
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  render();
+})();
+
 /* المستشار — advisor chatbot client */
 (function () {
   "use strict";
