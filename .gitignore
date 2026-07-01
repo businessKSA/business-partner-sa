@@ -29,3 +29,4 @@ pnpm-debug.log*
 dist-portable/
 business-partner-site.zip
 business-partner-onefile.html
+*.bundle
