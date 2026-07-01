@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://businesspartner.sa/sitemap.xml
