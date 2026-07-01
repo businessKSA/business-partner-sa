@@ -117,13 +117,13 @@ function footer() {
     <div>
       <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
       <p>${esc(site.brand.shortBio)}</p>
-      <p class="footer-tag">${esc(site.brand.tagline)}</p>
+      <p class="footer-tag">شركاء نجاحك</p>
     </div>
     <div class="footer-col"><h4>روابط</h4><ul>
       <li><a href="/about">من نحن</a></li>
       <li><a href="/services">الخدمات</a></li>
       <li><a href="/ai-agents">الوكلاء الأذكياء</a></li>
-      <li><a href="/business-tourism">سياحة الأعمال</a></li>
+      <li><a href="/tourism">السياحة والفعاليات</a></li>
       <li><a href="/packages">الباقات</a></li>
       <li><a href="/saudi-arabia">السعودية</a></li>
       <li><a href="/news">الأخبار</a></li>
@@ -140,7 +140,7 @@ function footer() {
     </ul></div>
   </div>
   <div class="footer-bottom">
-    <span>© ${new Date().getFullYear()} Business Partner. جميع الحقوق محفوظة. · س.ت ${esc(c.cr)}</span>
+    <span>© ${new Date().getFullYear()} بيزنس بارتنر · جميع الحقوق محفوظة</span>
     <span>${esc(c.hours)}</span>
   </div>
 </div></footer>`;
@@ -158,7 +158,7 @@ function advisorWidget() {
       <button class="advisor-close" id="advisor-close" aria-label="إغلاق">${I.close}</button>
     </header>
     <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">مرحباً 👋 أنا المستشار الذكي في Business Partner. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.</div>
+      <div class="advisor-msg bot">مرحباً 👋 أنا المستشار الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.</div>
     </div>
     <form class="advisor-form" id="advisor-form">
       <input id="advisor-input" type="text" autocomplete="off" placeholder="اكتب سؤالك هنا…" aria-label="اكتب سؤالك">
@@ -212,7 +212,7 @@ function faqOf(s, ov) {
   faq.push({
     q: "كم تبلغ أتعاب هذه الخدمة؟",
     a:
-      (s.price.amount != null ? `أتعاب Business Partner لهذه الخدمة ${s.price.label}. ` : "تُسعّر هذه الخدمة بعرض مخصّص حسب حالتك. ") +
+      (s.price.amount != null ? `أتعاب بيزنس بارتنر لهذه الخدمة ${s.price.label}. ` : "تُسعّر هذه الخدمة بعرض مخصّص حسب حالتك. ") +
       (s.govFeesSeparate ? "الرسوم الحكومية منفصلة عن الأتعاب وتُعلن قبل البدء." : "وتُضاف ضريبة القيمة المضافة."),
   });
   faq.push({ q: "لمن هذه الخدمة؟", a: `هذه الخدمة متاحة لـ${audienceOf(s, ov)}.` });
@@ -269,7 +269,7 @@ function buildHome() {
 
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <p class="hero-tagline">${esc(site.brand.tagline)}</p>
+    <p class="hero-tagline">شركاء نجاحك</p>
     <h1>${esc(h.heroTitle)}</h1>
     <p class="lead">${esc(h.heroSubtitle)}</p>
     <div class="hero-actions">${waBtn(h.heroCta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="/services">${esc(h.heroCtaSecondary)}</a></div>
@@ -326,7 +326,7 @@ function buildHome() {
     <div class="cta-band"><h2>${esc(h.finalCta.title)}</h2><p>${esc(h.finalCta.text)}</p>${waBtn(h.finalCta.cta, "btn-white", true)}</div>
   </div></section>`;
 
-  return page({ title: "Business Partner — شريك تشغيل أعمالك في السعودية", desc: esc(site.brand.shortBio), active: "/", body });
+  return page({ title: "بيزنس بارتنر — شريك تشغيل أعمالك في السعودية", desc: esc(site.brand.shortBio), active: "/", body });
 }
 
 function buildAbout() {
@@ -351,7 +351,7 @@ function buildAbout() {
   <section class="section"><div class="container">
     <div class="cta-band"><h2>جاهز نبدأ رحلتك؟</h2><p>الوكيل الذكي يرد فوراً على واتساب ويحدد لك الخطوة التالية.</p>${waBtn("ابدأ الآن", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "من نحن — Business Partner", desc: esc(a.lead), active: "/about", body });
+  return page({ title: "من نحن — بيزنس بارتنر", desc: esc(a.lead), active: "/about", body });
 }
 
 function buildServicesIndex() {
@@ -399,7 +399,7 @@ function buildServicesIndex() {
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">الخدمات</span>
     <h1>كل خدماتنا في مكان واحد</h1>
-    <p class="lead">${services.length} خدمة مصنّفة حسب الكتالوج الرسمي لـ Business Partner — لكل خدمة صفحة كاملة بالمستندات والمميزات والأسعار.</p>
+    <p class="lead">${services.length} خدمة مصنّفة حسب الكتالوج الرسمي لـ بيزنس بارتنر — لكل خدمة صفحة كاملة بالمستندات والمميزات والأسعار.</p>
   </div></section>
   ${misaSection}
   <section class="section"><div class="container">
@@ -407,7 +407,7 @@ function buildServicesIndex() {
     ${blocks}
     <div class="cta-band" style="margin-top:20px"><h2>ما لقيت خدمتك؟</h2><p>أرسل لنا استفسارك، والوكيل الذكي يحدد الخدمة المناسبة لحالتك فوراً.</p>${waBtn("اسأل الوكيل الذكي", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الخدمات — Business Partner", desc: `${services.length} خدمة حكومية وتجارية بأتعاب واضحة من الكتالوج الرسمي.`, active: "/services", body });
+  return page({ title: "الخدمات — بيزنس بارتنر", desc: `${services.length} خدمة حكومية وتجارية بأتعاب واضحة من الكتالوج الرسمي.`, active: "/services", body });
 }
 
 function buildServiceDetail(s) {
@@ -448,11 +448,11 @@ function buildServiceDetail(s) {
   </div></section>
   <div class="container"><div class="svc-layout">
     <div class="svc-main">
-      <section><h2>وصف الخدمة</h2><p class="lead-p">${esc((ov && ov.description) || s.description || "نتولّى في Business Partner تنفيذ هذه الخدمة نيابةً عنك من البداية حتى الإصدار، بمعرفة دقيقة بالأنظمة والإجراءات.")}</p></section>
+      <section><h2>وصف الخدمة</h2><p class="lead-p">${esc((ov && ov.description) || s.description || "نتولّى في بيزنس بارتنر تنفيذ هذه الخدمة نيابةً عنك من البداية حتى الإصدار، بمعرفة دقيقة بالأنظمة والإجراءات.")}</p></section>
       <section><h2>المستندات المطلوبة</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
-      <section><h2>مميزات الخدمة مع Business Partner</h2><ul class="feat-list">${featsHtml}</ul></section>
+      <section><h2>مميزات الخدمة مع بيزنس بارتنر</h2><ul class="feat-list">${featsHtml}</ul></section>
       <section><h2>الأسئلة الشائعة</h2>${faqHtml}</section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>ميزة Business Partner:</strong> الوكيل الذكي على واتساب يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.</p></div></section>
+      <section><div class="callout"><span class="ico">⚡</span><p><strong>ميزة بيزنس بارتنر:</strong> الوكيل الذكي على واتساب يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.</p></div></section>
     </div>
     <aside class="svc-aside">
       <div class="order-box">
@@ -466,7 +466,7 @@ function buildServiceDetail(s) {
     </aside>
   </div></div>`;
   const desc = ((ov && ov.description) || s.description || s.name).slice(0, 155);
-  return page({ title: `${s.name} — Business Partner`, desc: esc(desc), active: "/services", body });
+  return page({ title: `${s.name} — بيزنس بارتنر`, desc: esc(desc), active: "/services", body });
 }
 
 function buildAiAgents() {
@@ -514,7 +514,7 @@ function buildAiAgents() {
   <section class="section section--gray"><div class="container">
     <div class="cta-band"><h2>جاهز تشوف الوكلاء يشتغلون؟</h2><p>احجز عرضاً توضيحياً مع فريقنا، ونصمّم لك المنظومة على مقاس منشأتك.</p>${waBtn(a.cta, "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الوكلاء الأذكياء — Business Partner", desc: esc(a.lead.slice(0, 155)), active: "/ai-agents", body });
+  return page({ title: "الوكلاء الأذكياء — بيزنس بارتنر", desc: esc(a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
 
 function buildPackages() {
@@ -526,7 +526,7 @@ function buildPackages() {
       ${t.price ? `<div class="pk-price">${esc(t.price)}</div>` : ""}
       <p class="pk-for">${esc(t.for)}</p>
       <ul>${t.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
-      ${waBtn("اطلب الباقة", t.highlight ? "btn-wa" : "btn-ghost")}
+      ${waBtn("تواصل معنا للتسعير", t.highlight ? "btn-wa" : "btn-ghost")}
     </div>`
     )
     .join("");
@@ -543,7 +543,7 @@ function buildPackages() {
   <section class="section section--gray"><div class="container">
     <div class="cta-band"><h2>محتار أي باقة تناسبك؟</h2><p>الوكيل الذكي يسألك بضعة أسئلة ويرشّح لك الباقة الأنسب في دقائق.</p>${waBtn("ساعدني أختار", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الباقات — Business Partner", desc: esc(p.subtitle), active: "/packages", body });
+  return page({ title: "الباقات — بيزنس بارتنر", desc: esc(p.subtitle), active: "/packages", body });
 }
 
 function buildCalculator() {
@@ -558,7 +558,7 @@ function buildCalculator() {
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">حاسبة التكلفة</span>
     <h1>احسب تكلفة خدمتك في ثوانٍ</h1>
-    <p class="lead">اختر الخدمة ليظهر لك أتعاب Business Partner وضريبة القيمة المضافة تقديرياً. الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.</p>
+    <p class="lead">اختر الخدمة ليظهر لك أتعاب بيزنس بارتنر وضريبة القيمة المضافة تقديرياً. الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="calc-wrap" id="calc">
@@ -571,7 +571,7 @@ function buildCalculator() {
       </div>
       <div class="calc-result">
         <h3>ملخص التقدير</h3>
-        <div class="calc-line"><span class="k">أتعاب Business Partner</span><span class="v" id="calc-fee">—</span></div>
+        <div class="calc-line"><span class="k">أتعاب بيزنس بارتنر</span><span class="v" id="calc-fee">—</span></div>
         <div class="calc-line"><span class="k">ضريبة القيمة المضافة (15%)</span><span class="v" id="calc-vat">—</span></div>
         <div class="calc-line" id="calc-gov" style="display:none"><span class="k">الرسوم الحكومية</span><span class="v">منفصلة — تُعلن قبل البدء</span></div>
         <div class="calc-total"><span class="k">الإجمالي التقديري</span><span class="v" id="calc-total">—</span></div>
@@ -581,36 +581,55 @@ function buildCalculator() {
     </div>
   </div></section>
   <script>window.BP_SERVICES = ${JSON.stringify(mini)};</script>`;
-  return page({ title: "حاسبة التكلفة — Business Partner", desc: "احسب تكلفة أي خدمة من خدمات Business Partner تقديرياً مع ضريبة القيمة المضافة.", active: "/calculator", body });
+  return page({ title: "حاسبة التكلفة — بيزنس بارتنر", desc: "احسب تكلفة أي خدمة من خدمات بيزنس بارتنر تقديرياً مع ضريبة القيمة المضافة.", active: "/calculator", body });
 }
 
-function buildBusinessTourism() {
+function buildTourism() {
+  const t = site.tourism;
   const b = site.businessTourism;
+  const ev = t.events;
+  const evFeats = ev.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
   const items = b.includes.items
     .map((it) => `<div class="card feature"><div class="card-icon">${I.globe}</div><h3>${esc(it.title)}</h3><p>${esc(it.text)}</p></div>`)
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">سياحة الأعمال</span>
-    <h1>${esc(b.title)}</h1>
-    <p class="lead">${esc(b.lead)}</p>
-    <div class="hero-actions">${waBtn(b.cta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="/contact">تواصل معنا</a></div>
+    <span class="eyebrow">السياحة والفعاليات</span>
+    <h1>${esc(t.title)}</h1>
+    <p class="lead">${esc(t.lead)}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="#events">${I.building}<span>فعاليات الموظفين</span></a>
+      <a class="btn btn-ghost btn-lg" href="#investor">${I.globe}<span>سياحة الأعمال للمستثمر</span></a>
+    </div>
   </div></section>
 
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(b.intro.eyebrow)}</span><h2>${esc(b.intro.title)}</h2><p>${esc(b.intro.text)}</p></div>
+  <section class="section" id="events"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(ev.eyebrow)}</span><h2>${esc(ev.title)}</h2></div>
+    <div class="svc-layout">
+      <div class="svc-main">
+        <p class="lead-p">${esc(ev.text)}</p>
+        <ul class="feat-list" style="margin-top:22px">${evFeats}</ul>
+      </div>
+      <aside class="svc-aside"><div class="order-box">
+        <div class="price-big">${esc(ev.price)}</div>
+        <div class="price-note">${esc(ev.note)}</div>
+        ${waBtn("اطلب فعالية", "btn-wa")}
+        <a class="btn btn-ghost" href="/contact">تواصل معنا</a>
+      </div></aside>
+    </div>
   </div></section>
 
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${esc(b.includes.eyebrow)}</span><h2>${esc(b.includes.title)}</h2></div>
+  <section class="section section--gray" id="investor"><div class="container">
+    <div class="section-head"><span class="eyebrow">النوع الثاني · سياحة الأعمال للمستثمر</span><h2>${esc(b.title)}</h2><p>${esc(b.lead)}</p></div>
     <div class="grid grid-3">${items}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${esc(b.note)}</p></div>
+    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${esc(b.note)} السعر يُحدَّد حسب البرنامج — تواصل معنا للتسعير.</p></div>
+    <div class="center mt-32">${waBtn(b.cta, "btn-primary", true)}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>جاهز تستكشف السوق السعودي؟</h2><p>نصمّم لك برنامج سياحة أعمال يفتح لك الأبواب المناسبة لنشاطك.</p>${waBtn(b.cta, "btn-white", true)}</div>
+    <div class="cta-band"><h2>جاهز نرتّب لك؟</h2><p>سواء فعالية لموظفيك أو رحلة استكشاف للسوق السعودي — نصمّمها على مقاسك.</p>${waBtn("تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "سياحة الأعمال — Business Partner", desc: esc(b.lead.slice(0, 155)), active: "/business-tourism", body });
+  return page({ title: "السياحة والفعاليات — بيزنس بارتنر", desc: esc(t.lead.slice(0, 155)), active: "/tourism", body });
 }
 
 function buildSaudi() {
@@ -670,7 +689,7 @@ function buildSaudi() {
     <div class="grid grid-3">${articles}</div>
     <div class="cta-band" style="margin-top:40px"><h2>تبي دليلاً مفصّلاً لحالتك؟</h2><p>الوكيل الذكي يجهّز لك خطوات خدمتك ومتطلباتها فوراً على واتساب.</p>${waBtn("اسأل الوكيل الذكي", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "السعودية — بيانات وأدلة الاستثمار | Business Partner", desc: esc(s.lead.slice(0, 155)), active: "/saudi-arabia", body });
+  return page({ title: "السعودية — بيانات وأدلة الاستثمار | بيزنس بارتنر", desc: esc(s.lead.slice(0, 155)), active: "/saudi-arabia", body });
 }
 
 function buildNews() {
@@ -704,7 +723,7 @@ function buildNews() {
   <section class="section"><div class="container">
     <div class="cta-band"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${esc(n.partnerships.eyebrow)}</span><h2>${esc(n.partnerships.title)}</h2><p>${esc(n.partnerships.note)}</p>${waBtn("تواصل للشراكة", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الأخبار والتحديثات — Business Partner", desc: esc(n.lead.slice(0, 155)), active: "/news", body });
+  return page({ title: "الأخبار والتحديثات — بيزنس بارتنر", desc: esc(n.lead.slice(0, 155)), active: "/news", body });
 }
 
 function buildCareers() {
@@ -733,6 +752,7 @@ function buildCareers() {
   <section class="section" id="employers"><div class="container">
     <div class="section-head"><span class="eyebrow">${esc(c.employer.eyebrow)}</span><h2>${esc(c.employer.title)}</h2><p>${esc(c.employer.text)}</p></div>
     <div class="grid grid-3">${recCards}</div>
+    <div class="callout" style="max-width:760px;margin:32px auto 0"><span class="ico">💡</span><p><strong>التوظيف المحلي (السعودة):</strong> الأتعاب = نصف الراتب الشهري للموظف. مثال: راتب 4,000 ﷼ ← أتعابنا 2,000 ﷼.</p></div>
     <div class="center mt-32">${waBtn(c.employer.cta, "btn-primary", true)}</div>
   </div></section>
 
@@ -755,7 +775,7 @@ function buildCareers() {
       </form>
     </div>
   </div></section>`;
-  return page({ title: "الوظائف والتوظيف — Business Partner", desc: esc(c.lead.slice(0, 155)), active: "/careers", body });
+  return page({ title: "الوظائف والتوظيف — بيزنس بارتنر", desc: esc(c.lead.slice(0, 155)), active: "/careers", body });
 }
 
 function buildContact() {
@@ -779,7 +799,7 @@ function buildContact() {
           <li><span class="ico">${I.clock}</span><div><div class="k">أوقات العمل</div><div class="v">${esc(c.hours)}</div></div></li>
         </ul>
         <div class="map-embed">
-          <iframe src="https://www.google.com/maps?q=${encodeURIComponent("حي العارض الرياض")}&output=embed" loading="lazy" title="موقع Business Partner"></iframe>
+          <iframe src="https://www.google.com/maps?q=${encodeURIComponent("حي الملقا الرياض")}&output=embed" loading="lazy" title="موقع بيزنس بارتنر"></iframe>
         </div>
       </div>
       <div>
@@ -795,7 +815,7 @@ function buildContact() {
       </div>
     </div>
   </div></section>`;
-  return page({ title: "اتصل بنا — Business Partner", desc: "تواصل مع Business Partner عبر واتساب أو الهاتف أو البريد — رد فوري من الوكيل الذكي 24/7.", active: "/contact", body });
+  return page({ title: "اتصل بنا — بيزنس بارتنر", desc: "تواصل مع بيزنس بارتنر عبر واتساب أو الهاتف أو البريد — رد فوري من الوكيل الذكي 24/7.", active: "/contact", body });
 }
 
 /* ---------- write ---------- */
@@ -809,8 +829,10 @@ write("index.html", buildHome());
 write("about.html", buildAbout());
 write("services.html", buildServicesIndex());
 write("ai-agents.html", buildAiAgents());
-write("business-tourism.html", buildBusinessTourism());
+write("tourism.html", buildTourism());
 write("packages.html", buildPackages());
+// Retire the old /business-tourism page (merged into /tourism).
+if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.join(ROOT, "business-tourism.html"));
 write("calculator.html", buildCalculator());
 write("saudi-arabia.html", buildSaudi());
 write("news.html", buildNews());
@@ -829,7 +851,7 @@ services.forEach((s) => write(`services/${s.slug}.html`, buildServiceDetail(s)))
 
 // sitemap.xml
 const base = "https://businesspartner.sa";
-const urls = ["/", "/about", "/services", "/ai-agents", "/business-tourism", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact"]
+const urls = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact"]
   .concat(services.map((s) => `/services/${s.slug}`))
   .map((u) => `  <url><loc>${base}${u}</loc></url>`)
   .join("\n");
