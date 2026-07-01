@@ -17,7 +17,7 @@ const routes = [
   ["about.html", "/about"],
   ["services.html", "/services"],
   ["ai-agents.html", "/ai-agents"],
-  ["business-tourism.html", "/business-tourism"],
+  ["tourism.html", "/tourism"],
   ["packages.html", "/packages"],
   ["calculator.html", "/calculator"],
   ["saudi-arabia.html", "/saudi-arabia"],
