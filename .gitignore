@@ -24,3 +24,7 @@ pnpm-debug.log*
 .idea/
 
 .vercel
+
+# portable build artifacts
+dist-portable/
+business-partner-site.zip
