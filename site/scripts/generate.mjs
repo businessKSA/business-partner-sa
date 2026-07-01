@@ -61,6 +61,8 @@ const I = {
   mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
   globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>',
 };
 
 const waBtn = (label, cls = "btn-wa", lg = false) =>
@@ -148,6 +150,24 @@ function waFab() {
   return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="تواصل عبر واتساب">${I.wa}<span class="lbl">تحدث مع الوكيل الذكي</span></a>`;
 }
 
+function advisorWidget() {
+  return `<button class="advisor-fab" id="advisor-fab" aria-label="افتح المستشار الذكي">${I.robot}<span class="lbl">المستشار</span></button>
+  <section class="advisor-panel" id="advisor-panel" hidden aria-label="المستشار الذكي">
+    <header class="advisor-head">
+      <div class="advisor-title">${I.robot}<div><strong>المستشار الذكي</strong><span>يجاوبك عن الخدمات والإجراءات</span></div></div>
+      <button class="advisor-close" id="advisor-close" aria-label="إغلاق">${I.close}</button>
+    </header>
+    <div class="advisor-msgs" id="advisor-msgs">
+      <div class="advisor-msg bot">مرحباً 👋 أنا المستشار الذكي في Business Partner. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.</div>
+    </div>
+    <form class="advisor-form" id="advisor-form">
+      <input id="advisor-input" type="text" autocomplete="off" placeholder="اكتب سؤالك هنا…" aria-label="اكتب سؤالك">
+      <button type="submit" aria-label="إرسال">${I.send}</button>
+    </form>
+    <a class="advisor-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>تفضّل التحدث مع فريقنا على واتساب؟</span></a>
+  </section>`;
+}
+
 function page({ title, desc, active, body, script = "" }) {
   return (
     head(title, desc) +
@@ -155,6 +175,7 @@ function page({ title, desc, active, body, script = "" }) {
     `<main>${body}</main>` +
     footer() +
     waFab() +
+    advisorWidget() +
     `<script src="/assets/js/main.js"></script>${script}</body></html>`
   );
 }

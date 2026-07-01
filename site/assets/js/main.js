@@ -96,3 +96,61 @@
     update();
   }
 })();
+
+/* المستشار — advisor chatbot client */
+(function () {
+  "use strict";
+  var fab = document.getElementById("advisor-fab");
+  var panel = document.getElementById("advisor-panel");
+  if (!fab || !panel) return;
+  var closeBtn = document.getElementById("advisor-close");
+  var msgs = document.getElementById("advisor-msgs");
+  var form = document.getElementById("advisor-form");
+  var input = document.getElementById("advisor-input");
+  var sendBtn = form.querySelector("button");
+  var history = []; // {role, content}
+  var busy = false;
+
+  function open() { panel.hidden = false; fab.classList.add("hide"); setTimeout(function () { input.focus(); }, 50); }
+  function close() { panel.hidden = true; fab.classList.remove("hide"); }
+  fab.addEventListener("click", open);
+  closeBtn.addEventListener("click", close);
+
+  function addMsg(text, who) {
+    var el = document.createElement("div");
+    el.className = "advisor-msg " + who;
+    el.textContent = text;
+    msgs.appendChild(el);
+    msgs.scrollTop = msgs.scrollHeight;
+    return el;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var text = input.value.trim();
+    if (!text || busy) return;
+    input.value = "";
+    addMsg(text, "me");
+    history.push({ role: "user", content: text });
+    busy = true; sendBtn.disabled = true;
+    var typing = addMsg("يكتب…", "bot typing");
+
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: history }),
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (data) {
+        typing.remove();
+        var reply = (data && data.reply) || "تعذّر الرد الآن. تواصل معنا على واتساب وبنساعدك فوراً.";
+        addMsg(reply, "bot");
+        history.push({ role: "assistant", content: reply });
+      })
+      .catch(function () {
+        typing.remove();
+        addMsg("المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً.", "bot");
+      })
+      .finally(function () { busy = false; sendBtn.disabled = false; input.focus(); });
+  });
+})();

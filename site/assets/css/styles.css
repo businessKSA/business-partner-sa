@@ -392,3 +392,43 @@ p { color: var(--text-soft); }
 .entity-card .desc { font-size: .92rem; margin-bottom: 8px; }
 .entity-card .desc strong { color: var(--navy); }
 .entity-card .card-link { margin-top: auto; }
+
+/* المستشار — advisor chatbot widget */
+.advisor-fab { position: fixed; inset-inline-start: 22px; bottom: 22px; z-index: 80; display: inline-flex; align-items: center; gap: 9px;
+  background: var(--navy); color: #fff; font-family: inherit; font-weight: 700; border: 0; padding: 13px 20px; border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(11,27,90,.4); cursor: pointer; transition: transform .15s ease; }
+.advisor-fab:hover { transform: translateY(-3px); }
+.advisor-fab svg { width: 24px; height: 24px; }
+.advisor-fab.hide { display: none; }
+.advisor-panel { position: fixed; inset-inline-start: 22px; bottom: 22px; z-index: 90; width: 370px; max-width: calc(100vw - 44px);
+  height: 560px; max-height: calc(100vh - 44px); background: #fff; border: 1px solid var(--gray-line); border-radius: 20px;
+  box-shadow: var(--shadow-lg); display: flex; flex-direction: column; overflow: hidden; }
+.advisor-panel[hidden] { display: none; }
+.advisor-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 18px;
+  background: var(--navy); color: #fff; }
+.advisor-title { display: flex; align-items: center; gap: 11px; }
+.advisor-title svg { width: 26px; height: 26px; }
+.advisor-title strong { display: block; font-size: 1rem; }
+.advisor-title span { font-size: .78rem; color: rgba(255,255,255,.75); }
+.advisor-close { background: rgba(255,255,255,.15); border: 0; color: #fff; width: 32px; height: 32px; border-radius: 9px; cursor: pointer; display: grid; place-items: center; }
+.advisor-close svg { width: 18px; height: 18px; }
+.advisor-msgs { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; background: var(--gray-bg); }
+.advisor-msg { max-width: 85%; padding: 11px 14px; border-radius: 14px; font-size: .93rem; line-height: 1.7; white-space: pre-wrap; word-wrap: break-word; }
+.advisor-msg.bot { background: #fff; border: 1px solid var(--gray-line); color: var(--text); align-self: flex-start; border-bottom-inline-start-radius: 4px; }
+.advisor-msg.me { background: var(--navy); color: #fff; align-self: flex-end; border-bottom-inline-end-radius: 4px; }
+.advisor-msg.typing { color: var(--text-soft); font-style: italic; }
+.advisor-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--gray-line); background: #fff; }
+.advisor-form input { flex: 1; font-family: inherit; font-size: .95rem; padding: 11px 14px; border: 1.5px solid var(--gray-line); border-radius: 12px; }
+.advisor-form input:focus { outline: none; border-color: var(--navy); }
+.advisor-form button { background: var(--navy); color: #fff; border: 0; width: 44px; border-radius: 12px; cursor: pointer; display: grid; place-items: center; flex-shrink: 0; }
+.advisor-form button:disabled { opacity: .5; cursor: default; }
+.advisor-form button svg { width: 20px; height: 20px; }
+.advisor-wa { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; font-size: .84rem; font-weight: 600;
+  color: #05330f; background: var(--wa); text-align: center; }
+.advisor-wa svg { width: 18px; height: 18px; }
+@media (max-width: 560px) {
+  .advisor-panel { inset-inline: 10px; width: auto; bottom: 10px; height: calc(100vh - 20px); max-height: none; border-radius: 16px; }
+  .advisor-fab .lbl { display: none; }
+  .advisor-fab { padding: 14px; inset-inline-start: 16px; bottom: 16px; }
+  .wa-fab { inset-inline-end: 16px; bottom: 16px; }
+}
