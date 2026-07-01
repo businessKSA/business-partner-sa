@@ -63,10 +63,42 @@ const I = {
   globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>',
+  cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>',
+  upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>',
+  channel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>',
+  bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M4 10v8M20 10v8M8 10v8M16 10v8M3 21h18"/></svg>',
 };
+
+/* ---------- bilingual helper ---------- */
+/* Emits a text node that the client-side i18n engine swaps on flag toggle.
+   Default rendered text is English (site is English-primary). */
+const L = (en, ar) => `<span class="i18n" data-en="${esc(en)}" data-ar="${esc(ar)}">${esc(en)}</span>`;
+const saudiFlag =
+  '<svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></svg>';
 
 const waBtn = (label, cls = "btn-wa", lg = false) =>
   `<a class="btn ${cls}${lg ? " btn-lg" : ""}" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${esc(label)}</span></a>`;
+// Bilingual WhatsApp button (English-primary label shown by default, Arabic on flag toggle).
+const waBtn2 = (en, ar, cls = "btn-wa", lg = false) =>
+  `<a class="btn ${cls}${lg ? " btn-lg" : ""}" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L(en, ar)}</span></a>`;
+
+// Parse a leading numeric amount out of a price label like "1,500 ﷼ / شهرياً" or "يبدأ من 10,000 ﷼".
+const parseAmount = (str) => {
+  const m = String(str || "").replace(/,/g, "").match(/\d+/);
+  return m ? Number(m[0]) : null;
+};
+
+// Add-to-cart + Buy-now pair. Item carried in data-* attributes; cart lives in localStorage (see main.js).
+function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false }) {
+  const data = `data-id="${esc(id)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount != null ? amount : ""}" data-price="${esc(priceLabel || "")}" data-kind="${esc(kind)}"`;
+  return `<div class="buy-row">
+    <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
+    <button type="button" class="btn btn-wa buy-now" ${data}>${L("Buy now", "اشترِ الآن")}</button>
+  </div>`;
+}
 
 /* ---------- layout ---------- */
 function head(title, desc) {
@@ -87,21 +119,45 @@ function head(title, desc) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css">
+<script>
+(function(){try{var l=localStorage.getItem('bp_lang')||'en';var d=document.documentElement;d.lang=l;d.dir=(l==='ar')?'rtl':'ltr';d.setAttribute('data-lang',l);}catch(e){}})();
+</script>
 </head>
 <body>`;
 }
 
+const NAV_EN = {
+  "/": "Home",
+  "/about": "About",
+  "/services": "Services",
+  "/ai-agents": "AI Agents",
+  "/tourism": "Tourism",
+  "/packages": "Packages",
+  "/calculator": "Calculator",
+  "/saudi-arabia": "Saudi Arabia",
+  "/news": "News",
+  "/careers": "Careers",
+  "/contact": "Contact",
+};
+
+function langToggle() {
+  return `<button class="lang-toggle" id="lang-toggle" aria-label="Switch language / تبديل اللغة">
+    ${saudiFlag}<span class="lang-label">العربية</span></button>`;
+}
+
 function header(active) {
   const links = site.nav
-    .map((n) => `<a href="${n.href}"${n.href === active ? ' class="active"' : ""}>${esc(n.label)}</a>`)
+    .map((n) => `<a href="${n.href}"${n.href === active ? ' class="active"' : ""}>${L(NAV_EN[n.href] || n.label, n.label)}</a>`)
     .join("");
   return `<header class="site-header"><div class="container header-inner">
   <a class="logo" href="/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="التنقل الرئيسي">${links}<a class="btn btn-wa nav-cta" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>ابدأ على واتساب</span></a></nav>
+  <nav class="nav" aria-label="Main navigation">${links}<a class="btn btn-wa nav-cta" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Start on WhatsApp", "ابدأ على واتساب")}</span></a></nav>
   <div class="header-cta">
-    <a class="btn btn-ghost" href="/contact">تواصل معنا</a>
-    ${waBtn("ابدأ الآن", "btn-primary")}
-    <button class="nav-toggle" aria-label="القائمة" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    ${langToggle()}
+    <a class="icon-btn" href="/account" aria-label="Account / حسابي">${I.user}</a>
+    <a class="icon-btn cart-link" href="/cart" aria-label="Cart / السلة">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
+    ${waBtn2("Start now", "ابدأ الآن", "btn-primary")}
+    <button class="nav-toggle" aria-label="Menu / القائمة" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header>`;
 }
@@ -129,6 +185,8 @@ function footer() {
       <li><a href="/news">الأخبار</a></li>
       <li><a href="/careers">الوظائف</a></li>
       <li><a href="/calculator">الحاسبة</a></li>
+      <li><a href="/account">منصّة العملاء</a></li>
+      <li><a href="/cart">السلة</a></li>
       <li><a href="/contact">اتصل بنا</a></li>
     </ul></div>
     <div class="footer-col"><h4>خدمات مختارة</h4><ul>${svcLinks}</ul></div>
@@ -137,6 +195,7 @@ function footer() {
       <li>${I.mail}<span>${esc(c.email)}</span></li>
       <li>${I.pin}<span>${esc(c.address)}</span></li>
       <li>${I.wa}<a href="${WA}" target="_blank" rel="noopener">الوكيل الذكي على واتساب</a></li>
+      ${site.whatsappChannel ? `<li>${I.channel}<a href="${site.whatsappChannel}" target="_blank" rel="noopener">تابع قناتنا في واتساب</a></li>` : ""}
     </ul></div>
   </div>
   <div class="footer-bottom">
@@ -384,7 +443,7 @@ function buildServicesIndex() {
       <div class="pk-price">${esc(t.price)}<span class="pk-price-sub">+ رسوم حكومية منفصلة</span></div>
       <p class="pk-for">${esc(t.for)}</p>
       <p style="color:var(--text-soft);font-size:.95rem;flex:1">${esc(t.text)}</p>
-      <div style="margin-top:20px">${waBtn("اطلب المسار", t.highlight ? "btn-wa" : "btn-ghost")}</div>
+      <div style="margin-top:20px">${cartBtns({ id: "misa-" + esc(t.nameAr).replace(/\s+/g, "-"), nameEn: t.nameEn || t.nameAr, nameAr: t.nameAr, amount: parseAmount(t.price), priceLabel: t.price, kind: "misa", ghost: !t.highlight })}</div>
     </div>`
     )
     .join("");
@@ -458,7 +517,8 @@ function buildServiceDetail(s) {
       <div class="order-box">
         <div class="price-big">${esc(s.price.label)}</div>
         <div class="price-note">${esc(priceNote)}</div>
-        ${waBtn("اطلب هذه الخدمة", "btn-wa")}
+        ${cartBtns({ id: s.code || s.slug, nameEn: s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label, kind: "service" })}
+        ${waBtn("اطلب هذه الخدمة على واتساب", "btn-ghost")}
         <a class="btn btn-ghost" href="/calculator?service=${encodeURIComponent(s.code)}">احسب التكلفة</a>
         <p class="mini">رد فوري من الوكيل الذكي 24/7</p>
         <ul class="order-facts">${facts.join("")}</ul>
@@ -483,7 +543,8 @@ function buildAiAgents() {
       <div class="pk-price">${esc(g.price)}</div>
       <p class="pk-for">${esc(g.for)}</p>
       <ul>${g.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
-      ${waBtn("اطلب هذا الوكيل", g.highlight ? "btn-wa" : "btn-ghost")}
+      ${cartBtns({ id: "agent-" + esc(g.name).replace(/\s+/g, "-"), nameEn: g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
+      ${waBtn("اطلب هذا الوكيل على واتساب", "btn-ghost")}
     </div>`
     )
     .join("");
@@ -526,7 +587,8 @@ function buildPackages() {
       ${t.price ? `<div class="pk-price">${esc(t.price)}</div>` : ""}
       <p class="pk-for">${esc(t.for)}</p>
       <ul>${t.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
-      ${waBtn("تواصل معنا للتسعير", t.highlight ? "btn-wa" : "btn-ghost")}
+      ${cartBtns({ id: "pkg-" + esc(t.nameAr).replace(/\s+/g, "-"), nameEn: t.nameEn || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || "تواصل معنا للتسعير", kind: "package", ghost: !t.highlight })}
+      ${waBtn("تواصل معنا للتسعير", "btn-ghost")}
     </div>`
     )
     .join("");
@@ -759,20 +821,29 @@ function buildCareers() {
   <section class="section section--gray" id="seekers"><div class="container">
     <div class="section-head"><span class="eyebrow">${esc(c.seeker.eyebrow)}</span><h2>${esc(c.seeker.title)}</h2><p>${esc(c.seeker.text)}</p></div>
     <div style="max-width:640px;margin:0 auto">
-      <form class="calc-form" action="${WA}" method="get" target="_blank">
+      <form class="calc-form cv-form" id="cv-form" novalidate>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="c-name">${esc(f.name)}</label><input id="c-name" name="name" type="text" required></div>
-          <div class="field"><label for="c-phone">${esc(f.phone)}</label><input id="c-phone" name="phone" type="tel"></div>
+          <div class="field"><label for="c-phone">${esc(f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="c-email">${esc(f.email)}</label><input id="c-email" name="email" type="email"></div>
           <div class="field"><label for="c-exp">${esc(f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="مثال: 3 سنوات"></div>
         </div>
         <div class="field"><label for="c-field">${esc(f.field)}</label><input id="c-field" name="field" type="text" placeholder="مثال: محاسبة، تسويق، هندسة"></div>
-        <div class="field"><label for="c-cv">${esc(f.cv)}</label><input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx"></div>
-        ${waBtn(c.seeker.cta || "أرفق سيرتك عبر واتساب", "btn-wa")}
-        <p class="form-note">${esc(c.seeker.note)}</p>
+        <div class="field">
+          <label>${esc(f.cv)}</label>
+          <label class="file-drop" for="c-cv" id="cv-drop">
+            <span class="file-ico">${I.upload}</span>
+            <span class="file-text" id="cv-filename">اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word</span>
+          </label>
+          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" required hidden>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${esc(c.seeker.cta || "أرسل سيرتك الذاتية")}</span></button>
+        <p class="form-note" id="cv-note">${esc(c.seeker.note)}</p>
+        <div class="form-success" id="cv-success" hidden>✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة. يمكنك أيضاً متابعتنا على واتساب.</div>
       </form>
+      <div class="center mt-16">${waBtn("أو أرسلها عبر واتساب", "btn-ghost")}</div>
     </div>
   </div></section>`;
   return page({ title: "الوظائف والتوظيف — بيزنس بارتنر", desc: esc(c.lead.slice(0, 155)), active: "/careers", body });
@@ -793,6 +864,7 @@ function buildContact() {
         <ul class="info-list">
           <li><span class="ico">${I.wa}</span><div><div class="k">واتساب — الوكيل الذكي</div><a class="v" href="${WA}" target="_blank" rel="noopener">${esc(c.whatsappAgent)}</a></div></li>
           <li><span class="ico">${I.wa}</span><div><div class="k">واتساب — الدعم البشري</div><a class="v" href="${WA_SUPPORT}" target="_blank" rel="noopener">${esc(c.whatsappSupport)}</a></div></li>
+          ${site.whatsappChannel ? `<li><span class="ico">${I.channel}</span><div><div class="k">قناة واتساب</div><a class="v" href="${site.whatsappChannel}" target="_blank" rel="noopener">تابع قناتنا في واتساب</a></div></li>` : ""}
           <li><span class="ico">${I.phone}</span><div><div class="k">التواصل الهاتفي</div><a class="v" href="tel:${esc(c.phoneIntl)}">${esc(c.phone)}</a></div></li>
           <li><span class="ico">${I.mail}</span><div><div class="k">البريد الإلكتروني</div><a class="v" href="mailto:${esc(c.email)}">${esc(c.email)}</a></div></li>
           <li><span class="ico">${I.pin}</span><div><div class="k">العنوان</div><div class="v">${esc(c.address)}</div></div></li>
@@ -818,6 +890,150 @@ function buildContact() {
   return page({ title: "اتصل بنا — بيزنس بارتنر", desc: "تواصل مع بيزنس بارتنر عبر واتساب أو الهاتف أو البريد — رد فوري من الوكيل الذكي 24/7.", active: "/contact", body });
 }
 
+function buildCart() {
+  const cm = site.commerce;
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Your cart", "سلة الطلبات")}</span>
+    <h1>${L("Your cart", cm.cartTitle)}</h1>
+    <p class="lead">${L("Review your selected services and packages, then continue to bank-transfer checkout.", "راجع الخدمات والباقات المختارة، ثم أكمل الطلب عبر التحويل البنكي.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="cart-layout">
+      <div class="cart-main">
+        <div id="cart-items"></div>
+        <div class="cart-empty" id="cart-empty" hidden><p>${L("Your cart is empty. Browse services and packages and add what suits you.", cm.cartEmpty)}</p>
+          <a class="btn btn-primary" href="/services">${L("Browse services", "تصفّح الخدمات")}</a></div>
+      </div>
+      <aside class="cart-aside">
+        <div class="order-box">
+          <h3>${L("Summary", "الملخص")}</h3>
+          <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="cart-subtotal">—</span></div>
+          <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="cart-vat">—</span></div>
+          <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
+          <a class="btn btn-primary btn-lg" id="cart-checkout" href="/checkout" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
+          <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
+          <p class="calc-note">${esc(cm.vatNote)}</p>
+        </div>
+      </aside>
+    </div>
+  </div></section>`;
+  return page({ title: "السلة — بيزنس بارتنر", desc: "سلة طلباتك من خدمات وباقات بيزنس بارتنر.", active: "/cart", body });
+}
+
+function buildCheckout() {
+  const cm = site.commerce;
+  const bank = site.bank;
+  const steps = cm.steps
+    .map((s) => `<div class="step"><div class="step-n">${esc(s.n)}</div><div><h3>${L(s.titleEn || s.title, s.title)}</h3><p>${L(s.textEn || s.text, s.text)}</p></div></div>`)
+    .join("");
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Checkout", "إتمام الطلب")}</span>
+    <h1>${L("Checkout — bank transfer", cm.checkoutTitle)}</h1>
+    <p class="lead">${L("Bank transfer for now. Enter your details, upload your documents, transfer the amount and upload the receipt to confirm your order. (Online payment coming soon.)", cm.checkoutIntro)}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="steps-grid" style="margin-bottom:36px">${steps}</div>
+    <div class="cart-layout">
+      <div class="cart-main">
+        <form class="calc-form" id="checkout-form" novalidate>
+          <h2>${L("Your details", "بياناتك")}</h2>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="co-name">${L("Full name", "الاسم الكامل")}</label><input id="co-name" name="name" type="text" required></div>
+            <div class="field"><label for="co-phone">${L("Mobile", "رقم الجوال")}</label><input id="co-phone" name="phone" type="tel" required></div>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="co-email">${L("Email", "البريد الإلكتروني")}</label><input id="co-email" name="email" type="email"></div>
+            <div class="field"><label for="co-entity">${L("Company / entity (optional)", "المنشأة (اختياري)")}</label><input id="co-entity" name="entity" type="text"></div>
+          </div>
+          <h2>${L("Upload your documents", "ارفع مستنداتك")}</h2>
+          <div class="field">
+            <label class="file-drop" for="co-docs" id="docs-drop"><span class="file-ico">${I.upload}</span>
+              <span class="file-text" id="docs-filename">${L("Required documents for your service (PDF/images) — optional now", "المستندات المطلوبة لخدمتك (PDF/صور) — اختياري الآن")}</span></label>
+            <input id="co-docs" name="docs" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple hidden>
+          </div>
+          <div class="bank-box">
+            <div class="bank-head">${I.bank}<strong>${L("Bank transfer details", "بيانات التحويل البنكي")}</strong></div>
+            <ul class="bank-list">
+              <li><span class="k">${L("Beneficiary", "المستفيد")}</span><span class="v">${esc(bank.beneficiary)}</span></li>
+              <li><span class="k">${L("Bank", "البنك")}</span><span class="v">${esc(bank.bankName)}</span></li>
+              <li><span class="k">IBAN</span><span class="v">${esc(bank.iban)}</span></li>
+            </ul>
+            <p class="calc-note">${esc(bank.note)}</p>
+          </div>
+          <h2>${L("Upload transfer receipt", "ارفع إيصال التحويل")}</h2>
+          <div class="field">
+            <label class="file-drop" for="co-receipt" id="receipt-drop"><span class="file-ico">${I.upload}</span>
+              <span class="file-text" id="receipt-filename">${L("Bank transfer receipt (image/PDF)", "صورة إيصال التحويل (صورة/PDF)")}</span></label>
+            <input id="co-receipt" name="receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Submit order", "أرسل الطلب")}</button>
+          <p class="form-note">${L("On submit we save your order to your account on this device and open WhatsApp to notify our team. (Automated CRM/Drive link — Notion + n8n — coming soon.)", "عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز ونفتح واتساب لإشعار فريقنا. (الربط الآلي مع CRM وDrive — Notion وn8n — قيد الإطلاق.)")}</p>
+          <div class="form-success" id="checkout-success" hidden></div>
+        </form>
+      </div>
+      <aside class="cart-aside">
+        <div class="order-box">
+          <h3>${L("Order summary", "ملخص الطلب")}</h3>
+          <div id="checkout-items"></div>
+          <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="co-subtotal">—</span></div>
+          <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="co-vat">—</span></div>
+          <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="co-total">—</span></div>
+          <a class="btn btn-ghost" href="/cart" style="width:100%">${L("Edit cart", "تعديل السلة")}</a>
+        </div>
+      </aside>
+    </div>
+  </div></section>`;
+  return page({ title: "إتمام الطلب — بيزنس بارتنر", desc: "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل.", active: "/cart", body });
+}
+
+function buildAccount() {
+  const ac = site.account;
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Client portal", "منصّة العملاء")}</span>
+    <h1>${L("Clients & Partners portal", ac.title)}</h1>
+    <p class="lead">${L("Sign in to track your orders, upload documents, and follow your services with Business Partner.", ac.lead)}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="account-wrap" id="account-auth">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-tab="login">${L("Sign in", ac.loginTitle)}</button>
+        <button type="button" class="auth-tab" data-tab="register">${L("New account", ac.registerTitle)}</button>
+      </div>
+      <form class="calc-form auth-form" id="login-form">
+        <div class="field"><label for="lg-email">${L("Email", "البريد الإلكتروني")}</label><input id="lg-email" type="email" required></div>
+        <div class="field"><label for="lg-pass">${L("Password", "كلمة المرور")}</label><input id="lg-pass" type="password" required></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Sign in", "تسجيل الدخول")}</button>
+      </form>
+      <form class="calc-form auth-form" id="register-form" hidden>
+        <div class="field"><label for="rg-name">${L("Full name", "الاسم الكامل")}</label><input id="rg-name" type="text" required></div>
+        <div class="field"><label for="rg-email">${L("Email", "البريد الإلكتروني")}</label><input id="rg-email" type="email" required></div>
+        <div class="field"><label for="rg-phone">${L("Mobile", "رقم الجوال")}</label><input id="rg-phone" type="tel"></div>
+        <div class="field"><label for="rg-pass">${L("Password", "كلمة المرور")}</label><input id="rg-pass" type="password" required></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Create account", "إنشاء الحساب")}</button>
+      </form>
+      <p class="form-note">${esc(ac.demoNote)}</p>
+    </div>
+
+    <div class="account-dash" id="account-dash" hidden>
+      <div class="dash-head">
+        <div><h2 id="dash-hello">${L("Welcome", "مرحباً")}</h2><p id="dash-email" class="text-soft"></p></div>
+        <button type="button" class="btn btn-ghost" id="logout-btn">${L("Sign out", "تسجيل الخروج")}</button>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card"><h3>${L("My orders", "طلباتي")}</h3><div id="dash-orders"><p class="text-soft">${L("No orders yet.", "لا توجد طلبات بعد.")}</p></div>
+          <a class="btn btn-ghost" href="/services">${L("Browse services", "تصفّح الخدمات")}</a></div>
+        <div class="dash-card"><h3>${L("My documents", "مستنداتي")}</h3><div id="dash-uploads"><p class="text-soft">${L("No uploads yet.", "لا توجد ملفات بعد.")}</p></div>
+          <a class="btn btn-ghost" href="/checkout">${L("Upload via an order", "ارفع عبر طلب")}</a></div>
+      </div>
+      <div class="callout" style="margin-top:24px"><span class="ico">💡</span><p>${L("This is a front-end preview. Secure partner accounts (Notion CRM + verification) are being connected.", ac.demoNote)}</p></div>
+    </div>
+  </div></section>`;
+  return page({ title: "منصّة العملاء — بيزنس بارتنر", desc: "سجّل دخولك لمتابعة طلباتك ومستنداتك مع بيزنس بارتنر.", active: "/account", body });
+}
+
 /* ---------- write ---------- */
 function write(rel, html) {
   const full = path.join(ROOT, rel);
@@ -838,6 +1054,9 @@ write("saudi-arabia.html", buildSaudi());
 write("news.html", buildNews());
 write("careers.html", buildCareers());
 write("contact.html", buildContact());
+write("cart.html", buildCart());
+write("checkout.html", buildCheckout());
+write("account.html", buildAccount());
 // Remove the retired blog page if a prior build produced it.
 if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 // Clean the services directory so removed catalog rows don't leave stale pages.
@@ -851,7 +1070,7 @@ services.forEach((s) => write(`services/${s.slug}.html`, buildServiceDetail(s)))
 
 // sitemap.xml
 const base = "https://businesspartner.sa";
-const urls = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact"]
+const urls = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account"]
   .concat(services.map((s) => `/services/${s.slug}`))
   .map((u) => `  <url><loc>${base}${u}</loc></url>`)
   .join("\n");

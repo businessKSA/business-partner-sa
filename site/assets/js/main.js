@@ -97,6 +97,356 @@
   }
 })();
 
+/* ---------- Language toggle (English-primary; Saudi flag → Arabic) ---------- */
+var BP = window.BP = window.BP || {};
+(function () {
+  "use strict";
+  function getLang() { try { return localStorage.getItem("bp_lang") || "en"; } catch (e) { return "en"; } }
+  BP.lang = getLang();
+
+  function apply(lang) {
+    BP.lang = lang;
+    try { localStorage.setItem("bp_lang", lang); } catch (e) {}
+    var d = document.documentElement;
+    d.lang = lang;
+    d.dir = lang === "ar" ? "rtl" : "ltr";
+    d.setAttribute("data-lang", lang);
+    // Swap all marked text nodes
+    var nodes = document.querySelectorAll(".i18n");
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      var t = lang === "ar" ? n.getAttribute("data-ar") : n.getAttribute("data-en");
+      if (t != null) n.textContent = t;
+    }
+    // Toggle label shows the OTHER language you can switch to
+    var lbl = document.querySelector("#lang-toggle .lang-label");
+    if (lbl) lbl.textContent = lang === "ar" ? "EN" : "العربية";
+    // Let other modules (cart etc.) re-render
+    document.dispatchEvent(new CustomEvent("bp:langchange", { detail: { lang: lang } }));
+  }
+
+  document.addEventListener("DOMContentLoaded", function () { apply(getLang()); });
+  var btn = document.getElementById("lang-toggle");
+  if (btn) btn.addEventListener("click", function () { apply(BP.lang === "ar" ? "en" : "ar"); });
+  BP.t = function (en, ar) { return BP.lang === "ar" ? ar : en; };
+  BP.money = function (n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }) + " ﷼"; };
+})();
+
+/* ---------- Cart (localStorage) ---------- */
+(function () {
+  "use strict";
+  var KEY = "bp_cart";
+  var VAT = 0.15;
+
+  function read() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+  function write(c) { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} updateBadge(); }
+  BP.cart = { read: read, write: write };
+
+  function count() { return read().reduce(function (n, i) { return n + (i.qty || 1); }, 0); }
+  function subtotal() { return read().reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0); }
+  function hasQuoteItems() { return read().some(function (i) { return !i.amount; }); }
+
+  function updateBadge() {
+    var b = document.getElementById("cart-badge");
+    if (!b) return;
+    var c = count();
+    b.textContent = c;
+    b.hidden = c === 0;
+  }
+
+  function itemFromBtn(btn) {
+    var a = btn.getAttribute("data-amount");
+    return {
+      id: btn.getAttribute("data-id"),
+      nameEn: btn.getAttribute("data-name-en") || "",
+      nameAr: btn.getAttribute("data-name-ar") || "",
+      amount: a ? Number(a) : null,
+      price: btn.getAttribute("data-price") || "",
+      kind: btn.getAttribute("data-kind") || "service",
+      qty: 1,
+    };
+  }
+
+  function add(item) {
+    var c = read();
+    var ex = c.find(function (x) { return x.id === item.id; });
+    if (ex) ex.qty = (ex.qty || 1) + 1;
+    else c.push(item);
+    write(c);
+  }
+
+  function toast(msg) {
+    var t = document.createElement("div");
+    t.className = "bp-toast";
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.classList.add("show"); }, 10);
+    setTimeout(function () { t.classList.remove("show"); setTimeout(function () { t.remove(); }, 300); }, 2200);
+  }
+
+  document.addEventListener("click", function (e) {
+    var addBtn = e.target.closest(".add-cart");
+    var buyBtn = e.target.closest(".buy-now");
+    if (addBtn) {
+      add(itemFromBtn(addBtn));
+      toast(BP.t("Added to cart ✓", "أُضيفت إلى السلة ✓"));
+    } else if (buyBtn) {
+      add(itemFromBtn(buyBtn));
+      location.href = "/checkout";
+    }
+  });
+
+  function name(i) { return (BP.lang === "ar" ? i.nameAr : i.nameEn) || i.nameAr || i.nameEn; }
+
+  function renderCart() {
+    var wrap = document.getElementById("cart-items");
+    if (!wrap) return;
+    var c = read();
+    var empty = document.getElementById("cart-empty");
+    if (!c.length) { wrap.innerHTML = ""; if (empty) empty.hidden = false; }
+    else {
+      if (empty) empty.hidden = true;
+      wrap.innerHTML = c.map(function (i, idx) {
+        var priceTxt = i.amount ? BP.money(i.amount) : (i.price || BP.t("Quoted on review", "يُسعّر عند المراجعة"));
+        return '<div class="cart-item">' +
+          '<div class="ci-main"><strong>' + esc(name(i)) + '</strong><span class="ci-kind">' + kindLabel(i.kind) + '</span></div>' +
+          '<div class="ci-qty"><button type="button" class="ci-dec" data-i="' + idx + '">−</button><span>' + (i.qty || 1) + '</span><button type="button" class="ci-inc" data-i="' + idx + '">+</button></div>' +
+          '<div class="ci-price">' + esc(priceTxt) + '</div>' +
+          '<button type="button" class="ci-del" data-i="' + idx + '" aria-label="remove">✕</button>' +
+          '</div>';
+      }).join("");
+    }
+    renderTotals("cart-subtotal", "cart-vat", "cart-total");
+  }
+
+  function kindLabel(k) {
+    var m = { service: ["Service", "خدمة"], package: ["Package", "باقة"], agent: ["AI agent", "وكيل ذكي"], misa: ["Investor track", "مسار مستثمر"] };
+    var p = m[k] || m.service;
+    return BP.t(p[0], p[1]);
+  }
+
+  function renderTotals(subId, vatId, totId) {
+    var sub = subtotal(), vat = sub * VAT, tot = sub + vat;
+    var q = hasQuoteItems();
+    var suffix = q ? (" + " + BP.t("quoted items", "بنود تُسعّر")) : "";
+    set(subId, sub ? BP.money(sub) : (q ? BP.t("Quoted", "تُسعّر") : "—"));
+    set(vatId, sub ? BP.money(vat) : "—");
+    set(totId, (sub ? BP.money(tot) : (q ? BP.t("Quoted on review", "يُسعّر عند المراجعة") : "—")) );
+    function set(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  // cart item qty/delete
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (t.classList.contains("ci-del") || t.classList.contains("ci-inc") || t.classList.contains("ci-dec")) {
+      var i = parseInt(t.getAttribute("data-i"), 10);
+      var c = read();
+      if (!c[i]) return;
+      if (t.classList.contains("ci-del")) c.splice(i, 1);
+      else if (t.classList.contains("ci-inc")) c[i].qty = (c[i].qty || 1) + 1;
+      else { c[i].qty = (c[i].qty || 1) - 1; if (c[i].qty < 1) c.splice(i, 1); }
+      write(c);
+      renderCart();
+      renderCheckout();
+    }
+  });
+
+  function renderCheckout() {
+    var wrap = document.getElementById("checkout-items");
+    if (!wrap) return;
+    var c = read();
+    wrap.innerHTML = c.length ? c.map(function (i) {
+      var priceTxt = i.amount ? BP.money(i.amount * (i.qty || 1)) : (i.price || BP.t("Quoted", "تُسعّر"));
+      return '<div class="co-line"><span>' + esc(name(i)) + ' ×' + (i.qty || 1) + '</span><span>' + esc(priceTxt) + '</span></div>';
+    }).join("") : '<p class="text-soft">' + BP.t("Cart is empty.", "السلة فارغة.") + '</p>';
+    renderTotals("co-subtotal", "co-vat", "co-total");
+  }
+
+  BP.renderCart = renderCart;
+  BP.renderCheckout = renderCheckout;
+  BP.cartName = name;
+
+  document.addEventListener("DOMContentLoaded", function () { updateBadge(); renderCart(); renderCheckout(); });
+  document.addEventListener("bp:langchange", function () { updateBadge(); renderCart(); renderCheckout(); });
+})();
+
+/* ---------- File-drop labels ---------- */
+(function () {
+  "use strict";
+  function bind(inputId, labelId) {
+    var inp = document.getElementById(inputId), lbl = document.getElementById(labelId);
+    if (!inp || !lbl) return;
+    inp.addEventListener("change", function () {
+      if (!inp.files || !inp.files.length) return;
+      var names = [];
+      for (var i = 0; i < inp.files.length; i++) names.push(inp.files[i].name);
+      lbl.textContent = "📎 " + names.join(", ");
+      lbl.closest(".file-drop").classList.add("has-file");
+    });
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    bind("c-cv", "cv-filename");
+    bind("co-docs", "docs-filename");
+    bind("co-receipt", "receipt-filename");
+  });
+})();
+
+/* ---------- Careers CV form (client-side demo) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("cv-form");
+    if (!form) return;
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = document.getElementById("c-name").value.trim();
+      var phone = document.getElementById("c-phone").value.trim();
+      var cv = document.getElementById("c-cv");
+      if (!name || !phone) { alert(BP.t("Please enter your name and mobile.", "الرجاء إدخال الاسم ورقم الجوال.")); return; }
+      if (!cv.files || !cv.files.length) { alert(BP.t("Please attach your CV file.", "الرجاء إرفاق ملف السيرة الذاتية.")); return; }
+      // Store a lightweight record locally (real upload → n8n/Notion coming soon)
+      try {
+        var apps = JSON.parse(localStorage.getItem("bp_cv") || "[]");
+        apps.push({ name: name, phone: phone, file: cv.files[0].name, at: new Date().toISOString().slice(0, 10) });
+        localStorage.setItem("bp_cv", JSON.stringify(apps));
+      } catch (err) {}
+      form.querySelector(".form-success").hidden = false;
+      form.querySelector("button[type=submit]").disabled = true;
+    });
+  });
+})();
+
+/* ---------- Checkout submit ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("checkout-form");
+    if (!form) return;
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var cart = BP.cart.read();
+      if (!cart.length) { alert(BP.t("Your cart is empty.", "سلتك فارغة.")); location.href = "/services"; return; }
+      var name = document.getElementById("co-name").value.trim();
+      var phone = document.getElementById("co-phone").value.trim();
+      var email = document.getElementById("co-email").value.trim();
+      if (!name || !phone) { alert(BP.t("Please enter your name and mobile.", "الرجاء إدخال الاسم ورقم الجوال.")); return; }
+      var receipt = document.getElementById("co-receipt");
+      var ref = "BP-" + Date.now().toString().slice(-6);
+      var docs = document.getElementById("co-docs");
+      var files = [];
+      [docs, receipt].forEach(function (inp) { if (inp && inp.files) for (var i = 0; i < inp.files.length; i++) files.push(inp.files[i].name); });
+      var order = {
+        ref: ref, name: name, phone: phone, email: email,
+        items: cart.map(function (i) { return { name: BP.cartName(i), qty: i.qty || 1, price: i.amount ? i.amount * (i.qty || 1) : null, priceLabel: i.price }; }),
+        files: files, receipt: receipt && receipt.files.length ? receipt.files[0].name : null,
+        at: new Date().toISOString().slice(0, 10), status: BP.t("Under review", "قيد المراجعة"),
+      };
+      try {
+        var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+        orders.unshift(order);
+        localStorage.setItem("bp_orders", JSON.stringify(orders));
+      } catch (err) {}
+      // Build WhatsApp notification
+      var lines = ["*طلب جديد / New order* " + ref, "الاسم: " + name, "الجوال: " + phone];
+      order.items.forEach(function (it) { lines.push("• " + it.name + " ×" + it.qty + (it.price ? " — " + it.price + " ﷼" : "")); });
+      if (!receipt || !receipt.files.length) lines.push(BP.t("(Receipt to be sent)", "(سيُرسل الإيصال)"));
+      var waUrl = "https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n"));
+      // Clear cart
+      BP.cart.write([]);
+      var box = document.getElementById("checkout-success");
+      box.hidden = false;
+      box.innerHTML = "✅ <strong>" + BP.t("Order received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
+        BP.t("Transfer the amount to the bank account, then send the receipt. We'll confirm on WhatsApp.", "حوّل المبلغ على الحساب البنكي ثم أرسل الإيصال. سنؤكد لك عبر واتساب.") +
+        '<br><a class="btn btn-wa" style="margin-top:12px" href="' + waUrl + '" target="_blank" rel="noopener">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a> " +
+        '<a class="btn btn-ghost" style="margin-top:12px" href="/account">' + BP.t("View in my account", "عرض في حسابي") + "</a>";
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+      form.querySelector("button[type=submit]").disabled = true;
+      BP.renderCheckout();
+    });
+  });
+})();
+
+/* ---------- Account (client-side demo auth + dashboard) ---------- */
+(function () {
+  "use strict";
+  function session() { try { return JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) { return null; } }
+  function users() { try { return JSON.parse(localStorage.getItem("bp_users") || "{}"); } catch (e) { return {}; } }
+  function saveUsers(u) { try { localStorage.setItem("bp_users", JSON.stringify(u)); } catch (e) {} }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var auth = document.getElementById("account-auth");
+    var dash = document.getElementById("account-dash");
+    if (!auth || !dash) return;
+
+    var tabs = auth.querySelectorAll(".auth-tab");
+    var loginF = document.getElementById("login-form");
+    var regF = document.getElementById("register-form");
+    tabs.forEach(function (tb) {
+      tb.addEventListener("click", function () {
+        tabs.forEach(function (x) { x.classList.remove("active"); });
+        tb.classList.add("active");
+        var t = tb.getAttribute("data-tab");
+        loginF.hidden = t !== "login";
+        regF.hidden = t !== "register";
+      });
+    });
+
+    function render() {
+      var s = session();
+      if (s) {
+        auth.hidden = true; dash.hidden = false;
+        document.getElementById("dash-hello").textContent = BP.t("Welcome, ", "مرحباً، ") + (s.name || s.email);
+        document.getElementById("dash-email").textContent = s.email;
+        renderOrders();
+      } else { auth.hidden = false; dash.hidden = true; }
+    }
+
+    function renderOrders() {
+      var orders = [];
+      try { orders = JSON.parse(localStorage.getItem("bp_orders") || "[]"); } catch (e) {}
+      var ow = document.getElementById("dash-orders");
+      var uw = document.getElementById("dash-uploads");
+      if (!orders.length) return;
+      ow.innerHTML = orders.map(function (o) {
+        return '<div class="ord"><div><strong>' + o.ref + '</strong><span class="text-soft"> · ' + o.at + '</span><div class="text-soft">' +
+          o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(", ") + '</div></div><span class="ord-status">' + o.status + '</span></div>';
+      }).join("");
+      var files = orders.reduce(function (a, o) { return a.concat(o.files || [], o.receipt ? [o.receipt] : []); }, []);
+      if (files.length) uw.innerHTML = files.map(function (f) { return '<div class="upl">📎 ' + f + '</div>'; }).join("");
+    }
+
+    if (loginF) loginF.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = document.getElementById("lg-email").value.trim().toLowerCase();
+      var pass = document.getElementById("lg-pass").value;
+      var u = users()[email];
+      if (!u || u.pass !== pass) { alert(BP.t("No matching account. Try registering.", "لا يوجد حساب مطابق. جرّب إنشاء حساب جديد.")); return; }
+      try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: u.name })); } catch (er) {}
+      render();
+    });
+
+    if (regF) regF.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = document.getElementById("rg-name").value.trim();
+      var email = document.getElementById("rg-email").value.trim().toLowerCase();
+      var pass = document.getElementById("rg-pass").value;
+      if (!name || !email || !pass) { alert(BP.t("Please fill all fields.", "الرجاء تعبئة كل الحقول.")); return; }
+      var u = users(); u[email] = { name: name, pass: pass, phone: document.getElementById("rg-phone").value.trim() };
+      saveUsers(u);
+      try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: name })); } catch (er) {}
+      render();
+    });
+
+    var out = document.getElementById("logout-btn");
+    if (out) out.addEventListener("click", function () { try { localStorage.removeItem("bp_session"); } catch (e) {} render(); });
+
+    render();
+    document.addEventListener("bp:langchange", function () { if (session()) render(); });
+  });
+})();
+
 /* المستشار — advisor chatbot client */
 (function () {
   "use strict";
