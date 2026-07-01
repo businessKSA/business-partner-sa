@@ -28,3 +28,4 @@ pnpm-debug.log*
 # portable build artifacts
 dist-portable/
 business-partner-site.zip
+business-partner-onefile.html
