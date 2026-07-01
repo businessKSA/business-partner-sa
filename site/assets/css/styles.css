@@ -81,7 +81,7 @@ p { color: var(--text-soft); }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 18px; }
 .logo img { height: 34px; width: auto; }
 .nav { display: flex; align-items: center; gap: 6px; }
-.nav a { color: var(--text); font-weight: 600; font-size: .98rem; padding: 8px 13px; border-radius: 8px; }
+.nav a { color: var(--text); font-weight: 600; font-size: .98rem; padding: 8px 13px; border-radius: 8px; white-space: nowrap; }
 .nav a:hover { color: var(--navy); background: var(--gray-bg); }
 .nav a.active { color: var(--navy); background: rgba(11,27,90,.08); }
 .nav-cta { display: none; }
@@ -176,6 +176,17 @@ p { color: var(--text-soft); }
 .pkg .pk-name { font-size: 1.6rem; font-weight: 800; color: var(--navy); }
 .pkg .pk-name small { font-family: "Playfair Display", serif; font-weight: 600; font-size: .95rem; color: var(--text-soft); display: block; margin-top: 2px; }
 .pkg .pk-price { font-size: 1.5rem; font-weight: 800; color: var(--navy); margin-top: 14px; }
+.pkg .pk-price-sub { display: block; font-size: .78rem; font-weight: 600; color: var(--text-soft); margin-top: 2px; }
+.pkg .pk-price--quote { font-size: 1.15rem; color: var(--wa); }
+
+/* AI agents — how it works steps */
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+.step { background: #fff; border: 1px solid var(--gray-line); border-radius: var(--radius); padding: 26px; display: flex; gap: 16px; align-items: flex-start; box-shadow: var(--shadow-sm); }
+.step-n { flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; background: var(--navy); color: #fff; font-weight: 800; font-size: 1.2rem; display: grid; place-items: center; }
+.step h3 { font-size: 1.05rem; margin-bottom: 6px; }
+.step p { font-size: .92rem; }
+@media (max-width: 960px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .steps-grid { grid-template-columns: 1fr; } }
 .pkg .pk-for { color: var(--text-soft); margin: 10px 0 20px; font-size: .96rem; }
 .pkg ul { list-style: none; display: grid; gap: 12px; margin-bottom: 26px; flex: 1; }
 .pkg li { display: flex; gap: 10px; align-items: flex-start; font-size: .96rem; color: var(--text); }
@@ -325,11 +336,11 @@ p { color: var(--text-soft); }
 .hidden { display: none !important; }
 
 /* Responsive */
-@media (max-width: 1120px) {
-  .nav a { padding: 8px 9px; font-size: .92rem; }
+@media (max-width: 1200px) {
+  .nav a { padding: 8px 9px; font-size: .9rem; }
   .header-cta .btn-ghost { display: none; }
 }
-@media (max-width: 1024px) {
+@media (max-width: 1080px) {
   .nav, .header-cta .btn { display: none; }
   .nav-toggle { display: block; }
   .header-inner { gap: 10px; }

@@ -107,6 +107,7 @@ function footer() {
     <div class="footer-col"><h4>روابط</h4><ul>
       <li><a href="/about">من نحن</a></li>
       <li><a href="/services">الخدمات</a></li>
+      <li><a href="/ai-agents">الوكلاء الأذكياء</a></li>
       <li><a href="/packages">الباقات</a></li>
       <li><a href="/saudi-arabia">السعودية</a></li>
       <li><a href="/news">الأخبار</a></li>
@@ -272,7 +273,7 @@ function buildHome() {
         <h2>${esc(h.agent.title)}</h2>
         <p>${esc(h.agent.text)}</p>
         <ul class="agent-list">${agentBullets}</ul>
-        ${waBtn(h.agent.cta, "btn-white", true)}
+        <div class="hero-actions">${waBtn(h.agent.cta, "btn-white", true)}<a class="btn btn-lg" href="/ai-agents" style="border-color:rgba(255,255,255,.5);color:#fff">تعرّف على منظومة الوكلاء</a></div>
       </div>
       <div class="agent-visual">
         <div class="bubble"><span>أنت</span>أبغى أأسس شركة أجنبية، وش المستندات؟</div>
@@ -340,12 +341,32 @@ function buildServicesIndex() {
       </div>`;
     })
     .join("");
+  const mf = site.misaFeatured;
+  const misaTiers = mf.tiers
+    .map(
+      (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
+      <div class="pk-name">${esc(t.nameAr)}<small>${esc(t.name)}</small></div>
+      <div class="pk-price">${esc(t.price)}<span class="pk-price-sub">+ رسوم حكومية منفصلة</span></div>
+      <p class="pk-for">${esc(t.for)}</p>
+      <p style="color:var(--text-soft);font-size:.95rem;flex:1">${esc(t.text)}</p>
+      <div style="margin-top:20px">${waBtn("اطلب المسار", t.highlight ? "btn-wa" : "btn-ghost")}</div>
+    </div>`
+    )
+    .join("");
+  const misaSection = `
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(mf.eyebrow)}</span><h2>${esc(mf.title)}</h2><p>${esc(mf.subtitle)}</p></div>
+    <div class="grid grid-3">${misaTiers}</div>
+    <div class="callout" style="max-width:720px;margin:32px auto 0"><span class="ico">💡</span><p>${esc(mf.note)}</p></div>
+  </div></section>`;
+
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">الخدمات</span>
     <h1>كل خدماتنا في مكان واحد</h1>
     <p class="lead">${services.length} خدمة مصنّفة حسب الكتالوج الرسمي لـ Business Partner — لكل خدمة صفحة كاملة بالمستندات والمميزات والأسعار.</p>
   </div></section>
+  ${misaSection}
   <section class="section"><div class="container">
     <nav class="cat-nav">${catNav}</nav>
     ${blocks}
@@ -409,6 +430,54 @@ function buildServiceDetail(s) {
   </div></div>`;
   const desc = ((ov && ov.description) || s.description || s.name).slice(0, 155);
   return page({ title: `${s.name} — Business Partner`, desc: esc(desc), active: "/services", body });
+}
+
+function buildAiAgents() {
+  const a = site.aiAgents;
+  const steps = a.how.steps
+    .map(
+      (s) => `<div class="step"><div class="step-n">${esc(s.n)}</div><div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div></div>`
+    )
+    .join("");
+  const cards = a.agents
+    .map(
+      (g) => `<div class="pkg${g.highlight ? " pop" : ""}">
+      <div class="pk-name">${esc(g.name)}<small>${esc(g.tagline)}</small></div>
+      <div class="pk-price pk-price--quote">${esc(g.price)}</div>
+      <p class="pk-for">${esc(g.for)}</p>
+      <ul>${g.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
+      ${waBtn("تواصل للتسعير", g.highlight ? "btn-wa" : "btn-ghost")}
+    </div>`
+    )
+    .join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">Baher Agents · الوكلاء الأذكياء</span>
+    <h1>${esc(a.title)}</h1>
+    <p class="lead">${esc(a.lead)}</p>
+    <div class="hero-actions">${waBtn(a.cta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="#agents">استعرض الوكلاء</a></div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}مراقبة 24/7</span>
+      <span class="hero-badge">${I.check}تنفيذ ذاتي</span>
+      <span class="hero-badge">${I.check}موافقة ودفع فقط</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(a.how.eyebrow)}</span><h2>${esc(a.how.title)}</h2></div>
+    <div class="steps-grid">${steps}</div>
+  </div></section>
+
+  <section class="section" id="agents"><div class="container">
+    <div class="section-head"><span class="eyebrow">المنظومة</span><h2>${esc(a.packagesTitle)}</h2><p>${esc(a.packagesSubtitle)}</p></div>
+    <div class="grid grid-3">${cards}</div>
+    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${esc(a.pricingNote)}</p></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="cta-band"><h2>جاهز تشوف الوكلاء يشتغلون؟</h2><p>احجز عرضاً توضيحياً مع فريقنا، ونصمّم لك المنظومة على مقاس منشأتك.</p>${waBtn(a.cta, "btn-white", true)}</div>
+  </div></section>`;
+  return page({ title: "الوكلاء الأذكياء — Baher Agents | Business Partner", desc: esc(a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
 
 function buildPackages() {
@@ -657,6 +726,7 @@ function write(rel, html) {
 write("index.html", buildHome());
 write("about.html", buildAbout());
 write("services.html", buildServicesIndex());
+write("ai-agents.html", buildAiAgents());
 write("packages.html", buildPackages());
 write("calculator.html", buildCalculator());
 write("saudi-arabia.html", buildSaudi());
@@ -676,11 +746,11 @@ services.forEach((s) => write(`services/${s.slug}.html`, buildServiceDetail(s)))
 
 // sitemap.xml
 const base = "https://businesspartner.sa";
-const urls = ["/", "/about", "/services", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact"]
+const urls = ["/", "/about", "/services", "/ai-agents", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact"]
   .concat(services.map((s) => `/services/${s.slug}`))
   .map((u) => `  <url><loc>${base}${u}</loc></url>`)
   .join("\n");
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 
-console.log(`Generated ${9 + services.length} pages + sitemap.`);
+console.log(`Generated ${10 + services.length} pages + sitemap.`);
