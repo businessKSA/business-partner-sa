@@ -27,7 +27,20 @@ const site = read("data/site.json");
 const services = read("data/services.json");
 const categories = read("data/categories.json");
 
+// Apply catalog overrides (price/name/description) from site.json to the list,
+// so cards, the calculator, and detail pages all reflect them.
+for (const s of services) {
+  const ov = site.overrides && site.overrides[s.slug];
+  if (!ov) continue;
+  if (ov.name) s.name = ov.name;
+  if (ov.description) s.description = ov.description;
+  if (ov.priceLabel) {
+    s.price = { label: ov.priceLabel, amount: ov.priceAmount ?? null, note: ov.priceNote || null };
+  }
+}
+
 const WA = site.whatsapp;
+const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -108,6 +121,7 @@ function footer() {
       <li><a href="/about">من نحن</a></li>
       <li><a href="/services">الخدمات</a></li>
       <li><a href="/ai-agents">الوكلاء الأذكياء</a></li>
+      <li><a href="/business-tourism">سياحة الأعمال</a></li>
       <li><a href="/packages">الباقات</a></li>
       <li><a href="/saudi-arabia">السعودية</a></li>
       <li><a href="/news">الأخبار</a></li>
@@ -218,7 +232,7 @@ function buildHome() {
   const pkgCards = site.packages.tiers
     .map(
       (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${esc(t.nameAr)}<small>${esc(t.name)}</small></div>
+      <div class="pk-name">${esc(t.nameAr)}</div>
       ${t.price ? `<div class="pk-price">${esc(t.price)}</div>` : ""}
       <p class="pk-for">${esc(t.for)}</p>
       <ul>${t.features.slice(0, 4).map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
@@ -345,7 +359,7 @@ function buildServicesIndex() {
   const misaTiers = mf.tiers
     .map(
       (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${esc(t.nameAr)}<small>${esc(t.name)}</small></div>
+      <div class="pk-name">${esc(t.nameAr)}</div>
       <div class="pk-price">${esc(t.price)}<span class="pk-price-sub">+ رسوم حكومية منفصلة</span></div>
       <p class="pk-for">${esc(t.for)}</p>
       <p style="color:var(--text-soft);font-size:.95rem;flex:1">${esc(t.text)}</p>
@@ -399,9 +413,11 @@ function buildServiceDetail(s) {
   if (s.govPlatform) facts.push(`<li><span class="k">الجهة</span><span class="v">${esc(s.govPlatform)}</span></li>`);
   facts.push(`<li><span class="k">الكود</span><span class="v">${esc(s.code)}</span></li>`);
 
-  const priceNote = s.govFeesSeparate
-    ? "الأتعاب لا تشمل الرسوم الحكومية وضريبة القيمة المضافة."
-    : "الأتعاب لا تشمل ضريبة القيمة المضافة.";
+  const priceNote = (s.price && s.price.note)
+    ? s.price.note
+    : (s.govFeesSeparate
+      ? "الأتعاب لا تشمل الرسوم الحكومية وضريبة القيمة المضافة."
+      : "الأتعاب لا تشمل ضريبة القيمة المضافة.");
 
   const body = `
   <section class="svc-hero"><div class="container">
@@ -443,16 +459,16 @@ function buildAiAgents() {
     .map(
       (g) => `<div class="pkg${g.highlight ? " pop" : ""}">
       <div class="pk-name">${esc(g.name)}<small>${esc(g.tagline)}</small></div>
-      <div class="pk-price pk-price--quote">${esc(g.price)}</div>
+      <div class="pk-price">${esc(g.price)}</div>
       <p class="pk-for">${esc(g.for)}</p>
       <ul>${g.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
-      ${waBtn("تواصل للتسعير", g.highlight ? "btn-wa" : "btn-ghost")}
+      ${waBtn("اطلب هذا الوكيل", g.highlight ? "btn-wa" : "btn-ghost")}
     </div>`
     )
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">Baher Agents · الوكلاء الأذكياء</span>
+    <span class="eyebrow">الوكلاء الأذكياء</span>
     <h1>${esc(a.title)}</h1>
     <p class="lead">${esc(a.lead)}</p>
     <div class="hero-actions">${waBtn(a.cta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="#agents">استعرض الوكلاء</a></div>
@@ -477,7 +493,7 @@ function buildAiAgents() {
   <section class="section section--gray"><div class="container">
     <div class="cta-band"><h2>جاهز تشوف الوكلاء يشتغلون؟</h2><p>احجز عرضاً توضيحياً مع فريقنا، ونصمّم لك المنظومة على مقاس منشأتك.</p>${waBtn(a.cta, "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: "الوكلاء الأذكياء — Baher Agents | Business Partner", desc: esc(a.lead.slice(0, 155)), active: "/ai-agents", body });
+  return page({ title: "الوكلاء الأذكياء — Business Partner", desc: esc(a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
 
 function buildPackages() {
@@ -485,7 +501,7 @@ function buildPackages() {
   const tiers = p.tiers
     .map(
       (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${esc(t.nameAr)}<small>${esc(t.name)}</small></div>
+      <div class="pk-name">${esc(t.nameAr)}</div>
       ${t.price ? `<div class="pk-price">${esc(t.price)}</div>` : ""}
       <p class="pk-for">${esc(t.for)}</p>
       <ul>${t.features.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("")}</ul>
@@ -547,6 +563,35 @@ function buildCalculator() {
   return page({ title: "حاسبة التكلفة — Business Partner", desc: "احسب تكلفة أي خدمة من خدمات Business Partner تقديرياً مع ضريبة القيمة المضافة.", active: "/calculator", body });
 }
 
+function buildBusinessTourism() {
+  const b = site.businessTourism;
+  const items = b.includes.items
+    .map((it) => `<div class="card feature"><div class="card-icon">${I.globe}</div><h3>${esc(it.title)}</h3><p>${esc(it.text)}</p></div>`)
+    .join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">سياحة الأعمال</span>
+    <h1>${esc(b.title)}</h1>
+    <p class="lead">${esc(b.lead)}</p>
+    <div class="hero-actions">${waBtn(b.cta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="/contact">تواصل معنا</a></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(b.intro.eyebrow)}</span><h2>${esc(b.intro.title)}</h2><p>${esc(b.intro.text)}</p></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(b.includes.eyebrow)}</span><h2>${esc(b.includes.title)}</h2></div>
+    <div class="grid grid-3">${items}</div>
+    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${esc(b.note)}</p></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="cta-band"><h2>جاهز تستكشف السوق السعودي؟</h2><p>نصمّم لك برنامج سياحة أعمال يفتح لك الأبواب المناسبة لنشاطك.</p>${waBtn(b.cta, "btn-white", true)}</div>
+  </div></section>`;
+  return page({ title: "سياحة الأعمال — Business Partner", desc: esc(b.lead.slice(0, 155)), active: "/business-tourism", body });
+}
+
 function buildSaudi() {
   const s = site.saudiArabia;
   const targets = s.vision.targets.map((t) => `<div class="stat"><div class="num">${esc(t.value)}</div><div class="lbl">${esc(t.label)}</div></div>`).join("");
@@ -564,6 +609,15 @@ function buildSaudi() {
       <span class="tag">${I.doc}دليل معرفي</span>
       <h3>${esc(a.title)}</h3><p class="desc">${esc(a.excerpt)}</p>
       <span class="card-link">اقرأ المزيد ${I.arrow}</span></a>`
+    )
+    .join("");
+  const entities = s.entities.items
+    .map(
+      (e) => `<a class="card entity-card" href="${e.link}">
+      <div class="entity-head"><h3>${esc(e.name)}</h3><span class="entity-gov">${esc(e.gov)}</span></div>
+      <p class="desc"><strong>ماذا تفعل؟</strong> ${esc(e.what)}</p>
+      <p class="desc"><strong>كيف نخدمك؟</strong> ${esc(e.help)}</p>
+      <span class="card-link">الخدمات ذات العلاقة ${I.arrow}</span></a>`
     )
     .join("");
   const body = `
@@ -586,6 +640,11 @@ function buildSaudi() {
   </div></section>
 
   <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(s.entities.eyebrow)}</span><h2>${esc(s.entities.title)}</h2><p>${esc(s.entities.subtitle)}</p></div>
+    <div class="grid grid-3">${entities}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${esc(s.knowledge.eyebrow)}</span><h2>${esc(s.knowledge.title)}</h2><p>${esc(s.knowledge.subtitle)}</p></div>
     <div class="grid grid-3">${articles}</div>
     <div class="cta-band" style="margin-top:40px"><h2>تبي دليلاً مفصّلاً لحالتك؟</h2><p>الوكيل الذكي يجهّز لك خطوات خدمتك ومتطلباتها فوراً على واتساب.</p>${waBtn("اسأل الوكيل الذكي", "btn-white", true)}</div>
@@ -669,7 +728,8 @@ function buildCareers() {
           <div class="field"><label for="c-exp">${esc(f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="مثال: 3 سنوات"></div>
         </div>
         <div class="field"><label for="c-field">${esc(f.field)}</label><input id="c-field" name="field" type="text" placeholder="مثال: محاسبة، تسويق، هندسة"></div>
-        ${waBtn("أرسل طلبك عبر واتساب", "btn-wa")}
+        <div class="field"><label for="c-cv">${esc(f.cv)}</label><input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx"></div>
+        ${waBtn(c.seeker.cta || "أرفق سيرتك عبر واتساب", "btn-wa")}
         <p class="form-note">${esc(c.seeker.note)}</p>
       </form>
     </div>
@@ -690,8 +750,9 @@ function buildContact() {
       <div>
         <h2>معلومات التواصل</h2>
         <ul class="info-list">
-          <li><span class="ico">${I.wa}</span><div><div class="k">واتساب — الوكيل الذكي</div><a class="v" href="${WA}" target="_blank" rel="noopener">تحدث الآن</a></div></li>
-          <li><span class="ico">${I.phone}</span><div><div class="k">الهاتف</div><a class="v" href="tel:${esc(c.phoneIntl)}">${esc(c.phone)}</a></div></li>
+          <li><span class="ico">${I.wa}</span><div><div class="k">واتساب — الوكيل الذكي</div><a class="v" href="${WA}" target="_blank" rel="noopener">${esc(c.whatsappAgent)}</a></div></li>
+          <li><span class="ico">${I.wa}</span><div><div class="k">واتساب — الدعم البشري</div><a class="v" href="${WA_SUPPORT}" target="_blank" rel="noopener">${esc(c.whatsappSupport)}</a></div></li>
+          <li><span class="ico">${I.phone}</span><div><div class="k">التواصل الهاتفي</div><a class="v" href="tel:${esc(c.phoneIntl)}">${esc(c.phone)}</a></div></li>
           <li><span class="ico">${I.mail}</span><div><div class="k">البريد الإلكتروني</div><a class="v" href="mailto:${esc(c.email)}">${esc(c.email)}</a></div></li>
           <li><span class="ico">${I.pin}</span><div><div class="k">العنوان</div><div class="v">${esc(c.address)}</div></div></li>
           <li><span class="ico">${I.clock}</span><div><div class="k">أوقات العمل</div><div class="v">${esc(c.hours)}</div></div></li>
@@ -727,6 +788,7 @@ write("index.html", buildHome());
 write("about.html", buildAbout());
 write("services.html", buildServicesIndex());
 write("ai-agents.html", buildAiAgents());
+write("business-tourism.html", buildBusinessTourism());
 write("packages.html", buildPackages());
 write("calculator.html", buildCalculator());
 write("saudi-arabia.html", buildSaudi());
@@ -746,11 +808,11 @@ services.forEach((s) => write(`services/${s.slug}.html`, buildServiceDetail(s)))
 
 // sitemap.xml
 const base = "https://businesspartner.sa";
-const urls = ["/", "/about", "/services", "/ai-agents", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact"]
+const urls = ["/", "/about", "/services", "/ai-agents", "/business-tourism", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact"]
   .concat(services.map((s) => `/services/${s.slug}`))
   .map((u) => `  <url><loc>${base}${u}</loc></url>`)
   .join("\n");
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 
-console.log(`Generated ${10 + services.length} pages + sitemap.`);
+console.log(`Generated ${11 + services.length} pages + sitemap.`);

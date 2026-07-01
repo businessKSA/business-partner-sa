@@ -383,3 +383,12 @@ p { color: var(--text-soft); }
   .wa-fab { padding: 14px; }
   .section-head { margin-bottom: 38px; }
 }
+
+/* Saudi — government entities directory */
+.entity-card { display: flex; flex-direction: column; height: 100%; }
+.entity-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.entity-head h3 { font-size: 1.1rem; }
+.entity-gov { font-size: .74rem; font-weight: 700; color: var(--navy); background: rgba(11,27,90,.07); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.entity-card .desc { font-size: .92rem; margin-bottom: 8px; }
+.entity-card .desc strong { color: var(--navy); }
+.entity-card .card-link { margin-top: auto; }
