@@ -6,6 +6,9 @@
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/blog", "destination": "/saudi-arabia", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",

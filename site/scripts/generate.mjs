@@ -108,7 +108,10 @@ function footer() {
       <li><a href="/about">من نحن</a></li>
       <li><a href="/services">الخدمات</a></li>
       <li><a href="/packages">الباقات</a></li>
-      <li><a href="/calculator">حاسبة التكلفة</a></li>
+      <li><a href="/saudi-arabia">السعودية</a></li>
+      <li><a href="/news">الأخبار</a></li>
+      <li><a href="/careers">الوظائف</a></li>
+      <li><a href="/calculator">الحاسبة</a></li>
       <li><a href="/contact">اتصل بنا</a></li>
     </ul></div>
     <div class="footer-col"><h4>خدمات مختارة</h4><ul>${svcLinks}</ul></div>
@@ -241,6 +244,11 @@ function buildHome() {
     </div>
   </div></section>
 
+  <section class="section section--navy trust-band"><div class="container">
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${esc(h.stats.eyebrow || "أرقام ثقة")}</span><h2 style="color:#fff">${esc(h.stats.title)}</h2></div>
+    <div class="stats">${stats}</div>
+  </div></section>
+
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">لماذا نحن</span><h2>${esc(h.why.title)}</h2></div>
     <div class="grid grid-3">${whyCards}</div>
@@ -271,11 +279,6 @@ function buildHome() {
         <div class="bubble me"><span>الوكيل الذكي · الآن</span>تمام! أحتاج السجل التجاري للشركة الأم مصدّق، القوائم المالية، وقرار مجلس الإدارة. أجهّز لك القائمة كاملة؟</div>
       </div>
     </div></div>
-  </div></section>
-
-  <section class="section section--navy"><div class="container">
-    <div class="section-head"><h2 style="color:#fff">${esc(h.stats.title)}</h2></div>
-    <div class="stats">${stats}</div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -475,22 +478,134 @@ function buildCalculator() {
   return page({ title: "حاسبة التكلفة — Business Partner", desc: "احسب تكلفة أي خدمة من خدمات Business Partner تقديرياً مع ضريبة القيمة المضافة.", active: "/calculator", body });
 }
 
-function buildBlog() {
+function buildSaudi() {
+  const s = site.saudiArabia;
+  const targets = s.vision.targets.map((t) => `<div class="stat"><div class="num">${esc(t.value)}</div><div class="lbl">${esc(t.label)}</div></div>`).join("");
+  const sectors = s.sectors.items
+    .map(
+      (it) => `<a class="card svc-card" href="/services#${slugCat(it.category)}">
+      <div class="card-icon">${I.building}</div>
+      <h3>${esc(it.title)}</h3><p class="desc">${esc(it.text)}</p>
+      <span class="card-link">استعرض الخدمات ${I.arrow}</span></a>`
+    )
+    .join("");
+  const articles = s.knowledge.articles
+    .map(
+      (a) => `<a class="card article-card" href="${a.link}">
+      <span class="tag">${I.doc}دليل معرفي</span>
+      <h3>${esc(a.title)}</h3><p class="desc">${esc(a.excerpt)}</p>
+      <span class="card-link">اقرأ المزيد ${I.arrow}</span></a>`
+    )
+    .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">المدوّنة</span>
-    <h1>مدوّنة Business Partner</h1>
-    <p class="lead">أدلة عملية عن التأسيس، الاستثمار الأجنبي، التراخيص، والامتثال في السعودية.</p>
+    <span class="eyebrow">السعودية</span>
+    <h1>${esc(s.title)}</h1>
+    <p class="lead">${esc(s.lead)}</p>
+    <div class="hero-actions">${waBtn("ابدأ استثمارك", "btn-primary")}<a class="btn btn-ghost" href="/services">استعرض الخدمات</a></div>
   </div></section>
+
+  <section class="section section--navy"><div class="container">
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${esc(s.vision.eyebrow)}</span><h2 style="color:#fff">${esc(s.vision.title)}</h2></div>
+    <div class="stats">${targets}</div>
+    <p class="center" style="color:rgba(255,255,255,.6);font-size:.85rem;margin-top:26px">${esc(s.vision.source)}</p>
+  </div></section>
+
   <section class="section"><div class="container">
-    <div class="blog-empty">
-      <div class="big-ico">📝</div>
-      <h2>المحتوى في الطريق</h2>
-      <p>نجهّز حالياً مقالات وأدلة تساعدك على فهم إجراءات أعمالك خطوة بخطوة. المدوّنة تنطلق في المرحلة الثانية بعد الإطلاق.</p>
-      <div class="mt-32">${waBtn("عندك سؤال الآن؟ اسأل الوكيل الذكي", "btn-primary", true)}</div>
+    <div class="section-head"><span class="eyebrow">${esc(s.sectors.eyebrow)}</span><h2>${esc(s.sectors.title)}</h2><p>${esc(s.sectors.subtitle)}</p></div>
+    <div class="grid grid-3">${sectors}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(s.knowledge.eyebrow)}</span><h2>${esc(s.knowledge.title)}</h2><p>${esc(s.knowledge.subtitle)}</p></div>
+    <div class="grid grid-3">${articles}</div>
+    <div class="cta-band" style="margin-top:40px"><h2>تبي دليلاً مفصّلاً لحالتك؟</h2><p>الوكيل الذكي يجهّز لك خطوات خدمتك ومتطلباتها فوراً على واتساب.</p>${waBtn("اسأل الوكيل الذكي", "btn-white", true)}</div>
+  </div></section>`;
+  return page({ title: "السعودية — بيانات وأدلة الاستثمار | Business Partner", desc: esc(s.lead.slice(0, 155)), active: "/saudi-arabia", body });
+}
+
+function buildNews() {
+  const n = site.news;
+  const updates = n.platformUpdates.items
+    .map(
+      (u) => `<div class="card"><div class="update-head"><span class="update-badge">${esc(u.platform)}</span></div>
+      <p>${esc(u.text)}</p></div>`
+    )
+    .join("");
+  const stories = n.successStories.items
+    .map((q) => `<div class="quote"><p>${esc(q.text)}</p><div class="role">${esc(q.tag)}</div></div>`)
+    .join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">الأخبار</span>
+    <h1>${esc(n.title)}</h1>
+    <p class="lead">${esc(n.lead)}</p>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(n.platformUpdates.eyebrow)}</span><h2>${esc(n.platformUpdates.title)}</h2><p>${esc(n.platformUpdates.subtitle)}</p></div>
+    <div class="grid grid-3">${updates}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(n.successStories.eyebrow)}</span><h2>${esc(n.successStories.title)}</h2><p>${esc(n.successStories.note)}</p></div>
+    <div class="grid grid-3">${stories}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="cta-band"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${esc(n.partnerships.eyebrow)}</span><h2>${esc(n.partnerships.title)}</h2><p>${esc(n.partnerships.note)}</p>${waBtn("تواصل للشراكة", "btn-white", true)}</div>
+  </div></section>`;
+  return page({ title: "الأخبار والتحديثات — Business Partner", desc: esc(n.lead.slice(0, 155)), active: "/news", body });
+}
+
+function buildCareers() {
+  const c = site.careers;
+  const recs = services.filter((x) => x.category === "Recruitment");
+  const recCards = recs
+    .map(
+      (x) => `<a class="card svc-card" href="/services/${x.slug}">
+      <span class="tag">${esc(x.categoryAr)}</span>
+      <h3>${esc(x.name)}</h3>
+      <div class="foot"><span class="price">${esc(x.price.label)}</span><span class="card-link">التفاصيل ${I.arrow}</span></div></a>`
+    )
+    .join("");
+  const f = c.seeker.fields;
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">الوظائف</span>
+    <h1>${esc(c.title)}</h1>
+    <p class="lead">${esc(c.lead)}</p>
+    <div class="path-switch">
+      <a class="btn btn-primary" href="#employers">${I.building}<span>أنا صاحب عمل</span></a>
+      <a class="btn btn-ghost" href="#seekers">${I.users}<span>أبحث عن عمل</span></a>
+    </div>
+  </div></section>
+
+  <section class="section" id="employers"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(c.employer.eyebrow)}</span><h2>${esc(c.employer.title)}</h2><p>${esc(c.employer.text)}</p></div>
+    <div class="grid grid-3">${recCards}</div>
+    <div class="center mt-32">${waBtn(c.employer.cta, "btn-primary", true)}</div>
+  </div></section>
+
+  <section class="section section--gray" id="seekers"><div class="container">
+    <div class="section-head"><span class="eyebrow">${esc(c.seeker.eyebrow)}</span><h2>${esc(c.seeker.title)}</h2><p>${esc(c.seeker.text)}</p></div>
+    <div style="max-width:640px;margin:0 auto">
+      <form class="calc-form" action="${WA}" method="get" target="_blank">
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-name">${esc(f.name)}</label><input id="c-name" name="name" type="text" required></div>
+          <div class="field"><label for="c-phone">${esc(f.phone)}</label><input id="c-phone" name="phone" type="tel"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-email">${esc(f.email)}</label><input id="c-email" name="email" type="email"></div>
+          <div class="field"><label for="c-exp">${esc(f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="مثال: 3 سنوات"></div>
+        </div>
+        <div class="field"><label for="c-field">${esc(f.field)}</label><input id="c-field" name="field" type="text" placeholder="مثال: محاسبة، تسويق، هندسة"></div>
+        ${waBtn("أرسل طلبك عبر واتساب", "btn-wa")}
+        <p class="form-note">${esc(c.seeker.note)}</p>
+      </form>
     </div>
   </div></section>`;
-  return page({ title: "المدوّنة — Business Partner", desc: "أدلة عملية عن التأسيس والاستثمار والتراخيص في السعودية — قريباً.", active: "/blog", body });
+  return page({ title: "الوظائف والتوظيف — Business Partner", desc: esc(c.lead.slice(0, 155)), active: "/careers", body });
 }
 
 function buildContact() {
@@ -544,8 +659,12 @@ write("about.html", buildAbout());
 write("services.html", buildServicesIndex());
 write("packages.html", buildPackages());
 write("calculator.html", buildCalculator());
-write("blog.html", buildBlog());
+write("saudi-arabia.html", buildSaudi());
+write("news.html", buildNews());
+write("careers.html", buildCareers());
 write("contact.html", buildContact());
+// Remove the retired blog page if a prior build produced it.
+if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 // Clean the services directory so removed catalog rows don't leave stale pages.
 const svcDir = path.join(ROOT, "services");
 if (fs.existsSync(svcDir)) {
@@ -557,11 +676,11 @@ services.forEach((s) => write(`services/${s.slug}.html`, buildServiceDetail(s)))
 
 // sitemap.xml
 const base = "https://businesspartner.sa";
-const urls = ["/", "/about", "/services", "/packages", "/calculator", "/blog", "/contact"]
+const urls = ["/", "/about", "/services", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact"]
   .concat(services.map((s) => `/services/${s.slug}`))
   .map((u) => `  <url><loc>${base}${u}</loc></url>`)
   .join("\n");
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 
-console.log(`Generated ${7 + services.length} pages + sitemap.`);
+console.log(`Generated ${9 + services.length} pages + sitemap.`);
