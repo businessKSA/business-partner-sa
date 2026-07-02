@@ -1998,16 +1998,22 @@ function buildCareers() {
           <div class="field"><label for="c-email">${L("Email", f.email)}</label><input id="c-email" name="email" type="email"></div>
           <div class="field"><label for="c-exp">${L("Years of experience", f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="${Lraw("e.g. 3 years", "مثال: 3 سنوات")}"></div>
         </div>
-        <div class="field"><label for="c-field">${L("Field / specialty", f.field)}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accounting, marketing, engineering", "مثال: محاسبة، تسويق، هندسة")}"></div>
+        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accountant, marketing specialist, engineer", "مثال: محاسب، أخصائي تسويق، مهندس")}"></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")}</label><input id="c-city" name="city" type="text" placeholder="${Lraw("e.g. Riyadh, Jeddah", "مثال: الرياض، جدة")}"></div>
+          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")}</label><input id="c-salary" name="salary" type="text" placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
+        </div>
+        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
         <div class="field">
-          <label>${L("CV (PDF)", f.cv)}</label>
+          <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
           <label class="file-drop" for="c-cv" id="cv-drop">
             <span class="file-ico">${I.upload}</span>
             <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
           </label>
-          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" required hidden>
+          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Send your CV", c.seeker.cta || "أرسل سيرتك الذاتية")}</span></button>
+        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Join the candidate pool", "انضم لقاعدة المرشّحين")}</span></button>
         <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team and join the candidate pool.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا وتنضم لقاعدة المرشّحين.")}</p>
         <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
       </form>

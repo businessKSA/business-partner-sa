@@ -264,27 +264,53 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
-/* ---------- Careers CV form (client-side demo) ---------- */
+/* ---------- Careers: join candidate pool → /api/candidate (Notion) ---------- */
 (function () {
   "use strict";
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("cv-form");
     if (!form) return;
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var name = document.getElementById("c-name").value.trim();
-      var phone = document.getElementById("c-phone").value.trim();
-      var cv = document.getElementById("c-cv");
+      var name = val("c-name"), phone = val("c-phone");
       if (!name || !phone) { alert(BP.t("Please enter your name and mobile.", "الرجاء إدخال الاسم ورقم الجوال.")); return; }
-      if (!cv.files || !cv.files.length) { alert(BP.t("Please attach your CV file.", "الرجاء إرفاق ملف السيرة الذاتية.")); return; }
-      // Store a lightweight record locally (real upload → n8n/Notion coming soon)
-      try {
-        var apps = JSON.parse(localStorage.getItem("bp_cv") || "[]");
-        apps.push({ name: name, phone: phone, file: cv.files[0].name, at: new Date().toISOString().slice(0, 10) });
-        localStorage.setItem("bp_cv", JSON.stringify(apps));
-      } catch (err) {}
-      form.querySelector(".form-success").hidden = false;
-      form.querySelector("button[type=submit]").disabled = true;
+      var consentEl = document.getElementById("c-consent");
+      if (consentEl && !consentEl.checked) { alert(BP.t("Please tick the consent box to join the pool.", "الرجاء الموافقة على الانضمام لقاعدة المرشّحين.")); return; }
+      var cvEl = document.getElementById("c-cv");
+      var payload = {
+        name: name, phone: phone, email: val("c-email"), field: val("c-field"),
+        experience: val("c-exp"), city: val("c-city"), salary: val("c-salary"),
+        linkedin: val("c-linkedin"), consent: consentEl ? consentEl.checked : false,
+      };
+      var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = BP.t("Sending…", "جارٍ الإرسال…");
+
+      function ok(ref) {
+        var box = form.querySelector(".form-success");
+        var hasCv = cvEl && cvEl.files && cvEl.files.length;
+        var waTxt = encodeURIComponent("تقديم مرشّح " + (ref || "") + "\nالاسم: " + name + "\nالجوال: " + phone + (hasCv ? "\n(أرفق السيرة الذاتية هنا)" : ""));
+        box.hidden = false;
+        box.innerHTML = "✅ <strong>" + BP.t("You're in the candidate pool", "تم إضافتك لقاعدة المرشّحين") + (ref ? " — " + ref : "") + "</strong><br>" +
+          BP.t("We'll reach out when a suitable role opens.", "سنتواصل معك عند توفّر فرصة مناسبة.") +
+          (hasCv ? "<br>" + BP.t("Send your CV file to us on WhatsApp to attach it to your profile:", "أرسل ملف سيرتك عبر واتساب لإرفاقه بملفك:") +
+            ' <a class="btn btn-wa" style="margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waTxt + '">' + BP.t("Send CV on WhatsApp", "أرسل السيرة عبر واتساب") + "</a>" : "");
+        box.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      function fallback() {
+        // Not configured / network error → keep it local + offer WhatsApp
+        try { var a = JSON.parse(localStorage.getItem("bp_cv") || "[]"); a.push(payload); localStorage.setItem("bp_cv", JSON.stringify(a)); } catch (err) {}
+        ok(null);
+      }
+
+      fetch("/api/candidate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          btn.textContent = lbl;
+          if (res.s === 200 && res.d && res.d.ok) ok(res.d.ref);
+          else fallback();
+        })
+        .catch(function () { btn.textContent = lbl; fallback(); });
     });
   });
 })();
