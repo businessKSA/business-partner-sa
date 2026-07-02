@@ -2205,18 +2205,95 @@ function buildAccount() {
       <p class="form-note">${L("New accounts are verified by an email code. SMS (OTP) and Nafath national sign-in are being connected next.", "الحسابات الجديدة تُوثّق برمز عبر البريد. رسائل الجوال (OTP) والدخول الوطني عبر نفاذ قيد الربط قريباً.")}</p>
     </div>
 
-    <div class="account-dash" id="account-dash" hidden>
-      <div class="dash-head">
-        <div><h2 id="dash-hello">${L("Welcome", "مرحباً")}</h2><p id="dash-email" class="text-soft"></p></div>
-        <button type="button" class="btn btn-ghost" id="logout-btn">${L("Sign out", "تسجيل الخروج")}</button>
+    <div class="dash" id="account-dash" hidden>
+      <aside class="dash-side">
+        <div class="dash-user">
+          <div class="dash-avatar" id="dash-avatar">BP</div>
+          <div><strong id="dash-hello">${L("Welcome", "مرحباً")}</strong><span id="dash-email" class="text-soft"></span></div>
+        </div>
+        <nav class="dash-nav">
+          <button type="button" class="dash-navi active" data-panel="overview">${I.building}<span>${L("Overview", "الرئيسية")}</span></button>
+          <button type="button" class="dash-navi" data-panel="orders">${I.cart}<span>${L("My orders", "طلباتي")}</span><span class="dash-badge" id="nav-orders-badge" hidden>0</span></button>
+          <button type="button" class="dash-navi" data-panel="package">${I.check}<span>${L("My package", "باقتي")}</span></button>
+          <button type="button" class="dash-navi" data-panel="company">${I.doc}<span>${L("Company profile", "بيانات المنشأة")}</span></button>
+          <button type="button" class="dash-navi" data-panel="documents">${I.upload}<span>${L("My documents", "مستنداتي")}</span></button>
+          <button type="button" class="dash-navi" data-panel="support">${I.wa}<span>${L("Support", "الدعم")}</span></button>
+        </nav>
+        <button type="button" class="btn btn-ghost dash-logout" id="logout-btn">${L("Sign out", "تسجيل الخروج")}</button>
+      </aside>
+
+      <div class="dash-main">
+        <!-- Overview -->
+        <div class="dash-panel active" id="panel-overview">
+          <div class="dash-panel-head"><h2>${L("Task centre", "مركز المهام")}</h2><p>${L("Track all your government obligations and orders for your establishment.", "تابع جميع التزاماتك الحكومية وطلبات منشأتك في مكان واحد.")}</p></div>
+          <div class="dash-stats">
+            <div class="dash-stat"><span class="ds-ico">🧾</span><strong id="stat-total">0</strong><span>${L("Total orders", "إجمالي الطلبات")}</span></div>
+            <div class="dash-stat"><span class="ds-ico">⏳</span><strong id="stat-active">0</strong><span>${L("In progress", "قيد التنفيذ")}</span></div>
+            <div class="dash-stat"><span class="ds-ico">✅</span><strong id="stat-done">0</strong><span>${L("Completed", "منتهية")}</span></div>
+          </div>
+          <div class="dash-quick">
+            <a class="btn btn-primary" href="${u("/services")}">＋ ${L("Request a new service", "طلب خدمة جديدة")}</a>
+            <a class="btn btn-ghost" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "جدولة استشارة")}</span></a>
+          </div>
+          <div class="dash-card"><h3>${L("Recent orders", "أحدث الطلبات")}</h3><div id="ov-orders"><p class="dash-empty">${L("No orders yet — browse the services to get started.", "لا توجد طلبات بعد — تصفّح الخدمات للبدء.")}</p></div></div>
+        </div>
+
+        <!-- Orders -->
+        <div class="dash-panel" id="panel-orders">
+          <div class="dash-panel-head"><h2>${L("My orders", "طلباتي")}</h2><p>${L("Every order you placed, with its bank-transfer reference and status.", "كل طلب قدّمته، مع رقمه المرجعي وحالته.")}</p></div>
+          <div id="all-orders"><p class="dash-empty">${L("No orders yet.", "لا توجد طلبات بعد.")}</p></div>
+        </div>
+
+        <!-- Package -->
+        <div class="dash-panel" id="panel-package">
+          <div class="dash-panel-head"><h2>${L("My package", "باقتي")}</h2><p>${L("Your active package and what it includes.", "باقتك الحالية وما تشمله.")}</p></div>
+          <div id="pkg-box"><div class="dash-card"><p class="dash-empty">${L("You have no active package yet.", "لا توجد لديك باقة مفعّلة بعد.")}</p><a class="btn btn-primary" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div></div>
+        </div>
+
+        <!-- Company profile -->
+        <div class="dash-panel" id="panel-company">
+          <div class="dash-panel-head"><h2>${L("Company profile", "بيانات المنشأة")}</h2><p>${L("Complete your establishment file so our team has everything ready.", "أكمل ملف منشأتك ليكون لدى فريقنا كل ما يلزم.")}</p></div>
+          <div class="dash-card">
+            <div class="dash-progress"><span id="co-progress-bar"></span></div>
+            <p class="dash-progress-label"><span id="co-progress-count">0/6</span> ${L("fields completed", "حقول مكتملة")}</p>
+            <form id="company-form" class="calc-form">
+              <div class="grid grid-2" style="gap:0 20px">
+                <div class="field"><label for="co-name2">${L("Establishment name", "اسم المنشأة")}</label><input id="co-name2" data-k="name" type="text"></div>
+                <div class="field"><label for="co-cr">${L("Commercial Registration (CR)", "رقم السجل التجاري")}</label><input id="co-cr" data-k="cr" type="text" inputmode="numeric"></div>
+              </div>
+              <div class="grid grid-2" style="gap:0 20px">
+                <div class="field"><label for="co-city2">${L("City", "المدينة")}</label><input id="co-city2" data-k="city" type="text"></div>
+                <div class="field"><label for="co-vat">${L("Tax (VAT) number", "الرقم الضريبي")}</label><input id="co-vat" data-k="vat" type="text" inputmode="numeric"></div>
+              </div>
+              <div class="grid grid-2" style="gap:0 20px">
+                <div class="field"><label for="co-activity2">${L("Main activity", "النشاط الرئيسي")}</label><input id="co-activity2" data-k="activity" type="text"></div>
+                <div class="field"><label for="co-size">${L("Employees", "عدد الموظفين")}</label><input id="co-size" data-k="size" type="number" min="0"></div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Save profile", "حفظ البيانات")}</button>
+              <div class="form-success" id="company-saved" hidden>${L("Saved on this device ✓", "حُفظت على هذا الجهاز ✓")}</div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="dash-panel" id="panel-documents">
+          <div class="dash-panel-head"><h2>${L("My documents", "مستنداتي")}</h2><p>${L("Files attached to your orders.", "الملفات المرفقة بطلباتك.")}</p></div>
+          <div class="dash-card"><div id="all-uploads"><p class="dash-empty">${L("No documents yet — attach them when you place an order.", "لا توجد مستندات بعد — أرفقها عند تقديم طلب.")}</p></div>
+            <a class="btn btn-ghost" href="${u("/compliance-portal")}">🛡️ ${L("Upload via the compliance portal", "ارفع عبر بوابة الامتثال")}</a></div>
+        </div>
+
+        <!-- Support -->
+        <div class="dash-panel" id="panel-support">
+          <div class="dash-panel-head"><h2>${L("Support", "مركز الدعم")}</h2><p>${L("We're here to help — reach us any time.", "نحن هنا لمساعدتك — تواصل معنا في أي وقت.")}</p></div>
+          <div class="dash-card">
+            <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("Chat on WhatsApp", "تواصل عبر واتساب")}</span></a>
+            <a class="btn btn-ghost" href="${u("/consultation")}" style="width:100%;margin-top:10px">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a>
+            <a class="btn btn-ghost" href="${u("/contact")}" style="width:100%;margin-top:10px">${L("Contact us", "اتصل بنا")}</a>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L("This dashboard runs on this device for now. Secure cloud accounts (CRM + verified login) are being connected — your data will sync automatically.", "تعمل هذه اللوحة على جهازك حالياً. يجري ربط الحسابات السحابية الآمنة (CRM + دخول موثّق) وستتم مزامنة بياناتك تلقائياً.")}</p></div>
       </div>
-      <div class="dash-grid">
-        <div class="dash-card"><h3>${L("My orders", "طلباتي")}</h3><div id="dash-orders"><p class="text-soft">${L("No orders yet.", "لا توجد طلبات بعد.")}</p></div>
-          <a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "تصفّح الخدمات")}</a></div>
-        <div class="dash-card"><h3>${L("My documents", "مستنداتي")}</h3><div id="dash-uploads"><p class="text-soft">${L("No uploads yet.", "لا توجد ملفات بعد.")}</p></div>
-          <a class="btn btn-ghost" href="${u("/checkout")}">${L("Upload via an order", "ارفع عبر طلب")}</a></div>
-      </div>
-      <div class="callout" style="margin-top:24px"><span class="ico">💡</span><p>${L("This is a front-end preview. Secure partner accounts (Notion CRM + verification) are being connected.", ac.demoNote)}</p></div>
     </div>
   </div></section>`;
   return page({ title: Lraw("Client portal — Business Partner", "منصّة العملاء — بيزنس بارتنر"), desc: Lraw("Sign in to track your orders and documents with Business Partner.", "سجّل دخولك لمتابعة طلباتك ومستنداتك مع بيزنس بارتنر."), active: "/account", path: "/account", body });

@@ -371,24 +371,106 @@ var BP = window.BP = window.BP || {};
       var s = session();
       if (s) {
         auth.hidden = true; dash.hidden = false;
-        document.getElementById("dash-hello").textContent = BP.t("Welcome, ", "مرحباً، ") + (s.name || s.email);
+        var nm = s.name || s.email;
+        document.getElementById("dash-hello").textContent = BP.t("Welcome, ", "مرحباً، ") + nm;
         document.getElementById("dash-email").textContent = s.email;
+        var av = document.getElementById("dash-avatar");
+        if (av) av.textContent = (nm || "BP").trim().slice(0, 2).toUpperCase();
         renderOrders();
+        renderCompany();
       } else { auth.hidden = false; dash.hidden = true; }
     }
 
+    // Dashboard panel navigation
+    (function () {
+      var navis = document.querySelectorAll(".dash-navi");
+      navis.forEach(function (b) {
+        b.addEventListener("click", function () {
+          var key = b.getAttribute("data-panel");
+          navis.forEach(function (x) { x.classList.remove("active"); });
+          b.classList.add("active");
+          document.querySelectorAll(".dash-panel").forEach(function (p) { p.classList.remove("active"); });
+          var panel = document.getElementById("panel-" + key);
+          if (panel) panel.classList.add("active");
+        });
+      });
+    })();
+
+    // Company profile (saved locally per this device)
+    var COMPANY_KEY = "bp_company";
+    var COMPANY_FIELDS = ["name", "cr", "city", "vat", "activity", "size"];
+    function renderCompany() {
+      var data = {};
+      try { data = JSON.parse(localStorage.getItem(COMPANY_KEY) || "{}"); } catch (e) {}
+      var filled = 0;
+      document.querySelectorAll("#company-form [data-k]").forEach(function (inp) {
+        var k = inp.getAttribute("data-k");
+        if (data[k] != null && data[k] !== "") { inp.value = data[k]; filled++; }
+      });
+      var bar = document.getElementById("co-progress-bar");
+      var cnt = document.getElementById("co-progress-count");
+      if (bar) bar.style.width = Math.round((filled / COMPANY_FIELDS.length) * 100) + "%";
+      if (cnt) cnt.textContent = filled + "/" + COMPANY_FIELDS.length;
+    }
+    var companyForm = document.getElementById("company-form");
+    if (companyForm) {
+      companyForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var data = {};
+        companyForm.querySelectorAll("[data-k]").forEach(function (inp) { data[inp.getAttribute("data-k")] = inp.value.trim(); });
+        try { localStorage.setItem(COMPANY_KEY, JSON.stringify(data)); } catch (er) {}
+        renderCompany();
+        var ok = document.getElementById("company-saved");
+        if (ok) { ok.hidden = false; setTimeout(function () { ok.hidden = true; }, 2200); }
+      });
+    }
+
+    function esc2(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function ordersData() { try { return JSON.parse(localStorage.getItem("bp_orders") || "[]"); } catch (e) { return []; } }
+    function isDone(st) { return /done|complete|منته|مكتمل|مُنجز/i.test(st || ""); }
+
+    function orderCard(o) {
+      var items = (o.items || []).map(function (i) { return esc2(i.name) + " ×" + (i.qty || 1); }).join("، ");
+      var done = isDone(o.status);
+      return '<div class="ord"><div class="ord-main"><strong>' + esc2(o.ref) + '</strong>' +
+        '<span class="text-soft"> · ' + esc2(o.at || "") + '</span>' +
+        '<div class="text-soft ord-items">' + items + '</div></div>' +
+        '<span class="ord-status ' + (done ? "ok" : "wait") + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span></div>';
+    }
+
     function renderOrders() {
-      var orders = [];
-      try { orders = JSON.parse(localStorage.getItem("bp_orders") || "[]"); } catch (e) {}
-      var ow = document.getElementById("dash-orders");
-      var uw = document.getElementById("dash-uploads");
-      if (!orders.length) return;
-      ow.innerHTML = orders.map(function (o) {
-        return '<div class="ord"><div><strong>' + o.ref + '</strong><span class="text-soft"> · ' + o.at + '</span><div class="text-soft">' +
-          o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(", ") + '</div></div><span class="ord-status">' + o.status + '</span></div>';
-      }).join("");
+      var orders = ordersData();
+      var total = orders.length;
+      var done = orders.filter(function (o) { return isDone(o.status); }).length;
+      var active = total - done;
+      function set(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+      set("stat-total", total); set("stat-active", active); set("stat-done", done);
+      var badge = document.getElementById("nav-orders-badge");
+      if (badge) { badge.textContent = total; badge.hidden = total === 0; }
+
+      var ov = document.getElementById("ov-orders");
+      var all = document.getElementById("all-orders");
+      if (orders.length) {
+        var recent = orders.slice(-4).reverse().map(orderCard).join("");
+        if (ov) ov.innerHTML = recent;
+        if (all) all.innerHTML = orders.slice().reverse().map(orderCard).join("");
+      }
+
+      // Documents from order attachments
       var files = orders.reduce(function (a, o) { return a.concat(o.files || [], o.receipt ? [o.receipt] : []); }, []);
-      if (files.length) uw.innerHTML = files.map(function (f) { return '<div class="upl">📎 ' + f + '</div>'; }).join("");
+      var uw = document.getElementById("all-uploads");
+      if (uw && files.length) uw.innerHTML = files.map(function (f) { return '<div class="upl">📎 ' + esc2(f) + '</div>'; }).join("");
+
+      // Active package = latest order line of kind "package"
+      var pkgItem = null;
+      orders.forEach(function (o) { (o.items || []).forEach(function (i) { if (i.kind === "package") pkgItem = i; }); });
+      var pb = document.getElementById("pkg-box");
+      if (pb && pkgItem) {
+        pb.innerHTML = '<div class="dash-card pkg-active"><span class="pkg-tag">' + BP.t("Active", "مفعّلة") + '</span>' +
+          '<h3>' + esc2(pkgItem.name) + '</h3>' +
+          '<p class="text-soft">' + BP.t("Your consultant is setting up the services included in this package.", "مستشارك يجهّز الخدمات المشمولة في هذه الباقة.") + '</p>' +
+          '<a class="btn btn-ghost" href="' + (BP.lang === "ar" ? "/ar" : "") + '/packages">' + BP.t("View package details", "تفاصيل الباقة") + '</a></div>';
+      }
     }
 
     if (loginF) loginF.addEventListener("submit", function (e) {
