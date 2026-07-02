@@ -40,11 +40,18 @@ ${KNOWLEDGE}
 
 /* ---------- provider callers: each takes sanitized messages, returns reply text or throws ---------- */
 
+// Resolve the first non-empty env var from a list of candidate names.
+const envFrom = (names) => { for (const n of names) { if (process.env[n]) return process.env[n]; } return ""; };
+const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI"];
+const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
+const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
+const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
+
 async function callGemini(messages) {
   const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: "POST",
-    headers: { "x-goog-api-key": process.env.GEMINI_API_KEY, "content-type": "application/json" },
+    headers: { "x-goog-api-key": envFrom(GEMINI_KEYS), "content-type": "application/json" },
     body: JSON.stringify({
       system_instruction: { parts: [{ text: SYSTEM_INSTRUCTIONS }] },
       contents: messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
@@ -76,7 +83,7 @@ async function callOpenAICompatible(url, apiKey, model, messages) {
 const callGroq = (messages) =>
   callOpenAICompatible(
     "https://api.groq.com/openai/v1/chat/completions",
-    process.env.GROQ_API_KEY,
+    envFrom(GROQ_KEYS),
     process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
     messages
   );
@@ -84,7 +91,7 @@ const callGroq = (messages) =>
 const callOpenAI = (messages) =>
   callOpenAICompatible(
     "https://api.openai.com/v1/chat/completions",
-    process.env.OPENAI_API_KEY,
+    envFrom(OPENAI_KEYS),
     process.env.OPENAI_MODEL || "gpt-4o-mini",
     messages
   );
@@ -93,7 +100,7 @@ async function callAnthropic(messages) {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
+      "x-api-key": envFrom(ANTHROPIC_KEYS),
       "anthropic-version": "2023-06-01",
       "content-type": "application/json",
     },
@@ -114,22 +121,27 @@ async function callAnthropic(messages) {
 
 // Free providers first, then paid — first configured provider that answers wins.
 const PROVIDERS = [
-  { name: "gemini", key: "GEMINI_API_KEY", call: callGemini },
-  { name: "groq", key: "GROQ_API_KEY", call: callGroq },
-  { name: "anthropic", key: "ANTHROPIC_API_KEY", call: callAnthropic },
-  { name: "openai", key: "OPENAI_API_KEY", call: callOpenAI },
+  { name: "gemini", keys: GEMINI_KEYS, call: callGemini },
+  { name: "groq", keys: GROQ_KEYS, call: callGroq },
+  { name: "anthropic", keys: ANTHROPIC_KEYS, call: callAnthropic },
+  { name: "openai", keys: OPENAI_KEYS, call: callOpenAI },
 ];
-const configured = () => PROVIDERS.filter((p) => !!process.env[p.key]);
+const configured = () => PROVIDERS.filter((p) => !!envFrom(p.keys));
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   // Lightweight health check (never exposes the keys themselves).
   if (req.method === "GET") {
+    // Names only (never values) of any AI-related env vars we can see — helps diagnose a mis-named key.
+    const seen = Object.keys(process.env)
+      .filter((k) => /GEMINI|GOOGLE|GROQ|OPENAI|ANTHROPIC|CLAUDE|API_KEY/i.test(k))
+      .sort();
     res.statusCode = 200;
     return res.end(JSON.stringify({
       status: "ok",
       providers: configured().map((p) => p.name),
       keyConfigured: configured().length > 0,
+      seenKeyNames: seen,
     }));
   }
   if (req.method !== "POST") {
