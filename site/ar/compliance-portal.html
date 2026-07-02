@@ -50,8 +50,48 @@
   <section class="section"><div class="container">
     <div class="portal-wrap">
       <div class="portal-form">
-        <iframe src="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" title="نموذج بوابة امتثال المنشأة" loading="lazy" referrerpolicy="no-referrer"></iframe>
-        <p class="form-note portal-fallback">النموذج ما ظهر؟ <a href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">افتحه في نافذة مستقلة ←</a></p>
+        <div class="order-box" style="margin:0">
+  <form class="bp-intake" id="bp-intake" novalidate>
+    <div class="bp-intake-grid">
+      <div class="field"><label>اسم المنشأة *</label><input name="company" required></div>
+      <div class="field"><label>الرقم الموحّد (700)</label><input name="unified"></div>
+      <div class="field"><label>رقم منشأة قوى</label><input name="qiwa_id"></div>
+      <div class="field"><label>رقم منشأة مدد</label><input name="mudad_id"></div>
+      <div class="field"><label>عدد الموظفين في التأمينات</label><input name="employees" type="number" min="0"></div>
+      <div class="field"><label>واتساب / الجوال *</label><input name="whatsapp" required></div>
+      <div class="field"><label>البريد الإلكتروني</label><input name="email" type="email"></div>
+    </div>
+    <div class="field"><label>المنصات المشترك بها</label><div class="bp-chips"><label class="bp-chk"><input type="checkbox" name="platforms" value="كل المنصات"> كل المنصات</label><label class="bp-chk"><input type="checkbox" name="platforms" value="قوى"> قوى</label><label class="bp-chk"><input type="checkbox" name="platforms" value="مقيم"> مقيم</label><label class="bp-chk"><input type="checkbox" name="platforms" value="GOSI"> GOSI</label><label class="bp-chk"><input type="checkbox" name="platforms" value="مدد"> مدد</label><label class="bp-chk"><input type="checkbox" name="platforms" value="السجل التجاري"> السجل التجاري</label><label class="bp-chk"><input type="checkbox" name="platforms" value="أخرى"> أخرى</label></div></div>
+    <div class="field"><label>ارفع ملفاتك: قوى / مقيم / التأمينات / مدد — PDF أو Excel أو صور *</label><input name="files" id="bp-files" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp" required></div>
+    <div class="field"><label>ملاحظات</label><textarea name="notes" rows="2"></textarea></div>
+    <button type="submit" class="btn btn-primary btn-lg" id="bp-submit">📤 إرسال آمن</button>
+    <div class="bp-intake-msg" id="bp-msg" hidden></div>
+    <p class="form-note">🔒 تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. لا يُنفَّذ أي إجراء حكومي دون موافقتك.</p>
+  </form>
+  <script>window.BP_INTAKE_URL="https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";window.BP_INTAKE_LANG="ar";</script>
+  <script>
+  (function(){
+    var f=document.getElementById("bp-intake"); if(!f) return;
+    var msg=document.getElementById("bp-msg"), btn=document.getElementById("bp-submit"), files=document.getElementById("bp-files");
+    var isAr=window.BP_INTAKE_LANG==="ar";
+    function show(t,cls){msg.hidden=false;msg.textContent=t;msg.className="bp-intake-msg "+cls;}
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+      if(!f.company.value.trim()||!f.whatsapp.value.trim()||!files.files.length){show(isAr?"يرجى تعبئة اسم المنشأة والجوال وإرفاق ملف واحد على الأقل.":"Please fill establishment name, mobile and attach at least one file.","err");return;}
+      var fd=new FormData();
+      ["company","unified","qiwa_id","mudad_id","employees","whatsapp","email","notes"].forEach(function(k){fd.append(k,f[k].value||"");});
+      var pf=[].slice.call(f.querySelectorAll("input[name=platforms]:checked")).map(function(x){return x.value;});
+      fd.append("platforms",pf.join(","));
+      for(var i=0;i<files.files.length;i++) fd.append("files",files.files[i]);
+      btn.disabled=true;btn.textContent=isAr?"جارٍ الإرسال…":"Sending…";
+      show(isAr?"جارٍ رفع ملفاتك بأمان…":"Uploading securely…","info");
+      fetch(window.BP_INTAKE_URL,{method:"POST",body:fd}).then(function(r){if(!r.ok)throw new Error("status "+r.status);return r.text();}).then(function(){
+        f.reset();
+        show(isAr?"✅ استلمنا بياناتك وملفاتك بنجاح! سيبدأ وكيل الامتثال متابعة منشأتك ونتواصل معك واتساب/إيميل.":"✅ Received! Our Compliance Agent will start tracking your establishment and contact you on WhatsApp/email.","ok");
+      }).catch(function(){show(isAr?"تعذّر الإرسال. جرّب مجدداً أو تواصل معنا واتساب.":"Couldn't send. Please retry or contact us on WhatsApp.","err");}).finally(function(){btn.disabled=false;btn.textContent=isAr?"📤 إرسال آمن":"📤 Send securely";});
+    });
+  })();
+  </script></div>
       </div>
       <aside class="portal-side">
         <div class="order-box">

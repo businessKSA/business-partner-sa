@@ -186,8 +186,48 @@
 
         <div class="cc-portal">
           <div class="cc-portal-head">🛡️ Compliance intake portal</div>
-          <iframe id="cc-portal-frame" title="Compliance intake portal" data-src="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" loading="lazy" referrerpolicy="no-referrer"></iframe>
-          <p class="form-note">If the form doesn't load, <a href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">open it in a separate window ↗</a> · 🔒 Files are stored in your private client folder and used only for compliance analysis. No government action is ever taken without your approval.</p>
+          <div style="padding:18px">
+  <form class="bp-intake" id="bp-intake" novalidate>
+    <div class="bp-intake-grid">
+      <div class="field"><label>Establishment name *</label><input name="company" required></div>
+      <div class="field"><label>Unified number (700)</label><input name="unified"></div>
+      <div class="field"><label>Qiwa establishment no.</label><input name="qiwa_id"></div>
+      <div class="field"><label>Mudad establishment no.</label><input name="mudad_id"></div>
+      <div class="field"><label>Employees in GOSI</label><input name="employees" type="number" min="0"></div>
+      <div class="field"><label>WhatsApp / mobile *</label><input name="whatsapp" required></div>
+      <div class="field"><label>Email</label><input name="email" type="email"></div>
+    </div>
+    <div class="field"><label>Subscribed platforms</label><div class="bp-chips"><label class="bp-chk"><input type="checkbox" name="platforms" value="كل المنصات"> كل المنصات</label><label class="bp-chk"><input type="checkbox" name="platforms" value="قوى"> قوى</label><label class="bp-chk"><input type="checkbox" name="platforms" value="مقيم"> مقيم</label><label class="bp-chk"><input type="checkbox" name="platforms" value="GOSI"> GOSI</label><label class="bp-chk"><input type="checkbox" name="platforms" value="مدد"> مدد</label><label class="bp-chk"><input type="checkbox" name="platforms" value="السجل التجاري"> السجل التجاري</label><label class="bp-chk"><input type="checkbox" name="platforms" value="أخرى"> أخرى</label></div></div>
+    <div class="field"><label>Upload files: Qiwa / Muqeem / GOSI / Mudad — PDF, Excel, images *</label><input name="files" id="bp-files" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp" required></div>
+    <div class="field"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+    <button type="submit" class="btn btn-primary btn-lg" id="bp-submit">📤 Send securely</button>
+    <div class="bp-intake-msg" id="bp-msg" hidden></div>
+    <p class="form-note">🔒 Files are stored in your private client folder and used only for compliance analysis. No government action is taken without your approval.</p>
+  </form>
+  <script>window.BP_INTAKE_URL="https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";window.BP_INTAKE_LANG="en";</script>
+  <script>
+  (function(){
+    var f=document.getElementById("bp-intake"); if(!f) return;
+    var msg=document.getElementById("bp-msg"), btn=document.getElementById("bp-submit"), files=document.getElementById("bp-files");
+    var isAr=window.BP_INTAKE_LANG==="ar";
+    function show(t,cls){msg.hidden=false;msg.textContent=t;msg.className="bp-intake-msg "+cls;}
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+      if(!f.company.value.trim()||!f.whatsapp.value.trim()||!files.files.length){show(isAr?"يرجى تعبئة اسم المنشأة والجوال وإرفاق ملف واحد على الأقل.":"Please fill establishment name, mobile and attach at least one file.","err");return;}
+      var fd=new FormData();
+      ["company","unified","qiwa_id","mudad_id","employees","whatsapp","email","notes"].forEach(function(k){fd.append(k,f[k].value||"");});
+      var pf=[].slice.call(f.querySelectorAll("input[name=platforms]:checked")).map(function(x){return x.value;});
+      fd.append("platforms",pf.join(","));
+      for(var i=0;i<files.files.length;i++) fd.append("files",files.files[i]);
+      btn.disabled=true;btn.textContent=isAr?"جارٍ الإرسال…":"Sending…";
+      show(isAr?"جارٍ رفع ملفاتك بأمان…":"Uploading securely…","info");
+      fetch(window.BP_INTAKE_URL,{method:"POST",body:fd}).then(function(r){if(!r.ok)throw new Error("status "+r.status);return r.text();}).then(function(){
+        f.reset();
+        show(isAr?"✅ استلمنا بياناتك وملفاتك بنجاح! سيبدأ وكيل الامتثال متابعة منشأتك ونتواصل معك واتساب/إيميل.":"✅ Received! Our Compliance Agent will start tracking your establishment and contact you on WhatsApp/email.","ok");
+      }).catch(function(){show(isAr?"تعذّر الإرسال. جرّب مجدداً أو تواصل معنا واتساب.":"Couldn't send. Please retry or contact us on WhatsApp.","err");}).finally(function(){btn.disabled=false;btn.textContent=isAr?"📤 إرسال آمن":"📤 Send securely";});
+    });
+  })();
+  </script></div>
         </div>
         <div class="cc-upload-cta" style="margin-top:14px;text-align:center">
           <a class="btn btn-ghost" href="/compliance-portal">🛡️ Open the full compliance portal page →</a>
@@ -283,6 +323,15 @@
     .cc-portal-head{background:var(--navy);color:var(--white);padding:12px 18px;font-weight:700;font-size:.95rem}
     #cc-portal-frame{width:100%;height:960px;border:0;display:block;background:var(--gray-bg)}
     .cc-portal .form-note{padding:10px 16px}
+    .bp-intake-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .bp-intake .field{margin-bottom:14px}
+    .bp-chips{display:flex;flex-wrap:wrap;gap:9px}
+    .bp-chk{display:flex;align-items:center;gap:6px;border:1px solid var(--gray-line);border-radius:999px;padding:6px 13px;font-size:.85rem;cursor:pointer;background:var(--gray-bg)}
+    #bp-files{padding:11px;border:1px dashed var(--navy);border-radius:12px;background:var(--gray-bg);width:100%}
+    .bp-intake-msg{border-radius:12px;padding:12px 15px;margin-top:12px;font-weight:600}
+    .bp-intake-msg.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
+    .bp-intake-msg.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
+    .bp-intake-msg.info{background:#eef4f8;border:1px solid #cfe0ea;color:#2b5566}
     .cc-thresholds{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
     .cc-th-title{width:100%;font-size:.82rem;color:var(--text-soft);font-weight:600}
     .cc-th{border:1px solid var(--gray-line);border-radius:10px;padding:8px 14px;font-size:.82rem;background:var(--gray-bg);color:var(--text-soft)}

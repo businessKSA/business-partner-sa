@@ -916,6 +916,53 @@ function buildCalculator() {
   return page({ title: Lraw("Cost calculator — Business Partner", "حاسبة التكلفة — بيزنس بارتنر"), desc: Lraw("Build a basket of Business Partner services and see one-time and monthly fees from the official catalog.", "كوّن سلّة من خدمات بيزنس بارتنر واعرف الأتعاب لمرة واحدة والشهرية من الكتالوج الرسمي."), active: "/calculator", body });
 }
 
+const INTAKE_WEBHOOK = "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";
+function intakeFormBlock() {
+  const chips = ["كل المنصات","قوى","مقيم","GOSI","مدد","السجل التجاري","أخرى"].map(function(pf){return '<label class="bp-chk"><input type="checkbox" name="platforms" value="'+pf+'"> '+pf+'</label>';}).join("");
+  return `
+  <form class="bp-intake" id="bp-intake" novalidate>
+    <div class="bp-intake-grid">
+      <div class="field"><label>${L("Establishment name *", "اسم المنشأة *")}</label><input name="company" required></div>
+      <div class="field"><label>${L("Unified number (700)", "الرقم الموحّد (700)")}</label><input name="unified"></div>
+      <div class="field"><label>${L("Qiwa establishment no.", "رقم منشأة قوى")}</label><input name="qiwa_id"></div>
+      <div class="field"><label>${L("Mudad establishment no.", "رقم منشأة مدد")}</label><input name="mudad_id"></div>
+      <div class="field"><label>${L("Employees in GOSI", "عدد الموظفين في التأمينات")}</label><input name="employees" type="number" min="0"></div>
+      <div class="field"><label>${L("WhatsApp / mobile *", "واتساب / الجوال *")}</label><input name="whatsapp" required></div>
+      <div class="field"><label>${L("Email", "البريد الإلكتروني")}</label><input name="email" type="email"></div>
+    </div>
+    <div class="field"><label>${L("Subscribed platforms", "المنصات المشترك بها")}</label><div class="bp-chips">${chips}</div></div>
+    <div class="field"><label>${L("Upload files: Qiwa / Muqeem / GOSI / Mudad — PDF, Excel, images *", "ارفع ملفاتك: قوى / مقيم / التأمينات / مدد — PDF أو Excel أو صور *")}</label><input name="files" id="bp-files" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp" required></div>
+    <div class="field"><label>${L("Notes", "ملاحظات")}</label><textarea name="notes" rows="2"></textarea></div>
+    <button type="submit" class="btn btn-primary btn-lg" id="bp-submit">📤 ${L("Send securely", "إرسال آمن")}</button>
+    <div class="bp-intake-msg" id="bp-msg" hidden></div>
+    <p class="form-note">🔒 ${L("Files are stored in your private client folder and used only for compliance analysis. No government action is taken without your approval.", "تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. لا يُنفَّذ أي إجراء حكومي دون موافقتك.")}</p>
+  </form>
+  <script>window.BP_INTAKE_URL=${JSON.stringify(INTAKE_WEBHOOK)};window.BP_INTAKE_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var f=document.getElementById("bp-intake"); if(!f) return;
+    var msg=document.getElementById("bp-msg"), btn=document.getElementById("bp-submit"), files=document.getElementById("bp-files");
+    var isAr=window.BP_INTAKE_LANG==="ar";
+    function show(t,cls){msg.hidden=false;msg.textContent=t;msg.className="bp-intake-msg "+cls;}
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+      if(!f.company.value.trim()||!f.whatsapp.value.trim()||!files.files.length){show(isAr?"يرجى تعبئة اسم المنشأة والجوال وإرفاق ملف واحد على الأقل.":"Please fill establishment name, mobile and attach at least one file.","err");return;}
+      var fd=new FormData();
+      ["company","unified","qiwa_id","mudad_id","employees","whatsapp","email","notes"].forEach(function(k){fd.append(k,f[k].value||"");});
+      var pf=[].slice.call(f.querySelectorAll("input[name=platforms]:checked")).map(function(x){return x.value;});
+      fd.append("platforms",pf.join(","));
+      for(var i=0;i<files.files.length;i++) fd.append("files",files.files[i]);
+      btn.disabled=true;btn.textContent=isAr?"جارٍ الإرسال…":"Sending…";
+      show(isAr?"جارٍ رفع ملفاتك بأمان…":"Uploading securely…","info");
+      fetch(window.BP_INTAKE_URL,{method:"POST",body:fd}).then(function(r){if(!r.ok)throw new Error("status "+r.status);return r.text();}).then(function(){
+        f.reset();
+        show(isAr?"✅ استلمنا بياناتك وملفاتك بنجاح! سيبدأ وكيل الامتثال متابعة منشأتك ونتواصل معك واتساب/إيميل.":"✅ Received! Our Compliance Agent will start tracking your establishment and contact you on WhatsApp/email.","ok");
+      }).catch(function(){show(isAr?"تعذّر الإرسال. جرّب مجدداً أو تواصل معنا واتساب.":"Couldn't send. Please retry or contact us on WhatsApp.","err");}).finally(function(){btn.disabled=false;btn.textContent=isAr?"📤 إرسال آمن":"📤 Send securely";});
+    });
+  })();
+  </script>`;
+}
+
 function buildComplianceCalculators() {
   // Official activities dataset (codes + AR/EN names from the ISIC4 master reference in Notion).
   let ACT_V = "0";
@@ -1065,8 +1112,7 @@ function buildComplianceCalculators() {
 
         <div class="cc-portal">
           <div class="cc-portal-head">🛡️ ${L("Compliance intake portal", "بوابة الامتثال — استقبال الملفات")}</div>
-          <iframe id="cc-portal-frame" title="${Lraw("Compliance intake portal", "بوابة الامتثال")}" data-src="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" loading="lazy" referrerpolicy="no-referrer"></iframe>
-          <p class="form-note">${L("If the form doesn't load,", "إذا لم تظهر البوابة،")} <a href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">${L("open it in a separate window ↗", "افتحها في نافذة مستقلة ↗")}</a> · 🔒 ${L("Files are stored in your private client folder and used only for compliance analysis. No government action is ever taken without your approval.", "تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. لا يُنفَّذ أي إجراء حكومي دون موافقتك.")}</p>
+          <div style="padding:18px">${intakeFormBlock()}</div>
         </div>
         <div class="cc-upload-cta" style="margin-top:14px;text-align:center">
           <a class="btn btn-ghost" href="${u("/compliance-portal")}">🛡️ ${L("Open the full compliance portal page →", "افتح صفحة بوابة امتثال المنشأة الكاملة ←")}</a>
@@ -1162,6 +1208,15 @@ function buildComplianceCalculators() {
     .cc-portal-head{background:var(--navy);color:var(--white);padding:12px 18px;font-weight:700;font-size:.95rem}
     #cc-portal-frame{width:100%;height:960px;border:0;display:block;background:var(--gray-bg)}
     .cc-portal .form-note{padding:10px 16px}
+    .bp-intake-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .bp-intake .field{margin-bottom:14px}
+    .bp-chips{display:flex;flex-wrap:wrap;gap:9px}
+    .bp-chk{display:flex;align-items:center;gap:6px;border:1px solid var(--gray-line);border-radius:999px;padding:6px 13px;font-size:.85rem;cursor:pointer;background:var(--gray-bg)}
+    #bp-files{padding:11px;border:1px dashed var(--navy);border-radius:12px;background:var(--gray-bg);width:100%}
+    .bp-intake-msg{border-radius:12px;padding:12px 15px;margin-top:12px;font-weight:600}
+    .bp-intake-msg.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
+    .bp-intake-msg.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
+    .bp-intake-msg.info{background:#eef4f8;border:1px solid #cfe0ea;color:#2b5566}
     .cc-thresholds{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
     .cc-th-title{width:100%;font-size:.82rem;color:var(--text-soft);font-weight:600}
     .cc-th{border:1px solid var(--gray-line);border-radius:10px;padding:8px 14px;font-size:.82rem;background:var(--gray-bg);color:var(--text-soft)}
@@ -1405,8 +1460,7 @@ function buildCompliancePortal() {
   <section class="section"><div class="container">
     <div class="portal-wrap">
       <div class="portal-form">
-        <iframe src="${COMPLIANCE_FORM_URL}" title="${Lraw("Establishment compliance intake form", "نموذج بوابة امتثال المنشأة")}" loading="lazy" referrerpolicy="no-referrer"></iframe>
-        <p class="form-note portal-fallback">${L("Form not showing?", "النموذج ما ظهر؟")} <a href="${COMPLIANCE_FORM_URL}" target="_blank" rel="noopener">${L("Open it in a separate window →", "افتحه في نافذة مستقلة ←")}</a></p>
+        <div class="order-box" style="margin:0">${intakeFormBlock()}</div>
       </div>
       <aside class="portal-side">
         <div class="order-box">
