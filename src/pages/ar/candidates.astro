@@ -1,0 +1,167 @@
+---
+import '../../styles/global.css';
+
+export const prerender = true;
+
+const title = 'بوابة استقبال المرشحين | شريك الأعمال';
+const description = 'سجّل بياناتك وقصتك المهنية وسنبني ملفك الاحترافي ونتقدّم للوظائف المناسبة نيابةً عنك.';
+---
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="robots" content="index, follow" />
+</head>
+<body>
+  <main class="section">
+    <div class="container" style="max-width: 720px;">
+      <a href="/ar/" style="display: inline-block; margin-bottom: 1.5rem;">← الرئيسية</a>
+      <h1 style="margin-bottom: 0.5rem;">بوابة استقبال المرشحين</h1>
+      <p style="margin-bottom: 2rem; color: #6b7280;">
+        احكِ لنا قصتك المهنية بأسلوبك الحر — خبراتك، مهاراتك، إنجازاتك — وسيقوم نظامنا الذكي
+        بتحويلها إلى ملف احترافي منظّم ليبدأ فريقنا بالتقديم على الوظائف المناسبة نيابةً عنك.
+      </p>
+
+      <form id="candidate-form">
+        <div class="form-group">
+          <label for="name">الاسم الكامل *</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">البريد الإلكتروني *</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">رقم الجوال *</label>
+          <input type="tel" id="phone" name="phone" pattern="^(?:\+?966|0)?5\d{8}$" placeholder="05XXXXXXXX" required />
+        </div>
+
+        <div class="form-group">
+          <label for="cities">المدن المفضلة للعمل</label>
+          <input type="text" id="cities" name="cities" placeholder="مثال: الرياض، جدة" />
+        </div>
+
+        <div class="form-group">
+          <label for="salary">نطاق الراتب المتوقع</label>
+          <input type="text" id="salary" name="salary" placeholder="مثال: 8000 - 12000 ريال" />
+        </div>
+
+        <div class="form-group">
+          <label for="linkedin">رابط لينكدإن (اختياري)</label>
+          <input type="url" id="linkedin" name="linkedin" placeholder="https://www.linkedin.com/in/..." />
+        </div>
+
+        <div class="form-group">
+          <label for="story">قصتك المهنية *</label>
+          <textarea id="story" name="story" rows="10" required
+            placeholder="اكتب بحرية: أين عملت؟ ماذا أنجزت؟ ما مهاراتك؟ ما تعليمك؟ ما الوظائف التي تستهدفها؟"></textarea>
+        </div>
+
+        <div class="form-group" style="display: flex; gap: 0.6rem; align-items: flex-start;">
+          <input type="checkbox" id="consent" name="consent" required style="width: auto; margin-top: 0.3rem;" />
+          <label for="consent" style="margin: 0; font-weight: normal;">
+            أوافق على قيام فريق شريك الأعمال ببناء ملفي المهني والتقديم على الوظائف المناسبة نيابةً عني *
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+          <span class="submit-text">إرسال الطلب</span>
+        </button>
+
+        <div id="form-message" style="margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none;"></div>
+      </form>
+    </div>
+  </main>
+
+  <style>
+    .form-message.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .form-message.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
+
+  <script>
+    const form = document.getElementById('candidate-form') as HTMLFormElement;
+    const messageDiv = document.getElementById('form-message') as HTMLDivElement;
+
+    function showMessage(message: string, type: 'success' | 'error') {
+      messageDiv.textContent = message;
+      messageDiv.className = `form-message ${type}`;
+      messageDiv.style.display = 'block';
+    }
+
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+        const submitText = submitButton.querySelector('.submit-text') as HTMLSpanElement;
+        const originalText = submitText.textContent;
+
+        submitButton.disabled = true;
+        submitText.textContent = 'جاري الإرسال...';
+
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+          const endpoint = import.meta.env.PUBLIC_CANDIDATE_ENDPOINT
+            || 'https://businesspartnerai.app.n8n.cloud/webhook/candidate-intake';
+
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              name: data.name,
+              email: data.email,
+              phone: data.phone,
+              cities: data.cities,
+              salary: data.salary,
+              linkedin: data.linkedin,
+              story: data.story,
+              consent: data.consent === 'on',
+              source: 'businesspartner.sa',
+              timestamp: new Date().toISOString()
+            })
+          });
+
+          if (response.ok) {
+            showMessage('تم استلام طلبك بنجاح! سنبني ملفك المهني ونتواصل معك قريباً.', 'success');
+            form.reset();
+          } else {
+            throw new Error(`HTTP ${response.status}`);
+          }
+        } catch (error) {
+          showMessage('حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.', 'error');
+          console.error('Error submitting candidate:', error);
+        } finally {
+          submitButton.disabled = false;
+          submitText.textContent = originalText;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
