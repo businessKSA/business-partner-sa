@@ -248,6 +248,22 @@ p { color: var(--text-soft); }
 .cat-block h2 .count { font-size: .95rem; font-weight: 600; color: var(--text-soft); }
 .cat-block > p { margin-bottom: 26px; }
 
+/* Category hub cards (services index) */
+.cat-card { display: flex; flex-direction: column; height: 100%; text-align: start; }
+.cat-card-icon { font-size: 2.1rem; line-height: 1; margin-bottom: 12px; }
+.cat-card h3 { font-size: 1.15rem; margin-bottom: 8px; color: var(--navy); }
+.cat-card .desc { font-size: .92rem; color: var(--text-soft); flex: 1; margin-bottom: 16px; }
+.cat-card .foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.cat-card .count-pill { font-size: .78rem; font-weight: 700; color: var(--navy); background: var(--gray-bg);
+  border: 1px solid var(--gray-line); padding: 4px 12px; border-radius: 999px; }
+.cat-card .card-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: var(--navy); font-size: .9rem; }
+.cat-card:hover { border-color: var(--navy); transform: translateY(-2px); }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--navy);
+  font-size: .9rem; margin-bottom: 14px; }
+.back-link svg { width: 15px; height: 15px; transform: rotate(180deg); }
+.cat-other { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--gray-line); }
+.cat-other h2 { font-size: 1.15rem; margin-bottom: 14px; }
+
 /* Calculator */
 .calc-wrap { display: grid; grid-template-columns: 1fr 380px; gap: 40px; align-items: start; }
 .calc-form { background: #fff; border: 1px solid var(--gray-line); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); }
@@ -584,7 +600,10 @@ p { color: var(--text-soft); }
 .nav-menu { display: none; position: absolute; top: calc(100% + 8px); inset-inline-start: 0; min-width: 230px;
   background: var(--white); border: 1px solid var(--gray-line); border-radius: 14px; box-shadow: var(--shadow-lg);
   padding: 8px; z-index: 80; flex-direction: column; }
-.nav-group:hover .nav-menu, .nav-group.open .nav-menu { display: flex; }
+/* Click-only: the menu opens when JS adds .open. A padded hit-bridge keeps the
+   pointer from dropping the menu in the gap between the button and the panel. */
+.nav-group.open .nav-menu { display: flex; }
+.nav-group.open::after { content: ""; position: absolute; top: 100%; inset-inline-start: 0; width: 100%; height: 10px; }
 .nav-menu a { display: block; padding: 10px 14px; border-radius: 9px; font-weight: 600; color: var(--text); white-space: nowrap; }
 .nav-menu a:hover, .nav-menu a.active { background: var(--gray-bg); color: var(--navy); }
 .nav-cta.btn-primary { display: none; }

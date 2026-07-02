@@ -265,7 +265,7 @@ function footer() {
   const c = site.contact;
   const svcLinks = categories
     .slice(0, 6)
-    .map((cat) => `<li><a href="${u("/services")}#${slugCat(cat.key)}">${L(CAT_META[cat.key] ? CAT_META[cat.key].en : cat.key, cat.ar)}</a></li>`)
+    .map((cat) => `<li><a href="${catUrl(cat.key)}">${L(CAT_META[cat.key] ? CAT_META[cat.key].en : cat.key, cat.ar)}</a></li>`)
     .join("");
   const fl = (href, en, ar) => `<li><a href="${u(href)}">${L(en, ar)}</a></li>`;
   return `<footer class="site-footer"><div class="container">
@@ -350,6 +350,15 @@ function page({ title, desc, active, path, body, script = "" }) {
 }
 
 const slugCat = (key) => "cat-" + key.toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "");
+// Clean slug + URL for a category's own page (e.g. /services/category/company-formation).
+const catSlugUrl = (key) => key.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const catUrl = (key) => u("/services/category/" + catSlugUrl(key));
+// Emoji icon per category (visual variety on the services hub).
+const CAT_ICON = {
+  "Company Formation": "🏢", "Foreign Investment": "🌍", "Premium Residency": "🪪",
+  "Government Relations": "🏛️", "HR Services": "👥", "Recruitment": "🧑‍💼",
+  "Business Support": "📊", "Real Estate": "🏗️", "AI Automation": "🤖", "Tourism": "✈️",
+};
 
 /* ---------- service helpers ---------- */
 // Government-platform names → English.
@@ -524,7 +533,7 @@ function buildHome() {
       <h3>${L(EN.why.items[i].title, it.title)}</h3><p>${L(EN.why.items[i].text, it.text)}</p></div>`)
     .join("");
   const svcCards = h.coreServices.cards
-    .map((c, i) => `<a class="card svc-card" href="${u("/services")}#${slugCat(c.category)}">
+    .map((c, i) => `<a class="card svc-card" href="${catUrl(c.category)}">
       <div class="card-icon">${I.building}</div>
       <h3>${L(EN.cards[i].title, c.title)}</h3><p class="desc">${L(EN.cards[i].text, c.text)}</p>
       <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`)
@@ -631,29 +640,22 @@ function buildAbout() {
   return page({ title: Lraw("About — Business Partner", "من نحن — بيزنس بارتنر"), desc: Lraw(a.leadEn || a.lead, a.lead), active: "/about", body });
 }
 
-function buildServicesIndex() {
-  const catNav = categories.map((c) => `<a href="#${slugCat(c.key)}">${L(catEn(c.key), c.ar)}</a>`).join("");
-  const blocks = categories
+// One card per category on the services hub → links to that category's own page.
+function categoryCards() {
+  return categories
     .map((cat) => {
-      const list = services.filter((s) => s.category === cat.key);
-      const cards = list
-        .map((s) => {
-          const d = sDesc(s);
-          return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
-        <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
-        <h3>${esc(sName(s))}</h3>
-        <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price">${esc(priceLabel(s))}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+      const n = services.filter((s) => s.category === cat.key).length || cat.count;
+      return `<a class="card cat-card" href="${catUrl(cat.key)}">
+        <div class="cat-card-icon">${CAT_ICON[cat.key] || "📁"}</div>
+        <h3>${L(catEn(cat.key), cat.ar)}</h3>
+        <p class="desc">${L(`${n} ${n === 1 ? "service" : "services"} with clear fees from the official catalog.`, `${n} خدمة بأتعاب واضحة من الكتالوج الرسمي.`)}</p>
+        <div class="foot"><span class="count-pill">${n} ${L(n === 1 ? "service" : "services", "خدمة")}</span><span class="card-link">${L("Browse", "استعراض")} ${I.arrow}</span></div>
       </a>`;
-        })
-        .join("");
-      return `<div class="cat-block" id="${slugCat(cat.key)}">
-        <h2>${L(catEn(cat.key), cat.ar)} <span class="count">${cat.count} ${L("services", "خدمة")}</span></h2>
-        <p>${L(catEn(cat.key) + " services — clear fees from the official catalog.", "خدمات " + cat.ar + " — بأتعاب واضحة من الكتالوج الرسمي.")}</p>
-        <div class="grid grid-3">${cards}</div>
-      </div>`;
     })
     .join("");
+}
+
+function buildServicesIndex() {
   const mf = site.misaFeatured;
   const misaTiers = mf.tiers
     .map(
@@ -676,16 +678,54 @@ function buildServicesIndex() {
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Services", "الخدمات")}</span>
-    <h1>${L("All our services in one place", "كل خدماتنا في مكان واحد")}</h1>
-    <p class="lead">${L(services.length + " services classified per Business Partner's official catalog — each with a full page of documents, features and pricing.", services.length + " خدمة مصنّفة حسب الكتالوج الرسمي لـ بيزنس بارتنر — لكل خدمة صفحة كاملة بالمستندات والمميزات والأسعار.")}</p>
+    <h1>${L("Choose a service category", "اختر تصنيف الخدمة")}</h1>
+    <p class="lead">${L(services.length + " services organized into " + categories.length + " categories — pick a category to see its services, each with a full page of documents, features and pricing.", services.length + " خدمة موزّعة على " + categories.length + " تصنيفاً — اختر التصنيف لتشاهد خدماته، ولكل خدمة صفحة كاملة بالمستندات والمميزات والأسعار.")}</p>
   </div></section>
-  ${misaSection}
   <section class="section"><div class="container">
-    <nav class="cat-nav">${catNav}</nav>
-    ${blocks}
-    <div class="cta-band" style="margin-top:20px"><h2>${L("Didn't find your service?", "ما لقيت خدمتك؟")}</h2><p>${L("Send us your enquiry and the smart agent finds the right service for your case instantly.", "أرسل لنا استفسارك، والوكيل الذكي يحدد الخدمة المناسبة لحالتك فوراً.")}</p>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-white", true)}</div>
-  </div></section>`;
+    <div class="grid grid-3 cat-grid">${categoryCards()}</div>
+    <div class="cta-band" style="margin-top:36px"><h2>${L("Didn't find your service?", "ما لقيت خدمتك؟")}</h2><p>${L("Send us your enquiry and the smart agent finds the right service for your case instantly.", "أرسل لنا استفسارك، والوكيل الذكي يحدد الخدمة المناسبة لحالتك فوراً.")}</p>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-white", true)}</div>
+  </div></section>
+  ${misaSection}`;
   return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services with clear fees from the official catalog.", services.length + " خدمة حكومية وتجارية بأتعاب واضحة من الكتالوج الرسمي."), active: "/services", body });
+}
+
+// One page per category listing only that category's services.
+function buildServiceCategory(cat) {
+  const list = services.filter((s) => s.category === cat.key);
+  const cards = list
+    .map((s) => {
+      const d = sDesc(s);
+      return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
+        <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
+        <h3>${esc(sName(s))}</h3>
+        <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
+        <div class="foot"><span class="price">${esc(priceLabel(s))}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+      </a>`;
+    })
+    .join("");
+  const other = categories
+    .filter((c) => c.key !== cat.key)
+    .map((c) => `<a class="cc-chip" href="${catUrl(c.key)}">${CAT_ICON[c.key] || "📁"} ${L(catEn(c.key), c.ar)}</a>`)
+    .join("");
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <a class="back-link" href="${u("/services")}">${I.arrow} ${L("All categories", "كل التصنيفات")}</a>
+    <span class="eyebrow">${CAT_ICON[cat.key] || "📁"} ${L("Services", "الخدمات")}</span>
+    <h1>${L(catEn(cat.key), cat.ar)}</h1>
+    <p class="lead">${L(list.length + " " + (list.length === 1 ? "service" : "services") + " in " + catEn(cat.key) + " — clear fees from the official catalog, government fees separate and disclosed.", list.length + " خدمة في " + cat.ar + " — بأتعاب واضحة من الكتالوج الرسمي، والرسوم الحكومية منفصلة ومعلنة.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="grid grid-3">${cards}</div>
+    <div class="cat-other"><h2>${L("Other categories", "تصنيفات أخرى")}</h2><div class="cc-prof-chips">${other}</div></div>
+    <div class="cta-band" style="margin-top:28px"><h2>${L("Not sure which service you need?", "محتار أي خدمة تناسبك؟")}</h2><p>${L("Ask the smart agent and get the right service for your case instantly.", "اسأل الوكيل الذكي وتوصل للخدمة المناسبة لحالتك فوراً.")}</p>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-white", true)}</div>
+  </div></section>`;
+  return page({
+    title: `${Lraw(catEn(cat.key), cat.ar)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
+    desc: Lraw(`${list.length} ${catEn(cat.key)} services with clear fees.`, `${list.length} خدمة في ${cat.ar} بأتعاب واضحة.`),
+    active: "/services",
+    path: "/services/category/" + catSlugUrl(cat.key),
+    body,
+  });
 }
 
 function buildServiceDetail(s) {
@@ -2908,7 +2948,8 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
-  pageCount += 14 + services.length;
+  categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
+  pageCount += 14 + services.length + categories.length;
 }
 LANG = "en";
 
@@ -2918,6 +2959,7 @@ write("monitor.html", buildMonitor());
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
 const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+  .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])
