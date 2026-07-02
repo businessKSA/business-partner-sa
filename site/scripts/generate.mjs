@@ -152,11 +152,21 @@ const parseAmount = (str) => {
   return m ? Number(m[0]) : null;
 };
 
-// Single add-to-cart button. Item carried in data-* attributes; cart lives in localStorage (see main.js).
+// Map an item kind to the closest consultation topic (for price-less items).
+const KIND_TOPIC = { package: "other", agent: "ai", misa: "misa", service: "other" };
+// Priced items → "Add to cart". Price-less items → "Book a consultation" (there is
+// no price to pay online, so we route the client to a booking + simple form).
 function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false }) {
+  if (amount == null) {
+    const topic = KIND_TOPIC[kind] || "other";
+    const about = encodeURIComponent(LANG === "ar" ? nameAr : (nameEn || nameAr));
+    return `<div class="buy-row">
+    <a class="btn ${ghost ? "btn-ghost" : "btn-primary"}" href="${u("/consultation")}?topic=${topic}&about=${about}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a>
+  </div>`;
+  }
   // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
   const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
-  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount != null ? amount : ""}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"`;
+  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
   </div>`;
@@ -805,7 +815,6 @@ function buildAiAgents() {
       <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
       <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
       ${cartBtns({ id: "agent-" + esc((g.nameEn || g.name)).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
-      ${waBtn2("Order this agent on WhatsApp", "اطلب هذا الوكيل على واتساب", "btn-ghost")}
     </div>`
     )
     .join("");
@@ -2245,6 +2254,7 @@ function buildConsultation() {
           <div class="field"><label for="bk-time">${L("Preferred time (Riyadh)", "الوقت المفضّل (بتوقيت الرياض)")}</label>
             <select id="bk-time">${times}</select></div>
         </div>
+        <p class="form-note">🕐 ${L(b.hoursNoteEn, b.hoursNote)}</p>
         <div class="field"><label for="bk-notes">${L("Notes (optional)", "ملاحظات (اختياري)")}</label><textarea id="bk-notes" rows="3" placeholder="${Lraw("Briefly describe your case", "اشرح حالتك باختصار")}"></textarea></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Confirm booking", "أكّد الحجز")}</span></button>
         <p class="form-note">${L("You'll receive an email confirmation with a Google Calendar link, and our consultant will contact you at the scheduled time.", "يصلك تأكيد على بريدك مع رابط إضافة الموعد إلى تقويم Google، ويتواصل معك مستشارنا في الموعد المحدد.")}</p>

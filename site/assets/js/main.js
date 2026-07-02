@@ -701,6 +701,23 @@ var BP = window.BP = window.BP || {};
     var iso = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
     if (dateEl) dateEl.min = iso;
 
+    // Working days: Saturday–Thursday. Friday (JS getDay()===5) is off.
+    function isFriday(v) { if (!v) return false; var p = v.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).getDay() === 5; }
+    if (dateEl) {
+      dateEl.addEventListener("change", function () {
+        if (isFriday(dateEl.value)) {
+          alert(BP.t("Friday is off. Please pick Saturday–Thursday.", "الجمعة إجازة. الرجاء اختيار يوم من السبت إلى الخميس."));
+          dateEl.value = "";
+        }
+      });
+    }
+
+    // Prefill topic + note when the client arrived from a price-less item (?topic=&about=).
+    var qp = new URLSearchParams(location.search);
+    var qTopic = qp.get("topic"), qAbout = qp.get("about");
+    if (qTopic) { var ts = document.getElementById("bk-topic"); if (ts && [].some.call(ts.options, function (o) { return o.value === qTopic; })) ts.value = qTopic; }
+    if (qAbout) { var nt = document.getElementById("bk-notes"); if (nt && !nt.value) nt.value = BP.t("Regarding: ", "بخصوص: ") + qAbout; }
+
     var topicMap = {};
     (form.getAttribute("data-topics") || "").split("|").forEach(function (p) {
       var i = p.indexOf("="); if (i > 0) topicMap[p.slice(0, i)] = p.slice(i + 1);
@@ -733,6 +750,9 @@ var BP = window.BP = window.BP || {};
       var notes = document.getElementById("bk-notes").value.trim();
       if (!name || !phone || !email || !date || !time) {
         alert(BP.t("Please fill the required fields.", "الرجاء تعبئة الحقول المطلوبة.")); return;
+      }
+      if (isFriday(date)) {
+        alert(BP.t("Friday is off. Please pick Saturday–Thursday.", "الجمعة إجازة. الرجاء اختيار يوم من السبت إلى الخميس.")); return;
       }
       var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
       btn.disabled = true; btn.textContent = BP.t("Booking…", "جارٍ الحجز…");

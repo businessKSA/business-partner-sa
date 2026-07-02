@@ -1350,6 +1350,7 @@
       }
     ],
     "times": [
+      "09:00",
       "10:00",
       "11:00",
       "12:00",
@@ -1357,7 +1358,8 @@
       "14:00",
       "15:00",
       "16:00",
-      "17:00"
+      "17:00",
+      "18:00"
     ],
     "steps": [
       {
@@ -1381,6 +1383,8 @@
         "en": "We meet",
         "enText": "Our consultant contacts you at the scheduled time."
       }
-    ]
+    ],
+    "hoursNote": "مواعيد العمل: 9 صباحاً – 6 مساءً بتوقيت الرياض، من السبت إلى الخميس (الجمعة إجازة).",
+    "hoursNoteEn": "Working hours: 9 AM – 6 PM Riyadh time, Saturday to Thursday (Friday off)."
   }
 }
