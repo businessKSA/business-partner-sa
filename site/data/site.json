@@ -379,7 +379,7 @@
         "key": "compliance",
         "name": "وكيل الامتثال والالتزام",
         "tagline": "منصاتك الحكومية تحت المراقبة الدائمة",
-        "price": "1,500 ﷼ / شهرياً",
+        "price": "يبدأ من 1,500 ﷼ / شهرياً",
         "highlight": true,
         "for": "للمنشآت التي تريد امتثالاً والتزاماً دائماً بلا متابعة يدوية",
         "features": [
@@ -408,7 +408,7 @@
         "key": "team",
         "name": "اختر موظفك الذكي — يعمل 24 ساعة",
         "tagline": "موظف ذكي متخصص لا يتوقف",
-        "price": "2,500 ﷼ / شهرياً",
+        "price": "يبدأ من 2,500 ﷼ / شهرياً",
         "highlight": false,
         "for": "للمنشآت التي تريد قدرات موظف متخصص دون تكلفة توظيفه",
         "features": [
@@ -435,7 +435,7 @@
         "key": "shared",
         "name": "فريق الخدمات المشتركة",
         "tagline": "فريق الامتثال والالتزام + فريق العمل مدموجان بالكامل",
-        "price": "3,500 ﷼ / شهرياً",
+        "price": "يبدأ من 3,500 ﷼ / شهرياً",
         "highlight": false,
         "for": "للمنشآت والأفراد الباحثين عن منظومة متكاملة",
         "features": [
@@ -498,7 +498,7 @@
       {
         "name": "Grow",
         "nameAr": "النمو",
-        "price": "يبدأ من 2,000 ﷼",
+        "price": "يبدأ من 20,000 ﷼",
         "for": "لتوسيع نشاطك القائم",
         "text": "خدمات ما بعد التأسيس لدعم توسّع كيانك ونموّه في السوق السعودي.",
         "highlight": false,
@@ -580,7 +580,7 @@
     "events": {
       "eyebrow": "النوع الأول · فعاليات الشركات",
       "title": "فعاليات وأنشطة لموظفيك",
-      "price": "2,500 ﷼",
+      "price": "يبدأ من 2,500 ﷼",
       "text": "نصمّم فعاليات وأنشطة لموظفي شركتك داخل المقر أو خارجه، ونبحث لك عن أفضل العروض من الشركات المزوّدة للخدمة.",
       "features": [
         "فعاليات وأنشطة داخل مقر الشركة أو خارجه",
@@ -927,7 +927,9 @@
       "noteEn": "We'll announce our partnerships with authorities and platforms soon. For collaboration or partnership, contact us via the smart agent."
     },
     "titleEn": "News & updates",
-    "leadEn": "We track government-platform updates, client stories and our partnerships — to keep you informed and your business always compliant."
+    "leadEn": "We track government-platform updates, client stories and our partnerships — to keep you informed and your business always compliant.",
+    "weeklyNote": "قريباً — ملخص أسبوعي لأهم مستجدات الأنظمة والمنصات الحكومية. تابع قناتنا في واتساب ليصلك أولاً بأول.",
+    "weeklyNoteEn": "Coming soon — a weekly roundup of the most important regulatory and platform updates. Follow our WhatsApp channel to get it first."
   },
   "careers": {
     "title": "الوظائف والتوظيف",
@@ -1297,5 +1299,86 @@
       ],
       "durationEn": "30–45 working days"
     }
+  },
+  "social": {
+    "linkedin": "https://www.linkedin.com/company/108785026/",
+    "instagram": "https://www.instagram.com/businesspartnersa/",
+    "facebook": "https://www.facebook.com/BusinessPartnerKsa/"
+  },
+  "booking": {
+    "title": "احجز استشارتك",
+    "titleEn": "Book your consultation",
+    "lead": "اختر الموضوع والوقت المناسب، وسيتواصل معك مستشار مختص لتأكيد الموعد. الاستشارة الأولى مجانية.",
+    "leadEn": "Pick a topic and a time that suits you, and a specialist consultant will confirm your appointment. The first consultation is free.",
+    "topics": [
+      {
+        "key": "formation",
+        "ar": "تأسيس شركة",
+        "en": "Company formation"
+      },
+      {
+        "key": "misa",
+        "ar": "استثمار أجنبي وترخيص MISA",
+        "en": "Foreign investment & MISA license"
+      },
+      {
+        "key": "pr",
+        "ar": "الإقامة المميزة",
+        "en": "Premium Residency"
+      },
+      {
+        "key": "gr",
+        "ar": "العلاقات الحكومية والامتثال",
+        "en": "Government relations & compliance"
+      },
+      {
+        "key": "hr",
+        "ar": "الموارد البشرية والتوظيف",
+        "en": "HR & recruitment"
+      },
+      {
+        "key": "ai",
+        "ar": "الوكلاء الأذكياء",
+        "en": "AI agents"
+      },
+      {
+        "key": "other",
+        "ar": "موضوع آخر",
+        "en": "Other"
+      }
+    ],
+    "times": [
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00"
+    ],
+    "steps": [
+      {
+        "n": "1",
+        "ar": "عبّئ النموذج",
+        "arText": "اختر الموضوع والتاريخ والوقت المناسب لك.",
+        "en": "Fill the form",
+        "enText": "Choose the topic, date and time that suit you."
+      },
+      {
+        "n": "2",
+        "ar": "تأكيد فوري",
+        "arText": "يصلك تأكيد على بريدك مع رابط إضافة الموعد إلى تقويم Google.",
+        "en": "Instant confirmation",
+        "enText": "You get an email confirmation with a Google Calendar link."
+      },
+      {
+        "n": "3",
+        "ar": "نلتقي",
+        "arText": "يتواصل معك مستشارنا في الموعد المحدد.",
+        "en": "We meet",
+        "enText": "Our consultant contacts you at the scheduled time."
+      }
+    ]
   }
 }

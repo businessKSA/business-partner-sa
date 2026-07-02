@@ -71,6 +71,10 @@ const I = {
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>',
   channel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>',
   bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M4 10v8M20 10v8M8 10v8M16 10v8M3 21h18"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg>',
 };
 
 /* ---------- bilingual build-time engine ----------
@@ -176,6 +180,7 @@ function head(title, desc, path) {
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="${LANG === "ar" ? "ar_SA" : "en_US"}">
 <meta name="theme-color" content="#0B1B5A">
+<meta name="generator" content="Business Partner 3.0 Website">
 <link rel="alternate" hreflang="en" href="${enUrl}">
 <link rel="alternate" hreflang="ar" href="${arUrl}">
 <link rel="alternate" hreflang="x-default" href="${enUrl}">
@@ -188,25 +193,35 @@ function head(title, desc, path) {
 <body>`;
 }
 
-const NAV_EN = {
-  "/": "Home",
-  "/about": "About",
-  "/services": "Services",
-  "/ai-agents": "AI Agents",
-  "/tourism": "Tourism",
-  "/packages": "Packages",
-  "/calculator": "Calculator",
-  "/saudi-arabia": "Saudi Arabia",
-  "/news": "News",
-  "/careers": "Careers",
-  "/contact": "Contact",
-};
-
-const NAV_AR = {
-  "/": "الرئيسية", "/about": "من نحن", "/services": "الخدمات", "/ai-agents": "الوكلاء الأذكياء",
-  "/tourism": "السياحة", "/packages": "الباقات", "/calculator": "الحاسبة", "/saudi-arabia": "السعودية",
-  "/news": "الأخبار", "/careers": "الوظائف", "/contact": "تواصل معنا",
-};
+const NAV_GROUPS = [
+  { href: "/", en: "Home", ar: "الرئيسية" },
+  {
+    en: "Our services", ar: "خدماتنا",
+    items: [
+      { href: "/services", en: "All services (93)", ar: "كل الخدمات (93)" },
+      { href: "/packages", en: "Packages", ar: "الباقات" },
+      { href: "/ai-agents", en: "AI Agents", ar: "الوكلاء الأذكياء" },
+      { href: "/calculator", en: "Cost calculator", ar: "حاسبة التكلفة" },
+      { href: "/compliance-calculators", en: "Compliance tools", ar: "أدوات الامتثال" },
+      { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
+    ],
+  },
+  {
+    en: "Saudi Arabia", ar: "السعودية",
+    items: [
+      { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
+      { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
+    ],
+  },
+  {
+    en: "Company", ar: "الشركة",
+    items: [
+      { href: "/about", en: "About us", ar: "من نحن" },
+      { href: "/careers", en: "Careers", ar: "الوظائف" },
+      { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
+    ],
+  },
+];
 
 function langToggle(path) {
   return `<a class="lang-toggle" href="${mirrorUrl(path)}" aria-label="Switch language / تبديل اللغة">
@@ -214,17 +229,27 @@ function langToggle(path) {
 }
 
 function header(active, path) {
-  const links = site.nav
-    .map((n) => `<a href="${u(n.href)}"${n.href === active ? ' class="active"' : ""}>${L(NAV_EN[n.href] || n.label, NAV_AR[n.href] || n.label)}</a>`)
-    .join("");
+  const links = NAV_GROUPS.map((g) => {
+    if (g.href) {
+      return `<a href="${u(g.href)}"${g.href === active ? ' class="active"' : ""}>${L(g.en, g.ar)}</a>`;
+    }
+    const isActive = g.items.some((it) => it.href === active);
+    const menu = g.items
+      .map((it) => `<a href="${u(it.href)}"${it.href === active ? ' class="active"' : ""}>${L(it.en, it.ar)}</a>`)
+      .join("");
+    return `<div class="nav-group${isActive ? " active" : ""}">
+      <button type="button" class="nav-drop${isActive ? " active" : ""}" aria-expanded="false">${L(g.en, g.ar)} ${I.chevron}</button>
+      <div class="nav-menu">${menu}</div>
+    </div>`;
+  }).join("");
   return `<header class="site-header"><div class="container header-inner">
   <a class="logo" href="${u("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation">${links}<a class="btn btn-wa nav-cta" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Start on WhatsApp", "ابدأ على واتساب")}</span></a></nav>
+  <nav class="nav" aria-label="Main navigation">${links}<a class="btn btn-primary nav-cta" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a></nav>
   <div class="header-cta">
     ${langToggle(path)}
     <a class="icon-btn" href="${u("/account")}" aria-label="${Lraw("Account", "حسابي")}">${I.user}</a>
     <a class="icon-btn cart-link" href="${u("/cart")}" aria-label="${Lraw("Cart", "السلة")}">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <a class="btn btn-wa btn-primary" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Start now", "ابدأ الآن")}</span></a>
+    <a class="btn btn-primary" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a>
     <button class="nav-toggle" aria-label="${Lraw("Menu", "القائمة")}" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header>`;
@@ -266,7 +291,12 @@ function footer() {
       <li>${I.pin}<span>${L(c.addressEn || c.address, c.address)}</span></li>
       <li>${I.wa}<a href="${WA}" target="_blank" rel="noopener">${L("Smart agent on WhatsApp", "الوكيل الذكي على واتساب")}</a></li>
       ${site.whatsappChannel ? `<li>${I.channel}<a href="${site.whatsappChannel}" target="_blank" rel="noopener">${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</a></li>` : ""}
-    </ul></div>
+    </ul>
+    ${site.social ? `<div class="footer-social" aria-label="${Lraw("Social media", "حساباتنا في التواصل الاجتماعي")}">
+      ${site.social.linkedin ? `<a href="${site.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${I.linkedin}</a>` : ""}
+      ${site.social.instagram ? `<a href="${site.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${I.instagram}</a>` : ""}
+      ${site.social.facebook ? `<a href="${site.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${I.facebook}</a>` : ""}
+    </div>` : ""}</div>
   </div>
   <div class="footer-bottom">
     <span>${L("© " + new Date().getFullYear() + " Business Partner · All rights reserved", "© " + new Date().getFullYear() + " بيزنس بارتنر · جميع الحقوق محفوظة")}</span>
@@ -487,7 +517,7 @@ function buildHome() {
     <p class="hero-tagline">${L("Partnering for your success", "شركاء نجاحك")}</p>
     <h1>${L(EN.heroTitle, h.heroTitle)}</h1>
     <p class="lead">${L(EN.heroSubtitle, h.heroSubtitle)}</p>
-    <div class="hero-actions">${waBtn2(EN.heroCta, h.heroCta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="${u("/services")}">${L(EN.heroCtaSecondary, h.heroCtaSecondary)}</a></div>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a free consultation", "احجز استشارة مجانية")}</span></a><a class="btn btn-ghost btn-lg" href="${u("/services")}">${L(EN.heroCtaSecondary, h.heroCtaSecondary)}</a></div>
     <div class="hero-badges">
       <span class="hero-badge">${I.check}${L("Instant reply 24/7", "رد فوري 24/7")}</span>
       <span class="hero-badge">${I.check}${L("90+ government services", "+90 خدمة حكومية")}</span>
@@ -538,7 +568,7 @@ function buildHome() {
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L(EN.finalTitle, h.finalCta.title)}</h2><p>${L(EN.finalText, h.finalCta.text)}</p>${waBtn2(EN.finalCta, h.finalCta.cta, "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L(EN.finalTitle, h.finalCta.title)}</h2><p>${L(EN.finalText, h.finalCta.text)}</p><a class="btn btn-white btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a></div>
   </div></section>`;
 
   return page({ title: Lraw("Business Partner — your business operating partner in Saudi Arabia", "بيزنس بارتنر — شريك تشغيل أعمالك في السعودية"), desc: Lraw(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio), active: "/", body });
@@ -747,7 +777,7 @@ function buildPackages() {
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       <ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
-      ${waBtn2("Contact us for pricing", "تواصل معنا للتسعير", "btn-ghost")}
+      <a class="btn btn-ghost" href="${u("/consultation")}">${I.calendar}<span>${L("Request package pricing", "اطلب تسعير الباقة")}</span></a>
     </div>`
     )
     .join("");
@@ -1206,7 +1236,7 @@ function buildTourism() {
         <ul class="feat-list" style="margin-top:22px">${evFeats}</ul>
       </div>
       <aside class="svc-aside"><div class="order-box">
-        <div class="price-big">${esc(ev.price)}</div>
+        <div class="price-big">${esc(localizeLabel(ev.price))}</div>
         <div class="price-note">${L(ev.noteEn || ev.note, ev.note)}</div>
         ${waBtn2("Request an event", "اطلب فعالية", "btn-wa")}
         <a class="btn btn-ghost" href="${u("/contact")}">${L("Contact us", "تواصل معنا")}</a>
@@ -1289,6 +1319,15 @@ function buildSaudi() {
 
 function buildNews() {
   const n = site.news;
+  const k = site.saudiArabia.knowledge;
+  const guides = k.articles
+    .map(
+      (a) => `<a class="card article-card" href="${u(a.link)}">
+      <span class="tag">${I.doc}${L("Practical guide", "دليل عملي")}</span>
+      <h3>${L(a.titleEn || a.title, a.title)}</h3><p class="desc">${L(a.excerptEn || a.excerpt, a.excerpt)}</p>
+      <span class="card-link">${L("Read more", "اقرأ المزيد")} ${I.arrow}</span></a>`
+    )
+    .join("");
   const updates = n.platformUpdates.items
     .map(
       (it) => `<div class="card"><div class="update-head"><span class="update-badge">${L(it.platformEn || it.platform, it.platform)}</span></div>
@@ -1298,27 +1337,54 @@ function buildNews() {
   const stories = n.successStories.items
     .map((q) => `<div class="quote"><p>${L(q.textEn || q.text, q.text)}</p><div class="role">${L(q.tagEn || q.tag, q.tag)}</div></div>`)
     .join("");
+  const cats = [
+    { id: "guides", en: "Practical guides", ar: "أدلة عملية" },
+    { id: "platforms", en: "Platform updates", ar: "تحديثات المنصات" },
+    { id: "stories", en: "Success stories", ar: "قصص نجاح" },
+    { id: "partners", en: "Announcements & partnerships", ar: "إعلانات وشراكات" },
+    { id: "weekly", en: "Weekly roundup", ar: "الملخص الأسبوعي" },
+  ];
+  const sideNav = cats.map((c2) => `<a href="#${c2.id}" data-hub="${c2.id}">${L(c2.en, c2.ar)}</a>`).join("");
   const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("News", "الأخبار")}</span>
-    <h1>${L(n.titleEn || n.title, n.title)}</h1>
-    <p class="lead">${L(n.leadEn || n.lead, n.lead)}</p>
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Insights & news", "الرؤى والأخبار")}</span>
+    <h1>${L("Insights & news", "الرؤى والأخبار")}</h1>
+    <p class="lead">${L("Practical guides, government-platform updates, success stories and announcements — everything you need in one place.", "أدلة عملية، تحديثات المنصات الحكومية، قصص نجاح وإعلانات — كل ما تحتاجه في مكان واحد.")}</p>
   </div></section>
-
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(n.platformUpdates.eyebrowEn || n.platformUpdates.eyebrow, n.platformUpdates.eyebrow)}</span><h2>${L(n.platformUpdates.titleEn || n.platformUpdates.title, n.platformUpdates.title)}</h2><p>${L(n.platformUpdates.subtitleEn || n.platformUpdates.subtitle, n.platformUpdates.subtitle)}</p></div>
-    <div class="grid grid-3">${updates}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(n.successStories.eyebrowEn || n.successStories.eyebrow, n.successStories.eyebrow)}</span><h2>${L(n.successStories.titleEn || n.successStories.title, n.successStories.title)}</h2><p>${L(n.successStories.noteEn || n.successStories.note, n.successStories.note)}</p></div>
-    <div class="grid grid-3">${stories}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="cta-band"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(n.partnerships.eyebrowEn || n.partnerships.eyebrow, n.partnerships.eyebrow)}</span><h2>${L(n.partnerships.titleEn || n.partnerships.title, n.partnerships.title)}</h2><p>${L(n.partnerships.noteEn || n.partnerships.note, n.partnerships.note)}</p>${waBtn2("Contact for partnership", "تواصل للشراكة", "btn-white", true)}</div>
+    <div class="hub">
+      <aside class="hub-side"><nav class="hub-nav" id="hub-nav">${sideNav}</nav></aside>
+      <div class="hub-main">
+        <div class="hub-sec" id="guides">
+          <h2>${L("Practical guides", "أدلة عملية")}</h2>
+          <p class="hub-sub">${L(k.subtitleEn || k.subtitle, k.subtitle)}</p>
+          <div class="grid grid-2">${guides}</div>
+        </div>
+        <div class="hub-sec" id="platforms">
+          <h2>${L(n.platformUpdates.titleEn || n.platformUpdates.title, n.platformUpdates.title)}</h2>
+          <p class="hub-sub">${L(n.platformUpdates.subtitleEn || n.platformUpdates.subtitle, n.platformUpdates.subtitle)}</p>
+          <div class="grid grid-2">${updates}</div>
+        </div>
+        <div class="hub-sec" id="stories">
+          <h2>${L(n.successStories.titleEn || n.successStories.title, n.successStories.title)}</h2>
+          <p class="hub-sub">${L(n.successStories.noteEn || n.successStories.note, n.successStories.note)}</p>
+          <div class="grid grid-2">${stories}</div>
+        </div>
+        <div class="hub-sec" id="partners">
+          <h2>${L(n.partnerships.titleEn || n.partnerships.title, n.partnerships.title)}</h2>
+          <p class="hub-sub">${L(n.partnerships.noteEn || n.partnerships.note, n.partnerships.note)}</p>
+          <div class="callout"><span class="ico">🤝</span><p>${L("For collaboration or partnership, book a consultation or reach us via the smart agent.", "للتعاون أو الشراكة، احجز استشارة أو تواصل معنا عبر الوكيل الذكي.")}</p></div>
+          <div style="margin-top:14px"><a class="btn btn-primary" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a></div>
+        </div>
+        <div class="hub-sec" id="weekly">
+          <h2>${L("Weekly roundup", "الملخص الأسبوعي")}</h2>
+          <div class="callout"><span class="ico">🗞️</span><p>${L(n.weeklyNoteEn || n.weeklyNote || "", n.weeklyNote || "")}</p></div>
+          ${site.whatsappChannel ? `<div style="margin-top:14px"><a class="btn btn-wa" href="${site.whatsappChannel}" target="_blank" rel="noopener">${I.channel}<span>${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</span></a></div>` : ""}
+        </div>
+      </div>
+    </div>
   </div></section>`;
-  return page({ title: Lraw("News & updates — Business Partner", "الأخبار والتحديثات — بيزنس بارتنر"), desc: Lraw((n.leadEn || n.lead).slice(0, 155), n.lead.slice(0, 155)), active: "/news", body });
+  return page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — بيزنس بارتنر"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من بيزنس بارتنر."), active: "/news", body });
 }
 
 function buildCareers() {
@@ -1347,7 +1413,6 @@ function buildCareers() {
   <section class="section" id="employers"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("For employers", c.employer.eyebrow)}</span><h2>${L("Recruit the right talent", c.employer.title)}</h2><p>${L("From executive search to local recruitment and bulk hiring — we manage the recruitment process end to end.", c.employer.text)}</p></div>
     <div class="grid grid-3">${recCards}</div>
-    <div class="callout" style="max-width:760px;margin:32px auto 0"><span class="ico">💡</span><p><strong>${L("Local recruitment (Saudization):", "التوظيف المحلي (السعودة):")}</strong> ${L("our fee = half the employee's monthly salary. Example: a 4,000 ﷼ salary → our fee 2,000 ﷼.", "الأتعاب = نصف الراتب الشهري للموظف. مثال: راتب 4,000 ﷼ ← أتعابنا 2,000 ﷼.")}</p></div>
     <div class="center mt-32">${waBtn2("Request recruitment", c.employer.cta, "btn-primary", true)}</div>
   </div></section>
 
@@ -1545,9 +1610,26 @@ function buildAccount() {
         <div class="field"><label for="rg-email">${L("Email", "البريد الإلكتروني")}</label><input id="rg-email" type="email" required></div>
         <div class="field"><label for="rg-phone">${L("Mobile", "رقم الجوال")}</label><input id="rg-phone" type="tel"></div>
         <div class="field"><label for="rg-pass">${L("Password", "كلمة المرور")}</label><input id="rg-pass" type="password" required></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Create account", "إنشاء الحساب")}</button>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Send verification code", "أرسل رمز التحقق")}</button>
       </form>
-      <p class="form-note">${L(ac.demoNoteEn || ac.demoNote, ac.demoNote)}</p>
+
+      <form class="calc-form auth-form" id="otp-form" hidden>
+        <p class="otp-lead">${L("We sent a 6-digit code to", "أرسلنا رمزاً من 6 أرقام إلى")} <strong id="otp-target"></strong></p>
+        <div class="field"><label for="otp-code">${L("Verification code", "رمز التحقق")}</label>
+          <input id="otp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="______" style="letter-spacing:8px;text-align:center;font-size:1.3rem"></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Verify & create account", "تحقّق وأنشئ الحساب")}</button>
+        <div class="otp-actions">
+          <button type="button" class="linkbtn" id="otp-resend">${L("Resend code", "إعادة إرسال الرمز")}</button>
+          <button type="button" class="linkbtn" id="otp-back">${L("Change email", "تغيير البريد")}</button>
+        </div>
+        <div class="form-success" id="otp-error" hidden style="background:#fdecec;border-color:#f3b6b6;color:#8a1f2b"></div>
+      </form>
+
+      <div class="auth-divider"><span>${L("or", "أو")}</span></div>
+      <button type="button" class="btn btn-ghost nafath-btn" id="nafath-btn" disabled>
+        ${I.shield}<span>${L("Sign in with Nafath (soon)", "الدخول عبر نفاذ (قريباً)")}</span></button>
+
+      <p class="form-note">${L("New accounts are verified by an email code. SMS (OTP) and Nafath national sign-in are being connected next.", "الحسابات الجديدة تُوثّق برمز عبر البريد. رسائل الجوال (OTP) والدخول الوطني عبر نفاذ قيد الربط قريباً.")}</p>
     </div>
 
     <div class="account-dash" id="account-dash" hidden>
@@ -1565,6 +1647,62 @@ function buildAccount() {
     </div>
   </div></section>`;
   return page({ title: Lraw("Client portal — Business Partner", "منصّة العملاء — بيزنس بارتنر"), desc: Lraw("Sign in to track your orders and documents with Business Partner.", "سجّل دخولك لمتابعة طلباتك ومستنداتك مع بيزنس بارتنر."), active: "/account", path: "/account", body });
+}
+
+function buildConsultation() {
+  const b = site.booking;
+  const topics = b.topics
+    .map((tp) => `<option value="${esc(tp.key)}">${L(tp.en, tp.ar)}</option>`)
+    .join("");
+  const times = b.times.map((tm) => `<option value="${tm}">${tm}</option>`).join("");
+  const steps = b.steps
+    .map((s2) => `<div class="step"><div class="step-n">${esc(s2.n)}</div><div><h3>${L(s2.en, s2.ar)}</h3><p>${L(s2.enText, s2.arText)}</p></div></div>`)
+    .join("");
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Consultation", "استشارة")}</span>
+    <h1>${L(b.titleEn, b.title)}</h1>
+    <p class="lead">${L(b.leadEn, b.lead)}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="steps-grid" style="margin-bottom:36px">${steps}</div>
+    <div class="booking-wrap">
+      <form class="calc-form" id="booking-form" novalidate
+        data-topics="${esc(b.topics.map((tp) => tp.key + "=" + (LANG === "ar" ? tp.ar : tp.en)).join("|"))}">
+        <h2>${L("Book your appointment", "احجز موعدك")}</h2>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="bk-name">${L("Full name", "الاسم الكامل")}</label><input id="bk-name" type="text" required></div>
+          <div class="field"><label for="bk-phone">${L("Mobile", "رقم الجوال")}</label><input id="bk-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+        </div>
+        <div class="field"><label for="bk-email">${L("Email", "البريد الإلكتروني")}</label><input id="bk-email" type="email" required placeholder="name@example.com"></div>
+        <div class="field"><label for="bk-topic">${L("Consultation topic", "موضوع الاستشارة")}</label>
+          <select id="bk-topic">${topics}</select></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="bk-date">${L("Preferred date", "التاريخ المفضّل")}</label><input id="bk-date" type="date" required></div>
+          <div class="field"><label for="bk-time">${L("Preferred time (Riyadh)", "الوقت المفضّل (بتوقيت الرياض)")}</label>
+            <select id="bk-time">${times}</select></div>
+        </div>
+        <div class="field"><label for="bk-notes">${L("Notes (optional)", "ملاحظات (اختياري)")}</label><textarea id="bk-notes" rows="3" placeholder="${Lraw("Briefly describe your case", "اشرح حالتك باختصار")}"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Confirm booking", "أكّد الحجز")}</span></button>
+        <p class="form-note">${L("You'll receive an email confirmation with a Google Calendar link, and our consultant will contact you at the scheduled time.", "يصلك تأكيد على بريدك مع رابط إضافة الموعد إلى تقويم Google، ويتواصل معك مستشارنا في الموعد المحدد.")}</p>
+        <div class="form-success" id="booking-success" hidden></div>
+      </form>
+      <aside class="booking-side">
+        <div class="order-box">
+          <h3>${L("What you get", "وش تستفيد")}</h3>
+          <ul class="feat-list">
+            <li>${I.check}<span>${L("A specialist consultant for your case", "مستشار مختص حسب موضوعك")}</span></li>
+            <li>${I.check}<span>${L("A clear action plan and requirements list", "خطة عمل واضحة وقائمة متطلبات")}</span></li>
+            <li>${I.check}<span>${L("Transparent pricing before you commit", "تسعير شفاف قبل أي التزام")}</span></li>
+            <li>${I.check}<span>${L("First consultation is free", "الاستشارة الأولى مجانية")}</span></li>
+          </ul>
+          <p class="mini">${L("Prefer chatting? The smart agent replies 24/7.", "تفضّل المحادثة؟ الوكيل الذكي يرد 24/7.")}</p>
+          ${waBtn2("Chat on WhatsApp", "تحدث على واتساب", "btn-ghost")}
+        </div>
+      </aside>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Book a consultation — Business Partner", "احجز استشارة — بيزنس بارتنر"), desc: Lraw(b.leadEn, b.lead), active: "/consultation", path: "/consultation", body });
 }
 
 /* ---------- write ---------- */
@@ -1605,6 +1743,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}cart.html`, buildCart());
   write(`${pre}checkout.html`, buildCheckout());
   write(`${pre}account.html`, buildAccount());
+  write(`${pre}consultation.html`, buildConsultation());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   pageCount += 14 + services.length;
 }
@@ -1612,7 +1751,7 @@ LANG = "en";
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation"]
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])

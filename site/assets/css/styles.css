@@ -562,3 +562,93 @@ p { color: var(--text-soft); }
   .calc2 { grid-template-columns: 1fr; }
   .calc2-cart .calc2-box { position: static; }
 }
+
+/* ============ Account OTP + Nafath (Business Partner 3.0) ============ */
+.otp-lead { color: var(--text-soft); margin-bottom: 6px; }
+.otp-lead strong { color: var(--navy); }
+.otp-actions { display: flex; justify-content: space-between; margin-top: 12px; }
+.linkbtn { background: none; border: 0; color: var(--navy); font: inherit; font-weight: 600; cursor: pointer; padding: 4px; }
+.linkbtn:hover { text-decoration: underline; }
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 16px; color: var(--text-soft); font-size: .85rem; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--gray-line); }
+.nafath-btn { width: 100%; justify-content: center; opacity: .7; cursor: not-allowed; }
+.nafath-btn svg { color: #1f7a54; }
+
+/* ============ Grouped nav dropdowns (BP 3.0) ============ */
+.nav-group { position: relative; }
+.nav-drop { display: inline-flex; align-items: center; gap: 5px; background: none; border: 0; cursor: pointer;
+  font: inherit; color: var(--text); font-weight: 600; font-size: .98rem; padding: 8px 13px; border-radius: 8px; white-space: nowrap; }
+.nav-drop:hover, .nav-drop.active { color: var(--navy); background: var(--gray-bg); }
+.nav-drop svg { width: 14px; height: 14px; transition: transform .18s; }
+.nav-group.open .nav-drop svg { transform: rotate(180deg); }
+.nav-menu { display: none; position: absolute; top: calc(100% + 8px); inset-inline-start: 0; min-width: 230px;
+  background: var(--white); border: 1px solid var(--gray-line); border-radius: 14px; box-shadow: var(--shadow-lg);
+  padding: 8px; z-index: 80; flex-direction: column; }
+.nav-group:hover .nav-menu, .nav-group.open .nav-menu { display: flex; }
+.nav-menu a { display: block; padding: 10px 14px; border-radius: 9px; font-weight: 600; color: var(--text); white-space: nowrap; }
+.nav-menu a:hover, .nav-menu a.active { background: var(--gray-bg); color: var(--navy); }
+.nav-cta.btn-primary { display: none; }
+@media (max-width: 1080px) {
+  .nav.open .nav-group { width: 100%; }
+  .nav.open .nav-drop { width: 100%; justify-content: flex-start; padding: 12px; font-size: .82rem; color: var(--text-soft);
+    letter-spacing: .06em; text-transform: uppercase; cursor: default; }
+  .nav.open .nav-drop svg { display: none; }
+  .nav.open .nav-menu { display: flex; position: static; box-shadow: none; border: 0; padding: 0 10px 6px; min-width: 0; }
+  .nav.open .nav-cta.btn-primary { display: inline-flex; justify-content: center; margin-top: 8px; }
+}
+
+/* ============ Insights & news hub ============ */
+.hub { display: grid; grid-template-columns: 240px 1fr; gap: 36px; align-items: start; }
+.hub-side { position: sticky; top: calc(var(--header-h) + 16px); }
+.hub-nav { display: flex; flex-direction: column; gap: 4px; background: var(--white); border: 1px solid var(--gray-line);
+  border-radius: var(--radius); padding: 10px; }
+.hub-nav a { padding: 10px 14px; border-radius: 9px; font-weight: 600; color: var(--text); }
+.hub-nav a:hover, .hub-nav a.active { background: var(--gray-bg); color: var(--navy); }
+.hub-sec { margin-bottom: 56px; scroll-margin-top: calc(var(--header-h) + 20px); }
+.hub-sec h2 { margin-bottom: 8px; }
+.hub-sub { color: var(--text-soft); margin-bottom: 22px; max-width: 640px; }
+@media (max-width: 880px) {
+  .hub { grid-template-columns: 1fr; }
+  .hub-side { position: sticky; top: var(--header-h); z-index: 40; }
+  .hub-nav { flex-direction: row; overflow-x: auto; white-space: nowrap; border-radius: 0; border-inline: 0; margin: 0 -22px; padding: 10px 16px; }
+}
+
+/* ============ Consultation booking ============ */
+.booking-wrap { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+.booking-side .order-box { position: sticky; top: calc(var(--header-h) + 16px); }
+#booking-form select, #booking-form input[type="date"] { width: 100%; }
+@media (max-width: 880px) {
+  .booking-wrap { grid-template-columns: 1fr; }
+  .booking-side .order-box { position: static; }
+}
+
+/* ============ Footer social icons ============ */
+.footer-social { display: flex; gap: 10px; margin-top: 16px; }
+.footer-social a { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+  border-radius: 10px; background: rgba(255,255,255,.1); color: #fff; transition: background .18s; }
+.footer-social a:hover { background: rgba(255,255,255,.22); color: #fff; }
+.footer-social svg { width: 19px; height: 19px; }
+
+/* ============ Compact scale (site felt oversized) ============ */
+:root { --header-h: 64px; }
+body { font-size: 16px; }
+h1 { font-size: clamp(1.7rem, 3.4vw, 2.55rem); }
+h2 { font-size: clamp(1.3rem, 2.4vw, 1.85rem); }
+h3 { font-size: 1.12rem; }
+.section { padding: 56px 0; }
+.section-head { margin-bottom: 36px; }
+.hero-inner { padding: 46px 0 54px; }
+.hero .lead { font-size: 1.05rem; margin-bottom: 26px; }
+.hero-badges { margin-top: 26px; }
+.hero-tagline { margin-bottom: 14px; font-size: .98rem; }
+.btn { padding: 11px 22px; font-size: .95rem; }
+.btn-lg { padding: 13px 28px; font-size: 1rem; }
+.card { padding: 22px; }
+.card-icon { width: 44px; height: 44px; margin-bottom: 14px; }
+.logo img { height: 30px; }
+.nav a, .nav-drop { font-size: .92rem; padding: 7px 11px; }
+.agent { padding: 40px; }
+.cta-band { padding: 44px 30px; }
+.stat .num { font-size: 2.1rem; }
+.pkg { padding: 24px; }
+.section-head p { font-size: 1rem; }

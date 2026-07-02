@@ -358,6 +358,8 @@ var BP = window.BP = window.BP || {};
     var tabs = auth.querySelectorAll(".auth-tab");
     var loginF = document.getElementById("login-form");
     var regF = document.getElementById("register-form");
+    var otpF = document.getElementById("otp-form");
+    var pending = null; // { name, email, phone, pass, challenge }
     tabs.forEach(function (tb) {
       tb.addEventListener("click", function () {
         tabs.forEach(function (x) { x.classList.remove("active"); });
@@ -365,6 +367,7 @@ var BP = window.BP = window.BP || {};
         var t = tb.getAttribute("data-tab");
         loginF.hidden = t !== "login";
         regF.hidden = t !== "register";
+        if (otpF) otpF.hidden = true; // leaving a flow resets the code step
       });
     });
 
@@ -402,16 +405,87 @@ var BP = window.BP = window.BP || {};
       render();
     });
 
+    function otpErr(msg) {
+      var b = document.getElementById("otp-error");
+      if (!b) return; b.hidden = false; b.textContent = msg;
+    }
+    function startOtp(btn) {
+      var label = btn ? btn.textContent : "";
+      if (btn) { btn.disabled = true; btn.textContent = BP.t("Sending…", "جارٍ الإرسال…"); }
+      return fetch("/api/otp", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "start", email: pending.email }),
+      }).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          if (btn) { btn.disabled = false; btn.textContent = label; }
+          if (res.status !== 200 || !res.d.ok) {
+            alert(res.d && res.d.message ? res.d.message :
+              BP.t("Email verification isn't enabled yet. Contact us on WhatsApp.", "التحقق بالبريد غير مُفعّل بعد. تواصل معنا على واتساب."));
+            return false;
+          }
+          pending.challenge = res.d.challenge;
+          var tgt = document.getElementById("otp-target"); if (tgt) tgt.textContent = res.d.to || pending.email;
+          if (res.d.devCode) otpErr(BP.t("Test mode — code: ", "وضع الاختبار — الرمز: ") + res.d.devCode);
+          return true;
+        })
+        .catch(function () {
+          if (btn) { btn.disabled = false; btn.textContent = label; }
+          alert(BP.t("Network error. Try again.", "خطأ في الاتصال. حاول مرة أخرى."));
+          return false;
+        });
+    }
+
     if (regF) regF.addEventListener("submit", function (e) {
       e.preventDefault();
       var name = document.getElementById("rg-name").value.trim();
       var email = document.getElementById("rg-email").value.trim().toLowerCase();
       var pass = document.getElementById("rg-pass").value;
       if (!name || !email || !pass) { alert(BP.t("Please fill all fields.", "الرجاء تعبئة كل الحقول.")); return; }
-      var u = users(); u[email] = { name: name, pass: pass, phone: document.getElementById("rg-phone").value.trim() };
-      saveUsers(u);
-      try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: name })); } catch (er) {}
-      render();
+      if (users()[email]) { alert(BP.t("An account with this email already exists. Please sign in.", "يوجد حساب بهذا البريد. سجّل الدخول.")); return; }
+      pending = { name: name, email: email, phone: document.getElementById("rg-phone").value.trim(), pass: pass };
+      startOtp(regF.querySelector("button[type=submit]")).then(function (sent) {
+        if (!sent) return;
+        var er = document.getElementById("otp-error"); if (er) er.hidden = true;
+        regF.hidden = true; if (otpF) { otpF.hidden = false; var c = document.getElementById("otp-code"); if (c) { c.value = ""; c.focus(); } }
+      });
+    });
+
+    if (otpF) otpF.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!pending) return;
+      var code = document.getElementById("otp-code").value.trim();
+      if (code.length !== 6) { otpErr(BP.t("Enter the 6-digit code.", "أدخل الرمز المكوّن من 6 أرقام.")); return; }
+      var btn = otpF.querySelector("button[type=submit]"); var lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = BP.t("Verifying…", "جارٍ التحقق…");
+      fetch("/api/otp", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "verify", email: pending.email, code: code, challenge: pending.challenge }),
+      }).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          btn.disabled = false; btn.textContent = lbl;
+          if (res.status !== 200 || !res.d.ok) {
+            otpErr(res.status === 400 && res.d.error === "expired"
+              ? BP.t("Code expired. Resend a new one.", "انتهت صلاحية الرمز. أعد الإرسال.")
+              : BP.t("Wrong code. Try again.", "رمز غير صحيح. حاول مرة أخرى."));
+            return;
+          }
+          var u = users();
+          u[pending.email] = { name: pending.name, pass: pending.pass, phone: pending.phone, verified: true };
+          saveUsers(u);
+          try { localStorage.setItem("bp_session", JSON.stringify({ email: pending.email, name: pending.name, verified: true })); } catch (er) {}
+          if (otpF) otpF.hidden = true;
+          pending = null;
+          render();
+        })
+        .catch(function () { btn.disabled = false; btn.textContent = lbl; otpErr(BP.t("Network error. Try again.", "خطأ في الاتصال. حاول مرة أخرى.")); });
+    });
+
+    var resendBtn = document.getElementById("otp-resend");
+    if (resendBtn) resendBtn.addEventListener("click", function () { if (pending) startOtp(resendBtn); });
+    var backBtn = document.getElementById("otp-back");
+    if (backBtn) backBtn.addEventListener("click", function () {
+      if (otpF) otpF.hidden = true; if (regF) regF.hidden = false;
+      var er = document.getElementById("otp-error"); if (er) er.hidden = true;
     });
 
     var out = document.getElementById("logout-btn");
@@ -599,5 +673,101 @@ var BP = window.BP = window.BP || {};
         addMsg("المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً.", "bot");
       })
       .finally(function () { busy = false; sendBtn.disabled = false; input.focus(); });
+  });
+})();
+
+/* ---------- Grouped nav dropdowns (Business Partner 3.0) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("click", function (e) {
+    var drop = e.target.closest(".nav-drop");
+    var groups = document.querySelectorAll(".nav-group");
+    if (drop) {
+      var g = drop.closest(".nav-group");
+      groups.forEach(function (x) { if (x !== g) x.classList.remove("open"); });
+      g.classList.toggle("open");
+      drop.setAttribute("aria-expanded", g.classList.contains("open"));
+    } else if (!e.target.closest(".nav-menu")) {
+      groups.forEach(function (x) { x.classList.remove("open"); });
+    }
+  });
+})();
+
+/* ---------- Consultation booking (form → /api/book → email + Google Calendar) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("booking-form");
+    if (!form) return;
+
+    var dateEl = document.getElementById("bk-date");
+    var today = new Date();
+    var iso = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+    if (dateEl) dateEl.min = iso;
+
+    var topicMap = {};
+    (form.getAttribute("data-topics") || "").split("|").forEach(function (p) {
+      var i = p.indexOf("="); if (i > 0) topicMap[p.slice(0, i)] = p.slice(i + 1);
+    });
+
+    function gcal(topic, date, time, notes) {
+      var h = parseInt(time.slice(0, 2), 10), m = time.slice(3, 5);
+      var d = date.replace(/-/g, "");
+      var pad = function (n) { return String(n).padStart(2, "0"); };
+      var q = new URLSearchParams({
+        action: "TEMPLATE",
+        text: "استشارة Business Partner — " + topic,
+        dates: d + "T" + pad(h) + m + "00/" + d + "T" + pad(h + 1) + m + "00",
+        ctz: "Asia/Riyadh",
+        details: "استشارة مع فريق Business Partner.\n" + (notes || ""),
+        location: "Business Partner — Riyadh / Online",
+      });
+      return "https://calendar.google.com/calendar/render?" + q.toString();
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = document.getElementById("bk-name").value.trim();
+      var phone = document.getElementById("bk-phone").value.trim();
+      var email = document.getElementById("bk-email").value.trim();
+      var topicKey = document.getElementById("bk-topic").value;
+      var topic = topicMap[topicKey] || topicKey;
+      var date = document.getElementById("bk-date").value;
+      var time = document.getElementById("bk-time").value;
+      var notes = document.getElementById("bk-notes").value.trim();
+      if (!name || !phone || !email || !date || !time) {
+        alert(BP.t("Please fill the required fields.", "الرجاء تعبئة الحقول المطلوبة.")); return;
+      }
+      var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = BP.t("Booking…", "جارٍ الحجز…");
+
+      function done(ref, calUrl, emailSent) {
+        var box = document.getElementById("booking-success");
+        var waMsg = encodeURIComponent("حجز استشارة " + ref + "\nالاسم: " + name + "\nالموضوع: " + topic + "\nالموعد: " + date + " " + time);
+        box.hidden = false;
+        box.innerHTML = "✅ <strong>" + BP.t("Booking received", "تم استلام حجزك") + " — " + ref + "</strong><br>" +
+          (emailSent
+            ? BP.t("A confirmation was sent to your email.", "أرسلنا التأكيد إلى بريدك الإلكتروني.")
+            : BP.t("Save the appointment and notify us on WhatsApp to confirm.", "احفظ الموعد وأشعرنا عبر واتساب لتأكيده.")) +
+          '<br><a class="btn btn-primary" style="margin-top:12px" target="_blank" rel="noopener" href="' + calUrl + '">' +
+          BP.t("Add to Google Calendar", "أضِف إلى تقويم Google") + "</a> " +
+          '<a class="btn btn-ghost" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' +
+          BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a>";
+        box.scrollIntoView({ behavior: "smooth", block: "center" });
+        btn.textContent = lbl;
+      }
+
+      fetch("/api/book", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: name, phone: phone, email: email, topic: topic, date: date, time: time, notes: notes }),
+      }).then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.ok) done(d.ref, d.gcalUrl || gcal(topic, date, time, notes), d.emailSent);
+          else { btn.disabled = false; btn.textContent = lbl; alert(BP.t("Couldn't complete the booking. Try again.", "تعذّر إتمام الحجز. حاول مرة أخرى.")); }
+        })
+        .catch(function () {
+          done("BC-LOCAL", gcal(topic, date, time, notes), false);
+        });
+    });
   });
 })();
