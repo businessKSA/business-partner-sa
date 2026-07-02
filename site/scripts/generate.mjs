@@ -2420,573 +2420,545 @@ function buildMonitor() {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>لوحة مراقبة المحادثات — Business Partner</title>
+    <title>BP Inbox — مركز محادثات Business Partner</title>
+    <link rel="icon" href="/assets/img/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       :root {
-        --navy: #0d3b66;
-        --teal: #1d7a8c;
-        --bg: #eef3f8;
-        --chat-bg: #e5ddd5;
-        --client: #ffffff;
-        --agent: #d9fdd3;
-        --owner: #ede7fd;
-        --danger: #d33;
-        --muted: #64748b;
+        --navy: #0B1B5A;
+        --navy-700: #13246e;
+        --navy-900: #081345;
+        --wa: #25D366;
+        --wa-bubble: #d9fdd3;
+        --owner-bubble: #e6e0ff;
+        --bg: #F5F6FA;
+        --line: #E4E7F0;
+        --text: #1F2430;
+        --soft: #6a7085;
+        --danger: #dc2626;
+        --amber: #f59e0b;
+        --chat-bg: #eae6df;
+        --radius: 14px;
       }
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body {
-        font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-        background: var(--bg);
-        height: 100dvh;
-        overflow: hidden;
-      }
+      body { font-family: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); height: 100dvh; overflow: hidden; }
+      button { font-family: inherit; cursor: pointer; }
 
-      /* ---------- Login gate ---------- */
-      #gate {
-        height: 100dvh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, var(--navy), var(--teal));
-        padding: 16px;
-      }
-      .gate-card {
-        background: #fff;
-        border-radius: 18px;
-        padding: 36px 30px;
-        width: 100%;
-        max-width: 400px;
-        text-align: center;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-      }
-      .gate-card .logo { font-size: 46px; }
-      .gate-card h1 { color: var(--navy); font-size: 21px; margin: 12px 0 6px; }
-      .gate-card p { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
-      .gate-card input {
-        width: 100%;
-        padding: 13px 14px;
-        border: 2px solid #dbe4ee;
-        border-radius: 12px;
-        font-size: 16px;
-        text-align: center;
-        direction: ltr;
-        outline: none;
-      }
-      .gate-card input:focus { border-color: var(--teal); }
-      .gate-card button {
-        width: 100%;
-        margin-top: 14px;
-        padding: 13px;
-        background: var(--navy);
-        color: #fff;
-        border: 0;
-        border-radius: 12px;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .gate-card button:hover { background: var(--teal); }
+      /* ---- login gate ---- */
+      #gate { height: 100dvh; display: flex; align-items: center; justify-content: center; background: radial-gradient(1200px 600px at 70% -10%, #17307f 0%, var(--navy) 45%, var(--navy-900) 100%); padding: 16px; }
+      .gate-card { background: #fff; border-radius: 20px; padding: 38px 32px; width: 100%; max-width: 410px; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,.35); }
+      .gate-card img { height: 54px; margin-bottom: 8px; }
+      .gate-card h1 { color: var(--navy); font-size: 20px; margin: 6px 0 4px; }
+      .gate-card p { color: var(--soft); font-size: 13.5px; margin-bottom: 22px; line-height: 1.6; }
+      .gate-card input { width: 100%; padding: 13px 14px; border: 2px solid var(--line); border-radius: 12px; font-size: 16px; text-align: center; direction: ltr; outline: none; }
+      .gate-card input:focus { border-color: var(--navy); }
+      .gate-card button { width: 100%; margin-top: 14px; padding: 13px; background: var(--navy); color: #fff; border: 0; border-radius: 12px; font-size: 16px; font-weight: 700; }
+      .gate-card button:hover { background: var(--navy-700); }
       .gate-err { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 18px; }
 
-      /* ---------- App layout ---------- */
-      #app { display: none; height: 100dvh; }
+      /* ---- app shell ---- */
+      #app { display: none; flex-direction: column; height: 100dvh; }
       #app.on { display: flex; }
-      .sidebar {
-        width: 340px;
-        min-width: 280px;
-        background: #fff;
-        border-inline-start: 1px solid #e2e8f0;
-        display: flex;
-        flex-direction: column;
-      }
-      .side-head {
-        background: var(--navy);
-        color: #fff;
-        padding: 14px 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-      .side-head .ttl { font-size: 15px; font-weight: 700; }
-      .side-head .sub { font-size: 11px; opacity: 0.8; }
-      .side-head button {
-        background: rgba(255, 255, 255, 0.15);
-        border: 0;
-        color: #fff;
-        border-radius: 8px;
-        padding: 6px 10px;
-        font-size: 12px;
-        cursor: pointer;
-      }
+      .topbar { height: 58px; background: var(--navy); color: #fff; display: flex; align-items: center; gap: 12px; padding: 0 16px; flex-shrink: 0; }
+      .topbar img { height: 30px; }
+      .topbar .brand { font-weight: 700; font-size: 15px; }
+      .topbar .brand small { display: block; font-weight: 400; font-size: 10.5px; opacity: .8; }
+      .topbar .spacer { flex: 1; }
+      .topbar .conn { font-size: 12px; display: flex; align-items: center; gap: 6px; opacity: .95; }
+      .topbar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--wa); }
+      .topbar .dot.off { background: var(--danger); }
+      .topbar button { background: rgba(255,255,255,.14); border: 0; color: #fff; border-radius: 9px; padding: 7px 12px; font-size: 12.5px; }
+
+      .cols { flex: 1; display: flex; min-height: 0; }
+
+      /* ---- conversation list ---- */
+      .list-pane { width: 360px; min-width: 300px; background: #fff; border-inline-start: 1px solid var(--line); display: flex; flex-direction: column; }
+      .search { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+      .search input { width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--bg); outline: none; }
+      .search input:focus { border-color: var(--navy); background: #fff; }
+      .tabs { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tab { font-size: 12.5px; font-weight: 600; color: var(--soft); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
+      .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+      .tab .n { background: rgba(0,0,0,.12); border-radius: 999px; padding: 0 6px; margin-inline-start: 5px; font-size: 11px; }
+      .tab.active .n { background: rgba(255,255,255,.25); }
       #convList { flex: 1; overflow-y: auto; }
-      .conv {
-        display: flex;
-        gap: 10px;
-        padding: 12px 14px;
-        border-bottom: 1px solid #f1f5f9;
-        cursor: pointer;
-        align-items: center;
-      }
+      .conv { display: flex; gap: 11px; padding: 12px 14px; border-bottom: 1px solid #f2f4f8; cursor: pointer; align-items: center; }
       .conv:hover { background: #f8fafc; }
-      .conv.active { background: #e8f2f5; }
-      .avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--teal), var(--navy));
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 19px;
-        flex-shrink: 0;
-      }
+      .conv.active { background: #eef1fb; }
+      .avatar { width: 46px; height: 46px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
       .conv .meta { flex: 1; min-width: 0; }
-      .conv .phone { font-weight: 700; color: #111827; font-size: 14px; direction: ltr; text-align: right; }
-      .conv .last {
-        color: var(--muted);
-        font-size: 12.5px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-top: 3px;
-      }
-      .conv .when { font-size: 11px; color: #94a3b8; flex-shrink: 0; }
-      .conv .alert-dot {
-        width: 10px; height: 10px; border-radius: 50%;
-        background: var(--danger); flex-shrink: 0;
-      }
+      .conv .row1 { display: flex; align-items: center; gap: 6px; }
+      .conv .nm { font-weight: 700; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; text-align: right; flex: 1; }
+      .conv .when { font-size: 11px; color: #9aa0b4; flex-shrink: 0; }
+      .conv .row2 { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+      .conv .last { color: var(--soft); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+      .badge { background: var(--wa); color: #fff; font-size: 11px; font-weight: 700; min-width: 19px; height: 19px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 5px; flex-shrink: 0; }
+      .pill { font-size: 10.5px; font-weight: 700; color: #fff; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+      .adot { width: 9px; height: 9px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+      .empty-list { padding: 30px 20px; text-align: center; color: #9aa0b4; font-size: 13.5px; line-height: 1.7; }
 
-      .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-      .chat-head {
-        background: #f0f4f8;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 12px 18px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .chat-head .phone { font-weight: 700; color: var(--navy); direction: ltr; }
-      .chat-head .crm-link { font-size: 12.5px; color: var(--teal); text-decoration: none; }
-      .chat-head .back { display: none; background: none; border: 0; font-size: 20px; cursor: pointer; }
-      .ai-ctl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-      .ai-badge { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
-      .ai-badge.on { background: #def7ec; color: #03543f; }
-      .ai-badge.off { background: #fde8e8; color: #9b1c1c; }
-      .ai-toggle { font-size: 12.5px; font-weight: 700; border: 0; border-radius: 9px; padding: 8px 12px; cursor: pointer; white-space: nowrap; }
-      .ai-toggle.pause { background: #fff3cd; color: #7a5b00; }
-      .ai-toggle.resume { background: #d9fdd3; color: #0b6e4f; }
-      #chatArea {
-        flex: 1;
-        overflow-y: auto;
-        background: var(--chat-bg);
-        background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0);
-        background-size: 22px 22px;
-        padding: 18px 8%;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .empty-hint {
-        margin: auto;
-        text-align: center;
-        color: var(--muted);
-        background: rgba(255,255,255,0.75);
-        padding: 18px 26px;
-        border-radius: 14px;
-        font-size: 14px;
-      }
-      .bubble {
-        max-width: 78%;
-        padding: 9px 13px;
-        border-radius: 12px;
-        font-size: 14.5px;
-        line-height: 1.55;
-        white-space: pre-wrap;
-        word-break: break-word;
-        box-shadow: 0 1px 1px rgba(0,0,0,0.08);
-        position: relative;
-      }
-      .bubble .who { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
-      .bubble .tm { display: block; font-size: 10px; color: #8a8f98; margin-top: 5px; text-align: left; direction: ltr; }
-      .from-client { background: var(--client); align-self: flex-start; border-start-start-radius: 2px; }
-      .from-client .who { color: var(--navy); }
-      .from-agent { background: var(--agent); align-self: flex-end; border-start-end-radius: 2px; }
-      .from-agent .who { color: #0b6e4f; }
-      .from-owner { background: var(--owner); align-self: flex-end; border-start-end-radius: 2px; }
-      .from-owner .who { color: #6d28d9; }
-      .alert-chip {
-        align-self: center;
-        background: #fff3cd;
-        border: 1px solid #ffe08a;
-        color: #7a5b00;
-        font-size: 12.5px;
-        padding: 6px 14px;
-        border-radius: 999px;
-        text-align: center;
-      }
-      .alert-chip.red { background: #fde8e8; border-color: #f5b5b5; color: #9b1c1c; }
-      .alert-chip.green { background: #def7ec; border-color: #a7e3c9; color: #03543f; }
+      /* ---- chat pane ---- */
+      .chat-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+      .chat-head { background: #fff; border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .chat-head .back { display: none; background: none; border: 0; font-size: 22px; color: var(--navy); }
+      .chat-head .who { flex: 1; min-width: 120px; }
+      .chat-head .who .nm { font-weight: 700; color: var(--navy); direction: ltr; text-align: right; }
+      .chat-head .who .sub { font-size: 12px; color: var(--soft); }
+      .head-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .ai-badge { font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px; }
+      .ai-badge.on { background: #dcfce7; color: #14532d; }
+      .ai-badge.off { background: #fee2e2; color: #7f1d1d; }
+      .btn-ghost { font-size: 12.5px; font-weight: 700; border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 7px 11px; color: var(--navy); }
+      .btn-ghost:hover { background: var(--bg); }
+      .btn-toggle { font-size: 12.5px; font-weight: 700; border: 0; border-radius: 9px; padding: 8px 12px; }
+      .btn-toggle.pause { background: #fef3c7; color: #92400e; }
+      .btn-toggle.resume { background: var(--wa-bubble); color: #14532d; }
+      select.tagsel { font-family: inherit; font-size: 12.5px; font-weight: 600; border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; color: var(--text); background: #fff; }
 
-      .composer {
-        display: flex;
-        gap: 10px;
-        padding: 12px 16px;
-        background: #f0f4f8;
-        border-top: 1px solid #e2e8f0;
-      }
-      .composer textarea {
-        flex: 1;
-        resize: none;
-        border: 1px solid #d7e0ea;
-        border-radius: 12px;
-        padding: 11px 14px;
-        font-size: 15px;
-        font-family: inherit;
-        height: 48px;
-        outline: none;
-      }
-      .composer textarea:focus { border-color: var(--teal); }
-      .composer button {
-        background: var(--teal);
-        color: #fff;
-        border: 0;
-        border-radius: 12px;
-        padding: 0 22px;
-        font-size: 15px;
-        font-weight: 700;
-        cursor: pointer;
-        flex-shrink: 0;
-      }
-      .composer button:disabled { opacity: 0.5; cursor: default; }
-      .send-note { font-size: 11px; color: var(--muted); text-align: center; padding: 0 0 8px; background: #f0f4f8; }
+      #chatArea { flex: 1; overflow-y: auto; background: var(--chat-bg); background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,.035) 1px, transparent 0); background-size: 22px 22px; padding: 16px 7%; display: flex; flex-direction: column; gap: 7px; }
+      .day-sep { align-self: center; background: #fff; color: var(--soft); font-size: 11.5px; font-weight: 600; padding: 4px 12px; border-radius: 999px; box-shadow: 0 1px 2px rgba(0,0,0,.08); margin: 8px 0; }
+      .bubble { max-width: 76%; padding: 8px 12px; border-radius: 12px; font-size: 14.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; box-shadow: 0 1px 1px rgba(0,0,0,.08); }
+      .bubble .who2 { font-size: 10.5px; font-weight: 700; margin-bottom: 3px; opacity: .85; }
+      .bubble .tm { display: block; font-size: 10px; color: #8a8f98; margin-top: 4px; text-align: left; direction: ltr; }
+      .from-client { background: #fff; align-self: flex-start; border-start-start-radius: 3px; }
+      .from-client .who2 { color: var(--navy); }
+      .from-agent { background: var(--wa-bubble); align-self: flex-end; border-start-end-radius: 3px; }
+      .from-agent .who2 { color: #0b6e4f; }
+      .from-owner { background: var(--owner-bubble); align-self: flex-end; border-start-end-radius: 3px; }
+      .from-owner .who2 { color: #5b21b6; }
+      .chip { align-self: center; font-size: 12px; padding: 5px 13px; border-radius: 999px; text-align: center; background: #fff7db; border: 1px solid #fde68a; color: #7a5b00; }
+      .chip.red { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+      .chip.green { background: #dcfce7; border-color: #bbf7d0; color: #14532d; }
 
-      .statusbar {
-        font-size: 11px;
-        color: #94a3b8;
-        padding: 6px 14px;
-        border-top: 1px solid #f1f5f9;
-        background: #fff;
-        display: flex;
-        justify-content: space-between;
-      }
-      .statusbar .live { color: #16a34a; font-weight: 700; }
+      /* ---- composer ---- */
+      .composer-wrap { background: #fff; border-top: 1px solid var(--line); }
+      .ai-row { display: flex; gap: 8px; align-items: center; padding: 9px 14px 0; flex-wrap: wrap; }
+      .ai-btn { font-size: 12.5px; font-weight: 700; border: 0; border-radius: 9px; padding: 8px 12px; background: linear-gradient(135deg, #6d28d9, #4f46e5); color: #fff; display: inline-flex; align-items: center; gap: 6px; }
+      .ai-btn.en { background: linear-gradient(135deg, #0ea5e9, #2563eb); }
+      .ai-btn:disabled { opacity: .55; }
+      .ai-instr { flex: 1; min-width: 150px; border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; font-size: 12.5px; font-family: inherit; outline: none; }
+      .ai-hint { font-size: 11px; color: var(--soft); padding: 4px 14px 0; }
+      .composer { display: flex; gap: 10px; padding: 10px 14px 12px; align-items: flex-end; }
+      .composer textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; font-size: 15px; font-family: inherit; height: 46px; max-height: 140px; outline: none; }
+      .composer textarea:focus { border-color: var(--navy); }
+      .composer textarea:disabled { background: var(--bg); }
+      .send-btn { background: var(--wa); color: #fff; border: 0; border-radius: 12px; padding: 0 22px; height: 46px; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+      .send-btn:disabled { opacity: .5; }
 
-      @media (max-width: 760px) {
-        .sidebar { width: 100%; }
-        #app.chat-open .sidebar { display: none; }
-        .main { display: none; }
-        #app.chat-open .main { display: flex; }
+      .no-conv { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--chat-bg); }
+      .no-conv .card { text-align: center; color: var(--soft); background: rgba(255,255,255,.85); padding: 26px 34px; border-radius: 16px; font-size: 14px; line-height: 1.8; max-width: 340px; }
+      .no-conv .card b { color: var(--navy); }
+
+      @media (max-width: 820px) {
+        .list-pane { width: 100%; }
+        .cols.chat-open .list-pane { display: none; }
+        .chat-pane { display: none; }
+        .cols.chat-open .chat-pane { display: flex; }
         .chat-head .back { display: block; }
         #chatArea { padding: 14px 4%; }
       }
     </style>
   </head>
   <body>
-    <!-- بوابة الدخول -->
     <div id="gate">
       <div class="gate-card">
-        <div class="logo">💬</div>
-        <h1>لوحة مراقبة المحادثات</h1>
-        <p>هذه الصفحة خاصة بمالك Business Partner فقط.<br />أدخل مفتاح الوصول للمتابعة.</p>
+        <img src="/assets/img/logo.png" alt="Business Partner" onerror="this.style.display='none'" />
+        <h1>BP Inbox — مركز المحادثات</h1>
+        <p>لوحة خاصة بمالك Business Partner لمتابعة محادثات واتساب والرد المباشر بمساعدة الذكاء الاصطناعي. أدخل مفتاح الوصول.</p>
         <input id="keyInput" type="password" placeholder="مفتاح الوصول" autocomplete="current-password" />
         <button id="enterBtn">دخول</button>
         <div class="gate-err" id="gateErr"></div>
       </div>
     </div>
 
-    <!-- التطبيق -->
     <div id="app">
-      <div class="main">
-        <div class="chat-head">
-          <button class="back" id="backBtn" title="رجوع">➜</button>
-          <div style="flex:1">
-            <div class="phone" id="chatPhone">اختر محادثة</div>
-            <a class="crm-link" id="crmLink" href="#" target="_blank" rel="noopener" style="display:none">📇 ملف العميل في CRM</a>
-          </div>
-          <div class="ai-ctl" id="aiCtl" style="display:none">
-            <span class="ai-badge on" id="aiBadge">🟢 الوكيل يرد</span>
-            <button class="ai-toggle pause" id="aiToggle">⏸️ أوقف الوكيل وتولَّ بنفسك</button>
-          </div>
-        </div>
-        <div id="chatArea">
-          <div class="empty-hint">👈 اختر محادثة من القائمة لعرضها<br />التحديث تلقائي كل ٧ ثوانٍ</div>
-        </div>
-        <div class="composer">
-          <textarea id="msgInput" placeholder="اكتب ردك كمالك… (يُرسل للعميل عبر واتساب فوراً)"></textarea>
-          <button id="sendBtn">إرسال</button>
-        </div>
-        <div class="send-note">أول ما ترسل ردّك، الوكيل الآلي يتوقف تلقائياً وتتولى المحادثة أنت — ردّك يوصل العميل من رقم واتساب الشركة 🧑‍💼</div>
+      <div class="topbar">
+        <img src="/assets/img/logo.png" alt="BP" onerror="this.style.display='none'" />
+        <div class="brand">BP Inbox<small>مركز محادثات واتساب — مباشر</small></div>
+        <div class="spacer"></div>
+        <div class="conn"><span class="dot" id="connDot"></span><span id="connText">متصل</span></div>
+        <a class="btn-ghost" id="notionDbBtn" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener" style="color:#fff;border-color:rgba(255,255,255,.25);background:transparent">📊 نوشن</a>
+        <button id="logoutBtn">خروج</button>
       </div>
-      <div class="sidebar">
-        <div class="side-head">
-          <div>
-            <div class="ttl">💬 محادثات واتساب</div>
-            <div class="sub">Business Partner — مباشر</div>
-          </div>
-          <button id="logoutBtn">خروج</button>
+
+      <div class="cols" id="cols">
+        <div class="list-pane">
+          <div class="search"><input id="searchInput" type="search" placeholder="🔍 ابحث برقم العميل أو نص الرسالة" /></div>
+          <div class="tabs" id="tabs"></div>
+          <div id="convList"></div>
         </div>
-        <div id="convList"></div>
-        <div class="statusbar">
-          <span id="connState" class="live">● متصل</span>
-          <span id="lastSync">—</span>
+
+        <div class="chat-pane" id="chatPane">
+          <div class="no-conv" id="noConv">
+            <div class="card">👉 اختر محادثة من القائمة للبدء.<br /><b>مساعد الذكاء</b> يكتب لك الرد عربي أو إنجليزي، وتقدر <b>توقف الوكيل الآلي</b> وتتولى بنفسك بضغطة زر.<br />التحديث تلقائي كل ٧ ثوانٍ.</div>
+          </div>
+
+          <div id="chatMain" style="display:none; flex:1; min-height:0; flex-direction:column;">
+            <div class="chat-head">
+              <button class="back" id="backBtn">➜</button>
+              <div class="who">
+                <div class="nm" id="chatName">—</div>
+                <div class="sub" id="chatSub"></div>
+              </div>
+              <div class="head-actions">
+                <span class="ai-badge on" id="aiBadge">🟢 الوكيل يرد</span>
+                <button class="btn-toggle pause" id="aiToggle">⏸️ أوقف الوكيل</button>
+                <select class="tagsel" id="tagSel" title="تصنيف المحادثة"></select>
+                <a class="btn-ghost" id="crmBtn" href="#" target="_blank" rel="noopener" style="display:none">📇 CRM</a>
+              </div>
+            </div>
+
+            <div id="chatArea"></div>
+
+            <div class="composer-wrap">
+              <div class="ai-row">
+                <button class="ai-btn" id="suggestAr">✨ اقترح رد (عربي)</button>
+                <button class="ai-btn en" id="suggestEn">✨ Suggest (EN)</button>
+                <input class="ai-instr" id="aiInstr" type="text" placeholder="توجيه اختياري للمساعد: مثال «اطلب رقم السجل التجاري» أو «رد باختصار»" />
+              </div>
+              <div class="ai-hint" id="aiHint">المساعد يقرأ المحادثة ويكتب لك رداً جاهزاً للتعديل والإرسال — مدعوم بـ Claude، وعند الحاجة يستخدم OpenAI.</div>
+              <div class="composer">
+                <textarea id="msgInput" placeholder="اكتب ردك للعميل…" disabled></textarea>
+                <button class="send-btn" id="sendBtn" disabled>إرسال</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
-      const FEED_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-monitor-x7k2m9';
-      const SEND_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-send-x7k2m9';
-      const POLL_MS = 7000;
-      const KEY_STORE = 'bp_monitor_key';
+      var FEED_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-monitor-x7k2m9';
+      var SEND_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-send-x7k2m9';
+      var SUGGEST_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-suggest-x7k2m9';
+      var POLL_MS = 7000;
+      var KEY_STORE = 'bp_inbox_key';
+      var TAG_STORE = 'bp_inbox_tags';
+      var SEEN_STORE = 'bp_inbox_seen';
 
-      let accessKey = localStorage.getItem(KEY_STORE) || '';
-      let messages = [];
-      let activePhone = null;
-      let pollTimer = null;
-      let lastCount = 0;
+      var TAGS = [
+        { k: 'جديد', c: '#0ea5e9' },
+        { k: 'مهتم', c: '#f59e0b' },
+        { k: 'تفاوض', c: '#8b5cf6' },
+        { k: 'بانتظار', c: '#64748b' },
+        { k: 'مغلق ناجح', c: '#16a34a' },
+        { k: 'مغلق خاسر', c: '#dc2626' }
+      ];
+      var AV_COLORS = ['#0B1B5A', '#1d7a8c', '#6d28d9', '#0ea5e9', '#16a34a', '#b45309', '#be123c', '#4f46e5'];
 
-      const $ = (id) => document.getElementById(id);
+      var accessKey = localStorage.getItem(KEY_STORE) || '';
+      var tags = {}; try { tags = JSON.parse(localStorage.getItem(TAG_STORE) || '{}'); } catch (e) { tags = {}; }
+      var seen = {}; try { seen = JSON.parse(localStorage.getItem(SEEN_STORE) || '{}'); } catch (e) { seen = {}; }
+      var messages = [];
+      var activePhone = null;
+      var pollTimer = null;
+      var lastCount = 0;
+      var filter = 'all';
+      var search = '';
+
+      function $(id) { return document.getElementById(id); }
+      function saveTags() { localStorage.setItem(TAG_STORE, JSON.stringify(tags)); }
+      function saveSeen() { localStorage.setItem(SEEN_STORE, JSON.stringify(seen)); }
 
       function fmtTime(iso) {
         if (!iso) return '';
-        const d = new Date(iso);
-        return d.toLocaleString('ar-SA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        var d = new Date(iso);
+        var now = new Date();
+        var diff = (now - d) / 1000;
+        if (diff < 60) return 'الآن';
+        if (diff < 3600) return 'قبل ' + Math.floor(diff / 60) + ' د';
+        return d.toLocaleString('ar-SA', { hour: '2-digit', minute: '2-digit' });
       }
+      function dayLabel(iso) {
+        var d = new Date(iso); var now = new Date();
+        var a = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        var b = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var dd = (b - a) / 86400000;
+        if (dd === 0) return 'اليوم';
+        if (dd === 1) return 'أمس';
+        return d.toLocaleDateString('ar-SA', { weekday: 'long', day: 'numeric', month: 'long' });
+      }
+      function avColor(phone) { var s = 0; for (var i = 0; i < phone.length; i++) s += phone.charCodeAt(i); return AV_COLORS[s % AV_COLORS.length]; }
 
-      async function fetchFeed() {
-        const res = await fetch(FEED_URL + '?key=' + encodeURIComponent(accessKey), { cache: 'no-store' });
-        if (res.status === 401) throw new Error('unauthorized');
-        if (!res.ok) throw new Error('http ' + res.status);
-        return res.json();
+      function fetchFeed() {
+        return fetch(FEED_URL + '?key=' + encodeURIComponent(accessKey), { cache: 'no-store' }).then(function (res) {
+          if (res.status === 401) throw new Error('unauthorized');
+          if (!res.ok) throw new Error('http ' + res.status);
+          return res.json();
+        });
       }
 
       function groupByPhone() {
-        const map = new Map();
-        for (const m of messages) {
-          const ph = m.phone || 'غير معروف';
+        var map = new Map();
+        for (var i = 0; i < messages.length; i++) {
+          var m = messages[i]; var ph = m.phone || 'غير معروف';
           if (!map.has(ph)) map.set(ph, []);
           map.get(ph).push(m);
         }
         return map;
       }
+      function isPaused(msgs) {
+        var p = false;
+        for (var i = 0; i < msgs.length; i++) {
+          var m = msgs[i];
+          if (m.sender === 'المالك') p = true;
+          else if (m.alert === 'إيقاف الوكيل') p = true;
+          else if (m.alert === 'تفعيل الوكيل') p = false;
+        }
+        return p;
+      }
+      function needsHuman(msgs) { for (var i = 0; i < msgs.length; i++) { if (msgs[i].alert === 'يحتاج تدخل بشري') return true; } return false; }
+      function unread(phone, msgs) {
+        var s = seen[phone] || 0; var n = 0;
+        for (var i = 0; i < msgs.length; i++) { var m = msgs[i]; if (m.sender === 'العميل' && new Date(m.time).getTime() > s) n++; }
+        return n;
+      }
+      function lastMsg(msgs) { return msgs[msgs.length - 1]; }
+
+      function buildTabs() {
+        var map = groupByPhone();
+        var counts = { all: map.size, unread: 0, human: 0, paused: 0, closed: 0 };
+        map.forEach(function (msgs, phone) {
+          if (unread(phone, msgs) > 0) counts.unread++;
+          if (needsHuman(msgs)) counts.human++;
+          if (isPaused(msgs)) counts.paused++;
+          var t = tags[phone] || ''; if (t.indexOf('مغلق') === 0) counts.closed++;
+        });
+        var defs = [
+          { id: 'all', label: 'الكل' }, { id: 'unread', label: 'غير مقروء' },
+          { id: 'human', label: 'يحتاج تدخل' }, { id: 'paused', label: 'وكيل موقوف' }, { id: 'closed', label: 'مغلقة' }
+        ];
+        var html = '';
+        for (var i = 0; i < defs.length; i++) {
+          var d = defs[i]; var c = counts[d.id];
+          html += '<button class="tab' + (filter === d.id ? ' active' : '') + '" data-f="' + d.id + '">' + d.label + (c ? '<span class="n">' + c + '</span>' : '') + '</button>';
+        }
+        var tb = $('tabs'); tb.innerHTML = html;
+        var btns = tb.querySelectorAll('.tab');
+        for (var j = 0; j < btns.length; j++) btns[j].onclick = function () { filter = this.getAttribute('data-f'); render(); };
+      }
+
+      function passFilter(phone, msgs) {
+        if (search) {
+          var hay = phone + ' ' + msgs.map(function (m) { return m.text || ''; }).join(' ');
+          if (hay.toLowerCase().indexOf(search.toLowerCase()) === -1) return false;
+        }
+        if (filter === 'unread') return unread(phone, msgs) > 0;
+        if (filter === 'human') return needsHuman(msgs);
+        if (filter === 'paused') return isPaused(msgs);
+        if (filter === 'closed') return (tags[phone] || '').indexOf('مغلق') === 0;
+        return true;
+      }
 
       function renderSidebar() {
-        const map = groupByPhone();
-        const entries = [...map.entries()].sort((a, b) => {
-          const la = a[1][a[1].length - 1].time, lb = b[1][b[1].length - 1].time;
-          return new Date(lb) - new Date(la);
-        });
-        const list = $('convList');
-        list.innerHTML = '';
-        for (const [phone, msgs] of entries) {
-          const last = msgs[msgs.length - 1];
-          const hasAlert = msgs.some((m) => m.sender === 'تنبيه' && (m.alert === 'يحتاج تدخل بشري'));
-          const div = document.createElement('div');
-          div.className = 'conv' + (phone === activePhone ? ' active' : '');
-          div.innerHTML =
-            '<div class="avatar">👤</div>' +
-            '<div class="meta"><div class="phone"></div><div class="last"></div></div>' +
-            (hasAlert ? '<div class="alert-dot" title="يحتاج تدخل"></div>' : '') +
-            '<div class="when"></div>';
-          div.querySelector('.phone').textContent = '+' + phone;
-          div.querySelector('.last').textContent = (last.sender === 'العميل' ? '' : '↩ ') + (last.text || '').slice(0, 60);
-          div.querySelector('.when').textContent = fmtTime(last.time);
-          div.onclick = () => { activePhone = phone; document.getElementById('app').classList.add('chat-open'); render(); };
-          list.appendChild(div);
+        buildTabs();
+        var map = groupByPhone();
+        var entries = [];
+        map.forEach(function (msgs, phone) { if (passFilter(phone, msgs)) entries.push([phone, msgs]); });
+        entries.sort(function (a, b) { return new Date(lastMsg(b[1]).time) - new Date(lastMsg(a[1]).time); });
+        var list = $('convList'); list.innerHTML = '';
+        for (var i = 0; i < entries.length; i++) {
+          (function (phone, msgs) {
+            var last = lastMsg(msgs);
+            var un = unread(phone, msgs);
+            var tag = tags[phone] || '';
+            var tagObj = null; for (var t = 0; t < TAGS.length; t++) if (TAGS[t].k === tag) tagObj = TAGS[t];
+            var div = document.createElement('div');
+            div.className = 'conv' + (phone === activePhone ? ' active' : '');
+            var initials = phone.slice(-2);
+            var pre = last.sender === 'العميل' ? '' : (last.sender === 'المالك' ? '↩ ' : (last.sender === 'تنبيه' ? '🔔 ' : '🤖 '));
+            var av = document.createElement('div'); av.className = 'avatar'; av.style.background = avColor(phone); av.textContent = initials;
+            var meta = document.createElement('div'); meta.className = 'meta';
+            var r1 = document.createElement('div'); r1.className = 'row1';
+            var nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = '+' + phone;
+            var wh = document.createElement('div'); wh.className = 'when'; wh.textContent = fmtTime(last.time);
+            r1.appendChild(nm); r1.appendChild(wh);
+            var r2 = document.createElement('div'); r2.className = 'row2';
+            var lastEl = document.createElement('div'); lastEl.className = 'last'; lastEl.textContent = pre + (last.text || '').slice(0, 48);
+            r2.appendChild(lastEl);
+            if (tagObj) { var pill = document.createElement('span'); pill.className = 'pill'; pill.style.background = tagObj.c; pill.textContent = tagObj.k; r2.appendChild(pill); }
+            if (needsHuman(msgs) && un === 0) { var adot = document.createElement('span'); adot.className = 'adot'; r2.appendChild(adot); }
+            if (un > 0) { var b = document.createElement('span'); b.className = 'badge'; b.textContent = un > 99 ? '99+' : un; r2.appendChild(b); }
+            meta.appendChild(r1); meta.appendChild(r2);
+            div.appendChild(av); div.appendChild(meta);
+            div.onclick = function () { openConversation(phone); };
+            list.appendChild(div);
+          })(entries[i][0], entries[i][1]);
         }
-        if (!entries.length) {
-          list.innerHTML = '<div style="padding:24px;text-align:center;color:#94a3b8;font-size:13.5px">لا توجد محادثات بعد.<br>أول ما يراسل عميل، بتظهر هنا فوراً.</div>';
-        }
+        if (!entries.length) list.innerHTML = '<div class="empty-list">لا توجد محادثات مطابقة.<br>أول ما يراسلك عميل تظهر هنا فوراً.</div>';
       }
 
-      function isPaused(msgs) {
-        let paused = false;
-        for (const m of msgs) {
-          if (m.sender === 'المالك') paused = true;
-          else if (m.alert === 'إيقاف الوكيل') paused = true;
-          else if (m.alert === 'تفعيل الوكيل') paused = false;
-        }
-        return paused;
+      function openConversation(phone) {
+        activePhone = phone;
+        seen[phone] = Date.now(); saveSeen();
+        $('cols').classList.add('chat-open');
+        render();
       }
 
-      async function setAgent(action) {
-        if (!activePhone) return;
-        const btn = $('aiToggle');
-        btn.disabled = true;
-        try {
-          const res = await fetch(SEND_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ key: accessKey, phone: activePhone, action: action })
-          });
-          const out = await res.json().catch(() => ({}));
-          if (!res.ok || !out.ok) throw new Error('toggle failed');
-          messages.push({
-            id: 'tmp-' + Date.now(), time: new Date().toISOString(), phone: activePhone,
-            sender: 'تنبيه', alert: action === 'resume' ? 'تفعيل الوكيل' : 'إيقاف الوكيل',
-            text: action === 'resume' ? '🟢 أعدتَ تفعيل الوكيل الآلي — سيرد تلقائياً' : '🔴 توليتَ المحادثة — الوكيل الآلي موقوف لهذا العميل',
-            crm: ''
-          });
-          render();
-        } catch (e) {
-          alert('تعذر تنفيذ العملية. حاول مرة أخرى.');
-        } finally {
-          btn.disabled = false;
-        }
+      function buildTagSelect() {
+        var sel = $('tagSel'); var cur = tags[activePhone] || '';
+        var html = '<option value="">🏷️ بدون تصنيف</option>';
+        for (var i = 0; i < TAGS.length; i++) html += '<option value="' + TAGS[i].k + '"' + (TAGS[i].k === cur ? ' selected' : '') + '>' + TAGS[i].k + '</option>';
+        sel.innerHTML = html;
+        sel.onchange = function () { if (this.value) tags[activePhone] = this.value; else delete tags[activePhone]; saveTags(); render(); };
       }
 
       function renderChat() {
-        const area = $('chatArea');
-        if (!activePhone) return;
-        const msgs = (groupByPhone().get(activePhone)) || [];
-        $('chatPhone').textContent = '+' + activePhone;
-        const crm = [...msgs].reverse().find((m) => m.crm);
-        const crmA = $('crmLink');
-        if (crm) { crmA.href = crm.crm; crmA.style.display = 'inline'; } else { crmA.style.display = 'none'; }
+        if (!activePhone) { $('noConv').style.display = 'flex'; $('chatMain').style.display = 'none'; return; }
+        $('noConv').style.display = 'none'; $('chatMain').style.display = 'flex';
+        var msgs = groupByPhone().get(activePhone) || [];
+        $('chatName').textContent = '+' + activePhone;
+        var crm = null; for (var i = msgs.length - 1; i >= 0; i--) { if (msgs[i].crm) { crm = msgs[i].crm; break; } }
+        var crmB = $('crmBtn'); if (crm) { crmB.href = crm; crmB.style.display = 'inline-flex'; } else { crmB.style.display = 'none'; }
+        $('chatSub').textContent = msgs.length + ' رسالة';
 
-        const paused = isPaused(msgs);
-        $('aiCtl').style.display = 'flex';
-        const badge = $('aiBadge'), toggle = $('aiToggle');
+        var paused = isPaused(msgs);
+        var badge = $('aiBadge'), toggle = $('aiToggle');
         if (paused) {
           badge.className = 'ai-badge off'; badge.textContent = '🔴 أنت المتحكم';
-          toggle.className = 'ai-toggle resume'; toggle.textContent = '▶️ أعِد تفعيل الوكيل الآلي';
-          toggle.onclick = () => setAgent('resume');
+          toggle.className = 'btn-toggle resume'; toggle.textContent = '▶️ فعّل الوكيل';
+          toggle.onclick = function () { setAgent('resume'); };
         } else {
           badge.className = 'ai-badge on'; badge.textContent = '🟢 الوكيل يرد';
-          toggle.className = 'ai-toggle pause'; toggle.textContent = '⏸️ أوقف الوكيل وتولَّ بنفسك';
-          toggle.onclick = () => setAgent('pause');
+          toggle.className = 'btn-toggle pause'; toggle.textContent = '⏸️ أوقف الوكيل';
+          toggle.onclick = function () { setAgent('pause'); };
         }
+        buildTagSelect();
 
-        const nearBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 120;
+        $('msgInput').disabled = false; $('sendBtn').disabled = false;
+        $('suggestAr').disabled = false; $('suggestEn').disabled = false;
+
+        var area = $('chatArea');
+        var nearBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 140;
         area.innerHTML = '';
-        for (const m of msgs) {
+        var lastDay = '';
+        for (var k = 0; k < msgs.length; k++) {
+          var m = msgs[k];
+          var dl = dayLabel(m.time);
+          if (dl !== lastDay) { var sep = document.createElement('div'); sep.className = 'day-sep'; sep.textContent = dl; area.appendChild(sep); lastDay = dl; }
           if (m.sender === 'تنبيه') {
-            const chip = document.createElement('div');
-            const red = m.alert === 'يحتاج تدخل بشري' || m.alert === 'إيقاف الوكيل';
-            const green = m.alert === 'طلب مكتمل' || m.alert === 'تفعيل الوكيل';
-            chip.className = 'alert-chip' + (red ? ' red' : green ? ' green' : '');
-            chip.textContent = (m.text && m.text.trim()) ? m.text : '🔔 ' + (m.alert || 'تنبيه') + ' — ' + fmtTime(m.time);
-            area.appendChild(chip);
-            continue;
+            var chip = document.createElement('div');
+            var red = m.alert === 'يحتاج تدخل بشري' || m.alert === 'إيقاف الوكيل';
+            var green = m.alert === 'طلب مكتمل' || m.alert === 'تفعيل الوكيل';
+            chip.className = 'chip' + (red ? ' red' : green ? ' green' : '');
+            chip.textContent = (m.text && m.text.trim()) ? m.text : ('🔔 ' + (m.alert || 'تنبيه'));
+            area.appendChild(chip); continue;
           }
-          const b = document.createElement('div');
-          b.className = 'bubble ' + (m.sender === 'العميل' ? 'from-client' : m.sender === 'المالك' ? 'from-owner' : 'from-agent');
-          const who = document.createElement('div');
-          who.className = 'who';
-          who.textContent = m.sender === 'العميل' ? '👤 العميل' : m.sender === 'المالك' ? '🧑‍💼 أنت (المالك)' : '🤖 الوكيل الذكي';
-          const body = document.createElement('div');
-          body.textContent = m.text || '';
-          const tm = document.createElement('span');
-          tm.className = 'tm';
-          tm.textContent = fmtTime(m.time);
-          b.appendChild(who); b.appendChild(body); b.appendChild(tm);
-          area.appendChild(b);
+          var b = document.createElement('div');
+          b.className = 'bubble ' + (m.sender === 'العميل' ? 'from-client' : (m.sender === 'المالك' ? 'from-owner' : 'from-agent'));
+          var who = document.createElement('div'); who.className = 'who2';
+          who.textContent = m.sender === 'العميل' ? '👤 العميل' : (m.sender === 'المالك' ? '🧑‍💼 أنت' : '🤖 الوكيل');
+          var body = document.createElement('div'); body.textContent = m.text || '';
+          var tm = document.createElement('span'); tm.className = 'tm';
+          tm.textContent = fmtTime(m.time) + (m.sender === 'المالك' ? ' ✓✓' : '');
+          b.appendChild(who); b.appendChild(body); b.appendChild(tm); area.appendChild(b);
         }
-        if (!msgs.length) area.innerHTML = '<div class="empty-hint">لا توجد رسائل لهذا الرقم.</div>';
         if (nearBottom) area.scrollTop = area.scrollHeight;
       }
 
       function render() { renderSidebar(); renderChat(); }
 
       function beep() {
-        try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const o = ctx.createOscillator(), g = ctx.createGain();
-          o.connect(g); g.connect(ctx.destination);
-          o.frequency.value = 880; g.gain.value = 0.06;
-          o.start(); o.stop(ctx.currentTime + 0.12);
-        } catch (e) {}
+        try { var c = new (window.AudioContext || window.webkitAudioContext)(); var o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = .05; o.start(); o.stop(c.currentTime + .12); } catch (e) {}
       }
+      var flashTimer = null, baseTitle = 'BP Inbox';
+      function flashTitle(n) {
+        if (flashTimer) return;
+        var on = true; flashTimer = setInterval(function () { document.title = on ? ('🔴 (' + n + ') رسالة جديدة') : baseTitle; on = !on; }, 1000);
+      }
+      function stopFlash() { if (flashTimer) { clearInterval(flashTimer); flashTimer = null; document.title = baseTitle; } }
+      window.addEventListener('focus', stopFlash);
 
-      async function poll() {
-        try {
-          const data = await fetchFeed();
+      function poll() {
+        return fetchFeed().then(function (data) {
           if (data && data.ok) {
-            const grew = data.count > lastCount && lastCount > 0;
+            var grew = data.count > lastCount && lastCount > 0;
             lastCount = data.count;
             messages = data.messages || [];
-            if (grew) beep();
+            if (grew) { beep(); if (document.hidden) { flashTitle(data.count); } }
             render();
-            $('connState').textContent = '● متصل';
-            $('connState').style.color = '#16a34a';
-            $('lastSync').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA');
+            $('connDot').className = 'dot'; $('connText').textContent = 'متصل';
           }
-        } catch (e) {
+        }).catch(function (e) {
           if (String(e.message) === 'unauthorized') { logout(); return; }
-          $('connState').textContent = '● انقطع الاتصال — إعادة المحاولة…';
-          $('connState').style.color = '#d33';
-        }
+          $('connDot').className = 'dot off'; $('connText').textContent = 'انقطع — إعادة محاولة';
+        });
       }
 
-      async function sendReply() {
-        const txt = $('msgInput').value.trim();
+      function setAgent(action) {
+        var btn = $('aiToggle'); btn.disabled = true;
+        fetch(SEND_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ key: accessKey, phone: activePhone, action: action }) })
+          .then(function (r) { return r.json().catch(function () { return {}; }); })
+          .then(function (out) {
+            if (!out.ok) throw new Error('x');
+            messages.push({ id: 't' + Date.now(), time: new Date().toISOString(), phone: activePhone, sender: 'تنبيه', alert: action === 'resume' ? 'تفعيل الوكيل' : 'إيقاف الوكيل', text: action === 'resume' ? '🟢 أعدتَ تفعيل الوكيل الآلي' : '🔴 توليتَ المحادثة — الوكيل موقوف', crm: '' });
+            render();
+          }).catch(function () { alert('تعذر تنفيذ العملية.'); }).then(function () { btn.disabled = false; });
+      }
+
+      function suggest(lang) {
+        if (!activePhone) return;
+        var arBtn = $('suggestAr'), enBtn = $('suggestEn');
+        arBtn.disabled = true; enBtn.disabled = true;
+        var hint = $('aiHint'); var old = hint.textContent; hint.textContent = '⏳ المساعد يكتب رداً مقترحاً…';
+        fetch(SUGGEST_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ key: accessKey, phone: activePhone, lang: lang, instruction: $('aiInstr').value.trim() }) })
+          .then(function (r) { return r.json().catch(function () { return {}; }); })
+          .then(function (out) {
+            if (out && out.ok && out.reply) { var t = $('msgInput'); t.value = out.reply; t.focus(); autoGrow(t); hint.textContent = '✅ رد مقترح جاهز — عدّله ثم أرسله.'; }
+            else { hint.textContent = '⚠️ تعذّر توليد رد. حاول مرة أخرى.'; }
+          }).catch(function () { hint.textContent = '⚠️ تعذّر الاتصال بالمساعد.'; })
+          .then(function () { arBtn.disabled = false; enBtn.disabled = false; setTimeout(function () { hint.textContent = old; }, 6000); });
+      }
+
+      function sendReply() {
+        var t = $('msgInput'); var txt = t.value.trim();
         if (!txt || !activePhone) return;
-        const btn = $('sendBtn');
-        btn.disabled = true; btn.textContent = '…';
-        try {
-          const res = await fetch(SEND_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ key: accessKey, phone: activePhone, text: txt, action: 'send' })
-          });
-          const out = await res.json().catch(() => ({}));
-          if (!res.ok || !out.ok) throw new Error('send failed');
-          messages.push({ id: 'tmp-' + Date.now(), time: new Date().toISOString(), phone: activePhone, sender: 'المالك', alert: '', text: txt, crm: '' });
-          $('msgInput').value = '';
-          render();
-          const area = $('chatArea'); area.scrollTop = area.scrollHeight;
-        } catch (e) {
-          alert('تعذر الإرسال. تأكد من الاتصال وحاول مرة أخرى.');
-        } finally {
-          btn.disabled = false; btn.textContent = 'إرسال';
-        }
+        var btn = $('sendBtn'); btn.disabled = true; btn.textContent = '…';
+        fetch(SEND_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ key: accessKey, phone: activePhone, text: txt, action: 'send' }) })
+          .then(function (r) { return r.json().catch(function () { return {}; }); })
+          .then(function (out) {
+            if (!out.ok) throw new Error('x');
+            messages.push({ id: 't' + Date.now(), time: new Date().toISOString(), phone: activePhone, sender: 'المالك', alert: '', text: txt, crm: '' });
+            t.value = ''; autoGrow(t); render(); var a = $('chatArea'); a.scrollTop = a.scrollHeight;
+          }).catch(function () { alert('تعذر الإرسال. تأكد من الاتصال وحاول مرة أخرى.'); })
+          .then(function () { btn.disabled = false; btn.textContent = 'إرسال'; });
       }
 
-      async function enter() {
-        const k = $('keyInput').value.trim();
+      function autoGrow(t) { t.style.height = '46px'; t.style.height = Math.min(t.scrollHeight, 140) + 'px'; }
+
+      function enter() {
+        var k = $('keyInput').value.trim();
         if (!k) { $('gateErr').textContent = 'أدخل مفتاح الوصول'; return; }
-        $('gateErr').textContent = 'جاري التحقق…';
-        accessKey = k;
-        try {
-          const data = await fetchFeed();
+        $('gateErr').textContent = 'جاري التحقق…'; accessKey = k;
+        fetchFeed().then(function (data) {
           if (!data.ok) throw new Error('unauthorized');
-          localStorage.setItem(KEY_STORE, k);
-          startApp(data);
-        } catch (e) {
-          accessKey = '';
-          $('gateErr').textContent = 'مفتاح غير صحيح ❌';
-        }
+          localStorage.setItem(KEY_STORE, k); startApp(data);
+        }).catch(function () { accessKey = ''; $('gateErr').textContent = 'مفتاح غير صحيح ❌'; });
       }
-
-      function startApp(initialData) {
-        $('gate').style.display = 'none';
-        $('app').classList.add('on');
-        if (initialData) { messages = initialData.messages || []; lastCount = initialData.count || 0; render(); }
-        poll();
-        pollTimer = setInterval(poll, POLL_MS);
+      function startApp(data) {
+        $('gate').style.display = 'none'; $('app').classList.add('on');
+        if (data) { messages = data.messages || []; lastCount = data.count || 0; render(); }
+        poll(); pollTimer = setInterval(poll, POLL_MS);
       }
-
-      function logout() {
-        localStorage.removeItem(KEY_STORE);
-        if (pollTimer) clearInterval(pollTimer);
-        location.reload();
-      }
+      function logout() { localStorage.removeItem(KEY_STORE); if (pollTimer) clearInterval(pollTimer); location.reload(); }
 
       $('enterBtn').onclick = enter;
-      $('keyInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') enter(); });
+      $('keyInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') enter(); });
       $('sendBtn').onclick = sendReply;
-      $('msgInput').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
-      });
+      $('suggestAr').onclick = function () { suggest('ar'); };
+      $('suggestEn').onclick = function () { suggest('en'); };
+      $('msgInput').addEventListener('input', function () { autoGrow(this); });
+      $('msgInput').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); } });
+      $('searchInput').addEventListener('input', function () { search = this.value; renderSidebar(); });
       $('logoutBtn').onclick = logout;
-      $('backBtn').onclick = () => document.getElementById('app').classList.remove('chat-open');
+      $('backBtn').onclick = function () { $('cols').classList.remove('chat-open'); activePhone = null; };
 
       if (accessKey) {
-        fetchFeed()
-          .then((d) => { if (d.ok) startApp(d); else logout(); })
-          .catch(() => { $('gate').style.display = 'flex'; localStorage.removeItem(KEY_STORE); accessKey = ''; });
+        fetchFeed().then(function (d) { if (d.ok) startApp(d); else logout(); })
+          .catch(function () { $('gate').style.display = 'flex'; localStorage.removeItem(KEY_STORE); accessKey = ''; });
       }
     </script>
   </body>
