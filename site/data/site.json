@@ -276,7 +276,9 @@
           "Chamber of Commerce membership",
           "Smart-agent support on WhatsApp"
         ],
-        "nameEn": "Start"
+        "nameEn": "Start",
+        "amount": 5000,
+        "price": "ابتداءً من 5,000 ﷼"
       },
       {
         "key": "operate",
@@ -301,7 +303,9 @@
           "Compliance follow-up and periodic obligations",
           "Priority in response and execution"
         ],
-        "nameEn": "Operate"
+        "nameEn": "Operate",
+        "amount": 10000,
+        "price": "ابتداءً من 10,000 ﷼"
       },
       {
         "key": "grow",
@@ -326,7 +330,9 @@
           "Feasibility studies and strategic support",
           "Dedicated account manager"
         ],
-        "nameEn": "Grow"
+        "nameEn": "Grow",
+        "amount": 15000,
+        "price": "ابتداءً من 15,000 ﷼"
       }
     ],
     "titleEn": "Packages",

@@ -126,6 +126,7 @@ function localizeLabel(l) {
   l = l || "";
   if (LANG === "ar") return l;
   return l
+    .replace("ابتداءً من", "From")
     .replace("يبدأ من", "From")
     .replace("نسبة من قيمة الصفقة", "% of deal value")
     .replace("نصف الراتب الشهري", "Half the monthly salary")
@@ -551,7 +552,7 @@ function buildHome() {
   const pkgCards = site.packages.tiers
     .map((t) => `<div class="pkg${t.highlight ? " pop" : ""}">
       <div class="pk-name">${L(t.nameEn || t.nameAr, t.nameAr)}</div>
-      ${t.price ? `<div class="pk-price">${esc(t.price)}</div>` : ""}
+      ${t.price ? `<div class="pk-price">${esc(localizeLabel(t.price))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       <ul>${t.features.slice(0, 4).map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
       <a class="btn ${t.highlight ? "btn-primary" : "btn-ghost"}" href="${u("/packages")}">${L("Package details", "تفاصيل الباقة")}</a>
@@ -854,7 +855,7 @@ function buildPackages() {
     .map(
       (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
       <div class="pk-name">${L(t.nameEn || t.name || t.nameAr, t.nameAr)}</div>
-      ${t.price ? `<div class="pk-price">${esc(t.price)}</div>` : ""}
+      ${t.price ? `<div class="pk-price">${esc(localizeLabel(t.price))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       <ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
