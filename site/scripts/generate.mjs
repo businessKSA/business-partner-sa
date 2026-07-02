@@ -2957,7 +2957,7 @@ function buildMonitor() {
               messages.push({ id: 't' + Date.now(), time: new Date().toISOString(), phone: activePhone, sender: 'المالك', alert: '', text: txt, crm: '' });
               t.value = ''; autoGrow(t); render(); var a = $('chatArea'); a.scrollTop = a.scrollHeight;
             } else if (out && out.error === 'whatsapp') {
-              alert('تعذّر الإرسال عبر واتساب ⚠️\n\nالسبب: توكن واتساب (WhatsApp Cloud API) منتهي الصلاحية أو غير صالح. هذا يوقف إرسال الوكيل الآلي وردودك معاً.\n\nالحل: حدّث توكن الوصول من Meta وضعه في n8n (اعتماد «WhatsApp account»). يفضّل توكن دائم (System User) حتى لا ينتهي.');
+              alert('تعذّر الإرسال عبر واتساب ⚠️ — توكن واتساب (WhatsApp Cloud API) منتهي الصلاحية أو غير صالح، وهذا يوقف إرسال الوكيل وردودك. الحل: حدّث التوكن في n8n (اعتماد «WhatsApp account»)، ويُفضّل توكن دائم من نوع System User.');
             } else { throw new Error('x'); }
           }).catch(function () { alert('تعذر الإرسال. تأكد من الاتصال وحاول مرة أخرى.'); })
           .then(function () { btn.disabled = false; btn.textContent = 'إرسال'; });
