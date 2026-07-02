@@ -1,0 +1,189 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>لوحة تحكم فريق الإيجنتس — Business Partner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --navy:#0B1B5A; --navy-700:#13246e; --navy-900:#081345;
+      --green:#16a34a; --green-soft:#dcfce7; --amber:#f59e0b;
+      --bg:#F5F6FA; --surface:#fff; --line:#E4E7F0; --text:#1F2430; --muted:#6a7085;
+      --radius:16px; --shadow:0 8px 30px rgba(11,27,90,.06);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    button{font-family:inherit;cursor:pointer}
+    .wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.1rem 4rem}
+    .topbar{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-900) 100%);color:#fff;border-radius:20px;padding:1.6rem 1.5rem;text-align:center;margin-bottom:1.4rem;box-shadow:var(--shadow)}
+    .topbar .badge{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:.3rem 1rem;font-size:.82rem;margin-bottom:.7rem}
+    .topbar h1{font-size:1.6rem;margin-bottom:.4rem}
+    .topbar p{opacity:.9;font-size:.95rem;max-width:760px;margin:0 auto}
+    .modes{display:inline-flex;flex-wrap:wrap;gap:.5rem;align-items:center;background:rgba(255,255,255,.1);border-radius:12px;padding:.45rem .8rem;font-size:.88rem;margin-top:1rem}
+    .modes label{cursor:pointer;display:inline-flex;gap:.35rem;align-items:center}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(345px,1fr));gap:1.15rem}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .card.locked{opacity:.5}
+    .card-top{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.85rem}
+    .emoji{font-size:1.9rem;line-height:1}
+    .title{flex:1}
+    .title h2{font-size:1.2rem;margin-bottom:.05rem;color:var(--navy)}
+    .title .en{color:var(--muted);font-size:.82rem;font-weight:400}
+    .title .role{color:var(--green);font-weight:600;font-size:.85rem}
+    .livebadge{font-size:.7rem;padding:.2rem .55rem;border-radius:999px;white-space:nowrap;font-weight:700;background:var(--green-soft);color:#065f46}
+    .controls{display:flex;gap:1rem;flex-wrap:wrap;padding:.6rem 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);margin-bottom:.8rem}
+    .toggle{display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem;cursor:pointer}
+    .chat{min-height:46px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;font-size:.9rem;margin-bottom:.55rem}
+    .msg{padding:.55rem .75rem;border-radius:12px;max-width:92%;white-space:pre-wrap;line-height:1.6}
+    .msg.me{background:var(--navy);color:#fff;align-self:flex-start;border-start-start-radius:3px}
+    .msg.bot{background:#f1f5f9;border:1px solid var(--line);align-self:flex-end;border-start-end-radius:3px}
+    .msg.sys{background:#fffbeb;border:1px solid #fde68a;color:#92400e;align-self:center;font-size:.8rem}
+    .inrow{display:flex;gap:.5rem}
+    .input{flex:1;border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;font:inherit;outline:none}
+    .input:focus{border-color:var(--navy)}
+    .send{background:var(--green);color:#fff;border:0;border-radius:10px;padding:0 1.1rem;font-weight:600}
+    .send:disabled{opacity:.5;cursor:not-allowed}
+    .hint{font-size:.75rem;color:var(--muted);min-height:1em;margin-top:.35rem}
+    .foot{margin-top:2.2rem;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:1rem 1.25rem;font-size:.86rem}
+    .foot .note{margin-top:.5rem;color:#78716c}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="badge">🔒 لوحة داخلية للمالك — تحكم واختبار كل موظف</div>
+      <h1>🎛️ لوحة تحكم فريق الإيجنتس</h1>
+      <p>كل موظف = إيجنت ذكي مستقل يعمل على Google Gemini (مجاني). جرّبه مباشرة هنا، وتحكم في <b>تشغيله/إيقافه</b> و<b>قفله حتى الدفع</b>. الإعدادات تُحفظ في هذا المتصفح.</p>
+      <div class="modes">
+        <span>وضع العرض:</span>
+        <label><input type="radio" name="mode" value="owner" checked /> 🧑‍💼 مالك (اختبار كل شيء)</label>
+        <label><input type="radio" name="mode" value="client" /> 👤 معاينة كعميل (يحترم القفل)</label>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="foot">
+      🔒 النموذج التشغيلي Concierge: الإيجنت يجهّز ويوصي — أي مخرج خارجي «بانتظار الموافقة» ولا يُرسل آلياً. لا OTP ولا كلمات مرور.
+      <div class="note">حالة «مدفوع/مُفعّل» محفوظة في متصفحك للتحكم والاختبار. ربط الدفع الفعلي (بوابة دفع + قاعدة بيانات) خطوة تالية لفرض القفل على العملاء الحقيقيين.</div>
+    </div>
+  </div>
+
+  <script>
+    var N8N_BASE = 'https://businesspartnerai.app.n8n.cloud/webhook';
+    var AGENTS = [
+      { slug:'mazen',     path:'mazen-intake',      name:'مازن',     en:'Mazen',     role:'العمليات وخدمة العملاء',  emoji:'🧭' },
+      { slug:'badr',      path:'badr-intake',       name:'بدر',      en:'Badr',      role:'المبيعات وتطوير الأعمال', emoji:'💼' },
+      { slug:'malak',     path:'malak-intake',      name:'ملاك',     en:'Malak',     role:'مساعِدة تنفيذية ذكية',    emoji:'🗂️' },
+      { slug:'ahmed',     path:'ahmed-procurement', name:'أحمد',     en:'Ahmed',     role:'المشتريات والتوريد',      emoji:'📦' },
+      { slug:'farah',     path:'farah-intake',      name:'فرح',      en:'Farah',     role:'التسويق والمحتوى',        emoji:'📣' },
+      { slug:'mohammed',  path:'mohammed-intake',   name:'محمد',     en:'Mohammed',  role:'تقنية المعلومات',         emoji:'💻' },
+      { slug:'abdulaziz', path:'abdulaziz-intake',  name:'عبدالعزيز',en:'Abdulaziz', role:'القانوني والامتثال',      emoji:'⚖️' }
+    ];
+
+    var KEY = 'bp_agent_controls_v1';
+    function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ return {}; } }
+    function save(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
+    var state = load();
+    var mode = 'owner';
+
+    var grid = document.getElementById('grid');
+    AGENTS.forEach(function(a){
+      var card = document.createElement('section');
+      card.className = 'card';
+      card.dataset.slug = a.slug;
+      card.innerHTML =
+        '<div class="card-top">'+
+          '<span class="emoji">'+a.emoji+'</span>'+
+          '<div class="title"><h2>'+a.name+' <span class="en">'+a.en+'</span></h2><div class="role">'+a.role+'</div></div>'+
+          '<span class="livebadge">🟢 حي · Gemini</span>'+
+        '</div>'+
+        '<div class="controls">'+
+          '<label class="toggle"><input type="checkbox" class="ctl-active" checked /> <span>مُفعّل</span></label>'+
+          '<label class="toggle"><input type="checkbox" class="ctl-paid" /> <span>مدفوع (مفتوح للعميل)</span></label>'+
+        '</div>'+
+        '<div class="chat" aria-live="polite"></div>'+
+        '<div class="inrow"><input type="text" class="input" placeholder="اكتب رسالة تجريبية…" /><button class="send" type="button">إرسال</button></div>'+
+        '<div class="hint"></div>';
+      grid.appendChild(card);
+
+      var active = card.querySelector('.ctl-active');
+      var paid = card.querySelector('.ctl-paid');
+      if (state[a.slug]) {
+        if (typeof state[a.slug].active === 'boolean') active.checked = state[a.slug].active;
+        if (typeof state[a.slug].paid === 'boolean') paid.checked = state[a.slug].paid;
+      }
+      function persist(patch){ state[a.slug] = Object.assign({}, state[a.slug], patch); save(state); }
+      active.addEventListener('change', function(){ persist({active:active.checked}); applyLock(card); });
+      paid.addEventListener('change', function(){ persist({paid:paid.checked}); applyLock(card); });
+      card.querySelector('.send').addEventListener('click', function(){ send(card, a); });
+      card.querySelector('.input').addEventListener('keydown', function(e){ if (e.key === 'Enter') send(card, a); });
+      applyLock(card);
+    });
+
+    function applyLock(card){
+      var paid = card.querySelector('.ctl-paid').checked;
+      var active = card.querySelector('.ctl-active').checked;
+      var blocked = mode === 'client' && (!paid || !active);
+      card.classList.toggle('locked', blocked);
+      card.querySelector('.send').disabled = blocked;
+      var hint = card.querySelector('.hint');
+      if (blocked) hint.textContent = !active ? 'موقوف — العميل لا يصله رد.' : '🔒 مقفول — يتطلب الدفع لتفعيله للعميل.';
+      else hint.textContent = '';
+    }
+
+    function pushMsg(card, text, cls){
+      var box = card.querySelector('.chat');
+      var el = document.createElement('div');
+      el.className = 'msg ' + cls;
+      el.textContent = text;
+      box.appendChild(el);
+      box.scrollTop = box.scrollHeight;
+      return el;
+    }
+
+    function send(card, a){
+      var input = card.querySelector('.input');
+      var msg = (input.value || '').trim();
+      if (!msg) return;
+      input.value = '';
+      pushMsg(card, msg, 'me');
+      var thinking = pushMsg(card, '…', 'bot');
+      var btn = card.querySelector('.send'); btn.disabled = true;
+      var ctrl = new AbortController();
+      var timer = setTimeout(function(){ ctrl.abort(); }, 60000);
+      fetch(N8N_BASE + '/' + a.path, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ client_name:'اختبار — لوحة التحكم', channel:'web-dashboard', message: msg }),
+        signal: ctrl.signal
+      })
+      .then(function(r){ return r.text(); })
+      .then(function(text){
+        clearTimeout(timer);
+        var data = {};
+        try { data = JSON.parse(text); } catch(e){ data = { reply: text }; }
+        thinking.textContent = data.reply || 'لا يوجد رد.';
+        if (data.proposal_ready) pushMsg(card, '✅ أنشأ Draft Proposal بحالة «بانتظار الموافقة».', 'sys');
+        if (data.engine_fallback) pushMsg(card, 'ℹ️ استُخدم الرد الاحتياطي (تعذّر المحرك مؤقتاً).', 'sys');
+      })
+      .catch(function(e){
+        clearTimeout(timer);
+        thinking.textContent = (e && e.name === 'AbortError') ? 'انتهت المهلة — حاول مرة أخرى.' : 'تعذّر الاتصال بالوكيل. تأكد أن الورك فلو مُفعّل في n8n.';
+      })
+      .then(function(){ btn.disabled = false; applyLock(card); });
+    }
+
+    var radios = document.querySelectorAll('input[name="mode"]');
+    for (var i=0;i<radios.length;i++){
+      radios[i].addEventListener('change', function(e){
+        mode = e.target.value;
+        var cards = document.querySelectorAll('.card');
+        for (var j=0;j<cards.length;j++) applyLock(cards[j]);
+      });
+    }
+  </script>
+</body>
+</html>
