@@ -11,11 +11,13 @@
   "whatsappChannel": "https://whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X",
   "bank": {
     "beneficiary": "شركة بيزنس بارتنر",
-    "bankName": "—",
-    "iban": "—",
-    "note": "تُرسل بيانات الحساب البنكي الكاملة في صفحة الدفع وفي رسالة التأكيد بعد إتمام الطلب. بعد التحويل، ارفع صورة الإيصال ليُعتمد طلبك.",
     "beneficiaryEn": "Business Partner Co.",
-    "noteEn": "Full bank account details are sent on the payment page and in the confirmation message after you place the order. After transferring, upload the receipt image so your order can be approved."
+    "bankName": "مصرف الراجحي",
+    "bankNameEn": "Al Rajhi Bank",
+    "iban": "SA5380000511608016228498",
+    "account": "511000010006086228498",
+    "note": "حوِّل الإجمالي إلى الحساب أعلاه ثم ارفع صورة الإيصال ليُعتمد طلبك. تصلك رسالة تأكيد فور المراجعة.",
+    "noteEn": "Transfer the total to the account above, then upload the receipt image so your order is approved. You will receive a confirmation once reviewed."
   },
   "contact": {
     "phone": "0503793356",

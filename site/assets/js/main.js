@@ -849,3 +849,66 @@ var BP = window.BP = window.BP || {};
       function (d, ref) { return "تسجيل مورّد " + ref + "\nالشركة: " + d.company + "\nالتصنيف: " + d.category; });
   });
 })();
+
+/* ---------- Copy buttons + online payment (auto-enabled when /api/pay has keys) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".copy-btn");
+    if (!b) return;
+    var text = b.getAttribute("data-copy") || "";
+    function done() { var t = b.textContent; b.textContent = BP.t("Copied ✓", "نُسخ ✓"); setTimeout(function () { b.textContent = t; }, 1600); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, done);
+    else { var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (err) {} ta.remove(); done(); }
+  });
+
+  var box = document.getElementById("epay-box"), mount = document.getElementById("epay-form");
+  if (!box || !mount) return;
+
+  // total incl. VAT; quote-only carts stay on bank transfer
+  var total = 0;
+  try { var c = (BP.cart && BP.cart.read()) || []; total = c.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) * 1.15; } catch (e2) {}
+
+  if (total > 0) {
+    fetch("/api/pay").then(function (r) { return r.json(); }).then(function (cfg) {
+      if (!cfg || !cfg.enabled) return;
+      var link = document.createElement("link"); link.rel = "stylesheet"; link.href = cfg.cssUrl; document.head.appendChild(link);
+      var s = document.createElement("script"); s.src = cfg.scriptUrl;
+      s.onload = function () {
+        try {
+          window.Moyasar.init({
+            element: "#epay-form",
+            amount: Math.round(total * 100),
+            currency: cfg.currency || "SAR",
+            description: "Business Partner order",
+            publishable_api_key: cfg.publishableKey,
+            callback_url: location.origin + location.pathname,
+            methods: ["creditcard"],
+          });
+          box.hidden = false;
+        } catch (e3) {}
+      };
+      document.head.appendChild(s);
+    }).catch(function () {});
+  }
+
+  // back from 3-D Secure: ?id=<payment_id> → verify server-side
+  var params = new URLSearchParams(location.search);
+  var payId = params.get("id");
+  if (payId) {
+    fetch("/api/pay", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: payId }) })
+      .then(function (r) { return r.json(); })
+      .then(function (v) {
+        var ok = v && v.ok;
+        var el = document.getElementById("checkout-success");
+        if (el) {
+          el.hidden = false;
+          el.textContent = ok
+            ? BP.t("Payment received ✓ — our team will start right away.", "تم استلام الدفعة ✓ — فريقنا يبدأ التنفيذ فوراً.")
+            : BP.t("Payment not completed — you can retry or use bank transfer.", "لم تكتمل الدفعة — يمكنك المحاولة مجدداً أو استخدام التحويل البنكي.");
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        if (ok && BP.cart) BP.cart.write([]);
+      }).catch(function () {});
+  }
+})();

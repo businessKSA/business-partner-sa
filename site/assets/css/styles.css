@@ -652,3 +652,11 @@ h3 { font-size: 1.12rem; }
 .stat .num { font-size: 2.1rem; }
 .pkg { padding: 24px; }
 .section-head p { font-size: 1rem; }
+
+/* ---------- Bank copy buttons + online payment ---------- */
+.bank-list li { flex-wrap: wrap; align-items: center; }
+.bank-list .v.mono { font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .5px; direction: ltr; unicode-bidi: embed; }
+.copy-btn { border: 1px solid var(--gray-line); background: var(--white); border-radius: 8px; padding: 3px 10px; font-size: .75rem; font-family: inherit; cursor: pointer; color: var(--navy); white-space: nowrap; }
+.copy-btn:hover { border-color: var(--navy); }
+#epay-box { border-color: var(--navy); }
+#epay-form { min-height: 40px; }
