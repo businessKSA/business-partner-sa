@@ -254,6 +254,7 @@ function footer() {
       ${fl("/news", "News", "الأخبار")}
       ${fl("/careers", "Careers", "الوظائف")}
       ${fl("/calculator", "Calculator", "الحاسبة")}
+      ${fl("/compliance-calculators", "Compliance calculators", "حاسبات الامتثال")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
       ${fl("/cart", "Cart", "السلة")}
       ${fl("/contact", "Contact", "اتصل بنا")}
@@ -826,6 +827,7 @@ function buildCalculator() {
     <span class="eyebrow">${L("Cost calculator", "حاسبة التكلفة")}</span>
     <h1>${L("Build your service basket and see the cost", "كوّن سلّة خدماتك واعرف التكلفة")}</h1>
     <p class="lead">${L("Pick services from the official catalog by category. The basket totals your one-time and monthly Business Partner fees instantly. Government fees (where applicable) are separate and announced before starting.", "اختر خدماتك حسب التصنيف من الكتالوج الرسمي. تتحدّث السلّة تلقائياً بإجمالي أتعاب بيزنس بارتنر لمرة واحدة والشهرية. الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.")}</p>
+    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/compliance-calculators")}">🟢 ${L("Nitaqat & government cost calculators →", "حاسبات النطاقات والتكاليف الحكومية ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">
     <div class="calc2" id="calc2">
@@ -851,6 +853,197 @@ function buildCalculator() {
   </div></section>
   <script>window.BP_CALC = ${JSON.stringify(groups)};window.BP_CALC_LANG = ${JSON.stringify(LANG)};</script>`;
   return page({ title: Lraw("Cost calculator — Business Partner", "حاسبة التكلفة — بيزنس بارتنر"), desc: Lraw("Build a basket of Business Partner services and see one-time and monthly fees from the official catalog.", "كوّن سلّة من خدمات بيزنس بارتنر واعرف الأتعاب لمرة واحدة والشهرية من الكتالوج الرسمي."), active: "/calculator", body });
+}
+
+function buildComplianceCalculators() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Free compliance tools", "أدوات امتثال مجانية")}</span>
+    <h1>${L("Nitaqat & government cost calculators", "حاسبات النطاقات والتكاليف الحكومية")}</h1>
+    <p class="lead">${L("Estimate your Saudization (Nitaqat) band and per-worker government costs (work permit, iqama, medical insurance, fines) in seconds — before committing to anything.", "احسب نطاق السعودة المتوقع لمنشأتك وتكاليف العمالة الحكومية لكل عامل (رخصة العمل، الإقامة، التأمين الطبي، الغرامات) خلال ثوانٍ — وقبل أي التزام.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:920px">
+    <div class="cc-tabs" role="tablist">
+      <button class="cc-tab active" data-tab="nitaqat" role="tab">🟢 ${L("Nitaqat calculator", "حاسبة النطاقات")}</button>
+      <button class="cc-tab" data-tab="fees" role="tab">💰 ${L("Cost calculator", "حاسبة التكاليف")}</button>
+    </div>
+
+    <div class="cc-panel active" id="cc-panel-nitaqat">
+      <div class="order-box">
+        <h3>${L("Saudization (Nitaqat) calculator", "حاسبة نطاقات السعودة")}</h3>
+        <p class="cc-sub">${L("Enter your headcount — establishment size and expected band are detected automatically.", "أدخل أعداد الموظفين — يتحدد حجم منشأتك ونطاقها المتوقع تلقائياً.")}</p>
+        <div class="cc-grid">
+          <div class="field"><label for="cc-total">${L("Total employees", "إجمالي الموظفين")}</label><input type="number" id="cc-total" min="1" value="25"></div>
+          <div class="field"><label for="cc-saudis">${L("Saudi employees", "عدد الموظفين السعوديين")}</label><input type="number" id="cc-saudis" min="0" value="3"></div>
+          <div class="field"><label for="cc-activity">${L("Activity (optional)", "النشاط (اختياري)")}</label><input type="text" id="cc-activity" placeholder="${Lraw("e.g. retail, contracting…", "مثال: تجارة تجزئة، مقاولات…")}"></div>
+        </div>
+        <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
+        <div class="cc-result" id="cc-nit-result" hidden>
+          <div class="cc-tiles">
+            <div class="cc-tile"><span>${L("Establishment size", "حجم المنشأة")}</span><strong id="cc-size">—</strong></div>
+            <div class="cc-tile"><span>${L("Saudization rate", "نسبة التوطين")}</span><strong id="cc-pct">—</strong></div>
+            <div class="cc-tile"><span>${L("Expected band", "النطاق المتوقع")}</span><strong id="cc-band">—</strong></div>
+          </div>
+          <div class="cc-advice" id="cc-advice"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cc-panel" id="cc-panel-fees">
+      <div class="order-box">
+        <h3>${L("Government cost calculator", "حاسبة التكاليف الحكومية")}</h3>
+        <p class="cc-sub">${L("Work permit (Qiwa) + iqama (Muqeem) + medical insurance + fines — per worker, quarterly and annually.", "رخصة العمل (قوى) + الإقامة (مقيم) + التأمين الطبي + الغرامات — لكل عامل، ربعياً وسنوياً.")}</p>
+        <div id="cc-rows"></div>
+        <button class="btn btn-ghost cc-btn-sm" id="cc-add">${L("+ Add another profession", "+ إضافة مهنة أخرى")}</button>
+        <p class="form-note">💡 ${L("New worker: 3 free months on first entry + a one-time medical exam.", "العامل الجديد: 3 أشهر مجانية عند أول دخول + فحص طبي لمرة واحدة.")}</p>
+        <details class="cc-rates"><summary>⚙️ ${L("Rate basis used (editable)", "الأسس السعرية المستخدمة (قابلة للتعديل)")}</summary>
+          <div class="cc-grid">
+            <div class="field"><label>${L("Work permit — annual", "رخصة العمل — سنوياً")}</label><input type="number" id="cc-rate-permit" value="9700"></div>
+            <div class="field"><label>${L("Iqama — annual", "الإقامة — سنوياً")}</label><input type="number" id="cc-rate-iqama" value="650"></div>
+            <div class="field"><label>${L("Medical insurance — annual", "التأمين الطبي — سنوياً")}</label><input type="number" id="cc-rate-medical" value="1000"></div>
+            <div class="field"><label>${L("Medical exam (new)", "الفحص الطبي (للجديد)")}</label><input type="number" id="cc-rate-exam" value="300"></div>
+          </div>
+        </details>
+        <button class="btn btn-primary" id="cc-fees-calc">${L("Calculate", "احسب")}</button>
+        <div class="cc-result" id="cc-fees-result" hidden>
+          <div class="cc-tiles">
+            <div class="cc-tile"><span>${L("Workers", "عدد العمّال")}</span><strong id="cc-workers">—</strong></div>
+            <div class="cc-tile"><span>${L("Quarterly total", "الإجمالي الربعي")}</span><strong id="cc-quarter">—</strong></div>
+            <div class="cc-tile"><span>${L("Annual total", "الإجمالي السنوي")}</span><strong id="cc-annual">—</strong></div>
+          </div>
+          <div class="cc-table-wrap"><table class="cc-table"><thead><tr>
+            <th>${L("Profession", "المهنة")}</th><th>${L("Status", "الحالة")}</th><th>${L("Count", "العدد")}</th>
+            <th>${L("Quarterly / worker", "ربعي / عامل")}</th><th>${L("Annual / worker", "سنوي / عامل")}</th>
+          </tr></thead><tbody id="cc-tbody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cc-disclaimer">⚖️ ${L("All figures and ratios are estimates for illustration only. Official bands depend on your activity and size in Qiwa; official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
+    <div class="order-box cc-cta">
+      <h3>${L("Want a verified calculation and full compliance monitoring?", "تبغى حساباً معتمداً ومتابعة كاملة لامتثال منشأتك؟")}</h3>
+      <div class="cc-cta-btns">
+        <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Talk to us on WhatsApp", "تواصل معنا واتساب")}</span></a>
+        <a class="btn btn-ghost" href="${u("/calculator")}">${L("Service fees calculator →", "حاسبة أتعاب الخدمات ←")}</a>
+      </div>
+    </div>
+  </div></section>
+  <style>
+    .cc-tabs{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+    .cc-tab{flex:1;min-width:200px;padding:14px 18px;border-radius:var(--radius);border:2px solid var(--gray-line);background:var(--gray-bg);font-family:inherit;font-size:1.02rem;font-weight:700;color:var(--text-soft);cursor:pointer;transition:all .18s ease}
+    .cc-tab.active{border-color:var(--navy);color:var(--navy);background:var(--white);box-shadow:var(--shadow-sm)}
+    .cc-panel{display:none}.cc-panel.active{display:block}
+    .cc-sub{color:var(--text-soft);margin-bottom:18px;font-size:.95rem}
+    .cc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+    .cc-result{margin-top:22px}
+    .cc-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+    .cc-tile{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:var(--radius);padding:14px;text-align:center}
+    .cc-tile span{display:block;font-size:.8rem;color:var(--text-soft);margin-bottom:5px}
+    .cc-tile strong{font-size:1.25rem;color:var(--navy)}
+    .cc-advice{border-radius:var(--radius);padding:13px 16px;font-weight:700}
+    .cc-advice.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
+    .cc-advice.danger{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
+    .cc-row{display:grid;grid-template-columns:2fr 1.6fr .8fr 1.6fr auto;gap:10px;align-items:end;padding:12px;border:1px dashed var(--gray-line);border-radius:var(--radius);margin-bottom:10px;background:var(--white)}
+    .cc-row .field{margin-bottom:0}
+    .cc-remove{border:0;background:#fdf1f1;color:#a02020;border-radius:10px;width:34px;height:44px;cursor:pointer;font-size:.9rem}
+    .cc-btn-sm{padding:8px 16px;font-size:.9rem;margin-bottom:8px}
+    .cc-rates{border:1px solid var(--gray-line);border-radius:var(--radius);padding:12px 16px;background:var(--gray-bg);margin:14px 0 18px}
+    .cc-rates summary{cursor:pointer;font-weight:700;color:var(--navy)}
+    .cc-rates .cc-grid{margin-top:14px}
+    .cc-table-wrap{overflow-x:auto;border:1px solid var(--gray-line);border-radius:var(--radius)}
+    .cc-table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--white)}
+    .cc-table th{background:var(--navy);color:var(--white);padding:10px 9px;text-align:start;font-weight:600}
+    .cc-table td{padding:10px 9px;border-bottom:1px solid var(--gray-line)}
+    .cc-fine{color:#a02020;font-size:.75rem;font-weight:700}
+    .cc-disclaimer{margin-top:20px;background:#fffbeb;border:1px solid #fde68a;color:#8a6d3b;border-radius:var(--radius);padding:14px 18px;font-size:.9rem;line-height:1.8}
+    .cc-cta{margin-top:20px;text-align:center}
+    .cc-cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+    @media(max-width:720px){.cc-row{grid-template-columns:1fr 1fr}.cc-remove{height:40px}}
+  </style>
+  <script>window.BP_CC_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var isAr = window.BP_CC_LANG === "ar";
+    var T = isAr ? {
+      bands:{red:"أحمر",low:"أخضر منخفض",mid:"أخضر متوسط",high:"أخضر مرتفع",platinum:"بلاتيني",exempt:"معفاة (1–5 موظفين)"},
+      sizes:{micro:"متناهية الصغر (1–5)",small:"صغيرة (6–49)",medium:"متوسطة (50–499)",large:"كبيرة (500–2999)",huge:"عملاقة (3000+)"},
+      ok:"منشأتك ضمن النطاق الآمن ✅",need:"تحتاج توظيف {n} سعودي للخروج من النطاق الأحمر",next:"توظيف {n} سعودي إضافي يرفعك إلى: {b}",top:"أنت في أعلى نطاق — حافظ عليه 👏",
+      prof:"المهنة",profPh:"مثال: عامل، فني، مهندس…",status:"الحالة",sExisting:"قائم (على رأس العمل)",sNew:"جديد (أول دخول)",count:"العدد",late:"تأخير تجديد الإقامة",lNone:"لا يوجد",lFirst:"المرة الأولى (+500)",lSecond:"المرة الثانية (+1,000)",remove:"حذف",sar:"﷼"
+    } : {
+      bands:{red:"Red",low:"Low Green",mid:"Mid Green",high:"High Green",platinum:"Platinum",exempt:"Exempt (1–5 employees)"},
+      sizes:{micro:"Micro (1–5)",small:"Small (6–49)",medium:"Medium (50–499)",large:"Large (500–2999)",huge:"Giant (3000+)"},
+      ok:"Your establishment is in the safe zone ✅",need:"You need {n} more Saudi hire(s) to exit the red band",next:"Hiring {n} more Saudi(s) moves you up to: {b}",top:"You are in the top band — keep it up 👏",
+      prof:"Profession",profPh:"e.g. laborer, technician…",status:"Status",sExisting:"Existing (on the job)",sNew:"New (first entry)",count:"Count",late:"Iqama renewal delay",lNone:"None",lFirst:"First time (+500)",lSecond:"Second time (+1,000)",remove:"Remove",sar:"SAR"
+    };
+    var fmt=function(n){return Math.round(n).toLocaleString(isAr?"ar-SA":"en-US");};
+    var $=function(id){return document.getElementById(id);};
+    document.querySelectorAll(".cc-tab").forEach(function(tab){tab.addEventListener("click",function(){
+      document.querySelectorAll(".cc-tab").forEach(function(x){x.classList.remove("active");});
+      document.querySelectorAll(".cc-panel").forEach(function(x){x.classList.remove("active");});
+      tab.classList.add("active");$("cc-panel-"+tab.dataset.tab).classList.add("active");});});
+    var CFG={micro:{exempt:true,low:0,mid:0,high:0,platinum:0},small:{exempt:false,low:7,mid:13,high:20,platinum:30},medium:{exempt:false,low:11,mid:18,high:25,platinum:35},large:{exempt:false,low:15,mid:22,high:30,platinum:40},huge:{exempt:false,low:18,mid:25,high:33,platinum:42}};
+    var sizeKey=function(n){return n<=5?"micro":n<=49?"small":n<=499?"medium":n<=2999?"large":"huge";};
+    var needFor=function(t,total,saudis){if(t<=0)return 0;var n=(t*total-100*saudis)/(100-t);return n>0?Math.ceil(n):0;};
+    $("cc-nit-calc").addEventListener("click",function(){
+      var total=Math.max(1,Number($("cc-total").value)||1);
+      var saudis=Math.min(total,Math.max(0,Number($("cc-saudis").value)||0));
+      var key=sizeKey(total),c=CFG[key],pct=saudis/total*100;
+      var band,color;
+      if(c.exempt){band=T.bands.exempt;color="#4a4f5e";}
+      else if(pct>=c.platinum){band=T.bands.platinum;color="#b45309";}
+      else if(pct>=c.high){band=T.bands.high;color="#14663a";}
+      else if(pct>=c.mid){band=T.bands.mid;color="#14663a";}
+      else if(pct>=c.low){band=T.bands.low;color="#1d8a4e";}
+      else{band=T.bands.red;color="#a02020";}
+      $("cc-size").textContent=T.sizes[key];
+      $("cc-pct").textContent=(Math.round(pct*10)/10)+"%";
+      var b=$("cc-band");b.textContent=band;b.style.color=color;
+      var adv=$("cc-advice");
+      if(c.exempt){adv.textContent=T.ok;adv.className="cc-advice ok";}
+      else if(pct<c.low){adv.textContent=T.need.replace("{n}",needFor(c.low,total,saudis));adv.className="cc-advice danger";}
+      else{var ladder=[[T.bands.mid,c.mid],[T.bands.high,c.high],[T.bands.platinum,c.platinum]],nx=null;
+        for(var i=0;i<ladder.length;i++){if(pct<ladder[i][1]){nx=ladder[i];break;}}
+        adv.textContent=T.ok+(nx?" — "+T.next.replace("{n}",needFor(nx[1],total,saudis)).replace("{b}",nx[0]):" — "+T.top);
+        adv.className="cc-advice ok";}
+      $("cc-nit-result").hidden=false;});
+    var FINES={none:0,first:500,second:1000};
+    function addRow(count){
+      var d=document.createElement("div");d.className="cc-row";
+      d.innerHTML='<div class="field"><label>'+T.prof+'</label><input type="text" class="cc-prof" placeholder="'+T.profPh+'"></div>'+
+        '<div class="field"><label>'+T.status+'</label><select class="cc-status"><option value="existing">'+T.sExisting+'</option><option value="new">'+T.sNew+'</option></select></div>'+
+        '<div class="field"><label>'+T.count+'</label><input type="number" class="cc-count" min="1" value="'+(count||1)+'"></div>'+
+        '<div class="field"><label>'+T.late+'</label><select class="cc-late"><option value="none">'+T.lNone+'</option><option value="first">'+T.lFirst+'</option><option value="second">'+T.lSecond+'</option></select></div>'+
+        '<button type="button" class="cc-remove" title="'+T.remove+'">✕</button>';
+      d.querySelector(".cc-remove").addEventListener("click",function(){if(document.querySelectorAll(".cc-row").length>1)d.remove();});
+      $("cc-rows").appendChild(d);}
+    addRow(5);
+    $("cc-add").addEventListener("click",function(){addRow();});
+    $("cc-fees-calc").addEventListener("click",function(){
+      var pA=Number($("cc-rate-permit").value)||0,iA=Number($("cc-rate-iqama").value)||0,mA=Number($("cc-rate-medical").value)||0,ex=Number($("cc-rate-exam").value)||0;
+      var pQ=pA/4,iQ=iA/4,mQ=mA/4,workers=0,tQ=0,tA=0,tb=$("cc-tbody");tb.innerHTML="";
+      document.querySelectorAll(".cc-row").forEach(function(row){
+        var prof=row.querySelector(".cc-prof").value||"—";
+        var isNew=row.querySelector(".cc-status").value==="new";
+        var count=Math.max(1,Number(row.querySelector(".cc-count").value)||1);
+        var fine=FINES[row.querySelector(".cc-late").value]||0;
+        var qPer=pQ+iQ+mQ+fine,aPer=pA+iA+mA+(isNew?ex:0);
+        workers+=count;tQ+=qPer*count;tA+=aPer*count;
+        var tr=document.createElement("tr");
+        tr.innerHTML="<td>"+prof.replace(/</g,"&lt;")+(fine?' <span class="cc-fine">+'+fmt(fine)+"</span>":"")+"</td><td>"+(isNew?T.sNew:T.sExisting)+"</td><td>"+count+"</td><td>"+fmt(qPer)+"</td><td>"+fmt(aPer)+"</td>";
+        tb.appendChild(tr);});
+      $("cc-workers").textContent=workers;
+      $("cc-quarter").textContent=fmt(tQ)+" "+T.sar;
+      $("cc-annual").textContent=fmt(tA)+" "+T.sar;
+      $("cc-fees-result").hidden=false;});
+  })();
+  </script>`;
+  return page({
+    title: Lraw("Nitaqat & government cost calculators — Business Partner", "حاسبات النطاقات والتكاليف الحكومية — بيزنس بارتنر"),
+    desc: Lraw("Estimate your Saudization (Nitaqat) band and per-worker government costs in seconds.", "احسب نطاق السعودة المتوقع وتكاليف العمالة الحكومية لكل عامل خلال ثوانٍ."),
+    active: "/calculator",
+    path: "/compliance-calculators",
+    body,
+  });
 }
 
 function buildTourism() {
@@ -1271,6 +1464,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}packages.html`, buildPackages());
   write(`${pre}calculator.html`, buildCalculator());
+  write(`${pre}compliance-calculators.html`, buildComplianceCalculators());
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
   write(`${pre}careers.html`, buildCareers());
@@ -1285,7 +1479,7 @@ LANG = "en";
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account"]
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])
