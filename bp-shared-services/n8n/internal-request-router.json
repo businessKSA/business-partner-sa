@@ -1,0 +1,388 @@
+{
+  "name": "BP Shared Services — Internal Request Router (02)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🤝 Internal Request Router — قسم 02\n\nطلب داخلي من أي قسم → تصنيف (SOP / Vendor / Document / Onboarding / GRO / HR / Admin) → رد مباشر أو توجيه أو تصعيد → تسجيل مهمة في قاعدة Tasks بنوشن.\n\n**قبل التشغيل:**\n1. اربط credential الخاص بـ Ollama في عقدة Ollama Chat Model (النية المعلنة: Ollama بدل OpenAI — تبديل الموديل = تبديل هذه العقدة فقط).\n2. استبدل REPLACE_WITH_TASKS_DATABASE_ID بمعرّف قاعدة Tasks في نوشن واربط credential نوشن.\n3. System Prompt الكامل في: bp-shared-services/prompts/shared-services-internal.md",
+        "height": 400,
+        "width": 460
+      },
+      "id": "sticky-overview",
+      "name": "Sticky Note — Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-560, -100]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-shared-services-internal",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-internal-in",
+      "name": "Internal Request In",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-40, 140]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "department",
+              "value": "={{ $json.body.department || 'غير محدد' }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "requester",
+              "value": "={{ $json.body.requester || 'غير محدد' }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "message",
+              "value": "={{ $json.body.message || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "client",
+              "value": "={{ $json.body.client || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "project",
+              "value": "={{ $json.body.project || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-normalize",
+      "name": "Normalize Request",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [180, 140]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=القسم الطالب: {{ $json.department }}\nمقدم الطلب: {{ $json.requester }}\nالعميل (إن وجد): {{ $json.client }}\nالمشروع (إن وجد): {{ $json.project }}\n\nالطلب:\n{{ $json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Shared Services Agent for Business Partner (persona: Khaled, Shared Services Manager, Department 02). You are the internal shared-services backbone serving every department, project, and client. Full charter: bp-shared-services/prompts/shared-services-internal.md — Concierge model: organize, standardize, route, prepare; never execute binding, financial, legal, or government actions.\n\nClassify each incoming internal request and decide how to handle it. Return ONLY the structured JSON.\n\nFields:\n- category: one of SOP | Template | Vendor | Document | Onboarding | GRO | HR | Admin | Workspace | Other (align with the Shared Services Catalog lines).\n- action: 'answer' if informational and covered by approved records; 'route' if a specialized agent must execute; 'escalate' if any Human Approval trigger applies (price/quotation/contract/invoice/payment, government platform action, payroll/GOSI/Mudad, official letter or signature, vendor commitment or PO, legal/tax/compliance decision, change to an approved SOP).\n- route_to: when action is 'route', one of GRO Agent | HR Agent | Company Setup Agent | Finance Agent | Real Estate Agent | Compliance Agent | Farah (Marketing) | Badr (Sales) | Malak (Admin/PA) | Mohammed (IT) | Ahmed (Procurement); otherwise empty string.\n- reply: the answer or handoff summary, in the requester's language (Arabic or English), simple and professional. Never commit prices, promise outcomes, or request passwords/OTP.\n- needs_human_approval: true when action is 'escalate'.\n- task_title: short Arabic title for the Tasks database log.\n- summary: one-line summary of the request and decision."
+        }
+      },
+      "id": "agent-classify",
+      "name": "Khalid — Classify & Handle",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [420, 140]
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:14b",
+        "options": {}
+      },
+      "id": "ollama-model-internal",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [360, 380]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"category\": \"Vendor\",\n  \"action\": \"route\",\n  \"route_to\": \"Ahmed (Procurement)\",\n  \"reply\": \"تم استلام طلب مقارنة الموردين وسيتم تجهيزها دون أي التزام سعري...\",\n  \"needs_human_approval\": false,\n  \"task_title\": \"مقارنة موردين — خدمة ترجمة\",\n  \"summary\": \"طلب من قسم المبيعات لمقارنة موردي ترجمة — وُجه للمشتريات\"\n}"
+      },
+      "id": "parser-internal",
+      "name": "Structured Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [560, 380]
+    },
+    {
+      "parameters": {
+        "content": "### عقدة الموديل\nOllama (self-hosted) حسب قرار باهر. للرجوع لأي مزود آخر: احذف هذه العقدة واربط أي Chat Model آخر بنفس منفذ ai_languageModel — بقية الـ workflow لا تتغير.",
+        "height": 180,
+        "width": 300
+      },
+      "id": "sticky-model",
+      "name": "Sticky Note — Model",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [300, 560]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_TASKS_DATABASE_ID"
+        },
+        "title": "={{ $json.output.task_title }}",
+        "options": {}
+      },
+      "id": "notion-log-task",
+      "name": "Log Task in Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [700, 320]
+    },
+    {
+      "parameters": {
+        "content": "### تسجيل المهمة\nيسجّل كل طلب في قاعدة Tasks بنوشن. بعد ربط الـ credential، أضف خصائص القاعدة (القسم، الحالة، التصنيف، الملخص) من propertiesUi حسب سكيما القاعدة الفعلية.",
+        "height": 180,
+        "width": 300
+      },
+      "id": "sticky-notion",
+      "name": "Sticky Note — Notion",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [700, 520]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c-answer",
+                    "leftValue": "={{ $json.output.action }}",
+                    "rightValue": "answer",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "answer"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c-route",
+                    "leftValue": "={{ $json.output.action }}",
+                    "rightValue": "route",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "route"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c-escalate",
+                    "leftValue": "={{ $json.output.action }}",
+                    "rightValue": "escalate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "escalate"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "switch-action",
+      "name": "Route by Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [700, 60]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'answered', category: $json.output.category, reply: $json.output.reply, task_title: $json.output.task_title }) }}",
+        "options": {}
+      },
+      "id": "respond-answer",
+      "name": "Respond — Answered",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [960, -120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'routed', category: $json.output.category, route_to: $json.output.route_to, reply: $json.output.reply, task_title: $json.output.task_title }) }}",
+        "options": {}
+      },
+      "id": "respond-route",
+      "name": "Respond — Routed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [960, 60]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'escalated_to_human_approval', category: $json.output.category, reply: $json.output.reply, task_title: $json.output.task_title }) }}",
+        "options": {}
+      },
+      "id": "respond-escalate",
+      "name": "Respond — Escalated",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [960, 240]
+    },
+    {
+      "parameters": {
+        "content": "### التوجيه لاحقاً\nحالياً branch «route» يرجع اسم الإيجنت المستهدف فقط. عند جهوز إيجنتات الفريق المتخصص (فرح/بدر/ملاك/محمد/أحمد) أضف عقد Execute Workflow بعد هذا الـ branch — نفس نمط subscriber-frontdoor.json.",
+        "height": 200,
+        "width": 300
+      },
+      "id": "sticky-routing",
+      "name": "Sticky Note — Routing",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1260, 40]
+    }
+  ],
+  "connections": {
+    "Internal Request In": {
+      "main": [
+        [
+          {
+            "node": "Normalize Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Request": {
+      "main": [
+        [
+          {
+            "node": "Khalid — Classify & Handle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Khalid — Classify & Handle": {
+      "main": [
+        [
+          {
+            "node": "Route by Action",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Task in Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Khalid — Classify & Handle",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Khalid — Classify & Handle",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Action": {
+      "main": [
+        [
+          {
+            "node": "Respond — Answered",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — Routed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — Escalated",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — Routed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
