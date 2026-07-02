@@ -13,12 +13,12 @@ type AgentDef = { path: string; live: boolean };
 
 const AGENTS: Record<string, AgentDef> = {
   badr: { path: 'badr-intake', live: true },
-  malak: { path: 'malak-intake', live: false },
-  ahmed: { path: 'ahmed-procurement', live: false },
-  farah: { path: 'farah-intake', live: false },
-  mohammed: { path: 'mohammed-intake', live: false },
-  abdulaziz: { path: 'abdulaziz-intake', live: false },
-  mazen: { path: 'mazen-intake', live: false },
+  malak: { path: 'malak-intake', live: true },
+  ahmed: { path: 'ahmed-procurement', live: true },
+  farah: { path: 'farah-intake', live: true },
+  mohammed: { path: 'mohammed-intake', live: true },
+  abdulaziz: { path: 'abdulaziz-intake', live: true },
+  mazen: { path: 'mazen-intake', live: true },
 };
 
 const json = (body: unknown, status = 200) =>

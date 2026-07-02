@@ -7,7 +7,7 @@ import '../styles/global.css';
 export const prerender = false;
 
 // نعرض كل الفريق. الوكلاء الأحياء في n8n (لهم ورك فلو منشور) قابلون للاختبار.
-const LIVE = new Set(['badr']);
+const LIVE = new Set(['badr', 'malak', 'ahmed', 'farah', 'mohammed', 'abdulaziz', 'mazen']);
 const cards = agents.map((a) => ({ ...a, live: LIVE.has(a.slug) }));
 ---
 
