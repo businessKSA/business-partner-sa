@@ -42,7 +42,7 @@ ${KNOWLEDGE}
 
 // Resolve the first non-empty env var from a list of candidate names.
 const envFrom = (names) => { for (const n of names) { if (process.env[n]) return process.env[n]; } return ""; };
-const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI"];
+const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
 const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
 const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
 const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
