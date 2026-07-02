@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>بوابة استقبال المرشحين | شريك الأعمال</title>
+  <meta name="description" content="سجّل بياناتك وقصتك المهنية أو أرفق سيرتك الذاتية، وسنبني ملفك الاحترافي في قاعدة مرشحينا." />
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --card: #ffffff;
+      --ink: #1e293b;
+      --muted: #6b7280;
+      --accent: #0f4c81;
+      --accent-2: #c2703d;
+      --ok-bg: #d1fae5; --ok-ink: #065f46; --ok-br: #a7f3d0;
+      --err-bg: #fee2e2; --err-ink: #991b1b; --err-br: #fecaca;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, 'Arabic UI Text', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    header { text-align: center; margin-bottom: 2rem; }
+    .brand { font-size: 1.05rem; font-weight: 700; color: var(--accent); letter-spacing: .3px; }
+    h1 { font-size: 1.8rem; margin: .75rem 0 .5rem; }
+    .lead { color: var(--muted); margin: 0 auto; max-width: 560px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      box-shadow: 0 4px 20px rgba(15,76,129,.06);
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+    .field { margin-bottom: 1.1rem; }
+    label { display: block; font-weight: 600; margin-bottom: .4rem; font-size: .95rem; }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="url"], textarea {
+      width: 100%;
+      padding: .7rem .85rem;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(15,76,129,.12); }
+    textarea { resize: vertical; min-height: 150px; }
+    .file-note { font-size: .82rem; color: var(--muted); margin-top: .35rem; }
+    .consent { display: flex; gap: .6rem; align-items: flex-start; margin: 1.2rem 0; }
+    .consent input { margin-top: .35rem; }
+    .consent label { font-weight: 400; margin: 0; font-size: .92rem; color: var(--muted); }
+    button {
+      width: 100%;
+      padding: .85rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+    }
+    button:hover { background: #0c3e69; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    #msg { display: none; margin-top: 1.1rem; padding: .9rem 1rem; border-radius: 10px; font-size: .95rem; }
+    #msg.ok { display: block; background: var(--ok-bg); color: var(--ok-ink); border: 1px solid var(--ok-br); }
+    #msg.err { display: block; background: var(--err-bg); color: var(--err-ink); border: 1px solid var(--err-br); }
+    #msg a { color: inherit; font-weight: 700; }
+    .footnote { text-align: center; color: var(--muted); font-size: .82rem; margin-top: 1.5rem; }
+    .req { color: var(--accent-2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">شريك الأعمال · Business Partner</div>
+      <h1>بوابة استقبال المرشحين</h1>
+      <p class="lead">
+        احكِ لنا قصتك المهنية بأسلوبك الحر — أو أرفق سيرتك الذاتية (PDF) — وسنبني ملفك الاحترافي
+        المنظّم ليبدأ فريقنا بالتقديم على الوظائف المناسبة نيابةً عنك.
+      </p>
+    </header>
+
+    <div class="card">
+      <form id="form">
+        <div class="row">
+          <div class="field">
+            <label for="name">الاسم الكامل <span class="req">*</span></label>
+            <input type="text" id="name" name="name" required />
+          </div>
+          <div class="field">
+            <label for="phone">رقم الجوال <span class="req">*</span></label>
+            <input type="tel" id="phone" name="phone" pattern="^(?:\+?966|0)?5\d{8}$" placeholder="05XXXXXXXX" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="email">البريد الإلكتروني <span class="req">*</span></label>
+            <input type="email" id="email" name="email" required />
+          </div>
+          <div class="field">
+            <label for="cities">المدن المفضلة</label>
+            <input type="text" id="cities" name="cities" placeholder="مثال: الرياض، جدة" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="salary">نطاق الراتب المتوقع</label>
+            <input type="text" id="salary" name="salary" placeholder="مثال: 8000 - 12000 ريال" />
+          </div>
+          <div class="field">
+            <label for="linkedin">رابط لينكدإن</label>
+            <input type="url" id="linkedin" name="linkedin" placeholder="https://www.linkedin.com/in/..." />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="story">قصتك المهنية <span class="req">*</span></label>
+          <textarea id="story" name="story"
+            placeholder="اكتب بحرية: أين عملت؟ ماذا أنجزت؟ ما مهاراتك؟ ما تعليمك؟ ما الوظائف التي تستهدفها؟ (يمكنك الاكتفاء بإرفاق السيرة أدناه)"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="cv">إرفاق السيرة الذاتية (PDF) — اختياري</label>
+          <input type="file" id="cv" name="cv" accept="application/pdf" />
+          <div class="file-note">يقرأها نظامنا مباشرة حتى لو كانت ممسوحة ضوئياً. الحد الأقصى ~4 ميجابايت. لا نطلب ولا نخزّن رقم الهوية.</div>
+        </div>
+
+        <div class="consent">
+          <input type="checkbox" id="consent" name="consent" required />
+          <label for="consent">
+            أوافق (وفق نظام حماية البيانات الشخصية PDPL) على قيام فريق شريك الأعمال ببناء ملفي المهني
+            والتقديم على الوظائف المناسبة نيابةً عني. <span class="req">*</span>
+          </label>
+        </div>
+
+        <button type="submit"><span class="btn-text">إرسال الطلب</span></button>
+        <div id="msg"></div>
+      </form>
+    </div>
+
+    <p class="footnote">لن يتم التقديم على أي وظيفة إلا بعد مراجعة بشرية وموافقتك. لا نختلق أي بيانات — نقوّي عرض خبراتك الحقيقية فقط.</p>
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+    const msg = document.getElementById('msg');
+    const cvInput = document.getElementById('cv');
+
+    function show(text, type) {
+      msg.className = type;
+      msg.innerHTML = text;
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(',')[1]); // إزالة بادئة data:
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector('button');
+      const btnText = btn.querySelector('.btn-text');
+      const original = btnText.textContent;
+
+      const story = document.getElementById('story').value.trim();
+      const file = cvInput.files[0];
+      if (!story && !file) {
+        show('يرجى كتابة قصتك المهنية أو إرفاق سيرة ذاتية.', 'err');
+        return;
+      }
+      if (file && file.size > 4.3 * 1024 * 1024) {
+        show('حجم ملف السيرة كبير جداً (الحد ~4 ميجابايت). يرجى ضغطه أو الاكتفاء بكتابة القصة.', 'err');
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.textContent = 'جاري الإرسال...';
+      show('', '');
+
+      try {
+        const payload = {
+          name: document.getElementById('name').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+          cities: document.getElementById('cities').value.trim(),
+          salary: document.getElementById('salary').value.trim(),
+          linkedin: document.getElementById('linkedin').value.trim(),
+          story: story,
+          consent: document.getElementById('consent').checked,
+          source: 'apply.businesspartner.sa',
+          timestamp: new Date().toISOString(),
+        };
+        if (file) {
+          payload.cv = { data: await fileToBase64(file), media_type: file.type || 'application/pdf', filename: file.name };
+        }
+
+        const resp = await fetch('/api/intake', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await resp.json().catch(() => ({}));
+
+        if (resp.ok && data.ok) {
+          show('تم استلام طلبك بنجاح! بنينا ملفك المهني وسنتواصل معك قريباً.', 'ok');
+          form.reset();
+        } else {
+          const detail = data && data.error ? data.error : ('HTTP ' + resp.status);
+          show('تعذّر إتمام الطلب: ' + detail, 'err');
+        }
+      } catch (err) {
+        show('حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى. (' + err.message + ')', 'err');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = original;
+      }
+    });
+  </script>
+</body>
+</html>
