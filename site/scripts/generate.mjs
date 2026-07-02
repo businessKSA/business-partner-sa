@@ -863,10 +863,27 @@ function buildComplianceCalculators() {
     <p class="lead">${L("Estimate your Saudization (Nitaqat) band and per-worker government costs (work permit, iqama, medical insurance, fines) in seconds — before committing to anything.", "احسب نطاق السعودة المتوقع لمنشأتك وتكاليف العمالة الحكومية لكل عامل (رخصة العمل، الإقامة، التأمين الطبي، الغرامات) خلال ثوانٍ — وقبل أي التزام.")}</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:920px">
+    <div class="cc-agent">
+      <div class="cc-agent-main">
+        <div class="cc-agent-title">${I.shield}<div><strong>${L("The Compliance Agent — working for you right now", "وكيل الامتثال — يعمل لأجلك الآن")}</strong><span class="cc-agent-live">● ${L("LIVE", "نشط")}</span></div></div>
+        <p>${L("An AI agent that monitors Qiwa, Muqeem, GOSI and Mudad daily: tracks every iqama, work permit and wage-protection deadline, classifies urgency (red ≤7 days · yellow ≤30), computes your Nitaqat band and estimated costs, and alerts you on WhatsApp and email before any violation — with human approval required before any government action.", "وكيل ذكاء اصطناعي يراقب قوى ومقيم والتأمينات ومدد يومياً: يتتبع كل إقامة ورخصة عمل ومهلة حماية أجور، يصنّف الخطورة (أحمر ≤ 7 أيام · أصفر ≤ 30)، يحسب نطاقك وتكاليفك التقديرية، وينبّهك واتساب وإيميل قبل أي مخالفة — وبموافقة بشرية قبل أي إجراء حكومي.")}</p>
+        <div class="cc-agent-feats">
+          <span>🛡️ ${L("Daily monitoring 07:00", "مراقبة يومية 07:00")}</span>
+          <span>🔴🟡 ${L("Early red/yellow alerts", "تنبيه مبكر أحمر/أصفر")}</span>
+          <span>📱 ${L("WhatsApp + email", "واتساب + إيميل")}</span>
+          <span>⚖️ ${L("Your approval before any action", "موافقتك قبل أي إجراء")}</span>
+        </div>
+      </div>
+      <div class="cc-agent-cta">
+        <a href="#" class="btn btn-primary cc-goto-upload">📤 ${L("Activate monitoring — upload your files", "فعّل المراقبة — ارفع ملفاتك")}</a>
+        <a class="btn btn-ghost" href="${u("/ai-agents")}">${L("About the AI agents →", "عن الوكلاء الأذكياء ←")}</a>
+      </div>
+    </div>
     <div class="cc-tabs" role="tablist">
       <button class="cc-tab active" data-tab="nitaqat" role="tab">🟢 ${L("Nitaqat calculator", "حاسبة النطاقات")}</button>
       <button class="cc-tab" data-tab="fees" role="tab">💰 ${L("Cost calculator", "حاسبة التكاليف")}</button>
       <button class="cc-tab" data-tab="prof" role="tab">🧑‍💼 ${L("Profession checker", "فاحص المهن")}</button>
+      <button class="cc-tab" data-tab="upload" role="tab">📤 ${L("Upload your files", "ارفع ملفاتك")}</button>
     </div>
 
     <div class="cc-panel active" id="cc-panel-nitaqat">
@@ -879,6 +896,7 @@ function buildComplianceCalculators() {
           <div class="field"><label for="cc-activity">${L("Activity (optional)", "النشاط (اختياري)")}</label><input type="text" id="cc-activity" placeholder="${Lraw("e.g. retail, contracting…", "مثال: تجارة تجزئة، مقاولات…")}"></div>
         </div>
         <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
+        <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="#" class="cc-goto-upload">${L("Upload your GOSI/Qiwa/Muqeem file and we'll extract them →", "ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←")}</a></p>
         <div class="cc-result" id="cc-nit-result" hidden>
           <div class="cc-tiles">
             <div class="cc-tile"><span>${L("Establishment size", "حجم المنشأة")}</span><strong id="cc-size">—</strong></div>
@@ -928,6 +946,53 @@ function buildComplianceCalculators() {
         <div class="field"><label for="cc-prof-q">${L("Profession or sector", "المهنة أو القطاع")}</label><input type="text" id="cc-prof-q" placeholder="${Lraw("e.g. accountant, secretary, engineer, dentist…", "مثال: محاسب، سكرتير، مهندس، طبيب أسنان…")}"></div>
         <div class="cc-prof-chips" id="cc-prof-chips"></div>
         <div id="cc-prof-results"></div>
+      </div>
+    </div>
+
+    <div class="cc-panel" id="cc-panel-upload">
+      <div class="order-box">
+        <h3>${L("Let the agent read your official files", "خلّ الوكيل يقرأ ملفاتك الرسمية")}</h3>
+        <p class="cc-sub">${L("Don't know your exact headcounts? Export one report from your government platforms and upload it — our AI agent extracts your employees (Saudis vs. expats, salaries, professions, iqama numbers), fills the calculators for you, and your dedicated file is updated automatically.", "ما تعرف أعدادك بدقة؟ صدّر تقريراً واحداً من منصاتك الحكومية وارفعه — الوكيل الذكي يستخرج موظفيك (سعوديون/وافدون، الرواتب، المهن، أرقام الإقامات)، يعبّي الحاسبات عنك، ويحدَّث ملفك الخاص تلقائياً.")}</p>
+
+        <div class="cc-src-grid">
+          <div class="cc-src cc-src-best">
+            <div class="cc-src-head">🏦 ${L("GOSI (recommended — most accurate)", "التأمينات الاجتماعية GOSI (الأدق — موصى به)")}</div>
+            <ul>
+              <li>${L("Counts Saudis AND expats", "يحصر السعوديين والأجانب معاً")}</li>
+              <li>${L("Salaries + professions", "الرواتب + المهن")}</li>
+              <li>${L("National ID / iqama / border numbers", "أرقام الهوية والإقامة وأرقام الحدود")}</li>
+            </ul>
+            <div class="cc-src-how">${L("How: gosi.gov.sa → Establishment → Contributors report → Export Excel/PDF", "الطريقة: gosi.gov.sa ← حساب المنشأة ← تقرير المشتركين ← تصدير Excel أو PDF")}</div>
+          </div>
+          <div class="cc-src">
+            <div class="cc-src-head">💼 ${L("Qiwa / Labor Office", "قوى / مكتب العمل")}</div>
+            <ul>
+              <li>${L("Expats and Saudis", "الأجانب والسعوديون")}</li>
+              <li>${L("Establishment name & details", "اسم المنشأة وبياناتها")}</li>
+            </ul>
+            <div class="cc-src-how">${L("How: qiwa.sa → Employees → Export employee list (Excel)", "الطريقة: qiwa.sa ← الموظفون ← تصدير كشف الموظفين (Excel)")}</div>
+          </div>
+          <div class="cc-src">
+            <div class="cc-src-head">🪪 ${L("Muqeem", "مقيم")}</div>
+            <ul>
+              <li>${L("Resident (expat) data only", "بيانات المقيمين (الوافدين) فقط")}</li>
+              <li>${L("Iqama expiry dates & border numbers", "تواريخ انتهاء الإقامات وأرقام الحدود")}</li>
+            </ul>
+            <div class="cc-src-how">${L("How: muqeem.sa → Reports → Active residents → Export Excel/PDF", "الطريقة: muqeem.sa ← التقارير ← المقيمون النشطون ← تصدير Excel أو PDF")}</div>
+          </div>
+        </div>
+
+        <div class="cc-upload-steps">
+          <span>1️⃣ ${L("Export the report", "صدّر التقرير")}</span>
+          <span>2️⃣ ${L("Upload it in the secure form", "ارفعه في النموذج الآمن")}</span>
+          <span>3️⃣ ${L("The agent analyzes & your file is created", "الوكيل يحلل ويُنشأ ملفك")}</span>
+          <span>4️⃣ ${L("We follow up on WhatsApp & email", "نتابع معك واتساب وإيميل")}</span>
+        </div>
+
+        <div class="cc-upload-cta">
+          <a class="btn btn-primary btn-lg" href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">📤 ${L("Upload your files now (Excel / PDF)", "ارفع ملفاتك الآن (Excel / PDF)")}</a>
+          <p class="form-note">🔒 ${L("Files are stored in your private client folder and used only for compliance analysis. Concierge model: no government action is ever taken without your approval.", "تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. نموذج Concierge: لا يُنفَّذ أي إجراء حكومي دون موافقتك.")}</p>
+        </div>
       </div>
     </div>
     <div class="cc-disclaimer">⚖️ ${L("All figures and ratios are estimates for illustration only. Official bands depend on your activity and size in Qiwa; official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
@@ -986,6 +1051,28 @@ function buildComplianceCalculators() {
     .cc-dec-note{margin-top:8px;font-size:.8rem;color:#9a6a08;background:#fffbeb;border-radius:8px;padding:6px 10px}
     .cc-prof-empty{color:var(--text-soft);font-size:.9rem;padding:10px 0}
     mark.cc-hit{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 2px}
+    .cc-src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:6px 0 18px}
+    .cc-src{border:1px solid var(--gray-line);border-radius:var(--radius);padding:16px;background:var(--white)}
+    .cc-src-best{border-color:var(--navy);box-shadow:var(--shadow-sm)}
+    .cc-src-head{font-weight:700;color:var(--navy);margin-bottom:10px}
+    .cc-src ul{margin:0 0 10px;padding-inline-start:18px;font-size:.88rem;line-height:1.9}
+    .cc-src-how{font-size:.78rem;color:var(--text-soft);background:var(--gray-bg);border-radius:8px;padding:7px 10px}
+    .cc-upload-steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+    .cc-upload-steps span{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:999px;padding:6px 14px;font-size:.83rem;font-weight:600;color:var(--navy)}
+    .cc-upload-cta{text-align:center}
+    .cc-agent{display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--navy);color:var(--white);border-radius:var(--radius-lg);padding:24px 26px;margin-bottom:24px}
+    .cc-agent-main{flex:1;min-width:280px}
+    .cc-agent-title{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .cc-agent-title svg{width:34px;height:34px;flex-shrink:0}
+    .cc-agent-title strong{font-size:1.15rem;display:block}
+    .cc-agent-live{font-size:.72rem;font-weight:700;color:#7ef2a7;letter-spacing:1px}
+    .cc-agent p{font-size:.92rem;line-height:1.9;opacity:.92;margin-bottom:12px}
+    .cc-agent-feats{display:flex;flex-wrap:wrap;gap:8px}
+    .cc-agent-feats span{background:rgba(255,255,255,.12);border-radius:999px;padding:5px 13px;font-size:.8rem;font-weight:600}
+    .cc-agent-cta{display:flex;flex-direction:column;gap:10px;min-width:230px}
+    .cc-agent-cta .btn-primary{background:var(--white);color:var(--navy)}
+    .cc-agent-cta .btn-ghost{border-color:rgba(255,255,255,.5);color:var(--white)}
+    .cc-agent-cta .btn-ghost:hover{background:var(--white);color:var(--navy)}
   </style>
   <script>window.BP_CC_LANG=${JSON.stringify(LANG)};</script>
   <script>
@@ -1080,6 +1167,7 @@ function buildComplianceCalculators() {
     var allBtn=document.createElement("button");allBtn.type="button";allBtn.className="cc-chip";allBtn.textContent="📋 "+PT.all;allBtn.addEventListener("click",function(){$("cc-prof-q").value="";renderProf("*");});chipBox.appendChild(allBtn);
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
+    document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();window.scrollTo({top:0,behavior:"smooth"});});});
   })();
   </script>`;
   return page({

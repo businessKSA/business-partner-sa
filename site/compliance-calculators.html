@@ -38,10 +38,27 @@
     <p class="lead">Estimate your Saudization (Nitaqat) band and per-worker government costs (work permit, iqama, medical insurance, fines) in seconds — before committing to anything.</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:920px">
+    <div class="cc-agent">
+      <div class="cc-agent-main">
+        <div class="cc-agent-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg><div><strong>The Compliance Agent — working for you right now</strong><span class="cc-agent-live">● LIVE</span></div></div>
+        <p>An AI agent that monitors Qiwa, Muqeem, GOSI and Mudad daily: tracks every iqama, work permit and wage-protection deadline, classifies urgency (red ≤7 days · yellow ≤30), computes your Nitaqat band and estimated costs, and alerts you on WhatsApp and email before any violation — with human approval required before any government action.</p>
+        <div class="cc-agent-feats">
+          <span>🛡️ Daily monitoring 07:00</span>
+          <span>🔴🟡 Early red/yellow alerts</span>
+          <span>📱 WhatsApp + email</span>
+          <span>⚖️ Your approval before any action</span>
+        </div>
+      </div>
+      <div class="cc-agent-cta">
+        <a href="#" class="btn btn-primary cc-goto-upload">📤 Activate monitoring — upload your files</a>
+        <a class="btn btn-ghost" href="/ai-agents">About the AI agents →</a>
+      </div>
+    </div>
     <div class="cc-tabs" role="tablist">
       <button class="cc-tab active" data-tab="nitaqat" role="tab">🟢 Nitaqat calculator</button>
       <button class="cc-tab" data-tab="fees" role="tab">💰 Cost calculator</button>
       <button class="cc-tab" data-tab="prof" role="tab">🧑‍💼 Profession checker</button>
+      <button class="cc-tab" data-tab="upload" role="tab">📤 Upload your files</button>
     </div>
 
     <div class="cc-panel active" id="cc-panel-nitaqat">
@@ -54,6 +71,7 @@
           <div class="field"><label for="cc-activity">Activity (optional)</label><input type="text" id="cc-activity" placeholder="e.g. retail, contracting…"></div>
         </div>
         <button class="btn btn-primary" id="cc-nit-calc">Calculate</button>
+        <p class="form-note">💡 Don't know your exact numbers? <a href="#" class="cc-goto-upload">Upload your GOSI/Qiwa/Muqeem file and we'll extract them →</a></p>
         <div class="cc-result" id="cc-nit-result" hidden>
           <div class="cc-tiles">
             <div class="cc-tile"><span>Establishment size</span><strong id="cc-size">—</strong></div>
@@ -103,6 +121,53 @@
         <div class="field"><label for="cc-prof-q">Profession or sector</label><input type="text" id="cc-prof-q" placeholder="e.g. accountant, secretary, engineer, dentist…"></div>
         <div class="cc-prof-chips" id="cc-prof-chips"></div>
         <div id="cc-prof-results"></div>
+      </div>
+    </div>
+
+    <div class="cc-panel" id="cc-panel-upload">
+      <div class="order-box">
+        <h3>Let the agent read your official files</h3>
+        <p class="cc-sub">Don't know your exact headcounts? Export one report from your government platforms and upload it — our AI agent extracts your employees (Saudis vs. expats, salaries, professions, iqama numbers), fills the calculators for you, and your dedicated file is updated automatically.</p>
+
+        <div class="cc-src-grid">
+          <div class="cc-src cc-src-best">
+            <div class="cc-src-head">🏦 GOSI (recommended — most accurate)</div>
+            <ul>
+              <li>Counts Saudis AND expats</li>
+              <li>Salaries + professions</li>
+              <li>National ID / iqama / border numbers</li>
+            </ul>
+            <div class="cc-src-how">How: gosi.gov.sa → Establishment → Contributors report → Export Excel/PDF</div>
+          </div>
+          <div class="cc-src">
+            <div class="cc-src-head">💼 Qiwa / Labor Office</div>
+            <ul>
+              <li>Expats and Saudis</li>
+              <li>Establishment name &amp; details</li>
+            </ul>
+            <div class="cc-src-how">How: qiwa.sa → Employees → Export employee list (Excel)</div>
+          </div>
+          <div class="cc-src">
+            <div class="cc-src-head">🪪 Muqeem</div>
+            <ul>
+              <li>Resident (expat) data only</li>
+              <li>Iqama expiry dates &amp; border numbers</li>
+            </ul>
+            <div class="cc-src-how">How: muqeem.sa → Reports → Active residents → Export Excel/PDF</div>
+          </div>
+        </div>
+
+        <div class="cc-upload-steps">
+          <span>1️⃣ Export the report</span>
+          <span>2️⃣ Upload it in the secure form</span>
+          <span>3️⃣ The agent analyzes &amp; your file is created</span>
+          <span>4️⃣ We follow up on WhatsApp &amp; email</span>
+        </div>
+
+        <div class="cc-upload-cta">
+          <a class="btn btn-primary btn-lg" href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">📤 Upload your files now (Excel / PDF)</a>
+          <p class="form-note">🔒 Files are stored in your private client folder and used only for compliance analysis. Concierge model: no government action is ever taken without your approval.</p>
+        </div>
       </div>
     </div>
     <div class="cc-disclaimer">⚖️ All figures and ratios are estimates for illustration only. Official bands depend on your activity and size in Qiwa; official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.</div>
@@ -161,6 +226,28 @@
     .cc-dec-note{margin-top:8px;font-size:.8rem;color:#9a6a08;background:#fffbeb;border-radius:8px;padding:6px 10px}
     .cc-prof-empty{color:var(--text-soft);font-size:.9rem;padding:10px 0}
     mark.cc-hit{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 2px}
+    .cc-src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:6px 0 18px}
+    .cc-src{border:1px solid var(--gray-line);border-radius:var(--radius);padding:16px;background:var(--white)}
+    .cc-src-best{border-color:var(--navy);box-shadow:var(--shadow-sm)}
+    .cc-src-head{font-weight:700;color:var(--navy);margin-bottom:10px}
+    .cc-src ul{margin:0 0 10px;padding-inline-start:18px;font-size:.88rem;line-height:1.9}
+    .cc-src-how{font-size:.78rem;color:var(--text-soft);background:var(--gray-bg);border-radius:8px;padding:7px 10px}
+    .cc-upload-steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+    .cc-upload-steps span{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:999px;padding:6px 14px;font-size:.83rem;font-weight:600;color:var(--navy)}
+    .cc-upload-cta{text-align:center}
+    .cc-agent{display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--navy);color:var(--white);border-radius:var(--radius-lg);padding:24px 26px;margin-bottom:24px}
+    .cc-agent-main{flex:1;min-width:280px}
+    .cc-agent-title{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .cc-agent-title svg{width:34px;height:34px;flex-shrink:0}
+    .cc-agent-title strong{font-size:1.15rem;display:block}
+    .cc-agent-live{font-size:.72rem;font-weight:700;color:#7ef2a7;letter-spacing:1px}
+    .cc-agent p{font-size:.92rem;line-height:1.9;opacity:.92;margin-bottom:12px}
+    .cc-agent-feats{display:flex;flex-wrap:wrap;gap:8px}
+    .cc-agent-feats span{background:rgba(255,255,255,.12);border-radius:999px;padding:5px 13px;font-size:.8rem;font-weight:600}
+    .cc-agent-cta{display:flex;flex-direction:column;gap:10px;min-width:230px}
+    .cc-agent-cta .btn-primary{background:var(--white);color:var(--navy)}
+    .cc-agent-cta .btn-ghost{border-color:rgba(255,255,255,.5);color:var(--white)}
+    .cc-agent-cta .btn-ghost:hover{background:var(--white);color:var(--navy)}
   </style>
   <script>window.BP_CC_LANG="en";</script>
   <script>
@@ -255,6 +342,7 @@
     var allBtn=document.createElement("button");allBtn.type="button";allBtn.className="cc-chip";allBtn.textContent="📋 "+PT.all;allBtn.addEventListener("click",function(){$("cc-prof-q").value="";renderProf("*");});chipBox.appendChild(allBtn);
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
+    document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();window.scrollTo({top:0,behavior:"smooth"});});});
   })();
   </script></main><footer class="site-footer"><div class="container">
   <div class="footer-grid">

@@ -38,10 +38,27 @@
     <p class="lead">احسب نطاق السعودة المتوقع لمنشأتك وتكاليف العمالة الحكومية لكل عامل (رخصة العمل، الإقامة، التأمين الطبي، الغرامات) خلال ثوانٍ — وقبل أي التزام.</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:920px">
+    <div class="cc-agent">
+      <div class="cc-agent-main">
+        <div class="cc-agent-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg><div><strong>وكيل الامتثال — يعمل لأجلك الآن</strong><span class="cc-agent-live">● نشط</span></div></div>
+        <p>وكيل ذكاء اصطناعي يراقب قوى ومقيم والتأمينات ومدد يومياً: يتتبع كل إقامة ورخصة عمل ومهلة حماية أجور، يصنّف الخطورة (أحمر ≤ 7 أيام · أصفر ≤ 30)، يحسب نطاقك وتكاليفك التقديرية، وينبّهك واتساب وإيميل قبل أي مخالفة — وبموافقة بشرية قبل أي إجراء حكومي.</p>
+        <div class="cc-agent-feats">
+          <span>🛡️ مراقبة يومية 07:00</span>
+          <span>🔴🟡 تنبيه مبكر أحمر/أصفر</span>
+          <span>📱 واتساب + إيميل</span>
+          <span>⚖️ موافقتك قبل أي إجراء</span>
+        </div>
+      </div>
+      <div class="cc-agent-cta">
+        <a href="#" class="btn btn-primary cc-goto-upload">📤 فعّل المراقبة — ارفع ملفاتك</a>
+        <a class="btn btn-ghost" href="/ar/ai-agents">عن الوكلاء الأذكياء ←</a>
+      </div>
+    </div>
     <div class="cc-tabs" role="tablist">
       <button class="cc-tab active" data-tab="nitaqat" role="tab">🟢 حاسبة النطاقات</button>
       <button class="cc-tab" data-tab="fees" role="tab">💰 حاسبة التكاليف</button>
       <button class="cc-tab" data-tab="prof" role="tab">🧑‍💼 فاحص المهن</button>
+      <button class="cc-tab" data-tab="upload" role="tab">📤 ارفع ملفاتك</button>
     </div>
 
     <div class="cc-panel active" id="cc-panel-nitaqat">
@@ -54,6 +71,7 @@
           <div class="field"><label for="cc-activity">النشاط (اختياري)</label><input type="text" id="cc-activity" placeholder="مثال: تجارة تجزئة، مقاولات…"></div>
         </div>
         <button class="btn btn-primary" id="cc-nit-calc">احسب</button>
+        <p class="form-note">💡 ما تعرف أعدادك بدقة؟ <a href="#" class="cc-goto-upload">ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←</a></p>
         <div class="cc-result" id="cc-nit-result" hidden>
           <div class="cc-tiles">
             <div class="cc-tile"><span>حجم المنشأة</span><strong id="cc-size">—</strong></div>
@@ -103,6 +121,53 @@
         <div class="field"><label for="cc-prof-q">المهنة أو القطاع</label><input type="text" id="cc-prof-q" placeholder="مثال: محاسب، سكرتير، مهندس، طبيب أسنان…"></div>
         <div class="cc-prof-chips" id="cc-prof-chips"></div>
         <div id="cc-prof-results"></div>
+      </div>
+    </div>
+
+    <div class="cc-panel" id="cc-panel-upload">
+      <div class="order-box">
+        <h3>خلّ الوكيل يقرأ ملفاتك الرسمية</h3>
+        <p class="cc-sub">ما تعرف أعدادك بدقة؟ صدّر تقريراً واحداً من منصاتك الحكومية وارفعه — الوكيل الذكي يستخرج موظفيك (سعوديون/وافدون، الرواتب، المهن، أرقام الإقامات)، يعبّي الحاسبات عنك، ويحدَّث ملفك الخاص تلقائياً.</p>
+
+        <div class="cc-src-grid">
+          <div class="cc-src cc-src-best">
+            <div class="cc-src-head">🏦 التأمينات الاجتماعية GOSI (الأدق — موصى به)</div>
+            <ul>
+              <li>يحصر السعوديين والأجانب معاً</li>
+              <li>الرواتب + المهن</li>
+              <li>أرقام الهوية والإقامة وأرقام الحدود</li>
+            </ul>
+            <div class="cc-src-how">الطريقة: gosi.gov.sa ← حساب المنشأة ← تقرير المشتركين ← تصدير Excel أو PDF</div>
+          </div>
+          <div class="cc-src">
+            <div class="cc-src-head">💼 قوى / مكتب العمل</div>
+            <ul>
+              <li>الأجانب والسعوديون</li>
+              <li>اسم المنشأة وبياناتها</li>
+            </ul>
+            <div class="cc-src-how">الطريقة: qiwa.sa ← الموظفون ← تصدير كشف الموظفين (Excel)</div>
+          </div>
+          <div class="cc-src">
+            <div class="cc-src-head">🪪 مقيم</div>
+            <ul>
+              <li>بيانات المقيمين (الوافدين) فقط</li>
+              <li>تواريخ انتهاء الإقامات وأرقام الحدود</li>
+            </ul>
+            <div class="cc-src-how">الطريقة: muqeem.sa ← التقارير ← المقيمون النشطون ← تصدير Excel أو PDF</div>
+          </div>
+        </div>
+
+        <div class="cc-upload-steps">
+          <span>1️⃣ صدّر التقرير</span>
+          <span>2️⃣ ارفعه في النموذج الآمن</span>
+          <span>3️⃣ الوكيل يحلل ويُنشأ ملفك</span>
+          <span>4️⃣ نتابع معك واتساب وإيميل</span>
+        </div>
+
+        <div class="cc-upload-cta">
+          <a class="btn btn-primary btn-lg" href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">📤 ارفع ملفاتك الآن (Excel / PDF)</a>
+          <p class="form-note">🔒 تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. نموذج Concierge: لا يُنفَّذ أي إجراء حكومي دون موافقتك.</p>
+        </div>
       </div>
     </div>
     <div class="cc-disclaimer">⚖️ الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.</div>
@@ -161,6 +226,28 @@
     .cc-dec-note{margin-top:8px;font-size:.8rem;color:#9a6a08;background:#fffbeb;border-radius:8px;padding:6px 10px}
     .cc-prof-empty{color:var(--text-soft);font-size:.9rem;padding:10px 0}
     mark.cc-hit{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 2px}
+    .cc-src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:6px 0 18px}
+    .cc-src{border:1px solid var(--gray-line);border-radius:var(--radius);padding:16px;background:var(--white)}
+    .cc-src-best{border-color:var(--navy);box-shadow:var(--shadow-sm)}
+    .cc-src-head{font-weight:700;color:var(--navy);margin-bottom:10px}
+    .cc-src ul{margin:0 0 10px;padding-inline-start:18px;font-size:.88rem;line-height:1.9}
+    .cc-src-how{font-size:.78rem;color:var(--text-soft);background:var(--gray-bg);border-radius:8px;padding:7px 10px}
+    .cc-upload-steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+    .cc-upload-steps span{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:999px;padding:6px 14px;font-size:.83rem;font-weight:600;color:var(--navy)}
+    .cc-upload-cta{text-align:center}
+    .cc-agent{display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--navy);color:var(--white);border-radius:var(--radius-lg);padding:24px 26px;margin-bottom:24px}
+    .cc-agent-main{flex:1;min-width:280px}
+    .cc-agent-title{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .cc-agent-title svg{width:34px;height:34px;flex-shrink:0}
+    .cc-agent-title strong{font-size:1.15rem;display:block}
+    .cc-agent-live{font-size:.72rem;font-weight:700;color:#7ef2a7;letter-spacing:1px}
+    .cc-agent p{font-size:.92rem;line-height:1.9;opacity:.92;margin-bottom:12px}
+    .cc-agent-feats{display:flex;flex-wrap:wrap;gap:8px}
+    .cc-agent-feats span{background:rgba(255,255,255,.12);border-radius:999px;padding:5px 13px;font-size:.8rem;font-weight:600}
+    .cc-agent-cta{display:flex;flex-direction:column;gap:10px;min-width:230px}
+    .cc-agent-cta .btn-primary{background:var(--white);color:var(--navy)}
+    .cc-agent-cta .btn-ghost{border-color:rgba(255,255,255,.5);color:var(--white)}
+    .cc-agent-cta .btn-ghost:hover{background:var(--white);color:var(--navy)}
   </style>
   <script>window.BP_CC_LANG="ar";</script>
   <script>
@@ -255,6 +342,7 @@
     var allBtn=document.createElement("button");allBtn.type="button";allBtn.className="cc-chip";allBtn.textContent="📋 "+PT.all;allBtn.addEventListener("click",function(){$("cc-prof-q").value="";renderProf("*");});chipBox.appendChild(allBtn);
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
+    document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();window.scrollTo({top:0,behavior:"smooth"});});});
   })();
   </script></main><footer class="site-footer"><div class="container">
   <div class="footer-grid">
