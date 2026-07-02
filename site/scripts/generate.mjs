@@ -3165,7 +3165,7 @@ function buildDashboard() {
       fetch(N8N_BASE + '/' + a.path, {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ client_name:'اختبار — لوحة التحكم', channel:'web-dashboard', message: msg }),
+        body: JSON.stringify({ client_name:'', channel:'web-dashboard', message: msg }),
         signal: ctrl.signal
       })
       .then(function(r){ return r.text(); })
