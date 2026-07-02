@@ -2,11 +2,17 @@
 // Reads data/*.json and emits static HTML pages into the site root.
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), "utf8"));
+// Cache-busting fingerprints: assets are served with a 1-year immutable
+// Cache-Control, so every content change must produce a new URL.
+const assetV = (rel) => crypto.createHash("md5").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex").slice(0, 10);
+const CSS_V = assetV("assets/css/styles.css");
+const JS_V = assetV("assets/js/main.js");
 
 // Copy brand image assets from the repo's committed public/ folder into the
 // static output. Keeps binary assets out of the generated tree in git while
@@ -188,7 +194,7 @@ function head(title, desc, path) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css">
+<link rel="stylesheet" href="/assets/css/styles.css?v=${CSS_V}">
 </head>
 <body>`;
 }
@@ -338,7 +344,7 @@ function page({ title, desc, active, path, body, script = "" }) {
     footer() +
     waFab() +
     advisorWidget() +
-    `<script src="/assets/js/main.js"></script>${script}</body></html>`
+    `<script src="/assets/js/main.js?v=${JS_V}"></script>${script}</body></html>`
   );
 }
 
