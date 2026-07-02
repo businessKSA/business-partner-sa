@@ -1,0 +1,1386 @@
+{
+  "brand": {
+    "name": "Business Partner",
+    "tagline": "Partnering for your success",
+    "taglineAr": "شريك تشغيل يساعدك على إنجاز متطلبات أعمالك بوضوح وسرعة",
+    "shortBio": "بيزنس بارتنر يقدّم حلولاً عملية للشركات في السعودية في مجالات الامتثال، المنصات الحكومية، الموارد البشرية، التراخيص، والخدمات التشغيلية.",
+    "shortBioEn": "Business Partner delivers practical solutions for companies in Saudi Arabia across compliance, government platforms, HR, licensing, and operational services."
+  },
+  "whatsapp": "https://wa.me/966507034157",
+  "whatsappSupport": "https://wa.me/966530540231",
+  "whatsappChannel": "https://whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X",
+  "bank": {
+    "beneficiary": "شركة بيزنس بارتنر",
+    "beneficiaryEn": "Business Partner Co.",
+    "bankName": "مصرف الراجحي",
+    "bankNameEn": "Al Rajhi Bank",
+    "iban": "SA5380000511608016228498",
+    "account": "511000010006086228498",
+    "note": "حوِّل الإجمالي إلى الحساب أعلاه ثم ارفع صورة الإيصال ليُعتمد طلبك. تصلك رسالة تأكيد فور المراجعة.",
+    "noteEn": "Transfer the total to the account above, then upload the receipt image so your order is approved. You will receive a confirmation once reviewed."
+  },
+  "contact": {
+    "phone": "0503793356",
+    "phoneIntl": "+966503793356",
+    "whatsappAgent": "0507034157",
+    "whatsappSupport": "0530540231",
+    "email": "business@businesspartner.sa",
+    "website": "www.businesspartner.sa",
+    "address": "الرياض – حي الملقا – شارع الأمير محمد بن سعد – مجمع طوق ورد",
+    "cr": "1009008634",
+    "hours": "الأحد – الخميس · 9 صباحاً – 6 مساءً · والوكيل الذكي على واتساب 24/7",
+    "addressEn": "Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex",
+    "hoursEn": "Sun–Thu · 9 AM – 6 PM · and the smart agent on WhatsApp 24/7"
+  },
+  "nav": [
+    {
+      "label": "الرئيسية",
+      "href": "/"
+    },
+    {
+      "label": "من نحن",
+      "href": "/about"
+    },
+    {
+      "label": "الخدمات",
+      "href": "/services"
+    },
+    {
+      "label": "الوكلاء الأذكياء",
+      "href": "/ai-agents"
+    },
+    {
+      "label": "السياحة",
+      "href": "/tourism"
+    },
+    {
+      "label": "الباقات",
+      "href": "/packages"
+    },
+    {
+      "label": "الحاسبة",
+      "href": "/calculator"
+    },
+    {
+      "label": "السعودية",
+      "href": "/saudi-arabia"
+    },
+    {
+      "label": "الأخبار",
+      "href": "/news"
+    },
+    {
+      "label": "الوظائف",
+      "href": "/careers"
+    }
+  ],
+  "home": {
+    "heroTitle": "شريك تشغيل واحد لكل متطلبات أعمالك في السعودية",
+    "heroSubtitle": "من تأسيس الشركات والاستثمار الأجنبي إلى التراخيص والموارد البشرية والامتثال الحكومي — ننجزها لك بوضوح وسرعة، ونتابعها حتى الإصدار.",
+    "heroCta": "ابدأ الآن",
+    "heroCtaSecondary": "استعرض الخدمات",
+    "why": {
+      "title": "لماذا بيزنس بارتنر",
+      "items": [
+        {
+          "icon": "robot",
+          "title": "الوكيل الذكي على واتساب",
+          "text": "يرد على استفساراتك 24/7، يحدد الخدمة المناسبة لحالتك، ويبدأ تجهيز قائمة مستنداتك تلقائياً."
+        },
+        {
+          "icon": "bolt",
+          "title": "سرعة في الإنجاز",
+          "text": "مسارات جاهزة ومعرفة دقيقة بالأنظمة تختصر الوقت — نبدأ التنفيذ فور اكتمال مستنداتك."
+        },
+        {
+          "icon": "shield",
+          "title": "شفافية كاملة",
+          "text": "أتعاب واضحة، ورسوم حكومية منفصلة ومعلنة. تعرف ما تدفعه ولماذا قبل أن تبدأ."
+        }
+      ]
+    },
+    "coreServices": {
+      "title": "خدماتنا الرئيسية",
+      "subtitle": "أكثر من 90 خدمة مصنّفة حسب الكتالوج الرسمي — نغطّي رحلة عملك من التأسيس حتى التشغيل.",
+      "cards": [
+        {
+          "title": "تأسيس الشركات",
+          "text": "قيد سجل، تأسيس ذات مسؤولية محدودة، تحويل الكيانات، وأكثر.",
+          "category": "Company Formation"
+        },
+        {
+          "title": "الاستثمار الأجنبي",
+          "text": "ترخيص MISA، شركة أجنبية 100%، فرع لشركة أجنبية، وشراكات.",
+          "category": "Foreign Investment"
+        },
+        {
+          "title": "الإقامة المميزة",
+          "text": "اختيار المنتج الأنسب وإدارة الطلب حتى الإصدار — بلا كفيل.",
+          "category": "Premium Residency"
+        },
+        {
+          "title": "العلاقات الحكومية",
+          "text": "قوى، الموارد البشرية، مقيم، التأمينات، بلدي، والتراخيص القطاعية.",
+          "category": "Government Relations"
+        },
+        {
+          "title": "الموارد البشرية",
+          "text": "إدارة قوى وGOSI ومدد، العقود، ونقل الخدمات والامتثال.",
+          "category": "HR Services"
+        },
+        {
+          "title": "التوظيف والاستقدام",
+          "text": "استقطاب الكفاءات وإدارة إجراءات الاستقدام من البداية للنهاية.",
+          "category": "Recruitment"
+        }
+      ]
+    },
+    "agent": {
+      "title": "الميزة القاتلة: الوكيل الذكي على واتساب",
+      "text": "بدل انتظار الرد في ساعات الدوام، يرد الوكيل الذكي فوراً في أي وقت — يفهم حالتك، يميّز نوع عميلك (فرد/منشأة، سعودي/خليجي/أجنبي)، يعطيك المتطلبات والمستندات الصحيحة، ويبدأ تجهيز طلبك مباشرة. عندما تحتاج قراراً بشرياً، يحوّلك لفريقنا فوراً.",
+      "bullets": [
+        "رد فوري 24/7 دون انتظار",
+        "يحدد الخدمة والمسار الصحيح لحالتك",
+        "يجهّز قائمة مستنداتك تلقائياً",
+        "يحوّلك لخبير بشري عند الحاجة"
+      ],
+      "cta": "جرّب الوكيل الذكي الآن"
+    },
+    "stats": {
+      "title": "أرقام نفخر بها",
+      "eyebrow": "أرقام ثقة",
+      "items": [
+        {
+          "value": "+1000",
+          "label": "عميل خدمناهم"
+        },
+        {
+          "value": "+15",
+          "label": "سنة خبرة في السوق السعودي"
+        },
+        {
+          "value": "+90",
+          "label": "خدمة في الكتالوج الرسمي"
+        },
+        {
+          "value": "+15",
+          "label": "جهة حكومية نتعامل معها"
+        }
+      ]
+    },
+    "testimonials": {
+      "title": "آراء العملاء",
+      "note": "نُضيف قصص عملائنا الحقيقية هنا قريباً بعد اعتماد النشر.",
+      "items": [
+        {
+          "text": "خلّصوا تأسيس شركتي بسرعة وكل خطوة كانت واضحة من البداية.",
+          "name": "عميل — قطاع التجارة",
+          "role": "تأسيس شركة"
+        },
+        {
+          "text": "الوكيل على واتساب جاوبني بالليل وجهّز لي قائمة المستندات مباشرة.",
+          "name": "عميل — مستثمر",
+          "role": "استثمار أجنبي"
+        },
+        {
+          "text": "أتعاب واضحة بدون مفاجآت، وتابعوا معي حتى صدر الترخيص.",
+          "name": "عميل — قطاع صناعي",
+          "role": "ترخيص صناعي"
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "جاهز نبدأ؟",
+      "text": "أرسل لنا استفسارك على واتساب الآن — الوكيل الذكي يرد فوراً ويحدد لك الخطوة التالية.",
+      "cta": "ابدأ على واتساب"
+    }
+  },
+  "about": {
+    "title": "من نحن",
+    "lead": "بيزنس بارتنر شريك تشغيل للشركات في السعودية. نتولّى عنك التعامل مع المنصات والجهات الحكومية، ونُنجز متطلبات أعمالك بوضوح وسرعة ومنهجية.",
+    "promise": "شريك تشغيل يسهّل رحلة الأعمال ويختصر الوقت عبر حلول عملية ومنهجية.",
+    "sections": [
+      {
+        "title": "وعدنا",
+        "text": "نختصر عليك الوقت والجهد في التعامل مع الأنظمة والجهات الحكومية، ونحوّل الإجراءات المعقّدة إلى خطوات واضحة نُنجزها نيابةً عنك.",
+        "titleEn": "Our promise",
+        "textEn": "We save you time and effort dealing with regulations and government authorities, turning complex procedures into clear steps we complete on your behalf."
+      },
+      {
+        "title": "كيف نعمل",
+        "text": "نفهم حالتك، نحدد الخدمة والمسار الصحيح، نجهّز المستندات، نرفع الطلب على المنصة المختصة، ونتابع حتى الإصدار — مع تحديثك في كل مرحلة.",
+        "titleEn": "How we work",
+        "textEn": "We understand your case, identify the right service and track, prepare the documents, file the request with the relevant platform, and follow up to issuance — keeping you updated at every stage."
+      },
+      {
+        "title": "شخصيتنا",
+        "text": "احترافية، هادئة، موثوقة، ودقيقة. نركّز على النتائج ونتكلم بوضوح بلا مبالغة.",
+        "titleEn": "Our character",
+        "textEn": "Professional, calm, reliable and precise. We focus on results and speak clearly without exaggeration."
+      }
+    ],
+    "values": [
+      {
+        "title": "الوضوح",
+        "text": "أتعاب ورسوم ومدد معلنة قبل أن تبدأ.",
+        "titleEn": "Clarity",
+        "textEn": "Fees, charges and timelines disclosed before you start."
+      },
+      {
+        "title": "السرعة",
+        "text": "مسارات جاهزة تختصر الوقت.",
+        "titleEn": "Speed",
+        "textEn": "Ready-made tracks that save time."
+      },
+      {
+        "title": "الموثوقية",
+        "text": "التزام بالأنظمة ومتابعة حتى الإصدار.",
+        "titleEn": "Reliability",
+        "textEn": "Compliance with regulations and follow-up to issuance."
+      },
+      {
+        "title": "التقنية",
+        "text": "وكيل ذكي يخدمك على واتساب على مدار الساعة.",
+        "titleEn": "Technology",
+        "textEn": "A smart agent serving you on WhatsApp around the clock."
+      }
+    ],
+    "titleEn": "About us",
+    "leadEn": "Business Partner is an operating partner for companies in Saudi Arabia. We handle platforms and government authorities on your behalf and get your business requirements done clearly, quickly and methodically.",
+    "promiseEn": "An operating partner that eases the business journey and saves time through practical, methodical solutions.",
+    "headingValuesEn": "What guides our work"
+  },
+  "packages": {
+    "title": "الباقات",
+    "subtitle": "ثلاث باقات تغطّي رحلتك — من أول فكرة حتى التوسّع. اختر الأقرب لك، والوكيل الذكي يضبطها على حالتك.",
+    "note": "تُحدَّد أسعار الباقات بعرض حسب نطاق العمل والخدمات المطلوبة — تواصل معنا للتسعير ونجهّز لك عرضاً مخصّصاً خلال دقائق.",
+    "tiers": [
+      {
+        "key": "start",
+        "name": "Start",
+        "nameAr": "البداية",
+        "for": "لأصحاب الأفكار والمنشآت الجديدة",
+        "highlight": false,
+        "features": [
+          "استشارة ما قبل التأسيس",
+          "قيد سجل تجاري / تأسيس مؤسسة فردية",
+          "حجز اسم تجاري وإنشاء الحسابات الحكومية",
+          "عضوية الغرفة التجارية",
+          "دعم الوكيل الذكي على واتساب"
+        ],
+        "forEn": "For founders and new businesses",
+        "featuresEn": [
+          "Pre-incorporation consultation",
+          "CR registration / sole establishment setup",
+          "Trade name reservation & government account creation",
+          "Chamber of Commerce membership",
+          "Smart-agent support on WhatsApp"
+        ],
+        "nameEn": "Start"
+      },
+      {
+        "key": "operate",
+        "name": "Operate",
+        "nameAr": "التشغيل",
+        "for": "للمنشآت النامية التي تحتاج تشغيلاً متكاملاً",
+        "highlight": true,
+        "features": [
+          "كل ما في باقة البداية",
+          "تأسيس شركة ذات مسؤولية محدودة",
+          "التراخيص القطاعية اللازمة لنشاطك",
+          "إدارة قوى والتأمينات والموارد البشرية",
+          "متابعة الامتثال والالتزامات الدورية",
+          "أولوية في الرد والتنفيذ"
+        ],
+        "forEn": "For growing businesses that need full operations",
+        "featuresEn": [
+          "Everything in the Start package",
+          "LLC company formation",
+          "Sector licenses required for your activity",
+          "Managing Qiwa, GOSI and HR",
+          "Compliance follow-up and periodic obligations",
+          "Priority in response and execution"
+        ],
+        "nameEn": "Operate"
+      },
+      {
+        "key": "grow",
+        "name": "Grow",
+        "nameAr": "النمو",
+        "for": "للمستثمرين والمنشآت الكبيرة والشركات الأجنبية",
+        "highlight": false,
+        "features": [
+          "كل ما في باقة التشغيل",
+          "ترخيص استثمار أجنبي وتأسيس شركة أجنبية",
+          "الإقامة المميزة للمستثمرين والكفاءات",
+          "إدارة العلاقات الحكومية بمعقّب مخصّص",
+          "دراسات الجدوى والدعم الاستراتيجي",
+          "مدير حساب مخصّص"
+        ],
+        "forEn": "For investors, large businesses and foreign companies",
+        "featuresEn": [
+          "Everything in the Operate package",
+          "Foreign investment license & foreign company formation",
+          "Premium Residency for investors and talent",
+          "Government relations with a dedicated liaison",
+          "Feasibility studies and strategic support",
+          "Dedicated account manager"
+        ],
+        "nameEn": "Grow"
+      }
+    ],
+    "titleEn": "Packages",
+    "subtitleEn": "Three packages that cover your journey — from first idea to expansion. Pick the closest one, and the smart agent tailors it to your case.",
+    "noteEn": "Package pricing is quoted by scope of work and services required — contact us for pricing and we'll prepare a custom quote in minutes."
+  },
+  "aiAgents": {
+    "title": "منظومة الوكلاء الأذكياء — فريقك الذكي يعمل 24/7",
+    "lead": "وكلاء ذكاء اصطناعي يديرون تشغيل أعمالك على مدار الساعة: يراقبون، ينفّذون، ويتابعون منصاتك الحكومية وفرق عملك — ودورك يقتصر على الموافقة والدفع. هذه هي الطبقة القادمة من بيزنس بارتنر.",
+    "cta": "احجز عرضاً توضيحياً",
+    "how": {
+      "eyebrow": "كيف تعمل",
+      "title": "التدخّل البشري = موافقة ودفع فقط",
+      "steps": [
+        {
+          "n": "1",
+          "title": "مراقبة مستمرة",
+          "text": "الوكيل يراقب منصاتك وملفاتك 24/7 ويرصد أي متطلب أو مهلة أو مخالفة فور ظهورها.",
+          "titleEn": "Continuous monitoring",
+          "textEn": "The agent monitors your platforms and files 24/7 and detects any requirement, deadline or violation the moment it appears."
+        },
+        {
+          "n": "2",
+          "title": "تنبيه ذكي",
+          "text": "يصلك تنبيه واضح بما يجب عمله ولماذا، مع التكلفة والمهلة — بدون مصطلحات معقّدة.",
+          "titleEn": "Smart alert",
+          "textEn": "You receive a clear alert of what needs to be done and why, with cost and deadline — no complex jargon."
+        },
+        {
+          "n": "3",
+          "title": "تنفيذ ذاتي",
+          "text": "الوكيل يجهّز المستندات ويرفع الطلب على الجهة المختصة تلقائياً حال جاهزيته.",
+          "titleEn": "Autonomous execution",
+          "textEn": "The agent prepares the documents and files the request with the relevant authority automatically when ready."
+        },
+        {
+          "n": "4",
+          "title": "موافقتك ودفعك",
+          "text": "تعتمد وتدفع بضغطة — والوكيل يكمل حتى الإصدار ويحدّث سجلّك.",
+          "titleEn": "Your approval and payment",
+          "textEn": "You approve and pay with one tap — the agent completes it through to issuance and updates your record."
+        }
+      ],
+      "eyebrowEn": "How it works",
+      "titleEn": "Human intervention = approval and payment only"
+    },
+    "packagesTitle": "ثلاثة وكلاء… بحسب احتياجك",
+    "packagesSubtitle": "ابدأ بوكيل واحد أو اربطها جميعاً في منظومة واحدة. اشتراك شهري بأتعاب واضحة.",
+    "pricingNote": "الأسعار شهرية بأتعاب بيزنس بارتنر، ولا تشمل ضريبة القيمة المضافة. يمكن تخصيص المنظومة حسب حجم منشأتك — تواصل معنا لأي استفسار.",
+    "agents": [
+      {
+        "key": "compliance",
+        "name": "وكيل الامتثال والالتزام",
+        "tagline": "منصاتك الحكومية تحت المراقبة الدائمة",
+        "price": "يبدأ من 1,500 ﷼ / شهرياً",
+        "highlight": true,
+        "for": "للمنشآت التي تريد امتثالاً والتزاماً دائماً بلا متابعة يدوية",
+        "features": [
+          "✅ يعمل الآن — جرّب حاسبات النطاقات والتكاليف وفاحص المهن مجاناً",
+          "مراقبة مستمرة: قوى · مقيم · التأمينات (GOSI) · مدد · نطاقات",
+          "رصد المهل والمخالفات والالتزامات فور ظهورها",
+          "تنفيذ ذاتي للإجراءات وتجهيز المستندات ورفعها",
+          "تنبيهات واضحة بالتكلفة والمهلة قبل كل خطوة",
+          "التدخّل البشري = موافقة ودفع فقط",
+          "تقارير امتثال دورية لمنشأتك"
+        ],
+        "nameEn": "Compliance & obligations agent",
+        "taglineEn": "Your government platforms under constant watch",
+        "forEn": "For businesses that want permanent compliance without manual follow-up",
+        "featuresEn": [
+          "✅ Live now — try the free Nitaqat, cost and profession-checker tools",
+          "Continuous monitoring: Qiwa · Muqeem · GOSI · Mudad · Nitaqat",
+          "Detects deadlines, violations and obligations as they appear",
+          "Autonomous execution: prepares and files documents",
+          "Clear cost and deadline alerts before each step",
+          "Human intervention = approval and payment only",
+          "Periodic compliance reports for your entity"
+        ]
+      },
+      {
+        "key": "team",
+        "name": "اختر موظفك الذكي — يعمل 24 ساعة",
+        "tagline": "موظف ذكي متخصص لا يتوقف",
+        "price": "يبدأ من 2,500 ﷼ / شهرياً",
+        "highlight": false,
+        "for": "للمنشآت التي تريد قدرات موظف متخصص دون تكلفة توظيفه",
+        "features": [
+          "اختر تخصص موظفك الذكي حسب حاجتك",
+          "موظف تسويق: محتوى، حملات، ومتابعة أداء",
+          "موظف إداري: تنظيم المهام والمتابعة والتقارير",
+          "موظف مبيعات: متابعة العملاء والردود والعروض",
+          "موظف تقني أو مشتريات: مهام تشغيلية وموردون",
+          "يعمل 24 ساعة ضمن سياسات منشأتك وتحت إشرافك"
+        ],
+        "nameEn": "Pick your smart employee — works 24 hours",
+        "taglineEn": "A dedicated smart employee that never stops",
+        "forEn": "For businesses that want a specialist employee's capabilities without the hiring cost",
+        "featuresEn": [
+          "Choose your smart employee's specialty to fit your need",
+          "Marketing employee: content, campaigns and performance tracking",
+          "Admin employee: task organisation, follow-up and reports",
+          "Sales employee: client follow-up, replies and quotes",
+          "Tech or procurement employee: operational tasks and vendors",
+          "Works 24 hours within your policies and under your supervision"
+        ]
+      },
+      {
+        "key": "shared",
+        "name": "فريق الخدمات المشتركة",
+        "tagline": "فريق الامتثال والالتزام + فريق العمل مدموجان بالكامل",
+        "price": "يبدأ من 3,500 ﷼ / شهرياً",
+        "highlight": false,
+        "for": "للمنشآت والأفراد الباحثين عن منظومة متكاملة",
+        "features": [
+          "يدمج وكيل الامتثال والالتزام مع فريق العمل الذكي بالكامل",
+          "لوحة موحّدة لكل منصاتك وفرقك",
+          "متاح للمنشآت وللأفراد",
+          "قابل للتوسّع مع نمو أعمالك",
+          "أولوية في التنفيذ والدعم",
+          "تكامل مع خدمات بيزنس بارتنر كاملة"
+        ],
+        "nameEn": "Shared services team",
+        "taglineEn": "The compliance team + the work team fully merged",
+        "forEn": "For businesses and individuals seeking a fully integrated system",
+        "featuresEn": [
+          "Merges the compliance agent with the smart work team completely",
+          "A unified dashboard for all your platforms and teams",
+          "Available to businesses and individuals",
+          "Scales as your business grows",
+          "Priority in execution and support",
+          "Integration with all Business Partner services"
+        ]
+      }
+    ],
+    "titleEn": "The smart agents system — your AI team working 24/7",
+    "leadEn": "AI agents that run your business operations around the clock: they monitor, execute, and follow up on your government platforms and teams — while your role is limited to approval and payment. This is the next layer of Business Partner.",
+    "ctaEn": "Book a demo",
+    "learnEn": "Browse the agents",
+    "packagesTitleEn": "Three agents… to match your need",
+    "packagesSubtitleEn": "Start with one agent or connect them all into a single system. Monthly subscription with clear fees.",
+    "pricingNoteEn": "Prices are monthly Business Partner fees and exclude VAT. The system can be customised to your entity's size — contact us with any enquiry."
+  },
+  "misaFeatured": {
+    "eyebrow": "مسارات المستثمر الأجنبي · وزارة الاستثمار (MISA)",
+    "title": "ابدأ استثمارك في السعودية عبر مسار واضح",
+    "subtitle": "ثلاثة مسارات معتمدة لدخول السوق السعودي وتشغيل كيانك ونموّه — بأتعاب معلَنة ورسوم حكومية منفصلة.",
+    "note": "الأتعاب أعلاه لا تشمل الرسوم الحكومية وضريبة القيمة المضافة.",
+    "tiers": [
+      {
+        "name": "Entry",
+        "nameAr": "الدخول",
+        "price": "يبدأ من 10,000 ﷼",
+        "for": "بوابة دخولك للسوق السعودي",
+        "text": "استخراج ترخيص الاستثمار الأجنبي (MISA) وبدء تأسيس كيانك القانوني في المملكة.",
+        "highlight": false,
+        "forEn": "Your gateway to the Saudi market",
+        "textEn": "Issue the foreign investment license (MISA) and begin setting up your legal entity in the Kingdom.",
+        "nameEn": "Entry"
+      },
+      {
+        "name": "Operate",
+        "nameAr": "التشغيل",
+        "price": "يبدأ من 15,000 ﷼",
+        "for": "جاهز للعمل من اليوم الأول",
+        "text": "الترخيص + السجل التجاري والتسجيلات الحكومية اللازمة لتشغيل نشاطك بالكامل.",
+        "highlight": true,
+        "forEn": "Ready to operate from day one",
+        "textEn": "The license + Commercial Registration and the government registrations needed to run your activity fully.",
+        "nameEn": "Operate"
+      },
+      {
+        "name": "Grow",
+        "nameAr": "النمو",
+        "price": "يبدأ من 20,000 ﷼",
+        "for": "لتوسيع نشاطك القائم",
+        "text": "خدمات ما بعد التأسيس لدعم توسّع كيانك ونموّه في السوق السعودي.",
+        "highlight": false,
+        "forEn": "To expand your existing activity",
+        "textEn": "Post-incorporation services to support your entity's expansion and growth in the Saudi market.",
+        "nameEn": "Grow"
+      }
+    ],
+    "eyebrowEn": "Foreign investor tracks · Ministry of Investment (MISA)",
+    "titleEn": "Start your investment in Saudi Arabia through a clear track",
+    "subtitleEn": "Three approved tracks to enter the Saudi market and operate and grow your entity — with disclosed fees and separate government fees.",
+    "noteEn": "The fees above exclude government fees and VAT."
+  },
+  "businessTourism": {
+    "title": "سياحة الأعمال — استكشف المملكة والفرص الاستثمارية",
+    "lead": "برنامج مخصّص للمستثمر الذي يرغب بدخول السعودية واستكشافها قبل أن يبدأ عمله: نعرّفك على الثقافة ونمط الحياة وطبيعة الأعمال، ونفتح لك أبواب الجهات والشركات ذات العلاقة بنشاطك.",
+    "cta": "خطّط لرحلتك الاستكشافية",
+    "intro": {
+      "eyebrow": "لمن هذا البرنامج",
+      "title": "استكشف قبل أن تستثمر",
+      "text": "إن كنت مستثمراً تفكّر في دخول السوق السعودي، نصمّم لك برنامج سياحة أعمال يجمع بين التعرّف على المملكة (الثقافة، نمط الحياة، الأعمال) وبين لقاءات عملية تفتح لك الأبواب — حسب نشاطك واهتمامك.",
+      "eyebrowEn": "Who is this program for",
+      "titleEn": "Explore before you invest",
+      "textEn": "If you're an investor considering the Saudi market, we design a business-tourism program that combines getting to know the Kingdom (culture, lifestyle, business) with practical meetings that open doors — tailored to your activity and interest."
+    },
+    "includes": {
+      "eyebrow": "ماذا يشمل البرنامج",
+      "title": "برنامج مصمّم على نشاطك",
+      "items": [
+        {
+          "title": "زيارات للمنشآت ذات العلاقة",
+          "text": "زيارات لجهات مثل وزارة الاستثمار ومنشآت ذات صلة بنشاطك للتعرّف على بيئة السوق.",
+          "titleEn": "Visits to relevant entities",
+          "textEn": "Visits to bodies such as the Ministry of Investment and entities related to your activity to understand the market environment."
+        },
+        {
+          "title": "لقاءات مع أصحاب المصلحة",
+          "text": "نرتّب لك لقاءات مع الجهات الحكومية والشركات ذات العلاقة حسب مجالك.",
+          "titleEn": "Meetings with stakeholders",
+          "textEn": "We arrange meetings with government authorities and relevant companies in your field."
+        },
+        {
+          "title": "فتح الأبواب والتعريف",
+          "text": "نفتح لك أبواب الشركاء والفرص، ونعرّفك على طبيعة الأعمال في قطاعك.",
+          "titleEn": "Opening doors & introductions",
+          "textEn": "We open the doors of partners and opportunities and introduce you to how business works in your sector."
+        },
+        {
+          "title": "الثقافة ونمط الحياة",
+          "text": "تجربة تعرّفك على الثقافة السعودية ونمط الحياة عن قرب قبل قرارك.",
+          "titleEn": "Culture & lifestyle",
+          "textEn": "An experience that introduces you to Saudi culture and lifestyle up close before your decision."
+        },
+        {
+          "title": "ضيافة وجولات",
+          "text": "أفضل المطاعم والفنادق والجولات السياحية — تجربة سياحة أعمال متكاملة.",
+          "titleEn": "Hospitality & tours",
+          "textEn": "The best restaurants, hotels and tours — a complete business-tourism experience."
+        },
+        {
+          "title": "الفرص الاستثمارية",
+          "text": "نطلعك على الفرص الاستثمارية والقطاعات الواعدة المناسبة لك.",
+          "titleEn": "Investment opportunities",
+          "textEn": "We show you the investment opportunities and promising sectors that suit you."
+        }
+      ],
+      "eyebrowEn": "What the program includes",
+      "titleEn": "A program designed around your activity"
+    },
+    "note": "برنامج يُصمَّم خصيصاً حسب نشاطك واهتماماتك — تواصل معنا لنرتّب لك رحلتك.",
+    "titleEn": "Business tourism — explore the Kingdom and investment opportunities",
+    "leadEn": "A dedicated program for investors who want to enter Saudi Arabia and explore it before starting: we introduce you to the culture, lifestyle and business landscape, and open the doors of authorities and companies relevant to your activity.",
+    "ctaEn": "Plan your exploratory trip",
+    "noteEn": "A program tailored specifically to your activity and interests — contact us to arrange your trip."
+  },
+  "tourism": {
+    "title": "السياحة والفعاليات",
+    "lead": "خدمتان تحت مظلة واحدة: فعاليات وأنشطة لموظفي شركتك، وبرنامج سياحة أعمال للمستثمرين الراغبين باستكشاف السوق السعودي قبل الدخول.",
+    "events": {
+      "eyebrow": "النوع الأول · فعاليات الشركات",
+      "title": "فعاليات وأنشطة لموظفيك",
+      "price": "يبدأ من 2,500 ﷼",
+      "text": "نصمّم فعاليات وأنشطة لموظفي شركتك داخل المقر أو خارجه، ونبحث لك عن أفضل العروض من الشركات المزوّدة للخدمة.",
+      "features": [
+        "فعاليات وأنشطة داخل مقر الشركة أو خارجه",
+        "نبحث لك عن العروض من الشركات المزوّدة",
+        "نجلب لك أفضل 5 عروض للمقارنة والاختيار",
+        "تنظيم ومتابعة حتى تنفيذ الفعالية"
+      ],
+      "note": "أتعاب بيزنس بارتنر 2,500 ﷼، ونجلب لك أفضل 5 عروض من المزوّدين لتختار الأنسب.",
+      "eyebrowEn": "Type one · corporate events",
+      "titleEn": "Events and activities for your staff",
+      "textEn": "We design events and activities for your company's staff, on-site or off-site, and search for the best offers from service providers.",
+      "featuresEn": [
+        "Events and activities inside or outside the company premises",
+        "We search for offers from service providers",
+        "We bring you the top 5 offers to compare and choose",
+        "Organisation and follow-up through to delivery"
+      ],
+      "noteEn": "Business Partner's fee is 2,500 ﷼, and we bring you the top 5 provider offers to choose the best fit."
+    },
+    "titleEn": "Tourism & events",
+    "leadEn": "Two services under one roof: events and activities for your company's staff, and a business-tourism program for investors who want to explore the Saudi market before entering."
+  },
+  "saudiArabia": {
+    "title": "الاستثمار والأعمال في السعودية",
+    "lead": "السعودية اليوم واحدة من أسرع الاقتصادات نمواً في العالم، وبيئة أعمال تتوسّع بخطى رؤية 2030. هنا نجمع لك البيانات والأدلة القطاعية التي تساعدك على اتخاذ قرارك — ونتولّى التنفيذ نيابةً عنك.",
+    "vision": {
+      "eyebrow": "رؤية 2030",
+      "title": "إلى أين تتجه السوق؟",
+      "source": "المصدر: مستهدفات رؤية السعودية 2030 المعلنة.",
+      "targets": [
+        {
+          "value": "65%",
+          "label": "مساهمة القطاع الخاص المستهدفة في الناتج المحلي",
+          "labelEn": "Targeted private-sector contribution to GDP"
+        },
+        {
+          "value": "35%",
+          "label": "مساهمة المنشآت الصغيرة والمتوسطة في الناتج المحلي",
+          "labelEn": "Targeted SME contribution to GDP"
+        },
+        {
+          "value": "100M",
+          "label": "زائر سنوياً مستهدف لقطاع السياحة",
+          "labelEn": "Targeted annual visitors for the tourism sector"
+        },
+        {
+          "value": "7%",
+          "label": "المعدل المستهدف للبطالة",
+          "labelEn": "Targeted unemployment rate"
+        }
+      ],
+      "eyebrowEn": "Vision 2030",
+      "titleEn": "Where is the market heading?",
+      "sourceEn": "Source: announced Saudi Vision 2030 targets."
+    },
+    "sectors": {
+      "eyebrow": "أدلة قطاعية",
+      "title": "قطاعات نساعدك على دخولها",
+      "subtitle": "لكل قطاع مساره ومتطلباته — نلخّصها لك ونتولّى الإجراء من البداية حتى الإصدار.",
+      "items": [
+        {
+          "title": "تأسيس الشركات",
+          "text": "من قيد السجل إلى تأسيس الشركات ذات المسؤولية المحدودة والتحوّل بين الكيانات.",
+          "category": "Company Formation",
+          "titleEn": "Company Formation",
+          "textEn": "From CR registration to LLC formation and conversion between entities."
+        },
+        {
+          "title": "الاستثمار الأجنبي",
+          "text": "ترخيص MISA، شركة أجنبية 100%، فرع لشركة أجنبية، وشراكات مشتركة.",
+          "category": "Foreign Investment",
+          "titleEn": "Foreign Investment",
+          "textEn": "MISA license, 100% foreign company, foreign branch, and joint ventures."
+        },
+        {
+          "title": "الصناعة والتصنيع",
+          "text": "التراخيص الصناعية، الإعفاءات الجمركية، ودراسات الجدوى للمصانع.",
+          "category": "Business Support",
+          "titleEn": "Industry & Manufacturing",
+          "textEn": "Industrial licenses, customs exemptions, and factory feasibility studies."
+        },
+        {
+          "title": "السياحة والضيافة",
+          "text": "تراخيص الفنادق والشقق المخدومة وبرامج السياحة المؤسسية.",
+          "category": "Tourism",
+          "titleEn": "Tourism & Hospitality",
+          "textEn": "Hotel and serviced-apartment licenses and corporate tourism programs."
+        },
+        {
+          "title": "العقارات",
+          "text": "المكاتب والمقرات وخدمات البحث العقاري للمنشآت.",
+          "category": "Real Estate",
+          "titleEn": "Real Estate",
+          "textEn": "Offices, premises and property-search services for businesses."
+        },
+        {
+          "title": "الإقامة المميزة",
+          "text": "منتجات الإقامة للمستثمرين والكفاءات — بلا كفيل.",
+          "category": "Premium Residency",
+          "titleEn": "Premium Residency",
+          "textEn": "Residency products for investors and talent — no sponsor."
+        }
+      ],
+      "eyebrowEn": "Sector guides",
+      "titleEn": "Sectors we help you enter",
+      "subtitleEn": "Every sector has its track and requirements — we summarise them for you and handle the procedure from start to issuance."
+    },
+    "knowledge": {
+      "eyebrow": "قاعدة المعرفة",
+      "title": "أدلة معرفية سريعة",
+      "subtitle": "مقتطفات عملية من قاعدة معرفة بيزنس بارتنر. للنسخة الكاملة والمخصّصة لحالتك، اسأل الوكيل الذكي.",
+      "articles": [
+        {
+          "title": "الشركة الأجنبية أم الخليجية؟",
+          "excerpt": "الخليجي يُعامل معاملة السعودي تقريباً (بلا رسوم جمركية بين دول المجلس)، بينما تحتاج الشركة الأجنبية ترخيص MISA ومستندات مصدّقة. نحدد لك المسار الصحيح حسب جنسيتك ونشاطك.",
+          "link": "/services#cat-foreign-investment",
+          "titleEn": "Foreign company or Gulf company?",
+          "excerptEn": "A Gulf national is treated almost like a Saudi (no customs duties between GCC states), while a foreign company needs a MISA license and attested documents. We identify the right track for your nationality and activity."
+        },
+        {
+          "title": "الترخيص الصناعي: مبدئي أم نهائي؟",
+          "excerpt": "المبدئي لمراحل التخطيط والتأسيس، والنهائي للمصانع الجاهزة للتشغيل والإنتاج. كلاهما قد يمنح إعفاءات جمركية على المعدات والمواد الأولية.",
+          "link": "/services/bp-sbc-16",
+          "titleEn": "Industrial license: preliminary or final?",
+          "excerptEn": "The preliminary license is for planning and setup stages; the final is for factories ready to operate and produce. Both may grant customs exemptions on equipment and raw materials."
+        },
+        {
+          "title": "الإقامة المميزة: أي منتج يناسبك؟",
+          "excerpt": "دائمة برسوم مقطوعة أو سنوية متجددة، إضافةً لمنتجات فئوية (كفاءة، موهبة، مستثمر، رائد أعمال، مالك عقار). الوكيل الذكي يرشّح الأنسب حسب حالتك المالية.",
+          "link": "/services/bp-pr-01",
+          "titleEn": "Premium Residency: which product fits you?",
+          "excerptEn": "Permanent with a one-time fee or renewable annual, plus category products (talent, skill, investor, entrepreneur, property owner). The smart agent recommends the best fit for your financial situation."
+        },
+        {
+          "title": "لماذا دراسة الجدوى أولاً؟",
+          "excerpt": "شرط أساسي للترخيص الصناعي وتمويل الصندوق الصناعي، وتساعدك على تأمين تمويل من البنوك والمستثمرين عبر تحليل مالي وتسويقي وتقني.",
+          "link": "/services/bp-pl-0057",
+          "titleEn": "Why a feasibility study first?",
+          "excerptEn": "It's a core requirement for an industrial license and Industrial Fund financing, and helps you secure funding from banks and investors through financial, marketing and technical analysis."
+        },
+        {
+          "title": "تسجيل العلامة التجارية عن بُعد",
+          "excerpt": "يمكن للأفراد والشركات داخل وخارج المملكة تسجيل علاماتهم لدى SAIP دون حضور شخصي، بحماية 10 سنوات قابلة للتجديد.",
+          "link": "/services/bp-saip-01",
+          "titleEn": "Remote trademark registration",
+          "excerptEn": "Individuals and companies inside and outside the Kingdom can register their marks with SAIP without attending in person, with 10-year renewable protection."
+        },
+        {
+          "title": "تصنيف المقاولين وبوابة المشاريع الحكومية",
+          "excerpt": "شهادة التصنيف شرط أساسي للمشاركة في المشاريع الحكومية الكبرى، وتعكس قدراتك المالية والفنية والإدارية.",
+          "link": "/services/bp-gr-01",
+          "titleEn": "Contractor classification & the government projects gateway",
+          "excerptEn": "A classification certificate is a core requirement for participating in major government projects, reflecting your financial, technical and administrative capabilities."
+        }
+      ],
+      "eyebrowEn": "Knowledge base",
+      "titleEn": "Quick knowledge guides",
+      "subtitleEn": "Practical excerpts from Business Partner's knowledge base. For the full version tailored to your case, ask the smart agent."
+    },
+    "entities": {
+      "eyebrow": "دليل الجهات الحكومية",
+      "title": "تعرّف على الجهات… وكيف تخدمك",
+      "subtitle": "نبذة عن أهم الجهات الحكومية التي يتعامل معها المستثمر، ودور بيزنس بارتنر في التعامل معها نيابةً عنك.",
+      "items": [
+        {
+          "name": "المركز السعودي للأعمال",
+          "gov": "وزارة التجارة",
+          "what": "بوابة تأسيس المنشآت: السجلات التجارية، الأسماء التجارية، عقود التأسيس، والتأكيد السنوي.",
+          "help": "نتولّى التأسيس والتعديلات والتجديدات نيابةً عنك.",
+          "link": "/services#cat-company-formation",
+          "nameEn": "Saudi Business Center",
+          "govEn": "Ministry of Commerce",
+          "whatEn": "The business-formation gateway: commercial registrations, trade names, articles of association, and annual confirmation.",
+          "helpEn": "We handle formation, amendments and renewals on your behalf."
+        },
+        {
+          "name": "وزارة الاستثمار",
+          "gov": "MISA",
+          "what": "الجهة المنظّمة للاستثمار الأجنبي: تراخيص الاستثمار ومسارات دخول السوق للمستثمر الأجنبي.",
+          "help": "نستخرج ترخيص الاستثمار ونؤسّس كيانك الأجنبي.",
+          "link": "/services#cat-foreign-investment",
+          "nameEn": "Ministry of Investment",
+          "govEn": "MISA",
+          "whatEn": "The regulator of foreign investment: investment licenses and market-entry tracks for the foreign investor.",
+          "helpEn": "We issue the investment license and set up your foreign entity."
+        },
+        {
+          "name": "قوى",
+          "gov": "وزارة الموارد البشرية",
+          "what": "منصة إدارة العمالة: توثيق العقود، التأشيرات، نقل الخدمات، ومؤشرات التوطين (نطاقات).",
+          "help": "ندير ملفك على قوى ونتابع التزاماتك.",
+          "link": "/services#cat-government-relations",
+          "nameEn": "Qiwa",
+          "govEn": "Ministry of Human Resources",
+          "whatEn": "Labor management platform: contract authentication, visas, sponsorship transfer, and Saudization indicators (Nitaqat).",
+          "helpEn": "We manage your Qiwa file and follow up your obligations."
+        },
+        {
+          "name": "التأمينات الاجتماعية",
+          "gov": "GOSI",
+          "what": "تسجيل المشتركين، الشهادات، والفوترة الخاصة بالتأمينات.",
+          "help": "نسجّل ونحدّث ونتابع اشتراكاتك.",
+          "link": "/services#cat-hr-services",
+          "nameEn": "Social Insurance",
+          "govEn": "GOSI",
+          "whatEn": "Registering subscribers, certificates, and insurance billing.",
+          "helpEn": "We register, update and follow up your subscriptions."
+        },
+        {
+          "name": "الزكاة والضريبة والجمارك",
+          "gov": "ZATCA",
+          "what": "التسجيل الضريبي، الإقرارات، والفوترة الإلكترونية.",
+          "help": "نتولّى التسجيل والإقرارات والامتثال الضريبي.",
+          "link": "/services#cat-government-relations",
+          "nameEn": "Zakat, Tax and Customs",
+          "govEn": "ZATCA",
+          "whatEn": "Tax registration, returns, and e-invoicing.",
+          "helpEn": "We handle registration, returns and tax compliance."
+        },
+        {
+          "name": "الهيئة السعودية للملكية الفكرية",
+          "gov": "SAIP",
+          "what": "تسجيل وحماية العلامات التجارية والملكية الفكرية.",
+          "help": "نسجّل علامتك التجارية وننقل ملكيتها.",
+          "link": "/services/bp-saip-01",
+          "nameEn": "Saudi Authority for Intellectual Property",
+          "govEn": "SAIP",
+          "whatEn": "Registration and protection of trademarks and intellectual property.",
+          "helpEn": "We register your trademark and transfer its ownership."
+        },
+        {
+          "name": "وزارة الصناعة والثروة المعدنية",
+          "gov": "صناعي",
+          "what": "التراخيص الصناعية والتعدينية والإعفاءات الجمركية.",
+          "help": "نستخرج ترخيصك الصناعي ونتابع مع الوزارة.",
+          "link": "/services/bp-sbc-16",
+          "nameEn": "Ministry of Industry & Mineral Resources",
+          "govEn": "Industrial",
+          "whatEn": "Industrial and mining licenses and customs exemptions.",
+          "helpEn": "We issue your industrial license and follow up with the ministry."
+        },
+        {
+          "name": "مقيم / أبشر أعمال",
+          "gov": "الجوازات",
+          "what": "إصدار وتجديد الإقامات وتأشيرات الخروج والعودة وإدارة بيانات العمالة.",
+          "help": "ندير إجراءات إقامات موظفيك وتأشيراتهم.",
+          "link": "/services#cat-government-relations",
+          "nameEn": "Muqeem / Absher Business",
+          "govEn": "Passports",
+          "whatEn": "Issuing and renewing residencies, exit-and-re-entry visas, and managing labor data.",
+          "helpEn": "We manage your employees' residency and visa procedures."
+        }
+      ],
+      "eyebrowEn": "Government authorities guide",
+      "titleEn": "Meet the authorities… and how they serve you",
+      "subtitleEn": "An overview of the key government authorities an investor deals with, and Business Partner's role in handling them on your behalf."
+    },
+    "titleEn": "Investment & business in Saudi Arabia",
+    "leadEn": "Saudi Arabia is today one of the fastest-growing economies in the world, with a business environment expanding at the pace of Vision 2030. Here we gather the data and sector guides that help you decide — and we handle execution on your behalf."
+  },
+  "news": {
+    "title": "الأخبار والتحديثات",
+    "lead": "نتابع لك مستجدات المنصات الحكومية وقصص عملائنا وشراكاتنا — لنبقيك على اطّلاع وتبقى أعمالك ممتثلة دائماً.",
+    "platformUpdates": {
+      "eyebrow": "تحديثات المنصات",
+      "title": "منصات نتابعها ونطبّق تحديثاتها فوراً",
+      "subtitle": "نراقب تغييرات الأنظمة على المنصات الحكومية ونطبّقها على ملفات عملائنا مباشرة.",
+      "items": [
+        {
+          "platform": "قوى",
+          "text": "توثيق العقود، التأشيرات، نقل الخدمات، ومؤشرات التوطين (نطاقات) — نديرها ونتابع اشتراكك السنوي حسب حجم منشأتك.",
+          "platformEn": "Qiwa",
+          "textEn": "Contract authentication, visas, sponsorship transfer, and Saudization indicators (Nitaqat) — we manage them and follow up your annual subscription by entity size."
+        },
+        {
+          "platform": "مقيم / أبشر أعمال",
+          "text": "إصدار وتجديد الإقامات، تأشيرات الخروج والعودة، وإدارة بيانات العمالة.",
+          "platformEn": "Muqeem / Absher Business",
+          "textEn": "Issuing and renewing residencies, exit-and-re-entry visas, and managing labor data."
+        },
+        {
+          "platform": "مدد",
+          "text": "حماية الأجور (WPS)، إضافة وإزالة الموظفين، ومعالجة الرواتب المرتبطة بالبنوك.",
+          "platformEn": "Mudad",
+          "textEn": "Wage Protection (WPS), adding and removing employees, and processing bank-linked payroll."
+        },
+        {
+          "platform": "التأمينات (GOSI)",
+          "text": "تسجيل المشتركين، الشهادات، والفوترة — نضمن استمرار امتثالك.",
+          "platformEn": "GOSI",
+          "textEn": "Registering subscribers, certificates, and billing — we keep your compliance continuous."
+        },
+        {
+          "platform": "الزكاة والضريبة (ZATCA)",
+          "text": "التسجيل الضريبي والإقرارات والفوترة الإلكترونية وفق أحدث المتطلبات.",
+          "platformEn": "ZATCA",
+          "textEn": "Tax registration, returns and e-invoicing per the latest requirements."
+        },
+        {
+          "platform": "المركز السعودي للأعمال",
+          "text": "السجلات التجارية، الأسماء التجارية، والتأكيد السنوي وتعديلات العقود.",
+          "platformEn": "Saudi Business Center",
+          "textEn": "Commercial registrations, trade names, annual confirmation and articles amendments."
+        }
+      ],
+      "eyebrowEn": "Platform updates",
+      "titleEn": "Platforms we monitor and apply updates for instantly",
+      "subtitleEn": "We watch regulatory changes on government platforms and apply them to our clients' files directly."
+    },
+    "successStories": {
+      "eyebrow": "قصص نجاح",
+      "title": "نماذج من نتائج عملائنا",
+      "note": "نماذج توضيحية — ننشر قصص عملائنا الحقيقية هنا تباعاً بعد اعتماد النشر.",
+      "items": [
+        {
+          "text": "تأسيس شركة ذات مسؤولية محدودة وإصدار السجل التجاري وربط المنصات الحكومية — جاهزة للتشغيل بخطوات واضحة.",
+          "tag": "تأسيس شركات",
+          "textEn": "LLC formation, Commercial Registration issuance, and linking government platforms — ready to operate with clear steps.",
+          "tagEn": "Company formation"
+        },
+        {
+          "text": "استخراج ترخيص استثمار أجنبي (MISA) وتأسيس فرع بملكية كاملة لعميل دولي.",
+          "tag": "استثمار أجنبي",
+          "textEn": "Issuing a foreign investment license (MISA) and setting up a fully-owned branch for an international client.",
+          "tagEn": "Foreign investment"
+        },
+        {
+          "text": "إدارة كاملة لملفات قوى والتأمينات ومدد مع متابعة الامتثال الدوري.",
+          "tag": "موارد بشرية",
+          "textEn": "Full management of Qiwa, GOSI and Mudad files with periodic compliance follow-up.",
+          "tagEn": "HR services"
+        }
+      ],
+      "eyebrowEn": "Success stories",
+      "titleEn": "Examples of our clients' results",
+      "noteEn": "Illustrative examples — we'll publish our clients' real stories here as publishing is approved."
+    },
+    "partnerships": {
+      "eyebrow": "شراكات",
+      "title": "شراكاتنا",
+      "note": "نعلن عن شراكاتنا مع الجهات والمنصات قريباً. للتعاون أو الشراكة، تواصل معنا عبر الوكيل الذكي.",
+      "eyebrowEn": "Partnerships",
+      "titleEn": "Our partnerships",
+      "noteEn": "We'll announce our partnerships with authorities and platforms soon. For collaboration or partnership, contact us via the smart agent."
+    },
+    "titleEn": "News & updates",
+    "leadEn": "We track government-platform updates, client stories and our partnerships — to keep you informed and your business always compliant.",
+    "weeklyNote": "قريباً — ملخص أسبوعي لأهم مستجدات الأنظمة والمنصات الحكومية. تابع قناتنا في واتساب ليصلك أولاً بأول.",
+    "weeklyNoteEn": "Coming soon — a weekly roundup of the most important regulatory and platform updates. Follow our WhatsApp channel to get it first."
+  },
+  "careers": {
+    "title": "الوظائف والتوظيف",
+    "lead": "سواء كنت صاحب عمل يبحث عن كفاءات، أو باحثاً عن فرصتك القادمة — بيزنس بارتنر يربط الطرفين.",
+    "employer": {
+      "eyebrow": "لأصحاب الأعمال",
+      "title": "وظّف الكفاءات المناسبة، بسرعة",
+      "text": "ندير لك رحلة التوظيف والاستقدام من الاستقطاب حتى المباشرة، ونصلك بالمرشّحين المناسبين من قاعدة تضم أكثر من 50,000 سيرة ذاتية.",
+      "cta": "وظّف معنا الآن"
+    },
+    "seeker": {
+      "eyebrow": "للباحثين عن عمل",
+      "title": "قدّم سيرتك الذاتية",
+      "text": "أرفق سيرتك الذاتية وسجّل تخصصك، وكن ضمن قاعدة مرشّحينا. نوصلك بالفرص المناسبة لخبرتك ونتواصل معك عند توفّر وظيفة تناسبك.",
+      "note": "ارفع سيرتك الذاتية مباشرةً من الزر (PDF/Word) لتصل إلى فريقنا وتُضاف إلى قاعدة المرشّحين. (الربط الآلي بالمنظومة — n8n وNotion — قيد الإطلاق.)",
+      "cta": "أرسل سيرتك الذاتية",
+      "fields": {
+        "name": "الاسم الكامل",
+        "phone": "رقم الجوال",
+        "email": "البريد الإلكتروني",
+        "field": "المجال / التخصص",
+        "experience": "سنوات الخبرة",
+        "cv": "السيرة الذاتية (PDF)"
+      }
+    }
+  },
+  "commerce": {
+    "cartTitle": "سلة الطلبات",
+    "cartEmpty": "سلتك فارغة حالياً. تصفّح الخدمات والباقات وأضِف ما يناسبك.",
+    "checkoutTitle": "إتمام الطلب — تحويل بنكي",
+    "checkoutIntro": "حالياً الدفع يتم عبر التحويل البنكي. أدخل بياناتك، أرسل الطلب، ثم حوّل المبلغ على الحساب البنكي وارفع صورة الإيصال ليُعتمد طلبك ويبدأ التنفيذ. (الدفع الإلكتروني قيد الربط قريباً.)",
+    "steps": [
+      {
+        "n": "1",
+        "titleEn": "Review your cart",
+        "title": "راجع سلتك",
+        "textEn": "Confirm your selected services, packages and the total amount.",
+        "text": "تأكد من الخدمات والباقات المضافة والمبلغ الإجمالي."
+      },
+      {
+        "n": "2",
+        "titleEn": "Your details & documents",
+        "title": "أدخل بياناتك وارفع ملفاتك",
+        "textEn": "Name, mobile and email, plus any required documents for your service.",
+        "text": "الاسم والجوال والبريد، مع رفع المستندات المطلوبة لخدمتك (إن وجدت)."
+      },
+      {
+        "n": "3",
+        "titleEn": "Transfer & upload receipt",
+        "title": "حوّل بنكياً وارفع الإيصال",
+        "textEn": "Transfer the amount to our bank account, then upload the receipt image.",
+        "text": "حوّل المبلغ على حسابنا البنكي، ثم ارفع صورة إيصال التحويل."
+      },
+      {
+        "n": "4",
+        "titleEn": "We start execution",
+        "title": "نبدأ التنفيذ",
+        "textEn": "We review your order and contact you on WhatsApp to begin the service.",
+        "text": "نراجع طلبك ونتواصل معك عبر واتساب لبدء تنفيذ الخدمة."
+      }
+    ],
+    "vatNote": "الأسعار المعروضة أتعاب بيزنس بارتنر. تُضاف ضريبة القيمة المضافة (15%)، والرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.",
+    "cartTitleEn": "Your cart",
+    "cartEmptyEn": "Your cart is empty. Browse services and packages and add what suits you.",
+    "checkoutTitleEn": "Checkout — bank transfer",
+    "checkoutIntroEn": "For now, payment is by bank transfer. Enter your details, submit the order, then transfer the amount to the bank account and upload the receipt so your order is approved and execution begins. (Online payment is being integrated soon.)",
+    "vatNoteEn": "Displayed prices are Business Partner fees. VAT (15%) is added, and government fees (where applicable) are separate and announced before starting."
+  },
+  "account": {
+    "title": "منصّة العملاء والشركاء",
+    "lead": "سجّل دخولك لمتابعة طلباتك، رفع مستنداتك، وتتبّع حالة خدماتك مع بيزنس بارتنر.",
+    "loginTitle": "تسجيل الدخول",
+    "registerTitle": "حساب جديد",
+    "demoNote": "هذه نسخة تجريبية للواجهة — يُحفظ الحساب مؤقتاً في متصفحك فقط. الربط بنظام الشركاء (Notion CRM + تحقق آمن) قيد الإطلاق.",
+    "titleEn": "Clients & Partners portal",
+    "leadEn": "Sign in to track your orders, upload your documents, and follow your services with Business Partner.",
+    "demoNoteEn": "This is a front-end preview — the account is stored temporarily in your browser only. Integration with the partners system (Notion CRM + secure verification) is coming soon."
+  },
+  "overrides": {
+    "bp-rec-03": {
+      "name": "التوظيف والتعاقد الخارجي",
+      "description": "نتولّى التوظيف والتعاقد الخارجي نيابةً عنك (تشغيل الموظفين تحت مظلّتنا) — من الاستقطاب حتى المباشرة والامتثال، بأتعاب لكل مرشّح."
+    },
+    "bp-rec-04": {
+      "name": "الاستقطاب التنفيذي",
+      "description": "استقطاب القيادات والكفاءات التنفيذية للمناصب العليا في منشأتك — بحث وترشيح دقيق للكفاءة المناسبة، بأتعاب تُحتسب حسب قيمة التعاقد."
+    },
+    "bp-rec-06": {
+      "name": "التوظيف الجماعي",
+      "description": "توظيف أعداد كبيرة من الكوادر دفعةً واحدة لمشاريعك ومنشآتك — استقطاب وترشيح جماعي منظّم، بأتعاب لكل مرشّح."
+    },
+    "bp-rec-05": {
+      "name": "التوظيف المحلي",
+      "description": "خدمة استقطاب وتوظيف الكوادر السعودية للمنشآت — نبحث ونرشّح ونوظّف الكفاءة المناسبة لنشاطك. أتعابنا تعادل نصف الراتب الشهري للموظف الذي يتم توظيفه.",
+      "priceLabel": "نصف الراتب الشهري",
+      "priceNote": "مثال: راتب 4,000 ﷼ → أتعابنا 2,000 ﷼.",
+      "audience": "منشآت",
+      "features": [
+        "استقطاب وترشيح الكوادر السعودية المناسبة لنشاطك",
+        "أتعاب واضحة = نصف الراتب الشهري للموظف",
+        "دعم التوطين والالتزام بنسب نطاقات",
+        "متابعة حتى مباشرة الموظف للعمل"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحتسب الأتعاب؟",
+          "a": "أتعابنا تعادل نصف الراتب الشهري للموظف الذي يتم توظيفه. مثال: راتب 4,000 ﷼ تكون الأتعاب 2,000 ﷼."
+        },
+        {
+          "q": "لمن هذه الخدمة؟",
+          "a": "للمنشآت التي تبحث عن استقطاب وتوظيف كوادر سعودية."
+        },
+        {
+          "q": "هل تساعد في التوطين؟",
+          "a": "نعم، نساعدك على استقطاب السعوديين وتحسين نسب التوطين (نطاقات)."
+        }
+      ]
+    },
+    "bp-tour-01": {
+      "name": "فعاليات وأنشطة الشركات",
+      "description": "نصمّم لموظفيك فعاليات وأنشطة داخل مقر الشركة أو خارجه — نبحث لك عن عروض من الشركات المزوّدة للخدمة ونجلب لك أفضل 5 عروض لتختار الأنسب. أتعابنا 2,500 ﷼ فقط.",
+      "priceLabel": "2,500 ﷼",
+      "priceAmount": 2500,
+      "priceNote": "أتعاب بيزنس بارتنر، ونجلب لك أفضل 5 عروض من المزوّدين.",
+      "audience": "منشآت",
+      "features": [
+        "فعاليات وأنشطة لموظفيك داخل المقر أو خارجه",
+        "نبحث عن العروض من الشركات المزوّدة",
+        "نجلب لك أفضل 5 عروض للمقارنة والاختيار",
+        "تنظيم ومتابعة حتى تنفيذ الفعالية"
+      ],
+      "faq": [
+        {
+          "q": "ما الذي تشمله الخدمة؟",
+          "a": "تنظيم فعاليات وأنشطة لموظفي شركتك داخل المقر أو خارجه، مع البحث عن العروض المناسبة."
+        },
+        {
+          "q": "كم عدد العروض التي أحصل عليها؟",
+          "a": "نجلب لك أفضل 5 عروض من الشركات المزوّدة لتختار الأنسب."
+        },
+        {
+          "q": "كم الأتعاب؟",
+          "a": "أتعاب بيزنس بارتنر لهذه الخدمة 2,500 ﷼."
+        }
+      ]
+    },
+    "bp-fi-03": {
+      "description": "تأسيس كيان قانوني مستقل خاضع للأنظمة السعودية، يمثّل امتداداً لنشاط شركة أجنبية قائمة، ويمارس نشاطه مباشرةً في السوق السعودي. نتولّى في بيزنس بارتنر كامل المسار — من ترخيص MISA إلى السجل التجاري والتسجيلات اللاحقة — بخبرة في أنظمة التأسيس وتفاصيلها الدقيقة. تتاح الملكية الكاملة 100% لحاملي الإقامة المميزة أو الشركات القائمة خارج المملكة بالمستندات المصدّقة.",
+      "duration": "تختلف حسب الترخيص والنشاط",
+      "audience": "أفراد ومنشآت",
+      "documents": [
+        "السجل التجاري للشركة الأم — مصدّق من الخارجية والسفارة السعودية",
+        "عقد التأسيس والنظام الأساسي للشركة الأم — مصدّق من الخارجية والسفارة السعودية",
+        "القوائم المالية المدققة للشركة الأم (آخر سنة مالية)",
+        "قرار مجلس الإدارة بالموافقة على فتح فرع/شركة في السعودية",
+        "توكيل رسمي لممثل الشركة في السعودية — مصدّق",
+        "خطاب تعيين المدير العام للفرع في السعودية"
+      ],
+      "features": [
+        "ملكية 100% (بالشروط)",
+        "دخول أكبر أسواق الشرق الأوسط",
+        "ترخيص MISA يعزّز السمعة الدولية",
+        "دعم قانوني وإداري كامل",
+        "بوابة لأسواق منطقة الشرق الأوسط وشمال أفريقيا",
+        "حوافز وإعفاءات في بعض القطاعات"
+      ],
+      "faq": [
+        {
+          "q": "هل تمارس الشركة نشاطها مباشرة بعد التأسيس؟",
+          "a": "نعم، تمارس نشاطها مباشرةً في السوق السعودي بعد اكتمال التأسيس والتسجيلات."
+        },
+        {
+          "q": "ما الالتزامات بعد التأسيس؟",
+          "a": "الامتثال للأنظمة، الضرائب والرسوم، التقارير المالية الدورية، والالتزام بأنظمة العمل."
+        },
+        {
+          "q": "كم تستغرق المدة؟",
+          "a": "تختلف حسب النشاط والترخيص، ونحددها بدقة بعد معرفة تفاصيل نشاطك."
+        },
+        {
+          "q": "متى تتاح الملكية الكاملة 100%؟",
+          "a": "عند حمل إقامة مميزة، أو وجود شركة قائمة خارج المملكة بالمستندات المصدّقة المطلوبة."
+        }
+      ],
+      "durationEn": "Varies by license and activity"
+    },
+    "bp-pr-01": {
+      "description": "مبادرة لجذب الكفاءات والمستثمرين ضمن رؤية 2030. توفّر إقامة دائمة (برسوم مقطوعة) أو سنوية متجددة، إضافةً لمنتجات فئوية (كفاءة استثنائية، موهبة، مستثمر أعمال، رائد أعمال، مالك عقار). تمنح حق تملّك العقار ووسائل النقل، والعمل والاستثمار، واستقدام الأسرة والعمالة — بلا كفيل. نتولّى في بيزنس بارتنر اختيار المنتج الأنسب لحالتك وإدارة الطلب حتى الإصدار.",
+      "duration": "الموافقة عادةً خلال 30–90 يوماً",
+      "audience": "أفراد",
+      "documents": [
+        "صورة جواز السفر (ساري 180 يوماً فأكثر)",
+        "شهادة عدم وجود سوابق جنائية",
+        "تقارير طبية محدّثة",
+        "إثبات الملاءة المالية (كشف حساب بنكي / شهادة دخل)",
+        "الإقامة النظامية (إن وجدت)"
+      ],
+      "features": [
+        "إقامة بلا كفيل",
+        "حرية الدخول والخروج",
+        "إقامة الأسرة (الزوج/الزوجة والأبناء)",
+        "تملّك العقار السكني والتجاري",
+        "امتلاك وسائل النقل",
+        "ممارسة الأعمال والاستثمار والعمل في القطاع الخاص",
+        "استقدام العمالة المنزلية وتأشيرات زيارة للأقارب"
+      ],
+      "faq": [
+        {
+          "q": "ما هي الإقامة المميزة؟",
+          "a": "نظام إقامة بمزايا إضافية تشمل التملّك والاستثمار بلا كفيل، ضمن مبادرة جذب الكفاءات والمستثمرين في رؤية 2030."
+        },
+        {
+          "q": "ما المتطلبات؟",
+          "a": "جواز ساري، شهادة صحية، سجل جنائي نظيف، وإثبات ملاءة مالية."
+        },
+        {
+          "q": "ما المدة؟",
+          "a": "سنوية متجددة أو دائمة برسوم مقطوعة، حسب المنتج الأنسب لحالتك."
+        },
+        {
+          "q": "هل تشمل الأسرة؟",
+          "a": "نعم، تشمل الزوج/الزوجة والأبناء."
+        }
+      ],
+      "durationEn": "Approval usually within 30–90 days"
+    },
+    "bp-saip-01": {
+      "description": "خدمة متكاملة لتسجيل ونقل وتوثيق العلامات التجارية لدى الهيئة السعودية للملكية الفكرية (SAIP) — للأفراد والشركات داخل السعودية والخليج والعالم، دون الحاجة للحضور الشخصي أو ممارسة نشاط داخل المملكة. تشمل التسجيل، والتجديد لضمان استمرار الحماية، ونقل الملكية.",
+      "duration": "60–90 يوم عمل (القبول المبدئي خلال نحو 7 أيام)",
+      "audience": "أفراد ومنشآت",
+      "documents": [
+        "وصف تفصيلي للعلامة + تصنيف المنتجات/الخدمات (فئة نيس)",
+        "نسخة من الوثائق الرسمية (سجل تجاري أو هوية)",
+        "عقد رسمي لنقل الملكية (عند طلب النقل)",
+        "طلب التجديد قبل انتهاء الحماية + سداد الرسوم",
+        "وكالة مصدّقة من السفارة السعودية (للشركات خارج المملكة)"
+      ],
+      "features": [
+        "حماية قانونية ومنع الاستخدام غير المصرّح",
+        "تسجيل عن بُعد بلا حضور شخصي",
+        "دعم للشركات الخليجية والدولية",
+        "حماية 10 سنوات قابلة للتجديد",
+        "تسجيل ونقل ملكية آمن وقانوني"
+      ],
+      "faq": [
+        {
+          "q": "ما العلامة التجارية؟",
+          "a": "رمز أو شعار يميّز منتجاً أو خدمة عن غيرها لدى الهيئة السعودية للملكية الفكرية (SAIP)."
+        },
+        {
+          "q": "ما المتطلبات؟",
+          "a": "نموذج العلامة، وثائق الملكية، وسداد الرسوم."
+        },
+        {
+          "q": "ما المدة والصلاحية؟",
+          "a": "التسجيل 60–90 يوم عمل، والحماية 10 سنوات قابلة للتجديد."
+        },
+        {
+          "q": "هل يمكن للشركات خارج المملكة التسجيل؟",
+          "a": "نعم، عبر وكالة مصدّقة من السفارة السعودية."
+        }
+      ],
+      "durationEn": "60–90 working days (initial acceptance in ~7 days)"
+    },
+    "bp-sbc-16": {
+      "description": "خدمة إلكترونية من وزارة الصناعة والثروة المعدنية لمزاولة الأنشطة الصناعية قانونياً. نوعان: ترخيص مبدئي (لمراحل التخطيط والتأسيس) وترخيص نهائي (للمصانع الجاهزة للتشغيل الكامل والإنتاج). نتولّى في بيزنس بارتنر تصنيف النشاط، وتجهيز المستندات، والرفع على منصة «صناعي»، والمتابعة حتى الإصدار.",
+      "duration": "5–10 أيام عمل (وقد تصل 20–30 يوماً للحالات المعقّدة)",
+      "audience": "منشآت",
+      "documents": [
+        "الوثائق الرسمية (سجل تجاري أو هوية)",
+        "دراسة جدوى المشروع",
+        "مخططات هندسية للمصنع",
+        "بيانات دقيقة عن النشاط الصناعي"
+      ],
+      "features": [
+        "تشغيل قانوني للمشاريع الصناعية",
+        "ترخيص مبدئي أو نهائي حسب المرحلة",
+        "إعفاءات جمركية للمعدات والمواد الأولية",
+        "دعم مالي واستشارات فنية من الوزارة",
+        "مصداقية قانونية أمام الجهات والشركاء"
+      ],
+      "faq": [
+        {
+          "q": "ما المتطلبات؟",
+          "a": "دراسة جدوى، مخططات هندسية، والتزام بمعايير البيئة والسلامة."
+        },
+        {
+          "q": "ما المدة؟",
+          "a": "تختلف حسب النشاط، مع إصدار سريع للحالات المكتملة."
+        },
+        {
+          "q": "هل يشمل الصناعات الصغيرة؟",
+          "a": "نعم، يغطّي كل أنواع الأنشطة الصناعية."
+        }
+      ],
+      "durationEn": "5–10 working days (up to 20–30 days for complex cases)"
+    },
+    "bp-pl-0057": {
+      "description": "أداة أساسية لتحليل وتقييم المشاريع والتأكد من جدواها وقابليتها للتنفيذ — تغطّي الجوانب المالية والتسويقية والتقنية والقانونية. تساعد على اتخاذ قرارات مستنيرة، وتحديد الفرص، وتقييم المخاطر، وموازنة التكاليف والعوائد. يعدّها فريق بيزنس بارتنر المتخصص بتقرير شامل وتوصيات دقيقة.",
+      "duration": "4–8 أسابيع حسب حجم المشروع",
+      "audience": "أفراد ومنشآت",
+      "documents": [
+        "فكرة واضحة عن المشروع",
+        "بيانات مالية مبدئية",
+        "تحديد السوق المستهدف",
+        "توضيح الأهداف والرؤية",
+        "أي معلومات إضافية عند الطلب"
+      ],
+      "features": [
+        "تحليل شامل من الجوانب المالية والتسويقية والتقنية والقانونية",
+        "تقليل المخاطر ووضوح الجدوى المالية",
+        "دعم القرارات الاستراتيجية",
+        "تساعد في تأمين تمويل من المستثمرين أو البنوك",
+        "شرط أساسي للترخيص الصناعي وبعض التمويل"
+      ],
+      "faq": [
+        {
+          "q": "ما العناصر الأساسية للدراسة؟",
+          "a": "تحليل السوق، التكاليف، الإيرادات المتوقعة، والخطة التشغيلية."
+        },
+        {
+          "q": "ما المدة؟",
+          "a": "4–8 أسابيع حسب تعقيد المشروع."
+        },
+        {
+          "q": "هل هي إلزامية؟",
+          "a": "نعم في معظم الحالات، وهي شرط للترخيص الصناعي وتمويل الصندوق الصناعي."
+        }
+      ],
+      "durationEn": "4–8 weeks depending on project size"
+    },
+    "bp-gr-01": {
+      "description": "خدمة من وزارة الشؤون البلدية والقروية والإسكان لتصنيف المقاولين حسب قدراتهم المالية والفنية والإدارية. شهادة التصنيف شرط أساسي للمشاركة في المشاريع الحكومية الكبرى — تعكس الكفاءة وتعزّز ثقة العملاء. نتولّى في بيزنس بارتنر كامل إجراءات التصنيف من التقييم حتى إصدار الشهادة.",
+      "duration": "30–45 يوم عمل",
+      "audience": "منشآت",
+      "documents": [
+        "سجل تجاري ساري",
+        "التسجيل في الهيئة السعودية للمقاولين",
+        "مهندس/مهني معتمد واحد على الأقل لدى الشركة",
+        "إيداع القوائم المالية في برنامج «قوائم»",
+        "شهادات إنجاز المشاريع السابقة + تفاصيل القدرات الفنية والإدارية"
+      ],
+      "features": [
+        "المنافسة في المشاريع الحكومية الكبرى",
+        "تعزيز ثقة العملاء",
+        "دليل على الكفاءة الفنية والمالية",
+        "تحسين جودة الأداء",
+        "شرط لبعض أشكال الدعم المالي"
+      ],
+      "faq": [
+        {
+          "q": "ما فوائد التصنيف؟",
+          "a": "يتيح المنافسة في المشاريع الحكومية الكبرى ويعزّز مصداقيتك."
+        },
+        {
+          "q": "ما المستندات؟",
+          "a": "القوائم المالية، شهادات الإنجاز، وتفاصيل القدرات الفنية والإدارية."
+        },
+        {
+          "q": "ما المدة؟",
+          "a": "30–45 يوم عمل."
+        },
+        {
+          "q": "هل هو إلزامي؟",
+          "a": "نعم للمشاركة في المشاريع الحكومية الكبرى."
+        }
+      ],
+      "durationEn": "30–45 working days"
+    }
+  },
+  "social": {
+    "linkedin": "https://www.linkedin.com/company/108785026/",
+    "instagram": "https://www.instagram.com/businesspartnersa/",
+    "facebook": "https://www.facebook.com/BusinessPartnerKsa/"
+  },
+  "booking": {
+    "title": "احجز استشارتك",
+    "titleEn": "Book your consultation",
+    "lead": "اختر الموضوع والوقت المناسب، وسيتواصل معك مستشار مختص لتأكيد الموعد. الاستشارة الأولى مجانية.",
+    "leadEn": "Pick a topic and a time that suits you, and a specialist consultant will confirm your appointment. The first consultation is free.",
+    "topics": [
+      {
+        "key": "formation",
+        "ar": "تأسيس شركة",
+        "en": "Company formation"
+      },
+      {
+        "key": "misa",
+        "ar": "استثمار أجنبي وترخيص MISA",
+        "en": "Foreign investment & MISA license"
+      },
+      {
+        "key": "pr",
+        "ar": "الإقامة المميزة",
+        "en": "Premium Residency"
+      },
+      {
+        "key": "gr",
+        "ar": "العلاقات الحكومية والامتثال",
+        "en": "Government relations & compliance"
+      },
+      {
+        "key": "hr",
+        "ar": "الموارد البشرية والتوظيف",
+        "en": "HR & recruitment"
+      },
+      {
+        "key": "ai",
+        "ar": "الوكلاء الأذكياء",
+        "en": "AI agents"
+      },
+      {
+        "key": "other",
+        "ar": "موضوع آخر",
+        "en": "Other"
+      }
+    ],
+    "times": [
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00"
+    ],
+    "steps": [
+      {
+        "n": "1",
+        "ar": "عبّئ النموذج",
+        "arText": "اختر الموضوع والتاريخ والوقت المناسب لك.",
+        "en": "Fill the form",
+        "enText": "Choose the topic, date and time that suit you."
+      },
+      {
+        "n": "2",
+        "ar": "تأكيد فوري",
+        "arText": "يصلك تأكيد على بريدك مع رابط إضافة الموعد إلى تقويم Google.",
+        "en": "Instant confirmation",
+        "enText": "You get an email confirmation with a Google Calendar link."
+      },
+      {
+        "n": "3",
+        "ar": "نلتقي",
+        "arText": "يتواصل معك مستشارنا في الموعد المحدد.",
+        "en": "We meet",
+        "enText": "Our consultant contacts you at the scheduled time."
+      }
+    ]
+  }
+}

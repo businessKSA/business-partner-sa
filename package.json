@@ -1,7 +1,7 @@
 {
-  "name": "business-partner-sa",
+  "name": "business-partner-3.0-website",
   "type": "module",
-  "version": "0.0.1",
+  "version": "3.0.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

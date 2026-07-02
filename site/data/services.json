@@ -1,0 +1,1735 @@
+[
+ {
+  "code": "BP-CHAMBER-01",
+  "slug": "bp-chamber-01",
+  "name": "Chamber of Commerce membership",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "الغرفة التجارية",
+  "description": "نتولّى في Business Partner تنفيذ «Chamber of Commerce membership» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "300 ﷼",
+   "amount": 300
+  }
+ },
+ {
+  "code": "BP-PL-0001",
+  "slug": "bp-pl-0001",
+  "name": "تأسيس شركة سعودية (ذات مسؤولية محدودة)",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «تأسيس شركة سعودية (ذات مسؤولية محدودة)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Commercial Registration (CR)",
+   "Articles of Association",
+   "Chamber of Commerce membership"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-PL-0066",
+  "slug": "bp-pl-0066",
+  "name": "Pre‑incorporation consultation",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «Pre‑incorporation consultation» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "500 ﷼",
+   "amount": 500
+  }
+ },
+ {
+  "code": "BP-SBC-01",
+  "slug": "bp-sbc-01",
+  "name": "Saudi Company Formation",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «Saudi Company Formation» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Reserved trade name",
+   "drafted & notarized Articles of Association",
+   "Commercial Registration (CR)",
+   "Chamber of Commerce membership",
+   "initial ZATCA/VAT registration"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": false,
+  "price": {
+   "label": "7,500 ﷼",
+   "amount": 7500
+  }
+ },
+ {
+  "code": "BP-SBC-02",
+  "slug": "bp-sbc-02",
+  "name": "إصدار سجل تجاري جديد",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار سجل تجاري جديد» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "85 ﷼",
+   "amount": 85
+  }
+ },
+ {
+  "code": "BP-SBC-03",
+  "slug": "bp-sbc-03",
+  "name": "إصدار عقد تأسيس وتوثيقه (لشركة جديدة)",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار عقد تأسيس وتوثيقه (لشركة جديدة)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Drafted & notarized incorporation contract (Articles of Association)"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "3,000 ﷼",
+   "amount": 3000
+  }
+ },
+ {
+  "code": "BP-SBC-04",
+  "slug": "bp-sbc-04",
+  "name": "Commercial Registration (CR) issuance",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «Commercial Registration (CR) issuance» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "450 ﷼",
+   "amount": 450
+  }
+ },
+ {
+  "code": "BP-SBC-05",
+  "slug": "bp-sbc-05",
+  "name": "Company name reservation",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «Company name reservation» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "250 ﷼",
+   "amount": 250
+  }
+ },
+ {
+  "code": "BP-SBC-06",
+  "slug": "bp-sbc-06",
+  "name": "فتح حساب شركة على منصة أبشر أعمال",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "أبشر أعمال",
+  "description": "نتولّى في Business Partner تنفيذ «فتح حساب شركة على منصة أبشر أعمال» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "200 ﷼",
+   "amount": 200
+  }
+ },
+ {
+  "code": "BP-SBC-07",
+  "slug": "bp-sbc-07",
+  "name": "فتح فرع لشركة قائمة (محلية أو أجنبية)",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «فتح فرع لشركة قائمة (محلية أو أجنبية)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "15,000 ﷼",
+   "amount": 15000
+  }
+ },
+ {
+  "code": "BP-SBC-08",
+  "slug": "bp-sbc-08",
+  "name": "تصفية شركة (شطب السجل وإنهاء الكيان)",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «تصفية شركة (شطب السجل وإنهاء الكيان)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Liquidation completed",
+   "CR struck off",
+   "entity closure certificate"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "4,000 ﷼",
+   "amount": 4000
+  }
+ },
+ {
+  "code": "BP-SBC-09",
+  "slug": "bp-sbc-09",
+  "name": "إصدار شهادة شطب سجل تجاري",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار شهادة شطب سجل تجاري» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "39 ﷼",
+   "amount": 39
+  }
+ },
+ {
+  "code": "BP-SBC-10",
+  "slug": "bp-sbc-10",
+  "name": "تعديل عقد تأسيس / قرارات شركاء",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «تعديل عقد تأسيس / قرارات شركاء» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,000 ﷼",
+   "amount": 1000
+  }
+ },
+ {
+  "code": "BP-SBC-11",
+  "slug": "bp-sbc-11",
+  "name": "تعديل سجل تجاري",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «تعديل سجل تجاري» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "39 ﷼",
+   "amount": 39
+  }
+ },
+ {
+  "code": "BP-SBC-12",
+  "slug": "bp-sbc-12",
+  "name": "حجز اسم تجاري",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «حجز اسم تجاري» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "65 ﷼",
+   "amount": 65
+  }
+ },
+ {
+  "code": "BP-SBC-13",
+  "slug": "bp-sbc-13",
+  "name": "شطب سجل تجاري (إلغاء السجل)",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «شطب سجل تجاري (إلغاء السجل)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "49 ﷼",
+   "amount": 49
+  }
+ },
+ {
+  "code": "BP-SBC-14",
+  "slug": "bp-sbc-14",
+  "name": "Legal form transformation (sole→LLC / LLC→sole)",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «Legal form transformation (sole→LLC / LLC→sole)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,800 ﷼",
+   "amount": 1800
+  }
+ },
+ {
+  "code": "BP-SBC-15",
+  "slug": "bp-sbc-15",
+  "name": "Articles of Association drafting & notarization support",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «Articles of Association drafting & notarization support» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "2,000 ﷼",
+   "amount": 2000
+  }
+ },
+ {
+  "code": "BP-SBC-16",
+  "slug": "bp-sbc-16",
+  "name": "خدمات تأسيس مصانع وإصدار تراخيص صناعية",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "متعدد الجهات",
+  "description": "نتولّى في Business Partner تنفيذ «خدمات تأسيس مصانع وإصدار تراخيص صناعية» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Industrial license",
+   "factory Commercial Registration",
+   "related MODON/MISA approvals"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "10,000 ﷼",
+   "amount": 10000
+  }
+ },
+ {
+  "code": "BP-SBC-17",
+  "slug": "bp-sbc-17",
+  "name": "طلب إفادة تجارية (خطاب من وزارة التجارة)",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «طلب إفادة تجارية (خطاب من وزارة التجارة)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "19 ﷼",
+   "amount": 19
+  }
+ },
+ {
+  "code": "BP-SBC-18",
+  "slug": "bp-sbc-18",
+  "name": "تحويل مؤسسة إلى شركة (أو العكس)",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «تحويل مؤسسة إلى شركة (أو العكس)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "2,000 ﷼",
+   "amount": 2000
+  }
+ },
+ {
+  "code": "BP-SBC-19",
+  "slug": "bp-sbc-19",
+  "name": "تجديد سجل تجاري",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «تجديد سجل تجاري» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "70 ﷼",
+   "amount": 70
+  }
+ },
+ {
+  "code": "BP-SBC-20",
+  "slug": "bp-sbc-20",
+  "name": "استخراج مستخرج سجل تجاري تفصيلي",
+  "category": "Company Formation",
+  "categoryAr": "تأسيس الشركات",
+  "govPlatform": "المركز السعودي للأعمال",
+  "description": "نتولّى في Business Partner تنفيذ «استخراج مستخرج سجل تجاري تفصيلي» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "150 ﷼",
+   "amount": 150
+  }
+ },
+ {
+  "code": "BP-FI-01",
+  "slug": "bp-fi-01",
+  "name": "Foreign Investor Company Formation",
+  "category": "Foreign Investment",
+  "categoryAr": "الاستثمار الأجنبي",
+  "govPlatform": "وزارة الاستثمار MISA",
+  "description": "نتولّى في Business Partner تنفيذ «Foreign Investor Company Formation» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "MISA license",
+   "Commercial Registration (CR)",
+   "Chamber of Commerce membership",
+   "ZATCA/VAT registration. (Secondary licensing & back-office available as add-ons.)"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "22,500 ﷼",
+   "amount": 22500
+  }
+ },
+ {
+  "code": "BP-FI-02",
+  "slug": "bp-fi-02",
+  "name": "استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)",
+  "category": "Foreign Investment",
+  "categoryAr": "الاستثمار الأجنبي",
+  "govPlatform": "وزارة الاستثمار MISA",
+  "description": "نتولّى في Business Partner تنفيذ «استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "10,000 ﷼",
+   "amount": 10000
+  }
+ },
+ {
+  "code": "BP-FI-03",
+  "slug": "bp-fi-03",
+  "name": "تأسيس شركة أجنبية 100% ملكية (فرع أجنبي)",
+  "category": "Foreign Investment",
+  "categoryAr": "الاستثمار الأجنبي",
+  "govPlatform": "وزارة الاستثمار MISA",
+  "description": "نتولّى في Business Partner تنفيذ «تأسيس شركة أجنبية 100% ملكية (فرع أجنبي)» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "MISA license",
+   "CR",
+   "Chamber of Commerce membership for the wholly-owned entity"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "30,000 ﷼",
+   "amount": 30000
+  }
+ },
+ {
+  "code": "BP-FI-04",
+  "slug": "bp-fi-04",
+  "name": "تأسيس شركة بشراكة أجنبية (مشتركة)",
+  "category": "Foreign Investment",
+  "categoryAr": "الاستثمار الأجنبي",
+  "govPlatform": "وزارة الاستثمار MISA",
+  "description": "نتولّى في Business Partner تنفيذ «تأسيس شركة بشراكة أجنبية (مشتركة)» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "MISA license",
+   "CR",
+   "Chamber of Commerce membership for the joint venture"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "20,000 ﷼",
+   "amount": 20000
+  }
+ },
+ {
+  "code": "BP-FI-05",
+  "slug": "bp-fi-05",
+  "name": "تأسيس شركة برخصة ريادة الأعمال (رائد أعمال)",
+  "category": "Foreign Investment",
+  "categoryAr": "الاستثمار الأجنبي",
+  "govPlatform": "وزارة الاستثمار MISA",
+  "description": "تأسيس شركة برخصة ريادة الأعمال من وزارة الاستثمار (MISA) — تتطلب خطاب دعم من حاضنة/مسرعة/صندوق استثماري معتمد، بدون حد أدنى لرأس المال.",
+  "deliverables": [
+   "MISA Entrepreneur license",
+   "CR",
+   "Chamber membership"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "40,000 ﷼",
+   "amount": 40000
+  }
+ },
+ {
+  "code": "BP-FI-06",
+  "slug": "bp-fi-06",
+  "name": "Branch registration (foreign company)",
+  "category": "Foreign Investment",
+  "categoryAr": "الاستثمار الأجنبي",
+  "govPlatform": "وزارة الاستثمار MISA",
+  "description": "نتولّى في Business Partner تنفيذ «Branch registration (foreign company)» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "12,000 ﷼",
+   "amount": 12000
+  }
+ },
+ {
+  "code": "BP-PL-0067",
+  "slug": "bp-pl-0067",
+  "name": "MISA investor license application",
+  "category": "Foreign Investment",
+  "categoryAr": "الاستثمار الأجنبي",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «MISA investor license application» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "MISA investor license"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "9,500 ﷼",
+   "amount": 9500
+  }
+ },
+ {
+  "code": "BP-PR-01",
+  "slug": "bp-pr-01",
+  "name": "خدمة الإقامة المميزة (إجراءات + تقديم)",
+  "category": "Premium Residency",
+  "categoryAr": "الإقامة المميزة",
+  "govPlatform": "الإقامة المميزة",
+  "description": "نتولّى في Business Partner تنفيذ «خدمة الإقامة المميزة (إجراءات + تقديم)» نيابةً عنك ضمن خدمات الإقامة المميزة — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Document preparation",
+   "application submission and follow-up with the authority"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-PR-02",
+  "slug": "bp-pr-02",
+  "name": "Premium Residency Consultation",
+  "category": "Premium Residency",
+  "categoryAr": "الإقامة المميزة",
+  "govPlatform": "الإقامة المميزة",
+  "description": "نتولّى في Business Partner تنفيذ «Premium Residency Consultation» نيابةً عنك ضمن خدمات الإقامة المميزة — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Eligibility assessment and recommended Premium Residency pathway"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": false,
+  "price": {
+   "label": "4,500 ﷼",
+   "amount": 4500
+  }
+ },
+ {
+  "code": "BP-ABSHER-01",
+  "slug": "bp-absher-01",
+  "name": "Absher Business setup",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "أبشر أعمال",
+  "description": "نتولّى في Business Partner تنفيذ «Absher Business setup» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "300 ﷼",
+   "amount": 300
+  }
+ },
+ {
+  "code": "BP-BALADY-01",
+  "slug": "bp-balady-01",
+  "name": "إصدار رخصة بلدية (مقر تجاري)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "بلدي",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار رخصة بلدية (مقر تجاري)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,000 ﷼",
+   "amount": 1000
+  }
+ },
+ {
+  "code": "BP-BALADY-02",
+  "slug": "bp-balady-02",
+  "name": "عقد نظافة إلكتروني (متطلب بلدي)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "بلدي",
+  "description": "نتولّى في Business Partner تنفيذ «عقد نظافة إلكتروني (متطلب بلدي)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "290 ﷼",
+   "amount": 290
+  }
+ },
+ {
+  "code": "BP-GOSI-01",
+  "slug": "bp-gosi-01",
+  "name": "التسجيل في التأمينات الاجتماعية (GOSI)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "التأمينات GOSI",
+  "description": "نتولّى في Business Partner تنفيذ «التسجيل في التأمينات الاجتماعية (GOSI)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "300 ﷼",
+   "amount": 300
+  }
+ },
+ {
+  "code": "BP-GOSI-02",
+  "slug": "bp-gosi-02",
+  "name": "إضافة موظف سعودي في التأمينات",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "التأمينات GOSI",
+  "description": "نتولّى في Business Partner تنفيذ «إضافة موظف سعودي في التأمينات» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "150 ﷼",
+   "amount": 150
+  }
+ },
+ {
+  "code": "BP-GOSI-03",
+  "slug": "bp-gosi-03",
+  "name": "استخراج شهادة التأمينات الاجتماعية",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "التأمينات GOSI",
+  "description": "نتولّى في Business Partner تنفيذ «استخراج شهادة التأمينات الاجتماعية» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "150 ﷼",
+   "amount": 150
+  }
+ },
+ {
+  "code": "BP-GOSI-04",
+  "slug": "bp-gosi-04",
+  "name": "GOSI registration",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "التأمينات GOSI",
+  "description": "نتولّى في Business Partner تنفيذ «GOSI registration» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "250 ﷼",
+   "amount": 250
+  }
+ },
+ {
+  "code": "BP-GR-01",
+  "slug": "bp-gr-01",
+  "name": "تصنيف المقاولين (الحصول على شهادة تصنيف)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "متعدد الجهات",
+  "description": "نتولّى في Business Partner تنفيذ «تصنيف المقاولين (الحصول على شهادة تصنيف)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-MOD-01",
+  "slug": "bp-mod-01",
+  "name": "إصدار تصريح الدفاع المدني (شهادة سلامة)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "الدفاع المدني",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار تصريح الدفاع المدني (شهادة سلامة)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Civil Defense safety certificate for the premises"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "500 ﷼",
+   "amount": 500
+  }
+ },
+ {
+  "code": "BP-MOD-02",
+  "slug": "bp-mod-02",
+  "name": "تقرير فني سلامة (متطلب الدفاع المدني)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "الدفاع المدني",
+  "description": "نتولّى في Business Partner تنفيذ «تقرير فني سلامة (متطلب الدفاع المدني)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "600 ﷼",
+   "amount": 600
+  }
+ },
+ {
+  "code": "BP-MUDAD-01",
+  "slug": "bp-mudad-01",
+  "name": "Mudad setup (WPS)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "مدد",
+  "description": "نتولّى في Business Partner تنفيذ «Mudad setup (WPS)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "450 ﷼",
+   "amount": 450
+  }
+ },
+ {
+  "code": "BP-MUQEEM-01",
+  "slug": "bp-muqeem-01",
+  "name": "إصدار تأشيرة خروج وعودة",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "مقيم",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار تأشيرة خروج وعودة» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "200 ﷼",
+   "amount": 200
+  }
+ },
+ {
+  "code": "BP-QIWA-01",
+  "slug": "bp-qiwa-01",
+  "name": "Qiwa setup & onboarding",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "قوى",
+  "description": "نتولّى في Business Partner تنفيذ «Qiwa setup & onboarding» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "450 ﷼",
+   "amount": 450
+  }
+ },
+ {
+  "code": "BP-QIWA-02",
+  "slug": "bp-qiwa-02",
+  "name": "نقل كفالة عامل (نقل خدمة)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "قوى",
+  "description": "نتولّى في Business Partner تنفيذ «نقل كفالة عامل (نقل خدمة)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,000 ﷼",
+   "amount": 1000
+  }
+ },
+ {
+  "code": "BP-QIWA-03",
+  "slug": "bp-qiwa-03",
+  "name": "تغيير مهنة عامل",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "قوى",
+  "description": "نتولّى في Business Partner تنفيذ «تغيير مهنة عامل» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "500 ﷼",
+   "amount": 500
+  }
+ },
+ {
+  "code": "BP-QIWA-04",
+  "slug": "bp-qiwa-04",
+  "name": "إضافة مفوض لمنشأة",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "قوى",
+  "description": "نتولّى في Business Partner تنفيذ «إضافة مفوض لمنشأة» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "200 ﷼",
+   "amount": 200
+  }
+ },
+ {
+  "code": "BP-SAIP-01",
+  "slug": "bp-saip-01",
+  "name": "تسجيل علامة تجارية جديدة",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "الملكية الفكرية SAIP",
+  "description": "نتولّى في Business Partner تنفيذ «تسجيل علامة تجارية جديدة» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,000 ﷼",
+   "amount": 1000
+  }
+ },
+ {
+  "code": "BP-SUBL-01",
+  "slug": "bp-subl-01",
+  "name": "National Address registration",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "سُبل",
+  "description": "نتولّى في Business Partner تنفيذ «National Address registration» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "150 ﷼",
+   "amount": 150
+  }
+ },
+ {
+  "code": "BP-ZATCA-01",
+  "slug": "bp-zatca-01",
+  "name": "التسجيل في الزكاة والضريبة (VAT & Zakat)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "الزكاة والضريبة ZATCA",
+  "description": "نتولّى في Business Partner تنفيذ «التسجيل في الزكاة والضريبة (VAT & Zakat)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "500 ﷼",
+   "amount": 500
+  }
+ },
+ {
+  "code": "BP-ZATCA-02",
+  "slug": "bp-zatca-02",
+  "name": "استخراج رقم ضريبي (VAT)",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "الزكاة والضريبة ZATCA",
+  "description": "نتولّى في Business Partner تنفيذ «استخراج رقم ضريبي (VAT)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "350 ﷼",
+   "amount": 350
+  }
+ },
+ {
+  "code": "BP-ZATCA-03",
+  "slug": "bp-zatca-03",
+  "name": "تقديم إقرار الزكاة السنوي",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "الزكاة والضريبة ZATCA",
+  "description": "نتولّى في Business Partner تنفيذ «تقديم إقرار الزكاة السنوي» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "500 ﷼",
+   "amount": 500
+  }
+ },
+ {
+  "code": "BP-ZATCA-04",
+  "slug": "bp-zatca-04",
+  "name": "ZATCA VAT registration",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "الزكاة والضريبة ZATCA",
+  "description": "نتولّى في Business Partner تنفيذ «ZATCA VAT registration» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "350 ﷼",
+   "amount": 350
+  }
+ },
+ {
+  "code": "BP-ZATCA-05",
+  "slug": "bp-zatca-05",
+  "name": "تقديم إقرار ضريبة قيمة مضافة",
+  "category": "Government Relations",
+  "categoryAr": "العلاقات الحكومية",
+  "govPlatform": "الزكاة والضريبة ZATCA",
+  "description": "نتولّى في Business Partner تنفيذ «تقديم إقرار ضريبة قيمة مضافة» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "39 ﷼",
+   "amount": 39
+  }
+ },
+ {
+  "code": "BP-HR-01",
+  "slug": "bp-hr-01",
+  "name": "إصدار شهادة صحية للموظفين",
+  "category": "HR Services",
+  "categoryAr": "الموارد البشرية",
+  "govPlatform": "وزارة الموارد البشرية",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار شهادة صحية للموظفين» نيابةً عنك ضمن خدمات الموارد البشرية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Issued employee health certificates"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "99 ﷼",
+   "amount": 99
+  }
+ },
+ {
+  "code": "BP-HR-02",
+  "slug": "bp-hr-02",
+  "name": "فتح ملف منشأة في وزارة الموارد البشرية",
+  "category": "HR Services",
+  "categoryAr": "الموارد البشرية",
+  "govPlatform": "وزارة الموارد البشرية",
+  "description": "نتولّى في Business Partner تنفيذ «فتح ملف منشأة في وزارة الموارد البشرية» نيابةً عنك ضمن خدمات الموارد البشرية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "300 ﷼",
+   "amount": 300
+  }
+ },
+ {
+  "code": "BP-HR-03",
+  "slug": "bp-hr-03",
+  "name": "خدمات الموارد البشرية وإدارة الموظفين",
+  "category": "HR Services",
+  "categoryAr": "الموارد البشرية",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «خدمات الموارد البشرية وإدارة الموظفين» نيابةً عنك ضمن خدمات الموارد البشرية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Monthly",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "2,500 ﷼ / شهرياً",
+   "amount": 2500
+  }
+ },
+ {
+  "code": "BP-MUDAD-02",
+  "slug": "bp-mudad-02",
+  "name": "رفع ملف حماية الأجور (نظام مُدد)",
+  "category": "HR Services",
+  "categoryAr": "الموارد البشرية",
+  "govPlatform": "مدد",
+  "description": "نتولّى في Business Partner تنفيذ «رفع ملف حماية الأجور (نظام مُدد)» نيابةً عنك ضمن خدمات الموارد البشرية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "79 ﷼",
+   "amount": 79
+  }
+ },
+ {
+  "code": "BP-MUDAD-03",
+  "slug": "bp-mudad-03",
+  "name": "معالجة ملاحظات نظام حماية الأجور",
+  "category": "HR Services",
+  "categoryAr": "الموارد البشرية",
+  "govPlatform": "مدد",
+  "description": "نتولّى في Business Partner تنفيذ «معالجة ملاحظات نظام حماية الأجور» نيابةً عنك ضمن خدمات الموارد البشرية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "500 ﷼",
+   "amount": 500
+  }
+ },
+ {
+  "code": "BP-MUQEEM-02",
+  "slug": "bp-muqeem-02",
+  "name": "إصدار إقامة جديدة (لموظف أجنبي)",
+  "category": "HR Services",
+  "categoryAr": "الموارد البشرية",
+  "govPlatform": "مقيم",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار إقامة جديدة (لموظف أجنبي)» نيابةً عنك ضمن خدمات الموارد البشرية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "New Iqama (residence permit) issued for the employee"
+  ],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "500 ﷼",
+   "amount": 500
+  }
+ },
+ {
+  "code": "BP-MUQEEM-03",
+  "slug": "bp-muqeem-03",
+  "name": "تجديد إقامة (هوية مقيم)",
+  "category": "HR Services",
+  "categoryAr": "الموارد البشرية",
+  "govPlatform": "مقيم",
+  "description": "نتولّى في Business Partner تنفيذ «تجديد إقامة (هوية مقيم)» نيابةً عنك ضمن خدمات الموارد البشرية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "300 ﷼",
+   "amount": 300
+  }
+ },
+ {
+  "code": "BP-MUQEEM-04",
+  "slug": "bp-muqeem-04",
+  "name": "إصدار تأشيرة زيارة عائلية",
+  "category": "HR Services",
+  "categoryAr": "الموارد البشرية",
+  "govPlatform": "مقيم",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار تأشيرة زيارة عائلية» نيابةً عنك ضمن خدمات الموارد البشرية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "300 ﷼",
+   "amount": 300
+  }
+ },
+ {
+  "code": "BP-REC-01",
+  "slug": "bp-rec-01",
+  "name": "خدمات الاستقدام واستخراج تأشيرات العمل",
+  "category": "Recruitment",
+  "categoryAr": "التوظيف والاستقدام",
+  "govPlatform": "قوى",
+  "description": "نتولّى في Business Partner تنفيذ «خدمات الاستقدام واستخراج تأشيرات العمل» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "500 ﷼",
+   "amount": 500
+  }
+ },
+ {
+  "code": "BP-REC-02",
+  "slug": "bp-rec-02",
+  "name": "إصدار تأشيرة عمل (تأشيرة استقدام)",
+  "category": "Recruitment",
+  "categoryAr": "التوظيف والاستقدام",
+  "govPlatform": "قوى",
+  "description": "نتولّى في Business Partner تنفيذ «إصدار تأشيرة عمل (تأشيرة استقدام)» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": true,
+  "requiresProposal": true,
+  "price": {
+   "label": "350 ﷼",
+   "amount": 350
+  }
+ },
+ {
+  "code": "BP-REC-03",
+  "slug": "bp-rec-03",
+  "name": "التوظيف والتعاقد الخارجي (PEO/EOR)",
+  "category": "Recruitment",
+  "categoryAr": "التوظيف والاستقدام",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «التوظيف والتعاقد الخارجي (PEO/EOR)» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Per Candidate",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,000 ﷼ / لكل مرشّح",
+   "amount": 1000
+  }
+ },
+ {
+  "code": "BP-REC-04",
+  "slug": "bp-rec-04",
+  "name": "Executive Search",
+  "category": "Recruitment",
+  "categoryAr": "التوظيف والاستقدام",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «Executive Search» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Percent",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "نسبة من قيمة الصفقة",
+   "amount": null
+  }
+ },
+ {
+  "code": "BP-REC-05",
+  "slug": "bp-rec-05",
+  "name": "Local Recruitment",
+  "category": "Recruitment",
+  "categoryAr": "التوظيف والاستقدام",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «Local Recruitment» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Percent",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "نسبة من قيمة الصفقة",
+   "amount": null
+  }
+ },
+ {
+  "code": "BP-REC-06",
+  "slug": "bp-rec-06",
+  "name": "Bulk Recruitment",
+  "category": "Recruitment",
+  "categoryAr": "التوظيف والاستقدام",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «Bulk Recruitment» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Per Candidate",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "300 ﷼ / لكل مرشّح",
+   "amount": 300
+  }
+ },
+ {
+  "code": "BP-BS-01",
+  "slug": "bp-bs-01",
+  "name": "خدمات التسويق الرقمي والإعلان",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «خدمات التسويق الرقمي والإعلان» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-PL-0019",
+  "slug": "bp-pl-0019",
+  "name": "تسجيل وكالة تجارية/فرنشايز",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «تسجيل وكالة تجارية/فرنشايز» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,500 ﷼",
+   "amount": 1500
+  }
+ },
+ {
+  "code": "BP-PL-0035",
+  "slug": "bp-pl-0035",
+  "name": "إدارة حساب مقيم (إضافة وتحديث البيانات)",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «إدارة حساب مقيم (إضافة وتحديث البيانات)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "200 ﷼",
+   "amount": 200
+  }
+ },
+ {
+  "code": "BP-PL-0050",
+  "slug": "bp-pl-0050",
+  "name": "خدمة كبار الشخصيات (إنهاء المعاملات VIP)",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «خدمة كبار الشخصيات (إنهاء المعاملات VIP)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-PL-0051",
+  "slug": "bp-pl-0051",
+  "name": "فتح حساب بنكي تجاري للشركة",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «فتح حساب بنكي تجاري للشركة» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,000 ﷼",
+   "amount": 1000
+  }
+ },
+ {
+  "code": "BP-PL-0052",
+  "slug": "bp-pl-0052",
+  "name": "إعداد لوائح الشركة الداخلية (حوكمة)",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «إعداد لوائح الشركة الداخلية (حوكمة)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "2,000 ﷼",
+   "amount": 2000
+  }
+ },
+ {
+  "code": "BP-PL-0053",
+  "slug": "bp-pl-0053",
+  "name": "هيكلة وتنظيم الشركة (إعادة هيكلة)",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «هيكلة وتنظيم الشركة (إعادة هيكلة)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-PL-0054",
+  "slug": "bp-pl-0054",
+  "name": "التمثيل القانوني للشركات (محاماة)",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «التمثيل القانوني للشركات (محاماة)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,500 ﷼",
+   "amount": 1500
+  }
+ },
+ {
+  "code": "BP-PL-0055",
+  "slug": "bp-pl-0055",
+  "name": "استشارات قانونية لنظام الشركات",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «استشارات قانونية لنظام الشركات» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,000 ﷼",
+   "amount": 1000
+  }
+ },
+ {
+  "code": "BP-PL-0056",
+  "slug": "bp-pl-0056",
+  "name": "استشارات أعمال واستثمار عامة",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «استشارات أعمال واستثمار عامة» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,000 ﷼",
+   "amount": 1000
+  }
+ },
+ {
+  "code": "BP-PL-0057",
+  "slug": "bp-pl-0057",
+  "name": "إعداد دراسة جدوى اقتصادية",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «إعداد دراسة جدوى اقتصادية» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "8,000 ﷼",
+   "amount": 8000
+  }
+ },
+ {
+  "code": "BP-PL-0058",
+  "slug": "bp-pl-0058",
+  "name": "إعداد خطة عمل وتطوير استراتيجيات",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «إعداد خطة عمل وتطوير استراتيجيات» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-PL-0059",
+  "slug": "bp-pl-0059",
+  "name": "خدمة المستشار المالي (محاسبة ودفاتر)",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «خدمة المستشار المالي (محاسبة ودفاتر)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "3,000 ﷼",
+   "amount": 3000
+  }
+ },
+ {
+  "code": "BP-PL-0060",
+  "slug": "bp-pl-0060",
+  "name": "مراجعة حسابات وضريبة (تدقيق مالي)",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «مراجعة حسابات وضريبة (تدقيق مالي)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "7,000 ﷼",
+   "amount": 7000
+  }
+ },
+ {
+  "code": "BP-PL-0063",
+  "slug": "bp-pl-0063",
+  "name": "خدمة العلاقات العامة والاتصال المؤسسي",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «خدمة العلاقات العامة والاتصال المؤسسي» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "4,000 ﷼",
+   "amount": 4000
+  }
+ },
+ {
+  "code": "BP-PL-0075",
+  "slug": "bp-pl-0075",
+  "name": "Bank account opening (liaison & appointments)",
+  "category": "Business Support",
+  "categoryAr": "دعم الأعمال",
+  "govPlatform": "",
+  "description": "نتولّى في Business Partner تنفيذ «Bank account opening (liaison & appointments)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "1,200 ﷼",
+   "amount": 1200
+  }
+ },
+ {
+  "code": "BP-RE-01",
+  "slug": "bp-re-01",
+  "name": "مكتب خاص (لعدد محدد من الأشخاص)",
+  "category": "Real Estate",
+  "categoryAr": "العقارات",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "مكتب أو مكاتب خاصة بمساحة وعدد أشخاص محدد. السعر حسب المساحة والعدد.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Starting From",
+  "govFeesSeparate": false,
+  "requiresProposal": false,
+  "price": {
+   "label": "يبدأ من 3,000 ﷼",
+   "amount": 3000
+  }
+ },
+ {
+  "code": "BP-RE-02",
+  "slug": "bp-re-02",
+  "name": "مساحة عمل مشتركة (Coworking)",
+  "category": "Real Estate",
+  "categoryAr": "العقارات",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "مقعد في مساحة عمل مشتركة بدخول مرن. حسب الباقة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Starting From",
+  "govFeesSeparate": false,
+  "requiresProposal": false,
+  "price": {
+   "label": "يبدأ من 800 ﷼",
+   "amount": 800
+  }
+ },
+ {
+  "code": "BP-RE-03",
+  "slug": "bp-re-03",
+  "name": "مكتب افتراضي مع عنوان وطني",
+  "category": "Real Estate",
+  "categoryAr": "العقارات",
+  "govPlatform": "سُبل",
+  "description": "عنوان وطني معتمد + استقبال بريد للشركة، بدون مكتب فعلي. حسب رغبة العميل.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Starting From",
+  "govFeesSeparate": true,
+  "requiresProposal": false,
+  "price": {
+   "label": "يبدأ من 3,000 ﷼",
+   "amount": 3000
+  }
+ },
+ {
+  "code": "BP-RE-04",
+  "slug": "bp-re-04",
+  "name": "مكتب ثابت في مساحة مشتركة (Dedicated Desk)",
+  "category": "Real Estate",
+  "categoryAr": "العقارات",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "مكتب ثابت مخصص داخل مساحة عمل مشتركة. حسب الباقة الشهرية.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Starting From",
+  "govFeesSeparate": false,
+  "requiresProposal": false,
+  "price": {
+   "label": "يبدأ من 1,500 ﷼",
+   "amount": 1500
+  }
+ },
+ {
+  "code": "BP-RE-05",
+  "slug": "bp-re-05",
+  "name": "Office Search Service",
+  "category": "Real Estate",
+  "categoryAr": "العقارات",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «Office Search Service» نيابةً عنك ضمن خدمات العقارات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "One Time",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-AI-01",
+  "slug": "bp-ai-01",
+  "name": "AI Business Partner Enterprise",
+  "category": "AI Automation",
+  "categoryAr": "الأتمتة والذكاء الاصطناعي",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «AI Business Partner Enterprise» نيابةً عنك ضمن خدمات الأتمتة والذكاء الاصطناعي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Multi-workflow AI automations",
+   "document intelligence",
+   "reporting dashboards",
+   "ongoing optimization & support"
+  ],
+  "targetClient": "",
+  "pricingModel": "Monthly",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "5,000 ﷼ / شهرياً",
+   "amount": 5000
+  }
+ },
+ {
+  "code": "BP-AI-02",
+  "slug": "bp-ai-02",
+  "name": "AI Agent Setup",
+  "category": "AI Automation",
+  "categoryAr": "الأتمتة والذكاء الاصطناعي",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «AI Agent Setup» نيابةً عنك ضمن خدمات الأتمتة والذكاء الاصطناعي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [
+   "Configured WhatsApp AI agent",
+   "CRM/email/calendar/document integration",
+   "lead qualification, instant fixed-price quoting and automated follow-up flows"
+  ],
+  "targetClient": "",
+  "pricingModel": "Monthly",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "2,500 ﷼ / شهرياً",
+   "amount": 2500
+  }
+ },
+ {
+  "code": "BP-TOUR-01",
+  "slug": "bp-tour-01",
+  "name": "Corporate Tourism Programs",
+  "category": "Tourism",
+  "categoryAr": "السياحة",
+  "govPlatform": "بدون جهة حكومية",
+  "description": "نتولّى في Business Partner تنفيذ «Corporate Tourism Programs» نيابةً عنك ضمن خدمات السياحة — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+  "deliverables": [],
+  "targetClient": "",
+  "pricingModel": "Starting From",
+  "govFeesSeparate": false,
+  "requiresProposal": true,
+  "price": {
+   "label": "يبدأ من 5,000 ﷼",
+   "amount": 5000
+  }
+ }
+]

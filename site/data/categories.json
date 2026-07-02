@@ -1,0 +1,52 @@
+[
+ {
+  "key": "Company Formation",
+  "ar": "تأسيس الشركات",
+  "count": 23
+ },
+ {
+  "key": "Foreign Investment",
+  "ar": "الاستثمار الأجنبي",
+  "count": 7
+ },
+ {
+  "key": "Premium Residency",
+  "ar": "الإقامة المميزة",
+  "count": 2
+ },
+ {
+  "key": "Government Relations",
+  "ar": "العلاقات الحكومية",
+  "count": 23
+ },
+ {
+  "key": "HR Services",
+  "ar": "الموارد البشرية",
+  "count": 8
+ },
+ {
+  "key": "Recruitment",
+  "ar": "التوظيف والاستقدام",
+  "count": 6
+ },
+ {
+  "key": "Business Support",
+  "ar": "دعم الأعمال",
+  "count": 16
+ },
+ {
+  "key": "Real Estate",
+  "ar": "العقارات",
+  "count": 5
+ },
+ {
+  "key": "AI Automation",
+  "ar": "الأتمتة والذكاء الاصطناعي",
+  "count": 2
+ },
+ {
+  "key": "Tourism",
+  "ar": "السياحة",
+  "count": 1
+ }
+]
