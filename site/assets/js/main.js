@@ -1040,3 +1040,68 @@ var BP = window.BP = window.BP || {};
       }).catch(function () {});
   }
 })();
+
+/* ---------- Employer candidate browser (/employers) → /api/candidates (Notion ATS) ---------- */
+(function () {
+  "use strict";
+  var grid = document.getElementById("emp-grid");
+  if (!grid) return;
+  var isAr = (window.BP_EMP_LANG || "en") === "ar";
+  function T(en, ar) { return isAr ? ar : en; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var status = document.getElementById("emp-status");
+  var loadBtn = document.getElementById("emp-load");
+
+  function card(c) {
+    var meta = [];
+    if (c.city) meta.push("📍 " + esc(c.city));
+    if (c.experience) meta.push("🧭 " + esc(c.experience) + " " + T("yrs", "سنة"));
+    if (c.education) meta.push("🎓 " + esc(c.education));
+    if (c.nationalityType) meta.push("🪪 " + esc(c.nationalityType));
+    if (c.availability) meta.push("⏱️ " + esc(c.availability));
+    var contact = "";
+    if (c.name && (c.phone || c.email || c.cv)) {
+      contact = '<div class="emp-contact">' +
+        (c.phone ? '<a href="tel:' + esc(c.phone) + '">📞 ' + esc(c.phone) + "</a>" : "") +
+        (c.email ? '<a href="mailto:' + esc(c.email) + '">✉️ ' + esc(c.email) + "</a>" : "") +
+        (c.cv ? '<a target="_blank" rel="noopener" href="' + esc(c.cv) + '">📄 ' + T("CV", "السيرة") + "</a>" : "") +
+        "</div>";
+    }
+    return '<div class="emp-card">' +
+      '<div class="emp-card-top"><strong>' + esc(c.name || "—") + "</strong>" + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
+      (c.role ? '<div class="emp-role">' + esc(c.role) + "</div>" : "") +
+      (c.skills ? '<div class="emp-skills">' + esc(c.skills) + "</div>" : "") +
+      '<div class="emp-meta">' + meta.join(" · ") + "</div>" +
+      contact + "</div>";
+  }
+
+  function load() {
+    var q = (document.getElementById("emp-q") || {}).value || "";
+    var field = (document.getElementById("emp-field") || {}).value || "";
+    var city = (document.getElementById("emp-city") || {}).value || "";
+    var nat = (document.getElementById("emp-nat") || {}).value || "";
+    var code = (document.getElementById("emp-code") || {}).value || "";
+    status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
+    grid.innerHTML = "";
+    var qs = new URLSearchParams({ q: q, field: field, city: city, nat: nat, code: code }).toString();
+    fetch("/api/candidates?" + qs).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.s === 503) { status.innerHTML = T("The candidate pool isn't connected yet — ", "لم تُربط قاعدة المرشّحين بعد — ") + '<a href="https://wa.me/966507034157">' + T("contact us to subscribe.", "تواصل معنا للاشتراك.") + "</a>"; return; }
+        var d = res.d;
+        if (!d || !d.ok || !d.candidates) { status.textContent = T("Couldn't load candidates. Try again.", "تعذّر تحميل المرشّحين. حاول مجدداً."); return; }
+        if (!d.candidates.length) { status.textContent = T("No candidates match these filters.", "لا يوجد مرشّحون مطابقون لهذه الفلاتر."); return; }
+        status.textContent = (d.unlocked ? T("Showing full profiles — ", "عرض الملفات الكاملة — ") : T("Showing anonymized profiles — subscribe to unlock contacts. ", "عرض ملفات مموّهة — اشترك لفتح بيانات التواصل. ")) + d.total + " " + T("candidates", "مرشّح");
+        // populate filter selects (fields/cities) from results once
+        var fs = document.getElementById("emp-field");
+        if (fs && fs.options.length <= 1) {
+          var fields = {}; d.candidates.forEach(function (c) { if (c.field) fields[c.field] = 1; });
+          Object.keys(fields).forEach(function (f) { var o = document.createElement("option"); o.value = f; o.textContent = f; fs.appendChild(o); });
+        }
+        grid.innerHTML = d.candidates.map(card).join("");
+      })
+      .catch(function () { status.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
+  }
+  if (loadBtn) loadBtn.addEventListener("click", load);
+  var qEl = document.getElementById("emp-q");
+  if (qEl) qEl.addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
+})();

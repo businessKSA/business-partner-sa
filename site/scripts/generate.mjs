@@ -217,6 +217,8 @@ const NAV_GROUPS = [
       { href: "/services", en: "All services (93)", ar: "كل الخدمات (93)" },
       { href: "/packages", en: "Packages", ar: "الباقات" },
       { href: "/ai-agents", en: "AI Agents", ar: "الوكلاء الأذكياء" },
+      { href: "/employers", en: "Recruitment — for employers", ar: "التوظيف — لأصحاب الأعمال" },
+      { href: "/careers", en: "Jobs — for job seekers", ar: "التوظيف — للباحثين عن عمل" },
       { href: "/compliance-calculators", en: "Compliance tools", ar: "أدوات الامتثال" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
     ],
@@ -228,15 +230,9 @@ const NAV_GROUPS = [
       { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
     ],
   },
-  {
-    en: "Company", ar: "الشركة",
-    items: [
-      { href: "/about", en: "About us", ar: "من نحن" },
-      { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
-      { href: "/careers", en: "Careers", ar: "الوظائف" },
-      { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
-    ],
-  },
+  { href: "/about", en: "About us", ar: "من نحن" },
+  { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
+  { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
 ];
 
 function langToggle(path) {
@@ -260,12 +256,11 @@ function header(active, path) {
   }).join("");
   return `<header class="site-header"><div class="container header-inner">
   <a class="logo" href="${u("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation">${links}<a class="btn btn-primary nav-cta" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a></nav>
+  <nav class="nav" aria-label="Main navigation">${links}</nav>
   <div class="header-cta">
     ${langToggle(path)}
     <a class="icon-btn" href="${u("/account")}" aria-label="${Lraw("Account", "حسابي")}">${I.user}</a>
     <a class="icon-btn cart-link" href="${u("/cart")}" aria-label="${Lraw("Cart", "السلة")}">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <a class="btn btn-primary" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a>
     <button class="nav-toggle" aria-label="${Lraw("Menu", "القائمة")}" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header>`;
@@ -1951,14 +1946,54 @@ function buildNews() {
   return page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — بيزنس بارتنر"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من بيزنس بارتنر."), active: "/news", body });
 }
 
+function buildEmployers() {
+  const value = [
+    ["🗂️", L("A live pool of pre-screened candidates", "قاعدة حيّة من المرشّحين المُصنّفين"), L("Browse candidates by field, city, experience and availability — updated continuously.", "تصفّح المرشّحين حسب المجال والمدينة والخبرة والجاهزية — محدّثة باستمرار.")],
+    ["⚡", L("We manage hiring end to end", "ندير التوظيف من البداية للنهاية"), L("Sourcing, screening, interviews, offer and onboarding — handled for you.", "استقطاب، فرز، مقابلات، عرض وتعيين — نتولّاها عنك.")],
+    ["🛡️", L("Saudization-checked", "مفحوص للتوطين"), L("Each candidate is flagged against HRSD Saudization rules for your activity.", "كل مرشّح مفحوص وفق قواعد التوطين لنشاطك.")],
+  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span>
+    <h1>${L("Hire from our candidate pool", "وظّف من قاعدة مرشّحينا")}</h1>
+    <p class="lead">${L("Subscribe and get access to pre-screened, Saudization-checked candidates from our ATS — browse, shortlist, and we handle interviews to onboarding.", "اشترك واحصل على مرشّحين مُصنّفين ومفحوصين للتوطين من نظام التوظيف لدينا — تصفّح، رشّح، ونحن نتولّى من المقابلات حتى التعيين.")}</p>
+    <div class="talent-actions" style="margin-top:26px">
+      <a class="btn btn-primary" href="#emp-pool">${I.users}<span>${L("Browse candidates", "تصفّح المرشّحين")}</span></a>
+      <a class="btn btn-ghost" href="${u("/consultation")}?topic=hr&about=${encodeURIComponent(L("Employer subscription", "اشتراك صاحب عمل"))}">${L("Subscribe / request talent", "اشترك / اطلب مرشحين")}</a>
+      <a class="btn btn-ghost" href="${u("/careers")}">${L("I'm a job seeker →", "أنا باحث عن عمل ←")}</a>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="grid grid-3">${value}</div>
+  </div></section>
+
+  <section class="section section--gray" id="emp-pool"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Candidate pool", "قاعدة المرشّحين")}</span><h2>${L("Browse available candidates", "تصفّح المرشّحين المتاحين")}</h2><p>${L("Live from our ATS. Contact details are unlocked for subscribed employers.", "مباشرة من نظام التوظيف لدينا. بيانات التواصل تُفتح لأصحاب العمل المشتركين.")}</p></div>
+
+    <div class="emp-access" id="emp-access">
+      <div class="emp-filters">
+        <input type="text" id="emp-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
+        <select id="emp-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
+        <select id="emp-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+        <select id="emp-nat"><option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option></select>
+      </div>
+      <div class="emp-unlock">
+        <input type="text" id="emp-code" placeholder="${Lraw("Subscription code (optional)", "رمز الاشتراك (اختياري)")}">
+        <button type="button" class="btn btn-primary" id="emp-load">${L("Show candidates", "اعرض المرشّحين")}</button>
+      </div>
+    </div>
+    <p class="emp-note" id="emp-status"></p>
+    <div class="emp-grid" id="emp-grid"></div>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Want full profiles & contacts?", "تبغى الملفات الكاملة وبيانات التواصل؟")}</h2><p>${L("Subscribe and our team shortlists matched candidates and shares full CVs.", "اشترك ويقوم فريقنا بترشيح المرشّحين المطابقين ومشاركة السير الكاملة.")}</p>${waBtn2("Subscribe on WhatsApp", "اشترك عبر واتساب", "btn-white", true)}</div>
+  </div></section>
+  <script>window.BP_EMP_LANG=${JSON.stringify(LANG)};</script>`;
+  return page({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — بيزنس بارتنر"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
+}
+
 function buildCareers() {
   const c = site.careers;
   const f = c.seeker.fields;
-  const employerValue = [
-    ["🎯", L("Access to 50,000+ candidates", "قاعدة تضم أكثر من 50,000 مرشّح"), L("Reach qualified talent across specialties, ready and pre-screened.", "وصول لكفاءات مؤهلة في مختلف التخصصات، جاهزة ومُصنّفة مسبقاً.")],
-    ["⚡", L("We manage hiring end to end", "ندير التوظيف من البداية للنهاية"), L("Sourcing, screening, interviews, offer and onboarding — handled for you.", "استقطاب، فرز، مقابلات، عرض وتعيين — نتولّاها عنك.")],
-    ["🌍", L("Local & overseas recruitment", "توظيف محلي واستقدام خارجي"), L("Local hiring, executive search, bulk recruitment, and PEO/EOR.", "توظيف محلي، استقطاب تنفيذي، توظيف جماعي، وPEO/EOR.")],
-  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
   const seekerValue = [
     ["📄", L("One CV, many opportunities", "سيرة واحدة، فرص كثيرة"), L("Join the pool once; we match you whenever a fitting role opens.", "سجّل مرة واحدة، ونطابقك مع الفرص المناسبة فور توفّرها.")],
     ["🤝", L("Employers reach you", "أصحاب العمل يوصلونك"), L("Companies hiring through us see your profile for suitable roles.", "الشركات التي توظّف عبرنا تشاهد ملفك للفرص المناسبة.")],
@@ -1966,29 +2001,18 @@ function buildCareers() {
   ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner" style="max-width:960px">
-    <span class="eyebrow">${L("Talent platform", "منصّة التوظيف")}</span>
-    <h1>${L("The right people, faster", "الشخص المناسب، أسرع")}</h1>
-    <p class="lead">${L("A two-sided talent platform: employers find pre-screened candidates, and job seekers reach the right opportunity — powered by a pool of 50,000+ CVs.", "منصّة توظيف بواجهتين: أصحاب الأعمال يجدون مرشّحين مُصنّفين، والباحثون عن عمل يصلون للفرصة المناسبة — مدعومة بقاعدة تضم أكثر من 50,000 سيرة ذاتية.")}</p>
-    <div class="talent-choose">
-      <a class="talent-card" href="#employers"><span class="tc-ico">🏢</span><strong>${L("I'm an employer", "أنا صاحب عمل")}</strong><span>${L("Find and hire talent", "ابحث ووظّف الكفاءات")}</span></a>
-      <a class="talent-card" href="#seekers"><span class="tc-ico">👤</span><strong>${L("I'm looking for a job", "أبحث عن عمل")}</strong><span>${L("Submit your CV", "أرسل سيرتك الذاتية")}</span></a>
+    <span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span>
+    <h1>${L("Find your next opportunity", "فرصتك القادمة تبدأ هنا")}</h1>
+    <p class="lead">${L("Join our candidate pool once — employers hiring through Business Partner reach you when a suitable role opens.", "انضم لقاعدة مرشّحينا مرة واحدة — وأصحاب العمل الذين يوظّفون عبر بيزنس بارتنر يصلونك عند توفّر فرصة مناسبة.")}</p>
+    <div class="talent-actions" style="margin-top:22px">
+      <a class="btn btn-primary" href="#seeker-form">${I.upload}<span>${L("Submit your CV", "أرسل سيرتك الذاتية")}</span></a>
+      <a class="btn btn-ghost" href="${u("/employers")}">${L("I'm an employer →", "أنا صاحب عمل ←")}</a>
     </div>
   </div></section>
 
-  <section class="section" id="employers"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span><h2>${L("Hire the right talent, fast", "وظّف الكفاءات المناسبة بسرعة")}</h2><p>${L("Tell us the role and we bring you matched candidates from our pool — you interview and choose.", "أخبرنا بالوظيفة ونجيب لك مرشّحين مطابقين من قاعدتنا — تقابلهم وتختار.")}</p></div>
-    <div class="grid grid-3">${employerValue}</div>
-    <div class="talent-actions">
-      <a class="btn btn-primary" href="${u("/consultation")}?topic=hr&about=${encodeURIComponent(L("Talent request", "طلب توظيف"))}">${I.users}<span>${L("Request candidates", "اطلب مرشحين")}</span></a>
-      <a class="btn btn-ghost" href="${catUrl("Recruitment")}">${L("Recruitment & visa services →", "خدمات التوظيف والاستقدام ←")}</a>
-      <a class="btn btn-ghost" href="${u("/labor-calculators")}">🧮 ${L("HR tools: end-of-service & payroll", "أدوات HR: نهاية الخدمة والرواتب")}</a>
-    </div>
-  </div></section>
-
-  <section class="section section--gray" id="seekers"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span><h2>${L("Submit your CV", "أرسل سيرتك الذاتية")}</h2><p>${L("Upload your CV once to join our candidate pool — we reach out when a suitable role opens.", "ارفع سيرتك مرة واحدة للانضمام لقاعدة المرشّحين — ونتواصل معك عند توفّر فرصة مناسبة.")}</p></div>
+  <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
-    <div style="max-width:640px;margin:0 auto">
+    <div style="max-width:640px;margin:0 auto" id="seeker-form">
       <form class="calc-form cv-form" id="cv-form" novalidate>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
@@ -2019,12 +2043,8 @@ function buildCareers() {
       </form>
       <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
     </div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Employee & employer portals — coming soon", "منصّتا الموظف وصاحب العمل — قريباً")}</h2><p>${L("Sign in to track your applications or your hiring requests. We're connecting the candidate database so both sides get a live dashboard.", "سجّل دخولك لمتابعة تقديماتك أو طلبات توظيفك. نربط قاعدة المرشّحين الآن لتحصل الواجهتان على لوحة مباشرة.")}</p><a class="btn btn-white" href="${u("/account")}">${L("Go to my portal", "ادخل منصّتي")}</a></div>
   </div></section>`;
-  return page({ title: Lraw("Talent platform — Business Partner", "منصّة التوظيف — بيزنس بارتنر"), desc: Lraw("Hire pre-screened talent or submit your CV — Business Partner's two-sided talent platform.", "وظّف كفاءات مُصنّفة أو أرسل سيرتك — منصّة التوظيف من بيزنس بارتنر."), active: "/careers", body });
+  return page({ title: Lraw("Jobs for job seekers — Business Partner", "التوظيف للباحثين عن عمل — بيزنس بارتنر"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), active: "/careers", body });
 }
 
 function buildContact() {
@@ -3014,6 +3034,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
   write(`${pre}careers.html`, buildCareers());
+  write(`${pre}employers.html`, buildEmployers());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
   write(`${pre}checkout.html`, buildCheckout());
@@ -3031,7 +3052,7 @@ write("monitor.html", buildMonitor());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/employers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths

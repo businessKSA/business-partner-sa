@@ -746,3 +746,21 @@ h3 { font-size: 1.12rem; }
 /* Careers consent row */
 .consent-row { display: flex; align-items: flex-start; gap: 10px; font-size: .9rem; color: var(--text-soft); margin: 4px 0 18px; cursor: pointer; }
 .consent-row input { margin-top: 4px; width: 17px; height: 17px; flex-shrink: 0; accent-color: var(--navy); }
+
+/* Employer candidate browser (/employers) */
+.emp-access { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.emp-filters { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
+.emp-filters input, .emp-filters select, .emp-unlock input {
+  padding: 11px 14px; border: 1px solid var(--gray-line); border-radius: 12px; font: inherit; background: var(--white); min-width: 150px; }
+.emp-unlock { display: flex; gap: 10px; }
+.emp-note { color: var(--text-soft); font-size: .9rem; margin: 8px 0 18px; }
+.emp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.emp-card { background: var(--white); border: 1px solid var(--gray-line); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.emp-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.emp-card-top strong { color: var(--navy); font-size: 1.05rem; }
+.emp-tag { font-size: .72rem; font-weight: 700; color: var(--navy); background: rgba(11,27,90,.08); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.emp-role { font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.emp-skills { font-size: .86rem; color: var(--text-soft); margin-bottom: 8px; }
+.emp-meta { font-size: .82rem; color: var(--text-soft); line-height: 1.9; }
+.emp-contact { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-line); font-size: .88rem; font-weight: 600; }
+@media (max-width: 640px) { .emp-access { flex-direction: column; align-items: stretch; } .emp-unlock { flex-direction: column; } }
