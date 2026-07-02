@@ -1,0 +1,30 @@
+---
+import Calculators from '../../components/Calculators.astro';
+import '../../styles/global.css';
+
+export const prerender = true;
+---
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compliance Calculators — Nitaqat & Government Fees | Business Partner</title>
+  <meta name="description" content="Estimate your establishment's Saudization (Nitaqat) band and government workforce costs (work permits, iqama, insurance) in seconds." />
+  <link rel="canonical" href="https://businesspartner.sa/en/calculators" />
+  <link rel="alternate" hreflang="ar" href="https://businesspartner.sa/ar/calculators" />
+  <meta property="og:title" content="Compliance Calculators — Nitaqat & Government Fees" />
+  <meta property="og:description" content="Estimate your Nitaqat band and government workforce costs in seconds." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://businesspartner.sa/en/calculators" />
+  <meta property="og:image" content="https://businesspartner.sa/logo.svg" />
+  <meta property="og:locale" content="en_US" />
+</head>
+<body>
+  <main>
+    <Calculators lang="en" />
+  </main>
+</body>
+</html>
