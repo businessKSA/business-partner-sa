@@ -1,0 +1,157 @@
+{
+  "name": "BP — بوابة استقبال المرشحين (Candidate Intake)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "candidate-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "استقبال النموذج",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "candidate-intake"
+    },
+    {
+      "parameters": {
+        "jsCode": "// يجهّز نص المرشح لإرساله إلى Claude\nconst b = $json.body || {};\nconst story = (b.story || \"\").toString().trim();\nreturn [{ json: { story: story || \"لا يوجد نص\" } }];"
+      },
+      "id": "node-prep",
+      "name": "تجهيز طلب Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [224, 0]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.story }}",
+              "role": "user"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {
+          "system": "أنت محلل سير ذاتية محترف. حوّل نص المستخدم إلى JSON صالح فقط، بدون أي شرح أو نص إضافي.\nالمفاتيح المطلوبة: name, email, phone, cities, target_titles (مصفوفة), salary, summary, skills (مصفوفة), achievements (مصفوفة), experience (مصفوفة من كائنات {title, org, period, points: مصفوفة}), education, languages.\nاستخدم المعلومات الواقعية الواردة فقط ولا تختلق أي مهارة أو خبرة. أعد JSON فقط.",
+          "maxTokens": 2000
+        }
+      },
+      "id": "node-claude",
+      "name": "Claude — استخراج الملف",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [448, 0],
+      "credentials": {
+        "anthropicApi": {
+          "id": "mmbdtwapuZXoY91N",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// يجهّز حقول صفحة Notion من مخرجات Claude + بيانات النموذج\nlet parsed = {};\ntry {\n  let txt = \"{}\";\n  if ($json.content && $json.content[0] && $json.content[0].text) txt = $json.content[0].text;\n  else if (typeof $json.text === \"string\") txt = $json.text;\n  else if (typeof $json.output === \"string\") txt = $json.output;\n  parsed = JSON.parse(txt.replace(/```json|```/g, \"\").trim());\n} catch (e) { parsed = {}; }\n\nconst b = $('استقبال النموذج').item.json.body || {};\nconst s = (v) => (v || \"\").toString().slice(0, 1900);\n\nconst lines = [];\nfunction sec(t, v){ if (v) { lines.push(t + \":\"); lines.push(v.toString()); lines.push(\"\"); } }\nsec(\"الملخص المهني\", parsed.summary);\nsec(\"المهارات\", Array.isArray(parsed.skills) ? parsed.skills.join(\" · \") : parsed.skills);\nsec(\"أبرز الإنجازات\", Array.isArray(parsed.achievements) ? parsed.achievements.map(a => \"• \" + a).join(\"\\n\") : parsed.achievements);\nif (Array.isArray(parsed.experience) && parsed.experience.length) {\n  const ex = parsed.experience.map(e => {\n    const head = [e.title, e.org, e.period].filter(Boolean).join(\" — \");\n    const pts = (e.points || []).map(p => \"• \" + p).join(\"\\n\");\n    return pts ? head + \"\\n\" + pts : head;\n  }).join(\"\\n\\n\");\n  sec(\"الخبرات\", ex);\n}\nsec(\"التعليم\", parsed.education);\nsec(\"اللغات\", Array.isArray(parsed.languages) ? parsed.languages.join(\"، \") : parsed.languages);\n\nconst body = lines.join(\"\\n\");\nconst chunk = (i) => body.slice(i * 1900, (i + 1) * 1900);\n\nreturn [{ json: {\n  name: s(b.name || parsed.name || \"بدون اسم\"),\n  email: s(b.email || parsed.email) || null,\n  phone: s(b.phone || parsed.phone) || null,\n  cities: s(b.cities || parsed.cities),\n  titles: s(Array.isArray(parsed.target_titles) ? parsed.target_titles.join(\" · \") : parsed.target_titles),\n  salary: s(b.salary || parsed.salary),\n  keywords: s(Array.isArray(parsed.skills) ? parsed.skills.join(\", \") : parsed.skills),\n  linkedin: s(b.linkedin),\n  consent: b.consent === true,\n  today: new Date().toISOString().slice(0, 10),\n  chunk1: chunk(0), chunk2: chunk(1), chunk3: chunk(2), chunk4: chunk(3)\n}}];"
+      },
+      "id": "node-buildnotion",
+      "name": "بناء صفحة Notion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [672, 0]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d3168d6642a942d59e0b21c849a8f46d",
+          "cachedResultName": "👤 المرشحون (الباحثون عن عمل)"
+        },
+        "simple": true,
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "الاسم|title", "title": "={{ $json.name }}" },
+            { "key": "البريد|email", "emailValue": "={{ $json.email }}" },
+            { "key": "الجوال|phone_number", "phoneValue": "={{ $json.phone }}" },
+            { "key": "المدن|rich_text", "richText": false, "textContent": "={{ $json.cities }}" },
+            { "key": "المسميات المستهدفة|rich_text", "richText": false, "textContent": "={{ $json.titles }}" },
+            { "key": "نطاق الراتب|rich_text", "richText": false, "textContent": "={{ $json.salary }}" },
+            { "key": "الكلمات المفتاحية|rich_text", "richText": false, "textContent": "={{ $json.keywords }}" },
+            { "key": "لينكدإن|url", "urlValue": "={{ $json.linkedin }}", "ignoreIfEmpty": true },
+            { "key": "الحالة|select", "selectValue": "نشط" },
+            { "key": "موافقة على التقديم نيابةً|checkbox", "checkboxValue": "={{ $json.consent }}" },
+            { "key": "تاريخ الموافقة|date", "range": false, "includeTime": false, "date": "={{ $json.today }}" }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            { "type": "paragraph", "richText": false, "textContent": "={{ $json.chunk1 }}" },
+            { "type": "paragraph", "richText": false, "textContent": "={{ $json.chunk2 }}" },
+            { "type": "paragraph", "richText": false, "textContent": "={{ $json.chunk3 }}" },
+            { "type": "paragraph", "richText": false, "textContent": "={{ $json.chunk4 }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-notion",
+      "name": "إنشاء سجل المرشح في Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [880, 0],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"ok\" } }}",
+        "options": {}
+      },
+      "id": "node-respond",
+      "name": "رد للنموذج",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1104, 0]
+    }
+  ],
+  "connections": {
+    "استقبال النموذج": {
+      "main": [[{ "node": "تجهيز طلب Claude", "type": "main", "index": 0 }]]
+    },
+    "تجهيز طلب Claude": {
+      "main": [[{ "node": "Claude — استخراج الملف", "type": "main", "index": 0 }]]
+    },
+    "Claude — استخراج الملف": {
+      "main": [[{ "node": "بناء صفحة Notion", "type": "main", "index": 0 }]]
+    },
+    "بناء صفحة Notion": {
+      "main": [[{ "node": "إنشاء سجل المرشح في Notion", "type": "main", "index": 0 }]]
+    },
+    "إنشاء سجل المرشح في Notion": {
+      "main": [[{ "node": "رد للنموذج", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
