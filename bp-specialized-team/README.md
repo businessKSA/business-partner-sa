@@ -12,11 +12,13 @@ execute. Nothing outward-facing leaves without the «بانتظار المواف
 
 | Agent | Role | Prompt | n8n skeleton | Status |
 |-------|------|--------|--------------|--------|
-| بدر Badr | Sales & Business Development | [`prompts/badr-sales-bd.md`](prompts/badr-sales-bd.md) | [`n8n/badr-workflow.json`](n8n/badr-workflow.json) | 🟡 Built — awaiting Baher's approval |
-| ملاك Malak | Admin Manager / PA | — | — | ⏳ Next after Badr approval |
-| أحمد Ahmed | Procurement | — | — | ⏳ After Malak |
-| محمد Mohammed | ⚠️ IT vs Legal & Compliance | — | — | 🔴 Blocked — role conflict (see docs/conflicts-log.md) |
-| فرح Farah | ⚠️ Marketing vs Operations | — | — | 🔴 Blocked — role conflict (see docs/conflicts-log.md) |
+| بدر Badr | Sales & Business Development | [`prompts/badr-sales-bd.md`](prompts/badr-sales-bd.md) | [`n8n/badr-workflow.json`](n8n/badr-workflow.json) | ✅ Approved by Baher (2 Jul) |
+| ملاك Malak | Admin Manager / PA | [`prompts/malak-admin-pa.md`](prompts/malak-admin-pa.md) | [`n8n/malak-workflow.json`](n8n/malak-workflow.json) | 🟡 Built — awaiting Baher's review |
+| أحمد Ahmed | Procurement | [`prompts/ahmed-procurement.md`](prompts/ahmed-procurement.md) | [`n8n/ahmed-workflow.json`](n8n/ahmed-workflow.json) | 🟡 Built — awaiting Baher's review |
+| فرح Farah | Marketing (specialised — nothing else) | — | — | ⏳ Next — role resolved 2 Jul (docs/conflicts-log.md) |
+| محمد Mohammed | IT Manager | — | — | ⏳ Role resolved 2 Jul — pending final name-map confirmation |
+| عبدالعزيز | Legal & Compliance (merged old TEAM-004 scope) | — | — | ⏳ Pending final name-map confirmation |
+| مازن | Operations & Escalation (merged old TEAM-005 scope, + TEAM-001 CS) | — | — | ⏳ Pending final name-map confirmation |
 
 ## Folder Layout
 
