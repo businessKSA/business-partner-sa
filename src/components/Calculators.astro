@@ -1,0 +1,497 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+const isAr = lang === 'ar';
+
+const t = isAr ? {
+  metaTitle: 'حاسبات الامتثال — النطاقات والتكاليف الحكومية | شريك الأعمال',
+  metaDesc: 'احسب نطاق السعودة المتوقع لمنشأتك وتكاليف العمالة الحكومية (رخص العمل، الإقامات، التأمين) تقديرياً خلال ثوانٍ.',
+  backHome: 'الرئيسية',
+  heroBadge: 'أدوات مجانية',
+  heroTitle: 'حاسبات الامتثال',
+  heroSub: 'احسب نطاق السعودة المتوقع وتكاليف العمالة الحكومية لمنشأتك خلال ثوانٍ — تقديرياً وقبل أي التزام.',
+  tabNitaqat: '🟢 حاسبة النطاقات',
+  tabFees: '💰 حاسبة التكاليف',
+  nitTitle: 'حاسبة نطاقات السعودة',
+  nitSub: 'أدخل أعداد الموظفين ويحدد النظام حجم منشأتك ونطاقها المتوقع تلقائياً.',
+  totalEmployees: 'إجمالي الموظفين',
+  saudiEmployees: 'عدد الموظفين السعوديين',
+  activity: 'النشاط (اختياري)',
+  activityPh: 'مثال: تجارة تجزئة، مقاولات، صناعة…',
+  calc: 'احسب',
+  sizeLabel: 'حجم المنشأة',
+  pctLabel: 'نسبة التوطين',
+  bandLabel: 'النطاق المتوقع',
+  compliantYes: 'منشأتك ضمن النطاق الآمن ✅',
+  needForCompliance: 'تحتاج توظيف {n} سعودي للخروج من النطاق الأحمر',
+  needForNext: 'توظيف {n} سعودي إضافي يرفعك إلى: {band}',
+  topBand: 'أنت في أعلى نطاق — حافظ عليه 👏',
+  feesTitle: 'حاسبة التكاليف الحكومية',
+  feesSub: 'رخصة العمل (قوى) + الإقامة (مقيم) + التأمين الطبي + الغرامات — لكل عامل، ربعياً وسنوياً.',
+  profession: 'المهنة',
+  professionPh: 'مثال: عامل، فني، مهندس…',
+  status: 'الحالة',
+  statusExisting: 'قائم (على رأس العمل)',
+  statusNew: 'جديد (أول دخول للمملكة)',
+  count: 'العدد',
+  late: 'تأخير تجديد الإقامة',
+  lateNone: 'لا يوجد',
+  lateFirst: 'المرة الأولى (+500 ريال)',
+  lateSecond: 'المرة الثانية (+1,000 ريال)',
+  addRow: '+ إضافة مهنة أخرى',
+  removeRow: 'حذف',
+  quarterPerWorker: 'ربعي / عامل',
+  annualPerWorker: 'سنوي / عامل',
+  totalWorkers: 'عدد العمّال',
+  totalQuarter: 'الإجمالي الربعي',
+  totalAnnual: 'الإجمالي السنوي',
+  sar: 'ريال',
+  newWorkerHint: 'العامل الجديد: 3 أشهر مجانية عند أول دخول + فحص طبي لمرة واحدة.',
+  ratesTitle: '⚙️ الأسس السعرية المستخدمة (قابلة للتعديل)',
+  rWorkPermit: 'رخصة العمل — سنوياً',
+  rIqama: 'الإقامة — سنوياً',
+  rMedical: 'التأمين الطبي — سنوياً',
+  rExam: 'الفحص الطبي (للجديد)',
+  disclaimer: '⚖️ الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد لمنشأتك.',
+  ctaTitle: 'تبغى حساباً دقيقاً ومتابعة كاملة لامتثال منشأتك؟',
+  ctaBtn: 'تواصل معنا واتساب',
+  bands: { red: 'أحمر', low: 'أخضر منخفض', mid: 'أخضر متوسط', high: 'أخضر مرتفع', platinum: 'بلاتيني', exempt: 'معفاة (1–5 موظفين)' },
+  sizes: { micro: 'متناهية الصغر (1–5)', small: 'صغيرة (6–49)', medium: 'متوسطة (50–499)', large: 'كبيرة (500–2999)', huge: 'عملاقة (3000+)' },
+} : {
+  metaTitle: 'Compliance Calculators — Nitaqat & Government Fees | Business Partner',
+  metaDesc: 'Estimate your establishment\'s Saudization (Nitaqat) band and government workforce costs (work permits, iqama, insurance) in seconds.',
+  backHome: 'Home',
+  heroBadge: 'Free tools',
+  heroTitle: 'Compliance Calculators',
+  heroSub: 'Estimate your expected Nitaqat band and government workforce costs in seconds — before committing to anything.',
+  tabNitaqat: '🟢 Nitaqat Calculator',
+  tabFees: '💰 Fees Calculator',
+  nitTitle: 'Saudization (Nitaqat) Calculator',
+  nitSub: 'Enter your headcount and the system detects your establishment size and expected band automatically.',
+  totalEmployees: 'Total employees',
+  saudiEmployees: 'Saudi employees',
+  activity: 'Activity (optional)',
+  activityPh: 'e.g. retail, contracting, manufacturing…',
+  calc: 'Calculate',
+  sizeLabel: 'Establishment size',
+  pctLabel: 'Saudization rate',
+  bandLabel: 'Expected band',
+  compliantYes: 'Your establishment is in the safe zone ✅',
+  needForCompliance: 'You need {n} more Saudi hire(s) to exit the red band',
+  needForNext: 'Hiring {n} more Saudi(s) moves you up to: {band}',
+  topBand: 'You are in the top band — keep it up 👏',
+  feesTitle: 'Government Fees Calculator',
+  feesSub: 'Work permit (Qiwa) + Iqama (Muqeem) + medical insurance + fines — per worker, quarterly and annually.',
+  profession: 'Profession',
+  professionPh: 'e.g. laborer, technician, engineer…',
+  status: 'Status',
+  statusExisting: 'Existing (on the job)',
+  statusNew: 'New (first entry to KSA)',
+  count: 'Count',
+  late: 'Iqama renewal delay',
+  lateNone: 'None',
+  lateFirst: 'First time (+SAR 500)',
+  lateSecond: 'Second time (+SAR 1,000)',
+  addRow: '+ Add another profession',
+  removeRow: 'Remove',
+  quarterPerWorker: 'Quarterly / worker',
+  annualPerWorker: 'Annual / worker',
+  totalWorkers: 'Workers',
+  totalQuarter: 'Quarterly total',
+  totalAnnual: 'Annual total',
+  sar: 'SAR',
+  newWorkerHint: 'New worker: 3 free months on first entry + one-time medical exam.',
+  ratesTitle: '⚙️ Rate basis used (editable)',
+  rWorkPermit: 'Work permit — annual',
+  rIqama: 'Iqama — annual',
+  rMedical: 'Medical insurance — annual',
+  rExam: 'Medical exam (new workers)',
+  disclaimer: '⚖️ All figures and ratios shown are estimates for illustration only. The official band depends on your activity and size in the Qiwa platform, and official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for an accurate, verified calculation.',
+  ctaTitle: 'Want an accurate calculation and full compliance monitoring?',
+  ctaBtn: 'Contact us on WhatsApp',
+  bands: { red: 'Red', low: 'Low Green', mid: 'Mid Green', high: 'High Green', platinum: 'Platinum', exempt: 'Exempt (1–5 employees)' },
+  sizes: { micro: 'Micro (1–5)', small: 'Small (6–49)', medium: 'Medium (50–499)', large: 'Large (500–2999)', huge: 'Giant (3000+)' },
+};
+
+const otherLangHref = isAr ? '/en/calculators' : '/ar/calculators';
+const homeHref = isAr ? '/ar/' : '/en/';
+---
+
+<header class="calc-header">
+  <div class="container calc-header-inner">
+    <a href={homeHref} class="calc-logo"><img src="/logo.png" alt="Business Partner" /></a>
+    <nav class="calc-nav">
+      <a href={homeHref}>{t.backHome}</a>
+      <a href={otherLangHref} class="lang-toggle">{isAr ? 'English' : 'العربية'}</a>
+    </nav>
+  </div>
+</header>
+
+<section class="calc-hero">
+  <div class="container">
+    <span class="hero-badge">{t.heroBadge}</span>
+    <h1>{t.heroTitle}</h1>
+    <p>{t.heroSub}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container calc-container">
+
+    <div class="calc-tabs" role="tablist">
+      <button class="calc-tab active" data-tab="nitaqat" role="tab">{t.tabNitaqat}</button>
+      <button class="calc-tab" data-tab="fees" role="tab">{t.tabFees}</button>
+    </div>
+
+    <!-- Nitaqat -->
+    <div class="calc-panel active" id="panel-nitaqat">
+      <div class="card calc-card">
+        <h2>{t.nitTitle}</h2>
+        <p class="calc-sub">{t.nitSub}</p>
+        <div class="calc-grid">
+          <div class="form-group">
+            <label for="nit-total">{t.totalEmployees}</label>
+            <input type="number" id="nit-total" min="1" value="25" />
+          </div>
+          <div class="form-group">
+            <label for="nit-saudis">{t.saudiEmployees}</label>
+            <input type="number" id="nit-saudis" min="0" value="3" />
+          </div>
+          <div class="form-group">
+            <label for="nit-activity">{t.activity}</label>
+            <input type="text" id="nit-activity" placeholder={t.activityPh} />
+          </div>
+        </div>
+        <button class="btn btn-primary" id="nit-calc">{t.calc}</button>
+
+        <div class="calc-result" id="nit-result" hidden>
+          <div class="result-tiles">
+            <div class="tile"><span class="tile-label">{t.sizeLabel}</span><strong id="nit-size">—</strong></div>
+            <div class="tile"><span class="tile-label">{t.pctLabel}</span><strong id="nit-pct">—</strong></div>
+            <div class="tile"><span class="tile-label">{t.bandLabel}</span><strong id="nit-band">—</strong></div>
+          </div>
+          <div class="result-advice" id="nit-advice"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fees -->
+    <div class="calc-panel" id="panel-fees">
+      <div class="card calc-card">
+        <h2>{t.feesTitle}</h2>
+        <p class="calc-sub">{t.feesSub}</p>
+
+        <div id="fees-rows"></div>
+        <button class="btn btn-secondary btn-sm" id="fees-add">{t.addRow}</button>
+        <p class="hint">💡 {t.newWorkerHint}</p>
+
+        <details class="rates-box">
+          <summary>{t.ratesTitle}</summary>
+          <div class="calc-grid rates-grid">
+            <div class="form-group"><label>{t.rWorkPermit}</label><input type="number" id="rate-permit" value="9700" /></div>
+            <div class="form-group"><label>{t.rIqama}</label><input type="number" id="rate-iqama" value="650" /></div>
+            <div class="form-group"><label>{t.rMedical}</label><input type="number" id="rate-medical" value="1000" /></div>
+            <div class="form-group"><label>{t.rExam}</label><input type="number" id="rate-exam" value="300" /></div>
+          </div>
+        </details>
+
+        <button class="btn btn-primary" id="fees-calc">{t.calc}</button>
+
+        <div class="calc-result" id="fees-result" hidden>
+          <div class="result-tiles">
+            <div class="tile"><span class="tile-label">{t.totalWorkers}</span><strong id="fees-workers">—</strong></div>
+            <div class="tile tile-gold"><span class="tile-label">{t.totalQuarter}</span><strong id="fees-quarter">—</strong></div>
+            <div class="tile"><span class="tile-label">{t.totalAnnual}</span><strong id="fees-annual">—</strong></div>
+          </div>
+          <div class="fees-table-wrap">
+            <table class="fees-table">
+              <thead><tr>
+                <th>{t.profession}</th><th>{t.status}</th><th>{t.count}</th>
+                <th>{t.quarterPerWorker}</th><th>{t.annualPerWorker}</th>
+              </tr></thead>
+              <tbody id="fees-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer">{t.disclaimer}</div>
+
+    <div class="calc-cta card">
+      <h3>{t.ctaTitle}</h3>
+      <a class="btn btn-primary" href="https://wa.me/966503793356" target="_blank" rel="noopener">📱 {t.ctaBtn}</a>
+    </div>
+
+  </div>
+</section>
+
+<script is:inline define:vars={{ t, isAr }}>
+  // ===== Shared =====
+  const fmt = (n) => Math.round(n).toLocaleString(isAr ? 'ar-SA' : 'en-US');
+  const $ = (id) => document.getElementById(id);
+
+  // ===== Tabs =====
+  document.querySelectorAll('.calc-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.calc-tab').forEach((x) => x.classList.remove('active'));
+      document.querySelectorAll('.calc-panel').forEach((x) => x.classList.remove('active'));
+      tab.classList.add('active');
+      $('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ===== Nitaqat engine (mirror of n8n workflow bklN7C6F08NJ7TJE) =====
+  const NIT_CONFIG = {
+    micro:  { exempt: true,  low: 0,  mid: 0,  high: 0,  platinum: 0  },
+    small:  { exempt: false, low: 7,  mid: 13, high: 20, platinum: 30 },
+    medium: { exempt: false, low: 11, mid: 18, high: 25, platinum: 35 },
+    large:  { exempt: false, low: 15, mid: 22, high: 30, platinum: 40 },
+    huge:   { exempt: false, low: 18, mid: 25, high: 33, platinum: 42 },
+  };
+  const sizeKey = (n) => (n <= 5 ? 'micro' : n <= 49 ? 'small' : n <= 499 ? 'medium' : n <= 2999 ? 'large' : 'huge');
+  const needFor = (target, total, saudis) => {
+    if (target <= 0) return 0;
+    const n = (target * total - 100 * saudis) / (100 - target);
+    return n > 0 ? Math.ceil(n) : 0;
+  };
+
+  $('nit-calc').addEventListener('click', () => {
+    const total = Math.max(1, Number($('nit-total').value) || 1);
+    const saudis = Math.min(total, Math.max(0, Number($('nit-saudis').value) || 0));
+    const key = sizeKey(total);
+    const c = NIT_CONFIG[key];
+    const pct = (saudis / total) * 100;
+
+    let band, color;
+    if (c.exempt)                { band = t.bands.exempt;   color = '#64748b'; }
+    else if (pct >= c.platinum)  { band = t.bands.platinum; color = '#b45309'; }
+    else if (pct >= c.high)      { band = t.bands.high;     color = '#047857'; }
+    else if (pct >= c.mid)       { band = t.bands.mid;      color = '#059669'; }
+    else if (pct >= c.low)       { band = t.bands.low;      color = '#10b981'; }
+    else                         { band = t.bands.red;      color = '#dc2626'; }
+
+    $('nit-size').textContent = t.sizes[key];
+    $('nit-pct').textContent = (Math.round(pct * 10) / 10) + '%';
+    const bandEl = $('nit-band');
+    bandEl.textContent = band;
+    bandEl.style.color = color;
+
+    const advice = $('nit-advice');
+    if (c.exempt) {
+      advice.textContent = t.compliantYes;
+      advice.className = 'result-advice ok';
+    } else if (pct < c.low) {
+      advice.textContent = t.needForCompliance.replace('{n}', needFor(c.low, total, saudis));
+      advice.className = 'result-advice danger';
+    } else {
+      const ladder = [[t.bands.mid, c.mid], [t.bands.high, c.high], [t.bands.platinum, c.platinum]];
+      const next = ladder.find(([, th]) => pct < th);
+      advice.textContent = t.compliantYes + (next
+        ? ' — ' + t.needForNext.replace('{n}', needFor(next[1], total, saudis)).replace('{band}', next[0])
+        : ' — ' + t.topBand);
+      advice.className = 'result-advice ok';
+    }
+    $('nit-result').hidden = false;
+  });
+
+  // ===== Fees engine (mirror of n8n workflow fUBftwquKyBuRJ0P) =====
+  const FINES = { none: 0, first: 500, second: 1000 };
+  let rowSeq = 0;
+
+  function addFeesRow(preset) {
+    const id = ++rowSeq;
+    const div = document.createElement('div');
+    div.className = 'fees-row';
+    div.dataset.row = id;
+    div.innerHTML =
+      '<div class="form-group"><label>' + t.profession + '</label><input type="text" class="f-prof" placeholder="' + t.professionPh + '" value="' + (preset?.prof || '') + '"></div>' +
+      '<div class="form-group"><label>' + t.status + '</label><select class="f-status">' +
+        '<option value="existing">' + t.statusExisting + '</option>' +
+        '<option value="new">' + t.statusNew + '</option></select></div>' +
+      '<div class="form-group"><label>' + t.count + '</label><input type="number" class="f-count" min="1" value="' + (preset?.count || 1) + '"></div>' +
+      '<div class="form-group"><label>' + t.late + '</label><select class="f-late">' +
+        '<option value="none">' + t.lateNone + '</option>' +
+        '<option value="first">' + t.lateFirst + '</option>' +
+        '<option value="second">' + t.lateSecond + '</option></select></div>' +
+      '<button type="button" class="row-remove" title="' + t.removeRow + '">✕</button>';
+    div.querySelector('.row-remove').addEventListener('click', () => {
+      if (document.querySelectorAll('.fees-row').length > 1) div.remove();
+    });
+    $('fees-rows').appendChild(div);
+  }
+  addFeesRow({ count: 5 });
+  $('fees-add').addEventListener('click', () => addFeesRow());
+
+  $('fees-calc').addEventListener('click', () => {
+    const permitA = Number($('rate-permit').value) || 0;
+    const iqamaA = Number($('rate-iqama').value) || 0;
+    const medicalA = Number($('rate-medical').value) || 0;
+    const examFee = Number($('rate-exam').value) || 0;
+    const permitQ = permitA / 4, iqamaQ = iqamaA / 4, medicalQ = medicalA / 4;
+
+    let workers = 0, totQ = 0, totA = 0;
+    const tbody = $('fees-tbody');
+    tbody.innerHTML = '';
+
+    document.querySelectorAll('.fees-row').forEach((row) => {
+      const prof = row.querySelector('.f-prof').value || '—';
+      const isNew = row.querySelector('.f-status').value === 'new';
+      const count = Math.max(1, Number(row.querySelector('.f-count').value) || 1);
+      const fine = FINES[row.querySelector('.f-late').value] || 0;
+
+      const qPer = permitQ + iqamaQ + medicalQ + fine;
+      const aPer = permitA + iqamaA + medicalA + (isNew ? examFee : 0);
+
+      workers += count;
+      totQ += qPer * count;
+      totA += aPer * count;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + prof.replace(/</g, '&lt;') + (fine ? ' <span class="fine-tag">+' + fmt(fine) + '</span>' : '') + '</td>' +
+        '<td>' + (isNew ? t.statusNew : t.statusExisting) + '</td>' +
+        '<td>' + count + '</td>' +
+        '<td>' + fmt(qPer) + '</td>' +
+        '<td>' + fmt(aPer) + '</td>';
+      tbody.appendChild(tr);
+    });
+
+    $('fees-workers').textContent = workers;
+    $('fees-quarter').textContent = fmt(totQ) + ' ' + t.sar;
+    $('fees-annual').textContent = fmt(totA) + ' ' + t.sar;
+    $('fees-result').hidden = false;
+  });
+</script>
+
+<style is:global>
+  .calc-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    z-index: 100;
+  }
+  .calc-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 0.75rem;
+  }
+  .calc-logo img { width: 220px; height: auto; object-fit: contain; }
+  .calc-nav { display: flex; align-items: center; gap: 1.25rem; }
+  .calc-nav a { color: var(--text); text-decoration: none; font-weight: 500; }
+  .calc-nav a:hover { color: var(--brand); }
+
+  .calc-hero {
+    background: var(--gradient);
+    color: white;
+    text-align: center;
+    padding-block: 4.5rem 3rem;
+  }
+  .calc-hero h1 { margin-bottom: 0.75rem; }
+  .calc-hero p { max-width: 640px; margin-inline: auto; opacity: 0.9; }
+
+  .calc-container { max-width: 900px; }
+
+  .calc-tabs { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .calc-tab {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.9rem 1.25rem;
+    border-radius: 10px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--muted);
+  }
+  .calc-tab.active { border-color: var(--brand); color: var(--brand); background: white; box-shadow: var(--shadow); }
+
+  .calc-panel { display: none; }
+  .calc-panel.active { display: block; }
+
+  .calc-card h2 { color: var(--brand); margin-bottom: 0.5rem; }
+  .calc-sub { color: var(--muted); margin-bottom: 1.5rem; }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+
+  .calc-result { margin-top: 1.75rem; }
+  .result-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+  .tile {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .tile strong { font-size: 1.35rem; color: var(--brand); }
+  .tile-gold strong { color: #b45309; }
+  .tile-label { font-size: 0.8rem; color: var(--muted); }
+
+  .result-advice { border-radius: 10px; padding: 0.9rem 1.1rem; font-weight: 600; }
+  .result-advice.ok { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+  .result-advice.danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+  .fees-row {
+    display: grid;
+    grid-template-columns: 2fr 1.6fr 0.8fr 1.6fr auto;
+    gap: 0.75rem;
+    align-items: end;
+    padding: 0.75rem;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    background: white;
+  }
+  .fees-row .form-group { margin-bottom: 0; }
+  .row-remove {
+    border: none;
+    background: #fef2f2;
+    color: #dc2626;
+    border-radius: 8px;
+    width: 34px; height: 42px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .btn-sm { padding: 0.5rem 1rem; font-size: 0.9rem; margin-bottom: 0.75rem; }
+  .hint { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
+
+  .rates-box { margin-bottom: 1.25rem; border: 1px solid var(--line); border-radius: 10px; padding: 0.9rem 1.1rem; background: var(--surface); }
+  .rates-box summary { cursor: pointer; font-weight: 600; color: var(--text); }
+  .rates-grid { margin-top: 1rem; margin-bottom: 0; }
+
+  .fees-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+  .fees-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; background: white; }
+  .fees-table th { background: var(--brand); color: white; padding: 0.7rem 0.6rem; text-align: start; }
+  .fees-table td { padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--line); }
+  .fine-tag { color: #dc2626; font-size: 0.75rem; font-weight: 700; }
+
+  .disclaimer {
+    margin-top: 1.5rem;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .calc-cta { margin-top: 1.5rem; text-align: center; }
+  .calc-cta h3 { margin-bottom: 1rem; }
+
+  @media (max-width: 720px) {
+    .fees-row { grid-template-columns: 1fr 1fr; }
+    .row-remove { height: 38px; }
+    .calc-logo img { width: 170px; }
+  }
+</style>
