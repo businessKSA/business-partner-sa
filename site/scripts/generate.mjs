@@ -217,6 +217,7 @@ const NAV_GROUPS = [
     en: "Company", ar: "الشركة",
     items: [
       { href: "/about", en: "About us", ar: "من نحن" },
+      { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
       { href: "/careers", en: "Careers", ar: "الوظائف" },
       { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
     ],
@@ -281,6 +282,7 @@ function footer() {
       ${fl("/calculator", "Calculator", "الحاسبة")}
       ${fl("/compliance-calculators", "Compliance calculators", "حاسبات الامتثال")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
+      ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
       ${fl("/cart", "Cart", "السلة")}
       ${fl("/contact", "Contact", "اتصل بنا")}
     </ul></div>
@@ -1229,18 +1231,65 @@ function buildTourism() {
   </div></section>
 
   <section class="section" id="events"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(ev.eyebrowEn || ev.eyebrow, ev.eyebrow)}</span><h2>${L(ev.titleEn || ev.title, ev.title)}</h2></div>
-    <div class="svc-layout">
-      <div class="svc-main">
-        <p class="lead-p">${L(ev.textEn || ev.text, ev.text)}</p>
-        <ul class="feat-list" style="margin-top:22px">${evFeats}</ul>
-      </div>
-      <aside class="svc-aside"><div class="order-box">
-        <div class="price-big">${esc(localizeLabel(ev.price))}</div>
-        <div class="price-note">${L(ev.noteEn || ev.note, ev.note)}</div>
-        ${waBtn2("Request an event", "اطلب فعالية", "btn-wa")}
-        <a class="btn btn-ghost" href="${u("/contact")}">${L("Contact us", "تواصل معنا")}</a>
-      </div></aside>
+    <div class="section-head"><span class="eyebrow">${L(ev.eyebrowEn || ev.eyebrow, ev.eyebrow)}</span><h2>${L(ev.titleEn || ev.title, ev.title)}</h2><p>${L(ev.textEn || ev.text, ev.text)}</p></div>
+    <div class="booking-wrap">
+      <form class="calc-form" id="event-form" novalidate>
+        <h2>${L("Request your event", "اطلب فعاليتك")}</h2>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ev-company">${L("Company name", "اسم الشركة")}</label><input id="ev-company" type="text" required></div>
+          <div class="field"><label for="ev-person">${L("Contact person", "الشخص المسؤول")}</label><input id="ev-person" type="text" required></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ev-phone">${L("Mobile", "رقم الجوال")}</label><input id="ev-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+          <div class="field"><label for="ev-email">${L("Company email (no free email providers)", "إيميل الشركة (لا تُقبل الإيميلات المجانية)")}</label><input id="ev-email" type="email" required placeholder="name@company.com"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ev-date">${L("Preferred event date", "اليوم المناسب للفعالية")}</label><input id="ev-date" type="date" required></div>
+          <div class="field"><label for="ev-count">${L("Number of attendees", "عدد الأفراد")}</label><input id="ev-count" type="number" min="1" required placeholder="50"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ev-class">${L("Experience level", "مستوى الرحلة")}</label>
+            <select id="ev-class">
+              <option value="standard">${L("Standard", "عادي")}</option>
+              <option value="vip">VIP</option>
+            </select></div>
+          <div class="field"><label for="ev-venue">${L("Venue type", "نوع المكان")}</label>
+            <select id="ev-venue">
+              <option>${L("Inside company premises", "داخل مقر الشركة")}</option>
+              <option>${L("Outdoor activity", "فعالية خارجية (أوت دور)")}</option>
+              <option>${L("Events hall", "قاعة مناسبات")}</option>
+              <option>${L("Workshop hall", "قاعة ورش عمل")}</option>
+            </select></div>
+        </div>
+        <div class="field"><label for="ev-type">${L("Event type", "نوع الفعالية")}</label>
+          <select id="ev-type">
+            <option>${L("National Day celebration", "احتفال باليوم الوطني")}</option>
+            <option>${L("Founding Day", "يوم التأسيس")}</option>
+            <option>${L("Internal occasion", "مناسبة داخلية")}</option>
+            <option>${L("Team building", "بناء فريق (Team Building)")}</option>
+            <option>${L("Employee recognition", "تكريم موظفين")}</option>
+            <option>${L("Product launch", "إطلاق منتج")}</option>
+            <option>${L("Eid gathering", "معايدة العيد")}</option>
+            <option>${L("Sports / wellness day", "يوم رياضي / صحي")}</option>
+            <option>${L("Conference / forum", "مؤتمر / ملتقى")}</option>
+            <option>${L("Training workshop", "ورشة تدريبية")}</option>
+            <option>${L("Year-end celebration", "حفل نهاية العام")}</option>
+            <option>${L("Ramadan Iftar", "إفطار رمضاني")}</option>
+            <option>${L("Other", "أخرى")}</option>
+          </select></div>
+        <div class="field"><label for="ev-notes">${L("Extra details (optional)", "تفاصيل إضافية (اختياري)")}</label><textarea id="ev-notes" rows="3" placeholder="${Lraw("Theme, budget range, preferred city…", "الثيم، حدود الميزانية، المدينة المفضلة…")}"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send event request", "أرسل طلب الفعالية")}</span></button>
+        <p class="form-note">${L("Your request reaches our team, we collect the best 5 supplier offers, and you pick the winner.", "يصل طلبك لفريقنا، نجمع لك أفضل 5 عروض من المزوّدين، وتختار الأنسب.")}</p>
+        <div class="form-success" id="event-success" hidden></div>
+      </form>
+      <aside class="booking-side">
+        <div class="order-box">
+          <h3>${L("How it works", "كيف تعمل")}</h3>
+          <ul class="feat-list">${evFeats}</ul>
+          <p class="mini">${L("Are you an events supplier?", "هل أنت مورّد فعاليات؟")}</p>
+          <a class="btn btn-ghost" href="${u("/suppliers")}">${L("Join our suppliers portal", "سجّل في بوابة الموردين")}</a>
+        </div>
+      </aside>
     </div>
   </div></section>
 
@@ -1705,6 +1754,63 @@ function buildConsultation() {
   return page({ title: Lraw("Book a consultation — Business Partner", "احجز استشارة — بيزنس بارتنر"), desc: Lraw(b.leadEn, b.lead), active: "/consultation", path: "/consultation", body });
 }
 
+function buildSuppliers() {
+  const cats = [
+    { en: "Events & conferences", ar: "فعاليات ومؤتمرات" },
+    { en: "Halls & venues", ar: "قاعات ومواقع" },
+    { en: "Catering & hospitality", ar: "ضيافة وكيترينق" },
+    { en: "Outdoor activities", ar: "أنشطة خارجية" },
+    { en: "Transport & logistics", ar: "نقل ولوجستيات" },
+    { en: "Photography & media", ar: "تصوير وإعلام" },
+    { en: "Corporate trips", ar: "رحلات شركات" },
+    { en: "Other", ar: "أخرى" },
+  ];
+  const catOpts = cats.map((c2) => `<option>${L(c2.en, c2.ar)}</option>`).join("");
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Suppliers portal", "بوابة الموردين")}</span>
+    <h1>${L("Become a Business Partner supplier", "انضم كمورّد لدى بيزنس بارتنر")}</h1>
+    <p class="lead">${L("We send our clients' event and service requests to registered suppliers and collect competing offers. Register once — receive matching requests.", "نرسل طلبات عملائنا (فعاليات وخدمات) للموردين المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — وتصلك الطلبات المناسبة لنشاطك.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="booking-wrap">
+      <form class="calc-form" id="supplier-form" novalidate>
+        <h2>${L("Supplier registration", "تسجيل مورّد")}</h2>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="sp-company">${L("Company name", "اسم الشركة")}</label><input id="sp-company" type="text" required></div>
+          <div class="field"><label for="sp-person">${L("Contact person", "الشخص المسؤول")}</label><input id="sp-person" type="text" required></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="sp-phone">${L("Mobile", "رقم الجوال")}</label><input id="sp-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+          <div class="field"><label for="sp-email">${L("Email", "البريد الإلكتروني")}</label><input id="sp-email" type="email" required></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="sp-city">${L("City", "المدينة")}</label><input id="sp-city" type="text" placeholder="${Lraw("Riyadh", "الرياض")}"></div>
+          <div class="field"><label for="sp-cr">${L("CR number (optional)", "رقم السجل التجاري (اختياري)")}</label><input id="sp-cr" type="text"></div>
+        </div>
+        <div class="field"><label for="sp-cat">${L("Service category", "تصنيف الخدمة")}</label>
+          <select id="sp-cat">${catOpts}</select></div>
+        <div class="field"><label for="sp-notes">${L("Describe your services briefly", "اوصف خدماتك باختصار")}</label><textarea id="sp-notes" rows="3"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a supplier", "سجّل كمورّد")}</button>
+        <p class="form-note">${L("We review registrations and contact you to complete onboarding.", "نراجع التسجيلات ونتواصل معك لاستكمال الانضمام.")}</p>
+        <div class="form-success" id="supplier-success" hidden></div>
+      </form>
+      <aside class="booking-side">
+        <div class="order-box">
+          <h3>${L("Why join?", "ليش تنضم؟")}</h3>
+          <ul class="feat-list">
+            <li>${I.check}<span>${L("Ready corporate demand from our clients", "طلبات جاهزة من عملائنا (شركات)")}</span></li>
+            <li>${I.check}<span>${L("You compete on clear, scoped requests", "تنافس على طلبات واضحة ومحددة")}</span></li>
+            <li>${I.check}<span>${L("No registration fees", "بدون رسوم تسجيل")}</span></li>
+            <li>${I.check}<span>${L("Direct WhatsApp/email coordination", "تنسيق مباشر عبر واتساب والبريد")}</span></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Suppliers portal — Business Partner", "بوابة الموردين — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner supplier and receive matching client requests.", "سجّل كمورّد لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
+}
+
 /* ---------- write ---------- */
 function write(rel, html) {
   const full = path.join(ROOT, rel);
@@ -1744,6 +1850,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}checkout.html`, buildCheckout());
   write(`${pre}account.html`, buildAccount());
   write(`${pre}consultation.html`, buildConsultation());
+  write(`${pre}suppliers.html`, buildSuppliers());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   pageCount += 14 + services.length;
 }
@@ -1751,7 +1858,7 @@ LANG = "en";
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])

@@ -771,3 +771,85 @@ var BP = window.BP = window.BP || {};
     });
   });
 })();
+
+/* ---------- Event request + supplier registration forms → /api/requests ---------- */
+(function () {
+  "use strict";
+  var FREE = ["gmail.com","googlemail.com","hotmail.com","outlook.com","outlook.sa","live.com","msn.com",
+    "yahoo.com","ymail.com","icloud.com","me.com","mac.com","aol.com","proton.me","protonmail.com",
+    "zoho.com","mail.com","gmx.com","gmx.net","yandex.com","yandex.ru","inbox.com","hey.com"];
+  function isCorporate(email) {
+    var at = email.indexOf("@"); if (at < 1) return false;
+    return FREE.indexOf(email.slice(at + 1).toLowerCase()) === -1;
+  }
+  function val(id) { var el = document.getElementById(id); return el ? (el.value || "").trim() : ""; }
+  function selText(id) { var el = document.getElementById(id); return el && el.selectedIndex >= 0 ? el.options[el.selectedIndex].text : val(id); }
+
+  function wire(formId, boxId, build, validate, waText) {
+    var form = document.getElementById(formId);
+    if (!form) return;
+    var dateEl = form.querySelector('input[type="date"]');
+    if (dateEl) {
+      var n = new Date();
+      dateEl.min = n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0") + "-" + String(n.getDate()).padStart(2, "0");
+    }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var data = build();
+      var err = validate(data);
+      if (err) { alert(err); return; }
+      var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = BP.t("Sending…", "جارٍ الإرسال…");
+      function done(ref, emailSent) {
+        var box = document.getElementById(boxId);
+        box.hidden = false;
+        box.innerHTML = "✅ <strong>" + BP.t("Request received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
+          (emailSent ? BP.t("A confirmation was sent to your email.", "أرسلنا التأكيد إلى بريدك.")
+                     : BP.t("You can also notify us on WhatsApp.", "تقدر كذلك تشعرنا عبر واتساب.")) +
+          ' <a class="btn btn-ghost" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' +
+          encodeURIComponent(waText(data, ref)) + '">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a>";
+        box.scrollIntoView({ behavior: "smooth", block: "center" });
+        btn.textContent = lbl;
+      }
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(data),
+      }).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.d && res.d.ok) { done(res.d.ref, res.d.emailSent); return; }
+          btn.disabled = false; btn.textContent = lbl;
+          alert(res.d && res.d.message ? res.d.message : BP.t("Couldn't send. Try again.", "تعذّر الإرسال. حاول مرة أخرى."));
+        })
+        .catch(function () { done(BP.t("LOCAL", "مبدئي"), false); });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    wire("event-form", "event-success",
+      function () {
+        return { type: "event", company: val("ev-company"), person: val("ev-person"), phone: val("ev-phone"),
+          email: val("ev-email"), date: val("ev-date"), count: val("ev-count"),
+          klass: selText("ev-class"), venue: selText("ev-venue"), eventType: selText("ev-type"), notes: val("ev-notes") };
+      },
+      function (d) {
+        if (!d.company || !d.person || !d.phone || !d.email || !d.date || !d.count)
+          return BP.t("Please fill all required fields.", "الرجاء تعبئة كل الحقول المطلوبة.");
+        if (!isCorporate(d.email))
+          return BP.t("Please use your official company email — free providers (Gmail, Hotmail…) are not accepted.",
+                      "الرجاء استخدام إيميل الشركة الرسمي — لا تُقبل الإيميلات المجانية (Gmail وHotmail وغيرها).");
+        return null;
+      },
+      function (d, ref) { return "طلب فعالية " + ref + "\nالشركة: " + d.company + "\nالنوع: " + d.eventType + "\nالتاريخ: " + d.date + "\nالأفراد: " + d.count; });
+
+    wire("supplier-form", "supplier-success",
+      function () {
+        return { type: "supplier", company: val("sp-company"), person: val("sp-person"), phone: val("sp-phone"),
+          email: val("sp-email"), city: val("sp-city"), cr: val("sp-cr"), category: selText("sp-cat"), notes: val("sp-notes") };
+      },
+      function (d) {
+        if (!d.company || !d.person || !d.phone || !d.email)
+          return BP.t("Please fill all required fields.", "الرجاء تعبئة كل الحقول المطلوبة.");
+        return null;
+      },
+      function (d, ref) { return "تسجيل مورّد " + ref + "\nالشركة: " + d.company + "\nالتصنيف: " + d.category; });
+  });
+})();

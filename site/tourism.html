@@ -31,7 +31,7 @@
       <div class="nav-menu"><a href="/saudi-arabia">Invest in Saudi</a><a href="/news">Insights &amp; news</a></div>
     </div><div class="nav-group">
       <button type="button" class="nav-drop" aria-expanded="false">Company <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/about">About us</a><a href="/careers">Careers</a><a href="/contact">Contact us</a></div>
+      <div class="nav-menu"><a href="/about">About us</a><a href="/suppliers">Suppliers portal</a><a href="/careers">Careers</a><a href="/contact">Contact us</a></div>
     </div><a class="btn btn-primary nav-cta" href="/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Book a consultation</span></a></nav>
   <div class="header-cta">
     <a class="lang-toggle" href="/ar/tourism" aria-label="Switch language / تبديل اللغة">
@@ -53,18 +53,65 @@
   </div></section>
 
   <section class="section" id="events"><div class="container">
-    <div class="section-head"><span class="eyebrow">Type one · corporate events</span><h2>Events and activities for your staff</h2></div>
-    <div class="svc-layout">
-      <div class="svc-main">
-        <p class="lead-p">We design events and activities for your company's staff, on-site or off-site, and search for the best offers from service providers.</p>
-        <ul class="feat-list" style="margin-top:22px"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Events and activities inside or outside the company premises</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>We search for offers from service providers</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>We bring you the top 5 offers to compare and choose</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Organisation and follow-up through to delivery</span></li></ul>
-      </div>
-      <aside class="svc-aside"><div class="order-box">
-        <div class="price-big">From 2,500 ﷼</div>
-        <div class="price-note">Business Partner's fee is 2,500 ﷼, and we bring you the top 5 provider offers to choose the best fit.</div>
-        <a class="btn btn-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Request an event</span></a>
-        <a class="btn btn-ghost" href="/contact">Contact us</a>
-      </div></aside>
+    <div class="section-head"><span class="eyebrow">Type one · corporate events</span><h2>Events and activities for your staff</h2><p>We design events and activities for your company's staff, on-site or off-site, and search for the best offers from service providers.</p></div>
+    <div class="booking-wrap">
+      <form class="calc-form" id="event-form" novalidate>
+        <h2>Request your event</h2>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ev-company">Company name</label><input id="ev-company" type="text" required></div>
+          <div class="field"><label for="ev-person">Contact person</label><input id="ev-person" type="text" required></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ev-phone">Mobile</label><input id="ev-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+          <div class="field"><label for="ev-email">Company email (no free email providers)</label><input id="ev-email" type="email" required placeholder="name@company.com"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ev-date">Preferred event date</label><input id="ev-date" type="date" required></div>
+          <div class="field"><label for="ev-count">Number of attendees</label><input id="ev-count" type="number" min="1" required placeholder="50"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ev-class">Experience level</label>
+            <select id="ev-class">
+              <option value="standard">Standard</option>
+              <option value="vip">VIP</option>
+            </select></div>
+          <div class="field"><label for="ev-venue">Venue type</label>
+            <select id="ev-venue">
+              <option>Inside company premises</option>
+              <option>Outdoor activity</option>
+              <option>Events hall</option>
+              <option>Workshop hall</option>
+            </select></div>
+        </div>
+        <div class="field"><label for="ev-type">Event type</label>
+          <select id="ev-type">
+            <option>National Day celebration</option>
+            <option>Founding Day</option>
+            <option>Internal occasion</option>
+            <option>Team building</option>
+            <option>Employee recognition</option>
+            <option>Product launch</option>
+            <option>Eid gathering</option>
+            <option>Sports / wellness day</option>
+            <option>Conference / forum</option>
+            <option>Training workshop</option>
+            <option>Year-end celebration</option>
+            <option>Ramadan Iftar</option>
+            <option>Other</option>
+          </select></div>
+        <div class="field"><label for="ev-notes">Extra details (optional)</label><textarea id="ev-notes" rows="3" placeholder="Theme, budget range, preferred city…"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Send event request</span></button>
+        <p class="form-note">Your request reaches our team, we collect the best 5 supplier offers, and you pick the winner.</p>
+        <div class="form-success" id="event-success" hidden></div>
+      </form>
+      <aside class="booking-side">
+        <div class="order-box">
+          <h3>How it works</h3>
+          <ul class="feat-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Events and activities inside or outside the company premises</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>We search for offers from service providers</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>We bring you the top 5 offers to compare and choose</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Organisation and follow-up through to delivery</span></li></ul>
+          <p class="mini">Are you an events supplier?</p>
+          <a class="btn btn-ghost" href="/suppliers">Join our suppliers portal</a>
+        </div>
+      </aside>
     </div>
   </div></section>
 
@@ -96,6 +143,7 @@
       <li><a href="/calculator">Calculator</a></li>
       <li><a href="/compliance-calculators">Compliance calculators</a></li>
       <li><a href="/account">Client portal</a></li>
+      <li><a href="/suppliers">Suppliers portal</a></li>
       <li><a href="/cart">Cart</a></li>
       <li><a href="/contact">Contact</a></li>
     </ul></div>
