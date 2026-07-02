@@ -6,7 +6,7 @@ import vercel from '@astrojs/vercel';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://businesspartner.sa',
-  integrations: [sitemap({ filter: (page) => !page.includes('/ai-team') })],
+  integrations: [sitemap({ filter: (page) => !page.includes('/ai-team') && !page.includes('/dashboard') })],
   output: 'server', // Enable SSR for API routes
   adapter: vercel(),
   i18n: {
