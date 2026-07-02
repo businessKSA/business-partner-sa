@@ -337,7 +337,251 @@
     ],
     "titleEn": "Packages",
     "subtitleEn": "Three packages that cover your journey — from first idea to expansion. Pick the closest one, and the smart agent tailors it to your case.",
-    "noteEn": "Package pricing is quoted by scope of work and services required — contact us for pricing and we'll prepare a custom quote in minutes."
+    "noteEn": "Package pricing is quoted by scope of work and services required — contact us for pricing and we'll prepare a custom quote in minutes.",
+    "groups": [
+      {
+        "key": "business",
+        "ar": "باقات الأعمال",
+        "en": "Business packages",
+        "descAr": "باقات متكاملة تغطّي رحلتك من الفكرة حتى التوسّع.",
+        "descEn": "End-to-end packages from idea to expansion.",
+        "tiers": [
+          {
+            "key": "start",
+            "name": "Start",
+            "nameAr": "البداية",
+            "for": "لأصحاب الأفكار والمنشآت الجديدة",
+            "highlight": false,
+            "features": [
+              "استشارة ما قبل التأسيس",
+              "قيد سجل تجاري / تأسيس مؤسسة فردية",
+              "حجز اسم تجاري وإنشاء الحسابات الحكومية",
+              "عضوية الغرفة التجارية",
+              "دعم الوكيل الذكي على واتساب"
+            ],
+            "forEn": "For founders and new businesses",
+            "featuresEn": [
+              "Pre-incorporation consultation",
+              "CR registration / sole establishment setup",
+              "Trade name reservation & government account creation",
+              "Chamber of Commerce membership",
+              "Smart-agent support on WhatsApp"
+            ],
+            "nameEn": "Start",
+            "amount": 5000,
+            "price": "ابتداءً من 5,000 ﷼"
+          },
+          {
+            "key": "operate",
+            "name": "Operate",
+            "nameAr": "التشغيل",
+            "for": "للمنشآت النامية التي تحتاج تشغيلاً متكاملاً",
+            "highlight": true,
+            "features": [
+              "كل ما في باقة البداية",
+              "تأسيس شركة ذات مسؤولية محدودة",
+              "التراخيص القطاعية اللازمة لنشاطك",
+              "إدارة قوى والتأمينات والموارد البشرية",
+              "متابعة الامتثال والالتزامات الدورية",
+              "أولوية في الرد والتنفيذ"
+            ],
+            "forEn": "For growing businesses that need full operations",
+            "featuresEn": [
+              "Everything in the Start package",
+              "LLC company formation",
+              "Sector licenses required for your activity",
+              "Managing Qiwa, GOSI and HR",
+              "Compliance follow-up and periodic obligations",
+              "Priority in response and execution"
+            ],
+            "nameEn": "Operate",
+            "amount": 10000,
+            "price": "ابتداءً من 10,000 ﷼"
+          },
+          {
+            "key": "grow",
+            "name": "Grow",
+            "nameAr": "النمو",
+            "for": "للمستثمرين والمنشآت الكبيرة والشركات الأجنبية",
+            "highlight": false,
+            "features": [
+              "كل ما في باقة التشغيل",
+              "ترخيص استثمار أجنبي وتأسيس شركة أجنبية",
+              "الإقامة المميزة للمستثمرين والكفاءات",
+              "إدارة العلاقات الحكومية بمعقّب مخصّص",
+              "دراسات الجدوى والدعم الاستراتيجي",
+              "مدير حساب مخصّص"
+            ],
+            "forEn": "For investors, large businesses and foreign companies",
+            "featuresEn": [
+              "Everything in the Operate package",
+              "Foreign investment license & foreign company formation",
+              "Premium Residency for investors and talent",
+              "Government relations with a dedicated liaison",
+              "Feasibility studies and strategic support",
+              "Dedicated account manager"
+            ],
+            "nameEn": "Grow",
+            "amount": 15000,
+            "price": "ابتداءً من 15,000 ﷼"
+          }
+        ]
+      },
+      {
+        "key": "formation",
+        "ar": "تأسيس الشركات والاستثمار",
+        "en": "Company formation & investment",
+        "descAr": "تأسيس منشأتك محلياً أو كمستثمر أجنبي، وصولاً للإقامة المميزة.",
+        "descEn": "Set up locally or as a foreign investor, up to Premium Residency.",
+        "tiers": [
+          {
+            "key": "llc",
+            "nameAr": "تأسيس شركة سعودية",
+            "nameEn": "Saudi company formation",
+            "price": "ابتداءً من 7,500 ﷼",
+            "amount": 7500,
+            "for": "لرواد الأعمال والملاك السعوديين والخليجيين",
+            "forEn": "For Saudi & GCC entrepreneurs and owners",
+            "features": [
+              "حجز الاسم التجاري",
+              "صياغة وتوثيق عقد التأسيس",
+              "إصدار السجل التجاري",
+              "عضوية الغرفة التجارية",
+              "التسجيل المبدئي في الزكاة والضريبة"
+            ],
+            "featuresEn": [
+              "Trade name reservation",
+              "Articles of Association drafting & notarization",
+              "Commercial Registration (CR)",
+              "Chamber of Commerce membership",
+              "Initial ZATCA/VAT registration"
+            ]
+          },
+          {
+            "key": "misa",
+            "nameAr": "تأسيس استثمار أجنبي (MISA)",
+            "nameEn": "Foreign investment (MISA)",
+            "price": "ابتداءً من 15,000 ﷼",
+            "amount": 15000,
+            "highlight": true,
+            "for": "للمستثمرين والشركات الأجنبية",
+            "forEn": "For foreign investors and companies",
+            "features": [
+              "ترخيص وزارة الاستثمار (MISA)",
+              "تأسيس الشركة الأجنبية",
+              "السجل التجاري وعضوية الغرفة",
+              "التسجيل في الزكاة والضريبة",
+              "فتح الملفات الحكومية (قوى/مقيم/مدد)"
+            ],
+            "featuresEn": [
+              "MISA investment license",
+              "Foreign entity incorporation",
+              "CR & Chamber membership",
+              "ZATCA/VAT registration",
+              "Opening government files (Qiwa/Muqeem/Mudad)"
+            ]
+          },
+          {
+            "key": "pr",
+            "nameAr": "الإقامة المميزة (بريميوم)",
+            "nameEn": "Premium Residency",
+            "price": "ابتداءً من 5,000 ﷼",
+            "amount": 5000,
+            "for": "للمستثمرين والكفاءات",
+            "forEn": "For investors and talents",
+            "features": [
+              "تقييم الأهلية والمسار الأنسب",
+              "تجهيز ومراجعة المستندات",
+              "تقديم الطلب والمتابعة",
+              "متابعة الحالة حتى القرار"
+            ],
+            "featuresEn": [
+              "Eligibility & pathway assessment",
+              "Document preparation & review",
+              "Application submission & follow-up",
+              "Status tracking to a decision"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "gov",
+        "ar": "الخدمات الحكومية والامتثال",
+        "en": "Government services & compliance",
+        "descAr": "اشتراك شهري يتابع التزاماتك الحكومية وينفّذها نيابةً عنك.",
+        "descEn": "A monthly subscription that tracks and handles your government obligations.",
+        "tiers": [
+          {
+            "key": "gov-basic",
+            "nameAr": "باقة المتابعة الأساسية",
+            "nameEn": "Essential monitoring",
+            "price": "ابتداءً من 1,500 ﷼ / شهرياً",
+            "amount": 1500,
+            "for": "للمنشآت الصغيرة",
+            "forEn": "For small establishments",
+            "features": [
+              "مراقبة قوى ومقيم والتأمينات ومدد",
+              "تنبيهات المهل والمخالفات",
+              "تقرير امتثال شهري",
+              "دعم عبر واتساب"
+            ],
+            "featuresEn": [
+              "Monitoring Qiwa, Muqeem, GOSI & Mudad",
+              "Deadline & violation alerts",
+              "Monthly compliance report",
+              "WhatsApp support"
+            ]
+          },
+          {
+            "key": "gov-plus",
+            "nameAr": "باقة الامتثال المتقدمة",
+            "nameEn": "Advanced compliance",
+            "price": "ابتداءً من 2,500 ﷼ / شهرياً",
+            "amount": 2500,
+            "highlight": true,
+            "for": "للمنشآت النامية",
+            "forEn": "For growing establishments",
+            "features": [
+              "كل ما في الباقة الأساسية",
+              "إدارة شؤون الموظفين والعقود",
+              "متابعة حماية الأجور (مدد)",
+              "متابعة دورية للالتزامات",
+              "أولوية في التنفيذ"
+            ],
+            "featuresEn": [
+              "Everything in Essential",
+              "Employee & contract management",
+              "Wage protection follow-up (Mudad)",
+              "Periodic obligation tracking",
+              "Priority execution"
+            ]
+          },
+          {
+            "key": "gov-partner",
+            "nameAr": "باقة الشريك الحكومي المتكامل",
+            "nameEn": "Full government partner",
+            "price": "ابتداءً من 3,500 ﷼ / شهرياً",
+            "amount": 3500,
+            "for": "للمنشآت والمجموعات",
+            "forEn": "For establishments and groups",
+            "features": [
+              "كل ما في الباقة المتقدمة",
+              "مدير حساب مخصص + معقّب",
+              "تنفيذ الإجراءات الحكومية نيابةً عنك",
+              "تقارير تشغيلية وتنظيمية",
+              "استشارات مستمرة"
+            ],
+            "featuresEn": [
+              "Everything in Advanced",
+              "Dedicated account manager + PRO",
+              "We execute government procedures for you",
+              "Operational & regulatory reports",
+              "Ongoing advisory"
+            ]
+          }
+        ]
+      }
+    ]
   },
   "aiAgents": {
     "title": "منظومة الوكلاء الأذكياء — فريقك الذكي يعمل 24/7",

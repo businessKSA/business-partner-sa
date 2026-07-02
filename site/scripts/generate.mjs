@@ -217,7 +217,6 @@ const NAV_GROUPS = [
       { href: "/services", en: "All services (93)", ar: "كل الخدمات (93)" },
       { href: "/packages", en: "Packages", ar: "الباقات" },
       { href: "/ai-agents", en: "AI Agents", ar: "الوكلاء الأذكياء" },
-      { href: "/calculator", en: "Cost calculator", ar: "حاسبة التكلفة" },
       { href: "/compliance-calculators", en: "Compliance tools", ar: "أدوات الامتثال" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
     ],
@@ -295,7 +294,6 @@ function footer() {
       ${fl("/saudi-arabia", "Saudi Arabia", "السعودية")}
       ${fl("/news", "News", "الأخبار")}
       ${fl("/careers", "Careers", "الوظائف")}
-      ${fl("/calculator", "Calculator", "الحاسبة")}
       ${fl("/compliance-calculators", "Compliance calculators", "حاسبات الامتثال")}
       ${fl("/labor-calculators", "Labor & payroll calculators", "حاسبات العمل والرواتب")}
       ${fl("/compliance-portal", "Compliance portal", "بوابة امتثال المنشأة")}
@@ -667,37 +665,17 @@ function categoryCards() {
 }
 
 function buildServicesIndex() {
-  const mf = site.misaFeatured;
-  const misaTiers = mf.tiers
-    .map(
-      (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${L(t.nameEn || t.nameAr, t.nameAr)}</div>
-      <div class="pk-price">${L(priceLabel({ price: { label: t.price } }), t.price)}<span class="pk-price-sub">${L("+ separate government fees", "+ رسوم حكومية منفصلة")}</span></div>
-      <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
-      <p style="color:var(--text-soft);font-size:.95rem;flex:1">${L(t.textEn || t.text, t.text)}</p>
-      <div style="margin-top:20px">${cartBtns({ id: "misa-" + esc(t.nameAr).replace(/\s+/g, "-"), nameEn: t.nameEn || t.nameAr, nameAr: t.nameAr, amount: parseAmount(t.price), priceLabel: t.price, kind: "misa", ghost: !t.highlight })}</div>
-    </div>`
-    )
-    .join("");
-  const misaSection = `
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(mf.eyebrowEn || mf.eyebrow, mf.eyebrow)}</span><h2>${L(mf.titleEn || mf.title, mf.title)}</h2><p>${L(mf.subtitleEn || mf.subtitle, mf.subtitle)}</p></div>
-    <div class="grid grid-3">${misaTiers}</div>
-    <div class="callout" style="max-width:720px;margin:32px auto 0"><span class="ico">💡</span><p>${L(mf.noteEn || mf.note, mf.note)}</p></div>
-  </div></section>`;
-
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Services", "الخدمات")}</span>
     <h1>${L("Choose a service category", "اختر تصنيف الخدمة")}</h1>
-    <p class="lead">${L(services.length + " services organized into " + categories.length + " categories — pick a category to see its services, each with a full page of documents, features and pricing.", services.length + " خدمة موزّعة على " + categories.length + " تصنيفاً — اختر التصنيف لتشاهد خدماته، ولكل خدمة صفحة كاملة بالمستندات والمميزات والأسعار.")}</p>
+    <p class="lead">${L(services.length + " services organized into " + categories.length + " categories — pick a category to see its services, each with a full page of documents, requirements and a custom quote.", services.length + " خدمة موزّعة على " + categories.length + " تصنيفاً — اختر التصنيف لتشاهد خدماته، ولكل خدمة صفحة كاملة بالمستندات والمتطلبات وعرض سعر حسب حالتك.")}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="grid grid-3 cat-grid">${categoryCards()}</div>
-    <div class="cta-band" style="margin-top:36px"><h2>${L("Didn't find your service?", "ما لقيت خدمتك؟")}</h2><p>${L("Send us your enquiry and the smart agent finds the right service for your case instantly.", "أرسل لنا استفسارك، والوكيل الذكي يحدد الخدمة المناسبة لحالتك فوراً.")}</p>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-white", true)}</div>
-  </div></section>
-  ${misaSection}`;
-  return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services with clear fees from the official catalog.", services.length + " خدمة حكومية وتجارية بأتعاب واضحة من الكتالوج الرسمي."), active: "/services", body });
+    <div class="cta-band" style="margin-top:36px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
+  </div></section>`;
+  return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
 }
 
 // One page per category listing only that category's services.
@@ -710,7 +688,7 @@ function buildServiceCategory(cat) {
         <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
         <h3>${esc(sName(s))}</h3>
         <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price">${esc(priceLabel(s))}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+        <div class="foot"><span class="price-soft">${L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
       </a>`;
     })
     .join("");
@@ -723,7 +701,7 @@ function buildServiceCategory(cat) {
     <a class="back-link" href="${u("/services")}">${I.arrow} ${L("All categories", "كل التصنيفات")}</a>
     <span class="eyebrow">${CAT_ICON[cat.key] || "📁"} ${L("Services", "الخدمات")}</span>
     <h1>${L(catEn(cat.key), cat.ar)}</h1>
-    <p class="lead">${L(list.length + " " + (list.length === 1 ? "service" : "services") + " in " + catEn(cat.key) + " — clear fees from the official catalog, government fees separate and disclosed.", list.length + " خدمة في " + cat.ar + " — بأتعاب واضحة من الكتالوج الرسمي، والرسوم الحكومية منفصلة ومعلنة.")}</p>
+    <p class="lead">${L(list.length + " " + (list.length === 1 ? "service" : "services") + " in " + catEn(cat.key) + " — talk to us for a quote tailored to your case; government fees are always separate.", list.length + " خدمة في " + cat.ar + " — تواصل معنا لعرض سعر حسب حالتك، والرسوم الحكومية منفصلة دائماً.")}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="grid grid-3">${cards}</div>
@@ -787,11 +765,10 @@ function buildServiceDetail(s) {
     </div>
     <aside class="svc-aside">
       <div class="order-box">
-        <div class="price-big">${esc(priceLabel(s))}</div>
-        <div class="price-note">${esc(priceNote)}</div>
-        ${cartBtns({ id: s.code || s.slug, nameEn: svcI18n[s.code] ? svcI18n[s.code].en : s.name, nameAr: sNameArOf(s), amount: s.price.amount, priceLabel: s.price.label, kind: "service" })}
-        ${waBtn2("Order this service on WhatsApp", "اطلب هذه الخدمة على واتساب", "btn-ghost")}
-        <a class="btn btn-ghost" href="${u("/calculator")}?service=${encodeURIComponent(s.code)}">${L("Calculate the cost", "احسب التكلفة")}</a>
+        <div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
+        <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
+        <a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>
+        ${waBtn2("Discuss on WhatsApp", "ناقشنا على واتساب", "btn-ghost")}
         <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
       </div>
@@ -851,30 +828,50 @@ function buildAiAgents() {
 
 function buildPackages() {
   const p = site.packages;
-  const tiers = p.tiers
-    .map(
-      (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
+  const groups = p.groups || [{ key: "business", ar: p.title, en: p.titleEn, descAr: p.subtitle, descEn: p.subtitleEn, tiers: p.tiers }];
+  const tierCard = (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
       <div class="pk-name">${L(t.nameEn || t.name || t.nameAr, t.nameAr)}</div>
       ${t.price ? `<div class="pk-price">${esc(localizeLabel(t.price))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       <ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
-    </div>`
-    )
+    </div>`;
+  const tabs = groups
+    .map((g, i) => `<button type="button" class="pk-tab${i === 0 ? " active" : ""}" data-group="${esc(g.key)}">${L(g.en, g.ar)}</button>`)
+    .join("");
+  const panels = groups
+    .map((g, i) => `<div class="pk-panel${i === 0 ? " active" : ""}" id="pkg-${esc(g.key)}">
+      ${g.descAr || g.descEn ? `<p class="pk-group-desc">${L(g.descEn || g.descAr, g.descAr || g.descEn)}</p>` : ""}
+      <div class="grid grid-3">${g.tiers.map(tierCard).join("")}</div>
+    </div>`)
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Packages", "الباقات")}</span>
-    <h1>${L(p.titleEn || p.title, p.title)}</h1>
-    <p class="lead">${L(p.subtitleEn || p.subtitle, p.subtitle)}</p>
+    <h1>${L("Choose the package that fits your establishment", "اختر الباقة التي تناسب منشأتك")}</h1>
+    <p class="lead">${L("Business, company-formation and government-services packages — each is a starting price; your consultant tailors it to your case.", "باقات للأعمال، ولتأسيس الشركات، وللخدمات الحكومية — كل باقة سعرها ابتدائي، ومستشارك يضبطها على حالتك.")}</p>
   </div></section>
   <section class="section"><div class="container">
-    <div class="grid grid-3">${tiers}</div>
+    <div class="pk-tabs" role="tablist">${tabs}</div>
+    ${panels}
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(p.noteEn || p.note, p.note)}</p></div>
   </div></section>
   <section class="section section--gray"><div class="container">
     <div class="cta-band"><h2>${L("Not sure which package fits you?", "محتار أي باقة تناسبك؟")}</h2><p>${L("The smart agent asks a few questions and recommends the best package in minutes.", "الوكيل الذكي يسألك بضعة أسئلة ويرشّح لك الباقة الأنسب في دقائق.")}</p>${waBtn2("Help me choose", "ساعدني أختار", "btn-white", true)}</div>
-  </div></section>`;
+  </div></section>
+  <script>window.BP_PKG_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var tabs=document.querySelectorAll(".pk-tab");
+    tabs.forEach(function(t){t.addEventListener("click",function(){
+      tabs.forEach(function(x){x.classList.remove("active");});
+      document.querySelectorAll(".pk-panel").forEach(function(x){x.classList.remove("active");});
+      t.classList.add("active");
+      var el=document.getElementById("pkg-"+t.dataset.group);
+      if(el)el.classList.add("active");
+    });});
+  })();
+  </script>`;
   return page({ title: Lraw("Packages — Business Partner", "الباقات — بيزنس بارتنر"), desc: Lraw(p.subtitleEn || p.subtitle, p.subtitle), active: "/packages", body });
 }
 
@@ -1174,7 +1171,7 @@ function buildComplianceCalculators() {
       <h3>${L("Want a verified calculation and full compliance monitoring?", "تبغى حساباً معتمداً ومتابعة كاملة لامتثال منشأتك؟")}</h3>
       <div class="cc-cta-btns">
         <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Talk to us on WhatsApp", "تواصل معنا واتساب")}</span></a>
-        <a class="btn btn-ghost" href="${u("/calculator")}">${L("Service fees calculator →", "حاسبة أتعاب الخدمات ←")}</a>
+        <a class="btn btn-ghost" href="${u("/packages")}">${L("View our packages →", "استعرض باقاتنا ←")}</a>
         <a class="btn btn-ghost" href="${u("/labor-calculators")}">${L("Labor & payroll calculators →", "حاسبات العمل والرواتب ←")}</a>
       </div>
     </div>
@@ -2994,7 +2991,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}packages.html`, buildPackages());
-  write(`${pre}calculator.html`, buildCalculator());
+  // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
   write(`${pre}compliance-calculators.html`, buildComplianceCalculators());
   write(`${pre}labor-calculators.html`, buildLaborCalculators());
   write(`${pre}compliance-portal.html`, buildCompliancePortal());
@@ -3018,7 +3015,7 @@ write("monitor.html", buildMonitor());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths

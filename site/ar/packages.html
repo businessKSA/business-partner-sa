@@ -19,13 +19,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=ec88847fe5">
+<link rel="stylesheet" href="/assets/css/styles.css?v=97b73da576">
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/ar/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="nav" aria-label="Main navigation"><a href="/ar/">الرئيسية</a><div class="nav-group active">
       <button type="button" class="nav-drop active" aria-expanded="false">خدماتنا <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/ar/services">كل الخدمات (93)</a><a href="/ar/packages" class="active">الباقات</a><a href="/ar/ai-agents">الوكلاء الأذكياء</a><a href="/ar/calculator">حاسبة التكلفة</a><a href="/ar/compliance-calculators">أدوات الامتثال</a><a href="/ar/tourism">السياحة والفعاليات</a></div>
+      <div class="nav-menu"><a href="/ar/services">كل الخدمات (93)</a><a href="/ar/packages" class="active">الباقات</a><a href="/ar/ai-agents">الوكلاء الأذكياء</a><a href="/ar/compliance-calculators">أدوات الامتثال</a><a href="/ar/tourism">السياحة والفعاليات</a></div>
     </div><div class="nav-group">
       <button type="button" class="nav-drop" aria-expanded="false">السعودية <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="nav-menu"><a href="/ar/saudi-arabia">الاستثمار في السعودية</a><a href="/ar/news">الرؤى والأخبار</a></div>
@@ -44,11 +44,14 @@
 </div></header><main>
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">الباقات</span>
-    <h1>الباقات</h1>
-    <p class="lead">ثلاث باقات تغطّي رحلتك — من أول فكرة حتى التوسّع. اختر الأقرب لك، والوكيل الذكي يضبطها على حالتك.</p>
+    <h1>اختر الباقة التي تناسب منشأتك</h1>
+    <p class="lead">باقات للأعمال، ولتأسيس الشركات، وللخدمات الحكومية — كل باقة سعرها ابتدائي، ومستشارك يضبطها على حالتك.</p>
   </div></section>
   <section class="section"><div class="container">
-    <div class="grid grid-3"><div class="pkg">
+    <div class="pk-tabs" role="tablist"><button type="button" class="pk-tab active" data-group="business">باقات الأعمال</button><button type="button" class="pk-tab" data-group="formation">تأسيس الشركات والاستثمار</button><button type="button" class="pk-tab" data-group="gov">الخدمات الحكومية والامتثال</button></div>
+    <div class="pk-panel active" id="pkg-business">
+      <p class="pk-group-desc">باقات متكاملة تغطّي رحلتك من الفكرة حتى التوسّع.</p>
+      <div class="grid grid-3"><div class="pkg">
       <div class="pk-name">البداية</div>
       <div class="pk-price">ابتداءً من 5,000 ﷼</div>
       <p class="pk-for">لأصحاب الأفكار والمنشآت الجديدة</p>
@@ -73,11 +76,79 @@
     <button type="button" class="btn btn-ghost add-cart" data-id="pkg-grow" data-name-en="Grow" data-name-ar="النمو" data-amount="15000" data-price="ابتداءً من 15,000 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
   </div>
     </div></div>
+    </div><div class="pk-panel" id="pkg-formation">
+      <p class="pk-group-desc">تأسيس منشأتك محلياً أو كمستثمر أجنبي، وصولاً للإقامة المميزة.</p>
+      <div class="grid grid-3"><div class="pkg">
+      <div class="pk-name">تأسيس شركة سعودية</div>
+      <div class="pk-price">ابتداءً من 7,500 ﷼</div>
+      <p class="pk-for">لرواد الأعمال والملاك السعوديين والخليجيين</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>حجز الاسم التجاري</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>صياغة وتوثيق عقد التأسيس</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إصدار السجل التجاري</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>عضوية الغرفة التجارية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>التسجيل المبدئي في الزكاة والضريبة</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-llc" data-name-en="Saudi company formation" data-name-ar="تأسيس شركة سعودية" data-amount="7500" data-price="ابتداءً من 7,500 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+    </div><div class="pkg pop">
+      <div class="pk-name">تأسيس استثمار أجنبي (MISA)</div>
+      <div class="pk-price">ابتداءً من 15,000 ﷼</div>
+      <p class="pk-for">للمستثمرين والشركات الأجنبية</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>ترخيص وزارة الاستثمار (MISA)</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تأسيس الشركة الأجنبية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>السجل التجاري وعضوية الغرفة</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>التسجيل في الزكاة والضريبة</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>فتح الملفات الحكومية (قوى/مقيم/مدد)</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-primary add-cart" data-id="pkg-misa" data-name-en="Foreign investment (MISA)" data-name-ar="تأسيس استثمار أجنبي (MISA)" data-amount="15000" data-price="ابتداءً من 15,000 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+    </div><div class="pkg">
+      <div class="pk-name">الإقامة المميزة (بريميوم)</div>
+      <div class="pk-price">ابتداءً من 5,000 ﷼</div>
+      <p class="pk-for">للمستثمرين والكفاءات</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تقييم الأهلية والمسار الأنسب</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تجهيز ومراجعة المستندات</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تقديم الطلب والمتابعة</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة الحالة حتى القرار</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-pr" data-name-en="Premium Residency" data-name-ar="الإقامة المميزة (بريميوم)" data-amount="5000" data-price="ابتداءً من 5,000 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+    </div></div>
+    </div><div class="pk-panel" id="pkg-gov">
+      <p class="pk-group-desc">اشتراك شهري يتابع التزاماتك الحكومية وينفّذها نيابةً عنك.</p>
+      <div class="grid grid-3"><div class="pkg">
+      <div class="pk-name">باقة المتابعة الأساسية</div>
+      <div class="pk-price">ابتداءً من 1,500 ﷼ / شهرياً</div>
+      <p class="pk-for">للمنشآت الصغيرة</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>مراقبة قوى ومقيم والتأمينات ومدد</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تنبيهات المهل والمخالفات</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تقرير امتثال شهري</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>دعم عبر واتساب</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-gov-basic" data-name-en="Essential monitoring" data-name-ar="باقة المتابعة الأساسية" data-amount="1500" data-price="ابتداءً من 1,500 ﷼ / شهرياً" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+    </div><div class="pkg pop">
+      <div class="pk-name">باقة الامتثال المتقدمة</div>
+      <div class="pk-price">ابتداءً من 2,500 ﷼ / شهرياً</div>
+      <p class="pk-for">للمنشآت النامية</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>كل ما في الباقة الأساسية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة شؤون الموظفين والعقود</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة حماية الأجور (مدد)</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة دورية للالتزامات</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>أولوية في التنفيذ</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-primary add-cart" data-id="pkg-gov-plus" data-name-en="Advanced compliance" data-name-ar="باقة الامتثال المتقدمة" data-amount="2500" data-price="ابتداءً من 2,500 ﷼ / شهرياً" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+    </div><div class="pkg">
+      <div class="pk-name">باقة الشريك الحكومي المتكامل</div>
+      <div class="pk-price">ابتداءً من 3,500 ﷼ / شهرياً</div>
+      <p class="pk-for">للمنشآت والمجموعات</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>كل ما في الباقة المتقدمة</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>مدير حساب مخصص + معقّب</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تنفيذ الإجراءات الحكومية نيابةً عنك</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تقارير تشغيلية وتنظيمية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>استشارات مستمرة</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-gov-partner" data-name-en="Full government partner" data-name-ar="باقة الشريك الحكومي المتكامل" data-amount="3500" data-price="ابتداءً من 3,500 ﷼ / شهرياً" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+    </div></div>
+    </div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>تُحدَّد أسعار الباقات بعرض حسب نطاق العمل والخدمات المطلوبة — تواصل معنا للتسعير ونجهّز لك عرضاً مخصّصاً خلال دقائق.</p></div>
   </div></section>
   <section class="section section--gray"><div class="container">
     <div class="cta-band"><h2>محتار أي باقة تناسبك؟</h2><p>الوكيل الذكي يسألك بضعة أسئلة ويرشّح لك الباقة الأنسب في دقائق.</p><a class="btn btn-white btn-lg" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>ساعدني أختار</span></a></div>
-  </div></section></main><footer class="site-footer"><div class="container">
+  </div></section>
+  <script>window.BP_PKG_LANG="ar";</script>
+  <script>
+  (function(){
+    var tabs=document.querySelectorAll(".pk-tab");
+    tabs.forEach(function(t){t.addEventListener("click",function(){
+      tabs.forEach(function(x){x.classList.remove("active");});
+      document.querySelectorAll(".pk-panel").forEach(function(x){x.classList.remove("active");});
+      t.classList.add("active");
+      var el=document.getElementById("pkg-"+t.dataset.group);
+      if(el)el.classList.add("active");
+    });});
+  })();
+  </script></main><footer class="site-footer"><div class="container">
   <div class="footer-grid">
     <div>
       <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
@@ -93,7 +164,6 @@
       <li><a href="/ar/saudi-arabia">السعودية</a></li>
       <li><a href="/ar/news">الأخبار</a></li>
       <li><a href="/ar/careers">الوظائف</a></li>
-      <li><a href="/ar/calculator">الحاسبة</a></li>
       <li><a href="/ar/compliance-calculators">حاسبات الامتثال</a></li>
       <li><a href="/ar/labor-calculators">حاسبات العمل والرواتب</a></li>
       <li><a href="/ar/compliance-portal">بوابة امتثال المنشأة</a></li>
