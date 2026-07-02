@@ -1,0 +1,780 @@
+{
+  "name": "BP Shared Services — Subscriber Front Door (Virtual Office)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🏢 Subscriber Front Door — المكتب الافتراضي\n\nنقطة دخول العميل المشترك (فرد أو منشأة، عبر واتساب/صوت/إيميل بعد توحيدها في هذا الـ webhook) → خالد (Front Desk) يفهم الأمر → يوجّهه للإيجنت المتخصص نيابة عن العميل → يرجع له الرد كمكتب افتراضي واحد → تسجيل مهمة في نوشن.\n\n**قبل التشغيل:**\n1. اربط credential الخاص بـ Ollama (تبديل الموديل = تبديل عقدة واحدة).\n2. استبدل خطوة التحقق من الاشتراك بربط فعلي بقاعدة المشتركين (نوشن/CRM).\n3. عقد استدعاء الإيجنتات المتخصصة (فرح/بدر/ملاك/محمد/أحمد/المنصات) موجودة **ومعطّلة** — فعّل كل واحدة عند بنائها في الجلسة الشقيقة واستبدل REPLACE_WITH_..._WORKFLOW_ID. إلى حينها الـ workflow يرد بنفسه دون إعادة هيكلة.\n4. System Prompt الكامل في: bp-shared-services/prompts/shared-services-product.md",
+        "height": 460,
+        "width": 480
+      },
+      "id": "sticky-fd-overview",
+      "name": "Sticky Note — Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-620, -140]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-shared-services-frontdoor",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-frontdoor",
+      "name": "Subscriber Order In",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-80, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "subscriber_id",
+              "value": "={{ $json.body.subscriber_id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "subscriber_type",
+              "value": "={{ $json.body.subscriber_type || 'individual' }}",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "channel",
+              "value": "={{ $json.body.channel || 'whatsapp' }}",
+              "type": "string"
+            },
+            {
+              "id": "f4",
+              "name": "message",
+              "value": "={{ $json.body.message || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f5",
+              "name": "subscription_active",
+              "value": "={{ $json.body.subscription_active !== false }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-normalize-order",
+      "name": "Normalize Order",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [140, 200]
+    },
+    {
+      "parameters": {
+        "content": "### ⚠️ التحقق من الاشتراك — placeholder\nحالياً يقرأ العلم subscription_active من الطلب نفسه. قبل الإطلاق: استبدله بعقدة Notion/CRM تبحث عن subscriber_id وتتحقق أن الاشتراك فعّال (فرد أو منشأة) وتجيب صلاحياته. عزل بيانات المشتركين إلزامي.",
+        "height": 200,
+        "width": 320
+      },
+      "id": "sticky-subscription",
+      "name": "Sticky Note — Subscription Check",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [80, 420]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "sub-active",
+              "leftValue": "={{ $json.subscription_active }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-active",
+      "name": "Active Subscriber?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [380, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'subscription_required', reply: 'أهلاً بك. هذه الخدمة متاحة لمشتركي المكتب الافتراضي. فريق المبيعات يوصلك عرض اشتراك رسمي بعد الاعتماد — أرسل بياناتك ونتواصل معك.' }) }}",
+        "options": {}
+      },
+      "id": "respond-no-sub",
+      "name": "Respond — Subscription Required",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [620, 420]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=المشترك: {{ $json.subscriber_id }} (نوع الحساب: {{ $json.subscriber_type }} · القناة: {{ $json.channel }})\n\nأمر المشترك:\n{{ $json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Virtual Office Front Desk Agent (persona: Khaled) for Business Partner's Shared Services subscription. Full charter: bp-shared-services/prompts/shared-services-product.md.\n\nThe subscriber (a company or an individual employee who cannot build a large office — the agents behind you are their personal business team) sends an order in plain language. Understand the desired outcome, pick the single best specialist to fulfill it, draft the unified reply, and flag anything requiring Human Approval. The subscriber must always experience one office, one voice — never expose internal routing.\n\nReturn ONLY the structured JSON.\n\nFields:\n- target_agent: one of farah (marketing content, publishing, broadcast, regulatory news) | badr (offers, packages, client intake, CRM, quotation/contract drafts) | malak (reminders, summaries, email triage, agenda, tasks, dashboards) | mohammed (website, technical, API, third-party subscriptions) | ahmed (suppliers, sourcing, negotiation) | platform (Qiwa, Muqeem, government platforms, government guidance) | khalid_internal (SOPs, templates, documents, onboarding, unclear or multi-part requests) | human_approval (anything binding, financial, legal, credentials-related, subscription/billing changes).\n- client_reply: the reply to the subscriber in their language (Arabic or English) — warm, simple, professional. Confirm what was understood, state the next step and what is needed from them. Never quote subscription prices or fees (pricing is under management review — route to sales via human_approval). Never promise government outcomes or timelines. Never request passwords or OTP (secure channel after approval only).\n- dispatch_brief: internal handoff summary in English for the specialist agent (subscriber id, request, collected info, missing info, urgency).\n- needs_human_approval: true for any government execution, payment, price, contract, official letter, vendor commitment, legal/tax decision, or another subscriber's data.\n- task_title: short Arabic title for the Tasks database log.\n- summary: one-line summary of the order and the dispatch decision."
+        }
+      },
+      "id": "agent-frontdesk",
+      "name": "Khalid — Front Desk",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [640, 120]
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:14b",
+        "options": {}
+      },
+      "id": "ollama-model-frontdoor",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [580, 340]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"target_agent\": \"platform\",\n  \"client_reply\": \"تم استلام طلب تجديد الإقامة. نحتاج رقم الإقامة أو صورة منها، وسيتم التنفيذ بعد تأكيدك واعتماد الفريق...\",\n  \"dispatch_brief\": \"Subscriber SUB-001 requests iqama renewal for employee Ahmed. Missing: iqama number. Urgency: normal.\",\n  \"needs_human_approval\": true,\n  \"task_title\": \"تجديد إقامة — مشترك SUB-001\",\n  \"summary\": \"طلب تجديد إقامة — وُجه لإيجنت المنصات مع تصعيد بشري للتنفيذ\"\n}"
+      },
+      "id": "parser-frontdoor",
+      "name": "Structured Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [780, 340]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_TASKS_DATABASE_ID"
+        },
+        "title": "={{ $json.output.task_title }}",
+        "options": {}
+      },
+      "id": "notion-log-frontdoor",
+      "name": "Log Task in Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [920, 340]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d-farah",
+                    "leftValue": "={{ $json.output.target_agent }}",
+                    "rightValue": "farah",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "farah"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d-badr",
+                    "leftValue": "={{ $json.output.target_agent }}",
+                    "rightValue": "badr",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "badr"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d-malak",
+                    "leftValue": "={{ $json.output.target_agent }}",
+                    "rightValue": "malak",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "malak"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d-mohammed",
+                    "leftValue": "={{ $json.output.target_agent }}",
+                    "rightValue": "mohammed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "mohammed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d-ahmed",
+                    "leftValue": "={{ $json.output.target_agent }}",
+                    "rightValue": "ahmed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ahmed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d-platform",
+                    "leftValue": "={{ $json.output.target_agent }}",
+                    "rightValue": "platform",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "platform"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d-human",
+                    "leftValue": "={{ $json.output.needs_human_approval }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "human_approval"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "switch-dispatch",
+      "name": "Dispatch to Specialist",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [920, 120]
+    },
+    {
+      "parameters": {
+        "content": "### الفريق المتخصص — عقد معطّلة عمداً\nكل عقدة تحتها تستدعي workflow الإيجنت المتخصص (يُبنى في الجلسة الشقيقة). العقدة المعطّلة تمرر البيانات كما هي، فالـ workflow يعمل الآن ويرد برد خالد نفسه. عند جهوز كل إيجنت: استبدل الـ ID وفعّل العقدة — بدون أي إعادة هيكلة.\n\nترتيب الأولوية في التقييم: human_approval يُلتقط قبل الوصول هنا فقط إذا كان target_agent = human_approval؛ وأي طلب needs_human_approval يظهر في الرد والمهمة المسجلة.",
+        "height": 260,
+        "width": 380
+      },
+      "id": "sticky-specialists",
+      "name": "Sticky Note — Specialists",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1180, -560]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_FARAH_WORKFLOW_ID"
+        },
+        "options": {}
+      },
+      "id": "exec-farah",
+      "name": "Call Farah — Marketing",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1240, -280],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_BADR_WORKFLOW_ID"
+        },
+        "options": {}
+      },
+      "id": "exec-badr",
+      "name": "Call Badr — Sales",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1240, -140],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_MALAK_WORKFLOW_ID"
+        },
+        "options": {}
+      },
+      "id": "exec-malak",
+      "name": "Call Malak — Admin/PA",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1240, 0],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_MOHAMMED_WORKFLOW_ID"
+        },
+        "options": {}
+      },
+      "id": "exec-mohammed",
+      "name": "Call Mohammed — IT",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1240, 140],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_AHMED_WORKFLOW_ID"
+        },
+        "options": {}
+      },
+      "id": "exec-ahmed",
+      "name": "Call Ahmed — Procurement",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1240, 280],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_PLATFORM_AGENTS_WORKFLOW_ID"
+        },
+        "options": {}
+      },
+      "id": "exec-platform",
+      "name": "Call Platform Agents",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1240, 420],
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "id": "noop-human-approval",
+      "name": "Human Approval Queue",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1240, 560]
+    },
+    {
+      "parameters": {
+        "content": "### Human Approval\nحالياً NoOp — الطلب يُسجَّل كمهمة needs_human_approval في نوشن ويرد على العميل أن الإجراء بانتظار الاعتماد. لاحقاً: اربطها بـ Human Approval Agent/قناة اعتماد (واتساب باهر مثلاً).",
+        "height": 180,
+        "width": 320
+      },
+      "id": "sticky-human",
+      "name": "Sticky Note — Human Approval",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1600, 540]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "u1",
+              "name": "reply",
+              "value": "={{ $('Khalid — Front Desk').item.json.output.client_reply }}",
+              "type": "string"
+            },
+            {
+              "id": "u2",
+              "name": "target_agent",
+              "value": "={{ $('Khalid — Front Desk').item.json.output.target_agent }}",
+              "type": "string"
+            },
+            {
+              "id": "u3",
+              "name": "needs_human_approval",
+              "value": "={{ $('Khalid — Front Desk').item.json.output.needs_human_approval }}",
+              "type": "boolean"
+            },
+            {
+              "id": "u4",
+              "name": "task_title",
+              "value": "={{ $('Khalid — Front Desk').item.json.output.task_title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-unified-reply",
+      "name": "Unified Office Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1560, 120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'ok', reply: $json.reply, needs_human_approval: $json.needs_human_approval, task_title: $json.task_title }) }}",
+        "options": {}
+      },
+      "id": "respond-unified",
+      "name": "Respond — One Office, One Voice",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1800, 120]
+    }
+  ],
+  "connections": {
+    "Subscriber Order In": {
+      "main": [
+        [
+          {
+            "node": "Normalize Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Order": {
+      "main": [
+        [
+          {
+            "node": "Active Subscriber?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Active Subscriber?": {
+      "main": [
+        [
+          {
+            "node": "Khalid — Front Desk",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — Subscription Required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Khalid — Front Desk": {
+      "main": [
+        [
+          {
+            "node": "Dispatch to Specialist",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Task in Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Khalid — Front Desk",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Khalid — Front Desk",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatch to Specialist": {
+      "main": [
+        [
+          {
+            "node": "Call Farah — Marketing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Badr — Sales",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Malak — Admin/PA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Mohammed — IT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Ahmed — Procurement",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Platform Agents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Human Approval Queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unified Office Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Farah — Marketing": {
+      "main": [
+        [
+          {
+            "node": "Unified Office Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Badr — Sales": {
+      "main": [
+        [
+          {
+            "node": "Unified Office Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Malak — Admin/PA": {
+      "main": [
+        [
+          {
+            "node": "Unified Office Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Mohammed — IT": {
+      "main": [
+        [
+          {
+            "node": "Unified Office Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Ahmed — Procurement": {
+      "main": [
+        [
+          {
+            "node": "Unified Office Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Platform Agents": {
+      "main": [
+        [
+          {
+            "node": "Unified Office Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human Approval Queue": {
+      "main": [
+        [
+          {
+            "node": "Unified Office Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unified Office Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond — One Office, One Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
