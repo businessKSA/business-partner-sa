@@ -152,14 +152,13 @@ const parseAmount = (str) => {
   return m ? Number(m[0]) : null;
 };
 
-// Add-to-cart + Buy-now pair. Item carried in data-* attributes; cart lives in localStorage (see main.js).
+// Single add-to-cart button. Item carried in data-* attributes; cart lives in localStorage (see main.js).
 function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false }) {
   // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
   const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
   const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount != null ? amount : ""}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
-    <button type="button" class="btn btn-wa buy-now" ${data}>${L("Buy now", "اشترِ الآن")}</button>
   </div>`;
 }
 
@@ -287,6 +286,7 @@ function footer() {
       ${fl("/careers", "Careers", "الوظائف")}
       ${fl("/calculator", "Calculator", "الحاسبة")}
       ${fl("/compliance-calculators", "Compliance calculators", "حاسبات الامتثال")}
+      ${fl("/compliance-portal", "Compliance portal", "بوابة امتثال المنشأة")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
       ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
       ${fl("/cart", "Cart", "السلة")}
@@ -785,7 +785,6 @@ function buildPackages() {
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       <ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
-      <a class="btn btn-ghost" href="${u("/consultation")}">${I.calendar}<span>${L("Request package pricing", "اطلب تسعير الباقة")}</span></a>
     </div>`
     )
     .join("");
@@ -894,6 +893,9 @@ function buildCalculator() {
 }
 
 function buildComplianceCalculators() {
+  // Official activities dataset (codes + AR/EN names from the ISIC4 master reference in Notion).
+  let ACT_V = "0";
+  try { ACT_V = assetV("assets/data/activities.json"); } catch { /* file generated separately */ }
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Free compliance tools", "أدوات امتثال مجانية")}</span>
@@ -928,6 +930,13 @@ function buildComplianceCalculators() {
       <div class="order-box">
         <h3>${L("Saudization (Nitaqat) calculator — official Developed-Nitaqat formula", "حاسبة نطاقات السعودة — بمعادلة نطاقات المطوّر الرسمية")}</h3>
         <p class="cc-sub">${L("Built on the official HRSD procedural guide (Developed Nitaqat 2026): band thresholds are computed per activity with the official formula ", "مبنية على الدليل الإجرائي الرسمي لوزارة الموارد البشرية (نطاقات المطوّر 2026): عتبات النطاقات تُحسب لكل نشاط بالمعادلة الرسمية ")}<code>ص = م × لوغ(س) + ث</code>${L(" — the same engine behind Qiwa's calculator.", " — نفس منهجية حاسبة قوى.")}</p>
+        <div class="field cc-act-field">
+          <label for="cc-activity">🔎 ${L("Find your exact CR activity — type the name or the 6-digit code", "ابحث عن نشاطك في السجل التجاري — اكتب الاسم أو الكود")}</label>
+          <input type="text" id="cc-activity" autocomplete="off" placeholder="${Lraw("e.g. 471101, contracting, pharmacy…", "مثال: 471101، مقاولات، صيدلية…")}">
+          <div class="cc-act-drop" id="cc-act-drop" hidden></div>
+        </div>
+        <div class="cc-act-chips" id="cc-act-chips" aria-label="${Lraw("Activity sectors", "قطاعات الأنشطة")}"></div>
+        <div class="cc-act-info" id="cc-act-info" hidden></div>
         <div class="cc-grid">
           <div class="field" style="grid-column:1/-1"><label for="cc-act">${L("Economic activity (per Nitaqat classification)", "النشاط الاقتصادي (حسب تصنيف نطاقات)")}</label><select id="cc-act"></select></div>
           <div class="field"><label for="cc-year">${L("Calculation year", "سنة الاحتساب")}</label><select id="cc-year"><option value="y2026" selected>2026</option><option value="y2027">2027</option><option value="y2028">2028</option></select></div>
@@ -1035,6 +1044,9 @@ function buildComplianceCalculators() {
           <iframe id="cc-portal-frame" title="${Lraw("Compliance intake portal", "بوابة الامتثال")}" data-src="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" loading="lazy" referrerpolicy="no-referrer"></iframe>
           <p class="form-note">${L("If the form doesn't load,", "إذا لم تظهر البوابة،")} <a href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">${L("open it in a separate window ↗", "افتحها في نافذة مستقلة ↗")}</a> · 🔒 ${L("Files are stored in your private client folder and used only for compliance analysis. No government action is ever taken without your approval.", "تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. لا يُنفَّذ أي إجراء حكومي دون موافقتك.")}</p>
         </div>
+        <div class="cc-upload-cta" style="margin-top:14px;text-align:center">
+          <a class="btn btn-ghost" href="${u("/compliance-portal")}">🛡️ ${L("Open the full compliance portal page →", "افتح صفحة بوابة امتثال المنشأة الكاملة ←")}</a>
+        </div>
       </div>
     </div>
     <div class="cc-disclaimer">⚖️ ${L("All figures and ratios are estimates for illustration only. Official bands depend on your activity and size in Qiwa; official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
@@ -1093,6 +1105,25 @@ function buildComplianceCalculators() {
     .cc-dec-note{margin-top:8px;font-size:.8rem;color:#9a6a08;background:#fffbeb;border-radius:8px;padding:6px 10px}
     .cc-prof-empty{color:var(--text-soft);font-size:.9rem;padding:10px 0}
     mark.cc-hit{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 2px}
+    .cc-act-field{position:relative;margin-bottom:10px}
+    .cc-act-drop{position:absolute;top:100%;inset-inline:0;z-index:30;background:var(--white);border:1px solid var(--gray-line);border-radius:var(--radius);box-shadow:var(--shadow-sm);max-height:330px;overflow:auto}
+    .cc-act-item{display:block;width:100%;text-align:start;background:none;border:0;border-bottom:1px solid var(--gray-line);padding:9px 13px;font-family:inherit;font-size:.88rem;line-height:1.6;cursor:pointer;color:var(--text)}
+    .cc-act-item:last-child{border-bottom:0}
+    .cc-act-item:hover{background:var(--gray-bg)}
+    .cc-act-item b{color:var(--navy);font-variant-numeric:tabular-nums;margin-inline-end:8px}
+    .cc-act-item .cc-act-sec{display:block;font-size:.72rem;color:var(--text-soft)}
+    .cc-act-count{padding:7px 13px;font-size:.75rem;color:var(--text-soft);background:var(--gray-bg);position:sticky;top:0}
+    .cc-act-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:thin}
+    .cc-act-chips .cc-chip{white-space:nowrap;flex:0 0 auto}
+    .cc-act-chips .cc-chip.on{border-color:var(--navy);color:var(--white);background:var(--navy)}
+    .cc-act-info{border:1px solid var(--navy);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;background:#f5f7ff}
+    .cc-act-info h4{color:var(--navy);margin:0 0 7px;font-size:1rem}
+    .cc-act-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:.82rem;color:var(--text-soft)}
+    .cc-act-meta b{color:var(--navy)}
+    .cc-act-dec{margin-top:10px;padding-top:10px;border-top:1px dashed var(--gray-line);font-size:.85rem}
+    .cc-act-dec-title{font-weight:700;color:var(--navy);margin-bottom:6px}
+    .cc-act-dec-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+    .cc-act-clear{float:inline-end;border:0;background:none;color:var(--text-soft);cursor:pointer;font-size:.8rem;font-family:inherit;text-decoration:underline}
     .cc-src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:6px 0 18px}
     .cc-src{border:1px solid var(--gray-line);border-radius:var(--radius);padding:16px;background:var(--white)}
     .cc-src-best{border-color:var(--navy);box-shadow:var(--shadow-sm)}
@@ -1126,7 +1157,7 @@ function buildComplianceCalculators() {
     .cc-agent-cta .btn-ghost{border-color:rgba(255,255,255,.5);color:var(--white)}
     .cc-agent-cta .btn-ghost:hover{background:var(--white);color:var(--navy)}
   </style>
-  <script>window.BP_CC_LANG=${JSON.stringify(LANG)};</script>
+  <script>window.BP_CC_LANG=${JSON.stringify(LANG)};window.BP_ACT_URL=${JSON.stringify("/assets/data/activities.json?v=" + ACT_V)};</script>
   <script>
   (function(){
     var isAr = window.BP_CC_LANG === "ar";
@@ -1237,6 +1268,95 @@ function buildComplianceCalculators() {
     var loadPortal=function(){var f=$("cc-portal-frame");if(f&&!f.src)f.src=f.getAttribute("data-src");};
     var upTab=document.querySelector('[data-tab="upload"]');if(upTab)upTab.addEventListener("click",loadPortal);
     document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();loadPortal();window.scrollTo({top:0,behavior:"smooth"});});});
+
+    /* — official CR activity finder: 2,700+ coded activities (ISIC4 master reference) — */
+    var AT=isAr?{loading:"جارٍ تحميل قائمة الأنشطة الرسمية…",count:"{n} نشاط مطابق",none:"لا يوجد نشاط مطابق — جرّب كلمة أخرى أو اكتب الكود.",code:"الكود",sector:"القطاع",en:"الاسم الإنجليزي",nit:"نشاط نطاقات الأقرب (اختير تلقائياً — تأكد منه)",dec:"قرارات توطين قد تنطبق على نشاطك:",noDec:"لا توجد قرارات توطين خاصة مرتبطة مباشرة بهذا النشاط في مرجعنا — تسري عليه نسب نطاقات نشاطك أعلاه.",clear:"مسح النشاط",official:"النطاق الرسمي يُعتمد من منصة قوى.",prof:"افحص مهن نشاطك"}:{loading:"Loading the official activities list…",count:"{n} matching activities",none:"No matching activity — try another word or type the code.",code:"Code",sector:"Sector",en:"English name",nit:"Closest Nitaqat activity (auto-selected — please verify)",dec:"Localization decisions that may apply to your activity:",noDec:"No specific localization decision is directly linked to this activity in our reference — your activity's Nitaqat ratios above apply.",clear:"Clear activity",official:"Your official band is confirmed on the Qiwa platform.",prof:"Check your activity's professions"};
+    var ACT=null,actSec="",actPick=null;
+    var actIn=$("cc-activity"),actDrop=$("cc-act-drop"),actInfo=$("cc-act-info"),actChipsBox=$("cc-act-chips");
+    function anorm(s){return String(s||"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/[ً-ْـ]/g,"").toLowerCase();}
+    function actLoad(cb){
+      if(ACT){cb(ACT);return;}
+      if(!window.BP_ACT_URL){cb(null);return;}
+      fetch(window.BP_ACT_URL).then(function(r){return r.json();}).then(function(d){ACT=d;buildSecChips();cb(d);}).catch(function(){cb(null);});
+    }
+    function buildSecChips(){
+      if(!ACT||!actChipsBox||actChipsBox.childNodes.length)return;
+      Object.keys(ACT.sections).sort().forEach(function(code){
+        var s=ACT.sections[code]||["",""];
+        var b=document.createElement("button");b.type="button";b.className="cc-chip";
+        b.textContent=code+" · "+(isAr?s[0]:(s[1]||s[0]));
+        b.addEventListener("click",function(){
+          actSec=actSec===code?"":code;
+          Array.prototype.forEach.call(actChipsBox.children,function(x){x.classList.toggle("on",x===b&&!!actSec);});
+          renderActDrop(actIn.value);actIn.focus();
+        });
+        actChipsBox.appendChild(b);
+      });
+    }
+    function actMatches(q){
+      var hits=[],list=ACT.activities,isCode=/^\d+$/.test(q),nq=anorm(q);
+      for(var i=0;i<list.length&&hits.length<40;i++){
+        var a=list[i];
+        if(actSec&&a[3]!==actSec)continue;
+        if(!q){hits.push(a);continue;}
+        if(isCode){if(a[0].indexOf(q)===0)hits.push(a);}
+        else if(anorm(a[1]).indexOf(nq)>=0||String(a[2]||"").toLowerCase().indexOf(nq)>=0)hits.push(a);
+      }
+      return hits;
+    }
+    function renderActDrop(q){
+      if(!actDrop)return;
+      if(!ACT){actDrop.innerHTML='<div class="cc-act-count">'+AT.loading+'</div>';actDrop.hidden=false;return;}
+      q=(q||"").trim();
+      if(!q&&!actSec){actDrop.hidden=true;return;}
+      var hits=actMatches(q);
+      var html=hits.length?'<div class="cc-act-count">'+AT.count.replace("{n}",hits.length>=40?"40+":hits.length)+'</div>':'<div class="cc-act-count">🔎 '+AT.none+'</div>';
+      html+=hits.map(function(a){
+        var sec=ACT.sections[a[3]]||["",""];
+        return '<button type="button" class="cc-act-item" data-code="'+a[0]+'"><b>'+a[0]+'</b>'+esc2(isAr?a[1]:(a[2]||a[1]))+'<span class="cc-act-sec">'+a[3]+' · '+esc2(isAr?sec[0]:(sec[1]||sec[0]))+'</span></button>';
+      }).join("");
+      actDrop.innerHTML=html;actDrop.hidden=false;
+    }
+    function toks(s){return anorm(s).split(/[^ء-يa-z0-9]+/).map(function(w){return w.replace(/^ال/,"");}).filter(function(w){return w.length>=4;});}
+    function tokOverlap(aToks,bToks){var c=0;aToks.forEach(function(x){bToks.forEach(function(y){if(x.slice(0,4)===y.slice(0,4))c++;});});return c;}
+    function relatedDecisions(a){
+      var atoks=toks(a[1]+" "+(a[2]||""));
+      return PROF.filter(function(d){return tokOverlap(atoks,toks(d.g+" "+(d.en||"")))>0;});
+    }
+    function nitMap(a){
+      var atoks=toks(a[1]+" "+(a[2]||""));var best=-1,bestN=0;
+      NIT_DATA.forEach(function(n,i){var c=tokOverlap(atoks,toks(n.name+" "+(n.en||"")));if(c>bestN){bestN=c;best=i;}});
+      return best;
+    }
+    function selectAct(code){
+      var a=null;for(var i=0;i<ACT.activities.length;i++){if(ACT.activities[i][0]===code){a=ACT.activities[i];break;}}
+      if(!a)return;
+      actPick=a;actDrop.hidden=true;
+      actIn.value=a[0]+" — "+(isAr?a[1]:(a[2]||a[1]));
+      var sec=ACT.sections[a[3]]||["",""];
+      var decs=relatedDecisions(a);
+      var mi=nitMap(a);
+      if(mi>=0)actSel.value=mi;
+      var decHtml=decs.length
+        ?'<div class="cc-act-dec"><div class="cc-act-dec-title">'+AT.dec+'</div>'+decs.map(function(d){return '<div class="cc-act-dec-row">'+badge(d.type)+'<span>'+esc2(isAr?d.g:(d.en||d.g))+' — '+d.pct+'%</span></div>';}).join("")+'<button type="button" class="cc-chip" id="cc-act-goprof">🧑‍💼 '+AT.prof+'</button></div>'
+        :'<div class="cc-act-dec">'+AT.noDec+'</div>';
+      actInfo.innerHTML='<button type="button" class="cc-act-clear" id="cc-act-clear">✕ '+AT.clear+'</button><h4>'+esc2(isAr?a[1]:(a[2]||a[1]))+'</h4><div class="cc-act-meta"><span><b>'+AT.code+':</b> '+a[0]+'</span><span><b>'+AT.sector+':</b> '+a[3]+' · '+esc2(isAr?sec[0]:(sec[1]||sec[0]))+'</span>'+(isAr&&a[2]?'<span><b>'+AT.en+':</b> '+esc2(a[2])+'</span>':'')+(mi>=0?'<span><b>'+AT.nit+':</b> '+esc2(isAr?NIT_DATA[mi].name:(NIT_DATA[mi].en||NIT_DATA[mi].name))+'</span>':'')+'</div>'+decHtml+'<div class="form-note" style="margin-top:8px">⚖️ '+AT.official+'</div>';
+      actInfo.hidden=false;
+      var gp=document.getElementById("cc-act-goprof");
+      if(gp)gp.addEventListener("click",function(){
+        var t=document.querySelector('[data-tab="prof"]');if(t)t.click();
+        var q=$("cc-prof-q");
+        if(q&&decs[0]){q.value=isAr?decs[0].g:(decs[0].en||decs[0].g);renderProf(q.value);}
+      });
+      var cl=document.getElementById("cc-act-clear");
+      if(cl)cl.addEventListener("click",function(){actPick=null;actIn.value="";actInfo.hidden=true;});
+    }
+    if(actIn){
+      actIn.addEventListener("focus",function(){actLoad(function(){renderActDrop(actIn.value);});});
+      actIn.addEventListener("input",function(){actPick=null;actLoad(function(){renderActDrop(actIn.value);});});
+      actDrop.addEventListener("click",function(e){var it=e.target.closest(".cc-act-item");if(it)selectAct(it.getAttribute("data-code"));});
+      document.addEventListener("click",function(e){if(!e.target.closest(".cc-act-field"))actDrop.hidden=true;});
+    }
   })();
   </script>`;
   return page({
@@ -1244,6 +1364,66 @@ function buildComplianceCalculators() {
     desc: Lraw("Estimate your Saudization (Nitaqat) band and per-worker government costs in seconds.", "احسب نطاق السعودة المتوقع وتكاليف العمالة الحكومية لكل عامل خلال ثوانٍ."),
     active: "/calculator",
     path: "/compliance-calculators",
+    body,
+  });
+}
+
+// Branded wrapper around the secure n8n intake form — clients never see a bare n8n URL.
+const COMPLIANCE_FORM_URL = "https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake";
+function buildCompliancePortal() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
+    <h1>${L("Establishment Compliance Portal", "بوابة امتثال المنشأة")}</h1>
+    <p class="lead">${L("Upload your official Qiwa, Muqeem, GOSI and Mudad reports once — the Compliance Agent reads them, builds your establishment file, tracks every iqama and work-permit deadline, and alerts you on WhatsApp and email before any violation.", "ارفع تقاريرك الرسمية من قوى ومقيم والتأمينات (GOSI) ومدد مرة واحدة — وكيل الامتثال يقرأها، يبني ملف منشأتك، يتتبع كل استحقاق إقامة ورخصة عمل، وينبّهك واتساب وإيميل قبل أي مخالفة.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="portal-wrap">
+      <div class="portal-form">
+        <iframe src="${COMPLIANCE_FORM_URL}" title="${Lraw("Establishment compliance intake form", "نموذج بوابة امتثال المنشأة")}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+        <p class="form-note portal-fallback">${L("Form not showing?", "النموذج ما ظهر؟")} <a href="${COMPLIANCE_FORM_URL}" target="_blank" rel="noopener">${L("Open it in a separate window →", "افتحه في نافذة مستقلة ←")}</a></p>
+      </div>
+      <aside class="portal-side">
+        <div class="order-box">
+          <h3>${L("What happens after you submit?", "وش يصير بعد الإرسال؟")}</h3>
+          <ol class="portal-steps">
+            <li><strong>${L("Your private folder is created", "يُنشأ مجلدك الخاص")}</strong><span>${L("Every file you upload is stored in a dedicated client folder.", "كل ملف ترفعه يُحفظ في مجلد عميل مخصص لمنشأتك.")}</span></li>
+            <li><strong>${L("The agent reads your reports", "الوكيل يقرأ تقاريرك")}</strong><span>${L("Employees, salaries, professions, iqama and border numbers are extracted automatically.", "يستخرج الموظفين والرواتب والمهن وأرقام الإقامات والحدود تلقائياً.")}</span></li>
+            <li><strong>${L("Your compliance file is built", "يُبنى ملف امتثالك")}</strong><span>${L("Nitaqat band, estimated government costs, and every upcoming deadline.", "نطاق السعودة، التكاليف الحكومية التقديرية، وكل استحقاق قادم.")}</span></li>
+            <li><strong>${L("Daily monitoring starts", "تبدأ المراقبة اليومية")}</strong><span>${L("Red/yellow early alerts on WhatsApp and email — with your approval before any government action.", "تنبيهات مبكرة أحمر/أصفر واتساب وإيميل — وبموافقتك قبل أي إجراء حكومي.")}</span></li>
+          </ol>
+        </div>
+        <div class="order-box portal-secure">
+          <h3>🔒 ${L("Your data is protected", "بياناتك محمية")}</h3>
+          <p>${L("Files are used for compliance analysis only, stored in your private client folder, and never shared. Concierge model: no action is ever taken on your establishment without written approval.", "الملفات تُستخدم لتحليل الامتثال فقط، وتُحفظ في مجلد عميلك الخاص، ولا تُشارك مع أي طرف. نموذج Concierge: لا يُنفَّذ أي إجراء على منشأتك دون موافقة خطية.")}</p>
+        </div>
+        <div class="order-box">
+          <h3>${L("Prefer to talk first?", "تبغى تتكلم مع أحد أولاً؟")}</h3>
+          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("WhatsApp us", "كلّمنا واتساب")}</span></a>
+          <a class="btn btn-ghost" href="${u("/compliance-calculators")}" style="width:100%;margin-top:10px">${L("Free compliance calculators →", "حاسبات الامتثال المجانية ←")}</a>
+        </div>
+      </aside>
+    </div>
+  </div></section>
+  <style>
+    .portal-wrap{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;align-items:start}
+    .portal-form iframe{width:100%;min-height:1250px;border:1px solid var(--gray-line);border-radius:var(--radius-lg);background:var(--white)}
+    .portal-fallback{text-align:center;margin-top:10px}
+    .portal-side{display:flex;flex-direction:column;gap:16px}
+    .portal-side .order-box{margin:0}
+    .portal-steps{list-style:none;counter-reset:ps;margin:0;padding:0}
+    .portal-steps li{counter-increment:ps;position:relative;padding-inline-start:44px;margin-bottom:16px}
+    .portal-steps li::before{content:counter(ps);position:absolute;inset-inline-start:0;top:2px;width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+    .portal-steps strong{display:block;color:var(--navy);margin-bottom:2px}
+    .portal-steps span{font-size:.86rem;color:var(--text-soft);line-height:1.7}
+    .portal-secure p{font-size:.88rem;color:var(--text-soft);line-height:1.8;margin:0}
+    @media(max-width:940px){.portal-wrap{grid-template-columns:1fr}}
+  </style>`;
+  return page({
+    title: Lraw("Establishment Compliance Portal — Business Partner", "بوابة امتثال المنشأة — بيزنس بارتنر"),
+    desc: Lraw("Upload your Qiwa, Muqeem, GOSI and Mudad reports — the Compliance Agent builds your file and alerts you before any violation.", "ارفع تقاريرك من قوى ومقيم والتأمينات ومدد — وكيل الامتثال يبني ملفك وينبّهك قبل أي مخالفة."),
+    active: "/calculator",
+    path: "/compliance-portal",
     body,
   });
 }
@@ -1879,6 +2059,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}packages.html`, buildPackages());
   write(`${pre}calculator.html`, buildCalculator());
   write(`${pre}compliance-calculators.html`, buildComplianceCalculators());
+  write(`${pre}compliance-portal.html`, buildCompliancePortal());
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
   write(`${pre}careers.html`, buildCareers());
@@ -1895,7 +2076,7 @@ LANG = "en";
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])

@@ -161,13 +161,9 @@ var BP = window.BP = window.BP || {};
 
   document.addEventListener("click", function (e) {
     var addBtn = e.target.closest(".add-cart");
-    var buyBtn = e.target.closest(".buy-now");
     if (addBtn) {
       add(itemFromBtn(addBtn));
       toast(BP.t("Added to cart ✓", "أُضيفت إلى السلة ✓"));
-    } else if (buyBtn) {
-      add(itemFromBtn(buyBtn));
-      location.href = "/checkout";
     }
   });
 
