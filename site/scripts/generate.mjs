@@ -286,6 +286,7 @@ function footer() {
       ${fl("/careers", "Careers", "الوظائف")}
       ${fl("/calculator", "Calculator", "الحاسبة")}
       ${fl("/compliance-calculators", "Compliance calculators", "حاسبات الامتثال")}
+      ${fl("/labor-calculators", "Labor & payroll calculators", "حاسبات العمل والرواتب")}
       ${fl("/compliance-portal", "Compliance portal", "بوابة امتثال المنشأة")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
       ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
@@ -1078,6 +1079,7 @@ function buildComplianceCalculators() {
       <div class="cc-cta-btns">
         <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Talk to us on WhatsApp", "تواصل معنا واتساب")}</span></a>
         <a class="btn btn-ghost" href="${u("/calculator")}">${L("Service fees calculator →", "حاسبة أتعاب الخدمات ←")}</a>
+        <a class="btn btn-ghost" href="${u("/labor-calculators")}">${L("Labor & payroll calculators →", "حاسبات العمل والرواتب ←")}</a>
       </div>
     </div>
   </div></section>
@@ -1447,6 +1449,178 @@ function buildCompliancePortal() {
     desc: Lraw("Upload your Qiwa, Muqeem, GOSI and Mudad reports — the Compliance Agent builds your file and alerts you before any violation.", "ارفع تقاريرك من قوى ومقيم والتأمينات ومدد — وكيل الامتثال يبني ملفك وينبّهك قبل أي مخالفة."),
     active: "/calculator",
     path: "/compliance-portal",
+    body,
+  });
+}
+
+function buildLaborCalculators() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Free labor tools", "أدوات عمل مجانية")}</span>
+    <h1>${L("Labor & payroll calculators", "حاسبات العمل والرواتب")}</h1>
+    <p class="lead">${L("End-of-service gratuity, annual leave, overtime and GOSI contributions — computed per the Saudi Labor Law and GOSI regulations. Free, instant, and bilingual.", "مكافأة نهاية الخدمة، الإجازة السنوية، العمل الإضافي، واشتراك التأمينات — محسوبة وفق نظام العمل السعودي ولوائح التأمينات. مجانية وفورية.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:920px">
+    <div class="cc-tabs" role="tablist">
+      <button class="cc-tab active" data-tab="eos" role="tab">🏆 ${L("End of service", "نهاية الخدمة")}</button>
+      <button class="cc-tab" data-tab="leave" role="tab">🏖️ ${L("Annual leave", "الإجازة السنوية")}</button>
+      <button class="cc-tab" data-tab="ot" role="tab">⏱️ ${L("Overtime", "العمل الإضافي")}</button>
+      <button class="cc-tab" data-tab="gosi" role="tab">🏦 ${L("GOSI", "التأمينات")}</button>
+    </div>
+
+    <div class="cc-panel active" id="lc-panel-eos">
+      <div class="order-box">
+        <h3>${L("End-of-service gratuity calculator", "حاسبة مكافأة نهاية الخدمة")}</h3>
+        <p class="cc-sub">${L("Per Saudi Labor Law Art. 84–85: half a month's wage for each of the first 5 years, then a full month's wage for each following year — adjusted for resignation.", "وفق نظام العمل م.84–85: نصف شهر عن كل سنة من أول 5 سنوات، ثم شهر كامل عن كل سنة تالية — مع تعديل الاستقالة.")}</p>
+        <div class="cc-grid">
+          <div class="field"><label for="lc-wage">${L("Last monthly wage (SAR)", "آخر أجر شهري (ريال)")}</label><input type="number" id="lc-wage" min="0" value="8000"></div>
+          <div class="field"><label for="lc-years">${L("Years of service", "سنوات الخدمة")}</label><input type="number" id="lc-years" min="0" value="6"></div>
+          <div class="field"><label for="lc-months">${L("Extra months", "أشهر إضافية")}</label><input type="number" id="lc-months" min="0" max="11" value="0"></div>
+          <div class="field"><label for="lc-reason">${L("Reason for leaving", "سبب انتهاء العلاقة")}</label><select id="lc-reason"><option value="terminated">${L("Contract ended / employer termination", "انتهاء العقد / إنهاء من صاحب العمل")}</option><option value="resign">${L("Worker resignation", "استقالة العامل")}</option></select></div>
+        </div>
+        <button class="btn btn-primary" id="lc-eos-calc">${L("Calculate", "احسب")}</button>
+        <div class="cc-result" id="lc-eos-result" hidden>
+          <div class="cc-tiles">
+            <div class="cc-tile"><span>${L("Full award", "المكافأة الكاملة")}</span><strong id="lc-eos-full">—</strong></div>
+            <div class="cc-tile tile-gold"><span>${L("Amount due", "المستحق")}</span><strong id="lc-eos-due">—</strong></div>
+            <div class="cc-tile"><span>${L("Resignation factor", "نسبة الاستقالة")}</span><strong id="lc-eos-factor">—</strong></div>
+          </div>
+          <div class="cc-advice ok" id="lc-eos-note"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cc-panel" id="lc-panel-leave">
+      <div class="order-box">
+        <h3>${L("Annual leave calculator", "حاسبة الإجازة السنوية")}</h3>
+        <p class="cc-sub">${L("Per Art. 109: 21 days per year (30 days after 5 years of service). Shows entitlement and the cash value of unused days.", "وفق م.109: 21 يوماً سنوياً (30 يوماً بعد 5 سنوات خدمة). تعرض الاستحقاق والقيمة النقدية للأيام غير المستخدمة.")}</p>
+        <div class="cc-grid">
+          <div class="field"><label for="lv-wage">${L("Monthly wage (SAR)", "الأجر الشهري (ريال)")}</label><input type="number" id="lv-wage" min="0" value="8000"></div>
+          <div class="field"><label for="lv-years">${L("Years of service", "سنوات الخدمة")}</label><input type="number" id="lv-years" min="0" value="3"></div>
+          <div class="field"><label for="lv-unused">${L("Unused leave days", "أيام إجازة غير مستخدمة")}</label><input type="number" id="lv-unused" min="0" value="10"></div>
+        </div>
+        <button class="btn btn-primary" id="lv-calc">${L("Calculate", "احسب")}</button>
+        <div class="cc-result" id="lv-result" hidden>
+          <div class="cc-tiles">
+            <div class="cc-tile"><span>${L("Annual entitlement", "الاستحقاق السنوي")}</span><strong id="lv-days">—</strong></div>
+            <div class="cc-tile"><span>${L("Daily wage", "الأجر اليومي")}</span><strong id="lv-daily">—</strong></div>
+            <div class="cc-tile tile-gold"><span>${L("Value of unused days", "قيمة الأيام غير المستخدمة")}</span><strong id="lv-value">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cc-panel" id="lc-panel-ot">
+      <div class="order-box">
+        <h3>${L("Overtime pay calculator", "حاسبة أجر العمل الإضافي")}</h3>
+        <p class="cc-sub">${L("Per Art. 107: overtime is paid at 150% of the hourly wage (hourly = monthly wage ÷ 240).", "وفق م.107: يُحتسب العمل الإضافي بـ150% من أجر الساعة (أجر الساعة = الأجر الشهري ÷ 240).")}</p>
+        <div class="cc-grid">
+          <div class="field"><label for="ot-wage">${L("Monthly wage (SAR)", "الأجر الشهري (ريال)")}</label><input type="number" id="ot-wage" min="0" value="8000"></div>
+          <div class="field"><label for="ot-hours">${L("Overtime hours", "ساعات العمل الإضافي")}</label><input type="number" id="ot-hours" min="0" value="20"></div>
+        </div>
+        <button class="btn btn-primary" id="ot-calc">${L("Calculate", "احسب")}</button>
+        <div class="cc-result" id="ot-result" hidden>
+          <div class="cc-tiles">
+            <div class="cc-tile"><span>${L("Hourly wage", "أجر الساعة")}</span><strong id="ot-hourly">—</strong></div>
+            <div class="cc-tile"><span>${L("Overtime hour rate (×1.5)", "أجر الساعة الإضافية (×1.5)")}</span><strong id="ot-rate">—</strong></div>
+            <div class="cc-tile tile-gold"><span>${L("Total overtime pay", "إجمالي الأجر الإضافي")}</span><strong id="ot-total">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cc-panel" id="lc-panel-gosi">
+      <div class="order-box">
+        <h3>${L("GOSI contributions calculator", "حاسبة اشتراك التأمينات (GOSI)")}</h3>
+        <p class="cc-sub">${L("Monthly social-insurance contributions on the contributory wage. Rates are editable; defaults follow the current GOSI schedule.", "الاشتراكات الشهرية على الأجر الخاضع. النسب قابلة للتعديل؛ الافتراضي يتبع جدول التأمينات الحالي.")}</p>
+        <div class="cc-grid">
+          <div class="field"><label for="gs-wage">${L("Contributory wage (SAR)", "الأجر الخاضع (ريال)")}</label><input type="number" id="gs-wage" min="0" value="8000"></div>
+          <div class="field"><label for="gs-nat">${L("Nationality", "الجنسية")}</label><select id="gs-nat"><option value="saudi">${L("Saudi", "سعودي")}</option><option value="expat">${L("Non-Saudi", "غير سعودي")}</option></select></div>
+        </div>
+        <details class="cc-rates"><summary>⚙️ ${L("Contribution rates (editable)", "نسب الاشتراك (قابلة للتعديل)")}</summary>
+          <div class="cc-grid">
+            <div class="field"><label>${L("Saudi — employee %", "سعودي — العامل %")}</label><input type="number" step="0.01" id="gs-se" value="9.75"></div>
+            <div class="field"><label>${L("Saudi — employer %", "سعودي — صاحب العمل %")}</label><input type="number" step="0.01" id="gs-sr" value="11.75"></div>
+            <div class="field"><label>${L("Non-Saudi — employer % (occupational hazards)", "غير سعودي — صاحب العمل % (الأخطار المهنية)")}</label><input type="number" step="0.01" id="gs-xr" value="2"></div>
+          </div>
+        </details>
+        <button class="btn btn-primary" id="gs-calc">${L("Calculate", "احسب")}</button>
+        <div class="cc-result" id="gs-result" hidden>
+          <div class="cc-tiles">
+            <div class="cc-tile"><span>${L("Employee share", "حصة العامل")}</span><strong id="gs-emp">—</strong></div>
+            <div class="cc-tile"><span>${L("Employer share", "حصة صاحب العمل")}</span><strong id="gs-er">—</strong></div>
+            <div class="cc-tile tile-gold"><span>${L("Total monthly", "الإجمالي الشهري")}</span><strong id="gs-tot">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law and GOSI regulations for general guidance. Individual cases may vary by contract terms and wage components. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي ولوائح التأمينات لأغراض إرشادية. قد تختلف الحالات حسب بنود العقد ومكوّنات الأجر. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
+    <div class="order-box cc-cta">
+      <h3>${L("Need full HR & payroll management?", "تبغى إدارة كاملة للرواتب والموارد البشرية؟")}</h3>
+      <div class="cc-cta-btns">
+        <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Talk to us on WhatsApp", "تواصل معنا واتساب")}</span></a>
+        <a class="btn btn-ghost" href="${u("/compliance-calculators")}">${L("Compliance calculators →", "حاسبات الامتثال ←")}</a>
+      </div>
+    </div>
+  </div></section>
+  <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var isAr=window.BP_LC_LANG==="ar";
+    var fmt=function(n){return (Math.round(n*100)/100).toLocaleString(isAr?"ar-SA":"en-US")+" "+(isAr?"ريال":"SAR");};
+    var $=function(id){return document.getElementById(id);};
+    document.querySelectorAll(".cc-tab").forEach(function(tab){tab.addEventListener("click",function(){
+      document.querySelectorAll(".cc-tab").forEach(function(x){x.classList.remove("active");});
+      document.querySelectorAll(".cc-panel").forEach(function(x){x.classList.remove("active");});
+      tab.classList.add("active");$("lc-panel-"+tab.dataset.tab).classList.add("active");});});
+    // End of service
+    $("lc-eos-calc").addEventListener("click",function(){
+      var w=Math.max(0,Number($("lc-wage").value)||0);
+      var svc=Math.max(0,(Number($("lc-years").value)||0)+(Number($("lc-months").value)||0)/12);
+      var first=Math.min(svc,5),rest=Math.max(0,svc-5);
+      var full=first*0.5*w+rest*1*w;
+      var reason=$("lc-reason").value,factor=1,ftxt=isAr?"لا ينطبق (إنهاء)":"n/a (termination)";
+      if(reason==="resign"){if(svc<2){factor=0;ftxt="0 ("+(isAr?"أقل من سنتين":"under 2y")+")";}else if(svc<5){factor=1/3;ftxt=isAr?"الثلث (2–5 سنوات)":"one third (2–5y)";}else if(svc<10){factor=2/3;ftxt=isAr?"الثلثان (5–10 سنوات)":"two thirds (5–10y)";}else{factor=1;ftxt=isAr?"كاملة (10+ سنوات)":"full (10y+)";}}
+      var due=full*factor;
+      $("lc-eos-full").textContent=fmt(full);
+      $("lc-eos-due").textContent=fmt(due);
+      $("lc-eos-factor").textContent=ftxt;
+      $("lc-eos-note").textContent=(isAr?"الأساس: نصف شهر عن أول 5 سنوات ("+fmt(first*0.5*w)+") + شهر عن "+((Math.round(rest*100)/100))+" سنة تالية ("+fmt(rest*w)+"). م.84–85 نظام العمل.":"Basis: half-month for first 5y ("+fmt(first*0.5*w)+") + full month for "+((Math.round(rest*100)/100))+" following years ("+fmt(rest*w)+"). Labor Law Art. 84–85.");
+      $("lc-eos-result").hidden=false;});
+    // Annual leave
+    $("lv-calc").addEventListener("click",function(){
+      var w=Math.max(0,Number($("lv-wage").value)||0),y=Math.max(0,Number($("lv-years").value)||0),u=Math.max(0,Number($("lv-unused").value)||0);
+      var days=y>=5?30:21,daily=w/30;
+      $("lv-days").textContent=days+(isAr?" يوم":" days");
+      $("lv-daily").textContent=fmt(daily);
+      $("lv-value").textContent=fmt(daily*u);
+      $("lv-result").hidden=false;});
+    // Overtime
+    $("ot-calc").addEventListener("click",function(){
+      var w=Math.max(0,Number($("ot-wage").value)||0),h=Math.max(0,Number($("ot-hours").value)||0);
+      var hourly=w/240,rate=hourly*1.5;
+      $("ot-hourly").textContent=fmt(hourly);
+      $("ot-rate").textContent=fmt(rate);
+      $("ot-total").textContent=fmt(rate*h);
+      $("ot-result").hidden=false;});
+    // GOSI
+    $("gs-calc").addEventListener("click",function(){
+      var w=Math.max(0,Number($("gs-wage").value)||0),nat=$("gs-nat").value;
+      var se=Number($("gs-se").value)||0,sr=Number($("gs-sr").value)||0,xr=Number($("gs-xr").value)||0;
+      var emp,er;
+      if(nat==="saudi"){emp=w*se/100;er=w*sr/100;}else{emp=0;er=w*xr/100;}
+      $("gs-emp").textContent=fmt(emp);
+      $("gs-er").textContent=fmt(er);
+      $("gs-tot").textContent=fmt(emp+er);
+      $("gs-result").hidden=false;});
+  })();
+  </script>`;
+  return page({
+    title: Lraw("Labor & payroll calculators — Business Partner", "حاسبات العمل والرواتب — بيزنس بارتنر"),
+    desc: Lraw("End-of-service, annual leave, overtime and GOSI calculators per the Saudi Labor Law.", "حاسبات نهاية الخدمة والإجازة والعمل الإضافي والتأمينات وفق نظام العمل السعودي."),
+    active: "/labor-calculators",
+    path: "/labor-calculators",
     body,
   });
 }
@@ -2668,6 +2842,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}packages.html`, buildPackages());
   write(`${pre}calculator.html`, buildCalculator());
   write(`${pre}compliance-calculators.html`, buildComplianceCalculators());
+  write(`${pre}labor-calculators.html`, buildLaborCalculators());
   write(`${pre}compliance-portal.html`, buildCompliancePortal());
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
@@ -2688,7 +2863,7 @@ write("monitor.html", buildMonitor());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/calculator", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])
