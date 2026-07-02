@@ -1,0 +1,190 @@
+{
+  "name": "BP — بوابة استقبال المرشحين (Candidate Intake)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "candidate-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "استقبال النموذج",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "candidate-intake"
+    },
+    {
+      "parameters": {
+        "jsCode": "// يبني طلب Claude لاستخراج ملف منظّم من النص الحر\nconst b = $json.body || {};\nconst sys = `أنت محلل سير ذاتية محترف. حوّل نص المستخدم إلى JSON صالح فقط، بدون أي شرح أو نص إضافي.\nالمفاتيح المطلوبة: name, email, phone, cities, target_titles (مصفوفة), salary, summary, skills (مصفوفة), achievements (مصفوفة), experience (مصفوفة من كائنات {title, org, period, points: مصفوفة}), education, languages.\nاستخدم المعلومات الواقعية الواردة فقط ولا تختلق أي مهارة أو خبرة. أعد JSON فقط.`;\nconst story = (b.story || \"\").toString().trim();\nreturn [{ json: {\n  model: \"claude-sonnet-4-6\",\n  max_tokens: 2000,\n  system: sys,\n  messages: [{ role: \"user\", content: story || \"لا يوجد نص\" }]\n}}];"
+      },
+      "id": "node-prep",
+      "name": "تجهيز طلب Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "node-claude",
+      "name": "Claude — استخراج الملف",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// يحوّل مخرجات Claude + بيانات النموذج إلى صفحة Notion في قاعدة المرشحين\nlet parsed = {};\ntry {\n  const txt = ($json.content && $json.content[0] && $json.content[0].text) ? $json.content[0].text : \"{}\";\n  parsed = JSON.parse(txt.replace(/```json|```/g, \"\").trim());\n} catch (e) { parsed = {}; }\n\nconst b = $('استقبال النموذج').item.json.body || {};\nconst today = new Date().toISOString().slice(0, 10);\n\nfunction rt(s){ return { rich_text: [{ text: { content: (s || \"\").toString().slice(0, 1900) } }] }; }\n\nconst props = {\n  \"الاسم\": { title: [{ text: { content: (b.name || parsed.name || \"بدون اسم\").toString() } }] },\n  \"البريد\": { email: (b.email || parsed.email || \"\") || null },\n  \"الجوال\": { phone_number: (b.phone || parsed.phone || \"\") || null },\n  \"المدن\": rt(b.cities || parsed.cities),\n  \"المسميات المستهدفة\": rt(Array.isArray(parsed.target_titles) ? parsed.target_titles.join(\" · \") : (parsed.target_titles || \"\")),\n  \"نطاق الراتب\": rt(b.salary || parsed.salary),\n  \"الكلمات المفتاحية\": rt(Array.isArray(parsed.skills) ? parsed.skills.join(\", \") : (parsed.skills || \"\")),\n  \"لينكدإن\": { url: (b.linkedin || \"\") || null },\n  \"الحالة\": { select: { name: \"نشط\" } },\n  \"موافقة على التقديم نيابةً\": { checkbox: b.consent === true },\n  \"تاريخ الموافقة\": { date: { start: today } }\n};\n// إزالة الخصائص الفارغة التي قد ترفضها Notion\nif (!props[\"البريد\"].email) delete props[\"البريد\"];\nif (!props[\"الجوال\"].phone_number) delete props[\"الجوال\"];\nif (!props[\"لينكدإن\"].url) delete props[\"لينكدإن\"];\n\nconst children = [];\nfunction h2(t){ children.push({ object:\"block\", type:\"heading_2\", heading_2:{ rich_text:[{ text:{ content:t } }] } }); }\nfunction p(t){ children.push({ object:\"block\", type:\"paragraph\", paragraph:{ rich_text:[{ text:{ content:(t||\"\").toString().slice(0,1900) } }] } }); }\n\nif (parsed.summary){ h2(\"الملخص المهني\"); p(parsed.summary); }\nif (Array.isArray(parsed.skills) && parsed.skills.length){ h2(\"المهارات\"); p(parsed.skills.join(\" · \")); }\nif (Array.isArray(parsed.achievements) && parsed.achievements.length){ h2(\"أبرز الإنجازات\"); for (const a of parsed.achievements) p(\"• \" + a); }\nif (Array.isArray(parsed.experience) && parsed.experience.length){\n  h2(\"الخبرات\");\n  for (const e of parsed.experience){\n    p(`${e.title || \"\"} — ${e.org || \"\"} · ${e.period || \"\"}`);\n    for (const pt of (e.points || [])) p(\"• \" + pt);\n  }\n}\nif (parsed.education){ h2(\"التعليم\"); p(parsed.education); }\nif (parsed.languages){ h2(\"اللغات\"); p(Array.isArray(parsed.languages) ? parsed.languages.join(\", \") : parsed.languages); }\n\n// Notion يرفض أكثر من 100 كتلة في طلب إنشاء الصفحة\nreturn [{ json: {\n  parent: { database_id: \"d3168d6642a942d59e0b21c849a8f46d\" },\n  properties: props,\n  children: children.slice(0, 100)\n}}];"
+      },
+      "id": "node-buildnotion",
+      "name": "بناء صفحة Notion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "node-notion",
+      "name": "إنشاء سجل المرشح في Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"ok\" } }}",
+        "options": {}
+      },
+      "id": "node-respond",
+      "name": "رد للنموذج",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "استقبال النموذج": {
+      "main": [
+        [
+          {
+            "node": "تجهيز طلب Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجهيز طلب Claude": {
+      "main": [
+        [
+          {
+            "node": "Claude — استخراج الملف",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude — استخراج الملف": {
+      "main": [
+        [
+          {
+            "node": "بناء صفحة Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بناء صفحة Notion": {
+      "main": [
+        [
+          {
+            "node": "إنشاء سجل المرشح في Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "إنشاء سجل المرشح في Notion": {
+      "main": [
+        [
+          {
+            "node": "رد للنموذج",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
