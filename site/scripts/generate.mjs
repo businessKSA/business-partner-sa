@@ -1953,35 +1953,41 @@ function buildNews() {
 
 function buildCareers() {
   const c = site.careers;
-  const recs = services.filter((x) => x.category === "Recruitment");
-  const recCards = recs
-    .map(
-      (x) => `<a class="card svc-card" href="${u("/services/" + x.slug)}">
-      <span class="tag">${L(catEn(x.category), catAr(x.category))}</span>
-      <h3>${esc(sName(x))}</h3>
-      <div class="foot"><span class="price">${esc(priceLabel(x))}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div></a>`
-    )
-    .join("");
   const f = c.seeker.fields;
+  const employerValue = [
+    ["🎯", L("Access to 50,000+ candidates", "قاعدة تضم أكثر من 50,000 مرشّح"), L("Reach qualified talent across specialties, ready and pre-screened.", "وصول لكفاءات مؤهلة في مختلف التخصصات، جاهزة ومُصنّفة مسبقاً.")],
+    ["⚡", L("We manage hiring end to end", "ندير التوظيف من البداية للنهاية"), L("Sourcing, screening, interviews, offer and onboarding — handled for you.", "استقطاب، فرز، مقابلات، عرض وتعيين — نتولّاها عنك.")],
+    ["🌍", L("Local & overseas recruitment", "توظيف محلي واستقدام خارجي"), L("Local hiring, executive search, bulk recruitment, and PEO/EOR.", "توظيف محلي، استقطاب تنفيذي، توظيف جماعي، وPEO/EOR.")],
+  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
+  const seekerValue = [
+    ["📄", L("One CV, many opportunities", "سيرة واحدة، فرص كثيرة"), L("Join the pool once; we match you whenever a fitting role opens.", "سجّل مرة واحدة، ونطابقك مع الفرص المناسبة فور توفّرها.")],
+    ["🤝", L("Employers reach you", "أصحاب العمل يوصلونك"), L("Companies hiring through us see your profile for suitable roles.", "الشركات التي توظّف عبرنا تشاهد ملفك للفرص المناسبة.")],
+    ["🔒", L("Your data is protected", "بياناتك محمية"), L("We never share your CV without your consent (PDPL).", "لا نشارك سيرتك دون موافقتك (حماية البيانات).")],
+  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
   const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("Careers", "الوظائف")}</span>
-    <h1>${L("Careers & recruitment", c.title)}</h1>
-    <p class="lead">${L("Whether you're an employer looking for talent or a job seeker looking for the right opportunity — Business Partner connects both sides.", c.lead)}</p>
-    <div class="path-switch">
-      <a class="btn btn-primary" href="#employers">${I.building}<span>${L("I'm an employer", "أنا صاحب عمل")}</span></a>
-      <a class="btn btn-ghost" href="#seekers">${I.users}<span>${L("I'm looking for a job", "أبحث عن عمل")}</span></a>
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("Talent platform", "منصّة التوظيف")}</span>
+    <h1>${L("The right people, faster", "الشخص المناسب، أسرع")}</h1>
+    <p class="lead">${L("A two-sided talent platform: employers find pre-screened candidates, and job seekers reach the right opportunity — powered by a pool of 50,000+ CVs.", "منصّة توظيف بواجهتين: أصحاب الأعمال يجدون مرشّحين مُصنّفين، والباحثون عن عمل يصلون للفرصة المناسبة — مدعومة بقاعدة تضم أكثر من 50,000 سيرة ذاتية.")}</p>
+    <div class="talent-choose">
+      <a class="talent-card" href="#employers"><span class="tc-ico">🏢</span><strong>${L("I'm an employer", "أنا صاحب عمل")}</strong><span>${L("Find and hire talent", "ابحث ووظّف الكفاءات")}</span></a>
+      <a class="talent-card" href="#seekers"><span class="tc-ico">👤</span><strong>${L("I'm looking for a job", "أبحث عن عمل")}</strong><span>${L("Submit your CV", "أرسل سيرتك الذاتية")}</span></a>
     </div>
   </div></section>
 
   <section class="section" id="employers"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("For employers", c.employer.eyebrow)}</span><h2>${L("Recruit the right talent", c.employer.title)}</h2><p>${L("From executive search to local recruitment and bulk hiring — we manage the recruitment process end to end.", c.employer.text)}</p></div>
-    <div class="grid grid-3">${recCards}</div>
-    <div class="center mt-32">${waBtn2("Request recruitment", c.employer.cta, "btn-primary", true)}</div>
+    <div class="section-head"><span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span><h2>${L("Hire the right talent, fast", "وظّف الكفاءات المناسبة بسرعة")}</h2><p>${L("Tell us the role and we bring you matched candidates from our pool — you interview and choose.", "أخبرنا بالوظيفة ونجيب لك مرشّحين مطابقين من قاعدتنا — تقابلهم وتختار.")}</p></div>
+    <div class="grid grid-3">${employerValue}</div>
+    <div class="talent-actions">
+      <a class="btn btn-primary" href="${u("/consultation")}?topic=hr&about=${encodeURIComponent(L("Talent request", "طلب توظيف"))}">${I.users}<span>${L("Request candidates", "اطلب مرشحين")}</span></a>
+      <a class="btn btn-ghost" href="${catUrl("Recruitment")}">${L("Recruitment & visa services →", "خدمات التوظيف والاستقدام ←")}</a>
+      <a class="btn btn-ghost" href="${u("/labor-calculators")}">🧮 ${L("HR tools: end-of-service & payroll", "أدوات HR: نهاية الخدمة والرواتب")}</a>
+    </div>
   </div></section>
 
   <section class="section section--gray" id="seekers"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("For job seekers", c.seeker.eyebrow)}</span><h2>${L("Submit your CV", c.seeker.title)}</h2><p>${L("Upload your CV and register your specialty to join our candidate pool. We match you to opportunities that fit your experience and reach out when a suitable role opens.", c.seeker.text)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span><h2>${L("Submit your CV", "أرسل سيرتك الذاتية")}</h2><p>${L("Upload your CV once to join our candidate pool — we reach out when a suitable role opens.", "ارفع سيرتك مرة واحدة للانضمام لقاعدة المرشّحين — ونتواصل معك عند توفّر فرصة مناسبة.")}</p></div>
+    <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
     <div style="max-width:640px;margin:0 auto">
       <form class="calc-form cv-form" id="cv-form" novalidate>
         <div class="grid grid-2" style="gap:0 20px">
@@ -2002,13 +2008,17 @@ function buildCareers() {
           <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" required hidden>
         </div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Send your CV", c.seeker.cta || "أرسل سيرتك الذاتية")}</span></button>
-        <p class="form-note" id="cv-note">${L("Upload your CV directly from the button (PDF/Word) to reach our team and join the candidate pool. (Automated pipeline — n8n & Notion — coming soon.)", c.seeker.note)}</p>
-        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up. You can also follow us on WhatsApp.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة. يمكنك أيضاً متابعتنا على واتساب.")}</div>
+        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team and join the candidate pool.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا وتنضم لقاعدة المرشّحين.")}</p>
+        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
       </form>
       <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
     </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="cta-band"><h2>${L("Employee & employer portals — coming soon", "منصّتا الموظف وصاحب العمل — قريباً")}</h2><p>${L("Sign in to track your applications or your hiring requests. We're connecting the candidate database so both sides get a live dashboard.", "سجّل دخولك لمتابعة تقديماتك أو طلبات توظيفك. نربط قاعدة المرشّحين الآن لتحصل الواجهتان على لوحة مباشرة.")}</p><a class="btn btn-white" href="${u("/account")}">${L("Go to my portal", "ادخل منصّتي")}</a></div>
   </div></section>`;
-  return page({ title: Lraw("Careers & recruitment — Business Partner", "الوظائف والتوظيف — بيزنس بارتنر"), desc: Lraw("Careers and recruitment with Business Partner — for employers and job seekers.", c.lead.slice(0, 155)), active: "/careers", body });
+  return page({ title: Lraw("Talent platform — Business Partner", "منصّة التوظيف — بيزنس بارتنر"), desc: Lraw("Hire pre-screened talent or submit your CV — Business Partner's two-sided talent platform.", "وظّف كفاءات مُصنّفة أو أرسل سيرتك — منصّة التوظيف من بيزنس بارتنر."), active: "/careers", body });
 }
 
 function buildContact() {
