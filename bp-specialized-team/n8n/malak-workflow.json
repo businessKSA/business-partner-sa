@@ -1,0 +1,179 @@
+{
+  "name": "💼 BP Team — Malak (Admin & PA)",
+  "nodes": [
+    {
+      "id": "sticky-overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-620, -260],
+      "parameters": {
+        "content": "## 💼 Malak — Admin Manager & Personal Assistant (Skeleton)\n\n**Flow:** daily schedule 06:30 Riyadh (or manual test) → read Tasks DB (Notion) → Claude builds the daily brief (system prompt: `bp-specialized-team/prompts/malak-admin-pa.md`) → write Daily Brief page to Notion with status «بانتظار المراجعة» → log run.\n\n**Internal-facing only** — Malak never talks to clients. Any outward message is drafted with Human Approval status, never sent automatically.\n\n**Hard exclusion (D-001):** OTP / verification codes / passwords are never handled by the agent — human-only.\n\n**Resilience:** if the Claude call fails, a structured fallback brief (raw task list, no AI summary) is written and the flow continues.",
+        "width": 560,
+        "height": 340
+      }
+    },
+    {
+      "id": "sticky-setup",
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-620, 120],
+      "parameters": {
+        "content": "## 🔧 Before activating\n1. Replace `REPLACE_WITH_TASKS_DB_ID` (📋 Tasks) and `REPLACE_WITH_DAILY_BRIEF_DB_ID` (يومي — Daily Brief) with the real Notion database IDs.\n2. Attach credentials: Notion API + Anthropic API key (Header Auth: `x-api-key`).\n3. Confirm workflow timezone = Asia/Riyadh so the 06:30 schedule is correct.\n4. Later phases: add Gmail read node for inbox triage + Calendar read for appointments (both read-only; drafts only, approval-gated).\n5. Test with the manual trigger, then activate after Baher's approval.",
+        "width": 560,
+        "height": 320
+      }
+    },
+    {
+      "id": "malak-schedule",
+      "name": "Daily 06:30 (Riyadh)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, -120],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "days", "triggerAtHour": 6, "triggerAtMinute": 30 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "malak-manual",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 100]
+    },
+    {
+      "id": "malak-tasks",
+      "name": "Get Tasks (Notion)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [260, -10],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_TASKS_DB_ID"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "malak-build-request",
+      "name": "Build Claude Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, -10],
+      "parameters": {
+        "jsCode": "// Condensed system prompt. The full authoritative version lives in\n// bp-specialized-team/prompts/malak-admin-pa.md — keep the two in sync.\nconst tasks = $input.all()\n  .map(i => i.json)\n  .filter(j => j && (j.name || j.properties))\n  .slice(0, 100);\nconst tasksText = tasks.length\n  ? JSON.stringify(tasks)\n  : 'TASKS_UNAVAILABLE — produce a brief noting the Tasks DB could not be read.';\n\nconst systemPrompt = [\n  'You are Malak, the internal Admin Manager & Personal Assistant Agent for Business Partner (بزنس بارتنر سلوشنز).',\n  'Build the daily brief for Baher and the team from the tasks JSON provided.',\n  'Rules:',\n  '- Write in Arabic, short and decision-oriented.',\n  '- Order: 1) overdue and urgent tasks (owner + due date), 2) today\\'s tasks and appointments, 3) reminders for the next 7 days, 4) notes/collated outputs.',\n  '- Never include OTP, verification codes, passwords, or credentials — if a task mentions them, mark it \"Human Required\" and do not process it.',\n  '- Never draft outward/client messages as sent — anything outward is a draft pending approval.',\n  '- Do not invent tasks or dates; only use what is in the data.',\n  '',\n  'Tasks (JSON):',\n  tasksText\n].join('\\n');\n\nreturn [{\n  json: {\n    anthropic_body: {\n      model: 'claude-sonnet-5',\n      max_tokens: 1500,\n      system: systemPrompt,\n      messages: [{ role: 'user', content: 'جهز الملخص اليومي الآن.' }]\n    },\n    task_count: tasks.length\n  }\n}];"
+      }
+    },
+    {
+      "id": "malak-claude",
+      "name": "Claude — Generate Daily Brief",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, -10],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.anthropic_body) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key (x-api-key)"
+        }
+      }
+    },
+    {
+      "id": "malak-parse",
+      "name": "Parse Brief + Safe Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, -10],
+      "parameters": {
+        "jsCode": "// Resilience (Compliance Agent V1 pattern): if the engine fails, write a structured\n// fallback brief so the daily record always exists.\nconst item = $input.first().json;\nconst meta = $('Build Claude Request').first().json;\n\nlet text = '';\nif (item && Array.isArray(item.content) && item.content[0] && item.content[0].text) {\n  text = item.content[0].text;\n}\nconst engine_fallback = !text;\nif (engine_fallback) {\n  text = 'ملخص احتياطي (تعذر توليد Claude):\\n' +\n    'عدد المهام المقروءة من نوشن: ' + (meta.task_count ?? 0) + '.\\n' +\n    'يرجى مراجعة قاعدة المهام مباشرة اليوم. سيعود التلخيص الذكي عند توفر المحرك.';\n}\n\nreturn [{ json: { brief: text, engine_fallback, task_count: meta.task_count ?? 0 } }];"
+      }
+    },
+    {
+      "id": "malak-write-brief",
+      "name": "Write Daily Brief — بانتظار المراجعة",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [1140, -10],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_DAILY_BRIEF_DB_ID"
+        },
+        "title": "={{ 'الملخص اليومي — ' + $now.format('yyyy-MM-dd') + ($json.engine_fallback ? ' — (احتياطي)' : '') + ' — بانتظار المراجعة' }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 06:30 (Riyadh)": {
+      "main": [[{ "node": "Get Tasks (Notion)", "type": "main", "index": 0 }]]
+    },
+    "Manual Test Trigger": {
+      "main": [[{ "node": "Get Tasks (Notion)", "type": "main", "index": 0 }]]
+    },
+    "Get Tasks (Notion)": {
+      "main": [[{ "node": "Build Claude Request", "type": "main", "index": 0 }]]
+    },
+    "Build Claude Request": {
+      "main": [[{ "node": "Claude — Generate Daily Brief", "type": "main", "index": 0 }]]
+    },
+    "Claude — Generate Daily Brief": {
+      "main": [[{ "node": "Parse Brief + Safe Fallback", "type": "main", "index": 0 }]]
+    },
+    "Parse Brief + Safe Fallback": {
+      "main": [[{ "node": "Write Daily Brief — بانتظار المراجعة", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Riyadh"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
