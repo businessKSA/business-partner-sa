@@ -73,22 +73,25 @@
 
     <div class="cc-panel active" id="cc-panel-nitaqat">
       <div class="order-box">
-        <h3>حاسبة نطاقات السعودة</h3>
-        <p class="cc-sub">أدخل أعداد الموظفين — يتحدد حجم منشأتك ونطاقها المتوقع تلقائياً.</p>
+        <h3>حاسبة نطاقات السعودة — بمعادلة نطاقات المطوّر الرسمية</h3>
+        <p class="cc-sub">مبنية على الدليل الإجرائي الرسمي لوزارة الموارد البشرية (نطاقات المطوّر 2026): عتبات النطاقات تُحسب لكل نشاط بالمعادلة الرسمية <code>ص = م × لوغ(س) + ث</code> — نفس منهجية حاسبة قوى.</p>
         <div class="cc-grid">
-          <div class="field"><label for="cc-total">إجمالي الموظفين</label><input type="number" id="cc-total" min="1" value="25"></div>
-          <div class="field"><label for="cc-saudis">عدد الموظفين السعوديين</label><input type="number" id="cc-saudis" min="0" value="3"></div>
-          <div class="field"><label for="cc-activity">النشاط (اختياري)</label><input type="text" id="cc-activity" placeholder="مثال: تجارة تجزئة، مقاولات…"></div>
+          <div class="field" style="grid-column:1/-1"><label for="cc-act">النشاط الاقتصادي (حسب تصنيف نطاقات)</label><select id="cc-act"></select></div>
+          <div class="field"><label for="cc-year">سنة الاحتساب</label><select id="cc-year"><option value="y2026" selected>2026</option><option value="y2027">2027</option><option value="y2028">2028</option></select></div>
+          <div class="field"><label for="cc-total">إجمالي العمالة (الكيان)</label><input type="number" id="cc-total" min="1" value="25"></div>
+          <div class="field"><label for="cc-saudis">متوسط العمالة السعودية</label><input type="number" id="cc-saudis" min="0" value="3"></div>
         </div>
         <button class="btn btn-primary" id="cc-nit-calc">احسب</button>
         <p class="form-note">💡 ما تعرف أعدادك بدقة؟ <a href="#" class="cc-goto-upload">ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←</a></p>
         <div class="cc-result" id="cc-nit-result" hidden>
           <div class="cc-tiles">
-            <div class="cc-tile"><span>حجم المنشأة</span><strong id="cc-size">—</strong></div>
             <div class="cc-tile"><span>نسبة التوطين</span><strong id="cc-pct">—</strong></div>
             <div class="cc-tile"><span>النطاق المتوقع</span><strong id="cc-band">—</strong></div>
+            <div class="cc-tile"><span>الحد الأدنى لنطاقك</span><strong id="cc-floor">—</strong></div>
           </div>
+          <div class="cc-thresholds" id="cc-thresholds"></div>
           <div class="cc-advice" id="cc-advice"></div>
+          <p class="form-note">📘 المصدر: الدليل الإجرائي لبرنامج نطاقات المطوّر (2026). للتحقق الرسمي استخدم <a href="https://www.qiwa.sa/ar/tools-and-calculators/nitaqat-calculator" target="_blank" rel="noopener">حاسبة النطاقات في قوى ↗</a></p>
         </div>
       </div>
     </div>
@@ -174,9 +177,10 @@
           <span>4️⃣ نتابع معك واتساب وإيميل</span>
         </div>
 
-        <div class="cc-upload-cta">
-          <a class="btn btn-primary btn-lg" href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">📤 ارفع ملفاتك الآن (Excel / PDF)</a>
-          <p class="form-note">🔒 تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. نموذج Concierge: لا يُنفَّذ أي إجراء حكومي دون موافقتك.</p>
+        <div class="cc-portal">
+          <div class="cc-portal-head">🛡️ بوابة الامتثال — استقبال الملفات</div>
+          <iframe id="cc-portal-frame" title="بوابة الامتثال" data-src="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" loading="lazy" referrerpolicy="no-referrer"></iframe>
+          <p class="form-note">إذا لم تظهر البوابة، <a href="https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake" target="_blank" rel="noopener">افتحها في نافذة مستقلة ↗</a> · 🔒 تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. لا يُنفَّذ أي إجراء حكومي دون موافقتك.</p>
         </div>
       </div>
     </div>
@@ -245,6 +249,16 @@
     .cc-upload-steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
     .cc-upload-steps span{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:999px;padding:6px 14px;font-size:.83rem;font-weight:600;color:var(--navy)}
     .cc-upload-cta{text-align:center}
+    .cc-portal{border:1px solid var(--gray-line);border-radius:var(--radius-lg);overflow:hidden;background:var(--white)}
+    .cc-portal-head{background:var(--navy);color:var(--white);padding:12px 18px;font-weight:700;font-size:.95rem}
+    #cc-portal-frame{width:100%;height:960px;border:0;display:block;background:var(--gray-bg)}
+    .cc-portal .form-note{padding:10px 16px}
+    .cc-thresholds{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+    .cc-th-title{width:100%;font-size:.82rem;color:var(--text-soft);font-weight:600}
+    .cc-th{border:1px solid var(--gray-line);border-radius:10px;padding:8px 14px;font-size:.82rem;background:var(--gray-bg);color:var(--text-soft)}
+    .cc-th.on{border-color:#1d8a4e;background:#f2fbf5;color:#14663a}
+    .cc-th b{display:block;font-size:.95rem}
+    #cc-act{width:100%;font-family:inherit;font-size:1rem;padding:12px;border:1px solid var(--gray-line);border-radius:10px;background:var(--white)}
     .cc-agent{display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--navy);color:var(--white);border-radius:var(--radius-lg);padding:24px 26px;margin-bottom:24px}
     .cc-agent-main{flex:1;min-width:280px}
     .cc-agent-title{display:flex;align-items:center;gap:12px;margin-bottom:10px}
@@ -267,11 +281,13 @@
       bands:{red:"أحمر",low:"أخضر منخفض",mid:"أخضر متوسط",high:"أخضر مرتفع",platinum:"بلاتيني",exempt:"معفاة (1–5 موظفين)"},
       sizes:{micro:"متناهية الصغر (1–5)",small:"صغيرة (6–49)",medium:"متوسطة (50–499)",large:"كبيرة (500–2999)",huge:"عملاقة (3000+)"},
       ok:"منشأتك ضمن النطاق الآمن ✅",need:"تحتاج توظيف {n} سعودي للخروج من النطاق الأحمر",next:"توظيف {n} سعودي إضافي يرفعك إلى: {b}",top:"أنت في أعلى نطاق — حافظ عليه 👏",
+      microOk:"منشأة صغيرة جداً (1–5): معاملة مبسّطة — أخضر بوجود سعودي واحد على الأقل ✅",microNeed:"منشأة صغيرة جداً (1–5): وظّف سعودياً واحداً على الأقل للخروج من الأحمر",thTitle:"الحدود الدنيا الرسمية لنشاط «{act}» بحجم كيانك:",
       prof:"المهنة",profPh:"مثال: عامل، فني، مهندس…",status:"الحالة",sExisting:"قائم (على رأس العمل)",sNew:"جديد (أول دخول)",count:"العدد",late:"تأخير تجديد الإقامة",lNone:"لا يوجد",lFirst:"المرة الأولى (+500)",lSecond:"المرة الثانية (+1,000)",remove:"حذف",sar:"﷼"
     } : {
       bands:{red:"Red",low:"Low Green",mid:"Mid Green",high:"High Green",platinum:"Platinum",exempt:"Exempt (1–5 employees)"},
       sizes:{micro:"Micro (1–5)",small:"Small (6–49)",medium:"Medium (50–499)",large:"Large (500–2999)",huge:"Giant (3000+)"},
       ok:"Your establishment is in the safe zone ✅",need:"You need {n} more Saudi hire(s) to exit the red band",next:"Hiring {n} more Saudi(s) moves you up to: {b}",top:"You are in the top band — keep it up 👏",
+      microOk:"Micro establishment (1–5): simplified treatment — green with at least one Saudi ✅",microNeed:"Micro establishment (1–5): hire at least one Saudi to exit red",thTitle:"Official band floors for '{act}' at your entity size:",
       prof:"Profession",profPh:"e.g. laborer, technician…",status:"Status",sExisting:"Existing (on the job)",sNew:"New (first entry)",count:"Count",late:"Iqama renewal delay",lNone:"None",lFirst:"First time (+500)",lSecond:"Second time (+1,000)",remove:"Remove",sar:"SAR"
     };
     var fmt=function(n){return Math.round(n).toLocaleString(isAr?"ar-SA":"en-US");};
@@ -280,30 +296,43 @@
       document.querySelectorAll(".cc-tab").forEach(function(x){x.classList.remove("active");});
       document.querySelectorAll(".cc-panel").forEach(function(x){x.classList.remove("active");});
       tab.classList.add("active");$("cc-panel-"+tab.dataset.tab).classList.add("active");});});
-    var CFG={micro:{exempt:true,low:0,mid:0,high:0,platinum:0},small:{exempt:false,low:7,mid:13,high:20,platinum:30},medium:{exempt:false,low:11,mid:18,high:25,platinum:35},large:{exempt:false,low:15,mid:22,high:30,platinum:40},huge:{exempt:false,low:18,mid:25,high:33,platinum:42}};
-    var sizeKey=function(n){return n<=5?"micro":n<=49?"small":n<=499?"medium":n<=2999?"large":"huge";};
-    var needFor=function(t,total,saudis){if(t<=0)return 0;var n=(t*total-100*saudis)/(100-t);return n>0?Math.ceil(n):0;};
+    var NIT_DATA=[{"name":"الإنتاج الزراعي والحيواني وخدماتها وأندية الفروسية","m":[0.19,0.58,0.58,0.58],"y2026":[4.38,5.13,9.38,14.38],"y2027":[4.38,5.13,9.38,14.38],"y2028":[4.38,5.13,9.38,14.38]},{"name":"أنشطة الهيدروكربونات وعملياتها","m":[4.98,6.0,6.0,6.0],"y2026":[5.62,20.0,22.0,24.0],"y2027":[7.62,22.0,24.0,26.0],"y2028":[9.62,24.0,26.0,28.0]},{"name":"تعدين المعادن الفلزية والأحجار الكريمة","m":[1.68,1.87,2.08,6.0],"y2026":[16.0,19.0,28.0,23.0],"y2027":[16.0,19.0,28.0,23.0],"y2028":[16.0,19.0,28.0,23.0]},{"name":"تعدين المعادن غير الفلزية والصناعية","m":[1.68,1.87,2.08,6.0],"y2026":[18.0,19.0,21.0,25.0],"y2027":[20.0,21.0,23.0,27.0],"y2028":[22.0,23.0,25.0,29.0]},{"name":"تعدين مواد البناء","m":[0.0,0.0,0.0,6.0],"y2026":[7.0,10.0,13.0,23.0],"y2027":[7.0,10.0,13.0,23.0],"y2028":[7.0,10.0,13.0,23.0]},{"name":"الطاقة والمياه وخدماتها","m":[1.35,2.6,3.0,3.0],"y2026":[8.36,9.32,17.18,32.93],"y2027":[10.36,11.32,19.18,34.93],"y2028":[12.36,13.32,21.18,36.93]},{"name":"الصناعات","m":[1.68,1.87,2.08,2.08],"y2026":[15.08,21.87,23.97,29.87],"y2027":[18.08,24.87,26.97,32.87],"y2028":[21.08,27.87,29.97,35.87]},{"name":"مقاولات التشييد والبناء","m":[-0.37,-0.37,0.0,0.0],"y2026":[14.17,16.17,17.5,22.5],"y2027":[16.17,18.17,19.5,24.5],"y2028":[18.17,20.17,21.5,26.5]},{"name":"التشغيل والصيانة","m":[0.14,0.14,0.48,0.76],"y2026":[17.12,21.12,24.96,29.09],"y2027":[18.12,22.12,25.96,30.09],"y2028":[19.12,23.12,26.96,31.09]},{"name":"مقاولات النظافة والمغاسل","m":[-0.37,-0.37,0.0,0.0],"y2026":[12.17,14.17,17.0,22.0],"y2027":[12.17,14.17,17.0,22.0],"y2028":[12.17,14.17,17.0,22.0]},{"name":"البيع بالجملة والتجزئة العامة","m":[2.47,2.47,2.67,2.84],"y2026":[23.25,27.72,30.41,38.91],"y2027":[26.25,30.72,33.41,41.91],"y2028":[29.25,33.72,36.41,44.91]},{"name":"البيع بالتجزئة للعطور والساعات","m":[2.47,2.47,2.67,2.84],"y2026":[25.25,29.72,33.91,41.91],"y2027":[30.25,34.72,38.91,46.91],"y2028":[35.25,39.72,43.91,51.91]},{"name":"البيع بالتجزئة للأزياء والكماليات والسلع المتنوعة","m":[2.47,2.47,2.67,2.84],"y2026":[24.25,28.72,32.91,40.91],"y2027":[28.25,32.72,36.91,44.91],"y2028":[32.25,36.72,40.91,48.91]},{"name":"السلع النسائية وبيع الهواتف المحمولة وصيانتها","m":[0.0,0.0,0.0,0.27],"y2026":[82.0,85.0,89.0,93.42],"y2027":[82.0,85.0,89.0,93.42],"y2028":[82.0,85.0,89.0,93.42]},{"name":"حلول الاتصالات","m":[2.19,2.52,2.91,3.22],"y2026":[27.76,36.76,42.02,48.15],"y2027":[29.76,38.76,44.02,50.15],"y2028":[31.76,40.76,46.02,52.15]},{"name":"أنشطة البريد","m":[0.81,0.81,1.01,1.01],"y2026":[17.1,22.1,32.5,42.5],"y2027":[17.1,22.1,32.5,42.5],"y2028":[17.1,22.1,32.5,42.5]},{"name":"البنية التحتية لتقنية المعلومات","m":[3.61,3.61,3.61,3.61],"y2026":[17.77,24.64,40.0,50.0],"y2027":[19.77,26.64,42.0,52.0],"y2028":[21.77,28.64,44.0,54.0]},{"name":"البنية التحتية للاتصالات","m":[0.0,0.0,0.0,0.0],"y2026":[17.0,21.0,23.5,28.5],"y2027":[19.0,23.0,25.5,30.5],"y2028":[21.0,25.0,27.5,32.5]},{"name":"التشغيل والصيانة للاتصالات","m":[0.0,0.39,0.39,0.39],"y2026":[17.0,20.98,23.83,29.0],"y2027":[19.0,22.98,25.83,31.0],"y2028":[21.0,24.98,27.83,33.0]},{"name":"التشغيل والصيانة لتقنية المعلومات","m":[4.85,4.85,4.85,4.85],"y2026":[15.96,24.42,27.42,33.36],"y2027":[17.96,26.42,29.42,35.36],"y2028":[19.96,28.42,31.42,37.36]},{"name":"حلول تقنية المعلومات","m":[2.19,2.34,2.91,3.22],"y2026":[26.76,32.54,40.02,48.15],"y2027":[28.76,34.54,42.02,50.15],"y2028":[30.76,36.54,44.02,52.15]},{"name":"النقل البري والتخزين","m":[1.15,1.15,1.5,1.71],"y2026":[12.09,16.2,17.82,27.74],"y2027":[13.09,17.2,18.82,28.74],"y2028":[14.09,18.2,19.82,29.74]},{"name":"النقل البحري والجوي","m":[1.45,1.45,1.86,2.67],"y2026":[26.57,39.98,48.38,56.29],"y2027":[28.57,41.98,50.38,58.29],"y2028":[30.57,43.98,52.38,60.29]},{"name":"مطاعم مع الخدمة (لا تشمل الوجبات السريعة)","m":[1.58,1.67,1.67,1.67],"y2026":[13.47,16.98,20.26,26.71],"y2027":[14.47,17.98,21.26,27.71],"y2028":[15.47,18.98,22.26,28.71]},{"name":"مطاعم خدمة سريعة ومحلات الآيسكريم","m":[1.58,1.67,1.67,1.67],"y2026":[15.08,20.04,23.27,29.26],"y2027":[16.08,21.04,24.27,30.26],"y2028":[17.08,22.04,25.27,31.26]},{"name":"المقاهي ومحلات تقديم المشروبات","m":[1.58,1.67,1.67,1.67],"y2026":[16.98,20.49,31.42,35.52],"y2027":[17.98,21.49,32.42,36.52],"y2028":[18.98,22.49,33.42,37.52]},{"name":"التموين والإعاشة","m":[1.58,1.67,1.67,1.67],"y2026":[14.46,17.97,21.25,27.93],"y2027":[15.46,18.97,22.25,28.93],"y2028":[16.46,19.97,23.25,29.93]},{"name":"حراسات أمنية ومكاتب التوظيف الأهلية","m":[0.34,0.34,0.34,0.34],"y2026":[74.5,77.5,80.5,84.5],"y2027":[74.5,77.5,80.5,84.5],"y2028":[74.5,77.5,80.5,84.5]},{"name":"المؤسسات المالية","m":[2.6,2.6,2.6,2.6],"y2026":[50.0,57.0,62.0,65.0],"y2027":[50.0,57.0,62.0,65.0],"y2028":[50.0,57.0,62.0,65.0]},{"name":"خدمات الأعمال","m":[1.03,1.03,2.19,2.19],"y2026":[33.78,42.62,43.62,54.82],"y2027":[36.78,45.62,46.62,57.82],"y2028":[39.78,48.62,49.62,60.82]},{"name":"الخدمات الاجتماعية","m":[1.83,2.38,3.5,3.5],"y2026":[14.82,26.9,32.74,56.52],"y2027":[16.82,28.9,34.74,58.52],"y2028":[18.82,30.9,36.74,60.52]},{"name":"الخدمات الشخصية","m":[1.46,1.92,4.4,5.0],"y2026":[14.07,20.36,24.63,26.13],"y2027":[14.07,20.36,24.63,26.13],"y2028":[14.07,20.36,24.63,26.13]},{"name":"التعليم العالي","m":[0.0,0.0,0.43,0.43],"y2026":[34.0,48.0,75.37,82.0],"y2027":[34.0,48.0,75.37,82.0],"y2028":[34.0,48.0,75.37,82.0]},{"name":"التعليم العالي للتخصصات الصحية","m":[0.0,0.0,0.0,0.0],"y2026":[25.0,30.0,35.0,37.0],"y2027":[25.0,30.0,35.0,37.0],"y2028":[25.0,30.0,35.0,37.0]},{"name":"مدارس البنات ورياض الأطفال والحضانات","m":[0.0,0.0,0.0,0.0],"y2026":[51.0,66.0,89.56,95.0],"y2027":[51.0,66.0,89.56,95.0],"y2028":[51.0,66.0,89.56,95.0]},{"name":"المدارس الأجنبية","m":[2.3,2.3,2.3,2.3],"y2026":[4.95,14.19,19.99,28.77],"y2027":[4.95,14.19,19.99,28.77],"y2028":[4.95,14.19,19.99,28.77]},{"name":"المختبرات والخدمات الصحية","m":[0.35,0.35,0.35,0.35],"y2026":[25.74,30.74,34.24,34.74],"y2027":[27.74,32.74,36.24,36.74],"y2028":[29.74,34.74,38.24,38.74]},{"name":"الإيواء والترفيه والسياحة","m":[2.42,2.42,2.59,2.59],"y2026":[24.6,31.02,36.4,42.52],"y2027":[26.6,33.02,38.4,44.52],"y2028":[28.6,35.02,40.4,46.52]},{"name":"السلع الأساسية والمحروقات","m":[0.17,0.56,0.56,1.19],"y2026":[9.86,12.22,22.59,26.09],"y2027":[10.86,13.22,23.59,27.09],"y2028":[11.86,14.22,24.59,28.09]},{"name":"مدارس البنين ومجمعات البنين والبنات","m":[1.31,1.31,1.31,1.31],"y2026":[29.3,39.15,50.27,61.0],"y2027":[29.3,39.15,50.27,61.0],"y2028":[29.3,39.15,50.27,61.0]},{"name":"الكيانات المجمعة","m":[2.23,2.23,2.23,2.23],"y2026":[10.99,22.4,33.81,44.0],"y2027":[10.99,22.4,33.81,44.0],"y2028":[10.99,22.4,33.81,44.0]}];
+    var actSel=$("cc-act");
+    NIT_DATA.forEach(function(a,i){var o=document.createElement("option");o.value=i;o.textContent=isAr?a.name:a.name;actSel.appendChild(o);});
+    actSel.value=10;
+    var clampPct=function(v){return Math.min(100,Math.max(0,v));};
+    var floors=function(act,yearKey,total){var c=act[yearKey];return act.m.map(function(m,i){return clampPct(m*Math.log(total)+c[i]);});};
+    var bandIdx=function(n,f){if(n<f[0])return -1;if(n<f[1])return 0;if(n<f[2])return 1;if(n<f[3])return 2;return 3;};
+    var needFor=function(act,yearKey,total,saudis,idx){for(var k=1;k<=5000;k++){var t2=total+k,s2=saudis+k;var f=floors(act,yearKey,t2);if(s2/t2*100>=f[idx])return k;}return null;};
+    var BAND_LABELS=function(){return [T.bands.low,T.bands.mid,T.bands.high,T.bands.platinum];};
     $("cc-nit-calc").addEventListener("click",function(){
+      var act=NIT_DATA[Number(actSel.value)||0];
+      var yearKey=$("cc-year").value;
       var total=Math.max(1,Number($("cc-total").value)||1);
       var saudis=Math.min(total,Math.max(0,Number($("cc-saudis").value)||0));
-      var key=sizeKey(total),c=CFG[key],pct=saudis/total*100;
-      var band,color;
-      if(c.exempt){band=T.bands.exempt;color="#4a4f5e";}
-      else if(pct>=c.platinum){band=T.bands.platinum;color="#b45309";}
-      else if(pct>=c.high){band=T.bands.high;color="#14663a";}
-      else if(pct>=c.mid){band=T.bands.mid;color="#14663a";}
-      else if(pct>=c.low){band=T.bands.low;color="#1d8a4e";}
-      else{band=T.bands.red;color="#a02020";}
-      $("cc-size").textContent=T.sizes[key];
-      $("cc-pct").textContent=(Math.round(pct*10)/10)+"%";
+      var pct=saudis/total*100,pctR=Math.round(pct*100)/100;
+      var f=floors(act,yearKey,total);
+      var fR=f.map(function(x){return Math.round(x*100)/100;});
+      var labels=BAND_LABELS();
+      var band,color,idx;
+      if(total<=5){idx=saudis>=1?0:-1;band=saudis>=1?T.microOk:T.bands.red;color=saudis>=1?"#1d8a4e":"#a02020";}
+      else{idx=bandIdx(pct,f);
+        if(idx===-1){band=T.bands.red;color="#a02020";}
+        else if(idx===0){band=T.bands.low;color="#1d8a4e";}
+        else if(idx===1){band=T.bands.mid;color="#14663a";}
+        else if(idx===2){band=T.bands.high;color="#14663a";}
+        else{band=T.bands.platinum;color="#b45309";}}
+      $("cc-pct").textContent=pctR+"%";
       var b=$("cc-band");b.textContent=band;b.style.color=color;
+      $("cc-floor").textContent=total<=5?"—":(fR[0]+"%");
+      var th=$("cc-thresholds");
+      if(total<=5){th.innerHTML="";}
+      else{th.innerHTML='<div class="cc-th-title">'+T.thTitle.replace("{act}",act.name)+'</div>'+f.map(function(x,i){var on=idx>=i;return '<div class="cc-th'+(on?" on":"")+'"><span>'+labels[i]+'</span><b>≥ '+fR[i]+'%</b></div>';}).join("");}
       var adv=$("cc-advice");
-      if(c.exempt){adv.textContent=T.ok;adv.className="cc-advice ok";}
-      else if(pct<c.low){adv.textContent=T.need.replace("{n}",needFor(c.low,total,saudis));adv.className="cc-advice danger";}
-      else{var ladder=[[T.bands.mid,c.mid],[T.bands.high,c.high],[T.bands.platinum,c.platinum]],nx=null;
-        for(var i=0;i<ladder.length;i++){if(pct<ladder[i][1]){nx=ladder[i];break;}}
-        adv.textContent=T.ok+(nx?" — "+T.next.replace("{n}",needFor(nx[1],total,saudis)).replace("{b}",nx[0]):" — "+T.top);
-        adv.className="cc-advice ok";}
+      if(total<=5){adv.textContent=saudis>=1?T.microOk:T.microNeed;adv.className="cc-advice "+(saudis>=1?"ok":"danger");}
+      else if(idx===-1){var k=needFor(act,yearKey,total,saudis,0);adv.textContent=T.need.replace("{n}",k==null?"—":k);adv.className="cc-advice danger";}
+      else if(idx>=3){adv.textContent=T.ok+" — "+T.top;adv.className="cc-advice ok";}
+      else{var k2=needFor(act,yearKey,total,saudis,idx+1);adv.textContent=T.ok+" — "+T.next.replace("{n}",k2==null?"—":k2).replace("{b}",labels[idx+1]);adv.className="cc-advice ok";}
       $("cc-nit-result").hidden=false;});
     var FINES={none:0,first:500,second:1000};
     function addRow(count){
@@ -352,7 +381,9 @@
     var allBtn=document.createElement("button");allBtn.type="button";allBtn.className="cc-chip";allBtn.textContent="📋 "+PT.all;allBtn.addEventListener("click",function(){$("cc-prof-q").value="";renderProf("*");});chipBox.appendChild(allBtn);
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
-    document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();window.scrollTo({top:0,behavior:"smooth"});});});
+    var loadPortal=function(){var f=$("cc-portal-frame");if(f&&!f.src)f.src=f.getAttribute("data-src");};
+    var upTab=document.querySelector('[data-tab="upload"]');if(upTab)upTab.addEventListener("click",loadPortal);
+    document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();loadPortal();window.scrollTo({top:0,behavior:"smooth"});});});
   })();
   </script></main><footer class="site-footer"><div class="container">
   <div class="footer-grid">
