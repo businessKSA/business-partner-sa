@@ -160,6 +160,13 @@ export const prerender = true;
       .chat-head .phone { font-weight: 700; color: var(--navy); direction: ltr; }
       .chat-head .crm-link { font-size: 12.5px; color: var(--teal); text-decoration: none; }
       .chat-head .back { display: none; background: none; border: 0; font-size: 20px; cursor: pointer; }
+      .ai-ctl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .ai-badge { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+      .ai-badge.on { background: #def7ec; color: #03543f; }
+      .ai-badge.off { background: #fde8e8; color: #9b1c1c; }
+      .ai-toggle { font-size: 12.5px; font-weight: 700; border: 0; border-radius: 9px; padding: 8px 12px; cursor: pointer; white-space: nowrap; }
+      .ai-toggle.pause { background: #fff3cd; color: #7a5b00; }
+      .ai-toggle.resume { background: #d9fdd3; color: #0b6e4f; }
       #chatArea {
         flex: 1;
         overflow-y: auto;
@@ -288,6 +295,10 @@ export const prerender = true;
             <div class="phone" id="chatPhone">اختر محادثة</div>
             <a class="crm-link" id="crmLink" href="#" target="_blank" rel="noopener" style="display:none">📇 ملف العميل في CRM</a>
           </div>
+          <div class="ai-ctl" id="aiCtl" style="display:none">
+            <span class="ai-badge on" id="aiBadge">🟢 الوكيل يرد</span>
+            <button class="ai-toggle pause" id="aiToggle">⏸️ أوقف الوكيل وتولَّ بنفسك</button>
+          </div>
         </div>
         <div id="chatArea">
           <div class="empty-hint">👈 اختر محادثة من القائمة لعرضها<br />التحديث تلقائي كل ٧ ثوانٍ</div>
@@ -296,7 +307,7 @@ export const prerender = true;
           <textarea id="msgInput" placeholder="اكتب ردك كمالك… (يُرسل للعميل عبر واتساب فوراً)"></textarea>
           <button id="sendBtn">إرسال</button>
         </div>
-        <div class="send-note">ردّك يوصل للعميل من رقم واتساب الشركة، ويظهر هنا وفي سجل Notion باسم «المالك» 🧑‍💼</div>
+        <div class="send-note">أول ما ترسل ردّك، الوكيل الآلي يتوقف تلقائياً وتتولى المحادثة أنت — ردّك يوصل العميل من رقم واتساب الشركة 🧑‍💼</div>
       </div>
       <div class="sidebar">
         <div class="side-head">
@@ -380,6 +391,42 @@ export const prerender = true;
         }
       }
 
+      function isPaused(msgs) {
+        let paused = false;
+        for (const m of msgs) {
+          if (m.sender === 'المالك') paused = true;
+          else if (m.alert === 'إيقاف الوكيل') paused = true;
+          else if (m.alert === 'تفعيل الوكيل') paused = false;
+        }
+        return paused;
+      }
+
+      async function setAgent(action) {
+        if (!activePhone) return;
+        const btn = $('aiToggle');
+        btn.disabled = true;
+        try {
+          const res = await fetch(SEND_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ key: accessKey, phone: activePhone, action: action })
+          });
+          const out = await res.json().catch(() => ({}));
+          if (!res.ok || !out.ok) throw new Error('toggle failed');
+          messages.push({
+            id: 'tmp-' + Date.now(), time: new Date().toISOString(), phone: activePhone,
+            sender: 'تنبيه', alert: action === 'resume' ? 'تفعيل الوكيل' : 'إيقاف الوكيل',
+            text: action === 'resume' ? '🟢 أعدتَ تفعيل الوكيل الآلي — سيرد تلقائياً' : '🔴 توليتَ المحادثة — الوكيل الآلي موقوف لهذا العميل',
+            crm: ''
+          });
+          render();
+        } catch (e) {
+          alert('تعذر تنفيذ العملية. حاول مرة أخرى.');
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
       function renderChat() {
         const area = $('chatArea');
         if (!activePhone) return;
@@ -389,13 +436,28 @@ export const prerender = true;
         const crmA = $('crmLink');
         if (crm) { crmA.href = crm.crm; crmA.style.display = 'inline'; } else { crmA.style.display = 'none'; }
 
+        const paused = isPaused(msgs);
+        $('aiCtl').style.display = 'flex';
+        const badge = $('aiBadge'), toggle = $('aiToggle');
+        if (paused) {
+          badge.className = 'ai-badge off'; badge.textContent = '🔴 أنت المتحكم';
+          toggle.className = 'ai-toggle resume'; toggle.textContent = '▶️ أعِد تفعيل الوكيل الآلي';
+          toggle.onclick = () => setAgent('resume');
+        } else {
+          badge.className = 'ai-badge on'; badge.textContent = '🟢 الوكيل يرد';
+          toggle.className = 'ai-toggle pause'; toggle.textContent = '⏸️ أوقف الوكيل وتولَّ بنفسك';
+          toggle.onclick = () => setAgent('pause');
+        }
+
         const nearBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 120;
         area.innerHTML = '';
         for (const m of msgs) {
           if (m.sender === 'تنبيه') {
             const chip = document.createElement('div');
-            chip.className = 'alert-chip' + (m.alert === 'يحتاج تدخل بشري' ? ' red' : m.alert === 'طلب مكتمل' ? ' green' : '');
-            chip.textContent = '🔔 ' + (m.alert || 'تنبيه') + ' — ' + fmtTime(m.time);
+            const red = m.alert === 'يحتاج تدخل بشري' || m.alert === 'إيقاف الوكيل';
+            const green = m.alert === 'طلب مكتمل' || m.alert === 'تفعيل الوكيل';
+            chip.className = 'alert-chip' + (red ? ' red' : green ? ' green' : '');
+            chip.textContent = (m.text && m.text.trim()) ? m.text : '🔔 ' + (m.alert || 'تنبيه') + ' — ' + fmtTime(m.time);
             area.appendChild(chip);
             continue;
           }
@@ -457,7 +519,7 @@ export const prerender = true;
           const res = await fetch(SEND_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ key: accessKey, phone: activePhone, text: txt })
+            body: JSON.stringify({ key: accessKey, phone: activePhone, text: txt, action: 'send' })
           });
           const out = await res.json().catch(() => ({}));
           if (!res.ok || !out.ok) throw new Error('send failed');
