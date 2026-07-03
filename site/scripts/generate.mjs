@@ -598,6 +598,29 @@ function buildHome() {
   </div></section>
 
   <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Who we are", "من نحن")}</span><h2>${L("Your operating partner in Saudi Arabia", "شريكك التشغيلي في السعودية")}</h2><p>${L("We handle your government procedures, extract your records and run your platforms — so you focus on growing your business, backed by 15+ years in the Saudi market.", "نتولّى إجراءاتك الحكومية، ونستخرج سجلاتك، وندير منصّاتك — لتتفرّغ لنمو أعمالك، بخبرة تتجاوز 15 عاماً في السوق السعودي.")}</p></div>
+    <div class="grid grid-3">
+      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🏛️</div><h3>${L("15+ authorities", "+15 جهة حكومية")}</h3><p>${L("We deal with the official authorities on your behalf.", "نتعامل مع الجهات الرسمية نيابةً عنك.")}</p></div>
+      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🗂️</div><h3>${L("90+ services", "+90 خدمة")}</h3><p>${L("A full official catalog covering formation to daily operations.", "كتالوج رسمي شامل يغطي رحلتك من التأسيس للتشغيل.")}</p></div>
+      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🖥️</div><h3>${L("Platform management", "إدارة المنصّات")}</h3><p>${L("Qiwa, GOSI, Muqeem, Mudad, Absher and more — managed for you.", "قوى، التأمينات، مقيم، مدد، أبشر وغيرها — نديرها عنك.")}</p></div>
+      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🤖</div><h3>${L("Smart agent 24/7", "وكيل ذكي 24/7")}</h3><p>${L("Instant replies and automatic document prep any time.", "رد فوري وتجهيز مستنداتك تلقائياً في أي وقت.")}</p></div>
+      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">⚡</div><h3>${L("Fast execution", "تنفيذ سريع")}</h3><p>${L("Ready-made tracks and precise knowledge of the regulations.", "مسارات جاهزة ومعرفة دقيقة بالأنظمة.")}</p></div>
+      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🛡️</div><h3>${L("Full transparency", "شفافية كاملة")}</h3><p>${L("Clear fees, with government fees disclosed separately.", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة.")}</p></div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف نعمل")}</span><h2>${L("How we get your records & licences done", "كيف نُنجز سجلاتك وتراخيصك")}</h2><p>${L("A clear path from your first message to issuance — we handle the paperwork and follow it through.", "مسار واضح من أول رسالة حتى الإصدار — نتولّى الإجراءات ونتابعها حتى تُنجز.")}</p></div>
+    <div class="home-steps">
+      <div class="hstep"><span class="hstep-n">1</span><h3>${L("Consult", "تواصل واستشارة")}</h3><p>${L("Tell us what you need — we identify the right service for your case.", "أخبرنا باحتياجك — نحدد الخدمة المناسبة لحالتك.")}</p></div>
+      <div class="hstep"><span class="hstep-n">2</span><h3>${L("Prepare documents", "تجهيز المستندات")}</h3><p>${L("We prepare and review your document list with you.", "نجهّز قائمة مستنداتك ونراجعها معك.")}</p></div>
+      <div class="hstep"><span class="hstep-n">3</span><h3>${L("Submit & follow up", "الرفع والمتابعة")}</h3><p>${L("We submit to the relevant authority and follow up until issuance.", "نرفع طلبك على الجهة المختصة ونتابعه حتى الإصدار.")}</p></div>
+      <div class="hstep"><span class="hstep-n">4</span><h3>${L("Delivery & support", "التسليم والدعم")}</h3><p>${L("We hand over your record/licence ready, with ongoing support.", "نسلّمك سجلك/رخصتك جاهزة، مع دعم مستمر بعدها.")}</p></div>
+    </div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/consultation")}">${L("Start now", "ابدأ الآن")}</a></div>
+  </div></section>
+
+  <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L(EN.whyEyebrow, "لماذا نحن")}</span><h2>${L(EN.why.title, h.why.title)}</h2></div>
     <div class="grid grid-3">${whyCards}</div>
   </div></section>

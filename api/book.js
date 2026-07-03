@@ -19,6 +19,12 @@ const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTI
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
+// Optional: POST every lead to an n8n/Make webhook (→ WhatsApp notification, etc.)
+const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
+async function forwardLead(payload) {
+  if (!LEAD_WEBHOOK) return;
+  try { await fetch(LEAD_WEBHOOK, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); } catch {}
+}
 
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -144,6 +150,7 @@ export default async function handler(req, res) {
     // Register the lead in the CRM and add to the newsletter audience (best-effort).
     crmLead({ name, phone, email, topic, date, notes, ref }),
     addToAudience(email, name),
+    forwardLead({ source: "consultation", ref, name, phone, email, topic, date, notes }),
   ]);
 
   res.statusCode = 200;

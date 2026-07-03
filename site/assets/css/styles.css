@@ -913,3 +913,12 @@ h3 { font-size: 1.12rem; }
 .portal-card { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 18px 12px; border: 1px solid var(--gray-line); border-radius: var(--radius); background: var(--white); color: var(--navy); font-weight: 600; font-size: .86rem; transition: border-color .15s, transform .15s, box-shadow .15s; }
 .portal-card:hover { border-color: var(--navy); transform: translateY(-2px); box-shadow: var(--shadow-sm); color: var(--navy); }
 .portal-card span { font-size: 1.7rem; line-height: 1; }
+
+/* ============ Home — "how it works" steps ============ */
+.home-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.hstep { position: relative; background: var(--white); border: 1px solid var(--gray-line); border-radius: var(--radius); padding: 28px 20px 20px; }
+.hstep-n { position: absolute; top: -16px; inset-inline-start: 20px; width: 34px; height: 34px; border-radius: 999px; background: var(--navy); color: #fff; font-weight: 800; display: grid; place-items: center; }
+.hstep h3 { margin: 6px 0 8px; color: var(--navy); font-size: 1.05rem; }
+.hstep p { color: var(--text-soft); font-size: .92rem; }
+@media (max-width: 880px) { .home-steps { grid-template-columns: 1fr 1fr; gap: 24px; } }
+@media (max-width: 480px) { .home-steps { grid-template-columns: 1fr; } }
