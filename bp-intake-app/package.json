@@ -1,0 +1,11 @@
+{
+  "name": "bp-intake-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Business Partner — candidate intake portal (form → Claude → Notion) as a standalone Vercel project",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@notionhq/client": "^2.2.15"
+  }
+}
