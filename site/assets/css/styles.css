@@ -857,3 +857,11 @@ h3 { font-size: 1.12rem; }
   .newsletter-form { justify-content: center; }
   .newsletter-form input { min-width: 0; flex: 1 1 auto; }
 }
+
+/* ============ Office spaces gallery cards ============ */
+.ws-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.ws-photo { height: 168px; background-size: cover; background-position: center; background-color: var(--gray-bg); }
+.ws-photo.ws-noimg { display: flex; align-items: center; justify-content: center; font-size: 2.6rem; color: var(--navy); opacity: .5; }
+.ws-body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+.ws-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ws-tags span { font-size: .74rem; font-weight: 600; color: var(--navy); background: rgba(11,27,90,.07); padding: 3px 10px; border-radius: 999px; }

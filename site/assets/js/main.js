@@ -1203,3 +1203,100 @@ var BP = window.BP = window.BP || {};
       .catch(function () { if (btn) { btn.disabled = false; btn.textContent = lbl; } show(T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً.")); });
   });
 })();
+
+/* ---------- Office spaces gallery (/workspaces) → /api/spaces ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var grid = document.getElementById("ws-grid");
+    if (!grid) return;
+    var isAr = (window.BP_WS_LANG || "ar") === "ar";
+    var T = function (en, ar) { return isAr ? ar : en; };
+    var status = document.getElementById("ws-status");
+    var loadBtn = document.getElementById("ws-load");
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); };
+    var cityAr = { Riyadh: "الرياض", Jeddah: "جدة", Dammam: "الدمام", Khobar: "الخبر", Makkah: "مكة", Madinah: "المدينة", Other: "أخرى" };
+
+    function card(s) {
+      var city = isAr ? (cityAr[s.city] || s.city || "") : (s.city || "");
+      var loc = [city, s.district].filter(Boolean).join(" · ");
+      var meta = [];
+      if (s.area) meta.push((isAr ? "المساحة: " : "Area: ") + s.area + (isAr ? " م²" : " sqm"));
+      if (s.seats) meta.push((isAr ? "المقاعد: " : "Seats: ") + s.seats);
+      var tags = [];
+      if (s.furnished) tags.push(T("Furnished", "مفروش"));
+      if (s.parking) tags.push(T("Parking", "مواقف"));
+      if (s.nationalAddress) tags.push(T("National Address", "عنوان وطني"));
+      if (s.licenseSupport) tags.push(T("License support", "دعم الترخيص"));
+      var photo = s.photo ? '<div class="ws-photo" style="background-image:url(\'' + esc(s.photo) + '\')"></div>' : '<div class="ws-photo ws-noimg">🏢</div>';
+      var waMsg = encodeURIComponent((isAr ? "أرغب بالاستفسار عن مساحة: " : "Enquiry about space: ") + (s.name || "") + (loc ? " — " + loc : ""));
+      return '<div class="emp-card ws-card">' + photo +
+        '<div class="ws-body"><div class="emp-card-top"><strong>' + esc(s.name) + '</strong>' + (s.type ? '<span class="emp-tag">' + esc(s.type) + '</span>' : '') + '</div>' +
+        (loc ? '<div class="emp-role">📍 ' + esc(loc) + '</div>' : '') +
+        (s.description ? '<div class="emp-skills">' + esc(s.description) + '</div>' : '') +
+        (meta.length ? '<div class="emp-meta">' + esc(meta.join(" · ")) + '</div>' : '') +
+        (tags.length ? '<div class="ws-tags">' + tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div>' : '') +
+        '<a class="btn btn-wa" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("Enquire", "استفسر") + '</a>' +
+        '</div></div>';
+    }
+
+    function load() {
+      var qs = new URLSearchParams();
+      var q = document.getElementById("ws-q"), city = document.getElementById("ws-city"), type = document.getElementById("ws-type");
+      if (q && q.value.trim()) qs.set("q", q.value.trim());
+      if (city && city.value) qs.set("city", city.value);
+      if (type && type.value) qs.set("type", type.value);
+      status.textContent = T("Loading spaces…", "جارٍ تحميل المساحات…");
+      grid.innerHTML = "";
+      fetch("/api/spaces?" + qs).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          var d = res.d;
+          if (res.s === 503) { status.innerHTML = T("The space inventory isn't connected yet — ", "لم يُربط مخزون المساحات بعد — ") + '<a href="/workspace-request">' + T("send your requirements", "أرسل متطلباتك") + "</a>"; return; }
+          if (!d || !d.ok) { status.textContent = T("Couldn't load spaces. Try again.", "تعذّر تحميل المساحات. حاول مجدداً."); return; }
+          if (!d.spaces.length) { status.innerHTML = T("No published spaces match yet — ", "لا توجد مساحات منشورة مطابقة بعد — ") + '<a href="/workspace-request">' + T("tell us your requirements", "أخبرنا بمتطلباتك") + "</a>"; return; }
+          status.textContent = d.total + " " + T("available spaces", "مساحة متاحة");
+          grid.innerHTML = d.spaces.map(card).join("");
+        })
+        .catch(function () { status.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
+    }
+    if (loadBtn) loadBtn.addEventListener("click", load);
+    var qEl = document.getElementById("ws-q");
+    if (qEl) qEl.addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
+    load();
+  });
+})();
+
+/* ---------- Workspace demand request (/workspace-request) → /api/workspace ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("ws-req");
+    if (!form) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    var WA = "966507034157";
+    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var phone = val("wr-phone"), city = val("wr-city");
+      if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Please enter a valid Saudi mobile (05XXXXXXXX).", "الرجاء إدخال جوال سعودي صحيح (05XXXXXXXX).")); return; }
+      if (!city) { alert(T("Please choose a city.", "الرجاء اختيار المدينة.")); return; }
+      var payload = { purpose: val("wr-purpose"), category: val("wr-category"), city: city, district: val("wr-district"), size: val("wr-size"), seats: val("wr-seats"), budget: val("wr-budget"), contact: val("wr-contact"), phone: phone, email: val("wr-email"), notes: val("wr-notes") };
+      var btn = document.getElementById("wr-submit"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      function done(ref) {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("wr-result");
+        var waMsg = encodeURIComponent(T("New workspace request", "طلب مساحة عمل") + " " + (ref || "") + "\n" + T("City", "المدينة") + ": " + city + "\n" + T("Mobile", "الجوال") + ": " + phone);
+        box.hidden = false;
+        box.innerHTML = "✅ <strong>" + T("Request received", "تم استلام طلبك") + (ref ? " — " + ref : "") + "</strong><br>" +
+          T("Our matching engine is finding options across the Kingdom. We'll reach out shortly.", "محرّك المطابقة يبحث عن خيارات في المملكة. سنتواصل معك قريباً.") +
+          '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Follow up on WhatsApp", "تابع عبر واتساب") + "</a>";
+        box.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      fetch("/api/workspace", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) { done(res.d && res.d.ref); })
+        .catch(function () { done(null); });
+    });
+  });
+})();

@@ -218,6 +218,7 @@ const NAV_GROUPS = [
       { href: "/services", en: "All services (93)", ar: "كل الخدمات (93)" },
       { href: "/packages", en: "Packages", ar: "الباقات" },
       { href: "/ai-agents", en: "AI Agents", ar: "الوكلاء الأذكياء" },
+      { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
       { href: "/compliance-calculators", en: "Compliance tools", ar: "أدوات الامتثال" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
     ],
@@ -2107,6 +2108,75 @@ function buildNewsletter() {
   return page({ title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
 }
 
+function buildWorkspaces() {
+  const cities = [["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Dammam", "الدمام"], ["Khobar", "الخبر"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Other", "أخرى"]];
+  const types = [["Office", "مكتب"], ["Co-working Space", "مساحة مشتركة"], ["Serviced Office", "مكتب مخدوم"], ["Retail Shop", "محل تجاري"], ["Showroom", "معرض"], ["Warehouse", "مستودع"], ["Commercial Villa", "فيلا تجارية"]];
+  const cityOpts = cities.map((c) => `<option value="${c[0]}">${L(c[0], c[1])}</option>`).join("");
+  const typeOpts = types.map((t) => `<option value="${t[0]}">${L(t[0], t[1])}</option>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:1000px">
+    <span class="eyebrow">${L("Office Spaces", "المكاتب ومساحات العمل")}</span>
+    <h1>${L("Find your workspace in Saudi Arabia", "اعثر على مساحتك في السعودية")}</h1>
+    <p class="lead">${L("Browse available offices, coworking and commercial spaces across the Kingdom. Tell us what you need and we match you — and handle the paperwork.", "تصفّح المكاتب والمساحات المشتركة والتجارية المتاحة في المملكة. أخبرنا باحتياجك ونطابقك — ونتولّى الإجراءات.")}</p>
+    <div class="talent-actions" style="margin-top:24px">
+      <a class="btn btn-primary" href="${u("/workspace-request")}">${I.check}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>
+      <a class="btn btn-ghost" href="#ws-pool">${L("Browse spaces", "تصفّح المساحات")}</a>
+    </div>
+  </div></section>
+
+  <section class="section" id="ws-pool"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Available now", "متاح الآن")}</span><h2>${L("Available spaces", "المساحات المتاحة")}</h2><p>${L("Live from our inventory. Enquire and our team arranges viewings, pricing and the lease.", "مباشرة من مخزوننا. استفسر ويرتّب فريقنا المعاينة والتسعير والعقد.")}</p></div>
+    <div class="emp-access"><div class="emp-filters">
+      <input type="text" id="ws-q" placeholder="${Lraw("Search district, use…", "ابحث بالحي أو الاستخدام…")}">
+      <select id="ws-city"><option value="">${L("All cities", "كل المدن")}</option>${cityOpts}</select>
+      <select id="ws-type"><option value="">${L("All types", "كل الأنواع")}</option>${typeOpts}</select>
+      <button type="button" class="btn btn-primary" id="ws-load">${L("Show spaces", "اعرض المساحات")}</button>
+    </div></div>
+    <p class="emp-note" id="ws-status"></p>
+    <div class="emp-grid" id="ws-grid"></div>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Didn't find it? Tell us your requirements", "ما لقيت؟ أخبرنا بمتطلباتك")}</h2><p>${L("Send your requirements and our matching engine finds options across the Kingdom.", "أرسل متطلباتك ويجد محرّك المطابقة خيارات في كل المملكة.")}</p><a class="btn btn-white btn-lg" href="${u("/workspace-request")}">${L("Request a workspace", "اطلب مساحة عمل")}</a></div>
+  </div></section>
+  <script>window.BP_WS_LANG=${JSON.stringify(LANG)};</script>`;
+  return page({ title: Lraw("Office spaces & workspaces in Saudi Arabia — Business Partner", "المكاتب ومساحات العمل في السعودية — بيزنس بارتنر"), desc: Lraw("Browse available offices, coworking and commercial spaces, or tell us your requirements and we match you.", "تصفّح المكاتب والمساحات المشتركة والتجارية المتاحة، أو أخبرنا بمتطلباتك ونطابقك."), active: "/workspaces", path: "/workspaces", body });
+}
+
+function buildWorkspaceRequest() {
+  const cities = [["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Dammam", "الدمام"], ["Khobar", "الخبر"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Other", "أخرى"]];
+  const cats = [["Office", "مكتب"], ["Co-working Space", "مساحة عمل مشتركة"], ["Retail", "محل تجاري"], ["Showroom", "معرض"], ["Commercial", "تجاري"], ["Industrial", "صناعي / مستودع"], ["Land", "أرض"], ["Other", "أخرى"]];
+  const cityOpts = cities.map((c) => `<option value="${c[0]}">${L(c[0], c[1])}</option>`).join("");
+  const catOpts = cats.map((c) => `<option value="${c[0]}">${L(c[0], c[1])}</option>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("Office Spaces", "المكاتب ومساحات العمل")}</span>
+    <h1>${L("Request a workspace", "اطلب مساحة عمل")}</h1>
+    <p class="lead">${L("Tell us what you need — our matching engine finds the best options across the Kingdom and our team handles viewings, pricing and the lease.", "أخبرنا باحتياجك — محرّك المطابقة يجد أفضل الخيارات في المملكة، وفريقنا يتولّى المعاينة والتسعير والعقد.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <form id="ws-req" novalidate>
+      <div class="join-grid">
+        <div class="field"><label for="wr-purpose">${L("Purpose", "الغرض")}</label><select id="wr-purpose"><option value="rent">${L("Rent", "إيجار")}</option><option value="buy">${L("Buy", "شراء")}</option></select></div>
+        <div class="field"><label for="wr-category">${L("Space type", "نوع المساحة")}</label><select id="wr-category">${catOpts}</select></div>
+        <div class="field"><label for="wr-city">${L("City", "المدينة")} *</label><select id="wr-city"><option value="">${L("Choose city", "اختر المدينة")}</option>${cityOpts}</select></div>
+        <div class="field"><label for="wr-district">${L("Preferred district", "الحي المفضّل")}</label><input type="text" id="wr-district" placeholder="${Lraw("e.g. Al Olaya", "مثال: العليا")}"></div>
+        <div class="field"><label for="wr-size">${L("Area (sqm)", "المساحة (م²)")}</label><input type="number" id="wr-size" min="0" inputmode="numeric" placeholder="${Lraw("Optional", "اختياري")}"></div>
+        <div class="field"><label for="wr-seats">${L("Seats / people", "عدد المقاعد / الأشخاص")}</label><input type="number" id="wr-seats" min="0" inputmode="numeric" placeholder="${Lraw("Optional", "اختياري")}"></div>
+        <div class="field"><label for="wr-budget">${L("Budget (SAR / year)", "الميزانية (ريال / سنوياً)")}</label><input type="number" id="wr-budget" min="0" inputmode="numeric" placeholder="${Lraw("Optional", "اختياري")}"></div>
+        <div class="field"><label for="wr-contact">${L("Your name", "اسمك")}</label><input type="text" id="wr-contact"></div>
+        <div class="field"><label for="wr-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="wr-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
+        <div class="field"><label for="wr-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="wr-email" placeholder="name@company.com"></div>
+        <div class="field field-full"><label for="wr-notes">${L("Notes (requirements, timing…)", "ملاحظات (المتطلبات، التوقيت…)")}</label><textarea id="wr-notes" rows="3"></textarea></div>
+      </div>
+      <div class="join-actions">
+        <button type="submit" class="btn btn-primary btn-lg" id="wr-submit">${L("Send request", "أرسل الطلب")}</button>
+        <p class="emp-note">${L("We reply within working hours (Sun–Thu, 9am–6pm) and on WhatsApp 24/7.", "نرد خلال ساعات العمل (الأحد–الخميس 9ص–6م) وعلى واتساب 24/7.")}</p>
+      </div>
+      <div class="form-success" hidden id="wr-result"></div>
+    </form>
+  </div></section>`;
+  return page({ title: Lraw("Request a workspace — Business Partner", "اطلب مساحة عمل — بيزنس بارتنر"), desc: Lraw("Tell us your workspace requirements and we match you with the best options in Saudi Arabia.", "أخبرنا بمتطلبات مساحتك ونطابقك مع أفضل الخيارات في السعودية."), active: "/workspaces", path: "/workspace-request", body });
+}
+
 function buildCareers() {
   const c = site.careers;
   const f = c.seeker.fields;
@@ -3384,6 +3454,8 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}employers.html`, buildEmployers());
   write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
+  write(`${pre}workspaces.html`, buildWorkspaces());
+  write(`${pre}workspace-request.html`, buildWorkspaceRequest());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
   write(`${pre}checkout.html`, buildCheckout());
@@ -3413,7 +3485,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
