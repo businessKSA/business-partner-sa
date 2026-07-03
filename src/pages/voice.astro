@@ -239,20 +239,33 @@ const WEBHOOK_URL =
               body: JSON.stringify({ action: 'sendMessage', sessionId: sid, chatInput: msg })
             });
             let reply = '';
+            let isError = !res.ok;
             const raw = await res.text();
             try {
               const data = JSON.parse(raw);
-              reply = data.output ?? data.text ?? data.reply ?? data.message ?? data.answer ?? '';
-              if (!reply && typeof data === 'object') reply = '';
+              if (data && (data.output || data.text || data.reply || data.answer)) {
+                reply = data.output ?? data.text ?? data.reply ?? data.answer;
+              } else if (data && (data.message || data.code || data.error || data.stack)) {
+                isError = true; // شكل خطأ n8n
+              } else if (typeof data === 'string') {
+                reply = data;
+              }
             } catch (_) {
-              reply = raw;
+              if (/error in workflow|too many requests|quota|<html/i.test(raw)) isError = true;
+              else reply = raw;
             }
             reply = (typeof reply === 'string' ? reply : JSON.stringify(reply)).trim();
-            if (!reply) reply = 'تم استلام طلبك. لحظة وأرجع لك.';
-            thinking.textContent = reply;
+            if (isError || !reply) {
+              const friendly = 'الفريق مشغول جداً الحين ووصلنا حد الاستخدام المجاني اليومي لمحرّك الذكاء. جرّب بعد شوي، أو فعّل الفوترة عشان يشتغل بدون توقف.';
+              thinking.textContent = friendly;
+              thinking.style.opacity = '.85';
+              setStatus('توقّف مؤقت — انتهت الحصة المجانية');
+            } else {
+              thinking.textContent = reply;
+              speak(reply);
+              setStatus('اضغط للتحدث');
+            }
             log.scrollTop = log.scrollHeight;
-            speak(reply);
-            setStatus('اضغط للتحدث');
           } catch (err) {
             thinking.textContent = 'تعذّر الاتصال بالفريق حالياً. تأكد من الاتصال بالإنترنت وحاول مرة ثانية.';
             setStatus('خطأ في الاتصال');
