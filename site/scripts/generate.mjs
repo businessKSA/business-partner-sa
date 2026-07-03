@@ -2999,6 +2999,10 @@ function buildConnect() {
     .cc-top{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.7rem}
     .cc-ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;background:#f1f4fb}
     .cc-ic svg{width:26px;height:26px;display:block}
+    a.cc-ic{text-decoration:none;transition:transform .12s,box-shadow .12s}
+    a.cc-ic:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,27,90,.12)}
+    .m-site{display:inline-block;margin-top:.4rem;color:var(--navy);font-weight:600;font-size:.82rem;text-decoration:none}
+    .m-site:hover{text-decoration:underline}
     .cc-t{flex:1}
     .cc-t h3{font-size:1.08rem;color:var(--navy);margin-bottom:.1rem}
     .cc-t .u{font-size:.85rem;color:var(--muted)}
@@ -3199,6 +3203,17 @@ function buildConnect() {
       sheets:'CRM / Sheets — updates customers & deals',
       crm:'CRM / Sheets — updates customers & deals'
     };
+    var URLS={
+      gmail:'https://mail.google.com',
+      gcal:'https://calendar.google.com',
+      notion:'https://www.notion.so',
+      slack:'https://slack.com',
+      whatsapp:'https://business.whatsapp.com',
+      ms:'https://www.microsoft.com/microsoft-365',
+      drive:'https://drive.google.com',
+      sheets:'https://www.google.com/sheets/about',
+      crm:'https://www.google.com/sheets/about'
+    };
     var SKEY='bp_connect_demo_v1';
     var st={}; try{st=JSON.parse(localStorage.getItem(SKEY)||'{}')}catch(e){st={}}
     var grid=document.getElementById('cgrid');
@@ -3207,7 +3222,7 @@ function buildConnect() {
       var card=document.createElement('div');
       card.className='cc'; card.dataset.id=t.id;
       card.innerHTML=
-        '<div class="cc-top"><span class="cc-ic">'+(ICONS[t.id]||t.ic)+'</span>'+
+        '<div class="cc-top"><a class="cc-ic" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener" title="'+t.name+' ↗">'+(ICONS[t.id]||t.ic)+'</a>'+
           '<div class="cc-t"><h3>'+t.name+'</h3><div class="u">'+t.unlock+'</div><div class="uEn">'+(EN[t.id]||'')+'</div></div>'+
           '<span class="cc-state '+(on?'on':'')+'">'+(on?'✓ متصل':'غير متصل')+'</span></div>'+
         '<div class="cc-tags"><span class="tag '+(t.type==='easy'?'easy':(t.type==='cost'?'cost':'token'))+'">'+ (t.type==='easy'?'ربط بضغطة':(t.type==='cost'?'فيه تكلفة على الأداة':'يحتاج توكن')) +'</span></div>'+
@@ -3222,7 +3237,7 @@ function buildConnect() {
       cur=t;
       document.getElementById('m-ic').innerHTML=ICONS[t.id]||t.ic;
       document.getElementById('m-title').textContent='ربط '+t.name;
-      document.getElementById('m-lead').textContent=t.lead;
+      document.getElementById('m-lead').innerHTML=t.lead.replace(/&/g,'&amp;').replace(/</g,'&lt;')+' <a class="m-site" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener">افتح موقع '+t.name+' ↗</a>';
       var s='';
       if(t.pay) s+='<div class="paynote"><span>💳</span><span>'+t.pay+'</span></div>';
       t.steps.forEach(function(step,i){ s+='<div class="step"><div class="n">'+(i+1)+'</div><div class="tx">'+step.t+'</div></div>'; });
@@ -3240,7 +3255,7 @@ function buildConnect() {
       var badge=card.querySelector('.cc-state'); badge.textContent='✓ متصل'; badge.classList.add('on');
       card.querySelector('.btn-connect').textContent='إدارة';
       closeModal();
-      alert('✅ (نموذج) تم الربط. في النسخة الحقيقية تفتح هنا صفحة تسجيل الدخول الآمن للأداة.');
+      window.open(URLS[cur.id]||'#','_blank','noopener');
     };
     document.getElementById('m-help').onclick=function(){ if(cur) requestHelp(cur); };
     function requestHelp(t){
@@ -3327,6 +3342,10 @@ function buildPortal() {
     .cc-top{display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.5rem}
     .cc-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;background:#f1f4fb;flex-shrink:0}
     .cc-ic svg{width:24px;height:24px;display:block}
+    a.cc-ic{text-decoration:none;transition:transform .12s,box-shadow .12s}
+    a.cc-ic:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,27,90,.12)}
+    .m-site{display:inline-block;margin-top:.4rem;color:var(--navy);font-weight:600;font-size:.82rem;text-decoration:none}
+    .m-site:hover{text-decoration:underline}
     .cc-t{flex:1}
     .cc-t h3{font-size:1rem;color:var(--navy)}
     .cc-t .u{font-size:.8rem;color:var(--muted)}
@@ -3464,6 +3483,17 @@ function buildPortal() {
       sheets:'CRM / Sheets — updates customers & deals',
       crm:'CRM / Sheets — updates customers & deals'
     };
+    var URLS={
+      gmail:'https://mail.google.com',
+      gcal:'https://calendar.google.com',
+      notion:'https://www.notion.so',
+      slack:'https://slack.com',
+      whatsapp:'https://business.whatsapp.com',
+      ms:'https://www.microsoft.com/microsoft-365',
+      drive:'https://drive.google.com',
+      sheets:'https://www.google.com/sheets/about',
+      crm:'https://www.google.com/sheets/about'
+    };
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
     var CODES=['BP-DEMO','BP2026'];
     var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub'};
@@ -3543,7 +3573,7 @@ function buildPortal() {
       TOOLS.forEach(function(t){
         var on=!!tst[t.id]; var tagtxt=t.type==='easy'?'ربط بضغطة':(t.type==='cost'?'فيه تكلفة':'يحتاج توكن');
         var d=document.createElement('div'); d.className='cc'; d.dataset.id=t.id;
-        d.innerHTML='<div class="cc-top"><span class="cc-ic">'+(ICONS[t.id]||t.ic)+'</span><div class="cc-t"><h3>'+t.name+'</h3><div class="u">'+t.u+'</div><div class="uEn">'+(EN[t.id]||'')+'</div></div><span class="cc-state '+(on?'on':'')+'">'+(on?'✓ متصل':'غير متصل')+'</span></div>'+
+        d.innerHTML='<div class="cc-top"><a class="cc-ic" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener" title="'+t.name+' ↗">'+(ICONS[t.id]||t.ic)+'</a><div class="cc-t"><h3>'+t.name+'</h3><div class="u">'+t.u+'</div><div class="uEn">'+(EN[t.id]||'')+'</div></div><span class="cc-state '+(on?'on':'')+'">'+(on?'✓ متصل':'غير متصل')+'</span></div>'+
           '<span class="cc-tag '+t.type+'">'+tagtxt+'</span>'+
           '<div class="cc-actions"><button class="cbtn">'+(on?'إدارة':'🔗 اربط')+'</button><button class="hbtn">🛠️ نركّبها لك</button></div>';
         d.querySelector('.cbtn').onclick=function(){ openTool(t); };
@@ -3553,7 +3583,7 @@ function buildPortal() {
     }
     var ov=$('ov'), curTool=null;
     function openTool(t){
-      curTool=t; $('mo-ic').innerHTML=ICONS[t.id]||t.ic; $('mo-t').textContent='ربط '+t.name; $('mo-l').textContent=t.lead;
+      curTool=t; $('mo-ic').innerHTML=ICONS[t.id]||t.ic; $('mo-t').textContent='ربط '+t.name; $('mo-l').innerHTML=t.lead.replace(/&/g,'&amp;').replace(/</g,'&lt;')+' <a class="m-site" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener">افتح موقع '+t.name+' ↗</a>';
       var s=''; if(t.pay) s+='<div class="pay">💳 '+t.pay+'</div>';
       t.steps.forEach(function(x,i){ s+='<div class="stp"><div class="n">'+(i+1)+'</div><div class="tx">'+x+'</div></div>'; });
       $('mo-s').innerHTML=s; $('mo-do').textContent=tst[t.id]?'✓ متصل — إعادة الربط':'🔗 ربط الآن'; ov.classList.add('on');
@@ -3563,7 +3593,7 @@ function buildPortal() {
     $('mo-do').onclick=function(){
       if(!curTool) return; tst[curTool.id]=true; localStorage.setItem(TKEY,JSON.stringify(tst));
       var c=document.querySelector('.cc[data-id="'+curTool.id+'"]'); if(c){ var b=c.querySelector('.cc-state'); b.textContent='✓ متصل'; b.classList.add('on'); c.querySelector('.cbtn').textContent='إدارة'; }
-      ov.classList.remove('on'); alert('✅ (نموذج) تم الربط. في النسخة الحقيقية تفتح صفحة تسجيل الدخول الآمن للأداة.');
+      ov.classList.remove('on'); window.open(URLS[curTool.id]||'#','_blank','noopener');
     };
     $('mo-help').onclick=function(){ if(curTool) helpTool(curTool); };
     function helpTool(t){ alert('🛠️ طلب إعداد «'+t.name+'» — نركّب لك الأداة ونسلّمك الموظف جاهز مقابل رسوم إعداد.'); }
