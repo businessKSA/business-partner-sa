@@ -29,6 +29,19 @@ copyAsset("logo.png", "logo.png");
 copyAsset("favicon.svg", "favicon.svg");
 copyAsset("Facebook Cover Photo.png", "cover.png");
 
+// Copy connector brand logos (open-source CC0 marks) into the static output so
+// the /connect and /portal pages can show real service logos.
+{
+  const logosFrom = path.join(ROOT, "..", "public", "logos");
+  if (fs.existsSync(logosFrom)) {
+    const to = path.join(ROOT, "assets/img/logos");
+    fs.mkdirSync(to, { recursive: true });
+    for (const f of fs.readdirSync(logosFrom)) {
+      if (f.endsWith(".svg")) fs.copyFileSync(path.join(logosFrom, f), path.join(to, f));
+    }
+  }
+}
+
 const site = read("data/site.json");
 const services = read("data/services.json");
 const categories = read("data/categories.json");
@@ -2999,6 +3012,7 @@ function buildConnect() {
     .cc-top{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.7rem}
     .cc-ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;background:#f1f4fb}
     .cc-ic svg{width:26px;height:26px;display:block}
+    .cc-ic .brand{width:28px;height:28px;display:block;object-fit:contain}
     a.cc-ic{text-decoration:none;transition:transform .12s,box-shadow .12s}
     a.cc-ic:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,27,90,.12)}
     .m-site{display:inline-block;margin-top:.4rem;color:var(--navy);font-weight:600;font-size:.82rem;text-decoration:none}
@@ -3214,6 +3228,8 @@ function buildConnect() {
       sheets:'https://www.google.com/sheets/about',
       crm:'https://www.google.com/sheets/about'
     };
+    var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
+    function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var SKEY='bp_connect_demo_v1';
     var st={}; try{st=JSON.parse(localStorage.getItem(SKEY)||'{}')}catch(e){st={}}
     var grid=document.getElementById('cgrid');
@@ -3222,7 +3238,7 @@ function buildConnect() {
       var card=document.createElement('div');
       card.className='cc'; card.dataset.id=t.id;
       card.innerHTML=
-        '<div class="cc-top"><a class="cc-ic" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener" title="'+t.name+' ↗">'+(ICONS[t.id]||t.ic)+'</a>'+
+        '<div class="cc-top"><a class="cc-ic" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener" title="'+t.name+' ↗">'+mark(t)+'</a>'+
           '<div class="cc-t"><h3>'+t.name+'</h3><div class="u">'+t.unlock+'</div><div class="uEn">'+(EN[t.id]||'')+'</div></div>'+
           '<span class="cc-state '+(on?'on':'')+'">'+(on?'✓ متصل':'غير متصل')+'</span></div>'+
         '<div class="cc-tags"><span class="tag '+(t.type==='easy'?'easy':(t.type==='cost'?'cost':'token'))+'">'+ (t.type==='easy'?'ربط بضغطة':(t.type==='cost'?'فيه تكلفة على الأداة':'يحتاج توكن')) +'</span></div>'+
@@ -3235,7 +3251,7 @@ function buildConnect() {
     var ov=document.getElementById('ov'), cur=null;
     function openModal(t){
       cur=t;
-      document.getElementById('m-ic').innerHTML=ICONS[t.id]||t.ic;
+      document.getElementById('m-ic').innerHTML=mark(t);
       document.getElementById('m-title').textContent='ربط '+t.name;
       document.getElementById('m-lead').innerHTML=t.lead.replace(/&/g,'&amp;').replace(/</g,'&lt;')+' <a class="m-site" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener">افتح موقع '+t.name+' ↗</a>';
       var s='';
@@ -3342,6 +3358,7 @@ function buildPortal() {
     .cc-top{display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.5rem}
     .cc-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;background:#f1f4fb;flex-shrink:0}
     .cc-ic svg{width:24px;height:24px;display:block}
+    .cc-ic .brand{width:26px;height:26px;display:block;object-fit:contain}
     a.cc-ic{text-decoration:none;transition:transform .12s,box-shadow .12s}
     a.cc-ic:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,27,90,.12)}
     .m-site{display:inline-block;margin-top:.4rem;color:var(--navy);font-weight:600;font-size:.82rem;text-decoration:none}
@@ -3494,6 +3511,8 @@ function buildPortal() {
       sheets:'https://www.google.com/sheets/about',
       crm:'https://www.google.com/sheets/about'
     };
+    var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
+    function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
     var CODES=['BP-DEMO','BP2026'];
     var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub'};
@@ -3573,7 +3592,7 @@ function buildPortal() {
       TOOLS.forEach(function(t){
         var on=!!tst[t.id]; var tagtxt=t.type==='easy'?'ربط بضغطة':(t.type==='cost'?'فيه تكلفة':'يحتاج توكن');
         var d=document.createElement('div'); d.className='cc'; d.dataset.id=t.id;
-        d.innerHTML='<div class="cc-top"><a class="cc-ic" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener" title="'+t.name+' ↗">'+(ICONS[t.id]||t.ic)+'</a><div class="cc-t"><h3>'+t.name+'</h3><div class="u">'+t.u+'</div><div class="uEn">'+(EN[t.id]||'')+'</div></div><span class="cc-state '+(on?'on':'')+'">'+(on?'✓ متصل':'غير متصل')+'</span></div>'+
+        d.innerHTML='<div class="cc-top"><a class="cc-ic" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener" title="'+t.name+' ↗">'+mark(t)+'</a><div class="cc-t"><h3>'+t.name+'</h3><div class="u">'+t.u+'</div><div class="uEn">'+(EN[t.id]||'')+'</div></div><span class="cc-state '+(on?'on':'')+'">'+(on?'✓ متصل':'غير متصل')+'</span></div>'+
           '<span class="cc-tag '+t.type+'">'+tagtxt+'</span>'+
           '<div class="cc-actions"><button class="cbtn">'+(on?'إدارة':'🔗 اربط')+'</button><button class="hbtn">🛠️ نركّبها لك</button></div>';
         d.querySelector('.cbtn').onclick=function(){ openTool(t); };
@@ -3583,7 +3602,7 @@ function buildPortal() {
     }
     var ov=$('ov'), curTool=null;
     function openTool(t){
-      curTool=t; $('mo-ic').innerHTML=ICONS[t.id]||t.ic; $('mo-t').textContent='ربط '+t.name; $('mo-l').innerHTML=t.lead.replace(/&/g,'&amp;').replace(/</g,'&lt;')+' <a class="m-site" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener">افتح موقع '+t.name+' ↗</a>';
+      curTool=t; $('mo-ic').innerHTML=mark(t); $('mo-t').textContent='ربط '+t.name; $('mo-l').innerHTML=t.lead.replace(/&/g,'&amp;').replace(/</g,'&lt;')+' <a class="m-site" href="'+(URLS[t.id]||'#')+'" target="_blank" rel="noopener">افتح موقع '+t.name+' ↗</a>';
       var s=''; if(t.pay) s+='<div class="pay">💳 '+t.pay+'</div>';
       t.steps.forEach(function(x,i){ s+='<div class="stp"><div class="n">'+(i+1)+'</div><div class="tx">'+x+'</div></div>'; });
       $('mo-s').innerHTML=s; $('mo-do').textContent=tst[t.id]?'✓ متصل — إعادة الربط':'🔗 ربط الآن'; ov.classList.add('on');
