@@ -57,7 +57,7 @@
     <div class="topbar">
       <div class="badge">🔒 لوحة داخلية للمالك — تحكم واختبار كل موظف</div>
       <h1>🎛️ لوحة تحكم فريق الإيجنتس</h1>
-      <p>كل موظف = إيجنت ذكي مستقل يعمل على Google Gemini (مجاني). جرّبه مباشرة هنا، وتحكم في <b>تشغيله/إيقافه</b> و<b>قفله حتى الدفع</b>. الإعدادات تُحفظ في هذا المتصفح.</p>
+      <p>كل موظف = إيجنت ذكي مستقل متخصص في مجاله. جرّبه مباشرة هنا، وتحكم في <b>تشغيله/إيقافه</b> و<b>قفله حتى الدفع</b>. الإعدادات تُحفظ في هذا المتصفح.</p>
       <div class="modes">
         <span>وضع العرض:</span>
         <label><input type="radio" name="mode" value="owner" checked /> 🧑‍💼 مالك (اختبار كل شيء)</label>
@@ -98,7 +98,7 @@
         '<div class="card-top">'+
           '<span class="emoji">'+a.emoji+'</span>'+
           '<div class="title"><h2>'+a.name+' <span class="en">'+a.en+'</span></h2><div class="role">'+a.role+'</div></div>'+
-          '<span class="livebadge">🟢 حي · Gemini</span>'+
+          '<span class="livebadge">🟢 نشط</span>'+
         '</div>'+
         '<div class="controls">'+
           '<label class="toggle"><input type="checkbox" class="ctl-active" checked /> <span>مُفعّل</span></label>'+
@@ -167,11 +167,11 @@
         try { data = JSON.parse(text); } catch(e){ data = { reply: text }; }
         thinking.textContent = data.reply || 'لا يوجد رد.';
         if (data.proposal_ready) pushMsg(card, '✅ أنشأ Draft Proposal بحالة «بانتظار الموافقة».', 'sys');
-        if (data.engine_fallback) pushMsg(card, 'ℹ️ استُخدم الرد الاحتياطي (تعذّر المحرك مؤقتاً).', 'sys');
+        if (data.engine_fallback) pushMsg(card, 'ℹ️ الخدمة مزدحمة لحظياً — حاول مرة أخرى بعد ثوانٍ.', 'sys');
       })
       .catch(function(e){
         clearTimeout(timer);
-        thinking.textContent = (e && e.name === 'AbortError') ? 'انتهت المهلة — حاول مرة أخرى.' : 'تعذّر الاتصال بالوكيل. تأكد أن الورك فلو مُفعّل في n8n.';
+        thinking.textContent = (e && e.name === 'AbortError') ? 'انتهت المهلة — حاول مرة أخرى.' : 'تعذّر الاتصال مؤقتاً — حاول مرة أخرى بعد لحظات.';
       })
       .then(function(){ btn.disabled = false; applyLock(card); });
     }
