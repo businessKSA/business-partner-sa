@@ -13,8 +13,52 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
+// ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
+const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
+const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
+const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
+const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
+const NOTION_VERSION = "2022-06-28";
+
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// Write a lead into the Sales Pipeline CRM (Stage=New, Source=Website). Best-effort.
+async function crmLead({ name, phone, email, topic, date, notes, ref }) {
+  if (!NOTION_TOKEN) return { ok: false };
+  const today = new Date().toISOString().slice(0, 10);
+  const props = {
+    "Opportunity Name": { title: [{ text: { content: `استشارة ${topic || ""} — ${name} (${ref})`.slice(0, 200) } }] },
+    "Stage": { select: { name: "New" } },
+    "Lead Source": { select: { name: "Website" } },
+    "Human Required": { checkbox: true },
+    "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · ملاحظات: " + notes : ""}`.slice(0, 1900) } }] },
+    "Last Activity": { date: { start: today } },
+  };
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date || "")) props["Meeting Date"] = { date: { start: date } };
+  try {
+    const r = await fetch("https://api.notion.com/v1/pages", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ parent: { database_id: CRM_DB }, properties: props }),
+    });
+    if (!r.ok) console.error("CRM lead error", r.status, (await r.text()).slice(0, 300));
+    return { ok: r.ok };
+  } catch (e) { console.error("CRM lead exception", String(e).slice(0, 150)); return { ok: false }; }
+}
+
+// Auto-subscribe the lead's email to the Resend newsletter audience. Best-effort.
+async function addToAudience(email, name) {
+  if (!RESEND_API_KEY || !RESEND_AUDIENCE || !isEmail(email)) return;
+  try {
+    const p = String(name || "").trim().split(/\s+/).filter(Boolean);
+    await fetch(`https://api.resend.com/audiences/${RESEND_AUDIENCE}/contacts`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ email, first_name: p[0] || undefined, last_name: p.slice(1).join(" ") || undefined, unsubscribed: false }),
+    });
+  } catch {}
+}
 
 // Build a Google Calendar template URL for a 1-hour meeting (Riyadh time).
 function gcalUrl({ topic, date, time, notes }) {
@@ -97,6 +141,9 @@ export default async function handler(req, res) {
   const [teamSent, clientSent] = await Promise.all([
     sendEmail(TEAM_EMAIL, `حجز استشارة جديد ${ref} — ${name}`, teamHtml),
     sendEmail(email, `تأكيد حجز استشارتك ${ref} — Business Partner`, clientHtml),
+    // Register the lead in the CRM and add to the newsletter audience (best-effort).
+    crmLead({ name, phone, email, topic, date, notes, ref }),
+    addToAudience(email, name),
   ]);
 
   res.statusCode = 200;
