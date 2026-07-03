@@ -62,26 +62,36 @@ export default async function handler(req, res) {
   const code = (url.searchParams.get("code") || "").trim();
   const unlocked = !!code && CODES.includes(code);
 
-  // Server-side Notion filter: only the website-sourced / active candidates, capped.
-  const body = {
-    page_size: 60,
+  // Server-side Notion filter: only the website-sourced / active candidates.
+  const base = {
+    page_size: 100,
     sorts: [{ property: "Candidate ID", direction: "descending" }],
   };
-  if (qField) body.filter = { property: "Field", select: { equals: qField } };
+  if (qField) base.filter = { property: "Field", select: { equals: qField } };
 
   try {
-    const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!r.ok) {
-      console.error("Notion query error", r.status, (await r.text()).slice(0, 400));
-      res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    // Page through the whole database so employers see ALL candidates, not just
+    // the first page (Notion caps a page at 100). Guarded to a sane maximum.
+    let results = [];
+    let cursor = null;
+    for (let guard = 0; guard < 25; guard++) {
+      const body = cursor ? { ...base, start_cursor: cursor } : base;
+      const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        console.error("Notion query error", r.status, (await r.text()).slice(0, 400));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+      }
+      const data = await r.json();
+      results = results.concat(data.results || []);
+      if (!data.has_more || !data.next_cursor) break;
+      cursor = data.next_cursor;
     }
-    const data = await r.json();
-    let rows = (data.results || []).map((pg) => {
+    let rows = results.map((pg) => {
       const p = pg.properties || {};
       const name = txt(p["Candidate Name"]);
       const nameEn = txt(p["Name (EN)"]);
