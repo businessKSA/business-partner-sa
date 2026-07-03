@@ -1,0 +1,184 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>بوابة الموظفين الأذكياء | Business Partner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--navy:#0B1B5A;--navy-900:#081345;--green:#16a34a;--green-soft:#dcfce7;--bg:#F5F6FA;--surface:#fff;--line:#E7EAF3;--text:#1F2430;--muted:#6a7085;--shadow:0 10px 34px rgba(11,27,90,.07)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100dvh}
+    button{font-family:inherit;cursor:pointer}
+    .topbar{background:var(--navy);color:#fff;height:58px;display:flex;align-items:center;gap:12px;padding:0 16px}
+    .topbar .brand{font-weight:700}
+    .topbar .brand small{display:block;font-weight:400;font-size:11px;opacity:.8}
+    .topbar .sp{flex:1}
+    .topbar .who{font-size:13px;opacity:.9}
+    .topbar button{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px}
+    .center{min-height:calc(100dvh - 58px);display:flex;align-items:center;justify-content:center;padding:1.2rem}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:2rem 1.8rem;width:100%;max-width:430px;text-align:center}
+    .card h1{color:var(--navy);font-size:1.4rem;margin-bottom:.4rem}
+    .card p.sub{color:var(--muted);font-size:.9rem;margin-bottom:1.3rem}
+    .field{text-align:right;margin-bottom:.9rem}
+    .field label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:.3rem}
+    .field input{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:.7rem .8rem;font:inherit;outline:none}
+    .field input:focus{border-color:var(--navy)}
+    .bigbtn{width:100%;background:var(--navy);color:#fff;border:0;border-radius:12px;padding:.8rem;font-weight:700;font-size:1rem;margin-top:.3rem}
+    .bigbtn.green{background:var(--green)}
+    .err{color:#dc2626;font-size:.82rem;min-height:1.1em;margin-top:.5rem}
+    .muted{color:var(--muted);font-size:.82rem;margin-top:1rem;line-height:1.7}
+    .hint-code{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:.55rem .7rem;font-size:.8rem;margin-top:.9rem}
+    .linkbtn{background:none;border:0;color:var(--navy);font-weight:700;font-size:.85rem;text-decoration:underline;margin-top:.7rem}
+    .ws{max-width:1050px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
+    .ws h2{color:var(--navy);font-size:1.25rem;margin-bottom:.2rem}
+    .ws .lead{color:var(--muted);font-size:.9rem;margin-bottom:1.1rem}
+    .agents{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.1rem}
+    .ag{background:var(--surface);border:1.5px solid var(--line);border-radius:13px;padding:.6rem .85rem;display:flex;gap:.5rem;align-items:center;cursor:pointer;transition:.12s}
+    .ag:hover{border-color:var(--navy)}
+    .ag.sel{border-color:var(--navy);background:#eef1fb}
+    .ag .e{font-size:1.3rem}
+    .ag b{font-size:.92rem;color:var(--navy)}
+    .ag span{display:block;font-size:.72rem;color:var(--muted)}
+    .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;height:70vh;min-height:440px}
+    .p-head{background:#f8fafc;border-bottom:1px solid var(--line);padding:.8rem 1rem;display:flex;gap:.6rem;align-items:center}
+    .p-head .e{font-size:1.5rem}
+    .p-head b{color:var(--navy)}
+    .p-head span{display:block;font-size:.78rem;color:var(--green);font-weight:600}
+    .chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.55rem;background:#fbfcfe}
+    .msg{padding:.6rem .8rem;border-radius:13px;max-width:80%;white-space:pre-wrap;font-size:.92rem}
+    .msg.me{background:var(--navy);color:#fff;align-self:flex-start;border-start-start-radius:3px}
+    .msg.bot{background:#fff;border:1px solid var(--line);align-self:flex-end;border-start-end-radius:3px}
+    .msg.empty{color:var(--muted);align-self:center;background:none;font-size:.85rem}
+    .composer{display:flex;gap:.5rem;padding:.7rem;border-top:1px solid var(--line);background:#fff}
+    .composer input{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:.65rem .8rem;font:inherit;outline:none}
+    .composer input:focus{border-color:var(--navy)}
+    .composer button{background:var(--green);color:#fff;border:0;border-radius:11px;padding:0 1.3rem;font-weight:700}
+    .composer button:disabled{opacity:.5}
+    @media(max-width:560px){.panel{height:66vh}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
+    <div class="sp"></div>
+    <div class="who" id="who"></div>
+    <button id="logout" style="display:none">خروج</button>
+  </div>
+  <div class="center" id="screen-login">
+    <div class="card">
+      <h1>تسجيل الدخول</h1>
+      <p class="sub">ادخل بريدك للوصول إلى موظفيك الأذكياء.</p>
+      <div class="field"><label>البريد الإلكتروني</label><input id="email" type="email" placeholder="you@company.com" /></div>
+      <div class="field"><label>اسم الشركة (اختياري)</label><input id="company" type="text" placeholder="شركتك" /></div>
+      <button class="bigbtn" id="loginBtn">دخول</button>
+      <div class="err" id="loginErr"></div>
+      <p class="muted">بالدخول أنت توافق على الاستخدام الآمن. لا نطلب كلمات مرور حساسة ولا OTP.</p>
+    </div>
+  </div>
+  <div class="center" id="screen-gate" style="display:none">
+    <div class="card">
+      <h1>فعّل اشتراكك</h1>
+      <p class="sub">موظفوك الأذكياء يعملون بعد تفعيل الاشتراك.</p>
+      <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="ادخل كود الاشتراك" style="text-align:center;letter-spacing:1px" /></div>
+      <button class="bigbtn green" id="codeBtn">تفعيل</button>
+      <div class="err" id="codeErr"></div>
+      <div class="hint-code">💡 بعد الدفع نعطيك كود التفعيل. للتجربة الآن استخدم الكود: <b>BP-DEMO</b></div>
+      <button class="linkbtn" id="payBtn">🧪 محاكاة دفع وتفعيل فوري (تجريبي)</button>
+      <p class="muted">في النسخة النهائية: بوابة دفع فعلية + اشتراك شهري، والكود يصدر تلقائياً بعد الدفع.</p>
+    </div>
+  </div>
+  <div id="screen-ws" style="display:none">
+    <div class="ws">
+      <h2>👋 أهلاً بك — اختر موظفك</h2>
+      <p class="lead">اختر موظفاً وابدأ التعامل معه مباشرة. كل موظف خبير في مجاله.</p>
+      <div class="agents" id="agents"></div>
+      <div class="panel">
+        <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div></div>
+        <div class="chat" id="chat"><div class="msg empty">اختر موظفاً من الأعلى وابدأ المحادثة.</div></div>
+        <div class="composer"><input id="msg" type="text" placeholder="اكتب رسالتك…" disabled /><button id="send" disabled>إرسال</button></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var N8N_BASE='https://businesspartnerai.app.n8n.cloud/webhook';
+    var AGENTS=[
+      {slug:'mazen',path:'mazen-intake',name:'مازن',role:'عمليات وخدمة عملاء',e:'🧭'},
+      {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
+      {slug:'badr',path:'badr-intake',name:'بدر',role:'مبيعات وتطوير أعمال',e:'💼'},
+      {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
+      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'},
+      {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
+      {slug:'abdulaziz',path:'abdulaziz-intake',name:'عبدالعزيز',role:'قانوني وامتثال',e:'⚖️'}
+    ];
+    var CODES=['BP-DEMO','BP2026'];
+    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub'};
+    function $(id){return document.getElementById(id);}
+    function show(id){['screen-login','screen-gate','screen-ws'].forEach(function(s){$(s).style.display=(s===id)?'':'none';});}
+    var email=localStorage.getItem(LS.email)||'';
+    var subbed=localStorage.getItem(LS.sub)==='1';
+    var cur=null;
+    function route(){
+      if(!email){ show('screen-login'); $('who').textContent=''; $('logout').style.display='none'; return; }
+      $('who').textContent=email; $('logout').style.display='';
+      if(!subbed){ show('screen-gate'); return; }
+      show('screen-ws'); buildAgents();
+    }
+    $('loginBtn').onclick=function(){
+      var e=($('email').value||'').trim();
+      if(!e || e.indexOf('@')<0){ $('loginErr').textContent='ادخل بريداً صحيحاً.'; return; }
+      email=e; localStorage.setItem(LS.email,e);
+      localStorage.setItem(LS.company,($('company').value||'').trim());
+      route();
+    };
+    $('email').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
+    $('codeBtn').onclick=function(){
+      var c=($('code').value||'').trim().toUpperCase();
+      if(CODES.indexOf(c)>=0){ subbed=true; localStorage.setItem(LS.sub,'1'); route(); }
+      else $('codeErr').textContent='كود غير صحيح. تأكد من الكود أو استخدم زر المحاكاة.';
+    };
+    $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('codeBtn').click();});
+    $('payBtn').onclick=function(){ subbed=true; localStorage.setItem(LS.sub,'1'); route(); };
+    $('logout').onclick=function(){ localStorage.removeItem(LS.email); email=''; route(); };
+    function buildAgents(){
+      var box=$('agents'); if(box.dataset.done) return; box.dataset.done='1';
+      AGENTS.forEach(function(a){
+        var el=document.createElement('div'); el.className='ag'; el.dataset.slug=a.slug;
+        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
+        el.onclick=function(){ selectAgent(a,el); };
+        box.appendChild(el);
+      });
+    }
+    function selectAgent(a,el){
+      cur=a;
+      var chips=document.querySelectorAll('.ag'); for(var i=0;i<chips.length;i++) chips[i].classList.remove('sel');
+      el.classList.add('sel');
+      $('ph-e').textContent=a.e; $('ph-n').textContent=a.name; $('ph-r').textContent=a.role;
+      $('chat').innerHTML='<div class="msg empty">ابدأ محادثتك مع '+a.name+' 👋</div>';
+      $('msg').disabled=false; $('send').disabled=false; $('msg').focus();
+    }
+    function push(text,cls){
+      var c=$('chat'); var em=c.querySelector('.empty'); if(em) em.remove();
+      var d=document.createElement('div'); d.className='msg '+cls; d.textContent=text; c.appendChild(d); c.scrollTop=c.scrollHeight; return d;
+    }
+    function send(){
+      if(!cur) return;
+      var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
+      inp.value=''; push(m,'me');
+      var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
+      var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},60000);
+      fetch(N8N_BASE+'/'+cur.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m}),signal:ctrl.signal})
+        .then(function(r){return r.text();})
+        .then(function(t){ clearTimeout(timer); var d={}; try{d=JSON.parse(t);}catch(e){d={reply:t};} think.textContent=d.reply||'لا يوجد رد.'; })
+        .catch(function(e){ clearTimeout(timer); think.textContent=(e&&e.name==='AbortError')?'انتهت المهلة — حاول مرة أخرى.':'تعذّر الاتصال مؤقتاً — حاول مرة أخرى.'; })
+        .then(function(){ btn.disabled=false; });
+    }
+    $('send').onclick=send;
+    $('msg').addEventListener('keydown',function(ev){if(ev.key==='Enter')send();});
+    route();
+  </script>
+</body>
+</html>
