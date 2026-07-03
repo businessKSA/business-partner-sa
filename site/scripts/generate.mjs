@@ -217,8 +217,6 @@ const NAV_GROUPS = [
       { href: "/services", en: "All services (93)", ar: "كل الخدمات (93)" },
       { href: "/packages", en: "Packages", ar: "الباقات" },
       { href: "/ai-agents", en: "AI Agents", ar: "الوكلاء الأذكياء" },
-      { href: "/employers", en: "Recruitment — for employers", ar: "التوظيف — لأصحاب الأعمال" },
-      { href: "/careers", en: "Jobs — for job seekers", ar: "التوظيف — للباحثين عن عمل" },
       { href: "/compliance-calculators", en: "Compliance tools", ar: "أدوات الامتثال" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
     ],
@@ -228,6 +226,13 @@ const NAV_GROUPS = [
     items: [
       { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
       { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
+    ],
+  },
+  {
+    en: "Jobs", ar: "التوظيف",
+    items: [
+      { href: "/careers", en: "For job seekers", ar: "للباحثين عن عمل" },
+      { href: "/employers", en: "For employers", ar: "لأصحاب الأعمال" },
     ],
   },
   { href: "/about", en: "About us", ar: "من نحن" },
