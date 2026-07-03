@@ -1,5 +1,6 @@
 ---
 import { htmlLangDir, buildHreflang, type Language, type TranslationObject } from '../utils/i18n';
+import AssistantFab from '../components/AssistantFab.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -86,5 +87,6 @@ const alternateLinks = buildHreflang(lang);
   <main>
     <slot />
   </main>
+  <AssistantFab />
 </body>
 </html>
