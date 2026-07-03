@@ -1,0 +1,275 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>موظفك الذكي — مركز الربط والباقات | Business Partner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --navy:#0B1B5A; --navy-700:#13246e; --navy-900:#081345;
+      --green:#16a34a; --green-soft:#dcfce7; --amber:#b45309; --amber-soft:#fef3c7;
+      --bg:#F5F6FA; --surface:#fff; --line:#E7EAF3; --text:#1F2430; --muted:#6a7085;
+      --radius:16px; --shadow:0 10px 34px rgba(11,27,90,.07);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    button{font-family:inherit;cursor:pointer}
+    .wrap{max-width:1150px;margin:0 auto;padding:0 1.1rem}
+    .hero{background:radial-gradient(1100px 500px at 75% -10%,#17307f 0%,var(--navy) 48%,var(--navy-900) 100%);color:#fff;padding:3rem 0 3.4rem;border-radius:0 0 26px 26px}
+    .hero .badge{display:inline-block;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:.32rem 1rem;font-size:.82rem;margin-bottom:1rem}
+    .hero h1{font-size:2rem;line-height:1.35;margin-bottom:.7rem}
+    .hero h1 .hi{color:#8fb4ff}
+    .hero p{opacity:.92;max-width:720px;font-size:1.02rem}
+    .hero .cta{margin-top:1.5rem;display:flex;gap:.7rem;flex-wrap:wrap}
+    .btn{border:0;border-radius:12px;padding:.8rem 1.4rem;font-weight:700;font-size:.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
+    .btn-g{background:var(--green);color:#fff}
+    .btn-o{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.28)}
+    .valuerow{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem}
+    .vitem{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:1rem 1.1rem}
+    .vitem b{display:block;font-size:1rem;margin-bottom:.15rem}
+    .vitem span{opacity:.85;font-size:.86rem}
+    section{padding:2.6rem 0}
+    .sec-head{text-align:center;max-width:720px;margin:0 auto 1.7rem}
+    .sec-head h2{font-size:1.5rem;margin-bottom:.4rem;color:var(--navy)}
+    .sec-head p{color:var(--muted)}
+    .emps{display:flex;gap:.6rem;overflow-x:auto;padding:.3rem 0 .6rem;scrollbar-width:none}
+    .emps::-webkit-scrollbar{display:none}
+    .emp{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.7rem 1rem;display:flex;gap:.55rem;align-items:center;box-shadow:var(--shadow)}
+    .emp .e{font-size:1.4rem}
+    .emp b{font-size:.95rem;color:var(--navy)}
+    .emp span{display:block;font-size:.76rem;color:var(--green);font-weight:600}
+    .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.1rem}
+    .cc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .cc-top{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.7rem}
+    .cc-ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;background:#f1f4fb}
+    .cc-t{flex:1}
+    .cc-t h3{font-size:1.08rem;color:var(--navy);margin-bottom:.1rem}
+    .cc-t .u{font-size:.85rem;color:var(--muted)}
+    .cc-state{font-size:.72rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;background:#eef1f8;color:#64748b;white-space:nowrap}
+    .cc-state.on{background:var(--green-soft);color:#065f46}
+    .cc-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 .8rem}
+    .tag{font-size:.72rem;font-weight:600;padding:.22rem .6rem;border-radius:999px}
+    .tag.easy{background:#e0f2fe;color:#075985}
+    .tag.token{background:var(--amber-soft);color:var(--amber)}
+    .tag.cost{background:#fee2e2;color:#991b1b}
+    .cc-note{font-size:.8rem;color:var(--muted);background:#fafbff;border:1px dashed var(--line);border-radius:10px;padding:.5rem .65rem;margin-bottom:.8rem;min-height:2.2em}
+    .cc-actions{display:flex;gap:.5rem;margin-top:auto}
+    .cc-actions .btn{flex:1;justify-content:center;padding:.6rem .5rem;border-radius:10px;font-size:.85rem}
+    .btn-connect{background:var(--navy);color:#fff}
+    .btn-help{background:#fff;color:var(--navy);border:1px solid var(--line)}
+    .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;align-items:stretch}
+    .pc{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.5rem 1.3rem;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .pc.feat{border:2px solid var(--navy);position:relative}
+    .pc.feat::before{content:"الأكثر طلباً";position:absolute;top:-11px;inset-inline-start:1.3rem;background:var(--navy);color:#fff;font-size:.72rem;font-weight:700;padding:.2rem .7rem;border-radius:999px}
+    .pc h3{color:var(--navy);font-size:1.2rem;margin-bottom:.2rem}
+    .pc .pr{font-size:1.7rem;font-weight:700;color:var(--text);margin:.5rem 0}
+    .pc .pr small{font-size:.85rem;color:var(--muted);font-weight:500}
+    .pc ul{list-style:none;margin:.6rem 0 1.1rem;display:flex;flex-direction:column;gap:.5rem}
+    .pc li{font-size:.88rem;padding-inline-start:1.4rem;position:relative;color:#374151}
+    .pc li::before{content:"\2714";position:absolute;inset-inline-start:0;color:var(--green);font-weight:700}
+    .pc .btn{justify-content:center;margin-top:auto}
+    .addon{background:var(--amber-soft);border:1px solid #fde68a;color:#7a5b00;border-radius:14px;padding:1.1rem 1.3rem;margin-top:1.2rem;font-size:.9rem}
+    .addon b{color:#5b4300}
+    .foot{background:var(--navy-900);color:#cdd6f5;text-align:center;padding:1.6rem 1rem;font-size:.85rem;margin-top:1rem}
+    .ov{position:fixed;inset:0;background:rgba(8,12,30,.55);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+    .ov.on{display:flex}
+    .modal{background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+    .m-head{padding:1.2rem 1.4rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.7rem;position:sticky;top:0;background:#fff}
+    .m-head .cc-ic{width:40px;height:40px;font-size:1.35rem}
+    .m-head h3{flex:1;color:var(--navy);font-size:1.15rem}
+    .m-close{background:#f1f4fb;border:0;width:32px;height:32px;border-radius:9px;font-size:1.1rem;color:#475569}
+    .m-body{padding:1.2rem 1.4rem}
+    .m-body .lead{font-size:.9rem;color:var(--muted);margin-bottom:1rem}
+    .step{display:flex;gap:.75rem;margin-bottom:.9rem}
+    .step .n{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .step .tx{font-size:.9rem}
+    .paynote{background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:.6rem .8rem;font-size:.82rem;margin:.2rem 0 .9rem;display:flex;gap:.5rem}
+    .m-foot{padding:1rem 1.4rem 1.4rem;display:flex;gap:.6rem;flex-wrap:wrap}
+    .m-foot .btn{flex:1;justify-content:center;border-radius:11px}
+    .mininav{position:sticky;top:0;z-index:20;background:rgba(11,27,90,.96);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;gap:1rem;padding:.6rem 1.1rem}
+    .mininav .mn-logo{color:#fff;font-weight:700;text-decoration:none;font-size:.98rem}
+    .mininav .mn-links{margin-inline-start:auto;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+    .mininav .mn-links a{color:#dfe6ff;text-decoration:none;font-size:.86rem;padding:.35rem .6rem;border-radius:8px}
+    .mininav .mn-links a:hover{background:rgba(255,255,255,.1)}
+    .mininav .mn-cta{background:var(--green);color:#fff !important;font-weight:700}
+    @media(max-width:800px){.valuerow{grid-template-columns:1fr}.pgrid{grid-template-columns:1fr}.hero h1{font-size:1.6rem}}
+  </style>
+</head>
+<body>
+  <div class="mininav">
+    <a class="mn-logo" href="/">Business Partner</a>
+    <div class="mn-links">
+      <a href="#connect">الأدوات</a>
+      <a href="#pricing">الباقات</a>
+      <a class="mn-cta" href="/portal">🔐 دخول بوابتي</a>
+    </div>
+  </div>
+  <div class="hero">
+    <div class="wrap">
+      <div class="badge">🤖 موظفك الذكي — خاص فيك، مربوط بأدواتك</div>
+      <h1>وظّف <span class="hi">موظفاً ذكياً</span> متخصصاً، واربطه بأدوات شركتك<br/>فيشتغل فعلياً نيابةً عنك.</h1>
+      <p>مو مجرد شات — موظف حقيقي في مجاله (مساعدة تنفيذية، مبيعات، تسويق، عمليات…). تربطه بجيميل ونوشن وواتساب وتيمس بضغطة، فيقرأ ويرسل وينظّم ويرد <b>داخل حساباتك أنت</b>. أسرع، أقوى، ومخرجات مباشرة.</p>
+      <div class="cta">
+        <a href="/portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
+        <a href="#connect" class="btn btn-o">🔌 شوف الأدوات</a>
+      </div>
+      <div class="valuerow">
+        <div class="vitem"><b>⚡ أسرع</b><span>ينجز المهام المتكررة فوراً بدل ساعات عمل يدوي.</span></div>
+        <div class="vitem"><b>💪 أقوى</b><span>خبير متخصص + مربوط بكل أدواتك في مكان واحد.</span></div>
+        <div class="vitem"><b>🎯 مخرجات مباشرة</b><span>إيميل مُرسل، موعد مُجدول، مهمة مُنظّمة — لا كلام فقط.</span></div>
+      </div>
+    </div>
+  </div>
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — ونفس مركز الربط متاح للجميع.</p></div>
+      <div class="emps">
+        <div class="emp"><span class="e">🗂️</span><div><b>ملاك</b><span>مساعِدة تنفيذية</span></div></div>
+        <div class="emp"><span class="e">💼</span><div><b>بدر</b><span>مبيعات وتطوير أعمال</span></div></div>
+        <div class="emp"><span class="e">📣</span><div><b>فرح</b><span>تسويق ومحتوى</span></div></div>
+        <div class="emp"><span class="e">🧭</span><div><b>مازن</b><span>عمليات وخدمة عملاء</span></div></div>
+        <div class="emp"><span class="e">📦</span><div><b>أحمد</b><span>مشتريات وتوريد</span></div></div>
+        <div class="emp"><span class="e">💻</span><div><b>محمد</b><span>تقنية معلومات</span></div></div>
+        <div class="emp"><span class="e">⚖️</span><div><b>عبدالعزيز</b><span>قانوني وامتثال</span></div></div>
+      </div>
+    </div>
+  </section>
+  <section id="connect" style="background:#eef1f8">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>🔌 مركز الربط (Connectors)</h2>
+        <p>اربط الموظف بأدواتك بضغطة. لو الأداة تحتاج توكن أو فيها تكلفة، نمشي معك <b>خطوة بخطوة</b> ونوضّح لك وين تدفع — أو اطلب منّا نركّبها لك.</p>
+      </div>
+      <div class="cgrid" id="cgrid"></div>
+    </div>
+  </section>
+  <section id="pricing">
+    <div class="wrap">
+      <div class="sec-head"><h2>💳 الباقات</h2><p>باقة شهرية أساسية + إضافات حسب الأدوات — الأرقام مبدئية للتوضيح، تُحدّد نهائياً معك.</p></div>
+      <div class="pgrid">
+        <div class="pc">
+          <h3>الأساسية</h3>
+          <div class="pr">— <small>/ شهرياً</small></div>
+          <ul><li>موظف ذكي واحد بمجاله</li><li>لوحة تحكم واختبار</li><li>ربط الأدوات المجانية (قوقل / نوشن / سلاك)</li><li>دعم أساسي</li></ul>
+          <a href="/portal" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">اختر</a>
+        </div>
+        <div class="pc feat">
+          <h3>النمو</h3>
+          <div class="pr">— <small>/ شهرياً</small></div>
+          <ul><li>حتى ٣ موظفين أذكياء</li><li>كل الأدوات (واتساب / مايكروسوفت / CRM)</li><li>ذاكرة محادثة لكل عميل</li><li>أولوية دعم + تقارير</li></ul>
+          <a href="/portal" class="btn btn-g">اختر</a>
+        </div>
+        <div class="pc">
+          <h3>مخصّص</h3>
+          <div class="pr">حسب الطلب</div>
+          <ul><li>فريق موظفين كامل</li><li>تكاملات خاصة بشركتك</li><li>إعداد وتأسيس كامل (Done-for-you)</li><li>مدير حساب مخصّص</li></ul>
+          <a href="/contact" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">تواصل معنا</a>
+        </div>
+      </div>
+      <div class="addon">
+        <b>➕ رسوم الاشتراكات الإضافية (عشان الخدمة ما تتوقف):</b> بعض الأدوات لها تكاليف خارجية تُدفع لمزوّدها (مثل رسائل واتساب من Meta، أو اشتراك Microsoft 365، أو استهلاك الذكاء الاصطناعي عند التوسّع). نوضّحها لك بشفافية وتُضاف على الباقة.<br/>
+        <b>🛠️ خدمة الإعداد (Done-for-you):</b> ما تبي تلمس شي؟ نأسّس لك كل التربيط الخاص فيك ونسلّمك الموظف جاهز — <b>رسوم إعداد لمرة واحدة</b>.
+      </div>
+    </div>
+  </section>
+  <div class="foot">
+    🔒 كل ربط خاص بشركتك ومعزول تماماً. لا نطلب كلمات مرور أبداً — الربط عبر تسجيل دخول آمن (OAuth) أو مفتاح خاص بك. أي إجراء خارجي مهم يتم «بانتظار موافقتك».
+  </div>
+  <div class="ov" id="ov">
+    <div class="modal">
+      <div class="m-head">
+        <span class="cc-ic" id="m-ic">🔌</span>
+        <h3 id="m-title">ربط الأداة</h3>
+        <button class="m-close" id="m-close">✕</button>
+      </div>
+      <div class="m-body">
+        <p class="lead" id="m-lead"></p>
+        <div id="m-steps"></div>
+      </div>
+      <div class="m-foot">
+        <button class="btn btn-connect" id="m-do">🔗 ربط الآن</button>
+        <button class="btn btn-help" id="m-help">🛠️ خلّونا نركّبها لك</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    var TOOLS = [
+      { id:'gmail', ic:'📧', name:'Gmail', unlock:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود، يتابع الوارد.', type:'easy',
+        lead:'ربط بضغطة عبر تسجيل الدخول بحساب قوقل — بدون أي توكن يدوي، ومجاناً.', note:'ربط بضغطة · مجاني', steps:[
+        {t:'اضغط «ربط الآن» فتنفتح صفحة تسجيل قوقل.'},{t:'اختر حساب الشركة ووافق على الصلاحيات (قراءة/إرسال البريد).'},{t:'تم! يصير الموظف يشتغل داخل بريدك مباشرة.'}]},
+      { id:'gcal', ic:'📅', name:'تقويم قوقل', unlock:'يجدول المواعيد، يرسل الدعوات، يذكّرك وينسّق الاجتماعات.', type:'easy',
+        lead:'ربط بضغطة مع نفس حساب قوقل — مجاناً.', note:'ربط بضغطة · مجاني', steps:[
+        {t:'اضغط «ربط الآن» وسجّل دخول قوقل.'},{t:'وافق على صلاحية التقويم.'},{t:'الموظف يقدر يجدول ويعدّل مواعيدك.'}]},
+      { id:'notion', ic:'🗒️', name:'Notion', unlock:'ينظّم المهام وقواعد البيانات والتوثيق داخل مساحتك.', type:'easy',
+        lead:'ربط بضغطة عبر Notion (OAuth) — مجاناً. تختار الصفحات المسموح بها.', note:'ربط بضغطة · مجاني', steps:[
+        {t:'اضغط «ربط الآن» فتفتح موافقة Notion.'},{t:'اختر مساحة العمل والصفحات المشتركة.'},{t:'الموظف يقرأ ويكتب في نوشن حسب صلاحياتك.'}]},
+      { id:'slack', ic:'💬', name:'Slack', unlock:'يرد وينبّه ويلخّص داخل قنوات فريقك.', type:'easy',
+        lead:'ربط بضغطة عبر Slack (OAuth) — مجاناً.', note:'ربط بضغطة · مجاني', steps:[
+        {t:'اضغط «ربط الآن» ووافق على تثبيت التطبيق في مساحة سلاك.'},{t:'اختر القنوات.'},{t:'الموظف يشتغل داخل سلاك.'}]},
+      { id:'whatsapp', ic:'🟢', name:'WhatsApp Business', unlock:'يرد على عملائك على واتساب ٢٤/٧ ويتابع الطلبات.', type:'cost',
+        lead:'يحتاج رقم أعمال + إعداد WhatsApp Cloud API من Meta. فيه تكلفة رسائل تُدفع لـ Meta حسب الاستخدام. نمشي معك خطوة بخطوة — أو نركّبها لك.', note:'يحتاج توكن Meta · فيه تكلفة رسائل على Meta', pay:'💳 تكلفة الرسائل تُدفع مباشرة لـ Meta حسب عدد المحادثات (أول ١٠٠٠ محادثة/شهر غالباً مجانية).', steps:[
+        {t:'أنشئ حساب Meta Business + رقم واتساب أعمال.'},{t:'من Meta for Developers فعّل WhatsApp Cloud API واحصل على التوكن ورقم المُرسِل.'},{t:'الصق التوكن هنا (يُخزّن مشفّراً) — أو أرسله لنا لنركّبه.'},{t:'اربط، فيصير الموظف يرد على عملائك.'}]},
+      { id:'ms', ic:'🟦', name:'Microsoft (Teams / Outlook)', unlock:'يدير بريد أوتلوك، تقويم، ورسائل تيمس.', type:'token',
+        lead:'ربط عبر تسجيل دخول مايكروسوفت (OAuth). قد يحتاج اشتراك Microsoft 365 فعّال لدى شركتك.', note:'ربط عبر مايكروسوفت · قد يتطلب اشتراك 365', pay:'💳 إن لم يكن لديك Microsoft 365، يلزم اشتراك من مايكروسوفت (يُدفع لهم).', steps:[
+        {t:'اضغط «ربط الآن» وسجّل دخول مايكروسوفت للعمل.'},{t:'وافق على صلاحيات البريد/التقويم/تيمس.'},{t:'الموظف يشتغل داخل بيئة مايكروسوفت.'}]},
+      { id:'drive', ic:'📁', name:'Google Drive', unlock:'ينظّم ملفاتك ويلخّص المستندات ويجهّز التقارير.', type:'easy',
+        lead:'ربط بضغطة مع حساب قوقل — مجاناً.', note:'ربط بضغطة · مجاني', steps:[
+        {t:'اضغط «ربط الآن» وسجّل دخول قوقل.'},{t:'وافق على صلاحية Drive.'},{t:'الموظف يقرأ وينظّم ملفاتك.'}]},
+      { id:'sheets', ic:'📊', name:'CRM / جداول', unlock:'يحدّث العملاء والصفقات في CRM أو Google Sheets.', type:'token',
+        lead:'نربطه بـ Google Sheets (بضغطة) أو نظام CRM لديك (قد يحتاج مفتاح API خاص بك).', note:'حسب النظام · بعضها يحتاج مفتاح', pay:'', steps:[
+        {t:'أخبرنا بنظامك (Sheets / HubSpot / Salesforce…).'},{t:'نجهّز الربط المناسب — بضغطة أو بمفتاح API خاص بك.'},{t:'الموظف يحدّث بياناتك تلقائياً.'}]}
+    ];
+    var SKEY='bp_connect_demo_v1';
+    var st={}; try{st=JSON.parse(localStorage.getItem(SKEY)||'{}')}catch(e){st={}}
+    var grid=document.getElementById('cgrid');
+    TOOLS.forEach(function(t){
+      var on=!!st[t.id];
+      var card=document.createElement('div');
+      card.className='cc'; card.dataset.id=t.id;
+      card.innerHTML=
+        '<div class="cc-top"><span class="cc-ic">'+t.ic+'</span>'+
+          '<div class="cc-t"><h3>'+t.name+'</h3><div class="u">'+t.unlock+'</div></div>'+
+          '<span class="cc-state '+(on?'on':'')+'">'+(on?'✓ متصل':'غير متصل')+'</span></div>'+
+        '<div class="cc-tags"><span class="tag '+(t.type==='easy'?'easy':(t.type==='cost'?'cost':'token'))+'">'+ (t.type==='easy'?'ربط بضغطة':(t.type==='cost'?'فيه تكلفة على الأداة':'يحتاج توكن')) +'</span></div>'+
+        '<div class="cc-note">'+t.note+'</div>'+
+        '<div class="cc-actions"><button class="btn btn-connect">'+(on?'إدارة':'🔗 اربط')+'</button><button class="btn btn-help">🛠️ نركّبها لك</button></div>';
+      card.querySelector('.btn-connect').onclick=function(){ openModal(t); };
+      card.querySelector('.btn-help').onclick=function(){ requestHelp(t); };
+      grid.appendChild(card);
+    });
+    var ov=document.getElementById('ov'), cur=null;
+    function openModal(t){
+      cur=t;
+      document.getElementById('m-ic').textContent=t.ic;
+      document.getElementById('m-title').textContent='ربط '+t.name;
+      document.getElementById('m-lead').textContent=t.lead;
+      var s='';
+      if(t.pay) s+='<div class="paynote"><span>💳</span><span>'+t.pay+'</span></div>';
+      t.steps.forEach(function(step,i){ s+='<div class="step"><div class="n">'+(i+1)+'</div><div class="tx">'+step.t+'</div></div>'; });
+      document.getElementById('m-steps').innerHTML=s;
+      document.getElementById('m-do').textContent = st[t.id] ? '✓ متصل — إعادة الربط' : '🔗 ربط الآن';
+      ov.classList.add('on');
+    }
+    function closeModal(){ ov.classList.remove('on'); }
+    document.getElementById('m-close').onclick=closeModal;
+    ov.onclick=function(e){ if(e.target===ov) closeModal(); };
+    document.getElementById('m-do').onclick=function(){
+      if(!cur) return;
+      st[cur.id]=true; localStorage.setItem(SKEY,JSON.stringify(st));
+      var card=document.querySelector('.cc[data-id="'+cur.id+'"]');
+      var badge=card.querySelector('.cc-state'); badge.textContent='✓ متصل'; badge.classList.add('on');
+      card.querySelector('.btn-connect').textContent='إدارة';
+      closeModal();
+      alert('✅ (نموذج) تم الربط. في النسخة الحقيقية تفتح هنا صفحة تسجيل الدخول الآمن للأداة.');
+    };
+    document.getElementById('m-help').onclick=function(){ if(cur) requestHelp(cur); };
+    function requestHelp(t){
+      alert('🛠️ طلب إعداد «'+t.name+'» — فريق Business Partner يركّب لك هذه الأداة ويسلّمك الموظف جاهز مقابل رسوم إعداد. (نموذج: في النسخة الحقيقية يفتح نموذج طلب وتُحتسب الرسوم.)');
+    }
+  </script>
+</body>
+</html>

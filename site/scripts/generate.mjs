@@ -3838,11 +3838,14 @@ write("monitor.html", buildMonitor());
 // Owner-only control + live-test dashboard for the specialized-team agents (noindex)
 write("dashboard.html", buildDashboard());
 
-// Client product page: AI employees + connectors hub + pricing (noindex)
+// Client product page: AI employees + connectors hub + pricing (noindex).
+// Emit under both / and /ar/ so localized nav links (u("/connect") -> /ar/connect) resolve.
 write("connect.html", buildConnect());
+write("ar/connect.html", buildConnect());
 
 // Client portal: login -> subscription gate -> pick agent -> live chat (noindex)
 write("portal.html", buildPortal());
+write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
