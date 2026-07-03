@@ -45,6 +45,21 @@ async function sendMail(to, subject, html) {
   } catch {}
 }
 
+// Add the subscriber to a Resend Audience so newsletters can be sent as
+// Broadcasts from the Resend dashboard. Activates once RESEND_AUDIENCE_ID is set.
+const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
+async function addToAudience(email, name) {
+  if (!RESEND_API_KEY || !RESEND_AUDIENCE || !isEmail(email)) return;
+  try {
+    const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    await fetch(`https://api.resend.com/audiences/${RESEND_AUDIENCE}/contacts`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ email, first_name: parts[0] || undefined, last_name: parts.slice(1).join(" ") || undefined, unsubscribed: false }),
+    });
+  } catch {}
+}
+
 async function readBody(req) {
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
@@ -121,6 +136,7 @@ export default async function handler(req, res) {
       <p>${name ? "مرحباً " + name + "،<br>" : ""}شكراً لاشتراكك في نشرة <strong>Business Partner</strong>. راح توصلك آخر الأخبار والأدلة وتحديثات المنصات الحكومية في السعودية.</p>
       <p style="color:#666">إذا ما طلبت هذا الاشتراك، تجاهل الرسالة.</p>
     </div>`);
+    await addToAudience(email, name);
     return res.end(JSON.stringify({ ok: true, stored: true }));
   } catch (e) {
     console.error("newsletter handler error", String(e).slice(0, 200));
