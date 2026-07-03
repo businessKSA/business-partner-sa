@@ -1,5 +1,7 @@
 ---
-// BP Inbox — owner-only live WhatsApp console (respond.io-style, Claude/OpenAI reply assist)
+// BP Inbox — owner-only live WhatsApp console (respond.io-style).
+// SOURCE OF TRUTH: src/monitor.page.html (also emitted by site/scripts/generate.mjs).
+// Keep this file in parity by re-running the sync; do not hand-edit.
 export const prerender = true;
 ---
 
@@ -149,6 +151,39 @@ export const prerender = true;
         .chat-head .back { display: block; }
         #chatArea { padding: 14px 4%; }
       }
+      /* ---- Phase 1: composer toolbar (emoji + snippets) ---- */
+      #chatMain { position: relative; }
+      .tools-row { display: flex; align-items: center; gap: 6px; padding: 8px 14px 0; position: relative; }
+      .tool-btn { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 6px 11px; font-size: 16px; line-height: 1; color: var(--navy); }
+      .tool-btn:hover { background: var(--bg); }
+      .pop { position: absolute; bottom: 46px; inset-inline-start: 14px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 38px rgba(0,0,0,.18); padding: 10px; z-index: 40; display: none; }
+      .pop.on { display: block; }
+      .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; width: 300px; max-height: 210px; overflow-y: auto; }
+      .emoji-grid button { border: 0; background: none; font-size: 20px; padding: 5px; border-radius: 8px; cursor: pointer; }
+      .emoji-grid button:hover { background: var(--bg); }
+      .snip-pop { width: 330px; max-height: 300px; overflow-y: auto; }
+      .snip-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 9px; border-radius: 9px; cursor: pointer; }
+      .snip-item:hover { background: var(--bg); }
+      .snip-item .st { font-weight: 700; font-size: 12.5px; color: var(--navy); }
+      .snip-item .sb { font-size: 12px; color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+      .snip-add { width: 100%; margin-top: 6px; border: 1px dashed var(--line); background: var(--bg); border-radius: 9px; padding: 8px; font-size: 12.5px; font-weight: 700; color: var(--navy); }
+      /* ---- Phase 1: contact panel ---- */
+      .contact-panel { position: absolute; top: 0; bottom: 0; inset-inline-end: 0; width: 300px; max-width: 82%; background: #fff; border-inline-start: 1px solid var(--line); box-shadow: -6px 0 24px rgba(0,0,0,.10); padding: 18px 16px; overflow-y: auto; transform: translateX(102%); transition: transform .22s ease; z-index: 30; }
+      html[dir="rtl"] .contact-panel { transform: translateX(-102%); }
+      .contact-panel.on { transform: translateX(0) !important; }
+      .cp-close { position: absolute; top: 10px; inset-inline-start: 10px; border: 0; background: var(--bg); border-radius: 8px; width: 28px; height: 28px; font-size: 14px; }
+      .cp-head { text-align: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+      .cp-av { width: 62px; height: 62px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; margin: 4px auto 8px; }
+      .cp-phone { font-weight: 700; color: var(--navy); direction: ltr; }
+      .cp-stage { margin-top: 10px; }
+      .cp-row { display: flex; justify-content: space-between; padding: 10px 2px; border-bottom: 1px solid #f2f4f8; font-size: 13px; }
+      .cp-row .k { color: var(--soft); }
+      .cp-row .v { color: var(--text); font-weight: 600; }
+      .cp-sect { margin-top: 14px; }
+      .cp-sect label { font-size: 12px; font-weight: 700; color: var(--soft); display: block; margin-bottom: 6px; }
+      .cp-notes { width: 100%; min-height: 92px; border: 1px solid var(--line); border-radius: 10px; padding: 10px; font-family: inherit; font-size: 13px; resize: vertical; outline: none; }
+      .cp-notes:focus { border-color: var(--navy); }
+      #cpCrm { display: inline-flex; width: 100%; justify-content: center; }
     </style>
   </head>
   <body>
@@ -195,12 +230,31 @@ export const prerender = true;
               <div class="head-actions">
                 <span class="ai-badge on" id="aiBadge">🟢 الوكيل يرد</span>
                 <button class="btn-toggle pause" id="aiToggle">⏸️ أوقف الوكيل</button>
-                <select class="tagsel" id="tagSel" title="تصنيف المحادثة"></select>
+                <select class="tagsel" id="tagSel" title="مرحلة العميل"></select>
+                <button class="btn-ghost" id="contactToggle" title="بطاقة العميل">👤 بطاقة العميل</button>
                 <a class="btn-ghost" id="crmBtn" href="#" target="_blank" rel="noopener" style="display:none">📇 CRM</a>
               </div>
             </div>
 
             <div id="chatArea"></div>
+
+            <aside class="contact-panel" id="contactPanel">
+              <button class="cp-close" id="cpClose" title="إغلاق">✕</button>
+              <div class="cp-head">
+                <div class="cp-av" id="cpAv">--</div>
+                <div class="cp-phone" id="cpPhone">+—</div>
+                <div class="cp-stage"><select class="tagsel" id="cpStage" style="width:100%"></select></div>
+              </div>
+              <div class="cp-row"><span class="k">💬 عدد الرسائل</span><span class="v" id="cpCount">0</span></div>
+              <div class="cp-row"><span class="k">🕐 أول تواصل</span><span class="v" id="cpFirst">—</span></div>
+              <div class="cp-row"><span class="k">⚡ آخر نشاط</span><span class="v" id="cpLast">—</span></div>
+              <div class="cp-row"><span class="k">🤖 حالة الوكيل</span><span class="v" id="cpAgent">—</span></div>
+              <div class="cp-sect"><a class="btn-ghost" id="cpCrm" href="#" target="_blank" rel="noopener" style="display:none">📇 ملف العميل في CRM</a></div>
+              <div class="cp-sect">
+                <label>📝 ملاحظات خاصة (تُحفظ على جهازك)</label>
+                <textarea class="cp-notes" id="cpNotes" placeholder="اكتب ملاحظاتك عن هذا العميل…"></textarea>
+              </div>
+            </aside>
 
             <div class="composer-wrap">
               <div class="ai-row">
@@ -209,6 +263,12 @@ export const prerender = true;
                 <input class="ai-instr" id="aiInstr" type="text" placeholder="توجيه اختياري للمساعد: مثال «اطلب رقم السجل التجاري» أو «رد باختصار»" />
               </div>
               <div class="ai-hint" id="aiHint">المساعد يقرأ المحادثة ويكتب لك رداً جاهزاً للتعديل والإرسال — مدعوم بـ Claude، وعند الحاجة يستخدم OpenAI.</div>
+              <div class="tools-row">
+                <button class="tool-btn" id="emojiBtn" title="إيموجي">😀</button>
+                <button class="tool-btn" id="snipBtn" title="ردود جاهزة (اكتب / للفتح)">⚡</button>
+                <div class="pop emoji-pop" id="emojiPop"><div class="emoji-grid" id="emojiGrid"></div></div>
+                <div class="pop snip-pop" id="snipPop"></div>
+              </div>
               <div class="composer">
                 <textarea id="msgInput" placeholder="اكتب ردك للعميل…" disabled></textarea>
                 <button class="send-btn" id="sendBtn" disabled>إرسال</button>
@@ -416,6 +476,7 @@ export const prerender = true;
           toggle.onclick = function () { setAgent('pause'); };
         }
         buildTagSelect();
+        renderContactPanel(msgs);
 
         $('msgInput').disabled = false; $('sendBtn').disabled = false;
         $('suggestAr').disabled = false; $('suggestEn').disabled = false;
@@ -521,6 +582,78 @@ export const prerender = true;
 
       function autoGrow(t) { t.style.height = '46px'; t.style.height = Math.min(t.scrollHeight, 140) + 'px'; }
 
+      // ===== Phase 1: emoji picker, snippets, contact panel =====
+      var SNIP_STORE = 'bp_inbox_snips';
+      var NOTES_STORE = 'bp_inbox_notes';
+      var EMOJIS = '😀 😁 😂 🤣 😊 😍 😘 😎 🤩 🥳 👍 🙏 💪 👏 🙌 🤝 ✅ ❌ ⭐ 🔥 💯 🎉 🎁 💡 📌 📞 📱 📧 📍 🕐 ⏰ 💰 💳 🧾 📄 📋 ✍️ 🏢 🚀 ❤️ 💙 💚 😅 😉 🤔 🙂 😢 😳 🤗'.split(' ');
+      var DEFAULT_SNIPS = [
+        { t: 'ترحيب', b: 'حياك الله في بيزنس بارتنر 🌟 كيف أقدر أخدمك اليوم؟' },
+        { t: 'طلب السجل التجاري', b: 'ممكن تزودني برقم السجل التجاري عشان أكمل لك الإجراء؟' },
+        { t: 'شكر وختام', b: 'شكراً لتواصلك معنا 🙏 نسعد بخدمتك في أي وقت.' },
+        { t: 'تحويل لمختص', b: 'أحوّلك الآن لأحد مختصينا ليكمل معك، لحظات من فضلك 🙌' }
+      ];
+      var snips = []; try { snips = JSON.parse(localStorage.getItem(SNIP_STORE) || 'null') || DEFAULT_SNIPS; } catch (e) { snips = DEFAULT_SNIPS; }
+      var notes = {}; try { notes = JSON.parse(localStorage.getItem(NOTES_STORE) || '{}'); } catch (e) { notes = {}; }
+      function saveSnips() { localStorage.setItem(SNIP_STORE, JSON.stringify(snips)); }
+      function saveNotes() { localStorage.setItem(NOTES_STORE, JSON.stringify(notes)); }
+      function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+      function insertAtCursor(text) {
+        var t = $('msgInput'); if (t.disabled) return;
+        var s = t.selectionStart != null ? t.selectionStart : t.value.length;
+        var e = t.selectionEnd != null ? t.selectionEnd : t.value.length;
+        t.value = t.value.slice(0, s) + text + t.value.slice(e);
+        var pos = s + text.length; t.focus(); try { t.setSelectionRange(pos, pos); } catch (x) {} autoGrow(t);
+      }
+      function closePops() { $('emojiPop').classList.remove('on'); $('snipPop').classList.remove('on'); }
+      function buildEmoji() {
+        var g = $('emojiGrid'); if (g.childNodes.length) return;
+        for (var i = 0; i < EMOJIS.length; i++) {
+          (function (em) { var b = document.createElement('button'); b.type = 'button'; b.textContent = em; b.onclick = function () { insertAtCursor(em); }; g.appendChild(b); })(EMOJIS[i]);
+        }
+      }
+      function buildSnips() {
+        var p = $('snipPop'); p.innerHTML = '';
+        for (var i = 0; i < snips.length; i++) {
+          (function (sn) {
+            var d = document.createElement('div'); d.className = 'snip-item';
+            d.innerHTML = '<div style="flex:1;min-width:0"><div class="st">⚡ ' + esc(sn.t) + '</div><div class="sb">' + esc(sn.b) + '</div></div>';
+            d.onclick = function () {
+              var t = $('msgInput'); if (t.value === '/') t.value = '';
+              insertAtCursor(sn.b); closePops();
+            };
+            p.appendChild(d);
+          })(snips[i]);
+        }
+        var add = document.createElement('button'); add.type = 'button'; add.className = 'snip-add'; add.textContent = '➕ أضف رداً جاهزاً';
+        add.onclick = function () {
+          var t = prompt('عنوان الرد الجاهز:'); if (!t) return;
+          var b = prompt('نص الرد:'); if (!b) return;
+          snips.push({ t: t, b: b }); saveSnips(); buildSnips();
+        };
+        p.appendChild(add);
+      }
+
+      function renderContactPanel(msgs) {
+        var ph = activePhone; if (!ph) return;
+        $('cpAv').style.background = avColor(ph); $('cpAv').textContent = ph.slice(-2);
+        $('cpPhone').textContent = '+' + ph;
+        $('cpCount').textContent = msgs.length;
+        var reals = msgs.filter(function (m) { return m.sender !== 'تنبيه'; });
+        $('cpFirst').textContent = reals.length ? fmtTime(reals[0].time) : '—';
+        $('cpLast').textContent = msgs.length ? fmtTime(msgs[msgs.length - 1].time) : '—';
+        $('cpAgent').textContent = isPaused(msgs) ? '🔴 موقوف (أنت المتحكم)' : '🟢 يرد تلقائياً';
+        var crm = null; for (var i = msgs.length - 1; i >= 0; i--) { if (msgs[i].crm) { crm = msgs[i].crm; break; } }
+        var c = $('cpCrm'); if (crm) { c.href = crm; c.style.display = 'inline-flex'; } else { c.style.display = 'none'; }
+        var sel = $('cpStage'); var cur = tags[ph] || '';
+        var html = '<option value="">🏷️ بدون مرحلة</option>';
+        for (var j = 0; j < TAGS.length; j++) html += '<option value="' + TAGS[j].k + '"' + (TAGS[j].k === cur ? ' selected' : '') + '>' + TAGS[j].k + '</option>';
+        sel.innerHTML = html;
+        sel.onchange = function () { if (this.value) tags[ph] = this.value; else delete tags[ph]; saveTags(); render(); };
+        var nt = $('cpNotes'); if (document.activeElement !== nt) nt.value = notes[ph] || '';
+        nt.oninput = function () { notes[ph] = this.value; saveNotes(); };
+      }
+
       function enter() {
         var k = $('keyInput').value.trim();
         if (!k) { $('gateErr').textContent = 'أدخل مفتاح الوصول'; return; }
@@ -542,8 +675,15 @@ export const prerender = true;
       $('sendBtn').onclick = sendReply;
       $('suggestAr').onclick = function () { suggest('ar'); };
       $('suggestEn').onclick = function () { suggest('en'); };
-      $('msgInput').addEventListener('input', function () { autoGrow(this); });
+      $('msgInput').addEventListener('input', function () { autoGrow(this); if (this.value === '/') { buildSnips(); closePops(); $('snipPop').classList.add('on'); } });
       $('msgInput').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); } });
+
+      buildEmoji(); buildSnips();
+      $('emojiBtn').onclick = function (e) { e.stopPropagation(); var on = $('emojiPop').classList.contains('on'); closePops(); if (!on) $('emojiPop').classList.add('on'); };
+      $('snipBtn').onclick = function (e) { e.stopPropagation(); var on = $('snipPop').classList.contains('on'); closePops(); if (!on) { buildSnips(); $('snipPop').classList.add('on'); } };
+      document.addEventListener('click', function (e) { var inTools = e.target && e.target.closest && e.target.closest('.tools-row'); if (!inTools) closePops(); });
+      $('contactToggle').onclick = function () { $('contactPanel').classList.toggle('on'); };
+      $('cpClose').onclick = function () { $('contactPanel').classList.remove('on'); };
       $('searchInput').addEventListener('input', function () { search = this.value; renderSidebar(); });
       $('logoutBtn').onclick = logout;
       $('backBtn').onclick = function () { $('cols').classList.remove('chat-open'); activePhone = null; };
