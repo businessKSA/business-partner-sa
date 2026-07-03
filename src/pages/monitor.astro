@@ -1,7 +1,6 @@
 ---
 // BP Inbox — owner-only live WhatsApp console (respond.io-style).
 // SOURCE OF TRUTH: src/monitor.page.html (also emitted by site/scripts/generate.mjs).
-// Keep this file in parity by re-running the sync; do not hand-edit.
 export const prerender = true;
 ---
 
@@ -266,6 +265,8 @@ export const prerender = true;
               <div class="tools-row">
                 <button class="tool-btn" id="emojiBtn" title="إيموجي">😀</button>
                 <button class="tool-btn" id="snipBtn" title="ردود جاهزة (اكتب / للفتح)">⚡</button>
+                <button class="tool-btn" id="fileBtn" title="إرفاق صورة أو ملف">📎</button>
+                <input type="file" id="fileInput" style="display:none" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt,.csv" />
                 <div class="pop emoji-pop" id="emojiPop"><div class="emoji-grid" id="emojiGrid"></div></div>
                 <div class="pop snip-pop" id="snipPop"></div>
               </div>
@@ -283,6 +284,7 @@ export const prerender = true;
       var FEED_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-monitor-x7k2m9';
       var SEND_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-send-x7k2m9';
       var SUGGEST_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-suggest-x7k2m9';
+      var MEDIA_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-media-x7k2m9';
       var POLL_MS = 7000;
       var KEY_STORE = 'bp_inbox_key';
       var TAG_STORE = 'bp_inbox_tags';
@@ -634,6 +636,32 @@ export const prerender = true;
         p.appendChild(add);
       }
 
+      function sendMedia(file) {
+        if (!activePhone || !file) return;
+        var MAX = 8 * 1024 * 1024;
+        if (file.size > MAX) { alert('حجم الملف كبير ⚠️ — الحد الأقصى ٨ ميجابايت. اختر ملفاً أصغر.'); return; }
+        var isImg = /^image\//.test(file.type);
+        var caption = $('msgInput').value.trim();
+        var hint = $('aiHint'); var old = hint.textContent; hint.textContent = '⏳ جاري إرسال الملف…';
+        var reader = new FileReader();
+        reader.onload = function () {
+          fetch(MEDIA_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ key: accessKey, phone: activePhone, mediatype: isImg ? 'image' : 'document', filename: file.name, mime: file.type || (isImg ? 'image/jpeg' : 'application/octet-stream'), caption: caption, media: reader.result }) })
+            .then(function (r) { return r.json().catch(function () { return {}; }); })
+            .then(function (out) {
+              if (out && out.ok) {
+                messages.push({ id: 't' + Date.now(), time: new Date().toISOString(), phone: activePhone, sender: 'المالك', alert: '', text: '📎 ' + file.name + (caption ? (' — ' + caption) : ''), crm: '' });
+                $('msgInput').value = ''; autoGrow($('msgInput')); render(); var a = $('chatArea'); a.scrollTop = a.scrollHeight;
+                hint.textContent = '✅ تم إرسال الملف.';
+              } else if (out && out.error === 'whatsapp') {
+                alert('تعذّر إرسال الملف عبر واتساب ⚠️ — توكن واتساب منتهي أو غير صالح. حدّث التوكن في n8n (اعتماد «WhatsApp account»).');
+                hint.textContent = old;
+              } else { throw new Error('x'); }
+            }).catch(function () { alert('تعذر إرسال الملف. تأكد من الاتصال وحاول مرة أخرى.'); hint.textContent = old; })
+            .then(function () { setTimeout(function () { hint.textContent = old; }, 5000); });
+        };
+        reader.readAsDataURL(file);
+      }
+
       function renderContactPanel(msgs) {
         var ph = activePhone; if (!ph) return;
         $('cpAv').style.background = avColor(ph); $('cpAv').textContent = ph.slice(-2);
@@ -684,6 +712,8 @@ export const prerender = true;
       document.addEventListener('click', function (e) { var inTools = e.target && e.target.closest && e.target.closest('.tools-row'); if (!inTools) closePops(); });
       $('contactToggle').onclick = function () { $('contactPanel').classList.toggle('on'); };
       $('cpClose').onclick = function () { $('contactPanel').classList.remove('on'); };
+      $('fileBtn').onclick = function () { $('fileInput').click(); };
+      $('fileInput').onchange = function () { if (this.files && this.files[0]) sendMedia(this.files[0]); this.value = ''; };
       $('searchInput').addEventListener('input', function () { search = this.value; renderSidebar(); });
       $('logoutBtn').onclick = logout;
       $('backBtn').onclick = function () { $('cols').classList.remove('chat-open'); activePhone = null; };
