@@ -2113,9 +2113,9 @@ function buildEmployerDashboard() {
   const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
   const body = `
   <section class="hero"><div class="container hero-inner" style="max-width:1080px">
-    <span class="eyebrow">${L("Employer dashboard", "لوحة صاحب العمل")}</span>
-    <h1>${L("Recruitment dashboard", "لوحة التوظيف")}</h1>
-    <p class="lead">${L("Sign in with your access code to browse candidates with full contacts, build a shortlist, and move candidates through your hiring pipeline.", "ادخل برمز الوصول لتصفّح المرشّحين ببياناتهم الكاملة، وبناء قائمة مختصرة، ونقلهم عبر مراحل التوظيف.")}</p>
+    <span class="eyebrow">${L("AI Hiring OS", "نظام التوظيف الذكي")}</span>
+    <h1>${L("Your AI Hiring Operating System", "نظام التوظيف الذكي")}</h1>
+    <p class="lead">${L("Sign in with your access code to match candidates to any role with AI, get instant candidate assessments, interview questions and outreach — then run your whole hiring pipeline in one place.", "ادخل برمز الوصول لمطابقة المرشّحين مع أي وظيفة بالذكاء الاصطناعي، واحصل على تقييمات فورية وأسئلة مقابلة ورسائل تواصل — وأدر مسار التوظيف كامل من مكان واحد.")}</p>
   </div></section>
 
   <section class="section"><div class="container">
@@ -2132,14 +2132,26 @@ function buildEmployerDashboard() {
     <div id="empd-app" hidden>
       <div class="empd-bar">
         <div class="empd-tabs">
-          <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
+          <button class="empd-tab active" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
+          <button class="empd-tab" data-tab="browse">${L("Browse", "تصفّح")}</button>
           <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
           <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
         </div>
         <button class="btn btn-ghost btn-sm" id="empd-logout">${L("Sign out", "خروج")}</button>
       </div>
 
-      <div class="empd-panel" data-panel="browse">
+      <div class="empd-panel" data-panel="match">
+        <div class="empd-match-box">
+          <h3>✨ ${L("Match candidates to a role with AI", "طابق المرشّحين مع وظيفة بالذكاء")}</h3>
+          <p class="emp-note">${L("Describe the role, requirements or paste a job description — AI ranks your best-fit candidates and explains why.", "اكتب الوظيفة أو المتطلبات أو الصق وصفاً وظيفياً — الذكاء يرتّب أنسب المرشّحين ويشرح السبب.")}</p>
+          <textarea id="empd-jd" rows="4" placeholder="${Lraw("e.g. Senior accountant, 5+ years, SOCPA, Riyadh, Saudi national preferred…", "مثال: محاسب أول، خبرة +5 سنوات، عضوية SOCPA، الرياض، يفضّل سعودي…")}"></textarea>
+          <button class="btn btn-primary" id="empd-match-run">✨ ${L("Match with AI", "طابق بالذكاء")}</button>
+        </div>
+        <p class="emp-note" id="empd-match-status"></p>
+        <div class="emp-grid" id="empd-match-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="browse" hidden>
         <div class="emp-access"><div class="emp-filters">
           <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
           <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
@@ -2157,13 +2169,19 @@ function buildEmployerDashboard() {
       </div>
 
       <div class="empd-panel" data-panel="pipeline" hidden>
-        <p class="emp-note">${L("Drag candidates through your hiring stages using the buttons on each card.", "انقل المرشّحين عبر مراحل التوظيف من الأزرار على كل بطاقة.")}</p>
+        <p class="emp-note">${L("Move candidates through your hiring stages using the buttons on each card.", "انقل المرشّحين عبر مراحل التوظيف من الأزرار على كل بطاقة.")}</p>
         <div class="empd-pipe" id="empd-pipe"></div>
       </div>
     </div>
   </div></section>
+
+  <div class="empd-modal" id="empd-modal" hidden><div class="empd-modal-in">
+    <button class="empd-modal-x" id="empd-modal-x">✕</button>
+    <h3 id="empd-modal-title"></h3>
+    <div class="empd-modal-body" id="empd-modal-body"></div>
+  </div></div>
   <script>window.BP_EMPD_LANG=${JSON.stringify(LANG)};</script>`;
-  return page({ title: Lraw("Recruitment dashboard — Business Partner", "لوحة التوظيف — بيزنس بارتنر"), desc: Lraw("Employer recruitment dashboard: browse candidates, shortlist and hiring pipeline.", "لوحة توظيف أصحاب العمل: تصفّح المرشّحين، القائمة المختصرة، ومسار التوظيف."), active: "/employers", path: "/employer-dashboard", body });
+  return page({ title: Lraw("AI Hiring OS — Business Partner", "نظام التوظيف الذكي — بيزنس بارتنر"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), active: "/employers", path: "/employer-dashboard", body });
 }
 
 function buildWorkspaces() {

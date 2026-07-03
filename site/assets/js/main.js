@@ -1301,7 +1301,7 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
-/* ---------- Employer recruitment dashboard (/employer-dashboard) ---------- */
+/* ---------- AI Hiring OS dashboard (/employer-dashboard) ---------- */
 (function () {
   "use strict";
   document.addEventListener("DOMContentLoaded", function () {
@@ -1310,17 +1310,18 @@ var BP = window.BP = window.BP || {};
     var isAr = (window.BP_EMPD_LANG || "ar") === "ar";
     var T = function (en, ar) { return isAr ? ar : en; };
     var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); };
+    var nl2br = function (s) { return esc(s).replace(/\n/g, "<br>"); };
     var gate = document.getElementById("empd-gate");
     var codeInput = document.getElementById("empd-code");
     var gateMsg = document.getElementById("empd-gate-msg");
     var STAGES = [["interested", T("Interested", "مهتم")], ["contacted", T("Contacted", "تواصلت")], ["interview", T("Interview", "مقابلة")], ["hired", T("Hired", "تم التوظيف")]];
-    var CODE = "";
-    var CANDS = [];
+    var CODE = "", CANDS = [], lastJD = "";
     function readLS(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
     function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
     var short = readLS("bp_shortlist", []);
     var pipe = readLS("bp_pipeline", {});
     function inShort(id) { return short.some(function (c) { return c.id === id; }); }
+    function findC(id) { return CANDS.concat(short).filter(function (c) { return c.id === id; })[0]; }
 
     function validate(code, cb) {
       fetch("/api/candidates?code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
@@ -1329,27 +1330,19 @@ var BP = window.BP = window.BP || {};
     function enter(code, data) {
       CODE = code; writeLS("bp_emp_code", code);
       gate.hidden = true; app.hidden = false;
-      if (data && data.candidates) { CANDS = data.candidates; fillFilters(); renderBrowse(); }
-      else load();
+      if (data && data.candidates) { CANDS = data.candidates; fillFilters(); renderBrowse(); } else load();
       renderCounts();
     }
     document.getElementById("empd-enter").addEventListener("click", function () {
-      var code = (codeInput.value || "").trim();
-      if (!code) return;
+      var code = (codeInput.value || "").trim(); if (!code) return;
       gateMsg.textContent = T("Checking…", "جارٍ التحقق…");
-      validate(code, function (ok, data) {
-        if (ok) enter(code, data);
-        else gateMsg.textContent = T("Invalid or inactive code. Contact us to activate.", "رمز غير صحيح أو غير مفعّل. تواصل معنا للتفعيل.");
-      });
+      validate(code, function (ok, data) { if (ok) enter(code, data); else gateMsg.textContent = T("Invalid or inactive code. Contact us to activate.", "رمز غير صحيح أو غير مفعّل. تواصل معنا للتفعيل."); });
     });
     codeInput.addEventListener("keydown", function (e) { if (e.key === "Enter") document.getElementById("empd-enter").click(); });
     document.getElementById("empd-logout").addEventListener("click", function () { try { localStorage.removeItem("bp_emp_code"); } catch (e) {} location.reload(); });
-
-    // Auto sign-in if a code is stored
     var saved = readLS("bp_emp_code", "");
-    if (typeof saved === "string" && saved) { gateMsg.textContent = T("Signing in…", "جارٍ الدخول…"); validate(saved, function (ok, data) { if (ok) enter(saved, data); else { gateMsg.textContent = ""; } }); }
+    if (typeof saved === "string" && saved) { gateMsg.textContent = T("Signing in…", "جارٍ الدخول…"); validate(saved, function (ok, data) { if (ok) enter(saved, data); else gateMsg.textContent = ""; }); }
 
-    // Tabs
     Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
       t.addEventListener("click", function () {
         document.querySelectorAll(".empd-tab").forEach(function (x) { x.classList.remove("active"); });
@@ -1369,8 +1362,7 @@ var BP = window.BP = window.BP || {};
       Object.keys(cities).forEach(function (c) { var o = document.createElement("option"); o.value = c; o.textContent = c; cEl.appendChild(o); });
     }
     function load() {
-      var status = document.getElementById("empd-status");
-      status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
+      var status = document.getElementById("empd-status"); status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
       var qs = new URLSearchParams({ code: CODE });
       var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value, ci = document.getElementById("empd-city").value, n = document.getElementById("empd-nat").value;
       if (q) qs.set("q", q); if (f) qs.set("field", f); if (ci) qs.set("city", ci); if (n) qs.set("nat", n);
@@ -1392,28 +1384,31 @@ var BP = window.BP = window.BP || {};
     }
     function stageBtns(id) {
       var cur = pipe[id] || "";
-      return '<div class="empd-stages">' + STAGES.map(function (s) {
-        return '<button data-id="' + esc(id) + '" data-stage="' + s[0] + '" class="empd-stage-btn' + (cur === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>";
-      }).join("") + "</div>";
+      return '<div class="empd-stages">' + STAGES.map(function (s) { return '<button data-id="' + esc(id) + '" data-stage="' + s[0] + '" class="empd-stage-btn' + (cur === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>"; }).join("") + "</div>";
+    }
+    function aiBtns(id) {
+      return '<div class="empd-ai"><button class="empd-ai-btn" data-ai="summary" data-id="' + esc(id) + '">📝 ' + T("Assess", "تقييم") + '</button>' +
+        '<button class="empd-ai-btn" data-ai="interview" data-id="' + esc(id) + '">❓ ' + T("Interview Qs", "أسئلة مقابلة") + '</button>' +
+        '<button class="empd-ai-btn" data-ai="outreach" data-id="' + esc(id) + '">✉️ ' + T("Outreach", "رسالة تواصل") + '</button></div>';
     }
     function card(c, opts) {
       opts = opts || {};
       var meta = [c.experience ? (isAr ? c.experience + " سنة خبرة" : c.experience + "y exp") : "", c.education, c.nationalityType].filter(Boolean).join(" · ");
-      return '<div class="emp-card" data-id="' + esc(c.id) + '"><div class="emp-card-top"><strong>' + esc(c.role || c.field || "—") + '</strong>' + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
+      var badge = opts.match ? '<div class="empd-score"><span class="empd-score-n">' + Math.round(opts.match.score) + '%</span> ' + esc(opts.match.reason || "") + "</div>" : "";
+      return '<div class="emp-card" data-id="' + esc(c.id) + '">' + badge + '<div class="emp-card-top"><strong>' + esc(c.role || c.field || "—") + '</strong>' + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
         (c.city ? '<div class="emp-role">📍 ' + esc(c.city) + "</div>" : "") +
         (c.skills ? '<div class="emp-skills">' + esc(c.skills) + "</div>" : "") +
         (meta ? '<div class="emp-meta">' + esc(meta) + "</div>" : "") +
         contacts(c) +
         '<div class="empd-actions"><button class="empd-save' + (inShort(c.id) ? " on" : "") + '" data-id="' + esc(c.id) + '">' + (inShort(c.id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ")) + "</button>" +
         (opts.removeShort ? '<button class="empd-rm" data-id="' + esc(c.id) + '">' + T("Remove", "إزالة") + "</button>" : "") + "</div>" +
-        stageBtns(c.id) + "</div>";
+        aiBtns(c.id) + stageBtns(c.id) + "</div>";
     }
     function bindCard(scope) {
       scope.querySelectorAll(".empd-save").forEach(function (b) {
         b.addEventListener("click", function () {
           var id = b.getAttribute("data-id"), c = findC(id);
-          if (inShort(id)) short = short.filter(function (x) { return x.id !== id; });
-          else if (c) short.push(c);
+          if (inShort(id)) short = short.filter(function (x) { return x.id !== id; }); else if (c) short.push(c);
           writeLS("bp_shortlist", short); renderCounts();
           b.classList.toggle("on"); b.innerHTML = inShort(id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ");
         });
@@ -1423,36 +1418,67 @@ var BP = window.BP = window.BP || {};
           var id = b.getAttribute("data-id"), st = b.getAttribute("data-stage"), c = findC(id);
           if (pipe[id] === st) delete pipe[id]; else { pipe[id] = st; if (c && !inShort(id)) { short.push(c); writeLS("bp_shortlist", short); renderCounts(); } }
           writeLS("bp_pipeline", pipe);
-          var row = b.parentNode; row.querySelectorAll(".empd-stage-btn").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-stage") === pipe[id]); });
+          b.parentNode.querySelectorAll(".empd-stage-btn").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-stage") === pipe[id]); });
         });
       });
-      scope.querySelectorAll(".empd-rm").forEach(function (b) {
-        b.addEventListener("click", function () { var id = b.getAttribute("data-id"); short = short.filter(function (x) { return x.id !== id; }); writeLS("bp_shortlist", short); renderCounts(); renderShort(); });
-      });
+      scope.querySelectorAll(".empd-rm").forEach(function (b) { b.addEventListener("click", function () { var id = b.getAttribute("data-id"); short = short.filter(function (x) { return x.id !== id; }); writeLS("bp_shortlist", short); renderCounts(); renderShort(); }); });
+      scope.querySelectorAll(".empd-ai-btn").forEach(function (b) { b.addEventListener("click", function () { aiAction(b.getAttribute("data-ai"), b.getAttribute("data-id")); }); });
     }
-    function findC(id) { return CANDS.concat(short).filter(function (c) { return c.id === id; })[0]; }
     function renderCounts() { var el = document.getElementById("empd-short-count"); if (el) el.textContent = short.length; }
-    function renderBrowse() {
-      var g = document.getElementById("empd-grid"), status = document.getElementById("empd-status");
-      status.textContent = CANDS.length + " " + T("candidates", "مرشّح");
-      g.innerHTML = CANDS.map(function (c) { return card(c, {}); }).join("");
-      bindCard(g);
-    }
-    function renderShort() {
-      var g = document.getElementById("empd-short-grid");
-      if (!short.length) { g.innerHTML = '<p class="emp-note">' + T("No saved candidates yet.", "ما في مرشّحين محفوظين بعد.") + "</p>"; return; }
-      g.innerHTML = short.map(function (c) { return card(c, { removeShort: true }); }).join("");
-      bindCard(g);
-    }
+    function renderBrowse() { var g = document.getElementById("empd-grid"), status = document.getElementById("empd-status"); status.textContent = CANDS.length + " " + T("candidates", "مرشّح"); g.innerHTML = CANDS.map(function (c) { return card(c, {}); }).join(""); bindCard(g); }
+    function renderShort() { var g = document.getElementById("empd-short-grid"); if (!short.length) { g.innerHTML = '<p class="emp-note">' + T("No saved candidates yet.", "ما في مرشّحين محفوظين بعد.") + "</p>"; return; } g.innerHTML = short.map(function (c) { return card(c, { removeShort: true }); }).join(""); bindCard(g); }
     function renderPipe() {
       var wrap = document.getElementById("empd-pipe");
       wrap.innerHTML = STAGES.map(function (s) {
         var items = short.filter(function (c) { return pipe[c.id] === s[0]; });
-        var cards = items.length ? items.map(function (c) {
-          return '<div class="empd-pcard"><strong>' + esc(c.name || c.role || "—") + "</strong>" + (c.role ? "<span>" + esc(c.role) + "</span>" : "") + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>" : "") + "</div>";
-        }).join("") : '<p class="empd-empty">—</p>';
+        var cards = items.length ? items.map(function (c) { return '<div class="empd-pcard"><strong>' + esc(c.name || c.role || "—") + "</strong>" + (c.role ? "<span>" + esc(c.role) + "</span>" : "") + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>" : "") + "</div>"; }).join("") : '<p class="empd-empty">—</p>';
         return '<div class="empd-col"><div class="empd-col-h">' + esc(s[1]) + ' <span>' + items.length + "</span></div>" + cards + "</div>";
       }).join("");
+    }
+
+    // ---- AI Match ----
+    document.getElementById("empd-match-run").addEventListener("click", function () {
+      var jd = document.getElementById("empd-jd").value.trim();
+      var st = document.getElementById("empd-match-status"), grid = document.getElementById("empd-match-grid");
+      if (!jd) { st.textContent = T("Describe the role first.", "اكتب وصف الوظيفة أولاً."); return; }
+      if (!CANDS.length) { st.textContent = T("Loading candidates… try again in a moment.", "يتم تحميل المرشّحين… حاول بعد لحظات."); load(); return; }
+      lastJD = jd; st.textContent = "✨ " + T("AI is ranking your best-fit candidates…", "الذكاء يرتّب أنسب المرشّحين…"); grid.innerHTML = "";
+      fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: "match", role: jd, candidates: CANDS.map(function (c) { return { id: c.id, role: c.role, field: c.field, city: c.city, experience: c.experience, education: c.education, nationalityType: c.nationalityType, skills: c.skills }; }) }) })
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.s === 503) { st.innerHTML = T("AI isn't enabled yet.", "الذكاء غير مفعّل بعد."); return; }
+          var d = res.d;
+          if (!d || !d.ok || !d.ranked || !d.ranked.length) { st.textContent = T("No strong matches. Try rephrasing the role.", "لا مطابقات قوية. جرّب تصيغ الوصف بشكل آخر."); return; }
+          var byId = {}; CANDS.forEach(function (c) { byId[c.id] = c; });
+          var items = d.ranked.map(function (m) { var c = byId[m.id]; return c ? { c: c, m: m } : null; }).filter(Boolean);
+          st.textContent = "✨ " + items.length + " " + T("matched candidates (best first)", "مرشّح مطابق (الأفضل أولاً)");
+          grid.innerHTML = items.map(function (x) { return card(x.c, { match: x.m }); }).join("");
+          bindCard(grid);
+        })
+        .catch(function () { st.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
+    });
+
+    // ---- Per-candidate AI + modal ----
+    var modal = document.getElementById("empd-modal");
+    var TITLES = { summary: T("AI assessment", "تقييم ذكي"), interview: T("Interview questions", "أسئلة مقابلة"), outreach: T("Outreach message", "رسالة تواصل") };
+    function openModal(title, html) { document.getElementById("empd-modal-title").textContent = title; document.getElementById("empd-modal-body").innerHTML = html; modal.hidden = false; }
+    function closeModal() { modal.hidden = true; }
+    document.getElementById("empd-modal-x").addEventListener("click", closeModal);
+    modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+    function aiAction(task, id) {
+      var c = findC(id); if (!c) return;
+      openModal(TITLES[task] || "AI", '<p class="empd-empty">✨ ' + T("Thinking…", "جارٍ التفكير…") + "</p>");
+      fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: task, candidate: c, role: lastJD }) })
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.s === 503) { document.getElementById("empd-modal-body").innerHTML = "<p>" + T("AI isn't enabled yet.", "الذكاء غير مفعّل بعد.") + "</p>"; return; }
+          var d = res.d;
+          if (!d || !d.ok || !d.result) { document.getElementById("empd-modal-body").innerHTML = "<p>" + T("Couldn't generate. Try again.", "تعذّر التوليد. حاول مجدداً.") + "</p>"; return; }
+          var html = "<div class='empd-ai-out'>" + nl2br(d.result) + "</div>";
+          if (task === "outreach" && c.phone) { var wa = c.phone.replace(/[^\d]/g, ""); html += '<a class="btn btn-wa" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(d.result) + '">' + T("Send on WhatsApp", "أرسل عبر واتساب") + "</a>"; }
+          document.getElementById("empd-modal-body").innerHTML = html;
+        })
+        .catch(function () { document.getElementById("empd-modal-body").innerHTML = "<p>" + T("Network error.", "خطأ في الاتصال.") + "</p>"; });
     }
   });
 })();
