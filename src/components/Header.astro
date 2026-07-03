@@ -20,7 +20,11 @@ const { lang, t } = Astro.props;
       <a href={`${lang === 'ar' ? '/ar' : '/en'}/#services`}>{t.nav.services}</a>
       <a href={`${lang === 'ar' ? '/ar' : '/en'}/#packages`}>{t.nav.packages}</a>
       <a href={`${lang === 'ar' ? '/ar' : '/en'}/#contact`}>{t.nav.contact}</a>
-      
+
+      <a href="https://new.businesspartner.sa" class="new-version-badge">
+        {lang === 'ar' ? '✨ جرّب النسخة الجديدة' : '✨ Try the new site'}
+      </a>
+
       <LanguageToggle currentLocale={lang} />
     </nav>
   </div>
@@ -83,6 +87,24 @@ const { lang, t } = Astro.props;
     color: #1e293b;
   }
 
+  /* "Try the new site" badge → points to the new site on new.businesspartner.sa */
+  .new-version-badge {
+    background: #0B1B5A;
+    color: #ffffff !important;
+    font-weight: 700;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(11, 27, 90, 0.25);
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+
+  .new-version-badge:hover {
+    background: #13246e;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+  }
+
   /* Mobile responsive */
   @media (max-width: 768px) {
     .header-content {
@@ -101,6 +123,13 @@ const { lang, t } = Astro.props;
 
     .nav a:not(:last-child) {
       display: none;
+    }
+
+    /* keep the "try the new site" badge visible on mobile */
+    .nav a.new-version-badge {
+      display: inline-block;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.85rem;
     }
   }
 </style>
