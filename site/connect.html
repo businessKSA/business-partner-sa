@@ -90,18 +90,32 @@
     .paynote{background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:.6rem .8rem;font-size:.82rem;margin:.2rem 0 .9rem;display:flex;gap:.5rem}
     .m-foot{padding:1rem 1.4rem 1.4rem;display:flex;gap:.6rem;flex-wrap:wrap}
     .m-foot .btn{flex:1;justify-content:center;border-radius:11px}
+    .mininav{position:sticky;top:0;z-index:20;background:rgba(11,27,90,.96);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;gap:1rem;padding:.6rem 1.1rem}
+    .mininav .mn-logo{color:#fff;font-weight:700;text-decoration:none;font-size:.98rem}
+    .mininav .mn-links{margin-inline-start:auto;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+    .mininav .mn-links a{color:#dfe6ff;text-decoration:none;font-size:.86rem;padding:.35rem .6rem;border-radius:8px}
+    .mininav .mn-links a:hover{background:rgba(255,255,255,.1)}
+    .mininav .mn-cta{background:var(--green);color:#fff !important;font-weight:700}
     @media(max-width:800px){.valuerow{grid-template-columns:1fr}.pgrid{grid-template-columns:1fr}.hero h1{font-size:1.6rem}}
   </style>
 </head>
 <body>
+  <div class="mininav">
+    <a class="mn-logo" href="/">Business Partner</a>
+    <div class="mn-links">
+      <a href="#connect">الأدوات</a>
+      <a href="#pricing">الباقات</a>
+      <a class="mn-cta" href="/portal">🔐 دخول بوابتي</a>
+    </div>
+  </div>
   <div class="hero">
     <div class="wrap">
       <div class="badge">🤖 موظفك الذكي — خاص فيك، مربوط بأدواتك</div>
       <h1>وظّف <span class="hi">موظفاً ذكياً</span> متخصصاً، واربطه بأدوات شركتك<br/>فيشتغل فعلياً نيابةً عنك.</h1>
       <p>مو مجرد شات — موظف حقيقي في مجاله (مساعدة تنفيذية، مبيعات، تسويق، عمليات…). تربطه بجيميل ونوشن وواتساب وتيمس بضغطة، فيقرأ ويرسل وينظّم ويرد <b>داخل حساباتك أنت</b>. أسرع، أقوى، ومخرجات مباشرة.</p>
       <div class="cta">
-        <a href="#connect" class="btn btn-g">🔌 اربط أدواتك الآن</a>
-        <a href="#pricing" class="btn btn-o">💳 شوف الباقات</a>
+        <a href="/portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
+        <a href="#connect" class="btn btn-o">🔌 شوف الأدوات</a>
       </div>
       <div class="valuerow">
         <div class="vitem"><b>⚡ أسرع</b><span>ينجز المهام المتكررة فوراً بدل ساعات عمل يدوي.</span></div>
@@ -141,19 +155,19 @@
           <h3>الأساسية</h3>
           <div class="pr">— <small>/ شهرياً</small></div>
           <ul><li>موظف ذكي واحد بمجاله</li><li>لوحة تحكم واختبار</li><li>ربط الأدوات المجانية (قوقل / نوشن / سلاك)</li><li>دعم أساسي</li></ul>
-          <a href="#connect" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">اختر</a>
+          <a href="/portal" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">اختر</a>
         </div>
         <div class="pc feat">
           <h3>النمو</h3>
           <div class="pr">— <small>/ شهرياً</small></div>
           <ul><li>حتى ٣ موظفين أذكياء</li><li>كل الأدوات (واتساب / مايكروسوفت / CRM)</li><li>ذاكرة محادثة لكل عميل</li><li>أولوية دعم + تقارير</li></ul>
-          <a href="#connect" class="btn btn-g">اختر</a>
+          <a href="/portal" class="btn btn-g">اختر</a>
         </div>
         <div class="pc">
           <h3>مخصّص</h3>
           <div class="pr">حسب الطلب</div>
           <ul><li>فريق موظفين كامل</li><li>تكاملات خاصة بشركتك</li><li>إعداد وتأسيس كامل (Done-for-you)</li><li>مدير حساب مخصّص</li></ul>
-          <a href="#connect" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">تواصل معنا</a>
+          <a href="/contact" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">تواصل معنا</a>
         </div>
       </div>
       <div class="addon">

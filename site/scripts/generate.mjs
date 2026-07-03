@@ -214,6 +214,7 @@ const NAV_GROUPS = [
   {
     en: "Our services", ar: "خدماتنا",
     items: [
+      { href: "/connect", en: "Smart employees ⚡", ar: "موظفوك الأذكياء ⚡" },
       { href: "/services", en: "All services (93)", ar: "كل الخدمات (93)" },
       { href: "/packages", en: "Packages", ar: "الباقات" },
       { href: "/ai-agents", en: "AI Agents", ar: "الوكلاء الأذكياء" },
@@ -3299,18 +3300,32 @@ function buildConnect() {
     .paynote{background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:.6rem .8rem;font-size:.82rem;margin:.2rem 0 .9rem;display:flex;gap:.5rem}
     .m-foot{padding:1rem 1.4rem 1.4rem;display:flex;gap:.6rem;flex-wrap:wrap}
     .m-foot .btn{flex:1;justify-content:center;border-radius:11px}
+    .mininav{position:sticky;top:0;z-index:20;background:rgba(11,27,90,.96);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;gap:1rem;padding:.6rem 1.1rem}
+    .mininav .mn-logo{color:#fff;font-weight:700;text-decoration:none;font-size:.98rem}
+    .mininav .mn-links{margin-inline-start:auto;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+    .mininav .mn-links a{color:#dfe6ff;text-decoration:none;font-size:.86rem;padding:.35rem .6rem;border-radius:8px}
+    .mininav .mn-links a:hover{background:rgba(255,255,255,.1)}
+    .mininav .mn-cta{background:var(--green);color:#fff !important;font-weight:700}
     @media(max-width:800px){.valuerow{grid-template-columns:1fr}.pgrid{grid-template-columns:1fr}.hero h1{font-size:1.6rem}}
   </style>
 </head>
 <body>
+  <div class="mininav">
+    <a class="mn-logo" href="/">Business Partner</a>
+    <div class="mn-links">
+      <a href="#connect">الأدوات</a>
+      <a href="#pricing">الباقات</a>
+      <a class="mn-cta" href="/portal">🔐 دخول بوابتي</a>
+    </div>
+  </div>
   <div class="hero">
     <div class="wrap">
       <div class="badge">🤖 موظفك الذكي — خاص فيك، مربوط بأدواتك</div>
       <h1>وظّف <span class="hi">موظفاً ذكياً</span> متخصصاً، واربطه بأدوات شركتك<br/>فيشتغل فعلياً نيابةً عنك.</h1>
       <p>مو مجرد شات — موظف حقيقي في مجاله (مساعدة تنفيذية، مبيعات، تسويق، عمليات…). تربطه بجيميل ونوشن وواتساب وتيمس بضغطة، فيقرأ ويرسل وينظّم ويرد <b>داخل حساباتك أنت</b>. أسرع، أقوى، ومخرجات مباشرة.</p>
       <div class="cta">
-        <a href="#connect" class="btn btn-g">🔌 اربط أدواتك الآن</a>
-        <a href="#pricing" class="btn btn-o">💳 شوف الباقات</a>
+        <a href="/portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
+        <a href="#connect" class="btn btn-o">🔌 شوف الأدوات</a>
       </div>
       <div class="valuerow">
         <div class="vitem"><b>⚡ أسرع</b><span>ينجز المهام المتكررة فوراً بدل ساعات عمل يدوي.</span></div>
@@ -3350,19 +3365,19 @@ function buildConnect() {
           <h3>الأساسية</h3>
           <div class="pr">— <small>/ شهرياً</small></div>
           <ul><li>موظف ذكي واحد بمجاله</li><li>لوحة تحكم واختبار</li><li>ربط الأدوات المجانية (قوقل / نوشن / سلاك)</li><li>دعم أساسي</li></ul>
-          <a href="#connect" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">اختر</a>
+          <a href="/portal" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">اختر</a>
         </div>
         <div class="pc feat">
           <h3>النمو</h3>
           <div class="pr">— <small>/ شهرياً</small></div>
           <ul><li>حتى ٣ موظفين أذكياء</li><li>كل الأدوات (واتساب / مايكروسوفت / CRM)</li><li>ذاكرة محادثة لكل عميل</li><li>أولوية دعم + تقارير</li></ul>
-          <a href="#connect" class="btn btn-g">اختر</a>
+          <a href="/portal" class="btn btn-g">اختر</a>
         </div>
         <div class="pc">
           <h3>مخصّص</h3>
           <div class="pr">حسب الطلب</div>
           <ul><li>فريق موظفين كامل</li><li>تكاملات خاصة بشركتك</li><li>إعداد وتأسيس كامل (Done-for-you)</li><li>مدير حساب مخصّص</li></ul>
-          <a href="#connect" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">تواصل معنا</a>
+          <a href="/contact" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">تواصل معنا</a>
         </div>
       </div>
       <div class="addon">
@@ -3535,12 +3550,51 @@ function buildPortal() {
     .composer input:focus{border-color:var(--navy)}
     .composer button{background:var(--green);color:#fff;border:0;border-radius:11px;padding:0 1.3rem;font-weight:700}
     .composer button:disabled{opacity:.5}
+    .topbar .tb-link{color:#dfe6ff;text-decoration:none;font-size:12.5px;padding:6px 8px;border-radius:8px}
+    .topbar .tb-link:hover{background:rgba(255,255,255,.1)}
+    .tabs{display:flex;gap:.6rem;border-bottom:1px solid var(--line);margin-bottom:1.1rem;flex-wrap:wrap;align-items:center}
+    .tab{background:none;border:0;border-bottom:2.5px solid transparent;padding:.6rem .3rem;font-weight:700;color:var(--muted);font-size:.95rem}
+    .tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+    .tab-link{margin-inline-start:auto;color:var(--navy);text-decoration:none;font-size:.85rem;font-weight:700}
+    .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+    .cc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .cc-top{display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.5rem}
+    .cc-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;background:#f1f4fb;flex-shrink:0}
+    .cc-t{flex:1}
+    .cc-t h3{font-size:1rem;color:var(--navy)}
+    .cc-t .u{font-size:.8rem;color:var(--muted)}
+    .cc-state{font-size:.7rem;font-weight:700;padding:.15rem .5rem;border-radius:999px;background:#eef1f8;color:#64748b;white-space:nowrap}
+    .cc-state.on{background:var(--green-soft);color:#065f46}
+    .cc-tag{font-size:.7rem;font-weight:600;padding:.2rem .55rem;border-radius:999px;align-self:flex-start;margin-bottom:.6rem}
+    .cc-tag.easy{background:#e0f2fe;color:#075985}
+    .cc-tag.token{background:#fef3c7;color:#b45309}
+    .cc-tag.cost{background:#fee2e2;color:#991b1b}
+    .cc-actions{display:flex;gap:.4rem;margin-top:auto}
+    .cc-actions button{flex:1;border-radius:9px;padding:.5rem;font-size:.82rem;font-weight:700;border:0;cursor:pointer}
+    .cbtn{background:var(--navy);color:#fff}
+    .hbtn{background:#fff;color:var(--navy);border:1px solid var(--line)}
+    .ov{position:fixed;inset:0;background:rgba(8,12,30,.55);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+    .ov.on{display:flex}
+    .modal{background:#fff;border-radius:16px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto}
+    .m-head{padding:1rem 1.2rem;border-bottom:1px solid var(--line);display:flex;gap:.6rem;align-items:center}
+    .m-head h3{flex:1;color:var(--navy);font-size:1.1rem}
+    .m-close{background:#f1f4fb;border:0;width:30px;height:30px;border-radius:8px;cursor:pointer}
+    .m-body{padding:1.1rem 1.2rem}
+    .lead2{font-size:.88rem;color:var(--muted);margin-bottom:.9rem}
+    .stp{display:flex;gap:.6rem;margin-bottom:.7rem}
+    .stp .n{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .stp .tx{font-size:.86rem}
+    .pay{background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:9px;padding:.5rem .7rem;font-size:.8rem;margin-bottom:.8rem}
+    .m-foot{padding:.9rem 1.2rem 1.2rem;display:flex;gap:.5rem}
+    .m-foot button{flex:1;border-radius:10px;padding:.6rem;font-weight:700;border:0;cursor:pointer}
     @media(max-width:560px){.panel{height:66vh}}
   </style>
 </head>
 <body>
   <div class="topbar">
     <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
+    <a class="tb-link" href="/connect">الأدوات والباقات</a>
+    <a class="tb-link" href="/">الموقع</a>
     <div class="sp"></div>
     <div class="who" id="who"></div>
     <button id="logout" style="display:none">خروج</button>
@@ -3570,14 +3624,33 @@ function buildPortal() {
   </div>
   <div id="screen-ws" style="display:none">
     <div class="ws">
-      <h2>👋 أهلاً بك — اختر موظفك</h2>
-      <p class="lead">اختر موظفاً وابدأ التعامل معه مباشرة. كل موظف خبير في مجاله.</p>
-      <div class="agents" id="agents"></div>
-      <div class="panel">
-        <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div></div>
-        <div class="chat" id="chat"><div class="msg empty">اختر موظفاً من الأعلى وابدأ المحادثة.</div></div>
-        <div class="composer"><input id="msg" type="text" placeholder="اكتب رسالتك…" disabled /><button id="send" disabled>إرسال</button></div>
+      <div class="tabs">
+        <button class="tab active" data-tab="emp">👥 موظفوك</button>
+        <button class="tab" data-tab="tools">🔌 أدواتك</button>
+        <a class="tab-link" href="/connect">الباقات ↗</a>
       </div>
+      <div id="tab-emp">
+        <h2>اختر موظفك</h2>
+        <p class="lead">اختر موظفاً وابدأ التعامل معه مباشرة. كل موظف خبير في مجاله.</p>
+        <div class="agents" id="agents"></div>
+        <div class="panel">
+          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div></div>
+          <div class="chat" id="chat"><div class="msg empty">اختر موظفاً من الأعلى وابدأ المحادثة.</div></div>
+          <div class="composer"><input id="msg" type="text" placeholder="اكتب رسالتك…" disabled /><button id="send" disabled>إرسال</button></div>
+        </div>
+      </div>
+      <div id="tab-tools" style="display:none">
+        <h2>🔌 اربط أدواتك</h2>
+        <p class="lead">اربط موظفك بأدواتك ليشتغل داخل حساباتك. لو الأداة تحتاج توكن أو فيها تكلفة نمشي معك خطوة بخطوة، أو اطلب منّا نركّبها لك.</p>
+        <div class="cgrid" id="cgrid"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ov" id="ov">
+    <div class="modal">
+      <div class="m-head"><span class="cc-ic" id="mo-ic">🔌</span><h3 id="mo-t">ربط</h3><button class="m-close" id="mo-x">✕</button></div>
+      <div class="m-body"><p class="lead2" id="mo-l"></p><div id="mo-s"></div></div>
+      <div class="m-foot"><button class="cbtn" id="mo-do">🔗 ربط الآن</button><button class="hbtn" id="mo-help">🛠️ نركّبها لك</button></div>
     </div>
   </div>
   <script>
@@ -3591,6 +3664,17 @@ function buildPortal() {
       {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
       {slug:'abdulaziz',path:'abdulaziz-intake',name:'عبدالعزيز',role:'قانوني وامتثال',e:'⚖️'}
     ];
+    var TOOLS=[
+      {id:'gmail',ic:'📧',name:'Gmail',u:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.',type:'easy',lead:'ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.',steps:['اضغط ربط الآن فتفتح صفحة تسجيل قوقل.','اختر حساب الشركة ووافق على الصلاحيات.','يشتغل الموظف داخل بريدك مباشرة.']},
+      {id:'gcal',ic:'📅',name:'تقويم قوقل',u:'يجدول المواعيد والدعوات والتذكيرات.',type:'easy',lead:'ربط بضغطة مع حساب قوقل — مجاناً.',steps:['سجّل دخول قوقل.','وافق على صلاحية التقويم.','يقدر يجدول ويعدّل مواعيدك.']},
+      {id:'notion',ic:'🗒️',name:'Notion',u:'ينظّم المهام وقواعد البيانات والتوثيق.',type:'easy',lead:'ربط بضغطة عبر Notion — مجاناً.',steps:['وافق على Notion.','اختر الصفحات المشتركة.','يقرأ ويكتب في نوشن حسب صلاحياتك.']},
+      {id:'slack',ic:'💬',name:'Slack',u:'يرد وينبّه ويلخّص داخل قنوات فريقك.',type:'easy',lead:'ربط بضغطة عبر Slack — مجاناً.',steps:['ثبّت التطبيق في مساحة سلاك.','اختر القنوات.','يشتغل داخل سلاك.']},
+      {id:'whatsapp',ic:'🟢',name:'WhatsApp',u:'يرد على عملائك على واتساب ٢٤/٧.',type:'cost',lead:'يحتاج رقم أعمال + إعداد WhatsApp Cloud API من Meta. فيه تكلفة رسائل تُدفع لـ Meta.',pay:'تكلفة الرسائل تُدفع لـ Meta حسب عدد المحادثات.',steps:['أنشئ حساب Meta Business + رقم واتساب أعمال.','فعّل WhatsApp Cloud API واحصل على التوكن.','الصق التوكن (يُخزّن مشفّراً) أو أرسله لنا.','اربط فيرد الموظف على عملائك.']},
+      {id:'ms',ic:'🟦',name:'Microsoft (Teams/Outlook)',u:'يدير أوتلوك وتقويم ورسائل تيمس.',type:'token',lead:'ربط عبر تسجيل دخول مايكروسوفت. قد يحتاج اشتراك Microsoft 365.',pay:'إن لم يكن لديك 365 يلزم اشتراك من مايكروسوفت.',steps:['سجّل دخول مايكروسوفت للعمل.','وافق على صلاحيات البريد/التقويم/تيمس.','يشتغل داخل بيئة مايكروسوفت.']},
+      {id:'drive',ic:'📁',name:'Google Drive',u:'ينظّم ملفاتك ويلخّص المستندات.',type:'easy',lead:'ربط بضغطة مع حساب قوقل — مجاناً.',steps:['سجّل دخول قوقل.','وافق على صلاحية Drive.','يقرأ وينظّم ملفاتك.']},
+      {id:'crm',ic:'📊',name:'CRM / جداول',u:'يحدّث العملاء والصفقات في CRM أو Sheets.',type:'token',lead:'نربطه بـ Google Sheets أو CRM لديك (قد يحتاج مفتاح API).',steps:['أخبرنا بنظامك.','نجهّز الربط المناسب.','يحدّث بياناتك تلقائياً.']}
+    ];
+    var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
     var CODES=['BP-DEMO','BP2026'];
     var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub'};
     function $(id){return document.getElementById(id);}
@@ -3655,6 +3739,44 @@ function buildPortal() {
     }
     $('send').onclick=send;
     $('msg').addEventListener('keydown',function(ev){if(ev.key==='Enter')send();});
+    var toolsBuilt=false;
+    function switchTab(t){
+      var em=t==='emp';
+      $('tab-emp').style.display=em?'':'none';
+      $('tab-tools').style.display=em?'none':'';
+      var tabs=document.querySelectorAll('.tab'); for(var i=0;i<tabs.length;i++) tabs[i].classList.toggle('active',tabs[i].getAttribute('data-tab')===t);
+      if(t==='tools' && !toolsBuilt){ buildTools(); toolsBuilt=true; }
+    }
+    (function(){var tabs=document.querySelectorAll('.tab'); for(var i=0;i<tabs.length;i++){ (function(b){ b.onclick=function(){ switchTab(b.getAttribute('data-tab')); }; })(tabs[i]); }})();
+    function buildTools(){
+      var g=$('cgrid');
+      TOOLS.forEach(function(t){
+        var on=!!tst[t.id]; var tagtxt=t.type==='easy'?'ربط بضغطة':(t.type==='cost'?'فيه تكلفة':'يحتاج توكن');
+        var d=document.createElement('div'); d.className='cc'; d.dataset.id=t.id;
+        d.innerHTML='<div class="cc-top"><span class="cc-ic">'+t.ic+'</span><div class="cc-t"><h3>'+t.name+'</h3><div class="u">'+t.u+'</div></div><span class="cc-state '+(on?'on':'')+'">'+(on?'✓ متصل':'غير متصل')+'</span></div>'+
+          '<span class="cc-tag '+t.type+'">'+tagtxt+'</span>'+
+          '<div class="cc-actions"><button class="cbtn">'+(on?'إدارة':'🔗 اربط')+'</button><button class="hbtn">🛠️ نركّبها لك</button></div>';
+        d.querySelector('.cbtn').onclick=function(){ openTool(t); };
+        d.querySelector('.hbtn').onclick=function(){ helpTool(t); };
+        g.appendChild(d);
+      });
+    }
+    var ov=$('ov'), curTool=null;
+    function openTool(t){
+      curTool=t; $('mo-ic').textContent=t.ic; $('mo-t').textContent='ربط '+t.name; $('mo-l').textContent=t.lead;
+      var s=''; if(t.pay) s+='<div class="pay">💳 '+t.pay+'</div>';
+      t.steps.forEach(function(x,i){ s+='<div class="stp"><div class="n">'+(i+1)+'</div><div class="tx">'+x+'</div></div>'; });
+      $('mo-s').innerHTML=s; $('mo-do').textContent=tst[t.id]?'✓ متصل — إعادة الربط':'🔗 ربط الآن'; ov.classList.add('on');
+    }
+    $('mo-x').onclick=function(){ov.classList.remove('on');};
+    ov.onclick=function(e){ if(e.target===ov) ov.classList.remove('on'); };
+    $('mo-do').onclick=function(){
+      if(!curTool) return; tst[curTool.id]=true; localStorage.setItem(TKEY,JSON.stringify(tst));
+      var c=document.querySelector('.cc[data-id="'+curTool.id+'"]'); if(c){ var b=c.querySelector('.cc-state'); b.textContent='✓ متصل'; b.classList.add('on'); c.querySelector('.cbtn').textContent='إدارة'; }
+      ov.classList.remove('on'); alert('✅ (نموذج) تم الربط. في النسخة الحقيقية تفتح صفحة تسجيل الدخول الآمن للأداة.');
+    };
+    $('mo-help').onclick=function(){ if(curTool) helpTool(curTool); };
+    function helpTool(t){ alert('🛠️ طلب إعداد «'+t.name+'» — نركّب لك الأداة ونسلّمك الموظف جاهز مقابل رسوم إعداد.'); }
     route();
   </script>
 </body>
