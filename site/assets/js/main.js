@@ -345,6 +345,17 @@ var BP = window.BP = window.BP || {};
         orders.unshift(order);
         localStorage.setItem("bp_orders", JSON.stringify(orders));
       } catch (err) {}
+      // Register the order with the team + CRM (best-effort; never blocks the client).
+      try {
+        fetch("/api/requests", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            type: "order", ref: ref, name: name, phone: phone, email: email,
+            items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
+            total: cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || ""
+          })
+        }).catch(function () {});
+      } catch (e) {}
       // Build WhatsApp notification
       var lines = ["*طلب جديد / New order* " + ref, "الاسم: " + name, "الجوال: " + phone];
       order.items.forEach(function (it) { lines.push("• " + it.name + " ×" + it.qty + (it.price ? " — " + it.price + " ﷼" : "")); });

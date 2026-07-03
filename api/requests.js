@@ -12,6 +12,45 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
+// ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
+const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
+const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
+const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
+const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
+const NOTION_VERSION = "2022-06-28";
+
+async function crmLead({ title, phone, email, notes, ref }) {
+  if (!NOTION_TOKEN) return;
+  const today = new Date().toISOString().slice(0, 10);
+  const props = {
+    "Opportunity Name": { title: [{ text: { content: `${title} (${ref})`.slice(0, 200) } }] },
+    "Stage": { select: { name: "New" } },
+    "Lead Source": { select: { name: "Website" } },
+    "Human Required": { checkbox: true },
+    "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}`.slice(0, 1900) } }] },
+    "Last Activity": { date: { start: today } },
+  };
+  try {
+    const r = await fetch("https://api.notion.com/v1/pages", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ parent: { database_id: CRM_DB }, properties: props }),
+    });
+    if (!r.ok) console.error("CRM lead error", r.status, (await r.text()).slice(0, 300));
+  } catch (e) { console.error("CRM lead exception", String(e).slice(0, 150)); }
+}
+async function addToAudience(email, name) {
+  if (!RESEND_API_KEY || !RESEND_AUDIENCE || !isEmail(email)) return;
+  try {
+    const p = String(name || "").trim().split(/\s+/).filter(Boolean);
+    await fetch(`https://api.resend.com/audiences/${RESEND_AUDIENCE}/contacts`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ email, first_name: p[0] || undefined, last_name: p.slice(1).join(" ") || undefined, unsubscribed: false }),
+    });
+  } catch {}
+}
+
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -56,6 +95,26 @@ export default async function handler(req, res) {
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
 
   const b = await readBody(req);
+
+  // Order/purchase from checkout → CRM lead + team notification (lighter validation).
+  if (b.type === "order") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BP-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const items = (Array.isArray(b.items) ? b.items.map((x) => (typeof x === "string" ? x : (x && x.name) || "")).filter(Boolean) : [String(b.items || "")]).join("، ").slice(0, 900);
+    const total = String(b.total || "").slice(0, 40);
+    if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref }),
+      addToAudience(email, name),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   const type = b.type === "supplier" ? "supplier" : "event";
   const f = {};
   for (const k of ["company", "person", "phone", "email", "date", "count", "klass", "venue", "eventType", "city", "cr", "category", "notes"]) {
@@ -88,9 +147,14 @@ export default async function handler(req, res) {
       : "استلمنا تسجيلكم في بوابة الموردين وسنتواصل معكم لاستكمال الانضمام."}</p>
     <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
 
+  const crmNotes = type === "event"
+    ? `فعالية · ${f.company} · تاريخ ${f.date} · ${f.count} فرد · ${f.eventType}`
+    : `مورّد · ${f.company} · ${f.city} · تصنيف ${f.category}`;
   const [teamSent, clientSent] = await Promise.all([
     sendEmail(TEAM_EMAIL, `${title} — ${f.company}`, teamHtml),
     sendEmail(f.email, `${type === "event" ? "تأكيد طلب الفعالية" : "تأكيد تسجيل المورّد"} ${ref} — Business Partner`, clientHtml),
+    crmLead({ title, phone: f.phone, email: f.email, notes: crmNotes, ref }),
+    addToAudience(f.email, f.person),
   ]);
 
   res.statusCode = 200;
