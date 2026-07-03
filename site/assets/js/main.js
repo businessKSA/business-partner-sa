@@ -1105,3 +1105,72 @@ var BP = window.BP = window.BP || {};
   var qEl = document.getElementById("emp-q");
   if (qEl) qEl.addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
 })();
+
+/* ---------- Employer subscription (/employer-join) → /api/employer ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("emp-join");
+    if (!form) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    var WA = "966507034157";
+
+    // Preselect plan from ?plan=
+    try {
+      var pre = new URLSearchParams(location.search).get("plan");
+      if (pre) { var r = form.querySelector('input[name="emp-plan"][value="' + pre + '"]'); if (r) r.checked = true; }
+    } catch (e) {}
+
+    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    function planInfo() {
+      var sel = form.querySelector('input[name="emp-plan"]:checked');
+      var key = sel ? sel.value : "";
+      var list = window.BP_EMP_PLANS || [];
+      for (var i = 0; i < list.length; i++) if (list[i].key === key) return list[i];
+      return { key: key, name: key, price: null };
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var company = val("ej-company"), phone = val("ej-phone");
+      if (!company) { alert(T("Please enter the company name.", "الرجاء إدخال اسم الشركة.")); return; }
+      if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Please enter a valid Saudi mobile (05XXXXXXXX).", "الرجاء إدخال جوال سعودي صحيح (05XXXXXXXX).")); return; }
+      var plan = planInfo();
+      var payload = { company: company, cr: val("ej-cr"), contact: val("ej-contact"), phone: phone, email: val("ej-email"), notes: val("ej-notes"), plan: plan.key };
+
+      var btn = document.getElementById("ej-submit"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+
+      function done(ref) {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("ej-result");
+        var bank = window.BP_BANK || {};
+        var waMsg = encodeURIComponent(
+          T("New employer subscription", "طلب اشتراك صاحب عمل") + " " + (ref || "") +
+          "\n" + T("Company", "الشركة") + ": " + company +
+          "\n" + T("Plan", "الباقة") + ": " + (plan.name || plan.key) +
+          "\n" + T("Mobile", "الجوال") + ": " + phone
+        );
+        var bankRows = bank.iban ? (
+          '<div class="join-next"><h3>' + T("Bank transfer", "التحويل البنكي") + '</h3>' +
+          '<div class="bank-row"><span>' + T("Bank", "البنك") + '</span><span class="v">' + (bank.bank || "") + '</span></div>' +
+          '<div class="bank-row"><span>' + T("Beneficiary", "المستفيد") + '</span><span class="v">' + (bank.beneficiary || "") + '</span></div>' +
+          '<div class="bank-row"><span>IBAN</span><span class="v">' + bank.iban + '</span></div></div>'
+        ) : "";
+        box.hidden = false;
+        box.innerHTML =
+          "✅ <strong>" + T("Registration received", "تم استلام تسجيلك") + (ref ? " — " + ref : "") + "</strong><br>" +
+          T("To activate your access, complete payment for the ", "لتفعيل وصولك، أكمل دفع باقة ") + "<strong>" + (plan.name || "") + "</strong> " +
+          T("plan by bank transfer below, then send us the receipt on WhatsApp — we activate within working hours.", "عبر التحويل البنكي أدناه، ثم أرسل لنا الإيصال على واتساب — نفعّل خلال ساعات العمل.") +
+          bankRows +
+          '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Send details on WhatsApp", "أرسل التفاصيل عبر واتساب") + "</a>";
+        box.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      fetch("/api/employer", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) { done(res.d && res.d.ref); })
+        .catch(function () { done(null); });
+    });
+  });
+})();

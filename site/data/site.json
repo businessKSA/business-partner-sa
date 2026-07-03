@@ -1636,5 +1636,79 @@
     ],
     "hoursNote": "مواعيد العمل: 9 صباحاً – 6 مساءً بتوقيت الرياض، من السبت إلى الخميس (الجمعة إجازة).",
     "hoursNoteEn": "Working hours: 9 AM – 6 PM Riyadh time, Saturday to Thursday (Friday off)."
+  },
+  "employerPlans": {
+    "note": "أسعار مبدئية — عدّلها لاحقاً. price=null يعني «قريباً» ويحوّل للتواصل بدل الدفع.",
+    "currency": "SAR",
+    "period": "monthly",
+    "tiers": [
+      {
+        "key": "basic",
+        "name": "أساسية",
+        "nameEn": "Basic",
+        "price": null,
+        "unlock": 10,
+        "jobs": 1,
+        "popular": false,
+        "features": [
+          "فتح تواصل حتى 10 مرشّحين شهرياً",
+          "بحث وفلترة كاملة للمرشّحين",
+          "تحميل السير الذاتية (PDF)",
+          "دعم عبر واتساب"
+        ],
+        "featuresEn": [
+          "Unlock up to 10 candidate contacts / month",
+          "Full candidate search & filters",
+          "Download CVs (PDF)",
+          "WhatsApp support"
+        ]
+      },
+      {
+        "key": "pro",
+        "name": "احترافية",
+        "nameEn": "Professional",
+        "price": null,
+        "unlock": 30,
+        "jobs": 5,
+        "popular": true,
+        "features": [
+          "فتح تواصل حتى 30 مرشّح شهرياً",
+          "كل مميزات الأساسية",
+          "قائمة مختصرة ومراحل توظيف",
+          "ترشيح مطابق من فريقنا",
+          "أولوية في الدعم"
+        ],
+        "featuresEn": [
+          "Unlock up to 30 candidate contacts / month",
+          "Everything in Basic",
+          "Shortlist & hiring pipeline",
+          "Matched shortlisting by our team",
+          "Priority support"
+        ]
+      },
+      {
+        "key": "enterprise",
+        "name": "مؤسسية",
+        "nameEn": "Enterprise",
+        "price": null,
+        "unlock": 0,
+        "jobs": 0,
+        "popular": false,
+        "features": [
+          "فتح تواصل غير محدود",
+          "كل مميزات الاحترافية",
+          "مدير حساب مخصّص",
+          "إدارة التوظيف من البداية للنهاية",
+          "تقارير توطين ودعم أولوية قصوى"
+        ],
+        "featuresEn": [
+          "Unlimited candidate contacts",
+          "Everything in Professional",
+          "Dedicated account manager",
+          "End-to-end hiring managed for you",
+          "Saudization reports & top-priority support"
+        ]
+      }
+    ]
   }
 }

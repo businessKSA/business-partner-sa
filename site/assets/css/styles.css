@@ -817,3 +817,26 @@ h3 { font-size: 1.12rem; }
   .btn { font-size: .9rem; padding: 11px 18px; }
   .stat .num, .trust-band .stat .num { font-size: 1.7rem; }
 }
+
+/* ============ Employer subscription — plans + join form ============ */
+.emp-plans .emp-plan { position: relative; cursor: pointer; display: flex; flex-direction: column; border: 2px solid var(--gray-line); transition: border-color .15s, box-shadow .15s; }
+.emp-plan input { position: absolute; opacity: 0; pointer-events: none; }
+.emp-plan:hover { border-color: var(--navy); }
+.emp-plan:has(input:checked) { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11,27,90,.12); }
+.emp-plan .pk-pick { margin-top: auto; text-align: center; font-weight: 700; color: var(--navy); padding-top: 12px; font-size: .9rem; }
+.emp-plan:has(input:checked) .pk-pick::before { content: "✓ "; }
+.pk-badge { position: absolute; top: -11px; inset-inline-start: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; font-size: .72rem; font-weight: 700; padding: 3px 12px; border-radius: 999px; white-space: nowrap; }
+.pk-per, .pk-soon { font-size: .9rem; font-weight: 600; color: var(--text-soft); }
+.pk-soon { color: var(--navy); }
+.join-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
+.join-grid .field-full { grid-column: 1 / -1; }
+.join-grid .field label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 6px; color: var(--navy); }
+.join-grid .field input, .join-grid .field textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--gray-line); border-radius: 12px; font: inherit; background: var(--white); }
+.join-grid .field input:focus, .join-grid .field textarea:focus { outline: none; border-color: var(--navy); }
+.join-actions { margin-top: 24px; text-align: center; }
+.join-actions .emp-note { margin-top: 12px; }
+.join-next { border: 1px solid var(--navy); border-radius: var(--radius); padding: 20px; margin-top: 8px; background: var(--gray-bg); }
+.join-next h3 { color: var(--navy); margin-bottom: 8px; }
+.join-next .bank-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--gray-line); font-size: .92rem; }
+.join-next .bank-row .v { font-family: ui-monospace, Menlo, Consolas, monospace; direction: ltr; unicode-bidi: embed; }
+@media (max-width: 640px) { .join-grid { grid-template-columns: 1fr; } }
