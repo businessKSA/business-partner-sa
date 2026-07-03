@@ -10,7 +10,20 @@
 // GET  /api/candidate  -> { status, configured }
 // POST /api/candidate  -> { ok, ref } | { ok:false, error }
 
-const NOTION_TOKEN = process.env.NOTION_TOKEN || "";
+// Accept the token under any of these env-var names (people name it differently
+// in Vercel — be forgiving so a mis-named key never silently disables intake).
+const envFrom = (names) => {
+  for (const n of names) {
+    const v = process.env[n];
+    if (v && String(v).trim()) return String(v).trim();
+  }
+  return "";
+};
+const NOTION_TOKEN = envFrom([
+  "NOTION_TOKEN", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY",
+  "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
+  "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
+]);
 const DB_ID = process.env.NOTION_CANDIDATES_DB || "d3168d6642a942d59e0b21c849a8f46d";
 const NOTION_VERSION = "2022-06-28";
 
@@ -43,7 +56,9 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN }));
+    // seenKeyNames helps diagnose a mis-named / wrong-project token without leaking it.
+    const seenKeyNames = Object.keys(process.env).filter((k) => /notion/i.test(k));
+    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, seenKeyNames }));
   }
   if (req.method !== "POST") {
     res.statusCode = 405;

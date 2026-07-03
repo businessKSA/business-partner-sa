@@ -11,7 +11,19 @@
 //
 // GET /api/candidates?field=&city=&nat=&q=&code=   -> { ok, unlocked, total, candidates:[...] }
 
-const NOTION_TOKEN = process.env.NOTION_TOKEN || "";
+// Accept the token under any of these env-var names (be forgiving about naming).
+const envFrom = (names) => {
+  for (const n of names) {
+    const v = process.env[n];
+    if (v && String(v).trim()) return String(v).trim();
+  }
+  return "";
+};
+const NOTION_TOKEN = envFrom([
+  "NOTION_TOKEN", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY",
+  "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
+  "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
+]);
 const DB_ID = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
 const CODES = (process.env.EMPLOYER_CODES || "").split(",").map((s) => s.trim()).filter(Boolean);
 const NOTION_VERSION = "2022-06-28";
