@@ -1482,3 +1482,57 @@ var BP = window.BP = window.BP || {};
     }
   });
 })();
+
+/* ---------- Auto-fill forms from the logged-in client profile ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var sess = null, users = {};
+    try { sess = JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
+    if (!sess || !sess.email) return;
+    try { users = JSON.parse(localStorage.getItem("bp_users") || "{}"); } catch (e) {}
+    var u = users[sess.email] || {};
+    var company = {};
+    try { company = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e) {}
+    var profile = {
+      name: sess.name || u.name || "",
+      email: sess.email || "",
+      phone: u.phone || "",
+      company: company.name || "",
+      cr: company.cr || "",
+      city: company.city || ""
+    };
+    // Map profile keys → the field ids used across the booking / checkout /
+    // workspace-request / employer-join forms.
+    var map = {
+      name: ["bk-name", "co-name", "wr-contact"],
+      email: ["bk-email", "co-email", "wr-email", "ej-email"],
+      phone: ["bk-phone", "co-phone", "wr-phone", "ej-phone"],
+      company: ["ej-company"],
+      cr: ["ej-cr"],
+      city: ["wr-district"]
+    };
+    var filled = false;
+    Object.keys(map).forEach(function (k) {
+      if (!profile[k]) return;
+      map[k].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && !el.value) { el.value = profile[k]; filled = true; }
+      });
+    });
+    // Small hint so the client knows their data was prefilled from their account.
+    if (filled) {
+      var form = document.querySelector("#booking-form, #checkout-form, #ws-req, #emp-join");
+      if (form && !document.getElementById("bp-prefill-note")) {
+        var n = document.createElement("p");
+        n.id = "bp-prefill-note";
+        n.className = "emp-note";
+        n.style.cssText = "margin:0 0 12px;color:var(--navy)";
+        n.textContent = (document.documentElement.lang === "en")
+          ? "✓ Prefilled from your account — edit if needed."
+          : "✓ عُبّئت من حسابك — عدّلها إذا تبغى.";
+        form.insertBefore(n, form.firstChild);
+      }
+    }
+  });
+})();
