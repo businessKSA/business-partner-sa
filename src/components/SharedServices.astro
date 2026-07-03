@@ -1,0 +1,124 @@
+---
+import { type Language, type TranslationObject } from '../utils/i18n';
+
+interface Props {
+  lang: Language;
+  t: TranslationObject;
+}
+const { lang } = Astro.props;
+
+const c = {
+  ar: {
+    eyebrow: 'جديد · مدعوم بالذكاء الاصطناعي',
+    title: 'الخدمات المشتركة — فريقك التنفيذي الذكي',
+    desc: 'بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يشتغلون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعد تنفيذي. تطلب بالعربي — يفهمون، ينفّذون، وينسّقون بينهم كفريق واحد. مكتب افتراضي متكامل باشتراك واحد.',
+    team: [
+      { e: '⚖️', n: 'عبدالعزيز — قانوني وامتثال' },
+      { e: '💼', n: 'بدر — مبيعات وتطوير أعمال' },
+      { e: '📣', n: 'فرح — تسويق ومحتوى' },
+      { e: '💻', n: 'محمد — تقنية المعلومات' },
+      { e: '🛒', n: 'أحمد — مشتريات وتوريد' },
+      { e: '🗂️', n: 'ملاك — مساعِدة تنفيذية' },
+      { e: '👑', n: 'خالد — قائد الفريق' },
+    ],
+    bullets: [
+      'قائد الفريق (خالد) يفهم طلبك ويوزّعه على المتخصص المناسب تلقائياً.',
+      'ينفّذ ويوثّق المهام في نوشن، ويصعّد فقط ما يحتاج موافقتك (دفع/توقيع/إجراء حكومي).',
+      'متاح بالنص والصوت — تكلّم معه بالعربي من أي صفحة.',
+    ],
+    cta1: '🎙️ تحدّث مع فريقك الآن',
+    cta2: 'احجز استشارة مجانية',
+  },
+  en: {
+    eyebrow: 'New · AI-powered',
+    title: 'Shared Services — Your Smart Executive Team',
+    desc: 'Instead of hiring a whole office, get a team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant. Ask in plain language — they understand, execute, and coordinate as one team. A complete virtual office in a single subscription.',
+    team: [
+      { e: '⚖️', n: 'Abdulaziz — Legal & Compliance' },
+      { e: '💼', n: 'Badr — Sales & BD' },
+      { e: '📣', n: 'Farah — Marketing' },
+      { e: '💻', n: 'Mohammed — IT' },
+      { e: '🛒', n: 'Ahmed — Procurement' },
+      { e: '🗂️', n: 'Malak — Executive Assistant' },
+      { e: '👑', n: 'Khaled — Chief of Staff' },
+    ],
+    bullets: [
+      'A chief of staff (Khaled) understands your request and routes it to the right specialist automatically.',
+      'Executes and logs tasks in Notion, and escalates only what needs your approval (payment/signature/government action).',
+      'Available by text and voice — talk to it in Arabic or English from any page.',
+    ],
+    cta1: '🎙️ Talk to your team now',
+    cta2: 'Book a free consultation',
+  },
+}[lang === 'en' ? 'en' : 'ar'];
+---
+
+<section id="shared-services" class="section shared-services">
+  <div class="container">
+    <div class="ss-card">
+      <span class="ss-eyebrow">{c.eyebrow}</span>
+      <h2 class="ss-title">{c.title}</h2>
+      <p class="ss-desc">{c.desc}</p>
+
+      <div class="ss-team">
+        {c.team.map((m) => (
+          <span class="ss-chip"><span class="ss-emoji">{m.e}</span>{m.n}</span>
+        ))}
+      </div>
+
+      <ul class="ss-bullets">
+        {c.bullets.map((b) => <li>{b}</li>)}
+      </ul>
+
+      <div class="ss-actions">
+        <a class="btn btn-ss-primary" href="/voice">{c.cta1}</a>
+        <a class="btn btn-ss-ghost" href="#contact">{c.cta2}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .shared-services { background: transparent; }
+  .ss-card {
+    background: linear-gradient(135deg, #0b2b3a 0%, #0e5a55 100%);
+    color: #eaf6f5;
+    border-radius: 24px;
+    padding: 2.75rem 2rem;
+    box-shadow: 0 20px 60px rgba(14, 90, 85, 0.35);
+    text-align: center;
+  }
+  .ss-eyebrow {
+    display: inline-block;
+    background: rgba(18, 179, 173, 0.18);
+    color: #6ee7e0;
+    border: 1px solid rgba(18, 179, 173, 0.4);
+    border-radius: 999px;
+    padding: 0.35rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .ss-title { color: #fff; font-size: 1.9rem; margin: 0 0 0.9rem; }
+  .ss-desc { color: #cfe9e7; max-width: 760px; margin: 0 auto 1.5rem; line-height: 1.9; }
+  .ss-team { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; }
+  .ss-chip {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px; padding: 0.4rem 0.85rem; font-size: 0.85rem; font-weight: 600;
+  }
+  .ss-emoji { font-size: 1.05rem; }
+  .ss-bullets { list-style: none; padding: 0; margin: 0 auto 1.75rem; max-width: 720px; text-align: start; display: grid; gap: 0.6rem; }
+  .ss-bullets li { position: relative; padding-inline-start: 1.6rem; color: #dff1ef; line-height: 1.7; }
+  .ss-bullets li::before { content: '✓'; position: absolute; inset-inline-start: 0; color: #34d3c9; font-weight: 800; }
+  .ss-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .btn-ss-primary { background: #12b3ad; color: #04211f; font-weight: 800; border: none; }
+  .btn-ss-primary:hover { background: #2ad0c9; }
+  .btn-ss-ghost { background: transparent; color: #eaf6f5; border: 2px solid rgba(255,255,255,0.35); }
+  .btn-ss-ghost:hover { background: rgba(255,255,255,0.1); }
+  @media (max-width: 768px) {
+    .ss-title { font-size: 1.5rem; }
+    .ss-card { padding: 2rem 1.25rem; }
+  }
+</style>
