@@ -1174,3 +1174,32 @@ var BP = window.BP = window.BP || {};
     });
   });
 })();
+
+/* ---------- Newsletter signup (footer band + /newsletter) → /api/newsletter ---------- */
+(function () {
+  "use strict";
+  var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+  document.addEventListener("submit", function (e) {
+    var form = e.target.closest ? e.target.closest("form[data-nl]") : null;
+    if (!form) return;
+    e.preventDefault();
+    var emailEl = form.querySelector("[data-nl-email]");
+    var msg = form.parentNode.querySelector("[data-nl-msg]");
+    var email = (emailEl && emailEl.value || "").trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      if (msg) { msg.hidden = false; msg.textContent = T("Please enter a valid email.", "الرجاء إدخال بريد صحيح."); }
+      return;
+    }
+    var btn = form.querySelector('button[type="submit"]'), lbl = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…"); }
+    function show(txt) { if (msg) { msg.hidden = false; msg.textContent = txt; } }
+    fetch("/api/newsletter", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: email, source: location.pathname }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (d) {
+        if (btn) { btn.disabled = false; btn.textContent = lbl; }
+        if (d && d.ok) { show("✅ " + T("You're subscribed! Check your inbox soon.", "تم اشتراكك! ستصلك النشرة قريباً.")); if (emailEl) emailEl.value = ""; }
+        else show(T("Something went wrong. Please try again.", "حدث خطأ. حاول مرة أخرى."));
+      })
+      .catch(function () { if (btn) { btn.disabled = false; btn.textContent = lbl; } show(T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً.")); });
+  });
+})();

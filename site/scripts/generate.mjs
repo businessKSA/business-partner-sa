@@ -227,6 +227,7 @@ const NAV_GROUPS = [
     items: [
       { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
       { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
+      { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
   },
   {
@@ -281,6 +282,17 @@ function footer() {
     .join("");
   const fl = (href, en, ar) => `<li><a href="${u(href)}">${L(en, ar)}</a></li>`;
   return `<footer class="site-footer"><div class="container">
+  <div class="newsletter-band">
+    <div class="nl-copy">
+      <h3>${L("Subscribe to our newsletter", "اشترك في نشرتنا الإخبارية")}</h3>
+      <p>${L("The latest business & regulatory news in Saudi Arabia — weekly, straight to your inbox.", "آخر أخبار الأعمال والأنظمة في السعودية — أسبوعياً مباشرة إلى بريدك.")}</p>
+    </div>
+    <form class="newsletter-form" data-nl>
+      <input type="email" placeholder="${Lraw("Your email", "بريدك الإلكتروني")}" aria-label="${Lraw("Email", "البريد الإلكتروني")}" data-nl-email required>
+      <button type="submit" class="btn btn-white">${L("Subscribe now", "اشترك الآن")}</button>
+    </form>
+    <p class="nl-msg" data-nl-msg hidden></p>
+  </div>
   <div class="footer-grid">
     <div>
       <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
@@ -295,6 +307,7 @@ function footer() {
       ${fl("/packages", "Packages", "الباقات")}
       ${fl("/saudi-arabia", "Saudi Arabia", "السعودية")}
       ${fl("/news", "News", "الأخبار")}
+      ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
       ${fl("/careers", "Careers", "الوظائف")}
       ${fl("/compliance-calculators", "Compliance calculators", "حاسبات الامتثال")}
       ${fl("/labor-calculators", "Labor & payroll calculators", "حاسبات العمل والرواتب")}
@@ -2064,6 +2077,34 @@ function buildEmployerJoin() {
 
   <script>window.BP_EMP_PLANS=${JSON.stringify((site.employerPlans && site.employerPlans.tiers || []).map((t) => ({ key: t.key, name: L(t.nameEn || t.name, t.name), price: t.price })))};window.BP_BANK=${JSON.stringify({ bank: L(site.bank.bankNameEn, site.bank.bankName), iban: site.bank.iban, beneficiary: L(site.bank.beneficiaryEn, site.bank.beneficiary) })};</script>`;
   return page({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
+}
+
+function buildNewsletter() {
+  const perks = [
+    ["🗞️", L("Weekly regulatory updates", "تحديثات الأنظمة أسبوعياً"), L("New rules from MISA, HRSD, ZATCA, Qiwa and more — summarized simply.", "أنظمة جديدة من الاستثمار والموارد البشرية والزكاة وقوى وغيرها — مُلخّصة ببساطة.")],
+    ["💡", L("Practical guides", "أدلة عملية"), L("Step-by-step guides for formation, licensing, Saudization and compliance.", "أدلة خطوة بخطوة للتأسيس والتراخيص والتوطين والامتثال.")],
+    ["📊", L("Market insights", "قراءات السوق"), L("Opportunities and trends across Saudi sectors, tied to Vision 2030.", "فرص واتجاهات في القطاعات السعودية مرتبطة برؤية 2030.")],
+    ["🎁", L("Subscriber-only offers", "عروض خاصة للمشتركين"), L("Occasional offers on our services and packages.", "عروض من حين لآخر على خدماتنا وباقاتنا.")],
+  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:820px">
+    <span class="eyebrow">${L("Newsletter", "النشرة الإخبارية")}</span>
+    <h1>${L("Stay ahead of Saudi business & regulations", "ابقَ في الصدارة بأخبار الأعمال والأنظمة السعودية")}</h1>
+    <p class="lead">${L("Join our weekly newsletter — the news that matters for doing business in Saudi Arabia, summarized and actionable.", "انضم لنشرتنا الأسبوعية — الأخبار المهمة لممارسة الأعمال في السعودية، مُلخّصة وقابلة للتطبيق.")}</p>
+    <form class="newsletter-form newsletter-hero" data-nl>
+      <input type="email" placeholder="${Lraw("Your email", "بريدك الإلكتروني")}" aria-label="${Lraw("Email", "البريد الإلكتروني")}" data-nl-email required>
+      <button type="submit" class="btn btn-primary btn-lg">${L("Subscribe", "اشترك")}</button>
+    </form>
+    <p class="nl-msg" data-nl-msg hidden></p>
+    <p class="emp-note">${L("Free. No spam. Unsubscribe anytime.", "مجاناً. بدون إزعاج. يمكنك إلغاء الاشتراك في أي وقت.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("What you'll get", "ماذا ستحصل عليه")}</span><h2>${L("Every week in your inbox", "كل أسبوع في بريدك")}</h2></div>
+    <div class="grid grid-4">${perks}</div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${u("/news")}">${L("Browse past insights", "تصفّح الأعداد السابقة")}</a></div>
+  </div></section>`;
+  return page({ title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
 }
 
 function buildCareers() {
@@ -3889,6 +3930,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}news.html`, buildNews());
   write(`${pre}careers.html`, buildCareers());
   write(`${pre}employers.html`, buildEmployers());
+  write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
@@ -3919,7 +3961,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/careers", "/employers", "/employer-join", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
