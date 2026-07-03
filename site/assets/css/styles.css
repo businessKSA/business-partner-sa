@@ -907,3 +907,9 @@ h3 { font-size: 1.12rem; }
 .empd-modal-in h3 { color: var(--navy); margin-bottom: 14px; padding-inline-end: 30px; }
 .empd-modal-x { position: absolute; top: 14px; inset-inline-end: 16px; background: var(--gray-bg); border: 0; width: 32px; height: 32px; border-radius: 9px; cursor: pointer; font-size: 1rem; color: var(--navy); }
 .empd-ai-out { line-height: 1.9; color: var(--text); white-space: normal; }
+
+/* ============ Unified dashboard — portals grid ============ */
+.portal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; }
+.portal-card { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 18px 12px; border: 1px solid var(--gray-line); border-radius: var(--radius); background: var(--white); color: var(--navy); font-weight: 600; font-size: .86rem; transition: border-color .15s, transform .15s, box-shadow .15s; }
+.portal-card:hover { border-color: var(--navy); transform: translateY(-2px); box-shadow: var(--shadow-sm); color: var(--navy); }
+.portal-card span { font-size: 1.7rem; line-height: 1; }
