@@ -865,3 +865,28 @@ h3 { font-size: 1.12rem; }
 .ws-body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
 .ws-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .ws-tags span { font-size: .74rem; font-weight: 600; color: var(--navy); background: rgba(11,27,90,.07); padding: 3px 10px; border-radius: 999px; }
+
+/* ============ Employer recruitment dashboard ============ */
+.btn-sm { padding: 7px 14px; font-size: .85rem; }
+.empd-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid var(--gray-line); padding-bottom: 12px; }
+.empd-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.empd-tab { background: var(--gray-bg); border: 1px solid var(--gray-line); color: var(--navy); font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 999px; cursor: pointer; }
+.empd-tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.empd-count { display: inline-block; min-width: 18px; padding: 0 5px; font-size: .72rem; background: rgba(255,255,255,.25); border-radius: 999px; }
+.empd-tab:not(.active) .empd-count { background: rgba(11,27,90,.12); }
+.empd-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.empd-save, .empd-rm { font: inherit; font-size: .82rem; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--gray-line); background: var(--white); color: var(--navy); }
+.empd-save.on { background: #fff6de; border-color: #f0c94b; color: #7a5a00; }
+.empd-rm { color: #a12; }
+.empd-stages { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.empd-stage-btn { font: inherit; font-size: .74rem; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--gray-line); background: var(--white); color: var(--text-soft); cursor: pointer; }
+.empd-stage-btn.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+.empd-pipe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.empd-col { background: var(--gray-bg); border: 1px solid var(--gray-line); border-radius: var(--radius); padding: 12px; min-height: 120px; }
+.empd-col-h { font-weight: 700; color: var(--navy); margin-bottom: 10px; display: flex; justify-content: space-between; font-size: .9rem; }
+.empd-col-h span { background: rgba(11,27,90,.1); border-radius: 999px; padding: 0 8px; font-size: .78rem; }
+.empd-pcard { background: #fff; border: 1px solid var(--gray-line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; font-size: .85rem; display: flex; flex-direction: column; gap: 2px; }
+.empd-pcard span { color: var(--text-soft); font-size: .8rem; }
+.empd-empty { color: var(--text-soft); text-align: center; font-size: .85rem; }
+@media (max-width: 720px) { .empd-pipe { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .empd-pipe { grid-template-columns: 1fr; } }

@@ -237,6 +237,7 @@ const NAV_GROUPS = [
       { href: "/careers", en: "For job seekers", ar: "للباحثين عن عمل" },
       { href: "/employers", en: "For employers", ar: "لأصحاب الأعمال" },
       { href: "/employer-join", en: "Employer subscription", ar: "اشتراك أصحاب العمل" },
+      { href: "/employer-dashboard", en: "Employer dashboard", ar: "لوحة التوظيف" },
     ],
   },
   { href: "/about", en: "About us", ar: "من نحن" },
@@ -2108,6 +2109,63 @@ function buildNewsletter() {
   return page({ title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
 }
 
+function buildEmployerDashboard() {
+  const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:1080px">
+    <span class="eyebrow">${L("Employer dashboard", "لوحة صاحب العمل")}</span>
+    <h1>${L("Recruitment dashboard", "لوحة التوظيف")}</h1>
+    <p class="lead">${L("Sign in with your access code to browse candidates with full contacts, build a shortlist, and move candidates through your hiring pipeline.", "ادخل برمز الوصول لتصفّح المرشّحين ببياناتهم الكاملة، وبناء قائمة مختصرة، ونقلهم عبر مراحل التوظيف.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div id="empd-gate" class="empd-gate">
+      <div class="card" style="max-width:440px;margin:auto;text-align:center">
+        <div class="card-icon" style="margin:auto">${I.users}</div>
+        <h3>${L("Enter your access code", "أدخل رمز الوصول")}</h3>
+        <p style="color:var(--text-soft);font-size:.92rem">${L("You received it by email after subscribing. Don't have one?", "وصلك بالبريد بعد الاشتراك. ما عندك رمز؟")} <a href="${u("/employer-join")}">${L("Subscribe", "اشترك")}</a></p>
+        <div class="emp-unlock" style="margin-top:14px"><input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="text-align:center;letter-spacing:2px"><button class="btn btn-primary" id="empd-enter">${L("Enter", "دخول")}</button></div>
+        <p id="empd-gate-msg" class="emp-note" style="min-height:20px"></p>
+      </div>
+    </div>
+
+    <div id="empd-app" hidden>
+      <div class="empd-bar">
+        <div class="empd-tabs">
+          <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
+          <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
+          <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="empd-logout">${L("Sign out", "خروج")}</button>
+      </div>
+
+      <div class="empd-panel" data-panel="browse">
+        <div class="emp-access"><div class="emp-filters">
+          <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
+          <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
+          <select id="empd-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+          <select id="empd-nat">${nats}</select>
+          <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
+        </div></div>
+        <p class="emp-note" id="empd-status"></p>
+        <div class="emp-grid" id="empd-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="shortlist" hidden>
+        <p class="emp-note">${L("Candidates you saved. They stay on this device.", "المرشّحون اللي حفظتهم. محفوظون على هذا الجهاز.")}</p>
+        <div class="emp-grid" id="empd-short-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="pipeline" hidden>
+        <p class="emp-note">${L("Drag candidates through your hiring stages using the buttons on each card.", "انقل المرشّحين عبر مراحل التوظيف من الأزرار على كل بطاقة.")}</p>
+        <div class="empd-pipe" id="empd-pipe"></div>
+      </div>
+    </div>
+  </div></section>
+  <script>window.BP_EMPD_LANG=${JSON.stringify(LANG)};</script>`;
+  return page({ title: Lraw("Recruitment dashboard — Business Partner", "لوحة التوظيف — بيزنس بارتنر"), desc: Lraw("Employer recruitment dashboard: browse candidates, shortlist and hiring pipeline.", "لوحة توظيف أصحاب العمل: تصفّح المرشّحين، القائمة المختصرة، ومسار التوظيف."), active: "/employers", path: "/employer-dashboard", body });
+}
+
 function buildWorkspaces() {
   const cities = [["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Dammam", "الدمام"], ["Khobar", "الخبر"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Other", "أخرى"]];
   const types = [["Office", "مكتب"], ["Co-working Space", "مساحة مشتركة"], ["Serviced Office", "مكتب مخدوم"], ["Retail Shop", "محل تجاري"], ["Showroom", "معرض"], ["Warehouse", "مستودع"], ["Commercial Villa", "فيلا تجارية"]];
@@ -3454,6 +3512,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}employers.html`, buildEmployers());
   write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
+  write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
   write(`${pre}workspaces.html`, buildWorkspaces());
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
   write(`${pre}contact.html`, buildContact());
@@ -3485,7 +3544,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths

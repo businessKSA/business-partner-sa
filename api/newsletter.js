@@ -31,6 +31,20 @@ const NOTION_VERSION = "2022-06-28";
 const clip = (s, n = 200) => String(s || "").trim().slice(0, n);
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 
+// Confirmation email (Resend) — activates once RESEND_API_KEY is set.
+const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
+const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
+async function sendMail(to, subject, html) {
+  if (!RESEND_API_KEY || !isEmail(to)) return;
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    });
+  } catch {}
+}
+
 async function readBody(req) {
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
@@ -102,6 +116,11 @@ export default async function handler(req, res) {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_error" }));
     }
+    await sendMail(email, "تم اشتراكك في نشرة Business Partner ✅", `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#111">
+      <h2 style="color:#0B1B5A">تم اشتراكك بنجاح 🎉</h2>
+      <p>${name ? "مرحباً " + name + "،<br>" : ""}شكراً لاشتراكك في نشرة <strong>Business Partner</strong>. راح توصلك آخر الأخبار والأدلة وتحديثات المنصات الحكومية في السعودية.</p>
+      <p style="color:#666">إذا ما طلبت هذا الاشتراك، تجاهل الرسالة.</p>
+    </div>`);
     return res.end(JSON.stringify({ ok: true, stored: true }));
   } catch (e) {
     console.error("newsletter handler error", String(e).slice(0, 200));

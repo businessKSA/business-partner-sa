@@ -33,6 +33,23 @@ const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const PLAN_AR = { basic: "أساسية", pro: "احترافية", enterprise: "مؤسسية" };
 
+// Email (Resend) — optional; activates once RESEND_API_KEY is set in Vercel.
+const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
+const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
+const NOTIFY = process.env.BP_NOTIFY_EMAIL || "business@businesspartner.sa";
+
+async function sendMail(to, subject, html) {
+  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    });
+    return { ok: r.ok };
+  } catch { return { ok: false }; }
+}
+
 async function readBody(req) {
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
@@ -144,6 +161,32 @@ export default async function handler(req, res) {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_error", ref }));
     }
+
+    // Notify the company (with its access code) and the BP team. Best-effort.
+    const brand = "#0B1B5A";
+    const coHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#111">
+      <h2 style="color:${brand}">تم استلام تسجيلك — Business Partner</h2>
+      <p>مرحباً${contact ? " " + contact : ""}،</p>
+      <p>سجّلنا اشتراك <strong>${company}</strong>${planAr ? ` في الباقة <strong>${planAr}</strong>` : ""} في منصة التوظيف.</p>
+      <p>رمز وصولك:</p>
+      <p style="font-size:24px;font-weight:bold;letter-spacing:3px;color:${brand}">${ref}</p>
+      <p>يُفعّل هذا الرمز فور تأكيد الدفع، وبعدها تدخل لوحة التوظيف وتتصفّح المرشّحين ببياناتهم الكاملة.</p>
+      <p style="color:#666">لأي استفسار: واتساب 966507034157+</p>
+    </div>`;
+    const bpHtml = `<div style="font-family:Arial,sans-serif">
+      <h3>طلب اشتراك صاحب عمل جديد (${ref})</h3>
+      <ul>
+        <li>الشركة: ${company}</li><li>الباقة: ${planAr || "—"}</li>
+        <li>المسؤول: ${contact || "—"}</li><li>الجوال: ${phone}</li><li>البريد: ${email || "—"}</li>
+        <li>السجل: ${cr || "—"}</li>${notes ? `<li>ملاحظات: ${notes}</li>` : ""}
+      </ul>
+      <p>فعّل الرمز <strong>${ref}</strong> في EMPLOYER_CODES بعد تأكيد الدفع.</p>
+    </div>`;
+    await Promise.allSettled([
+      sendMail(email, `رمز وصولك ${ref} — Business Partner`, coHtml),
+      sendMail(NOTIFY, `اشتراك صاحب عمل جديد: ${company} (${ref})`, bpHtml),
+    ]);
+
     return res.end(JSON.stringify({ ok: true, ref, stored: true }));
   } catch (e) {
     console.error("employer handler error", String(e).slice(0, 200));

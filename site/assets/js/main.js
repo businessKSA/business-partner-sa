@@ -1300,3 +1300,159 @@ var BP = window.BP = window.BP || {};
     });
   });
 })();
+
+/* ---------- Employer recruitment dashboard (/employer-dashboard) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var app = document.getElementById("empd-app");
+    if (!app) return;
+    var isAr = (window.BP_EMPD_LANG || "ar") === "ar";
+    var T = function (en, ar) { return isAr ? ar : en; };
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); };
+    var gate = document.getElementById("empd-gate");
+    var codeInput = document.getElementById("empd-code");
+    var gateMsg = document.getElementById("empd-gate-msg");
+    var STAGES = [["interested", T("Interested", "مهتم")], ["contacted", T("Contacted", "تواصلت")], ["interview", T("Interview", "مقابلة")], ["hired", T("Hired", "تم التوظيف")]];
+    var CODE = "";
+    var CANDS = [];
+    function readLS(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
+    function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    var short = readLS("bp_shortlist", []);
+    var pipe = readLS("bp_pipeline", {});
+    function inShort(id) { return short.some(function (c) { return c.id === id; }); }
+
+    function validate(code, cb) {
+      fetch("/api/candidates?code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
+        .then(function (d) { cb(!!(d && d.unlocked), d); }).catch(function () { cb(false, null); });
+    }
+    function enter(code, data) {
+      CODE = code; writeLS("bp_emp_code", code);
+      gate.hidden = true; app.hidden = false;
+      if (data && data.candidates) { CANDS = data.candidates; fillFilters(); renderBrowse(); }
+      else load();
+      renderCounts();
+    }
+    document.getElementById("empd-enter").addEventListener("click", function () {
+      var code = (codeInput.value || "").trim();
+      if (!code) return;
+      gateMsg.textContent = T("Checking…", "جارٍ التحقق…");
+      validate(code, function (ok, data) {
+        if (ok) enter(code, data);
+        else gateMsg.textContent = T("Invalid or inactive code. Contact us to activate.", "رمز غير صحيح أو غير مفعّل. تواصل معنا للتفعيل.");
+      });
+    });
+    codeInput.addEventListener("keydown", function (e) { if (e.key === "Enter") document.getElementById("empd-enter").click(); });
+    document.getElementById("empd-logout").addEventListener("click", function () { try { localStorage.removeItem("bp_emp_code"); } catch (e) {} location.reload(); });
+
+    // Auto sign-in if a code is stored
+    var saved = readLS("bp_emp_code", "");
+    if (typeof saved === "string" && saved) { gateMsg.textContent = T("Signing in…", "جارٍ الدخول…"); validate(saved, function (ok, data) { if (ok) enter(saved, data); else { gateMsg.textContent = ""; } }); }
+
+    // Tabs
+    Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
+      t.addEventListener("click", function () {
+        document.querySelectorAll(".empd-tab").forEach(function (x) { x.classList.remove("active"); });
+        t.classList.add("active");
+        var tab = t.getAttribute("data-tab");
+        document.querySelectorAll(".empd-panel").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== tab; });
+        if (tab === "shortlist") renderShort();
+        if (tab === "pipeline") renderPipe();
+      });
+    });
+
+    function fillFilters() {
+      var fEl = document.getElementById("empd-field"), cEl = document.getElementById("empd-city");
+      var fields = {}, cities = {};
+      CANDS.forEach(function (c) { if (c.field) fields[c.field] = 1; if (c.city) cities[c.city] = 1; });
+      Object.keys(fields).forEach(function (f) { var o = document.createElement("option"); o.value = f; o.textContent = f; fEl.appendChild(o); });
+      Object.keys(cities).forEach(function (c) { var o = document.createElement("option"); o.value = c; o.textContent = c; cEl.appendChild(o); });
+    }
+    function load() {
+      var status = document.getElementById("empd-status");
+      status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
+      var qs = new URLSearchParams({ code: CODE });
+      var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value, ci = document.getElementById("empd-city").value, n = document.getElementById("empd-nat").value;
+      if (q) qs.set("q", q); if (f) qs.set("field", f); if (ci) qs.set("city", ci); if (n) qs.set("nat", n);
+      fetch("/api/candidates?" + qs).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) { status.textContent = T("Couldn't load.", "تعذّر التحميل."); return; }
+        CANDS = d.candidates || []; renderBrowse();
+      }).catch(function () { status.textContent = T("Network error.", "خطأ في الاتصال."); });
+    }
+    document.getElementById("empd-load").addEventListener("click", load);
+    document.getElementById("empd-q").addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
+
+    function contacts(c) {
+      var out = [];
+      if (c.name) out.push("<strong>" + esc(c.name) + "</strong>");
+      if (c.phone) out.push('📞 <a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>");
+      if (c.email) out.push('✉️ <a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>");
+      if (c.cv) out.push('<a href="' + esc(c.cv) + '" target="_blank" rel="noopener">' + T("CV", "السيرة الذاتية") + "</a>");
+      return out.length ? '<div class="emp-contact">' + out.join(" · ") + "</div>" : "";
+    }
+    function stageBtns(id) {
+      var cur = pipe[id] || "";
+      return '<div class="empd-stages">' + STAGES.map(function (s) {
+        return '<button data-id="' + esc(id) + '" data-stage="' + s[0] + '" class="empd-stage-btn' + (cur === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>";
+      }).join("") + "</div>";
+    }
+    function card(c, opts) {
+      opts = opts || {};
+      var meta = [c.experience ? (isAr ? c.experience + " سنة خبرة" : c.experience + "y exp") : "", c.education, c.nationalityType].filter(Boolean).join(" · ");
+      return '<div class="emp-card" data-id="' + esc(c.id) + '"><div class="emp-card-top"><strong>' + esc(c.role || c.field || "—") + '</strong>' + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
+        (c.city ? '<div class="emp-role">📍 ' + esc(c.city) + "</div>" : "") +
+        (c.skills ? '<div class="emp-skills">' + esc(c.skills) + "</div>" : "") +
+        (meta ? '<div class="emp-meta">' + esc(meta) + "</div>" : "") +
+        contacts(c) +
+        '<div class="empd-actions"><button class="empd-save' + (inShort(c.id) ? " on" : "") + '" data-id="' + esc(c.id) + '">' + (inShort(c.id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ")) + "</button>" +
+        (opts.removeShort ? '<button class="empd-rm" data-id="' + esc(c.id) + '">' + T("Remove", "إزالة") + "</button>" : "") + "</div>" +
+        stageBtns(c.id) + "</div>";
+    }
+    function bindCard(scope) {
+      scope.querySelectorAll(".empd-save").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var id = b.getAttribute("data-id"), c = findC(id);
+          if (inShort(id)) short = short.filter(function (x) { return x.id !== id; });
+          else if (c) short.push(c);
+          writeLS("bp_shortlist", short); renderCounts();
+          b.classList.toggle("on"); b.innerHTML = inShort(id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ");
+        });
+      });
+      scope.querySelectorAll(".empd-stage-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var id = b.getAttribute("data-id"), st = b.getAttribute("data-stage"), c = findC(id);
+          if (pipe[id] === st) delete pipe[id]; else { pipe[id] = st; if (c && !inShort(id)) { short.push(c); writeLS("bp_shortlist", short); renderCounts(); } }
+          writeLS("bp_pipeline", pipe);
+          var row = b.parentNode; row.querySelectorAll(".empd-stage-btn").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-stage") === pipe[id]); });
+        });
+      });
+      scope.querySelectorAll(".empd-rm").forEach(function (b) {
+        b.addEventListener("click", function () { var id = b.getAttribute("data-id"); short = short.filter(function (x) { return x.id !== id; }); writeLS("bp_shortlist", short); renderCounts(); renderShort(); });
+      });
+    }
+    function findC(id) { return CANDS.concat(short).filter(function (c) { return c.id === id; })[0]; }
+    function renderCounts() { var el = document.getElementById("empd-short-count"); if (el) el.textContent = short.length; }
+    function renderBrowse() {
+      var g = document.getElementById("empd-grid"), status = document.getElementById("empd-status");
+      status.textContent = CANDS.length + " " + T("candidates", "مرشّح");
+      g.innerHTML = CANDS.map(function (c) { return card(c, {}); }).join("");
+      bindCard(g);
+    }
+    function renderShort() {
+      var g = document.getElementById("empd-short-grid");
+      if (!short.length) { g.innerHTML = '<p class="emp-note">' + T("No saved candidates yet.", "ما في مرشّحين محفوظين بعد.") + "</p>"; return; }
+      g.innerHTML = short.map(function (c) { return card(c, { removeShort: true }); }).join("");
+      bindCard(g);
+    }
+    function renderPipe() {
+      var wrap = document.getElementById("empd-pipe");
+      wrap.innerHTML = STAGES.map(function (s) {
+        var items = short.filter(function (c) { return pipe[c.id] === s[0]; });
+        var cards = items.length ? items.map(function (c) {
+          return '<div class="empd-pcard"><strong>' + esc(c.name || c.role || "—") + "</strong>" + (c.role ? "<span>" + esc(c.role) + "</span>" : "") + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>" : "") + "</div>";
+        }).join("") : '<p class="empd-empty">—</p>';
+        return '<div class="empd-col"><div class="empd-col-h">' + esc(s[1]) + ' <span>' + items.length + "</span></div>" + cards + "</div>";
+      }).join("");
+    }
+  });
+})();
