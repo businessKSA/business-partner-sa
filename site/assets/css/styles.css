@@ -934,3 +934,17 @@ h3 { font-size: 1.12rem; }
 .quick-link:hover { border-color: var(--navy); transform: translateY(-2px); box-shadow: var(--shadow-sm); color: var(--navy); }
 .quick-link .q-icon { font-size: 1.4rem; line-height: 1; }
 @media (max-width: 480px) { .home-steps { grid-template-columns: 1fr; } }
+
+/* ---- On-site compliance intake form (native, posts to n8n webhook) ---- */
+.bp-intake .field{margin-bottom:16px}
+.bp-intake-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.bp-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.bp-chk{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--gray-line);border-radius:999px;padding:8px 16px;font-size:.9rem;font-weight:600;color:var(--text);cursor:pointer;background:var(--gray-bg);transition:all .15s ease;user-select:none}
+.bp-chk:hover{border-color:var(--navy);color:var(--navy)}
+.bp-chk input{accent-color:var(--navy);width:16px;height:16px}
+.bp-chk:has(input:checked){border-color:var(--navy);background:rgba(11,27,90,.06);color:var(--navy)}
+#bp-files{padding:14px;border:1.5px dashed var(--navy);border-radius:14px;background:var(--gray-bg);width:100%;cursor:pointer;font-family:inherit}
+.bp-intake-msg{border-radius:12px;padding:13px 16px;margin-top:14px;font-weight:600;line-height:1.7}
+.bp-intake-msg.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
+.bp-intake-msg.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
+.bp-intake-msg.info{background:#eef4f8;border:1px solid #cfe0ea;color:#2b5566}

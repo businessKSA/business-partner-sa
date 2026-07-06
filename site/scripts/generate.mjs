@@ -1288,9 +1288,9 @@ function buildComplianceCalculators() {
           <span>4️⃣ ${L("We follow up on WhatsApp & email", "نتابع معك واتساب وإيميل")}</span>
         </div>
 
-        <div class="cc-portal">
-          <div class="cc-portal-head">🛡️ ${L("Compliance intake portal", "بوابة الامتثال — استقبال الملفات")}</div>
-          <div style="padding:18px">${intakeFormBlock()}</div>
+        <div class="cc-portal-cta">
+          <div>🛡️ <strong>${L("Ready to activate monitoring?", "جاهز تفعّل المراقبة؟")}</strong><span>${L("Open the secure compliance portal, upload your files once, and the agent builds your file and tracks every deadline.", "افتح بوابة الامتثال الآمنة، ارفع ملفاتك مرة واحدة، والوكيل يبني ملفك ويتابع كل استحقاق.")}</span></div>
+          <a class="btn btn-primary btn-lg" href="${u("/compliance-portal")}">🛡️ ${L("Open the compliance portal →", "افتح بوابة الامتثال ←")}</a>
         </div>
         <div class="cc-upload-cta" style="margin-top:14px;text-align:center">
           <a class="btn btn-ghost" href="${u("/compliance-portal")}">🛡️ ${L("Open the full compliance portal page →", "افتح صفحة بوابة امتثال المنشأة الكاملة ←")}</a>
@@ -1386,6 +1386,9 @@ function buildComplianceCalculators() {
     .cc-portal-head{background:var(--navy);color:var(--white);padding:12px 18px;font-weight:700;font-size:.95rem}
     #cc-portal-frame{width:100%;height:960px;border:0;display:block;background:var(--gray-bg)}
     .cc-portal .form-note{padding:10px 16px}
+    .cc-portal-cta{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--gray-line);border-radius:var(--radius-lg);padding:20px 22px;background:var(--gray-bg)}
+    .cc-portal-cta strong{display:block;color:var(--navy);font-size:1.05rem;margin-bottom:4px}
+    .cc-portal-cta span{font-size:.9rem;color:var(--text-soft)}
     .bp-intake-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
     .bp-intake .field{margin-bottom:14px}
     .bp-chips{display:flex;flex-wrap:wrap;gap:9px}
