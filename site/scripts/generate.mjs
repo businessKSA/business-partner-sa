@@ -239,10 +239,9 @@ const NAV_GROUPS = [
   {
     en: "Our services", ar: "خدماتنا",
     items: [
-      { href: "/connect", en: "Smart employees ⚡", ar: "موظفوك الأذكياء ⚡" },
       { href: "/services", en: "All services (93)", ar: "كل الخدمات (93)" },
       { href: "/packages", en: "Packages", ar: "الباقات" },
-      { href: "/ai-agents", en: "AI Agents", ar: "الوكلاء الأذكياء" },
+      { href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡" },
       { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
@@ -854,7 +853,7 @@ function buildAiAgents() {
       <div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>
       <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
       <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
-      ${cartBtns({ id: "agent-" + esc((g.nameEn || g.name)).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
+      ${cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
     </div>`
     )
     .join("");
@@ -880,6 +879,7 @@ function buildAiAgents() {
     <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
     <div class="grid grid-3">${cards}</div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="/connect">🔌 ${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
@@ -3246,25 +3246,25 @@ function buildConnect() {
   </section>
   <section id="pricing">
     <div class="wrap">
-      <div class="sec-head"><h2>💳 الباقات</h2><p>باقة شهرية أساسية + إضافات حسب الأدوات — الأرقام مبدئية للتوضيح، تُحدّد نهائياً معك.</p></div>
+      <div class="sec-head"><h2>💳 الباقات</h2><p>الباقات موحّدة الآن ضمن منظومة الوكلاء الأذكياء — اختر باقتك من هناك، وأدواتك تُربط هنا بضغطة.</p></div>
       <div class="pgrid">
         <div class="pc">
-          <h3>الأساسية</h3>
-          <div class="pr">— <small>/ شهرياً</small></div>
-          <ul><li>موظف ذكي واحد بمجاله</li><li>لوحة تحكم واختبار</li><li>ربط الأدوات المجانية (قوقل / نوشن / سلاك)</li><li>دعم أساسي</li></ul>
-          <a href="/portal" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">اختر</a>
+          <h3>وكيل الامتثال والالتزام</h3>
+          <div class="pr">250 ﷼ <small>يبدأ من / شهرياً</small></div>
+          <ul><li>مراقبة قوى ومقيم والتأمينات ومدد والنطاقات</li><li>تنبيهات المهل والمخالفات فور ظهورها</li><li>حاسبات النطاقات والتكاليف مجانية ضمن الباقة</li></ul>
+          <a href="/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
         </div>
         <div class="pc feat">
-          <h3>النمو</h3>
-          <div class="pr">— <small>/ شهرياً</small></div>
-          <ul><li>حتى ٣ موظفين أذكياء</li><li>كل الأدوات (واتساب / مايكروسوفت / CRM)</li><li>ذاكرة محادثة لكل عميل</li><li>أولوية دعم + تقارير</li></ul>
-          <a href="/portal" class="btn btn-g">اختر</a>
+          <h3>موظفك الذكي المتخصص</h3>
+          <div class="pr">500 ﷼ <small>يبدأ من / شهرياً</small></div>
+          <ul><li>موظف تسويق أو إداري أو مبيعات أو تقني</li><li>يعمل 24 ساعة ضمن سياسات منشأتك</li><li>ربط أدواتك (قوقل / نوشن / سلاك) من هذه الصفحة</li></ul>
+          <a href="/ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
         </div>
         <div class="pc">
-          <h3>مخصّص</h3>
-          <div class="pr">حسب الطلب</div>
-          <ul><li>فريق موظفين كامل</li><li>تكاملات خاصة بشركتك</li><li>إعداد وتأسيس كامل (Done-for-you)</li><li>مدير حساب مخصّص</li></ul>
-          <a href="/contact" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">تواصل معنا</a>
+          <h3>فريق الخدمات المشتركة</h3>
+          <div class="pr">1,500 ﷼ <small>يبدأ من / شهرياً</small></div>
+          <ul><li>وكيل الامتثال + فريق العمل الذكي مدموجان بالكامل</li><li>لوحة موحّدة لكل منصّاتك وفرقك</li><li>أولوية في التنفيذ والدعم</li></ul>
+          <a href="/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
         </div>
       </div>
       <div class="addon">

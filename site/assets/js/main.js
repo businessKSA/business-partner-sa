@@ -362,11 +362,14 @@ var BP = window.BP = window.BP || {};
       if (!receipt || !receipt.files.length) lines.push(BP.t("(Receipt to be sent)", "(سيُرسل الإيصال)"));
       var waUrl = "https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n"));
       // Clear cart
+      var boughtCompliance = cart.some(function (i) { return (i.id || "").indexOf("agent-Compliance") === 0; });
       BP.cart.write([]);
       var box = document.getElementById("checkout-success");
       box.hidden = false;
       box.innerHTML = "✅ <strong>" + BP.t("Order received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
         BP.t("Transfer the amount to the bank account, then send the receipt. We'll confirm on WhatsApp.", "حوّل المبلغ على الحساب البنكي ثم أرسل الإيصال. سنؤكد لك عبر واتساب.") +
+        (boughtCompliance ? "<br>" + BP.t("Your compliance agent is ready — start it in the tools & calculators hub.", "وكيل الامتثال جاهز — ابدأ معه من مركز الأدوات والحاسبات.") +
+          '<br><a class="btn btn-primary" style="margin-top:12px" href="/tools-and-calculators">' + BP.t("Open the compliance agent", "افتح وكيل الامتثال") + "</a>" : "") +
         '<br><a class="btn btn-wa" style="margin-top:12px" href="' + waUrl + '" target="_blank" rel="noopener">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a> " +
         '<a class="btn btn-ghost" style="margin-top:12px" href="/account">' + BP.t("View in my account", "عرض في حسابي") + "</a>";
       box.scrollIntoView({ behavior: "smooth", block: "center" });
