@@ -121,6 +121,31 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref }));
   }
 
+  // Task Force intake from /task-force — a complex/multi-party executive task.
+  if (b.type === "task-force") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const notes = String(b.notes || "").trim().slice(0, 1500);
+    if (!company || !person || !phone || !notes) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "TF-" + Date.now().toString().slice(-6);
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">مهمة Task Force جديدة — ${ref}</h2><table>${row("الشركة", company) + row("المسؤول", person) + row("الجوال", phone) + row("الإيميل", email) + row("وصف المهمة", notes)}</table></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+      <h2 style="color:#0B1B5A">تم استلام مهمتك — ${ref}</h2>
+      <p>مرحباً ${esc(person)}، استلمنا تفاصيل مهمتك في Task Force. فريقنا يراجع النطاق ويعود إليك بمسار التنفيذ المناسب وعرض سعر حسب تعقيدها.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    const [teamSent, clientSent] = await Promise.all([
+      sendEmail(TEAM_EMAIL, `مهمة Task Force جديدة — ${company}`, teamHtml),
+      isEmail(email) ? sendEmail(email, `تم استلام مهمتك ${ref} — Business Partner`, clientHtml) : Promise.resolve({ ok: false }),
+      crmLead({ title: `Task Force — ${company}`, phone, email, notes: `Task Force · ${notes}`, ref }),
+      addToAudience(email, person),
+      forwardLead({ source: "task-force", ref, name: person, company, phone, email, notes }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
+  }
+
   const type = b.type === "supplier" ? "supplier" : "event";
   const f = {};
   for (const k of ["company", "person", "phone", "email", "date", "count", "klass", "venue", "eventType", "city", "cr", "category", "notes"]) {

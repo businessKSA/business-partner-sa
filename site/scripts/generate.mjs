@@ -246,6 +246,7 @@ const NAV_GROUPS = [
       { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
       { href: "/compliance-calculators", en: "Compliance tools", ar: "أدوات الامتثال" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
+      { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
     ],
   },
   {
@@ -331,6 +332,7 @@ function footer() {
       ${fl("/services", "Services", "الخدمات")}
       ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
       ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
+      ${fl("/task-force", "Task Force", "تاسك فورس")}
       ${fl("/packages", "Packages", "الباقات")}
       ${fl("/saudi-arabia", "Saudi Arabia", "السعودية")}
       ${fl("/news", "News", "الأخبار")}
@@ -885,6 +887,74 @@ function buildAiAgents() {
     <div class="cta-band"><h2>${L("Ready to see the agents at work?", "جاهز تشوف الوكلاء يشتغلون؟")}</h2><p>${L("Book a demo with our team and we'll design the system to fit your entity.", "احجز عرضاً توضيحياً مع فريقنا، ونصمّم لك المنظومة على مقاس منشأتك.")}</p>${waBtn2(a.ctaEn || a.cta, a.cta, "btn-white", true)}</div>
   </div></section>`;
   return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
+}
+
+function buildTaskForce() {
+  const when = [
+    ["🧩", L("The task spans multiple authorities or platforms", "عندما تكون المهمة مرتبطة بعدة جهات أو منصات"), ""],
+    ["📂", L("The file is complex and needs organizing", "عندما يكون الملف معقداً ويحتاج ترتيباً وجمع معلومات"), ""],
+    ["🔁", L("The project needs continuous, hands-on follow-up", "عندما يحتاج المشروع إلى متابعة تنفيذية مستمرة"), ""],
+    ["🎯", L("One single service isn't enough to solve it", "عندما لا تكون خدمة واحدة كافية لحل المشكلة"), ""],
+    ["🤝", L("You need a partner who organizes, gathers and executes", "عندما تحتاج شريكاً ينظّم ويجمع ويتابع وينفّذ"), ""],
+  ].map((x) => `<div class="card feature"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3></div>`).join("");
+  const steps = [
+    [1, L("Understand the task", "فهم المهمة"), L("We understand the nature of the task or project, its goals, current obstacles and the parties involved.", "نفهم طبيعة المهمة أو المشروع، والأهداف المطلوبة، والعوائق الحالية، والأطراف المرتبطة.")],
+    [2, L("Gather information & requirements", "جمع المعلومات والمتطلبات"), L("We collect the data, files and requirements to build a clearer picture of the current status and gaps.", "نجمع البيانات والملفات والمتطلبات لتجهيز صورة أوضح عن الوضع الحالي وما ينقصه.")],
+    [3, L("Build the execution plan", "بناء خطة التنفيذ"), L("We split the task into steps, set priorities, identify the parties involved, and set a clear follow-up mechanism.", "نقسّم المهمة إلى خطوات، نحدّد الأولويات والأطراف، ونضع آلية متابعة واضحة.")],
+    [4, L("Follow-up & execution", "المتابعة والتنفيذ"), L("We manage coordination, updates and follow-up with you and every party involved, with progress reports along the way.", "ندير التنسيق والمتابعة والتحديثات معك ومع الأطراف المرتبطة، مع رفع تقارير مرحلية.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const who = [
+    L("Companies with complex executive files", "الشركات التي لديها ملفات تنفيذية معقدة"),
+    L("Entrepreneurs who need an execution & organizing partner", "رواد الأعمال الذين يحتاجون جهة تنفيذ وتنظيم"),
+    L("Establishments running special or sensitive projects", "المنشآت التي تعمل على مشاريع خاصة أو حساسة"),
+    L("Anyone who needs multi-party follow-up", "الجهات التي تحتاج إلى متابعة متعددة الأطراف"),
+  ].map((t) => `<li>${I.check}<span>${t}</span></li>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Premium executive service", "خدمة تنفيذية Premium")}</span>
+    <h1>${L("Task Force", "تاسك فورس")}</h1>
+    <p class="lead">${L("A dedicated executive service for hard tasks, special projects and multi-party outcomes — we turn complexity into a clear plan, organized execution and continuous follow-up.", "خدمة تنفيذية متخصصة لإدارة المهمات الصعبة والمشاريع الخاصة والمخرجات متعددة الجهات، وتحويل التعقيد إلى خطة واضحة وتنفيذ منظم ومتابعة مستمرة.")}</p>
+    <div class="hero-actions">${waBtn2("Talk to Task Force", "تحدث مع تاسك فورس", "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="#tf-form">${L("Submit your task", "أرسل مهمتك")}</a></div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Multi-party coordination", "تنسيق بين جهات متعددة")}</span>
+      <span class="hero-badge">${I.check}${L("One point of contact", "جهة تنفيذ واحدة")}</span>
+      <span class="hero-badge">${I.check}${L("Continuous progress reports", "تقارير تقدّم مستمرة")}</span>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("When you need Task Force", "متى تحتاج تاسك فورس")}</span><h2>${L("More than a regular service can handle", "أكثر مما تقدّمه خدمة تقليدية")}</h2></div>
+    <div class="grid grid-3">${when}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "آلية العمل")}</span><h2>${L("From a complex file to a managed plan", "من ملف معقّد إلى خطة تُدار")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Who it's for", "الفئة المستهدفة")}</span><h2>${L("Built for complex, multi-party work", "مصمّمة للأعمال المعقّدة متعددة الأطراف")}</h2></div>
+    <ul class="feat-list" style="max-width:640px">${who}</ul>
+    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L("Task Force is scoped per engagement — tell us about your task and we'll come back with the right execution track and a quote tailored to its complexity.", "تاسك فورس تُسعَّر حسب نطاق كل مهمة — أخبرنا بمهمتك ونعود لك بمسار التنفيذ المناسب وعرض سعر حسب تعقيدها.")}</p></div>
+  </div></section>
+
+  <section class="section section--gray" id="tf-form"><div class="container" style="max-width:760px">
+    <div class="section-head"><span class="eyebrow">${L("Submit your task", "أرسل مهمتك")}</span><h2>${L("Tell us about your task or project", "أخبرنا عن مهمتك أو مشروعك")}</h2><p>${L("We'll review the scope and come back with the right execution track.", "نراجع النطاق ونعود لك بمسار التنفيذ المناسب.")}</p></div>
+    <form id="tf-form-el" novalidate>
+      <div class="join-grid">
+        <div class="field"><label for="tf-company">${L("Company / entity name", "اسم الشركة / المنشأة")} *</label><input type="text" id="tf-company" required></div>
+        <div class="field"><label for="tf-person">${L("Contact person", "اسم المسؤول")} *</label><input type="text" id="tf-person" required></div>
+        <div class="field"><label for="tf-phone">${L("Mobile", "الجوال")} *</label><input type="tel" id="tf-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
+        <div class="field"><label for="tf-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="tf-email"></div>
+        <div class="field field-full"><label for="tf-notes">${L("Describe the task or project", "صف المهمة أو المشروع")} *</label><textarea id="tf-notes" rows="4" required placeholder="${Lraw("What needs to get done, which parties/platforms are involved, and by when?", "ما المطلوب إنجازه، ما الجهات/المنصات المرتبطة، وما الموعد المستهدف؟")}"></textarea></div>
+      </div>
+      <div class="join-actions">
+        <button type="submit" class="btn btn-primary btn-lg" id="tf-submit">${L("Submit task", "أرسل المهمة")}</button>
+      </div>
+      <div class="form-success" hidden id="tf-result"></div>
+    </form>
+  </div></section>`;
+  return page({ title: Lraw("Task Force — Business Partner", "تاسك فورس — بيزنس بارتنر"), desc: Lraw("A dedicated executive service for hard, multi-party tasks and special projects.", "خدمة تنفيذية متخصصة لإدارة المهمات الصعبة والمشاريع متعددة الجهات."), active: "/task-force", path: "/task-force", body });
 }
 
 function buildPackages() {
@@ -3674,6 +3744,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
+  write(`${pre}task-force.html`, buildTaskForce());
   write(`${pre}packages.html`, buildPackages());
   // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
   write(`${pre}compliance-calculators.html`, buildComplianceCalculators());
@@ -3717,7 +3788,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths

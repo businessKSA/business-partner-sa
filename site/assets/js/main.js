@@ -1335,6 +1335,42 @@ var BP_EMP_BILLING = "monthly";
   });
 })();
 
+/* ---------- Task Force intake (/task-force) → /api/requests ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("tf-form-el");
+    if (!form) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    var WA = "966507034157";
+    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var company = val("tf-company"), person = val("tf-person"), phone = val("tf-phone"), notes = val("tf-notes");
+      if (!company || !person) { alert(T("Please fill in the company name and contact person.", "الرجاء تعبئة اسم الشركة والمسؤول.")); return; }
+      if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Please enter a valid Saudi mobile (05XXXXXXXX).", "الرجاء إدخال جوال سعودي صحيح (05XXXXXXXX).")); return; }
+      if (!notes) { alert(T("Please describe the task.", "الرجاء وصف المهمة.")); return; }
+      var payload = { type: "task-force", company: company, person: person, phone: phone, email: val("tf-email"), notes: notes };
+      var btn = document.getElementById("tf-submit"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      function done(ref) {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("tf-result");
+        var waMsg = encodeURIComponent(T("New Task Force request", "مهمة Task Force جديدة") + " " + (ref || "") + "\n" + T("Company", "الشركة") + ": " + company + "\n" + T("Mobile", "الجوال") + ": " + phone);
+        box.hidden = false;
+        box.innerHTML = "✅ <strong>" + T("Task received", "تم استلام مهمتك") + (ref ? " — " + ref : "") + "</strong><br>" +
+          T("Our team is reviewing the scope and will come back with the right execution track.", "فريقنا يراجع النطاق وسيعود إليك بمسار التنفيذ المناسب.") +
+          '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Follow up on WhatsApp", "تابع عبر واتساب") + "</a>";
+        box.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) { done(res.d && res.d.ref); })
+        .catch(function () { done(null); });
+    });
+  });
+})();
+
 /* ---------- AI Hiring OS dashboard (/employer-dashboard) ---------- */
 (function () {
   "use strict";
