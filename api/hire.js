@@ -76,10 +76,25 @@ async function readBody(req) {
 
 const cCompact = (c) => ({ id: c.id, role: c.role, field: c.field, city: c.city, experience: c.experience, education: c.education, nationality: c.nationalityType, skills: c.skills });
 
+// Cheap keyword-overlap score between the role/JD text and a candidate's role+field+skills.
+// Used only to pick WHICH 120 candidates reach the AI when the pool is larger than that —
+// picking the first 120 as they arrive (most-recently-added first) silently drops relevant,
+// older candidates from consideration entirely as the ATS grows past a few hundred profiles.
+function keywordScore(text, c) {
+  const words = String(text || "").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1);
+  if (!words.length) return 0;
+  const hay = `${c.role || ""} ${c.field || ""} ${c.skills || ""}`.toLowerCase();
+  return words.reduce((n, w) => n + (hay.includes(w) ? 1 : 0), 0);
+}
+
 function buildPrompt(b) {
   const role = String(b.role || "").slice(0, 1200);
   if (b.task === "match") {
-    const list = (Array.isArray(b.candidates) ? b.candidates : []).slice(0, 120).map(cCompact);
+    const all = Array.isArray(b.candidates) ? b.candidates : [];
+    const ranked = all.length > 120
+      ? all.map((c, i) => ({ c, i, s: keywordScore(role, c) })).sort((a, z) => z.s - a.s || a.i - z.i).map((x) => x.c)
+      : all;
+    const list = ranked.slice(0, 120).map(cCompact);
     return `المطلوب توظيفه (وصف الدور أو المتطلبات):\n${role}\n\nقائمة المرشّحين (JSON):\n${JSON.stringify(list)}\n\nرتّب أفضل حتى 12 مرشّحاً مطابقة للدور. أعِد **فقط** مصفوفة JSON صحيحة بدون أي نص إضافي، كل عنصر: {"id":"...","score":0-100,"reason":"سبب موجز بجملة واحدة"}. رتّبها تنازلياً حسب score. لا تُدرج من لا يناسب إطلاقاً.`;
   }
   const c = b.candidate || {};

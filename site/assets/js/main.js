@@ -1521,14 +1521,25 @@ var BP_EMP_BILLING = "monthly";
         .then(function (res) {
           if (res.s === 503) { st.innerHTML = T("AI isn't enabled yet.", "الذكاء غير مفعّل بعد."); return; }
           var d = res.d;
-          if (!d || !d.ok || !d.ranked || !d.ranked.length) { st.textContent = T("No strong matches. Try rephrasing the role.", "لا مطابقات قوية. جرّب تصيغ الوصف بشكل آخر."); return; }
+          // A failed request (bad status or ok:false) is NOT the same as "no matches" —
+          // conflating them used to hide real AI/API errors behind a misleading message.
+          if (res.s >= 400 || !d || !d.ok) {
+            console.error("AI Match request failed", res.s, d && d.error, d && d.raw);
+            st.textContent = T("AI Match failed — please try again in a moment.", "تعذّر تشغيل المطابقة الذكية — حاول مرة أخرى بعد قليل.");
+            return;
+          }
+          if (!d.ranked || !d.ranked.length) {
+            console.warn("AI Match returned no ranked candidates", d.raw);
+            st.textContent = T("No strong matches. Try rephrasing the role.", "لا مطابقات قوية. جرّب تصيغ الوصف بشكل آخر.");
+            return;
+          }
           var byId = {}; CANDS.forEach(function (c) { byId[c.id] = c; });
           var items = d.ranked.map(function (m) { var c = byId[m.id]; return c ? { c: c, m: m } : null; }).filter(Boolean);
           st.textContent = "✨ " + items.length + " " + T("matched candidates (best first)", "مرشّح مطابق (الأفضل أولاً)");
           grid.innerHTML = items.map(function (x) { return card(x.c, { match: x.m }); }).join("");
           bindCard(grid);
         })
-        .catch(function () { st.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
+        .catch(function (e) { console.error("AI Match network error", e); st.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
     });
 
     // ---- Per-candidate AI + modal ----
