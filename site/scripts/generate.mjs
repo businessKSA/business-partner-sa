@@ -2036,7 +2036,7 @@ function buildEmployers() {
 
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Plans", "الباقات")}</span><h2>${L("Choose your subscription", "اختر اشتراكك")}</h2><p>${L("Subscribe to unlock full candidate contacts, CVs, shortlist and hiring pipeline.", "اشترك لفتح بيانات التواصل الكاملة والسير الذاتية والقائمة المختصرة ومراحل التوظيف.")}</p></div>
-    <div class="grid grid-3">${employerPlanCards({ selectable: false })}</div>
+    ${employerPlanCards({ selectable: false })}
   </div></section>
 
   <section class="section section--gray" id="emp-pool"><div class="container">
@@ -2062,12 +2062,27 @@ function buildEmployers() {
   return page({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — بيزنس بارتنر"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
 }
 
+function employerYearly(monthly, discount) {
+  return Math.round((Number(monthly) * 12 * (1 - discount)) / 10) * 10;
+}
+
 function employerPlanCards({ selectable }) {
   const plans = (site.employerPlans && site.employerPlans.tiers) || [];
-  const price = (t) => t.price == null
-    ? `<span class="pk-soon">${L("Pricing on request", "السعر عند الطلب")}</span>`
-    : `${Number(t.price).toLocaleString(LANG === "ar" ? "ar-SA" : "en-US")} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span>`;
-  return plans.map((t, i) => {
+  const discount = (site.employerPlans && site.employerPlans.yearlyDiscount) || 0;
+  const fmt = (n) => Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : "en-US");
+  const priceHtml = (t) => {
+    if (t.price == null) return `<span class="pk-soon">${L("Pricing on request", "السعر عند الطلب")}</span>`;
+    const yearly = employerYearly(t.price, discount);
+    return `<span class="emp-price emp-price-m">${fmt(t.price)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span>
+      <span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span>`;
+  };
+  const toggle = discount
+    ? `<div class="emp-billing-toggle" role="tablist">
+        <button type="button" class="emp-bill-btn active" data-bill="monthly">${L("Monthly", "شهري")}</button>
+        <button type="button" class="emp-bill-btn" data-bill="yearly">${L("Yearly", "سنوي")} <span class="emp-save">${L(`Save ${Math.round(discount * 100)}%`, `وفّر ${Math.round(discount * 100)}٪`)}</span></button>
+      </div>`
+    : "";
+  const cards = plans.map((t, i) => {
     const feats = (LANG === "ar" ? t.features : (t.featuresEn || t.features)) || [];
     const list = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
     const badge = t.popular ? `<span class="pk-badge">${L("Most popular", "الأكثر طلباً")}</span>` : "";
@@ -2076,18 +2091,19 @@ function employerPlanCards({ selectable }) {
       return `<label class="pkg emp-plan${t.popular ? " pop" : ""}">
         <input type="radio" name="emp-plan" value="${esc(t.key)}"${i === 1 ? " checked" : ""}>
         ${badge}<div class="pk-name">${esc(name)}</div>
-        <div class="pk-price">${price(t)}</div>
+        <div class="pk-price">${priceHtml(t)}</div>
         <ul>${list}</ul>
         <span class="pk-pick">${L("Select this plan", "اختر هذه الباقة")}</span>
       </label>`;
     }
     return `<div class="pkg${t.popular ? " pop" : ""}">
       ${badge}<div class="pk-name">${esc(name)}</div>
-      <div class="pk-price">${price(t)}</div>
+      <div class="pk-price">${priceHtml(t)}</div>
       <ul>${list}</ul>
       <a class="btn ${t.popular ? "btn-primary" : "btn-ghost"}" href="${u("/employer-join")}?plan=${esc(t.key)}">${L("Subscribe", "اشترك")}</a>
     </div>`;
   }).join("");
+  return toggle + `<div class="grid grid-3 emp-plans">${cards}</div>`;
 }
 
 function buildEmployerJoin() {
@@ -2101,7 +2117,7 @@ function buildEmployerJoin() {
   <section class="section"><div class="container">
     <form id="emp-join" novalidate>
       <div class="section-head" style="margin-bottom:22px"><span class="eyebrow">${L("Step 1", "الخطوة 1")}</span><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
-      <div class="grid grid-3 emp-plans">${employerPlanCards({ selectable: true })}</div>
+      ${employerPlanCards({ selectable: true })}
 
       <div class="section-head" style="margin:44px 0 22px"><span class="eyebrow">${L("Step 2", "الخطوة 2")}</span><h2>${L("Company details", "بيانات الشركة")}</h2></div>
       <div class="join-grid">
@@ -2121,7 +2137,7 @@ function buildEmployerJoin() {
     </form>
   </div></section>
 
-  <script>window.BP_EMP_PLANS=${JSON.stringify((site.employerPlans && site.employerPlans.tiers || []).map((t) => ({ key: t.key, name: L(t.nameEn || t.name, t.name), price: t.price })))};window.BP_BANK=${JSON.stringify({ bank: L(site.bank.bankNameEn, site.bank.bankName), iban: site.bank.iban, beneficiary: L(site.bank.beneficiaryEn, site.bank.beneficiary) })};</script>`;
+  <script>window.BP_EMP_PLANS=${JSON.stringify((site.employerPlans && site.employerPlans.tiers || []).map((t) => ({ key: t.key, name: L(t.nameEn || t.name, t.name), price: t.price, yearlyPrice: t.price != null ? employerYearly(t.price, (site.employerPlans && site.employerPlans.yearlyDiscount) || 0) : null })))};window.BP_BANK=${JSON.stringify({ bank: L(site.bank.bankNameEn, site.bank.bankName), iban: site.bank.iban, beneficiary: L(site.bank.beneficiaryEn, site.bank.beneficiary) })};</script>`;
   return page({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
 }
 

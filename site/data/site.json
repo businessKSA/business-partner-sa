@@ -1638,26 +1638,31 @@
     "hoursNoteEn": "Working hours: 9 AM – 6 PM Riyadh time, Saturday to Thursday (Friday off)."
   },
   "employerPlans": {
-    "note": "أسعار مبدئية — عدّلها لاحقاً. price=null يعني «قريباً» ويحوّل للتواصل بدل الدفع.",
+    "note": "أسعار شهرية ثابتة. الاشتراك السنوي = السعر الشهري × 12 × (1 − yearlyDiscount) أي أرخص 30%.",
     "currency": "SAR",
     "period": "monthly",
+    "yearlyDiscount": 0.3,
     "tiers": [
       {
         "key": "basic",
         "name": "أساسية",
         "nameEn": "Basic",
-        "price": null,
+        "price": 500,
         "unlock": 10,
         "jobs": 1,
+        "aiMatch": false,
+        "aiOutreach": false,
         "popular": false,
         "features": [
           "فتح تواصل حتى 10 مرشّحين شهرياً",
+          "إعلان وظيفة واحد نشط",
           "بحث وفلترة كاملة للمرشّحين",
           "تحميل السير الذاتية (PDF)",
           "دعم عبر واتساب"
         ],
         "featuresEn": [
           "Unlock up to 10 candidate contacts / month",
+          "1 active job posting",
           "Full candidate search & filters",
           "Download CVs (PDF)",
           "WhatsApp support"
@@ -1667,20 +1672,26 @@
         "key": "pro",
         "name": "احترافية",
         "nameEn": "Professional",
-        "price": null,
+        "price": 1000,
         "unlock": 30,
         "jobs": 5,
+        "aiMatch": true,
+        "aiOutreach": false,
         "popular": true,
         "features": [
           "فتح تواصل حتى 30 مرشّح شهرياً",
+          "حتى 5 إعلانات وظائف نشطة",
           "كل مميزات الأساسية",
+          "✨ مطابقة المرشّحين بالذكاء الاصطناعي",
           "قائمة مختصرة ومراحل توظيف",
           "ترشيح مطابق من فريقنا",
           "أولوية في الدعم"
         ],
         "featuresEn": [
           "Unlock up to 30 candidate contacts / month",
+          "Up to 5 active job postings",
           "Everything in Basic",
+          "✨ AI candidate matching",
           "Shortlist & hiring pipeline",
           "Matched shortlisting by our team",
           "Priority support"
@@ -1690,20 +1701,26 @@
         "key": "enterprise",
         "name": "مؤسسية",
         "nameEn": "Enterprise",
-        "price": null,
+        "price": 2500,
         "unlock": 0,
         "jobs": 0,
+        "aiMatch": true,
+        "aiOutreach": true,
         "popular": false,
         "features": [
           "فتح تواصل غير محدود",
+          "إعلانات وظائف غير محدودة",
           "كل مميزات الاحترافية",
+          "✨ رسائل تواصل وأسئلة مقابلة بالذكاء الاصطناعي لكل مرشّح",
           "مدير حساب مخصّص",
           "إدارة التوظيف من البداية للنهاية",
           "تقارير توطين ودعم أولوية قصوى"
         ],
         "featuresEn": [
           "Unlimited candidate contacts",
+          "Unlimited job postings",
           "Everything in Professional",
+          "✨ AI outreach messages & interview questions per candidate",
           "Dedicated account manager",
           "End-to-end hiring managed for you",
           "Saudization reports & top-priority support"

@@ -828,6 +828,10 @@ h3 { font-size: 1.12rem; }
 .pk-badge { position: absolute; top: -11px; inset-inline-start: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; font-size: .72rem; font-weight: 700; padding: 3px 12px; border-radius: 999px; white-space: nowrap; }
 .pk-per, .pk-soon { font-size: .9rem; font-weight: 600; color: var(--text-soft); }
 .pk-soon { color: var(--navy); }
+.emp-billing-toggle { display: flex; justify-content: center; gap: 6px; background: var(--gray-bg); border-radius: 999px; padding: 5px; width: max-content; margin: 0 auto 26px; }
+.emp-bill-btn { font: inherit; font-size: .88rem; font-weight: 700; padding: 8px 18px; border-radius: 999px; border: 0; background: transparent; color: var(--text-soft); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.emp-bill-btn.active { background: var(--white); color: var(--navy); box-shadow: var(--shadow-sm); }
+.emp-save { font-size: .74rem; font-weight: 700; color: var(--wa); background: #eaf7ef; padding: 2px 8px; border-radius: 999px; }
 .join-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
 .join-grid .field-full { grid-column: 1 / -1; }
 .join-grid .field label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 6px; color: var(--navy); }

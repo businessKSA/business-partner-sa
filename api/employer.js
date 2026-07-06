@@ -103,6 +103,7 @@ export default async function handler(req, res) {
   const phone = clip(b.phone, 40);
   const planKey = ["basic", "pro", "enterprise"].includes(b.plan) ? b.plan : "";
   const planAr = PLAN_AR[planKey] || "";
+  const billing = b.billing === "yearly" ? "سنوي" : "شهري";
   const notes = clip(b.notes, 600);
 
   if (!company || !phone) {
@@ -130,7 +131,7 @@ export default async function handler(req, res) {
       if (contact) props["جهة الاتصال"] = { rich_text: rt(contact) };
       if (isEmail(email)) props["البريد"] = { email };
       if (planAr) props["الباقة"] = { select: { name: planAr } };
-      if (notes) props["ملاحظات"] = { rich_text: rt(notes) };
+      props["ملاحظات"] = { rich_text: rt((notes ? notes + " — " : "") + `الفوترة: ${billing}`) };
       r = await notion("pages", { parent: { database_id: DB_ID }, properties: props });
     } else {
       // No dedicated DB: create a child page under the HR center page.
@@ -141,6 +142,7 @@ export default async function handler(req, res) {
       const children = [
         line("رمز الوصول", ref),
         line("الباقة", planAr || "—"),
+        line("الفوترة", billing),
         line("جهة الاتصال", contact || "—"),
         line("الجوال", phone),
         line("البريد", email || "—"),
@@ -167,7 +169,7 @@ export default async function handler(req, res) {
     const coHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#111">
       <h2 style="color:${brand}">تم استلام تسجيلك — Business Partner</h2>
       <p>مرحباً${contact ? " " + contact : ""}،</p>
-      <p>سجّلنا اشتراك <strong>${company}</strong>${planAr ? ` في الباقة <strong>${planAr}</strong>` : ""} في منصة التوظيف.</p>
+      <p>سجّلنا اشتراك <strong>${company}</strong>${planAr ? ` في الباقة <strong>${planAr}</strong> (${billing})` : ""} في منصة التوظيف.</p>
       <p>رمز وصولك:</p>
       <p style="font-size:24px;font-weight:bold;letter-spacing:3px;color:${brand}">${ref}</p>
       <p>يُفعّل هذا الرمز فور تأكيد الدفع، وبعدها تدخل لوحة التوظيف وتتصفّح المرشّحين ببياناتهم الكاملة.</p>
@@ -176,7 +178,7 @@ export default async function handler(req, res) {
     const bpHtml = `<div style="font-family:Arial,sans-serif">
       <h3>طلب اشتراك صاحب عمل جديد (${ref})</h3>
       <ul>
-        <li>الشركة: ${company}</li><li>الباقة: ${planAr || "—"}</li>
+        <li>الشركة: ${company}</li><li>الباقة: ${planAr || "—"} (${billing})</li>
         <li>المسؤول: ${contact || "—"}</li><li>الجوال: ${phone}</li><li>البريد: ${email || "—"}</li>
         <li>السجل: ${cr || "—"}</li>${notes ? `<li>ملاحظات: ${notes}</li>` : ""}
       </ul>

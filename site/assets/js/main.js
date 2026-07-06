@@ -1117,6 +1117,26 @@ var BP = window.BP = window.BP || {};
   if (qEl) qEl.addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
 })();
 
+/* ---------- Employer plan cards — monthly/yearly billing toggle ---------- */
+var BP_EMP_BILLING = "monthly";
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var toggle = document.querySelector(".emp-billing-toggle");
+    if (!toggle) return;
+    var btns = toggle.querySelectorAll(".emp-bill-btn");
+    btns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var bill = btn.getAttribute("data-bill");
+        BP_EMP_BILLING = bill;
+        btns.forEach(function (b) { b.classList.toggle("active", b === btn); });
+        document.querySelectorAll(".emp-price-m").forEach(function (el) { el.hidden = bill === "yearly"; });
+        document.querySelectorAll(".emp-price-y").forEach(function (el) { el.hidden = bill === "monthly"; });
+      });
+    });
+  });
+})();
+
 /* ---------- Employer subscription (/employer-join) → /api/employer ---------- */
 (function () {
   "use strict";
@@ -1147,7 +1167,8 @@ var BP = window.BP = window.BP || {};
       if (!company) { alert(T("Please enter the company name.", "الرجاء إدخال اسم الشركة.")); return; }
       if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Please enter a valid Saudi mobile (05XXXXXXXX).", "الرجاء إدخال جوال سعودي صحيح (05XXXXXXXX).")); return; }
       var plan = planInfo();
-      var payload = { company: company, cr: val("ej-cr"), contact: val("ej-contact"), phone: phone, email: val("ej-email"), notes: val("ej-notes"), plan: plan.key };
+      var billing = BP_EMP_BILLING || "monthly";
+      var payload = { company: company, cr: val("ej-cr"), contact: val("ej-contact"), phone: phone, email: val("ej-email"), notes: val("ej-notes"), plan: plan.key, billing: billing };
 
       var btn = document.getElementById("ej-submit"), lbl = btn.textContent;
       btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
@@ -1156,10 +1177,12 @@ var BP = window.BP = window.BP || {};
         btn.disabled = false; btn.textContent = lbl;
         var box = document.getElementById("ej-result");
         var bank = window.BP_BANK || {};
+        var planPrice = billing === "yearly" ? plan.yearlyPrice : plan.price;
+        var priceLabel = planPrice != null ? (planPrice + " " + T("SAR", "ريال") + " / " + (billing === "yearly" ? T("year", "سنة") : T("month", "شهر"))) : "";
         var waMsg = encodeURIComponent(
           T("New employer subscription", "طلب اشتراك صاحب عمل") + " " + (ref || "") +
           "\n" + T("Company", "الشركة") + ": " + company +
-          "\n" + T("Plan", "الباقة") + ": " + (plan.name || plan.key) +
+          "\n" + T("Plan", "الباقة") + ": " + (plan.name || plan.key) + (priceLabel ? " (" + priceLabel + ")" : "") +
           "\n" + T("Mobile", "الجوال") + ": " + phone
         );
         var bankRows = bank.iban ? (
@@ -1171,7 +1194,7 @@ var BP = window.BP = window.BP || {};
         box.hidden = false;
         box.innerHTML =
           "✅ <strong>" + T("Registration received", "تم استلام تسجيلك") + (ref ? " — " + ref : "") + "</strong><br>" +
-          T("To activate your access, complete payment for the ", "لتفعيل وصولك، أكمل دفع باقة ") + "<strong>" + (plan.name || "") + "</strong> " +
+          T("To activate your access, complete payment for the ", "لتفعيل وصولك، أكمل دفع باقة ") + "<strong>" + (plan.name || "") + "</strong>" + (priceLabel ? " (" + priceLabel + ") " : " ") +
           T("plan by bank transfer below, then send us the receipt on WhatsApp — we activate within working hours.", "عبر التحويل البنكي أدناه، ثم أرسل لنا الإيصال على واتساب — نفعّل خلال ساعات العمل.") +
           bankRows +
           '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Send details on WhatsApp", "أرسل التفاصيل عبر واتساب") + "</a>";
