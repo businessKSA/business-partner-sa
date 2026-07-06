@@ -244,14 +244,14 @@ const NAV_GROUPS = [
       { href: "/packages", en: "Packages", ar: "الباقات" },
       { href: "/ai-agents", en: "AI Agents", ar: "الوكلاء الأذكياء" },
       { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
-      { href: "/compliance-calculators", en: "Compliance tools", ar: "أدوات الامتثال" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
     ],
   },
   {
-    en: "Saudi Arabia", ar: "السعودية",
+    en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
+      { href: "/tools-and-calculators", en: "Tools & calculators", ar: "الأدوات والحاسبات" },
       { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
       { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
@@ -338,9 +338,7 @@ function footer() {
       ${fl("/news", "News", "الأخبار")}
       ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
       ${fl("/careers", "Careers", "الوظائف")}
-      ${fl("/compliance-calculators", "Compliance calculators", "حاسبات الامتثال")}
-      ${fl("/labor-calculators", "Labor & payroll calculators", "حاسبات العمل والرواتب")}
-      ${fl("/compliance-portal", "Compliance portal", "بوابة امتثال المنشأة")}
+      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
       ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
       ${fl("/cart", "Cart", "السلة")}
@@ -829,7 +827,9 @@ function buildServiceDetail(s) {
       <div class="order-box">
         <div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
-        <a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>
+        ${s.category === "Real Estate"
+          ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
+          : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}
         ${waBtn2("Discuss on WhatsApp", "ناقشنا على واتساب", "btn-ghost")}
         <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
@@ -1139,6 +1139,37 @@ function intakeFormBlock() {
   </script>`;
 }
 
+// Qiwa-style tools directory: one clean grid of cards, each linking straight
+// to its calculator/tool (deep-linked via #hash into the right tab).
+function buildToolsHub() {
+  const tools = [
+    { icon: "🏆", title: L("End-of-service gratuity", "حاسبة مكافأة نهاية الخدمة"), desc: L("Calculate the end-of-service gratuity per the Saudi Labor Law.", "احسب مكافأة نهاية الخدمة وفق نظام العمل السعودي."), href: u("/labor-calculators") + "#eos" },
+    { icon: "🏖️", title: L("Annual leave", "حاسبة الإجازة السنوية"), desc: L("Leave entitlement and the cash value of unused days.", "استحقاق الإجازة والقيمة النقدية للأيام غير المستخدمة."), href: u("/labor-calculators") + "#leave" },
+    { icon: "⏱️", title: L("Overtime", "حاسبة العمل الإضافي"), desc: L("Overtime pay at the 1.5x rate per the Labor Law.", "أجر العمل الإضافي بمعدل 1.5× وفق نظام العمل."), href: u("/labor-calculators") + "#ot" },
+    { icon: "🏦", title: L("GOSI contributions", "حاسبة اشتراك التأمينات (GOSI)"), desc: L("Monthly social-insurance contributions, Saudi & non-Saudi.", "الاشتراكات الشهرية للتأمينات، للسعودي وغير السعودي."), href: u("/labor-calculators") + "#gosi" },
+    { icon: "🟢", title: L("Nitaqat calculator", "حاسبة النطاقات"), desc: L("Estimate your Nitaqat band and Saudization ratio by activity.", "قدّر نطاقك ونسبة التوطين حسب نشاطك."), href: u("/compliance-calculators") + "#nitaqat" },
+    { icon: "💰", title: L("Government cost calculator", "حاسبة التكاليف الحكومية"), desc: L("Estimate visa, Iqama and platform fees for your headcount.", "قدّر رسوم التأشيرات والإقامات والمنصات حسب عدد موظفيك."), href: u("/compliance-calculators") + "#fees" },
+    { icon: "🧑‍💼", title: L("Profession checker", "فاحص المهن"), desc: L("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."), href: u("/compliance-calculators") + "#prof" },
+    { icon: "🛡️", title: L("Compliance portal", "بوابة الامتثال"), desc: L("Upload your official files once — we build your file and track every deadline.", "ارفع ملفاتك الرسمية مرة واحدة — نبني ملفك ونتابع كل استحقاق."), href: u("/compliance-portal") },
+  ];
+  const cards = tools.map((t) => `<a class="card cat-card" href="${t.href}">
+    <div class="cat-card-icon">${t.icon}</div>
+    <h3>${t.title}</h3>
+    <p class="desc">${t.desc}</p>
+    <div class="foot"><span></span><span class="card-link">${L("Open", "فتح")} ${I.arrow}</span></div>
+  </a>`).join("");
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Knowledge Center", "مركز المعرفة")}</span>
+    <h1>${L("Tools & calculators", "الأدوات والحاسبات")}</h1>
+    <p class="lead">${L("Free, instant calculators for payroll, Saudization and compliance — plus the compliance portal for a fully managed file.", "حاسبات مجانية وفورية للرواتب والتوطين والامتثال — بالإضافة إلى بوابة الامتثال لملف مُدار بالكامل.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="grid grid-3 cat-grid">${cards}</div>
+  </div></section>`;
+  return page({ title: Lraw("Tools & calculators — Business Partner", "الأدوات والحاسبات — بيزنس بارتنر"), desc: Lraw("Free labor, payroll, Saudization and compliance calculators.", "حاسبات مجانية للعمل والرواتب والتوطين والامتثال."), active: "/tools-and-calculators", path: "/tools-and-calculators", body });
+}
+
 function buildComplianceCalculators() {
   // Official activities dataset (codes + AR/EN names from the ISIC4 master reference in Notion).
   let ACT_V = "0";
@@ -1290,9 +1321,6 @@ function buildComplianceCalculators() {
           <div>🛡️ <strong>${L("Ready to activate monitoring?", "جاهز تفعّل المراقبة؟")}</strong><span>${L("Open the secure compliance portal, upload your files once, and the agent builds your file and tracks every deadline.", "افتح بوابة الامتثال الآمنة، ارفع ملفاتك مرة واحدة، والوكيل يبني ملفك ويتابع كل استحقاق.")}</span></div>
           <a class="btn btn-primary btn-lg" href="${u("/compliance-portal")}">🛡️ ${L("Open the compliance portal →", "افتح بوابة الامتثال ←")}</a>
         </div>
-        <div class="cc-upload-cta" style="margin-top:14px;text-align:center">
-          <a class="btn btn-ghost" href="${u("/compliance-portal")}">🛡️ ${L("Open the full compliance portal page →", "افتح صفحة بوابة امتثال المنشأة الكاملة ←")}</a>
-        </div>
       </div>
     </div>
     <div class="cc-disclaimer">⚖️ ${L("All figures and ratios are estimates for illustration only. Official bands depend on your activity and size in Qiwa; official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
@@ -1439,6 +1467,7 @@ function buildComplianceCalculators() {
       document.querySelectorAll(".cc-tab").forEach(function(x){x.classList.remove("active");});
       document.querySelectorAll(".cc-panel").forEach(function(x){x.classList.remove("active");});
       tab.classList.add("active");$("cc-panel-"+tab.dataset.tab).classList.add("active");});});
+    (function(){var h=(location.hash||"").replace("#","");if(h){var t=document.querySelector('.cc-tab[data-tab="'+h+'"]');if(t)t.click();}})();
     var NIT_DATA=[{"name":"الإنتاج الزراعي والحيواني وخدماتها وأندية الفروسية","m":[0.19,0.58,0.58,0.58],"y2026":[4.38,5.13,9.38,14.38],"y2027":[4.38,5.13,9.38,14.38],"y2028":[4.38,5.13,9.38,14.38],"en":"Agricultural & livestock production, services and equestrian clubs"},{"name":"أنشطة الهيدروكربونات وعملياتها","m":[4.98,6.0,6.0,6.0],"y2026":[5.62,20.0,22.0,24.0],"y2027":[7.62,22.0,24.0,26.0],"y2028":[9.62,24.0,26.0,28.0],"en":"Hydrocarbon activities and operations"},{"name":"تعدين المعادن الفلزية والأحجار الكريمة","m":[1.68,1.87,2.08,6.0],"y2026":[16.0,19.0,28.0,23.0],"y2027":[16.0,19.0,28.0,23.0],"y2028":[16.0,19.0,28.0,23.0],"en":"Metallic minerals & gemstones mining"},{"name":"تعدين المعادن غير الفلزية والصناعية","m":[1.68,1.87,2.08,6.0],"y2026":[18.0,19.0,21.0,25.0],"y2027":[20.0,21.0,23.0,27.0],"y2028":[22.0,23.0,25.0,29.0],"en":"Non-metallic & industrial minerals mining"},{"name":"تعدين مواد البناء","m":[0.0,0.0,0.0,6.0],"y2026":[7.0,10.0,13.0,23.0],"y2027":[7.0,10.0,13.0,23.0],"y2028":[7.0,10.0,13.0,23.0],"en":"Construction-materials mining"},{"name":"الطاقة والمياه وخدماتها","m":[1.35,2.6,3.0,3.0],"y2026":[8.36,9.32,17.18,32.93],"y2027":[10.36,11.32,19.18,34.93],"y2028":[12.36,13.32,21.18,36.93],"en":"Energy, water and related services"},{"name":"الصناعات","m":[1.68,1.87,2.08,2.08],"y2026":[15.08,21.87,23.97,29.87],"y2027":[18.08,24.87,26.97,32.87],"y2028":[21.08,27.87,29.97,35.87],"en":"Manufacturing industries"},{"name":"مقاولات التشييد والبناء","m":[-0.37,-0.37,0.0,0.0],"y2026":[14.17,16.17,17.5,22.5],"y2027":[16.17,18.17,19.5,24.5],"y2028":[18.17,20.17,21.5,26.5],"en":"Construction & building contracting"},{"name":"التشغيل والصيانة","m":[0.14,0.14,0.48,0.76],"y2026":[17.12,21.12,24.96,29.09],"y2027":[18.12,22.12,25.96,30.09],"y2028":[19.12,23.12,26.96,31.09],"en":"Operation & maintenance"},{"name":"مقاولات النظافة والمغاسل","m":[-0.37,-0.37,0.0,0.0],"y2026":[12.17,14.17,17.0,22.0],"y2027":[12.17,14.17,17.0,22.0],"y2028":[12.17,14.17,17.0,22.0],"en":"Cleaning contracting & laundries"},{"name":"البيع بالجملة والتجزئة العامة","m":[2.47,2.47,2.67,2.84],"y2026":[23.25,27.72,30.41,38.91],"y2027":[26.25,30.72,33.41,41.91],"y2028":[29.25,33.72,36.41,44.91],"en":"General wholesale & retail trade"},{"name":"البيع بالتجزئة للعطور والساعات","m":[2.47,2.47,2.67,2.84],"y2026":[25.25,29.72,33.91,41.91],"y2027":[30.25,34.72,38.91,46.91],"y2028":[35.25,39.72,43.91,51.91],"en":"Retail of perfumes & watches"},{"name":"البيع بالتجزئة للأزياء والكماليات والسلع المتنوعة","m":[2.47,2.47,2.67,2.84],"y2026":[24.25,28.72,32.91,40.91],"y2027":[28.25,32.72,36.91,44.91],"y2028":[32.25,36.72,40.91,48.91],"en":"Retail of fashion, accessories & misc. goods"},{"name":"السلع النسائية وبيع الهواتف المحمولة وصيانتها","m":[0.0,0.0,0.0,0.27],"y2026":[82.0,85.0,89.0,93.42],"y2027":[82.0,85.0,89.0,93.42],"y2028":[82.0,85.0,89.0,93.42],"en":"Women's goods, mobile-phone sales & maintenance"},{"name":"حلول الاتصالات","m":[2.19,2.52,2.91,3.22],"y2026":[27.76,36.76,42.02,48.15],"y2027":[29.76,38.76,44.02,50.15],"y2028":[31.76,40.76,46.02,52.15],"en":"Telecom solutions"},{"name":"أنشطة البريد","m":[0.81,0.81,1.01,1.01],"y2026":[17.1,22.1,32.5,42.5],"y2027":[17.1,22.1,32.5,42.5],"y2028":[17.1,22.1,32.5,42.5],"en":"Postal activities"},{"name":"البنية التحتية لتقنية المعلومات","m":[3.61,3.61,3.61,3.61],"y2026":[17.77,24.64,40.0,50.0],"y2027":[19.77,26.64,42.0,52.0],"y2028":[21.77,28.64,44.0,54.0],"en":"IT infrastructure"},{"name":"البنية التحتية للاتصالات","m":[0.0,0.0,0.0,0.0],"y2026":[17.0,21.0,23.5,28.5],"y2027":[19.0,23.0,25.5,30.5],"y2028":[21.0,25.0,27.5,32.5],"en":"Telecom infrastructure"},{"name":"التشغيل والصيانة للاتصالات","m":[0.0,0.39,0.39,0.39],"y2026":[17.0,20.98,23.83,29.0],"y2027":[19.0,22.98,25.83,31.0],"y2028":[21.0,24.98,27.83,33.0],"en":"Telecom operation & maintenance"},{"name":"التشغيل والصيانة لتقنية المعلومات","m":[4.85,4.85,4.85,4.85],"y2026":[15.96,24.42,27.42,33.36],"y2027":[17.96,26.42,29.42,35.36],"y2028":[19.96,28.42,31.42,37.36],"en":"IT operation & maintenance"},{"name":"حلول تقنية المعلومات","m":[2.19,2.34,2.91,3.22],"y2026":[26.76,32.54,40.02,48.15],"y2027":[28.76,34.54,42.02,50.15],"y2028":[30.76,36.54,44.02,52.15],"en":"IT solutions"},{"name":"النقل البري والتخزين","m":[1.15,1.15,1.5,1.71],"y2026":[12.09,16.2,17.82,27.74],"y2027":[13.09,17.2,18.82,28.74],"y2028":[14.09,18.2,19.82,29.74],"en":"Land transport & warehousing"},{"name":"النقل البحري والجوي","m":[1.45,1.45,1.86,2.67],"y2026":[26.57,39.98,48.38,56.29],"y2027":[28.57,41.98,50.38,58.29],"y2028":[30.57,43.98,52.38,60.29],"en":"Maritime & air transport"},{"name":"مطاعم مع الخدمة (لا تشمل الوجبات السريعة)","m":[1.58,1.67,1.67,1.67],"y2026":[13.47,16.98,20.26,26.71],"y2027":[14.47,17.98,21.26,27.71],"y2028":[15.47,18.98,22.26,28.71],"en":"Full-service restaurants (excl. fast food)"},{"name":"مطاعم خدمة سريعة ومحلات الآيسكريم","m":[1.58,1.67,1.67,1.67],"y2026":[15.08,20.04,23.27,29.26],"y2027":[16.08,21.04,24.27,30.26],"y2028":[17.08,22.04,25.27,31.26],"en":"Fast-food restaurants & ice-cream shops"},{"name":"المقاهي ومحلات تقديم المشروبات","m":[1.58,1.67,1.67,1.67],"y2026":[16.98,20.49,31.42,35.52],"y2027":[17.98,21.49,32.42,36.52],"y2028":[18.98,22.49,33.42,37.52],"en":"Cafés & beverage outlets"},{"name":"التموين والإعاشة","m":[1.58,1.67,1.67,1.67],"y2026":[14.46,17.97,21.25,27.93],"y2027":[15.46,18.97,22.25,28.93],"y2028":[16.46,19.97,23.25,29.93],"en":"Catering & provisioning"},{"name":"حراسات أمنية ومكاتب التوظيف الأهلية","m":[0.34,0.34,0.34,0.34],"y2026":[74.5,77.5,80.5,84.5],"y2027":[74.5,77.5,80.5,84.5],"y2028":[74.5,77.5,80.5,84.5],"en":"Private security & private employment offices"},{"name":"المؤسسات المالية","m":[2.6,2.6,2.6,2.6],"y2026":[50.0,57.0,62.0,65.0],"y2027":[50.0,57.0,62.0,65.0],"y2028":[50.0,57.0,62.0,65.0],"en":"Financial institutions"},{"name":"خدمات الأعمال","m":[1.03,1.03,2.19,2.19],"y2026":[33.78,42.62,43.62,54.82],"y2027":[36.78,45.62,46.62,57.82],"y2028":[39.78,48.62,49.62,60.82],"en":"Business services"},{"name":"الخدمات الاجتماعية","m":[1.83,2.38,3.5,3.5],"y2026":[14.82,26.9,32.74,56.52],"y2027":[16.82,28.9,34.74,58.52],"y2028":[18.82,30.9,36.74,60.52],"en":"Social services"},{"name":"الخدمات الشخصية","m":[1.46,1.92,4.4,5.0],"y2026":[14.07,20.36,24.63,26.13],"y2027":[14.07,20.36,24.63,26.13],"y2028":[14.07,20.36,24.63,26.13],"en":"Personal services"},{"name":"التعليم العالي","m":[0.0,0.0,0.43,0.43],"y2026":[34.0,48.0,75.37,82.0],"y2027":[34.0,48.0,75.37,82.0],"y2028":[34.0,48.0,75.37,82.0],"en":"Higher education"},{"name":"التعليم العالي للتخصصات الصحية","m":[0.0,0.0,0.0,0.0],"y2026":[25.0,30.0,35.0,37.0],"y2027":[25.0,30.0,35.0,37.0],"y2028":[25.0,30.0,35.0,37.0],"en":"Higher education — health specialties"},{"name":"مدارس البنات ورياض الأطفال والحضانات","m":[0.0,0.0,0.0,0.0],"y2026":[51.0,66.0,89.56,95.0],"y2027":[51.0,66.0,89.56,95.0],"y2028":[51.0,66.0,89.56,95.0],"en":"Girls' schools, kindergartens & nurseries"},{"name":"المدارس الأجنبية","m":[2.3,2.3,2.3,2.3],"y2026":[4.95,14.19,19.99,28.77],"y2027":[4.95,14.19,19.99,28.77],"y2028":[4.95,14.19,19.99,28.77],"en":"Foreign schools"},{"name":"المختبرات والخدمات الصحية","m":[0.35,0.35,0.35,0.35],"y2026":[25.74,30.74,34.24,34.74],"y2027":[27.74,32.74,36.24,36.74],"y2028":[29.74,34.74,38.24,38.74],"en":"Laboratories & health services"},{"name":"الإيواء والترفيه والسياحة","m":[2.42,2.42,2.59,2.59],"y2026":[24.6,31.02,36.4,42.52],"y2027":[26.6,33.02,38.4,44.52],"y2028":[28.6,35.02,40.4,46.52],"en":"Accommodation, entertainment & tourism"},{"name":"السلع الأساسية والمحروقات","m":[0.17,0.56,0.56,1.19],"y2026":[9.86,12.22,22.59,26.09],"y2027":[10.86,13.22,23.59,27.09],"y2028":[11.86,14.22,24.59,28.09],"en":"Basic commodities & fuels"},{"name":"مدارس البنين ومجمعات البنين والبنات","m":[1.31,1.31,1.31,1.31],"y2026":[29.3,39.15,50.27,61.0],"y2027":[29.3,39.15,50.27,61.0],"y2028":[29.3,39.15,50.27,61.0],"en":"Boys' schools & mixed school complexes"},{"name":"الكيانات المجمعة","m":[2.23,2.23,2.23,2.23],"y2026":[10.99,22.4,33.81,44.0],"y2027":[10.99,22.4,33.81,44.0],"y2028":[10.99,22.4,33.81,44.0],"en":"Consolidated entities"}];
     var actSel=$("cc-act");
     NIT_DATA.forEach(function(a,i){var o=document.createElement("option");o.value=i;o.textContent=isAr?a.name:a.en;actSel.appendChild(o);});
@@ -1807,6 +1836,7 @@ function buildLaborCalculators() {
       document.querySelectorAll(".cc-tab").forEach(function(x){x.classList.remove("active");});
       document.querySelectorAll(".cc-panel").forEach(function(x){x.classList.remove("active");});
       tab.classList.add("active");$("lc-panel-"+tab.dataset.tab).classList.add("active");});});
+    (function(){var h=(location.hash||"").replace("#","");if(h){var t=document.querySelector('.cc-tab[data-tab="'+h+'"]');if(t)t.click();}})();
     // End of service
     $("lc-eos-calc").addEventListener("click",function(){
       var w=Math.max(0,Number($("lc-wage").value)||0);
@@ -3748,6 +3778,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}task-force.html`, buildTaskForce());
   write(`${pre}packages.html`, buildPackages());
   // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
+  write(`${pre}tools-and-calculators.html`, buildToolsHub());
   write(`${pre}compliance-calculators.html`, buildComplianceCalculators());
   write(`${pre}labor-calculators.html`, buildLaborCalculators());
   write(`${pre}compliance-portal.html`, buildCompliancePortal());
@@ -3789,7 +3820,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
