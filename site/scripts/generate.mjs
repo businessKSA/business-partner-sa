@@ -583,20 +583,11 @@ function buildHome() {
     .map((it, i) => `<div class="card feature"><div class="card-icon">${I[it.icon] || I.check}</div>
       <h3>${L(EN.why.items[i].title, it.title)}</h3><p>${L(EN.why.items[i].text, it.text)}</p></div>`)
     .join("");
-  const svcCards = h.coreServices.cards
-    .map((c, i) => `<a class="card svc-card" href="${catUrl(c.category)}">
-      <div class="card-icon">${I.building}</div>
-      <h3>${L(EN.cards[i].title, c.title)}</h3><p class="desc">${L(EN.cards[i].text, c.text)}</p>
-      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`)
+  const svcQuickLinks = h.coreServices.cards
+    .map((c, i) => `<a class="quick-link" href="${catUrl(c.category)}"><span class="q-icon">${I.building}</span><span>${L(EN.cards[i].title, c.title)}</span></a>`)
     .join("");
-  const pkgCards = site.packages.tiers
-    .map((t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${L(t.nameEn || t.nameAr, t.nameAr)}</div>
-      ${t.price ? `<div class="pk-price">${esc(localizeLabel(t.price))}</div>` : ""}
-      <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
-      <ul>${t.features.slice(0, 4).map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
-      <a class="btn ${t.highlight ? "btn-primary" : "btn-ghost"}" href="${u("/packages")}">${L("Package details", "تفاصيل الباقة")}</a>
-    </div>`)
+  const pkgQuickLinks = site.packages.tiers
+    .map((t) => `<a class="quick-link" href="${u("/packages")}"><span class="q-icon">📦</span><span>${L(t.nameEn || t.nameAr, t.nameAr)}</span></a>`)
     .join("");
   const agentBullets = h.agent.bullets.map((b, i) => `<li>${I.check}<span>${L(EN.agentBullets[i], b)}</span></li>`).join("");
   const stats = h.stats.items.map((s, i) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(EN.stats[i].label, s.label)}</div></div>`).join("");
@@ -651,14 +642,19 @@ function buildHome() {
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(EN.servicesEyebrow, "الخدمات")}</span><h2>${L(EN.coreTitle, h.coreServices.title)}</h2><p>${L(EN.coreSubtitle, h.coreServices.subtitle)}</p></div>
-    <div class="grid grid-3">${svcCards}</div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services")}">${L(EN.allServices, "كل الخدمات")} ${I.arrow}</a></div>
+    <div class="quick-head">
+      <div><span class="eyebrow">${L(EN.servicesEyebrow, "الخدمات")}</span><h2>${L(EN.coreTitle, h.coreServices.title)}</h2></div>
+      <a class="btn btn-primary" href="${u("/services")}">${L(EN.allServices, "كل الخدمات")} ${I.arrow}</a>
+    </div>
+    <div class="quick-links">${svcQuickLinks}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(EN.packagesEyebrow, "الباقات")}</span><h2>${L(site.packages.titleEn || site.packages.title, site.packages.title)}</h2><p>${L(site.packages.subtitleEn || site.packages.subtitle, site.packages.subtitle)}</p></div>
-    <div class="grid grid-3">${pkgCards}</div>
+    <div class="quick-head">
+      <div><span class="eyebrow">${L(EN.packagesEyebrow, "الباقات")}</span><h2>${L(site.packages.titleEn || site.packages.title, site.packages.title)}</h2></div>
+      <a class="btn btn-primary" href="${u("/packages")}">${L("View packages", "استعرض الباقات")} ${I.arrow}</a>
+    </div>
+    <div class="quick-links">${pkgQuickLinks}</div>
   </div></section>
 
   <section class="section section--gray"><div class="container">

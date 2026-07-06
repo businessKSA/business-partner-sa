@@ -921,4 +921,12 @@ h3 { font-size: 1.12rem; }
 .hstep h3 { margin: 6px 0 8px; color: var(--navy); font-size: 1.05rem; }
 .hstep p { color: var(--text-soft); font-size: .92rem; }
 @media (max-width: 880px) { .home-steps { grid-template-columns: 1fr 1fr; gap: 24px; } }
+
+/* ============ Home — compact services/packages quick-links strip ============ */
+.quick-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 22px; }
+.quick-head h2 { margin: 4px 0 0; font-size: 1.4rem; }
+.quick-links { display: flex; flex-wrap: wrap; gap: 12px; }
+.quick-link { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border: 1px solid var(--gray-line); border-radius: var(--radius); background: var(--white); color: var(--navy); font-weight: 700; font-size: .92rem; transition: border-color .15s, transform .15s, box-shadow .15s; flex: 1 1 160px; }
+.quick-link:hover { border-color: var(--navy); transform: translateY(-2px); box-shadow: var(--shadow-sm); color: var(--navy); }
+.quick-link .q-icon { font-size: 1.4rem; line-height: 1; }
 @media (max-width: 480px) { .home-steps { grid-template-columns: 1fr; } }
