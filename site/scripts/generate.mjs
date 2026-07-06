@@ -104,6 +104,18 @@ let LANG = "en";
 const L = (en, ar) => esc(LANG === "ar" ? ar : en);
 // Raw (unescaped) variant for when the caller needs plain text (title/desc/attributes).
 const Lraw = (en, ar) => (LANG === "ar" ? ar : en);
+// Arabic numeral-noun agreement: 1 → singular ("خدمة"), 2 → dual ("خدمتان"),
+// 3-10 → plural ("خدمات"), 11+ → singular again (classical counted-noun rule).
+function arCount(n, singular, dual, plural) {
+  if (n === 1) return singular;
+  if (n === 2) return dual;
+  if (n >= 3 && n <= 10) return plural;
+  return singular;
+}
+// English count-noun agreement helper (1 → singular, else plural).
+function enCount(n, singular, plural) {
+  return n === 1 ? singular : plural;
+}
 // Internal-link prefixer: keeps external/anchor/asset links untouched.
 const u = (href) => {
   if (LANG !== "ar") return href;
@@ -710,8 +722,8 @@ function categoryCards() {
       return `<a class="card cat-card" href="${catUrl(cat.key)}">
         <div class="cat-card-icon">${CAT_ICON[cat.key] || "📁"}</div>
         <h3>${L(catEn(cat.key), cat.ar)}</h3>
-        <p class="desc">${L(`${n} ${n === 1 ? "service" : "services"} with clear fees from the official catalog.`, `${n} خدمة بأتعاب واضحة من الكتالوج الرسمي.`)}</p>
-        <div class="foot"><span class="count-pill">${n} ${L(n === 1 ? "service" : "services", "خدمة")}</span><span class="card-link">${L("Browse", "استعراض")} ${I.arrow}</span></div>
+        <p class="desc">${L(`${n} ${enCount(n, "service", "services")} with clear fees from the official catalog.`, `${n} ${arCount(n, "خدمة", "خدمتان", "خدمات")} بأتعاب واضحة من الكتالوج الرسمي.`)}</p>
+        <div class="foot"><span class="count-pill">${n} ${L(enCount(n, "service", "services"), arCount(n, "خدمة", "خدمتان", "خدمات"))}</span><span class="card-link">${L("Browse", "استعراض")} ${I.arrow}</span></div>
       </a>`;
     })
     .join("");
@@ -754,7 +766,7 @@ function buildServiceCategory(cat) {
     <a class="back-link" href="${u("/services")}">${I.arrow} ${L("All categories", "كل التصنيفات")}</a>
     <span class="eyebrow">${CAT_ICON[cat.key] || "📁"} ${L("Services", "الخدمات")}</span>
     <h1>${L(catEn(cat.key), cat.ar)}</h1>
-    <p class="lead">${L(list.length + " " + (list.length === 1 ? "service" : "services") + " in " + catEn(cat.key) + " — talk to us for a quote tailored to your case; government fees are always separate.", list.length + " خدمة في " + cat.ar + " — تواصل معنا لعرض سعر حسب حالتك، والرسوم الحكومية منفصلة دائماً.")}</p>
+    <p class="lead">${L(list.length + " " + enCount(list.length, "service", "services") + " in " + catEn(cat.key) + " — talk to us for a quote tailored to your case; government fees are always separate.", list.length + " " + arCount(list.length, "خدمة", "خدمتان", "خدمات") + " في " + cat.ar + " — تواصل معنا لعرض سعر حسب حالتك، والرسوم الحكومية منفصلة دائماً.")}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="grid grid-3">${cards}</div>
@@ -763,7 +775,7 @@ function buildServiceCategory(cat) {
   </div></section>`;
   return page({
     title: `${Lraw(catEn(cat.key), cat.ar)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
-    desc: Lraw(`${list.length} ${catEn(cat.key)} services with clear fees.`, `${list.length} خدمة في ${cat.ar} بأتعاب واضحة.`),
+    desc: Lraw(`${list.length} ${catEn(cat.key)} services with clear fees.`, `${list.length} ${arCount(list.length, "خدمة", "خدمتان", "خدمات")} في ${cat.ar} بأتعاب واضحة.`),
     active: "/services",
     path: "/services/category/" + catSlugUrl(cat.key),
     body,
