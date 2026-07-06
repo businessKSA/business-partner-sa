@@ -409,7 +409,7 @@ const catUrl = (key) => u("/services/category/" + catSlugUrl(key));
 // Emoji icon per category (visual variety on the services hub).
 const CAT_ICON = {
   "Company Formation": "🏢", "Foreign Investment": "🌍", "Premium Residency": "🪪",
-  "Government Relations": "🏛️", "HR Services": "👥", "Recruitment": "🧑‍💼",
+  "Government Relations": "🏛️", "HR & Recruitment": "👥",
   "Business Support": "📊", "Real Estate": "🏗️", "AI Automation": "🤖", "Tourism": "✈️",
 };
 
@@ -557,8 +557,7 @@ function buildHome() {
       { title: "Foreign Investment", text: "MISA license, 100% foreign company, foreign branch, and partnerships." },
       { title: "Premium Residency", text: "Choosing the right product and managing the application to issuance — no sponsor." },
       { title: "Government Relations", text: "Qiwa, HR, Muqeem, GOSI, Balady, and sector licensing." },
-      { title: "HR Services", text: "Managing Qiwa, GOSI and Mudad, contracts, sponsorship transfer and compliance." },
-      { title: "Recruitment & Hiring", text: "Talent attraction and end-to-end recruitment procedures." },
+      { title: "HR & Recruitment", text: "Managing Qiwa, GOSI, Mudad and contracts, plus talent attraction and end-to-end recruitment procedures." },
     ],
     allServices: "All services", packagesDetails: "Package details",
     agentEyebrow: "The killer feature", agentTitle: "The killer feature: the smart agent on WhatsApp",
@@ -1012,8 +1011,7 @@ const CAT_META = {
   "Foreign Investment": { icon: "🌍", en: "Foreign Investment" },
   "Premium Residency": { icon: "🪪", en: "Premium Residency" },
   "Government Relations": { icon: "🏛️", en: "Government Relations" },
-  "HR Services": { icon: "👥", en: "HR Services" },
-  "Recruitment": { icon: "🧑‍💼", en: "Recruitment & Hiring" },
+  "HR & Recruitment": { icon: "👥", en: "HR & Recruitment" },
   "Business Support": { icon: "🧰", en: "Business Support" },
   "Real Estate": { icon: "🏗️", en: "Real Estate" },
   "AI Automation": { icon: "🤖", en: "AI & Automation" },
