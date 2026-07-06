@@ -1,5 +1,5 @@
 ---
-// موقع محمول مكفول للسياحة — صفحة مستقلة ببياناتها من Notion (Mahfol makfol data)
+// موقع صاحب السعادة (تشغيل شركة محمول مكفول للسياحة) — صفحة مستقلة ببياناتها من Notion (Mahfol makfol data)
 export const prerender = true;
 
 const contact = {
@@ -133,7 +133,7 @@ const experiences = [
   'الألعاب المائية', 'تأمل النجوم', 'رحلات الطائف', 'جزر الليث',
 ];
 
-// تجارب العلا الرسمية (Experience AlUla) — نوفر حجزها ضمن باقات محمول مكفول
+// تجارب العلا الرسمية (Experience AlUla) — نوفر حجزها ضمن باقات صاحب السعادة
 const alulaExperiences = [
   {
     group: '🏛️ تراث وثقافة',
@@ -184,10 +184,10 @@ const customQuestions = [
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>محمول مكفول للسياحة | رحلات وباقات سياحية في السعودية</title>
-  <meta name="description" content="شركة محمول مكفول للسياحة — رحلات حافة العالم والتطعيس والتخييم، وباقات سياحية لثلاثة أيام إلى العلا ونيوم وجدة وينبع وجازان وأكثر. صمّم رحلتك على مقاسك." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐪</text></svg>" />
-  <meta property="og:title" content="محمول مكفول للسياحة | رحلات وباقات سياحية في السعودية" />
+  <title>صاحب السعادة | رحلات وباقات سياحية في السعودية</title>
+  <meta name="description" content="صاحب السعادة — رحلات حافة العالم والتطعيس والتخييم، وباقات سياحية لثلاثة أيام إلى العلا ونيوم وجدة وينبع وجازان وأكثر. صمّم رحلتك على مقاسك." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>" />
+  <meta property="og:title" content="صاحب السعادة | رحلات وباقات سياحية في السعودية" />
   <meta property="og:description" content="رحلات حافة العالم والتطعيس والتخييم وباقات سياحية لكل مناطق المملكة — VIP، فضية، وبرونزية." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="ar_SA" />
@@ -197,8 +197,9 @@ const customQuestions = [
   <script type="application/ld+json" set:html={JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'TravelAgency',
-    name: 'شركة محمول مكفول للسياحة',
-    alternateName: 'Mahmol Makfol Tourism Company',
+    name: 'صاحب السعادة',
+    alternateName: 'Saheb Al Saadah',
+    legalName: 'شركة محمول مكفول للسياحة',
     email: contact.email,
     url: contact.website,
     taxID: contact.vat,
@@ -210,7 +211,7 @@ const customQuestions = [
 
   <header class="nav">
     <div class="container nav-inner">
-      <a href="#top" class="brand">🐪 <span>محمول <b>مكفول</b></span></a>
+      <a href="#top" class="brand">👑 <span>صاحب <b>السعادة</b></span></a>
       <nav class="nav-links">
         <a href="#day-trips">رحلات اليوم الواحد</a>
         <a href="#camp">المخيم الصحراوي</a>
@@ -232,7 +233,7 @@ const customQuestions = [
         <p class="hero-badge">✦ عضو الاتحاد السعودي للسيارات والدراجات النارية</p>
         <h1>عيش المغامرة في <span class="gold">صحاري وجبال وبحار</span> المملكة</h1>
         <p class="hero-sub">
-          شركة محمول مكفول للسياحة — رحلات سفاري وتخييم وتطعيس، فعاليات ومخيمات شركات،
+          صاحب السعادة — رحلات سفاري وتخييم وتطعيس، فعاليات ومخيمات شركات،
           وباقات سياحية متكاملة لكل مناطق المملكة. برامج قابلة للتفصيل حسب رغبتك وميزانيتك.
         </p>
         <div class="hero-cta">
@@ -430,7 +431,7 @@ const customQuestions = [
       <div class="container">
         <h2 class="section-title">تجارب العلا ✨</h2>
         <p class="section-sub">
-          بصفتنا مقدم خدمات رحلات، نوفر لك حجز تجارب العلا الرسمية (Experience AlUla) ضمن باقتك مع محمول مكفول —
+          بصفتنا مقدم خدمات رحلات، نوفر لك حجز تجارب العلا الرسمية (Experience AlUla) ضمن باقتك مع صاحب السعادة —
           احجزها معنا مع النقل والسكن والبرنامج كاملًا
         </p>
         {alulaExperiences.map((g) => (
@@ -487,7 +488,7 @@ const customQuestions = [
             <li>الإلغاء بين 72 ساعة و7 أيام: تحتفظ الشركة بـ 50% ويُحفظ الباقي كرصيد لمدة سنة.</li>
             <li>الإلغاء قبل أقل من 72 ساعة: تحتفظ الشركة بالمبلغ كاملًا دون تعويض أو استبدال.</li>
             <li>استبدال عميل بآخر دون إلغاء الرحلة: رسوم إدارية 10% من قيمة الرحلة.</li>
-            <li>إذا ألغت محمول مكفول الرحلة: يُسترجع المبلغ كاملًا (100%) خلال 20 يوم عمل.</li>
+            <li>إذا ألغت الجهة المنظمة (صاحب السعادة) الرحلة: يُسترجع المبلغ كاملًا (100%) خلال 20 يوم عمل.</li>
             <li>في الظروف القاهرة (أحوال جوية، كوارث طبيعية): نتواصل معك فورًا ونعرض خدمات معادلة أو استرجاعًا كاملًا.</li>
           </ul>
         </details>
@@ -513,8 +514,8 @@ const customQuestions = [
 
   <footer class="footer">
     <div class="container footer-inner">
-      <p>🐪 شركة محمول مكفول للسياحة — Mahmol Makfol Tourism Company</p>
-      <p class="footer-legal">سجل تجاري: {contact.cr} · الرقم الضريبي: {contact.vat}</p>
+      <p>👑 صاحب السعادة — Saheb Al Saadah</p>
+      <p class="footer-legal">تشغيل: شركة محمول مكفول للسياحة · سجل تجاري: {contact.cr} · الرقم الضريبي: {contact.vat}</p>
       <p class="footer-legal">جميع الحقوق محفوظة © 2026</p>
     </div>
   </footer>
