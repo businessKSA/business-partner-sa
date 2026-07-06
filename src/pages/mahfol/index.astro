@@ -1,0 +1,705 @@
+---
+// موقع محمول مكفول للسياحة — صفحة مستقلة ببياناتها من Notion (Mahfol makfol data)
+export const prerender = true;
+
+const contact = {
+  email: 'info@mahmolmakfol.com',
+  instagram: 'https://www.instagram.com/mahfolmakfol/',
+  twitter: 'https://twitter.com/MMakfol',
+  tiktok: 'https://www.tiktok.com/@mahfolmakfol',
+  snapchat: 'https://www.snapchat.com/add/mhmk.co',
+  website: 'https://mahmoolmakfol.com/',
+  cr: '4030416435',
+  vat: '310887376200003',
+};
+
+const services = [
+  { icon: '🚙', title: 'تنظيم الرحلات السياحية', desc: 'رحلات سفاري وبرية وبحرية مصممة حسب رغبتك، بسيارات دفع رباعي مجهزة وكباتن محترفين.' },
+  { icon: '🎪', title: 'إدارة الفعاليات', desc: 'تقديم وتشغيل الفعاليات الدائمة والموسمية بجودة واحترافية.' },
+  { icon: '👥', title: 'إدارة الحشود', desc: 'خبرة في تنظيم وإدارة الحشود للفعاليات والمواسم الكبرى.' },
+  { icon: '🍽️', title: 'خدمات الإطعام المتنقل', desc: 'تقديم خدمات الأطعمة في المواقع والأماكن المتنقلة.' },
+  { icon: '⛺', title: 'تجهيز المخيمات للشركات', desc: 'مخيمات بطابع خاص يعكس هوية شركتك، بتجهيز متكامل.' },
+  { icon: '🏟️', title: 'تشغيل المواقع الترفيهية', desc: 'تشغيل المواقع الرياضية والترفيهية والثقافية.' },
+];
+
+const dayTrips = [
+  {
+    name: 'رحلة حافة العالم',
+    desc: 'مشاهدة غروب الشمس والتقاط صور تذكارية لا تُنسى من أعلى قمة في حافة العالم، مع تجربة عبور الطرق الوعرة بسيارات دفع رباعي مجهزة.',
+    features: ['مواصلات جيب رانجلر', 'كابتن ومنظم محترف', 'سناكس', 'مشروبات'],
+    days: 'الخميس والسبت',
+    time: 'الانطلاق 3:00 عصرًا — العودة 9:00 مساءً',
+    prices: [
+      { label: '3 أشخاص', value: '2,030 ر.س' },
+      { label: '6 أشخاص', value: '4,000 ر.س' },
+    ],
+    tag: 'الأكثر طلبًا',
+  },
+  {
+    name: 'رحلة حافة العالم مع التخييم',
+    desc: 'نفس تجربة حافة العالم مع عشاء ومخيم مجهز تحت النجوم لسهرة لا تُنسى.',
+    features: ['مواصلات جيب رانجلر', 'كابتن ومنظم محترف', 'عشاء ومخيم', 'سناكس ومشروبات'],
+    days: 'حسب الحجز',
+    time: 'الانطلاق 3:00 عصرًا — العودة 12:00 ليلًا',
+    prices: [{ label: '3 أشخاص', value: '3,750 ر.س' }],
+    extras: ['مبيت مع الإفطار: 400 ر.س للشخص', 'أنشطة إضافية: 150 ر.س للشخص'],
+    tag: 'مع التخييم',
+  },
+  {
+    name: 'تجربة التطعيس',
+    desc: 'مغامرة تطعيس مثيرة على الكثبان الرملية بسيارات دفع رباعي مجهزة مع كباتن محترفين.',
+    features: ['مواصلات جيب رانجلر', 'كابتن ومنظم محترف', 'سناكس', 'مشروبات'],
+    days: 'الخميس والسبت',
+    time: 'الانطلاق 3:00 عصرًا — العودة 9:00 مساءً',
+    prices: [
+      { label: '3 أشخاص', value: '2,030 ر.س' },
+      { label: '6 أشخاص', value: '4,000 ر.س' },
+    ],
+    tag: 'مغامرة',
+  },
+  {
+    name: 'رحلة التطعيس مع التخييم',
+    desc: 'تطعيس على الكثبان الرملية ثم سهرة وعشاء في مخيم مجهز بالكامل.',
+    features: ['مواصلات جيب رانجلر', 'كابتن ومنظم محترف', 'عشاء ومخيم', 'سناكس ومشروبات'],
+    days: 'حسب الحجز',
+    time: 'الانطلاق 3:00 عصرًا — العودة 12:00 ليلًا',
+    prices: [{ label: '3 أشخاص', value: '3,750 ر.س' }],
+    extras: ['مبيت مع الإفطار: 400 ر.س للشخص', 'أنشطة إضافية: 150 ر.س للشخص'],
+    tag: 'مع التخييم',
+  },
+];
+
+const campPackage = {
+  name: 'باقة المخيم الصحراوي (يومان)',
+  options: [
+    {
+      title: 'اليوم الأول — رحلة جماعية',
+      price: '600 ر.س للشخص (شامل الضريبة)',
+      features: ['المواصلات', 'حرب الماء', 'التزلج على الرمال', 'التخييم والمبيت', 'الرماية وبندقية الهواء', 'كرة الطائرة', 'ركوب الخيل', 'ألعاب وموسيقى', 'سناكس وعشاء', 'مرشد سياحي ومسعف'],
+    },
+    {
+      title: 'اليوم الأول — رحلة خاصة',
+      price: '1,200 ر.س للشخص (شامل الضريبة)',
+      features: ['نفس برنامج الرحلة الجماعية', 'خصوصية كاملة لمجموعتك'],
+    },
+    {
+      title: 'اليوم الثاني — رحلة خاصة',
+      price: '1,700 ر.س للشخص (شامل الضريبة)',
+      features: ['هايكنج (مشي جبلي)', 'الإفطار', 'المواصلات'],
+    },
+  ],
+};
+
+// باقات المدن ٣ أيام — الأسعار للشخص غير شاملة الضريبة
+const cityPackages = [
+  { dest: 'العلا', vip: '7,296', silver: '3,333', bronze: '2,029' },
+  { dest: 'نيوم', vip: '4,945', silver: '3,756', bronze: '2,223' },
+  { dest: 'ضباء وديسة', vip: '4,897', silver: '3,593', bronze: '2,065' },
+  { dest: 'الوجه', vip: '5,884', silver: '3,833', bronze: '2,865' },
+  { dest: 'أملج', vip: '5,424', silver: '3,833', bronze: '2,261' },
+  { dest: 'ينبع', vip: '6,612', silver: '3,875', bronze: '2,472' },
+  { dest: 'مدينة الملك عبدالله الاقتصادية', vip: '5,738', silver: '3,879', bronze: '2,390' },
+  { dest: 'جدة', vip: '5,441', silver: '3,612', bronze: '2,290' },
+];
+
+const southPackages = [
+  { dest: 'جزر فرسان', days: '3 أيام', vip: '4,293', silver: '3,258', bronze: '2,261' },
+  { dest: 'جازان', days: '3 أيام', vip: '5,155', silver: '3,852', bronze: '1,897' },
+  { dest: 'جزر عسير', days: '3 أيام', vip: '4,580', silver: '3,335', bronze: '2,127' },
+  { dest: 'أبها والسودة', days: '3 أيام', vip: '4,005', silver: '2,673', bronze: '1,945' },
+  { dest: 'الباحة', days: '3 أيام', vip: '3,986', silver: '3,277', bronze: '1,696' },
+  { dest: 'الطائف', days: '3 أيام', vip: '4,657', silver: '3,507', bronze: '1,748' },
+  { dest: 'جازان وجزر فرسان', days: '4 أيام', vip: '6,785', silver: '5,194', bronze: '2,999' },
+];
+
+const comboPackages = [
+  { dest: 'جدة + كايك + ينبع', days: '3 أيام', vip: '6,175', silver: '3,760', bronze: '2,294' },
+  { dest: 'جدة + كايك + ينبع', days: '4 أيام', vip: '7,919', silver: '4,891', bronze: '2,974' },
+  { dest: 'ينبع + أملج + الوجه', days: '3 أيام', vip: '7,158', silver: '4,341', bronze: '2,645' },
+  { dest: 'ينبع + أملج + الوجه', days: '4 أيام', vip: '9,477', silver: '5,817', bronze: '3,555' },
+  { dest: 'الوجه + نيوم', days: '3 أيام', vip: '3,852', silver: '2,817', bronze: '1,667' },
+  { dest: 'الوجه + نيوم', days: '4 أيام', vip: '6,257', silver: '4,379', bronze: '2,664' },
+];
+
+const destinations = [
+  '🏜️ العلا', '🌊 نيوم', '🕌 جدة التاريخية', '⚓ ينبع', '🏝️ أملج', '🐚 الوجه',
+  '⛰️ ضباء وديسة', '🏙️ مدينة الملك عبدالله الاقتصادية', '🐠 جزر فرسان', '🌴 جازان',
+  '🌲 عسير وأبها', '🌸 الباحة', '🌹 الطائف', '🏔️ حافة العالم', '🐪 الرياض وضواحيها',
+];
+
+const experiences = [
+  'سفاري', 'هايكنج', 'ركوب الخيل', 'تجربة الريف', 'شقراء وأوشيقر', 'تراث المملكة',
+  'رحلات الغوص', 'رحلات اليخوت', 'جولات جدة البلد', 'رحلات المزرعة', 'التزلج على الرمال',
+  'الألعاب المائية', 'تأمل النجوم', 'رحلات الطائف', 'جزر الليث',
+];
+
+// تجارب العلا الرسمية (Experience AlUla) — نوفر حجزها ضمن باقات محمول مكفول
+const alulaExperiences = [
+  {
+    group: '🏛️ تراث وثقافة',
+    items: [
+      'جولة الحِجر', 'جولة عائلية في الحِجر', 'مساء الحِجر', 'جولة الحِجر بسيارة لاندروفر كلاسيكية',
+      'جولة دادان وجبل عِكمة بسيارة لاندروفر كلاسيكية', 'تجربة طريق البخور', 'جولة على مسار الواحة التراثي',
+      'سوق البلدة القديمة', 'سوق المزارعين في ميدان المنشية', 'جولة الباصات الترددية بالأجهزة الصوتية في الحِجر',
+      'البحث عن الممالك القديمة', 'جولة قاعة مرايا', 'ساحة علماء آثار المستقبل', 'اكتشف العلا',
+    ],
+  },
+  {
+    group: '🧗 مغامرات',
+    items: [
+      'أرجوحة العلا العملاقة', 'الإنزال بالحبال — مسار الوعل', 'الإنزال بالحبال — مسار النخلة',
+      'مغامرات العلا', 'مسار المتاهة', 'مسار الوادي الخفي', 'جولة مشي إلى قمة جبل الحرة',
+      'مسار التلال', 'المشي باتجاه الغروب', 'المشي الجبلي — مسار الوادي', 'مسار رحلة عبر الزمن',
+      'ملتقى «عجلات» للدراجات الهوائية', 'جولة المنطاد مع شروق الشمس في الحِجر',
+    ],
+  },
+  {
+    group: '🌵 طبيعة وسفاري',
+    items: [
+      'سفاري محمية شرعان الطبيعية', 'جولة محمية شرعان الطبيعية', 'عشاء بلاتينيوم في سفاري محمية شرعان',
+      'تجربة تأمّل النجوم في الغراميل', 'التخييم في براري العلا', 'منطقة تخييم في مركز بانجيا', 'جولة نهارية في خيبر',
+    ],
+  },
+  {
+    group: '🎨 فنون وفعاليات',
+    items: [
+      'معرض أثر', 'معرض إقامة الفنانين للفنون البصرية', 'معرض إقامة الفنانين للتصاميم',
+      'عزف الطبول', 'التزلّج بالعجلات على إيقاع الموسيقى — حفلات الدي جي', 'روائع متحف نابولي الوطني للآثار',
+    ],
+  },
+];
+
+const customQuestions = [
+  { icon: '📅', text: 'متى تاريخكم المناسب وكم عددكم؟' },
+  { icon: '⛺', text: 'تفضلون السكن مخيم، فندق، أو كرفان؟' },
+  { icon: '🚘', text: 'تجون بسيارتكم أو معنا؟' },
+  { icon: '🥘', text: 'وجبات كاملة، سناكس، أو دليفري؟' },
+  { icon: '🛥️', text: 'رحلة برية أو بحرية؟ يخت، قارب، أو بوت؟' },
+  { icon: '💰', text: 'حدد ميزانيتك ونفصّل لك باقة على مقاسك' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>محمول مكفول للسياحة | رحلات وباقات سياحية في السعودية</title>
+  <meta name="description" content="شركة محمول مكفول للسياحة — رحلات حافة العالم والتطعيس والتخييم، وباقات سياحية لثلاثة أيام إلى العلا ونيوم وجدة وينبع وجازان وأكثر. صمّم رحلتك على مقاسك." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐪</text></svg>" />
+  <meta property="og:title" content="محمول مكفول للسياحة | رحلات وباقات سياحية في السعودية" />
+  <meta property="og:description" content="رحلات حافة العالم والتطعيس والتخييم وباقات سياحية لكل مناطق المملكة — VIP، فضية، وبرونزية." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ar_SA" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'TravelAgency',
+    name: 'شركة محمول مكفول للسياحة',
+    alternateName: 'Mahmol Makfol Tourism Company',
+    email: contact.email,
+    url: contact.website,
+    taxID: contact.vat,
+    areaServed: 'SA',
+    sameAs: [contact.instagram, contact.twitter, contact.tiktok, contact.snapchat],
+  })} />
+</head>
+<body>
+
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="#top" class="brand">🐪 <span>محمول <b>مكفول</b></span></a>
+      <nav class="nav-links">
+        <a href="#day-trips">رحلات اليوم الواحد</a>
+        <a href="#camp">المخيم الصحراوي</a>
+        <a href="#packages">باقات المدن</a>
+        <a href="#destinations">وجهاتنا</a>
+        <a href="#alula">تجارب العلا</a>
+        <a href="#custom">رحلة على مقاسك</a>
+        <a href="#terms">الشروط</a>
+      </nav>
+      <a class="btn btn-gold" href={`mailto:${contact.email}?subject=${encodeURIComponent('طلب حجز رحلة')}`}>احجز الآن</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <p class="hero-badge">✦ عضو الاتحاد السعودي للسيارات والدراجات النارية</p>
+        <h1>عيش المغامرة في <span class="gold">صحاري وجبال وبحار</span> المملكة</h1>
+        <p class="hero-sub">
+          شركة محمول مكفول للسياحة — رحلات سفاري وتخييم وتطعيس، فعاليات ومخيمات شركات،
+          وباقات سياحية متكاملة لكل مناطق المملكة. برامج قابلة للتفصيل حسب رغبتك وميزانيتك.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-gold btn-lg" href="#day-trips">استكشف الرحلات</a>
+          <a class="btn btn-outline btn-lg" href="#custom">صمّم رحلتك الخاصة</a>
+        </div>
+        <div class="hero-stats">
+          <div><b>+15</b><span>وجهة سياحية</span></div>
+          <div><b>3</b><span>فئات باقات: VIP · فضية · برونزية</span></div>
+          <div><b>4-20</b><span>شخصًا في المجموعة</span></div>
+          <div><b>2017</b><span>بداية شغفنا بالمغامرة</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section class="section" id="services">
+      <div class="container">
+        <h2 class="section-title">ماذا نقدّم؟</h2>
+        <p class="section-sub">ست خدمات متكاملة تحت سقف واحد</p>
+        <div class="grid grid-3">
+          {services.map((s) => (
+            <div class="card service-card">
+              <div class="service-icon">{s.icon}</div>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Day trips -->
+    <section class="section section-alt" id="day-trips">
+      <div class="container">
+        <h2 class="section-title">رحلات اليوم الواحد والتخييم</h2>
+        <p class="section-sub">انطلاقًا من الرياض — حافة العالم والتطعيس، بمجموعات من 3 إلى 12 شخصًا</p>
+        <div class="grid grid-2">
+          {dayTrips.map((t) => (
+            <div class="card trip-card">
+              <span class="tag">{t.tag}</span>
+              <h3>{t.name}</h3>
+              <p class="trip-desc">{t.desc}</p>
+              <ul class="check-list">
+                {t.features.map((f) => <li>{f}</li>)}
+              </ul>
+              <div class="trip-meta">
+                <span>🗓️ {t.days}</span>
+                <span>⏰ {t.time}</span>
+              </div>
+              <div class="price-row">
+                {t.prices.map((p) => (
+                  <div class="price-box">
+                    <span class="price-label">{p.label}</span>
+                    <span class="price-value">{p.value}</span>
+                  </div>
+                ))}
+              </div>
+              {t.extras && (
+                <ul class="extras">
+                  {t.extras.map((e) => <li>➕ {e}</li>)}
+                </ul>
+              )}
+              <p class="vat-note">الأسعار غير شاملة ضريبة القيمة المضافة</p>
+              <a class="btn btn-gold btn-block" href={`mailto:${contact.email}?subject=${encodeURIComponent('حجز: ' + t.name)}`}>احجز هذه الرحلة</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Camp package -->
+    <section class="section" id="camp">
+      <div class="container">
+        <h2 class="section-title">{campPackage.name}</h2>
+        <p class="section-sub">برنامج يومين متكامل: أنشطة، تخييم، مبيت، وهايكنج — بإشراف مرشد سياحي ومسعف</p>
+        <div class="grid grid-3">
+          {campPackage.options.map((o) => (
+            <div class="card camp-card">
+              <h3>{o.title}</h3>
+              <p class="camp-price">{o.price}</p>
+              <ul class="check-list">
+                {o.features.map((f) => <li>{f}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- City packages -->
+    <section class="section section-alt" id="packages">
+      <div class="container">
+        <h2 class="section-title">باقات المدن — 3 أيام</h2>
+        <p class="section-sub">ثلاث فئات لكل وجهة: VIP، فضية، وبرونزية — السعر للشخص وغير شامل الضريبة</p>
+
+        <div class="table-wrap">
+          <table class="price-table">
+            <thead>
+              <tr>
+                <th>الوجهة</th>
+                <th class="col-vip">VIP</th>
+                <th class="col-silver">فضية</th>
+                <th class="col-bronze">برونزية</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cityPackages.map((r) => (
+                <tr>
+                  <td class="dest">{r.dest}</td>
+                  <td class="col-vip">{r.vip} ر.س</td>
+                  <td class="col-silver">{r.silver} ر.س</td>
+                  <td class="col-bronze">{r.bronze} ر.س</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="table-title">باقات الجنوب والطائف</h3>
+        <div class="table-wrap">
+          <table class="price-table">
+            <thead>
+              <tr>
+                <th>الوجهة</th>
+                <th>المدة</th>
+                <th class="col-vip">VIP</th>
+                <th class="col-silver">فضية</th>
+                <th class="col-bronze">برونزية</th>
+              </tr>
+            </thead>
+            <tbody>
+              {southPackages.map((r) => (
+                <tr>
+                  <td class="dest">{r.dest}</td>
+                  <td>{r.days}</td>
+                  <td class="col-vip">{r.vip} ر.س</td>
+                  <td class="col-silver">{r.silver} ر.س</td>
+                  <td class="col-bronze">{r.bronze} ر.س</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="table-title">باقات الوجهات المتعددة</h3>
+        <div class="table-wrap">
+          <table class="price-table">
+            <thead>
+              <tr>
+                <th>المسار</th>
+                <th>المدة</th>
+                <th class="col-vip">VIP</th>
+                <th class="col-silver">فضية</th>
+                <th class="col-bronze">برونزية</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comboPackages.map((r) => (
+                <tr>
+                  <td class="dest">{r.dest}</td>
+                  <td>{r.days}</td>
+                  <td class="col-vip">{r.vip} ر.س</td>
+                  <td class="col-silver">{r.silver} ر.س</td>
+                  <td class="col-bronze">{r.bronze} ر.س</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="center">
+          <a class="btn btn-gold btn-lg" href={`mailto:${contact.email}?subject=${encodeURIComponent('استفسار عن باقات المدن')}`}>اطلب عرض سعر لباقتك</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Destinations & experiences -->
+    <section class="section" id="destinations">
+      <div class="container">
+        <h2 class="section-title">وجهاتنا</h2>
+        <p class="section-sub">من حافة العالم إلى جزر فرسان — المملكة كلها ملعبنا</p>
+        <div class="chips">
+          {destinations.map((d) => <span class="chip">{d}</span>)}
+        </div>
+        <h3 class="table-title">تجارب نقدمها</h3>
+        <div class="chips chips-sm">
+          {experiences.map((e) => <span class="chip chip-outline">{e}</span>)}
+        </div>
+      </div>
+    </section>
+
+    <!-- AlUla experiences -->
+    <section class="section section-alt" id="alula">
+      <div class="container">
+        <h2 class="section-title">تجارب العلا ✨</h2>
+        <p class="section-sub">
+          بصفتنا مقدم خدمات رحلات، نوفر لك حجز تجارب العلا الرسمية (Experience AlUla) ضمن باقتك مع محمول مكفول —
+          احجزها معنا مع النقل والسكن والبرنامج كاملًا
+        </p>
+        {alulaExperiences.map((g) => (
+          <div class="alula-group">
+            <h3 class="table-title">{g.group}</h3>
+            <div class="chips chips-sm">
+              {g.items.map((i) => <span class="chip">{i}</span>)}
+            </div>
+          </div>
+        ))}
+        <div class="center">
+          <a class="btn btn-gold btn-lg" href={`mailto:${contact.email}?subject=${encodeURIComponent('حجز تجارب العلا')}`}>احجز تجربتك في العلا</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Custom trip -->
+    <section class="section section-dark" id="custom">
+      <div class="container">
+        <h2 class="section-title">رحلة على مقاسك 💫</h2>
+        <p class="section-sub">أخبرنا برغباتك ونفصّل لك باقة خاصة — أفراد، عوائل، أو مجموعات</p>
+        <div class="grid grid-3">
+          {customQuestions.map((q) => (
+            <div class="card q-card">
+              <span class="q-icon">{q.icon}</span>
+              <p>{q.text}</p>
+            </div>
+          ))}
+        </div>
+        <div class="center">
+          <a class="btn btn-gold btn-lg" href={`mailto:${contact.email}?subject=${encodeURIComponent('طلب تصميم رحلة خاصة')}`}>ابدأ تصميم رحلتك</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Terms -->
+    <section class="section section-alt" id="terms">
+      <div class="container narrow">
+        <h2 class="section-title">الشروط والأحكام</h2>
+        <details class="acc" open>
+          <summary>الشروط الأساسية</summary>
+          <ul>
+            <li>الحد الأدنى للمجموعة: 4 أشخاص، والحد الأقصى: 20 شخصًا.</li>
+            <li>عدد الأشخاص في السيارة الواحدة: 4 أشخاص.</li>
+            <li>البرنامج قابل للتغيير حسب رغبة العميل.</li>
+            <li>الشركة غير مسؤولة عن تغيير مسار الرحلة لظروف خارجة عن الإرادة أو ظروف قاهرة.</li>
+          </ul>
+        </details>
+        <details class="acc">
+          <summary>سياسة الإلغاء والاسترجاع</summary>
+          <ul>
+            <li>الإلغاء قبل 14 يومًا أو أكثر: يُحفظ المبلغ كاملًا كرصيد لمدة سنة، أو يُسترجع بعد خصم 10% رسومًا إدارية خلال 20 يوم عمل.</li>
+            <li>الإلغاء بين 7 و14 يومًا: تحتفظ الشركة بـ 50% من قيمة الرحلة ويُعاد الباقي خلال 20 يوم عمل.</li>
+            <li>الإلغاء بين 72 ساعة و7 أيام: تحتفظ الشركة بـ 50% ويُحفظ الباقي كرصيد لمدة سنة.</li>
+            <li>الإلغاء قبل أقل من 72 ساعة: تحتفظ الشركة بالمبلغ كاملًا دون تعويض أو استبدال.</li>
+            <li>استبدال عميل بآخر دون إلغاء الرحلة: رسوم إدارية 10% من قيمة الرحلة.</li>
+            <li>إذا ألغت محمول مكفول الرحلة: يُسترجع المبلغ كاملًا (100%) خلال 20 يوم عمل.</li>
+            <li>في الظروف القاهرة (أحوال جوية، كوارث طبيعية): نتواصل معك فورًا ونعرض خدمات معادلة أو استرجاعًا كاملًا.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="section" id="contact">
+      <div class="container narrow center">
+        <h2 class="section-title">تواصل معنا</h2>
+        <p class="section-sub">جاهزون نرد على استفساراتك ونفصّل لك رحلتك</p>
+        <a class="btn btn-gold btn-lg" href={`mailto:${contact.email}`}>{contact.email}</a>
+        <div class="socials">
+          <a href={contact.instagram} target="_blank" rel="noopener">إنستقرام</a>
+          <a href={contact.twitter} target="_blank" rel="noopener">تويتر (X)</a>
+          <a href={contact.tiktok} target="_blank" rel="noopener">تيك توك</a>
+          <a href={contact.snapchat} target="_blank" rel="noopener">سناب شات</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>🐪 شركة محمول مكفول للسياحة — Mahmol Makfol Tourism Company</p>
+      <p class="footer-legal">سجل تجاري: {contact.cr} · الرقم الضريبي: {contact.vat}</p>
+      <p class="footer-legal">جميع الحقوق محفوظة © 2026</p>
+    </div>
+  </footer>
+
+<style is:global>
+  :root {
+    --bg: #14100b;
+    --bg-alt: #1c1710;
+    --card: #241d13;
+    --card-border: #3a2f1e;
+    --text: #f3ead9;
+    --muted: #b8a888;
+    --gold: #d9a441;
+    --gold-strong: #eec063;
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  .container.narrow { max-width: 800px; }
+  .center { text-align: center; margin-top: 28px; }
+
+  /* Nav */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(20, 16, 11, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--card-border);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 20px; padding: 14px 20px; }
+  .brand { font-size: 1.25rem; font-weight: 900; color: var(--text); text-decoration: none; white-space: nowrap; }
+  .brand b { color: var(--gold); }
+  .nav-links { display: flex; gap: 18px; margin-inline-start: auto; flex-wrap: wrap; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+  .nav-links a:hover { color: var(--gold-strong); }
+
+  /* Buttons */
+  .btn {
+    display: inline-block; padding: 10px 22px; border-radius: 999px;
+    font-weight: 700; text-decoration: none; font-size: 0.95rem;
+    transition: transform 0.15s, box-shadow 0.15s; white-space: nowrap;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-gold { background: linear-gradient(135deg, var(--gold), #b97f1f); color: #1c1508; box-shadow: 0 4px 18px rgba(217, 164, 65, 0.35); }
+  .btn-outline { border: 1.5px solid var(--gold); color: var(--gold-strong); }
+  .btn-lg { padding: 14px 32px; font-size: 1.05rem; }
+  .btn-block { display: block; text-align: center; margin-top: 16px; }
+
+  /* Hero */
+  .hero {
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 10%, rgba(217, 164, 65, 0.18), transparent),
+      radial-gradient(ellipse 60% 50% at 20% 90%, rgba(185, 127, 31, 0.12), transparent),
+      linear-gradient(180deg, #191309, var(--bg));
+    padding: 90px 0 70px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block; padding: 6px 18px; border-radius: 999px;
+    border: 1px solid var(--card-border); color: var(--gold-strong);
+    font-size: 0.9rem; margin-bottom: 24px; background: rgba(217,164,65,0.08);
+  }
+  .hero h1 { font-size: clamp(1.9rem, 4.5vw, 3.2rem); font-weight: 900; line-height: 1.35; max-width: 850px; margin: 0 auto 18px; }
+  .gold { color: var(--gold); }
+  .hero-sub { color: var(--muted); max-width: 700px; margin: 0 auto 32px; font-size: 1.1rem; }
+  .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+  .hero-stats { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .hero-stats div {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: 14px 22px; min-width: 150px;
+  }
+  .hero-stats b { display: block; color: var(--gold); font-size: 1.5rem; font-weight: 900; }
+  .hero-stats span { color: var(--muted); font-size: 0.85rem; }
+
+  /* Sections */
+  .section { padding: 70px 0; }
+  .section-alt { background: var(--bg-alt); }
+  .section-dark { background: linear-gradient(180deg, #191309, #221a0e); }
+  .section-title { text-align: center; font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; margin-bottom: 10px; }
+  .section-sub { text-align: center; color: var(--muted); margin-bottom: 40px; font-size: 1.05rem; }
+
+  /* Grid & cards */
+  .grid { display: grid; gap: 20px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius); padding: 26px;
+  }
+  .service-card { text-align: center; }
+  .service-icon { font-size: 2.4rem; margin-bottom: 12px; }
+  .service-card h3 { margin-bottom: 8px; font-size: 1.15rem; }
+  .service-card p { color: var(--muted); font-size: 0.95rem; }
+
+  /* Trip cards */
+  .trip-card { position: relative; display: flex; flex-direction: column; }
+  .tag {
+    position: absolute; top: 18px; inset-inline-end: 18px;
+    background: rgba(217,164,65,0.15); color: var(--gold-strong);
+    border: 1px solid rgba(217,164,65,0.4);
+    padding: 3px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+  }
+  .trip-card h3 { font-size: 1.3rem; margin-bottom: 10px; padding-inline-end: 90px; }
+  .trip-desc { color: var(--muted); font-size: 0.95rem; margin-bottom: 14px; }
+  .check-list { list-style: none; margin-bottom: 14px; }
+  .check-list li { padding-inline-start: 26px; position: relative; margin-bottom: 5px; font-size: 0.95rem; }
+  .check-list li::before { content: '✓'; position: absolute; inset-inline-start: 0; color: var(--gold); font-weight: 900; }
+  .trip-meta { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 0.88rem; margin-bottom: 16px; }
+  .price-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+  .price-box {
+    flex: 1; min-width: 120px; background: rgba(217,164,65,0.08);
+    border: 1px solid rgba(217,164,65,0.3); border-radius: 12px;
+    padding: 10px 14px; text-align: center;
+  }
+  .price-label { display: block; color: var(--muted); font-size: 0.82rem; }
+  .price-value { display: block; color: var(--gold-strong); font-weight: 900; font-size: 1.25rem; }
+  .extras { list-style: none; color: var(--muted); font-size: 0.88rem; margin-bottom: 8px; }
+  .vat-note { color: var(--muted); font-size: 0.78rem; margin-top: auto; }
+
+  /* Camp */
+  .camp-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
+  .camp-price { color: var(--gold-strong); font-weight: 900; font-size: 1.15rem; margin-bottom: 14px; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin-bottom: 36px; border-radius: var(--radius); border: 1px solid var(--card-border); }
+  .table-title { text-align: center; font-size: 1.3rem; font-weight: 800; margin: 10px 0 20px; color: var(--gold-strong); }
+  .price-table { width: 100%; border-collapse: collapse; background: var(--card); min-width: 560px; }
+  .price-table th, .price-table td { padding: 13px 16px; text-align: center; border-bottom: 1px solid var(--card-border); }
+  .price-table th { background: #2b2214; font-weight: 800; font-size: 0.95rem; }
+  .price-table td.dest { text-align: start; font-weight: 700; }
+  .price-table tr:last-child td { border-bottom: none; }
+  .price-table tr:hover td { background: rgba(217,164,65,0.05); }
+  .col-vip { color: var(--gold-strong); font-weight: 800; }
+  .col-silver { color: #c9ced6; }
+  .col-bronze { color: #cd9a6b; }
+
+  /* Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
+  .chip {
+    background: var(--card); border: 1px solid var(--card-border);
+    padding: 9px 18px; border-radius: 999px; font-size: 0.95rem; font-weight: 600;
+  }
+  .chips-sm .chip { padding: 6px 14px; font-size: 0.85rem; }
+  .chip-outline { background: transparent; color: var(--muted); }
+
+  /* Custom questions */
+  .q-card { display: flex; align-items: center; gap: 14px; padding: 18px 20px; }
+  .q-icon { font-size: 1.6rem; }
+  .q-card p { font-size: 0.95rem; }
+
+  /* Accordion */
+  .acc {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius); margin-bottom: 14px; overflow: hidden;
+  }
+  .acc summary {
+    cursor: pointer; padding: 18px 22px; font-weight: 800; font-size: 1.05rem;
+    list-style: none; position: relative;
+  }
+  .acc summary::-webkit-details-marker { display: none; }
+  .acc summary::after { content: '+'; position: absolute; inset-inline-end: 22px; color: var(--gold); font-size: 1.3rem; }
+  .acc[open] summary::after { content: '−'; }
+  .acc ul { padding: 0 42px 20px 22px; color: var(--muted); font-size: 0.95rem; }
+  .acc li { margin-bottom: 8px; }
+
+  /* Contact & footer */
+  .socials { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+  .socials a { color: var(--gold-strong); text-decoration: none; font-weight: 700; border-bottom: 1px dashed rgba(217,164,65,0.4); }
+  .footer { border-top: 1px solid var(--card-border); padding: 34px 0; background: #100d08; }
+  .footer-inner { text-align: center; }
+  .footer-inner p { font-weight: 700; margin-bottom: 6px; }
+  .footer-legal { color: var(--muted); font-size: 0.85rem; font-weight: 400 !important; }
+
+  @media (max-width: 760px) {
+    .nav-links { display: none; }
+    .hero { padding: 60px 0 50px; }
+    .section { padding: 50px 0; }
+    .trip-card h3 { padding-inline-end: 0; margin-top: 26px; }
+  }
+</style>
+</body>
+</html>
