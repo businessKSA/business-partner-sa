@@ -28,6 +28,9 @@ const DB_ID = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
 const CODES = (process.env.EMPLOYER_CODES || "").split(",").map((s) => s.trim()).filter(Boolean);
 const NOTION_VERSION = "2022-06-28";
 
+// Paging through 1600+ ATS rows needs more than the default serverless budget.
+export const config = { maxDuration: 60 };
+
 const txt = (p) => {
   if (!p) return "";
   if (p.type === "title") return (p.title || []).map((t) => t.plain_text).join("");
