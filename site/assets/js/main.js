@@ -1389,6 +1389,50 @@ var BP_EMP_BILLING = "monthly";
     var gateMsg = document.getElementById("empd-gate-msg");
     var STAGES = [["interested", T("Interested", "مهتم")], ["contacted", T("Contacted", "تواصلت")], ["interview", T("Interview", "مقابلة")], ["hired", T("Hired", "تم التوظيف")]];
     var CODE = "", CANDS = [], lastJD = "";
+    var DEMO = false;
+    var DEMO_CODES = ["BP-DEMO", "DEMO", "BP-EMP-DEMO", "DEMO123"];
+    function isDemoCode(x) { return DEMO_CODES.indexOf(String(x == null ? "" : x).trim().toUpperCase()) > -1; }
+    var DEMO_CANDS = [
+      { id: "d1", name: "محمد الشهري", role: "محاسب أول", field: "محاسبة ومالية", city: "الرياض", experience: 6, education: "بكالوريوس", nationalityType: "سعودي", skills: "SOCPA, تقارير مالية, ضريبة القيمة المضافة", phone: "+966500000001", email: "demo1@example.com", cv: "" },
+      { id: "d2", name: "سارة القحطاني", role: "أخصائي موارد بشرية", field: "موارد بشرية", city: "جدة", experience: 4, education: "بكالوريوس", nationalityType: "سعودي", skills: "توظيف, قوى, GOSI, رواتب", phone: "+966500000002", email: "demo2@example.com", cv: "" },
+      { id: "d3", name: "Ahmed Khan", role: "مطوّر برمجيات", field: "تقنية معلومات", city: "الرياض", experience: 5, education: "بكالوريوس", nationalityType: "غير سعودي", skills: "JavaScript, Node.js, React, APIs", phone: "+966500000003", email: "demo3@example.com", cv: "" },
+      { id: "d4", name: "نورة العتيبي", role: "مسؤول مبيعات", field: "مبيعات وتسويق", city: "الدمام", experience: 3, education: "دبلوم", nationalityType: "سعودي", skills: "مبيعات, CRM, تفاوض", phone: "+966500000004", email: "demo4@example.com", cv: "" },
+      { id: "d5", name: "خالد الزهراني", role: "مشرف تشغيل مطاعم", field: "ضيافة ومطاعم", city: "الرياض", experience: 8, education: "ثانوي", nationalityType: "سعودي", skills: "إدارة فروع, F&B, جودة", phone: "+966500000005", email: "demo5@example.com", cv: "" },
+      { id: "d6", name: "Ravi Kumar", role: "فني صيانة", field: "مقاولات وإنشاءات", city: "جدة", experience: 7, education: "دبلوم", nationalityType: "غير سعودي", skills: "كهرباء, HVAC, صيانة وقائية", phone: "+966500000006", email: "demo6@example.com", cv: "" }
+    ];
+    function demoMatch(jd, st, grid) {
+      var terms = String(jd).toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(function (w) { return w.length > 1; });
+      var scored = DEMO_CANDS.map(function (c) {
+        var hay = (c.role + " " + c.field + " " + c.skills + " " + c.city + " " + c.nationalityType).toLowerCase();
+        var hits = 0; terms.forEach(function (t) { if (hay.indexOf(t) > -1) hits++; });
+        var score = Math.min(97, 55 + hits * 9 + Math.min(c.experience || 0, 8));
+        var reason = isAr ? ("تطابق في " + (hits || 1) + " معيار · " + (c.experience || 0) + " سنة خبرة · " + c.field) : (hits + " criteria match · " + (c.experience || 0) + "y · " + c.field);
+        return { c: c, m: { id: c.id, score: score, reason: reason } };
+      }).sort(function (a, b) { return b.m.score - a.m.score; });
+      st.textContent = "✨ " + scored.length + " " + (isAr ? "مرشّح مطابق (تجربة)" : "matched candidates (demo)");
+      grid.innerHTML = scored.map(function (x) { return card(x.c, { match: x.m }); }).join("");
+      bindCard(grid);
+    }
+    function demoAIAction(task, c) {
+      var mbody = document.getElementById("empd-modal-body");
+      var out;
+      if (task === "interview") {
+        out = isAr
+          ? "1) احكي لنا عن تجربتك في " + c.field + ".\n2) ما أبرز إنجاز حققته كـ " + c.role + "؟\n3) كيف تتعامل مع ضغط العمل والمواعيد؟\n4) ما مستواك في: " + c.skills + "؟\n5) ما توقعاتك للراتب ومتى تقدر تباشر؟"
+          : "1) Tell us about your experience in " + c.field + ".\n2) Your biggest achievement as a " + c.role + "?\n3) How do you handle deadlines?\n4) Your level in: " + c.skills + "?\n5) Salary expectation and availability?";
+      } else if (task === "outreach") {
+        out = isAr
+          ? "مرحباً " + (c.name || "") + "، معك فريق Business Partner. لاحظنا خبرتك كـ " + c.role + " وعندنا فرصة تناسبك. هل نقدر نحدد مكالمة قصيرة؟"
+          : "Hi " + (c.name || "") + ", this is the Business Partner team. We noticed your experience as a " + c.role + " and have a role that fits. Can we schedule a short call?";
+      } else {
+        out = isAr
+          ? "تقييم سريع: " + (c.name || "") + " — " + c.role + " بخبرة " + (c.experience || 0) + " سنة في " + c.field + ". المهارات: " + c.skills + ". التعليم: " + c.education + ". " + (c.nationalityType === "سعودي" ? "يدعم نسب التوطين." : "يحتاج تصريح عمل.") + " ملائم للمرحلة القادمة."
+          : "Quick assessment: " + (c.name || "") + " — " + c.role + ", " + (c.experience || 0) + "y in " + c.field + ". Skills: " + c.skills + ". Education: " + c.education + ". Good fit for the next stage.";
+      }
+      var html = "<div class='empd-ai-out'>" + nl2br(out) + "</div>";
+      if (task === "outreach" && c.phone) { var wa = c.phone.replace(/[^\d]/g, ""); html += '<a class="btn btn-wa" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(out) + '">' + T("Send on WhatsApp", "أرسل عبر واتساب") + "</a>"; }
+      mbody.innerHTML = html;
+    }
     function readLS(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
     function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
     var short = readLS("bp_shortlist", []);
@@ -1397,11 +1441,12 @@ var BP_EMP_BILLING = "monthly";
     function findC(id) { return CANDS.concat(short).filter(function (c) { return c.id === id; })[0]; }
 
     function validate(code, cb) {
+      if (isDemoCode(code)) { cb(true, { unlocked: true, demo: true, candidates: DEMO_CANDS }); return; }
       fetch("/api/candidates?code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
         .then(function (d) { cb(!!(d && d.unlocked), d); }).catch(function () { cb(false, null); });
     }
     function enter(code, data) {
-      CODE = code; writeLS("bp_emp_code", code);
+      CODE = code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", code);
       gate.hidden = true; app.hidden = false;
       if (data && data.candidates) { CANDS = data.candidates; fillFilters(); renderBrowse(); } else load();
       renderCounts();
@@ -1412,6 +1457,8 @@ var BP_EMP_BILLING = "monthly";
       validate(code, function (ok, data) { if (ok) enter(code, data); else gateMsg.textContent = T("Invalid or inactive code. Contact us to activate.", "رمز غير صحيح أو غير مفعّل. تواصل معنا للتفعيل."); });
     });
     codeInput.addEventListener("keydown", function (e) { if (e.key === "Enter") document.getElementById("empd-enter").click(); });
+    var demoBtn = document.getElementById("empd-demo");
+    if (demoBtn) demoBtn.addEventListener("click", function () { enter("BP-DEMO", { unlocked: true, demo: true, candidates: DEMO_CANDS }); });
     document.getElementById("empd-logout").addEventListener("click", function () { try { localStorage.removeItem("bp_emp_code"); } catch (e) {} location.reload(); });
     var saved = readLS("bp_emp_code", "");
     if (typeof saved === "string" && saved) { gateMsg.textContent = T("Signing in…", "جارٍ الدخول…"); validate(saved, function (ok, data) { if (ok) enter(saved, data); else gateMsg.textContent = ""; }); }
@@ -1436,6 +1483,7 @@ var BP_EMP_BILLING = "monthly";
     }
     function load() {
       var status = document.getElementById("empd-status"); status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
+      if (DEMO) { CANDS = DEMO_CANDS.slice(); status.textContent = CANDS.length + " " + T("candidates (demo)", "مرشّح (تجربة)"); renderBrowse(); return; }
       var qs = new URLSearchParams({ code: CODE });
       var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value, ci = document.getElementById("empd-city").value, n = document.getElementById("empd-nat").value;
       if (q) qs.set("q", q); if (f) qs.set("field", f); if (ci) qs.set("city", ci); if (n) qs.set("nat", n);
@@ -1516,6 +1564,7 @@ var BP_EMP_BILLING = "monthly";
       if (!jd) { st.textContent = T("Describe the role first.", "اكتب وصف الوظيفة أولاً."); return; }
       if (!CANDS.length) { st.textContent = T("Loading candidates… try again in a moment.", "يتم تحميل المرشّحين… حاول بعد لحظات."); load(); return; }
       lastJD = jd; st.textContent = "✨ " + T("AI is ranking your best-fit candidates…", "الذكاء يرتّب أنسب المرشّحين…"); grid.innerHTML = "";
+      if (DEMO) { demoMatch(jd, st, grid); return; }
       fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: "match", role: jd, candidates: CANDS.map(function (c) { return { id: c.id, role: c.role, field: c.field, city: c.city, experience: c.experience, education: c.education, nationalityType: c.nationalityType, skills: c.skills }; }) }) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) {
@@ -1552,6 +1601,7 @@ var BP_EMP_BILLING = "monthly";
     function aiAction(task, id) {
       var c = findC(id); if (!c) return;
       openModal(TITLES[task] || "AI", '<p class="empd-empty">✨ ' + T("Thinking…", "جارٍ التفكير…") + "</p>");
+      if (DEMO) { demoAIAction(task, c); return; }
       fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: task, candidate: c, role: lastJD }) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) {
