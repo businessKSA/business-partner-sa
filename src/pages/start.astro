@@ -1,0 +1,247 @@
+---
+// الخدمات المشتركة — نموذج بدء رحلة المؤسِّس (Phase 1b).
+// يلتقط بيانات المؤسِّس + يشغّل خالد (الفريق التنفيذي) مباشرة عبر /api/founder-intake.
+---
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ابدأ مع فريقك التنفيذي — الخدمات المشتركة | بزنس بارتنر</title>
+    <meta
+      name="description"
+      content="ابدأ رحلتك مع فريق الخدمات المشتركة: املأ نموذجاً قصيراً وسيبدأ خالد وفريقك التنفيذي الذكي فوراً بأسئلة استشارية وخطوة عملية أولى."
+    />
+    <style>
+      :root {
+        --bg: #0b1220; --panel: #111c2e; --panel-2: #16233a;
+        --brand: #0e9f9a; --brand-2: #12b3ad;
+        --text: #e8eef7; --muted: #93a4bd; --line: #24344f;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; }
+      body {
+        background: radial-gradient(1200px 600px at 50% -10%, #16324a 0%, var(--bg) 55%);
+        color: var(--text); min-height: 100dvh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, "Helvetica Neue", Arial, sans-serif;
+      }
+      a.back { position: fixed; top: 14px; inset-inline-start: 16px; color: var(--muted); text-decoration: none; font-size: 13px; }
+      a.back:hover { color: var(--text); }
+      .lang { position: fixed; top: 12px; inset-inline-end: 16px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 13px; }
+      .wrap { max-width: 640px; margin: 0 auto; padding: 60px 16px 48px; }
+      header { text-align: center; margin-bottom: 22px; }
+      .eyebrow { color: var(--brand-2); font-weight: 800; font-size: 12px; letter-spacing: .5px; }
+      h1 { font-size: 26px; margin: 8px 0 6px; }
+      header p { color: var(--muted); margin: 0; line-height: 1.7; font-size: 14px; }
+      form { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px 20px; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .field { display: flex; flex-direction: column; gap: 6px; }
+      .field.full { grid-column: 1 / -1; }
+      label { font-size: 13px; color: var(--muted); font-weight: 600; }
+      label .req { color: #ef6b6b; }
+      input, select, textarea {
+        background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+        border-radius: 12px; padding: 12px 14px; font-size: 15px; font-family: inherit; width: 100%;
+      }
+      textarea { resize: vertical; min-height: 80px; }
+      input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand); }
+      .hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+      .submit { margin-top: 18px; width: 100%; background: linear-gradient(180deg, var(--brand-2), var(--brand)); color: #04211f; font-weight: 800; border: none; border-radius: 12px; padding: 15px; font-size: 16px; cursor: pointer; font-family: inherit; transition: transform .12s ease, opacity .2s ease; }
+      .submit:hover { transform: translateY(-1px); }
+      .submit:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+      .note { text-align: center; color: var(--muted); font-size: 12px; margin-top: 12px; line-height: 1.6; }
+      #result { margin-top: 20px; display: none; }
+      #result.show { display: block; animation: pop .2s ease; }
+      @keyframes pop { from { transform: translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
+      .reply { background: var(--panel-2); border: 1px solid var(--line); border-inline-start: 3px solid var(--brand); border-radius: 14px; padding: 16px 18px; line-height: 1.8; font-size: 15px; white-space: pre-wrap; }
+      .reply .who { color: var(--brand-2); font-weight: 800; font-size: 13px; margin-bottom: 8px; display: block; }
+      .cont { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); text-decoration: none; border-radius: 12px; padding: 12px 18px; font-weight: 700; font-size: 14px; }
+      .cont:hover { border-color: var(--brand); }
+      .dots span { display:inline-block; width:7px;height:7px;margin:0 2px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite both; }
+      .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+      @keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+      @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 22px; } }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="/" data-t="back">‹ الموقع</a>
+    <button class="lang" id="langBtn">English</button>
+
+    <div class="wrap">
+      <header>
+        <div class="eyebrow" data-t="eyebrow">الخدمات المشتركة · الفريق التنفيذي الذكي</div>
+        <h1 data-t="title">ابدأ مع فريقك التنفيذي</h1>
+        <p data-t="sub">املأ النموذج القصير، وسيبدأ خالد وفريقك فوراً بأسئلة استشارية وخطوة عملية أولى — بدون أي التزام.</p>
+      </header>
+
+      <form id="intake">
+        <div class="grid">
+          <div class="field">
+            <label data-t="l_name">الاسم <span class="req">*</span></label>
+            <input name="name" required autocomplete="name" />
+          </div>
+          <div class="field">
+            <label data-t="l_phone">الجوال</label>
+            <input name="phone" type="tel" inputmode="tel" autocomplete="tel" />
+          </div>
+          <div class="field">
+            <label data-t="l_email">البريد الإلكتروني</label>
+            <input name="email" type="email" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label data-t="l_company">الشركة أو الفكرة</label>
+            <input name="company" />
+          </div>
+          <div class="field">
+            <label data-t="l_stage">المرحلة</label>
+            <select name="stage">
+              <option value="idea" data-t="st_idea">فكرة فقط</option>
+              <option value="validating" data-t="st_validating">أتحقق من الفكرة</option>
+              <option value="licensed" data-t="st_licensed">لدي سجل/ترخيص</option>
+              <option value="operating" data-t="st_operating">شركة قائمة</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-t="l_sector">القطاع</label>
+            <input name="sector" placeholder="مثال: مطاعم، تقنية، تجارة" />
+          </div>
+          <div class="field full">
+            <label data-t="l_goal">ما الذي تريد إنجازه؟ <span class="req">*</span></label>
+            <textarea name="goal" required placeholder="صف هدفك أو التحدي الحالي بإيجاز…"></textarea>
+          </div>
+          <div class="field">
+            <label data-t="l_budget">نطاق الميزانية</label>
+            <select name="budget">
+              <option value="" data-t="bd_none">غير محدد بعد</option>
+              <option value="explore" data-t="bd_explore">أستكشف فقط</option>
+              <option value="starter" data-t="bd_starter">مبدئي</option>
+              <option value="growth" data-t="bd_growth">نمو</option>
+              <option value="operate" data-t="bd_operate">تشغيل كامل</option>
+            </select>
+            <span class="hint" data-t="bd_hint">تقديري فقط — السعر النهائي يحدده فريقنا لاحقاً.</span>
+          </div>
+          <div class="field">
+            <label data-t="l_channel">قناة التواصل المفضّلة</label>
+            <select name="channel">
+              <option value="whatsapp" data-t="ch_wa">واتساب</option>
+              <option value="email" data-t="ch_email">البريد</option>
+              <option value="call" data-t="ch_call">مكالمة</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="submit" id="submitBtn" data-t="submit">🚀 ابدأ الآن</button>
+        <p class="note" data-t="note">لن نطلب كلمات مرور أو رموز تحقق. أي قرار مالي أو رسمي يتطلب موافقتك الصريحة.</p>
+      </form>
+
+      <div id="result">
+        <div class="reply" id="replyBox"></div>
+        <a class="cont" id="contLink" href="/voice" data-t="cont">🎙️ أكمل المحادثة بالصوت</a>
+      </div>
+    </div>
+
+    <script is:inline>
+      (function () {
+        const T = {
+          ar: {
+            back: '‹ الموقع', eyebrow: 'الخدمات المشتركة · الفريق التنفيذي الذكي',
+            title: 'ابدأ مع فريقك التنفيذي',
+            sub: 'املأ النموذج القصير، وسيبدأ خالد وفريقك فوراً بأسئلة استشارية وخطوة عملية أولى — بدون أي التزام.',
+            l_name: 'الاسم', l_phone: 'الجوال', l_email: 'البريد الإلكتروني', l_company: 'الشركة أو الفكرة',
+            l_stage: 'المرحلة', l_sector: 'القطاع', l_goal: 'ما الذي تريد إنجازه؟', l_budget: 'نطاق الميزانية',
+            l_channel: 'قناة التواصل المفضّلة',
+            st_idea: 'فكرة فقط', st_validating: 'أتحقق من الفكرة', st_licensed: 'لدي سجل/ترخيص', st_operating: 'شركة قائمة',
+            bd_none: 'غير محدد بعد', bd_explore: 'أستكشف فقط', bd_starter: 'مبدئي', bd_growth: 'نمو', bd_operate: 'تشغيل كامل',
+            bd_hint: 'تقديري فقط — السعر النهائي يحدده فريقنا لاحقاً.',
+            ch_wa: 'واتساب', ch_email: 'البريد', ch_call: 'مكالمة',
+            submit: '🚀 ابدأ الآن', note: 'لن نطلب كلمات مرور أو رموز تحقق. أي قرار مالي أو رسمي يتطلب موافقتك الصريحة.',
+            cont: '🎙️ أكمل المحادثة بالصوت', who: 'خالد — قائد فريقك',
+            sending: '… يجهّز فريقك ردّه', errName: 'الرجاء إدخال الاسم ووصف الهدف.',
+            errNet: 'تعذّر الاتصال بالفريق حالياً. حاول مرة ثانية بعد لحظات.', langBtn: 'English',
+          },
+          en: {
+            back: '‹ Site', eyebrow: 'Shared Services · Smart Executive Team',
+            title: 'Start with your executive team',
+            sub: 'Fill this short form and Khaled and your team will start right away with a few smart questions and a first practical step — no commitment.',
+            l_name: 'Name', l_phone: 'Phone', l_email: 'Email', l_company: 'Company or idea',
+            l_stage: 'Stage', l_sector: 'Sector', l_goal: 'What do you want to achieve?', l_budget: 'Budget band',
+            l_channel: 'Preferred channel',
+            st_idea: 'Just an idea', st_validating: 'Validating', st_licensed: 'Licensed / registered', st_operating: 'Operating company',
+            bd_none: 'Not decided yet', bd_explore: 'Just exploring', bd_starter: 'Starter', bd_growth: 'Growth', bd_operate: 'Full operate',
+            bd_hint: 'Indicative only — final pricing is set by our team later.',
+            ch_wa: 'WhatsApp', ch_email: 'Email', ch_call: 'Call',
+            submit: '🚀 Start now', note: 'We never ask for passwords or OTPs. Any financial or official decision needs your explicit approval.',
+            cont: '🎙️ Continue by voice', who: 'Khaled — your team lead',
+            sending: '… your team is preparing a reply', errName: 'Please enter your name and goal.',
+            errNet: "Couldn't reach the team right now. Please try again shortly.", langBtn: 'العربية',
+          },
+        };
+        let lang = 'ar';
+        const form = document.getElementById('intake');
+        const btn = document.getElementById('submitBtn');
+        const result = document.getElementById('result');
+        const replyBox = document.getElementById('replyBox');
+        const contLink = document.getElementById('contLink');
+        const langBtn = document.getElementById('langBtn');
+
+        let sid = sessionStorage.getItem('bp_voice_sid');
+        if (!sid) {
+          sid = 'start-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
+          sessionStorage.setItem('bp_voice_sid', sid);
+        }
+
+        function applyLang() {
+          const d = T[lang];
+          document.documentElement.lang = lang;
+          document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+          document.querySelectorAll('[data-t]').forEach(function (el) {
+            const k = el.getAttribute('data-t');
+            if (d[k] != null) {
+              if (el.tagName === 'BUTTON' && el.id === 'submitBtn') el.textContent = d[k];
+              else if (el.querySelector('.req')) el.childNodes[0].nodeValue = d[k] + ' ';
+              else el.textContent = d[k];
+            }
+          });
+          langBtn.textContent = d.langBtn;
+        }
+        langBtn.addEventListener('click', function () { lang = lang === 'ar' ? 'en' : 'ar'; applyLang(); });
+
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const d = T[lang];
+          const fd = new FormData(form);
+          const payload = { lang: lang, sessionId: sid };
+          fd.forEach(function (v, k) { payload[k] = String(v || '').trim(); });
+          if (!payload.name || !payload.goal) { alert(d.errName); return; }
+
+          btn.disabled = true;
+          result.classList.add('show');
+          replyBox.innerHTML = '<span class="who">' + d.who + '</span><span class="dots"><span></span><span></span><span></span></span> ' + d.sending;
+          contLink.style.display = 'none';
+
+          try {
+            const res = await fetch('/api/founder-intake', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+            });
+            const data = await res.json().catch(function () { return {}; });
+            const reply = (data && data.reply ? String(data.reply) : '').trim();
+            replyBox.innerHTML = '';
+            const who = document.createElement('span'); who.className = 'who'; who.textContent = d.who;
+            const body = document.createElement('span'); body.textContent = reply || d.errNet;
+            replyBox.appendChild(who); replyBox.appendChild(body);
+            contLink.textContent = d.cont; contLink.style.display = 'inline-flex';
+            result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } catch (err) {
+            replyBox.innerHTML = '';
+            const who = document.createElement('span'); who.className = 'who'; who.textContent = d.who;
+            const body = document.createElement('span'); body.textContent = d.errNet;
+            replyBox.appendChild(who); replyBox.appendChild(body);
+          } finally { btn.disabled = false; }
+        });
+
+        applyLang();
+      })();
+    </script>
+  </body>
+</html>
