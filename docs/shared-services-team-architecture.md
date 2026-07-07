@@ -71,16 +71,30 @@ Ahmed already has) would remove the cap there too.
 | SOP — Proposal Generation | `387d108d-ee5c-817d-b58a-d72e0fed68a5` | Proposal flow |
 | Proposal Generator Workflow | `382d108d-ee5c-8183-ac5a-fb601320eedb` | Reports/proposals |
 | Shared Services Knowledge | `598ca869-f0ac-4bb3-865b-abd0e2b5aa54` | Research & Decisions seed |
-| Sales Pipeline (CRM) | (existing) | Client pipeline |
+| Sales Pipeline / CRM | (existing) | **Clients** (client/lead record) |
+| الشركة الافتراضية (Virtual Company) | `390d108d-ee5c-8146-aef3-ceda05abbd01` | **Virtual Teams** (10 depts = agents, TEAM-00x roster) |
+| Entrepreneur Journey | `38cd108d-ee5c-813c-aa97-dcb027fe4e2f` | Founder journey (stages) |
+| Business opportunities | `395d108d-ee5c-8021-976a-ee742185adde` | **Business Ideas** |
 
-**Genuinely missing DBs:** `Clients`, `Business Ideas`, `Virtual Teams`,
-`Approval Requests` (as a queryable DB, not only the SOP). `Agent Tasks`,
-`Research & Decisions`, and `Reports` can be satisfied by reusing Team Tasks,
-Shared Services Knowledge, and the Proposal Generator respectively.
+**Audit conclusion — every brief-named DB already has an equivalent, so we
+create NONE and reuse instead:**
 
-> ⚠️ Because this workspace was built by several sibling agents, **creating new
-> databases is a hard-to-reverse, shared-production action.** Confirm scope
-> before adding the 4 missing DBs so we don't split the CRM across duplicates.
+| Brief DB | Reuse |
+| --- | --- |
+| Clients | Sales Pipeline / CRM |
+| Business Ideas | "Business opportunities" + idea/opportunity pages |
+| Virtual Teams | "الشركة الافتراضية / Virtual Company" (TEAM-00x) |
+| Agent Tasks | Team Tasks DB `77796c09…` |
+| Research & Decisions | Shared Services Knowledge |
+| Reports | Proposal Generator workflow |
+| Approval Requests | Human Approval Agent + Escalation SOP |
+
+> ⚠️ This workspace was built by several sibling agents and is already mature.
+> **Creating new databases here is a hard-to-reverse, duplication-prone action**
+> that would fragment the CRM/tasks/approvals. Per the brief's own "do not
+> duplicate" rule, no new DBs are created. If a genuinely-absent structure is
+> later needed (e.g. a *queryable* Approval Requests log distinct from the SOP),
+> add it under the hub `392d108d…` only after confirming the gap.
 
 ---
 
@@ -173,10 +187,8 @@ Pricing stays **placeholder-only** until a human sets it.
 **Reasonable assumptions (mark as TODO to confirm):**
 - Packages Starter/Growth/Operate/Custom exist as tiers with **no** hard-coded
   price — pricing is a placeholder resolved by a human. *(TODO: confirm tier names)*
-- `Agent Tasks` = existing Team Tasks DB; `Research & Decisions` = Shared
-  Services Knowledge; `Reports` = Proposal Generator output. *(TODO: confirm)*
-- New DBs to create only if approved: `Clients`, `Business Ideas`,
-  `Virtual Teams`, `Approval Requests`.
+- All seven brief DBs map to existing structures (see §1.3 audit conclusion) —
+  **no new databases are created**; the operating layer reuses them.
 
 ---
 
