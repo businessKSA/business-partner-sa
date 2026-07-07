@@ -4,6 +4,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import CallFab from '../../components/CallFab.astro';
 import RealEstateGrid from '../../components/RealEstateGrid.astro';
+import RealEstateRequestForm from '../../components/RealEstateRequestForm.astro';
 import { getContent } from '../../content/copy';
 
 export const prerender = true;
@@ -31,6 +32,10 @@ const t = getContent(locale);
     <section class="container re-content">
       <RealEstateGrid lang={locale} />
     </section>
+
+    <div class="container">
+      <RealEstateRequestForm lang={locale} />
+    </div>
 
     <section class="re-note container">
       <p>
