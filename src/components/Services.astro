@@ -18,6 +18,11 @@ const { lang, t } = Astro.props;
         <div class="card">
           <h3 style="margin-bottom: 1rem; color: var(--brand);">{service.title}</h3>
           <p style="color: var(--muted);">{service.description}</p>
+          {'href' in service && service.href && (
+            <a href={service.href} style="display:inline-block; margin-top:1rem; color: var(--brand); font-weight:700; text-decoration:none;">
+              {'linkLabel' in service ? service.linkLabel : service.href}
+            </a>
+          )}
         </div>
       ))}
     </div>

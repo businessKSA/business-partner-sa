@@ -60,6 +60,8 @@ export const copy = {
         {
           title: '👥 حلول الموارد البشرية',
           description: 'التوظيف • امتثال السعودة • إدارة الرواتب • تأشيرات الموظفين • تسجيل التأمينات',
+          href: '/ar/recruitment',
+          linkLabel: 'منظومة التوظيف المتكاملة ←',
         },
         {
           title: '📋 العلاقات الحكومية',
@@ -236,6 +238,8 @@ export const copy = {
         {
           title: '👥 HR & Saudization Solutions',
           description: 'Recruitment • Saudization compliance • Payroll management • Employee visas • GOSI registration',
+          href: '/en/recruitment',
+          linkLabel: 'The end-to-end recruitment system →',
         },
         {
           title: '📋 Government Relations (GRO)',
