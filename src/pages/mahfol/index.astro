@@ -1,5 +1,5 @@
 ---
-// موقع صاحب السعادة (تشغيل شركة محمول مكفول للسياحة) — صفحة مستقلة ببياناتها من Notion (Mahfol makfol data)
+// موقع محفول مكفول للسياحة — صفحة مستقلة ببياناتها من Notion (Mahfol makfol data)
 export const prerender = true;
 
 const contact = {
@@ -133,7 +133,7 @@ const experiences = [
   'الألعاب المائية', 'تأمل النجوم', 'رحلات الطائف', 'جزر الليث',
 ];
 
-// تجارب العلا الرسمية (Experience AlUla) — نوفر حجزها ضمن باقات صاحب السعادة
+// تجارب العلا الرسمية (Experience AlUla) — نوفر حجزها ضمن باقات محفول مكفول
 const alulaExperiences = [
   {
     group: '🏛️ تراث وثقافة',
@@ -184,10 +184,10 @@ const customQuestions = [
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>صاحب السعادة | رحلات وباقات سياحية في السعودية</title>
-  <meta name="description" content="صاحب السعادة — رحلات حافة العالم والتطعيس والتخييم، وباقات سياحية لثلاثة أيام إلى العلا ونيوم وجدة وينبع وجازان وأكثر. صمّم رحلتك على مقاسك." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>" />
-  <meta property="og:title" content="صاحب السعادة | رحلات وباقات سياحية في السعودية" />
+  <title>محفول مكفول للسياحة | رحلات وباقات سياحية في السعودية</title>
+  <meta name="description" content="محفول مكفول للسياحة — رحلات حافة العالم والتطعيس والتخييم، وباقات سياحية لثلاثة أيام إلى العلا ونيوم وجدة وينبع وجازان وأكثر. صمّم رحلتك على مقاسك." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐪</text></svg>" />
+  <meta property="og:title" content="محفول مكفول للسياحة | رحلات وباقات سياحية في السعودية" />
   <meta property="og:description" content="رحلات حافة العالم والتطعيس والتخييم وباقات سياحية لكل مناطق المملكة — VIP، فضية، وبرونزية." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="ar_SA" />
@@ -197,9 +197,8 @@ const customQuestions = [
   <script type="application/ld+json" set:html={JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'TravelAgency',
-    name: 'صاحب السعادة',
-    alternateName: 'Saheb Al Saadah',
-    legalName: 'شركة محمول مكفول للسياحة',
+    name: 'شركة محفول مكفول للسياحة',
+    alternateName: 'Mahmol Makfol Tourism Company',
     email: contact.email,
     url: contact.website,
     taxID: contact.vat,
@@ -211,14 +210,14 @@ const customQuestions = [
 
   <header class="nav">
     <div class="container nav-inner">
-      <a href="#top" class="brand">👑 <span>صاحب <b>السعادة</b></span></a>
+      <a href="#top" class="brand">🐪 <span>محفول <b>مكفول</b></span></a>
       <nav class="nav-links">
         <a href="#day-trips">رحلات اليوم الواحد</a>
         <a href="#camp">المخيم الصحراوي</a>
         <a href="#packages">باقات المدن</a>
         <a href="#destinations">وجهاتنا</a>
         <a href="#alula">تجارب العلا</a>
-        <a href="#custom">رحلة على مقاسك</a>
+        <a href="#designer">مصمم الرحلات الذكي</a>
         <a href="#terms">الشروط</a>
       </nav>
       <a class="btn btn-gold" href={`mailto:${contact.email}?subject=${encodeURIComponent('طلب حجز رحلة')}`}>احجز الآن</a>
@@ -233,12 +232,12 @@ const customQuestions = [
         <p class="hero-badge">✦ عضو الاتحاد السعودي للسيارات والدراجات النارية</p>
         <h1>عيش المغامرة في <span class="gold">صحاري وجبال وبحار</span> المملكة</h1>
         <p class="hero-sub">
-          صاحب السعادة — رحلات سفاري وتخييم وتطعيس، فعاليات ومخيمات شركات،
+          شركة محفول مكفول للسياحة — رحلات سفاري وتخييم وتطعيس، فعاليات ومخيمات شركات،
           وباقات سياحية متكاملة لكل مناطق المملكة. برامج قابلة للتفصيل حسب رغبتك وميزانيتك.
         </p>
         <div class="hero-cta">
-          <a class="btn btn-gold btn-lg" href="#day-trips">استكشف الرحلات</a>
-          <a class="btn btn-outline btn-lg" href="#custom">صمّم رحلتك الخاصة</a>
+          <a class="btn btn-gold btn-lg" href="#designer">🤖 صمّم رحلتك بالذكاء الاصطناعي</a>
+          <a class="btn btn-outline btn-lg" href="#day-trips">استكشف الرحلات</a>
         </div>
         <div class="hero-stats">
           <div><b>+15</b><span>وجهة سياحية</span></div>
@@ -431,7 +430,7 @@ const customQuestions = [
       <div class="container">
         <h2 class="section-title">تجارب العلا ✨</h2>
         <p class="section-sub">
-          بصفتنا مقدم خدمات رحلات، نوفر لك حجز تجارب العلا الرسمية (Experience AlUla) ضمن باقتك مع صاحب السعادة —
+          بصفتنا مقدم خدمات رحلات، نوفر لك حجز تجارب العلا الرسمية (Experience AlUla) ضمن باقتك مع محفول مكفول —
           احجزها معنا مع النقل والسكن والبرنامج كاملًا
         </p>
         {alulaExperiences.map((g) => (
@@ -444,6 +443,33 @@ const customQuestions = [
         ))}
         <div class="center">
           <a class="btn btn-gold btn-lg" href={`mailto:${contact.email}?subject=${encodeURIComponent('حجز تجارب العلا')}`}>احجز تجربتك في العلا</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Trip Designer -->
+    <section class="section section-dark" id="designer">
+      <div class="container">
+        <h2 class="section-title">🤖 مصمم الرحلات الذكي</h2>
+        <p class="section-sub">
+          مساعد ذكاء اصطناعي يفصّل رحلتك من باقاتنا الحقيقية بأسعارها الحقيقية —
+          كلمه بالعامية، حدد ميزانيتك، وبيصمم لك برنامجًا يوم-بيوم مع ملخص حجز جاهز
+        </p>
+        <div class="chat-shell">
+          <div class="chat-log" id="chatLog">
+            <div class="msg bot">هلا وسهلا! 👋 أنا مصمم رحلات محفول مكفول الذكي.<br />قل لي: وين ودك تروح؟ كم عددكم؟ ومتى؟ — وأفصّل لك رحلة على مقاسك بأسعارنا الحقيقية.</div>
+          </div>
+          <div class="chat-suggests" id="chatSuggests">
+            <button type="button" data-q="ابغى رحلة حافة العالم لستة أشخاص مع تخييم">🏔️ حافة العالم مع تخييم</button>
+            <button type="button" data-q="صمم لي رحلة العلا 3 أيام لأربعة أشخاص بميزانية متوسطة">🏜️ العلا 3 أيام</button>
+            <button type="button" data-q="ابغى رحلة بحرية في جدة مع يخت وسنوركل ليوم واحد">🛥️ رحلة بحرية بجدة</button>
+            <button type="button" data-q="اقترح لي رحلة عائلية مبتكرة بميزانية 5000 ريال">👨‍👩‍👧‍👦 رحلة عائلية بـ5000</button>
+          </div>
+          <form class="chat-input" id="chatForm">
+            <input type="text" id="chatText" placeholder="اكتب طلبك… مثال: ابغى رحلة نهاية الأسبوع لعائلتي" autocomplete="off" />
+            <button type="submit" class="btn btn-gold" id="chatSend">إرسال</button>
+          </form>
+          <p class="chat-note">الأسعار من باقاتنا المعتمدة · تأكيد الحجز النهائي يتم مع فريق المبيعات</p>
         </div>
       </div>
     </section>
@@ -488,7 +514,7 @@ const customQuestions = [
             <li>الإلغاء بين 72 ساعة و7 أيام: تحتفظ الشركة بـ 50% ويُحفظ الباقي كرصيد لمدة سنة.</li>
             <li>الإلغاء قبل أقل من 72 ساعة: تحتفظ الشركة بالمبلغ كاملًا دون تعويض أو استبدال.</li>
             <li>استبدال عميل بآخر دون إلغاء الرحلة: رسوم إدارية 10% من قيمة الرحلة.</li>
-            <li>إذا ألغت الجهة المنظمة (صاحب السعادة) الرحلة: يُسترجع المبلغ كاملًا (100%) خلال 20 يوم عمل.</li>
+            <li>إذا ألغت الجهة المنظمة (محفول مكفول) الرحلة: يُسترجع المبلغ كاملًا (100%) خلال 20 يوم عمل.</li>
             <li>في الظروف القاهرة (أحوال جوية، كوارث طبيعية): نتواصل معك فورًا ونعرض خدمات معادلة أو استرجاعًا كاملًا.</li>
           </ul>
         </details>
@@ -514,22 +540,22 @@ const customQuestions = [
 
   <footer class="footer">
     <div class="container footer-inner">
-      <p>👑 صاحب السعادة — Saheb Al Saadah</p>
-      <p class="footer-legal">تشغيل: شركة محمول مكفول للسياحة · سجل تجاري: {contact.cr} · الرقم الضريبي: {contact.vat}</p>
+      <p>🐪 شركة محفول مكفول للسياحة — Mahmol Makfol Tourism Company</p>
+      <p class="footer-legal">سجل تجاري: {contact.cr} · الرقم الضريبي: {contact.vat}</p>
       <p class="footer-legal">جميع الحقوق محفوظة © 2026</p>
     </div>
   </footer>
 
 <style is:global>
   :root {
-    --bg: #14100b;
-    --bg-alt: #1c1710;
-    --card: #241d13;
-    --card-border: #3a2f1e;
-    --text: #f3ead9;
-    --muted: #b8a888;
-    --gold: #d9a441;
-    --gold-strong: #eec063;
+    --bg: #171933;
+    --bg-alt: #1e2142;
+    --card: #252952;
+    --card-border: #3b3f8f;
+    --text: #f6f1e7;
+    --muted: #b4b8e0;
+    --gold: #ee6a4d;
+    --gold-strong: #ff8f70;
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -547,7 +573,7 @@ const customQuestions = [
   /* Nav */
   .nav {
     position: sticky; top: 0; z-index: 50;
-    background: rgba(20, 16, 11, 0.92);
+    background: rgba(23, 25, 51, 0.92);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--card-border);
   }
@@ -565,7 +591,7 @@ const customQuestions = [
     transition: transform 0.15s, box-shadow 0.15s; white-space: nowrap;
   }
   .btn:hover { transform: translateY(-2px); }
-  .btn-gold { background: linear-gradient(135deg, var(--gold), #b97f1f); color: #1c1508; box-shadow: 0 4px 18px rgba(217, 164, 65, 0.35); }
+  .btn-gold { background: linear-gradient(135deg, var(--gold), #d14a30); color: #fff6ef; box-shadow: 0 4px 18px rgba(238, 106, 77, 0.40); }
   .btn-outline { border: 1.5px solid var(--gold); color: var(--gold-strong); }
   .btn-lg { padding: 14px 32px; font-size: 1.05rem; }
   .btn-block { display: block; text-align: center; margin-top: 16px; }
@@ -573,16 +599,16 @@ const customQuestions = [
   /* Hero */
   .hero {
     background:
-      radial-gradient(ellipse 80% 60% at 70% 10%, rgba(217, 164, 65, 0.18), transparent),
-      radial-gradient(ellipse 60% 50% at 20% 90%, rgba(185, 127, 31, 0.12), transparent),
-      linear-gradient(180deg, #191309, var(--bg));
+      radial-gradient(ellipse 80% 60% at 70% 10%, rgba(238, 106, 77, 0.20), transparent),
+      radial-gradient(ellipse 60% 50% at 20% 90%, rgba(59, 63, 143, 0.35), transparent),
+      linear-gradient(180deg, #141630, var(--bg));
     padding: 90px 0 70px;
     text-align: center;
   }
   .hero-badge {
     display: inline-block; padding: 6px 18px; border-radius: 999px;
     border: 1px solid var(--card-border); color: var(--gold-strong);
-    font-size: 0.9rem; margin-bottom: 24px; background: rgba(217,164,65,0.08);
+    font-size: 0.9rem; margin-bottom: 24px; background: rgba(238,106,77,0.10);
   }
   .hero h1 { font-size: clamp(1.9rem, 4.5vw, 3.2rem); font-weight: 900; line-height: 1.35; max-width: 850px; margin: 0 auto 18px; }
   .gold { color: var(--gold); }
@@ -599,7 +625,7 @@ const customQuestions = [
   /* Sections */
   .section { padding: 70px 0; }
   .section-alt { background: var(--bg-alt); }
-  .section-dark { background: linear-gradient(180deg, #191309, #221a0e); }
+  .section-dark { background: linear-gradient(180deg, #141630, #232655); }
   .section-title { text-align: center; font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; margin-bottom: 10px; }
   .section-sub { text-align: center; color: var(--muted); margin-bottom: 40px; font-size: 1.05rem; }
 
@@ -620,8 +646,8 @@ const customQuestions = [
   .trip-card { position: relative; display: flex; flex-direction: column; }
   .tag {
     position: absolute; top: 18px; inset-inline-end: 18px;
-    background: rgba(217,164,65,0.15); color: var(--gold-strong);
-    border: 1px solid rgba(217,164,65,0.4);
+    background: rgba(238,106,77,0.16); color: var(--gold-strong);
+    border: 1px solid rgba(238,106,77,0.45);
     padding: 3px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
   }
   .trip-card h3 { font-size: 1.3rem; margin-bottom: 10px; padding-inline-end: 90px; }
@@ -632,8 +658,8 @@ const customQuestions = [
   .trip-meta { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 0.88rem; margin-bottom: 16px; }
   .price-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
   .price-box {
-    flex: 1; min-width: 120px; background: rgba(217,164,65,0.08);
-    border: 1px solid rgba(217,164,65,0.3); border-radius: 12px;
+    flex: 1; min-width: 120px; background: rgba(238,106,77,0.10);
+    border: 1px solid rgba(238,106,77,0.35); border-radius: 12px;
     padding: 10px 14px; text-align: center;
   }
   .price-label { display: block; color: var(--muted); font-size: 0.82rem; }
@@ -650,13 +676,13 @@ const customQuestions = [
   .table-title { text-align: center; font-size: 1.3rem; font-weight: 800; margin: 10px 0 20px; color: var(--gold-strong); }
   .price-table { width: 100%; border-collapse: collapse; background: var(--card); min-width: 560px; }
   .price-table th, .price-table td { padding: 13px 16px; text-align: center; border-bottom: 1px solid var(--card-border); }
-  .price-table th { background: #2b2214; font-weight: 800; font-size: 0.95rem; }
+  .price-table th { background: #2d3166; font-weight: 800; font-size: 0.95rem; }
   .price-table td.dest { text-align: start; font-weight: 700; }
   .price-table tr:last-child td { border-bottom: none; }
-  .price-table tr:hover td { background: rgba(217,164,65,0.05); }
+  .price-table tr:hover td { background: rgba(238,106,77,0.06); }
   .col-vip { color: var(--gold-strong); font-weight: 800; }
-  .col-silver { color: #c9ced6; }
-  .col-bronze { color: #cd9a6b; }
+  .col-silver { color: #d5d8ee; }
+  .col-bronze { color: #e8a37d; }
 
   /* Chips */
   .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
@@ -671,6 +697,47 @@ const customQuestions = [
   .q-card { display: flex; align-items: center; gap: 14px; padding: 18px 20px; }
   .q-icon { font-size: 1.6rem; }
   .q-card p { font-size: 0.95rem; }
+
+  /* AI chat */
+  .chat-shell {
+    max-width: 760px; margin: 0 auto;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius); padding: 18px;
+  }
+  .chat-log {
+    height: 380px; overflow-y: auto; display: flex; flex-direction: column;
+    gap: 12px; padding: 8px 4px; scroll-behavior: smooth;
+  }
+  .msg {
+    max-width: 85%; padding: 12px 16px; border-radius: 16px;
+    line-height: 1.7; font-size: 0.95rem; white-space: pre-wrap; word-wrap: break-word;
+  }
+  .msg.bot { background: #2d3166; border: 1px solid var(--card-border); align-self: flex-start; border-start-start-radius: 4px; }
+  .msg.me { background: linear-gradient(135deg, var(--gold), #d14a30); color: #fff6ef; align-self: flex-end; border-start-end-radius: 4px; }
+  .msg .dots span {
+    display: inline-block; width: 7px; height: 7px; margin: 0 2px; border-radius: 50%;
+    background: var(--gold-strong); animation: blink 1.2s infinite;
+  }
+  .msg .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .msg .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+  .chat-suggests { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chat-suggests button {
+    background: rgba(238,106,77,0.10); color: var(--text);
+    border: 1px solid rgba(238,106,77,0.35); border-radius: 999px;
+    padding: 7px 14px; font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .chat-suggests button:hover { background: rgba(238,106,77,0.22); }
+  .chat-input { display: flex; gap: 10px; }
+  .chat-input input {
+    flex: 1; background: #1c1f42; border: 1px solid var(--card-border);
+    border-radius: 999px; padding: 12px 18px; color: var(--text);
+    font-family: inherit; font-size: 0.95rem; outline: none;
+  }
+  .chat-input input:focus { border-color: var(--gold); }
+  .chat-input .btn { border: none; cursor: pointer; font-family: inherit; }
+  .chat-input .btn:disabled { opacity: 0.5; cursor: wait; transform: none; }
+  .chat-note { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 10px; }
 
   /* Accordion */
   .acc {
@@ -689,8 +756,8 @@ const customQuestions = [
 
   /* Contact & footer */
   .socials { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
-  .socials a { color: var(--gold-strong); text-decoration: none; font-weight: 700; border-bottom: 1px dashed rgba(217,164,65,0.4); }
-  .footer { border-top: 1px solid var(--card-border); padding: 34px 0; background: #100d08; }
+  .socials a { color: var(--gold-strong); text-decoration: none; font-weight: 700; border-bottom: 1px dashed rgba(238,106,77,0.45); }
+  .footer { border-top: 1px solid var(--card-border); padding: 34px 0; background: #12142b; }
   .footer-inner { text-align: center; }
   .footer-inner p { font-weight: 700; margin-bottom: 6px; }
   .footer-legal { color: var(--muted); font-size: 0.85rem; font-weight: 400 !important; }
@@ -702,5 +769,84 @@ const customQuestions = [
     .trip-card h3 { padding-inline-end: 0; margin-top: 26px; }
   }
 </style>
+
+<script is:inline>
+  (function () {
+    const WEBHOOK_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/50c9e21d-294b-4d3e-8401-33be03c437d4/chat';
+    const log = document.getElementById('chatLog');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatText');
+    const sendBtn = document.getElementById('chatSend');
+    const suggests = document.getElementById('chatSuggests');
+    const sid = 'mahfol-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    let busy = false;
+
+    function addMsg(text, who) {
+      const el = document.createElement('div');
+      el.className = 'msg ' + who;
+      el.textContent = text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      return el;
+    }
+
+    async function send(message) {
+      const msg = (message || '').trim();
+      if (!msg || busy) return;
+      busy = true;
+      sendBtn.disabled = true;
+      input.value = '';
+      addMsg(msg, 'me');
+      const thinking = addMsg('', 'bot');
+      thinking.innerHTML = '<span class="dots"><span></span><span></span><span></span></span>';
+      log.scrollTop = log.scrollHeight;
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'sendMessage', sessionId: sid, chatInput: msg })
+        });
+        let reply = '';
+        let isError = !res.ok;
+        const raw = await res.text();
+        try {
+          const data = JSON.parse(raw);
+          if (data && (data.output || data.text || data.reply || data.answer)) {
+            reply = data.output ?? data.text ?? data.reply ?? data.answer;
+          } else if (data && (data.message || data.code || data.error)) {
+            isError = true;
+          } else if (typeof data === 'string') {
+            reply = data;
+          }
+        } catch (_) {
+          if (/error in workflow|too many requests|<html/i.test(raw)) isError = true;
+          else reply = raw;
+        }
+        reply = (typeof reply === 'string' ? reply : JSON.stringify(reply)).trim();
+        if (isError || !reply) {
+          thinking.textContent = 'المساعد مشغول حاليًا 🙏 جرب بعد لحظات، أو راسلنا مباشرة على info@mahmolmakfol.com';
+        } else {
+          thinking.textContent = reply;
+        }
+      } catch (e) {
+        thinking.textContent = 'تعذر الاتصال بالمساعد. تأكد من الإنترنت وجرب مرة ثانية.';
+      }
+      log.scrollTop = log.scrollHeight;
+      busy = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      send(input.value);
+    });
+    suggests.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-q]');
+      if (btn) send(btn.getAttribute('data-q'));
+    });
+  })();
+</script>
 </body>
 </html>
