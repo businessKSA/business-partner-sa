@@ -407,7 +407,7 @@ const catUrl = (key) => u("/services/category/" + catSlugUrl(key));
 // Emoji icon per category (visual variety on the services hub).
 const CAT_ICON = {
   "Company Formation": "🏢", "Foreign Investment": "🌍", "Premium Residency": "🪪",
-  "Government Relations": "🏛️", "HR & Recruitment": "👥",
+  "Government Relations": "🏛️", "HR Services": "👥", "Recruitment": "🧑‍💼",
   "Business Support": "📊", "Real Estate": "🏗️", "AI Automation": "🤖", "Tourism": "✈️",
 };
 
@@ -555,7 +555,8 @@ function buildHome() {
       { title: "Foreign Investment", text: "MISA license, 100% foreign company, foreign branch, and partnerships." },
       { title: "Premium Residency", text: "Choosing the right product and managing the application to issuance — no sponsor." },
       { title: "Government Relations", text: "Qiwa, HR, Muqeem, GOSI, Balady, and sector licensing." },
-      { title: "HR & Recruitment", text: "Managing Qiwa, GOSI, Mudad and contracts, plus talent attraction and end-to-end recruitment procedures." },
+      { title: "HR Services", text: "Managing Qiwa, GOSI and Mudad, contracts, sponsorship transfer and compliance." },
+      { title: "Recruitment & Hiring", text: "Talent attraction and end-to-end recruitment procedures." },
     ],
     allServices: "All services", packagesDetails: "Package details",
     agentEyebrow: "The killer feature", agentTitle: "The killer feature: the smart agent on WhatsApp",
@@ -1012,7 +1013,8 @@ const CAT_META = {
   "Foreign Investment": { icon: "🌍", en: "Foreign Investment" },
   "Premium Residency": { icon: "🪪", en: "Premium Residency" },
   "Government Relations": { icon: "🏛️", en: "Government Relations" },
-  "HR & Recruitment": { icon: "👥", en: "HR & Recruitment" },
+  "HR Services": { icon: "👥", en: "HR Services" },
+  "Recruitment": { icon: "🧑‍💼", en: "Recruitment & Hiring" },
   "Business Support": { icon: "🧰", en: "Business Support" },
   "Real Estate": { icon: "🏗️", en: "Real Estate" },
   "AI Automation": { icon: "🤖", en: "AI & Automation" },
@@ -1962,7 +1964,7 @@ function buildNews() {
 // employer recruitment platform, job-seeker intake) under one identity,
 // without spinning up a separate site/domain.
 function buildHR() {
-  const hrServices = services.filter((s) => s.category === "HR & Recruitment").slice(0, 6);
+  const hrServices = services.filter((s) => s.category === "HR Services" || s.category === "Recruitment").slice(0, 6);
   const svcCards = hrServices.map((s) => {
     const d = sDesc(s);
     return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
@@ -1973,7 +1975,7 @@ function buildHR() {
   const entryCards = [
     ["🏢", L("For employers", "لأصحاب الأعمال"), L("Hire from our pre-screened, Saudization-checked candidate pool — we handle sourcing to onboarding.", "وظّف من قاعدة مرشّحين مُصنّفين ومفحوصين للتوطين — نتولّى من الاستقطاب حتى التعيين."), "/employers", L("Browse candidates", "تصفّح المرشّحين")],
     ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Join our candidate pool once — employers hiring through Business Partner reach you.", "سجّل مرة واحدة — وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Submit your CV", "أرسل سيرتك")],
-    ["📋", L("HR & compliance services", "خدمات الموارد البشرية والامتثال"), L("Qiwa, GOSI, Mudad, contracts, Saudization and everyday HR administration.", "قوى، التأمينات، مدد، العقود، التوطين وإدارة الموارد البشرية اليومية."), "/services/category/hr-recruitment", L("Browse services", "استعرض الخدمات")],
+    ["📋", L("HR & compliance services", "خدمات الموارد البشرية والامتثال"), L("Qiwa, GOSI, Mudad, contracts, Saudization and everyday HR administration.", "قوى، التأمينات، مدد، العقود، التوطين وإدارة الموارد البشرية اليومية."), "/services/category/hr-services", L("Browse services", "استعرض الخدمات")],
   ].map((p) => `<a class="card feature" href="${u(p[3])}">
     <div class="card-icon" style="font-size:1.6rem">${p[0]}</div>
     <h3>${p[1]}</h3><p>${p[2]}</p>
@@ -1983,7 +1985,7 @@ function buildHR() {
     <div class="subbrand-badge">${I.building}<span>${L("HR", "الموارد البشرية")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</h1>
     <p class="lead">${L("Everything HR under one roof: a recruitment platform for employers, a candidate pool for job seekers, and a full catalog of HR & compliance services — Qiwa, GOSI, Mudad and Saudization, managed for you.", "كل ما يخص الموارد البشرية تحت مظلة واحدة: منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال — قوى والتأمينات ومدد والتوطين، بندير لك كل شي.")}</p>
-    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-recruitment")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
+    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-services")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -1994,7 +1996,7 @@ function buildHR() {
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Catalog", "الكتالوج")}</span><h2>${L("A sample of our HR services", "نماذج من خدماتنا في الموارد البشرية")}</h2></div>
     <div class="grid grid-3">${svcCards}</div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services/category/hr-recruitment")}">${L("View all HR services", "استعرض كل خدمات الموارد البشرية")} ${I.arrow}</a></div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services/category/hr-services")}">${L("View all HR services", "استعرض كل خدمات الموارد البشرية")} ${I.arrow}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
