@@ -256,16 +256,7 @@ const NAV_GROUPS = [
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
   },
-  {
-    en: "Jobs", ar: "التوظيف",
-    items: [
-      { href: "/hr", en: "HR by Business Partner ⚡", ar: "الموارد البشرية من بزنس بارتنر ⚡" },
-      { href: "/careers", en: "For job seekers", ar: "للباحثين عن عمل" },
-      { href: "/employers", en: "For employers", ar: "لأصحاب الأعمال" },
-      { href: "/employer-join", en: "Employer subscription", ar: "اشتراك أصحاب العمل" },
-      { href: "/employer-dashboard", en: "Employer dashboard", ar: "لوحة التوظيف" },
-    ],
-  },
+  { href: "/hr", en: "HR by Business Partner", ar: "الموارد البشرية من بزنس بارتنر" },
   { href: "/about", en: "About us", ar: "من نحن" },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
@@ -2229,6 +2220,7 @@ function buildEmployerDashboard() {
         <p style="color:var(--text-soft);font-size:.92rem">${L("You received it by email after subscribing. Don't have one?", "وصلك بالبريد بعد الاشتراك. ما عندك رمز؟")} <a href="${u("/employer-join")}">${L("Subscribe", "اشترك")}</a></p>
         <div class="emp-unlock" style="margin-top:14px"><input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="text-align:center;letter-spacing:2px"><button class="btn btn-primary" id="empd-enter">${L("Enter", "دخول")}</button></div>
         <p id="empd-gate-msg" class="emp-note" style="min-height:20px"></p>
+        <button type="button" class="btn btn-ghost btn-sm" id="empd-demo" style="margin-top:10px">${L("Try the demo — no subscription", "جرّب النسخة التجريبية — بدون اشتراك")}</button>
       </div>
     </div>
 
