@@ -14,12 +14,43 @@ const contact = {
 };
 
 const services = [
+  { icon: '🛒', title: 'سوق الرحلات السياحية', desc: 'منصة تجمع رحلات موردين معتمدين في كل مناطق المملكة — تختار وتحجز ونحن نضمن الجودة.' },
+  { icon: '🏠', title: 'إدارة الوحدات العقارية السياحية', desc: 'ندير شاليهك أو مخيمك أو مزرعتك على جاذرن وAirbnb والمنصات — تسعير وتشغيل وضيافة وتقارير.' },
   { icon: '🚙', title: 'تنظيم الرحلات السياحية', desc: 'رحلات سفاري وبرية وبحرية مصممة حسب رغبتك، بسيارات دفع رباعي مجهزة وكباتن محترفين.' },
-  { icon: '🎪', title: 'إدارة الفعاليات', desc: 'تقديم وتشغيل الفعاليات الدائمة والموسمية بجودة واحترافية.' },
-  { icon: '👥', title: 'إدارة الحشود', desc: 'خبرة في تنظيم وإدارة الحشود للفعاليات والمواسم الكبرى.' },
+  { icon: '🎪', title: 'إدارة الفعاليات والحشود', desc: 'تقديم وتشغيل الفعاليات الدائمة والموسمية وإدارة الحشود للمواسم الكبرى.' },
   { icon: '🍽️', title: 'خدمات الإطعام المتنقل', desc: 'تقديم خدمات الأطعمة في المواقع والأماكن المتنقلة.' },
   { icon: '⛺', title: 'تجهيز المخيمات للشركات', desc: 'مخيمات بطابع خاص يعكس هوية شركتك، بتجهيز متكامل.' },
-  { icon: '🏟️', title: 'تشغيل المواقع الترفيهية', desc: 'تشغيل المواقع الرياضية والترفيهية والثقافية.' },
+];
+
+// سوق الرحلات — كل رحلة يقدمها مورد معتمد عبر منصة محفول مكفول
+const marketTrips = [
+  { icon: '🏔️', name: 'رحلة حافة العالم', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول' },
+  { icon: '⛺', name: 'حافة العالم مع التخييم', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يوم وليلة', price: '3,750 ر.س / 3 أشخاص', provider: 'محفول مكفول' },
+  { icon: '🏜️', name: 'تجربة التطعيس', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول' },
+  { icon: '🌌', name: 'المخيم الصحراوي (يومان)', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يومان', price: 'من 600 ر.س / شخص', provider: 'مورد معتمد' },
+  { icon: '🐎', name: 'تجربة الريف وركوب الخيل', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد' },
+  { icon: '🏛️', name: 'باقة العلا 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'العلا', dur: '3 أيام', price: 'من 2,029 ر.س / شخص', provider: 'محفول مكفول' },
+  { icon: '🌊', name: 'باقة نيوم 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'نيوم', dur: '3 أيام', price: 'من 2,223 ر.س / شخص', provider: 'محفول مكفول' },
+  { icon: '🕌', name: 'باقة جدة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جدة', dur: '3 أيام', price: 'من 2,290 ر.س / شخص', provider: 'محفول مكفول' },
+  { icon: '⚓', name: 'باقة ينبع 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'ينبع', dur: '3 أيام', price: 'من 2,472 ر.س / شخص', provider: 'محفول مكفول' },
+  { icon: '🐠', name: 'جزر فرسان 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جازان', dur: '3 أيام', price: 'من 2,261 ر.س / شخص', provider: 'مورد معتمد' },
+  { icon: '🌲', name: 'أبها والسودة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'عسير', dur: '3 أيام', price: 'من 1,945 ر.س / شخص', provider: 'مورد معتمد' },
+  { icon: '🌹', name: 'الطائف 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'الطائف', dur: '3 أيام', price: 'من 1,748 ر.س / شخص', provider: 'مورد معتمد' },
+  { icon: '🛥️', name: 'رحلة يخت جماعية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: '6-12 ساعة', price: 'حسب المدة والقارب', provider: 'مرسى شريك' },
+  { icon: '🤿', name: 'رحلة غوص وسنوركل', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد' },
+  { icon: '🏖️', name: 'شاطئ درة العروس والألعاب المائية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد' },
+  { icon: '🗿', name: 'جولة الحِجر', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla' },
+  { icon: '🦌', name: 'سفاري محمية شرعان', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla' },
+  { icon: '🎈', name: 'المنطاد مع شروق الشمس', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'صباحية', price: 'ضمن باقتك معنا', provider: 'Experience AlUla' },
+];
+
+const unitServices = [
+  { icon: '📋', title: 'الإدراج والتسويق', desc: 'ننشئ إعلان وحدتك باحتراف على جاذرن وAirbnb وBooking مع تصوير احترافي ووصف جذاب.' },
+  { icon: '💰', title: 'التسعير الديناميكي', desc: 'نسعّر وحدتك حسب المواسم والفعاليات والطلب لتحقق أعلى عائد ممكن.' },
+  { icon: '💬', title: 'التواصل مع الضيوف', desc: 'نرد على الاستفسارات والحجوزات 24/7 وندير تسجيل الدخول والخروج.' },
+  { icon: '🧹', title: 'التشغيل والنظافة', desc: 'تنظيف وصيانة وتجهيز الوحدة بين كل حجز وحجز بمعايير الضيافة.' },
+  { icon: '📊', title: 'تقارير شهرية', desc: 'تقرير واضح بالإشغال والإيرادات والمصاريف وصافي عائدك.' },
+  { icon: '🛡️', title: 'حماية وتوثيق', desc: 'توثيق الوحدة والتراخيص ومتابعة اشتراطات وزارة السياحة.' },
 ];
 
 const dayTrips = [
@@ -184,8 +215,8 @@ const customQuestions = [
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>محفول مكفول للسياحة | رحلات وباقات سياحية في السعودية</title>
-  <meta name="description" content="محفول مكفول للسياحة — رحلات حافة العالم والتطعيس والتخييم، وباقات سياحية لثلاثة أيام إلى العلا ونيوم وجدة وينبع وجازان وأكثر. صمّم رحلتك على مقاسك." />
+  <title>محفول مكفول | منصة الرحلات السياحية وإدارة الوحدات العقارية</title>
+  <meta name="description" content="منصة محفول مكفول — سوق رحلات سياحية من موردين معتمدين في كل مناطق المملكة، إدارة وحدات عقارية سياحية على جاذرن وAirbnb، ومصمم رحلات بالذكاء الاصطناعي." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐪</text></svg>" />
   <meta property="og:title" content="محفول مكفول للسياحة | رحلات وباقات سياحية في السعودية" />
   <meta property="og:description" content="رحلات حافة العالم والتطعيس والتخييم وباقات سياحية لكل مناطق المملكة — VIP، فضية، وبرونزية." />
@@ -212,13 +243,12 @@ const customQuestions = [
     <div class="container nav-inner">
       <a href="#top" class="brand">🐪 <span>محفول <b>مكفول</b></span></a>
       <nav class="nav-links">
-        <a href="#day-trips">رحلات اليوم الواحد</a>
-        <a href="#camp">المخيم الصحراوي</a>
+        <a href="#market">سوق الرحلات</a>
+        <a href="#units">إدارة الوحدات</a>
         <a href="#packages">باقات المدن</a>
-        <a href="#destinations">وجهاتنا</a>
         <a href="#alula">تجارب العلا</a>
-        <a href="#designer">مصمم الرحلات الذكي</a>
-        <a href="#terms">الشروط</a>
+        <a href="#designer">المصمم الذكي</a>
+        <a href="#vendors">كن موردًا</a>
       </nav>
       <a class="btn btn-gold" href={`mailto:${contact.email}?subject=${encodeURIComponent('طلب حجز رحلة')}`}>احجز الآن</a>
     </div>
@@ -230,26 +260,61 @@ const customQuestions = [
     <section class="hero">
       <div class="container hero-inner">
         <p class="hero-badge">✦ عضو الاتحاد السعودي للسيارات والدراجات النارية</p>
-        <h1>عيش المغامرة في <span class="gold">صحاري وجبال وبحار</span> المملكة</h1>
+        <h1>منصة <span class="gold">محفول مكفول</span> — رحلات من موردين معتمدين وإدارة وحدات سياحية</h1>
         <p class="hero-sub">
-          شركة محفول مكفول للسياحة — رحلات سفاري وتخييم وتطعيس، فعاليات ومخيمات شركات،
-          وباقات سياحية متكاملة لكل مناطق المملكة. برامج قابلة للتفصيل حسب رغبتك وميزانيتك.
+          سوق سياحي يجمع أفضل الرحلات من موردين معتمدين في كل مناطق المملكة،
+          مع إدارة كاملة لوحدتك العقارية السياحية على جاذرن وAirbnb — اختر رحلتك، أو خلّ وحدتك تشتغل لك.
         </p>
         <div class="hero-cta">
           <a class="btn btn-gold btn-lg" href="#designer">🤖 صمّم رحلتك بالذكاء الاصطناعي</a>
           <a class="btn btn-outline btn-lg" href="#day-trips">استكشف الرحلات</a>
         </div>
         <div class="hero-stats">
+          <div><b>+18</b><span>رحلة من موردين معتمدين</span></div>
           <div><b>+15</b><span>وجهة سياحية</span></div>
           <div><b>3</b><span>فئات باقات: VIP · فضية · برونزية</span></div>
-          <div><b>4-20</b><span>شخصًا في المجموعة</span></div>
-          <div><b>2017</b><span>بداية شغفنا بالمغامرة</span></div>
+          <div><b>🏠</b><span>إدارة وحدات على جاذرن وAirbnb</span></div>
         </div>
       </div>
     </section>
 
+    <!-- Trips marketplace -->
+    <section class="section" id="market">
+      <div class="container">
+        <h2 class="section-title">🛒 سوق الرحلات</h2>
+        <p class="section-sub">كل رحلة يقدمها مورد معتمد ومدقق من منصة محفول مكفول — اختر وفلتر واحجز</p>
+        <div class="market-filters" id="marketFilters">
+          <button type="button" class="active" data-f="all">الكل</button>
+          <button type="button" data-f="day">يوم واحد</button>
+          <button type="button" data-f="camp">تخييم</button>
+          <button type="button" data-f="city">باقات مدن</button>
+          <button type="button" data-f="sea">بحرية</button>
+          <button type="button" data-f="alula">العلا</button>
+        </div>
+        <div class="market-grid" id="marketGrid">
+          {marketTrips.map((t) => (
+            <div class="trip-tile" data-cat={t.cat}>
+              <div class="tile-head"><span class="tile-icon">{t.icon}</span><span class="tile-cat">{t.catLabel}</span></div>
+              <h3>{t.name}</h3>
+              <div class="tile-meta">
+                <span>📍 {t.city}</span>
+                <span>⏱️ {t.dur}</span>
+              </div>
+              <div class="tile-price">{t.price}</div>
+              <div class="tile-provider">✓ مورد معتمد · {t.provider}</div>
+              <div class="tile-actions">
+                <a class="btn btn-gold btn-sm" href={`mailto:${contact.email}?subject=${encodeURIComponent('حجز: ' + t.name)}`}>احجز</a>
+                <a class="btn btn-outline btn-sm" href="#designer">فصّلها بالذكاء الاصطناعي</a>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p class="market-note">الأسعار المبدئية غير شاملة الضريبة ما لم يُذكر خلاف ذلك · التفاصيل الكاملة في أقسام الباقات أدناه</p>
+      </div>
+    </section>
+
     <!-- Services -->
-    <section class="section" id="services">
+    <section class="section section-alt" id="services">
       <div class="container">
         <h2 class="section-title">ماذا نقدّم؟</h2>
         <p class="section-sub">ست خدمات متكاملة تحت سقف واحد</p>
@@ -261,6 +326,36 @@ const customQuestions = [
               <p>{s.desc}</p>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Property management -->
+    <section class="section" id="units">
+      <div class="container">
+        <h2 class="section-title">🏠 إدارة الوحدات العقارية السياحية</h2>
+        <p class="section-sub">
+          عندك شاليه، مخيم، مزرعة، كرفان أو شقة مفروشة؟ ندريها لك بالكامل على
+          <b> جاذرن، Airbnb، Booking </b> — أنت تستلم العائد ونحن نتكفل بالباقي
+        </p>
+        <div class="grid grid-3">
+          {unitServices.map((u) => (
+            <div class="card service-card">
+              <div class="service-icon">{u.icon}</div>
+              <h3>{u.title}</h3>
+              <p>{u.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div class="units-cta">
+          <div class="units-steps">
+            <span><b>1</b> سجّل وحدتك</span>
+            <span class="step-arrow">←</span>
+            <span><b>2</b> نعاينها ونجهزها وندرجها</span>
+            <span class="step-arrow">←</span>
+            <span><b>3</b> تستلم عائدك الشهري وتقريرك</span>
+          </div>
+          <a class="btn btn-gold btn-lg" href={`mailto:${contact.email}?subject=${encodeURIComponent('تسجيل وحدة عقارية سياحية للإدارة')}&body=${encodeURIComponent('نوع الوحدة (شاليه/مخيم/مزرعة/كرفان/شقة):\nالمدينة:\nعدد الغرف/السعة:\nهل الوحدة مرخصة؟')}`}>سجّل وحدتك الآن</a>
         </div>
       </div>
     </section>
@@ -493,6 +588,31 @@ const customQuestions = [
       </div>
     </section>
 
+    <!-- Become a vendor -->
+    <section class="section" id="vendors">
+      <div class="container narrow center">
+        <h2 class="section-title">🤝 كن موردًا في المنصة</h2>
+        <p class="section-sub">
+          مرشد سياحي؟ صاحب يخت أو مرسى؟ منظم رحلات أو أسرة منتجة أو مقدم أنشطة؟
+          اعرض خدمتك في سوق محفول مكفول ووصل لعملاء جدد — نتولى التسويق والحجوزات وأنت تنفذ
+        </p>
+        <div class="chips chips-sm">
+          <span class="chip chip-outline">شركات سياحة وسفر</span>
+          <span class="chip chip-outline">فنادق وبيوت سياحية</span>
+          <span class="chip chip-outline">مرشدون سياحيون</span>
+          <span class="chip chip-outline">قروبات سيارات جيب</span>
+          <span class="chip chip-outline">مراسي يخوت</span>
+          <span class="chip chip-outline">باصات تنقل</span>
+          <span class="chip chip-outline">أسر منتجة</span>
+          <span class="chip chip-outline">مطاعم ومقاهي</span>
+          <span class="chip chip-outline">مقدمو أنشطة ترفيهية</span>
+        </div>
+        <div class="center">
+          <a class="btn btn-gold btn-lg" href={`mailto:${contact.email}?subject=${encodeURIComponent('طلب انضمام مورد للمنصة')}&body=${encodeURIComponent('نوع الخدمة:\nالمدينة:\nوصف مختصر للخدمة:\nرقم التواصل:')}`}>قدّم طلب انضمام</a>
+        </div>
+      </div>
+    </section>
+
     <!-- Terms -->
     <section class="section section-alt" id="terms">
       <div class="container narrow">
@@ -698,6 +818,51 @@ const customQuestions = [
   .q-icon { font-size: 1.6rem; }
   .q-card p { font-size: 0.95rem; }
 
+  /* Marketplace */
+  .market-filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
+  .market-filters button {
+    background: var(--card); color: var(--muted); border: 1px solid var(--card-border);
+    border-radius: 999px; padding: 8px 20px; font-size: 0.92rem; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .market-filters button:hover { color: var(--text); border-color: var(--gold); }
+  .market-filters button.active { background: linear-gradient(135deg, var(--gold), #d14a30); color: #fff6ef; border-color: transparent; }
+  .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+  .trip-tile {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: 18px; display: flex; flex-direction: column; gap: 8px;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .trip-tile:hover { transform: translateY(-3px); border-color: var(--gold); }
+  .tile-head { display: flex; justify-content: space-between; align-items: center; }
+  .tile-icon { font-size: 1.8rem; }
+  .tile-cat {
+    font-size: 0.75rem; font-weight: 700; color: var(--gold-strong);
+    background: rgba(238,106,77,0.10); border: 1px solid rgba(238,106,77,0.35);
+    padding: 2px 10px; border-radius: 999px;
+  }
+  .trip-tile h3 { font-size: 1.05rem; line-height: 1.4; }
+  .tile-meta { display: flex; gap: 12px; color: var(--muted); font-size: 0.82rem; }
+  .tile-price { color: var(--gold-strong); font-weight: 900; font-size: 1rem; }
+  .tile-provider { color: var(--muted); font-size: 0.78rem; border-top: 1px dashed var(--card-border); padding-top: 8px; }
+  .tile-actions { display: flex; gap: 8px; margin-top: auto; }
+  .btn-sm { padding: 7px 14px; font-size: 0.82rem; flex: 1; text-align: center; }
+  .market-note { text-align: center; color: var(--muted); font-size: 0.82rem; margin-top: 24px; }
+  .trip-tile.hidden { display: none; }
+
+  /* Units management */
+  .units-cta { text-align: center; margin-top: 32px; }
+  .units-steps {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center;
+    color: var(--muted); font-size: 0.95rem; margin-bottom: 24px;
+  }
+  .units-steps b {
+    display: inline-flex; width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #d14a30); color: #fff6ef;
+    align-items: center; justify-content: center; margin-inline-end: 6px; font-size: 0.85rem;
+  }
+  .step-arrow { color: var(--gold); font-weight: 900; }
+
   /* AI chat */
   .chat-shell {
     max-width: 760px; margin: 0 auto;
@@ -845,6 +1010,23 @@ const customQuestions = [
     suggests.addEventListener('click', function (e) {
       const btn = e.target.closest('button[data-q]');
       if (btn) send(btn.getAttribute('data-q'));
+    });
+  })();
+
+  // فلاتر سوق الرحلات
+  (function () {
+    const filters = document.getElementById('marketFilters');
+    const grid = document.getElementById('marketGrid');
+    if (!filters || !grid) return;
+    filters.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-f]');
+      if (!btn) return;
+      filters.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.getAttribute('data-f');
+      grid.querySelectorAll('.trip-tile').forEach(tile => {
+        tile.classList.toggle('hidden', f !== 'all' && tile.getAttribute('data-cat') !== f);
+      });
     });
   })();
 </script>
