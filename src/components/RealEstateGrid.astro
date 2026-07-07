@@ -1,0 +1,350 @@
+---
+import { realEstateOpportunities, categoryLabels, cityLabels, type PropertyCategory } from '../content/realEstate';
+
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+
+const WHATSAPP_NUMBER = '966507034157';
+
+const categories: PropertyCategory[] = ['serviced-office', 'coworking', 'commercial-building'];
+const cities = Object.keys(cityLabels);
+
+const numberFmt = new Intl.NumberFormat(lang === 'ar' ? 'ar-SA' : 'en-US');
+
+const t = lang === 'ar'
+  ? {
+      all: 'الكل',
+      allCities: 'كل المدن',
+      area: 'المساحة',
+      capacity: 'السعة',
+      sqm: 'م²',
+      seats: 'شخص',
+      requestQuote: 'اطلب عرض سعر',
+      noResults: 'لا توجد فرص مطابقة لهذا الفلتر حاليًا.',
+      whatsappMsg: (name: string) => `السلام عليكم، أرغب في الاستفسار عن فرصة "${name}" ضمن الفرص العقارية.`,
+    }
+  : {
+      all: 'All',
+      allCities: 'All Cities',
+      area: 'Area',
+      capacity: 'Capacity',
+      sqm: 'sqm',
+      seats: 'people',
+      requestQuote: 'Request a Quote',
+      noResults: 'No opportunities match this filter yet.',
+      whatsappMsg: (name: string) => `Hello, I'd like to ask about the "${name}" real estate opportunity.`,
+    };
+---
+
+<div class="re-filters" role="group" aria-label={lang === 'ar' ? 'فلترة الفرص العقارية' : 'Filter real estate opportunities'}>
+  <div class="re-filter-group">
+    <button class="re-filter-btn is-active" data-filter-type="category" data-value="all">{t.all}</button>
+    {categories.map((c) => (
+      <button class="re-filter-btn" data-filter-type="category" data-value={c}>{categoryLabels[c][lang]}</button>
+    ))}
+  </div>
+  <div class="re-filter-group">
+    <button class="re-filter-btn is-active" data-filter-type="city" data-value="all">{t.allCities}</button>
+    {cities.map((city) => (
+      <button class="re-filter-btn" data-filter-type="city" data-value={city}>{cityLabels[city][lang]}</button>
+    ))}
+  </div>
+</div>
+
+<div class="re-grid" id="re-grid">
+  {realEstateOpportunities.map((op) => (
+    <article class="re-card" data-category={op.category} data-city={op.city}>
+      <div class="re-card-top">
+        <span class="re-badge">{op.badge[lang]}</span>
+        <span class="re-district">{op.district[lang]}</span>
+      </div>
+
+      <h3 class="re-card-title">{op.name[lang]}</h3>
+      <p class="re-card-vendor">{op.vendor}</p>
+      <p class="re-card-summary">{op.summary[lang]}</p>
+
+      <div class="re-specs">
+        {op.areaSqm && (
+          <div class="re-spec">
+            <span class="re-spec-label">{t.area}</span>
+            <span class="re-spec-value">{numberFmt.format(op.areaSqm)} {t.sqm}</span>
+          </div>
+        )}
+        {op.capacity && (
+          <div class="re-spec">
+            <span class="re-spec-label">{t.capacity}</span>
+            <span class="re-spec-value">{numberFmt.format(op.capacity)} {t.seats}</span>
+          </div>
+        )}
+      </div>
+
+      <ul class="re-features">
+        {op.features[lang].slice(0, 4).map((f) => <li>{f}</li>)}
+      </ul>
+
+      <div class="re-price">
+        {op.monthlyPrice ? (
+          <span class="re-price-value">{numberFmt.format(op.monthlyPrice)} {lang === 'ar' ? 'ر.س' : 'SAR'}</span>
+        ) : null}
+        <span class="re-price-note">{op.priceNote[lang]}</span>
+      </div>
+
+      <a
+        class="re-cta"
+        href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(t.whatsappMsg(op.name[lang]))}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {t.requestQuote}
+      </a>
+    </article>
+  ))}
+</div>
+
+<p class="re-empty" id="re-empty" hidden>{t.noResults}</p>
+
+<style>
+  .re-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .re-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .re-filter-btn {
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    background: #fff;
+    color: #1e293b;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .re-filter-btn:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+  }
+
+  .re-filter-btn.is-active {
+    background: #0B1B5A;
+    border-color: #0B1B5A;
+    color: #fff;
+  }
+
+  .re-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .re-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .re-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+  }
+
+  .re-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .re-badge {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .re-district {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+    text-align: end;
+  }
+
+  .re-card-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.15rem;
+  }
+
+  .re-card-vendor {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 0 0 0.75rem;
+    font-weight: 600;
+  }
+
+  .re-card-summary {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0 0 1rem;
+    flex-grow: 1;
+  }
+
+  .re-specs {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .re-spec {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .re-spec-label {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .re-spec-value {
+    font-size: 0.95rem;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .re-features {
+    list-style: none;
+    margin: 0 0 1.1rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .re-features li {
+    font-size: 0.85rem;
+    color: #334155;
+    padding-inline-start: 1.1rem;
+    position: relative;
+  }
+
+  .re-features li::before {
+    content: '✓';
+    position: absolute;
+    inset-inline-start: 0;
+    color: #16a34a;
+    font-weight: 700;
+  }
+
+  .re-price {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-bottom: 1.1rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed rgba(15, 23, 42, 0.12);
+  }
+
+  .re-price-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #0B1B5A;
+  }
+
+  .re-price-note {
+    font-size: 0.78rem;
+    color: #64748b;
+  }
+
+  .re-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #16a34a;
+    color: #fff !important;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  .re-cta:hover {
+    background: #15803d;
+  }
+
+  .re-empty {
+    text-align: center;
+    color: #64748b;
+    padding: 3rem 0;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .re-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const state = { category: 'all', city: 'all' };
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.re-filter-btn');
+  const cards = document.querySelectorAll<HTMLElement>('.re-card');
+  const emptyMsg = document.getElementById('re-empty');
+
+  function applyFilters() {
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const matchesCategory = state.category === 'all' || card.dataset.category === state.category;
+      const matchesCity = state.city === 'all' || card.dataset.city === state.city;
+      const visible = matchesCategory && matchesCity;
+      card.hidden = !visible;
+      if (visible) visibleCount++;
+    });
+
+    if (emptyMsg) emptyMsg.hidden = visibleCount !== 0;
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.filterType as 'category' | 'city';
+      const value = btn.dataset.value as string;
+
+      document
+        .querySelectorAll(`.re-filter-btn[data-filter-type="${type}"]`)
+        .forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+
+      state[type] = value;
+      applyFilters();
+    });
+  });
+</script>
