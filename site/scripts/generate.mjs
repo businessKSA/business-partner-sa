@@ -259,6 +259,7 @@ const NAV_GROUPS = [
   {
     en: "Jobs", ar: "التوظيف",
     items: [
+      { href: "/hr", en: "HR by Business Partner ⚡", ar: "الموارد البشرية من بزنس بارتنر ⚡" },
       { href: "/careers", en: "For job seekers", ar: "للباحثين عن عمل" },
       { href: "/employers", en: "For employers", ar: "لأصحاب الأعمال" },
       { href: "/employer-join", en: "Employer subscription", ar: "اشتراك أصحاب العمل" },
@@ -2113,6 +2114,52 @@ function buildNews() {
   return page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — بيزنس بارتنر"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من بيزنس بارتنر."), active: "/news", body });
 }
 
+// Pilot: "HR by Business Partner" — a sub-brand landing page that pulls
+// together everything HR-related already on the site (services catalog,
+// employer recruitment platform, job-seeker intake) under one identity,
+// without spinning up a separate site/domain.
+function buildHR() {
+  const hrServices = services.filter((s) => s.category === "HR & Recruitment").slice(0, 6);
+  const svcCards = hrServices.map((s) => {
+    const d = sDesc(s);
+    return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
+      <h3>${esc(sName(s))}</h3>
+      <p class="desc">${esc(d.slice(0, 100))}${d.length > 100 ? "…" : ""}</p>
+      <span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></a>`;
+  }).join("");
+  const entryCards = [
+    ["🏢", L("For employers", "لأصحاب الأعمال"), L("Hire from our pre-screened, Saudization-checked candidate pool — we handle sourcing to onboarding.", "وظّف من قاعدة مرشّحين مُصنّفين ومفحوصين للتوطين — نتولّى من الاستقطاب حتى التعيين."), "/employers", L("Browse candidates", "تصفّح المرشّحين")],
+    ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Join our candidate pool once — employers hiring through Business Partner reach you.", "سجّل مرة واحدة — وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Submit your CV", "أرسل سيرتك")],
+    ["📋", L("HR & compliance services", "خدمات الموارد البشرية والامتثال"), L("Qiwa, GOSI, Mudad, contracts, Saudization and everyday HR administration.", "قوى، التأمينات، مدد، العقود، التوطين وإدارة الموارد البشرية اليومية."), "/services/category/hr-recruitment", L("Browse services", "استعرض الخدمات")],
+  ].map((p) => `<a class="card feature" href="${u(p[3])}">
+    <div class="card-icon" style="font-size:1.6rem">${p[0]}</div>
+    <h3>${p[1]}</h3><p>${p[2]}</p>
+    <span class="card-link" style="margin-top:10px;display:inline-block">${p[4]} ${I.arrow}</span></a>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:900px">
+    <div class="subbrand-badge">${I.building}<span>${L("HR", "الموارد البشرية")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
+    <h1>${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</h1>
+    <p class="lead">${L("Everything HR under one roof: a recruitment platform for employers, a candidate pool for job seekers, and a full catalog of HR & compliance services — Qiwa, GOSI, Mudad and Saudization, managed for you.", "كل ما يخص الموارد البشرية تحت مظلة واحدة: منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال — قوى والتأمينات ومدد والتوطين، بندير لك كل شي.")}</p>
+    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-recruitment")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Three ways in", "ثلاث طرق للبدء")}</span><h2>${L("Whichever side you're on, we've got you", "أياً كان موقعك، عندنا لك حل")}</h2></div>
+    <div class="grid grid-3">${entryCards}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Catalog", "الكتالوج")}</span><h2>${L("A sample of our HR services", "نماذج من خدماتنا في الموارد البشرية")}</h2></div>
+    <div class="grid grid-3">${svcCards}</div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services/category/hr-recruitment")}">${L("View all HR services", "استعرض كل خدمات الموارد البشرية")} ${I.arrow}</a></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="cta-band"><h2>${L("Ready to start?", "جاهز نبدأ؟")}</h2><p>${L("Tell us what you need — hiring, HR admin, or a job — and we'll point you to the right track.", "أخبرنا باحتياجك — توظيف، إدارة موارد بشرية، أو وظيفة — ونوجّهك للمسار المناسب.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
+  </div></section>`;
+  return page({ title: Lraw("HR by Business Partner", "الموارد البشرية من بزنس بارتنر"), desc: Lraw("A recruitment platform for employers, a candidate pool for job seekers, and a full HR & compliance services catalog.", "منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال."), active: "/hr", path: "/hr", body });
+}
+
 function buildEmployers() {
   const value = [
     ["🗂️", L("A live pool of pre-screened candidates", "قاعدة حيّة من المرشّحين المُصنّفين"), L("Browse candidates by field, city, experience and availability — updated continuously.", "تصفّح المرشّحين حسب المجال والمدينة والخبرة والجاهزية — محدّثة باستمرار.")],
@@ -3785,6 +3832,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
   write(`${pre}careers.html`, buildCareers());
+  write(`${pre}hr.html`, buildHR());
   write(`${pre}employers.html`, buildEmployers());
   write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
@@ -3820,7 +3868,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths

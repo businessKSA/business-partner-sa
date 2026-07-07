@@ -948,3 +948,9 @@ h3 { font-size: 1.12rem; }
 .bp-intake-msg.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
 .bp-intake-msg.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
 .bp-intake-msg.info{background:#eef4f8;border:1px solid #cfe0ea;color:#2b5566}
+
+/* ============ Sub-brand hub pages (e.g. "HR by Business Partner") ============ */
+.subbrand-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--gray-bg); border: 1px solid var(--gray-line); border-radius: 999px; padding: 8px 16px; margin-bottom: 18px; }
+.subbrand-badge svg { width: 20px; height: 20px; color: var(--navy); }
+.subbrand-badge span { font-weight: 800; color: var(--navy); font-size: 1rem; }
+.subbrand-badge small { color: var(--text-soft); font-size: .82rem; padding-inline-start: 4px; border-inline-start: 1px solid var(--gray-line); margin-inline-start: 2px; padding-inline-start: 8px; }
