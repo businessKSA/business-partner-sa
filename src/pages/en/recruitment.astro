@@ -13,9 +13,9 @@ const t = getContent(locale);
 const WA = 'https://wa.me/966530540231';
 
 const entries = [
-  { icon: '🏢', title: 'Employers', desc: 'Register your company, create a job post with an AI copilot, and receive pre-screened, interview-ready candidates.', cta: 'Start as employer', href: '#employer' },
-  { icon: '👤', title: 'Job Seekers', desc: 'Build your profile, upload your CV, and apply to jobs inside Saudi Arabia — with free AI assessment and coaching.', cta: 'Register as seeker', href: '#seeker' },
-  { icon: '📊', title: 'Recruitment Dashboard', desc: 'One unified board: screening kanban, chat, interview scheduling, offers, and live Qiwa compliance tracking.', cta: 'Open dashboard', href: '#dashboard' },
+  { icon: '🏢', title: 'Employers', desc: 'Register your company, create a job post with an AI copilot, and receive pre-screened, interview-ready candidates.', cta: 'Start as employer', href: '/en/employer' },
+  { icon: '👤', title: 'Job Seekers', desc: 'Build your profile, upload your CV, and apply to jobs inside Saudi Arabia — with free AI assessment and coaching.', cta: 'Register as seeker', href: '/en/jobs' },
+  { icon: '📊', title: 'Recruitment Dashboard', desc: 'One unified board: screening kanban, chat, interview scheduling, offers, and live Qiwa compliance tracking.', cta: 'Open dashboard', href: '/en/recruitment/dashboard' },
 ];
 
 const lifecycle = [
@@ -145,17 +145,17 @@ const automation = [
         <div id="employer" style="background:white; border:1px solid #E2E8F0; border-radius:16px; padding:34px;">
           <h3 style="font-size:24px; color:#0F172A; font-weight:800; margin-bottom:12px;">🏢 Employers</h3>
           <p style="color:#475569; font-size:16px; line-height:1.8; margin-bottom:20px;">Register your company, request staff or labor, and start sourcing with a full dashboard.</p>
-          <a href={WA} target="_blank" style="display:inline-block; padding:12px 24px; background:#2563EB; color:white; text-decoration:none; border-radius:10px; font-weight:700;">Request staff now</a>
+          <a href="/en/employer" style="display:inline-block; padding:12px 24px; background:#2563EB; color:white; text-decoration:none; border-radius:10px; font-weight:700;">Request staff now</a>
         </div>
         <div id="seeker" style="background:white; border:1px solid #E2E8F0; border-radius:16px; padding:34px;">
           <h3 style="font-size:24px; color:#0F172A; font-weight:800; margin-bottom:12px;">👤 Job Seekers</h3>
           <p style="color:#475569; font-size:16px; line-height:1.8; margin-bottom:20px;">Upload your CV, join the CV bank, and get matched to opportunities inside Saudi Arabia.</p>
-          <a href={WA} target="_blank" style="display:inline-block; padding:12px 24px; background:#0F172A; color:white; text-decoration:none; border-radius:10px; font-weight:700;">Send your CV</a>
+          <a href="/en/jobs" style="display:inline-block; padding:12px 24px; background:#0F172A; color:white; text-decoration:none; border-radius:10px; font-weight:700;">Send your CV</a>
         </div>
         <div id="dashboard" style="background:white; border:1px solid #E2E8F0; border-radius:16px; padding:34px;">
           <h3 style="font-size:24px; color:#0F172A; font-weight:800; margin-bottom:12px;">📊 Recruitment Dashboard</h3>
-          <p style="color:#475569; font-size:16px; line-height:1.8; margin-bottom:20px;">Sourcing, screening, interviews, and offers control board — coming soon on the platform.</p>
-          <span style="display:inline-block; padding:12px 24px; background:#E2E8F0; color:#475569; border-radius:10px; font-weight:700;">Launching soon</span>
+          <p style="color:#475569; font-size:16px; line-height:1.8; margin-bottom:20px;">Sourcing, screening, interviews, and offers control board — try it now.</p>
+          <a href="/en/recruitment/dashboard" style="display:inline-block; padding:12px 24px; background:#2563EB; color:white; text-decoration:none; border-radius:10px; font-weight:700;">Open dashboard</a>
         </div>
       </div>
     </section>

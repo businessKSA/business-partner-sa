@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CallFab from '../../components/CallFab.astro';
+import { getContent } from '../../content/copy';
+
+export const prerender = true;
+const locale = 'en';
+const t = getContent(locale);
+const WA = 'https://wa.me/966530540231';
+---
+
+<BaseLayout lang={locale} t={t}>
+  <Header lang={locale} t={t} />
+
+  <main style="width:100%; overflow-x:hidden;">
+    <section style="text-align:center; padding:110px 24px 50px; max-width:1000px; margin:0 auto;">
+      <div style="display:inline-block; padding:8px 18px; background:#EFF6FF; color:#2563EB; border-radius:999px; font-size:15px; font-weight:700; margin-bottom:20px;">🏢 Employer Portal</div>
+      <h1 style="font-size:48px; line-height:1.2; margin-bottom:16px; color:#0F172A; font-weight:800;">Hire with full automation</h1>
+      <p style="max-width:720px; margin:0 auto; font-size:20px; line-height:1.8; color:#334155;">Register your company and post your role — receive a pre-screened, interview-ready shortlist: Saudis and non-Saudis, permanent or flexible hourly/daily.</p>
+      <div style="margin-top:22px;"><a href="/en/recruitment/dashboard" style="color:#2563EB; font-weight:700; text-decoration:none;">📊 View recruitment dashboard →</a></div>
+    </section>
+
+    <section style="padding:20px 24px 90px; max-width:820px; margin:0 auto;">
+      <form id="employer-form" style="background:#fff; border:1px solid #E2E8F0; border-radius:18px; padding:34px; display:grid; gap:18px;">
+        <h2 style="font-size:26px; color:#0F172A; font-weight:800; margin:0;">Company details</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Company name *<input name="companyName" required style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Contact name *<input name="contactName" required style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Email *<input name="email" type="email" required style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Phone *<input name="phone" type="tel" required placeholder="05XXXXXXXX" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+        </div>
+
+        <h2 style="font-size:26px; color:#0F172A; font-weight:800; margin:14px 0 0;">Job details</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Job title<input name="jobTitle" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Openings<input name="openings" type="number" min="1" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Hiring track
+            <select name="track" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px; background:#fff;">
+              <option value="">Choose…</option>
+              <option>Hiring Saudis</option>
+              <option>Flexible (hourly/daily)</option>
+              <option>Remote</option>
+              <option>Non-Saudi (recruitment)</option>
+              <option>Internal sourcing</option>
+              <option>External sourcing</option>
+              <option>EOR / outsourcing</option>
+            </select>
+          </label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Work model
+            <select name="workModel" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px; background:#fff;">
+              <option value="">Choose…</option>
+              <option>Full-time</option>
+              <option>Part-time</option>
+              <option>Hourly</option>
+              <option>Daily</option>
+              <option>Remote</option>
+              <option>Temporary (Ajeer)</option>
+            </select>
+          </label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Nationality pref
+            <select name="nationality" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px; background:#fff;">
+              <option value="">Any</option>
+              <option>Saudi</option>
+              <option>Non-Saudi</option>
+            </select>
+          </label>
+        </div>
+        <label style="display:grid; gap:6px; font-weight:600; color:#334155;">Additional details / requirements<textarea name="details" rows="4" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;"></textarea></label>
+
+        <input type="hidden" name="type" value="employer" />
+        <input type="hidden" name="lang" value="en" />
+        <button type="submit" style="padding:16px; background:#2563EB; color:#fff; border:0; border-radius:12px; font-size:18px; font-weight:800; cursor:pointer;">Submit request</button>
+        <div id="msg" style="display:none; padding:14px; border-radius:10px; font-weight:600;"></div>
+        <p style="text-align:center; color:#64748B; font-size:14px; margin:0;">Or reach us on <a href={WA} target="_blank" style="color:#25D366; font-weight:700;">WhatsApp</a></p>
+      </form>
+    </section>
+  </main>
+
+  <CallFab />
+  <Footer lang={locale} t={t} />
+
+  <script is:inline>
+    const f = document.getElementById('employer-form');
+    const m = document.getElementById('msg');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = f.querySelector('button[type=submit]');
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const payload = Object.fromEntries(new FormData(f).entries());
+      try {
+        const r = await fetch('/api/recruitment-intake', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const d = await r.json();
+        m.style.display = 'block';
+        m.style.background = d.success ? '#DCFCE7' : '#FEE2E2';
+        m.style.color = d.success ? '#166534' : '#991B1B';
+        m.textContent = d.message;
+        if (d.success) f.reset();
+      } catch (err) {
+        m.style.display = 'block'; m.style.background = '#FEE2E2'; m.style.color = '#991B1B';
+        m.textContent = 'Could not submit. Try WhatsApp.';
+      }
+      btn.disabled = false; btn.textContent = 'Submit request';
+    });
+  </script>
+</BaseLayout>

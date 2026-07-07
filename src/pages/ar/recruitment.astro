@@ -12,9 +12,9 @@ const t = getContent(locale);
 
 // روابط منظومة التوظيف (تُحدَّث عند ربط لوحة التحكم الفعلية)
 const WA = 'https://wa.me/966530540231';
-const employerHref = '#employer';
-const seekerHref = '#seeker';
-const dashboardHref = '#dashboard';
+const employerHref = '/ar/employer';
+const seekerHref = '/ar/jobs';
+const dashboardHref = '/ar/recruitment/dashboard';
 
 // نقاط الدخول الثلاث
 const entries = [
@@ -177,17 +177,17 @@ const automation = [
         <div id="employer" style="background:white; border:1px solid #E2E8F0; border-radius:16px; padding:34px;">
           <h3 style="font-size:24px; color:#0F172A; font-weight:800; margin-bottom:12px;">🏢 صاحب العمل</h3>
           <p style="color:#475569; font-size:16px; line-height:1.8; margin-bottom:20px;">سجّل شركتك واطلب موظفين أو عمالة، وابدأ الاستقطاب بلوحة كاملة.</p>
-          <a href={WA} target="_blank" style="display:inline-block; padding:12px 24px; background:#2563EB; color:white; text-decoration:none; border-radius:10px; font-weight:700;">اطلب موظفين الآن</a>
+          <a href="/ar/employer" style="display:inline-block; padding:12px 24px; background:#2563EB; color:white; text-decoration:none; border-radius:10px; font-weight:700;">اطلب موظفين الآن</a>
         </div>
         <div id="seeker" style="background:white; border:1px solid #E2E8F0; border-radius:16px; padding:34px;">
           <h3 style="font-size:24px; color:#0F172A; font-weight:800; margin-bottom:12px;">👤 الباحث عن عمل</h3>
           <p style="color:#475569; font-size:16px; line-height:1.8; margin-bottom:20px;">ارفع سيرتك وانضم لبنك السير، وتصلك الفرص المناسبة داخل السعودية.</p>
-          <a href={WA} target="_blank" style="display:inline-block; padding:12px 24px; background:#0F172A; color:white; text-decoration:none; border-radius:10px; font-weight:700;">أرسل سيرتك</a>
+          <a href="/ar/jobs" style="display:inline-block; padding:12px 24px; background:#0F172A; color:white; text-decoration:none; border-radius:10px; font-weight:700;">أرسل سيرتك</a>
         </div>
         <div id="dashboard" style="background:white; border:1px solid #E2E8F0; border-radius:16px; padding:34px;">
           <h3 style="font-size:24px; color:#0F172A; font-weight:800; margin-bottom:12px;">📊 لوحة التوظيف</h3>
-          <p style="color:#475569; font-size:16px; line-height:1.8; margin-bottom:20px;">لوحة تحكم الاستقطاب والفرز والمقابلات والعروض — قريباً على المنصة.</p>
-          <span style="display:inline-block; padding:12px 24px; background:#E2E8F0; color:#475569; border-radius:10px; font-weight:700;">قيد الإطلاق</span>
+          <p style="color:#475569; font-size:16px; line-height:1.8; margin-bottom:20px;">لوحة تحكم الاستقطاب والفرز والمقابلات والعروض — جرّبها الآن.</p>
+          <a href="/ar/recruitment/dashboard" style="display:inline-block; padding:12px 24px; background:#2563EB; color:white; text-decoration:none; border-radius:10px; font-weight:700;">افتح اللوحة</a>
         </div>
       </div>
     </section>

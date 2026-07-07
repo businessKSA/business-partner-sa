@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CallFab from '../../components/CallFab.astro';
+import { getContent } from '../../content/copy';
+
+export const prerender = true;
+const locale = 'ar';
+const t = getContent(locale);
+const WA = 'https://wa.me/966530540231';
+---
+
+<BaseLayout lang={locale} t={t}>
+  <Header lang={locale} t={t} />
+
+  <main style="width:100%; overflow-x:hidden;">
+    <section style="text-align:center; padding:110px 24px 50px; max-width:1000px; margin:0 auto;">
+      <div style="display:inline-block; padding:8px 18px; background:#EFF6FF; color:#2563EB; border-radius:999px; font-size:15px; font-weight:700; margin-bottom:20px;">👤 بوابة الباحث عن عمل</div>
+      <h1 style="font-size:48px; line-height:1.2; margin-bottom:16px; color:#0F172A; font-weight:800;">انضم لبنك السير الذكي</h1>
+      <p style="max-width:720px; margin:0 auto; font-size:20px; line-height:1.8; color:#334155;">ارفع سيرتك مرة واحدة، وتصلك الفرص المناسبة داخل السعودية. تقييم وتدريب مجاني بالذكاء الاصطناعي يرفع فرصك.</p>
+    </section>
+
+    <section style="padding:20px 24px 90px; max-width:820px; margin:0 auto;">
+      <form id="seeker-form" style="background:#fff; border:1px solid #E2E8F0; border-radius:18px; padding:34px; display:grid; gap:18px;">
+        <h2 style="font-size:26px; color:#0F172A; font-weight:800; margin:0;">بياناتك</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">الاسم الكامل *<input name="fullName" required style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">البريد الإلكتروني *<input name="email" type="email" required style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">الجوال *<input name="phone" type="tel" pattern="^(?:\+?966|0)?5\d{8}$" placeholder="05XXXXXXXX" required style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">المدينة<input name="city" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">الوظيفة المطلوبة<input name="role" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">سنوات الخبرة<input name="experience" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">الجنسية
+            <select name="nationality" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px; background:#fff;">
+              <option value="">اختر…</option>
+              <option>سعودي</option>
+              <option>غير سعودي</option>
+            </select>
+          </label>
+          <label style="display:grid; gap:6px; font-weight:600; color:#334155;">الجاهزية
+            <select name="availability" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px; background:#fff;">
+              <option value="">اختر…</option>
+              <option>فوري</option>
+              <option>خلال شهر</option>
+              <option>عمل مرن (بالساعة/اليوم)</option>
+              <option>عن بُعد</option>
+            </select>
+          </label>
+        </div>
+        <label style="display:grid; gap:6px; font-weight:600; color:#334155;">رابط السيرة الذاتية / LinkedIn<input name="cvLink" type="url" placeholder="https://…" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;" /></label>
+        <label style="display:grid; gap:6px; font-weight:600; color:#334155;">نبذة مختصرة عنك<textarea name="summary" rows="4" style="padding:12px; border:1px solid #CBD5E1; border-radius:10px;"></textarea></label>
+
+        <input type="hidden" name="type" value="candidate" />
+        <input type="hidden" name="lang" value="ar" />
+        <button type="submit" style="padding:16px; background:#0F172A; color:#fff; border:0; border-radius:12px; font-size:18px; font-weight:800; cursor:pointer;">أرسل سيرتي</button>
+        <div id="msg" style="display:none; padding:14px; border-radius:10px; font-weight:600;"></div>
+        <p style="text-align:center; color:#64748B; font-size:13px; margin:0;">بإرسالك توافق على معالجة بياناتك وفق نظام حماية البيانات (PDPL). أو أرسل سيرتك عبر <a href={WA} target="_blank" style="color:#25D366; font-weight:700;">واتساب</a>.</p>
+      </form>
+    </section>
+  </main>
+
+  <CallFab />
+  <Footer lang={locale} t={t} />
+
+  <script is:inline>
+    const f = document.getElementById('seeker-form');
+    const m = document.getElementById('msg');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = f.querySelector('button[type=submit]');
+      btn.disabled = true; btn.textContent = 'جارٍ الإرسال…';
+      const payload = Object.fromEntries(new FormData(f).entries());
+      try {
+        const r = await fetch('/api/recruitment-intake', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const d = await r.json();
+        m.style.display = 'block';
+        m.style.background = d.success ? '#DCFCE7' : '#FEE2E2';
+        m.style.color = d.success ? '#166534' : '#991B1B';
+        m.textContent = d.message;
+        if (d.success) f.reset();
+      } catch (err) {
+        m.style.display = 'block'; m.style.background = '#FEE2E2'; m.style.color = '#991B1B';
+        m.textContent = 'تعذّر الإرسال. جرّب واتساب.';
+      }
+      btn.disabled = false; btn.textContent = 'أرسل سيرتي';
+    });
+  </script>
+</BaseLayout>
