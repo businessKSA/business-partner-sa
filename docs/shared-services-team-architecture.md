@@ -45,19 +45,21 @@ journey) that captures idea/stage/sector/budget and opens a Client record.
 | Ahmed — Procurement | `8PGiUitiRKDybt3l` | ⚠️ path mismatch (see §5) |
 | Abdulaziz — Legal/Compliance | `SL1aYYS2UBsqHFPE` | ✅ `abdulaziz-intake` |
 | Mazen | `WZE7oUzCzQGR1u0t` | ✅ `mazen-intake` |
-| **Lead Consultant** | `fjXdJCgt1jDbzKkC` | ✅ `consultant-intake`, **Groq** |
-| **Market Research** | `5slajhpFDal0SCqi` | ✅ `market-intake`, **Groq** |
-| **Business Model** | `IEZoSpEJR5FiSo8L` | ✅ `model-intake`, **Groq** |
-| **Finance & Pricing** | `SwrEPSRIz6utN51c` | ✅ `finance-intake`, **Groq** (placeholder pricing, `human_required`) |
+| **Lead Consultant** | `fjXdJCgt1jDbzKkC` | ✅ `consultant-intake`, **OpenAI** |
+| **Market Research** | `5slajhpFDal0SCqi` | ✅ `market-intake`, **OpenAI** |
+| **Business Model** | `IEZoSpEJR5FiSo8L` | ✅ `model-intake`, **OpenAI** |
+| **Finance & Pricing** | `SwrEPSRIz6utN51c` | ✅ `finance-intake`, **OpenAI** (placeholder pricing, `human_required`) |
 
 All four new agents are wired into Khaled as `ai_tool`s and registered in the
 site proxy (`consultant`/`market`/`model`/`finance`).
 
-**Quota solution:** the four new agents run **Groq (llama-3.3-70b)** as the
-primary engine — free tier is ~14k requests/day vs Gemini's 20/day, so the old
-Gemini cap no longer gates them. Khaled and the original 6 specialists still use
-Gemini `2.5-flash` → `2.5-flash-lite`; migrating them to a Groq fallback (as
-Ahmed already has) would remove the cap there too.
+**Engine — unified on OpenAI `gpt-5-mini`.** Every agent (Khaled + the 6 original
+specialists Farah/Badr/Malak/Mohammed/Ahmed/Abdulaziz + Mazen + the 4 new agents)
+now runs a single OpenAI `chainLlm` engine. **Gemini and Groq were removed
+entirely** — Groq's llama model occasionally injected Russian/Chinese tokens into
+Arabic, and Gemini's free tier capped at 20 req/day; OpenAI fixes both with clean
+bilingual Arabic/English output. Each workflow is now `Webhook → Normalize →
+AI Engine (OpenAI) → Parse → Reply`.
 
 ### 1.3 Notion (mature workspace — heavy reuse)
 
