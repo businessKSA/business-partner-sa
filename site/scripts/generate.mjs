@@ -1194,7 +1194,7 @@ function buildComplianceCalculators() {
         </div>
       </div>
       <div class="cc-agent-cta">
-        <a href="#" class="btn btn-primary cc-goto-upload">📤 ${L("Activate monitoring — upload your files", "فعّل المراقبة — ارفع ملفاتك")}</a>
+        <a href="${u("/compliance-portal")}" class="btn btn-primary">📤 ${L("Activate monitoring — upload your files", "فعّل المراقبة — ارفع ملفاتك")}</a>
         <a class="btn btn-ghost" href="${u("/ai-agents")}">${L("About the AI agents →", "عن الوكلاء الأذكياء ←")}</a>
       </div>
     </div>
@@ -1202,7 +1202,6 @@ function buildComplianceCalculators() {
       <button class="cc-tab active" data-tab="nitaqat" role="tab">🟢 ${L("Nitaqat calculator", "حاسبة النطاقات")}</button>
       <button class="cc-tab" data-tab="fees" role="tab">💰 ${L("Cost calculator", "حاسبة التكاليف")}</button>
       <button class="cc-tab" data-tab="prof" role="tab">🧑‍💼 ${L("Profession checker", "فاحص المهن")}</button>
-      <button class="cc-tab" data-tab="upload" role="tab">📤 ${L("Upload your files", "ارفع ملفاتك")}</button>
     </div>
 
     <div class="cc-panel active" id="cc-panel-nitaqat">
@@ -1223,7 +1222,7 @@ function buildComplianceCalculators() {
           <div class="field"><label for="cc-saudis">${L("Saudi employees (average)", "متوسط العمالة السعودية")}</label><input type="number" id="cc-saudis" min="0" value="3"></div>
         </div>
         <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
-        <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="#" class="cc-goto-upload">${L("Upload your GOSI/Qiwa/Muqeem file and we'll extract them →", "ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←")}</a></p>
+        <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-portal")}">${L("Upload your GOSI/Qiwa/Muqeem file and we'll extract them →", "ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←")}</a></p>
         <div class="cc-result" id="cc-nit-result" hidden>
           <div class="cc-tiles">
             <div class="cc-tile"><span>${L("Saudization rate", "نسبة التوطين")}</span><strong id="cc-pct">—</strong></div>
@@ -1278,53 +1277,11 @@ function buildComplianceCalculators() {
       </div>
     </div>
 
-    <div class="cc-panel" id="cc-panel-upload">
-      <div class="order-box">
-        <h3>${L("Let the agent read your official files", "خلّ الوكيل يقرأ ملفاتك الرسمية")}</h3>
-        <p class="cc-sub">${L("Don't know your exact headcounts? Export one report from your government platforms and upload it — our AI agent extracts your employees (Saudis vs. expats, salaries, professions, iqama numbers), fills the calculators for you, and your dedicated file is updated automatically.", "ما تعرف أعدادك بدقة؟ صدّر تقريراً واحداً من منصاتك الحكومية وارفعه — الوكيل الذكي يستخرج موظفيك (سعوديون/وافدون، الرواتب، المهن، أرقام الإقامات)، يعبّي الحاسبات عنك، ويحدَّث ملفك الخاص تلقائياً.")}</p>
-
-        <div class="cc-src-grid">
-          <div class="cc-src cc-src-best">
-            <div class="cc-src-head">🏦 ${L("GOSI (recommended — most accurate)", "التأمينات الاجتماعية GOSI (الأدق — موصى به)")}</div>
-            <ul>
-              <li>${L("Counts Saudis AND expats", "يحصر السعوديين والأجانب معاً")}</li>
-              <li>${L("Salaries + professions", "الرواتب + المهن")}</li>
-              <li>${L("National ID / iqama / border numbers", "أرقام الهوية والإقامة وأرقام الحدود")}</li>
-            </ul>
-            <div class="cc-src-how">${L("How: gosi.gov.sa → Establishment → Contributors report → Export Excel/PDF", "الطريقة: gosi.gov.sa ← حساب المنشأة ← تقرير المشتركين ← تصدير Excel أو PDF")}</div>
-          </div>
-          <div class="cc-src">
-            <div class="cc-src-head">💼 ${L("Qiwa / Labor Office", "قوى / مكتب العمل")}</div>
-            <ul>
-              <li>${L("Expats and Saudis", "الأجانب والسعوديون")}</li>
-              <li>${L("Establishment name & details", "اسم المنشأة وبياناتها")}</li>
-            </ul>
-            <div class="cc-src-how">${L("How: qiwa.sa → Employees → Export employee list (Excel)", "الطريقة: qiwa.sa ← الموظفون ← تصدير كشف الموظفين (Excel)")}</div>
-          </div>
-          <div class="cc-src">
-            <div class="cc-src-head">🪪 ${L("Muqeem", "مقيم")}</div>
-            <ul>
-              <li>${L("Resident (expat) data only", "بيانات المقيمين (الوافدين) فقط")}</li>
-              <li>${L("Iqama expiry dates & border numbers", "تواريخ انتهاء الإقامات وأرقام الحدود")}</li>
-            </ul>
-            <div class="cc-src-how">${L("How: muqeem.sa → Reports → Active residents → Export Excel/PDF", "الطريقة: muqeem.sa ← التقارير ← المقيمون النشطون ← تصدير Excel أو PDF")}</div>
-          </div>
-        </div>
-
-        <div class="cc-upload-steps">
-          <span>1️⃣ ${L("Export the report", "صدّر التقرير")}</span>
-          <span>2️⃣ ${L("Upload it in the secure form", "ارفعه في النموذج الآمن")}</span>
-          <span>3️⃣ ${L("The agent analyzes & your file is created", "الوكيل يحلل ويُنشأ ملفك")}</span>
-          <span>4️⃣ ${L("We follow up on WhatsApp & email", "نتابع معك واتساب وإيميل")}</span>
-        </div>
-
-        <div class="cc-portal-cta">
-          <div>🛡️ <strong>${L("Ready to activate monitoring?", "جاهز تفعّل المراقبة؟")}</strong><span>${L("Open the secure compliance portal, upload your files once, and the agent builds your file and tracks every deadline.", "افتح بوابة الامتثال الآمنة، ارفع ملفاتك مرة واحدة، والوكيل يبني ملفك ويتابع كل استحقاق.")}</span></div>
-          <a class="btn btn-primary btn-lg" href="${u("/compliance-portal")}">🛡️ ${L("Open the compliance portal →", "افتح بوابة الامتثال ←")}</a>
-        </div>
-      </div>
-    </div>
     <div class="cc-disclaimer">⚖️ ${L("All figures and ratios are estimates for illustration only. Official bands depend on your activity and size in Qiwa; official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
+    <div class="order-box cc-portal-cta">
+      <div>🛡️ <strong>${L("Want it done for you?", "تبغى نسوّيها عنك؟")}</strong><span>${L("Upload your official files once in the compliance portal — the agent builds your file and tracks every deadline.", "ارفع ملفاتك الرسمية مرة واحدة في بوابة الامتثال — الوكيل يبني ملفك ويتابع كل استحقاق.")}</span></div>
+      <a class="btn btn-primary btn-lg" href="${u("/compliance-portal")}">🛡️ ${L("Open the compliance portal →", "افتح بوابة الامتثال ←")}</a>
+    </div>
     <div class="order-box cc-cta">
       <h3>${L("Want a verified calculation and full compliance monitoring?", "تبغى حساباً معتمداً ومتابعة كاملة لامتثال منشأتك؟")}</h3>
       <div class="cc-cta-btns">
@@ -1400,18 +1357,6 @@ function buildComplianceCalculators() {
     .cc-act-dec-title{font-weight:700;color:var(--navy);margin-bottom:6px}
     .cc-act-dec-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
     .cc-act-clear{float:inline-end;border:0;background:none;color:var(--text-soft);cursor:pointer;font-size:.8rem;font-family:inherit;text-decoration:underline}
-    .cc-src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:6px 0 18px}
-    .cc-src{border:1px solid var(--gray-line);border-radius:var(--radius);padding:16px;background:var(--white)}
-    .cc-src-best{border-color:var(--navy);box-shadow:var(--shadow-sm)}
-    .cc-src-head{font-weight:700;color:var(--navy);margin-bottom:10px}
-    .cc-src ul{margin:0 0 10px;padding-inline-start:18px;font-size:.88rem;line-height:1.9}
-    .cc-src-how{font-size:.78rem;color:var(--text-soft);background:var(--gray-bg);border-radius:8px;padding:7px 10px}
-    .cc-upload-steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-    .cc-upload-steps span{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:999px;padding:6px 14px;font-size:.83rem;font-weight:600;color:var(--navy)}
-    .cc-upload-cta{text-align:center}
-    .cc-portal{border:1px solid var(--gray-line);border-radius:var(--radius-lg);overflow:hidden;background:var(--white)}
-    .cc-portal-head{background:var(--navy);color:var(--white);padding:12px 18px;font-weight:700;font-size:.95rem}
-    #cc-portal-frame{width:100%;height:960px;border:0;display:block;background:var(--gray-bg)}
     .cc-portal .form-note{padding:10px 16px}
     .cc-portal-cta{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--gray-line);border-radius:var(--radius-lg);padding:20px 22px;background:var(--gray-bg)}
     .cc-portal-cta strong{display:block;color:var(--navy);font-size:1.05rem;margin-bottom:4px}
@@ -1554,9 +1499,6 @@ function buildComplianceCalculators() {
     var allBtn=document.createElement("button");allBtn.type="button";allBtn.className="cc-chip";allBtn.textContent="📋 "+PT.all;allBtn.addEventListener("click",function(){$("cc-prof-q").value="";renderProf("*");});chipBox.appendChild(allBtn);
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
-    var loadPortal=function(){var f=$("cc-portal-frame");if(f&&!f.src)f.src=f.getAttribute("data-src");};
-    var upTab=document.querySelector('[data-tab="upload"]');if(upTab)upTab.addEventListener("click",loadPortal);
-    document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();loadPortal();window.scrollTo({top:0,behavior:"smooth"});});});
 
     /* — official CR activity finder: 2,700+ coded activities (ISIC4 master reference) — */
     var AT=isAr?{loading:"جارٍ تحميل قائمة الأنشطة الرسمية…",count:"{n} نشاط مطابق",none:"لا يوجد نشاط مطابق — جرّب كلمة أخرى أو اكتب الكود.",code:"الكود",sector:"القطاع",en:"الاسم الإنجليزي",nit:"نشاط نطاقات الأقرب (اختير تلقائياً — تأكد منه)",dec:"قرارات توطين قد تنطبق على نشاطك:",noDec:"لا توجد قرارات توطين خاصة مرتبطة مباشرة بهذا النشاط في مرجعنا — تسري عليه نسب نطاقات نشاطك أعلاه.",clear:"مسح النشاط",official:"النطاق الرسمي يُعتمد من منصة قوى.",prof:"افحص مهن نشاطك"}:{loading:"Loading the official activities list…",count:"{n} matching activities",none:"No matching activity — try another word or type the code.",code:"Code",sector:"Sector",en:"English name",nit:"Closest Nitaqat activity (auto-selected — please verify)",dec:"Localization decisions that may apply to your activity:",noDec:"No specific localization decision is directly linked to this activity in our reference — your activity's Nitaqat ratios above apply.",clear:"Clear activity",official:"Your official band is confirmed on the Qiwa platform.",prof:"Check your activity's professions"};

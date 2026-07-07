@@ -59,7 +59,7 @@
         </div>
       </div>
       <div class="cc-agent-cta">
-        <a href="#" class="btn btn-primary cc-goto-upload">📤 فعّل المراقبة — ارفع ملفاتك</a>
+        <a href="/ar/compliance-portal" class="btn btn-primary">📤 فعّل المراقبة — ارفع ملفاتك</a>
         <a class="btn btn-ghost" href="/ar/ai-agents">عن الوكلاء الأذكياء ←</a>
       </div>
     </div>
@@ -67,7 +67,6 @@
       <button class="cc-tab active" data-tab="nitaqat" role="tab">🟢 حاسبة النطاقات</button>
       <button class="cc-tab" data-tab="fees" role="tab">💰 حاسبة التكاليف</button>
       <button class="cc-tab" data-tab="prof" role="tab">🧑‍💼 فاحص المهن</button>
-      <button class="cc-tab" data-tab="upload" role="tab">📤 ارفع ملفاتك</button>
     </div>
 
     <div class="cc-panel active" id="cc-panel-nitaqat">
@@ -88,7 +87,7 @@
           <div class="field"><label for="cc-saudis">متوسط العمالة السعودية</label><input type="number" id="cc-saudis" min="0" value="3"></div>
         </div>
         <button class="btn btn-primary" id="cc-nit-calc">احسب</button>
-        <p class="form-note">💡 ما تعرف أعدادك بدقة؟ <a href="#" class="cc-goto-upload">ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←</a></p>
+        <p class="form-note">💡 ما تعرف أعدادك بدقة؟ <a href="/ar/compliance-portal">ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←</a></p>
         <div class="cc-result" id="cc-nit-result" hidden>
           <div class="cc-tiles">
             <div class="cc-tile"><span>نسبة التوطين</span><strong id="cc-pct">—</strong></div>
@@ -143,53 +142,11 @@
       </div>
     </div>
 
-    <div class="cc-panel" id="cc-panel-upload">
-      <div class="order-box">
-        <h3>خلّ الوكيل يقرأ ملفاتك الرسمية</h3>
-        <p class="cc-sub">ما تعرف أعدادك بدقة؟ صدّر تقريراً واحداً من منصاتك الحكومية وارفعه — الوكيل الذكي يستخرج موظفيك (سعوديون/وافدون، الرواتب، المهن، أرقام الإقامات)، يعبّي الحاسبات عنك، ويحدَّث ملفك الخاص تلقائياً.</p>
-
-        <div class="cc-src-grid">
-          <div class="cc-src cc-src-best">
-            <div class="cc-src-head">🏦 التأمينات الاجتماعية GOSI (الأدق — موصى به)</div>
-            <ul>
-              <li>يحصر السعوديين والأجانب معاً</li>
-              <li>الرواتب + المهن</li>
-              <li>أرقام الهوية والإقامة وأرقام الحدود</li>
-            </ul>
-            <div class="cc-src-how">الطريقة: gosi.gov.sa ← حساب المنشأة ← تقرير المشتركين ← تصدير Excel أو PDF</div>
-          </div>
-          <div class="cc-src">
-            <div class="cc-src-head">💼 قوى / مكتب العمل</div>
-            <ul>
-              <li>الأجانب والسعوديون</li>
-              <li>اسم المنشأة وبياناتها</li>
-            </ul>
-            <div class="cc-src-how">الطريقة: qiwa.sa ← الموظفون ← تصدير كشف الموظفين (Excel)</div>
-          </div>
-          <div class="cc-src">
-            <div class="cc-src-head">🪪 مقيم</div>
-            <ul>
-              <li>بيانات المقيمين (الوافدين) فقط</li>
-              <li>تواريخ انتهاء الإقامات وأرقام الحدود</li>
-            </ul>
-            <div class="cc-src-how">الطريقة: muqeem.sa ← التقارير ← المقيمون النشطون ← تصدير Excel أو PDF</div>
-          </div>
-        </div>
-
-        <div class="cc-upload-steps">
-          <span>1️⃣ صدّر التقرير</span>
-          <span>2️⃣ ارفعه في النموذج الآمن</span>
-          <span>3️⃣ الوكيل يحلل ويُنشأ ملفك</span>
-          <span>4️⃣ نتابع معك واتساب وإيميل</span>
-        </div>
-
-        <div class="cc-portal-cta">
-          <div>🛡️ <strong>جاهز تفعّل المراقبة؟</strong><span>افتح بوابة الامتثال الآمنة، ارفع ملفاتك مرة واحدة، والوكيل يبني ملفك ويتابع كل استحقاق.</span></div>
-          <a class="btn btn-primary btn-lg" href="/ar/compliance-portal">🛡️ افتح بوابة الامتثال ←</a>
-        </div>
-      </div>
-    </div>
     <div class="cc-disclaimer">⚖️ الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.</div>
+    <div class="order-box cc-portal-cta">
+      <div>🛡️ <strong>تبغى نسوّيها عنك؟</strong><span>ارفع ملفاتك الرسمية مرة واحدة في بوابة الامتثال — الوكيل يبني ملفك ويتابع كل استحقاق.</span></div>
+      <a class="btn btn-primary btn-lg" href="/ar/compliance-portal">🛡️ افتح بوابة الامتثال ←</a>
+    </div>
     <div class="order-box cc-cta">
       <h3>تبغى حساباً معتمداً ومتابعة كاملة لامتثال منشأتك؟</h3>
       <div class="cc-cta-btns">
@@ -265,18 +222,6 @@
     .cc-act-dec-title{font-weight:700;color:var(--navy);margin-bottom:6px}
     .cc-act-dec-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
     .cc-act-clear{float:inline-end;border:0;background:none;color:var(--text-soft);cursor:pointer;font-size:.8rem;font-family:inherit;text-decoration:underline}
-    .cc-src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:6px 0 18px}
-    .cc-src{border:1px solid var(--gray-line);border-radius:var(--radius);padding:16px;background:var(--white)}
-    .cc-src-best{border-color:var(--navy);box-shadow:var(--shadow-sm)}
-    .cc-src-head{font-weight:700;color:var(--navy);margin-bottom:10px}
-    .cc-src ul{margin:0 0 10px;padding-inline-start:18px;font-size:.88rem;line-height:1.9}
-    .cc-src-how{font-size:.78rem;color:var(--text-soft);background:var(--gray-bg);border-radius:8px;padding:7px 10px}
-    .cc-upload-steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-    .cc-upload-steps span{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:999px;padding:6px 14px;font-size:.83rem;font-weight:600;color:var(--navy)}
-    .cc-upload-cta{text-align:center}
-    .cc-portal{border:1px solid var(--gray-line);border-radius:var(--radius-lg);overflow:hidden;background:var(--white)}
-    .cc-portal-head{background:var(--navy);color:var(--white);padding:12px 18px;font-weight:700;font-size:.95rem}
-    #cc-portal-frame{width:100%;height:960px;border:0;display:block;background:var(--gray-bg)}
     .cc-portal .form-note{padding:10px 16px}
     .cc-portal-cta{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--gray-line);border-radius:var(--radius-lg);padding:20px 22px;background:var(--gray-bg)}
     .cc-portal-cta strong{display:block;color:var(--navy);font-size:1.05rem;margin-bottom:4px}
@@ -419,9 +364,6 @@
     var allBtn=document.createElement("button");allBtn.type="button";allBtn.className="cc-chip";allBtn.textContent="📋 "+PT.all;allBtn.addEventListener("click",function(){$("cc-prof-q").value="";renderProf("*");});chipBox.appendChild(allBtn);
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
-    var loadPortal=function(){var f=$("cc-portal-frame");if(f&&!f.src)f.src=f.getAttribute("data-src");};
-    var upTab=document.querySelector('[data-tab="upload"]');if(upTab)upTab.addEventListener("click",loadPortal);
-    document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();loadPortal();window.scrollTo({top:0,behavior:"smooth"});});});
 
     /* — official CR activity finder: 2,700+ coded activities (ISIC4 master reference) — */
     var AT=isAr?{loading:"جارٍ تحميل قائمة الأنشطة الرسمية…",count:"{n} نشاط مطابق",none:"لا يوجد نشاط مطابق — جرّب كلمة أخرى أو اكتب الكود.",code:"الكود",sector:"القطاع",en:"الاسم الإنجليزي",nit:"نشاط نطاقات الأقرب (اختير تلقائياً — تأكد منه)",dec:"قرارات توطين قد تنطبق على نشاطك:",noDec:"لا توجد قرارات توطين خاصة مرتبطة مباشرة بهذا النشاط في مرجعنا — تسري عليه نسب نطاقات نشاطك أعلاه.",clear:"مسح النشاط",official:"النطاق الرسمي يُعتمد من منصة قوى.",prof:"افحص مهن نشاطك"}:{loading:"Loading the official activities list…",count:"{n} matching activities",none:"No matching activity — try another word or type the code.",code:"Code",sector:"Sector",en:"English name",nit:"Closest Nitaqat activity (auto-selected — please verify)",dec:"Localization decisions that may apply to your activity:",noDec:"No specific localization decision is directly linked to this activity in our reference — your activity's Nitaqat ratios above apply.",clear:"Clear activity",official:"Your official band is confirmed on the Qiwa platform.",prof:"Check your activity's professions"};
