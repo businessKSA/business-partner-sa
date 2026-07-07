@@ -1392,7 +1392,7 @@ var BP_EMP_BILLING = "monthly";
     var DEMO = false;
     var UNLOCKED = false;
     function setUnlocked(on) { UNLOCKED = on; var ub = document.getElementById("empd-unlock"); if (ub) ub.hidden = on; }
-    function fallbackDemo(status) { CANDS = DEMO_CANDS.slice(); if (status) status.textContent = T("Showing demo data — connect Notion to see the live pool.", "عرض بيانات تجريبية — اربط Notion لعرض القاعدة الحقيقية."); fillFilters(); renderBrowse(); }
+    function apiErr(d) { var e = d && d.error; if (e === "not_configured") return T("Notion isn't connected on the server.", "قاعدة Notion غير مربوطة بالخادم."); if (e === "notion_failed") return T("Couldn't query Notion — is the ATS DB shared with the integration?", "تعذّر الاستعلام من Notion — هل القاعدة مُشاركة مع التكامل؟"); if (e === "server_error") return T("Server error (the pool may be large — retry).", "خطأ في الخادم (قد تكون القاعدة كبيرة — أعد المحاولة)."); return T("Couldn't load candidates.", "تعذّر تحميل المرشّحين."); }
     var DEMO_CODES = ["BP-DEMO", "DEMO", "BP-EMP-DEMO", "DEMO123"];
     function isDemoCode(x) { return DEMO_CODES.indexOf(String(x == null ? "" : x).trim().toUpperCase()) > -1; }
     var DEMO_CANDS = [
@@ -1494,9 +1494,9 @@ var BP_EMP_BILLING = "monthly";
       var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value, ci = document.getElementById("empd-city").value, n = document.getElementById("empd-nat").value;
       if (q) qs.set("q", q); if (f) qs.set("field", f); if (ci) qs.set("city", ci); if (n) qs.set("nat", n);
       fetch("/api/candidates?" + qs).then(function (r) { return r.json(); }).then(function (d) {
-        if (!d || !d.ok) { fallbackDemo(status); return; }
-        CANDS = d.candidates || []; if (!CANDS.length) { fallbackDemo(status); return; } fillFilters(); renderBrowse();
-      }).catch(function () { fallbackDemo(status); });
+        if (!d || !d.ok) { status.textContent = apiErr(d); return; }
+        CANDS = d.candidates || []; if (!CANDS.length) { status.textContent = T("No candidates match.", "لا توجد نتائج مطابقة."); return; } fillFilters(); renderBrowse(); if (!UNLOCKED) status.textContent = CANDS.length + " " + T("candidates · subscribe to reveal contacts", "مرشّح · اشترك لكشف بيانات التواصل");
+      }).catch(function () { status.textContent = T("Network error — please retry.", "خطأ في الاتصال — أعد المحاولة."); });
     }
     document.getElementById("empd-load").addEventListener("click", load);
     document.getElementById("empd-q").addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
