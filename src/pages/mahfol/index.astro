@@ -22,27 +22,42 @@ const services = [
   { icon: '⛺', title: 'تجهيز المخيمات للشركات', desc: 'مخيمات بطابع خاص يعكس هوية شركتك، بتجهيز متكامل.' },
 ];
 
+// صور حقيقية تُحمَّل من متصفح الزائر — مع خلفية فنية احتياطية إذا تعذر التحميل
+const U = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=60`;
+const IMG = {
+  hero: U('photo-1542401886-65d6c61db217'),      // كثبان رملية وقت الغروب
+  dunes: U('photo-1547234935-80c7145ec969'),     // صحراء وكثبان
+  jeep: U('photo-1469854523086-cc02fe5d8800'),   // طريق رحلات برية
+  camp: U('photo-1504280390367-361c6d9f38f4'),   // مخيم ونار
+  stars: U('photo-1518709268805-4e9042af9f23'),  // سماء الليل
+  mountain: U('photo-1506905925346-21bda4d32df4'), // جبال
+  beach: U('photo-1507525428034-b723cf961d3e'),  // شاطئ
+  snorkel: U('photo-1544551763-46a013bb70d5'),   // غوص وسنوركل
+  yacht: U('photo-1559827260-dc66d52bef19'),     // بحر ويخوت
+  villa: U('photo-1512917774080-9991f1c4c750'),  // وحدة سكنية فاخرة
+};
+
 // سوق الرحلات — كل رحلة يقدمها مورد معتمد عبر منصة محفول مكفول
 // ppp = السعر التقريبي للشخص (للفلترة بالميزانية) · days = المدة بالأيام (للفلترة)
 const marketTrips = [
-  { icon: '🏔️', name: 'رحلة حافة العالم', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 677, days: 1, tags: 'غروب تصوير جيب مغامرة' },
-  { icon: '⛺', name: 'حافة العالم مع التخييم', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يوم وليلة', price: '3,750 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 1250, days: 2, tags: 'مبيت نجوم عشاء مغامرة' },
-  { icon: '🏜️', name: 'تجربة التطعيس', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 677, days: 1, tags: 'رمال دفع رباعي مغامرة' },
-  { icon: '🌌', name: 'المخيم الصحراوي (يومان)', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يومان', price: 'من 600 ر.س / شخص', provider: 'مورد معتمد', ppp: 600, days: 2, tags: 'عوائل أنشطة خيل رماية هايكنج' },
-  { icon: '🐎', name: 'تجربة الريف وركوب الخيل', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'عوائل ريف مزرعة' },
-  { icon: '🏛️', name: 'باقة العلا 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'العلا', dur: '3 أيام', price: 'من 2,029 ر.س / شخص', provider: 'محفول مكفول', ppp: 2029, days: 3, tags: 'تراث فاخرة شهر عسل' },
-  { icon: '🌊', name: 'باقة نيوم 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'نيوم', dur: '3 أيام', price: 'من 2,223 ر.س / شخص', provider: 'محفول مكفول', ppp: 2223, days: 3, tags: 'شواطئ فاخرة' },
-  { icon: '🕌', name: 'باقة جدة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جدة', dur: '3 أيام', price: 'من 2,290 ر.س / شخص', provider: 'محفول مكفول', ppp: 2290, days: 3, tags: 'البلد تاريخ بحر عوائل' },
-  { icon: '⚓', name: 'باقة ينبع 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'ينبع', dur: '3 أيام', price: 'من 2,472 ر.س / شخص', provider: 'محفول مكفول', ppp: 2472, days: 3, tags: 'بحر شعب مرجانية' },
-  { icon: '🐠', name: 'جزر فرسان 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جازان', dur: '3 أيام', price: 'من 2,261 ر.س / شخص', provider: 'مورد معتمد', ppp: 2261, days: 3, tags: 'جزر بحر طبيعة' },
-  { icon: '🌲', name: 'أبها والسودة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'عسير', dur: '3 أيام', price: 'من 1,945 ر.س / شخص', provider: 'مورد معتمد', ppp: 1945, days: 3, tags: 'جبال ضباب عوائل صيف' },
-  { icon: '🌹', name: 'الطائف 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'الطائف', dur: '3 أيام', price: 'من 1,748 ر.س / شخص', provider: 'مورد معتمد', ppp: 1748, days: 3, tags: 'ورد جبال عوائل' },
-  { icon: '🛥️', name: 'رحلة يخت جماعية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: '6-12 ساعة', price: 'حسب المدة والقارب', provider: 'مرسى شريك', ppp: null, days: 1, tags: 'يخت فاخرة شهر عسل' },
-  { icon: '🤿', name: 'رحلة غوص وسنوركل', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'غوص شعب مرجانية مغامرة' },
-  { icon: '🏖️', name: 'شاطئ درة العروس والألعاب المائية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'عوائل سباحة ألعاب مائية' },
-  { icon: '🗿', name: 'جولة الحِجر', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'تراث آثار يونسكو' },
-  { icon: '🦌', name: 'سفاري محمية شرعان', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'طبيعة حياة برية' },
-  { icon: '🎈', name: 'المنطاد مع شروق الشمس', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'صباحية', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'منطاد شروق فاخرة شهر عسل' },
+  { icon: '🏔️', name: 'رحلة حافة العالم', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 677, days: 1, tags: 'غروب تصوير جيب مغامرة', img: IMG.dunes },
+  { icon: '⛺', name: 'حافة العالم مع التخييم', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يوم وليلة', price: '3,750 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 1250, days: 2, tags: 'مبيت نجوم عشاء مغامرة', img: IMG.stars },
+  { icon: '🏜️', name: 'تجربة التطعيس', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 677, days: 1, tags: 'رمال دفع رباعي مغامرة', img: IMG.jeep },
+  { icon: '🌌', name: 'المخيم الصحراوي (يومان)', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يومان', price: 'من 600 ر.س / شخص', provider: 'مورد معتمد', ppp: 600, days: 2, tags: 'عوائل أنشطة خيل رماية هايكنج', img: IMG.camp },
+  { icon: '🐎', name: 'تجربة الريف وركوب الخيل', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'عوائل ريف مزرعة', img: IMG.mountain },
+  { icon: '🏛️', name: 'باقة العلا 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'العلا', dur: '3 أيام', price: 'من 2,029 ر.س / شخص', provider: 'محفول مكفول', ppp: 2029, days: 3, tags: 'تراث فاخرة شهر عسل', img: IMG.dunes },
+  { icon: '🌊', name: 'باقة نيوم 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'نيوم', dur: '3 أيام', price: 'من 2,223 ر.س / شخص', provider: 'محفول مكفول', ppp: 2223, days: 3, tags: 'شواطئ فاخرة', img: IMG.beach },
+  { icon: '🕌', name: 'باقة جدة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جدة', dur: '3 أيام', price: 'من 2,290 ر.س / شخص', provider: 'محفول مكفول', ppp: 2290, days: 3, tags: 'البلد تاريخ بحر عوائل', img: IMG.beach },
+  { icon: '⚓', name: 'باقة ينبع 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'ينبع', dur: '3 أيام', price: 'من 2,472 ر.س / شخص', provider: 'محفول مكفول', ppp: 2472, days: 3, tags: 'بحر شعب مرجانية', img: IMG.snorkel },
+  { icon: '🐠', name: 'جزر فرسان 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جازان', dur: '3 أيام', price: 'من 2,261 ر.س / شخص', provider: 'مورد معتمد', ppp: 2261, days: 3, tags: 'جزر بحر طبيعة', img: IMG.beach },
+  { icon: '🌲', name: 'أبها والسودة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'عسير', dur: '3 أيام', price: 'من 1,945 ر.س / شخص', provider: 'مورد معتمد', ppp: 1945, days: 3, tags: 'جبال ضباب عوائل صيف', img: IMG.mountain },
+  { icon: '🌹', name: 'الطائف 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'الطائف', dur: '3 أيام', price: 'من 1,748 ر.س / شخص', provider: 'مورد معتمد', ppp: 1748, days: 3, tags: 'ورد جبال عوائل', img: IMG.mountain },
+  { icon: '🛥️', name: 'رحلة يخت جماعية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: '6-12 ساعة', price: 'حسب المدة والقارب', provider: 'مرسى شريك', ppp: null, days: 1, tags: 'يخت فاخرة شهر عسل', img: IMG.yacht },
+  { icon: '🤿', name: 'رحلة غوص وسنوركل', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'غوص شعب مرجانية مغامرة', img: IMG.snorkel },
+  { icon: '🏖️', name: 'شاطئ درة العروس والألعاب المائية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'عوائل سباحة ألعاب مائية', img: IMG.beach },
+  { icon: '🗿', name: 'جولة الحِجر', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'تراث آثار يونسكو', img: IMG.dunes },
+  { icon: '🦌', name: 'سفاري محمية شرعان', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'طبيعة حياة برية', img: IMG.dunes },
+  { icon: '🎈', name: 'المنطاد مع شروق الشمس', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'صباحية', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'منطاد شروق فاخرة شهر عسل', img: IMG.stars },
 ];
 
 // خارطة التوسع الإقليمي — نبدأ بالسعودية ونتوسع سوقًا بعد سوق
@@ -276,6 +291,7 @@ const customQuestions = [
 
     <!-- Hero -->
     <section class="hero">
+      <div class="hero-bg"><img src={IMG.hero} alt="" loading="eager" onerror="this.remove()" /></div>
       <div class="container hero-inner">
         <p class="hero-badge">✦ عضو الاتحاد السعودي للسيارات والدراجات النارية</p>
         <h1>منصة <span class="gold">محفول مكفول</span> — رحلات من موردين معتمدين وإدارة وحدات سياحية</h1>
@@ -349,7 +365,11 @@ const customQuestions = [
         <div class="market-grid" id="marketGrid">
           {marketTrips.map((t) => (
             <div class="trip-tile" data-cat={t.cat} data-ppp={t.ppp ?? ''} data-days={t.days} data-search={`${t.name} ${t.city} ${t.catLabel} ${t.provider} ${t.tags}`}>
-              <div class="tile-head"><span class="tile-icon">{t.icon}</span><span class="tile-cat">{t.catLabel}</span></div>
+              <div class="tile-media">
+                <img src={t.img} alt={t.name} loading="lazy" onerror="this.remove()" />
+                <span class="tile-icon">{t.icon}</span>
+                <span class="tile-cat">{t.catLabel}</span>
+              </div>
               <h3>{t.name}</h3>
               <div class="tile-meta">
                 <span>📍 {t.city}</span>
@@ -389,6 +409,7 @@ const customQuestions = [
     <!-- Property management -->
     <section class="section" id="units">
       <div class="container">
+        <div class="units-banner"><img src={IMG.villa} alt="وحدة سياحية مُدارة" loading="lazy" onerror="this.remove()" /></div>
         <h2 class="section-title">🏠 إدارة الوحدات العقارية السياحية</h2>
         <p class="section-sub">
           عندك شاليه، مخيم، مزرعة، كرفان أو شقة مفروشة؟ ندريها لك بالكامل على
@@ -897,6 +918,41 @@ const customQuestions = [
   .q-icon { font-size: 1.6rem; }
   .q-card p { font-size: 0.95rem; }
 
+  /* Media & life */
+  .hero { position: relative; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; z-index: 0; }
+  .hero-bg img {
+    width: 100%; height: 100%; object-fit: cover; opacity: 0.35;
+    animation: heroZoom 24s ease-in-out infinite alternate;
+  }
+  .hero-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(20,22,48,0.55), rgba(23,25,51,0.92));
+  }
+  .hero-inner { position: relative; z-index: 1; }
+  @keyframes heroZoom { from { transform: scale(1); } to { transform: scale(1.12); } }
+
+  .tile-media {
+    position: relative; height: 140px; margin: -18px -18px 4px;
+    border-radius: var(--radius) var(--radius) 0 0; overflow: hidden;
+    background: linear-gradient(135deg, #2d3166, #3b3f8f 60%, rgba(238,106,77,0.55));
+  }
+  .tile-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .trip-tile:hover .tile-media img { transform: scale(1.08); }
+  .tile-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(23,25,51,0.65)); }
+  .tile-media .tile-icon { position: absolute; bottom: 8px; inset-inline-start: 12px; z-index: 2; font-size: 1.7rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+  .tile-media .tile-cat { position: absolute; top: 10px; inset-inline-end: 10px; z-index: 2; background: rgba(23,25,51,0.75); backdrop-filter: blur(4px); }
+
+  .units-banner { max-width: 860px; margin: 0 auto 28px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--card-border); }
+  .units-banner img { width: 100%; height: 260px; object-fit: cover; display: block; }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-bg img { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
   /* Trust strip */
   .trust-strip { background: #12142b; border-bottom: 1px solid var(--card-border); padding: 12px 0; }
   .trust-inner { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: center; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
@@ -1130,6 +1186,16 @@ const customQuestions = [
       const btn = e.target.closest('button[data-q]');
       if (btn) send(btn.getAttribute('data-q'));
     });
+  })();
+
+  // حيوية: ظهور تدريجي للبطاقات والأقسام عند التمرير
+  (function () {
+    const targets = document.querySelectorAll('.card, .trip-tile, .section-title, .section-sub, .acc, .chat-shell, .units-banner');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.08 });
+    targets.forEach(el => io.observe(el));
   })();
 
   // سوق الرحلات: بحث + فلاتر مدمجة (فئة، ميزانية، مدة) + تبويبات المناطق
