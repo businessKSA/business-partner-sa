@@ -48,6 +48,18 @@ const maskName = (n) => {
   return parts.slice(0, 2).map((w) => w[0] + ".").join(" ");
 };
 
+// A record with no real name yet — the ATS agent stores a placeholder when a CV
+// couldn't be read/parsed. These must never surface on the public browser (they
+// render as empty "م. ب." / "—" cards). This is a safety net in addition to the
+// "مخفي عن الموقع" Notion filter, in case an incomplete row lacks that flag.
+const isPlaceholderName = (n) => {
+  const s = String(n || "").trim();
+  if (!s) return true;
+  if (s === "مرشح بدون اسم" || s === "سيرة غير مقروءة") return true;
+  if (s.startsWith("[غير مقروء]")) return true;
+  return false;
+};
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
@@ -62,12 +74,19 @@ export default async function handler(req, res) {
   const code = (url.searchParams.get("code") || "").trim();
   const unlocked = !!code && CODES.includes(code);
 
-  // Server-side Notion filter: only the website-sourced / active candidates.
+  // Server-side Notion filter: only complete, website-visible candidates.
+  // "مخفي عن الموقع" is set by the ATS agent on any record that is incomplete,
+  // missing data, or unreadable — those must not reach the public /employers
+  // browser. An unset checkbox matches equals:false, so the existing pool that
+  // predates the flag stays visible; only flagged rows are excluded.
+  const visibleFilter = { property: "مخفي عن الموقع", checkbox: { equals: false } };
   const base = {
     page_size: 100,
     sorts: [{ property: "Candidate ID", direction: "descending" }],
+    filter: qField
+      ? { and: [visibleFilter, { property: "Field", select: { equals: qField } }] }
+      : visibleFilter,
   };
-  if (qField) base.filter = { property: "Field", select: { equals: qField } };
 
   try {
     // Page through the whole database so employers see ALL candidates, not just
@@ -95,6 +114,8 @@ export default async function handler(req, res) {
       const p = pg.properties || {};
       const name = txt(p["Candidate Name"]);
       const nameEn = txt(p["Name (EN)"]);
+      // Skip records with no usable name (unread/incomplete CVs) regardless of flag.
+      if (isPlaceholderName(name) && isPlaceholderName(nameEn)) return null;
       const rec = {
         id: txt(p["Candidate ID"]),
         field: txt(p["Field"]),
@@ -117,7 +138,7 @@ export default async function handler(req, res) {
         rec.name = maskName(name || nameEn);
       }
       return rec;
-    });
+    }).filter(Boolean);
 
     // Client-ish filters that Notion can't do cheaply here.
     if (qCity) rows = rows.filter((x) => x.city.toLowerCase().includes(qCity));
