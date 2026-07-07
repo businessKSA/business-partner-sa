@@ -45,14 +45,19 @@ journey) that captures idea/stage/sector/budget and opens a Client record.
 | Ahmed — Procurement | `8PGiUitiRKDybt3l` | ⚠️ path mismatch (see §5) |
 | Abdulaziz — Legal/Compliance | `SL1aYYS2UBsqHFPE` | ✅ `abdulaziz-intake` |
 | Mazen | `WZE7oUzCzQGR1u0t` | ✅ `mazen-intake` |
+| **Lead Consultant** | `fjXdJCgt1jDbzKkC` | ✅ `consultant-intake`, **Groq** |
+| **Market Research** | `5slajhpFDal0SCqi` | ✅ `market-intake`, **Groq** |
+| **Business Model** | `IEZoSpEJR5FiSo8L` | ✅ `model-intake`, **Groq** |
+| **Finance & Pricing** | `SwrEPSRIz6utN51c` | ✅ `finance-intake`, **Groq** (placeholder pricing, `human_required`) |
 
-**Missing agents (from the brief):** Router/Intake (currently folded into
-Khaled), **Lead Consultant** (4–6 smart questions), **Market Research**,
-**Business Model**, **Finance/Pricing**. These do not yet have workflows.
+All four new agents are wired into Khaled as `ai_tool`s and registered in the
+site proxy (`consultant`/`market`/`model`/`finance`).
 
-**Systemic blocker:** Gemini free tier = **20 requests/day per model**. Primary
-`gemini-2.5-flash` + fallback `gemini-2.5-flash-lite` ≈ doubles capacity but the
-cap remains. Real fixes: enable Gemini billing or top up Anthropic credits.
+**Quota solution:** the four new agents run **Groq (llama-3.3-70b)** as the
+primary engine — free tier is ~14k requests/day vs Gemini's 20/day, so the old
+Gemini cap no longer gates them. Khaled and the original 6 specialists still use
+Gemini `2.5-flash` → `2.5-flash-lite`; migrating them to a Groq fallback (as
+Ahmed already has) would remove the cap there too.
 
 ### 1.3 Notion (mature workspace — heavy reuse)
 
