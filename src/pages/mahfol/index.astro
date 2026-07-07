@@ -23,25 +23,43 @@ const services = [
 ];
 
 // سوق الرحلات — كل رحلة يقدمها مورد معتمد عبر منصة محفول مكفول
+// ppp = السعر التقريبي للشخص (للفلترة بالميزانية) · days = المدة بالأيام (للفلترة)
 const marketTrips = [
-  { icon: '🏔️', name: 'رحلة حافة العالم', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول' },
-  { icon: '⛺', name: 'حافة العالم مع التخييم', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يوم وليلة', price: '3,750 ر.س / 3 أشخاص', provider: 'محفول مكفول' },
-  { icon: '🏜️', name: 'تجربة التطعيس', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول' },
-  { icon: '🌌', name: 'المخيم الصحراوي (يومان)', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يومان', price: 'من 600 ر.س / شخص', provider: 'مورد معتمد' },
-  { icon: '🐎', name: 'تجربة الريف وركوب الخيل', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد' },
-  { icon: '🏛️', name: 'باقة العلا 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'العلا', dur: '3 أيام', price: 'من 2,029 ر.س / شخص', provider: 'محفول مكفول' },
-  { icon: '🌊', name: 'باقة نيوم 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'نيوم', dur: '3 أيام', price: 'من 2,223 ر.س / شخص', provider: 'محفول مكفول' },
-  { icon: '🕌', name: 'باقة جدة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جدة', dur: '3 أيام', price: 'من 2,290 ر.س / شخص', provider: 'محفول مكفول' },
-  { icon: '⚓', name: 'باقة ينبع 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'ينبع', dur: '3 أيام', price: 'من 2,472 ر.س / شخص', provider: 'محفول مكفول' },
-  { icon: '🐠', name: 'جزر فرسان 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جازان', dur: '3 أيام', price: 'من 2,261 ر.س / شخص', provider: 'مورد معتمد' },
-  { icon: '🌲', name: 'أبها والسودة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'عسير', dur: '3 أيام', price: 'من 1,945 ر.س / شخص', provider: 'مورد معتمد' },
-  { icon: '🌹', name: 'الطائف 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'الطائف', dur: '3 أيام', price: 'من 1,748 ر.س / شخص', provider: 'مورد معتمد' },
-  { icon: '🛥️', name: 'رحلة يخت جماعية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: '6-12 ساعة', price: 'حسب المدة والقارب', provider: 'مرسى شريك' },
-  { icon: '🤿', name: 'رحلة غوص وسنوركل', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد' },
-  { icon: '🏖️', name: 'شاطئ درة العروس والألعاب المائية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد' },
-  { icon: '🗿', name: 'جولة الحِجر', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla' },
-  { icon: '🦌', name: 'سفاري محمية شرعان', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla' },
-  { icon: '🎈', name: 'المنطاد مع شروق الشمس', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'صباحية', price: 'ضمن باقتك معنا', provider: 'Experience AlUla' },
+  { icon: '🏔️', name: 'رحلة حافة العالم', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 677, days: 1, tags: 'غروب تصوير جيب مغامرة' },
+  { icon: '⛺', name: 'حافة العالم مع التخييم', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يوم وليلة', price: '3,750 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 1250, days: 2, tags: 'مبيت نجوم عشاء مغامرة' },
+  { icon: '🏜️', name: 'تجربة التطعيس', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'من 2,030 ر.س / 3 أشخاص', provider: 'محفول مكفول', ppp: 677, days: 1, tags: 'رمال دفع رباعي مغامرة' },
+  { icon: '🌌', name: 'المخيم الصحراوي (يومان)', cat: 'camp', catLabel: 'تخييم', city: 'الرياض', dur: 'يومان', price: 'من 600 ر.س / شخص', provider: 'مورد معتمد', ppp: 600, days: 2, tags: 'عوائل أنشطة خيل رماية هايكنج' },
+  { icon: '🐎', name: 'تجربة الريف وركوب الخيل', cat: 'day', catLabel: 'يوم واحد', city: 'الرياض', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'عوائل ريف مزرعة' },
+  { icon: '🏛️', name: 'باقة العلا 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'العلا', dur: '3 أيام', price: 'من 2,029 ر.س / شخص', provider: 'محفول مكفول', ppp: 2029, days: 3, tags: 'تراث فاخرة شهر عسل' },
+  { icon: '🌊', name: 'باقة نيوم 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'نيوم', dur: '3 أيام', price: 'من 2,223 ر.س / شخص', provider: 'محفول مكفول', ppp: 2223, days: 3, tags: 'شواطئ فاخرة' },
+  { icon: '🕌', name: 'باقة جدة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جدة', dur: '3 أيام', price: 'من 2,290 ر.س / شخص', provider: 'محفول مكفول', ppp: 2290, days: 3, tags: 'البلد تاريخ بحر عوائل' },
+  { icon: '⚓', name: 'باقة ينبع 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'ينبع', dur: '3 أيام', price: 'من 2,472 ر.س / شخص', provider: 'محفول مكفول', ppp: 2472, days: 3, tags: 'بحر شعب مرجانية' },
+  { icon: '🐠', name: 'جزر فرسان 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'جازان', dur: '3 أيام', price: 'من 2,261 ر.س / شخص', provider: 'مورد معتمد', ppp: 2261, days: 3, tags: 'جزر بحر طبيعة' },
+  { icon: '🌲', name: 'أبها والسودة 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'عسير', dur: '3 أيام', price: 'من 1,945 ر.س / شخص', provider: 'مورد معتمد', ppp: 1945, days: 3, tags: 'جبال ضباب عوائل صيف' },
+  { icon: '🌹', name: 'الطائف 3 أيام', cat: 'city', catLabel: 'باقة مدينة', city: 'الطائف', dur: '3 أيام', price: 'من 1,748 ر.س / شخص', provider: 'مورد معتمد', ppp: 1748, days: 3, tags: 'ورد جبال عوائل' },
+  { icon: '🛥️', name: 'رحلة يخت جماعية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: '6-12 ساعة', price: 'حسب المدة والقارب', provider: 'مرسى شريك', ppp: null, days: 1, tags: 'يخت فاخرة شهر عسل' },
+  { icon: '🤿', name: 'رحلة غوص وسنوركل', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'غوص شعب مرجانية مغامرة' },
+  { icon: '🏖️', name: 'شاطئ درة العروس والألعاب المائية', cat: 'sea', catLabel: 'بحرية', city: 'جدة', dur: 'يوم واحد', price: 'تسعيرة حسب المجموعة', provider: 'مورد معتمد', ppp: null, days: 1, tags: 'عوائل سباحة ألعاب مائية' },
+  { icon: '🗿', name: 'جولة الحِجر', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'تراث آثار يونسكو' },
+  { icon: '🦌', name: 'سفاري محمية شرعان', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'نصف يوم', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'طبيعة حياة برية' },
+  { icon: '🎈', name: 'المنطاد مع شروق الشمس', cat: 'alula', catLabel: 'العلا', city: 'العلا', dur: 'صباحية', price: 'ضمن باقتك معنا', provider: 'Experience AlUla', ppp: null, days: 1, tags: 'منطاد شروق فاخرة شهر عسل' },
+];
+
+// خارطة التوسع الإقليمي — نبدأ بالسعودية ونتوسع سوقًا بعد سوق
+const regions = [
+  { flag: '🇸🇦', name: 'السعودية', status: 'live', desc: 'الرياض · جدة · العلا · نيوم · عسير · جازان · الطائف — متاح الآن' },
+  { flag: '🇦🇪', name: 'الخليج', status: 'soon', desc: 'دبي · أبوظبي · البحرين · قطر · عُمان — بالشراكة مع موردين محليين' },
+  { flag: '🇪🇬', name: 'مصر', status: 'soon', desc: 'القاهرة · الساحل الشمالي · شرم الشيخ · الغردقة · الأقصر' },
+  { flag: '🇹🇷', name: 'تركيا', status: 'soon', desc: 'إسطنبول · طرابزون · كابادوكيا · أنطاليا' },
+  { flag: '🌏', name: 'شرق آسيا', status: 'soon', desc: 'تايلاند · ماليزيا · إندونيسيا · جزر المالديف' },
+];
+
+const trustPoints = [
+  { icon: '✅', text: 'موردون معتمدون ومدقّقون' },
+  { icon: '🤖', text: 'مصمم رحلات بالذكاء الاصطناعي' },
+  { icon: '🕐', text: 'دعم ومتابعة على مدار الساعة' },
+  { icon: '💳', text: 'دفع مرن وتقسيط (قريبًا)' },
+  { icon: '🏛️', text: 'شركة سعودية مسجلة · س.ت 4030416435' },
 ];
 
 const unitServices = [
@@ -262,8 +280,9 @@ const customQuestions = [
         <p class="hero-badge">✦ عضو الاتحاد السعودي للسيارات والدراجات النارية</p>
         <h1>منصة <span class="gold">محفول مكفول</span> — رحلات من موردين معتمدين وإدارة وحدات سياحية</h1>
         <p class="hero-sub">
-          سوق سياحي يجمع أفضل الرحلات من موردين معتمدين في كل مناطق المملكة،
-          مع إدارة كاملة لوحدتك العقارية السياحية على جاذرن وAirbnb — اختر رحلتك، أو خلّ وحدتك تشتغل لك.
+          سوق سفر ورحلات يجمع أفضل الباقات من موردين معتمدين — نبدأ من السعودية،
+          وقريبًا: الخليج ومصر وتركيا وشرق آسيا. مع إدارة كاملة لوحدتك العقارية السياحية على جاذرن وAirbnb،
+          ومصمم رحلات بالذكاء الاصطناعي يفصّل رحلتك على ميزانيتك.
         </p>
         <div class="hero-cta">
           <a class="btn btn-gold btn-lg" href="#designer">🤖 صمّم رحلتك بالذكاء الاصطناعي</a>
@@ -271,18 +290,53 @@ const customQuestions = [
         </div>
         <div class="hero-stats">
           <div><b>+18</b><span>رحلة من موردين معتمدين</span></div>
-          <div><b>+15</b><span>وجهة سياحية</span></div>
-          <div><b>3</b><span>فئات باقات: VIP · فضية · برونزية</span></div>
+          <div><b>+15</b><span>وجهة داخل السعودية</span></div>
+          <div><b>5</b><span>أسواق في خارطة التوسع 🌍</span></div>
           <div><b>🏠</b><span>إدارة وحدات على جاذرن وAirbnb</span></div>
         </div>
       </div>
     </section>
 
+    <!-- Trust strip -->
+    <div class="trust-strip">
+      <div class="container trust-inner">
+        {trustPoints.map((p) => <span>{p.icon} {p.text}</span>)}
+      </div>
+    </div>
+
     <!-- Trips marketplace -->
     <section class="section" id="market">
       <div class="container">
         <h2 class="section-title">🛒 سوق الرحلات</h2>
-        <p class="section-sub">كل رحلة يقدمها مورد معتمد ومدقق من منصة محفول مكفول — اختر وفلتر واحجز</p>
+        <p class="section-sub">كل رحلة يقدمها مورد معتمد ومدقق من منصة محفول مكفول — ابحث وفلتر واحجز</p>
+
+        <div class="region-tabs" id="regionTabs">
+          <button type="button" class="active" data-r="sa">🇸🇦 السعودية</button>
+          <button type="button" class="soon" data-r="gcc">🇦🇪 الخليج <small>قريبًا</small></button>
+          <button type="button" class="soon" data-r="eg">🇪🇬 مصر <small>قريبًا</small></button>
+          <button type="button" class="soon" data-r="tr">🇹🇷 تركيا <small>قريبًا</small></button>
+          <button type="button" class="soon" data-r="asia">🌏 شرق آسيا <small>قريبًا</small></button>
+        </div>
+        <p class="soon-note" id="soonNote" hidden>
+          🚀 هذه الوجهة قريبًا في المنصة — <a href={`mailto:${contact.email}?subject=${encodeURIComponent('سجلوني باهتمامات الوجهات الجديدة')}`}>سجّل اهتمامك</a> وكن أول من يعرف عند الإطلاق
+        </p>
+
+        <div class="market-search">
+          <input type="search" id="marketSearch" placeholder="🔍 ابحث: العلا، تخييم، يخت، شهر عسل…" />
+          <select id="marketBudget">
+            <option value="all">💰 كل الميزانيات</option>
+            <option value="lt1000">أقل من 1,000 ر.س/شخص</option>
+            <option value="1000-2500">1,000 – 2,500 ر.س/شخص</option>
+            <option value="gt2500">أكثر من 2,500 ر.س/شخص</option>
+          </select>
+          <select id="marketDays">
+            <option value="all">🗓️ أي مدة</option>
+            <option value="1">يوم واحد</option>
+            <option value="2">يومان</option>
+            <option value="3">3 أيام وأكثر</option>
+          </select>
+        </div>
+
         <div class="market-filters" id="marketFilters">
           <button type="button" class="active" data-f="all">الكل</button>
           <button type="button" data-f="day">يوم واحد</button>
@@ -291,9 +345,10 @@ const customQuestions = [
           <button type="button" data-f="sea">بحرية</button>
           <button type="button" data-f="alula">العلا</button>
         </div>
+
         <div class="market-grid" id="marketGrid">
           {marketTrips.map((t) => (
-            <div class="trip-tile" data-cat={t.cat}>
+            <div class="trip-tile" data-cat={t.cat} data-ppp={t.ppp ?? ''} data-days={t.days} data-search={`${t.name} ${t.city} ${t.catLabel} ${t.provider} ${t.tags}`}>
               <div class="tile-head"><span class="tile-icon">{t.icon}</span><span class="tile-cat">{t.catLabel}</span></div>
               <h3>{t.name}</h3>
               <div class="tile-meta">
@@ -304,11 +359,12 @@ const customQuestions = [
               <div class="tile-provider">✓ مورد معتمد · {t.provider}</div>
               <div class="tile-actions">
                 <a class="btn btn-gold btn-sm" href={`mailto:${contact.email}?subject=${encodeURIComponent('حجز: ' + t.name)}`}>احجز</a>
-                <a class="btn btn-outline btn-sm" href="#designer">فصّلها بالذكاء الاصطناعي</a>
+                <a class="btn btn-outline btn-sm" href="#designer">فصّلها بالذكاء</a>
               </div>
             </div>
           ))}
         </div>
+        <p class="market-empty" id="marketEmpty" hidden>ما لقينا رحلة تطابق بحثك 🤔 — جرّب فلاتر أوسع، أو <a href="#designer">خلّ الذكاء الاصطناعي يفصّل لك رحلة خاصة</a></p>
         <p class="market-note">الأسعار المبدئية غير شاملة الضريبة ما لم يُذكر خلاف ذلك · التفاصيل الكاملة في أقسام الباقات أدناه</p>
       </div>
     </section>
@@ -588,6 +644,29 @@ const customQuestions = [
       </div>
     </section>
 
+    <!-- Expansion roadmap -->
+    <section class="section section-alt" id="expansion">
+      <div class="container">
+        <h2 class="section-title">🌍 خارطة التوسع</h2>
+        <p class="section-sub">نبدأ من السعودية ونتوسع سوقًا بعد سوق — في كل سوق جديد ننضم مع موردين محليين معتمدين</p>
+        <div class="grid grid-3">
+          {regions.map((r) => (
+            <div class={`card region-card ${r.status}`}>
+              <div class="region-head">
+                <span class="region-flag">{r.flag}</span>
+                <span class={`region-badge ${r.status}`}>{r.status === 'live' ? 'متاح الآن' : 'قريبًا'}</span>
+              </div>
+              <h3>{r.name}</h3>
+              <p>{r.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div class="center">
+          <a class="btn btn-outline btn-lg" href={`mailto:${contact.email}?subject=${encodeURIComponent('سجلوني باهتمامات الوجهات الجديدة')}`}>🔔 سجّل اهتمامك بالوجهات القادمة</a>
+        </div>
+      </div>
+    </section>
+
     <!-- Become a vendor -->
     <section class="section" id="vendors">
       <div class="container narrow center">
@@ -818,6 +897,46 @@ const customQuestions = [
   .q-icon { font-size: 1.6rem; }
   .q-card p { font-size: 0.95rem; }
 
+  /* Trust strip */
+  .trust-strip { background: #12142b; border-bottom: 1px solid var(--card-border); padding: 12px 0; }
+  .trust-inner { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: center; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+
+  /* Region tabs */
+  .region-tabs { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 14px; }
+  .region-tabs button {
+    background: var(--card); color: var(--text); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: 10px 18px; font-size: 0.95rem; font-weight: 800;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .region-tabs button.active { border-color: var(--gold); background: rgba(238,106,77,0.10); color: var(--gold-strong); }
+  .region-tabs button.soon { opacity: 0.65; }
+  .region-tabs button small { display: block; font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+  .soon-note { text-align: center; color: var(--gold-strong); font-size: 0.9rem; margin-bottom: 16px; }
+  .soon-note a { color: var(--gold-strong); font-weight: 800; }
+
+  /* Market search */
+  .market-search { display: flex; flex-wrap: wrap; gap: 10px; max-width: 760px; margin: 0 auto 18px; }
+  .market-search input, .market-search select {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 12px 16px; color: var(--text); font-family: inherit; font-size: 0.92rem; outline: none;
+  }
+  .market-search input { flex: 2; min-width: 220px; }
+  .market-search select { flex: 1; min-width: 150px; cursor: pointer; }
+  .market-search input:focus, .market-search select:focus { border-color: var(--gold); }
+  .market-empty { text-align: center; color: var(--muted); padding: 30px 0 10px; }
+  .market-empty a { color: var(--gold-strong); font-weight: 800; }
+
+  /* Region cards */
+  .region-card { position: relative; }
+  .region-card.soon { opacity: 0.85; }
+  .region-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .region-flag { font-size: 2rem; }
+  .region-badge { font-size: 0.75rem; font-weight: 800; padding: 3px 12px; border-radius: 999px; }
+  .region-badge.live { background: rgba(74, 222, 128, 0.12); color: #6fe89e; border: 1px solid rgba(74,222,128,0.4); }
+  .region-badge.soon { background: rgba(238,106,77,0.10); color: var(--gold-strong); border: 1px solid rgba(238,106,77,0.35); }
+  .region-card h3 { margin-bottom: 6px; }
+  .region-card p { color: var(--muted); font-size: 0.9rem; }
+
   /* Marketplace */
   .market-filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
   .market-filters button {
@@ -1013,20 +1132,66 @@ const customQuestions = [
     });
   })();
 
-  // فلاتر سوق الرحلات
+  // سوق الرحلات: بحث + فلاتر مدمجة (فئة، ميزانية، مدة) + تبويبات المناطق
   (function () {
     const filters = document.getElementById('marketFilters');
     const grid = document.getElementById('marketGrid');
+    const search = document.getElementById('marketSearch');
+    const budget = document.getElementById('marketBudget');
+    const daysSel = document.getElementById('marketDays');
+    const empty = document.getElementById('marketEmpty');
+    const regionTabs = document.getElementById('regionTabs');
+    const soonNote = document.getElementById('soonNote');
     if (!filters || !grid) return;
+    let activeCat = 'all';
+
+    function normalize(s) { return (s || '').toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه'); }
+
+    function apply() {
+      const q = normalize(search.value.trim());
+      const b = budget.value;
+      const d = daysSel.value;
+      let visible = 0;
+      grid.querySelectorAll('.trip-tile').forEach(tile => {
+        let show = true;
+        if (activeCat !== 'all' && tile.getAttribute('data-cat') !== activeCat) show = false;
+        if (show && q && !normalize(tile.getAttribute('data-search')).includes(q)) show = false;
+        if (show && b !== 'all') {
+          const p = parseFloat(tile.getAttribute('data-ppp'));
+          if (!isNaN(p)) {
+            if (b === 'lt1000' && p >= 1000) show = false;
+            if (b === '1000-2500' && (p < 1000 || p > 2500)) show = false;
+            if (b === 'gt2500' && p <= 2500) show = false;
+          }
+        }
+        if (show && d !== 'all') {
+          const days = parseInt(tile.getAttribute('data-days'), 10) || 1;
+          if (d === '1' && days !== 1) show = false;
+          if (d === '2' && days !== 2) show = false;
+          if (d === '3' && days < 3) show = false;
+        }
+        tile.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      empty.hidden = visible > 0;
+    }
+
     filters.addEventListener('click', function (e) {
       const btn = e.target.closest('button[data-f]');
       if (!btn) return;
       filters.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const f = btn.getAttribute('data-f');
-      grid.querySelectorAll('.trip-tile').forEach(tile => {
-        tile.classList.toggle('hidden', f !== 'all' && tile.getAttribute('data-cat') !== f);
-      });
+      activeCat = btn.getAttribute('data-f');
+      apply();
+    });
+    search.addEventListener('input', apply);
+    budget.addEventListener('change', apply);
+    daysSel.addEventListener('change', apply);
+
+    regionTabs.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-r]');
+      if (!btn) return;
+      soonNote.hidden = !btn.classList.contains('soon');
     });
   })();
 </script>
