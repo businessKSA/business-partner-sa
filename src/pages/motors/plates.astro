@@ -1,0 +1,110 @@
+---
+// القصر موتورز — مزاد اللوحات المميزة (محاكاة توضيحية، اللوحات مرسومة SVG)
+import MotorsLayout from '../../layouts/MotorsLayout.astro';
+---
+
+<MotorsLayout title="مزاد اللوحات المميزة | القصر موتورز" active="plates">
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">اللوحات المميزة</div>
+      <h2><span class="live-dot"></span> أرقام تليق بقصرك</h2>
+      <p>
+        لوحات نادرة بمزايدة شفافة — نقل اللوحة يتم رسميًا عبر القنوات المعتمدة بعد الترسية.
+        (لوحات النموذج الأولي توضيحية)
+      </p>
+    </div>
+    <div class="cards" id="plates" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))"></div>
+  </section>
+
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">خدمات اللوحات</div>
+      <h2>أكثر من مجرد مزاد</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="ic">🔍</div><h4>ابحث عن رقمك</h4><p>نراقب السوق ونخطرك فور نزول الرقم اللي تحلم فيه — اسمك، تاريخ ميلادك، رقمك المحظوظ.</p></div>
+      <div class="step"><div class="ic">💎</div><h4>تقييم اللوحة</h4><p>الذكاء الاصطناعي يقدّر القيمة السوقية للوحتك من صفقات مشابهة قبل ما تبيع أو تشتري.</p></div>
+      <div class="step"><div class="ic">🤝</div><h4>بيع لوحتك</h4><p>اعرض لوحتك بالمزاد أو بسعر ثابت — ونتكفل بإجراءات النقل الرسمية كاملة.</p></div>
+    </div>
+  </section>
+
+  <script>
+    const fmt = new Intl.NumberFormat('en-US');
+    const now = Date.now();
+
+    // لوحات توضيحية: [حروف عربية، حروف لاتينية، رقم عربي، رقم لاتيني]
+    const PLATES = [
+      { ar: 'ب ح ر', en: 'B H R', nAr: '٧', nEn: '7', bid: 480000, bids: 52, step: 10000, ends: now + 5 * 3600e3, tag: 'نادرة 💎' },
+      { ar: 'ر و ح', en: 'R W H', nAr: '١', nEn: '1', bid: 950000, bids: 68, step: 25000, ends: now + 2.4 * 3600e3, tag: 'رقم أحادي 👑' },
+      { ar: 'د د د', en: 'D D D', nAr: '٩٩', nEn: '99', bid: 320000, bids: 34, step: 5000, ends: now + 12 * 3600e3, tag: 'حروف مكررة' },
+      { ar: 'م ل ك', en: 'M L K', nAr: '٥٠٥', nEn: '505', bid: 145000, bids: 21, step: 5000, ends: now + 20 * 3600e3, tag: 'مميزة' },
+      { ar: 'س ع د', en: 'S E D', nAr: '٢٠٢٦', nEn: '2026', bid: 68000, bids: 12, step: 2000, ends: now + 30 * 3600e3, tag: 'سنة الحظ' },
+      { ar: 'هـ ن أ', en: 'H N A', nAr: '٨٨', nEn: '88', bid: 210000, bids: 27, step: 5000, ends: now + 9 * 3600e3, tag: 'ثنائية' },
+    ];
+
+    // لوحة سعودية مبسطة (خصوصية: أرقام وحروف توضيحية)
+    const plateSVG = (p) => `
+      <svg class="plate-svg" viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="لوحة ${p.ar} ${p.nAr}">
+        <rect x="4" y="4" width="412" height="142" rx="14" fill="#f7f9fb" stroke="#1c2733" stroke-width="6"/>
+        <rect x="330" y="4" width="86" height="142" rx="14" fill="#123a6b"/>
+        <rect x="330" y="4" width="14" height="142" fill="#123a6b"/>
+        <text x="373" y="52" text-anchor="middle" fill="#f7f9fb" font-family="Cairo, sans-serif" font-weight="800" font-size="20">🦅</text>
+        <text x="373" y="88" text-anchor="middle" fill="#f7f9fb" font-family="Cairo, sans-serif" font-weight="800" font-size="16">السعودية</text>
+        <text x="373" y="116" text-anchor="middle" fill="#c9d8ea" font-family="Cairo, sans-serif" font-weight="700" font-size="14">KSA</text>
+        <line x1="168" y1="12" x2="168" y2="138" stroke="#1c2733" stroke-width="3" opacity="0.25"/>
+        <text x="86" y="62" text-anchor="middle" fill="#101820" font-family="Amiri, serif" font-weight="700" font-size="42">${p.nAr}</text>
+        <text x="86" y="122" text-anchor="middle" fill="#101820" font-family="Cairo, sans-serif" font-weight="800" font-size="34">${p.nEn}</text>
+        <text x="248" y="62" text-anchor="middle" fill="#101820" font-family="Amiri, serif" font-weight="700" font-size="42">${p.ar}</text>
+        <text x="248" y="122" text-anchor="middle" fill="#101820" font-family="Cairo, sans-serif" font-weight="800" font-size="34">${p.en}</text>
+      </svg>`;
+
+    const wrap = document.getElementById('plates');
+    PLATES.forEach((p, i) => {
+      const el = document.createElement('div');
+      el.className = 'car-card auction-card plate-card';
+      el.innerHTML = `
+        <div class="ph">${plateSVG(p)}
+          <div class="badges"><span class="chip red"><span class="live-dot"></span>${p.tag}</span></div>
+        </div>
+        <div class="body">
+          <div class="timer" id="pt${i}"></div>
+          <div class="bid-row">
+            <div>
+              <div class="bid-now" id="pb${i}">${fmt.format(p.bid)} ريال</div>
+              <div class="bid-count" id="pc${i}">${p.bids} مزايدة · موثقة</div>
+            </div>
+            <button class="btn-gold btn-sm" id="pbtn${i}">🔨 زايد +${fmt.format(p.step)}</button>
+          </div>
+        </div>`;
+      wrap.appendChild(el);
+      document.getElementById('pbtn' + i).addEventListener('click', () => {
+        p.bid += p.step; p.bids += 1; render(i, true);
+      });
+    });
+
+    function render(i, mine = false) {
+      const p = PLATES[i];
+      document.getElementById('pb' + i).textContent = fmt.format(p.bid) + ' ريال';
+      document.getElementById('pc' + i).textContent = p.bids + ' مزايدة · موثقة' + (mine ? ' · أنت الأعلى الآن ✅' : '');
+    }
+
+    function tick() {
+      const t = Date.now();
+      PLATES.forEach((p, i) => {
+        let s = Math.max(0, Math.floor((p.ends - t) / 1000));
+        const h = Math.floor(s / 3600); s %= 3600;
+        const m = Math.floor(s / 60); s %= 60;
+        document.getElementById('pt' + i).innerHTML =
+          `<div class="t"><b>${String(h).padStart(2, '0')}</b><small>ساعة</small></div>` +
+          `<div class="t"><b>${String(m).padStart(2, '0')}</b><small>دقيقة</small></div>` +
+          `<div class="t"><b>${String(s).padStart(2, '0')}</b><small>ثانية</small></div>`;
+      });
+    }
+    tick();
+    setInterval(tick, 1000);
+    setInterval(() => {
+      const i = Math.floor(Math.random() * PLATES.length);
+      PLATES[i].bid += PLATES[i].step; PLATES[i].bids += 1; render(i);
+    }, 7000);
+  </script>
+</MotorsLayout>

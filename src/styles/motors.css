@@ -1,0 +1,222 @@
+/* القصر موتورز — الثيم المشترك (نفس هوية القصر: أسود × ذهبي) */
+:root {
+  --bg: #07080c;
+  --bg-2: #0d1017;
+  --panel: rgba(18, 21, 30, 0.86);
+  --gold: #d4af37;
+  --gold-2: #f3d98b;
+  --gold-dim: rgba(212, 175, 55, 0.35);
+  --text: #f4efe3;
+  --muted: #a89f8c;
+  --line: rgba(212, 175, 55, 0.22);
+  --green: #2fbf71;
+  --red: #e5484d;
+  --blue: #4aa8d8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+h1, h2, h3, .serif { font-family: 'Amiri', 'Cairo', serif; }
+img { max-width: 100%; }
+a { color: inherit; }
+
+.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 1.2rem; }
+
+/* ===== الترويسة ===== */
+header.top {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(7, 8, 12, 0.85); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+header.top .bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.7rem 1.2rem; max-width: 1280px; margin: 0 auto;
+}
+.brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+.brand .mark { font-size: 1.5rem; }
+.brand b { color: var(--gold-2); font-size: 1.2rem; letter-spacing: 0.03em; display: block; line-height: 1.2; }
+.brand span { color: var(--muted); font-size: 0.72rem; display: block; line-height: 1; }
+nav.main { display: flex; gap: 0.2rem; flex-wrap: wrap; align-items: center; }
+nav.main a {
+  text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 600;
+  padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+nav.main a:hover { color: var(--gold-2); }
+nav.main a.active { color: var(--gold-2); border-color: var(--gold-dim); background: rgba(212, 175, 55, 0.08); }
+nav.main a.cta {
+  color: #14100a; background: linear-gradient(135deg, var(--gold-2), var(--gold));
+  font-weight: 800;
+}
+
+/* ===== أزرار ===== */
+.btn-gold {
+  display: inline-block; text-decoration: none; text-align: center; cursor: pointer;
+  font-family: inherit; font-weight: 800; font-size: 1rem; color: #14100a;
+  background: linear-gradient(135deg, var(--gold-2), var(--gold));
+  border: none; border-radius: 999px; padding: 0.75rem 1.7rem;
+  box-shadow: 0 6px 22px rgba(212, 175, 55, 0.28);
+  transition: transform 0.2s ease;
+}
+.btn-gold:hover { transform: translateY(-2px); }
+.btn-ghost {
+  display: inline-block; text-decoration: none; text-align: center; cursor: pointer;
+  font-family: inherit; font-weight: 600; font-size: 1rem; color: var(--gold-2);
+  background: transparent; border: 1px solid var(--gold-dim); border-radius: 999px;
+  padding: 0.75rem 1.7rem; transition: background 0.2s ease;
+}
+.btn-ghost:hover { background: rgba(212, 175, 55, 0.08); }
+.btn-sm { padding: 0.45rem 1.1rem; font-size: 0.85rem; }
+
+/* ===== شارات ===== */
+.chip {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.78rem; font-weight: 600; color: var(--gold-2);
+  border: 1px solid var(--gold-dim); border-radius: 999px; padding: 0.28rem 0.8rem;
+  background: rgba(212, 175, 55, 0.07);
+}
+.chip.green { color: #7ee2ac; border-color: rgba(47, 191, 113, 0.4); background: rgba(47, 191, 113, 0.08); }
+.chip.red { color: #ff9b9e; border-color: rgba(229, 72, 77, 0.4); background: rgba(229, 72, 77, 0.08); }
+.chip.blue { color: #9fd8f0; border-color: rgba(74, 168, 216, 0.4); background: rgba(74, 168, 216, 0.08); }
+
+/* ===== الأقسام ===== */
+.section { padding: 3.2rem 0 0.5rem; }
+.section-head { text-align: center; margin-bottom: 1.8rem; }
+.section-head .kicker { color: var(--gold); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.16em; }
+.section-head h2 { color: var(--gold-2); font-size: clamp(1.5rem, 3.6vw, 2.3rem); margin-top: 0.3rem; }
+.section-head p { color: var(--muted); max-width: 620px; margin: 0.5rem auto 0; line-height: 1.9; font-size: 0.95rem; }
+
+/* ===== بطاقات السيارات ===== */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem; }
+.car-card {
+  border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+  background: var(--panel); transition: all 0.25s ease; position: relative;
+  display: flex; flex-direction: column;
+}
+.car-card:hover { border-color: var(--gold-dim); transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.5); }
+.car-card .ph { position: relative; height: 175px; background: #0b0e14; overflow: hidden; }
+.car-card .ph img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+.car-card:hover .ph img { transform: scale(1.07); }
+.car-card .badges { position: absolute; top: 0.6rem; inset-inline-start: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.car-card .body { padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.45rem; flex: 1; }
+.car-card h3 { font-size: 1.02rem; color: var(--text); font-family: 'Cairo', sans-serif; }
+.car-card .meta { color: var(--muted); font-size: 0.78rem; display: flex; gap: 0.7rem; flex-wrap: wrap; }
+.car-card .price-line { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; margin-top: auto; }
+.car-card .price { color: var(--gold-2); font-weight: 800; font-size: 1.15rem; }
+.car-card .installment { color: var(--muted); font-size: 0.72rem; }
+
+/* ===== المزادات ===== */
+.auction-card .timer {
+  display: flex; gap: 0.4rem; justify-content: center; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.timer .t {
+  background: rgba(212, 175, 55, 0.1); border: 1px solid var(--gold-dim);
+  border-radius: 10px; padding: 0.3rem 0.55rem; min-width: 52px; text-align: center;
+}
+.timer .t b { display: block; color: var(--gold-2); font-size: 1.15rem; }
+.timer .t small { color: var(--muted); font-size: 0.62rem; font-weight: 600; }
+.bid-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.bid-now { color: var(--gold-2); font-weight: 800; font-size: 1.25rem; }
+.bid-count { color: var(--muted); font-size: 0.75rem; }
+.live-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--red); margin-inline-end: 0.3rem;
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+/* ===== اللوحات ===== */
+.plate-svg { width: 100%; height: auto; display: block; }
+.plate-card { text-align: center; }
+.plate-card .ph { height: auto !important; padding: 1.2rem 1.2rem 0.4rem; background: transparent !important; }
+
+/* ===== كيف نعمل ===== */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.step {
+  border: 1px solid var(--line); border-radius: 18px; padding: 1.3rem;
+  background: linear-gradient(160deg, rgba(212, 175, 55, 0.06), transparent 55%);
+  text-align: right; position: relative;
+}
+.step .num {
+  position: absolute; top: 0.9rem; inset-inline-end: 1rem;
+  font-family: 'Amiri', serif; font-size: 2rem; color: rgba(212, 175, 55, 0.25); font-weight: 700;
+}
+.step .ic { font-size: 1.6rem; }
+.step h4 { color: var(--text); margin: 0.5rem 0 0.3rem; font-size: 1.02rem; }
+.step p { color: var(--muted); font-size: 0.86rem; line-height: 1.8; }
+
+/* ===== حاسبة التمويل ===== */
+.fin-box {
+  border: 1px solid var(--line); border-radius: 22px; overflow: hidden;
+  background: var(--panel);
+  display: grid; grid-template-columns: 1fr 1.1fr;
+}
+.fin-controls { padding: 1.6rem; display: flex; flex-direction: column; gap: 1.1rem; border-inline-end: 1px solid var(--line); }
+.fin-controls label { color: var(--muted); font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.4rem; }
+.fin-controls .val { color: var(--gold-2); font-weight: 800; float: left; font-variant-numeric: tabular-nums; }
+.fin-controls input[type='range'] { width: 100%; accent-color: var(--gold); }
+.fin-offers { padding: 1.6rem; display: flex; flex-direction: column; gap: 0.8rem; }
+.offer {
+  border: 1px solid var(--line); border-radius: 14px; padding: 0.9rem 1.1rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 0.8rem;
+  transition: border-color 0.2s ease;
+}
+.offer:hover { border-color: var(--gold-dim); }
+.offer .name { font-weight: 700; font-size: 0.95rem; }
+.offer .name small { display: block; color: var(--muted); font-weight: 400; font-size: 0.72rem; margin-top: 0.15rem; }
+.offer .monthly { color: var(--gold-2); font-weight: 800; font-size: 1.25rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.offer .monthly small { color: var(--muted); font-size: 0.68rem; font-weight: 400; }
+.fin-note { color: var(--muted); font-size: 0.72rem; line-height: 1.7; }
+
+/* ===== نموذج اعرض سيارتك ===== */
+.wizard { max-width: 720px; margin: 0 auto; }
+.wizard .progress { display: flex; gap: 0.5rem; margin-bottom: 1.4rem; }
+.wizard .progress span { flex: 1; height: 5px; border-radius: 99px; background: rgba(212,175,55,0.15); }
+.wizard .progress span.on { background: linear-gradient(90deg, var(--gold-2), var(--gold)); }
+.wizard .card {
+  border: 1px solid var(--line); border-radius: 22px; background: var(--panel);
+  padding: 1.8rem;
+}
+.field { margin-bottom: 1rem; }
+.field label { display: block; color: var(--muted); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
+.field input, .field select {
+  width: 100%; font-family: inherit; font-size: 1rem; color: var(--text);
+  background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+  border-radius: 12px; padding: 0.7rem 0.9rem; outline: none;
+}
+.field input:focus, .field select:focus { border-color: var(--gold-dim); }
+.grid-2f { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+.upload-zone {
+  border: 2px dashed var(--gold-dim); border-radius: 16px; padding: 2rem 1rem;
+  text-align: center; color: var(--muted); cursor: pointer; transition: background 0.2s ease;
+}
+.upload-zone:hover { background: rgba(212, 175, 55, 0.05); }
+.ai-price {
+  border: 1px solid rgba(47, 191, 113, 0.4); background: rgba(47, 191, 113, 0.07);
+  border-radius: 16px; padding: 1.2rem; text-align: center;
+}
+.ai-price .range { color: #7ee2ac; font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* ===== الفوتر ===== */
+footer.bottom {
+  margin-top: 3.5rem; padding: 2rem 1.2rem 2.6rem; text-align: center;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem;
+}
+footer.bottom .serif { color: var(--gold-2); font-size: 1.3rem; display: block; margin-bottom: 0.4rem; }
+footer.bottom .note { font-size: 0.72rem; opacity: 0.75; display: block; margin-top: 0.6rem; line-height: 1.8; }
+
+@media (max-width: 860px) {
+  .fin-box { grid-template-columns: 1fr; }
+  .fin-controls { border-inline-end: none; border-bottom: 1px solid var(--line); }
+  .grid-2f { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
