@@ -1390,6 +1390,9 @@ var BP_EMP_BILLING = "monthly";
     var STAGES = [["interested", T("Interested", "مهتم")], ["contacted", T("Contacted", "تواصلت")], ["interview", T("Interview", "مقابلة")], ["hired", T("Hired", "تم التوظيف")]];
     var CODE = "", CANDS = [], lastJD = "";
     var DEMO = false;
+    var UNLOCKED = false;
+    function setUnlocked(on) { UNLOCKED = on; var ub = document.getElementById("empd-unlock"); if (ub) ub.hidden = on; }
+    function fallbackDemo(status) { CANDS = DEMO_CANDS.slice(); if (status) status.textContent = T("Showing demo data — connect Notion to see the live pool.", "عرض بيانات تجريبية — اربط Notion لعرض القاعدة الحقيقية."); fillFilters(); renderBrowse(); }
     var DEMO_CODES = ["BP-DEMO", "DEMO", "BP-EMP-DEMO", "DEMO123"];
     function isDemoCode(x) { return DEMO_CODES.indexOf(String(x == null ? "" : x).trim().toUpperCase()) > -1; }
     var DEMO_CANDS = [
@@ -1447,9 +1450,10 @@ var BP_EMP_BILLING = "monthly";
     }
     function enter(code, data) {
       CODE = code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", code);
-      gate.hidden = true; app.hidden = false;
+      setUnlocked(true);
       if (data && data.candidates) { CANDS = data.candidates; fillFilters(); renderBrowse(); } else load();
       renderCounts();
+      gateMsg.textContent = DEMO ? T("Demo mode — sample data.", "وضع تجربة — بيانات عيّنة.") : T("Unlocked — contacts and AI enabled.", "تم الفتح — بيانات التواصل والذكاء مفعّلة.");
     }
     document.getElementById("empd-enter").addEventListener("click", function () {
       var code = (codeInput.value || "").trim(); if (!code) return;
@@ -1461,7 +1465,8 @@ var BP_EMP_BILLING = "monthly";
     if (demoBtn) demoBtn.addEventListener("click", function () { enter("BP-DEMO", { unlocked: true, demo: true, candidates: DEMO_CANDS }); });
     document.getElementById("empd-logout").addEventListener("click", function () { try { localStorage.removeItem("bp_emp_code"); } catch (e) {} location.reload(); });
     var saved = readLS("bp_emp_code", "");
-    if (typeof saved === "string" && saved) { gateMsg.textContent = T("Signing in…", "جارٍ الدخول…"); validate(saved, function (ok, data) { if (ok) enter(saved, data); else gateMsg.textContent = ""; }); }
+    if (typeof saved === "string" && saved) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); load(); renderCounts(); } }); }
+    else { CODE = ""; setUnlocked(false); load(); renderCounts(); }
 
     Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
       t.addEventListener("click", function () {
@@ -1475,6 +1480,7 @@ var BP_EMP_BILLING = "monthly";
     });
 
     function fillFilters() {
+      if (fillFilters.done) return; fillFilters.done = true;
       var fEl = document.getElementById("empd-field"), cEl = document.getElementById("empd-city");
       var fields = {}, cities = {};
       CANDS.forEach(function (c) { if (c.field) fields[c.field] = 1; if (c.city) cities[c.city] = 1; });
@@ -1488,9 +1494,9 @@ var BP_EMP_BILLING = "monthly";
       var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value, ci = document.getElementById("empd-city").value, n = document.getElementById("empd-nat").value;
       if (q) qs.set("q", q); if (f) qs.set("field", f); if (ci) qs.set("city", ci); if (n) qs.set("nat", n);
       fetch("/api/candidates?" + qs).then(function (r) { return r.json(); }).then(function (d) {
-        if (!d || !d.ok) { status.textContent = T("Couldn't load.", "تعذّر التحميل."); return; }
-        CANDS = d.candidates || []; renderBrowse();
-      }).catch(function () { status.textContent = T("Network error.", "خطأ في الاتصال."); });
+        if (!d || !d.ok) { fallbackDemo(status); return; }
+        CANDS = d.candidates || []; if (!CANDS.length) { fallbackDemo(status); return; } fillFilters(); renderBrowse();
+      }).catch(function () { fallbackDemo(status); });
     }
     document.getElementById("empd-load").addEventListener("click", load);
     document.getElementById("empd-q").addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
@@ -1564,6 +1570,7 @@ var BP_EMP_BILLING = "monthly";
       if (!jd) { st.textContent = T("Describe the role first.", "اكتب وصف الوظيفة أولاً."); return; }
       if (!CANDS.length) { st.textContent = T("Loading candidates… try again in a moment.", "يتم تحميل المرشّحين… حاول بعد لحظات."); load(); return; }
       lastJD = jd; st.textContent = "✨ " + T("AI is ranking your best-fit candidates…", "الذكاء يرتّب أنسب المرشّحين…"); grid.innerHTML = "";
+      if (!UNLOCKED) { st.textContent = T("Subscribe to enable AI Match.", "اشترك لتفعيل المطابقة الذكية."); return; }
       if (DEMO) { demoMatch(jd, st, grid); return; }
       fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: "match", role: jd, candidates: CANDS.map(function (c) { return { id: c.id, role: c.role, field: c.field, city: c.city, experience: c.experience, education: c.education, nationalityType: c.nationalityType, skills: c.skills }; }) }) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
@@ -1601,6 +1608,7 @@ var BP_EMP_BILLING = "monthly";
     function aiAction(task, id) {
       var c = findC(id); if (!c) return;
       openModal(TITLES[task] || "AI", '<p class="empd-empty">✨ ' + T("Thinking…", "جارٍ التفكير…") + "</p>");
+      if (!UNLOCKED) { document.getElementById("empd-modal-body").innerHTML = "<p>" + T("Subscribe to unlock AI tools (assessment, interview questions, outreach).", "اشترك لفتح أدوات الذكاء (تقييم، أسئلة مقابلة، رسائل تواصل).") + "</p>"; return; }
       if (DEMO) { demoAIAction(task, c); return; }
       fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: task, candidate: c, role: lastJD }) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
