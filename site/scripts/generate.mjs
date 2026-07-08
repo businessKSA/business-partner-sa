@@ -887,9 +887,11 @@ function buildAiAgents() {
   const cards = a.agents
     .map((g) => {
       const name = L(g.nameEn || g.name, g.name);
-      const nameHtml = g.link ? `<a href="${u(g.link)}" style="color:inherit;text-decoration:none">${name}</a>` : name;
+      const external = /^https?:\/\//.test(g.link || "");
+      const linkAttrs = external ? ` target="_blank" rel="noopener"` : "";
+      const nameHtml = g.link ? `<a href="${u(g.link)}"${linkAttrs} style="color:inherit;text-decoration:none">${name}</a>` : name;
       const btns = cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
-      const tryBtn = g.link ? `<a href="${u(g.link)}" class="btn btn-ghost">${L("🚀 Try the service now", "🚀 جرّب الخدمة الآن")}</a>` : "";
+      const tryBtn = g.link ? `<a href="${u(g.link)}"${linkAttrs} class="btn btn-ghost">${L("🚀 Try the service now", "🚀 جرّب الخدمة الآن")}</a>` : "";
       const btnsWithTry = tryBtn ? btns.replace('<div class="buy-row">', `<div class="buy-row">${tryBtn}`) : btns;
       return `<div class="pkg${g.highlight ? " pop" : ""}">
       <div class="pk-name">${nameHtml}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
