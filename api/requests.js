@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
 //   type "event"    — corporate event request from /tourism (company email required)
@@ -135,8 +137,34 @@ async function readBody(req) {
 
 const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666">${k}</td><td style="padding:4px 10px"><b>${esc(v || "—")}</b></td></tr>`;
 
+// ---- Shared Services: subscribe → owner approval → emailed access code → unlock ----
+const OTP_SECRET = process.env.OTP_SECRET || "";
+const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
+const SITE_BASE = process.env.SITE_BASE || "https://businesspartner.sa";
+const SS_BANK = { beneficiary: process.env.BP_BANK_BENEFICIARY || "شركة بيزنس بارتنر", bank: process.env.BP_BANK_NAME || "مصرف الراجحي", iban: process.env.BP_BANK_IBAN || "SA5380000511608016228498" };
+const ssKey = () => crypto.createHash("sha256").update(OTP_SECRET).digest();
+function ssSeal(o) { const iv = crypto.randomBytes(12); const c = crypto.createCipheriv("aes-256-gcm", ssKey(), iv); const ct = Buffer.concat([c.update(JSON.stringify(o), "utf8"), c.final()]); return Buffer.concat([iv, c.getAuthTag(), ct]).toString("base64url"); }
+function ssUnseal(t) { const raw = Buffer.from(String(t), "base64url"); const d = crypto.createDecipheriv("aes-256-gcm", ssKey(), raw.subarray(0, 12)); d.setAuthTag(raw.subarray(12, 28)); return JSON.parse(Buffer.concat([d.update(raw.subarray(28)), d.final()]).toString("utf8")); }
+function ssCode(email) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET).update("shared|" + String(email).toLowerCase()).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-SS-" + o; }
+function ssRef(email) { const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("ref|" + String(email).toLowerCase() + "|" + Date.now()).digest("hex"); return "BP-SS-" + h.slice(0, 6).toUpperCase(); }
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
+
+  // Shared Services — owner approval link (owner clicks the emailed GET link).
+  const q = req.query || {};
+  if ((q.action || "") === "approve") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
+    let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
+    const code = ssCode(d.email);
+    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل خدمتك 🎉</h2><p>كود الوصول الخاص بك للخدمات المشتركة:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${SITE_BASE}/shared-services" style="background:#12b3ad;color:#04211f;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح الخدمة</a> — أدخل بريدك والكود.</p></div>`;
+    await sendEmail(d.email, `كود الوصول — الخدمات المشتركة (${code})`, codeHtml);
+    await crmLead({ title: `تفعيل خدمات مشتركة — ${d.name || d.email}`, phone: d.phone || "", email: d.email, notes: `معتمد ومفعّل · ${d.ref}`, ref: d.ref });
+    res.statusCode = 200;
+    return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم الاعتماد</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
+  }
+
   if (req.method === "GET") {
     const url = new URL(req.url, "http://x");
     const refs = (url.searchParams.get("refs") || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 30);
@@ -157,6 +185,41 @@ export default async function handler(req, res) {
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
 
   const b = await readBody(req);
+
+  // Shared Services — client places a subscription order (bank transfer for now).
+  if (b.action === "subscribe") {
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured", message: "الخدمة غير مُفعّلة بعد." })); }
+    const name = String(b.name || "").trim().slice(0, 120);
+    const email = String(b.email || "").trim().toLowerCase();
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email", message: "أدخل بريداً صحيحاً." })); }
+    const ref = ssRef(email);
+    const approveUrl = `${SITE_BASE}/api/requests?action=approve&t=${encodeURIComponent(ssSeal({ email, name, phone, ref }))}`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:540px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">استلمنا طلبك — الخدمات المشتركة (${esc(ref)})</h2><p>أهلاً ${esc(name)}، لإتمام الاشتراك حوّل قيمة الاشتراك إلى:</p><ul><li>المستفيد: ${esc(SS_BANK.beneficiary)}</li><li>البنك: ${esc(SS_BANK.bank)}</li><li>الآيبان: ${esc(SS_BANK.iban)}</li></ul><p>بعد تأكيد التحويل واعتماد الطلب، يصلك <b>كود وصول</b> على هذا البريد يفتح فريقك التنفيذي مباشرة. لن نطلب كلمة مرور أو رمز تحقق.</p></div>`;
+    const ownerHtml = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><h2 style="color:#0B1B5A">طلب اشتراك جديد — الخدمات المشتركة (${esc(ref)})</h2><table>${row("الاسم", name) + row("البريد", email) + row("الجوال", phone)}</table><p>لاعتماد الطلب وإرسال الكود للعميل:</p><p><a href="${approveUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:bold">✅ اعتماد وإرسال الكود</a></p><p style="color:#666;font-size:13px">لا تعتمد إلا بعد تأكيد وصول التحويل. الرابط سرّي.</p></div>`;
+    await Promise.all([
+      sendEmail(email, `استلمنا طلبك — الخدمات المشتركة (${ref})`, clientHtml),
+      sendEmail(OWNER_EMAIL, `طلب اشتراك جديد — ${name || email} (${ref})`, ownerHtml),
+      crmLead({ title: `طلب خدمات مشتركة — ${name || email}`, phone, email, notes: `بانتظار الموافقة · تحويل بنكي · ${ref}`, ref }),
+      addToAudience(email, name),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, bank: SS_BANK, message: "استلمنا طلبك. حوّل قيمة الاشتراك ثم ننتظر اعتماد الفريق، ويصلك كود الوصول على بريدك." }));
+  }
+
+  // Shared Services — client enters the emailed access code to open the service.
+  if (b.action === "unlock") {
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const email = String(b.email || "").trim().toLowerCase();
+    const code = String(b.code || "").trim().toUpperCase().replace(/\s+/g, "");
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    const expected = ssCode(email);
+    const aa = Buffer.from(code), bb = Buffer.from(expected);
+    const ok = aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
+    if (!ok) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "bad_code", message: "الكود غير صحيح لهذا البريد. استخدم نفس البريد الذي اشتركت به." })); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, token: ssSeal({ email, plan: "shared", t: Date.now() }), message: "تم التفعيل — أهلاً بك في فريقك التنفيذي." }));
+  }
 
   // Order/purchase from checkout → CRM lead + team notification (lighter validation).
   if (b.type === "order") {

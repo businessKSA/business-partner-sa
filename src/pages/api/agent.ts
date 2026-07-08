@@ -12,6 +12,10 @@ const N8N_BASE = process.env.N8N_WEBHOOK_BASE || 'https://businesspartnerai.app.
 type AgentDef = { path: string; live: boolean };
 
 const AGENTS: Record<string, AgentDef> = {
+  consultant: { path: 'consultant-intake', live: true },
+  market: { path: 'market-intake', live: true },
+  model: { path: 'model-intake', live: true },
+  finance: { path: 'finance-intake', live: true },
   badr: { path: 'badr-intake', live: true },
   malak: { path: 'malak-intake', live: true },
   ahmed: { path: 'ahmed-procurement', live: true },
