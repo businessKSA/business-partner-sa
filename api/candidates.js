@@ -27,6 +27,8 @@ const NOTION_TOKEN = envFrom([
 const DB_ID = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
 const CODES = (process.env.EMPLOYER_CODES || "").split(",").map((s) => s.trim()).filter(Boolean);
 const NOTION_VERSION = "2022-06-28";
+// Employers subscriptions DB — a paid, ACTIVE row unlocks access dynamically (no redeploy).
+const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
 
 // Paging through 1600+ ATS rows needs more than the default serverless budget.
 export const config = { maxDuration: 60 };
@@ -51,6 +53,37 @@ const maskName = (n) => {
   return parts.slice(0, 2).map((w) => w[0] + ".").join(" ");
 };
 
+// Resolve a subscription code → { unlocked, plan }. Checks the static EMPLOYER_CODES
+// env (legacy) first, then the Employers Notion DB for an ACTIVE row by access code.
+async function resolvePlan(code) {
+  if (!code) return { unlocked: false, plan: "" };
+  if (CODES.includes(code)) return { unlocked: true, plan: "" };
+  try {
+    const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({
+        page_size: 1,
+        filter: { and: [
+          { property: "رمز الوصول", rich_text: { equals: code } },
+          { property: "الحالة", select: { equals: "مفعّل" } },
+        ] },
+      }),
+    });
+    if (r.ok) {
+      const d = await r.json();
+      const row = (d.results || [])[0];
+      if (row) {
+        const p = row.properties && row.properties["الباقة"] && row.properties["الباقة"].select;
+        return { unlocked: true, plan: (p && p.name) || "" };
+      }
+    } else {
+      console.error("employer lookup error", r.status, (await r.text()).slice(0, 200));
+    }
+  } catch (e) { console.error("resolvePlan error", String(e).slice(0, 200)); }
+  return { unlocked: false, plan: "" };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
@@ -63,7 +96,7 @@ export default async function handler(req, res) {
   const qNat = (url.searchParams.get("nat") || "").trim();
   const qText = (url.searchParams.get("q") || "").trim().toLowerCase();
   const code = (url.searchParams.get("code") || "").trim();
-  const unlocked = !!code && CODES.includes(code);
+  const { unlocked, plan } = await resolvePlan(code);
 
   // Server-side Notion filter: only the website-sourced / active candidates.
   const base = {
@@ -128,7 +161,7 @@ export default async function handler(req, res) {
     if (qText) rows = rows.filter((x) => (x.role + " " + x.skills + " " + x.field).toLowerCase().includes(qText));
 
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, total: rows.length, candidates: rows }));
+    return res.end(JSON.stringify({ ok: true, unlocked, plan, total: rows.length, candidates: rows }));
   } catch (e) {
     console.error("candidates handler error", e);
     res.statusCode = 500;
