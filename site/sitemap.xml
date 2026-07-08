@@ -16,12 +16,24 @@
   <url><loc>https://businesspartner.sa/ar/packages</loc></url>
   <url><loc>https://businesspartner.sa/tools-and-calculators</loc></url>
   <url><loc>https://businesspartner.sa/ar/tools-and-calculators</loc></url>
-  <url><loc>https://businesspartner.sa/compliance-calculators</loc></url>
-  <url><loc>https://businesspartner.sa/ar/compliance-calculators</loc></url>
-  <url><loc>https://businesspartner.sa/labor-calculators</loc></url>
-  <url><loc>https://businesspartner.sa/ar/labor-calculators</loc></url>
+  <url><loc>https://businesspartner.sa/calculators/nitaqat</loc></url>
+  <url><loc>https://businesspartner.sa/ar/calculators/nitaqat</loc></url>
+  <url><loc>https://businesspartner.sa/calculators/government-cost</loc></url>
+  <url><loc>https://businesspartner.sa/ar/calculators/government-cost</loc></url>
+  <url><loc>https://businesspartner.sa/calculators/profession-checker</loc></url>
+  <url><loc>https://businesspartner.sa/ar/calculators/profession-checker</loc></url>
+  <url><loc>https://businesspartner.sa/calculators/end-of-service</loc></url>
+  <url><loc>https://businesspartner.sa/ar/calculators/end-of-service</loc></url>
+  <url><loc>https://businesspartner.sa/calculators/annual-leave</loc></url>
+  <url><loc>https://businesspartner.sa/ar/calculators/annual-leave</loc></url>
+  <url><loc>https://businesspartner.sa/calculators/overtime</loc></url>
+  <url><loc>https://businesspartner.sa/ar/calculators/overtime</loc></url>
+  <url><loc>https://businesspartner.sa/calculators/gosi</loc></url>
+  <url><loc>https://businesspartner.sa/ar/calculators/gosi</loc></url>
   <url><loc>https://businesspartner.sa/compliance-portal</loc></url>
   <url><loc>https://businesspartner.sa/ar/compliance-portal</loc></url>
+  <url><loc>https://businesspartner.sa/compliance-agent</loc></url>
+  <url><loc>https://businesspartner.sa/ar/compliance-agent</loc></url>
   <url><loc>https://businesspartner.sa/saudi-arabia</loc></url>
   <url><loc>https://businesspartner.sa/ar/saudi-arabia</loc></url>
   <url><loc>https://businesspartner.sa/news</loc></url>
@@ -64,8 +76,10 @@
   <url><loc>https://businesspartner.sa/ar/services/category/premium-residency</loc></url>
   <url><loc>https://businesspartner.sa/services/category/government-relations</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/category/government-relations</loc></url>
-  <url><loc>https://businesspartner.sa/services/category/hr-recruitment</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/category/hr-recruitment</loc></url>
+  <url><loc>https://businesspartner.sa/services/category/hr-services</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/category/hr-services</loc></url>
+  <url><loc>https://businesspartner.sa/services/category/recruitment</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/category/recruitment</loc></url>
   <url><loc>https://businesspartner.sa/services/category/business-support</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/category/business-support</loc></url>
   <url><loc>https://businesspartner.sa/services/category/real-estate</loc></url>

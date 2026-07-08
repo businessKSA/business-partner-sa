@@ -122,6 +122,51 @@ const u = (href) => {
   if (!href || href[0] !== "/" || href.startsWith("/assets") || href.startsWith("/api") || href.startsWith("/ar/") || href === "/ar") return href === "/" ? "/ar/" : href;
   return "/ar" + href;
 };
+
+// Standalone HR portal (hr.businesspartner.sa) — Arabic-first canonical paths
+// ("/", "/join", "/dashboard", "/candidates"); English lives under "/en/...".
+// Kept fully separate from the main site's nav/footer/services.
+const pu = (short) => (LANG === "ar" ? short : "/en" + (short === "/" ? "" : short));
+const PORTAL_LINKS = [
+  { href: "/", en: "Home", ar: "الرئيسية" },
+  { href: "/join", en: "For Employers", ar: "لأصحاب الأعمال" },
+  { href: "/dashboard", en: "Dashboard", ar: "لوحة التوظيف" },
+  { href: "/candidates", en: "For Candidates", ar: "للباحثين عن عمل" },
+];
+function portalLangToggle(active) {
+  const other = LANG === "ar" ? "/en" + (active === "/" ? "" : active) : active;
+  return `<a class="lang-toggle" href="${other}">${LANG === "ar" ? "English" : "العربية"}</a>`;
+}
+function portalHeader(active) {
+  const nav = PORTAL_LINKS.map((l) => `<a href="${pu(l.href)}"${l.href === active ? ' class="active"' : ""}>${L(l.en, l.ar)}</a>`).join("");
+  return `<header class="site-header portal-header"><div class="container header-inner">
+  <a class="logo" href="${pu("/")}" aria-label="Business Partner HR" style="display:flex;align-items:center;gap:10px">
+    <img src="/assets/img/logo.png" alt="Business Partner" width="150" height="28">
+    <span style="font-size:.78rem;font-weight:700;color:var(--brand);background:var(--bg-soft);padding:3px 10px;border-radius:999px">${L("HR Portal", "بوابة الموارد البشرية")}</span>
+  </a>
+  <nav class="nav" aria-label="Portal navigation">${nav}</nav>
+  <div class="header-cta">${portalLangToggle(active)}</div>
+</div></header>`;
+}
+function portalFooter() {
+  const c = site.contact;
+  return `<footer class="site-footer portal-footer"><div class="container">
+  <div class="footer-grid" style="grid-template-columns:1fr auto;gap:24px">
+    <div>
+      <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="140" height="26"></div>
+      <p>${L("HR by Business Partner — a standalone recruitment portal.", "الموارد البشرية من بزنس بارتنر — بوابة توظيف مستقلة.")}</p>
+    </div>
+    <div class="footer-col"><h4>${L("Contact", "تواصل")}</h4><ul>
+      <li><a href="${WA}" target="_blank" rel="noopener">${L("WhatsApp", "واتساب")}</a></li>
+      <li><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bottom"><span>${L("© " + new Date().getFullYear() + " Business Partner · All rights reserved", "© " + new Date().getFullYear() + " بيزنس بارتنر · جميع الحقوق محفوظة")}</span></div>
+</div></footer>`;
+}
+function portalPage({ title, desc, path, active, body }) {
+  return head(title, desc, path) + portalHeader(active) + `<main>${body}</main>` + portalFooter() + waFab() + `<script src="/assets/js/main.js?v=${JS_V}"></script></body></html>`;
+}
 // Service name in the current build language (bilingual map → override → catalog).
 function sName(s) {
   const m = svcI18n[s.code] || {};
@@ -256,16 +301,7 @@ const NAV_GROUPS = [
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
   },
-  {
-    en: "Jobs", ar: "التوظيف",
-    items: [
-      { href: "/hr", en: "HR by Business Partner ⚡", ar: "الموارد البشرية من بزنس بارتنر ⚡" },
-      { href: "/careers", en: "For job seekers", ar: "للباحثين عن عمل" },
-      { href: "/employers", en: "For employers", ar: "لأصحاب الأعمال" },
-      { href: "/employer-join", en: "Employer subscription", ar: "اشتراك أصحاب العمل" },
-      { href: "/employer-dashboard", en: "Employer dashboard", ar: "لوحة التوظيف" },
-    ],
-  },
+  { href: "/hr", en: "HR by Business Partner", ar: "الموارد البشرية من بزنس بارتنر" },
   { href: "/about", en: "About us", ar: "من نحن" },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
@@ -407,7 +443,7 @@ const catUrl = (key) => u("/services/category/" + catSlugUrl(key));
 // Emoji icon per category (visual variety on the services hub).
 const CAT_ICON = {
   "Company Formation": "🏢", "Foreign Investment": "🌍", "Premium Residency": "🪪",
-  "Government Relations": "🏛️", "HR & Recruitment": "👥",
+  "Government Relations": "🏛️", "HR Services": "👥", "Recruitment": "🧑‍💼",
   "Business Support": "📊", "Real Estate": "🏗️", "AI Automation": "🤖", "Tourism": "✈️",
 };
 
@@ -555,7 +591,8 @@ function buildHome() {
       { title: "Foreign Investment", text: "MISA license, 100% foreign company, foreign branch, and partnerships." },
       { title: "Premium Residency", text: "Choosing the right product and managing the application to issuance — no sponsor." },
       { title: "Government Relations", text: "Qiwa, HR, Muqeem, GOSI, Balady, and sector licensing." },
-      { title: "HR & Recruitment", text: "Managing Qiwa, GOSI, Mudad and contracts, plus talent attraction and end-to-end recruitment procedures." },
+      { title: "HR Services", text: "Managing Qiwa, GOSI and Mudad, contracts, sponsorship transfer and compliance." },
+      { title: "Recruitment & Hiring", text: "Talent attraction and end-to-end recruitment procedures." },
     ],
     allServices: "All services", packagesDetails: "Package details",
     agentEyebrow: "The killer feature", agentTitle: "The killer feature: the smart agent on WhatsApp",
@@ -848,16 +885,22 @@ function buildAiAgents() {
     )
     .join("");
   const cards = a.agents
-    .map(
-      (g) => `<div class="pkg${g.highlight ? " pop" : ""}">
-      <div class="pk-name">${L(g.nameEn || g.name, g.name)}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
+    .map((g) => {
+      const name = L(g.nameEn || g.name, g.name);
+      const external = /^https?:\/\//.test(g.link || "");
+      const linkAttrs = external ? ` target="_blank" rel="noopener"` : "";
+      const nameHtml = g.link ? `<a href="${u(g.link)}"${linkAttrs} style="color:inherit;text-decoration:none">${name}</a>` : name;
+      const btns = cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
+      const tryBtn = g.link ? `<a href="${u(g.link)}"${linkAttrs} class="btn btn-ghost">${L("🚀 Try the service now", "🚀 جرّب الخدمة الآن")}</a>` : "";
+      const btnsWithTry = tryBtn ? btns.replace('<div class="buy-row">', `<div class="buy-row">${tryBtn}`) : btns;
+      return `<div class="pkg${g.highlight ? " pop" : ""}">
+      <div class="pk-name">${nameHtml}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
       <div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>
       <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
       <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
-      ${g.key === "shared" ? `<a class="btn btn-ghost" href="${u("/shared-services")}" style="width:100%;margin-bottom:8px">🤝 ${L("Try the service", "جرّب الخدمة")}</a>` : ""}
-      ${cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
-    </div>`
-    )
+      ${btnsWithTry}
+    </div>`;
+    })
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
@@ -1013,7 +1056,8 @@ const CAT_META = {
   "Foreign Investment": { icon: "🌍", en: "Foreign Investment" },
   "Premium Residency": { icon: "🪪", en: "Premium Residency" },
   "Government Relations": { icon: "🏛️", en: "Government Relations" },
-  "HR & Recruitment": { icon: "👥", en: "HR & Recruitment" },
+  "HR Services": { icon: "👥", en: "HR Services" },
+  "Recruitment": { icon: "🧑‍💼", en: "Recruitment & Hiring" },
   "Business Support": { icon: "🧰", en: "Business Support" },
   "Real Estate": { icon: "🏗️", en: "Real Estate" },
   "AI Automation": { icon: "🤖", en: "AI & Automation" },
@@ -1066,7 +1110,7 @@ function buildCalculator() {
     <span class="eyebrow">${L("Cost calculator", "حاسبة التكلفة")}</span>
     <h1>${L("Build your service basket and see the cost", "كوّن سلّة خدماتك واعرف التكلفة")}</h1>
     <p class="lead">${L("Pick services from the official catalog by category. The basket totals your one-time and monthly Business Partner fees instantly. Government fees (where applicable) are separate and announced before starting.", "اختر خدماتك حسب التصنيف من الكتالوج الرسمي. تتحدّث السلّة تلقائياً بإجمالي أتعاب بيزنس بارتنر لمرة واحدة والشهرية. الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.")}</p>
-    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/compliance-calculators")}">🟢 ${L("Nitaqat & government cost calculators →", "حاسبات النطاقات والتكاليف الحكومية ←")}</a></p>
+    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/tools-and-calculators")}">🟢 ${L("Tools & calculators →", "الأدوات والحاسبات ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">
     <div class="calc2" id="calc2">
@@ -1145,13 +1189,13 @@ function intakeFormBlock() {
 // to its calculator/tool (deep-linked via #hash into the right tab).
 function buildToolsHub() {
   const tools = [
-    { icon: "🏆", title: L("End-of-service gratuity", "حاسبة مكافأة نهاية الخدمة"), desc: L("Calculate the end-of-service gratuity per the Saudi Labor Law.", "احسب مكافأة نهاية الخدمة وفق نظام العمل السعودي."), href: u("/labor-calculators") + "#eos" },
-    { icon: "🏖️", title: L("Annual leave", "حاسبة الإجازة السنوية"), desc: L("Leave entitlement and the cash value of unused days.", "استحقاق الإجازة والقيمة النقدية للأيام غير المستخدمة."), href: u("/labor-calculators") + "#leave" },
-    { icon: "⏱️", title: L("Overtime", "حاسبة العمل الإضافي"), desc: L("Overtime pay at the 1.5x rate per the Labor Law.", "أجر العمل الإضافي بمعدل 1.5× وفق نظام العمل."), href: u("/labor-calculators") + "#ot" },
-    { icon: "🏦", title: L("GOSI contributions", "حاسبة اشتراك التأمينات (GOSI)"), desc: L("Monthly social-insurance contributions, Saudi & non-Saudi.", "الاشتراكات الشهرية للتأمينات، للسعودي وغير السعودي."), href: u("/labor-calculators") + "#gosi" },
-    { icon: "🟢", title: L("Nitaqat calculator", "حاسبة النطاقات"), desc: L("Estimate your Nitaqat band and Saudization ratio by activity.", "قدّر نطاقك ونسبة التوطين حسب نشاطك."), href: u("/compliance-calculators") + "#nitaqat" },
-    { icon: "💰", title: L("Government cost calculator", "حاسبة التكاليف الحكومية"), desc: L("Estimate visa, Iqama and platform fees for your headcount.", "قدّر رسوم التأشيرات والإقامات والمنصات حسب عدد موظفيك."), href: u("/compliance-calculators") + "#fees" },
-    { icon: "🧑‍💼", title: L("Profession checker", "فاحص المهن"), desc: L("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."), href: u("/compliance-calculators") + "#prof" },
+    { icon: "🏆", title: L("End-of-service gratuity", "حاسبة مكافأة نهاية الخدمة"), desc: L("Calculate the end-of-service gratuity per the Saudi Labor Law.", "احسب مكافأة نهاية الخدمة وفق نظام العمل السعودي."), href: u("/calculators/end-of-service") },
+    { icon: "🏖️", title: L("Annual leave", "حاسبة الإجازة السنوية"), desc: L("Leave entitlement and the cash value of unused days.", "استحقاق الإجازة والقيمة النقدية للأيام غير المستخدمة."), href: u("/calculators/annual-leave") },
+    { icon: "⏱️", title: L("Overtime", "حاسبة العمل الإضافي"), desc: L("Overtime pay at the 1.5x rate per the Labor Law.", "أجر العمل الإضافي بمعدل 1.5× وفق نظام العمل."), href: u("/calculators/overtime") },
+    { icon: "🏦", title: L("GOSI contributions", "حاسبة اشتراك التأمينات (GOSI)"), desc: L("Monthly social-insurance contributions, Saudi & non-Saudi.", "الاشتراكات الشهرية للتأمينات، للسعودي وغير السعودي."), href: u("/calculators/gosi") },
+    { icon: "🟢", title: L("Nitaqat calculator", "حاسبة النطاقات"), desc: L("Estimate your Nitaqat band and Saudization ratio by activity.", "قدّر نطاقك ونسبة التوطين حسب نشاطك."), href: u("/calculators/nitaqat") },
+    { icon: "💰", title: L("Government cost calculator", "حاسبة التكاليف الحكومية"), desc: L("Estimate visa, Iqama and platform fees for your headcount.", "قدّر رسوم التأشيرات والإقامات والمنصات حسب عدد موظفيك."), href: u("/calculators/government-cost") },
+    { icon: "🧑‍💼", title: L("Profession checker", "فاحص المهن"), desc: L("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."), href: u("/calculators/profession-checker") },
     { icon: "🛡️", title: L("Compliance portal", "بوابة الامتثال"), desc: L("Upload your official files once — we build your file and track every deadline.", "ارفع ملفاتك الرسمية مرة واحدة — نبني ملفك ونتابع كل استحقاق."), href: u("/compliance-portal") },
   ];
   const cards = tools.map((t) => `<a class="card cat-card" href="${t.href}">
@@ -1172,305 +1216,64 @@ function buildToolsHub() {
   return page({ title: Lraw("Tools & calculators — Business Partner", "الأدوات والحاسبات — بيزنس بارتنر"), desc: Lraw("Free labor, payroll, Saudization and compliance calculators.", "حاسبات مجانية للعمل والرواتب والتوطين والامتثال."), active: "/tools-and-calculators", path: "/tools-and-calculators", body });
 }
 
-function buildComplianceCalculators() {
-  // Official activities dataset (codes + AR/EN names from the ISIC4 master reference in Notion).
+function buildNitaqatCalculator() {
   let ACT_V = "0";
   try { ACT_V = assetV("assets/data/activities.json"); } catch { /* file generated separately */ }
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Free compliance tools", "أدوات امتثال مجانية")}</span>
-    <h1>${L("Nitaqat & government cost calculators", "حاسبات النطاقات والتكاليف الحكومية")}</h1>
-    <p class="lead">${L("Estimate your Saudization (Nitaqat) band and per-worker government costs (work permit, iqama, medical insurance, fines) in seconds — before committing to anything.", "احسب نطاق السعودة المتوقع لمنشأتك وتكاليف العمالة الحكومية لكل عامل (رخصة العمل، الإقامة، التأمين الطبي، الغرامات) خلال ثوانٍ — وقبل أي التزام.")}</p>
+    <a class="back-link" href="${u("/tools-and-calculators")}">${I.arrow} ${L("All tools & calculators", "كل الأدوات والحاسبات")}</a>
+    <span class="eyebrow">${L("Free compliance tool", "أداة امتثال مجانية")}</span>
+    <h1>${L("Nitaqat calculator", "حاسبة النطاقات")}</h1>
+    <p class="lead">${L("Estimate your Saudization (Nitaqat) band in seconds, per the official Developed-Nitaqat formula.", "احسب نطاق السعودة المتوقع لمنشأتك خلال ثوانٍ، وفق معادلة نطاقات المطوّر الرسمية.")}</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:920px">
-    <div class="cc-agent">
-      <div class="cc-agent-main">
-        <div class="cc-agent-title">${I.shield}<div><strong>${L("The Compliance Agent — working for you right now", "وكيل الامتثال — يعمل لأجلك الآن")}</strong><span class="cc-agent-live">● ${L("LIVE", "نشط")}</span></div></div>
-        <p>${L("An AI agent that monitors Qiwa, Muqeem, GOSI and Mudad daily: tracks every iqama, work permit and wage-protection deadline, classifies urgency (red ≤7 days · yellow ≤30), computes your Nitaqat band and estimated costs, and alerts you on WhatsApp and email before any violation — with human approval required before any government action.", "وكيل ذكاء اصطناعي يراقب قوى ومقيم والتأمينات ومدد يومياً: يتتبع كل إقامة ورخصة عمل ومهلة حماية أجور، يصنّف الخطورة (أحمر ≤ 7 أيام · أصفر ≤ 30)، يحسب نطاقك وتكاليفك التقديرية، وينبّهك واتساب وإيميل قبل أي مخالفة — وبموافقة بشرية قبل أي إجراء حكومي.")}</p>
-        <div class="cc-agent-feats">
-          <span>🛡️ ${L("Daily monitoring 07:00", "مراقبة يومية 07:00")}</span>
-          <span>🔴🟡 ${L("Early red/yellow alerts", "تنبيه مبكر أحمر/أصفر")}</span>
-          <span>📱 ${L("WhatsApp + email", "واتساب + إيميل")}</span>
-          <span>⚖️ ${L("Your approval before any action", "موافقتك قبل أي إجراء")}</span>
-        </div>
+    <div class="order-box">
+      <h3>${L("Saudization (Nitaqat) calculator — official Developed-Nitaqat formula", "حاسبة نطاقات السعودة — بمعادلة نطاقات المطوّر الرسمية")}</h3>
+      <p class="cc-sub">${L("Built on the official HRSD procedural guide (Developed Nitaqat 2026): band thresholds are computed per activity with the official formula ", "مبنية على الدليل الإجرائي الرسمي لوزارة الموارد البشرية (نطاقات المطوّر 2026): عتبات النطاقات تُحسب لكل نشاط بالمعادلة الرسمية ")}<code>ص = م × لوغ(س) + ث</code>${L(" — the same engine behind Qiwa's calculator.", " — نفس منهجية حاسبة قوى.")}</p>
+      <div class="field cc-act-field">
+        <label for="cc-activity">🔎 ${L("Find your exact CR activity — type the name or the 6-digit code", "ابحث عن نشاطك في السجل التجاري — اكتب الاسم أو الكود")}</label>
+        <input type="text" id="cc-activity" autocomplete="off" placeholder="${Lraw("e.g. 471101, contracting, pharmacy…", "مثال: 471101، مقاولات، صيدلية…")}">
+        <div class="cc-act-drop" id="cc-act-drop" hidden></div>
       </div>
-      <div class="cc-agent-cta">
-        <a href="#" class="btn btn-primary cc-goto-upload">📤 ${L("Activate monitoring — upload your files", "فعّل المراقبة — ارفع ملفاتك")}</a>
-        <a class="btn btn-ghost" href="${u("/ai-agents")}">${L("About the AI agents →", "عن الوكلاء الأذكياء ←")}</a>
+      <div class="cc-act-chips" id="cc-act-chips" aria-label="${Lraw("Activity sectors", "قطاعات الأنشطة")}"></div>
+      <div class="cc-act-info" id="cc-act-info" hidden></div>
+      <div class="cc-grid">
+        <div class="field" style="grid-column:1/-1"><label for="cc-act">${L("Economic activity (per Nitaqat classification)", "النشاط الاقتصادي (حسب تصنيف نطاقات)")}</label><select id="cc-act"></select></div>
+        <div class="field"><label for="cc-year">${L("Calculation year", "سنة الاحتساب")}</label><select id="cc-year"><option value="y2026" selected>2026</option><option value="y2027">2027</option><option value="y2028">2028</option></select></div>
+        <div class="field"><label for="cc-total">${L("Total workforce (entity)", "إجمالي العمالة (الكيان)")}</label><input type="number" id="cc-total" min="1" value="25"></div>
+        <div class="field"><label for="cc-saudis">${L("Saudi employees (average)", "متوسط العمالة السعودية")}</label><input type="number" id="cc-saudis" min="0" value="3"></div>
       </div>
-    </div>
-    <div class="cc-tabs" role="tablist">
-      <button class="cc-tab active" data-tab="nitaqat" role="tab">🟢 ${L("Nitaqat calculator", "حاسبة النطاقات")}</button>
-      <button class="cc-tab" data-tab="fees" role="tab">💰 ${L("Cost calculator", "حاسبة التكاليف")}</button>
-      <button class="cc-tab" data-tab="prof" role="tab">🧑‍💼 ${L("Profession checker", "فاحص المهن")}</button>
-      <button class="cc-tab" data-tab="upload" role="tab">📤 ${L("Upload your files", "ارفع ملفاتك")}</button>
-    </div>
-
-    <div class="cc-panel active" id="cc-panel-nitaqat">
-      <div class="order-box">
-        <h3>${L("Saudization (Nitaqat) calculator — official Developed-Nitaqat formula", "حاسبة نطاقات السعودة — بمعادلة نطاقات المطوّر الرسمية")}</h3>
-        <p class="cc-sub">${L("Built on the official HRSD procedural guide (Developed Nitaqat 2026): band thresholds are computed per activity with the official formula ", "مبنية على الدليل الإجرائي الرسمي لوزارة الموارد البشرية (نطاقات المطوّر 2026): عتبات النطاقات تُحسب لكل نشاط بالمعادلة الرسمية ")}<code>ص = م × لوغ(س) + ث</code>${L(" — the same engine behind Qiwa's calculator.", " — نفس منهجية حاسبة قوى.")}</p>
-        <div class="field cc-act-field">
-          <label for="cc-activity">🔎 ${L("Find your exact CR activity — type the name or the 6-digit code", "ابحث عن نشاطك في السجل التجاري — اكتب الاسم أو الكود")}</label>
-          <input type="text" id="cc-activity" autocomplete="off" placeholder="${Lraw("e.g. 471101, contracting, pharmacy…", "مثال: 471101، مقاولات، صيدلية…")}">
-          <div class="cc-act-drop" id="cc-act-drop" hidden></div>
+      <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
+      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-portal")}">${L("Upload your GOSI/Qiwa/Muqeem file and we'll extract them →", "ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←")}</a></p>
+      <div class="cc-result" id="cc-nit-result" hidden>
+        <div class="cc-tiles">
+          <div class="cc-tile"><span>${L("Saudization rate", "نسبة التوطين")}</span><strong id="cc-pct">—</strong></div>
+          <div class="cc-tile"><span>${L("Expected band", "النطاق المتوقع")}</span><strong id="cc-band">—</strong></div>
+          <div class="cc-tile"><span>${L("Band floor (your activity & size)", "الحد الأدنى لنطاقك")}</span><strong id="cc-floor">—</strong></div>
         </div>
-        <div class="cc-act-chips" id="cc-act-chips" aria-label="${Lraw("Activity sectors", "قطاعات الأنشطة")}"></div>
-        <div class="cc-act-info" id="cc-act-info" hidden></div>
-        <div class="cc-grid">
-          <div class="field" style="grid-column:1/-1"><label for="cc-act">${L("Economic activity (per Nitaqat classification)", "النشاط الاقتصادي (حسب تصنيف نطاقات)")}</label><select id="cc-act"></select></div>
-          <div class="field"><label for="cc-year">${L("Calculation year", "سنة الاحتساب")}</label><select id="cc-year"><option value="y2026" selected>2026</option><option value="y2027">2027</option><option value="y2028">2028</option></select></div>
-          <div class="field"><label for="cc-total">${L("Total workforce (entity)", "إجمالي العمالة (الكيان)")}</label><input type="number" id="cc-total" min="1" value="25"></div>
-          <div class="field"><label for="cc-saudis">${L("Saudi employees (average)", "متوسط العمالة السعودية")}</label><input type="number" id="cc-saudis" min="0" value="3"></div>
-        </div>
-        <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
-        <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="#" class="cc-goto-upload">${L("Upload your GOSI/Qiwa/Muqeem file and we'll extract them →", "ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←")}</a></p>
-        <div class="cc-result" id="cc-nit-result" hidden>
-          <div class="cc-tiles">
-            <div class="cc-tile"><span>${L("Saudization rate", "نسبة التوطين")}</span><strong id="cc-pct">—</strong></div>
-            <div class="cc-tile"><span>${L("Expected band", "النطاق المتوقع")}</span><strong id="cc-band">—</strong></div>
-            <div class="cc-tile"><span>${L("Band floor (your activity & size)", "الحد الأدنى لنطاقك")}</span><strong id="cc-floor">—</strong></div>
-          </div>
-          <div class="cc-thresholds" id="cc-thresholds"></div>
-          <div class="cc-advice" id="cc-advice"></div>
-          <p class="form-note">📘 ${L("Source: HRSD Developed-Nitaqat procedural guide (2026). Verify officially on", "المصدر: الدليل الإجرائي لبرنامج نطاقات المطوّر (2026). للتحقق الرسمي استخدم")} <a href="https://www.qiwa.sa/ar/tools-and-calculators/nitaqat-calculator" target="_blank" rel="noopener">${L("Qiwa's Nitaqat calculator ↗", "حاسبة النطاقات في قوى ↗")}</a></p>
-        </div>
+        <div class="cc-thresholds" id="cc-thresholds"></div>
+        <div class="cc-advice" id="cc-advice"></div>
+        <p class="form-note">📘 ${L("Source: HRSD Developed-Nitaqat procedural guide (2026). Verify officially on", "المصدر: الدليل الإجرائي لبرنامج نطاقات المطوّر (2026). للتحقق الرسمي استخدم")} <a href="https://www.qiwa.sa/ar/tools-and-calculators/nitaqat-calculator" target="_blank" rel="noopener">${L("Qiwa's Nitaqat calculator ↗", "حاسبة النطاقات في قوى ↗")}</a></p>
       </div>
     </div>
-
-    <div class="cc-panel" id="cc-panel-fees">
-      <div class="order-box">
-        <h3>${L("Government cost calculator", "حاسبة التكاليف الحكومية")}</h3>
-        <p class="cc-sub">${L("Work permit (Qiwa) + iqama (Muqeem) + medical insurance + fines — per worker, quarterly and annually.", "رخصة العمل (قوى) + الإقامة (مقيم) + التأمين الطبي + الغرامات — لكل عامل، ربعياً وسنوياً.")}</p>
-        <div id="cc-rows"></div>
-        <button class="btn btn-ghost cc-btn-sm" id="cc-add">${L("+ Add another profession", "+ إضافة مهنة أخرى")}</button>
-        <p class="form-note">💡 ${L("New worker: 3 free months on first entry + a one-time medical exam.", "العامل الجديد: 3 أشهر مجانية عند أول دخول + فحص طبي لمرة واحدة.")}</p>
-        <details class="cc-rates"><summary>⚙️ ${L("Rate basis used (editable)", "الأسس السعرية المستخدمة (قابلة للتعديل)")}</summary>
-          <div class="cc-grid">
-            <div class="field"><label>${L("Work permit — annual", "رخصة العمل — سنوياً")}</label><input type="number" id="cc-rate-permit" value="9700"></div>
-            <div class="field"><label>${L("Iqama — annual", "الإقامة — سنوياً")}</label><input type="number" id="cc-rate-iqama" value="650"></div>
-            <div class="field"><label>${L("Medical insurance — annual", "التأمين الطبي — سنوياً")}</label><input type="number" id="cc-rate-medical" value="1000"></div>
-            <div class="field"><label>${L("Medical exam (new)", "الفحص الطبي (للجديد)")}</label><input type="number" id="cc-rate-exam" value="300"></div>
-          </div>
-        </details>
-        <button class="btn btn-primary" id="cc-fees-calc">${L("Calculate", "احسب")}</button>
-        <div class="cc-result" id="cc-fees-result" hidden>
-          <div class="cc-tiles">
-            <div class="cc-tile"><span>${L("Workers", "عدد العمّال")}</span><strong id="cc-workers">—</strong></div>
-            <div class="cc-tile"><span>${L("Quarterly total", "الإجمالي الربعي")}</span><strong id="cc-quarter">—</strong></div>
-            <div class="cc-tile"><span>${L("Annual total", "الإجمالي السنوي")}</span><strong id="cc-annual">—</strong></div>
-          </div>
-          <div class="cc-table-wrap"><table class="cc-table"><thead><tr>
-            <th>${L("Profession", "المهنة")}</th><th>${L("Status", "الحالة")}</th><th>${L("Count", "العدد")}</th>
-            <th>${L("Quarterly / worker", "ربعي / عامل")}</th><th>${L("Annual / worker", "سنوي / عامل")}</th>
-          </tr></thead><tbody id="cc-tbody"></tbody></table></div>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="cc-panel" id="cc-panel-prof">
-      <div class="order-box">
-        <h3>${L("Saudized professions checker (HRSD)", "فاحص المهن المسعودة (قرارات التوطين)")}</h3>
-        <p class="cc-sub">${L("Type a profession to see if it is Saudi-only or has a required Saudization ratio — with the decision number, minimum counted salary, and accrediting body. Source: official HRSD localization decisions.", "اكتب المهنة لتعرف هل هي مقصورة على السعوديين أو لها نسبة توطين مطلوبة — مع رقم القرار والحد الأدنى للراتب المحتسب وجهة الاعتماد. المصدر: قرارات التوطين الرسمية لوزارة الموارد البشرية.")}</p>
-        <div class="field"><label for="cc-prof-q">${L("Profession or sector", "المهنة أو القطاع")}</label><input type="text" id="cc-prof-q" placeholder="${Lraw("e.g. accountant, secretary, engineer, dentist…", "مثال: محاسب، سكرتير، مهندس، طبيب أسنان…")}"></div>
-        <div class="cc-prof-chips" id="cc-prof-chips"></div>
-        <div id="cc-prof-results"></div>
-      </div>
-    </div>
-
-    <div class="cc-panel" id="cc-panel-upload">
-      <div class="order-box">
-        <h3>${L("Let the agent read your official files", "خلّ الوكيل يقرأ ملفاتك الرسمية")}</h3>
-        <p class="cc-sub">${L("Don't know your exact headcounts? Export one report from your government platforms and upload it — our AI agent extracts your employees (Saudis vs. expats, salaries, professions, iqama numbers), fills the calculators for you, and your dedicated file is updated automatically.", "ما تعرف أعدادك بدقة؟ صدّر تقريراً واحداً من منصاتك الحكومية وارفعه — الوكيل الذكي يستخرج موظفيك (سعوديون/وافدون، الرواتب، المهن، أرقام الإقامات)، يعبّي الحاسبات عنك، ويحدَّث ملفك الخاص تلقائياً.")}</p>
-
-        <div class="cc-src-grid">
-          <div class="cc-src cc-src-best">
-            <div class="cc-src-head">🏦 ${L("GOSI (recommended — most accurate)", "التأمينات الاجتماعية GOSI (الأدق — موصى به)")}</div>
-            <ul>
-              <li>${L("Counts Saudis AND expats", "يحصر السعوديين والأجانب معاً")}</li>
-              <li>${L("Salaries + professions", "الرواتب + المهن")}</li>
-              <li>${L("National ID / iqama / border numbers", "أرقام الهوية والإقامة وأرقام الحدود")}</li>
-            </ul>
-            <div class="cc-src-how">${L("How: gosi.gov.sa → Establishment → Contributors report → Export Excel/PDF", "الطريقة: gosi.gov.sa ← حساب المنشأة ← تقرير المشتركين ← تصدير Excel أو PDF")}</div>
-          </div>
-          <div class="cc-src">
-            <div class="cc-src-head">💼 ${L("Qiwa / Labor Office", "قوى / مكتب العمل")}</div>
-            <ul>
-              <li>${L("Expats and Saudis", "الأجانب والسعوديون")}</li>
-              <li>${L("Establishment name & details", "اسم المنشأة وبياناتها")}</li>
-            </ul>
-            <div class="cc-src-how">${L("How: qiwa.sa → Employees → Export employee list (Excel)", "الطريقة: qiwa.sa ← الموظفون ← تصدير كشف الموظفين (Excel)")}</div>
-          </div>
-          <div class="cc-src">
-            <div class="cc-src-head">🪪 ${L("Muqeem", "مقيم")}</div>
-            <ul>
-              <li>${L("Resident (expat) data only", "بيانات المقيمين (الوافدين) فقط")}</li>
-              <li>${L("Iqama expiry dates & border numbers", "تواريخ انتهاء الإقامات وأرقام الحدود")}</li>
-            </ul>
-            <div class="cc-src-how">${L("How: muqeem.sa → Reports → Active residents → Export Excel/PDF", "الطريقة: muqeem.sa ← التقارير ← المقيمون النشطون ← تصدير Excel أو PDF")}</div>
-          </div>
-        </div>
-
-        <div class="cc-upload-steps">
-          <span>1️⃣ ${L("Export the report", "صدّر التقرير")}</span>
-          <span>2️⃣ ${L("Upload it in the secure form", "ارفعه في النموذج الآمن")}</span>
-          <span>3️⃣ ${L("The agent analyzes & your file is created", "الوكيل يحلل ويُنشأ ملفك")}</span>
-          <span>4️⃣ ${L("We follow up on WhatsApp & email", "نتابع معك واتساب وإيميل")}</span>
-        </div>
-
-        <div class="cc-portal-cta">
-          <div>🛡️ <strong>${L("Ready to activate monitoring?", "جاهز تفعّل المراقبة؟")}</strong><span>${L("Open the secure compliance portal, upload your files once, and the agent builds your file and tracks every deadline.", "افتح بوابة الامتثال الآمنة، ارفع ملفاتك مرة واحدة، والوكيل يبني ملفك ويتابع كل استحقاق.")}</span></div>
-          <a class="btn btn-primary btn-lg" href="${u("/compliance-portal")}">🛡️ ${L("Open the compliance portal →", "افتح بوابة الامتثال ←")}</a>
-        </div>
-      </div>
-    </div>
-    <div class="cc-disclaimer">⚖️ ${L("All figures and ratios are estimates for illustration only. Official bands depend on your activity and size in Qiwa; official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام والنسب المعروضة تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى، والرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
-    <div class="order-box cc-cta">
-      <h3>${L("Want a verified calculation and full compliance monitoring?", "تبغى حساباً معتمداً ومتابعة كاملة لامتثال منشأتك؟")}</h3>
-      <div class="cc-cta-btns">
-        <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Talk to us on WhatsApp", "تواصل معنا واتساب")}</span></a>
-        <a class="btn btn-ghost" href="${u("/packages")}">${L("View our packages →", "استعرض باقاتنا ←")}</a>
-        <a class="btn btn-ghost" href="${u("/labor-calculators")}">${L("Labor & payroll calculators →", "حاسبات العمل والرواتب ←")}</a>
-      </div>
-    </div>
+    <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Official bands depend on your activity and size in Qiwa. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى. تواصل معنا لحساب دقيق ومعتمد.")}</div>
   </div></section>
-  <style>
-    .cc-tabs{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap}
-    .cc-tab{flex:1;min-width:200px;padding:14px 18px;border-radius:var(--radius);border:2px solid var(--gray-line);background:var(--gray-bg);font-family:inherit;font-size:1.02rem;font-weight:700;color:var(--text-soft);cursor:pointer;transition:all .18s ease}
-    .cc-tab.active{border-color:var(--navy);color:var(--navy);background:var(--white);box-shadow:var(--shadow-sm)}
-    .cc-panel{display:none}.cc-panel.active{display:block}
-    .cc-sub{color:var(--text-soft);margin-bottom:18px;font-size:.95rem}
-    .cc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
-    .cc-result{margin-top:22px}
-    .cc-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
-    .cc-tile{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:var(--radius);padding:14px;text-align:center}
-    .cc-tile span{display:block;font-size:.8rem;color:var(--text-soft);margin-bottom:5px}
-    .cc-tile strong{font-size:1.25rem;color:var(--navy)}
-    .cc-advice{border-radius:var(--radius);padding:13px 16px;font-weight:700}
-    .cc-advice.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
-    .cc-advice.danger{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
-    .cc-row{display:grid;grid-template-columns:2fr 1.6fr .8fr 1.6fr auto;gap:10px;align-items:end;padding:12px;border:1px dashed var(--gray-line);border-radius:var(--radius);margin-bottom:10px;background:var(--white)}
-    .cc-row .field{margin-bottom:0}
-    .cc-remove{border:0;background:#fdf1f1;color:#a02020;border-radius:10px;width:34px;height:44px;cursor:pointer;font-size:.9rem}
-    .cc-btn-sm{padding:8px 16px;font-size:.9rem;margin-bottom:8px}
-    .cc-rates{border:1px solid var(--gray-line);border-radius:var(--radius);padding:12px 16px;background:var(--gray-bg);margin:14px 0 18px}
-    .cc-rates summary{cursor:pointer;font-weight:700;color:var(--navy)}
-    .cc-rates .cc-grid{margin-top:14px}
-    .cc-table-wrap{overflow-x:auto;border:1px solid var(--gray-line);border-radius:var(--radius)}
-    .cc-table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--white)}
-    .cc-table th{background:var(--navy);color:var(--white);padding:10px 9px;text-align:start;font-weight:600}
-    .cc-table td{padding:10px 9px;border-bottom:1px solid var(--gray-line)}
-    .cc-fine{color:#a02020;font-size:.75rem;font-weight:700}
-    .cc-disclaimer{margin-top:20px;background:#fffbeb;border:1px solid #fde68a;color:#8a6d3b;border-radius:var(--radius);padding:14px 18px;font-size:.9rem;line-height:1.8}
-    .cc-cta{margin-top:20px;text-align:center}
-    .cc-cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
-    @media(max-width:720px){.cc-row{grid-template-columns:1fr 1fr}.cc-remove{height:40px}}
-    .cc-prof-chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px}
-    .cc-chip{border:1px solid var(--gray-line);background:var(--gray-bg);border-radius:999px;padding:5px 13px;font-size:.82rem;font-weight:600;color:var(--text-soft);cursor:pointer;font-family:inherit}
-    .cc-chip:hover{border-color:var(--navy);color:var(--navy)}
-    .cc-dec{border:1px solid var(--gray-line);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;background:var(--white)}
-    .cc-dec-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
-    .cc-dec-head strong{color:var(--navy);font-size:1.02rem}
-    .cc-badge{display:inline-block;padding:3px 11px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
-    .cc-badge.saudi{background:#fdf1f1;color:#a02020}
-    .cc-badge.ratio{background:#fff7e8;color:#9a6a08}
-    .cc-badge.sector{background:#eef2ff;color:#3742a0}
-    .cc-dec-profs{font-size:.88rem;color:var(--text);line-height:1.8;margin-bottom:8px}
-    .cc-dec-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--text-soft)}
-    .cc-dec-meta b{color:var(--navy)}
-    .cc-dec-note{margin-top:8px;font-size:.8rem;color:#9a6a08;background:#fffbeb;border-radius:8px;padding:6px 10px}
-    .cc-prof-empty{color:var(--text-soft);font-size:.9rem;padding:10px 0}
-    mark.cc-hit{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 2px}
-    .cc-act-field{position:relative;margin-bottom:10px}
-    .cc-act-drop{position:absolute;top:100%;inset-inline:0;z-index:30;background:var(--white);border:1px solid var(--gray-line);border-radius:var(--radius);box-shadow:var(--shadow-sm);max-height:330px;overflow:auto}
-    .cc-act-item{display:block;width:100%;text-align:start;background:none;border:0;border-bottom:1px solid var(--gray-line);padding:9px 13px;font-family:inherit;font-size:.88rem;line-height:1.6;cursor:pointer;color:var(--text)}
-    .cc-act-item:last-child{border-bottom:0}
-    .cc-act-item:hover{background:var(--gray-bg)}
-    .cc-act-item b{color:var(--navy);font-variant-numeric:tabular-nums;margin-inline-end:8px}
-    .cc-act-item .cc-act-sec{display:block;font-size:.72rem;color:var(--text-soft)}
-    .cc-act-count{padding:7px 13px;font-size:.75rem;color:var(--text-soft);background:var(--gray-bg);position:sticky;top:0}
-    .cc-act-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:thin}
-    .cc-act-chips .cc-chip{white-space:nowrap;flex:0 0 auto}
-    .cc-act-chips .cc-chip.on{border-color:var(--navy);color:var(--white);background:var(--navy)}
-    .cc-act-info{border:1px solid var(--navy);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;background:#f5f7ff}
-    .cc-act-info h4{color:var(--navy);margin:0 0 7px;font-size:1rem}
-    .cc-act-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:.82rem;color:var(--text-soft)}
-    .cc-act-meta b{color:var(--navy)}
-    .cc-act-dec{margin-top:10px;padding-top:10px;border-top:1px dashed var(--gray-line);font-size:.85rem}
-    .cc-act-dec-title{font-weight:700;color:var(--navy);margin-bottom:6px}
-    .cc-act-dec-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
-    .cc-act-clear{float:inline-end;border:0;background:none;color:var(--text-soft);cursor:pointer;font-size:.8rem;font-family:inherit;text-decoration:underline}
-    .cc-src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:6px 0 18px}
-    .cc-src{border:1px solid var(--gray-line);border-radius:var(--radius);padding:16px;background:var(--white)}
-    .cc-src-best{border-color:var(--navy);box-shadow:var(--shadow-sm)}
-    .cc-src-head{font-weight:700;color:var(--navy);margin-bottom:10px}
-    .cc-src ul{margin:0 0 10px;padding-inline-start:18px;font-size:.88rem;line-height:1.9}
-    .cc-src-how{font-size:.78rem;color:var(--text-soft);background:var(--gray-bg);border-radius:8px;padding:7px 10px}
-    .cc-upload-steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-    .cc-upload-steps span{background:var(--gray-bg);border:1px solid var(--gray-line);border-radius:999px;padding:6px 14px;font-size:.83rem;font-weight:600;color:var(--navy)}
-    .cc-upload-cta{text-align:center}
-    .cc-portal{border:1px solid var(--gray-line);border-radius:var(--radius-lg);overflow:hidden;background:var(--white)}
-    .cc-portal-head{background:var(--navy);color:var(--white);padding:12px 18px;font-weight:700;font-size:.95rem}
-    #cc-portal-frame{width:100%;height:960px;border:0;display:block;background:var(--gray-bg)}
-    .cc-portal .form-note{padding:10px 16px}
-    .cc-portal-cta{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--gray-line);border-radius:var(--radius-lg);padding:20px 22px;background:var(--gray-bg)}
-    .cc-portal-cta strong{display:block;color:var(--navy);font-size:1.05rem;margin-bottom:4px}
-    .cc-portal-cta span{font-size:.9rem;color:var(--text-soft)}
-    .bp-intake-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-    .bp-intake .field{margin-bottom:14px}
-    .bp-chips{display:flex;flex-wrap:wrap;gap:9px}
-    .bp-chk{display:flex;align-items:center;gap:6px;border:1px solid var(--gray-line);border-radius:999px;padding:6px 13px;font-size:.85rem;cursor:pointer;background:var(--gray-bg)}
-    #bp-files{padding:11px;border:1px dashed var(--navy);border-radius:12px;background:var(--gray-bg);width:100%}
-    .bp-intake-msg{border-radius:12px;padding:12px 15px;margin-top:12px;font-weight:600}
-    .bp-intake-msg.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
-    .bp-intake-msg.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
-    .bp-intake-msg.info{background:#eef4f8;border:1px solid #cfe0ea;color:#2b5566}
-    .cc-thresholds{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
-    .cc-th-title{width:100%;font-size:.82rem;color:var(--text-soft);font-weight:600}
-    .cc-th{border:1px solid var(--gray-line);border-radius:10px;padding:8px 14px;font-size:.82rem;background:var(--gray-bg);color:var(--text-soft)}
-    .cc-th.on{border-color:#1d8a4e;background:#f2fbf5;color:#14663a}
-    .cc-th b{display:block;font-size:.95rem}
-    #cc-act{width:100%;font-family:inherit;font-size:1rem;padding:12px;border:1px solid var(--gray-line);border-radius:10px;background:var(--white)}
-    .cc-agent{display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--navy);color:var(--white);border-radius:var(--radius-lg);padding:24px 26px;margin-bottom:24px}
-    .cc-agent-main{flex:1;min-width:280px}
-    .cc-agent-title{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-    .cc-agent-title svg{width:34px;height:34px;flex-shrink:0}
-    .cc-agent-title strong{font-size:1.15rem;display:block}
-    .cc-agent-live{font-size:.72rem;font-weight:700;color:#7ef2a7;letter-spacing:1px}
-    .cc-agent p{font-size:.92rem;line-height:1.9;opacity:.92;margin-bottom:12px}
-    .cc-agent-feats{display:flex;flex-wrap:wrap;gap:8px}
-    .cc-agent-feats span{background:rgba(255,255,255,.12);border-radius:999px;padding:5px 13px;font-size:.8rem;font-weight:600}
-    .cc-agent-cta{display:flex;flex-direction:column;gap:10px;min-width:230px}
-    .cc-agent-cta .btn-primary{background:var(--white);color:var(--navy)}
-    .cc-agent-cta .btn-ghost{border-color:rgba(255,255,255,.5);color:var(--white)}
-    .cc-agent-cta .btn-ghost:hover{background:var(--white);color:var(--navy)}
-  </style>
-  <script>window.BP_CC_LANG=${JSON.stringify(LANG)};window.BP_ACT_URL=${JSON.stringify("/assets/data/activities.json?v=" + ACT_V)};</script>
+  <script>window.BP_CC_LANG=${JSON.stringify(LANG)};window.BP_ACT_URL=${JSON.stringify("/assets/data/activities.json?v=" + ACT_V)};window.BP_PROF_URL=${JSON.stringify(u("/calculators/profession-checker"))};</script>
   <script>
   (function(){
     var isAr = window.BP_CC_LANG === "ar";
     var T = isAr ? {
       bands:{red:"أحمر",low:"أخضر منخفض",mid:"أخضر متوسط",high:"أخضر مرتفع",platinum:"بلاتيني",exempt:"معفاة (1–5 موظفين)"},
-      sizes:{micro:"متناهية الصغر (1–5)",small:"صغيرة (6–49)",medium:"متوسطة (50–499)",large:"كبيرة (500–2999)",huge:"عملاقة (3000+)"},
       ok:"منشأتك ضمن النطاق الآمن ✅",need:"تحتاج توظيف {n} سعودي للخروج من النطاق الأحمر",next:"توظيف {n} سعودي إضافي يرفعك إلى: {b}",top:"أنت في أعلى نطاق — حافظ عليه 👏",
-      microOk:"منشأة صغيرة جداً (1–5): معاملة مبسّطة — أخضر بوجود سعودي واحد على الأقل ✅",microNeed:"منشأة صغيرة جداً (1–5): وظّف سعودياً واحداً على الأقل للخروج من الأحمر",thTitle:"الحدود الدنيا الرسمية لنشاط «{act}» بحجم كيانك:",
-      prof:"المهنة",profPh:"مثال: عامل، فني، مهندس…",status:"الحالة",sExisting:"قائم (على رأس العمل)",sNew:"جديد (أول دخول)",count:"العدد",late:"تأخير تجديد الإقامة",lNone:"لا يوجد",lFirst:"المرة الأولى (+500)",lSecond:"المرة الثانية (+1,000)",remove:"حذف",sar:"﷼"
+      microOk:"منشأة صغيرة جداً (1–5): معاملة مبسّطة — أخضر بوجود سعودي واحد على الأقل ✅",microNeed:"منشأة صغيرة جداً (1–5): وظّف سعودياً واحداً على الأقل للخروج من الأحمر",thTitle:"الحدود الدنيا الرسمية لنشاط «{act}» بحجم كيانك:"
     } : {
       bands:{red:"Red",low:"Low Green",mid:"Mid Green",high:"High Green",platinum:"Platinum",exempt:"Exempt (1–5 employees)"},
-      sizes:{micro:"Micro (1–5)",small:"Small (6–49)",medium:"Medium (50–499)",large:"Large (500–2999)",huge:"Giant (3000+)"},
       ok:"Your establishment is in the safe zone ✅",need:"You need {n} more Saudi hire(s) to exit the red band",next:"Hiring {n} more Saudi(s) moves you up to: {b}",top:"You are in the top band — keep it up 👏",
-      microOk:"Micro establishment (1–5): simplified treatment — green with at least one Saudi ✅",microNeed:"Micro establishment (1–5): hire at least one Saudi to exit red",thTitle:"Official band floors for '{act}' at your entity size:",
-      prof:"Profession",profPh:"e.g. laborer, technician…",status:"Status",sExisting:"Existing (on the job)",sNew:"New (first entry)",count:"Count",late:"Iqama renewal delay",lNone:"None",lFirst:"First time (+500)",lSecond:"Second time (+1,000)",remove:"Remove",sar:"SAR"
+      microOk:"Micro establishment (1–5): simplified treatment — green with at least one Saudi ✅",microNeed:"Micro establishment (1–5): hire at least one Saudi to exit red",thTitle:"Official band floors for '{act}' at your entity size:"
     };
-    var fmt=function(n){return Math.round(n).toLocaleString(isAr?"ar-SA":"en-US");};
     var $=function(id){return document.getElementById(id);};
-    document.querySelectorAll(".cc-tab").forEach(function(tab){tab.addEventListener("click",function(){
-      document.querySelectorAll(".cc-tab").forEach(function(x){x.classList.remove("active");});
-      document.querySelectorAll(".cc-panel").forEach(function(x){x.classList.remove("active");});
-      tab.classList.add("active");$("cc-panel-"+tab.dataset.tab).classList.add("active");});});
-    (function(){var h=(location.hash||"").replace("#","");if(h){var t=document.querySelector('.cc-tab[data-tab="'+h+'"]');if(t)t.click();}})();
     var NIT_DATA=[{"name":"الإنتاج الزراعي والحيواني وخدماتها وأندية الفروسية","m":[0.19,0.58,0.58,0.58],"y2026":[4.38,5.13,9.38,14.38],"y2027":[4.38,5.13,9.38,14.38],"y2028":[4.38,5.13,9.38,14.38],"en":"Agricultural & livestock production, services and equestrian clubs"},{"name":"أنشطة الهيدروكربونات وعملياتها","m":[4.98,6.0,6.0,6.0],"y2026":[5.62,20.0,22.0,24.0],"y2027":[7.62,22.0,24.0,26.0],"y2028":[9.62,24.0,26.0,28.0],"en":"Hydrocarbon activities and operations"},{"name":"تعدين المعادن الفلزية والأحجار الكريمة","m":[1.68,1.87,2.08,6.0],"y2026":[16.0,19.0,28.0,23.0],"y2027":[16.0,19.0,28.0,23.0],"y2028":[16.0,19.0,28.0,23.0],"en":"Metallic minerals & gemstones mining"},{"name":"تعدين المعادن غير الفلزية والصناعية","m":[1.68,1.87,2.08,6.0],"y2026":[18.0,19.0,21.0,25.0],"y2027":[20.0,21.0,23.0,27.0],"y2028":[22.0,23.0,25.0,29.0],"en":"Non-metallic & industrial minerals mining"},{"name":"تعدين مواد البناء","m":[0.0,0.0,0.0,6.0],"y2026":[7.0,10.0,13.0,23.0],"y2027":[7.0,10.0,13.0,23.0],"y2028":[7.0,10.0,13.0,23.0],"en":"Construction-materials mining"},{"name":"الطاقة والمياه وخدماتها","m":[1.35,2.6,3.0,3.0],"y2026":[8.36,9.32,17.18,32.93],"y2027":[10.36,11.32,19.18,34.93],"y2028":[12.36,13.32,21.18,36.93],"en":"Energy, water and related services"},{"name":"الصناعات","m":[1.68,1.87,2.08,2.08],"y2026":[15.08,21.87,23.97,29.87],"y2027":[18.08,24.87,26.97,32.87],"y2028":[21.08,27.87,29.97,35.87],"en":"Manufacturing industries"},{"name":"مقاولات التشييد والبناء","m":[-0.37,-0.37,0.0,0.0],"y2026":[14.17,16.17,17.5,22.5],"y2027":[16.17,18.17,19.5,24.5],"y2028":[18.17,20.17,21.5,26.5],"en":"Construction & building contracting"},{"name":"التشغيل والصيانة","m":[0.14,0.14,0.48,0.76],"y2026":[17.12,21.12,24.96,29.09],"y2027":[18.12,22.12,25.96,30.09],"y2028":[19.12,23.12,26.96,31.09],"en":"Operation & maintenance"},{"name":"مقاولات النظافة والمغاسل","m":[-0.37,-0.37,0.0,0.0],"y2026":[12.17,14.17,17.0,22.0],"y2027":[12.17,14.17,17.0,22.0],"y2028":[12.17,14.17,17.0,22.0],"en":"Cleaning contracting & laundries"},{"name":"البيع بالجملة والتجزئة العامة","m":[2.47,2.47,2.67,2.84],"y2026":[23.25,27.72,30.41,38.91],"y2027":[26.25,30.72,33.41,41.91],"y2028":[29.25,33.72,36.41,44.91],"en":"General wholesale & retail trade"},{"name":"البيع بالتجزئة للعطور والساعات","m":[2.47,2.47,2.67,2.84],"y2026":[25.25,29.72,33.91,41.91],"y2027":[30.25,34.72,38.91,46.91],"y2028":[35.25,39.72,43.91,51.91],"en":"Retail of perfumes & watches"},{"name":"البيع بالتجزئة للأزياء والكماليات والسلع المتنوعة","m":[2.47,2.47,2.67,2.84],"y2026":[24.25,28.72,32.91,40.91],"y2027":[28.25,32.72,36.91,44.91],"y2028":[32.25,36.72,40.91,48.91],"en":"Retail of fashion, accessories & misc. goods"},{"name":"السلع النسائية وبيع الهواتف المحمولة وصيانتها","m":[0.0,0.0,0.0,0.27],"y2026":[82.0,85.0,89.0,93.42],"y2027":[82.0,85.0,89.0,93.42],"y2028":[82.0,85.0,89.0,93.42],"en":"Women's goods, mobile-phone sales & maintenance"},{"name":"حلول الاتصالات","m":[2.19,2.52,2.91,3.22],"y2026":[27.76,36.76,42.02,48.15],"y2027":[29.76,38.76,44.02,50.15],"y2028":[31.76,40.76,46.02,52.15],"en":"Telecom solutions"},{"name":"أنشطة البريد","m":[0.81,0.81,1.01,1.01],"y2026":[17.1,22.1,32.5,42.5],"y2027":[17.1,22.1,32.5,42.5],"y2028":[17.1,22.1,32.5,42.5],"en":"Postal activities"},{"name":"البنية التحتية لتقنية المعلومات","m":[3.61,3.61,3.61,3.61],"y2026":[17.77,24.64,40.0,50.0],"y2027":[19.77,26.64,42.0,52.0],"y2028":[21.77,28.64,44.0,54.0],"en":"IT infrastructure"},{"name":"البنية التحتية للاتصالات","m":[0.0,0.0,0.0,0.0],"y2026":[17.0,21.0,23.5,28.5],"y2027":[19.0,23.0,25.5,30.5],"y2028":[21.0,25.0,27.5,32.5],"en":"Telecom infrastructure"},{"name":"التشغيل والصيانة للاتصالات","m":[0.0,0.39,0.39,0.39],"y2026":[17.0,20.98,23.83,29.0],"y2027":[19.0,22.98,25.83,31.0],"y2028":[21.0,24.98,27.83,33.0],"en":"Telecom operation & maintenance"},{"name":"التشغيل والصيانة لتقنية المعلومات","m":[4.85,4.85,4.85,4.85],"y2026":[15.96,24.42,27.42,33.36],"y2027":[17.96,26.42,29.42,35.36],"y2028":[19.96,28.42,31.42,37.36],"en":"IT operation & maintenance"},{"name":"حلول تقنية المعلومات","m":[2.19,2.34,2.91,3.22],"y2026":[26.76,32.54,40.02,48.15],"y2027":[28.76,34.54,42.02,50.15],"y2028":[30.76,36.54,44.02,52.15],"en":"IT solutions"},{"name":"النقل البري والتخزين","m":[1.15,1.15,1.5,1.71],"y2026":[12.09,16.2,17.82,27.74],"y2027":[13.09,17.2,18.82,28.74],"y2028":[14.09,18.2,19.82,29.74],"en":"Land transport & warehousing"},{"name":"النقل البحري والجوي","m":[1.45,1.45,1.86,2.67],"y2026":[26.57,39.98,48.38,56.29],"y2027":[28.57,41.98,50.38,58.29],"y2028":[30.57,43.98,52.38,60.29],"en":"Maritime & air transport"},{"name":"مطاعم مع الخدمة (لا تشمل الوجبات السريعة)","m":[1.58,1.67,1.67,1.67],"y2026":[13.47,16.98,20.26,26.71],"y2027":[14.47,17.98,21.26,27.71],"y2028":[15.47,18.98,22.26,28.71],"en":"Full-service restaurants (excl. fast food)"},{"name":"مطاعم خدمة سريعة ومحلات الآيسكريم","m":[1.58,1.67,1.67,1.67],"y2026":[15.08,20.04,23.27,29.26],"y2027":[16.08,21.04,24.27,30.26],"y2028":[17.08,22.04,25.27,31.26],"en":"Fast-food restaurants & ice-cream shops"},{"name":"المقاهي ومحلات تقديم المشروبات","m":[1.58,1.67,1.67,1.67],"y2026":[16.98,20.49,31.42,35.52],"y2027":[17.98,21.49,32.42,36.52],"y2028":[18.98,22.49,33.42,37.52],"en":"Cafés & beverage outlets"},{"name":"التموين والإعاشة","m":[1.58,1.67,1.67,1.67],"y2026":[14.46,17.97,21.25,27.93],"y2027":[15.46,18.97,22.25,28.93],"y2028":[16.46,19.97,23.25,29.93],"en":"Catering & provisioning"},{"name":"حراسات أمنية ومكاتب التوظيف الأهلية","m":[0.34,0.34,0.34,0.34],"y2026":[74.5,77.5,80.5,84.5],"y2027":[74.5,77.5,80.5,84.5],"y2028":[74.5,77.5,80.5,84.5],"en":"Private security & private employment offices"},{"name":"المؤسسات المالية","m":[2.6,2.6,2.6,2.6],"y2026":[50.0,57.0,62.0,65.0],"y2027":[50.0,57.0,62.0,65.0],"y2028":[50.0,57.0,62.0,65.0],"en":"Financial institutions"},{"name":"خدمات الأعمال","m":[1.03,1.03,2.19,2.19],"y2026":[33.78,42.62,43.62,54.82],"y2027":[36.78,45.62,46.62,57.82],"y2028":[39.78,48.62,49.62,60.82],"en":"Business services"},{"name":"الخدمات الاجتماعية","m":[1.83,2.38,3.5,3.5],"y2026":[14.82,26.9,32.74,56.52],"y2027":[16.82,28.9,34.74,58.52],"y2028":[18.82,30.9,36.74,60.52],"en":"Social services"},{"name":"الخدمات الشخصية","m":[1.46,1.92,4.4,5.0],"y2026":[14.07,20.36,24.63,26.13],"y2027":[14.07,20.36,24.63,26.13],"y2028":[14.07,20.36,24.63,26.13],"en":"Personal services"},{"name":"التعليم العالي","m":[0.0,0.0,0.43,0.43],"y2026":[34.0,48.0,75.37,82.0],"y2027":[34.0,48.0,75.37,82.0],"y2028":[34.0,48.0,75.37,82.0],"en":"Higher education"},{"name":"التعليم العالي للتخصصات الصحية","m":[0.0,0.0,0.0,0.0],"y2026":[25.0,30.0,35.0,37.0],"y2027":[25.0,30.0,35.0,37.0],"y2028":[25.0,30.0,35.0,37.0],"en":"Higher education — health specialties"},{"name":"مدارس البنات ورياض الأطفال والحضانات","m":[0.0,0.0,0.0,0.0],"y2026":[51.0,66.0,89.56,95.0],"y2027":[51.0,66.0,89.56,95.0],"y2028":[51.0,66.0,89.56,95.0],"en":"Girls' schools, kindergartens & nurseries"},{"name":"المدارس الأجنبية","m":[2.3,2.3,2.3,2.3],"y2026":[4.95,14.19,19.99,28.77],"y2027":[4.95,14.19,19.99,28.77],"y2028":[4.95,14.19,19.99,28.77],"en":"Foreign schools"},{"name":"المختبرات والخدمات الصحية","m":[0.35,0.35,0.35,0.35],"y2026":[25.74,30.74,34.24,34.74],"y2027":[27.74,32.74,36.24,36.74],"y2028":[29.74,34.74,38.24,38.74],"en":"Laboratories & health services"},{"name":"الإيواء والترفيه والسياحة","m":[2.42,2.42,2.59,2.59],"y2026":[24.6,31.02,36.4,42.52],"y2027":[26.6,33.02,38.4,44.52],"y2028":[28.6,35.02,40.4,46.52],"en":"Accommodation, entertainment & tourism"},{"name":"السلع الأساسية والمحروقات","m":[0.17,0.56,0.56,1.19],"y2026":[9.86,12.22,22.59,26.09],"y2027":[10.86,13.22,23.59,27.09],"y2028":[11.86,14.22,24.59,28.09],"en":"Basic commodities & fuels"},{"name":"مدارس البنين ومجمعات البنين والبنات","m":[1.31,1.31,1.31,1.31],"y2026":[29.3,39.15,50.27,61.0],"y2027":[29.3,39.15,50.27,61.0],"y2028":[29.3,39.15,50.27,61.0],"en":"Boys' schools & mixed school complexes"},{"name":"الكيانات المجمعة","m":[2.23,2.23,2.23,2.23],"y2026":[10.99,22.4,33.81,44.0],"y2027":[10.99,22.4,33.81,44.0],"y2028":[10.99,22.4,33.81,44.0],"en":"Consolidated entities"}];
+
     var actSel=$("cc-act");
     NIT_DATA.forEach(function(a,i){var o=document.createElement("option");o.value=i;o.textContent=isAr?a.name:a.en;actSel.appendChild(o);});
     actSel.value=10;
@@ -1508,59 +1311,14 @@ function buildComplianceCalculators() {
       else if(idx>=3){adv.textContent=T.ok+" — "+T.top;adv.className="cc-advice ok";}
       else{var k2=needFor(act,yearKey,total,saudis,idx+1);adv.textContent=T.ok+" — "+T.next.replace("{n}",k2==null?"—":k2).replace("{b}",labels[idx+1]);adv.className="cc-advice ok";}
       $("cc-nit-result").hidden=false;});
-    var FINES={none:0,first:500,second:1000};
-    function addRow(count){
-      var d=document.createElement("div");d.className="cc-row";
-      d.innerHTML='<div class="field"><label>'+T.prof+'</label><input type="text" class="cc-prof" placeholder="'+T.profPh+'"></div>'+
-        '<div class="field"><label>'+T.status+'</label><select class="cc-status"><option value="existing">'+T.sExisting+'</option><option value="new">'+T.sNew+'</option></select></div>'+
-        '<div class="field"><label>'+T.count+'</label><input type="number" class="cc-count" min="1" value="'+(count||1)+'"></div>'+
-        '<div class="field"><label>'+T.late+'</label><select class="cc-late"><option value="none">'+T.lNone+'</option><option value="first">'+T.lFirst+'</option><option value="second">'+T.lSecond+'</option></select></div>'+
-        '<button type="button" class="cc-remove" title="'+T.remove+'">✕</button>';
-      d.querySelector(".cc-remove").addEventListener("click",function(){if(document.querySelectorAll(".cc-row").length>1)d.remove();});
-      $("cc-rows").appendChild(d);}
-    addRow(5);
-    $("cc-add").addEventListener("click",function(){addRow();});
-    $("cc-fees-calc").addEventListener("click",function(){
-      var pA=Number($("cc-rate-permit").value)||0,iA=Number($("cc-rate-iqama").value)||0,mA=Number($("cc-rate-medical").value)||0,ex=Number($("cc-rate-exam").value)||0;
-      var pQ=pA/4,iQ=iA/4,mQ=mA/4,workers=0,tQ=0,tA=0,tb=$("cc-tbody");tb.innerHTML="";
-      document.querySelectorAll(".cc-row").forEach(function(row){
-        var prof=row.querySelector(".cc-prof").value||"—";
-        var isNew=row.querySelector(".cc-status").value==="new";
-        var count=Math.max(1,Number(row.querySelector(".cc-count").value)||1);
-        var fine=FINES[row.querySelector(".cc-late").value]||0;
-        var qPer=pQ+iQ+mQ+fine,aPer=pA+iA+mA+(isNew?ex:0);
-        workers+=count;tQ+=qPer*count;tA+=aPer*count;
-        var tr=document.createElement("tr");
-        tr.innerHTML="<td>"+prof.replace(/</g,"&lt;")+(fine?' <span class="cc-fine">+'+fmt(fine)+"</span>":"")+"</td><td>"+(isNew?T.sNew:T.sExisting)+"</td><td>"+count+"</td><td>"+fmt(qPer)+"</td><td>"+fmt(aPer)+"</td>";
-        tb.appendChild(tr);});
-      $("cc-workers").textContent=workers;
-      $("cc-quarter").textContent=fmt(tQ)+" "+T.sar;
-      $("cc-annual").textContent=fmt(tA)+" "+T.sar;
-      $("cc-fees-result").hidden=false;});
+
     var PROF=[{"g":"مهن الطيران المرخصة","en":"Aviation","type":"قطاعي","pct":70,"prof":"مراقب جوي (100%)، ملاح جوي (100%)، منسق حركة أرضية (100%)، مساعد طيار (100%)، طيار جناح ثابت (70%)، مضيف طيران (60%)","minw":5,"body":"الهيئة العامة للطيران المدني (GACA)","dec":"#208818","note":"النسب تختلف حسب المهنة (60-100%)"},{"g":"إدارة المشاريع","en":"Project Management","type":"نسبة توطين","pct":40,"prof":"مدير إدارة مشاريع، أخصائي إدارة مشاريع، مهندس إدارة مشاريع، مدير اتصالات، مدير هندسة اتصالات","minw":3,"sal":6000,"dec":"#141749","note":"المرحلة الثانية 40%"},{"g":"مهن التسويق","en":"Marketing","type":"نسبة توطين","pct":60,"prof":"مدير تسويق، وكيل دعاية وإعلان، مدير دعاية وإعلان، مصمم جرافيك، مصور فوتوغرافي، أخصائي علاقات عامة، أخصائي دعاية وإعلان، أخصائي تسويق، مدير علاقات عامة، مصمم إعلان","minw":3,"sal":5500,"dec":"#101319"},{"g":"المادة 11 — مهن مقصورة على السعوديين","en":"Article 11 — Saudi-Only","type":"مقصورة على السعوديين","pct":100,"prof":"إداري موارد بشرية، مشرف موارد بشرية، مسؤول شؤون عمال، اختصاصي شؤون أفراد، كاتب شؤون أفراد، كاتب توظيف، كاتب شؤون موظفين، كاتب دوام، كاتب استقبال عام، استقبال فندقي، استقبال مرضى، كاتب شكاوى، أمين صندوق، حارس أمن خاص، معقب، ناسخ/مصلّح مفاتيح، مخلّص جمركي","minw":1,"dec":"اللائحة التنفيذية لنظام العمل","note":"لا يُسمح لغير السعوديين بالعمل فيها بموجب المادة 11"},{"g":"البصريات","en":"Optics","type":"قطاعي","pct":50,"prof":"فني بصريات طبية، فني نظارات","minw":4,"sal":5500,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#208837"},{"g":"الأجهزة الطبية","en":"Medical Devices","type":"قطاعي","pct":80,"prof":"أخصائي مبيعات مستلزمات طبية، مبيعات منتجات صيدلانية، فني أجهزة طبية، مُجمع أجهزة طبية، مهندس أجهزة طبية","minw":1,"sal":7000,"dec":"#48081","note":"المرحلة 2: 80% مبيعات، 50% هندسي/فني"},{"g":"مهن خدمة العملاء عن بعد","en":"Remote Customer Service","type":"مقصورة على السعوديين","pct":100,"prof":"جميع مهن خدمة العملاء عن بعد (هاتف، إيميل، شات، سوشال ميديا)","minw":1,"dec":"#112203"},{"g":"مهن المبيعات","en":"Sales","type":"نسبة توطين","pct":60,"prof":"مدير مبيعات، مدير مبيعات تجزئة، مدير مبيعات جملة، مندوب مبيعات، وسيط سلع مستقبلية، أخصائي مبيعات أجهزة تقنية المعلومات والاتصالات، أخصائي مبيعات، أخصائي تجاري، وسيط سلع","minw":3,"dec":"#101278"},{"g":"المختبرات الطبية","en":"Medical Labs","type":"قطاعي","pct":70,"prof":"مدير مختبر تحاليل طبية، أخصائي مختبرات طبية/سريرية، فني مختبر طبي، فني مختبرات","minw":1,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#51267"},{"g":"مهن المشتريات","en":"Procurement","type":"نسبة توطين","pct":70,"prof":"مدير مشتريات، أخصائي مناقصات، مندوب مشتريات، أخصائي مشتريات، مدير عقود، مدير خدمات لوجستية، مدير مستودع، أمين مستودع فني، أخصائي مستودعات، أخصائي تجارة إلكترونية، أخصائي أبحاث أسواق","minw":3,"dec":"#77050"},{"g":"طب الأسنان","en":"Dentistry","type":"قطاعي","pct":55,"prof":"طبيب أسنان عام، جراح فم ووجه وفكين، تقويم أسنان، أسنان أطفال، معالجة لبية، تخدير أسنان","minw":3,"sal":9000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#103107","note":"المرحلة الحالية 55% (من 27/01/2026م)"},{"g":"العلاج الطبيعي","en":"Physical Therapy","type":"قطاعي","pct":80,"prof":"أخصائي علاج طبيعي، فني علاج طبيعي","minw":1,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#51270","note":"7,000 للأخصائي / 5,000 للفني"},{"g":"الأنشطة والمهن العقارية","en":"Real Estate","type":"مقصورة على السعوديين","pct":100,"prof":"وسيط عقاري، وسيط بيع وتأجير عقارات، سمسار أراضي وعقارات، كاتب تسجيل أراضي وعقارات، مسّوق عقاري، مدير اتحاد ملاك، مهندس مستدام معتمد، مهندس مقيم معتمد، مهندس فاحص جودة، فاحص مباني جاهزة","minw":1,"dec":"#212535","note":"100% للمهن المحددة، 70% للنشاط العقاري العام"},{"g":"التخليص الجمركي","en":"Customs Clearance","type":"مقصورة على السعوديين","pct":100,"prof":"مخلص جمركي، مبند جمركي، مترجم، مدير عام، كاتب عام","minw":1,"sal":5000,"dec":"#212497","note":"100% للمهن المحددة، 70% للنشاط"},{"g":"الأشعة","en":"Radiology","type":"قطاعي","pct":65,"prof":"فني أشعة، أخصائي تقنية إشعاعية، فني أشعة علاجية، أخصائي وقاية إشعاعية، فني تصوير/قسطرة/تخطيط قلب","minw":1,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#51273"},{"g":"مشرف مسكن","en":"Housing Supervisor","type":"مقصورة على السعوديين","pct":100,"prof":"مشرف مسكن","minw":1,"dec":"#62298","note":"خاص بسكن العمال"},{"g":"المهن الإدارية المساندة","en":"Admin Support","type":"مقصورة على السعوديين","pct":100,"prof":"مترجم، سكرتير تنفيذي/سكرتير، مدخل بيانات، مخلص جمركي، استقبال فندق، أمين مخزن، كاتب موارد بشرية، حارس أمن، أمين صندوق + (م2) كل مهن الموارد البشرية (مدير/أخصائي توظيف/تعويضات/مواهب/تطوير)، العلاقات العامة، وكلاء الشحن/الجمارك","minw":1,"dec":"#132249","note":"م1 (19 مهنة) فورية من 05/04/2026؛ م2 (50 مهنة) مهلة حتى 04/10/2026"},{"g":"المهن القانونية","en":"Legal","type":"نسبة توطين","pct":70,"prof":"مدير شؤون قانونية، أخصائي قانوني، أخصائي عقود، سكرتير قانوني","minw":1,"sal":5500,"dec":"#212607"},{"g":"المهن المحاسبية","en":"Accounting","type":"قطاعي","pct":40,"prof":"مدير مالي، مدير حسابات/مراجعة، محاسب، محاسب تكاليف، مراقب مالي، مراجع داخلي، محاسب قانوني، كاتب حسابات، مساعد حسابات، مسؤول ضرائب","minw":3,"sal":6000,"body":"الهيئة السعودية للمراجعين والمحاسبين (SOCPA)","dec":"#103108","note":"تصاعدي 40→50→60→70% خلال 5 سنوات؛ متناهية الصغر (3-4 عمال) 30%"},{"g":"مدارس تعليم قيادة المركبات","en":"Driving Schools","type":"مقصورة على السعوديين","pct":100,"prof":"مراقب حركة مركبات، مدرب مهني، أخصائي وسائل تعليمية، مدرب القيادة","minw":1,"sal":5000,"dec":"#212519"},{"g":"المراكز والصالات الرياضية","en":"Sports Centers","type":"نسبة توطين","pct":15,"prof":"مدرب رياضي، مدرب لياقة بدنية، مدرب كرة قدم محترف، مدرب رياضة مضرب/مائية/جليدية/فروسية محترف، مشرف رياضي","minw":4,"dec":"#72002","note":"المنشآت المرخصة من وزارة الرياضة فقط"},{"g":"الصيدلة","en":"Pharmacy","type":"قطاعي","pct":35,"prof":"صيدلي، صيدلي رعاية صيدلانية، أخصائي علوم صيدلانية/أدوية، مدير صيدلة، أخصائي مبيعات منتجات صيدلانية","minw":5,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#103111","note":"صيدليات المجتمع 35% / المستشفيات 65% / شركات ومستودعات 55%"},{"g":"مراكز الاسترخاء والعناية الشخصية","en":"Relaxation & Personal Care","type":"مقصورة على السعوديين","pct":100,"prof":"مدير فرع/إداري/تسويق/خدمة عملاء/مبيعات/مشتريات، محاسب، مساعد إداري، سكرتير، مدخل بيانات، موظف استقبال، أمين مخزن، بائع، صندوق محاسبة","minw":1,"dec":"#68098","note":"100% للأدوار الإدارية والمساندة"},{"g":"التغذية العلاجية","en":"Clinical Nutrition","type":"قطاعي","pct":80,"prof":"أخصائي تغذية، أخصائي تغذية سريرية، فني تغذية، فني علوم أغذية","minw":1,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#51277"},{"g":"المهن الهندسية","en":"Engineering","type":"قطاعي","pct":30,"prof":"46 مهنة هندسية: مهندس مدني، معماري، ميكانيكي، كهربائي، صناعي، كيميائي، إلكترونيات، طيران، بحري، نووي، بيئي، نفط وغاز، تدفئة وتهوية وتكييف، إنشائي، توربينات، ميكاترونكس، وغيرها","minw":5,"sal":8000,"body":"الهيئة السعودية للمهندسين","dec":"#93483"},{"g":"مهن خدمة العملاء (حضوري)","en":"Customer Service In-Person","type":"نسبة توطين","pct":70,"prof":"مضيف أرضي للحجوزات، كاتب استعلامات سياحية، كاتب تذاكر سفر، كاتب مركز اتصالات، استعلامات خدمة عملاء، مأمور سنترال، مشغل مقسم هاتف، كاتب اتصال/استعلامات، كاتب إدخال/بيانات عملاء","minw":3,"dec":"#208892"},{"g":"المهن الفنية الهندسية","en":"Technical Engineering","type":"قطاعي","pct":30,"prof":"مساح (جيوديسي/أراضي/كميات)، رسام هندسي/معماري، فني هندسة مدنية/كهربائية/ميكانيكية/كيميائية، ميكانيكي طائرات، فني صيانة، مراقب جودة، مشرف موقع إنشائي، وغيرها","minw":5,"sal":5000,"body":"الهيئة السعودية للمهندسين","dec":"#103105"},{"g":"السينما","en":"Cinema","type":"مقصورة على السعوديين","pct":100,"prof":"مبيعات وإشرافي (100%)، فني (50%)","minw":1,"dec":"#212560","note":"المرحلة 1: 100% مبيعات وإشرافي | المرحلة 2: 50% فني"}];
-    var PT=isAr?{saudi:"مقصورة على السعوديين",ratio:"نسبة توطين",sector:"قطاعي (بنشاطه)",pct:"نسبة التوطين",sal:"الحد الأدنى للراتب المحتسب",minw:"يُطبق من (عدد عمال)",body:"جهة الاعتماد",dec:"القرار",empty:"اكتب مهنة للبحث، أو اختر قطاعاً من الاقتراحات.",none:"لا يوجد قرار توطين مباشر لهذه المهنة في مرجعنا — الأرجح أنها تخضع لنسب نطاقات نشاطك العامة فقط. تواصل معنا للتأكد.",all:"عرض كل القرارات"}:{saudi:"Saudi-only",ratio:"Saudization ratio",sector:"Sector-based",pct:"Required ratio",sal:"Min. counted salary",minw:"Applies from (workers)",body:"Accrediting body",dec:"Decision",empty:"Type a profession to search, or pick a sector chip.",none:"No direct localization decision found for this profession in our reference — it is likely governed only by your activity's general Nitaqat ratios. Contact us to confirm.",all:"Show all decisions"};
+    var PT=isAr?{saudi:"مقصورة على السعوديين",ratio:"نسبة توطين",sector:"قطاعي (بنشاطه)"}:{saudi:"Saudi-only",ratio:"Saudization ratio",sector:"Sector-based"};
     function badge(t){var c=t==="مقصورة على السعوديين"?"saudi":(t==="نسبة توطين"?"ratio":"sector");var lbl=isAr?t:(c==="saudi"?PT.saudi:(c==="ratio"?PT.ratio:PT.sector));return '<span class="cc-badge '+c+'">'+lbl+'</span>';}
     function esc2(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-    function hi(text,q){var t=esc2(text);if(!q)return t;var eq=esc2(q);if(t.indexOf(eq)<0)return t;return t.split(eq).join('<mark class="cc-hit">'+eq+"</mark>");}
-    function card(d,q){var meta='<span><b>'+PT.pct+':</b> '+d.pct+'%</span>'+(d.sal?'<span><b>'+PT.sal+':</b> '+fmt(d.sal)+' ﷼</span>':'')+(d.minw?'<span><b>'+PT.minw+':</b> '+d.minw+'</span>':'')+(d.body?'<span><b>'+PT.body+':</b> '+esc2(d.body)+'</span>':'')+'<span><b>'+PT.dec+':</b> '+esc2(d.dec)+'</span>';
-      return '<div class="cc-dec"><div class="cc-dec-head"><strong>'+esc2(isAr?d.g:(d.en||d.g))+'</strong>'+badge(d.type)+'</div><div class="cc-dec-profs">'+hi(d.prof,q)+'</div><div class="cc-dec-meta">'+meta+'</div>'+(d.note?'<div class="cc-dec-note">📌 '+esc2(d.note)+'</div>':'')+'</div>';}
-    function renderProf(q){var box=$("cc-prof-results");q=(q||"").trim();
-      if(!q){box.innerHTML='<p class="cc-prof-empty">'+PT.empty+'</p>';return;}
-      if(q==="*"){box.innerHTML=PROF.map(function(d){return card(d,"");}).join("");return;}
-      var hits=PROF.filter(function(d){return (d.prof+" "+d.g+" "+(d.en||"")).indexOf(q)>=0||(d.en||"").toLowerCase().indexOf(q.toLowerCase())>=0;});
-      box.innerHTML=hits.length?hits.map(function(d){return card(d,q);}).join(""):'<p class="cc-prof-empty">🔎 '+PT.none+'</p>';}
-    var chipBox=$("cc-prof-chips");
-    var chipList=isAr?["محاسب","سكرتير","مهندس","مبيعات","تسويق","مشتريات","صيدلي","طبيب أسنان","موارد بشرية","عقاري"]:["Accounting","Engineering","Sales","Marketing","Procurement","Pharmacy","Real Estate"];
-    chipList.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="cc-chip";b.textContent=c;b.addEventListener("click",function(){$("cc-prof-q").value=c;renderProf(c);});chipBox.appendChild(b);});
-    var allBtn=document.createElement("button");allBtn.type="button";allBtn.className="cc-chip";allBtn.textContent="📋 "+PT.all;allBtn.addEventListener("click",function(){$("cc-prof-q").value="";renderProf("*");});chipBox.appendChild(allBtn);
-    $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
-    renderProf("");
-    var loadPortal=function(){var f=$("cc-portal-frame");if(f&&!f.src)f.src=f.getAttribute("data-src");};
-    var upTab=document.querySelector('[data-tab="upload"]');if(upTab)upTab.addEventListener("click",loadPortal);
-    document.querySelectorAll(".cc-goto-upload").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var tb=document.querySelector('[data-tab="upload"]');if(tb)tb.click();loadPortal();window.scrollTo({top:0,behavior:"smooth"});});});
 
     /* — official CR activity finder: 2,700+ coded activities (ISIC4 master reference) — */
-    var AT=isAr?{loading:"جارٍ تحميل قائمة الأنشطة الرسمية…",count:"{n} نشاط مطابق",none:"لا يوجد نشاط مطابق — جرّب كلمة أخرى أو اكتب الكود.",code:"الكود",sector:"القطاع",en:"الاسم الإنجليزي",nit:"نشاط نطاقات الأقرب (اختير تلقائياً — تأكد منه)",dec:"قرارات توطين قد تنطبق على نشاطك:",noDec:"لا توجد قرارات توطين خاصة مرتبطة مباشرة بهذا النشاط في مرجعنا — تسري عليه نسب نطاقات نشاطك أعلاه.",clear:"مسح النشاط",official:"النطاق الرسمي يُعتمد من منصة قوى.",prof:"افحص مهن نشاطك"}:{loading:"Loading the official activities list…",count:"{n} matching activities",none:"No matching activity — try another word or type the code.",code:"Code",sector:"Sector",en:"English name",nit:"Closest Nitaqat activity (auto-selected — please verify)",dec:"Localization decisions that may apply to your activity:",noDec:"No specific localization decision is directly linked to this activity in our reference — your activity's Nitaqat ratios above apply.",clear:"Clear activity",official:"Your official band is confirmed on the Qiwa platform.",prof:"Check your activity's professions"};
+    var AT=isAr?{loading:"جارٍ تحميل قائمة الأنشطة الرسمية…",count:"{n} نشاط مطابق",none:"لا يوجد نشاط مطابق — جرّب كلمة أخرى أو اكتب الكود.",code:"الكود",sector:"القطاع",en:"الاسم الإنجليزي",nit:"نشاط نطاقات الأقرب (اختير تلقائياً — تأكد منه)",dec:"قرارات توطين قد تنطبق على نشاطك:",noDec:"لا توجد قرارات توطين خاصة مرتبطة مباشرة بهذا النشاط في مرجعنا — تسري عليه نسب نطاقات نشاطك أعلاه.",clear:"مسح النشاط",official:"النطاق الرسمي يُعتمد من منصة قوى.",prof:"افحص مهن نشاطك (حاسبة مستقلة) ↗"}:{loading:"Loading the official activities list…",count:"{n} matching activities",none:"No matching activity — try another word or type the code.",code:"Code",sector:"Sector",en:"English name",nit:"Closest Nitaqat activity (auto-selected — please verify)",dec:"Localization decisions that may apply to your activity:",noDec:"No specific localization decision is directly linked to this activity in our reference — your activity's Nitaqat ratios above apply.",clear:"Clear activity",official:"Your official band is confirmed on the Qiwa platform.",prof:"Check professions (separate tool) ↗"};
     var ACT=null,actSec="",actPick=null;
     var actIn=$("cc-activity"),actDrop=$("cc-act-drop"),actInfo=$("cc-act-info"),actChipsBox=$("cc-act-chips");
     function anorm(s){return String(s||"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/[ً-ْـ]/g,"").toLowerCase();}
@@ -1628,16 +1386,10 @@ function buildComplianceCalculators() {
       var mi=nitMap(a);
       if(mi>=0)actSel.value=mi;
       var decHtml=decs.length
-        ?'<div class="cc-act-dec"><div class="cc-act-dec-title">'+AT.dec+'</div>'+decs.map(function(d){return '<div class="cc-act-dec-row">'+badge(d.type)+'<span>'+esc2(isAr?d.g:(d.en||d.g))+' — '+d.pct+'%</span></div>';}).join("")+'<button type="button" class="cc-chip" id="cc-act-goprof">🧑‍💼 '+AT.prof+'</button></div>'
+        ?'<div class="cc-act-dec"><div class="cc-act-dec-title">'+AT.dec+'</div>'+decs.map(function(d){return '<div class="cc-act-dec-row">'+badge(d.type)+'<span>'+esc2(isAr?d.g:(d.en||d.g))+' — '+d.pct+'%</span></div>';}).join("")+'<a class="cc-chip" href="'+window.BP_PROF_URL+'" target="_blank" rel="noopener">🧑‍💼 '+AT.prof+'</a></div>'
         :'<div class="cc-act-dec">'+AT.noDec+'</div>';
       actInfo.innerHTML='<button type="button" class="cc-act-clear" id="cc-act-clear">✕ '+AT.clear+'</button><h4>'+esc2(isAr?a[1]:(a[2]||a[1]))+'</h4><div class="cc-act-meta"><span><b>'+AT.code+':</b> '+a[0]+'</span><span><b>'+AT.sector+':</b> '+a[3]+' · '+esc2(isAr?sec[0]:(sec[1]||sec[0]))+'</span>'+(isAr&&a[2]?'<span><b>'+AT.en+':</b> '+esc2(a[2])+'</span>':'')+(mi>=0?'<span><b>'+AT.nit+':</b> '+esc2(isAr?NIT_DATA[mi].name:(NIT_DATA[mi].en||NIT_DATA[mi].name))+'</span>':'')+'</div>'+decHtml+'<div class="form-note" style="margin-top:8px">⚖️ '+AT.official+'</div>';
       actInfo.hidden=false;
-      var gp=document.getElementById("cc-act-goprof");
-      if(gp)gp.addEventListener("click",function(){
-        var t=document.querySelector('[data-tab="prof"]');if(t)t.click();
-        var q=$("cc-prof-q");
-        if(q&&decs[0]){q.value=isAr?decs[0].g:(decs[0].en||decs[0].g);renderProf(q.value);}
-      });
       var cl=document.getElementById("cc-act-clear");
       if(cl)cl.addEventListener("click",function(){actPick=null;actIn.value="";actInfo.hidden=true;});
     }
@@ -1650,13 +1402,156 @@ function buildComplianceCalculators() {
   })();
   </script>`;
   return page({
-    title: Lraw("Nitaqat & government cost calculators — Business Partner", "حاسبات النطاقات والتكاليف الحكومية — بيزنس بارتنر"),
-    desc: Lraw("Estimate your Saudization (Nitaqat) band and per-worker government costs in seconds.", "احسب نطاق السعودة المتوقع وتكاليف العمالة الحكومية لكل عامل خلال ثوانٍ."),
-    active: "/calculator",
-    path: "/compliance-calculators",
+    title: Lraw("Nitaqat calculator — Business Partner", "حاسبة النطاقات — بيزنس بارتنر"),
+    desc: Lraw("Estimate your Saudization (Nitaqat) band in seconds.", "احسب نطاق السعودة المتوقع خلال ثوانٍ."),
+    active: "/tools-and-calculators",
+    path: "/calculators/nitaqat",
     body,
   });
 }
+
+function buildGovernmentCostCalculator() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <a class="back-link" href="${u("/tools-and-calculators")}">${I.arrow} ${L("All tools & calculators", "كل الأدوات والحاسبات")}</a>
+    <span class="eyebrow">${L("Free compliance tool", "أداة امتثال مجانية")}</span>
+    <h1>${L("Government cost calculator", "حاسبة التكاليف الحكومية")}</h1>
+    <p class="lead">${L("Estimate per-worker government costs (work permit, iqama, medical insurance, fines) in seconds.", "قدّر تكاليف العمالة الحكومية لكل عامل (رخصة العمل، الإقامة، التأمين الطبي، الغرامات) خلال ثوانٍ.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:920px">
+    <div class="order-box">
+      <h3>${L("Government cost calculator", "حاسبة التكاليف الحكومية")}</h3>
+      <p class="cc-sub">${L("Work permit (Qiwa) + iqama (Muqeem) + medical insurance + fines — per worker, quarterly and annually.", "رخصة العمل (قوى) + الإقامة (مقيم) + التأمين الطبي + الغرامات — لكل عامل، ربعياً وسنوياً.")}</p>
+      <div id="cc-rows"></div>
+      <button class="btn btn-ghost cc-btn-sm" id="cc-add">${L("+ Add another profession", "+ إضافة مهنة أخرى")}</button>
+      <p class="form-note">💡 ${L("New worker: 3 free months on first entry + a one-time medical exam.", "العامل الجديد: 3 أشهر مجانية عند أول دخول + فحص طبي لمرة واحدة.")}</p>
+      <details class="cc-rates"><summary>⚙️ ${L("Rate basis used (editable)", "الأسس السعرية المستخدمة (قابلة للتعديل)")}</summary>
+        <div class="cc-grid">
+          <div class="field"><label>${L("Work permit — annual", "رخصة العمل — سنوياً")}</label><input type="number" id="cc-rate-permit" value="9700"></div>
+          <div class="field"><label>${L("Iqama — annual", "الإقامة — سنوياً")}</label><input type="number" id="cc-rate-iqama" value="650"></div>
+          <div class="field"><label>${L("Medical insurance — annual", "التأمين الطبي — سنوياً")}</label><input type="number" id="cc-rate-medical" value="1000"></div>
+          <div class="field"><label>${L("Medical exam (new)", "الفحص الطبي (للجديد)")}</label><input type="number" id="cc-rate-exam" value="300"></div>
+        </div>
+      </details>
+      <button class="btn btn-primary" id="cc-fees-calc">${L("Calculate", "احسب")}</button>
+      <div class="cc-result" id="cc-fees-result" hidden>
+        <div class="cc-tiles">
+          <div class="cc-tile"><span>${L("Workers", "عدد العمّال")}</span><strong id="cc-workers">—</strong></div>
+          <div class="cc-tile"><span>${L("Quarterly total", "الإجمالي الربعي")}</span><strong id="cc-quarter">—</strong></div>
+          <div class="cc-tile"><span>${L("Annual total", "الإجمالي السنوي")}</span><strong id="cc-annual">—</strong></div>
+        </div>
+        <div class="cc-table-wrap"><table class="cc-table"><thead><tr>
+          <th>${L("Profession", "المهنة")}</th><th>${L("Status", "الحالة")}</th><th>${L("Count", "العدد")}</th>
+          <th>${L("Quarterly / worker", "ربعي / عامل")}</th><th>${L("Annual / worker", "سنوي / عامل")}</th>
+        </tr></thead><tbody id="cc-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. الرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
+  </div></section>
+  <script>window.BP_CC_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var isAr = window.BP_CC_LANG === "ar";
+    var T = isAr ? {
+      prof:"المهنة",profPh:"مثال: عامل، فني، مهندس…",status:"الحالة",sExisting:"قائم (على رأس العمل)",sNew:"جديد (أول دخول)",count:"العدد",late:"تأخير تجديد الإقامة",lNone:"لا يوجد",lFirst:"المرة الأولى (+500)",lSecond:"المرة الثانية (+1,000)",remove:"حذف",sar:"﷼"
+    } : {
+      prof:"Profession",profPh:"e.g. laborer, technician…",status:"Status",sExisting:"Existing (on the job)",sNew:"New (first entry)",count:"Count",late:"Iqama renewal delay",lNone:"None",lFirst:"First time (+500)",lSecond:"Second time (+1,000)",remove:"Remove",sar:"SAR"
+    };
+    var fmt=function(n){return Math.round(n).toLocaleString(isAr?"ar-SA":"en-US");};
+    var $=function(id){return document.getElementById(id);};
+    var FINES={none:0,first:500,second:1000};
+    function addRow(count){
+      var d=document.createElement("div");d.className="cc-row";
+      d.innerHTML='<div class="field"><label>'+T.prof+'</label><input type="text" class="cc-prof" placeholder="'+T.profPh+'"></div>'+
+        '<div class="field"><label>'+T.status+'</label><select class="cc-status"><option value="existing">'+T.sExisting+'</option><option value="new">'+T.sNew+'</option></select></div>'+
+        '<div class="field"><label>'+T.count+'</label><input type="number" class="cc-count" min="1" value="'+(count||1)+'"></div>'+
+        '<div class="field"><label>'+T.late+'</label><select class="cc-late"><option value="none">'+T.lNone+'</option><option value="first">'+T.lFirst+'</option><option value="second">'+T.lSecond+'</option></select></div>'+
+        '<button type="button" class="cc-remove" title="'+T.remove+'">✕</button>';
+      d.querySelector(".cc-remove").addEventListener("click",function(){if(document.querySelectorAll(".cc-row").length>1)d.remove();});
+      $("cc-rows").appendChild(d);}
+    addRow(5);
+    $("cc-add").addEventListener("click",function(){addRow();});
+    $("cc-fees-calc").addEventListener("click",function(){
+      var pA=Number($("cc-rate-permit").value)||0,iA=Number($("cc-rate-iqama").value)||0,mA=Number($("cc-rate-medical").value)||0,ex=Number($("cc-rate-exam").value)||0;
+      var pQ=pA/4,iQ=iA/4,mQ=mA/4,workers=0,tQ=0,tA=0,tb=$("cc-tbody");tb.innerHTML="";
+      document.querySelectorAll(".cc-row").forEach(function(row){
+        var prof=row.querySelector(".cc-prof").value||"—";
+        var isNew=row.querySelector(".cc-status").value==="new";
+        var count=Math.max(1,Number(row.querySelector(".cc-count").value)||1);
+        var fine=FINES[row.querySelector(".cc-late").value]||0;
+        var qPer=pQ+iQ+mQ+fine,aPer=pA+iA+mA+(isNew?ex:0);
+        workers+=count;tQ+=qPer*count;tA+=aPer*count;
+        var tr=document.createElement("tr");
+        tr.innerHTML="<td>"+prof.replace(/</g,"&lt;")+(fine?' <span class="cc-fine">+'+fmt(fine)+"</span>":"")+"</td><td>"+(isNew?T.sNew:T.sExisting)+"</td><td>"+count+"</td><td>"+fmt(qPer)+"</td><td>"+fmt(aPer)+"</td>";
+        tb.appendChild(tr);});
+      $("cc-workers").textContent=workers;
+      $("cc-quarter").textContent=fmt(tQ)+" "+T.sar;
+      $("cc-annual").textContent=fmt(tA)+" "+T.sar;
+      $("cc-fees-result").hidden=false;});
+  })();
+  </script>`;
+  return page({
+    title: Lraw("Government cost calculator — Business Partner", "حاسبة التكاليف الحكومية — بيزنس بارتنر"),
+    desc: Lraw("Estimate per-worker government costs in seconds.", "قدّر تكاليف العمالة الحكومية لكل عامل خلال ثوانٍ."),
+    active: "/tools-and-calculators",
+    path: "/calculators/government-cost",
+    body,
+  });
+}
+
+function buildProfessionChecker() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <a class="back-link" href="${u("/tools-and-calculators")}">${I.arrow} ${L("All tools & calculators", "كل الأدوات والحاسبات")}</a>
+    <span class="eyebrow">${L("Free compliance tool", "أداة امتثال مجانية")}</span>
+    <h1>${L("Profession checker", "فاحص المهن")}</h1>
+    <p class="lead">${L("Type a profession to see if it is Saudi-only or has a required Saudization ratio.", "اكتب المهنة لتعرف هل هي مقصورة على السعوديين أو لها نسبة توطين مطلوبة.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:920px">
+    <div class="order-box">
+      <h3>${L("Saudized professions checker (HRSD)", "فاحص المهن المسعودة (قرارات التوطين)")}</h3>
+      <p class="cc-sub">${L("Type a profession to see if it is Saudi-only or has a required Saudization ratio — with the decision number, minimum counted salary, and accrediting body. Source: official HRSD localization decisions.", "اكتب المهنة لتعرف هل هي مقصورة على السعوديين أو لها نسبة توطين مطلوبة — مع رقم القرار والحد الأدنى للراتب المحتسب وجهة الاعتماد. المصدر: قرارات التوطين الرسمية لوزارة الموارد البشرية.")}</p>
+      <div class="field"><label for="cc-prof-q">${L("Profession or sector", "المهنة أو القطاع")}</label><input type="text" id="cc-prof-q" placeholder="${Lraw("e.g. accountant, secretary, engineer, dentist…", "مثال: محاسب، سكرتير، مهندس، طبيب أسنان…")}"></div>
+      <div class="cc-prof-chips" id="cc-prof-chips"></div>
+      <div id="cc-prof-results"></div>
+    </div>
+    <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. تواصل معنا لحساب دقيق ومعتمد.")}</div>
+  </div></section>
+  <script>window.BP_CC_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var isAr = window.BP_CC_LANG === "ar";
+    var fmt=function(n){return Math.round(n).toLocaleString(isAr?"ar-SA":"en-US");};
+    var $=function(id){return document.getElementById(id);};
+    var PROF=[{"g":"مهن الطيران المرخصة","en":"Aviation","type":"قطاعي","pct":70,"prof":"مراقب جوي (100%)، ملاح جوي (100%)، منسق حركة أرضية (100%)، مساعد طيار (100%)، طيار جناح ثابت (70%)، مضيف طيران (60%)","minw":5,"body":"الهيئة العامة للطيران المدني (GACA)","dec":"#208818","note":"النسب تختلف حسب المهنة (60-100%)"},{"g":"إدارة المشاريع","en":"Project Management","type":"نسبة توطين","pct":40,"prof":"مدير إدارة مشاريع، أخصائي إدارة مشاريع، مهندس إدارة مشاريع، مدير اتصالات، مدير هندسة اتصالات","minw":3,"sal":6000,"dec":"#141749","note":"المرحلة الثانية 40%"},{"g":"مهن التسويق","en":"Marketing","type":"نسبة توطين","pct":60,"prof":"مدير تسويق، وكيل دعاية وإعلان، مدير دعاية وإعلان، مصمم جرافيك، مصور فوتوغرافي، أخصائي علاقات عامة، أخصائي دعاية وإعلان، أخصائي تسويق، مدير علاقات عامة، مصمم إعلان","minw":3,"sal":5500,"dec":"#101319"},{"g":"المادة 11 — مهن مقصورة على السعوديين","en":"Article 11 — Saudi-Only","type":"مقصورة على السعوديين","pct":100,"prof":"إداري موارد بشرية، مشرف موارد بشرية، مسؤول شؤون عمال، اختصاصي شؤون أفراد، كاتب شؤون أفراد، كاتب توظيف، كاتب شؤون موظفين، كاتب دوام، كاتب استقبال عام، استقبال فندقي، استقبال مرضى، كاتب شكاوى، أمين صندوق، حارس أمن خاص، معقب، ناسخ/مصلّح مفاتيح، مخلّص جمركي","minw":1,"dec":"اللائحة التنفيذية لنظام العمل","note":"لا يُسمح لغير السعوديين بالعمل فيها بموجب المادة 11"},{"g":"البصريات","en":"Optics","type":"قطاعي","pct":50,"prof":"فني بصريات طبية، فني نظارات","minw":4,"sal":5500,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#208837"},{"g":"الأجهزة الطبية","en":"Medical Devices","type":"قطاعي","pct":80,"prof":"أخصائي مبيعات مستلزمات طبية، مبيعات منتجات صيدلانية، فني أجهزة طبية، مُجمع أجهزة طبية، مهندس أجهزة طبية","minw":1,"sal":7000,"dec":"#48081","note":"المرحلة 2: 80% مبيعات، 50% هندسي/فني"},{"g":"مهن خدمة العملاء عن بعد","en":"Remote Customer Service","type":"مقصورة على السعوديين","pct":100,"prof":"جميع مهن خدمة العملاء عن بعد (هاتف، إيميل، شات، سوشال ميديا)","minw":1,"dec":"#112203"},{"g":"مهن المبيعات","en":"Sales","type":"نسبة توطين","pct":60,"prof":"مدير مبيعات، مدير مبيعات تجزئة، مدير مبيعات جملة، مندوب مبيعات، وسيط سلع مستقبلية، أخصائي مبيعات أجهزة تقنية المعلومات والاتصالات، أخصائي مبيعات، أخصائي تجاري، وسيط سلع","minw":3,"dec":"#101278"},{"g":"المختبرات الطبية","en":"Medical Labs","type":"قطاعي","pct":70,"prof":"مدير مختبر تحاليل طبية، أخصائي مختبرات طبية/سريرية، فني مختبر طبي، فني مختبرات","minw":1,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#51267"},{"g":"مهن المشتريات","en":"Procurement","type":"نسبة توطين","pct":70,"prof":"مدير مشتريات، أخصائي مناقصات، مندوب مشتريات، أخصائي مشتريات، مدير عقود، مدير خدمات لوجستية، مدير مستودع، أمين مستودع فني، أخصائي مستودعات، أخصائي تجارة إلكترونية، أخصائي أبحاث أسواق","minw":3,"dec":"#77050"},{"g":"طب الأسنان","en":"Dentistry","type":"قطاعي","pct":55,"prof":"طبيب أسنان عام، جراح فم ووجه وفكين، تقويم أسنان، أسنان أطفال، معالجة لبية، تخدير أسنان","minw":3,"sal":9000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#103107","note":"المرحلة الحالية 55% (من 27/01/2026م)"},{"g":"العلاج الطبيعي","en":"Physical Therapy","type":"قطاعي","pct":80,"prof":"أخصائي علاج طبيعي، فني علاج طبيعي","minw":1,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#51270","note":"7,000 للأخصائي / 5,000 للفني"},{"g":"الأنشطة والمهن العقارية","en":"Real Estate","type":"مقصورة على السعوديين","pct":100,"prof":"وسيط عقاري، وسيط بيع وتأجير عقارات، سمسار أراضي وعقارات، كاتب تسجيل أراضي وعقارات، مسّوق عقاري، مدير اتحاد ملاك، مهندس مستدام معتمد، مهندس مقيم معتمد، مهندس فاحص جودة، فاحص مباني جاهزة","minw":1,"dec":"#212535","note":"100% للمهن المحددة، 70% للنشاط العقاري العام"},{"g":"التخليص الجمركي","en":"Customs Clearance","type":"مقصورة على السعوديين","pct":100,"prof":"مخلص جمركي، مبند جمركي، مترجم، مدير عام، كاتب عام","minw":1,"sal":5000,"dec":"#212497","note":"100% للمهن المحددة، 70% للنشاط"},{"g":"الأشعة","en":"Radiology","type":"قطاعي","pct":65,"prof":"فني أشعة، أخصائي تقنية إشعاعية، فني أشعة علاجية، أخصائي وقاية إشعاعية، فني تصوير/قسطرة/تخطيط قلب","minw":1,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#51273"},{"g":"مشرف مسكن","en":"Housing Supervisor","type":"مقصورة على السعوديين","pct":100,"prof":"مشرف مسكن","minw":1,"dec":"#62298","note":"خاص بسكن العمال"},{"g":"المهن الإدارية المساندة","en":"Admin Support","type":"مقصورة على السعوديين","pct":100,"prof":"مترجم، سكرتير تنفيذي/سكرتير، مدخل بيانات، مخلص جمركي، استقبال فندق، أمين مخزن، كاتب موارد بشرية، حارس أمن، أمين صندوق + (م2) كل مهن الموارد البشرية (مدير/أخصائي توظيف/تعويضات/مواهب/تطوير)، العلاقات العامة، وكلاء الشحن/الجمارك","minw":1,"dec":"#132249","note":"م1 (19 مهنة) فورية من 05/04/2026؛ م2 (50 مهنة) مهلة حتى 04/10/2026"},{"g":"المهن القانونية","en":"Legal","type":"نسبة توطين","pct":70,"prof":"مدير شؤون قانونية، أخصائي قانوني، أخصائي عقود، سكرتير قانوني","minw":1,"sal":5500,"dec":"#212607"},{"g":"المهن المحاسبية","en":"Accounting","type":"قطاعي","pct":40,"prof":"مدير مالي، مدير حسابات/مراجعة، محاسب، محاسب تكاليف، مراقب مالي، مراجع داخلي، محاسب قانوني، كاتب حسابات، مساعد حسابات، مسؤول ضرائب","minw":3,"sal":6000,"body":"الهيئة السعودية للمراجعين والمحاسبين (SOCPA)","dec":"#103108","note":"تصاعدي 40→50→60→70% خلال 5 سنوات؛ متناهية الصغر (3-4 عمال) 30%"},{"g":"مدارس تعليم قيادة المركبات","en":"Driving Schools","type":"مقصورة على السعوديين","pct":100,"prof":"مراقب حركة مركبات، مدرب مهني، أخصائي وسائل تعليمية، مدرب القيادة","minw":1,"sal":5000,"dec":"#212519"},{"g":"المراكز والصالات الرياضية","en":"Sports Centers","type":"نسبة توطين","pct":15,"prof":"مدرب رياضي، مدرب لياقة بدنية، مدرب كرة قدم محترف، مدرب رياضة مضرب/مائية/جليدية/فروسية محترف، مشرف رياضي","minw":4,"dec":"#72002","note":"المنشآت المرخصة من وزارة الرياضة فقط"},{"g":"الصيدلة","en":"Pharmacy","type":"قطاعي","pct":35,"prof":"صيدلي، صيدلي رعاية صيدلانية، أخصائي علوم صيدلانية/أدوية، مدير صيدلة، أخصائي مبيعات منتجات صيدلانية","minw":5,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#103111","note":"صيدليات المجتمع 35% / المستشفيات 65% / شركات ومستودعات 55%"},{"g":"مراكز الاسترخاء والعناية الشخصية","en":"Relaxation & Personal Care","type":"مقصورة على السعوديين","pct":100,"prof":"مدير فرع/إداري/تسويق/خدمة عملاء/مبيعات/مشتريات، محاسب، مساعد إداري، سكرتير، مدخل بيانات، موظف استقبال، أمين مخزن، بائع، صندوق محاسبة","minw":1,"dec":"#68098","note":"100% للأدوار الإدارية والمساندة"},{"g":"التغذية العلاجية","en":"Clinical Nutrition","type":"قطاعي","pct":80,"prof":"أخصائي تغذية، أخصائي تغذية سريرية، فني تغذية، فني علوم أغذية","minw":1,"sal":7000,"body":"الهيئة السعودية للتخصصات الصحية","dec":"#51277"},{"g":"المهن الهندسية","en":"Engineering","type":"قطاعي","pct":30,"prof":"46 مهنة هندسية: مهندس مدني، معماري، ميكانيكي، كهربائي، صناعي، كيميائي، إلكترونيات، طيران، بحري، نووي، بيئي، نفط وغاز، تدفئة وتهوية وتكييف، إنشائي، توربينات، ميكاترونكس، وغيرها","minw":5,"sal":8000,"body":"الهيئة السعودية للمهندسين","dec":"#93483"},{"g":"مهن خدمة العملاء (حضوري)","en":"Customer Service In-Person","type":"نسبة توطين","pct":70,"prof":"مضيف أرضي للحجوزات، كاتب استعلامات سياحية، كاتب تذاكر سفر، كاتب مركز اتصالات، استعلامات خدمة عملاء، مأمور سنترال، مشغل مقسم هاتف، كاتب اتصال/استعلامات، كاتب إدخال/بيانات عملاء","minw":3,"dec":"#208892"},{"g":"المهن الفنية الهندسية","en":"Technical Engineering","type":"قطاعي","pct":30,"prof":"مساح (جيوديسي/أراضي/كميات)، رسام هندسي/معماري، فني هندسة مدنية/كهربائية/ميكانيكية/كيميائية، ميكانيكي طائرات، فني صيانة، مراقب جودة، مشرف موقع إنشائي، وغيرها","minw":5,"sal":5000,"body":"الهيئة السعودية للمهندسين","dec":"#103105"},{"g":"السينما","en":"Cinema","type":"مقصورة على السعوديين","pct":100,"prof":"مبيعات وإشرافي (100%)، فني (50%)","minw":1,"dec":"#212560","note":"المرحلة 1: 100% مبيعات وإشرافي | المرحلة 2: 50% فني"}];
+    var PT=isAr?{saudi:"مقصورة على السعوديين",ratio:"نسبة توطين",sector:"قطاعي (بنشاطه)",pct:"نسبة التوطين",sal:"الحد الأدنى للراتب المحتسب",minw:"يُطبق من (عدد عمال)",body:"جهة الاعتماد",dec:"القرار",empty:"اكتب مهنة للبحث، أو اختر قطاعاً من الاقتراحات.",none:"لا يوجد قرار توطين مباشر لهذه المهنة في مرجعنا — الأرجح أنها تخضع لنسب نطاقات نشاطك العامة فقط. تواصل معنا للتأكد.",all:"عرض كل القرارات"}:{saudi:"Saudi-only",ratio:"Saudization ratio",sector:"Sector-based",pct:"Required ratio",sal:"Min. counted salary",minw:"Applies from (workers)",body:"Accrediting body",dec:"Decision",empty:"Type a profession to search, or pick a sector chip.",none:"No direct localization decision found for this profession in our reference — it is likely governed only by your activity's general Nitaqat ratios. Contact us to confirm.",all:"Show all decisions"};
+    function badge(t){var c=t==="مقصورة على السعوديين"?"saudi":(t==="نسبة توطين"?"ratio":"sector");var lbl=isAr?t:(c==="saudi"?PT.saudi:(c==="ratio"?PT.ratio:PT.sector));return '<span class="cc-badge '+c+'">'+lbl+'</span>';}
+    function esc2(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+    function hi(text,q){var t=esc2(text);if(!q)return t;var eq=esc2(q);if(t.indexOf(eq)<0)return t;return t.split(eq).join('<mark class="cc-hit">'+eq+"</mark>");}
+    function card(d,q){var meta='<span><b>'+PT.pct+':</b> '+d.pct+'%</span>'+(d.sal?'<span><b>'+PT.sal+':</b> '+fmt(d.sal)+' ﷼</span>':'')+(d.minw?'<span><b>'+PT.minw+':</b> '+d.minw+'</span>':'')+(d.body?'<span><b>'+PT.body+':</b> '+esc2(d.body)+'</span>':'')+'<span><b>'+PT.dec+':</b> '+esc2(d.dec)+'</span>';
+      return '<div class="cc-dec"><div class="cc-dec-head"><strong>'+esc2(isAr?d.g:(d.en||d.g))+'</strong>'+badge(d.type)+'</div><div class="cc-dec-profs">'+hi(d.prof,q)+'</div><div class="cc-dec-meta">'+meta+'</div>'+(d.note?'<div class="cc-dec-note">📌 '+esc2(d.note)+'</div>':'')+'</div>';}
+    function renderProf(q){var box=$("cc-prof-results");q=(q||"").trim();
+      if(!q){box.innerHTML='<p class="cc-prof-empty">'+PT.empty+'</p>';return;}
+      if(q==="*"){box.innerHTML=PROF.map(function(d){return card(d,"");}).join("");return;}
+      var hits=PROF.filter(function(d){return (d.prof+" "+d.g+" "+(d.en||"")).indexOf(q)>=0||(d.en||"").toLowerCase().indexOf(q.toLowerCase())>=0;});
+      box.innerHTML=hits.length?hits.map(function(d){return card(d,q);}).join(""):'<p class="cc-prof-empty">🔎 '+PT.none+'</p>';}
+    var chipBox=$("cc-prof-chips");
+    var chipList=isAr?["محاسب","سكرتير","مهندس","مبيعات","تسويق","مشتريات","صيدلي","طبيب أسنان","موارد بشرية","عقاري"]:["Accounting","Engineering","Sales","Marketing","Procurement","Pharmacy","Real Estate"];
+    chipList.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="cc-chip";b.textContent=c;b.addEventListener("click",function(){$("cc-prof-q").value=c;renderProf(c);});chipBox.appendChild(b);});
+    var allBtn=document.createElement("button");allBtn.type="button";allBtn.className="cc-chip";allBtn.textContent="📋 "+PT.all;allBtn.addEventListener("click",function(){$("cc-prof-q").value="";renderProf("*");});chipBox.appendChild(allBtn);
+    $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
+    renderProf("");
+  })();
+  </script>`;
+  return page({
+    title: Lraw("Profession checker — Business Partner", "فاحص المهن — بيزنس بارتنر"),
+    desc: Lraw("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."),
+    active: "/tools-and-calculators",
+    path: "/calculators/profession-checker",
+    body,
+  });
+}
+
 
 // Branded wrapper around the secure n8n intake form — clients never see a bare n8n URL.
 const COMPLIANCE_FORM_URL = "https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake";
@@ -1689,7 +1584,7 @@ function buildCompliancePortal() {
         <div class="order-box">
           <h3>${L("Prefer to talk first?", "تبغى تتكلم مع أحد أولاً؟")}</h3>
           <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("WhatsApp us", "كلّمنا واتساب")}</span></a>
-          <a class="btn btn-ghost" href="${u("/compliance-calculators")}" style="width:100%;margin-top:10px">${L("Free compliance calculators →", "حاسبات الامتثال المجانية ←")}</a>
+          <a class="btn btn-ghost" href="${u("/tools-and-calculators")}" style="width:100%;margin-top:10px">${L("Free compliance calculators →", "حاسبات الامتثال المجانية ←")}</a>
         </div>
       </aside>
     </div>
@@ -1717,116 +1612,185 @@ function buildCompliancePortal() {
   });
 }
 
-function buildLaborCalculators() {
+// The paid Compliance Agent subscription product — full landing + pricing +
+// payment + intake, wrapped in the site's own header/footer/cart (unlike the
+// free compliance-portal tool above). Payment reuses api/pay.js same-origin.
+function buildComplianceAgent() {
+  const platforms = ["قوى","مقيم","GOSI","مدد","نطاقات","السجل التجاري","المركز السعودي للأعمال","ZATCA","الغرفة التجارية","العنوان الوطني","بلدي","الدفاع المدني","إيجار","MISA"];
+  const platformsEn = ["Qiwa","Muqeem","GOSI","Mudad","Nitaqat","CR","Saudi Business Center","ZATCA","Chamber","National Address","Balady","Civil Defense","Ejar","MISA"];
+  const chips = platforms.map((p, i) => `<span class="hero-badge">${L(platformsEn[i], p)}</span>`).join("");
+  const steps = [
+    ["1", L("Subscribe and upload your files", "تشترك وترفع ملفاتك"), L("CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses — image, PDF or Excel.", "السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.")],
+    ["2", L("The agent reads and analyzes", "الوكيل يقرأ ويحلّل"), L("Extracts dates, numbers and statuses automatically and builds your compliance record.", "يستخرج التواريخ والأرقام والحالات تلقائياً ويبني سجل امتثال لمنشأتك.")],
+    ["3", L("Daily monitoring", "مراقبة يومية"), L("Calculates days and risks, and alerts you before any expiry or violation via WhatsApp and email.", "يحسب الأيام والمخاطر، وينبّهك قبل أي انتهاء أو مخالفة عبر واتساب وإيميل.")],
+    ["4", L("Every action needs your approval", "كل إجراء بموافقتك"), L("Prepares the renewal/action and shows it to you — nothing government-related runs without your approval.", "يجهّز التجديد/الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك.")],
+  ];
+  const stepsHtml = steps.map(([n, t, d]) => `<div class="step"><div class="step-n">${n}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
+  const valueItems = [
+    [L("Certificates and their expiry dates", "الشهادات وتواريخ انتهائها"), L("Zakat, tax, chamber, GOSI, Saudization, wage protection, IBAN.", "الزكاة، الضريبة، الغرفة، التأمينات، التوطين، حماية الأجور، الآيبان.")],
+    [L("Workforce and residencies", "العمالة والإقامات"), L("Work permits (Qiwa), residencies (Muqeem), wage protection (Mudad).", "رخص العمل (قوى)، الإقامات (مقيم)، حماية الأجور (مدد).")],
+    [L("Nitaqat and Saudization", "النطاقات والسعودة"), L("Your expected band and how many Saudis you need to match or upgrade.", "نطاقك المتوقع وكم سعودي تحتاج للمطابقة أو الترقية.")],
+    [L("Licenses and location", "الرخص والموقع"), L("Municipal license (Balady), Civil Defense, a certified lease contract.", "الرخصة البلدية (بلدي)، الدفاع المدني، عقد إيجار موثّق.")],
+    [L("Foreign investors", "المستثمر الأجنبي"), L("Investment license (MISA) and its dates.", "رخصة الاستثمار (MISA) وتواريخها.")],
+    [L("Alerts", "التنبيهات"), L("Daily report + an alert before violations and before any expiry.", "تقرير يومي + منبّه قبل نزول المخالفات وقبل كل انتهاء.")],
+  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
+    <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
+    <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#intake">${L("Start now — upload your files", "ابدأ الآن — ارفع ملفاتك")}</a>${waBtn2("Talk to us on WhatsApp", "تحدّث معنا واتساب", "btn-ghost", true)}</div>
+    <div class="hero-badges">${chips}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from uploading your files to a daily alert and a ready action pending your approval", "أربع خطوات — من رفع ملفاتك إلى تنبيه يومي وإجراء جاهز بموافقتك")}</h2></div>
+    <div class="steps-grid">${stepsHtml}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:1rem">${L("What does the agent track for you?", "وش يتابع لك الوكيل؟")}</h3>
+      <ul class="value-list">${valueItems}</ul>
+    </div>
+  </section></div>
+
+  <section class="section" style="padding-top:0"><div class="container">
+    <div class="price-box">
+      <div><div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
+      <div class="text-soft">${L("Compliance subscription — daily monitoring and alerts. Government fees for actions are separate and only run with your approval.", "اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.")}</div></div>
+      <a class="btn btn-primary" href="#pay">${L("Subscribe now", "اشترك الآن")}</a>
+    </div>
+  </div></section>
+
+  <section id="pay" class="section" style="padding-top:0"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:.3rem">${L("Complete your subscription", "استكمل الاشتراك")}</h3>
+      <p class="text-soft" style="margin-bottom:1rem">${L("Already registered below? Enter your establishment name and the access code you received by email, then complete payment to unlock your dashboard instantly.", "سجّلت منشأتك بالأسفل؟ ادخل اسم المنشأة ورمز الدخول اللي وصلك بالبريد، وأكمل الدفع لتُفتح لوحة التحكم فوراً.")}</p>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="pay-company">${L("Establishment name", "اسم المنشأة")}</label><input id="pay-company" required></div>
+        <div class="field"><label for="pay-code">${L("Access code (from confirmation email)", "رمز الدخول (من بريد التأكيد)")}</label><input id="pay-code" required></div>
+      </div>
+      <button type="button" class="btn btn-primary btn-lg" id="pay-start" style="margin-top:1rem">💳 ${L("Pay 250 SAR now", "ادفع 250 ريال الآن")}</button>
+      <div id="pay-form-box" style="margin-top:1rem"></div>
+      <div class="form-success" id="pay-msg" hidden></div>
+      <p class="form-note">🔒 ${L("Paid via Moyasar (mada / Visa / Mastercard / Apple Pay). Nothing is activated until payment is confirmed.", "الدفع عبر Moyasar (مدى / فيزا / ماستركارد / آبل باي). لا يتم أي تفعيل إلا بعد تأكيد الدفع.")}</p>
+    </div>
+  </div></section>
+
+  <section id="intake" class="section" style="background:var(--gray-bg)"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Registration", "التسجيل")}</span><h2>${L("Register your establishment and start monitoring", "سجّل منشأتك وابدأ المتابعة")}</h2></div>
+    <div class="order-box" style="margin:0">${intakeFormBlock()}</div>
+  </div></section>
+
+  <style>
+    .text-soft{color:var(--text-soft)}
+    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
+    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
+    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
+    .value-list b{color:var(--navy)}
+    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
+    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
+    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
+  </style>
+  <script>
+    (function () {
+      var payCompany = document.getElementById('pay-company');
+      var payCode = document.getElementById('pay-code');
+      var payStart = document.getElementById('pay-start');
+      var payBox = document.getElementById('pay-form-box');
+      var payMsg = document.getElementById('pay-msg');
+      function showPay(t, cls) { payMsg.hidden = false; payMsg.textContent = t; payMsg.className = 'form-success ' + cls; }
+      function loadScript(src) { return new Promise(function (resolve, reject) { var s = document.createElement('script'); s.src = src; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); }); }
+      function loadCss(href) { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }
+      function verifyAndActivate(id, company, code) {
+        showPay('${L("Confirming payment…", "جارٍ تأكيد الدفع…")}', 'info');
+        fetch('/api/pay', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: id, context: 'compliance', company: company, code: code }) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d.ok) {
+              showPay('${L("Payment confirmed! Your service is now active — sign in to your dashboard.", "تم تأكيد الدفع! خدمتك مفعّلة الآن — سجّل الدخول للوحة التحكم.")}', 'ok');
+              payBox.innerHTML = '<a class="btn btn-primary" href="https://businesspartner.sa/ar/portal">📊 ${L("Go to dashboard", "دخول لوحة التحكم")}</a>';
+            } else {
+              showPay('${L("Payment not confirmed. Contact us on WhatsApp if you were charged.", "لم يتم تأكيد الدفع. تواصل معنا واتساب إذا خُصم المبلغ.")}', 'err');
+            }
+          }).catch(function () { showPay('${L("Could not verify payment. Contact us on WhatsApp.", "تعذّر التحقق من الدفع. تواصل معنا واتساب.")}', 'err'); });
+      }
+      (function checkReturn() {
+        var q = new URLSearchParams(location.search);
+        var id = q.get('id');
+        if (!id) return;
+        var company = localStorage.getItem('bp_pay_company') || '';
+        var code = localStorage.getItem('bp_pay_code') || '';
+        document.getElementById('pay').scrollIntoView({ block: 'start' });
+        if (payCompany) payCompany.value = company;
+        if (payCode) payCode.value = code;
+        verifyAndActivate(id, company, code);
+      })();
+      if (payStart) payStart.addEventListener('click', function () {
+        var company = payCompany.value.trim();
+        var code = payCode.value.trim();
+        if (!company || !code) { showPay('${L("Please enter your establishment name and access code.", "يرجى إدخال اسم المنشأة ورمز الدخول.")}', 'err'); return; }
+        payStart.disabled = true;
+        fetch('/api/pay').then(function (r) { return r.json(); }).then(function (cfg) {
+          if (!cfg.enabled) { showPay('${L("Online payment isn't enabled yet — contact us on WhatsApp to subscribe.", "الدفع الإلكتروني غير مُفعّل حالياً — تواصل معنا واتساب لإتمام الاشتراك.")}', 'err'); return; }
+          localStorage.setItem('bp_pay_company', company);
+          localStorage.setItem('bp_pay_code', code);
+          loadCss(cfg.cssUrl);
+          return loadScript(cfg.scriptUrl).then(function () {
+            payBox.innerHTML = '<div class="mysr-form"></div>';
+            Moyasar.init({
+              element: '.mysr-form', amount: 25000, currency: 'SAR',
+              description: '${L("Compliance Agent subscription", "اشتراك وكيل الامتثال")} — ' + company,
+              publishable_api_key: cfg.publishableKey,
+              callback_url: location.origin + location.pathname,
+              methods: ['creditcard', 'applepay'],
+            });
+            payStart.style.display = 'none';
+          });
+        }).catch(function () { showPay('${L("Could not load the payment form. Contact us on WhatsApp.", "تعذّر تحميل نموذج الدفع. تواصل معنا واتساب.")}', 'err'); })
+          .finally(function () { payStart.disabled = false; });
+      });
+    })();
+  </script>`;
+
+  return page({
+    title: Lraw("Compliance Agent — Business Partner", "وكيل الامتثال — بيزنس بارتنر"),
+    desc: Lraw("Subscribe and get a virtual compliance team monitoring your company daily, alerting you before violations.", "اشترك واحصل على فريق امتثال افتراضي يراقب شركتك يومياً وينبّهك قبل المخالفات."),
+    active: "/compliance-agent",
+    path: "/compliance-agent",
+    body,
+  });
+}
+
+function buildEndOfServiceCalculator() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Free labor tools", "أدوات عمل مجانية")}</span>
-    <h1>${L("Labor & payroll calculators", "حاسبات العمل والرواتب")}</h1>
-    <p class="lead">${L("End-of-service gratuity, annual leave, overtime and GOSI contributions — computed per the Saudi Labor Law and GOSI regulations. Free, instant, and bilingual.", "مكافأة نهاية الخدمة، الإجازة السنوية، العمل الإضافي، واشتراك التأمينات — محسوبة وفق نظام العمل السعودي ولوائح التأمينات. مجانية وفورية.")}</p>
+    <a class="back-link" href="${u("/tools-and-calculators")}">${I.arrow} ${L("All tools & calculators", "كل الأدوات والحاسبات")}</a>
+    <span class="eyebrow">${L("Free labor tool", "أداة عمل مجانية")}</span>
+    <h1>${L("End-of-service gratuity calculator", "حاسبة مكافأة نهاية الخدمة")}</h1>
+    <p class="lead">${L("Per Saudi Labor Law Art. 84–85: half a month's wage for each of the first 5 years, then a full month's wage for each following year — adjusted for resignation.", "وفق نظام العمل م.84–85: نصف شهر عن كل سنة من أول 5 سنوات، ثم شهر كامل عن كل سنة تالية — مع تعديل الاستقالة.")}</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:920px">
-    <div class="cc-tabs" role="tablist">
-      <button class="cc-tab active" data-tab="eos" role="tab">🏆 ${L("End of service", "نهاية الخدمة")}</button>
-      <button class="cc-tab" data-tab="leave" role="tab">🏖️ ${L("Annual leave", "الإجازة السنوية")}</button>
-      <button class="cc-tab" data-tab="ot" role="tab">⏱️ ${L("Overtime", "العمل الإضافي")}</button>
-      <button class="cc-tab" data-tab="gosi" role="tab">🏦 ${L("GOSI", "التأمينات")}</button>
-    </div>
-
-    <div class="cc-panel active" id="lc-panel-eos">
-      <div class="order-box">
-        <h3>${L("End-of-service gratuity calculator", "حاسبة مكافأة نهاية الخدمة")}</h3>
-        <p class="cc-sub">${L("Per Saudi Labor Law Art. 84–85: half a month's wage for each of the first 5 years, then a full month's wage for each following year — adjusted for resignation.", "وفق نظام العمل م.84–85: نصف شهر عن كل سنة من أول 5 سنوات، ثم شهر كامل عن كل سنة تالية — مع تعديل الاستقالة.")}</p>
-        <div class="cc-grid">
-          <div class="field"><label for="lc-wage">${L("Last monthly wage (SAR)", "آخر أجر شهري (ريال)")}</label><input type="number" id="lc-wage" min="0" value="8000"></div>
-          <div class="field"><label for="lc-years">${L("Years of service", "سنوات الخدمة")}</label><input type="number" id="lc-years" min="0" value="6"></div>
-          <div class="field"><label for="lc-months">${L("Extra months", "أشهر إضافية")}</label><input type="number" id="lc-months" min="0" max="11" value="0"></div>
-          <div class="field"><label for="lc-reason">${L("Reason for leaving", "سبب انتهاء العلاقة")}</label><select id="lc-reason"><option value="terminated">${L("Contract ended / employer termination", "انتهاء العقد / إنهاء من صاحب العمل")}</option><option value="resign">${L("Worker resignation", "استقالة العامل")}</option></select></div>
+    <div class="order-box">
+      <div class="cc-grid">
+        <div class="field"><label for="lc-wage">${L("Last monthly wage (SAR)", "آخر أجر شهري (ريال)")}</label><input type="number" id="lc-wage" min="0" value="8000"></div>
+        <div class="field"><label for="lc-years">${L("Years of service", "سنوات الخدمة")}</label><input type="number" id="lc-years" min="0" value="6"></div>
+        <div class="field"><label for="lc-months">${L("Extra months", "أشهر إضافية")}</label><input type="number" id="lc-months" min="0" max="11" value="0"></div>
+        <div class="field"><label for="lc-reason">${L("Reason for leaving", "سبب انتهاء العلاقة")}</label><select id="lc-reason"><option value="terminated">${L("Contract ended / employer termination", "انتهاء العقد / إنهاء من صاحب العمل")}</option><option value="resign">${L("Worker resignation", "استقالة العامل")}</option></select></div>
+      </div>
+      <button class="btn btn-primary" id="lc-eos-calc">${L("Calculate", "احسب")}</button>
+      <div class="cc-result" id="lc-eos-result" hidden>
+        <div class="cc-tiles">
+          <div class="cc-tile"><span>${L("Full award", "المكافأة الكاملة")}</span><strong id="lc-eos-full">—</strong></div>
+          <div class="cc-tile tile-gold"><span>${L("Amount due", "المستحق")}</span><strong id="lc-eos-due">—</strong></div>
+          <div class="cc-tile"><span>${L("Resignation factor", "نسبة الاستقالة")}</span><strong id="lc-eos-factor">—</strong></div>
         </div>
-        <button class="btn btn-primary" id="lc-eos-calc">${L("Calculate", "احسب")}</button>
-        <div class="cc-result" id="lc-eos-result" hidden>
-          <div class="cc-tiles">
-            <div class="cc-tile"><span>${L("Full award", "المكافأة الكاملة")}</span><strong id="lc-eos-full">—</strong></div>
-            <div class="cc-tile tile-gold"><span>${L("Amount due", "المستحق")}</span><strong id="lc-eos-due">—</strong></div>
-            <div class="cc-tile"><span>${L("Resignation factor", "نسبة الاستقالة")}</span><strong id="lc-eos-factor">—</strong></div>
-          </div>
-          <div class="cc-advice ok" id="lc-eos-note"></div>
-        </div>
+        <div class="cc-advice ok" id="lc-eos-note"></div>
       </div>
     </div>
-
-    <div class="cc-panel" id="lc-panel-leave">
-      <div class="order-box">
-        <h3>${L("Annual leave calculator", "حاسبة الإجازة السنوية")}</h3>
-        <p class="cc-sub">${L("Per Art. 109: 21 days per year (30 days after 5 years of service). Shows entitlement and the cash value of unused days.", "وفق م.109: 21 يوماً سنوياً (30 يوماً بعد 5 سنوات خدمة). تعرض الاستحقاق والقيمة النقدية للأيام غير المستخدمة.")}</p>
-        <div class="cc-grid">
-          <div class="field"><label for="lv-wage">${L("Monthly wage (SAR)", "الأجر الشهري (ريال)")}</label><input type="number" id="lv-wage" min="0" value="8000"></div>
-          <div class="field"><label for="lv-years">${L("Years of service", "سنوات الخدمة")}</label><input type="number" id="lv-years" min="0" value="3"></div>
-          <div class="field"><label for="lv-unused">${L("Unused leave days", "أيام إجازة غير مستخدمة")}</label><input type="number" id="lv-unused" min="0" value="10"></div>
-        </div>
-        <button class="btn btn-primary" id="lv-calc">${L("Calculate", "احسب")}</button>
-        <div class="cc-result" id="lv-result" hidden>
-          <div class="cc-tiles">
-            <div class="cc-tile"><span>${L("Annual entitlement", "الاستحقاق السنوي")}</span><strong id="lv-days">—</strong></div>
-            <div class="cc-tile"><span>${L("Daily wage", "الأجر اليومي")}</span><strong id="lv-daily">—</strong></div>
-            <div class="cc-tile tile-gold"><span>${L("Value of unused days", "قيمة الأيام غير المستخدمة")}</span><strong id="lv-value">—</strong></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cc-panel" id="lc-panel-ot">
-      <div class="order-box">
-        <h3>${L("Overtime pay calculator", "حاسبة أجر العمل الإضافي")}</h3>
-        <p class="cc-sub">${L("Per Art. 107: overtime is paid at 150% of the hourly wage (hourly = monthly wage ÷ 240).", "وفق م.107: يُحتسب العمل الإضافي بـ150% من أجر الساعة (أجر الساعة = الأجر الشهري ÷ 240).")}</p>
-        <div class="cc-grid">
-          <div class="field"><label for="ot-wage">${L("Monthly wage (SAR)", "الأجر الشهري (ريال)")}</label><input type="number" id="ot-wage" min="0" value="8000"></div>
-          <div class="field"><label for="ot-hours">${L("Overtime hours", "ساعات العمل الإضافي")}</label><input type="number" id="ot-hours" min="0" value="20"></div>
-        </div>
-        <button class="btn btn-primary" id="ot-calc">${L("Calculate", "احسب")}</button>
-        <div class="cc-result" id="ot-result" hidden>
-          <div class="cc-tiles">
-            <div class="cc-tile"><span>${L("Hourly wage", "أجر الساعة")}</span><strong id="ot-hourly">—</strong></div>
-            <div class="cc-tile"><span>${L("Overtime hour rate (×1.5)", "أجر الساعة الإضافية (×1.5)")}</span><strong id="ot-rate">—</strong></div>
-            <div class="cc-tile tile-gold"><span>${L("Total overtime pay", "إجمالي الأجر الإضافي")}</span><strong id="ot-total">—</strong></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cc-panel" id="lc-panel-gosi">
-      <div class="order-box">
-        <h3>${L("GOSI contributions calculator", "حاسبة اشتراك التأمينات (GOSI)")}</h3>
-        <p class="cc-sub">${L("Monthly social-insurance contributions on the contributory wage. Rates are editable; defaults follow the current GOSI schedule.", "الاشتراكات الشهرية على الأجر الخاضع. النسب قابلة للتعديل؛ الافتراضي يتبع جدول التأمينات الحالي.")}</p>
-        <div class="cc-grid">
-          <div class="field"><label for="gs-wage">${L("Contributory wage (SAR)", "الأجر الخاضع (ريال)")}</label><input type="number" id="gs-wage" min="0" value="8000"></div>
-          <div class="field"><label for="gs-nat">${L("Nationality", "الجنسية")}</label><select id="gs-nat"><option value="saudi">${L("Saudi", "سعودي")}</option><option value="expat">${L("Non-Saudi", "غير سعودي")}</option></select></div>
-        </div>
-        <details class="cc-rates"><summary>⚙️ ${L("Contribution rates (editable)", "نسب الاشتراك (قابلة للتعديل)")}</summary>
-          <div class="cc-grid">
-            <div class="field"><label>${L("Saudi — employee %", "سعودي — العامل %")}</label><input type="number" step="0.01" id="gs-se" value="9.75"></div>
-            <div class="field"><label>${L("Saudi — employer %", "سعودي — صاحب العمل %")}</label><input type="number" step="0.01" id="gs-sr" value="11.75"></div>
-            <div class="field"><label>${L("Non-Saudi — employer % (occupational hazards)", "غير سعودي — صاحب العمل % (الأخطار المهنية)")}</label><input type="number" step="0.01" id="gs-xr" value="2"></div>
-          </div>
-        </details>
-        <button class="btn btn-primary" id="gs-calc">${L("Calculate", "احسب")}</button>
-        <div class="cc-result" id="gs-result" hidden>
-          <div class="cc-tiles">
-            <div class="cc-tile"><span>${L("Employee share", "حصة العامل")}</span><strong id="gs-emp">—</strong></div>
-            <div class="cc-tile"><span>${L("Employer share", "حصة صاحب العمل")}</span><strong id="gs-er">—</strong></div>
-            <div class="cc-tile tile-gold"><span>${L("Total monthly", "الإجمالي الشهري")}</span><strong id="gs-tot">—</strong></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law and GOSI regulations for general guidance. Individual cases may vary by contract terms and wage components. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي ولوائح التأمينات لأغراض إرشادية. قد تختلف الحالات حسب بنود العقد ومكوّنات الأجر. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
-    <div class="order-box cc-cta">
-      <h3>${L("Need full HR & payroll management?", "تبغى إدارة كاملة للرواتب والموارد البشرية؟")}</h3>
-      <div class="cc-cta-btns">
-        <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Talk to us on WhatsApp", "تواصل معنا واتساب")}</span></a>
-        <a class="btn btn-ghost" href="${u("/compliance-calculators")}">${L("Compliance calculators →", "حاسبات الامتثال ←")}</a>
-      </div>
-    </div>
+    <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Individual cases may vary by contract terms. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. قد تختلف الحالات حسب بنود العقد. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
   <script>
@@ -1834,12 +1798,6 @@ function buildLaborCalculators() {
     var isAr=window.BP_LC_LANG==="ar";
     var fmt=function(n){return (Math.round(n*100)/100).toLocaleString(isAr?"ar-SA":"en-US")+" "+(isAr?"ريال":"SAR");};
     var $=function(id){return document.getElementById(id);};
-    document.querySelectorAll(".cc-tab").forEach(function(tab){tab.addEventListener("click",function(){
-      document.querySelectorAll(".cc-tab").forEach(function(x){x.classList.remove("active");});
-      document.querySelectorAll(".cc-panel").forEach(function(x){x.classList.remove("active");});
-      tab.classList.add("active");$("lc-panel-"+tab.dataset.tab).classList.add("active");});});
-    (function(){var h=(location.hash||"").replace("#","");if(h){var t=document.querySelector('.cc-tab[data-tab="'+h+'"]');if(t)t.click();}})();
-    // End of service
     $("lc-eos-calc").addEventListener("click",function(){
       var w=Math.max(0,Number($("lc-wage").value)||0);
       var svc=Math.max(0,(Number($("lc-years").value)||0)+(Number($("lc-months").value)||0)/12);
@@ -1853,7 +1811,49 @@ function buildLaborCalculators() {
       $("lc-eos-factor").textContent=ftxt;
       $("lc-eos-note").textContent=(isAr?"الأساس: نصف شهر عن أول 5 سنوات ("+fmt(first*0.5*w)+") + شهر عن "+((Math.round(rest*100)/100))+" سنة تالية ("+fmt(rest*w)+"). م.84–85 نظام العمل.":"Basis: half-month for first 5y ("+fmt(first*0.5*w)+") + full month for "+((Math.round(rest*100)/100))+" following years ("+fmt(rest*w)+"). Labor Law Art. 84–85.");
       $("lc-eos-result").hidden=false;});
-    // Annual leave
+  })();
+  </script>`;
+  return page({
+    title: Lraw("End-of-service gratuity calculator — Business Partner", "حاسبة مكافأة نهاية الخدمة — بيزنس بارتنر"),
+    desc: Lraw("Calculate the end-of-service gratuity per the Saudi Labor Law.", "احسب مكافأة نهاية الخدمة وفق نظام العمل السعودي."),
+    active: "/tools-and-calculators",
+    path: "/calculators/end-of-service",
+    body,
+  });
+}
+
+function buildAnnualLeaveCalculator() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <a class="back-link" href="${u("/tools-and-calculators")}">${I.arrow} ${L("All tools & calculators", "كل الأدوات والحاسبات")}</a>
+    <span class="eyebrow">${L("Free labor tool", "أداة عمل مجانية")}</span>
+    <h1>${L("Annual leave calculator", "حاسبة الإجازة السنوية")}</h1>
+    <p class="lead">${L("Per Art. 109: 21 days per year (30 days after 5 years of service). Shows entitlement and the cash value of unused days.", "وفق م.109: 21 يوماً سنوياً (30 يوماً بعد 5 سنوات خدمة). تعرض الاستحقاق والقيمة النقدية للأيام غير المستخدمة.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:920px">
+    <div class="order-box">
+      <div class="cc-grid">
+        <div class="field"><label for="lv-wage">${L("Monthly wage (SAR)", "الأجر الشهري (ريال)")}</label><input type="number" id="lv-wage" min="0" value="8000"></div>
+        <div class="field"><label for="lv-years">${L("Years of service", "سنوات الخدمة")}</label><input type="number" id="lv-years" min="0" value="3"></div>
+        <div class="field"><label for="lv-unused">${L("Unused leave days", "أيام إجازة غير مستخدمة")}</label><input type="number" id="lv-unused" min="0" value="10"></div>
+      </div>
+      <button class="btn btn-primary" id="lv-calc">${L("Calculate", "احسب")}</button>
+      <div class="cc-result" id="lv-result" hidden>
+        <div class="cc-tiles">
+          <div class="cc-tile"><span>${L("Annual entitlement", "الاستحقاق السنوي")}</span><strong id="lv-days">—</strong></div>
+          <div class="cc-tile"><span>${L("Daily wage", "الأجر اليومي")}</span><strong id="lv-daily">—</strong></div>
+          <div class="cc-tile tile-gold"><span>${L("Value of unused days", "قيمة الأيام غير المستخدمة")}</span><strong id="lv-value">—</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
+  </div></section>
+  <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var isAr=window.BP_LC_LANG==="ar";
+    var fmt=function(n){return (Math.round(n*100)/100).toLocaleString(isAr?"ar-SA":"en-US")+" "+(isAr?"ريال":"SAR");};
+    var $=function(id){return document.getElementById(id);};
     $("lv-calc").addEventListener("click",function(){
       var w=Math.max(0,Number($("lv-wage").value)||0),y=Math.max(0,Number($("lv-years").value)||0),u=Math.max(0,Number($("lv-unused").value)||0);
       var days=y>=5?30:21,daily=w/30;
@@ -1861,7 +1861,48 @@ function buildLaborCalculators() {
       $("lv-daily").textContent=fmt(daily);
       $("lv-value").textContent=fmt(daily*u);
       $("lv-result").hidden=false;});
-    // Overtime
+  })();
+  </script>`;
+  return page({
+    title: Lraw("Annual leave calculator — Business Partner", "حاسبة الإجازة السنوية — بيزنس بارتنر"),
+    desc: Lraw("Leave entitlement and the cash value of unused days.", "استحقاق الإجازة والقيمة النقدية للأيام غير المستخدمة."),
+    active: "/tools-and-calculators",
+    path: "/calculators/annual-leave",
+    body,
+  });
+}
+
+function buildOvertimeCalculator() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <a class="back-link" href="${u("/tools-and-calculators")}">${I.arrow} ${L("All tools & calculators", "كل الأدوات والحاسبات")}</a>
+    <span class="eyebrow">${L("Free labor tool", "أداة عمل مجانية")}</span>
+    <h1>${L("Overtime pay calculator", "حاسبة أجر العمل الإضافي")}</h1>
+    <p class="lead">${L("Per Art. 107: overtime is paid at 150% of the hourly wage (hourly = monthly wage ÷ 240).", "وفق م.107: يُحتسب العمل الإضافي بـ150% من أجر الساعة (أجر الساعة = الأجر الشهري ÷ 240).")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:920px">
+    <div class="order-box">
+      <div class="cc-grid">
+        <div class="field"><label for="ot-wage">${L("Monthly wage (SAR)", "الأجر الشهري (ريال)")}</label><input type="number" id="ot-wage" min="0" value="8000"></div>
+        <div class="field"><label for="ot-hours">${L("Overtime hours", "ساعات العمل الإضافي")}</label><input type="number" id="ot-hours" min="0" value="20"></div>
+      </div>
+      <button class="btn btn-primary" id="ot-calc">${L("Calculate", "احسب")}</button>
+      <div class="cc-result" id="ot-result" hidden>
+        <div class="cc-tiles">
+          <div class="cc-tile"><span>${L("Hourly wage", "أجر الساعة")}</span><strong id="ot-hourly">—</strong></div>
+          <div class="cc-tile"><span>${L("Overtime hour rate (×1.5)", "أجر الساعة الإضافية (×1.5)")}</span><strong id="ot-rate">—</strong></div>
+          <div class="cc-tile tile-gold"><span>${L("Total overtime pay", "إجمالي الأجر الإضافي")}</span><strong id="ot-total">—</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
+  </div></section>
+  <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var isAr=window.BP_LC_LANG==="ar";
+    var fmt=function(n){return (Math.round(n*100)/100).toLocaleString(isAr?"ar-SA":"en-US")+" "+(isAr?"ريال":"SAR");};
+    var $=function(id){return document.getElementById(id);};
     $("ot-calc").addEventListener("click",function(){
       var w=Math.max(0,Number($("ot-wage").value)||0),h=Math.max(0,Number($("ot-hours").value)||0);
       var hourly=w/240,rate=hourly*1.5;
@@ -1869,7 +1910,55 @@ function buildLaborCalculators() {
       $("ot-rate").textContent=fmt(rate);
       $("ot-total").textContent=fmt(rate*h);
       $("ot-result").hidden=false;});
-    // GOSI
+  })();
+  </script>`;
+  return page({
+    title: Lraw("Overtime pay calculator — Business Partner", "حاسبة أجر العمل الإضافي — بيزنس بارتنر"),
+    desc: Lraw("Overtime pay at the 1.5x rate per the Labor Law.", "أجر العمل الإضافي بمعدل 1.5× وفق نظام العمل."),
+    active: "/tools-and-calculators",
+    path: "/calculators/overtime",
+    body,
+  });
+}
+
+function buildGosiCalculator() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <a class="back-link" href="${u("/tools-and-calculators")}">${I.arrow} ${L("All tools & calculators", "كل الأدوات والحاسبات")}</a>
+    <span class="eyebrow">${L("Free labor tool", "أداة عمل مجانية")}</span>
+    <h1>${L("GOSI contributions calculator", "حاسبة اشتراك التأمينات (GOSI)")}</h1>
+    <p class="lead">${L("Monthly social-insurance contributions on the contributory wage. Rates are editable; defaults follow the current GOSI schedule.", "الاشتراكات الشهرية على الأجر الخاضع. النسب قابلة للتعديل؛ الافتراضي يتبع جدول التأمينات الحالي.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:920px">
+    <div class="order-box">
+      <div class="cc-grid">
+        <div class="field"><label for="gs-wage">${L("Contributory wage (SAR)", "الأجر الخاضع (ريال)")}</label><input type="number" id="gs-wage" min="0" value="8000"></div>
+        <div class="field"><label for="gs-nat">${L("Nationality", "الجنسية")}</label><select id="gs-nat"><option value="saudi">${L("Saudi", "سعودي")}</option><option value="expat">${L("Non-Saudi", "غير سعودي")}</option></select></div>
+      </div>
+      <details class="cc-rates"><summary>⚙️ ${L("Contribution rates (editable)", "نسب الاشتراك (قابلة للتعديل)")}</summary>
+        <div class="cc-grid">
+          <div class="field"><label>${L("Saudi — employee %", "سعودي — العامل %")}</label><input type="number" step="0.01" id="gs-se" value="9.75"></div>
+          <div class="field"><label>${L("Saudi — employer %", "سعودي — صاحب العمل %")}</label><input type="number" step="0.01" id="gs-sr" value="11.75"></div>
+          <div class="field"><label>${L("Non-Saudi — employer % (occupational hazards)", "غير سعودي — صاحب العمل % (الأخطار المهنية)")}</label><input type="number" step="0.01" id="gs-xr" value="2"></div>
+        </div>
+      </details>
+      <button class="btn btn-primary" id="gs-calc">${L("Calculate", "احسب")}</button>
+      <div class="cc-result" id="gs-result" hidden>
+        <div class="cc-tiles">
+          <div class="cc-tile"><span>${L("Employee share", "حصة العامل")}</span><strong id="gs-emp">—</strong></div>
+          <div class="cc-tile"><span>${L("Employer share", "حصة صاحب العمل")}</span><strong id="gs-er">—</strong></div>
+          <div class="cc-tile tile-gold"><span>${L("Total monthly", "الإجمالي الشهري")}</span><strong id="gs-tot">—</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="cc-disclaimer">⚖️ ${L("Estimates based on GOSI regulations for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على لوائح التأمينات لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
+  </div></section>
+  <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  <script>
+  (function(){
+    var isAr=window.BP_LC_LANG==="ar";
+    var fmt=function(n){return (Math.round(n*100)/100).toLocaleString(isAr?"ar-SA":"en-US")+" "+(isAr?"ريال":"SAR");};
+    var $=function(id){return document.getElementById(id);};
     $("gs-calc").addEventListener("click",function(){
       var w=Math.max(0,Number($("gs-wage").value)||0),nat=$("gs-nat").value;
       var se=Number($("gs-se").value)||0,sr=Number($("gs-sr").value)||0,xr=Number($("gs-xr").value)||0;
@@ -1882,10 +1971,10 @@ function buildLaborCalculators() {
   })();
   </script>`;
   return page({
-    title: Lraw("Labor & payroll calculators — Business Partner", "حاسبات العمل والرواتب — بيزنس بارتنر"),
-    desc: Lraw("End-of-service, annual leave, overtime and GOSI calculators per the Saudi Labor Law.", "حاسبات نهاية الخدمة والإجازة والعمل الإضافي والتأمينات وفق نظام العمل السعودي."),
-    active: "/labor-calculators",
-    path: "/labor-calculators",
+    title: Lraw("GOSI contributions calculator — Business Partner", "حاسبة اشتراك التأمينات — بيزنس بارتنر"),
+    desc: Lraw("Monthly social-insurance contributions, Saudi & non-Saudi.", "الاشتراكات الشهرية للتأمينات، للسعودي وغير السعودي."),
+    active: "/tools-and-calculators",
+    path: "/calculators/gosi",
     body,
   });
 }
@@ -2120,7 +2209,7 @@ function buildNews() {
 // employer recruitment platform, job-seeker intake) under one identity,
 // without spinning up a separate site/domain.
 function buildHR() {
-  const hrServices = services.filter((s) => s.category === "HR & Recruitment").slice(0, 6);
+  const hrServices = services.filter((s) => s.category === "HR Services" || s.category === "Recruitment").slice(0, 6);
   const svcCards = hrServices.map((s) => {
     const d = sDesc(s);
     return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
@@ -2131,7 +2220,7 @@ function buildHR() {
   const entryCards = [
     ["🏢", L("For employers", "لأصحاب الأعمال"), L("Hire from our pre-screened, Saudization-checked candidate pool — we handle sourcing to onboarding.", "وظّف من قاعدة مرشّحين مُصنّفين ومفحوصين للتوطين — نتولّى من الاستقطاب حتى التعيين."), "/employers", L("Browse candidates", "تصفّح المرشّحين")],
     ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Join our candidate pool once — employers hiring through Business Partner reach you.", "سجّل مرة واحدة — وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Submit your CV", "أرسل سيرتك")],
-    ["📋", L("HR & compliance services", "خدمات الموارد البشرية والامتثال"), L("Qiwa, GOSI, Mudad, contracts, Saudization and everyday HR administration.", "قوى، التأمينات، مدد، العقود، التوطين وإدارة الموارد البشرية اليومية."), "/services/category/hr-recruitment", L("Browse services", "استعرض الخدمات")],
+    ["📋", L("HR & compliance services", "خدمات الموارد البشرية والامتثال"), L("Qiwa, GOSI, Mudad, contracts, Saudization and everyday HR administration.", "قوى، التأمينات، مدد، العقود، التوطين وإدارة الموارد البشرية اليومية."), "/services/category/hr-services", L("Browse services", "استعرض الخدمات")],
   ].map((p) => `<a class="card feature" href="${u(p[3])}">
     <div class="card-icon" style="font-size:1.6rem">${p[0]}</div>
     <h3>${p[1]}</h3><p>${p[2]}</p>
@@ -2141,7 +2230,7 @@ function buildHR() {
     <div class="subbrand-badge">${I.building}<span>${L("HR", "الموارد البشرية")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</h1>
     <p class="lead">${L("Everything HR under one roof: a recruitment platform for employers, a candidate pool for job seekers, and a full catalog of HR & compliance services — Qiwa, GOSI, Mudad and Saudization, managed for you.", "كل ما يخص الموارد البشرية تحت مظلة واحدة: منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال — قوى والتأمينات ومدد والتوطين، بندير لك كل شي.")}</p>
-    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-recruitment")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
+    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-services")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -2152,7 +2241,7 @@ function buildHR() {
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Catalog", "الكتالوج")}</span><h2>${L("A sample of our HR services", "نماذج من خدماتنا في الموارد البشرية")}</h2></div>
     <div class="grid grid-3">${svcCards}</div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services/category/hr-recruitment")}">${L("View all HR services", "استعرض كل خدمات الموارد البشرية")} ${I.arrow}</a></div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services/category/hr-services")}">${L("View all HR services", "استعرض كل خدمات الموارد البشرية")} ${I.arrow}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -2324,32 +2413,37 @@ function buildEmployerDashboard() {
   <section class="hero"><div class="container hero-inner" style="max-width:1080px">
     <span class="eyebrow">${L("AI Hiring OS", "نظام التوظيف الذكي")}</span>
     <h1>${L("Your AI Hiring Operating System", "نظام التوظيف الذكي")}</h1>
-    <p class="lead">${L("Sign in with your access code to match candidates to any role with AI, get instant candidate assessments, interview questions and outreach — then run your whole hiring pipeline in one place.", "ادخل برمز الوصول لمطابقة المرشّحين مع أي وظيفة بالذكاء الاصطناعي، واحصل على تقييمات فورية وأسئلة مقابلة ورسائل تواصل — وأدر مسار التوظيف كامل من مكان واحد.")}</p>
+    <p class="lead">${L("Browse our pre-screened candidate pool, match candidates to any role with AI, and run your whole hiring pipeline. Subscribe to unlock contact details and AI tools.", "تصفّح قاعدة مرشّحينا المُصنّفين، طابِق المرشّحين مع أي وظيفة بالذكاء، وأدر مسار التوظيف كامل. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</p>
   </div></section>
 
   <section class="section"><div class="container">
-    <div id="empd-gate" class="empd-gate">
-      <div class="card" style="max-width:440px;margin:auto;text-align:center">
-        <div class="card-icon" style="margin:auto">${I.users}</div>
-        <h3>${L("Enter your access code", "أدخل رمز الوصول")}</h3>
-        <p style="color:var(--text-soft);font-size:.92rem">${L("You received it by email after subscribing. Don't have one?", "وصلك بالبريد بعد الاشتراك. ما عندك رمز؟")} <a href="${u("/employer-join")}">${L("Subscribe", "اشترك")}</a></p>
-        <div class="emp-unlock" style="margin-top:14px"><input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="text-align:center;letter-spacing:2px"><button class="btn btn-primary" id="empd-enter">${L("Enter", "دخول")}</button></div>
-        <p id="empd-gate-msg" class="emp-note" style="min-height:20px"></p>
+    <div id="empd-app">
+      <div class="empd-flow" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:0 0 18px;font-size:.82rem;color:var(--text-soft)">
+        <span>1️⃣ ${L("Describe the role → AI Match", "اكتب الوظيفة ← مطابقة")}</span><span>›</span>
+        <span>2️⃣ ${L("Browse & filter", "تصفّح وفلترة")}</span><span>›</span>
+        <span>3️⃣ ${L("Shortlist", "أضف للمفضّلة")}</span><span>›</span>
+        <span>4️⃣ ${L("Assess / Interview", "تقييم / مقابلة")}</span><span>›</span>
+        <span>5️⃣ ${L("Pipeline → Hire", "المسار ← توظيف")}</span>
       </div>
-    </div>
-
-    <div id="empd-app" hidden>
+      <div id="empd-unlock" class="empd-unlock-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:14px">
+        <span style="font-weight:600">🔒 ${L("Free browsing. Subscribe to unlock contacts + AI tools.", "تصفّح مجاني. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</span>
+        <input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;text-align:center;letter-spacing:1px">
+        <button class="btn btn-primary btn-sm" id="empd-enter">${L("Unlock", "فتح")}</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="empd-demo">${L("Demo", "تجربة")}</button>
+        <a href="${u("/employer-join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a>
+      </div>
+      <p id="empd-gate-msg" class="emp-note" style="min-height:18px;text-align:center"></p>
       <div class="empd-bar">
         <div class="empd-tabs">
-          <button class="empd-tab active" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
-          <button class="empd-tab" data-tab="browse">${L("Browse", "تصفّح")}</button>
+          <button class="empd-tab" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
+          <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
           <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
           <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
         </div>
         <button class="btn btn-ghost btn-sm" id="empd-logout">${L("Sign out", "خروج")}</button>
       </div>
 
-      <div class="empd-panel" data-panel="match">
+      <div class="empd-panel" data-panel="match" hidden>
         <div class="empd-match-box">
           <h3>✨ ${L("Match candidates to a role with AI", "طابق المرشّحين مع وظيفة بالذكاء")}</h3>
           <p class="emp-note">${L("Describe the role, requirements or paste a job description — AI ranks your best-fit candidates and explains why.", "اكتب الوظيفة أو المتطلبات أو الصق وصفاً وظيفياً — الذكاء يرتّب أنسب المرشّحين ويشرح السبب.")}</p>
@@ -2360,7 +2454,7 @@ function buildEmployerDashboard() {
         <div class="emp-grid" id="empd-match-grid"></div>
       </div>
 
-      <div class="empd-panel" data-panel="browse" hidden>
+      <div class="empd-panel" data-panel="browse">
         <div class="emp-access"><div class="emp-filters">
           <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
           <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
@@ -2391,6 +2485,199 @@ function buildEmployerDashboard() {
   </div></div>
   <script>window.BP_EMPD_LANG=${JSON.stringify(LANG)};</script>`;
   return page({ title: Lraw("AI Hiring OS — Business Partner", "نظام التوظيف الذكي — بيزنس بارتنر"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), active: "/employers", path: "/employer-dashboard", body });
+}
+
+// ============ Standalone HR Portal (hr.businesspartner.sa) ============
+// Fully separate identity: own header/footer, no site nav, no cart/services.
+// Same backend (/api/employer, /api/candidates) and same main.js — the
+// dashboard/join/candidates markup below reuses the exact element IDs the
+// existing main.js already wires up, so no JS changes are needed.
+
+function buildPortalHome() {
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:900px;text-align:center">
+    <span class="eyebrow">${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</span>
+    <h1>${L("Hire smarter with AI", "وظّف بذكاء أكبر")}</h1>
+    <p class="lead">${L("A recruitment portal for employers and job seekers — AI matching, a pre-screened candidate pool, and a full hiring pipeline.", "بوابة توظيف لأصحاب الأعمال والباحثين عن عمل — مطابقة بالذكاء، قاعدة مرشّحين مُصنّفة، ومسار توظيف كامل.")}</p>
+    <div class="talent-actions" style="margin-top:24px;justify-content:center">
+      <a class="btn btn-primary" href="${pu("/join")}">${L("For employers", "لأصحاب الأعمال")}</a>
+      <a class="btn btn-ghost" href="${pu("/dashboard")}">${L("Employer dashboard", "لوحة التوظيف")}</a>
+      <a class="btn btn-ghost" href="${pu("/candidates")}">${L("For job seekers", "للباحثين عن عمل")}</a>
+    </div>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="grid grid-3">
+      <a class="card feature" href="${pu("/join")}"><div class="card-icon">🏢</div><h3>${L("Subscribe", "اشترك")}</h3><p>${L("Pick a plan and register your company to unlock the candidate pool.", "اختر باقة وسجّل شركتك لفتح قاعدة المرشّحين.")}</p></a>
+      <a class="card feature" href="${pu("/dashboard")}"><div class="card-icon">✨</div><h3>${L("AI Hiring Dashboard", "لوحة التوظيف الذكية")}</h3><p>${L("Browse, match with AI, shortlist and run your hiring pipeline.", "تصفّح، طابِق بالذكاء، رشّح، وأدر مسار التوظيف.")}</p></a>
+      <a class="card feature" href="${pu("/candidates")}"><div class="card-icon">🧑‍🎓</div><h3>${L("Job Seekers", "الباحثون عن عمل")}</h3><p>${L("Join the pool once — employers hiring through us reach you.", "سجّل مرة واحدة — وأصحاب العمل يصلونك.")}</p></a>
+    </div>
+  </div></section>`;
+  return portalPage({ title: Lraw("HR by Business Partner — recruitment portal", "الموارد البشرية من بزنس بارتنر — بوابة التوظيف"), desc: Lraw("A standalone recruitment portal: AI matching, candidate pool and hiring pipeline.", "بوابة توظيف مستقلة: مطابقة بالذكاء، قاعدة مرشّحين، ومسار توظيف."), path: "/portal/index", active: "/", body });
+}
+
+function buildPortalJoin() {
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:1040px">
+    <span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span>
+    <h1>${L("Subscribe to the recruitment platform", "اشترك في منصة التوظيف")}</h1>
+    <p class="lead">${L("Pick a plan, register your company, and unlock full access to our pre-screened candidate pool.", "اختر باقة، سجّل شركتك، وافتح الوصول الكامل لقاعدة مرشّحينا المُصنّفين.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <form id="emp-join" novalidate>
+      <div class="section-head" style="margin-bottom:22px"><span class="eyebrow">${L("Step 1", "الخطوة 1")}</span><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
+      ${employerPlanCards({ selectable: true })}
+      <div class="section-head" style="margin:44px 0 22px"><span class="eyebrow">${L("Step 2", "الخطوة 2")}</span><h2>${L("Company details", "بيانات الشركة")}</h2></div>
+      <div class="join-grid">
+        <div class="field"><label for="ej-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="ej-company" required></div>
+        <div class="field"><label for="ej-cr">${L("Commercial Registration (CR)", "رقم السجل التجاري")}</label><input type="text" id="ej-cr" inputmode="numeric" placeholder="${Lraw("Optional", "اختياري")}"></div>
+        <div class="field"><label for="ej-contact">${L("Contact person", "اسم المسؤول")}</label><input type="text" id="ej-contact"></div>
+        <div class="field"><label for="ej-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="ej-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
+        <div class="field"><label for="ej-email">${L("Work email", "البريد الإلكتروني للعمل")}</label><input type="email" id="ej-email" placeholder="name@company.com"></div>
+        <div class="field field-full"><label for="ej-notes">${L("Notes (roles you're hiring for, etc.)", "ملاحظات (الوظائف المطلوبة، إلخ)")}</label><textarea id="ej-notes" rows="3"></textarea></div>
+      </div>
+      <div class="join-actions">
+        <button type="submit" class="btn btn-primary btn-lg" id="ej-submit">${L("Continue to subscribe", "متابعة الاشتراك")}</button>
+        <p class="emp-note">${L("After registering you'll complete payment (or bank transfer) and we activate your access.", "بعد التسجيل تُكمل الدفع (أو تحويل بنكي) ونفعّل وصولك.")}</p>
+      </div>
+      <div class="form-success" hidden id="ej-result"></div>
+    </form>
+  </div></section>
+  <script>window.BP_EMP_PLANS=${JSON.stringify((site.employerPlans && site.employerPlans.tiers || []).map((t) => ({ key: t.key, name: L(t.nameEn || t.name, t.name), price: t.price, yearlyPrice: t.price != null ? employerYearly(t.price, (site.employerPlans && site.employerPlans.yearlyDiscount) || 0) : null })))};window.BP_BANK=${JSON.stringify({ bank: L(site.bank.bankNameEn, site.bank.bankName), iban: site.bank.iban, beneficiary: L(site.bank.beneficiaryEn, site.bank.beneficiary) })};</script>`;
+  return portalPage({ title: Lraw("Subscribe — HR portal", "اشترك — بوابة التوظيف"), desc: Lraw("Subscribe to the Business Partner HR portal and access the candidate pool.", "اشترك في بوابة التوظيف من بزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), path: "/portal/join", active: "/join", body });
+}
+
+function buildPortalDashboard() {
+  const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:1080px">
+    <span class="eyebrow">${L("AI Hiring OS", "نظام التوظيف الذكي")}</span>
+    <h1>${L("Your AI Hiring Operating System", "نظام التوظيف الذكي")}</h1>
+    <p class="lead">${L("Browse our pre-screened candidate pool, match candidates to any role with AI, and run your whole hiring pipeline. Subscribe to unlock contact details and AI tools.", "تصفّح قاعدة مرشّحينا المُصنّفين، طابِق المرشّحين مع أي وظيفة بالذكاء، وأدر مسار التوظيف كامل. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div id="empd-app">
+      <div class="empd-flow" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:0 0 18px;font-size:.82rem;color:var(--text-soft)">
+        <span>1️⃣ ${L("Describe the role → AI Match", "اكتب الوظيفة ← مطابقة")}</span><span>›</span>
+        <span>2️⃣ ${L("Browse & filter", "تصفّح وفلترة")}</span><span>›</span>
+        <span>3️⃣ ${L("Shortlist", "أضف للمفضّلة")}</span><span>›</span>
+        <span>4️⃣ ${L("Assess / Interview", "تقييم / مقابلة")}</span><span>›</span>
+        <span>5️⃣ ${L("Pipeline → Hire", "المسار ← توظيف")}</span>
+      </div>
+      <div id="empd-unlock" class="empd-unlock-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:14px">
+        <span style="font-weight:600">🔒 ${L("Free browsing. Subscribe to unlock contacts + AI tools.", "تصفّح مجاني. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</span>
+        <input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;text-align:center;letter-spacing:1px">
+        <button class="btn btn-primary btn-sm" id="empd-enter">${L("Unlock", "فتح")}</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="empd-demo">${L("Demo", "تجربة")}</button>
+        <a href="${pu("/join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a>
+      </div>
+      <p id="empd-gate-msg" class="emp-note" style="min-height:18px;text-align:center"></p>
+      <div class="empd-bar">
+        <div class="empd-tabs">
+          <button class="empd-tab" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
+          <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
+          <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
+          <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="empd-logout">${L("Sign out", "خروج")}</button>
+      </div>
+
+      <div class="empd-panel" data-panel="match" hidden>
+        <div class="empd-match-box">
+          <h3>✨ ${L("Match candidates to a role with AI", "طابق المرشّحين مع وظيفة بالذكاء")}</h3>
+          <p class="emp-note">${L("Describe the role, requirements or paste a job description — AI ranks your best-fit candidates and explains why.", "اكتب الوظيفة أو المتطلبات أو الصق وصفاً وظيفياً — الذكاء يرتّب أنسب المرشّحين ويشرح السبب.")}</p>
+          <textarea id="empd-jd" rows="4" placeholder="${Lraw("e.g. Senior accountant, 5+ years, SOCPA, Riyadh, Saudi national preferred…", "مثال: محاسب أول، خبرة +5 سنوات، عضوية SOCPA، الرياض، يفضّل سعودي…")}"></textarea>
+          <button class="btn btn-primary" id="empd-match-run">✨ ${L("Match with AI", "طابق بالذكاء")}</button>
+        </div>
+        <p class="emp-note" id="empd-match-status"></p>
+        <div class="emp-grid" id="empd-match-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="browse">
+        <div class="emp-access"><div class="emp-filters">
+          <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
+          <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
+          <select id="empd-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+          <select id="empd-nat">${nats}</select>
+          <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
+        </div></div>
+        <p class="emp-note" id="empd-status"></p>
+        <div class="emp-grid" id="empd-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="shortlist" hidden>
+        <p class="emp-note">${L("Candidates you saved. They stay on this device.", "المرشّحون اللي حفظتهم. محفوظون على هذا الجهاز.")}</p>
+        <div class="emp-grid" id="empd-short-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="pipeline" hidden>
+        <p class="emp-note">${L("Move candidates through your hiring stages using the buttons on each card.", "انقل المرشّحين عبر مراحل التوظيف من الأزرار على كل بطاقة.")}</p>
+        <div class="empd-pipe" id="empd-pipe"></div>
+      </div>
+    </div>
+  </div></section>
+
+  <div class="empd-modal" id="empd-modal" hidden><div class="empd-modal-in">
+    <button class="empd-modal-x" id="empd-modal-x">✕</button>
+    <h3 id="empd-modal-title"></h3>
+    <div class="empd-modal-body" id="empd-modal-body"></div>
+  </div></div>
+  <script>window.BP_EMPD_LANG=${JSON.stringify(LANG)};</script>`;
+  return portalPage({ title: Lraw("AI Hiring OS — HR portal", "نظام التوظيف الذكي — بوابة التوظيف"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), path: "/portal/dashboard", active: "/dashboard", body });
+}
+
+function buildPortalCandidates() {
+  const c = site.careers;
+  const f = c.seeker.fields;
+  const seekerValue = [
+    ["📄", L("One CV, many opportunities", "سيرة واحدة، فرص كثيرة"), L("Join the pool once; we match you whenever a fitting role opens.", "سجّل مرة واحدة، ونطابقك مع الفرص المناسبة فور توفّرها.")],
+    ["🤝", L("Employers reach you", "أصحاب العمل يوصلونك"), L("Companies hiring through us see your profile for suitable roles.", "الشركات التي توظّف عبرنا تشاهد ملفك للفرص المناسبة.")],
+    ["🔒", L("Your data is protected", "بياناتك محمية"), L("We never share your CV without your consent (PDPL).", "لا نشارك سيرتك دون موافقتك (حماية البيانات).")],
+  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span>
+    <h1>${L("Find your next opportunity", "فرصتك القادمة تبدأ هنا")}</h1>
+    <p class="lead">${L("Join our candidate pool once — employers hiring through Business Partner reach you when a suitable role opens.", "انضم لقاعدة مرشّحينا مرة واحدة — وأصحاب العمل الذين يوظّفون عبر بيزنس بارتنر يصلونك عند توفّر فرصة مناسبة.")}</p>
+    <div class="talent-actions" style="margin-top:22px">
+      <a class="btn btn-primary" href="#seeker-form">${I.upload}<span>${L("Submit your CV", "أرسل سيرتك الذاتية")}</span></a>
+      <a class="btn btn-ghost" href="${pu("/join")}">${L("I'm an employer →", "أنا صاحب عمل ←")}</a>
+    </div>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
+    <div style="max-width:640px;margin:0 auto" id="seeker-form">
+      <form class="calc-form cv-form" id="cv-form" novalidate>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
+          <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-email">${L("Email", f.email)}</label><input id="c-email" name="email" type="email"></div>
+          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="${Lraw("e.g. 3 years", "مثال: 3 سنوات")}"></div>
+        </div>
+        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accountant, marketing specialist, engineer", "مثال: محاسب، أخصائي تسويق، مهندس")}"></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")}</label><input id="c-city" name="city" type="text" placeholder="${Lraw("e.g. Riyadh, Jeddah", "مثال: الرياض، جدة")}"></div>
+          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")}</label><input id="c-salary" name="salary" type="text" placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
+        </div>
+        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
+        <div class="field">
+          <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
+          <label class="file-drop" for="c-cv" id="cv-drop">
+            <span class="file-ico">${I.upload}</span>
+            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
+          </label>
+          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
+        </div>
+        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Join the candidate pool", "انضم لقاعدة المرشّحين")}</span></button>
+        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team and join the candidate pool.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا وتنضم لقاعدة المرشّحين.")}</p>
+        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
+      </form>
+      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
+    </div>
+  </div></section>`;
+  return portalPage({ title: Lraw("Jobs for job seekers — HR portal", "التوظيف للباحثين عن عمل — بوابة التوظيف"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), path: "/portal/candidates", active: "/candidates", body });
 }
 
 function buildWorkspaces() {
@@ -2744,10 +3031,11 @@ function buildAccount() {
               <a class="portal-card" href="${u("/services")}"><span>🗂️</span><strong>${L("Request a service", "اطلب خدمة")}</strong></a>
               <a class="portal-card" href="${u("/packages")}"><span>📦</span><strong>${L("Packages", "الباقات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
+              <a class="portal-card" href="${u("/compliance-agent")}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
-              <a class="portal-card" href="${u("/portal")}"><span>🤖</span><strong>${L("AI employees", "الموظفون الأذكياء")}</strong></a>
+              <a class="portal-card" id="ai-employees-link" href="${u("/portal")}"><span>🤖</span><strong>${L("Smart Specialized Agent", "الموظف المتخصص")}</strong></a>
               <a class="portal-card" href="${u("/shared-services")}"><span>🤝</span><strong>${L("Shared Services", "الخدمات المشتركة")}</strong></a>
             </div>
           </div>
@@ -2808,7 +3096,7 @@ function buildAccount() {
           </div>
         </div>
 
-        <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L("This dashboard runs on this device for now. Secure cloud accounts (CRM + verified login) are being connected — your data will sync automatically.", "تعمل هذه اللوحة على جهازك حالياً. يجري ربط الحسابات السحابية الآمنة (CRM + دخول موثّق) وستتم مزامنة بياناتك تلقائياً.")}</p></div>
+        <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L("Sign-in still lives on this device, but each order's status now syncs live from our team once payment is confirmed.", "الدخول للحساب لا يزال محفوظاً على جهازك، لكن حالة كل طلب تتزامن الآن مباشرة من فريقنا فور تأكيد الدفع.")}</p></div>
       </div>
     </div>
   </div></section>`;
@@ -3175,12 +3463,17 @@ function buildConnect() {
     .sec-head{text-align:center;max-width:720px;margin:0 auto 1.7rem}
     .sec-head h2{font-size:1.5rem;margin-bottom:.4rem;color:var(--navy)}
     .sec-head p{color:var(--muted)}
-    .emps{display:flex;gap:.6rem;overflow-x:auto;padding:.3rem 0 .6rem;scrollbar-width:none}
-    .emps::-webkit-scrollbar{display:none}
-    .emp{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.7rem 1rem;display:flex;gap:.55rem;align-items:center;box-shadow:var(--shadow)}
+    .emps{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.8rem;padding:.3rem 0 .6rem}
+    .emp{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.85rem 1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.6rem}
+    .emp-top{display:flex;gap:.55rem;align-items:center}
     .emp .e{font-size:1.4rem}
     .emp b{font-size:.95rem;color:var(--navy)}
     .emp span{display:block;font-size:.76rem;color:var(--green);font-weight:600}
+    .emp-cart{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:.55rem;font-weight:700;font-size:.82rem;cursor:pointer}
+    .emp-note{font-size:.85rem;color:var(--muted);margin-top:1rem;text-align:center}
+    .emp-note a{color:var(--navy);font-weight:700;text-decoration:underline}
+    .bp-toast{position:fixed;inset-inline-start:50%;bottom:90px;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:999px;box-shadow:var(--shadow);z-index:1200;opacity:0;transition:opacity .28s,transform .28s;font-weight:600;pointer-events:none}
+    .bp-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.1rem}
     .cc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow);display:flex;flex-direction:column}
     .cc-top{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.7rem}
@@ -3272,16 +3565,9 @@ function buildConnect() {
   </div>
   <section>
     <div class="wrap">
-      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — ونفس مركز الربط متاح للجميع.</p></div>
-      <div class="emps">
-        <div class="emp"><span class="e">🗂️</span><div><b>ملاك</b><span>مساعِدة تنفيذية</span></div></div>
-        <div class="emp"><span class="e">💼</span><div><b>بدر</b><span>مبيعات وتطوير أعمال</span></div></div>
-        <div class="emp"><span class="e">📣</span><div><b>فرح</b><span>تسويق ومحتوى</span></div></div>
-        <div class="emp"><span class="e">🧭</span><div><b>مازن</b><span>عمليات وخدمة عملاء</span></div></div>
-        <div class="emp"><span class="e">📦</span><div><b>أحمد</b><span>مشتريات وتوريد</span></div></div>
-        <div class="emp"><span class="e">💻</span><div><b>محمد</b><span>تقنية معلومات</span></div></div>
-        <div class="emp"><span class="e">⚖️</span><div><b>عبدالعزيز</b><span>قانوني وامتثال</span></div></div>
-      </div>
+      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p></div>
+      <div class="emps" id="emps"></div>
+      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="/portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -3451,7 +3737,24 @@ function buildConnect() {
     function requestHelp(t){
       alert('🛠️ طلب إعداد «'+t.name+'» — فريق Business Partner يركّب لك هذه الأداة ويسلّمك الموظف جاهز مقابل رسوم إعداد. (نموذج: في النسخة الحقيقية يفتح نموذج طلب وتُحتسب الرسوم.)');
     }
+    var EMPLOYEES=[
+      {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
+      {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
+      {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
+      {slug:'mazen',e:'🧭',name:'مازن',role:'عمليات وخدمة عملاء',nameEn:'Mazen — Operations & Customer Service'},
+      {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
+      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'},
+      {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني وامتثال',nameEn:'Abdulaziz — Legal & Compliance'}
+    ];
+    var empGrid=document.getElementById('emps');
+    EMPLOYEES.forEach(function(m){
+      var d=document.createElement('div'); d.className='emp';
+      d.innerHTML='<div class="emp-top"><span class="e">'+m.e+'</span><div><b>'+m.name+'</b><span>'+m.role+'</span></div></div>'+
+        '<button type="button" class="emp-cart add-cart" data-id="employee-'+m.slug+'" data-name-en="'+m.nameEn+'" data-name-ar="'+m.name+' — '+m.role+'" data-amount="500" data-price="500 ﷼ / شهرياً" data-kind="employee">🛒 أضف للسلة — 500 ﷼/شهرياً</button>';
+      empGrid.appendChild(d);
+    });
   </script>
+  <script src="/assets/js/main.js"></script>
 </body>
 </html>`;
 }
@@ -3496,6 +3799,14 @@ function buildPortal() {
     .muted{color:var(--muted);font-size:.82rem;margin-top:1rem;line-height:1.7}
     .hint-code{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:.55rem .7rem;font-size:.8rem;margin-top:.9rem}
     .linkbtn{background:none;border:0;color:var(--navy);font-weight:700;font-size:.85rem;text-decoration:underline;margin-top:.7rem}
+    .card.wide{max-width:560px}
+    .pickwrap{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+    .pickrow{display:flex;align-items:center;gap:.55rem;border:1.5px solid var(--line);border-radius:11px;padding:.55rem .75rem;font-size:.85rem;cursor:pointer;text-align:right}
+    .pickrow:hover{border-color:var(--navy)}
+    .pickrow input{width:auto;margin:0}
+    .pickrow .e{font-size:1.1rem}
+    .pickrow b{color:var(--navy)}
+    .pickrow .r{color:var(--muted);margin-inline-start:auto;font-size:.78rem}
     .ws{max-width:1050px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
     .ws h2{color:var(--navy);font-size:1.25rem;margin-bottom:.2rem}
     .ws .lead{color:var(--muted);font-size:.9rem;margin-bottom:1.1rem}
@@ -3589,15 +3900,15 @@ function buildPortal() {
     </div>
   </div>
   <div class="center" id="screen-gate" style="display:none">
-    <div class="card">
+    <div class="card wide">
       <h1>فعّل اشتراكك</h1>
-      <p class="sub">موظفوك الأذكياء يعملون بعد تفعيل الاشتراك.</p>
-      <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="ادخل كود الاشتراك" style="text-align:center;letter-spacing:1px" /></div>
-      <button class="bigbtn green" id="codeBtn">تفعيل</button>
+      <p class="sub">اختر الموظفين اللي تبي تشترك فيهم وأضفهم للسلة، أو فعّل مباشرة برقم طلبك بعد اعتماد الدفع.</p>
+      <div class="pickwrap" id="pickwrap"></div>
+      <button class="bigbtn green" id="cartBtn">🛒 أضف المحدد للسلة وأكمل الشراء</button>
+      <div class="field" style="margin-top:1.1rem"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
+      <button class="bigbtn" id="codeBtn">تفعيل</button>
       <div class="err" id="codeErr"></div>
-      <div class="hint-code">💡 بعد الدفع نعطيك كود التفعيل. للتجربة الآن استخدم الكود: <b>BP-DEMO</b></div>
-      <button class="linkbtn" id="payBtn">🧪 محاكاة دفع وتفعيل فوري (تجريبي)</button>
-      <p class="muted">في النسخة النهائية: بوابة دفع فعلية + اشتراك شهري، والكود يصدر تلقائياً بعد الدفع.</p>
+      <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم. للتجربة العامة استخدم الكود: <b>BP-DEMO</b> (يفتح كل الموظفين — للتجربة فقط).</div>
     </div>
   </div>
   <div id="screen-ws" style="display:none">
@@ -3688,17 +3999,30 @@ function buildPortal() {
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
-    var CODES=['BP-DEMO','BP2026'];
-    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub'};
+    // Demo codes unlock every agent for testing only. Real clients unlock by
+    // entering their own order reference (e.g. BP-506275) once we've confirmed
+    // payment and flipped the order's status in the CRM — see /api/requests.
+    var CODES={'BP-DEMO':'ALL','BP2026':'ALL'};
+    var CONFIRMED=['مؤكد - قيد التنفيذ','مكتمل'];
+    var OWNER_EMAIL='dr.baher.magnas@gmail.com';
+    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents'};
+    var CHAT_PREFIX='bp_portal_chat_';
     function $(id){return document.getElementById(id);}
     function show(id){['screen-login','screen-gate','screen-ws'].forEach(function(s){$(s).style.display=(s===id)?'':'none';});}
     var email=localStorage.getItem(LS.email)||'';
+    if(!email){
+      var qEmail=new URLSearchParams(location.search).get('email');
+      if(qEmail){ email=qEmail; localStorage.setItem(LS.email,email); }
+    }
     var subbed=localStorage.getItem(LS.sub)==='1';
+    if(email && email.toLowerCase()===OWNER_EMAIL && (!subbed || localStorage.getItem(LS.agents)!=='"ALL"')){
+      subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL'));
+    }
     var cur=null;
     function route(){
       if(!email){ show('screen-login'); $('who').textContent=''; $('logout').style.display='none'; return; }
       $('who').textContent=email; $('logout').style.display='';
-      if(!subbed){ show('screen-gate'); return; }
+      if(!subbed){ show('screen-gate'); buildPicker(); return; }
       show('screen-ws'); buildAgents();
     }
     $('loginBtn').onclick=function(){
@@ -3706,32 +4030,89 @@ function buildPortal() {
       if(!e || e.indexOf('@')<0){ $('loginErr').textContent='ادخل بريداً صحيحاً.'; return; }
       email=e; localStorage.setItem(LS.email,e);
       localStorage.setItem(LS.company,($('company').value||'').trim());
+      if(email.toLowerCase()===OWNER_EMAIL){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL')); }
       route();
     };
     $('email').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
+    function buildPicker(){
+      var box=$('pickwrap'); if(box.dataset.done) return; box.dataset.done='1';
+      AGENTS.forEach(function(a){
+        var lb=document.createElement('label'); lb.className='pickrow';
+        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>';
+        box.appendChild(lb);
+      });
+    }
+    function pickedSlugs(){
+      var boxes=document.querySelectorAll('#pickwrap input[type=checkbox]:checked');
+      var out=[]; for(var i=0;i<boxes.length;i++) out.push(boxes[i].value);
+      return out;
+    }
+    function unlock(slugs){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs)); route(); }
+    $('cartBtn').onclick=function(){
+      var slugs=pickedSlugs();
+      if(!slugs.length){ $('codeErr').textContent='اختر موظفاً واحداً على الأقل قبل الإضافة للسلة.'; return; }
+      var cart=[]; try{ cart=JSON.parse(localStorage.getItem('bp_cart')||'[]'); }catch(e){ cart=[]; }
+      slugs.forEach(function(slug){
+        var a=AGENTS.filter(function(x){return x.slug===slug;})[0]; if(!a) return;
+        var id='employee-'+slug;
+        if(cart.some(function(i){return i.id===id;})) return;
+        cart.push({id:id,nameEn:a.name+' — '+a.role,nameAr:a.name+' — '+a.role,amount:500,price:'500 ﷼ / شهرياً',kind:'employee',qty:1});
+      });
+      localStorage.setItem('bp_cart',JSON.stringify(cart));
+      location.href='/cart';
+    };
     $('codeBtn').onclick=function(){
       var c=($('code').value||'').trim().toUpperCase();
-      if(CODES.indexOf(c)>=0){ subbed=true; localStorage.setItem(LS.sub,'1'); route(); }
-      else $('codeErr').textContent='كود غير صحيح. تأكد من الكود أو استخدم زر المحاكاة.';
+      var slugs=CODES[c];
+      if(slugs){ unlock(slugs); return; }
+      var btn=$('codeBtn'); btn.disabled=true; $('codeErr').textContent='جارٍ التحقق…';
+      fetch('/api/requests?refs='+encodeURIComponent(c))
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var st=d && d.statuses && d.statuses[c];
+          var ag=d && d.agents && d.agents[c];
+          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ unlock(ag); }
+          else if(st){ $('codeErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
+          else { $('codeErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وأضفهم للسلة.'; }
+        })
+        .catch(function(){ $('codeErr').textContent='تعذّر التحقق الآن — حاول مرة أخرى.'; })
+        .then(function(){ btn.disabled=false; });
     };
     $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('codeBtn').click();});
-    $('payBtn').onclick=function(){ subbed=true; localStorage.setItem(LS.sub,'1'); route(); };
     $('logout').onclick=function(){ localStorage.removeItem(LS.email); email=''; route(); };
+    function entitledSlugs(){
+      var raw=localStorage.getItem(LS.agents);
+      if(!raw) return [];
+      try{ return JSON.parse(raw); }catch(e){ return []; }
+    }
     function buildAgents(){
-      var box=$('agents'); if(box.dataset.done) return; box.dataset.done='1';
-      AGENTS.forEach(function(a){
+      var box=$('agents'); box.innerHTML='';
+      var ent=entitledSlugs();
+      var list=(ent==='ALL')?AGENTS:AGENTS.filter(function(a){return ent.indexOf(a.slug)>=0;});
+      if(!list.length){ box.innerHTML='<p class="muted">لا يوجد موظفون مفعّلون على هذا الكود.</p>'; return; }
+      list.forEach(function(a){
         var el=document.createElement('div'); el.className='ag'; el.dataset.slug=a.slug;
         el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
         el.onclick=function(){ selectAgent(a,el); };
         box.appendChild(el);
       });
     }
+    function loadChat(slug){ try{ return JSON.parse(localStorage.getItem(CHAT_PREFIX+slug)||'[]'); }catch(e){ return []; } }
+    function saveChat(slug,hist){ try{ localStorage.setItem(CHAT_PREFIX+slug,JSON.stringify(hist.slice(-80))); }catch(e){} }
+    var chatHist=[];
+    function renderChat(){
+      var c=$('chat'); c.innerHTML='';
+      if(!chatHist.length){ c.innerHTML='<div class="msg empty">ابدأ محادثتك مع '+cur.name+' 👋</div>'; return; }
+      chatHist.forEach(function(m){ var d=document.createElement('div'); d.className='msg '+m.cls; d.textContent=m.text; c.appendChild(d); });
+      c.scrollTop=c.scrollHeight;
+    }
     function selectAgent(a,el){
       cur=a;
       var chips=document.querySelectorAll('.ag'); for(var i=0;i<chips.length;i++) chips[i].classList.remove('sel');
       el.classList.add('sel');
       $('ph-e').textContent=a.e; $('ph-n').textContent=a.name; $('ph-r').textContent=a.role;
-      $('chat').innerHTML='<div class="msg empty">ابدأ محادثتك مع '+a.name+' 👋</div>';
+      chatHist=loadChat(a.slug);
+      renderChat();
       $('msg').disabled=false; $('send').disabled=false; $('msg').focus();
     }
     function push(text,cls){
@@ -3741,13 +4122,15 @@ function buildPortal() {
     function send(){
       if(!cur) return;
       var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
+      var agentAtSend=cur, histRef=chatHist;
       inp.value=''; push(m,'me');
+      histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
       var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
       var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},60000);
-      fetch(N8N_BASE+'/'+cur.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m}),signal:ctrl.signal})
+      fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m}),signal:ctrl.signal})
         .then(function(r){return r.text();})
-        .then(function(t){ clearTimeout(timer); var d={}; try{d=JSON.parse(t);}catch(e){d={reply:t};} think.textContent=d.reply||'لا يوجد رد.'; })
-        .catch(function(e){ clearTimeout(timer); think.textContent=(e&&e.name==='AbortError')?'انتهت المهلة — حاول مرة أخرى.':'تعذّر الاتصال مؤقتاً — حاول مرة أخرى.'; })
+        .then(function(t){ clearTimeout(timer); var d={}; try{d=JSON.parse(t);}catch(e){d={reply:t};} var reply=d.reply||'لا يوجد رد.'; think.textContent=reply; histRef.push({text:reply,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
+        .catch(function(e){ clearTimeout(timer); var msg=(e&&e.name==='AbortError')?'انتهت المهلة — حاول مرة أخرى.':'تعذّر الاتصال مؤقتاً — حاول مرة أخرى.'; think.textContent=msg; histRef.push({text:msg,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
         .then(function(){ btn.disabled=false; });
     }
     $('send').onclick=send;
@@ -3993,9 +4376,15 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}packages.html`, buildPackages());
   // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
   write(`${pre}tools-and-calculators.html`, buildToolsHub());
-  write(`${pre}compliance-calculators.html`, buildComplianceCalculators());
-  write(`${pre}labor-calculators.html`, buildLaborCalculators());
+  write(`${pre}calculators/nitaqat.html`, buildNitaqatCalculator());
+  write(`${pre}calculators/government-cost.html`, buildGovernmentCostCalculator());
+  write(`${pre}calculators/profession-checker.html`, buildProfessionChecker());
+  write(`${pre}calculators/end-of-service.html`, buildEndOfServiceCalculator());
+  write(`${pre}calculators/annual-leave.html`, buildAnnualLeaveCalculator());
+  write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
+  write(`${pre}calculators/gosi.html`, buildGosiCalculator());
   write(`${pre}compliance-portal.html`, buildCompliancePortal());
+  write(`${pre}compliance-agent.html`, buildComplianceAgent());
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
   write(`${pre}careers.html`, buildCareers());
@@ -4004,6 +4393,10 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
+  write(`${pre}portal/index.html`, buildPortalHome());
+  write(`${pre}portal/join.html`, buildPortalJoin());
+  write(`${pre}portal/dashboard.html`, buildPortalDashboard());
+  write(`${pre}portal/candidates.html`, buildPortalCandidates());
   write(`${pre}workspaces.html`, buildWorkspaces());
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
   write(`${pre}contact.html`, buildContact());
@@ -4036,7 +4429,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths

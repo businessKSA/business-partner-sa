@@ -191,7 +191,7 @@ var BP = window.BP = window.BP || {};
   }
 
   function kindLabel(k) {
-    var m = { service: ["Service", "خدمة"], package: ["Package", "باقة"], agent: ["AI agent", "وكيل ذكي"], misa: ["Investor track", "مسار مستثمر"] };
+    var m = { service: ["Service", "خدمة"], package: ["Package", "باقة"], agent: ["AI agent", "وكيل ذكي"], employee: ["AI employee", "موظف ذكي"], misa: ["Investor track", "مسار مستثمر"] };
     var p = m[k] || m.service;
     return BP.t(p[0], p[1]);
   }
@@ -346,13 +346,16 @@ var BP = window.BP = window.BP || {};
         localStorage.setItem("bp_orders", JSON.stringify(orders));
       } catch (err) {}
       // Register the order with the team + CRM (best-effort; never blocks the client).
+      var employeeSlugs = cart.filter(function (i) { return i.kind === "employee" && (i.id || "").indexOf("employee-") === 0; })
+        .map(function (i) { return i.id.slice("employee-".length); });
       try {
         fetch("/api/requests", {
           method: "POST", headers: { "content-type": "application/json" },
           body: JSON.stringify({
             type: "order", ref: ref, name: name, phone: phone, email: email,
             items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
-            total: cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || ""
+            total: cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || "",
+            agents: employeeSlugs
           })
         }).catch(function () {});
       } catch (e) {}
@@ -363,6 +366,7 @@ var BP = window.BP = window.BP || {};
       var waUrl = "https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n"));
       // Clear cart
       var boughtCompliance = cart.some(function (i) { return (i.id || "").indexOf("agent-Compliance") === 0; });
+      var boughtEmployee = employeeSlugs.length > 0;
       BP.cart.write([]);
       var box = document.getElementById("checkout-success");
       box.hidden = false;
@@ -370,6 +374,8 @@ var BP = window.BP = window.BP || {};
         BP.t("Transfer the amount to the bank account, then send the receipt. We'll confirm on WhatsApp.", "حوّل المبلغ على الحساب البنكي ثم أرسل الإيصال. سنؤكد لك عبر واتساب.") +
         (boughtCompliance ? "<br>" + BP.t("Your compliance agent is ready — start it in the tools & calculators hub.", "وكيل الامتثال جاهز — ابدأ معه من مركز الأدوات والحاسبات.") +
           '<br><a class="btn btn-primary" style="margin-top:12px" href="/tools-and-calculators">' + BP.t("Open the compliance agent", "افتح وكيل الامتثال") + "</a>" : "") +
+        (boughtEmployee ? "<br>" + BP.t("Once we confirm your payment, use this order number as your activation code in the smart employees portal.", "بمجرد ما نتأكد من الدفع، استخدم رقم الطلب هذا كـ كود تفعيل في بوابة الموظفين الأذكياء.") +
+          '<br><a class="btn btn-primary" style="margin-top:12px" href="/portal">' + BP.t("Open the smart employees portal", "افتح بوابة الموظفين الأذكياء") + "</a>" : "") +
         '<br><a class="btn btn-wa" style="margin-top:12px" href="' + waUrl + '" target="_blank" rel="noopener">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a> " +
         '<a class="btn btn-ghost" style="margin-top:12px" href="/account">' + BP.t("View in my account", "عرض في حسابي") + "</a>";
       box.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -418,6 +424,9 @@ var BP = window.BP = window.BP || {};
         if (av) av.textContent = (nm || "BP").trim().slice(0, 2).toUpperCase();
         renderOrders();
         renderCompany();
+        syncLiveOrderStatuses();
+        var aiLink = document.getElementById("ai-employees-link");
+        if (aiLink && s.email) aiLink.href = aiLink.getAttribute("href") + "?email=" + encodeURIComponent(s.email);
       } else { auth.hidden = false; dash.hidden = true; }
     }
 
@@ -468,14 +477,48 @@ var BP = window.BP = window.BP || {};
     function esc2(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
     function ordersData() { try { return JSON.parse(localStorage.getItem("bp_orders") || "[]"); } catch (e) { return []; } }
     function isDone(st) { return /done|complete|منته|مكتمل|مُنجز/i.test(st || ""); }
+    function isCancelled(st) { return /cancel|ملغ/i.test(st || ""); }
+
+    // Live status (set by the ops team in Notion after confirming payment).
+    var LIVE_STATUS_LABEL = {
+      "قيد المراجعة": ["Under review", "قيد المراجعة"],
+      "بانتظار الدفع": ["Awaiting payment", "بانتظار الدفع"],
+      "مؤكد - قيد التنفيذ": ["Confirmed — in progress", "مؤكد - قيد التنفيذ"],
+      "مكتمل": ["Completed", "مكتمل"],
+      "ملغي": ["Cancelled", "ملغي"],
+    };
+    function syncLiveOrderStatuses() {
+      var orders = ordersData();
+      var refs = orders.map(function (o) { return o.ref; }).filter(Boolean);
+      if (!refs.length) return;
+      fetch("/api/requests?refs=" + encodeURIComponent(refs.join(",")))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok || !d.statuses) return;
+          var changed = false;
+          orders.forEach(function (o) {
+            var live = d.statuses[o.ref];
+            var label = live && LIVE_STATUS_LABEL[live];
+            var text = label ? BP.t(label[0], label[1]) : null;
+            if (text && text !== o.status) { o.status = text; changed = true; }
+          });
+          if (changed) {
+            try { localStorage.setItem("bp_orders", JSON.stringify(orders)); } catch (e) {}
+            renderOrders();
+          }
+        })
+        .catch(function () {});
+    }
 
     function orderCard(o) {
       var items = (o.items || []).map(function (i) { return esc2(i.name) + " ×" + (i.qty || 1); }).join("، ");
       var done = isDone(o.status);
+      var cancelled = isCancelled(o.status);
+      var cls = cancelled ? "off" : (done ? "ok" : "wait");
       return '<div class="ord"><div class="ord-main"><strong>' + esc2(o.ref) + '</strong>' +
         '<span class="text-soft"> · ' + esc2(o.at || "") + '</span>' +
         '<div class="text-soft ord-items">' + items + '</div></div>' +
-        '<span class="ord-status ' + (done ? "ok" : "wait") + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span></div>';
+        '<span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span></div>';
     }
 
     function renderOrders() {
@@ -1387,8 +1430,67 @@ var BP_EMP_BILLING = "monthly";
     var gate = document.getElementById("empd-gate");
     var codeInput = document.getElementById("empd-code");
     var gateMsg = document.getElementById("empd-gate-msg");
-    var STAGES = [["interested", T("Interested", "مهتم")], ["contacted", T("Contacted", "تواصلت")], ["interview", T("Interview", "مقابلة")], ["hired", T("Hired", "تم التوظيف")]];
+    // Standard ATS pipeline (matches Greenhouse/Lever/Bayt structure): a candidate
+    // moves left-to-right through funnel stages, with Rejected as a separate
+    // terminal column reachable from any stage (not part of the linear order).
+    var STAGES = [
+      ["new", T("New", "مرشّح جديد")],
+      ["screening", T("Screening", "الفرز")],
+      ["interview", T("Interview", "المقابلة")],
+      ["offer", T("Offer", "العرض الوظيفي")],
+      ["hired", T("Hired", "تم التوظيف")],
+    ];
+    var REJECTED = ["rejected", T("Rejected", "مرفوض")];
     var CODE = "", CANDS = [], lastJD = "";
+    var DEMO = false;
+    var UNLOCKED = false;
+    var PLAN = "";
+    function planRank() { if (DEMO) return 3; if (!PLAN) return UNLOCKED ? 3 : 0; return ({ "أساسية": 1, "احترافية": 2, "مؤسسية": 3 })[PLAN] || 1; }
+    function setUnlocked(on) { UNLOCKED = on; var ub = document.getElementById("empd-unlock"); if (ub) ub.hidden = on; }
+    function apiErr(d) { var e = d && d.error; if (e === "not_configured") return T("Notion isn't connected on the server.", "قاعدة Notion غير مربوطة بالخادم."); if (e === "notion_failed") return T("Couldn't query Notion — is the ATS DB shared with the integration?", "تعذّر الاستعلام من Notion — هل القاعدة مُشاركة مع التكامل؟"); if (e === "server_error") return T("Server error (the pool may be large — retry).", "خطأ في الخادم (قد تكون القاعدة كبيرة — أعد المحاولة)."); return T("Couldn't load candidates.", "تعذّر تحميل المرشّحين."); }
+    var DEMO_CODES = ["BP-DEMO", "DEMO", "BP-EMP-DEMO", "DEMO123"];
+    function isDemoCode(x) { return DEMO_CODES.indexOf(String(x == null ? "" : x).trim().toUpperCase()) > -1; }
+    var DEMO_CANDS = [
+      { id: "d1", name: "محمد الشهري", role: "محاسب أول", field: "محاسبة ومالية", city: "الرياض", experience: 6, education: "بكالوريوس", nationalityType: "سعودي", skills: "SOCPA, تقارير مالية, ضريبة القيمة المضافة", phone: "+966500000001", email: "demo1@example.com", cv: "" },
+      { id: "d2", name: "سارة القحطاني", role: "أخصائي موارد بشرية", field: "موارد بشرية", city: "جدة", experience: 4, education: "بكالوريوس", nationalityType: "سعودي", skills: "توظيف, قوى, GOSI, رواتب", phone: "+966500000002", email: "demo2@example.com", cv: "" },
+      { id: "d3", name: "Ahmed Khan", role: "مطوّر برمجيات", field: "تقنية معلومات", city: "الرياض", experience: 5, education: "بكالوريوس", nationalityType: "غير سعودي", skills: "JavaScript, Node.js, React, APIs", phone: "+966500000003", email: "demo3@example.com", cv: "" },
+      { id: "d4", name: "نورة العتيبي", role: "مسؤول مبيعات", field: "مبيعات وتسويق", city: "الدمام", experience: 3, education: "دبلوم", nationalityType: "سعودي", skills: "مبيعات, CRM, تفاوض", phone: "+966500000004", email: "demo4@example.com", cv: "" },
+      { id: "d5", name: "خالد الزهراني", role: "مشرف تشغيل مطاعم", field: "ضيافة ومطاعم", city: "الرياض", experience: 8, education: "ثانوي", nationalityType: "سعودي", skills: "إدارة فروع, F&B, جودة", phone: "+966500000005", email: "demo5@example.com", cv: "" },
+      { id: "d6", name: "Ravi Kumar", role: "فني صيانة", field: "مقاولات وإنشاءات", city: "جدة", experience: 7, education: "دبلوم", nationalityType: "غير سعودي", skills: "كهرباء, HVAC, صيانة وقائية", phone: "+966500000006", email: "demo6@example.com", cv: "" }
+    ];
+    function demoMatch(jd, st, grid) {
+      var terms = String(jd).toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(function (w) { return w.length > 1; });
+      var scored = DEMO_CANDS.map(function (c) {
+        var hay = (c.role + " " + c.field + " " + c.skills + " " + c.city + " " + c.nationalityType).toLowerCase();
+        var hits = 0; terms.forEach(function (t) { if (hay.indexOf(t) > -1) hits++; });
+        var score = Math.min(97, 55 + hits * 9 + Math.min(c.experience || 0, 8));
+        var reason = isAr ? ("تطابق في " + (hits || 1) + " معيار · " + (c.experience || 0) + " سنة خبرة · " + c.field) : (hits + " criteria match · " + (c.experience || 0) + "y · " + c.field);
+        return { c: c, m: { id: c.id, score: score, reason: reason } };
+      }).sort(function (a, b) { return b.m.score - a.m.score; });
+      st.textContent = "✨ " + scored.length + " " + (isAr ? "مرشّح مطابق (تجربة)" : "matched candidates (demo)");
+      grid.innerHTML = scored.map(function (x) { return card(x.c, { match: x.m }); }).join("");
+      bindCard(grid);
+    }
+    function demoAIAction(task, c) {
+      var mbody = document.getElementById("empd-modal-body");
+      var out;
+      if (task === "interview") {
+        out = isAr
+          ? "1) احكي لنا عن تجربتك في " + c.field + ".\n2) ما أبرز إنجاز حققته كـ " + c.role + "؟\n3) كيف تتعامل مع ضغط العمل والمواعيد؟\n4) ما مستواك في: " + c.skills + "؟\n5) ما توقعاتك للراتب ومتى تقدر تباشر؟"
+          : "1) Tell us about your experience in " + c.field + ".\n2) Your biggest achievement as a " + c.role + "?\n3) How do you handle deadlines?\n4) Your level in: " + c.skills + "?\n5) Salary expectation and availability?";
+      } else if (task === "outreach") {
+        out = isAr
+          ? "مرحباً " + (c.name || "") + "، معك فريق Business Partner. لاحظنا خبرتك كـ " + c.role + " وعندنا فرصة تناسبك. هل نقدر نحدد مكالمة قصيرة؟"
+          : "Hi " + (c.name || "") + ", this is the Business Partner team. We noticed your experience as a " + c.role + " and have a role that fits. Can we schedule a short call?";
+      } else {
+        out = isAr
+          ? "تقييم سريع: " + (c.name || "") + " — " + c.role + " بخبرة " + (c.experience || 0) + " سنة في " + c.field + ". المهارات: " + c.skills + ". التعليم: " + c.education + ". " + (c.nationalityType === "سعودي" ? "يدعم نسب التوطين." : "يحتاج تصريح عمل.") + " ملائم للمرحلة القادمة."
+          : "Quick assessment: " + (c.name || "") + " — " + c.role + ", " + (c.experience || 0) + "y in " + c.field + ". Skills: " + c.skills + ". Education: " + c.education + ". Good fit for the next stage.";
+      }
+      var html = "<div class='empd-ai-out'>" + nl2br(out) + "</div>";
+      if (task === "outreach" && c.phone) { var wa = c.phone.replace(/[^\d]/g, ""); html += '<a class="btn btn-wa" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(out) + '">' + T("Send on WhatsApp", "أرسل عبر واتساب") + "</a>"; }
+      mbody.innerHTML = html;
+    }
     function readLS(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
     function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
     var short = readLS("bp_shortlist", []);
@@ -1397,14 +1499,18 @@ var BP_EMP_BILLING = "monthly";
     function findC(id) { return CANDS.concat(short).filter(function (c) { return c.id === id; })[0]; }
 
     function validate(code, cb) {
+      if (isDemoCode(code)) { cb(true, { unlocked: true, demo: true, candidates: DEMO_CANDS }); return; }
       fetch("/api/candidates?code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
         .then(function (d) { cb(!!(d && d.unlocked), d); }).catch(function () { cb(false, null); });
     }
     function enter(code, data) {
-      CODE = code; writeLS("bp_emp_code", code);
-      gate.hidden = true; app.hidden = false;
+      CODE = code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", code);
+      PLAN = (data && data.plan) || "";
+      setUnlocked(true);
       if (data && data.candidates) { CANDS = data.candidates; fillFilters(); renderBrowse(); } else load();
       renderCounts();
+      var planTxt = PLAN ? (" — " + T("plan", "الباقة") + ": " + PLAN) : "";
+      gateMsg.textContent = DEMO ? T("Demo mode — sample data.", "وضع تجربة — بيانات عيّنة.") : (T("Unlocked — contacts enabled.", "تم الفتح — بيانات التواصل مفعّلة.") + planTxt);
     }
     document.getElementById("empd-enter").addEventListener("click", function () {
       var code = (codeInput.value || "").trim(); if (!code) return;
@@ -1412,9 +1518,15 @@ var BP_EMP_BILLING = "monthly";
       validate(code, function (ok, data) { if (ok) enter(code, data); else gateMsg.textContent = T("Invalid or inactive code. Contact us to activate.", "رمز غير صحيح أو غير مفعّل. تواصل معنا للتفعيل."); });
     });
     codeInput.addEventListener("keydown", function (e) { if (e.key === "Enter") document.getElementById("empd-enter").click(); });
+    var demoBtn = document.getElementById("empd-demo");
+    if (demoBtn) demoBtn.addEventListener("click", function () { enter("BP-DEMO", { unlocked: true, demo: true, candidates: DEMO_CANDS }); });
     document.getElementById("empd-logout").addEventListener("click", function () { try { localStorage.removeItem("bp_emp_code"); } catch (e) {} location.reload(); });
+    // Never silently auto-resume a demo session from a past visit — the demo
+    // must always be an explicit, one-time click so a stale localStorage
+    // value can't make a real subscriber's dashboard look empty/fake forever.
     var saved = readLS("bp_emp_code", "");
-    if (typeof saved === "string" && saved) { gateMsg.textContent = T("Signing in…", "جارٍ الدخول…"); validate(saved, function (ok, data) { if (ok) enter(saved, data); else gateMsg.textContent = ""; }); }
+    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); load(); renderCounts(); } }); }
+    else { if (isDemoCode(saved)) writeLS("bp_emp_code", ""); CODE = ""; setUnlocked(false); load(); renderCounts(); }
 
     Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
       t.addEventListener("click", function () {
@@ -1428,6 +1540,7 @@ var BP_EMP_BILLING = "monthly";
     });
 
     function fillFilters() {
+      if (fillFilters.done) return; fillFilters.done = true;
       var fEl = document.getElementById("empd-field"), cEl = document.getElementById("empd-city");
       var fields = {}, cities = {};
       CANDS.forEach(function (c) { if (c.field) fields[c.field] = 1; if (c.city) cities[c.city] = 1; });
@@ -1436,13 +1549,14 @@ var BP_EMP_BILLING = "monthly";
     }
     function load() {
       var status = document.getElementById("empd-status"); status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
+      if (DEMO) { CANDS = DEMO_CANDS.slice(); status.textContent = CANDS.length + " " + T("candidates (demo)", "مرشّح (تجربة)"); renderBrowse(); return; }
       var qs = new URLSearchParams({ code: CODE });
       var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value, ci = document.getElementById("empd-city").value, n = document.getElementById("empd-nat").value;
       if (q) qs.set("q", q); if (f) qs.set("field", f); if (ci) qs.set("city", ci); if (n) qs.set("nat", n);
       fetch("/api/candidates?" + qs).then(function (r) { return r.json(); }).then(function (d) {
-        if (!d || !d.ok) { status.textContent = T("Couldn't load.", "تعذّر التحميل."); return; }
-        CANDS = d.candidates || []; renderBrowse();
-      }).catch(function () { status.textContent = T("Network error.", "خطأ في الاتصال."); });
+        if (!d || !d.ok) { status.textContent = apiErr(d); return; }
+        CANDS = d.candidates || []; if (!CANDS.length) { status.textContent = T("No candidates match.", "لا توجد نتائج مطابقة."); return; } fillFilters(); renderBrowse(); if (!UNLOCKED) status.textContent = CANDS.length + " " + T("candidates · subscribe to reveal contacts", "مرشّح · اشترك لكشف بيانات التواصل");
+      }).catch(function () { status.textContent = T("Network error — please retry.", "خطأ في الاتصال — أعد المحاولة."); });
     }
     document.getElementById("empd-load").addEventListener("click", load);
     document.getElementById("empd-q").addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
@@ -1457,7 +1571,9 @@ var BP_EMP_BILLING = "monthly";
     }
     function stageBtns(id) {
       var cur = pipe[id] || "";
-      return '<div class="empd-stages">' + STAGES.map(function (s) { return '<button data-id="' + esc(id) + '" data-stage="' + s[0] + '" class="empd-stage-btn' + (cur === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>"; }).join("") + "</div>";
+      var lin = STAGES.map(function (s) { return '<button data-id="' + esc(id) + '" data-stage="' + s[0] + '" class="empd-stage-btn' + (cur === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>"; }).join("");
+      var rej = '<button data-id="' + esc(id) + '" data-stage="' + REJECTED[0] + '" class="empd-stage-btn empd-stage-reject' + (cur === REJECTED[0] ? " on" : "") + '">✕ ' + esc(REJECTED[1]) + "</button>";
+      return '<div class="empd-stages">' + lin + rej + "</div>";
     }
     function aiBtns(id) {
       return '<div class="empd-ai"><button class="empd-ai-btn" data-ai="summary" data-id="' + esc(id) + '">📝 ' + T("Assess", "تقييم") + '</button>' +
@@ -1502,20 +1618,28 @@ var BP_EMP_BILLING = "monthly";
     function renderShort() { var g = document.getElementById("empd-short-grid"); if (!short.length) { g.innerHTML = '<p class="emp-note">' + T("No saved candidates yet.", "ما في مرشّحين محفوظين بعد.") + "</p>"; return; } g.innerHTML = short.map(function (c) { return card(c, { removeShort: true }); }).join(""); bindCard(g); }
     function renderPipe() {
       var wrap = document.getElementById("empd-pipe");
-      wrap.innerHTML = STAGES.map(function (s) {
+      var cols = STAGES.concat([REJECTED]);
+      wrap.innerHTML = cols.map(function (s) {
         var items = short.filter(function (c) { return pipe[c.id] === s[0]; });
         var cards = items.length ? items.map(function (c) { return '<div class="empd-pcard"><strong>' + esc(c.name || c.role || "—") + "</strong>" + (c.role ? "<span>" + esc(c.role) + "</span>" : "") + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>" : "") + "</div>"; }).join("") : '<p class="empd-empty">—</p>';
-        return '<div class="empd-col"><div class="empd-col-h">' + esc(s[1]) + ' <span>' + items.length + "</span></div>" + cards + "</div>";
+        var colClass = s[0] === REJECTED[0] ? "empd-col empd-col-reject" : "empd-col";
+        return '<div class="' + colClass + '"><div class="empd-col-h">' + esc(s[1]) + ' <span>' + items.length + "</span></div>" + cards + "</div>";
       }).join("");
     }
 
     // ---- AI Match ----
+    document.getElementById("empd-jd").addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); document.getElementById("empd-match-run").click(); }
+    });
     document.getElementById("empd-match-run").addEventListener("click", function () {
       var jd = document.getElementById("empd-jd").value.trim();
       var st = document.getElementById("empd-match-status"), grid = document.getElementById("empd-match-grid");
       if (!jd) { st.textContent = T("Describe the role first.", "اكتب وصف الوظيفة أولاً."); return; }
       if (!CANDS.length) { st.textContent = T("Loading candidates… try again in a moment.", "يتم تحميل المرشّحين… حاول بعد لحظات."); load(); return; }
       lastJD = jd; st.textContent = "✨ " + T("AI is ranking your best-fit candidates…", "الذكاء يرتّب أنسب المرشّحين…"); grid.innerHTML = "";
+      if (!UNLOCKED) { st.textContent = T("Subscribe to enable AI Match.", "اشترك لتفعيل المطابقة الذكية."); return; }
+      if (planRank() < 2) { st.textContent = T("Upgrade to Professional to use AI Match.", "رقِّ باقتك إلى «احترافية» لتفعيل المطابقة الذكية."); return; }
+      if (DEMO) { demoMatch(jd, st, grid); return; }
       fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: "match", role: jd, candidates: CANDS.map(function (c) { return { id: c.id, role: c.role, field: c.field, city: c.city, experience: c.experience, education: c.education, nationalityType: c.nationalityType, skills: c.skills }; }) }) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) {
@@ -1552,6 +1676,9 @@ var BP_EMP_BILLING = "monthly";
     function aiAction(task, id) {
       var c = findC(id); if (!c) return;
       openModal(TITLES[task] || "AI", '<p class="empd-empty">✨ ' + T("Thinking…", "جارٍ التفكير…") + "</p>");
+      if (!UNLOCKED) { document.getElementById("empd-modal-body").innerHTML = "<p>" + T("Subscribe to unlock AI tools (assessment, interview questions, outreach).", "اشترك لفتح أدوات الذكاء (تقييم، أسئلة مقابلة، رسائل تواصل).") + "</p>"; return; }
+      if ((task === "summary" && planRank() < 2) || ((task === "interview" || task === "outreach") && planRank() < 3)) { document.getElementById("empd-modal-body").innerHTML = "<p>" + T("This tool needs a higher plan.", "هذه الأداة تحتاج باقة أعلى (احترافية/مؤسسية).") + "</p>"; return; }
+      if (DEMO) { demoAIAction(task, c); return; }
       fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: task, candidate: c, role: lastJD }) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) {

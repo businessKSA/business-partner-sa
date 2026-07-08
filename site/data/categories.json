@@ -20,9 +20,14 @@
   "count": 23
  },
  {
-  "key": "HR & Recruitment",
-  "ar": "الموارد البشرية والتوظيف",
-  "count": 14
+  "key": "HR Services",
+  "ar": "الموارد البشرية",
+  "count": 8
+ },
+ {
+  "key": "Recruitment",
+  "ar": "التوظيف والاستقدام",
+  "count": 6
  },
  {
   "key": "Business Support",

@@ -25,7 +25,7 @@ const NOTION_TOKEN = envFrom([
   "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
   "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
 ]);
-const DB_ID = process.env.NOTION_EMPLOYERS_DB || "";
+const DB_ID = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
 const PARENT_PAGE = process.env.NOTION_EMPLOYERS_PARENT || "697adb5a6a734b449f86952203c4faf9";
 const NOTION_VERSION = "2022-06-28";
 
@@ -59,13 +59,16 @@ async function readBody(req) {
   });
 }
 
-// A short human reference like BP-EMP-3F9K
+// A short human reference like BP-EMP-3F9K. Mixes in the current time (and a
+// random component) so repeat/duplicate registrations never collide on the
+// same code — each submission gets its own row and its own access code.
 function makeRef(seed) {
   const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const salted = seed + "|" + Date.now() + "|" + Math.random();
   let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < salted.length; i++) h = (h * 31 + salted.charCodeAt(i)) >>> 0;
   let out = "";
-  for (let i = 0; i < 4; i++) { out += abc[h % abc.length]; h = Math.floor(h / abc.length) + seed.length * (i + 7); }
+  for (let i = 0; i < 4; i++) { out += abc[h % abc.length]; h = Math.floor(h / abc.length) + salted.length * (i + 7); }
   return "BP-EMP-" + out;
 }
 
@@ -182,7 +185,7 @@ export default async function handler(req, res) {
         <li>المسؤول: ${contact || "—"}</li><li>الجوال: ${phone}</li><li>البريد: ${email || "—"}</li>
         <li>السجل: ${cr || "—"}</li>${notes ? `<li>ملاحظات: ${notes}</li>` : ""}
       </ul>
-      <p>فعّل الرمز <strong>${ref}</strong> في EMPLOYER_CODES بعد تأكيد الدفع.</p>
+      <p>لتفعيل الوصول بعد تأكيد الدفع: افتح صف الشركة في قاعدة «أصحاب العمل — الاشتراكات» في Notion وغيّر <strong>الحالة</strong> إلى «مفعّل». يعمل الرمز <strong>${ref}</strong> فوراً بلا إعادة نشر.</p>
     </div>`;
     await Promise.allSettled([
       sendMail(email, `رمز وصولك ${ref} — Business Partner`, coHtml),
