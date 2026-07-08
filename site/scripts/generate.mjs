@@ -3907,7 +3907,7 @@ function buildSharedServices() {
 
   const script = `<script>(function(){
     var EP='https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat';
-    var API='/api/shared';
+    var API='/api/requests';
     var gate=document.getElementById('ss-gate'),chat=document.getElementById('ss-chat');
     var log=document.getElementById('ss-log'),form=document.getElementById('ss-form'),input=document.getElementById('ss-input');
     function note(el,t,cls){el.hidden=false;el.textContent=t;el.className='ss-note-box '+cls;}
