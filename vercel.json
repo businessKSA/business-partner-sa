@@ -10,6 +10,16 @@
     { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },
     { "source": "/business-tourism", "destination": "/tourism", "permanent": true }
   ],
+  "rewrites": [
+    { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
+    { "source": "/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/join" },
+    { "source": "/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/dashboard" },
+    { "source": "/candidates", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/candidates" },
+    { "source": "/en", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/index" },
+    { "source": "/en/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/join" },
+    { "source": "/en/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/dashboard" },
+    { "source": "/en/candidates", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/candidates" }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",

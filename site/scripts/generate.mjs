@@ -122,6 +122,51 @@ const u = (href) => {
   if (!href || href[0] !== "/" || href.startsWith("/assets") || href.startsWith("/api") || href.startsWith("/ar/") || href === "/ar") return href === "/" ? "/ar/" : href;
   return "/ar" + href;
 };
+
+// Standalone HR portal (hr.businesspartner.sa) — Arabic-first canonical paths
+// ("/", "/join", "/dashboard", "/candidates"); English lives under "/en/...".
+// Kept fully separate from the main site's nav/footer/services.
+const pu = (short) => (LANG === "ar" ? short : "/en" + (short === "/" ? "" : short));
+const PORTAL_LINKS = [
+  { href: "/", en: "Home", ar: "الرئيسية" },
+  { href: "/join", en: "For Employers", ar: "لأصحاب الأعمال" },
+  { href: "/dashboard", en: "Dashboard", ar: "لوحة التوظيف" },
+  { href: "/candidates", en: "For Candidates", ar: "للباحثين عن عمل" },
+];
+function portalLangToggle(active) {
+  const other = LANG === "ar" ? "/en" + (active === "/" ? "" : active) : active;
+  return `<a class="lang-toggle" href="${other}">${LANG === "ar" ? "English" : "العربية"}</a>`;
+}
+function portalHeader(active) {
+  const nav = PORTAL_LINKS.map((l) => `<a href="${pu(l.href)}"${l.href === active ? ' class="active"' : ""}>${L(l.en, l.ar)}</a>`).join("");
+  return `<header class="site-header portal-header"><div class="container header-inner">
+  <a class="logo" href="${pu("/")}" aria-label="Business Partner HR" style="display:flex;align-items:center;gap:10px">
+    <img src="/assets/img/logo.png" alt="Business Partner" width="150" height="28">
+    <span style="font-size:.78rem;font-weight:700;color:var(--brand);background:var(--bg-soft);padding:3px 10px;border-radius:999px">${L("HR Portal", "بوابة الموارد البشرية")}</span>
+  </a>
+  <nav class="nav" aria-label="Portal navigation">${nav}</nav>
+  <div class="header-cta">${portalLangToggle(active)}</div>
+</div></header>`;
+}
+function portalFooter() {
+  const c = site.contact;
+  return `<footer class="site-footer portal-footer"><div class="container">
+  <div class="footer-grid" style="grid-template-columns:1fr auto;gap:24px">
+    <div>
+      <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="140" height="26"></div>
+      <p>${L("HR by Business Partner — a standalone recruitment portal.", "الموارد البشرية من بزنس بارتنر — بوابة توظيف مستقلة.")}</p>
+    </div>
+    <div class="footer-col"><h4>${L("Contact", "تواصل")}</h4><ul>
+      <li><a href="${WA}" target="_blank" rel="noopener">${L("WhatsApp", "واتساب")}</a></li>
+      <li><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bottom"><span>${L("© " + new Date().getFullYear() + " Business Partner · All rights reserved", "© " + new Date().getFullYear() + " بيزنس بارتنر · جميع الحقوق محفوظة")}</span></div>
+</div></footer>`;
+}
+function portalPage({ title, desc, path, active, body }) {
+  return head(title, desc, path) + portalHeader(active) + `<main>${body}</main>` + portalFooter() + waFab() + `<script src="/assets/js/main.js?v=${JS_V}"></script></body></html>`;
+}
 // Service name in the current build language (bilingual map → override → catalog).
 function sName(s) {
   const m = svcI18n[s.code] || {};
@@ -2283,6 +2328,199 @@ function buildEmployerDashboard() {
   return page({ title: Lraw("AI Hiring OS — Business Partner", "نظام التوظيف الذكي — بيزنس بارتنر"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), active: "/employers", path: "/employer-dashboard", body });
 }
 
+// ============ Standalone HR Portal (hr.businesspartner.sa) ============
+// Fully separate identity: own header/footer, no site nav, no cart/services.
+// Same backend (/api/employer, /api/candidates) and same main.js — the
+// dashboard/join/candidates markup below reuses the exact element IDs the
+// existing main.js already wires up, so no JS changes are needed.
+
+function buildPortalHome() {
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:900px;text-align:center">
+    <span class="eyebrow">${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</span>
+    <h1>${L("Hire smarter with AI", "وظّف بذكاء أكبر")}</h1>
+    <p class="lead">${L("A recruitment portal for employers and job seekers — AI matching, a pre-screened candidate pool, and a full hiring pipeline.", "بوابة توظيف لأصحاب الأعمال والباحثين عن عمل — مطابقة بالذكاء، قاعدة مرشّحين مُصنّفة، ومسار توظيف كامل.")}</p>
+    <div class="talent-actions" style="margin-top:24px;justify-content:center">
+      <a class="btn btn-primary" href="${pu("/join")}">${L("For employers", "لأصحاب الأعمال")}</a>
+      <a class="btn btn-ghost" href="${pu("/dashboard")}">${L("Employer dashboard", "لوحة التوظيف")}</a>
+      <a class="btn btn-ghost" href="${pu("/candidates")}">${L("For job seekers", "للباحثين عن عمل")}</a>
+    </div>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="grid grid-3">
+      <a class="card feature" href="${pu("/join")}"><div class="card-icon">🏢</div><h3>${L("Subscribe", "اشترك")}</h3><p>${L("Pick a plan and register your company to unlock the candidate pool.", "اختر باقة وسجّل شركتك لفتح قاعدة المرشّحين.")}</p></a>
+      <a class="card feature" href="${pu("/dashboard")}"><div class="card-icon">✨</div><h3>${L("AI Hiring Dashboard", "لوحة التوظيف الذكية")}</h3><p>${L("Browse, match with AI, shortlist and run your hiring pipeline.", "تصفّح، طابِق بالذكاء، رشّح، وأدر مسار التوظيف.")}</p></a>
+      <a class="card feature" href="${pu("/candidates")}"><div class="card-icon">🧑‍🎓</div><h3>${L("Job Seekers", "الباحثون عن عمل")}</h3><p>${L("Join the pool once — employers hiring through us reach you.", "سجّل مرة واحدة — وأصحاب العمل يصلونك.")}</p></a>
+    </div>
+  </div></section>`;
+  return portalPage({ title: Lraw("HR by Business Partner — recruitment portal", "الموارد البشرية من بزنس بارتنر — بوابة التوظيف"), desc: Lraw("A standalone recruitment portal: AI matching, candidate pool and hiring pipeline.", "بوابة توظيف مستقلة: مطابقة بالذكاء، قاعدة مرشّحين، ومسار توظيف."), path: "/portal/index", active: "/", body });
+}
+
+function buildPortalJoin() {
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:1040px">
+    <span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span>
+    <h1>${L("Subscribe to the recruitment platform", "اشترك في منصة التوظيف")}</h1>
+    <p class="lead">${L("Pick a plan, register your company, and unlock full access to our pre-screened candidate pool.", "اختر باقة، سجّل شركتك، وافتح الوصول الكامل لقاعدة مرشّحينا المُصنّفين.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <form id="emp-join" novalidate>
+      <div class="section-head" style="margin-bottom:22px"><span class="eyebrow">${L("Step 1", "الخطوة 1")}</span><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
+      ${employerPlanCards({ selectable: true })}
+      <div class="section-head" style="margin:44px 0 22px"><span class="eyebrow">${L("Step 2", "الخطوة 2")}</span><h2>${L("Company details", "بيانات الشركة")}</h2></div>
+      <div class="join-grid">
+        <div class="field"><label for="ej-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="ej-company" required></div>
+        <div class="field"><label for="ej-cr">${L("Commercial Registration (CR)", "رقم السجل التجاري")}</label><input type="text" id="ej-cr" inputmode="numeric" placeholder="${Lraw("Optional", "اختياري")}"></div>
+        <div class="field"><label for="ej-contact">${L("Contact person", "اسم المسؤول")}</label><input type="text" id="ej-contact"></div>
+        <div class="field"><label for="ej-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="ej-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
+        <div class="field"><label for="ej-email">${L("Work email", "البريد الإلكتروني للعمل")}</label><input type="email" id="ej-email" placeholder="name@company.com"></div>
+        <div class="field field-full"><label for="ej-notes">${L("Notes (roles you're hiring for, etc.)", "ملاحظات (الوظائف المطلوبة، إلخ)")}</label><textarea id="ej-notes" rows="3"></textarea></div>
+      </div>
+      <div class="join-actions">
+        <button type="submit" class="btn btn-primary btn-lg" id="ej-submit">${L("Continue to subscribe", "متابعة الاشتراك")}</button>
+        <p class="emp-note">${L("After registering you'll complete payment (or bank transfer) and we activate your access.", "بعد التسجيل تُكمل الدفع (أو تحويل بنكي) ونفعّل وصولك.")}</p>
+      </div>
+      <div class="form-success" hidden id="ej-result"></div>
+    </form>
+  </div></section>
+  <script>window.BP_EMP_PLANS=${JSON.stringify((site.employerPlans && site.employerPlans.tiers || []).map((t) => ({ key: t.key, name: L(t.nameEn || t.name, t.name), price: t.price, yearlyPrice: t.price != null ? employerYearly(t.price, (site.employerPlans && site.employerPlans.yearlyDiscount) || 0) : null })))};window.BP_BANK=${JSON.stringify({ bank: L(site.bank.bankNameEn, site.bank.bankName), iban: site.bank.iban, beneficiary: L(site.bank.beneficiaryEn, site.bank.beneficiary) })};</script>`;
+  return portalPage({ title: Lraw("Subscribe — HR portal", "اشترك — بوابة التوظيف"), desc: Lraw("Subscribe to the Business Partner HR portal and access the candidate pool.", "اشترك في بوابة التوظيف من بزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), path: "/portal/join", active: "/join", body });
+}
+
+function buildPortalDashboard() {
+  const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:1080px">
+    <span class="eyebrow">${L("AI Hiring OS", "نظام التوظيف الذكي")}</span>
+    <h1>${L("Your AI Hiring Operating System", "نظام التوظيف الذكي")}</h1>
+    <p class="lead">${L("Browse our pre-screened candidate pool, match candidates to any role with AI, and run your whole hiring pipeline. Subscribe to unlock contact details and AI tools.", "تصفّح قاعدة مرشّحينا المُصنّفين، طابِق المرشّحين مع أي وظيفة بالذكاء، وأدر مسار التوظيف كامل. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</p>
+  </div></section>
+  <section class="section"><div class="container">
+    <div id="empd-app">
+      <div class="empd-flow" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:0 0 18px;font-size:.82rem;color:var(--text-soft)">
+        <span>1️⃣ ${L("Describe the role → AI Match", "اكتب الوظيفة ← مطابقة")}</span><span>›</span>
+        <span>2️⃣ ${L("Browse & filter", "تصفّح وفلترة")}</span><span>›</span>
+        <span>3️⃣ ${L("Shortlist", "أضف للمفضّلة")}</span><span>›</span>
+        <span>4️⃣ ${L("Assess / Interview", "تقييم / مقابلة")}</span><span>›</span>
+        <span>5️⃣ ${L("Pipeline → Hire", "المسار ← توظيف")}</span>
+      </div>
+      <div id="empd-unlock" class="empd-unlock-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:14px">
+        <span style="font-weight:600">🔒 ${L("Free browsing. Subscribe to unlock contacts + AI tools.", "تصفّح مجاني. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</span>
+        <input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;text-align:center;letter-spacing:1px">
+        <button class="btn btn-primary btn-sm" id="empd-enter">${L("Unlock", "فتح")}</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="empd-demo">${L("Demo", "تجربة")}</button>
+        <a href="${pu("/join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a>
+      </div>
+      <p id="empd-gate-msg" class="emp-note" style="min-height:18px;text-align:center"></p>
+      <div class="empd-bar">
+        <div class="empd-tabs">
+          <button class="empd-tab" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
+          <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
+          <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
+          <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="empd-logout">${L("Sign out", "خروج")}</button>
+      </div>
+
+      <div class="empd-panel" data-panel="match" hidden>
+        <div class="empd-match-box">
+          <h3>✨ ${L("Match candidates to a role with AI", "طابق المرشّحين مع وظيفة بالذكاء")}</h3>
+          <p class="emp-note">${L("Describe the role, requirements or paste a job description — AI ranks your best-fit candidates and explains why.", "اكتب الوظيفة أو المتطلبات أو الصق وصفاً وظيفياً — الذكاء يرتّب أنسب المرشّحين ويشرح السبب.")}</p>
+          <textarea id="empd-jd" rows="4" placeholder="${Lraw("e.g. Senior accountant, 5+ years, SOCPA, Riyadh, Saudi national preferred…", "مثال: محاسب أول، خبرة +5 سنوات، عضوية SOCPA، الرياض، يفضّل سعودي…")}"></textarea>
+          <button class="btn btn-primary" id="empd-match-run">✨ ${L("Match with AI", "طابق بالذكاء")}</button>
+        </div>
+        <p class="emp-note" id="empd-match-status"></p>
+        <div class="emp-grid" id="empd-match-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="browse">
+        <div class="emp-access"><div class="emp-filters">
+          <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
+          <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
+          <select id="empd-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+          <select id="empd-nat">${nats}</select>
+          <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
+        </div></div>
+        <p class="emp-note" id="empd-status"></p>
+        <div class="emp-grid" id="empd-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="shortlist" hidden>
+        <p class="emp-note">${L("Candidates you saved. They stay on this device.", "المرشّحون اللي حفظتهم. محفوظون على هذا الجهاز.")}</p>
+        <div class="emp-grid" id="empd-short-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="pipeline" hidden>
+        <p class="emp-note">${L("Move candidates through your hiring stages using the buttons on each card.", "انقل المرشّحين عبر مراحل التوظيف من الأزرار على كل بطاقة.")}</p>
+        <div class="empd-pipe" id="empd-pipe"></div>
+      </div>
+    </div>
+  </div></section>
+
+  <div class="empd-modal" id="empd-modal" hidden><div class="empd-modal-in">
+    <button class="empd-modal-x" id="empd-modal-x">✕</button>
+    <h3 id="empd-modal-title"></h3>
+    <div class="empd-modal-body" id="empd-modal-body"></div>
+  </div></div>
+  <script>window.BP_EMPD_LANG=${JSON.stringify(LANG)};</script>`;
+  return portalPage({ title: Lraw("AI Hiring OS — HR portal", "نظام التوظيف الذكي — بوابة التوظيف"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), path: "/portal/dashboard", active: "/dashboard", body });
+}
+
+function buildPortalCandidates() {
+  const c = site.careers;
+  const f = c.seeker.fields;
+  const seekerValue = [
+    ["📄", L("One CV, many opportunities", "سيرة واحدة، فرص كثيرة"), L("Join the pool once; we match you whenever a fitting role opens.", "سجّل مرة واحدة، ونطابقك مع الفرص المناسبة فور توفّرها.")],
+    ["🤝", L("Employers reach you", "أصحاب العمل يوصلونك"), L("Companies hiring through us see your profile for suitable roles.", "الشركات التي توظّف عبرنا تشاهد ملفك للفرص المناسبة.")],
+    ["🔒", L("Your data is protected", "بياناتك محمية"), L("We never share your CV without your consent (PDPL).", "لا نشارك سيرتك دون موافقتك (حماية البيانات).")],
+  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span>
+    <h1>${L("Find your next opportunity", "فرصتك القادمة تبدأ هنا")}</h1>
+    <p class="lead">${L("Join our candidate pool once — employers hiring through Business Partner reach you when a suitable role opens.", "انضم لقاعدة مرشّحينا مرة واحدة — وأصحاب العمل الذين يوظّفون عبر بيزنس بارتنر يصلونك عند توفّر فرصة مناسبة.")}</p>
+    <div class="talent-actions" style="margin-top:22px">
+      <a class="btn btn-primary" href="#seeker-form">${I.upload}<span>${L("Submit your CV", "أرسل سيرتك الذاتية")}</span></a>
+      <a class="btn btn-ghost" href="${pu("/join")}">${L("I'm an employer →", "أنا صاحب عمل ←")}</a>
+    </div>
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
+    <div style="max-width:640px;margin:0 auto" id="seeker-form">
+      <form class="calc-form cv-form" id="cv-form" novalidate>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
+          <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-email">${L("Email", f.email)}</label><input id="c-email" name="email" type="email"></div>
+          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="${Lraw("e.g. 3 years", "مثال: 3 سنوات")}"></div>
+        </div>
+        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accountant, marketing specialist, engineer", "مثال: محاسب، أخصائي تسويق، مهندس")}"></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")}</label><input id="c-city" name="city" type="text" placeholder="${Lraw("e.g. Riyadh, Jeddah", "مثال: الرياض، جدة")}"></div>
+          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")}</label><input id="c-salary" name="salary" type="text" placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
+        </div>
+        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
+        <div class="field">
+          <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
+          <label class="file-drop" for="c-cv" id="cv-drop">
+            <span class="file-ico">${I.upload}</span>
+            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
+          </label>
+          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
+        </div>
+        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Join the candidate pool", "انضم لقاعدة المرشّحين")}</span></button>
+        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team and join the candidate pool.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا وتنضم لقاعدة المرشّحين.")}</p>
+        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
+      </form>
+      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
+    </div>
+  </div></section>`;
+  return portalPage({ title: Lraw("Jobs for job seekers — HR portal", "التوظيف للباحثين عن عمل — بوابة التوظيف"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), path: "/portal/candidates", active: "/candidates", body });
+}
+
 function buildWorkspaces() {
   const cities = [["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Dammam", "الدمام"], ["Khobar", "الخبر"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Other", "أخرى"]];
   const types = [["Office", "مكتب"], ["Co-working Space", "مساحة مشتركة"], ["Serviced Office", "مكتب مخدوم"], ["Retail Shop", "محل تجاري"], ["Showroom", "معرض"], ["Warehouse", "مستودع"], ["Commercial Villa", "فيلا تجارية"]];
@@ -3733,6 +3971,10 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
+  write(`${pre}portal/index.html`, buildPortalHome());
+  write(`${pre}portal/join.html`, buildPortalJoin());
+  write(`${pre}portal/dashboard.html`, buildPortalDashboard());
+  write(`${pre}portal/candidates.html`, buildPortalCandidates());
   write(`${pre}workspaces.html`, buildWorkspaces());
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
   write(`${pre}contact.html`, buildContact());
