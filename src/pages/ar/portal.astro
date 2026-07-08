@@ -59,6 +59,15 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     .stat .n{ font-size:1.7rem; font-weight:800; }
     .stat.red .n{ color:var(--red); } .stat.yellow .n{ color:var(--yellow); } .stat.green .n{ color:var(--green); }
     .stat .l{ color:#667; font-size:.82rem; margin-top:.2rem; }
+    /* quick-glance overview tiles */
+    .qgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.9rem; margin-top:1.2rem; }
+    .qtile{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1.1rem .8rem; text-align:center; box-shadow:0 6px 16px rgba(11,27,90,.05); }
+    .qicon{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin:0 auto .6rem; }
+    .qicon.red{ background:#fee2e2; } .qicon.yellow{ background:#ffedd5; } .qicon.green{ background:#dcfce7; }
+    .qicon.blue{ background:#e0edff; } .qicon.gold{ background:#faf1dc; } .qicon.navy{ background:#e7eaf6; }
+    .qn{ font-size:1.5rem; font-weight:800; color:#222; }
+    .qn.small{ font-size:1.05rem; }
+    .ql{ color:#8a94a6; font-size:.8rem; margin-top:.25rem; }
     h3.sec{ font-size:1.02rem; color:var(--navy); margin:0 0 .8rem; display:flex; align-items:center; gap:.4rem; }
     .filter-chip{ display:inline-flex; align-items:center; gap:.4rem; background:#eef2fb; color:var(--navy); border-radius:999px; padding:.3rem .8rem; font-size:.82rem; font-weight:700; margin-bottom:.8rem; }
     .filter-chip button{ background:none; border:0; color:var(--navy); cursor:pointer; font-weight:800; }
@@ -136,17 +145,22 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
         <div class="card score-card">
           <div class="score-ring" id="score-ring">--</div>
           <div class="score-meta">
-            <h2 id="score-title">درجة الامتثال</h2>
+            <h2 id="score-title">🎯 درجة الامتثال</h2>
             <div id="score-band">—</div>
             <div id="last-analysis" style="font-size:.78rem;color:#9aa3b2;margin-top:.3rem;"></div>
           </div>
         </div>
-        <div class="grid cols-3" style="margin-top:1rem">
-          <div class="card stat red"><div class="n" id="cnt-red">0</div><div class="l">🔴 حرجة</div></div>
-          <div class="card stat yellow"><div class="n" id="cnt-yellow">0</div><div class="l">🟡 متوسطة</div></div>
-          <div class="card stat green"><div class="n" id="cnt-green">0</div><div class="l">🟢 منخفضة</div></div>
+
+        <div class="qgrid">
+          <div class="qtile"><div class="qicon red">🔴</div><div class="qn" id="cnt-red">0</div><div class="ql">حرجة</div></div>
+          <div class="qtile"><div class="qicon yellow">🟡</div><div class="qn" id="cnt-yellow">0</div><div class="ql">متوسطة</div></div>
+          <div class="qtile"><div class="qicon green">🟢</div><div class="qn" id="cnt-green">0</div><div class="ql">منخفضة</div></div>
+          <div class="qtile"><div class="qicon blue">👥</div><div class="qn" id="qi-employees">—</div><div class="ql">الموظفون</div></div>
+          <div class="qtile"><div class="qicon gold">💰</div><div class="qn small" id="qi-cost">—</div><div class="ql">التكلفة ربعياً</div></div>
+          <div class="qtile"><div class="qicon navy">🏷️</div><div class="qn small" id="qi-band">—</div><div class="ql">النطاق</div></div>
         </div>
-        <h3 class="sec" style="margin-top:1.4rem">🚨 أبرز التنبيهات</h3>
+
+        <h3 class="sec" style="margin-top:1.6rem">🚨 أبرز التنبيهات</h3>
         <div class="card" id="top-alerts"><div class="empty">جارٍ التحميل...</div></div>
       </div>
 
@@ -275,6 +289,10 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       document.getElementById('cnt-red').textContent = c.red || 0;
       document.getElementById('cnt-yellow').textContent = c.yellow || 0;
       document.getElementById('cnt-green').textContent = c.green || 0;
+
+      document.getElementById('qi-employees').textContent = (data.employees ?? '—') + (data.saudis !== null && data.saudis !== undefined ? (' / ' + data.saudis) : '');
+      document.getElementById('qi-cost').textContent = fmtMoney(data.quarterlyCost);
+      document.getElementById('qi-band').textContent = data.band || '—';
 
       const allAlerts = data.alerts || [];
       renderAlertsList(document.getElementById('top-alerts'), allAlerts.slice(0, 3));
