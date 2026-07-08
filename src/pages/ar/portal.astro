@@ -93,13 +93,23 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     .status.crit{ background:#fee2e2; color:#991b1b; }
     .status.nodata{ background:#f1f3f8; color:#8a94a6; }
     .entity .api-note{ font-size:.7rem; color:#b3bac7; margin-top:.4rem; }
-    /* alerts/register */
-    .alert-row{ display:flex; gap:.7rem; align-items:flex-start; padding:.75rem 0; border-bottom:1px solid #eef1f6; }
-    .alert-row:last-child{ border-bottom:0; }
-    .dot{ width:10px; height:10px; border-radius:50%; margin-top:.4rem; flex-shrink:0; }
-    .dot.red{ background:var(--red); } .dot.yellow{ background:var(--yellow); } .dot.green{ background:var(--green); }
-    .alert-row .t{ font-weight:700; color:#222; font-size:.92rem; overflow-wrap:anywhere; }
-    .alert-row .m{ color:#667; font-size:.82rem; margin-top:.15rem; overflow-wrap:anywhere; }
+    /* alerts/register — email-style table */
+    .alert-table-wrap{ overflow-x:auto; }
+    table.alert-table{ width:100%; border-collapse:separate; border-spacing:0 .5rem; font-size:.88rem; }
+    table.alert-table tr.arow{ background:#fbfcfe; }
+    table.alert-table tr.arow.risk-red{ background:#fff1f1; }
+    table.alert-table tr.arow.risk-yellow{ background:#fffaf0; }
+    table.alert-table tr.arow.risk-green{ background:#f2fbf5; }
+    table.alert-table td{ padding:.6rem .55rem; vertical-align:middle; border-top:1px solid rgba(0,0,0,.04); border-bottom:1px solid rgba(0,0,0,.04); }
+    table.alert-table tr.arow td:first-child{ border-inline-start:4px solid transparent; border-start-start-radius:10px; border-end-start-radius:10px; }
+    table.alert-table tr.arow.risk-red td:first-child{ border-inline-start-color:var(--red); }
+    table.alert-table tr.arow.risk-yellow td:first-child{ border-inline-start-color:var(--yellow); }
+    table.alert-table tr.arow.risk-green td:first-child{ border-inline-start-color:var(--green); }
+    table.alert-table tr.arow td:last-child{ border-start-end-radius:10px; border-end-end-radius:10px; }
+    .risk-emoji{ font-size:1rem; }
+    .platform-chip{ display:inline-block; color:#fff; font-weight:700; font-size:.74rem; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; }
+    .alert-table .t{ font-weight:700; color:#222; font-size:.9rem; overflow-wrap:anywhere; }
+    .alert-table .m{ color:#667; font-size:.8rem; margin-top:.1rem; overflow-wrap:anywhere; }
     table.reg{ width:100%; border-collapse:collapse; font-size:.88rem; }
     table.reg th{ text-align:right; color:#667; font-weight:600; padding:.5rem .4rem; border-bottom:2px solid #eef1f6; font-size:.78rem; }
     table.reg td{ padding:.6rem .4rem; border-bottom:1px solid #f1f3f8; }
@@ -268,6 +278,9 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     let activePlatformFilter = null;
 
     function riskDot(r){ return r === 'أحمر' ? 'red' : (r === 'أصفر' ? 'yellow' : 'green'); }
+    const RISK_EMOJI = { red:'🔴', yellow:'🟡', green:'🟢' };
+    const LABEL_COLORS = {};
+    Object.values(ENTITY_BADGES).forEach(b => { LABEL_COLORS[b.label] = b.bg; });
     function dayBadge(d){
       if (d === null || d === undefined) return '<span class="badge dok">—</span>';
       if (d <= 0) return '<span class="badge d0">منتهي</span>';
@@ -314,13 +327,21 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       const deduped = dedupeAlerts(alertsRaw || []);
       const shown = limit ? deduped.slice(0, limit) : deduped;
       const rowHtml = (a) => {
+        const risk = riskDot(a.risk);
         const days = (a.daysRemaining !== null && a.daysRemaining !== undefined)
-          ? (a.daysRemaining <= 0 ? 'منتهي' : a.daysRemaining + ' يوم متبقٍ') : '';
+          ? (a.daysRemaining <= 0 ? 'منتهي' : a.daysRemaining + ' يوم') : '—';
         const countBadge = a.count > 1 ? (' <span class="badge d7">×' + a.count + '</span>') : '';
-        return '<div class="alert-row"><div class="dot ' + riskDot(a.risk) + '"></div><div style="min-width:0"><div class="t">' + cleanTitle(a.title) + countBadge + '</div><div class="m">' +
-          [a.platform, days, shortText(a.action, 70)].filter(Boolean).join(' · ') + '</div></div></div>';
+        const color = LABEL_COLORS[a.platform] || '#0B1B5A';
+        return '<tr class="arow risk-' + risk + '">' +
+          '<td><span class="risk-emoji">' + RISK_EMOJI[risk] + '</span></td>' +
+          '<td>' + (a.platform ? '<span class="platform-chip" style="background:' + color + '">' + a.platform + '</span>' : '—') + '</td>' +
+          '<td><div class="t">' + cleanTitle(a.title) + countBadge + '</div>' + (a.action ? '<div class="m">' + shortText(a.action, 70) + '</div>' : '') + '</td>' +
+          '<td>' + dayBadge(a.daysRemaining) + '</td>' +
+        '</tr>';
       };
-      let html = shown.length ? shown.map(rowHtml).join('') : '<div class="empty">لا توجد تنبيهات حالياً ✅</div>';
+      let html = '<div class="alert-table-wrap"><table class="alert-table"><thead><tr><th></th><th>الجهة</th><th>البند</th><th>الأيام</th></tr></thead><tbody>' +
+        (shown.length ? shown.map(rowHtml).join('') : '<tr><td colspan="4" class="empty">لا توجد تنبيهات حالياً ✅</td></tr>') +
+        '</tbody></table></div>';
       if (limit && !opts.noMore && deduped.length > limit) {
         html += '<button class="tab" style="width:100%;margin-top:.6rem;color:var(--navy)" id="alerts-showmore">عرض الكل (' + deduped.length + ')</button>';
       }
