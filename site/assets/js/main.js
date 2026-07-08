@@ -1503,9 +1503,12 @@ var BP_EMP_BILLING = "monthly";
     var demoBtn = document.getElementById("empd-demo");
     if (demoBtn) demoBtn.addEventListener("click", function () { enter("BP-DEMO", { unlocked: true, demo: true, candidates: DEMO_CANDS }); });
     document.getElementById("empd-logout").addEventListener("click", function () { try { localStorage.removeItem("bp_emp_code"); } catch (e) {} location.reload(); });
+    // Never silently auto-resume a demo session from a past visit — the demo
+    // must always be an explicit, one-time click so a stale localStorage
+    // value can't make a real subscriber's dashboard look empty/fake forever.
     var saved = readLS("bp_emp_code", "");
-    if (typeof saved === "string" && saved) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); load(); renderCounts(); } }); }
-    else { CODE = ""; setUnlocked(false); load(); renderCounts(); }
+    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); load(); renderCounts(); } }); }
+    else { if (isDemoCode(saved)) writeLS("bp_emp_code", ""); CODE = ""; setUnlocked(false); load(); renderCounts(); }
 
     Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
       t.addEventListener("click", function () {
