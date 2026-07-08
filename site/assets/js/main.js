@@ -191,7 +191,7 @@ var BP = window.BP = window.BP || {};
   }
 
   function kindLabel(k) {
-    var m = { service: ["Service", "خدمة"], package: ["Package", "باقة"], agent: ["AI agent", "وكيل ذكي"], misa: ["Investor track", "مسار مستثمر"] };
+    var m = { service: ["Service", "خدمة"], package: ["Package", "باقة"], agent: ["AI agent", "وكيل ذكي"], employee: ["AI employee", "موظف ذكي"], misa: ["Investor track", "مسار مستثمر"] };
     var p = m[k] || m.service;
     return BP.t(p[0], p[1]);
   }
@@ -346,13 +346,16 @@ var BP = window.BP = window.BP || {};
         localStorage.setItem("bp_orders", JSON.stringify(orders));
       } catch (err) {}
       // Register the order with the team + CRM (best-effort; never blocks the client).
+      var employeeSlugs = cart.filter(function (i) { return i.kind === "employee" && (i.id || "").indexOf("employee-") === 0; })
+        .map(function (i) { return i.id.slice("employee-".length); });
       try {
         fetch("/api/requests", {
           method: "POST", headers: { "content-type": "application/json" },
           body: JSON.stringify({
             type: "order", ref: ref, name: name, phone: phone, email: email,
             items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
-            total: cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || ""
+            total: cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || "",
+            agents: employeeSlugs
           })
         }).catch(function () {});
       } catch (e) {}
@@ -363,6 +366,7 @@ var BP = window.BP = window.BP || {};
       var waUrl = "https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n"));
       // Clear cart
       var boughtCompliance = cart.some(function (i) { return (i.id || "").indexOf("agent-Compliance") === 0; });
+      var boughtEmployee = employeeSlugs.length > 0;
       BP.cart.write([]);
       var box = document.getElementById("checkout-success");
       box.hidden = false;
@@ -370,6 +374,8 @@ var BP = window.BP = window.BP || {};
         BP.t("Transfer the amount to the bank account, then send the receipt. We'll confirm on WhatsApp.", "حوّل المبلغ على الحساب البنكي ثم أرسل الإيصال. سنؤكد لك عبر واتساب.") +
         (boughtCompliance ? "<br>" + BP.t("Your compliance agent is ready — start it in the tools & calculators hub.", "وكيل الامتثال جاهز — ابدأ معه من مركز الأدوات والحاسبات.") +
           '<br><a class="btn btn-primary" style="margin-top:12px" href="/tools-and-calculators">' + BP.t("Open the compliance agent", "افتح وكيل الامتثال") + "</a>" : "") +
+        (boughtEmployee ? "<br>" + BP.t("Once we confirm your payment, use this order number as your activation code in the smart employees portal.", "بمجرد ما نتأكد من الدفع، استخدم رقم الطلب هذا كـ كود تفعيل في بوابة الموظفين الأذكياء.") +
+          '<br><a class="btn btn-primary" style="margin-top:12px" href="/portal">' + BP.t("Open the smart employees portal", "افتح بوابة الموظفين الأذكياء") + "</a>" : "") +
         '<br><a class="btn btn-wa" style="margin-top:12px" href="' + waUrl + '" target="_blank" rel="noopener">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a> " +
         '<a class="btn btn-ghost" style="margin-top:12px" href="/account">' + BP.t("View in my account", "عرض في حسابي") + "</a>";
       box.scrollIntoView({ behavior: "smooth", block: "center" });

@@ -36,12 +36,17 @@
     .sec-head{text-align:center;max-width:720px;margin:0 auto 1.7rem}
     .sec-head h2{font-size:1.5rem;margin-bottom:.4rem;color:var(--navy)}
     .sec-head p{color:var(--muted)}
-    .emps{display:flex;gap:.6rem;overflow-x:auto;padding:.3rem 0 .6rem;scrollbar-width:none}
-    .emps::-webkit-scrollbar{display:none}
-    .emp{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.7rem 1rem;display:flex;gap:.55rem;align-items:center;box-shadow:var(--shadow)}
+    .emps{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.8rem;padding:.3rem 0 .6rem}
+    .emp{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.85rem 1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.6rem}
+    .emp-top{display:flex;gap:.55rem;align-items:center}
     .emp .e{font-size:1.4rem}
     .emp b{font-size:.95rem;color:var(--navy)}
     .emp span{display:block;font-size:.76rem;color:var(--green);font-weight:600}
+    .emp-cart{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:.55rem;font-weight:700;font-size:.82rem;cursor:pointer}
+    .emp-note{font-size:.85rem;color:var(--muted);margin-top:1rem;text-align:center}
+    .emp-note a{color:var(--navy);font-weight:700;text-decoration:underline}
+    .bp-toast{position:fixed;inset-inline-start:50%;bottom:90px;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:999px;box-shadow:var(--shadow);z-index:1200;opacity:0;transition:opacity .28s,transform .28s;font-weight:600;pointer-events:none}
+    .bp-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.1rem}
     .cc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow);display:flex;flex-direction:column}
     .cc-top{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.7rem}
@@ -133,16 +138,9 @@
   </div>
   <section>
     <div class="wrap">
-      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — ونفس مركز الربط متاح للجميع.</p></div>
-      <div class="emps">
-        <div class="emp"><span class="e">🗂️</span><div><b>ملاك</b><span>مساعِدة تنفيذية</span></div></div>
-        <div class="emp"><span class="e">💼</span><div><b>بدر</b><span>مبيعات وتطوير أعمال</span></div></div>
-        <div class="emp"><span class="e">📣</span><div><b>فرح</b><span>تسويق ومحتوى</span></div></div>
-        <div class="emp"><span class="e">🧭</span><div><b>مازن</b><span>عمليات وخدمة عملاء</span></div></div>
-        <div class="emp"><span class="e">📦</span><div><b>أحمد</b><span>مشتريات وتوريد</span></div></div>
-        <div class="emp"><span class="e">💻</span><div><b>محمد</b><span>تقنية معلومات</span></div></div>
-        <div class="emp"><span class="e">⚖️</span><div><b>عبدالعزيز</b><span>قانوني وامتثال</span></div></div>
-      </div>
+      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p></div>
+      <div class="emps" id="emps"></div>
+      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="/portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -312,6 +310,23 @@
     function requestHelp(t){
       alert('🛠️ طلب إعداد «'+t.name+'» — فريق Business Partner يركّب لك هذه الأداة ويسلّمك الموظف جاهز مقابل رسوم إعداد. (نموذج: في النسخة الحقيقية يفتح نموذج طلب وتُحتسب الرسوم.)');
     }
+    var EMPLOYEES=[
+      {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
+      {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
+      {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
+      {slug:'mazen',e:'🧭',name:'مازن',role:'عمليات وخدمة عملاء',nameEn:'Mazen — Operations & Customer Service'},
+      {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
+      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'},
+      {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني وامتثال',nameEn:'Abdulaziz — Legal & Compliance'}
+    ];
+    var empGrid=document.getElementById('emps');
+    EMPLOYEES.forEach(function(m){
+      var d=document.createElement('div'); d.className='emp';
+      d.innerHTML='<div class="emp-top"><span class="e">'+m.e+'</span><div><b>'+m.name+'</b><span>'+m.role+'</span></div></div>'+
+        '<button type="button" class="emp-cart add-cart" data-id="employee-'+m.slug+'" data-name-en="'+m.nameEn+'" data-name-ar="'+m.name+' — '+m.role+'" data-amount="500" data-price="500 ﷼ / شهرياً" data-kind="employee">🛒 أضف للسلة — 500 ﷼/شهرياً</button>';
+      empGrid.appendChild(d);
+    });
   </script>
+  <script src="/assets/js/main.js"></script>
 </body>
 </html>

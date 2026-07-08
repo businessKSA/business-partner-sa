@@ -27,10 +27,15 @@ async function forwardLead(payload) {
 // Live order status lookup (merged from the former api/order-status.js — Vercel
 // Hobby caps a deployment at 12 serverless functions, so this rides on the GET
 // branch of /api/requests instead of its own endpoint).
-// GET /api/requests?refs=BP-506275,BP-988015 -> { ok, statuses: { "BP-506275": "قيد المراجعة", ... } }
+// GET /api/requests?refs=BP-506275,BP-988015 -> { ok, statuses: { "BP-506275": "قيد المراجعة", ... }, agents: { "BP-506275": ["badr"] } }
+// `agents` lets the AI-employees portal treat a client's own order reference as
+// their activation code: once the order status is flipped to a confirmed state
+// (see CONFIRMED_ORDER_STATUSES), the portal unlocks exactly the agent slugs
+// that were purchased with that order — no separate manual code needed.
+const CONFIRMED_ORDER_STATUSES = new Set(["مؤكد - قيد التنفيذ", "مكتمل"]);
 async function orderStatuses(refs) {
-  if (!refs.length) return {};
-  if (!NOTION_TOKEN) return {};
+  if (!refs.length) return { statuses: {}, agents: {} };
+  if (!NOTION_TOKEN) return { statuses: {}, agents: {} };
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
     method: "POST",
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
@@ -45,24 +50,31 @@ async function orderStatuses(refs) {
   }
   const data = await r.json();
   const statuses = {};
+  const agents = {};
   for (const pg of data.results || []) {
     const p = pg.properties || {};
     const refText = (p["رقم المرجع"] && p["رقم المرجع"].rich_text || []).map((t) => t.plain_text).join("").trim();
     const status = p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name;
     if (refText && status) statuses[refText] = status;
+    if (refText && status && CONFIRMED_ORDER_STATUSES.has(status)) {
+      const notesText = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
+      const m = notesText.match(/AGENTS:([a-z0-9,]+)/i);
+      if (m) agents[refText] = m[1].split(",").filter(Boolean);
+    }
   }
-  return statuses;
+  return { statuses, agents };
 }
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus }) {
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
+  const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
   const props = {
     "Opportunity Name": { title: [{ text: { content: `${title} (${ref})`.slice(0, 200) } }] },
     "Stage": { select: { name: "New" } },
     "Lead Source": { select: { name: "Website" } },
     "Human Required": { checkbox: true },
-    "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}`.slice(0, 1900) } }] },
+    "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}${agentsTag}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
@@ -131,9 +143,9 @@ export default async function handler(req, res) {
     if (refs.length) {
       res.setHeader("Cache-Control", "no-store");
       try {
-        const statuses = await orderStatuses(refs);
+        const { statuses, agents } = await orderStatuses(refs);
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, statuses }));
+        return res.end(JSON.stringify({ ok: true, statuses, agents }));
       } catch {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
@@ -154,11 +166,13 @@ export default async function handler(req, res) {
     const ref = String(b.ref || "BP-" + Date.now().toString().slice(-6)).slice(0, 40);
     const items = (Array.isArray(b.items) ? b.items.map((x) => (typeof x === "string" ? x : (x && x.name) || "")).filter(Boolean) : [String(b.items || "")]).join("، ").slice(0, 900);
     const total = String(b.total || "").slice(0, 40);
+    const agents = Array.isArray(b.agents) ? b.agents.map((s) => String(s).toLowerCase().trim()).filter((s) => /^[a-z0-9]{1,30}$/.test(s)).slice(0, 20) : [];
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>بعد تأكيد الدفع: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const agentsNote = agents.length ? `<p>موظفون أذكياء مطلوبون: <strong>${esc(agents.join("، "))}</strong> — بمجرد اعتماد الدفع، تفلّت الحالة لـ«مؤكد - قيد التنفيذ» يفتح للعميل بوابة الموظفين الأذكياء تلقائياً برقم مرجعه ${ref}.</p>` : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}<p>بعد تأكيد الدفع: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة" }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة", agents }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);

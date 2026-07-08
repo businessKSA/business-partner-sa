@@ -3035,7 +3035,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
-              <a class="portal-card" id="ai-employees-link" href="${u("/portal")}"><span>🤖</span><strong>${L("AI employees", "الموظفون الأذكياء")}</strong></a>
+              <a class="portal-card" id="ai-employees-link" href="${u("/portal")}"><span>🤖</span><strong>${L("Smart Specialized Agent", "الموظف المتخصص")}</strong></a>
             </div>
           </div>
           <div class="dash-card"><h3>${L("Recent orders", "أحدث الطلبات")}</h3><div id="ov-orders"><p class="dash-empty">${L("No orders yet — browse the services to get started.", "لا توجد طلبات بعد — تصفّح الخدمات للبدء.")}</p></div></div>
@@ -3462,12 +3462,17 @@ function buildConnect() {
     .sec-head{text-align:center;max-width:720px;margin:0 auto 1.7rem}
     .sec-head h2{font-size:1.5rem;margin-bottom:.4rem;color:var(--navy)}
     .sec-head p{color:var(--muted)}
-    .emps{display:flex;gap:.6rem;overflow-x:auto;padding:.3rem 0 .6rem;scrollbar-width:none}
-    .emps::-webkit-scrollbar{display:none}
-    .emp{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.7rem 1rem;display:flex;gap:.55rem;align-items:center;box-shadow:var(--shadow)}
+    .emps{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.8rem;padding:.3rem 0 .6rem}
+    .emp{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.85rem 1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.6rem}
+    .emp-top{display:flex;gap:.55rem;align-items:center}
     .emp .e{font-size:1.4rem}
     .emp b{font-size:.95rem;color:var(--navy)}
     .emp span{display:block;font-size:.76rem;color:var(--green);font-weight:600}
+    .emp-cart{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:.55rem;font-weight:700;font-size:.82rem;cursor:pointer}
+    .emp-note{font-size:.85rem;color:var(--muted);margin-top:1rem;text-align:center}
+    .emp-note a{color:var(--navy);font-weight:700;text-decoration:underline}
+    .bp-toast{position:fixed;inset-inline-start:50%;bottom:90px;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:999px;box-shadow:var(--shadow);z-index:1200;opacity:0;transition:opacity .28s,transform .28s;font-weight:600;pointer-events:none}
+    .bp-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.1rem}
     .cc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow);display:flex;flex-direction:column}
     .cc-top{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:.7rem}
@@ -3559,16 +3564,9 @@ function buildConnect() {
   </div>
   <section>
     <div class="wrap">
-      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — ونفس مركز الربط متاح للجميع.</p></div>
-      <div class="emps">
-        <div class="emp"><span class="e">🗂️</span><div><b>ملاك</b><span>مساعِدة تنفيذية</span></div></div>
-        <div class="emp"><span class="e">💼</span><div><b>بدر</b><span>مبيعات وتطوير أعمال</span></div></div>
-        <div class="emp"><span class="e">📣</span><div><b>فرح</b><span>تسويق ومحتوى</span></div></div>
-        <div class="emp"><span class="e">🧭</span><div><b>مازن</b><span>عمليات وخدمة عملاء</span></div></div>
-        <div class="emp"><span class="e">📦</span><div><b>أحمد</b><span>مشتريات وتوريد</span></div></div>
-        <div class="emp"><span class="e">💻</span><div><b>محمد</b><span>تقنية معلومات</span></div></div>
-        <div class="emp"><span class="e">⚖️</span><div><b>عبدالعزيز</b><span>قانوني وامتثال</span></div></div>
-      </div>
+      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p></div>
+      <div class="emps" id="emps"></div>
+      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="/portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -3738,7 +3736,24 @@ function buildConnect() {
     function requestHelp(t){
       alert('🛠️ طلب إعداد «'+t.name+'» — فريق Business Partner يركّب لك هذه الأداة ويسلّمك الموظف جاهز مقابل رسوم إعداد. (نموذج: في النسخة الحقيقية يفتح نموذج طلب وتُحتسب الرسوم.)');
     }
+    var EMPLOYEES=[
+      {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
+      {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
+      {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
+      {slug:'mazen',e:'🧭',name:'مازن',role:'عمليات وخدمة عملاء',nameEn:'Mazen — Operations & Customer Service'},
+      {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
+      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'},
+      {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني وامتثال',nameEn:'Abdulaziz — Legal & Compliance'}
+    ];
+    var empGrid=document.getElementById('emps');
+    EMPLOYEES.forEach(function(m){
+      var d=document.createElement('div'); d.className='emp';
+      d.innerHTML='<div class="emp-top"><span class="e">'+m.e+'</span><div><b>'+m.name+'</b><span>'+m.role+'</span></div></div>'+
+        '<button type="button" class="emp-cart add-cart" data-id="employee-'+m.slug+'" data-name-en="'+m.nameEn+'" data-name-ar="'+m.name+' — '+m.role+'" data-amount="500" data-price="500 ﷼ / شهرياً" data-kind="employee">🛒 أضف للسلة — 500 ﷼/شهرياً</button>';
+      empGrid.appendChild(d);
+    });
   </script>
+  <script src="/assets/js/main.js"></script>
 </body>
 </html>`;
 }
@@ -3886,15 +3901,13 @@ function buildPortal() {
   <div class="center" id="screen-gate" style="display:none">
     <div class="card wide">
       <h1>فعّل اشتراكك</h1>
-      <p class="sub">اختر الموظفين اللي تبي تشترك فيهم، ثم فعّل بكود الاشتراك.</p>
+      <p class="sub">اختر الموظفين اللي تبي تشترك فيهم وأضفهم للسلة، أو فعّل مباشرة برقم طلبك بعد اعتماد الدفع.</p>
       <div class="pickwrap" id="pickwrap"></div>
-      <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="ادخل كود الاشتراك" style="text-align:center;letter-spacing:1px" /></div>
-      <button class="bigbtn green" id="codeBtn">تفعيل</button>
+      <button class="bigbtn green" id="cartBtn">🛒 أضف المحدد للسلة وأكمل الشراء</button>
+      <div class="field" style="margin-top:1.1rem"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
+      <button class="bigbtn" id="codeBtn">تفعيل</button>
       <div class="err" id="codeErr"></div>
-      <div class="hint-code">💡 بعد الدفع نرسل لك كود تفعيل يفتح فقط الموظفين اللي اشتركت فيهم. للتجربة العامة استخدم الكود: <b>BP-DEMO</b> (يفتح كل الموظفين — للتجربة فقط).</div>
-      <button class="bigbtn" id="orderBtn" style="background:#25D366">🧾 اطلب الاشتراك على واتساب</button>
-      <button class="linkbtn" id="payBtn">🧪 محاكاة دفع للمحدد أعلاه (تجريبي)</button>
-      <p class="muted">في النسخة النهائية: بوابة دفع فعلية + اشتراك شهري، ويصدر الكود تلقائياً حسب الموظفين اللي دفعت عليهم.</p>
+      <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم. للتجربة العامة استخدم الكود: <b>BP-DEMO</b> (يفتح كل الموظفين — للتجربة فقط).</div>
     </div>
   </div>
   <div id="screen-ws" style="display:none">
@@ -3985,10 +3998,12 @@ function buildPortal() {
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
-    // Codes map to the exact agents they unlock. 'ALL' = every agent (demo/testing only).
-    // Real client codes are issued manually after payment is confirmed in the CRM —
-    // add one line here per client, e.g. 'BP-7K21':['badr','mazen'].
+    // Demo codes unlock every agent for testing only. Real clients unlock by
+    // entering their own order reference (e.g. BP-506275) once we've confirmed
+    // payment and flipped the order's status in the CRM — see /api/requests.
     var CODES={'BP-DEMO':'ALL','BP2026':'ALL'};
+    var CONFIRMED=['مؤكد - قيد التنفيذ','مكتمل'];
+    var OWNER_EMAIL='dr.baher.magnas@gmail.com';
     var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents'};
     var CHAT_PREFIX='bp_portal_chat_';
     function $(id){return document.getElementById(id);}
@@ -3999,6 +4014,9 @@ function buildPortal() {
       if(qEmail){ email=qEmail; localStorage.setItem(LS.email,email); }
     }
     var subbed=localStorage.getItem(LS.sub)==='1';
+    if(email && email.toLowerCase()===OWNER_EMAIL && (!subbed || localStorage.getItem(LS.agents)!=='"ALL"')){
+      subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL'));
+    }
     var cur=null;
     function route(){
       if(!email){ show('screen-login'); $('who').textContent=''; $('logout').style.display='none'; return; }
@@ -4011,6 +4029,7 @@ function buildPortal() {
       if(!e || e.indexOf('@')<0){ $('loginErr').textContent='ادخل بريداً صحيحاً.'; return; }
       email=e; localStorage.setItem(LS.email,e);
       localStorage.setItem(LS.company,($('company').value||'').trim());
+      if(email.toLowerCase()===OWNER_EMAIL){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL')); }
       route();
     };
     $('email').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
@@ -4028,25 +4047,37 @@ function buildPortal() {
       return out;
     }
     function unlock(slugs){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs)); route(); }
+    $('cartBtn').onclick=function(){
+      var slugs=pickedSlugs();
+      if(!slugs.length){ $('codeErr').textContent='اختر موظفاً واحداً على الأقل قبل الإضافة للسلة.'; return; }
+      var cart=[]; try{ cart=JSON.parse(localStorage.getItem('bp_cart')||'[]'); }catch(e){ cart=[]; }
+      slugs.forEach(function(slug){
+        var a=AGENTS.filter(function(x){return x.slug===slug;})[0]; if(!a) return;
+        var id='employee-'+slug;
+        if(cart.some(function(i){return i.id===id;})) return;
+        cart.push({id:id,nameEn:a.name+' — '+a.role,nameAr:a.name+' — '+a.role,amount:500,price:'500 ﷼ / شهرياً',kind:'employee',qty:1});
+      });
+      localStorage.setItem('bp_cart',JSON.stringify(cart));
+      location.href='/cart';
+    };
     $('codeBtn').onclick=function(){
       var c=($('code').value||'').trim().toUpperCase();
       var slugs=CODES[c];
-      if(slugs){ unlock(slugs); }
-      else $('codeErr').textContent='كود غير صحيح. تأكد من الكود أو اختر موظفيك واطلب الاشتراك.';
+      if(slugs){ unlock(slugs); return; }
+      var btn=$('codeBtn'); btn.disabled=true; $('codeErr').textContent='جارٍ التحقق…';
+      fetch('/api/requests?refs='+encodeURIComponent(c))
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var st=d && d.statuses && d.statuses[c];
+          var ag=d && d.agents && d.agents[c];
+          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ unlock(ag); }
+          else if(st){ $('codeErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
+          else { $('codeErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وأضفهم للسلة.'; }
+        })
+        .catch(function(){ $('codeErr').textContent='تعذّر التحقق الآن — حاول مرة أخرى.'; })
+        .then(function(){ btn.disabled=false; });
     };
     $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('codeBtn').click();});
-    $('payBtn').onclick=function(){
-      var slugs=pickedSlugs();
-      if(!slugs.length){ $('codeErr').textContent='اختر موظفاً واحداً على الأقل قبل المحاكاة.'; return; }
-      unlock(slugs);
-    };
-    $('orderBtn').onclick=function(){
-      var slugs=pickedSlugs();
-      var names=AGENTS.filter(function(a){return slugs.indexOf(a.slug)>=0;}).map(function(a){return a.name+' ('+a.role+')';});
-      if(!names.length){ $('codeErr').textContent='اختر موظفاً واحداً على الأقل قبل الطلب.'; return; }
-      var msg='مرحباً، أبي أشترك في بوابة الموظفين الأذكياء.\\nالبريد: '+email+'\\nالموظفون المطلوبون:\\n- '+names.join('\\n- ');
-      window.open('https://wa.me/966507034157?text='+encodeURIComponent(msg),'_blank','noopener');
-    };
     $('logout').onclick=function(){ localStorage.removeItem(LS.email); email=''; route(); };
     function entitledSlugs(){
       var raw=localStorage.getItem(LS.agents);
