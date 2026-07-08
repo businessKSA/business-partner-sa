@@ -854,6 +854,7 @@ function buildAiAgents() {
       <div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>
       <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
       <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
+      ${g.key === "shared" ? `<a class="btn btn-ghost" href="${u("/shared-services")}" style="width:100%;margin-bottom:8px">🤝 ${L("Try the service", "جرّب الخدمة")}</a>` : ""}
       ${cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
     </div>`
     )
@@ -3835,9 +3836,36 @@ function buildSharedServices() {
     </div>
   </section>
 
-  <section class="ss-sec" id="ss-chat">
+  <section class="ss-sec" id="ss-gate">
     <div class="wrap">
-      <div class="sec-head"><h2>${L("Start working with your team", "ابدأ العمل مع فريقك")}</h2><p>${L("Write your request in plain language — Khaled and the team understand, execute, and coordinate. No passwords or OTP; anything binding waits for your approval.", "اكتب طلبك بلغتك العادية — خالد والفريق يفهمون، ينفّذون، وينسّقون. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p></div>
+      <div class="sec-head"><h2>${L("Subscribe & activate", "الاشتراك والتفعيل")}</h2><p>${L("Subscribe, transfer the fee, and once our team approves you'll get an access code by email that opens your team instantly. Already have a code? Enter it below.", "اشترك، حوّل قيمة الاشتراك، وبعد اعتماد فريقنا يصلك كود وصول على بريدك يفتح فريقك مباشرة. عندك كود؟ أدخله بالأسفل.")}</p></div>
+      <div class="ss-grid2">
+        <div class="ss-box">
+          <h3 class="ss-h3">${L("1) Subscribe", "١) اشترك الآن")}</h3>
+          <form class="ss-fields" id="ss-sub">
+            <input id="sub-name" type="text" placeholder="${Lraw("Full name", "الاسم الكامل")}" autocomplete="name">
+            <input id="sub-email" type="email" placeholder="${Lraw("Email", "البريد الإلكتروني")}" autocomplete="email" required>
+            <input id="sub-phone" type="tel" placeholder="${Lraw("Mobile", "رقم الجوال")}" autocomplete="tel">
+            <button class="btn btn-primary" type="submit">${L("Subscribe (bank transfer)", "اشترك (تحويل بنكي)")}</button>
+          </form>
+          <div class="ss-note-box" id="sub-result" hidden></div>
+        </div>
+        <div class="ss-box">
+          <h3 class="ss-h3">${L("2) I have an access code", "٢) عندي كود وصول")}</h3>
+          <form class="ss-fields" id="ss-unlock">
+            <input id="unl-email" type="email" placeholder="${Lraw("The email you subscribed with", "البريد الذي اشتركت به")}" autocomplete="email" required>
+            <input id="unl-code" type="text" placeholder="BP-SS-XXXXXX" style="letter-spacing:2px;text-transform:uppercase" required>
+            <button class="btn btn-primary" type="submit">${L("Open my service", "افتح خدمتي")}</button>
+          </form>
+          <div class="ss-note-box" id="unl-result" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ss-sec" id="ss-chat" hidden>
+    <div class="wrap">
+      <div class="sec-head"><h2>${L("Your team is ready", "فريقك جاهز")}</h2><p>${L("Write your request in plain language — Khaled and the team understand, execute, and coordinate. No passwords or OTP; anything binding waits for your approval.", "اكتب طلبك بلغتك العادية — خالد والفريق يفهمون، ينفّذون، وينسّقون. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p></div>
       <div class="ss-box">
         <div class="ss-log" id="ss-log">
           <div class="ss-msg bot">${L("Hi 👋 I'm Khaled, your team lead. Tell me what you need — government, compliance, sales, marketing, IT, procurement, or admin — and I'll get the right specialist on it.", "أهلاً 👋 أنا خالد، قائد فريقك. قل لي وش تحتاج — حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات، أو إداري — وأكلّف المتخصص المناسب فوراً.")}</div>
@@ -3867,11 +3895,54 @@ function buildSharedServices() {
     .ss-msg.me{align-self:flex-end;background:#0e5a55;color:#eafffb}
     .ss-form{display:flex;gap:8px;margin-top:12px}
     .ss-form input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
+    .ss-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:860px;margin:0 auto}
+    .ss-h3{margin:0 0 12px;font-size:1.05rem}
+    .ss-fields{display:flex;flex-direction:column;gap:10px}
+    .ss-fields input{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
+    .ss-note-box{margin-top:12px;border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.7}
+    .ss-note-box.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
+    .ss-note-box.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
+    @media(max-width:640px){.ss-grid2{grid-template-columns:1fr}}
   </style>`;
 
   const script = `<script>(function(){
     var EP='https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat';
+    var API='/api/shared';
+    var gate=document.getElementById('ss-gate'),chat=document.getElementById('ss-chat');
     var log=document.getElementById('ss-log'),form=document.getElementById('ss-form'),input=document.getElementById('ss-input');
+    function note(el,t,cls){el.hidden=false;el.textContent=t;el.className='ss-note-box '+cls;}
+    function openService(){ if(gate)gate.hidden=true; if(chat){chat.hidden=false; chat.scrollIntoView({behavior:'smooth',block:'start'});} }
+    if(localStorage.getItem('bp_ss_token')) openService();
+
+    var sub=document.getElementById('ss-sub');
+    if(sub) sub.addEventListener('submit',function(e){e.preventDefault();
+      var name=(document.getElementById('sub-name').value||'').trim();
+      var email=(document.getElementById('sub-email').value||'').trim();
+      var phone=(document.getElementById('sub-phone').value||'').trim();
+      var box=document.getElementById('sub-result');
+      if(!email){note(box,${JSON.stringify(Lraw("Please enter your email.", "أدخل بريدك الإلكتروني."))},'err');return;}
+      note(box,${JSON.stringify(Lraw("Sending…", "جارٍ الإرسال…"))},'ok');
+      fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'subscribe',name:name,email:email,phone:phone,plan:'shared'})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok){var b=d.bank||{};note(box,(d.message||'')+' — '+${JSON.stringify(Lraw("Ref:", "رقم الطلب:"))}+' '+(d.ref||'')+(b.iban?(' · IBAN '+b.iban):''),'ok');}
+        else note(box,(d&&d.message)||${JSON.stringify(Lraw("Couldn't submit. Try again or contact us on WhatsApp.", "تعذّر الإرسال. حاول مرة ثانية أو تواصل واتساب."))},'err');
+      }).catch(function(){note(box,${JSON.stringify(Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية."))},'err');});
+    });
+
+    var unl=document.getElementById('ss-unlock');
+    if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
+      var email=(document.getElementById('unl-email').value||'').trim();
+      var code=(document.getElementById('unl-code').value||'').trim();
+      var box=document.getElementById('unl-result');
+      if(!email||!code){note(box,${JSON.stringify(Lraw("Enter your email and code.", "أدخل البريد والكود."))},'err');return;}
+      note(box,${JSON.stringify(Lraw("Checking…", "جارٍ التحقق…"))},'ok');
+      fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'unlock',email:email,code:code})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok&&d.token){localStorage.setItem('bp_ss_token',d.token);localStorage.setItem('bp_ss_email',email);note(box,d.message||'✓','ok');openService();}
+        else note(box,(d&&d.message)||${JSON.stringify(Lraw("Invalid code.", "الكود غير صحيح."))},'err');
+      }).catch(function(){note(box,${JSON.stringify(Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية."))},'err');});
+    });
+
     if(!form)return;
     var sid=localStorage.getItem('bp_ss_sid');if(!sid){sid='ss-'+Date.now()+'-'+Math.random().toString(16).slice(2);localStorage.setItem('bp_ss_sid',sid);}
     var busy=false;

@@ -61,9 +61,36 @@
     </div>
   </section>
 
-  <section class="ss-sec" id="ss-chat">
+  <section class="ss-sec" id="ss-gate">
     <div class="wrap">
-      <div class="sec-head"><h2>Start working with your team</h2><p>Write your request in plain language — Khaled and the team understand, execute, and coordinate. No passwords or OTP; anything binding waits for your approval.</p></div>
+      <div class="sec-head"><h2>Subscribe &amp; activate</h2><p>Subscribe, transfer the fee, and once our team approves you'll get an access code by email that opens your team instantly. Already have a code? Enter it below.</p></div>
+      <div class="ss-grid2">
+        <div class="ss-box">
+          <h3 class="ss-h3">1) Subscribe</h3>
+          <form class="ss-fields" id="ss-sub">
+            <input id="sub-name" type="text" placeholder="Full name" autocomplete="name">
+            <input id="sub-email" type="email" placeholder="Email" autocomplete="email" required>
+            <input id="sub-phone" type="tel" placeholder="Mobile" autocomplete="tel">
+            <button class="btn btn-primary" type="submit">Subscribe (bank transfer)</button>
+          </form>
+          <div class="ss-note-box" id="sub-result" hidden></div>
+        </div>
+        <div class="ss-box">
+          <h3 class="ss-h3">2) I have an access code</h3>
+          <form class="ss-fields" id="ss-unlock">
+            <input id="unl-email" type="email" placeholder="The email you subscribed with" autocomplete="email" required>
+            <input id="unl-code" type="text" placeholder="BP-SS-XXXXXX" style="letter-spacing:2px;text-transform:uppercase" required>
+            <button class="btn btn-primary" type="submit">Open my service</button>
+          </form>
+          <div class="ss-note-box" id="unl-result" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ss-sec" id="ss-chat" hidden>
+    <div class="wrap">
+      <div class="sec-head"><h2>Your team is ready</h2><p>Write your request in plain language — Khaled and the team understand, execute, and coordinate. No passwords or OTP; anything binding waits for your approval.</p></div>
       <div class="ss-box">
         <div class="ss-log" id="ss-log">
           <div class="ss-msg bot">Hi 👋 I'm Khaled, your team lead. Tell me what you need — government, compliance, sales, marketing, IT, procurement, or admin — and I'll get the right specialist on it.</div>
@@ -93,6 +120,14 @@
     .ss-msg.me{align-self:flex-end;background:#0e5a55;color:#eafffb}
     .ss-form{display:flex;gap:8px;margin-top:12px}
     .ss-form input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
+    .ss-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:860px;margin:0 auto}
+    .ss-h3{margin:0 0 12px;font-size:1.05rem}
+    .ss-fields{display:flex;flex-direction:column;gap:10px}
+    .ss-fields input{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
+    .ss-note-box{margin-top:12px;border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.7}
+    .ss-note-box.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
+    .ss-note-box.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
+    @media(max-width:640px){.ss-grid2{grid-template-columns:1fr}}
   </style></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
@@ -162,7 +197,42 @@
     <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Prefer to chat with our team on WhatsApp?</span></a>
   </section><script src="/assets/js/main.js?v=5ed8ecfe16"></script><script>(function(){
     var EP='https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat';
+    var API='/api/shared';
+    var gate=document.getElementById('ss-gate'),chat=document.getElementById('ss-chat');
     var log=document.getElementById('ss-log'),form=document.getElementById('ss-form'),input=document.getElementById('ss-input');
+    function note(el,t,cls){el.hidden=false;el.textContent=t;el.className='ss-note-box '+cls;}
+    function openService(){ if(gate)gate.hidden=true; if(chat){chat.hidden=false; chat.scrollIntoView({behavior:'smooth',block:'start'});} }
+    if(localStorage.getItem('bp_ss_token')) openService();
+
+    var sub=document.getElementById('ss-sub');
+    if(sub) sub.addEventListener('submit',function(e){e.preventDefault();
+      var name=(document.getElementById('sub-name').value||'').trim();
+      var email=(document.getElementById('sub-email').value||'').trim();
+      var phone=(document.getElementById('sub-phone').value||'').trim();
+      var box=document.getElementById('sub-result');
+      if(!email){note(box,"Please enter your email.",'err');return;}
+      note(box,"Sending…",'ok');
+      fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'subscribe',name:name,email:email,phone:phone,plan:'shared'})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok){var b=d.bank||{};note(box,(d.message||'')+' — '+"Ref:"+' '+(d.ref||'')+(b.iban?(' · IBAN '+b.iban):''),'ok');}
+        else note(box,(d&&d.message)||"Couldn't submit. Try again or contact us on WhatsApp.",'err');
+      }).catch(function(){note(box,"Connection issue — please try again.",'err');});
+    });
+
+    var unl=document.getElementById('ss-unlock');
+    if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
+      var email=(document.getElementById('unl-email').value||'').trim();
+      var code=(document.getElementById('unl-code').value||'').trim();
+      var box=document.getElementById('unl-result');
+      if(!email||!code){note(box,"Enter your email and code.",'err');return;}
+      note(box,"Checking…",'ok');
+      fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'unlock',email:email,code:code})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok&&d.token){localStorage.setItem('bp_ss_token',d.token);localStorage.setItem('bp_ss_email',email);note(box,d.message||'✓','ok');openService();}
+        else note(box,(d&&d.message)||"Invalid code.",'err');
+      }).catch(function(){note(box,"Connection issue — please try again.",'err');});
+    });
+
     if(!form)return;
     var sid=localStorage.getItem('bp_ss_sid');if(!sid){sid='ss-'+Date.now()+'-'+Math.random().toString(16).slice(2);localStorage.setItem('bp_ss_sid',sid);}
     var busy=false;
