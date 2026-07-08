@@ -11,6 +11,9 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>لوحة العميل | وكيل الامتثال — شريك الأعمال</title>
   <style>
     :root{ --navy:#0B1B5A; --brand:#0066cc; --gold:#C79A3A; --red:#dc2626; --yellow:#d97706; --green:#16a34a; --gray:#6b7280; }
@@ -75,6 +78,13 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     .entity{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1rem; box-shadow:0 6px 18px rgba(11,27,90,.05); cursor:pointer; transition:transform .12s, box-shadow .12s; text-align:right; }
     .entity:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(11,27,90,.1); }
     .entity .icon{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; background:#eef2fb; margin-bottom:.6rem; }
+    .entity .badge-logo{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:.6rem; color:#fff; font-weight:800; font-size:.72rem; line-height:1.15; text-align:center; padding:.2rem; box-shadow:inset 0 0 0 1px rgba(255,255,255,.25); }
+    .calc-card{ display:flex; align-items:center; gap:.9rem; background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1rem 1.2rem; text-decoration:none; box-shadow:0 6px 18px rgba(11,27,90,.05); transition:transform .12s; }
+    .calc-card:hover{ transform:translateY(-2px); }
+    .calc-card .cicon{ width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; background:#eef2fb; flex-shrink:0; }
+    .calc-card .ct{ font-weight:700; color:#222; font-size:.96rem; }
+    .calc-card .cd{ color:#8a94a6; font-size:.8rem; margin-top:.15rem; }
+    .calc-card .go{ margin-inline-start:auto; color:var(--navy); font-weight:800; }
     .entity .label{ font-weight:700; color:#222; font-size:.94rem; }
     .entity .authority{ color:#8a94a6; font-size:.76rem; margin-top:.1rem; }
     .entity .status{ margin-top:.6rem; font-size:.78rem; font-weight:700; padding:.2rem .55rem; border-radius:999px; display:inline-block; }
@@ -138,6 +148,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
         <button class="tab" data-tab="entities">الجهات الحكومية</button>
         <button class="tab" data-tab="alerts">التنبيهات والبنود</button>
         <button class="tab" data-tab="costs">التكاليف</button>
+        <button class="tab" data-tab="calcs">الحاسبات</button>
       </div>
 
       <!-- OVERVIEW -->
@@ -196,6 +207,30 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
         <div class="note-box">💡 التكلفة أعلاه تقديرية إجمالية (رخص العمل + الإقامات + التأمين الطبي + الغرامات المحتملة) مبنية على عدد الموظفين. لحساب دقيق لكل موظف حسب مهنته وحالته، أضف بيانات المهن — والوكيل يقدر يفصّلها لك عند الطلب في المحادثة.</div>
       </div>
 
+      <!-- CALCULATORS -->
+      <div class="panel" id="panel-calcs">
+        <h3 class="sec">🧮 حاسبات الامتثال</h3>
+        <p style="color:#667;font-size:.85rem;margin-bottom:1rem">تفتح في تبويب جديد وتبقى داشبوردك مفتوح هنا.</p>
+        <div class="grid cols-3">
+          <a class="calc-card" href="/ar/calculators" target="_blank" rel="noopener">
+            <div class="cicon">🟢</div>
+            <div><div class="ct">حاسبة النطاقات</div><div class="cd">نسبة التوطين والنطاق المتوقع (قوى)</div></div>
+            <div class="go">←</div>
+          </a>
+          <a class="calc-card" href="/ar/calculators" target="_blank" rel="noopener">
+            <div class="cicon">💰</div>
+            <div><div class="ct">حاسبة التكاليف الحكومية</div><div class="cd">رخص العمل + الإقامات + التأمين لكل عامل</div></div>
+            <div class="go">←</div>
+          </a>
+          <a class="calc-card" href="/ar/compliance" target="_blank" rel="noopener">
+            <div class="cicon">📝</div>
+            <div><div class="ct">تسجيل منشأة جديدة</div><div class="cd">إضافة منشأة أخرى وربطها بمتابعتك</div></div>
+            <div class="go">←</div>
+          </a>
+        </div>
+        <div class="note-box">🛠️ حاسبات إضافية (مكافأة نهاية الخدمة، الإجازة السنوية، العمل الإضافي، اشتراك التأمينات) موجودة على الموقع الرئيسي وسيتم دمجها هنا قريباً.</div>
+      </div>
+
       <div style="height:5rem"></div>
     </div>
   </div>
@@ -204,10 +239,23 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
   <div id="chat-frame-wrap"><iframe src={CHAT_URL} title="وكيل الامتثال"></iframe></div>
 
   <script define:vars={{ API_URL }}>
-    const ENTITY_ICONS = {
-      sbc: '🏢', cr: '📋', chamber: '🏛️', address: '📍', qiwa: '💼', muqeem: '🪪',
-      mudad: '💳', gosi: '🏦', zatca: '🧾', customs: '🛃', balady: '🏙️',
-      civildefense: '🚒', ejar: '🏠', misa: '🌍'
+    // Branded badges (colored word-marks) instead of generic emoji or scraped
+    // trademarked logos — each authority gets a distinct, recognizable color chip.
+    const ENTITY_BADGES = {
+      sbc:          { bg:'#0B1B5A', label:'مركز الأعمال' },
+      cr:           { bg:'#334155', label:'السجل التجاري' },
+      chamber:      { bg:'#B7791F', label:'الغرفة' },
+      address:      { bg:'#475569', label:'العنوان الوطني' },
+      qiwa:         { bg:'#0F9D8C', label:'قوى' },
+      muqeem:       { bg:'#15803D', label:'مقيم' },
+      mudad:        { bg:'#7C3AED', label:'مدد' },
+      gosi:         { bg:'#9F1239', label:'التأمينات' },
+      zatca:        { bg:'#166534', label:'الزكاة والضريبة' },
+      customs:      { bg:'#78350F', label:'الجمارك' },
+      balady:       { bg:'#CA8A04', label:'بلدي' },
+      civildefense: { bg:'#B91C1C', label:'الدفاع المدني' },
+      ejar:         { bg:'#1D4ED8', label:'إيجار' },
+      misa:         { bg:'#0369A1', label:'MISA' },
     };
 
     const loginScreen = document.getElementById('login-screen');
@@ -263,7 +311,8 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
         if (p.red > 0) { statusClass = 'crit'; statusText = p.red + ' حرج'; }
         else if (p.yellow > 0) { statusClass = 'warn'; statusText = p.yellow + ' تنبيه'; }
         else if (p.hasData) { statusClass = 'ok'; statusText = 'سليم'; }
-        return '<div class="entity" data-label="' + p.label + '"><div class="icon">' + (ENTITY_ICONS[p.key] || '🏛️') + '</div>' +
+        const badge = ENTITY_BADGES[p.key] || { bg:'#0B1B5A', label: p.label };
+        return '<div class="entity" data-label="' + p.label + '"><div class="badge-logo" style="background:' + badge.bg + '">' + badge.label + '</div>' +
           '<div class="label">' + p.label + '</div><div class="authority">' + p.authority + '</div>' +
           '<div class="status ' + statusClass + '">' + statusText + '</div>' +
           '<div class="api-note">🔌 ربط مباشر قريباً</div></div>';
