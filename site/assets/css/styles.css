@@ -886,8 +886,12 @@ h3 { font-size: 1.12rem; }
 .empd-stages { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
 .empd-stage-btn { font: inherit; font-size: .74rem; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--gray-line); background: var(--white); color: var(--text-soft); cursor: pointer; }
 .empd-stage-btn.on { background: var(--navy); color: #fff; border-color: var(--navy); }
-.empd-pipe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.empd-stage-reject { border-color: #FCA5A5; color: #B91C1C; }
+.empd-stage-reject.on { background: #DC2626; color: #fff; border-color: #DC2626; }
+.empd-pipe { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
 .empd-col { background: var(--gray-bg); border: 1px solid var(--gray-line); border-radius: var(--radius); padding: 12px; min-height: 120px; }
+.empd-col-reject { background: #FEF2F2; border-color: #FECACA; }
+.empd-col-reject .empd-col-h { color: #B91C1C; }
 .empd-col-h { font-weight: 700; color: var(--navy); margin-bottom: 10px; display: flex; justify-content: space-between; font-size: .9rem; }
 .empd-col-h span { background: rgba(11,27,90,.1); border-radius: 999px; padding: 0 8px; font-size: .78rem; }
 .empd-pcard { background: #fff; border: 1px solid var(--gray-line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; font-size: .85rem; display: flex; flex-direction: column; gap: 2px; }
