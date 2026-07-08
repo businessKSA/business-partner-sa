@@ -1,0 +1,502 @@
+---
+import '../../styles/global.css';
+export const prerender = true;
+const API_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp3-portal-9kq4z';
+const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-465c-aa1f-69773ea1f86d/chat';
+---
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>لوحة العميل | وكيل الامتثال — شريك الأعمال</title>
+  <style>
+    :root{ --navy:#0B1B5A; --brand:#0066cc; --gold:#C79A3A; --red:#dc2626; --yellow:#d97706; --green:#16a34a; --gray:#6b7280; }
+    body{ padding-top:0; background:#eef1f7; min-height:100vh; }
+    .wrap{ max-width:1080px; margin-inline:auto; padding:1.2rem; }
+    /* ---- login ---- */
+    #login-screen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; background:linear-gradient(150deg,#0B1B5A 0%,#12307f 60%,#0066cc 130%); }
+    .login-card{ background:#fff; border-radius:20px; padding:2rem; width:100%; max-width:400px; box-shadow:0 20px 50px rgba(0,0,0,.25); }
+    .login-card img{ height:36px; margin-bottom:.6rem; }
+    .login-card h1{ font-size:1.35rem; color:var(--navy); margin-bottom:.3rem; }
+    .login-card p{ color:#667; font-size:.9rem; margin-bottom:1.2rem; }
+    .field{ margin-bottom:.9rem; display:flex; flex-direction:column; gap:.3rem; }
+    .field label{ font-size:.85rem; font-weight:600; color:#334; }
+    .field input{ border:1px solid #cfd8e6; border-radius:10px; padding:.75rem .9rem; font:inherit; }
+    .field input:focus{ outline:2px solid #bcd2ff; border-color:var(--brand); }
+    .btn{ border:0; border-radius:12px; padding:.75rem 1rem; font-weight:700; cursor:pointer; font-size:.95rem; }
+    .btn-block{ width:100%; padding:.85rem; }
+    .btn-navy{ background:var(--navy); color:#fff; }
+    .btn-ghost-light{ background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.35); color:#fff; }
+    .login-err{ color:#b3261e; background:#fdecec; border-radius:8px; padding:.6rem .8rem; font-size:.85rem; margin-top:.8rem; display:none; }
+    .hint{ font-size:.78rem; color:#8a94a6; margin-top:1rem; text-align:center; }
+    /* ---- dashboard shell ---- */
+    #dash{ display:none; }
+    header.top{ background:var(--navy); color:#fff; padding:1rem 0; position:sticky; top:0; z-index:40; }
+    header.top .wrap{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.6rem; padding-block:0; }
+    header.top .brand{ display:flex; align-items:center; gap:.5rem; font-weight:700; }
+    header.top .brand img{ height:24px; }
+    header.top .actions{ display:flex; gap:.5rem; align-items:center; }
+    .icon-btn{ background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:#fff; padding:.45rem .9rem; border-radius:8px; font-size:.82rem; cursor:pointer; }
+    /* tabs */
+    .tabs{ display:flex; gap:.3rem; background:#fff; border-radius:14px; padding:.35rem; box-shadow:0 4px 14px rgba(11,27,90,.06); margin:1rem 0; overflow-x:auto; }
+    .tab{ border:0; background:transparent; padding:.6rem 1rem; border-radius:10px; font-weight:700; font-size:.88rem; color:#5b6472; cursor:pointer; white-space:nowrap; }
+    .tab.active{ background:var(--navy); color:#fff; }
+    .panel{ display:none; }
+    .panel.active{ display:block; }
+    /* cards */
+    .grid{ display:grid; gap:1rem; }
+    .cols-3{ grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+    .cols-auto{ grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); }
+    .card{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1.1rem 1.3rem; box-shadow:0 6px 18px rgba(11,27,90,.05); }
+    .score-card{ display:flex; align-items:center; gap:1.2rem; }
+    .score-ring{ width:88px; height:88px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.45rem; font-weight:800; color:#fff; flex-shrink:0; }
+    .score-meta h2{ font-size:1.35rem; color:var(--navy); }
+    .score-meta div{ color:#667; font-size:.88rem; }
+    .stat{ text-align:center; padding:.9rem; }
+    .stat .n{ font-size:1.7rem; font-weight:800; }
+    .stat.red .n{ color:var(--red); } .stat.yellow .n{ color:var(--yellow); } .stat.green .n{ color:var(--green); }
+    .stat .l{ color:#667; font-size:.82rem; margin-top:.2rem; }
+    /* quick-glance overview tiles */
+    .qgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.9rem; margin-top:1.2rem; }
+    .qtile{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1.1rem .8rem; text-align:center; box-shadow:0 6px 16px rgba(11,27,90,.05); }
+    .qicon{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin:0 auto .6rem; }
+    .qicon.red{ background:#fee2e2; } .qicon.yellow{ background:#ffedd5; } .qicon.green{ background:#dcfce7; }
+    .qicon.blue{ background:#e0edff; } .qicon.gold{ background:#faf1dc; } .qicon.navy{ background:#e7eaf6; }
+    .qn{ font-size:1.5rem; font-weight:800; color:#222; }
+    .qn.small{ font-size:1.05rem; }
+    .ql{ color:#8a94a6; font-size:.8rem; margin-top:.25rem; }
+    h3.sec{ font-size:1.02rem; color:var(--navy); margin:0 0 .8rem; display:flex; align-items:center; gap:.4rem; }
+    .filter-chip{ display:inline-flex; align-items:center; gap:.4rem; background:#eef2fb; color:var(--navy); border-radius:999px; padding:.3rem .8rem; font-size:.82rem; font-weight:700; margin-bottom:.8rem; }
+    .filter-chip button{ background:none; border:0; color:var(--navy); cursor:pointer; font-weight:800; }
+    /* entity grid */
+    .entity{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1rem; box-shadow:0 6px 18px rgba(11,27,90,.05); cursor:pointer; transition:transform .12s, box-shadow .12s; text-align:right; }
+    .entity:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(11,27,90,.1); }
+    .entity .icon{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; background:#eef2fb; margin-bottom:.6rem; }
+    .entity .badge-logo{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:.6rem; color:#fff; font-weight:800; font-size:.72rem; line-height:1.15; text-align:center; padding:.2rem; box-shadow:inset 0 0 0 1px rgba(255,255,255,.25); }
+    .calc-card{ display:flex; align-items:center; gap:.9rem; background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1rem 1.2rem; text-decoration:none; box-shadow:0 6px 18px rgba(11,27,90,.05); transition:transform .12s; }
+    .calc-card:hover{ transform:translateY(-2px); }
+    .calc-card .cicon{ width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; background:#eef2fb; flex-shrink:0; }
+    .calc-card .ct{ font-weight:700; color:#222; font-size:.96rem; }
+    .calc-card .cd{ color:#8a94a6; font-size:.8rem; margin-top:.15rem; }
+    .calc-card .go{ margin-inline-start:auto; color:var(--navy); font-weight:800; }
+    .entity .label{ font-weight:700; color:#222; font-size:.94rem; }
+    .entity .authority{ color:#8a94a6; font-size:.76rem; margin-top:.1rem; }
+    .entity .status{ margin-top:.6rem; font-size:.78rem; font-weight:700; padding:.2rem .55rem; border-radius:999px; display:inline-block; }
+    .status.ok{ background:#dcfce7; color:#166534; }
+    .status.warn{ background:#ffedd5; color:#9a3412; }
+    .status.crit{ background:#fee2e2; color:#991b1b; }
+    .status.nodata{ background:#f1f3f8; color:#8a94a6; }
+    .entity .api-note{ font-size:.7rem; color:#b3bac7; margin-top:.4rem; }
+    /* alerts/register — email-style table */
+    .alert-table-wrap{ overflow-x:auto; }
+    table.alert-table{ width:100%; border-collapse:separate; border-spacing:0 .5rem; font-size:.88rem; }
+    table.alert-table tr.arow{ background:#fbfcfe; }
+    table.alert-table tr.arow.risk-red{ background:#fff1f1; }
+    table.alert-table tr.arow.risk-yellow{ background:#fffaf0; }
+    table.alert-table tr.arow.risk-green{ background:#f2fbf5; }
+    table.alert-table td{ padding:.6rem .55rem; vertical-align:middle; border-top:1px solid rgba(0,0,0,.04); border-bottom:1px solid rgba(0,0,0,.04); }
+    table.alert-table tr.arow td:first-child{ border-inline-start:4px solid transparent; border-start-start-radius:10px; border-end-start-radius:10px; }
+    table.alert-table tr.arow.risk-red td:first-child{ border-inline-start-color:var(--red); }
+    table.alert-table tr.arow.risk-yellow td:first-child{ border-inline-start-color:var(--yellow); }
+    table.alert-table tr.arow.risk-green td:first-child{ border-inline-start-color:var(--green); }
+    table.alert-table tr.arow td:last-child{ border-start-end-radius:10px; border-end-end-radius:10px; }
+    .risk-emoji{ font-size:1rem; }
+    .platform-chip{ display:inline-block; color:#fff; font-weight:700; font-size:.74rem; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; }
+    .alert-table .t{ font-weight:700; color:#222; font-size:.9rem; overflow-wrap:anywhere; }
+    .alert-table .m{ color:#667; font-size:.8rem; margin-top:.1rem; overflow-wrap:anywhere; }
+    table.reg{ width:100%; border-collapse:collapse; font-size:.88rem; }
+    table.reg th{ text-align:right; color:#667; font-weight:600; padding:.5rem .4rem; border-bottom:2px solid #eef1f6; font-size:.78rem; }
+    table.reg td{ padding:.6rem .4rem; border-bottom:1px solid #f1f3f8; }
+    .badge{ display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:.76rem; font-weight:700; }
+    .badge.d0{ background:#fee2e2; color:#991b1b; } .badge.d7{ background:#ffedd5; color:#9a3412; } .badge.d30{ background:#fef9c3; color:#854d0e; } .badge.dok{ background:#dcfce7; color:#166534; }
+    .empty{ color:#8a94a6; font-size:.88rem; padding:.6rem 0; }
+    .note-box{ background:#f5f3ea; border:1px solid #e4dfc7; border-radius:12px; padding:.8rem 1rem; font-size:.82rem; color:#5b4d1f; margin-top:1rem; }
+    /* chat */
+    #chat-toggle{ position:fixed; bottom:1.2rem; left:1.2rem; background:var(--gold); color:#221a00; border:0; border-radius:999px; padding:.8rem 1.3rem; font-weight:700; box-shadow:0 8px 20px rgba(0,0,0,.25); cursor:pointer; z-index:50; }
+    #chat-frame-wrap{ position:fixed; bottom:5rem; left:1.2rem; width:min(380px,92vw); height:min(560px,70vh); border-radius:16px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.3); display:none; z-index:50; background:#fff; }
+    #chat-frame-wrap iframe{ width:100%; height:100%; border:0; }
+    .err-banner{ background:#fdecec; color:#b3261e; border-radius:10px; padding:.8rem 1rem; margin-bottom:1rem; display:none; }
+    @media(max-width:640px){ .score-card{ flex-direction:column; text-align:center; } }
+  </style>
+</head>
+<body>
+  <div id="login-screen">
+    <form class="login-card" id="login-form">
+      <img src="/logo.svg" alt="" />
+      <h1>لوحة الامتثال</h1>
+      <p>ادخل باسم منشأتك ورمز الدخول المرسل لك لمتابعة حالة الامتثال يومياً.</p>
+      <div class="field"><label>اسم المنشأة</label><input type="text" id="in-company" required autocomplete="organization" /></div>
+      <div class="field"><label>رمز الدخول</label><input type="text" id="in-code" required autocomplete="off" /></div>
+      <button type="submit" class="btn btn-navy btn-block" id="login-btn">دخول</button>
+      <div class="login-err" id="login-err"></div>
+      <div class="hint">ما عندك رمز دخول؟ تواصل معنا واتساب لتفعيل اشتراكك.</div>
+    </form>
+  </div>
+
+  <div id="dash">
+    <header class="top">
+      <div class="wrap">
+        <div class="brand"><img src="/logo.svg" alt="" /><span id="company-name">لوحة الامتثال</span></div>
+        <div class="actions">
+          <button class="icon-btn" id="refresh-btn">↻ تحديث الآن</button>
+          <button class="icon-btn" id="logout-btn">خروج</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <div class="err-banner" id="dash-err"></div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">نظرة عامة</button>
+        <button class="tab" data-tab="entities">الجهات الحكومية</button>
+        <button class="tab" data-tab="alerts">التنبيهات والبنود</button>
+        <button class="tab" data-tab="costs">التكاليف</button>
+        <button class="tab" data-tab="calcs">الحاسبات</button>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div class="panel active" id="panel-overview">
+        <div class="card score-card">
+          <div class="score-ring" id="score-ring">--</div>
+          <div class="score-meta">
+            <h2 id="score-title">🎯 درجة الامتثال</h2>
+            <div id="score-band">—</div>
+            <div id="last-analysis" style="font-size:.78rem;color:#9aa3b2;margin-top:.3rem;"></div>
+          </div>
+        </div>
+
+        <div class="qgrid">
+          <div class="qtile"><div class="qicon red">🔴</div><div class="qn" id="cnt-red">0</div><div class="ql">حرجة</div></div>
+          <div class="qtile"><div class="qicon yellow">🟡</div><div class="qn" id="cnt-yellow">0</div><div class="ql">متوسطة</div></div>
+          <div class="qtile"><div class="qicon green">🟢</div><div class="qn" id="cnt-green">0</div><div class="ql">منخفضة</div></div>
+          <div class="qtile"><div class="qicon blue">👥</div><div class="qn" id="qi-employees">—</div><div class="ql">الموظفون</div></div>
+          <div class="qtile"><div class="qicon gold">💰</div><div class="qn small" id="qi-cost">—</div><div class="ql">التكلفة ربعياً</div></div>
+          <div class="qtile"><div class="qicon navy">🏷️</div><div class="qn small" id="qi-band">—</div><div class="ql">النطاق</div></div>
+        </div>
+
+        <h3 class="sec" style="margin-top:1.6rem">🚨 أبرز التنبيهات</h3>
+        <div class="card" id="top-alerts"><div class="empty">جارٍ التحميل...</div></div>
+      </div>
+
+      <!-- ENTITIES -->
+      <div class="panel" id="panel-entities">
+        <h3 class="sec">🏛️ الجهات الحكومية المرتبطة بمنشأتك</h3>
+        <p style="color:#667;font-size:.85rem;margin-bottom:1rem">اضغط أي جهة لعرض تنبيهاتها وبنودها. الربط المباشر (API) قادم لكل جهة تباعاً — البيانات حالياً من ملفاتك المرفوعة.</p>
+        <div class="grid cols-auto" id="entity-grid"></div>
+      </div>
+
+      <!-- ALERTS + REGISTER -->
+      <div class="panel" id="panel-alerts">
+        <div id="platform-filter-chip" style="display:none"></div>
+        <h3 class="sec">🚨 التنبيهات</h3>
+        <div class="card" id="alerts-list"><div class="empty">جارٍ التحميل...</div></div>
+        <h3 class="sec" style="margin-top:1.4rem">⏳ البنود والاستحقاقات</h3>
+        <div class="card">
+          <table class="reg">
+            <thead><tr><th>المنصة</th><th>الموظف/الموضوع</th><th>نوع الإجراء</th><th>تاريخ الانتهاء</th><th>الأيام</th></tr></thead>
+            <tbody id="reg-body"><tr><td colspan="5" class="empty">جارٍ التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COSTS -->
+      <div class="panel" id="panel-costs">
+        <h3 class="sec">💰 التكلفة الحكومية التقديرية</h3>
+        <div class="grid cols-3">
+          <div class="card"><div style="color:#667;font-size:.85rem">ربعياً</div><div style="font-size:1.4rem;font-weight:800;color:var(--navy)" id="cost-q">—</div></div>
+          <div class="card"><div style="color:#667;font-size:.85rem">سنوياً</div><div style="font-size:1.4rem;font-weight:800;color:var(--navy)" id="cost-a">—</div></div>
+          <div class="card"><div style="color:#667;font-size:.85rem">الموظفون / السعوديون</div><div style="font-size:1.4rem;font-weight:800;color:var(--navy)" id="emp-info">—</div></div>
+        </div>
+        <div class="note-box">💡 التكلفة أعلاه تقديرية إجمالية (رخص العمل + الإقامات + التأمين الطبي + الغرامات المحتملة) مبنية على عدد الموظفين. لحساب دقيق لكل موظف حسب مهنته وحالته، أضف بيانات المهن — والوكيل يقدر يفصّلها لك عند الطلب في المحادثة.</div>
+      </div>
+
+      <!-- CALCULATORS -->
+      <div class="panel" id="panel-calcs">
+        <h3 class="sec">🧮 حاسبات الامتثال</h3>
+        <p style="color:#667;font-size:.85rem;margin-bottom:1rem">تفتح في تبويب جديد وتبقى داشبوردك مفتوح هنا.</p>
+        <div class="grid cols-3">
+          <a class="calc-card" href="/ar/calculators" target="_blank" rel="noopener">
+            <div class="cicon">🟢</div>
+            <div><div class="ct">حاسبة النطاقات</div><div class="cd">نسبة التوطين والنطاق المتوقع (قوى)</div></div>
+            <div class="go">←</div>
+          </a>
+          <a class="calc-card" href="/ar/calculators" target="_blank" rel="noopener">
+            <div class="cicon">💰</div>
+            <div><div class="ct">حاسبة التكاليف الحكومية</div><div class="cd">رخص العمل + الإقامات + التأمين لكل عامل</div></div>
+            <div class="go">←</div>
+          </a>
+          <a class="calc-card" href="/ar/compliance" target="_blank" rel="noopener">
+            <div class="cicon">📝</div>
+            <div><div class="ct">تسجيل منشأة جديدة</div><div class="cd">إضافة منشأة أخرى وربطها بمتابعتك</div></div>
+            <div class="go">←</div>
+          </a>
+        </div>
+        <div class="note-box">🛠️ حاسبات إضافية (مكافأة نهاية الخدمة، الإجازة السنوية، العمل الإضافي، اشتراك التأمينات) موجودة على الموقع الرئيسي وسيتم دمجها هنا قريباً.</div>
+      </div>
+
+      <div style="height:5rem"></div>
+    </div>
+  </div>
+
+  <button id="chat-toggle">💬 اسأل وكيل الامتثال</button>
+  <div id="chat-frame-wrap"><iframe src={CHAT_URL} title="وكيل الامتثال"></iframe></div>
+
+  <script define:vars={{ API_URL }}>
+    // Branded badges (colored word-marks) instead of generic emoji or scraped
+    // trademarked logos — each authority gets a distinct, recognizable color chip.
+    const ENTITY_BADGES = {
+      sbc:          { bg:'#0B1B5A', label:'مركز الأعمال' },
+      cr:           { bg:'#334155', label:'السجل التجاري' },
+      chamber:      { bg:'#B7791F', label:'الغرفة' },
+      address:      { bg:'#475569', label:'العنوان الوطني' },
+      qiwa:         { bg:'#0F9D8C', label:'قوى' },
+      muqeem:       { bg:'#15803D', label:'مقيم' },
+      mudad:        { bg:'#7C3AED', label:'مدد' },
+      gosi:         { bg:'#9F1239', label:'التأمينات' },
+      zatca:        { bg:'#166534', label:'الزكاة والضريبة' },
+      customs:      { bg:'#78350F', label:'الجمارك' },
+      balady:       { bg:'#CA8A04', label:'بلدي' },
+      civildefense: { bg:'#B91C1C', label:'الدفاع المدني' },
+      ejar:         { bg:'#1D4ED8', label:'إيجار' },
+      misa:         { bg:'#0369A1', label:'MISA' },
+    };
+
+    const loginScreen = document.getElementById('login-screen');
+    const dash = document.getElementById('dash');
+    const loginForm = document.getElementById('login-form');
+    const loginErr = document.getElementById('login-err');
+    const loginBtn = document.getElementById('login-btn');
+    const dashErr = document.getElementById('dash-err');
+    let lastData = null;
+    let activePlatformFilter = null;
+
+    function riskDot(r){ return r === 'أحمر' ? 'red' : (r === 'أصفر' ? 'yellow' : 'green'); }
+    const RISK_EMOJI = { red:'🔴', yellow:'🟡', green:'🟢' };
+    const LABEL_COLORS = {};
+    Object.values(ENTITY_BADGES).forEach(b => { LABEL_COLORS[b.label] = b.bg; });
+    function dayBadge(d){
+      if (d === null || d === undefined) return '<span class="badge dok">—</span>';
+      if (d <= 0) return '<span class="badge d0">منتهي</span>';
+      if (d <= 7) return '<span class="badge d0">' + d + ' يوم</span>';
+      if (d <= 30) return '<span class="badge d7">' + d + ' يوم</span>';
+      return '<span class="badge dok">' + d + ' يوم</span>';
+    }
+    function fmtMoney(n){ return (typeof n === 'number') ? n.toLocaleString('ar-SA') + ' ريال' : '—'; }
+    function shortText(s, n) { s = (s || '').trim(); return s.length > n ? s.slice(0, n).trim() + '…' : s; }
+    // Alert titles/actions from Notion sometimes carry a full narrative sentence
+    // (legacy fallback text) instead of a short label — clean + dedupe for display.
+    function cleanTitle(t) {
+      t = (t || '').trim();
+      const cut = t.search(/[:.]|\s-\s/);
+      if (cut > 8 && cut < 70) t = t.slice(0, cut);
+      return shortText(t, 90);
+    }
+    function dedupeAlerts(alerts) {
+      const groups = {};
+      const order = [];
+      alerts.forEach(a => {
+        const key = (a.platform || '') + '|' + cleanTitle(a.title).replace(/[-−]?\s*\d+\s*يوم/g, '').trim();
+        if (!groups[key]) { groups[key] = { ...a, count: 1 }; order.push(key); }
+        else {
+          groups[key].count++;
+          const curDays = groups[key].daysRemaining, newDays = a.daysRemaining;
+          if (newDays !== null && newDays !== undefined && (curDays === null || curDays === undefined || newDays < curDays)) {
+            groups[key].daysRemaining = newDays; groups[key].expiry = a.expiry;
+          }
+        }
+      });
+      return order.map(k => groups[k]);
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+    }
+    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+    function renderAlertsList(el, alertsRaw, opts) {
+      opts = opts || {};
+      const limit = opts.limit || 0;
+      const deduped = dedupeAlerts(alertsRaw || []);
+      const shown = limit ? deduped.slice(0, limit) : deduped;
+      const rowHtml = (a) => {
+        const risk = riskDot(a.risk);
+        const days = (a.daysRemaining !== null && a.daysRemaining !== undefined)
+          ? (a.daysRemaining <= 0 ? 'منتهي' : a.daysRemaining + ' يوم') : '—';
+        const countBadge = a.count > 1 ? (' <span class="badge d7">×' + a.count + '</span>') : '';
+        const color = LABEL_COLORS[a.platform] || '#0B1B5A';
+        return '<tr class="arow risk-' + risk + '">' +
+          '<td><span class="risk-emoji">' + RISK_EMOJI[risk] + '</span></td>' +
+          '<td>' + (a.platform ? '<span class="platform-chip" style="background:' + color + '">' + a.platform + '</span>' : '—') + '</td>' +
+          '<td><div class="t">' + cleanTitle(a.title) + countBadge + '</div>' + (a.action ? '<div class="m">' + shortText(a.action, 70) + '</div>' : '') + '</td>' +
+          '<td>' + dayBadge(a.daysRemaining) + '</td>' +
+        '</tr>';
+      };
+      let html = '<div class="alert-table-wrap"><table class="alert-table"><thead><tr><th></th><th>الجهة</th><th>البند</th><th>الأيام</th></tr></thead><tbody>' +
+        (shown.length ? shown.map(rowHtml).join('') : '<tr><td colspan="4" class="empty">لا توجد تنبيهات حالياً ✅</td></tr>') +
+        '</tbody></table></div>';
+      if (limit && !opts.noMore && deduped.length > limit) {
+        html += '<button class="tab" style="width:100%;margin-top:.6rem;color:var(--navy)" id="alerts-showmore">عرض الكل (' + deduped.length + ')</button>';
+      }
+      el.innerHTML = html;
+      const moreBtn = document.getElementById('alerts-showmore');
+      if (moreBtn) moreBtn.addEventListener('click', () => renderAlertsList(el, alertsRaw, {}));
+    }
+
+    function applyPlatformFilter(entityLabel) {
+      activePlatformFilter = entityLabel;
+      const chip = document.getElementById('platform-filter-chip');
+      if (entityLabel) {
+        chip.style.display = 'block';
+        chip.innerHTML = '<div class="filter-chip">مفلتر حسب: ' + entityLabel + ' <button id="clear-filter">✕</button></div>';
+        document.getElementById('clear-filter').addEventListener('click', () => { applyPlatformFilter(null); renderAll(lastData); });
+      } else {
+        chip.style.display = 'none';
+        chip.innerHTML = '';
+      }
+    }
+
+    function renderEntityGrid(platforms) {
+      const grid = document.getElementById('entity-grid');
+      grid.innerHTML = platforms.map(p => {
+        let statusClass = 'nodata', statusText = 'بحاجة بيانات';
+        if (p.red > 0) { statusClass = 'crit'; statusText = p.red + ' حرج'; }
+        else if (p.yellow > 0) { statusClass = 'warn'; statusText = p.yellow + ' تنبيه'; }
+        else if (p.hasData) { statusClass = 'ok'; statusText = 'سليم'; }
+        const badge = ENTITY_BADGES[p.key] || { bg:'#0B1B5A', label: p.label };
+        return '<div class="entity" data-label="' + p.label + '"><div class="badge-logo" style="background:' + badge.bg + '">' + badge.label + '</div>' +
+          '<div class="label">' + p.label + '</div><div class="authority">' + p.authority + '</div>' +
+          '<div class="status ' + statusClass + '">' + statusText + '</div>' +
+          '<div class="api-note">🔌 ربط مباشر قريباً</div></div>';
+      }).join('');
+      grid.querySelectorAll('.entity').forEach(el => el.addEventListener('click', () => {
+        applyPlatformFilter(el.dataset.label);
+        switchTab('alerts');
+        renderAll(lastData);
+      }));
+    }
+
+    function renderAll(data) {
+      if (!data) return;
+      document.getElementById('company-name').textContent = data.company || '—';
+      const ring = document.getElementById('score-ring');
+      const score = typeof data.healthScore === 'number' ? data.healthScore : 0;
+      ring.textContent = score;
+      ring.style.background = score >= 85 ? 'linear-gradient(135deg,#16a34a,#22c55e)' : score >= 65 ? 'linear-gradient(135deg,#0066cc,#3b82f6)' : score >= 40 ? 'linear-gradient(135deg,#d97706,#f59e0b)' : 'linear-gradient(135deg,#dc2626,#ef4444)';
+      document.getElementById('score-band').textContent = 'الحالة: ' + (data.healthBand || '—') + (data.status ? (' · ' + data.status) : '');
+      document.getElementById('last-analysis').textContent = data.lastAnalysis ? ('آخر تحليل: ' + data.lastAnalysis) : '';
+
+      const c = data.counts || {};
+      document.getElementById('cnt-red').textContent = c.red || 0;
+      document.getElementById('cnt-yellow').textContent = c.yellow || 0;
+      document.getElementById('cnt-green').textContent = c.green || 0;
+
+      document.getElementById('qi-employees').textContent = (data.employees ?? '—') + (data.saudis !== null && data.saudis !== undefined ? (' / ' + data.saudis) : '');
+      document.getElementById('qi-cost').textContent = fmtMoney(data.quarterlyCost);
+      document.getElementById('qi-band').textContent = data.band || '—';
+
+      const allAlerts = data.alerts || [];
+      renderAlertsList(document.getElementById('top-alerts'), allAlerts, { limit: 3, noMore: true });
+
+      const filteredAlerts = activePlatformFilter ? allAlerts.filter(a => a.platform === activePlatformFilter) : allAlerts;
+      renderAlertsList(document.getElementById('alerts-list'), filteredAlerts, { limit: 10 });
+
+      const allReg = data.register || [];
+      const filteredReg = activePlatformFilter ? allReg.filter(r => r.platform === activePlatformFilter) : allReg;
+      const regBody = document.getElementById('reg-body');
+      regBody.innerHTML = filteredReg.length ? filteredReg.map(r =>
+        '<tr><td>' + (r.platform || '—') + '</td><td>' + (r.subject || '—') + '</td><td>' + (r.actionType || '—') + '</td><td>' +
+        (r.expiry || '—') + '</td><td>' + dayBadge(r.daysRemaining) + '</td></tr>'
+      ).join('') : '<tr><td colspan="5" class="empty">لا توجد بنود مسجّلة بعد</td></tr>';
+
+      renderEntityGrid(data.platforms || []);
+
+      document.getElementById('cost-q').textContent = fmtMoney(data.quarterlyCost);
+      document.getElementById('cost-a').textContent = fmtMoney(data.annualCost);
+      document.getElementById('emp-info').textContent = (data.employees ?? '—') + ' / ' + (data.saudis ?? '—') + (data.band ? (' (' + data.band + ')') : '');
+    }
+
+    async function loadDashboard(company, code) {
+      const url = API_URL + '?company=' + encodeURIComponent(company) + '&code=' + encodeURIComponent(code);
+      const res = await fetch(url);
+      if (res.status === 401) throw new Error('unauthorized');
+      const data = await res.json();
+      if (!data || data.ok === false) throw new Error(data && data.error || 'error');
+      return data;
+    }
+
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const company = document.getElementById('in-company').value.trim();
+      const code = document.getElementById('in-code').value.trim();
+      if (!company || !code) return;
+      loginBtn.disabled = true; loginBtn.textContent = '...جارٍ الدخول';
+      loginErr.style.display = 'none';
+      loadDashboard(company, code).then(function (data) {
+        localStorage.setItem('bp_portal_company', company);
+        localStorage.setItem('bp_portal_code', code);
+        loginScreen.style.display = 'none';
+        dash.style.display = 'block';
+        lastData = data;
+        renderAll(data);
+      }).catch(function () {
+        loginErr.textContent = 'اسم المنشأة أو رمز الدخول غير صحيح.';
+        loginErr.style.display = 'block';
+      }).finally(function () {
+        loginBtn.disabled = false; loginBtn.textContent = 'دخول';
+      });
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      localStorage.removeItem('bp_portal_company');
+      localStorage.removeItem('bp_portal_code');
+      dash.style.display = 'none';
+      loginScreen.style.display = 'flex';
+    });
+
+    document.getElementById('refresh-btn').addEventListener('click', function () {
+      const company = localStorage.getItem('bp_portal_company');
+      const code = localStorage.getItem('bp_portal_code');
+      if (!company || !code) return;
+      const btn = document.getElementById('refresh-btn');
+      btn.disabled = true; btn.textContent = '...جارٍ التحديث';
+      dashErr.style.display = 'none';
+      loadDashboard(company, code).then(function (data) {
+        lastData = data;
+        renderAll(data);
+      }).catch(function () {
+        dashErr.textContent = 'تعذّر التحديث. حاول مرة أخرى.';
+        dashErr.style.display = 'block';
+      }).finally(function () {
+        btn.disabled = false; btn.textContent = '↻ تحديث الآن';
+      });
+    });
+
+    const chatToggle = document.getElementById('chat-toggle');
+    const chatWrap = document.getElementById('chat-frame-wrap');
+    chatToggle.addEventListener('click', function () {
+      chatWrap.style.display = chatWrap.style.display === 'block' ? 'none' : 'block';
+    });
+
+    (function init() {
+      const c = localStorage.getItem('bp_portal_company');
+      const k = localStorage.getItem('bp_portal_code');
+      if (c && k) {
+        loginScreen.style.display = 'none';
+        dash.style.display = 'block';
+        loadDashboard(c, k).then(function (data) { lastData = data; renderAll(data); }).catch(function () {
+          dashErr.textContent = 'تعذّر تحميل البيانات. جرّب تسجيل الخروج والدخول من جديد.';
+          dashErr.style.display = 'block';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

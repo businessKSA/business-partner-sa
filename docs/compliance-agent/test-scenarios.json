@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "purpose": "QA scenarios for Workflow C (assessment) + rules-engine.json. Each expects specific alerts/risk.",
+  "scenarios": [
+    {
+      "id": "S1-muqeem-expired",
+      "company": { "company_name": "test-muqeem", "has_expats": "Yes" },
+      "register_items": [ { "platform": "Muqeem", "item_type": "iqama", "name": "Ali", "expiry_date": "2026-06-01" } ],
+      "expect": { "rule": "MUQEEM-IQAMA-EXPIRY", "risk": "critical", "human_approval": true }
+    },
+    {
+      "id": "S2-qiwa-issue",
+      "company": { "company_name": "test-qiwa", "has_employees": "Yes" },
+      "register_items": [ { "platform": "Qiwa", "item_type": "work_permit", "name": "Khan", "expiry_date": "2026-07-12" } ],
+      "expect": { "rule": "QIWA-WORKPERMIT-EXPIRY", "risk": "high", "human_approval": true }
+    },
+    {
+      "id": "S3-gosi-mudad-missing",
+      "company": { "company_name": "test-gm", "has_employees": "Yes" },
+      "register_items": [],
+      "uploaded_documents": [],
+      "expect": { "rules": ["MISSING-DOCUMENT", "MUDAD-WPS-STATUS"], "risk": "medium", "human_approval": false, "creates": "Missing Data task" }
+    },
+    {
+      "id": "S4-foreign-investor-misa",
+      "company": { "company_name": "test-misa", "investor_type": "Foreign" },
+      "register_items": [],
+      "expect": { "rule": "MISA-LICENSE", "risk": "high", "human_approval": true }
+    },
+    {
+      "id": "S5-location-balady-salamah-ejar",
+      "company": { "company_name": "test-loc", "has_location": "Yes" },
+      "register_items": [
+        { "platform": "Balady", "item_type": "municipal_license", "expiry_date": "2026-07-20" },
+        { "platform": "Salamah / Civil Defense", "item_type": "civil_defense_certificate", "expiry_date": "2026-08-30" }
+      ],
+      "expect": { "rules": ["BALADY-LICENSE-EXPIRY", "SALAMAH-CIVILDEFENSE", "EJAR-CONTRACT"], "risk": "mixed" }
+    },
+    {
+      "id": "S6-import-products-routing",
+      "company": { "company_name": "test-prod", "has_import_export": "Yes", "has_regulated_products": "Yes", "sector": "food" },
+      "expect": { "rules": ["SABER-SASO-PRODUCTS", "SFDA-REGULATED", "FASAH-IMPORTEXPORT"], "risk": "medium" }
+    },
+    {
+      "id": "S7-incomplete-uploads",
+      "company": { "company_name": "test-incomplete", "has_employees": "Yes", "has_location": "Yes" },
+      "uploaded_documents": [],
+      "expect": { "rule": "MISSING-DOCUMENT", "creates": "Missing Documents list", "health_score_impact": "lowered", "no_false_compliant": true }
+    }
+  ]
+}

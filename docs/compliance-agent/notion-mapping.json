@@ -1,0 +1,104 @@
+{
+  "version": "1.0.0",
+  "control_center_page": "390d108dee5c81da90f7ffc210d547f0",
+  "databases": {
+    "companies": {
+      "action": "extend",
+      "existing_id": "5d570a75009b41019857060d0670642f",
+      "existing_title": "🗂️ BP3 Client Compliance Intake",
+      "existing_fields": ["المنشأة(title)", "الرقم الموحد", "رقم قوى (مكتب العمل)", "رقم مدد", "عدد الموظفين", "عدد السعوديين", "واتساب أو الجوال", "البريد", "المنصات المشترك بها", "النطاق المتوقع", "التكلفة الربعية/السنوية التقديرية", "آخر تحليل", "الحالة", "المصدر", "روابط الملفات المرفقة", "ملخص الوكيل", "تاريخ الاستلام", "عدد البنود المستخرجة"],
+      "add_fields": [
+        { "name": "CR Number / رقم السجل", "type": "text" },
+        { "name": "Entity Type / نوع الكيان", "type": "select" },
+        { "name": "Investor Type / نوع المستثمر", "type": "select", "options": ["Saudi", "Foreign", "Mixed", "Unknown"] },
+        { "name": "Sector / القطاع", "type": "text" },
+        { "name": "Subscription Plan / خطة الاشتراك", "type": "select", "options": ["Trial", "Basic", "Pro", "Enterprise", "None"] },
+        { "name": "Compliance Health Score / درجة الامتثال", "type": "number" },
+        { "name": "Risk Level / مستوى الخطر", "type": "select", "options": ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"] },
+        { "name": "Last Report Date / آخر تقرير", "type": "date" },
+        { "name": "has_employees", "type": "select" },
+        { "name": "has_expats", "type": "select" },
+        { "name": "has_location", "type": "select" },
+        { "name": "has_import_export", "type": "select" },
+        { "name": "has_regulated_products", "type": "select" }
+      ]
+    },
+    "compliance_register": {
+      "action": "reuse",
+      "existing_id": "7258a07449a6444fadc186a61cc3a77e",
+      "existing_title": "🛡️ BP3 Compliance Register"
+    },
+    "alerts_audit_trail": {
+      "action": "reuse",
+      "existing_id": "6879f59096784a2798574c3777882e67",
+      "existing_title": "🚨 BP3 Compliance Alerts — Audit Trail"
+    },
+    "uploaded_documents": {
+      "action": "create",
+      "existing_id": null,
+      "todo": "TODO-NOTION",
+      "title": "📎 BP3 Uploaded Documents",
+      "parent": "390d108dee5c81da90f7ffc210d547f0",
+      "fields": [
+        { "name": "Document Name", "type": "title" },
+        { "name": "Company", "type": "relation -> companies" },
+        { "name": "Document Type", "type": "select", "options": ["CR", "Saudi Business Center", "Qiwa", "Muqeem", "GOSI", "Mudad", "ZATCA/VAT", "Zakat", "Chamber", "National Address", "Balady", "Civil Defense", "Ejar", "MISA", "Other"] },
+        { "name": "Platform", "type": "select" },
+        { "name": "File URL", "type": "url" },
+        { "name": "Extracted Text", "type": "text" },
+        { "name": "Extracted Fields JSON", "type": "text" },
+        { "name": "Confidence Score", "type": "number" },
+        { "name": "Needs Human Review", "type": "checkbox" },
+        { "name": "Uploaded Date", "type": "date" },
+        { "name": "Expiry Date", "type": "date" }
+      ]
+    },
+    "compliance_reports": {
+      "action": "create",
+      "existing_id": null,
+      "todo": "TODO-NOTION",
+      "title": "📊 BP3 Compliance Reports",
+      "parent": "390d108dee5c81da90f7ffc210d547f0",
+      "fields": [
+        { "name": "Report Title", "type": "title" },
+        { "name": "Company", "type": "relation -> companies" },
+        { "name": "Report Period", "type": "select", "options": ["Daily", "Weekly", "Monthly"] },
+        { "name": "Health Score", "type": "number" },
+        { "name": "Critical Count", "type": "number" },
+        { "name": "High Count", "type": "number" },
+        { "name": "Medium Count", "type": "number" },
+        { "name": "Low Count", "type": "number" },
+        { "name": "Summary Arabic", "type": "text" },
+        { "name": "Summary English", "type": "text" },
+        { "name": "Report Link", "type": "url" },
+        { "name": "WhatsApp Sent", "type": "checkbox" },
+        { "name": "Email Sent", "type": "checkbox" },
+        { "name": "Created Date", "type": "date" }
+      ]
+    },
+    "human_approval_matrix": {
+      "action": "create_or_extend_audit_trail",
+      "existing_id": null,
+      "todo": "TODO-NOTION",
+      "title": "✅ BP3 Human Approval Matrix",
+      "parent": "390d108dee5c81da90f7ffc210d547f0",
+      "note": "May be implemented as extra fields on the Audit Trail DB (6879f590...) rather than a separate DB.",
+      "fields": [
+        { "name": "Request Title", "type": "title" },
+        { "name": "Company", "type": "relation -> companies" },
+        { "name": "Action Type", "type": "select", "options": ["Renewal", "Transfer", "Issuance", "Cancellation", "Filing", "Payment", "Data submission", "Other"] },
+        { "name": "Platform", "type": "select" },
+        { "name": "Requested By Agent", "type": "text" },
+        { "name": "Reason", "type": "text" },
+        { "name": "Risk Level", "type": "select" },
+        { "name": "Required Approver", "type": "text" },
+        { "name": "Approval Status", "type": "select", "options": ["Not Required", "Pending Approval", "Approved", "Rejected", "Done"] },
+        { "name": "Approval Timestamp", "type": "date" },
+        { "name": "Payment Required", "type": "checkbox" },
+        { "name": "Payment Status", "type": "select", "options": ["N/A", "Pending", "Paid"] },
+        { "name": "Execution Allowed", "type": "checkbox" },
+        { "name": "Notes", "type": "text" }
+      ]
+    }
+  }
+}

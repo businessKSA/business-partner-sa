@@ -1,0 +1,56 @@
+<!-- Business Partner — Daily Compliance Report (bilingual, RTL-first).
+     Placeholders {{like_this}} are filled by n8n Workflow D before sending.
+     Inline styles only (email-client safe). Brand navy #0B1B5A / accent #C79A3A. -->
+<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;background:#EEF2F5;padding:24px;color:#1F2937;">
+  <div style="max-width:640px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 10px 34px rgba(11,27,90,.10);">
+    <div style="background:#0B1B5A;color:#fff;padding:20px 24px;">
+      <div style="font-size:13px;opacity:.85;">BUSINESS PARTNER · وكيل الامتثال</div>
+      <div style="font-size:20px;font-weight:700;margin-top:4px;">🛡️ تقرير الامتثال اليومي — {{company}}</div>
+      <div style="font-size:13px;opacity:.85;margin-top:4px;">{{date}} · قوى · مقيم · GOSI · مدد · ZATCA · بلدي · المزيد</div>
+    </div>
+
+    <div style="padding:20px 24px;">
+      <div style="display:inline-block;background:#0B1B5A;color:#fff;border-radius:12px;padding:10px 16px;font-weight:700;">
+        درجة الامتثال: {{score}}/100 — {{band_ar}}
+      </div>
+      <div style="margin-top:14px;font-size:15px;">
+        <span style="color:#b91c1c;font-weight:700;">🔴 {{critical}} حرج</span> ·
+        <span style="color:#c2410c;font-weight:700;">🟠 {{high}} عالي</span> ·
+        <span style="color:#a16207;font-weight:700;">🟡 {{medium}} متوسط</span> ·
+        <span style="color:#15803d;font-weight:700;">🟢 {{low}} منخفض</span>
+      </div>
+
+      <h3 style="color:#0B1B5A;margin:20px 0 8px;">🔴 تنبيهات حرجة / Critical</h3>
+      {{critical_rows}}
+
+      <h3 style="color:#0B1B5A;margin:20px 0 8px;">⏳ بنود قريبة الانتهاء / Expiring</h3>
+      {{expiring_rows}}
+
+      <h3 style="color:#0B1B5A;margin:20px 0 8px;">📎 مستندات ناقصة / Missing documents</h3>
+      {{missing_rows}}
+
+      <h3 style="color:#0B1B5A;margin:20px 0 8px;">🏛️ ملخص مخاطر المنصات / Platform risk</h3>
+      {{platform_summary}}
+
+      <h3 style="color:#0B1B5A;margin:20px 0 8px;">✅ إجراءات موصى بها / Recommended actions</h3>
+      {{recommended_actions}}
+
+      <h3 style="color:#0B1B5A;margin:20px 0 8px;">⚖️ تتطلب موافقة / Human approval required</h3>
+      {{approval_items}}
+
+      <div style="background:#F5F3EA;border:1px solid #E4DFC7;border-radius:12px;padding:12px 14px;margin-top:18px;font-size:13px;">
+        ⚖️ جميع البنود مسجّلة في سجل التدقيق بحالة «بانتظار الموافقة». نموذج Concierge — لا يُنفَّذ أي إجراء حكومي/مالي دون موافقتك.
+        <br/>All items are logged as "Pending Approval". Concierge model — nothing is executed without your consent.
+      </div>
+
+      <hr style="border:none;border-top:1px solid #eee;margin:18px 0;"/>
+      <div style="font-size:13px;color:#4b5563;">
+        <strong>EN summary:</strong> {{summary_en}}
+      </div>
+    </div>
+
+    <div style="background:#0B1B5A;color:#cfd6f5;padding:14px 24px;font-size:12px;">
+      Business Partner · businesspartner.sa · التقديرات تخضع للتأكيد من المصادر الرسمية.
+    </div>
+  </div>
+</div>
