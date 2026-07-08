@@ -3783,6 +3783,14 @@ function buildPortal() {
     .muted{color:var(--muted);font-size:.82rem;margin-top:1rem;line-height:1.7}
     .hint-code{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:.55rem .7rem;font-size:.8rem;margin-top:.9rem}
     .linkbtn{background:none;border:0;color:var(--navy);font-weight:700;font-size:.85rem;text-decoration:underline;margin-top:.7rem}
+    .card.wide{max-width:560px}
+    .pickwrap{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+    .pickrow{display:flex;align-items:center;gap:.55rem;border:1.5px solid var(--line);border-radius:11px;padding:.55rem .75rem;font-size:.85rem;cursor:pointer;text-align:right}
+    .pickrow:hover{border-color:var(--navy)}
+    .pickrow input{width:auto;margin:0}
+    .pickrow .e{font-size:1.1rem}
+    .pickrow b{color:var(--navy)}
+    .pickrow .r{color:var(--muted);margin-inline-start:auto;font-size:.78rem}
     .ws{max-width:1050px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
     .ws h2{color:var(--navy);font-size:1.25rem;margin-bottom:.2rem}
     .ws .lead{color:var(--muted);font-size:.9rem;margin-bottom:1.1rem}
@@ -3876,15 +3884,17 @@ function buildPortal() {
     </div>
   </div>
   <div class="center" id="screen-gate" style="display:none">
-    <div class="card">
+    <div class="card wide">
       <h1>فعّل اشتراكك</h1>
-      <p class="sub">موظفوك الأذكياء يعملون بعد تفعيل الاشتراك.</p>
+      <p class="sub">اختر الموظفين اللي تبي تشترك فيهم، ثم فعّل بكود الاشتراك.</p>
+      <div class="pickwrap" id="pickwrap"></div>
       <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="ادخل كود الاشتراك" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn green" id="codeBtn">تفعيل</button>
       <div class="err" id="codeErr"></div>
-      <div class="hint-code">💡 بعد الدفع نعطيك كود التفعيل. للتجربة الآن استخدم الكود: <b>BP-DEMO</b></div>
-      <button class="linkbtn" id="payBtn">🧪 محاكاة دفع وتفعيل فوري (تجريبي)</button>
-      <p class="muted">في النسخة النهائية: بوابة دفع فعلية + اشتراك شهري، والكود يصدر تلقائياً بعد الدفع.</p>
+      <div class="hint-code">💡 بعد الدفع نرسل لك كود تفعيل يفتح فقط الموظفين اللي اشتركت فيهم. للتجربة العامة استخدم الكود: <b>BP-DEMO</b> (يفتح كل الموظفين — للتجربة فقط).</div>
+      <button class="bigbtn" id="orderBtn" style="background:#25D366">🧾 اطلب الاشتراك على واتساب</button>
+      <button class="linkbtn" id="payBtn">🧪 محاكاة دفع للمحدد أعلاه (تجريبي)</button>
+      <p class="muted">في النسخة النهائية: بوابة دفع فعلية + اشتراك شهري، ويصدر الكود تلقائياً حسب الموظفين اللي دفعت عليهم.</p>
     </div>
   </div>
   <div id="screen-ws" style="display:none">
@@ -3975,8 +3985,12 @@ function buildPortal() {
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
-    var CODES=['BP-DEMO','BP2026'];
-    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub'};
+    // Codes map to the exact agents they unlock. 'ALL' = every agent (demo/testing only).
+    // Real client codes are issued manually after payment is confirmed in the CRM —
+    // add one line here per client, e.g. 'BP-7K21':['badr','mazen'].
+    var CODES={'BP-DEMO':'ALL','BP2026':'ALL'};
+    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents'};
+    var CHAT_PREFIX='bp_portal_chat_';
     function $(id){return document.getElementById(id);}
     function show(id){['screen-login','screen-gate','screen-ws'].forEach(function(s){$(s).style.display=(s===id)?'':'none';});}
     var email=localStorage.getItem(LS.email)||'';
@@ -3989,7 +4003,7 @@ function buildPortal() {
     function route(){
       if(!email){ show('screen-login'); $('who').textContent=''; $('logout').style.display='none'; return; }
       $('who').textContent=email; $('logout').style.display='';
-      if(!subbed){ show('screen-gate'); return; }
+      if(!subbed){ show('screen-gate'); buildPicker(); return; }
       show('screen-ws'); buildAgents();
     }
     $('loginBtn').onclick=function(){
@@ -4000,29 +4014,73 @@ function buildPortal() {
       route();
     };
     $('email').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
+    function buildPicker(){
+      var box=$('pickwrap'); if(box.dataset.done) return; box.dataset.done='1';
+      AGENTS.forEach(function(a){
+        var lb=document.createElement('label'); lb.className='pickrow';
+        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>';
+        box.appendChild(lb);
+      });
+    }
+    function pickedSlugs(){
+      var boxes=document.querySelectorAll('#pickwrap input[type=checkbox]:checked');
+      var out=[]; for(var i=0;i<boxes.length;i++) out.push(boxes[i].value);
+      return out;
+    }
+    function unlock(slugs){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs)); route(); }
     $('codeBtn').onclick=function(){
       var c=($('code').value||'').trim().toUpperCase();
-      if(CODES.indexOf(c)>=0){ subbed=true; localStorage.setItem(LS.sub,'1'); route(); }
-      else $('codeErr').textContent='كود غير صحيح. تأكد من الكود أو استخدم زر المحاكاة.';
+      var slugs=CODES[c];
+      if(slugs){ unlock(slugs); }
+      else $('codeErr').textContent='كود غير صحيح. تأكد من الكود أو اختر موظفيك واطلب الاشتراك.';
     };
     $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('codeBtn').click();});
-    $('payBtn').onclick=function(){ subbed=true; localStorage.setItem(LS.sub,'1'); route(); };
+    $('payBtn').onclick=function(){
+      var slugs=pickedSlugs();
+      if(!slugs.length){ $('codeErr').textContent='اختر موظفاً واحداً على الأقل قبل المحاكاة.'; return; }
+      unlock(slugs);
+    };
+    $('orderBtn').onclick=function(){
+      var slugs=pickedSlugs();
+      var names=AGENTS.filter(function(a){return slugs.indexOf(a.slug)>=0;}).map(function(a){return a.name+' ('+a.role+')';});
+      if(!names.length){ $('codeErr').textContent='اختر موظفاً واحداً على الأقل قبل الطلب.'; return; }
+      var msg='مرحباً، أبي أشترك في بوابة الموظفين الأذكياء.\\nالبريد: '+email+'\\nالموظفون المطلوبون:\\n- '+names.join('\\n- ');
+      window.open('https://wa.me/966507034157?text='+encodeURIComponent(msg),'_blank','noopener');
+    };
     $('logout').onclick=function(){ localStorage.removeItem(LS.email); email=''; route(); };
+    function entitledSlugs(){
+      var raw=localStorage.getItem(LS.agents);
+      if(!raw) return [];
+      try{ return JSON.parse(raw); }catch(e){ return []; }
+    }
     function buildAgents(){
-      var box=$('agents'); if(box.dataset.done) return; box.dataset.done='1';
-      AGENTS.forEach(function(a){
+      var box=$('agents'); box.innerHTML='';
+      var ent=entitledSlugs();
+      var list=(ent==='ALL')?AGENTS:AGENTS.filter(function(a){return ent.indexOf(a.slug)>=0;});
+      if(!list.length){ box.innerHTML='<p class="muted">لا يوجد موظفون مفعّلون على هذا الكود.</p>'; return; }
+      list.forEach(function(a){
         var el=document.createElement('div'); el.className='ag'; el.dataset.slug=a.slug;
         el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
         el.onclick=function(){ selectAgent(a,el); };
         box.appendChild(el);
       });
     }
+    function loadChat(slug){ try{ return JSON.parse(localStorage.getItem(CHAT_PREFIX+slug)||'[]'); }catch(e){ return []; } }
+    function saveChat(slug,hist){ try{ localStorage.setItem(CHAT_PREFIX+slug,JSON.stringify(hist.slice(-80))); }catch(e){} }
+    var chatHist=[];
+    function renderChat(){
+      var c=$('chat'); c.innerHTML='';
+      if(!chatHist.length){ c.innerHTML='<div class="msg empty">ابدأ محادثتك مع '+cur.name+' 👋</div>'; return; }
+      chatHist.forEach(function(m){ var d=document.createElement('div'); d.className='msg '+m.cls; d.textContent=m.text; c.appendChild(d); });
+      c.scrollTop=c.scrollHeight;
+    }
     function selectAgent(a,el){
       cur=a;
       var chips=document.querySelectorAll('.ag'); for(var i=0;i<chips.length;i++) chips[i].classList.remove('sel');
       el.classList.add('sel');
       $('ph-e').textContent=a.e; $('ph-n').textContent=a.name; $('ph-r').textContent=a.role;
-      $('chat').innerHTML='<div class="msg empty">ابدأ محادثتك مع '+a.name+' 👋</div>';
+      chatHist=loadChat(a.slug);
+      renderChat();
       $('msg').disabled=false; $('send').disabled=false; $('msg').focus();
     }
     function push(text,cls){
@@ -4032,13 +4090,15 @@ function buildPortal() {
     function send(){
       if(!cur) return;
       var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
+      var agentAtSend=cur, histRef=chatHist;
       inp.value=''; push(m,'me');
+      histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
       var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
       var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},60000);
-      fetch(N8N_BASE+'/'+cur.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m}),signal:ctrl.signal})
+      fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m}),signal:ctrl.signal})
         .then(function(r){return r.text();})
-        .then(function(t){ clearTimeout(timer); var d={}; try{d=JSON.parse(t);}catch(e){d={reply:t};} think.textContent=d.reply||'لا يوجد رد.'; })
-        .catch(function(e){ clearTimeout(timer); think.textContent=(e&&e.name==='AbortError')?'انتهت المهلة — حاول مرة أخرى.':'تعذّر الاتصال مؤقتاً — حاول مرة أخرى.'; })
+        .then(function(t){ clearTimeout(timer); var d={}; try{d=JSON.parse(t);}catch(e){d={reply:t};} var reply=d.reply||'لا يوجد رد.'; think.textContent=reply; histRef.push({text:reply,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
+        .catch(function(e){ clearTimeout(timer); var msg=(e&&e.name==='AbortError')?'انتهت المهلة — حاول مرة أخرى.':'تعذّر الاتصال مؤقتاً — حاول مرة أخرى.'; think.textContent=msg; histRef.push({text:msg,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
         .then(function(){ btn.disabled=false; });
     }
     $('send').onclick=send;
