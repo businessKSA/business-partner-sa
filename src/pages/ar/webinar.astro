@@ -1,0 +1,206 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CallFab from '../../components/CallFab.astro';
+import WebinarRegisterForm from '../../components/webinar/WebinarRegisterForm.astro';
+import SocialShare from '../../components/webinar/SocialShare.astro';
+import { pickT } from '../../utils/i18n';
+
+export const prerender = true;
+
+const locale = 'ar' as const;
+const pageUrl = 'https://businesspartner.sa/ar/webinar';
+const pageTitle = 'احصل على أول عميل لك في أتمتة الأعمال بالذكاء الاصطناعي خلال 30 يوماً';
+
+const t = {
+  ...pickT(locale),
+  meta: {
+    title: `${pageTitle} | شريك الأعمال`,
+    description:
+      'ويبنار مجاني عبر الإنترنت لكل الأفراد السعوديين والمقيمين في المملكة الراغبين في بناء دخل إضافي من خدمات أتمتة الأعمال بالذكاء الاصطناعي. سجّل الآن.',
+  },
+};
+---
+
+<BaseLayout lang={locale} t={t}>
+  <Header lang={locale} t={t} />
+
+  <main class="webinar-page">
+    <!-- HERO -->
+    <section class="webinar-hero">
+      <div class="container">
+        <span class="badge">ويبنار مجاني مباشر</span>
+        <h1>{pageTitle}</h1>
+        <p class="subtitle">
+          مخصص لكل الأفراد <strong>السعوديين والمقيمين</strong> في المملكة الراغبين في بناء دخل إضافي
+          عبر تقديم خدمات أتمتة الأعمال بالذكاء الاصطناعي للشركات المحلية — بدون خبرة برمجية سابقة.
+        </p>
+
+        <div class="event-meta">
+          <div class="meta-item">
+            <span class="meta-label">📅 التاريخ</span>
+            <span class="meta-value">الأحد، 26 يوليو 2026</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">🕖 الوقت</span>
+            <span class="meta-value">7:00 مساءً (بتوقيت الرياض)</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">💻 المنصة</span>
+            <span class="meta-value">مباشر عبر Zoom</span>
+          </div>
+        </div>
+
+        <a href="#register" class="btn btn-primary hero-cta">سجّل مقعدك مجاناً الآن</a>
+      </div>
+    </section>
+
+    <!-- WHO IS THIS FOR -->
+    <section class="section audience">
+      <div class="container">
+        <h2>هل هذا الويبنار لك؟</h2>
+        <div class="grid grid-3">
+          <div class="card">
+            <h3>🇸🇦 مواطن سعودي</h3>
+            <p>تبحث عن مصدر دخل إضافي أو مشروع جانبي مرن يعمل معك أينما كنت.</p>
+          </div>
+          <div class="card">
+            <h3>🏠 مقيم في المملكة</h3>
+            <p>لديك خبرة أو اهتمام بالتقنية وترغب في تقديم خدمات لعملاء محليين.</p>
+          </div>
+          <div class="card">
+            <h3>💼 موظف أو صاحب عمل حر</h3>
+            <p>تريد تعلم مهارة عملية قابلة للتسويق دون التفرغ الكامل عن عملك الحالي.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT YOU'LL LEARN -->
+    <section class="section agenda">
+      <div class="container">
+        <h2>ماذا ستتعلم خلال الويبنار؟</h2>
+        <ul class="agenda-list">
+          <li>✅ كيف تحدد فرص أتمتة حقيقية داخل الشركات الصغيرة والمتوسطة</li>
+          <li>✅ الأدوات الأساسية لبناء أول حل أتمتة بدون خبرة برمجية معقدة</li>
+          <li>✅ كيفية عرض خدماتك والتسعير للحصول على أول عميل خلال 30 يوماً</li>
+          <li>✅ أمثلة حقيقية من السوق السعودي</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- REGISTRATION -->
+    <section id="register" class="section register">
+      <div class="container">
+        <h2>سجّل مقعدك المجاني</h2>
+        <p class="register-subtitle">المقاعد محدودة — التسجيل مجاني بالكامل.</p>
+        <WebinarRegisterForm lang={locale} />
+        <SocialShare lang={locale} url={pageUrl} title={pageTitle} />
+      </div>
+    </section>
+  </main>
+
+  <CallFab />
+  <Footer lang={locale} t={t} />
+</BaseLayout>
+
+<style>
+  .webinar-hero {
+    background: var(--gradient, linear-gradient(135deg, #1e293b 0%, #334155 100%));
+    color: white;
+    padding: 5rem 0 4rem;
+    text-align: center;
+  }
+
+  .webinar-hero .badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .webinar-hero h1 {
+    font-size: 2.5rem;
+    max-width: 900px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .webinar-hero .subtitle {
+    max-width: 700px;
+    margin: 0 auto 2.5rem;
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.8;
+  }
+
+  .event-meta {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .meta-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    min-width: 180px;
+  }
+
+  .meta-label {
+    display: block;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.25rem;
+  }
+
+  .meta-value {
+    display: block;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .hero-cta {
+    font-size: 1.15rem;
+    padding: 1rem 2.5rem;
+  }
+
+  .audience h2,
+  .agenda h2,
+  .register h2 {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .agenda-list {
+    max-width: 700px;
+    margin: 0 auto;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .register {
+    background: var(--surface, #f8fafc);
+  }
+
+  .register-subtitle {
+    text-align: center;
+    color: var(--muted, #64748b);
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 640px) {
+    .webinar-hero h1 {
+      font-size: 1.9rem;
+    }
+  }
+</style>
