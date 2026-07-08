@@ -418,6 +418,7 @@ var BP = window.BP = window.BP || {};
         if (av) av.textContent = (nm || "BP").trim().slice(0, 2).toUpperCase();
         renderOrders();
         renderCompany();
+        syncLiveOrderStatuses();
       } else { auth.hidden = false; dash.hidden = true; }
     }
 
@@ -468,14 +469,48 @@ var BP = window.BP = window.BP || {};
     function esc2(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
     function ordersData() { try { return JSON.parse(localStorage.getItem("bp_orders") || "[]"); } catch (e) { return []; } }
     function isDone(st) { return /done|complete|منته|مكتمل|مُنجز/i.test(st || ""); }
+    function isCancelled(st) { return /cancel|ملغ/i.test(st || ""); }
+
+    // Live status (set by the ops team in Notion after confirming payment).
+    var LIVE_STATUS_LABEL = {
+      "قيد المراجعة": ["Under review", "قيد المراجعة"],
+      "بانتظار الدفع": ["Awaiting payment", "بانتظار الدفع"],
+      "مؤكد - قيد التنفيذ": ["Confirmed — in progress", "مؤكد - قيد التنفيذ"],
+      "مكتمل": ["Completed", "مكتمل"],
+      "ملغي": ["Cancelled", "ملغي"],
+    };
+    function syncLiveOrderStatuses() {
+      var orders = ordersData();
+      var refs = orders.map(function (o) { return o.ref; }).filter(Boolean);
+      if (!refs.length) return;
+      fetch("/api/order-status?refs=" + encodeURIComponent(refs.join(",")))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok || !d.statuses) return;
+          var changed = false;
+          orders.forEach(function (o) {
+            var live = d.statuses[o.ref];
+            var label = live && LIVE_STATUS_LABEL[live];
+            var text = label ? BP.t(label[0], label[1]) : null;
+            if (text && text !== o.status) { o.status = text; changed = true; }
+          });
+          if (changed) {
+            try { localStorage.setItem("bp_orders", JSON.stringify(orders)); } catch (e) {}
+            renderOrders();
+          }
+        })
+        .catch(function () {});
+    }
 
     function orderCard(o) {
       var items = (o.items || []).map(function (i) { return esc2(i.name) + " ×" + (i.qty || 1); }).join("، ");
       var done = isDone(o.status);
+      var cancelled = isCancelled(o.status);
+      var cls = cancelled ? "off" : (done ? "ok" : "wait");
       return '<div class="ord"><div class="ord-main"><strong>' + esc2(o.ref) + '</strong>' +
         '<span class="text-soft"> · ' + esc2(o.at || "") + '</span>' +
         '<div class="text-soft ord-items">' + items + '</div></div>' +
-        '<span class="ord-status ' + (done ? "ok" : "wait") + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span></div>';
+        '<span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span></div>';
     }
 
     function renderOrders() {

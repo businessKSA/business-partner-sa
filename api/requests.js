@@ -24,7 +24,7 @@ async function forwardLead(payload) {
   try { await fetch(LEAD_WEBHOOK, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); } catch {}
 }
 
-async function crmLead({ title, phone, email, notes, ref }) {
+async function crmLead({ title, phone, email, notes, ref, orderStatus }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const props = {
@@ -34,7 +34,9 @@ async function crmLead({ title, phone, email, notes, ref }) {
     "Human Required": { checkbox: true },
     "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
+    "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
+  if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
   try {
     const r = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
@@ -110,10 +112,10 @@ export default async function handler(req, res) {
     const items = (Array.isArray(b.items) ? b.items.map((x) => (typeof x === "string" ? x : (x && x.name) || "")).filter(Boolean) : [String(b.items || "")]).join("، ").slice(0, 900);
     const total = String(b.total || "").slice(0, 40);
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table></div>`;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>بعد تأكيد الدفع: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة" }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);

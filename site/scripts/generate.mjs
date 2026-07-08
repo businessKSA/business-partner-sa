@@ -2697,7 +2697,7 @@ function buildAccount() {
           </div>
         </div>
 
-        <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L("This dashboard runs on this device for now. Secure cloud accounts (CRM + verified login) are being connected — your data will sync automatically.", "تعمل هذه اللوحة على جهازك حالياً. يجري ربط الحسابات السحابية الآمنة (CRM + دخول موثّق) وستتم مزامنة بياناتك تلقائياً.")}</p></div>
+        <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L("Sign-in still lives on this device, but each order's status now syncs live from our team once payment is confirmed.", "الدخول للحساب لا يزال محفوظاً على جهازك، لكن حالة كل طلب تتزامن الآن مباشرة من فريقنا فور تأكيد الدفع.")}</p></div>
       </div>
     </div>
   </div></section>`;

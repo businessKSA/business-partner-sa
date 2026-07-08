@@ -542,6 +542,7 @@ p { color: var(--text-soft); }
 .ord-status { font-size: .82rem; padding: 3px 10px; border-radius: 999px; height: fit-content; white-space: nowrap; font-weight: 600; }
 .ord-status.wait { background: #fff4e0; color: #9a6a08; }
 .ord-status.ok { background: #eaf7ef; color: #14663a; }
+.ord-status.off { background: #fbe8e8; color: #9a1c1c; }
 .upl { padding: 8px 0; border-bottom: 1px dashed var(--gray-line); font-size: .92rem; }
 
 /* Client dashboard (etmaam-style) */
