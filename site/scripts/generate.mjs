@@ -885,15 +885,20 @@ function buildAiAgents() {
     )
     .join("");
   const cards = a.agents
-    .map(
-      (g) => `<div class="pkg${g.highlight ? " pop" : ""}">
-      <div class="pk-name">${L(g.nameEn || g.name, g.name)}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
+    .map((g) => {
+      const name = L(g.nameEn || g.name, g.name);
+      const nameHtml = g.link ? `<a href="${u(g.link)}" style="color:inherit;text-decoration:none">${name}</a>` : name;
+      const btns = cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
+      const tryBtn = g.link ? `<a href="${u(g.link)}" class="btn btn-ghost">${L("🚀 Try the service now", "🚀 جرّب الخدمة الآن")}</a>` : "";
+      const btnsWithTry = tryBtn ? btns.replace('<div class="buy-row">', `<div class="buy-row">${tryBtn}`) : btns;
+      return `<div class="pkg${g.highlight ? " pop" : ""}">
+      <div class="pk-name">${nameHtml}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
       <div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>
       <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
       <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
-      ${cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight })}
-    </div>`
-    )
+      ${btnsWithTry}
+    </div>`;
+    })
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
