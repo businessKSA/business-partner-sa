@@ -20,7 +20,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     body{ padding-top:0; background:#eef1f7; min-height:100vh; }
     .wrap{ max-width:1080px; margin-inline:auto; padding:1.2rem; }
     /* ---- login ---- */
-    #login-screen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; background:linear-gradient(150deg,#0B1B5A 0%,#12307f 60%,#0066cc 130%); }
+    #login-screen, #locked-screen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; background:linear-gradient(150deg,#0B1B5A 0%,#12307f 60%,#0066cc 130%); }
     .login-card{ background:#fff; border-radius:20px; padding:2rem; width:100%; max-width:400px; box-shadow:0 20px 50px rgba(0,0,0,.25); }
     .login-card img{ height:36px; margin-bottom:.6rem; }
     .login-card h1{ font-size:1.35rem; color:var(--navy); margin-bottom:.3rem; }
@@ -137,6 +137,18 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       <div class="login-err" id="login-err"></div>
       <div class="hint">ما عندك رمز دخول؟ تواصل معنا واتساب لتفعيل اشتراكك.</div>
     </form>
+  </div>
+
+  <div id="locked-screen" style="display:none">
+    <div class="login-card" style="max-width:440px">
+      <img src="/logo.svg" alt="" />
+      <h1>🔒 أكمل الدفع لتفعيل الخدمة</h1>
+      <p id="locked-company-name" style="font-weight:700;color:var(--navy)"></p>
+      <p>سجّلنا بيانات منشأتك بنجاح، لكن لوحة الامتثال تُفتح فور تأكيد الدفع. أكمل الاشتراك وستُفعَّل الخدمة تلقائياً خلال دقائق.</p>
+      <a class="btn btn-navy btn-block" id="locked-pay-btn" href="https://new.businesspartner.sa/ar/compliance-portal" target="_blank" rel="noopener">إكمال الدفع الآن</a>
+      <button type="button" class="btn btn-ghost-light" style="width:100%;margin-top:.6rem;background:#eef2fb;color:var(--navy);border-color:#dbe4f5" id="locked-logout-btn">تسجيل خروج</button>
+      <div class="hint">بعد تأكيد الدفع تصلك رسالة بريد بأن الخدمة فُتحت — سجّل الدخول من جديد بنفس الرمز.</div>
+    </div>
   </div>
 
   <div id="dash">
@@ -269,6 +281,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     };
 
     const loginScreen = document.getElementById('login-screen');
+    const lockedScreen = document.getElementById('locked-screen');
     const dash = document.getElementById('dash');
     const loginForm = document.getElementById('login-form');
     const loginErr = document.getElementById('login-err');
@@ -432,6 +445,18 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       return data;
     }
 
+    function showApp(company, data) {
+      loginScreen.style.display = 'none';
+      if (data.locked) {
+        lockedScreen.style.display = 'flex';
+        dash.style.display = 'none';
+        document.getElementById('locked-company-name').textContent = company;
+      } else {
+        lockedScreen.style.display = 'none';
+        dash.style.display = 'block';
+      }
+    }
+
     loginForm.addEventListener('submit', function (e) {
       e.preventDefault();
       const company = document.getElementById('in-company').value.trim();
@@ -442,10 +467,9 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       loadDashboard(company, code).then(function (data) {
         localStorage.setItem('bp_portal_company', company);
         localStorage.setItem('bp_portal_code', code);
-        loginScreen.style.display = 'none';
-        dash.style.display = 'block';
         lastData = data;
-        renderAll(data);
+        showApp(company, data);
+        if (!data.locked) renderAll(data);
       }).catch(function () {
         loginErr.textContent = 'اسم المنشأة أو رمز الدخول غير صحيح.';
         loginErr.style.display = 'block';
@@ -454,12 +478,15 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       });
     });
 
-    document.getElementById('logout-btn').addEventListener('click', function () {
+    function doLogout() {
       localStorage.removeItem('bp_portal_company');
       localStorage.removeItem('bp_portal_code');
       dash.style.display = 'none';
+      lockedScreen.style.display = 'none';
       loginScreen.style.display = 'flex';
-    });
+    }
+    document.getElementById('logout-btn').addEventListener('click', doLogout);
+    document.getElementById('locked-logout-btn').addEventListener('click', doLogout);
 
     document.getElementById('refresh-btn').addEventListener('click', function () {
       const company = localStorage.getItem('bp_portal_company');
@@ -490,10 +517,14 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       const k = localStorage.getItem('bp_portal_code');
       if (c && k) {
         loginScreen.style.display = 'none';
-        dash.style.display = 'block';
-        loadDashboard(c, k).then(function (data) { lastData = data; renderAll(data); }).catch(function () {
-          dashErr.textContent = 'تعذّر تحميل البيانات. جرّب تسجيل الخروج والدخول من جديد.';
-          dashErr.style.display = 'block';
+        loadDashboard(c, k).then(function (data) {
+          lastData = data;
+          showApp(c, data);
+          if (!data.locked) renderAll(data);
+        }).catch(function () {
+          doLogout();
+          loginErr.textContent = 'تعذّر تحميل البيانات. سجّل الدخول من جديد.';
+          loginErr.style.display = 'block';
         });
       }
     })();
