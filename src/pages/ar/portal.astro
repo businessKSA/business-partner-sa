@@ -98,8 +98,8 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     .alert-row:last-child{ border-bottom:0; }
     .dot{ width:10px; height:10px; border-radius:50%; margin-top:.4rem; flex-shrink:0; }
     .dot.red{ background:var(--red); } .dot.yellow{ background:var(--yellow); } .dot.green{ background:var(--green); }
-    .alert-row .t{ font-weight:700; color:#222; font-size:.92rem; }
-    .alert-row .m{ color:#667; font-size:.82rem; margin-top:.15rem; }
+    .alert-row .t{ font-weight:700; color:#222; font-size:.92rem; overflow-wrap:anywhere; }
+    .alert-row .m{ color:#667; font-size:.82rem; margin-top:.15rem; overflow-wrap:anywhere; }
     table.reg{ width:100%; border-collapse:collapse; font-size:.88rem; }
     table.reg th{ text-align:right; color:#667; font-weight:600; padding:.5rem .4rem; border-bottom:2px solid #eef1f6; font-size:.78rem; }
     table.reg td{ padding:.6rem .4rem; border-bottom:1px solid #f1f3f8; }
@@ -276,6 +276,31 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       return '<span class="badge dok">' + d + ' يوم</span>';
     }
     function fmtMoney(n){ return (typeof n === 'number') ? n.toLocaleString('ar-SA') + ' ريال' : '—'; }
+    function shortText(s, n) { s = (s || '').trim(); return s.length > n ? s.slice(0, n).trim() + '…' : s; }
+    // Alert titles/actions from Notion sometimes carry a full narrative sentence
+    // (legacy fallback text) instead of a short label — clean + dedupe for display.
+    function cleanTitle(t) {
+      t = (t || '').trim();
+      const cut = t.search(/[:.]|\s-\s/);
+      if (cut > 8 && cut < 70) t = t.slice(0, cut);
+      return shortText(t, 90);
+    }
+    function dedupeAlerts(alerts) {
+      const groups = {};
+      const order = [];
+      alerts.forEach(a => {
+        const key = (a.platform || '') + '|' + cleanTitle(a.title).replace(/[-−]?\s*\d+\s*يوم/g, '').trim();
+        if (!groups[key]) { groups[key] = { ...a, count: 1 }; order.push(key); }
+        else {
+          groups[key].count++;
+          const curDays = groups[key].daysRemaining, newDays = a.daysRemaining;
+          if (newDays !== null && newDays !== undefined && (curDays === null || curDays === undefined || newDays < curDays)) {
+            groups[key].daysRemaining = newDays; groups[key].expiry = a.expiry;
+          }
+        }
+      });
+      return order.map(k => groups[k]);
+    }
 
     function switchTab(name) {
       document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
@@ -283,12 +308,25 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     }
     document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
 
-    function renderAlertsList(el, alerts) {
-      el.innerHTML = alerts.length ? alerts.map(a =>
-        '<div class="alert-row"><div class="dot ' + riskDot(a.risk) + '"></div><div><div class="t">' + (a.title || '') + '</div><div class="m">' +
-        (a.platform || '') + (a.daysRemaining !== null && a.daysRemaining !== undefined ? ' · ' + a.daysRemaining + ' يوم متبقٍ' : '') +
-        (a.action ? (' · ' + a.action) : '') + (a.approval ? (' · ' + a.approval) : '') + '</div></div></div>'
-      ).join('') : '<div class="empty">لا توجد تنبيهات حالياً ✅</div>';
+    function renderAlertsList(el, alertsRaw, opts) {
+      opts = opts || {};
+      const limit = opts.limit || 0;
+      const deduped = dedupeAlerts(alertsRaw || []);
+      const shown = limit ? deduped.slice(0, limit) : deduped;
+      const rowHtml = (a) => {
+        const days = (a.daysRemaining !== null && a.daysRemaining !== undefined)
+          ? (a.daysRemaining <= 0 ? 'منتهي' : a.daysRemaining + ' يوم متبقٍ') : '';
+        const countBadge = a.count > 1 ? (' <span class="badge d7">×' + a.count + '</span>') : '';
+        return '<div class="alert-row"><div class="dot ' + riskDot(a.risk) + '"></div><div style="min-width:0"><div class="t">' + cleanTitle(a.title) + countBadge + '</div><div class="m">' +
+          [a.platform, days, shortText(a.action, 70)].filter(Boolean).join(' · ') + '</div></div></div>';
+      };
+      let html = shown.length ? shown.map(rowHtml).join('') : '<div class="empty">لا توجد تنبيهات حالياً ✅</div>';
+      if (limit && !opts.noMore && deduped.length > limit) {
+        html += '<button class="tab" style="width:100%;margin-top:.6rem;color:var(--navy)" id="alerts-showmore">عرض الكل (' + deduped.length + ')</button>';
+      }
+      el.innerHTML = html;
+      const moreBtn = document.getElementById('alerts-showmore');
+      if (moreBtn) moreBtn.addEventListener('click', () => renderAlertsList(el, alertsRaw, {}));
     }
 
     function applyPlatformFilter(entityLabel) {
@@ -344,10 +382,10 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       document.getElementById('qi-band').textContent = data.band || '—';
 
       const allAlerts = data.alerts || [];
-      renderAlertsList(document.getElementById('top-alerts'), allAlerts.slice(0, 3));
+      renderAlertsList(document.getElementById('top-alerts'), allAlerts, { limit: 3, noMore: true });
 
       const filteredAlerts = activePlatformFilter ? allAlerts.filter(a => a.platform === activePlatformFilter) : allAlerts;
-      renderAlertsList(document.getElementById('alerts-list'), filteredAlerts);
+      renderAlertsList(document.getElementById('alerts-list'), filteredAlerts, { limit: 10 });
 
       const allReg = data.register || [];
       const filteredReg = activePlatformFilter ? allReg.filter(r => r.platform === activePlatformFilter) : allReg;
