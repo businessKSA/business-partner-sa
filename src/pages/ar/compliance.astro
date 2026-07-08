@@ -1,0 +1,187 @@
+---
+import '../../styles/global.css';
+export const prerender = true;
+const INTAKE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web';
+const WHATSAPP = 'https://wa.me/966503793356';
+const platforms = ['قوى','مقيم','GOSI','مدد','نطاقات','السجل التجاري','المركز السعودي للأعمال','ZATCA','الغرفة التجارية','العنوان الوطني','بلدي','الدفاع المدني','إيجار','MISA'];
+const steps = [
+  ['1','تشترك وترفع ملفاتك','السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.'],
+  ['2','الوكيل يقرأ ويحلّل','يستخرج التواريخ والأرقام والحالات تلقائياً ويبني سجل امتثال لمنشأتك.'],
+  ['3','مراقبة يومية','يحسب الأيام والمخاطر، وينبّهك قبل أي انتهاء أو مخالفة عبر واتساب وإيميل.'],
+  ['4','كل إجراء بموافقتك','يجهّز التجديد/الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك.'],
+];
+---
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>وكيل الامتثال التشغيلي | شريك الأعمال — فريق امتثال يتابع منشأتك يومياً</title>
+  <meta name="description" content="اشترك واحصل على فريق امتثال وتشغيل حكومي يتابع شركتك يومياً، ينبّهك قبل المخالفات والانتهاءات، ويرتب لك كل إجراء بموافقتك — قوى، مقيم، التأمينات، مدد، النطاقات، الرخص والشهادات." />
+  <link rel="canonical" href="https://businesspartner.sa/ar/compliance" />
+  <meta property="og:title" content="وكيل الامتثال التشغيلي من شريك الأعمال" />
+  <meta property="og:description" content="فريق امتثال افتراضي يراقب منشأتك يومياً وينبّهك قبل المخالفات." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://businesspartner.sa/logo.svg" />
+  <meta property="og:locale" content="ar_SA" />
+  <style>
+    :root{ --navy:#0B1B5A; --brand:#0066cc; --gold:#C79A3A; }
+    body{ padding-top:0; background:#f5f7fb; }
+    .wrap{ max-width:1080px; margin-inline:auto; padding-inline:1.1rem; }
+    a{ text-decoration:none; }
+    .hero{ background:linear-gradient(150deg,#0B1B5A 0%,#12307f 55%,#0066cc 130%); color:#fff; padding:3.4rem 0 3.6rem; }
+    .hero .wrap{ display:flex; flex-direction:column; gap:1.1rem; }
+    .brandrow{ display:flex; align-items:center; gap:.6rem; opacity:.95; }
+    .brandrow img{ height:34px; }
+    .brandrow span{ font-weight:700; letter-spacing:.3px; }
+    .hero h1{ font-size:2.35rem; line-height:1.25; max-width:22ch; }
+    .hero p.lead{ font-size:1.16rem; max-width:60ch; color:#e7ecfb; }
+    .cta{ display:flex; gap:.7rem; flex-wrap:wrap; margin-top:.4rem; }
+    .btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.85rem 1.4rem; border-radius:12px; font-weight:700; font-size:1rem; cursor:pointer; border:0; }
+    .btn-gold{ background:var(--gold); color:#221a00; }
+    .btn-ghost{ background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.35); }
+    .btn-navy{ background:var(--navy); color:#fff; width:100%; justify-content:center; font-size:1.05rem; padding:1rem; }
+    .btn-wa{ background:#25D366; color:#0a2e14; }
+    .chips{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.6rem; }
+    .chip{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); color:#eaf0ff; padding:.32rem .7rem; border-radius:999px; font-size:.85rem; }
+    .section{ padding:3rem 0; }
+    .section h2{ font-size:1.7rem; color:var(--navy); margin-bottom:.4rem; }
+    .section .sub{ color:#5b6472; margin-bottom:1.6rem; }
+    .steps{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1rem; }
+    .step{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1.2rem; box-shadow:0 8px 24px rgba(11,27,90,.05); }
+    .step .n{ width:34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; margin-bottom:.6rem; }
+    .step h3{ font-size:1.05rem; color:var(--navy); margin-bottom:.3rem; }
+    .step p{ color:#5b6472; font-size:.94rem; }
+    .value{ background:#fff; border:1px solid #e6eaf2; border-radius:20px; padding:1.6rem; box-shadow:0 10px 30px rgba(11,27,90,.06); }
+    .value ul{ list-style:none; display:grid; gap:.7rem; }
+    .value li{ display:flex; gap:.6rem; align-items:flex-start; color:#333; }
+    .value li b{ color:var(--navy); }
+    .price{ display:flex; gap:1rem; flex-wrap:wrap; align-items:center; background:linear-gradient(135deg,#fff,#f2f6ff); border:1px solid #dce6ff; border-radius:18px; padding:1.3rem 1.5rem; }
+    .price .amt{ font-size:2rem; font-weight:800; color:var(--navy); }
+    .price .amt small{ font-size:.95rem; color:#6b7280; font-weight:600; }
+    /* form */
+    .formcard{ background:#fff; border:1px solid #e6eaf2; border-radius:20px; padding:1.6rem; box-shadow:0 12px 34px rgba(11,27,90,.08); }
+    .formgrid{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+    .field{ display:flex; flex-direction:column; gap:.3rem; }
+    .field.full{ grid-column:1 / -1; }
+    label{ font-size:.9rem; font-weight:600; color:#334; }
+    input,select,textarea{ border:1px solid #cfd8e6; border-radius:10px; padding:.7rem .8rem; font:inherit; background:#fff; }
+    input:focus,select,textarea:focus{ outline:2px solid #bcd2ff; border-color:var(--brand); }
+    .req{ color:#d33; }
+    .note{ font-size:.85rem; color:#6b7280; margin-top:.9rem; display:flex; gap:.5rem; }
+    .msg{ margin-top:.9rem; padding:.8rem 1rem; border-radius:10px; font-weight:600; display:none; }
+    .msg.ok{ background:#e7f8ee; color:#137a3e; display:block; }
+    .msg.err{ background:#fdecec; color:#b3261e; display:block; }
+    footer{ background:var(--navy); color:#cfd6f5; padding:1.4rem 0; font-size:.85rem; }
+    @media(max-width:640px){ .formgrid{ grid-template-columns:1fr; } .hero h1{ font-size:1.9rem; } }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="brandrow"><img src="/logo.svg" alt="شريك الأعمال" /><span>شريك الأعمال · وكيل الامتثال</span></div>
+      <h1>فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً</h1>
+      <p class="lead">اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — <b>بموافقتك</b>. بدون ما تدخل أي منصة حكومية بنفسك.</p>
+      <div class="cta">
+        <a class="btn btn-gold" href="#intake">ابدأ الآن — ارفع ملفاتك</a>
+        <a class="btn btn-wa" href={WHATSAPP} target="_blank" rel="noopener">تحدّث معنا واتساب</a>
+      </div>
+      <div class="chips">{platforms.map((p)=> <span class="chip">{p}</span>)}</div>
+    </div>
+  </header>
+
+  <section class="section"><div class="wrap">
+    <h2>كيف تشتغل الخدمة؟</h2>
+    <p class="sub">أربع خطوات — من رفع ملفاتك إلى تنبيه يومي وإجراء جاهز بموافقتك.</p>
+    <div class="steps">
+      {steps.map(([n,t,d])=> (
+        <div class="step"><div class="n">{n}</div><h3>{t}</h3><p>{d}</p></div>
+      ))}
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <div class="value">
+      <h2 style="margin-bottom:1rem">وش يتابع لك الوكيل؟</h2>
+      <ul>
+        <li>✅ <span><b>الشهادات وتواريخ انتهائها:</b> الزكاة، الضريبة، الغرفة، التأمينات، التوطين، حماية الأجور، المديونيات، منشآت، الآيبان.</span></li>
+        <li>✅ <span><b>العمالة والإقامات:</b> رخص العمل (قوى)، الإقامات (مقيم)، حماية الأجور (مدد)، تعارض المهن.</span></li>
+        <li>✅ <span><b>النطاقات والسعودة:</b> نطاقك المتوقع وكم سعودي تحتاج للمطابقة أو الترقية.</span></li>
+        <li>✅ <span><b>الرخص والموقع:</b> الرخصة البلدية (بلدي)، الدفاع المدني (سلامة)، عقد إيجار موثّق.</span></li>
+        <li>✅ <span><b>المستثمر الأجنبي:</b> رخصة الاستثمار (MISA) وتواريخها ومتطلبات الشركة الأم.</span></li>
+        <li>✅ <span><b>التنبيهات:</b> تقرير يومي + منبّه قبل نزول المخالفات وقبل كل انتهاء.</span></li>
+      </ul>
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <div class="price">
+      <div><div class="amt">ابتداءً من 150 <small>ريال / شهرياً</small></div>
+      <div style="color:#5b6472">اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.</div></div>
+      <a class="btn btn-gold" href="#intake" style="margin-inline-start:auto">اشترك الآن</a>
+    </div>
+  </div></section>
+
+  <section id="intake" class="section" style="background:#eef2fb"><div class="wrap">
+    <h2>سجّل منشأتك وابدأ المتابعة</h2>
+    <p class="sub">عبّئ البيانات وارفع ملفاتك — نستلمها بأمان في مجلد خاص بمنشأتك ونبدأ التحليل.</p>
+    <form id="bp-form" class="formcard" novalidate>
+      <div class="formgrid">
+        <div class="field"><label>اسم المنشأة <span class="req">*</span></label><input name="company" required /></div>
+        <div class="field"><label>رقم السجل التجاري <span class="req">*</span></label><input name="cr_number" required /></div>
+        <div class="field"><label>المالك / المفوّض <span class="req">*</span></label><input name="authorized_person" required /></div>
+        <div class="field"><label>الجوال / واتساب <span class="req">*</span></label><input name="whatsapp" required placeholder="05xxxxxxxx" /></div>
+        <div class="field"><label>البريد الإلكتروني <span class="req">*</span></label><input type="email" name="email" required /></div>
+        <div class="field"><label>نوع المستثمر</label>
+          <select name="investor_type"><option>سعودي</option><option>أجنبي</option><option>مختلط</option><option>غير معروف</option></select></div>
+        <div class="field"><label>نوع الكيان</label>
+          <select name="entity_type"><option>مؤسسة فردية</option><option>شركة ذات مسؤولية محدودة</option><option>شركة مساهمة</option><option>فرع شركة أجنبية</option><option>أخرى</option></select></div>
+        <div class="field"><label>النشاط التجاري</label><input name="activity" /></div>
+        <div class="field"><label>لديك موظفون؟</label><select name="has_employees"><option>غير معروف</option><option>نعم</option><option>لا</option></select></div>
+        <div class="field"><label>لديك وافدون؟</label><select name="has_expats"><option>غير معروف</option><option>نعم</option><option>لا</option></select></div>
+        <div class="field"><label>لديك موقع/مقر؟</label><select name="has_location"><option>غير معروف</option><option>نعم</option><option>لا</option></select></div>
+        <div class="field"><label>استيراد/تصدير؟</label><select name="has_import"><option>غير معروف</option><option>نعم</option><option>لا</option></select></div>
+        <div class="field full"><label>ارفع ملفاتك (السجل / قوى / مقيم / التأمينات / مدد / ZATCA / الرخص) — PDF أو Excel أو صور <span class="req">*</span></label>
+          <input type="file" id="bp-files" name="files" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp" required /></div>
+        <div class="field full"><label>ملاحظات</label><textarea name="notes" rows="3"></textarea></div>
+        <div class="field full" style="flex-direction:row; align-items:flex-start; gap:.5rem">
+          <input type="checkbox" id="consent" required style="margin-top:.35rem" />
+          <label for="consent" style="font-weight:500">أوافق على استخدام بياناتي لتحليل الامتثال فقط، وتُحفظ في مجلد خاص بمنشأتي، ولا تُشارك دون موافقتي.</label></div>
+      </div>
+      <button type="submit" class="btn btn-navy" id="bp-submit" style="margin-top:1rem">🔒 إرسال آمن وبدء المتابعة</button>
+      <div class="msg" id="bp-msg"></div>
+      <div class="note">🔒 <span>بياناتك محمية — تُستخدم لتحليل امتثال منشأتك فقط. لا نطلب كلمات مرور أو رموز نفاذ (OTP)، ولا يُنفَّذ أي إجراء حكومي دون موافقتك.</span></div>
+    </form>
+  </div></section>
+
+  <footer><div class="wrap">شريك الأعمال · businesspartner.sa · التقديرات تخضع للتأكيد من المصادر الرسمية. لا يُنفَّذ أي إجراء حكومي دون موافقتك.</div></footer>
+
+  <script define:vars={{ INTAKE_URL }}>
+    const f = document.getElementById('bp-form');
+    const msg = document.getElementById('bp-msg');
+    const btn = document.getElementById('bp-submit');
+    const files = document.getElementById('bp-files');
+    const show = (t, cls) => { msg.textContent = t; msg.className = 'msg ' + cls; };
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!f.company.value.trim() || !f.whatsapp.value.trim() || !f.cr_number.value.trim() || !f.email.value.trim()) {
+        show('يرجى تعبئة اسم المنشأة والسجل والجوال والبريد.', 'err'); return;
+      }
+      if (!document.getElementById('consent').checked) { show('يرجى الموافقة على استخدام البيانات.', 'err'); return; }
+      if (!files.files.length) { show('يرجى إرفاق ملف واحد على الأقل.', 'err'); return; }
+      const fd = new FormData();
+      ['company','cr_number','authorized_person','whatsapp','email','investor_type','entity_type','activity','has_employees','has_expats','has_location','has_import','notes']
+        .forEach((k) => fd.append(k, (f[k] && f[k].value) || ''));
+      fd.append('source', 'website-compliance');
+      for (const file of files.files) fd.append('files', file);
+      btn.disabled = true; btn.textContent = '... جارٍ الإرسال';
+      fetch(INTAKE_URL, { method: 'POST', body: fd })
+        .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
+        .then(() => { show('✅ استلمنا بياناتك وملفاتك! سيبدأ وكيل الامتثال متابعة منشأتك ونتواصل معك واتساب/إيميل.', 'ok'); f.reset(); })
+        .catch(() => show('تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.', 'err'))
+        .finally(() => { btn.disabled = false; btn.textContent = '🔒 إرسال آمن وبدء المتابعة'; });
+    });
+  </script>
+</body>
+</html>
