@@ -24,6 +24,36 @@ async function forwardLead(payload) {
   try { await fetch(LEAD_WEBHOOK, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); } catch {}
 }
 
+// Live order status lookup (merged from the former api/order-status.js — Vercel
+// Hobby caps a deployment at 12 serverless functions, so this rides on the GET
+// branch of /api/requests instead of its own endpoint).
+// GET /api/requests?refs=BP-506275,BP-988015 -> { ok, statuses: { "BP-506275": "قيد المراجعة", ... } }
+async function orderStatuses(refs) {
+  if (!refs.length) return {};
+  if (!NOTION_TOKEN) return {};
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({
+      page_size: refs.length,
+      filter: { or: refs.map((ref) => ({ property: "رقم المرجع", rich_text: { equals: ref } })) },
+    }),
+  });
+  if (!r.ok) {
+    console.error("order-status query error", r.status, (await r.text()).slice(0, 300));
+    throw new Error("notion_failed");
+  }
+  const data = await r.json();
+  const statuses = {};
+  for (const pg of data.results || []) {
+    const p = pg.properties || {};
+    const refText = (p["رقم المرجع"] && p["رقم المرجع"].rich_text || []).map((t) => t.plain_text).join("").trim();
+    const status = p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name;
+    if (refText && status) statuses[refText] = status;
+  }
+  return statuses;
+}
+
 async function crmLead({ title, phone, email, notes, ref, orderStatus }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
@@ -96,6 +126,19 @@ const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666">${k}</td><td 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   if (req.method === "GET") {
+    const url = new URL(req.url, "http://x");
+    const refs = (url.searchParams.get("refs") || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 30);
+    if (refs.length) {
+      res.setHeader("Cache-Control", "no-store");
+      try {
+        const statuses = await orderStatuses(refs);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, statuses }));
+      } catch {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+      }
+    }
     res.statusCode = 200;
     return res.end(JSON.stringify({ status: "ok", emailConfigured: !!RESEND_API_KEY }));
   }

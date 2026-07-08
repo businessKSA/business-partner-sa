@@ -483,7 +483,7 @@ var BP = window.BP = window.BP || {};
       var orders = ordersData();
       var refs = orders.map(function (o) { return o.ref; }).filter(Boolean);
       if (!refs.length) return;
-      fetch("/api/order-status?refs=" + encodeURIComponent(refs.join(",")))
+      fetch("/api/requests?refs=" + encodeURIComponent(refs.join(",")))
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d || !d.ok || !d.statuses) return;
