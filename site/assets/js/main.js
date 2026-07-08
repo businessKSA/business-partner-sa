@@ -1424,7 +1424,17 @@ var BP_EMP_BILLING = "monthly";
     var gate = document.getElementById("empd-gate");
     var codeInput = document.getElementById("empd-code");
     var gateMsg = document.getElementById("empd-gate-msg");
-    var STAGES = [["interested", T("Interested", "مهتم")], ["contacted", T("Contacted", "تواصلت")], ["interview", T("Interview", "مقابلة")], ["hired", T("Hired", "تم التوظيف")]];
+    // Standard ATS pipeline (matches Greenhouse/Lever/Bayt structure): a candidate
+    // moves left-to-right through funnel stages, with Rejected as a separate
+    // terminal column reachable from any stage (not part of the linear order).
+    var STAGES = [
+      ["new", T("New", "مرشّح جديد")],
+      ["screening", T("Screening", "الفرز")],
+      ["interview", T("Interview", "المقابلة")],
+      ["offer", T("Offer", "العرض الوظيفي")],
+      ["hired", T("Hired", "تم التوظيف")],
+    ];
+    var REJECTED = ["rejected", T("Rejected", "مرفوض")];
     var CODE = "", CANDS = [], lastJD = "";
     var DEMO = false;
     var UNLOCKED = false;
@@ -1555,7 +1565,9 @@ var BP_EMP_BILLING = "monthly";
     }
     function stageBtns(id) {
       var cur = pipe[id] || "";
-      return '<div class="empd-stages">' + STAGES.map(function (s) { return '<button data-id="' + esc(id) + '" data-stage="' + s[0] + '" class="empd-stage-btn' + (cur === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>"; }).join("") + "</div>";
+      var lin = STAGES.map(function (s) { return '<button data-id="' + esc(id) + '" data-stage="' + s[0] + '" class="empd-stage-btn' + (cur === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>"; }).join("");
+      var rej = '<button data-id="' + esc(id) + '" data-stage="' + REJECTED[0] + '" class="empd-stage-btn empd-stage-reject' + (cur === REJECTED[0] ? " on" : "") + '">✕ ' + esc(REJECTED[1]) + "</button>";
+      return '<div class="empd-stages">' + lin + rej + "</div>";
     }
     function aiBtns(id) {
       return '<div class="empd-ai"><button class="empd-ai-btn" data-ai="summary" data-id="' + esc(id) + '">📝 ' + T("Assess", "تقييم") + '</button>' +
@@ -1600,14 +1612,19 @@ var BP_EMP_BILLING = "monthly";
     function renderShort() { var g = document.getElementById("empd-short-grid"); if (!short.length) { g.innerHTML = '<p class="emp-note">' + T("No saved candidates yet.", "ما في مرشّحين محفوظين بعد.") + "</p>"; return; } g.innerHTML = short.map(function (c) { return card(c, { removeShort: true }); }).join(""); bindCard(g); }
     function renderPipe() {
       var wrap = document.getElementById("empd-pipe");
-      wrap.innerHTML = STAGES.map(function (s) {
+      var cols = STAGES.concat([REJECTED]);
+      wrap.innerHTML = cols.map(function (s) {
         var items = short.filter(function (c) { return pipe[c.id] === s[0]; });
         var cards = items.length ? items.map(function (c) { return '<div class="empd-pcard"><strong>' + esc(c.name || c.role || "—") + "</strong>" + (c.role ? "<span>" + esc(c.role) + "</span>" : "") + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>" : "") + "</div>"; }).join("") : '<p class="empd-empty">—</p>';
-        return '<div class="empd-col"><div class="empd-col-h">' + esc(s[1]) + ' <span>' + items.length + "</span></div>" + cards + "</div>";
+        var colClass = s[0] === REJECTED[0] ? "empd-col empd-col-reject" : "empd-col";
+        return '<div class="' + colClass + '"><div class="empd-col-h">' + esc(s[1]) + ' <span>' + items.length + "</span></div>" + cards + "</div>";
       }).join("");
     }
 
     // ---- AI Match ----
+    document.getElementById("empd-jd").addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); document.getElementById("empd-match-run").click(); }
+    });
     document.getElementById("empd-match-run").addEventListener("click", function () {
       var jd = document.getElementById("empd-jd").value.trim();
       var st = document.getElementById("empd-match-status"), grid = document.getElementById("empd-match-grid");
