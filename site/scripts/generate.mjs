@@ -2879,6 +2879,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/services")}"><span>🗂️</span><strong>${L("Request a service", "اطلب خدمة")}</strong></a>
               <a class="portal-card" href="${u("/packages")}"><span>📦</span><strong>${L("Packages", "الباقات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
+              <a class="portal-card" href="${u("/compliance-portal")}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
