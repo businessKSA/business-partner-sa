@@ -2747,6 +2747,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
               <a class="portal-card" href="${u("/portal")}"><span>🤖</span><strong>${L("AI employees", "الموظفون الأذكياء")}</strong></a>
+              <a class="portal-card" href="${u("/shared-services")}"><span>🤝</span><strong>${L("Shared Services", "الخدمات المشتركة")}</strong></a>
             </div>
           </div>
           <div class="dash-card"><h3>${L("Recent orders", "أحدث الطلبات")}</h3><div id="ov-orders"><p class="dash-empty">${L("No orders yet — browse the services to get started.", "لا توجد طلبات بعد — تصفّح الخدمات للبدء.")}</p></div></div>
@@ -3794,6 +3795,101 @@ function buildPortal() {
 </html>`;
 }
 
+/* ---------- Shared Services landing (client-facing) ---------- */
+// Dashboard → this page: explains the Shared Services executive team and lets the
+// client open the service live (chat with Khaled, who leads and routes the team).
+// Chat calls Khaled's public n8n chat webhook directly from the browser.
+function buildSharedServices() {
+  const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
+  const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
+  const team = [
+    { e: "👑", en: "Khaled — Chief of Staff", ar: "خالد — قائد الفريق" },
+    { e: "⚖️", en: "Abdulaziz — Legal & Compliance", ar: "عبدالعزيز — قانوني وامتثال" },
+    { e: "💼", en: "Badr — Sales & BD", ar: "بدر — مبيعات وتطوير أعمال" },
+    { e: "📣", en: "Farah — Marketing", ar: "فرح — تسويق ومحتوى" },
+    { e: "💻", en: "Mohammed — IT", ar: "محمد — تقنية المعلومات" },
+    { e: "🛒", en: "Ahmed — Procurement", ar: "أحمد — مشتريات وتوريد" },
+    { e: "🗂️", en: "Malak — Executive Assistant", ar: "ملاك — مساعِدة تنفيذية" },
+    { e: "🧭", en: "Consultant — Advisory", ar: "المستشار — استشارة وتوجيه" },
+  ];
+  const busyMsg = Lraw("The team is busy right now — please try again in a moment, or use the smart-agent button.", "الفريق مشغول الحين — جرّب بعد لحظات، أو استخدم زر الوكيل الذكي.");
+  const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
+  const body = `
+  <section class="ss-hero">
+    <div class="wrap">
+      <span class="eyebrow">${L("Shared Services", "الخدمات المشتركة")}</span>
+      <h1>${L("Your smart executive team", "فريقك التنفيذي الذكي")}</h1>
+      <p class="lead">${L("Instead of hiring a whole office, get a full team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant — led by Khaled, who understands your request, delegates to the right specialist, executes, and escalates only what needs your approval.", "بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يعملون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعِدة تنفيذية — بقيادة خالد الذي يفهم طلبك، يوزّعه على المتخصص المناسب، ينفّذ، ويصعّد فقط ما يحتاج موافقتك.")}</p>
+      <div class="ss-cta">
+        <a class="btn btn-primary" href="#ss-chat">${L("Open your team now", "افتح فريقك الآن")}</a>
+        <a class="btn btn-ghost" href="${u("/ai-agents")}">${L("Plans & details", "الباقات والتفاصيل")}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ss-sec">
+    <div class="wrap">
+      <div class="sec-head"><h2>${L("Meet your team", "تعرّف على فريقك")}</h2><p>${L("One subscription, a coordinated team that works together for your business.", "اشتراك واحد، وفريق منسّق يعمل مع بعضه لخدمة أعمالك.")}</p></div>
+      <div class="ss-team">${team.map((m) => `<span class="ss-chip"><span>${m.e}</span>${L(m.en, m.ar)}</span>`).join("")}</div>
+      ${feats.length ? `<ul class="ss-feats">${feats.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
+    </div>
+  </section>
+
+  <section class="ss-sec" id="ss-chat">
+    <div class="wrap">
+      <div class="sec-head"><h2>${L("Start working with your team", "ابدأ العمل مع فريقك")}</h2><p>${L("Write your request in plain language — Khaled and the team understand, execute, and coordinate. No passwords or OTP; anything binding waits for your approval.", "اكتب طلبك بلغتك العادية — خالد والفريق يفهمون، ينفّذون، وينسّقون. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p></div>
+      <div class="ss-box">
+        <div class="ss-log" id="ss-log">
+          <div class="ss-msg bot">${L("Hi 👋 I'm Khaled, your team lead. Tell me what you need — government, compliance, sales, marketing, IT, procurement, or admin — and I'll get the right specialist on it.", "أهلاً 👋 أنا خالد، قائد فريقك. قل لي وش تحتاج — حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات، أو إداري — وأكلّف المتخصص المناسب فوراً.")}</div>
+        </div>
+        <form class="ss-form" id="ss-form">
+          <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
+          <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .ss-hero{padding:52px 0 8px;text-align:center}
+    .ss-hero h1{margin:8px 0 12px}
+    .ss-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+    .ss-sec{padding:36px 0}
+    .ss-team{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0 20px}
+    .ss-chip{display:inline-flex;align-items:center;gap:8px;background:#f4f8fb;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:.92rem}
+    .ss-feats{max-width:760px;margin:0 auto;display:grid;gap:10px;list-style:none;padding:0}
+    .ss-feats li{position:relative;padding-inline-start:26px;line-height:1.7}
+    .ss-feats li::before{content:'✓';position:absolute;inset-inline-start:0;color:#12b3ad;font-weight:800}
+    .ss-box{max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px}
+    .ss-log{display:flex;flex-direction:column;gap:10px;min-height:180px;max-height:440px;overflow-y:auto;padding:8px}
+    .ss-msg{max-width:88%;padding:11px 14px;border-radius:14px;line-height:1.75;white-space:pre-wrap}
+    .ss-msg.bot{align-self:flex-start;background:#f1f5f8;border:1px solid var(--line)}
+    .ss-msg.me{align-self:flex-end;background:#0e5a55;color:#eafffb}
+    .ss-form{display:flex;gap:8px;margin-top:12px}
+    .ss-form input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
+  </style>`;
+
+  const script = `<script>(function(){
+    var EP='https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat';
+    var log=document.getElementById('ss-log'),form=document.getElementById('ss-form'),input=document.getElementById('ss-input');
+    if(!form)return;
+    var sid=localStorage.getItem('bp_ss_sid');if(!sid){sid='ss-'+Date.now()+'-'+Math.random().toString(16).slice(2);localStorage.setItem('bp_ss_sid',sid);}
+    var busy=false;
+    function add(t,c){var d=document.createElement('div');d.className='ss-msg '+c;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+    form.addEventListener('submit',function(e){e.preventDefault();var m=(input.value||'').trim();if(!m||busy)return;busy=true;input.value='';add(m,'me');var th=add('…','bot');
+      fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'sendMessage',sessionId:sid,chatInput:m})})
+      .then(function(r){return r.text();}).then(function(raw){var rep='';try{var d=JSON.parse(raw);rep=d.output||d.text||d.reply||'';}catch(e){}th.textContent=rep|| ${JSON.stringify(busyMsg)};})
+      .catch(function(){th.textContent=${JSON.stringify(errMsg)};}).then(function(){busy=false;});
+    });
+  })();</script>`;
+
+  return page({
+    title: Lraw("Shared Services — your smart executive team | Business Partner", "الخدمات المشتركة — فريقك التنفيذي الذكي | بيزنس بارتنر"),
+    desc: Lraw("A full AI executive team that works as your own staff, led by Khaled: government, compliance, sales, marketing, IT, procurement and admin — one subscription.", "فريق تنفيذي ذكي متكامل يعمل كموظفيك بقيادة خالد: حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات وإدارة — باشتراك واحد."),
+    active: "/shared-services", path: "/shared-services", body, script,
+  });
+}
+
 /* ---------- write ---------- */
 function write(rel, html) {
   const full = path.join(ROOT, rel);
@@ -3843,11 +3939,12 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}cart.html`, buildCart());
   write(`${pre}checkout.html`, buildCheckout());
   write(`${pre}account.html`, buildAccount());
+  write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
-  pageCount += 14 + services.length + categories.length;
+  pageCount += 15 + services.length + categories.length;
 }
 LANG = "en";
 
@@ -3868,7 +3965,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/compliance-calculators", "/labor-calculators", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
