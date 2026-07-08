@@ -59,13 +59,16 @@ async function readBody(req) {
   });
 }
 
-// A short human reference like BP-EMP-3F9K
+// A short human reference like BP-EMP-3F9K. Mixes in the current time (and a
+// random component) so repeat/duplicate registrations never collide on the
+// same code — each submission gets its own row and its own access code.
 function makeRef(seed) {
   const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const salted = seed + "|" + Date.now() + "|" + Math.random();
   let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < salted.length; i++) h = (h * 31 + salted.charCodeAt(i)) >>> 0;
   let out = "";
-  for (let i = 0; i < 4; i++) { out += abc[h % abc.length]; h = Math.floor(h / abc.length) + seed.length * (i + 7); }
+  for (let i = 0; i < 4; i++) { out += abc[h % abc.length]; h = Math.floor(h / abc.length) + salted.length * (i + 7); }
   return "BP-EMP-" + out;
 }
 
