@@ -419,6 +419,8 @@ var BP = window.BP = window.BP || {};
         renderOrders();
         renderCompany();
         syncLiveOrderStatuses();
+        var aiLink = document.getElementById("ai-employees-link");
+        if (aiLink && s.email) aiLink.href = aiLink.getAttribute("href") + "?email=" + encodeURIComponent(s.email);
       } else { auth.hidden = false; dash.hidden = true; }
     }
 

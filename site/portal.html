@@ -230,6 +230,10 @@
     function $(id){return document.getElementById(id);}
     function show(id){['screen-login','screen-gate','screen-ws'].forEach(function(s){$(s).style.display=(s===id)?'':'none';});}
     var email=localStorage.getItem(LS.email)||'';
+    if(!email){
+      var qEmail=new URLSearchParams(location.search).get('email');
+      if(qEmail){ email=qEmail; localStorage.setItem(LS.email,email); }
+    }
     var subbed=localStorage.getItem(LS.sub)==='1';
     var cur=null;
     function route(){
