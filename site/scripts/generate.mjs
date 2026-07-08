@@ -1612,6 +1612,157 @@ function buildCompliancePortal() {
   });
 }
 
+// The paid Compliance Agent subscription product — full landing + pricing +
+// payment + intake, wrapped in the site's own header/footer/cart (unlike the
+// free compliance-portal tool above). Payment reuses api/pay.js same-origin.
+function buildComplianceAgent() {
+  const platforms = ["قوى","مقيم","GOSI","مدد","نطاقات","السجل التجاري","المركز السعودي للأعمال","ZATCA","الغرفة التجارية","العنوان الوطني","بلدي","الدفاع المدني","إيجار","MISA"];
+  const platformsEn = ["Qiwa","Muqeem","GOSI","Mudad","Nitaqat","CR","Saudi Business Center","ZATCA","Chamber","National Address","Balady","Civil Defense","Ejar","MISA"];
+  const chips = platforms.map((p, i) => `<span class="hero-badge">${L(platformsEn[i], p)}</span>`).join("");
+  const steps = [
+    ["1", L("Subscribe and upload your files", "تشترك وترفع ملفاتك"), L("CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses — image, PDF or Excel.", "السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.")],
+    ["2", L("The agent reads and analyzes", "الوكيل يقرأ ويحلّل"), L("Extracts dates, numbers and statuses automatically and builds your compliance record.", "يستخرج التواريخ والأرقام والحالات تلقائياً ويبني سجل امتثال لمنشأتك.")],
+    ["3", L("Daily monitoring", "مراقبة يومية"), L("Calculates days and risks, and alerts you before any expiry or violation via WhatsApp and email.", "يحسب الأيام والمخاطر، وينبّهك قبل أي انتهاء أو مخالفة عبر واتساب وإيميل.")],
+    ["4", L("Every action needs your approval", "كل إجراء بموافقتك"), L("Prepares the renewal/action and shows it to you — nothing government-related runs without your approval.", "يجهّز التجديد/الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك.")],
+  ];
+  const stepsHtml = steps.map(([n, t, d]) => `<div class="step"><div class="step-n">${n}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
+  const valueItems = [
+    [L("Certificates and their expiry dates", "الشهادات وتواريخ انتهائها"), L("Zakat, tax, chamber, GOSI, Saudization, wage protection, IBAN.", "الزكاة، الضريبة، الغرفة، التأمينات، التوطين، حماية الأجور، الآيبان.")],
+    [L("Workforce and residencies", "العمالة والإقامات"), L("Work permits (Qiwa), residencies (Muqeem), wage protection (Mudad).", "رخص العمل (قوى)، الإقامات (مقيم)، حماية الأجور (مدد).")],
+    [L("Nitaqat and Saudization", "النطاقات والسعودة"), L("Your expected band and how many Saudis you need to match or upgrade.", "نطاقك المتوقع وكم سعودي تحتاج للمطابقة أو الترقية.")],
+    [L("Licenses and location", "الرخص والموقع"), L("Municipal license (Balady), Civil Defense, a certified lease contract.", "الرخصة البلدية (بلدي)، الدفاع المدني، عقد إيجار موثّق.")],
+    [L("Foreign investors", "المستثمر الأجنبي"), L("Investment license (MISA) and its dates.", "رخصة الاستثمار (MISA) وتواريخها.")],
+    [L("Alerts", "التنبيهات"), L("Daily report + an alert before violations and before any expiry.", "تقرير يومي + منبّه قبل نزول المخالفات وقبل كل انتهاء.")],
+  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
+    <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
+    <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#intake">${L("Start now — upload your files", "ابدأ الآن — ارفع ملفاتك")}</a>${waBtn2("Talk to us on WhatsApp", "تحدّث معنا واتساب", "btn-ghost", true)}</div>
+    <div class="hero-badges">${chips}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from uploading your files to a daily alert and a ready action pending your approval", "أربع خطوات — من رفع ملفاتك إلى تنبيه يومي وإجراء جاهز بموافقتك")}</h2></div>
+    <div class="steps-grid">${stepsHtml}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:1rem">${L("What does the agent track for you?", "وش يتابع لك الوكيل؟")}</h3>
+      <ul class="value-list">${valueItems}</ul>
+    </div>
+  </section></div>
+
+  <section class="section" style="padding-top:0"><div class="container">
+    <div class="price-box">
+      <div><div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
+      <div class="text-soft">${L("Compliance subscription — daily monitoring and alerts. Government fees for actions are separate and only run with your approval.", "اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.")}</div></div>
+      <a class="btn btn-primary" href="#pay">${L("Subscribe now", "اشترك الآن")}</a>
+    </div>
+  </div></section>
+
+  <section id="pay" class="section" style="padding-top:0"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:.3rem">${L("Complete your subscription", "استكمل الاشتراك")}</h3>
+      <p class="text-soft" style="margin-bottom:1rem">${L("Already registered below? Enter your establishment name and the access code you received by email, then complete payment to unlock your dashboard instantly.", "سجّلت منشأتك بالأسفل؟ ادخل اسم المنشأة ورمز الدخول اللي وصلك بالبريد، وأكمل الدفع لتُفتح لوحة التحكم فوراً.")}</p>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="pay-company">${L("Establishment name", "اسم المنشأة")}</label><input id="pay-company" required></div>
+        <div class="field"><label for="pay-code">${L("Access code (from confirmation email)", "رمز الدخول (من بريد التأكيد)")}</label><input id="pay-code" required></div>
+      </div>
+      <button type="button" class="btn btn-primary btn-lg" id="pay-start" style="margin-top:1rem">💳 ${L("Pay 250 SAR now", "ادفع 250 ريال الآن")}</button>
+      <div id="pay-form-box" style="margin-top:1rem"></div>
+      <div class="form-success" id="pay-msg" hidden></div>
+      <p class="form-note">🔒 ${L("Paid via Moyasar (mada / Visa / Mastercard / Apple Pay). Nothing is activated until payment is confirmed.", "الدفع عبر Moyasar (مدى / فيزا / ماستركارد / آبل باي). لا يتم أي تفعيل إلا بعد تأكيد الدفع.")}</p>
+    </div>
+  </div></section>
+
+  <section id="intake" class="section" style="background:var(--gray-bg)"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Registration", "التسجيل")}</span><h2>${L("Register your establishment and start monitoring", "سجّل منشأتك وابدأ المتابعة")}</h2></div>
+    <div class="order-box" style="margin:0">${intakeFormBlock()}</div>
+  </div></section>
+
+  <style>
+    .text-soft{color:var(--text-soft)}
+    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
+    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
+    .value-list b{color:var(--navy)}
+    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
+    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
+    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
+  </style>
+  <script>
+    (function () {
+      var payCompany = document.getElementById('pay-company');
+      var payCode = document.getElementById('pay-code');
+      var payStart = document.getElementById('pay-start');
+      var payBox = document.getElementById('pay-form-box');
+      var payMsg = document.getElementById('pay-msg');
+      function showPay(t, cls) { payMsg.hidden = false; payMsg.textContent = t; payMsg.className = 'form-success ' + cls; }
+      function loadScript(src) { return new Promise(function (resolve, reject) { var s = document.createElement('script'); s.src = src; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); }); }
+      function loadCss(href) { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }
+      function verifyAndActivate(id, company, code) {
+        showPay('${L("Confirming payment…", "جارٍ تأكيد الدفع…")}', 'info');
+        fetch('/api/pay', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: id, context: 'compliance', company: company, code: code }) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d.ok) {
+              showPay('${L("Payment confirmed! Your service is now active — sign in to your dashboard.", "تم تأكيد الدفع! خدمتك مفعّلة الآن — سجّل الدخول للوحة التحكم.")}', 'ok');
+              payBox.innerHTML = '<a class="btn btn-primary" href="https://businesspartner.sa/ar/portal">📊 ${L("Go to dashboard", "دخول لوحة التحكم")}</a>';
+            } else {
+              showPay('${L("Payment not confirmed. Contact us on WhatsApp if you were charged.", "لم يتم تأكيد الدفع. تواصل معنا واتساب إذا خُصم المبلغ.")}', 'err');
+            }
+          }).catch(function () { showPay('${L("Could not verify payment. Contact us on WhatsApp.", "تعذّر التحقق من الدفع. تواصل معنا واتساب.")}', 'err'); });
+      }
+      (function checkReturn() {
+        var q = new URLSearchParams(location.search);
+        var id = q.get('id');
+        if (!id) return;
+        var company = localStorage.getItem('bp_pay_company') || '';
+        var code = localStorage.getItem('bp_pay_code') || '';
+        document.getElementById('pay').scrollIntoView({ block: 'start' });
+        if (payCompany) payCompany.value = company;
+        if (payCode) payCode.value = code;
+        verifyAndActivate(id, company, code);
+      })();
+      if (payStart) payStart.addEventListener('click', function () {
+        var company = payCompany.value.trim();
+        var code = payCode.value.trim();
+        if (!company || !code) { showPay('${L("Please enter your establishment name and access code.", "يرجى إدخال اسم المنشأة ورمز الدخول.")}', 'err'); return; }
+        payStart.disabled = true;
+        fetch('/api/pay').then(function (r) { return r.json(); }).then(function (cfg) {
+          if (!cfg.enabled) { showPay('${L("Online payment isn't enabled yet — contact us on WhatsApp to subscribe.", "الدفع الإلكتروني غير مُفعّل حالياً — تواصل معنا واتساب لإتمام الاشتراك.")}', 'err'); return; }
+          localStorage.setItem('bp_pay_company', company);
+          localStorage.setItem('bp_pay_code', code);
+          loadCss(cfg.cssUrl);
+          return loadScript(cfg.scriptUrl).then(function () {
+            payBox.innerHTML = '<div class="mysr-form"></div>';
+            Moyasar.init({
+              element: '.mysr-form', amount: 25000, currency: 'SAR',
+              description: '${L("Compliance Agent subscription", "اشتراك وكيل الامتثال")} — ' + company,
+              publishable_api_key: cfg.publishableKey,
+              callback_url: location.origin + location.pathname,
+              methods: ['creditcard', 'applepay'],
+            });
+            payStart.style.display = 'none';
+          });
+        }).catch(function () { showPay('${L("Could not load the payment form. Contact us on WhatsApp.", "تعذّر تحميل نموذج الدفع. تواصل معنا واتساب.")}', 'err'); })
+          .finally(function () { payStart.disabled = false; });
+      });
+    })();
+  </script>`;
+
+  return page({
+    title: Lraw("Compliance Agent — Business Partner", "وكيل الامتثال — بيزنس بارتنر"),
+    desc: Lraw("Subscribe and get a virtual compliance team monitoring your company daily, alerting you before violations.", "اشترك واحصل على فريق امتثال افتراضي يراقب شركتك يومياً وينبّهك قبل المخالفات."),
+    active: "/compliance-agent",
+    path: "/compliance-agent",
+    body,
+  });
+}
+
 function buildEndOfServiceCalculator() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -2879,7 +3030,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/services")}"><span>🗂️</span><strong>${L("Request a service", "اطلب خدمة")}</strong></a>
               <a class="portal-card" href="${u("/packages")}"><span>📦</span><strong>${L("Packages", "الباقات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
-              <a class="portal-card" href="https://businesspartner.sa/ar/compliance#intake" target="_blank" rel="noopener"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
+              <a class="portal-card" href="${u("/compliance-agent")}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
@@ -3975,6 +4126,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
   write(`${pre}compliance-portal.html`, buildCompliancePortal());
+  write(`${pre}compliance-agent.html`, buildComplianceAgent());
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
   write(`${pre}careers.html`, buildCareers());
@@ -4018,7 +4170,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
