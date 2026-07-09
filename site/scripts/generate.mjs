@@ -909,7 +909,7 @@ function buildAiAgents() {
     <span class="eyebrow">${L("AI Agents", "الوكلاء الأذكياء")}</span>
     <h1>${L(a.titleEn || a.title, a.title)}</h1>
     <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
-    <div class="hero-actions">${waBtn2(a.ctaEn || a.cta, a.cta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="#agents">${L(a.learnEn || "استعرض الوكلاء", "استعرض الوكلاء")}</a></div>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agents">${L(a.learnEn || "استعرض الوكلاء", "استعرض الوكلاء")}</a></div>
     <div class="hero-badges">
       <span class="hero-badge">${I.check}${L("24/7 monitoring", "مراقبة 24/7")}</span>
       <span class="hero-badge">${I.check}${L("Autonomous execution", "تنفيذ ذاتي")}</span>
@@ -926,7 +926,7 @@ function buildAiAgents() {
     <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
     <div class="grid grid-3">${cards}</div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
-    <div class="center mt-32"><a class="btn btn-ghost" href="/connect">🔌 ${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="/connect">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
