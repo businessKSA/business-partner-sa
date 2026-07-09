@@ -2717,13 +2717,13 @@ function buildPortalCandidates() {
           <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-email">${L("Email", f.email)}</label><input id="c-email" name="email" type="email"></div>
-          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="${Lraw("e.g. 3 years", "مثال: 3 سنوات")}"></div>
+          <div class="field"><label for="c-email">${L("Email", f.email)} *</label><input id="c-email" name="email" type="email" required></div>
+          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)} *</label><input id="c-exp" name="experience" type="text" required placeholder="${Lraw("Type or pick, e.g. 5+ years", "اكتب أو اختر، مثال: 5+ سنوات")}"></div>
         </div>
-        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accountant, marketing specialist, engineer", "مثال: محاسب، أخصائي تسويق، مهندس")}"></div>
+        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")} *</label><input id="c-field" name="field" type="text" required placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")}</label><input id="c-city" name="city" type="text" placeholder="${Lraw("e.g. Riyadh, Jeddah", "مثال: الرياض، جدة")}"></div>
-          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")}</label><input id="c-salary" name="salary" type="text" placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
+          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")} *</label><input id="c-city" name="city" type="text" required placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
+          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")} *</label><input id="c-salary" name="salary" type="text" required placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
         </div>
         <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
         <div class="field">
@@ -2842,13 +2842,13 @@ function buildCareers() {
           <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-email">${L("Email", f.email)}</label><input id="c-email" name="email" type="email"></div>
-          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="${Lraw("e.g. 3 years", "مثال: 3 سنوات")}"></div>
+          <div class="field"><label for="c-email">${L("Email", f.email)} *</label><input id="c-email" name="email" type="email" required></div>
+          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)} *</label><input id="c-exp" name="experience" type="text" required placeholder="${Lraw("Type or pick, e.g. 5+ years", "اكتب أو اختر، مثال: 5+ سنوات")}"></div>
         </div>
-        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accountant, marketing specialist, engineer", "مثال: محاسب، أخصائي تسويق، مهندس")}"></div>
+        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")} *</label><input id="c-field" name="field" type="text" required placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")}</label><input id="c-city" name="city" type="text" placeholder="${Lraw("e.g. Riyadh, Jeddah", "مثال: الرياض، جدة")}"></div>
-          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")}</label><input id="c-salary" name="salary" type="text" placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
+          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")} *</label><input id="c-city" name="city" type="text" required placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
+          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")} *</label><input id="c-salary" name="salary" type="text" required placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
         </div>
         <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
         <div class="field">

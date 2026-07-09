@@ -264,6 +264,181 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
+/* ---------- Searchable combobox (job titles / cities / experience) ---------- */
+(function () {
+  "use strict";
+
+  var JOB_TITLES = [
+    ["Accountant", "محاسب"], ["Senior Accountant", "محاسب أول"], ["Chief Accountant", "رئيس حسابات"],
+    ["Financial Analyst", "محلل مالي"], ["Finance Manager", "مدير مالي"], ["CFO", "المدير المالي التنفيذي"],
+    ["Auditor", "مدقق حسابات"], ["Internal Auditor", "مدقق داخلي"], ["Bookkeeper", "مُمسك دفاتر"],
+    ["Payroll Specialist", "أخصائي رواتب"], ["Treasury Analyst", "محلل خزينة"], ["Credit Controller", "مراقب ائتمان"],
+    ["Software Engineer", "مهندس برمجيات"], ["Frontend Developer", "مطوّر واجهات أمامية"], ["Backend Developer", "مطوّر خلفي"],
+    ["Full Stack Developer", "مطوّر متكامل"], ["Mobile App Developer", "مطوّر تطبيقات جوال"], ["DevOps Engineer", "مهندس DevOps"],
+    ["QA Engineer", "مهندس ضمان جودة"], ["Data Analyst", "محلل بيانات"], ["Data Scientist", "عالم بيانات"],
+    ["Data Engineer", "مهندس بيانات"], ["Machine Learning Engineer", "مهندس تعلّم آلي"], ["IT Support Specialist", "أخصائي دعم تقني"],
+    ["Network Engineer", "مهندس شبكات"], ["System Administrator", "مدير أنظمة"], ["Database Administrator", "مدير قواعد بيانات"],
+    ["Cybersecurity Analyst", "محلل أمن سيبراني"], ["IT Manager", "مدير تقنية معلومات"], ["Product Manager", "مدير منتج"],
+    ["UI/UX Designer", "مصمم UI/UX"], ["Solutions Architect", "معماري حلول"], ["Cloud Engineer", "مهندس سحابة"],
+    ["Sales Representative", "مندوب مبيعات"], ["Sales Executive", "تنفيذي مبيعات"], ["Sales Manager", "مدير مبيعات"],
+    ["Business Development Manager", "مدير تطوير أعمال"], ["Account Manager", "مدير حسابات عملاء"], ["Retail Sales Associate", "مساعد مبيعات تجزئة"],
+    ["Marketing Specialist", "أخصائي تسويق"], ["Marketing Manager", "مدير تسويق"], ["Digital Marketing Specialist", "أخصائي تسويق رقمي"],
+    ["Social Media Manager", "مدير سوشيال ميديا"], ["Content Creator", "صانع محتوى"], ["SEO Specialist", "أخصائي SEO"],
+    ["Brand Manager", "مدير علامة تجارية"], ["Public Relations Officer", "مسؤول علاقات عامة"], ["Graphic Designer", "مصمم جرافيك"],
+    ["Customer Service Representative", "ممثل خدمة عملاء"], ["Call Center Agent", "موظف مركز اتصال"], ["Receptionist", "موظف استقبال"],
+    ["Administrative Assistant", "مساعد إداري"], ["Executive Secretary", "سكرتير تنفيذي"], ["Office Manager", "مدير مكتب"],
+    ["Data Entry Clerk", "مُدخل بيانات"], ["Personal Assistant", "مساعد شخصي"], ["Procurement Officer", "مسؤول مشتريات"],
+    ["HR Specialist", "أخصائي موارد بشرية"], ["HR Manager", "مدير موارد بشرية"], ["Recruiter", "أخصائي توظيف"],
+    ["Talent Acquisition Specialist", "أخصائي استقطاب مواهب"], ["Training & Development Officer", "مسؤول تدريب وتطوير"], ["Compensation & Benefits Specialist", "أخصائي تعويضات ومزايا"],
+    ["Chef", "شيف"], ["Sous Chef", "مساعد شيف"], ["Pastry Chef", "شيف حلويات"], ["Kitchen Assistant", "مساعد مطبخ"],
+    ["Waiter / Waitress", "نادل / نادلة"], ["Barista", "باريستا"], ["Restaurant Manager", "مدير مطعم"],
+    ["Hotel Manager", "مدير فندق"], ["Front Office Agent", "موظف استقبال فندقي"], ["Housekeeping Supervisor", "مشرف تدبير منزلي"],
+    ["Guest Relations Officer", "مسؤول علاقات نزلاء"], ["Event Coordinator", "منسّق فعاليات"], ["Bartender", "ساقي مشروبات"],
+    ["Civil Engineer", "مهندس مدني"], ["Mechanical Engineer", "مهندس ميكانيكي"], ["Electrical Engineer", "مهندس كهربائي"],
+    ["Structural Engineer", "مهندس إنشائي"], ["Site Engineer", "مهندس موقع"], ["Project Manager", "مدير مشروع"],
+    ["Construction Manager", "مدير مقاولات"], ["Quantity Surveyor", "مساح كميات"], ["Architect", "مهندس معماري"],
+    ["Safety Officer (HSE)", "مسؤول سلامة (HSE)"], ["Foreman", "مقدم عمال"], ["Surveyor", "مساح"],
+    ["Physician", "طبيب"], ["General Practitioner", "طبيب عام"], ["Dentist", "طبيب أسنان"], ["Pharmacist", "صيدلي"],
+    ["Registered Nurse", "ممرض/ة مسجّل/ة"], ["Nursing Assistant", "مساعد تمريض"], ["Physiotherapist", "أخصائي علاج طبيعي"],
+    ["Lab Technician", "فني مختبر"], ["Radiologist", "أخصائي أشعة"], ["Medical Secretary", "سكرتير طبي"],
+    ["Teacher", "معلّم/ة"], ["Kindergarten Teacher", "معلّم/ة رياض أطفال"], ["English Teacher", "معلّم/ة لغة إنجليزية"],
+    ["Math Teacher", "معلّم/ة رياضيات"], ["School Principal", "مدير مدرسة"], ["Academic Advisor", "مرشد أكاديمي"],
+    ["Curriculum Coordinator", "منسّق مناهج"], ["Tutor", "معلّم خصوصي"],
+    ["Truck Driver", "سائق شاحنة"], ["Delivery Driver", "سائق توصيل"], ["Warehouse Supervisor", "مشرف مستودع"],
+    ["Logistics Coordinator", "منسّق لوجستيات"], ["Supply Chain Manager", "مدير سلسلة إمداد"], ["Fleet Manager", "مدير أسطول"],
+    ["Forklift Operator", "مشغّل رافعة شوكية"], ["Shipping & Customs Clerk", "موظف شحن وجمارك"],
+    ["Legal Counsel", "مستشار قانوني"], ["Lawyer", "محامٍ"], ["Paralegal", "مساعد قانوني"], ["Compliance Officer", "مسؤول امتثال"],
+    ["Operations Manager", "مدير عمليات"], ["General Manager", "مدير عام"], ["Managing Director", "مدير تنفيذي"],
+    ["Store Manager", "مدير متجر"], ["Cashier", "أمين صندوق"], ["Merchandiser", "أخصائي عرض بضائع"],
+    ["Security Guard", "حارس أمن"], ["Cleaner / Housekeeper", "عامل نظافة"], ["Driver", "سائق"],
+    ["Electrician", "كهربائي"], ["Plumber", "سبّاك"], ["Technician", "فني"], ["Mechanic", "ميكانيكي"],
+    ["Photographer", "مصوّر"], ["Video Editor", "محرر فيديو"], ["Translator", "مترجم"], ["Interpreter", "مترجم فوري"],
+    ["Real Estate Agent", "وسيط عقاري"], ["Insurance Agent", "وكيل تأمين"], ["Bank Teller", "موظف صراف بنك"],
+    ["Relationship Manager (Banking)", "مدير علاقات مصرفي"], ["Investment Analyst", "محلل استثمار"],
+  ];
+
+  var SA_CITIES = [
+    "Riyadh", "Jeddah", "Mecca", "Medina", "Dammam", "Khobar", "Dhahran", "Taif", "Buraidah",
+    "Tabuk", "Hail", "Hafr Al-Batin", "Jubail", "Yanbu", "Abha", "Khamis Mushait", "Najran",
+    "Jazan", "Al Ahsa", "Qatif", "Sakaka", "Arar", "Al Bahah", "Al Kharj", "Unaizah", "Rabigh",
+  ];
+  var SA_CITIES_AR = [
+    "الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الظهران", "الطائف", "بريدة",
+    "تبوك", "حائل", "حفر الباطن", "الجبيل", "ينبع", "أبها", "خميس مشيط", "نجران",
+    "جازان", "الأحساء", "القطيف", "سكاكا", "عرعر", "الباحة", "الخرج", "عنيزة", "رابغ",
+  ];
+  var WORLD_CITIES = [
+    ["Dubai", "United Arab Emirates", "دبي", "الإمارات"], ["Abu Dhabi", "United Arab Emirates", "أبوظبي", "الإمارات"],
+    ["Sharjah", "United Arab Emirates", "الشارقة", "الإمارات"], ["Doha", "Qatar", "الدوحة", "قطر"],
+    ["Manama", "Bahrain", "المنامة", "البحرين"], ["Kuwait City", "Kuwait", "مدينة الكويت", "الكويت"],
+    ["Muscat", "Oman", "مسقط", "عُمان"], ["Cairo", "Egypt", "القاهرة", "مصر"], ["Alexandria", "Egypt", "الإسكندرية", "مصر"],
+    ["Giza", "Egypt", "الجيزة", "مصر"], ["Amman", "Jordan", "عمّان", "الأردن"], ["Beirut", "Lebanon", "بيروت", "لبنان"],
+    ["Damascus", "Syria", "دمشق", "سوريا"], ["Baghdad", "Iraq", "بغداد", "العراق"], ["Sanaa", "Yemen", "صنعاء", "اليمن"],
+    ["Khartoum", "Sudan", "الخرطوم", "السودان"], ["Rabat", "Morocco", "الرباط", "المغرب"], ["Casablanca", "Morocco", "الدار البيضاء", "المغرب"],
+    ["Tunis", "Tunisia", "تونس", "تونس"], ["Algiers", "Algeria", "الجزائر", "الجزائر"], ["Tripoli", "Libya", "طرابلس", "ليبيا"],
+    ["Istanbul", "Turkey", "إسطنبول", "تركيا"], ["Ankara", "Turkey", "أنقرة", "تركيا"],
+    ["Mumbai", "India", "مومباي", "الهند"], ["Delhi", "India", "دلهي", "الهند"], ["Bangalore", "India", "بنغالور", "الهند"],
+    ["Chennai", "India", "تشيناي", "الهند"], ["Hyderabad", "India", "حيدر أباد", "الهند"], ["Kochi", "India", "كوتشي", "الهند"],
+    ["Karachi", "Pakistan", "كراتشي", "باكستان"], ["Lahore", "Pakistan", "لاهور", "باكستان"], ["Islamabad", "Pakistan", "إسلام آباد", "باكستان"],
+    ["Dhaka", "Bangladesh", "دكا", "بنغلاديش"], ["Chittagong", "Bangladesh", "شيتاغونغ", "بنغلاديش"],
+    ["Colombo", "Sri Lanka", "كولومبو", "سريلانكا"], ["Kathmandu", "Nepal", "كاتماندو", "نيبال"],
+    ["Manila", "Philippines", "مانيلا", "الفلبين"], ["Cebu", "Philippines", "سيبو", "الفلبين"],
+    ["Jakarta", "Indonesia", "جاكرتا", "إندونيسيا"], ["Kuala Lumpur", "Malaysia", "كوالالمبور", "ماليزيا"],
+    ["Bangkok", "Thailand", "بانكوك", "تايلاند"], ["Hanoi", "Vietnam", "هانوي", "فيتنام"],
+    ["Beijing", "China", "بكين", "الصين"], ["Shanghai", "China", "شنغهاي", "الصين"], ["Hong Kong", "China", "هونغ كونغ", "الصين"],
+    ["Tokyo", "Japan", "طوكيو", "اليابان"], ["Seoul", "South Korea", "سيول", "كوريا الجنوبية"],
+    ["Nairobi", "Kenya", "نيروبي", "كينيا"], ["Kampala", "Uganda", "كمبالا", "أوغندا"], ["Addis Ababa", "Ethiopia", "أديس أبابا", "إثيوبيا"],
+    ["Lagos", "Nigeria", "لاغوس", "نيجيريا"], ["Accra", "Ghana", "أكرا", "غانا"], ["Dakar", "Senegal", "داكار", "السنغال"],
+    ["Johannesburg", "South Africa", "جوهانسبرغ", "جنوب أفريقيا"], ["Cape Town", "South Africa", "كيب تاون", "جنوب أفريقيا"],
+    ["London", "United Kingdom", "لندن", "المملكة المتحدة"], ["Manchester", "United Kingdom", "مانشستر", "المملكة المتحدة"],
+    ["Paris", "France", "باريس", "فرنسا"], ["Berlin", "Germany", "برلين", "ألمانيا"], ["Frankfurt", "Germany", "فرانكفورت", "ألمانيا"],
+    ["Madrid", "Spain", "مدريد", "إسبانيا"], ["Rome", "Italy", "روما", "إيطاليا"], ["Amsterdam", "Netherlands", "أمستردام", "هولندا"],
+    ["Zurich", "Switzerland", "زيورخ", "سويسرا"], ["Vienna", "Austria", "فيينا", "النمسا"], ["Warsaw", "Poland", "وارسو", "بولندا"],
+    ["Moscow", "Russia", "موسكو", "روسيا"], ["Athens", "Greece", "أثينا", "اليونان"],
+    ["New York", "United States", "نيويورك", "الولايات المتحدة"], ["Los Angeles", "United States", "لوس أنجلوس", "الولايات المتحدة"],
+    ["Chicago", "United States", "شيكاغو", "الولايات المتحدة"], ["Houston", "United States", "هيوستن", "الولايات المتحدة"],
+    ["Toronto", "Canada", "تورونتو", "كندا"], ["Vancouver", "Canada", "فانكوفر", "كندا"], ["Montreal", "Canada", "مونتريال", "كندا"],
+    ["Mexico City", "Mexico", "مكسيكو سيتي", "المكسيك"], ["Sao Paulo", "Brazil", "ساو باولو", "البرازيل"],
+    ["Buenos Aires", "Argentina", "بوينس آيرس", "الأرجنتين"],
+    ["Sydney", "Australia", "سيدني", "أستراليا"], ["Melbourne", "Australia", "ملبورن", "أستراليا"], ["Auckland", "New Zealand", "أوكلاند", "نيوزيلندا"],
+    ["Remote / Work from home", "", "عن بُعد / من المنزل", ""],
+  ];
+
+  function jobTitleOptions(lang) {
+    return JOB_TITLES.map(function (t) { return lang === "ar" ? t[1] : t[0]; });
+  }
+  function cityOptions(lang) {
+    var sa = lang === "ar" ? SA_CITIES_AR : SA_CITIES;
+    var saLabel = lang === "ar" ? "السعودية" : "Saudi Arabia";
+    var out = sa.map(function (c) { return lang === "ar" ? (saLabel + " — " + c) : (saLabel + " — " + c); });
+    WORLD_CITIES.forEach(function (c) {
+      var city = lang === "ar" ? c[2] : c[0];
+      var country = lang === "ar" ? c[3] : c[1];
+      out.push(country ? (country + " — " + city) : city);
+    });
+    return out;
+  }
+  function experienceOptions(lang) {
+    var yr = lang === "ar" ? "سنوات" : "years";
+    var y1 = lang === "ar" ? "سنة" : "year";
+    var none = lang === "ar" ? "بدون خبرة" : "No experience";
+    var out = [none, "1 " + y1, "2 " + yr, "3 " + yr, "4 " + yr];
+    [5, 10, 15, 20, 25, 30, 35, 40, 45, 50].forEach(function (n) { out.push(n + "+ " + yr); });
+    return out;
+  }
+
+  function initCombobox(input, getOptions) {
+    if (!input) return;
+    var wrap = document.createElement("div");
+    wrap.className = "bp-combo-wrap";
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    input.setAttribute("autocomplete", "off");
+    var list = document.createElement("div");
+    list.className = "bp-combo-list";
+    list.hidden = true;
+    wrap.appendChild(list);
+    var active = -1;
+
+    function render(items) {
+      list.innerHTML = items.map(function (opt, i) {
+        return '<div class="bp-combo-opt' + (i === active ? " active" : "") + '" data-i="' + i + '">' + esc(opt) + "</div>";
+      }).join("");
+      list.hidden = !items.length;
+    }
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function filtered() {
+      var q = input.value.trim().toLowerCase();
+      var all = getOptions();
+      if (!q) return all.slice(0, 8);
+      return all.filter(function (o) { return o.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+    }
+    input.addEventListener("input", function () { active = -1; render(filtered()); });
+    input.addEventListener("focus", function () { render(filtered()); });
+    input.addEventListener("keydown", function (e) {
+      var items = list.querySelectorAll(".bp-combo-opt");
+      if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(active + 1, items.length - 1); render(filtered()); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(active - 1, 0); render(filtered()); }
+      else if (e.key === "Enter" && active >= 0 && items[active]) { e.preventDefault(); input.value = items[active].textContent; list.hidden = true; }
+      else if (e.key === "Escape") { list.hidden = true; }
+    });
+    list.addEventListener("mousedown", function (e) {
+      var opt = e.target.closest(".bp-combo-opt");
+      if (!opt) return;
+      input.value = opt.textContent;
+      list.hidden = true;
+    });
+    document.addEventListener("click", function (e) { if (!wrap.contains(e.target)) list.hidden = true; });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var lang = (window.BP && BP.lang) || document.documentElement.lang || "ar";
+    initCombobox(document.getElementById("c-field"), function () { return jobTitleOptions(lang); });
+    initCombobox(document.getElementById("c-city"), function () { return cityOptions(lang); });
+    initCombobox(document.getElementById("c-exp"), function () { return experienceOptions(lang); });
+  });
+})();
+
 /* ---------- Careers: join candidate pool → /api/candidate (Notion) ---------- */
 (function () {
   "use strict";
