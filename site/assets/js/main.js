@@ -1563,10 +1563,18 @@ var BP_EMP_BILLING = "monthly";
 
     function contacts(c) {
       var out = [];
-      if (c.name) out.push("<strong>" + esc(c.name) + "</strong>");
+      if (c.name) {
+        var nm = "<strong>" + esc(c.name) + "</strong>";
+        if (c.nameAlt) nm += ' <span class="emp-name-alt">(' + esc(c.nameAlt) + ")</span>";
+        out.push(nm);
+      }
       if (c.phone) out.push('📞 <a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>");
       if (c.email) out.push('✉️ <a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>");
-      if (c.cv) out.push('<a href="' + esc(c.cv) + '" target="_blank" rel="noopener">' + T("CV", "السيرة الذاتية") + "</a>");
+      if (c.cv) {
+        var cvLabel = c.cvKind === "ats" ? T("CV (ATS-formatted)", "السيرة الذاتية (منسّقة ATS)") : T("CV (original — being formatted)", "السيرة الذاتية (أصلية — قيد التنسيق)");
+        var cvCls = c.cvKind === "ats" ? "emp-cv-ats" : "emp-cv-raw";
+        out.push('<a class="' + cvCls + '" href="' + esc(c.cv) + '" target="_blank" rel="noopener">' + cvLabel + "</a>");
+      }
       return out.length ? '<div class="emp-contact">' + out.join(" · ") + "</div>" : "";
     }
     function stageBtns(id) {

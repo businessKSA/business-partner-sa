@@ -99,11 +99,14 @@ export default async function handler(req, res) {
   const { unlocked, plan } = await resolvePlan(code);
 
   // Server-side Notion filter: only the website-sourced / active candidates.
+  // "مخفي عن الموقع" = true means the CV failed to parse / is unreadable — the
+  // ingestion pipeline flags it for review and it must never reach employers.
+  const notHidden = { property: "مخفي عن الموقع", checkbox: { equals: false } };
   const base = {
     page_size: 100,
     sorts: [{ property: "Candidate ID", direction: "descending" }],
+    filter: qField ? { and: [notHidden, { property: "Field", select: { equals: qField } }] } : notHidden,
   };
-  if (qField) base.filter = { property: "Field", select: { equals: qField } };
 
   try {
     // Page through the whole database so employers see ALL candidates, not just
@@ -129,8 +132,17 @@ export default async function handler(req, res) {
     }
     let rows = results.map((pg) => {
       const p = pg.properties || {};
-      const name = txt(p["Candidate Name"]);
+      // "Candidate Name" is often an auto-transliterated guess (esp. for
+      // LinkedIn-sourced, non-Arab candidates — e.g. "غيردار سينغ" for
+      // "Girdhar Singh"). "Name (EN)" is the clean, source-accurate name, so
+      // it takes priority; we keep the other one alongside when it differs
+      // so employers see both scripts instead of a garbled single name.
+      const nameAr = txt(p["Candidate Name"]);
       const nameEn = txt(p["Name (EN)"]);
+      const primary = nameEn || nameAr;
+      const secondary = nameEn && nameAr && nameAr !== nameEn ? nameAr : "";
+      const cvAts = txt(p["ATS CV (Drive)"]);
+      const cvRaw = txt(p["CV Link"]);
       const rec = {
         id: txt(p["Candidate ID"]),
         field: txt(p["Field"]),
@@ -145,12 +157,16 @@ export default async function handler(req, res) {
         saudization: txt(p["التوطين Saudization"]),
       };
       if (unlocked) {
-        rec.name = name || nameEn;
+        rec.name = primary;
+        rec.nameAlt = secondary;
         rec.phone = txt(p["Phone"]);
         rec.email = txt(p["Email"]);
-        rec.cv = txt(p["CV Link"]);
+        // Show the ATS-formatted CV to the client, never the raw original —
+        // only fall back to the raw file when no ATS version exists yet.
+        rec.cv = cvAts || cvRaw;
+        rec.cvKind = cvAts ? "ats" : (cvRaw ? "raw" : "");
       } else {
-        rec.name = maskName(name || nameEn);
+        rec.name = maskName(primary);
       }
       return rec;
     });

@@ -764,6 +764,9 @@ h3 { font-size: 1.12rem; }
 .emp-skills { font-size: .86rem; color: var(--text-soft); margin-bottom: 8px; }
 .emp-meta { font-size: .82rem; color: var(--text-soft); line-height: 1.9; }
 .emp-contact { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-line); font-size: .88rem; font-weight: 600; }
+.emp-name-alt { font-weight: 500; color: var(--text-soft); }
+.emp-cv-ats { color: #16A34A; }
+.emp-cv-raw { color: #CA8A04; }
 @media (max-width: 640px) { .emp-access { flex-direction: column; align-items: stretch; } .emp-unlock { flex-direction: column; } }
 .emp-filters input, .emp-filters select { flex: 1 1 auto; }
 
