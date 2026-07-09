@@ -241,6 +241,62 @@ async function activateComplianceSubscription({ company, email, phone }) {
   return code;
 }
 
+// ---- Employer recruitment plan: order -> owner approval -> Notion activation -> emailed code ----
+// Same Employers DB the /employer-join registration form and /api/candidates read.
+const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
+const EMP_PLAN_AR = { basic: "أساسية", pro: "احترافية", enterprise: "مؤسسية" };
+const EMP_DASHBOARD_URL = `${MKT_SITE_BASE}/employer-dashboard`;
+function employerCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("employer|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 4; i++) o += abc[h[i] % abc.length]; return "BP-EMP-" + o; }
+async function findEmployerRecord(company) {
+  if (!NOTION_TOKEN || !company) return null;
+  const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "اسم الشركة", title: { equals: company } } }),
+  });
+  if (!r.ok) return null;
+  const data = await r.json();
+  return (data.results || [])[0] || null;
+}
+// Looks up (or creates) the employer's row by company name, flips الحالة to
+// مفعّل, and returns the dashboard access code (kept stable if the row
+// already had one — e.g. from the earlier bespoke registration form).
+async function activateEmployerSubscription({ company, email, phone, planKey }) {
+  if (!NOTION_TOKEN || !company) return null;
+  const planAr = EMP_PLAN_AR[planKey] || "";
+  const existing = await findEmployerRecord(company);
+  const codeProp = existing && existing.properties && existing.properties["رمز الوصول"];
+  const existingCode = codeProp && codeProp.rich_text && codeProp.rich_text[0] && codeProp.rich_text[0].plain_text;
+  const code = existingCode || employerCode(company + "|" + email + "|" + Date.now());
+  if (existing) {
+    const props = { "الحالة": { select: { name: "مفعّل" } } };
+    if (!existingCode) props["رمز الوصول"] = { rich_text: [{ text: { content: code } }] };
+    if (planAr) props["الباقة"] = { select: { name: planAr } };
+    const hasEmail = existing.properties["البريد"] && existing.properties["البريد"].email;
+    if (email && !hasEmail) props["البريد"] = { email };
+    await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ properties: props }),
+    });
+  } else {
+    const properties = {
+      "اسم الشركة": { title: [{ text: { content: company } }] },
+      "الحالة": { select: { name: "مفعّل" } },
+      "رمز الوصول": { rich_text: [{ text: { content: code } }] },
+    };
+    if (planAr) properties["الباقة"] = { select: { name: planAr } };
+    if (email) properties["البريد"] = { email };
+    if (phone) properties["الجوال"] = { phone_number: phone };
+    await fetch(`https://api.notion.com/v1/pages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ parent: { database_id: EMP_DB }, properties }),
+    });
+  }
+  return code;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -269,6 +325,20 @@ export default async function handler(req, res) {
     await sendEmail(d.email, `تم تفعيل اشتراكك — وكيل الامتثال (${esc(d.company)})`, codeHtml);
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
+  }
+
+  // Employer recruitment plan — owner approval link (clicked after confirming the bank transfer).
+  if ((q.action || "") === "approve-employer") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
+    let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
+    const code = await activateEmployerSubscription({ company: d.company, email: d.email, phone: d.phone, planKey: d.plan });
+    if (!code) { res.statusCode = 500; return res.end("<h3>تعذّر التفعيل — تحقّق من إعداد Notion (NOTION_TOKEN) واسم الشركة.</h3>"); }
+    const planAr = EMP_PLAN_AR[d.plan] || "";
+    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في منصة التوظيف 🎉</h2><p>الشركة: <b>${esc(d.company)}</b>${planAr ? ` — الباقة: <b>${esc(planAr)}</b>` : ""}</p><p>رمز الوصول للوحة التوظيف:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${EMP_DASHBOARD_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح لوحة التوظيف</a> — أدخل الرمز أعلاه.</p></div>`;
+    await sendEmail(d.email, `تم تفعيل اشتراكك — منصة التوظيف (${esc(d.company)})`, codeHtml);
+    res.statusCode = 200;
+    return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل رمز الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
 
   if (req.method === "GET") {
@@ -342,6 +412,7 @@ export default async function handler(req, res) {
     const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
     const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
     const compliance = !!b.compliance;
+    const employerPlanKey = ["basic", "pro", "enterprise"].includes(b.employerPlan) ? b.employerPlan : "";
     const company = String(b.company || "").trim().slice(0, 200) || name;
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
@@ -352,10 +423,15 @@ export default async function handler(req, res) {
           ? `<p>طلب اشتراك <strong>وكيل الامتثال</strong> — المنشأة: <strong>${esc(company)}</strong>. بعد تأكيد استلام التحويل البنكي:</p><p><a href="${MKT_SITE_BASE}/api/requests?action=approve-compliance&t=${encodeURIComponent(ssSeal({ company, email, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل اشتراك وكيل الامتثال</a></p><p style="color:#666;font-size:13px">لا تعتمد إلا بعد تأكيد وصول التحويل — سيصل العميل بريد فيه رمز الدخول لبوابة الامتثال تلقائياً.</p>`
           : `<p>طلب اشتراك <strong>وكيل الامتثال</strong> — فعّله يدوياً في قاعدة "Client Compliance Intake" في Notion (حالة الاشتراك → نشط) بعد تأكيد التحويل.</p>`)
       : "";
+    const employerNote = employerPlanKey
+      ? (OTP_SECRET && isEmail(email)
+          ? `<p>طلب اشتراك <strong>منصة التوظيف</strong> (${esc(EMP_PLAN_AR[employerPlanKey] || employerPlanKey)}) — الشركة: <strong>${esc(company)}</strong>. بعد تأكيد استلام التحويل البنكي:</p><p><a href="${MKT_SITE_BASE}/api/requests?action=approve-employer&t=${encodeURIComponent(ssSeal({ company, email, phone, ref, plan: employerPlanKey }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل اشتراك منصة التوظيف</a></p><p style="color:#666;font-size:13px">لا تعتمد إلا بعد تأكيد وصول التحويل — سيصل العميل بريد فيه رمز الوصول للوحة التوظيف تلقائياً.</p>`
+          : `<p>طلب اشتراك <strong>منصة التوظيف</strong> — فعّله يدوياً في قاعدة «أصحاب العمل» في Notion (الحالة → مفعّل) بعد تأكيد التحويل.</p>`)
+      : "";
     const receiptNote = receiptUploadId
       ? `<p>إيصال التحويل مرفق بصف الطلب في Notion — إيجنت التحقق في n8n يقارن مبلغه بـ«إجمالي الطلب» (${total} ﷼) تلقائياً.</p>`
       : `<p style="color:#b91c1c">⚠️ تعذّر رفع الإيصال إلى Notion — راجع الإيصال يدوياً قبل التفعيل.</p>`;
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}${complianceNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
       crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),

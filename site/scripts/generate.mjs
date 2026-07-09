@@ -2392,19 +2392,30 @@ function employerPlanCards({ selectable }) {
         <button type="button" class="emp-bill-btn" data-bill="yearly">${L("Yearly", "سنوي")} <span class="emp-save">${L(`Save ${Math.round(discount * 100)}%`, `وفّر ${Math.round(discount * 100)}٪`)}</span></button>
       </div>`
     : "";
-  const cards = plans.map((t, i) => {
+  const cards = plans.map((t) => {
     const feats = (LANG === "ar" ? t.features : (t.featuresEn || t.features)) || [];
     const list = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
     const badge = t.popular ? `<span class="pk-badge">${L("Most popular", "الأكثر طلباً")}</span>` : "";
     const name = L(t.nameEn || t.name, t.name);
     if (selectable) {
-      return `<label class="pkg emp-plan${t.popular ? " pop" : ""}">
-        <input type="radio" name="emp-plan" value="${esc(t.key)}"${i === 1 ? " checked" : ""}>
+      const yearly = t.price != null ? employerYearly(t.price, discount) : null;
+      const nameAr = `${t.name} — اشتراك صاحب عمل`;
+      const nameEn = `${t.nameEn || t.name} — Employer subscription`;
+      const priceLabelM = t.price != null ? `${fmt(t.price)} ${L("SAR / mo", "ريال / شهرياً")}` : "";
+      const priceLabelY = yearly != null ? `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}` : "";
+      return `<div class="pkg emp-plan${t.popular ? " pop" : ""}">
         ${badge}<div class="pk-name">${esc(name)}</div>
         <div class="pk-price">${priceHtml(t)}</div>
         <ul>${list}</ul>
-        <span class="pk-pick">${L("Select this plan", "اختر هذه الباقة")}</span>
-      </label>`;
+        <button type="button" class="pk-pick add-cart emp-plan-btn"
+          data-id="employer-plan-${esc(t.key)}-monthly" data-kind="package"
+          data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}"
+          data-amount="${t.price != null ? t.price : ""}" data-price="${esc(priceLabelM)}"
+          data-id-monthly="employer-plan-${esc(t.key)}-monthly" data-id-yearly="employer-plan-${esc(t.key)}-yearly"
+          data-amount-monthly="${t.price != null ? t.price : ""}" data-amount-yearly="${yearly != null ? yearly : ""}"
+          data-price-monthly="${esc(priceLabelM)}" data-price-yearly="${esc(priceLabelY)}"
+        >${L("Select this plan", "اختر هذه الباقة")}</button>
+      </div>`;
     }
     return `<div class="pkg${t.popular ? " pop" : ""}">
       ${badge}<div class="pk-name">${esc(name)}</div>
@@ -2421,33 +2432,14 @@ function buildEmployerJoin() {
   <section class="hero"><div class="container hero-inner" style="max-width:1040px">
     <span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span>
     <h1>${L("Subscribe to the recruitment platform", "اشترك في منصة التوظيف")}</h1>
-    <p class="lead">${L("Pick a plan, register your company, and unlock full access to our pre-screened candidate pool — search, contacts, CVs, shortlist and hiring pipeline.", "اختر باقة، سجّل شركتك، وافتح الوصول الكامل لقاعدة مرشّحينا المُصنّفين — بحث، بيانات تواصل، سير ذاتية، قائمة مختصرة ومراحل توظيف.")}</p>
+    <p class="lead">${L("Pick a plan to add it to your cart, then complete registration and payment — full access to our pre-screened candidate pool unlocks right after: search, contacts, CVs, shortlist and hiring pipeline.", "اختر باقة لإضافتها إلى سلتك، ثم أكمل التسجيل والدفع — يفتح مباشرة الوصول الكامل لقاعدة مرشّحينا المُصنّفين: بحث، بيانات تواصل، سير ذاتية، قائمة مختصرة ومراحل توظيف.")}</p>
   </div></section>
 
   <section class="section"><div class="container">
-    <form id="emp-join" novalidate>
-      <div class="section-head" style="margin-bottom:22px"><span class="eyebrow">${L("Step 1", "الخطوة 1")}</span><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
-      ${employerPlanCards({ selectable: true })}
-
-      <div class="section-head" style="margin:44px 0 22px"><span class="eyebrow">${L("Step 2", "الخطوة 2")}</span><h2>${L("Company details", "بيانات الشركة")}</h2></div>
-      <div class="join-grid">
-        <div class="field"><label for="ej-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="ej-company" required></div>
-        <div class="field"><label for="ej-cr">${L("Commercial Registration (CR)", "رقم السجل التجاري")}</label><input type="text" id="ej-cr" inputmode="numeric" placeholder="${Lraw("Optional", "اختياري")}"></div>
-        <div class="field"><label for="ej-contact">${L("Contact person", "اسم المسؤول")}</label><input type="text" id="ej-contact"></div>
-        <div class="field"><label for="ej-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="ej-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
-        <div class="field"><label for="ej-email">${L("Work email", "البريد الإلكتروني للعمل")}</label><input type="email" id="ej-email" placeholder="name@company.com"></div>
-        <div class="field field-full"><label for="ej-notes">${L("Notes (roles you're hiring for, etc.)", "ملاحظات (الوظائف المطلوبة، إلخ)")}</label><textarea id="ej-notes" rows="3"></textarea></div>
-      </div>
-
-      <div class="join-actions">
-        <button type="submit" class="btn btn-primary btn-lg" id="ej-submit">${L("Continue to subscribe", "متابعة الاشتراك")}</button>
-        <p class="emp-note">${L("After registering you'll complete payment (or bank transfer) and we activate your access.", "بعد التسجيل تُكمل الدفع (أو تحويل بنكي) ونفعّل وصولك.")}</p>
-      </div>
-      <div class="form-success" hidden id="ej-result"></div>
-    </form>
-  </div></section>
-
-  <script>window.BP_EMP_PLANS=${JSON.stringify((site.employerPlans && site.employerPlans.tiers || []).map((t) => ({ key: t.key, name: L(t.nameEn || t.name, t.name), price: t.price, yearlyPrice: t.price != null ? employerYearly(t.price, (site.employerPlans && site.employerPlans.yearlyDiscount) || 0) : null })))};window.BP_BANK=${JSON.stringify({ bank: L(site.bank.bankNameEn, site.bank.bankName), iban: site.bank.iban, beneficiary: L(site.bank.beneficiaryEn, site.bank.beneficiary) })};</script>`;
+    <div class="section-head" style="margin-bottom:22px"><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
+    ${employerPlanCards({ selectable: true })}
+    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay by bank transfer at checkout — we activate your access right after.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع بالتحويل البنكي عند إتمام الطلب — نفعّل وصولك مباشرة بعدها.")}</p>
+  </div></section>`;
   return page({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
 }
 
