@@ -2,6 +2,7 @@
 import '../../styles/global.css';
 export const prerender = true;
 const INTAKE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web';
+const PAY_API = 'https://new.businesspartner.sa/api/pay';
 const WHATSAPP = 'https://wa.me/966503793356';
 const platforms = ['قوى','مقيم','GOSI','مدد','نطاقات','السجل التجاري','المركز السعودي للأعمال','ZATCA','الغرفة التجارية','العنوان الوطني','بلدي','الدفاع المدني','إيجار','MISA'];
 const steps = [
@@ -117,9 +118,24 @@ const steps = [
 
   <section class="section" style="padding-top:0"><div class="wrap">
     <div class="price">
-      <div><div class="amt">ابتداءً من 150 <small>ريال / شهرياً</small></div>
+      <div><div class="amt">يبدأ من 250 <small>ريال / شهرياً</small></div>
       <div style="color:#5b6472">اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.</div></div>
-      <a class="btn btn-gold" href="#intake" style="margin-inline-start:auto">اشترك الآن</a>
+      <a class="btn btn-gold" href="#pay" style="margin-inline-start:auto">اشترك الآن</a>
+    </div>
+  </div></section>
+
+  <section id="pay" class="section" style="padding-top:0"><div class="wrap">
+    <div class="formcard">
+      <h2 style="margin-bottom:.3rem">استكمل الاشتراك</h2>
+      <p class="sub" style="margin-bottom:1rem">سجّلت منشأتك بالأسفل؟ ادخل اسم المنشأة ورمز الدخول اللي وصلك بالبريد، وأكمل الدفع لتُفتح لوحة التحكم فوراً.</p>
+      <div class="formgrid">
+        <div class="field"><label>اسم المنشأة <span class="req">*</span></label><input id="pay-company" required /></div>
+        <div class="field"><label>رمز الدخول (من بريد التأكيد) <span class="req">*</span></label><input id="pay-code" required /></div>
+      </div>
+      <button type="button" class="btn btn-navy" id="pay-start" style="margin-top:1rem">💳 ادفع 250 ريال الآن</button>
+      <div id="pay-form-box" style="margin-top:1rem"></div>
+      <div class="msg" id="pay-msg"></div>
+      <div class="note">🔒 <span>الدفع عبر Moyasar (مدى / فيزا / ماستركارد / آبل باي). لا يتم أي تفعيل إلا بعد تأكيد الدفع.</span></div>
     </div>
   </div></section>
 
@@ -157,7 +173,7 @@ const steps = [
 
   <footer><div class="wrap">شريك الأعمال · businesspartner.sa · التقديرات تخضع للتأكيد من المصادر الرسمية. لا يُنفَّذ أي إجراء حكومي دون موافقتك.</div></footer>
 
-  <script define:vars={{ INTAKE_URL }}>
+  <script define:vars={{ INTAKE_URL, PAY_API }}>
     const f = document.getElementById('bp-form');
     const msg = document.getElementById('bp-msg');
     const btn = document.getElementById('bp-submit');
@@ -182,6 +198,93 @@ const steps = [
         .catch(() => show('تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.', 'err'))
         .finally(() => { btn.disabled = false; btn.textContent = '🔒 إرسال آمن وبدء المتابعة'; });
     });
+
+    (function () {
+      const payCompany = document.getElementById('pay-company');
+      const payCode = document.getElementById('pay-code');
+      const payStart = document.getElementById('pay-start');
+      const payBox = document.getElementById('pay-form-box');
+      const payMsg = document.getElementById('pay-msg');
+      const showPay = (t, cls) => { payMsg.textContent = t; payMsg.className = 'msg ' + cls; };
+
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = src; s.onload = resolve; s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+      function loadCss(href) {
+        const l = document.createElement('link');
+        l.rel = 'stylesheet'; l.href = href;
+        document.head.appendChild(l);
+      }
+
+      async function verifyAndActivate(id, company, code) {
+        showPay('جارٍ تأكيد الدفع…', 'ok');
+        try {
+          const r = await fetch(PAY_API, {
+            method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ id, context: 'compliance', company, code }),
+          });
+          const d = await r.json();
+          if (d.ok) {
+            showPay('✅ تم تأكيد الدفع! خدمتك مفعّلة الآن — سجّل الدخول للوحة التحكم.', 'ok');
+            payBox.innerHTML = '<a class="btn btn-navy" href="https://businesspartner.sa/ar/portal" style="margin-top:.8rem">📊 دخول لوحة التحكم</a>';
+          } else {
+            showPay('لم يتم تأكيد الدفع (الحالة: ' + (d.status || 'غير معروفة') + '). تواصل معنا واتساب إذا خُصم المبلغ.', 'err');
+          }
+        } catch (e) {
+          showPay('تعذّر التحقق من الدفع. تواصل معنا واتساب.', 'err');
+        }
+      }
+
+      // Returning from Moyasar's redirect after payment.
+      (function checkReturn() {
+        const q = new URLSearchParams(location.search);
+        const id = q.get('id');
+        if (!id) return;
+        const company = localStorage.getItem('bp_pay_company') || '';
+        const code = localStorage.getItem('bp_pay_code') || '';
+        document.getElementById('pay').scrollIntoView({ block: 'start' });
+        if (payCompany) payCompany.value = company;
+        if (payCode) payCode.value = code;
+        verifyAndActivate(id, company, code);
+      })();
+
+      if (payStart) payStart.addEventListener('click', async function () {
+        const company = payCompany.value.trim();
+        const code = payCode.value.trim();
+        if (!company || !code) { showPay('يرجى إدخال اسم المنشأة ورمز الدخول.', 'err'); return; }
+        payStart.disabled = true; payStart.textContent = '... جارٍ التحضير';
+        try {
+          const cfg = await (await fetch(PAY_API)).json();
+          if (!cfg.enabled) {
+            showPay('الدفع الإلكتروني غير مُفعّل حالياً — تواصل معنا واتساب لإتمام الاشتراك.', 'err');
+            return;
+          }
+          localStorage.setItem('bp_pay_company', company);
+          localStorage.setItem('bp_pay_code', code);
+          loadCss(cfg.cssUrl);
+          await loadScript(cfg.scriptUrl);
+          payBox.innerHTML = '<div class="mysr-form"></div>';
+          Moyasar.init({
+            element: '.mysr-form',
+            amount: 25000,
+            currency: 'SAR',
+            description: 'اشتراك وكيل الامتثال — ' + company,
+            publishable_api_key: cfg.publishableKey,
+            callback_url: location.origin + location.pathname,
+            methods: ['creditcard', 'applepay'],
+          });
+          payStart.style.display = 'none';
+        } catch (e) {
+          showPay('تعذّر تحميل نموذج الدفع. تواصل معنا واتساب.', 'err');
+        } finally {
+          payStart.disabled = false; payStart.textContent = '💳 ادفع 250 ريال الآن';
+        }
+      });
+    })();
   </script>
 </body>
 </html>
