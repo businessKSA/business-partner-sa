@@ -3305,13 +3305,16 @@ function buildDashboard() {
   <script>
     var N8N_BASE = 'https://businesspartnerai.app.n8n.cloud/webhook';
     var AGENTS = [
-      { slug:'mazen',     path:'mazen-intake',      name:'مازن',     en:'Mazen',     role:'العمليات وخدمة العملاء',  emoji:'🧭' },
+      { slug:'baher',     path:'baher-intake',      name:'باهر',     en:'Baher',     role:'مستشار الأعمال',          emoji:'🎯' },
+      { slug:'mazen',     path:'mazen-intake',      name:'مازن',     en:'Mazen',     role:'مدير العمليات',           emoji:'🧭' },
+      { slug:'nasser',    path:'nasser-intake',     name:'ناصر',     en:'Nasser',    role:'الموارد البشرية',         emoji:'👥' },
+      { slug:'mishari',   path:'mishari-intake',    name:'مشاري',    en:'Mishari',   role:'الامتثال والالتزام',       emoji:'🛡️' },
+      { slug:'abdulaziz', path:'abdulaziz-intake',  name:'عبدالعزيز',en:'Abdulaziz', role:'القانوني',                emoji:'⚖️' },
       { slug:'badr',      path:'badr-intake',       name:'بدر',      en:'Badr',      role:'المبيعات وتطوير الأعمال', emoji:'💼' },
-      { slug:'malak',     path:'malak-intake',      name:'ملاك',     en:'Malak',     role:'مساعِدة تنفيذية ذكية',    emoji:'🗂️' },
-      { slug:'ahmed',     path:'ahmed-procurement', name:'أحمد',     en:'Ahmed',     role:'المشتريات والتوريد',      emoji:'📦' },
       { slug:'farah',     path:'farah-intake',      name:'فرح',      en:'Farah',     role:'التسويق والمحتوى',        emoji:'📣' },
+      { slug:'malak',     path:'malak-intake',      name:'ملاك',     en:'Malak',     role:'مساعِدة تنفيذية ذكية',    emoji:'🗂️' },
       { slug:'mohammed',  path:'mohammed-intake',   name:'محمد',     en:'Mohammed',  role:'تقنية المعلومات',         emoji:'💻' },
-      { slug:'abdulaziz', path:'abdulaziz-intake',  name:'عبدالعزيز',en:'Abdulaziz', role:'القانوني والامتثال',      emoji:'⚖️' }
+      { slug:'ahmed',     path:'ahmed-procurement', name:'أحمد',     en:'Ahmed',     role:'المشتريات والتوريد',      emoji:'📦' }
     ];
 
     var KEY = 'bp_agent_controls_v1';
@@ -3739,12 +3742,15 @@ function buildConnect() {
     }
     var EMPLOYEES=[
       {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
+      {slug:'baher',e:'🎯',name:'باهر',role:'مستشار الأعمال',nameEn:'Baher — Business Advisor'},
+      {slug:'mazen',e:'🧭',name:'مازن',role:'مدير العمليات',nameEn:'Mazen — Operations Manager'},
+      {slug:'nasser',e:'👥',name:'ناصر',role:'الموارد البشرية',nameEn:'Nasser — HR'},
+      {slug:'mishari',e:'🛡️',name:'مشاري',role:'الامتثال والالتزام',nameEn:'Mishari — Compliance'},
+      {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني',nameEn:'Abdulaziz — Legal'},
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
-      {slug:'mazen',e:'🧭',name:'مازن',role:'عمليات وخدمة عملاء',nameEn:'Mazen — Operations & Customer Service'},
       {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
-      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'},
-      {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني وامتثال',nameEn:'Abdulaziz — Legal & Compliance'}
+      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'}
     ];
     var empGrid=document.getElementById('emps');
     EMPLOYEES.forEach(function(m){
@@ -3945,13 +3951,16 @@ function buildPortal() {
   <script>
     var N8N_BASE='https://businesspartnerai.app.n8n.cloud/webhook';
     var AGENTS=[
-      {slug:'mazen',path:'mazen-intake',name:'مازن',role:'عمليات وخدمة عملاء',e:'🧭'},
-      {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
+      {slug:'baher',path:'baher-intake',name:'باهر',role:'مستشار الأعمال',e:'🎯'},
+      {slug:'mazen',path:'mazen-intake',name:'مازن',role:'مدير العمليات',e:'🧭'},
+      {slug:'nasser',path:'nasser-intake',name:'ناصر',role:'الموارد البشرية',e:'👥'},
+      {slug:'mishari',path:'mishari-intake',name:'مشاري',role:'الامتثال والالتزام',e:'🛡️'},
+      {slug:'abdulaziz',path:'abdulaziz-intake',name:'عبدالعزيز',role:'قانوني',e:'⚖️'},
       {slug:'badr',path:'badr-intake',name:'بدر',role:'مبيعات وتطوير أعمال',e:'💼'},
       {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
-      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'},
+      {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
       {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
-      {slug:'abdulaziz',path:'abdulaziz-intake',name:'عبدالعزيز',role:'قانوني وامتثال',e:'⚖️'}
+      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'}
     ];
     var TOOLS=[
       {id:'gmail',ic:'📧',name:'Gmail',u:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.',type:'easy',lead:'ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.',steps:['اضغط ربط الآن فتفتح صفحة تسجيل قوقل.','اختر حساب الشركة ووافق على الصلاحيات.','يشتغل الموظف داخل بريدك مباشرة.']},
@@ -4187,14 +4196,17 @@ function buildSharedServices() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
-    { e: "👑", en: "Khaled — Chief of Staff", ar: "خالد — قائد الفريق" },
-    { e: "⚖️", en: "Abdulaziz — Legal & Compliance", ar: "عبدالعزيز — قانوني وامتثال" },
+    { e: "👑", en: "Khaled — Chief of Staff & Customer Service", ar: "خالد — قائد الفريق وخدمة العملاء" },
+    { e: "🎯", en: "Baher — Business Advisor", ar: "باهر — مستشار الأعمال" },
+    { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
+    { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
+    { e: "🛡️", en: "Mishari — Compliance", ar: "مشاري — الامتثال والالتزام" },
+    { e: "⚖️", en: "Abdulaziz — Legal", ar: "عبدالعزيز — القانوني" },
     { e: "💼", en: "Badr — Sales & BD", ar: "بدر — مبيعات وتطوير أعمال" },
     { e: "📣", en: "Farah — Marketing", ar: "فرح — تسويق ومحتوى" },
+    { e: "🗂️", en: "Malak — Executive Assistant", ar: "ملاك — مساعِدة تنفيذية" },
     { e: "💻", en: "Mohammed — IT", ar: "محمد — تقنية المعلومات" },
     { e: "🛒", en: "Ahmed — Procurement", ar: "أحمد — مشتريات وتوريد" },
-    { e: "🗂️", en: "Malak — Executive Assistant", ar: "ملاك — مساعِدة تنفيذية" },
-    { e: "🧭", en: "Consultant — Advisory", ar: "المستشار — استشارة وتوجيه" },
   ];
   const busyMsg = Lraw("The team is busy right now — please try again in a moment, or use the smart-agent button.", "الفريق مشغول الحين — جرّب بعد لحظات، أو استخدم زر الوكيل الذكي.");
   const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
