@@ -29,6 +29,23 @@ const CODES = (process.env.EMPLOYER_CODES || "").split(",").map((s) => s.trim())
 const NOTION_VERSION = "2022-06-28";
 // Employers subscriptions DB — a paid, ACTIVE row unlocks access dynamically (no redeploy).
 const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
+// Job postings DB — an employer can open more than one, each screened by AI against this pool.
+const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
+const FIELD_OPTIONS = ["هندسة", "تقنية معلومات", "مبيعات وتسويق", "محاسبة ومالية", "إداري وسكرتارية", "موارد بشرية", "ضيافة ومطاعم", "مقاولات وإنشاءات", "صحة وطب", "تعليم", "لوجستيات ونقل", "أخرى"];
+
+async function readBody(req) {
+  let b = req.body;
+  if (typeof b === "string") { try { b = JSON.parse(b); } catch { b = {}; } }
+  if (b && typeof b === "object") return b;
+  return await new Promise((resolve) => { let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } }); });
+}
+async function notionFetch(path, method, payload) {
+  return fetch(`https://api.notion.com/v1/${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
+}
 
 // Paging through 1600+ ATS rows needs more than the default serverless budget.
 export const config = { maxDuration: 60 };
@@ -89,9 +106,83 @@ async function resolvePlan(code) {
   return { unlocked: false, plan: "" };
 }
 
+// Job postings: an employer can open more than one, each with its own title/
+// city/description, and pull an AI-screened shortlist against the pool from
+// that description via /api/hire (task:"match") on the client side.
+async function handlePostings(req, res) {
+  const b = await readBody(req);
+  const code = String(b.code || "").trim();
+  const { unlocked } = await resolvePlan(code);
+  if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
+
+  if (b.action === "create-posting") {
+    const title = String(b.title || "").trim().slice(0, 200);
+    const city = String(b.city || "").trim().slice(0, 120);
+    const description = String(b.description || "").trim().slice(0, 4000);
+    const field = String(b.field || "").trim();
+    if (!title || !description) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const props = {
+      "العنوان الوظيفي": { title: [{ text: { content: title } }] },
+      "رمز صاحب العمل": { rich_text: [{ text: { content: code } }] },
+      "الشركة": { rich_text: [{ text: { content: String(b.company || "").trim().slice(0, 200) } }] },
+      "المدينة": { rich_text: [{ text: { content: city } }] },
+      "الوصف والمتطلبات": { rich_text: [{ text: { content: description } }] },
+      "الحالة": { select: { name: "نشطة" } },
+    };
+    if (FIELD_OPTIONS.includes(field)) props["المجال"] = { select: { name: field } };
+    const r = await notionFetch("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props });
+    if (!r.ok) { console.error("posting create error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const page = await r.json();
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, id: page.id, title, city, field, description }));
+  }
+
+  if (b.action === "close-posting") {
+    const id = String(b.id || "").trim();
+    if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const page = await notionFetch(`pages/${id}`, "GET");
+    const pdata = page.ok ? await page.json() : null;
+    const owner = pdata && txt(pdata.properties && pdata.properties["رمز صاحب العمل"]);
+    if (!pdata || owner !== code) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "forbidden" })); }
+    await notionFetch(`pages/${id}`, "PATCH", { properties: { "الحالة": { select: { name: "مغلقة" } } } });
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true }));
+  }
+
+  if (b.action === "list-postings") {
+    const r = await notionFetch(`databases/${JOBS_DB}/query`, "POST", {
+      page_size: 50,
+      filter: { property: "رمز صاحب العمل", rich_text: { equals: code } },
+      sorts: [{ property: "تاريخ النشر", direction: "descending" }],
+    });
+    if (!r.ok) { console.error("postings list error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const data = await r.json();
+    const postings = (data.results || []).map((pg) => {
+      const p = pg.properties || {};
+      return {
+        id: pg.id,
+        title: txt(p["العنوان الوظيفي"]),
+        city: txt(p["المدينة"]),
+        field: txt(p["المجال"]),
+        description: txt(p["الوصف والمتطلبات"]),
+        status: txt(p["الحالة"]),
+      };
+    });
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, postings }));
+  }
+
+  res.statusCode = 400;
+  return res.end(JSON.stringify({ ok: false, error: "bad_action" }));
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
+  if (req.method === "POST") {
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    try { return await handlePostings(req, res); } catch (e) { console.error("postings handler error", e); res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "server_error" })); }
+  }
   if (req.method !== "GET") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
   if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
 

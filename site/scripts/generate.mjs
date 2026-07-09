@@ -2472,6 +2472,16 @@ function buildNewsletter() {
   return page({ title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
 }
 
+function fieldOptionsHtml() {
+  const pairs = [
+    ["هندسة", "Engineering"], ["تقنية معلومات", "IT"], ["مبيعات وتسويق", "Sales & Marketing"],
+    ["محاسبة ومالية", "Accounting & Finance"], ["إداري وسكرتارية", "Admin & Secretarial"], ["موارد بشرية", "HR"],
+    ["ضيافة ومطاعم", "Hospitality"], ["مقاولات وإنشاءات", "Construction"], ["صحة وطب", "Health"],
+    ["تعليم", "Education"], ["لوجستيات ونقل", "Logistics"], ["أخرى", "Other"],
+  ];
+  return pairs.map(([ar, en]) => `<option value="${esc(ar)}">${esc(L(en, ar))}</option>`).join("");
+}
+
 function buildEmployerDashboard() {
   const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
   const body = `
@@ -2501,6 +2511,7 @@ function buildEmployerDashboard() {
       <div class="empd-bar">
         <div class="empd-tabs">
           <button class="empd-tab" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
+          <button class="empd-tab" data-tab="postings">📋 ${L("Job Postings", "الوظائف المنشورة")}</button>
           <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
           <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
           <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
@@ -2517,6 +2528,22 @@ function buildEmployerDashboard() {
         </div>
         <p class="emp-note" id="empd-match-status"></p>
         <div class="emp-grid" id="empd-match-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="postings" hidden>
+        <div class="empd-match-box">
+          <h3>📋 ${L("Post a job", "انشر وظيفة")}</h3>
+          <p class="emp-note">${L("Open as many job postings as you need. AI screens and shortlists candidates for each one automatically.", "افتح عدد الوظائف اللي تحتاجه. الذكاء يفلتر ويرشّح المرشّحين المناسبين لكل وظيفة تلقائياً.")}</p>
+          <div class="grid grid-2" style="gap:0 14px">
+            <div class="field"><label for="empjob-title">${L("Job title", "المسمى الوظيفي")}</label><input id="empjob-title" type="text" placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
+            <div class="field"><label for="empjob-city">${L("City", "المدينة")}</label><input id="empjob-city" type="text" placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
+          </div>
+          <div class="field"><label for="empjob-field">${L("Field", "المجال")}</label><select id="empjob-field"><option value="">${L("Auto-detect from title", "يُحدَّد تلقائياً من المسمى")}</option>${fieldOptionsHtml()}</select></div>
+          <div class="field"><label for="empjob-desc">${L("Description & requirements", "الوصف والمتطلبات")}</label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
+          <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
+          <p class="emp-note" id="empjob-status"></p>
+        </div>
+        <div id="empjob-list"></div>
       </div>
 
       <div class="empd-panel" data-panel="browse">
@@ -2639,6 +2666,7 @@ function buildPortalDashboard() {
       <div class="empd-bar">
         <div class="empd-tabs">
           <button class="empd-tab" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
+          <button class="empd-tab" data-tab="postings">📋 ${L("Job Postings", "الوظائف المنشورة")}</button>
           <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
           <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
           <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
@@ -2655,6 +2683,22 @@ function buildPortalDashboard() {
         </div>
         <p class="emp-note" id="empd-match-status"></p>
         <div class="emp-grid" id="empd-match-grid"></div>
+      </div>
+
+      <div class="empd-panel" data-panel="postings" hidden>
+        <div class="empd-match-box">
+          <h3>📋 ${L("Post a job", "انشر وظيفة")}</h3>
+          <p class="emp-note">${L("Open as many job postings as you need. AI screens and shortlists candidates for each one automatically.", "افتح عدد الوظائف اللي تحتاجه. الذكاء يفلتر ويرشّح المرشّحين المناسبين لكل وظيفة تلقائياً.")}</p>
+          <div class="grid grid-2" style="gap:0 14px">
+            <div class="field"><label for="empjob-title">${L("Job title", "المسمى الوظيفي")}</label><input id="empjob-title" type="text" placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
+            <div class="field"><label for="empjob-city">${L("City", "المدينة")}</label><input id="empjob-city" type="text" placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
+          </div>
+          <div class="field"><label for="empjob-field">${L("Field", "المجال")}</label><select id="empjob-field"><option value="">${L("Auto-detect from title", "يُحدَّد تلقائياً من المسمى")}</option>${fieldOptionsHtml()}</select></div>
+          <div class="field"><label for="empjob-desc">${L("Description & requirements", "الوصف والمتطلبات")}</label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
+          <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
+          <p class="emp-note" id="empjob-status"></p>
+        </div>
+        <div id="empjob-list"></div>
       </div>
 
       <div class="empd-panel" data-panel="browse">

@@ -437,6 +437,13 @@ var BP = window.BP = window.BP || {};
     initCombobox(document.getElementById("c-city"), function () { return cityOptions(lang); });
     initCombobox(document.getElementById("c-exp"), function () { return experienceOptions(lang); });
   });
+
+  // Exposed so other pages (e.g. the employer job-posting form) can reuse
+  // the same standardized job-title/city taxonomy and combobox widget.
+  window.BP = window.BP || {};
+  BP.initCombobox = initCombobox;
+  BP.jobTitleOptions = jobTitleOptions;
+  BP.cityOptions = cityOptions;
 })();
 
 /* ---------- Careers: join candidate pool → /api/candidate (Notion) ---------- */
@@ -1794,6 +1801,7 @@ var BP_EMP_BILLING = "monthly";
         document.querySelectorAll(".empd-panel").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== tab; });
         if (tab === "shortlist") renderShort();
         if (tab === "pipeline") renderPipe();
+        if (tab === "postings") loadPostings();
       });
     });
 
@@ -1931,6 +1939,90 @@ var BP_EMP_BILLING = "monthly";
         })
         .catch(function (e) { console.error("AI Match network error", e); st.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
     });
+
+    // ---- Job Postings: publish + AI screen each posting against the pool ----
+    var titleEl = document.getElementById("empjob-title"), cityEl = document.getElementById("empjob-city");
+    if (window.BP && BP.initCombobox && titleEl && cityEl) {
+      BP.initCombobox(titleEl, function () { return BP.jobTitleOptions(isAr ? "ar" : "en"); });
+      BP.initCombobox(cityEl, function () { return BP.cityOptions(isAr ? "ar" : "en"); });
+    }
+    var POSTINGS = [];
+    function loadPostings() {
+      var list = document.getElementById("empjob-list");
+      if (!CODE || DEMO) { list.innerHTML = '<p class="emp-note">' + T("Subscribe (or use a demo/real code) to post jobs.", "اشترك (أو استخدم رمزاً تجريبياً/حقيقياً) لنشر الوظائف.") + "</p>"; return; }
+      list.innerHTML = '<p class="emp-note">' + T("Loading…", "جارٍ التحميل…") + "</p>";
+      fetch("/api/candidates", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "list-postings", code: CODE }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          POSTINGS = (d && d.ok && d.postings) || [];
+          renderPostings();
+        })
+        .catch(function () { list.innerHTML = '<p class="emp-note">' + T("Couldn't load your job postings.", "تعذّر تحميل وظائفك المنشورة.") + "</p>"; });
+    }
+    function renderPostings() {
+      var list = document.getElementById("empjob-list");
+      if (!POSTINGS.length) { list.innerHTML = '<p class="emp-note">' + T("No job postings yet — publish your first one above.", "لا يوجد وظائف منشورة بعد — انشر أول وظيفة أعلاه.") + "</p>"; return; }
+      list.innerHTML = POSTINGS.map(function (p, i) {
+        return '<div class="empd-match-box empjob-card" data-i="' + i + '">' +
+          '<div class="empd-flow" style="justify-content:space-between"><h3 style="margin:0">' + esc(p.title) + (p.city ? ' <span class="emp-tag">📍 ' + esc(p.city) + "</span>" : "") + '</h3>' +
+          '<span class="emp-tag">' + esc(p.status || "") + "</span></div>" +
+          (p.description ? '<p class="emp-note">' + nl2br(p.description).slice(0, 400) + "</p>" : "") +
+          '<button class="btn btn-primary btn-sm empjob-screen" data-i="' + i + '">🤖 ' + T("Screen candidates with AI", "افحص المرشّحين بالذكاء") + "</button>" +
+          '<p class="emp-note" id="empjob-status-' + i + '"></p>' +
+          '<div class="emp-grid" id="empjob-grid-' + i + '"></div>' +
+          "</div>";
+      }).join("");
+      list.querySelectorAll(".empjob-screen").forEach(function (b) {
+        b.addEventListener("click", function () { screenPosting(Number(b.getAttribute("data-i"))); });
+      });
+    }
+    function screenPosting(i) {
+      var p = POSTINGS[i];
+      if (!p) return;
+      var st = document.getElementById("empjob-status-" + i), grid = document.getElementById("empjob-grid-" + i);
+      if (!UNLOCKED || planRank() < 2) { st.textContent = T("Upgrade to Professional to use AI screening.", "رقِّ باقتك إلى «احترافية» لتفعيل الفحص الذكي."); return; }
+      if (!CANDS.length) { st.textContent = T("Loading candidates… try again in a moment.", "يتم تحميل المرشّحين… حاول بعد لحظات."); load(); return; }
+      var role = [p.title, p.field, p.city].filter(Boolean).join(" — ") + "\n" + (p.description || "");
+      st.textContent = "✨ " + T("AI is screening your best-fit candidates…", "الذكاء يفحص أنسب المرشّحين…"); grid.innerHTML = "";
+      var pool = p.field ? CANDS.filter(function (c) { return c.field === p.field; }) : CANDS;
+      if (!pool.length) pool = CANDS;
+      fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: "match", role: role, candidates: pool.map(function (c) { return { id: c.id, role: c.role, field: c.field, city: c.city, experience: c.experience, education: c.education, nationalityType: c.nationalityType, skills: c.skills }; }) }) })
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          var d = res.d;
+          if (res.s >= 400 || !d || !d.ok) { st.textContent = T("Screening failed — please try again in a moment.", "تعذّر الفحص — حاول مرة أخرى بعد قليل."); return; }
+          if (!d.ranked || !d.ranked.length) { st.textContent = T("No strong matches for this posting yet.", "لا يوجد مطابقات قوية لهذه الوظيفة حالياً."); return; }
+          var byId = {}; pool.forEach(function (c) { byId[c.id] = c; });
+          var items = d.ranked.map(function (m) { var c = byId[m.id]; return c ? { c: c, m: m } : null; }).filter(Boolean);
+          st.textContent = "✨ " + items.length + " " + T("matched candidates (best first)", "مرشّح مطابق (الأفضل أولاً)");
+          grid.innerHTML = items.map(function (x) { return card(x.c, { match: x.m }); }).join("");
+          bindCard(grid);
+        })
+        .catch(function () { st.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
+    }
+    var publishBtn = document.getElementById("empjob-publish");
+    if (publishBtn) {
+      publishBtn.addEventListener("click", function () {
+        var pstatus = document.getElementById("empjob-status");
+        var title = (titleEl.value || "").trim();
+        var city = (cityEl.value || "").trim();
+        var field = (document.getElementById("empjob-field").value || "").trim();
+        var description = (document.getElementById("empjob-desc").value || "").trim();
+        if (!title || !description) { pstatus.textContent = T("Enter a job title and description.", "أدخل المسمى الوظيفي والوصف."); return; }
+        if (!CODE || DEMO) { pstatus.textContent = T("Subscribe with a real access code to publish jobs.", "اشترك برمز حقيقي لنشر الوظائف."); return; }
+        publishBtn.disabled = true;
+        fetch("/api/candidates", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "create-posting", code: CODE, title: title, city: city, field: field, description: description }) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            publishBtn.disabled = false;
+            if (!d || !d.ok) { pstatus.textContent = T("Couldn't publish — try again.", "تعذّر النشر — حاول مجدداً."); return; }
+            pstatus.textContent = "✅ " + T("Job posting published.", "تم نشر الوظيفة.");
+            titleEl.value = ""; cityEl.value = ""; document.getElementById("empjob-field").value = ""; document.getElementById("empjob-desc").value = "";
+            loadPostings();
+          })
+          .catch(function () { publishBtn.disabled = false; pstatus.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
+      });
+    }
 
     // ---- Per-candidate AI + modal ----
     var modal = document.getElementById("empd-modal");
