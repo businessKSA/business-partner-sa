@@ -15,6 +15,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>لوحة العميل | وكيل الامتثال — شريك الأعمال</title>
+  <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
   <style>
     :root{ --navy:#0B1B5A; --brand:#0066cc; --gold:#C79A3A; --red:#dc2626; --yellow:#d97706; --green:#16a34a; --gray:#6b7280; }
     body{ padding-top:0; background:#eef1f7; min-height:100vh; }
@@ -79,6 +80,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     .entity:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(11,27,90,.1); }
     .entity .icon{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; background:#eef2fb; margin-bottom:.6rem; }
     .entity .badge-logo{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:.6rem; color:#fff; font-weight:800; font-size:.72rem; line-height:1.15; text-align:center; padding:.2rem; box-shadow:inset 0 0 0 1px rgba(255,255,255,.25); }
+    .entity .badge-logo svg{ width:26px; height:26px; display:block; }
     .calc-card{ display:flex; align-items:center; gap:.9rem; background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1rem 1.2rem; text-decoration:none; box-shadow:0 6px 18px rgba(11,27,90,.05); transition:transform .12s; }
     .calc-card:hover{ transform:translateY(-2px); }
     .calc-card .cicon{ width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; background:#eef2fb; flex-shrink:0; }
@@ -120,7 +122,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     /* chat */
     #chat-toggle{ position:fixed; bottom:1.2rem; left:1.2rem; background:var(--gold); color:#221a00; border:0; border-radius:999px; padding:.8rem 1.3rem; font-weight:700; box-shadow:0 8px 20px rgba(0,0,0,.25); cursor:pointer; z-index:50; }
     #chat-frame-wrap{ position:fixed; bottom:5rem; left:1.2rem; width:min(380px,92vw); height:min(560px,70vh); border-radius:16px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.3); display:none; z-index:50; background:#fff; }
-    #chat-frame-wrap iframe{ width:100%; height:100%; border:0; }
+    #chat-frame-wrap #n8n-chat-widget{ width:100%; height:100%; }
     .err-banner{ background:#fdecec; color:#b3261e; border-radius:10px; padding:.8rem 1rem; margin-bottom:1rem; display:none; }
     @media(max-width:640px){ .score-card{ flex-direction:column; text-align:center; } }
   </style>
@@ -258,7 +260,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
   </div>
 
   <button id="chat-toggle">💬 اسأل وكيل الامتثال</button>
-  <div id="chat-frame-wrap"><iframe src={CHAT_URL} title="وكيل الامتثال"></iframe></div>
+  <div id="chat-frame-wrap"><div id="n8n-chat-widget"></div></div>
 
   <script define:vars={{ API_URL }}>
     // Branded badges (colored word-marks) instead of generic emoji or scraped
@@ -278,6 +280,25 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       civildefense: { bg:'#B91C1C', label:'الدفاع المدني' },
       ejar:         { bg:'#1D4ED8', label:'إيجار' },
       misa:         { bg:'#0369A1', label:'MISA' },
+    };
+
+    // One distinct pictogram per government entity (simple generic icons, not
+    // scraped official emblems — same rationale as the color chips above).
+    const ENTITY_ICONS = {
+      sbc:          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg>',
+      cr:           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h6"/></svg>',
+      chamber:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10M19 21V10M9 21V10M15 21V10"/><path d="M3 10l9-6 9 6"/></svg>',
+      address:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>',
+      qiwa:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>',
+      muqeem:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M6 16c0-1.7 1.3-3 3-3s3 1.3 3 3"/><path d="M14 9h4M14 13h4"/></svg>',
+      mudad:        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="7" cy="14.5" r="1"/></svg>',
+      gosi:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+      zatca:        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M9 17l6-6M10 12h.01M15 15h.01"/></svg>',
+      customs:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-4 9 4-9 4-9-4z"/><path d="M3 8v9l9 4 9-4V8"/><path d="M12 12v9"/></svg>',
+      balady:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V10l5-4 5 4v11"/><path d="M14 21v-7l4-3 3 3v7z"/><path d="M8 21v-4M8 13h.01"/></svg>',
+      civildefense: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/><path d="M12 8c1.5 2 1.5 3.5 0 5.5-1.5-2-1.5-3.5 0-5.5z"/></svg>',
+      ejar:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><circle cx="14.5" cy="15.5" r="1.5"/><path d="M14.5 17v2"/></svg>',
+      misa:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.8 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.8-4-9s1.5-6.5 4-9z"/></svg>',
     };
 
     const loginScreen = document.getElementById('login-screen');
@@ -384,7 +405,8 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
         else if (p.yellow > 0) { statusClass = 'warn'; statusText = p.yellow + ' تنبيه'; }
         else if (p.hasData) { statusClass = 'ok'; statusText = 'سليم'; }
         const badge = ENTITY_BADGES[p.key] || { bg:'#0B1B5A', label: p.label };
-        return '<div class="entity" data-label="' + p.label + '"><div class="badge-logo" style="background:' + badge.bg + '">' + badge.label + '</div>' +
+        const icon = ENTITY_ICONS[p.key] || badge.label;
+        return '<div class="entity" data-label="' + p.label + '"><div class="badge-logo" style="background:' + badge.bg + '" title="' + badge.label + '">' + icon + '</div>' +
           '<div class="label">' + p.label + '</div><div class="authority">' + p.authority + '</div>' +
           '<div class="status ' + statusClass + '">' + statusText + '</div>' +
           '<div class="api-note">🔌 ربط مباشر قريباً</div></div>';
@@ -528,6 +550,20 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
         });
       }
     })();
+  </script>
+  <script type="module" define:vars={{ CHAT_URL }}>
+    // n8n's hosted-chat webhook page can't be embedded via a raw <iframe> (it
+    // isn't served with iframe-friendly framing), so we mount the official
+    // @n8n/chat widget in fullscreen mode inside our own toggleable wrapper
+    // instead — it talks to the webhook via fetch, not by navigating a frame.
+    import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+    createChat({
+      webhookUrl: CHAT_URL,
+      target: '#n8n-chat-widget',
+      mode: 'fullscreen',
+      showWelcomeScreen: false,
+      i18n: { en: { title: 'وكيل الامتثال', subtitle: '', footer: '', getStarted: 'ابدأ محادثة', inputPlaceholder: 'اكتب سؤالك عن الامتثال...', closeButtonTooltip: 'إغلاق' } },
+    });
   </script>
 </body>
 </html>
