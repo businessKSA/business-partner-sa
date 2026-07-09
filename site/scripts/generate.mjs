@@ -4224,7 +4224,7 @@ function buildSharedServices() {
       <h1>${L("Your smart executive team", "فريقك التنفيذي الذكي")}</h1>
       <p class="lead">${L("Instead of hiring a whole office, get a full team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant — led by Khaled, who understands your request, delegates to the right specialist, executes, and escalates only what needs your approval.", "بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يعملون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعِدة تنفيذية — بقيادة خالد الذي يفهم طلبك، يوزّعه على المتخصص المناسب، ينفّذ، ويصعّد فقط ما يحتاج موافقتك.")}</p>
       <div class="ss-cta">
-        <a class="btn btn-primary" href="#ss-chat">${L("Open your team now", "افتح فريقك الآن")}</a>
+        <a class="btn btn-primary" href="#ss-gate">${L("Open your team now", "افتح فريقك الآن")}</a>
         <a class="btn btn-ghost" href="${u("/ai-agents")}">${L("Plans & details", "الباقات والتفاصيل")}</a>
       </div>
     </div>
@@ -4240,27 +4240,15 @@ function buildSharedServices() {
 
   <section class="ss-sec" id="ss-gate">
     <div class="wrap">
-      <div class="sec-head"><h2>${L("Subscribe & activate", "الاشتراك والتفعيل")}</h2><p>${L("Subscribe, transfer the fee, and once our team approves you'll get an access code by email that opens your team instantly. Already have a code? Enter it below.", "اشترك، حوّل قيمة الاشتراك، وبعد اعتماد فريقنا يصلك كود وصول على بريدك يفتح فريقك مباشرة. عندك كود؟ أدخله بالأسفل.")}</p></div>
-      <div class="ss-grid2">
-        <div class="ss-box">
-          <h3 class="ss-h3">${L("1) Subscribe", "١) اشترك الآن")}</h3>
-          <form class="ss-fields" id="ss-sub">
-            <input id="sub-name" type="text" placeholder="${Lraw("Full name", "الاسم الكامل")}" autocomplete="name">
-            <input id="sub-email" type="email" placeholder="${Lraw("Email", "البريد الإلكتروني")}" autocomplete="email" required>
-            <input id="sub-phone" type="tel" placeholder="${Lraw("Mobile", "رقم الجوال")}" autocomplete="tel">
-            <button class="btn btn-primary" type="submit">${L("Subscribe (bank transfer)", "اشترك (تحويل بنكي)")}</button>
-          </form>
-          <div class="ss-note-box" id="sub-result" hidden></div>
-        </div>
-        <div class="ss-box">
-          <h3 class="ss-h3">${L("2) I have an access code", "٢) عندي كود وصول")}</h3>
-          <form class="ss-fields" id="ss-unlock">
-            <input id="unl-email" type="email" placeholder="${Lraw("The email you subscribed with", "البريد الذي اشتركت به")}" autocomplete="email" required>
-            <input id="unl-code" type="text" placeholder="BP-SS-XXXXXX" style="letter-spacing:2px;text-transform:uppercase" required>
-            <button class="btn btn-primary" type="submit">${L("Open my service", "افتح خدمتي")}</button>
-          </form>
-          <div class="ss-note-box" id="unl-result" hidden></div>
-        </div>
+      <div class="ss-access">
+        <h2>${L("Open your service", "افتح خدمتك")}</h2>
+        <p>${L("Enter your access code to open your executive team dashboard. Registration and payment are done through the client portal — after activation your code arrives by email.", "أدخل رمز الوصول لفتح لوحة فريقك التنفيذي. التسجيل والدفع يتمّان عبر بوابة العميل، وبعد التفعيل يصلك رمزك على بريدك.")}</p>
+        <form class="ss-access-form" id="ss-unlock">
+          <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw("Access code (demo: demo123)", "رمز الوصول (تجربة: demo123)")}" aria-label="${Lraw("Access code", "رمز الوصول")}">
+          <button class="btn btn-primary" type="submit">${L("Open my service", "افتح خدمتي")}</button>
+        </form>
+        <div class="ss-note-box" id="unl-result" hidden></div>
+        <a class="ss-portal-link" href="${u("/portal")}">${L("Register & subscribe via the client portal →", "التسجيل والاشتراك عبر بوابة العميل ←")}</a>
       </div>
     </div>
   </section>
@@ -4297,14 +4285,16 @@ function buildSharedServices() {
     .ss-msg.me{align-self:flex-end;background:#0e5a55;color:#eafffb}
     .ss-form{display:flex;gap:8px;margin-top:12px}
     .ss-form input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
-    .ss-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:860px;margin:0 auto}
-    .ss-h3{margin:0 0 12px;font-size:1.05rem}
-    .ss-fields{display:flex;flex-direction:column;gap:10px}
-    .ss-fields input{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
-    .ss-note-box{margin-top:12px;border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.7}
+    .ss-access{max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 10px 30px rgba(11,27,90,.06)}
+    .ss-access h2{margin:0 0 8px}
+    .ss-access>p{color:var(--text-soft,#5b6b86);margin:0 auto 18px;max-width:460px;line-height:1.8}
+    .ss-access-form{display:flex;gap:8px;max-width:440px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+    .ss-access-form input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:12px;padding:13px 15px;font:inherit;text-align:center;letter-spacing:1px}
+    .ss-portal-link{display:inline-block;margin-top:16px;color:var(--brand,#0b1b5a);font-weight:600;text-decoration:none;font-size:.92rem}
+    .ss-portal-link:hover{text-decoration:underline}
+    .ss-note-box{margin:14px auto 0;max-width:440px;border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.7}
     .ss-note-box.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
     .ss-note-box.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
-    @media(max-width:640px){.ss-grid2{grid-template-columns:1fr}}
   </style>`;
 
   const script = `<script>(function(){
@@ -4316,33 +4306,14 @@ function buildSharedServices() {
     function openService(){ if(gate)gate.hidden=true; if(chat){chat.hidden=false; chat.scrollIntoView({behavior:'smooth',block:'start'});} }
     if(localStorage.getItem('bp_ss_token')) openService();
 
-    var sub=document.getElementById('ss-sub');
-    if(sub) sub.addEventListener('submit',function(e){e.preventDefault();
-      var name=(document.getElementById('sub-name').value||'').trim();
-      var email=(document.getElementById('sub-email').value||'').trim();
-      var phone=(document.getElementById('sub-phone').value||'').trim();
-      var box=document.getElementById('sub-result');
-      if(!email){note(box,${JSON.stringify(Lraw("Please enter your email.", "أدخل بريدك الإلكتروني."))},'err');return;}
-      note(box,${JSON.stringify(Lraw("Sending…", "جارٍ الإرسال…"))},'ok');
-      fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'subscribe',name:name,email:email,phone:phone,plan:'shared'})})
-      .then(function(r){return r.json();}).then(function(d){
-        if(d&&d.ok){var b=d.bank||{};note(box,(d.message||'')+' — '+${JSON.stringify(Lraw("Ref:", "رقم الطلب:"))}+' '+(d.ref||'')+(b.iban?(' · IBAN '+b.iban):''),'ok');}
-        else note(box,(d&&d.message)||${JSON.stringify(Lraw("Couldn't submit. Try again or contact us on WhatsApp.", "تعذّر الإرسال. حاول مرة ثانية أو تواصل واتساب."))},'err');
-      }).catch(function(){note(box,${JSON.stringify(Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية."))},'err');});
-    });
-
+    var DEMO_CODES=['demo123'];
     var unl=document.getElementById('ss-unlock');
     if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
-      var email=(document.getElementById('unl-email').value||'').trim();
       var code=(document.getElementById('unl-code').value||'').trim();
       var box=document.getElementById('unl-result');
-      if(!email||!code){note(box,${JSON.stringify(Lraw("Enter your email and code.", "أدخل البريد والكود."))},'err');return;}
-      note(box,${JSON.stringify(Lraw("Checking…", "جارٍ التحقق…"))},'ok');
-      fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'unlock',email:email,code:code})})
-      .then(function(r){return r.json();}).then(function(d){
-        if(d&&d.ok&&d.token){localStorage.setItem('bp_ss_token',d.token);localStorage.setItem('bp_ss_email',email);note(box,d.message||'✓','ok');openService();}
-        else note(box,(d&&d.message)||${JSON.stringify(Lraw("Invalid code.", "الكود غير صحيح."))},'err');
-      }).catch(function(){note(box,${JSON.stringify(Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية."))},'err');});
+      if(!code){note(box,${JSON.stringify(Lraw("Enter your access code.", "أدخل رمز الوصول."))},'err');return;}
+      if(DEMO_CODES.indexOf(code.toLowerCase())>-1){localStorage.setItem('bp_ss_token','demo');note(box,${JSON.stringify(Lraw("Welcome — opening your team…", "أهلاً بك — نفتح فريقك…"))},'ok');openService();return;}
+      note(box,${JSON.stringify(Lraw("This code is entered in your account after activation. Please register & subscribe via the client portal.", "هذا الرمز يُدخل في حسابك بعد التفعيل. الرجاء التسجيل والاشتراك عبر بوابة العميل."))},'err');
     });
 
     if(!form)return;
