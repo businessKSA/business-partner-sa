@@ -105,9 +105,14 @@ export default async function handler(req, res) {
   const email = clip(b.email, 160).toLowerCase();
   const phone = clip(b.phone, 40);
   const planKey = ["basic", "pro", "enterprise"].includes(b.plan) ? b.plan : "";
-  const planAr = PLAN_AR[planKey] || "";
   const billing = b.billing === "yearly" ? "سنوي" : "شهري";
   const notes = clip(b.notes, 600);
+
+  // Owner testing override — the owner's own registrations activate instantly
+  // (top-tier plan, no manual Notion approval) so they can test live.
+  const OWNER_EMAIL = (process.env.OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
+  const isOwner = email === OWNER_EMAIL;
+  const planAr = isOwner ? PLAN_AR.enterprise : (PLAN_AR[planKey] || "");
 
   if (!company || !phone) {
     res.statusCode = 400;
@@ -127,14 +132,14 @@ export default async function handler(req, res) {
       const props = {
         "اسم الشركة": { title: [{ text: { content: company } }] },
         "الجوال": { phone_number: phone },
-        "الحالة": { select: { name: "بانتظار الدفع" } },
+        "الحالة": { select: { name: isOwner ? "مفعّل" : "بانتظار الدفع" } },
         "رمز الوصول": { rich_text: rt(ref) },
       };
       if (cr) props["السجل التجاري"] = { rich_text: rt(cr) };
       if (contact) props["جهة الاتصال"] = { rich_text: rt(contact) };
       if (isEmail(email)) props["البريد"] = { email };
       if (planAr) props["الباقة"] = { select: { name: planAr } };
-      props["ملاحظات"] = { rich_text: rt((notes ? notes + " — " : "") + `الفوترة: ${billing}`) };
+      props["ملاحظات"] = { rich_text: rt((notes ? notes + " — " : "") + `الفوترة: ${billing}` + (isOwner ? " — تفعيل تلقائي (مالك)" : "")) };
       r = await notion("pages", { parent: { database_id: DB_ID }, properties: props });
     } else {
       // No dedicated DB: create a child page under the HR center page.
@@ -150,7 +155,7 @@ export default async function handler(req, res) {
         line("الجوال", phone),
         line("البريد", email || "—"),
         line("السجل التجاري", cr || "—"),
-        line("الحالة", "بانتظار الدفع"),
+        line("الحالة", isOwner ? "مفعّل" : "بانتظار الدفع"),
       ];
       if (notes) children.push(line("ملاحظات", notes));
       r = await notion("pages", {

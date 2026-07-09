@@ -53,10 +53,15 @@ const maskName = (n) => {
   return parts.slice(0, 2).map((w) => w[0] + ".").join(" ");
 };
 
-// Resolve a subscription code → { unlocked, plan }. Checks the static EMPLOYER_CODES
-// env (legacy) first, then the Employers Notion DB for an ACTIVE row by access code.
+// Owner testing override — always unlocks the top-tier plan, no Notion lookup.
+const OWNER_CODE = process.env.OWNER_DEMO_CODE || "demo123";
+
+// Resolve a subscription code → { unlocked, plan }. Checks the owner override,
+// then the static EMPLOYER_CODES env (legacy), then the Employers Notion DB
+// for an ACTIVE row by access code.
 async function resolvePlan(code) {
   if (!code) return { unlocked: false, plan: "" };
+  if (code === OWNER_CODE) return { unlocked: true, plan: "مؤسسية" };
   if (CODES.includes(code)) return { unlocked: true, plan: "" };
   try {
     const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
