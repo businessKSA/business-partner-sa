@@ -5,7 +5,7 @@ export const prerender = false;
 
 // n8n lead pipeline (Notion Leads DB + WhatsApp to us & client + dashboard).
 // Set N8N_INVESTOR_LEAD_WEBHOOK in env to enable once the n8n plan allows executions.
-const N8N_WEBHOOK = import.meta.env.N8N_INVESTOR_LEAD_WEBHOOK || process.env.N8N_INVESTOR_LEAD_WEBHOOK || '';
+const N8N_WEBHOOK = import.meta.env.N8N_INVESTOR_LEAD_WEBHOOK || process.env.N8N_INVESTOR_LEAD_WEBHOOK || 'https://businesspartnerai.app.n8n.cloud/webhook/investor-lead';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
