@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>سياحة الأعمال — محفول مكفول من بزنس بارتنر</title>
-<meta name="description" content="برنامج مخصّص للمستثمر الذي يرغب بدخول السعودية واستكشافها قبل أن يبدأ عمله: نعرّفك على الثقافة ونمط الحياة وطبيعة الأعمال، ونفتح لك أبواب الجهات والشركات ذ">
-<meta property="og:title" content="سياحة الأعمال — محفول مكفول من بزنس بارتنر">
-<meta property="og:description" content="برنامج مخصّص للمستثمر الذي يرغب بدخول السعودية واستكشافها قبل أن يبدأ عمله: نعرّفك على الثقافة ونمط الحياة وطبيعة الأعمال، ونفتح لك أبواب الجهات والشركات ذ">
+<title>محفول مكفول من بزنس بارتنر — استثمر في السعودية</title>
+<meta name="description" content="برنامج استشاري للمستثمرين الأجانب في السعودية: ترخيص وزارة الاستثمار، علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة.">
+<meta property="og:title" content="محفول مكفول من بزنس بارتنر — استثمر في السعودية">
+<meta property="og:description" content="برنامج استشاري للمستثمرين الأجانب في السعودية: ترخيص وزارة الاستثمار، علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="ar_SA">
@@ -40,21 +40,149 @@
     <button class="nav-toggle" aria-label="القائمة" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header><main>
-  <section class="hero"><div class="container hero-inner" style="max-width:900px">
+  <style>
+    .mm-hero{background:linear-gradient(160deg,var(--navy-900),var(--navy) 60%,var(--navy-700));color:#fff;padding:64px 0 72px;position:relative;overflow:hidden}
+    .mm-hero .subbrand-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff}
+    .mm-hero .subbrand-badge small{color:var(--mm-gold)}
+    .mm-hero h1{color:#fff;margin:18px 0 12px;font-size:clamp(30px,5vw,50px)}
+    .mm-hero .lead{color:rgba(255,255,255,.86);max-width:760px}
+    .mm-gold-line{width:64px;height:4px;border-radius:4px;background:var(--mm-gold);margin:0 0 18px}
+    :root{--mm-gold:#c6a45c}
+    .mm-cc{background:#fff;color:var(--text);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:760px;margin:34px auto 0;padding:26px 26px 30px;text-align:start}
+    .mm-cc-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+    .mm-cc-head .r{width:44px;height:44px;border-radius:12px;background:var(--navy);color:#fff;display:grid;place-items:center;flex:0 0 auto}
+    .mm-cc-head h3{margin:0;font-size:20px}
+    .mm-cc-head p{margin:2px 0 0;color:var(--text-soft);font-size:14px}
+    .mm-cc-lang{margin-inline-start:auto}
+    .mm-cc-lang select{border:1px solid var(--gray-line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--text)}
+    .mm-cc-bar{height:6px;border-radius:6px;background:var(--gray-line);margin:16px 0 20px;overflow:hidden}
+    .mm-cc-bar>i{display:block;height:100%;background:var(--navy);width:20%;transition:width .3s ease}
+    .mm-cc-q{font-size:18px;font-weight:700;margin:0 0 14px}
+    .mm-cc-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mm-cc-opt{border:1.5px solid var(--gray-line);background:#fff;border-radius:12px;padding:13px 15px;font:inherit;color:var(--text);cursor:pointer;text-align:start;transition:.15s;display:flex;align-items:center;gap:10px}
+    .mm-cc-opt:hover{border-color:var(--navy);background:var(--gray-bg)}
+    .mm-cc-opt.sel{border-color:var(--navy);background:var(--navy);color:#fff}
+    .mm-cc-nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+    .mm-cc-plan{border:1px solid var(--gray-line);border-radius:14px;background:var(--gray-bg);padding:18px 20px;margin-top:6px}
+    .mm-cc-plan h4{margin:0 0 10px;color:var(--navy)}
+    .mm-cc-plan .kv{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed var(--gray-line);font-size:15px}
+    .mm-cc-plan .kv:last-of-type{border-bottom:0}
+    .mm-cc-plan .kv b{min-width:120px;color:var(--text-soft);font-weight:600}
+    .mm-city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+    .mm-city{border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);padding:20px;display:flex;flex-direction:column;gap:11px}
+    .mm-city-top{display:flex;align-items:center;gap:12px}
+    .mm-city-ic{font-size:30px}
+    .mm-city-top h3{margin:0;font-size:20px}
+    .mm-city-tag{color:var(--mm-gold);font-weight:700;font-size:13px}
+    .mm-city-row{font-size:14px;line-height:1.5}
+    .mm-city-row b{display:block;color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1px}
+    .mm-sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .mm-sector{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm)}
+    .mm-sector-ic{font-size:26px}
+    .mm-sector h3{margin:8px 0 5px;font-size:17px}
+    .mm-sector p{margin:0;color:var(--text-soft);font-size:14px}
+    .mm-step-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+    .mm-step{position:relative;border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:22px 18px 18px}
+    .mm-step-n{position:absolute;top:-14px;inset-inline-start:18px;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800}
+    .mm-step h3{margin:8px 0 6px;font-size:17px}
+    .mm-step p{margin:0;color:var(--text-soft);font-size:14px}
+    @media(max-width:560px){.mm-cc-opts{grid-template-columns:1fr}}
+  </style>
+
+  <section class="mm-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
     <div class="subbrand-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg><span>محفول مكفول</span><small>من بزنس بارتنر</small></div>
-    <h1>سياحة الأعمال</h1>
-    <p class="lead">برنامج مخصّص للمستثمر الذي يرغب بدخول السعودية واستكشافها قبل أن يبدأ عمله: نعرّفك على الثقافة ونمط الحياة وطبيعة الأعمال، ونفتح لك أبواب الجهات والشركات ذات العلاقة بنشاطك.</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#mm-form"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>خطّط لرحلتك الاستكشافية</span></a><a class="btn btn-ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>تحدث مع الوكيل الذكي</span></a></div>
+    <h1>بوابتك للاستثمار في السعودية</h1>
+    <div class="mm-gold-line"></div>
+    <p class="lead">برنامج استشاري للمستثمرين الأجانب — علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة وقطاعاتها.</p>
+    <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#mm-concierge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg><span>ابدأ مع مستشار الاستثمار</span></a><a class="btn btn-ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>تواصل عبر واتساب</span></a></div>
+
+    <div class="mm-cc" id="mm-concierge">
+      <div class="mm-cc-head">
+        <span class="r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg></span>
+        <div><h3>مستشار الاستثمار الذكي</h3><p>أجب عن أسئلة قليلة — نُصمّم زيارتك.</p></div>
+        <span class="mm-cc-lang"><select id="mmccLang" aria-label="Language">
+          <option value="en">English</option><option value="ar">العربية</option><option value="zh">中文</option><option value="ru">Русский</option><option value="es">Español</option><option value="fr">Français</option><option value="ko">한국어</option><option value="ja">日本語</option>
+        </select></span>
+      </div>
+      <div class="mm-cc-bar"><i id="mmccBar"></i></div>
+      <div id="mmccBody"></div>
+    </div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">لمن هذا البرنامج</span><h2>استكشف قبل أن تستثمر</h2><p>إن كنت مستثمراً تفكّر في دخول السوق السعودي، نصمّم لك برنامج سياحة أعمال يجمع بين التعرّف على المملكة (الثقافة، نمط الحياة، الأعمال) وبين لقاءات عملية تفتح لك الأبواب — حسب نشاطك واهتمامك.</p></div>
+    <div class="section-head"><span class="eyebrow">ماذا نقدّم</span><h2>خدمات استشارة المستثمر</h2><p>كل ما يحتاجه المستثمر الأجنبي ليستكشف ويقرّر ويدخل السوق السعودي — عبر شريك واحد موثوق.</p></div>
+    <div class="grid grid-3"><div class="card feature"><div class="card-icon" style="font-size:26px">🏛️</div><h3>ترخيص وزارة الاستثمار ودخول السوق</h3><p>ترخيص المستثمر من وزارة الاستثمار (MISA) وتأسيس المقر الإقليمي وأسرع مسار نظامي لدخول السوق.</p></div><div class="card feature"><div class="card-icon" style="font-size:26px">🤝</div><h3>العلاقات الحكومية والجهات التنظيمية</h3><p>تعريف ولقاءات منسّقة مع الوزارات والجهات التنظيمية ذات الصلة بقطاعك.</p></div><div class="card feature"><div class="card-icon" style="font-size:26px">📅</div><h3>لقاءات تنفيذية مُنسّقة</h3><p>لقاءات ثنائية مع صنّاع القرار والشركاء والعملاء المحتملين — مرتّبة حول جدول أعمالك.</p></div><div class="card feature"><div class="card-icon" style="font-size:26px">🎤</div><h3>المنتديات وورش العمل والفعاليات</h3><p>حضور المنتديات القطاعية وورش العمل الاستثمارية والمناسبات الرسمية خلال زيارتك.</p></div><div class="card feature"><div class="card-icon" style="font-size:26px">🎯</div><h3>تحديد الفرص الاستثمارية</h3><p>قائمة مختصرة بفرص مدروسة وقطاعات واعدة تناسب رأس مالك وتوجّهك.</p></div><div class="card feature"><div class="card-icon" style="font-size:26px">🥂</div><h3>الضيافة التنفيذية والبروتوكول</h3><p>فنادق فاخرة وغداءات أعمال وجولات خاصة وبروتوكول يليق بمستثمر أجنبي.</p></div><div class="card feature"><div class="card-icon" style="font-size:26px">🕌</div><h3>الانغماس الثقافي ونمط الحياة</h3><p>تعرّف على الثقافة السعودية ونمط الحياة وطبيعة الأعمال — قبل أن تتخذ قرارك.</p></div><div class="card feature"><div class="card-icon" style="font-size:26px">⚖️</div><h3>الاستشارات القانونية والضريبية</h3><p>مستشارون قانونيون وضريبيون موثوقون لتقليل مخاطر دخولك وحماية استثمارك.</p></div></div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">ماذا يشمل البرنامج</span><h2>برنامج مصمّم على نشاطك</h2></div>
-    <div class="grid grid-3"><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div><h3>زيارات للمنشآت ذات العلاقة</h3><p>زيارات لجهات مثل وزارة الاستثمار ومنشآت ذات صلة بنشاطك للتعرّف على بيئة السوق.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div><h3>لقاءات مع أصحاب المصلحة</h3><p>نرتّب لك لقاءات مع الجهات الحكومية والشركات ذات العلاقة حسب مجالك.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div><h3>فتح الأبواب والتعريف</h3><p>نفتح لك أبواب الشركاء والفرص، ونعرّفك على طبيعة الأعمال في قطاعك.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div><h3>الثقافة ونمط الحياة</h3><p>تجربة تعرّفك على الثقافة السعودية ونمط الحياة عن قرب قبل قرارك.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div><h3>ضيافة وجولات</h3><p>أفضل المطاعم والفنادق والجولات السياحية — تجربة سياحة أعمال متكاملة.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div><h3>الفرص الاستثمارية</h3><p>نطلعك على الفرص الاستثمارية والقطاعات الواعدة المناسبة لك.</p></div></div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>برنامج يُصمَّم خصيصاً حسب نشاطك واهتماماتك — تواصل معنا لنرتّب لك رحلتك.</p></div>
+    <div class="section-head"><span class="eyebrow">إلى أين</span><h2>برامج المستثمر حسب المدينة</h2><p>كل برنامج يربط قطاعك بالجهات والكيانات والتجارب الميدانية المناسبة.</p></div>
+    <div class="mm-city-grid">
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">🏙️</span><div><h3>الرياض</h3><span class="mm-city-tag">العاصمة ومركز القرار</span></div></div>
+      <div class="mm-city-row"><b>القطاعات</b><span>المال · التقنية · المقار الإقليمية</span></div>
+      <div class="mm-city-row"><b>أبرز الجهات</b><span>وزارة الاستثمار · برنامج المقار الإقليمية · هيئة السوق المالية · غرفة الرياض</span></div>
+      <div class="mm-city-row"><b>يشمل البرنامج</b><span>إحاطات حكومية، استشارة المقر الإقليمي، لقاءات تنفيذية، جولة في مركز الملك عبدالله المالي</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="الرياض"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg><span>اطلب هذا البرنامج</span></a>
+    </div>
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">🌊</span><div><h3>جدة</h3><span class="mm-city-tag">بوابة البحر الأحمر والتجارة</span></div></div>
+      <div class="mm-city-row"><b>القطاعات</b><span>اللوجستيات · التجارة · السياحة</span></div>
+      <div class="mm-city-row"><b>أبرز الجهات</b><span>غرفة جدة · البنك الإسلامي للتنمية · هيئة الموانئ</span></div>
+      <div class="mm-city-row"><b>يشمل البرنامج</b><span>زيارات الموانئ واللوجستيات، تواصل مع الشركات العائلية، إحاطة عن مشاريع البحر الأحمر</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="جدة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg><span>اطلب هذا البرنامج</span></a>
+    </div>
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">🛢️</span><div><h3>المنطقة الشرقية</h3><span class="mm-city-tag">قلب الطاقة والصناعة</span></div></div>
+      <div class="mm-city-row"><b>القطاعات</b><span>الطاقة · الصناعة · البتروكيماويات</span></div>
+      <div class="mm-city-row"><b>أبرز الجهات</b><span>منظومة أرامكو · الهيئة الملكية بالجبيل · وادي الظهران للتقنية</span></div>
+      <div class="mm-city-row"><b>يشمل البرنامج</b><span>زيارات المدن الصناعية، لقاءات قطاع الطاقة، سلاسل الإمداد</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="المنطقة الشرقية"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg><span>اطلب هذا البرنامج</span></a>
+    </div>
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">🕋</span><div><h3>مكة المكرمة</h3><span class="mm-city-tag">اقتصاد ديني وضيافة</span></div></div>
+      <div class="mm-city-row"><b>القطاعات</b><span>الضيافة · التجزئة · الخدمات</span></div>
+      <div class="mm-city-row"><b>أبرز الجهات</b><span>غرفة مكة · مشغّلو الضيافة · جهات السياحة الدينية</span></div>
+      <div class="mm-city-row"><b>يشمل البرنامج</b><span>إحاطة استثمار السياحة الدينية، لقاءات مشغّلي الضيافة</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="مكة المكرمة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg><span>اطلب هذا البرنامج</span></a>
+    </div>
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">🌱</span><div><h3>المدينة المنورة</h3><span class="mm-city-tag">اقتصاد المعرفة والزراعة</span></div></div>
+      <div class="mm-city-row"><b>القطاعات</b><span>الزراعة · التعليم · السياحة</span></div>
+      <div class="mm-city-row"><b>أبرز الجهات</b><span>مدينة المعرفة الاقتصادية · غرفة المدينة · الجهات الزراعية</span></div>
+      <div class="mm-city-row"><b>يشمل البرنامج</b><span>جولة في مدينة المعرفة الاقتصادية، إحاطة الاستثمار الزراعي</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="المدينة المنورة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg><span>اطلب هذا البرنامج</span></a>
+    </div>
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">⛰️</span><div><h3>عسير</h3><span class="mm-city-tag">سياحة المرتفعات والطبيعة</span></div></div>
+      <div class="mm-city-row"><b>القطاعات</b><span>السياحة · الزراعة · الترفيه</span></div>
+      <div class="mm-city-row"><b>أبرز الجهات</b><span>تطوير السودة · غرفة عسير · جهات السياحة</span></div>
+      <div class="mm-city-row"><b>يشمل البرنامج</b><span>جولة قمم السودة، استثمار سياحة الجبال، السياحة الزراعية</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="عسير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg><span>اطلب هذا البرنامج</span></a>
+    </div>
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">🌐</span><div><h3>نيوم</h3><span class="mm-city-tag">المستقبل والابتكار</span></div></div>
+      <div class="mm-city-row"><b>القطاعات</b><span>التقنية · الطاقة النظيفة · السياحة</span></div>
+      <div class="mm-city-row"><b>أبرز الجهات</b><span>نيوم · أوكساجون · ذا لاين · مكتب الاستثمار</span></div>
+      <div class="mm-city-row"><b>يشمل البرنامج</b><span>إحاطة نيوم، نظرة على ذا لاين وأوكساجون، فرص الطاقة النظيفة</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="نيوم"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg><span>اطلب هذا البرنامج</span></a>
+    </div>
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">⚓</span><div><h3>جازان</h3><span class="mm-city-tag">صناعة ناشئة وموانئ</span></div></div>
+      <div class="mm-city-row"><b>القطاعات</b><span>الصناعة · اللوجستيات · الزراعة</span></div>
+      <div class="mm-city-row"><b>أبرز الجهات</b><span>مدينة جازان الاقتصادية · هيئة الميناء · قطاع الطاقة</span></div>
+      <div class="mm-city-row"><b>يشمل البرنامج</b><span>جولة مدينة جازان الاقتصادية، إحاطة الميناء والطاقة، الصناعات الزراعية</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="جازان"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg><span>اطلب هذا البرنامج</span></a>
+    </div></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">القطاعات المستهدفة</span><h2>القطاعات الواعدة التي نغطّيها</h2></div>
+    <div class="mm-sector-grid"><div class="mm-sector"><span class="mm-sector-ic">⚡</span><h3>الطاقة والصناعة</h3><p>النفط والغاز والبتروكيماويات والتعدين والصناعة.</p></div><div class="mm-sector"><span class="mm-sector-ic">💻</span><h3>التقنية</h3><p>البرمجيات والذكاء الاصطناعي ومراكز البيانات والبنية الرقمية.</p></div><div class="mm-sector"><span class="mm-sector-ic">✈️</span><h3>السياحة</h3><p>المشاريع الكبرى والضيافة والترفيه والفعاليات.</p></div><div class="mm-sector"><span class="mm-sector-ic">🏦</span><h3>المال والعقار</h3><p>أسواق المال والتقنية المالية والصناديق والتطوير العقاري.</p></div><div class="mm-sector"><span class="mm-sector-ic">🚢</span><h3>اللوجستيات والتجارة</h3><p>الموانئ والنقل والتخزين ومراكز إعادة التصدير.</p></div><div class="mm-sector"><span class="mm-sector-ic">🩺</span><h3>الرعاية الصحية</h3><p>المستشفيات والتقنية الحيوية والأجهزة الطبية والخدمات الصحية.</p></div><div class="mm-sector"><span class="mm-sector-ic">🏟️</span><h3>الرياضة والترفيه</h3><p>الأندية والمنشآت والألعاب والإعلام والفعاليات الحية.</p></div><div class="mm-sector"><span class="mm-sector-ic">🌾</span><h3>الزراعة والغذاء</h3><p>التقنية الزراعية والأمن الغذائي والاستزراع والتصنيع.</p></div></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">كيف نعمل</span><h2>من الاهتمام إلى الزيارة الميدانية</h2></div>
+    <div class="mm-step-grid"><div class="mm-step"><span class="mm-step-n">1</span><h3>شاركنا اهتمامك</h3><p>أجب عن أسئلة قليلة في المستشار أعلاه — الهدف والقطاع والمدينة والتوقيت.</p></div><div class="mm-step"><span class="mm-step-n">2</span><h3>نصمّم البرنامج</h3><p>نبني برنامجاً مخصّصاً من الإحاطات واللقاءات والزيارات الميدانية والضيافة.</p></div><div class="mm-step"><span class="mm-step-n">3</span><h3>ترتيب اللقاءات والزيارات</h3><p>ننسّق مع الجهات والشركاء والمناسبات ونؤكّد جدول أعمالك.</p></div><div class="mm-step"><span class="mm-step-n">4</span><h3>مرافقة ميدانية</h3><p>فريق مخصّص يستضيفك طوال الزيارة — البروتوكول والتنقّل والمتابعة.</p></div></div>
   </div></section>
 
   <section class="section" id="mm-form"><div class="container" style="max-width:720px">
@@ -151,4 +279,135 @@
       <button type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
     </form>
     <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>تفضّل التحدث مع فريقنا على واتساب؟</span></a>
-  </section><script src="/assets/js/main.js?v=fbfb4c28c6"></script></body></html>
+  </section><script src="/assets/js/main.js?v=fbfb4c28c6"></script><script>
+(function(){
+  var PAGE_LANG = "ar";
+  var WA = "https://wa.me/966507034157";
+  var SEC = [
+    {en:"Energy & Industry",ar:"الطاقة والصناعة"},{en:"Technology",ar:"التقنية"},
+    {en:"Tourism",ar:"السياحة"},{en:"Finance & Real Estate",ar:"المال والعقار"},
+    {en:"Logistics & Trade",ar:"اللوجستيات والتجارة"},{en:"Healthcare",ar:"الرعاية الصحية"},
+    {en:"Sports & Entertainment",ar:"الرياضة والترفيه"},{en:"Agriculture & Food",ar:"الزراعة والغذاء"}
+  ];
+  var CIT = [
+    {en:"Riyadh",ar:"الرياض"},{en:"Jeddah",ar:"جدة"},{en:"Eastern Province",ar:"المنطقة الشرقية"},
+    {en:"Makkah",ar:"مكة المكرمة"},{en:"Madinah",ar:"المدينة المنورة"},{en:"Asir",ar:"عسير"},
+    {en:"NEOM",ar:"نيوم"},{en:"Jazan",ar:"جازان"},{en:"Not sure yet",ar:"لست متأكداً بعد"}
+  ];
+  var D = {
+    en:{q:["What brings you to Saudi Arabia?","Which sector interests you most?","Which city or region?","What is your timeline?"],
+      P:["Explore opportunities","Expand my business","Establish a regional HQ (RHQ)","Find a local partner","Attend an event or forum"],
+      T:["Within a month","1–3 months","3–6 months","Just researching"],
+      back:"Back",next:"Next",plan:"Get my plan",restart:"Start over",
+      ptitle:"Your tailored visit",pintro:"Here is the shape of your program. Complete the form below and our team will finalize it within a business day.",
+      kP:"Purpose",kS:"Sector",kC:"City / region",kT:"Timeline",wa:"Continue on WhatsApp",form:"Complete my request"},
+    ar:{q:["ما الذي يقودك إلى السعودية؟","ما القطاع الذي يهمّك أكثر؟","أي مدينة أو منطقة؟","ما الإطار الزمني لديك؟"],
+      P:["استكشاف الفرص","توسيع أعمالي","تأسيس مقر إقليمي (RHQ)","إيجاد شريك محلي","حضور فعالية أو منتدى"],
+      T:["خلال شهر","١–٣ أشهر","٣–٦ أشهر","مجرد استكشاف"],
+      back:"رجوع",next:"التالي",plan:"اعرض خطتي",restart:"ابدأ من جديد",
+      ptitle:"زيارتك المصمّمة",pintro:"هذه ملامح برنامجك. أكمل النموذج أدناه وسيقوم فريقنا بإنهائه خلال يوم عمل.",
+      kP:"الهدف",kS:"القطاع",kC:"المدينة / المنطقة",kT:"التوقيت",wa:"تابع عبر واتساب",form:"أكمل طلبي"},
+    zh:{q:["您为何来沙特阿拉伯？","您最感兴趣的行业？","哪个城市或地区？","您的时间安排？"],
+      P:["探索机会","拓展业务","设立地区总部 (RHQ)","寻找本地合作伙伴","参加活动或论坛"],
+      T:["一个月内","1–3 个月","3–6 个月","仅在调研"],
+      back:"返回",next:"下一步",plan:"获取方案",restart:"重新开始",
+      ptitle:"为您定制的行程",pintro:"这是您行程的框架。请填写下方表单，我们团队将在一个工作日内完成。",
+      kP:"目的",kS:"行业",kC:"城市 / 地区",kT:"时间",wa:"通过 WhatsApp 继续",form:"完成我的申请"},
+    ru:{q:["Что привело вас в Саудовскую Аравию?","Какой сектор вам интересен?","Какой город или регион?","Каковы ваши сроки?"],
+      P:["Изучить возможности","Расширить бизнес","Создать штаб-квартиру (RHQ)","Найти местного партнёра","Посетить мероприятие или форум"],
+      T:["В течение месяца","1–3 месяца","3–6 месяцев","Просто изучаю"],
+      back:"Назад",next:"Далее",plan:"Получить план",restart:"Начать заново",
+      ptitle:"Ваш индивидуальный визит",pintro:"Вот структура вашей программы. Заполните форму ниже, и наша команда завершит её в течение рабочего дня.",
+      kP:"Цель",kS:"Сектор",kC:"Город / регион",kT:"Сроки",wa:"Продолжить в WhatsApp",form:"Завершить заявку"},
+    es:{q:["¿Qué le trae a Arabia Saudí?","¿Qué sector le interesa más?","¿Qué ciudad o región?","¿Cuál es su plazo?"],
+      P:["Explorar oportunidades","Expandir mi negocio","Establecer una sede regional (RHQ)","Encontrar un socio local","Asistir a un evento o foro"],
+      T:["En un mes","1–3 meses","3–6 meses","Solo investigando"],
+      back:"Atrás",next:"Siguiente",plan:"Ver mi plan",restart:"Empezar de nuevo",
+      ptitle:"Su visita personalizada",pintro:"Este es el esquema de su programa. Complete el formulario y nuestro equipo lo finalizará en un día hábil.",
+      kP:"Objetivo",kS:"Sector",kC:"Ciudad / región",kT:"Plazo",wa:"Continuar en WhatsApp",form:"Completar mi solicitud"},
+    fr:{q:["Qu’est-ce qui vous amène en Arabie saoudite ?","Quel secteur vous intéresse le plus ?","Quelle ville ou région ?","Quel est votre calendrier ?"],
+      P:["Explorer les opportunités","Développer mon activité","Établir un siège régional (RHQ)","Trouver un partenaire local","Assister à un événement ou forum"],
+      T:["Sous un mois","1–3 mois","3–6 mois","Simple recherche"],
+      back:"Retour",next:"Suivant",plan:"Voir mon plan",restart:"Recommencer",
+      ptitle:"Votre visite sur mesure",pintro:"Voici la structure de votre programme. Remplissez le formulaire ci-dessous et notre équipe le finalisera sous un jour ouvré.",
+      kP:"Objectif",kS:"Secteur",kC:"Ville / région",kT:"Calendrier",wa:"Continuer sur WhatsApp",form:"Compléter ma demande"},
+    ko:{q:["사우디아라비아를 찾으신 목적은?","가장 관심 있는 분야는?","어느 도시나 지역인가요?","일정은 어떻게 되나요?"],
+      P:["기회 탐색","사업 확장","지역 본부(RHQ) 설립","현지 파트너 찾기","행사·포럼 참석"],
+      T:["한 달 이내","1–3개월","3–6개월","조사 중"],
+      back:"뒤로",next:"다음",plan:"내 계획 보기",restart:"다시 시작",
+      ptitle:"맞춤 방문 일정",pintro:"프로그램의 개요입니다. 아래 양식을 작성해 주시면 영업일 기준 하루 이내에 완성해 드립니다.",
+      kP:"목적",kS:"분야",kC:"도시/지역",kT:"일정",wa:"WhatsApp에서 계속",form:"요청 완료하기"},
+    ja:{q:["サウジアラビアへの目的は？","最も関心のある分野は？","どの都市・地域ですか？","ご予定の時期は？"],
+      P:["機会を探る","事業を拡大する","地域統括拠点(RHQ)を設立","現地パートナーを探す","イベント・フォーラムに参加"],
+      T:["1か月以内","1〜3か月","3〜6か月","情報収集中"],
+      back:"戻る",next:"次へ",plan:"プランを見る",restart:"最初から",
+      ptitle:"あなた専用の訪問プラン",pintro:"プログラムの概要です。下のフォームにご記入いただければ、営業日1日以内に仕上げます。",
+      kP:"目的",kS:"分野",kC:"都市・地域",kT:"時期",wa:"WhatsAppで続ける",form:"リクエストを完了"}
+  };
+  var body = document.getElementById("mmccBody");
+  var bar = document.getElementById("mmccBar");
+  var sel = document.getElementById("mmccLang");
+  if(!body||!sel) return;
+  var lang = D[PAGE_LANG] ? PAGE_LANG : "en";
+  sel.value = lang;
+  var st = {step:0, purpose:-1, sector:-1, city:-1, timeline:-1};
+  function esc(s){var d=document.createElement("span");d.textContent=s;return d.innerHTML;}
+  function lab(o){return lang==="ar"?o.ar:o.en;}
+  function optsFor(step){
+    var d=D[lang];
+    if(step===0) return d.P.map(function(x){return {t:x};});
+    if(step===1) return SEC.map(function(o){return {t:lab(o)};});
+    if(step===2) return CIT.map(function(o){return {t:lab(o)};});
+    return d.T.map(function(x){return {t:x};});
+  }
+  function curVal(step){return step===0?st.purpose:step===1?st.sector:step===2?st.city:st.timeline;}
+  function setVal(step,i){if(step===0)st.purpose=i;else if(step===1)st.sector=i;else if(step===2)st.city=i;else st.timeline=i;}
+  var root = document.getElementById("mm-concierge");
+  function render(){
+    if(root) root.dir = lang==="ar" ? "rtl" : "ltr";
+    var d=D[lang];
+    bar.style.width = (st.step>=4?100:((st.step+1)/5*100))+"%";
+    if(st.step<4){
+      var items=optsFor(st.step), sv=curVal(st.step), html="";
+      html+='<div class="mm-cc-q">'+esc(d.q[st.step])+'</div><div class="mm-cc-opts">';
+      for(var i=0;i<items.length;i++){html+='<button type="button" class="mm-cc-opt'+(sv===i?" sel":"")+'" data-i="'+i+'">'+esc(items[i].t)+'</button>';}
+      html+='</div><div class="mm-cc-nav">';
+      html+= st.step>0 ? '<button type="button" class="btn btn-ghost" data-nav="back">'+esc(d.back)+'</button>' : '<span></span>';
+      html+= '<button type="button" class="btn btn-primary" data-nav="fwd"'+(sv<0?" disabled":"")+'>'+esc(st.step<3?d.next:d.plan)+'</button>';
+      html+='</div>';
+      body.innerHTML=html;
+    } else {
+      var m='<div class="mm-cc-plan"><h4>'+esc(d.ptitle)+'</h4>';
+      m+='<div class="kv"><b>'+esc(d.kP)+'</b><span>'+esc(d.P[st.purpose])+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kS)+'</b><span>'+esc(lab(SEC[st.sector]))+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kC)+'</b><span>'+esc(lab(CIT[st.city]))+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kT)+'</b><span>'+esc(d.T[st.timeline])+'</span></div>';
+      m+='<p style="margin:12px 0 0;color:var(--text-soft);font-size:14px">'+esc(d.pintro)+'</p></div>';
+      m+='<div class="mm-cc-nav"><button type="button" class="btn btn-ghost" data-nav="back">'+esc(d.back)+'</button>';
+      m+='<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-wa" id="mmccWa" target="_blank" rel="noopener">'+esc(d.wa)+'</a><button type="button" class="btn btn-primary" data-nav="form">'+esc(d.form)+'</button></div></div>';
+      body.innerHTML=m;
+      var msg="Mahfol Makfol — Investment Concierge\nPurpose: "+D.en.P[st.purpose]+"\nSector: "+SEC[st.sector].en+"\nCity: "+CIT[st.city].en+"\nTimeline: "+D.en.T[st.timeline];
+      var wa=document.getElementById("mmccWa");
+      wa.href = WA + (WA.indexOf("?")>-1?"&":"?") + "text=" + encodeURIComponent(msg);
+    }
+  }
+  body.addEventListener("click",function(e){
+    var o=e.target.closest(".mm-cc-opt");
+    if(o){setVal(st.step,parseInt(o.getAttribute("data-i"),10));if(st.step<3){st.step++;}else{st.step=4;}render();return;}
+    var n=e.target.closest("[data-nav]");
+    if(!n) return;
+    var a=n.getAttribute("data-nav");
+    if(a==="back"){st.step=Math.max(0,st.step-1);render();}
+    else if(a==="fwd"){if(curVal(st.step)<0)return;if(st.step<3){st.step++;}else{st.step=4;}render();}
+    else if(a==="form"){
+      var setv=function(id,v){var el=document.getElementById(id);if(el&&v)el.value=v;};
+      setv("mm-sector", SEC[st.sector].en);
+      setv("mm-notes", "Investment Concierge — Purpose: "+D.en.P[st.purpose]+" | City: "+CIT[st.city].en+" | Timeline: "+D.en.T[st.timeline]);
+      var f=document.getElementById("mm-form");
+      if(f)f.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+  });
+  sel.addEventListener("change",function(){lang=D[sel.value]?sel.value:"en";render();});
+  render();
+})();
+</script></body></html>
