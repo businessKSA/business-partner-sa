@@ -8,9 +8,7 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },
-    { "source": "/business-tourism", "destination": "/tourism", "permanent": true },
-    { "source": "/mahfol-makfol", "destination": "/tourism#investor", "permanent": true },
-    { "source": "/ar/mahfol-makfol", "destination": "/ar/tourism#investor", "permanent": true }
+    { "source": "/business-tourism", "destination": "/tourism", "permanent": true }
   ],
   "rewrites": [
     { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
