@@ -927,10 +927,6 @@ function buildAiAgents() {
     <div class="grid grid-3">${cards}</div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
     <div class="center mt-32"><a class="btn btn-ghost" href="/connect">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="cta-band"><h2>${L("Ready to see the agents at work?", "جاهز تشوف الوكلاء يشتغلون؟")}</h2><p>${L("Book a demo with our team and we'll design the system to fit your entity.", "احجز عرضاً توضيحياً مع فريقنا، ونصمّم لك المنظومة على مقاس منشأتك.")}</p>${waBtn2(a.ctaEn || a.cta, a.cta, "btn-white", true)}</div>
   </div></section>`;
   return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
