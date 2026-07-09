@@ -386,7 +386,7 @@ p { color: var(--text-soft); }
 @media (max-width: 1280px) {
   .nav a { padding: 8px 9px; font-size: .9rem; }
   .header-cta .btn-ghost, .header-cta > .btn-primary { display: none; }
-  .lang-toggle .lang-label { display: none; }
+  .lang-drop .lang-label { display: none; }
 }
 @media (max-width: 1080px) {
   .nav, .header-cta .btn { display: none; }
@@ -487,6 +487,10 @@ p { color: var(--text-soft); }
   border-radius: 999px; padding: 5px 12px 5px 8px; cursor: pointer; color: var(--navy); font: inherit; font-size: .9rem; font-weight: 600; }
 .lang-toggle:hover { background: #eceffa; }
 .lang-toggle svg { border-radius: 3px; display: block; }
+.lang-drop { background: var(--gray-bg); border: 1px solid var(--gray-line); border-radius: 999px; padding: 5px 12px 5px 8px; color: var(--navy); }
+.lang-drop:hover, .lang-drop.active { background: #eceffa; color: var(--navy); }
+.lang-drop svg:first-child { width: 20px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+.lang-group .nav-menu { min-width: 140px; max-height: 320px; overflow-y: auto; }
 .icon-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px;
   border-radius: 12px; color: var(--navy); border: 1px solid var(--gray-line); background: var(--white); }
 .icon-btn:hover { background: var(--gray-bg); color: var(--navy); }

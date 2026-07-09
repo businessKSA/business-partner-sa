@@ -96,14 +96,42 @@ const I = {
   facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg>',
 };
 
-/* ---------- bilingual build-time engine ----------
-   The whole site is generated twice: English (LANG='en') at root paths,
-   and Arabic (LANG='ar') under the /ar/ prefix. L() picks the string for the
-   current build language; u() prefixes internal links for the Arabic tree. */
+/* ---------- multilingual build-time engine ----------
+   The whole site is generated once per language: English (LANG='en') at root
+   paths, Arabic (LANG='ar') under /ar/, and 7 more world languages under
+   their own prefix (/fr/, /es/, /zh/, /ru/, /hi/, /ko/, /ja/). L(en, ar)
+   keeps working exactly as before for English/Arabic (zero behavior change
+   there); for the extra languages it looks up the English string in
+   TRANSLATIONS[LANG] and falls back to English when no translation exists
+   yet — so pages never break or go blank, they just show English for
+   anything not yet translated. Only a core set of pages (EXTRA_LANG_PATHS)
+   is generated for the extra languages so far; u() routes any other link
+   back to the English URL instead of a 404 in that language. */
 let LANG = "en";
-const L = (en, ar) => esc(LANG === "ar" ? ar : en);
+const EXTRA_LANGS = ["fr", "es", "zh", "ru", "hi", "ko", "ja"];
+const ALL_LANGS = ["en", "ar", ...EXTRA_LANGS];
+const LANG_NAMES = { en: "English", ar: "العربية", fr: "Français", es: "Español", zh: "中文", ru: "Русский", hi: "हिन्दी", ko: "한국어", ja: "日本語" };
+const LANG_LOCALE = { en: "en_US", ar: "ar_SA", fr: "fr_FR", es: "es_ES", zh: "zh_CN", ru: "ru_RU", hi: "hi_IN", ko: "ko_KR", ja: "ja_JP" };
+// Pages generated for the 7 extra languages so far (site chrome + homepage +
+// the main discovery pages). Everything else still exists only in en/ar;
+// u() below sends extra-language visitors to the English URL for those.
+const EXTRA_LANG_PATHS = new Set(["/", "/about", "/services", "/packages", "/contact"]);
+import { TRANSLATIONS } from "./i18n.mjs";
+function T(en) {
+  const dict = TRANSLATIONS[LANG];
+  return (dict && dict[en]) || en;
+}
+const L = (en, ar) => {
+  if (LANG === "ar") return esc(ar);
+  if (LANG === "en") return esc(en);
+  return esc(T(en));
+};
 // Raw (unescaped) variant for when the caller needs plain text (title/desc/attributes).
-const Lraw = (en, ar) => (LANG === "ar" ? ar : en);
+const Lraw = (en, ar) => {
+  if (LANG === "ar") return ar;
+  if (LANG === "en") return en;
+  return T(en);
+};
 // Arabic numeral-noun agreement: 1 → singular ("خدمة"), 2 → dual ("خدمتان"),
 // 3-10 → plural ("خدمات"), 11+ → singular again (classical counted-noun rule).
 function arCount(n, singular, dual, plural) {
@@ -116,11 +144,17 @@ function arCount(n, singular, dual, plural) {
 function enCount(n, singular, plural) {
   return n === 1 ? singular : plural;
 }
-// Internal-link prefixer: keeps external/anchor/asset links untouched.
+// Internal-link prefixer: keeps external/anchor/asset links untouched, and
+// (for the 7 extra languages) falls back to the English URL for any page
+// not yet built in that language, instead of linking to a 404.
 const u = (href) => {
-  if (LANG !== "ar") return href;
-  if (!href || href[0] !== "/" || href.startsWith("/assets") || href.startsWith("/api") || href.startsWith("/ar/") || href === "/ar") return href === "/" ? "/ar/" : href;
-  return "/ar" + href;
+  if (LANG === "en") return href;
+  if (!href || href[0] !== "/" || href.startsWith("/assets") || href.startsWith("/api")) return href;
+  if (ALL_LANGS.some((l) => l !== "en" && (href === "/" + l || href.startsWith("/" + l + "/")))) return href; // already prefixed
+  const bare = href === "/" ? "/" : href.split("#")[0].split("?")[0];
+  const hash = href.includes("#") ? "#" + href.split("#")[1] : "";
+  if (LANG !== "ar" && !EXTRA_LANG_PATHS.has(bare)) return href; // not built yet in this language
+  return (bare === "/" ? `/${LANG}/` : `/${LANG}${bare}`) + hash;
 };
 
 // Standalone HR portal (hr.businesspartner.sa) — Arabic-first canonical paths
@@ -244,15 +278,16 @@ function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", gh
 }
 
 /* ---------- layout ---------- */
-// Path of the same page in the other language.
-function mirrorUrl(path) {
+// URL of the same page (by canonical/English path) in a given language.
+function pathInLang(path, lang) {
   const p = path || "/";
-  if (LANG === "ar") return p; // Arabic → English root path
-  return p === "/" ? "/ar/" : "/ar" + p; // English → Arabic prefixed path
+  if (lang === "en") return p;
+  return p === "/" ? `/${lang}/` : `/${lang}${p}`;
 }
 function head(title, desc, path) {
-  const enUrl = path || "/";
-  const arUrl = enUrl === "/" ? "/ar/" : "/ar" + enUrl;
+  const canonical = path || "/";
+  const langsForPage = ["en", "ar", ...(EXTRA_LANG_PATHS.has(canonical) ? EXTRA_LANGS : [])];
+  const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}">
 <head>
@@ -264,12 +299,11 @@ function head(title, desc, path) {
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
-<meta property="og:locale" content="${LANG === "ar" ? "ar_SA" : "en_US"}">
+<meta property="og:locale" content="${LANG_LOCALE[LANG] || "en_US"}">
 <meta name="theme-color" content="#0B1B5A">
 <meta name="generator" content="Business Partner 3.0 Website">
-<link rel="alternate" hreflang="en" href="${enUrl}">
-<link rel="alternate" hreflang="ar" href="${arUrl}">
-<link rel="alternate" hreflang="x-default" href="${enUrl}">
+${hreflangs}
+<link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -308,9 +342,12 @@ const NAV_GROUPS = [
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
 ];
 
-function langToggle(path) {
-  return `<a class="lang-toggle" href="${mirrorUrl(path)}" aria-label="Switch language / تبديل اللغة">
-    ${saudiFlag}<span class="lang-label">${LANG === "ar" ? "English" : "العربية"}</span></a>`;
+function langMenu(path) {
+  const items = ALL_LANGS.map((l) => `<a href="${pathInLang(path, l)}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+  return `<div class="nav-group lang-group">
+    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة">${saudiFlag}<span class="lang-label">${LANG_NAMES[LANG]}</span>${I.chevron}</button>
+    <div class="nav-menu">${items}</div>
+  </div>`;
 }
 
 function header(active, path) {
@@ -331,7 +368,7 @@ function header(active, path) {
   <a class="logo" href="${u("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="nav" aria-label="Main navigation">${links}</nav>
   <div class="header-cta">
-    ${langToggle(path)}
+    ${langMenu(path)}
     <a class="icon-btn" href="${u("/account")}" aria-label="${Lraw("Account", "حسابي")}">${I.user}</a>
     <a class="icon-btn cart-link" href="${u("/cart")}" aria-label="${Lraw("Cart", "السلة")}">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
     <button class="nav-toggle" aria-label="${Lraw("Menu", "القائمة")}" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
@@ -4393,7 +4430,7 @@ function cleanHtml(dir) {
     else if (f.endsWith(".html")) fs.unlinkSync(full);
   }
 }
-for (const dir of [ROOT, path.join(ROOT, "ar")]) cleanHtml(dir);
+for (const dir of [ROOT, ...ALL_LANGS.filter((l) => l !== "en").map((l) => path.join(ROOT, l))]) cleanHtml(dir);
 if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.join(ROOT, "business-tourism.html"));
 if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 
@@ -4447,6 +4484,21 @@ for (const lang of ["en", "ar"]) {
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   pageCount += 15 + services.length + categories.length;
 }
+
+// 7 extra world languages: core discovery pages only for now (site chrome +
+// homepage everywhere is what matters most for a first-touch international
+// visitor). u() already routes any other internal link back to the English
+// page instead of a 404 — see EXTRA_LANG_PATHS.
+for (const lang of EXTRA_LANGS) {
+  LANG = lang;
+  const pre = `${lang}/`;
+  write(`${pre}index.html`, buildHome());
+  write(`${pre}about.html`, buildAbout());
+  write(`${pre}services.html`, buildServicesIndex());
+  write(`${pre}packages.html`, buildPackages());
+  write(`${pre}contact.html`, buildContact());
+  pageCount += 5;
+}
 LANG = "en";
 
 // Owner-only live chat monitor (standalone page, no site chrome, noindex)
@@ -4470,7 +4522,7 @@ const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-ma
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
-  .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])
+  .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p].concat(EXTRA_LANG_PATHS.has(p) ? EXTRA_LANGS.map((l) => (p === "/" ? `/${l}/` : `/${l}${p}`)) : []))
   .map((p) => `  <url><loc>${base}${p}</loc></url>`)
   .join("\n");
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);

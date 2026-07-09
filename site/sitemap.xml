@@ -2,10 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://businesspartner.sa/</loc></url>
   <url><loc>https://businesspartner.sa/ar/</loc></url>
+  <url><loc>https://businesspartner.sa/fr/</loc></url>
+  <url><loc>https://businesspartner.sa/es/</loc></url>
+  <url><loc>https://businesspartner.sa/zh/</loc></url>
+  <url><loc>https://businesspartner.sa/ru/</loc></url>
+  <url><loc>https://businesspartner.sa/hi/</loc></url>
+  <url><loc>https://businesspartner.sa/ko/</loc></url>
+  <url><loc>https://businesspartner.sa/ja/</loc></url>
   <url><loc>https://businesspartner.sa/about</loc></url>
   <url><loc>https://businesspartner.sa/ar/about</loc></url>
+  <url><loc>https://businesspartner.sa/fr/about</loc></url>
+  <url><loc>https://businesspartner.sa/es/about</loc></url>
+  <url><loc>https://businesspartner.sa/zh/about</loc></url>
+  <url><loc>https://businesspartner.sa/ru/about</loc></url>
+  <url><loc>https://businesspartner.sa/hi/about</loc></url>
+  <url><loc>https://businesspartner.sa/ko/about</loc></url>
+  <url><loc>https://businesspartner.sa/ja/about</loc></url>
   <url><loc>https://businesspartner.sa/services</loc></url>
   <url><loc>https://businesspartner.sa/ar/services</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services</loc></url>
+  <url><loc>https://businesspartner.sa/es/services</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services</loc></url>
+  <url><loc>https://businesspartner.sa/ru/services</loc></url>
+  <url><loc>https://businesspartner.sa/hi/services</loc></url>
+  <url><loc>https://businesspartner.sa/ko/services</loc></url>
+  <url><loc>https://businesspartner.sa/ja/services</loc></url>
   <url><loc>https://businesspartner.sa/ai-agents</loc></url>
   <url><loc>https://businesspartner.sa/ar/ai-agents</loc></url>
   <url><loc>https://businesspartner.sa/tourism</loc></url>
@@ -20,6 +41,13 @@
   <url><loc>https://businesspartner.sa/ar/magazine/print</loc></url>
   <url><loc>https://businesspartner.sa/packages</loc></url>
   <url><loc>https://businesspartner.sa/ar/packages</loc></url>
+  <url><loc>https://businesspartner.sa/fr/packages</loc></url>
+  <url><loc>https://businesspartner.sa/es/packages</loc></url>
+  <url><loc>https://businesspartner.sa/zh/packages</loc></url>
+  <url><loc>https://businesspartner.sa/ru/packages</loc></url>
+  <url><loc>https://businesspartner.sa/hi/packages</loc></url>
+  <url><loc>https://businesspartner.sa/ko/packages</loc></url>
+  <url><loc>https://businesspartner.sa/ja/packages</loc></url>
   <url><loc>https://businesspartner.sa/tools-and-calculators</loc></url>
   <url><loc>https://businesspartner.sa/ar/tools-and-calculators</loc></url>
   <url><loc>https://businesspartner.sa/calculators/nitaqat</loc></url>
@@ -62,6 +90,13 @@
   <url><loc>https://businesspartner.sa/ar/workspace-request</loc></url>
   <url><loc>https://businesspartner.sa/contact</loc></url>
   <url><loc>https://businesspartner.sa/ar/contact</loc></url>
+  <url><loc>https://businesspartner.sa/fr/contact</loc></url>
+  <url><loc>https://businesspartner.sa/es/contact</loc></url>
+  <url><loc>https://businesspartner.sa/zh/contact</loc></url>
+  <url><loc>https://businesspartner.sa/ru/contact</loc></url>
+  <url><loc>https://businesspartner.sa/hi/contact</loc></url>
+  <url><loc>https://businesspartner.sa/ko/contact</loc></url>
+  <url><loc>https://businesspartner.sa/ja/contact</loc></url>
   <url><loc>https://businesspartner.sa/cart</loc></url>
   <url><loc>https://businesspartner.sa/ar/cart</loc></url>
   <url><loc>https://businesspartner.sa/checkout</loc></url>
