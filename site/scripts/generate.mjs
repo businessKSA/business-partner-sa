@@ -2041,30 +2041,160 @@ function buildTourism() {
   return page({ title: Lraw("Tourism & events — Business Partner", "السياحة والفعاليات — بيزنس بارتنر"), desc: Lraw((t.leadEn || t.lead).slice(0, 155), t.lead.slice(0, 155)), active: "/tourism", body });
 }
 
-// Sub-brand landing page: "Mahfol Makfol by Business Partner" — business/
-// investor tourism, browsable on its own page (same pattern as /hr — same
-// codebase, own identity).
+// Sub-brand landing page: "Mahfol Makfol by Business Partner" — the premium
+// investor gateway. A multilingual, multiple-choice Investment Concierge up
+// top (client-side, works regardless of any backend), investor services,
+// city-by-city investor programs, target sectors, and the lead form that
+// still feeds the /api/requests investor-tourism pipeline (email + CRM/Notion).
 function buildMahfolMakfol() {
   const b = site.businessTourism;
-  const includeCards = b.includes.items
-    .map((it) => `<div class="card feature"><div class="card-icon">${I.globe}</div><h3>${L(it.titleEn || it.title, it.title)}</h3><p>${L(it.textEn || it.text, it.text)}</p></div>`)
-    .join("");
+
+  // Investor services (distinct from the generic tourism "includes").
+  const SERVICES = [
+    { ic: "🏛️", en: "MISA licensing & market entry", ar: "ترخيص وزارة الاستثمار ودخول السوق", de: "End-to-end MISA investor licensing, RHQ setup and the fastest compliant route into the Saudi market.", da: "ترخيص المستثمر من وزارة الاستثمار (MISA) وتأسيس المقر الإقليمي وأسرع مسار نظامي لدخول السوق." },
+    { ic: "🤝", en: "Government & authority relations", ar: "العلاقات الحكومية والجهات التنظيمية", de: "Introductions and coordinated meetings with the ministries and regulators that matter to your sector.", da: "تعريف ولقاءات منسّقة مع الوزارات والجهات التنظيمية ذات الصلة بقطاعك." },
+    { ic: "📅", en: "Curated executive meetings", ar: "لقاءات تنفيذية مُنسّقة", de: "One-on-one meetings with decision-makers, partners and potential clients — arranged around your agenda.", da: "لقاءات ثنائية مع صنّاع القرار والشركاء والعملاء المحتملين — مرتّبة حول جدول أعمالك." },
+    { ic: "🎤", en: "Forums, workshops & events", ar: "المنتديات وورش العمل والفعاليات", de: "Access to sector forums, investment workshops and official occasions during your visit.", da: "حضور المنتديات القطاعية وورش العمل الاستثمارية والمناسبات الرسمية خلال زيارتك." },
+    { ic: "🎯", en: "Investment opportunity sourcing", ar: "تحديد الفرص الاستثمارية", de: "A shortlist of vetted opportunities and promising sectors matched to your capital and appetite.", da: "قائمة مختصرة بفرص مدروسة وقطاعات واعدة تناسب رأس مالك وتوجّهك." },
+    { ic: "🥂", en: "Executive hospitality & protocol", ar: "الضيافة التنفيذية والبروتوكول", de: "Luxury hotels, business lunches, private tours and protocol befitting a foreign investor.", da: "فنادق فاخرة وغداءات أعمال وجولات خاصة وبروتوكول يليق بمستثمر أجنبي." },
+    { ic: "🕌", en: "Cultural immersion & lifestyle", ar: "الانغماس الثقافي ونمط الحياة", de: "Get to know Saudi culture, lifestyle and the way business is done — before you commit.", da: "تعرّف على الثقافة السعودية ونمط الحياة وطبيعة الأعمال — قبل أن تتخذ قرارك." },
+    { ic: "⚖️", en: "Legal, tax & advisory", ar: "الاستشارات القانونية والضريبية", de: "Trusted legal, tax and structuring advisors to de-risk your entry and protect your investment.", da: "مستشارون قانونيون وضريبيون موثوقون لتقليل مخاطر دخولك وحماية استثمارك." },
+  ];
+  const serviceCards = SERVICES.map((s) =>
+    `<div class="card feature"><div class="card-icon" style="font-size:26px">${s.ic}</div><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
+
+  // City-by-city investor programs.
+  const CITIES = [
+    { ic: "🏙️", en: "Riyadh", ar: "الرياض", te: "Capital & decision-making center", ta: "العاصمة ومركز القرار", se: "Finance · Tech · Regional HQ (RHQ)", sa: "المال · التقنية · المقار الإقليمية", ee: "MISA · RHQ Program · Capital Market Authority · Riyadh Chamber", ea: "وزارة الاستثمار · برنامج المقار الإقليمية · هيئة السوق المالية · غرفة الرياض", ie: "Government briefings, RHQ consultation, C-level meetings, King Abdullah Financial District tour", ia: "إحاطات حكومية، استشارة المقر الإقليمي، لقاءات تنفيذية، جولة في مركز الملك عبدالله المالي" },
+    { ic: "🌊", en: "Jeddah", ar: "جدة", te: "Red Sea gateway & trade", ta: "بوابة البحر الأحمر والتجارة", se: "Logistics · Trade · Tourism", sa: "اللوجستيات · التجارة · السياحة", ee: "Jeddah Chamber · Islamic Development Bank · Ports Authority", ea: "غرفة جدة · البنك الإسلامي للتنمية · هيئة الموانئ", ie: "Port & logistics visits, family-business networking, Red Sea projects briefing", ia: "زيارات الموانئ واللوجستيات، تواصل مع الشركات العائلية، إحاطة عن مشاريع البحر الأحمر" },
+    { ic: "🛢️", en: "Eastern Province", ar: "المنطقة الشرقية", te: "Energy & industry heartland", ta: "قلب الطاقة والصناعة", se: "Energy · Industry · Petrochemicals", sa: "الطاقة · الصناعة · البتروكيماويات", ee: "Aramco ecosystem · Royal Commission (Jubail) · Dhahran Techno Valley", ea: "منظومة أرامكو · الهيئة الملكية بالجبيل · وادي الظهران للتقنية", ie: "Industrial-city visits, energy-sector meetings, supply-chain sourcing", ia: "زيارات المدن الصناعية، لقاءات قطاع الطاقة، سلاسل الإمداد" },
+    { ic: "🕋", en: "Makkah", ar: "مكة المكرمة", te: "Religious economy & hospitality", ta: "اقتصاد ديني وضيافة", se: "Hospitality · Retail · Services", sa: "الضيافة · التجزئة · الخدمات", ee: "Makkah Chamber · Hospitality operators · Religious-tourism authorities", ea: "غرفة مكة · مشغّلو الضيافة · جهات السياحة الدينية", ie: "Religious-tourism investment briefing, hospitality operator meetings", ia: "إحاطة استثمار السياحة الدينية، لقاءات مشغّلي الضيافة" },
+    { ic: "🌱", en: "Madinah", ar: "المدينة المنورة", te: "Knowledge economy & agriculture", ta: "اقتصاد المعرفة والزراعة", se: "Agriculture · Education · Tourism", sa: "الزراعة · التعليم · السياحة", ee: "Knowledge Economic City · Madinah Chamber · Agri authorities", ea: "مدينة المعرفة الاقتصادية · غرفة المدينة · الجهات الزراعية", ie: "Knowledge Economic City tour, agri-investment briefing", ia: "جولة في مدينة المعرفة الاقتصادية، إحاطة الاستثمار الزراعي" },
+    { ic: "⛰️", en: "Asir", ar: "عسير", te: "Highlands tourism & nature", ta: "سياحة المرتفعات والطبيعة", se: "Tourism · Agriculture · Entertainment", sa: "السياحة · الزراعة · الترفيه", ee: "Soudah Development · Asir Chamber · Tourism authorities", ea: "تطوير السودة · غرفة عسير · جهات السياحة", ie: "Soudah Peaks overview, mountain-tourism investment, agri-tourism", ia: "جولة قمم السودة، استثمار سياحة الجبال، السياحة الزراعية" },
+    { ic: "🌐", en: "NEOM", ar: "نيوم", te: "The future & innovation", ta: "المستقبل والابتكار", se: "Technology · Clean energy · Tourism", sa: "التقنية · الطاقة النظيفة · السياحة", ee: "NEOM · Oxagon · The Line · Investment office", ea: "نيوم · أوكساجون · ذا لاين · مكتب الاستثمار", ie: "NEOM briefing, The Line & Oxagon overview, clean-energy opportunities", ia: "إحاطة نيوم، نظرة على ذا لاين وأوكساجون، فرص الطاقة النظيفة" },
+    { ic: "⚓", en: "Jazan", ar: "جازان", te: "Emerging industry & ports", ta: "صناعة ناشئة وموانئ", se: "Industry · Logistics · Agriculture", sa: "الصناعة · اللوجستيات · الزراعة", ee: "Jazan Economic City · Port authority · Energy sector", ea: "مدينة جازان الاقتصادية · هيئة الميناء · قطاع الطاقة", ie: "Jazan Economic City tour, port & energy briefing, agri-industry", ia: "جولة مدينة جازان الاقتصادية، إحاطة الميناء والطاقة، الصناعات الزراعية" },
+  ];
+  const cityCards = CITIES.map((c) => `
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">${c.ic}</span><div><h3>${L(c.en, c.ar)}</h3><span class="mm-city-tag">${L(c.te, c.ta)}</span></div></div>
+      <div class="mm-city-row"><b>${L("Sectors", "القطاعات")}</b><span>${L(c.se, c.sa)}</span></div>
+      <div class="mm-city-row"><b>${L("Key entities", "أبرز الجهات")}</b><span>${L(c.ee, c.ea)}</span></div>
+      <div class="mm-city-row"><b>${L("Program includes", "يشمل البرنامج")}</b><span>${L(c.ie, c.ia)}</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="${Lraw(c.en, c.ar)}">${I.arrow}<span>${L("Request this program", "اطلب هذا البرنامج")}</span></a>
+    </div>`).join("");
+
+  // Target sectors.
+  const SECTORS = [
+    { ic: "⚡", en: "Energy & Industry", ar: "الطاقة والصناعة", de: "Oil, gas, petrochemicals, mining and manufacturing.", da: "النفط والغاز والبتروكيماويات والتعدين والصناعة." },
+    { ic: "💻", en: "Technology", ar: "التقنية", de: "Software, AI, data centers and digital infrastructure.", da: "البرمجيات والذكاء الاصطناعي ومراكز البيانات والبنية الرقمية." },
+    { ic: "✈️", en: "Tourism", ar: "السياحة", de: "Giga-projects, hospitality, entertainment and events.", da: "المشاريع الكبرى والضيافة والترفيه والفعاليات." },
+    { ic: "🏦", en: "Finance & Real Estate", ar: "المال والعقار", de: "Capital markets, fintech, funds and property development.", da: "أسواق المال والتقنية المالية والصناديق والتطوير العقاري." },
+    { ic: "🚢", en: "Logistics & Trade", ar: "اللوجستيات والتجارة", de: "Ports, transport, warehousing and re-export hubs.", da: "الموانئ والنقل والتخزين ومراكز إعادة التصدير." },
+    { ic: "🩺", en: "Healthcare", ar: "الرعاية الصحية", de: "Hospitals, biotech, medical devices and health services.", da: "المستشفيات والتقنية الحيوية والأجهزة الطبية والخدمات الصحية." },
+    { ic: "🏟️", en: "Sports & Entertainment", ar: "الرياضة والترفيه", de: "Clubs, venues, gaming, media and live events.", da: "الأندية والمنشآت والألعاب والإعلام والفعاليات الحية." },
+    { ic: "🌾", en: "Agriculture & Food", ar: "الزراعة والغذاء", de: "Agri-tech, food security, aquaculture and processing.", da: "التقنية الزراعية والأمن الغذائي والاستزراع والتصنيع." },
+  ];
+  const sectorCards = SECTORS.map((s) =>
+    `<div class="mm-sector"><span class="mm-sector-ic">${s.ic}</span><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
+
+  // How it works.
+  const STEPS = [
+    { n: "1", en: "Share your interest", ar: "شاركنا اهتمامك", de: "Answer a few questions in the concierge above — purpose, sector, city and timeline.", da: "أجب عن أسئلة قليلة في المستشار أعلاه — الهدف والقطاع والمدينة والتوقيت." },
+    { n: "2", en: "We design the program", ar: "نصمّم البرنامج", de: "We build a tailored itinerary of briefings, meetings, site visits and hospitality.", da: "نبني برنامجاً مخصّصاً من الإحاطات واللقاءات والزيارات الميدانية والضيافة." },
+    { n: "3", en: "Meetings & visits arranged", ar: "ترتيب اللقاءات والزيارات", de: "We coordinate the authorities, partners and occasions and confirm your agenda.", da: "ننسّق مع الجهات والشركاء والمناسبات ونؤكّد جدول أعمالك." },
+    { n: "4", en: "On-ground concierge", ar: "مرافقة ميدانية", de: "A dedicated team hosts you throughout the visit — protocol, transport and follow-up.", da: "فريق مخصّص يستضيفك طوال الزيارة — البروتوكول والتنقّل والمتابعة." },
+  ];
+  const stepCards = STEPS.map((s) =>
+    `<div class="mm-step"><span class="mm-step-n">${s.n}</span><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
+
   const body = `
-  <section class="hero"><div class="container hero-inner" style="max-width:900px">
+  <style>
+    .mm-hero{background:linear-gradient(160deg,var(--navy-900),var(--navy) 60%,var(--navy-700));color:#fff;padding:64px 0 72px;position:relative;overflow:hidden}
+    .mm-hero .subbrand-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff}
+    .mm-hero .subbrand-badge small{color:var(--mm-gold)}
+    .mm-hero h1{color:#fff;margin:18px 0 12px;font-size:clamp(30px,5vw,50px)}
+    .mm-hero .lead{color:rgba(255,255,255,.86);max-width:760px}
+    .mm-gold-line{width:64px;height:4px;border-radius:4px;background:var(--mm-gold);margin:0 0 18px}
+    :root{--mm-gold:#c6a45c}
+    .mm-cc{background:#fff;color:var(--text);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:760px;margin:34px auto 0;padding:26px 26px 30px;text-align:start}
+    .mm-cc-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+    .mm-cc-head .r{width:44px;height:44px;border-radius:12px;background:var(--navy);color:#fff;display:grid;place-items:center;flex:0 0 auto}
+    .mm-cc-head h3{margin:0;font-size:20px}
+    .mm-cc-head p{margin:2px 0 0;color:var(--text-soft);font-size:14px}
+    .mm-cc-lang{margin-inline-start:auto}
+    .mm-cc-lang select{border:1px solid var(--gray-line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--text)}
+    .mm-cc-bar{height:6px;border-radius:6px;background:var(--gray-line);margin:16px 0 20px;overflow:hidden}
+    .mm-cc-bar>i{display:block;height:100%;background:var(--navy);width:20%;transition:width .3s ease}
+    .mm-cc-q{font-size:18px;font-weight:700;margin:0 0 14px}
+    .mm-cc-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mm-cc-opt{border:1.5px solid var(--gray-line);background:#fff;border-radius:12px;padding:13px 15px;font:inherit;color:var(--text);cursor:pointer;text-align:start;transition:.15s;display:flex;align-items:center;gap:10px}
+    .mm-cc-opt:hover{border-color:var(--navy);background:var(--gray-bg)}
+    .mm-cc-opt.sel{border-color:var(--navy);background:var(--navy);color:#fff}
+    .mm-cc-nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+    .mm-cc-plan{border:1px solid var(--gray-line);border-radius:14px;background:var(--gray-bg);padding:18px 20px;margin-top:6px}
+    .mm-cc-plan h4{margin:0 0 10px;color:var(--navy)}
+    .mm-cc-plan .kv{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed var(--gray-line);font-size:15px}
+    .mm-cc-plan .kv:last-of-type{border-bottom:0}
+    .mm-cc-plan .kv b{min-width:120px;color:var(--text-soft);font-weight:600}
+    .mm-city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+    .mm-city{border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);padding:20px;display:flex;flex-direction:column;gap:11px}
+    .mm-city-top{display:flex;align-items:center;gap:12px}
+    .mm-city-ic{font-size:30px}
+    .mm-city-top h3{margin:0;font-size:20px}
+    .mm-city-tag{color:var(--mm-gold);font-weight:700;font-size:13px}
+    .mm-city-row{font-size:14px;line-height:1.5}
+    .mm-city-row b{display:block;color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1px}
+    .mm-sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .mm-sector{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm)}
+    .mm-sector-ic{font-size:26px}
+    .mm-sector h3{margin:8px 0 5px;font-size:17px}
+    .mm-sector p{margin:0;color:var(--text-soft);font-size:14px}
+    .mm-step-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+    .mm-step{position:relative;border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:22px 18px 18px}
+    .mm-step-n{position:absolute;top:-14px;inset-inline-start:18px;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800}
+    .mm-step h3{margin:8px 0 6px;font-size:17px}
+    .mm-step p{margin:0;color:var(--text-soft);font-size:14px}
+    @media(max-width:560px){.mm-cc-opts{grid-template-columns:1fr}}
+  </style>
+
+  <section class="mm-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
     <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
-    <h1>${L("Business Tourism", "سياحة الأعمال")}</h1>
-    <p class="lead">${L(b.leadEn || b.lead, b.lead)}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#mm-form">${I.calendar}<span>${L(b.ctaEn || b.cta, b.cta)}</span></a>${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}</div>
+    <h1>${L("Your gateway to investing in Saudi Arabia", "بوابتك للاستثمار في السعودية")}</h1>
+    <div class="mm-gold-line"></div>
+    <p class="lead">${L("A concierge program for foreign investors — government relations, curated meetings, opportunity sourcing and executive hospitality across the Kingdom's key cities and sectors.", "برنامج استشاري للمستثمرين الأجانب — علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة وقطاعاتها.")}</p>
+    <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#mm-concierge">${I.robot}<span>${L("Start with the Investment Concierge", "ابدأ مع مستشار الاستثمار")}</span></a>${waBtn2("Chat on WhatsApp", "تواصل عبر واتساب", "btn-ghost")}</div>
+
+    <div class="mm-cc" id="mm-concierge">
+      <div class="mm-cc-head">
+        <span class="r">${I.robot}</span>
+        <div><h3>${L("Investment Concierge", "مستشار الاستثمار الذكي")}</h3><p>${L("Answer a few questions — we'll shape your visit.", "أجب عن أسئلة قليلة — نُصمّم زيارتك.")}</p></div>
+        <span class="mm-cc-lang"><select id="mmccLang" aria-label="Language">
+          <option value="en">English</option><option value="ar">العربية</option><option value="zh">中文</option><option value="ru">Русский</option><option value="es">Español</option><option value="fr">Français</option><option value="ko">한국어</option><option value="ja">日本語</option>
+        </select></span>
+      </div>
+      <div class="mm-cc-bar"><i id="mmccBar"></i></div>
+      <div id="mmccBody"></div>
+    </div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(b.intro.eyebrowEn || b.intro.eyebrow, b.intro.eyebrow)}</span><h2>${L(b.intro.titleEn || b.intro.title, b.intro.title)}</h2><p>${L(b.intro.textEn || b.intro.text, b.intro.text)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("What we do", "ماذا نقدّم")}</span><h2>${L("Investor concierge services", "خدمات استشارة المستثمر")}</h2><p>${L("Everything a foreign investor needs to explore, decide and enter the Saudi market — handled by one trusted partner.", "كل ما يحتاجه المستثمر الأجنبي ليستكشف ويقرّر ويدخل السوق السعودي — عبر شريك واحد موثوق.")}</p></div>
+    <div class="grid grid-3">${serviceCards}</div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(b.includes.eyebrowEn || b.includes.eyebrow, b.includes.eyebrow)}</span><h2>${L(b.includes.titleEn || b.includes.title, b.includes.title)}</h2></div>
-    <div class="grid grid-3">${includeCards}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(b.noteEn || b.note, b.note)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Where you'll go", "إلى أين")}</span><h2>${L("Investor programs by city", "برامج المستثمر حسب المدينة")}</h2><p>${L("Each program maps your sector to the right authorities, entities and on-ground experiences.", "كل برنامج يربط قطاعك بالجهات والكيانات والتجارب الميدانية المناسبة.")}</p></div>
+    <div class="mm-city-grid">${cityCards}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Target sectors", "القطاعات المستهدفة")}</span><h2>${L("Promising sectors we cover", "القطاعات الواعدة التي نغطّيها")}</h2></div>
+    <div class="mm-sector-grid">${sectorCards}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف نعمل")}</span><h2>${L("From interest to on-ground visit", "من الاهتمام إلى الزيارة الميدانية")}</h2></div>
+    <div class="mm-step-grid">${stepCards}</div>
   </div></section>
 
   <section class="section" id="mm-form"><div class="container" style="max-width:720px">
@@ -2091,7 +2221,148 @@ function buildMahfolMakfol() {
       <div class="form-success" id="mm-success" hidden></div>
     </form>
   </div></section>`;
-  return page({ title: Lraw("Business Tourism — Mahfol Makfol by Business Partner", "سياحة الأعمال — محفول مكفول من بزنس بارتنر"), desc: Lraw((b.leadEn || b.lead).slice(0, 155), b.lead.slice(0, 155)), active: "/mahfol-makfol", path: "/mahfol-makfol", body });
+
+  // Client-side multilingual Investment Concierge (multiple-choice, no backend
+  // dependency). It shapes a plan and hands off to the lead form (which feeds
+  // the /api/requests investor-tourism pipeline) or to WhatsApp.
+  const mmScript = `<script>
+(function(){
+  var PAGE_LANG = ${JSON.stringify(LANG === "ar" ? "ar" : "en")};
+  var WA = ${JSON.stringify(WA)};
+  var SEC = [
+    {en:"Energy & Industry",ar:"الطاقة والصناعة"},{en:"Technology",ar:"التقنية"},
+    {en:"Tourism",ar:"السياحة"},{en:"Finance & Real Estate",ar:"المال والعقار"},
+    {en:"Logistics & Trade",ar:"اللوجستيات والتجارة"},{en:"Healthcare",ar:"الرعاية الصحية"},
+    {en:"Sports & Entertainment",ar:"الرياضة والترفيه"},{en:"Agriculture & Food",ar:"الزراعة والغذاء"}
+  ];
+  var CIT = [
+    {en:"Riyadh",ar:"الرياض"},{en:"Jeddah",ar:"جدة"},{en:"Eastern Province",ar:"المنطقة الشرقية"},
+    {en:"Makkah",ar:"مكة المكرمة"},{en:"Madinah",ar:"المدينة المنورة"},{en:"Asir",ar:"عسير"},
+    {en:"NEOM",ar:"نيوم"},{en:"Jazan",ar:"جازان"},{en:"Not sure yet",ar:"لست متأكداً بعد"}
+  ];
+  var D = {
+    en:{q:["What brings you to Saudi Arabia?","Which sector interests you most?","Which city or region?","What is your timeline?"],
+      P:["Explore opportunities","Expand my business","Establish a regional HQ (RHQ)","Find a local partner","Attend an event or forum"],
+      T:["Within a month","1–3 months","3–6 months","Just researching"],
+      back:"Back",next:"Next",plan:"Get my plan",restart:"Start over",
+      ptitle:"Your tailored visit",pintro:"Here is the shape of your program. Complete the form below and our team will finalize it within a business day.",
+      kP:"Purpose",kS:"Sector",kC:"City / region",kT:"Timeline",wa:"Continue on WhatsApp",form:"Complete my request"},
+    ar:{q:["ما الذي يقودك إلى السعودية؟","ما القطاع الذي يهمّك أكثر؟","أي مدينة أو منطقة؟","ما الإطار الزمني لديك؟"],
+      P:["استكشاف الفرص","توسيع أعمالي","تأسيس مقر إقليمي (RHQ)","إيجاد شريك محلي","حضور فعالية أو منتدى"],
+      T:["خلال شهر","١–٣ أشهر","٣–٦ أشهر","مجرد استكشاف"],
+      back:"رجوع",next:"التالي",plan:"اعرض خطتي",restart:"ابدأ من جديد",
+      ptitle:"زيارتك المصمّمة",pintro:"هذه ملامح برنامجك. أكمل النموذج أدناه وسيقوم فريقنا بإنهائه خلال يوم عمل.",
+      kP:"الهدف",kS:"القطاع",kC:"المدينة / المنطقة",kT:"التوقيت",wa:"تابع عبر واتساب",form:"أكمل طلبي"},
+    zh:{q:["您为何来沙特阿拉伯？","您最感兴趣的行业？","哪个城市或地区？","您的时间安排？"],
+      P:["探索机会","拓展业务","设立地区总部 (RHQ)","寻找本地合作伙伴","参加活动或论坛"],
+      T:["一个月内","1–3 个月","3–6 个月","仅在调研"],
+      back:"返回",next:"下一步",plan:"获取方案",restart:"重新开始",
+      ptitle:"为您定制的行程",pintro:"这是您行程的框架。请填写下方表单，我们团队将在一个工作日内完成。",
+      kP:"目的",kS:"行业",kC:"城市 / 地区",kT:"时间",wa:"通过 WhatsApp 继续",form:"完成我的申请"},
+    ru:{q:["Что привело вас в Саудовскую Аравию?","Какой сектор вам интересен?","Какой город или регион?","Каковы ваши сроки?"],
+      P:["Изучить возможности","Расширить бизнес","Создать штаб-квартиру (RHQ)","Найти местного партнёра","Посетить мероприятие или форум"],
+      T:["В течение месяца","1–3 месяца","3–6 месяцев","Просто изучаю"],
+      back:"Назад",next:"Далее",plan:"Получить план",restart:"Начать заново",
+      ptitle:"Ваш индивидуальный визит",pintro:"Вот структура вашей программы. Заполните форму ниже, и наша команда завершит её в течение рабочего дня.",
+      kP:"Цель",kS:"Сектор",kC:"Город / регион",kT:"Сроки",wa:"Продолжить в WhatsApp",form:"Завершить заявку"},
+    es:{q:["¿Qué le trae a Arabia Saudí?","¿Qué sector le interesa más?","¿Qué ciudad o región?","¿Cuál es su plazo?"],
+      P:["Explorar oportunidades","Expandir mi negocio","Establecer una sede regional (RHQ)","Encontrar un socio local","Asistir a un evento o foro"],
+      T:["En un mes","1–3 meses","3–6 meses","Solo investigando"],
+      back:"Atrás",next:"Siguiente",plan:"Ver mi plan",restart:"Empezar de nuevo",
+      ptitle:"Su visita personalizada",pintro:"Este es el esquema de su programa. Complete el formulario y nuestro equipo lo finalizará en un día hábil.",
+      kP:"Objetivo",kS:"Sector",kC:"Ciudad / región",kT:"Plazo",wa:"Continuar en WhatsApp",form:"Completar mi solicitud"},
+    fr:{q:["Qu’est-ce qui vous amène en Arabie saoudite ?","Quel secteur vous intéresse le plus ?","Quelle ville ou région ?","Quel est votre calendrier ?"],
+      P:["Explorer les opportunités","Développer mon activité","Établir un siège régional (RHQ)","Trouver un partenaire local","Assister à un événement ou forum"],
+      T:["Sous un mois","1–3 mois","3–6 mois","Simple recherche"],
+      back:"Retour",next:"Suivant",plan:"Voir mon plan",restart:"Recommencer",
+      ptitle:"Votre visite sur mesure",pintro:"Voici la structure de votre programme. Remplissez le formulaire ci-dessous et notre équipe le finalisera sous un jour ouvré.",
+      kP:"Objectif",kS:"Secteur",kC:"Ville / région",kT:"Calendrier",wa:"Continuer sur WhatsApp",form:"Compléter ma demande"},
+    ko:{q:["사우디아라비아를 찾으신 목적은?","가장 관심 있는 분야는?","어느 도시나 지역인가요?","일정은 어떻게 되나요?"],
+      P:["기회 탐색","사업 확장","지역 본부(RHQ) 설립","현지 파트너 찾기","행사·포럼 참석"],
+      T:["한 달 이내","1–3개월","3–6개월","조사 중"],
+      back:"뒤로",next:"다음",plan:"내 계획 보기",restart:"다시 시작",
+      ptitle:"맞춤 방문 일정",pintro:"프로그램의 개요입니다. 아래 양식을 작성해 주시면 영업일 기준 하루 이내에 완성해 드립니다.",
+      kP:"목적",kS:"분야",kC:"도시/지역",kT:"일정",wa:"WhatsApp에서 계속",form:"요청 완료하기"},
+    ja:{q:["サウジアラビアへの目的は？","最も関心のある分野は？","どの都市・地域ですか？","ご予定の時期は？"],
+      P:["機会を探る","事業を拡大する","地域統括拠点(RHQ)を設立","現地パートナーを探す","イベント・フォーラムに参加"],
+      T:["1か月以内","1〜3か月","3〜6か月","情報収集中"],
+      back:"戻る",next:"次へ",plan:"プランを見る",restart:"最初から",
+      ptitle:"あなた専用の訪問プラン",pintro:"プログラムの概要です。下のフォームにご記入いただければ、営業日1日以内に仕上げます。",
+      kP:"目的",kS:"分野",kC:"都市・地域",kT:"時期",wa:"WhatsAppで続ける",form:"リクエストを完了"}
+  };
+  var body = document.getElementById("mmccBody");
+  var bar = document.getElementById("mmccBar");
+  var sel = document.getElementById("mmccLang");
+  if(!body||!sel) return;
+  var lang = D[PAGE_LANG] ? PAGE_LANG : "en";
+  sel.value = lang;
+  var st = {step:0, purpose:-1, sector:-1, city:-1, timeline:-1};
+  function esc(s){var d=document.createElement("span");d.textContent=s;return d.innerHTML;}
+  function lab(o){return lang==="ar"?o.ar:o.en;}
+  function optsFor(step){
+    var d=D[lang];
+    if(step===0) return d.P.map(function(x){return {t:x};});
+    if(step===1) return SEC.map(function(o){return {t:lab(o)};});
+    if(step===2) return CIT.map(function(o){return {t:lab(o)};});
+    return d.T.map(function(x){return {t:x};});
+  }
+  function curVal(step){return step===0?st.purpose:step===1?st.sector:step===2?st.city:st.timeline;}
+  function setVal(step,i){if(step===0)st.purpose=i;else if(step===1)st.sector=i;else if(step===2)st.city=i;else st.timeline=i;}
+  var root = document.getElementById("mm-concierge");
+  function render(){
+    if(root) root.dir = lang==="ar" ? "rtl" : "ltr";
+    var d=D[lang];
+    bar.style.width = (st.step>=4?100:((st.step+1)/5*100))+"%";
+    if(st.step<4){
+      var items=optsFor(st.step), sv=curVal(st.step), html="";
+      html+='<div class="mm-cc-q">'+esc(d.q[st.step])+'</div><div class="mm-cc-opts">';
+      for(var i=0;i<items.length;i++){html+='<button type="button" class="mm-cc-opt'+(sv===i?" sel":"")+'" data-i="'+i+'">'+esc(items[i].t)+'</button>';}
+      html+='</div><div class="mm-cc-nav">';
+      html+= st.step>0 ? '<button type="button" class="btn btn-ghost" data-nav="back">'+esc(d.back)+'</button>' : '<span></span>';
+      html+= '<button type="button" class="btn btn-primary" data-nav="fwd"'+(sv<0?" disabled":"")+'>'+esc(st.step<3?d.next:d.plan)+'</button>';
+      html+='</div>';
+      body.innerHTML=html;
+    } else {
+      var m='<div class="mm-cc-plan"><h4>'+esc(d.ptitle)+'</h4>';
+      m+='<div class="kv"><b>'+esc(d.kP)+'</b><span>'+esc(d.P[st.purpose])+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kS)+'</b><span>'+esc(lab(SEC[st.sector]))+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kC)+'</b><span>'+esc(lab(CIT[st.city]))+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kT)+'</b><span>'+esc(d.T[st.timeline])+'</span></div>';
+      m+='<p style="margin:12px 0 0;color:var(--text-soft);font-size:14px">'+esc(d.pintro)+'</p></div>';
+      m+='<div class="mm-cc-nav"><button type="button" class="btn btn-ghost" data-nav="back">'+esc(d.back)+'</button>';
+      m+='<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-wa" id="mmccWa" target="_blank" rel="noopener">'+esc(d.wa)+'</a><button type="button" class="btn btn-primary" data-nav="form">'+esc(d.form)+'</button></div></div>';
+      body.innerHTML=m;
+      var msg="Mahfol Makfol — Investment Concierge\\nPurpose: "+D.en.P[st.purpose]+"\\nSector: "+SEC[st.sector].en+"\\nCity: "+CIT[st.city].en+"\\nTimeline: "+D.en.T[st.timeline];
+      var wa=document.getElementById("mmccWa");
+      wa.href = WA + (WA.indexOf("?")>-1?"&":"?") + "text=" + encodeURIComponent(msg);
+    }
+  }
+  body.addEventListener("click",function(e){
+    var o=e.target.closest(".mm-cc-opt");
+    if(o){setVal(st.step,parseInt(o.getAttribute("data-i"),10));if(st.step<3){st.step++;}else{st.step=4;}render();return;}
+    var n=e.target.closest("[data-nav]");
+    if(!n) return;
+    var a=n.getAttribute("data-nav");
+    if(a==="back"){st.step=Math.max(0,st.step-1);render();}
+    else if(a==="fwd"){if(curVal(st.step)<0)return;if(st.step<3){st.step++;}else{st.step=4;}render();}
+    else if(a==="form"){
+      var setv=function(id,v){var el=document.getElementById(id);if(el&&v)el.value=v;};
+      setv("mm-sector", SEC[st.sector].en);
+      setv("mm-notes", "Investment Concierge — Purpose: "+D.en.P[st.purpose]+" | City: "+CIT[st.city].en+" | Timeline: "+D.en.T[st.timeline]);
+      var f=document.getElementById("mm-form");
+      if(f)f.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+  });
+  sel.addEventListener("change",function(){lang=D[sel.value]?sel.value:"en";render();});
+  render();
+})();
+</script>`;
+
+  return page({
+    title: Lraw("Mahfol Makfol by Business Partner — Invest in Saudi Arabia", "محفول مكفول من بزنس بارتنر — استثمر في السعودية"),
+    desc: Lraw("A concierge program for foreign investors in Saudi Arabia: MISA licensing, government relations, curated meetings, opportunity sourcing and executive hospitality across the Kingdom's key cities.", "برنامج استشاري للمستثمرين الأجانب في السعودية: ترخيص وزارة الاستثمار، علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة."),
+    active: "/mahfol-makfol", path: "/mahfol-makfol", body, script: mmScript,
+  });
 }
 
 function buildSaudi() {
