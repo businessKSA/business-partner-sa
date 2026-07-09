@@ -672,6 +672,12 @@ const skyline = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
     const region = regionObj ? (regionObj.t?optLabel(regionObj):(regionObj.id+' / '+regionObj.ar)) : state.region;
     const timeline=findLabel(TIMELINE,state.timeline);
     const msg = `Investment enquiry via Mahfol Makfol by Business Partner\n• Goal: ${purpose}\n• Sector: ${sector}\n• Region: ${region}\n• Timeline: ${timeline}`;
+    try {
+      fetch('/api/investor-lead', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ purpose: purpose, sector: sector, region: region, timeline: timeline, lang: LANG, source: 'Concierge wizard' })
+      }).catch(function(){});
+    } catch (e) {}
     document.getElementById('cxBody').innerHTML = `
       <div class="cx-result">
         <h3>${tr('cx.rTitle')}</h3>
