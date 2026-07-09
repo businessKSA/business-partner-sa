@@ -2836,7 +2836,7 @@ function buildCheckout() {
             <div class="field"><label for="co-phone">${L("Mobile", "رقم الجوال")}</label><input id="co-phone" name="phone" type="tel" required></div>
           </div>
           <div class="grid grid-2" style="gap:0 20px">
-            <div class="field"><label for="co-email">${L("Email", "البريد الإلكتروني")}</label><input id="co-email" name="email" type="email"></div>
+            <div class="field"><label for="co-email">${L("Email *", "البريد الإلكتروني *")}</label><input id="co-email" name="email" type="email" required></div>
             <div class="field"><label for="co-entity">${L("Company / entity (optional)", "المنشأة (اختياري)")}</label><input id="co-entity" name="entity" type="text"></div>
           </div>
           <h2>${L("Upload your documents", "ارفع مستنداتك")}</h2>

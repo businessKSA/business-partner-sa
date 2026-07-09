@@ -184,6 +184,63 @@ function ssUnseal(t) { const raw = Buffer.from(String(t), "base64url"); const d 
 function ssCode(email) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET).update("shared|" + String(email).toLowerCase()).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-SS-" + o; }
 function ssRef(email) { const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("ref|" + String(email).toLowerCase() + "|" + Date.now()).digest("hex"); return "BP-SS-" + h.slice(0, 6).toUpperCase(); }
 
+// ---- Compliance Agent: order -> owner approval -> Notion activation -> emailed code ----
+// Client Compliance Intake DB (same one the n8n intake/portal workflows read/write).
+const COMPLIANCE_DB = process.env.NOTION_COMPLIANCE_DB || "5d570a75009b41019857060d0670642f";
+const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
+const MKT_SITE_BASE = process.env.MKT_SITE_BASE || "https://new.businesspartner.sa";
+function complianceCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("compliance|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-" + o; }
+async function findComplianceRecord(company) {
+  if (!NOTION_TOKEN || !company) return null;
+  const r = await fetch(`https://api.notion.com/v1/databases/${COMPLIANCE_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "المنشأة", title: { equals: company } } }),
+  });
+  if (!r.ok) return null;
+  const data = await r.json();
+  return (data.results || [])[0] || null;
+}
+// Looks up (or creates) the client's Compliance Intake record by establishment
+// name, flips حالة الاشتراك to نشط, and returns the portal access code (kept
+// stable if the record already had one — e.g. from an earlier file-intake).
+async function activateComplianceSubscription({ company, email, phone }) {
+  if (!NOTION_TOKEN || !company) return null;
+  const existing = await findComplianceRecord(company);
+  const codeProp = existing && existing.properties && existing.properties["رمز الدخول"];
+  const existingCode = codeProp && codeProp.rich_text && codeProp.rich_text[0] && codeProp.rich_text[0].plain_text;
+  const code = existingCode || complianceCode(company + "|" + email);
+  if (existing) {
+    const props = { "حالة الاشتراك": { select: { name: "نشط" } } };
+    if (!existingCode) props["رمز الدخول"] = { rich_text: [{ text: { content: code } }] };
+    const hasEmail = existing.properties["البريد"] && existing.properties["البريد"].email;
+    if (email && !hasEmail) props["البريد"] = { email };
+    await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ properties: props }),
+    });
+  } else {
+    const today = new Date().toISOString().slice(0, 10);
+    const properties = {
+      "المنشأة": { title: [{ text: { content: company } }] },
+      "حالة الاشتراك": { select: { name: "نشط" } },
+      "الحالة": { select: { name: "بانتظار المعالجة" } },
+      "المصدر": { select: { name: "نموذج الموقع" } },
+      "رمز الدخول": { rich_text: [{ text: { content: code } }] },
+      "تاريخ الاستلام": { date: { start: today } },
+    };
+    if (email) properties["البريد"] = { email };
+    if (phone) properties["واتساب أو الجوال"] = { phone_number: phone };
+    await fetch(`https://api.notion.com/v1/pages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ parent: { database_id: COMPLIANCE_DB }, properties }),
+    });
+  }
+  return code;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -199,6 +256,19 @@ export default async function handler(req, res) {
     await crmLead({ title: `تفعيل خدمات مشتركة — ${d.name || d.email}`, phone: d.phone || "", email: d.email, notes: `معتمد ومفعّل · ${d.ref}`, ref: d.ref });
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم الاعتماد</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
+  }
+
+  // Compliance Agent — owner approval link (clicked after confirming the bank transfer).
+  if ((q.action || "") === "approve-compliance") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
+    let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
+    const code = await activateComplianceSubscription({ company: d.company, email: d.email, phone: d.phone });
+    if (!code) { res.statusCode = 500; return res.end("<h3>تعذّر التفعيل — تحقّق من إعداد Notion (NOTION_TOKEN) واسم المنشأة.</h3>"); }
+    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في وكيل الامتثال 🎉</h2><p>المنشأة: <b>${esc(d.company)}</b></p><p>رمز الدخول لبوابة وكيل الامتثال:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${COMPLIANCE_PORTAL_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة وكيل الامتثال</a> — أدخل بريدك (${esc(d.email)}) والرمز أعلاه.</p></div>`;
+    await sendEmail(d.email, `تم تفعيل اشتراكك — وكيل الامتثال (${esc(d.company)})`, codeHtml);
+    res.statusCode = 200;
+    return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
 
   if (req.method === "GET") {
@@ -271,14 +341,21 @@ export default async function handler(req, res) {
     const agents = Array.isArray(b.agents) ? b.agents.map((s) => String(s).toLowerCase().trim()).filter((s) => /^[a-z0-9]{1,30}$/.test(s)).slice(0, 20) : [];
     const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
     const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
+    const compliance = !!b.compliance;
+    const company = String(b.company || "").trim().slice(0, 200) || name;
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
     const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, "application/pdf");
     const agentsNote = agents.length ? `<p>موظفون أذكياء مطلوبون: <strong>${esc(agents.join("، "))}</strong> — بمجرد اعتماد الدفع، تفلّت الحالة لـ«مؤكد - قيد التنفيذ» يفتح للعميل بوابة الموظفين الأذكياء تلقائياً برقم مرجعه ${ref}.</p>` : "";
+    const complianceNote = compliance
+      ? (OTP_SECRET && isEmail(email)
+          ? `<p>طلب اشتراك <strong>وكيل الامتثال</strong> — المنشأة: <strong>${esc(company)}</strong>. بعد تأكيد استلام التحويل البنكي:</p><p><a href="${MKT_SITE_BASE}/api/requests?action=approve-compliance&t=${encodeURIComponent(ssSeal({ company, email, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل اشتراك وكيل الامتثال</a></p><p style="color:#666;font-size:13px">لا تعتمد إلا بعد تأكيد وصول التحويل — سيصل العميل بريد فيه رمز الدخول لبوابة الامتثال تلقائياً.</p>`
+          : `<p>طلب اشتراك <strong>وكيل الامتثال</strong> — فعّله يدوياً في قاعدة "Client Compliance Intake" في Notion (حالة الاشتراك → نشط) بعد تأكيد التحويل.</p>`)
+      : "";
     const receiptNote = receiptUploadId
       ? `<p>إيصال التحويل مرفق بصف الطلب في Notion — إيجنت التحقق في n8n يقارن مبلغه بـ«إجمالي الطلب» (${total} ﷼) تلقائياً.</p>`
       : `<p style="color:#b91c1c">⚠️ تعذّر رفع الإيصال إلى Notion — راجع الإيصال يدوياً قبل التفعيل.</p>`;
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}${complianceNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
       crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),

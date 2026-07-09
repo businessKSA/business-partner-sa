@@ -318,17 +318,29 @@ var BP = window.BP = window.BP || {};
 /* ---------- Checkout submit ---------- */
 (function () {
   "use strict";
+  function checkoutSession() { try { return JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) { return null; } }
+
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("checkout-form");
     if (!form) return;
+    // Name + email come from the signed-in account, not free typing, so the
+    // order is always traceable to a real registration.
+    var session = checkoutSession();
+    if (session) {
+      var nameEl = document.getElementById("co-name"), emailEl = document.getElementById("co-email");
+      if (nameEl) { nameEl.value = session.name || ""; nameEl.readOnly = true; }
+      if (emailEl) { emailEl.value = session.email || ""; emailEl.readOnly = true; }
+    }
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var cart = BP.cart.read();
       if (!cart.length) { alert(BP.t("Your cart is empty.", "سلتك فارغة.")); location.href = "/services"; return; }
-      var name = document.getElementById("co-name").value.trim();
+      var session2 = checkoutSession();
+      var name = (session2 && session2.name) || document.getElementById("co-name").value.trim();
       var phone = document.getElementById("co-phone").value.trim();
-      var email = document.getElementById("co-email").value.trim();
-      if (!name || !phone) { alert(BP.t("Please enter your name and mobile.", "الرجاء إدخال الاسم ورقم الجوال.")); return; }
+      var email = ((session2 && session2.email) || document.getElementById("co-email").value.trim()).toLowerCase();
+      var isEmailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+      if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = "/account"; return; }
       var receipt = document.getElementById("co-receipt");
       var receiptFile = receipt && receipt.files && receipt.files.length ? receipt.files[0] : null;
       var isPdf = receiptFile && (receiptFile.type === "application/pdf" || /\.pdf$/i.test(receiptFile.name || ""));
@@ -354,7 +366,8 @@ var BP = window.BP = window.BP || {};
       // upload the receipt PDF so the n8n verification agent can check it matches the total.
       var employeeSlugs = cart.filter(function (i) { return i.kind === "employee" && (i.id || "").indexOf("employee-") === 0; })
         .map(function (i) { return i.id.slice("employee-".length); });
-      var submitBtn = form.querySelector("button[type=submit]");
+      var boughtCompliance = cart.some(function (i) { return (i.id || "").indexOf("agent-Compliance") === 0; });
+      var companyProfile = {}; try { companyProfile = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e0) {}
       function sendOrder(receiptBase64) {
         try {
           fetch("/api/requests", {
@@ -364,6 +377,8 @@ var BP = window.BP = window.BP || {};
               items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
               total: total,
               agents: employeeSlugs,
+              compliance: boughtCompliance,
+              company: companyProfile.name || "",
               receiptName: receiptFile.name, receiptBase64: receiptBase64 || ""
             })
           }).catch(function () {});
@@ -378,15 +393,14 @@ var BP = window.BP = window.BP || {};
       order.items.forEach(function (it) { lines.push("• " + it.name + " ×" + it.qty + (it.price ? " — " + it.price + " ﷼" : "")); });
       var waUrl = "https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n"));
       // Clear cart
-      var boughtCompliance = cart.some(function (i) { return (i.id || "").indexOf("agent-Compliance") === 0; });
       var boughtEmployee = employeeSlugs.length > 0;
       BP.cart.write([]);
       var box = document.getElementById("checkout-success");
       box.hidden = false;
       box.innerHTML = "✅ <strong>" + BP.t("Order received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
         BP.t("Your receipt is being verified against your order total. We'll confirm on WhatsApp.", "يجري التحقق من إيصالك مقابل إجمالي طلبك. سنؤكد لك عبر واتساب.") +
-        (boughtCompliance ? "<br>" + BP.t("Your compliance agent is ready — start it in the tools & calculators hub.", "وكيل الامتثال جاهز — ابدأ معه من مركز الأدوات والحاسبات.") +
-          '<br><a class="btn btn-primary" style="margin-top:12px" href="/tools-and-calculators">' + BP.t("Open the compliance agent", "افتح وكيل الامتثال") + "</a>" : "") +
+        (boughtCompliance ? "<br>" + BP.t("Once confirmed, we'll email you an activation code for the Compliance Agent portal.", "بعد التأكيد سنرسل لك بريداً فيه رمز الدخول لبوابة وكيل الامتثال.") +
+          '<br><a class="btn btn-primary" style="margin-top:12px" href="https://businesspartner.sa/ar/portal" target="_blank" rel="noopener">' + BP.t("Open the Compliance Agent portal", "افتح بوابة وكيل الامتثال") + "</a>" : "") +
         (boughtEmployee ? "<br>" + BP.t("Once we confirm your payment, use this order number as your activation code in the smart employees portal.", "بمجرد ما نتأكد من الدفع، استخدم رقم الطلب هذا كـ كود تفعيل في بوابة الموظفين الأذكياء.") +
           '<br><a class="btn btn-primary" style="margin-top:12px" href="/portal">' + BP.t("Open the smart employees portal", "افتح بوابة الموظفين الأذكياء") + "</a>" : "") +
         '<br><a class="btn btn-wa" style="margin-top:12px" href="' + waUrl + '" target="_blank" rel="noopener">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a> " +
