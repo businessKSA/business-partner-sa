@@ -3,6 +3,7 @@ import '../../styles/global.css';
 export const prerender = true;
 const API_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp3-portal-9kq4z';
 const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-465c-aa1f-69773ea1f86d/chat';
+const INTAKE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web';
 ---
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -169,6 +170,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
 
       <div class="tabs">
         <button class="tab active" data-tab="overview">نظرة عامة</button>
+        <button class="tab" data-tab="upload">📤 رفع الملفات</button>
         <button class="tab" data-tab="entities">الجهات الحكومية</button>
         <button class="tab" data-tab="alerts">التنبيهات والبنود</button>
         <button class="tab" data-tab="costs">التكاليف</button>
@@ -197,6 +199,31 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
 
         <h3 class="sec" style="margin-top:1.6rem">🚨 أبرز التنبيهات</h3>
         <div class="card" id="top-alerts"><div class="empty">جارٍ التحميل...</div></div>
+      </div>
+
+      <!-- UPLOAD WIZARD -->
+      <div class="panel" id="panel-upload">
+        <h3 class="sec">📤 رفع ملفات الامتثال</h3>
+        <p style="color:#667;font-size:.85rem;margin-bottom:1rem">ارفع مستنداتك خطوة بخطوة — يقرأها وكيل الامتثال ويرتّبها تلقائياً تحت كل منصة. لو ملف غير جاهز الآن اضغط «تخطي» وارجع له لاحقاً.</p>
+        <div class="card" id="upload-wizard">
+          <div id="upload-progress" style="font-size:.82rem;color:#667;margin-bottom:.6rem"></div>
+          <div style="background:#eef1f7;border-radius:8px;height:6px;margin-bottom:1.1rem;overflow:hidden"><div id="upload-bar" style="height:100%;background:var(--brand);width:0%;transition:width .25s"></div></div>
+          <h4 id="upload-step-title" style="color:var(--navy);font-size:1.05rem;margin-bottom:.3rem"></h4>
+          <p id="upload-step-desc" style="color:#667;font-size:.85rem;margin-bottom:.9rem"></p>
+          <input type="file" id="upload-step-file" style="margin-bottom:1rem" />
+          <div id="upload-step-msg" style="display:none;border-radius:8px;padding:.6rem .8rem;font-size:.85rem;margin-bottom:.9rem"></div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+            <button type="button" class="icon-btn" id="upload-back">← السابق</button>
+            <button type="button" class="icon-btn" id="upload-skip">تخطي</button>
+            <button type="button" class="btn btn-navy" id="upload-next" style="margin-inline-start:auto">التالي ←</button>
+          </div>
+        </div>
+        <div class="card" id="upload-done" style="display:none;text-align:center">
+          <h3 style="color:var(--navy)">✅ تم استلام ملفاتك</h3>
+          <p style="color:#667;font-size:.9rem;margin:.6rem 0">وكيل الامتثال يراجع ملفاتك الآن ويحدّث لوحتك خلال دقائق — يصلك إيميل بكل تحديث. اضغط تحديث بعد قليل لمشاهدة التحليل.</p>
+          <button type="button" class="btn btn-navy" id="upload-refresh-after">↻ تحديث اللوحة الآن</button>
+          <button type="button" class="icon-btn" style="margin-top:.6rem" id="upload-restart">إعادة فتح قائمة الملفات</button>
+        </div>
       </div>
 
       <!-- ENTITIES -->
@@ -300,6 +327,76 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       ejar:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><circle cx="14.5" cy="15.5" r="1.5"/><path d="M14.5 17v2"/></svg>',
       misa:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.8 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.8-4-9s1.5-6.5 4-9z"/></svg>',
     };
+
+    // Step-by-step compliance document checklist — one document per step,
+    // submitted immediately to the same intake pipeline used for new
+    // registrations. Passing notion_page_id + code (both already known from
+    // this authenticated session) routes it into an update of THIS client's
+    // existing record instead of creating a duplicate/new one.
+    const DOC_STEPS = [
+      { key:'cr', label:'السجل التجاري', desc:'ارفع صورة أو PDF للسجل التجاري (اسم المنشأة والرقم الموحّد يجب أن يظهرا بوضوح).' },
+      { key:'gosi', label:'برنت التأمينات الاجتماعية (Excel)', desc:'صادر من موقع التأمينات — ملف Excel بقائمة المشتركين.' },
+      { key:'address', label:'شهادة العنوان الوطني', desc:'شهادة العنوان الوطني الصادرة من البريد السعودي.' },
+      { key:'zatca', label:'الشهادة الضريبية (ZATCA)', desc:'شهادة تسجيل ضريبة القيمة المضافة.' },
+      { key:'zatca', label:'شهادة الزكاة', desc:'شهادة الزكاة السارية من هيئة الزكاة والضريبة والجمارك.' },
+      { key:'muqeem', label:'برنت مقيم (Excel)', desc:'كشف بيانات الإقامات من منصة مقيم.' },
+      { key:'chamber', label:'شهادة الغرفة التجارية', desc:'شهادة العضوية السارية من الغرفة التجارية.' },
+      { key:'balady', label:'الرخصة البلدية', desc:'الرخصة البلدية السارية لموقع نشاطك.' },
+      { key:'qiwa', label:'شهادة المديونيات (قوى)', desc:'شهادة عدم الممانعة/المديونيات من منصة قوى.' },
+      { key:'qiwa', label:'شهادة التوطين / النطاقات (قوى)', desc:'شهادة النطاق الحالي من منصة قوى.' },
+      { key:'gosi', label:'شهادة الاشتراك (التأمينات)', desc:'شهادة اشتراك سارية من التأمينات الاجتماعية.' },
+      { key:'mudad', label:'شهادة الالتزام بحماية الأجور (مدد)', desc:'شهادة الالتزام الصادرة من منصة مدد.' },
+      { key:'', label:'لقطة شاشة لكل منصة حكومية', desc:'لقطة شاشة لصفحة حسابك في كل منصة (قوى، التأمينات، المركز السعودي للأعمال...) لتوثيق تاريخ التسجيل — يمكنك اختيار أكثر من صورة دفعة واحدة.', multiple:true },
+      { key:'qiwa', label:'عقود قوى لكل الموظفين (PDF)', desc:'ملفات PDF لعقود العمل من قوى — لاستخراج البنود وتاريخ المباشرة والانتهاء لكل موظف.', multiple:true },
+    ];
+    let uploadStep = 0;
+    function renderUploadStep() {
+      const s = DOC_STEPS[uploadStep];
+      document.getElementById('upload-progress').textContent = 'الخطوة ' + (uploadStep + 1) + ' من ' + DOC_STEPS.length;
+      document.getElementById('upload-bar').style.width = Math.round((uploadStep / DOC_STEPS.length) * 100) + '%';
+      document.getElementById('upload-step-title').textContent = s.label;
+      document.getElementById('upload-step-desc').textContent = s.desc;
+      const fileInput = document.getElementById('upload-step-file');
+      fileInput.value = ''; fileInput.multiple = !!s.multiple;
+      document.getElementById('upload-back').disabled = uploadStep === 0;
+      document.getElementById('upload-step-msg').style.display = 'none';
+      document.getElementById('upload-wizard').style.display = 'block';
+      document.getElementById('upload-done').style.display = 'none';
+    }
+    function showUploadMsg(text, ok) {
+      const el = document.getElementById('upload-step-msg');
+      el.style.display = 'block'; el.style.background = ok ? '#dcfce7' : '#fee2e2'; el.style.color = ok ? '#065f46' : '#991b1b';
+      el.textContent = text;
+    }
+    function finishUploadStep() {
+      if (uploadStep < DOC_STEPS.length - 1) { uploadStep++; renderUploadStep(); }
+      else { document.getElementById('upload-wizard').style.display = 'none'; document.getElementById('upload-done').style.display = 'block'; }
+    }
+    function submitUploadStep(cb) {
+      const s = DOC_STEPS[uploadStep];
+      const fileInput = document.getElementById('upload-step-file');
+      if (!fileInput.files.length) { cb(); return; }
+      const nextBtn = document.getElementById('upload-next');
+      nextBtn.disabled = true; nextBtn.textContent = '...جارٍ الرفع';
+      const fd = new FormData();
+      fd.append('company', (lastData && lastData.company) || '');
+      fd.append('email', localStorage.getItem('bp_portal_email') || '');
+      fd.append('code', localStorage.getItem('bp_portal_code') || '');
+      fd.append('notion_page_id', (lastData && lastData.pageId) || '');
+      fd.append('notes', s.label);
+      fd.append('platforms', s.key || '');
+      for (let i = 0; i < fileInput.files.length; i++) fd.append('files', fileInput.files[i]);
+      fetch(INTAKE_URL, { method: 'POST', body: fd })
+        .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); showUploadMsg('✅ تم رفع: ' + s.label, true); })
+        .catch(function () { showUploadMsg('تعذّر رفع "' + s.label + '" — تحقق من اتصالك وحاول مجدداً.', false); })
+        .finally(function () { nextBtn.disabled = false; nextBtn.textContent = 'التالي ←'; cb(); });
+    }
+    document.getElementById('upload-next').addEventListener('click', function () { submitUploadStep(finishUploadStep); });
+    document.getElementById('upload-skip').addEventListener('click', finishUploadStep);
+    document.getElementById('upload-back').addEventListener('click', function () { if (uploadStep > 0) { uploadStep--; renderUploadStep(); } });
+    document.getElementById('upload-restart').addEventListener('click', function () { uploadStep = 0; renderUploadStep(); });
+    document.getElementById('upload-refresh-after').addEventListener('click', function () { switchTab('overview'); document.getElementById('refresh-btn').click(); });
+    renderUploadStep();
 
     const loginScreen = document.getElementById('login-screen');
     const lockedScreen = document.getElementById('locked-screen');
