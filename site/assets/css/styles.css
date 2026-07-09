@@ -1068,3 +1068,15 @@ mark.cc-hit{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 2px}
 .cc-agent-cta .btn-primary{background:var(--white);color:var(--navy)}
 .cc-agent-cta .btn-ghost{border-color:rgba(255,255,255,.5);color:var(--white)}
 .cc-agent-cta .btn-ghost:hover{background:var(--white);color:var(--navy)}
+
+/* Magazine — branded print/PDF issue */
+.mag-print-cover{text-align:center;padding:40px 0 30px;border-bottom:2px solid var(--navy);margin-bottom:30px}
+.mag-print-cover img{margin-bottom:16px}
+.mag-print-cover h1{color:var(--navy);margin-bottom:6px}
+.mag-print-footer{text-align:center;color:var(--text-soft);font-size:.78rem;margin:30px 0 10px;border-top:1px solid var(--gray-line);padding-top:14px}
+@media print{
+  .site-header,.site-footer,.wa-fab,.no-print{display:none !important}
+  body{color:#000}
+  .mag-print-cover{border-bottom-color:#000}
+  .mag-print-cover h1{color:#000}
+}

@@ -337,10 +337,45 @@ var BP = window.BP = window.BP || {};
             return;
           }
           box.innerHTML = d.items.map(newsCard).join("");
+          if (box.getAttribute("data-auto-print")) setTimeout(function () { window.print(); }, 400);
         })
         .catch(function () {
           box.innerHTML = '<p class="text-soft">' + BP.t("Couldn't load the latest news. Try again shortly.", "تعذّر تحميل آخر الأخبار. حاول مرة أخرى بعد قليل.") + "</p>";
         });
+    });
+  });
+})();
+
+/* ---------- Magazine PDF download gate ---------- */
+(function () {
+  "use strict";
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("mag-form");
+    if (!form) return;
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = val("mag-name"), phone = val("mag-phone"), email = val("mag-email");
+      if (!name || !phone || !email) { alert(BP.t("Please fill all fields.", "الرجاء تعبئة كل الحقول.")); return; }
+      var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = BP.t("Sending…", "جارٍ الإرسال…");
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "magazine", name: name, phone: phone, email: email }),
+      }).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          btn.textContent = lbl;
+          var box = document.getElementById("mag-success");
+          if (res.d && res.d.ok) {
+            box.hidden = false;
+            box.innerHTML = "✅ " + BP.t("Opening your printable issue — also emailed to you.", "جارٍ فتح عددك القابل للطباعة — أرسلناه لبريدك أيضاً.");
+            window.open(res.d.printUrl || "/magazine/print", "_blank");
+          } else {
+            btn.disabled = false;
+            alert(BP.t("Couldn't send. Try again.", "تعذّر الإرسال. حاول مرة أخرى."));
+          }
+        })
+        .catch(function () { btn.disabled = false; btn.textContent = lbl; alert(BP.t("Couldn't send. Try again.", "تعذّر الإرسال. حاول مرة أخرى.")); });
     });
   });
 })();

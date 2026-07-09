@@ -378,6 +378,7 @@ function footer() {
       ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
       ${fl("/news", "Insights & news", "الرؤى والأخبار")}
+      ${fl("/magazine", "Magazine (PDF)", "المجلة (PDF)")}
       ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
       ${fl("/careers", "Careers", "الوظائف")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
@@ -2197,12 +2198,64 @@ function buildNews() {
         <div class="hub-sec" id="weekly">
           <h2>${L("Weekly roundup", "الملخص الأسبوعي")}</h2>
           <div class="callout"><span class="ico">🗞️</span><p>${L(n.weeklyNoteEn || n.weeklyNote || "", n.weeklyNote || "")}</p></div>
-          ${site.whatsappChannel ? `<div style="margin-top:14px"><a class="btn btn-wa" href="${site.whatsappChannel}" target="_blank" rel="noopener">${I.channel}<span>${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</span></a></div>` : ""}
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <a class="btn btn-primary" href="${u("/magazine")}">${I.doc}<span>${L("Browse the magazine & download PDF", "تصفّح المجلة وحمّلها PDF")}</span></a>
+            ${site.whatsappChannel ? `<a class="btn btn-wa" href="${site.whatsappChannel}" target="_blank" rel="noopener">${I.channel}<span>${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</span></a>` : ""}
+          </div>
         </div>
       </div>
     </div>
   </div></section>`;
   return page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — بيزنس بارتنر"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من بيزنس بارتنر."), active: "/news", body });
+}
+
+// Browsable, branded news magazine — content is the same live Notion feed as
+// /news, but the PDF issue (browser print-to-PDF, see /magazine/print) is
+// gated behind a short registration so we capture the lead first.
+function buildMagazine() {
+  const today = new Date().toISOString().slice(0, 7);
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Magazine", "المجلة")}</span>
+    <h1>${L("Business Partner Magazine", "مجلة بيزنس بارتنر")}</h1>
+    <p class="lead">${L("Every government decision and compliance update that matters for your business — browse free, or register once to download the branded PDF issue.", "كل قرار حكومي وتحديث امتثال يهم أعمالك — تصفّح مجاناً، أو سجّل مرة واحدة لتحميل العدد بصيغة PDF بهوية الشركة.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="grid grid-2" data-live-news="20"></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container" style="max-width:560px">
+    <div class="section-head"><span class="eyebrow">${L("PDF issue", "العدد بصيغة PDF")}</span><h2>${L("Download the branded PDF issue", "حمّل العدد بصيغة PDF بهوية الشركة")}</h2><p>${L("Register once and we'll open your printable, brand-designed issue — use your browser's “Save as PDF” to download it, and we'll also email you the link.", "سجّل مرة واحدة وسنفتح لك العدد الجاهز للطباعة بتصميم الشركة — استخدم خيار “حفظ كـ PDF” في متصفحك لتنزيله، وسنرسل لك الرابط على بريدك أيضاً.")}</p></div>
+    <form class="calc-form" id="mag-form" novalidate>
+      <div class="field"><label for="mag-name">${L("Full name", "الاسم الكامل")}</label><input id="mag-name" type="text" required></div>
+      <div class="field"><label for="mag-phone">${L("Mobile", "رقم الجوال")}</label><input id="mag-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+      <div class="field"><label for="mag-email">${L("Email", "الإيميل")}</label><input id="mag-email" type="email" required></div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.doc}<span>${L("Get my PDF issue", "احصل على عددي بصيغة PDF")}</span></button>
+      <div class="form-success" id="mag-success" hidden></div>
+    </form>
+  </div></section>`;
+  return page({ title: Lraw("Magazine — Business Partner", "المجلة — بيزنس بارتنر"), desc: Lraw("Government decisions and compliance updates for your business — browse the magazine or download the branded PDF issue.", "قرارات حكومية وتحديثات امتثال تهم أعمالك — تصفّح المجلة أو حمّل العدد بصيغة PDF."), active: "/magazine", path: "/magazine", body });
+}
+
+// Print-ready issue: same live news feed, styled for print with the site's
+// header/footer/WhatsApp button hidden (see the @media print rules in
+// styles.css) so the browser's "Save as PDF" produces a clean, branded PDF —
+// no server-side PDF library needed, and Arabic text shapes correctly for
+// free because the browser itself renders it.
+function buildMagazinePrint() {
+  const issue = new Date().toISOString().slice(0, 10);
+  const body = `
+  <section class="container mag-print"><div class="mag-print-cover">
+    <img src="/assets/img/logo.png" alt="Business Partner" width="220" height="42">
+    <h1>${L("Business Partner Magazine", "مجلة بيزنس بارتنر")}</h1>
+    <p>${L("Issue", "العدد")} — ${esc(issue)}</p>
+  </div>
+  <div class="grid grid-2" data-live-news="30" data-auto-print="1"></div>
+  <p class="mag-print-footer">${L("Business Partner · businesspartner.sa — sources: automated compilation of public news; verify with the official source before acting.", "بيزنس بارتنر · businesspartner.sa — المصادر: تجميع آلي من الأخبار العامة — يُرجى التحقق من المصدر الرسمي قبل أي إجراء.")}</p>
+  </section>
+  <p class="text-soft center mt-32 no-print">${L("Preparing your printable issue — your browser's print dialog will open automatically. Choose “Save as PDF” as the destination.", "جارٍ تجهيز عددك القابل للطباعة — سيفتح مربع الطباعة في متصفحك تلقائياً. اختر “حفظ كـ PDF” كوجهة الطباعة.")}</p>`;
+  return page({ title: Lraw("Magazine — printable issue | Business Partner", "المجلة — نسخة للطباعة | بيزنس بارتنر"), desc: Lraw("Printable Business Partner magazine issue.", "نسخة قابلة للطباعة من مجلة بيزنس بارتنر."), path: "/magazine/print", body });
 }
 
 // Pilot: "HR by Business Partner" — a sub-brand landing page that pulls
@@ -4379,6 +4432,8 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
+  write(`${pre}magazine.html`, buildMagazine());
+  write(`${pre}magazine/print.html`, buildMagazinePrint());
   write(`${pre}careers.html`, buildCareers());
   write(`${pre}hr.html`, buildHR());
   write(`${pre}employers.html`, buildEmployers());
@@ -4421,7 +4476,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/task-force", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths

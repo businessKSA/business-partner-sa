@@ -391,6 +391,32 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
   }
 
+  // Magazine PDF download gate (/magazine) — capture the lead, then email a
+  // link to the print-ready issue (the browser's print-to-PDF renders it —
+  // no server-side PDF library, so Arabic text shapes correctly for free).
+  if (b.type === "magazine") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    if (!name || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "MAG-" + Date.now().toString().slice(-6);
+    const printUrl = `${SITE_BASE}/magazine/print`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+      <h2 style="color:#0B1B5A">مجلة Business Partner جاهزة 📰</h2>
+      <p>مرحباً ${esc(name)}، شكراً لتسجيلك. اضغط الرابط لفتح نسختك من المجلة — واستخدم أمر الطباعة في متصفحك واختر "حفظ كـ PDF" لتنزيلها.</p>
+      <p><a href="${printUrl}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح المجلة</a></p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `تسجيل جديد لتحميل المجلة — ${name}`, `<div style="font-family:Arial,sans-serif">${row("الاسم", name)}${row("الجوال", phone)}${row("الإيميل", email)}</div>`),
+      sendEmail(email, "مجلة Business Partner — رابط التحميل", clientHtml),
+      crmLead({ title: `تسجيل مجلة — ${name}`, phone, email, notes: "Magazine PDF gate", ref }),
+      addToAudience(email, name),
+      forwardLead({ source: "magazine", ref, name, phone, email }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, printUrl: "/magazine/print" }));
+  }
+
   // Investor business tourism request — Mahfol Makfol (/mahfol-makfol).
   if (b.type === "investor-tourism") {
     const company = String(b.company || "").trim().slice(0, 200);
