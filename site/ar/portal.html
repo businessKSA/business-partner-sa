@@ -236,10 +236,17 @@
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
-    // Demo codes unlock every agent for testing only. Real clients unlock by
-    // entering their own order reference (e.g. BP-506275) once we've confirmed
-    // payment and flipped the order's status in the CRM — see /api/requests.
-    var CODES={'BP-DEMO':'ALL','BP2026':'ALL'};
+    // Demo codes unlock agents for testing only — never issued to real clients.
+    // Real clients unlock by entering their own order reference (e.g. BP-506275)
+    // once we've confirmed payment and flipped the order's status in the CRM —
+    // see /api/requests. One code per package tier lets you log in with a test
+    // email and see exactly what each bundle size looks like.
+    var CODES={
+      'BP-DEMO':'ALL','BP2026':'ALL','DEMO123':'ALL',
+      'DEMO-ONE':['badr'],
+      'DEMO-THREE':['badr','malak','farah'],
+      'DEMO-TEAM':['malak','badr','farah','mazen','ahmed','mohammed','abdulaziz']
+    };
     var CONFIRMED=['مؤكد - قيد التنفيذ','مكتمل'];
     var OWNER_EMAIL='dr.baher.magnas@gmail.com';
     var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents'};
