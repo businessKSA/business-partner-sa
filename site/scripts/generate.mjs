@@ -1680,16 +1680,33 @@ function buildComplianceAgent() {
     <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
     <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a></div>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="#pricing">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/account")}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+    </div>
     <div class="hero-badges">${chips}</div>
   </div></section>
 
-  <section class="section section--gray"><div class="container">
+  <section id="intake" class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to opening your dashboard", "أربع خطوات من التسجيل إلى فتح لوحتك")}</h2></div>
+    <div class="steps-grid">${[
+      [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
+      [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
+      [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
+      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your account — the Compliance Agent card opens your dashboard directly.", "سجّل دخولك لحسابك — بطاقة وكيل الامتثال تفتح لوحتك مباشرة.")],
+    ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
+    <div class="hero-actions" style="margin-top:1.4rem">
+      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/account")}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from registering your establishment to a daily alert and a ready action pending your approval", "أربع خطوات — من تسجيل منشأتك إلى تنبيه يومي وإجراء جاهز بموافقتك")}</h2></div>
     <div class="steps-grid">${stepsHtml}</div>
   </div></section>
 
-  <section class="section"><div class="container">
+  <section class="section section--gray"><div class="container">
     <div class="order-box">
       <h3 style="margin-bottom:1rem">${L("What does the agent track for you?", "وش يتابع لك الوكيل؟")}</h3>
       <ul class="value-list">${valueItems}</ul>
@@ -1701,20 +1718,6 @@ function buildComplianceAgent() {
       <div><div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
       <div class="text-soft">${L("Compliance subscription — daily monitoring and alerts. Government fees for actions are separate and only run with your approval.", "اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.")}</div></div>
       ${cartBtns({ id: "agent-Compliance-Agent", nameEn: "Compliance & obligations agent", nameAr: "وكيل الامتثال والالتزام", amount: 250, priceLabel: L("From 250 ﷼ / monthly", "يبدأ من 250 ﷼ / شهرياً"), kind: "agent" })}
-    </div>
-  </div></section>
-
-  <section id="intake" class="section" style="background:var(--gray-bg)"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to opening your dashboard", "أربع خطوات من التسجيل إلى فتح لوحتك")}</h2></div>
-    <div class="steps-grid">${[
-      [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site.", "أنشئ حسابك في الموقع.")],
-      [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
-      [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
-      [L("Log into the Compliance Agent portal", "ادخل بوابة وكيل الامتثال"), L("Using your email and the code sent to you.", "بواسطة بريدك والرمز المرسل إليه.")],
-    ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
-    <div class="hero-actions" style="margin-top:1.4rem">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
-      <a class="btn btn-ghost btn-lg" href="https://businesspartner.sa/ar/portal" target="_blank" rel="noopener">${L("🔐 Already subscribed? Open the portal", "🔐 مشترك بالفعل؟ افتح البوابة")}</a>
     </div>
   </div></section>
 
@@ -1956,7 +1959,6 @@ function buildGosiCalculator() {
 
 function buildTourism() {
   const t = site.tourism;
-  const b = site.businessTourism;
   const ev = t.events;
   const evFeats = ev.features.map((f, i) => `<li>${I.check}<span>${L((ev.featuresEn && ev.featuresEn[i]) || f, f)}</span></li>`).join("");
   const body = `
@@ -2033,14 +2035,8 @@ function buildTourism() {
     </div>
   </div></section>
 
-  <section class="section section--gray" id="investor"><div class="container" style="max-width:760px;text-align:center">
-    <div class="subbrand-badge" style="margin-inline:auto">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
-    <div class="section-head"><span class="eyebrow">${L("Type two · investor business tourism", "النوع الثاني · سياحة الأعمال للمستثمر")}</span><h2>${L(b.titleEn || b.title, b.title)}</h2><p>${L(b.leadEn || b.lead, b.lead)}</p></div>
-    <a class="btn btn-primary btn-lg" href="${u("/mahfol-makfol")}">${I.globe}<span>${L("Explore Mahfol Makfol", "استعرض محفول مكفول")}</span></a>
-  </div></section>
-
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Ready for us to arrange it?", "جاهز نرتّب لك؟")}</h2><p>${L("Whether an event for your staff or an exploratory trip to the Saudi market — we tailor it to you.", "سواء فعالية لموظفيك أو رحلة استكشاف للسوق السعودي — نصمّمها على مقاسك.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready for us to arrange it?", "جاهز نرتّب لك؟")}</h2><p>${L("Tell us about your event and we'll tailor it to you.", "أخبرنا عن فعاليتك ونصمّمها على مقاسك.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
   return page({ title: Lraw("Tourism & events — Business Partner", "السياحة والفعاليات — بيزنس بارتنر"), desc: Lraw((t.leadEn || t.lead).slice(0, 155), t.lead.slice(0, 155)), active: "/tourism", body });
 }
