@@ -21,10 +21,6 @@ const { lang, t } = Astro.props;
       <a href={`${lang === 'ar' ? '/ar' : '/en'}/#packages`}>{t.nav.packages}</a>
       <a href={`${lang === 'ar' ? '/ar' : '/en'}/#contact`}>{t.nav.contact}</a>
 
-      <a href="/investor" class="mahfol-badge">
-        {lang === 'ar' ? '🇸🇦 استثمر في السعودية' : '🇸🇦 Invest in Saudi Arabia'}
-      </a>
-
       <a href="https://new.businesspartner.sa" class="new-version-badge" target="_blank" rel="noopener">
         {lang === 'ar' ? '✨ جرّب النسخة الجديدة' : '✨ Try the new site'}
       </a>
@@ -109,24 +105,6 @@ const { lang, t } = Astro.props;
     transform: translateY(-1px);
   }
 
-  /* Mahfol tourism badge → points to /mahfol */
-  .mahfol-badge {
-    background: linear-gradient(135deg, #ee6a4d, #d14a30);
-    color: #ffffff !important;
-    font-weight: 700;
-    padding: 0.55rem 1.1rem;
-    border-radius: 999px;
-    white-space: nowrap;
-    box-shadow: 0 6px 18px rgba(238, 106, 77, 0.3);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
-  }
-
-  .mahfol-badge:hover {
-    color: #ffffff !important;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(238, 106, 77, 0.45);
-  }
-
   /* Mobile responsive */
   @media (max-width: 768px) {
     .header-content {
@@ -147,9 +125,8 @@ const { lang, t } = Astro.props;
       display: none;
     }
 
-    /* keep the tourism + "try the new site" badges visible on mobile */
-    .nav a.new-version-badge,
-    .nav a.mahfol-badge {
+    /* keep the "try the new site" badge visible on mobile */
+    .nav a.new-version-badge {
       display: inline-block;
       padding: 0.45rem 0.85rem;
       font-size: 0.85rem;
