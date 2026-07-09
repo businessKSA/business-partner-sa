@@ -23,9 +23,10 @@
 //                               sends this as "Authorization: Bearer <secret>"
 //   WHATSAPP_CHANNEL_URL       optional override of the WhatsApp channel link
 //
-// GET  /api/newsletter                        -> { status, configured }
-// GET  /api/newsletter  (with CRON_SECRET)     -> runs the weekly send, returns { ok, sent, ... }
-// POST /api/newsletter                         -> { ok } | { ok:false, error }
+// GET  /api/newsletter                          -> { status, configured }
+// GET  /api/newsletter?feed=news&limit=8        -> { ok, items:[{date,text}] } — public live feed
+// GET  /api/newsletter  (with CRON_SECRET)       -> runs the weekly send, returns { ok, sent, ... }
+// POST /api/newsletter                           -> { ok } | { ok:false, error }
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -137,9 +138,10 @@ function blockText(b) {
   return t.rich_text.map((x) => x.plain_text).join("");
 }
 
-// Source 1: the daily government/compliance digest (n8n-fed page).
-async function weeklyFromDailyDigest() {
-  const blocks = await listChildren(DAILY_DIGEST_PAGE);
+// Shared parser: group the daily digest page's blocks into { date, parts[] }
+// sections, one per "## 🗓️ YYYY-MM-DD" heading. When the n8n workflow runs more
+// than once a day, later blocks for the same date win (freshest revision).
+function digestSectionsByDate(blocks) {
   const sections = [];
   let current = null;
   for (const b of blocks) {
@@ -155,20 +157,37 @@ async function weeklyFromDailyDigest() {
       if (t) current.parts.push(t);
     }
   }
+  const byDate = new Map();
+  for (const s of sections) byDate.set(s.date, s.parts.join("\n\n"));
+  return byDate;
+}
+const isRealUpdate = (text) => text && text.length >= 60 && !/لا توجد تحديثات جوهرية/.test(text);
+
+// Source 1: the daily government/compliance digest (n8n-fed page).
+async function weeklyFromDailyDigest() {
+  const blocks = await listChildren(DAILY_DIGEST_PAGE);
+  const byDate = digestSectionsByDate(blocks);
   const cutoff = new Date();
   cutoff.setUTCDate(cutoff.getUTCDate() - 6);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
-  const byDate = new Map();
-  for (const s of sections) {
-    if (s.date < cutoffStr) continue;
-    byDate.set(s.date, s.parts.join("\n\n")); // later runs for the same date win
-  }
   const items = [];
   for (const [date, text] of [...byDate.entries()].sort()) {
-    if (!text || text.length < 60 || /لا توجد تحديثات جوهرية/.test(text)) continue;
+    if (date < cutoffStr || !isRealUpdate(text)) continue;
     items.push({ date, text });
   }
   return items;
+}
+
+// Public feed for the site: most recent N daily-digest entries, newest first —
+// used by /saudi-arabia and /news to show live news without a redeploy.
+async function latestDailyNews(limit) {
+  const blocks = await listChildren(DAILY_DIGEST_PAGE);
+  const byDate = digestSectionsByDate(blocks);
+  return [...byDate.entries()]
+    .filter(([, text]) => isRealUpdate(text))
+    .sort((a, b) => (a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0))
+    .slice(0, limit)
+    .map(([date, text]) => ({ date, text }));
 }
 
 // Source 2: ad-hoc items the team added to the manual "نشرة الأسبوع" draft page.
@@ -289,6 +308,21 @@ export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
   if (req.method === "GET") {
+    const url = new URL(req.url, "http://x");
+    if (url.searchParams.get("feed") === "news") {
+      res.setHeader("Cache-Control", "public, max-age=300, s-maxage=300, stale-while-revalidate=600");
+      if (!NOTION_TOKEN) return res.end(JSON.stringify({ ok: true, items: [] }));
+      try {
+        const limitRaw = parseInt(url.searchParams.get("limit") || "8", 10);
+        const limit = Math.min(Math.max(Number.isFinite(limitRaw) ? limitRaw : 8, 1), 20);
+        const items = await latestDailyNews(limit);
+        return res.end(JSON.stringify({ ok: true, items }));
+      } catch (e) {
+        console.error("newsletter feed error", String(e).slice(0, 200));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "notion_failed", items: [] }));
+      }
+    }
     const auth = req.headers.authorization || "";
     if (CRON_SECRET && auth === `Bearer ${CRON_SECRET}`) {
       try {

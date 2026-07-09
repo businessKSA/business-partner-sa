@@ -315,6 +315,36 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
+/* ---------- Live news feed (reads straight from Notion, no redeploy) ---------- */
+(function () {
+  "use strict";
+  function esc3(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function newsCard(it) {
+    var text = esc3(it.text).replace(/\n+/g, "<br>");
+    return '<div class="card news-card"><span class="tag">📅 ' + esc3(it.date) + '</span><p class="desc">' + text + "</p></div>";
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    var boxes = document.querySelectorAll("[data-live-news]");
+    if (!boxes.length) return;
+    boxes.forEach(function (box) {
+      var limit = box.getAttribute("data-live-news") || "6";
+      box.innerHTML = '<p class="text-soft">' + BP.t("Loading the latest news…", "جارٍ تحميل آخر الأخبار…") + "</p>";
+      fetch("/api/newsletter?feed=news&limit=" + encodeURIComponent(limit))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok || !d.items || !d.items.length) {
+            box.innerHTML = '<p class="text-soft">' + BP.t("No news to show right now.", "لا توجد أخبار لعرضها حالياً.") + "</p>";
+            return;
+          }
+          box.innerHTML = d.items.map(newsCard).join("");
+        })
+        .catch(function () {
+          box.innerHTML = '<p class="text-soft">' + BP.t("Couldn't load the latest news. Try again shortly.", "تعذّر تحميل آخر الأخبار. حاول مرة أخرى بعد قليل.") + "</p>";
+        });
+    });
+  });
+})();
+
 /* ---------- Checkout submit ---------- */
 (function () {
   "use strict";

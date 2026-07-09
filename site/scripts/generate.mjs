@@ -2039,7 +2039,7 @@ function buildSaudi() {
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("Saudi Arabia", "السعودية")}</span>
+    <span class="eyebrow">${L("Invest in Saudi", "الاستثمار في السعودية")}</span>
     <h1>${L(s.titleEn || s.title, s.title)}</h1>
     <p class="lead">${L(s.leadEn || s.lead, s.lead)}</p>
     <div class="hero-actions">${waBtn2("Start your investment", "ابدأ استثمارك", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
@@ -2049,6 +2049,12 @@ function buildSaudi() {
     <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(s.vision.eyebrowEn || s.vision.eyebrow, s.vision.eyebrow)}</span><h2 style="color:#fff">${L(s.vision.titleEn || s.vision.title, s.vision.title)}</h2></div>
     <div class="stats">${targets}</div>
     <p class="center" style="color:rgba(255,255,255,.6);font-size:.85rem;margin-top:26px">${L(s.vision.sourceEn || s.vision.source, s.vision.source)}</p>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Live from Notion", "مباشر من نوشن")}</span><h2>${L("Latest government & compliance news", "آخر مستجدات الأنظمة والامتثال")}</h2><p>${L("Updated automatically — no need to redeploy the site.", "يتحدّث تلقائياً — بلا حاجة لإعادة نشر الموقع.")}</p></div>
+    <div class="grid grid-2" data-live-news="6"></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${u("/news")}">${L("Browse all news", "تصفّح كل الأخبار")}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -2090,6 +2096,7 @@ function buildNews() {
     .map((q) => `<div class="quote"><p>${L(q.textEn || q.text, q.text)}</p><div class="role">${L(q.tagEn || q.tag, q.tag)}</div></div>`)
     .join("");
   const cats = [
+    { id: "latest", en: "Latest news", ar: "آخر الأخبار" },
     { id: "guides", en: "Practical guides", ar: "أدلة عملية" },
     { id: "platforms", en: "Platform updates", ar: "تحديثات المنصات" },
     { id: "stories", en: "Success stories", ar: "قصص نجاح" },
@@ -2107,6 +2114,11 @@ function buildNews() {
     <div class="hub">
       <aside class="hub-side"><nav class="hub-nav" id="hub-nav">${sideNav}</nav></aside>
       <div class="hub-main">
+        <div class="hub-sec" id="latest">
+          <h2>${L("Latest news", "آخر الأخبار")}</h2>
+          <p class="hub-sub">${L("Live from Notion — government decisions and compliance news, updated automatically.", "مباشر من نوشن — قرارات حكومية وأخبار امتثال، تتحدث تلقائياً.")}</p>
+          <div class="grid grid-2" data-live-news="10"></div>
+        </div>
         <div class="hub-sec" id="guides">
           <h2>${L("Practical guides", "أدلة عملية")}</h2>
           <p class="hub-sub">${L(k.subtitleEn || k.subtitle, k.subtitle)}</p>

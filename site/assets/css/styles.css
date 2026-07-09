@@ -315,6 +315,12 @@ p { color: var(--text-soft); }
 .article-card h3 { font-size: 1.12rem; margin-bottom: 10px; }
 .article-card .desc { font-size: .93rem; flex: 1; margin-bottom: 14px; }
 
+/* Live news feed (fetched client-side straight from Notion) */
+.news-card { display: block; }
+.news-card .tag { display: inline-flex; align-items: center; gap: 6px; font-size: .74rem; font-weight: 700;
+  color: var(--navy); background: rgba(11,27,90,.07); padding: 4px 11px; border-radius: 999px; margin-bottom: 10px; }
+.news-card .desc { font-size: .92rem; line-height: 1.7; }
+
 /* News platform update cards */
 .update-head { margin-bottom: 12px; }
 .update-badge { display: inline-block; font-size: .82rem; font-weight: 700; color: #fff; background: var(--navy);
