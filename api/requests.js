@@ -391,6 +391,37 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
   }
 
+  // Investor business tourism request — Mahfol Makfol (/mahfol-makfol).
+  if (b.type === "investor-tourism") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const country = String(b.country || "").trim().slice(0, 120);
+    const date = String(b.date || "").trim().slice(0, 60);
+    const count = String(b.count || "").trim().slice(0, 20);
+    const sector = String(b.sector || "").trim().slice(0, 200);
+    const notes = String(b.notes || "").trim().slice(0, 1000);
+    if (!company || !person || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "MM-" + Date.now().toString().slice(-6);
+    const rows = row("الشركة / الجهة", company) + row("المسؤول", person) + row("الجوال", phone) + row("الإيميل", email) +
+      row("الدولة", country) + row("الفترة المفضّلة", date) + row("عدد الوفد", count) + row("مجال الاهتمام", sector) + row("تفاصيل إضافية", notes);
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب سياحة أعمال جديد (محفول مكفول) — ${ref}</h2><table>${rows}</table></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+      <h2 style="color:#0B1B5A">تم استلام طلبك — ${ref}</h2>
+      <p>مرحباً ${esc(person)}، استلمنا تفاصيل رحلتك الاستكشافية. فريق محفول مكفول يصمّم لك برنامجاً حسب نشاطك واهتمامك ويعود إليك خلال يوم عمل.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب سياحة أعمال جديد — ${company}`, teamHtml),
+      sendEmail(email, `تم استلام طلبك ${ref} — محفول مكفول`, clientHtml),
+      crmLead({ title: `سياحة أعمال (محفول مكفول) — ${company}`, phone, email, notes: `Mahfol Makfol · ${sector || "—"} · وفد ${count || "—"} · ${notes}`, ref }),
+      addToAudience(email, person),
+      forwardLead({ source: "investor-tourism", ref, name: person, company, phone, email, notes: `${country} · ${sector}` }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   const type = b.type === "supplier" ? "supplier" : "event";
   const f = {};
   for (const k of ["company", "person", "phone", "email", "date", "count", "klass", "venue", "eventType", "city", "cr", "category", "notes"]) {

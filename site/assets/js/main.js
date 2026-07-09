@@ -1089,6 +1089,19 @@ var BP = window.BP = window.BP || {};
         return null;
       },
       function (d, ref) { return "تسجيل مورّد " + ref + "\nالشركة: " + d.company + "\nالتصنيف: " + d.category; });
+
+    wire("mm-form-el", "mm-success",
+      function () {
+        return { type: "investor-tourism", company: val("mm-company"), person: val("mm-person"), phone: val("mm-phone"),
+          email: val("mm-email"), country: val("mm-country"), count: val("mm-count"), date: val("mm-date"),
+          sector: val("mm-sector"), notes: val("mm-notes") };
+      },
+      function (d) {
+        if (!d.company || !d.person || !d.phone || !d.email)
+          return BP.t("Please fill all required fields.", "الرجاء تعبئة كل الحقول المطلوبة.");
+        return null;
+      },
+      function (d, ref) { return "طلب سياحة أعمال " + ref + "\nالشركة: " + d.company + "\nالدولة: " + d.country + "\nعدد الوفد: " + d.count; });
   });
 })();
 
