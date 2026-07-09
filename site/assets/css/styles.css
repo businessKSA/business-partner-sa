@@ -544,6 +544,7 @@ p { color: var(--text-soft); }
 .ord-status.ok { background: #eaf7ef; color: #14663a; }
 .ord-status.off { background: #fbe8e8; color: #9a1c1c; }
 .upl { padding: 8px 0; border-bottom: 1px dashed var(--gray-line); font-size: .92rem; }
+.req-star { color: #c0392b; }
 
 /* Client dashboard (etmaam-style) */
 .dash { display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }

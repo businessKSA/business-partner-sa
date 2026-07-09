@@ -330,14 +330,19 @@ var BP = window.BP = window.BP || {};
       var email = document.getElementById("co-email").value.trim();
       if (!name || !phone) { alert(BP.t("Please enter your name and mobile.", "الرجاء إدخال الاسم ورقم الجوال.")); return; }
       var receipt = document.getElementById("co-receipt");
+      var receiptFile = receipt && receipt.files && receipt.files.length ? receipt.files[0] : null;
+      var isPdf = receiptFile && (receiptFile.type === "application/pdf" || /\.pdf$/i.test(receiptFile.name || ""));
+      if (!receiptFile) { alert(BP.t("A bank transfer receipt (PDF) is required to submit your order.", "إيصال التحويل البنكي (PDF) إلزامي لإرسال الطلب.")); return; }
+      if (!isPdf) { alert(BP.t("The receipt must be a PDF file matching your order total.", "يجب أن يكون الإيصال ملف PDF ويطابق إجمالي طلبك.")); return; }
       var ref = "BP-" + Date.now().toString().slice(-6);
       var docs = document.getElementById("co-docs");
       var files = [];
       [docs, receipt].forEach(function (inp) { if (inp && inp.files) for (var i = 0; i < inp.files.length; i++) files.push(inp.files[i].name); });
+      var total = cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || 0;
       var order = {
         ref: ref, name: name, phone: phone, email: email,
         items: cart.map(function (i) { return { name: BP.cartName(i), qty: i.qty || 1, price: i.amount ? i.amount * (i.qty || 1) : null, priceLabel: i.price }; }),
-        files: files, receipt: receipt && receipt.files.length ? receipt.files[0].name : null,
+        files: files, receipt: receiptFile.name,
         at: new Date().toISOString().slice(0, 10), status: BP.t("Under review", "قيد المراجعة"),
       };
       try {
@@ -345,24 +350,32 @@ var BP = window.BP = window.BP || {};
         orders.unshift(order);
         localStorage.setItem("bp_orders", JSON.stringify(orders));
       } catch (err) {}
-      // Register the order with the team + CRM (best-effort; never blocks the client).
+      // Register the order with the team + CRM (best-effort; never blocks the client) and
+      // upload the receipt PDF so the n8n verification agent can check it matches the total.
       var employeeSlugs = cart.filter(function (i) { return i.kind === "employee" && (i.id || "").indexOf("employee-") === 0; })
         .map(function (i) { return i.id.slice("employee-".length); });
-      try {
-        fetch("/api/requests", {
-          method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            type: "order", ref: ref, name: name, phone: phone, email: email,
-            items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
-            total: cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || "",
-            agents: employeeSlugs
-          })
-        }).catch(function () {});
-      } catch (e) {}
+      var submitBtn = form.querySelector("button[type=submit]");
+      function sendOrder(receiptBase64) {
+        try {
+          fetch("/api/requests", {
+            method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              type: "order", ref: ref, name: name, phone: phone, email: email,
+              items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
+              total: total,
+              agents: employeeSlugs,
+              receiptName: receiptFile.name, receiptBase64: receiptBase64 || ""
+            })
+          }).catch(function () {});
+        } catch (e) {}
+      }
+      var reader = new FileReader();
+      reader.onload = function () { sendOrder(String(reader.result || "").split(",").pop()); };
+      reader.onerror = function () { sendOrder(""); };
+      reader.readAsDataURL(receiptFile);
       // Build WhatsApp notification
       var lines = ["*طلب جديد / New order* " + ref, "الاسم: " + name, "الجوال: " + phone];
       order.items.forEach(function (it) { lines.push("• " + it.name + " ×" + it.qty + (it.price ? " — " + it.price + " ﷼" : "")); });
-      if (!receipt || !receipt.files.length) lines.push(BP.t("(Receipt to be sent)", "(سيُرسل الإيصال)"));
       var waUrl = "https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n"));
       // Clear cart
       var boughtCompliance = cart.some(function (i) { return (i.id || "").indexOf("agent-Compliance") === 0; });
@@ -371,7 +384,7 @@ var BP = window.BP = window.BP || {};
       var box = document.getElementById("checkout-success");
       box.hidden = false;
       box.innerHTML = "✅ <strong>" + BP.t("Order received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
-        BP.t("Transfer the amount to the bank account, then send the receipt. We'll confirm on WhatsApp.", "حوّل المبلغ على الحساب البنكي ثم أرسل الإيصال. سنؤكد لك عبر واتساب.") +
+        BP.t("Your receipt is being verified against your order total. We'll confirm on WhatsApp.", "يجري التحقق من إيصالك مقابل إجمالي طلبك. سنؤكد لك عبر واتساب.") +
         (boughtCompliance ? "<br>" + BP.t("Your compliance agent is ready — start it in the tools & calculators hub.", "وكيل الامتثال جاهز — ابدأ معه من مركز الأدوات والحاسبات.") +
           '<br><a class="btn btn-primary" style="margin-top:12px" href="/tools-and-calculators">' + BP.t("Open the compliance agent", "افتح وكيل الامتثال") + "</a>" : "") +
         (boughtEmployee ? "<br>" + BP.t("Once we confirm your payment, use this order number as your activation code in the smart employees portal.", "بمجرد ما نتأكد من الدفع، استخدم رقم الطلب هذا كـ كود تفعيل في بوابة الموظفين الأذكياء.") +

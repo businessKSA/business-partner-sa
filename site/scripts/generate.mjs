@@ -868,6 +868,8 @@ function buildServiceDetail(s) {
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
         ${s.category === "Real Estate"
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
+          : s.category === "Tourism"
+          ? `<a class="btn btn-primary" href="${u("/tourism")}#event-form" style="width:100%">${I.calendar}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a>`
           : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}
         ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
         <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
@@ -2858,14 +2860,15 @@ function buildCheckout() {
             </ul>
             <p class="calc-note">${L(bank.noteEn || bank.note, bank.note)}</p>
           </div>
-          <h2>${L("Upload transfer receipt", "ارفع إيصال التحويل")}</h2>
+          <h2>${L("Upload transfer receipt", "ارفع إيصال التحويل")} <span class="req-star">*</span></h2>
           <div class="field">
             <label class="file-drop" for="co-receipt" id="receipt-drop"><span class="file-ico">${I.upload}</span>
-              <span class="file-text" id="receipt-filename">${L("Bank transfer receipt (image/PDF)", "صورة إيصال التحويل (صورة/PDF)")}</span></label>
-            <input id="co-receipt" name="receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden>
+              <span class="file-text" id="receipt-filename">${L("Bank transfer receipt — PDF required, same amount as your order total", "إيصال التحويل البنكي — ملف PDF إلزامي، ونفس قيمة إجمالي طلبك")}</span></label>
+            <input id="co-receipt" name="receipt" type="file" accept=".pdf,application/pdf" required hidden>
           </div>
+          <p class="calc-note" id="receipt-required-note">${L("Required: a PDF bank receipt showing a transfer of the exact order total. Orders without a matching receipt won't be activated.", "إلزامي: إيصال تحويل بنكي بصيغة PDF يوضح تحويل مبلغ يطابق إجمالي الطلب تماماً. الطلبات بدون إيصال مطابق لن تُفعّل.")}</p>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Submit order", "أرسل الطلب")}</button>
-          <p class="form-note">${L("On submit we save your order to your account on this device and open WhatsApp to notify our team. (Automated CRM/Drive link — Notion + n8n — coming soon.)", "عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز ونفتح واتساب لإشعار فريقنا. (الربط الآلي مع CRM وDrive — Notion وn8n — قيد الإطلاق.)")}</p>
+          <p class="form-note">${L("On submit we save your order to your account on this device, upload your receipt to our team's system for verification, and open WhatsApp to notify our team.", "عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز، ونرفع إيصالك لنظام فريقنا للتحقق، ونفتح واتساب لإشعار فريقنا.")}</p>
           <div class="form-success" id="checkout-success" hidden></div>
         </form>
       </div>

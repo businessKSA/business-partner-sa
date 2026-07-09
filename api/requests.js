@@ -72,7 +72,33 @@ async function orderStatuses(refs) {
   return { statuses, agents, emails };
 }
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus, agents }) {
+// Upload a base64 file to Notion's File Upload API. Returns the file_upload id
+// (attachable to a page's "files" property) or null if it fails — never blocks
+// the order itself, since the n8n agent can also be pointed at a fallback.
+async function uploadFileToNotion(base64, filename, contentType) {
+  if (!NOTION_TOKEN || !base64) return null;
+  try {
+    const createRes = await fetch("https://api.notion.com/v1/file_uploads", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    if (!createRes.ok) { console.error("Notion file_uploads create error", createRes.status, (await createRes.text()).slice(0, 300)); return null; }
+    const created = await createRes.json();
+    const buf = Buffer.from(base64, "base64");
+    const form = new FormData();
+    form.append("file", new Blob([buf], { type: contentType || "application/pdf" }), filename || "receipt.pdf");
+    const sendRes = await fetch(`https://api.notion.com/v1/file_uploads/${created.id}/send`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION },
+      body: form,
+    });
+    if (!sendRes.ok) { console.error("Notion file_uploads send error", sendRes.status, (await sendRes.text()).slice(0, 300)); return null; }
+    return created.id;
+  } catch (e) { console.error("uploadFileToNotion exception", String(e).slice(0, 200)); return null; }
+}
+
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
@@ -86,6 +112,11 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents })
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
+  if (typeof total === "number" && !Number.isNaN(total)) props["إجمالي الطلب"] = { number: total };
+  if (receiptUploadId) {
+    props["الإيصال البنكي"] = { files: [{ type: "file_upload", file_upload: { id: receiptUploadId }, name: (receiptName || "receipt.pdf").slice(0, 100) }] };
+    props["تحقق المبلغ"] = { select: { name: "لم يُفحص بعد" } };
+  }
   try {
     const r = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
@@ -227,25 +258,35 @@ export default async function handler(req, res) {
   }
 
   // Order/purchase from checkout → CRM lead + team notification (lighter validation).
+  // A bank receipt (PDF) is mandatory — the n8n verification agent reads it from
+  // Notion and checks its amount against "إجمالي الطلب" before an order is confirmed.
   if (b.type === "order") {
     const name = String(b.name || "").trim().slice(0, 160);
     const phone = String(b.phone || "").trim().slice(0, 40);
     const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
     const ref = String(b.ref || "BP-" + Date.now().toString().slice(-6)).slice(0, 40);
     const items = (Array.isArray(b.items) ? b.items.map((x) => (typeof x === "string" ? x : (x && x.name) || "")).filter(Boolean) : [String(b.items || "")]).join("، ").slice(0, 900);
-    const total = String(b.total || "").slice(0, 40);
+    const totalNum = Number(b.total);
+    const total = Number.isFinite(totalNum) ? totalNum : 0;
     const agents = Array.isArray(b.agents) ? b.agents.map((s) => String(s).toLowerCase().trim()).filter((s) => /^[a-z0-9]{1,30}$/.test(s)).slice(0, 20) : [];
+    const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
+    const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
+    const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, "application/pdf");
     const agentsNote = agents.length ? `<p>موظفون أذكياء مطلوبون: <strong>${esc(agents.join("، "))}</strong> — بمجرد اعتماد الدفع، تفلّت الحالة لـ«مؤكد - قيد التنفيذ» يفتح للعميل بوابة الموظفين الأذكياء تلقائياً برقم مرجعه ${ref}.</p>` : "";
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}<p>بعد تأكيد الدفع: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const receiptNote = receiptUploadId
+      ? `<p>إيصال التحويل مرفق بصف الطلب في Notion — إيجنت التحقق في n8n يقارن مبلغه بـ«إجمالي الطلب» (${total} ﷼) تلقائياً.</p>`
+      : `<p style="color:#b91c1c">⚠️ تعذّر رفع الإيصال إلى Notion — راجع الإيصال يدوياً قبل التفعيل.</p>`;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة", agents }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, ref }));
+    return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }
 
   // Task Force intake from /task-force — a complex/multi-party executive task.
