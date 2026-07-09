@@ -365,19 +365,21 @@ function footer() {
     </div>
     <div class="footer-col"><h4>${L("Links", "روابط")}</h4><ul>
       ${fl("/about", "About", "من نحن")}
-      ${fl("/services", "Services", "الخدمات")}
+      ${fl("/services", "All services", "كل الخدمات")}
+      ${fl("/packages", "Packages", "الباقات")}
       ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
+      ${fl("/workspaces", "Office spaces", "المكاتب ومساحات العمل")}
       ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
       ${fl("/task-force", "Task Force", "تاسك فورس")}
-      ${fl("/packages", "Packages", "الباقات")}
-      ${fl("/saudi-arabia", "Saudi Arabia", "السعودية")}
-      ${fl("/news", "News", "الأخبار")}
+      ${fl("/hr", "HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}
+      ${fl("/employer-join", "For employers", "لأصحاب العمل")}
+      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
+      ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
+      ${fl("/news", "Insights & news", "الرؤى والأخبار")}
       ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
       ${fl("/careers", "Careers", "الوظائف")}
-      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
       ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
-      ${fl("/cart", "Cart", "السلة")}
       ${fl("/contact", "Contact", "اتصل بنا")}
     </ul></div>
     <div class="footer-col"><h4>${L("Selected services", "خدمات مختارة")}</h4><ul>${svcLinks}</ul></div>
@@ -730,7 +732,7 @@ function buildAbout() {
     <span class="eyebrow">${L("About", "من نحن")}</span>
     <h1>${L(a.titleEn || a.title, a.title)}</h1>
     <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
-    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
+    <div class="hero-actions">${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
   </div></section>
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Our promise", "وعدنا")}</span><h2>${L(a.promiseEn || a.promise, a.promise)}</h2></div>
@@ -867,7 +869,7 @@ function buildServiceDetail(s) {
         ${s.category === "Real Estate"
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
           : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}
-        ${waBtn2("Discuss on WhatsApp", "ناقشنا على واتساب", "btn-ghost")}
+        ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
         <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
       </div>
@@ -1128,7 +1130,7 @@ function buildCalculator() {
           </div>
           <div class="calc2-warn" id="calc2-warn" hidden>${I.doc}<span>${L("Some selected services are priced on request (a quote after review). They are not included in the totals.", "بعض الخدمات المختارة تُسعّر حسب الطلب (عرض بعد المراجعة) ولا تدخل في الإجمالي.")}</span></div>
           <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/checkout")}" style="width:100%">${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
-          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or discuss on WhatsApp", "أو ناقشنا على واتساب")}</span></a>
+          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or chat with the smart agent", "أو تحدث مع الوكيل الذكي")}</span></a>
           <p class="calc-note">${L("Estimates from the official catalog; final pricing may vary by your case. Government fees are separate.", "تقديرات من الكتالوج الرسمي وقد تختلف حسب حالتك. الرسوم الحكومية منفصلة.")}</p>
         </div>
       </aside>
@@ -1583,7 +1585,7 @@ function buildCompliancePortal() {
         </div>
         <div class="order-box">
           <h3>${L("Prefer to talk first?", "تبغى تتكلم مع أحد أولاً؟")}</h3>
-          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("WhatsApp us", "كلّمنا واتساب")}</span></a>
+          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>
           <a class="btn btn-ghost" href="${u("/tools-and-calculators")}" style="width:100%;margin-top:10px">${L("Free compliance calculators →", "حاسبات الامتثال المجانية ←")}</a>
         </div>
       </aside>
@@ -2157,7 +2159,7 @@ function buildHR() {
     <div class="subbrand-badge">${I.building}<span>${L("HR", "الموارد البشرية")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</h1>
     <p class="lead">${L("Everything HR under one roof: a recruitment platform for employers, a candidate pool for job seekers, and a full catalog of HR & compliance services — Qiwa, GOSI, Mudad and Saudization, managed for you.", "كل ما يخص الموارد البشرية تحت مظلة واحدة: منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال — قوى والتأمينات ومدد والتوطين، بندير لك كل شي.")}</p>
-    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-services")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
+    <div class="hero-actions">${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-services")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -2308,7 +2310,7 @@ function buildEmployerJoin() {
 
 function buildNewsletter() {
   const perks = [
-    ["🗞️", L("Weekly regulatory updates", "تحديثات الأنظمة أسبوعياً"), L("New rules from MISA, HRSD, ZATCA, Qiwa and more — summarized simply.", "أنظمة جديدة من الاستثمار والموارد البشرية والزكاة وقوى وغيرها — مُلخّصة ببساطة.")],
+    ["🗞️", L("Weekly compliance & regulatory digest", "نشرة أسبوعية للامتثال والأنظمة"), L("Every Sunday: government decisions and regulatory news that matter for companies across every sector — MISA, HRSD, ZATCA, GOSI, Qiwa, Mudad and more.", "كل أحد: قرارات حكومية وأخبار تنظيمية تهم الشركات في جميع القطاعات — الاستثمار، الموارد البشرية، الزكاة والضريبة، التأمينات، قوى، مدد وغيرها.")],
     ["💡", L("Practical guides", "أدلة عملية"), L("Step-by-step guides for formation, licensing, Saudization and compliance.", "أدلة خطوة بخطوة للتأسيس والتراخيص والتوطين والامتثال.")],
     ["📊", L("Market insights", "قراءات السوق"), L("Opportunities and trends across Saudi sectors, tied to Vision 2030.", "فرص واتجاهات في القطاعات السعودية مرتبطة برؤية 2030.")],
     ["🎁", L("Subscriber-only offers", "عروض خاصة للمشتركين"), L("Occasional offers on our services and packages.", "عروض من حين لآخر على خدماتنا وباقاتنا.")],
@@ -2317,17 +2319,18 @@ function buildNewsletter() {
   <section class="hero"><div class="container hero-inner" style="max-width:820px">
     <span class="eyebrow">${L("Newsletter", "النشرة الإخبارية")}</span>
     <h1>${L("Stay ahead of Saudi business & regulations", "ابقَ في الصدارة بأخبار الأعمال والأنظمة السعودية")}</h1>
-    <p class="lead">${L("Join our weekly newsletter — the news that matters for doing business in Saudi Arabia, summarized and actionable.", "انضم لنشرتنا الأسبوعية — الأخبار المهمة لممارسة الأعمال في السعودية، مُلخّصة وقابلة للتطبيق.")}</p>
+    <p class="lead">${L("Every Sunday morning — compliance decisions and business news that matter across every sector, summarized and actionable.", "كل أحد صباحاً — قرارات الامتثال وأخبار الأعمال المهمة في جميع القطاعات، مُلخّصة وقابلة للتطبيق.")}</p>
     <form class="newsletter-form newsletter-hero" data-nl>
       <input type="email" placeholder="${Lraw("Your email", "بريدك الإلكتروني")}" aria-label="${Lraw("Email", "البريد الإلكتروني")}" data-nl-email required>
       <button type="submit" class="btn btn-primary btn-lg">${L("Subscribe", "اشترك")}</button>
     </form>
     <p class="nl-msg" data-nl-msg hidden></p>
     <p class="emp-note">${L("Free. No spam. Unsubscribe anytime.", "مجاناً. بدون إزعاج. يمكنك إلغاء الاشتراك في أي وقت.")}</p>
+    ${site.whatsappChannel ? `<div style="margin-top:14px"><a class="btn btn-wa" href="${site.whatsappChannel}" target="_blank" rel="noopener">${I.channel}<span>${L("Or follow our WhatsApp channel", "أو تابع قناتنا على واتساب")}</span></a></div>` : ""}
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("What you'll get", "ماذا ستحصل عليه")}</span><h2>${L("Every week in your inbox", "كل أسبوع في بريدك")}</h2></div>
+    <div class="section-head"><span class="eyebrow">${L("What you'll get", "ماذا ستحصل عليه")}</span><h2>${L("Every Sunday in your inbox", "كل أحد في بريدك")}</h2></div>
     <div class="grid grid-4">${perks}</div>
     <div class="center mt-32"><a class="btn btn-ghost" href="${u("/news")}">${L("Browse past insights", "تصفّح الأعداد السابقة")}</a></div>
   </div></section>`;
@@ -3017,7 +3020,7 @@ function buildAccount() {
         <div class="dash-panel" id="panel-support">
           <div class="dash-panel-head"><h2>${L("Support", "مركز الدعم")}</h2><p>${L("We're here to help — reach us any time.", "نحن هنا لمساعدتك — تواصل معنا في أي وقت.")}</p></div>
           <div class="dash-card">
-            <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("Chat on WhatsApp", "تواصل عبر واتساب")}</span></a>
+            <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>
             <a class="btn btn-ghost" href="${u("/consultation")}" style="width:100%;margin-top:10px">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a>
             <a class="btn btn-ghost" href="${u("/contact")}" style="width:100%;margin-top:10px">${L("Contact us", "اتصل بنا")}</a>
           </div>
@@ -3079,7 +3082,7 @@ function buildConsultation() {
             <li>${I.check}<span>${L("First consultation is free", "الاستشارة الأولى مجانية")}</span></li>
           </ul>
           <p class="mini">${L("Prefer chatting? The smart agent replies 24/7.", "تفضّل المحادثة؟ الوكيل الذكي يرد 24/7.")}</p>
-          ${waBtn2("Chat on WhatsApp", "تحدث على واتساب", "btn-ghost")}
+          ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
         </div>
       </aside>
     </div>
