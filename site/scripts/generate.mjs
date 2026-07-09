@@ -1620,7 +1620,7 @@ function buildComplianceAgent() {
   const platformsEn = ["Qiwa","Muqeem","GOSI","Mudad","Nitaqat","CR","Saudi Business Center","ZATCA","Chamber","National Address","Balady","Civil Defense","Ejar","MISA"];
   const chips = platforms.map((p, i) => `<span class="hero-badge">${L(platformsEn[i], p)}</span>`).join("");
   const steps = [
-    ["1", L("Subscribe and upload your files", "تشترك وترفع ملفاتك"), L("CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses — image, PDF or Excel.", "السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.")],
+    ["1", L("Subscribe and register your establishment", "تشترك وتسجّل منشأتك"), L("CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses — image, PDF or Excel.", "السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.")],
     ["2", L("The agent reads and analyzes", "الوكيل يقرأ ويحلّل"), L("Extracts dates, numbers and statuses automatically and builds your compliance record.", "يستخرج التواريخ والأرقام والحالات تلقائياً ويبني سجل امتثال لمنشأتك.")],
     ["3", L("Daily monitoring", "مراقبة يومية"), L("Calculates days and risks, and alerts you before any expiry or violation via WhatsApp and email.", "يحسب الأيام والمخاطر، وينبّهك قبل أي انتهاء أو مخالفة عبر واتساب وإيميل.")],
     ["4", L("Every action needs your approval", "كل إجراء بموافقتك"), L("Prepares the renewal/action and shows it to you — nothing government-related runs without your approval.", "يجهّز التجديد/الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك.")],
@@ -1640,7 +1640,7 @@ function buildComplianceAgent() {
     <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
     <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#intake">${L("Start now — upload your files", "ابدأ الآن — ارفع ملفاتك")}</a>${waBtn2("Talk to us on WhatsApp", "تحدّث معنا واتساب", "btn-ghost", true)}</div>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#intake">${L("Subscribe now", "اشترك الآن")}</a></div>
     <div class="hero-badges">${chips}</div>
   </div></section>
 
