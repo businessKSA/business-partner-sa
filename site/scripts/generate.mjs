@@ -1660,27 +1660,13 @@ function buildComplianceAgent() {
     <div class="price-box">
       <div><div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
       <div class="text-soft">${L("Compliance subscription — daily monitoring and alerts. Government fees for actions are separate and only run with your approval.", "اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.")}</div></div>
-      <a class="btn btn-primary" href="#pay">${L("Subscribe now", "اشترك الآن")}</a>
-    </div>
-  </div></section>
-
-  <section id="pay" class="section" style="padding-top:0"><div class="container">
-    <div class="order-box">
-      <h3 style="margin-bottom:.3rem">${L("Complete your subscription", "استكمل الاشتراك")}</h3>
-      <p class="text-soft" style="margin-bottom:1rem">${L("Already registered below? Enter your establishment name and the access code you received by email, then complete payment to unlock your dashboard instantly.", "سجّلت منشأتك بالأسفل؟ ادخل اسم المنشأة ورمز الدخول اللي وصلك بالبريد، وأكمل الدفع لتُفتح لوحة التحكم فوراً.")}</p>
-      <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="pay-company">${L("Establishment name", "اسم المنشأة")}</label><input id="pay-company" required></div>
-        <div class="field"><label for="pay-code">${L("Access code (from confirmation email)", "رمز الدخول (من بريد التأكيد)")}</label><input id="pay-code" required></div>
-      </div>
-      <button type="button" class="btn btn-primary btn-lg" id="pay-start" style="margin-top:1rem">💳 ${L("Pay 250 SAR now", "ادفع 250 ريال الآن")}</button>
-      <div id="pay-form-box" style="margin-top:1rem"></div>
-      <div class="form-success" id="pay-msg" hidden></div>
-      <p class="form-note">🔒 ${L("Paid via Moyasar (mada / Visa / Mastercard / Apple Pay). Nothing is activated until payment is confirmed.", "الدفع عبر Moyasar (مدى / فيزا / ماستركارد / آبل باي). لا يتم أي تفعيل إلا بعد تأكيد الدفع.")}</p>
+      ${cartBtns({ id: "agent-Compliance-Agent", nameEn: "Compliance & obligations agent", nameAr: "وكيل الامتثال والالتزام", amount: 250, priceLabel: L("From 250 ﷼ / monthly", "يبدأ من 250 ﷼ / شهرياً"), kind: "agent" })}
     </div>
   </div></section>
 
   <section id="intake" class="section" style="background:var(--gray-bg)"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Registration", "التسجيل")}</span><h2>${L("Register your establishment and start monitoring", "سجّل منشأتك وابدأ المتابعة")}</h2></div>
+    <p class="text-soft" style="margin-bottom:1rem">${L("Add the subscription to your cart above, then register your establishment here — your access code to the dashboard is emailed automatically.", "أضف الاشتراك للسلة بالأعلى، ثم سجّل منشأتك هنا — يصلك رمز الدخول للوحة التحكم بالبريد تلقائياً.")}</p>
     <div class="order-box" style="margin:0">${intakeFormBlock()}</div>
   </div></section>
 
@@ -1693,67 +1679,8 @@ function buildComplianceAgent() {
     .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
     .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
     .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
-  </style>
-  <script>
-    (function () {
-      var payCompany = document.getElementById('pay-company');
-      var payCode = document.getElementById('pay-code');
-      var payStart = document.getElementById('pay-start');
-      var payBox = document.getElementById('pay-form-box');
-      var payMsg = document.getElementById('pay-msg');
-      function showPay(t, cls) { payMsg.hidden = false; payMsg.textContent = t; payMsg.className = 'form-success ' + cls; }
-      function loadScript(src) { return new Promise(function (resolve, reject) { var s = document.createElement('script'); s.src = src; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); }); }
-      function loadCss(href) { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }
-      function verifyAndActivate(id, company, code) {
-        showPay('${L("Confirming payment…", "جارٍ تأكيد الدفع…")}', 'info');
-        fetch('/api/pay', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: id, context: 'compliance', company: company, code: code }) })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (d.ok) {
-              showPay('${L("Payment confirmed! Your service is now active — sign in to your dashboard.", "تم تأكيد الدفع! خدمتك مفعّلة الآن — سجّل الدخول للوحة التحكم.")}', 'ok');
-              payBox.innerHTML = '<a class="btn btn-primary" href="https://businesspartner.sa/ar/portal">📊 ${L("Go to dashboard", "دخول لوحة التحكم")}</a>';
-            } else {
-              showPay('${L("Payment not confirmed. Contact us on WhatsApp if you were charged.", "لم يتم تأكيد الدفع. تواصل معنا واتساب إذا خُصم المبلغ.")}', 'err');
-            }
-          }).catch(function () { showPay('${L("Could not verify payment. Contact us on WhatsApp.", "تعذّر التحقق من الدفع. تواصل معنا واتساب.")}', 'err'); });
-      }
-      (function checkReturn() {
-        var q = new URLSearchParams(location.search);
-        var id = q.get('id');
-        if (!id) return;
-        var company = localStorage.getItem('bp_pay_company') || '';
-        var code = localStorage.getItem('bp_pay_code') || '';
-        document.getElementById('pay').scrollIntoView({ block: 'start' });
-        if (payCompany) payCompany.value = company;
-        if (payCode) payCode.value = code;
-        verifyAndActivate(id, company, code);
-      })();
-      if (payStart) payStart.addEventListener('click', function () {
-        var company = payCompany.value.trim();
-        var code = payCode.value.trim();
-        if (!company || !code) { showPay('${L("Please enter your establishment name and access code.", "يرجى إدخال اسم المنشأة ورمز الدخول.")}', 'err'); return; }
-        payStart.disabled = true;
-        fetch('/api/pay').then(function (r) { return r.json(); }).then(function (cfg) {
-          if (!cfg.enabled) { showPay('${L("Online payment isn't enabled yet — contact us on WhatsApp to subscribe.", "الدفع الإلكتروني غير مُفعّل حالياً — تواصل معنا واتساب لإتمام الاشتراك.")}', 'err'); return; }
-          localStorage.setItem('bp_pay_company', company);
-          localStorage.setItem('bp_pay_code', code);
-          loadCss(cfg.cssUrl);
-          return loadScript(cfg.scriptUrl).then(function () {
-            payBox.innerHTML = '<div class="mysr-form"></div>';
-            Moyasar.init({
-              element: '.mysr-form', amount: 25000, currency: 'SAR',
-              description: '${L("Compliance Agent subscription", "اشتراك وكيل الامتثال")} — ' + company,
-              publishable_api_key: cfg.publishableKey,
-              callback_url: location.origin + location.pathname,
-              methods: ['creditcard', 'applepay'],
-            });
-            payStart.style.display = 'none';
-          });
-        }).catch(function () { showPay('${L("Could not load the payment form. Contact us on WhatsApp.", "تعذّر تحميل نموذج الدفع. تواصل معنا واتساب.")}', 'err'); })
-          .finally(function () { payStart.disabled = false; });
-      });
-    })();
-  </script>`;
+    .price-box .buy-row{margin-inline-start:auto}
+  </style>`;
 
   return page({
     title: Lraw("Compliance Agent — Business Partner", "وكيل الامتثال — بيزنس بارتنر"),
