@@ -455,6 +455,9 @@ var BP = window.BP = window.BP || {};
       var employeeSlugs = cart.filter(function (i) { return i.kind === "employee" && (i.id || "").indexOf("employee-") === 0; })
         .map(function (i) { return i.id.slice("employee-".length); });
       var boughtCompliance = cart.some(function (i) { return (i.id || "").indexOf("agent-Compliance") === 0; });
+      var employerPlanItem = cart.filter(function (i) { return (i.id || "").indexOf("employer-plan-") === 0; })[0];
+      var employerPlanKey = employerPlanItem ? employerPlanItem.id.replace("employer-plan-", "").replace(/-monthly$|-yearly$/, "") : "";
+      var employerBilling = employerPlanItem && /-yearly$/.test(employerPlanItem.id) ? "yearly" : "monthly";
       var companyProfile = {}; try { companyProfile = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e0) {}
       function sendOrder(receiptBase64) {
         try {
@@ -466,6 +469,7 @@ var BP = window.BP = window.BP || {};
               total: total,
               agents: employeeSlugs,
               compliance: boughtCompliance,
+              employerPlan: employerPlanKey, employerBilling: employerBilling,
               company: companyProfile.name || "",
               receiptName: receiptFile.name, receiptBase64: receiptBase64 || ""
             })
@@ -489,6 +493,8 @@ var BP = window.BP = window.BP || {};
         BP.t("Your receipt is being verified against your order total. We'll confirm on WhatsApp.", "يجري التحقق من إيصالك مقابل إجمالي طلبك. سنؤكد لك عبر واتساب.") +
         (boughtCompliance ? "<br>" + BP.t("Once confirmed, we'll email you an activation code for the Compliance Agent portal.", "بعد التأكيد سنرسل لك بريداً فيه رمز الدخول لبوابة وكيل الامتثال.") +
           '<br><a class="btn btn-primary" style="margin-top:12px" href="https://businesspartner.sa/ar/portal" target="_blank" rel="noopener">' + BP.t("Open the Compliance Agent portal", "افتح بوابة وكيل الامتثال") + "</a>" : "") +
+        (employerPlanKey ? "<br>" + BP.t("Once confirmed, we'll email you an access code for the employer dashboard.", "بعد التأكيد سنرسل لك بريداً فيه رمز الوصول للوحة التوظيف.") +
+          '<br><a class="btn btn-primary" style="margin-top:12px" href="/employer-dashboard">' + BP.t("Open the employer dashboard", "افتح لوحة التوظيف") + "</a>" : "") +
         (boughtEmployee ? "<br>" + BP.t("Once we confirm your payment, use this order number as your activation code in the smart employees portal.", "بمجرد ما نتأكد من الدفع، استخدم رقم الطلب هذا كـ كود تفعيل في بوابة الموظفين الأذكياء.") +
           '<br><a class="btn btn-primary" style="margin-top:12px" href="/portal">' + BP.t("Open the smart employees portal", "افتح بوابة الموظفين الأذكياء") + "</a>" : "") +
         '<br><a class="btn btn-wa" style="margin-top:12px" href="' + waUrl + '" target="_blank" rel="noopener">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a> " +
@@ -1299,87 +1305,36 @@ var BP_EMP_BILLING = "monthly";
     var toggle = document.querySelector(".emp-billing-toggle");
     if (!toggle) return;
     var btns = toggle.querySelectorAll(".emp-bill-btn");
+    function applyBilling(bill) {
+      document.querySelectorAll(".emp-price-m").forEach(function (el) { el.hidden = bill === "yearly"; });
+      document.querySelectorAll(".emp-price-y").forEach(function (el) { el.hidden = bill === "monthly"; });
+      document.querySelectorAll(".emp-plan-btn").forEach(function (b) {
+        var id = b.getAttribute(bill === "yearly" ? "data-id-yearly" : "data-id-monthly");
+        var amount = b.getAttribute(bill === "yearly" ? "data-amount-yearly" : "data-amount-monthly");
+        var price = b.getAttribute(bill === "yearly" ? "data-price-yearly" : "data-price-monthly");
+        if (id) b.setAttribute("data-id", id);
+        if (amount) b.setAttribute("data-amount", amount);
+        if (price != null) b.setAttribute("data-price", price);
+      });
+    }
     btns.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var bill = btn.getAttribute("data-bill");
         BP_EMP_BILLING = bill;
         btns.forEach(function (b) { b.classList.toggle("active", b === btn); });
-        document.querySelectorAll(".emp-price-m").forEach(function (el) { el.hidden = bill === "yearly"; });
-        document.querySelectorAll(".emp-price-y").forEach(function (el) { el.hidden = bill === "monthly"; });
+        applyBilling(bill);
       });
     });
   });
 })();
 
-/* ---------- Employer subscription (/employer-join) → /api/employer ---------- */
+/* ---------- Employer plan cards — add to cart → go straight to /cart ---------- */
 (function () {
   "use strict";
-  document.addEventListener("DOMContentLoaded", function () {
-    var form = document.getElementById("emp-join");
-    if (!form) return;
-    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
-    var WA = "966507034157";
-
-    // Preselect plan from ?plan=
-    try {
-      var pre = new URLSearchParams(location.search).get("plan");
-      if (pre) { var r = form.querySelector('input[name="emp-plan"][value="' + pre + '"]'); if (r) r.checked = true; }
-    } catch (e) {}
-
-    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
-    function planInfo() {
-      var sel = form.querySelector('input[name="emp-plan"]:checked');
-      var key = sel ? sel.value : "";
-      var list = window.BP_EMP_PLANS || [];
-      for (var i = 0; i < list.length; i++) if (list[i].key === key) return list[i];
-      return { key: key, name: key, price: null };
-    }
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var company = val("ej-company"), phone = val("ej-phone");
-      if (!company) { alert(T("Please enter the company name.", "الرجاء إدخال اسم الشركة.")); return; }
-      if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Please enter a valid Saudi mobile (05XXXXXXXX).", "الرجاء إدخال جوال سعودي صحيح (05XXXXXXXX).")); return; }
-      var plan = planInfo();
-      var billing = BP_EMP_BILLING || "monthly";
-      var payload = { company: company, cr: val("ej-cr"), contact: val("ej-contact"), phone: phone, email: val("ej-email"), notes: val("ej-notes"), plan: plan.key, billing: billing };
-
-      var btn = document.getElementById("ej-submit"), lbl = btn.textContent;
-      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
-
-      function done(ref) {
-        btn.disabled = false; btn.textContent = lbl;
-        var box = document.getElementById("ej-result");
-        var bank = window.BP_BANK || {};
-        var planPrice = billing === "yearly" ? plan.yearlyPrice : plan.price;
-        var priceLabel = planPrice != null ? (planPrice + " " + T("SAR", "ريال") + " / " + (billing === "yearly" ? T("year", "سنة") : T("month", "شهر"))) : "";
-        var waMsg = encodeURIComponent(
-          T("New employer subscription", "طلب اشتراك صاحب عمل") + " " + (ref || "") +
-          "\n" + T("Company", "الشركة") + ": " + company +
-          "\n" + T("Plan", "الباقة") + ": " + (plan.name || plan.key) + (priceLabel ? " (" + priceLabel + ")" : "") +
-          "\n" + T("Mobile", "الجوال") + ": " + phone
-        );
-        var bankRows = bank.iban ? (
-          '<div class="join-next"><h3>' + T("Bank transfer", "التحويل البنكي") + '</h3>' +
-          '<div class="bank-row"><span>' + T("Bank", "البنك") + '</span><span class="v">' + (bank.bank || "") + '</span></div>' +
-          '<div class="bank-row"><span>' + T("Beneficiary", "المستفيد") + '</span><span class="v">' + (bank.beneficiary || "") + '</span></div>' +
-          '<div class="bank-row"><span>IBAN</span><span class="v">' + bank.iban + '</span></div></div>'
-        ) : "";
-        box.hidden = false;
-        box.innerHTML =
-          "✅ <strong>" + T("Registration received", "تم استلام تسجيلك") + (ref ? " — " + ref : "") + "</strong><br>" +
-          T("To activate your access, complete payment for the ", "لتفعيل وصولك، أكمل دفع باقة ") + "<strong>" + (plan.name || "") + "</strong>" + (priceLabel ? " (" + priceLabel + ") " : " ") +
-          T("plan by bank transfer below, then send us the receipt on WhatsApp — we activate within working hours.", "عبر التحويل البنكي أدناه، ثم أرسل لنا الإيصال على واتساب — نفعّل خلال ساعات العمل.") +
-          bankRows +
-          '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Send details on WhatsApp", "أرسل التفاصيل عبر واتساب") + "</a>";
-        box.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-
-      fetch("/api/employer", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
-        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
-        .then(function (res) { done(res.d && res.d.ref); })
-        .catch(function () { done(null); });
-    });
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest(".emp-plan-btn");
+    if (!btn) return;
+    location.href = "/cart";
   });
 })();
 

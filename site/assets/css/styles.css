@@ -838,11 +838,9 @@ h3 { font-size: 1.12rem; }
 
 /* ============ Employer subscription — plans + join form ============ */
 .emp-plans .emp-plan { position: relative; cursor: pointer; display: flex; flex-direction: column; border: 2px solid var(--gray-line); transition: border-color .15s, box-shadow .15s; }
-.emp-plan input { position: absolute; opacity: 0; pointer-events: none; }
 .emp-plan:hover { border-color: var(--navy); }
-.emp-plan:has(input:checked) { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11,27,90,.12); }
-.emp-plan .pk-pick { margin-top: auto; text-align: center; font-weight: 700; color: var(--navy); padding-top: 12px; font-size: .9rem; }
-.emp-plan:has(input:checked) .pk-pick::before { content: "✓ "; }
+.emp-plan .pk-pick { display: block; width: 100%; margin-top: auto; text-align: center; font: inherit; font-weight: 700; color: var(--navy); background: transparent; border: 0; padding-top: 12px; font-size: .9rem; cursor: pointer; }
+.emp-plan .pk-pick:hover { text-decoration: underline; }
 .pk-badge { position: absolute; top: -11px; inset-inline-start: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; font-size: .72rem; font-weight: 700; padding: 3px 12px; border-radius: 999px; white-space: nowrap; }
 .pk-per, .pk-soon { font-size: .9rem; font-weight: 600; color: var(--text-soft); }
 .pk-soon { color: var(--navy); }
