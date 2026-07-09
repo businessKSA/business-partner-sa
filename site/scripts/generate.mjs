@@ -4215,8 +4215,81 @@ function buildSharedServices() {
     { e: "💻", en: "Mohammed — IT", ar: "محمد — تقنية المعلومات" },
     { e: "🛒", en: "Ahmed — Procurement", ar: "أحمد — مشتريات وتوريد" },
   ];
-  const busyMsg = Lraw("The team is busy right now — please try again in a moment, or use the smart-agent button.", "الفريق مشغول الحين — جرّب بعد لحظات، أو استخدم زر الوكيل الذكي.");
+  const busyMsg = Lraw("The team is busy right now — please try again in a moment.", "الفريق مشغول الحين — جرّب بعد لحظات.");
   const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
+
+  // Full roster for the dashboard — each specialist is chatted with individually.
+  // Khaled leads via his chat webhook (chatTrigger protocol); the rest use their
+  // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
+  const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
+  const agentData = [
+    { slug: "khaled", e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
+    { slug: "baher", e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", path: "baher-intake" },
+    { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
+    { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
+    { slug: "mishari", e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance", path: "mishari-intake" },
+    { slug: "abdulaziz", e: "⚖️", ar: "عبدالعزيز", arRole: "القانوني", en: "Abdulaziz", enRole: "Legal", path: "abdulaziz-intake" },
+    { slug: "badr", e: "💼", ar: "بدر", arRole: "مبيعات وتطوير أعمال", en: "Badr", enRole: "Sales & Business Development", path: "badr-intake" },
+    { slug: "farah", e: "📣", ar: "فرح", arRole: "تسويق ومحتوى", en: "Farah", enRole: "Marketing & Content", path: "farah-intake" },
+    { slug: "malak", e: "🗂️", ar: "ملاك", arRole: "مساعِدة تنفيذية", en: "Malak", enRole: "Executive Assistant", path: "malak-intake" },
+    { slug: "mohammed", e: "💻", ar: "محمد", arRole: "تقنية المعلومات", en: "Mohammed", enRole: "IT", path: "mohammed-intake" },
+    { slug: "ahmed", e: "🛒", ar: "أحمد", arRole: "مشتريات وتوريد", en: "Ahmed", enRole: "Procurement & Supply", path: "ahmed-procurement" },
+  ];
+  const AGENTS_JS = JSON.stringify(
+    agentData.map((a) => ({ slug: a.slug, e: a.e, name: LANG === "ar" ? a.ar : a.en, role: LANG === "ar" ? a.arRole : a.enRole, mode: a.mode || "intake", path: a.path || "", ep: a.ep || "" }))
+  );
+
+  // Connectors — same set as the specialized team's /connect hub.
+  const toolData = [
+    { id: "gmail", ic: "📧", name: "Gmail", type: "easy",
+      uAr: "يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.", uEn: "Reads, sorts, drafts & sends your email.",
+      leadAr: "ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.", leadEn: "One-click via Google sign-in — no token, free.",
+      stepsAr: ["اضغط ربط الآن فتفتح صفحة تسجيل قوقل.", "اختر حساب الشركة ووافق على الصلاحيات.", "يشتغل الموظف داخل بريدك مباشرة."],
+      stepsEn: ["Click Connect — Google sign-in opens.", "Pick the company account and approve access.", "The agent works inside your inbox."] },
+    { id: "gcal", ic: "📅", name: LANG === "ar" ? "تقويم قوقل" : "Google Calendar", type: "easy",
+      uAr: "يجدول المواعيد والدعوات والتذكيرات.", uEn: "Schedules meetings, invites & reminders.",
+      leadAr: "ربط بضغطة مع حساب قوقل — مجاناً.", leadEn: "One-click with your Google account — free.",
+      stepsAr: ["سجّل دخول قوقل.", "وافق على صلاحية التقويم.", "يقدر يجدول ويعدّل مواعيدك."],
+      stepsEn: ["Sign in with Google.", "Approve calendar access.", "It can schedule and edit your meetings."] },
+    { id: "notion", ic: "🗒️", name: "Notion", type: "easy",
+      uAr: "ينظّم المهام وقواعد البيانات والتوثيق.", uEn: "Organizes tasks, databases & docs.",
+      leadAr: "ربط بضغطة عبر Notion — مجاناً.", leadEn: "One-click via Notion — free.",
+      stepsAr: ["وافق على Notion.", "اختر الصفحات المشتركة.", "يقرأ ويكتب في نوشن حسب صلاحياتك."],
+      stepsEn: ["Approve Notion.", "Pick the shared pages.", "It reads & writes per your permissions."] },
+    { id: "slack", ic: "💬", name: "Slack", type: "easy",
+      uAr: "يرد وينبّه ويلخّص داخل قنوات فريقك.", uEn: "Replies, alerts & summarizes in your channels.",
+      leadAr: "ربط بضغطة عبر Slack — مجاناً.", leadEn: "One-click via Slack — free.",
+      stepsAr: ["ثبّت التطبيق في مساحة سلاك.", "اختر القنوات.", "يشتغل داخل سلاك."],
+      stepsEn: ["Install the app in your Slack.", "Pick channels.", "It works inside Slack."] },
+    { id: "whatsapp", ic: "🟢", name: "WhatsApp", type: "cost",
+      uAr: "يرد على عملائك على واتساب ٢٤/٧.", uEn: "Answers your customers on WhatsApp 24/7.",
+      leadAr: "يحتاج رقم أعمال + إعداد WhatsApp Cloud API من Meta. فيه تكلفة رسائل تُدفع لـ Meta.", leadEn: "Needs a business number + WhatsApp Cloud API from Meta. Message cost is paid to Meta.",
+      payAr: "تكلفة الرسائل تُدفع لـ Meta حسب عدد المحادثات.", payEn: "Message cost is paid to Meta per conversation.",
+      stepsAr: ["أنشئ حساب Meta Business + رقم واتساب أعمال.", "فعّل WhatsApp Cloud API واحصل على التوكن.", "الصق التوكن (يُخزّن مشفّراً) أو أرسله لنا.", "اربط فيرد الموظف على عملائك."],
+      stepsEn: ["Create Meta Business + a WhatsApp business number.", "Enable WhatsApp Cloud API and get the token.", "Paste the token (stored encrypted) or send it to us.", "Connect — the agent replies to your customers."] },
+    { id: "ms", ic: "🟦", name: LANG === "ar" ? "مايكروسوفت (Teams/Outlook)" : "Microsoft (Teams/Outlook)", type: "token",
+      uAr: "يدير أوتلوك وتقويم ورسائل تيمس.", uEn: "Runs Outlook, calendar & Teams messages.",
+      leadAr: "ربط عبر تسجيل دخول مايكروسوفت. قد يحتاج اشتراك Microsoft 365.", leadEn: "Connect via Microsoft sign-in. May need a Microsoft 365 subscription.",
+      payAr: "إن لم يكن لديك 365 يلزم اشتراك من مايكروسوفت.", payEn: "If you don't have 365, a Microsoft subscription is required.",
+      stepsAr: ["سجّل دخول مايكروسوفت للعمل.", "وافق على صلاحيات البريد/التقويم/تيمس.", "يشتغل داخل بيئة مايكروسوفت."],
+      stepsEn: ["Sign in with Microsoft for work.", "Approve mail/calendar/Teams access.", "It works inside Microsoft."] },
+    { id: "drive", ic: "📁", name: "Google Drive", type: "easy",
+      uAr: "ينظّم ملفاتك ويلخّص المستندات.", uEn: "Organizes files & summarizes documents.",
+      leadAr: "ربط بضغطة مع حساب قوقل — مجاناً.", leadEn: "One-click with your Google account — free.",
+      stepsAr: ["سجّل دخول قوقل.", "وافق على صلاحية Drive.", "يقرأ وينظّم ملفاتك."],
+      stepsEn: ["Sign in with Google.", "Approve Drive access.", "It reads & organizes your files."] },
+    { id: "crm", ic: "📊", name: LANG === "ar" ? "CRM / جداول" : "CRM / Sheets", type: "token",
+      uAr: "يحدّث العملاء والصفقات في CRM أو Sheets.", uEn: "Updates customers & deals in CRM or Sheets.",
+      leadAr: "نربطه بـ Google Sheets أو CRM لديك (قد يحتاج مفتاح API).", leadEn: "We connect Google Sheets or your CRM (may need an API key).",
+      stepsAr: ["أخبرنا بنظامك.", "نجهّز الربط المناسب.", "يحدّث بياناتك تلقائياً."],
+      stepsEn: ["Tell us your system.", "We set up the right link.", "It updates your data automatically."] },
+  ];
+  const TOOLS_JS = JSON.stringify(
+    toolData.map((t) => ({ id: t.id, ic: t.ic, name: t.name, type: t.type, u: LANG === "ar" ? t.uAr : t.uEn, lead: LANG === "ar" ? t.leadAr : t.leadEn, pay: (LANG === "ar" ? t.payAr : t.payEn) || "", steps: LANG === "ar" ? t.stepsAr : t.stepsEn }))
+  );
+  const compPlatforms = (LANG === "ar" ? ["قوى", "مقيم", "التأمينات", "مدد", "النطاقات", "ZATCA"] : ["Qiwa", "Muqeem", "GOSI", "Mudad", "Nitaqat", "ZATCA"])
+    .map((p) => `<span class="ss-plat-chip"><span class="dot"></span>${esc(p)}</span>`).join("");
+
   const body = `
   <section class="ss-hero">
     <div class="wrap">
@@ -4253,20 +4326,70 @@ function buildSharedServices() {
     </div>
   </section>
 
-  <section class="ss-sec" id="ss-chat" hidden>
+  <section class="ss-sec" id="ss-dash" hidden>
     <div class="wrap">
-      <div class="sec-head"><h2>${L("Your team is ready", "فريقك جاهز")}</h2><p>${L("Write your request in plain language — Khaled and the team understand, execute, and coordinate. No passwords or OTP; anything binding waits for your approval.", "اكتب طلبك بلغتك العادية — خالد والفريق يفهمون، ينفّذون، وينسّقون. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p></div>
-      <div class="ss-box">
-        <div class="ss-log" id="ss-log">
-          <div class="ss-msg bot">${L("Hi 👋 I'm Khaled, your team lead. Tell me what you need — government, compliance, sales, marketing, IT, procurement, or admin — and I'll get the right specialist on it.", "أهلاً 👋 أنا خالد، قائد فريقك. قل لي وش تحتاج — حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات، أو إداري — وأكلّف المتخصص المناسب فوراً.")}</div>
+      <div class="ss-dash-head">
+        <div>
+          <h2>${L("Your Shared Services dashboard", "لوحة الخدمات المشتركة")}</h2>
+          <p>${L("Your full executive team in one place — talk to each specialist individually, connect your tools, and run compliance. No passwords or OTP; anything binding waits for your approval.", "فريقك التنفيذي كامل في مكان واحد — تعامل مع كل متخصص على حدة، اربط أدواتك، وأدر الامتثال. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p>
         </div>
-        <form class="ss-form" id="ss-form">
-          <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
-          <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
-        </form>
+        <button class="ss-logout" id="ss-logout" type="button">${L("Sign out", "خروج")}</button>
+      </div>
+
+      <div class="ss-tabs" role="tablist">
+        <button class="ss-tab active" data-tab="team" type="button">👥 ${L("The team", "الفريق")}</button>
+        <button class="ss-tab" data-tab="tools" type="button">🔌 ${L("Connectors", "الموصلات")}</button>
+        <button class="ss-tab" data-tab="comp" type="button">🛡️ ${L("Compliance", "الامتثال")}</button>
+      </div>
+
+      <div class="ss-pane" id="pane-team">
+        <p class="ss-pane-lead">${L("Pick a specialist and deal with them directly — each one is an expert in their field.", "اختر متخصصاً وتعامل معه مباشرة — كل واحد خبير في مجاله.")}</p>
+        <div class="ss-agents" id="ss-agents"></div>
+        <div class="ss-panel">
+          <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><span class="ss-live">● ${L("Live", "مباشر")}</span></div>
+          <div class="ss-log" id="ss-log"></div>
+          <form class="ss-form" id="ss-form">
+            <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
+            <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="ss-pane" id="pane-tools" hidden>
+        <p class="ss-pane-lead">${L("Connect the team to your tools with one click — just like the specialized team. If a tool needs a token or has a cost, we walk you through it step by step.", "اربط الفريق بأدواتك بضغطة — تماماً كالفريق المتخصص. لو الأداة تحتاج توكن أو فيها تكلفة نمشي معك خطوة بخطوة.")}</p>
+        <div class="ss-cgrid" id="ss-cgrid"></div>
+        <p class="ss-secure">🔒 ${L("Every connection is private, isolated, and via secure sign-in (OAuth) or your own key. We never ask for passwords. Any important external action waits for your approval.", "كل ربط خاص بشركتك ومعزول، عبر تسجيل دخول آمن (OAuth) أو مفتاحك الخاص. لا نطلب كلمات مرور أبداً. أي إجراء خارجي مهم ينتظر موافقتك.")}</p>
+      </div>
+
+      <div class="ss-pane" id="pane-comp" hidden>
+        <div class="ss-comp">
+          <div class="ss-comp-main">
+            <div class="ss-comp-lead">
+              <span class="e">🛡️</span>
+              <div><b>${L("Mishari — your compliance lead", "مشاري — قائد الامتثال لديك")}</b>
+              <p>${L("Monitors Qiwa, Muqeem, GOSI, Mudad, Nitaqat and ZATCA, and alerts you before any deadline or violation — every government action stays pending your approval.", "يراقب قوى ومقيم والتأمينات ومدد والنطاقات وZATCA، وينبّهك قبل أي استحقاق أو مخالفة — وكل إجراء حكومي يبقى بانتظار موافقتك.")}</p></div>
+              <button class="btn btn-primary" id="ss-comp-chat" type="button">${L("Talk to Mishari", "كلّم مشاري")}</button>
+            </div>
+            <div class="ss-plat-head">${L("Platforms under watch", "المنصّات تحت المراقبة")}</div>
+            <div class="ss-plat">${compPlatforms}</div>
+          </div>
+          <div class="ss-comp-links">
+            <a href="${u("/compliance-portal")}"><b>📤 ${L("Upload your reports", "ارفع تقاريرك")}</b><span>${L("Qiwa, Muqeem, GOSI & Mudad — the agent builds your establishment file.", "قوى، مقيم، التأمينات ومدد — الوكيل يبني ملف منشأتك.")}</span></a>
+            <a href="${u("/compliance-agent")}"><b>🛡️ ${L("Compliance subscription", "اشتراك الامتثال")}</b><span>${L("Daily monitoring and alerts before every deadline.", "مراقبة يومية وتنبيهات قبل كل استحقاق.")}</span></a>
+            <a href="${u("/tools-and-calculators")}"><b>🧮 ${L("Free calculators", "الحاسبات المجانية")}</b><span>${L("Nitaqat, government cost, end of service and more.", "النطاقات، التكاليف الحكومية، نهاية الخدمة والمزيد.")}</span></a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
+
+  <div class="ss-ov" id="ss-ov">
+    <div class="ss-modal">
+      <div class="ss-m-head"><span class="ss-cc-ic" id="ssm-ic">🔌</span><h3 id="ssm-t">${L("Connect", "ربط")}</h3><button class="ss-m-x" id="ssm-x" type="button">✕</button></div>
+      <div class="ss-m-body"><p class="ss-m-lead" id="ssm-l"></p><div id="ssm-s"></div></div>
+      <div class="ss-m-foot"><button class="ss-cbtn" id="ssm-do" type="button">🔗 ${L("Connect now", "ربط الآن")}</button><button class="ss-hbtn" id="ssm-help" type="button">🛠️ ${L("Set it up for me", "نركّبها لك")}</button></div>
+    </div>
+  </div>
 
   <style>
     .ss-hero{padding:52px 0 8px;text-align:center}
@@ -4278,13 +4401,94 @@ function buildSharedServices() {
     .ss-feats{max-width:760px;margin:0 auto;display:grid;gap:10px;list-style:none;padding:0}
     .ss-feats li{position:relative;padding-inline-start:26px;line-height:1.7}
     .ss-feats li::before{content:'✓';position:absolute;inset-inline-start:0;color:#12b3ad;font-weight:800}
-    .ss-box{max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px}
     .ss-log{display:flex;flex-direction:column;gap:10px;min-height:180px;max-height:440px;overflow-y:auto;padding:8px}
     .ss-msg{max-width:88%;padding:11px 14px;border-radius:14px;line-height:1.75;white-space:pre-wrap}
     .ss-msg.bot{align-self:flex-start;background:#f1f5f8;border:1px solid var(--line)}
     .ss-msg.me{align-self:flex-end;background:#0e5a55;color:#eafffb}
+    .ss-msg.empty{align-self:center;background:none;border:0;color:var(--text-soft,#5b6b86);font-size:.9rem}
     .ss-form{display:flex;gap:8px;margin-top:12px}
     .ss-form input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
+    /* ---- dashboard ---- */
+    .ss-dash-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+    .ss-dash-head>div{flex:1;min-width:260px}
+    .ss-dash-head h2{margin:0 0 6px}
+    .ss-dash-head p{color:var(--text-soft,#5b6b86);margin:0;line-height:1.8}
+    .ss-logout{background:#f1f4fb;border:1px solid var(--line);border-radius:10px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;color:var(--brand,#0b1b5a)}
+    .ss-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:20px}
+    .ss-tab{background:none;border:0;border-bottom:2.5px solid transparent;padding:11px 14px;font:inherit;font-weight:700;color:var(--text-soft,#5b6b86);cursor:pointer}
+    .ss-tab.active{color:var(--brand,#0b1b5a);border-bottom-color:var(--brand,#0b1b5a)}
+    .ss-pane-lead{color:var(--text-soft,#5b6b86);margin:0 0 16px;line-height:1.8}
+    .ss-agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:18px}
+    .ss-ag{display:flex;gap:10px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:11px 13px;cursor:pointer;transition:.12s;text-align:start}
+    .ss-ag:hover{border-color:var(--brand,#0b1b5a);transform:translateY(-1px)}
+    .ss-ag.sel{border-color:var(--brand,#0b1b5a);background:#eef1fb}
+    .ss-ag .e{font-size:1.5rem;line-height:1}
+    .ss-ag b{display:block;color:var(--brand,#0b1b5a);font-size:.95rem}
+    .ss-ag span{display:block;font-size:.75rem;color:var(--text-soft,#5b6b86)}
+    .ss-panel{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(11,27,90,.06)}
+    .ss-panel-head{display:flex;gap:11px;align-items:center;padding:13px 16px;background:#f8fafc;border-bottom:1px solid var(--line)}
+    .ss-panel-head .e{font-size:1.7rem;line-height:1}
+    .ss-panel-head b{color:var(--brand,#0b1b5a)}
+    .ss-panel-head>div span{display:block;font-size:.78rem;color:var(--text-soft,#5b6b86)}
+    .ss-live{margin-inline-start:auto;font-size:.74rem;font-weight:700;color:#12b3ad;white-space:nowrap}
+    .ss-panel .ss-log{min-height:300px;max-height:480px}
+    .ss-panel .ss-form{margin:0;padding:12px;border-top:1px solid var(--line);background:#fff}
+    /* ---- connectors ---- */
+    .ss-cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+    .ss-cc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(11,27,90,.05)}
+    .ss-cc-top{display:flex;gap:11px;align-items:flex-start;margin-bottom:8px}
+    .ss-cc-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#f1f4fb;flex-shrink:0}
+    .ss-cc-ic svg{width:25px;height:25px;display:block}
+    .ss-cc-ic .brand{width:27px;height:27px;object-fit:contain}
+    .ss-cc-t{flex:1}
+    .ss-cc-t h3{font-size:1.02rem;color:var(--brand,#0b1b5a);margin:0}
+    .ss-cc-t .u{font-size:.82rem;color:var(--text-soft,#5b6b86);line-height:1.6}
+    .ss-cc-state{font-size:.7rem;font-weight:700;padding:.18rem .55rem;border-radius:999px;background:#eef1f8;color:#64748b;white-space:nowrap;align-self:flex-start}
+    .ss-cc-state.on{background:#dcfce7;color:#065f46}
+    .ss-cc-tag{font-size:.7rem;font-weight:600;padding:.2rem .55rem;border-radius:999px;align-self:flex-start;margin-bottom:11px}
+    .ss-cc-tag.easy{background:#e0f2fe;color:#075985}
+    .ss-cc-tag.token{background:#fef3c7;color:#b45309}
+    .ss-cc-tag.cost{background:#fee2e2;color:#991b1b}
+    .ss-cc-actions{display:flex;gap:8px;margin-top:auto}
+    .ss-cc-actions button{flex:1;border-radius:10px;padding:9px;font:inherit;font-size:.83rem;font-weight:700;border:0;cursor:pointer}
+    .ss-cbtn{background:var(--brand,#0b1b5a);color:#fff}
+    .ss-hbtn{background:#fff;color:var(--brand,#0b1b5a);border:1px solid var(--line)}
+    .ss-secure{margin-top:18px;font-size:.86rem;color:var(--text-soft,#5b6b86);line-height:1.8;text-align:center}
+    /* connector modal */
+    .ss-ov{position:fixed;inset:0;background:rgba(8,12,30,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:1300}
+    .ss-ov.on{display:flex}
+    .ss-modal{background:#fff;border-radius:18px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;text-align:start}
+    .ss-m-head{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;gap:11px;align-items:center}
+    .ss-m-head .ss-cc-ic{width:40px;height:40px}
+    .ss-m-head h3{flex:1;margin:0;color:var(--brand,#0b1b5a);font-size:1.12rem}
+    .ss-m-x{background:#f1f4fb;border:0;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:1rem}
+    .ss-m-body{padding:16px 18px}
+    .ss-m-lead{font-size:.88rem;color:var(--text-soft,#5b6b86);margin:0 0 14px;line-height:1.7}
+    .ss-stp{display:flex;gap:11px;margin-bottom:11px}
+    .ss-stp .n{width:25px;height:25px;border-radius:50%;background:var(--brand,#0b1b5a);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .ss-stp .tx{font-size:.86rem;line-height:1.6}
+    .ss-pay{background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:9px 12px;font-size:.82rem;margin-bottom:13px}
+    .ss-m-foot{padding:14px 18px 18px;display:flex;gap:9px}
+    .ss-m-foot button{flex:1;border-radius:11px;padding:11px;font:inherit;font-weight:700;border:0;cursor:pointer}
+    /* ---- compliance ---- */
+    .ss-comp{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+    .ss-comp-main{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(11,27,90,.06)}
+    .ss-comp-lead{display:flex;gap:13px;align-items:flex-start;flex-wrap:wrap}
+    .ss-comp-lead .e{font-size:2rem;line-height:1}
+    .ss-comp-lead>div{flex:1;min-width:200px}
+    .ss-comp-lead b{color:var(--brand,#0b1b5a);font-size:1.05rem}
+    .ss-comp-lead p{color:var(--text-soft,#5b6b86);margin:5px 0 0;line-height:1.8;font-size:.9rem}
+    .ss-comp-lead .btn{white-space:nowrap}
+    .ss-plat-head{margin:18px 0 9px;font-weight:700;color:var(--brand,#0b1b5a);font-size:.92rem}
+    .ss-plat{display:flex;flex-wrap:wrap;gap:8px}
+    .ss-plat-chip{display:inline-flex;align-items:center;gap:7px;background:#f4f8fb;border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-weight:600;font-size:.85rem}
+    .ss-plat-chip .dot{width:8px;height:8px;border-radius:50%;background:#12b3ad;box-shadow:0 0 0 3px rgba(18,179,173,.18)}
+    .ss-comp-links{display:flex;flex-direction:column;gap:11px}
+    .ss-comp-links a{display:block;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-decoration:none;transition:.12s}
+    .ss-comp-links a:hover{border-color:var(--brand,#0b1b5a);transform:translateY(-1px)}
+    .ss-comp-links b{display:block;color:var(--brand,#0b1b5a);font-size:.95rem}
+    .ss-comp-links span{display:block;font-size:.8rem;color:var(--text-soft,#5b6b86);margin-top:3px;line-height:1.6}
+    @media(max-width:820px){.ss-comp{grid-template-columns:1fr}}
     .ss-access{max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 10px 30px rgba(11,27,90,.06)}
     .ss-access h2{margin:0 0 8px}
     .ss-access>p{color:var(--text-soft,#5b6b86);margin:0 auto 18px;max-width:460px;line-height:1.8}
@@ -4298,33 +4502,118 @@ function buildSharedServices() {
   </style>`;
 
   const script = `<script>(function(){
-    var EP='https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat';
-    var API='/api/requests';
-    var gate=document.getElementById('ss-gate'),chat=document.getElementById('ss-chat');
-    var log=document.getElementById('ss-log'),form=document.getElementById('ss-form'),input=document.getElementById('ss-input');
+    var N8N='https://businesspartnerai.app.n8n.cloud/webhook';
+    var AGENTS=${AGENTS_JS};
+    var TOOLS=${TOOLS_JS};
+    var BUSY=${JSON.stringify(busyMsg)}, ERRT=${JSON.stringify(errMsg)};
+    var CHAT_PREFIX='bp_ss_chat_';
+    var gate=document.getElementById('ss-gate'),dash=document.getElementById('ss-dash');
     function note(el,t,cls){el.hidden=false;el.textContent=t;el.className='ss-note-box '+cls;}
-    function openService(){ if(gate)gate.hidden=true; if(chat){chat.hidden=false; chat.scrollIntoView({behavior:'smooth',block:'start'});} }
-    if(localStorage.getItem('bp_ss_token')) openService();
 
+    // ---------- access gate (demo123) ----------
     var DEMO_CODES=['demo123'];
+    var inited=false;
+    function openService(){ if(gate)gate.hidden=true; if(dash){dash.hidden=false; if(!inited){initDash();inited=true;} dash.scrollIntoView({behavior:'smooth',block:'start'});} }
+    if(localStorage.getItem('bp_ss_token')) openService();
     var unl=document.getElementById('ss-unlock');
     if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
       var code=(document.getElementById('unl-code').value||'').trim();
       var box=document.getElementById('unl-result');
       if(!code){note(box,${JSON.stringify(Lraw("Enter your access code.", "أدخل رمز الوصول."))},'err');return;}
-      if(DEMO_CODES.indexOf(code.toLowerCase())>-1){localStorage.setItem('bp_ss_token','demo');note(box,${JSON.stringify(Lraw("Welcome — opening your team…", "أهلاً بك — نفتح فريقك…"))},'ok');openService();return;}
+      if(DEMO_CODES.indexOf(code.toLowerCase())>-1){localStorage.setItem('bp_ss_token','demo');note(box,${JSON.stringify(Lraw("Welcome — opening your dashboard…", "أهلاً بك — نفتح لوحتك…"))},'ok');openService();return;}
       note(box,${JSON.stringify(Lraw("This code is entered in your account after activation. Please register & subscribe via the client portal.", "هذا الرمز يُدخل في حسابك بعد التفعيل. الرجاء التسجيل والاشتراك عبر بوابة العميل."))},'err');
     });
+    var lo=document.getElementById('ss-logout');
+    if(lo) lo.onclick=function(){ localStorage.removeItem('bp_ss_token'); if(dash)dash.hidden=true; if(gate){gate.hidden=false;gate.scrollIntoView({behavior:'smooth',block:'start'});} };
 
-    if(!form)return;
-    var sid=localStorage.getItem('bp_ss_sid');if(!sid){sid='ss-'+Date.now()+'-'+Math.random().toString(16).slice(2);localStorage.setItem('bp_ss_sid',sid);}
+    // ---------- tabs ----------
+    var toolsBuilt=false;
+    function switchTab(t){
+      ['team','tools','comp'].forEach(function(k){var p=document.getElementById('pane-'+k);if(p)p.hidden=(k!==t);});
+      var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',tabs[i].getAttribute('data-tab')===t);
+      if(t==='tools'&&!toolsBuilt){buildTools();toolsBuilt=true;}
+    }
+    (function(){var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++){(function(b){b.onclick=function(){switchTab(b.getAttribute('data-tab'));};})(tabs[i]);}})();
+
+    // ---------- team: per-agent individual chat ----------
+    var cur=null, chatHist=[];
+    var log=document.getElementById('ss-log'), input=document.getElementById('ss-input');
+    function loadChat(s){try{return JSON.parse(localStorage.getItem(CHAT_PREFIX+s)||'[]');}catch(e){return[];}}
+    function saveChat(s,h){try{localStorage.setItem(CHAT_PREFIX+s,JSON.stringify(h.slice(-80)));}catch(e){}}
+    function renderChat(){log.innerHTML='';if(!chatHist.length){var em=document.createElement('div');em.className='ss-msg bot empty';em.textContent=${JSON.stringify(Lraw("Start your conversation with ", "ابدأ محادثتك مع "))}+cur.name+' 👋';log.appendChild(em);return;}
+      chatHist.forEach(function(m){var d=document.createElement('div');d.className='ss-msg '+m.cls;d.textContent=m.text;log.appendChild(d);});log.scrollTop=log.scrollHeight;}
+    function selectAgent(a,el){cur=a;var chips=document.querySelectorAll('.ss-ag');for(var i=0;i<chips.length;i++)chips[i].classList.remove('sel');if(el)el.classList.add('sel');
+      document.getElementById('ph-e').textContent=a.e;document.getElementById('ph-n').textContent=a.name;document.getElementById('ph-r').textContent=a.role;
+      chatHist=loadChat(a.slug);renderChat();input.disabled=false;document.querySelector('#ss-form button').disabled=false;input.focus();}
+    function buildAgents(){var box=document.getElementById('ss-agents');box.innerHTML='';
+      AGENTS.forEach(function(a){var el=document.createElement('button');el.type='button';el.className='ss-ag';el.dataset.slug=a.slug;
+        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
+        el.onclick=function(){selectAgent(a,el);};box.appendChild(el);});}
+    function sid(){var s=localStorage.getItem('bp_ss_sid');if(!s){s='ss-'+Date.now()+'-'+Math.random().toString(16).slice(2);localStorage.setItem('bp_ss_sid',s);}return s;}
     var busy=false;
-    function add(t,c){var d=document.createElement('div');d.className='ss-msg '+c;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
-    form.addEventListener('submit',function(e){e.preventDefault();var m=(input.value||'').trim();if(!m||busy)return;busy=true;input.value='';add(m,'me');var th=add('…','bot');
-      fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'sendMessage',sessionId:sid,chatInput:m})})
-      .then(function(r){return r.text();}).then(function(raw){var rep='';try{var d=JSON.parse(raw);rep=d.output||d.text||d.reply||'';}catch(e){}th.textContent=rep|| ${JSON.stringify(busyMsg)};})
-      .catch(function(){th.textContent=${JSON.stringify(errMsg)};}).then(function(){busy=false;});
+    function push(text,cls){var em=log.querySelector('.empty');if(em)em.remove();var d=document.createElement('div');d.className='ss-msg '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+    var form=document.getElementById('ss-form');
+    form.addEventListener('submit',function(e){e.preventDefault();if(!cur)return;var m=(input.value||'').trim();if(!m||busy)return;busy=true;
+      var agent=cur,href=chatHist;input.value='';push(m,'me');href.push({text:m,cls:'me'});saveChat(agent.slug,href);
+      var th=push('…','bot');var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},60000);
+      var url,payload;
+      if(agent.mode==='chat'){url=agent.ep;payload={action:'sendMessage',sessionId:sid(),chatInput:m};}
+      else{url=N8N+'/'+agent.path;payload={client_name:'',channel:'shared-services',message:m};}
+      fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
+        .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}rep=rep||BUSY;th.textContent=rep;href.push({text:rep,cls:'bot'});saveChat(agent.slug,href);})
+        .catch(function(er){clearTimeout(timer);var msg=(er&&er.name==='AbortError')?BUSY:ERRT;th.textContent=msg;href.push({text:msg,cls:'bot'});saveChat(agent.slug,href);})
+        .then(function(){busy=false;});
     });
+
+    // ---------- compliance: jump to Mishari ----------
+    var cc=document.getElementById('ss-comp-chat');
+    if(cc) cc.onclick=function(){switchTab('team');var mi=null;for(var i=0;i<AGENTS.length;i++)if(AGENTS[i].slug==='mishari')mi=AGENTS[i];
+      var el=document.querySelector('.ss-ag[data-slug="mishari"]');if(mi)selectAgent(mi,el);
+      document.getElementById('pane-team').scrollIntoView({behavior:'smooth',block:'start'});};
+
+    // ---------- connectors ----------
+    var ICONS={
+      gmail:'<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="#EA4335"/><path d="M2 7l10 7 10-7" stroke="#fff" stroke-width="2" fill="none"/></svg>',
+      gcal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2" fill="#4285F4"/><rect x="3" y="4" width="18" height="5" fill="#1a73e8"/><rect x="7" y="12" width="4" height="4" fill="#fff"/></svg>',
+      notion:'<svg viewBox="0 0 24 24"><rect x="3" y="2" width="18" height="20" rx="2" fill="#111"/><path d="M8 16V8l8 8V8" stroke="#fff" stroke-width="1.7" fill="none"/></svg>',
+      slack:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" fill="#4A154B"/><path d="M8.5 8v8M13 8v8M7 10.5h9M7 14h9" stroke="#fff" stroke-width="1.4"/></svg>',
+      whatsapp:'<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.2A9 9 0 1012 3z" fill="#25D366"/></svg>',
+      ms:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" fill="#F25022"/><rect x="13" y="3" width="8" height="8" fill="#7FBA00"/><rect x="3" y="13" width="8" height="8" fill="#00A4EF"/><rect x="13" y="13" width="8" height="8" fill="#FFB900"/></svg>',
+      drive:'<svg viewBox="0 0 24 24"><path d="M9 3h6l6 11h-6z" fill="#FFCF63"/><path d="M3 20l3-5h13l-3 5z" fill="#4688F1"/><path d="M9 3L3 14l3 6 6-11z" fill="#0F9D58"/></svg>',
+      crm:'<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#0F9D58"/><rect x="7" y="8" width="10" height="1.8" fill="#fff"/><rect x="7" y="12" width="10" height="1.8" fill="#fff"/><rect x="7" y="16" width="10" height="1.8" fill="#fff"/></svg>'
+    };
+    var URLS={gmail:'https://mail.google.com',gcal:'https://calendar.google.com',notion:'https://www.notion.so',slack:'https://slack.com',whatsapp:'https://business.whatsapp.com',ms:'https://www.microsoft.com/microsoft-365',drive:'https://drive.google.com',crm:'https://www.google.com/sheets/about'};
+    var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,crm:1};
+    function mark(t){return LOGO[t.id]?'<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">':(ICONS[t.id]||t.ic);}
+    var TAG={easy:${JSON.stringify(Lraw("One-click", "ربط بضغطة"))},cost:${JSON.stringify(Lraw("Has a cost", "فيه تكلفة"))},token:${JSON.stringify(Lraw("Needs a token", "يحتاج توكن"))}};
+    var CONN_ON=${JSON.stringify(Lraw("✓ Connected", "✓ متصل"))},CONN_OFF=${JSON.stringify(Lraw("Not connected", "غير متصل"))},MANAGE=${JSON.stringify(Lraw("Manage", "إدارة"))},CONNECT=${JSON.stringify(Lraw("🔗 Connect", "🔗 اربط"))},HELPBTN=${JSON.stringify(Lraw("🛠️ Set up for me", "🛠️ نركّبها لك"))};
+    var TKEY='bp_connect_demo_v1';var tst={};try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}');}catch(e){tst={};}
+    function buildTools(){var g=document.getElementById('ss-cgrid');
+      TOOLS.forEach(function(t){var on=!!tst[t.id];var d=document.createElement('div');d.className='ss-cc';d.dataset.id=t.id;
+        d.innerHTML='<div class="ss-cc-top"><span class="ss-cc-ic">'+mark(t)+'</span><div class="ss-cc-t"><h3>'+t.name+'</h3><div class="u">'+t.u+'</div></div><span class="ss-cc-state '+(on?'on':'')+'">'+(on?CONN_ON:CONN_OFF)+'</span></div>'+
+          '<span class="ss-cc-tag '+t.type+'">'+TAG[t.type]+'</span>'+
+          '<div class="ss-cc-actions"><button class="ss-cbtn" type="button">'+(on?MANAGE:CONNECT)+'</button><button class="ss-hbtn" type="button">'+HELPBTN+'</button></div>';
+        d.querySelector('.ss-cbtn').onclick=function(){openTool(t);};
+        d.querySelector('.ss-hbtn').onclick=function(){helpTool(t);};
+        g.appendChild(d);});}
+    var ov=document.getElementById('ss-ov'),curTool=null;
+    function openTool(t){curTool=t;document.getElementById('ssm-ic').innerHTML=mark(t);document.getElementById('ssm-t').textContent=${JSON.stringify(Lraw("Connect ", "ربط "))}+t.name;
+      document.getElementById('ssm-l').textContent=t.lead;
+      var s='';if(t.pay)s+='<div class="ss-pay">💳 '+t.pay+'</div>';
+      t.steps.forEach(function(x,i){s+='<div class="ss-stp"><div class="n">'+(i+1)+'</div><div class="tx">'+x+'</div></div>';});
+      document.getElementById('ssm-s').innerHTML=s;
+      document.getElementById('ssm-do').textContent=tst[t.id]?${JSON.stringify(Lraw("✓ Connected — reconnect", "✓ متصل — إعادة الربط"))}:${JSON.stringify(Lraw("🔗 Connect now", "🔗 ربط الآن"))};
+      ov.classList.add('on');}
+    document.getElementById('ssm-x').onclick=function(){ov.classList.remove('on');};
+    ov.onclick=function(e){if(e.target===ov)ov.classList.remove('on');};
+    document.getElementById('ssm-do').onclick=function(){if(!curTool)return;tst[curTool.id]=true;localStorage.setItem(TKEY,JSON.stringify(tst));
+      var c=document.querySelector('.ss-cc[data-id="'+curTool.id+'"]');if(c){var b=c.querySelector('.ss-cc-state');b.textContent=CONN_ON;b.classList.add('on');c.querySelector('.ss-cbtn').textContent=MANAGE;}
+      ov.classList.remove('on');window.open(URLS[curTool.id]||'#','_blank','noopener');};
+    document.getElementById('ssm-help').onclick=function(){if(curTool)helpTool(curTool);};
+    function helpTool(t){alert(${JSON.stringify(Lraw("Setup request for «", "طلب إعداد «"))}+t.name+${JSON.stringify(Lraw("» — we connect the tool and hand it over ready for a one-time setup fee.", "» — نركّب لك الأداة ونسلّمها جاهزة مقابل رسوم إعداد لمرة واحدة."))});}
+
+    // ---------- init ----------
+    function initDash(){buildAgents();var first=document.querySelector('.ss-ag');selectAgent(AGENTS[0],first);}
   })();</script>`;
 
   return page({
