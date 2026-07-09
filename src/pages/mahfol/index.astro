@@ -1,0 +1,896 @@
+---
+// منصة محفول مكفول للسياحة — بنمط Visit Saudi: وجهات غنية ثم إقامة ثم أنشطة
+// الصور: أغلفة بروشورات الشركة الحقيقية من Google Drive (مشاركة عامة)
+export const prerender = true;
+
+const contact = {
+  email: 'info@mahmolmakfol.com',
+  instagram: 'https://www.instagram.com/mahfolmakfol/',
+  twitter: 'https://twitter.com/MMakfol',
+  tiktok: 'https://www.tiktok.com/@mahfolmakfol',
+  snapchat: 'https://www.snapchat.com/add/mhmk.co',
+  cr: '4030416435',
+  vat: '310887376200003',
+};
+
+// واتساب محفول مكفول الرسمي (موثق باسم Mahfol Makfol)
+const WA_NUMBER = '966501386327';
+const wa = (msg: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('مرحباً محفول مكفول 👋\n' + msg)}`;
+
+// أغلفة بروشورات الشركة الحقيقية (Google Drive عام)
+const gd = (id: string) => `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+const BR = {
+  edge: gd('1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN'),      // حافة العالم
+  alula: gd('1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb'),     // العلا
+  jeddah: gd('1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y'),    // جدة
+  jeddah5: gd('1Big-26WxENs8q6yeKARBKkMk44rhHt_R'),   // جدة 5 أيام
+  neom: gd('1P4HMHBPDNQf1royY0g34jEAjIX9d-u_D'),      // نيوم
+  neomNature: gd('1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2'),// طبيعة نيوم
+  yanbu: gd('1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI'),     // ينبع
+  redsea: gd('1Q_LNkEe_T70lSjjztx5uvB1E0XHSe2Y-'),    // جزر البحر الأحمر
+  farasan: gd('1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX'),   // فرسان
+  jazan: gd('1wtek2iZ-5zfpym6h7cV6KwAv10KU_sN2'),     // جازان
+  asir: gd('1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO'),      // عسير
+  taif: gd('1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W'),      // الطائف
+  baha: gd('1_fN1bapRsRo3_BvraQdzKx_8j8cPaNUK'),      // الباحة
+  hail: gd('1bETpN7I-RohaZr2liGisd7nsOiye6AMh'),      // حائل
+  hasa: gd('1-YFzsYz7YMvLT15AnVoPrEqlO5wlObwE'),      // الأحساء
+  kaec: gd('1ixLUi_4p1pcqnvsEgQdd0CHDXXu82OCe'),      // كايك
+  safari: gd('1mhDFKIx-k1XS92eeRmqy1Fb3HNs4vjfF'),    // سفاري
+  horse: gd('18huV7mTLnFfZjF7hkWtMxHoMGpsK5f3X'),     // خيل
+  farm: gd('13-pNpDGKKRJOpIvYo8ooolauqorKKKXL'),      // مزرعة
+  shaqra: gd('1hcmbDZ8MDb7SOGPCl9sZ3jZXQ72XWUK6'),    // شقراء
+  heritage: gd('1cho0Uglh50naetuGe_Wh8h88i8XXXw5I'),  // تراث المملكة
+  discover: gd('1mn0nLKNchUaE6XDOs77EEiY5d9ZdcUNn'),  // اكتشف السعودية
+  corporate: gd('1TwcqRN7w58qAgcAtwvR740SBYzBXhWBk'), // رحلات الشركات
+};
+
+// ═══════════ الوجهات — محتوى غني لكل مدينة مع برامجها الفعلية ═══════════
+const destinations = [
+  {
+    id: 'riyadh', name: 'الرياض وضواحيها', emoji: '🏜️', img: BR.edge,
+    tagline: 'حافة العالم على بُعد ساعة من العاصمة',
+    desc: 'من قلب العاصمة النابضة تنطلق مغامراتك: جروف حافة العالم المهيبة التي ترتفع مئات الأمتار فوق سهل بلا نهاية، كثبان الثمامة الذهبية للتطعيس، ليالي التخييم تحت سماء مرصّعة بالنجوم، وتراث الدرعية وشقراء وأوشيقر. أفضل موسم: أكتوبر إلى أبريل.',
+    highlights: ['حافة العالم', 'تطعيس الكثبان', 'تخييم ونجوم', 'الدرعية التاريخية', 'شقراء وأوشيقر', 'تجربة الريف'],
+    programs: [
+      { name: 'رحلة حافة العالم', dur: 'يوم واحد · الخميس والسبت', price: '2,030 ر.س لـ3 أشخاص · 4,000 لـ6' },
+      { name: 'حافة العالم مع التخييم والعشاء', dur: 'يوم وليلة', price: '3,750 ر.س لـ3 أشخاص' },
+      { name: 'تجربة التطعيس بجيب رانجلر', dur: 'يوم واحد', price: '2,030 ر.س لـ3 أشخاص' },
+      { name: 'المخيم الصحراوي الشامل', dur: 'يومان بأنشطة كاملة', price: 'من 600 ر.س للشخص (شامل الضريبة)' },
+      { name: 'سفاري وتجربة الريف وركوب الخيل', dur: 'يوم واحد', price: 'تسعيرة خاصة حسب المجموعة' },
+    ],
+  },
+  {
+    id: 'alula', name: 'العلا', emoji: '🏛️', img: BR.alula,
+    tagline: 'متحف مفتوح عمره 200,000 سنة',
+    desc: 'أول موقع سعودي في قائمة اليونسكو للتراث العالمي: مقابر الحِجر النبطية المنحوتة في الصخر، جبل الفيل الشاهق، البلدة القديمة، قاعة مرايا المكسوّة بالمرايا، وسماء الغراميل الأصفى في المملكة لتأمل النجوم. وجهة تُدهش العالم — ونوفر لك تجاربها الرسمية ضمن باقتك.',
+    highlights: ['الحِجر (يونسكو)', 'جبل الفيل', 'قاعة مرايا', 'محمية شرعان', 'منطاد الشروق', 'تأمل النجوم بالغراميل'],
+    programs: [
+      { name: 'باقة العلا 3 أيام — برونزية', dur: '3 أيام', price: 'من 2,029 ر.س للشخص' },
+      { name: 'باقة العلا 3 أيام — فضية', dur: '3 أيام', price: 'من 3,333 ر.س للشخص' },
+      { name: 'باقة العلا 3 أيام — VIP', dur: '3 أيام', price: 'من 7,296 ر.س للشخص' },
+      { name: 'تجارب Experience AlUla الرسمية', dur: 'الحِجر · شرعان · المنطاد · الغراميل', price: 'تُحجز ضمن باقتك معنا' },
+    ],
+  },
+  {
+    id: 'jeddah', name: 'جدة وكايك', emoji: '🕌', img: BR.jeddah,
+    tagline: 'عروس البحر الأحمر وبوابة التاريخ',
+    desc: 'جدة البلد التاريخية بروشانها الخشبية المسجلة في اليونسكو، أطول نافورة في العالم، واجهة بحرية تنبض حياةً، ومطاعم من كل قارات الدنيا. ومنها إلى مدينة الملك عبدالله الاقتصادية (كايك) بشواطئها الهادئة وملاعب الجولف. البحر الأحمر هنا ملعبك: يخوت، غوص، وألعاب مائية.',
+    highlights: ['جدة البلد (يونسكو)', 'الواجهة البحرية', 'نادي اليخوت', 'درة العروس', 'أبحر الشمالية', 'شواطئ كايك'],
+    programs: [
+      { name: 'باقة جدة 3 أيام', dur: '3 أيام', price: 'من 2,290 ر.س للشخص' },
+      { name: 'باقة جدة 5 أيام', dur: '5 أيام', price: 'تسعيرة خاصة' },
+      { name: 'باقة كايك KAEC 3 أيام', dur: '3 أيام', price: 'من 2,390 ر.س للشخص' },
+      { name: 'مسار جدة + كايك + ينبع', dur: '3-4 أيام', price: 'من 2,294 ر.س للشخص' },
+      { name: 'رحلات اليخوت والغوص والشواطئ', dur: 'يوم واحد', price: 'حسب المدة والقارب' },
+    ],
+  },
+  {
+    id: 'neom', name: 'نيوم وضباء وديسة', emoji: '🌊', img: BR.neomNature,
+    tagline: 'حيث تُكتب سياحة المستقبل',
+    desc: 'شمال غرب لم يره كثيرون: جبال شاهقة تلامس البحر، شواطئ بكر بمياه فيروزية، ووادي ديسة الأخضر بين أعمدة صخرية تخطف الأنفاس — يلقبونه "أجمل وديان السعودية". اسبق العالم واكتشف نيوم قبل الجميع.',
+    highlights: ['وادي ديسة', 'شواطئ نيوم البكر', 'جبال شرما', 'ضباء التاريخية'],
+    programs: [
+      { name: 'باقة نيوم 3 أيام', dur: '3 أيام', price: 'من 2,223 ر.س للشخص' },
+      { name: 'باقة ضباء وديسة 3 أيام', dur: '3 أيام', price: 'من 2,065 ر.س للشخص' },
+      { name: 'مسار الوجه + نيوم', dur: '3-4 أيام', price: 'من 1,667 ر.س للشخص' },
+    ],
+  },
+  {
+    id: 'yanbu', name: 'ينبع وأملج والوجه', emoji: '🐠', img: BR.yanbu,
+    tagline: 'مالديف السعودية على البحر الأحمر',
+    desc: 'شعاب مرجانية بألوان لا تُصدق، جزر رملية بيضاء تطفو على مياه كريستالية، وغروب يصبغ البحر ذهباً. أملج بجزرها الثمانين لُقّبت بمالديف السعودية، وينبع التاريخية تجمع البحر والصناعة والتراث، والوجه ببلدتها القديمة المطلة على المرسى.',
+    highlights: ['جزر أملج', 'الغوص والسنوركل', 'ينبع البلد التاريخية', 'قلعة الوجه', 'رحلات القوارب'],
+    programs: [
+      { name: 'باقة ينبع 3 أيام', dur: '3 أيام', price: 'من 2,472 ر.س للشخص' },
+      { name: 'باقة أملج 3 أيام', dur: '3 أيام', price: 'من 2,261 ر.س للشخص' },
+      { name: 'باقة الوجه 3 أيام', dur: '3 أيام', price: 'من 2,865 ر.س للشخص' },
+      { name: 'مسار ينبع + أملج + الوجه', dur: '3-4 أيام', price: 'من 2,645 ر.س للشخص' },
+    ],
+  },
+  {
+    id: 'asir', name: 'عسير وأبها', emoji: '🌲', img: BR.asir,
+    tagline: 'عروس الجبل فوق السحاب',
+    desc: 'على ارتفاع 3,000 متر تعيش صيفاً أوروبياً بنكهة سعودية: ضباب يعانق قمة السودة أعلى قمم المملكة، قرى رجال ألمع الحجرية الملونة بفن القط العسيري المسجل في اليونسكو، ومدرجات زراعية خضراء تتدرج على سفوح الجبال. وجهة العوائل الأولى في الصيف.',
+    highlights: ['قمة السودة', 'رجال ألمع', 'فن القط العسيري', 'التلفريك', 'جزر عسير البحرية'],
+    programs: [
+      { name: 'باقة أبها والسودة 3 أيام', dur: '3 أيام', price: 'من 1,945 ر.س للشخص' },
+      { name: 'باقة جزر عسير 3 أيام', dur: '3 أيام', price: 'من 2,127 ر.س للشخص' },
+    ],
+  },
+  {
+    id: 'jazan', name: 'جازان وجزر فرسان', emoji: '🏝️', img: BR.farasan,
+    tagline: 'جنة الجنوب وأرخبيل اليونسكو',
+    desc: 'أرخبيل فرسان — محمية اليونسكو للمحيط الحيوي — 84 جزيرة بشواطئ عذراء وغزلان برية وبيوت تجار اللؤلؤ التاريخية. وعلى اليابسة: جبال فيفاء "المدرّجة" الأسطورية، غابات المانجروف، وأسواق الحريد الموسمية. تجربة لا تشبه أي مكان آخر في المملكة.',
+    highlights: ['جزر فرسان (يونسكو)', 'جبال فيفاء', 'غابات المانجروف', 'بيوت اللؤلؤ', 'موسم الحريد'],
+    programs: [
+      { name: 'باقة جازان 3 أيام', dur: '3 أيام', price: 'من 1,897 ر.س للشخص' },
+      { name: 'باقة جزر فرسان 3 أيام', dur: '3 أيام', price: 'من 2,261 ر.س للشخص' },
+      { name: 'مسار جازان + فرسان', dur: '4 أيام', price: 'من 2,999 ر.س للشخص' },
+    ],
+  },
+  {
+    id: 'taif', name: 'الطائف والباحة', emoji: '🌹', img: BR.taif,
+    tagline: 'مدينة الورد ومصيف العرب',
+    desc: 'في أبريل تتفتح 300 مليون وردة طائفية يُقطّر منها أغلى عطور العالم. تلفريك الهدا يحلّق بك فوق منعطفات جبلية مذهلة، وقرود الشفا تستقبل زوار المرتفعات. وجارتها الباحة: 40 غابة خضراء وقرية ذي عين الأثرية الرخامية البيضاء.',
+    highlights: ['قطاف الورد الطائفي', 'تلفريك الهدا', 'الشفا', 'غابة رغدان', 'قرية ذي عين'],
+    programs: [
+      { name: 'باقة الطائف 3 أيام', dur: '3 أيام', price: 'من 1,748 ر.س للشخص' },
+      { name: 'باقة الباحة 3 أيام', dur: '3 أيام', price: 'من 1,696 ر.س للشخص' },
+      { name: 'مسار الطائف + الباحة', dur: 'حسب البرنامج', price: 'تسعيرة خاصة' },
+    ],
+  },
+  {
+    id: 'more', name: 'حائل والأحساء والمدينة', emoji: '🐪', img: BR.hail,
+    tagline: 'كنوز تنتظر الاكتشاف',
+    desc: 'نقوش جبة الصخرية في حائل (يونسكو) وحكايات حاتم الطائي، واحة الأحساء أكبر واحة نخيل في العالم (يونسكو) بعيونها وجبل القارة، ورحلات المدينة المنورة إلى خيبر والعلا وبدر. برامج بتسعيرة خاصة تُفصّل حسب مجموعتك.',
+    highlights: ['نقوش جبة', 'واحة الأحساء', 'جبل القارة', 'خيبر', 'رحلات المدينة'],
+    programs: [
+      { name: 'باقة حائل 3 أيام', dur: '3 أيام', price: 'تسعيرة خاصة' },
+      { name: 'باقة الأحساء 3 أيام', dur: '3 أيام', price: 'تسعيرة خاصة' },
+      { name: 'رحلات يوم واحد من المدينة', dur: 'العلا · ينبع · بدر · خيبر', price: 'تسعيرة خاصة' },
+    ],
+  },
+];
+
+// ═══════════ الإقامة — وحدات ومخيمات ═══════════
+const stays = [
+  { emoji: '⛺', img: BR.edge, name: 'مخيم حافة العالم', where: 'الرياض', desc: 'مبيت مع إفطار على حافة الجرف الأسطوري بعد رحلة الغروب.', price: 'إضافة 400 ر.س للشخص' },
+  { emoji: '🏕️', img: BR.safari, name: 'المخيم الصحراوي الشامل', where: 'الرياض', desc: 'ليلة كاملة بأنشطتها: رماية، خيل، تزلج رمال، عشاء ومسعف ومرشد.', price: 'من 600 ر.س للشخص (شامل الضريبة)' },
+  { emoji: '🌌', img: BR.alula, name: 'تخييم براري العلا وكرفاناتها', where: 'العلا', desc: 'تخييم فاخر بين الصخور العملاقة أو كرفانات مجهزة — عبر شركائنا الرسميين.', price: 'ضمن باقتك · تسعيرة خاصة' },
+  { emoji: '🏡', img: BR.farm, name: 'مزارع ريفية خاصة', where: 'الرياض · عسفان · خليص', desc: 'يوم عائلي أو مبيت في مزارع مختارة: جلسات، مسبح، ذبيحة وقهوة بدوية.', price: 'تسعيرة خاصة' },
+  { emoji: '🏢', img: BR.jeddah5, name: 'شاليهات وشقق مفروشة', where: 'جدة · الرياض · أبها', desc: 'وحدات مُدارة بمعاييرنا عبر شبكة ملاكنا على جاذرن وAirbnb.', price: 'اطلب المتاح لتاريخك' },
+  { emoji: '🎪', img: BR.corporate, name: 'مخيمات الشركات الخاصة', where: 'كل المناطق', desc: 'مخيم بهوية شركتك: تجهيز كامل، ضيافة، أنشطة تيم بلدنق.', price: 'عرض سعر مخصص' },
+];
+
+const unitServices = [
+  { icon: '📋', title: 'الإدراج والتسويق', desc: 'إعلان احترافي على جاذرن وAirbnb وBooking مع تصوير ووصف جذاب.' },
+  { icon: '💰', title: 'التسعير الديناميكي', desc: 'نسعّر حسب المواسم والفعاليات لتحقق أعلى عائد.' },
+  { icon: '💬', title: 'تواصل مع الضيوف 24/7', desc: 'رد على الاستفسارات وإدارة الوصول والمغادرة.' },
+  { icon: '🧹', title: 'تشغيل ونظافة', desc: 'تجهيز الوحدة بين كل حجز بمعايير الضيافة.' },
+  { icon: '📊', title: 'تقارير شهرية', desc: 'إشغال وإيرادات ومصاريف وصافي عائدك بوضوح.' },
+  { icon: '🛡️', title: 'توثيق وتراخيص', desc: 'متابعة اشتراطات وزارة السياحة ورخص الوحدات.' },
+];
+
+// ═══════════ الأنشطة والتجارب ═══════════
+const activities = [
+  { emoji: '🚙', img: BR.safari, name: 'سفاري وتطعيس', desc: 'جيب رانجلر وكثبان ذهبية وكباتن محترفون', price: 'من 677 ر.س/شخص ضمن مجموعة' },
+  { emoji: '🥾', img: BR.edge, name: 'هايكنج ومسارات', desc: 'حافة العالم، المتاهة، الوادي الخفي، جبل الحرة', price: 'حسب المسار' },
+  { emoji: '🐎', img: BR.horse, name: 'ركوب الخيل والجمال', desc: 'تجارب فروسية في الريف والشواطئ', price: 'تسعيرة خاصة' },
+  { emoji: '🤿', img: BR.redsea, name: 'غوص وسنوركل', desc: 'شعاب البحر الأحمر بألوانها الأسطورية', price: 'حسب الموقع' },
+  { emoji: '🛥️', img: BR.yanbu, name: 'رحلات اليخوت', desc: 'يخت أو قارب 6-12 ساعة بسناكس وغداء بحري', price: 'حسب المدة والقارب' },
+  { emoji: '🎈', img: BR.alula, name: 'منطاد العلا', desc: 'شروق الشمس فوق الحِجر من السماء', price: 'ضمن باقة العلا' },
+  { emoji: '🏄', img: BR.jeddah, name: 'ألعاب مائية', desc: 'درة العروس: جت سكي، بنانا، عوامات', price: 'حسب النشاط' },
+  { emoji: '🏛️', img: BR.heritage, name: 'جولات تراثية', desc: 'جدة البلد، الدرعية، شقراء وأوشيقر، رجال ألمع', price: 'من ضمن البرامج' },
+  { emoji: '🏹', img: BR.shaqra, name: 'رماية وأنشطة مخيم', desc: 'رماية، بندقية هواء، كرة طائرة، حرب ماء', price: 'ضمن المخيم الصحراوي' },
+  { emoji: '⭐', img: BR.discover, name: 'تأمل النجوم', desc: 'الغراميل بالعلا وصحاري الرياض الصافية', price: 'ضمن برامج التخييم' },
+  { emoji: '🎪', img: BR.corporate, name: 'فعاليات وتيم بلدنق', desc: 'برامج شركات ومدارس وجامعات متكاملة', price: 'عرض مخصص' },
+  { emoji: '🌾', img: BR.farm, name: 'تجربة المزرعة', desc: 'يوم ريفي كامل بالضيافة البدوية', price: 'تسعيرة خاصة' },
+];
+
+const trustPoints = [
+  { icon: '✅', text: 'موردون معتمدون ومدقّقون' },
+  { icon: '💬', text: 'حجز فوري عبر الواتساب' },
+  { icon: '🤖', text: 'مصمم رحلات بالذكاء الاصطناعي' },
+  { icon: '🕐', text: 'دعم على مدار الساعة' },
+  { icon: '🏛️', text: 'شركة سعودية مسجلة · س.ت 4030416435' },
+];
+
+const regions = [
+  { flag: '🇸🇦', name: 'السعودية', status: 'live', desc: 'كل المناطق — متاح الآن' },
+  { flag: '🇦🇪', name: 'الخليج', status: 'soon', desc: 'دبي · البحرين · قطر · عُمان' },
+  { flag: '🇪🇬', name: 'مصر', status: 'soon', desc: 'القاهرة · الساحل · شرم الشيخ' },
+  { flag: '🇹🇷', name: 'تركيا', status: 'soon', desc: 'إسطنبول · طرابزون · كابادوكيا' },
+  { flag: '🌏', name: 'شرق آسيا', status: 'soon', desc: 'تايلاند · ماليزيا · إندونيسيا' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>محفول مكفول | اكتشف السعودية — رحلات ووجهات وإقامة وتجارب</title>
+  <meta name="description" content="منصة محفول مكفول السياحية: وجهات السعودية ببرامج جاهزة وأسعار واضحة — الرياض، العلا، جدة، نيوم، أملج، عسير، فرسان، الطائف — مع مخيمات ووحدات إقامة وأنشطة وتجارب، وحجز فوري عبر الواتساب." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐪</text></svg>" />
+  <meta property="og:title" content="محفول مكفول | اكتشف السعودية" />
+  <meta property="og:description" content="وجهات وبرامج وأسعار واضحة + مخيمات ووحدات + أنشطة وتجارب — احجز عبر الواتساب أو صمم رحلتك بالذكاء الاصطناعي." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ar_SA" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'TravelAgency',
+    name: 'محفول مكفول',
+    legalName: 'شركة محفول مكفول للسياحة',
+    alternateName: 'Mahfol Makfol',
+    email: contact.email,
+    telephone: '+966501386327',
+    taxID: contact.vat,
+    areaServed: 'SA',
+    sameAs: [contact.instagram, contact.twitter, contact.tiktok, contact.snapchat],
+  })} />
+</head>
+<body>
+
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="#top" class="brand">🐪 <span>محفول <b>مكفول</b></span></a>
+      <nav class="nav-links">
+        <a href="#destinations">الوجهات</a>
+        <a href="#stays">الوحدات والمخيمات</a>
+        <a href="#activities">الأنشطة والتجارب</a>
+        <a href="#designer">المصمم الذكي</a>
+        <a href="#owners">إدارة أملاكك</a>
+      </nav>
+      <a class="btn btn-wa" href={wa('أبغى أستفسر عن رحلة')} target="_blank" rel="noopener">💬 واتساب</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-bg"><img src={BR.discover} alt="" loading="eager" onerror="this.remove()" /></div>
+      <div class="container hero-inner">
+        <p class="hero-badge">✦ منصة سعودية · موردون معتمدون · حجز فوري بالواتساب</p>
+        <h1>اكتشف السعودية <span class="gold">كما لم تعرفها</span></h1>
+        <p class="hero-sub">
+          من جروف حافة العالم إلى شعاب أملج المرجانية، ومن حِجر العلا إلى ضباب السودة —
+          برامج جاهزة بأسعار واضحة، مخيمات ووحدات إقامة، وتجارب تروى للأحفاد.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-gold btn-lg" href="#destinations">استكشف الوجهات</a>
+          <a class="btn btn-wa btn-lg" href={wa('أبغى أحجز رحلة')} target="_blank" rel="noopener">💬 احجز واتساب</a>
+        </div>
+        <div class="hero-stats">
+          <div><b>9</b><span>وجهات ببرامج جاهزة</span></div>
+          <div><b>+30</b><span>برنامجًا ونشاطًا</span></div>
+          <div><b>3</b><span>فئات: VIP · فضية · برونزية</span></div>
+          <div><b>24/7</b><span>واتساب ومصمم ذكي</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust strip -->
+    <div class="trust-strip">
+      <div class="container trust-inner">
+        {trustPoints.map((p) => <span>{p.icon} {p.text}</span>)}
+      </div>
+    </div>
+
+    <!-- Destinations -->
+    <section class="section" id="destinations">
+      <div class="container">
+        <h2 class="section-title">وجهاتك في السعودية</h2>
+        <p class="section-sub">كل وجهة ببرامجها الجاهزة وأسعارها الواضحة — اختر مدينتك وخل الباقي علينا</p>
+
+        <div class="dest-list">
+          {destinations.map((d, i) => (
+            <article class={`dest-card ${i % 2 ? 'flip' : ''}`} id={`dest-${d.id}`}>
+              <div class="dest-media">
+                <img src={d.img} alt={d.name} loading="lazy" onerror="this.remove()" />
+                <span class="dest-emoji">{d.emoji}</span>
+              </div>
+              <div class="dest-body">
+                <h3>{d.name}</h3>
+                <p class="dest-tagline">{d.tagline}</p>
+                <p class="dest-desc">{d.desc}</p>
+                <div class="dest-highlights">
+                  {d.highlights.map((h) => <span>{h}</span>)}
+                </div>
+                <div class="dest-programs">
+                  {d.programs.map((p) => (
+                    <a class="prog-row" href={wa(`أبغى أحجز: ${p.name} (${d.name})`)} target="_blank" rel="noopener">
+                      <span class="prog-name">{p.name}</span>
+                      <span class="prog-dur">{p.dur}</span>
+                      <span class="prog-price">{p.price}</span>
+                      <span class="prog-go">احجز ←</span>
+                    </a>
+                  ))}
+                </div>
+                <div class="dest-actions">
+                  <a class="btn btn-wa" href={wa(`أبغى برنامج كامل لوجهة ${d.name}`)} target="_blank" rel="noopener">💬 استفسر واتساب</a>
+                  <a class="btn btn-outline" href="#designer">🤖 فصّلها على مقاسك</a>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+        <p class="market-note">الأسعار للشخص وغير شاملة الضريبة ما لم يُذكر خلاف ذلك · المجموعات من 4 إلى 20 شخصًا · البرامج قابلة للتخصيص</p>
+      </div>
+    </section>
+
+    <!-- Stays -->
+    <section class="section section-alt" id="stays">
+      <div class="container">
+        <h2 class="section-title">وحدات ومخيمات تنام فيها المغامرة</h2>
+        <p class="section-sub">من مخيم على حافة العالم إلى شاليه على البحر — إقامات مختارة عبر موردين معتمدين</p>
+        <div class="grid grid-3">
+          {stays.map((st) => (
+            <div class="card stay-card">
+              <div class="stay-media">
+                <img src={st.img} alt={st.name} loading="lazy" onerror="this.remove()" />
+                <span class="stay-emoji">{st.emoji}</span>
+              </div>
+              <h3>{st.name}</h3>
+              <p class="stay-where">📍 {st.where}</p>
+              <p class="stay-desc">{st.desc}</p>
+              <div class="stay-foot">
+                <span class="stay-price">{st.price}</span>
+                <a class="btn btn-wa btn-sm" href={wa(`أبغى أحجز إقامة: ${st.name}`)} target="_blank" rel="noopener">احجز</a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Owners: property management -->
+    <section class="section" id="owners">
+      <div class="container">
+        <h2 class="section-title">🏠 عندك وحدة؟ خلها تشتغل لك</h2>
+        <p class="section-sub">
+          ندير شاليهك أو مخيمك أو مزرعتك أو شقتك بالكامل على <b>جاذرن وAirbnb وBooking</b> —
+          أنت تستلم العائد ونحن نتكفل بالباقي
+        </p>
+        <div class="grid grid-3">
+          {unitServices.map((u) => (
+            <div class="card service-card">
+              <div class="service-icon">{u.icon}</div>
+              <h3>{u.title}</h3>
+              <p>{u.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div class="units-cta">
+          <div class="units-steps">
+            <span><b>1</b> سجّل وحدتك</span>
+            <span class="step-arrow">←</span>
+            <span><b>2</b> نعاينها ونجهزها وندرجها</span>
+            <span class="step-arrow">←</span>
+            <span><b>3</b> تستلم عائدك وتقريرك شهريًا</span>
+          </div>
+          <a class="btn btn-wa btn-lg" href={wa('عندي وحدة عقارية وأبغاكم تديرونها لي.\nنوع الوحدة: \nالمدينة: \nالسعة: ')} target="_blank" rel="noopener">💬 سجّل وحدتك واتساب</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Activities -->
+    <section class="section section-alt" id="activities">
+      <div class="container">
+        <h2 class="section-title">أنشطة وتجارب تعيشها</h2>
+        <p class="section-sub">اختر التجربة وندمجها لك في برنامجك — أو نصمم يومًا كاملاً حولها</p>
+        <div class="act-grid">
+          {activities.map((a) => (
+            <a class="act-card" href={wa(`أبغى تجربة: ${a.name}`)} target="_blank" rel="noopener">
+              <div class="act-media">
+                <img src={a.img} alt={a.name} loading="lazy" onerror="this.remove()" />
+                <span class="act-emoji">{a.emoji}</span>
+              </div>
+              <h3>{a.name}</h3>
+              <p>{a.desc}</p>
+              <span class="act-price">{a.price}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Trip Designer -->
+    <section class="section section-dark" id="designer">
+      <div class="container">
+        <h2 class="section-title">🤖 مصمم الرحلات الذكي</h2>
+        <p class="section-sub">
+          كلمه بالعامية، حدد ميزانيتك، وبيصمم لك برنامجًا يوم-بيوم من برامجنا الحقيقية بأسعارها —
+          ثم أكمل الحجز بالواتساب
+        </p>
+        <div class="chat-shell">
+          <div class="chat-log" id="chatLog">
+            <div class="msg bot">هلا وسهلا! 👋 أنا مصمم رحلات محفول مكفول الذكي.<br />قل لي: وين ودك تروح؟ كم عددكم؟ ومتى؟ — وأفصّل لك رحلة على مقاسك بأسعارنا الحقيقية.</div>
+          </div>
+          <div class="chat-suggests" id="chatSuggests">
+            <button type="button" data-q="ابغى رحلة حافة العالم لستة أشخاص مع تخييم">🏔️ حافة العالم مع تخييم</button>
+            <button type="button" data-q="صمم لي رحلة العلا 3 أيام لأربعة أشخاص بميزانية متوسطة">🏛️ العلا 3 أيام</button>
+            <button type="button" data-q="ابغى رحلة بحرية في جدة مع يخت وسنوركل ليوم واحد">🛥️ رحلة بحرية بجدة</button>
+            <button type="button" data-q="اقترح لي رحلة عائلية مبتكرة بميزانية 5000 ريال">👨‍👩‍👧‍👦 رحلة عائلية بـ5000</button>
+          </div>
+          <form class="chat-input" id="chatForm">
+            <input type="text" id="chatText" placeholder="اكتب طلبك… مثال: ابغى رحلة نهاية الأسبوع لعائلتي" autocomplete="off" />
+            <button type="submit" class="btn btn-gold" id="chatSend">إرسال</button>
+          </form>
+          <p class="chat-note">الأسعار من باقاتنا المعتمدة · تأكيد الحجز النهائي عبر الواتساب مع فريق المبيعات</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Expansion -->
+    <section class="section" id="expansion">
+      <div class="container">
+        <h2 class="section-title">🌍 قريبًا: العالم من بوابة محفول مكفول</h2>
+        <p class="section-sub">نبدأ من السعودية ونتوسع سوقًا بعد سوق مع موردين محليين معتمدين</p>
+        <div class="regions-row">
+          {regions.map((r) => (
+            <div class={`region-pill ${r.status}`}>
+              <span class="region-flag">{r.flag}</span>
+              <b>{r.name}</b>
+              <small>{r.desc}</small>
+              <span class={`region-badge ${r.status}`}>{r.status === 'live' ? 'متاح الآن' : 'قريبًا'}</span>
+            </div>
+          ))}
+        </div>
+        <div class="center">
+          <a class="btn btn-outline" href={wa('سجلوني باهتمامات الوجهات الدولية القادمة 🌍')} target="_blank" rel="noopener">🔔 سجّل اهتمامك بالوجهات القادمة</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vendors -->
+    <section class="section section-alt" id="vendors">
+      <div class="container narrow center">
+        <h2 class="section-title">🤝 كن موردًا في المنصة</h2>
+        <p class="section-sub">
+          مرشد سياحي، صاحب يخت، منظم رحلات، أسرة منتجة، أو مقدم أنشطة؟
+          اعرض خدمتك عندنا — نتولى التسويق والحجوزات وأنت تنفذ
+        </p>
+        <div class="chips chips-sm">
+          <span class="chip chip-outline">شركات سياحة</span>
+          <span class="chip chip-outline">فنادق وبيوت سياحية</span>
+          <span class="chip chip-outline">مرشدون</span>
+          <span class="chip chip-outline">قروبات جيب</span>
+          <span class="chip chip-outline">مراسي يخوت</span>
+          <span class="chip chip-outline">باصات</span>
+          <span class="chip chip-outline">أسر منتجة</span>
+          <span class="chip chip-outline">مقدمو أنشطة</span>
+        </div>
+        <div class="center">
+          <a class="btn btn-wa btn-lg" href={wa('أبغى أنضم كمورد في منصتكم.\nنوع الخدمة: \nالمدينة: ')} target="_blank" rel="noopener">💬 قدّم طلب انضمام</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Terms -->
+    <section class="section" id="terms">
+      <div class="container narrow">
+        <h2 class="section-title">الشروط والأحكام</h2>
+        <details class="acc">
+          <summary>الشروط الأساسية</summary>
+          <ul>
+            <li>الحد الأدنى للمجموعة: 4 أشخاص، والحد الأقصى: 20 شخصًا.</li>
+            <li>عدد الأشخاص في السيارة الواحدة: 4 أشخاص.</li>
+            <li>البرنامج قابل للتغيير حسب رغبة العميل.</li>
+            <li>الشركة غير مسؤولة عن تغيير مسار الرحلة لظروف خارجة عن الإرادة أو ظروف قاهرة.</li>
+          </ul>
+        </details>
+        <details class="acc">
+          <summary>سياسة الإلغاء والاسترجاع</summary>
+          <ul>
+            <li>الإلغاء قبل 14 يومًا أو أكثر: يُحفظ المبلغ كاملًا كرصيد لمدة سنة، أو يُسترجع بعد خصم 10% رسومًا إدارية خلال 20 يوم عمل.</li>
+            <li>الإلغاء بين 7 و14 يومًا: تحتفظ الشركة بـ 50% من قيمة الرحلة ويُعاد الباقي خلال 20 يوم عمل.</li>
+            <li>الإلغاء بين 72 ساعة و7 أيام: تحتفظ الشركة بـ 50% ويُحفظ الباقي كرصيد لمدة سنة.</li>
+            <li>الإلغاء قبل أقل من 72 ساعة: تحتفظ الشركة بالمبلغ كاملًا دون تعويض أو استبدال.</li>
+            <li>استبدال عميل بآخر دون إلغاء الرحلة: رسوم إدارية 10% من قيمة الرحلة.</li>
+            <li>إذا ألغت الجهة المنظمة الرحلة: يُسترجع المبلغ كاملًا (100%) خلال 20 يوم عمل.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="section section-alt" id="contact">
+      <div class="container narrow center">
+        <h2 class="section-title">خلنا نرتب لك الرحلة</h2>
+        <p class="section-sub">فريقنا جاهز على الواتساب — رد سريع وتفصيل على مقاسك</p>
+        <div class="hero-cta">
+          <a class="btn btn-wa btn-lg" href={wa('أبغى أستفسر عن رحلة')} target="_blank" rel="noopener">💬 +966 50 138 6327</a>
+          <a class="btn btn-outline btn-lg" href={`mailto:${contact.email}`}>{contact.email}</a>
+        </div>
+        <div class="socials">
+          <a href={contact.instagram} target="_blank" rel="noopener">إنستقرام</a>
+          <a href={contact.twitter} target="_blank" rel="noopener">تويتر (X)</a>
+          <a href={contact.tiktok} target="_blank" rel="noopener">تيك توك</a>
+          <a href={contact.snapchat} target="_blank" rel="noopener">سناب شات</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>🐪 شركة محفول مكفول للسياحة — Mahfol Makfol Tourism</p>
+      <p class="footer-legal">سجل تجاري: {contact.cr} · الرقم الضريبي: {contact.vat}</p>
+      <p class="footer-legal">جميع الحقوق محفوظة © 2026</p>
+    </div>
+  </footer>
+
+  <!-- WhatsApp FAB -->
+  <a class="wa-fab" href={wa('أبغى أستفسر عن رحلة')} target="_blank" rel="noopener" aria-label="تواصل واتساب">
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="#fff"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.83 14.12c-.25.7-1.44 1.34-1.98 1.39-.54.05-1.04.24-3.5-.73-2.96-1.17-4.83-4.2-4.98-4.39-.14-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.25.58.84 2 .91 2.15.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.3.37-.42.5-.14.14-.29.29-.13.57.17.29.74 1.22 1.59 1.98 1.09.97 2.01 1.27 2.3 1.41.29.14.45.12.62-.07.17-.19.71-.83.9-1.11.19-.29.39-.24.65-.14.27.1 1.7.8 1.99.95.29.14.48.22.55.34.07.12.07.7-.18 1.39z"/></svg>
+  </a>
+
+<style is:global>
+  :root {
+    --bg: #faf7f1;
+    --bg-alt: #ffffff;
+    --card: #ffffff;
+    --card-border: #ece5d8;
+    --text: #1f2340;
+    --muted: #6b7089;
+    --gold: #e0562f;
+    --gold-strong: #c4451f;
+    --indigo: #2b2f6b;
+    --wa: #25d366;
+    --radius: 18px;
+    --shadow: 0 8px 30px rgba(43, 47, 107, 0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+  }
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  .container.narrow { max-width: 820px; }
+  .center { text-align: center; margin-top: 26px; }
+
+  /* Nav */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--card-border);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 20px; padding: 14px 20px; }
+  .brand { font-size: 1.3rem; font-weight: 900; color: var(--text); text-decoration: none; white-space: nowrap; }
+  .brand b { color: var(--gold); }
+  .nav-links { display: flex; gap: 20px; margin-inline-start: auto; flex-wrap: wrap; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
+  .nav-links a:hover { color: var(--gold-strong); }
+
+  /* Buttons */
+  .btn {
+    display: inline-block; padding: 11px 24px; border-radius: 999px;
+    font-weight: 800; text-decoration: none; font-size: 0.95rem;
+    transition: transform 0.15s, box-shadow 0.15s; white-space: nowrap;
+    border: none; cursor: pointer; font-family: inherit;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-gold { background: linear-gradient(135deg, var(--gold), #d14a30); color: #fff6ef; box-shadow: 0 4px 18px rgba(238,106,77,0.40); }
+  .btn-outline { border: 1.5px solid var(--gold); color: var(--gold-strong); background: transparent; }
+  .btn-wa { background: linear-gradient(135deg, #2bdc70, #1da851); color: #fff; box-shadow: 0 4px 18px rgba(37,211,102,0.35); }
+  .btn-lg { padding: 15px 34px; font-size: 1.05rem; }
+  .btn-sm { padding: 8px 18px; font-size: 0.85rem; }
+
+  /* Hero */
+  .hero { position: relative; overflow: hidden; padding: 100px 0 80px; text-align: center; }
+  .hero-bg { position: absolute; inset: 0; z-index: 0; }
+  .hero-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.55; animation: heroZoom 26s ease-in-out infinite alternate; }
+  .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(250,247,241,0.55), rgba(250,247,241,0.94)); }
+  .hero-inner { position: relative; z-index: 1; }
+  @keyframes heroZoom { from { transform: scale(1); } to { transform: scale(1.12); } }
+  .hero-badge {
+    display: inline-block; padding: 7px 20px; border-radius: 999px;
+    border: 1px solid rgba(224,86,47,0.30); color: var(--gold-strong);
+    font-size: 0.9rem; margin-bottom: 26px; background: rgba(224,86,47,0.08);
+  }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 900; line-height: 1.35; max-width: 900px; margin: 0 auto 18px; }
+  .gold { color: var(--gold); }
+  .hero-sub { color: var(--muted); max-width: 720px; margin: 0 auto 34px; font-size: 1.15rem; }
+  .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 50px; }
+  .hero-stats { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .hero-stats div { background: #ffffff; border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px 24px; min-width: 150px; box-shadow: var(--shadow); }
+  .hero-stats b { display: block; color: var(--gold); font-size: 1.5rem; font-weight: 900; }
+  .hero-stats span { color: var(--muted); font-size: 0.85rem; }
+
+  /* Trust strip */
+  .trust-strip { background: #f2ece0; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); padding: 13px 0; }
+  .trust-inner { display: flex; flex-wrap: wrap; gap: 10px 28px; justify-content: center; color: var(--muted); font-size: 0.88rem; font-weight: 700; }
+
+  /* Sections */
+  .section { padding: 84px 0; }
+  .section-alt { background: #f4efe6; }
+  .section-dark { background: linear-gradient(160deg, #2b2f6b, #1f2340); }
+  .section-title { text-align: center; font-size: clamp(1.6rem, 3.2vw, 2.4rem); font-weight: 900; margin-bottom: 12px; }
+  .section-sub { text-align: center; color: var(--muted); margin: 0 auto 46px; font-size: 1.08rem; max-width: 760px; }
+
+  /* Destination cards */
+  .dest-list { display: flex; flex-direction: column; gap: 34px; }
+  .dest-card {
+    display: grid; grid-template-columns: 420px 1fr; gap: 0;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+  }
+  .dest-card.flip { grid-template-columns: 1fr 420px; }
+  .dest-card.flip .dest-media { order: 2; }
+  .dest-media { position: relative; min-height: 320px; background: linear-gradient(135deg, #2d3166, #3b3f8f 60%, rgba(238,106,77,0.5)); }
+  .dest-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .dest-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 60%, rgba(37,41,82,0.55)); }
+  .dest-card.flip .dest-media::after { background: linear-gradient(270deg, transparent 60%, rgba(37,41,82,0.55)); }
+  .dest-emoji { position: absolute; top: 16px; inset-inline-start: 16px; font-size: 2.2rem; z-index: 2; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)); }
+  .dest-body { padding: 30px 32px; }
+  .dest-body h3 { font-size: 1.6rem; font-weight: 900; }
+  .dest-tagline { color: var(--gold-strong); font-weight: 800; margin-bottom: 10px; }
+  .dest-desc { color: var(--muted); font-size: 0.98rem; margin-bottom: 14px; }
+  .dest-highlights { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .dest-highlights span {
+    font-size: 0.8rem; font-weight: 700; color: var(--text);
+    background: rgba(238,106,77,0.10); border: 1px solid rgba(238,106,77,0.30);
+    padding: 4px 12px; border-radius: 999px;
+  }
+  .dest-programs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .prog-row {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap: 10px; align-items: center;
+    background: #f6f2ea; border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 10px 16px; text-decoration: none; color: var(--text);
+    transition: border-color 0.15s, transform 0.15s; font-size: 0.9rem;
+  }
+  .prog-row:hover { border-color: var(--wa); transform: translateX(-4px); }
+  .prog-name { font-weight: 800; }
+  .prog-dur { color: var(--muted); font-size: 0.82rem; }
+  .prog-price { color: var(--gold-strong); font-weight: 800; font-size: 0.85rem; }
+  .prog-go { color: var(--wa); font-weight: 900; font-size: 0.85rem; }
+  .dest-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* Stays */
+  .grid { display: grid; gap: 20px; }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+  .stay-card { padding: 0 0 20px; overflow: hidden; display: flex; flex-direction: column; }
+  .stay-media { position: relative; height: 170px; background: linear-gradient(135deg, #2d3166, #3b3f8f 60%, rgba(238,106,77,0.5)); margin-bottom: 14px; }
+  .stay-media img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .stay-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(37,41,82,0.6)); }
+  .stay-emoji { position: absolute; bottom: 8px; inset-inline-start: 14px; font-size: 1.8rem; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+  .stay-card h3 { padding: 0 20px; font-size: 1.1rem; }
+  .stay-where { padding: 0 20px; color: var(--gold-strong); font-size: 0.82rem; font-weight: 700; margin-bottom: 6px; }
+  .stay-desc { padding: 0 20px; color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; flex: 1; }
+  .stay-foot { padding: 0 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .stay-price { color: var(--gold-strong); font-weight: 800; font-size: 0.85rem; }
+
+  /* Owners */
+  .service-card { text-align: center; }
+  .service-icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .service-card h3 { margin-bottom: 6px; font-size: 1.05rem; }
+  .service-card p { color: var(--muted); font-size: 0.9rem; }
+  .units-cta { text-align: center; margin-top: 34px; }
+  .units-steps { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; color: var(--muted); font-size: 0.95rem; margin-bottom: 24px; }
+  .units-steps b {
+    display: inline-flex; width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #d14a30); color: #fff6ef;
+    align-items: center; justify-content: center; margin-inline-end: 6px; font-size: 0.85rem;
+  }
+  .step-arrow { color: var(--gold); font-weight: 900; }
+
+  /* Activities */
+  .act-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .act-card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    overflow: hidden; text-decoration: none; color: var(--text);
+    display: flex; flex-direction: column; transition: transform 0.15s, border-color 0.15s;
+  }
+  .act-card:hover { transform: translateY(-4px); border-color: var(--wa); }
+  .act-media { position: relative; height: 130px; background: linear-gradient(135deg, #2d3166, #3b3f8f 60%, rgba(238,106,77,0.5)); }
+  .act-media img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .act-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(37,41,82,0.65)); }
+  .act-emoji { position: absolute; bottom: 6px; inset-inline-start: 12px; font-size: 1.6rem; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+  .act-card h3 { padding: 12px 16px 0; font-size: 1rem; }
+  .act-card p { padding: 2px 16px 0; color: var(--muted); font-size: 0.84rem; flex: 1; }
+  .act-price { padding: 8px 16px 14px; color: var(--gold-strong); font-weight: 800; font-size: 0.8rem; }
+
+  /* AI chat */
+  .section-dark .section-title, .section-dark .section-sub { color: #fff; }
+  .chat-shell { max-width: 780px; margin: 0 auto; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .chat-log { height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 8px 4px; scroll-behavior: smooth; }
+  .msg { max-width: 85%; padding: 12px 16px; border-radius: 16px; line-height: 1.7; font-size: 0.95rem; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.bot { background: #f0ece2; color: var(--text); align-self: flex-start; border-start-start-radius: 4px; }
+  .msg.me { background: linear-gradient(135deg, var(--gold), #d14a30); color: #fff6ef; align-self: flex-end; border-start-end-radius: 4px; }
+  .msg .dots span { display: inline-block; width: 7px; height: 7px; margin: 0 2px; border-radius: 50%; background: var(--gold-strong); animation: blink 1.2s infinite; }
+  .msg .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .msg .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+  .chat-suggests { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chat-suggests button {
+    background: rgba(238,106,77,0.10); color: var(--text);
+    border: 1px solid rgba(238,106,77,0.35); border-radius: 999px;
+    padding: 7px 14px; font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .chat-suggests button:hover { background: rgba(238,106,77,0.22); }
+  .chat-input { display: flex; gap: 10px; }
+  .chat-input input {
+    flex: 1; background: #f6f2ea; border: 1px solid var(--card-border);
+    border-radius: 999px; padding: 12px 18px; color: var(--text);
+    font-family: inherit; font-size: 0.95rem; outline: none;
+  }
+  .chat-input input:focus { border-color: var(--gold); }
+  .chat-input .btn:disabled { opacity: 0.5; cursor: wait; transform: none; }
+  .chat-note { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 10px; }
+
+  /* Regions */
+  .regions-row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-bottom: 26px; }
+  .region-pill {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: 18px 22px; min-width: 190px; text-align: center; box-shadow: var(--shadow);
+  }
+  .region-pill.soon { opacity: 0.8; }
+  .region-flag { display: block; font-size: 2rem; margin-bottom: 4px; }
+  .region-pill b { display: block; font-size: 1.05rem; }
+  .region-pill small { display: block; color: var(--muted); font-size: 0.78rem; margin: 4px 0 8px; }
+  .region-badge { font-size: 0.72rem; font-weight: 800; padding: 3px 12px; border-radius: 999px; }
+  .region-badge.live { background: rgba(74,222,128,0.12); color: #6fe89e; border: 1px solid rgba(74,222,128,0.4); }
+  .region-badge.soon { background: rgba(238,106,77,0.10); color: var(--gold-strong); border: 1px solid rgba(238,106,77,0.35); }
+
+  /* Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 24px; }
+  .chip { background: var(--card); border: 1px solid var(--card-border); padding: 8px 16px; border-radius: 999px; font-size: 0.9rem; font-weight: 600; }
+  .chips-sm .chip { padding: 6px 14px; font-size: 0.85rem; }
+  .chip-outline { background: transparent; color: var(--muted); }
+
+  /* Accordion */
+  .acc { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
+  .acc summary { cursor: pointer; padding: 18px 22px; font-weight: 800; font-size: 1.05rem; list-style: none; position: relative; }
+  .acc summary::-webkit-details-marker { display: none; }
+  .acc summary::after { content: '+'; position: absolute; inset-inline-end: 22px; color: var(--gold); font-size: 1.3rem; }
+  .acc[open] summary::after { content: '−'; }
+  .acc ul { padding: 0 42px 20px 22px; color: var(--muted); font-size: 0.95rem; }
+  .acc li { margin-bottom: 8px; }
+
+  /* Contact & footer */
+  .socials { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+  .socials a { color: var(--gold-strong); text-decoration: none; font-weight: 700; border-bottom: 1px dashed rgba(238,106,77,0.45); }
+  .footer { border-top: 1px solid var(--card-border); padding: 34px 0 90px; background: #f2ece0; }
+  .footer-inner { text-align: center; }
+  .footer-inner p { font-weight: 700; margin-bottom: 6px; }
+  .footer-legal { color: var(--muted); font-size: 0.85rem; font-weight: 400 !important; }
+  .market-note { text-align: center; color: var(--muted); font-size: 0.82rem; margin-top: 28px; }
+
+  /* WhatsApp FAB */
+  .wa-fab {
+    position: fixed; bottom: 22px; inset-inline-start: 22px; z-index: 60;
+    width: 58px; height: 58px; border-radius: 50%;
+    background: linear-gradient(135deg, #2bdc70, #1da851);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 24px rgba(37,211,102,0.45);
+    animation: waPulse 2.4s infinite;
+  }
+  @keyframes waPulse {
+    0%, 100% { box-shadow: 0 6px 24px rgba(37,211,102,0.45); }
+    50% { box-shadow: 0 6px 34px rgba(37,211,102,0.75); }
+  }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-bg img { animation: none; }
+    .wa-fab { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  @media (max-width: 900px) {
+    .dest-card, .dest-card.flip { grid-template-columns: 1fr; }
+    .dest-card.flip .dest-media { order: 0; }
+    .dest-media { min-height: 220px; }
+    .prog-row { grid-template-columns: 1fr auto; }
+    .prog-dur { display: none; }
+  }
+  @media (max-width: 760px) {
+    .nav-links { display: none; }
+    .hero { padding: 70px 0 55px; }
+    .section { padding: 56px 0; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const WEBHOOK_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/9913c585-eca8-41f6-b2b1-e1cc22bfbb12/chat';
+    const log = document.getElementById('chatLog');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatText');
+    const sendBtn = document.getElementById('chatSend');
+    const suggests = document.getElementById('chatSuggests');
+    const sid = 'mahfol-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    let busy = false;
+
+    function addMsg(text, who) {
+      const el = document.createElement('div');
+      el.className = 'msg ' + who;
+      el.textContent = text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      return el;
+    }
+
+    async function send(message) {
+      const msg = (message || '').trim();
+      if (!msg || busy) return;
+      busy = true;
+      sendBtn.disabled = true;
+      input.value = '';
+      addMsg(msg, 'me');
+      const thinking = addMsg('', 'bot');
+      thinking.innerHTML = '<span class="dots"><span></span><span></span><span></span></span>';
+      log.scrollTop = log.scrollHeight;
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'sendMessage', sessionId: sid, chatInput: msg })
+        });
+        let reply = '';
+        let isError = !res.ok;
+        const raw = await res.text();
+        try {
+          const data = JSON.parse(raw);
+          if (data && (data.output || data.text || data.reply || data.answer)) {
+            reply = data.output ?? data.text ?? data.reply ?? data.answer;
+          } else if (data && (data.message || data.code || data.error)) {
+            isError = true;
+          } else if (typeof data === 'string') {
+            reply = data;
+          }
+        } catch (_) {
+          if (/error in workflow|too many requests|<html/i.test(raw)) isError = true;
+          else reply = raw;
+        }
+        reply = (typeof reply === 'string' ? reply : JSON.stringify(reply)).trim();
+        if (isError || !reply) {
+          thinking.textContent = 'المساعد مشغول حاليًا 🙏 كلمنا مباشرة على الواتساب +966 50 138 6327';
+        } else {
+          thinking.textContent = reply;
+        }
+      } catch (e) {
+        thinking.textContent = 'تعذر الاتصال بالمساعد. جرب مرة ثانية أو كلمنا واتساب.';
+      }
+      log.scrollTop = log.scrollHeight;
+      busy = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      send(input.value);
+    });
+    suggests.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-q]');
+      if (btn) send(btn.getAttribute('data-q'));
+    });
+  })();
+
+  // ظهور تدريجي للأقسام أثناء التمرير
+  (function () {
+    const targets = document.querySelectorAll('.dest-card, .card, .act-card, .section-title, .section-sub, .acc, .chat-shell, .region-pill');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.06 });
+    targets.forEach(el => io.observe(el));
+  })();
+</script>
+</body>
+</html>

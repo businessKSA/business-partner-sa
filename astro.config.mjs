@@ -7,6 +7,10 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   site: 'https://businesspartner.sa',
   integrations: [sitemap()],
+  redirects: {
+    '/investor': '/ar/mahfol-makfol',
+    '/mahfol-makfol': '/ar/mahfol-makfol',
+  },
   output: 'server', // Enable SSR for API routes
   adapter: vercel(),
   i18n: {
