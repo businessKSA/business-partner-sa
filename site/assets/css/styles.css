@@ -320,6 +320,9 @@ p { color: var(--text-soft); }
 .news-card .tag { display: inline-flex; align-items: center; gap: 6px; font-size: .74rem; font-weight: 700;
   color: var(--navy); background: rgba(11,27,90,.07); padding: 4px 11px; border-radius: 999px; margin-bottom: 10px; }
 .news-card .desc { font-size: .92rem; line-height: 1.7; }
+.news-list { margin: 0; padding-inline-start: 20px; font-size: .92rem; line-height: 1.7; }
+.news-list li { margin-bottom: 6px; }
+.news-source { font-size: .76rem; color: var(--text-soft); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--gray-line); }
 
 /* News platform update cards */
 .update-head { margin-bottom: 12px; }

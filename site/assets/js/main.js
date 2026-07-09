@@ -319,28 +319,51 @@ var BP = window.BP = window.BP || {};
 (function () {
   "use strict";
   function esc3(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  // The daily digest is Arabic-only source content — split it into clean
+  // bullet lines instead of dumping one dense paragraph, and pull the
+  // "source:" boilerplate out into its own small line.
   function newsCard(it) {
-    var text = esc3(it.text).replace(/\n+/g, "<br>");
-    return '<div class="card news-card"><span class="tag">📅 ' + esc3(it.date) + '</span><p class="desc">' + text + "</p></div>";
+    var raw = String(it.text || "").replace(/\r/g, "");
+    var lines = raw.split(/\n+/).map(function (l) { return l.trim(); }).filter(Boolean);
+    var sourceLine = null;
+    var content = [];
+    lines.forEach(function (l) {
+      if (/^(المصدر|Source)\s*[:：]/i.test(l)) { sourceLine = l; return; }
+      content.push(l.replace(/^[-•*]\s*/, "").replace(/^\d+[.\)]\s*/, ""));
+    });
+    if (content.length > 1 && /^(نشرة|عنوان)/.test(content[0])) content.shift();
+    var listHtml = content.length > 1
+      ? '<ul class="news-list">' + content.map(function (c) { return "<li>" + esc3(c) + "</li>"; }).join("") + "</ul>"
+      : '<p class="desc">' + esc3(content[0] || raw) + "</p>";
+    var sourceHtml = sourceLine ? '<p class="news-source">' + esc3(sourceLine) + "</p>" : "";
+    return '<div class="card news-card"><span class="tag">📅 ' + esc3(it.date) + "</span>" + listHtml + sourceHtml + "</div>";
   }
   document.addEventListener("DOMContentLoaded", function () {
     var boxes = document.querySelectorAll("[data-live-news]");
     if (!boxes.length) return;
     boxes.forEach(function (box) {
+      // Source content is Arabic-only — showing it raw on English pages reads
+      // as broken, so point English visitors to the Arabic page instead.
+      if (BP.lang !== "ar") {
+        var arHref = location.pathname === "/" ? "/ar/" : "/ar" + location.pathname;
+        box.innerHTML = '<p class="text-soft">' + BP.t("This live feed is currently Arabic-only.", "") +
+          ' <a href="' + arHref + '">' + BP.t("View the Arabic page", "") + "</a></p>";
+        return;
+      }
       var limit = box.getAttribute("data-live-news") || "6";
-      box.innerHTML = '<p class="text-soft">' + BP.t("Loading the latest news…", "جارٍ تحميل آخر الأخبار…") + "</p>";
+      box.innerHTML = '<p class="text-soft">جارٍ تحميل آخر الأخبار…</p>';
       fetch("/api/newsletter?feed=news&limit=" + encodeURIComponent(limit))
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d || !d.ok || !d.items || !d.items.length) {
-            box.innerHTML = '<p class="text-soft">' + BP.t("No news to show right now.", "لا توجد أخبار لعرضها حالياً.") + "</p>";
+            box.innerHTML = '<p class="text-soft">لا توجد أخبار لعرضها حالياً.</p>';
             return;
           }
           box.innerHTML = d.items.map(newsCard).join("");
           if (box.getAttribute("data-auto-print")) setTimeout(function () { window.print(); }, 400);
         })
         .catch(function () {
-          box.innerHTML = '<p class="text-soft">' + BP.t("Couldn't load the latest news. Try again shortly.", "تعذّر تحميل آخر الأخبار. حاول مرة أخرى بعد قليل.") + "</p>";
+          box.innerHTML = '<p class="text-soft">تعذّر تحميل آخر الأخبار. حاول مرة أخرى بعد قليل.</p>';
         });
     });
   });

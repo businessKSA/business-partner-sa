@@ -302,7 +302,6 @@ const NAV_GROUPS = [
     ],
   },
   { href: "/hr", en: "HR by Business Partner", ar: "الموارد البشرية من بزنس بارتنر" },
-  { href: "/mahfol-makfol", en: "Mahfol Makfol", ar: "محفول مكفول" },
   { href: "/about", en: "About us", ar: "من نحن" },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
@@ -371,7 +370,6 @@ function footer() {
       ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
       ${fl("/workspaces", "Office spaces", "المكاتب ومساحات العمل")}
       ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
-      ${fl("/mahfol-makfol", "Mahfol Makfol", "محفول مكفول")}
       ${fl("/task-force", "Task Force", "تاسك فورس")}
       ${fl("/hr", "HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}
       ${fl("/employer-join", "For employers", "لأصحاب العمل")}
@@ -1922,8 +1920,7 @@ function buildTourism() {
   const b = site.businessTourism;
   const ev = t.events;
   const evFeats = ev.features.map((f, i) => `<li>${I.check}<span>${L((ev.featuresEn && ev.featuresEn[i]) || f, f)}</span></li>`).join("");
-  const items = b.includes.items
-    .slice(0, 3)
+  const includeCards = b.includes.items
     .map((it) => `<div class="card feature"><div class="card-icon">${I.globe}</div><h3>${L(it.titleEn || it.title, it.title)}</h3><p>${L(it.textEn || it.text, it.text)}</p></div>`)
     .join("");
   const body = `
@@ -1933,7 +1930,7 @@ function buildTourism() {
     <p class="lead">${L(t.leadEn || t.lead, t.lead)}</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="#events">${I.building}<span>${L("Staff events", "فعاليات الموظفين")}</span></a>
-      <a class="btn btn-ghost btn-lg" href="${u("/mahfol-makfol")}">${I.globe}<span>${L("Investor business tourism", "سياحة الأعمال للمستثمر")}</span></a>
+      <a class="btn btn-ghost btn-lg" href="#investor">${I.globe}<span>${L("Investor business tourism", "سياحة الأعمال للمستثمر")}</span></a>
     </div>
   </div></section>
 
@@ -2001,67 +1998,42 @@ function buildTourism() {
   </div></section>
 
   <section class="section section--gray" id="investor"><div class="container">
+    <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <div class="section-head"><span class="eyebrow">${L("Type two · investor business tourism", "النوع الثاني · سياحة الأعمال للمستثمر")}</span><h2>${L(b.titleEn || b.title, b.title)}</h2><p>${L(b.leadEn || b.lead, b.lead)}</p></div>
-    <div class="grid grid-3">${items}</div>
-    <div class="center mt-32"><a class="btn btn-primary btn-lg" href="${u("/mahfol-makfol")}">${I.globe}<span>${L("Explore Mahfol Makfol", "استعرض محفول مكفول")}</span></a></div>
+    <p class="lead" style="max-width:760px;margin:0 auto 30px">${L(b.intro.textEn || b.intro.text, b.intro.text)}</p>
+    <div class="grid grid-3">${includeCards}</div>
+    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(b.noteEn || b.note, b.note)}</p></div>
+    <div class="booking-wrap" style="margin-top:36px;max-width:720px;margin-inline:auto">
+      <form class="calc-form" id="mm-form-el" novalidate>
+        <h2>${L("Tell us about your visit", "أخبرنا عن زيارتك")}</h2>
+        <p class="form-note" style="margin-top:-6px">${L("We'll design a program around your activity and interests, and get back to you within a business day.", "نصمّم لك برنامجاً حسب نشاطك واهتمامك، ونعود إليك خلال يوم عمل.")}</p>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="mm-company">${L("Company / entity", "الشركة / الجهة")}</label><input id="mm-company" type="text" required></div>
+          <div class="field"><label for="mm-person">${L("Contact person", "الشخص المسؤول")}</label><input id="mm-person" type="text" required></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="mm-phone">${L("Mobile", "رقم الجوال")}</label><input id="mm-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+          <div class="field"><label for="mm-email">${L("Email", "الإيميل")}</label><input id="mm-email" type="email" required placeholder="name@company.com"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="mm-country">${L("Country", "الدولة")}</label><input id="mm-country" type="text"></div>
+          <div class="field"><label for="mm-count">${L("Delegation size", "عدد الوفد")}</label><input id="mm-count" type="number" min="1" placeholder="1"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="mm-date">${L("Preferred visit period", "الفترة المفضّلة للزيارة")}</label><input id="mm-date" type="text" placeholder="${Lraw("e.g. October 2026", "مثال: أكتوبر 2026")}"></div>
+          <div class="field"><label for="mm-sector">${L("Sector / activity of interest", "مجال النشاط أو الاهتمام")}</label><input id="mm-sector" type="text"></div>
+        </div>
+        <div class="field"><label for="mm-notes">${L("Anything else we should know?", "أي تفاصيل إضافية؟")}</label><textarea id="mm-notes" rows="3"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send request", "أرسل الطلب")}</span></button>
+        <div class="form-success" id="mm-success" hidden></div>
+      </form>
+    </div>
   </div></section>
 
   <section class="section"><div class="container">
     <div class="cta-band"><h2>${L("Ready for us to arrange it?", "جاهز نرتّب لك؟")}</h2><p>${L("Whether an event for your staff or an exploratory trip to the Saudi market — we tailor it to you.", "سواء فعالية لموظفيك أو رحلة استكشاف للسوق السعودي — نصمّمها على مقاسك.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
   return page({ title: Lraw("Tourism & events — Business Partner", "السياحة والفعاليات — بيزنس بارتنر"), desc: Lraw((t.leadEn || t.lead).slice(0, 155), t.lead.slice(0, 155)), active: "/tourism", body });
-}
-
-// Sub-brand pilot: "Mahfol Makfol" — business/investor tourism, browsable and
-// bookable on its own page (same pattern as /hr — same codebase, own identity).
-function buildMahfolMakfol() {
-  const b = site.businessTourism;
-  const includeCards = b.includes.items
-    .map((it) => `<div class="card feature"><div class="card-icon">${I.globe}</div><h3>${L(it.titleEn || it.title, it.title)}</h3><p>${L(it.textEn || it.text, it.text)}</p></div>`)
-    .join("");
-  const body = `
-  <section class="hero"><div class="container hero-inner" style="max-width:900px">
-    <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
-    <h1>${L(b.titleEn || b.title, b.title)}</h1>
-    <p class="lead">${L(b.leadEn || b.lead, b.lead)}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#mm-form">${I.calendar}<span>${L(b.ctaEn || b.cta, b.cta)}</span></a>${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(b.intro.eyebrowEn || b.intro.eyebrow, b.intro.eyebrow)}</span><h2>${L(b.intro.titleEn || b.intro.title, b.intro.title)}</h2><p>${L(b.intro.textEn || b.intro.text, b.intro.text)}</p></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(b.includes.eyebrowEn || b.includes.eyebrow, b.includes.eyebrow)}</span><h2>${L(b.includes.titleEn || b.includes.title, b.includes.title)}</h2></div>
-    <div class="grid grid-3">${includeCards}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(b.noteEn || b.note, b.note)}</p></div>
-  </div></section>
-
-  <section class="section" id="mm-form"><div class="container" style="max-width:720px">
-    <div class="section-head"><span class="eyebrow">${L("Plan your trip", "خطّط لرحلتك")}</span><h2>${L("Tell us about your visit", "أخبرنا عن زيارتك")}</h2><p>${L("We'll design a program around your activity and interests, and get back to you within a business day.", "نصمّم لك برنامجاً حسب نشاطك واهتمامك، ونعود إليك خلال يوم عمل.")}</p></div>
-    <form class="calc-form" id="mm-form-el" novalidate>
-      <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="mm-company">${L("Company / entity", "الشركة / الجهة")}</label><input id="mm-company" type="text" required></div>
-        <div class="field"><label for="mm-person">${L("Contact person", "الشخص المسؤول")}</label><input id="mm-person" type="text" required></div>
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="mm-phone">${L("Mobile", "رقم الجوال")}</label><input id="mm-phone" type="tel" required placeholder="05xxxxxxxx"></div>
-        <div class="field"><label for="mm-email">${L("Email", "الإيميل")}</label><input id="mm-email" type="email" required placeholder="name@company.com"></div>
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="mm-country">${L("Country", "الدولة")}</label><input id="mm-country" type="text"></div>
-        <div class="field"><label for="mm-count">${L("Delegation size", "عدد الوفد")}</label><input id="mm-count" type="number" min="1" placeholder="1"></div>
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="mm-date">${L("Preferred visit period", "الفترة المفضّلة للزيارة")}</label><input id="mm-date" type="text" placeholder="${Lraw("e.g. October 2026", "مثال: أكتوبر 2026")}"></div>
-        <div class="field"><label for="mm-sector">${L("Sector / activity of interest", "مجال النشاط أو الاهتمام")}</label><input id="mm-sector" type="text"></div>
-      </div>
-      <div class="field"><label for="mm-notes">${L("Anything else we should know?", "أي تفاصيل إضافية؟")}</label><textarea id="mm-notes" rows="3"></textarea></div>
-      <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send request", "أرسل الطلب")}</span></button>
-      <div class="form-success" id="mm-success" hidden></div>
-    </form>
-  </div></section>`;
-  return page({ title: Lraw("Mahfol Makfol — business tourism | Business Partner", "محفول مكفول — سياحة الأعمال | بيزنس بارتنر"), desc: Lraw((b.leadEn || b.lead).slice(0, 155), b.lead.slice(0, 155)), active: "/mahfol-makfol", path: "/mahfol-makfol", body });
 }
 
 function buildSaudi() {
@@ -2106,12 +2078,6 @@ function buildSaudi() {
     <p class="center" style="color:rgba(255,255,255,.6);font-size:.85rem;margin-top:26px">${L(s.vision.sourceEn || s.vision.source, s.vision.source)}</p>
   </div></section>
 
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Live from Notion", "مباشر من نوشن")}</span><h2>${L("Latest government & compliance news", "آخر مستجدات الأنظمة والامتثال")}</h2><p>${L("Updated automatically — no need to redeploy the site.", "يتحدّث تلقائياً — بلا حاجة لإعادة نشر الموقع.")}</p></div>
-    <div class="grid grid-2" data-live-news="6"></div>
-    <div class="center mt-32"><a class="btn btn-ghost" href="${u("/news")}">${L("Browse all news", "تصفّح كل الأخبار")}</a></div>
-  </div></section>
-
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L(s.sectors.eyebrowEn || s.sectors.eyebrow, s.sectors.eyebrow)}</span><h2>${L(s.sectors.titleEn || s.sectors.title, s.sectors.title)}</h2><p>${L(s.sectors.subtitleEn || s.sectors.subtitle, s.sectors.subtitle)}</p></div>
     <div class="grid grid-3">${sectors}</div>
@@ -2151,7 +2117,6 @@ function buildNews() {
     .map((q) => `<div class="quote"><p>${L(q.textEn || q.text, q.text)}</p><div class="role">${L(q.tagEn || q.tag, q.tag)}</div></div>`)
     .join("");
   const cats = [
-    { id: "latest", en: "Latest news", ar: "آخر الأخبار" },
     { id: "guides", en: "Practical guides", ar: "أدلة عملية" },
     { id: "platforms", en: "Platform updates", ar: "تحديثات المنصات" },
     { id: "stories", en: "Success stories", ar: "قصص نجاح" },
@@ -2169,11 +2134,6 @@ function buildNews() {
     <div class="hub">
       <aside class="hub-side"><nav class="hub-nav" id="hub-nav">${sideNav}</nav></aside>
       <div class="hub-main">
-        <div class="hub-sec" id="latest">
-          <h2>${L("Latest news", "آخر الأخبار")}</h2>
-          <p class="hub-sub">${L("Live from Notion — government decisions and compliance news, updated automatically.", "مباشر من نوشن — قرارات حكومية وأخبار امتثال، تتحدث تلقائياً.")}</p>
-          <div class="grid grid-2" data-live-news="10"></div>
-        </div>
         <div class="hub-sec" id="guides">
           <h2>${L("Practical guides", "أدلة عملية")}</h2>
           <p class="hub-sub">${L(k.subtitleEn || k.subtitle, k.subtitle)}</p>
@@ -4395,15 +4355,20 @@ function write(rel, html) {
   fs.writeFileSync(full, html);
 }
 
-// Clean previously-generated pages (both trees) so stale files don't linger.
-for (const dir of [ROOT, path.join(ROOT, "ar")]) {
-  if (!fs.existsSync(dir)) continue;
+// Clean previously-generated pages (both trees, all subdirectories) so stale
+// files don't linger when a route is removed or renamed (e.g. a deleted
+// service/category, or a page moved out of a subfolder like services/category
+// or magazine — a shallow top-level-only clean used to miss those).
+function cleanHtml(dir) {
+  if (!fs.existsSync(dir)) return;
   for (const f of fs.readdirSync(dir)) {
-    if (f.endsWith(".html")) fs.unlinkSync(path.join(dir, f));
+    if (f === "assets") continue;
+    const full = path.join(dir, f);
+    if (fs.statSync(full).isDirectory()) cleanHtml(full);
+    else if (f.endsWith(".html")) fs.unlinkSync(full);
   }
-  const sd = path.join(dir, "services");
-  if (fs.existsSync(sd)) for (const f of fs.readdirSync(sd)) if (f.endsWith(".html")) fs.unlinkSync(path.join(sd, f));
 }
+for (const dir of [ROOT, path.join(ROOT, "ar")]) cleanHtml(dir);
 if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.join(ROOT, "business-tourism.html"));
 if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 
@@ -4416,7 +4381,6 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
-  write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
   write(`${pre}task-force.html`, buildTaskForce());
   write(`${pre}packages.html`, buildPackages());
   // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
@@ -4476,7 +4440,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`));
 const urls = paths
