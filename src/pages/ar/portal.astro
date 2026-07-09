@@ -130,12 +130,12 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     <form class="login-card" id="login-form">
       <img src="/logo.svg" alt="" />
       <h1>لوحة الامتثال</h1>
-      <p>ادخل باسم منشأتك ورمز الدخول المرسل لك لمتابعة حالة الامتثال يومياً.</p>
-      <div class="field"><label>اسم المنشأة</label><input type="text" id="in-company" required autocomplete="organization" /></div>
+      <p>ادخل بريدك الإلكتروني ورمز الدخول المرسل إليه لمتابعة حالة الامتثال يومياً.</p>
+      <div class="field"><label>البريد الإلكتروني</label><input type="email" id="in-email" required autocomplete="email" /></div>
       <div class="field"><label>رمز الدخول</label><input type="text" id="in-code" required autocomplete="off" /></div>
       <button type="submit" class="btn btn-navy btn-block" id="login-btn">دخول</button>
       <div class="login-err" id="login-err"></div>
-      <div class="hint">ما عندك رمز دخول؟ تواصل معنا واتساب لتفعيل اشتراكك.</div>
+      <div class="hint">ما وصلك كود؟ اشترك عبر new.businesspartner.sa/ar/compliance-agent — يصلك الكود بعد تأكيد الاشتراك.</div>
     </form>
   </div>
 
@@ -145,7 +145,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       <h1>🔒 أكمل الدفع لتفعيل الخدمة</h1>
       <p id="locked-company-name" style="font-weight:700;color:var(--navy)"></p>
       <p>سجّلنا بيانات منشأتك بنجاح، لكن لوحة الامتثال تُفتح فور تأكيد الدفع. أكمل الاشتراك وستُفعَّل الخدمة تلقائياً خلال دقائق.</p>
-      <a class="btn btn-navy btn-block" id="locked-pay-btn" href="https://new.businesspartner.sa/ar/compliance-portal" target="_blank" rel="noopener">إكمال الدفع الآن</a>
+      <a class="btn btn-navy btn-block" id="locked-pay-btn" href="https://new.businesspartner.sa/ar/compliance-agent#pricing" target="_blank" rel="noopener">إكمال الدفع الآن</a>
       <button type="button" class="btn btn-ghost-light" style="width:100%;margin-top:.6rem;background:#eef2fb;color:var(--navy);border-color:#dbe4f5" id="locked-logout-btn">تسجيل خروج</button>
       <div class="hint">بعد تأكيد الدفع تصلك رسالة بريد بأن الخدمة فُتحت — سجّل الدخول من جديد بنفس الرمز.</div>
     </div>
@@ -436,8 +436,8 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       document.getElementById('emp-info').textContent = (data.employees ?? '—') + ' / ' + (data.saudis ?? '—') + (data.band ? (' (' + data.band + ')') : '');
     }
 
-    async function loadDashboard(company, code) {
-      const url = API_URL + '?company=' + encodeURIComponent(company) + '&code=' + encodeURIComponent(code);
+    async function loadDashboard(email, code) {
+      const url = API_URL + '?email=' + encodeURIComponent(email) + '&code=' + encodeURIComponent(code);
       const res = await fetch(url);
       if (res.status === 401) throw new Error('unauthorized');
       const data = await res.json();
@@ -445,12 +445,12 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
       return data;
     }
 
-    function showApp(company, data) {
+    function showApp(data) {
       loginScreen.style.display = 'none';
       if (data.locked) {
         lockedScreen.style.display = 'flex';
         dash.style.display = 'none';
-        document.getElementById('locked-company-name').textContent = company;
+        document.getElementById('locked-company-name').textContent = data.company || '';
       } else {
         lockedScreen.style.display = 'none';
         dash.style.display = 'block';
@@ -459,19 +459,19 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
 
     loginForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      const company = document.getElementById('in-company').value.trim();
+      const email = document.getElementById('in-email').value.trim().toLowerCase();
       const code = document.getElementById('in-code').value.trim();
-      if (!company || !code) return;
+      if (!email || !code) return;
       loginBtn.disabled = true; loginBtn.textContent = '...جارٍ الدخول';
       loginErr.style.display = 'none';
-      loadDashboard(company, code).then(function (data) {
-        localStorage.setItem('bp_portal_company', company);
+      loadDashboard(email, code).then(function (data) {
+        localStorage.setItem('bp_portal_email', email);
         localStorage.setItem('bp_portal_code', code);
         lastData = data;
-        showApp(company, data);
+        showApp(data);
         if (!data.locked) renderAll(data);
       }).catch(function () {
-        loginErr.textContent = 'اسم المنشأة أو رمز الدخول غير صحيح.';
+        loginErr.textContent = 'البريد الإلكتروني أو رمز الدخول غير صحيح.';
         loginErr.style.display = 'block';
       }).finally(function () {
         loginBtn.disabled = false; loginBtn.textContent = 'دخول';
@@ -479,7 +479,7 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     });
 
     function doLogout() {
-      localStorage.removeItem('bp_portal_company');
+      localStorage.removeItem('bp_portal_email');
       localStorage.removeItem('bp_portal_code');
       dash.style.display = 'none';
       lockedScreen.style.display = 'none';
@@ -489,13 +489,13 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     document.getElementById('locked-logout-btn').addEventListener('click', doLogout);
 
     document.getElementById('refresh-btn').addEventListener('click', function () {
-      const company = localStorage.getItem('bp_portal_company');
+      const email = localStorage.getItem('bp_portal_email');
       const code = localStorage.getItem('bp_portal_code');
-      if (!company || !code) return;
+      if (!email || !code) return;
       const btn = document.getElementById('refresh-btn');
       btn.disabled = true; btn.textContent = '...جارٍ التحديث';
       dashErr.style.display = 'none';
-      loadDashboard(company, code).then(function (data) {
+      loadDashboard(email, code).then(function (data) {
         lastData = data;
         renderAll(data);
       }).catch(function () {
@@ -513,13 +513,13 @@ const CHAT_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-
     });
 
     (function init() {
-      const c = localStorage.getItem('bp_portal_company');
+      const e = localStorage.getItem('bp_portal_email');
       const k = localStorage.getItem('bp_portal_code');
-      if (c && k) {
+      if (e && k) {
         loginScreen.style.display = 'none';
-        loadDashboard(c, k).then(function (data) {
+        loadDashboard(e, k).then(function (data) {
           lastData = data;
-          showApp(c, data);
+          showApp(data);
           if (!data.locked) renderAll(data);
         }).catch(function () {
           doLogout();
