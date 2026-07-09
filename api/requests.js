@@ -29,15 +29,17 @@ async function forwardLead(payload) {
 // Live order status lookup (merged from the former api/order-status.js — Vercel
 // Hobby caps a deployment at 12 serverless functions, so this rides on the GET
 // branch of /api/requests instead of its own endpoint).
-// GET /api/requests?refs=BP-506275,BP-988015 -> { ok, statuses: { "BP-506275": "قيد المراجعة", ... }, agents: { "BP-506275": ["badr"] } }
-// `agents` lets the AI-employees portal treat a client's own order reference as
-// their activation code: once the order status is flipped to a confirmed state
-// (see CONFIRMED_ORDER_STATUSES), the portal unlocks exactly the agent slugs
-// that were purchased with that order — no separate manual code needed.
+// GET /api/requests?refs=BP-506275,BP-988015 -> { ok, statuses: { "BP-506275": "قيد المراجعة", ... }, agents: { "BP-506275": ["badr"] }, emails: { "BP-506275": "client@x.com" } }
+// `agents`/`emails` let the AI-employees portal treat a client's own order
+// reference as their activation code: once the order status is flipped to a
+// confirmed state (see CONFIRMED_ORDER_STATUSES), the portal unlocks exactly
+// the agent slugs that were purchased with that order — but only when the
+// email typed at login matches the email the order was placed under, so a
+// leaked/guessed reference can't be used to unlock someone else's agents.
 const CONFIRMED_ORDER_STATUSES = new Set(["مؤكد - قيد التنفيذ", "مكتمل"]);
 async function orderStatuses(refs) {
-  if (!refs.length) return { statuses: {}, agents: {} };
-  if (!NOTION_TOKEN) return { statuses: {}, agents: {} };
+  if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
+  if (!NOTION_TOKEN) return { statuses: {}, agents: {}, emails: {} };
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
     method: "POST",
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
@@ -53,6 +55,7 @@ async function orderStatuses(refs) {
   const data = await r.json();
   const statuses = {};
   const agents = {};
+  const emails = {};
   for (const pg of data.results || []) {
     const p = pg.properties || {};
     const refText = (p["رقم المرجع"] && p["رقم المرجع"].rich_text || []).map((t) => t.plain_text).join("").trim();
@@ -62,9 +65,11 @@ async function orderStatuses(refs) {
       const notesText = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
       const m = notesText.match(/AGENTS:([a-z0-9,]+)/i);
       if (m) agents[refText] = m[1].split(",").filter(Boolean);
+      const em = notesText.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+      if (em) emails[refText] = em[1];
     }
   }
-  return { statuses, agents };
+  return { statuses, agents, emails };
 }
 
 async function crmLead({ title, phone, email, notes, ref, orderStatus, agents }) {
@@ -171,9 +176,9 @@ export default async function handler(req, res) {
     if (refs.length) {
       res.setHeader("Cache-Control", "no-store");
       try {
-        const { statuses, agents } = await orderStatuses(refs);
+        const { statuses, agents, emails } = await orderStatuses(refs);
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, statuses, agents }));
+        return res.end(JSON.stringify({ ok: true, statuses, agents, emails }));
       } catch {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));

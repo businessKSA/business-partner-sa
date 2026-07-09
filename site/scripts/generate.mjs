@@ -3821,26 +3821,25 @@ function buildPortal() {
     <button id="logout" style="display:none">خروج</button>
   </div>
   <div class="center" id="screen-login">
-    <div class="card">
+    <div class="card wide">
       <h1>تسجيل الدخول</h1>
-      <p class="sub">ادخل بريدك للوصول إلى موظفيك الأذكياء.</p>
+      <p class="sub">ادخل نفس البريد اللي اشتريت فيه، مع كود التفعيل.</p>
       <div class="field"><label>البريد الإلكتروني</label><input id="email" type="email" placeholder="you@company.com" /></div>
-      <div class="field"><label>اسم الشركة (اختياري)</label><input id="company" type="text" placeholder="شركتك" /></div>
+      <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn" id="loginBtn">دخول</button>
       <div class="err" id="loginErr"></div>
+      <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم — على نفس البريد اللي اشتريت فيه.</div>
+      <button class="linkbtn" id="noCodeBtn">ما اشتريت بعد؟ اختر موظفيك وابدأ الطلب</button>
       <p class="muted">بالدخول أنت توافق على الاستخدام الآمن. لا نطلب كلمات مرور حساسة ولا OTP.</p>
     </div>
   </div>
   <div class="center" id="screen-gate" style="display:none">
     <div class="card wide">
-      <h1>فعّل اشتراكك</h1>
-      <p class="sub">اختر الموظفين اللي تبي تشترك فيهم وأضفهم للسلة، أو فعّل مباشرة برقم طلبك بعد اعتماد الدفع.</p>
+      <h1>اختر موظفيك</h1>
+      <p class="sub">اختر الموظفين اللي تبي تشترك فيهم وأضفهم للسلة. بعد الدفع نرسل لك كود تفعيل يفتح فقط اللي اشتريته.</p>
       <div class="pickwrap" id="pickwrap"></div>
       <button class="bigbtn green" id="cartBtn">🛒 أضف المحدد للسلة وأكمل الشراء</button>
-      <div class="field" style="margin-top:1.1rem"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
-      <button class="bigbtn" id="codeBtn">تفعيل</button>
-      <div class="err" id="codeErr"></div>
-      <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم. للتجربة العامة استخدم الكود: <b>BP-DEMO</b> (يفتح كل الموظفين — للتجربة فقط).</div>
+      <button class="linkbtn" id="backToLoginBtn">عندي كود بالفعل — رجوع لتسجيل الدخول</button>
     </div>
   </div>
   <div id="screen-ws" style="display:none">
@@ -3952,30 +3951,48 @@ function buildPortal() {
     function $(id){return document.getElementById(id);}
     function show(id){['screen-login','screen-gate','screen-ws'].forEach(function(s){$(s).style.display=(s===id)?'':'none';});}
     var email=localStorage.getItem(LS.email)||'';
-    if(!email){
-      var qEmail=new URLSearchParams(location.search).get('email');
-      if(qEmail){ email=qEmail; localStorage.setItem(LS.email,email); }
-    }
+    var qEmail=new URLSearchParams(location.search).get('email');
+    if(qEmail && !email){ email=qEmail; localStorage.setItem(LS.email,email); }
     var subbed=localStorage.getItem(LS.sub)==='1';
     if(email && email.toLowerCase()===OWNER_EMAIL && (!subbed || localStorage.getItem(LS.agents)!=='"ALL"')){
       subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL'));
     }
     var cur=null;
+    var showGate=false;
     function route(){
-      if(!email){ show('screen-login'); $('who').textContent=''; $('logout').style.display='none'; return; }
+      if(!subbed){ show(showGate?'screen-gate':'screen-login'); if(showGate) buildPicker(); $('who').textContent=email||''; $('logout').style.display=email?'':'none'; return; }
       $('who').textContent=email; $('logout').style.display='';
-      if(!subbed){ show('screen-gate'); buildPicker(); return; }
       show('screen-ws'); buildAgents();
     }
+    function unlock(slugs){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs)); route(); }
     $('loginBtn').onclick=function(){
       var e=($('email').value||'').trim();
+      var c=($('code').value||'').trim().toUpperCase();
       if(!e || e.indexOf('@')<0){ $('loginErr').textContent='ادخل بريداً صحيحاً.'; return; }
       email=e; localStorage.setItem(LS.email,e);
-      localStorage.setItem(LS.company,($('company').value||'').trim());
-      if(email.toLowerCase()===OWNER_EMAIL){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL')); }
-      route();
+      if(e.toLowerCase()===OWNER_EMAIL){ unlock('ALL'); return; }
+      if(!c){ $('loginErr').textContent='ادخل كود التفعيل.'; return; }
+      var slugs=CODES[c];
+      if(slugs){ unlock(slugs); return; }
+      var btn=$('loginBtn'); btn.disabled=true; $('loginErr').textContent='جارٍ التحقق…';
+      fetch('/api/requests?refs='+encodeURIComponent(c))
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var st=d && d.statuses && d.statuses[c];
+          var ag=d && d.agents && d.agents[c];
+          var orderEmail=d && d.emails && d.emails[c];
+          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length && orderEmail && orderEmail.toLowerCase()===e.toLowerCase()){ unlock(ag); }
+          else if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ $('loginErr').textContent='هذا الكود مسجّل على بريد مختلف — استخدم نفس البريد اللي اشتريت فيه.'; }
+          else if(st){ $('loginErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
+          else { $('loginErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وابدأ الطلب.'; }
+        })
+        .catch(function(){ $('loginErr').textContent='تعذّر التحقق الآن — حاول مرة أخرى.'; })
+        .then(function(){ btn.disabled=false; });
     };
     $('email').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
+    $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
+    $('noCodeBtn').onclick=function(){ showGate=true; route(); };
+    $('backToLoginBtn').onclick=function(){ showGate=false; route(); };
     function buildPicker(){
       var box=$('pickwrap'); if(box.dataset.done) return; box.dataset.done='1';
       AGENTS.forEach(function(a){
@@ -3989,10 +4006,9 @@ function buildPortal() {
       var out=[]; for(var i=0;i<boxes.length;i++) out.push(boxes[i].value);
       return out;
     }
-    function unlock(slugs){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs)); route(); }
     $('cartBtn').onclick=function(){
       var slugs=pickedSlugs();
-      if(!slugs.length){ $('codeErr').textContent='اختر موظفاً واحداً على الأقل قبل الإضافة للسلة.'; return; }
+      if(!slugs.length){ alert('اختر موظفاً واحداً على الأقل قبل الإضافة للسلة.'); return; }
       var cart=[]; try{ cart=JSON.parse(localStorage.getItem('bp_cart')||'[]'); }catch(e){ cart=[]; }
       slugs.forEach(function(slug){
         var a=AGENTS.filter(function(x){return x.slug===slug;})[0]; if(!a) return;
@@ -4003,25 +4019,7 @@ function buildPortal() {
       localStorage.setItem('bp_cart',JSON.stringify(cart));
       location.href='/cart';
     };
-    $('codeBtn').onclick=function(){
-      var c=($('code').value||'').trim().toUpperCase();
-      var slugs=CODES[c];
-      if(slugs){ unlock(slugs); return; }
-      var btn=$('codeBtn'); btn.disabled=true; $('codeErr').textContent='جارٍ التحقق…';
-      fetch('/api/requests?refs='+encodeURIComponent(c))
-        .then(function(r){return r.json();})
-        .then(function(d){
-          var st=d && d.statuses && d.statuses[c];
-          var ag=d && d.agents && d.agents[c];
-          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ unlock(ag); }
-          else if(st){ $('codeErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
-          else { $('codeErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وأضفهم للسلة.'; }
-        })
-        .catch(function(){ $('codeErr').textContent='تعذّر التحقق الآن — حاول مرة أخرى.'; })
-        .then(function(){ btn.disabled=false; });
-    };
-    $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('codeBtn').click();});
-    $('logout').onclick=function(){ localStorage.removeItem(LS.email); email=''; route(); };
+    $('logout').onclick=function(){ localStorage.removeItem(LS.email); localStorage.removeItem(LS.sub); localStorage.removeItem(LS.agents); email=''; subbed=false; showGate=false; route(); };
     function entitledSlugs(){
       var raw=localStorage.getItem(LS.agents);
       if(!raw) return [];
