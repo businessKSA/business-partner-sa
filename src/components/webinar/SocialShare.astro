@@ -1,0 +1,82 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+  url: string;
+  title: string;
+}
+
+const { lang, url, title } = Astro.props;
+const isAr = lang === 'ar';
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+
+const links = [
+  {
+    name: 'WhatsApp',
+    href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
+  },
+  {
+    name: 'X',
+    href: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+  },
+  {
+    name: 'Facebook',
+    href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+  },
+  {
+    name: 'Telegram',
+    href: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
+  },
+];
+---
+
+<div class="social-share">
+  <span class="share-label">{isAr ? 'شارك الويبنار مع أصدقائك:' : 'Share this webinar:'}</span>
+  <div class="share-links">
+    {links.map((link) => (
+      <a href={link.href} target="_blank" rel="noopener noreferrer" class="share-link">
+        {link.name}
+      </a>
+    ))}
+  </div>
+</div>
+
+<style>
+  .social-share {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .share-label {
+    font-weight: 600;
+    color: var(--muted, #64748b);
+    font-size: 0.95rem;
+  }
+
+  .share-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .share-link {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--line, #e2e8f0);
+    border-radius: 999px;
+    color: var(--brand, #0066cc);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .share-link:hover {
+    background: var(--brand, #0066cc);
+    color: white;
+    border-color: var(--brand, #0066cc);
+  }
+</style>

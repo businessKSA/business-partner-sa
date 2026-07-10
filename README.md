@@ -200,6 +200,35 @@ The form submits JSON data to `PUBLIC_LEAD_ENDPOINT`:
 - Custom CRM APIs
 - Any REST API accepting JSON
 
+## 🎥 Webinar Landing Page
+
+Bilingual campaign landing page for paid social/ad traffic: `/ar/webinar` and `/en/webinar`.
+
+- **Pages**: `src/pages/ar/webinar.astro`, `src/pages/en/webinar.astro` — edit the hero title, date/time/platform, and agenda copy directly in these files for each new webinar.
+- **Registration form**: `src/components/webinar/WebinarRegisterForm.astro` posts to `/api/webinar-register.ts`, which validates the submission (name, KSA phone, email, residency status: Saudi National / Resident) and:
+  1. Creates a row in a Notion database via the Notion API (`src/utils/notion.ts`)
+  2. Sends a best-effort notification email via the existing Gmail service
+  3. Returns a success message that triggers ad-pixel conversion events client-side
+
+### Notion setup
+
+A database named **"Webinar Registrations - AI Automation (KSA)"** was created for this campaign, with columns: Full Name, Phone, Email, Residency Status, City, Language, Source, UTM Source/Campaign/Medium, Status, Registered At.
+
+To connect the live site to it:
+1. Create a Notion internal integration at https://www.notion.so/my-integrations and copy its token.
+2. Share the Notion database with that integration (`•••` menu → Connections → add the integration).
+3. Set `NOTION_API_KEY` (the integration token) and `NOTION_DATABASE_ID` (from the database URL) in your environment.
+
+If these env vars are not set, the API route logs a warning and skips the Notion sync — the registration still succeeds and the email notification still sends.
+
+### Social/ad pixel tracking
+
+Set any of `PUBLIC_META_PIXEL_ID`, `PUBLIC_TIKTOK_PIXEL_ID`, `PUBLIC_SNAPCHAT_PIXEL_ID` to enable the matching pixel site-wide (`src/layouts/BaseLayout.astro`). Each pixel fires a page-view on load and a `CompleteRegistration`/`SIGN_UP` conversion event when a webinar registration succeeds. Unset pixels are skipped entirely — no placeholder scripts load.
+
+### Sharing
+
+`src/components/webinar/SocialShare.astro` renders WhatsApp/X/Facebook/Telegram share links under the form for organic reach.
+
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
