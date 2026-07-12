@@ -30,6 +30,8 @@ const NOTION_TOKEN = envFrom([
 ]);
 const DB_ID = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
 const NOTION_VERSION = "2022-06-28";
+const N8N_ATS_WEBHOOK = envFrom(["N8N_ATS_WEBHOOK", "N8N_CANDIDATE_WEBHOOK", "BP_ATS_WEBHOOK"])
+  || "https://businesspartnerai.app.n8n.cloud/webhook/bp-ats-application";
 
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
@@ -86,6 +88,21 @@ async function notion(path, method, payload) {
   });
 }
 
+async function forwardToN8n(payload) {
+  if (!N8N_ATS_WEBHOOK) return { configured: false, ok: false };
+  try {
+    const r = await fetch(N8N_ATS_WEBHOOK, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return { configured: true, ok: r.ok, status: r.status };
+  } catch (e) {
+    console.error("n8n ATS forward failed", String(e).slice(0, 200));
+    return { configured: true, ok: false, error: "forward_failed" };
+  }
+}
+
 // De-dup guard: a mass public post means many people may submit twice (retry,
 // different device, etc). Match by email OR phone against the same DB
 // employers browse, so a repeat submission updates the existing row instead
@@ -108,7 +125,7 @@ export default async function handler(req, res) {
     res.statusCode = 200;
     // seenKeyNames helps diagnose a mis-named / wrong-project token without leaking it.
     const seenKeyNames = Object.keys(process.env).filter((k) => /notion/i.test(k));
-    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, seenKeyNames }));
+    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, n8n: !!N8N_ATS_WEBHOOK, seenKeyNames }));
   }
   if (req.method !== "POST") {
     res.statusCode = 405;
@@ -130,6 +147,15 @@ export default async function handler(req, res) {
   const linkedin = clip(b.linkedin, 400);
   const cvUrl = clip(b.cvUrl, 600);
   const consent = b.consent === true || b.consent === "true";
+  const jobId = clip(b.jobId || "candidate-pool", 120);
+  const jobTitle = clip(b.jobTitle || "General candidate pool", 220);
+  const questions = b.questions && typeof b.questions === "object" ? b.questions : {};
+  const cvFile = b.cvFile && typeof b.cvFile === "object" ? {
+    name: clip(b.cvFile.name, 220),
+    type: clip(b.cvFile.type, 120),
+    size: Number(b.cvFile.size) || 0,
+    base64: typeof b.cvFile.base64 === "string" ? b.cvFile.base64 : "",
+  } : null;
 
   if (!name || !phone) {
     res.statusCode = 400;
@@ -139,6 +165,15 @@ export default async function handler(req, res) {
   const expYears = experienceYears(exp);
   const expectedSalary = firstNumber(salary);
   const fieldCat = guessField(field);
+  const answerLines = [
+    `تقديم عبر الموقع — الوظيفة: ${jobTitle} (${jobId})`,
+    consent ? "وافق على الانضمام والمشاركة بموافقة" : "لم يوافق صراحة",
+    questions.interest ? `سبب الاهتمام: ${clip(questions.interest, 700)}` : "",
+    questions.strengths ? `أقوى المهارات: ${clip(questions.strengths, 700)}` : "",
+    questions.notice ? `فترة الإشعار: ${clip(questions.notice, 120)}` : "",
+    questions.workAuthorization ? `أهلية العمل: ${clip(questions.workAuthorization, 160)}` : "",
+    cvFile && cvFile.name ? `ملف مرفوع للـ n8n: ${cvFile.name} (${cvFile.type || "file"})` : "",
+  ].filter(Boolean).join("\n");
 
   const props = {
     "Candidate Name": { title: [{ text: { content: name } }] },
@@ -150,7 +185,7 @@ export default async function handler(req, res) {
     "Source": { select: { name: "الموقع" } },
     "مخفي عن الموقع": { checkbox: false },
     "حالة القراءة": { select: { name: "مكتمل" } },
-    "Notes": { rich_text: rt(`تسجيل ذاتي عبر الموقع${consent ? " — وافق على التقديم نيابةً" : ""}`) },
+    "Notes": { rich_text: rt(answerLines) },
   };
   if (isEmail(email)) props["Email"] = { email };
   if (fieldCat) props["Field"] = { select: { name: fieldCat } };
@@ -158,6 +193,16 @@ export default async function handler(req, res) {
   if (/^https?:\/\//i.test(cvUrl)) props["CV Link"] = { url: cvUrl };
 
   try {
+    const n8nPayload = {
+      source: "website-careers",
+      receivedAt: new Date().toISOString(),
+      candidate: { name, phone, email, field, fieldCategory: fieldCat, experience: exp, city, salary, linkedin, consent },
+      job: { id: jobId, title: jobTitle },
+      questions,
+      cvFile,
+      ats: { notionDatabaseId: DB_ID },
+    };
+    const n8n = await forwardToN8n(n8nPayload);
     const existing = await findExisting(email, phone);
     if (existing) {
       const r = await notion("pages/" + existing.id, "PATCH", { properties: props });
@@ -167,7 +212,7 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
       }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, ref: "CV-" + existing.id.slice(-6), updated: true }));
+      return res.end(JSON.stringify({ ok: true, ref: "CV-" + existing.id.slice(-6), updated: true, n8n }));
     }
     // New candidates always start at the top of the pipeline, pending review.
     props["Pipeline Stage"] = { select: { name: "جديد" } };
@@ -180,7 +225,7 @@ export default async function handler(req, res) {
     const page = await r.json();
     const ref = "CV-" + page.id.slice(-6);
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, ref, updated: false }));
+    return res.end(JSON.stringify({ ok: true, ref, updated: false, n8n }));
   } catch (e) {
     console.error("candidate handler error", e);
     res.statusCode = 500;
