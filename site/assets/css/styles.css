@@ -773,6 +773,9 @@ h3 { font-size: 1.12rem; }
 .emp-card { background: var(--white); border: 1px solid var(--gray-line); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
 .emp-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
 .emp-card-top strong { color: var(--navy); font-size: 1.05rem; }
+.ats-jobs .ats-job-card { display: flex; flex-direction: column; gap: 10px; }
+.ats-job-card .talent-actions { margin-top: auto; }
+.ats-selected-job { background: #f1f5f9; border: 1px solid #dbe4ef; border-radius: 10px; color: var(--text); margin-bottom: 18px; padding: 12px 14px; }
 .emp-tag { font-size: .72rem; font-weight: 700; color: var(--navy); background: rgba(11,27,90,.08); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 .emp-role { font-weight: 600; color: var(--text); margin-bottom: 6px; }
 .emp-skills { font-size: .86rem; color: var(--text-soft); margin-bottom: 8px; }

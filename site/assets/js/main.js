@@ -450,9 +450,46 @@ var BP = window.BP = window.BP || {};
 (function () {
   "use strict";
   function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  function setSelectedJob(id, title) {
+    var jid = document.getElementById("c-job-id");
+    var jt = document.getElementById("c-job-title");
+    var box = document.getElementById("ats-selected-job");
+    if (jid) jid.value = id || "candidate-pool";
+    if (jt) jt.value = title || (BP.lang === "ar" ? "قاعدة المرشحين العامة" : "General candidate pool");
+    if (box) box.innerHTML = (BP.lang === "ar" ? "التقديم على: " : "Applying for: ") + "<strong>" + (jt ? jt.value : title) + "</strong>";
+  }
+  function readCvFile(input) {
+    return new Promise(function (resolve) {
+      if (!input || !input.files || !input.files[0]) return resolve(null);
+      var file = input.files[0];
+      var max = 4 * 1024 * 1024;
+      if (file.size > max) return resolve({ tooLarge: true, name: file.name, size: file.size, type: file.type });
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = String(reader.result || "");
+        resolve({ name: file.name, size: file.size, type: file.type || "application/octet-stream", dataUrl: result, base64: result.split(",")[1] || "" });
+      };
+      reader.onerror = function () { resolve(null); };
+      reader.readAsDataURL(file);
+    });
+  }
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("cv-form");
     if (!form) return;
+    document.querySelectorAll(".ats-apply-link").forEach(function (a) {
+      a.addEventListener("click", function () {
+        setSelectedJob(a.getAttribute("data-job-id"), a.getAttribute("data-job-title"));
+      });
+    });
+    try {
+      var params = new URLSearchParams(location.search || "");
+      var job = params.get("job");
+      var map = {
+        "hr-operations-specialist": BP.t("HR Operations & Government Relations Specialist", "أخصائي عمليات موارد بشرية وعلاقات حكومية"),
+        "recruitment-coordinator": BP.t("Recruitment Coordinator", "منسق توظيف"),
+      };
+      if (job && map[job]) setSelectedJob(job, map[job]);
+    } catch (err) {}
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var name = val("c-name"), phone = val("c-phone");
@@ -464,6 +501,13 @@ var BP = window.BP = window.BP || {};
         name: name, phone: phone, email: val("c-email"), field: val("c-field"),
         experience: val("c-exp"), city: val("c-city"), salary: val("c-salary"),
         linkedin: val("c-linkedin"), consent: consentEl ? consentEl.checked : false,
+        jobId: val("c-job-id"), jobTitle: val("c-job-title"),
+        questions: {
+          interest: val("c-q1"),
+          strengths: val("c-q2"),
+          notice: val("c-notice"),
+          workAuthorization: val("c-workauth"),
+        },
       };
       var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
       btn.disabled = true; btn.textContent = BP.t("Sending…", "جارٍ الإرسال…");
@@ -485,7 +529,14 @@ var BP = window.BP = window.BP || {};
         ok(null);
       }
 
-      fetch("/api/candidate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+      readCvFile(cvEl).then(function (cvFile) {
+        if (cvFile && cvFile.tooLarge) {
+          alert(BP.t("The CV file is too large. Please use WhatsApp for files over 4 MB.", "حجم السيرة كبير. استخدم واتساب للملفات أكبر من 4 ميجابايت."));
+        } else if (cvFile) {
+          payload.cvFile = cvFile;
+        }
+        return fetch("/api/candidate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+      })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) {
           btn.textContent = lbl;
