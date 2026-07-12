@@ -95,24 +95,44 @@ export const en = {
     title: 'Service Packages',
     items: [
       {
-        name: 'Core Plan',
-        nameEn: 'Core Plan',
-        price: 'SAR 999 / month',
+        name: 'Micro',
+        nameEn: 'Micro',
+        price: 'Starting from SAR 800 / month',
         features: [
-          'Qiwa Platform Management (contracts, visas, sponsorship transfers, Nitaqat)',
-          'GOSI Management (contributors, certificates, billing)',
-          'Muqeem/Absher Business Management (Iqama, exit re-entry visas)'
+          'For companies with 1 to 5 employees',
+          'Qiwa, GOSI, and Absher Business support as needed',
+          'Monthly operational support for essential requests'
+        ],
+      },
+      {
+        name: 'Small',
+        nameEn: 'Small',
+        price: 'Starting from SAR 1,500 / month',
+        features: [
+          'For companies with 6 to 49 employees',
+          'Qiwa, GOSI, and Absher Business/Muqeem management based on account type',
+          'Recurring compliance and government request follow-up'
         ],
         featured: true,
       },
       {
-        name: 'Mudad Add-on',
-        nameEn: 'Mudad Add-on',
-        price: '+SAR 199 / month',
+        name: 'Medium',
+        nameEn: 'Medium',
+        price: 'Starting from SAR 4,500 / month',
         features: [
-          'Employee add/remove in Mudad',
-          'Bank-linked payroll processing',
-          'Compliance violations resolution and settlements'
+          'For companies with 50 to 499 employees',
+          'Full operations for Qiwa, GOSI, Muqeem, and Mudad',
+          'Follow-up reports and multiple operational workflows'
+        ],
+      },
+      {
+        name: 'Large',
+        nameEn: 'Large',
+        price: 'Starting from SAR 7,500 / month',
+        features: [
+          'For companies with 500+ employees',
+          'Expanded HR and government platform operations',
+          'Dedicated follow-up and service-level scope by agreement'
         ],
       },
     ],
