@@ -11,6 +11,7 @@
     { "source": "/business-tourism", "destination": "/tourism", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/api/package-order", "destination": "/api/requests" },
     { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
     { "source": "/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/join" },
     { "source": "/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/dashboard" },
