@@ -26,7 +26,7 @@ export const copy = {
       stats: {
         founded: { number: '500+', label: 'مشروع تم إطلاقه' },
         experience: { number: '15+', label: 'سنة من الخبرة' },
-        packages: { number: '3-4', label: 'أيام للإطلاق' },
+        packages: { number: '4', label: 'باقات خدمات' },
       },
     },
 
@@ -70,31 +70,47 @@ export const copy = {
 
     // Packages
     packages: {
-      title: 'اختر مسار نموك',
+      title: 'باقات الخدمات التشغيلية',
       items: [
         {
-          name: 'باقة إطلاق الأعمال',
-          nameEn: 'باقة إطلاق الأعمال',
-          price: 'من 15,000 ريال',
+          name: 'متناهية الصغر',
+          nameEn: 'Micro',
+          price: 'تبدأ من 800 ريال / شهرياً',
           features: [
-            '✅ تأسيس كامل وتسجيل السجل التجاري',
-            '✅ اصدار ترخيص وزارة الاستثمار',
-            '✅ المساعدة في فتح الحساب البنكي',
-            '✅ تخصيص حصة التأشيرات الأولية',
-            '✅ دعم تشغيلي لمدة 3 شهور'
+            '✅ مناسبة للمنشآت من 1 إلى 5 موظفين',
+            '✅ متابعة قوى والتأمينات وأبشر أعمال حسب الاحتياج',
+            '✅ دعم تشغيلي شهري للطلبات الأساسية'
+          ],
+        },
+        {
+          name: 'صغيرة',
+          nameEn: 'Small',
+          price: 'تبدأ من 1,500 ريال / شهرياً',
+          features: [
+            '✅ مناسبة للمنشآت من 6 إلى 49 موظفاً',
+            '✅ إدارة قوى والتأمينات وأبشر أعمال/مقيم حسب الحساب',
+            '✅ متابعة دورية للامتثال والطلبات الحكومية'
           ],
           featured: true,
         },
         {
-          name: 'باقة العمليات والنمو',
-          nameEn: 'باقة العمليات والنمو',
-          price: '2,999 ريال / شهرياً',
+          name: 'متوسطة',
+          nameEn: 'Medium',
+          price: 'تبدأ من 4,500 ريال / شهرياً',
           features: [
-            '✅ خدمات العلاقات الحكومية الكاملة',
-            '✅ دعم الموارد البشرية والتوظيف',
-            '✅ إدارة امتثال السعودة',
-            '✅ إدارة المنصات الحكومية',
-            '✅ تقارير الامتثال الشهرية'
+            '✅ مناسبة للمنشآت من 50 إلى 499 موظفاً',
+            '✅ تشغيل شامل لقوى والتأمينات ومقيم ومُداد',
+            '✅ تقارير متابعة ومهام تشغيلية متعددة'
+          ],
+        },
+        {
+          name: 'كبيرة',
+          nameEn: 'Large',
+          price: 'تبدأ من 7,500 ريال / شهرياً',
+          features: [
+            '✅ مناسبة للمنشآت من 500 موظف فأكثر',
+            '✅ إدارة تشغيلية موسعة للمنصات الحكومية والموارد البشرية',
+            '✅ متابعة مخصصة واتفاقية مستوى خدمة حسب النطاق'
           ],
         },
       ],
@@ -202,7 +218,7 @@ export const copy = {
       stats: {
         founded: { number: '500+', label: 'Businesses Launched' },
         experience: { number: '15+', label: 'Years of Expertise' },
-        packages: { number: '3-4', label: 'Days to Launch' },
+        packages: { number: '4', label: 'Service Packages' },
       },
     },
 
@@ -246,31 +262,47 @@ export const copy = {
 
     // Packages
     packages: {
-      title: 'Choose Your Growth Path',
+      title: 'Operational Service Packages',
       items: [
         {
-          name: 'Startup Launch Package',
-          nameEn: 'Startup Launch',
-          price: 'From SAR 15,000',
+          name: 'Micro',
+          nameEn: 'Micro',
+          price: 'Starting from SAR 800 / month',
           features: [
-            '✅ Complete business setup & CR registration',
-            '✅ MISA license processing',
-            '✅ Bank account opening assistance',
-            '✅ Initial visa quota allocation',
-            '✅ 3-month operational support'
+            '✅ For companies with 1 to 5 employees',
+            '✅ Qiwa, GOSI, and Absher Business support as needed',
+            '✅ Monthly operational support for essential requests'
+          ],
+        },
+        {
+          name: 'Small',
+          nameEn: 'Small',
+          price: 'Starting from SAR 1,500 / month',
+          features: [
+            '✅ For companies with 6 to 49 employees',
+            '✅ Qiwa, GOSI, and Absher Business/Muqeem management based on account type',
+            '✅ Recurring compliance and government request follow-up'
           ],
           featured: true,
         },
         {
-          name: 'Growth Operations Package',
-          nameEn: 'Growth Operations',
-          price: 'SAR 2,999 / month',
+          name: 'Medium',
+          nameEn: 'Medium',
+          price: 'Starting from SAR 4,500 / month',
           features: [
-            '✅ Full GRO services',
-            '✅ HR & recruitment support',
-            '✅ Saudization compliance management',
-            '✅ Government platform management',
-            '✅ Monthly compliance reporting'
+            '✅ For companies with 50 to 499 employees',
+            '✅ Full operations for Qiwa, GOSI, Muqeem, and Mudad',
+            '✅ Follow-up reports and multiple operational workflows'
+          ],
+        },
+        {
+          name: 'Large',
+          nameEn: 'Large',
+          price: 'Starting from SAR 7,500 / month',
+          features: [
+            '✅ For companies with 500+ employees',
+            '✅ Expanded HR and government platform operations',
+            '✅ Dedicated follow-up and service-level scope by agreement'
           ],
         },
       ],
