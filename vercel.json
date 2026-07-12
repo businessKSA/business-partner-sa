@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "echo \"no dependencies\"",
-  "buildCommand": "node site/scripts/generate.mjs",
+  "buildCommand": "echo \"using committed static site\"",
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
