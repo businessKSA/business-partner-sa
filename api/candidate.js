@@ -88,18 +88,64 @@ async function notion(path, method, payload) {
   });
 }
 
+// Calls the n8n ATS workflow and waits for its enrichment (CV text extraction,
+// AI screening, Drive storage links) so it can be folded into the same Notion
+// write below — n8n itself no longer writes to Notion, to avoid creating a
+// second candidate record for every submission (this handler is always the
+// sole Notion writer). A 25s cap keeps this under Vercel's function timeout
+// even though the full n8n chain (PDF parse + AI + Drive + emails) can run
+// close to that; on timeout/failure we just skip enrichment and continue —
+// the candidate record still gets created from the form fields alone.
 async function forwardToN8n(payload) {
   if (!N8N_ATS_WEBHOOK) return { configured: false, ok: false };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 25000);
   try {
     const r = await fetch(N8N_ATS_WEBHOOK, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
-    return { configured: true, ok: r.ok, status: r.status };
+    let data = null;
+    try { data = await r.json(); } catch { /* non-JSON or empty body */ }
+    return { configured: true, ok: r.ok, status: r.status, data };
   } catch (e) {
     console.error("n8n ATS forward failed", String(e).slice(0, 200));
     return { configured: true, ok: false, error: "forward_failed" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Folds the n8n workflow's CV-processing result (Drive links + AI screening)
+// into the Notion properties this handler is about to write. Safe no-op when
+// n8n didn't respond in time or found nothing — the base form-field record
+// still gets created either way.
+function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
+  const data = n8nResult && n8nResult.ok ? n8nResult.data : null;
+  if (!data) return;
+  const drive = data.drive || {};
+  if (!props["CV Link"] && /^https?:\/\//i.test(drive.originalCvUrl || "")) {
+    props["CV Link"] = { url: drive.originalCvUrl };
+  }
+  if (/^https?:\/\//i.test(drive.atsCvDocUrl || "")) {
+    props["ATS CV (Drive)"] = { url: drive.atsCvDocUrl };
+  }
+  if (/^https?:\/\//i.test(drive.candidateFolderUrl || "")) {
+    props["مجلد المرشح (Drive)"] = { url: drive.candidateFolderUrl };
+  }
+  const ai = data.ai || {};
+  if (ai.candidate_summary) {
+    const notesSoFar = (props["Notes"]?.rich_text || []).map((t) => t.text.content).join("\n");
+    props["Notes"] = { rich_text: rt([notesSoFar, `ملخص الذكاء الاصطناعي: ${ai.candidate_summary}`].filter(Boolean).join("\n\n")) };
+  }
+  // Only a brand-new candidate's starting stage is AI-informed — an existing
+  // candidate may already be further along the pipeline and must not be
+  // pushed backward by a resubmission.
+  const pipelineStage = data.screening && data.screening.pipelineStage;
+  if (isNewCandidate && pipelineStage) {
+    props["Pipeline Stage"] = { select: { name: pipelineStage } };
   }
 }
 
@@ -205,6 +251,7 @@ export default async function handler(req, res) {
     const n8n = await forwardToN8n(n8nPayload);
     const existing = await findExisting(email, phone);
     if (existing) {
+      applyN8nEnrichment(props, n8n, false);
       const r = await notion("pages/" + existing.id, "PATCH", { properties: props });
       if (!r.ok) {
         console.error("Notion update error", r.status, (await r.text()).slice(0, 400));
@@ -214,8 +261,10 @@ export default async function handler(req, res) {
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, ref: "CV-" + existing.id.slice(-6), updated: true, n8n }));
     }
-    // New candidates always start at the top of the pipeline, pending review.
+    // New candidates always start at the top of the pipeline, pending review —
+    // applyN8nEnrichment may raise this to an AI-informed stage below.
     props["Pipeline Stage"] = { select: { name: "جديد" } };
+    applyN8nEnrichment(props, n8n, true);
     const r = await notion("pages", "POST", { parent: { database_id: DB_ID }, properties: props });
     if (!r.ok) {
       console.error("Notion create error", r.status, (await r.text()).slice(0, 400));
