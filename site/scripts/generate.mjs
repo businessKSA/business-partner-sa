@@ -47,6 +47,48 @@ const services = read("data/services.json");
 const categories = read("data/categories.json");
 const svcI18n = read("data/service-i18n.json");
 
+// Business Partner's own open roles — an ATS-style job board on /careers,
+// each with a single job page and an application routed through the same
+// candidate form (job context carried via ?job= and hidden fields).
+const JOBS = [
+  {
+    slug: "hr-operations-specialist",
+    field: "موارد بشرية",
+    tag: { en: "Riyadh · HR", ar: "الرياض · موارد بشرية" },
+    title: { en: "HR Operations & Government Relations Specialist", ar: "أخصائي عمليات موارد بشرية وعلاقات حكومية" },
+    summary: { en: "Run Qiwa, GOSI, Mudad, Muqeem and day-to-day HR operations for Business Partner clients.", ar: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر." },
+    meta: { en: "Full-time · Saudi market experience · Arabic/English", ar: "دوام كامل · خبرة سوق سعودي · عربي/إنجليزي" },
+    location: { en: "Riyadh, Saudi Arabia", ar: "الرياض، السعودية" },
+    type: { en: "Full-time", ar: "دوام كامل" },
+    responsibilities: {
+      en: ["Manage HR government platforms including Qiwa, GOSI, Mudad and Muqeem.", "Prepare employee files, contracts, onboarding checklists and HR operations trackers.", "Support clients with Saudization, WPS notes, employee data updates and practical HR compliance.", "Coordinate with candidates, employers and Business Partner internal teams through the ATS."],
+      ar: ["إدارة منصات قوى، التأمينات، مدد، ومقيم.", "تجهيز ملفات الموظفين والعقود وقوائم الأونبوردينج.", "دعم العملاء في التوطين، ملاحظات حماية الأجور، وتحديث بيانات الموظفين.", "تنسيق الطلبات بين المرشحين وأصحاب العمل وفريق بيزنس بارتنر داخل الـ ATS."],
+    },
+    requirements: {
+      en: ["Hands-on Saudi HR operations or government relations experience.", "Arabic fluency and working English.", "Comfort with digital platforms, spreadsheets, candidate tracking and client follow-up."],
+      ar: ["خبرة عملية في عمليات الموارد البشرية أو العلاقات الحكومية في السعودية.", "إجادة العربية ومعرفة عملية بالإنجليزية.", "قدرة على استخدام المنصات الرقمية والجداول وأنظمة متابعة المرشحين."],
+    },
+  },
+  {
+    slug: "recruitment-coordinator",
+    field: "موارد بشرية",
+    tag: { en: "Riyadh / Hybrid · Recruitment", ar: "الرياض / هجين · توظيف" },
+    title: { en: "Recruitment Coordinator", ar: "منسق توظيف" },
+    summary: { en: "Coordinate candidate sourcing, screening, interviews, offer follow-up, and employer communication.", ar: "تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين." },
+    meta: { en: "Full-time · Hiring pipeline · Candidate care", ar: "دوام كامل · ATS · عناية بالمرشحين" },
+    location: { en: "Riyadh, Saudi Arabia (hybrid)", ar: "الرياض، السعودية (هجين)" },
+    type: { en: "Full-time", ar: "دوام كامل" },
+    responsibilities: {
+      en: ["Source and screen candidates against open roles across the ATS.", "Schedule and coordinate interviews between candidates and employers.", "Keep candidate pipeline stages and notes up to date.", "Follow up on offers and onboarding handoff."],
+      ar: ["استقطاب وفرز المرشحين مقابل الوظائف المفتوحة عبر الـ ATS.", "جدولة وتنسيق المقابلات بين المرشحين وأصحاب العمل.", "تحديث مراحل وملاحظات المرشحين في المسار أولاً بأول.", "متابعة العروض الوظيفية وتسليم ملف الأونبوردينج."],
+    },
+    requirements: {
+      en: ["Prior recruitment or talent acquisition coordination experience.", "Strong communication in Arabic and English.", "Detail-oriented, comfortable juggling multiple open roles at once."],
+      ar: ["خبرة سابقة في تنسيق التوظيف أو استقطاب المواهب.", "تواصل قوي بالعربية والإنجليزية.", "دقة في التفاصيل والقدرة على متابعة أكثر من وظيفة مفتوحة في آن واحد."],
+    },
+  },
+];
+
 // Apply catalog overrides (price/name/description) from site.json to the list,
 // so cards, the calculator, and detail pages all reflect them.
 for (const s of services) {
@@ -3078,6 +3120,68 @@ function buildPortalDashboard() {
   return portalPage({ title: Lraw("AI Hiring OS — HR portal", "نظام التوظيف الذكي — بوابة التوظيف"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), path: "/portal/dashboard", active: "/dashboard", body });
 }
 
+// ---- Careers / ATS: job board cards, single job pages, application form extras ----
+function jobCardsHtml() {
+  const cards = JOBS.map((j) => `<article class="card ats-job-card">
+        <span class="emp-tag">${L(j.tag.en, j.tag.ar)}</span>
+        <h3>${L(j.title.en, j.title.ar)}</h3>
+        <p>${L(j.summary.en, j.summary.ar)}</p>
+        <div class="emp-meta">${L(j.meta.en, j.meta.ar)}</div>
+        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="${u("/jobs/" + j.slug)}">${L("View job", "عرض الوظيفة")}</a><a class="btn btn-ghost btn-sm ats-apply-link" href="#seeker-form" data-job-id="${esc(j.slug)}" data-job-title="${esc(L(j.title.en, j.title.ar))}">${L("Apply", "تقديم")}</a></div>
+      </article>`).join("");
+  const poolCard = `<article class="card ats-job-card">
+        <span class="emp-tag">${L("Candidate pool", "قاعدة المرشحين")}</span>
+        <h3>${L("General candidate pool", "قاعدة المرشحين العامة")}</h3>
+        <p>${L("Not seeing the right role? Join the pool once and we'll match you with suitable employer requests.", "إذا لم تجد وظيفة مناسبة الآن، انضم للقاعدة ونطابقك مع طلبات أصحاب العمل.")}</p>
+        <div class="emp-meta">${L("All fields · Saudi Arabia · Consent-based sharing", "كل المجالات · السعودية · مشاركة بموافقتك")}</div>
+        <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="${esc(L("General candidate pool", "قاعدة المرشحين العامة"))}">${L("Join pool", "انضم للقاعدة")}</a></div>
+      </article>`;
+  return `<section class="section section--gray" id="open-jobs"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Careers / Jobs", "الوظائف")}</span><h2>${L("Open roles at Business Partner", "الوظائف المفتوحة عبر بيزنس بارتنر")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed to the right hiring stage.", "كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.")}</p></div>
+    <div class="grid grid-3 ats-jobs">${cards}${poolCard}</div>
+  </div></section>`;
+}
+function applicationExtraFieldsHtml() {
+  return `
+        <input id="c-job-id" name="jobId" type="hidden" value="candidate-pool">
+        <input id="c-job-title" name="jobTitle" type="hidden" value="${esc(L("General candidate pool", "قاعدة المرشحين العامة"))}">
+        <div class="ats-selected-job" id="ats-selected-job">${L("Applying for", "التقديم على")}: <strong>${L("General candidate pool", "قاعدة المرشحين العامة")}</strong></div>`;
+}
+function applicationQuestionsHtml() {
+  return `
+        <div class="field"><label for="c-q1">${L("Why are you interested in this role?", "لماذا ترغب بهذه الوظيفة؟")}</label><textarea id="c-q1" name="question1" rows="3" placeholder="${Lraw("Briefly explain your interest and fit.", "اكتب باختصار سبب اهتمامك ومدى ملاءمتك.")}"></textarea></div>
+        <div class="field"><label for="c-q2">${L("What are your strongest relevant skills?", "ما أقوى مهاراتك المرتبطة بالوظيفة؟")}</label><textarea id="c-q2" name="question2" rows="3" placeholder="${Lraw("Systems, tools, sectors, or achievements.", "اذكر الأنظمة، الأدوات، القطاعات، أو الإنجازات.")}"></textarea></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-notice">${L("Notice period", "فترة الإشعار")}</label><input id="c-notice" name="notice" type="text" placeholder="${Lraw("Immediate / 30 days / …", "فوري / 30 يوم / ...")}"></div>
+          <div class="field"><label for="c-workauth">${L("Work authorization", "أهلية العمل")}</label><input id="c-workauth" name="workauth" type="text" placeholder="${Lraw("Saudi / transferable iqama / …", "سعودي / إقامة قابلة للنقل / ...")}"></div>
+        </div>`;
+}
+function buildJobPage(job) {
+  const title = L(job.title.en, job.title.ar);
+  const resp = job.responsibilities[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
+  const reqs = job.requirements[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("Open job", "وظيفة مفتوحة")}</span>
+    <h1>${esc(title)}</h1>
+    <p class="lead">${esc(L(job.summary.en, job.summary.ar))}</p>
+    <div class="talent-actions"><a class="btn btn-primary" href="${u("/careers")}?job=${esc(job.slug)}#seeker-form">${L("Apply now", "قدّم الآن")}</a><a class="btn btn-ghost" href="${u("/careers")}#open-jobs">${L("Back to jobs", "العودة للوظائف")}</a></div>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:900px">
+    <div class="grid grid-3" style="margin-bottom:28px">
+      <div class="card"><h3>${L("Location", "الموقع")}</h3><p>${esc(L(job.location.en, job.location.ar))}</p></div>
+      <div class="card"><h3>${L("Type", "النوع")}</h3><p>${esc(L(job.type.en, job.type.ar))}</p></div>
+      <div class="card"><h3>${L("Pipeline", "المسار")}</h3><p>${L("New → Screening → Interview → Offer", "جديد ← فرز ← مقابلة ← عرض")}</p></div>
+    </div>
+    <h2>${L("What you will do", "المهام")}</h2>
+    <ul class="check-list">${resp}</ul>
+    <h2>${L("What we are looking for", "المتطلبات")}</h2>
+    <ul class="check-list">${reqs}</ul>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS بيزنس بارتنر وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="${u("/careers")}?job=${esc(job.slug)}#seeker-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
+  </div></section>`;
+  return page({ title: Lraw(`${title} — Business Partner`, `${title} — بيزنس بارتنر`), desc: Lraw(`Apply for ${title} through the Business Partner ATS.`, `قدّم على وظيفة ${title} عبر ATS بيزنس بارتنر.`), active: "/careers", path: "/jobs/" + job.slug, body });
+}
+
 function buildPortalCandidates() {
   const c = site.careers;
   const f = c.seeker.fields;
@@ -3100,6 +3204,7 @@ function buildPortalCandidates() {
     <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
     <div style="max-width:640px;margin:0 auto" id="seeker-form">
       <form class="calc-form cv-form" id="cv-form" novalidate>
+        ${applicationExtraFieldsHtml()}
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
           <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
@@ -3114,6 +3219,7 @@ function buildPortalCandidates() {
           <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")} *</label><input id="c-salary" name="salary" type="text" required placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
         </div>
         <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
+        ${applicationQuestionsHtml()}
         <div class="field">
           <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
           <label class="file-drop" for="c-cv" id="cv-drop">
@@ -3123,9 +3229,9 @@ function buildPortalCandidates() {
           <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
         </div>
         <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Join the candidate pool", "انضم لقاعدة المرشّحين")}</span></button>
-        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team and join the candidate pool.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا وتنضم لقاعدة المرشّحين.")}</p>
-        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
+        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team securely.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا بأمان.")}</p>
+        <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
       </form>
       <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
     </div>
@@ -3214,17 +3320,20 @@ function buildCareers() {
   <section class="hero"><div class="container hero-inner" style="max-width:960px">
     <span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span>
     <h1>${L("Find your next opportunity", "فرصتك القادمة تبدأ هنا")}</h1>
-    <p class="lead">${L("Join our candidate pool once — employers hiring through Business Partner reach you when a suitable role opens.", "انضم لقاعدة مرشّحينا مرة واحدة — وأصحاب العمل الذين يوظّفون عبر بيزنس بارتنر يصلونك عند توفّر فرصة مناسبة.")}</p>
+    <p class="lead">${L("Browse open roles, apply once with your CV, and move through Business Partner's hiring flow with screening, shortlisting, interviews, and employer updates.", "تصفّح الوظائف المفتوحة، قدّم مرة واحدة بسيرتك الذاتية، وانتقل داخل مسار توظيف واضح: فرز، ترشيح، مقابلة، ثم عرض.")}</p>
     <div class="talent-actions" style="margin-top:22px">
-      <a class="btn btn-primary" href="#seeker-form">${I.upload}<span>${L("Submit your CV", "أرسل سيرتك الذاتية")}</span></a>
+      <a class="btn btn-primary" href="#open-jobs">${I.upload}<span>${L("Browse jobs", "تصفّح الوظائف")}</span></a>
       <a class="btn btn-ghost" href="${u("/employers")}">${L("I'm an employer →", "أنا صاحب عمل ←")}</a>
     </div>
   </div></section>
+
+  ${jobCardsHtml()}
 
   <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
     <div style="max-width:640px;margin:0 auto" id="seeker-form">
       <form class="calc-form cv-form" id="cv-form" novalidate>
+        ${applicationExtraFieldsHtml()}
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
           <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
@@ -3239,6 +3348,7 @@ function buildCareers() {
           <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")} *</label><input id="c-salary" name="salary" type="text" required placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
         </div>
         <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
+        ${applicationQuestionsHtml()}
         <div class="field">
           <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
           <label class="file-drop" for="c-cv" id="cv-drop">
@@ -3248,14 +3358,14 @@ function buildCareers() {
           <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
         </div>
         <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Join the candidate pool", "انضم لقاعدة المرشّحين")}</span></button>
-        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team and join the candidate pool.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا وتنضم لقاعدة المرشّحين.")}</p>
-        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
+        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team securely.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا بأمان.")}</p>
+        <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
       </form>
       <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Jobs for job seekers — Business Partner", "التوظيف للباحثين عن عمل — بيزنس بارتنر"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), active: "/careers", body });
+  return page({ title: Lraw("Careers — Business Partner", "الوظائف — بيزنس بارتنر"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر بيزنس بارتنر."), active: "/careers", body });
 }
 
 function buildContact() {
@@ -4858,7 +4968,8 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}suppliers.html`, buildSuppliers());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
-  pageCount += 15 + services.length + categories.length;
+  JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
+  pageCount += 15 + services.length + categories.length + JOBS.length;
 }
 
 // 7 extra world languages: core discovery pages only for now (site chrome +
@@ -4896,7 +5007,8 @@ write("ar/portal.html", buildPortal());
 const base = "https://businesspartner.sa";
 const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
-  .concat(services.map((s) => `/services/${s.slug}`));
+  .concat(services.map((s) => `/services/${s.slug}`))
+  .concat(JOBS.map((j) => `/jobs/${j.slug}`));
 const urls = paths
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p].concat(EXTRA_LANG_PATHS.has(p) ? EXTRA_LANGS.map((l) => (p === "/" ? `/${l}/` : `/${l}${p}`)) : []))
   .map((p) => `  <url><loc>${base}${p}</loc></url>`)
