@@ -3139,6 +3139,11 @@ function jobCardsHtml() {
   return `<section class="section section--gray" id="open-jobs"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Careers / Jobs", "الوظائف")}</span><h2>${L("Open roles at Business Partner", "الوظائف المفتوحة عبر بيزنس بارتنر")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed to the right hiring stage.", "كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.")}</p></div>
     <div class="grid grid-3 ats-jobs">${cards}${poolCard}</div>
+  </div></section>
+  <section class="section" id="client-jobs"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Employer clients", "عملاء بيزنس بارتنر")}</span><h2>${L("Jobs from our employer clients", "وظائف من عملائنا أصحاب العمل")}</h2><p>${L("Companies hiring through the Business Partner platform. Apply directly — your application goes straight to their pipeline.", "شركات توظّف عبر منصة بيزنس بارتنر. قدّم مباشرة — طلبك يذهب مباشرة إلى مسار توظيفهم.")}</p></div>
+    <p class="emp-note" id="client-jobs-status">${L("Loading…", "جارٍ التحميل…")}</p>
+    <div class="grid grid-3 ats-jobs" id="client-jobs-grid"></div>
   </div></section>`;
 }
 function applicationExtraFieldsHtml() {
