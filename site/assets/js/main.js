@@ -473,14 +473,33 @@ var BP = window.BP = window.BP || {};
       reader.readAsDataURL(file);
     });
   }
+  // Delegated so it also covers client-job cards rendered later by fetch.
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest(".ats-apply-link");
+    if (!a) return;
+    setSelectedJob(a.getAttribute("data-job-id"), a.getAttribute("data-job-title"));
+  });
+  function loadClientJobs() {
+    var grid = document.getElementById("client-jobs-grid"), status = document.getElementById("client-jobs-status");
+    if (!grid) return;
+    fetch("/api/candidates?openJobs=1").then(function (r) { return r.json(); })
+      .then(function (d) {
+        var jobs = (d && d.ok && d.jobs) || [];
+        if (!jobs.length) { status.textContent = BP.t("No employer-posted jobs right now — check back soon.", "لا توجد وظائف من أصحاب العمل حالياً — تابع لاحقاً."); return; }
+        status.hidden = true;
+        grid.innerHTML = jobs.map(function (j) {
+          var tag = [j.company, j.city].filter(Boolean).join(" · ") || (j.field || "");
+          return '<article class="card ats-job-card"><span class="emp-tag">' + esc2(tag) + '</span><h3>' + esc2(j.title) + '</h3><p>' + esc2(j.description || "") + '</p>' +
+            '<div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
+        }).join("");
+      })
+      .catch(function () { status.textContent = BP.t("Couldn't load employer jobs.", "تعذّر تحميل وظائف أصحاب العمل."); });
+  }
+  function esc2(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   document.addEventListener("DOMContentLoaded", function () {
+    loadClientJobs();
     var form = document.getElementById("cv-form");
     if (!form) return;
-    document.querySelectorAll(".ats-apply-link").forEach(function (a) {
-      a.addEventListener("click", function () {
-        setSelectedJob(a.getAttribute("data-job-id"), a.getAttribute("data-job-title"));
-      });
-    });
     try {
       var params = new URLSearchParams(location.search || "");
       var job = params.get("job");

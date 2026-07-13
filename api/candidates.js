@@ -186,6 +186,39 @@ export default async function handler(req, res) {
   if (req.method !== "GET") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
   if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
 
+  const url0 = new URL(req.url, "http://x");
+  // Public job board: every ACTIVE posting from every employer, for the /careers
+  // "Jobs from our employer clients" section — no code/auth needed (unlike the
+  // employer-only browse/create/list-postings actions above).
+  if (url0.searchParams.get("openJobs") === "1") {
+    try {
+      const r = await notionFetch(`databases/${JOBS_DB}/query`, "POST", {
+        page_size: 50,
+        filter: { property: "الحالة", select: { equals: "نشطة" } },
+        sorts: [{ property: "تاريخ النشر", direction: "descending" }],
+      });
+      if (!r.ok) { console.error("open jobs query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const data = await r.json();
+      const jobs = (data.results || []).map((pg) => {
+        const p = pg.properties || {};
+        return {
+          id: pg.id,
+          title: txt(p["العنوان الوظيفي"]),
+          company: txt(p["الشركة"]),
+          city: txt(p["المدينة"]),
+          field: txt(p["المجال"]),
+          description: txt(p["الوصف والمتطلبات"]).slice(0, 400),
+        };
+      }).filter((j) => j.title);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, jobs }));
+    } catch (e) {
+      console.error("open jobs handler error", e);
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
   const url = new URL(req.url, "http://x");
   const qField = (url.searchParams.get("field") || "").trim();
   const qCity = (url.searchParams.get("city") || "").trim().toLowerCase();
