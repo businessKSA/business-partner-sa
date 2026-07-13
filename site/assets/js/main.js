@@ -888,10 +888,14 @@ var BP = window.BP = window.BP || {};
       var done = isDone(o.status);
       var cancelled = isCancelled(o.status);
       var cls = cancelled ? "off" : (done ? "ok" : "wait");
+      var waMsg = BP.t("Regarding my request ", "بخصوص طلبي ") + (o.ref || "");
+      var waIcon = '<a class="ord-wa" href="https://wa.me/966507034157?text=' + encodeURIComponent(waMsg) +
+        '" target="_blank" rel="noopener" title="' + BP.t("Contact us on WhatsApp", "تواصل معنا عبر واتساب") + '" aria-label="WhatsApp">' +
+        '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.2A9 9 0 1012 3zm0 2a7 7 0 11-3.6 13l-.3-.2-2.3.6.6-2.2-.2-.3A7 7 0 0112 5zm3.9 8.4c-.2-.1-1.3-.6-1.5-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.1-.2.1-.4 0-.2-.1-.9-.3-1.6-1-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.3.1-.4l.3-.4.2-.3v-.3c0-.1-.5-1.2-.7-1.6-.2-.4-.3-.4-.5-.4h-.4c-.1 0-.4.1-.5.3-.2.2-.7.7-.7 1.7s.7 2 .8 2.1c.1.2 1.5 2.3 3.6 3.1 1.7.7 2 .6 2.4.5.4 0 1.3-.5 1.4-1 .2-.5.2-.9.1-1z"/></svg></a>';
       return '<div class="ord"><div class="ord-main"><strong>' + esc2(o.ref) + '</strong>' +
         '<span class="text-soft"> · ' + esc2(o.at || "") + '</span>' +
         '<div class="text-soft ord-items">' + items + '</div></div>' +
-        '<span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span></div>';
+        '<div class="ord-side"><span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span>' + waIcon + '</div></div>';
     }
 
     function renderOrders() {
@@ -1355,6 +1359,30 @@ var BP = window.BP = window.BP || {};
       var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
       btn.disabled = true; btn.textContent = BP.t("Sending…", "جارٍ الإرسال…");
       function done(ref, emailSent) {
+        // Register the request in the client portal (/account → "My orders"),
+        // so every submitted request is linked to the client dashboard and its
+        // status syncs live from our team.
+        try {
+          if (ref && !/^(LOCAL|مبدئي)$/.test(ref)) {
+            var LABELS = {
+              "investor-tourism": BP.t("Business tourism — Mahfol Makfol", "سياحة أعمال — محفول مكفول"),
+              "event": BP.t("Corporate event", "فعالية مؤسسية"),
+              "supplier": BP.t("Supplier registration", "تسجيل مورّد"),
+            };
+            var label = LABELS[data.type] || BP.t("Request", "طلب");
+            var extra = data.sector || data.eventType || data.category || "";
+            var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+            if (!orders.some(function (o) { return o.ref === ref; })) {
+              orders.unshift({
+                ref: ref, name: data.person || data.name || "", phone: data.phone || "", email: data.email || "",
+                items: [{ name: label + (extra ? " · " + extra : ""), qty: 1 }],
+                at: new Date().toISOString().slice(0, 10),
+                status: BP.t("Under review", "قيد المراجعة"), reqType: data.type,
+              });
+              localStorage.setItem("bp_orders", JSON.stringify(orders));
+            }
+          }
+        } catch (e) {}
         var box = document.getElementById(boxId);
         box.hidden = false;
         box.innerHTML = "✅ <strong>" + BP.t("Request received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +

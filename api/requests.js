@@ -18,6 +18,9 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
+// Owner key that gates the internal dashboard's "incoming requests" list
+// (GET ?action=leads&key=...). Set LEADS_KEY (or DASHBOARD_KEY) in Vercel env.
+const LEADS_KEY = process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "";
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -70,6 +73,40 @@ async function orderStatuses(refs) {
     }
   }
   return { statuses, agents, emails };
+}
+
+// List the most recent leads from the CRM (for the internal dashboard's
+// "incoming requests" view). Returns lightweight rows the dashboard renders,
+// including the phone (parsed from Notes) so the team can WhatsApp the lead.
+async function listLeads(limit) {
+  if (!NOTION_TOKEN) return [];
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({
+      page_size: Math.min(Math.max(Number(limit) || 30, 1), 50),
+      sorts: [{ property: "Last Activity", direction: "descending" }],
+    }),
+  });
+  if (!r.ok) { console.error("leads query error", r.status, (await r.text()).slice(0, 300)); throw new Error("notion_failed"); }
+  const data = await r.json();
+  const txt = (arr) => (arr || []).map((t) => t.plain_text).join("");
+  return (data.results || []).map((pg) => {
+    const p = pg.properties || {};
+    const title = txt(p["Opportunity Name"] && p["Opportunity Name"].title);
+    const ref = txt(p["رقم المرجع"] && p["رقم المرجع"].rich_text).trim();
+    const notes = txt(p["Notes"] && p["Notes"].rich_text);
+    const stage = (p["Stage"] && p["Stage"].select && p["Stage"].select.name) || "";
+    const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
+    const at = (p["Last Activity"] && p["Last Activity"].date && p["Last Activity"].date.start) || (pg.created_time || "").slice(0, 10);
+    const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
+    const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+    return {
+      title, ref, at, stage, status,
+      phone: phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "",
+      email: emailM ? emailM[1] : "",
+    };
+  });
 }
 
 // Upload a base64 file to Notion's File Upload API. Returns the file_upload id
@@ -339,6 +376,21 @@ export default async function handler(req, res) {
     await sendEmail(d.email, `تم تفعيل اشتراكك — منصة التوظيف (${esc(d.company)})`, codeHtml);
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل رمز الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
+  }
+
+  // Internal dashboard — list recent incoming requests (gated by LEADS_KEY).
+  if ((q.action || "") === "leads") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!LEADS_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    if ((q.key || "") !== LEADS_KEY) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const leads = await listLeads(q.limit);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, leads }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
   }
 
   if (req.method === "GET") {
