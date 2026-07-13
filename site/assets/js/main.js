@@ -364,6 +364,51 @@ var BP = window.BP = window.BP || {};
     ["Remote / Work from home", "", "عن بُعد / من المنزل", ""],
   ];
 
+  // Used for both Country and Nationality fields — candidates and jobs can be
+  // based anywhere, not just Saudi Arabia, so this deliberately covers the
+  // full range of countries rather than a Gulf/MENA-only shortlist.
+  var COUNTRIES = [
+    ["Saudi Arabia", "السعودية"], ["United Arab Emirates", "الإمارات"], ["Qatar", "قطر"], ["Bahrain", "البحرين"],
+    ["Kuwait", "الكويت"], ["Oman", "عُمان"], ["Egypt", "مصر"], ["Jordan", "الأردن"], ["Lebanon", "لبنان"],
+    ["Syria", "سوريا"], ["Iraq", "العراق"], ["Yemen", "اليمن"], ["Palestine", "فلسطين"], ["Sudan", "السودان"],
+    ["Libya", "ليبيا"], ["Tunisia", "تونس"], ["Algeria", "الجزائر"], ["Morocco", "المغرب"], ["Mauritania", "موريتانيا"],
+    ["Somalia", "الصومال"], ["Djibouti", "جيبوتي"], ["Comoros", "جزر القمر"],
+    ["Turkey", "تركيا"], ["Iran", "إيران"], ["Afghanistan", "أفغانستان"],
+    ["India", "الهند"], ["Pakistan", "باكستان"], ["Bangladesh", "بنغلاديش"], ["Sri Lanka", "سريلانكا"],
+    ["Nepal", "نيبال"], ["Bhutan", "بوتان"], ["Maldives", "المالديف"],
+    ["Philippines", "الفلبين"], ["Indonesia", "إندونيسيا"], ["Malaysia", "ماليزيا"], ["Thailand", "تايلاند"],
+    ["Vietnam", "فيتنام"], ["Myanmar", "ميانمار"], ["Cambodia", "كمبوديا"], ["Laos", "لاوس"], ["Singapore", "سنغافورة"],
+    ["Brunei", "بروناي"], ["Timor-Leste", "تيمور الشرقية"],
+    ["China", "الصين"], ["Japan", "اليابان"], ["South Korea", "كوريا الجنوبية"], ["North Korea", "كوريا الشمالية"],
+    ["Mongolia", "منغوليا"], ["Taiwan", "تايوان"], ["Hong Kong", "هونغ كونغ"],
+    ["Kazakhstan", "كازاخستان"], ["Uzbekistan", "أوزبكستان"], ["Turkmenistan", "تركمانستان"], ["Tajikistan", "طاجيكستان"],
+    ["Kyrgyzstan", "قيرغيزستان"], ["Azerbaijan", "أذربيجان"], ["Armenia", "أرمينيا"], ["Georgia", "جورجيا"],
+    ["United Kingdom", "المملكة المتحدة"], ["Ireland", "أيرلندا"], ["France", "فرنسا"], ["Germany", "ألمانيا"],
+    ["Netherlands", "هولندا"], ["Belgium", "بلجيكا"], ["Luxembourg", "لوكسمبورغ"], ["Switzerland", "سويسرا"],
+    ["Austria", "النمسا"], ["Spain", "إسبانيا"], ["Portugal", "البرتغال"], ["Italy", "إيطاليا"],
+    ["Greece", "اليونان"], ["Cyprus", "قبرص"], ["Malta", "مالطا"],
+    ["Sweden", "السويد"], ["Norway", "النرويج"], ["Denmark", "الدنمارك"], ["Finland", "فنلندا"], ["Iceland", "آيسلندا"],
+    ["Poland", "بولندا"], ["Czech Republic", "التشيك"], ["Slovakia", "سلوفاكيا"], ["Hungary", "المجر"],
+    ["Romania", "رومانيا"], ["Bulgaria", "بلغاريا"], ["Croatia", "كرواتيا"], ["Serbia", "صربيا"],
+    ["Bosnia and Herzegovina", "البوسنة والهرسك"], ["North Macedonia", "مقدونيا الشمالية"], ["Albania", "ألبانيا"],
+    ["Slovenia", "سلوفينيا"], ["Montenegro", "الجبل الأسود"], ["Kosovo", "كوسوفو"], ["Moldova", "مولدوفا"],
+    ["Ukraine", "أوكرانيا"], ["Belarus", "بيلاروسيا"], ["Russia", "روسيا"], ["Estonia", "إستونيا"],
+    ["Latvia", "لاتفيا"], ["Lithuania", "ليتوانيا"],
+    ["United States", "الولايات المتحدة"], ["Canada", "كندا"], ["Mexico", "المكسيك"],
+    ["Brazil", "البرازيل"], ["Argentina", "الأرجنتين"], ["Chile", "تشيلي"], ["Colombia", "كولومبيا"],
+    ["Peru", "بيرو"], ["Venezuela", "فنزويلا"], ["Ecuador", "الإكوادور"], ["Bolivia", "بوليفيا"],
+    ["Uruguay", "أوروغواي"], ["Paraguay", "باراغواي"], ["Panama", "بنما"], ["Costa Rica", "كوستاريكا"],
+    ["Cuba", "كوبا"], ["Dominican Republic", "جمهورية الدومينيكان"], ["Jamaica", "جامايكا"], ["Guatemala", "غواتيمالا"],
+    ["Honduras", "هندوراس"], ["El Salvador", "السلفادور"], ["Nicaragua", "نيكاراغوا"],
+    ["Nigeria", "نيجيريا"], ["Kenya", "كينيا"], ["Ethiopia", "إثيوبيا"], ["Ghana", "غانا"], ["Uganda", "أوغندا"],
+    ["Tanzania", "تنزانيا"], ["South Africa", "جنوب أفريقيا"], ["Senegal", "السنغال"], ["Ivory Coast", "ساحل العاج"],
+    ["Cameroon", "الكاميرون"], ["Zambia", "زامبيا"], ["Zimbabwe", "زيمبابوي"], ["Rwanda", "رواندا"],
+    ["Mali", "مالي"], ["Niger", "النيجر"], ["Chad", "تشاد"], ["Angola", "أنغولا"], ["Mozambique", "موزمبيق"],
+    ["Botswana", "بوتسوانا"], ["Namibia", "ناميبيا"], ["Malawi", "ملاوي"], ["Gabon", "الغابون"],
+    ["Australia", "أستراليا"], ["New Zealand", "نيوزيلندا"], ["Fiji", "فيجي"], ["Papua New Guinea", "بابوا غينيا الجديدة"],
+    ["Other / not listed", "أخرى / غير مدرجة"],
+  ];
+
   function jobTitleOptions(lang) {
     return JOB_TITLES.map(function (t) { return lang === "ar" ? t[1] : t[0]; });
   }
@@ -385,6 +430,9 @@ var BP = window.BP = window.BP || {};
     var out = [none, "1 " + y1, "2 " + yr, "3 " + yr, "4 " + yr];
     [5, 10, 15, 20, 25, 30, 35, 40, 45, 50].forEach(function (n) { out.push(n + "+ " + yr); });
     return out;
+  }
+  function countryOptions(lang) {
+    return COUNTRIES.map(function (c) { return lang === "ar" ? c[1] : c[0]; });
   }
 
   function initCombobox(input, getOptions) {
@@ -436,14 +484,17 @@ var BP = window.BP = window.BP || {};
     initCombobox(document.getElementById("c-field"), function () { return jobTitleOptions(lang); });
     initCombobox(document.getElementById("c-city"), function () { return cityOptions(lang); });
     initCombobox(document.getElementById("c-exp"), function () { return experienceOptions(lang); });
+    initCombobox(document.getElementById("c-country"), function () { return countryOptions(lang); });
+    initCombobox(document.getElementById("c-nationality"), function () { return countryOptions(lang); });
   });
 
   // Exposed so other pages (e.g. the employer job-posting form) can reuse
-  // the same standardized job-title/city taxonomy and combobox widget.
+  // the same standardized job-title/city/country taxonomy and combobox widget.
   window.BP = window.BP || {};
   BP.initCombobox = initCombobox;
   BP.jobTitleOptions = jobTitleOptions;
   BP.cityOptions = cityOptions;
+  BP.countryOptions = countryOptions;
 })();
 
 /* ---------- Careers: join candidate pool → /api/candidate (Notion) ---------- */
@@ -518,14 +569,16 @@ var BP = window.BP = window.BP || {};
       var cvEl = document.getElementById("c-cv");
       var payload = {
         name: name, phone: phone, email: val("c-email"), field: val("c-field"),
-        experience: val("c-exp"), city: val("c-city"), salary: val("c-salary"),
+        experience: val("c-exp"), city: val("c-city"), country: val("c-country"),
+        nationality: val("c-nationality"), residenceStatus: val("c-residence"),
+        salary: val("c-salary"),
         linkedin: val("c-linkedin"), consent: consentEl ? consentEl.checked : false,
         jobId: val("c-job-id"), jobTitle: val("c-job-title"),
         questions: {
           interest: val("c-q1"),
           strengths: val("c-q2"),
           notice: val("c-notice"),
-          workAuthorization: val("c-workauth"),
+          workAuthorization: val("c-residence"),
         },
       };
       var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
@@ -563,6 +616,53 @@ var BP = window.BP = window.BP || {};
           else fallback();
         })
         .catch(function () { btn.textContent = lbl; fallback(); });
+    });
+  });
+})();
+
+/* ---------- Careers: track my application status ---------- */
+(function () {
+  "use strict";
+  function esc4(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("track-form");
+    if (!form) return;
+    var result = document.getElementById("track-result");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var phone = document.getElementById("tr-phone").value.trim();
+      var email = document.getElementById("tr-email").value.trim();
+      if (!phone || !email) return;
+      var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = BP.t("Checking…", "جارٍ التحقق…");
+      fetch("/api/candidate?phone=" + encodeURIComponent(phone) + "&email=" + encodeURIComponent(email))
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          btn.disabled = false; btn.textContent = lbl;
+          result.hidden = false;
+          if (res.s === 200 && res.d && res.d.ok) {
+            var c = res.d.candidate;
+            var rows = [
+              [BP.t("Name", "الاسم"), c.name],
+              [BP.t("Field", "المجال"), c.field],
+              [BP.t("City", "المدينة"), [c.city, c.country].filter(Boolean).join(" — ")],
+              [BP.t("Status", "الحالة"), c.pipelineStage],
+            ].filter(function (r) { return r[1]; });
+            var links = "";
+            if (c.atsCvLink) links += '<a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="' + esc4(c.atsCvLink) + '">' + BP.t("View ATS CV", "عرض السيرة الذاتية") + "</a>";
+            result.innerHTML = '<div class="card">' + rows.map(function (r) { return "<p><b>" + esc4(r[0]) + ":</b> " + esc4(r[1]) + "</p>"; }).join("") +
+              (links ? '<div class="talent-actions" style="margin-top:10px">' + links + "</div>" : "") + "</div>";
+          } else if (res.s === 404) {
+            result.innerHTML = '<p class="text-soft center">' + BP.t("No application found with this phone and email.", "لا يوجد طلب بهذا الجوال والبريد.") + "</p>";
+          } else {
+            result.innerHTML = '<p class="text-soft center">' + BP.t("Couldn't check status right now.", "تعذّر التحقق من الحالة الآن.") + "</p>";
+          }
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = lbl;
+          result.hidden = false;
+          result.innerHTML = '<p class="text-soft center">' + BP.t("Couldn't check status right now.", "تعذّر التحقق من الحالة الآن.") + "</p>";
+        });
     });
   });
 })();

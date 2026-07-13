@@ -164,10 +164,60 @@ async function findExisting(email, phone) {
   return (data.results || [])[0] || null;
 }
 
+const txt = (p) => {
+  if (!p) return "";
+  if (p.type === "title") return (p.title || []).map((t) => t.plain_text).join("");
+  if (p.type === "rich_text") return (p.rich_text || []).map((t) => t.plain_text).join("");
+  if (p.type === "select") return p.select ? p.select.name : "";
+  if (p.type === "number") return p.number != null ? String(p.number) : "";
+  if (p.type === "email") return p.email || "";
+  if (p.type === "phone_number") return p.phone_number || "";
+  if (p.type === "url") return p.url || "";
+  return "";
+};
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
   if (req.method === "GET") {
+    const url = new URL(req.url, "http://x");
+    const checkPhone = clip(url.searchParams.get("phone"), 40);
+    const checkEmail = clip(url.searchParams.get("email"), 160).toLowerCase();
+    // Self-view: a candidate looks up their own record by the same
+    // phone+email pair they applied with — no separate login system, and
+    // no data is exposed unless both match the same record (candidates
+    // don't know each other's phone AND email together by chance).
+    if (checkPhone && checkEmail) {
+      if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+      const r = await notion("databases/" + DB_ID + "/query", "POST", {
+        page_size: 1,
+        filter: { and: [{ property: "Phone", phone_number: { equals: checkPhone } }, { property: "Email", email: { equals: checkEmail } }] },
+      });
+      if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const data = await r.json();
+      const page = (data.results || [])[0];
+      if (!page) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      const p = page.properties || {};
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        candidate: {
+          name: txt(p["Name (EN)"]) || txt(p["Candidate Name"]),
+          field: txt(p["Field"]),
+          targetRole: txt(p["Target Role"]),
+          city: txt(p["City"]),
+          country: txt(p["Country"]),
+          nationality: txt(p["Nationality"]),
+          residenceStatus: txt(p["حالة الإقامة"]),
+          experienceYears: txt(p["Experience Years"]),
+          expectedSalary: txt(p["Expected Salary"]),
+          pipelineStage: txt(p["Pipeline Stage"]),
+          cvLink: txt(p["CV Link"]),
+          atsCvLink: txt(p["ATS CV (Drive)"]),
+          registered: page.created_time,
+        },
+      }));
+    }
     res.statusCode = 200;
     // seenKeyNames helps diagnose a mis-named / wrong-project token without leaking it.
     const seenKeyNames = Object.keys(process.env).filter((k) => /notion/i.test(k));
@@ -189,6 +239,10 @@ export default async function handler(req, res) {
   const field = clip(b.field, 200);
   const exp = clip(b.experience, 80);
   const city = clip(b.city, 120);
+  const country = clip(b.country, 120);
+  const nationality = clip(b.nationality, 120);
+  const RESIDENCE_STATUSES = ["مواطن سعودي", "مقيم بإقامة نظامية قابلة للنقل", "مقيم بإقامة غير قابلة للنقل", "خارج السعودية", "أخرى"];
+  const residenceStatus = RESIDENCE_STATUSES.includes(b.residenceStatus) ? b.residenceStatus : "";
   const salary = clip(b.salary, 80);
   const linkedin = clip(b.linkedin, 400);
   const cvUrl = clip(b.cvUrl, 600);
@@ -217,7 +271,7 @@ export default async function handler(req, res) {
     questions.interest ? `سبب الاهتمام: ${clip(questions.interest, 700)}` : "",
     questions.strengths ? `أقوى المهارات: ${clip(questions.strengths, 700)}` : "",
     questions.notice ? `فترة الإشعار: ${clip(questions.notice, 120)}` : "",
-    questions.workAuthorization ? `أهلية العمل: ${clip(questions.workAuthorization, 160)}` : "",
+    residenceStatus ? `حالة الإقامة: ${residenceStatus}` : "",
     cvFile && cvFile.name ? `ملف مرفوع للـ n8n: ${cvFile.name} (${cvFile.type || "file"})` : "",
   ].filter(Boolean).join("\n");
 
@@ -237,12 +291,22 @@ export default async function handler(req, res) {
   if (fieldCat) props["Field"] = { select: { name: fieldCat } };
   if (expectedSalary != null) props["Expected Salary"] = { number: expectedSalary };
   if (/^https?:\/\//i.test(cvUrl)) props["CV Link"] = { url: cvUrl };
+  if (country) props["Country"] = { rich_text: rt(country) };
+  if (nationality) {
+    props["Nationality"] = { rich_text: rt(nationality) };
+    // Best-effort citizenship signal for the employer browse filter — a
+    // dedicated "Saudi national" pick on Residence Status is authoritative;
+    // otherwise infer from the nationality text itself.
+    const isSaudiNational = residenceStatus === "مواطن سعودي" || /^(saudi arabia|السعودية)$/i.test(nationality);
+    props["Nationality Type"] = { select: { name: isSaudiNational ? "سعودي" : "غير سعودي" } };
+  }
+  if (residenceStatus) props["حالة الإقامة"] = { select: { name: residenceStatus } };
 
   try {
     const n8nPayload = {
       source: "website-careers",
       receivedAt: new Date().toISOString(),
-      candidate: { name, phone, email, field, fieldCategory: fieldCat, experience: exp, city, salary, linkedin, consent },
+      candidate: { name, phone, email, field, fieldCategory: fieldCat, experience: exp, city, country, nationality, residenceStatus, salary, linkedin, consent },
       job: { id: jobId, title: jobTitle },
       questions,
       cvFile,
