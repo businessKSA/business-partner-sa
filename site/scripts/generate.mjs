@@ -2065,14 +2065,14 @@ function buildMahfolMakfol() {
 
   // City-by-city investor programs.
   const CITIES = [
-    { ic: "🏙️", en: "Riyadh", ar: "الرياض", te: "Capital & decision-making center", ta: "العاصمة ومركز القرار", se: "Finance · Tech · Regional HQ (RHQ)", sa: "المال · التقنية · المقار الإقليمية", ee: "MISA · RHQ Program · Capital Market Authority · Riyadh Chamber", ea: "وزارة الاستثمار · برنامج المقار الإقليمية · هيئة السوق المالية · غرفة الرياض", ie: "Government briefings, RHQ consultation, C-level meetings, King Abdullah Financial District tour", ia: "إحاطات حكومية، استشارة المقر الإقليمي، لقاءات تنفيذية، جولة في مركز الملك عبدالله المالي" },
-    { ic: "🌊", en: "Jeddah", ar: "جدة", te: "Red Sea gateway & trade", ta: "بوابة البحر الأحمر والتجارة", se: "Logistics · Trade · Tourism", sa: "اللوجستيات · التجارة · السياحة", ee: "Jeddah Chamber · Islamic Development Bank · Ports Authority", ea: "غرفة جدة · البنك الإسلامي للتنمية · هيئة الموانئ", ie: "Port & logistics visits, family-business networking, Red Sea projects briefing", ia: "زيارات الموانئ واللوجستيات، تواصل مع الشركات العائلية، إحاطة عن مشاريع البحر الأحمر" },
-    { ic: "🛢️", en: "Eastern Province", ar: "المنطقة الشرقية", te: "Energy & industry heartland", ta: "قلب الطاقة والصناعة", se: "Energy · Industry · Petrochemicals", sa: "الطاقة · الصناعة · البتروكيماويات", ee: "Aramco ecosystem · Royal Commission (Jubail) · Dhahran Techno Valley", ea: "منظومة أرامكو · الهيئة الملكية بالجبيل · وادي الظهران للتقنية", ie: "Industrial-city visits, energy-sector meetings, supply-chain sourcing", ia: "زيارات المدن الصناعية، لقاءات قطاع الطاقة، سلاسل الإمداد" },
-    { ic: "🕋", en: "Makkah", ar: "مكة المكرمة", te: "Religious economy & hospitality", ta: "اقتصاد ديني وضيافة", se: "Hospitality · Retail · Services", sa: "الضيافة · التجزئة · الخدمات", ee: "Makkah Chamber · Hospitality operators · Religious-tourism authorities", ea: "غرفة مكة · مشغّلو الضيافة · جهات السياحة الدينية", ie: "Religious-tourism investment briefing, hospitality operator meetings", ia: "إحاطة استثمار السياحة الدينية، لقاءات مشغّلي الضيافة" },
-    { ic: "🌱", en: "Madinah", ar: "المدينة المنورة", te: "Knowledge economy & agriculture", ta: "اقتصاد المعرفة والزراعة", se: "Agriculture · Education · Tourism", sa: "الزراعة · التعليم · السياحة", ee: "Knowledge Economic City · Madinah Chamber · Agri authorities", ea: "مدينة المعرفة الاقتصادية · غرفة المدينة · الجهات الزراعية", ie: "Knowledge Economic City tour, agri-investment briefing", ia: "جولة في مدينة المعرفة الاقتصادية، إحاطة الاستثمار الزراعي" },
-    { ic: "⛰️", en: "Asir", ar: "عسير", te: "Highlands tourism & nature", ta: "سياحة المرتفعات والطبيعة", se: "Tourism · Agriculture · Entertainment", sa: "السياحة · الزراعة · الترفيه", ee: "Soudah Development · Asir Chamber · Tourism authorities", ea: "تطوير السودة · غرفة عسير · جهات السياحة", ie: "Soudah Peaks overview, mountain-tourism investment, agri-tourism", ia: "جولة قمم السودة، استثمار سياحة الجبال، السياحة الزراعية" },
-    { ic: "🌐", en: "NEOM", ar: "نيوم", te: "The future & innovation", ta: "المستقبل والابتكار", se: "Technology · Clean energy · Tourism", sa: "التقنية · الطاقة النظيفة · السياحة", ee: "NEOM · Oxagon · The Line · Investment office", ea: "نيوم · أوكساجون · ذا لاين · مكتب الاستثمار", ie: "NEOM briefing, The Line & Oxagon overview, clean-energy opportunities", ia: "إحاطة نيوم، نظرة على ذا لاين وأوكساجون، فرص الطاقة النظيفة" },
-    { ic: "⚓", en: "Jazan", ar: "جازان", te: "Emerging industry & ports", ta: "صناعة ناشئة وموانئ", se: "Industry · Logistics · Agriculture", sa: "الصناعة · اللوجستيات · الزراعة", ee: "Jazan Economic City · Port authority · Energy sector", ea: "مدينة جازان الاقتصادية · هيئة الميناء · قطاع الطاقة", ie: "Jazan Economic City tour, port & energy briefing, agri-industry", ia: "جولة مدينة جازان الاقتصادية، إحاطة الميناء والطاقة، الصناعات الزراعية" },
+    { ic: "🏙️", en: "Riyadh", ar: "الرياض", mx: 576, my: 440, te: "Capital & decision-making center", ta: "العاصمة ومركز القرار", se: "Finance · Tech · Regional HQ (RHQ)", sa: "المال · التقنية · المقار الإقليمية", ee: "MISA · RHQ Program · Capital Market Authority · Riyadh Chamber", ea: "وزارة الاستثمار · برنامج المقار الإقليمية · هيئة السوق المالية · غرفة الرياض", ie: "Government briefings, RHQ consultation, C-level meetings, King Abdullah Financial District tour", ia: "إحاطات حكومية، استشارة المقر الإقليمي، لقاءات تنفيذية، جولة في مركز الملك عبدالله المالي" },
+    { ic: "🌊", en: "Jeddah", ar: "جدة", mx: 238, my: 600, te: "Red Sea gateway & trade", ta: "بوابة البحر الأحمر والتجارة", se: "Logistics · Trade · Tourism", sa: "اللوجستيات · التجارة · السياحة", ee: "Jeddah Chamber · Islamic Development Bank · Ports Authority", ea: "غرفة جدة · البنك الإسلامي للتنمية · هيئة الموانئ", ie: "Port & logistics visits, family-business networking, Red Sea projects briefing", ia: "زيارات الموانئ واللوجستيات، تواصل مع الشركات العائلية، إحاطة عن مشاريع البحر الأحمر" },
+    { ic: "🛢️", en: "Eastern Province", ar: "المنطقة الشرقية", mx: 735, my: 352, te: "Energy & industry heartland", ta: "قلب الطاقة والصناعة", se: "Energy · Industry · Petrochemicals", sa: "الطاقة · الصناعة · البتروكيماويات", ee: "Aramco ecosystem · Royal Commission (Jubail) · Dhahran Techno Valley", ea: "منظومة أرامكو · الهيئة الملكية بالجبيل · وادي الظهران للتقنية", ie: "Industrial-city visits, energy-sector meetings, supply-chain sourcing", ia: "زيارات المدن الصناعية، لقاءات قطاع الطاقة، سلاسل الإمداد" },
+    { ic: "🕋", en: "Makkah", ar: "مكة المكرمة", mx: 300, my: 640, te: "Religious economy & hospitality", ta: "اقتصاد ديني وضيافة", se: "Hospitality · Retail · Services", sa: "الضيافة · التجزئة · الخدمات", ee: "Makkah Chamber · Hospitality operators · Religious-tourism authorities", ea: "غرفة مكة · مشغّلو الضيافة · جهات السياحة الدينية", ie: "Religious-tourism investment briefing, hospitality operator meetings", ia: "إحاطة استثمار السياحة الدينية، لقاءات مشغّلي الضيافة" },
+    { ic: "🌱", en: "Madinah", ar: "المدينة المنورة", mx: 262, my: 452, te: "Knowledge economy & agriculture", ta: "اقتصاد المعرفة والزراعة", se: "Agriculture · Education · Tourism", sa: "الزراعة · التعليم · السياحة", ee: "Knowledge Economic City · Madinah Chamber · Agri authorities", ea: "مدينة المعرفة الاقتصادية · غرفة المدينة · الجهات الزراعية", ie: "Knowledge Economic City tour, agri-investment briefing", ia: "جولة في مدينة المعرفة الاقتصادية، إحاطة الاستثمار الزراعي" },
+    { ic: "⛰️", en: "Asir", ar: "عسير", mx: 392, my: 780, te: "Highlands tourism & nature", ta: "سياحة المرتفعات والطبيعة", se: "Tourism · Agriculture · Entertainment", sa: "السياحة · الزراعة · الترفيه", ee: "Soudah Development · Asir Chamber · Tourism authorities", ea: "تطوير السودة · غرفة عسير · جهات السياحة", ie: "Soudah Peaks overview, mountain-tourism investment, agri-tourism", ia: "جولة قمم السودة، استثمار سياحة الجبال، السياحة الزراعية" },
+    { ic: "🌐", en: "NEOM", ar: "نيوم", mx: 75, my: 272, te: "The future & innovation", ta: "المستقبل والابتكار", se: "Technology · Clean energy · Tourism", sa: "التقنية · الطاقة النظيفة · السياحة", ee: "NEOM · Oxagon · The Line · Investment office", ea: "نيوم · أوكساجون · ذا لاين · مكتب الاستثمار", ie: "NEOM briefing, The Line & Oxagon overview, clean-energy opportunities", ia: "إحاطة نيوم، نظرة على ذا لاين وأوكساجون، فرص الطاقة النظيفة" },
+    { ic: "⚓", en: "Jazan", ar: "جازان", mx: 405, my: 838, te: "Emerging industry & ports", ta: "صناعة ناشئة وموانئ", se: "Industry · Logistics · Agriculture", sa: "الصناعة · اللوجستيات · الزراعة", ee: "Jazan Economic City · Port authority · Energy sector", ea: "مدينة جازان الاقتصادية · هيئة الميناء · قطاع الطاقة", ie: "Jazan Economic City tour, port & energy briefing, agri-industry", ia: "جولة مدينة جازان الاقتصادية، إحاطة الميناء والطاقة، الصناعات الزراعية" },
   ];
   const cityCards = CITIES.map((c) => `
     <div class="mm-city">
@@ -2080,7 +2080,25 @@ function buildMahfolMakfol() {
       <div class="mm-city-row"><b>${L("Sectors", "القطاعات")}</b><span>${L(c.se, c.sa)}</span></div>
       <div class="mm-city-row"><b>${L("Key entities", "أبرز الجهات")}</b><span>${L(c.ee, c.ea)}</span></div>
       <div class="mm-city-row"><b>${L("Program includes", "يشمل البرنامج")}</b><span>${L(c.ie, c.ia)}</span></div>
-      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="${Lraw(c.en, c.ar)}">${I.arrow}<span>${L("Request this program", "اطلب هذا البرنامج")}</span></a>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="${Lraw(c.en, c.en)}">${I.arrow}<span>${L("Request this program", "اطلب هذا البرنامج")}</span></a>
+    </div>`).join("");
+
+  // Interactive investment map — inline SVG of Saudi Arabia with clickable
+  // region markers; each reveals that region's program (panels rendered below).
+  const KSA_PATH = "M75 258 L150 175 L320 150 L480 140 L620 155 L740 210 L775 280 Q790 300 760 325 L720 345 L815 400 L900 520 L855 620 L760 730 L560 815 L430 865 L360 770 L300 700 L250 620 L235 520 L190 420 L120 330 Z";
+  const mapMarkers = CITIES.map((c, i) => `
+    <g class="mm-mk" data-idx="${i}" transform="translate(${c.mx},${c.my})" tabindex="0" role="button" aria-label="${Lraw(c.en, c.ar)}">
+      <circle class="mm-mk-ring" r="16"></circle>
+      <circle class="mm-mk-dot" r="8"></circle>
+      <text class="mm-mk-lbl" y="-22" text-anchor="middle">${L(c.en, c.ar)}</text>
+    </g>`).join("");
+  const mapPanels = CITIES.map((c, i) => `
+    <div class="mm-map-panel${i === 0 ? " on" : ""}" data-idx="${i}">
+      <div class="mm-city-top"><span class="mm-city-ic">${c.ic}</span><div><h3>${L(c.en, c.ar)}</h3><span class="mm-city-tag">${L(c.te, c.ta)}</span></div></div>
+      <div class="mm-city-row"><b>${L("Sectors", "القطاعات")}</b><span>${L(c.se, c.sa)}</span></div>
+      <div class="mm-city-row"><b>${L("Key entities", "أبرز الجهات")}</b><span>${L(c.ee, c.ea)}</span></div>
+      <div class="mm-city-row"><b>${L("Program includes", "يشمل البرنامج")}</b><span>${L(c.ie, c.ia)}</span></div>
+      <a class="btn btn-primary" style="width:100%;margin-top:6px" href="#mm-form" data-mm-city="${Lraw(c.en, c.en)}">${I.calendar}<span>${L("Request this program", "اطلب هذا البرنامج")}</span></a>
     </div>`).join("");
 
   // Target sectors.
@@ -2136,6 +2154,21 @@ function buildMahfolMakfol() {
     .mm-cc-plan .kv{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed var(--gray-line);font-size:15px}
     .mm-cc-plan .kv:last-of-type{border-bottom:0}
     .mm-cc-plan .kv b{min-width:120px;color:var(--text-soft);font-weight:600}
+    .mm-map-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:center}
+    .mm-map-svg{background:linear-gradient(160deg,#eef1fb,#f7f8fc);border:1px solid var(--gray-line);border-radius:var(--radius-lg);padding:14px}
+    .mm-map-svg svg{width:100%;height:auto;display:block;max-height:520px}
+    .mm-map-land{fill:#dfe4f5;stroke:var(--navy);stroke-width:3;stroke-linejoin:round}
+    .mm-mk{cursor:pointer;outline:none}
+    .mm-mk-ring{fill:var(--navy);opacity:.15;transform-box:fill-box;transform-origin:center;transition:.2s}
+    .mm-mk-dot{fill:var(--navy);stroke:#fff;stroke-width:3;transition:.2s}
+    .mm-mk-lbl{font-size:22px;font-weight:700;fill:var(--text);paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none;opacity:0;transition:.2s}
+    .mm-mk:hover .mm-mk-lbl,.mm-mk.on .mm-mk-lbl{opacity:1}
+    .mm-mk:hover .mm-mk-dot,.mm-mk:focus .mm-mk-dot{fill:var(--mm-gold)}
+    .mm-mk.on .mm-mk-dot{fill:var(--mm-gold);r:11}
+    .mm-mk.on .mm-mk-ring{fill:var(--mm-gold);opacity:.3;r:22}
+    .mm-map-panel{display:none;border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);padding:22px;flex-direction:column;gap:11px}
+    .mm-map-panel.on{display:flex}
+    @media(max-width:820px){.mm-map-wrap{grid-template-columns:1fr}}
     .mm-city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
     .mm-city{border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);padding:20px;display:flex;flex-direction:column;gap:11px}
     .mm-city-top{display:flex;align-items:center;gap:12px}
@@ -2180,6 +2213,19 @@ function buildMahfolMakfol() {
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("What we do", "ماذا نقدّم")}</span><h2>${L("Investor concierge services", "خدمات استشارة المستثمر")}</h2><p>${L("Everything a foreign investor needs to explore, decide and enter the Saudi market — handled by one trusted partner.", "كل ما يحتاجه المستثمر الأجنبي ليستكشف ويقرّر ويدخل السوق السعودي — عبر شريك واحد موثوق.")}</p></div>
     <div class="grid grid-3">${serviceCards}</div>
+  </div></section>
+
+  <section class="section" id="mm-map"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Explore the map", "استكشف الخريطة")}</span><h2>${L("Interactive investment map", "خريطة الاستثمار التفاعلية")}</h2><p>${L("Tap a region to explore its sectors, key entities and investor program.", "اضغط على منطقة لاستكشاف قطاعاتها وأبرز جهاتها وبرنامج المستثمر فيها.")}</p></div>
+    <div class="mm-map-wrap">
+      <div class="mm-map-svg">
+        <svg viewBox="0 0 1000 900" role="img" aria-label="${Lraw("Investment map of Saudi Arabia", "خريطة الاستثمار في السعودية")}" preserveAspectRatio="xMidYMid meet">
+          <path class="mm-map-land" d="${KSA_PATH}"></path>
+          ${mapMarkers}
+        </svg>
+      </div>
+      <div class="mm-map-info" id="mmMapInfo">${mapPanels}</div>
+    </div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
@@ -2355,6 +2401,33 @@ function buildMahfolMakfol() {
   });
   sel.addEventListener("change",function(){lang=D[sel.value]?sel.value:"en";render();});
   render();
+})();
+(function(){
+  var marks = document.querySelectorAll(".mm-mk");
+  var panels = document.querySelectorAll(".mm-map-panel");
+  if(!marks.length) return;
+  function pick(i){
+    for(var a=0;a<marks.length;a++) marks[a].classList.toggle("on", a===i);
+    for(var b=0;b<panels.length;b++) panels[b].classList.toggle("on", b===i);
+  }
+  for(var k=0;k<marks.length;k++){(function(m){
+    var idx=parseInt(m.getAttribute("data-idx"),10);
+    m.addEventListener("click",function(){pick(idx);});
+    m.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(idx);}});
+  })(marks[k]);}
+  pick(0);
+})();
+(function(){
+  document.addEventListener("click",function(e){
+    var a=e.target.closest("[data-mm-city]");
+    if(!a) return;
+    var city=a.getAttribute("data-mm-city");
+    var n=document.getElementById("mm-notes");
+    if(n && city){
+      var prev=(n.value||"").replace(/^Program of interest:[^—]*(?: — )?/,"");
+      n.value = "Program of interest: "+city + (prev?" — "+prev:"");
+    }
+  });
 })();
 </script>`;
 
