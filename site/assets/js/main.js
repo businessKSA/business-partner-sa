@@ -2078,7 +2078,9 @@ var BP_EMP_BILLING = "monthly";
     function contacts(c) {
       var out = [];
       if (c.name) {
-        var nm = "<strong>" + esc(c.name) + "</strong>";
+        // Clicking the name opens the same full profile as the "View profile"
+        // button — it's the more discoverable click target.
+        var nm = '<strong class="emp-name-link" data-id="' + esc(c.id) + '">' + esc(c.name) + "</strong>";
         if (c.nameAlt) nm += ' <span class="emp-name-alt">(' + esc(c.nameAlt) + ")</span>";
         out.push(nm);
       }
@@ -2108,10 +2110,33 @@ var BP_EMP_BILLING = "monthly";
       var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
       return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
     }
+    // Minimal markdown → HTML for the AI-generated CV text (headings, bold,
+    // bullet lists) — just enough to render it as formatted content on the
+    // page instead of a wall of raw markdown syntax.
+    function mdToHtml(md) {
+      var lines = String(md || "").replace(/\r/g, "").split("\n");
+      var html = "", inList = false;
+      function closeList() { if (inList) { html += "</ul>"; inList = false; } }
+      function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+      lines.forEach(function (line) {
+        var t = line.trim();
+        if (!t) { closeList(); return; }
+        var h = /^(#{1,3})\s+(.*)/.exec(t);
+        if (h) { closeList(); html += "<h" + (h[1].length + 2) + ">" + inline(h[2]) + "</h" + (h[1].length + 2) + ">"; return; }
+        var li = /^[-*]\s+(.*)/.exec(t);
+        if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(li[1]) + "</li>"; return; }
+        closeList();
+        html += "<p>" + inline(t) + "</p>";
+      });
+      closeList();
+      return html;
+    }
     // Full structured profile — every field the API returned, laid out as
-    // readable data (not a raw file). Contact fields and the CV download only
-    // appear when the API actually included them, i.e. the employer is
-    // subscribed/unlocked — never rendered to a locked/browsing visitor.
+    // readable data (not a raw file), plus the actual CV text rendered as
+    // formatted content on the page. Contact fields, CV text and the
+    // download button only appear when the API actually included them, i.e.
+    // the employer is subscribed/unlocked — never rendered to a locked/
+    // browsing visitor.
     function profileHtml(c) {
       var rows = [
         [T("Name", "الاسم"), c.name ? (esc(c.name) + (c.nameAlt ? " (" + esc(c.nameAlt) + ")" : "")) : ""],
@@ -2133,11 +2158,14 @@ var BP_EMP_BILLING = "monthly";
       var html = '<div class="empd-profile">' + rows.map(function (r) {
         return '<div class="empd-profile-row"><span class="empd-profile-k">' + esc(r[0]) + '</span><span class="empd-profile-v">' + r[1] + "</span></div>";
       }).join("") + "</div>";
+      if (c.cvText) {
+        html += '<h3 style="margin-top:18px">' + T("CV", "السيرة الذاتية") + '</h3><div class="empd-cv-text">' + mdToHtml(c.cvText) + "</div>";
+      }
       if (c.cv) {
         html += '<a class="btn btn-primary" style="margin-top:14px;display:inline-block" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
           (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
       } else {
-        html += '<p class="emp-note" style="margin-top:14px">🔒 ' + T("Subscribe to view contact details and download the CV.", "اشترك لعرض بيانات التواصل وتحميل السيرة الذاتية.") + "</p>";
+        html += '<p class="emp-note" style="margin-top:14px">🔒 ' + T("Subscribe to view contact details, read the full CV and download it.", "اشترك لعرض بيانات التواصل وقراءة السيرة الذاتية كاملة وتحميلها.") + "</p>";
       }
       return html;
     }
@@ -2160,7 +2188,7 @@ var BP_EMP_BILLING = "monthly";
         aiBtns(c.id) + stageBtns(c.id) + "</div>";
     }
     function bindCard(scope) {
-      scope.querySelectorAll(".empd-view").forEach(function (b) {
+      scope.querySelectorAll(".empd-view, .emp-name-link").forEach(function (b) {
         b.addEventListener("click", function () { viewProfile(b.getAttribute("data-id")); });
       });
       scope.querySelectorAll(".empd-save").forEach(function (b) {
