@@ -1955,7 +1955,13 @@ var BP_EMP_BILLING = "monthly";
     function planRank() { if (DEMO) return 3; if (!PLAN) return UNLOCKED ? 3 : 0; return ({ "أساسية": 1, "احترافية": 2, "مؤسسية": 3 })[PLAN] || 1; }
     function setUnlocked(on) { UNLOCKED = on; var ub = document.getElementById("empd-unlock"); if (ub) ub.hidden = on; }
     function apiErr(d) { var e = d && d.error; if (e === "not_configured") return T("Notion isn't connected on the server.", "قاعدة Notion غير مربوطة بالخادم."); if (e === "notion_failed") return T("Couldn't query Notion — is the ATS DB shared with the integration?", "تعذّر الاستعلام من Notion — هل القاعدة مُشاركة مع التكامل؟"); if (e === "server_error") return T("Server error (the pool may be large — retry).", "خطأ في الخادم (قد تكون القاعدة كبيرة — أعد المحاولة)."); return T("Couldn't load candidates.", "تعذّر تحميل المرشّحين."); }
-    var DEMO_CODES = ["BP-DEMO", "DEMO", "BP-EMP-DEMO", "DEMO123"];
+    // Only codes that exist purely client-side (never a real subscription/owner
+    // code) belong here. "DEMO123" used to be listed too, which silently
+    // hijacked the backend's real OWNER_DEMO_CODE override (api/candidates.js
+    // defaults that to "demo123") — typing it always showed 6 fake candidates
+    // instead of resolving through /api/candidates to the real, top-tier-
+    // unlocked pool. Removed so any real code always goes through the API.
+    var DEMO_CODES = ["BP-DEMO", "BP-EMP-DEMO"];
     function isDemoCode(x) { return DEMO_CODES.indexOf(String(x == null ? "" : x).trim().toUpperCase()) > -1; }
     var DEMO_CANDS = [
       { id: "d1", name: "محمد الشهري", role: "محاسب أول", field: "محاسبة ومالية", city: "الرياض", experience: 6, education: "بكالوريوس", nationalityType: "سعودي", skills: "SOCPA, تقارير مالية, ضريبة القيمة المضافة", phone: "+966500000001", email: "demo1@example.com", cv: "" },

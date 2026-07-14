@@ -79,8 +79,11 @@ const OWNER_CODE = process.env.OWNER_DEMO_CODE || "demo123";
 // for an ACTIVE row by access code.
 async function resolvePlan(code) {
   if (!code) return { unlocked: false, plan: "" };
-  if (code === OWNER_CODE) return { unlocked: true, plan: "مؤسسية" };
-  if (CODES.includes(code)) return { unlocked: true, plan: "" };
+  // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
+  // all resolve the same way, matching how the front-end already normalizes
+  // its own client-only demo trigger codes.
+  if (code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, plan: "مؤسسية" };
+  if (CODES.some((c) => c.toLowerCase() === code.toLowerCase())) return { unlocked: true, plan: "" };
   try {
     const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
       method: "POST",
