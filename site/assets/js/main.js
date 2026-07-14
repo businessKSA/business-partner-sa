@@ -315,6 +315,50 @@ var BP = window.BP = window.BP || {};
     ["Photographer", "مصوّر"], ["Video Editor", "محرر فيديو"], ["Translator", "مترجم"], ["Interpreter", "مترجم فوري"],
     ["Real Estate Agent", "وسيط عقاري"], ["Insurance Agent", "وكيل تأمين"], ["Bank Teller", "موظف صراف بنك"],
     ["Relationship Manager (Banking)", "مدير علاقات مصرفي"], ["Investment Analyst", "محلل استثمار"],
+    // Additional coverage across the same 12 fields — the box still accepts
+    // free typing for anything not listed here, this just widens the presets.
+    ["VAT / Tax Specialist", "أخصائي ضرائب وقيمة مضافة"], ["Zakat & Tax Officer", "موظف زكاة وضريبة"],
+    ["Budget Analyst", "محلل ميزانية"], ["Cost Accountant", "محاسب تكاليف"], ["AR/AP Accountant", "محاسب ذمم"],
+    ["Financial Controller", "مراقب مالي"], ["Risk Analyst", "محلل مخاطر"], ["Actuary", "خبير اكتواري"],
+    ["Game Developer", "مطوّر ألعاب"], ["Embedded Systems Engineer", "مهندس أنظمة مدمجة"], ["ERP Consultant (SAP/Oracle)", "استشاري أنظمة ERP"],
+    ["Business Intelligence Analyst", "محلل ذكاء أعمال"], ["Site Reliability Engineer", "مهندس موثوقية أنظمة"], ["IT Auditor", "مدقق تقنية معلومات"],
+    ["Penetration Tester", "مختبر اختراق"], ["Technical Writer", "كاتب تقني"], ["Scrum Master / Agile Coach", "مدرّب Scrum / Agile"],
+    ["Key Account Manager", "مدير حسابات رئيسية"], ["Telesales Agent", "مندوب مبيعات هاتفي"], ["E-commerce Manager", "مدير تجارة إلكترونية"],
+    ["Category Manager", "مدير فئة منتجات"], ["Franchise Manager", "مدير امتياز تجاري"], ["Export Sales Manager", "مدير مبيعات تصدير"],
+    ["Copywriter", "كاتب محتوى إعلاني"], ["Media Buyer", "مشتري إعلانات"], ["Growth Marketing Manager", "مدير تسويق نمو"],
+    ["Community Manager", "مدير مجتمع رقمي"], ["Market Research Analyst", "محلل أبحاث سوق"], ["Events Manager", "مدير فعاليات"],
+    ["Government Relations Officer", "أخصائي علاقات حكومية"], ["Office Boy / Office Girl", "عامل خدمات مكتبية"],
+    ["Facilities Manager", "مدير مرافق"], ["Front Desk Coordinator", "منسّق استقبال"], ["Records & Archive Officer", "أمين سجلات وأرشيف"],
+    ["Learning & Development Manager", "مدير تدريب وتطوير"], ["HRIS Specialist", "أخصائي أنظمة معلومات الموارد البشرية"],
+    ["Employee Relations Specialist", "أخصائي علاقات موظفين"], ["Organizational Development Consultant", "استشاري تطوير تنظيمي"],
+    ["Head Chef", "شيف تنفيذي"], ["Butcher", "جزّار"], ["Baker", "خبّاز"], ["Food & Beverage Manager", "مدير أغذية ومشروبات"],
+    ["Catering Manager", "مدير تموين وضيافة"], ["Reservations Agent", "موظف حجوزات"], ["Concierge", "موظف كونسيرج"],
+    ["Spa Therapist", "معالج سبا"], ["Tour Guide", "مرشد سياحي"], ["Travel Consultant", "مستشار سفر"],
+    ["HVAC Engineer", "مهندس تكييف وتهوية"], ["Structural Draftsman", "رسّام إنشائي"], ["Land Surveyor", "مساح أراضٍ"],
+    ["MEP Engineer", "مهندس MEP"], ["Contracts Manager (Construction)", "مدير عقود مقاولات"], ["Estimation Engineer", "مهندس تسعير مشاريع"],
+    ["Interior Designer", "مصمم داخلي"], ["Urban Planner", "مخطط عمراني"], ["Welder", "لحّام"], ["Carpenter", "نجّار"],
+    ["Painter", "دهّان"], ["Crane Operator", "مشغّل رافعة برجية"], ["Heavy Equipment Operator", "مشغّل معدات ثقيلة"],
+    ["Surgeon", "جرّاح"], ["Anesthesiologist", "أخصائي تخدير"], ["Pediatrician", "طبيب أطفال"], ["Cardiologist", "أخصائي قلب"],
+    ["Dermatologist", "أخصائي جلدية"], ["Psychiatrist", "طبيب نفسي"], ["Optometrist", "أخصائي بصريات"],
+    ["Occupational Therapist", "أخصائي علاج وظيفي"], ["Speech Therapist", "أخصائي نطق"], ["Dietitian", "أخصائي تغذية"],
+    ["Midwife", "قابلة"], ["Paramedic", "مسعف"], ["Medical Coder / Biller", "مُرمّز طبي"], ["Hospital Administrator", "مدير مستشفى"],
+    ["Infection Control Specialist", "أخصائي مكافحة عدوى"], ["Quality Assurance Nurse", "ممرض ضمان جودة"],
+    ["University Lecturer", "محاضر جامعي"], ["Special Education Teacher", "معلّم تربية خاصة"], ["Librarian", "أمين مكتبة"],
+    ["Instructional Designer", "مصمم تعليمي"], ["Corporate Trainer", "مدرّب مؤسسي"], ["Admissions Officer", "موظف قبول وتسجيل"],
+    ["Import/Export Coordinator", "منسّق استيراد وتصدير"], ["Freight Forwarder", "وكيل شحن"], ["Inventory Controller", "مراقب مخزون"],
+    ["Last-Mile Delivery Manager", "مدير توصيل الميل الأخير"], ["Aviation Ground Staff", "طاقم أرضي للطيران"], ["Pilot", "طيار"],
+    ["Cabin Crew", "مضيف/ة طيران"], ["Sea Captain / Marine Officer", "ربان / ضابط بحري"],
+    ["Contract Manager (Legal)", "مدير عقود قانونية"], ["Notary", "كاتب عدل"], ["Litigation Specialist", "أخصائي تقاضي"],
+    ["Intellectual Property Specialist", "أخصائي ملكية فكرية"],
+    ["Store Supervisor", "مشرف متجر"], ["Visual Merchandiser", "مصمم عرض تجاري"], ["Inventory Clerk", "كاتب مخزون"],
+    ["Loss Prevention Officer", "مسؤول منع الفاقد"], ["Fashion Buyer", "مشتري أزياء"],
+    ["Production Supervisor (Manufacturing)", "مشرف إنتاج"], ["Process Engineer", "مهندس عمليات"], ["Maintenance Engineer", "مهندس صيانة"],
+    ["Quality Control Inspector", "مفتش ضبط جودة"], ["Plant Manager", "مدير مصنع"], ["CNC Operator", "مشغّل CNC"],
+    ["Petroleum Engineer", "مهندس بترول"], ["Drilling Engineer", "مهندس حفر"], ["Reservoir Engineer", "مهندس مكامن"],
+    ["Geologist", "جيولوجي"], ["Environmental Engineer", "مهندس بيئي"], ["Agricultural Engineer", "مهندس زراعي"],
+    ["Veterinarian", "طبيب بيطري"], ["Food Scientist", "عالم أغذية"],
+    ["Journalist", "صحفي"], ["Editor", "محرر"], ["Animator", "رسّام متحرك"], ["Sound Engineer", "مهندس صوت"],
+    ["Fitness Trainer", "مدرّب لياقة"], ["Barber / Hairstylist", "حلّاق / مصفف شعر"], ["Nail Technician", "فنّي عناية بالأظافر"],
   ];
 
   var SA_CITIES = [
@@ -364,6 +408,51 @@ var BP = window.BP = window.BP || {};
     ["Remote / Work from home", "", "عن بُعد / من المنزل", ""],
   ];
 
+  // Used for both Country and Nationality fields — candidates and jobs can be
+  // based anywhere, not just Saudi Arabia, so this deliberately covers the
+  // full range of countries rather than a Gulf/MENA-only shortlist.
+  var COUNTRIES = [
+    ["Saudi Arabia", "السعودية"], ["United Arab Emirates", "الإمارات"], ["Qatar", "قطر"], ["Bahrain", "البحرين"],
+    ["Kuwait", "الكويت"], ["Oman", "عُمان"], ["Egypt", "مصر"], ["Jordan", "الأردن"], ["Lebanon", "لبنان"],
+    ["Syria", "سوريا"], ["Iraq", "العراق"], ["Yemen", "اليمن"], ["Palestine", "فلسطين"], ["Sudan", "السودان"],
+    ["Libya", "ليبيا"], ["Tunisia", "تونس"], ["Algeria", "الجزائر"], ["Morocco", "المغرب"], ["Mauritania", "موريتانيا"],
+    ["Somalia", "الصومال"], ["Djibouti", "جيبوتي"], ["Comoros", "جزر القمر"],
+    ["Turkey", "تركيا"], ["Iran", "إيران"], ["Afghanistan", "أفغانستان"],
+    ["India", "الهند"], ["Pakistan", "باكستان"], ["Bangladesh", "بنغلاديش"], ["Sri Lanka", "سريلانكا"],
+    ["Nepal", "نيبال"], ["Bhutan", "بوتان"], ["Maldives", "المالديف"],
+    ["Philippines", "الفلبين"], ["Indonesia", "إندونيسيا"], ["Malaysia", "ماليزيا"], ["Thailand", "تايلاند"],
+    ["Vietnam", "فيتنام"], ["Myanmar", "ميانمار"], ["Cambodia", "كمبوديا"], ["Laos", "لاوس"], ["Singapore", "سنغافورة"],
+    ["Brunei", "بروناي"], ["Timor-Leste", "تيمور الشرقية"],
+    ["China", "الصين"], ["Japan", "اليابان"], ["South Korea", "كوريا الجنوبية"], ["North Korea", "كوريا الشمالية"],
+    ["Mongolia", "منغوليا"], ["Taiwan", "تايوان"], ["Hong Kong", "هونغ كونغ"],
+    ["Kazakhstan", "كازاخستان"], ["Uzbekistan", "أوزبكستان"], ["Turkmenistan", "تركمانستان"], ["Tajikistan", "طاجيكستان"],
+    ["Kyrgyzstan", "قيرغيزستان"], ["Azerbaijan", "أذربيجان"], ["Armenia", "أرمينيا"], ["Georgia", "جورجيا"],
+    ["United Kingdom", "المملكة المتحدة"], ["Ireland", "أيرلندا"], ["France", "فرنسا"], ["Germany", "ألمانيا"],
+    ["Netherlands", "هولندا"], ["Belgium", "بلجيكا"], ["Luxembourg", "لوكسمبورغ"], ["Switzerland", "سويسرا"],
+    ["Austria", "النمسا"], ["Spain", "إسبانيا"], ["Portugal", "البرتغال"], ["Italy", "إيطاليا"],
+    ["Greece", "اليونان"], ["Cyprus", "قبرص"], ["Malta", "مالطا"],
+    ["Sweden", "السويد"], ["Norway", "النرويج"], ["Denmark", "الدنمارك"], ["Finland", "فنلندا"], ["Iceland", "آيسلندا"],
+    ["Poland", "بولندا"], ["Czech Republic", "التشيك"], ["Slovakia", "سلوفاكيا"], ["Hungary", "المجر"],
+    ["Romania", "رومانيا"], ["Bulgaria", "بلغاريا"], ["Croatia", "كرواتيا"], ["Serbia", "صربيا"],
+    ["Bosnia and Herzegovina", "البوسنة والهرسك"], ["North Macedonia", "مقدونيا الشمالية"], ["Albania", "ألبانيا"],
+    ["Slovenia", "سلوفينيا"], ["Montenegro", "الجبل الأسود"], ["Kosovo", "كوسوفو"], ["Moldova", "مولدوفا"],
+    ["Ukraine", "أوكرانيا"], ["Belarus", "بيلاروسيا"], ["Russia", "روسيا"], ["Estonia", "إستونيا"],
+    ["Latvia", "لاتفيا"], ["Lithuania", "ليتوانيا"],
+    ["United States", "الولايات المتحدة"], ["Canada", "كندا"], ["Mexico", "المكسيك"],
+    ["Brazil", "البرازيل"], ["Argentina", "الأرجنتين"], ["Chile", "تشيلي"], ["Colombia", "كولومبيا"],
+    ["Peru", "بيرو"], ["Venezuela", "فنزويلا"], ["Ecuador", "الإكوادور"], ["Bolivia", "بوليفيا"],
+    ["Uruguay", "أوروغواي"], ["Paraguay", "باراغواي"], ["Panama", "بنما"], ["Costa Rica", "كوستاريكا"],
+    ["Cuba", "كوبا"], ["Dominican Republic", "جمهورية الدومينيكان"], ["Jamaica", "جامايكا"], ["Guatemala", "غواتيمالا"],
+    ["Honduras", "هندوراس"], ["El Salvador", "السلفادور"], ["Nicaragua", "نيكاراغوا"],
+    ["Nigeria", "نيجيريا"], ["Kenya", "كينيا"], ["Ethiopia", "إثيوبيا"], ["Ghana", "غانا"], ["Uganda", "أوغندا"],
+    ["Tanzania", "تنزانيا"], ["South Africa", "جنوب أفريقيا"], ["Senegal", "السنغال"], ["Ivory Coast", "ساحل العاج"],
+    ["Cameroon", "الكاميرون"], ["Zambia", "زامبيا"], ["Zimbabwe", "زيمبابوي"], ["Rwanda", "رواندا"],
+    ["Mali", "مالي"], ["Niger", "النيجر"], ["Chad", "تشاد"], ["Angola", "أنغولا"], ["Mozambique", "موزمبيق"],
+    ["Botswana", "بوتسوانا"], ["Namibia", "ناميبيا"], ["Malawi", "ملاوي"], ["Gabon", "الغابون"],
+    ["Australia", "أستراليا"], ["New Zealand", "نيوزيلندا"], ["Fiji", "فيجي"], ["Papua New Guinea", "بابوا غينيا الجديدة"],
+    ["Other / not listed", "أخرى / غير مدرجة"],
+  ];
+
   function jobTitleOptions(lang) {
     return JOB_TITLES.map(function (t) { return lang === "ar" ? t[1] : t[0]; });
   }
@@ -385,6 +474,9 @@ var BP = window.BP = window.BP || {};
     var out = [none, "1 " + y1, "2 " + yr, "3 " + yr, "4 " + yr];
     [5, 10, 15, 20, 25, 30, 35, 40, 45, 50].forEach(function (n) { out.push(n + "+ " + yr); });
     return out;
+  }
+  function countryOptions(lang) {
+    return COUNTRIES.map(function (c) { return lang === "ar" ? c[1] : c[0]; });
   }
 
   function initCombobox(input, getOptions) {
@@ -436,14 +528,17 @@ var BP = window.BP = window.BP || {};
     initCombobox(document.getElementById("c-field"), function () { return jobTitleOptions(lang); });
     initCombobox(document.getElementById("c-city"), function () { return cityOptions(lang); });
     initCombobox(document.getElementById("c-exp"), function () { return experienceOptions(lang); });
+    initCombobox(document.getElementById("c-country"), function () { return countryOptions(lang); });
+    initCombobox(document.getElementById("c-nationality"), function () { return countryOptions(lang); });
   });
 
   // Exposed so other pages (e.g. the employer job-posting form) can reuse
-  // the same standardized job-title/city taxonomy and combobox widget.
+  // the same standardized job-title/city/country taxonomy and combobox widget.
   window.BP = window.BP || {};
   BP.initCombobox = initCombobox;
   BP.jobTitleOptions = jobTitleOptions;
   BP.cityOptions = cityOptions;
+  BP.countryOptions = countryOptions;
 })();
 
 /* ---------- Careers: join candidate pool → /api/candidate (Notion) ---------- */
@@ -518,14 +613,16 @@ var BP = window.BP = window.BP || {};
       var cvEl = document.getElementById("c-cv");
       var payload = {
         name: name, phone: phone, email: val("c-email"), field: val("c-field"),
-        experience: val("c-exp"), city: val("c-city"), salary: val("c-salary"),
+        experience: val("c-exp"), city: val("c-city"), country: val("c-country"),
+        nationality: val("c-nationality"), residenceStatus: val("c-residence"),
+        salary: val("c-salary"),
         linkedin: val("c-linkedin"), consent: consentEl ? consentEl.checked : false,
         jobId: val("c-job-id"), jobTitle: val("c-job-title"),
         questions: {
           interest: val("c-q1"),
           strengths: val("c-q2"),
           notice: val("c-notice"),
-          workAuthorization: val("c-workauth"),
+          workAuthorization: val("c-residence"),
         },
       };
       var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
@@ -563,6 +660,53 @@ var BP = window.BP = window.BP || {};
           else fallback();
         })
         .catch(function () { btn.textContent = lbl; fallback(); });
+    });
+  });
+})();
+
+/* ---------- Careers: track my application status ---------- */
+(function () {
+  "use strict";
+  function esc4(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("track-form");
+    if (!form) return;
+    var result = document.getElementById("track-result");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var phone = document.getElementById("tr-phone").value.trim();
+      var email = document.getElementById("tr-email").value.trim();
+      if (!phone || !email) return;
+      var btn = form.querySelector("button[type=submit]"); var lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = BP.t("Checking…", "جارٍ التحقق…");
+      fetch("/api/candidate?phone=" + encodeURIComponent(phone) + "&email=" + encodeURIComponent(email))
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          btn.disabled = false; btn.textContent = lbl;
+          result.hidden = false;
+          if (res.s === 200 && res.d && res.d.ok) {
+            var c = res.d.candidate;
+            var rows = [
+              [BP.t("Name", "الاسم"), c.name],
+              [BP.t("Field", "المجال"), c.field],
+              [BP.t("City", "المدينة"), [c.city, c.country].filter(Boolean).join(" — ")],
+              [BP.t("Status", "الحالة"), c.pipelineStage],
+            ].filter(function (r) { return r[1]; });
+            var links = "";
+            if (c.atsCvLink) links += '<a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="' + esc4(c.atsCvLink) + '">' + BP.t("View ATS CV", "عرض السيرة الذاتية") + "</a>";
+            result.innerHTML = '<div class="card">' + rows.map(function (r) { return "<p><b>" + esc4(r[0]) + ":</b> " + esc4(r[1]) + "</p>"; }).join("") +
+              (links ? '<div class="talent-actions" style="margin-top:10px">' + links + "</div>" : "") + "</div>";
+          } else if (res.s === 404) {
+            result.innerHTML = '<p class="text-soft center">' + BP.t("No application found with this phone and email.", "لا يوجد طلب بهذا الجوال والبريد.") + "</p>";
+          } else {
+            result.innerHTML = '<p class="text-soft center">' + BP.t("Couldn't check status right now.", "تعذّر التحقق من الحالة الآن.") + "</p>";
+          }
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = lbl;
+          result.hidden = false;
+          result.innerHTML = '<p class="text-soft center">' + BP.t("Couldn't check status right now.", "تعذّر التحقق من الحالة الآن.") + "</p>";
+        });
     });
   });
 })();
@@ -1811,7 +1955,13 @@ var BP_EMP_BILLING = "monthly";
     function planRank() { if (DEMO) return 3; if (!PLAN) return UNLOCKED ? 3 : 0; return ({ "أساسية": 1, "احترافية": 2, "مؤسسية": 3 })[PLAN] || 1; }
     function setUnlocked(on) { UNLOCKED = on; var ub = document.getElementById("empd-unlock"); if (ub) ub.hidden = on; }
     function apiErr(d) { var e = d && d.error; if (e === "not_configured") return T("Notion isn't connected on the server.", "قاعدة Notion غير مربوطة بالخادم."); if (e === "notion_failed") return T("Couldn't query Notion — is the ATS DB shared with the integration?", "تعذّر الاستعلام من Notion — هل القاعدة مُشاركة مع التكامل؟"); if (e === "server_error") return T("Server error (the pool may be large — retry).", "خطأ في الخادم (قد تكون القاعدة كبيرة — أعد المحاولة)."); return T("Couldn't load candidates.", "تعذّر تحميل المرشّحين."); }
-    var DEMO_CODES = ["BP-DEMO", "DEMO", "BP-EMP-DEMO", "DEMO123"];
+    // Only codes that exist purely client-side (never a real subscription/owner
+    // code) belong here. "DEMO123" used to be listed too, which silently
+    // hijacked the backend's real OWNER_DEMO_CODE override (api/candidates.js
+    // defaults that to "demo123") — typing it always showed 6 fake candidates
+    // instead of resolving through /api/candidates to the real, top-tier-
+    // unlocked pool. Removed so any real code always goes through the API.
+    var DEMO_CODES = ["BP-DEMO", "BP-EMP-DEMO"];
     function isDemoCode(x) { return DEMO_CODES.indexOf(String(x == null ? "" : x).trim().toUpperCase()) > -1; }
     var DEMO_CANDS = [
       { id: "d1", name: "محمد الشهري", role: "محاسب أول", field: "محاسبة ومالية", city: "الرياض", experience: 6, education: "بكالوريوس", nationalityType: "سعودي", skills: "SOCPA, تقارير مالية, ضريبة القيمة المضافة", phone: "+966500000001", email: "demo1@example.com", cv: "" },

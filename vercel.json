@@ -6,6 +6,9 @@
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "api/candidate.js": { "maxDuration": 30 }
+  },
   "redirects": [
     { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },
     { "source": "/business-tourism", "destination": "/tourism", "permanent": true }

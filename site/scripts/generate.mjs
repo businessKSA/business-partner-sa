@@ -2667,18 +2667,9 @@ function buildMagazinePrint() {
 // employer recruitment platform, job-seeker intake) under one identity,
 // without spinning up a separate site/domain.
 function buildHR() {
-  const hrServices = services.filter((s) => s.category === "HR Services" || s.category === "Recruitment").slice(0, 6);
-  const svcCards = hrServices.map((s) => {
-    const d = sDesc(s);
-    return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
-      <h3>${esc(sName(s))}</h3>
-      <p class="desc">${esc(d.slice(0, 100))}${d.length > 100 ? "…" : ""}</p>
-      <span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></a>`;
-  }).join("");
   const entryCards = [
     ["🏢", L("For employers", "لأصحاب الأعمال"), L("Hire from our pre-screened, Saudization-checked candidate pool — we handle sourcing to onboarding.", "وظّف من قاعدة مرشّحين مُصنّفين ومفحوصين للتوطين — نتولّى من الاستقطاب حتى التعيين."), "/employers", L("Browse candidates", "تصفّح المرشّحين")],
-    ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Join our candidate pool once — employers hiring through Business Partner reach you.", "سجّل مرة واحدة — وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Submit your CV", "أرسل سيرتك")],
-    ["📋", L("HR & compliance services", "خدمات الموارد البشرية والامتثال"), L("Qiwa, GOSI, Mudad, contracts, Saudization and everyday HR administration.", "قوى، التأمينات، مدد، العقود، التوطين وإدارة الموارد البشرية اليومية."), "/services/category/hr-services", L("Browse services", "استعرض الخدمات")],
+    ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Browse open roles and apply — or join our candidate pool once and employers hiring through Business Partner reach you.", "تصفّح الوظائف المفتوحة وقدّم — أو سجّل مرة واحدة في قاعدة المرشّحين وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Browse jobs", "تصفّح الوظائف")],
   ].map((p) => `<a class="card feature" href="${u(p[3])}">
     <div class="card-icon" style="font-size:1.6rem">${p[0]}</div>
     <h3>${p[1]}</h3><p>${p[2]}</p>
@@ -2687,25 +2678,19 @@ function buildHR() {
   <section class="hero"><div class="container hero-inner" style="max-width:900px">
     <div class="subbrand-badge">${I.building}<span>${L("HR", "الموارد البشرية")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</h1>
-    <p class="lead">${L("Everything HR under one roof: a recruitment platform for employers, a candidate pool for job seekers, and a full catalog of HR & compliance services — Qiwa, GOSI, Mudad and Saudization, managed for you.", "كل ما يخص الموارد البشرية تحت مظلة واحدة: منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال — قوى والتأمينات ومدد والتوطين، بندير لك كل شي.")}</p>
-    <div class="hero-actions">${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-services")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
+    <p class="lead">${L("A recruitment platform for employers and a candidate pool for job seekers — sourcing, screening, interviews, and hiring, managed for you.", "منصة توظيف لأصحاب الأعمال وقاعدة مرشّحين للباحثين عن عمل — استقطاب، فرز، مقابلات، وتوظيف، بندير لك كل شي.")}</p>
+    <div class="hero-actions">${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/careers")}#open-jobs">${L("Browse open jobs", "تصفّح الوظائف المفتوحة")}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Three ways in", "ثلاث طرق للبدء")}</span><h2>${L("Whichever side you're on, we've got you", "أياً كان موقعك، عندنا لك حل")}</h2></div>
-    <div class="grid grid-3">${entryCards}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Catalog", "الكتالوج")}</span><h2>${L("A sample of our HR services", "نماذج من خدماتنا في الموارد البشرية")}</h2></div>
-    <div class="grid grid-3">${svcCards}</div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services/category/hr-services")}">${L("View all HR services", "استعرض كل خدمات الموارد البشرية")} ${I.arrow}</a></div>
+    <div class="section-head"><span class="eyebrow">${L("Two ways in", "طريقتان للبدء")}</span><h2>${L("Whichever side you're on, we've got you", "أياً كان موقعك، عندنا لك حل")}</h2></div>
+    <div class="grid grid-2">${entryCards}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Ready to start?", "جاهز نبدأ؟")}</h2><p>${L("Tell us what you need — hiring, HR admin, or a job — and we'll point you to the right track.", "أخبرنا باحتياجك — توظيف، إدارة موارد بشرية، أو وظيفة — ونوجّهك للمسار المناسب.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready to start?", "جاهز نبدأ؟")}</h2><p>${L("Tell us what you need — hiring or a job — and we'll point you to the right track.", "أخبرنا باحتياجك — توظيف أو وظيفة — ونوجّهك للمسار المناسب.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: Lraw("HR by Business Partner", "الموارد البشرية من بزنس بارتنر"), desc: Lraw("A recruitment platform for employers, a candidate pool for job seekers, and a full HR & compliance services catalog.", "منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال."), active: "/hr", path: "/hr", body });
+  return page({ title: Lraw("HR by Business Partner", "الموارد البشرية من بزنس بارتنر"), desc: Lraw("A recruitment platform for employers and a candidate pool for job seekers.", "منصة توظيف لأصحاب الأعمال وقاعدة مرشّحين للباحثين عن عمل."), active: "/hr", path: "/hr", body });
 }
 
 function buildEmployers() {
@@ -3127,7 +3112,7 @@ function jobCardsHtml() {
         <h3>${L(j.title.en, j.title.ar)}</h3>
         <p>${L(j.summary.en, j.summary.ar)}</p>
         <div class="emp-meta">${L(j.meta.en, j.meta.ar)}</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="${u("/jobs/" + j.slug)}">${L("View job", "عرض الوظيفة")}</a><a class="btn btn-ghost btn-sm ats-apply-link" href="#seeker-form" data-job-id="${esc(j.slug)}" data-job-title="${esc(L(j.title.en, j.title.ar))}">${L("Apply", "تقديم")}</a></div>
+        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="${u("/jobs/" + j.slug)}">${L("View job", "عرض الوظيفة")}</a><a class="btn btn-ghost btn-sm" href="${u("/jobs/" + j.slug)}#apply-form">${L("Apply", "تقديم")}</a></div>
       </article>`).join("");
   const poolCard = `<article class="card ats-job-card">
         <span class="emp-tag">${L("Candidate pool", "قاعدة المرشحين")}</span>
@@ -3155,22 +3140,88 @@ function applicationExtraFieldsHtml() {
 function applicationQuestionsHtml() {
   return `
         <div class="field"><label for="c-q1">${L("Why are you interested in this role?", "لماذا ترغب بهذه الوظيفة؟")}</label><textarea id="c-q1" name="question1" rows="3" placeholder="${Lraw("Briefly explain your interest and fit.", "اكتب باختصار سبب اهتمامك ومدى ملاءمتك.")}"></textarea></div>
-        <div class="field"><label for="c-q2">${L("What are your strongest relevant skills?", "ما أقوى مهاراتك المرتبطة بالوظيفة؟")}</label><textarea id="c-q2" name="question2" rows="3" placeholder="${Lraw("Systems, tools, sectors, or achievements.", "اذكر الأنظمة، الأدوات، القطاعات، أو الإنجازات.")}"></textarea></div>
+        <div class="field"><label for="c-q2">${L("What are your strongest relevant skills?", "ما أقوى مهاراتك المرتبطة بالوظيفة؟")}</label><textarea id="c-q2" name="question2" rows="3" placeholder="${Lraw("Systems, tools, sectors, or achievements.", "اذكر الأنظمة، الأدوات، القطاعات، أو الإنجازات.")}"></textarea></div>`;
+}
+// Shared application form — used standalone per job page (fixedJob set, so
+// the application is scoped to that one posting) and on /careers + the
+// candidate-pool portal page (fixedJob null, so the job stays whatever the
+// visitor picked via an Apply link, defaulting to the general pool).
+function seekerFormHtml(f, fixedJob) {
+  const jobFieldsHtml = fixedJob
+    ? `<input id="c-job-id" name="jobId" type="hidden" value="${esc(fixedJob.id)}"><input id="c-job-title" name="jobTitle" type="hidden" value="${esc(fixedJob.title)}">`
+    : applicationExtraFieldsHtml();
+  return `
+      <form class="calc-form cv-form" id="cv-form" novalidate>
+        ${jobFieldsHtml}
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-notice">${L("Notice period", "فترة الإشعار")}</label><input id="c-notice" name="notice" type="text" placeholder="${Lraw("Immediate / 30 days / …", "فوري / 30 يوم / ...")}"></div>
-          <div class="field"><label for="c-workauth">${L("Work authorization", "أهلية العمل")}</label><input id="c-workauth" name="workauth" type="text" placeholder="${Lraw("Saudi / transferable iqama / …", "سعودي / إقامة قابلة للنقل / ...")}"></div>
-        </div>`;
+          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
+          <div class="field"><label for="c-phone">${L("Mobile (with country code)", "الجوال (مع رمز الدولة)")}</label><input id="c-phone" name="phone" type="tel" required placeholder="+9665XXXXXXXX"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-email">${L("Email", f.email)} *</label><input id="c-email" name="email" type="email" required></div>
+          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)} *</label><input id="c-exp" name="experience" type="text" required placeholder="${Lraw("Type or pick, e.g. 5+ years", "اكتب أو اختر، مثال: 5+ سنوات")}"></div>
+        </div>
+        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")} *</label><input id="c-field" name="field" type="text" required placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-nationality">${L("Nationality", "الجنسية")} *</label><input id="c-nationality" name="nationality" type="text" required placeholder="${Lraw("Type or pick a country", "اكتب أو اختر دولة")}"></div>
+          <div class="field"><label for="c-residence">${L("Residence status", "حالة الإقامة")} *</label>
+            <select id="c-residence" name="residenceStatus" required>
+              <option value="">${L("Choose…", "اختر…")}</option>
+              <option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>
+              <option value="مقيم بإقامة نظامية قابلة للنقل">${L("Resident in KSA — transferable iqama", "مقيم في السعودية — إقامة قابلة للنقل")}</option>
+              <option value="مقيم بإقامة غير قابلة للنقل">${L("Resident in KSA — non-transferable iqama", "مقيم في السعودية — إقامة غير قابلة للنقل")}</option>
+              <option value="خارج السعودية">${L("Outside Saudi Arabia", "خارج السعودية")}</option>
+              <option value="أخرى">${L("Other", "أخرى")}</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-country">${L("Country (current location)", "الدولة (موقعك الحالي)")} *</label><input id="c-country" name="country" type="text" required placeholder="${Lraw("Type or pick a country", "اكتب أو اختر دولة")}"></div>
+          <div class="field"><label for="c-city">${L("City", "المدينة")} *</label><input id="c-city" name="city" type="text" required placeholder="${Lraw("Type or pick a city", "اكتب أو اختر مدينة")}"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")} *</label><input id="c-salary" name="salary" type="text" required placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
+          <div class="field"><label for="c-notice">${L("Notice period", "فترة الإشعار")}</label>
+            <select id="c-notice" name="notice">
+              <option value="">${L("Choose…", "اختر…")}</option>
+              <option value="فوري">${L("Immediate", "فوري")}</option>
+              <option value="أسبوعين">${L("2 weeks", "أسبوعين")}</option>
+              <option value="شهر">${L("1 month", "شهر")}</option>
+              <option value="شهرين">${L("2 months", "شهرين")}</option>
+              <option value="3 أشهر فأكثر">${L("3+ months", "3 أشهر فأكثر")}</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
+        ${applicationQuestionsHtml()}
+        <div class="field">
+          <label>${L("CV — PDF or Word", "السيرة الذاتية — PDF أو Word")}</label>
+          <label class="file-drop" for="c-cv" id="cv-drop">
+            <span class="file-ico">${I.upload}</span>
+            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
+          </label>
+          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
+        </div>
+        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
+        <p class="form-note" id="cv-note">${L("Upload your CV (PDF or Word) to reach our team securely.", "ارفع سيرتك (PDF أو Word) لتصل لفريقنا بأمان.")}</p>
+        <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
+      </form>
+      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>`;
 }
 function buildJobPage(job) {
+  const f = site.careers.seeker.fields;
   const title = L(job.title.en, job.title.ar);
   const resp = job.responsibilities[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
   const reqs = job.requirements[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
+  // Each posted job carries its own embedded application form (not a shared
+  // one across every job) — applying here is scoped to this posting only.
   const body = `
   <section class="hero"><div class="container hero-inner" style="max-width:960px">
     <span class="eyebrow">${L("Open job", "وظيفة مفتوحة")}</span>
     <h1>${esc(title)}</h1>
     <p class="lead">${esc(L(job.summary.en, job.summary.ar))}</p>
-    <div class="talent-actions"><a class="btn btn-primary" href="${u("/careers")}?job=${esc(job.slug)}#seeker-form">${L("Apply now", "قدّم الآن")}</a><a class="btn btn-ghost" href="${u("/careers")}#open-jobs">${L("Back to jobs", "العودة للوظائف")}</a></div>
+    <div class="talent-actions"><a class="btn btn-primary" href="#apply-form">${L("Apply now", "قدّم الآن")}</a><a class="btn btn-ghost" href="${u("/careers")}#open-jobs">${L("Back to jobs", "العودة للوظائف")}</a></div>
   </div></section>
   <section class="section"><div class="container" style="max-width:900px">
     <div class="grid grid-3" style="margin-bottom:28px">
@@ -3182,7 +3233,13 @@ function buildJobPage(job) {
     <ul class="check-list">${resp}</ul>
     <h2>${L("What we are looking for", "المتطلبات")}</h2>
     <ul class="check-list">${reqs}</ul>
-    <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS بيزنس بارتنر وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="${u("/careers")}?job=${esc(job.slug)}#seeker-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS بيزنس بارتنر وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="#apply-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
+  </div></section>
+  <section class="section" style="padding-top:0"><div class="container">
+    <div style="max-width:640px;margin:0 auto" id="apply-form">
+      <h2 class="center">${L("Apply for this role", "قدّم على هذه الوظيفة")}</h2>
+      ${seekerFormHtml(f, { id: job.slug, title })}
+    </div>
   </div></section>`;
   return page({ title: Lraw(`${title} — Business Partner`, `${title} — بيزنس بارتنر`), desc: Lraw(`Apply for ${title} through the Business Partner ATS.`, `قدّم على وظيفة ${title} عبر ATS بيزنس بارتنر.`), active: "/careers", path: "/jobs/" + job.slug, body });
 }
@@ -3208,39 +3265,11 @@ function buildPortalCandidates() {
   <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
     <div style="max-width:640px;margin:0 auto" id="seeker-form">
-      <form class="calc-form cv-form" id="cv-form" novalidate>
-        ${applicationExtraFieldsHtml()}
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
-          <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-email">${L("Email", f.email)} *</label><input id="c-email" name="email" type="email" required></div>
-          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)} *</label><input id="c-exp" name="experience" type="text" required placeholder="${Lraw("Type or pick, e.g. 5+ years", "اكتب أو اختر، مثال: 5+ سنوات")}"></div>
-        </div>
-        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")} *</label><input id="c-field" name="field" type="text" required placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")} *</label><input id="c-city" name="city" type="text" required placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
-          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")} *</label><input id="c-salary" name="salary" type="text" required placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
-        </div>
-        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
-        ${applicationQuestionsHtml()}
-        <div class="field">
-          <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
-          <label class="file-drop" for="c-cv" id="cv-drop">
-            <span class="file-ico">${I.upload}</span>
-            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
-          </label>
-          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
-        </div>
-        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
-        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team securely.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا بأمان.")}</p>
-        <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
-      </form>
-      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
+      ${seekerFormHtml(f, null)}
     </div>
-  </div></section>`;
+  </div></section>
+
+  ${trackApplicationHtml()}`;
   return portalPage({ title: Lraw("Jobs for job seekers — HR portal", "التوظيف للباحثين عن عمل — بوابة التوظيف"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), path: "/portal/candidates", active: "/candidates", body });
 }
 
@@ -3313,6 +3342,24 @@ function buildWorkspaceRequest() {
   return page({ title: Lraw("Request a workspace — Business Partner", "اطلب مساحة عمل — بيزنس بارتنر"), desc: Lraw("Tell us your workspace requirements and we match you with the best options in Saudi Arabia.", "أخبرنا بمتطلبات مساحتك ونطابقك مع أفضل الخيارات في السعودية."), active: "/workspaces", path: "/workspace-request", body });
 }
 
+// Lets a candidate see how their own profile looks (pipeline stage, CV
+// links) using the same phone+email pair they applied with — no separate
+// login system needed.
+function trackApplicationHtml() {
+  return `
+  <section class="section section--gray"><div class="container">
+    <div style="max-width:520px;margin:0 auto">
+      <h2 class="center">${L("Track your application", "تابع طلبك")}</h2>
+      <p class="center text-soft">${L("Enter the phone and email you applied with to see your current status.", "أدخل الجوال والبريد اللذين قدّمت بهما لمشاهدة حالتك الحالية.")}</p>
+      <form id="track-form" novalidate class="grid grid-2" style="gap:0 20px;margin-top:16px">
+        <div class="field"><label for="tr-phone">${L("Mobile", "الجوال")}</label><input id="tr-phone" type="tel" required></div>
+        <div class="field"><label for="tr-email">${L("Email", "البريد الإلكتروني")}</label><input id="tr-email" type="email" required></div>
+        <div class="field field-full"><button type="submit" class="btn btn-primary" style="width:100%">${L("Check status", "تحقّق من الحالة")}</button></div>
+      </form>
+      <div id="track-result" hidden style="margin-top:20px"></div>
+    </div>
+  </div></section>`;
+}
 function buildCareers() {
   const c = site.careers;
   const f = c.seeker.fields;
@@ -3337,39 +3384,13 @@ function buildCareers() {
   <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
     <div style="max-width:640px;margin:0 auto" id="seeker-form">
-      <form class="calc-form cv-form" id="cv-form" novalidate>
-        ${applicationExtraFieldsHtml()}
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
-          <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-email">${L("Email", f.email)} *</label><input id="c-email" name="email" type="email" required></div>
-          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)} *</label><input id="c-exp" name="experience" type="text" required placeholder="${Lraw("Type or pick, e.g. 5+ years", "اكتب أو اختر، مثال: 5+ سنوات")}"></div>
-        </div>
-        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")} *</label><input id="c-field" name="field" type="text" required placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")} *</label><input id="c-city" name="city" type="text" required placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
-          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")} *</label><input id="c-salary" name="salary" type="text" required placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
-        </div>
-        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
-        ${applicationQuestionsHtml()}
-        <div class="field">
-          <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
-          <label class="file-drop" for="c-cv" id="cv-drop">
-            <span class="file-ico">${I.upload}</span>
-            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
-          </label>
-          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
-        </div>
-        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
-        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team securely.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا بأمان.")}</p>
-        <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
-      </form>
-      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
+      <h2 class="center">${L("Join the general candidate pool", "انضم لقاعدة المرشحين العامة")}</h2>
+      <p class="center text-soft" style="margin-top:-8px">${L("Not applying for a specific posting above? Submit here and we'll match you when a suitable role opens.", "لا تقدّم على وظيفة محددة أعلاه؟ قدّم هنا وسنطابقك عند توفّر فرصة مناسبة.")}</p>
+      ${seekerFormHtml(f, null)}
     </div>
-  </div></section>`;
+  </div></section>
+
+  ${trackApplicationHtml()}`;
   return page({ title: Lraw("Careers — Business Partner", "الوظائف — بيزنس بارتنر"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر بيزنس بارتنر."), active: "/careers", body });
 }
 

@@ -47,8 +47,9 @@ async function notionFetch(path, method, payload) {
   });
 }
 
-// Paging through 1600+ ATS rows needs more than the default serverless budget.
-export const config = { maxDuration: 60 };
+// Paging through the ~14k-row ATS needs more than the default serverless
+// budget — an unfiltered browse can be ~120 sequential Notion API calls.
+export const config = { maxDuration: 300 };
 
 const txt = (p) => {
   if (!p) return "";
@@ -78,8 +79,11 @@ const OWNER_CODE = process.env.OWNER_DEMO_CODE || "demo123";
 // for an ACTIVE row by access code.
 async function resolvePlan(code) {
   if (!code) return { unlocked: false, plan: "" };
-  if (code === OWNER_CODE) return { unlocked: true, plan: "مؤسسية" };
-  if (CODES.includes(code)) return { unlocked: true, plan: "" };
+  // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
+  // all resolve the same way, matching how the front-end already normalizes
+  // its own client-only demo trigger codes.
+  if (code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, plan: "مؤسسية" };
+  if (CODES.some((c) => c.toLowerCase() === code.toLowerCase())) return { unlocked: true, plan: "" };
   try {
     const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
       method: "POST",
@@ -230,19 +234,29 @@ export default async function handler(req, res) {
   // Server-side Notion filter: only the website-sourced / active candidates.
   // "مخفي عن الموقع" = true means the CV failed to parse / is unreadable — the
   // ingestion pipeline flags it for review and it must never reach employers.
+  // City/nationality are pushed into the query too (not just filtered from the
+  // fetched page client-side) so a filtered search doesn't have to page through
+  // the whole ~14k-row database to find a few hundred matches.
   const notHidden = { property: "مخفي عن الموقع", checkbox: { equals: false } };
+  const andFilters = [notHidden];
+  if (qField) andFilters.push({ property: "Field", select: { equals: qField } });
+  if (qCity) andFilters.push({ property: "City", rich_text: { contains: qCity } });
+  if (qNat) andFilters.push({ property: "Nationality Type", select: { equals: qNat } });
   const base = {
     page_size: 100,
     sorts: [{ property: "Candidate ID", direction: "descending" }],
-    filter: qField ? { and: [notHidden, { property: "Field", select: { equals: qField } }] } : notHidden,
+    filter: andFilters.length > 1 ? { and: andFilters } : notHidden,
   };
 
   try {
-    // Page through the whole database so employers see ALL candidates, not just
-    // the first page (Notion caps a page at 100). Guarded to a sane maximum.
+    // Page through the whole (filtered) result set so employers see ALL
+    // matching candidates, not just the first page (Notion caps a page at
+    // 100) or an arbitrary early cutoff. The pool is ~14k rows and growing —
+    // guarded at 300 pages (30,000 rows) as a sane upper bound, not a
+    // realistic ceiling.
     let results = [];
     let cursor = null;
-    for (let guard = 0; guard < 25; guard++) {
+    for (let guard = 0; guard < 300; guard++) {
       const body = cursor ? { ...base, start_cursor: cursor } : base;
       const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
         method: "POST",
@@ -300,9 +314,9 @@ export default async function handler(req, res) {
       return rec;
     });
 
-    // Client-ish filters that Notion can't do cheaply here.
-    if (qCity) rows = rows.filter((x) => x.city.toLowerCase().includes(qCity));
-    if (qNat) rows = rows.filter((x) => x.nationalityType === qNat);
+    // Free-text search across role/skills/field — no clean single Notion
+    // filter for an OR-across-properties "contains", so it's applied here
+    // against the already city/nationality/field-filtered rows from Notion.
     if (qText) rows = rows.filter((x) => (x.role + " " + x.skills + " " + x.field).toLowerCase().includes(qText));
 
     res.statusCode = 200;

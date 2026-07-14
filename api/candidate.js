@@ -88,18 +88,64 @@ async function notion(path, method, payload) {
   });
 }
 
+// Calls the n8n ATS workflow and waits for its enrichment (CV text extraction,
+// AI screening, Drive storage links) so it can be folded into the same Notion
+// write below — n8n itself no longer writes to Notion, to avoid creating a
+// second candidate record for every submission (this handler is always the
+// sole Notion writer). A 25s cap keeps this under Vercel's function timeout
+// even though the full n8n chain (PDF parse + AI + Drive + emails) can run
+// close to that; on timeout/failure we just skip enrichment and continue —
+// the candidate record still gets created from the form fields alone.
 async function forwardToN8n(payload) {
   if (!N8N_ATS_WEBHOOK) return { configured: false, ok: false };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 25000);
   try {
     const r = await fetch(N8N_ATS_WEBHOOK, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
-    return { configured: true, ok: r.ok, status: r.status };
+    let data = null;
+    try { data = await r.json(); } catch { /* non-JSON or empty body */ }
+    return { configured: true, ok: r.ok, status: r.status, data };
   } catch (e) {
     console.error("n8n ATS forward failed", String(e).slice(0, 200));
     return { configured: true, ok: false, error: "forward_failed" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Folds the n8n workflow's CV-processing result (Drive links + AI screening)
+// into the Notion properties this handler is about to write. Safe no-op when
+// n8n didn't respond in time or found nothing — the base form-field record
+// still gets created either way.
+function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
+  const data = n8nResult && n8nResult.ok ? n8nResult.data : null;
+  if (!data) return;
+  const drive = data.drive || {};
+  if (!props["CV Link"] && /^https?:\/\//i.test(drive.originalCvUrl || "")) {
+    props["CV Link"] = { url: drive.originalCvUrl };
+  }
+  if (/^https?:\/\//i.test(drive.atsCvDocUrl || "")) {
+    props["ATS CV (Drive)"] = { url: drive.atsCvDocUrl };
+  }
+  if (/^https?:\/\//i.test(drive.candidateFolderUrl || "")) {
+    props["مجلد المرشح (Drive)"] = { url: drive.candidateFolderUrl };
+  }
+  const ai = data.ai || {};
+  if (ai.candidate_summary) {
+    const notesSoFar = (props["Notes"]?.rich_text || []).map((t) => t.text.content).join("\n");
+    props["Notes"] = { rich_text: rt([notesSoFar, `ملخص الذكاء الاصطناعي: ${ai.candidate_summary}`].filter(Boolean).join("\n\n")) };
+  }
+  // Only a brand-new candidate's starting stage is AI-informed — an existing
+  // candidate may already be further along the pipeline and must not be
+  // pushed backward by a resubmission.
+  const pipelineStage = data.screening && data.screening.pipelineStage;
+  if (isNewCandidate && pipelineStage) {
+    props["Pipeline Stage"] = { select: { name: pipelineStage } };
   }
 }
 
@@ -118,10 +164,60 @@ async function findExisting(email, phone) {
   return (data.results || [])[0] || null;
 }
 
+const txt = (p) => {
+  if (!p) return "";
+  if (p.type === "title") return (p.title || []).map((t) => t.plain_text).join("");
+  if (p.type === "rich_text") return (p.rich_text || []).map((t) => t.plain_text).join("");
+  if (p.type === "select") return p.select ? p.select.name : "";
+  if (p.type === "number") return p.number != null ? String(p.number) : "";
+  if (p.type === "email") return p.email || "";
+  if (p.type === "phone_number") return p.phone_number || "";
+  if (p.type === "url") return p.url || "";
+  return "";
+};
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
   if (req.method === "GET") {
+    const url = new URL(req.url, "http://x");
+    const checkPhone = clip(url.searchParams.get("phone"), 40);
+    const checkEmail = clip(url.searchParams.get("email"), 160).toLowerCase();
+    // Self-view: a candidate looks up their own record by the same
+    // phone+email pair they applied with — no separate login system, and
+    // no data is exposed unless both match the same record (candidates
+    // don't know each other's phone AND email together by chance).
+    if (checkPhone && checkEmail) {
+      if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+      const r = await notion("databases/" + DB_ID + "/query", "POST", {
+        page_size: 1,
+        filter: { and: [{ property: "Phone", phone_number: { equals: checkPhone } }, { property: "Email", email: { equals: checkEmail } }] },
+      });
+      if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const data = await r.json();
+      const page = (data.results || [])[0];
+      if (!page) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      const p = page.properties || {};
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        candidate: {
+          name: txt(p["Name (EN)"]) || txt(p["Candidate Name"]),
+          field: txt(p["Field"]),
+          targetRole: txt(p["Target Role"]),
+          city: txt(p["City"]),
+          country: txt(p["Country"]),
+          nationality: txt(p["Nationality"]),
+          residenceStatus: txt(p["حالة الإقامة"]),
+          experienceYears: txt(p["Experience Years"]),
+          expectedSalary: txt(p["Expected Salary"]),
+          pipelineStage: txt(p["Pipeline Stage"]),
+          cvLink: txt(p["CV Link"]),
+          atsCvLink: txt(p["ATS CV (Drive)"]),
+          registered: page.created_time,
+        },
+      }));
+    }
     res.statusCode = 200;
     // seenKeyNames helps diagnose a mis-named / wrong-project token without leaking it.
     const seenKeyNames = Object.keys(process.env).filter((k) => /notion/i.test(k));
@@ -143,6 +239,10 @@ export default async function handler(req, res) {
   const field = clip(b.field, 200);
   const exp = clip(b.experience, 80);
   const city = clip(b.city, 120);
+  const country = clip(b.country, 120);
+  const nationality = clip(b.nationality, 120);
+  const RESIDENCE_STATUSES = ["مواطن سعودي", "مقيم بإقامة نظامية قابلة للنقل", "مقيم بإقامة غير قابلة للنقل", "خارج السعودية", "أخرى"];
+  const residenceStatus = RESIDENCE_STATUSES.includes(b.residenceStatus) ? b.residenceStatus : "";
   const salary = clip(b.salary, 80);
   const linkedin = clip(b.linkedin, 400);
   const cvUrl = clip(b.cvUrl, 600);
@@ -171,7 +271,7 @@ export default async function handler(req, res) {
     questions.interest ? `سبب الاهتمام: ${clip(questions.interest, 700)}` : "",
     questions.strengths ? `أقوى المهارات: ${clip(questions.strengths, 700)}` : "",
     questions.notice ? `فترة الإشعار: ${clip(questions.notice, 120)}` : "",
-    questions.workAuthorization ? `أهلية العمل: ${clip(questions.workAuthorization, 160)}` : "",
+    residenceStatus ? `حالة الإقامة: ${residenceStatus}` : "",
     cvFile && cvFile.name ? `ملف مرفوع للـ n8n: ${cvFile.name} (${cvFile.type || "file"})` : "",
   ].filter(Boolean).join("\n");
 
@@ -191,12 +291,22 @@ export default async function handler(req, res) {
   if (fieldCat) props["Field"] = { select: { name: fieldCat } };
   if (expectedSalary != null) props["Expected Salary"] = { number: expectedSalary };
   if (/^https?:\/\//i.test(cvUrl)) props["CV Link"] = { url: cvUrl };
+  if (country) props["Country"] = { rich_text: rt(country) };
+  if (nationality) {
+    props["Nationality"] = { rich_text: rt(nationality) };
+    // Best-effort citizenship signal for the employer browse filter — a
+    // dedicated "Saudi national" pick on Residence Status is authoritative;
+    // otherwise infer from the nationality text itself.
+    const isSaudiNational = residenceStatus === "مواطن سعودي" || /^(saudi arabia|السعودية)$/i.test(nationality);
+    props["Nationality Type"] = { select: { name: isSaudiNational ? "سعودي" : "غير سعودي" } };
+  }
+  if (residenceStatus) props["حالة الإقامة"] = { select: { name: residenceStatus } };
 
   try {
     const n8nPayload = {
       source: "website-careers",
       receivedAt: new Date().toISOString(),
-      candidate: { name, phone, email, field, fieldCategory: fieldCat, experience: exp, city, salary, linkedin, consent },
+      candidate: { name, phone, email, field, fieldCategory: fieldCat, experience: exp, city, country, nationality, residenceStatus, salary, linkedin, consent },
       job: { id: jobId, title: jobTitle },
       questions,
       cvFile,
@@ -205,6 +315,7 @@ export default async function handler(req, res) {
     const n8n = await forwardToN8n(n8nPayload);
     const existing = await findExisting(email, phone);
     if (existing) {
+      applyN8nEnrichment(props, n8n, false);
       const r = await notion("pages/" + existing.id, "PATCH", { properties: props });
       if (!r.ok) {
         console.error("Notion update error", r.status, (await r.text()).slice(0, 400));
@@ -214,8 +325,10 @@ export default async function handler(req, res) {
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, ref: "CV-" + existing.id.slice(-6), updated: true, n8n }));
     }
-    // New candidates always start at the top of the pipeline, pending review.
+    // New candidates always start at the top of the pipeline, pending review —
+    // applyN8nEnrichment may raise this to an AI-informed stage below.
     props["Pipeline Stage"] = { select: { name: "جديد" } };
+    applyN8nEnrichment(props, n8n, true);
     const r = await notion("pages", "POST", { parent: { database_id: DB_ID }, properties: props });
     if (!r.ok) {
       console.error("Notion create error", r.status, (await r.text()).slice(0, 400));
