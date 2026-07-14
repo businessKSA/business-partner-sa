@@ -2667,18 +2667,9 @@ function buildMagazinePrint() {
 // employer recruitment platform, job-seeker intake) under one identity,
 // without spinning up a separate site/domain.
 function buildHR() {
-  const hrServices = services.filter((s) => s.category === "HR Services" || s.category === "Recruitment").slice(0, 6);
-  const svcCards = hrServices.map((s) => {
-    const d = sDesc(s);
-    return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
-      <h3>${esc(sName(s))}</h3>
-      <p class="desc">${esc(d.slice(0, 100))}${d.length > 100 ? "…" : ""}</p>
-      <span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></a>`;
-  }).join("");
   const entryCards = [
     ["🏢", L("For employers", "لأصحاب الأعمال"), L("Hire from our pre-screened, Saudization-checked candidate pool — we handle sourcing to onboarding.", "وظّف من قاعدة مرشّحين مُصنّفين ومفحوصين للتوطين — نتولّى من الاستقطاب حتى التعيين."), "/employers", L("Browse candidates", "تصفّح المرشّحين")],
-    ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Join our candidate pool once — employers hiring through Business Partner reach you.", "سجّل مرة واحدة — وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Submit your CV", "أرسل سيرتك")],
-    ["📋", L("HR & compliance services", "خدمات الموارد البشرية والامتثال"), L("Qiwa, GOSI, Mudad, contracts, Saudization and everyday HR administration.", "قوى، التأمينات، مدد، العقود، التوطين وإدارة الموارد البشرية اليومية."), "/services/category/hr-services", L("Browse services", "استعرض الخدمات")],
+    ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Browse open roles and apply — or join our candidate pool once and employers hiring through Business Partner reach you.", "تصفّح الوظائف المفتوحة وقدّم — أو سجّل مرة واحدة في قاعدة المرشّحين وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Browse jobs", "تصفّح الوظائف")],
   ].map((p) => `<a class="card feature" href="${u(p[3])}">
     <div class="card-icon" style="font-size:1.6rem">${p[0]}</div>
     <h3>${p[1]}</h3><p>${p[2]}</p>
@@ -2687,25 +2678,19 @@ function buildHR() {
   <section class="hero"><div class="container hero-inner" style="max-width:900px">
     <div class="subbrand-badge">${I.building}<span>${L("HR", "الموارد البشرية")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</h1>
-    <p class="lead">${L("Everything HR under one roof: a recruitment platform for employers, a candidate pool for job seekers, and a full catalog of HR & compliance services — Qiwa, GOSI, Mudad and Saudization, managed for you.", "كل ما يخص الموارد البشرية تحت مظلة واحدة: منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال — قوى والتأمينات ومدد والتوطين، بندير لك كل شي.")}</p>
-    <div class="hero-actions">${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-services")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
+    <p class="lead">${L("A recruitment platform for employers and a candidate pool for job seekers — sourcing, screening, interviews, and hiring, managed for you.", "منصة توظيف لأصحاب الأعمال وقاعدة مرشّحين للباحثين عن عمل — استقطاب، فرز، مقابلات، وتوظيف، بندير لك كل شي.")}</p>
+    <div class="hero-actions">${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/careers")}#open-jobs">${L("Browse open jobs", "تصفّح الوظائف المفتوحة")}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Three ways in", "ثلاث طرق للبدء")}</span><h2>${L("Whichever side you're on, we've got you", "أياً كان موقعك، عندنا لك حل")}</h2></div>
-    <div class="grid grid-3">${entryCards}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Catalog", "الكتالوج")}</span><h2>${L("A sample of our HR services", "نماذج من خدماتنا في الموارد البشرية")}</h2></div>
-    <div class="grid grid-3">${svcCards}</div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services/category/hr-services")}">${L("View all HR services", "استعرض كل خدمات الموارد البشرية")} ${I.arrow}</a></div>
+    <div class="section-head"><span class="eyebrow">${L("Two ways in", "طريقتان للبدء")}</span><h2>${L("Whichever side you're on, we've got you", "أياً كان موقعك، عندنا لك حل")}</h2></div>
+    <div class="grid grid-2">${entryCards}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Ready to start?", "جاهز نبدأ؟")}</h2><p>${L("Tell us what you need — hiring, HR admin, or a job — and we'll point you to the right track.", "أخبرنا باحتياجك — توظيف، إدارة موارد بشرية، أو وظيفة — ونوجّهك للمسار المناسب.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready to start?", "جاهز نبدأ؟")}</h2><p>${L("Tell us what you need — hiring or a job — and we'll point you to the right track.", "أخبرنا باحتياجك — توظيف أو وظيفة — ونوجّهك للمسار المناسب.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: Lraw("HR by Business Partner", "الموارد البشرية من بزنس بارتنر"), desc: Lraw("A recruitment platform for employers, a candidate pool for job seekers, and a full HR & compliance services catalog.", "منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال."), active: "/hr", path: "/hr", body });
+  return page({ title: Lraw("HR by Business Partner", "الموارد البشرية من بزنس بارتنر"), desc: Lraw("A recruitment platform for employers and a candidate pool for job seekers.", "منصة توظيف لأصحاب الأعمال وقاعدة مرشّحين للباحثين عن عمل."), active: "/hr", path: "/hr", body });
 }
 
 function buildEmployers() {
