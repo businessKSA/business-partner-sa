@@ -909,7 +909,13 @@ h3 { font-size: 1.12rem; }
 .empd-count { display: inline-block; min-width: 18px; padding: 0 5px; font-size: .72rem; background: rgba(255,255,255,.25); border-radius: 999px; }
 .empd-tab:not(.active) .empd-count { background: rgba(11,27,90,.12); }
 .empd-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.empd-save, .empd-rm { font: inherit; font-size: .82rem; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--gray-line); background: var(--white); color: var(--navy); }
+.empd-save, .empd-rm, .empd-view { font: inherit; font-size: .82rem; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--gray-line); background: var(--white); color: var(--navy); }
+.empd-view { border-color: var(--navy); }
+.empd-profile { display: grid; gap: 0; border: 1px solid var(--gray-line); border-radius: 10px; overflow: hidden; }
+.empd-profile-row { display: grid; grid-template-columns: 140px 1fr; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--gray-line); font-size: .92rem; }
+.empd-profile-row:last-child { border-bottom: none; }
+.empd-profile-k { color: var(--text-soft); font-weight: 600; }
+.empd-profile-v { color: var(--text); }
 .empd-save.on { background: #fff6de; border-color: #f0c94b; color: #7a5a00; }
 .empd-rm { color: #a12; }
 .empd-stages { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }

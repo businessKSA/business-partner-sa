@@ -291,6 +291,8 @@ export default async function handler(req, res) {
         field: txt(p["Field"]),
         role: txt(p["Target Role"]) || txt(p["Original Position"]),
         city: txt(p["City"]),
+        country: txt(p["Country"]),
+        residenceStatus: txt(p["حالة الإقامة"]),
         experience: txt(p["Experience Years"]),
         education: txt(p["Education"]),
         nationalityType: txt(p["Nationality Type"]),

@@ -2102,6 +2102,49 @@ var BP_EMP_BILLING = "monthly";
         '<button class="empd-ai-btn" data-ai="interview" data-id="' + esc(id) + '">❓ ' + T("Interview Qs", "أسئلة مقابلة") + '</button>' +
         '<button class="empd-ai-btn" data-ai="outreach" data-id="' + esc(id) + '">✉️ ' + T("Outreach", "رسالة تواصل") + '</button></div>';
     }
+    // A Google Doc "edit" link opens the viewer; export?format=pdf triggers a
+    // one-click file download instead — used for the ATS-formatted CV.
+    function cvDownloadUrl(url) {
+      var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
+      return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
+    }
+    // Full structured profile — every field the API returned, laid out as
+    // readable data (not a raw file). Contact fields and the CV download only
+    // appear when the API actually included them, i.e. the employer is
+    // subscribed/unlocked — never rendered to a locked/browsing visitor.
+    function profileHtml(c) {
+      var rows = [
+        [T("Name", "الاسم"), c.name ? (esc(c.name) + (c.nameAlt ? " (" + esc(c.nameAlt) + ")" : "")) : ""],
+        [T("Target role", "المسمى المستهدف"), c.role],
+        [T("Field", "المجال"), c.field],
+        [T("City", "المدينة"), c.city],
+        [T("Country", "الدولة"), c.country],
+        [T("Nationality", "الجنسية"), c.nationalityType],
+        [T("Residence status", "حالة الإقامة"), c.residenceStatus],
+        [T("Experience", "الخبرة"), c.experience ? (c.experience + (isAr ? " سنة" : "y")) : ""],
+        [T("Education", "التعليم"), c.education],
+        [T("Availability", "الجاهزية"), c.availability],
+        [T("Languages", "اللغات"), c.languages],
+        [T("Skills", "المهارات"), c.skills],
+        [T("Saudization", "التوطين"), c.saudization],
+        [T("Phone", "الجوال"), c.phone ? ('<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>") : ""],
+        [T("Email", "البريد"), c.email ? ('<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>") : ""],
+      ].filter(function (r) { return r[1]; });
+      var html = '<div class="empd-profile">' + rows.map(function (r) {
+        return '<div class="empd-profile-row"><span class="empd-profile-k">' + esc(r[0]) + '</span><span class="empd-profile-v">' + r[1] + "</span></div>";
+      }).join("") + "</div>";
+      if (c.cv) {
+        html += '<a class="btn btn-primary" style="margin-top:14px;display:inline-block" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
+          (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
+      } else {
+        html += '<p class="emp-note" style="margin-top:14px">🔒 ' + T("Subscribe to view contact details and download the CV.", "اشترك لعرض بيانات التواصل وتحميل السيرة الذاتية.") + "</p>";
+      }
+      return html;
+    }
+    function viewProfile(id) {
+      var c = findC(id); if (!c) return;
+      openModal(T("Candidate profile", "الملف الشخصي للمرشح"), profileHtml(c));
+    }
     function card(c, opts) {
       opts = opts || {};
       var meta = [c.experience ? (isAr ? c.experience + " سنة خبرة" : c.experience + "y exp") : "", c.education, c.nationalityType].filter(Boolean).join(" · ");
@@ -2111,11 +2154,15 @@ var BP_EMP_BILLING = "monthly";
         (c.skills ? '<div class="emp-skills">' + esc(c.skills) + "</div>" : "") +
         (meta ? '<div class="emp-meta">' + esc(meta) + "</div>" : "") +
         contacts(c) +
-        '<div class="empd-actions"><button class="empd-save' + (inShort(c.id) ? " on" : "") + '" data-id="' + esc(c.id) + '">' + (inShort(c.id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ")) + "</button>" +
+        '<div class="empd-actions"><button class="empd-view" data-id="' + esc(c.id) + '">👤 ' + T("View profile", "عرض الملف") + '</button>' +
+        '<button class="empd-save' + (inShort(c.id) ? " on" : "") + '" data-id="' + esc(c.id) + '">' + (inShort(c.id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ")) + "</button>" +
         (opts.removeShort ? '<button class="empd-rm" data-id="' + esc(c.id) + '">' + T("Remove", "إزالة") + "</button>" : "") + "</div>" +
         aiBtns(c.id) + stageBtns(c.id) + "</div>";
     }
     function bindCard(scope) {
+      scope.querySelectorAll(".empd-view").forEach(function (b) {
+        b.addEventListener("click", function () { viewProfile(b.getAttribute("data-id")); });
+      });
       scope.querySelectorAll(".empd-save").forEach(function (b) {
         b.addEventListener("click", function () {
           var id = b.getAttribute("data-id"), c = findC(id);
