@@ -47,8 +47,8 @@ async function notionFetch(path, method, payload) {
   });
 }
 
-// Paging through 1600+ ATS rows needs more than the default serverless budget.
-export const config = { maxDuration: 60 };
+// Paging through thousands of ATS rows needs more than the default serverless budget.
+export const config = { maxDuration: 120 };
 
 const txt = (p) => {
   if (!p) return "";
@@ -239,10 +239,14 @@ export default async function handler(req, res) {
 
   try {
     // Page through the whole database so employers see ALL candidates, not just
-    // the first page (Notion caps a page at 100). Guarded to a sane maximum.
+    // the first page (Notion caps a page at 100). Guarded to a sane maximum —
+    // the ATS ingestion agent is actively growing this pool toward 20,000+
+    // rows, so this must stay well above the current size, not just today's.
+    const MAX_PAGES = 250; // 250 * 100 = 25,000 rows — headroom past the 20k target.
     let results = [];
     let cursor = null;
-    for (let guard = 0; guard < 25; guard++) {
+    let guard = 0;
+    for (; guard < MAX_PAGES; guard++) {
       const body = cursor ? { ...base, start_cursor: cursor } : base;
       const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
         method: "POST",
@@ -258,6 +262,11 @@ export default async function handler(req, res) {
       results = results.concat(data.results || []);
       if (!data.has_more || !data.next_cursor) break;
       cursor = data.next_cursor;
+    }
+    if (guard >= MAX_PAGES) {
+      // Never truncate silently — this would again hide real candidates from
+      // employers without any visible sign of it, same as the 2,500-row cap did.
+      console.error(`candidates: hit MAX_PAGES=${MAX_PAGES} guard, pool exceeds ${MAX_PAGES * 100} rows — raise the cap`);
     }
     let rows = results.map((pg) => {
       const p = pg.properties || {};
