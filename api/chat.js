@@ -105,7 +105,9 @@ async function callAnthropic(messages) {
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      model: process.env.MODEL || "claude-opus-4-8",
+      // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — see api/hire.js
+      // for why a generic name here is a real, confirmed failure mode.
+      model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
       max_tokens: 1024,
       // Big stable prompt first with a cache breakpoint → cheap cached reads.
       system: [{ type: "text", text: SYSTEM_INSTRUCTIONS, cache_control: { type: "ephemeral" } }],
