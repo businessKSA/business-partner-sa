@@ -291,6 +291,8 @@ export default async function handler(req, res) {
         field: txt(p["Field"]),
         role: txt(p["Target Role"]) || txt(p["Original Position"]),
         city: txt(p["City"]),
+        country: txt(p["Country"]),
+        residenceStatus: txt(p["حالة الإقامة"]),
         experience: txt(p["Experience Years"]),
         education: txt(p["Education"]),
         nationalityType: txt(p["Nationality Type"]),
@@ -308,6 +310,9 @@ export default async function handler(req, res) {
         // only fall back to the raw file when no ATS version exists yet.
         rec.cv = cvAts || cvRaw;
         rec.cvKind = cvAts ? "ats" : (cvRaw ? "raw" : "");
+        // The actual CV text (not just a link to it), so the profile can be
+        // rendered as formatted content on the site itself.
+        rec.cvText = txt(p["ATS CV Text"]);
       } else {
         rec.name = maskName(primary);
       }

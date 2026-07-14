@@ -36,6 +36,16 @@ const N8N_ATS_WEBHOOK = envFrom(["N8N_ATS_WEBHOOK", "N8N_CANDIDATE_WEBHOOK", "BP
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
 const rt = (v) => (v ? [{ text: { content: clip(v, 1800) } }] : []);
+// Notion rich_text values are arrays of text objects, each capped at ~2000
+// chars by the API — chunking (unlike rt()'s single truncated block) lets a
+// property hold something as long as a full CV.
+function rtChunks(v, maxChars = 1900, maxChunks = 6) {
+  const s = String(v || "").trim();
+  if (!s) return [];
+  const chunks = [];
+  for (let i = 0; i < s.length && chunks.length < maxChunks; i += maxChars) chunks.push({ text: { content: s.slice(i, i + maxChars) } });
+  return chunks;
+}
 
 // First integer found in a free-text years-of-experience value (the careers
 // form's combobox produces things like "5+ سنوات" / "5+ years" / "بدون خبرة").
@@ -139,6 +149,14 @@ function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
   if (ai.candidate_summary) {
     const notesSoFar = (props["Notes"]?.rich_text || []).map((t) => t.text.content).join("\n");
     props["Notes"] = { rich_text: rt([notesSoFar, `ملخص الذكاء الاصطناعي: ${ai.candidate_summary}`].filter(Boolean).join("\n\n")) };
+  }
+  // The full AI-generated CV text, stored directly (not just the Drive doc
+  // link) so the site can render it as formatted text on the candidate's
+  // profile instead of sending employers to an external file. rt() caps at
+  // 1800 chars in one block — a full CV needs more, so this is chunked
+  // across several Notion rich_text blocks instead.
+  if (ai.ats_cv_markdown) {
+    props["ATS CV Text"] = { rich_text: rtChunks(ai.ats_cv_markdown) };
   }
   // Only a brand-new candidate's starting stage is AI-informed — an existing
   // candidate may already be further along the pipeline and must not be
