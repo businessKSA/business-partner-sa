@@ -2127,7 +2127,12 @@ function buildMahfolMakfol() {
 
   // Interactive investment map — inline SVG of Saudi Arabia with clickable
   // region markers; each reveals that region's program (panels rendered below).
-  const KSA_PATH = "M75 258 L150 175 L320 150 L480 140 L620 155 L740 210 L775 280 Q790 300 760 325 L720 345 L815 400 L900 520 L855 620 L760 730 L560 815 L430 865 L360 770 L300 700 L250 620 L235 520 L190 420 L120 330 Z";
+  // Recognizable Saudi Arabia outline. Points are projected from real
+  // longitude/latitude with the SAME mapping used for the city markers
+  // (x = (lon-34)/22*1000, y = (33-lat)/17*900), so borders and markers align:
+  // NW (Gulf of Aqaba) → north (Jordan/Iraq) → east Gulf coast with the Qatar
+  // notch → SE Empty Quarter → south (Yemen) → Jazan → up the Red Sea coast.
+  const KSA_PATH = "M41 193 L92 201 L159 159 L214 64 L364 101 L486 191 L568 209 L659 238 L727 318 L760 400 L748 452 L792 470 L900 520 L982 560 L964 688 L862 712 L700 780 L560 812 L418 826 L389 852 L330 735 L236 614 L200 529 L146 413 L92 291 L50 238 Z";
   const mapMarkers = CITIES.map((c, i) => `
     <g class="mm-mk" data-idx="${i}" transform="translate(${c.mx},${c.my})" tabindex="0" role="button" aria-label="${Lraw(c.en, c.ar)}">
       <circle class="mm-mk-ring" r="16"></circle>
