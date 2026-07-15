@@ -36,6 +36,16 @@ const N8N_ATS_WEBHOOK = envFrom(["N8N_ATS_WEBHOOK", "N8N_CANDIDATE_WEBHOOK", "BP
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
 const rt = (v) => (v ? [{ text: { content: clip(v, 1800) } }] : []);
+// Notion rich_text values are arrays of text objects, each capped at ~2000
+// chars by the API — chunking (unlike rt()'s single truncated block) lets a
+// property hold something as long as a full CV.
+function rtChunks(v, maxChars = 1900, maxChunks = 6) {
+  const s = String(v || "").trim();
+  if (!s) return [];
+  const chunks = [];
+  for (let i = 0; i < s.length && chunks.length < maxChunks; i += maxChars) chunks.push({ text: { content: s.slice(i, i + maxChars) } });
+  return chunks;
+}
 
 // First integer found in a free-text years-of-experience value (the careers
 // form's combobox produces things like "5+ سنوات" / "5+ years" / "بدون خبرة").
@@ -55,15 +65,29 @@ function firstNumber(s) {
 // exactly like every other source.
 const FIELD_RULES = [
   [/محاسب|مالي|تدقيق|رواتب|خزينة|ائتمان|استثمار|مصرف|accountant|financial|audit|payroll|treasury|credit|investment|bank/i, "محاسبة ومالية"],
-  [/مطور|برمج|بيانات|شبكات|أنظمة|أمن سيبراني|تقنية|قواعد بيانات|سحاب|developer|software|data (analyst|scientist|engineer)|network|system admin|cyber|devops|cloud|qa engineer|database|it support|it manager/i, "تقنية معلومات"],
-  [/مبيعات|تسويق|علامة تجارية|سوشيال|محتوى|علاقات عامة|sales|marketing|brand|social media|content|public relations/i, "مبيعات وتسويق"],
+  [/مطور|برمج|بيانات|شبكات|أنظمة|أمن سيبراني|تقنية|قواعد بيانات|سحاب|developer|software|data (analyst|scientist|engineer)|network|system admin|cyber|devops|cloud|qa engineer|database|it support|it manager|ai engineer|blockchain|iot engineer/i, "تقنية معلومات"],
+  [/مبيعات|تسويق|علامة تجارية|سوشيال|محتوى|علاقات عامة|sales|marketing|brand|social media|content|public relations|copywriter|media buyer/i, "مبيعات وتسويق"],
   [/إداري|سكرتير|استقبال|مساعد شخصي|مدخل بيانات|مشتريات|مدير مكتب|admin|secretary|receptionist|personal assistant|data entry|procurement|office manager/i, "إداري وسكرتارية"],
   [/موارد بشرية|توظيف|تدريب وتطوير|تعويضات ومزايا|استقطاب|hr specialist|hr manager|recruiter|talent acquisition|training & development|compensation/i, "موارد بشرية"],
-  [/شيف|طاه|نادل|فندق|مطعم|ضيافة|باريستا|ساقي|نزلاء|chef|waiter|hotel|restaurant|hospitality|barista|bartender|guest relations|housekeeping/i, "ضيافة ومطاعم"],
+  [/شيف|طاه|نادل|فندق|مطعم|ضيافة|باريستا|ساقي|نزلاء|سياح|رحلات|chef|waiter|hotel|restaurant|hospitality|barista|bartender|guest relations|housekeeping|tour|travel|cruise/i, "ضيافة وسياحة"],
   [/مهندس مدني|مهندس ميكانيك|مهندس كهرباء|إنشائي|موقع|مقاولات|معماري|مساح|سلامة|مقدم عمال|civil engineer|mechanical engineer|electrical engineer|structural|construction|architect|surveyor|site engineer|safety officer|hse|foreman|quantity surveyor/i, "مقاولات وإنشاءات"],
-  [/طبيب|ممرض|صيدل|علاج طبيعي|مختبر|أشعة|physician|nurse|pharmacist|dentist|physiotherap|lab technician|radiolog/i, "صحة وطب"],
-  [/معلم|مدرس|مدير مدرسة|مرشد أكاديمي|مناهج|teacher|tutor|principal|academic advisor|curriculum/i, "تعليم"],
-  [/سائق|مستودع|لوجستيات|شحن|جمارك|أسطول|رافعة|driver|warehouse|logistics|shipping|customs|fleet|forklift/i, "لوجستيات ونقل"],
+  [/عقار|تأجير|إيجار|real estate|property|leasing|appraiser/i, "عقارات"],
+  [/طبيب|ممرض|صيدل|علاج طبيعي|مختبر|أشعة|جرّاح|تخدير|أطفال|قلب|جلدية|نفسي|بصريات|قابلة|مسعف|physician|nurse|pharmacist|dentist|physiotherap|lab technician|radiolog|surgeon|pediatric|cardiolog|dermatolog|psychiatr|optometr|midwife|paramedic/i, "صحة وطب"],
+  [/معلم|مدرس|مدير مدرسة|مرشد أكاديمي|مناهج|teacher|tutor|principal|academic advisor|curriculum|lecturer|librarian/i, "تعليم"],
+  [/سائق|مستودع|لوجستيات|شحن|جمارك|أسطول|رافعة|driver|warehouse|logistics|shipping|customs|fleet|forklift|courier|dispatcher|bus driver|taxi/i, "لوجستيات ونقل"],
+  [/محامٍ|قانون|قضائي|عقود|كاتب عدل|ملكية فكرية|lawyer|legal|attorney|paralegal|notary|litigation|intellectual property|contract manager/i, "قانون"],
+  [/تصنيع|مصنع|إنتاج|CNC|لحّام|نجّار|دهّان|manufactur|production supervisor|plant manager|assembly|machine operator|welder|carpenter|textile|packaging/i, "تصنيع وصناعة"],
+  [/بترول|نفط|غاز|حفر|مكامن|طاقة|شمسية|رياح|petroleum|drilling|reservoir|oil|gas|energy|solar|wind turbine|power plant/i, "طاقة ونفط وغاز"],
+  [/إعلام|صحفي|محرر|مخرج|منتج|سيناريو|مصور|فنان|موسيقى|journalist|editor|film director|producer|screenwriter|photograph|animator|actor|musician|dj\b/i, "إعلام وإبداع"],
+  [/حكومي|بلدي|جمارك|جوازات|دبلوماسي|دفاع مدني|government|municipal|customs officer|immigration officer|diplomat|civil defense|public sector/i, "حكومي وقطاع عام"],
+  [/زراع|مزرعة|ري|نحّال|بيطري|farm|agricultur|irrigation|beekeep|veterinar|agronomist|fisheries|greenhouse/i, "زراعة وبيئة"],
+  [/تجزئة|متجر|كاشير|أمين صندوق|تجارة إلكترونية|retail|cashier|store manager|merchandis|e-commerce|category manager/i, "تجزئة وتجارة إلكترونية"],
+  [/أمن|حراسة|سلامة من الحريق|طوارئ|مراقبة|security|guard|cctv|fire safety|emergency response|close protection/i, "أمن وسلامة"],
+  [/سبّاك|كهربائي|فني|صيانة|حداد|بنّاء|زجاج|أقفال|plumber|electrician|technician|maintenance|mason|blacksmith|glazier|locksmith|hvac|mechanic/i, "حرف مهنية وصيانة"],
+  [/باحث|كيميائي|فيزيائي|أحيائي|إحصائي|فلكي|researcher|scientist|chemist|physicist|biologist|statistician|laboratory manager/i, "علوم وأبحاث"],
+  [/طيار|طاقم طيران|بحري|ربان|ميناء|pilot|cabin crew|air traffic|aircraft maintenance|marine|seaman|deck officer|port operations/i, "طيران وبحري"],
+  [/تجميل|مكياج|سبا|تدليك|يوغا|حلاق|مصفف|beauty|makeup|spa|massage|yoga|barber|hairstylist|esthetician|salon/i, "تجميل وعناية"],
+  [/عاملة منزلية|مربية|جليسة|طباخ منزلي|بستاني|خادم|مرافق كبار سن|domestic worker|nanny|babysitter|private driver|private chef|butler|elderly caregiver/i, "خدمات منزلية"],
 ];
 function guessField(title) {
   const t = String(title || "");
@@ -139,6 +163,14 @@ function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
   if (ai.candidate_summary) {
     const notesSoFar = (props["Notes"]?.rich_text || []).map((t) => t.text.content).join("\n");
     props["Notes"] = { rich_text: rt([notesSoFar, `ملخص الذكاء الاصطناعي: ${ai.candidate_summary}`].filter(Boolean).join("\n\n")) };
+  }
+  // The full AI-generated CV text, stored directly (not just the Drive doc
+  // link) so the site can render it as formatted text on the candidate's
+  // profile instead of sending employers to an external file. rt() caps at
+  // 1800 chars in one block — a full CV needs more, so this is chunked
+  // across several Notion rich_text blocks instead.
+  if (ai.ats_cv_markdown) {
+    props["ATS CV Text"] = { rich_text: rtChunks(ai.ats_cv_markdown) };
   }
   // Only a brand-new candidate's starting stage is AI-informed — an existing
   // candidate may already be further along the pipeline and must not be

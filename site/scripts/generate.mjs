@@ -2848,14 +2848,23 @@ function buildNewsletter() {
   return page({ title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
 }
 
+// Canonical Field taxonomy — shared by the employer job-posting form, the
+// employer browse filter (populated client-side, see main.js fillFilters),
+// api/candidates.js's FIELD_OPTIONS validation and api/candidate.js's
+// guessField() classifier. Keep all four in sync when editing this list.
+const FIELD_TAXONOMY = [
+  ["هندسة", "Engineering"], ["تقنية معلومات", "IT & Software"], ["مبيعات وتسويق", "Sales & Marketing"],
+  ["محاسبة ومالية", "Accounting & Finance"], ["إداري وسكرتارية", "Admin & Secretarial"], ["موارد بشرية", "Human Resources"],
+  ["ضيافة وسياحة", "Hospitality & Tourism"], ["مقاولات وإنشاءات", "Construction"], ["عقارات", "Real Estate"],
+  ["صحة وطب", "Health & Medical"], ["تعليم", "Education"], ["لوجستيات ونقل", "Logistics & Transportation"],
+  ["قانون", "Legal"], ["تصنيع وصناعة", "Manufacturing & Industrial"], ["طاقة ونفط وغاز", "Energy, Oil & Gas"],
+  ["إعلام وإبداع", "Media & Creative"], ["حكومي وقطاع عام", "Government & Public Sector"], ["زراعة وبيئة", "Agriculture & Environment"],
+  ["تجزئة وتجارة إلكترونية", "Retail & E-commerce"], ["أمن وسلامة", "Security & Safety"], ["حرف مهنية وصيانة", "Skilled Trades & Maintenance"],
+  ["علوم وأبحاث", "Science & Research"], ["طيران وبحري", "Aviation & Maritime"], ["تجميل وعناية", "Beauty & Wellness"],
+  ["خدمات منزلية", "Domestic & Household Services"], ["أخرى", "Other"],
+];
 function fieldOptionsHtml() {
-  const pairs = [
-    ["هندسة", "Engineering"], ["تقنية معلومات", "IT"], ["مبيعات وتسويق", "Sales & Marketing"],
-    ["محاسبة ومالية", "Accounting & Finance"], ["إداري وسكرتارية", "Admin & Secretarial"], ["موارد بشرية", "HR"],
-    ["ضيافة ومطاعم", "Hospitality"], ["مقاولات وإنشاءات", "Construction"], ["صحة وطب", "Health"],
-    ["تعليم", "Education"], ["لوجستيات ونقل", "Logistics"], ["أخرى", "Other"],
-  ];
-  return pairs.map(([ar, en]) => `<option value="${esc(ar)}">${esc(L(en, ar))}</option>`).join("");
+  return FIELD_TAXONOMY.map(([ar, en]) => `<option value="${esc(ar)}">${esc(L(en, ar))}</option>`).join("");
 }
 
 function buildEmployerDashboard() {
@@ -2924,9 +2933,10 @@ function buildEmployerDashboard() {
 
       <div class="empd-panel" data-panel="browse">
         <div class="emp-access"><div class="emp-filters">
-          <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
-          <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
-          <select id="empd-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+          <input type="text" id="empd-q" placeholder="${Lraw("Search job title, skill…", "ابحث بالمسمى الوظيفي أو المهارة…")}">
+          <input type="text" id="empd-field" placeholder="${Lraw("All fields", "كل المجالات")}">
+          <input type="text" id="empd-country" placeholder="${Lraw("All countries", "كل الدول")}">
+          <input type="text" id="empd-city" placeholder="${Lraw("All cities", "كل المدن")}">
           <select id="empd-nat">${nats}</select>
           <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
         </div></div>
@@ -3079,9 +3089,10 @@ function buildPortalDashboard() {
 
       <div class="empd-panel" data-panel="browse">
         <div class="emp-access"><div class="emp-filters">
-          <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
-          <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
-          <select id="empd-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+          <input type="text" id="empd-q" placeholder="${Lraw("Search job title, skill…", "ابحث بالمسمى الوظيفي أو المهارة…")}">
+          <input type="text" id="empd-field" placeholder="${Lraw("All fields", "كل المجالات")}">
+          <input type="text" id="empd-country" placeholder="${Lraw("All countries", "كل الدول")}">
+          <input type="text" id="empd-city" placeholder="${Lraw("All cities", "كل المدن")}">
           <select id="empd-nat">${nats}</select>
           <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
         </div></div>

@@ -31,7 +31,16 @@ const NOTION_VERSION = "2022-06-28";
 const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
 // Job postings DB — an employer can open more than one, each screened by AI against this pool.
 const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
-const FIELD_OPTIONS = ["هندسة", "تقنية معلومات", "مبيعات وتسويق", "محاسبة ومالية", "إداري وسكرتارية", "موارد بشرية", "ضيافة ومطاعم", "مقاولات وإنشاءات", "صحة وطب", "تعليم", "لوجستيات ونقل", "أخرى"];
+// Canonical Field taxonomy — must stay in sync with site/scripts/generate.mjs's
+// FIELD_TAXONOMY, site/assets/js/main.js's BP.FIELD_TAXONOMY and this file's
+// own FIELD_RULES-equivalent in api/candidate.js (guessField()).
+const FIELD_OPTIONS = [
+  "هندسة", "تقنية معلومات", "مبيعات وتسويق", "محاسبة ومالية", "إداري وسكرتارية", "موارد بشرية",
+  "ضيافة وسياحة", "مقاولات وإنشاءات", "عقارات", "صحة وطب", "تعليم", "لوجستيات ونقل",
+  "قانون", "تصنيع وصناعة", "طاقة ونفط وغاز", "إعلام وإبداع", "حكومي وقطاع عام", "زراعة وبيئة",
+  "تجزئة وتجارة إلكترونية", "أمن وسلامة", "حرف مهنية وصيانة", "علوم وأبحاث", "طيران وبحري", "تجميل وعناية",
+  "خدمات منزلية", "أخرى",
+];
 
 async function readBody(req) {
   let b = req.body;
@@ -226,21 +235,26 @@ export default async function handler(req, res) {
   const url = new URL(req.url, "http://x");
   const qField = (url.searchParams.get("field") || "").trim();
   const qCity = (url.searchParams.get("city") || "").trim().toLowerCase();
+  const qCountry = (url.searchParams.get("country") || "").trim().toLowerCase();
   const qNat = (url.searchParams.get("nat") || "").trim();
   const qText = (url.searchParams.get("q") || "").trim().toLowerCase();
   const code = (url.searchParams.get("code") || "").trim();
+  // Resume a previous, still-in-progress scan (see the time-budget note below)
+  // instead of re-querying from the start every time.
+  const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
   const { unlocked, plan } = await resolvePlan(code);
 
   // Server-side Notion filter: only the website-sourced / active candidates.
   // "مخفي عن الموقع" = true means the CV failed to parse / is unreadable — the
   // ingestion pipeline flags it for review and it must never reach employers.
-  // City/nationality are pushed into the query too (not just filtered from the
-  // fetched page client-side) so a filtered search doesn't have to page through
-  // the whole ~14k-row database to find a few hundred matches.
+  // City/country/field/nationality are pushed into the query too (not just
+  // filtered from the fetched page client-side) so a filtered search doesn't
+  // have to page through the whole ~17k-row database to find a few hundred matches.
   const notHidden = { property: "مخفي عن الموقع", checkbox: { equals: false } };
   const andFilters = [notHidden];
   if (qField) andFilters.push({ property: "Field", select: { equals: qField } });
   if (qCity) andFilters.push({ property: "City", rich_text: { contains: qCity } });
+  if (qCountry) andFilters.push({ property: "Country", rich_text: { contains: qCountry } });
   if (qNat) andFilters.push({ property: "Nationality Type", select: { equals: qNat } });
   const base = {
     page_size: 100,
@@ -249,13 +263,22 @@ export default async function handler(req, res) {
   };
 
   try {
-    // Page through the whole (filtered) result set so employers see ALL
-    // matching candidates, not just the first page (Notion caps a page at
-    // 100) or an arbitrary early cutoff. The pool is ~14k rows and growing —
-    // guarded at 300 pages (30,000 rows) as a sane upper bound, not a
-    // realistic ceiling.
+    // Page through the (filtered) result set so employers see ALL matching
+    // candidates, not just the first page (Notion caps a page at 100) — but
+    // bounded by a wall-clock time budget, not just a page-count guard: the
+    // pool (~17k rows and growing) can take longer to fully page through than
+    // Vercel's function timeout allows in one request. Rather than silently
+    // truncating at whatever page happens to be in flight when the platform
+    // kills the function (which is what produced a suspicious flat "10000"
+    // total in production), this stops itself early at a safe margin, reports
+    // exactly how far it actually got, and hands back a cursor so the caller
+    // can resume the scan — main.js's loadMore() does this automatically in
+    // the background so the displayed count keeps climbing to the real total
+    // instead of freezing on a partial number.
+    const deadline = Date.now() + 45000;
     let results = [];
-    let cursor = null;
+    let cursor = startCursor;
+    let truncated = false;
     for (let guard = 0; guard < 300; guard++) {
       const body = cursor ? { ...base, start_cursor: cursor } : base;
       const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
@@ -270,8 +293,9 @@ export default async function handler(req, res) {
       }
       const data = await r.json();
       results = results.concat(data.results || []);
-      if (!data.has_more || !data.next_cursor) break;
+      if (!data.has_more || !data.next_cursor) { cursor = null; break; }
       cursor = data.next_cursor;
+      if (Date.now() > deadline) { truncated = true; break; }
     }
     let rows = results.map((pg) => {
       const p = pg.properties || {};
@@ -291,6 +315,8 @@ export default async function handler(req, res) {
         field: txt(p["Field"]),
         role: txt(p["Target Role"]) || txt(p["Original Position"]),
         city: txt(p["City"]),
+        country: txt(p["Country"]),
+        residenceStatus: txt(p["حالة الإقامة"]),
         experience: txt(p["Experience Years"]),
         education: txt(p["Education"]),
         nationalityType: txt(p["Nationality Type"]),
@@ -308,6 +334,9 @@ export default async function handler(req, res) {
         // only fall back to the raw file when no ATS version exists yet.
         rec.cv = cvAts || cvRaw;
         rec.cvKind = cvAts ? "ats" : (cvRaw ? "raw" : "");
+        // The actual CV text (not just a link to it), so the profile can be
+        // rendered as formatted content on the site itself.
+        rec.cvText = txt(p["ATS CV Text"]);
       } else {
         rec.name = maskName(primary);
       }
@@ -320,7 +349,14 @@ export default async function handler(req, res) {
     if (qText) rows = rows.filter((x) => (x.role + " " + x.skills + " " + x.field).toLowerCase().includes(qText));
 
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, plan, total: rows.length, candidates: rows }));
+    // nextCursor/done let the client resume the scan in the background (see
+    // main.js's loadMore()) instead of trusting a single request to fetch the
+    // entire filtered pool — the count it displays keeps climbing to the real
+    // total instead of silently freezing on whatever fit in one time budget.
+    return res.end(JSON.stringify({
+      ok: true, unlocked, plan, total: rows.length, candidates: rows,
+      nextCursor: cursor || null, done: !cursor && !truncated,
+    }));
   } catch (e) {
     console.error("candidates handler error", e);
     res.statusCode = 500;
