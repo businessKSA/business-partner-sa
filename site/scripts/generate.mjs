@@ -4304,6 +4304,43 @@ function buildSharedServices() {
   const compPlatforms = (LANG === "ar" ? ["قوى", "مقيم", "التأمينات", "مدد", "النطاقات", "ZATCA"] : ["Qiwa", "Muqeem", "GOSI", "Mudad", "Nitaqat", "ZATCA"])
     .map((p) => `<span class="ss-plat-chip"><span class="dot"></span>${esc(p)}</span>`).join("");
 
+  // Detailed roster — services each agent delivers + how they work. Public info.
+  const roster = [
+    { e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service",
+      svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
+      mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
+    { e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
+      svcAr: ["الاستراتيجية والنمو", "إعادة الهيكلة", "دراسات الجدوى", "القرارات الكبيرة"], svcEn: ["Strategy & growth", "Restructuring", "Feasibility", "Big decisions"],
+      mAr: "المجلس الاستشاري — يُستشار في القرارات الكبرى قبل التنفيذ.", mEn: "The advisory seat — consulted on major decisions before execution." },
+    { e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager",
+      svcAr: ["تنسيق التنفيذ", "تقسيم المهام", "إجراءات التشغيل (SOP)", "ضبط الجودة"], svcEn: ["Execution coordination", "Task breakdown", "SOPs", "Quality control"],
+      mAr: "ينسّق الأعمال متعدّدة الخطوات داخلياً بين المتخصصين حتى التسليم.", mEn: "Coordinates multi-step work internally across specialists through to delivery." },
+    { e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources",
+      svcAr: ["التوظيف", "عقود العمل", "الرواتب", "السياسات والوصف الوظيفي"], svcEn: ["Hiring", "Contracts", "Payroll", "Policies & JDs"],
+      mAr: "يدير دورة الموظف كاملة نيابةً عنك.", mEn: "Runs the full employee lifecycle on your behalf." },
+    { e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance",
+      svcAr: ["قوى ومقيم", "التأمينات ومدد", "النطاقات", "ZATCA"], svcEn: ["Qiwa & Muqeem", "GOSI & Mudad", "Nitaqat", "ZATCA"],
+      mAr: "مراقبة يومية وتنبيه قبل كل استحقاق — كل إجراء حكومي بموافقتك.", mEn: "Daily monitoring and alerts before every deadline — every government action needs your approval." },
+    { e: "⚖️", ar: "عبدالعزيز", arRole: "القانوني", en: "Abdulaziz", enRole: "Legal",
+      svcAr: ["العقود", "التأسيس", "التراخيص", "الهيكلة القانونية"], svcEn: ["Contracts", "Incorporation", "Licensing", "Legal structuring"],
+      mAr: "يصيغ ويراجع المستندات القانونية — والتوقيع بموافقتك.", mEn: "Drafts and reviews legal documents — signing needs your approval." },
+    { e: "💼", ar: "بدر", arRole: "مبيعات وتطوير أعمال", en: "Badr", enRole: "Sales & Business Development",
+      svcAr: ["عروض الأسعار", "الباقات", "العروض التجارية", "نطاق الخدمة"], svcEn: ["Quotes", "Bundles", "Commercial proposals", "Scope of work"],
+      mAr: "يجهّز العروض والمقترحات التجارية لعملائك.", mEn: "Prepares quotes and commercial proposals for your clients." },
+    { e: "📣", ar: "فرح", arRole: "تسويق ومحتوى", en: "Farah", enRole: "Marketing & Content",
+      svcAr: ["المحتوى", "الحملات", "السوشال", "SEO والهوية"], svcEn: ["Content", "Campaigns", "Social", "SEO & brand"],
+      mAr: "تخطّط وتنتج المحتوى والحملات التسويقية.", mEn: "Plans and produces content and marketing campaigns." },
+    { e: "🗂️", ar: "ملاك", arRole: "مساعِدة تنفيذية", en: "Malak", enRole: "Executive Assistant",
+      svcAr: ["صياغة الإيميلات", "التلخيص", "تنظيم المهام", "التذكيرات"], svcEn: ["Email drafting", "Summaries", "Task organizing", "Reminders"],
+      mAr: "تدير مهامك اليومية وتنظّم أعمالك.", mEn: "Runs your day-to-day tasks and keeps you organized." },
+    { e: "💻", ar: "محمد", arRole: "تقنية المعلومات", en: "Mohammed", enRole: "IT",
+      svcAr: ["المواقع والتطبيقات", "الأتمتة", "ربط الـAPIs", "الدعم التقني"], svcEn: ["Sites & apps", "Automation", "API integration", "Tech support"],
+      mAr: "يبني ويشغّل حلولك التقنية ويربط أنظمتك.", mEn: "Builds and runs your tech and connects your systems." },
+    { e: "🛒", ar: "أحمد", arRole: "مشتريات وتوريد", en: "Ahmed", enRole: "Procurement & Supply",
+      svcAr: ["إيجاد الموردين", "مقارنة العروض", "طلبات عروض الأسعار (RFQ)", "التفاوض التمهيدي"], svcEn: ["Sourcing suppliers", "Comparing offers", "RFQs", "Initial negotiation"],
+      mAr: "يجد الموردين ويجهّز طلبات الشراء — والإرسال الخارجي بموافقتك.", mEn: "Finds suppliers and prepares purchase requests — external sending needs your approval." },
+  ];
+
   const body = `
   <section class="ss-hero">
     <div class="wrap">
@@ -4311,31 +4348,79 @@ function buildSharedServices() {
       <h1>${L("Your smart executive team", "فريقك التنفيذي الذكي")}</h1>
       <p class="lead">${L("Instead of hiring a whole office, get a full team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant — led by Khaled, who understands your request, delegates to the right specialist, executes, and escalates only what needs your approval.", "بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يعملون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعِدة تنفيذية — بقيادة خالد الذي يفهم طلبك، يوزّعه على المتخصص المناسب، ينفّذ، ويصعّد فقط ما يحتاج موافقتك.")}</p>
       <div class="ss-cta">
-        <a class="btn btn-primary" href="#ss-gate">${L("Open your team now", "افتح فريقك الآن")}</a>
-        <a class="btn btn-ghost" href="${u("/ai-agents")}">${L("Plans & details", "الباقات والتفاصيل")}</a>
+        <a class="btn btn-primary" href="#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
+        <a class="btn btn-ghost" href="#ss-roster">${L("Meet the team", "تعرّف على الفريق")}</a>
       </div>
     </div>
   </section>
 
   <section class="ss-sec">
     <div class="wrap">
-      <div class="sec-head"><h2>${L("Meet your team", "تعرّف على فريقك")}</h2><p>${L("One subscription, a coordinated team that works together for your business.", "اشتراك واحد، وفريق منسّق يعمل مع بعضه لخدمة أعمالك.")}</p></div>
-      <div class="ss-team">${team.map((m) => `<span class="ss-chip"><span>${m.e}</span>${L(m.en, m.ar)}</span>`).join("")}</div>
+      <div class="sec-head"><h2>${L("How the service works", "كيف تعمل الخدمة")}</h2><p>${L("One request in plain language — the team takes it from there.", "طلب واحد بلغتك العادية — والفريق يتكفّل بالباقي.")}</p></div>
+      <div class="ss-how">
+        <div class="ss-how-s"><span class="n">1</span><b>${L("Ask in plain words", "اطلب بلغتك")}</b><p>${L("Write your request in everyday Arabic or English.", "اكتب طلبك بالعربي أو الإنجليزي العادي.")}</p></div>
+        <div class="ss-how-s"><span class="n">2</span><b>${L("Khaled routes it", "خالد يوزّعه")}</b><p>${L("He understands the request and hands it to the right specialist.", "يفهم الطلب ويسلّمه للمتخصص المناسب.")}</p></div>
+        <div class="ss-how-s"><span class="n">3</span><b>${L("The specialist executes", "المتخصص ينفّذ")}</b><p>${L("The work is done and logged in your isolated workspace.", "يُنفَّذ العمل ويُوثَّق في مساحتك المعزولة.")}</p></div>
+        <div class="ss-how-s"><span class="n">4</span><b>${L("You approve what binds", "توافق على الملزم")}</b><p>${L("Any payment, signature or external send waits for your approval.", "أي دفع أو توقيع أو إرسال خارجي ينتظر موافقتك.")}</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ss-sec" id="ss-roster">
+    <div class="wrap">
+      <div class="sec-head"><h2>${L("Meet your team", "تعرّف على فريقك")}</h2><p>${L("Eleven specialists — each with the services they deliver and how they work.", "أحد عشر متخصصاً — لكل واحد خدماته وطريقة عمله.")}</p></div>
+      <div class="ss-roster">
+        ${roster.map((r) => `<article class="ss-rc">
+          <div class="ss-rc-h"><span class="e">${r.e}</span><div><b>${L(r.en, r.ar)}</b><span>${L(r.enRole, r.arRole)}</span></div></div>
+          <div class="ss-rc-svc">${(LANG === "ar" ? r.svcAr : r.svcEn).map((s) => `<span>${esc(s)}</span>`).join("")}</div>
+          <p class="ss-rc-m"><b>${L("How they work", "طريقة العمل")}:</b> ${L(r.mEn, r.mAr)}</p>
+        </article>`).join("")}
+      </div>
       ${feats.length ? `<ul class="ss-feats">${feats.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
     </div>
   </section>
 
-  <section class="ss-sec" id="ss-gate">
+  <section class="ss-sec ss-hier-sec">
     <div class="wrap">
-      <div class="ss-access">
-        <h2>${L("Open your service", "افتح خدمتك")}</h2>
-        <p>${L("Enter your access code to open your executive team dashboard. Registration and payment are done through the client portal — after activation your code arrives by email.", "أدخل رمز الوصول لفتح لوحة فريقك التنفيذي. التسجيل والدفع يتمّان عبر بوابة العميل، وبعد التفعيل يصلك رمزك على بريدك.")}</p>
+      <div class="sec-head"><h2>${L("The internal structure", "الهيكل الداخلي")}</h2><p>${L("Who manages whom, who talks to whom, and where a human stays in control.", "مَن يدير مَن، ومَن يكلّم مَن، وأين يبقى الإنسان مسيطراً.")}</p></div>
+      <div class="ss-hier">
+        <div class="ss-tier ss-t1"><span class="e">👑</span><div><b>${L("Khaled", "خالد")}</b><span>${L("Single point of contact + coordinator", "نقطة الاتصال الواحدة + المنسّق")}</span></div></div>
+        <div class="ss-hconn"></div>
+        <div class="ss-tier ss-t2"><span class="e">🧭</span><div><b>${L("Mazen", "مازن")}</b><span>${L("Operations manager — coordinates multi-step execution", "مدير العمليات — ينسّق التنفيذ متعدّد الخطوات")}</span></div></div>
+        <div class="ss-hconn"></div>
+        <div class="ss-tier-row">${roster.filter((r) => !["خالد", "مازن", "باهر"].includes(r.ar)).map((r) => `<span class="ss-mini"><span>${r.e}</span>${L(r.en, r.ar)}</span>`).join("")}</div>
+        <div class="ss-hgrid">
+          <div class="ss-hcard"><b>🎯 ${L("Advisory council", "المجلس الاستشاري")}</b><span>${L("Baher is consulted on major decisions.", "باهر يُستشار في القرارات الكبرى.")}</span></div>
+          <div class="ss-hcard"><b>📲 ${L("Human escalation", "التصعيد البشري")}</b><span>${L("WhatsApp to the client's own staff for financial, field & government work.", "واتساب لموظفي العميل نفسه للأعمال المالية والميدانية والحكومية.")}</span></div>
+          <div class="ss-hcard gov"><b>🔒 ${L("Governance", "الحوكمة")}</b><span>${L("Human approval before payment, signature or external send.", "موافقة بشرية قبل الدفع أو التوقيع أو الإرسال الخارجي.")}</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ss-sec" id="ss-subscribe">
+    <div class="wrap">
+      <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from registration to opening your dashboard.", "رحلة واضحة من التسجيل حتى فتح لوحتك.")}</p></div>
+      <div class="ss-steps">
+        <div class="ss-step"><span class="n">1</span><b>${L("Register & subscribe", "سجّل واشترك")}</b><p>${L("Start via the client portal and pick your plan.", "ابدأ عبر بوابة العميل واختر باقتك.")}</p></div>
+        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Complete payment through the secure portal.", "أكمل الدفع عبر البوابة الآمنة.")}</p></div>
+        <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("After payment, your access code is emailed to your registered address.", "بعد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
+        <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter the code below and your team dashboard opens.", "أدخل الرمز أدناه فتفتح لوحة فريقك.")}</p></div>
+      </div>
+      <div class="ss-cta" style="justify-content:center;margin-top:26px">
+        <a class="btn btn-primary" href="${u("/consultation")}?topic=shared-services">${L("Register & subscribe", "سجّل واشترك")}</a>
+        <a class="btn btn-ghost" href="${u("/account")}">${L("Client portal", "بوابة العميل")}</a>
+      </div>
+
+      <div class="ss-access" id="ss-gate">
+        <h3>${L("Subscribers: enter your access code", "للمشتركين: أدخل رمز الدخول")}</h3>
+        <p>${L("Your code was emailed to you after payment. Enter it to open your dashboard.", "رمزك وصلك على بريدك بعد الدفع. أدخله لفتح لوحتك.")}</p>
         <form class="ss-access-form" id="ss-unlock">
-          <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw("Access code (demo: demo123)", "رمز الوصول (تجربة: demo123)")}" aria-label="${Lraw("Access code", "رمز الوصول")}">
-          <button class="btn btn-primary" type="submit">${L("Open my service", "افتح خدمتي")}</button>
+          <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw("Access code", "رمز الدخول")}" aria-label="${Lraw("Access code", "رمز الدخول")}">
+          <button class="btn btn-primary" type="submit">${L("Open my dashboard", "افتح لوحتي")}</button>
         </form>
         <div class="ss-note-box" id="unl-result" hidden></div>
-        <a class="ss-portal-link" href="${u("/portal")}">${L("Register & subscribe via the client portal →", "التسجيل والاشتراك عبر بوابة العميل ←")}</a>
+        <span class="ss-demo-hint">${L("Preview the dashboard with the demo code: ", "لمعاينة اللوحة استخدم رمز التجربة: ")}<code>demo123</code></span>
       </div>
     </div>
   </section>
@@ -4513,6 +4598,53 @@ function buildSharedServices() {
     .ss-note-box{margin:14px auto 0;max-width:440px;border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.7}
     .ss-note-box.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
     .ss-note-box.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
+    /* ---- how it works ---- */
+    .ss-how{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .ss-how-s{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 16px;box-shadow:0 6px 18px rgba(11,27,90,.05)}
+    .ss-how-s .n{width:32px;height:32px;border-radius:50%;background:var(--brand,#0b1b5a);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:11px}
+    .ss-how-s b{display:block;color:var(--brand,#0b1b5a);margin-bottom:5px}
+    .ss-how-s p{margin:0;font-size:.85rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+    @media(max-width:820px){.ss-how{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.ss-how{grid-template-columns:1fr}}
+    /* ---- detailed roster ---- */
+    .ss-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+    .ss-rc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 17px;box-shadow:0 6px 18px rgba(11,27,90,.05);display:flex;flex-direction:column}
+    .ss-rc-h{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    .ss-rc-h .e{font-size:1.9rem;line-height:1}
+    .ss-rc-h b{display:block;color:var(--brand,#0b1b5a);font-size:1.02rem}
+    .ss-rc-h span{display:block;font-size:.8rem;color:var(--text-soft,#5b6b86)}
+    .ss-rc-svc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
+    .ss-rc-svc span{background:#eef1fb;color:var(--brand,#0b1b5a);border-radius:999px;padding:4px 10px;font-size:.76rem;font-weight:600}
+    .ss-rc-m{margin:auto 0 0;font-size:.84rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+    .ss-rc-m b{color:var(--brand,#0b1b5a)}
+    /* ---- hierarchy ---- */
+    .ss-hier-sec{background:linear-gradient(180deg,#f6f9fc,transparent)}
+    .ss-hier{display:flex;flex-direction:column;align-items:center;gap:0}
+    .ss-tier{display:flex;gap:13px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:15px;padding:14px 20px;box-shadow:0 8px 24px rgba(11,27,90,.07);max-width:520px;width:100%;justify-content:center;text-align:start}
+    .ss-tier .e{font-size:1.8rem;line-height:1}
+    .ss-tier b{display:block;color:var(--brand,#0b1b5a);font-size:1.05rem}
+    .ss-tier span{display:block;font-size:.82rem;color:var(--text-soft,#5b6b86)}
+    .ss-t1{border-color:var(--brand,#0b1b5a)}
+    .ss-hconn{width:2px;height:22px;background:var(--line)}
+    .ss-tier-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0 8px;max-width:760px}
+    .ss-mini{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:.85rem;font-weight:600;color:var(--brand,#0b1b5a)}
+    .ss-hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px;width:100%}
+    .ss-hcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+    .ss-hcard b{display:block;color:var(--brand,#0b1b5a);font-size:.92rem;margin-bottom:4px}
+    .ss-hcard span{display:block;font-size:.82rem;color:var(--text-soft,#5b6b86);line-height:1.6}
+    .ss-hcard.gov{border-color:#f0d38a;background:#fffdf5}
+    @media(max-width:760px){.ss-hgrid{grid-template-columns:1fr}}
+    /* ---- subscription steps ---- */
+    .ss-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .ss-step{position:relative;background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 16px;box-shadow:0 6px 18px rgba(11,27,90,.05)}
+    .ss-step .n{width:30px;height:30px;border-radius:50%;background:#12b3ad;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+    .ss-step b{display:block;color:var(--brand,#0b1b5a);margin-bottom:5px}
+    .ss-step p{margin:0;font-size:.84rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+    @media(max-width:820px){.ss-steps{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.ss-steps{grid-template-columns:1fr}}
+    .ss-access h3{margin:0 0 8px;color:var(--brand,#0b1b5a)}
+    .ss-demo-hint{display:block;margin-top:14px;font-size:.82rem;color:var(--text-soft,#5b6b86)}
+    .ss-demo-hint code{background:#eef1fb;border-radius:6px;padding:2px 7px;font-size:.82rem;color:var(--brand,#0b1b5a)}
   </style>`;
 
   const script = `<script>(function(){
