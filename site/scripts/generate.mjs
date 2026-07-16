@@ -2568,7 +2568,8 @@ function buildMahfolTrips() {
   <style>
     :root{--mm-gold:#0B1B5A;--mm-gold-2:#24409e}
     .tr-hero{position:relative;color:#fff;padding:62px 0 70px;overflow:hidden;background:var(--navy-900)}
-    .tr-hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(105deg,rgba(8,19,69,.94) 30%,rgba(11,27,90,.72) 70%,rgba(11,27,90,.5)),url('${timg("1mn0nLKNchUaE6XDOs77EEiY5d9ZdcUNn")}');background-size:cover;background-position:center;z-index:0}
+    .tr-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 120% at 85% 0%,#1b2f80 0%,var(--navy) 45%,var(--navy-900) 100%);z-index:0}
+    .tr-hero::after{content:"";position:absolute;inset:0;opacity:.5;z-index:0;background-image:radial-gradient(circle at 82% 30%,rgba(255,255,255,.10),transparent 40%);pointer-events:none}
     .tr-hero>.container{position:relative;z-index:1}
     .tr-hero .subbrand-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:#fff}
     .tr-hero .subbrand-badge small{color:rgba(255,255,255,.75)}
@@ -2576,16 +2577,20 @@ function buildMahfolTrips() {
     .tr-hero .lead{color:rgba(255,255,255,.9);max-width:720px}
     .tr-gold-line{width:64px;height:4px;border-radius:4px;background:rgba(255,255,255,.85);margin:0 0 16px}
     .tr-trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;color:rgba(255,255,255,.92);font-size:.92rem}
-    .tr-trust span{display:inline-flex;align-items:center;gap:7px}
+    .tr-trust span{display:inline-flex;align-items:center;gap:8px}
+    .tr-trust svg{width:18px;height:18px;flex:0 0 auto}
+    .tr-agent-head .r svg{width:22px;height:22px}
+    .tr-agent-cta .btn svg,.tr-opt svg{width:16px;height:16px}
     /* Smart trip agent (chat) */
     .tr-agent{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:820px;margin:30px auto 0;overflow:hidden;text-align:start}
     .tr-agent-head{display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(135deg,var(--navy),var(--navy-700));color:#fff}
     .tr-agent-head .r{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.15);display:grid;place-items:center;flex:0 0 auto}
     .tr-agent-head h3{margin:0;font-size:18px}
     .tr-agent-head p{margin:1px 0 0;font-size:13px;color:rgba(255,255,255,.8)}
-    .tr-agent-msgs{padding:20px;display:flex;flex-direction:column;gap:12px;max-height:360px;overflow-y:auto}
+    .tr-agent{margin:0 auto}
+    .tr-agent-msgs{padding:20px;display:flex;flex-direction:column;gap:12px;min-height:120px;max-height:360px;overflow-y:auto;background:#fff}
     .tr-b{max-width:86%;padding:11px 15px;border-radius:14px;font-size:15px;line-height:1.6}
-    .tr-b.bot{background:var(--gray-bg);border:1px solid var(--gray-line);border-start-start-radius:4px;align-self:flex-start}
+    .tr-b.bot{background:var(--gray-bg);border:1px solid var(--gray-line);border-start-start-radius:4px;align-self:flex-start;color:var(--text)}
     .tr-b.me{background:var(--navy);color:#fff;border-start-end-radius:4px;align-self:flex-end}
     .tr-opts{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
     .tr-opt{border:1.5px solid var(--gray-line);background:#fff;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;color:var(--text);cursor:pointer;transition:.15s}
@@ -2638,7 +2643,10 @@ function buildMahfolTrips() {
     <p class="lead">${L("Curated trips, camps, stays and activities across every region — designed around you and delivered through our vetted local partners.", "رحلات ومخيمات وإقامات وأنشطة مصمّمة في كل مناطق المملكة — حسب رغبتك وعبر شركائنا المحليين المعتمدين.")}</p>
     <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#trip-form">${I.calendar}<span>${L("Design my trip", "صمّم رحلتي")}</span></a>${waBtn2("Book on WhatsApp", "احجز عبر واتساب", "btn-ghost")}</div>
     <div class="tr-trust"><span>${I.check}${L("Vetted, audited suppliers", "موردون معتمدون ومدقّقون")}</span><span>${I.wa}${L("Instant booking on WhatsApp", "حجز فوري عبر الواتساب")}</span><span>${I.clock}${L("24/7 support", "دعم على مدار الساعة")}</span></div>
+  </div></section>
 
+  <section class="section"><div class="container" style="max-width:840px">
+    <div class="section-head"><span class="eyebrow">${L("Smart agent", "الوكيل الذكي")}</span><h2>${L("Plan your trip in 30 seconds", "خطّط رحلتك في 30 ثانية")}</h2><p>${L("Chat with our agent — pick a few options and we'll shape your trip or find your flight.", "تحدّث مع وكيلنا — اختر بعض الخيارات ونصمّم رحلتك أو نبحث لك عن الطيران.")}</p></div>
     <div class="tr-agent" id="tr-agent">
       <div class="tr-agent-head"><span class="r">${I.robot}</span><div><h3>${L("Mahfol Makfol Agent", "وكيل محفول مكفول الذكي")}</h3><p>${L("Trips • Flights • Experiences", "رحلات • طيران • تجارب")}</p></div></div>
       <div class="tr-agent-msgs" id="tr-msgs"></div>
