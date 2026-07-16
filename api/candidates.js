@@ -311,7 +311,7 @@ export default async function handler(req, res) {
       const cvAts = txt(p["ATS CV (Drive)"]);
       const cvRaw = txt(p["CV Link"]);
       const rec = {
-        id: txt(p["Candidate ID"]),
+        id: pg.id,
         field: txt(p["Field"]),
         role: txt(p["Target Role"]) || txt(p["Original Position"]),
         city: txt(p["City"]),
