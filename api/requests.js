@@ -497,6 +497,15 @@ export default async function handler(req, res) {
     const agents = Array.isArray(b.agents) ? b.agents.map((s) => String(s).toLowerCase().trim()).filter((s) => /^[a-z0-9]{1,30}$/.test(s)).slice(0, 20) : [];
     const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
     const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
+    // Accept an image (screenshot — auto-verified by the AI reader) or a PDF. Use the
+    // real content type so the file uploads to Notion correctly; infer from the name if absent.
+    const rawType = String(b.receiptType || "").toLowerCase();
+    const receiptType = /^(image\/(jpeg|jpg|png|webp)|application\/pdf)$/.test(rawType)
+      ? rawType.replace("image/jpg", "image/jpeg")
+      : /\.(jpe?g)$/i.test(receiptName) ? "image/jpeg"
+      : /\.png$/i.test(receiptName) ? "image/png"
+      : /\.webp$/i.test(receiptName) ? "image/webp"
+      : "application/pdf";
     const compliance = !!b.compliance;
     const employerPlanKey = ["basic", "pro", "enterprise"].includes(b.employerPlan) ? b.employerPlan : "";
     const company = String(b.company || "").trim().slice(0, 200) || name;
@@ -507,7 +516,7 @@ export default async function handler(req, res) {
     const surchargeFee = Number.isFinite(surchargeFeeNum) ? surchargeFeeNum : 0;
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
-    const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, "application/pdf");
+    const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, receiptType);
     const agentsNote = agents.length ? `<p>موظفون أذكياء مطلوبون: <strong>${esc(agents.join("، "))}</strong> — بمجرد اعتماد الدفع، تفلّت الحالة لـ«مؤكد - قيد التنفيذ» يفتح للعميل بوابة الموظفين الأذكياء تلقائياً برقم مرجعه ${ref}.</p>` : "";
     const complianceNote = compliance
       ? (OTP_SECRET && isEmail(email)
@@ -527,8 +536,12 @@ export default async function handler(req, res) {
       : "";
     const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
+    // Immediate acknowledgment to the client — "we received your payment, we're verifying it".
+    // The n8n verification agent later sends the "confirmed / activated" email once the receipt amount matches.
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلبك ودفعتك ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك وإيصال التحويل البنكي بنجاح. فريقنا ووكيل التحقق الآلي يراجعان الإيصال الآن، وبمجرد تأكيد مطابقة المبلغ ستصلك رسالة تأكيد التفعيل مباشرةً.</p><table>${row("رقم المرجع", ref) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>يمكنك متابعة حالة طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر · محفول مكفول</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
+      isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
       crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pkgNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
@@ -756,7 +769,7 @@ export default async function handler(req, res) {
   const [teamSent, clientSent] = await Promise.all([
     sendEmail(TEAM_EMAIL, `${title} — ${f.company}`, teamHtml),
     sendEmail(f.email, `${type === "event" ? "تأكيد طلب الفعالية" : "تأكيد تسجيل المورّد"} ${ref} — Business Partner`, clientHtml),
-    crmLead({ title, phone: f.phone, email: f.email, notes: crmNotes, ref }),
+    crmLead({ title: type === "event" ? `فعالية مؤسسية — ${f.company}` : `تسجيل مورّد — ${f.company}`, phone: f.phone, email: f.email, notes: crmNotes, ref }),
     addToAudience(f.email, f.person),
     forwardLead({ source: type, ref, name: f.person, company: f.company, phone: f.phone, email: f.email, notes: crmNotes }),
   ]);

@@ -2397,7 +2397,6 @@ function buildTourism() {
     <p class="lead">${L(t.leadEn || t.lead, t.lead)}</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="#events">${I.building}<span>${L("Staff events", "فعاليات الموظفين")}</span></a>
-      <a class="btn btn-ghost btn-lg" href="${u("/mahfol-makfol")}">${I.globe}<span>${L("Investor business tourism", "سياحة الأعمال للمستثمر")}</span></a>
     </div>
   </div></section>
 
@@ -2450,7 +2449,7 @@ function buildTourism() {
           </select></div>
         <div class="field"><label for="ev-notes">${L("Extra details (optional)", "تفاصيل إضافية (اختياري)")}</label><textarea id="ev-notes" rows="3" placeholder="${Lraw("Theme, budget range, preferred city…", "الثيم، حدود الميزانية، المدينة المفضلة…")}"></textarea></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send event request", "أرسل طلب الفعالية")}</span></button>
-        <p class="form-note">${L("Your request reaches our team, we collect the best 5 supplier offers, and you pick the winner.", "يصل طلبك لفريقنا، نجمع لك أفضل 5 عروض من المزوّدين، وتختار الأنسب.")}</p>
+        <p class="form-note">${L("Your request reaches our team, we collect the best 5 supplier offers, and you pick the winner. You're registered as a client and your request is saved to your dashboard.", "يصل طلبك لفريقنا، نجمع لك أفضل 5 عروض من المزوّدين، وتختار الأنسب. ويتم تسجيلك كعميل وحفظ طلبك في لوحتك.")}</p>
         <div class="form-success" id="event-success" hidden></div>
       </form>
       <aside class="booking-side">
@@ -2894,15 +2893,24 @@ function buildMahfolTrips() {
   // Real Saudi tourism photos (the client's own brochure assets on Google Drive).
   const timg = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
   const DEST = [
-    { ic: "🏜️", k: "riyadh", price: 600, en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440 },
-    { ic: "🏛️", k: "alula", price: 2029, en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339 },
-    { ic: "🕌", k: "jeddah", price: 2290, en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600 },
-    { ic: "🌊", k: "neom", price: 2065, en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272 },
-    { ic: "🐠", k: "yanbu", price: 2261, en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471 },
-    { ic: "🌲", k: "asir", price: 1945, en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780 },
-    { ic: "🏝️", k: "jazan", price: 1897, en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838 },
-    { ic: "🌹", k: "taif", price: 1696, en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619 },
-    { ic: "🐪", k: "hail", price: null, en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291 },
+    { ic: "🏜️", k: "riyadh", price: 600, en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440,
+      hlEn: ["Edge of the World cliffs & desert safari", "Diriyah — the UNESCO old town of Saudi Arabia", "Boulevard, dining & modern Riyadh by night"], hlAr: ["حافة العالم والسفاري الصحراوي", "الدرعية التاريخية — موقع اليونسكو", "بوليفارد ومطاعم والرياض ليلاً"] },
+    { ic: "🏛️", k: "alula", price: 2029, en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339,
+      hlEn: ["Hegra — Saudi's first UNESCO site (Nabataean tombs)", "Elephant Rock & AlUla old town", "Maraya, Sharaan & desert stargazing"], hlAr: ["مدائن صالح (الحِجر) — أول موقع يونسكو", "جبل الفيل والبلدة القديمة", "مرايا وشرعان وتأمل النجوم"] },
+    { ic: "🕌", k: "jeddah", price: 2290, en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600,
+      hlEn: ["Historic Al-Balad — UNESCO old Jeddah", "Corniche, the fountain & Red Sea sunsets", "KAEC, diving & island day-trips"], hlAr: ["جدة البلد التاريخية — موقع اليونسكو", "الكورنيش والنافورة وغروب البحر الأحمر", "كايك والغوص ورحلات الجزر"] },
+    { ic: "🌊", k: "neom", price: 2065, en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272,
+      hlEn: ["Wadi Disah — palm canyons & springs", "Red Sea diving off Duba coast", "Untouched mountains & future landmarks"], hlAr: ["وادي ديسة — الأخاديد والنخيل والينابيع", "الغوص في البحر الأحمر بساحل ضباء", "جبال بكر ومعالم المستقبل"] },
+    { ic: "🐠", k: "yanbu", price: 2261, en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471,
+      hlEn: ["Umluj islands — the Saudi Maldives", "Snorkeling over vivid coral reefs", "Beach camps & boat trips"], hlAr: ["جزر أملج — مالديف السعودية", "سنوركل فوق الشعاب المرجانية", "مخيمات شاطئية ورحلات بحرية"] },
+    { ic: "🌲", k: "asir", price: 1945, en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780,
+      hlEn: ["Abha & the Habala hanging cliffs", "Cable car above the clouds", "Rijal Almaa heritage village"], hlAr: ["أبها ومنحدرات الحبلة", "التلفريك فوق السحاب", "قرية رجال ألمع التراثية"] },
+    { ic: "🏝️", k: "jazan", price: 1897, en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838,
+      hlEn: ["Farasan Islands — coral & wildlife archipelago", "Fifa mountains & terraced farms", "Coast, boats & fresh seafood"], hlAr: ["جزر فرسان — أرخبيل المرجان والحياة الفطرية", "جبال فيفاء والمدرجات الزراعية", "الساحل والقوارب والمأكولات البحرية"] },
+    { ic: "🌹", k: "taif", price: 1696, en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619,
+      hlEn: ["Rose farms & the old souq", "Al-Hada mountains & cable car", "Al-Shafa greenery & Al-Baha forests"], hlAr: ["مزارع الورد والسوق القديم", "جبال الهدا والتلفريك", "خضرة الشفا وغابات الباحة"] },
+    { ic: "🐪", k: "hail", price: null, en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291,
+      hlEn: ["Aja & Salma mountains and Hail heritage", "Jubbah rock art — UNESCO", "AlAhsa oasis & a Madinah add-on"], hlAr: ["جبال أجا وسلمى وتراث حائل", "نقوش جبة الصخرية — يونسكو", "واحة الأحساء وإضافة المدينة المنورة"] },
   ];
   // Purchasable trip card: priced → Add to cart (per-person; qty = travellers) →
   // existing checkout (requires sign-in, payment, order in Notion, shows in the
@@ -2911,10 +2919,10 @@ function buildMahfolTrips() {
     ? cartBtns({ id: "trip-" + d.k, nameEn: "Trip — " + d.en, nameAr: "رحلة — " + d.ar, amount: d.price, priceLabel: L(d.pe, d.pa), kind: "trip", ghost })
     : `<div class="buy-row"><a class="btn ${ghost ? "btn-ghost" : "btn-primary"}" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a></div>`;
   const destCards = DEST.map((d) => `
-    <div class="card feature tr-dest">
-      <div class="tr-dest-img" style="background-image:url('${timg(d.img)}')"><span class="tr-dest-ic">${d.ic}</span></div>
+    <div class="card feature tr-dest" data-trip-open="${d.k}">
+      <div class="tr-dest-img" style="background-image:url('${timg(d.img)}')"></div>
       <div class="tr-dest-body">
-        <h3>${L(d.en, d.ar)}</h3>
+        <h3><button type="button" class="tr-dest-name" data-trip-open="${d.k}">${L(d.en, d.ar)}</button></h3>
         <p class="tr-tag">${L(d.te, d.ta)}</p>
         <span class="tr-price">${L(d.pe, d.pa)}</span>
         <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
@@ -2947,7 +2955,7 @@ function buildMahfolTrips() {
   const mapPanels = DEST.map((d, i) => `
     <div class="trm-panel${i === 0 ? " on" : ""}" data-idx="${i}">
       <div class="trm-panel-img" style="background-image:url('${timg(d.img)}')"></div>
-      <div class="trm-panel-body"><h3>${d.ic} ${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p><span class="tr-price">${L(d.pe, d.pa)}</span>
+      <div class="trm-panel-body"><h3>${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p><span class="tr-price">${L(d.pe, d.pa)}</span>
       ${tripBuy(d)}</div>
     </div>`).join("");
 
@@ -3007,7 +3015,6 @@ function buildMahfolTrips() {
     .tr-dest{display:flex;flex-direction:column;padding:0;overflow:hidden}
     .tr-dest-img{height:172px;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
     .tr-dest-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,27,90,0) 55%,rgba(11,27,90,.35))}
-    .tr-dest-ic{position:relative;z-index:1;margin:10px;font-size:22px;background:rgba(255,255,255,.92);width:40px;height:40px;border-radius:11px;display:grid;place-items:center;box-shadow:var(--shadow-sm)}
     .tr-dest-body{display:flex;flex-direction:column;gap:8px;padding:16px 18px 18px;flex:1}
     .tr-dest-body h3{margin:0;font-size:19px}
     .tr-tag{color:var(--text-soft);font-size:14px;margin:0}
@@ -3015,6 +3022,27 @@ function buildMahfolTrips() {
     .tr-inquire{text-align:center;font-size:13px;color:var(--text-soft);text-decoration:none}
     .tr-inquire:hover{color:var(--navy);text-decoration:underline}
     .tr-buy-note{max-width:760px;margin:0 auto 22px;text-align:center;color:var(--text-soft);font-size:14px}
+    .tr-dest{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+    .tr-dest:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+    .tr-dest:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+    .tr-dest-name{background:none;border:0;padding:0;margin:0;font:inherit;color:var(--navy);cursor:pointer;text-align:start}
+    .tr-dest-name:hover,.tr-dest-name:focus-visible{text-decoration:underline;outline:none}
+    .tr-dest .buy-row,.tr-dest .tr-inquire,.tr-dest .add-cart{cursor:auto}
+    .tr-modal[hidden]{display:none}
+    .tr-modal{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
+    .tr-modal-ov{position:absolute;inset:0;background:rgba(11,27,90,.55);backdrop-filter:blur(2px)}
+    .tr-modal-card{position:relative;z-index:1;background:#fff;border-radius:var(--radius-lg);max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);text-align:start}
+    .tr-modal-x{position:absolute;z-index:2;top:10px;inset-inline-end:10px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.92);color:var(--navy);font-size:16px;cursor:pointer;box-shadow:var(--shadow-sm)}
+    .tr-modal-img{height:200px;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-start}
+    .tr-modal-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,27,90,0) 50%,rgba(11,27,90,.4))}
+    .tr-modal-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:10px}
+    .tr-modal-body h3{margin:0;font-size:22px;color:var(--navy)}
+    .tr-modal-body h4{margin:8px 0 0;font-size:14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.02em}
+    .tr-modal-hl,.tr-modal-inc{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:5px;font-size:15px}
+    .tr-modal-hl li::marker{color:var(--navy)}
+    .tr-modal-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .tr-modal-cta .btn{flex:1 1 auto}
+    .tr-modal-note{margin:4px 0 0;font-size:12.5px;color:var(--text-soft)}
     .tr-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
     .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm);border-top:3px solid var(--mm-gold)}
     .tr-act-ic{font-size:26px}
@@ -3076,6 +3104,30 @@ function buildMahfolTrips() {
     <div class="grid grid-3">${destCards}</div>
   </div></section>
 
+  <div class="tr-modal" id="tr-modal" hidden>
+    <div class="tr-modal-ov" data-tr-close></div>
+    <div class="tr-modal-card" role="dialog" aria-modal="true" aria-labelledby="trm-title">
+      <button class="tr-modal-x" type="button" data-tr-close aria-label="${Lraw("Close", "إغلاق")}">✕</button>
+      <div class="tr-modal-img" id="trm-img"></div>
+      <div class="tr-modal-body">
+        <h3 id="trm-title"></h3>
+        <p class="tr-tag" id="trm-tag"></p>
+        <span class="tr-price" id="trm-price"></span>
+        <h4>${L("Trip highlights", "أبرز معالم الرحلة")}</h4>
+        <ul class="tr-modal-hl" id="trm-hl"></ul>
+        <h4>${L("What's included", "ماذا تشمل الرحلة")}</h4>
+        <ul class="tr-modal-inc">
+          <li>${L("Curated stays & camps", "إقامات ومخيمات مختارة")}</li>
+          <li>${L("Private transport & transfers", "تنقّل خاص واستقبال")}</li>
+          <li>${L("Expert local guide", "مرشد محلي خبير")}</li>
+          <li>${L("Signature experiences & activities", "تجارب وأنشطة مميّزة")}</li>
+        </ul>
+        <div class="tr-modal-cta" id="trm-cta"></div>
+        <p class="tr-modal-note">${L("Per-person price — set the number of travellers in your cart. Booking needs a free account.", "السعر للشخص — حدّد عدد المسافرين في السلة. الحجز يتطلب حساباً مجانياً.")}</p>
+      </div>
+    </div>
+  </div>
+
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Things to do", "الأنشطة")}</span><h2>${L("Signature experiences", "تجارب مميّزة")}</h2></div>
     <div class="tr-act-grid">${actCards}</div>
@@ -3107,7 +3159,9 @@ function buildMahfolTrips() {
 (function(){
   var LANG = ${JSON.stringify(LANG === "ar" ? "ar" : "en")};
   var WA = ${JSON.stringify(WA)};
-  var DST = ${JSON.stringify(DEST.map((d) => ({ en: d.en, ar: d.ar })))};
+  var CART = ${JSON.stringify(u("/cart"))};
+  var DST = ${JSON.stringify(DEST.map((d) => ({ en: d.en, ar: d.ar, k: d.k, price: d.price, pe: d.pe, pa: d.pa })))};
+  var DTL = ${JSON.stringify(DEST.map((d) => ({ k: d.k, ic: d.ic, en: d.en, ar: d.ar, te: d.te, ta: d.ta, pe: d.pe, pa: d.pa, price: d.price, img: timg(d.img), hlEn: d.hlEn || [], hlAr: d.hlAr || [] })))};
   function tr(ar,en){return LANG==="ar"?ar:en;}
   // ----- Smart trip/flight agent (chat, multiple-choice) -----
   var msgs=document.getElementById("tr-msgs"), optsBox=document.getElementById("tr-opts"), ctaBox=document.getElementById("tr-cta");
@@ -3155,13 +3209,29 @@ function buildMahfolTrips() {
       if(d.when)parts.push("When: "+d.when.le);
       return parts.join(" | ");
     }
+    function findDest(v){for(var i=0;i<DST.length;i++){if(DST[i].en===v)return DST[i];}return null;}
+    var GQ={"1-2":2,"3-5":4,"6-10":8,"10+":10};
+    function bookAndPay(qty){
+      var sel=(st.data.dest||st.data.to);if(!sel)return;var dd=findDest(sel.v);if(!dd||dd.price==null)return;
+      var item={id:"trip-"+dd.k,nameEn:"Trip — "+dd.en,nameAr:"رحلة — "+dd.ar,amount:dd.price,price:(LANG==="ar"?dd.pa:dd.pe),kind:"trip",qty:qty||1};
+      try{if(window.BP&&BP.cart){var c=BP.cart.read();var ex=null;for(var i=0;i<c.length;i++){if(c[i].id===item.id){ex=c[i];break;}}if(ex)ex.qty=item.qty;else c.push(item);BP.cart.write(c);}}catch(e){}
+      location.href=CART;
+    }
     function plan(){
       clearOpts();
-      bubble(st.mode==="flight"?tr("تمام! سنبحث لك عن أفضل الرحلات ونؤكد الحجز. أكمل بياناتك أو تواصل واتساب الآن.","Done! We'll find the best flights and confirm your booking. Complete your details or chat on WhatsApp."):tr("تمام! جهّزت ملخص رحلتك. أكمل بياناتك ونعود لك ببرنامج وتسعيرة خلال يوم — أو تواصل واتساب الآن.","Done! I've drafted your trip. Complete your details and we'll come back within a day — or chat on WhatsApp."),"bot");
+      var sel=(st.data.dest||st.data.to);var dd=sel?findDest(sel.v):null;
+      var hasBook=st.mode==="trip"&&dd&&dd.price!=null;
+      var q=(st.data.group&&GQ[st.data.group.v])||1;
+      bubble(st.mode==="flight"?tr("تمام! سنبحث لك عن أفضل الرحلات ونؤكد الحجز. أكمل بياناتك أو تواصل واتساب الآن.","Done! We'll find the best flights and confirm your booking. Complete your details or chat on WhatsApp."):(hasBook?tr("تمام! وجهتك جاهزة للحجز الفوري 👇","Done! Your destination is ready to book instantly 👇"):tr("تمام! جهّزت ملخص رحلتك. أكمل بياناتك ونعود لك ببرنامج وتسعيرة خلال يوم — أو تواصل واتساب الآن.","Done! I've drafted your trip. Complete your details and we'll come back within a day — or chat on WhatsApp.")),"bot");
       var sum=summaryEN();
+      if(hasBook){
+        bubble(tr(dd.ar+" — "+dd.price+" ر.س للشخص × "+q+" مسافر (تقدر تعدّل العدد في السلة قبل الدفع).",dd.en+" — "+dd.price+" SAR/person × "+q+" travellers (adjust the number in your cart before paying)."),"bot");
+        var bk=document.createElement("button");bk.type="button";bk.className="btn btn-primary";bk.textContent=tr("احجز وادفع الآن","Book & pay now");
+        bk.addEventListener("click",function(){bookAndPay(q);});ctaBox.appendChild(bk);
+      }
       var wa=document.createElement("a");wa.className="btn btn-wa";wa.target="_blank";wa.rel="noopener";
       wa.href=WA+(WA.indexOf("?")>-1?"&":"?")+"text="+encodeURIComponent("Mahfol Makfol — "+sum);wa.textContent=tr("تواصل واتساب","Chat on WhatsApp");ctaBox.appendChild(wa);
-      var f=document.createElement("button");f.type="button";f.className="btn btn-primary";f.textContent=tr("أكمل بياناتي","Complete my details");
+      var f=document.createElement("button");f.type="button";f.className=hasBook?"btn btn-ghost":"btn btn-primary";f.textContent=hasBook?tr("أو أكمل بياناتي","Or complete my details"):tr("أكمل بياناتي","Complete my details");
       f.addEventListener("click",function(){
         var dest=(st.data.dest||st.data.to);var destEl=document.getElementById("tr-dest");
         if(destEl&&dest)destEl.value=dest.le;
@@ -3190,6 +3260,54 @@ function buildMahfolTrips() {
     var d=document.getElementById("tr-dest");
     if(d) d.value=a.getAttribute("data-trip-dest");
   });
+  // ----- Trip details modal (click a destination card to open it) -----
+  (function(){
+    var modal=document.getElementById("tr-modal");
+    if(!modal) return;
+    function findD(k){for(var i=0;i<DTL.length;i++){if(DTL[i].k===k)return DTL[i];}return null;}
+    function addToCart(d,qty){
+      var item={id:"trip-"+d.k,nameEn:"Trip — "+d.en,nameAr:"رحلة — "+d.ar,amount:d.price,price:(LANG==="ar"?d.pa:d.pe),kind:"trip",qty:qty||1};
+      try{if(window.BP&&BP.cart){var c=BP.cart.read();var ex=null;for(var i=0;i<c.length;i++){if(c[i].id===item.id){ex=c[i];break;}}if(ex)ex.qty=item.qty;else c.push(item);BP.cart.write(c);}}catch(e){}
+    }
+    function gotoForm(d){
+      close();
+      var el=document.getElementById("tr-dest");if(el)el.value=(LANG==="ar"?d.en:d.en);
+      var f=document.getElementById("trip-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+    function open(k){
+      var d=findD(k);if(!d)return;
+      document.getElementById("trm-img").style.backgroundImage="url('"+d.img+"')";
+      document.getElementById("trm-title").textContent=(LANG==="ar"?d.ar:d.en);
+      document.getElementById("trm-tag").textContent=(LANG==="ar"?d.ta:d.te);
+      document.getElementById("trm-price").textContent=(LANG==="ar"?d.pa:d.pe);
+      var hl=(LANG==="ar"?d.hlAr:d.hlEn)||[];var ul=document.getElementById("trm-hl");ul.innerHTML="";
+      hl.forEach(function(h){var li=document.createElement("li");li.textContent=h;ul.appendChild(li);});
+      var cta=document.getElementById("trm-cta");cta.innerHTML="";
+      if(d.price!=null){
+        var bk=document.createElement("button");bk.type="button";bk.className="btn btn-primary";
+        bk.textContent=(LANG==="ar"?"احجز وادفع الآن":"Book & pay now");
+        bk.addEventListener("click",function(){addToCart(d,1);location.href=CART;});cta.appendChild(bk);
+      }else{
+        var rq=document.createElement("button");rq.type="button";rq.className="btn btn-primary";
+        rq.textContent=(LANG==="ar"?"اطلب عرض سعر":"Request a quote");
+        rq.addEventListener("click",function(){gotoForm(d);});cta.appendChild(rq);
+      }
+      var ask=document.createElement("button");ask.type="button";ask.className="btn btn-ghost";
+      ask.textContent=(LANG==="ar"?"استفسر أولاً":"Ask a question");
+      ask.addEventListener("click",function(){gotoForm(d);});cta.appendChild(ask);
+      modal.hidden=false;document.body.style.overflow="hidden";
+    }
+    function close(){modal.hidden=true;document.body.style.overflow="";}
+    document.addEventListener("click",function(e){
+      if(e.target.closest("[data-tr-close]")){close();return;}
+      if(e.target.closest(".add-cart,.buy-row,.tr-inquire")) return;
+      var opener=e.target.closest("[data-trip-open]");
+      if(opener) open(opener.getAttribute("data-trip-open"));
+    });
+    document.addEventListener("keydown",function(e){
+      if(e.key==="Escape"&&!modal.hidden)close();
+    });
+  })();
 })();
 </script>`;
 
@@ -4200,6 +4318,7 @@ function buildCart() {
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="cart-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
+          <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
           <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
         </div>
@@ -4268,10 +4387,10 @@ function buildCheckout() {
           <h2>${L("Upload transfer receipt", "ارفع إيصال التحويل")} <span class="req-star">*</span></h2>
           <div class="field">
             <label class="file-drop" for="co-receipt" id="receipt-drop"><span class="file-ico">${I.upload}</span>
-              <span class="file-text" id="receipt-filename">${L("Bank transfer receipt — PDF required, same amount as your order total", "إيصال التحويل البنكي — ملف PDF إلزامي، ونفس قيمة إجمالي طلبك")}</span></label>
-            <input id="co-receipt" name="receipt" type="file" accept=".pdf,application/pdf" required hidden>
+              <span class="file-text" id="receipt-filename">${L("Bank transfer receipt — a screenshot/image is fastest (auto-verified), or PDF — same amount as your order total", "إيصال التحويل البنكي — صورة (لقطة شاشة) هي الأسرع (تحقق تلقائي)، أو PDF — بنفس قيمة إجمالي طلبك")}</span></label>
+            <input id="co-receipt" name="receipt" type="file" accept=".pdf,application/pdf,.jpg,.jpeg,.png,.webp,image/*" required hidden>
           </div>
-          <p class="calc-note" id="receipt-required-note">${L("Required: a PDF bank receipt showing a transfer of the exact order total. Orders without a matching receipt won't be activated.", "إلزامي: إيصال تحويل بنكي بصيغة PDF يوضح تحويل مبلغ يطابق إجمالي الطلب تماماً. الطلبات بدون إيصال مطابق لن تُفعّل.")}</p>
+          <p class="calc-note" id="receipt-required-note">${L("Required: a bank receipt (image or PDF) showing a transfer of the exact order total. An image (screenshot) is verified automatically in minutes; PDF may need a short manual check. Orders without a matching receipt won't be activated.", "إلزامي: إيصال تحويل بنكي (صورة أو PDF) يوضح تحويل مبلغ يطابق إجمالي الطلب تماماً. الصورة (لقطة الشاشة) يتم التحقق منها تلقائياً خلال دقائق، أما PDF فقد يحتاج مراجعة يدوية سريعة. الطلبات بدون إيصال مطابق لن تُفعّل.")}</p>
           <label class="req-checkbox"><input type="checkbox" id="co-terms" required><span>${L("I acknowledge and agree to the", "أقر وأوافق على")} <a href="${u("/terms")}" target="_blank" rel="noopener">${L("Terms & Conditions", "الشروط والأحكام")}</a></span></label>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Submit order", "أرسل الطلب")}</button>
           <p class="form-note">${L("On submit we save your order to your account on this device, upload your receipt to our team's system for verification, and open WhatsApp to notify our team.", "عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز، ونرفع إيصالك لنظام فريقنا للتحقق، ونفتح واتساب لإشعار فريقنا.")}</p>
@@ -4419,6 +4538,9 @@ function buildAccount() {
             <div class="portal-grid">
               <a class="portal-card" href="${u("/services")}"><span>🗂️</span><strong>${L("Request a service", "اطلب خدمة")}</strong></a>
               <a class="portal-card" href="${u("/packages")}"><span>📦</span><strong>${L("Packages", "الباقات")}</strong></a>
+              <a class="portal-card" href="${u("/mahfol-makfol/trips")}"><span>🧳</span><strong>${L("Trips & experiences", "الرحلات والتجارب")}</strong></a>
+              <a class="portal-card" href="${u("/mahfol-makfol")}"><span>🌍</span><strong>${L("Business tourism", "سياحة الأعمال")}</strong></a>
+              <a class="portal-card" href="${u("/tourism")}"><span>🎉</span><strong>${L("Company events", "فعاليات الشركات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
               <a class="portal-card" href="${COMPLIANCE_PORTAL_URL}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
