@@ -103,11 +103,14 @@ for (const s of services) {
 
 const WA = site.whatsapp;
 const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
-// The Compliance Agent's actual client dashboard lives on the sibling site
-// (businesspartner.sa), not here — subscribers sign in there with the email
-// + access code they receive after activation, not with their account on
-// this site.
-const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
+// Compliance Agent subscribers sign in to this site's unified AI-employees
+// portal (/portal) with the email + access code (رمز الدخول) they receive on
+// activation — /api/requests resolves the code against the Compliance Intake
+// DB and unlocks Mishari for them. (The legacy Astro dashboard that used to
+// live at businesspartner.sa/ar/portal was removed when the domain moved to
+// this site — a hardcoded absolute link here used to land compliance clients
+// in the specialized-team portal with a code it didn't recognize.)
+const COMPLIANCE_PORTAL_URL = "/portal";
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -1950,7 +1953,7 @@ function buildComplianceAgent() {
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u(COMPLIANCE_PORTAL_URL)}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
     </div>
     <div class="hero-badges">${chips}</div>
   </div></section>
@@ -1961,7 +1964,7 @@ function buildComplianceAgent() {
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
       [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
       [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
-      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your account — the Compliance Agent card opens your dashboard directly.", "سجّل دخولك لحسابك — بطاقة وكيل الامتثال تفتح لوحتك مباشرة.")],
+      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to the smart employees portal with your email and the access code — Mishari, your compliance agent, opens directly.", "ادخل بوابة الموظفين الأذكياء ببريدك ورمز الدخول — يفتح لك مشاري، وكيل امتثالك، مباشرة.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
   </div></section>
 
@@ -4675,7 +4678,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/mahfol-makfol")}"><span>🌍</span><strong>${L("Business tourism", "سياحة الأعمال")}</strong></a>
               <a class="portal-card" href="${u("/tourism")}"><span>🎉</span><strong>${L("Company events", "فعاليات الشركات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
-              <a class="portal-card" href="${COMPLIANCE_PORTAL_URL}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
+              <a class="portal-card" href="${u(COMPLIANCE_PORTAL_URL)}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>

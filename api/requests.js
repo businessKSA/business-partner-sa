@@ -96,6 +96,42 @@ async function orderStatuses(refs) {
   return { statuses, agents, emails };
 }
 
+// Compliance Agent subscribers sign in to the same /portal with the access
+// code (رمز الدخول, BP-XXXXXX) emailed on activation — the legacy Astro site
+// that used to host their dashboard at businesspartner.sa/ar/portal was
+// removed and the domain now serves this site, so the unified portal resolves
+// their code here and unlocks Mishari (the compliance agent) for them.
+async function complianceByCode(refs) {
+  if (!refs.length || !NOTION_TOKEN) return { statuses: {}, agents: {}, emails: {} };
+  const r = await fetch(`https://api.notion.com/v1/databases/${COMPLIANCE_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({
+      page_size: refs.length,
+      filter: { or: refs.map((ref) => ({ property: "رمز الدخول", rich_text: { equals: ref } })) },
+    }),
+  });
+  if (!r.ok) {
+    console.error("compliance-code query error", r.status, (await r.text()).slice(0, 300));
+    throw new Error("notion_failed");
+  }
+  const data = await r.json();
+  const statuses = {}, agents = {}, emails = {};
+  for (const pg of data.results || []) {
+    const p = pg.properties || {};
+    const code = ((p["رمز الدخول"] && p["رمز الدخول"].rich_text) || []).map((t) => t.plain_text).join("").trim();
+    if (!code) continue;
+    const active = p["حالة الاشتراك"] && p["حالة الاشتراك"].select && p["حالة الاشتراك"].select.name === "نشط";
+    statuses[code] = active ? "مكتمل" : "قيد المراجعة";
+    if (active) {
+      agents[code] = ["mishari"];
+      const em = p["البريد"] && p["البريد"].email;
+      if (em) emails[code] = em;
+    }
+  }
+  return { statuses, agents, emails };
+}
+
 // List the most recent leads from the CRM (for the internal dashboard's
 // "incoming requests" view). Returns lightweight rows the dashboard renders,
 // including the phone (parsed from Notes) so the team can WhatsApp the lead.
@@ -245,8 +281,12 @@ function ssRef(email) { const h = crypto.createHmac("sha256", OTP_SECRET || "x")
 // ---- Compliance Agent: order -> owner approval -> Notion activation -> emailed code ----
 // Client Compliance Intake DB (same one the n8n intake/portal workflows read/write).
 const COMPLIANCE_DB = process.env.NOTION_COMPLIANCE_DB || "5d570a75009b41019857060d0670642f";
-const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
 const MKT_SITE_BASE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
+// Compliance subscribers sign in to the unified AI-employees portal on this
+// site with their emailed access code — complianceByCode() above resolves the
+// code and unlocks Mishari. (The legacy Astro dashboard at this same path on
+// the old site was removed when the domain moved here.)
+const COMPLIANCE_PORTAL_URL = `${MKT_SITE_BASE}/ar/portal`;
 function complianceCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("compliance|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-" + o; }
 async function findComplianceRecord(company) {
   if (!NOTION_TOKEN || !company) return null;
@@ -433,6 +473,15 @@ export default async function handler(req, res) {
           Object.assign(statuses, r.statuses);
           Object.assign(agents, r.agents);
           Object.assign(emails, r.emails);
+          // Codes not found in Sales Pipeline may be Compliance Agent access
+          // codes (رمز الدخول) — resolve those against the Compliance Intake DB.
+          const unresolved = remaining.filter((ref) => !statuses[ref]);
+          if (unresolved.length) {
+            const c = await complianceByCode(unresolved);
+            Object.assign(statuses, c.statuses);
+            Object.assign(agents, c.agents);
+            Object.assign(emails, c.emails);
+          }
         } catch {
           res.statusCode = 502;
           return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
