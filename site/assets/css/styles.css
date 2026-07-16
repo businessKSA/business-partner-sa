@@ -357,7 +357,7 @@ p { color: var(--text-soft); }
 
 /* Footer */
 .site-footer { background: var(--navy); color: rgba(255,255,255,.75); padding: 60px 0 26px; }
-.footer-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 36px; margin-bottom: 40px; }
+.footer-grid { display: grid; grid-template-columns: 1.5fr 1.05fr 1fr 1fr .85fr 1.2fr; gap: 28px; margin-bottom: 40px; }
 .footer-logo img { height: 30px; filter: brightness(0) invert(1); margin-bottom: 16px; }
 .site-footer p { color: rgba(255,255,255,.7); font-size: .95rem; }
 .footer-tag { font-family: "Playfair Display", serif; font-style: italic; color: rgba(255,255,255,.85); margin-top: 10px; }
@@ -409,7 +409,7 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   .calc-wrap { grid-template-columns: 1fr; }
   .calc-result { position: static; }
   .contact-grid { grid-template-columns: 1fr; gap: 30px; }
-  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .footer-grid { grid-template-columns: repeat(3, 1fr); gap: 28px; }
   .stats { grid-template-columns: repeat(2, 1fr); gap: 30px; }
 }
 
