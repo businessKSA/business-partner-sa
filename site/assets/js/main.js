@@ -1994,19 +1994,22 @@ var BP_EMP_BILLING = "monthly";
       if (!planEl.value) { noteEl.textContent = T("Please choose a plan first.", "الرجاء اختيار باقة أولاً."); noteEl.style.color = "#B91C1C"; return; }
       var company = document.getElementById("ej-company").value.trim();
       var phone = document.getElementById("ej-phone").value.trim();
-      if (!company || !phone) return; // native required attrs already cover this
+      var email = document.getElementById("ej-email").value.trim();
+      var password = document.getElementById("ej-password").value;
+      if (!company || !phone || !email || !password) return; // native required attrs already cover this
+      if (password.length < 8) { resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Password must be at least 8 characters.", "كلمة المرور لازم تكون 8 أحرف على الأقل.") + "</p>"; return; }
       submitBtn.disabled = true; submitBtn.textContent = T("Submitting…", "جارٍ الإرسال…");
       fetch("/api/employer", {
         method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({
           company: company, cr: document.getElementById("ej-cr").value.trim(),
           contact: document.getElementById("ej-contact").value.trim(), phone: phone,
-          email: document.getElementById("ej-email").value.trim(),
+          email: email, password: password,
           plan: planEl.value, billing: window.BP_EMP_BILLING || "monthly",
           notes: document.getElementById("ej-notes").value.trim(),
         }),
       }).then(function (r) { return r.json(); }).then(function (d) {
-        submitBtn.disabled = false; submitBtn.textContent = T("Continue to subscribe", "متابعة الاشتراك");
+        submitBtn.disabled = false; submitBtn.textContent = T("Create account & continue to subscribe", "أنشئ حسابك وتابع الاشتراك");
         if (!d || !d.ok) { resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Something went wrong. Please try again or contact us on WhatsApp.", "صار خطأ. حاول مجدداً أو تواصل معنا عبر واتساب.") + "</p>"; return; }
         var bank = window.BP_BANK || {};
         resultEl.hidden = false;
@@ -2019,8 +2022,52 @@ var BP_EMP_BILLING = "monthly";
         form.querySelectorAll(".emp-plan-pick").forEach(function (b) { b.classList.remove("active"); });
         resultEl.scrollIntoView({ behavior: "smooth", block: "center" });
       }).catch(function () {
-        submitBtn.disabled = false; submitBtn.textContent = T("Continue to subscribe", "متابعة الاشتراك");
+        submitBtn.disabled = false; submitBtn.textContent = T("Create account & continue to subscribe", "أنشئ حسابك وتابع الاشتراك");
         resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.") + "</p>";
+      });
+    });
+  });
+})();
+
+/* ---------- Employer login (/employer-login → api/employer) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("el-form");
+    if (!form) return;
+    var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
+    function T(en, ar) { return isAr ? ar : en; }
+    var errEl = document.getElementById("el-error");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = document.getElementById("el-email").value.trim();
+      var password = document.getElementById("el-password").value;
+      if (!email || !password) return;
+      var submitBtn = document.getElementById("el-submit");
+      errEl.textContent = "";
+      submitBtn.disabled = true; submitBtn.textContent = T("Logging in…", "جارٍ الدخول…");
+      fetch("/api/employer", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "login", email: email, password: password }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
+        if (!d || !d.ok) {
+          errEl.textContent = (d && d.error === "invalid_credentials")
+            ? T("Incorrect email or password.", "البريد أو كلمة المرور غير صحيحة.")
+            : T("Couldn't log in. Please try again.", "تعذّر تسجيل الدخول. حاول مجدداً.");
+          return;
+        }
+        try { localStorage.setItem("bp_emp_code", d.code); } catch (e2) {}
+        if (d.status && d.status !== "مفعّل") {
+          errEl.style.color = "";
+          errEl.textContent = T("Account created — payment pending. You can browse, but contacts unlock once payment is confirmed.", "تم إنشاء الحساب — بانتظار تأكيد الدفع. تقدر تتصفّح، وتفتح بيانات التواصل بعد تأكيد الدفع.");
+          setTimeout(function () { location.href = "/employer-dashboard"; }, 1800);
+          return;
+        }
+        location.href = "/employer-dashboard";
+      }).catch(function () {
+        submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
+        errEl.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
       });
     });
   });
