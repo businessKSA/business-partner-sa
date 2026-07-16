@@ -2870,7 +2870,7 @@ function buildMahfolTrips() {
 
   return page({
     title: Lraw("Trips & experiences — Mahfol Makfol by Business Partner", "الرحلات والتجارب — محفول مكفول من بزنس بارتنر"),
-    desc: Lraw("Curated Saudi trips, camps, stays and activities across every region, plus Gathern/Airbnb-style tourism-unit management — Mahfol Makfol by Business Partner.", "رحلات ومخيمات وإقامات وأنشطة سعودية مصمّمة في كل المناطق، وإدارة وحدات سياحية بأسلوب جاذرن وAirbnb — محفول مكفول من بزنس بارتنر."),
+    desc: Lraw("Curated Saudi trips, camps, stays and activities across every region — Mahfol Makfol by Business Partner.", "رحلات ومخيمات وإقامات وأنشطة سعودية مصمّمة في كل مناطق المملكة — محفول مكفول من بزنس بارتنر."),
     active: "/mahfol-makfol", path: "/mahfol-makfol/trips", body, script: tripScript,
   });
 }
