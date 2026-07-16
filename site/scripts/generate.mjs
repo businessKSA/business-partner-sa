@@ -378,7 +378,7 @@ const NAV_GROUPS = [
     ],
   },
   { href: "/hr", en: "HR by Business Partner", ar: "الموارد البشرية من بزنس بارتنر" },
-  { href: "/mahfol-makfol", en: "Mahfol Makfol", ar: "محفول مكفول" },
+  { href: "/mahfol-makfol", en: "Mahfol Makfol · Saudi travel", ar: "محفول مكفول · سياحة السعودية" },
   { href: "/about", en: "About us", ar: "من نحن" },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
@@ -450,7 +450,7 @@ function footer() {
       ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
       ${fl("/workspaces", "Office spaces", "المكاتب ومساحات العمل")}
       ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
-      ${fl("/mahfol-makfol", "Mahfol Makfol", "محفول مكفول")}
+      ${fl("/mahfol-makfol", "Mahfol Makfol · Saudi travel", "محفول مكفول · سياحة السعودية")}
       ${fl("/task-force", "Task Force", "تاسك فورس")}
       ${fl("/hr", "HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}
       ${fl("/employer-join", "For employers", "لأصحاب العمل")}
@@ -2503,23 +2503,28 @@ function buildMahfolMakfol() {
 // tourism-unit management (Gathern/Airbnb) and a trip-request form that feeds
 // the same requests pipeline (Notion + WhatsApp + dashboards).
 function buildMahfolTrips() {
+  // Real Saudi tourism photos (the client's own brochure assets on Google Drive).
+  const timg = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
   const DEST = [
-    { ic: "🏜️", en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص" },
-    { ic: "🏛️", en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س" },
-    { ic: "🕌", en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص" },
-    { ic: "🌊", en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص" },
-    { ic: "🐠", en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص" },
-    { ic: "🌲", en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص" },
-    { ic: "🏝️", en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص" },
-    { ic: "🌹", en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص" },
-    { ic: "🐪", en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة" },
+    { ic: "🏜️", en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440 },
+    { ic: "🏛️", en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339 },
+    { ic: "🕌", en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600 },
+    { ic: "🌊", en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272 },
+    { ic: "🐠", en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471 },
+    { ic: "🌲", en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780 },
+    { ic: "🏝️", en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838 },
+    { ic: "🌹", en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619 },
+    { ic: "🐪", en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291 },
   ];
   const destCards = DEST.map((d) => `
     <div class="card feature tr-dest">
-      <div class="tr-dest-top"><span class="tr-dest-ic">${d.ic}</span><h3>${L(d.en, d.ar)}</h3></div>
-      <p class="tr-tag">${L(d.te, d.ta)}</p>
-      <span class="tr-price">${L(d.pe, d.pa)}</span>
-      <a class="btn btn-ghost" style="width:100%;margin-top:auto" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.arrow}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a>
+      <div class="tr-dest-img" style="background-image:url('${timg(d.img)}')"><span class="tr-dest-ic">${d.ic}</span></div>
+      <div class="tr-dest-body">
+        <h3>${L(d.en, d.ar)}</h3>
+        <p class="tr-tag">${L(d.te, d.ta)}</p>
+        <span class="tr-price">${L(d.pe, d.pa)}</span>
+        <a class="btn btn-ghost" style="width:100%;margin-top:auto" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.arrow}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a>
+      </div>
     </div>`).join("");
 
   const ACT = [
@@ -2546,25 +2551,77 @@ function buildMahfolTrips() {
   const unitCards = UNIT.map((s) =>
     `<div class="card feature"><div class="card-icon" style="font-size:24px">${s.ic}</div><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
 
+  const KSA = "M41 193 L92 201 L159 159 L214 64 L364 101 L486 191 L568 209 L659 238 L727 318 L760 400 L748 452 L792 470 L900 520 L982 560 L964 688 L862 712 L700 780 L560 812 L418 826 L389 852 L330 735 L236 614 L200 529 L146 413 L92 291 L50 238 Z";
+  const mapMarkers = DEST.map((d, i) => `
+    <g class="trm" data-idx="${i}" transform="translate(${d.mx},${d.my})" tabindex="0" role="button" aria-label="${Lraw(d.en, d.ar)}">
+      <circle class="trm-hit" r="24" fill="transparent"></circle>
+      <circle class="trm-ring" r="15"></circle><circle class="trm-dot" r="7"></circle>
+      <text class="trm-lbl" y="-20" text-anchor="middle">${L(d.en, d.ar)}</text></g>`).join("");
+  const mapPanels = DEST.map((d, i) => `
+    <div class="trm-panel${i === 0 ? " on" : ""}" data-idx="${i}">
+      <div class="trm-panel-img" style="background-image:url('${timg(d.img)}')"></div>
+      <div class="trm-panel-body"><h3>${d.ic} ${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p><span class="tr-price">${L(d.pe, d.pa)}</span>
+      <a class="btn btn-primary" style="width:100%" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a></div>
+    </div>`).join("");
+
   const body = `
   <style>
-    :root{--mm-gold:#c6a45c}
-    .tr-hero{background:linear-gradient(160deg,var(--navy-900),var(--navy) 62%,var(--navy-700));color:#fff;padding:56px 0 64px}
-    .tr-hero .subbrand-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff}
-    .tr-hero .subbrand-badge small{color:var(--mm-gold)}
-    .tr-hero h1{color:#fff;margin:16px 0 10px;font-size:clamp(28px,4.6vw,46px)}
-    .tr-hero .lead{color:rgba(255,255,255,.86);max-width:720px}
-    .tr-gold-line{width:60px;height:4px;border-radius:4px;background:var(--mm-gold);margin:0 0 16px}
-    .tr-trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:20px;color:rgba(255,255,255,.9);font-size:.92rem}
+    :root{--mm-gold:#c6a45c;--mm-gold-2:#d9bd7e}
+    .tr-hero{position:relative;color:#fff;padding:62px 0 70px;overflow:hidden;background:var(--navy-900)}
+    .tr-hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(105deg,rgba(8,19,69,.94) 30%,rgba(11,27,90,.72) 70%,rgba(11,27,90,.5)),url('${timg("1mn0nLKNchUaE6XDOs77EEiY5d9ZdcUNn")}');background-size:cover;background-position:center;z-index:0}
+    .tr-hero>.container{position:relative;z-index:1}
+    .tr-hero .subbrand-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:#fff}
+    .tr-hero .subbrand-badge small{color:var(--mm-gold-2)}
+    .tr-hero h1{color:#fff;margin:16px 0 10px;font-size:clamp(28px,4.8vw,48px);text-shadow:0 2px 20px rgba(0,0,0,.25)}
+    .tr-hero .lead{color:rgba(255,255,255,.9);max-width:720px}
+    .tr-gold-line{width:64px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--mm-gold),var(--mm-gold-2));margin:0 0 16px}
+    .tr-trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;color:rgba(255,255,255,.92);font-size:.92rem}
     .tr-trust span{display:inline-flex;align-items:center;gap:7px}
-    .tr-dest{display:flex;flex-direction:column;gap:9px}
-    .tr-dest-top{display:flex;align-items:center;gap:11px}
-    .tr-dest-ic{font-size:28px}
-    .tr-dest-top h3{margin:0;font-size:19px}
+    /* Smart trip agent (chat) */
+    .tr-agent{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:820px;margin:30px auto 0;overflow:hidden;text-align:start}
+    .tr-agent-head{display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(135deg,var(--navy),var(--navy-700));color:#fff}
+    .tr-agent-head .r{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.15);display:grid;place-items:center;flex:0 0 auto}
+    .tr-agent-head h3{margin:0;font-size:18px}
+    .tr-agent-head p{margin:1px 0 0;font-size:13px;color:rgba(255,255,255,.8)}
+    .tr-agent-msgs{padding:20px;display:flex;flex-direction:column;gap:12px;max-height:360px;overflow-y:auto}
+    .tr-b{max-width:86%;padding:11px 15px;border-radius:14px;font-size:15px;line-height:1.6}
+    .tr-b.bot{background:var(--gray-bg);border:1px solid var(--gray-line);border-start-start-radius:4px;align-self:flex-start}
+    .tr-b.me{background:var(--navy);color:#fff;border-start-end-radius:4px;align-self:flex-end}
+    .tr-opts{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
+    .tr-opt{border:1.5px solid var(--gray-line);background:#fff;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;color:var(--text);cursor:pointer;transition:.15s}
+    .tr-opt:hover{border-color:var(--navy);background:var(--gray-bg)}
+    .tr-opt.gold{border-color:var(--mm-gold);color:#8a6d29;font-weight:700}
+    .tr-agent-cta{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
+    /* Colored terrain map */
+    .tr-map-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center}
+    .tr-map-svg{border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--gray-line)}
+    .tr-map-svg svg{width:100%;height:auto;display:block;max-height:540px}
+    .trm{cursor:pointer;outline:none}
+    .trm-ring{fill:#fff;opacity:.5;transition:.2s}
+    .trm-dot{fill:var(--navy);stroke:#fff;stroke-width:2.5;transition:.2s}
+    .trm-lbl{font-size:21px;font-weight:800;fill:#0d1b3e;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none;opacity:0;transition:.2s}
+    .trm:hover .trm-lbl,.trm.on .trm-lbl{opacity:1}
+    .trm:hover .trm-dot,.trm:focus .trm-dot{fill:var(--mm-gold)}
+    .trm.on .trm-dot{fill:var(--mm-gold);r:10}
+    .trm.on .trm-ring{fill:var(--mm-gold);opacity:.55;r:20}
+    .trm-panel{display:none;border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);overflow:hidden}
+    .trm-panel.on{display:block}
+    .trm-panel-img{height:170px;background-size:cover;background-position:center}
+    .trm-panel-body{padding:18px;display:flex;flex-direction:column;gap:8px}
+    .trm-panel-body h3{margin:0;font-size:20px}
+    .trm-panel-body p{margin:0;color:var(--text-soft);font-size:14px}
+    @media(max-width:820px){.tr-map-wrap{grid-template-columns:1fr}}
+    /* Destination cards with photos */
+    .tr-dest{display:flex;flex-direction:column;padding:0;overflow:hidden}
+    .tr-dest-img{height:172px;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
+    .tr-dest-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,27,90,0) 55%,rgba(11,27,90,.35))}
+    .tr-dest-ic{position:relative;z-index:1;margin:10px;font-size:22px;background:rgba(255,255,255,.92);width:40px;height:40px;border-radius:11px;display:grid;place-items:center;box-shadow:var(--shadow-sm)}
+    .tr-dest-body{display:flex;flex-direction:column;gap:8px;padding:16px 18px 18px;flex:1}
+    .tr-dest-body h3{margin:0;font-size:19px}
     .tr-tag{color:var(--text-soft);font-size:14px;margin:0}
-    .tr-price{color:var(--mm-gold);font-weight:800;font-size:14px}
+    .tr-price{color:#8a6d29;font-weight:800;font-size:14px}
     .tr-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-    .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm)}
+    .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm);border-top:3px solid var(--mm-gold)}
     .tr-act-ic{font-size:26px}
     .tr-act h3{margin:8px 0 5px;font-size:16px}
     .tr-act p{margin:0;color:var(--text-soft);font-size:13.5px}
@@ -2581,6 +2638,38 @@ function buildMahfolTrips() {
     <p class="lead">${L("Curated trips, camps, stays and activities across every region — designed around you and delivered through our vetted local partners.", "رحلات ومخيمات وإقامات وأنشطة مصمّمة في كل مناطق المملكة — حسب رغبتك وعبر شركائنا المحليين المعتمدين.")}</p>
     <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#trip-form">${I.calendar}<span>${L("Design my trip", "صمّم رحلتي")}</span></a>${waBtn2("Book on WhatsApp", "احجز عبر واتساب", "btn-ghost")}</div>
     <div class="tr-trust"><span>${I.check}${L("Vetted, audited suppliers", "موردون معتمدون ومدقّقون")}</span><span>${I.wa}${L("Instant booking on WhatsApp", "حجز فوري عبر الواتساب")}</span><span>${I.clock}${L("24/7 support", "دعم على مدار الساعة")}</span></div>
+
+    <div class="tr-agent" id="tr-agent">
+      <div class="tr-agent-head"><span class="r">${I.robot}</span><div><h3>${L("Mahfol Makfol Agent", "وكيل محفول مكفول الذكي")}</h3><p>${L("Trips • Flights • Experiences", "رحلات • طيران • تجارب")}</p></div></div>
+      <div class="tr-agent-msgs" id="tr-msgs"></div>
+      <div class="tr-opts" id="tr-opts"></div>
+      <div class="tr-agent-cta" id="tr-cta"></div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Explore the map", "استكشف الخريطة")}</span><h2>${L("Where to go — interactive map", "إلى أين — خريطة تفاعلية")}</h2><p>${L("Tap a destination to see photos, highlights and pricing.", "اضغط على وجهة لرؤية الصور والمميزات والأسعار.")}</p></div>
+    <div class="tr-map-wrap">
+      <div class="tr-map-svg"><svg viewBox="0 0 1000 900" role="img" aria-label="${Lraw("Tourism map of Saudi Arabia", "خريطة السعودية السياحية")}" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="mmsand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4e8ca"/><stop offset="1" stop-color="#e3cd9b"/></linearGradient>
+          <clipPath id="mmksa"><path d="${KSA}"/></clipPath>
+        </defs>
+        <rect x="0" y="0" width="1000" height="900" fill="#bfe3ef"/>
+        <path d="${KSA}" fill="url(#mmsand)" stroke="#0B1B5A" stroke-width="3" stroke-linejoin="round"/>
+        <g clip-path="url(#mmksa)">
+          <ellipse cx="380" cy="800" rx="150" ry="120" fill="#7fb27a" opacity=".45"></ellipse>
+          <ellipse cx="620" cy="500" rx="270" ry="190" fill="#e9c46a" opacity=".33"></ellipse>
+          <ellipse cx="840" cy="600" rx="180" ry="150" fill="#e7b56a" opacity=".38"></ellipse>
+          <ellipse cx="250" cy="470" rx="120" ry="150" fill="#8ec9d6" opacity=".33"></ellipse>
+          <g fill="#5c8f57" opacity=".85"><path d="M330 802 l28 -50 28 50 z"></path><path d="M372 814 l34 -60 34 60 z"></path><path d="M300 772 l24 -42 24 42 z"></path></g>
+          <g fill="none" stroke="#c39f52" stroke-width="6" opacity=".65" stroke-linecap="round"><path d="M520 560 q40 -30 80 0 q40 30 80 0"></path><path d="M560 612 q40 -28 80 0 q40 28 80 0"></path></g>
+          <g fill="#3f8f86" opacity=".7"><circle cx="235" cy="600" r="7"></circle><circle cx="250" cy="642" r="6"></circle><circle cx="220" cy="470" r="6"></circle></g>
+        </g>
+        ${mapMarkers}
+      </svg></div>
+      <div class="tr-map-info" id="tr-map-info">${mapPanels}</div>
+    </div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -2623,6 +2712,85 @@ function buildMahfolTrips() {
 
   const tripScript = `<script>
 (function(){
+  var LANG = ${JSON.stringify(LANG === "ar" ? "ar" : "en")};
+  var WA = ${JSON.stringify(WA)};
+  var DST = ${JSON.stringify(DEST.map((d) => ({ en: d.en, ar: d.ar })))};
+  function tr(ar,en){return LANG==="ar"?ar:en;}
+  // ----- Smart trip/flight agent (chat, multiple-choice) -----
+  var msgs=document.getElementById("tr-msgs"), optsBox=document.getElementById("tr-opts"), ctaBox=document.getElementById("tr-cta");
+  if(msgs){
+    var destOpts=DST.map(function(d){return {v:d.en,la:d.ar,le:d.en};});
+    var KINDS=[{v:"adventure",la:"مغامرة وطبيعة",le:"Adventure & nature"},{v:"family",la:"عائلية",le:"Family"},{v:"luxury",la:"فاخرة VIP",le:"Luxury / VIP"},{v:"heritage",la:"تراث وثقافة",le:"Heritage & culture"},{v:"sea",la:"بحر وجزر",le:"Sea & islands"}];
+    var GROUPS=[{v:"1-2",la:"1–2",le:"1–2"},{v:"3-5",la:"3–5",le:"3–5"},{v:"6-10",la:"6–10",le:"6–10"},{v:"10+",la:"+10",le:"10+"}];
+    var WHENS=[{v:"month",la:"خلال شهر",le:"Within a month"},{v:"q",la:"1–3 أشهر",le:"1–3 months"},{v:"flex",la:"مرن",le:"Flexible"}];
+    var CLASSES=[{v:"economy",la:"اقتصادية",le:"Economy"},{v:"business",la:"رجال أعمال",le:"Business"},{v:"first",la:"أولى",le:"First"}];
+    var PAXES=[{v:"1",la:"1",le:"1"},{v:"2",la:"2",le:"2"},{v:"3-4",la:"3–4",le:"3–4"},{v:"5+",la:"+5",le:"5+"}];
+    var NOTSURE={v:"notsure",la:"لست متأكداً",le:"Not sure"}, INTL={v:"intl",la:"وجهة دولية",le:"International"};
+    var TRIP_STEPS=[
+      {key:"dest",q:tr("أي وجهة تشدّك؟","Which destination?"),opts:destOpts.concat([NOTSURE])},
+      {key:"kind",q:tr("نوع الرحلة؟","Trip style?"),opts:KINDS},
+      {key:"group",q:tr("كم عدد الأشخاص؟","Group size?"),opts:GROUPS},
+      {key:"when",q:tr("متى تنوي السفر؟","When?"),opts:WHENS}
+    ];
+    var FLIGHT_STEPS=[
+      {key:"to",q:tr("وين تبي تسافر؟","Where to?"),opts:destOpts.concat([INTL])},
+      {key:"cls",q:tr("درجة السفر؟","Cabin class?"),opts:CLASSES},
+      {key:"pax",q:tr("كم مسافر؟","Passengers?"),opts:PAXES},
+      {key:"when",q:tr("متى؟","When?"),opts:WHENS}
+    ];
+    var st={mode:null,step:0,data:{}}, steps=[];
+    function bubble(text,who){var b=document.createElement("div");b.className="tr-b "+who;b.textContent=text;msgs.appendChild(b);msgs.scrollTop=msgs.scrollHeight;}
+    function clearOpts(){optsBox.innerHTML="";ctaBox.innerHTML="";}
+    function optBtn(label,cb,gold){var b=document.createElement("button");b.type="button";b.className="tr-opt"+(gold?" gold":"");b.textContent=label;b.addEventListener("click",cb);optsBox.appendChild(b);}
+    function askMode(){
+      clearOpts();bubble(tr("أهلاً 👋 أنا وكيل محفول مكفول. كيف أساعدك اليوم؟","Hi 👋 I'm the Mahfol Makfol agent. How can I help today?"),"bot");
+      optBtn(tr("صمّم رحلة سياحية","Design a trip"),function(){start("trip");},true);
+      optBtn(tr("استعلام وحجز طيران","Flights & destination"),function(){start("flight");},true);
+    }
+    function start(mode){st.mode=mode;st.step=0;st.data={};steps=mode==="trip"?TRIP_STEPS:FLIGHT_STEPS;
+      bubble(mode==="trip"?tr("صمّم رحلة سياحية","Design a trip"):tr("استعلام وحجز طيران","Flights & destination"),"me");renderStep();}
+    function renderStep(){
+      clearOpts();
+      if(st.step>=steps.length){plan();return;}
+      var s=steps[st.step];bubble(s.q,"bot");
+      s.opts.forEach(function(o){optBtn(LANG==="ar"?o.la:o.le,function(){st.data[s.key]={v:o.v,le:o.le,la:o.la};bubble(LANG==="ar"?o.la:o.le,"me");st.step++;renderStep();});});
+    }
+    function summaryEN(){
+      var d=st.data;var parts=[];
+      if(st.mode==="flight"){parts.push("FLIGHT");if(d.to)parts.push("To: "+d.to.le);if(d.cls)parts.push("Class: "+d.cls.le);if(d.pax)parts.push("Pax: "+d.pax.le);}
+      else{parts.push("TRIP");if(d.dest)parts.push("Destination: "+d.dest.le);if(d.kind)parts.push("Style: "+d.kind.le);if(d.group)parts.push("Group: "+d.group.le);}
+      if(d.when)parts.push("When: "+d.when.le);
+      return parts.join(" | ");
+    }
+    function plan(){
+      clearOpts();
+      bubble(st.mode==="flight"?tr("تمام! سنبحث لك عن أفضل الرحلات ونؤكد الحجز. أكمل بياناتك أو تواصل واتساب الآن.","Done! We'll find the best flights and confirm your booking. Complete your details or chat on WhatsApp."):tr("تمام! جهّزت ملخص رحلتك. أكمل بياناتك ونعود لك ببرنامج وتسعيرة خلال يوم — أو تواصل واتساب الآن.","Done! I've drafted your trip. Complete your details and we'll come back within a day — or chat on WhatsApp."),"bot");
+      var sum=summaryEN();
+      var wa=document.createElement("a");wa.className="btn btn-wa";wa.target="_blank";wa.rel="noopener";
+      wa.href=WA+(WA.indexOf("?")>-1?"&":"?")+"text="+encodeURIComponent("Mahfol Makfol — "+sum);wa.textContent=tr("تواصل واتساب","Chat on WhatsApp");ctaBox.appendChild(wa);
+      var f=document.createElement("button");f.type="button";f.className="btn btn-primary";f.textContent=tr("أكمل بياناتي","Complete my details");
+      f.addEventListener("click",function(){
+        var dest=(st.data.dest||st.data.to);var destEl=document.getElementById("tr-dest");
+        if(destEl&&dest)destEl.value=dest.le;
+        var n=document.getElementById("tr-notes");if(n)n.value=sum;
+        var form=document.getElementById("trip-form");if(form)form.scrollIntoView({behavior:"smooth",block:"start"});
+      });ctaBox.appendChild(f);
+      var rs=document.createElement("button");rs.type="button";rs.className="btn btn-ghost";rs.textContent=tr("من جديد","Start over");
+      rs.addEventListener("click",function(){msgs.innerHTML="";askMode();});ctaBox.appendChild(rs);
+    }
+    askMode();
+  }
+  // ----- Colored map: destination markers <-> panels -----
+  (function(){
+    var marks=document.querySelectorAll(".trm"),panels=document.querySelectorAll(".trm-panel");
+    if(!marks.length)return;
+    function pick(i){for(var a=0;a<marks.length;a++)marks[a].classList.toggle("on",a===i);for(var b=0;b<panels.length;b++)panels[b].classList.toggle("on",b===i);}
+    for(var k=0;k<marks.length;k++){(function(m){var idx=parseInt(m.getAttribute("data-idx"),10);
+      m.addEventListener("click",function(){pick(idx);});
+      m.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(idx);}});})(marks[k]);}
+    pick(0);
+  })();
+  // ----- Destination "request" buttons prefill the form -----
   document.addEventListener("click",function(e){
     var a=e.target.closest("[data-trip-dest]");
     if(!a) return;
