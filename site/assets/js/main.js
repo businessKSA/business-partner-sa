@@ -1256,7 +1256,11 @@ var BP = window.BP = window.BP || {};
     }
 
     function renderOrders() {
-      var orders = ordersData();
+      // Only this account's requests: orders on this device made under another
+      // email stay stored but never render for the current session. Entries
+      // without an email (legacy) are kept visible.
+      var s0 = session();
+      var orders = ordersData().filter(function (o) { return !o.email || !s0 || String(o.email).toLowerCase() === String(s0.email || "").toLowerCase(); });
       var total = orders.length;
       var done = orders.filter(function (o) { return isDone(o.status); }).length;
       var active = total - done;

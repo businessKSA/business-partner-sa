@@ -23,6 +23,11 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* The hidden attribute must always win: author display rules (e.g. .dash's
+   display:grid) otherwise override the UA's [hidden]{display:none} and leave
+   "hidden" panels — like the account dashboard after sign-out — visible. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 html, body { overflow-x: hidden; max-width: 100%; }
 
