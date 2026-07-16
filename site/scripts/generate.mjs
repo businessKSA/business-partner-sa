@@ -5975,90 +5975,22 @@ function buildSharedServices() {
         <div class="ss-step"><span class="n">1</span><b>${L("Register & subscribe", "سجّل واشترك")}</b><p>${L("Start via the client portal and pick your plan.", "ابدأ عبر بوابة العميل واختر باقتك.")}</p></div>
         <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Complete payment through the secure portal.", "أكمل الدفع عبر البوابة الآمنة.")}</p></div>
         <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("After payment, your access code is emailed to your registered address.", "بعد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
-        <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter the code below and your team dashboard opens.", "أدخل الرمز أدناه فتفتح لوحة فريقك.")}</p></div>
+        <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter your code in the service portal and your team dashboard opens.", "أدخل رمزك في بوابة الخدمة فتفتح لوحة فريقك.")}</p></div>
       </div>
       <div class="ss-cta" style="justify-content:center;margin-top:26px">
         <a class="btn btn-primary" href="${u("/consultation")}?topic=shared-services">${L("Register & subscribe", "سجّل واشترك")}</a>
         <a class="btn btn-ghost" href="${u("/account")}">${L("Client portal", "بوابة العميل")}</a>
       </div>
 
-      <div class="ss-access" id="ss-gate">
-        <h3>${L("Subscribers: enter your access code", "للمشتركين: أدخل رمز الدخول")}</h3>
-        <p>${L("Your code was emailed to you after payment. Enter it to open your dashboard.", "رمزك وصلك على بريدك بعد الدفع. أدخله لفتح لوحتك.")}</p>
-        <form class="ss-access-form" id="ss-unlock">
-          <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw("Access code", "رمز الدخول")}" aria-label="${Lraw("Access code", "رمز الدخول")}">
-          <button class="btn btn-primary" type="submit">${L("Open my dashboard", "افتح لوحتي")}</button>
-        </form>
-        <div class="ss-note-box" id="unl-result" hidden></div>
-        <span class="ss-demo-hint">${L("Preview the dashboard with the demo code: ", "لمعاينة اللوحة استخدم رمز التجربة: ")}<code>demo123</code></span>
-      </div>
-    </div>
-  </section>
-
-  <section class="ss-sec" id="ss-dash" hidden>
-    <div class="wrap">
-      <div class="ss-dash-head">
+      <div class="ss-portal-entry">
         <div>
-          <h2>${L("Your Shared Services dashboard", "لوحة الخدمات المشتركة")}</h2>
-          <p>${L("Your full executive team in one place — talk to each specialist individually, connect your tools, and run compliance. No passwords or OTP; anything binding waits for your approval.", "فريقك التنفيذي كامل في مكان واحد — تعامل مع كل متخصص على حدة، اربط أدواتك، وأدر الامتثال. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p>
+          <b>🔑 ${L("Service portal — sign in", "بوابة الخدمة — سجّل دخولك")}</b>
+          <span>${L("Already subscribed? Enter the service portal and unlock your executive team dashboard with the code that was emailed to you after payment.", "مشترك؟ ادخل بوابة الخدمة وافتح لوحة فريقك التنفيذي برمز الدخول اللي وصلك على بريدك بعد الدفع.")}</span>
         </div>
-        <button class="ss-logout" id="ss-logout" type="button">${L("Sign out", "خروج")}</button>
-      </div>
-
-      <div class="ss-tabs" role="tablist">
-        <button class="ss-tab active" data-tab="team" type="button">👥 ${L("The team", "الفريق")}</button>
-        <button class="ss-tab" data-tab="tools" type="button">🔌 ${L("Connectors", "الموصلات")}</button>
-        <button class="ss-tab" data-tab="comp" type="button">🛡️ ${L("Compliance", "الامتثال")}</button>
-      </div>
-
-      <div class="ss-pane" id="pane-team">
-        <p class="ss-pane-lead">${L("Pick a specialist and deal with them directly — each one is an expert in their field.", "اختر متخصصاً وتعامل معه مباشرة — كل واحد خبير في مجاله.")}</p>
-        <div class="ss-agents" id="ss-agents"></div>
-        <div class="ss-panel">
-          <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><span class="ss-live">● ${L("Live", "مباشر")}</span></div>
-          <div class="ss-log" id="ss-log"></div>
-          <form class="ss-form" id="ss-form">
-            <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
-            <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
-          </form>
-        </div>
-      </div>
-
-      <div class="ss-pane" id="pane-tools" hidden>
-        <p class="ss-pane-lead">${L("Connect the team to your tools with one click — just like the specialized team. If a tool needs a token or has a cost, we walk you through it step by step.", "اربط الفريق بأدواتك بضغطة — تماماً كالفريق المتخصص. لو الأداة تحتاج توكن أو فيها تكلفة نمشي معك خطوة بخطوة.")}</p>
-        <div class="ss-cgrid" id="ss-cgrid"></div>
-        <p class="ss-secure">🔒 ${L("Every connection is private, isolated, and via secure sign-in (OAuth) or your own key. We never ask for passwords. Any important external action waits for your approval.", "كل ربط خاص بشركتك ومعزول، عبر تسجيل دخول آمن (OAuth) أو مفتاحك الخاص. لا نطلب كلمات مرور أبداً. أي إجراء خارجي مهم ينتظر موافقتك.")}</p>
-      </div>
-
-      <div class="ss-pane" id="pane-comp" hidden>
-        <div class="ss-comp">
-          <div class="ss-comp-main">
-            <div class="ss-comp-lead">
-              <span class="e">🛡️</span>
-              <div><b>${L("Mishari — your compliance lead", "مشاري — قائد الامتثال لديك")}</b>
-              <p>${L("Monitors Qiwa, Muqeem, GOSI, Mudad, Nitaqat and ZATCA, and alerts you before any deadline or violation — every government action stays pending your approval.", "يراقب قوى ومقيم والتأمينات ومدد والنطاقات وZATCA، وينبّهك قبل أي استحقاق أو مخالفة — وكل إجراء حكومي يبقى بانتظار موافقتك.")}</p></div>
-              <button class="btn btn-primary" id="ss-comp-chat" type="button">${L("Talk to Mishari", "كلّم مشاري")}</button>
-            </div>
-            <div class="ss-plat-head">${L("Platforms under watch", "المنصّات تحت المراقبة")}</div>
-            <div class="ss-plat">${compPlatforms}</div>
-          </div>
-          <div class="ss-comp-links">
-            <a href="${u("/compliance-portal")}"><b>📤 ${L("Upload your reports", "ارفع تقاريرك")}</b><span>${L("Qiwa, Muqeem, GOSI & Mudad — the agent builds your establishment file.", "قوى، مقيم، التأمينات ومدد — الوكيل يبني ملف منشأتك.")}</span></a>
-            <a href="${u("/compliance-agent")}"><b>🛡️ ${L("Compliance subscription", "اشتراك الامتثال")}</b><span>${L("Daily monitoring and alerts before every deadline.", "مراقبة يومية وتنبيهات قبل كل استحقاق.")}</span></a>
-            <a href="${u("/tools-and-calculators")}"><b>🧮 ${L("Free calculators", "الحاسبات المجانية")}</b><span>${L("Nitaqat, government cost, end of service and more.", "النطاقات، التكاليف الحكومية، نهاية الخدمة والمزيد.")}</span></a>
-          </div>
-        </div>
+        <a class="btn btn-primary btn-lg" href="${u("/shared-services/dashboard")}">${L("Enter the service portal →", "دخول بوابة الخدمة ←")}</a>
       </div>
     </div>
   </section>
-
-  <div class="ss-ov" id="ss-ov">
-    <div class="ss-modal">
-      <div class="ss-m-head"><span class="ss-cc-ic" id="ssm-ic">🔌</span><h3 id="ssm-t">${L("Connect", "ربط")}</h3><button class="ss-m-x" id="ssm-x" type="button">✕</button></div>
-      <div class="ss-m-body"><p class="ss-m-lead" id="ssm-l"></p><div id="ssm-s"></div></div>
-      <div class="ss-m-foot"><button class="ss-cbtn" id="ssm-do" type="button">🔗 ${L("Connect now", "ربط الآن")}</button><button class="ss-hbtn" id="ssm-help" type="button">🛠️ ${L("Set it up for me", "نركّبها لك")}</button></div>
-    </div>
-  </div>
 
   <style>
     .ss-hero{padding:52px 0 8px;text-align:center}
@@ -6215,8 +6147,419 @@ function buildSharedServices() {
     .ss-access h3{margin:0 0 8px;color:var(--brand,#0b1b5a)}
     .ss-demo-hint{display:block;margin-top:14px;font-size:.82rem;color:var(--text-soft,#5b6b86)}
     .ss-demo-hint code{background:#eef1fb;border-radius:6px;padding:2px 7px;font-size:.82rem;color:var(--brand,#0b1b5a)}
+    .ss-portal-entry{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;max-width:720px;margin:26px auto 0;background:linear-gradient(135deg,#0b1b5a,#13246e);color:#fff;border-radius:18px;padding:20px 24px;box-shadow:0 12px 30px rgba(11,27,90,.18)}
+    .ss-portal-entry>div{flex:1;min-width:240px}
+    .ss-portal-entry b{display:block;font-size:1.05rem;margin-bottom:4px}
+    .ss-portal-entry span{display:block;font-size:.85rem;opacity:.85;line-height:1.7}
+    .ss-portal-entry .btn{white-space:nowrap;background:#fff;color:var(--brand,#0b1b5a)}
+    .ss-portal-hero{padding:48px 0 4px;text-align:center}
+    .ss-portal-hero h1{margin:8px 0 12px}
+    .ss-gate-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+    .ss-gate-links a{color:var(--brand,#0b1b5a);font-weight:600;text-decoration:none;font-size:.9rem}
+    .ss-gate-links a:hover{text-decoration:underline}
   </style>`;
+  const script = "";
+  return page({
+    title: Lraw("Shared Services — your smart executive team | Business Partner", "الخدمات المشتركة — فريقك التنفيذي الذكي | بيزنس بارتنر"),
+    desc: Lraw("A full AI executive team that works as your own staff, led by Khaled: government, compliance, sales, marketing, IT, procurement and admin — one subscription.", "فريق تنفيذي ذكي متكامل يعمل كموظفيك بقيادة خالد: حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات وإدارة — باشتراك واحد."),
+    active: "/shared-services", path: "/shared-services", body, script,
+  });
+}
 
+function buildSharedServicesPortal() {
+  const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
+  const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
+  const team = [
+    { e: "👑", en: "Khaled — Chief of Staff & Customer Service", ar: "خالد — قائد الفريق وخدمة العملاء" },
+    { e: "🎯", en: "Baher — Business Advisor", ar: "باهر — مستشار الأعمال" },
+    { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
+    { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
+    { e: "🛡️", en: "Mishari — Compliance", ar: "مشاري — الامتثال والالتزام" },
+    { e: "⚖️", en: "Abdulaziz — Legal", ar: "عبدالعزيز — القانوني" },
+    { e: "💼", en: "Badr — Sales & BD", ar: "بدر — مبيعات وتطوير أعمال" },
+    { e: "📣", en: "Farah — Marketing", ar: "فرح — تسويق ومحتوى" },
+    { e: "🗂️", en: "Malak — Executive Assistant", ar: "ملاك — مساعِدة تنفيذية" },
+    { e: "💻", en: "Mohammed — IT", ar: "محمد — تقنية المعلومات" },
+    { e: "🛒", en: "Ahmed — Procurement", ar: "أحمد — مشتريات وتوريد" },
+  ];
+  const busyMsg = Lraw("The team is busy right now — please try again in a moment.", "الفريق مشغول الحين — جرّب بعد لحظات.");
+  const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
+
+  // Full roster for the dashboard — each specialist is chatted with individually.
+  // Khaled leads via his chat webhook (chatTrigger protocol); the rest use their
+  // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
+  const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
+  const agentData = [
+    { slug: "khaled", e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
+    { slug: "baher", e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", path: "baher-intake" },
+    { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
+    { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
+    { slug: "mishari", e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance", path: "mishari-intake" },
+    { slug: "abdulrahman", e: "💰", ar: "عبدالرحمن", arRole: "المدير المالي", en: "Abdulrahman", enRole: "Chief Financial Officer", path: "abdulrahman-intake" },
+    { slug: "abdulaziz", e: "⚖️", ar: "عبدالعزيز", arRole: "القانوني", en: "Abdulaziz", enRole: "Legal", path: "abdulaziz-intake" },
+    { slug: "badr", e: "💼", ar: "بدر", arRole: "مبيعات وتطوير أعمال", en: "Badr", enRole: "Sales & Business Development", path: "badr-intake" },
+    { slug: "farah", e: "📣", ar: "فرح", arRole: "تسويق ومحتوى", en: "Farah", enRole: "Marketing & Content", path: "farah-intake" },
+    { slug: "malak", e: "🗂️", ar: "ملاك", arRole: "مساعِدة تنفيذية", en: "Malak", enRole: "Executive Assistant", path: "malak-intake" },
+    { slug: "mohammed", e: "💻", ar: "محمد", arRole: "تقنية المعلومات", en: "Mohammed", enRole: "IT", path: "mohammed-intake" },
+    { slug: "ahmed", e: "🛒", ar: "أحمد", arRole: "مشتريات وتوريد", en: "Ahmed", enRole: "Procurement & Supply", path: "ahmed-procurement" },
+  ];
+  const AGENTS_JS = JSON.stringify(
+    agentData.map((a) => ({ slug: a.slug, e: a.e, name: LANG === "ar" ? a.ar : a.en, role: LANG === "ar" ? a.arRole : a.enRole, mode: a.mode || "intake", path: a.path || "", ep: a.ep || "" }))
+  );
+
+  // Connectors — same set as the specialized team's /connect hub.
+  const toolData = [
+    { id: "gmail", ic: "📧", name: "Gmail", type: "easy",
+      uAr: "يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.", uEn: "Reads, sorts, drafts & sends your email.",
+      leadAr: "ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.", leadEn: "One-click via Google sign-in — no token, free.",
+      stepsAr: ["اضغط ربط الآن فتفتح صفحة تسجيل قوقل.", "اختر حساب الشركة ووافق على الصلاحيات.", "يشتغل الموظف داخل بريدك مباشرة."],
+      stepsEn: ["Click Connect — Google sign-in opens.", "Pick the company account and approve access.", "The agent works inside your inbox."] },
+    { id: "gcal", ic: "📅", name: LANG === "ar" ? "تقويم قوقل" : "Google Calendar", type: "easy",
+      uAr: "يجدول المواعيد والدعوات والتذكيرات.", uEn: "Schedules meetings, invites & reminders.",
+      leadAr: "ربط بضغطة مع حساب قوقل — مجاناً.", leadEn: "One-click with your Google account — free.",
+      stepsAr: ["سجّل دخول قوقل.", "وافق على صلاحية التقويم.", "يقدر يجدول ويعدّل مواعيدك."],
+      stepsEn: ["Sign in with Google.", "Approve calendar access.", "It can schedule and edit your meetings."] },
+    { id: "notion", ic: "🗒️", name: "Notion", type: "easy",
+      uAr: "ينظّم المهام وقواعد البيانات والتوثيق.", uEn: "Organizes tasks, databases & docs.",
+      leadAr: "ربط بضغطة عبر Notion — مجاناً.", leadEn: "One-click via Notion — free.",
+      stepsAr: ["وافق على Notion.", "اختر الصفحات المشتركة.", "يقرأ ويكتب في نوشن حسب صلاحياتك."],
+      stepsEn: ["Approve Notion.", "Pick the shared pages.", "It reads & writes per your permissions."] },
+    { id: "slack", ic: "💬", name: "Slack", type: "easy",
+      uAr: "يرد وينبّه ويلخّص داخل قنوات فريقك.", uEn: "Replies, alerts & summarizes in your channels.",
+      leadAr: "ربط بضغطة عبر Slack — مجاناً.", leadEn: "One-click via Slack — free.",
+      stepsAr: ["ثبّت التطبيق في مساحة سلاك.", "اختر القنوات.", "يشتغل داخل سلاك."],
+      stepsEn: ["Install the app in your Slack.", "Pick channels.", "It works inside Slack."] },
+    { id: "whatsapp", ic: "🟢", name: "WhatsApp", type: "cost",
+      uAr: "يرد على عملائك على واتساب ٢٤/٧.", uEn: "Answers your customers on WhatsApp 24/7.",
+      leadAr: "يحتاج رقم أعمال + إعداد WhatsApp Cloud API من Meta. فيه تكلفة رسائل تُدفع لـ Meta.", leadEn: "Needs a business number + WhatsApp Cloud API from Meta. Message cost is paid to Meta.",
+      payAr: "تكلفة الرسائل تُدفع لـ Meta حسب عدد المحادثات.", payEn: "Message cost is paid to Meta per conversation.",
+      stepsAr: ["أنشئ حساب Meta Business + رقم واتساب أعمال.", "فعّل WhatsApp Cloud API واحصل على التوكن.", "الصق التوكن (يُخزّن مشفّراً) أو أرسله لنا.", "اربط فيرد الموظف على عملائك."],
+      stepsEn: ["Create Meta Business + a WhatsApp business number.", "Enable WhatsApp Cloud API and get the token.", "Paste the token (stored encrypted) or send it to us.", "Connect — the agent replies to your customers."] },
+    { id: "ms", ic: "🟦", name: LANG === "ar" ? "مايكروسوفت (Teams/Outlook)" : "Microsoft (Teams/Outlook)", type: "token",
+      uAr: "يدير أوتلوك وتقويم ورسائل تيمس.", uEn: "Runs Outlook, calendar & Teams messages.",
+      leadAr: "ربط عبر تسجيل دخول مايكروسوفت. قد يحتاج اشتراك Microsoft 365.", leadEn: "Connect via Microsoft sign-in. May need a Microsoft 365 subscription.",
+      payAr: "إن لم يكن لديك 365 يلزم اشتراك من مايكروسوفت.", payEn: "If you don't have 365, a Microsoft subscription is required.",
+      stepsAr: ["سجّل دخول مايكروسوفت للعمل.", "وافق على صلاحيات البريد/التقويم/تيمس.", "يشتغل داخل بيئة مايكروسوفت."],
+      stepsEn: ["Sign in with Microsoft for work.", "Approve mail/calendar/Teams access.", "It works inside Microsoft."] },
+    { id: "drive", ic: "📁", name: "Google Drive", type: "easy",
+      uAr: "ينظّم ملفاتك ويلخّص المستندات.", uEn: "Organizes files & summarizes documents.",
+      leadAr: "ربط بضغطة مع حساب قوقل — مجاناً.", leadEn: "One-click with your Google account — free.",
+      stepsAr: ["سجّل دخول قوقل.", "وافق على صلاحية Drive.", "يقرأ وينظّم ملفاتك."],
+      stepsEn: ["Sign in with Google.", "Approve Drive access.", "It reads & organizes your files."] },
+    { id: "crm", ic: "📊", name: LANG === "ar" ? "CRM / جداول" : "CRM / Sheets", type: "token",
+      uAr: "يحدّث العملاء والصفقات في CRM أو Sheets.", uEn: "Updates customers & deals in CRM or Sheets.",
+      leadAr: "نربطه بـ Google Sheets أو CRM لديك (قد يحتاج مفتاح API).", leadEn: "We connect Google Sheets or your CRM (may need an API key).",
+      stepsAr: ["أخبرنا بنظامك.", "نجهّز الربط المناسب.", "يحدّث بياناتك تلقائياً."],
+      stepsEn: ["Tell us your system.", "We set up the right link.", "It updates your data automatically."] },
+    { id: "qoyod", ic: "🧾", name: LANG === "ar" ? "قيود (Qoyod)" : "Qoyod", type: "token",
+      uAr: "محاسبة وفوترة: يصدر فواتير ضريبية متوافقة ZATCA ويزامن العملاء والقيود.", uEn: "Accounting & billing: issues ZATCA tax invoices and syncs customers & entries.",
+      leadAr: "ربط بمفتاح API خاص من حساب قيود لديك — متوافق مع ZATCA وبياناته داخل السعودية. أي إصدار فاتورة يتم بموافقتك.", leadEn: "Connect with your Qoyod account API key — ZATCA-compliant, data hosted in Saudi Arabia. Any invoice issuance needs your approval.",
+      payAr: "يتطلب اشتراك قيود فعّال لدى شركتك (الـ API مجاني على الباقات المدفوعة).", payEn: "Requires an active Qoyod subscription (the API is free on paid plans).",
+      stepsAr: ["من حساب قيود: الإعدادات ← API، أنشئ مفتاحاً خاصاً.", "الصق المفتاح هنا (يُخزّن مشفّراً).", "يصير الوكيل يصدر الفواتير ويزامن القيود — بموافقتك قبل أي إصدار."],
+      stepsEn: ["In Qoyod: Settings → API, create a private key.", "Paste the key here (stored encrypted).", "The agent issues invoices & syncs entries — with your approval before any issuance."] },
+  ];
+  const TOOLS_JS = JSON.stringify(
+    toolData.map((t) => ({ id: t.id, ic: t.ic, name: t.name, type: t.type, u: LANG === "ar" ? t.uAr : t.uEn, lead: LANG === "ar" ? t.leadAr : t.leadEn, pay: (LANG === "ar" ? t.payAr : t.payEn) || "", steps: LANG === "ar" ? t.stepsAr : t.stepsEn }))
+  );
+  const compPlatforms = (LANG === "ar" ? ["قوى", "مقيم", "التأمينات", "مدد", "النطاقات", "ZATCA"] : ["Qiwa", "Muqeem", "GOSI", "Mudad", "Nitaqat", "ZATCA"])
+    .map((p) => `<span class="ss-plat-chip"><span class="dot"></span>${esc(p)}</span>`).join("");
+
+  // Detailed roster — services each agent delivers + how they work. Public info.
+  const roster = [
+    { e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service",
+      svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
+      mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
+    { e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
+      svcAr: ["الاستراتيجية والنمو", "إعادة الهيكلة", "دراسات الجدوى", "القرارات الكبيرة"], svcEn: ["Strategy & growth", "Restructuring", "Feasibility", "Big decisions"],
+      mAr: "المجلس الاستشاري — يُستشار في القرارات الكبرى قبل التنفيذ.", mEn: "The advisory seat — consulted on major decisions before execution." },
+    { e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager",
+      svcAr: ["تنسيق التنفيذ", "تقسيم المهام", "إجراءات التشغيل (SOP)", "ضبط الجودة"], svcEn: ["Execution coordination", "Task breakdown", "SOPs", "Quality control"],
+      mAr: "ينسّق الأعمال متعدّدة الخطوات داخلياً بين المتخصصين حتى التسليم.", mEn: "Coordinates multi-step work internally across specialists through to delivery." },
+    { e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources",
+      svcAr: ["التوظيف", "عقود العمل", "الرواتب", "السياسات والوصف الوظيفي"], svcEn: ["Hiring", "Contracts", "Payroll", "Policies & JDs"],
+      mAr: "يدير دورة الموظف كاملة نيابةً عنك.", mEn: "Runs the full employee lifecycle on your behalf." },
+    { e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance",
+      svcAr: ["قوى ومقيم", "التأمينات ومدد", "النطاقات", "ZATCA"], svcEn: ["Qiwa & Muqeem", "GOSI & Mudad", "Nitaqat", "ZATCA"],
+      mAr: "مراقبة يومية وتنبيه قبل كل استحقاق — كل إجراء حكومي بموافقتك.", mEn: "Daily monitoring and alerts before every deadline — every government action needs your approval." },
+    { e: "💰", ar: "عبدالرحمن", arRole: "المدير المالي", en: "Abdulrahman", enRole: "Chief Financial Officer",
+      svcAr: ["الميزانيات والتدفّق النقدي", "الفوترة والتحصيل", "التقارير المالية", "الزكاة والضريبة (VAT)"], svcEn: ["Budgets & cash flow", "Invoicing & collections", "Financial reports", "Zakat & VAT"],
+      mAr: "يدير ماليتك ويصدر الفواتير والتقارير عبر قيود — أي دفعة أو إصدار فاتورة بموافقتك.", mEn: "Runs your finances and issues invoices & reports via Qoyod — any payment or issuance needs your approval." },
+    { e: "⚖️", ar: "عبدالعزيز", arRole: "القانوني", en: "Abdulaziz", enRole: "Legal",
+      svcAr: ["العقود", "التأسيس", "التراخيص", "الهيكلة القانونية"], svcEn: ["Contracts", "Incorporation", "Licensing", "Legal structuring"],
+      mAr: "يصيغ ويراجع المستندات القانونية — والتوقيع بموافقتك.", mEn: "Drafts and reviews legal documents — signing needs your approval." },
+    { e: "💼", ar: "بدر", arRole: "مبيعات وتطوير أعمال", en: "Badr", enRole: "Sales & Business Development",
+      svcAr: ["عروض الأسعار", "الباقات", "العروض التجارية", "نطاق الخدمة"], svcEn: ["Quotes", "Bundles", "Commercial proposals", "Scope of work"],
+      mAr: "يجهّز العروض والمقترحات التجارية لعملائك.", mEn: "Prepares quotes and commercial proposals for your clients." },
+    { e: "📣", ar: "فرح", arRole: "تسويق ومحتوى", en: "Farah", enRole: "Marketing & Content",
+      svcAr: ["المحتوى", "الحملات", "السوشال", "SEO والهوية"], svcEn: ["Content", "Campaigns", "Social", "SEO & brand"],
+      mAr: "تخطّط وتنتج المحتوى والحملات التسويقية.", mEn: "Plans and produces content and marketing campaigns." },
+    { e: "🗂️", ar: "ملاك", arRole: "مساعِدة تنفيذية", en: "Malak", enRole: "Executive Assistant",
+      svcAr: ["صياغة الإيميلات", "التلخيص", "تنظيم المهام", "التذكيرات"], svcEn: ["Email drafting", "Summaries", "Task organizing", "Reminders"],
+      mAr: "تدير مهامك اليومية وتنظّم أعمالك.", mEn: "Runs your day-to-day tasks and keeps you organized." },
+    { e: "💻", ar: "محمد", arRole: "تقنية المعلومات", en: "Mohammed", enRole: "IT",
+      svcAr: ["المواقع والتطبيقات", "الأتمتة", "ربط الـAPIs", "الدعم التقني"], svcEn: ["Sites & apps", "Automation", "API integration", "Tech support"],
+      mAr: "يبني ويشغّل حلولك التقنية ويربط أنظمتك.", mEn: "Builds and runs your tech and connects your systems." },
+    { e: "🛒", ar: "أحمد", arRole: "مشتريات وتوريد", en: "Ahmed", enRole: "Procurement & Supply",
+      svcAr: ["إيجاد الموردين", "مقارنة العروض", "طلبات عروض الأسعار (RFQ)", "التفاوض التمهيدي"], svcEn: ["Sourcing suppliers", "Comparing offers", "RFQs", "Initial negotiation"],
+      mAr: "يجد الموردين ويجهّز طلبات الشراء — والإرسال الخارجي بموافقتك.", mEn: "Finds suppliers and prepares purchase requests — external sending needs your approval." },
+  ];
+
+  const body = `
+  <section class="ss-portal-hero">
+    <div class="wrap">
+      <span class="eyebrow">${L("Shared Services", "الخدمات المشتركة")}</span>
+      <h1>${L("Your executive team portal", "بوابة فريقك التنفيذي")}</h1>
+      <p class="lead">${L("Sign in to your Shared Services portal — talk to each specialist, connect your tools, and run compliance.", "سجّل دخولك لبوابة الخدمات المشتركة — تعامل مع كل متخصص، اربط أدواتك، وأدر الامتثال.")}</p>
+    </div>
+  </section>
+  <section class="ss-sec" id="ss-gate">
+    <div class="wrap">
+      <div class="ss-access">
+        <h2>${L("Sign in to the service", "دخول الخدمة")}</h2>
+        <p>${L("Enter the access code emailed to you after payment. Not subscribed yet? Register via the client portal.", "أدخل رمز الدخول اللي وصلك على بريدك بعد الدفع. لست مشتركاً؟ سجّل عبر بوابة العميل.")}</p>
+        <form class="ss-access-form" id="ss-unlock">
+          <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw('Access code', 'رمز الدخول')}" aria-label="${Lraw('Access code', 'رمز الدخول')}">
+          <button class="btn btn-primary" type="submit">${L("Sign in", "دخول")}</button>
+        </form>
+        <div class="ss-note-box" id="unl-result" hidden></div>
+        <div class="ss-gate-links">
+          <a href="${u('/shared-services')}">${L("← Back to service info", "← عن الخدمة")}</a>
+          <a href="${u('/consultation')}?topic=shared-services">${L("Register & subscribe", "سجّل واشترك")}</a>
+        </div>
+        <span class="ss-demo-hint">${L("Preview with demo code: ", "معاينة برمز التجربة: ")}<code>demo123</code></span>
+      </div>
+    </div>
+  </section>
+  <section class="ss-sec" id="ss-dash" hidden>
+    <div class="wrap">
+      <div class="ss-dash-head">
+        <div>
+          <h2>${L("Your Shared Services dashboard", "لوحة الخدمات المشتركة")}</h2>
+          <p>${L("Your full executive team in one place — talk to each specialist individually, connect your tools, and run compliance. No passwords or OTP; anything binding waits for your approval.", "فريقك التنفيذي كامل في مكان واحد — تعامل مع كل متخصص على حدة، اربط أدواتك، وأدر الامتثال. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p>
+        </div>
+        <button class="ss-logout" id="ss-logout" type="button">${L("Sign out", "خروج")}</button>
+      </div>
+
+      <div class="ss-tabs" role="tablist">
+        <button class="ss-tab active" data-tab="team" type="button">👥 ${L("The team", "الفريق")}</button>
+        <button class="ss-tab" data-tab="tools" type="button">🔌 ${L("Connectors", "الموصلات")}</button>
+        <button class="ss-tab" data-tab="comp" type="button">🛡️ ${L("Compliance", "الامتثال")}</button>
+      </div>
+
+      <div class="ss-pane" id="pane-team">
+        <p class="ss-pane-lead">${L("Pick a specialist and deal with them directly — each one is an expert in their field.", "اختر متخصصاً وتعامل معه مباشرة — كل واحد خبير في مجاله.")}</p>
+        <div class="ss-agents" id="ss-agents"></div>
+        <div class="ss-panel">
+          <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><span class="ss-live">● ${L("Live", "مباشر")}</span></div>
+          <div class="ss-log" id="ss-log"></div>
+          <form class="ss-form" id="ss-form">
+            <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
+            <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="ss-pane" id="pane-tools" hidden>
+        <p class="ss-pane-lead">${L("Connect the team to your tools with one click — just like the specialized team. If a tool needs a token or has a cost, we walk you through it step by step.", "اربط الفريق بأدواتك بضغطة — تماماً كالفريق المتخصص. لو الأداة تحتاج توكن أو فيها تكلفة نمشي معك خطوة بخطوة.")}</p>
+        <div class="ss-cgrid" id="ss-cgrid"></div>
+        <p class="ss-secure">🔒 ${L("Every connection is private, isolated, and via secure sign-in (OAuth) or your own key. We never ask for passwords. Any important external action waits for your approval.", "كل ربط خاص بشركتك ومعزول، عبر تسجيل دخول آمن (OAuth) أو مفتاحك الخاص. لا نطلب كلمات مرور أبداً. أي إجراء خارجي مهم ينتظر موافقتك.")}</p>
+      </div>
+
+      <div class="ss-pane" id="pane-comp" hidden>
+        <div class="ss-comp">
+          <div class="ss-comp-main">
+            <div class="ss-comp-lead">
+              <span class="e">🛡️</span>
+              <div><b>${L("Mishari — your compliance lead", "مشاري — قائد الامتثال لديك")}</b>
+              <p>${L("Monitors Qiwa, Muqeem, GOSI, Mudad, Nitaqat and ZATCA, and alerts you before any deadline or violation — every government action stays pending your approval.", "يراقب قوى ومقيم والتأمينات ومدد والنطاقات وZATCA، وينبّهك قبل أي استحقاق أو مخالفة — وكل إجراء حكومي يبقى بانتظار موافقتك.")}</p></div>
+              <button class="btn btn-primary" id="ss-comp-chat" type="button">${L("Talk to Mishari", "كلّم مشاري")}</button>
+            </div>
+            <div class="ss-plat-head">${L("Platforms under watch", "المنصّات تحت المراقبة")}</div>
+            <div class="ss-plat">${compPlatforms}</div>
+          </div>
+          <div class="ss-comp-links">
+            <a href="${u("/compliance-portal")}"><b>📤 ${L("Upload your reports", "ارفع تقاريرك")}</b><span>${L("Qiwa, Muqeem, GOSI & Mudad — the agent builds your establishment file.", "قوى، مقيم، التأمينات ومدد — الوكيل يبني ملف منشأتك.")}</span></a>
+            <a href="${u("/compliance-agent")}"><b>🛡️ ${L("Compliance subscription", "اشتراك الامتثال")}</b><span>${L("Daily monitoring and alerts before every deadline.", "مراقبة يومية وتنبيهات قبل كل استحقاق.")}</span></a>
+            <a href="${u("/tools-and-calculators")}"><b>🧮 ${L("Free calculators", "الحاسبات المجانية")}</b><span>${L("Nitaqat, government cost, end of service and more.", "النطاقات، التكاليف الحكومية، نهاية الخدمة والمزيد.")}</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ss-ov" id="ss-ov">
+    <div class="ss-modal">
+      <div class="ss-m-head"><span class="ss-cc-ic" id="ssm-ic">🔌</span><h3 id="ssm-t">${L("Connect", "ربط")}</h3><button class="ss-m-x" id="ssm-x" type="button">✕</button></div>
+      <div class="ss-m-body"><p class="ss-m-lead" id="ssm-l"></p><div id="ssm-s"></div></div>
+      <div class="ss-m-foot"><button class="ss-cbtn" id="ssm-do" type="button">🔗 ${L("Connect now", "ربط الآن")}</button><button class="ss-hbtn" id="ssm-help" type="button">🛠️ ${L("Set it up for me", "نركّبها لك")}</button></div>
+    </div>
+  </div>
+  <style>
+    .ss-hero{padding:52px 0 8px;text-align:center}
+    .ss-hero h1{margin:8px 0 12px}
+    .ss-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+    .ss-sec{padding:36px 0}
+    .ss-team{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0 20px}
+    .ss-chip{display:inline-flex;align-items:center;gap:8px;background:#f4f8fb;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:.92rem}
+    .ss-feats{max-width:760px;margin:0 auto;display:grid;gap:10px;list-style:none;padding:0}
+    .ss-feats li{position:relative;padding-inline-start:26px;line-height:1.7}
+    .ss-feats li::before{content:'✓';position:absolute;inset-inline-start:0;color:#12b3ad;font-weight:800}
+    .ss-log{display:flex;flex-direction:column;gap:10px;min-height:180px;max-height:440px;overflow-y:auto;padding:8px}
+    .ss-msg{max-width:88%;padding:11px 14px;border-radius:14px;line-height:1.75;white-space:pre-wrap}
+    .ss-msg.bot{align-self:flex-start;background:#f1f5f8;border:1px solid var(--line)}
+    .ss-msg.me{align-self:flex-end;background:#0e5a55;color:#eafffb}
+    .ss-msg.empty{align-self:center;background:none;border:0;color:var(--text-soft,#5b6b86);font-size:.9rem}
+    .ss-form{display:flex;gap:8px;margin-top:12px}
+    .ss-form input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit}
+    /* ---- dashboard ---- */
+    .ss-dash-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+    .ss-dash-head>div{flex:1;min-width:260px}
+    .ss-dash-head h2{margin:0 0 6px}
+    .ss-dash-head p{color:var(--text-soft,#5b6b86);margin:0;line-height:1.8}
+    .ss-logout{background:#f1f4fb;border:1px solid var(--line);border-radius:10px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;color:var(--brand,#0b1b5a)}
+    .ss-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:20px}
+    .ss-tab{background:none;border:0;border-bottom:2.5px solid transparent;padding:11px 14px;font:inherit;font-weight:700;color:var(--text-soft,#5b6b86);cursor:pointer}
+    .ss-tab.active{color:var(--brand,#0b1b5a);border-bottom-color:var(--brand,#0b1b5a)}
+    .ss-pane-lead{color:var(--text-soft,#5b6b86);margin:0 0 16px;line-height:1.8}
+    .ss-agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:18px}
+    .ss-ag{display:flex;gap:10px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:11px 13px;cursor:pointer;transition:.12s;text-align:start}
+    .ss-ag:hover{border-color:var(--brand,#0b1b5a);transform:translateY(-1px)}
+    .ss-ag.sel{border-color:var(--brand,#0b1b5a);background:#eef1fb}
+    .ss-ag .e{font-size:1.5rem;line-height:1}
+    .ss-ag b{display:block;color:var(--brand,#0b1b5a);font-size:.95rem}
+    .ss-ag span{display:block;font-size:.75rem;color:var(--text-soft,#5b6b86)}
+    .ss-panel{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(11,27,90,.06)}
+    .ss-panel-head{display:flex;gap:11px;align-items:center;padding:13px 16px;background:#f8fafc;border-bottom:1px solid var(--line)}
+    .ss-panel-head .e{font-size:1.7rem;line-height:1}
+    .ss-panel-head b{color:var(--brand,#0b1b5a)}
+    .ss-panel-head>div span{display:block;font-size:.78rem;color:var(--text-soft,#5b6b86)}
+    .ss-live{margin-inline-start:auto;font-size:.74rem;font-weight:700;color:#12b3ad;white-space:nowrap}
+    .ss-panel .ss-log{min-height:300px;max-height:480px}
+    .ss-panel .ss-form{margin:0;padding:12px;border-top:1px solid var(--line);background:#fff}
+    /* ---- connectors ---- */
+    .ss-cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+    .ss-cc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(11,27,90,.05)}
+    .ss-cc-top{display:flex;gap:11px;align-items:flex-start;margin-bottom:8px}
+    .ss-cc-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#f1f4fb;flex-shrink:0}
+    .ss-cc-ic svg{width:25px;height:25px;display:block}
+    .ss-cc-ic .brand{width:27px;height:27px;object-fit:contain}
+    .ss-cc-t{flex:1}
+    .ss-cc-t h3{font-size:1.02rem;color:var(--brand,#0b1b5a);margin:0}
+    .ss-cc-t .u{font-size:.82rem;color:var(--text-soft,#5b6b86);line-height:1.6}
+    .ss-cc-state{font-size:.7rem;font-weight:700;padding:.18rem .55rem;border-radius:999px;background:#eef1f8;color:#64748b;white-space:nowrap;align-self:flex-start}
+    .ss-cc-state.on{background:#dcfce7;color:#065f46}
+    .ss-cc-tag{font-size:.7rem;font-weight:600;padding:.2rem .55rem;border-radius:999px;align-self:flex-start;margin-bottom:11px}
+    .ss-cc-tag.easy{background:#e0f2fe;color:#075985}
+    .ss-cc-tag.token{background:#fef3c7;color:#b45309}
+    .ss-cc-tag.cost{background:#fee2e2;color:#991b1b}
+    .ss-cc-actions{display:flex;gap:8px;margin-top:auto}
+    .ss-cc-actions button{flex:1;border-radius:10px;padding:9px;font:inherit;font-size:.83rem;font-weight:700;border:0;cursor:pointer}
+    .ss-cbtn{background:var(--brand,#0b1b5a);color:#fff}
+    .ss-hbtn{background:#fff;color:var(--brand,#0b1b5a);border:1px solid var(--line)}
+    .ss-secure{margin-top:18px;font-size:.86rem;color:var(--text-soft,#5b6b86);line-height:1.8;text-align:center}
+    /* connector modal */
+    .ss-ov{position:fixed;inset:0;background:rgba(8,12,30,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:1300}
+    .ss-ov.on{display:flex}
+    .ss-modal{background:#fff;border-radius:18px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;text-align:start}
+    .ss-m-head{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;gap:11px;align-items:center}
+    .ss-m-head .ss-cc-ic{width:40px;height:40px}
+    .ss-m-head h3{flex:1;margin:0;color:var(--brand,#0b1b5a);font-size:1.12rem}
+    .ss-m-x{background:#f1f4fb;border:0;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:1rem}
+    .ss-m-body{padding:16px 18px}
+    .ss-m-lead{font-size:.88rem;color:var(--text-soft,#5b6b86);margin:0 0 14px;line-height:1.7}
+    .ss-stp{display:flex;gap:11px;margin-bottom:11px}
+    .ss-stp .n{width:25px;height:25px;border-radius:50%;background:var(--brand,#0b1b5a);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .ss-stp .tx{font-size:.86rem;line-height:1.6}
+    .ss-pay{background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:9px 12px;font-size:.82rem;margin-bottom:13px}
+    .ss-m-foot{padding:14px 18px 18px;display:flex;gap:9px}
+    .ss-m-foot button{flex:1;border-radius:11px;padding:11px;font:inherit;font-weight:700;border:0;cursor:pointer}
+    /* ---- compliance ---- */
+    .ss-comp{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+    .ss-comp-main{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(11,27,90,.06)}
+    .ss-comp-lead{display:flex;gap:13px;align-items:flex-start;flex-wrap:wrap}
+    .ss-comp-lead .e{font-size:2rem;line-height:1}
+    .ss-comp-lead>div{flex:1;min-width:200px}
+    .ss-comp-lead b{color:var(--brand,#0b1b5a);font-size:1.05rem}
+    .ss-comp-lead p{color:var(--text-soft,#5b6b86);margin:5px 0 0;line-height:1.8;font-size:.9rem}
+    .ss-comp-lead .btn{white-space:nowrap}
+    .ss-plat-head{margin:18px 0 9px;font-weight:700;color:var(--brand,#0b1b5a);font-size:.92rem}
+    .ss-plat{display:flex;flex-wrap:wrap;gap:8px}
+    .ss-plat-chip{display:inline-flex;align-items:center;gap:7px;background:#f4f8fb;border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-weight:600;font-size:.85rem}
+    .ss-plat-chip .dot{width:8px;height:8px;border-radius:50%;background:#12b3ad;box-shadow:0 0 0 3px rgba(18,179,173,.18)}
+    .ss-comp-links{display:flex;flex-direction:column;gap:11px}
+    .ss-comp-links a{display:block;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-decoration:none;transition:.12s}
+    .ss-comp-links a:hover{border-color:var(--brand,#0b1b5a);transform:translateY(-1px)}
+    .ss-comp-links b{display:block;color:var(--brand,#0b1b5a);font-size:.95rem}
+    .ss-comp-links span{display:block;font-size:.8rem;color:var(--text-soft,#5b6b86);margin-top:3px;line-height:1.6}
+    @media(max-width:820px){.ss-comp{grid-template-columns:1fr}}
+    .ss-access{max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 10px 30px rgba(11,27,90,.06)}
+    .ss-access h2{margin:0 0 8px}
+    .ss-access>p{color:var(--text-soft,#5b6b86);margin:0 auto 18px;max-width:460px;line-height:1.8}
+    .ss-access-form{display:flex;gap:8px;max-width:440px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+    .ss-access-form input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:12px;padding:13px 15px;font:inherit;text-align:center;letter-spacing:1px}
+    .ss-portal-link{display:inline-block;margin-top:16px;color:var(--brand,#0b1b5a);font-weight:600;text-decoration:none;font-size:.92rem}
+    .ss-portal-link:hover{text-decoration:underline}
+    .ss-note-box{margin:14px auto 0;max-width:440px;border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.7}
+    .ss-note-box.ok{background:#f2fbf5;border:1px solid #bfe8cd;color:#14663a}
+    .ss-note-box.err{background:#fdf1f1;border:1px solid #f2c4c4;color:#a02020}
+    /* ---- how it works ---- */
+    .ss-how{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .ss-how-s{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 16px;box-shadow:0 6px 18px rgba(11,27,90,.05)}
+    .ss-how-s .n{width:32px;height:32px;border-radius:50%;background:var(--brand,#0b1b5a);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:11px}
+    .ss-how-s b{display:block;color:var(--brand,#0b1b5a);margin-bottom:5px}
+    .ss-how-s p{margin:0;font-size:.85rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+    @media(max-width:820px){.ss-how{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.ss-how{grid-template-columns:1fr}}
+    /* ---- detailed roster ---- */
+    .ss-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+    .ss-rc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 17px;box-shadow:0 6px 18px rgba(11,27,90,.05);display:flex;flex-direction:column}
+    .ss-rc-h{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    .ss-rc-h .e{font-size:1.9rem;line-height:1}
+    .ss-rc-h b{display:block;color:var(--brand,#0b1b5a);font-size:1.02rem}
+    .ss-rc-h span{display:block;font-size:.8rem;color:var(--text-soft,#5b6b86)}
+    .ss-rc-svc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
+    .ss-rc-svc span{background:#eef1fb;color:var(--brand,#0b1b5a);border-radius:999px;padding:4px 10px;font-size:.76rem;font-weight:600}
+    .ss-rc-m{margin:auto 0 0;font-size:.84rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+    .ss-rc-m b{color:var(--brand,#0b1b5a)}
+    /* ---- hierarchy ---- */
+    .ss-hier-sec{background:linear-gradient(180deg,#f6f9fc,transparent)}
+    .ss-hier{display:flex;flex-direction:column;align-items:center;gap:0}
+    .ss-tier{display:flex;gap:13px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:15px;padding:14px 20px;box-shadow:0 8px 24px rgba(11,27,90,.07);max-width:520px;width:100%;justify-content:center;text-align:start}
+    .ss-tier .e{font-size:1.8rem;line-height:1}
+    .ss-tier b{display:block;color:var(--brand,#0b1b5a);font-size:1.05rem}
+    .ss-tier span{display:block;font-size:.82rem;color:var(--text-soft,#5b6b86)}
+    .ss-t1{border-color:var(--brand,#0b1b5a)}
+    .ss-hconn{width:2px;height:22px;background:var(--line)}
+    .ss-tier-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0 8px;max-width:760px}
+    .ss-mini{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:.85rem;font-weight:600;color:var(--brand,#0b1b5a)}
+    .ss-hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px;width:100%}
+    .ss-hcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+    .ss-hcard b{display:block;color:var(--brand,#0b1b5a);font-size:.92rem;margin-bottom:4px}
+    .ss-hcard span{display:block;font-size:.82rem;color:var(--text-soft,#5b6b86);line-height:1.6}
+    .ss-hcard.gov{border-color:#f0d38a;background:#fffdf5}
+    @media(max-width:760px){.ss-hgrid{grid-template-columns:1fr}}
+    /* ---- subscription steps ---- */
+    .ss-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .ss-step{position:relative;background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 16px;box-shadow:0 6px 18px rgba(11,27,90,.05)}
+    .ss-step .n{width:30px;height:30px;border-radius:50%;background:#12b3ad;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+    .ss-step b{display:block;color:var(--brand,#0b1b5a);margin-bottom:5px}
+    .ss-step p{margin:0;font-size:.84rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+    @media(max-width:820px){.ss-steps{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.ss-steps{grid-template-columns:1fr}}
+    .ss-access h3{margin:0 0 8px;color:var(--brand,#0b1b5a)}
+    .ss-demo-hint{display:block;margin-top:14px;font-size:.82rem;color:var(--text-soft,#5b6b86)}
+    .ss-demo-hint code{background:#eef1fb;border-radius:6px;padding:2px 7px;font-size:.82rem;color:var(--brand,#0b1b5a)}
+    .ss-portal-entry{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;max-width:720px;margin:26px auto 0;background:linear-gradient(135deg,#0b1b5a,#13246e);color:#fff;border-radius:18px;padding:20px 24px;box-shadow:0 12px 30px rgba(11,27,90,.18)}
+    .ss-portal-entry>div{flex:1;min-width:240px}
+    .ss-portal-entry b{display:block;font-size:1.05rem;margin-bottom:4px}
+    .ss-portal-entry span{display:block;font-size:.85rem;opacity:.85;line-height:1.7}
+    .ss-portal-entry .btn{white-space:nowrap;background:#fff;color:var(--brand,#0b1b5a)}
+    .ss-portal-hero{padding:48px 0 4px;text-align:center}
+    .ss-portal-hero h1{margin:8px 0 12px}
+    .ss-gate-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+    .ss-gate-links a{color:var(--brand,#0b1b5a);font-weight:600;text-decoration:none;font-size:.9rem}
+    .ss-gate-links a:hover{text-decoration:underline}
+  </style>`;
   const script = `<script>(function(){
     var N8N='https://businesspartnerai.app.n8n.cloud/webhook';
     var AGENTS=${AGENTS_JS};
@@ -6331,11 +6674,10 @@ function buildSharedServices() {
     // ---------- init ----------
     function initDash(){buildAgents();var first=document.querySelector('.ss-ag');selectAgent(AGENTS[0],first);}
   })();</script>`;
-
   return page({
-    title: Lraw("Shared Services — your smart executive team | Business Partner", "الخدمات المشتركة — فريقك التنفيذي الذكي | بيزنس بارتنر"),
-    desc: Lraw("A full AI executive team that works as your own staff, led by Khaled: government, compliance, sales, marketing, IT, procurement and admin — one subscription.", "فريق تنفيذي ذكي متكامل يعمل كموظفيك بقيادة خالد: حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات وإدارة — باشتراك واحد."),
-    active: "/shared-services", path: "/shared-services", body, script,
+    title: Lraw("Service portal — Shared Services | Business Partner", "بوابة الخدمة — الخدمات المشتركة | بيزنس بارتنر"),
+    desc: Lraw("Sign in to your Shared Services executive team portal.", "سجّل دخولك لبوابة فريقك التنفيذي في الخدمات المشتركة."),
+    active: "/shared-services", path: "/shared-services/dashboard", body, script,
   });
 }
 
@@ -6412,6 +6754,7 @@ function writeFullSite(pre) {
   write(`${pre}terms.html`, buildTerms());
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
+  write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
   write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
