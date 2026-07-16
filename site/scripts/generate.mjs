@@ -1404,7 +1404,7 @@ function buildPackages() {
       return `<div class="pk-panel${i === 0 ? " active" : ""}" id="pkg-${esc(g.key)}">
       ${g.descAr || g.descEn ? `<p class="pk-group-desc">${L(g.descEn || g.descAr, g.descAr || g.descEn)}</p>` : ""}
       ${billingToggle}
-      <div class="grid grid-${g.tiers.length >= 4 ? 4 : 3}">${g.tiers.map(tierCard).join("")}</div>
+      <div class="grid grid-${g.tiers.length >= 4 ? 4 : g.tiers.length === 2 ? 2 : 3}">${g.tiers.map(tierCard).join("")}</div>
     </div>`;
     })
     .join("");

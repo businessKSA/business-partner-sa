@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-16T17:22:21.793Z",
+  "updatedAt": "2026-07-16T17:30:09.046Z",
   "currency": "SAR",
   "services": [
     {
@@ -1445,93 +1445,206 @@
         "مدير حساب مخصص للمنشأة",
         "أولوية تنفيذ ومتابعة فورية",
         "حلول مخصصة حسب احتياج النشاط",
-        "دعم استباقي شامل دون تدخل العميل"
+        "دعم استباقي شامل دون تدخل العميل",
+        "دعم فريق الدعم التشغيلي ومتابعة المنصات",
+        "تقارير ومؤشرات لمتابعة النشاط والأداء"
       ],
       "featuresEn": [
         "Everything in the Platinum package",
         "Dedicated account manager",
         "Priority execution & instant follow-up",
         "Custom solutions tailored to your activity",
-        "Comprehensive proactive support, no client follow-up needed"
+        "Comprehensive proactive support, no client follow-up needed",
+        "Dedicated operational support team & platform follow-up",
+        "Reports & KPIs to track activity and performance"
       ],
       "url": "https://businesspartner.sa/packages"
     },
     {
       "group": "formation",
-      "groupNameAr": "تأسيس الشركات والاستثمار",
-      "groupNameEn": "Company formation & investment",
+      "groupNameAr": "تأسيس الشركات",
+      "groupNameEn": "Company Formation",
       "code": null,
-      "key": "llc",
-      "nameAr": "تأسيس شركة سعودية",
-      "nameEn": "Saudi company formation",
-      "amount": 7500,
-      "priceLabel": "ابتداءً من 7,500 ﷼",
+      "key": "foreign-formation",
+      "nameAr": "باقة تأسيس الشركات الأجنبية",
+      "nameEn": "Foreign Companies Formation Package",
+      "amount": 57500,
+      "priceLabel": "Starting from 57,500 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "حجز الاسم التجاري",
-        "صياغة وتوثيق عقد التأسيس",
+        "التقديم على ترخيص الاستثمار الأجنبي",
+        "إعداد وصياغة عقد التأسيس وتوثيقه",
         "إصدار السجل التجاري",
-        "عضوية الغرفة التجارية",
-        "التسجيل المبدئي في الزكاة والضريبة"
+        "التسجيل في الزكاة والضريبة والتأمينات وقوى ومدد ومقيم",
+        "متابعة الإجراءات حتى اكتمال التأسيس",
+        "استخراج تأشيرات للإدارة — عدد 3"
       ],
       "featuresEn": [
-        "Trade name reservation",
-        "Articles of Association drafting & notarization",
-        "Commercial Registration (CR)",
-        "Chamber of Commerce membership",
-        "Initial ZATCA/VAT registration"
+        "Application for the foreign investment license",
+        "Drafting & notarizing the articles of association",
+        "Commercial Registration issuance",
+        "Registration in Zakat/tax, GOSI, Qiwa, Mudad and Muqeem",
+        "Follow-up on procedures until formation is complete",
+        "Issuance of 3 management visas"
       ],
       "url": "https://businesspartner.sa/packages"
     },
     {
       "group": "formation",
-      "groupNameAr": "تأسيس الشركات والاستثمار",
-      "groupNameEn": "Company formation & investment",
+      "groupNameAr": "تأسيس الشركات",
+      "groupNameEn": "Company Formation",
       "code": null,
-      "key": "misa",
-      "nameAr": "تأسيس استثمار أجنبي (MISA)",
-      "nameEn": "Foreign investment (MISA)",
-      "amount": 22500,
-      "priceLabel": "22,500 ﷼",
+      "key": "saudi-gulf-formation",
+      "nameAr": "باقة تأسيس الشركات السعودية والخليجية",
+      "nameEn": "Saudi & Gulf Companies Formation Package",
+      "amount": 23000,
+      "priceLabel": "Starting from 23,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "ترخيص وزارة الاستثمار (MISA)",
-        "تأسيس الشركة الأجنبية",
-        "السجل التجاري وعضوية الغرفة",
+        "إعداد وصياغة عقد التأسيس وتوثيقه",
+        "إصدار السجل التجاري",
         "التسجيل في الزكاة والضريبة",
-        "فتح الملفات الحكومية (قوى/مقيم/مدد)"
+        "التسجيل في التأمينات الاجتماعية ومنصة قوى ومدد ومقيم",
+        "إصدار الرخصة البلدية (إن لزم)",
+        "استشارة قانونية لاختيار الكيان المناسب"
       ],
       "featuresEn": [
-        "MISA investment license",
-        "Foreign entity incorporation",
-        "CR & Chamber membership",
-        "ZATCA/VAT registration",
-        "Opening government files (Qiwa/Muqeem/Mudad)"
+        "Drafting & notarizing the articles of association",
+        "Commercial Registration issuance",
+        "Zakat/tax registration",
+        "Registration in GOSI, Qiwa, Mudad and Muqeem",
+        "Municipal license issuance (if required)",
+        "Legal consultation to choose the right entity type"
       ],
       "url": "https://businesspartner.sa/packages"
     },
     {
-      "group": "formation",
-      "groupNameAr": "تأسيس الشركات والاستثمار",
-      "groupNameEn": "Company formation & investment",
+      "group": "legal",
+      "groupNameAr": "الباقات القانونية",
+      "groupNameEn": "Legal Packages",
       "code": null,
-      "key": "pr",
-      "nameAr": "الإقامة المميزة (بريميوم)",
-      "nameEn": "Premium Residency",
-      "amount": 5000,
-      "priceLabel": "ابتداءً من 5,000 ﷼",
+      "key": "strategic",
+      "nameAr": "الباقة الاستراتيجية",
+      "nameEn": "Strategic Package",
+      "amount": 59000,
+      "priceLabel": "Starting from 59,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "تقييم الأهلية والمسار الأنسب",
-        "تجهيز ومراجعة المستندات",
-        "تقديم الطلب والمتابعة",
-        "متابعة الحالة حتى القرار"
+        "استشارات هاتفية غير محدودة",
+        "استشارات مكتوبة: 25 سنويًا",
+        "صياغة ومراجعة عقود: 20 عقداً",
+        "مذكرات ولوائح قانونية: 15",
+        "خدمات ملكية فكرية: 4",
+        "تأسيس/تحويل/اندماج كيانات: 3 خدمات",
+        "حضور اجتماعات بمحامٍ: 4 اجتماعات",
+        "تمثيل قضائي: حتى 10 قضايا عمالية سنويًا",
+        "ورشة توعية قانونية للموظفين: مرة سنويًا",
+        "خصم على خدمات التوثيق: 25%"
       ],
       "featuresEn": [
-        "Eligibility & pathway assessment",
-        "Document preparation & review",
-        "Application submission & follow-up",
-        "Status tracking to a decision"
+        "Unlimited phone consultations",
+        "Written consultations: 25 / year",
+        "Contract drafting & review: 20 contracts",
+        "Legal memos & pleadings: 15",
+        "IP services: 4",
+        "Entity formation/conversion/merger: 3 services",
+        "Meetings with a lawyer: 4 meetings",
+        "Litigation representation: up to 10 labor cases / year",
+        "Legal awareness workshop for employees: once a year",
+        "25% discount on notarization services"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "legal",
+      "groupNameAr": "الباقات القانونية",
+      "groupNameEn": "Legal Packages",
+      "code": null,
+      "key": "comprehensive",
+      "nameAr": "الباقة الشاملة",
+      "nameEn": "Comprehensive Package",
+      "amount": 39000,
+      "priceLabel": "Starting from 39,000 SAR / yearly",
+      "billingPeriod": "one_time",
+      "featuresAr": [
+        "استشارات هاتفية غير محدودة",
+        "استشارات مكتوبة: 15 سنويًا",
+        "صياغة ومراجعة عقود: 15 عقداً",
+        "مذكرات ولوائح قانونية: 10",
+        "خدمات ملكية فكرية: 4",
+        "تأسيس/تحويل كيانات: خدمتان",
+        "حضور اجتماعات بمحامٍ: اجتماعان",
+        "تمثيل قضائي: حتى 6 قضايا عمالية",
+        "خصم على خدمات التوثيق: 20%"
+      ],
+      "featuresEn": [
+        "Unlimited phone consultations",
+        "Written consultations: 15 / year",
+        "Contract drafting & review: 15 contracts",
+        "Legal memos & pleadings: 10",
+        "IP services: 4",
+        "Entity formation/conversion: 2 services",
+        "Meetings with a lawyer: 2 meetings",
+        "Litigation representation: up to 6 labor cases",
+        "20% discount on notarization services"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "legal",
+      "groupNameAr": "الباقات القانونية",
+      "groupNameEn": "Legal Packages",
+      "code": null,
+      "key": "advanced",
+      "nameAr": "الباقة المتقدمة",
+      "nameEn": "Advanced Package",
+      "amount": 19900,
+      "priceLabel": "Starting from 19,900 SAR / yearly",
+      "billingPeriod": "one_time",
+      "featuresAr": [
+        "استشارات هاتفية غير محدودة",
+        "استشارات مكتوبة: 8 سنويًا",
+        "صياغة ومراجعة عقود: 12 عقداً",
+        "خدمات ملكية فكرية: 2",
+        "تأسيس/تعديل كيان: خدمة واحدة",
+        "تمثيل قضائي: حتى 4 قضايا عمالية سنويًا",
+        "خصم على خدمات التوثيق: 15%"
+      ],
+      "featuresEn": [
+        "Unlimited phone consultations",
+        "Written consultations: 8 / year",
+        "Contract drafting & review: 12 contracts",
+        "IP services: 2",
+        "Entity formation/amendment: 1 service",
+        "Litigation representation: up to 4 labor cases / year",
+        "15% discount on notarization services"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "legal",
+      "groupNameAr": "الباقات القانونية",
+      "groupNameEn": "Legal Packages",
+      "code": null,
+      "key": "basic-legal",
+      "nameAr": "الباقة الأساسية",
+      "nameEn": "Basic Package",
+      "amount": 9900,
+      "priceLabel": "Starting from 9,900 SAR / yearly",
+      "billingPeriod": "one_time",
+      "featuresAr": [
+        "استشارات هاتفية غير محدودة",
+        "استشارات مكتوبة: 4 سنويًا",
+        "صياغة ومراجعة عقود: 6 عقود",
+        "تمثيل قضائي: حتى قضيتين عماليتين سنويًا",
+        "خصم على خدمات التوثيق: 10%"
+      ],
+      "featuresEn": [
+        "Unlimited phone consultations",
+        "Written consultations: 4 / year",
+        "Contract drafting & review: 6 contracts",
+        "Litigation representation: up to 2 labor cases / year",
+        "10% discount on notarization services"
       ],
       "url": "https://businesspartner.sa/packages"
     }
