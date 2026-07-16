@@ -106,6 +106,23 @@ var BP = window.BP = window.BP || {};
   BP.lang = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0 ? "ar" : "en";
   BP.t = function (en, ar) { return BP.lang === "ar" ? ar : en; };
   BP.money = function (n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }) + " ﷼"; };
+  // Canonical Field/sector taxonomy — must stay in sync with generate.mjs's
+  // FIELD_TAXONOMY, api/candidates.js's FIELD_OPTIONS and api/candidate.js's
+  // guessField() classifier. [arabic value, english label] — the Arabic
+  // string is always the stored/filtered value; the label shown flips with
+  // BP.lang so filter dropdowns built at runtime (fillFilters()) localize
+  // correctly instead of showing raw Arabic values on English pages.
+  BP.FIELD_TAXONOMY = [
+    ["هندسة", "Engineering"], ["تقنية معلومات", "IT & Software"], ["مبيعات وتسويق", "Sales & Marketing"],
+    ["محاسبة ومالية", "Accounting & Finance"], ["إداري وسكرتارية", "Admin & Secretarial"], ["موارد بشرية", "Human Resources"],
+    ["ضيافة وسياحة", "Hospitality & Tourism"], ["مقاولات وإنشاءات", "Construction"], ["عقارات", "Real Estate"],
+    ["صحة وطب", "Health & Medical"], ["تعليم", "Education"], ["لوجستيات ونقل", "Logistics & Transportation"],
+    ["قانون", "Legal"], ["تصنيع وصناعة", "Manufacturing & Industrial"], ["طاقة ونفط وغاز", "Energy, Oil & Gas"],
+    ["إعلام وإبداع", "Media & Creative"], ["حكومي وقطاع عام", "Government & Public Sector"], ["زراعة وبيئة", "Agriculture & Environment"],
+    ["تجزئة وتجارة إلكترونية", "Retail & E-commerce"], ["أمن وسلامة", "Security & Safety"], ["حرف مهنية وصيانة", "Skilled Trades & Maintenance"],
+    ["علوم وأبحاث", "Science & Research"], ["طيران وبحري", "Aviation & Maritime"], ["تجميل وعناية", "Beauty & Wellness"],
+    ["خدمات منزلية", "Domestic & Household Services"], ["أخرى", "Other"],
+  ];
 })();
 
 /* ---------- Cart (localStorage) ---------- */
@@ -360,6 +377,78 @@ var BP = window.BP = window.BP || {};
     ["Veterinarian", "طبيب بيطري"], ["Food Scientist", "عالم أغذية"],
     ["Journalist", "صحفي"], ["Editor", "محرر"], ["Animator", "رسّام متحرك"], ["Sound Engineer", "مهندس صوت"],
     ["Fitness Trainer", "مدرّب لياقة"], ["Barber / Hairstylist", "حلّاق / مصفف شعر"], ["Nail Technician", "فنّي عناية بالأظافر"],
+    // Second major expansion — domestic staff, skilled trades, maritime, mining,
+    // science, arts/media, sports, more security/insurance/real estate/gov't,
+    // agriculture, energy, telecom, manufacturing, warehouse/transport, exec
+    // roles, social services, beauty/wellness, printing, culture & tourism.
+    // Still free-text with suggestions underneath — nothing here is a closed list.
+    ["Private Driver", "سائق خاص"], ["Domestic Worker", "عاملة منزلية"], ["Nanny / Babysitter", "مربية / جليسة أطفال"],
+    ["Private Chef / Cook", "طباخ منزلي"], ["Gardener", "بستاني"], ["Butler / House Manager", "خادم خاص / مدير منزل"],
+    ["Elderly Caregiver", "مرافق كبار سن"], ["Home Nurse", "ممرض منزلي"], ["Household Manager", "مدير شؤون منزلية"],
+    ["Mason / Bricklayer", "بنّاء"], ["Tiler", "مبلّط"], ["Glazier", "فنّي زجاج"], ["Locksmith", "صانع أقفال"],
+    ["Upholsterer", "منجّد"], ["Roofer", "عامل أسطح"], ["Blacksmith", "حداد"], ["Aluminum Fabricator", "فنّي ألمنيوم"],
+    ["Scaffolder", "منصّب سقالات"], ["Insulation Installer", "فنّي عزل"], ["Pipefitter", "فنّي تمديدات أنابيب"],
+    ["Boilermaker", "فنّي مراجل"], ["Sheet Metal Worker", "فنّي صاج"], ["Tailor / Seamstress", "خيّاط / خيّاطة"],
+    ["Shoemaker / Cobbler", "إسكافي"], ["Watch Repairer", "فنّي إصلاح ساعات"], ["Jeweler / Goldsmith", "صائغ"],
+    ["Upfitter / Auto Detailer", "فنّي تلميع سيارات"], ["Tire Technician", "فنّي إطارات"], ["Auto Body Repair Technician", "فنّي سمكرة"],
+    ["Marine Engineer", "مهندس بحري"], ["Deck Officer", "ضابط سطح"], ["Able Seaman", "بحّار"],
+    ["Port Operations Officer", "مسؤول عمليات ميناء"], ["Tugboat Operator", "مشغّل قاطرة بحرية"], ["Naval Architect", "مهندس تصميم سفن"],
+    ["Stevedore / Dock Worker", "عامل رصيف ميناء"], ["Marine Surveyor", "مساح بحري"],
+    ["Air Traffic Controller", "مراقب حركة جوية"], ["Aircraft Maintenance Engineer", "مهندس صيانة طائرات"], ["Flight Dispatcher", "منسّق رحلات جوية"],
+    ["Airport Operations Officer", "مسؤول عمليات مطار"], ["Ramp Agent", "عامل مدرج"], ["Aviation Safety Officer", "مسؤول سلامة طيران"],
+    ["Mining Engineer", "مهندس تعدين"], ["Quarry Supervisor", "مشرف محجر"], ["Blaster", "فنّي تفجير"], ["Mine Surveyor", "مساح مناجم"],
+    ["Research Scientist", "باحث علمي"], ["Chemist", "كيميائي"], ["Physicist", "فيزيائي"], ["Biologist", "أحيائي"],
+    ["Laboratory Manager", "مدير مختبر"], ["Research Assistant", "مساعد بحث"], ["Biomedical Engineer", "مهندس طبي حيوي"],
+    ["Statistician", "إحصائي"], ["Astronomer", "فلكي"],
+    ["Actor", "ممثل"], ["Musician", "موسيقي"], ["Music Teacher", "معلّم موسيقى"], ["Radio Host", "مذيع إذاعي"],
+    ["TV Presenter", "مذيع تلفزيوني"], ["Film Director", "مخرج أفلام"], ["Producer", "منتج"], ["Screenwriter", "كاتب سيناريو"],
+    ["Set Designer", "مصمم ديكور"], ["Costume Designer", "مصمم أزياء استعراضية"], ["Makeup Artist", "خبير مكياج"],
+    ["Illustrator", "رسّام توضيحي"], ["Art Director", "مدير فني"], ["Voice Actor", "ممثل صوتي"], ["DJ", "دي جي"],
+    ["Fashion Designer", "مصمم أزياء"], ["Museum Curator", "أمين متحف"], ["Cultural Heritage Specialist", "أخصائي تراث ثقافي"],
+    ["Sports Coach", "مدرّب رياضي"], ["Referee / Umpire", "حكم رياضي"], ["Sports Physiotherapist", "أخصائي علاج طبيعي رياضي"],
+    ["Lifeguard", "منقذ سباحة"], ["Recreation Coordinator", "منسّق ترفيه"], ["Sports Team Manager", "مدير فريق رياضي"],
+    ["Swimming Instructor", "مدرّب سباحة"], ["Golf Instructor", "مدرّب غولف"],
+    ["Security Manager", "مدير أمن"], ["CCTV Operator", "مشغّل كاميرات مراقبة"], ["Fire Safety Officer", "مسؤول سلامة من الحريق"],
+    ["Emergency Response Officer", "مسؤول استجابة للطوارئ"], ["Close Protection Officer", "حارس شخصي"], ["Access Control Officer", "مسؤول تحكم بالدخول"],
+    ["Underwriter", "خبير اكتتاب تأمين"], ["Claims Adjuster", "خبير تسوية مطالبات"], ["Actuarial Analyst", "محلل اكتواري"],
+    ["Insurance Broker", "سمسار تأمين"], ["Reinsurance Analyst", "محلل إعادة تأمين"],
+    ["Property Manager", "مدير أملاك"], ["Leasing Consultant", "استشاري تأجير"], ["Real Estate Appraiser", "مُقيّم عقاري"],
+    ["Facilities Coordinator", "منسّق مرافق"], ["Property Development Manager", "مدير تطوير عقاري"],
+    ["Municipal Inspector", "مفتش بلدي"], ["Customs Officer", "ضابط جمارك"], ["Immigration Officer", "ضابط جوازات"],
+    ["Public Policy Analyst", "محلل سياسات عامة"], ["Diplomat", "دبلوماسي"], ["Urban Planning Officer", "مسؤول تخطيط عمراني"],
+    ["Civil Defense Officer", "ضابط دفاع مدني"], ["Public Sector Program Manager", "مدير برامج قطاع عام"],
+    ["Farm Manager", "مدير مزرعة"], ["Livestock Supervisor", "مشرف ثروة حيوانية"], ["Irrigation Technician", "فنّي ري"],
+    ["Agronomist", "أخصائي زراعة"], ["Beekeeper", "نحّال"], ["Fisheries Technician", "فنّي ثروة سمكية"],
+    ["Greenhouse Technician", "فنّي بيوت محمية"], ["Landscape Architect", "مهندس تنسيق حدائق"],
+    ["Renewable Energy Engineer", "مهندس طاقة متجددة"], ["Solar Technician", "فنّي طاقة شمسية"], ["Power Plant Operator", "مشغّل محطة طاقة"],
+    ["Electrical Substation Technician", "فنّي محطة تحويل كهرباء"], ["Water Treatment Operator", "مشغّل معالجة مياه"],
+    ["Energy Analyst", "محلل طاقة"], ["Wind Turbine Technician", "فنّي توربينات رياح"],
+    ["Telecom Engineer", "مهندس اتصالات"], ["RF Engineer", "مهندس ترددات لاسلكية"], ["NOC Engineer", "مهندس مركز عمليات شبكة"],
+    ["Fiber Optic Technician", "فنّي ألياف بصرية"], ["Telecom Sales Consultant", "استشاري مبيعات اتصالات"],
+    ["Assembly Line Worker", "عامل خط تجميع"], ["Machine Operator", "مشغّل آلات"], ["Textile Worker", "عامل نسيج"],
+    ["Packaging Operator", "مشغّل تعبئة وتغليف"], ["Injection Molding Operator", "مشغّل قولبة بالحقن"],
+    ["Print Operator", "مشغّل مطبعة"], ["Bookbinder", "مجلّد كتب"], ["Publisher", "ناشر"], ["Proofreader", "مدقق لغوي"],
+    ["Laundry Attendant", "عامل مغسلة"], ["Janitor", "عامل نظافة عام"], ["Pest Control Technician", "فنّي مكافحة حشرات"],
+    ["Commercial Landscaper", "عامل تنسيق حدائق تجاري"], ["Window Cleaner", "منظّف زجاج"],
+    ["Picker / Packer", "عامل تحضير وتعبئة طلبات"], ["Bus Driver", "سائق حافلة"], ["Taxi / Limousine Driver", "سائق أجرة / ليموزين"],
+    ["Courier", "ساعي بريد"], ["Dispatcher", "منسّق مناوبات"], ["Route Planner", "مخطط مسارات"],
+    ["Chief Executive Officer (CEO)", "الرئيس التنفيذي"], ["Chief Operating Officer (COO)", "رئيس العمليات التنفيذي"],
+    ["Chief Technology Officer (CTO)", "رئيس التقنية التنفيذي"], ["Chief Marketing Officer (CMO)", "رئيس التسويق التنفيذي"],
+    ["Chief Human Resources Officer (CHRO)", "رئيس الموارد البشرية التنفيذي"], ["Board Secretary", "أمين سر مجلس الإدارة"],
+    ["Chief Strategy Officer", "رئيس الاستراتيجية التنفيذي"], ["Vice President", "نائب رئيس"], ["Executive Director", "مدير تنفيذي أول"],
+    ["Social Worker", "أخصائي اجتماعي"], ["Counselor", "مرشد نفسي"], ["Psychologist", "أخصائي نفسي"],
+    ["Rehabilitation Specialist", "أخصائي تأهيل"], ["Childcare Worker", "عامل رعاية أطفال"], ["Community Outreach Officer", "مسؤول توعية مجتمعية"],
+    ["Massage Therapist", "معالج تدليك"], ["Esthetician", "أخصائي تجميل بشرة"], ["Yoga Instructor", "مدرّب يوغا"],
+    ["Nutrition Coach", "مدرّب تغذية"], ["Makeup Trainer", "مدرّب مكياج"], ["Salon Manager", "مدير صالون تجميل"],
+    ["Tour Operator", "منظّم رحلات سياحية"], ["Tourism Officer", "موظف سياحة"], ["Heritage Site Guide", "مرشد مواقع تراثية"],
+    ["Cruise Staff", "طاقم رحلات بحرية"],
+    ["Investment Banker", "مصرفي استثمار"], ["Wealth Manager", "مدير ثروات"], ["Mortgage Officer", "موظف تمويل عقاري"],
+    ["Branch Manager (Banking)", "مدير فرع مصرفي"], ["Compliance Analyst (Banking)", "محلل امتثال مصرفي"],
+    ["Fraud Investigator", "محقق احتيال مالي"], ["Trade Finance Officer", "موظف تمويل تجاري"],
+    ["AI Engineer", "مهندس ذكاء اصطناعي"], ["Blockchain Developer", "مطوّر بلوك تشين"], ["IoT Engineer", "مهندس إنترنت الأشياء"],
+    ["Systems Analyst", "محلل أنظمة"], ["IT Project Coordinator", "منسّق مشاريع تقنية"], ["Help Desk Technician", "فنّي دعم فني"],
+    ["Visual Merchandising Manager", "مدير عرض تجاري"], ["Shop Floor Supervisor", "مشرف صالة عرض"], ["Pricing Analyst", "محلل تسعير"],
+    ["Textile Designer", "مصمم منسوجات"], ["Pattern Maker", "صانع باترون"],
   ];
 
   var SA_CITIES = [
@@ -500,11 +589,16 @@ var BP = window.BP = window.BP || {};
       list.hidden = !items.length;
     }
     function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    // Capped at 40 (not 8) so the dropdown itself makes it obvious this is a
+    // long, scrollable list rather than a handful of fixed options — direct
+    // feedback was that only seeing ~6 suggestions on an empty query read as
+    // "the list is incomplete" even though the full list (500+ job titles)
+    // was already there and just needed typing to search.
     function filtered() {
       var q = input.value.trim().toLowerCase();
       var all = getOptions();
-      if (!q) return all.slice(0, 8);
-      return all.filter(function (o) { return o.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+      if (!q) return all.slice(0, 40);
+      return all.filter(function (o) { return o.toLowerCase().indexOf(q) !== -1; }).slice(0, 40);
     }
     input.addEventListener("input", function () { active = -1; render(filtered()); });
     input.addEventListener("focus", function () { render(filtered()); });
@@ -1715,6 +1809,8 @@ var BP = window.BP = window.BP || {};
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   var status = document.getElementById("emp-status");
   var loadBtn = document.getElementById("emp-load");
+  var CANDS = [];
+  function findC(id) { return CANDS.filter(function (c) { return c.id === id; })[0]; }
 
   function card(c) {
     var meta = [];
@@ -1731,37 +1827,137 @@ var BP = window.BP = window.BP || {};
         (c.cv ? '<a target="_blank" rel="noopener" href="' + esc(c.cv) + '">📄 ' + T("CV", "السيرة") + "</a>" : "") +
         "</div>";
     }
-    return '<div class="emp-card">' +
-      '<div class="emp-card-top"><strong>' + esc(c.name || "—") + "</strong>" + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
-      (c.role ? '<div class="emp-role">' + esc(c.role) + "</div>" : "") +
+    // Name and role are both click targets into the full profile — same
+    // pattern as the full dashboard (/employer-dashboard), so this simpler
+    // preview page behaves consistently instead of being a dead end.
+    return '<div class="emp-card" data-id="' + esc(c.id) + '">' +
+      '<div class="emp-card-top"><strong class="emp-name-link" data-id="' + esc(c.id) + '">' + esc(c.name || "—") + "</strong>" + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
+      (c.role ? '<div class="emp-role emp-role-link" data-id="' + esc(c.id) + '">' + esc(c.role) + "</div>" : "") +
       (c.skills ? '<div class="emp-skills">' + esc(c.skills) + "</div>" : "") +
       '<div class="emp-meta">' + meta.join(" · ") + "</div>" +
-      contact + "</div>";
+      contact +
+      '<button type="button" class="empd-view" data-id="' + esc(c.id) + '">👤 ' + T("View profile", "عرض الملف") + "</button>" +
+      "</div>";
   }
 
+  // A Google Doc "edit" link opens the viewer; export?format=pdf triggers a
+  // one-click file download instead — used for the ATS-formatted CV.
+  function cvDownloadUrl(url) {
+    var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
+    return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
+  }
+  // Minimal markdown → HTML for the AI-generated CV text.
+  function mdToHtml(md) {
+    var lines = String(md || "").replace(/\r/g, "").split("\n");
+    var html = "", inList = false;
+    function closeList() { if (inList) { html += "</ul>"; inList = false; } }
+    function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+    lines.forEach(function (line) {
+      var t = line.trim();
+      if (!t) { closeList(); return; }
+      var h = /^(#{1,3})\s+(.*)/.exec(t);
+      if (h) { closeList(); html += "<h" + (h[1].length + 2) + ">" + inline(h[2]) + "</h" + (h[1].length + 2) + ">"; return; }
+      var li = /^[-*]\s+(.*)/.exec(t);
+      if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(li[1]) + "</li>"; return; }
+      closeList();
+      html += "<p>" + inline(t) + "</p>";
+    });
+    closeList();
+    return html;
+  }
+  function profileHtml(c) {
+    var rows = [
+      [T("Name", "الاسم"), c.name ? (esc(c.name) + (c.nameAlt ? " (" + esc(c.nameAlt) + ")" : "")) : ""],
+      [T("Target role", "المسمى المستهدف"), c.role],
+      [T("Field", "المجال"), c.field],
+      [T("City", "المدينة"), c.city],
+      [T("Country", "الدولة"), c.country],
+      [T("Nationality", "الجنسية"), c.nationalityType],
+      [T("Residence status", "حالة الإقامة"), c.residenceStatus],
+      [T("Experience", "الخبرة"), c.experience ? (c.experience + (isAr ? " سنة" : "y")) : ""],
+      [T("Education", "التعليم"), c.education],
+      [T("Availability", "الجاهزية"), c.availability],
+      [T("Languages", "اللغات"), c.languages],
+      [T("Skills", "المهارات"), c.skills],
+      [T("Saudization", "التوطين"), c.saudization],
+      [T("Phone", "الجوال"), c.phone ? ('<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>") : ""],
+      [T("Email", "البريد"), c.email ? ('<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>") : ""],
+    ].filter(function (r) { return r[1]; });
+    var html = '<div class="empd-profile">' + rows.map(function (r) {
+      return '<div class="empd-profile-row"><span class="empd-profile-k">' + esc(r[0]) + '</span><span class="empd-profile-v">' + r[1] + "</span></div>";
+    }).join("") + "</div>";
+    if (c.cvText) {
+      html += '<h3 style="margin-top:18px">' + T("CV", "السيرة الذاتية") + '</h3><div class="empd-cv-text">' + mdToHtml(c.cvText) + "</div>";
+    }
+    if (c.cv) {
+      html += '<a class="btn btn-primary" style="margin-top:14px;display:inline-block" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
+        (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
+    } else {
+      html += '<p class="emp-note" style="margin-top:14px">🔒 ' + T("Subscribe to view contact details, read the full CV and download it.", "اشترك لعرض بيانات التواصل وقراءة السيرة الذاتية كاملة وتحميلها.") + "</p>";
+    }
+    return html;
+  }
+  var modal = document.getElementById("empd-modal");
+  function openModal(title, html) {
+    if (!modal) return;
+    document.getElementById("empd-modal-title").textContent = title;
+    document.getElementById("empd-modal-body").innerHTML = html;
+    modal.hidden = false;
+  }
+  function closeModal() { if (modal) modal.hidden = true; }
+  if (modal) {
+    var modalX = document.getElementById("empd-modal-x");
+    if (modalX) modalX.addEventListener("click", closeModal);
+    modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+  }
+  function viewProfile(id) {
+    var c = findC(id); if (!c) return;
+    openModal(T("Candidate profile", "الملف الشخصي للمرشح"), profileHtml(c));
+  }
+  function bindCards() {
+    grid.querySelectorAll(".empd-view, .emp-name-link, .emp-role-link").forEach(function (b) {
+      b.addEventListener("click", function () { viewProfile(b.getAttribute("data-id")); });
+    });
+  }
+
+  // Filters use the same shared, canonical taxonomy/combobox widget as the
+  // full dashboard (/employer-dashboard) and the candidate/job-posting
+  // forms — not a <select> populated by scanning whatever's on the current
+  // page of results (that never localized and missed categories).
+  if (window.BP && BP.initCombobox) {
+    var lang = isAr ? "ar" : "en";
+    BP.initCombobox(document.getElementById("emp-field"), function () { return BP.FIELD_TAXONOMY.map(function (p) { return T(p[1], p[0]); }); });
+    BP.initCombobox(document.getElementById("emp-city"), function () { return BP.cityOptions ? BP.cityOptions(lang) : []; });
+    BP.initCombobox(document.getElementById("emp-country"), function () { return BP.countryOptions ? BP.countryOptions(lang) : []; });
+    BP.initCombobox(document.getElementById("emp-q"), function () { return BP.jobTitleOptions ? BP.jobTitleOptions(lang) : []; });
+  }
+  function resolveField(text) {
+    var t = String(text || "").trim();
+    if (!t || !window.BP || !BP.FIELD_TAXONOMY) return t;
+    var hit = BP.FIELD_TAXONOMY.filter(function (p) { return p[0] === t || p[1].toLowerCase() === t.toLowerCase(); })[0];
+    return hit ? hit[0] : "";
+  }
   function load() {
     var q = (document.getElementById("emp-q") || {}).value || "";
-    var field = (document.getElementById("emp-field") || {}).value || "";
+    var field = resolveField((document.getElementById("emp-field") || {}).value || "");
     var city = (document.getElementById("emp-city") || {}).value || "";
+    var country = (document.getElementById("emp-country") || {}).value || "";
     var nat = (document.getElementById("emp-nat") || {}).value || "";
     var code = (document.getElementById("emp-code") || {}).value || "";
     status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
     grid.innerHTML = "";
-    var qs = new URLSearchParams({ q: q, field: field, city: city, nat: nat, code: code }).toString();
+    var qs = new URLSearchParams({ q: q, field: field, city: city, country: country, nat: nat, code: code }).toString();
     fetch("/api/candidates?" + qs).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
       .then(function (res) {
         if (res.s === 503) { status.innerHTML = T("The candidate pool isn't connected yet — ", "لم تُربط قاعدة المرشّحين بعد — ") + '<a href="https://wa.me/966507034157">' + T("contact us to subscribe.", "تواصل معنا للاشتراك.") + "</a>"; return; }
         var d = res.d;
         if (!d || !d.ok || !d.candidates) { status.textContent = T("Couldn't load candidates. Try again.", "تعذّر تحميل المرشّحين. حاول مجدداً."); return; }
         if (!d.candidates.length) { status.textContent = T("No candidates match these filters.", "لا يوجد مرشّحون مطابقون لهذه الفلاتر."); return; }
-        status.textContent = (d.unlocked ? T("Showing full profiles — ", "عرض الملفات الكاملة — ") : T("Showing anonymized profiles — subscribe to unlock contacts. ", "عرض ملفات مموّهة — اشترك لفتح بيانات التواصل. ")) + d.total + " " + T("candidates", "مرشّح");
-        // populate filter selects (fields/cities) from results once
-        var fs = document.getElementById("emp-field");
-        if (fs && fs.options.length <= 1) {
-          var fields = {}; d.candidates.forEach(function (c) { if (c.field) fields[c.field] = 1; });
-          Object.keys(fields).forEach(function (f) { var o = document.createElement("option"); o.value = f; o.textContent = f; fs.appendChild(o); });
-        }
+        var countTxt = d.total + " " + T(d.done ? "candidates" : "candidates (first batch)", d.done ? "مرشّح" : "مرشّح (أول دفعة)");
+        status.textContent = (d.unlocked ? T("Showing full profiles — ", "عرض الملفات الكاملة — ") : T("Showing anonymized profiles — subscribe to unlock contacts. ", "عرض ملفات مموّهة — اشترك لفتح بيانات التواصل. ")) + countTxt;
+        CANDS = d.candidates;
         grid.innerHTML = d.candidates.map(card).join("");
+        bindCards();
       })
       .catch(function () { status.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
   }
@@ -1796,6 +1992,118 @@ var BP_EMP_BILLING = "monthly";
         BP_EMP_BILLING = bill;
         btns.forEach(function (b) { b.classList.toggle("active", b === btn); });
         applyBilling(bill);
+      });
+    });
+  });
+})();
+
+/* ---------- Standalone employer registration (/portal/join → api/employer) ----------
+   Registers directly against api/employer.js instead of the main site's
+   cart+checkout flow — this portal is meant to work independently. Was
+   previously a dead form (no submit handler at all). */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("emp-join");
+    if (!form) return;
+    var planEl = document.getElementById("ej-plan"), noteEl = document.getElementById("ej-plan-note");
+    var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
+    function T(en, ar) { return isAr ? ar : en; }
+    var PLANS = window.BP_EMP_PLANS || [];
+    form.querySelectorAll(".emp-plan-pick").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var key = btn.getAttribute("data-plan-key");
+        planEl.value = key;
+        form.querySelectorAll(".emp-plan-pick").forEach(function (b) { b.classList.toggle("active", b === btn); });
+        var plan = PLANS.filter(function (p) { return p.key === key; })[0];
+        noteEl.style.color = "";
+        if (plan) {
+          var price = window.BP_EMP_BILLING === "yearly" && plan.yearlyPrice != null ? plan.yearlyPrice : plan.price;
+          noteEl.textContent = T("Selected: ", "تم اختيار: ") + plan.name + (price != null ? " — " + price + " " + T("SAR", "ريال") : "");
+        }
+      });
+    });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var resultEl = document.getElementById("ej-result");
+      var submitBtn = document.getElementById("ej-submit");
+      if (!planEl.value) { noteEl.textContent = T("Please choose a plan first.", "الرجاء اختيار باقة أولاً."); noteEl.style.color = "#B91C1C"; return; }
+      var company = document.getElementById("ej-company").value.trim();
+      var phone = document.getElementById("ej-phone").value.trim();
+      var email = document.getElementById("ej-email").value.trim();
+      var password = document.getElementById("ej-password").value;
+      if (!company || !phone || !email || !password) return; // native required attrs already cover this
+      if (password.length < 8) { resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Password must be at least 8 characters.", "كلمة المرور لازم تكون 8 أحرف على الأقل.") + "</p>"; return; }
+      submitBtn.disabled = true; submitBtn.textContent = T("Submitting…", "جارٍ الإرسال…");
+      fetch("/api/employer", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          company: company, cr: document.getElementById("ej-cr").value.trim(),
+          contact: document.getElementById("ej-contact").value.trim(), phone: phone,
+          email: email, password: password,
+          plan: planEl.value, billing: window.BP_EMP_BILLING || "monthly",
+          notes: document.getElementById("ej-notes").value.trim(),
+        }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        submitBtn.disabled = false; submitBtn.textContent = T("Create account & continue to subscribe", "أنشئ حسابك وتابع الاشتراك");
+        if (!d || !d.ok) { resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Something went wrong. Please try again or contact us on WhatsApp.", "صار خطأ. حاول مجدداً أو تواصل معنا عبر واتساب.") + "</p>"; return; }
+        var bank = window.BP_BANK || {};
+        resultEl.hidden = false;
+        resultEl.innerHTML = "<h3>✅ " + T("Registered — reference", "تم التسجيل — الرقم المرجعي") + " " + d.ref + "</h3>" +
+          "<p>" + T("Complete payment by bank transfer, then we'll activate your access and email your dashboard code.", "أكمل الدفع بتحويل بنكي، وسنفعّل وصولك ونرسل لك كود لوحة التحكم عبر البريد.") + "</p>" +
+          (bank.iban ? "<p><strong>" + T("Bank", "البنك") + ":</strong> " + bank.bank + "<br><strong>IBAN:</strong> " + bank.iban + "<br><strong>" + T("Beneficiary", "المستفيد") + ":</strong> " + bank.beneficiary + "</p>" : "") +
+          "<p class='emp-note'>" + T("Reference: use ", "الرقم المرجعي: استخدم ") + d.ref + " " + T("in your transfer note.", "في ملاحظة التحويل.") + "</p>" +
+          '<a class="btn btn-wa" style="margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + encodeURIComponent(T("Transfer receipt for ", "إيصال تحويل لـ ") + d.ref) + '">' + T("Send receipt on WhatsApp", "أرسل الإيصال عبر واتساب") + "</a>";
+        form.reset(); planEl.value = ""; noteEl.textContent = "";
+        form.querySelectorAll(".emp-plan-pick").forEach(function (b) { b.classList.remove("active"); });
+        resultEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }).catch(function () {
+        submitBtn.disabled = false; submitBtn.textContent = T("Create account & continue to subscribe", "أنشئ حسابك وتابع الاشتراك");
+        resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.") + "</p>";
+      });
+    });
+  });
+})();
+
+/* ---------- Employer login (/employer-login → api/employer) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("el-form");
+    if (!form) return;
+    var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
+    function T(en, ar) { return isAr ? ar : en; }
+    var errEl = document.getElementById("el-error");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = document.getElementById("el-email").value.trim();
+      var password = document.getElementById("el-password").value;
+      if (!email || !password) return;
+      var submitBtn = document.getElementById("el-submit");
+      errEl.textContent = "";
+      submitBtn.disabled = true; submitBtn.textContent = T("Logging in…", "جارٍ الدخول…");
+      fetch("/api/employer", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "login", email: email, password: password }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
+        if (!d || !d.ok) {
+          errEl.textContent = (d && d.error === "invalid_credentials")
+            ? T("Incorrect email or password.", "البريد أو كلمة المرور غير صحيحة.")
+            : T("Couldn't log in. Please try again.", "تعذّر تسجيل الدخول. حاول مجدداً.");
+          return;
+        }
+        try { localStorage.setItem("bp_emp_code", d.code); } catch (e2) {}
+        if (d.status && d.status !== "مفعّل") {
+          errEl.style.color = "";
+          errEl.textContent = T("Account created — payment pending. You can browse, but contacts unlock once payment is confirmed.", "تم إنشاء الحساب — بانتظار تأكيد الدفع. تقدر تتصفّح، وتفتح بيانات التواصل بعد تأكيد الدفع.");
+          setTimeout(function () { location.href = "/employer-dashboard"; }, 1800);
+          return;
+        }
+        location.href = "/employer-dashboard";
+      }).catch(function () {
+        submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
+        errEl.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
       });
     });
   });
@@ -2253,7 +2561,11 @@ var BP_EMP_BILLING = "monthly";
       CODE = code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", code);
       PLAN = (data && data.plan) || "";
       setUnlocked(true);
-      if (data && data.candidates) { CANDS = data.candidates; fillFilters(); renderBrowse(); } else load();
+      // Demo mode's candidates are the fixed sample set — no need to hit the
+      // API. Otherwise always go through load() so the auto-continuing scan
+      // (and its live-updating count) runs, rather than settling for whatever
+      // partial batch the unlock-check request happened to return.
+      if (DEMO && data && data.candidates) { CANDS = data.candidates; fillFilters(); renderBrowse(); } else load();
       renderCounts();
       var planTxt = PLAN ? (" — " + T("plan", "الباقة") + ": " + PLAN) : "";
       gateMsg.textContent = DEMO ? T("Demo mode — sample data.", "وضع تجربة — بيانات عيّنة.") : (T("Unlocked — contacts enabled.", "تم الفتح — بيانات التواصل مفعّلة.") + planTxt);
@@ -2286,24 +2598,73 @@ var BP_EMP_BILLING = "monthly";
       });
     });
 
+    // Filters use the same shared, canonical taxonomy/combobox widget as the
+    // candidate/job-posting forms — not values scraped from whatever's on the
+    // currently-loaded page (that showed raw Arabic values un-translated on
+    // English pages, and missed any category not already visible).
     function fillFilters() {
       if (fillFilters.done) return; fillFilters.done = true;
-      var fEl = document.getElementById("empd-field"), cEl = document.getElementById("empd-city");
-      var fields = {}, cities = {};
-      CANDS.forEach(function (c) { if (c.field) fields[c.field] = 1; if (c.city) cities[c.city] = 1; });
-      Object.keys(fields).forEach(function (f) { var o = document.createElement("option"); o.value = f; o.textContent = f; fEl.appendChild(o); });
-      Object.keys(cities).forEach(function (c) { var o = document.createElement("option"); o.value = c; o.textContent = c; cEl.appendChild(o); });
+      var lang = BP.lang;
+      if (BP.initCombobox) {
+        BP.initCombobox(document.getElementById("empd-field"), function () { return BP.FIELD_TAXONOMY.map(function (p) { return T(p[1], p[0]); }); });
+        BP.initCombobox(document.getElementById("empd-city"), function () { return BP.cityOptions ? BP.cityOptions(lang) : []; });
+        BP.initCombobox(document.getElementById("empd-country"), function () { return BP.countryOptions ? BP.countryOptions(lang) : []; });
+        BP.initCombobox(document.getElementById("empd-q"), function () { return BP.jobTitleOptions ? BP.jobTitleOptions(lang) : []; });
+      }
+    }
+    // A typed/picked Field label (English or Arabic) → the canonical Arabic
+    // value the API filters on. Free text that isn't one of the fixed
+    // categories resolves to "" (no field filter applied), since Field is an
+    // exact-match property server-side — same behavior a closed <select> had.
+    function resolveField(text) {
+      var t = String(text || "").trim();
+      if (!t) return "";
+      var hit = BP.FIELD_TAXONOMY.filter(function (p) { return p[0] === t || p[1].toLowerCase() === t.toLowerCase(); })[0];
+      return hit ? hit[0] : "";
     }
     function load() {
       var status = document.getElementById("empd-status"); status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
       if (DEMO) { CANDS = DEMO_CANDS.slice(); status.textContent = CANDS.length + " " + T("candidates (demo)", "مرشّح (تجربة)"); renderBrowse(); return; }
-      var qs = new URLSearchParams({ code: CODE });
-      var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value, ci = document.getElementById("empd-city").value, n = document.getElementById("empd-nat").value;
-      if (q) qs.set("q", q); if (f) qs.set("field", f); if (ci) qs.set("city", ci); if (n) qs.set("nat", n);
-      fetch("/api/candidates?" + qs).then(function (r) { return r.json(); }).then(function (d) {
-        if (!d || !d.ok) { status.textContent = apiErr(d); return; }
-        CANDS = d.candidates || []; if (!CANDS.length) { status.textContent = T("No candidates match.", "لا توجد نتائج مطابقة."); return; } fillFilters(); renderBrowse(); if (!UNLOCKED) status.textContent = CANDS.length + " " + T("candidates · subscribe to reveal contacts", "مرشّح · اشترك لكشف بيانات التواصل");
-      }).catch(function () { status.textContent = T("Network error — please retry.", "خطأ في الاتصال — أعد المحاولة."); });
+      var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value.trim(),
+        ci = document.getElementById("empd-city").value.trim(), co = document.getElementById("empd-country").value.trim(),
+        n = document.getElementById("empd-nat").value;
+      var params = { code: CODE };
+      if (q) params.q = q; var fv = resolveField(f); if (fv) params.field = fv; if (ci) params.city = ci; if (co) params.country = co; if (n) params.nat = n;
+      var loadSeq = (load.seq = (load.seq || 0) + 1); // cancels a stale in-flight auto-continuation if filters change mid-scan
+      CANDS = [];
+      var scanning = 0; // number of rows fetched so far, for the "N and counting…" status
+      function fetchPage(cursor) {
+        var qs = new URLSearchParams(params); if (cursor) qs.set("cursor", cursor);
+        return fetch("/api/candidates?" + qs).then(function (r) { return r.json(); });
+      }
+      var grid = document.getElementById("empd-grid");
+      function step(cursor) {
+        fetchPage(cursor).then(function (d) {
+          if (loadSeq !== load.seq) return; // filters changed since this scan started
+          if (!d || !d.ok) { status.textContent = apiErr(d); return; }
+          var page = d.candidates || [];
+          CANDS = CANDS.concat(page);
+          scanning += page.length;
+          if (!CANDS.length && d.done) { status.textContent = T("No candidates match.", "لا توجد نتائج مطابقة."); return; }
+          fillFilters();
+          // Full re-render only for the first page (so filters/empty-state
+          // render correctly); later pages append so the grid doesn't
+          // flicker/reset scroll on every background continuation step.
+          if (!cursor) { renderBrowse(); } else if (page.length) {
+            var frag = document.createElement("div"); frag.innerHTML = page.map(function (c) { return card(c, {}); }).join("");
+            bindCard(frag); // bind while detached — binding the live grid instead would double-bind every earlier card on each continuation step
+            while (frag.firstChild) grid.appendChild(frag.firstChild);
+          }
+          var countTxt = scanning + " " + T(d.done ? "candidates" : "candidates so far — still counting…", d.done ? "مرشّح" : "مرشّح حتى الآن — العدّ مستمر…");
+          status.textContent = UNLOCKED ? countTxt : countTxt + " · " + T("subscribe to reveal contacts", "اشترك لكشف بيانات التواصل");
+          // Auto-continue in the background so the count keeps climbing to the
+          // real total instead of freezing on whatever fit in one time budget —
+          // this is what actually fixes the count getting stuck at a round
+          // number as the pool grows past what one request can fully page through.
+          if (!d.done && d.nextCursor) step(d.nextCursor);
+        }).catch(function () { if (loadSeq === load.seq) status.textContent = T("Network error — please retry.", "خطأ في الاتصال — أعد المحاولة."); });
+      }
+      step(null);
     }
     document.getElementById("empd-load").addEventListener("click", load);
     document.getElementById("empd-q").addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
@@ -2311,7 +2672,9 @@ var BP_EMP_BILLING = "monthly";
     function contacts(c) {
       var out = [];
       if (c.name) {
-        var nm = "<strong>" + esc(c.name) + "</strong>";
+        // Clicking the name opens the same full profile as the "View profile"
+        // button — it's the more discoverable click target.
+        var nm = '<strong class="emp-name-link" data-id="' + esc(c.id) + '">' + esc(c.name) + "</strong>";
         if (c.nameAlt) nm += ' <span class="emp-name-alt">(' + esc(c.nameAlt) + ")</span>";
         out.push(nm);
       }
@@ -2335,20 +2698,96 @@ var BP_EMP_BILLING = "monthly";
         '<button class="empd-ai-btn" data-ai="interview" data-id="' + esc(id) + '">❓ ' + T("Interview Qs", "أسئلة مقابلة") + '</button>' +
         '<button class="empd-ai-btn" data-ai="outreach" data-id="' + esc(id) + '">✉️ ' + T("Outreach", "رسالة تواصل") + '</button></div>';
     }
+    // A Google Doc "edit" link opens the viewer; export?format=pdf triggers a
+    // one-click file download instead — used for the ATS-formatted CV.
+    function cvDownloadUrl(url) {
+      var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
+      return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
+    }
+    // Minimal markdown → HTML for the AI-generated CV text (headings, bold,
+    // bullet lists) — just enough to render it as formatted content on the
+    // page instead of a wall of raw markdown syntax.
+    function mdToHtml(md) {
+      var lines = String(md || "").replace(/\r/g, "").split("\n");
+      var html = "", inList = false;
+      function closeList() { if (inList) { html += "</ul>"; inList = false; } }
+      function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+      lines.forEach(function (line) {
+        var t = line.trim();
+        if (!t) { closeList(); return; }
+        var h = /^(#{1,3})\s+(.*)/.exec(t);
+        if (h) { closeList(); html += "<h" + (h[1].length + 2) + ">" + inline(h[2]) + "</h" + (h[1].length + 2) + ">"; return; }
+        var li = /^[-*]\s+(.*)/.exec(t);
+        if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(li[1]) + "</li>"; return; }
+        closeList();
+        html += "<p>" + inline(t) + "</p>";
+      });
+      closeList();
+      return html;
+    }
+    // Full structured profile — every field the API returned, laid out as
+    // readable data (not a raw file), plus the actual CV text rendered as
+    // formatted content on the page. Contact fields, CV text and the
+    // download button only appear when the API actually included them, i.e.
+    // the employer is subscribed/unlocked — never rendered to a locked/
+    // browsing visitor.
+    function profileHtml(c) {
+      var rows = [
+        [T("Name", "الاسم"), c.name ? (esc(c.name) + (c.nameAlt ? " (" + esc(c.nameAlt) + ")" : "")) : ""],
+        [T("Target role", "المسمى المستهدف"), c.role],
+        [T("Field", "المجال"), c.field],
+        [T("City", "المدينة"), c.city],
+        [T("Country", "الدولة"), c.country],
+        [T("Nationality", "الجنسية"), c.nationalityType],
+        [T("Residence status", "حالة الإقامة"), c.residenceStatus],
+        [T("Experience", "الخبرة"), c.experience ? (c.experience + (isAr ? " سنة" : "y")) : ""],
+        [T("Education", "التعليم"), c.education],
+        [T("Availability", "الجاهزية"), c.availability],
+        [T("Languages", "اللغات"), c.languages],
+        [T("Skills", "المهارات"), c.skills],
+        [T("Saudization", "التوطين"), c.saudization],
+        [T("Phone", "الجوال"), c.phone ? ('<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>") : ""],
+        [T("Email", "البريد"), c.email ? ('<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>") : ""],
+      ].filter(function (r) { return r[1]; });
+      var html = '<div class="empd-profile">' + rows.map(function (r) {
+        return '<div class="empd-profile-row"><span class="empd-profile-k">' + esc(r[0]) + '</span><span class="empd-profile-v">' + r[1] + "</span></div>";
+      }).join("") + "</div>";
+      if (c.cvText) {
+        html += '<h3 style="margin-top:18px">' + T("CV", "السيرة الذاتية") + '</h3><div class="empd-cv-text">' + mdToHtml(c.cvText) + "</div>";
+      }
+      if (c.cv) {
+        html += '<a class="btn btn-primary" style="margin-top:14px;display:inline-block" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
+          (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
+      } else {
+        html += '<p class="emp-note" style="margin-top:14px">🔒 ' + T("Subscribe to view contact details, read the full CV and download it.", "اشترك لعرض بيانات التواصل وقراءة السيرة الذاتية كاملة وتحميلها.") + "</p>";
+      }
+      return html;
+    }
+    function viewProfile(id) {
+      var c = findC(id); if (!c) return;
+      openModal(T("Candidate profile", "الملف الشخصي للمرشح"), profileHtml(c));
+    }
     function card(c, opts) {
       opts = opts || {};
       var meta = [c.experience ? (isAr ? c.experience + " سنة خبرة" : c.experience + "y exp") : "", c.education, c.nationalityType].filter(Boolean).join(" · ");
       var badge = opts.match ? '<div class="empd-score"><span class="empd-score-n">' + Math.round(opts.match.score) + '%</span> ' + esc(opts.match.reason || "") + "</div>" : "";
-      return '<div class="emp-card" data-id="' + esc(c.id) + '">' + badge + '<div class="emp-card-top"><strong>' + esc(c.role || c.field || "—") + '</strong>' + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
-        (c.city ? '<div class="emp-role">📍 ' + esc(c.city) + "</div>" : "") +
+      // The role/title heading is itself a click target into the profile — not
+      // just the "View profile" button and the name — since it's the most
+      // prominent element on the card and users expect clicking it to work.
+      return '<div class="emp-card" data-id="' + esc(c.id) + '">' + badge + '<div class="emp-card-top"><strong class="emp-role-link" data-id="' + esc(c.id) + '">' + esc(c.role || c.field || "—") + '</strong>' + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
+        (c.city ? '<div class="emp-role">📍 ' + esc([c.city, c.country].filter(Boolean).join(", ")) + "</div>" : "") +
         (c.skills ? '<div class="emp-skills">' + esc(c.skills) + "</div>" : "") +
         (meta ? '<div class="emp-meta">' + esc(meta) + "</div>" : "") +
         contacts(c) +
-        '<div class="empd-actions"><button class="empd-save' + (inShort(c.id) ? " on" : "") + '" data-id="' + esc(c.id) + '">' + (inShort(c.id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ")) + "</button>" +
+        '<div class="empd-actions"><button class="empd-view" data-id="' + esc(c.id) + '">👤 ' + T("View profile", "عرض الملف") + '</button>' +
+        '<button class="empd-save' + (inShort(c.id) ? " on" : "") + '" data-id="' + esc(c.id) + '">' + (inShort(c.id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ")) + "</button>" +
         (opts.removeShort ? '<button class="empd-rm" data-id="' + esc(c.id) + '">' + T("Remove", "إزالة") + "</button>" : "") + "</div>" +
         aiBtns(c.id) + stageBtns(c.id) + "</div>";
     }
     function bindCard(scope) {
+      scope.querySelectorAll(".empd-view, .emp-name-link, .emp-role-link").forEach(function (b) {
+        b.addEventListener("click", function () { viewProfile(b.getAttribute("data-id")); });
+      });
       scope.querySelectorAll(".empd-save").forEach(function (b) {
         b.addEventListener("click", function () {
           var id = b.getAttribute("data-id"), c = findC(id);

@@ -44,7 +44,10 @@ async function callAnthropic(prompt, maxTokens) {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "x-api-key": envFrom(ANTHROPIC_KEYS), "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: process.env.MODEL || "claude-opus-4-8", max_tokens: maxTokens || 1200, system: SYSTEM, messages: [{ role: "user", content: prompt }] }),
+    // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — a generic name here
+    // is a confirmed collision risk with another integration on the same
+    // Vercel project, which broke every Anthropic call in production before.
+    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8", max_tokens: maxTokens || 1200, system: SYSTEM, messages: [{ role: "user", content: prompt }] }),
   });
   if (!r.ok) throw new Error(`anthropic ${r.status}`);
   const d = await r.json();

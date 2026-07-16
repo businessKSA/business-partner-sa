@@ -10,8 +10,11 @@
 //   NOTION_EMPLOYERS_DB       optional database id to store rows in
 //   NOTION_EMPLOYERS_PARENT   optional parent page id (default: HR center)
 //
-// GET  /api/employer  -> { status, configured }
-// POST /api/employer  -> { ok, ref } | { ok:false, error }
+// GET  /api/employer                              -> { status, configured }
+// POST /api/employer                               -> { ok, ref } | { ok:false, error }   (register/signup)
+// POST /api/employer { action:"login", email, password } -> { ok, code, plan, status } | { ok:false, error }
+
+import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -72,6 +75,24 @@ function makeRef(seed) {
   return "BP-EMP-" + out;
 }
 
+// Salted scrypt hash, stored as "salt:hash" (both hex) in the "بيانات الدخول"
+// rich_text property — no external dependency needed (bcrypt isn't in
+// package.json and this project stays within Vercel's function count cap by
+// not adding npm deps just for this).
+function hashPassword(pw) {
+  const salt = randomBytes(16).toString("hex");
+  const hash = scryptSync(pw, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+function verifyPassword(pw, stored) {
+  const [salt, hash] = String(stored || "").split(":");
+  if (!salt || !hash) return false;
+  const candidate = scryptSync(pw, salt, 64);
+  const expected = Buffer.from(hash, "hex");
+  if (candidate.length !== expected.length) return false;
+  return timingSafeEqual(candidate, expected);
+}
+
 async function notion(path, payload) {
   return fetch("https://api.notion.com/v1/" + path, {
     method: "POST",
@@ -85,6 +106,15 @@ async function notion(path, payload) {
 }
 
 const rt = (v) => (v ? [{ text: { content: clip(v, 1800) } }] : []);
+// Reads a Notion property's plain text regardless of its underlying type
+// (title/rich_text default to the "rich_text"/"title" array shape; select
+// properties need the explicit type hint since their shape differs).
+function txtProp(p, type) {
+  if (!p) return "";
+  if (type === "select") return (p.select && p.select.name) || "";
+  if (type === "title") return (p.title || []).map((t) => t.plain_text).join("");
+  return (p.rich_text || []).map((t) => t.plain_text).join("");
+}
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -99,11 +129,47 @@ export default async function handler(req, res) {
   }
 
   const b = await readBody(req);
+
+  if (b.action === "login") {
+    const email = clip(b.email, 160).toLowerCase();
+    const password = String(b.password || "");
+    if (!isEmail(email) || !password) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
+    }
+    if (!NOTION_TOKEN || !DB_ID) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
+    }
+    try {
+      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
+      const data = await q.json();
+      const row = (data.results || [])[0];
+      const stored = row && row.properties && row.properties["بيانات الدخول"];
+      const storedHash = stored && stored.rich_text && stored.rich_text[0] && stored.rich_text[0].plain_text;
+      if (!row || !storedHash || !verifyPassword(password, storedHash)) {
+        res.statusCode = 401;
+        return res.end(JSON.stringify({ ok: false, error: "invalid_credentials" }));
+      }
+      const code = txtProp(row.properties["رمز الوصول"]);
+      const status = txtProp(row.properties["الحالة"], "select");
+      const plan = txtProp(row.properties["الباقة"], "select");
+      const company = txtProp(row.properties["اسم الشركة"], "title");
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, code, plan, status, company }));
+    } catch (e) {
+      console.error("employer login error", String(e).slice(0, 200));
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
   const company = clip(b.company, 200);
   const cr = clip(b.cr, 60);
   const contact = clip(b.contact, 160);
   const email = clip(b.email, 160).toLowerCase();
   const phone = clip(b.phone, 40);
+  const password = String(b.password || "").slice(0, 200);
   const planKey = ["basic", "pro", "enterprise"].includes(b.plan) ? b.plan : "";
   const billing = b.billing === "yearly" ? "سنوي" : "شهري";
   const notes = clip(b.notes, 600);
@@ -117,6 +183,10 @@ export default async function handler(req, res) {
   if (!company || !phone) {
     res.statusCode = 400;
     return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
+  }
+  if (password && password.length < 8) {
+    res.statusCode = 400;
+    return res.end(JSON.stringify({ ok: false, error: "weak_password" }));
   }
 
   const ref = makeRef(company + phone + email);
@@ -138,6 +208,7 @@ export default async function handler(req, res) {
       if (cr) props["السجل التجاري"] = { rich_text: rt(cr) };
       if (contact) props["جهة الاتصال"] = { rich_text: rt(contact) };
       if (isEmail(email)) props["البريد"] = { email };
+      if (password) props["بيانات الدخول"] = { rich_text: rt(hashPassword(password)) };
       if (planAr) props["الباقة"] = { select: { name: planAr } };
       props["ملاحظات"] = { rich_text: rt((notes ? notes + " — " : "") + `الفوترة: ${billing}` + (isOwner ? " — تفعيل تلقائي (مالك)" : "")) };
       r = await notion("pages", { parent: { database_id: DB_ID }, properties: props });
