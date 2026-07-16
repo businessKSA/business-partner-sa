@@ -1,0 +1,427 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CallFab from '../../components/CallFab.astro';
+import { getContent } from '../../content/copy';
+
+export const prerender = true;
+
+const locale = 'ar';
+const t = {
+  ...getContent(locale),
+  meta: {
+    title: 'دليل تأسيس الشركات والهيكلة التنظيمية والرواتب في السعودية | شريك الأعمال',
+    description: 'الدليل الكامل لتأسيس أي شركة في السعودية: الكيانات القانونية، خطوات التأسيس خطوة بخطوة، المعايير العالمية والسعودية، الهيكل التنظيمي للموظفين، ومتوسطات الرواتب حسب القطاعات.',
+  },
+};
+---
+
+<BaseLayout lang={locale} t={t}>
+  <Header lang={locale} t={t} />
+
+  <section id="home" class="hero">
+    <div class="container hero-content">
+      <div class="hero-badge">📘 الدليل الشامل — تأسيس وهيكلة ورواتب</div>
+      <h1>الهيكلة الكاملة لتأسيس أي شركة في السعودية</h1>
+      <p>من اختيار الكيان القانوني حتى هيكل الموظفين والرواتب: دليل واحد يجمع خطوات التأسيس، المعايير العالمية (ISO / IFRS / حوكمة OECD)، والمعايير السعودية (نظام الشركات، نظام العمل، نطاقات، التأمينات، حماية الأجور)، مع متوسطات رواتب إرشادية لكل قطاع.</p>
+      <div class="hero-cta">
+        <a href="#steps" class="btn btn-primary">ابدأ من خطوات التأسيس</a>
+        <a href="#salaries" class="btn btn-secondary">جداول الرواتب حسب القطاع</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card"><span class="stat-number">7</span><span class="stat-label">كيانات قانونية بنظام الشركات الجديد</span></div>
+        <div class="stat-card"><span class="stat-number">12</span><span class="stat-label">خطوة من الفكرة إلى التشغيل</span></div>
+        <div class="stat-card"><span class="stat-number">9+</span><span class="stat-label">قطاعات بجداول رواتب إرشادية</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Table of contents -->
+  <section class="section" style="padding-bottom: 0;">
+    <div class="container">
+      <div class="toc card">
+        <b>محتويات الدليل:</b>
+        <a href="#entities">١. الكيانات القانونية</a>
+        <a href="#steps">٢. خطوات التأسيس</a>
+        <a href="#global">٣. الستاندرد العالمي</a>
+        <a href="#saudi">٤. الستاندرد السعودي</a>
+        <a href="#org">٥. هيكلة الموظفين</a>
+        <a href="#salaries">٦. الرواتب حسب القطاعات</a>
+        <a href="#cost">٧. التكلفة الفعلية للموظف</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1. Legal entities -->
+  <section class="section" id="entities">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">١. اختر الكيان القانوني أولًا</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto 3rem;">نظام الشركات السعودي الجديد (ساري منذ 1444هـ / 2023م) وحّد الأشكال القانونية وأضاف شركة المساهمة المبسطة. اختيار الكيان يحدد المسؤولية، رأس المال، الحوكمة، والمعاملة الضريبية.</p>
+
+      <div class="table-wrap card">
+        <table>
+          <thead>
+            <tr>
+              <th>الكيان</th>
+              <th>الحد الأدنى لرأس المال</th>
+              <th>عدد الشركاء</th>
+              <th>المسؤولية</th>
+              <th>الأنسب لـ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>مؤسسة فردية</b></td>
+              <td>لا يوجد</td>
+              <td>مالك واحد</td>
+              <td>غير محدودة (تمتد لأموال المالك)</td>
+              <td>الأنشطة الصغيرة والمشاريع الفردية</td>
+            </tr>
+            <tr>
+              <td><b>شركة ذات مسؤولية محدودة (ذ.م.م)</b></td>
+              <td>لا يوجد حد نظامي</td>
+              <td>1 – 50</td>
+              <td>محدودة بحصة الشريك</td>
+              <td>الخيار الأكثر شيوعًا للمنشآت الصغيرة والمتوسطة</td>
+            </tr>
+            <tr>
+              <td><b>شركة مساهمة مبسطة</b></td>
+              <td>لا يوجد حد نظامي</td>
+              <td>1 فأكثر</td>
+              <td>محدودة بقيمة الأسهم</td>
+              <td>الشركات الناشئة والمستثمرين الجريئين (أسهم بفئات مختلفة)</td>
+            </tr>
+            <tr>
+              <td><b>شركة مساهمة</b></td>
+              <td>500,000 ريال</td>
+              <td>1 فأكثر (بشروط)</td>
+              <td>محدودة بقيمة الأسهم</td>
+              <td>الشركات الكبيرة والطرح العام (تخضع لحوكمة هيئة السوق المالية عند الإدراج)</td>
+            </tr>
+            <tr>
+              <td><b>شركة تضامن</b></td>
+              <td>لا يوجد</td>
+              <td>2 فأكثر</td>
+              <td>تضامنية غير محدودة</td>
+              <td>الشراكات المهنية العائلية الصغيرة</td>
+            </tr>
+            <tr>
+              <td><b>شركة توصية بسيطة</b></td>
+              <td>لا يوجد</td>
+              <td>متضامن + موصٍ</td>
+              <td>مختلطة</td>
+              <td>شريك يدير وشريك يموّل فقط</td>
+            </tr>
+            <tr>
+              <td><b>فرع شركة أجنبية</b></td>
+              <td>حسب النشاط (ترخيص الاستثمار)</td>
+              <td>الشركة الأم</td>
+              <td>على الشركة الأم</td>
+              <td>الشركات الأجنبية الداخلة للسوق السعودي عبر وزارة الاستثمار</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">💡 القاعدة العملية: <b>ذ.م.م</b> للأعمال التشغيلية المعتادة، <b>مساهمة مبسطة</b> إذا كنت تخطط لجولات استثمارية وأسهم موظفين (ESOP)، <b>مساهمة</b> إذا كان هدفك الطرح العام.</p>
+    </div>
+  </section>
+
+  <!-- 2. Incorporation steps -->
+  <section class="section" id="steps" style="background: var(--surface);">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">٢. خطوات التأسيس من الصفر إلى التشغيل</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto 3rem;">المسار الرسمي الكامل — أغلب الخطوات تتم إلكترونيًا عبر المركز السعودي للأعمال. المستثمر الأجنبي يضيف خطوة ترخيص وزارة الاستثمار (MISA) قبل كل شيء.</p>
+
+      <div class="grid grid-3">
+        <div class="card step-card"><span class="step-num">1</span><h3>تحديد النشاط والكيان</h3><p>اختر النشاط التجاري حسب دليل الأنشطة (ISIC4) وحدد الشكل القانوني المناسب. بعض الأنشطة تتطلب موافقات مسبقة (صحة، تعليم، نقل، مالية).</p></div>
+        <div class="card step-card"><span class="step-num">2</span><h3>حجز الاسم التجاري</h3><p>عبر المركز السعودي للأعمال. تحقق من توفر الاسم وطابقه مع اشتراطات نظام الأسماء التجارية.</p></div>
+        <div class="card step-card"><span class="step-num">3</span><h3>ترخيص الاستثمار (للأجانب)</h3><p>المستثمر غير السعودي/غير الخليجي يستخرج ترخيص وزارة الاستثمار (MISA) أولًا — رياديًا أو خدميًا أو صناعيًا حسب النشاط.</p></div>
+        <div class="card step-card"><span class="step-num">4</span><h3>عقد التأسيس والنظام الأساسي</h3><p>صياغة وتوثيق عقد التأسيس إلكترونيًا (نسب الشركاء، الإدارة، رأس المال، توزيع الأرباح، آلية الخروج).</p></div>
+        <div class="card step-card"><span class="step-num">5</span><h3>إصدار السجل التجاري</h3><p>من وزارة التجارة عبر المركز السعودي للأعمال — يصدر خلال دقائق بعد اكتمال المتطلبات، ويشمل الاشتراك التلقائي في الغرفة التجارية.</p></div>
+        <div class="card step-card"><span class="step-num">6</span><h3>العنوان الوطني</h3><p>تسجيل عنوان وطني للمنشأة (سُبل) — إلزامي لكل الجهات الحكومية والبنوك.</p></div>
+        <div class="card step-card"><span class="step-num">7</span><h3>التسجيل في زاتكا</h3><p>هيئة الزكاة والضريبة والجمارك: تسجيل الزكاة/ضريبة الدخل تلقائيًا مع السجل، وضريبة القيمة المضافة (15٪) إلزامية عند تجاوز الإيرادات 375,000 ريال سنويًا، والفوترة الإلكترونية (فاتورة).</p></div>
+        <div class="card step-card"><span class="step-num">8</span><h3>فتح ملف التأمينات (GOSI)</h3><p>تسجيل المنشأة في التأمينات الاجتماعية وربط الموظفين — إلزامي قبل أول راتب.</p></div>
+        <div class="card step-card"><span class="step-num">9</span><h3>تفعيل قوى (Qiwa)</h3><p>ملف المنشأة في وزارة الموارد البشرية: العقود الإلكترونية، التأشيرات، نقل الخدمات، ومتابعة نطاقات (السعودة).</p></div>
+        <div class="card step-card"><span class="step-num">10</span><h3>مدد (حماية الأجور)</h3><p>الاشتراك في نظام مدد لرفع ملفات الرواتب شهريًا (WPS) — إلزامي ومخالفته توقف خدمات المنشأة.</p></div>
+        <div class="card step-card"><span class="step-num">11</span><h3>مقيم / أبشر أعمال</h3><p>إدارة إقامات الموظفين الوافدين وتأشيرات الخروج والعودة والجوازات.</p></div>
+        <div class="card step-card"><span class="step-num">12</span><h3>الحساب البنكي والرخص البلدية</h3><p>فتح حساب بنكي تجاري، واستخراج الرخصة البلدية (بلدي) ورخصة الدفاع المدني إن كان النشاط بمقر فعلي، وتسجيل العلامة التجارية لدى الهيئة السعودية للملكية الفكرية (اختياري لكنه مُوصى به).</p></div>
+      </div>
+
+      <p class="note">⏱️ المدة الواقعية للتأسيس المحلي: <b>3 – 7 أيام عمل</b> إذا كانت المستندات جاهزة. للمستثمر الأجنبي: أسبوعان إلى شهر حسب نوع ترخيص الاستثمار والموافقات القطاعية.</p>
+    </div>
+  </section>
+
+  <!-- 3. Global standards -->
+  <section class="section" id="global">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">٣. الستاندرد العالمي للهيكلة التنظيمية</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto 3rem;">أفضل الممارسات المعتمدة دوليًا في تصميم الشركات — وهي نفسها المرجع الذي تبني عليه الجهات السعودية أنظمتها.</p>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>🏛️ الهرم الإداري القياسي (Corporate Hierarchy)</h3>
+          <ol class="clean-list">
+            <li><b>الجمعية العمومية / الشركاء</b> — أعلى سلطة، تقر القوائم وتعين المجلس.</li>
+            <li><b>مجلس الإدارة / مجلس المديرين</b> — التوجيه الاستراتيجي والرقابة (لجان: مراجعة، مكافآت، ترشيحات).</li>
+            <li><b>الرئيس التنفيذي (CEO)</b> — مسؤول التنفيذ أمام المجلس.</li>
+            <li><b>الإدارة التنفيذية (C-Suite)</b> — CFO مالية، COO عمليات، CTO تقنية، CHRO موارد بشرية، CMO تسويق، CLO قانونية.</li>
+            <li><b>مديرو الإدارات (Directors)</b> ثم <b>رؤساء الأقسام (Managers)</b> ثم <b>المشرفون</b> ثم <b>الموظفون التنفيذيون</b>.</li>
+          </ol>
+          <p class="note" style="margin-top: 1rem;">قاعدة نطاق الإشراف العالمية: <b>5 – 8 مرؤوسين</b> مباشرين لكل مدير كحد مثالي.</p>
+        </div>
+        <div class="card">
+          <h3>🧩 أنواع الهياكل التنظيمية</h3>
+          <ul class="clean-list">
+            <li><b>وظيفي (Functional):</b> إدارات حسب التخصص (مالية، تسويق، عمليات) — الأنسب للشركات الصغيرة والمتوسطة.</li>
+            <li><b>قطاعي (Divisional):</b> وحدات مستقلة حسب المنتج أو المنطقة — للشركات متعددة الأنشطة.</li>
+            <li><b>مصفوفي (Matrix):</b> تقاطع وظيفي × مشاريع — لشركات المقاولات والاستشارات.</li>
+            <li><b>مسطّح (Flat):</b> طبقات إدارية أقل وصلاحيات أوسع — للشركات الناشئة والتقنية.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>📜 المعايير الدولية المرجعية</h3>
+          <ul class="clean-list">
+            <li><b>IFRS</b> — المعايير الدولية للتقرير المالي (معتمدة رسميًا في السعودية عبر الهيئة السعودية للمراجعين والمحاسبين SOCPA).</li>
+            <li><b>ISO 9001</b> إدارة الجودة، <b>ISO 45001</b> الصحة والسلامة المهنية، <b>ISO 27001</b> أمن المعلومات، <b>ISO 31000</b> إدارة المخاطر.</li>
+            <li><b>مبادئ حوكمة OECD/G20</b> — مرجع لائحة حوكمة الشركات الصادرة عن هيئة السوق المالية.</li>
+            <li><b>اتفاقيات منظمة العمل الدولية (ILO)</b> — مرجع أنظمة العمل وساعاته وحقوق العاملين.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>💰 الستاندرد العالمي لهيكلة الرواتب</h3>
+          <ul class="clean-list">
+            <li><b>درجات وظيفية (Pay Grades):</b> سلم من 10 – 15 درجة، لكل درجة نطاق (حد أدنى – وسط – حد أعلى) بمدى ±20٪ حول الوسط.</li>
+            <li><b>تقييم الوظائف:</b> منهجيات عالمية مثل Hay/Korn Ferry وMercer لوزن كل وظيفة قبل تسعيرها.</li>
+            <li><b>مقارنة سوقية (Benchmarking):</b> استهداف الوسيط السوقي (P50) للوظائف العادية وP75 للوظائف الحرجة.</li>
+            <li><b>مكونات الحزمة:</b> راتب أساسي + بدلات + حوافز أداء سنوية (5 – 20٪) + مزايا (تأمين، إجازات، تطوير).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Saudi standards -->
+  <section class="section" id="saudi" style="background: var(--surface);">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">٤. الستاندرد السعودي — الأنظمة الملزمة</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto 3rem;">هذه ليست اختيارية: أي هيكل موظفين ورواتب في السعودية يجب أن يُبنى فوق هذه الأنظمة.</p>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>⚖️ نظام العمل السعودي — الأساسيات</h3>
+          <ul class="clean-list">
+            <li>ساعات العمل: <b>8 ساعات يوميًا / 48 أسبوعيًا</b> (36 ساعة أسبوعيًا في رمضان للمسلمين).</li>
+            <li>الإجازة السنوية: <b>21 يومًا</b> ترتفع إلى <b>30 يومًا</b> بعد 5 سنوات خدمة.</li>
+            <li>فترة التجربة: <b>90 يومًا</b> قابلة للتمديد حتى <b>180 يومًا</b> باتفاق مكتوب.</li>
+            <li>مكافأة نهاية الخدمة: <b>نصف شهر</b> عن كل سنة من الخمس الأولى + <b>شهر كامل</b> عن كل سنة بعدها.</li>
+            <li>العمل الإضافي: أجر الساعة + <b>50٪</b>.</li>
+            <li>العقود إلزاميًا موثقة إلكترونيًا في <b>قوى</b>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🇸🇦 نطاقات والسعودة</h3>
+          <ul class="clean-list">
+            <li>تصنيف المنشآت: <b>بلاتيني / أخضر (مرتفع – متوسط – منخفض) / أحمر</b> حسب نسبة التوطين مقارنة بحجم المنشأة ونشاطها.</li>
+            <li>السعودي يُحتسب موظفًا كاملًا في نطاقات براتب <b>4,000 ريال فأكثر</b>، ونصف موظف بين 3,000 – 3,999 ريال.</li>
+            <li>مهن موطّنة بالكامل أو بنسب: الموارد البشرية، مهن المحاسبة والاستشارات بنسب متدرجة، المبيعات والتسويق، الصيدلة وطب الأسنان والهندسة بنسب قطاعية — راجع نسب نشاطك في قوى قبل التوظيف.</li>
+            <li>النطاق الأحمر = إيقاف التأشيرات ونقل الخدمات ضد المنشأة.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🛡️ التأمينات الاجتماعية (GOSI)</h3>
+          <ul class="clean-list">
+            <li><b>الموظف السعودي (إجمالي 21.5٪):</b> معاشات 9٪ موظف + 9٪ صاحب عمل، ساند (تعطل) 0.75٪ + 0.75٪، أخطار مهنية 2٪ على صاحب العمل.</li>
+            <li><b>الموظف غير السعودي:</b> أخطار مهنية <b>2٪</b> على صاحب العمل فقط.</li>
+            <li>وعاء الاشتراك = الراتب الأساسي + بدل السكن (بحد أعلى 45,000 ريال).</li>
+            <li>نظام المعاشات الجديد يرفع النسب تدريجيًا للمشتركين الجدد — تابع إشعارات التأمينات سنويًا.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>💳 حماية الأجور والالتزامات المالية</h3>
+          <ul class="clean-list">
+            <li><b>مدد (WPS):</b> رفع ملف الرواتب شهريًا عبر البنك — التأخر يجمّد خدمات قوى.</li>
+            <li><b>ضريبة القيمة المضافة 15٪</b> عند تجاوز 375,000 ريال إيرادات سنوية، مع الفوترة الإلكترونية.</li>
+            <li><b>الزكاة 2.5٪</b> على الوعاء الزكوي للملكية السعودية/الخليجية، و<b>ضريبة دخل 20٪</b> على حصة الشريك الأجنبي.</li>
+            <li><b>المقابل المالي للوافدين:</b> رسوم شهرية لكل موظف وافد (تُحدّث سنويًا) + رخصة عمل سنوية + إقامة — أدخلها في تكلفة أي موظف غير سعودي.</li>
+            <li><b>التأمين الطبي</b> إلزامي لجميع الموظفين وعائلات الوافدين (مجلس الضمان الصحي).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Org structure by size -->
+  <section class="section" id="org">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">٥. هيكلة الموظفين حسب حجم الشركة</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto 3rem;">لا تنسخ هيكل شركة كبيرة وأنت ناشئ — الهيكل الصحيح يكبر مع الشركة على مراحل.</p>
+
+      <div class="grid grid-4">
+        <div class="card">
+          <h3>🌱 ناشئة (1 – 10)</h3>
+          <ul class="clean-list small">
+            <li>مؤسس / مدير عام (يجمع الأدوار)</li>
+            <li>مسؤول عمليات أو منتج</li>
+            <li>مسؤول مبيعات/تسويق</li>
+            <li>محاسبة وموارد بشرية <b>بالإسناد الخارجي</b></li>
+          </ul>
+          <p class="tier-note">هيكل مسطّح — الجميع يرفع للمؤسس مباشرة.</p>
+        </div>
+        <div class="card">
+          <h3>🌿 صغيرة (10 – 49)</h3>
+          <ul class="clean-list small">
+            <li>مدير عام</li>
+            <li>مشرف عمليات + فريق</li>
+            <li>مسؤول مبيعات + فريق</li>
+            <li>محاسب داخلي</li>
+            <li>أخصائي موارد بشرية (سعودي — مهنة موطّنة)</li>
+          </ul>
+          <p class="tier-note">أول طبقة إشرافية + أول أدوار مساندة داخلية.</p>
+        </div>
+        <div class="card">
+          <h3>🌳 متوسطة (50 – 249)</h3>
+          <ul class="clean-list small">
+            <li>رئيس تنفيذي</li>
+            <li>مدير مالي + قسم محاسبة</li>
+            <li>مدير عمليات + رؤساء أقسام</li>
+            <li>مدير موارد بشرية + شؤون موظفين</li>
+            <li>مدير مبيعات وتسويق</li>
+            <li>مسؤول تقنية / أنظمة</li>
+          </ul>
+          <p class="tier-note">هيكل وظيفي كامل بثلاث طبقات + لوائح داخلية معتمدة من الموارد البشرية.</p>
+        </div>
+        <div class="card">
+          <h3>🏢 كبيرة (250+)</h3>
+          <ul class="clean-list small">
+            <li>مجلس إدارة + لجان (مراجعة، مكافآت)</li>
+            <li>رئيس تنفيذي + C-Suite كامل</li>
+            <li>إدارات عامة لكل وظيفة</li>
+            <li>مراجعة داخلية والتزام (Compliance)</li>
+            <li>وحدات أعمال حسب المنتج/المنطقة</li>
+          </ul>
+          <p class="tier-note">حوكمة رسمية — وعند الإدراج تلتزم بلائحة حوكمة هيئة السوق المالية.</p>
+        </div>
+      </div>
+
+      <p class="note">📌 قاعدة سعودية عملية: عيّن <b>أخصائي الموارد البشرية</b> و<b>المحاسب</b> سعوديين مبكرًا — تغطي مهنًا موطّنة وترفع نطاقك في نفس الوقت.</p>
+    </div>
+  </section>
+
+  <!-- 6. Salaries by sector -->
+  <section class="section" id="salaries" style="background: var(--surface);">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">٦. متوسطات الرواتب الشهرية حسب القطاعات</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto 2rem;">نطاقات إرشادية بالريال السعودي (راتب إجمالي شامل البدلات) بناءً على متوسطات السوق — تختلف حسب المدينة والخبرة والجنسية وحجم الشركة. استخدمها كنقطة بداية للموازنة ثم قارنها بسوقك المباشر.</p>
+
+      <div class="table-wrap card">
+        <table>
+          <thead>
+            <tr>
+              <th>القطاع</th>
+              <th>مبتدئ (0–2 سنة)</th>
+              <th>متوسط (3–6 سنوات)</th>
+              <th>أول / خبير</th>
+              <th>إداري / قيادي</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><b>تقنية المعلومات والبرمجة</b></td><td>7,000 – 12,000</td><td>13,000 – 20,000</td><td>22,000 – 35,000</td><td>35,000 – 60,000 (CTO/مدير تقنية)</td></tr>
+            <tr><td><b>المالية والمحاسبة</b></td><td>6,000 – 9,000</td><td>10,000 – 16,000</td><td>17,000 – 28,000</td><td>30,000 – 70,000 (CFO/مدير مالي)</td></tr>
+            <tr><td><b>الموارد البشرية</b></td><td>5,500 – 8,500</td><td>9,000 – 14,000</td><td>15,000 – 22,000</td><td>22,000 – 40,000 (مدير موارد بشرية)</td></tr>
+            <tr><td><b>المبيعات والتسويق</b></td><td>5,000 – 8,000 + عمولات</td><td>9,000 – 15,000</td><td>16,000 – 25,000</td><td>25,000 – 45,000 (مدير تجاري)</td></tr>
+            <tr><td><b>التجزئة</b></td><td>4,000 – 6,000</td><td>6,000 – 9,000 (مشرف)</td><td>10,000 – 15,000 (مدير فرع)</td><td>18,000 – 35,000 (مدير منطقة)</td></tr>
+            <tr><td><b>المطاعم والضيافة</b></td><td>4,000 – 6,000</td><td>6,000 – 10,000 (شيف/كابتن)</td><td>10,000 – 18,000 (مدير مطعم)</td><td>20,000 – 40,000 (مدير عمليات)</td></tr>
+            <tr><td><b>الإنشاءات والمقاولات</b></td><td>4,000 – 7,000 (فني)</td><td>8,000 – 14,000 (مهندس موقع)</td><td>15,000 – 25,000 (مهندس أول)</td><td>25,000 – 50,000 (مدير مشاريع)</td></tr>
+            <tr><td><b>الرعاية الصحية</b></td><td>6,000 – 10,000 (تمريض/فني)</td><td>12,000 – 20,000</td><td>25,000 – 45,000 (طبيب/أخصائي)</td><td>60,000 – 120,000 (استشاري/مدير طبي)</td></tr>
+            <tr><td><b>اللوجستيات وسلاسل الإمداد</b></td><td>4,500 – 7,000</td><td>8,000 – 14,000</td><td>15,000 – 24,000</td><td>25,000 – 45,000 (مدير سلسلة إمداد)</td></tr>
+            <tr><td><b>الوظائف الإدارية والمساندة</b></td><td>4,000 – 6,500</td><td>7,000 – 11,000</td><td>12,000 – 18,000</td><td>20,000 – 35,000 (مدير إداري)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">⚠️ تذكّر: الحد الأدنى لاحتساب الموظف السعودي في نطاقات هو <b>4,000 ريال</b> — أي راتب أقل يُحتسب نصف موظف أو لا يُحتسب، فخطط رواتب السعوديين من هذا الرقم فما فوق.</p>
+    </div>
+  </section>
+
+  <!-- 7. True cost -->
+  <section class="section" id="cost">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">٧. التكلفة الفعلية للموظف — ليست الراتب فقط</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto 3rem;">عند بناء موازنة الرواتب، أضف هذه المكونات فوق الراتب الأساسي:</p>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>🇸🇦 الموظف السعودي</h3>
+          <ul class="clean-list">
+            <li>الراتب الأساسي</li>
+            <li>بدل سكن (العرف: <b>25٪</b> من الأساسي) + بدل نقل (~10٪)</li>
+            <li>حصة صاحب العمل في التأمينات: <b>11.75٪</b> من (الأساسي + السكن)</li>
+            <li>التأمين الطبي (حسب الفئة: ~1,500 – 6,000 ريال/سنة)</li>
+            <li>مخصص مكافأة نهاية الخدمة + مخصص الإجازات</li>
+          </ul>
+          <p class="tier-note">قاعدة سريعة: التكلفة الكلية ≈ <b>الراتب الإجمالي × 1.15 – 1.20</b></p>
+        </div>
+        <div class="card">
+          <h3>🌍 الموظف الوافد</h3>
+          <ul class="clean-list">
+            <li>الراتب الإجمالي + سكن ونقل (أو بدل)</li>
+            <li>أخطار مهنية GOSI: <b>2٪</b></li>
+            <li><b>المقابل المالي</b> الشهري للعمالة الوافدة + رخصة العمل السنوية</li>
+            <li>الإقامة وتجديدها + تأشيرات الخروج والعودة</li>
+            <li>التأمين الطبي له (ولعائلته إن كان مرافقًا) + تذاكر سفر حسب العقد</li>
+            <li>تكلفة الاستقدام الأولية (تأشيرة، فحص، وصول)</li>
+          </ul>
+          <p class="tier-note">قاعدة سريعة: التكلفة الكلية ≈ <b>الراتب الإجمالي × 1.25 – 1.40</b> حسب الرسوم السارية</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="background: var(--surface);">
+    <div class="container" style="text-align: center;">
+      <h2 style="margin-bottom: 0.75rem;">جاهز تبدأ؟ نأسس لك ونشغّل عنك</h2>
+      <p style="color: var(--muted); max-width: 640px; margin: 0 auto 2rem;">شريك الأعمال يتولى التأسيس كاملًا ثم إدارة قوى والتأمينات ومدد ومقيم شهريًا — لتبني أنت الفريق والإيرادات. الأرقام النظامية أعلاه تتغير بتحديثات الجهات؛ نراقبها عنك ونحدّث ملف منشأتك أولًا بأول.</p>
+      <div class="hero-cta" style="justify-content: center;">
+        <a href="/ar/#contact" class="btn btn-primary">احجز استشارة مجانية</a>
+        <a href="/ar/calculators" class="btn btn-secondary">جرّب حاسبات التكاليف</a>
+      </div>
+    </div>
+  </section>
+
+  <Footer lang={locale} t={t} />
+  <CallFab lang={locale} t={t} />
+</BaseLayout>
+
+<style>
+  .toc { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; align-items: center; font-size: 0.9rem; }
+  .toc b { color: var(--muted); font-size: 0.82rem; }
+  .toc a { color: var(--brand); font-weight: 600; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .table-wrap { padding: 0; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 640px; }
+  th, td { padding: 0.8rem 1rem; text-align: start; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th { background: var(--surface); font-weight: 700; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(0, 102, 204, 0.03); }
+
+  .note { max-width: 800px; margin: 2rem auto 0; background: rgba(0, 102, 204, 0.06); border: 1px solid rgba(0, 102, 204, 0.15); border-radius: 10px; padding: 0.9rem 1.2rem; font-size: 0.9rem; color: var(--text); }
+
+  .step-card { position: relative; }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--brand); color: #fff; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.9rem; }
+  .step-card h3 { font-size: 1.02rem; margin-bottom: 0.5rem; }
+  .step-card p { color: var(--muted); font-size: 0.88rem; }
+
+  .clean-list { list-style: none; padding: 0; margin: 0.75rem 0 0; display: grid; gap: 0.55rem; }
+  .clean-list li { position: relative; padding-inline-start: 1.2rem; font-size: 0.9rem; line-height: 1.6; }
+  .clean-list li::before { content: '•'; position: absolute; inset-inline-start: 0; color: var(--brand); font-weight: 700; }
+  ol.clean-list { counter-reset: item; }
+  ol.clean-list li { counter-increment: item; padding-inline-start: 1.6rem; }
+  ol.clean-list li::before { content: counter(item) '.'; font-size: 0.85rem; }
+  .clean-list.small li { font-size: 0.85rem; }
+
+  .tier-note { margin-top: 1rem; padding-top: 0.9rem; border-top: 1px dashed var(--line); font-size: 0.82rem; color: var(--muted); }
+</style>
