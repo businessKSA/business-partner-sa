@@ -3309,6 +3309,7 @@ function buildDashboard() {
       { slug:'mazen',     path:'mazen-intake',      name:'مازن',     en:'Mazen',     role:'مدير العمليات',           emoji:'🧭' },
       { slug:'nasser',    path:'nasser-intake',     name:'ناصر',     en:'Nasser',    role:'الموارد البشرية',         emoji:'👥' },
       { slug:'mishari',   path:'mishari-intake',    name:'مشاري',    en:'Mishari',   role:'الامتثال والالتزام',       emoji:'🛡️' },
+      { slug:'abdulrahman',path:'abdulrahman-intake',name:'عبدالرحمن',en:'Abdulrahman',role:'المدير المالي',          emoji:'💰' },
       { slug:'abdulaziz', path:'abdulaziz-intake',  name:'عبدالعزيز',en:'Abdulaziz', role:'القانوني',                emoji:'⚖️' },
       { slug:'badr',      path:'badr-intake',       name:'بدر',      en:'Badr',      role:'المبيعات وتطوير الأعمال', emoji:'💼' },
       { slug:'farah',     path:'farah-intake',      name:'فرح',      en:'Farah',     role:'التسويق والمحتوى',        emoji:'📣' },
@@ -3751,6 +3752,7 @@ function buildConnect() {
       {slug:'mazen',e:'🧭',name:'مازن',role:'مدير العمليات',nameEn:'Mazen — Operations Manager'},
       {slug:'nasser',e:'👥',name:'ناصر',role:'الموارد البشرية',nameEn:'Nasser — HR'},
       {slug:'mishari',e:'🛡️',name:'مشاري',role:'الامتثال والالتزام',nameEn:'Mishari — Compliance'},
+      {slug:'abdulrahman',e:'💰',name:'عبدالرحمن',role:'المدير المالي',nameEn:'Abdulrahman — CFO'},
       {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني',nameEn:'Abdulaziz — Legal'},
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
@@ -3960,6 +3962,7 @@ function buildPortal() {
       {slug:'mazen',path:'mazen-intake',name:'مازن',role:'مدير العمليات',e:'🧭'},
       {slug:'nasser',path:'nasser-intake',name:'ناصر',role:'الموارد البشرية',e:'👥'},
       {slug:'mishari',path:'mishari-intake',name:'مشاري',role:'الامتثال والالتزام',e:'🛡️'},
+      {slug:'abdulrahman',path:'abdulrahman-intake',name:'عبدالرحمن',role:'المدير المالي',e:'💰'},
       {slug:'abdulaziz',path:'abdulaziz-intake',name:'عبدالعزيز',role:'قانوني',e:'⚖️'},
       {slug:'badr',path:'badr-intake',name:'بدر',role:'مبيعات وتطوير أعمال',e:'💼'},
       {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
@@ -4025,7 +4028,7 @@ function buildPortal() {
       'BP-DEMO':'ALL','BP2026':'ALL','DEMO123':'ALL',
       'DEMO-ONE':['badr'],
       'DEMO-THREE':['badr','malak','farah'],
-      'DEMO-TEAM':['baher','mazen','nasser','mishari','abdulaziz','badr','farah','malak','mohammed','ahmed']
+      'DEMO-TEAM':['baher','mazen','nasser','mishari','abdulrahman','abdulaziz','badr','farah','malak','mohammed','ahmed']
     };
     var CONFIRMED=['مؤكد - قيد التنفيذ','مكتمل'];
     var OWNER_EMAIL='dr.baher.magnas@gmail.com';
@@ -4236,6 +4239,7 @@ function buildSharedServices() {
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
     { slug: "mishari", e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance", path: "mishari-intake" },
+    { slug: "abdulrahman", e: "💰", ar: "عبدالرحمن", arRole: "المدير المالي", en: "Abdulrahman", enRole: "Chief Financial Officer", path: "abdulrahman-intake" },
     { slug: "abdulaziz", e: "⚖️", ar: "عبدالعزيز", arRole: "القانوني", en: "Abdulaziz", enRole: "Legal", path: "abdulaziz-intake" },
     { slug: "badr", e: "💼", ar: "بدر", arRole: "مبيعات وتطوير أعمال", en: "Badr", enRole: "Sales & Business Development", path: "badr-intake" },
     { slug: "farah", e: "📣", ar: "فرح", arRole: "تسويق ومحتوى", en: "Farah", enRole: "Marketing & Content", path: "farah-intake" },
@@ -4321,6 +4325,9 @@ function buildSharedServices() {
     { e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance",
       svcAr: ["قوى ومقيم", "التأمينات ومدد", "النطاقات", "ZATCA"], svcEn: ["Qiwa & Muqeem", "GOSI & Mudad", "Nitaqat", "ZATCA"],
       mAr: "مراقبة يومية وتنبيه قبل كل استحقاق — كل إجراء حكومي بموافقتك.", mEn: "Daily monitoring and alerts before every deadline — every government action needs your approval." },
+    { e: "💰", ar: "عبدالرحمن", arRole: "المدير المالي", en: "Abdulrahman", enRole: "Chief Financial Officer",
+      svcAr: ["الميزانيات والتدفّق النقدي", "الفوترة والتحصيل", "التقارير المالية", "الزكاة والضريبة (VAT)"], svcEn: ["Budgets & cash flow", "Invoicing & collections", "Financial reports", "Zakat & VAT"],
+      mAr: "يدير ماليتك ويصدر الفواتير والتقارير عبر قيود — أي دفعة أو إصدار فاتورة بموافقتك.", mEn: "Runs your finances and issues invoices & reports via Qoyod — any payment or issuance needs your approval." },
     { e: "⚖️", ar: "عبدالعزيز", arRole: "القانوني", en: "Abdulaziz", enRole: "Legal",
       svcAr: ["العقود", "التأسيس", "التراخيص", "الهيكلة القانونية"], svcEn: ["Contracts", "Incorporation", "Licensing", "Legal structuring"],
       mAr: "يصيغ ويراجع المستندات القانونية — والتوقيع بموافقتك.", mEn: "Drafts and reviews legal documents — signing needs your approval." },
@@ -4368,7 +4375,7 @@ function buildSharedServices() {
 
   <section class="ss-sec" id="ss-roster">
     <div class="wrap">
-      <div class="sec-head"><h2>${L("Meet your team", "تعرّف على فريقك")}</h2><p>${L("Eleven specialists — each with the services they deliver and how they work.", "أحد عشر متخصصاً — لكل واحد خدماته وطريقة عمله.")}</p></div>
+      <div class="sec-head"><h2>${L("Meet your team", "تعرّف على فريقك")}</h2><p>${L("The same specialists as the standalone team — here they work together as one coordinated team. Each with the services they deliver and how they work.", "نفس متخصّصي الفريق المستقل — هنا يعملون معاً كفريق واحد منسّق. لكل واحد خدماته وطريقة عمله.")}</p></div>
       <div class="ss-roster">
         ${roster.map((r) => `<article class="ss-rc">
           <div class="ss-rc-h"><span class="e">${r.e}</span><div><b>${L(r.en, r.ar)}</b><span>${L(r.enRole, r.arRole)}</span></div></div>
