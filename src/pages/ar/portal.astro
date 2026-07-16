@@ -170,6 +170,7 @@ const INTAKE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/client-intak
 
       <div class="tabs">
         <button class="tab active" data-tab="overview">نظرة عامة</button>
+        <button class="tab" data-tab="deals">🤝 الصفقات</button>
         <button class="tab" data-tab="upload">📤 رفع الملفات</button>
         <button class="tab" data-tab="entities">الجهات الحكومية</button>
         <button class="tab" data-tab="alerts">التنبيهات والبنود</button>
@@ -179,6 +180,14 @@ const INTAKE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/client-intak
 
       <!-- OVERVIEW -->
       <div class="panel active" id="panel-overview">
+        <div class="card" id="deals-promo-card" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:space-between;background:linear-gradient(120deg,#0B1B5A,#0066cc);color:#fff;margin-bottom:1rem;cursor:pointer">
+          <div>
+            <div style="font-weight:800;font-size:1.02rem">🤝 جديد: الصفقات والمطابقة الذكية</div>
+            <div style="font-size:.85rem;opacity:.9;margin-top:.2rem">اعرض صفقتك، ابحث عن شريك أو مستثمر، أو اطرح فكرتك — الخدمة مجانية حاليًا 🆓</div>
+          </div>
+          <span style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:.5rem 1rem;border-radius:999px;font-weight:700;font-size:.85rem;white-space:nowrap">افتح الصفقات ←</span>
+        </div>
+
         <div class="card score-card">
           <div class="score-ring" id="score-ring">--</div>
           <div class="score-meta">
@@ -199,6 +208,31 @@ const INTAKE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/client-intak
 
         <h3 class="sec" style="margin-top:1.6rem">🚨 أبرز التنبيهات</h3>
         <div class="card" id="top-alerts"><div class="empty">جارٍ التحميل...</div></div>
+      </div>
+
+      <!-- DEALS & MATCHMAKING -->
+      <div class="panel" id="panel-deals">
+        <h3 class="sec">🤝 الصفقات والمطابقة الذكية</h3>
+        <p style="color:#667;font-size:.85rem;margin-bottom:.3rem">اعرض صفقتك، ابحث عن شريك أو مستثمر، أو اطرح فكرة مشروع — نطابقك تلقائيًا مع أقرب الفرص حسب القطاع والمدينة. لا نكشف بياناتك إلا بعد موافقة الطرفين.</p>
+        <div class="filter-chip" style="background:#dcfce7;color:#166534">🆓 الخدمة مجانية حاليًا بدون أي عمولة</div>
+        <div class="grid cols-3">
+          <a class="calc-card" href="/ar/deals#wall" target="_blank" rel="noopener">
+            <div class="cicon">📋</div>
+            <div><div class="ct">تصفح الصفقات المنشورة</div><div class="cd">بائعين، مشترين، مستثمرين، وأفكار مشاريع</div></div>
+            <div class="go">←</div>
+          </a>
+          <a class="calc-card" href="/ar/deals" target="_blank" rel="noopener">
+            <div class="cicon">🤝</div>
+            <div><div class="ct">اعرض صفقتك أو ابحث عن شريك</div><div class="cd">منشأة للبيع، شراكة، تمويل، أو استثمار</div></div>
+            <div class="go">←</div>
+          </a>
+          <a class="calc-card" href="/ar/deals" target="_blank" rel="noopener">
+            <div class="cicon">💡</div>
+            <div><div class="ct">عندك فكرة مشروع؟</div><div class="cd">قدّمها وابحث عن شريك مؤسس أو ممول</div></div>
+            <div class="go">←</div>
+          </a>
+        </div>
+        <div class="note-box">💡 تفتح الصفقات في تبويب جديد وتبقى لوحتك مفتوحة هنا. كل صفقة تُراجع يدويًا قبل نشرها.</div>
       </div>
 
       <!-- UPLOAD WIZARD -->
@@ -456,6 +490,8 @@ const INTAKE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/client-intak
       document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
     }
     document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+    const dealsPromoCard = document.getElementById('deals-promo-card');
+    if (dealsPromoCard) dealsPromoCard.addEventListener('click', () => switchTab('deals'));
 
     function renderAlertsList(el, alertsRaw, opts) {
       opts = opts || {};

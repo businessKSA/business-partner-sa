@@ -22,9 +22,9 @@ const t = {
 
   <section id="home" class="hero">
     <div class="container hero-content">
-      <div class="hero-badge">✨ New — Smart Matchmaking + Deals</div>
+      <div class="hero-badge">✨ New — Smart Matchmaking + Deals · 🆓 Free right now</div>
       <h1>We don't just list deals — we match you with the right partner</h1>
-      <p>Submit your deal or profile once, and we compare it instantly against every open opportunity by sector, city and deal type — then rank the closest matches for you by name. Real introductions only happen once both sides agree.</p>
+      <p>A seller or a buyer, a founder looking for an investor, or an investor looking for an opportunity — submit your profile once and we compare it instantly against every open opportunity by sector, city and deal type, then rank the closest matches for you by name. The service is free right now, and real introductions only happen once both sides agree.</p>
       <div class="hero-cta">
         <button class="btn btn-primary" id="openWizardHero" type="button">Submit Your Deal</button>
         <a href="#wall" class="btn btn-secondary">Browse Published Deals</a>
@@ -47,12 +47,12 @@ const t = {
         <button class="card launcher-tile" data-kind="offer" type="button">
           <span class="launcher-ico ico-offer">🤝</span>
           <h3>I have a deal to offer</h3>
-          <p style="color: var(--muted);">A restaurant, shop or factory offering a partnership, distribution deal or funding</p>
+          <p style="color: var(--muted);">Selling an existing business, a partnership, a franchise, or capital looking for an opportunity</p>
         </button>
         <button class="card launcher-tile" data-kind="seek" type="button">
           <span class="launcher-ico ico-seek">🔎</span>
           <h3>I'm looking for a partner</h3>
-          <p style="color: var(--muted);">An existing business that needs a funding or operating partner</p>
+          <p style="color: var(--muted);">A funding partner, an investor, a buyer for an existing business, or a promising opportunity</p>
         </button>
         <button class="card launcher-tile" data-kind="idea" type="button">
           <span class="launcher-ico ico-idea">💡</span>
@@ -108,48 +108,48 @@ const t = {
 
       <div class="grid grid-3" id="wallGrid">
 
-        <article class="card ticket" data-type="seek" data-sector="food" data-city="riyadh">
-          <span class="ticket-badge badge-seek">🔎 Seeking a partner</span>
-          <h3>Saudi restaurant — Riyadh</h3>
-          <div class="ticket-meta"><span>📍 Riyadh</span><span>🍽️ Restaurants</span></div>
-          <p style="color: var(--muted);">A 3-year-old restaurant looking for a funding partner to open a second branch in Jeddah, with an established operating team.</p>
-          <div class="ticket-stat"><span>Stake offered</span><b>30%</b></div>
+        <article class="card ticket" data-type="offer" data-sector="food" data-city="riyadh">
+          <span class="ticket-badge badge-offer">🤝 Seller offering a business</span>
+          <h3>Established specialty café — for sale in Riyadh</h3>
+          <div class="ticket-meta"><span>📍 Riyadh</span><span>☕ Café & food</span></div>
+          <p style="color: var(--muted);">A 2-year-old café with a prime location and a loyal customer base — the owner is selling the whole business to focus on another venture.</p>
+          <div class="ticket-stat"><span>Asking price</span><b>SAR 250k</b></div>
           <div class="ticket-foot"><span>Posted 2 days ago</span><button class="btn-ticket" type="button">Request intro</button></div>
         </article>
 
-        <article class="card ticket" data-type="idea" data-sector="tech" data-city="jeddah">
-          <span class="ticket-badge badge-idea">💡 Idea pitch</span>
-          <h3>On-demand home maintenance booking app</h3>
-          <div class="ticket-meta"><span>📍 Jeddah</span><span>🛠️ Tech</span></div>
-          <p style="color: var(--muted);">A well-researched idea backed by early market validation; the founder is looking for a technical co-founder to build and launch it.</p>
-          <div class="ticket-stat"><span>Needs</span><b>Technical co-founder</b></div>
+        <article class="card ticket" data-type="seek" data-sector="retail" data-city="jeddah">
+          <span class="ticket-badge badge-seek">🔎 Buyer seeking a business</span>
+          <h3>Investor looking to acquire an existing retail business</h3>
+          <div class="ticket-meta"><span>📍 Jeddah</span><span>🛍️ Retail</span></div>
+          <p style="color: var(--muted);">A ready investor with a set budget is looking to acquire an existing shop or small retail chain to take over and operate directly.</p>
+          <div class="ticket-stat"><span>Budget available</span><b>Up to SAR 500k</b></div>
           <div class="ticket-foot"><span>Posted yesterday</span><button class="btn-ticket" type="button">Request intro</button></div>
         </article>
 
-        <article class="card ticket" data-type="offer" data-sector="logistics" data-city="dammam">
-          <span class="ticket-badge badge-offer">🤝 Deal offer</span>
-          <h3>Exclusive food distribution — Eastern Province</h3>
-          <div class="ticket-meta"><span>📍 Dammam</span><span>🚚 Logistics</span></div>
-          <p style="color: var(--muted);">An established distributor offering an exclusive distribution deal to retailers in the Eastern Province on preferential terms.</p>
-          <div class="ticket-stat"><span>Minimum order</span><b>SAR 50k</b></div>
+        <article class="card ticket" data-type="seek" data-sector="services" data-city="riyadh">
+          <span class="ticket-badge badge-seek">🔎 Seeking an investor</span>
+          <h3>Founder seeking an investor to expand an existing business</h3>
+          <div class="ticket-meta"><span>📍 Riyadh</span><span>🧾 Services</span></div>
+          <p style="color: var(--muted);">A profitable, established services business is looking for an investor to fund expansion into a new city, in exchange for equity.</p>
+          <div class="ticket-stat"><span>Funding needed</span><b>SAR 300k for 20%</b></div>
           <div class="ticket-foot"><span>Posted 3 days ago</span><button class="btn-ticket" type="button">Request intro</button></div>
         </article>
 
-        <article class="card ticket" data-type="seek" data-sector="beauty" data-city="jeddah">
-          <span class="ticket-badge badge-seek">🔎 Seeking a partner</span>
-          <h3>Women's beauty salon — new branch</h3>
-          <div class="ticket-meta"><span>📍 Jeddah</span><span>💇‍♀️ Beauty</span></div>
-          <p style="color: var(--muted);">A successful two-branch salon looking for a partner to manage and operate a third branch, with full training and an established brand.</p>
-          <div class="ticket-stat"><span>Capital needed</span><b>SAR 180k</b></div>
+        <article class="card ticket" data-type="seek" data-sector="other" data-city="dammam">
+          <span class="ticket-badge badge-seek">🔎 Investor seeking an opportunity</span>
+          <h3>Investor looking for a promising opportunity</h3>
+          <div class="ticket-meta"><span>📍 Dammam</span><span>💼 General investment</span></div>
+          <p style="color: var(--muted);">An investor with capital ready to deploy is looking for an existing business or a promising idea in any sector, for equity or partnership.</p>
+          <div class="ticket-stat"><span>Capital available</span><b>SAR 1–3M</b></div>
           <div class="ticket-foot"><span>Posted 4 days ago</span><button class="btn-ticket" type="button">Request intro</button></div>
         </article>
 
-        <article class="card ticket" data-type="offer" data-sector="industry" data-city="riyadh">
-          <span class="ticket-badge badge-offer">🤝 Deal offer</span>
-          <h3>Wholesale furniture manufacturing for retailers</h3>
-          <div class="ticket-meta"><span>📍 Riyadh</span><span>🪑 Industry</span></div>
-          <p style="color: var(--muted);">A local furniture factory offering competitive wholesale manufacturing contracts to new and existing furniture retailers.</p>
-          <div class="ticket-stat"><span>Lead time</span><b>2–4 weeks</b></div>
+        <article class="card ticket" data-type="offer" data-sector="food" data-city="jeddah">
+          <span class="ticket-badge badge-offer">🤝 Partnership offer</span>
+          <h3>Restaurant chain offering a franchise</h3>
+          <div class="ticket-meta"><span>📍 Jeddah</span><span>🍽️ Restaurants</span></div>
+          <p style="color: var(--muted);">A successful local restaurant brand is offering a franchise to open new branches, with full training and ongoing operating support.</p>
+          <div class="ticket-stat"><span>Franchise fee</span><b>SAR 150k</b></div>
           <div class="ticket-foot"><span>Posted a week ago</span><button class="btn-ticket" type="button">Request intro</button></div>
         </article>
 
@@ -173,10 +173,10 @@ const t = {
   <!-- Trust strip -->
   <section class="section" style="background: var(--surface); padding-block: 2.5rem;">
     <div class="container trust-strip">
+      <span>🆓 Free right now — no commission</span>
       <span>🔒 Manually reviewed before publishing</span>
       <span>🎯 Match score computed automatically</span>
       <span>🤝 Introductions only by mutual consent</span>
-      <span>✉️ Instant email updates</span>
     </div>
   </section>
 
