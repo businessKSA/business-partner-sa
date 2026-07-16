@@ -409,6 +409,17 @@ const NAV_GROUPS = [
   { href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال" },
   { href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال" },
   {
+    en: "Catering & Hospitality", ar: "التموين والضيافة للشركات",
+    items: [
+      { href: "/farina", en: "Overview", ar: "نظرة عامة" },
+      { href: "/farina#coffee-break", en: "Coffee Break", ar: "الكوفي بريك" },
+      { href: "/farina#vip-coffee", en: "VIP Coffee Break", ar: "كوفي بريك VIP" },
+      { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
+      { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
+      { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
+    ],
+  },
+  {
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
       { href: "/tools-and-calculators", en: "Tools & calculators", ar: "الأدوات والحاسبات" },
@@ -4148,6 +4159,114 @@ function buildPortalCandidates() {
   return portalPage({ title: Lraw("Jobs for job seekers — HR portal", "التوظيف للباحثين عن عمل — بوابة التوظيف"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), path: "/portal/candidates", active: "/candidates", body });
 }
 
+// Farina — corporate catering & hospitality (coffee breaks, executive lunch,
+// VIP hospitality, workforce catering) offered by Business Partner under the
+// Farina brand. A bespoke vertical landing page (like /workspaces or
+// /mahfol-makfol), not part of the 92-item government-services catalog —
+// pricing here is quote-based per headcount/frequency, not a fixed SKU.
+function buildFarina() {
+  const sectors = [
+    ["🏥", L("Hospitals", "المستشفيات"), L("Daily meals for medical staff and coffee breaks for management, built around shift schedules.", "وجبات يومية للطواقم الطبية، وكوفي بريك للإدارات حسب مواعيد الورديات.")],
+    ["🏨", L("Hotels", "الفنادق"), L("Overflow catering that supports your kitchen at peak times, plus full coverage for events.", "توريد يدعم مطبخكم الداخلي وقت الذروة، وتغطية كاملة للفعاليات.")],
+    ["🏢", L("Companies", "الشركات"), L("Daily or weekly coffee breaks and executive lunch, on a flexible monthly contract.", "كوفي بريك يومي أو أسبوعي، وغداء تنفيذي، بعقد شهري مرن.")],
+    ["🏛️", L("Government entities", "الجهات الحكومية"), L("Formal hospitality with traditional Saudi coffee service, and coffee breaks for meetings.", "ضيافة رسمية بمراسم القهوة السعودية التقليدية، وكوفي بريك للاجتماعات.")],
+    ["🧳", L("Recruitment companies", "شركات الاستقدام"), L("Full board — breakfast, lunch and dinner — for workforce housing, on a rotating monthly menu.", "فطور وغداء وعشاء للعمالة في السكن الجماعي، بقائمة شهرية متجددة.")],
+    ["🏗️", L("Contracting companies", "شركات المقاولات"), L("Site workforce catering with direct delivery, and coffee breaks for project offices.", "إعاشة عمالة المواقع مع توصيل مباشر، وكوفي بريك لمكاتب المشروع.")],
+  ].map(([icon, title, desc]) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${icon}</div><h3>${title}</h3><p>${desc}</p></div>`).join("");
+
+  const menuTier = (id, nameEn, nameAr, priceEn, priceAr, itemsEn, itemsAr) => {
+    const items = itemsEn.map((e, i) => `<li>${I.check}<span>${L(e, itemsAr[i])}</span></li>`).join("");
+    return `<div class="pkg" id="${id}" style="scroll-margin-top:calc(var(--header-h) + 20px)">
+      <div class="pk-name">${L(nameEn, nameAr)}</div>
+      <div class="pk-price">${L(priceEn, priceAr)}</div>
+      <ul>${items}</ul>
+      ${waBtn2("Request a quote", "اطلب عرض سعر", "btn-primary")}
+    </div>`;
+  };
+  const menus = [
+    menuTier("coffee-break", "Regular Coffee Break", "كوفي بريك عادي", "Custom quote", "حسب عدد الأفراد",
+      ["Mini croissants & sandwiches", "Savory & sweet danish", "Dry cakes & sweets", "For daily team meetings"],
+      ["ميني كرواسان وساندويتشات", "دانيش مالح وحلو", "كيك جاف وحلويات", "لاجتماعات الفريق اليومية"]),
+    menuTier("vip-coffee", "VIP Coffee Break", "كوفي بريك VIP", "Custom quote", "حسب عدد الأفراد",
+      ["Cheese platter & 4 croissant varieties", "Smoked salmon bruschetta", "Arabic coffee, served traditionally", "Premium Farina chocolate"],
+      ["تشيز بلاتر وكرواسان بأربعة أنواع", "بروشيتا سلمون مدخن", "قهوة عربية تُقدَّم بمراسم تقليدية", "شوكولاتة فارينا الفاخرة"]),
+    menuTier("executive-lunch", "Executive Lunch", "غداء تنفيذي", "Custom quote", "يوميًا لعدد أيام العمل المتفق عليها",
+      ["4 rotating menus", "Beef tenderloin, grilled salmon, seasonal dishes", "Personally supervised by our head of kitchen", "Daily during working days"],
+      ["4 قوائم متناوبة", "تندرلوين لحم، سلمون مشوي، وأطباق موسمية", "إشراف شخصي من مدير قسم الطهي", "يوميًا خلال أيام العمل"]),
+    menuTier("sharing", "Cheese Platter & Finger Food", "تشيز بلاتر وفينجر فوود", "Custom quote", "حسب عدد الأفراد",
+      ["Imported cheese & cold cuts", "Seasonal fruit", "Served with sparkling juices", "For private events and gatherings"],
+      ["أجبان مستوردة ولحوم باردة", "فواكه موسمية", "تُقدَّم مع عصائر فوارة", "للفعاليات والتجمعات الخاصة"]),
+    menuTier("vip-hospitality", "VIP Hospitality", "ضيافة كبار الشخصيات", "From 990 SAR", "من 990 ريال",
+      ["Traditional Gahwaji coffee service", "Premium dates", "Crystal cups, white linen", "For up to 50 guests"],
+      ["مراسم القهوجي التقليدية", "تمور فاخرة", "كؤوس كريستالية ومفارش بيضاء", "لما يصل إلى 50 ضيفًا"]),
+    menuTier("workforce", "Monthly Workforce Catering", "إعاشة عمالة شهرية", "From 8 SAR / person / day", "من 8 ريال / عامل / يوم",
+      ["Breakfast, lunch and dinner", "Rotating 4-week menu, nationality-aware", "Organized daily delivery", "Licensed kitchen, SFDA-compliant"],
+      ["فطور وغداء وعشاء", "منيو متجدد بدورة 4 أسابيع يراعي الجاليات", "توصيل يومي منظّم", "مطبخ مرخّص ومطابق لاشتراطات SFDA"]),
+  ].join("");
+
+  const clientChips = ["Ministry of Finance", "General Authority for Statistics", "Qiddiya Investment Company", "Capital Market Authority", "PIF", "GACA", "MODON", "Riyad Bank", "SAB", "Environment Fund"]
+    .map((n) => `<span class="chip">${esc(n)}</span>`).join("");
+
+  const steps = [
+    [L("Contact us", "تواصل معنا"), L("WhatsApp or the site form, with your sector and headcount.", "واتساب أو نموذج الموقع، بذكر القطاع وعدد المستفيدين.")],
+    [L("We build the menu", "نجهّز القائمة"), L("Choose the tier (regular or VIP) and customize items.", "اختيار المستوى (عادي أو VIP) وتخصيص الأصناف.")],
+    [L("Quote within 24 hours", "عرض سعر خلال 24 ساعة"), L("Clear pricing covering headcount and delivery, no commitment.", "تسعير واضح يشمل الكمية والتوصيل، بدون التزام.")],
+    [L("Delivery & monthly contract", "توريد وعقد شهري"), L("Organized daily service, tracked through the client portal.", "تشغيل يومي منظّم، ومتابعة عبر لوحة تحكم العميل.")],
+  ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">Farina × Business Partner</span>
+    <h1>${L("Catering & Hospitality for Companies", "التموين والضيافة للشركات")}</h1>
+    <p class="lead">${L("Coffee breaks, staff meals and VIP hospitality for companies, government entities, hospitals, hotels, recruitment companies and contractors — under Farina, delivered by Business Partner, on one monthly invoice.", "كوفي بريك، وجبات موظفين، وضيافة كبار الزوار — للشركات والجهات الحكومية والمستشفيات والفنادق وشركات الاستقدام والمقاولات، تحت علامة فارينا وبتشغيل بيزنس بارتنر، بفاتورة شهرية واحدة.")}</p>
+    <div class="hero-actions">${waBtn2("Request a quote", "اطلب عرض سعر", "btn-primary", true)}<a class="btn btn-ghost" href="#menus">${L("Browse menus", "تصفّح القوائم")}</a></div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("4.7★ Google rating — 1,649 reviews", "تقييم Google 4.7 — 1,649 تقييم")}</span>
+      <span class="hero-badge">${I.check}${L("+500 client establishments", "+500 منشأة عميلة")}</span>
+      <span class="hero-badge">${I.check}${L("Ongoing government client contract", "عميل حكومي بعقد مستمر")}</span>
+      <span class="hero-badge">${I.check}${L("Licensed kitchen, SFDA-compliant", "مطبخ مرخّص ومطابق لاشتراطات SFDA")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Who we serve", "القطاعات")}</span><h2>${L("Six sectors, each with its own schedule", "ست قطاعات، لكل واحد جدول مختلف")}</h2><p>${L("We build the schedule and menu around how your establishment actually runs.", "نبني الجدول والقائمة حسب طبيعة عملكم، لا العكس.")}</p></div>
+    <div class="grid grid-3">${sectors}</div>
+  </div></section>
+
+  <section class="section" id="menus"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Menus", "القوائم")}</span><h2>${L("From the daily coffee break to the executive lunch", "من الكوفي بريك اليومي إلى غداء المدير التنفيذي")}</h2><p>${L("Six ready menus, each customizable by headcount and hospitality level. Pricing is quoted per request.", "ست قوائم جاهزة، وكل واحدة قابلة للتعديل حسب العدد ومستوى الضيافة. التسعير حسب الطلب.")}</p></div>
+    <div class="grid grid-3">${menus}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="grid grid-2" style="align-items:start;gap:44px">
+      <div class="quote">
+        <p>${L("We designed and delivered a complete hospitality program for the Center for National Health Insurance — from daily artisan coffee for executives to minister-level hospitality with traditional Gahwaji service.", "صممنا وسلّمنا برنامج ضيافة كامل لمركز التأمين الصحي الوطني — من القهوة اليومية للمديرين التنفيذيين إلى ضيافة الوزراء بمراسم القهوجي التقليدية.")}</p>
+        <div class="who">Farina × CNHI</div>
+        <div class="role">${L("Premium catering proposal, February 2026", "عرض ضيافة فاخرة، فبراير 2026")}</div>
+      </div>
+      <div>
+        <div class="section-head" style="margin-bottom:16px"><span class="eyebrow">${L("Clients we've worked with", "جهات تعاملنا معها")}</span></div>
+        <div class="svc-meta">${clientChips}</div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "خطوات العمل")}</span><h2>${L("Four steps from first contact to first delivery", "أربع خطوات من أول تواصل إلى أول توصيل")}</h2></div>
+    <div class="steps-grid">${steps}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="cta-band"><h2>${L("Ready to start your establishment's hospitality program?", "جاهزين نبدأ برنامج الضيافة في منشأتكم؟")}</h2><p>${L("The smart agent replies instantly on WhatsApp and sets your next step.", "الوكيل الذكي يرد فوراً على واتساب ويحدد لك الخطوة التالية.")}</p>${waBtn2("Request a quote", "اطلب عرض سعر", "btn-white", true)}</div>
+  </div></section>`;
+  return page({
+    title: Lraw("Catering & Hospitality for Companies — Farina × Business Partner", "التموين والضيافة للشركات — فارينا × بيزنس بارتنر"),
+    desc: Lraw("Coffee breaks, staff meals and VIP hospitality for companies, government entities, hospitals, hotels, recruitment companies and contractors — one monthly contract.", "كوفي بريك، وجبات موظفين، وضيافة كبار الزوار للشركات والجهات الحكومية والمستشفيات والفنادق وشركات الاستقدام والمقاولات — بعقد شهري واحد."),
+    active: "/farina", path: "/farina", body,
+  });
+}
+
 function buildWorkspaces() {
   const cities = [["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Dammam", "الدمام"], ["Khobar", "الخبر"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Other", "أخرى"]];
   const types = [["Office", "مكتب"], ["Co-working Space", "مساحة مشتركة"], ["Serviced Office", "مكتب مخدوم"], ["Retail Shop", "محل تجاري"], ["Showroom", "معرض"], ["Warehouse", "مستودع"], ["Commercial Villa", "فيلا تجارية"]];
@@ -6406,6 +6525,7 @@ function writeFullSite(pre) {
   write(`${pre}portal/candidates.html`, buildPortalCandidates());
   write(`${pre}workspaces.html`, buildWorkspaces());
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
+  write(`${pre}farina.html`, buildFarina());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
   write(`${pre}checkout.html`, buildCheckout());
@@ -6417,7 +6537,7 @@ function writeFullSite(pre) {
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 16 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
+  pageCount += 17 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
 }
 
 for (const lang of ["en", "ar"]) {
@@ -6463,7 +6583,7 @@ write("ar/portal.html", buildPortal("/ar/"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
