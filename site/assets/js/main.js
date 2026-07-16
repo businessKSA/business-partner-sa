@@ -7,8 +7,9 @@
   var nav = document.querySelector(".nav");
   if (toggle && nav) {
     toggle.addEventListener("click", function () {
-      nav.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", nav.classList.contains("open"));
+      var isOpen = nav.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", isOpen);
+      document.body.classList.toggle("nav-open", isOpen);
     });
   }
 
@@ -818,13 +819,13 @@ var BP = window.BP = window.BP || {};
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var cart = BP.cart.read();
-      if (!cart.length) { alert(BP.t("Your cart is empty.", "سلتك فارغة.")); location.href = "/services"; return; }
+      if (!cart.length) { alert(BP.t("Your cart is empty.", "سلتك فارغة.")); location.href = BP.lang === "ar" ? "/ar/services" : "/services"; return; }
       var session2 = checkoutSession();
       var name = (session2 && session2.name) || document.getElementById("co-name").value.trim();
       var phone = document.getElementById("co-phone").value.trim();
       var email = ((session2 && session2.email) || document.getElementById("co-email").value.trim()).toLowerCase();
       var isEmailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
-      if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = "/account"; return; }
+      if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = BP.lang === "ar" ? "/ar/account" : "/account"; return; }
       var receipt = document.getElementById("co-receipt");
       var receiptFile = receipt && receipt.files && receipt.files.length ? receipt.files[0] : null;
       var isPdf = receiptFile && (receiptFile.type === "application/pdf" || /\.pdf$/i.test(receiptFile.name || ""));
@@ -1036,10 +1037,13 @@ var BP = window.BP = window.BP || {};
       var waIcon = '<a class="ord-wa" href="https://wa.me/966507034157?text=' + encodeURIComponent(waMsg) +
         '" target="_blank" rel="noopener" title="' + BP.t("Contact us on WhatsApp", "تواصل معنا عبر واتساب") + '" aria-label="WhatsApp">' +
         '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.2A9 9 0 1012 3zm0 2a7 7 0 11-3.6 13l-.3-.2-2.3.6.6-2.2-.2-.3A7 7 0 0112 5zm3.9 8.4c-.2-.1-1.3-.6-1.5-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.1-.2.1-.4 0-.2-.1-.9-.3-1.6-1-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.3.1-.4l.3-.4.2-.3v-.3c0-.1-.5-1.2-.7-1.6-.2-.4-.3-.4-.5-.4h-.4c-.1 0-.4.1-.5.3-.2.2-.7.7-.7 1.7s.7 2 .8 2.1c.1.2 1.5 2.3 3.6 3.1 1.7.7 2 .6 2.4.5.4 0 1.3-.5 1.4-1 .2-.5.2-.9.1-1z"/></svg></a>';
+      var cancelBtn = (!cancelled && !done)
+        ? '<button type="button" class="ord-cancel" data-ref="' + esc2(o.ref) + '" data-email="' + esc2(o.email || "") + '" data-name="' + esc2(o.name || "") + '">' + BP.t("Cancel order", "إلغاء الطلب") + '</button>'
+        : "";
       return '<div class="ord"><div class="ord-main"><strong>' + esc2(o.ref) + '</strong>' +
         '<span class="text-soft"> · ' + esc2(o.at || "") + '</span>' +
         '<div class="text-soft ord-items">' + items + '</div></div>' +
-        '<div class="ord-side"><span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span>' + waIcon + '</div></div>';
+        '<div class="ord-side"><span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span>' + waIcon + cancelBtn + '</div></div>';
     }
 
     function renderOrders() {
@@ -1076,6 +1080,38 @@ var BP = window.BP = window.BP || {};
           '<a class="btn btn-ghost" href="' + (BP.lang === "ar" ? "/ar" : "") + '/packages">' + BP.t("View package details", "تفاصيل الباقة") + '</a></div>';
       }
     }
+
+    document.addEventListener("click", function (e) {
+      var btn = e.target.closest(".ord-cancel");
+      if (!btn) return;
+      var ref = btn.getAttribute("data-ref");
+      var email = btn.getAttribute("data-email");
+      var name = btn.getAttribute("data-name");
+      if (!ref || !email) return;
+      if (!confirm(BP.t("Cancel this order? This can't be undone.", "إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."))) return;
+      var lbl = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = BP.t("Cancelling…", "جارٍ الإلغاء…");
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "cancel-order", ref: ref, email: email, name: name }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) {
+          btn.disabled = false; btn.textContent = lbl;
+          alert(d && d.error === "already_completed"
+            ? BP.t("This order is already completed and can't be cancelled online — contact us on WhatsApp.", "هذا الطلب مكتمل بالفعل ولا يمكن إلغاؤه من هنا — تواصل معنا عبر واتساب.")
+            : BP.t("Couldn't cancel the order. Try again or contact us on WhatsApp.", "تعذّر إلغاء الطلب. حاول مرة أخرى أو تواصل معنا عبر واتساب."));
+          return;
+        }
+        var orders = ordersData();
+        orders.forEach(function (o) { if (o.ref === ref) o.status = BP.t("Cancelled", "ملغي"); });
+        try { localStorage.setItem("bp_orders", JSON.stringify(orders)); } catch (er) {}
+        renderOrders();
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = lbl;
+        alert(BP.t("Network error — try again.", "خطأ في الاتصال — حاول مرة أخرى."));
+      });
+    });
 
     if (loginF) loginF.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -1771,7 +1807,7 @@ var BP_EMP_BILLING = "monthly";
   document.addEventListener("click", function (e) {
     var btn = e.target.closest(".emp-plan-btn");
     if (!btn) return;
-    location.href = "/cart";
+    location.href = BP.lang === "ar" ? "/ar/cart" : "/cart";
   });
 })();
 
@@ -1933,6 +1969,190 @@ var BP_EMP_BILLING = "monthly";
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) { done(res.d && res.d.ref); })
         .catch(function () { done(null); });
+    });
+  });
+})();
+
+/* ---------- Deals & matchmaking (/deals) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var drawer = document.getElementById("deal-drawer");
+    if (!drawer) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    function escDeal(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+    var tickets = document.querySelectorAll(".deal-ticket");
+    var scrim = document.getElementById("deal-scrim");
+    var bar = document.getElementById("deal-drawer-bar");
+    var steps = drawer.querySelectorAll(".deal-step");
+    var back = document.getElementById("deal-step-back");
+    var next = document.getElementById("deal-step-next");
+    var foot = document.getElementById("deal-drawer-foot");
+    var wizMessage = document.getElementById("deal-wiz-message");
+    var current = 1;
+    var TOTAL_INPUT_STEPS = 4;
+
+    var chips = document.querySelectorAll(".deal-chip");
+    var visibleCount = document.getElementById("deal-visible-count");
+    function applyFilter(kind) {
+      var count = 0;
+      tickets.forEach(function (t) {
+        var show = kind === "all" || t.getAttribute("data-type") === kind;
+        if (show) count++;
+        t.toggleAttribute("hidden", !show);
+      });
+      if (visibleCount) visibleCount.textContent = String(count);
+    }
+    chips.forEach(function (c) {
+      c.addEventListener("click", function () {
+        chips.forEach(function (x) { x.classList.remove("active"); });
+        c.classList.add("active");
+        applyFilter(c.getAttribute("data-filter"));
+      });
+    });
+    applyFilter("all");
+
+    document.querySelectorAll(".deal-ticket-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var original = btn.textContent;
+        btn.textContent = T("Awaiting their approval…", "بانتظار موافقتهم ⏳");
+        btn.setAttribute("disabled", "true");
+        setTimeout(function () { btn.textContent = original; btn.removeAttribute("disabled"); }, 2600);
+      });
+    });
+
+    var COMPLEMENTS = {
+      offer: { offer: 0, seek: 25, idea: 25 },
+      seek: { offer: 25, seek: 0, idea: 15 },
+      idea: { offer: 25, seek: 15, idea: 0 },
+    };
+
+    function currentProfile() {
+      var typeEl = drawer.querySelector('input[name="dealType"]:checked');
+      var sectorEl = document.getElementById("deal-sector");
+      var cityEl = document.getElementById("deal-city");
+      return { type: typeEl ? typeEl.value : "seek", sector: sectorEl ? sectorEl.value : "", city: cityEl ? cityEl.value : "" };
+    }
+
+    function renderMatches() {
+      var profile = currentProfile();
+      var results = document.getElementById("deal-match-results");
+      var scored = Array.prototype.map.call(tickets, function (t) {
+        var reasons = [];
+        var score = 0;
+        if (t.getAttribute("data-city") === profile.city) { score += 40; reasons.push(T("📍 same city", "📍 نفس المدينة")); }
+        if (t.getAttribute("data-sector") === profile.sector) { score += 35; reasons.push(T("🏷️ same sector", "🏷️ نفس القطاع")); }
+        var bonus = (COMPLEMENTS[profile.type] || {})[t.getAttribute("data-type")] || 0;
+        if (bonus) { score += bonus; reasons.push(T("🔁 complementary type", "🔁 نوع مكمّل")); }
+        return { el: t, score: score, reasons: reasons };
+      }).filter(function (m) { return m.score > 0; })
+        .sort(function (a, b) { return b.score - a.score; })
+        .slice(0, 3);
+
+      if (!scored.length) {
+        results.innerHTML = '<div class="deal-match-empty">' + T("No strong match in our database right now — we'll watch for new deals and email you as soon as a match appears 🎯", "لا يوجد تطابق قوي في القاعدة الآن — سنراقب الصفقات الجديدة ونرسل لك بريدًا فور ظهور مطابقة تناسبك 🎯") + "</div>";
+        return;
+      }
+      results.innerHTML = scored.map(function (m) {
+        var title = m.el.querySelector("h3").textContent;
+        var meta = Array.prototype.map.call(m.el.querySelectorAll(".deal-ticket-meta span"), function (s) { return s.textContent.trim(); }).join("  ·  ");
+        return '<div class="deal-match-card"><div class="deal-match-head"><b>' + escDeal(title) + '</b><span class="deal-match-score">' + Math.min(m.score, 100) + "% " + T("match", "تطابق") + "</span></div>" +
+          '<div class="deal-match-meta">' + escDeal(meta) + "</div>" +
+          '<div class="deal-match-reasons">' + m.reasons.map(function (r) { return "<span>" + r + "</span>"; }).join("") + "</div></div>";
+      }).join("");
+    }
+
+    function openDrawer(kind) {
+      scrim.classList.add("open");
+      drawer.classList.add("open");
+      document.body.style.overflow = "hidden";
+      if (kind) {
+        var radio = drawer.querySelector('input[name="dealType"][value="' + kind + '"]');
+        if (radio) radio.checked = true;
+      }
+      goToStep(1);
+    }
+    function closeDrawer() {
+      scrim.classList.remove("open");
+      drawer.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+    function goToStep(n) {
+      current = n;
+      steps.forEach(function (s) { s.classList.toggle("active", Number(s.getAttribute("data-step")) === n); });
+      bar.style.width = Math.min(n, TOTAL_INPUT_STEPS) / TOTAL_INPUT_STEPS * 100 + "%";
+      back.style.visibility = n === 1 ? "hidden" : "visible";
+      if (n === TOTAL_INPUT_STEPS) renderMatches();
+      if (n > TOTAL_INPUT_STEPS) {
+        foot.style.display = "none";
+      } else {
+        foot.style.display = "flex";
+        next.textContent = n === 3 ? T("Send & match", "إرسال ومطابقة") : T("Next", "التالي");
+        next.removeAttribute("disabled");
+      }
+    }
+
+    function showWizError(msg) { wizMessage.textContent = msg; wizMessage.hidden = false; }
+
+    function submitDeal() {
+      var profile = currentProfile();
+      var payload = {
+        type: "deal",
+        dealType: profile.type,
+        title: val("deal-title"),
+        sector: profile.sector,
+        city: profile.city,
+        description: val("deal-desc"),
+        name: val("deal-name"),
+        phone: val("deal-phone"),
+        email: val("deal-email"),
+        consent: !!document.getElementById("deal-consent").checked,
+        lang: (window.BP && BP.lang) || "ar",
+      };
+      if (!payload.name || !payload.phone || !payload.email) {
+        showWizError(T("Fill in your name, mobile and email before continuing.", "عبّي الاسم والجوال والبريد قبل المتابعة."));
+        return Promise.resolve(false);
+      }
+      if (!payload.consent) {
+        showWizError(T("You must agree to the review and contact before sending.", "لازم توافق على المراجعة والتواصل قبل الإرسال."));
+        return Promise.resolve(false);
+      }
+      next.setAttribute("disabled", "true");
+      next.textContent = T("Sending…", "جارٍ الإرسال…");
+      wizMessage.hidden = true;
+      return fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (!d || !d.ok) throw new Error("failed"); return true; })
+        .catch(function () {
+          showWizError(T("An error occurred sending your file. Try again or contact us directly.", "حدث خطأ في إرسال الملف. حاول مرة أخرى أو تواصل معنا مباشرة."));
+          next.removeAttribute("disabled");
+          next.textContent = T("Send & match", "إرسال ومطابقة");
+          return false;
+        });
+    }
+
+    var openHero = document.getElementById("deal-open-hero");
+    var openBottom = document.getElementById("deal-open-bottom");
+    if (openHero) openHero.addEventListener("click", function () { openDrawer(); });
+    if (openBottom) openBottom.addEventListener("click", function () { openDrawer(); });
+    document.querySelectorAll(".deal-launcher").forEach(function (t) {
+      t.addEventListener("click", function () { openDrawer(t.getAttribute("data-kind")); });
+    });
+    document.getElementById("deal-drawer-close").addEventListener("click", closeDrawer);
+    scrim.addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeDrawer(); });
+
+    back.addEventListener("click", function () { if (current > 1) goToStep(current - 1); });
+    next.addEventListener("click", function () {
+      if (current === 3) {
+        submitDeal().then(function (ok) { if (ok) goToStep(4); });
+      } else if (current === 4) {
+        goToStep(5);
+      } else {
+        goToStep(current + 1);
+      }
     });
   });
 })();

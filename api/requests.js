@@ -528,6 +528,44 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }
 
+  // Client-initiated cancellation from /account — only for orders still under
+  // review (never a completed one). Flips the CRM row's حالة الطلب to ملغي so
+  // /account picks it up on its next live-status sync, and pings the team so
+  // no bank transfer gets processed for a cancelled order.
+  if (b.type === "cancel-order") {
+    const ref = String(b.ref || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const name = String(b.name || "").trim().slice(0, 160);
+    if (!ref || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const q = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+    });
+    if (!q.ok) { console.error("cancel-order query error", q.status, (await q.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const page = ((await q.json()).results || [])[0];
+    if (!page) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "order_not_found" })); }
+    const p = page.properties || {};
+    const notesText = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
+    const emailM = notesText.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+    if (!emailM || emailM[1].toLowerCase() !== email) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "email_mismatch" })); }
+    const status = p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name;
+    if (status === "مكتمل") { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "already_completed" })); }
+    if (status !== "ملغي") {
+      const patchRes = await fetch(`https://api.notion.com/v1/pages/${page.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ properties: { "حالة الطلب": { select: { name: "ملغي" } } } }),
+      });
+      if (!patchRes.ok) { console.error("cancel-order patch error", patchRes.status, (await patchRes.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const cHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto" dir="rtl"><h2 style="color:#0B1B5A">إلغاء طلب — ${esc(ref)}</h2><table>${row("الاسم", name) + row("البريد", email)}</table><p>ألغى العميل هذا الطلب من صفحة حسابه. تأكد أنه لا يوجد تحويل بنكي مستحق قبل إقفال الصف نهائياً في Notion.</p></div>`;
+      await sendEmail(TEAM_EMAIL, `إلغاء طلب ${ref}`, cHtml);
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   // Task Force intake from /task-force — a complex/multi-party executive task.
   if (b.type === "task-force") {
     const company = String(b.company || "").trim().slice(0, 200);
@@ -548,6 +586,38 @@ export default async function handler(req, res) {
       crmLead({ title: `Task Force — ${company}`, phone, email, notes: `Task Force · ${notes}`, ref }),
       addToAudience(email, person),
       forwardLead({ source: "task-force", ref, name: person, company, phone, email, notes }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
+  }
+
+  // Deal submission from /deals — offer a deal, seek a partner, or pitch an
+  // idea. Reviewed by the team before it's ever published on the deal wall;
+  // contact details are never shown publicly (double opt-in "request intro").
+  if (b.type === "deal") {
+    const DEAL_TYPE_AR = { offer: "🤝 عرض صفقة", seek: "🔎 يبحث عن شريك", idea: "💡 فكرة مشروع" };
+    const dealType = ["offer", "seek", "idea"].includes(b.dealType) ? b.dealType : "seek";
+    const title = String(b.title || "").trim().slice(0, 200);
+    const sector = String(b.sector || "").trim().slice(0, 60);
+    const city = String(b.city || "").trim().slice(0, 60);
+    const description = String(b.description || "").trim().slice(0, 1500);
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    if (!name || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "DL-" + Date.now().toString().slice(-6);
+    const typeLabel = DEAL_TYPE_AR[dealType];
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">صفقة جديدة — ${ref}</h2><table>${row("النوع", typeLabel) + row("العنوان", title) + row("القطاع", sector) + row("المدينة", city) + row("الوصف", description) + row("الاسم", name) + row("الجوال", phone) + row("الإيميل", email)}</table><p>راجع الملف واعتمده قبل ظهوره على حائط الصفقات.</p></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto" dir="rtl">
+      <h2 style="color:#0B1B5A">وصلنا ملفك بنجاح — ${ref}</h2>
+      <p>مرحباً ${esc(name)}، استلمنا ملف صفقتك وسيراجعه فريقنا خلال 24 ساعة. سنرسل لك تأكيداً عند النشر وعند أي مطابقة جديدة.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    const [teamSent] = await Promise.all([
+      sendEmail(TEAM_EMAIL, `صفقة جديدة (${typeLabel}) — ${title || name}`, teamHtml),
+      sendEmail(email, `وصلنا ملفك ${ref} — Business Partner`, clientHtml),
+      crmLead({ title: `صفقة — ${title || name}`, phone, email, notes: `Deals · ${typeLabel} · ${sector} · ${city} · ${description}`, ref }),
+      addToAudience(email, name),
+      forwardLead({ source: "deal", ref, dealType, title, sector, city, description, name, phone, email }),
     ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
