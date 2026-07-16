@@ -2758,6 +2758,176 @@ var BP_EMP_BILLING = "monthly";
   });
 })();
 
+/* ---------- Partners repeater + bank-account & formation-contract forms ---------- */
+(function () {
+  "use strict";
+  function T(en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; }
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  var MOBILE = /^(?:\+?966|0)?5\d{8}$/;
+  var EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+  function addRow(wrap) {
+    var withShare = wrap.hasAttribute("data-with-share");
+    var row = document.createElement("div");
+    row.className = "partner-row" + (withShare ? " with-share" : "");
+    row.innerHTML =
+      '<input type="text" data-p="name" placeholder="' + T("Partner name", "اسم الشريك") + '">' +
+      '<input type="tel" data-p="phone" placeholder="05XXXXXXXX">' +
+      '<input type="email" data-p="email" placeholder="email@company.com">' +
+      (withShare ? '<input type="number" data-p="share" min="0" max="100" placeholder="%">' : "") +
+      '<button type="button" class="pr-del" aria-label="' + T("Remove", "حذف") + '">✕</button>';
+    row.querySelector(".pr-del").addEventListener("click", function () { row.remove(); recalc(wrap); });
+    if (withShare) row.querySelector('[data-p="share"]').addEventListener("input", function () { recalc(wrap); });
+    wrap.appendChild(row);
+  }
+  function recalc(wrap) {
+    var totalEl = document.getElementById("fc-share-total");
+    if (!totalEl || !wrap.hasAttribute("data-with-share")) return;
+    var total = 0;
+    wrap.querySelectorAll('[data-p="share"]').forEach(function (i) { total += Number(i.value) || 0; });
+    totalEl.textContent = total + "%";
+    totalEl.style.color = total === 100 ? "#16a34a" : "var(--navy)";
+  }
+  function collect(wrap) {
+    var out = [];
+    wrap.querySelectorAll(".partner-row").forEach(function (row) {
+      var p = {};
+      row.querySelectorAll("[data-p]").forEach(function (i) { p[i.getAttribute("data-p")] = i.value.trim(); });
+      if (p.name || p.email || p.phone) out.push(p);
+    });
+    return out;
+  }
+  function validPartners(list) {
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      if (!p.name) return T("Every partner needs a name.", "كل شريك يحتاج اسماً.");
+      if (!EMAIL.test(p.email || "")) return T("Enter a valid email for partner: ", "أدخل بريداً صحيحاً للشريك: ") + p.name;
+      if (p.phone && !MOBILE.test(p.phone.replace(/\s/g, ""))) return T("Invalid mobile for partner: ", "جوال غير صحيح للشريك: ") + p.name;
+    }
+    return null;
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-partners]").forEach(function (wrap) {
+      addRow(wrap); // start with one row
+      var addBtn = wrap.parentElement.querySelector("[data-add-partner]");
+      if (addBtn) addBtn.addEventListener("click", function () { addRow(wrap); });
+    });
+
+    // ---- Bank account opening ----
+    var bank = document.getElementById("bank-form-el");
+    if (bank) {
+      // Company profile is the prerequisite: prefill from bp_company/bp_session
+      // and surface the gate when it's incomplete.
+      var comp = {}, ses = null;
+      try { comp = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e) {}
+      try { ses = JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
+      if (comp.name && !val("bk2-company")) document.getElementById("bk2-company").value = comp.name;
+      if (comp.cr && !val("bk2-cr")) document.getElementById("bk2-cr").value = comp.cr;
+      if (ses && !val("bk2-manager")) document.getElementById("bk2-manager").value = ses.name || "";
+      if (ses && !val("bk2-email")) document.getElementById("bk2-email").value = ses.email || "";
+      if (comp.phone && !val("bk2-phone")) document.getElementById("bk2-phone").value = comp.phone;
+      var gate = document.getElementById("bank-profile-gate");
+      if (gate && (!comp.name || !comp.cr)) gate.hidden = false;
+
+      bank.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var company = val("bk2-company"), cr = val("bk2-cr"), manager = val("bk2-manager"), phone = val("bk2-phone"), email = val("bk2-email");
+        if (!company || !cr) { alert(T("Company name and CR are required (bank prerequisite).", "اسم الشركة ورقم السجل مطلوبان (اشتراط البنك).")); return; }
+        if (!manager) { alert(T("Enter the manager's name.", "أدخل اسم المدير.")); return; }
+        if (!MOBILE.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile.", "أدخل جوالاً سعودياً صحيحاً.")); return; }
+        if (!EMAIL.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
+        var partners = collect(bank.querySelector("[data-partners]"));
+        var pErr = validPartners(partners);
+        if (pErr) { alert(pErr); return; }
+        var btn = bank.querySelector("button[type=submit]"), lbl = btn.textContent;
+        btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+        var ref = "BPB-" + Date.now().toString().slice(-6);
+        var waMsg = encodeURIComponent(T("Bank account opening ", "فتح حساب بنكي ") + ref + " — " + company);
+        fetch("/api/requests", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "bank-account", ref: ref, company: company, cr: cr, manager: manager, phone: phone, email: email, bank: val("bk2-bank"), when: val("bk2-when"), partners: partners }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("bank-success");
+          box.hidden = false;
+          if (d && d.ok) {
+            box.innerHTML = "✅ <strong>" + T("Request received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
+              T("We coordinate with the bank and every partner receives the online-appointment invitation by email.", "ننسق مع البنك وسيستلم كل شريك دعوة الموعد الأونلاين على بريده.");
+            try {
+              var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+              orders.unshift({ ref: ref, name: manager, email: email, items: [{ name: T("Bank account opening: ", "فتح حساب بنكي: ") + company + " · " + val("bk2-bank"), qty: 1 }], at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+              localStorage.setItem("bp_orders", JSON.stringify(orders));
+            } catch (err) {}
+            bank.reset();
+          } else {
+            box.innerHTML = "⚠️ " + T("Couldn't send — contact us on WhatsApp.", "تعذّر الإرسال — تواصل عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+          }
+        }).catch(function () {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("bank-success");
+          box.hidden = false;
+          box.innerHTML = "⚠️ " + T("Couldn't reach the server — send it on WhatsApp.", "تعذّر الاتصال بالخادم — أرسله عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+        });
+      });
+    }
+
+    // ---- Formation contract (partners) ----
+    var fc = document.getElementById("fc-form-el");
+    if (fc) {
+      try {
+        var ses2 = JSON.parse(localStorage.getItem("bp_session") || "null");
+        if (ses2 && !val("fc-person")) document.getElementById("fc-person").value = ses2.name || "";
+        if (ses2 && !val("fc-email")) document.getElementById("fc-email").value = ses2.email || "";
+      } catch (e) {}
+      fc.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name = val("fc-name"), activity = val("fc-activity"), person = val("fc-person"), phone = val("fc-phone"), email = val("fc-email");
+        if (!name || !activity) { alert(T("Enter the proposed name and main activity.", "أدخل الاسم المقترح والنشاط الرئيسي.")); return; }
+        if (!person) { alert(T("Enter the requester's name.", "أدخل اسم مقدم الطلب.")); return; }
+        if (!MOBILE.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile.", "أدخل جوالاً سعودياً صحيحاً.")); return; }
+        if (!EMAIL.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
+        var wrap = fc.querySelector("[data-partners]");
+        var partners = collect(wrap);
+        if (partners.length < 2) { alert(T("A partners formation needs at least two partners.", "التأسيس بين شركاء يحتاج شريكين على الأقل.")); return; }
+        var pErr = validPartners(partners);
+        if (pErr) { alert(pErr); return; }
+        var total = partners.reduce(function (s, p) { return s + (Number(p.share) || 0); }, 0);
+        if (total !== 100) { alert(T("Partners' shares must total exactly 100% (now: ", "مجموع نسب الشركاء يجب أن يساوي 100% بالضبط (الآن: ") + total + "%)"); return; }
+        var btn = fc.querySelector("button[type=submit]"), lbl = btn.textContent;
+        btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+        var ref = "BPF-" + Date.now().toString().slice(-6);
+        var waMsg = encodeURIComponent(T("Formation request ", "طلب تأسيس ") + ref + " — " + name);
+        fetch("/api/requests", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "formation-contract", ref: ref, company: name, entity: val("fc-type"), capital: val("fc-capital"), activity: activity, person: person, phone: phone, email: email, partners: partners }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("fc-success");
+          box.hidden = false;
+          if (d && d.ok) {
+            box.innerHTML = "✅ <strong>" + T("Formation request received", "تم استلام طلب التأسيس") + " — " + ref + "</strong><br>" +
+              T("We draft the incorporation contract and submit via the Saudi Business Center — every partner will get the signing invitation by email.", "نصيغ عقد التأسيس ونقدّمه عبر المركز السعودي للأعمال — وسيستلم كل شريك دعوة التوقيع على بريده.");
+            try {
+              var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+              orders.unshift({ ref: ref, name: person, email: email, items: [{ name: T("Company formation: ", "تأسيس شركة: ") + name, qty: 1 }], at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+              localStorage.setItem("bp_orders", JSON.stringify(orders));
+            } catch (err) {}
+            fc.reset(); recalc(wrap);
+          } else {
+            box.innerHTML = "⚠️ " + T("Couldn't send — contact us on WhatsApp.", "تعذّر الإرسال — تواصل عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+          }
+        }).catch(function () {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("fc-success");
+          box.hidden = false;
+          box.innerHTML = "⚠️ " + T("Couldn't reach the server — send it on WhatsApp.", "تعذّر الاتصال بالخادم — أرسله عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+        });
+      });
+    }
+  });
+})();
+
 /* ---------- Contact form (/contact) → WhatsApp deep-link + CRM lead ---------- */
 (function () {
   "use strict";

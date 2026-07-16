@@ -416,6 +416,8 @@ const NAV_GROUPS = [
       { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
       { href: "/installments", en: "Instalments ⚡", ar: "تقسيط الخدمات ⚡" },
       { href: "/estrdad", en: "Fee refunds (Estrdad) ⚡", ar: "استرداد الرسوم ⚡" },
+      { href: "/bank-account", en: "Corporate bank account ⚡", ar: "فتح حساب بنكي ⚡" },
+      { href: "/formation-contract", en: "Formation with partners ⚡", ar: "تأسيس بين شركاء ⚡" },
       {
         href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال",
         sub: [
@@ -4613,6 +4615,128 @@ function buildEstrdad() {
   return page({ title: Lraw("Reclaim government fees (Estrdad) — Business Partner", "استرداد الرسوم الحكومية (مبادرة استرداد) — بيزنس بارتنر"), desc: Lraw("Monsha'at refunds SME government fees — if you stay compliant. We keep you eligible and handle the file.", "منشآت تعيد رسومك الحكومية — بشرط الامتثال المستمر. نُبقيك مستحقاً ونجهّز ملفك كاملاً."), active: "/estrdad", path: "/estrdad", body });
 }
 
+// Shared partners-repeater markup: rows of (name, mobile, email[, share%]).
+// The client JS (main.js "partners repeater") wires add/remove and collects
+// rows into the request payload; every partner gets notified by email.
+function partnersBlock({ withShare = false } = {}) {
+  return `
+      <div class="field"><label>${L("Partners", "الشركاء")} ${withShare ? L("(name, mobile, email, share %)", "(الاسم، الجوال، البريد، نسبة الملكية)") : L("(name, mobile, email)", "(الاسم، الجوال، البريد)")}</label>
+        <div class="partners-rows" data-partners${withShare ? ' data-with-share="1"' : ""}></div>
+        <button type="button" class="btn btn-ghost btn-sm" data-add-partner>＋ ${L("Add partner", "أضف شريكاً")}</button>
+        <p class="mini">${L("Every partner receives the updates and the appointment invitation by email.", "كل شريك يستلم التحديثات ودعوة الموعد على بريده.")}</p>
+      </div>`;
+}
+
+// Corporate bank-account opening: we prepare the file from the client's
+// company profile (completing بيانات المنشأة is a prerequisite), coordinate
+// with the chosen bank, and set an ONLINE appointment with the bank officer —
+// every partner + the manager get the appointment by email.
+function buildBankAccount() {
+  const banks = ["الراجحي", "SNB الأهلي", "الرياض", "الإنماء", "ساب SAB", "البلاد", "الجزيرة", "العربي anb", "STC Bank", "بنك آخر"];
+  const steps = [
+    [1, L("Complete your company profile", "أكمل بيانات منشأتك"), L("CR, activity, national address and contacts in your dashboard — this is the bank-file prerequisite.", "السجل والنشاط والعنوان الوطني وجهات الاتصال في لوحتك — هذا اشتراط ملف البنك.")],
+    [2, L("Pick the bank & propose a time", "اختر البنك واقترح موعداً"), L("Choose your preferred bank and a time that suits all partners.", "اختر بنكك المفضل ووقتاً يناسب جميع الشركاء.")],
+    [3, L("We prepare & book", "نجهّز ونحجز"), L("We prepare the account-opening file and coordinate an ONLINE meeting with the bank officer.", "نجهّز ملف فتح الحساب وننسق اجتماعاً أونلاين مع موظف البنك.")],
+    [4, L("Partners get the invitation", "الشركاء يستلمون الدعوة"), L("Every partner and the manager receive the appointment by email — attend online and sign.", "كل شريك والمدير يستلمون الموعد على البريد — احضروا أونلاين ووقّعوا.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("New service ⚡", "خدمة جديدة ⚡")}</span>
+    <h1>${L("Open your company's bank account — online, partners included", "افتح الحساب البنكي لشركتك — أونلاين وبحضور كل الشركاء")}</h1>
+    <p class="lead">${L("We prepare the account-opening file from your company profile, coordinate with your chosen bank, and book an online meeting with the bank officer — every partner and the manager get the appointment on their email.", "نجهّز ملف فتح الحساب من بيانات منشأتك، ننسق مع البنك الذي تختاره، ونحجز اجتماعاً أونلاين مع موظف البنك — وكل شريك والمدير يستلمون الموعد على بريدهم.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#bank-form">${L("Request account opening", "اطلب فتح الحساب")}</a>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-ghost")}</div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Online meeting with the bank", "اجتماع أونلاين مع البنك")}</span>
+      <span class="hero-badge">${I.check}${L("All partners notified", "إشعار جميع الشركاء")}</span>
+      <span class="hero-badge">${I.check}${L("File prepared from your profile", "الملف يُجهّز من بيانات منشأتك")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تعمل")}</span><h2>${L("From profile to an open account in 4 steps", "من بيانات المنشأة إلى حساب مفتوح في 4 خطوات")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section" id="bank-form"><div class="container" style="max-width:920px">
+    <div class="section-head"><h2>${L("Request bank-account opening", "اطلب فتح الحساب البنكي")}</h2><p>${L("Sign in first — the request pulls your company profile from your dashboard.", "سجّل دخولك أولاً — الطلب يسحب بيانات منشأتك من لوحتك.")}</p></div>
+    <div class="callout" id="bank-profile-gate" hidden style="margin-bottom:16px"><span class="ico">📋</span><p>${L("Company profile incomplete: fill in your establishment name and CR in the dashboard first — it's the bank-file prerequisite.", "بيانات المنشأة غير مكتملة: أكمل اسم المنشأة والسجل التجاري في لوحتك أولاً — فهي اشتراط ملف البنك.")} <a href="${u("/account")}">${L("Complete company profile ←", "أكمل بيانات المنشأة ←")}</a></p></div>
+    <div class="order-box">
+      <form id="bank-form-el" novalidate>
+        <div class="cc-grid">
+          <div class="field"><label for="bk2-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="bk2-company" required></div>
+          <div class="field"><label for="bk2-cr">${L("CR number", "رقم السجل التجاري")} *</label><input type="text" id="bk2-cr" required></div>
+          <div class="field"><label for="bk2-manager">${L("Manager name", "اسم المدير")} *</label><input type="text" id="bk2-manager" required></div>
+          <div class="field"><label for="bk2-phone">${L("Manager mobile", "جوال المدير")} *</label><input type="tel" id="bk2-phone" placeholder="05XXXXXXXX" required></div>
+          <div class="field"><label for="bk2-email">${L("Manager email", "بريد المدير")} *</label><input type="email" id="bk2-email" required></div>
+          <div class="field"><label for="bk2-bank">${L("Preferred bank", "البنك المفضل")}</label><select id="bk2-bank">${banks.map((b) => `<option>${b}</option>`).join("")}</select></div>
+          <div class="field"><label for="bk2-when">${L("Proposed appointment (online)", "الموعد المقترح (أونلاين)")}</label><input type="datetime-local" id="bk2-when"></div>
+        </div>
+        ${partnersBlock()}
+        <button type="submit" class="btn btn-primary btn-lg">${L("Send the request", "أرسل الطلب")}</button>
+        <div class="form-success" id="bank-success" hidden></div>
+      </form>
+    </div>
+    <div class="callout" style="margin-top:20px"><span class="ico">⚖️</span><p>${L("Account opening and its requirements are the bank's decision; we prepare, coordinate and follow through.", "فتح الحساب ومتطلباته قرار البنك؛ نحن نجهّز وننسق ونتابع حتى الفتح.")}</p></div>
+  </div></section>`;
+  return page({ title: Lraw("Corporate bank account opening — Business Partner", "فتح حساب بنكي للشركات — بيزنس بارتنر"), desc: Lraw("We prepare the file, coordinate with your bank and book an online meeting — all partners notified.", "نجهّز الملف وننسق مع بنكك ونحجز اجتماعاً أونلاين — مع إشعار جميع الشركاء."), active: "/bank-account", path: "/bank-account", body });
+}
+
+// Multi-partner company formation: incorporation contract (عقد التأسيس)
+// prepared and submitted through the Saudi Business Center, partners e-sign,
+// then CR issuance — every partner is kept in the loop by email.
+function buildFormationContract() {
+  const steps = [
+    [1, L("Company & partners details", "بيانات الشركة والشركاء"), L("Proposed name, entity type, capital, and every partner with their share.", "الاسم المقترح، الكيان، رأس المال، وكل شريك بنسبته.")],
+    [2, L("We draft the incorporation contract", "نصيغ عقد التأسيس"), L("A compliant عقد تأسيس drafted per the Companies Law and your shares.", "عقد تأسيس متوافق مع نظام الشركات وحصصكم.")],
+    [3, L("Submission via the Saudi Business Center", "التقديم عبر المركز السعودي للأعمال"), L("We submit and track the contract through the Saudi Business Center until approval.", "نقدّم العقد ونتابعه عبر المركز السعودي للأعمال حتى الاعتماد.")],
+    [4, L("Partners e-sign & CR issued", "الشركاء يوقّعون ويصدر السجل"), L("Every partner gets the signing invitation by email; we finish with CR issuance and next steps (bank account, licenses).", "كل شريك يستلم دعوة التوقيع على بريده؛ ونُكمل بإصدار السجل والخطوات التالية (الحساب البنكي، التراخيص).")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Saudi Business Center", "عبر المركز السعودي للأعمال")}</span>
+    <h1>${L("Founding a company with partners? We draft & submit the incorporation contract", "مؤسسين شركة بين شركاء؟ نصيغ عقد التأسيس ونقدّمه عنكم")}</h1>
+    <p class="lead">${L("From the proposed name to partners' shares: we draft the incorporation contract, submit it through the Saudi Business Center, get every partner to e-sign — and keep everyone updated by email until the CR is issued.", "من الاسم المقترح إلى حصص الشركاء: نصيغ عقد التأسيس، نقدّمه عبر المركز السعودي للأعمال، ونرتب توقيع كل شريك إلكترونياً — مع إبقاء الجميع على اطلاع بالبريد حتى صدور السجل.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#fc-form">${L("Start the formation", "ابدأ التأسيس")}</a><a class="btn btn-ghost btn-lg" href="${u("/services/category/company-formation")}">${L("All formation services", "كل خدمات التأسيس")}</a></div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Compliant contract drafting", "صياغة عقد متوافقة")}</span>
+      <span class="hero-badge">${I.check}${L("All partners e-sign", "توقيع إلكتروني لكل الشركاء")}</span>
+      <span class="hero-badge">${I.check}${L("Followed to CR issuance", "متابعة حتى صدور السجل")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تعمل")}</span><h2>${L("From partners' agreement to a registered company", "من اتفاق الشركاء إلى شركة مسجّلة")}</h2></div>
+    <div class="home-steps">${steps}</div>
+    <div class="callout" style="max-width:760px;margin:28px auto 0"><span class="ico">💰</span><p>${L("Good to know: incorporation-contract publication and CR fees are among the fees Monsha'at's Estrdad refunds to compliant SMEs.", "معلومة تهمك: رسوم نشر عقد التأسيس وإصدار السجل من الرسوم التي تعيدها مبادرة «استرداد» للمنشآت الممتثلة.")} <a href="${u("/estrdad")}">${L("Fee refunds ←", "استرداد الرسوم ←")}</a></p></div>
+  </div></section>
+
+  <section class="section" id="fc-form"><div class="container" style="max-width:920px">
+    <div class="section-head"><h2>${L("Start your company formation", "ابدأ تأسيس شركتكم")}</h2><p>${L("Shares must total 100% — every partner receives the updates and the signing invitation by email.", "مجموع النسب يجب أن يساوي 100% — وكل شريك يستلم التحديثات ودعوة التوقيع على بريده.")}</p></div>
+    <div class="order-box">
+      <form id="fc-form-el" novalidate>
+        <div class="cc-grid">
+          <div class="field"><label for="fc-name">${L("Proposed company name", "اسم الشركة المقترح")} *</label><input type="text" id="fc-name" required></div>
+          <div class="field"><label for="fc-type">${L("Entity type", "الكيان")}</label><select id="fc-type">
+            <option value="llc">${Lraw("LLC (ذ.م.م)", "شركة ذات مسؤولية محدودة (ذ.م.م)")}</option>
+            <option value="sjsc">${Lraw("Simplified JSC", "شركة مساهمة مبسطة")}</option>
+            <option value="other">${Lraw("Other / advise me", "أخرى / انصحوني")}</option>
+          </select></div>
+          <div class="field"><label for="fc-capital">${L("Capital (SAR)", "رأس المال (ريال)")}</label><input type="number" id="fc-capital" min="0" placeholder="100000"></div>
+          <div class="field"><label for="fc-activity">${L("Main activity", "النشاط الرئيسي")} *</label><input type="text" id="fc-activity" placeholder="${Lraw("e.g. general contracting", "مثال: مقاولات عامة")}"></div>
+          <div class="field"><label for="fc-person">${L("Requester name", "اسم مقدّم الطلب")} *</label><input type="text" id="fc-person" required></div>
+          <div class="field"><label for="fc-phone">${L("Mobile", "الجوال")} *</label><input type="tel" id="fc-phone" placeholder="05XXXXXXXX" required></div>
+          <div class="field"><label for="fc-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="fc-email" required></div>
+        </div>
+        ${partnersBlock({ withShare: true })}
+        <div class="calc-line" style="border:0;padding-top:0"><span class="k" style="color:var(--text-soft)">${L("Shares total", "مجموع النسب")}</span><span class="v" id="fc-share-total" style="color:var(--navy)">0%</span></div>
+        <button type="submit" class="btn btn-primary btn-lg">${L("Send the formation request", "أرسل طلب التأسيس")}</button>
+        <div class="form-success" id="fc-success" hidden></div>
+      </form>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Company formation with partners (incorporation contract) — Business Partner", "تأسيس الشركات بين الشركاء (عقد التأسيس) — بيزنس بارتنر"), desc: Lraw("We draft the incorporation contract, submit via the Saudi Business Center, and get every partner to e-sign.", "نصيغ عقد التأسيس ونقدّمه عبر المركز السعودي للأعمال وننسق توقيع كل الشركاء إلكترونياً."), active: "/formation-contract", path: "/formation-contract", body });
+}
+
 function buildCart() {
   const cm = site.commerce;
   const body = `
@@ -4869,6 +4993,8 @@ function buildAccount() {
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
               <a class="portal-card" id="ai-employees-link" href="${u("/portal")}"><span>🤖</span><strong>${L("Smart Specialized Agent", "الموظف المتخصص")}</strong></a>
               <a class="portal-card" href="${u("/shared-services")}"><span>🤝</span><strong>${L("Shared Services", "الخدمات المشتركة")}</strong></a>
+              <a class="portal-card" href="${u("/bank-account")}"><span>🏦</span><strong>${L("Open a bank account", "فتح حساب بنكي")}</strong></a>
+              <a class="portal-card" href="${u("/estrdad")}"><span>💰</span><strong>${L("Fee refunds (Estrdad)", "استرداد الرسوم")}</strong></a>
             </div>
           </div>
           <div class="dash-card"><h3>${L("Recent orders", "أحدث الطلبات")}</h3><div id="ov-orders"><p class="dash-empty">${L("No orders yet — browse the services to get started.", "لا توجد طلبات بعد — تصفّح الخدمات للبدء.")}</p></div></div>
@@ -7128,6 +7254,8 @@ function writeFullSite(pre) {
   write(`${pre}cart.html`, buildCart());
   write(`${pre}installments.html`, buildInstallments());
   write(`${pre}estrdad.html`, buildEstrdad());
+  write(`${pre}bank-account.html`, buildBankAccount());
+  write(`${pre}formation-contract.html`, buildFormationContract());
   write(`${pre}checkout.html`, buildCheckout());
   write(`${pre}terms.html`, buildTerms());
   write(`${pre}account.html`, buildAccount());
@@ -7184,7 +7312,7 @@ write("ar/portal.html", buildPortal("/ar/"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/installments", "/estrdad", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

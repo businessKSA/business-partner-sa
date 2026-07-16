@@ -690,6 +690,73 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref }));
   }
 
+  // Corporate bank-account opening: file prepared from the company profile,
+  // online appointment with the bank officer — EVERY partner + the manager
+  // receive the proposed appointment by email; the team confirms with the bank.
+  if (b.type === "bank-account") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const cr = String(b.cr || "").trim().slice(0, 40);
+    const manager = String(b.manager || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const bank = String(b.bank || "").trim().slice(0, 80);
+    const when = String(b.when || "").trim().slice(0, 40);
+    const ref = String(b.ref || "BPB-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const partners = (Array.isArray(b.partners) ? b.partners : []).slice(0, 15).map((p) => ({
+      name: String((p && p.name) || "").trim().slice(0, 160),
+      phone: String((p && p.phone) || "").trim().slice(0, 40),
+      email: String((p && p.email) || "").trim().toLowerCase().slice(0, 160),
+    })).filter((p) => p.name && isEmail(p.email));
+    if (!company || !cr || !manager || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const whenTxt = when ? when.replace("T", " الساعة ") : "يُحدد بالتنسيق مع البنك";
+    const partnersRows = partners.map((p) => row("شريك", `${p.name} · ${p.phone || "—"} · ${p.email}`)).join("");
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب فتح حساب بنكي ${ref}</h2><table>${row("الشركة", company) + row("السجل التجاري", cr) + row("البنك المفضل", bank) + row("الموعد المقترح (أونلاين)", whenTxt) + row("المدير", `${manager} · ${phone} · ${email}`) + partnersRows}</table><p>جهّز ملف فتح الحساب من بيانات المنشأة، نسّق مع البنك موعد الاجتماع الأونلاين، ثم أكّد الموعد للجميع — الشركاء والمدير وصلتهم دعوة مبدئية بالفعل.</p></div>`;
+    const invite = (who) => `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">دعوة: فتح الحساب البنكي لشركة ${esc(company)} 🏦</h2><p>مرحباً ${esc(who)},</p><p>تم تقديم طلب فتح حساب بنكي لشركة <strong>${esc(company)}</strong> (سجل تجاري ${esc(cr)}) لدى <strong>${esc(bank)}</strong>.</p><p><strong>الموعد المقترح للاجتماع الأونلاين مع موظف البنك:</strong> ${esc(whenTxt)}</p><p>حضوركم مطلوب نظاماً بصفتكم من الشركاء/الإدارة. سنؤكد الموعد النهائي ورابط الاجتماع بعد التنسيق مع البنك — فضلاً أبقوا هذا الموعد محجوزاً.</p><table>${row("رقم المرجع", ref)}</table><p style="color:#0B1B5A">بزنس بارتنر · شريك تشغيلك</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `فتح حساب بنكي ${ref} — ${company} (${bank})`, oHtml),
+      sendEmail(email, `دعوة موعد فتح الحساب البنكي — ${ref}`, invite(manager)),
+      ...partners.map((p) => sendEmail(p.email, `دعوة موعد فتح الحساب البنكي — ${company}`, invite(p.name))),
+      crmLead({ title: `فتح حساب بنكي — ${company}`, phone, email, notes: `بنك · ${bank} · س.ت ${cr} · موعد مقترح ${whenTxt} · شركاء: ${partners.map((p) => p.name).join("، ") || "—"}`, ref, orderStatus: "قيد المراجعة" }),
+      addToAudience(email, manager),
+      forwardLead({ source: "bank-account", ref, name: manager, phone, email, items: `${company} · ${bank}` }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, partnersNotified: partners.length }));
+  }
+
+  // Multi-partner company formation: incorporation contract drafted and
+  // submitted through the Saudi Business Center; every partner is emailed.
+  if (b.type === "formation-contract") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const entity = { llc: "شركة ذات مسؤولية محدودة", sjsc: "شركة مساهمة مبسطة", other: "أخرى/استشارة" }[b.entity] || "شركة ذات مسؤولية محدودة";
+    const capital = Number.isFinite(Number(b.capital)) && b.capital !== "" ? Number(b.capital) : null;
+    const activity = String(b.activity || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPF-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const partners = (Array.isArray(b.partners) ? b.partners : []).slice(0, 15).map((p) => ({
+      name: String((p && p.name) || "").trim().slice(0, 160),
+      phone: String((p && p.phone) || "").trim().slice(0, 40),
+      email: String((p && p.email) || "").trim().toLowerCase().slice(0, 160),
+      share: Number.isFinite(Number(p && p.share)) ? Number(p.share) : null,
+    })).filter((p) => p.name && isEmail(p.email));
+    if (!company || !activity || !person || !isEmail(email) || partners.length < 2) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const partnersRows = partners.map((p) => row("شريك", `${p.name} · ${p.share != null ? p.share + "%" : "—"} · ${p.phone || "—"} · ${p.email}`)).join("");
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تأسيس بين شركاء ${ref}</h2><table>${row("الاسم المقترح", company) + row("الكيان", entity) + row("رأس المال", capital != null ? capital + " ﷼" : "—") + row("النشاط", activity) + row("مقدم الطلب", `${person} · ${phone} · ${email}`) + partnersRows}</table><p>صِغ عقد التأسيس وفق الحصص أعلاه وقدّمه عبر المركز السعودي للأعمال، ثم رتّب توقيع الشركاء إلكترونياً — وصلتهم رسالة تمهيدية بالفعل.</p></div>`;
+    const invite = (who, share) => `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تأسيس شركة ${esc(company)} — أنت من الشركاء 🖋️</h2><p>مرحباً ${esc(who)},</p><p>بدأنا إجراءات تأسيس <strong>${esc(company)}</strong> (${esc(entity)}${share != null ? ` — حصتك ${share}%` : ""}) عبر <strong>المركز السعودي للأعمال</strong>.</p><p>سنصيغ عقد التأسيس ونرسل لكم دعوة التوقيع الإلكتروني فور جاهزيته، ثم نتابع حتى إصدار السجل التجاري.</p><table>${row("رقم المرجع", ref)}</table><p style="color:#0B1B5A">بزنس بارتنر · شريك تشغيلك</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `تأسيس بين شركاء ${ref} — ${company}`, oHtml),
+      sendEmail(email, `بدأنا تأسيس ${company} — ${ref}`, invite(person, null)),
+      ...partners.map((p) => sendEmail(p.email, `تأسيس شركة ${company} — دعوة الشركاء`, invite(p.name, p.share))),
+      crmLead({ title: `تأسيس بين شركاء — ${company}`, phone, email, notes: `تأسيس · ${entity} · ${activity}${capital != null ? " · رأس مال " + capital : ""} · شركاء: ${partners.map((p) => p.name + (p.share != null ? " " + p.share + "%" : "")).join("، ")}`, ref, orderStatus: "قيد المراجعة" }),
+      addToAudience(email, person),
+      forwardLead({ source: "formation-contract", ref, name: person, phone, email, items: company }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, partnersNotified: partners.length }));
+  }
+
   // Estrdad (Monsha'at fee-refund) eligibility assessment + file preparation.
   if (b.type === "estrdad") {
     const company = String(b.company || "").trim().slice(0, 200);
