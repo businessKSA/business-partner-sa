@@ -76,7 +76,6 @@
         <h2>Sign in to the service</h2>
         <p>Enter the access code emailed to you after payment. Not subscribed yet? Register via the client portal.</p>
         <form class="ss-access-form" id="ss-unlock">
-          <input id="unl-email" type="email" autocomplete="email" placeholder="Your subscription email" aria-label="E-mail">
           <input id="unl-code" type="text" autocomplete="off" placeholder="Access code" aria-label="Access code">
           <button class="btn btn-primary" type="submit">Sign in</button>
         </form>
@@ -406,30 +405,30 @@
     var gate=document.getElementById('ss-gate'),dash=document.getElementById('ss-dash');
     function note(el,t,cls){el.hidden=false;el.textContent=t;el.className='ss-note-box '+cls;}
 
-    // ---------- access gate (demo123) ----------
-    var DEMO_CODES=['demo123'];
+    // ---------- access gate: real server-side login (ss-login) ----------
+    var SKEY='bp_ss_client_v1';
+    function getClient(){ try{ return JSON.parse(localStorage.getItem(SKEY)||'null'); }catch(e){ return null; } }
+    function setClient(c){ try{ localStorage.setItem(SKEY,JSON.stringify(c)); }catch(e){} }
     var inited=false;
-    function openService(){ if(gate)gate.hidden=true; if(dash){dash.hidden=false; if(!inited){initDash();inited=true;} dash.scrollIntoView({behavior:'smooth',block:'start'});} }
-    if(localStorage.getItem('bp_ss_token')) openService();
+    function openService(){ if(gate)gate.hidden=true; if(dash){dash.hidden=false; if(!inited){initDash();inited=true;} greet(); dash.scrollIntoView({behavior:'smooth',block:'start'});} }
+    function greet(){ var c=getClient(); var h=document.querySelector('.ss-dash-head h2'); if(c&&h) h.textContent="Dashboard — "+c.name; }
+    if(getClient()) openService();
     var unl=document.getElementById('ss-unlock');
     if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
       var code=(document.getElementById('unl-code').value||'').trim();
-      var email=((document.getElementById('unl-email')||{}).value||'').trim();
       var box=document.getElementById('unl-result');
       if(!code){note(box,"Enter your access code.",'err');return;}
-      if(DEMO_CODES.indexOf(code.toLowerCase())>-1){localStorage.setItem('bp_ss_token','demo');note(box,"Welcome — opening your dashboard…",'ok');openService();return;}
-      if(!email||email.indexOf('@')<0){note(box,"Enter the email you subscribed with.",'err');return;}
-      note(box,"Verifying…",'ok');
-      fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'unlock',email:email,code:code})})
+      if(code.toLowerCase()==='demo123'){ setClient({code:'demo123',name:"Demo preview",demo:true}); note(box,"Welcome — opening the preview…",'ok'); openService(); return; }
+      note(box,"Checking your code…",'ok');
+      fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
         .then(function(r){return r.json();})
-        .then(function(d){
-          if(d&&d.ok&&d.token){localStorage.setItem('bp_ss_token',d.token);note(box,d.message||"Activated — welcome to your executive team.",'ok');openService();}
-          else{note(box,(d&&d.message)||"Wrong code for this email — use the same email you subscribed with.",'err');}
-        })
-        .catch(function(){note(box,"Couldn't verify right now — try again.",'err');});
+        .then(function(d){ if(d&&d.ok){ setClient({code:code.toUpperCase(),name:d.name||"Client"}); note(box,"Welcome "+(d.name||'')+' 👋','ok'); openService(); }
+          else if(d&&d.blocked){ note(box,"This account is suspended — contact us to reactivate.",'err'); }
+          else { note(box,"Incorrect code. Use the code emailed to you after payment.",'err'); } })
+        .catch(function(){ note(box,"Connection issue — try again.",'err'); });
     });
     var lo=document.getElementById('ss-logout');
-    if(lo) lo.onclick=function(){ localStorage.removeItem('bp_ss_token'); if(dash)dash.hidden=true; if(gate){gate.hidden=false;gate.scrollIntoView({behavior:'smooth',block:'start'});} };
+    if(lo) lo.onclick=function(){ localStorage.removeItem(SKEY); localStorage.removeItem('bp_ss_token'); if(dash)dash.hidden=true; if(gate){gate.hidden=false;gate.scrollIntoView({behavior:'smooth',block:'start'});} };
 
     // ---------- tabs ----------
     var toolsBuilt=false;
@@ -443,8 +442,9 @@
     // ---------- team: per-agent individual chat ----------
     var cur=null, chatHist=[];
     var log=document.getElementById('ss-log'), input=document.getElementById('ss-input');
-    function loadChat(s){try{return JSON.parse(localStorage.getItem(CHAT_PREFIX+s)||'[]');}catch(e){return[];}}
-    function saveChat(s,h){try{localStorage.setItem(CHAT_PREFIX+s,JSON.stringify(h.slice(-80)));}catch(e){}}
+    function chatKey(s){ var c=getClient(); return CHAT_PREFIX+((c&&c.code)||'anon')+'_'+s; }
+    function loadChat(s){try{return JSON.parse(localStorage.getItem(chatKey(s))||'[]');}catch(e){return[];}}
+    function saveChat(s,h){try{localStorage.setItem(chatKey(s),JSON.stringify(h.slice(-80)));}catch(e){}}
     function renderChat(){log.innerHTML='';if(!chatHist.length){var em=document.createElement('div');em.className='ss-msg bot empty';em.textContent="Start your conversation with "+cur.name+' 👋';log.appendChild(em);return;}
       chatHist.forEach(function(m){var d=document.createElement('div');d.className='ss-msg '+m.cls;d.textContent=m.text;log.appendChild(d);});log.scrollTop=log.scrollHeight;}
     function selectAgent(a,el){cur=a;var chips=document.querySelectorAll('.ss-ag');for(var i=0;i<chips.length;i++)chips[i].classList.remove('sel');if(el)el.classList.add('sel');
@@ -460,10 +460,9 @@
     var form=document.getElementById('ss-form');
     form.addEventListener('submit',function(e){e.preventDefault();if(!cur)return;var m=(input.value||'').trim();if(!m||busy)return;busy=true;
       var agent=cur,href=chatHist;input.value='';push(m,'me');href.push({text:m,cls:'me'});saveChat(agent.slug,href);
-      var th=push('…','bot');var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},60000);
-      var url,payload;
-      if(agent.mode==='chat'){url=agent.ep;payload={action:'sendMessage',sessionId:sid(),chatInput:m};}
-      else{url=N8N+'/'+agent.path;payload={client_name:'',channel:'shared-services',message:m};}
+      var th=push('…','bot');var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},110000);
+      var c=getClient()||{code:'demo123'};
+      var url=N8N+'/ss-chat', payload={code:c.code,agent:agent.slug,message:m};
       fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
         .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}rep=rep||BUSY;th.textContent=rep;href.push({text:rep,cls:'bot'});saveChat(agent.slug,href);})
         .catch(function(er){clearTimeout(timer);var msg=(er&&er.name==='AbortError')?BUSY:ERRT;th.textContent=msg;href.push({text:msg,cls:'bot'});saveChat(agent.slug,href);})
