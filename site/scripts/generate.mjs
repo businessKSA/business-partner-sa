@@ -330,7 +330,7 @@ const parseAmount = (str) => {
 const KIND_TOPIC = { package: "other", agent: "ai", misa: "misa", service: "other" };
 // Priced items → "Add to cart". Price-less items → "Book a consultation" (there is
 // no price to pay online, so we route the client to a booking + simple form).
-function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false }) {
+function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
   if (amount == null) {
     const topic = KIND_TOPIC[kind] || "other";
     const about = encodeURIComponent(LANG === "ar" ? nameAr : (nameEn || nameAr));
@@ -340,7 +340,8 @@ function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", gh
   }
   // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
   const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
-  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"`;
+  const surData = surchargeAmount != null ? ` data-surcharge-amount="${surchargeAmount}" data-surcharge-free="${surchargeFreeCount || 0}"` : "";
+  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
   </div>`;
@@ -534,6 +535,7 @@ function footer() {
       ${fl("/careers", "Careers", "الوظائف")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
       ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
+      ${fl("/terms", "Terms & Conditions", "الشروط والأحكام")}
       ${fl("/contact", "Contact", "اتصل بنا")}
     </ul></div>
     <div class="footer-col"><h4>${L("Selected services", "خدمات مختارة")}</h4><ul>${svcLinks}</ul></div>
@@ -1385,7 +1387,7 @@ function buildPackages() {
       ${t.price ? `<div class="pk-price">${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
-      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
+      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
       ${t.surcharge || t.surchargeEn ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
     </div>`;
   };
@@ -4231,7 +4233,16 @@ function buildCheckout() {
           </div>
           <div class="grid grid-2" style="gap:0 20px">
             <div class="field"><label for="co-email">${L("Email *", "البريد الإلكتروني *")}</label><input id="co-email" name="email" type="email" required></div>
-            <div class="field"><label for="co-entity">${L("Company / entity (optional)", "المنشأة (اختياري)")}</label><input id="co-entity" name="entity" type="text"></div>
+            <div class="field"><label for="co-entity" id="co-entity-label">${L("Company / entity (optional)", "المنشأة (اختياري)")}</label><input id="co-entity" name="entity" type="text"></div>
+          </div>
+          <div id="pkg-details-box" class="field-group" hidden>
+            <h2>${L("Establishment details", "بيانات المنشأة")}</h2>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="co-cr">${L("Commercial Registration (unified) number", "رقم السجل التجاري (الموحد)")}</label><input id="co-cr" name="cr" type="text" inputmode="numeric"></div>
+              <div class="field"><label for="co-headcount">${L("Number of employees", "عدد الموظفين")}</label><input id="co-headcount" name="headcount" type="number" min="1" value="1"></div>
+            </div>
+            <div class="field"><label for="co-address">${L("National address (optional)", "العنوان الوطني (اختياري)")}</label><input id="co-address" name="address" type="text"></div>
+            <p class="calc-note" id="pkg-surcharge-note" hidden></p>
           </div>
           <h2>${L("Upload your documents", "ارفع مستنداتك")}</h2>
           <div class="field">
@@ -4261,6 +4272,7 @@ function buildCheckout() {
             <input id="co-receipt" name="receipt" type="file" accept=".pdf,application/pdf" required hidden>
           </div>
           <p class="calc-note" id="receipt-required-note">${L("Required: a PDF bank receipt showing a transfer of the exact order total. Orders without a matching receipt won't be activated.", "إلزامي: إيصال تحويل بنكي بصيغة PDF يوضح تحويل مبلغ يطابق إجمالي الطلب تماماً. الطلبات بدون إيصال مطابق لن تُفعّل.")}</p>
+          <label class="req-checkbox"><input type="checkbox" id="co-terms" required><span>${L("I acknowledge and agree to the", "أقر وأوافق على")} <a href="${u("/terms")}" target="_blank" rel="noopener">${L("Terms & Conditions", "الشروط والأحكام")}</a></span></label>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Submit order", "أرسل الطلب")}</button>
           <p class="form-note">${L("On submit we save your order to your account on this device, upload your receipt to our team's system for verification, and open WhatsApp to notify our team.", "عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز، ونرفع إيصالك لنظام فريقنا للتحقق، ونفتح واتساب لإشعار فريقنا.")}</p>
           <div class="form-success" id="checkout-success" hidden></div>
@@ -4279,6 +4291,51 @@ function buildCheckout() {
     </div>
   </div></section>`;
   return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body });
+}
+
+function buildTerms() {
+  const tm = site.terms;
+  const sections = tm.sections
+    .map((s) => {
+      let inner = "";
+      if (s.body || s.bodyEn) inner = `<p>${L(s.bodyEn || s.body, s.body)}</p>`;
+      else if (s.items) {
+        inner = `<dl class="terms-defs">${s.items
+          .map(([ar, arDesc, en, enDesc]) => `<div><dt>${L(en, ar)}</dt><dd>${L(enDesc, arDesc)}</dd></div>`)
+          .join("")}</dl>`;
+      } else if (s.list) {
+        inner = `<ol class="terms-list">${s.list.map(([ar, en]) => `<li>${L(en, ar)}</li>`).join("")}</ol>`;
+      }
+      return `<div class="terms-section"><h2>${L(s.titleEn, s.title)}</h2>${inner}</div>`;
+    })
+    .join("");
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Legal", "قانوني")}</span>
+    <h1>${L(tm.titleEn, tm.title)}</h1>
+    <p class="lead">${L(tm.introEn, tm.intro)}</p>
+    <p class="mini text-soft">${L("Last updated", "آخر تحديث")}: ${L(tm.updatedEn, tm.updated)}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:860px">
+    ${sections}
+    <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L(tm.noteEn, tm.note)}</p></div>
+  </div></section>
+  <style>
+    .terms-section{margin-bottom:32px}
+    .terms-section h2{color:var(--navy);font-size:1.25rem;margin-bottom:14px}
+    .terms-defs{display:grid;gap:16px}
+    .terms-defs dt{font-weight:700;color:var(--navy);margin-bottom:4px}
+    .terms-defs dd{margin:0;color:var(--text);line-height:1.8}
+    .terms-list{padding-inline-start:22px;display:grid;gap:12px;color:var(--text);line-height:1.8}
+    .terms-list li::marker{color:var(--navy);font-weight:700}
+  </style>`;
+  return page({
+    title: Lraw("Terms & Conditions — Business Partner", "الشروط والأحكام — بيزنس بارتنر"),
+    desc: Lraw("The terms and conditions governing subscriptions and purchases with Business Partner.", "الشروط والأحكام التي تحكم الاشتراكات والمشتريات مع بيزنس بارتنر."),
+    active: "/terms",
+    path: "/terms",
+    body,
+  });
 }
 
 function buildAccount() {
@@ -5772,6 +5829,7 @@ function writeFullSite(pre) {
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
   write(`${pre}checkout.html`, buildCheckout());
+  write(`${pre}terms.html`, buildTerms());
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}consultation.html`, buildConsultation());
@@ -5825,7 +5883,7 @@ write("ar/portal.html", buildPortal("/ar/"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

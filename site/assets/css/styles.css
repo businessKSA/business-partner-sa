@@ -1187,6 +1187,11 @@ html[dir="rtl"] .deal-drawer { transform: translateX(-105%); }
 .deal-type-opt b { display: block; font-size: .9rem; }
 .deal-type-opt .sub { display: block; font-size: .76rem; color: var(--text-soft); }
 .deal-consent { display: flex; align-items: flex-start; gap: 10px; font-size: .78rem; color: var(--text-soft); margin-top: 6px; }
+.req-checkbox { display: flex; align-items: flex-start; gap: 10px; font-size: .88rem; color: var(--text-soft); margin: 16px 0; cursor: pointer; }
+.req-checkbox input { margin-top: 3px; flex-shrink: 0; }
+.req-checkbox a { color: var(--navy); font-weight: 600; }
+.field-group { border: 1px solid var(--gray-line); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 22px; background: var(--gray-bg); }
+.field-group h2 { margin-top: 0; }
 .deal-wiz-message { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: .85rem; background: #fdecec; color: #8a1f2b; border: 1px solid #f3b6b6; }
 .deal-drawer-foot { padding: 16px 22px 22px; border-top: 1px solid var(--gray-line); display: flex; gap: 10px; flex: none; }
 .deal-drawer-foot .btn { flex: 1; justify-content: center; }

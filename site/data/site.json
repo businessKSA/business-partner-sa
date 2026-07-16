@@ -277,7 +277,9 @@
           "Social insurance (GOSI) management",
           "Medical insurance management",
           "Basic Zakat & tax compliance"
-        ]
+        ],
+        "surchargeAmount": 500,
+        "surchargeFreeCount": 4
       },
       {
         "key": "gold",
@@ -306,7 +308,9 @@
           "Wage management & wage protection",
           "Periodic follow-up on regulatory obligations",
           "Extended operational support"
-        ]
+        ],
+        "surchargeAmount": 750,
+        "surchargeFreeCount": 9
       },
       {
         "key": "platinum",
@@ -337,7 +341,9 @@
           "Ongoing legal & operational consultations"
         ],
         "badgeAr": "موصى به",
-        "badgeEn": "Recommended"
+        "badgeEn": "Recommended",
+        "surchargeAmount": 1000,
+        "surchargeFreeCount": 9
       },
       {
         "key": "diamond",
@@ -358,15 +364,21 @@
           "مدير حساب مخصص للمنشأة",
           "أولوية تنفيذ ومتابعة فورية",
           "حلول مخصصة حسب احتياج النشاط",
-          "دعم استباقي شامل دون تدخل العميل"
+          "دعم استباقي شامل دون تدخل العميل",
+          "دعم فريق الدعم التشغيلي ومتابعة المنصات",
+          "تقارير ومؤشرات لمتابعة النشاط والأداء"
         ],
         "featuresEn": [
           "Everything in the Platinum package",
           "Dedicated account manager",
           "Priority execution & instant follow-up",
           "Custom solutions tailored to your activity",
-          "Comprehensive proactive support, no client follow-up needed"
-        ]
+          "Comprehensive proactive support, no client follow-up needed",
+          "Dedicated operational support team & platform follow-up",
+          "Reports & KPIs to track activity and performance"
+        ],
+        "surchargeAmount": 1500,
+        "surchargeFreeCount": 60
       }
     ],
     "titleEn": "Packages",
@@ -407,7 +419,9 @@
               "Social insurance (GOSI) management",
               "Medical insurance management",
               "Basic Zakat & tax compliance"
-            ]
+            ],
+            "surchargeAmount": 500,
+            "surchargeFreeCount": 4
           },
           {
             "key": "gold",
@@ -436,7 +450,9 @@
               "Wage management & wage protection",
               "Periodic follow-up on regulatory obligations",
               "Extended operational support"
-            ]
+            ],
+            "surchargeAmount": 750,
+            "surchargeFreeCount": 9
           },
           {
             "key": "platinum",
@@ -467,7 +483,9 @@
               "Ongoing legal & operational consultations"
             ],
             "badgeAr": "موصى به",
-            "badgeEn": "Recommended"
+            "badgeEn": "Recommended",
+            "surchargeAmount": 1000,
+            "surchargeFreeCount": 9
           },
           {
             "key": "diamond",
@@ -500,7 +518,9 @@
               "Comprehensive proactive support, no client follow-up needed",
               "Dedicated operational support team & platform follow-up",
               "Reports & KPIs to track activity and performance"
-            ]
+            ],
+            "surchargeAmount": 1500,
+            "surchargeFreeCount": 60
           }
         ]
       },
@@ -542,7 +562,9 @@
               "Registration in Zakat/tax, GOSI, Qiwa, Mudad and Muqeem",
               "Follow-up on procedures until formation is complete",
               "Issuance of 3 management visas"
-            ]
+            ],
+            "surchargeAmount": 400,
+            "surchargeFreeCount": 25
           },
           {
             "key": "saudi-gulf-formation",
@@ -573,7 +595,9 @@
               "Registration in GOSI, Qiwa, Mudad and Muqeem",
               "Municipal license issuance (if required)",
               "Legal consultation to choose the right entity type"
-            ]
+            ],
+            "surchargeAmount": 400,
+            "surchargeFreeCount": 10
           }
         ]
       },
@@ -621,7 +645,9 @@
               "Litigation representation: up to 10 labor cases / year",
               "Legal awareness workshop for employees: once a year",
               "25% discount on notarization services"
-            ]
+            ],
+            "surchargeAmount": 800,
+            "surchargeFreeCount": 50
           },
           {
             "key": "comprehensive",
@@ -660,7 +686,9 @@
               "Meetings with a lawyer: 2 meetings",
               "Litigation representation: up to 6 labor cases",
               "20% discount on notarization services"
-            ]
+            ],
+            "surchargeAmount": 800,
+            "surchargeFreeCount": 50
           },
           {
             "key": "advanced",
@@ -693,7 +721,9 @@
               "Entity formation/amendment: 1 service",
               "Litigation representation: up to 4 labor cases / year",
               "15% discount on notarization services"
-            ]
+            ],
+            "surchargeAmount": 600,
+            "surchargeFreeCount": 25
           },
           {
             "key": "basic-legal",
@@ -722,7 +752,9 @@
               "Contract drafting & review: 6 contracts",
               "Litigation representation: up to 2 labor cases / year",
               "10% discount on notarization services"
-            ]
+            ],
+            "surchargeAmount": 400,
+            "surchargeFreeCount": 10
           }
         ]
       }

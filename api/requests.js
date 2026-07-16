@@ -500,6 +500,11 @@ export default async function handler(req, res) {
     const compliance = !!b.compliance;
     const employerPlanKey = ["basic", "pro", "enterprise"].includes(b.employerPlan) ? b.employerPlan : "";
     const company = String(b.company || "").trim().slice(0, 200) || name;
+    const crNumber = String(b.cr || "").trim().slice(0, 40);
+    const headcount = Number.isFinite(Number(b.headcount)) && b.headcount !== "" ? Number(b.headcount) : null;
+    const nationalAddress = String(b.nationalAddress || "").trim().slice(0, 200);
+    const surchargeFeeNum = Number(b.surchargeFee);
+    const surchargeFee = Number.isFinite(surchargeFeeNum) ? surchargeFeeNum : 0;
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
     const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, "application/pdf");
@@ -517,10 +522,14 @@ export default async function handler(req, res) {
     const receiptNote = receiptUploadId
       ? `<p>إيصال التحويل مرفق بصف الطلب في Notion — إيجنت التحقق في n8n يقارن مبلغه بـ«إجمالي الطلب» (${total} ﷼) تلقائياً.</p>`
       : `<p style="color:#b91c1c">⚠️ تعذّر رفع الإيصال إلى Notion — راجع الإيصال يدوياً قبل التفعيل.</p>`;
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const pkgFieldsNote = (crNumber || headcount != null || nationalAddress)
+      ? `<p>بيانات المنشأة — السجل التجاري الموحد: <strong>${esc(crNumber || "—")}</strong> · عدد الموظفين: <strong>${headcount != null ? headcount : "—"}</strong> · العنوان الوطني: <strong>${esc(nationalAddress || "—")}</strong>${surchargeFee ? ` · رسوم موظفين إضافيين مضمّنة: <strong>${surchargeFee} ﷼</strong>` : ""}</p>`
+      : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pkgNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);

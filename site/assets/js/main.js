@@ -149,6 +149,8 @@ var BP = window.BP = window.BP || {};
 
   function itemFromBtn(btn) {
     var a = btn.getAttribute("data-amount");
+    var surA = btn.getAttribute("data-surcharge-amount");
+    var surF = btn.getAttribute("data-surcharge-free");
     return {
       id: btn.getAttribute("data-id"),
       nameEn: btn.getAttribute("data-name-en") || "",
@@ -157,6 +159,8 @@ var BP = window.BP = window.BP || {};
       price: btn.getAttribute("data-price") || "",
       kind: btn.getAttribute("data-kind") || "service",
       qty: 1,
+      surchargeAmount: surA ? Number(surA) : null,
+      surchargeFreeCount: surF ? Number(surF) : null,
     };
   }
 
@@ -215,7 +219,8 @@ var BP = window.BP = window.BP || {};
   }
 
   function renderTotals(subId, vatId, totId) {
-    var sub = subtotal(), vat = sub * VAT, tot = sub + vat;
+    var extra = (typeof BP.extraCheckoutFee === "function") ? (BP.extraCheckoutFee() || 0) : 0;
+    var sub = subtotal() + extra, vat = sub * VAT, tot = sub + vat;
     var q = hasQuoteItems();
     var suffix = q ? (" + " + BP.t("quoted items", "بنود تُسعّر")) : "";
     set(subId, sub ? BP.money(sub) : (q ? BP.t("Quoted", "تُسعّر") : "—"));
@@ -916,6 +921,59 @@ var BP = window.BP = window.BP || {};
       if (nameEl) { nameEl.value = session.name || ""; nameEl.readOnly = true; }
       if (emailEl) { emailEl.value = session.email || ""; emailEl.readOnly = true; }
     }
+
+    // Packages need establishment details (CR number, headcount, national
+    // address) before payment, same as the reference competitor flow, and
+    // per-extra-employee surcharges (already priced per package) apply once
+    // headcount is entered.
+    var pkgBox = document.getElementById("pkg-details-box");
+    var entityLabel = document.getElementById("co-entity-label");
+    var headcountEl = document.getElementById("co-headcount");
+    var crEl = document.getElementById("co-cr");
+    var entityEl = document.getElementById("co-entity");
+    function cartHasPackage() { return BP.cart.read().some(function (i) { return i.kind === "package"; }); }
+    function togglePkgBox() {
+      var hasPkg = cartHasPackage();
+      if (pkgBox) pkgBox.hidden = !hasPkg;
+      if (entityLabel) entityLabel.textContent = hasPkg ? BP.t("Company name *", "اسم الشركة *") : BP.t("Company / entity (optional)", "المنشأة (اختياري)");
+      if (entityEl) entityEl.required = hasPkg;
+      if (crEl) crEl.required = hasPkg;
+    }
+    togglePkgBox();
+
+    // Pre-fill from the company profile saved earlier in the account dashboard, if any.
+    try {
+      var savedCompany = JSON.parse(localStorage.getItem("bp_company") || "{}");
+      if (savedCompany.name && entityEl && !entityEl.value) entityEl.value = savedCompany.name;
+      if (savedCompany.cr && crEl && !crEl.value) crEl.value = savedCompany.cr;
+      if (savedCompany.size && headcountEl && headcountEl.value === "1") headcountEl.value = savedCompany.size;
+    } catch (e1) {}
+
+    BP.extraCheckoutFee = function () {
+      var hc = headcountEl ? parseInt(headcountEl.value, 10) || 0 : 0;
+      return BP.cart.read().reduce(function (s, i) {
+        if (i.kind === "package" && i.surchargeAmount) {
+          var extraHeads = Math.max(0, hc - (i.surchargeFreeCount || 0));
+          s += extraHeads * i.surchargeAmount * (i.qty || 1);
+        }
+        return s;
+      }, 0);
+    };
+    function renderSurchargeNote() {
+      var note = document.getElementById("pkg-surcharge-note");
+      if (!note) return;
+      var fee = BP.extraCheckoutFee();
+      if (fee > 0) {
+        note.hidden = false;
+        note.textContent = BP.t("Extra employee fee included: ", "رسوم الموظفين الإضافيين مضمّنة: ") + BP.money(fee);
+      } else {
+        note.hidden = true;
+      }
+      BP.renderCheckout();
+    }
+    if (headcountEl) headcountEl.addEventListener("input", renderSurchargeNote);
+    renderSurchargeNote();
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var cart = BP.cart.read();
@@ -926,6 +984,14 @@ var BP = window.BP = window.BP || {};
       var email = ((session2 && session2.email) || document.getElementById("co-email").value.trim()).toLowerCase();
       var isEmailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
       if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = BP.lang === "ar" ? "/ar/account" : "/account"; return; }
+      var pkgVisible = pkgBox && !pkgBox.hidden;
+      var companyName = entityEl ? entityEl.value.trim() : "";
+      var crNumber = crEl ? crEl.value.trim() : "";
+      var headcount = headcountEl ? (parseInt(headcountEl.value, 10) || 0) : 0;
+      var nationalAddress = document.getElementById("co-address") ? document.getElementById("co-address").value.trim() : "";
+      if (pkgVisible && (!companyName || !crNumber)) { alert(BP.t("Please enter the company name and Commercial Registration number for your package subscription.", "الرجاء إدخال اسم الشركة ورقم السجل التجاري للاشتراك في الباقة.")); return; }
+      var termsBox = document.getElementById("co-terms");
+      if (termsBox && !termsBox.checked) { alert(BP.t("Please agree to the Terms & Conditions to continue.", "الرجاء الموافقة على الشروط والأحكام للمتابعة.")); return; }
       var receipt = document.getElementById("co-receipt");
       var receiptFile = receipt && receipt.files && receipt.files.length ? receipt.files[0] : null;
       var isPdf = receiptFile && (receiptFile.type === "application/pdf" || /\.pdf$/i.test(receiptFile.name || ""));
@@ -935,7 +1001,8 @@ var BP = window.BP = window.BP || {};
       var docs = document.getElementById("co-docs");
       var files = [];
       [docs, receipt].forEach(function (inp) { if (inp && inp.files) for (var i = 0; i < inp.files.length; i++) files.push(inp.files[i].name); });
-      var total = cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || 0;
+      var surchargeFee = BP.extraCheckoutFee ? BP.extraCheckoutFee() : 0;
+      var total = (cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || 0) + surchargeFee;
       var order = {
         ref: ref, name: name, phone: phone, email: email,
         items: cart.map(function (i) { return { name: BP.cartName(i), qty: i.qty || 1, price: i.amount ? i.amount * (i.qty || 1) : null, priceLabel: i.price }; }),
@@ -967,7 +1034,8 @@ var BP = window.BP = window.BP || {};
               agents: employeeSlugs,
               compliance: boughtCompliance,
               employerPlan: employerPlanKey, employerBilling: employerBilling,
-              company: companyProfile.name || "",
+              company: companyName || companyProfile.name || "",
+              cr: crNumber, headcount: pkgVisible ? headcount : "", nationalAddress: nationalAddress, surchargeFee: surchargeFee,
               receiptName: receiptFile.name, receiptBase64: receiptBase64 || ""
             })
           }).catch(function () {});
