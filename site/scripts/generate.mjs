@@ -3337,9 +3337,8 @@ function buildEmployers() {
     <div class="talent-actions" style="margin-top:26px">
       <a class="btn btn-primary" href="${u("/employer-join")}">${I.users}<span>${L("Subscribe now", "اشترك الآن")}</span></a>
       <a class="btn btn-ghost" href="${u("/employer-dashboard")}">${L("Browse candidates", "تصفّح المرشّحين")}</a>
-      <a class="btn btn-ghost" href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a>
-      <a class="btn btn-ghost" href="${u("/careers")}">${L("I'm a job seeker →", "أنا باحث عن عمل ←")}</a>
     </div>
+    <p class="emp-note" style="text-align:center">${L("Already have an account?", "عندك حساب من قبل؟")} <a href="${u("/employer-login")}">${L("Log in", "سجّل الدخول")}</a> · <a href="${u("/careers")}">${L("I'm a job seeker →", "أنا باحث عن عمل ←")}</a></p>
   </div></section>
 
   <section class="section"><div class="container">
