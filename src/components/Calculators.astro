@@ -235,14 +235,21 @@ const homeHref = isAr ? '/ar/' : '/en/';
   const $ = (id) => document.getElementById(id);
 
   // ===== Tabs =====
+  function activateTab(name) {
+    const tab = document.querySelector('.calc-tab[data-tab="' + name + '"]');
+    const panel = $('panel-' + name);
+    if (!tab || !panel) return;
+    document.querySelectorAll('.calc-tab').forEach((x) => x.classList.remove('active'));
+    document.querySelectorAll('.calc-panel').forEach((x) => x.classList.remove('active'));
+    tab.classList.add('active');
+    panel.classList.add('active');
+  }
   document.querySelectorAll('.calc-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.calc-tab').forEach((x) => x.classList.remove('active'));
-      document.querySelectorAll('.calc-panel').forEach((x) => x.classList.remove('active'));
-      tab.classList.add('active');
-      $('panel-' + tab.dataset.tab).classList.add('active');
-    });
+    tab.addEventListener('click', () => activateTab(tab.dataset.tab));
   });
+  // Deep-link support: /ar/calculators#fees opens the fees tab directly.
+  const initialTab = (location.hash || '').replace('#', '');
+  if (initialTab) activateTab(initialTab);
 
   // ===== Nitaqat engine (mirror of n8n workflow bklN7C6F08NJ7TJE) =====
   const NIT_CONFIG = {
