@@ -110,7 +110,7 @@ const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
 // live at businesspartner.sa/ar/portal was removed when the domain moved to
 // this site — a hardcoded absolute link here used to land compliance clients
 // in the specialized-team portal with a code it didn't recognize.)
-const COMPLIANCE_PORTAL_URL = "/portal";
+const COMPLIANCE_PORTAL_URL = "/ar/compliance-dashboard";
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -1978,8 +1978,8 @@ function buildComplianceAgent() {
     <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="#pricing">${L("Subscribe now", "اشترك الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="${u(COMPLIANCE_PORTAL_URL)}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
     </div>
     <div class="hero-badges">${chips}</div>
   </div></section>
@@ -1990,7 +1990,7 @@ function buildComplianceAgent() {
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
       [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
       [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
-      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to the smart employees portal with your email and the access code — Mishari, your compliance agent, opens directly.", "ادخل بوابة الموظفين الأذكياء ببريدك ورمز الدخول — يفتح لك مشاري، وكيل امتثالك، مباشرة.")],
+      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your compliance dashboard with your email and the access code — your establishment file, alerts and document upload are all there.", "ادخل لوحة الامتثال ببريدك ورمز الدخول — ملف منشأتك وتنبيهاتك ورفع مستنداتك كلها هناك.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
   </div></section>
 
@@ -2005,7 +2005,7 @@ function buildComplianceAgent() {
       <h3 style="margin-bottom:1rem">${L("What does the agent track for you?", "وش يتابع لك الوكيل؟")}</h3>
       <ul class="value-list">${valueItems}</ul>
     </div>
-  </section></div>
+  </div></section>
 
   <section id="pricing" class="section" style="padding-top:0"><div class="container">
     <div class="price-box">
