@@ -902,9 +902,15 @@ var BP = window.BP = window.BP || {};
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("checkout-form");
     if (!form) return;
+    // Registration is mandatory before checkout — no guest purchases. Bounce
+    // straight to /account and bring the customer back here once signed in.
+    var session = checkoutSession();
+    if (!session) {
+      location.href = (BP.lang === "ar" ? "/ar/account" : "/account") + "?redirect=checkout";
+      return;
+    }
     // Name + email come from the signed-in account, not free typing, so the
     // order is always traceable to a real registration.
-    var session = checkoutSession();
     if (session) {
       var nameEl = document.getElementById("co-name"), emailEl = document.getElementById("co-email");
       if (nameEl) { nameEl.value = session.name || ""; nameEl.readOnly = true; }
@@ -1014,6 +1020,10 @@ var BP = window.BP = window.BP || {};
     var regF = document.getElementById("register-form");
     var otpF = document.getElementById("otp-form");
     var pending = null; // { name, email, phone, pass, challenge }
+    if (new URLSearchParams(location.search).get("redirect") === "checkout") {
+      var note = document.getElementById("checkout-redirect-note");
+      if (note) note.hidden = false;
+    }
     tabs.forEach(function (tb) {
       tb.addEventListener("click", function () {
         tabs.forEach(function (x) { x.classList.remove("active"); });
@@ -1214,8 +1224,16 @@ var BP = window.BP = window.BP || {};
       var u = users()[email];
       if (!u || u.pass !== pass) { alert(BP.t("No matching account. Try registering.", "لا يوجد حساب مطابق. جرّب إنشاء حساب جديد.")); return; }
       try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: u.name })); } catch (er) {}
+      goToRedirectTarget();
       render();
     });
+
+    // After sign-in/registration, return the customer to whatever page sent
+    // them here (e.g. checkout) instead of stranding them on the dashboard.
+    function goToRedirectTarget() {
+      var target = new URLSearchParams(location.search).get("redirect");
+      if (target === "checkout") location.href = BP.lang === "ar" ? "/ar/checkout" : "/checkout";
+    }
 
     function otpErr(msg) {
       var b = document.getElementById("otp-error");
@@ -1287,6 +1305,7 @@ var BP = window.BP = window.BP || {};
           try { localStorage.setItem("bp_session", JSON.stringify({ email: pending.email, name: pending.name, verified: true })); } catch (er) {}
           if (otpF) otpF.hidden = true;
           pending = null;
+          goToRedirectTarget();
           render();
         })
         .catch(function () { btn.disabled = false; btn.textContent = lbl; otpErr(BP.t("Network error. Try again.", "خطأ في الاتصال. حاول مرة أخرى.")); });
@@ -1303,6 +1322,10 @@ var BP = window.BP = window.BP || {};
     var out = document.getElementById("logout-btn");
     if (out) out.addEventListener("click", function () { try { localStorage.removeItem("bp_session"); } catch (e) {} render(); });
 
+    if (session() && new URLSearchParams(location.search).get("redirect") === "checkout") {
+      location.href = BP.lang === "ar" ? "/ar/checkout" : "/checkout";
+      return;
+    }
     render();
     document.addEventListener("bp:langchange", function () { if (session()) render(); });
   });

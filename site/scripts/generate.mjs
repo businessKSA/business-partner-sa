@@ -4290,6 +4290,7 @@ function buildAccount() {
     <p class="lead">${L("Sign in to track your orders, upload documents, and follow your services with Business Partner.", ac.lead)}</p>
   </div></section>
   <section class="section"><div class="container">
+    <div class="callout" id="checkout-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">🛒</span><p>${L("Sign in or create an account to continue with your purchase — this keeps every order tied to a real customer record.", "سجّل دخولك أو أنشئ حساباً لإكمال عملية الشراء — هذا يضمن ربط كل طلب بسجل عميل حقيقي.")}</p></div>
     <div class="account-wrap" id="account-auth">
       <div class="auth-tabs">
         <button type="button" class="auth-tab active" data-tab="login">${L("Sign in", ac.loginTitle)}</button>
