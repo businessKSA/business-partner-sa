@@ -2616,16 +2616,6 @@ function buildMahfolTrips() {
   const actCards = ACT.map((a) =>
     `<div class="tr-act"><span class="tr-act-ic">${a.ic}</span><h3>${L(a.en, a.ar)}</h3><p>${L(a.de, a.da)}</p></div>`).join("");
 
-  const UNIT = [
-    { ic: "📋", en: "Listing & marketing", ar: "الإدراج والتسويق", de: "Professional listings on Gathern, Airbnb & Booking with photography.", da: "إعلان احترافي على جاذرن وAirbnb وBooking مع تصوير ووصف جذاب." },
-    { ic: "💰", en: "Dynamic pricing", ar: "التسعير الديناميكي", de: "Priced by season and events for the highest yield.", da: "نسعّر حسب المواسم والفعاليات لتحقق أعلى عائد." },
-    { ic: "💬", en: "24/7 guest communication", ar: "تواصل مع الضيوف 24/7", de: "Handling enquiries, check-in and check-out.", da: "رد على الاستفسارات وإدارة الوصول والمغادرة." },
-    { ic: "🧹", en: "Operations & cleaning", ar: "تشغيل ونظافة", de: "The unit prepared to hospitality standards between bookings.", da: "تجهيز الوحدة بين كل حجز بمعايير الضيافة." },
-    { ic: "📊", en: "Monthly reports", ar: "تقارير شهرية", de: "Occupancy, revenue, expenses and your net return — clearly.", da: "إشغال وإيرادات ومصاريف وصافي عائدك بوضوح." },
-    { ic: "🛡️", en: "Licensing & compliance", ar: "توثيق وتراخيص", de: "Following Ministry of Tourism requirements and unit permits.", da: "متابعة اشتراطات وزارة السياحة ورخص الوحدات." },
-  ];
-  const unitCards = UNIT.map((s) =>
-    `<div class="card feature"><div class="card-icon" style="font-size:24px">${s.ic}</div><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
 
   const KSA = "M41 193 L92 201 L159 159 L214 64 L364 101 L486 191 L568 209 L659 238 L727 318 L760 400 L748 452 L792 470 L900 520 L982 560 L964 688 L862 712 L700 780 L560 812 L418 826 L389 852 L330 735 L236 614 L200 529 L146 413 L92 291 L50 238 Z";
   const mapMarkers = DEST.map((d, i) => `
@@ -2764,12 +2754,6 @@ function buildMahfolTrips() {
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Things to do", "الأنشطة")}</span><h2>${L("Signature experiences", "تجارب مميّزة")}</h2></div>
     <div class="tr-act-grid">${actCards}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Stays & property management", "الإقامة وإدارة الوحدات")}</span><h2>${L("We manage your tourism unit — Gathern & Airbnb style", "ندير وحدتك السياحية — بأسلوب جاذرن وAirbnb")}</h2><p>${L("Own a chalet, farm or apartment? We list, price, host and operate it for you and report your net return.", "عندك شاليه أو مزرعة أو شقة؟ ندرجها ونسعّرها ونستضيف ونشغّل نيابةً عنك ونعطيك صافي عائدك.")}</p></div>
-    <div class="grid grid-3">${unitCards}</div>
-    <div class="tr-owner"><h2>${L("List your unit with us", "أدرج وحدتك معنا")}</h2><p>${L("Turn your property into managed, high-yield hospitality income.", "حوّل عقارك إلى دخل ضيافة مُدار وعائد مرتفع.")}</p><a class="btn btn-primary btn-lg" href="#trip-form">${I.building}<span>${L("Become a host partner", "كن شريكاً مالكاً")}</span></a></div>
   </div></section>
 
   <section class="section section--gray" id="trip-form"><div class="container" style="max-width:720px">
