@@ -16,7 +16,7 @@ Shared Services Team subscription product ("your smart executive team").
 What already exists (reuse — **do not recreate**), what is missing, and what
 must never be duplicated.
 
-### 1.1 Live website (project `business-partner-sa-businessksa`, new.businesspartner.sa)
+### 1.1 Live website (project `business-partner-sa-businessksa`, www.businesspartner.sa)
 
 | Asset | Path | State |
 | --- | --- | --- |
@@ -103,7 +103,7 @@ create NONE and reuse instead:**
 ## 2. Target architecture
 
 ```
-              ┌─────────────── Website (new.businesspartner.sa) ───────────────┐
+              ┌─────────────── Website (www.businesspartner.sa) ───────────────┐
               │  SharedServices section · Founder intake form · /voice (STT/TTS)│
               └───────────────┬───────────────────────────┬────────────────────┘
                               │ /api/voice · /api/agent    │

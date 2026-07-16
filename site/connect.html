@@ -230,7 +230,10 @@
         {t:'اضغط «ربط الآن» وسجّل دخول قوقل.'},{t:'وافق على صلاحية Drive.'},{t:'الموظف يقرأ وينظّم ملفاتك.'}]},
       { id:'sheets', ic:'📊', name:'CRM / جداول', unlock:'يحدّث العملاء والصفقات في CRM أو Google Sheets.', type:'token',
         lead:'نربطه بـ Google Sheets (بضغطة) أو نظام CRM لديك (قد يحتاج مفتاح API خاص بك).', note:'حسب النظام · بعضها يحتاج مفتاح', pay:'', steps:[
-        {t:'أخبرنا بنظامك (Sheets / HubSpot / Salesforce…).'},{t:'نجهّز الربط المناسب — بضغطة أو بمفتاح API خاص بك.'},{t:'الموظف يحدّث بياناتك تلقائياً.'}]}
+        {t:'أخبرنا بنظامك (Sheets / HubSpot / Salesforce…).'},{t:'نجهّز الربط المناسب — بضغطة أو بمفتاح API خاص بك.'},{t:'الموظف يحدّث بياناتك تلقائياً.'}]},
+      { id:'qoyod', ic:'🧾', name:'قيود (Qoyod)', unlock:'محاسبة وفوترة: يصدر فواتير ضريبية متوافقة ZATCA ويزامن العملاء والقيود.', type:'token',
+        lead:'ربط بمفتاح API خاص من حساب قيود لديك — متوافق مع ZATCA وبياناته داخل السعودية. أي إصدار فاتورة يتم بموافقتك.', note:'مفتاح API · يتطلب اشتراك قيود', pay:'💳 يتطلب اشتراك قيود فعّال لدى شركتك (الـ API مجاني على الباقات المدفوعة).', steps:[
+        {t:'من حساب قيود: الإعدادات ← API، أنشئ مفتاحاً خاصاً.'},{t:'الصق المفتاح هنا (يُخزّن مشفّراً) — أو أرسله لنا لنركّبه.'},{t:'يصير الموظف يصدر الفواتير ويزامن القيود — بموافقتك قبل أي إصدار.'}]}
     ];
     var ICONS={
       gmail:'<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="#EA4335"/><path d="M2 7l10 7 10-7" stroke="#fff" stroke-width="2" fill="none"/></svg>',
@@ -252,7 +255,8 @@
       ms:'Microsoft 365 — Outlook, Calendar & Teams',
       drive:'Google Drive — organizes files & summaries',
       sheets:'CRM / Sheets — updates customers & deals',
-      crm:'CRM / Sheets — updates customers & deals'
+      crm:'CRM / Sheets — updates customers & deals',
+      qoyod:'Qoyod — ZATCA invoicing & accounting sync'
     };
     var URLS={
       gmail:'https://mail.google.com',
@@ -263,7 +267,8 @@
       ms:'https://www.microsoft.com/microsoft-365',
       drive:'https://drive.google.com',
       sheets:'https://www.google.com/sheets/about',
-      crm:'https://www.google.com/sheets/about'
+      crm:'https://www.google.com/sheets/about',
+      qoyod:'https://www.qoyod.com'
     };
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
@@ -320,6 +325,7 @@
       {slug:'mazen',e:'🧭',name:'مازن',role:'مدير العمليات',nameEn:'Mazen — Operations Manager'},
       {slug:'nasser',e:'👥',name:'ناصر',role:'الموارد البشرية',nameEn:'Nasser — HR'},
       {slug:'mishari',e:'🛡️',name:'مشاري',role:'الامتثال والالتزام',nameEn:'Mishari — Compliance'},
+      {slug:'abdulrahman',e:'💰',name:'عبدالرحمن',role:'المدير المالي',nameEn:'Abdulrahman — CFO'},
       {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني',nameEn:'Abdulaziz — Legal'},
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
