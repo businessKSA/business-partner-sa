@@ -1037,6 +1037,10 @@ var BP = window.BP = window.BP || {};
       // upload the receipt PDF so the n8n verification agent can check it matches the total.
       var employeeSlugs = cart.filter(function (i) { return i.kind === "employee" && (i.id || "").indexOf("employee-") === 0; })
         .map(function (i) { return i.id.slice("employee-".length); });
+      // The shared-services team SKU entitles the buyer to every employee: the
+      // "all" marker becomes AGENTS:all in the CRM row, which the portal login
+      // resolves to full access once the payment is confirmed.
+      if (cart.some(function (i) { return (i.id || "").indexOf("agent-Shared-services") === 0; })) employeeSlugs.push("all");
       var boughtCompliance = cart.some(function (i) { return (i.id || "").indexOf("agent-Compliance") === 0; });
       var employerPlanItem = cart.filter(function (i) { return (i.id || "").indexOf("employer-plan-") === 0; })[0];
       var employerPlanKey = employerPlanItem ? employerPlanItem.id.replace("employer-plan-", "").replace(/-monthly$|-yearly$/, "") : "";
@@ -1850,13 +1854,18 @@ var BP = window.BP = window.BP || {};
           } catch (e1) {}
         }
         var acct = BP.lang === "ar" ? "/ar/account" : "/account";
+        var isLocal = !ref || /^(LOCAL|مبدئي)$/.test(ref);
         var box = document.getElementById(boxId);
         box.hidden = false;
-        box.innerHTML = "✅ <strong>" + BP.t("Request received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
+        // "مبدئي" is an internal sentinel for "didn't reach the server" — never
+        // show it as if it were a reference number; make WhatsApp the required
+        // confirmation step instead.
+        box.innerHTML = "✅ <strong>" + (isLocal ? BP.t("Request saved — confirm it on WhatsApp", "تم حفظ طلبك — أكّده عبر واتساب") : BP.t("Request received", "تم استلام طلبك") + " — " + ref) + "</strong><br>" +
           (registered ? BP.t("You're now registered as a client — your details and this request are saved in ", "تم تسجيلك كعميل — بياناتك وطلبك محفوظة في ") + '<a href="' + acct + '">' + BP.t("your dashboard", "لوحتك") + "</a>.<br>" : "") +
-          (emailSent ? BP.t("A confirmation was sent to your email.", "أرسلنا التأكيد إلى بريدك.")
-                     : BP.t("You can also notify us on WhatsApp.", "تقدر كذلك تشعرنا عبر واتساب.")) +
-          ' <a class="btn btn-ghost" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' +
+          (isLocal ? BP.t("We couldn't reach the server right now — tap the WhatsApp button so your request reaches the team directly.", "تعذّر الاتصال بالخادم حالياً — اضغط زر واتساب ليصل طلبك للفريق مباشرة.")
+            : (emailSent ? BP.t("A confirmation was sent to your email.", "أرسلنا التأكيد إلى بريدك.")
+                     : BP.t("You can also notify us on WhatsApp.", "تقدر كذلك تشعرنا عبر واتساب."))) +
+          ' <a class="btn ' + (isLocal ? 'btn-wa' : 'btn-ghost') + '" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' +
           encodeURIComponent(waText(data, ref)) + '">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a>";
         box.scrollIntoView({ behavior: "smooth", block: "center" });
         btn.textContent = lbl;
@@ -2458,20 +2467,54 @@ var BP_EMP_BILLING = "monthly";
       var payload = { type: "task-force", company: company, person: person, phone: phone, email: val("tf-email"), notes: notes };
       var btn = document.getElementById("tf-submit"), lbl = btn.textContent;
       btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
-      function done(ref) {
+      function done(ref, failed) {
         btn.disabled = false; btn.textContent = lbl;
         var box = document.getElementById("tf-result");
-        var waMsg = encodeURIComponent(T("New Task Force request", "مهمة Task Force جديدة") + " " + (ref || "") + "\n" + T("Company", "الشركة") + ": " + company + "\n" + T("Mobile", "الجوال") + ": " + phone);
+        var waMsg = encodeURIComponent(T("New Task Force request", "مهمة Task Force جديدة") + " " + (ref || "") + "\n" + T("Company", "الشركة") + ": " + company + "\n" + T("Mobile", "الجوال") + ": " + phone + "\n" + T("Task", "المهمة") + ": " + notes.slice(0, 300));
         box.hidden = false;
-        box.innerHTML = "✅ <strong>" + T("Task received", "تم استلام مهمتك") + (ref ? " — " + ref : "") + "</strong><br>" +
-          T("Our team is reviewing the scope and will come back with the right execution track.", "فريقنا يراجع النطاق وسيعود إليك بمسار التنفيذ المناسب.") +
-          '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Follow up on WhatsApp", "تابع عبر واتساب") + "</a>";
+        // Never claim the team received the task when the request didn't reach
+        // the server — in that case WhatsApp IS the submission channel.
+        box.innerHTML = failed
+          ? "⚠️ <strong>" + T("Couldn't reach the server", "تعذّر الاتصال بالخادم حالياً") + "</strong><br>" +
+            T("Send your task via WhatsApp instead — it goes straight to the team.", "أرسل مهمتك عبر واتساب بدلاً من ذلك — تصل الفريق مباشرة.") +
+            '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Send via WhatsApp", "أرسل عبر واتساب") + "</a>"
+          : "✅ <strong>" + T("Task received", "تم استلام مهمتك") + (ref ? " — " + ref : "") + "</strong><br>" +
+            T("Our team is reviewing the scope and will come back with the right execution track.", "فريقنا يراجع النطاق وسيعود إليك بمسار التنفيذ المناسب.") +
+            '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Follow up on WhatsApp", "تابع عبر واتساب") + "</a>";
         box.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
-        .then(function (res) { done(res.d && res.d.ref); })
-        .catch(function () { done(null); });
+        .then(function (res) { if (res.d && res.d.ok) done(res.d.ref, false); else done(null, true); })
+        .catch(function () { done(null, true); });
+    });
+  });
+})();
+
+/* ---------- Contact form (/contact) → WhatsApp deep-link + CRM lead ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("contact-form");
+    if (!form) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = val("f-name"), phone = val("f-phone"), service = val("f-service"), msg = val("f-msg");
+      if (!name) { alert(T("Please enter your name.", "الرجاء إدخال اسمك.")); return; }
+      // Best-effort CRM lead; WhatsApp (below) is the primary channel either way.
+      try {
+        fetch("/api/requests", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "contact", company: name, person: name, phone: phone, email: "", eventType: service, notes: msg }),
+        }).catch(function () {});
+      } catch (err) {}
+      var lines = [T("Enquiry from the website contact page", "استفسار من صفحة تواصل معنا"), T("Name", "الاسم") + ": " + name];
+      if (phone) lines.push(T("Mobile", "الجوال") + ": " + phone);
+      if (service) lines.push(T("Service", "الخدمة") + ": " + service);
+      if (msg) lines.push(T("Details", "التفاصيل") + ": " + msg);
+      window.open("https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n")), "_blank", "noopener");
     });
   });
 })();
@@ -2517,12 +2560,18 @@ var BP_EMP_BILLING = "monthly";
     });
     applyFilter("all");
 
+    // An intro request is a real submission, not a cosmetic label flip: open the
+    // wizard with a complementary type preselected and the target deal referenced
+    // in the title, so the request reaches the team with full context.
     document.querySelectorAll(".deal-ticket-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var original = btn.textContent;
-        btn.textContent = T("Awaiting their approval…", "بانتظار موافقتهم ⏳");
-        btn.setAttribute("disabled", "true");
-        setTimeout(function () { btn.textContent = original; btn.removeAttribute("disabled"); }, 2600);
+        var ticket = btn.closest(".deal-ticket");
+        var tTitle = ticket ? (ticket.querySelector("h3") || {}).textContent || "" : "";
+        var tType = ticket ? ticket.getAttribute("data-type") : "";
+        var kind = tType === "offer" ? "seek" : "offer";
+        openDrawer(kind);
+        var titleEl = document.getElementById("deal-title");
+        if (titleEl && !titleEl.value && tTitle) titleEl.value = T("Intro request for: ", "طلب تعارف على: ") + tTitle.trim();
       });
     });
 
