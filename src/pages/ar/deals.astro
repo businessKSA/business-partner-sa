@@ -1,0 +1,573 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CallFab from '../../components/CallFab.astro';
+import { getContent } from '../../content/copy';
+
+export const prerender = true;
+
+const locale = 'ar';
+const t = {
+  ...getContent(locale),
+  meta: {
+    title: 'الصفقات والمطابقة الذكية | شريك الأعمال',
+    description: 'اعرض صفقتك، ابحث عن شريك، أو اطرح فكرتك — نطابقك تلقائيًا مع أقرب الفرص حسب القطاع والمدينة، ولا نكشف بياناتك إلا بعد موافقة الطرفين.',
+  },
+};
+---
+
+<BaseLayout lang={locale} t={t}>
+  <Header lang={locale} t={t} />
+
+  <section id="home" class="hero">
+    <div class="container hero-content">
+      <div class="hero-badge">✨ جديد — مطابقة ذكية + صفقات</div>
+      <h1>ما نعرض لك صفقات فقط — نطابقك مع الشريك الصح</h1>
+      <p>قدّم صفقتك أو ملفك مرة واحدة، ونقارنه فورًا بكل الفرص المتاحة حسب القطاع والمدينة ونوع الصفقة، ونرشّح لك أقرب النتائج بالاسم. التعارف الفعلي لا يتم إلا بعد موافقة الطرفين.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" id="openWizardHero" type="button">قدّم صفقتك الآن</button>
+        <a href="#wall" class="btn btn-secondary">تصفح الصفقات المنشورة</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card"><span class="stat-number" id="statTotal">0</span><span class="stat-label">صفقة في القاعدة</span></div>
+        <div class="stat-card"><span class="stat-number">&lt;24س</span><span class="stat-label">وقت المراجعة</span></div>
+        <div class="stat-card"><span class="stat-number">2×</span><span class="stat-label">موافقة قبل كشف أي بيانات</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Launcher -->
+  <section class="section">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">اختر ما ينطبق على وضعك</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 640px; margin: 0 auto 3rem;">كل نوع يمر بنفس رحلة التقديم والمطابقة والمراجعة</p>
+
+      <div class="grid grid-3">
+        <button class="card launcher-tile" data-kind="offer" type="button">
+          <span class="launcher-ico ico-offer">🤝</span>
+          <h3>عندي صفقة أعرضها</h3>
+          <p style="color: var(--muted);">مطعم، محل، مصنع — تعرض شراكة أو توزيع أو تمويل جاهز</p>
+        </button>
+        <button class="card launcher-tile" data-kind="seek" type="button">
+          <span class="launcher-ico ico-seek">🔎</span>
+          <h3>أبحث عن شريك</h3>
+          <p style="color: var(--muted);">لمشروع قائم يحتاج شريك مموّل أو شريك تشغيل</p>
+        </button>
+        <button class="card launcher-tile" data-kind="idea" type="button">
+          <span class="launcher-ico ico-idea">💡</span>
+          <h3>عندي فكرة مشروع</h3>
+          <p style="color: var(--muted);">تبحث عن شريك مؤسس أو ممول يتبنى الفكرة معك</p>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" style="background: var(--surface);">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 3rem;">من التقديم إلى التعارف</h2>
+      <div class="grid grid-4">
+        <div class="card how-card">
+          <span class="how-num">1</span>
+          <h3>تقديم الملف</h3>
+          <p style="color: var(--muted);">نوع الصفقة، القطاع، المدينة، ووصف مختصر — دقيقتين لا أكثر.</p>
+        </div>
+        <div class="card how-card">
+          <span class="how-num">2</span>
+          <h3>حساب المطابقة</h3>
+          <p style="color: var(--muted);">نقارن ملفك فورًا بكل الفرص القائمة ونرشّح أقرب النتائج لك.</p>
+        </div>
+        <div class="card how-card">
+          <span class="how-num">3</span>
+          <h3>اعتماد ونشر</h3>
+          <p style="color: var(--muted);">فريقنا يراجع الجدية والبيانات قبل ظهور أي صفقة للعامة.</p>
+        </div>
+        <div class="card how-card">
+          <span class="how-num">4</span>
+          <h3>تعارف بموافقة الطرفين</h3>
+          <p style="color: var(--muted);">بياناتك لا تُكشف أبدًا إلا بعد موافقة الطرف الآخر على التعارف.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deal wall -->
+  <section class="section" id="wall">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 0.75rem;">الصفقات المنشورة هذا الأسبوع</h2>
+      <p style="text-align: center; color: var(--muted); margin-bottom: 2.5rem;">تصفح مجانًا، أو قدّم ملفك ليحسب النظام أقرب المطابقات لك تلقائيًا</p>
+
+      <div class="filters">
+        <button class="chip is-active" data-filter="all" type="button">الكل</button>
+        <button class="chip" data-filter="offer" type="button">عرض صفقة</button>
+        <button class="chip" data-filter="seek" type="button">بحث عن شريك</button>
+        <button class="chip" data-filter="idea" type="button">فكرة مشروع</button>
+        <span class="filters-count"><span id="visibleCount">0</span> صفقة ظاهرة</span>
+      </div>
+
+      <div class="grid grid-3" id="wallGrid">
+
+        <article class="card ticket" data-type="seek" data-sector="food" data-city="riyadh">
+          <span class="ticket-badge badge-seek">🔎 يبحث عن شريك</span>
+          <h3>مطعم مأكولات سعودية — الرياض</h3>
+          <div class="ticket-meta"><span>📍 الرياض</span><span>🍽️ مطاعم</span></div>
+          <p style="color: var(--muted);">مطعم قائم منذ 3 سنوات يبحث عن شريك مموّل لافتتاح فرع ثانٍ في جدة، مع خبرة تشغيلية جاهزة.</p>
+          <div class="ticket-stat"><span>الحصة المطروحة</span><b>30%</b></div>
+          <div class="ticket-foot"><span>نُشرت قبل يومين</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
+        </article>
+
+        <article class="card ticket" data-type="idea" data-sector="tech" data-city="jeddah">
+          <span class="ticket-badge badge-idea">💡 فكرة مشروع</span>
+          <h3>تطبيق حجز صيانة منزلية عند الطلب</h3>
+          <div class="ticket-meta"><span>📍 جدة</span><span>🛠️ تقنية</span></div>
+          <p style="color: var(--muted);">فكرة مدروسة بدراسة سوق أولية، صاحبها يبحث عن شريك مؤسس تقني لبناء المنتج وإطلاقه.</p>
+          <div class="ticket-stat"><span>المطلوب</span><b>شريك تقني</b></div>
+          <div class="ticket-foot"><span>نُشرت أمس</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
+        </article>
+
+        <article class="card ticket" data-type="offer" data-sector="logistics" data-city="dammam">
+          <span class="ticket-badge badge-offer">🤝 عرض صفقة</span>
+          <h3>توزيع حصري لمنتجات غذائية — المنطقة الشرقية</h3>
+          <div class="ticket-meta"><span>📍 الدمام</span><span>🚚 لوجستيات</span></div>
+          <p style="color: var(--muted);">شركة توزيع قائمة تعرض اتفاقية توزيع حصري لتجار التجزئة في المنطقة الشرقية بشروط تفضيلية.</p>
+          <div class="ticket-stat"><span>الحد الأدنى للطلب</span><b>50 ألف﷼</b></div>
+          <div class="ticket-foot"><span>نُشرت قبل 3 أيام</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
+        </article>
+
+        <article class="card ticket" data-type="seek" data-sector="beauty" data-city="jeddah">
+          <span class="ticket-badge badge-seek">🔎 يبحث عن شريك</span>
+          <h3>صالون تجميل نسائي — فرع جديد</h3>
+          <div class="ticket-meta"><span>📍 جدة</span><span>💇‍♀️ تجميل</span></div>
+          <p style="color: var(--muted);">صالون ناجح بفرعين يبحث عن شريكة لإدارة وتشغيل فرع ثالث، مع تدريب كامل وعلامة تجارية جاهزة.</p>
+          <div class="ticket-stat"><span>رأس المال المطلوب</span><b>180 ألف﷼</b></div>
+          <div class="ticket-foot"><span>نُشرت قبل 4 أيام</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
+        </article>
+
+        <article class="card ticket" data-type="offer" data-sector="industry" data-city="riyadh">
+          <span class="ticket-badge badge-offer">🤝 عرض صفقة</span>
+          <h3>تصنيع أثاث بالجملة لتجار التجزئة</h3>
+          <div class="ticket-meta"><span>📍 الرياض</span><span>🪑 صناعة</span></div>
+          <p style="color: var(--muted);">مصنع أثاث محلي يعرض تعاقدات تصنيع بالجملة بأسعار تنافسية لمتاجر الأثاث والمفروشات.</p>
+          <div class="ticket-stat"><span>مدة التوريد</span><b>2–4 أسابيع</b></div>
+          <div class="ticket-foot"><span>نُشرت قبل أسبوع</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
+        </article>
+
+        <article class="card ticket" data-type="idea" data-sector="hr" data-city="riyadh">
+          <span class="ticket-badge badge-idea">💡 فكرة مشروع</span>
+          <h3>منصة توظيف عن بُعد للمواهب السعودية</h3>
+          <div class="ticket-meta"><span>📍 الرياض</span><span>👥 موارد بشرية</span></div>
+          <p style="color: var(--muted);">رائد أعمال يملك خبرة توظيف 8 سنوات ويبحث عن شريك مؤسس مطوّر لبناء منصة ربط الشركات بالمواهب.</p>
+          <div class="ticket-stat"><span>المطلوب</span><b>شريك مؤسس</b></div>
+          <div class="ticket-foot"><span>نُشرت قبل أسبوع</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
+        </article>
+
+      </div>
+
+      <div style="text-align: center; margin-top: 2.5rem;">
+        <button class="btn btn-primary" id="openWizardBottom" type="button">أضف صفقتك للحائط</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust strip -->
+  <section class="section" style="background: var(--surface); padding-block: 2.5rem;">
+    <div class="container trust-strip">
+      <span>🔒 مراجعة يدوية قبل النشر</span>
+      <span>🎯 نسبة تطابق محسوبة تلقائيًا</span>
+      <span>🤝 تعارف بموافقة الطرفين فقط</span>
+      <span>✉️ تحديثات فورية بالبريد</span>
+    </div>
+  </section>
+
+  <CallFab />
+  <Footer lang={locale} t={t} />
+
+  <!-- Submission wizard -->
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer" role="dialog" aria-label="تقديم صفقة">
+    <div class="drawer-head">
+      <b>قدّم ملفك واحصل على مطابقات</b>
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="إغلاق">✕</button>
+    </div>
+    <div class="drawer-progress"><div class="drawer-bar" id="drawerBar"></div></div>
+    <div class="drawer-body">
+
+      <div class="wiz-step is-active" data-step="1">
+        <h4>الخطوة 1 — نوع الصفقة</h4>
+        <p class="hint">اختر ما ينطبق على وضعك الحالي</p>
+        <div class="type-pick">
+          <label class="type-opt" data-kind="offer">
+            <input type="radio" name="dealType" value="offer" checked />
+            <span class="tico ico-offer">🤝</span>
+            <span><b>عندي صفقة أعرضها</b><span>شراكة، توزيع، تمويل جاهز</span></span>
+          </label>
+          <label class="type-opt" data-kind="seek">
+            <input type="radio" name="dealType" value="seek" />
+            <span class="tico ico-seek">🔎</span>
+            <span><b>أبحث عن شريك</b><span>لمشروع قائم يحتاج تمويل أو تشغيل</span></span>
+          </label>
+          <label class="type-opt" data-kind="idea">
+            <input type="radio" name="dealType" value="idea" />
+            <span class="tico ico-idea">💡</span>
+            <span><b>عندي فكرة مشروع</b><span>أبحث عن شريك مؤسس أو ممول</span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="wiz-step" data-step="2">
+        <h4>الخطوة 2 — تفاصيل الصفقة</h4>
+        <p class="hint">هذه الحقول هي ما يُستخدم لحساب المطابقة</p>
+        <div class="form-group"><label for="dTitle">عنوان الصفقة</label><input type="text" id="dTitle" placeholder="مثال: مطعم يبحث عن شريك مموّل" /></div>
+        <div class="grid grid-2" style="gap: 1rem;">
+          <div class="form-group">
+            <label for="dSector">القطاع</label>
+            <select id="dSector">
+              <option value="food">مطاعم وأغذية</option>
+              <option value="retail">تجزئة</option>
+              <option value="tech">تقنية</option>
+              <option value="services">خدمات</option>
+              <option value="industry">صناعة</option>
+              <option value="logistics">لوجستيات</option>
+              <option value="beauty">تجميل</option>
+              <option value="hr">موارد بشرية</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="dCity">المدينة</label>
+            <select id="dCity">
+              <option value="riyadh">الرياض</option>
+              <option value="jeddah">جدة</option>
+              <option value="dammam">الدمام</option>
+              <option value="other">مدينة أخرى</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label for="dDesc">وصف الصفقة</label><textarea id="dDesc" rows="4" placeholder="اشرح الفكرة أو الصفقة بإيجاز..."></textarea></div>
+      </div>
+
+      <div class="wiz-step" data-step="3">
+        <h4>الخطوة 3 — بيانات التواصل</h4>
+        <p class="hint">لن تظهر بياناتك للعامة أبدًا — تُكشف فقط بعد موافقة الطرف الآخر على التعارف</p>
+        <div class="grid grid-2" style="gap: 1rem;">
+          <div class="form-group"><label for="dName">الاسم</label><input type="text" id="dName" placeholder="اسمك الكامل" /></div>
+          <div class="form-group"><label for="dPhone">رقم الجوال</label><input type="tel" id="dPhone" pattern="^(?:\+?966|0)?5\d{8}$" placeholder="05xxxxxxxx" /></div>
+        </div>
+        <div class="form-group"><label for="dEmail">البريد الإلكتروني</label><input type="email" id="dEmail" placeholder="name@email.com" /></div>
+        <label class="consent"><input type="checkbox" id="dConsent" checked /><span>أوافق على مراجعة ملفي من فريق شريك الأعمال قبل نشره، وعلى تلقّي بريد بأي مطابقة أو طلب تعارف.</span></label>
+        <div id="wizMessage" class="wiz-message" style="display: none;"></div>
+      </div>
+
+      <div class="wiz-step" data-step="4">
+        <h4>الخطوة 4 — أقرب المطابقات لك</h4>
+        <p class="hint">محسوبة حسب القطاع والمدينة ونوع الصفقة — لن تظهر بياناتك لهم إلا إذا وافقوا على طلب التعارف</p>
+        <div class="match-list" id="matchResults"></div>
+      </div>
+
+      <div class="wiz-step" data-step="5">
+        <div class="wiz-success">
+          <div class="wiz-check">✓</div>
+          <h4>وصلنا ملفك بنجاح</h4>
+          <p style="color: var(--muted);">حُفظ في نظامنا وسيراجعه الفريق خلال 24 ساعة، وسنرسل لك تأكيدًا بالبريد عند النشر وعند كل مطابقة جديدة.</p>
+        </div>
+      </div>
+
+    </div>
+    <div class="drawer-foot" id="drawerFoot">
+      <button class="btn btn-secondary" id="stepBack" type="button">السابق</button>
+      <button class="btn btn-primary" id="stepNext" type="button">التالي</button>
+    </div>
+  </aside>
+</BaseLayout>
+
+<style>
+  /* ===== Launcher tiles ===== */
+  .launcher-tile { text-align: center; cursor: pointer; font: inherit; color: inherit; }
+  .launcher-ico { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 14px; font-size: 1.6rem; margin-bottom: 1rem; }
+  .ico-offer { background: rgba(217, 119, 6, 0.14); }
+  .ico-seek { background: rgba(16, 185, 129, 0.14); }
+  .ico-idea { background: rgba(124, 58, 237, 0.14); }
+  .launcher-tile h3 { margin-bottom: 0.5rem; }
+
+  /* ===== How it works ===== */
+  .how-card { position: relative; }
+  .how-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--brand); color: #fff; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; }
+
+  /* ===== Filters ===== */
+  .filters { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 2rem; }
+  .chip { border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); font-weight: 600; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 999px; cursor: pointer; transition: all 0.2s ease; }
+  .chip.is-active { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .filters-count { margin-inline-start: auto; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+
+  /* ===== Ticket cards ===== */
+  .ticket[hidden] { display: none; }
+  .ticket-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 0.75rem; }
+  .badge-offer { background: rgba(217, 119, 6, 0.14); color: #92400e; }
+  .badge-seek { background: rgba(16, 185, 129, 0.14); color: #047857; }
+  .badge-idea { background: rgba(124, 58, 237, 0.14); color: #5b21b6; }
+  .ticket h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
+  .ticket-meta { display: flex; gap: 1rem; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.75rem; }
+  .ticket-stat { display: flex; justify-content: space-between; background: var(--bg); border: 1px dashed var(--line); border-radius: 8px; padding: 0.5rem 0.75rem; margin-top: 0.9rem; font-size: 0.85rem; }
+  .ticket-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--line); font-size: 0.78rem; color: var(--muted); }
+  .btn-ticket { background: var(--brand); color: #fff; font-weight: 700; font-size: 0.78rem; padding: 0.45rem 0.9rem; border-radius: 999px; border: none; cursor: pointer; }
+  .btn-ticket:hover { background: #0052a3; }
+
+  .trust-strip { display: flex; flex-wrap: wrap; gap: 0.6rem 2rem; justify-content: center; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+
+  /* ===== Drawer / wizard ===== */
+  .scrim { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 200; }
+  .scrim.is-open { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; bottom: 0; inset-inline-end: 0; width: min(460px, 100%); background: var(--bg); z-index: 201; box-shadow: -20px 0 50px rgba(15, 23, 42, 0.2); transform: translateX(105%); transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); display: flex; flex-direction: column; }
+  html[dir="rtl"] .drawer { transform: translateX(-105%); }
+  .drawer.is-open,
+  html[dir="rtl"] .drawer.is-open { transform: translateX(0); }
+  .drawer-head { padding: 1.25rem 1.4rem; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; flex: none; }
+  .drawer-close { border: none; background: var(--surface); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem; color: var(--muted); }
+  .drawer-progress { height: 4px; background: var(--line); flex: none; }
+  .drawer-bar { height: 100%; width: 25%; background: var(--brand); transition: width 0.3s ease; }
+  .drawer-body { padding: 1.5rem 1.4rem; overflow-y: auto; flex: 1; }
+  .wiz-step { display: none; }
+  .wiz-step.is-active { display: block; }
+  .wiz-step h4 { margin-bottom: 0.3rem; }
+  .wiz-step p.hint { font-size: 0.82rem; color: var(--muted); margin: 0 0 1.2rem; }
+
+  .type-pick { display: grid; gap: 0.6rem; }
+  .type-opt { display: flex; align-items: center; gap: 0.8rem; border: 1.5px solid var(--line); border-radius: 10px; padding: 0.8rem 0.9rem; cursor: pointer; }
+  .type-opt:has(input:checked) { border-color: var(--brand); background: rgba(0, 102, 204, 0.05); }
+  .tico { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .type-opt b { display: block; font-size: 0.9rem; }
+  .type-opt span span { display: block; font-size: 0.76rem; color: var(--muted); }
+
+  .consent { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+  .wiz-message { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; }
+  .wiz-message.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+  .drawer-foot { padding: 1rem 1.4rem 1.4rem; border-top: 1px solid var(--line); display: flex; gap: 0.6rem; flex: none; }
+  .drawer-foot .btn { flex: 1; justify-content: center; }
+  .drawer-foot .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .wiz-success { text-align: center; padding: 1.25rem 0; }
+  .wiz-check { width: 60px; height: 60px; border-radius: 50%; background: rgba(16, 185, 129, 0.14); color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; margin: 0 auto 1.1rem; }
+
+  .match-list { display: grid; gap: 0.75rem; }
+  .match-card { border: 1.5px solid var(--line); border-radius: 10px; padding: 0.9rem 1rem; }
+  .match-card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.3rem; }
+  .match-score { font-weight: 700; font-size: 0.85rem; padding: 0.2rem 0.7rem; border-radius: 999px; background: rgba(16, 185, 129, 0.14); color: #047857; flex: none; }
+  .match-meta { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .match-reasons { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .match-reasons span { font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
+  .match-empty { text-align: center; padding: 1.5rem 0.75rem; color: var(--muted); font-size: 0.88rem; background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; }
+
+  @media (max-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  (function () {
+    var tickets = document.querySelectorAll('.ticket');
+
+    // filters
+    var chips = document.querySelectorAll('.chip');
+    var visibleCount = document.getElementById('visibleCount');
+    function applyFilter(kind) {
+      var count = 0;
+      tickets.forEach(function (t) {
+        var show = kind === 'all' || t.getAttribute('data-type') === kind;
+        if (show) count++;
+        t.toggleAttribute('hidden', !show);
+      });
+      if (visibleCount) visibleCount.textContent = String(count);
+    }
+    chips.forEach(function (c) {
+      c.addEventListener('click', function () {
+        chips.forEach(function (x) { x.classList.remove('is-active'); });
+        c.classList.add('is-active');
+        applyFilter(c.getAttribute('data-filter'));
+      });
+    });
+    applyFilter('all');
+
+    // animated total
+    var statTotal = document.getElementById('statTotal');
+    if (statTotal) {
+      var target = tickets.length;
+      var n = 0;
+      var iv = setInterval(function () {
+        n++; statTotal.textContent = String(n);
+        if (n >= target) clearInterval(iv);
+      }, 90);
+    }
+
+    // "طلب تعارف" — double opt-in demo, no data revealed here
+    document.querySelectorAll('.btn-ticket').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var original = btn.textContent;
+        btn.textContent = 'بانتظار موافقتهم ⏳';
+        btn.setAttribute('disabled', 'true');
+        setTimeout(function () { btn.textContent = original; btn.removeAttribute('disabled'); }, 2600);
+      });
+    });
+
+    // wizard
+    var scrim = document.getElementById('scrim');
+    var drawer = document.getElementById('drawer');
+    var bar = document.getElementById('drawerBar');
+    var steps = drawer.querySelectorAll('.wiz-step');
+    var back = document.getElementById('stepBack');
+    var next = document.getElementById('stepNext');
+    var foot = document.getElementById('drawerFoot');
+    var wizMessage = document.getElementById('wizMessage');
+    var current = 1;
+    var TOTAL_INPUT_STEPS = 4;
+    var NEXT_LABELS = { 1: 'التالي', 2: 'التالي', 3: 'إرسال ومطابقة', 4: 'تم' };
+
+    var COMPLEMENTS = {
+      offer: { offer: 0, seek: 25, idea: 25 },
+      seek: { offer: 25, seek: 0, idea: 15 },
+      idea: { offer: 25, seek: 15, idea: 0 }
+    };
+
+    function currentProfile() {
+      var typeEl = drawer.querySelector('input[name="dealType"]:checked');
+      return {
+        type: typeEl ? typeEl.value : 'seek',
+        sector: document.getElementById('dSector').value,
+        city: document.getElementById('dCity').value
+      };
+    }
+
+    function renderMatches() {
+      var profile = currentProfile();
+      var results = document.getElementById('matchResults');
+      var scored = Array.prototype.map.call(tickets, function (t) {
+        var reasons = [];
+        var score = 0;
+        if (t.getAttribute('data-city') === profile.city) { score += 40; reasons.push('📍 نفس المدينة'); }
+        if (t.getAttribute('data-sector') === profile.sector) { score += 35; reasons.push('🏷️ نفس القطاع'); }
+        var bonus = (COMPLEMENTS[profile.type] || {})[t.getAttribute('data-type')] || 0;
+        if (bonus) { score += bonus; reasons.push('🔁 نوع مكمّل'); }
+        return { el: t, score: score, reasons: reasons };
+      }).filter(function (m) { return m.score > 0; })
+        .sort(function (a, b) { return b.score - a.score; })
+        .slice(0, 3);
+
+      if (!scored.length) {
+        results.innerHTML = '<div class="match-empty">لا يوجد تطابق قوي في القاعدة الآن — سنراقب الصفقات الجديدة ونرسل لك بريدًا فور ظهور مطابقة تناسبك 🎯</div>';
+        return;
+      }
+      results.innerHTML = scored.map(function (m) {
+        var title = m.el.querySelector('h3').textContent;
+        var meta = Array.prototype.map.call(m.el.querySelectorAll('.ticket-meta span'), function (s) { return s.textContent.trim(); }).join('  ·  ');
+        return '<div class="match-card">' +
+          '<div class="match-card-head"><b>' + title + '</b><span class="match-score">' + Math.min(m.score, 100) + '% تطابق</span></div>' +
+          '<div class="match-meta">' + meta + '</div>' +
+          '<div class="match-reasons">' + m.reasons.map(function (r) { return '<span>' + r + '</span>'; }).join('') + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function openDrawer(kind) {
+      scrim.classList.add('is-open');
+      drawer.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      if (kind) {
+        var radio = drawer.querySelector('input[name="dealType"][value="' + kind + '"]');
+        if (radio) radio.checked = true;
+      }
+      goToStep(1);
+    }
+    function closeDrawer() {
+      scrim.classList.remove('is-open');
+      drawer.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+    function goToStep(n) {
+      current = n;
+      steps.forEach(function (s) { s.classList.toggle('is-active', Number(s.getAttribute('data-step')) === n); });
+      bar.style.width = Math.min(n, TOTAL_INPUT_STEPS) / TOTAL_INPUT_STEPS * 100 + '%';
+      back.style.visibility = n === 1 ? 'hidden' : 'visible';
+      if (n === TOTAL_INPUT_STEPS) renderMatches();
+      if (n > TOTAL_INPUT_STEPS) {
+        foot.style.display = 'none';
+      } else {
+        foot.style.display = 'flex';
+        next.textContent = NEXT_LABELS[n] || 'التالي';
+        next.removeAttribute('disabled');
+      }
+    }
+
+    function showWizError(msg) {
+      wizMessage.textContent = msg;
+      wizMessage.className = 'wiz-message error';
+      wizMessage.style.display = 'block';
+    }
+
+    async function submitDeal() {
+      var payload = {
+        dealType: currentProfile().type,
+        title: (document.getElementById('dTitle') as HTMLInputElement).value,
+        sector: currentProfile().sector,
+        city: currentProfile().city,
+        description: (document.getElementById('dDesc') as HTMLTextAreaElement).value,
+        name: (document.getElementById('dName') as HTMLInputElement).value,
+        phone: (document.getElementById('dPhone') as HTMLInputElement).value,
+        email: (document.getElementById('dEmail') as HTMLInputElement).value,
+        consent: (document.getElementById('dConsent') as HTMLInputElement).checked,
+        lang: 'ar',
+        source: 'businesspartner.sa/ar/deals',
+        timestamp: new Date().toISOString()
+      };
+
+      if (!payload.name || !payload.phone || !payload.email) {
+        showWizError('عبّي الاسم والجوال والبريد قبل المتابعة.');
+        return false;
+      }
+      if (!payload.consent) {
+        showWizError('لازم توافق على المراجعة والتواصل قبل الإرسال.');
+        return false;
+      }
+
+      next.setAttribute('disabled', 'true');
+      next.textContent = 'جاري الإرسال...';
+      try {
+        const res = await fetch('/api/deals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        wizMessage.style.display = 'none';
+        return true;
+      } catch (err) {
+        showWizError('حدث خطأ في إرسال الملف. حاول مرة أخرى أو تواصل معنا مباشرة.');
+        next.removeAttribute('disabled');
+        next.textContent = NEXT_LABELS[3];
+        return false;
+      }
+    }
+
+    document.getElementById('openWizardHero').addEventListener('click', function () { openDrawer(); });
+    document.getElementById('openWizardBottom').addEventListener('click', function () { openDrawer(); });
+    document.querySelectorAll('.launcher-tile').forEach(function (t) {
+      t.addEventListener('click', function () { openDrawer(t.getAttribute('data-kind')); });
+    });
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    scrim.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
+
+    back.addEventListener('click', function () { if (current > 1) goToStep(current - 1); });
+    next.addEventListener('click', async function () {
+      if (current === 3) {
+        var ok = await submitDeal();
+        if (!ok) return;
+        goToStep(4);
+      } else if (current === 4) {
+        goToStep(5);
+      } else {
+        goToStep(current + 1);
+      }
+    });
+  })();
+</script>
