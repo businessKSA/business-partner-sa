@@ -591,6 +591,38 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
   }
 
+  // Deal submission from /deals — offer a deal, seek a partner, or pitch an
+  // idea. Reviewed by the team before it's ever published on the deal wall;
+  // contact details are never shown publicly (double opt-in "request intro").
+  if (b.type === "deal") {
+    const DEAL_TYPE_AR = { offer: "🤝 عرض صفقة", seek: "🔎 يبحث عن شريك", idea: "💡 فكرة مشروع" };
+    const dealType = ["offer", "seek", "idea"].includes(b.dealType) ? b.dealType : "seek";
+    const title = String(b.title || "").trim().slice(0, 200);
+    const sector = String(b.sector || "").trim().slice(0, 60);
+    const city = String(b.city || "").trim().slice(0, 60);
+    const description = String(b.description || "").trim().slice(0, 1500);
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    if (!name || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "DL-" + Date.now().toString().slice(-6);
+    const typeLabel = DEAL_TYPE_AR[dealType];
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">صفقة جديدة — ${ref}</h2><table>${row("النوع", typeLabel) + row("العنوان", title) + row("القطاع", sector) + row("المدينة", city) + row("الوصف", description) + row("الاسم", name) + row("الجوال", phone) + row("الإيميل", email)}</table><p>راجع الملف واعتمده قبل ظهوره على حائط الصفقات.</p></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto" dir="rtl">
+      <h2 style="color:#0B1B5A">وصلنا ملفك بنجاح — ${ref}</h2>
+      <p>مرحباً ${esc(name)}، استلمنا ملف صفقتك وسيراجعه فريقنا خلال 24 ساعة. سنرسل لك تأكيداً عند النشر وعند أي مطابقة جديدة.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    const [teamSent] = await Promise.all([
+      sendEmail(TEAM_EMAIL, `صفقة جديدة (${typeLabel}) — ${title || name}`, teamHtml),
+      sendEmail(email, `وصلنا ملفك ${ref} — Business Partner`, clientHtml),
+      crmLead({ title: `صفقة — ${title || name}`, phone, email, notes: `Deals · ${typeLabel} · ${sector} · ${city} · ${description}`, ref }),
+      addToAudience(email, name),
+      forwardLead({ source: "deal", ref, dealType, title, sector, city, description, name, phone, email }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
+  }
+
   // Magazine PDF download gate (/magazine) — capture the lead, then email a
   // link to the print-ready issue (the browser's print-to-PDF renders it —
   // no server-side PDF library, so Arabic text shapes correctly for free).

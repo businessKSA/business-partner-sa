@@ -394,6 +394,7 @@ const NAV_GROUPS = [
       { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
+      { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
     ],
   },
   {
@@ -1130,6 +1131,185 @@ function buildTaskForce() {
     </form>
   </div></section>`;
   return page({ title: Lraw("Task Force — Business Partner", "تاسك فورس — بيزنس بارتنر"), desc: Lraw("A dedicated executive service for hard, multi-party tasks and special projects.", "خدمة تنفيذية متخصصة لإدارة المهمات الصعبة والمشاريع متعددة الجهات."), active: "/task-force", path: "/task-force", body });
+}
+
+/* ---------- Deals & matchmaking (/deals) ---------- */
+const DEAL_SECTORS = [
+  { key: "food", icon: "🍽️", en: "Restaurants & Food", ar: "مطاعم وأغذية" },
+  { key: "retail", icon: "🛍️", en: "Retail", ar: "تجزئة" },
+  { key: "tech", icon: "🛠️", en: "Tech", ar: "تقنية" },
+  { key: "services", icon: "🧰", en: "Services", ar: "خدمات" },
+  { key: "industry", icon: "🪑", en: "Industry", ar: "صناعة" },
+  { key: "logistics", icon: "🚚", en: "Logistics", ar: "لوجستيات" },
+  { key: "beauty", icon: "💇‍♀️", en: "Beauty", ar: "تجميل" },
+  { key: "hr", icon: "👥", en: "HR", ar: "موارد بشرية" },
+  { key: "other", icon: "🗂️", en: "Other", ar: "أخرى" },
+];
+const DEAL_CITIES = [
+  { key: "riyadh", en: "Riyadh", ar: "الرياض" },
+  { key: "jeddah", en: "Jeddah", ar: "جدة" },
+  { key: "dammam", en: "Dammam", ar: "الدمام" },
+  { key: "other", en: "Other city", ar: "مدينة أخرى" },
+];
+const DEAL_TYPE_META = {
+  offer: { icon: "🤝", en: "Offering a deal", ar: "عرض صفقة" },
+  seek: { icon: "🔎", en: "Seeking a partner", ar: "يبحث عن شريك" },
+  idea: { icon: "💡", en: "Pitching an idea", ar: "فكرة مشروع" },
+};
+const DEAL_TICKETS = [
+  { type: "seek", sector: "food", city: "riyadh", titleEn: "Saudi cuisine restaurant — Riyadh", titleAr: "مطعم مأكولات سعودية — الرياض",
+    descEn: "A restaurant running for 3 years is looking for a funding partner to open a second branch in Jeddah, with an operating team ready to go.",
+    descAr: "مطعم قائم منذ 3 سنوات يبحث عن شريك مموّل لافتتاح فرع ثانٍ في جدة، مع خبرة تشغيلية جاهزة.",
+    statEn: "Stake offered", statAr: "الحصة المطروحة", valueEn: "30%", valueAr: "30%", postedEn: "Posted 2 days ago", postedAr: "نُشرت قبل يومين" },
+  { type: "idea", sector: "tech", city: "jeddah", titleEn: "On-demand home maintenance booking app", titleAr: "تطبيق حجز صيانة منزلية عند الطلب",
+    descEn: "A researched idea with initial market study — the founder is looking for a technical co-founder to build and launch the product.",
+    descAr: "فكرة مدروسة بدراسة سوق أولية، صاحبها يبحث عن شريك مؤسس تقني لبناء المنتج وإطلاقه.",
+    statEn: "Looking for", statAr: "المطلوب", valueEn: "Technical partner", valueAr: "شريك تقني", postedEn: "Posted yesterday", postedAr: "نُشرت أمس" },
+  { type: "offer", sector: "logistics", city: "dammam", titleEn: "Exclusive food-product distribution — Eastern Province", titleAr: "توزيع حصري لمنتجات غذائية — المنطقة الشرقية",
+    descEn: "An established distribution company offers an exclusive distribution agreement to retailers in the Eastern Province on preferential terms.",
+    descAr: "شركة توزيع قائمة تعرض اتفاقية توزيع حصري لتجار التجزئة في المنطقة الشرقية بشروط تفضيلية.",
+    statEn: "Minimum order", statAr: "الحد الأدنى للطلب", valueEn: "SAR 50,000", valueAr: "50 ألف ﷼", postedEn: "Posted 3 days ago", postedAr: "نُشرت قبل 3 أيام" },
+  { type: "seek", sector: "beauty", city: "jeddah", titleEn: "Women's beauty salon — new branch", titleAr: "صالون تجميل نسائي — فرع جديد",
+    descEn: "A successful 2-branch salon is looking for a partner to run and operate a third branch, with full training and a ready brand.",
+    descAr: "صالون ناجح بفرعين يبحث عن شريكة لإدارة وتشغيل فرع ثالث، مع تدريب كامل وعلامة تجارية جاهزة.",
+    statEn: "Capital required", statAr: "رأس المال المطلوب", valueEn: "SAR 180,000", valueAr: "180 ألف ﷼", postedEn: "Posted 4 days ago", postedAr: "نُشرت قبل 4 أيام" },
+  { type: "offer", sector: "industry", city: "riyadh", titleEn: "Wholesale furniture manufacturing for retailers", titleAr: "تصنيع أثاث بالجملة لتجار التجزئة",
+    descEn: "A local furniture factory offers wholesale manufacturing contracts at competitive prices for furniture and furnishing stores.",
+    descAr: "مصنع أثاث محلي يعرض تعاقدات تصنيع بالجملة بأسعار تنافسية لمتاجر الأثاث والمفروشات.",
+    statEn: "Lead time", statAr: "مدة التوريد", valueEn: "2–4 weeks", valueAr: "2–4 أسابيع", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
+  { type: "idea", sector: "hr", city: "riyadh", titleEn: "Remote hiring platform for Saudi talent", titleAr: "منصة توظيف عن بُعد للمواهب السعودية",
+    descEn: "An entrepreneur with 8 years of recruitment experience is looking for a technical co-founder to build a platform connecting companies with talent.",
+    descAr: "رائد أعمال يملك خبرة توظيف 8 سنوات ويبحث عن شريك مؤسس مطوّر لبناء منصة ربط الشركات بالمواهب.",
+    statEn: "Looking for", statAr: "المطلوب", valueEn: "Co-founder", valueAr: "شريك مؤسس", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
+];
+function buildDeals() {
+  const sectorOptions = DEAL_SECTORS.map((s) => `<option value="${s.key}">${L(s.en, s.ar)}</option>`).join("");
+  const cityOptions = DEAL_CITIES.map((c) => `<option value="${c.key}">${L(c.en, c.ar)}</option>`).join("");
+  const launcher = [
+    ["offer", "🤝", L("I have a deal to offer", "عندي صفقة أعرضها"), L("Restaurant, shop, factory — offering a partnership, distribution or ready financing", "مطعم، محل، مصنع — تعرض شراكة أو توزيع أو تمويل جاهز")],
+    ["seek", "🔎", L("I'm looking for a partner", "أبحث عن شريك"), L("For an existing project that needs a funding or operating partner", "لمشروع قائم يحتاج شريك مموّل أو شريك تشغيل")],
+    ["idea", "💡", L("I have a project idea", "عندي فكرة مشروع"), L("Looking for a co-founder or funder to take on the idea with you", "تبحث عن شريك مؤسس أو ممول يتبنى الفكرة معك")],
+  ].map((x) => `<button class="card deal-launcher" data-kind="${x[0]}" type="button"><span class="deal-launcher-ico ${x[0]}">${x[1]}</span><h3>${x[2]}</h3><p class="text-soft">${x[3]}</p></button>`).join("");
+  const steps = [
+    [1, L("Submit your file", "تقديم الملف"), L("Deal type, sector, city, and a short description — two minutes, no more.", "نوع الصفقة، القطاع، المدينة، ووصف مختصر — دقيقتين لا أكثر.")],
+    [2, L("Match calculation", "حساب المطابقة"), L("We instantly compare your file against every open opportunity and rank the closest matches for you.", "نقارن ملفك فورًا بكل الفرص المتاحة ونرشّح أقرب النتائج لك.")],
+    [3, L("Review & publish", "اعتماد ونشر"), L("Our team reviews seriousness and data before any deal appears publicly.", "فريقنا يراجع الجدية والبيانات قبل ظهور أي صفقة للعامة.")],
+    [4, L("Mutual-consent introduction", "تعارف بموافقة الطرفين"), L("Your data is never revealed until the other party agrees to the introduction.", "بياناتك لا تُكشف أبدًا إلا بعد موافقة الطرف الآخر على التعارف.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const chips = [["all", L("All", "الكل")], ["offer", L("Offering a deal", "عرض صفقة")], ["seek", L("Seeking a partner", "بحث عن شريك")], ["idea", L("Project idea", "فكرة مشروع")]]
+    .map((c, i) => `<button class="deal-chip${i === 0 ? " active" : ""}" data-filter="${c[0]}" type="button">${c[1]}</button>`).join("");
+  const tickets = DEAL_TICKETS.map((t) => {
+    const sec = DEAL_SECTORS.find((s) => s.key === t.sector);
+    const city = DEAL_CITIES.find((c) => c.key === t.city);
+    const meta = DEAL_TYPE_META[t.type];
+    return `<article class="card deal-ticket" data-type="${t.type}" data-sector="${t.sector}" data-city="${t.city}">
+      <span class="deal-badge ${t.type}">${meta.icon} ${L(meta.en, meta.ar)}</span>
+      <h3>${L(t.titleEn, t.titleAr)}</h3>
+      <div class="deal-ticket-meta"><span>${I.pin} ${L(city.en, city.ar)}</span><span>${sec.icon} ${L(sec.en, sec.ar)}</span></div>
+      <p class="text-soft">${L(t.descEn, t.descAr)}</p>
+      <div class="deal-ticket-stat"><span>${L(t.statEn, t.statAr)}</span><b>${L(t.valueEn, t.valueAr)}</b></div>
+      <div class="deal-ticket-foot"><span>${L(t.postedEn, t.postedAr)}</span><button class="deal-ticket-btn" type="button">${L("Request intro", "طلب تعارف")}</button></div>
+    </article>`;
+  }).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("New — smart matching + deals", "جديد — مطابقة ذكية + صفقات")}</span>
+    <h1>${L("We don't just list deals — we match you with the right partner", "ما نعرض لك صفقات فقط — نطابقك مع الشريك الصح")}</h1>
+    <p class="lead">${L("Submit your deal or file once, and we compare it instantly against every available opportunity by sector, city and deal type, then recommend the closest matches by name. Real introductions only happen with mutual consent.", "قدّم صفقتك أو ملفك مرة واحدة، ونقارنه فورًا بكل الفرص المتاحة حسب القطاع والمدينة ونوع الصفقة، ونرشّح لك أقرب النتائج بالاسم. التعارف الفعلي لا يتم إلا بعد موافقة الطرفين.")}</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" id="deal-open-hero" type="button">${L("Submit your deal now", "قدّم صفقتك الآن")}</button>
+      <a class="btn btn-ghost btn-lg" href="#deal-wall">${L("Browse published deals", "تصفح الصفقات المنشورة")}</a>
+    </div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Manual review before publishing", "مراجعة يدوية قبل النشر")}</span>
+      <span class="hero-badge">${I.check}${L("Automatic match score", "نسبة تطابق محسوبة تلقائيًا")}</span>
+      <span class="hero-badge">${I.check}${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><h2>${L("Choose what applies to your situation", "اختر ما ينطبق على وضعك")}</h2><p>${L("Every type goes through the same submission, matching and review journey.", "كل نوع يمر بنفس رحلة التقديم والمطابقة والمراجعة.")}</p></div>
+    <div class="grid grid-3">${launcher}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><h2>${L("From submission to introduction", "من التقديم إلى التعارف")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section" id="deal-wall"><div class="container">
+    <div class="section-head"><h2>${L("Deals published this week", "الصفقات المنشورة هذا الأسبوع")}</h2><p>${L("Browse for free, or submit your file so the system calculates your closest matches automatically.", "تصفح مجانًا، أو قدّم ملفك ليحسب النظام أقرب المطابقات لك تلقائيًا.")}</p></div>
+    <div class="deal-filters">${chips}<span class="deal-filters-count"><span id="deal-visible-count">0</span> ${L("deals visible", "صفقة ظاهرة")}</span></div>
+    <div class="grid grid-3" id="deal-wall-grid">${tickets}</div>
+    <div class="center mt-32"><button class="btn btn-primary" id="deal-open-bottom" type="button">${L("Add your deal to the wall", "أضف صفقتك للحائط")}</button></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="deal-trust">
+      <span>🔒 ${L("Manual review before publishing", "مراجعة يدوية قبل النشر")}</span>
+      <span>🎯 ${L("Automatically calculated match score", "نسبة تطابق محسوبة تلقائيًا")}</span>
+      <span>🤝 ${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
+      <span>✉️ ${L("Instant email updates", "تحديثات فورية بالبريد")}</span>
+    </div>
+  </div></section>
+
+  <div class="deal-scrim" id="deal-scrim"></div>
+  <aside class="deal-drawer" id="deal-drawer" role="dialog" aria-label="${Lraw("Submit a deal", "تقديم صفقة")}">
+    <div class="deal-drawer-head">
+      <b>${L("Submit your file and get matches", "قدّم ملفك واحصل على مطابقات")}</b>
+      <button class="deal-drawer-close" id="deal-drawer-close" type="button" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
+    </div>
+    <div class="deal-drawer-progress"><div class="deal-drawer-bar" id="deal-drawer-bar"></div></div>
+    <div class="deal-drawer-body">
+      <div class="deal-step active" data-step="1">
+        <h4>${L("Step 1 — Deal type", "الخطوة 1 — نوع الصفقة")}</h4>
+        <p class="hint">${L("Choose what applies to your current situation", "اختر ما ينطبق على وضعك الحالي")}</p>
+        <div class="deal-type-pick">
+          <label class="deal-type-opt" data-kind="offer"><input type="radio" name="dealType" value="offer" checked><span class="tico">🤝</span><span><b>${L("I have a deal to offer", "عندي صفقة أعرضها")}</b><span class="sub">${L("Partnership, distribution, ready financing", "شراكة، توزيع، تمويل جاهز")}</span></span></label>
+          <label class="deal-type-opt" data-kind="seek"><input type="radio" name="dealType" value="seek"><span class="tico">🔎</span><span><b>${L("I'm looking for a partner", "أبحث عن شريك")}</b><span class="sub">${L("For an existing project that needs funding or operations", "لمشروع قائم يحتاج تمويل أو تشغيل")}</span></span></label>
+          <label class="deal-type-opt" data-kind="idea"><input type="radio" name="dealType" value="idea"><span class="tico">💡</span><span><b>${L("I have a project idea", "عندي فكرة مشروع")}</b><span class="sub">${L("Looking for a co-founder or funder", "أبحث عن شريك مؤسس أو ممول")}</span></span></label>
+        </div>
+      </div>
+      <div class="deal-step" data-step="2">
+        <h4>${L("Step 2 — Deal details", "الخطوة 2 — تفاصيل الصفقة")}</h4>
+        <p class="hint">${L("These fields are what the match calculation uses", "هذه الحقول هي ما يُستخدم لحساب المطابقة")}</p>
+        <div class="field"><label for="deal-title">${L("Deal title", "عنوان الصفقة")}</label><input type="text" id="deal-title" placeholder="${Lraw("e.g. Restaurant looking for a funding partner", "مثال: مطعم يبحث عن شريك مموّل")}"></div>
+        <div class="grid grid-2" style="gap:0 16px">
+          <div class="field"><label for="deal-sector">${L("Sector", "القطاع")}</label><select id="deal-sector">${sectorOptions}</select></div>
+          <div class="field"><label for="deal-city">${L("City", "المدينة")}</label><select id="deal-city">${cityOptions}</select></div>
+        </div>
+        <div class="field"><label for="deal-desc">${L("Deal description", "وصف الصفقة")}</label><textarea id="deal-desc" rows="4" placeholder="${Lraw("Briefly explain the idea or deal...", "اشرح الفكرة أو الصفقة بإيجاز...")}"></textarea></div>
+      </div>
+      <div class="deal-step" data-step="3">
+        <h4>${L("Step 3 — Contact details", "الخطوة 3 — بيانات التواصل")}</h4>
+        <p class="hint">${L("Your data is never shown publicly — only revealed after the other party agrees to the introduction", "لن تظهر بياناتك للعامة أبدًا — تُكشف فقط بعد موافقة الطرف الآخر على التعارف")}</p>
+        <div class="grid grid-2" style="gap:0 16px">
+          <div class="field"><label for="deal-name">${L("Name", "الاسم")}</label><input type="text" id="deal-name" placeholder="${Lraw("Your full name", "اسمك الكامل")}"></div>
+          <div class="field"><label for="deal-phone">${L("Mobile", "الجوال")}</label><input type="tel" id="deal-phone" inputmode="tel" placeholder="05XXXXXXXX"></div>
+        </div>
+        <div class="field"><label for="deal-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="deal-email" placeholder="name@email.com"></div>
+        <label class="deal-consent"><input type="checkbox" id="deal-consent" checked><span>${L("I agree to have my file reviewed by the Business Partner team before publishing, and to receive email about any match or introduction request.", "أوافق على مراجعة ملفي من فريق بيزنس بارتنر قبل نشره، وعلى تلقّي بريد بأي مطابقة أو طلب تعارف.")}</span></label>
+        <div id="deal-wiz-message" class="deal-wiz-message" hidden></div>
+      </div>
+      <div class="deal-step" data-step="4">
+        <h4>${L("Step 4 — Your closest matches", "الخطوة 4 — أقرب المطابقات لك")}</h4>
+        <p class="hint">${L("Calculated by sector, city and deal type — your data isn't shown to them unless they agree to the introduction request", "محسوبة حسب القطاع والمدينة ونوع الصفقة — لن تظهر بياناتك لهم إلا إذا وافقوا على طلب التعارف")}</p>
+        <div class="deal-match-list" id="deal-match-results"></div>
+      </div>
+      <div class="deal-step" data-step="5">
+        <div class="deal-wiz-success">
+          <div class="deal-wiz-check">${I.check}</div>
+          <h4>${L("Your file was received", "وصلنا ملفك بنجاح")}</h4>
+          <p class="text-soft">${L("Saved in our system and will be reviewed by the team within 24 hours — we'll confirm by email once it's published and on every new match.", "حُفظ في نظامنا وسيراجعه الفريق خلال 24 ساعة، وسنرسل لك تأكيدًا بالبريد عند النشر وعند كل مطابقة جديدة.")}</p>
+        </div>
+      </div>
+    </div>
+    <div class="deal-drawer-foot" id="deal-drawer-foot">
+      <button class="btn btn-ghost" id="deal-step-back" type="button">${L("Back", "السابق")}</button>
+      <button class="btn btn-primary" id="deal-step-next" type="button">${L("Next", "التالي")}</button>
+    </div>
+  </aside>`;
+  return page({ title: Lraw("Deals & Smart Matchmaking — Business Partner", "الصفقات والمطابقة الذكية — بيزنس بارتنر"), desc: Lraw("Offer a deal, look for a partner, or pitch an idea — we automatically match you with the closest opportunities by sector and city, and never reveal your data until both sides agree.", "اعرض صفقتك، ابحث عن شريك، أو اطرح فكرتك — نطابقك تلقائيًا مع أقرب الفرص حسب القطاع والمدينة، ولا نكشف بياناتك إلا بعد موافقة الطرفين."), active: "/deals", path: "/deals", body });
 }
 
 function buildPackages() {
@@ -5449,6 +5629,7 @@ function writeFullSite(pre) {
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
   write(`${pre}mahfol-makfol/trips.html`, buildMahfolTrips());
   write(`${pre}task-force.html`, buildTaskForce());
+  write(`${pre}deals.html`, buildDeals());
   write(`${pre}packages.html`, buildPackages());
   // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
   write(`${pre}tools-and-calculators.html`, buildToolsHub());
@@ -5487,7 +5668,7 @@ function writeFullSite(pre) {
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 15 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
+  pageCount += 16 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
 }
 
 for (const lang of ["en", "ar"]) {

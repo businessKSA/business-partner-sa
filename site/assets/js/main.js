@@ -1973,6 +1973,190 @@ var BP_EMP_BILLING = "monthly";
   });
 })();
 
+/* ---------- Deals & matchmaking (/deals) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var drawer = document.getElementById("deal-drawer");
+    if (!drawer) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    function escDeal(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+    var tickets = document.querySelectorAll(".deal-ticket");
+    var scrim = document.getElementById("deal-scrim");
+    var bar = document.getElementById("deal-drawer-bar");
+    var steps = drawer.querySelectorAll(".deal-step");
+    var back = document.getElementById("deal-step-back");
+    var next = document.getElementById("deal-step-next");
+    var foot = document.getElementById("deal-drawer-foot");
+    var wizMessage = document.getElementById("deal-wiz-message");
+    var current = 1;
+    var TOTAL_INPUT_STEPS = 4;
+
+    var chips = document.querySelectorAll(".deal-chip");
+    var visibleCount = document.getElementById("deal-visible-count");
+    function applyFilter(kind) {
+      var count = 0;
+      tickets.forEach(function (t) {
+        var show = kind === "all" || t.getAttribute("data-type") === kind;
+        if (show) count++;
+        t.toggleAttribute("hidden", !show);
+      });
+      if (visibleCount) visibleCount.textContent = String(count);
+    }
+    chips.forEach(function (c) {
+      c.addEventListener("click", function () {
+        chips.forEach(function (x) { x.classList.remove("active"); });
+        c.classList.add("active");
+        applyFilter(c.getAttribute("data-filter"));
+      });
+    });
+    applyFilter("all");
+
+    document.querySelectorAll(".deal-ticket-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var original = btn.textContent;
+        btn.textContent = T("Awaiting their approval…", "بانتظار موافقتهم ⏳");
+        btn.setAttribute("disabled", "true");
+        setTimeout(function () { btn.textContent = original; btn.removeAttribute("disabled"); }, 2600);
+      });
+    });
+
+    var COMPLEMENTS = {
+      offer: { offer: 0, seek: 25, idea: 25 },
+      seek: { offer: 25, seek: 0, idea: 15 },
+      idea: { offer: 25, seek: 15, idea: 0 },
+    };
+
+    function currentProfile() {
+      var typeEl = drawer.querySelector('input[name="dealType"]:checked');
+      var sectorEl = document.getElementById("deal-sector");
+      var cityEl = document.getElementById("deal-city");
+      return { type: typeEl ? typeEl.value : "seek", sector: sectorEl ? sectorEl.value : "", city: cityEl ? cityEl.value : "" };
+    }
+
+    function renderMatches() {
+      var profile = currentProfile();
+      var results = document.getElementById("deal-match-results");
+      var scored = Array.prototype.map.call(tickets, function (t) {
+        var reasons = [];
+        var score = 0;
+        if (t.getAttribute("data-city") === profile.city) { score += 40; reasons.push(T("📍 same city", "📍 نفس المدينة")); }
+        if (t.getAttribute("data-sector") === profile.sector) { score += 35; reasons.push(T("🏷️ same sector", "🏷️ نفس القطاع")); }
+        var bonus = (COMPLEMENTS[profile.type] || {})[t.getAttribute("data-type")] || 0;
+        if (bonus) { score += bonus; reasons.push(T("🔁 complementary type", "🔁 نوع مكمّل")); }
+        return { el: t, score: score, reasons: reasons };
+      }).filter(function (m) { return m.score > 0; })
+        .sort(function (a, b) { return b.score - a.score; })
+        .slice(0, 3);
+
+      if (!scored.length) {
+        results.innerHTML = '<div class="deal-match-empty">' + T("No strong match in our database right now — we'll watch for new deals and email you as soon as a match appears 🎯", "لا يوجد تطابق قوي في القاعدة الآن — سنراقب الصفقات الجديدة ونرسل لك بريدًا فور ظهور مطابقة تناسبك 🎯") + "</div>";
+        return;
+      }
+      results.innerHTML = scored.map(function (m) {
+        var title = m.el.querySelector("h3").textContent;
+        var meta = Array.prototype.map.call(m.el.querySelectorAll(".deal-ticket-meta span"), function (s) { return s.textContent.trim(); }).join("  ·  ");
+        return '<div class="deal-match-card"><div class="deal-match-head"><b>' + escDeal(title) + '</b><span class="deal-match-score">' + Math.min(m.score, 100) + "% " + T("match", "تطابق") + "</span></div>" +
+          '<div class="deal-match-meta">' + escDeal(meta) + "</div>" +
+          '<div class="deal-match-reasons">' + m.reasons.map(function (r) { return "<span>" + r + "</span>"; }).join("") + "</div></div>";
+      }).join("");
+    }
+
+    function openDrawer(kind) {
+      scrim.classList.add("open");
+      drawer.classList.add("open");
+      document.body.style.overflow = "hidden";
+      if (kind) {
+        var radio = drawer.querySelector('input[name="dealType"][value="' + kind + '"]');
+        if (radio) radio.checked = true;
+      }
+      goToStep(1);
+    }
+    function closeDrawer() {
+      scrim.classList.remove("open");
+      drawer.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+    function goToStep(n) {
+      current = n;
+      steps.forEach(function (s) { s.classList.toggle("active", Number(s.getAttribute("data-step")) === n); });
+      bar.style.width = Math.min(n, TOTAL_INPUT_STEPS) / TOTAL_INPUT_STEPS * 100 + "%";
+      back.style.visibility = n === 1 ? "hidden" : "visible";
+      if (n === TOTAL_INPUT_STEPS) renderMatches();
+      if (n > TOTAL_INPUT_STEPS) {
+        foot.style.display = "none";
+      } else {
+        foot.style.display = "flex";
+        next.textContent = n === 3 ? T("Send & match", "إرسال ومطابقة") : T("Next", "التالي");
+        next.removeAttribute("disabled");
+      }
+    }
+
+    function showWizError(msg) { wizMessage.textContent = msg; wizMessage.hidden = false; }
+
+    function submitDeal() {
+      var profile = currentProfile();
+      var payload = {
+        type: "deal",
+        dealType: profile.type,
+        title: val("deal-title"),
+        sector: profile.sector,
+        city: profile.city,
+        description: val("deal-desc"),
+        name: val("deal-name"),
+        phone: val("deal-phone"),
+        email: val("deal-email"),
+        consent: !!document.getElementById("deal-consent").checked,
+        lang: (window.BP && BP.lang) || "ar",
+      };
+      if (!payload.name || !payload.phone || !payload.email) {
+        showWizError(T("Fill in your name, mobile and email before continuing.", "عبّي الاسم والجوال والبريد قبل المتابعة."));
+        return Promise.resolve(false);
+      }
+      if (!payload.consent) {
+        showWizError(T("You must agree to the review and contact before sending.", "لازم توافق على المراجعة والتواصل قبل الإرسال."));
+        return Promise.resolve(false);
+      }
+      next.setAttribute("disabled", "true");
+      next.textContent = T("Sending…", "جارٍ الإرسال…");
+      wizMessage.hidden = true;
+      return fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (!d || !d.ok) throw new Error("failed"); return true; })
+        .catch(function () {
+          showWizError(T("An error occurred sending your file. Try again or contact us directly.", "حدث خطأ في إرسال الملف. حاول مرة أخرى أو تواصل معنا مباشرة."));
+          next.removeAttribute("disabled");
+          next.textContent = T("Send & match", "إرسال ومطابقة");
+          return false;
+        });
+    }
+
+    var openHero = document.getElementById("deal-open-hero");
+    var openBottom = document.getElementById("deal-open-bottom");
+    if (openHero) openHero.addEventListener("click", function () { openDrawer(); });
+    if (openBottom) openBottom.addEventListener("click", function () { openDrawer(); });
+    document.querySelectorAll(".deal-launcher").forEach(function (t) {
+      t.addEventListener("click", function () { openDrawer(t.getAttribute("data-kind")); });
+    });
+    document.getElementById("deal-drawer-close").addEventListener("click", closeDrawer);
+    scrim.addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeDrawer(); });
+
+    back.addEventListener("click", function () { if (current > 1) goToStep(current - 1); });
+    next.addEventListener("click", function () {
+      if (current === 3) {
+        submitDeal().then(function (ok) { if (ok) goToStep(4); });
+      } else if (current === 4) {
+        goToStep(5);
+      } else {
+        goToStep(current + 1);
+      }
+    });
+  });
+})();
+
 /* ---------- AI Hiring OS dashboard (/employer-dashboard) ---------- */
 (function () {
   "use strict";
