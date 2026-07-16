@@ -1779,31 +1779,41 @@ var BP = window.BP = window.BP || {};
       contact + "</div>";
   }
 
+  // Filters use the same shared, canonical taxonomy/combobox widget as the
+  // full dashboard (/employer-dashboard) and the candidate/job-posting
+  // forms — not a <select> populated by scanning whatever's on the current
+  // page of results (that never localized and missed categories).
+  if (window.BP && BP.initCombobox) {
+    var lang = isAr ? "ar" : "en";
+    BP.initCombobox(document.getElementById("emp-field"), function () { return BP.FIELD_TAXONOMY.map(function (p) { return T(p[1], p[0]); }); });
+    BP.initCombobox(document.getElementById("emp-city"), function () { return BP.cityOptions ? BP.cityOptions(lang) : []; });
+    BP.initCombobox(document.getElementById("emp-country"), function () { return BP.countryOptions ? BP.countryOptions(lang) : []; });
+    BP.initCombobox(document.getElementById("emp-q"), function () { return BP.jobTitleOptions ? BP.jobTitleOptions(lang) : []; });
+  }
+  function resolveField(text) {
+    var t = String(text || "").trim();
+    if (!t || !window.BP || !BP.FIELD_TAXONOMY) return t;
+    var hit = BP.FIELD_TAXONOMY.filter(function (p) { return p[0] === t || p[1].toLowerCase() === t.toLowerCase(); })[0];
+    return hit ? hit[0] : "";
+  }
   function load() {
     var q = (document.getElementById("emp-q") || {}).value || "";
-    var field = (document.getElementById("emp-field") || {}).value || "";
+    var field = resolveField((document.getElementById("emp-field") || {}).value || "");
     var city = (document.getElementById("emp-city") || {}).value || "";
+    var country = (document.getElementById("emp-country") || {}).value || "";
     var nat = (document.getElementById("emp-nat") || {}).value || "";
     var code = (document.getElementById("emp-code") || {}).value || "";
     status.textContent = T("Loading candidates…", "جارٍ تحميل المرشّحين…");
     grid.innerHTML = "";
-    var qs = new URLSearchParams({ q: q, field: field, city: city, nat: nat, code: code }).toString();
+    var qs = new URLSearchParams({ q: q, field: field, city: city, country: country, nat: nat, code: code }).toString();
     fetch("/api/candidates?" + qs).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
       .then(function (res) {
         if (res.s === 503) { status.innerHTML = T("The candidate pool isn't connected yet — ", "لم تُربط قاعدة المرشّحين بعد — ") + '<a href="https://wa.me/966507034157">' + T("contact us to subscribe.", "تواصل معنا للاشتراك.") + "</a>"; return; }
         var d = res.d;
         if (!d || !d.ok || !d.candidates) { status.textContent = T("Couldn't load candidates. Try again.", "تعذّر تحميل المرشّحين. حاول مجدداً."); return; }
         if (!d.candidates.length) { status.textContent = T("No candidates match these filters.", "لا يوجد مرشّحون مطابقون لهذه الفلاتر."); return; }
-        status.textContent = (d.unlocked ? T("Showing full profiles — ", "عرض الملفات الكاملة — ") : T("Showing anonymized profiles — subscribe to unlock contacts. ", "عرض ملفات مموّهة — اشترك لفتح بيانات التواصل. ")) + d.total + " " + T("candidates", "مرشّح");
-        // populate the field filter from the canonical taxonomy (localized), not
-        // from whatever raw values happen to be on this page of results — that
-        // both missed categories not yet present and never translated.
-        var fs = document.getElementById("emp-field");
-        if (fs && fs.options.length <= 1) {
-          BP.FIELD_TAXONOMY.forEach(function (pair) {
-            var o = document.createElement("option"); o.value = pair[0]; o.textContent = T(pair[1], pair[0]); fs.appendChild(o);
-          });
-        }
+        var countTxt = d.total + " " + T(d.done ? "candidates" : "candidates (first batch)", d.done ? "مرشّح" : "مرشّح (أول دفعة)");
+        status.textContent = (d.unlocked ? T("Showing full profiles — ", "عرض الملفات الكاملة — ") : T("Showing anonymized profiles — subscribe to unlock contacts. ", "عرض ملفات مموّهة — اشترك لفتح بيانات التواصل. ")) + countTxt;
         grid.innerHTML = d.candidates.map(card).join("");
       })
       .catch(function () { status.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
@@ -1839,6 +1849,71 @@ var BP_EMP_BILLING = "monthly";
         BP_EMP_BILLING = bill;
         btns.forEach(function (b) { b.classList.toggle("active", b === btn); });
         applyBilling(bill);
+      });
+    });
+  });
+})();
+
+/* ---------- Standalone employer registration (/portal/join → api/employer) ----------
+   Registers directly against api/employer.js instead of the main site's
+   cart+checkout flow — this portal is meant to work independently. Was
+   previously a dead form (no submit handler at all). */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("emp-join");
+    if (!form) return;
+    var planEl = document.getElementById("ej-plan"), noteEl = document.getElementById("ej-plan-note");
+    var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
+    function T(en, ar) { return isAr ? ar : en; }
+    var PLANS = window.BP_EMP_PLANS || [];
+    form.querySelectorAll(".emp-plan-pick").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var key = btn.getAttribute("data-plan-key");
+        planEl.value = key;
+        form.querySelectorAll(".emp-plan-pick").forEach(function (b) { b.classList.toggle("active", b === btn); });
+        var plan = PLANS.filter(function (p) { return p.key === key; })[0];
+        noteEl.style.color = "";
+        if (plan) {
+          var price = window.BP_EMP_BILLING === "yearly" && plan.yearlyPrice != null ? plan.yearlyPrice : plan.price;
+          noteEl.textContent = T("Selected: ", "تم اختيار: ") + plan.name + (price != null ? " — " + price + " " + T("SAR", "ريال") : "");
+        }
+      });
+    });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var resultEl = document.getElementById("ej-result");
+      var submitBtn = document.getElementById("ej-submit");
+      if (!planEl.value) { noteEl.textContent = T("Please choose a plan first.", "الرجاء اختيار باقة أولاً."); noteEl.style.color = "#B91C1C"; return; }
+      var company = document.getElementById("ej-company").value.trim();
+      var phone = document.getElementById("ej-phone").value.trim();
+      if (!company || !phone) return; // native required attrs already cover this
+      submitBtn.disabled = true; submitBtn.textContent = T("Submitting…", "جارٍ الإرسال…");
+      fetch("/api/employer", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          company: company, cr: document.getElementById("ej-cr").value.trim(),
+          contact: document.getElementById("ej-contact").value.trim(), phone: phone,
+          email: document.getElementById("ej-email").value.trim(),
+          plan: planEl.value, billing: window.BP_EMP_BILLING || "monthly",
+          notes: document.getElementById("ej-notes").value.trim(),
+        }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        submitBtn.disabled = false; submitBtn.textContent = T("Continue to subscribe", "متابعة الاشتراك");
+        if (!d || !d.ok) { resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Something went wrong. Please try again or contact us on WhatsApp.", "صار خطأ. حاول مجدداً أو تواصل معنا عبر واتساب.") + "</p>"; return; }
+        var bank = window.BP_BANK || {};
+        resultEl.hidden = false;
+        resultEl.innerHTML = "<h3>✅ " + T("Registered — reference", "تم التسجيل — الرقم المرجعي") + " " + d.ref + "</h3>" +
+          "<p>" + T("Complete payment by bank transfer, then we'll activate your access and email your dashboard code.", "أكمل الدفع بتحويل بنكي، وسنفعّل وصولك ونرسل لك كود لوحة التحكم عبر البريد.") + "</p>" +
+          (bank.iban ? "<p><strong>" + T("Bank", "البنك") + ":</strong> " + bank.bank + "<br><strong>IBAN:</strong> " + bank.iban + "<br><strong>" + T("Beneficiary", "المستفيد") + ":</strong> " + bank.beneficiary + "</p>" : "") +
+          "<p class='emp-note'>" + T("Reference: use ", "الرقم المرجعي: استخدم ") + d.ref + " " + T("in your transfer note.", "في ملاحظة التحويل.") + "</p>" +
+          '<a class="btn btn-wa" style="margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + encodeURIComponent(T("Transfer receipt for ", "إيصال تحويل لـ ") + d.ref) + '">' + T("Send receipt on WhatsApp", "أرسل الإيصال عبر واتساب") + "</a>";
+        form.reset(); planEl.value = ""; noteEl.textContent = "";
+        form.querySelectorAll(".emp-plan-pick").forEach(function (b) { b.classList.remove("active"); });
+        resultEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }).catch(function () {
+        submitBtn.disabled = false; submitBtn.textContent = T("Continue to subscribe", "متابعة الاشتراك");
+        resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.") + "</p>";
       });
     });
   });

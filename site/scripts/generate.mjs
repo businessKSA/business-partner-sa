@@ -2730,9 +2730,10 @@ function buildEmployers() {
 
     <div class="emp-access" id="emp-access">
       <div class="emp-filters">
-        <input type="text" id="emp-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
-        <select id="emp-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
-        <select id="emp-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+        <input type="text" id="emp-q" placeholder="${Lraw("Search job title, skill…", "ابحث بالمسمى الوظيفي أو المهارة…")}">
+        <input type="text" id="emp-field" placeholder="${Lraw("All fields", "كل المجالات")}">
+        <input type="text" id="emp-country" placeholder="${Lraw("All countries", "كل الدول")}">
+        <input type="text" id="emp-city" placeholder="${Lraw("All cities", "كل المدن")}">
         <select id="emp-nat"><option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option></select>
       </div>
       <div class="emp-unlock">
@@ -2752,7 +2753,7 @@ function employerYearly(monthly, discount) {
   return Math.round((Number(monthly) * 12 * (1 - discount)) / 10) * 10;
 }
 
-function employerPlanCards({ selectable }) {
+function employerPlanCards({ selectable, standalone }) {
   const plans = (site.employerPlans && site.employerPlans.tiers) || [];
   const discount = (site.employerPlans && site.employerPlans.yearlyDiscount) || 0;
   const fmt = (n) => Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : "en-US");
@@ -2773,6 +2774,17 @@ function employerPlanCards({ selectable }) {
     const list = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
     const badge = t.popular ? `<span class="pk-badge">${L("Most popular", "الأكثر طلباً")}</span>` : "";
     const name = L(t.nameEn || t.name, t.name);
+    if (standalone) {
+      // Local single-select (no cart/checkout): used by /portal/join, which
+      // registers directly against api/employer.js rather than routing
+      // through the main site's cart+checkout flow.
+      return `<div class="pkg emp-plan${t.popular ? " pop" : ""}">
+        ${badge}<div class="pk-name">${esc(name)}</div>
+        <div class="pk-price">${priceHtml(t)}</div>
+        <ul>${list}</ul>
+        <button type="button" class="pk-pick emp-plan-pick" data-plan-key="${esc(t.key)}">${L("Select this plan", "اختر هذه الباقة")}</button>
+      </div>`;
+    }
     if (selectable) {
       const yearly = t.price != null ? employerYearly(t.price, discount) : null;
       const nameAr = `${t.name} — اشتراك صاحب عمل`;
@@ -3003,7 +3015,9 @@ function buildPortalJoin() {
   <section class="section"><div class="container">
     <form id="emp-join" novalidate>
       <div class="section-head" style="margin-bottom:22px"><span class="eyebrow">${L("Step 1", "الخطوة 1")}</span><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
-      ${employerPlanCards({ selectable: true })}
+      ${employerPlanCards({ standalone: true })}
+      <input type="hidden" id="ej-plan" required>
+      <p class="emp-note" id="ej-plan-note" style="text-align:center;margin-top:8px"></p>
       <div class="section-head" style="margin:44px 0 22px"><span class="eyebrow">${L("Step 2", "الخطوة 2")}</span><h2>${L("Company details", "بيانات الشركة")}</h2></div>
       <div class="join-grid">
         <div class="field"><label for="ej-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="ej-company" required></div>
