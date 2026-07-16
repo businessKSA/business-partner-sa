@@ -1637,10 +1637,6 @@ function buildComplianceAgent() {
       [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
       [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your account — the Compliance Agent card opens your dashboard directly.", "سجّل دخولك لحسابك — بطاقة وكيل الامتثال تفتح لوحتك مباشرة.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
-    <div class="hero-actions" style="margin-top:1.4rem">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
-      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
-    </div>
   </div></section>
 
   <section class="section"><div class="container">
