@@ -6066,7 +6066,8 @@ function buildSharedServices() {
       <h1>${L("Your smart executive team", "فريقك التنفيذي الذكي")}</h1>
       <p class="lead">${L("Instead of hiring a whole office, get a full team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant — led by Khaled, who understands your request, delegates to the right specialist, executes, and escalates only what needs your approval.", "بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يعملون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعِدة تنفيذية — بقيادة خالد الذي يفهم طلبك، يوزّعه على المتخصص المناسب، ينفّذ، ويصعّد فقط ما يحتاج موافقتك.")}</p>
       <div class="ss-cta">
-        <a class="btn btn-primary" href="#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
+        <a class="btn btn-primary" href="${u("/shared-services/dashboard")}">🔑 ${L("Service portal — sign in", "دخول بوابة الخدمة")}</a>
+        <a class="btn btn-primary" style="background:#12b3ad;border-color:#12b3ad" href="#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
         <a class="btn btn-ghost" href="#ss-roster">${L("Meet the team", "تعرّف على الفريق")}</a>
       </div>
     </div>
