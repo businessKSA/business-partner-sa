@@ -22,9 +22,9 @@ const t = {
 
   <section id="home" class="hero">
     <div class="container hero-content">
-      <div class="hero-badge">✨ جديد — مطابقة ذكية + صفقات</div>
+      <div class="hero-badge">✨ جديد — مطابقة ذكية + صفقات · 🆓 الخدمة مجانية حاليًا</div>
       <h1>ما نعرض لك صفقات فقط — نطابقك مع الشريك الصح</h1>
-      <p>قدّم صفقتك أو ملفك مرة واحدة، ونقارنه فورًا بكل الفرص المتاحة حسب القطاع والمدينة ونوع الصفقة، ونرشّح لك أقرب النتائج بالاسم. التعارف الفعلي لا يتم إلا بعد موافقة الطرفين.</p>
+      <p>بائع أو مشترٍ، رائد أعمال يبحث عن مستثمر، أو مستثمر يبحث عن فرصة — قدّم ملفك مرة واحدة ونقارنه فورًا بكل الفرص المتاحة حسب القطاع والمدينة ونوع الصفقة، ونرشّح لك أقرب النتائج بالاسم. الخدمة مجانية حاليًا، والتعارف الفعلي لا يتم إلا بعد موافقة الطرفين.</p>
       <div class="hero-cta">
         <button class="btn btn-primary" id="openWizardHero" type="button">قدّم صفقتك الآن</button>
         <a href="#wall" class="btn btn-secondary">تصفح الصفقات المنشورة</a>
@@ -47,12 +47,12 @@ const t = {
         <button class="card launcher-tile" data-kind="offer" type="button">
           <span class="launcher-ico ico-offer">🤝</span>
           <h3>عندي صفقة أعرضها</h3>
-          <p style="color: var(--muted);">مطعم، محل، مصنع — تعرض شراكة أو توزيع أو تمويل جاهز</p>
+          <p style="color: var(--muted);">بيع منشأة قائمة، شراكة، امتياز تجاري، أو رأس مال تبحث له عن فرصة</p>
         </button>
         <button class="card launcher-tile" data-kind="seek" type="button">
           <span class="launcher-ico ico-seek">🔎</span>
           <h3>أبحث عن شريك</h3>
-          <p style="color: var(--muted);">لمشروع قائم يحتاج شريك مموّل أو شريك تشغيل</p>
+          <p style="color: var(--muted);">شريك مموّل، مستثمر، مشترٍ لمنشأة قائمة، أو فرصة استثمارية واعدة</p>
         </button>
         <button class="card launcher-tile" data-kind="idea" type="button">
           <span class="launcher-ico ico-idea">💡</span>
@@ -108,48 +108,48 @@ const t = {
 
       <div class="grid grid-3" id="wallGrid">
 
-        <article class="card ticket" data-type="seek" data-sector="food" data-city="riyadh">
-          <span class="ticket-badge badge-seek">🔎 يبحث عن شريك</span>
-          <h3>مطعم مأكولات سعودية — الرياض</h3>
-          <div class="ticket-meta"><span>📍 الرياض</span><span>🍽️ مطاعم</span></div>
-          <p style="color: var(--muted);">مطعم قائم منذ 3 سنوات يبحث عن شريك مموّل لافتتاح فرع ثانٍ في جدة، مع خبرة تشغيلية جاهزة.</p>
-          <div class="ticket-stat"><span>الحصة المطروحة</span><b>30%</b></div>
+        <article class="card ticket" data-type="offer" data-sector="food" data-city="riyadh">
+          <span class="ticket-badge badge-offer">🤝 بائع يعرض منشأة للبيع</span>
+          <h3>مقهى متخصص قائم — للبيع في الرياض</h3>
+          <div class="ticket-meta"><span>📍 الرياض</span><span>☕ مقاهي وأغذية</span></div>
+          <p style="color: var(--muted);">مقهى قائم منذ سنتين بموقع حيوي وقاعدة عملاء ثابتة، صاحبه يبيع كامل المنشأة لتفرغه لمشروع آخر.</p>
+          <div class="ticket-stat"><span>السعر المطلوب</span><b>250 ألف﷼</b></div>
           <div class="ticket-foot"><span>نُشرت قبل يومين</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
         </article>
 
-        <article class="card ticket" data-type="idea" data-sector="tech" data-city="jeddah">
-          <span class="ticket-badge badge-idea">💡 فكرة مشروع</span>
-          <h3>تطبيق حجز صيانة منزلية عند الطلب</h3>
-          <div class="ticket-meta"><span>📍 جدة</span><span>🛠️ تقنية</span></div>
-          <p style="color: var(--muted);">فكرة مدروسة بدراسة سوق أولية، صاحبها يبحث عن شريك مؤسس تقني لبناء المنتج وإطلاقه.</p>
-          <div class="ticket-stat"><span>المطلوب</span><b>شريك تقني</b></div>
+        <article class="card ticket" data-type="seek" data-sector="retail" data-city="jeddah">
+          <span class="ticket-badge badge-seek">🔎 مشترٍ يبحث عن منشأة</span>
+          <h3>مستثمر يبحث عن محل تجزئة قائم للشراء</h3>
+          <div class="ticket-meta"><span>📍 جدة</span><span>🛍️ تجزئة</span></div>
+          <p style="color: var(--muted);">مستثمر جاهز بميزانية محددة يبحث عن محل أو سلسلة صغيرة قائمة في قطاع التجزئة للاستحواذ عليها وتشغيلها مباشرة.</p>
+          <div class="ticket-stat"><span>الميزانية المتاحة</span><b>حتى 500 ألف﷼</b></div>
           <div class="ticket-foot"><span>نُشرت أمس</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
         </article>
 
-        <article class="card ticket" data-type="offer" data-sector="logistics" data-city="dammam">
-          <span class="ticket-badge badge-offer">🤝 عرض صفقة</span>
-          <h3>توزيع حصري لمنتجات غذائية — المنطقة الشرقية</h3>
-          <div class="ticket-meta"><span>📍 الدمام</span><span>🚚 لوجستيات</span></div>
-          <p style="color: var(--muted);">شركة توزيع قائمة تعرض اتفاقية توزيع حصري لتجار التجزئة في المنطقة الشرقية بشروط تفضيلية.</p>
-          <div class="ticket-stat"><span>الحد الأدنى للطلب</span><b>50 ألف﷼</b></div>
+        <article class="card ticket" data-type="seek" data-sector="services" data-city="riyadh">
+          <span class="ticket-badge badge-seek">🔎 يبحث عن مستثمر</span>
+          <h3>رائد أعمال يبحث عن مستثمر لتوسعة مشروع قائم</h3>
+          <div class="ticket-meta"><span>📍 الرياض</span><span>🧾 خدمات</span></div>
+          <p style="color: var(--muted);">مشروع خدمات قائم ومربح يبحث صاحبه عن مستثمر لتمويل التوسع لمدينة جديدة، مقابل حصة في الشركة.</p>
+          <div class="ticket-stat"><span>التمويل المطلوب</span><b>300 ألف﷼ مقابل 20%</b></div>
           <div class="ticket-foot"><span>نُشرت قبل 3 أيام</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
         </article>
 
-        <article class="card ticket" data-type="seek" data-sector="beauty" data-city="jeddah">
-          <span class="ticket-badge badge-seek">🔎 يبحث عن شريك</span>
-          <h3>صالون تجميل نسائي — فرع جديد</h3>
-          <div class="ticket-meta"><span>📍 جدة</span><span>💇‍♀️ تجميل</span></div>
-          <p style="color: var(--muted);">صالون ناجح بفرعين يبحث عن شريكة لإدارة وتشغيل فرع ثالث، مع تدريب كامل وعلامة تجارية جاهزة.</p>
-          <div class="ticket-stat"><span>رأس المال المطلوب</span><b>180 ألف﷼</b></div>
+        <article class="card ticket" data-type="seek" data-sector="other" data-city="dammam">
+          <span class="ticket-badge badge-seek">🔎 مستثمر يبحث عن فرصة</span>
+          <h3>مستثمر يبحث عن فرصة استثمارية واعدة</h3>
+          <div class="ticket-meta"><span>📍 الدمام</span><span>💼 استثمار عام</span></div>
+          <p style="color: var(--muted);">مستثمر لديه رأس مال جاهز يبحث عن مشروع قائم أو فكرة واعدة في أي قطاع لضخ استثمار مقابل شراكة أو حصة.</p>
+          <div class="ticket-stat"><span>رأس المال المتاح</span><b>1–3 مليون﷼</b></div>
           <div class="ticket-foot"><span>نُشرت قبل 4 أيام</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
         </article>
 
-        <article class="card ticket" data-type="offer" data-sector="industry" data-city="riyadh">
-          <span class="ticket-badge badge-offer">🤝 عرض صفقة</span>
-          <h3>تصنيع أثاث بالجملة لتجار التجزئة</h3>
-          <div class="ticket-meta"><span>📍 الرياض</span><span>🪑 صناعة</span></div>
-          <p style="color: var(--muted);">مصنع أثاث محلي يعرض تعاقدات تصنيع بالجملة بأسعار تنافسية لمتاجر الأثاث والمفروشات.</p>
-          <div class="ticket-stat"><span>مدة التوريد</span><b>2–4 أسابيع</b></div>
+        <article class="card ticket" data-type="offer" data-sector="food" data-city="jeddah">
+          <span class="ticket-badge badge-offer">🤝 عرض شراكة</span>
+          <h3>سلسلة مطاعم تعرض حق امتياز (فرنشايز)</h3>
+          <div class="ticket-meta"><span>📍 جدة</span><span>🍽️ مطاعم</span></div>
+          <p style="color: var(--muted);">علامة مطاعم محلية ناجحة تعرض حق امتياز لفتح فروع جديدة، مع تدريب كامل ودعم تشغيلي مستمر.</p>
+          <div class="ticket-stat"><span>رسوم الامتياز</span><b>150 ألف﷼</b></div>
           <div class="ticket-foot"><span>نُشرت قبل أسبوع</span><button class="btn-ticket" type="button">طلب تعارف</button></div>
         </article>
 
@@ -173,10 +173,10 @@ const t = {
   <!-- Trust strip -->
   <section class="section" style="background: var(--surface); padding-block: 2.5rem;">
     <div class="container trust-strip">
+      <span>🆓 الخدمة مجانية حاليًا بدون أي عمولة</span>
       <span>🔒 مراجعة يدوية قبل النشر</span>
       <span>🎯 نسبة تطابق محسوبة تلقائيًا</span>
       <span>🤝 تعارف بموافقة الطرفين فقط</span>
-      <span>✉️ تحديثات فورية بالبريد</span>
     </div>
   </section>
 
