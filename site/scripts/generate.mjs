@@ -2088,6 +2088,18 @@ function buildTourism() {
 // top (client-side, works regardless of any backend), investor services,
 // city-by-city investor programs, target sectors, and the lead form that
 // still feeds the /api/requests investor-tourism pipeline (email + CRM/Notion).
+// Shared sub-nav for the two Mahfol Makfol tracks (investor + trips), so both
+// pages read as one sub-brand under Business Partner and cross-link cleanly.
+function mmSubnav(active) {
+  const items = [
+    { href: "/mahfol-makfol", en: "For investors", ar: "للمستثمر" },
+    { href: "/mahfol-makfol/trips", en: "Trips & experiences", ar: "الرحلات والتجارب" },
+  ];
+  return `<div class="mm-subnav"><a class="mm-subnav-brand" href="${u("/mahfol-makfol")}">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span></a><nav>` +
+    items.map((it) => `<a href="${u(it.href)}"${it.href === active ? ' class="on"' : ""}>${L(it.en, it.ar)}</a>`).join("") +
+    `</nav></div>`;
+}
+
 function buildMahfolMakfol() {
   const b = site.businessTourism;
 
@@ -2237,6 +2249,7 @@ function buildMahfolMakfol() {
     @media(max-width:560px){.mm-cc-opts{grid-template-columns:1fr}}
   </style>
 
+  ${mmSubnav("/mahfol-makfol")}
   <section class="mm-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
     <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("Your gateway to investing in Saudi Arabia", "بوابتك للاستثمار في السعودية")}</h1>
@@ -2482,6 +2495,147 @@ function buildMahfolMakfol() {
     title: Lraw("Mahfol Makfol by Business Partner — Invest in Saudi Arabia", "محفول مكفول من بزنس بارتنر — استثمر في السعودية"),
     desc: Lraw("A concierge program for foreign investors in Saudi Arabia: MISA licensing, government relations, curated meetings, opportunity sourcing and executive hospitality across the Kingdom's key cities.", "برنامج استشاري للمستثمرين الأجانب في السعودية: ترخيص وزارة الاستثمار، علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة."),
     active: "/mahfol-makfol", path: "/mahfol-makfol", body, script: mmScript,
+  });
+}
+
+// Mahfol Makfol — Trips & experiences track (leisure/experiential Saudi travel),
+// sibling of the investor track. Real destinations, signature experiences,
+// tourism-unit management (Gathern/Airbnb) and a trip-request form that feeds
+// the same requests pipeline (Notion + WhatsApp + dashboards).
+function buildMahfolTrips() {
+  const DEST = [
+    { ic: "🏜️", en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص" },
+    { ic: "🏛️", en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س" },
+    { ic: "🕌", en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص" },
+    { ic: "🌊", en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص" },
+    { ic: "🐠", en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص" },
+    { ic: "🌲", en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص" },
+    { ic: "🏝️", en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص" },
+    { ic: "🌹", en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص" },
+    { ic: "🐪", en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة" },
+  ];
+  const destCards = DEST.map((d) => `
+    <div class="card feature tr-dest">
+      <div class="tr-dest-top"><span class="tr-dest-ic">${d.ic}</span><h3>${L(d.en, d.ar)}</h3></div>
+      <p class="tr-tag">${L(d.te, d.ta)}</p>
+      <span class="tr-price">${L(d.pe, d.pa)}</span>
+      <a class="btn btn-ghost" style="width:100%;margin-top:auto" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.arrow}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a>
+    </div>`).join("");
+
+  const ACT = [
+    { ic: "🚙", en: "Safari & dune bashing", ar: "سفاري وتطعيس", de: "Wrangler jeeps, golden dunes, pro captains.", da: "جيب رانجلر وكثبان ذهبية وكباتن محترفون." },
+    { ic: "🥾", en: "Hiking & trails", ar: "هايكنج ومسارات", de: "Edge of the World, the Maze, hidden valleys.", da: "حافة العالم، المتاهة، الوادي الخفي." },
+    { ic: "🐎", en: "Horse & camel riding", ar: "ركوب الخيل والجمال", de: "Equestrian experiences in the countryside & beaches.", da: "تجارب فروسية في الريف والشواطئ." },
+    { ic: "🤿", en: "Diving & snorkeling", ar: "غوص وسنوركل", de: "Legendary Red Sea reefs in full colour.", da: "شعاب البحر الأحمر بألوانها الأسطورية." },
+    { ic: "🛥️", en: "Yacht trips", ar: "رحلات اليخوت", de: "Yacht or boat, 6–12 hours with snacks & seafood.", da: "يخت أو قارب 6-12 ساعة بسناكس وغداء بحري." },
+    { ic: "🎈", en: "AlUla hot-air balloon", ar: "منطاد العلا", de: "Sunrise over Hegra from the sky.", da: "شروق الشمس فوق الحِجر من السماء." },
+    { ic: "🏛️", en: "Heritage tours", ar: "جولات تراثية", de: "Jeddah Al-Balad, Diriyah, Shaqra & Ushaiqer.", da: "جدة البلد، الدرعية، شقراء وأوشيقر." },
+    { ic: "⭐", en: "Stargazing", ar: "تأمل النجوم", de: "AlUla's Gharameel and Riyadh's clear deserts.", da: "الغراميل بالعلا وصحاري الرياض الصافية." },
+  ];
+  const actCards = ACT.map((a) =>
+    `<div class="tr-act"><span class="tr-act-ic">${a.ic}</span><h3>${L(a.en, a.ar)}</h3><p>${L(a.de, a.da)}</p></div>`).join("");
+
+  const UNIT = [
+    { ic: "📋", en: "Listing & marketing", ar: "الإدراج والتسويق", de: "Professional listings on Gathern, Airbnb & Booking with photography.", da: "إعلان احترافي على جاذرن وAirbnb وBooking مع تصوير ووصف جذاب." },
+    { ic: "💰", en: "Dynamic pricing", ar: "التسعير الديناميكي", de: "Priced by season and events for the highest yield.", da: "نسعّر حسب المواسم والفعاليات لتحقق أعلى عائد." },
+    { ic: "💬", en: "24/7 guest communication", ar: "تواصل مع الضيوف 24/7", de: "Handling enquiries, check-in and check-out.", da: "رد على الاستفسارات وإدارة الوصول والمغادرة." },
+    { ic: "🧹", en: "Operations & cleaning", ar: "تشغيل ونظافة", de: "The unit prepared to hospitality standards between bookings.", da: "تجهيز الوحدة بين كل حجز بمعايير الضيافة." },
+    { ic: "📊", en: "Monthly reports", ar: "تقارير شهرية", de: "Occupancy, revenue, expenses and your net return — clearly.", da: "إشغال وإيرادات ومصاريف وصافي عائدك بوضوح." },
+    { ic: "🛡️", en: "Licensing & compliance", ar: "توثيق وتراخيص", de: "Following Ministry of Tourism requirements and unit permits.", da: "متابعة اشتراطات وزارة السياحة ورخص الوحدات." },
+  ];
+  const unitCards = UNIT.map((s) =>
+    `<div class="card feature"><div class="card-icon" style="font-size:24px">${s.ic}</div><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
+
+  const body = `
+  <style>
+    :root{--mm-gold:#c6a45c}
+    .tr-hero{background:linear-gradient(160deg,var(--navy-900),var(--navy) 62%,var(--navy-700));color:#fff;padding:56px 0 64px}
+    .tr-hero .subbrand-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff}
+    .tr-hero .subbrand-badge small{color:var(--mm-gold)}
+    .tr-hero h1{color:#fff;margin:16px 0 10px;font-size:clamp(28px,4.6vw,46px)}
+    .tr-hero .lead{color:rgba(255,255,255,.86);max-width:720px}
+    .tr-gold-line{width:60px;height:4px;border-radius:4px;background:var(--mm-gold);margin:0 0 16px}
+    .tr-trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:20px;color:rgba(255,255,255,.9);font-size:.92rem}
+    .tr-trust span{display:inline-flex;align-items:center;gap:7px}
+    .tr-dest{display:flex;flex-direction:column;gap:9px}
+    .tr-dest-top{display:flex;align-items:center;gap:11px}
+    .tr-dest-ic{font-size:28px}
+    .tr-dest-top h3{margin:0;font-size:19px}
+    .tr-tag{color:var(--text-soft);font-size:14px;margin:0}
+    .tr-price{color:var(--mm-gold);font-weight:800;font-size:14px}
+    .tr-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm)}
+    .tr-act-ic{font-size:26px}
+    .tr-act h3{margin:8px 0 5px;font-size:16px}
+    .tr-act p{margin:0;color:var(--text-soft);font-size:13.5px}
+    .tr-owner{background:linear-gradient(135deg,#101c4d,#1b2f80);color:#fff;border-radius:var(--radius-lg);padding:30px;text-align:center;margin-top:26px}
+    .tr-owner h2{color:#fff;margin:0 0 8px}
+    .tr-owner p{color:rgba(255,255,255,.85);max-width:640px;margin:0 auto 18px}
+  </style>
+
+  ${mmSubnav("/mahfol-makfol/trips")}
+  <section class="tr-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
+    <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
+    <h1>${L("Discover Saudi Arabia — trips & experiences", "استكشف السعودية — رحلات وتجارب")}</h1>
+    <div class="tr-gold-line"></div>
+    <p class="lead">${L("Curated trips, camps, stays and activities across every region — designed around you and delivered through our vetted local partners.", "رحلات ومخيمات وإقامات وأنشطة مصمّمة في كل مناطق المملكة — حسب رغبتك وعبر شركائنا المحليين المعتمدين.")}</p>
+    <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#trip-form">${I.calendar}<span>${L("Design my trip", "صمّم رحلتي")}</span></a>${waBtn2("Book on WhatsApp", "احجز عبر واتساب", "btn-ghost")}</div>
+    <div class="tr-trust"><span>${I.check}${L("Vetted, audited suppliers", "موردون معتمدون ومدقّقون")}</span><span>${I.wa}${L("Instant booking on WhatsApp", "حجز فوري عبر الواتساب")}</span><span>${I.clock}${L("24/7 support", "دعم على مدار الساعة")}</span></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Where to go", "إلى أين")}</span><h2>${L("Destinations across the Kingdom", "وجهات في كل المملكة")}</h2><p>${L("From the Edge of the World to AlUla, the Red Sea islands and the green south.", "من حافة العالم إلى العلا وجزر البحر الأحمر والجنوب الأخضر.")}</p></div>
+    <div class="grid grid-3">${destCards}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Things to do", "الأنشطة")}</span><h2>${L("Signature experiences", "تجارب مميّزة")}</h2></div>
+    <div class="tr-act-grid">${actCards}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Stays & property management", "الإقامة وإدارة الوحدات")}</span><h2>${L("We manage your tourism unit — Gathern & Airbnb style", "ندير وحدتك السياحية — بأسلوب جاذرن وAirbnb")}</h2><p>${L("Own a chalet, farm or apartment? We list, price, host and operate it for you and report your net return.", "عندك شاليه أو مزرعة أو شقة؟ ندرجها ونسعّرها ونستضيف ونشغّل نيابةً عنك ونعطيك صافي عائدك.")}</p></div>
+    <div class="grid grid-3">${unitCards}</div>
+    <div class="tr-owner"><h2>${L("List your unit with us", "أدرج وحدتك معنا")}</h2><p>${L("Turn your property into managed, high-yield hospitality income.", "حوّل عقارك إلى دخل ضيافة مُدار وعائد مرتفع.")}</p><a class="btn btn-primary btn-lg" href="#trip-form">${I.building}<span>${L("Become a host partner", "كن شريكاً مالكاً")}</span></a></div>
+  </div></section>
+
+  <section class="section section--gray" id="trip-form"><div class="container" style="max-width:720px">
+    <div class="section-head"><span class="eyebrow">${L("Design your trip", "صمّم رحلتك")}</span><h2>${L("Tell us about your trip", "أخبرنا عن رحلتك")}</h2><p>${L("Share what you're after and we'll come back with a tailored program and pricing within a day.", "أخبرنا بما ترغب ونعود لك ببرنامج وتسعيرة مخصّصة خلال يوم.")}</p></div>
+    <form class="calc-form" id="trip-form-el" novalidate>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-name">${L("Your name", "الاسم")}</label><input id="tr-name" type="text" required></div>
+        <div class="field"><label for="tr-phone">${L("Mobile", "رقم الجوال")}</label><input id="tr-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-email">${L("Email", "الإيميل")}</label><input id="tr-email" type="email" required placeholder="name@email.com"></div>
+        <div class="field"><label for="tr-dest">${L("Destination", "الوجهة")}</label><input id="tr-dest" type="text" placeholder="${Lraw("e.g. AlUla", "مثال: العلا")}"></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-count">${L("Group size", "عدد الأشخاص")}</label><input id="tr-count" type="number" min="1" placeholder="1"></div>
+        <div class="field"><label for="tr-dates">${L("Preferred dates", "التواريخ المفضّلة")}</label><input id="tr-dates" type="text" placeholder="${Lraw("e.g. October", "مثال: أكتوبر")}"></div>
+      </div>
+      <div class="field"><label for="tr-notes">${L("Anything else?", "أي تفاصيل إضافية؟")}</label><textarea id="tr-notes" rows="3"></textarea></div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send request", "أرسل الطلب")}</span></button>
+      <div class="form-success" id="trip-success" hidden></div>
+    </form>
+    <div class="callout" style="margin-top:22px"><span class="ico">🏛️</span><p>${L("Here for business, not leisure?", "زيارتك للأعمال وليست سياحية؟")} <a href="${u("/mahfol-makfol")}">${L("See the investor program →", "شاهد برنامج المستثمر ←")}</a></p></div>
+  </div></section>`;
+
+  const tripScript = `<script>
+(function(){
+  document.addEventListener("click",function(e){
+    var a=e.target.closest("[data-trip-dest]");
+    if(!a) return;
+    var d=document.getElementById("tr-dest");
+    if(d) d.value=a.getAttribute("data-trip-dest");
+  });
+})();
+</script>`;
+
+  return page({
+    title: Lraw("Trips & experiences — Mahfol Makfol by Business Partner", "الرحلات والتجارب — محفول مكفول من بزنس بارتنر"),
+    desc: Lraw("Curated Saudi trips, camps, stays and activities across every region, plus Gathern/Airbnb-style tourism-unit management — Mahfol Makfol by Business Partner.", "رحلات ومخيمات وإقامات وأنشطة سعودية مصمّمة في كل المناطق، وإدارة وحدات سياحية بأسلوب جاذرن وAirbnb — محفول مكفول من بزنس بارتنر."),
+    active: "/mahfol-makfol", path: "/mahfol-makfol/trips", body, script: tripScript,
   });
 }
 
@@ -5030,6 +5184,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
+  write(`${pre}mahfol-makfol/trips.html`, buildMahfolTrips());
   write(`${pre}task-force.html`, buildTaskForce());
   write(`${pre}packages.html`, buildPackages());
   // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
@@ -5105,7 +5260,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
   .concat(JOBS.map((j) => `/jobs/${j.slug}`));
