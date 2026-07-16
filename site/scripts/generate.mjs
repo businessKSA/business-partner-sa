@@ -3518,6 +3518,7 @@ function buildEmployerDashboard() {
         <span style="font-weight:600">🔒 ${L("Free browsing. Subscribe to unlock contacts + AI tools.", "تصفّح مجاني. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</span>
         <input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;text-align:center;letter-spacing:1px">
         <button class="btn btn-primary btn-sm" id="empd-enter">${L("Unlock", "فتح")}</button>
+        <a href="${u("/employer-login")}" class="btn btn-ghost btn-sm">${L("Log in", "تسجيل الدخول")}</a>
         <button type="button" class="btn btn-ghost btn-sm" id="empd-demo">${L("Demo", "تجربة")}</button>
         <a href="${u("/employer-join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a>
       </div>
