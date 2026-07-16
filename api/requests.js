@@ -50,10 +50,16 @@ const DEMO_CODES = {
   "BP-DEMO": "ALL",
   "BP2026": "ALL",
   "DEMO123": "ALL",
+  "TRIAL": "ALL",
   "DEMO-ONE": ["badr"],
   "DEMO-THREE": ["badr", "malak", "farah"],
   "DEMO-TEAM": ["baher", "mazen", "nasser", "mishari", "abdulaziz", "badr", "farah", "malak", "mohammed", "ahmed"],
 };
+// Public, self-serve free trial (advertised on /connect and /ai-agents) —
+// unlocks every agent like the other demo codes, but the client enforces a
+// capped number of real messages per agent before prompting to subscribe.
+// BP-DEMO/BP2026/DEMO123 stay unlimited — those are for the owner/internal testing.
+const TRIAL_CODES = new Set(["TRIAL"]);
 
 async function orderStatuses(refs) {
   if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
@@ -413,11 +419,12 @@ export default async function handler(req, res) {
     const refs = (url.searchParams.get("refs") || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 30);
     if (refs.length) {
       res.setHeader("Cache-Control", "no-store");
-      const statuses = {}, agents = {}, emails = {}, demo = {};
+      const statuses = {}, agents = {}, emails = {}, demo = {}, trial = {};
       const remaining = [];
       for (const ref of refs) {
-        const dc = DEMO_CODES[ref.toUpperCase()];
-        if (dc) { statuses[ref] = "مكتمل"; agents[ref] = dc; demo[ref] = true; }
+        const upper = ref.toUpperCase();
+        const dc = DEMO_CODES[upper];
+        if (dc) { statuses[ref] = "مكتمل"; agents[ref] = dc; demo[ref] = true; if (TRIAL_CODES.has(upper)) trial[ref] = true; }
         else remaining.push(ref);
       }
       if (remaining.length) {
@@ -432,7 +439,7 @@ export default async function handler(req, res) {
         }
       }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo }));
+      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo, trial }));
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({ status: "ok", emailConfigured: !!RESEND_API_KEY }));
