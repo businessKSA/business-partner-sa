@@ -3472,8 +3472,12 @@ function buildNews() {
         </div>
         <div class="hub-sec" id="weekly">
           <h2>${L("Weekly roundup", "الملخص الأسبوعي")}</h2>
-          <div class="callout"><span class="ico">🗞️</span><p>${L(n.weeklyNoteEn || n.weeklyNote || "", n.weeklyNote || "")}</p></div>
+          <p class="hub-sub">${L(n.weeklyNoteEn || n.weeklyNote || "", n.weeklyNote || "")}</p>
+          <div class="grid grid-2" data-live-news="6"></div>
+          <div class="callout" style="margin-top:18px"><span class="ico">🛡️</span><p>${L("Every update above is one our team already tracks and applies to client files. Need help complying with any of them?", "كل تحديث فوق نتابعه ونطبّقه على ملفات عملائنا مباشرة. محتاج مساعدة في الامتثال لأي منها؟")}</p></div>
           <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <a class="btn btn-primary" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a>
+            <a class="btn btn-ghost" href="${u("/compliance-agent")}">${I.shield}<span>${L("Compliance service", "خدمة الامتثال")}</span></a>
             <a class="btn btn-primary" href="${u("/magazine")}">${I.doc}<span>${L("Browse the magazine & download PDF", "تصفّح المجلة وحمّلها PDF")}</span></a>
             ${site.whatsappChannel ? `<a class="btn btn-wa" href="${site.whatsappChannel}" target="_blank" rel="noopener">${I.channel}<span>${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</span></a>` : ""}
           </div>
