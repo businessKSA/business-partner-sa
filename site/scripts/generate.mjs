@@ -3656,7 +3656,10 @@ function buildConnect() {
         {t:'اضغط «ربط الآن» وسجّل دخول قوقل.'},{t:'وافق على صلاحية Drive.'},{t:'الموظف يقرأ وينظّم ملفاتك.'}]},
       { id:'sheets', ic:'📊', name:'CRM / جداول', unlock:'يحدّث العملاء والصفقات في CRM أو Google Sheets.', type:'token',
         lead:'نربطه بـ Google Sheets (بضغطة) أو نظام CRM لديك (قد يحتاج مفتاح API خاص بك).', note:'حسب النظام · بعضها يحتاج مفتاح', pay:'', steps:[
-        {t:'أخبرنا بنظامك (Sheets / HubSpot / Salesforce…).'},{t:'نجهّز الربط المناسب — بضغطة أو بمفتاح API خاص بك.'},{t:'الموظف يحدّث بياناتك تلقائياً.'}]}
+        {t:'أخبرنا بنظامك (Sheets / HubSpot / Salesforce…).'},{t:'نجهّز الربط المناسب — بضغطة أو بمفتاح API خاص بك.'},{t:'الموظف يحدّث بياناتك تلقائياً.'}]},
+      { id:'qoyod', ic:'🧾', name:'قيود (Qoyod)', unlock:'محاسبة وفوترة: يصدر فواتير ضريبية متوافقة ZATCA ويزامن العملاء والقيود.', type:'token',
+        lead:'ربط بمفتاح API خاص من حساب قيود لديك — متوافق مع ZATCA وبياناته داخل السعودية. أي إصدار فاتورة يتم بموافقتك.', note:'مفتاح API · يتطلب اشتراك قيود', pay:'💳 يتطلب اشتراك قيود فعّال لدى شركتك (الـ API مجاني على الباقات المدفوعة).', steps:[
+        {t:'من حساب قيود: الإعدادات ← API، أنشئ مفتاحاً خاصاً.'},{t:'الصق المفتاح هنا (يُخزّن مشفّراً) — أو أرسله لنا لنركّبه.'},{t:'يصير الموظف يصدر الفواتير ويزامن القيود — بموافقتك قبل أي إصدار.'}]}
     ];
     var ICONS={
       gmail:'<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="#EA4335"/><path d="M2 7l10 7 10-7" stroke="#fff" stroke-width="2" fill="none"/></svg>',
@@ -3678,7 +3681,8 @@ function buildConnect() {
       ms:'Microsoft 365 — Outlook, Calendar & Teams',
       drive:'Google Drive — organizes files & summaries',
       sheets:'CRM / Sheets — updates customers & deals',
-      crm:'CRM / Sheets — updates customers & deals'
+      crm:'CRM / Sheets — updates customers & deals',
+      qoyod:'Qoyod — ZATCA invoicing & accounting sync'
     };
     var URLS={
       gmail:'https://mail.google.com',
@@ -3689,7 +3693,8 @@ function buildConnect() {
       ms:'https://www.microsoft.com/microsoft-365',
       drive:'https://drive.google.com',
       sheets:'https://www.google.com/sheets/about',
-      crm:'https://www.google.com/sheets/about'
+      crm:'https://www.google.com/sheets/about',
+      qoyod:'https://www.qoyod.com'
     };
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
@@ -3970,7 +3975,8 @@ function buildPortal() {
       {id:'whatsapp',ic:'🟢',name:'WhatsApp',u:'يرد على عملائك على واتساب ٢٤/٧.',type:'cost',lead:'يحتاج رقم أعمال + إعداد WhatsApp Cloud API من Meta. فيه تكلفة رسائل تُدفع لـ Meta.',pay:'تكلفة الرسائل تُدفع لـ Meta حسب عدد المحادثات.',steps:['أنشئ حساب Meta Business + رقم واتساب أعمال.','فعّل WhatsApp Cloud API واحصل على التوكن.','الصق التوكن (يُخزّن مشفّراً) أو أرسله لنا.','اربط فيرد الموظف على عملائك.']},
       {id:'ms',ic:'🟦',name:'Microsoft (Teams/Outlook)',u:'يدير أوتلوك وتقويم ورسائل تيمس.',type:'token',lead:'ربط عبر تسجيل دخول مايكروسوفت. قد يحتاج اشتراك Microsoft 365.',pay:'إن لم يكن لديك 365 يلزم اشتراك من مايكروسوفت.',steps:['سجّل دخول مايكروسوفت للعمل.','وافق على صلاحيات البريد/التقويم/تيمس.','يشتغل داخل بيئة مايكروسوفت.']},
       {id:'drive',ic:'📁',name:'Google Drive',u:'ينظّم ملفاتك ويلخّص المستندات.',type:'easy',lead:'ربط بضغطة مع حساب قوقل — مجاناً.',steps:['سجّل دخول قوقل.','وافق على صلاحية Drive.','يقرأ وينظّم ملفاتك.']},
-      {id:'crm',ic:'📊',name:'CRM / جداول',u:'يحدّث العملاء والصفقات في CRM أو Sheets.',type:'token',lead:'نربطه بـ Google Sheets أو CRM لديك (قد يحتاج مفتاح API).',steps:['أخبرنا بنظامك.','نجهّز الربط المناسب.','يحدّث بياناتك تلقائياً.']}
+      {id:'crm',ic:'📊',name:'CRM / جداول',u:'يحدّث العملاء والصفقات في CRM أو Sheets.',type:'token',lead:'نربطه بـ Google Sheets أو CRM لديك (قد يحتاج مفتاح API).',steps:['أخبرنا بنظامك.','نجهّز الربط المناسب.','يحدّث بياناتك تلقائياً.']},
+      {id:'qoyod',ic:'🧾',name:'قيود (Qoyod)',u:'محاسبة وفوترة: فواتير ZATCA ومزامنة القيود.',type:'token',lead:'ربط بمفتاح API خاص من حساب قيود لديك — متوافق مع ZATCA. أي إصدار فاتورة بموافقتك.',pay:'يتطلب اشتراك قيود فعّال (الـ API مجاني على الباقات المدفوعة).',steps:['من قيود: الإعدادات ← API، أنشئ مفتاحاً.','الصق المفتاح (يُخزّن مشفّراً) أو أرسله لنا.','يصدر الفواتير ويزامن القيود — بموافقتك.']}
     ];
     var ICONS={
       gmail:'<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="#EA4335"/><path d="M2 7l10 7 10-7" stroke="#fff" stroke-width="2" fill="none"/></svg>',
@@ -3992,7 +3998,8 @@ function buildPortal() {
       ms:'Microsoft 365 — Outlook, Calendar & Teams',
       drive:'Google Drive — organizes files & summaries',
       sheets:'CRM / Sheets — updates customers & deals',
-      crm:'CRM / Sheets — updates customers & deals'
+      crm:'CRM / Sheets — updates customers & deals',
+      qoyod:'Qoyod — ZATCA invoicing & accounting sync'
     };
     var URLS={
       gmail:'https://mail.google.com',
@@ -4003,7 +4010,8 @@ function buildPortal() {
       ms:'https://www.microsoft.com/microsoft-365',
       drive:'https://drive.google.com',
       sheets:'https://www.google.com/sheets/about',
-      crm:'https://www.google.com/sheets/about'
+      crm:'https://www.google.com/sheets/about',
+      qoyod:'https://www.qoyod.com'
     };
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
@@ -4283,6 +4291,12 @@ function buildSharedServices() {
       leadAr: "نربطه بـ Google Sheets أو CRM لديك (قد يحتاج مفتاح API).", leadEn: "We connect Google Sheets or your CRM (may need an API key).",
       stepsAr: ["أخبرنا بنظامك.", "نجهّز الربط المناسب.", "يحدّث بياناتك تلقائياً."],
       stepsEn: ["Tell us your system.", "We set up the right link.", "It updates your data automatically."] },
+    { id: "qoyod", ic: "🧾", name: LANG === "ar" ? "قيود (Qoyod)" : "Qoyod", type: "token",
+      uAr: "محاسبة وفوترة: يصدر فواتير ضريبية متوافقة ZATCA ويزامن العملاء والقيود.", uEn: "Accounting & billing: issues ZATCA tax invoices and syncs customers & entries.",
+      leadAr: "ربط بمفتاح API خاص من حساب قيود لديك — متوافق مع ZATCA وبياناته داخل السعودية. أي إصدار فاتورة يتم بموافقتك.", leadEn: "Connect with your Qoyod account API key — ZATCA-compliant, data hosted in Saudi Arabia. Any invoice issuance needs your approval.",
+      payAr: "يتطلب اشتراك قيود فعّال لدى شركتك (الـ API مجاني على الباقات المدفوعة).", payEn: "Requires an active Qoyod subscription (the API is free on paid plans).",
+      stepsAr: ["من حساب قيود: الإعدادات ← API، أنشئ مفتاحاً خاصاً.", "الصق المفتاح هنا (يُخزّن مشفّراً).", "يصير الوكيل يصدر الفواتير ويزامن القيود — بموافقتك قبل أي إصدار."],
+      stepsEn: ["In Qoyod: Settings → API, create a private key.", "Paste the key here (stored encrypted).", "The agent issues invoices & syncs entries — with your approval before any issuance."] },
   ];
   const TOOLS_JS = JSON.stringify(
     toolData.map((t) => ({ id: t.id, ic: t.ic, name: t.name, type: t.type, u: LANG === "ar" ? t.uAr : t.uEn, lead: LANG === "ar" ? t.leadAr : t.leadEn, pay: (LANG === "ar" ? t.payAr : t.payEn) || "", steps: LANG === "ar" ? t.stepsAr : t.stepsEn }))
@@ -4582,7 +4596,7 @@ function buildSharedServices() {
       drive:'<svg viewBox="0 0 24 24"><path d="M9 3h6l6 11h-6z" fill="#FFCF63"/><path d="M3 20l3-5h13l-3 5z" fill="#4688F1"/><path d="M9 3L3 14l3 6 6-11z" fill="#0F9D58"/></svg>',
       crm:'<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#0F9D58"/><rect x="7" y="8" width="10" height="1.8" fill="#fff"/><rect x="7" y="12" width="10" height="1.8" fill="#fff"/><rect x="7" y="16" width="10" height="1.8" fill="#fff"/></svg>'
     };
-    var URLS={gmail:'https://mail.google.com',gcal:'https://calendar.google.com',notion:'https://www.notion.so',slack:'https://slack.com',whatsapp:'https://business.whatsapp.com',ms:'https://www.microsoft.com/microsoft-365',drive:'https://drive.google.com',crm:'https://www.google.com/sheets/about'};
+    var URLS={gmail:'https://mail.google.com',gcal:'https://calendar.google.com',notion:'https://www.notion.so',slack:'https://slack.com',whatsapp:'https://business.whatsapp.com',ms:'https://www.microsoft.com/microsoft-365',drive:'https://drive.google.com',crm:'https://www.google.com/sheets/about',qoyod:'https://www.qoyod.com'};
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,crm:1};
     function mark(t){return LOGO[t.id]?'<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">':(ICONS[t.id]||t.ic);}
     var TAG={easy:${JSON.stringify(Lraw("One-click", "ربط بضغطة"))},cost:${JSON.stringify(Lraw("Has a cost", "فيه تكلفة"))},token:${JSON.stringify(Lraw("Needs a token", "يحتاج توكن"))}};
