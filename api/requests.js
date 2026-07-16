@@ -88,7 +88,12 @@ async function orderStatuses(refs) {
     if (refText && status && CONFIRMED_ORDER_STATUSES.has(status)) {
       const notesText = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
       const m = notesText.match(/AGENTS:([a-z0-9,]+)/i);
-      if (m) agents[refText] = m[1].split(",").filter(Boolean);
+      // "all" is the bundle entitlement (e.g. the shared-services team SKU) —
+      // the portal expects the literal string "ALL" to unlock every employee.
+      if (m) {
+        const list = m[1].split(",").filter(Boolean);
+        agents[refText] = list.map((s) => s.toLowerCase()).includes("all") ? "ALL" : list;
+      }
       const em = notesText.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
       if (em) emails[refText] = em[1];
     }

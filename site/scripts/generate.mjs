@@ -898,7 +898,7 @@ function buildHome() {
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(EN.reviewsEyebrow, "آراء العملاء")}</span><h2>${L("Client reviews", h.testimonials.title)}</h2><p>${L("We'll add our clients' real stories here soon, once publishing is approved.", h.testimonials.note)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(EN.reviewsEyebrow, "آراء العملاء")}</span><h2>${L("Client reviews", h.testimonials.title)}</h2></div>
     <div class="grid grid-3">${quotes}</div>
   </div></section>
 
@@ -973,7 +973,7 @@ function buildServiceCategory(cat) {
         <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
         <h3>${esc(sName(s))}</h3>
         <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price-soft">${L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+        <div class="foot"><span class="price-soft">${s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
       </a>`;
     })
     .join("");
@@ -1050,13 +1050,18 @@ function buildServiceDetail(s) {
     </div>
     <aside class="svc-aside">
       <div class="order-box">
-        <div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
+        ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
+          ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
+        <div class="price-note">${esc(priceNote)}</div>
+        ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
+        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
+          : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
         ${s.category === "Real Estate"
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
-          : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}
+          : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}`}
         ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
         <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
@@ -1080,8 +1085,18 @@ function buildAiAgents() {
       const external = /^https?:\/\//.test(g.link || "");
       const linkAttrs = external ? ` target="_blank" rel="noopener"` : "";
       const nameHtml = g.link ? `<a href="${u(g.link)}"${linkAttrs} style="color:inherit;text-decoration:none">${name}</a>` : name;
-      const btns = cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
-      const tryBtn = g.link ? `<a href="${u(g.link)}"${linkAttrs} class="btn btn-ghost">${L("🚀 Try the service now", "🚀 جرّب الخدمة الآن")}</a>` : "";
+      // The smart-employees card must not sell a generic SKU: activation codes
+      // unlock specific employee slugs, so a slug-less "agent-..." purchase can
+      // never be fulfilled. Route that card to the employee picker instead.
+      const isPicker = g.link === "/connect";
+      // One SKU per product — the compliance page sells agent-Compliance-Agent,
+      // so the hub must use the same id or the same subscription becomes two
+      // different cart lines.
+      const cartId = g.link === "/compliance-agent" ? "agent-Compliance-Agent" : "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-");
+      const btns = isPicker
+        ? `<div class="buy-row"><a href="${u(g.link)}" class="btn btn-primary">${L("Pick your employee (12 specialties)", "اختر موظفك (12 تخصصاً)")}</a></div>`
+        : cartBtns({ id: cartId, nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
+      const tryBtn = g.link && !isPicker ? `<a href="${u(g.link)}"${linkAttrs} class="btn btn-ghost">${L("Details", "التفاصيل")}</a>` : "";
       const btnsWithTry = tryBtn ? btns.replace('<div class="buy-row">', `<div class="buy-row">${tryBtn}`) : btns;
       return `<div class="pkg${g.highlight ? " pop" : ""}">
       <div class="pk-name">${nameHtml}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
@@ -1114,7 +1129,11 @@ function buildAiAgents() {
     <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
     <div class="grid grid-3">${cards}</div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
-    <div class="center mt-32"><a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
+    <div class="center mt-32" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-primary" href="${u("/portal")}">🎁 ${L("Try the team free — 3 messages per employee", "جرّب الفريق مجاناً — 3 رسائل لكل موظف")}</a>
+      <a class="btn btn-ghost" href="${u("/portal")}">🔐 ${L("Already subscribed? Enter the portal", "مشترك بالفعل؟ ادخل البوابة")}</a>
+      <a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a>
+    </div>
   </div></section>`;
   return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
@@ -1957,7 +1976,7 @@ function buildComplianceAgent() {
     <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-primary btn-lg" href="#pricing">${L("Subscribe now", "اشترك الآن")}</a>
       <a class="btn btn-ghost btn-lg" href="${u(COMPLIANCE_PORTAL_URL)}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
     </div>
     <div class="hero-badges">${chips}</div>
@@ -2165,7 +2184,7 @@ function buildTeamAgent(agent) {
     <h1>${agent.emoji} ${L(agent.nameEn, agent.nameAr)} — ${L(agent.roleEn, agent.roleAr)}</h1>
     <p class="lead">${L(agent.taglineEn, agent.taglineAr)}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Subscribe now", "🚀 اشترك الآن")}</a>
+      <a class="btn btn-primary btn-lg" href="#pricing">${L("🚀 Subscribe now", "🚀 اشترك الآن")}</a>
       <a class="btn btn-ghost btn-lg" href="${u("/portal")}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
     </div>
   </div></section>
@@ -2177,11 +2196,12 @@ function buildTeamAgent(agent) {
     </div>
   </section></div>
 
-  <section class="section" style="padding-top:0"><div class="container">
+  <section class="section" style="padding-top:0" id="pricing"><div class="container">
     <div class="price-box">
       <div><div class="price-amt">500 <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
       <div class="text-soft">${L("Part of the Smart Specialized Agents team — subscribe to one employee or several from the same cart.", "جزء من فريق الموظفين الأذكياء المتخصصين — اشترك بموظف واحد أو أكثر من نفس السلة.")}</div></div>
-      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Add to cart", "🚀 أضف للسلة")}</a>
+      <button type="button" class="btn btn-primary btn-lg add-cart" data-id="employee-${agent.slug}" data-name-en="${esc(agent.nameEn)} — ${esc(agent.roleEn)}" data-name-ar="${esc(agent.nameAr)} — ${esc(agent.roleAr)}" data-amount="500" data-price="500 ﷼ / ${Lraw("monthly", "شهرياً")}" data-kind="employee">${L("🛒 Add to cart — 500 SAR/mo", "🛒 أضف للسلة — 500 ﷼/شهرياً")}</button>
+      <a class="btn btn-ghost" href="${u("/connect")}">${L("Browse the full team", "استعرض الفريق كاملاً")}</a>
     </div>
   </div></section>
 
@@ -4423,13 +4443,13 @@ function buildContact() {
       </div>
       <div>
         <h2>${L("Send your message", "أرسل رسالتك")}</h2>
-        <form class="calc-form" action="${WA}" method="get" target="_blank" onsubmit="return true">
+        <form class="calc-form" id="contact-form" novalidate>
           <div class="field"><label for="f-name">${L("Name", "الاسم")}</label><input id="f-name" name="name" type="text" placeholder="${Lraw("Your full name", "اسمك الكامل")}" required></div>
           <div class="field"><label for="f-phone">${L("Mobile", "رقم الجوال")}</label><input id="f-phone" name="phone" type="tel" placeholder="05xxxxxxxx"></div>
           <div class="field"><label for="f-service">${L("Service needed", "الخدمة المطلوبة")}</label><input id="f-service" name="service" type="text" placeholder="${Lraw("e.g. company formation, premium residency", "مثال: تأسيس شركة، إقامة مميزة")}"></div>
           <div class="field"><label for="f-msg">${L("Your request details", "تفاصيل طلبك")}</label><textarea id="f-msg" name="message" rows="4" placeholder="${Lraw("Write your enquiry here", "اكتب استفسارك هنا")}"></textarea></div>
-          ${waBtn2("Send via WhatsApp", "أرسل عبر واتساب", "btn-wa")}
-          <p class="form-note">${L("Tapping the button opens WhatsApp to send your request straight to the smart agent.", "بالضغط على الزر يفتح واتساب لإكمال إرسال طلبك للوكيل الذكي مباشرة.")}</p>
+          <button type="submit" class="btn btn-wa btn-lg">${I.wa}<span>${L("Send via WhatsApp", "أرسل عبر واتساب")}</span></button>
+          <p class="form-note">${L("Tapping the button opens WhatsApp with your message ready to send to the smart agent.", "بالضغط على الزر يفتح واتساب ورسالتك جاهزة للإرسال للوكيل الذكي مباشرة.")}</p>
         </form>
       </div>
     </div>
@@ -4460,6 +4480,7 @@ function buildCart() {
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
           <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
+          <p class="mini">${L("Payment is by bank transfer: you upload the transfer receipt at checkout and we activate right after confirming it.", "الدفع بالتحويل البنكي: ترفع إيصال التحويل عند إتمام الطلب ونفعّل خدمتك فور تأكيده.")}</p>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
           <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
         </div>
@@ -5414,9 +5435,9 @@ function buildConnect(pre = "/") {
       {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني',nameEn:'Abdulaziz — Legal'},
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
+      {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
       {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
-      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'},
-      {slug:'abdulrahman',e:'💰',name:'عبدالرحمن',role:'المدير المالي',nameEn:'Abdulrahman — CFO'}
+      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'}
     ];
     var empGrid=document.getElementById('emps');
     EMPLOYEES.forEach(function(m){
@@ -5638,8 +5659,7 @@ function buildPortal(pre = "/") {
       {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
       {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
       {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
-      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'},
-      {slug:'abdulrahman',path:'abdulrahman-intake',name:'عبدالرحمن',role:'المدير المالي',e:'💰'}
+      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'}
     ];
     var TOOLS=[
       {id:'gmail',ic:'📧',name:'Gmail',u:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.',type:'easy',lead:'ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.',steps:['اضغط ربط الآن فتفتح صفحة تسجيل قوقل.','اختر حساب الشركة ووافق على الصلاحيات.','يشتغل الموظف داخل بريدك مباشرة.']},
@@ -6098,15 +6118,20 @@ function buildSharedServices() {
 
   <section class="ss-sec" id="ss-subscribe">
     <div class="wrap">
-      <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from registration to opening your dashboard.", "رحلة واضحة من التسجيل حتى فتح لوحتك.")}</p></div>
+      <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from subscription to opening your dashboard.", "رحلة واضحة من الاشتراك حتى فتح لوحتك.")}</p></div>
       <div class="ss-steps">
-        <div class="ss-step"><span class="n">1</span><b>${L("Register & subscribe", "سجّل واشترك")}</b><p>${L("Start via the client portal and pick your plan.", "ابدأ عبر بوابة العميل واختر باقتك.")}</p></div>
-        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Complete payment through the secure portal.", "أكمل الدفع عبر البوابة الآمنة.")}</p></div>
-        <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("After payment, your access code is emailed to your registered address.", "بعد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
+        <div class="ss-step"><span class="n">1</span><b>${L("Add to cart", "أضف للسلة")}</b><p>${L("Add the shared-services subscription to your cart from this page.", "أضف اشتراك الخدمات المشتركة لسلتك من هذه الصفحة.")}</p></div>
+        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Complete checkout with a bank transfer and upload the receipt.", "أكمل الطلب بالتحويل البنكي وارفع الإيصال.")}</p></div>
+        <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("Once payment is confirmed, your access code is emailed to your registered address.", "بعد تأكيد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
         <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter your code in the service portal and your team dashboard opens.", "أدخل رمزك في بوابة الخدمة فتفتح لوحة فريقك.")}</p></div>
       </div>
+      <div class="ss-price-box">
+        <div><div class="ss-price-amt">1,500 <small>${L("SAR / monthly — starting price", "﷼ / شهرياً — سعر البداية")}</small></div>
+        <div class="ss-price-note">${L("A full executive team (11 specialists + team leader) working under one subscription.", "فريق تنفيذي كامل (11 متخصصاً + قائد الفريق) يعمل تحت اشتراك واحد.")}</div></div>
+        <button type="button" class="btn btn-primary btn-lg add-cart" data-id="agent-Shared-services-team" data-name-en="Shared services team" data-name-ar="فريق الخدمات المشتركة" data-amount="1500" data-price="${Lraw("From 1,500 SAR / monthly", "يبدأ من 1,500 ﷼ / شهرياً")}" data-kind="agent">${L("🛒 Add to cart", "🛒 أضف للسلة")}</button>
+      </div>
       <div class="ss-cta" style="justify-content:center;margin-top:26px">
-        <a class="btn btn-primary" href="${u("/consultation")}?topic=shared-services">${L("Register & subscribe", "سجّل واشترك")}</a>
+        <a class="btn btn-ghost" href="${u("/consultation")}?topic=other&about=${encodeURIComponent(Lraw("Shared services team subscription", "اشتراك فريق الخدمات المشتركة"))}">${L("Prefer a tailored offer? Book a consultation", "تفضّل عرضاً مخصصاً؟ احجز استشارة")}</a>
         <a class="btn btn-ghost" href="${u("/account")}">${L("Client portal", "بوابة العميل")}</a>
       </div>
 
@@ -6124,6 +6149,10 @@ function buildSharedServices() {
     .ss-hero{padding:52px 0 8px;text-align:center}
     .ss-hero h1{margin:8px 0 12px}
     .ss-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+    .ss-price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--white,#fff);border:1px solid var(--gray-line,#E4E7F0);border-radius:18px;padding:1.3rem 1.5rem;max-width:760px;margin:26px auto 0}
+    .ss-price-amt{font-size:2rem;font-weight:800;color:var(--navy,#0B1B5A)}
+    .ss-price-amt small{font-size:.95rem;color:var(--text-soft,#4a4f5e);font-weight:600}
+    .ss-price-note{color:var(--text-soft,#4a4f5e);font-size:.92rem}
     .ss-sec{padding:36px 0}
     .ss-team{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0 20px}
     .ss-chip{display:inline-flex;align-items:center;gap:8px;background:#f4f8fb;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:.92rem}
@@ -6446,13 +6475,14 @@ function buildSharedServicesPortal() {
         <h2>${L("Sign in to the service", "دخول الخدمة")}</h2>
         <p>${L("Enter the access code emailed to you after payment. Not subscribed yet? Register via the client portal.", "أدخل رمز الدخول اللي وصلك على بريدك بعد الدفع. لست مشتركاً؟ سجّل عبر بوابة العميل.")}</p>
         <form class="ss-access-form" id="ss-unlock">
+          <input id="unl-email" type="email" autocomplete="email" placeholder="${Lraw('Your subscription email', 'بريدك المسجّل بالاشتراك')}" aria-label="${Lraw('Email', 'البريد الإلكتروني')}">
           <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw('Access code', 'رمز الدخول')}" aria-label="${Lraw('Access code', 'رمز الدخول')}">
           <button class="btn btn-primary" type="submit">${L("Sign in", "دخول")}</button>
         </form>
         <div class="ss-note-box" id="unl-result" hidden></div>
         <div class="ss-gate-links">
           <a href="${u('/shared-services')}">${L("← Back to service info", "← عن الخدمة")}</a>
-          <a href="${u('/consultation')}?topic=shared-services">${L("Register & subscribe", "سجّل واشترك")}</a>
+          <a href="${u('/shared-services')}#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
         </div>
         <span class="ss-demo-hint">${L("Preview with demo code: ", "معاينة برمز التجربة: ")}<code>demo123</code></span>
       </div>
@@ -6705,10 +6735,19 @@ function buildSharedServicesPortal() {
     var unl=document.getElementById('ss-unlock');
     if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
       var code=(document.getElementById('unl-code').value||'').trim();
+      var email=((document.getElementById('unl-email')||{}).value||'').trim();
       var box=document.getElementById('unl-result');
       if(!code){note(box,${JSON.stringify(Lraw("Enter your access code.", "أدخل رمز الوصول."))},'err');return;}
       if(DEMO_CODES.indexOf(code.toLowerCase())>-1){localStorage.setItem('bp_ss_token','demo');note(box,${JSON.stringify(Lraw("Welcome — opening your dashboard…", "أهلاً بك — نفتح لوحتك…"))},'ok');openService();return;}
-      note(box,${JSON.stringify(Lraw("This code is entered in your account after activation. Please register & subscribe via the client portal.", "هذا الرمز يُدخل في حسابك بعد التفعيل. الرجاء التسجيل والاشتراك عبر بوابة العميل."))},'err');
+      if(!email||email.indexOf('@')<0){note(box,${JSON.stringify(Lraw("Enter the email you subscribed with.", "أدخل البريد الذي اشتركت به."))},'err');return;}
+      note(box,${JSON.stringify(Lraw("Verifying…", "جارٍ التحقق…"))},'ok');
+      fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'unlock',email:email,code:code})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok&&d.token){localStorage.setItem('bp_ss_token',d.token);note(box,d.message||${JSON.stringify(Lraw("Activated — welcome to your executive team.", "تم التفعيل — أهلاً بك في فريقك التنفيذي."))},'ok');openService();}
+          else{note(box,(d&&d.message)||${JSON.stringify(Lraw("Wrong code for this email — use the same email you subscribed with.", "الكود غير صحيح لهذا البريد — استخدم نفس البريد الذي اشتركت به."))},'err');}
+        })
+        .catch(function(){note(box,${JSON.stringify(Lraw("Couldn't verify right now — try again.", "تعذّر التحقق الآن — حاول مرة أخرى."))},'err');});
     });
     var lo=document.getElementById('ss-logout');
     if(lo) lo.onclick=function(){ localStorage.removeItem('bp_ss_token'); if(dash)dash.hidden=true; if(gate){gate.hidden=false;gate.scrollIntoView({behavior:'smooth',block:'start'});} };
