@@ -1,0 +1,625 @@
+---
+// ودجت "اسأل خالد" — مساعد محادثة داخل الصفحة على طريقة "اسأل أمين" في التأمينات،
+// لكن بهوية شريك الأعمال. زر عائم بشخصية خالد يفتح نافذة محادثة متصلة بوكيل n8n.
+import type { Language } from '../utils/i18n';
+
+interface Props {
+  lang?: Language;
+}
+
+const { lang = 'ar' } = Astro.props;
+
+const WEBHOOK_URL =
+  'https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat';
+
+const STRINGS = {
+  ar: {
+    fabLabel: 'اسأل خالد',
+    fabAria: 'افتح المحادثة مع خالد، المساعد الذكي',
+    teaser: 'حياك الله 👋 أنا خالد، مساعدك الذكي. عندك سؤال عن التأسيس أو المنصات الحكومية؟',
+    name: 'خالد',
+    role: 'شريكك الذكي — متصل الآن',
+    voiceTitle: 'التحدث بالصوت',
+    closeAria: 'إغلاق المحادثة',
+    welcome:
+      'حياك الله 👋 أنا خالد، مساعدك الذكي في شريك الأعمال.\nاسألني عن تأسيس الشركات، الاستثمار الأجنبي، إدارة المنصات الحكومية (قوى، التأمينات، مقيم)، أو أي خدمة ثانية.',
+    chips: [
+      '🏢 تأسيس شركة باستثمار أجنبي',
+      '💼 إدارة المنصات الحكومية',
+      '💰 الباقات والأسعار',
+      '📞 أبغى استشارة مجانية',
+    ],
+    placeholder: 'اكتب سؤالك هنا…',
+    sendAria: 'إرسال',
+    busyError:
+      'خالد مشغول شوي الحين 😅 جرّب بعد دقائق، أو تواصل معنا مباشرة على 0503793356.',
+    netError: 'تعذّر الاتصال حالياً. تأكد من الإنترنت وحاول مرة ثانية.',
+    footNote: 'مدعوم بالذكاء الاصطناعي — الإجابات استرشادية',
+  },
+  en: {
+    fabLabel: 'Ask Khaled',
+    fabAria: 'Open chat with Khaled, the smart assistant',
+    teaser: 'Hi 👋 I’m Khaled, your smart assistant. Questions about company setup or government platforms?',
+    name: 'Khaled',
+    role: 'Your smart partner — online now',
+    voiceTitle: 'Talk by voice',
+    closeAria: 'Close chat',
+    welcome:
+      'Hi 👋 I’m Khaled, your smart assistant at Business Partner.\nAsk me about company formation, foreign investment, government platform management (Qiwa, GOSI, Muqeem), or any other service.',
+    chips: [
+      '🏢 Foreign investment company setup',
+      '💼 Government platforms management',
+      '💰 Packages & pricing',
+      '📞 I want a free consultation',
+    ],
+    placeholder: 'Type your question…',
+    sendAria: 'Send',
+    busyError:
+      'Khaled is a bit busy right now 😅 Please try again in a few minutes, or call us directly at +966 50 379 3356.',
+    netError: 'Connection failed. Check your internet and try again.',
+    footNote: 'AI-powered — answers are for guidance',
+  },
+} as const;
+
+const t = STRINGS[lang] ?? STRINGS.ar;
+---
+
+<div class="bpw" id="bpw">
+  <!-- فقاعة الترحيب -->
+  <div class="bpw-teaser" id="bpwTeaser" hidden>
+    <button class="bpw-teaser-close" id="bpwTeaserClose" aria-label={t.closeAria}>✕</button>
+    <p>{t.teaser}</p>
+  </div>
+
+  <!-- الزر العائم -->
+  <button class="bpw-fab" id="bpwFab" aria-label={t.fabAria} aria-expanded="false" aria-controls="bpwPanel">
+    <span class="bpw-fab-avatar">
+      <img src="/khaled-avatar.svg" alt="" width="60" height="60" loading="lazy" />
+      <span class="bpw-online-dot" aria-hidden="true"></span>
+    </span>
+    <span class="bpw-fab-label">{t.fabLabel}</span>
+  </button>
+
+  <!-- نافذة المحادثة -->
+  <section class="bpw-panel" id="bpwPanel" hidden aria-label={t.fabLabel}>
+    <header class="bpw-head">
+      <img class="bpw-head-avatar" src="/khaled-avatar.svg" alt="" width="44" height="44" />
+      <div class="bpw-head-info">
+        <strong>{t.name}</strong>
+        <span><i class="bpw-online" aria-hidden="true"></i>{t.role}</span>
+      </div>
+      <a class="bpw-ic" href="/voice" title={t.voiceTitle} aria-label={t.voiceTitle}>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z" />
+        </svg>
+      </a>
+      <button class="bpw-ic" id="bpwClose" aria-label={t.closeAria}>✕</button>
+    </header>
+
+    <div class="bpw-log" id="bpwLog" role="log" aria-live="polite"></div>
+
+    <div class="bpw-chips" id="bpwChips">
+      {t.chips.map((c) => <button class="bpw-chip" data-q={c.replace(/^\S+\s/, '')}>{c}</button>)}
+    </div>
+
+    <form class="bpw-inputrow" id="bpwForm" autocomplete="off">
+      <input id="bpwInput" type="text" placeholder={t.placeholder} maxlength="500" />
+      <button class="bpw-send" type="submit" aria-label={t.sendAria}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" />
+        </svg>
+      </button>
+    </form>
+
+    <div class="bpw-foot">{t.footNote}</div>
+  </section>
+</div>
+
+<style is:global>
+  .bpw {
+    --bpw-brand: #0066cc;
+    --bpw-brand-dark: #004e9c;
+    --bpw-accent: #10b981;
+    --bpw-surface: #ffffff;
+    --bpw-bg: #f2f6fb;
+    --bpw-text: #1e293b;
+    --bpw-muted: #64748b;
+    --bpw-line: #e2e8f0;
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+    font-family: inherit;
+  }
+
+  /* ————— الزر العائم ————— */
+  .bpw-fab {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 6px 20px 6px 8px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--bpw-brand), var(--bpw-brand-dark));
+    color: #fff;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 102, 204, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  [dir='rtl'] .bpw-fab {
+    padding: 6px 8px 6px 20px;
+  }
+  .bpw-fab:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 14px 36px rgba(0, 102, 204, 0.5);
+  }
+  .bpw-fab-avatar {
+    position: relative;
+    display: block;
+    width: 56px;
+    height: 56px;
+    flex: none;
+  }
+  .bpw-fab-avatar img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9);
+  }
+  .bpw-fab-avatar::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    animation: bpw-pulse 2.4s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes bpw-pulse {
+    0% { transform: scale(0.9); opacity: 0.9; }
+    70% { transform: scale(1.25); opacity: 0; }
+    100% { transform: scale(1.25); opacity: 0; }
+  }
+  .bpw-online-dot {
+    position: absolute;
+    bottom: 2px;
+    inset-inline-end: 2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--bpw-accent);
+    border: 2.5px solid #fff;
+  }
+  .bpw.bpw-open .bpw-fab { display: none; }
+
+  /* ————— فقاعة الترحيب ————— */
+  .bpw-teaser {
+    position: relative;
+    max-width: 260px;
+    background: var(--bpw-surface);
+    color: var(--bpw-text);
+    border: 1px solid var(--bpw-line);
+    border-radius: 14px;
+    border-end-end-radius: 4px;
+    padding: 0.8rem 1rem;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+    animation: bpw-rise 0.35s ease;
+    cursor: pointer;
+  }
+  .bpw-teaser p { margin: 0; }
+  .bpw-teaser-close {
+    position: absolute;
+    top: -9px;
+    inset-inline-start: -9px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--bpw-line);
+    background: var(--bpw-surface);
+    color: var(--bpw-muted);
+    font-size: 0.7rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  /* ————— نافذة المحادثة ————— */
+  .bpw-panel {
+    display: flex;
+    flex-direction: column;
+    width: min(390px, calc(100vw - 2rem));
+    height: min(620px, calc(100dvh - 6rem));
+    background: var(--bpw-bg);
+    border: 1px solid var(--bpw-line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+    animation: bpw-rise 0.3s ease;
+  }
+  .bpw-panel[hidden] { display: none; }
+  @keyframes bpw-rise {
+    from { transform: translateY(14px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+
+  .bpw-head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.8rem 1rem;
+    background: linear-gradient(135deg, var(--bpw-brand), var(--bpw-brand-dark));
+    color: #fff;
+  }
+  .bpw-head-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    flex: none;
+  }
+  .bpw-head-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    margin-inline-end: auto;
+  }
+  .bpw-head-info strong { font-size: 1.05rem; line-height: 1.2; }
+  .bpw-head-info span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    opacity: 0.92;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bpw-online {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    flex: none;
+    box-shadow: 0 0 0 2.5px rgba(52, 211, 153, 0.3);
+  }
+  .bpw-ic {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .bpw-ic:hover { background: rgba(255, 255, 255, 0.28); }
+
+  .bpw-log {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 12px;
+    scroll-behavior: smooth;
+  }
+  .bpw-msg {
+    max-width: 84%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    animation: bpw-rise 0.2s ease;
+  }
+  .bpw-msg.bot {
+    align-self: flex-start;
+    background: var(--bpw-surface);
+    color: var(--bpw-text);
+    border: 1px solid var(--bpw-line);
+    border-end-start-radius: 4px;
+  }
+  .bpw-msg.user {
+    align-self: flex-end;
+    background: var(--bpw-brand);
+    color: #fff;
+    border-end-end-radius: 4px;
+  }
+  .bpw-msg.err {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #7f1d1d;
+  }
+  .bpw-dots {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px 2px;
+  }
+  .bpw-dots i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bpw-muted);
+    animation: bpw-blink 1.2s infinite both;
+  }
+  .bpw-dots i:nth-child(2) { animation-delay: 0.2s; }
+  .bpw-dots i:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bpw-blink {
+    0%, 80%, 100% { opacity: 0.25; }
+    40% { opacity: 1; }
+  }
+
+  .bpw-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 12px 10px;
+  }
+  .bpw-chips[hidden] { display: none; }
+  .bpw-chip {
+    border: 1px solid #bcd7f2;
+    background: #eaf3fc;
+    color: var(--bpw-brand-dark);
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+  .bpw-chip:hover {
+    background: var(--bpw-brand);
+    border-color: var(--bpw-brand);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .bpw-inputrow {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--bpw-surface);
+    border-top: 1px solid var(--bpw-line);
+  }
+  .bpw-inputrow input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--bpw-line);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--bpw-text);
+    background: var(--bpw-bg);
+  }
+  .bpw-inputrow input:focus {
+    outline: none;
+    border-color: var(--bpw-brand);
+    background: #fff;
+  }
+  .bpw-send {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 12px;
+    background: var(--bpw-brand);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .bpw-send:hover { background: var(--bpw-brand-dark); }
+  .bpw-send:disabled { opacity: 0.5; cursor: not-allowed; }
+  [dir='rtl'] .bpw-send svg { transform: scaleX(-1); }
+
+  .bpw-foot {
+    padding: 6px 12px 9px;
+    background: var(--bpw-surface);
+    color: var(--bpw-muted);
+    font-size: 0.7rem;
+    text-align: center;
+  }
+
+  /* ————— الجوال: النافذة تغطي الشاشة ————— */
+  @media (max-width: 540px) {
+    .bpw { bottom: 1rem; right: 1rem; }
+    .bpw-fab { font-size: 0.95rem; }
+    .bpw-fab-avatar { width: 52px; height: 52px; }
+    .bpw.bpw-open {
+      inset: 0;
+      bottom: 0;
+      right: 0;
+      align-items: stretch;
+    }
+    .bpw.bpw-open .bpw-panel {
+      width: 100%;
+      height: 100dvh;
+      border-radius: 0;
+      border: none;
+    }
+  }
+</style>
+
+<script is:inline define:vars={{ WEBHOOK_URL, welcome: t.welcome, busyError: t.busyError, netError: t.netError }}>
+  (function () {
+    const root = document.getElementById('bpw');
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = '1';
+
+    const fab = document.getElementById('bpwFab');
+    const panel = document.getElementById('bpwPanel');
+    const log = document.getElementById('bpwLog');
+    const chips = document.getElementById('bpwChips');
+    const form = document.getElementById('bpwForm');
+    const input = document.getElementById('bpwInput');
+    const sendBtn = form.querySelector('.bpw-send');
+    const closeBtn = document.getElementById('bpwClose');
+    const teaser = document.getElementById('bpwTeaser');
+    const teaserClose = document.getElementById('bpwTeaserClose');
+
+    let busy = false;
+
+    // جلسة ثابتة لذاكرة الوكيل + حفظ المحادثة أثناء التنقل بين الصفحات
+    let sid = sessionStorage.getItem('bp_chat_sid');
+    if (!sid) {
+      sid = 'chat-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
+      sessionStorage.setItem('bp_chat_sid', sid);
+    }
+
+    function loadHistory() {
+      try { return JSON.parse(sessionStorage.getItem('bp_chat_history') || '[]'); }
+      catch (_) { return []; }
+    }
+    function saveHistory(h) {
+      try { sessionStorage.setItem('bp_chat_history', JSON.stringify(h.slice(-40))); }
+      catch (_) {}
+    }
+    let history = loadHistory();
+
+    function addMsg(text, cls, save) {
+      const el = document.createElement('div');
+      el.className = 'bpw-msg ' + cls;
+      el.textContent = text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      if (save) {
+        history.push({ role: cls, text: text });
+        saveHistory(history);
+      }
+      return el;
+    }
+
+    function render() {
+      log.innerHTML = '';
+      addMsg(welcome, 'bot', false);
+      history.forEach(function (m) { addMsg(m.text, m.role, false); });
+      const hasUserMsg = history.some(function (m) { return m.role === 'user'; });
+      chips.hidden = hasUserMsg;
+    }
+    render();
+
+    function openPanel() {
+      panel.hidden = false;
+      root.classList.add('bpw-open');
+      fab.setAttribute('aria-expanded', 'true');
+      hideTeaser();
+      log.scrollTop = log.scrollHeight;
+      setTimeout(function () { input.focus(); }, 60);
+    }
+    function closePanel() {
+      panel.hidden = true;
+      root.classList.remove('bpw-open');
+      fab.setAttribute('aria-expanded', 'false');
+    }
+
+    // فقاعة الترحيب: مرة واحدة لكل جلسة تصفح
+    function hideTeaser() {
+      teaser.hidden = true;
+      try { sessionStorage.setItem('bp_teaser_seen', '1'); } catch (_) {}
+    }
+    if (!sessionStorage.getItem('bp_teaser_seen') && history.length === 0) {
+      setTimeout(function () {
+        if (panel.hidden) teaser.hidden = false;
+      }, 4000);
+    }
+    teaser.addEventListener('click', function (e) {
+      if (e.target === teaserClose) return;
+      openPanel();
+    });
+    teaserClose.addEventListener('click', function (e) {
+      e.stopPropagation();
+      hideTeaser();
+    });
+
+    fab.addEventListener('click', openPanel);
+    closeBtn.addEventListener('click', closePanel);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !panel.hidden) closePanel();
+    });
+
+    async function send(message) {
+      const msg = (message || '').trim();
+      if (!msg || busy) return;
+      busy = true;
+      sendBtn.disabled = true;
+      chips.hidden = true;
+      addMsg(msg, 'user', true);
+
+      const thinking = document.createElement('div');
+      thinking.className = 'bpw-msg bot';
+      thinking.innerHTML = '<span class="bpw-dots"><i></i><i></i><i></i></span>';
+      log.appendChild(thinking);
+      log.scrollTop = log.scrollHeight;
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'sendMessage', sessionId: sid, chatInput: msg }),
+        });
+        let reply = '';
+        let isError = !res.ok;
+        const raw = await res.text();
+        try {
+          const data = JSON.parse(raw);
+          if (data && (data.output || data.text || data.reply || data.answer)) {
+            reply = data.output ?? data.text ?? data.reply ?? data.answer;
+          } else if (data && (data.message || data.code || data.error || data.stack)) {
+            isError = true;
+          } else if (typeof data === 'string') {
+            reply = data;
+          }
+        } catch (_) {
+          if (/error in workflow|too many requests|quota|<html/i.test(raw)) isError = true;
+          else reply = raw;
+        }
+        reply = (typeof reply === 'string' ? reply : JSON.stringify(reply)).trim();
+        thinking.remove();
+        if (isError || !reply) {
+          addMsg(busyError, 'bot err', false);
+        } else {
+          addMsg(reply, 'bot', true);
+        }
+      } catch (err) {
+        thinking.remove();
+        addMsg(netError, 'bot err', false);
+      } finally {
+        busy = false;
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const v = input.value;
+      input.value = '';
+      send(v);
+    });
+
+    chips.addEventListener('click', function (e) {
+      const btn = e.target.closest('.bpw-chip');
+      if (btn) send(btn.dataset.q || btn.textContent);
+    });
+  })();
+</script>

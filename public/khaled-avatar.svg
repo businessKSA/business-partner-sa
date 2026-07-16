@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="خالد — المساعد الذكي">
+  <defs>
+    <linearGradient id="bpwBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a84e8"/>
+      <stop offset="1" stop-color="#0057ad"/>
+    </linearGradient>
+    <clipPath id="bpwClip"><circle cx="60" cy="60" r="58"/></clipPath>
+  </defs>
+
+  <circle cx="60" cy="60" r="58" fill="url(#bpwBg)"/>
+
+  <g clip-path="url(#bpwClip)">
+    <!-- الغترة: الطرفان الجانبيان خلف الرأس -->
+    <path d="M35 46 Q28 78 34 104 L54 104 L48 66 Z" fill="#eef2f6"/>
+    <path d="M85 46 Q92 78 86 104 L66 104 L72 66 Z" fill="#eef2f6"/>
+
+    <!-- الجسم: بدلة كحلية -->
+    <path d="M14 122 Q18 90 46 86 L60 92 L74 86 Q102 90 106 122 Z" fill="#1e293b"/>
+    <!-- القميص -->
+    <path d="M48 86 L60 106 L72 86 L66 84 L54 84 Z" fill="#ffffff"/>
+    <!-- ربطة العنق بلون الهوية الأخضر -->
+    <path d="M60 90 L55.5 96 L60 114 L64.5 96 Z" fill="#10b981"/>
+
+    <!-- الرقبة -->
+    <path d="M52 72 h16 v12 l-8 9 -8 -9 Z" fill="#e2a878"/>
+
+    <!-- الوجه -->
+    <ellipse cx="60" cy="55" rx="20.5" ry="22" fill="#f2bd8d"/>
+    <!-- الأذنان -->
+    <ellipse cx="39.5" cy="56" rx="3.5" ry="5" fill="#e2a878"/>
+    <ellipse cx="80.5" cy="56" rx="3.5" ry="5" fill="#e2a878"/>
+
+    <!-- الغترة: الجزء العلوي -->
+    <path d="M60 20 Q88 20 87 54 Q87 46 81 43 Q83 31 60 31 Q37 31 39 43 Q33 46 33 54 Q32 20 60 20 Z" fill="#ffffff"/>
+    <path d="M33 54 Q33 38 41 34 Q37 44 40 50 Z" fill="#ffffff"/>
+    <path d="M87 54 Q87 38 79 34 Q83 44 80 50 Z" fill="#ffffff"/>
+
+    <!-- العقال -->
+    <path d="M38 41 Q60 32 82 41" fill="none" stroke="#23262d" stroke-width="4.6" stroke-linecap="round"/>
+    <path d="M38 46.5 Q60 38 82 46.5" fill="none" stroke="#23262d" stroke-width="4.2" stroke-linecap="round"/>
+
+    <!-- الحاجبان -->
+    <path d="M47 51 Q52 48.5 56 50.5" fill="none" stroke="#4a3423" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M64 50.5 Q68 48.5 73 51" fill="none" stroke="#4a3423" stroke-width="2.4" stroke-linecap="round"/>
+
+    <!-- العينان -->
+    <circle cx="51.5" cy="56.5" r="2.6" fill="#2b2b33"/>
+    <circle cx="68.5" cy="56.5" r="2.6" fill="#2b2b33"/>
+    <circle cx="52.3" cy="55.7" r="0.9" fill="#ffffff"/>
+    <circle cx="69.3" cy="55.7" r="0.9" fill="#ffffff"/>
+
+    <!-- الأنف -->
+    <path d="M60 58 Q58.4 63 60.8 64.5" fill="none" stroke="#d99c66" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- لحية خفيفة وابتسامة -->
+    <path d="M48 67 Q60 76 72 67" fill="none" stroke="#4a3423" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M51.5 70.5 Q60 75.5 68.5 70.5" fill="none" stroke="#4a3423" stroke-width="1.4" stroke-linecap="round" opacity="0.45"/>
+  </g>
+</svg>
