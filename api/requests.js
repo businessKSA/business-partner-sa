@@ -576,6 +576,35 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref }));
   }
 
+  // Leisure trip request — Mahfol Makfol trips track (/mahfol-makfol/trips).
+  if (b.type === "trip") {
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const dest = String(b.dest || "").trim().slice(0, 160);
+    const date = String(b.date || "").trim().slice(0, 60);
+    const count = String(b.count || "").trim().slice(0, 20);
+    const notes = String(b.notes || "").trim().slice(0, 1000);
+    if (!person || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "TR-" + Date.now().toString().slice(-6);
+    const rows = row("الاسم", person) + row("الجوال", phone) + row("الإيميل", email) +
+      row("الوجهة", dest) + row("التواريخ", date) + row("عدد الأشخاص", count) + row("تفاصيل إضافية", notes);
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب رحلة جديد (محفول مكفول) — ${ref}</h2><table>${rows}</table></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+      <h2 style="color:#0B1B5A">تم استلام طلب رحلتك — ${ref}</h2>
+      <p>مرحباً ${esc(person)}، استلمنا تفاصيل رحلتك${dest ? " إلى " + esc(dest) : ""}. فريق محفول مكفول يصمّم لك برنامجاً وتسعيرة ويعود إليك خلال يوم.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب رحلة جديد — ${dest || person}`, teamHtml),
+      sendEmail(email, `تم استلام طلب رحلتك ${ref} — محفول مكفول`, clientHtml),
+      crmLead({ title: `رحلة (محفول مكفول) — ${dest || person}`, phone, email, notes: `Mahfol Makfol trips · ${dest || "—"} · ${count || "—"} أشخاص · ${notes}`, ref }),
+      addToAudience(email, person),
+      forwardLead({ source: "trip", ref, name: person, phone, email, notes: `${dest} · ${date} · ${count}` }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   const type = b.type === "supplier" ? "supplier" : "event";
   const f = {};
   for (const k of ["company", "person", "phone", "email", "date", "count", "klass", "venue", "eventType", "city", "cr", "category", "notes"]) {
