@@ -588,11 +588,16 @@ var BP = window.BP = window.BP || {};
       list.hidden = !items.length;
     }
     function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    // Capped at 40 (not 8) so the dropdown itself makes it obvious this is a
+    // long, scrollable list rather than a handful of fixed options — direct
+    // feedback was that only seeing ~6 suggestions on an empty query read as
+    // "the list is incomplete" even though the full list (500+ job titles)
+    // was already there and just needed typing to search.
     function filtered() {
       var q = input.value.trim().toLowerCase();
       var all = getOptions();
-      if (!q) return all.slice(0, 8);
-      return all.filter(function (o) { return o.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+      if (!q) return all.slice(0, 40);
+      return all.filter(function (o) { return o.toLowerCase().indexOf(q) !== -1; }).slice(0, 40);
     }
     input.addEventListener("input", function () { active = -1; render(filtered()); });
     input.addEventListener("focus", function () { render(filtered()); });
