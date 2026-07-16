@@ -4683,17 +4683,6 @@ function buildPortal() {
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
-    // Demo codes unlock agents for testing only — never issued to real clients.
-    // Real clients unlock by entering their own order reference (e.g. BP-506275)
-    // once we've confirmed payment and flipped the order's status in the CRM —
-    // see /api/requests. One code per package tier lets you log in with a test
-    // email and see exactly what each bundle size looks like.
-    var CODES={
-      'BP-DEMO':'ALL','BP2026':'ALL','DEMO123':'ALL',
-      'DEMO-ONE':['badr'],
-      'DEMO-THREE':['badr','malak','farah'],
-      'DEMO-TEAM':['baher','mazen','nasser','mishari','abdulaziz','badr','farah','malak','mohammed','ahmed']
-    };
     var CONFIRMED=['مؤكد - قيد التنفيذ','مكتمل'];
     var OWNER_EMAIL='dr.baher.magnas@gmail.com';
     var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents'};
@@ -4722,8 +4711,6 @@ function buildPortal() {
       email=e; localStorage.setItem(LS.email,e);
       if(e.toLowerCase()===OWNER_EMAIL){ unlock('ALL'); return; }
       if(!c){ $('loginErr').textContent='ادخل كود التفعيل.'; return; }
-      var slugs=CODES[c];
-      if(slugs){ unlock(slugs); return; }
       var btn=$('loginBtn'); btn.disabled=true; $('loginErr').textContent='جارٍ التحقق…';
       fetch('/api/requests?refs='+encodeURIComponent(c))
         .then(function(r){return r.json();})
@@ -4731,7 +4718,8 @@ function buildPortal() {
           var st=d && d.statuses && d.statuses[c];
           var ag=d && d.agents && d.agents[c];
           var orderEmail=d && d.emails && d.emails[c];
-          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length && orderEmail && orderEmail.toLowerCase()===e.toLowerCase()){ unlock(ag); }
+          var isDemo=d && d.demo && d.demo[c];
+          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length && (isDemo || (orderEmail && orderEmail.toLowerCase()===e.toLowerCase()))){ unlock(ag); }
           else if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ $('loginErr').textContent='هذا الكود مسجّل على بريد مختلف — استخدم نفس البريد اللي اشتريت فيه.'; }
           else if(st){ $('loginErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
           else { $('loginErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وابدأ الطلب.'; }

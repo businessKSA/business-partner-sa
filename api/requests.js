@@ -40,6 +40,21 @@ async function forwardLead(payload) {
 // email typed at login matches the email the order was placed under, so a
 // leaked/guessed reference can't be used to unlock someone else's agents.
 const CONFIRMED_ORDER_STATUSES = new Set(["مؤكد - قيد التنفيذ", "مكتمل"]);
+
+// Demo/test codes for the AI-employees portal — checked here (server-side)
+// instead of shipping the list in the page's client-side JS, so codes meant
+// only for internal package-size testing aren't readable via view-source.
+// BP-DEMO/demo123 are intentionally advertised on the login screen for public
+// trial; the others are for testing specific bundle sizes and stay unlisted.
+const DEMO_CODES = {
+  "BP-DEMO": "ALL",
+  "BP2026": "ALL",
+  "DEMO123": "ALL",
+  "DEMO-ONE": ["badr"],
+  "DEMO-THREE": ["badr", "malak", "farah"],
+  "DEMO-TEAM": ["baher", "mazen", "nasser", "mishari", "abdulaziz", "badr", "farah", "malak", "mohammed", "ahmed"],
+};
+
 async function orderStatuses(refs) {
   if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
   if (!NOTION_TOKEN) return { statuses: {}, agents: {}, emails: {} };
@@ -398,14 +413,26 @@ export default async function handler(req, res) {
     const refs = (url.searchParams.get("refs") || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 30);
     if (refs.length) {
       res.setHeader("Cache-Control", "no-store");
-      try {
-        const { statuses, agents, emails } = await orderStatuses(refs);
-        res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, statuses, agents, emails }));
-      } catch {
-        res.statusCode = 502;
-        return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+      const statuses = {}, agents = {}, emails = {}, demo = {};
+      const remaining = [];
+      for (const ref of refs) {
+        const dc = DEMO_CODES[ref.toUpperCase()];
+        if (dc) { statuses[ref] = "مكتمل"; agents[ref] = dc; demo[ref] = true; }
+        else remaining.push(ref);
       }
+      if (remaining.length) {
+        try {
+          const r = await orderStatuses(remaining);
+          Object.assign(statuses, r.statuses);
+          Object.assign(agents, r.agents);
+          Object.assign(emails, r.emails);
+        } catch {
+          res.statusCode = 502;
+          return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+        }
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo }));
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({ status: "ok", emailConfigured: !!RESEND_API_KEY }));
