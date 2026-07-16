@@ -1348,21 +1348,64 @@ function buildDeals() {
 function buildPackages() {
   const p = site.packages;
   const groups = p.groups || [{ key: "business", ar: p.title, en: p.titleEn, descAr: p.subtitle, descEn: p.subtitleEn, tiers: p.tiers }];
-  const tierCard = (t) => `<div class="pkg${t.highlight ? " pop" : ""}"${t.highlight ? ` data-badge="${esc(L("Most requested", "الأكثر طلباً"))}"` : ""}>
-      <div class="pk-name">${L(t.nameEn || t.name || t.nameAr, t.nameAr)}</div>
+  // Same annual-billing policy already established for employer packages
+  // (site.employerPlans.yearlyDiscount, 30%) — reused here so the two billing
+  // toggles on the site behave identically, not a new/invented number.
+  const yearlyDiscount = (site.employerPlans && site.employerPlans.yearlyDiscount) || 0;
+  const fmt = (n) => Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : "en-US");
+  const isMonthly = (t) => /شهري|monthly/i.test(t.priceEn || t.price || "");
+  const tierCard = (t) => {
+    const monthly = t.amount != null && isMonthly(t);
+    const name = L(t.nameEn || t.name || t.nameAr, t.nameAr);
+    const feats = `<ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>`;
+    const badgeAttr = t.highlight ? ` data-badge="${esc(L("Most requested", "الأكثر طلباً"))}"` : "";
+    if (monthly) {
+      const yearly = employerYearly(t.amount, yearlyDiscount);
+      const nameAr = `${t.nameAr} — اشتراك شهري`;
+      const nameEn = `${t.nameEn || t.name} — Monthly subscription`;
+      const priceLabelM = `${fmt(t.amount)} ${L("SAR / mo", "ريال / شهرياً")}`;
+      const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
+      return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
+        <div class="pk-name">${esc(name)}</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>
+        <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
+        ${feats}
+        <button type="button" class="btn ${t.highlight ? "btn-primary" : "btn-ghost"} add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-${esc(t.key)}-monthly" data-kind="package"
+          data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}"
+          data-amount="${t.amount}" data-price="${esc(priceLabelM)}"
+          data-id-monthly="pkg-${esc(t.key)}-monthly" data-id-yearly="pkg-${esc(t.key)}-yearly"
+          data-amount-monthly="${t.amount}" data-amount-yearly="${yearly}"
+          data-price-monthly="${esc(priceLabelM)}" data-price-yearly="${esc(priceLabelY)}"
+        >🛒 ${L("Add to cart", "أضف إلى السلة")}</button>
+      </div>`;
+    }
+    return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
+      <div class="pk-name">${esc(name)}</div>
       ${t.price ? `<div class="pk-price">${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
-      <ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
+      ${feats}
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
     </div>`;
+  };
   const tabs = groups
     .map((g, i) => `<button type="button" class="pk-tab${i === 0 ? " active" : ""}" data-group="${esc(g.key)}">${L(g.en, g.ar)}</button>`)
     .join("");
   const panels = groups
-    .map((g, i) => `<div class="pk-panel${i === 0 ? " active" : ""}" id="pkg-${esc(g.key)}">
+    .map((g, i) => {
+      const hasMonthly = yearlyDiscount > 0 && g.tiers.some(isMonthly);
+      const billingToggle = hasMonthly
+        ? `<div class="emp-billing-toggle" role="tablist">
+            <button type="button" class="emp-bill-btn active" data-bill="monthly">${L("Monthly", "شهري")}</button>
+            <button type="button" class="emp-bill-btn" data-bill="yearly">${L("Yearly", "سنوي")} <span class="emp-save">${L(`Save ${Math.round(yearlyDiscount * 100)}%`, `وفّر ${Math.round(yearlyDiscount * 100)}٪`)}</span></button>
+          </div>`
+        : "";
+      return `<div class="pk-panel${i === 0 ? " active" : ""}" id="pkg-${esc(g.key)}">
       ${g.descAr || g.descEn ? `<p class="pk-group-desc">${L(g.descEn || g.descAr, g.descAr || g.descEn)}</p>` : ""}
+      ${billingToggle}
       <div class="grid grid-${g.tiers.length >= 4 ? 4 : 3}">${g.tiers.map(tierCard).join("")}</div>
-    </div>`)
+    </div>`;
+    })
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
@@ -5791,4 +5834,52 @@ const urls = paths
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 
-console.log(`Generated ${pageCount} pages (en + ar) + sitemap.`);
+// assets/data/catalog.json — public, no-auth, zero-serverless-cost quote data
+// source for external integrations (the WhatsApp AI agent in n8n, the on-site
+// smart advisor, or any future bot). Generated from the exact same services/
+// categories/packages data that drives the website, so a quote given here can
+// never drift from what a customer sees on the pages themselves. Static file,
+// does not count against the Vercel Hobby 12-serverless-function cap.
+const catalogJson = {
+  updatedAt: new Date().toISOString(),
+  currency: "SAR",
+  services: services.map((s) => {
+    const m = svcI18n[s.code] || {};
+    const ov = site.overrides[s.slug];
+    return {
+      code: s.code,
+      nameAr: sNameArOf(s),
+      nameEn: m.en || (ov && ov.nameEn) || s.name,
+      category: s.category,
+      categoryAr: s.categoryAr,
+      govPlatform: s.govPlatform,
+      pricingModel: s.pricingModel,
+      amount: s.price.amount,
+      priceLabel: s.price.label,
+      govFeesSeparate: !!s.govFeesSeparate,
+      requiresProposal: !!s.requiresProposal,
+      url: `${base}/services/${s.slug}`,
+    };
+  }),
+  categories: categories.map((c) => ({ key: c.key, nameAr: c.ar, nameEn: (CAT_META[c.key] || {}).en || c.key, count: services.filter((s) => s.category === c.key).length })),
+  packages: (site.packages.groups || []).flatMap((g) =>
+    g.tiers.map((t) => ({
+      group: g.key,
+      groupNameAr: g.ar,
+      groupNameEn: g.en,
+      code: t.code || null,
+      key: t.key,
+      nameAr: t.nameAr,
+      nameEn: t.nameEn || t.name,
+      amount: t.amount != null ? t.amount : null,
+      priceLabel: t.priceEn || t.price,
+      billingPeriod: t.price && /شهري|monthly/i.test(t.priceEn || t.price) ? "monthly" : "one_time",
+      featuresAr: t.features,
+      featuresEn: t.featuresEn,
+      url: `${base}/packages`,
+    }))
+  ),
+};
+write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
+
+console.log(`Generated ${pageCount} pages (en + ar) + sitemap + catalog.json.`);
