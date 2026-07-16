@@ -2491,6 +2491,443 @@ var BP_EMP_BILLING = "monthly";
   });
 })();
 
+/* ---------- Wallet (/account → محفظتي): top-ups & fee payments ----------
+   Entries live in bp_wallet: {ref, kind: 'topup'|'pay', amount, what?, at, status}.
+   Balance = confirmed top-ups − non-cancelled payments; statuses sync live from
+   the CRM through the same /api/requests?refs= endpoint orders use. */
+(function () {
+  "use strict";
+  function T(en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; }
+  function session() { try { return JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) { return null; } }
+  function entries() { try { return JSON.parse(localStorage.getItem("bp_wallet") || "[]"); } catch (e) { return []; } }
+  function save(list) { try { localStorage.setItem("bp_wallet", JSON.stringify(list)); } catch (e) {} }
+  function money(n) { return (window.BP && BP.money) ? BP.money(n) : n + " ﷼"; }
+  var CONFIRMED = /مؤكد|مكتمل|confirmed|completed/i;
+  var CANCELLED = /ملغ|cancel/i;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var panel = document.getElementById("panel-wallet");
+    if (!panel) return;
+
+    function mine() {
+      var s = session();
+      return entries().filter(function (e) { return !e.email || !s || String(e.email).toLowerCase() === String(s.email || "").toLowerCase(); });
+    }
+    function render() {
+      var list = mine();
+      var confirmedTopups = 0, pendingTopups = 0, spent = 0;
+      list.forEach(function (e) {
+        if (e.kind === "topup") {
+          if (CONFIRMED.test(e.status || "")) confirmedTopups += e.amount;
+          else if (!CANCELLED.test(e.status || "")) pendingTopups += e.amount;
+        } else if (e.kind === "pay" && !CANCELLED.test(e.status || "")) {
+          spent += e.amount;
+        }
+      });
+      var balance = Math.max(0, confirmedTopups - spent);
+      var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
+      set("wal-balance", money(balance));
+      set("wal-pending", money(pendingTopups));
+      set("wal-spent", money(spent));
+      var box = document.getElementById("wal-list");
+      if (box && list.length) {
+        box.innerHTML = list.map(function (e) {
+          var sign = e.kind === "topup" ? "+" : "−";
+          var label = e.kind === "topup" ? T("Wallet top-up", "شحن محفظة") : (e.what || T("Fee payment", "سداد رسوم"));
+          var done = CONFIRMED.test(e.status || ""), off = CANCELLED.test(e.status || "");
+          return '<div class="ord"><div class="ord-main"><strong>' + e.ref + '</strong><span class="text-soft"> · ' + (e.at || "") + '</span>' +
+            '<div class="text-soft ord-items">' + label + '</div></div>' +
+            '<div class="ord-side"><strong style="color:' + (e.kind === "topup" ? "#16a34a" : "var(--navy)") + '">' + sign + money(e.amount) + '</strong>' +
+            '<span class="ord-status ' + (off ? "off" : done ? "ok" : "wait") + '">' + (e.status || T("Under review", "قيد المراجعة")) + '</span></div></div>';
+        }).join("");
+      }
+      return balance;
+    }
+
+    // Live status sync — same CRM statuses as orders (BPW/BPP refs).
+    function sync() {
+      var list = entries();
+      var refs = list.map(function (e) { return e.ref; }).filter(Boolean);
+      if (!refs.length) return;
+      fetch("/api/requests?refs=" + encodeURIComponent(refs.join(",")))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok || !d.statuses) return;
+          var changed = false;
+          list.forEach(function (e) { var live = d.statuses[e.ref]; if (live && live !== e.status) { e.status = live; changed = true; } });
+          if (changed) { save(list); render(); }
+        })
+        .catch(function () {});
+    }
+
+    // Top-up form
+    var tf = document.getElementById("wal-topup-form");
+    if (tf) tf.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var s = session();
+      if (!s) return;
+      var amount = Number((document.getElementById("wal-amount") || {}).value || 0);
+      var fileInp = document.getElementById("wal-receipt");
+      var file = fileInp && fileInp.files && fileInp.files.length ? fileInp.files[0] : null;
+      if (!amount || amount < 50) { alert(T("Enter a top-up amount (min 50 SAR).", "أدخل مبلغ الشحن (50 ريالاً على الأقل).")); return; }
+      if (!file) { alert(T("Attach the bank transfer receipt.", "أرفق إيصال التحويل البنكي.")); return; }
+      var btn = tf.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      var ref = "BPW-" + Date.now().toString().slice(-6);
+      var reader = new FileReader();
+      function finish(ok) {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("wal-topup-success");
+        box.hidden = false;
+        box.innerHTML = ok
+          ? "✅ <strong>" + T("Top-up request received", "تم استلام طلب الشحن") + " — " + ref + "</strong><br>" + T("Balance is credited as soon as the team confirms the transfer.", "يُضاف الرصيد فور تأكيد الفريق للتحويل.")
+          : "⚠️ <strong>" + T("Couldn't reach the server", "تعذّر الاتصال بالخادم") + "</strong><br>" + T("Try again, or send the receipt on WhatsApp.", "حاول مرة أخرى، أو أرسل الإيصال عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + encodeURIComponent(T("Wallet top-up ", "شحن محفظة ") + ref + " — " + amount + " ﷼") + '">' + T("WhatsApp", "واتساب") + "</a>";
+        if (ok) {
+          var list = entries();
+          list.unshift({ ref: ref, kind: "topup", amount: amount, email: s.email || "", at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+          save(list); render(); tf.reset();
+        }
+      }
+      reader.onload = function () {
+        fetch("/api/requests", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "wallet-topup", ref: ref, name: s.name || "", email: s.email || "", phone: s.phone || "", amount: amount, receiptName: file.name, receiptType: file.type, receiptBase64: String(reader.result || "").split(",").pop() }),
+        }).then(function (r) { return r.json(); }).then(function (d) { finish(d && d.ok); }).catch(function () { finish(false); });
+      };
+      reader.onerror = function () { finish(false); };
+      reader.readAsDataURL(file);
+    });
+
+    // Pay-from-wallet form
+    var pf = document.getElementById("wal-pay-form");
+    if (pf) pf.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var s = session();
+      if (!s) return;
+      var what = ((document.getElementById("wal-pay-what") || {}).value || "").trim();
+      var amount = Number((document.getElementById("wal-pay-amount") || {}).value || 0);
+      if (!what) { alert(T("Describe the fee to pay.", "صف الرسوم المطلوب سدادها.")); return; }
+      if (!amount || amount < 1) { alert(T("Enter the amount.", "أدخل المبلغ.")); return; }
+      var balance = render();
+      if (amount > balance) { alert(T("Amount exceeds your available balance (", "المبلغ أكبر من رصيدك المتاح (") + money(balance) + T("). Top up first.", "). اشحن محفظتك أولاً.")); return; }
+      var btn = pf.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      var ref = "BPP-" + Date.now().toString().slice(-6);
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "wallet-pay", ref: ref, name: s.name || "", email: s.email || "", what: what, amount: amount }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("wal-pay-success");
+        box.hidden = false;
+        if (d && d.ok) {
+          box.innerHTML = "✅ <strong>" + T("Payment request received", "تم استلام طلب السداد") + " — " + ref + "</strong><br>" + T("We execute it from your wallet and attach the payment proof.", "ننفذه من محفظتك ونرفق لك إثبات السداد.");
+          var list = entries();
+          list.unshift({ ref: ref, kind: "pay", amount: amount, what: what, email: s.email || "", at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+          save(list); render(); pf.reset();
+        } else {
+          box.innerHTML = "⚠️ " + T("Couldn't send — try again.", "تعذّر الإرسال — حاول مرة أخرى.");
+        }
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("wal-pay-success");
+        box.hidden = false;
+        box.innerHTML = "⚠️ " + T("Couldn't reach the server — try again.", "تعذّر الاتصال بالخادم — حاول مرة أخرى.");
+      });
+    });
+
+    render();
+    sync();
+  });
+})();
+
+/* ---------- Instalments (/installments): estimate + request ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("inst-form-el");
+    if (!form) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    function money(n) { return (window.BP && BP.money) ? BP.money(n) : n + " ﷼"; }
+    // Live monthly estimate; ?amount= (from the cart link) prefills the amount.
+    function estimate() {
+      var amount = Number(val("inst-amount")), months = Number(val("inst-months")) || 6;
+      var el = document.getElementById("inst-monthly");
+      el.textContent = amount > 0 ? money(Math.ceil(amount / months)) + " / " + T("month", "شهرياً") : "—";
+    }
+    var qAmount = new URLSearchParams(location.search).get("amount");
+    if (qAmount && Number(qAmount) > 0) { var ai = document.getElementById("inst-amount"); if (ai && !ai.value) ai.value = Math.round(Number(qAmount)); }
+    ["inst-amount", "inst-months"].forEach(function (id) { var el = document.getElementById(id); if (el) { el.addEventListener("input", estimate); el.addEventListener("change", estimate); } });
+    estimate();
+    // Prefill from the signed-in session
+    try {
+      var ses = JSON.parse(localStorage.getItem("bp_session") || "null");
+      if (ses) { if (!val("inst-name")) document.getElementById("inst-name").value = ses.name || ""; if (!val("inst-email")) document.getElementById("inst-email").value = ses.email || ""; }
+    } catch (e) {}
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = val("inst-name"), phone = val("inst-phone"), email = val("inst-email"), service = val("inst-service");
+      var amount = Number(val("inst-amount")), months = Number(val("inst-months")) || 6, channel = val("inst-channel") || "any";
+      if (!name || !service) { alert(T("Fill in your name and the service to split.", "عبّئ اسمك والخدمة المراد تقسيطها.")); return; }
+      if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile (05XXXXXXXX).", "أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX).")); return; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
+      if (!amount || amount < 500) { alert(T("Enter an amount of 500 SAR or more.", "أدخل مبلغاً 500 ريال فأكثر.")); return; }
+      var btn = form.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      var ref = "BPI-" + Date.now().toString().slice(-6);
+      var waMsg = encodeURIComponent(T("Instalment request ", "طلب تقسيط ") + ref + "\n" + service + " — " + amount + " ﷼ / " + months + " " + T("months", "أشهر"));
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "installment", ref: ref, name: name, phone: phone, email: email, service: service, amount: amount, months: months, channel: channel }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("inst-success");
+        box.hidden = false;
+        if (d && d.ok) {
+          box.innerHTML = "✅ <strong>" + T("Request received", "تم استلام طلبك") + " — " + ref + "</strong><br>" + T("We prepare the available offers and come back to you quickly.", "نجهّز العروض المتاحة ونعود لك سريعاً.");
+          try {
+            var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+            orders.unshift({ ref: ref, name: name, email: email, items: [{ name: T("Instalment: ", "تقسيط: ") + service, qty: 1 }], at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+            localStorage.setItem("bp_orders", JSON.stringify(orders));
+          } catch (err) {}
+          form.reset(); estimate();
+        } else {
+          box.innerHTML = "⚠️ " + T("Couldn't send — contact us on WhatsApp instead.", "تعذّر الإرسال — تواصل معنا عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+        }
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("inst-success");
+        box.hidden = false;
+        box.innerHTML = "⚠️ " + T("Couldn't reach the server — send it on WhatsApp instead.", "تعذّر الاتصال بالخادم — أرسله عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+      });
+    });
+  });
+})();
+
+/* ---------- Estrdad (/estrdad): eligibility assessment request ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("estrdad-form-el");
+    if (!form) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    try {
+      var ses = JSON.parse(localStorage.getItem("bp_session") || "null");
+      var comp = JSON.parse(localStorage.getItem("bp_company") || "{}");
+      if (ses && !val("es-person")) document.getElementById("es-person").value = ses.name || "";
+      if (ses && !val("es-email")) document.getElementById("es-email").value = ses.email || "";
+      if (comp && comp.name && !val("es-company")) document.getElementById("es-company").value = comp.name;
+    } catch (e) {}
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var company = val("es-company"), person = val("es-person"), phone = val("es-phone"), email = val("es-email");
+      if (!company || !person) { alert(T("Fill in the establishment and contact names.", "عبّئ اسم المنشأة واسم المسؤول.")); return; }
+      if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile (05XXXXXXXX).", "أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX).")); return; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
+      var btn = form.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      var ref = "BPE-" + Date.now().toString().slice(-6);
+      var waMsg = encodeURIComponent(T("Estrdad assessment ", "تقييم استرداد ") + ref + " — " + company);
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "estrdad", ref: ref, company: company, person: person, phone: phone, email: email, startYear: val("es-start"), workers: val("es-workers"), notes: val("es-notes") }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("estrdad-success");
+        box.hidden = false;
+        if (d && d.ok) {
+          box.innerHTML = "✅ <strong>" + T("Assessment request received", "تم استلام طلب التقييم") + " — " + ref + "</strong><br>" + T("We review your establishment against the official conditions and come back with your compliance gaps and the plan.", "نراجع منشأتك وفق الاشتراطات الرسمية ونعود لك بفجوات الامتثال والخطة.");
+          try {
+            var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+            orders.unshift({ ref: ref, name: person, email: email, items: [{ name: T("Estrdad assessment: ", "تقييم استرداد: ") + company, qty: 1 }], at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+            localStorage.setItem("bp_orders", JSON.stringify(orders));
+          } catch (err) {}
+          form.reset();
+        } else {
+          box.innerHTML = "⚠️ " + T("Couldn't send — contact us on WhatsApp instead.", "تعذّر الإرسال — تواصل معنا عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+        }
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("estrdad-success");
+        box.hidden = false;
+        box.innerHTML = "⚠️ " + T("Couldn't reach the server — send it on WhatsApp instead.", "تعذّر الاتصال بالخادم — أرسله عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+      });
+    });
+  });
+})();
+
+/* ---------- Partners repeater + bank-account & formation-contract forms ---------- */
+(function () {
+  "use strict";
+  function T(en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; }
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  var MOBILE = /^(?:\+?966|0)?5\d{8}$/;
+  var EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+  function addRow(wrap) {
+    var withShare = wrap.hasAttribute("data-with-share");
+    var row = document.createElement("div");
+    row.className = "partner-row" + (withShare ? " with-share" : "");
+    row.innerHTML =
+      '<input type="text" data-p="name" placeholder="' + T("Partner name", "اسم الشريك") + '">' +
+      '<input type="tel" data-p="phone" placeholder="05XXXXXXXX">' +
+      '<input type="email" data-p="email" placeholder="email@company.com">' +
+      (withShare ? '<input type="number" data-p="share" min="0" max="100" placeholder="%">' : "") +
+      '<button type="button" class="pr-del" aria-label="' + T("Remove", "حذف") + '">✕</button>';
+    row.querySelector(".pr-del").addEventListener("click", function () { row.remove(); recalc(wrap); });
+    if (withShare) row.querySelector('[data-p="share"]').addEventListener("input", function () { recalc(wrap); });
+    wrap.appendChild(row);
+  }
+  function recalc(wrap) {
+    var totalEl = document.getElementById("fc-share-total");
+    if (!totalEl || !wrap.hasAttribute("data-with-share")) return;
+    var total = 0;
+    wrap.querySelectorAll('[data-p="share"]').forEach(function (i) { total += Number(i.value) || 0; });
+    totalEl.textContent = total + "%";
+    totalEl.style.color = total === 100 ? "#16a34a" : "var(--navy)";
+  }
+  function collect(wrap) {
+    var out = [];
+    wrap.querySelectorAll(".partner-row").forEach(function (row) {
+      var p = {};
+      row.querySelectorAll("[data-p]").forEach(function (i) { p[i.getAttribute("data-p")] = i.value.trim(); });
+      if (p.name || p.email || p.phone) out.push(p);
+    });
+    return out;
+  }
+  function validPartners(list) {
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      if (!p.name) return T("Every partner needs a name.", "كل شريك يحتاج اسماً.");
+      if (!EMAIL.test(p.email || "")) return T("Enter a valid email for partner: ", "أدخل بريداً صحيحاً للشريك: ") + p.name;
+      if (p.phone && !MOBILE.test(p.phone.replace(/\s/g, ""))) return T("Invalid mobile for partner: ", "جوال غير صحيح للشريك: ") + p.name;
+    }
+    return null;
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-partners]").forEach(function (wrap) {
+      addRow(wrap); // start with one row
+      var addBtn = wrap.parentElement.querySelector("[data-add-partner]");
+      if (addBtn) addBtn.addEventListener("click", function () { addRow(wrap); });
+    });
+
+    // ---- Bank account opening ----
+    var bank = document.getElementById("bank-form-el");
+    if (bank) {
+      // Company profile is the prerequisite: prefill from bp_company/bp_session
+      // and surface the gate when it's incomplete.
+      var comp = {}, ses = null;
+      try { comp = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e) {}
+      try { ses = JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
+      if (comp.name && !val("bk2-company")) document.getElementById("bk2-company").value = comp.name;
+      if (comp.cr && !val("bk2-cr")) document.getElementById("bk2-cr").value = comp.cr;
+      if (ses && !val("bk2-manager")) document.getElementById("bk2-manager").value = ses.name || "";
+      if (ses && !val("bk2-email")) document.getElementById("bk2-email").value = ses.email || "";
+      if (comp.phone && !val("bk2-phone")) document.getElementById("bk2-phone").value = comp.phone;
+      var gate = document.getElementById("bank-profile-gate");
+      if (gate && (!comp.name || !comp.cr)) gate.hidden = false;
+
+      bank.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var company = val("bk2-company"), cr = val("bk2-cr"), manager = val("bk2-manager"), phone = val("bk2-phone"), email = val("bk2-email");
+        if (!company || !cr) { alert(T("Company name and CR are required (bank prerequisite).", "اسم الشركة ورقم السجل مطلوبان (اشتراط البنك).")); return; }
+        if (!manager) { alert(T("Enter the manager's name.", "أدخل اسم المدير.")); return; }
+        if (!MOBILE.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile.", "أدخل جوالاً سعودياً صحيحاً.")); return; }
+        if (!EMAIL.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
+        var partners = collect(bank.querySelector("[data-partners]"));
+        var pErr = validPartners(partners);
+        if (pErr) { alert(pErr); return; }
+        var btn = bank.querySelector("button[type=submit]"), lbl = btn.textContent;
+        btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+        var ref = "BPB-" + Date.now().toString().slice(-6);
+        var waMsg = encodeURIComponent(T("Bank account opening ", "فتح حساب بنكي ") + ref + " — " + company);
+        fetch("/api/requests", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "bank-account", ref: ref, company: company, cr: cr, manager: manager, phone: phone, email: email, bank: val("bk2-bank"), when: val("bk2-when"), partners: partners }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("bank-success");
+          box.hidden = false;
+          if (d && d.ok) {
+            box.innerHTML = "✅ <strong>" + T("Request received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
+              T("We coordinate with the bank and every partner receives the online-appointment invitation by email.", "ننسق مع البنك وسيستلم كل شريك دعوة الموعد الأونلاين على بريده.");
+            try {
+              var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+              orders.unshift({ ref: ref, name: manager, email: email, items: [{ name: T("Bank account opening: ", "فتح حساب بنكي: ") + company + " · " + val("bk2-bank"), qty: 1 }], at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+              localStorage.setItem("bp_orders", JSON.stringify(orders));
+            } catch (err) {}
+            bank.reset();
+          } else {
+            box.innerHTML = "⚠️ " + T("Couldn't send — contact us on WhatsApp.", "تعذّر الإرسال — تواصل عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+          }
+        }).catch(function () {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("bank-success");
+          box.hidden = false;
+          box.innerHTML = "⚠️ " + T("Couldn't reach the server — send it on WhatsApp.", "تعذّر الاتصال بالخادم — أرسله عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+        });
+      });
+    }
+
+    // ---- Formation contract (partners) ----
+    var fc = document.getElementById("fc-form-el");
+    if (fc) {
+      try {
+        var ses2 = JSON.parse(localStorage.getItem("bp_session") || "null");
+        if (ses2 && !val("fc-person")) document.getElementById("fc-person").value = ses2.name || "";
+        if (ses2 && !val("fc-email")) document.getElementById("fc-email").value = ses2.email || "";
+      } catch (e) {}
+      fc.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name = val("fc-name"), activity = val("fc-activity"), person = val("fc-person"), phone = val("fc-phone"), email = val("fc-email");
+        if (!name || !activity) { alert(T("Enter the proposed name and main activity.", "أدخل الاسم المقترح والنشاط الرئيسي.")); return; }
+        if (!person) { alert(T("Enter the requester's name.", "أدخل اسم مقدم الطلب.")); return; }
+        if (!MOBILE.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile.", "أدخل جوالاً سعودياً صحيحاً.")); return; }
+        if (!EMAIL.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
+        var wrap = fc.querySelector("[data-partners]");
+        var partners = collect(wrap);
+        if (partners.length < 2) { alert(T("A partners formation needs at least two partners.", "التأسيس بين شركاء يحتاج شريكين على الأقل.")); return; }
+        var pErr = validPartners(partners);
+        if (pErr) { alert(pErr); return; }
+        var total = partners.reduce(function (s, p) { return s + (Number(p.share) || 0); }, 0);
+        if (total !== 100) { alert(T("Partners' shares must total exactly 100% (now: ", "مجموع نسب الشركاء يجب أن يساوي 100% بالضبط (الآن: ") + total + "%)"); return; }
+        var btn = fc.querySelector("button[type=submit]"), lbl = btn.textContent;
+        btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+        var ref = "BPF-" + Date.now().toString().slice(-6);
+        var waMsg = encodeURIComponent(T("Formation request ", "طلب تأسيس ") + ref + " — " + name);
+        fetch("/api/requests", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "formation-contract", ref: ref, company: name, entity: val("fc-type"), capital: val("fc-capital"), activity: activity, person: person, phone: phone, email: email, partners: partners }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("fc-success");
+          box.hidden = false;
+          if (d && d.ok) {
+            box.innerHTML = "✅ <strong>" + T("Formation request received", "تم استلام طلب التأسيس") + " — " + ref + "</strong><br>" +
+              T("We draft the incorporation contract and submit via the Saudi Business Center — every partner will get the signing invitation by email.", "نصيغ عقد التأسيس ونقدّمه عبر المركز السعودي للأعمال — وسيستلم كل شريك دعوة التوقيع على بريده.");
+            try {
+              var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+              orders.unshift({ ref: ref, name: person, email: email, items: [{ name: T("Company formation: ", "تأسيس شركة: ") + name, qty: 1 }], at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+              localStorage.setItem("bp_orders", JSON.stringify(orders));
+            } catch (err) {}
+            fc.reset(); recalc(wrap);
+          } else {
+            box.innerHTML = "⚠️ " + T("Couldn't send — contact us on WhatsApp.", "تعذّر الإرسال — تواصل عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+          }
+        }).catch(function () {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("fc-success");
+          box.hidden = false;
+          box.innerHTML = "⚠️ " + T("Couldn't reach the server — send it on WhatsApp.", "تعذّر الاتصال بالخادم — أرسله عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+        });
+      });
+    }
+  });
+})();
+
 /* ---------- Contact form (/contact) → WhatsApp deep-link + CRM lead ---------- */
 (function () {
   "use strict";

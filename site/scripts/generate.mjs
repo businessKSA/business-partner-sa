@@ -110,7 +110,7 @@ const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
 // live at businesspartner.sa/ar/portal was removed when the domain moved to
 // this site — a hardcoded absolute link here used to land compliance clients
 // in the specialized-team portal with a code it didn't recognize.)
-const COMPLIANCE_PORTAL_URL = "/portal";
+const COMPLIANCE_PORTAL_URL = "/ar/compliance-dashboard";
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -414,6 +414,10 @@ const NAV_GROUPS = [
         ],
       },
       { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
+      { href: "/installments", en: "Instalments ⚡", ar: "تقسيط الخدمات ⚡" },
+      { href: "/estrdad", en: "Fee refunds (Estrdad) ⚡", ar: "استرداد الرسوم ⚡" },
+      { href: "/bank-account", en: "Corporate bank account ⚡", ar: "فتح حساب بنكي ⚡" },
+      { href: "/formation-contract", en: "Formation with partners ⚡", ar: "تأسيس بين شركاء ⚡" },
       {
         href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال",
         sub: [
@@ -1976,8 +1980,8 @@ function buildComplianceAgent() {
     <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="#pricing">${L("Subscribe now", "اشترك الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="${u(COMPLIANCE_PORTAL_URL)}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
     </div>
     <div class="hero-badges">${chips}</div>
   </div></section>
@@ -1988,13 +1992,14 @@ function buildComplianceAgent() {
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
       [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
       [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
-      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to the smart employees portal with your email and the access code — Mishari, your compliance agent, opens directly.", "ادخل بوابة الموظفين الأذكياء ببريدك ورمز الدخول — يفتح لك مشاري، وكيل امتثالك، مباشرة.")],
+      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your compliance dashboard with your email and the access code — your establishment file, alerts and document upload are all there.", "ادخل لوحة الامتثال ببريدك ورمز الدخول — ملف منشأتك وتنبيهاتك ورفع مستنداتك كلها هناك.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
   </div></section>
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from registering your establishment to a daily alert and a ready action pending your approval", "أربع خطوات — من تسجيل منشأتك إلى تنبيه يومي وإجراء جاهز بموافقتك")}</h2></div>
     <div class="steps-grid">${stepsHtml}</div>
+    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">💰</span><p>${L("Compliance now literally pays back: Monsha'at's Estrdad initiative refunds SMEs their government fees through 2028 — but only while your CR, certificates, licenses and Nitaqat stay compliant. The agent keeps you inside the eligible band.", "امتثالك الآن يدفع لك حرفياً: مبادرة «استرداد» من منشآت تعيد للمنشآت رسومها الحكومية حتى 2028 — لكن فقط ما دام سجلك وشهاداتك وتراخيصك ونطاقاتك ممتثلة. الوكيل يبقيك داخل نطاق الاستحقاق.")} <a href="${u("/estrdad")}">${L("Learn about fee refunds ←", "اعرف عن استرداد الرسوم ←")}</a></p></div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
@@ -2002,7 +2007,7 @@ function buildComplianceAgent() {
       <h3 style="margin-bottom:1rem">${L("What does the agent track for you?", "وش يتابع لك الوكيل؟")}</h3>
       <ul class="value-list">${valueItems}</ul>
     </div>
-  </section></div>
+  </div></section>
 
   <section id="pricing" class="section" style="padding-top:0"><div class="container">
     <div class="price-box">
@@ -4457,6 +4462,281 @@ function buildContact() {
   return page({ title: Lraw("Contact — Business Partner", "اتصل بنا — بيزنس بارتنر"), desc: Lraw("Contact Business Partner via WhatsApp, phone or email — instant reply from the smart agent 24/7.", "تواصل مع بيزنس بارتنر عبر واتساب أو الهاتف أو البريد — رد فوري من الوكيل الذكي 24/7."), active: "/contact", body });
 }
 
+// Installments: we arrange financing for government-service fees through the
+// client's bank, BNPL providers (Tabby/Tamara) or e-wallets. The page collects
+// a structured request; the actual financing approval happens with the
+// provider — we coordinate it. ?amount= prefills the calculator (checkout links here).
+function buildInstallments() {
+  const months = [3, 6, 12];
+  const channels = [
+    ["🏦", L("Your bank", "عن طريق بنكك"), L("Personal finance or installment POS through the major Saudi banks — we prepare the file and quotation your bank asks for.", "تمويل شخصي أو تقسيط نقاط بيع عبر البنوك السعودية الرئيسية — نجهّز لك الملف وعرض السعر الذي يطلبه بنكك.")],
+    ["🟣", L("Tabby / Tamara", "تابي / تمارا"), L("Split the fees into 4+ payments through BNPL providers, subject to their approval and limits.", "قسّم الرسوم على 4 دفعات أو أكثر عبر مزودي الدفع الآجل، حسب موافقتهم وحدودهم.")],
+    ["📱", L("E-wallets", "المحافظ الإلكترونية"), L("STC Pay and similar wallets for scheduled partial payments combined with your Business Partner wallet.", "STC Pay والمحافظ المشابهة لدفعات جزئية مجدولة بالتكامل مع محفظتك في بيزنس بارتنر.")],
+  ].map((c) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${c[0]}</div><h3>${c[1]}</h3><p>${c[2]}</p></div>`).join("");
+  const steps = [
+    [1, L("Pick the service & amount", "حدد الخدمة والمبلغ"), L("Choose the government service or SADAD invoice you want to split.", "اختر الخدمة الحكومية أو فاتورة سداد التي تريد تقسيطها.")],
+    [2, L("Pick the plan", "اختر خطة التقسيط"), L("3, 6 or 12 months — see the estimated monthly instalment instantly.", "3 أو 6 أو 12 شهراً — وشاهد القسط الشهري التقديري فوراً.")],
+    [3, L("We arrange the financing", "نرتب لك التمويل"), L("We coordinate with your bank / Tabby / Tamara and prepare every document they need.", "ننسق مع بنكك / تابي / تمارا ونجهّز كل مستند يطلبونه.")],
+    [4, L("Approve & we execute", "وافق وننفذ"), L("Once approved, we pay the fees on your behalf and follow the service through to issuance.", "بعد الموافقة نسدد الرسوم نيابة عنك ونتابع الخدمة حتى الإصدار.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("New service ⚡", "خدمة جديدة ⚡")}</span>
+    <h1>${L("Pay government fees in instalments", "قسّط رسوم خدماتك الحكومية")}</h1>
+    <p class="lead">${L("Don't let a big government fee block your growth — we split it through your bank, Tabby/Tamara or e-wallets, pay it for you, and follow the service to issuance.", "لا تدع رسوماً حكومية كبيرة توقف نموك — نقسّطها لك عبر بنكك أو تابي/تمارا أو المحافظ الإلكترونية، نسددها عنك، ونتابع خدمتك حتى الإصدار.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#inst-form">${L("Request an instalment plan", "اطلب خطة تقسيط")}</a>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-ghost")}</div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Banks, BNPL & wallets", "بنوك وتقسيط آجل ومحافظ")}</span>
+      <span class="hero-badge">${I.check}${L("We handle the paperwork", "نجهّز الملف كاملاً")}</span>
+      <span class="hero-badge">${I.check}${L("We pay & follow through", "نسدد ونتابع حتى الإصدار")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تعمل")}</span><h2>${L("From fee to instalments in 4 steps", "من الرسوم إلى الأقساط في 4 خطوات")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Channels", "القنوات")}</span><h2>${L("Instalment channels we arrange", "قنوات التقسيط التي نرتبها لك")}</h2></div>
+    <div class="grid grid-3">${channels}</div>
+    <div class="callout" style="max-width:760px;margin:28px auto 0"><span class="ico">⚖️</span><p>${L("Business Partner arranges and coordinates the financing; final approval, terms and any financing cost are set by the bank / provider.", "بيزنس بارتنر يرتب وينسق التمويل؛ الموافقة النهائية والشروط وأي كلفة تمويل تحددها جهة التمويل نفسها.")}</p></div>
+    <div class="callout" style="max-width:760px;margin:14px auto 0"><span class="ico">💰</span><p>${L("Split it today, reclaim it tomorrow: many of these same fees are refundable through Monsha'at's Estrdad initiative — as long as your establishment stays compliant.", "قسّطها اليوم واستردها غداً: كثير من هذه الرسوم نفسها قابلة للاسترداد عبر مبادرة «استرداد» من منشآت — ما دامت منشأتك ممتثلة.")} <a href="${u("/estrdad")}">${L("How refunds work ←", "كيف يعمل الاسترداد ←")}</a></p></div>
+  </div></section>
+
+  <section class="section section--gray" id="inst-form"><div class="container" style="max-width:920px">
+    <div class="section-head"><h2>${L("Request your instalment plan", "اطلب خطة التقسيط")}</h2><p>${L("Fill it in a minute — we come back with the available offers.", "عبّئه في دقيقة — ونعود لك بالعروض المتاحة.")}</p></div>
+    <div class="order-box">
+      <form id="inst-form-el" novalidate>
+        <div class="cc-grid">
+          <div class="field"><label for="inst-name">${L("Name", "الاسم")} *</label><input type="text" id="inst-name" required></div>
+          <div class="field"><label for="inst-phone">${L("Mobile", "الجوال")} *</label><input type="tel" id="inst-phone" placeholder="05XXXXXXXX" required></div>
+          <div class="field"><label for="inst-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="inst-email" required></div>
+          <div class="field"><label for="inst-service">${L("Service / invoice to split", "الخدمة / الفاتورة المراد تقسيطها")} *</label><input type="text" id="inst-service" placeholder="${Lraw("e.g. MISA license 62,000 SAR", "مثال: رخصة استثمار MISA بقيمة 62,000 ﷼")}"></div>
+          <div class="field"><label for="inst-amount">${L("Amount (SAR)", "المبلغ (ريال)")} *</label><input type="number" id="inst-amount" min="500" placeholder="10000"></div>
+          <div class="field"><label for="inst-months">${L("Duration", "مدة التقسيط")}</label><select id="inst-months">${months.map((m) => `<option value="${m}">${m} ${L("months", "أشهر")}</option>`).join("")}</select></div>
+          <div class="field"><label for="inst-channel">${L("Preferred channel", "القناة المفضلة")}</label><select id="inst-channel">
+            <option value="bank">${Lraw("My bank", "بنكي")}</option>
+            <option value="bnpl">${Lraw("Tabby / Tamara", "تابي / تمارا")}</option>
+            <option value="wallet">${Lraw("E-wallet", "محفظة إلكترونية")}</option>
+            <option value="any">${Lraw("Best available offer", "أفضل عرض متاح")}</option>
+          </select></div>
+        </div>
+        <div class="calc-line" style="border:0;padding-top:0"><span class="k" style="color:var(--text-soft)">${L("Estimated monthly instalment", "القسط الشهري التقديري")}</span><span class="v" id="inst-monthly" style="color:var(--navy);font-size:1.3rem">—</span></div>
+        <p class="mini" style="margin-bottom:12px">${L("Estimate = amount ÷ months; the provider's final offer may add a financing cost.", "التقدير = المبلغ ÷ الأشهر؛ العرض النهائي من جهة التمويل قد يضيف كلفة تمويل.")}</p>
+        <button type="submit" class="btn btn-primary btn-lg">${L("Send the request", "أرسل الطلب")}</button>
+        <div class="form-success" id="inst-success" hidden></div>
+      </form>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Instalments for government services — Business Partner", "تقسيط الخدمات الحكومية — بيزنس بارتنر"), desc: Lraw("Split Saudi government fees through banks, Tabby/Tamara or e-wallets — we arrange, pay and follow through.", "قسّط الرسوم الحكومية عبر البنوك أو تابي/تمارا أو المحافظ الإلكترونية — نرتب ونسدد ونتابع عنك."), active: "/installments", path: "/installments", body });
+}
+
+// Estrdad (استرداد) — Monsha'at's government-fee refund initiative
+// (estrdad.monshaat.gov.sa). Facts below are from the official guides
+// (الدليل التعريفي ن2 إصدار 3.0 + دليل المستخدم ن2): eligibility windows,
+// covered fees, and the compliance conditions that keep a payout alive.
+// Business Partner's pitch: refunds are compliance-conditional through 2028 —
+// we are the operating partner that keeps you eligible.
+function buildEstrdad() {
+  const fees = [
+    L("Publishing the incorporation contract (once)", "نشر عقد تأسيس الشركة (لمرة واحدة)"),
+    L("CR issuance & renewal", "إصدار وتجديد السجل التجاري"),
+    L("Converting an establishment into a company", "تحويل المؤسسة إلى شركة"),
+    L("Chamber of Commerce subscription & renewal", "اشتراك الغرفة التجارية وتجديده"),
+    L("Municipal licenses for the activity", "الرخص البلدية لممارسة النشاط"),
+    L("Saudi Post subscription", "اشتراك البريد السعودي"),
+    L("One trademark registration", "تسجيل علامة تجارية واحدة"),
+    L("80% of the expat levy (المقابل المالي) per worker, yearly — per the quota criteria (15–30 workers by activity & entity)", "80% من رسوم المقابل المالي للعامل الأجنبي دون مرافقيه سنوياً — حسب معيار المفاضلة (15–30 عاملاً حسب النشاط والكيان)"),
+    L("Economic-activity license issuance & renewal fees", "رسوم إصدار وتجديد تراخيص الأنشطة الاقتصادية"),
+    L("One patent registration", "رسوم تسجيل براءة اختراع واحدة"),
+  ].map((f) => `<li>${I.check}<span>${f}</span></li>`).join("");
+  const conds = [
+    ["🪪", L("Valid CR — suspended or struck CRs are disqualified", "سجل تجاري ساري — الموقوف أو المشطوب يُسقط الاستحقاق")],
+    ["📜", L("Valid size certificate & activity licenses — an expiry DURING the refund period stops your payment", "شهادة حجم المنشأة والتراخيص سارية — انتهاء أي منها أثناء فترة الاسترداد يوقف دفعتك")],
+    ["🇸🇦", L("Meeting the Saudization ratios of Nitaqat Developed", "تحقيق نسب التوطين المعتمدة في «نطاقات المطوّر»")],
+    ["🏢", L("Started activity 2024–2026, within 3 years (first employee registration is the marker)", "بدء النشاط خلال 2024–2026 وبما لا يتجاوز 3 سنوات (تسجيل أول عامل هو المعيار)")],
+    ["📊", L("Accurate data & complete documents — mismatches close the request", "بيانات دقيقة ومستندات مكتملة — أي تعارض يغلق الطلب")],
+    ["🔔", L("Notifying the authority before changing your CR activity", "إشعار الهيئة قبل أي تغيير في نشاط السجل")],
+  ].map((c) => `<div class="card feature"><div class="card-icon" style="font-size:1.5rem">${c[0]}</div><h3 style="font-size:1rem">${c[1]}</h3></div>`).join("");
+  const helps = [
+    [L("Continuous compliance watch", "مراقبة امتثال مستمرة"), L("The Compliance Agent tracks your CR, certificates, licenses and Nitaqat daily and alerts you BEFORE anything expires — so your refund never stops.", "وكيل الامتثال يراقب سجلك وشهاداتك وتراخيصك ونطاقاتك يومياً وينبهك قبل أي انتهاء — فلا تتوقف دفعاتك أبداً."), "/compliance-agent"],
+    [L("Nitaqat before it hurts", "نطاقاتك قبل ما تتأثر"), L("HR management (Qiwa, GOSI, Mudad) and recruitment that keep your Saudization inside the eligible band.", "إدارة الموارد البشرية (قوى، التأمينات، مدد) والتوظيف بما يُبقي توطينك ضمن النطاق المؤهل."), "/hr"],
+    [L("File preparation & submission", "تجهيز الملف والتقديم"), L("Size certificate, IBAN certificate, activity licenses, accurate data — we prepare the full Estrdad file and follow your request to disbursement, including objections within the 60-day window.", "شهادة حجم المنشأة، شهادة الآيبان، التراخيص، ودقة البيانات — نجهّز ملف استرداد كاملاً ونتابع طلبك حتى الصرف، بما فيه الاعتراض خلال مهلة الـ60 يوماً."), "/consultation"],
+    [L("Renewals paid on time — from your wallet", "تجديداتك تُسدد في وقتها — من محفظتك"), L("Chamber, municipal and license renewals paid from your Business Partner wallet before they lapse — the same fees Estrdad refunds you.", "تجديدات الغرفة والبلدية والتراخيص تُسدد من محفظتك في بيزنس بارتنر قبل انتهائها — وهي نفسها الرسوم التي تستردها من المبادرة."), "/account"],
+  ].map((h) => `<div class="card"><h3>${h[0]}</h3><p>${h[1]}</p><a class="card-link" href="${u(h[3] || h[2])}">${L("Learn more", "اعرف أكثر")} ${I.arrow}</a></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Monsha'at Estrdad initiative", "مبادرة استرداد من منشآت")}</span>
+    <h1>${L("Reclaim your paid government fees — if you stay compliant", "استرد رسومك الحكومية المدفوعة — بشرط أن تبقى ممتثلاً")}</h1>
+    <p class="lead">${L("Monsha'at refunds SMEs their paid government fees (registration until 31 Dec 2026, payouts through 2028). Eligibility isn't a one-time checkbox — it's continuous compliance: one expired certificate or a Nitaqat slip stops your payment. That's exactly why you need an operating partner.", "منشآت تعيد للمنشآت الصغيرة والمتوسطة رسومها الحكومية المدفوعة (التسجيل حتى 31 ديسمبر 2026 والصرف حتى 2028). الاستحقاق ليس شرطاً يتحقق مرة واحدة — بل امتثال مستمر: شهادة منتهية أو نزول في النطاقات يوقف دفعتك. وهذا بالضبط سبب حاجتك لشريك تشغيل.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#estrdad-form">${L("Assess my eligibility & prepare my file", "قيّم أهليتي وجهّز ملفي")}</a><a class="btn btn-ghost btn-lg" href="https://estrdad.monshaat.gov.sa/home" target="_blank" rel="noopener">${L("Official initiative page ↗", "صفحة المبادرة الرسمية ↗")}</a></div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Registration until 31 Dec 2026", "التسجيل حتى 31 ديسمبر 2026")}</span>
+      <span class="hero-badge">${I.check}${L("Payouts through 2028", "الصرف مستمر حتى 2028")}</span>
+      <span class="hero-badge">${I.check}${L("80% of the expat levy included", "تشمل 80% من المقابل المالي")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("What you get back", "ما الذي تسترده")}</span><h2>${L("Fees covered by the initiative", "الرسوم المشمولة بالمبادرة")}</h2><p>${L("Fees already waived under other government programs are excluded.", "لا تشمل المبادرة رسوماً أُعفيت منها منشأتك عبر برامج حكومية أخرى.")}</p></div>
+    <ul class="feat-list" style="max-width:860px;margin:0 auto">${fees}</ul>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("The catch", "الشرط الحقيقي")}</span><h2>${L("Your refund lives and dies on compliance", "استردادك يعيش ويموت على امتثالك")}</h2><p>${L("These are the official conditions — and the most common reasons payments get cut off:", "هذه الاشتراطات الرسمية — وأكثر أسباب قطع الدفعات شيوعاً:")}</p></div>
+    <div class="grid grid-3">${conds}</div>
+  </div></section>
+
+  <section class="section section--navy"><div class="container">
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L("Why Business Partner", "ليش بيزنس بارتنر")}</span><h2 style="color:#fff">${L("This is literally why we exist as your operating partner", "هذا حرفياً سبب وجودنا كشريك تشغيلك")}</h2><p style="color:rgba(255,255,255,.85)">${L("We don't just submit your Estrdad request — we keep your establishment refund-eligible every single day through 2028.", "نحن لا نقدّم طلب الاسترداد فقط — نحن نُبقي منشأتك مستحقة للاسترداد كل يوم حتى 2028.")}</p></div>
+    <div class="grid grid-2">${helps}</div>
+  </div></section>
+
+  <section class="section" id="estrdad-form"><div class="container" style="max-width:920px">
+    <div class="section-head"><h2>${L("Start: eligibility assessment + file preparation", "ابدأ: تقييم الأهلية + تجهيز الملف")}</h2><p>${L("Send your establishment's details — we assess your eligibility against the official conditions and come back with your compliance gaps and the full plan.", "أرسل بيانات منشأتك — نقيّم أهليتك وفق الاشتراطات الرسمية ونعود لك بفجوات الامتثال والخطة الكاملة.")}</p></div>
+    <div class="order-box">
+      <form id="estrdad-form-el" novalidate>
+        <div class="cc-grid">
+          <div class="field"><label for="es-company">${L("Establishment name", "اسم المنشأة")} *</label><input type="text" id="es-company" required></div>
+          <div class="field"><label for="es-person">${L("Contact person", "اسم المسؤول")} *</label><input type="text" id="es-person" required></div>
+          <div class="field"><label for="es-phone">${L("Mobile", "الجوال")} *</label><input type="tel" id="es-phone" placeholder="05XXXXXXXX" required></div>
+          <div class="field"><label for="es-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="es-email" required></div>
+          <div class="field"><label for="es-start">${L("Activity start year", "سنة بدء النشاط")}</label><select id="es-start"><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="before">${Lraw("Before 2024", "قبل 2024")}</option></select></div>
+          <div class="field"><label for="es-workers">${L("Expat workers count (for the 80% levy refund)", "عدد العمالة الأجنبية (لاسترداد 80% من المقابل المالي)")}</label><input type="number" id="es-workers" min="0" placeholder="10"></div>
+        </div>
+        <div class="field"><label for="es-notes">${L("Notes (licenses, Nitaqat status…)", "ملاحظات (التراخيص، وضع النطاقات…)")}</label><textarea id="es-notes" rows="3"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg">${L("Assess my eligibility", "قيّم أهليتي")}</button>
+        <div class="form-success" id="estrdad-success" hidden></div>
+      </form>
+    </div>
+    <div class="callout" style="margin-top:20px"><span class="ico">⚖️</span><p>${L("Estrdad is a Monsha'at initiative and requests are submitted on its official portal; Business Partner prepares your file, keeps you compliant and follows your request — we are not the disbursing authority.", "«استرداد» مبادرة من هيئة منشآت والتقديم عبر بوابتها الرسمية؛ بيزنس بارتنر يجهّز ملفك ويحافظ على امتثالك ويتابع طلبك — ولسنا الجهة الصارفة.")}</p></div>
+  </div></section>`;
+  return page({ title: Lraw("Reclaim government fees (Estrdad) — Business Partner", "استرداد الرسوم الحكومية (مبادرة استرداد) — بيزنس بارتنر"), desc: Lraw("Monsha'at refunds SME government fees — if you stay compliant. We keep you eligible and handle the file.", "منشآت تعيد رسومك الحكومية — بشرط الامتثال المستمر. نُبقيك مستحقاً ونجهّز ملفك كاملاً."), active: "/estrdad", path: "/estrdad", body });
+}
+
+// Shared partners-repeater markup: rows of (name, mobile, email[, share%]).
+// The client JS (main.js "partners repeater") wires add/remove and collects
+// rows into the request payload; every partner gets notified by email.
+function partnersBlock({ withShare = false } = {}) {
+  return `
+      <div class="field"><label>${L("Partners", "الشركاء")} ${withShare ? L("(name, mobile, email, share %)", "(الاسم، الجوال، البريد، نسبة الملكية)") : L("(name, mobile, email)", "(الاسم، الجوال، البريد)")}</label>
+        <div class="partners-rows" data-partners${withShare ? ' data-with-share="1"' : ""}></div>
+        <button type="button" class="btn btn-ghost btn-sm" data-add-partner>＋ ${L("Add partner", "أضف شريكاً")}</button>
+        <p class="mini">${L("Every partner receives the updates and the appointment invitation by email.", "كل شريك يستلم التحديثات ودعوة الموعد على بريده.")}</p>
+      </div>`;
+}
+
+// Corporate bank-account opening: we prepare the file from the client's
+// company profile (completing بيانات المنشأة is a prerequisite), coordinate
+// with the chosen bank, and set an ONLINE appointment with the bank officer —
+// every partner + the manager get the appointment by email.
+function buildBankAccount() {
+  const banks = ["الراجحي", "SNB الأهلي", "الرياض", "الإنماء", "ساب SAB", "البلاد", "الجزيرة", "العربي anb", "STC Bank", "بنك آخر"];
+  const steps = [
+    [1, L("Complete your company profile", "أكمل بيانات منشأتك"), L("CR, activity, national address and contacts in your dashboard — this is the bank-file prerequisite.", "السجل والنشاط والعنوان الوطني وجهات الاتصال في لوحتك — هذا اشتراط ملف البنك.")],
+    [2, L("Pick the bank & propose a time", "اختر البنك واقترح موعداً"), L("Choose your preferred bank and a time that suits all partners.", "اختر بنكك المفضل ووقتاً يناسب جميع الشركاء.")],
+    [3, L("We prepare & book", "نجهّز ونحجز"), L("We prepare the account-opening file and coordinate an ONLINE meeting with the bank officer.", "نجهّز ملف فتح الحساب وننسق اجتماعاً أونلاين مع موظف البنك.")],
+    [4, L("Partners get the invitation", "الشركاء يستلمون الدعوة"), L("Every partner and the manager receive the appointment by email — attend online and sign.", "كل شريك والمدير يستلمون الموعد على البريد — احضروا أونلاين ووقّعوا.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("New service ⚡", "خدمة جديدة ⚡")}</span>
+    <h1>${L("Open your company's bank account — online, partners included", "افتح الحساب البنكي لشركتك — أونلاين وبحضور كل الشركاء")}</h1>
+    <p class="lead">${L("We prepare the account-opening file from your company profile, coordinate with your chosen bank, and book an online meeting with the bank officer — every partner and the manager get the appointment on their email.", "نجهّز ملف فتح الحساب من بيانات منشأتك، ننسق مع البنك الذي تختاره، ونحجز اجتماعاً أونلاين مع موظف البنك — وكل شريك والمدير يستلمون الموعد على بريدهم.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#bank-form">${L("Request account opening", "اطلب فتح الحساب")}</a>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-ghost")}</div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Online meeting with the bank", "اجتماع أونلاين مع البنك")}</span>
+      <span class="hero-badge">${I.check}${L("All partners notified", "إشعار جميع الشركاء")}</span>
+      <span class="hero-badge">${I.check}${L("File prepared from your profile", "الملف يُجهّز من بيانات منشأتك")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تعمل")}</span><h2>${L("From profile to an open account in 4 steps", "من بيانات المنشأة إلى حساب مفتوح في 4 خطوات")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section" id="bank-form"><div class="container" style="max-width:920px">
+    <div class="section-head"><h2>${L("Request bank-account opening", "اطلب فتح الحساب البنكي")}</h2><p>${L("Sign in first — the request pulls your company profile from your dashboard.", "سجّل دخولك أولاً — الطلب يسحب بيانات منشأتك من لوحتك.")}</p></div>
+    <div class="callout" id="bank-profile-gate" hidden style="margin-bottom:16px"><span class="ico">📋</span><p>${L("Company profile incomplete: fill in your establishment name and CR in the dashboard first — it's the bank-file prerequisite.", "بيانات المنشأة غير مكتملة: أكمل اسم المنشأة والسجل التجاري في لوحتك أولاً — فهي اشتراط ملف البنك.")} <a href="${u("/account")}">${L("Complete company profile ←", "أكمل بيانات المنشأة ←")}</a></p></div>
+    <div class="order-box">
+      <form id="bank-form-el" novalidate>
+        <div class="cc-grid">
+          <div class="field"><label for="bk2-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="bk2-company" required></div>
+          <div class="field"><label for="bk2-cr">${L("CR number", "رقم السجل التجاري")} *</label><input type="text" id="bk2-cr" required></div>
+          <div class="field"><label for="bk2-manager">${L("Manager name", "اسم المدير")} *</label><input type="text" id="bk2-manager" required></div>
+          <div class="field"><label for="bk2-phone">${L("Manager mobile", "جوال المدير")} *</label><input type="tel" id="bk2-phone" placeholder="05XXXXXXXX" required></div>
+          <div class="field"><label for="bk2-email">${L("Manager email", "بريد المدير")} *</label><input type="email" id="bk2-email" required></div>
+          <div class="field"><label for="bk2-bank">${L("Preferred bank", "البنك المفضل")}</label><select id="bk2-bank">${banks.map((b) => `<option>${b}</option>`).join("")}</select></div>
+          <div class="field"><label for="bk2-when">${L("Proposed appointment (online)", "الموعد المقترح (أونلاين)")}</label><input type="datetime-local" id="bk2-when"></div>
+        </div>
+        ${partnersBlock()}
+        <button type="submit" class="btn btn-primary btn-lg">${L("Send the request", "أرسل الطلب")}</button>
+        <div class="form-success" id="bank-success" hidden></div>
+      </form>
+    </div>
+    <div class="callout" style="margin-top:20px"><span class="ico">⚖️</span><p>${L("Account opening and its requirements are the bank's decision; we prepare, coordinate and follow through.", "فتح الحساب ومتطلباته قرار البنك؛ نحن نجهّز وننسق ونتابع حتى الفتح.")}</p></div>
+  </div></section>`;
+  return page({ title: Lraw("Corporate bank account opening — Business Partner", "فتح حساب بنكي للشركات — بيزنس بارتنر"), desc: Lraw("We prepare the file, coordinate with your bank and book an online meeting — all partners notified.", "نجهّز الملف وننسق مع بنكك ونحجز اجتماعاً أونلاين — مع إشعار جميع الشركاء."), active: "/bank-account", path: "/bank-account", body });
+}
+
+// Multi-partner company formation: incorporation contract (عقد التأسيس)
+// prepared and submitted through the Saudi Business Center, partners e-sign,
+// then CR issuance — every partner is kept in the loop by email.
+function buildFormationContract() {
+  const steps = [
+    [1, L("Company & partners details", "بيانات الشركة والشركاء"), L("Proposed name, entity type, capital, and every partner with their share.", "الاسم المقترح، الكيان، رأس المال، وكل شريك بنسبته.")],
+    [2, L("We draft the incorporation contract", "نصيغ عقد التأسيس"), L("A compliant عقد تأسيس drafted per the Companies Law and your shares.", "عقد تأسيس متوافق مع نظام الشركات وحصصكم.")],
+    [3, L("Submission via the Saudi Business Center", "التقديم عبر المركز السعودي للأعمال"), L("We submit and track the contract through the Saudi Business Center until approval.", "نقدّم العقد ونتابعه عبر المركز السعودي للأعمال حتى الاعتماد.")],
+    [4, L("Partners e-sign & CR issued", "الشركاء يوقّعون ويصدر السجل"), L("Every partner gets the signing invitation by email; we finish with CR issuance and next steps (bank account, licenses).", "كل شريك يستلم دعوة التوقيع على بريده؛ ونُكمل بإصدار السجل والخطوات التالية (الحساب البنكي، التراخيص).")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Saudi Business Center", "عبر المركز السعودي للأعمال")}</span>
+    <h1>${L("Founding a company with partners? We draft & submit the incorporation contract", "مؤسسين شركة بين شركاء؟ نصيغ عقد التأسيس ونقدّمه عنكم")}</h1>
+    <p class="lead">${L("From the proposed name to partners' shares: we draft the incorporation contract, submit it through the Saudi Business Center, get every partner to e-sign — and keep everyone updated by email until the CR is issued.", "من الاسم المقترح إلى حصص الشركاء: نصيغ عقد التأسيس، نقدّمه عبر المركز السعودي للأعمال، ونرتب توقيع كل شريك إلكترونياً — مع إبقاء الجميع على اطلاع بالبريد حتى صدور السجل.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#fc-form">${L("Start the formation", "ابدأ التأسيس")}</a><a class="btn btn-ghost btn-lg" href="${u("/services/category/company-formation")}">${L("All formation services", "كل خدمات التأسيس")}</a></div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Compliant contract drafting", "صياغة عقد متوافقة")}</span>
+      <span class="hero-badge">${I.check}${L("All partners e-sign", "توقيع إلكتروني لكل الشركاء")}</span>
+      <span class="hero-badge">${I.check}${L("Followed to CR issuance", "متابعة حتى صدور السجل")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تعمل")}</span><h2>${L("From partners' agreement to a registered company", "من اتفاق الشركاء إلى شركة مسجّلة")}</h2></div>
+    <div class="home-steps">${steps}</div>
+    <div class="callout" style="max-width:760px;margin:28px auto 0"><span class="ico">💰</span><p>${L("Good to know: incorporation-contract publication and CR fees are among the fees Monsha'at's Estrdad refunds to compliant SMEs.", "معلومة تهمك: رسوم نشر عقد التأسيس وإصدار السجل من الرسوم التي تعيدها مبادرة «استرداد» للمنشآت الممتثلة.")} <a href="${u("/estrdad")}">${L("Fee refunds ←", "استرداد الرسوم ←")}</a></p></div>
+  </div></section>
+
+  <section class="section" id="fc-form"><div class="container" style="max-width:920px">
+    <div class="section-head"><h2>${L("Start your company formation", "ابدأ تأسيس شركتكم")}</h2><p>${L("Shares must total 100% — every partner receives the updates and the signing invitation by email.", "مجموع النسب يجب أن يساوي 100% — وكل شريك يستلم التحديثات ودعوة التوقيع على بريده.")}</p></div>
+    <div class="order-box">
+      <form id="fc-form-el" novalidate>
+        <div class="cc-grid">
+          <div class="field"><label for="fc-name">${L("Proposed company name", "اسم الشركة المقترح")} *</label><input type="text" id="fc-name" required></div>
+          <div class="field"><label for="fc-type">${L("Entity type", "الكيان")}</label><select id="fc-type">
+            <option value="llc">${Lraw("LLC (ذ.م.م)", "شركة ذات مسؤولية محدودة (ذ.م.م)")}</option>
+            <option value="sjsc">${Lraw("Simplified JSC", "شركة مساهمة مبسطة")}</option>
+            <option value="other">${Lraw("Other / advise me", "أخرى / انصحوني")}</option>
+          </select></div>
+          <div class="field"><label for="fc-capital">${L("Capital (SAR)", "رأس المال (ريال)")}</label><input type="number" id="fc-capital" min="0" placeholder="100000"></div>
+          <div class="field"><label for="fc-activity">${L("Main activity", "النشاط الرئيسي")} *</label><input type="text" id="fc-activity" placeholder="${Lraw("e.g. general contracting", "مثال: مقاولات عامة")}"></div>
+          <div class="field"><label for="fc-person">${L("Requester name", "اسم مقدّم الطلب")} *</label><input type="text" id="fc-person" required></div>
+          <div class="field"><label for="fc-phone">${L("Mobile", "الجوال")} *</label><input type="tel" id="fc-phone" placeholder="05XXXXXXXX" required></div>
+          <div class="field"><label for="fc-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="fc-email" required></div>
+        </div>
+        ${partnersBlock({ withShare: true })}
+        <div class="calc-line" style="border:0;padding-top:0"><span class="k" style="color:var(--text-soft)">${L("Shares total", "مجموع النسب")}</span><span class="v" id="fc-share-total" style="color:var(--navy)">0%</span></div>
+        <button type="submit" class="btn btn-primary btn-lg">${L("Send the formation request", "أرسل طلب التأسيس")}</button>
+        <div class="form-success" id="fc-success" hidden></div>
+      </form>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Company formation with partners (incorporation contract) — Business Partner", "تأسيس الشركات بين الشركاء (عقد التأسيس) — بيزنس بارتنر"), desc: Lraw("We draft the incorporation contract, submit via the Saudi Business Center, and get every partner to e-sign.", "نصيغ عقد التأسيس ونقدّمه عبر المركز السعودي للأعمال وننسق توقيع كل الشركاء إلكترونياً."), active: "/formation-contract", path: "/formation-contract", body });
+}
+
 function buildCart() {
   const cm = site.commerce;
   const body = `
@@ -4481,6 +4761,7 @@ function buildCart() {
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
           <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
           <p class="mini">${L("Payment is by bank transfer: you upload the transfer receipt at checkout and we activate right after confirming it.", "الدفع بالتحويل البنكي: ترفع إيصال التحويل عند إتمام الطلب ونفعّل خدمتك فور تأكيده.")}</p>
+          <p class="mini">📆 <a href="${u("/installments")}" id="cart-inst-link">${L("Large amount? Split it in instalments", "المبلغ كبير؟ قسّطه على دفعات")}</a> · 💳 <a href="${u("/account")}">${L("Or pay from your wallet", "أو اسدد من محفظتك")}</a></p>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
           <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
         </div>
@@ -4676,6 +4957,7 @@ function buildAccount() {
         <nav class="dash-nav">
           <button type="button" class="dash-navi active" data-panel="overview">${I.building}<span>${L("Overview", "الرئيسية")}</span></button>
           <button type="button" class="dash-navi" data-panel="orders">${I.cart}<span>${L("My orders", "طلباتي")}</span><span class="dash-badge" id="nav-orders-badge" hidden>0</span></button>
+          <button type="button" class="dash-navi" data-panel="wallet">💳<span>${L("My wallet", "محفظتي")}</span></button>
           <button type="button" class="dash-navi" data-panel="package">${I.check}<span>${L("My package", "باقتي")}</span></button>
           <button type="button" class="dash-navi" data-panel="company">${I.doc}<span>${L("Company profile", "بيانات المنشأة")}</span></button>
           <button type="button" class="dash-navi" data-panel="documents">${I.upload}<span>${L("My documents", "مستنداتي")}</span></button>
@@ -4711,6 +4993,8 @@ function buildAccount() {
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
               <a class="portal-card" id="ai-employees-link" href="${u("/portal")}"><span>🤖</span><strong>${L("Smart Specialized Agent", "الموظف المتخصص")}</strong></a>
               <a class="portal-card" href="${u("/shared-services")}"><span>🤝</span><strong>${L("Shared Services", "الخدمات المشتركة")}</strong></a>
+              <a class="portal-card" href="${u("/bank-account")}"><span>🏦</span><strong>${L("Open a bank account", "فتح حساب بنكي")}</strong></a>
+              <a class="portal-card" href="${u("/estrdad")}"><span>💰</span><strong>${L("Fee refunds (Estrdad)", "استرداد الرسوم")}</strong></a>
             </div>
           </div>
           <div class="dash-card"><h3>${L("Recent orders", "أحدث الطلبات")}</h3><div id="ov-orders"><p class="dash-empty">${L("No orders yet — browse the services to get started.", "لا توجد طلبات بعد — تصفّح الخدمات للبدء.")}</p></div></div>
@@ -4720,6 +5004,56 @@ function buildAccount() {
         <div class="dash-panel" id="panel-orders">
           <div class="dash-panel-head"><h2>${L("My orders", "طلباتي")}</h2><p>${L("Every order you placed, with its bank-transfer reference and status.", "كل طلب قدّمته، مع رقمه المرجعي وحالته.")}</p></div>
           <div id="all-orders"><p class="dash-empty">${L("No orders yet.", "لا توجد طلبات بعد.")}</p></div>
+        </div>
+
+        <!-- Wallet: top up by bank transfer (team confirms the receipt, balance
+             credits automatically via the same live-status sync as orders), then
+             spend the balance on government-fee payments we execute for you. -->
+        <div class="dash-panel" id="panel-wallet">
+          <div class="dash-panel-head"><h2>${L("My wallet", "محفظتي")}</h2><p>${L("Top up your wallet and we pay your government fees from it — no transfer needed per transaction.", "اشحن محفظتك ونسدد عنك رسومك الحكومية منها — بدون تحويل جديد لكل عملية.")}</p></div>
+          <div class="dash-stats">
+            <div class="dash-stat"><span class="ds-ico">💰</span><strong id="wal-balance">0 ﷼</strong><span>${L("Available balance", "الرصيد المتاح")}</span></div>
+            <div class="dash-stat"><span class="ds-ico">⏳</span><strong id="wal-pending">0 ﷼</strong><span>${L("Pending top-ups", "شحن قيد التأكيد")}</span></div>
+            <div class="dash-stat"><span class="ds-ico">🏛️</span><strong id="wal-spent">0 ﷼</strong><span>${L("Fees paid for you", "رسوم سُددت عنك")}</span></div>
+          </div>
+
+          <div class="dash-card">
+            <h3>💳 ${L("Top up the wallet", "اشحن المحفظة")}</h3>
+            <p class="text-soft" style="margin-bottom:14px">${L("Transfer the amount to our account, upload the receipt, and the balance is credited as soon as the team confirms it (usually within minutes during work hours).", "حوّل المبلغ على حسابنا، ارفع الإيصال، ويُضاف الرصيد فور تأكيد الفريق (عادة خلال دقائق في أوقات الدوام).")}</p>
+            <div class="bank-box" style="margin-bottom:14px">
+              <div class="bank-head">${I.bank}<strong>${L("Bank transfer details", "بيانات التحويل البنكي")}</strong></div>
+              <ul class="bank-list">
+                <li><span class="k">${L("Beneficiary", "المستفيد")}</span><span class="v">${L(site.bank.beneficiaryEn || site.bank.beneficiary, site.bank.beneficiary)}</span></li>
+                <li><span class="k">${L("Bank", "البنك")}</span><span class="v">${L(site.bank.bankNameEn || site.bank.bankName, site.bank.bankName)}</span></li>
+                <li><span class="k">IBAN</span><span class="v mono">${esc(site.bank.iban)}</span><button type="button" class="copy-btn" data-copy="${esc(site.bank.iban)}">📋 ${L("Copy", "نسخ")}</button></li>
+              </ul>
+            </div>
+            <form id="wal-topup-form" novalidate>
+              <div class="cc-grid">
+                <div class="field"><label for="wal-amount">${L("Top-up amount (SAR)", "مبلغ الشحن (ريال)")}</label><input type="number" id="wal-amount" min="50" step="50" placeholder="1000"></div>
+                <div class="field"><label for="wal-receipt">${L("Transfer receipt (image or PDF)", "إيصال التحويل (صورة أو PDF)")}</label><input type="file" id="wal-receipt" accept=".pdf,image/*"></div>
+              </div>
+              <button type="submit" class="btn btn-primary">${L("Submit top-up request", "أرسل طلب الشحن")}</button>
+              <div class="form-success" id="wal-topup-success" hidden></div>
+            </form>
+            <p class="mini" style="margin-top:10px">${L("Card / Apple Pay top-up is coming once the payment gateway goes live.", "الشحن بالبطاقة / أبل باي قادم فور تفعيل بوابة الدفع الإلكتروني.")}</p>
+          </div>
+
+          <div class="dash-card">
+            <h3>🏛️ ${L("Pay government fees from my balance", "سدّد رسوماً حكومية من رصيدي")}</h3>
+            <p class="text-soft" style="margin-bottom:14px">${L("Tell us which fee to pay (Qiwa, MISA, Balady, GOSI, traffic, ministry invoices…) and we execute it from your wallet and attach the payment proof to your request.", "حدد الرسوم المطلوب سدادها (قوى، الاستثمار، بلدي، التأمينات، فواتير سداد…) وننفذها من محفظتك ونرفق لك إثبات السداد على طلبك.")}</p>
+            <form id="wal-pay-form" novalidate>
+              <div class="cc-grid">
+                <div class="field"><label for="wal-pay-what">${L("Fee / invoice description", "وصف الرسوم / الفاتورة")}</label><input type="text" id="wal-pay-what" placeholder="${Lraw("e.g. SADAD invoice 123456 — MISA license renewal", "مثال: فاتورة سداد 123456 — تجديد رخصة الاستثمار")}"></div>
+                <div class="field"><label for="wal-pay-amount">${L("Amount (SAR)", "المبلغ (ريال)")}</label><input type="number" id="wal-pay-amount" min="1" placeholder="500"></div>
+              </div>
+              <button type="submit" class="btn btn-primary">${L("Request payment from wallet", "اطلب السداد من المحفظة")}</button>
+              <div class="form-success" id="wal-pay-success" hidden></div>
+            </form>
+          </div>
+
+          <div class="dash-card"><h3>${L("Wallet transactions", "حركات المحفظة")}</h3><div id="wal-list"><p class="dash-empty">${L("No wallet transactions yet.", "لا توجد حركات بعد.")}</p></div></div>
+          <div class="callout"><span class="ico">💰</span><p>${L("Fees we pay for you (chamber, municipal, licenses…) may be refundable via Monsha'at's Estrdad initiative — if your establishment stays compliant.", "الرسوم التي نسددها عنك (الغرفة، البلدية، التراخيص…) قد تكون قابلة للاسترداد عبر مبادرة «استرداد» من منشآت — بشرط بقاء منشأتك ممتثلة.")} <a href="${u("/estrdad")}">${L("Check your eligibility ←", "تحقق من أهليتك ←")}</a></p></div>
         </div>
 
         <!-- Package -->
@@ -6931,6 +7265,10 @@ function writeFullSite(pre) {
   write(`${pre}farina.html`, buildFarina());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
+  write(`${pre}installments.html`, buildInstallments());
+  write(`${pre}estrdad.html`, buildEstrdad());
+  write(`${pre}bank-account.html`, buildBankAccount());
+  write(`${pre}formation-contract.html`, buildFormationContract());
   write(`${pre}checkout.html`, buildCheckout());
   write(`${pre}terms.html`, buildTerms());
   write(`${pre}account.html`, buildAccount());
@@ -6987,7 +7325,7 @@ write("ar/portal.html", buildPortal("/ar/"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
