@@ -2582,16 +2582,22 @@ function buildMahfolTrips() {
   // Real Saudi tourism photos (the client's own brochure assets on Google Drive).
   const timg = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
   const DEST = [
-    { ic: "🏜️", en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440 },
-    { ic: "🏛️", en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339 },
-    { ic: "🕌", en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600 },
-    { ic: "🌊", en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272 },
-    { ic: "🐠", en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471 },
-    { ic: "🌲", en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780 },
-    { ic: "🏝️", en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838 },
-    { ic: "🌹", en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619 },
-    { ic: "🐪", en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291 },
+    { ic: "🏜️", k: "riyadh", price: 600, en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440 },
+    { ic: "🏛️", k: "alula", price: 2029, en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339 },
+    { ic: "🕌", k: "jeddah", price: 2290, en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600 },
+    { ic: "🌊", k: "neom", price: 2065, en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272 },
+    { ic: "🐠", k: "yanbu", price: 2261, en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471 },
+    { ic: "🌲", k: "asir", price: 1945, en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780 },
+    { ic: "🏝️", k: "jazan", price: 1897, en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838 },
+    { ic: "🌹", k: "taif", price: 1696, en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619 },
+    { ic: "🐪", k: "hail", price: null, en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291 },
   ];
+  // Purchasable trip card: priced → Add to cart (per-person; qty = travellers) →
+  // existing checkout (requires sign-in, payment, order in Notion, shows in the
+  // client portal). Price-less → request a custom quote via the form.
+  const tripBuy = (d, ghost = false) => d.price != null
+    ? cartBtns({ id: "trip-" + d.k, nameEn: "Trip — " + d.en, nameAr: "رحلة — " + d.ar, amount: d.price, priceLabel: L(d.pe, d.pa), kind: "trip", ghost })
+    : `<div class="buy-row"><a class="btn ${ghost ? "btn-ghost" : "btn-primary"}" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a></div>`;
   const destCards = DEST.map((d) => `
     <div class="card feature tr-dest">
       <div class="tr-dest-img" style="background-image:url('${timg(d.img)}')"><span class="tr-dest-ic">${d.ic}</span></div>
@@ -2599,7 +2605,10 @@ function buildMahfolTrips() {
         <h3>${L(d.en, d.ar)}</h3>
         <p class="tr-tag">${L(d.te, d.ta)}</p>
         <span class="tr-price">${L(d.pe, d.pa)}</span>
-        <a class="btn btn-ghost" style="width:100%;margin-top:auto" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.arrow}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a>
+        <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+          ${tripBuy(d)}
+          <a class="tr-inquire" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${L("or ask a question", "أو استفسر أولاً")}</a>
+        </div>
       </div>
     </div>`).join("");
 
@@ -2627,7 +2636,7 @@ function buildMahfolTrips() {
     <div class="trm-panel${i === 0 ? " on" : ""}" data-idx="${i}">
       <div class="trm-panel-img" style="background-image:url('${timg(d.img)}')"></div>
       <div class="trm-panel-body"><h3>${d.ic} ${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p><span class="tr-price">${L(d.pe, d.pa)}</span>
-      <a class="btn btn-primary" style="width:100%" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a></div>
+      ${tripBuy(d)}</div>
     </div>`).join("");
 
   const body = `
@@ -2691,6 +2700,9 @@ function buildMahfolTrips() {
     .tr-dest-body h3{margin:0;font-size:19px}
     .tr-tag{color:var(--text-soft);font-size:14px;margin:0}
     .tr-price{color:var(--navy);font-weight:800;font-size:14px}
+    .tr-inquire{text-align:center;font-size:13px;color:var(--text-soft);text-decoration:none}
+    .tr-inquire:hover{color:var(--navy);text-decoration:underline}
+    .tr-buy-note{max-width:760px;margin:0 auto 22px;text-align:center;color:var(--text-soft);font-size:14px}
     .tr-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
     .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm);border-top:3px solid var(--mm-gold)}
     .tr-act-ic{font-size:26px}
@@ -2748,6 +2760,7 @@ function buildMahfolTrips() {
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Where to go", "إلى أين")}</span><h2>${L("Destinations across the Kingdom", "وجهات في كل المملكة")}</h2><p>${L("From the Edge of the World to AlUla, the Red Sea islands and the green south.", "من حافة العالم إلى العلا وجزر البحر الأحمر والجنوب الأخضر.")}</p></div>
+    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online or by bank transfer; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع أونلاين أو بتحويل بنكي، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
     <div class="grid grid-3">${destCards}</div>
   </div></section>
 
