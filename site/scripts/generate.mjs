@@ -103,11 +103,14 @@ for (const s of services) {
 
 const WA = site.whatsapp;
 const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
-// The Compliance Agent's actual client dashboard lives on the sibling site
-// (businesspartner.sa), not here — subscribers sign in there with the email
-// + access code they receive after activation, not with their account on
-// this site.
-const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
+// Compliance Agent subscribers sign in to this site's unified AI-employees
+// portal (/portal) with the email + access code (رمز الدخول) they receive on
+// activation — /api/requests resolves the code against the Compliance Intake
+// DB and unlocks Mishari for them. (The legacy Astro dashboard that used to
+// live at businesspartner.sa/ar/portal was removed when the domain moved to
+// this site — a hardcoded absolute link here used to land compliance clients
+// in the specialized-team portal with a code it didn't recognize.)
+const COMPLIANCE_PORTAL_URL = "/portal";
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -402,27 +405,46 @@ const NAV_GROUPS = [
         ],
       },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
-    ],
-  },
-  { href: "/hr", en: "Recruitment", ar: "التوظيف" },
-  { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
-  { href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال" },
-  { href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال" },
-  {
-    en: "Catering & Hospitality", ar: "التموين والضيافة للشركات",
-    items: [
-      { href: "/farina", en: "Overview", ar: "نظرة عامة" },
-      { href: "/farina#coffee-break", en: "Coffee Break", ar: "الكوفي بريك" },
-      { href: "/farina#vip-coffee", en: "VIP Coffee Break", ar: "كوفي بريك VIP" },
-      { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
-      { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
-      { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
+      {
+        href: "/hr", en: "Recruitment", ar: "التوظيف",
+        sub: [
+          { href: "/hr", en: "Recruitment services", ar: "خدمات التوظيف" },
+          { href: "/employers", en: "For employers", ar: "لأصحاب العمل" },
+          { href: "/careers", en: "Open jobs", ar: "الوظائف المتاحة" },
+        ],
+      },
+      { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
+      {
+        href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال",
+        sub: [
+          { href: "/mahfol-makfol", en: "For investors", ar: "للمستثمر" },
+          { href: "/mahfol-makfol/trips", en: "Trips & experiences", ar: "الرحلات والتجارب" },
+          { href: "/tourism", en: "Corporate events", ar: "فعاليات الشركات" },
+        ],
+      },
+      {
+        href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال",
+        sub: [
+          { href: "/workspaces", en: "Browse spaces", ar: "استعراض المساحات" },
+          { href: "/workspace-request", en: "Request a workspace", ar: "اطلب مساحة عمل" },
+        ],
+      },
+      {
+        href: "/farina", en: "Catering & Hospitality", ar: "التموين والضيافة للشركات",
+        sub: [
+          { href: "/farina", en: "Overview", ar: "نظرة عامة" },
+          { href: "/farina#coffee-break", en: "Coffee Break", ar: "الكوفي بريك" },
+          { href: "/farina#vip-coffee", en: "VIP Coffee Break", ar: "كوفي بريك VIP" },
+          { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
+          { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
+          { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
+        ],
+      },
     ],
   },
   {
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
-      { href: "/tools-and-calculators", en: "Tools & calculators", ar: "الأدوات والحاسبات" },
       { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
       { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
@@ -483,7 +505,7 @@ function header(active, path) {
     if (g.href) {
       return `<a href="${u(g.href)}"${g.href === active ? ' class="active"' : ""}>${L(g.en, g.ar)}</a>`;
     }
-    const isActive = g.items.some((it) => it.href === active);
+    const isActive = g.items.some((it) => it.href === active || (it.sub || []).some((s) => s.href === active));
     const menu = g.items.map((it) => navSubItem(it, active)).join("");
     return `<div class="nav-group${isActive ? " active" : ""}">
       <button type="button" class="nav-drop${isActive ? " active" : ""}" aria-expanded="false">${L(g.en, g.ar)} ${I.chevron}</button>
@@ -504,10 +526,6 @@ function header(active, path) {
 
 function footer() {
   const c = site.contact;
-  const svcLinks = categories
-    .slice(0, 6)
-    .map((cat) => `<li><a href="${catUrl(cat.key)}">${L(CAT_META[cat.key] ? CAT_META[cat.key].en : cat.key, cat.ar)}</a></li>`)
-    .join("");
   const fl = (href, en, ar) => `<li><a href="${u(href)}">${L(en, ar)}</a></li>`;
   return `<footer class="site-footer"><div class="container">
   <div class="newsletter-band">
@@ -527,29 +545,36 @@ function footer() {
       <p>${L(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio)}</p>
       <p class="footer-tag">${L("Partnering for your success", "شركاء نجاحك")}</p>
     </div>
-    <div class="footer-col"><h4>${L("Links", "روابط")}</h4><ul>
-      ${fl("/about", "About", "من نحن")}
+    <div class="footer-col"><h4>${L("Our services", "خدماتنا")}</h4><ul>
       ${fl("/services", "All services", "كل الخدمات")}
       ${fl("/packages", "Packages", "الباقات")}
       ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
-      ${fl("/workspaces", "Office spaces", "المكاتب ومساحات العمل")}
-      ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
-      ${fl("/mahfol-makfol", "Mahfol Makfol · Saudi travel", "محفول مكفول · سياحة السعودية")}
       ${fl("/task-force", "Task Force", "تاسك فورس")}
-      ${fl("/hr", "HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}
+      ${fl("/hr", "Recruitment", "التوظيف")}
+      ${fl("/deals", "Deals", "الصفقات")}
+      ${fl("/mahfol-makfol", "Business Tourism", "سياحة الأعمال")}
+      ${fl("/workspaces", "Business Spaces", "مساحات الأعمال")}
+      ${fl("/farina", "Catering & Hospitality", "التموين والضيافة")}
+    </ul></div>
+    <div class="footer-col"><h4>${L("Platforms & portals", "المنصات والبوابات")}</h4><ul>
+      ${fl("/account", "Client portal", "منصّة العملاء")}
+      ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
       ${fl("/employer-join", "For employers", "لأصحاب العمل")}
-      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
+      ${fl("/portal", "Smart employees portal", "بوابة الموظفين الأذكياء")}
+    </ul></div>
+    <div class="footer-col"><h4>${L("Knowledge Center", "مركز المعرفة")}</h4><ul>
       ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
+      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/news", "Insights & news", "الرؤى والأخبار")}
       ${fl("/magazine", "Magazine (PDF)", "المجلة (PDF)")}
       ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
-      ${fl("/careers", "Careers", "الوظائف")}
-      ${fl("/account", "Client portal", "منصّة العملاء")}
-      ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
-      ${fl("/terms", "Terms & Conditions", "الشروط والأحكام")}
-      ${fl("/contact", "Contact", "اتصل بنا")}
     </ul></div>
-    <div class="footer-col"><h4>${L("Selected services", "خدمات مختارة")}</h4><ul>${svcLinks}</ul></div>
+    <div class="footer-col"><h4>${L("Company", "الشركة")}</h4><ul>
+      ${fl("/about", "About us", "من نحن")}
+      ${fl("/careers", "Careers", "الوظائف")}
+      ${fl("/terms", "Terms & Conditions", "الشروط والأحكام")}
+      ${fl("/contact", "Contact us", "اتصل بنا")}
+    </ul></div>
     <div class="footer-col"><h4>${L("Contact", "تواصل")}</h4><ul class="footer-contact">
       <li>${I.phone}<span>${esc(c.phone)}</span></li>
       <li>${I.mail}<span>${esc(c.email)}</span></li>
@@ -805,7 +830,6 @@ function buildHome() {
   const pkgQuickLinks = site.packages.tiers
     .map((t) => `<a class="quick-link" href="${u("/packages")}"><span class="q-icon">📦</span><span>${L(t.nameEn || t.nameAr, t.nameAr)}</span></a>`)
     .join("");
-  const agentBullets = h.agent.bullets.map((b, i) => `<li>${I.check}<span>${L(EN.agentBullets[i], b)}</span></li>`).join("");
   const stats = h.stats.items.map((s, i) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(EN.stats[i].label, s.label)}</div></div>`).join("");
   const quotes = h.testimonials.items
     .map((q, i) => `<div class="quote"><p>${L(EN.reviewsItems[i].text, q.text)}</p><div class="who">${L(EN.reviewsItems[i].name, q.name)}</div><div class="role">${L(EN.reviewsItems[i].role, q.role)}</div></div>`)
@@ -873,24 +897,8 @@ function buildHome() {
     <div class="quick-links">${pkgQuickLinks}</div>
   </div></section>
 
-  <section class="section section--gray"><div class="container">
-    <div class="agent"><div class="agent-inner">
-      <div>
-        <span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(EN.agentEyebrow, "الميزة القاتلة")}</span>
-        <h2>${L(EN.agentTitle, h.agent.title)}</h2>
-        <p>${L(EN.agentText, h.agent.text)}</p>
-        <ul class="agent-list">${agentBullets}</ul>
-        <div class="hero-actions">${waBtn2(EN.agentCta, h.agent.cta, "btn-white", true)}<a class="btn btn-lg" href="${u("/ai-agents")}" style="border-color:rgba(255,255,255,.5);color:#fff">${L(EN.agentLearn, "تعرّف على منظومة الوكلاء")}</a></div>
-      </div>
-      <div class="agent-visual">
-        <div class="bubble"><span>${L(EN.bubbleYou, "أنت")}</span>${L(EN.bubbleQ, "أبغى أأسس شركة أجنبية، وش المستندات؟")}</div>
-        <div class="bubble me"><span>${L(EN.bubbleAgent, "الوكيل الذكي · الآن")}</span>${L(EN.bubbleA, "تمام! أحتاج السجل التجاري للشركة الأم مصدّق، القوائم المالية، وقرار مجلس الإدارة. أجهّز لك القائمة كاملة؟")}</div>
-      </div>
-    </div></div>
-  </div></section>
-
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(EN.reviewsEyebrow, "آراء العملاء")}</span><h2>${L("Client reviews", h.testimonials.title)}</h2><p>${L("We'll add our clients' real stories here soon, once publishing is approved.", h.testimonials.note)}</p></div>
+    <div class="section-head"><span class="eyebrow">${L(EN.reviewsEyebrow, "آراء العملاء")}</span><h2>${L("Client reviews", h.testimonials.title)}</h2></div>
     <div class="grid grid-3">${quotes}</div>
   </div></section>
 
@@ -965,7 +973,7 @@ function buildServiceCategory(cat) {
         <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
         <h3>${esc(sName(s))}</h3>
         <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price-soft">${L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+        <div class="foot"><span class="price-soft">${s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
       </a>`;
     })
     .join("");
@@ -1042,13 +1050,18 @@ function buildServiceDetail(s) {
     </div>
     <aside class="svc-aside">
       <div class="order-box">
-        <div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
+        ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
+          ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
+        <div class="price-note">${esc(priceNote)}</div>
+        ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
+        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
+          : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
         ${s.category === "Real Estate"
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
-          : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}
+          : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}`}
         ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
         <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
@@ -1072,8 +1085,18 @@ function buildAiAgents() {
       const external = /^https?:\/\//.test(g.link || "");
       const linkAttrs = external ? ` target="_blank" rel="noopener"` : "";
       const nameHtml = g.link ? `<a href="${u(g.link)}"${linkAttrs} style="color:inherit;text-decoration:none">${name}</a>` : name;
-      const btns = cartBtns({ id: "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-"), nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
-      const tryBtn = g.link ? `<a href="${u(g.link)}"${linkAttrs} class="btn btn-ghost">${L("🚀 Try the service now", "🚀 جرّب الخدمة الآن")}</a>` : "";
+      // The smart-employees card must not sell a generic SKU: activation codes
+      // unlock specific employee slugs, so a slug-less "agent-..." purchase can
+      // never be fulfilled. Route that card to the employee picker instead.
+      const isPicker = g.link === "/connect";
+      // One SKU per product — the compliance page sells agent-Compliance-Agent,
+      // so the hub must use the same id or the same subscription becomes two
+      // different cart lines.
+      const cartId = g.link === "/compliance-agent" ? "agent-Compliance-Agent" : "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-");
+      const btns = isPicker
+        ? `<div class="buy-row"><a href="${u(g.link)}" class="btn btn-primary">${L("Pick your employee (12 specialties)", "اختر موظفك (12 تخصصاً)")}</a></div>`
+        : cartBtns({ id: cartId, nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
+      const tryBtn = g.link && !isPicker ? `<a href="${u(g.link)}"${linkAttrs} class="btn btn-ghost">${L("Details", "التفاصيل")}</a>` : "";
       const btnsWithTry = tryBtn ? btns.replace('<div class="buy-row">', `<div class="buy-row">${tryBtn}`) : btns;
       return `<div class="pkg${g.highlight ? " pop" : ""}">
       <div class="pk-name">${nameHtml}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
@@ -1106,7 +1129,11 @@ function buildAiAgents() {
     <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
     <div class="grid grid-3">${cards}</div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
-    <div class="center mt-32"><a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
+    <div class="center mt-32" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-primary" href="${u("/portal")}">🎁 ${L("Try the team free — 3 messages per employee", "جرّب الفريق مجاناً — 3 رسائل لكل موظف")}</a>
+      <a class="btn btn-ghost" href="${u("/portal")}">🔐 ${L("Already subscribed? Enter the portal", "مشترك بالفعل؟ ادخل البوابة")}</a>
+      <a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a>
+    </div>
   </div></section>`;
   return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
@@ -1543,7 +1570,7 @@ function buildCalculator() {
             <div class="calc-line calc2-vat"><span class="k">${L("+ VAT 15% (on fees)", "+ ضريبة القيمة المضافة 15% (على الأتعاب)")}</span><span class="v" id="calc2-vat">—</span></div>
           </div>
           <div class="calc2-warn" id="calc2-warn" hidden>${I.doc}<span>${L("Some selected services are priced on request (a quote after review). They are not included in the totals.", "بعض الخدمات المختارة تُسعّر حسب الطلب (عرض بعد المراجعة) ولا تدخل في الإجمالي.")}</span></div>
-          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/checkout")}" style="width:100%" hidden>${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
+          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/account")}?redirect=quote" style="width:100%" hidden>${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
           <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or chat with the smart agent", "أو تحدث مع الوكيل الذكي")}</span></a>
           <p class="calc-note">${L("Estimates from the official catalog; final pricing may vary by your case. Government fees are separate.", "تقديرات من الكتالوج الرسمي وقد تختلف حسب حالتك. الرسوم الحكومية منفصلة.")}</p>
         </div>
@@ -1949,8 +1976,8 @@ function buildComplianceAgent() {
     <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+      <a class="btn btn-primary btn-lg" href="#pricing">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u(COMPLIANCE_PORTAL_URL)}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
     </div>
     <div class="hero-badges">${chips}</div>
   </div></section>
@@ -1961,7 +1988,7 @@ function buildComplianceAgent() {
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
       [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
       [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
-      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your account — the Compliance Agent card opens your dashboard directly.", "سجّل دخولك لحسابك — بطاقة وكيل الامتثال تفتح لوحتك مباشرة.")],
+      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to the smart employees portal with your email and the access code — Mishari, your compliance agent, opens directly.", "ادخل بوابة الموظفين الأذكياء ببريدك ورمز الدخول — يفتح لك مشاري، وكيل امتثالك، مباشرة.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
   </div></section>
 
@@ -2157,7 +2184,7 @@ function buildTeamAgent(agent) {
     <h1>${agent.emoji} ${L(agent.nameEn, agent.nameAr)} — ${L(agent.roleEn, agent.roleAr)}</h1>
     <p class="lead">${L(agent.taglineEn, agent.taglineAr)}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Subscribe now", "🚀 اشترك الآن")}</a>
+      <a class="btn btn-primary btn-lg" href="#pricing">${L("🚀 Subscribe now", "🚀 اشترك الآن")}</a>
       <a class="btn btn-ghost btn-lg" href="${u("/portal")}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
     </div>
   </div></section>
@@ -2169,11 +2196,12 @@ function buildTeamAgent(agent) {
     </div>
   </section></div>
 
-  <section class="section" style="padding-top:0"><div class="container">
+  <section class="section" style="padding-top:0" id="pricing"><div class="container">
     <div class="price-box">
       <div><div class="price-amt">500 <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
       <div class="text-soft">${L("Part of the Smart Specialized Agents team — subscribe to one employee or several from the same cart.", "جزء من فريق الموظفين الأذكياء المتخصصين — اشترك بموظف واحد أو أكثر من نفس السلة.")}</div></div>
-      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Add to cart", "🚀 أضف للسلة")}</a>
+      <button type="button" class="btn btn-primary btn-lg add-cart" data-id="employee-${agent.slug}" data-name-en="${esc(agent.nameEn)} — ${esc(agent.roleEn)}" data-name-ar="${esc(agent.nameAr)} — ${esc(agent.roleAr)}" data-amount="500" data-price="500 ﷼ / ${Lraw("monthly", "شهرياً")}" data-kind="employee">${L("🛒 Add to cart — 500 SAR/mo", "🛒 أضف للسلة — 500 ﷼/شهرياً")}</button>
+      <a class="btn btn-ghost" href="${u("/connect")}">${L("Browse the full team", "استعرض الفريق كاملاً")}</a>
     </div>
   </div></section>
 
@@ -4415,13 +4443,13 @@ function buildContact() {
       </div>
       <div>
         <h2>${L("Send your message", "أرسل رسالتك")}</h2>
-        <form class="calc-form" action="${WA}" method="get" target="_blank" onsubmit="return true">
+        <form class="calc-form" id="contact-form" novalidate>
           <div class="field"><label for="f-name">${L("Name", "الاسم")}</label><input id="f-name" name="name" type="text" placeholder="${Lraw("Your full name", "اسمك الكامل")}" required></div>
           <div class="field"><label for="f-phone">${L("Mobile", "رقم الجوال")}</label><input id="f-phone" name="phone" type="tel" placeholder="05xxxxxxxx"></div>
           <div class="field"><label for="f-service">${L("Service needed", "الخدمة المطلوبة")}</label><input id="f-service" name="service" type="text" placeholder="${Lraw("e.g. company formation, premium residency", "مثال: تأسيس شركة، إقامة مميزة")}"></div>
           <div class="field"><label for="f-msg">${L("Your request details", "تفاصيل طلبك")}</label><textarea id="f-msg" name="message" rows="4" placeholder="${Lraw("Write your enquiry here", "اكتب استفسارك هنا")}"></textarea></div>
-          ${waBtn2("Send via WhatsApp", "أرسل عبر واتساب", "btn-wa")}
-          <p class="form-note">${L("Tapping the button opens WhatsApp to send your request straight to the smart agent.", "بالضغط على الزر يفتح واتساب لإكمال إرسال طلبك للوكيل الذكي مباشرة.")}</p>
+          <button type="submit" class="btn btn-wa btn-lg">${I.wa}<span>${L("Send via WhatsApp", "أرسل عبر واتساب")}</span></button>
+          <p class="form-note">${L("Tapping the button opens WhatsApp with your message ready to send to the smart agent.", "بالضغط على الزر يفتح واتساب ورسالتك جاهزة للإرسال للوكيل الذكي مباشرة.")}</p>
         </form>
       </div>
     </div>
@@ -4452,6 +4480,7 @@ function buildCart() {
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
           <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
+          <p class="mini">${L("Payment is by bank transfer: you upload the transfer receipt at checkout and we activate right after confirming it.", "الدفع بالتحويل البنكي: ترفع إيصال التحويل عند إتمام الطلب ونفعّل خدمتك فور تأكيده.")}</p>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
           <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
         </div>
@@ -4600,6 +4629,7 @@ function buildAccount() {
   </div></section>
   <section class="section"><div class="container">
     <div class="callout" id="checkout-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">🛒</span><p>${L("Sign in or create an account to continue with your purchase — this keeps every order tied to a real customer record.", "سجّل دخولك أو أنشئ حساباً لإكمال عملية الشراء — هذا يضمن ربط كل طلب بسجل عميل حقيقي.")}</p></div>
+    <div class="callout" id="quote-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">📋</span><p>${L("Sign in or create an account to send your official quote request — it will appear in your dashboard and our team will get back to you with the offer.", "سجّل دخولك أو أنشئ حساباً لإرسال طلب العرض الرسمي — سيظهر الطلب في لوحتك وفريقنا يعود لك بالعرض.")}</p></div>
     <div class="account-wrap" id="account-auth">
       <div class="auth-tabs">
         <button type="button" class="auth-tab active" data-tab="login">${L("Sign in", ac.loginTitle)}</button>
@@ -4675,7 +4705,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/mahfol-makfol")}"><span>🌍</span><strong>${L("Business tourism", "سياحة الأعمال")}</strong></a>
               <a class="portal-card" href="${u("/tourism")}"><span>🎉</span><strong>${L("Company events", "فعاليات الشركات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
-              <a class="portal-card" href="${COMPLIANCE_PORTAL_URL}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
+              <a class="portal-card" href="${u(COMPLIANCE_PORTAL_URL)}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
@@ -5405,9 +5435,9 @@ function buildConnect(pre = "/") {
       {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني',nameEn:'Abdulaziz — Legal'},
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
+      {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
       {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
-      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'},
-      {slug:'abdulrahman',e:'💰',name:'عبدالرحمن',role:'المدير المالي',nameEn:'Abdulrahman — CFO'}
+      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'}
     ];
     var empGrid=document.getElementById('emps');
     EMPLOYEES.forEach(function(m){
@@ -5629,8 +5659,7 @@ function buildPortal(pre = "/") {
       {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
       {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
       {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
-      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'},
-      {slug:'abdulrahman',path:'abdulrahman-intake',name:'عبدالرحمن',role:'المدير المالي',e:'💰'}
+      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'}
     ];
     var TOOLS=[
       {id:'gmail',ic:'📧',name:'Gmail',u:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.',type:'easy',lead:'ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.',steps:['اضغط ربط الآن فتفتح صفحة تسجيل قوقل.','اختر حساب الشركة ووافق على الصلاحيات.','يشتغل الموظف داخل بريدك مباشرة.']},
@@ -6089,15 +6118,20 @@ function buildSharedServices() {
 
   <section class="ss-sec" id="ss-subscribe">
     <div class="wrap">
-      <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from registration to opening your dashboard.", "رحلة واضحة من التسجيل حتى فتح لوحتك.")}</p></div>
+      <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from subscription to opening your dashboard.", "رحلة واضحة من الاشتراك حتى فتح لوحتك.")}</p></div>
       <div class="ss-steps">
-        <div class="ss-step"><span class="n">1</span><b>${L("Register & subscribe", "سجّل واشترك")}</b><p>${L("Start via the client portal and pick your plan.", "ابدأ عبر بوابة العميل واختر باقتك.")}</p></div>
-        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Complete payment through the secure portal.", "أكمل الدفع عبر البوابة الآمنة.")}</p></div>
-        <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("After payment, your access code is emailed to your registered address.", "بعد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
+        <div class="ss-step"><span class="n">1</span><b>${L("Add to cart", "أضف للسلة")}</b><p>${L("Add the shared-services subscription to your cart from this page.", "أضف اشتراك الخدمات المشتركة لسلتك من هذه الصفحة.")}</p></div>
+        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Complete checkout with a bank transfer and upload the receipt.", "أكمل الطلب بالتحويل البنكي وارفع الإيصال.")}</p></div>
+        <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("Once payment is confirmed, your access code is emailed to your registered address.", "بعد تأكيد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
         <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter your code in the service portal and your team dashboard opens.", "أدخل رمزك في بوابة الخدمة فتفتح لوحة فريقك.")}</p></div>
       </div>
+      <div class="ss-price-box">
+        <div><div class="ss-price-amt">1,500 <small>${L("SAR / monthly — starting price", "﷼ / شهرياً — سعر البداية")}</small></div>
+        <div class="ss-price-note">${L("A full executive team (11 specialists + team leader) working under one subscription.", "فريق تنفيذي كامل (11 متخصصاً + قائد الفريق) يعمل تحت اشتراك واحد.")}</div></div>
+        <button type="button" class="btn btn-primary btn-lg add-cart" data-id="agent-Shared-services-team" data-name-en="Shared services team" data-name-ar="فريق الخدمات المشتركة" data-amount="1500" data-price="${Lraw("From 1,500 SAR / monthly", "يبدأ من 1,500 ﷼ / شهرياً")}" data-kind="agent">${L("🛒 Add to cart", "🛒 أضف للسلة")}</button>
+      </div>
       <div class="ss-cta" style="justify-content:center;margin-top:26px">
-        <a class="btn btn-primary" href="${u("/consultation")}?topic=shared-services">${L("Register & subscribe", "سجّل واشترك")}</a>
+        <a class="btn btn-ghost" href="${u("/consultation")}?topic=other&about=${encodeURIComponent(Lraw("Shared services team subscription", "اشتراك فريق الخدمات المشتركة"))}">${L("Prefer a tailored offer? Book a consultation", "تفضّل عرضاً مخصصاً؟ احجز استشارة")}</a>
         <a class="btn btn-ghost" href="${u("/account")}">${L("Client portal", "بوابة العميل")}</a>
       </div>
 
@@ -6115,6 +6149,10 @@ function buildSharedServices() {
     .ss-hero{padding:52px 0 8px;text-align:center}
     .ss-hero h1{margin:8px 0 12px}
     .ss-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+    .ss-price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--white,#fff);border:1px solid var(--gray-line,#E4E7F0);border-radius:18px;padding:1.3rem 1.5rem;max-width:760px;margin:26px auto 0}
+    .ss-price-amt{font-size:2rem;font-weight:800;color:var(--navy,#0B1B5A)}
+    .ss-price-amt small{font-size:.95rem;color:var(--text-soft,#4a4f5e);font-weight:600}
+    .ss-price-note{color:var(--text-soft,#4a4f5e);font-size:.92rem}
     .ss-sec{padding:36px 0}
     .ss-team{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0 20px}
     .ss-chip{display:inline-flex;align-items:center;gap:8px;background:#f4f8fb;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:.92rem}
@@ -6443,7 +6481,7 @@ function buildSharedServicesPortal() {
         <div class="ss-note-box" id="unl-result" hidden></div>
         <div class="ss-gate-links">
           <a href="${u('/shared-services')}">${L("← Back to service info", "← عن الخدمة")}</a>
-          <a href="${u('/consultation')}?topic=shared-services">${L("Register & subscribe", "سجّل واشترك")}</a>
+          <a href="${u('/shared-services')}#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
         </div>
         <span class="ss-demo-hint">${L("Preview with demo code: ", "معاينة برمز التجربة: ")}<code>demo123</code></span>
       </div>

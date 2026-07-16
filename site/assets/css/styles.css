@@ -23,6 +23,11 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* The hidden attribute must always win: author display rules (e.g. .dash's
+   display:grid) otherwise override the UA's [hidden]{display:none} and leave
+   "hidden" panels — like the account dashboard after sign-out — visible. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 html, body { overflow-x: hidden; max-width: 100%; }
 
@@ -291,6 +296,11 @@ p { color: var(--text-soft); }
 .calc-line { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.15); }
 .calc-line .k { color: rgba(255,255,255,.8); }
 .calc-line .v { font-weight: 700; }
+/* The white-on-dark calc-line palette leaks into white boxes (cart/checkout
+   order summary) and renders labels invisible — re-ground it there. */
+.order-box .calc-line { border-bottom-color: var(--gray-line); }
+.order-box .calc-line .k { color: var(--text-soft); }
+.order-box .btn { white-space: normal; }
 .calc-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 18px; padding-top: 16px; }
 .calc-total .k { font-weight: 700; }
 .calc-total .v { font-size: 1.8rem; font-weight: 800; }
@@ -357,7 +367,7 @@ p { color: var(--text-soft); }
 
 /* Footer */
 .site-footer { background: var(--navy); color: rgba(255,255,255,.75); padding: 60px 0 26px; }
-.footer-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 36px; margin-bottom: 40px; }
+.footer-grid { display: grid; grid-template-columns: 1.5fr 1.05fr 1fr 1fr .85fr 1.2fr; gap: 28px; margin-bottom: 40px; }
 .footer-logo img { height: 30px; filter: brightness(0) invert(1); margin-bottom: 16px; }
 .site-footer p { color: rgba(255,255,255,.7); font-size: .95rem; }
 .footer-tag { font-family: "Playfair Display", serif; font-style: italic; color: rgba(255,255,255,.85); margin-top: 10px; }
@@ -391,7 +401,7 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   .header-cta .btn-ghost, .header-cta > .btn-primary { display: none; }
   .lang-drop .lang-label { display: none; }
 }
-@media (max-width: 1560px) {
+@media (max-width: 1100px) {
   .nav, .header-cta .btn { display: none; }
   .nav-toggle { display: block; }
   .header-inner { gap: 10px; }
@@ -409,7 +419,7 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   .calc-wrap { grid-template-columns: 1fr; }
   .calc-result { position: static; }
   .contact-grid { grid-template-columns: 1fr; gap: 30px; }
-  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .footer-grid { grid-template-columns: repeat(3, 1fr); gap: 28px; }
   .stats { grid-template-columns: repeat(2, 1fr); gap: 30px; }
 }
 
@@ -434,6 +444,7 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   .wa-fab { padding: 14px; }
   .section-head { margin-bottom: 38px; }
 }
+
 
 /* Saudi — government entities directory */
 .entity-card { display: flex; flex-direction: column; height: 100%; }
@@ -701,12 +712,14 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .nav-menu .nav-group.nested > .nav-drop { width: 100%; justify-content: space-between; }
 .nav-group.nested > .nav-menu { top: -9px; inset-inline-start: calc(100% + 6px); min-width: 250px; max-height: 380px; overflow-y: auto; }
 .nav-group.nested.open::after { inset-inline-start: 100%; top: 0; width: 10px; height: 100%; }
-@media (max-width: 1560px) {
+@media (max-width: 1100px) {
+  /* Collapsed nav is a true accordion: groups start closed (the flat 40+ link
+     dump was unusable), tapping a group header toggles just that group — the
+     same click JS as desktop; nested groups indent instead of flying out. */
   .nav.open .nav-group { width: 100%; }
-  .nav.open .nav-drop { width: 100%; justify-content: flex-start; padding: 12px; font-size: .82rem; color: var(--text-soft);
-    letter-spacing: .06em; text-transform: uppercase; cursor: default; }
-  .nav.open .nav-drop svg { display: none; }
-  .nav.open .nav-menu { display: flex; position: static; box-shadow: none; border: 0; padding: 0 10px 6px; min-width: 0; }
+  .nav.open .nav-drop { width: 100%; justify-content: space-between; padding: 12px; font-size: 1rem; color: var(--text); cursor: pointer; }
+  .nav.open .nav-menu { position: static; box-shadow: none; border: 0; padding: 0 10px 6px; min-width: 0; max-height: none; overflow: visible; }
+  .nav.open .nav-group.nested > .nav-drop { font-size: .93rem; color: var(--text-soft); }
   .nav.open .nav-cta.btn-primary { display: inline-flex; justify-content: center; margin-top: 8px; }
 }
 
@@ -1207,3 +1220,26 @@ html[dir="rtl"] .deal-drawer { transform: translateX(-105%); }
 .deal-match-reasons span { font-size: .7rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--gray-bg); border: 1px solid var(--gray-line); color: var(--text-soft); }
 .deal-match-empty { text-align: center; padding: 24px 12px; color: var(--text-soft); font-size: .88rem; background: var(--gray-bg); border: 1px dashed var(--gray-line); border-radius: 10px; }
 @media (max-width: 640px) { .deal-drawer { width: 100%; } }
+
+/* Phones: the full header row (logo + language + account + cart + burger)
+   overflowed ~50px at 390px, clipping the logo and pushing the menu button
+   off-screen — compact every header element so it all fits from 340px up. */
+@media (max-width: 520px) {
+  .header-inner { gap: 4px; }
+  .logo img { height: 22px; }
+  .header-cta { gap: 3px; }
+  .icon-btn { width: 36px; height: 36px; }
+  .icon-btn svg { width: 19px; height: 19px; }
+  .lang-drop { padding: 4px 8px; }
+  .lang-drop svg:last-child { display: none; }
+  .nav-toggle { padding: 5px; }
+  .nav-toggle svg { width: 25px; height: 25px; }
+  .container { padding: 0 16px; }
+}
+@media (max-width: 380px) {
+  .logo img { height: 18px; }
+  .icon-btn { width: 32px; height: 32px; }
+  .icon-btn svg { width: 17px; height: 17px; }
+  .lang-drop svg:first-child { width: 17px; height: 12px; }
+  .container { padding: 0 12px; }
+}
