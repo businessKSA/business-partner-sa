@@ -2122,6 +2122,20 @@ const TEAM_AGENTS = [
       ["Never commits to a purchase, signs, or pays — and never messages a supplier without your sign-off", "لا يلتزم بأي شراء ولا يوقّع ولا يدفع، ولا يراسل مورداً بدون اعتمادك"],
     ],
   },
+  {
+    slug: "abdulrahman", emoji: "💰",
+    nameAr: "عبدالرحمن", nameEn: "Abdulrahman",
+    roleAr: "المدير المالي", roleEn: "CFO",
+    taglineAr: "يدير ميزانياتك وتدفقك النقدي وفواتيرك، ويجهّز تقاريرك المالية بوضوح.", taglineEn: "Runs your budgets, cash flow and invoicing, and prepares your financial reports clearly.",
+    caps: [
+      ["Manages budgets and cash flow", "يدير الميزانيات والتدفق النقدي"],
+      ["Prepares invoices, collections and payment plans", "يجهّز الفواتير والتحصيل وخطط الدفع"],
+      ["Financial reports and KPIs explained clearly, not just numbers", "تقارير مالية ومؤشرات أداء موضّحة بوضوح، مو أرقام فقط"],
+      ["Tracks Zakat and VAT (ZATCA) obligations", "يتابع التزامات الزكاة وضريبة القيمة المضافة (ZATCA)"],
+      ["Bookkeeping via Qoyod", "محاسبة عبر منصة قيود"],
+      ["Never executes a payment, transfer, or invoice on his own — always prepares it for your explicit approval first", "لا ينفّذ أي دفعة أو تحويل أو فاتورة بنفسه — يجهّزها دائماً وينتظر موافقتك الصريحة"],
+    ],
+  },
 ];
 
 function buildTeamAgent(agent) {
@@ -5266,7 +5280,8 @@ function buildConnect(pre = "/") {
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
       {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
-      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'}
+      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'},
+      {slug:'abdulrahman',e:'💰',name:'عبدالرحمن',role:'المدير المالي',nameEn:'Abdulrahman — CFO'}
     ];
     var empGrid=document.getElementById('emps');
     EMPLOYEES.forEach(function(m){
@@ -5487,7 +5502,8 @@ function buildPortal(pre = "/") {
       {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
       {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
       {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
-      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'}
+      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'},
+      {slug:'abdulrahman',path:'abdulrahman-intake',name:'عبدالرحمن',role:'المدير المالي',e:'💰'}
     ];
     var TOOLS=[
       {id:'gmail',ic:'📧',name:'Gmail',u:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.',type:'easy',lead:'ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.',steps:['اضغط ربط الآن فتفتح صفحة تسجيل قوقل.','اختر حساب الشركة ووافق على الصلاحيات.','يشتغل الموظف داخل بريدك مباشرة.']},
