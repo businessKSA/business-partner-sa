@@ -2188,11 +2188,11 @@ function buildMahfolMakfol() {
   <style>
     .mm-hero{background:linear-gradient(160deg,var(--navy-900),var(--navy) 60%,var(--navy-700));color:#fff;padding:64px 0 72px;position:relative;overflow:hidden}
     .mm-hero .subbrand-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff}
-    .mm-hero .subbrand-badge small{color:var(--mm-gold)}
+    .mm-hero .subbrand-badge small{color:rgba(255,255,255,.72)}
     .mm-hero h1{color:#fff;margin:18px 0 12px;font-size:clamp(30px,5vw,50px)}
     .mm-hero .lead{color:rgba(255,255,255,.86);max-width:760px}
-    .mm-gold-line{width:64px;height:4px;border-radius:4px;background:var(--mm-gold);margin:0 0 18px}
-    :root{--mm-gold:#c6a45c}
+    .mm-gold-line{width:64px;height:4px;border-radius:4px;background:rgba(255,255,255,.85);margin:0 0 18px}
+    :root{--mm-gold:#0B1B5A;--mm-hi:#24409e}
     .mm-cc{background:#fff;color:var(--text);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:760px;margin:34px auto 0;padding:26px 26px 30px;text-align:start}
     .mm-cc-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
     .mm-cc-head .r{width:44px;height:44px;border-radius:12px;background:var(--navy);color:#fff;display:grid;place-items:center;flex:0 0 auto}
@@ -2222,9 +2222,9 @@ function buildMahfolMakfol() {
     .mm-mk-dot{fill:var(--navy);stroke:#fff;stroke-width:3;transition:.2s}
     .mm-mk-lbl{font-size:22px;font-weight:700;fill:var(--text);paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none;opacity:0;transition:.2s}
     .mm-mk:hover .mm-mk-lbl,.mm-mk.on .mm-mk-lbl{opacity:1}
-    .mm-mk:hover .mm-mk-dot,.mm-mk:focus .mm-mk-dot{fill:var(--mm-gold)}
-    .mm-mk.on .mm-mk-dot{fill:var(--mm-gold);r:11}
-    .mm-mk.on .mm-mk-ring{fill:var(--mm-gold);opacity:.3;r:22}
+    .mm-mk:hover .mm-mk-dot,.mm-mk:focus .mm-mk-dot{fill:var(--mm-hi)}
+    .mm-mk.on .mm-mk-dot{fill:var(--mm-hi);r:11}
+    .mm-mk.on .mm-mk-ring{fill:var(--mm-hi);opacity:.3;r:22}
     .mm-map-panel{display:none;border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);padding:22px;flex-direction:column;gap:11px}
     .mm-map-panel.on{display:flex}
     @media(max-width:820px){.mm-map-wrap{grid-template-columns:1fr}}
@@ -2566,15 +2566,15 @@ function buildMahfolTrips() {
 
   const body = `
   <style>
-    :root{--mm-gold:#c6a45c;--mm-gold-2:#d9bd7e}
+    :root{--mm-gold:#0B1B5A;--mm-gold-2:#24409e}
     .tr-hero{position:relative;color:#fff;padding:62px 0 70px;overflow:hidden;background:var(--navy-900)}
     .tr-hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(105deg,rgba(8,19,69,.94) 30%,rgba(11,27,90,.72) 70%,rgba(11,27,90,.5)),url('${timg("1mn0nLKNchUaE6XDOs77EEiY5d9ZdcUNn")}');background-size:cover;background-position:center;z-index:0}
     .tr-hero>.container{position:relative;z-index:1}
     .tr-hero .subbrand-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:#fff}
-    .tr-hero .subbrand-badge small{color:var(--mm-gold-2)}
+    .tr-hero .subbrand-badge small{color:rgba(255,255,255,.75)}
     .tr-hero h1{color:#fff;margin:16px 0 10px;font-size:clamp(28px,4.8vw,48px);text-shadow:0 2px 20px rgba(0,0,0,.25)}
     .tr-hero .lead{color:rgba(255,255,255,.9);max-width:720px}
-    .tr-gold-line{width:64px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--mm-gold),var(--mm-gold-2));margin:0 0 16px}
+    .tr-gold-line{width:64px;height:4px;border-radius:4px;background:rgba(255,255,255,.85);margin:0 0 16px}
     .tr-trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;color:rgba(255,255,255,.92);font-size:.92rem}
     .tr-trust span{display:inline-flex;align-items:center;gap:7px}
     /* Smart trip agent (chat) */
@@ -2590,7 +2590,7 @@ function buildMahfolTrips() {
     .tr-opts{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
     .tr-opt{border:1.5px solid var(--gray-line);background:#fff;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;color:var(--text);cursor:pointer;transition:.15s}
     .tr-opt:hover{border-color:var(--navy);background:var(--gray-bg)}
-    .tr-opt.gold{border-color:var(--mm-gold);color:#8a6d29;font-weight:700}
+    .tr-opt.gold{border-color:var(--navy);color:var(--navy);font-weight:700}
     .tr-agent-cta{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
     /* Colored terrain map */
     .tr-map-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center}
@@ -2601,9 +2601,9 @@ function buildMahfolTrips() {
     .trm-dot{fill:var(--navy);stroke:#fff;stroke-width:2.5;transition:.2s}
     .trm-lbl{font-size:21px;font-weight:800;fill:#0d1b3e;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none;opacity:0;transition:.2s}
     .trm:hover .trm-lbl,.trm.on .trm-lbl{opacity:1}
-    .trm:hover .trm-dot,.trm:focus .trm-dot{fill:var(--mm-gold)}
-    .trm.on .trm-dot{fill:var(--mm-gold);r:10}
-    .trm.on .trm-ring{fill:var(--mm-gold);opacity:.55;r:20}
+    .trm:hover .trm-dot,.trm:focus .trm-dot{fill:var(--mm-gold-2)}
+    .trm.on .trm-dot{fill:var(--mm-gold-2);r:10}
+    .trm.on .trm-ring{fill:var(--mm-gold-2);opacity:.55;r:20}
     .trm-panel{display:none;border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);overflow:hidden}
     .trm-panel.on{display:block}
     .trm-panel-img{height:170px;background-size:cover;background-position:center}
@@ -2619,7 +2619,7 @@ function buildMahfolTrips() {
     .tr-dest-body{display:flex;flex-direction:column;gap:8px;padding:16px 18px 18px;flex:1}
     .tr-dest-body h3{margin:0;font-size:19px}
     .tr-tag{color:var(--text-soft);font-size:14px;margin:0}
-    .tr-price{color:#8a6d29;font-weight:800;font-size:14px}
+    .tr-price{color:var(--navy);font-weight:800;font-size:14px}
     .tr-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
     .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm);border-top:3px solid var(--mm-gold)}
     .tr-act-ic{font-size:26px}
