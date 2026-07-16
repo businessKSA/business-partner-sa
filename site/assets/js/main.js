@@ -1496,7 +1496,10 @@ var BP = window.BP = window.BP || {};
     var groups = document.querySelectorAll(".nav-group");
     if (drop) {
       var g = drop.closest(".nav-group");
-      groups.forEach(function (x) { if (x !== g) x.classList.remove("open"); });
+      // Close every group except g itself and any of its ancestors/descendants,
+      // so opening a nested flyout (e.g. service categories) doesn't collapse
+      // the parent panel it lives inside.
+      groups.forEach(function (x) { if (x !== g && !g.contains(x) && !x.contains(g)) x.classList.remove("open"); });
       g.classList.toggle("open");
       drop.setAttribute("aria-expanded", g.classList.contains("open"));
     } else if (!e.target.closest(".nav-menu")) {

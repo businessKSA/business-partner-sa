@@ -389,18 +389,24 @@ const NAV_GROUPS = [
   {
     en: "Our services", ar: "خدماتنا",
     items: [
-      { href: "/services", en: "All services (92)", ar: "كل الخدمات (92)" },
-      { href: "/packages", en: "Packages", ar: "الباقات" },
-      { href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡" },
-      { href: "/portal", en: "My Employees Portal 🔐", ar: "بوابة موظفيّ الأذكياء 🔐" },
-      { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
-      { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
+      { href: "/services", en: "Government Consulting Services", ar: "خدمة الاستشارات الحكومية", megaCategories: true },
+      { href: "/packages", en: "Packages", ar: "الباقات", megaPackages: true },
+      {
+        href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡",
+        sub: [
+          { href: "/ai-agents", en: "All AI Agents", ar: "كل الوكلاء الأذكياء" },
+          { href: "/compliance-agent", en: "Compliance", ar: "الامتثال" },
+          { href: "/portal", en: "Smart Employees", ar: "الموظفين الأذكياء" },
+          { href: "/shared-services", en: "Shared Services Team", ar: "فريق الخدمات المشتركة" },
+        ],
+      },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
-      { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
     ],
   },
   { href: "/hr", en: "Recruitment", ar: "التوظيف" },
+  { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
   { href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال" },
+  { href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال" },
   {
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
@@ -432,15 +438,41 @@ function langMenu(path) {
   </div>`;
 }
 
+// Renders one entry inside a top-level nav-group's dropdown. Plain items are
+// a link; items flagged megaCategories/megaPackages or carrying a static
+// `sub` array become a second-level flyout (nav-group.nested) so the mobile
+// accordion CSS — which already flattens any .nav-drop/.nav-menu pair once
+// .nav.open is set, at any nesting depth — keeps working with no changes.
+function navSubItem(it, active) {
+  let sub = it.sub;
+  if (it.megaCategories) {
+    sub = [{ href: u("/services"), en: "All services (92)", ar: "كل الخدمات (92)", raw: true }]
+      .concat(categories.map((c) => ({ href: catUrl(c.key), en: catEn(c.key), ar: c.ar, icon: CAT_ICON[c.key] || "📁", raw: true })));
+  } else if (it.megaPackages) {
+    sub = [{ href: u("/packages"), en: "All packages", ar: "كل الباقات", raw: true }]
+      .concat((site.packages.groups || []).map((g) => ({ href: u("/packages") + "#pkg-" + g.key, en: g.en, ar: g.ar, raw: true })));
+  }
+  if (!sub) {
+    return `<a href="${u(it.href)}"${it.href === active ? ' class="active"' : ""}>${L(it.en, it.ar)}</a>`;
+  }
+  const isActive = sub.some((s) => (s.raw ? false : s.href) === active) || it.href === active;
+  const subLinks = sub.map((s) => {
+    const href = s.raw ? s.href : u(s.href);
+    return `<a href="${href}"${!s.raw && s.href === active ? ' class="active"' : ""}>${s.icon ? s.icon + " " : ""}${L(s.en, s.ar)}</a>`;
+  }).join("");
+  return `<div class="nav-group nested${isActive ? " active" : ""}">
+    <button type="button" class="nav-drop${isActive ? " active" : ""}" aria-expanded="false">${L(it.en, it.ar)} ${I.chevron}</button>
+    <div class="nav-menu">${subLinks}</div>
+  </div>`;
+}
+
 function header(active, path) {
   const links = NAV_GROUPS.map((g) => {
     if (g.href) {
       return `<a href="${u(g.href)}"${g.href === active ? ' class="active"' : ""}>${L(g.en, g.ar)}</a>`;
     }
     const isActive = g.items.some((it) => it.href === active);
-    const menu = g.items
-      .map((it) => `<a href="${u(it.href)}"${it.href === active ? ' class="active"' : ""}>${L(it.en, it.ar)}</a>`)
-      .join("");
+    const menu = g.items.map((it) => navSubItem(it, active)).join("");
     return `<div class="nav-group${isActive ? " active" : ""}">
       <button type="button" class="nav-drop${isActive ? " active" : ""}" aria-expanded="false">${L(g.en, g.ar)} ${I.chevron}</button>
       <div class="nav-menu">${menu}</div>
@@ -2389,6 +2421,7 @@ function mmSubnav(active) {
   const items = [
     { href: "/mahfol-makfol", en: "For investors", ar: "للمستثمر" },
     { href: "/mahfol-makfol/trips", en: "Trips & experiences", ar: "الرحلات والتجارب" },
+    { href: "/tourism", en: "Corporate events", ar: "فعاليات الشركات" },
   ];
   return `<div class="mm-subnav"><a class="mm-subnav-brand" href="${u("/mahfol-makfol")}">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span></a><nav>` +
     items.map((it) => `<a href="${u(it.href)}"${it.href === active ? ' class="on"' : ""}>${L(it.en, it.ar)}</a>`).join("") +

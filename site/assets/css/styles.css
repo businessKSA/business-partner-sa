@@ -682,17 +682,24 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   font: inherit; color: var(--text); font-weight: 600; font-size: .98rem; padding: 8px 13px; border-radius: 8px; white-space: nowrap; }
 .nav-drop:hover, .nav-drop.active { color: var(--navy); background: var(--gray-bg); }
 .nav-drop svg { width: 14px; height: 14px; transition: transform .18s; }
-.nav-group.open .nav-drop svg { transform: rotate(180deg); }
+.nav-group.open > .nav-drop svg { transform: rotate(180deg); }
 .nav-menu { display: none; position: absolute; top: calc(100% + 8px); inset-inline-start: 0; min-width: 230px;
   background: var(--white); border: 1px solid var(--gray-line); border-radius: 14px; box-shadow: var(--shadow-lg);
   padding: 8px; z-index: 80; flex-direction: column; }
 /* Click-only: the menu opens when JS adds .open. A padded hit-bridge keeps the
    pointer from dropping the menu in the gap between the button and the panel. */
-.nav-group.open .nav-menu { display: flex; }
+.nav-group.open > .nav-menu { display: flex; }
 .nav-group.open::after { content: ""; position: absolute; top: 100%; inset-inline-start: 0; width: 100%; height: 10px; }
 .nav-menu a { display: block; padding: 10px 14px; border-radius: 9px; font-weight: 600; color: var(--text); white-space: nowrap; }
 .nav-menu a:hover, .nav-menu a.active { background: var(--gray-bg); color: var(--navy); }
 .nav-cta.btn-primary { display: none; }
+/* Second-level flyout (e.g. service categories under "Government Consulting
+   Services") nested inside a top-level nav-menu — opens to the side instead
+   of below, so it doesn't collide with the sibling links in the parent panel. */
+.nav-menu .nav-group.nested { width: 100%; }
+.nav-menu .nav-group.nested > .nav-drop { width: 100%; justify-content: space-between; }
+.nav-group.nested > .nav-menu { top: -9px; inset-inline-start: calc(100% + 6px); min-width: 250px; max-height: 380px; overflow-y: auto; }
+.nav-group.nested.open::after { inset-inline-start: 100%; top: 0; width: 10px; height: 100%; }
 @media (max-width: 1560px) {
   .nav.open .nav-group { width: 100%; }
   .nav.open .nav-drop { width: 100%; justify-content: flex-start; padding: 12px; font-size: .82rem; color: var(--text-soft);
