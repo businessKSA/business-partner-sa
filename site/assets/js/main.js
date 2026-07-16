@@ -1064,25 +1064,11 @@ var BP = window.BP = window.BP || {};
       reader.onload = function () { sendOrder(String(reader.result || "").split(",").pop()); };
       reader.onerror = function () { sendOrder(""); };
       reader.readAsDataURL(receiptFile);
-      // Build WhatsApp notification
-      var lines = ["*طلب جديد / New order* " + ref, "الاسم: " + name, "الجوال: " + phone];
-      order.items.forEach(function (it) { lines.push("• " + it.name + " ×" + it.qty + (it.price ? " — " + it.price + " ﷼" : "")); });
-      var waUrl = "https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n"));
-      // Clear cart
-      var boughtEmployee = employeeSlugs.length > 0;
       BP.cart.write([]);
       var box = document.getElementById("checkout-success");
       box.hidden = false;
       box.innerHTML = "✅ <strong>" + BP.t("Order received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
-        BP.t("Your receipt is being verified against your order total. We'll confirm on WhatsApp.", "يجري التحقق من إيصالك مقابل إجمالي طلبك. سنؤكد لك عبر واتساب.") +
-        (boughtCompliance ? "<br>" + BP.t("Once confirmed, we'll email you an activation code for the Compliance Agent portal.", "بعد التأكيد سنرسل لك بريداً فيه رمز الدخول لبوابة وكيل الامتثال.") +
-          '<br><a class="btn btn-primary" style="margin-top:12px" href="https://businesspartner.sa/ar/portal" target="_blank" rel="noopener">' + BP.t("Open the Compliance Agent portal", "افتح بوابة وكيل الامتثال") + "</a>" : "") +
-        (employerPlanKey ? "<br>" + BP.t("Once confirmed, we'll email you an access code for the employer dashboard.", "بعد التأكيد سنرسل لك بريداً فيه رمز الوصول للوحة التوظيف.") +
-          '<br><a class="btn btn-primary" style="margin-top:12px" href="/employer-dashboard">' + BP.t("Open the employer dashboard", "افتح لوحة التوظيف") + "</a>" : "") +
-        (boughtEmployee ? "<br>" + BP.t("Once we confirm your payment, use this order number as your activation code in the smart employees portal.", "بمجرد ما نتأكد من الدفع، استخدم رقم الطلب هذا كـ كود تفعيل في بوابة الموظفين الأذكياء.") +
-          '<br><a class="btn btn-primary" style="margin-top:12px" href="/portal">' + BP.t("Open the smart employees portal", "افتح بوابة الموظفين الأذكياء") + "</a>" : "") +
-        '<br><a class="btn btn-wa" style="margin-top:12px" href="' + waUrl + '" target="_blank" rel="noopener">' + BP.t("Notify us on WhatsApp", "أشعرنا عبر واتساب") + "</a> " +
-        '<a class="btn btn-ghost" style="margin-top:12px" href="/account">' + BP.t("View in my account", "عرض في حسابي") + "</a>";
+        BP.t("Your receipt is being verified against your order total. We'll confirm on WhatsApp.", "يجري التحقق من إيصالك مقابل إجمالي طلبك. سنؤكد لك عبر واتساب.");
       box.scrollIntoView({ behavior: "smooth", block: "center" });
       form.querySelector("button[type=submit]").disabled = true;
       BP.renderCheckout();
