@@ -440,14 +440,14 @@ const NAV_GROUPS = [
           { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
         ],
       },
-      {
-        href: "/saudi-arabia", en: "Knowledge Center", ar: "مركز المعرفة",
-        sub: [
-          { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
-          { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
-          { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
-        ],
-      },
+    ],
+  },
+  {
+    en: "Knowledge Center", ar: "مركز المعرفة",
+    items: [
+      { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
+      { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
+      { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
   },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
@@ -526,10 +526,6 @@ function header(active, path) {
 
 function footer() {
   const c = site.contact;
-  const svcLinks = categories
-    .slice(0, 6)
-    .map((cat) => `<li><a href="${catUrl(cat.key)}">${L(CAT_META[cat.key] ? CAT_META[cat.key].en : cat.key, cat.ar)}</a></li>`)
-    .join("");
   const fl = (href, en, ar) => `<li><a href="${u(href)}">${L(en, ar)}</a></li>`;
   return `<footer class="site-footer"><div class="container">
   <div class="newsletter-band">
@@ -549,29 +545,36 @@ function footer() {
       <p>${L(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio)}</p>
       <p class="footer-tag">${L("Partnering for your success", "شركاء نجاحك")}</p>
     </div>
-    <div class="footer-col"><h4>${L("Links", "روابط")}</h4><ul>
-      ${fl("/about", "About", "من نحن")}
+    <div class="footer-col"><h4>${L("Our services", "خدماتنا")}</h4><ul>
       ${fl("/services", "All services", "كل الخدمات")}
       ${fl("/packages", "Packages", "الباقات")}
       ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
-      ${fl("/workspaces", "Office spaces", "المكاتب ومساحات العمل")}
-      ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
-      ${fl("/mahfol-makfol", "Mahfol Makfol · Saudi travel", "محفول مكفول · سياحة السعودية")}
       ${fl("/task-force", "Task Force", "تاسك فورس")}
-      ${fl("/hr", "HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}
+      ${fl("/hr", "Recruitment", "التوظيف")}
+      ${fl("/deals", "Deals", "الصفقات")}
+      ${fl("/mahfol-makfol", "Business Tourism", "سياحة الأعمال")}
+      ${fl("/workspaces", "Business Spaces", "مساحات الأعمال")}
+      ${fl("/farina", "Catering & Hospitality", "التموين والضيافة")}
+    </ul></div>
+    <div class="footer-col"><h4>${L("Platforms & portals", "المنصات والبوابات")}</h4><ul>
+      ${fl("/account", "Client portal", "منصّة العملاء")}
+      ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
       ${fl("/employer-join", "For employers", "لأصحاب العمل")}
-      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
+      ${fl("/portal", "Smart employees portal", "بوابة الموظفين الأذكياء")}
+    </ul></div>
+    <div class="footer-col"><h4>${L("Knowledge Center", "مركز المعرفة")}</h4><ul>
       ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
+      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/news", "Insights & news", "الرؤى والأخبار")}
       ${fl("/magazine", "Magazine (PDF)", "المجلة (PDF)")}
       ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
-      ${fl("/careers", "Careers", "الوظائف")}
-      ${fl("/account", "Client portal", "منصّة العملاء")}
-      ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
-      ${fl("/terms", "Terms & Conditions", "الشروط والأحكام")}
-      ${fl("/contact", "Contact", "اتصل بنا")}
     </ul></div>
-    <div class="footer-col"><h4>${L("Selected services", "خدمات مختارة")}</h4><ul>${svcLinks}</ul></div>
+    <div class="footer-col"><h4>${L("Company", "الشركة")}</h4><ul>
+      ${fl("/about", "About us", "من نحن")}
+      ${fl("/careers", "Careers", "الوظائف")}
+      ${fl("/terms", "Terms & Conditions", "الشروط والأحكام")}
+      ${fl("/contact", "Contact us", "اتصل بنا")}
+    </ul></div>
     <div class="footer-col"><h4>${L("Contact", "تواصل")}</h4><ul class="footer-contact">
       <li>${I.phone}<span>${esc(c.phone)}</span></li>
       <li>${I.mail}<span>${esc(c.email)}</span></li>
