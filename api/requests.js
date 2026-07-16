@@ -604,6 +604,116 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }
 
+  // Wallet top-up: the client transfers money and uploads the receipt; the team
+  // confirms it in the CRM (حالة الطلب → مؤكد/مكتمل) and the dashboard credits
+  // the balance through the same live-status sync orders use.
+  if (b.type === "wallet-topup") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPW-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const amountNum = Number(b.amount);
+    const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
+    const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
+    const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
+    const rawType = String(b.receiptType || "").toLowerCase();
+    const receiptType = /^(image\/(jpeg|jpg|png|webp)|application\/pdf)$/.test(rawType)
+      ? rawType.replace("image/jpg", "image/jpeg")
+      : /\.(jpe?g)$/i.test(receiptName) ? "image/jpeg"
+      : /\.png$/i.test(receiptName) ? "image/png"
+      : /\.webp$/i.test(receiptName) ? "image/webp"
+      : "application/pdf";
+    if (!name || !isEmail(email) || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
+    const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, receiptType);
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">شحن محفظة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("مبلغ الشحن", amount + " ﷼")}</table><p>${receiptUploadId ? "الإيصال مرفق بصف الطلب في Notion — قارن مبلغه ثم غيّر حالة الطلب إلى «مؤكد - قيد التنفيذ» ليظهر الرصيد للعميل فوراً في /account." : "⚠️ تعذّر رفع الإيصال — راجعه يدوياً قبل الاعتماد."}</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب شحن محفظتك ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلب شحن محفظتك بمبلغ <strong>${amount} ﷼</strong> مع إيصال التحويل. بمجرد تأكيد الفريق يظهر الرصيد في لوحتك ويمكنك السداد منه مباشرة.</p><table>${row("رقم المرجع", ref) + row("المبلغ", amount + " ﷼")}</table><p>تابع رصيدك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `شحن محفظة ${ref} — ${name} (${amount} ﷼)`, oHtml),
+      sendEmail(email, `استلمنا طلب شحن محفظتك — ${ref}`, cHtml),
+      crmLead({ title: `شحن محفظة — ${name}`, phone, email, notes: `محفظة · شحن رصيد ${amount} ﷼`, ref, orderStatus: "قيد المراجعة", total: amount, receiptUploadId, receiptName }),
+      addToAudience(email, name),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
+  }
+
+  // Wallet payment: the client asks us to pay a government fee / SADAD invoice
+  // from their wallet balance. The team validates the balance in the CRM ledger
+  // (top-ups minus payments), executes the payment, and completes the row.
+  if (b.type === "wallet-pay") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPP-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const what = String(b.what || "").trim().slice(0, 400);
+    const amountNum = Number(b.amount);
+    const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
+    if (!name || !isEmail(email) || !amount || !what) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">سداد من المحفظة ${ref}</h2><table>${row("الاسم", name) + row("البريد", email) + row("المطلوب سداده", what) + row("المبلغ", amount + " ﷼")}</table><p>تحقق من رصيد محفظة العميل (مجموع شحنات BPW المؤكدة ناقص مدفوعات BPP) قبل التنفيذ، ثم نفّذ السداد وأرفق الإثبات وحدّث حالة الطلب إلى «مكتمل».</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب السداد ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لسداد: <strong>${esc(what)}</strong> بمبلغ <strong>${amount} ﷼</strong> من محفظتك. سننفذه ونرسل لك إثبات السداد.</p><table>${row("رقم المرجع", ref) + row("المبلغ", amount + " ﷼")}</table><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `سداد من المحفظة ${ref} — ${name} (${amount} ﷼)`, oHtml),
+      sendEmail(email, `استلمنا طلب السداد — ${ref}`, cHtml),
+      crmLead({ title: `سداد رسوم من المحفظة — ${name}`, phone: String(b.phone || "").slice(0, 40), email, notes: `محفظة · سداد ${amount} ﷼ · ${what}`, ref, orderStatus: "قيد المراجعة", total: amount }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Instalment request: we arrange financing for government fees through the
+  // client's bank / BNPL / e-wallets. The financing decision is the provider's;
+  // this creates the coordination request in the CRM.
+  if (b.type === "installment") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPI-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const service = String(b.service || "").trim().slice(0, 400);
+    const amountNum = Number(b.amount);
+    const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
+    const monthsNum = Number(b.months);
+    const months = [3, 6, 12].includes(monthsNum) ? monthsNum : 6;
+    const CH = { bank: "بنك العميل", bnpl: "تابي / تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
+    const channel = CH[b.channel] || CH.any;
+    if (!name || !phone || !isEmail(email) || !service || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const monthly = Math.ceil(amount / months);
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تقسيط ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", service) + row("المبلغ", amount + " ﷼") + row("المدة", months + " أشهر") + row("القناة المفضلة", channel) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>رتّب عرض التمويل مع الجهة المناسبة وعد للعميل بالعرض، ثم حدّث حالة الطلب في «Sales Pipeline».</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب التقسيط ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لتقسيط <strong>${esc(service)}</strong> بمبلغ <strong>${amount} ﷼</strong> على <strong>${months} أشهر</strong> (${channel}). فريقنا يجهّز العروض المتاحة وسيعود لك سريعاً.</p><table>${row("رقم المرجع", ref) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>تابع طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب تقسيط ${ref} — ${name} (${amount} ﷼ / ${months} أشهر)`, oHtml),
+      sendEmail(email, `استلمنا طلب التقسيط — ${ref}`, cHtml),
+      crmLead({ title: `طلب تقسيط — ${name}`, phone, email, notes: `تقسيط · ${service} · ${amount} ﷼ على ${months} أشهر · ${channel}`, ref, orderStatus: "قيد المراجعة", total: amount }),
+      addToAudience(email, name),
+      forwardLead({ source: "installment", ref, name, phone, email, items: service, total: amount }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Estrdad (Monsha'at fee-refund) eligibility assessment + file preparation.
+  if (b.type === "estrdad") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPE-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const startYear = String(b.startYear || "").slice(0, 20);
+    const workers = Number.isFinite(Number(b.workers)) && b.workers !== "" ? Number(b.workers) : null;
+    const notes = String(b.notes || "").trim().slice(0, 900);
+    if (!company || !person || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب استرداد رسوم (منشآت) ${ref}</h2><table>${row("المنشأة", company) + row("المسؤول", person) + row("الجوال", phone) + row("البريد", email) + row("سنة بدء النشاط", startYear || "—") + row("عدد العمالة الأجنبية", workers != null ? String(workers) : "—")}${notes ? row("ملاحظات", notes) : ""}</table><p>قيّم الأهلية وفق اشتراطات مبادرة استرداد (سريان السجل والشهادات، نطاقات المطوّر، بدء النشاط 2024-2026…) وعد للعميل بفجوات الامتثال وخطة التجهيز.</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب تقييم الاسترداد ✅</h2><p>مرحباً ${esc(person)},</p><p>وصلنا طلبك لتقييم أهلية <strong>${esc(company)}</strong> لمبادرة «استرداد» من منشآت. سنراجع وضع منشأتك وفق الاشتراطات الرسمية ونعود لك بفجوات الامتثال وخطة تجهيز الملف.</p><table>${row("رقم المرجع", ref)}</table><p>تابع طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب استرداد رسوم ${ref} — ${company}`, oHtml),
+      sendEmail(email, `استلمنا طلب تقييم الاسترداد — ${ref}`, cHtml),
+      crmLead({ title: `استرداد رسوم (منشآت) — ${company}`, phone, email, notes: `استرداد · بدء النشاط: ${startYear || "—"} · عمالة أجنبية: ${workers != null ? workers : "—"}${notes ? " · " + notes : ""}`, ref, orderStatus: "قيد المراجعة" }),
+      addToAudience(email, person),
+      forwardLead({ source: "estrdad", ref, name: person, phone, email, items: company }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   // Official-quote request from the cost calculator — no payment/receipt step.
   // Lands in the client's dashboard (via bp_orders locally) and in the CRM with
   // status «بانتظار التسعير» so the team prices it and comes back with an offer.
