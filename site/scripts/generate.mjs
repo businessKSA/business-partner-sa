@@ -385,6 +385,7 @@ ${hreflangs}
 
 const NAV_GROUPS = [
   { href: "/", en: "Home", ar: "الرئيسية" },
+  { href: "/about", en: "About us", ar: "من نحن" },
   {
     en: "Our services", ar: "خدماتنا",
     items: [
@@ -398,6 +399,8 @@ const NAV_GROUPS = [
       { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
     ],
   },
+  { href: "/hr", en: "Recruitment", ar: "التوظيف" },
+  { href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال" },
   {
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
@@ -407,9 +410,6 @@ const NAV_GROUPS = [
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
   },
-  { href: "/hr", en: "HR by Business Partner", ar: "الموارد البشرية من بزنس بارتنر" },
-  { href: "/mahfol-makfol", en: "Mahfol Makfol · Saudi travel", ar: "محفول مكفول · سياحة السعودية" },
-  { href: "/about", en: "About us", ar: "من نحن" },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
 ];
