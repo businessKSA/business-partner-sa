@@ -159,10 +159,20 @@ const EXTRA_LANGS = ["fr", "es", "zh", "ru", "hi", "ko", "ja"];
 const ALL_LANGS = ["en", "ar", ...EXTRA_LANGS];
 const LANG_NAMES = { en: "English", ar: "العربية", fr: "Français", es: "Español", zh: "中文", ru: "Русский", hi: "हिन्दी", ko: "한국어", ja: "日本語" };
 const LANG_LOCALE = { en: "en_US", ar: "ar_SA", fr: "fr_FR", es: "es_ES", zh: "zh_CN", ru: "ru_RU", hi: "hi_IN", ko: "ko_KR", ja: "ja_JP" };
-// Pages generated for the 7 extra languages so far (site chrome + homepage +
-// the main discovery pages). Everything else still exists only in en/ar;
-// u() below sends extra-language visitors to the English URL for those.
+// Pages generated for the extra languages that AREN'T fully translated yet
+// (site chrome + homepage + the main discovery pages). Everything else still
+// exists only in en/ar for those languages; u() below sends visitors to the
+// English URL instead of a 404. Languages in FULLY_READY_LANGS skip this
+// restriction entirely and get every page, same as en/ar.
 const EXTRA_LANG_PATHS = new Set(["/", "/about", "/services", "/packages", "/contact"]);
+// Extra languages with a complete, reviewed translation of every page —
+// added one at a time as each is finished. See docs/i18n-status.md.
+const FULLY_READY_LANGS = ["fr"];
+// A handful of pages (the internal AI-employee/portal tools) are hand-written
+// once for ar/en only — they're never part of the per-language build loop,
+// so even a "fully ready" language must not get a prefixed link to them.
+const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
+const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
 import { TRANSLATIONS } from "./i18n.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
@@ -200,14 +210,18 @@ const u = (href) => {
   if (ALL_LANGS.some((l) => l !== "en" && (href === "/" + l || href.startsWith("/" + l + "/")))) return href; // already prefixed
   const bare = href === "/" ? "/" : href.split("#")[0].split("?")[0];
   const hash = href.includes("#") ? "#" + href.split("#")[1] : "";
-  if (LANG !== "ar" && !EXTRA_LANG_PATHS.has(bare)) return href; // not built yet in this language
+  if (LANG !== "ar" && !langPathReady(LANG, bare)) return href; // not built yet in this language
   return (bare === "/" ? `/${LANG}/` : `/${LANG}${bare}`) + hash;
 };
 
 // Standalone HR portal (hr.businesspartner.sa) — Arabic-first canonical paths
 // ("/", "/join", "/dashboard", "/candidates"); English lives under "/en/...".
 // Kept fully separate from the main site's nav/footer/services.
-const pu = (short) => (LANG === "ar" ? short : "/en" + (short === "/" ? "" : short));
+// Absolute (not root-relative) because these same pages are also reachable
+// under the main site's /portal/... paths (e.g. linked from /account) — a
+// root-relative "/join" would 404 there, since the vercel.json rewrite that
+// makes "/join" resolve only applies on the hr.businesspartner.sa host.
+const pu = (short) => "https://hr.businesspartner.sa" + (LANG === "ar" ? short : "/en" + (short === "/" ? "" : short));
 const PORTAL_LINKS = [
   { href: "/", en: "Home", ar: "الرئيسية" },
   { href: "/join", en: "For Employers", ar: "لأصحاب الأعمال" },
@@ -215,7 +229,9 @@ const PORTAL_LINKS = [
   { href: "/candidates", en: "For Candidates", ar: "للباحثين عن عمل" },
 ];
 function portalLangToggle(active) {
-  const other = LANG === "ar" ? "/en" + (active === "/" ? "" : active) : active;
+  // Absolute for the same reason as pu() above: these pages are also reachable
+  // under the main site's /portal/... paths, where a root-relative "/join" 404s.
+  const other = "https://hr.businesspartner.sa" + (LANG === "ar" ? "/en" + (active === "/" ? "" : active) : active);
   return `<a class="lang-toggle" href="${other}">${LANG === "ar" ? "English" : "العربية"}</a>`;
 }
 function portalHeader(active) {
@@ -253,7 +269,10 @@ function sName(s) {
   const m = svcI18n[s.code] || {};
   const ov = site.overrides[s.slug];
   if (LANG === "ar") return m.ar || (ov && ov.name) || s.name;
-  return m.en || (ov && ov.nameEn) || s.name;
+  if (LANG === "en") return m.en || (ov && ov.nameEn) || s.name;
+  // Extra languages: their own translated name if service-i18n.json has one
+  // yet, else the English name (never Arabic — this tree is non-Arabic).
+  return m[LANG] || m.en || (ov && ov.nameEn) || s.name;
 }
 // Arabic name regardless of current build language (for cart data attributes).
 const sNameArOf = (s) => { const m = svcI18n[s.code] || {}; const ov = site.overrides[s.slug]; return m.ar || (ov && ov.name) || s.name; };
@@ -266,7 +285,9 @@ function sDesc(s) {
     return `نتولّى في بيزنس بارتنر تنفيذ خدمة «${sName(s)}» نيابةً عنك ضمن ${catAr(s.category)} — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.`;
   }
   if (ov && ov.descriptionEn) return ov.descriptionEn;
-  return `Business Partner handles “${sName(s)}” on your behalf within ${catEn(s.category)} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.`;
+  return Lraw("Business Partner handles “{name}” on your behalf within {category} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.", "")
+    .replace("{name}", sName(s))
+    .replace("{category}", Lraw(catEn(s.category), catAr(s.category)));
 }
 const catEn = (key) => (CAT_META[key] ? CAT_META[key].en : key);
 const catAr = (key) => { const c = categories.find((x) => x.key === key); return c ? c.ar : key; };
@@ -333,7 +354,7 @@ function pathInLang(path, lang) {
 }
 function head(title, desc, path) {
   const canonical = path || "/";
-  const langsForPage = ["en", "ar", ...(EXTRA_LANG_PATHS.has(canonical) ? EXTRA_LANGS : [])];
+  const langsForPage = ["en", "ar", ...EXTRA_LANGS.filter((l) => langPathReady(l, canonical))];
   const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}">
@@ -373,6 +394,7 @@ const NAV_GROUPS = [
       { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
+      { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
     ],
   },
   {
@@ -391,8 +413,18 @@ const NAV_GROUPS = [
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
 ];
 
+// Only en/ar + FULLY_READY_LANGS are shown in the language switcher. The
+// remaining extra languages are only partially translated — even the 5
+// pages built for them mix in untranslated English strings — so offering
+// them as a finished option in the UI does more harm than good. Their
+// pages/routes still exist (reachable by direct URL) for whenever that work
+// is finished; they're just not advertised in the switcher until then.
+// Every language here must always be fully built for every path (true for
+// en/ar, and true for FULLY_READY_LANGS by construction) — langMenu links
+// straight to the same path in that language with no existence check.
+const VISIBLE_LANGS = ["en", "ar", ...FULLY_READY_LANGS];
 function langMenu(path) {
-  const items = ALL_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+  const items = VISIBLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
   return `<div class="nav-group lang-group">
     <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة">${saudiFlag}<span class="lang-label">${LANG_NAMES[LANG]}</span>${I.chevron}</button>
     <div class="nav-menu">${items}</div>
@@ -527,7 +559,6 @@ function page({ title, desc, active, path, body, script = "" }) {
   );
 }
 
-const slugCat = (key) => "cat-" + key.toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "");
 // Clean slug + URL for a category's own page (e.g. /services/category/company-formation).
 const catSlugUrl = (key) => key.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const catUrl = (key) => u("/services/category/" + catSlugUrl(key));
@@ -559,31 +590,39 @@ const GOV_EN = {
   "وزارة الموارد البشرية": "Ministry of Human Resources",
   "بدون جهة حكومية": "No government authority",
 };
-const govLabel = (g) => (LANG === "ar" ? g : (GOV_EN[g] || g));
+// g is always the Arabic authority name (from services.json); every call
+// site applies esc() itself, so this returns raw text via Lraw()/T() (never
+// L(), which double-escapes). T() already falls back to the English name
+// for any language without its own translation of that string, so this
+// covers every extra language automatically as translations are added to
+// i18n.mjs.
+const govLabel = (g) => Lraw(GOV_EN[g] || g, g);
 
+// Note: these return raw (unescaped) text — every call site applies esc()
+// itself — so use Lraw()/T() here, never L() (which double-escapes).
 function audienceOf(s, ov) {
   if (LANG === "ar") {
     if (ov && ov.audience) return ov.audience;
     if (s.targetClient) return s.targetClient;
-    return "أفراد ومنشآت";
+    return Lraw("Individuals & businesses", "أفراد ومنشآت");
   }
   if (ov && ov.audienceEn) return ov.audienceEn;
-  return "Individuals & businesses";
+  return Lraw("Individuals & businesses", "أفراد ومنشآت");
 }
 function documentsOf(s, ov) {
   if (LANG === "ar") {
     if (ov && ov.documents) return ov.documents;
     return [
-      "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)",
-      "المستندات الخاصة بنشاطك أو بطلب الخدمة",
-      "سداد الرسوم المقررة للجهة المختصة",
+      Lraw("Official documents (Commercial Registration or ID as applicable)", "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)"),
+      Lraw("Documents specific to your activity or request", "المستندات الخاصة بنشاطك أو بطلب الخدمة"),
+      Lraw("Payment of the fees due to the relevant authority", "سداد الرسوم المقررة للجهة المختصة"),
     ];
   }
   if (ov && ov.documentsEn) return ov.documentsEn;
   return [
-    "Official documents (Commercial Registration or ID as applicable)",
-    "Documents specific to your activity or request",
-    "Payment of the fees due to the relevant authority",
+    Lraw("Official documents (Commercial Registration or ID as applicable)", "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)"),
+    Lraw("Documents specific to your activity or request", "المستندات الخاصة بنشاطك أو بطلب الخدمة"),
+    Lraw("Payment of the fees due to the relevant authority", "سداد الرسوم المقررة للجهة المختصة"),
   ];
 }
 // Arabic translations of the English-only deliverables in services.json (keyed by code),
@@ -621,9 +660,9 @@ function featuresOf(s, ov) {
   }
   if (ov && ov.featuresEn) return ov.featuresEn;
   return [
-    "We complete the procedure on your behalf, from start to issuance",
-    "Clear fees, with government fees separate and disclosed",
-    "Smart-agent support on WhatsApp 24/7",
+    Lraw("We complete the procedure on your behalf, from start to issuance", "ننجز الإجراء نيابةً عنك من البداية حتى الإصدار"),
+    Lraw("Clear fees, with government fees separate and disclosed", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة"),
+    Lraw("Smart-agent support on WhatsApp 24/7", "دعم الوكيل الذكي على واتساب 24/7"),
   ];
 }
 function faqOf(s, ov) {
@@ -642,14 +681,18 @@ function faqOf(s, ov) {
     faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا على واتساب، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
   } else {
     faq.push({
-      q: "How much are the fees for this service?",
+      q: Lraw("How much are the fees for this service?", ""),
       a:
-        (s.price.amount != null ? `Business Partner's fee for this service is ${localizeLabel(s.price.label)}. ` : "This service is quoted individually based on your case. ") +
-        (s.govFeesSeparate ? "Government fees are separate from our fees and are disclosed before we start." : "VAT is added."),
+        (s.price.amount != null
+          ? Lraw("Business Partner's fee for this service is {price}. ", "").replace("{price}", localizeLabel(s.price.label))
+          : Lraw("This service is quoted individually based on your case. ", "")) +
+        (s.govFeesSeparate
+          ? Lraw("Government fees are separate from our fees and are disclosed before we start.", "")
+          : Lraw("VAT is added.", "")),
     });
-    faq.push({ q: "Who is this service for?", a: `This service is available to ${audienceOf(s, ov)}.` });
-    if (s.govPlatform) faq.push({ q: "Which authority handles it?", a: `The service is delivered through ${govLabel(s.govPlatform)}; we handle the filing and follow-up with it.` });
-    faq.push({ q: "How do I start?", a: "Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately." });
+    faq.push({ q: Lraw("Who is this service for?", ""), a: Lraw("This service is available to {audience}.", "").replace("{audience}", audienceOf(s, ov)) });
+    if (s.govPlatform) faq.push({ q: Lraw("Which authority handles it?", ""), a: Lraw("The service is delivered through {authority}; we handle the filing and follow-up with it.", "").replace("{authority}", govLabel(s.govPlatform)) });
+    faq.push({ q: Lraw("How do I start?", ""), a: Lraw("Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately.", "") });
   }
   return faq;
 }
@@ -939,7 +982,7 @@ function buildServiceDetail(s) {
 
   const body = `
   <section class="svc-hero"><div class="container">
-    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${u("/services")}#${slugCat(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
+    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${catUrl(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
     <h1>${esc(sName(s))}</h1>
     <div class="svc-meta">${serviceQuickFacts(s, ov)}</div>
   </div></section>
@@ -1017,7 +1060,7 @@ function buildAiAgents() {
     <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
     <div class="grid grid-3">${cards}</div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
-    <div class="center mt-32"><a class="btn btn-ghost" href="/connect">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
   </div></section>`;
   return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
@@ -1088,6 +1131,185 @@ function buildTaskForce() {
     </form>
   </div></section>`;
   return page({ title: Lraw("Task Force — Business Partner", "تاسك فورس — بيزنس بارتنر"), desc: Lraw("A dedicated executive service for hard, multi-party tasks and special projects.", "خدمة تنفيذية متخصصة لإدارة المهمات الصعبة والمشاريع متعددة الجهات."), active: "/task-force", path: "/task-force", body });
+}
+
+/* ---------- Deals & matchmaking (/deals) ---------- */
+const DEAL_SECTORS = [
+  { key: "food", icon: "🍽️", en: "Restaurants & Food", ar: "مطاعم وأغذية" },
+  { key: "retail", icon: "🛍️", en: "Retail", ar: "تجزئة" },
+  { key: "tech", icon: "🛠️", en: "Tech", ar: "تقنية" },
+  { key: "services", icon: "🧰", en: "Services", ar: "خدمات" },
+  { key: "industry", icon: "🪑", en: "Industry", ar: "صناعة" },
+  { key: "logistics", icon: "🚚", en: "Logistics", ar: "لوجستيات" },
+  { key: "beauty", icon: "💇‍♀️", en: "Beauty", ar: "تجميل" },
+  { key: "hr", icon: "👥", en: "HR", ar: "موارد بشرية" },
+  { key: "other", icon: "🗂️", en: "Other", ar: "أخرى" },
+];
+const DEAL_CITIES = [
+  { key: "riyadh", en: "Riyadh", ar: "الرياض" },
+  { key: "jeddah", en: "Jeddah", ar: "جدة" },
+  { key: "dammam", en: "Dammam", ar: "الدمام" },
+  { key: "other", en: "Other city", ar: "مدينة أخرى" },
+];
+const DEAL_TYPE_META = {
+  offer: { icon: "🤝", en: "Offering a deal", ar: "عرض صفقة" },
+  seek: { icon: "🔎", en: "Seeking a partner", ar: "يبحث عن شريك" },
+  idea: { icon: "💡", en: "Pitching an idea", ar: "فكرة مشروع" },
+};
+const DEAL_TICKETS = [
+  { type: "seek", sector: "food", city: "riyadh", titleEn: "Saudi cuisine restaurant — Riyadh", titleAr: "مطعم مأكولات سعودية — الرياض",
+    descEn: "A restaurant running for 3 years is looking for a funding partner to open a second branch in Jeddah, with an operating team ready to go.",
+    descAr: "مطعم قائم منذ 3 سنوات يبحث عن شريك مموّل لافتتاح فرع ثانٍ في جدة، مع خبرة تشغيلية جاهزة.",
+    statEn: "Stake offered", statAr: "الحصة المطروحة", valueEn: "30%", valueAr: "30%", postedEn: "Posted 2 days ago", postedAr: "نُشرت قبل يومين" },
+  { type: "idea", sector: "tech", city: "jeddah", titleEn: "On-demand home maintenance booking app", titleAr: "تطبيق حجز صيانة منزلية عند الطلب",
+    descEn: "A researched idea with initial market study — the founder is looking for a technical co-founder to build and launch the product.",
+    descAr: "فكرة مدروسة بدراسة سوق أولية، صاحبها يبحث عن شريك مؤسس تقني لبناء المنتج وإطلاقه.",
+    statEn: "Looking for", statAr: "المطلوب", valueEn: "Technical partner", valueAr: "شريك تقني", postedEn: "Posted yesterday", postedAr: "نُشرت أمس" },
+  { type: "offer", sector: "logistics", city: "dammam", titleEn: "Exclusive food-product distribution — Eastern Province", titleAr: "توزيع حصري لمنتجات غذائية — المنطقة الشرقية",
+    descEn: "An established distribution company offers an exclusive distribution agreement to retailers in the Eastern Province on preferential terms.",
+    descAr: "شركة توزيع قائمة تعرض اتفاقية توزيع حصري لتجار التجزئة في المنطقة الشرقية بشروط تفضيلية.",
+    statEn: "Minimum order", statAr: "الحد الأدنى للطلب", valueEn: "SAR 50,000", valueAr: "50 ألف ﷼", postedEn: "Posted 3 days ago", postedAr: "نُشرت قبل 3 أيام" },
+  { type: "seek", sector: "beauty", city: "jeddah", titleEn: "Women's beauty salon — new branch", titleAr: "صالون تجميل نسائي — فرع جديد",
+    descEn: "A successful 2-branch salon is looking for a partner to run and operate a third branch, with full training and a ready brand.",
+    descAr: "صالون ناجح بفرعين يبحث عن شريكة لإدارة وتشغيل فرع ثالث، مع تدريب كامل وعلامة تجارية جاهزة.",
+    statEn: "Capital required", statAr: "رأس المال المطلوب", valueEn: "SAR 180,000", valueAr: "180 ألف ﷼", postedEn: "Posted 4 days ago", postedAr: "نُشرت قبل 4 أيام" },
+  { type: "offer", sector: "industry", city: "riyadh", titleEn: "Wholesale furniture manufacturing for retailers", titleAr: "تصنيع أثاث بالجملة لتجار التجزئة",
+    descEn: "A local furniture factory offers wholesale manufacturing contracts at competitive prices for furniture and furnishing stores.",
+    descAr: "مصنع أثاث محلي يعرض تعاقدات تصنيع بالجملة بأسعار تنافسية لمتاجر الأثاث والمفروشات.",
+    statEn: "Lead time", statAr: "مدة التوريد", valueEn: "2–4 weeks", valueAr: "2–4 أسابيع", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
+  { type: "idea", sector: "hr", city: "riyadh", titleEn: "Remote hiring platform for Saudi talent", titleAr: "منصة توظيف عن بُعد للمواهب السعودية",
+    descEn: "An entrepreneur with 8 years of recruitment experience is looking for a technical co-founder to build a platform connecting companies with talent.",
+    descAr: "رائد أعمال يملك خبرة توظيف 8 سنوات ويبحث عن شريك مؤسس مطوّر لبناء منصة ربط الشركات بالمواهب.",
+    statEn: "Looking for", statAr: "المطلوب", valueEn: "Co-founder", valueAr: "شريك مؤسس", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
+];
+function buildDeals() {
+  const sectorOptions = DEAL_SECTORS.map((s) => `<option value="${s.key}">${L(s.en, s.ar)}</option>`).join("");
+  const cityOptions = DEAL_CITIES.map((c) => `<option value="${c.key}">${L(c.en, c.ar)}</option>`).join("");
+  const launcher = [
+    ["offer", "🤝", L("I have a deal to offer", "عندي صفقة أعرضها"), L("Restaurant, shop, factory — offering a partnership, distribution or ready financing", "مطعم، محل، مصنع — تعرض شراكة أو توزيع أو تمويل جاهز")],
+    ["seek", "🔎", L("I'm looking for a partner", "أبحث عن شريك"), L("For an existing project that needs a funding or operating partner", "لمشروع قائم يحتاج شريك مموّل أو شريك تشغيل")],
+    ["idea", "💡", L("I have a project idea", "عندي فكرة مشروع"), L("Looking for a co-founder or funder to take on the idea with you", "تبحث عن شريك مؤسس أو ممول يتبنى الفكرة معك")],
+  ].map((x) => `<button class="card deal-launcher" data-kind="${x[0]}" type="button"><span class="deal-launcher-ico ${x[0]}">${x[1]}</span><h3>${x[2]}</h3><p class="text-soft">${x[3]}</p></button>`).join("");
+  const steps = [
+    [1, L("Submit your file", "تقديم الملف"), L("Deal type, sector, city, and a short description — two minutes, no more.", "نوع الصفقة، القطاع، المدينة، ووصف مختصر — دقيقتين لا أكثر.")],
+    [2, L("Match calculation", "حساب المطابقة"), L("We instantly compare your file against every open opportunity and rank the closest matches for you.", "نقارن ملفك فورًا بكل الفرص المتاحة ونرشّح أقرب النتائج لك.")],
+    [3, L("Review & publish", "اعتماد ونشر"), L("Our team reviews seriousness and data before any deal appears publicly.", "فريقنا يراجع الجدية والبيانات قبل ظهور أي صفقة للعامة.")],
+    [4, L("Mutual-consent introduction", "تعارف بموافقة الطرفين"), L("Your data is never revealed until the other party agrees to the introduction.", "بياناتك لا تُكشف أبدًا إلا بعد موافقة الطرف الآخر على التعارف.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const chips = [["all", L("All", "الكل")], ["offer", L("Offering a deal", "عرض صفقة")], ["seek", L("Seeking a partner", "بحث عن شريك")], ["idea", L("Project idea", "فكرة مشروع")]]
+    .map((c, i) => `<button class="deal-chip${i === 0 ? " active" : ""}" data-filter="${c[0]}" type="button">${c[1]}</button>`).join("");
+  const tickets = DEAL_TICKETS.map((t) => {
+    const sec = DEAL_SECTORS.find((s) => s.key === t.sector);
+    const city = DEAL_CITIES.find((c) => c.key === t.city);
+    const meta = DEAL_TYPE_META[t.type];
+    return `<article class="card deal-ticket" data-type="${t.type}" data-sector="${t.sector}" data-city="${t.city}">
+      <span class="deal-badge ${t.type}">${meta.icon} ${L(meta.en, meta.ar)}</span>
+      <h3>${L(t.titleEn, t.titleAr)}</h3>
+      <div class="deal-ticket-meta"><span>${I.pin} ${L(city.en, city.ar)}</span><span>${sec.icon} ${L(sec.en, sec.ar)}</span></div>
+      <p class="text-soft">${L(t.descEn, t.descAr)}</p>
+      <div class="deal-ticket-stat"><span>${L(t.statEn, t.statAr)}</span><b>${L(t.valueEn, t.valueAr)}</b></div>
+      <div class="deal-ticket-foot"><span>${L(t.postedEn, t.postedAr)}</span><button class="deal-ticket-btn" type="button">${L("Request intro", "طلب تعارف")}</button></div>
+    </article>`;
+  }).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("New — smart matching + deals", "جديد — مطابقة ذكية + صفقات")}</span>
+    <h1>${L("We don't just list deals — we match you with the right partner", "ما نعرض لك صفقات فقط — نطابقك مع الشريك الصح")}</h1>
+    <p class="lead">${L("Submit your deal or file once, and we compare it instantly against every available opportunity by sector, city and deal type, then recommend the closest matches by name. Real introductions only happen with mutual consent.", "قدّم صفقتك أو ملفك مرة واحدة، ونقارنه فورًا بكل الفرص المتاحة حسب القطاع والمدينة ونوع الصفقة، ونرشّح لك أقرب النتائج بالاسم. التعارف الفعلي لا يتم إلا بعد موافقة الطرفين.")}</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" id="deal-open-hero" type="button">${L("Submit your deal now", "قدّم صفقتك الآن")}</button>
+      <a class="btn btn-ghost btn-lg" href="#deal-wall">${L("Browse published deals", "تصفح الصفقات المنشورة")}</a>
+    </div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Manual review before publishing", "مراجعة يدوية قبل النشر")}</span>
+      <span class="hero-badge">${I.check}${L("Automatic match score", "نسبة تطابق محسوبة تلقائيًا")}</span>
+      <span class="hero-badge">${I.check}${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><h2>${L("Choose what applies to your situation", "اختر ما ينطبق على وضعك")}</h2><p>${L("Every type goes through the same submission, matching and review journey.", "كل نوع يمر بنفس رحلة التقديم والمطابقة والمراجعة.")}</p></div>
+    <div class="grid grid-3">${launcher}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><h2>${L("From submission to introduction", "من التقديم إلى التعارف")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section" id="deal-wall"><div class="container">
+    <div class="section-head"><h2>${L("Deals published this week", "الصفقات المنشورة هذا الأسبوع")}</h2><p>${L("Browse for free, or submit your file so the system calculates your closest matches automatically.", "تصفح مجانًا، أو قدّم ملفك ليحسب النظام أقرب المطابقات لك تلقائيًا.")}</p></div>
+    <div class="deal-filters">${chips}<span class="deal-filters-count"><span id="deal-visible-count">0</span> ${L("deals visible", "صفقة ظاهرة")}</span></div>
+    <div class="grid grid-3" id="deal-wall-grid">${tickets}</div>
+    <div class="center mt-32"><button class="btn btn-primary" id="deal-open-bottom" type="button">${L("Add your deal to the wall", "أضف صفقتك للحائط")}</button></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="deal-trust">
+      <span>🔒 ${L("Manual review before publishing", "مراجعة يدوية قبل النشر")}</span>
+      <span>🎯 ${L("Automatically calculated match score", "نسبة تطابق محسوبة تلقائيًا")}</span>
+      <span>🤝 ${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
+      <span>✉️ ${L("Instant email updates", "تحديثات فورية بالبريد")}</span>
+    </div>
+  </div></section>
+
+  <div class="deal-scrim" id="deal-scrim"></div>
+  <aside class="deal-drawer" id="deal-drawer" role="dialog" aria-label="${Lraw("Submit a deal", "تقديم صفقة")}">
+    <div class="deal-drawer-head">
+      <b>${L("Submit your file and get matches", "قدّم ملفك واحصل على مطابقات")}</b>
+      <button class="deal-drawer-close" id="deal-drawer-close" type="button" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
+    </div>
+    <div class="deal-drawer-progress"><div class="deal-drawer-bar" id="deal-drawer-bar"></div></div>
+    <div class="deal-drawer-body">
+      <div class="deal-step active" data-step="1">
+        <h4>${L("Step 1 — Deal type", "الخطوة 1 — نوع الصفقة")}</h4>
+        <p class="hint">${L("Choose what applies to your current situation", "اختر ما ينطبق على وضعك الحالي")}</p>
+        <div class="deal-type-pick">
+          <label class="deal-type-opt" data-kind="offer"><input type="radio" name="dealType" value="offer" checked><span class="tico">🤝</span><span><b>${L("I have a deal to offer", "عندي صفقة أعرضها")}</b><span class="sub">${L("Partnership, distribution, ready financing", "شراكة، توزيع، تمويل جاهز")}</span></span></label>
+          <label class="deal-type-opt" data-kind="seek"><input type="radio" name="dealType" value="seek"><span class="tico">🔎</span><span><b>${L("I'm looking for a partner", "أبحث عن شريك")}</b><span class="sub">${L("For an existing project that needs funding or operations", "لمشروع قائم يحتاج تمويل أو تشغيل")}</span></span></label>
+          <label class="deal-type-opt" data-kind="idea"><input type="radio" name="dealType" value="idea"><span class="tico">💡</span><span><b>${L("I have a project idea", "عندي فكرة مشروع")}</b><span class="sub">${L("Looking for a co-founder or funder", "أبحث عن شريك مؤسس أو ممول")}</span></span></label>
+        </div>
+      </div>
+      <div class="deal-step" data-step="2">
+        <h4>${L("Step 2 — Deal details", "الخطوة 2 — تفاصيل الصفقة")}</h4>
+        <p class="hint">${L("These fields are what the match calculation uses", "هذه الحقول هي ما يُستخدم لحساب المطابقة")}</p>
+        <div class="field"><label for="deal-title">${L("Deal title", "عنوان الصفقة")}</label><input type="text" id="deal-title" placeholder="${Lraw("e.g. Restaurant looking for a funding partner", "مثال: مطعم يبحث عن شريك مموّل")}"></div>
+        <div class="grid grid-2" style="gap:0 16px">
+          <div class="field"><label for="deal-sector">${L("Sector", "القطاع")}</label><select id="deal-sector">${sectorOptions}</select></div>
+          <div class="field"><label for="deal-city">${L("City", "المدينة")}</label><select id="deal-city">${cityOptions}</select></div>
+        </div>
+        <div class="field"><label for="deal-desc">${L("Deal description", "وصف الصفقة")}</label><textarea id="deal-desc" rows="4" placeholder="${Lraw("Briefly explain the idea or deal...", "اشرح الفكرة أو الصفقة بإيجاز...")}"></textarea></div>
+      </div>
+      <div class="deal-step" data-step="3">
+        <h4>${L("Step 3 — Contact details", "الخطوة 3 — بيانات التواصل")}</h4>
+        <p class="hint">${L("Your data is never shown publicly — only revealed after the other party agrees to the introduction", "لن تظهر بياناتك للعامة أبدًا — تُكشف فقط بعد موافقة الطرف الآخر على التعارف")}</p>
+        <div class="grid grid-2" style="gap:0 16px">
+          <div class="field"><label for="deal-name">${L("Name", "الاسم")}</label><input type="text" id="deal-name" placeholder="${Lraw("Your full name", "اسمك الكامل")}"></div>
+          <div class="field"><label for="deal-phone">${L("Mobile", "الجوال")}</label><input type="tel" id="deal-phone" inputmode="tel" placeholder="05XXXXXXXX"></div>
+        </div>
+        <div class="field"><label for="deal-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="deal-email" placeholder="name@email.com"></div>
+        <label class="deal-consent"><input type="checkbox" id="deal-consent" checked><span>${L("I agree to have my file reviewed by the Business Partner team before publishing, and to receive email about any match or introduction request.", "أوافق على مراجعة ملفي من فريق بيزنس بارتنر قبل نشره، وعلى تلقّي بريد بأي مطابقة أو طلب تعارف.")}</span></label>
+        <div id="deal-wiz-message" class="deal-wiz-message" hidden></div>
+      </div>
+      <div class="deal-step" data-step="4">
+        <h4>${L("Step 4 — Your closest matches", "الخطوة 4 — أقرب المطابقات لك")}</h4>
+        <p class="hint">${L("Calculated by sector, city and deal type — your data isn't shown to them unless they agree to the introduction request", "محسوبة حسب القطاع والمدينة ونوع الصفقة — لن تظهر بياناتك لهم إلا إذا وافقوا على طلب التعارف")}</p>
+        <div class="deal-match-list" id="deal-match-results"></div>
+      </div>
+      <div class="deal-step" data-step="5">
+        <div class="deal-wiz-success">
+          <div class="deal-wiz-check">${I.check}</div>
+          <h4>${L("Your file was received", "وصلنا ملفك بنجاح")}</h4>
+          <p class="text-soft">${L("Saved in our system and will be reviewed by the team within 24 hours — we'll confirm by email once it's published and on every new match.", "حُفظ في نظامنا وسيراجعه الفريق خلال 24 ساعة، وسنرسل لك تأكيدًا بالبريد عند النشر وعند كل مطابقة جديدة.")}</p>
+        </div>
+      </div>
+    </div>
+    <div class="deal-drawer-foot" id="deal-drawer-foot">
+      <button class="btn btn-ghost" id="deal-step-back" type="button">${L("Back", "السابق")}</button>
+      <button class="btn btn-primary" id="deal-step-next" type="button">${L("Next", "التالي")}</button>
+    </div>
+  </aside>`;
+  return page({ title: Lraw("Deals & Smart Matchmaking — Business Partner", "الصفقات والمطابقة الذكية — بيزنس بارتنر"), desc: Lraw("Offer a deal, look for a partner, or pitch an idea — we automatically match you with the closest opportunities by sector and city, and never reveal your data until both sides agree.", "اعرض صفقتك، ابحث عن شريك، أو اطرح فكرتك — نطابقك تلقائيًا مع أقرب الفرص حسب القطاع والمدينة، ولا نكشف بياناتك إلا بعد موافقة الطرفين."), active: "/deals", path: "/deals", body });
 }
 
 function buildPackages() {
@@ -1637,10 +1859,6 @@ function buildComplianceAgent() {
       [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
       [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your account — the Compliance Agent card opens your dashboard directly.", "سجّل دخولك لحسابك — بطاقة وكيل الامتثال تفتح لوحتك مباشرة.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
-    <div class="hero-actions" style="margin-top:1.4rem">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
-      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
-    </div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -2582,16 +2800,22 @@ function buildMahfolTrips() {
   // Real Saudi tourism photos (the client's own brochure assets on Google Drive).
   const timg = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
   const DEST = [
-    { ic: "🏜️", en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440 },
-    { ic: "🏛️", en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339 },
-    { ic: "🕌", en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600 },
-    { ic: "🌊", en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272 },
-    { ic: "🐠", en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471 },
-    { ic: "🌲", en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780 },
-    { ic: "🏝️", en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838 },
-    { ic: "🌹", en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619 },
-    { ic: "🐪", en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291 },
+    { ic: "🏜️", k: "riyadh", price: 600, en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440 },
+    { ic: "🏛️", k: "alula", price: 2029, en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339 },
+    { ic: "🕌", k: "jeddah", price: 2290, en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600 },
+    { ic: "🌊", k: "neom", price: 2065, en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272 },
+    { ic: "🐠", k: "yanbu", price: 2261, en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471 },
+    { ic: "🌲", k: "asir", price: 1945, en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780 },
+    { ic: "🏝️", k: "jazan", price: 1897, en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838 },
+    { ic: "🌹", k: "taif", price: 1696, en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619 },
+    { ic: "🐪", k: "hail", price: null, en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291 },
   ];
+  // Purchasable trip card: priced → Add to cart (per-person; qty = travellers) →
+  // existing checkout (requires sign-in, payment, order in Notion, shows in the
+  // client portal). Price-less → request a custom quote via the form.
+  const tripBuy = (d, ghost = false) => d.price != null
+    ? cartBtns({ id: "trip-" + d.k, nameEn: "Trip — " + d.en, nameAr: "رحلة — " + d.ar, amount: d.price, priceLabel: L(d.pe, d.pa), kind: "trip", ghost })
+    : `<div class="buy-row"><a class="btn ${ghost ? "btn-ghost" : "btn-primary"}" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a></div>`;
   const destCards = DEST.map((d) => `
     <div class="card feature tr-dest">
       <div class="tr-dest-img" style="background-image:url('${timg(d.img)}')"><span class="tr-dest-ic">${d.ic}</span></div>
@@ -2599,7 +2823,10 @@ function buildMahfolTrips() {
         <h3>${L(d.en, d.ar)}</h3>
         <p class="tr-tag">${L(d.te, d.ta)}</p>
         <span class="tr-price">${L(d.pe, d.pa)}</span>
-        <a class="btn btn-ghost" style="width:100%;margin-top:auto" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.arrow}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a>
+        <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+          ${tripBuy(d)}
+          <a class="tr-inquire" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${L("or ask a question", "أو استفسر أولاً")}</a>
+        </div>
       </div>
     </div>`).join("");
 
@@ -2616,16 +2843,6 @@ function buildMahfolTrips() {
   const actCards = ACT.map((a) =>
     `<div class="tr-act"><span class="tr-act-ic">${a.ic}</span><h3>${L(a.en, a.ar)}</h3><p>${L(a.de, a.da)}</p></div>`).join("");
 
-  const UNIT = [
-    { ic: "📋", en: "Listing & marketing", ar: "الإدراج والتسويق", de: "Professional listings on Gathern, Airbnb & Booking with photography.", da: "إعلان احترافي على جاذرن وAirbnb وBooking مع تصوير ووصف جذاب." },
-    { ic: "💰", en: "Dynamic pricing", ar: "التسعير الديناميكي", de: "Priced by season and events for the highest yield.", da: "نسعّر حسب المواسم والفعاليات لتحقق أعلى عائد." },
-    { ic: "💬", en: "24/7 guest communication", ar: "تواصل مع الضيوف 24/7", de: "Handling enquiries, check-in and check-out.", da: "رد على الاستفسارات وإدارة الوصول والمغادرة." },
-    { ic: "🧹", en: "Operations & cleaning", ar: "تشغيل ونظافة", de: "The unit prepared to hospitality standards between bookings.", da: "تجهيز الوحدة بين كل حجز بمعايير الضيافة." },
-    { ic: "📊", en: "Monthly reports", ar: "تقارير شهرية", de: "Occupancy, revenue, expenses and your net return — clearly.", da: "إشغال وإيرادات ومصاريف وصافي عائدك بوضوح." },
-    { ic: "🛡️", en: "Licensing & compliance", ar: "توثيق وتراخيص", de: "Following Ministry of Tourism requirements and unit permits.", da: "متابعة اشتراطات وزارة السياحة ورخص الوحدات." },
-  ];
-  const unitCards = UNIT.map((s) =>
-    `<div class="card feature"><div class="card-icon" style="font-size:24px">${s.ic}</div><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
 
   const KSA = "M41 193 L92 201 L159 159 L214 64 L364 101 L486 191 L568 209 L659 238 L727 318 L760 400 L748 452 L792 470 L900 520 L982 560 L964 688 L862 712 L700 780 L560 812 L418 826 L389 852 L330 735 L236 614 L200 529 L146 413 L92 291 L50 238 Z";
   const mapMarkers = DEST.map((d, i) => `
@@ -2637,7 +2854,7 @@ function buildMahfolTrips() {
     <div class="trm-panel${i === 0 ? " on" : ""}" data-idx="${i}">
       <div class="trm-panel-img" style="background-image:url('${timg(d.img)}')"></div>
       <div class="trm-panel-body"><h3>${d.ic} ${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p><span class="tr-price">${L(d.pe, d.pa)}</span>
-      <a class="btn btn-primary" style="width:100%" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a></div>
+      ${tripBuy(d)}</div>
     </div>`).join("");
 
   const body = `
@@ -2701,6 +2918,9 @@ function buildMahfolTrips() {
     .tr-dest-body h3{margin:0;font-size:19px}
     .tr-tag{color:var(--text-soft);font-size:14px;margin:0}
     .tr-price{color:var(--navy);font-weight:800;font-size:14px}
+    .tr-inquire{text-align:center;font-size:13px;color:var(--text-soft);text-decoration:none}
+    .tr-inquire:hover{color:var(--navy);text-decoration:underline}
+    .tr-buy-note{max-width:760px;margin:0 auto 22px;text-align:center;color:var(--text-soft);font-size:14px}
     .tr-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
     .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm);border-top:3px solid var(--mm-gold)}
     .tr-act-ic{font-size:26px}
@@ -2758,18 +2978,13 @@ function buildMahfolTrips() {
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Where to go", "إلى أين")}</span><h2>${L("Destinations across the Kingdom", "وجهات في كل المملكة")}</h2><p>${L("From the Edge of the World to AlUla, the Red Sea islands and the green south.", "من حافة العالم إلى العلا وجزر البحر الأحمر والجنوب الأخضر.")}</p></div>
+    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online or by bank transfer; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع أونلاين أو بتحويل بنكي، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
     <div class="grid grid-3">${destCards}</div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Things to do", "الأنشطة")}</span><h2>${L("Signature experiences", "تجارب مميّزة")}</h2></div>
     <div class="tr-act-grid">${actCards}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Stays & property management", "الإقامة وإدارة الوحدات")}</span><h2>${L("We manage your tourism unit — Gathern & Airbnb style", "ندير وحدتك السياحية — بأسلوب جاذرن وAirbnb")}</h2><p>${L("Own a chalet, farm or apartment? We list, price, host and operate it for you and report your net return.", "عندك شاليه أو مزرعة أو شقة؟ ندرجها ونسعّرها ونستضيف ونشغّل نيابةً عنك ونعطيك صافي عائدك.")}</p></div>
-    <div class="grid grid-3">${unitCards}</div>
-    <div class="tr-owner"><h2>${L("List your unit with us", "أدرج وحدتك معنا")}</h2><p>${L("Turn your property into managed, high-yield hospitality income.", "حوّل عقارك إلى دخل ضيافة مُدار وعائد مرتفع.")}</p><a class="btn btn-primary btn-lg" href="#trip-form">${I.building}<span>${L("Become a host partner", "كن شريكاً مالكاً")}</span></a></div>
   </div></section>
 
   <section class="section section--gray" id="trip-form"><div class="container" style="max-width:720px">
@@ -2886,7 +3101,7 @@ function buildMahfolTrips() {
 
   return page({
     title: Lraw("Trips & experiences — Mahfol Makfol by Business Partner", "الرحلات والتجارب — محفول مكفول من بزنس بارتنر"),
-    desc: Lraw("Curated Saudi trips, camps, stays and activities across every region, plus Gathern/Airbnb-style tourism-unit management — Mahfol Makfol by Business Partner.", "رحلات ومخيمات وإقامات وأنشطة سعودية مصمّمة في كل المناطق، وإدارة وحدات سياحية بأسلوب جاذرن وAirbnb — محفول مكفول من بزنس بارتنر."),
+    desc: Lraw("Curated Saudi trips, camps, stays and activities across every region — Mahfol Makfol by Business Partner.", "رحلات ومخيمات وإقامات وأنشطة سعودية مصمّمة في كل مناطق المملكة — محفول مكفول من بزنس بارتنر."),
     active: "/mahfol-makfol", path: "/mahfol-makfol/trips", body, script: tripScript,
   });
 }
@@ -2895,12 +3110,15 @@ function buildSaudi() {
   const s = site.saudiArabia;
   const targets = s.vision.targets.map((t) => `<div class="stat"><div class="num">${esc(t.value)}</div><div class="lbl">${L(t.labelEn || t.label, t.label)}</div></div>`).join("");
   const sectors = s.sectors.items
-    .map(
-      (it) => `<a class="card svc-card" href="${u("/services")}#${slugCat(it.category)}">
+    .map((it) => {
+      // "Tourism" isn't a services category (it has its own dedicated page) —
+      // every other sector here maps to a real category page.
+      const href = it.category === "Tourism" ? u("/tourism") : catUrl(it.category);
+      return `<a class="card svc-card" href="${href}">
       <div class="card-icon">${I.building}</div>
       <h3>${L(it.titleEn || it.title, it.title)}</h3><p class="desc">${L(it.textEn || it.text, it.text)}</p>
-      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`
-    )
+      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`;
+    })
     .join("");
   const articles = s.knowledge.articles
     .map(
@@ -4246,10 +4464,10 @@ function buildSuppliers() {
 }
 
 function buildMonitor() {
-  // BP Inbox page is authored as a standalone raw HTML file (src/monitor.page.html)
+  // BP Inbox page is authored as a standalone raw HTML file (scripts/assets/monitor.page.html)
   // and emitted verbatim. Keeping it out of a JS template literal avoids escaping
   // hazards (backticks / ${} / backslashes) that previously broke the page script.
-  return fs.readFileSync(path.join(ROOT, '..', 'src', 'monitor.page.html'), 'utf8');
+  return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8');
 }
 
 /* ---------- owner dashboard: control + live-test the specialized-team agents ---------- */
@@ -4456,7 +4674,7 @@ function buildDashboard() {
 // Standalone client-facing page (has its own chrome). Presents the AI employees
 // as a subscription product, a Connectors hub (guided step-by-step per tool with
 // cost/token transparency + a done-for-you option), and packages.
-function buildConnect() {
+function buildConnect(pre = "/") {
   return `<!doctype html>
 <html dir="rtl" lang="ar">
 <head>
@@ -4578,7 +4796,7 @@ function buildConnect() {
     <div class="mn-links">
       <a href="#connect">الأدوات</a>
       <a href="#pricing">الباقات</a>
-      <a class="mn-cta" href="/portal">🔐 دخول بوابتي</a>
+      <a class="mn-cta" href="${pre}portal">🔐 دخول بوابتي</a>
     </div>
   </div>
   <div class="hero">
@@ -4587,7 +4805,7 @@ function buildConnect() {
       <h1>وظّف <span class="hi">موظفاً ذكياً</span> متخصصاً، واربطه بأدوات شركتك<br/>فيشتغل فعلياً نيابةً عنك.</h1>
       <p>مو مجرد شات — موظف حقيقي في مجاله (مساعدة تنفيذية، مبيعات، تسويق، عمليات…). تربطه بجيميل ونوشن وواتساب وتيمس بضغطة، فيقرأ ويرسل وينظّم ويرد <b>داخل حساباتك أنت</b>. أسرع، أقوى، ومخرجات مباشرة.</p>
       <div class="cta">
-        <a href="/portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
+        <a href="${pre}portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
         <a href="#connect" class="btn btn-o">🔌 شوف الأدوات</a>
       </div>
       <div class="valuerow">
@@ -4600,10 +4818,10 @@ function buildConnect() {
   <section>
     <div class="wrap">
       <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p>
-        <p style="margin-top:.6rem"><a href="/portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
+        <p style="margin-top:.6rem"><a href="${pre}portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
       </div>
       <div class="emps" id="emps"></div>
-      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="/portal">بوابة الموظفين الأذكياء</a>.</p>
+      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -4623,19 +4841,19 @@ function buildConnect() {
           <h3>وكيل الامتثال والالتزام</h3>
           <div class="pr">250 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>مراقبة قوى ومقيم والتأمينات ومدد والنطاقات</li><li>تنبيهات المهل والمخالفات فور ظهورها</li><li>حاسبات النطاقات والتكاليف مجانية ضمن الباقة</li></ul>
-          <a href="/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
         </div>
         <div class="pc feat">
           <h3>موظفك الذكي المتخصص</h3>
           <div class="pr">500 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>موظف تسويق أو إداري أو مبيعات أو تقني</li><li>يعمل 24 ساعة ضمن سياسات منشأتك</li><li>ربط أدواتك (قوقل / نوشن / سلاك) من هذه الصفحة</li></ul>
-          <a href="/ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
         </div>
         <div class="pc">
           <h3>فريق الخدمات المشتركة</h3>
           <div class="pr">1,500 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>وكيل الامتثال + فريق العمل الذكي مدموجان بالكامل</li><li>لوحة موحّدة لكل منصّاتك وفرقك</li><li>أولوية في التنفيذ والدعم</li></ul>
-          <a href="/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
         </div>
       </div>
       <div class="addon">
@@ -4803,7 +5021,7 @@ function buildConnect() {
 // Full client-facing flow. Agents are the live n8n team webhooks (real chat).
 // Subscription gate uses an access code (issued after payment) — swap for a real
 // payment gateway + server-side check later.
-function buildPortal() {
+function buildPortal(pre = "/") {
   return `<!doctype html>
 <html dir="rtl" lang="ar">
 <head>
@@ -4931,10 +5149,10 @@ function buildPortal() {
 <body>
   <div class="topbar">
     <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
-    <a class="tb-link" href="/connect">الأدوات والباقات</a>
-    <a class="tb-link" href="/">الموقع</a>
+    <a class="tb-link" href="${pre}connect">الأدوات والباقات</a>
+    <a class="tb-link" href="${pre}">الموقع</a>
     <div class="sp"></div>
-    <a id="subscribeNow" href="/connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
+    <a id="subscribeNow" href="${pre}connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
     <div class="who" id="who"></div>
     <button id="logout" style="display:none">خروج</button>
   </div>
@@ -4966,7 +5184,7 @@ function buildPortal() {
       <div class="tabs">
         <button class="tab active" data-tab="emp">👥 موظفوك</button>
         <button class="tab" data-tab="tools">🔌 أدواتك</button>
-        <a class="tab-link" href="/connect">الباقات ↗</a>
+        <a class="tab-link" href="${pre}connect">الباقات ↗</a>
       </div>
       <div id="tab-emp">
         <h2>اختر موظفك</h2>
@@ -5142,7 +5360,7 @@ function buildPortal() {
         cart.push({id:id,nameEn:a.name+' — '+a.role,nameAr:a.name+' — '+a.role,amount:500,price:'500 ﷼ / شهرياً',kind:'employee',qty:1});
       });
       localStorage.setItem('bp_cart',JSON.stringify(cart));
-      location.href='/cart';
+      location.href='${pre}cart';
     };
     $('logout').onclick=function(){ localStorage.removeItem(LS.email); localStorage.removeItem(LS.sub); localStorage.removeItem(LS.agents); localStorage.removeItem(LS.trial); email=''; subbed=false; isTrial=false; showGate=false; route(); };
     function entitledSlugs(){
@@ -5423,9 +5641,9 @@ if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.
 if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 
 let pageCount = 0;
-for (const lang of ["en", "ar"]) {
-  LANG = lang;
-  const pre = lang === "ar" ? "ar/" : "";
+// The full page set for one language tree — shared by en/ar (always full)
+// and by any extra language once it's in FULLY_READY_LANGS.
+function writeFullSite(pre) {
   write(`${pre}index.html`, buildHome());
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
@@ -5434,6 +5652,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
   write(`${pre}mahfol-makfol/trips.html`, buildMahfolTrips());
   write(`${pre}task-force.html`, buildTaskForce());
+  write(`${pre}deals.html`, buildDeals());
   write(`${pre}packages.html`, buildPackages());
   // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
   write(`${pre}tools-and-calculators.html`, buildToolsHub());
@@ -5473,16 +5692,26 @@ for (const lang of ["en", "ar"]) {
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 15 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
+  pageCount += 16 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
 }
 
-// 7 extra world languages: core discovery pages only for now (site chrome +
-// homepage everywhere is what matters most for a first-touch international
-// visitor). u() already routes any other internal link back to the English
-// page instead of a 404 — see EXTRA_LANG_PATHS.
+for (const lang of ["en", "ar"]) {
+  LANG = lang;
+  writeFullSite(lang === "ar" ? "ar/" : "");
+}
+
+// Extra world languages: languages fully translated (FULLY_READY_LANGS) get
+// every page, same as en/ar. The rest still only get the core discovery
+// pages (site chrome + homepage matter most for a first-touch international
+// visitor) — u() routes any other internal link back to the English page
+// instead of a 404 for those; see EXTRA_LANG_PATHS.
 for (const lang of EXTRA_LANGS) {
   LANG = lang;
   const pre = `${lang}/`;
+  if (FULLY_READY_LANGS.includes(lang)) {
+    writeFullSite(pre);
+    continue;
+  }
   write(`${pre}index.html`, buildHome());
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
@@ -5500,12 +5729,12 @@ write("dashboard.html", buildDashboard());
 
 // Client product page: AI employees + connectors hub + pricing (noindex).
 // Emit under both / and /ar/ so localized nav links (u("/connect") -> /ar/connect) resolve.
-write("connect.html", buildConnect());
-write("ar/connect.html", buildConnect());
+write("connect.html", buildConnect("/"));
+write("ar/connect.html", buildConnect("/ar/"));
 
 // Client portal: login -> subscription gate -> pick agent -> live chat (noindex)
-write("portal.html", buildPortal());
-write("ar/portal.html", buildPortal());
+write("portal.html", buildPortal("/"));
+write("ar/portal.html", buildPortal("/ar/"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
