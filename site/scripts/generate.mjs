@@ -351,6 +351,7 @@ function head(title, desc, path) {
 <meta name="generator" content="Business Partner 3.0 Website">
 ${hreflangs}
 <link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -391,7 +392,7 @@ const NAV_GROUPS = [
 ];
 
 function langMenu(path) {
-  const items = ALL_LANGS.map((l) => `<a href="${pathInLang(path, l)}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+  const items = ALL_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
   return `<div class="nav-group lang-group">
     <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة">${saudiFlag}<span class="lang-label">${LANG_NAMES[LANG]}</span>${I.chevron}</button>
     <div class="nav-menu">${items}</div>
