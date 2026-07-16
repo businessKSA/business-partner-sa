@@ -1348,12 +1348,12 @@ function buildDeals() {
 function buildPackages() {
   const p = site.packages;
   const groups = p.groups || [{ key: "business", ar: p.title, en: p.titleEn, descAr: p.subtitle, descEn: p.subtitleEn, tiers: p.tiers }];
-  const tierCard = (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
+  const tierCard = (t) => `<div class="pkg${t.highlight ? " pop" : ""}"${t.highlight ? ` data-badge="${esc(L("Most requested", "الأكثر طلباً"))}"` : ""}>
       <div class="pk-name">${L(t.nameEn || t.name || t.nameAr, t.nameAr)}</div>
-      ${t.price ? `<div class="pk-price">${esc(localizeLabel(t.price))}</div>` : ""}
+      ${t.price ? `<div class="pk-price">${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       <ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
-      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
+      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
     </div>`;
   const tabs = groups
     .map((g, i) => `<button type="button" class="pk-tab${i === 0 ? " active" : ""}" data-group="${esc(g.key)}">${L(g.en, g.ar)}</button>`)
@@ -1361,14 +1361,15 @@ function buildPackages() {
   const panels = groups
     .map((g, i) => `<div class="pk-panel${i === 0 ? " active" : ""}" id="pkg-${esc(g.key)}">
       ${g.descAr || g.descEn ? `<p class="pk-group-desc">${L(g.descEn || g.descAr, g.descAr || g.descEn)}</p>` : ""}
-      <div class="grid grid-3">${g.tiers.map(tierCard).join("")}</div>
+      <div class="grid grid-${g.tiers.length >= 4 ? 4 : 3}">${g.tiers.map(tierCard).join("")}</div>
     </div>`)
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Packages", "الباقات")}</span>
     <h1>${L("Choose the package that fits your establishment", "اختر الباقة التي تناسب منشأتك")}</h1>
-    <p class="lead">${L("Business, company-formation and government-services packages — each is a starting price; your consultant tailors it to your case.", "باقات للأعمال، ولتأسيس الشركات، وللخدمات الحكومية — كل باقة سعرها ابتدائي، ومستشارك يضبطها على حالتك.")}</p>
+    <p class="lead">${L("Fixed-price monthly management packages, plus one-time company-formation and investment services — all from our official catalog.", "باقات إدارة شهرية بأسعار ثابتة، وخدمات تأسيس شركات واستثمار لمرة واحدة — كلها من الكتالوج الرسمي.")}</p>
+    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/calculator")}">🧮 ${L("Or design your own basket from the full catalog →", "أو صمّم سلّتك الخاصة من الكتالوج الكامل ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">
     <div class="pk-tabs" role="tablist">${tabs}</div>
@@ -1376,6 +1377,19 @@ function buildPackages() {
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(p.noteEn || p.note, p.note)}</p></div>
   </div></section>
   <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to activation", "أربع خطوات من التسجيل إلى التفعيل")}</h2></div>
+    <div class="steps-grid">${[
+      [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site.", "أنشئ حسابك في الموقع.")],
+      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
+      [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, your subscription is activated and you're notified.", "بمجرد التأكيد، يُفعَّل اشتراكك ويصلك إشعار.")],
+      [L("We start managing your account", "نبدأ إدارة حسابك"), L("Your dedicated team starts work on the platforms covered by your package.", "فريقك المخصّص يبدأ العمل على المنصات المشمولة بباقتك.")],
+    ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
+    <div class="hero-actions" style="margin-top:1.4rem">
+      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/account")}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
+    </div>
+  </div></section>
+  <section class="section"><div class="container">
     <div class="cta-band"><h2>${L("Not sure which package fits you?", "محتار أي باقة تناسبك؟")}</h2><p>${L("The smart agent asks a few questions and recommends the best package in minutes.", "الوكيل الذكي يسألك بضعة أسئلة ويرشّح لك الباقة الأنسب في دقائق.")}</p>${waBtn2("Help me choose", "ساعدني أختار", "btn-white", true)}</div>
   </div></section>
   <script>window.BP_PKG_LANG=${JSON.stringify(LANG)};</script>

@@ -248,177 +248,211 @@
   "packages": {
     "title": "الباقات",
     "subtitle": "ثلاث باقات تغطّي رحلتك — من أول فكرة حتى التوسّع. اختر الأقرب لك، والوكيل الذكي يضبطها على حالتك.",
-    "note": "تُحدَّد أسعار الباقات بعرض حسب نطاق العمل والخدمات المطلوبة — تواصل معنا للتسعير ونجهّز لك عرضاً مخصّصاً خلال دقائق.",
+    "note": "الأسعار أعلاه من الكتالوج الرسمي وتشمل أتعاب بيزنس بارتنر فقط ما لم يُذكر غير ذلك — الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء. لأي مزيج مخصص من الخدمات، استخدم حاسبة التكلفة.",
     "tiers": [
       {
         "key": "start",
-        "name": "Start",
-        "nameAr": "البداية",
-        "for": "لأصحاب الأفكار والمنشآت الجديدة",
+        "name": "Business Partner Start",
+        "nameAr": "بيزنس بارتنر Start",
+        "nameEn": "Business Partner Start",
+        "code": "BP-PKG-03",
+        "amount": 3500,
+        "price": "3,500 ﷼ / شهرياً",
+        "priceEn": "3,500 SAR / monthly",
+        "for": "للمنشآت الصغيرة والمتوسطة",
+        "forEn": "For small & medium establishments",
         "highlight": false,
         "features": [
-          "استشارة ما قبل التأسيس",
-          "قيد سجل تجاري / تأسيس مؤسسة فردية",
-          "حجز اسم تجاري وإنشاء الحسابات الحكومية",
-          "عضوية الغرفة التجارية",
-          "دعم الوكيل الذكي على واتساب"
+          "متابعة منصة قوى",
+          "متابعة التأمينات الاجتماعية (GOSI)",
+          "متابعة منصة مقيم",
+          "متابعة المنصات التشغيلية الأساسية الأخرى"
         ],
-        "forEn": "For founders and new businesses",
         "featuresEn": [
-          "Pre-incorporation consultation",
-          "CR registration / sole establishment setup",
-          "Trade name reservation & government account creation",
-          "Chamber of Commerce membership",
-          "Smart-agent support on WhatsApp"
-        ],
-        "nameEn": "Start",
-        "amount": 5000,
-        "price": "ابتداءً من 5,000 ﷼"
+          "Qiwa platform follow-up",
+          "GOSI (social insurance) follow-up",
+          "Muqeem platform follow-up",
+          "Follow-up on other core operating platforms"
+        ]
       },
       {
-        "key": "operate",
-        "name": "Operate",
-        "nameAr": "التشغيل",
-        "for": "للمنشآت النامية التي تحتاج تشغيلاً متكاملاً",
+        "key": "growth",
+        "name": "Business Partner Growth",
+        "nameAr": "بيزنس بارتنر Growth",
+        "nameEn": "Business Partner Growth",
+        "code": "BP-PKG-02",
+        "amount": 7500,
+        "price": "7,500 ﷼ / شهرياً",
+        "priceEn": "7,500 SAR / monthly",
+        "for": "للشركات في مرحلة النمو",
+        "forEn": "For growing companies",
         "highlight": true,
         "features": [
-          "كل ما في باقة البداية",
-          "تأسيس شركة ذات مسؤولية محدودة",
-          "التراخيص القطاعية اللازمة لنشاطك",
-          "إدارة قوى والتأمينات والموارد البشرية",
-          "متابعة الامتثال والالتزامات الدورية",
-          "أولوية في الرد والتنفيذ"
+          "كل ما في باقة Start",
+          "إدارة المنصات الحكومية بشكل أشمل",
+          "متابعة الخدمات المتكررة الأساسية"
         ],
-        "forEn": "For growing businesses that need full operations",
         "featuresEn": [
-          "Everything in the Start package",
-          "LLC company formation",
-          "Sector licenses required for your activity",
-          "Managing Qiwa, GOSI and HR",
-          "Compliance follow-up and periodic obligations",
-          "Priority in response and execution"
-        ],
-        "nameEn": "Operate",
-        "amount": 10000,
-        "price": "ابتداءً من 10,000 ﷼"
+          "Everything in Start",
+          "Broader government-platform management",
+          "Follow-up on core recurring services"
+        ]
       },
       {
-        "key": "grow",
-        "name": "Grow",
-        "nameAr": "النمو",
-        "for": "للمستثمرين والمنشآت الكبيرة والشركات الأجنبية",
+        "key": "pro",
+        "name": "Business Partner Pro",
+        "nameAr": "بيزنس بارتنر Pro",
+        "nameEn": "Business Partner Pro",
+        "code": "BP-PKG-01",
+        "amount": 15000,
+        "price": "15,000 ﷼ / شهرياً",
+        "priceEn": "15,000 SAR / monthly",
+        "for": "للمنشآت التي تحتاج إدارة شاملة ومستمرة",
+        "forEn": "For establishments needing comprehensive, ongoing management",
         "highlight": false,
         "features": [
-          "كل ما في باقة التشغيل",
-          "ترخيص استثمار أجنبي وتأسيس شركة أجنبية",
-          "الإقامة المميزة للمستثمرين والكفاءات",
-          "إدارة العلاقات الحكومية بمعقّب مخصّص",
-          "دراسات الجدوى والدعم الاستراتيجي",
-          "مدير حساب مخصّص"
+          "كل ما في باقة Growth",
+          "إدارة شاملة للمنصات الحكومية",
+          "متابعة تشغيلية مستمرة",
+          "تنبيهات دورية",
+          "تنسيق الخدمات المتكررة"
         ],
-        "forEn": "For investors, large businesses and foreign companies",
         "featuresEn": [
-          "Everything in the Operate package",
-          "Foreign investment license & foreign company formation",
-          "Premium Residency for investors and talent",
-          "Government relations with a dedicated liaison",
-          "Feasibility studies and strategic support",
-          "Dedicated account manager"
+          "Everything in Growth",
+          "Comprehensive government-platform management",
+          "Ongoing operational follow-up",
+          "Periodic alerts",
+          "Coordination of recurring services"
+        ]
+      },
+      {
+        "key": "gro",
+        "name": "GRO Monthly Package",
+        "nameAr": "باقة GRO الشهرية",
+        "nameEn": "GRO Monthly Package",
+        "code": "BP-PKG-04",
+        "amount": 2500,
+        "price": "2,500 ﷼ / شهرياً",
+        "priceEn": "2,500 SAR / monthly",
+        "for": "للمنشآت التي تحتاج إدارة علاقات حكومية بأقل تكلفة",
+        "forEn": "For establishments needing low-cost, ongoing government-relations (GRO) management",
+        "highlight": false,
+        "features": [
+          "متابعة معاملات العلاقات الحكومية (GRO) الشهرية",
+          "إدارة العمليات التشغيلية الأساسية"
         ],
-        "nameEn": "Grow",
-        "amount": 15000,
-        "price": "ابتداءً من 15,000 ﷼"
+        "featuresEn": [
+          "Monthly government-relations (GRO) transaction follow-up",
+          "Core operational management"
+        ]
       }
     ],
     "titleEn": "Packages",
     "subtitleEn": "Three packages that cover your journey — from first idea to expansion. Pick the closest one, and the smart agent tailors it to your case.",
-    "noteEn": "Package pricing is quoted by scope of work and services required — contact us for pricing and we'll prepare a custom quote in minutes.",
+    "noteEn": "Prices above are from the official catalog and cover Business Partner fees only unless stated otherwise — government fees (where applicable) are separate and announced before starting. For a custom mix of services, use the cost calculator.",
     "groups": [
       {
-        "key": "business",
-        "ar": "باقات الأعمال",
-        "en": "Business packages",
-        "descAr": "باقات متكاملة تغطّي رحلتك من الفكرة حتى التوسّع.",
-        "descEn": "End-to-end packages from idea to expansion.",
+        "key": "management",
+        "ar": "الإدارة الشهرية",
+        "en": "Monthly management",
+        "descAr": "باقات شهرية ثابتة لإدارة منصاتك الحكومية والتزاماتك التشغيلية — بدون التزام سنوي.",
+        "descEn": "Fixed monthly packages to manage your government platforms and operational obligations — no annual commitment.",
         "tiers": [
           {
             "key": "start",
-            "name": "Start",
-            "nameAr": "البداية",
-            "for": "لأصحاب الأفكار والمنشآت الجديدة",
+            "name": "Business Partner Start",
+            "nameAr": "بيزنس بارتنر Start",
+            "nameEn": "Business Partner Start",
+            "code": "BP-PKG-03",
+            "amount": 3500,
+            "price": "3,500 ﷼ / شهرياً",
+            "priceEn": "3,500 SAR / monthly",
+            "for": "للمنشآت الصغيرة والمتوسطة",
+            "forEn": "For small & medium establishments",
             "highlight": false,
             "features": [
-              "استشارة ما قبل التأسيس",
-              "قيد سجل تجاري / تأسيس مؤسسة فردية",
-              "حجز اسم تجاري وإنشاء الحسابات الحكومية",
-              "عضوية الغرفة التجارية",
-              "دعم الوكيل الذكي على واتساب"
+              "متابعة منصة قوى",
+              "متابعة التأمينات الاجتماعية (GOSI)",
+              "متابعة منصة مقيم",
+              "متابعة المنصات التشغيلية الأساسية الأخرى"
             ],
-            "forEn": "For founders and new businesses",
             "featuresEn": [
-              "Pre-incorporation consultation",
-              "CR registration / sole establishment setup",
-              "Trade name reservation & government account creation",
-              "Chamber of Commerce membership",
-              "Smart-agent support on WhatsApp"
-            ],
-            "nameEn": "Start",
-            "amount": 5000,
-            "price": "ابتداءً من 5,000 ﷼"
+              "Qiwa platform follow-up",
+              "GOSI (social insurance) follow-up",
+              "Muqeem platform follow-up",
+              "Follow-up on other core operating platforms"
+            ]
           },
           {
-            "key": "operate",
-            "name": "Operate",
-            "nameAr": "التشغيل",
-            "for": "للمنشآت النامية التي تحتاج تشغيلاً متكاملاً",
+            "key": "growth",
+            "name": "Business Partner Growth",
+            "nameAr": "بيزنس بارتنر Growth",
+            "nameEn": "Business Partner Growth",
+            "code": "BP-PKG-02",
+            "amount": 7500,
+            "price": "7,500 ﷼ / شهرياً",
+            "priceEn": "7,500 SAR / monthly",
+            "for": "للشركات في مرحلة النمو",
+            "forEn": "For growing companies",
             "highlight": true,
             "features": [
-              "كل ما في باقة البداية",
-              "تأسيس شركة ذات مسؤولية محدودة",
-              "التراخيص القطاعية اللازمة لنشاطك",
-              "إدارة قوى والتأمينات والموارد البشرية",
-              "متابعة الامتثال والالتزامات الدورية",
-              "أولوية في الرد والتنفيذ"
+              "كل ما في باقة Start",
+              "إدارة المنصات الحكومية بشكل أشمل",
+              "متابعة الخدمات المتكررة الأساسية"
             ],
-            "forEn": "For growing businesses that need full operations",
             "featuresEn": [
-              "Everything in the Start package",
-              "LLC company formation",
-              "Sector licenses required for your activity",
-              "Managing Qiwa, GOSI and HR",
-              "Compliance follow-up and periodic obligations",
-              "Priority in response and execution"
-            ],
-            "nameEn": "Operate",
-            "amount": 10000,
-            "price": "ابتداءً من 10,000 ﷼"
+              "Everything in Start",
+              "Broader government-platform management",
+              "Follow-up on core recurring services"
+            ]
           },
           {
-            "key": "grow",
-            "name": "Grow",
-            "nameAr": "النمو",
-            "for": "للمستثمرين والمنشآت الكبيرة والشركات الأجنبية",
+            "key": "pro",
+            "name": "Business Partner Pro",
+            "nameAr": "بيزنس بارتنر Pro",
+            "nameEn": "Business Partner Pro",
+            "code": "BP-PKG-01",
+            "amount": 15000,
+            "price": "15,000 ﷼ / شهرياً",
+            "priceEn": "15,000 SAR / monthly",
+            "for": "للمنشآت التي تحتاج إدارة شاملة ومستمرة",
+            "forEn": "For establishments needing comprehensive, ongoing management",
             "highlight": false,
             "features": [
-              "كل ما في باقة التشغيل",
-              "ترخيص استثمار أجنبي وتأسيس شركة أجنبية",
-              "الإقامة المميزة للمستثمرين والكفاءات",
-              "إدارة العلاقات الحكومية بمعقّب مخصّص",
-              "دراسات الجدوى والدعم الاستراتيجي",
-              "مدير حساب مخصّص"
+              "كل ما في باقة Growth",
+              "إدارة شاملة للمنصات الحكومية",
+              "متابعة تشغيلية مستمرة",
+              "تنبيهات دورية",
+              "تنسيق الخدمات المتكررة"
             ],
-            "forEn": "For investors, large businesses and foreign companies",
             "featuresEn": [
-              "Everything in the Operate package",
-              "Foreign investment license & foreign company formation",
-              "Premium Residency for investors and talent",
-              "Government relations with a dedicated liaison",
-              "Feasibility studies and strategic support",
-              "Dedicated account manager"
+              "Everything in Growth",
+              "Comprehensive government-platform management",
+              "Ongoing operational follow-up",
+              "Periodic alerts",
+              "Coordination of recurring services"
+            ]
+          },
+          {
+            "key": "gro",
+            "name": "GRO Monthly Package",
+            "nameAr": "باقة GRO الشهرية",
+            "nameEn": "GRO Monthly Package",
+            "code": "BP-PKG-04",
+            "amount": 2500,
+            "price": "2,500 ﷼ / شهرياً",
+            "priceEn": "2,500 SAR / monthly",
+            "for": "للمنشآت التي تحتاج إدارة علاقات حكومية بأقل تكلفة",
+            "forEn": "For establishments needing low-cost, ongoing government-relations (GRO) management",
+            "highlight": false,
+            "features": [
+              "متابعة معاملات العلاقات الحكومية (GRO) الشهرية",
+              "إدارة العمليات التشغيلية الأساسية"
             ],
-            "nameEn": "Grow",
-            "amount": 15000,
-            "price": "ابتداءً من 15,000 ﷼"
+            "featuresEn": [
+              "Monthly government-relations (GRO) transaction follow-up",
+              "Core operational management"
+            ]
           }
         ]
       },
@@ -456,8 +490,8 @@
             "key": "misa",
             "nameAr": "تأسيس استثمار أجنبي (MISA)",
             "nameEn": "Foreign investment (MISA)",
-            "price": "ابتداءً من 15,000 ﷼",
-            "amount": 15000,
+            "price": "22,500 ﷼",
+            "amount": 22500,
             "highlight": true,
             "for": "للمستثمرين والشركات الأجنبية",
             "forEn": "For foreign investors and companies",
