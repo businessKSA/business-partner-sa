@@ -1677,6 +1677,182 @@ function buildComplianceAgent() {
   });
 }
 
+// Specialized-team AI employees — one dedicated feature page per agent
+// (same pattern as the Compliance Agent page above), linked from both the
+// /connect purchase grid and the /portal employee picker/chat switcher.
+const TEAM_AGENTS = [
+  {
+    slug: "baher", emoji: "🎯",
+    nameAr: "باهر", nameEn: "Baher",
+    roleAr: "مستشار الأعمال", roleEn: "Business Advisor",
+    taglineAr: "أول نقطة تواصل: يشخّص طلبك ويوجّهك للخدمة أو الموظف الصحيح.", taglineEn: "Your first point of contact — diagnoses what you need and routes you to the right service or employee.",
+    caps: [
+      ["Answers business questions and explains which Business Partner service fits your situation", "يجاوب على استفساراتك التجارية ويوضح لك أي خدمة من خدمات بزنس بارتنر تناسب حالتك"],
+      ["Runs an initial diagnosis of your sector and request before recommending a paid service", "يسوي تشخيصاً أولياً لقطاعك وطلبك قبل ما يرشّح لك خدمة مدفوعة"],
+      ["Routes you to the right specialist (legal, compliance, HR, sales…) instead of leaving you guessing", "يحوّلك للمتخصص الصحيح (قانوني، امتثال، موارد بشرية، مبيعات…) بدل ما تتوه بين الخدمات"],
+      ["Escalates anything that needs a human decision instead of guessing an answer", "يصعّد أي شيء يحتاج قرار بشري بدل ما يخمّن إجابة"],
+    ],
+  },
+  {
+    slug: "mazen", emoji: "🧭",
+    nameAr: "مازن", nameEn: "Mazen",
+    roleAr: "مدير العمليات", roleEn: "Operations Manager",
+    taglineAr: "يستقبل عملاءك ويوجّههم، ويتولى أي تصعيد يحتاج تدخلاً بشرياً.", taglineEn: "Receives and routes your customers, and owns every escalation that needs a human hand-off.",
+    caps: [
+      ["Greets incoming customer conversations and routes each one to the right place", "يستقبل محادثات عملائك الواردة ويوجّه كل واحدة للمكان الصحيح"],
+      ["Owns escalations: a phone request, a complaint, a sensitive document, a proposal that needs sign-off, a customer ready to sign", "يستلم التصعيدات: طلب اتصال، شكوى، مستند حساس، عرض يحتاج اعتماد، عميل جاهز للتعاقد"],
+      ["Never asks for sensitive documents or final pricing himself — flags them for your review instead", "لا يطلب مستندات حساسة ولا يعطي أسعاراً نهائية بنفسه — يرفعها لمراجعتك"],
+      ["Keeps a clear handoff trail so nothing falls through the cracks between agents", "يحافظ على مسار تسليم واضح بين الموظفين حتى ما يضيع أي طلب"],
+    ],
+  },
+  {
+    slug: "nasser", emoji: "👥",
+    nameAr: "ناصر", nameEn: "Nasser",
+    roleAr: "الموارد البشرية", roleEn: "HR",
+    taglineAr: "يدير التوظيف من نشر الوظيفة إلى قائمة مرشّحين جاهزة للمقابلة.", taglineEn: "Runs hiring end to end — from posting the role to a shortlist ready for interviews.",
+    caps: [
+      ["AI-powered matching against your candidate pool for any open role", "مطابقة ذكية بالذكاء الاصطناعي مع قاعدة المرشّحين لأي وظيفة مفتوحة"],
+      ["Screens and scores candidates against the role's requirements", "يقيّم ويصنّف المرشّحين مقابل متطلبات الوظيفة"],
+      ["Drafts interview questions tailored to the specific role", "يجهّز أسئلة مقابلة مخصّصة للوظيفة تحديداً"],
+      ["Prepares outreach messages to shortlisted candidates for your approval", "يجهّز رسائل تواصل مع المرشّحين المختارين بانتظار موافقتك"],
+      ["Tracks the hiring pipeline from posting to shortlist to offer", "يتابع مسار التوظيف من النشر إلى القائمة المختصرة إلى العرض"],
+    ],
+  },
+  {
+    slug: "mishari", emoji: "🛡️",
+    nameAr: "مشاري", nameEn: "Mishari",
+    roleAr: "الامتثال والالتزام", roleEn: "Compliance",
+    taglineAr: "فريق امتثال افتراضي يراقب منشأتك يومياً وينبّهك قبل أي مخالفة.", taglineEn: "A virtual compliance team monitoring your establishment daily and alerting you before violations.",
+    caps: [
+      ["Reads your registrations (CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses) and builds a live compliance record", "يقرأ تسجيلاتك (السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص) ويبني سجل امتثال حي لمنشأتك"],
+      ["Tracks Nitaqat/Saudization band and flags what you need to match or upgrade", "يتابع نطاقك ونسبة التوطين ويوضح ما تحتاجه للمطابقة أو الترقية"],
+      ["Daily monitoring with a WhatsApp/email alert before any expiry or violation", "مراقبة يومية مع تنبيه واتساب وإيميل قبل أي انتهاء أو مخالفة"],
+      ["Prepares the renewal/action and shows it to you — nothing government-related runs without your approval", "يجهّز التجديد أو الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك"],
+    ],
+  },
+  {
+    slug: "abdulaziz", emoji: "⚖️",
+    nameAr: "عبدالعزيز", nameEn: "Abdulaziz",
+    roleAr: "قانوني", roleEn: "Legal",
+    taglineAr: "أول رد آمن على أي استفسار قانوني، وتوضيح لما يحتاج مراجعة بشرية.", taglineEn: "A first, safe response to any legal question — and a clear flag for what needs human review.",
+    caps: [
+      ["Gives an initial, cautious answer to legal and compliance questions (contracts, licenses, residency eligibility)", "يعطي رداً أولياً حذراً على الاستفسارات القانونية والامتثالية (العقود، التراخيص، أهلية الإقامة)"],
+      ["Clearly flags what needs a licensed human review before you rely on it", "يوضّح بشكل صريح ما يحتاج مراجعة بشرية مرخّصة قبل الاعتماد عليه"],
+      ["Never gives final legal advice or confirms a government approval on his own", "لا يعطي استشارة قانونية نهائية ولا يؤكد موافقة حكومية بنفسه"],
+      ["Never collects sensitive documents through chat — routes those to a secure channel", "لا يستقبل مستندات حساسة عبر المحادثة — يحوّلها لقناة آمنة"],
+    ],
+  },
+  {
+    slug: "badr", emoji: "💼",
+    nameAr: "بدر", nameEn: "Badr",
+    roleAr: "مبيعات وتطوير أعمال", roleEn: "Sales & Business Development",
+    taglineAr: "يستلم أي طلب سعر أو عرض ويجهّز مسودة جاهزة لمراجعتك قبل الإرسال.", taglineEn: "Takes any pricing or proposal request and prepares a draft ready for your review before it goes out.",
+    caps: [
+      ["Explains the scope of every service commercially (company formation, HR, government relations, premium residency…)", "يوضح نطاق كل خدمة تجارياً (تأسيس الشركات، الموارد البشرية، العلاقات الحكومية، الإقامة المميزة…)"],
+      ["Only quotes prices from the official, approved services catalog — never invents one", "يستخدم فقط الأسعار المعتمدة في الكتالوج الرسمي — لا يخترع سعراً أبداً"],
+      ["Drafts a proposal and logs it as \"pending approval\" — nothing final goes out without your sign-off", "يجهّز مسودة عرض ويسجّلها «بانتظار الموافقة» — ولا يرسل أي عرض نهائي بدون اعتمادك"],
+      ["Keeps your CRM and sales pipeline updated automatically as the conversation progresses", "يحدّث CRM ومسار المبيعات تلقائياً مع تقدّم المحادثة"],
+      ["Never gives discounts, contracts, invoices, or payment links on his own", "لا يعطي خصومات ولا يرسل عقوداً أو فواتير أو روابط دفع بنفسه"],
+    ],
+  },
+  {
+    slug: "farah", emoji: "📣",
+    nameAr: "فرح", nameEn: "Farah",
+    roleAr: "تسويق ومحتوى", roleEn: "Marketing & Content",
+    taglineAr: "تنشئ وتدير المحتوى التسويقي على كل قنواتك — كمسودات بانتظار اعتمادك.", taglineEn: "Creates and manages your marketing content across every channel — as drafts pending your approval.",
+    caps: [
+      ["Creates content and campaign drafts across LinkedIn, Instagram, Email, WhatsApp, TikTok, Snapchat, Facebook and X", "تنشئ محتوى وحملات على LinkedIn وInstagram والإيميل وواتساب وTikTok وSnapchat وFacebook وX"],
+      ["Summarizes government decisions and platform updates relevant to your business", "تلخّص القرارات الحكومية وتحديثات المنصات المؤثرة على منشأتك"],
+      ["Prepares WhatsApp/email/notification broadcasts for your approval before sending", "تجهّز برودكاست واتساب/إيميل/إشعارات بانتظار موافقتك قبل الإرسال"],
+      ["Never publishes any content or broadcast without your sign-off", "لا تنشر أي محتوى أو برودكاست بدون اعتمادك"],
+    ],
+  },
+  {
+    slug: "malak", emoji: "🗂️",
+    nameAr: "ملاك", nameEn: "Malak",
+    roleAr: "مساعِدة تنفيذية", roleEn: "Executive Assistant",
+    taglineAr: "ملخصك اليومي كل صباح، وتنظيم مهامك واجتماعاتك وبريدك.", taglineEn: "Your daily brief every morning — and organizes your tasks, meetings and inbox.",
+    caps: [
+      ["A daily brief every morning: urgent and overdue items first, with owner and due date", "ملخص يومي كل صباح: العاجل والمتأخر أولاً مع المسؤول وتاريخ الاستحقاق"],
+      ["Reminders for upcoming meetings and deadlines for the week ahead", "تذكيرات بالمواعيد والمهام القادمة للأسبوع"],
+      ["Sorts your inbox: urgent / needs action / for your information", "تفرز بريدك: عاجل / يحتاج إجراء / للاطلاع"],
+      ["Summarizes meetings and long conversations into a decision-ready summary", "تلخّص الاجتماعات والمحادثات الطويلة في ملخص جاهز لاتخاذ القرار"],
+      ["Never handles OTPs, verification codes or passwords, and never messages anyone externally on her own", "لا تتعامل مع رموز التحقق OTP أو كلمات المرور، ولا ترسل أي رسالة خارجية بنفسها"],
+    ],
+  },
+  {
+    slug: "mohammed", emoji: "💻",
+    nameAr: "محمد", nameEn: "Mohammed",
+    roleAr: "تقنية معلومات", roleEn: "IT",
+    taglineAr: "يراقب صحة أنظمتك وتكاملاتك، ويشخّص الأعطال التقنية.", taglineEn: "Monitors your systems and integrations, and diagnoses technical issues.",
+    caps: [
+      ["Monitors the health of your connected agents, workflows and website", "يراقب صحة الموظفين المرتبطين والأنظمة الآلية والموقع"],
+      ["Manages integrations (Notion, automation platforms, WhatsApp, third-party subscriptions)", "يدير التكاملات (نوشن، منصات الأتمتة، واتساب، اشتراكات الأطراف الثالثة)"],
+      ["Diagnoses platform and connection failures before they affect your operations", "يشخّص أعطال المنصات والربط قبل ما تأثر على تشغيلك"],
+      ["Never touches customer credentials or OTPs, and never gives legal opinions", "لا يمس بيانات اعتماد العملاء ولا رموز التحقق، ولا يفتي قانونياً"],
+    ],
+  },
+  {
+    slug: "ahmed", emoji: "📦",
+    nameAr: "أحمد", nameEn: "Ahmed",
+    roleAr: "مشتريات وتوريد", roleEn: "Procurement & Supply",
+    taglineAr: "يقارن الموردين ويجهّز مسودة تفاوض جاهزة للاعتماد.", taglineEn: "Compares suppliers and prepares a negotiation draft ready for your sign-off.",
+    caps: [
+      ["A shortlist of up to 3 suppliers compared on price, scope, terms and readiness", "قائمة مختصرة بحد أقصى 3 موردين مقارَنين بالسعر والنطاق والشروط والجاهزية"],
+      ["Prefers your existing approved suppliers before suggesting new ones", "يفضّل الموردين المعتمدين لديك قبل اقتراح موردين جدد"],
+      ["Drafts an outreach or negotiation message ready for your approval", "يجهّز مسودة رسالة تواصل أو تفاوض جاهزة للاعتماد"],
+      ["Never commits to a purchase, signs, or pays — and never messages a supplier without your sign-off", "لا يلتزم بأي شراء ولا يوقّع ولا يدفع، ولا يراسل مورداً بدون اعتمادك"],
+    ],
+  },
+];
+
+function buildTeamAgent(agent) {
+  const capsHtml = agent.caps.map(([en, ar]) => `<li>${I.check}<span>${L(en, ar)}</span></li>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Smart Specialized Agent", "الموظف المتخصص")}</span>
+    <h1>${agent.emoji} ${L(agent.nameEn, agent.nameAr)} — ${L(agent.roleEn, agent.roleAr)}</h1>
+    <p class="lead">${L(agent.taglineEn, agent.taglineAr)}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Subscribe now", "🚀 اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/portal")}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:1rem">${L("What does " + agent.nameEn + " do?", "وش يسوي " + agent.nameAr + "؟")}</h3>
+      <ul class="value-list">${capsHtml}</ul>
+    </div>
+  </section></div>
+
+  <section class="section" style="padding-top:0"><div class="container">
+    <div class="price-box">
+      <div><div class="price-amt">500 <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
+      <div class="text-soft">${L("Part of the Smart Specialized Agents team — subscribe to one employee or several from the same cart.", "جزء من فريق الموظفين الأذكياء المتخصصين — اشترك بموظف واحد أو أكثر من نفس السلة.")}</div></div>
+      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Add to cart", "🚀 أضف للسلة")}</a>
+    </div>
+  </div></section>
+
+  <style>
+    .text-soft{color:var(--text-soft)}
+    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
+    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
+    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
+    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
+    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
+    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
+  </style>`;
+
+  return page({
+    title: Lraw(`${agent.nameEn} — ${agent.roleEn} — Business Partner`, `${agent.nameAr} — ${agent.roleAr} — بيزنس بارتنر`),
+    desc: Lraw(agent.taglineEn, agent.taglineAr),
+    active: "/ai-agents",
+    path: `/team/${agent.slug}`,
+    body,
+  });
+}
+
 function buildEndOfServiceCalculator() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -4372,6 +4548,8 @@ function buildConnect() {
     .emp b{font-size:.95rem;color:var(--navy)}
     .emp span{display:block;font-size:.76rem;color:var(--green);font-weight:600}
     .emp-cart{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:.55rem;font-weight:700;font-size:.82rem;cursor:pointer}
+    .emp-details{font-size:.78rem;color:var(--green);font-weight:600;text-decoration:none}
+    .emp-details:hover{text-decoration:underline}
     .emp-note{font-size:.85rem;color:var(--muted);margin-top:1rem;text-align:center}
     .emp-note a{color:var(--navy);font-weight:700;text-decoration:underline}
     .bp-toast{position:fixed;inset-inline-start:50%;bottom:90px;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:999px;box-shadow:var(--shadow);z-index:1200;opacity:0;transition:opacity .28s,transform .28s;font-weight:600;pointer-events:none}
@@ -4655,6 +4833,7 @@ function buildConnect() {
     EMPLOYEES.forEach(function(m){
       var d=document.createElement('div'); d.className='emp';
       d.innerHTML='<div class="emp-top"><span class="e">'+m.e+'</span><div><b>'+m.name+'</b><span>'+m.role+'</span></div></div>'+
+        '<a href="/ar/team/'+m.slug+'" target="_blank" rel="noopener" class="emp-details">ايش يقدم؟ التفاصيل الكاملة ←</a>'+
         '<button type="button" class="emp-cart add-cart" data-id="employee-'+m.slug+'" data-name-en="'+m.nameEn+'" data-name-ar="'+m.name+' — '+m.role+'" data-amount="500" data-price="500 ﷼ / شهرياً" data-kind="employee">🛒 أضف للسلة — 500 ﷼/شهرياً</button>';
       empGrid.appendChild(d);
     });
@@ -4712,6 +4891,8 @@ function buildPortal() {
     .pickrow .e{font-size:1.1rem}
     .pickrow b{color:var(--navy)}
     .pickrow .r{color:var(--muted);margin-inline-start:auto;font-size:.78rem}
+    .pick-details{color:var(--green);font-weight:600;font-size:.76rem;text-decoration:none;flex-shrink:0}
+    .pick-details:hover{text-decoration:underline}
     .ws{max-width:1050px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
     .ws h2{color:var(--navy);font-size:1.25rem;margin-bottom:.2rem}
     .ws .lead{color:var(--muted);font-size:.9rem;margin-bottom:1.1rem}
@@ -4719,6 +4900,8 @@ function buildPortal() {
     .ag{background:var(--surface);border:1.5px solid var(--line);border-radius:13px;padding:.6rem .85rem;display:flex;gap:.5rem;align-items:center;cursor:pointer;transition:.12s}
     .ag:hover{border-color:var(--navy)}
     .ag.sel{border-color:var(--navy);background:#eef1fb}
+    .ag-details{margin-inline-start:auto;flex-shrink:0;text-decoration:none;font-size:.95rem;opacity:.7}
+    .ag-details:hover{opacity:1}
     .ag .e{font-size:1.3rem}
     .ag b{font-size:.92rem;color:var(--navy)}
     .ag span{display:block;font-size:.72rem;color:var(--muted)}
@@ -4727,6 +4910,8 @@ function buildPortal() {
     .p-head .e{font-size:1.5rem}
     .p-head b{color:var(--navy)}
     .p-head span{display:block;font-size:.78rem;color:var(--green);font-weight:600}
+    .p-head a{color:var(--green);font-weight:600;font-size:.78rem;text-decoration:none;flex-shrink:0}
+    .p-head a:hover{text-decoration:underline}
     .chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.55rem;background:#fbfcfe}
     .msg{padding:.6rem .8rem;border-radius:13px;max-width:80%;white-space:pre-wrap;font-size:.92rem}
     .msg.me{background:var(--navy);color:#fff;align-self:flex-start;border-start-start-radius:3px}
@@ -4827,7 +5012,7 @@ function buildPortal() {
         <p class="lead">اختر موظفاً وابدأ التعامل معه مباشرة. كل موظف خبير في مجاله.</p>
         <div class="agents" id="agents"></div>
         <div class="panel">
-          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div></div>
+          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div><a id="ph-details" href="#" target="_blank" rel="noopener" style="display:none;margin-inline-start:auto">ايش يقدم؟ التفاصيل ←</a></div>
           <div class="chat" id="chat"><div class="msg empty">اختر موظفاً من الأعلى وابدأ المحادثة.</div></div>
           <div class="composer"><input id="msg" type="text" placeholder="اكتب رسالتك…" disabled /><button id="send" disabled>إرسال</button></div>
         </div>
@@ -4958,7 +5143,8 @@ function buildPortal() {
       var box=$('pickwrap'); if(box.dataset.done) return; box.dataset.done='1';
       AGENTS.forEach(function(a){
         var lb=document.createElement('label'); lb.className='pickrow';
-        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>';
+        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>'+
+          '<a href="/ar/team/'+a.slug+'" target="_blank" rel="noopener" class="pick-details" onclick="event.stopPropagation()">ايش يقدم؟</a>';
         box.appendChild(lb);
       });
     }
@@ -4993,7 +5179,8 @@ function buildPortal() {
       if(!list.length){ box.innerHTML='<p class="muted">لا يوجد موظفون مفعّلون على هذا الكود.</p>'; return; }
       list.forEach(function(a){
         var el=document.createElement('div'); el.className='ag'; el.dataset.slug=a.slug;
-        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
+        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>'+
+          '<a href="/ar/team/'+a.slug+'" target="_blank" rel="noopener" class="ag-details" onclick="event.stopPropagation()">ℹ️</a>';
         el.onclick=function(){ selectAgent(a,el); };
         box.appendChild(el);
       });
@@ -5012,6 +5199,7 @@ function buildPortal() {
       var chips=document.querySelectorAll('.ag'); for(var i=0;i<chips.length;i++) chips[i].classList.remove('sel');
       el.classList.add('sel');
       $('ph-e').textContent=a.e; $('ph-n').textContent=a.name; $('ph-r').textContent=a.role;
+      $('ph-details').href='/ar/team/'+a.slug; $('ph-details').style.display='';
       chatHist=loadChat(a.slug);
       renderChat();
       $('msg').disabled=false; $('send').disabled=false; $('msg').focus();
@@ -5266,6 +5454,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
+  TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
   write(`${pre}magazine.html`, buildMagazine());
@@ -5292,7 +5481,7 @@ for (const lang of ["en", "ar"]) {
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 15 + services.length + categories.length + JOBS.length;
+  pageCount += 15 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
 }
 
 // 7 extra world languages: core discovery pages only for now (site chrome +
@@ -5329,6 +5518,7 @@ write("ar/portal.html", buildPortal());
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
 const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+  .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
   .concat(JOBS.map((j) => `/jobs/${j.slug}`));
