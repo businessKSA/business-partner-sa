@@ -18,6 +18,9 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
+// Owner key that gates the internal dashboard's "incoming requests" list
+// (GET ?action=leads&key=...). Set LEADS_KEY (or DASHBOARD_KEY) in Vercel env.
+const LEADS_KEY = process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "";
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -29,15 +32,38 @@ async function forwardLead(payload) {
 // Live order status lookup (merged from the former api/order-status.js — Vercel
 // Hobby caps a deployment at 12 serverless functions, so this rides on the GET
 // branch of /api/requests instead of its own endpoint).
-// GET /api/requests?refs=BP-506275,BP-988015 -> { ok, statuses: { "BP-506275": "قيد المراجعة", ... }, agents: { "BP-506275": ["badr"] } }
-// `agents` lets the AI-employees portal treat a client's own order reference as
-// their activation code: once the order status is flipped to a confirmed state
-// (see CONFIRMED_ORDER_STATUSES), the portal unlocks exactly the agent slugs
-// that were purchased with that order — no separate manual code needed.
+// GET /api/requests?refs=BP-506275,BP-988015 -> { ok, statuses: { "BP-506275": "قيد المراجعة", ... }, agents: { "BP-506275": ["badr"] }, emails: { "BP-506275": "client@x.com" } }
+// `agents`/`emails` let the AI-employees portal treat a client's own order
+// reference as their activation code: once the order status is flipped to a
+// confirmed state (see CONFIRMED_ORDER_STATUSES), the portal unlocks exactly
+// the agent slugs that were purchased with that order — but only when the
+// email typed at login matches the email the order was placed under, so a
+// leaked/guessed reference can't be used to unlock someone else's agents.
 const CONFIRMED_ORDER_STATUSES = new Set(["مؤكد - قيد التنفيذ", "مكتمل"]);
+
+// Demo/test codes for the AI-employees portal — checked here (server-side)
+// instead of shipping the list in the page's client-side JS, so codes meant
+// only for internal package-size testing aren't readable via view-source.
+// BP-DEMO/demo123 are intentionally advertised on the login screen for public
+// trial; the others are for testing specific bundle sizes and stay unlisted.
+const DEMO_CODES = {
+  "BP-DEMO": "ALL",
+  "BP2026": "ALL",
+  "DEMO123": "ALL",
+  "TRIAL": "ALL",
+  "DEMO-ONE": ["badr"],
+  "DEMO-THREE": ["badr", "malak", "farah"],
+  "DEMO-TEAM": ["baher", "mazen", "nasser", "mishari", "abdulaziz", "badr", "farah", "malak", "mohammed", "ahmed", "abdulrahman"],
+};
+// Public, self-serve free trial (advertised on /connect and /ai-agents) —
+// unlocks every agent like the other demo codes, but the client enforces a
+// capped number of real messages per agent before prompting to subscribe.
+// BP-DEMO/BP2026/DEMO123 stay unlimited — those are for the owner/internal testing.
+const TRIAL_CODES = new Set(["TRIAL"]);
+
 async function orderStatuses(refs) {
-  if (!refs.length) return { statuses: {}, agents: {} };
-  if (!NOTION_TOKEN) return { statuses: {}, agents: {} };
+  if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
+  if (!NOTION_TOKEN) return { statuses: {}, agents: {}, emails: {} };
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
     method: "POST",
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
@@ -53,6 +79,7 @@ async function orderStatuses(refs) {
   const data = await r.json();
   const statuses = {};
   const agents = {};
+  const emails = {};
   for (const pg of data.results || []) {
     const p = pg.properties || {};
     const refText = (p["رقم المرجع"] && p["رقم المرجع"].rich_text || []).map((t) => t.plain_text).join("").trim();
@@ -62,12 +89,74 @@ async function orderStatuses(refs) {
       const notesText = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
       const m = notesText.match(/AGENTS:([a-z0-9,]+)/i);
       if (m) agents[refText] = m[1].split(",").filter(Boolean);
+      const em = notesText.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+      if (em) emails[refText] = em[1];
     }
   }
-  return { statuses, agents };
+  return { statuses, agents, emails };
 }
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus, agents }) {
+// List the most recent leads from the CRM (for the internal dashboard's
+// "incoming requests" view). Returns lightweight rows the dashboard renders,
+// including the phone (parsed from Notes) so the team can WhatsApp the lead.
+async function listLeads(limit) {
+  if (!NOTION_TOKEN) return [];
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({
+      page_size: Math.min(Math.max(Number(limit) || 30, 1), 50),
+      sorts: [{ property: "Last Activity", direction: "descending" }],
+    }),
+  });
+  if (!r.ok) { console.error("leads query error", r.status, (await r.text()).slice(0, 300)); throw new Error("notion_failed"); }
+  const data = await r.json();
+  const txt = (arr) => (arr || []).map((t) => t.plain_text).join("");
+  return (data.results || []).map((pg) => {
+    const p = pg.properties || {};
+    const title = txt(p["Opportunity Name"] && p["Opportunity Name"].title);
+    const ref = txt(p["رقم المرجع"] && p["رقم المرجع"].rich_text).trim();
+    const notes = txt(p["Notes"] && p["Notes"].rich_text);
+    const stage = (p["Stage"] && p["Stage"].select && p["Stage"].select.name) || "";
+    const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
+    const at = (p["Last Activity"] && p["Last Activity"].date && p["Last Activity"].date.start) || (pg.created_time || "").slice(0, 10);
+    const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
+    const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+    return {
+      title, ref, at, stage, status,
+      phone: phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "",
+      email: emailM ? emailM[1] : "",
+    };
+  });
+}
+
+// Upload a base64 file to Notion's File Upload API. Returns the file_upload id
+// (attachable to a page's "files" property) or null if it fails — never blocks
+// the order itself, since the n8n agent can also be pointed at a fallback.
+async function uploadFileToNotion(base64, filename, contentType) {
+  if (!NOTION_TOKEN || !base64) return null;
+  try {
+    const createRes = await fetch("https://api.notion.com/v1/file_uploads", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    if (!createRes.ok) { console.error("Notion file_uploads create error", createRes.status, (await createRes.text()).slice(0, 300)); return null; }
+    const created = await createRes.json();
+    const buf = Buffer.from(base64, "base64");
+    const form = new FormData();
+    form.append("file", new Blob([buf], { type: contentType || "application/pdf" }), filename || "receipt.pdf");
+    const sendRes = await fetch(`https://api.notion.com/v1/file_uploads/${created.id}/send`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION },
+      body: form,
+    });
+    if (!sendRes.ok) { console.error("Notion file_uploads send error", sendRes.status, (await sendRes.text()).slice(0, 300)); return null; }
+    return created.id;
+  } catch (e) { console.error("uploadFileToNotion exception", String(e).slice(0, 200)); return null; }
+}
+
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
@@ -81,6 +170,11 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents })
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
+  if (typeof total === "number" && !Number.isNaN(total)) props["إجمالي الطلب"] = { number: total };
+  if (receiptUploadId) {
+    props["الإيصال البنكي"] = { files: [{ type: "file_upload", file_upload: { id: receiptUploadId }, name: (receiptName || "receipt.pdf").slice(0, 100) }] };
+    props["تحقق المبلغ"] = { select: { name: "لم يُفحص بعد" } };
+  }
   try {
     const r = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
@@ -148,6 +242,119 @@ function ssUnseal(t) { const raw = Buffer.from(String(t), "base64url"); const d 
 function ssCode(email) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET).update("shared|" + String(email).toLowerCase()).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-SS-" + o; }
 function ssRef(email) { const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("ref|" + String(email).toLowerCase() + "|" + Date.now()).digest("hex"); return "BP-SS-" + h.slice(0, 6).toUpperCase(); }
 
+// ---- Compliance Agent: order -> owner approval -> Notion activation -> emailed code ----
+// Client Compliance Intake DB (same one the n8n intake/portal workflows read/write).
+const COMPLIANCE_DB = process.env.NOTION_COMPLIANCE_DB || "5d570a75009b41019857060d0670642f";
+const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
+const MKT_SITE_BASE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
+function complianceCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("compliance|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-" + o; }
+async function findComplianceRecord(company) {
+  if (!NOTION_TOKEN || !company) return null;
+  const r = await fetch(`https://api.notion.com/v1/databases/${COMPLIANCE_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "المنشأة", title: { equals: company } } }),
+  });
+  if (!r.ok) return null;
+  const data = await r.json();
+  return (data.results || [])[0] || null;
+}
+// Looks up (or creates) the client's Compliance Intake record by establishment
+// name, flips حالة الاشتراك to نشط, and returns the portal access code (kept
+// stable if the record already had one — e.g. from an earlier file-intake).
+async function activateComplianceSubscription({ company, email, phone }) {
+  if (!NOTION_TOKEN || !company) return null;
+  const existing = await findComplianceRecord(company);
+  const codeProp = existing && existing.properties && existing.properties["رمز الدخول"];
+  const existingCode = codeProp && codeProp.rich_text && codeProp.rich_text[0] && codeProp.rich_text[0].plain_text;
+  const code = existingCode || complianceCode(company + "|" + email);
+  if (existing) {
+    const props = { "حالة الاشتراك": { select: { name: "نشط" } } };
+    if (!existingCode) props["رمز الدخول"] = { rich_text: [{ text: { content: code } }] };
+    const hasEmail = existing.properties["البريد"] && existing.properties["البريد"].email;
+    if (email && !hasEmail) props["البريد"] = { email };
+    await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ properties: props }),
+    });
+  } else {
+    const today = new Date().toISOString().slice(0, 10);
+    const properties = {
+      "المنشأة": { title: [{ text: { content: company } }] },
+      "حالة الاشتراك": { select: { name: "نشط" } },
+      "الحالة": { select: { name: "بانتظار المعالجة" } },
+      "المصدر": { select: { name: "نموذج الموقع" } },
+      "رمز الدخول": { rich_text: [{ text: { content: code } }] },
+      "تاريخ الاستلام": { date: { start: today } },
+    };
+    if (email) properties["البريد"] = { email };
+    if (phone) properties["واتساب أو الجوال"] = { phone_number: phone };
+    await fetch(`https://api.notion.com/v1/pages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ parent: { database_id: COMPLIANCE_DB }, properties }),
+    });
+  }
+  return code;
+}
+
+// ---- Employer recruitment plan: order -> owner approval -> Notion activation -> emailed code ----
+// Same Employers DB the /employer-join registration form and /api/candidates read.
+const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
+const EMP_PLAN_AR = { basic: "أساسية", pro: "احترافية", enterprise: "مؤسسية" };
+const EMP_DASHBOARD_URL = `${MKT_SITE_BASE}/employer-dashboard`;
+function employerCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("employer|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 4; i++) o += abc[h[i] % abc.length]; return "BP-EMP-" + o; }
+async function findEmployerRecord(company) {
+  if (!NOTION_TOKEN || !company) return null;
+  const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "اسم الشركة", title: { equals: company } } }),
+  });
+  if (!r.ok) return null;
+  const data = await r.json();
+  return (data.results || [])[0] || null;
+}
+// Looks up (or creates) the employer's row by company name, flips الحالة to
+// مفعّل, and returns the dashboard access code (kept stable if the row
+// already had one — e.g. from the earlier bespoke registration form).
+async function activateEmployerSubscription({ company, email, phone, planKey }) {
+  if (!NOTION_TOKEN || !company) return null;
+  const planAr = EMP_PLAN_AR[planKey] || "";
+  const existing = await findEmployerRecord(company);
+  const codeProp = existing && existing.properties && existing.properties["رمز الوصول"];
+  const existingCode = codeProp && codeProp.rich_text && codeProp.rich_text[0] && codeProp.rich_text[0].plain_text;
+  const code = existingCode || employerCode(company + "|" + email + "|" + Date.now());
+  if (existing) {
+    const props = { "الحالة": { select: { name: "مفعّل" } } };
+    if (!existingCode) props["رمز الوصول"] = { rich_text: [{ text: { content: code } }] };
+    if (planAr) props["الباقة"] = { select: { name: planAr } };
+    const hasEmail = existing.properties["البريد"] && existing.properties["البريد"].email;
+    if (email && !hasEmail) props["البريد"] = { email };
+    await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ properties: props }),
+    });
+  } else {
+    const properties = {
+      "اسم الشركة": { title: [{ text: { content: company } }] },
+      "الحالة": { select: { name: "مفعّل" } },
+      "رمز الوصول": { rich_text: [{ text: { content: code } }] },
+    };
+    if (planAr) properties["الباقة"] = { select: { name: planAr } };
+    if (email) properties["البريد"] = { email };
+    if (phone) properties["الجوال"] = { phone_number: phone };
+    await fetch(`https://api.notion.com/v1/pages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ parent: { database_id: EMP_DB }, properties }),
+    });
+  }
+  return code;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -165,19 +372,74 @@ export default async function handler(req, res) {
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم الاعتماد</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
 
+  // Compliance Agent — owner approval link (clicked after confirming the bank transfer).
+  if ((q.action || "") === "approve-compliance") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
+    let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
+    const code = await activateComplianceSubscription({ company: d.company, email: d.email, phone: d.phone });
+    if (!code) { res.statusCode = 500; return res.end("<h3>تعذّر التفعيل — تحقّق من إعداد Notion (NOTION_TOKEN) واسم المنشأة.</h3>"); }
+    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في وكيل الامتثال 🎉</h2><p>المنشأة: <b>${esc(d.company)}</b></p><p>رمز الدخول لبوابة وكيل الامتثال:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${COMPLIANCE_PORTAL_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة وكيل الامتثال</a> — أدخل بريدك (${esc(d.email)}) والرمز أعلاه.</p></div>`;
+    await sendEmail(d.email, `تم تفعيل اشتراكك — وكيل الامتثال (${esc(d.company)})`, codeHtml);
+    res.statusCode = 200;
+    return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
+  }
+
+  // Employer recruitment plan — owner approval link (clicked after confirming the bank transfer).
+  if ((q.action || "") === "approve-employer") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
+    let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
+    const code = await activateEmployerSubscription({ company: d.company, email: d.email, phone: d.phone, planKey: d.plan });
+    if (!code) { res.statusCode = 500; return res.end("<h3>تعذّر التفعيل — تحقّق من إعداد Notion (NOTION_TOKEN) واسم الشركة.</h3>"); }
+    const planAr = EMP_PLAN_AR[d.plan] || "";
+    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في منصة التوظيف 🎉</h2><p>الشركة: <b>${esc(d.company)}</b>${planAr ? ` — الباقة: <b>${esc(planAr)}</b>` : ""}</p><p>رمز الوصول للوحة التوظيف:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${EMP_DASHBOARD_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح لوحة التوظيف</a> — أدخل الرمز أعلاه.</p></div>`;
+    await sendEmail(d.email, `تم تفعيل اشتراكك — منصة التوظيف (${esc(d.company)})`, codeHtml);
+    res.statusCode = 200;
+    return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل رمز الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
+  }
+
+  // Internal dashboard — list recent incoming requests (gated by LEADS_KEY).
+  if ((q.action || "") === "leads") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!LEADS_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    if ((q.key || "") !== LEADS_KEY) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const leads = await listLeads(q.limit);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, leads }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
   if (req.method === "GET") {
     const url = new URL(req.url, "http://x");
     const refs = (url.searchParams.get("refs") || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 30);
     if (refs.length) {
       res.setHeader("Cache-Control", "no-store");
-      try {
-        const { statuses, agents } = await orderStatuses(refs);
-        res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, statuses, agents }));
-      } catch {
-        res.statusCode = 502;
-        return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+      const statuses = {}, agents = {}, emails = {}, demo = {}, trial = {};
+      const remaining = [];
+      for (const ref of refs) {
+        const upper = ref.toUpperCase();
+        const dc = DEMO_CODES[upper];
+        if (dc) { statuses[ref] = "مكتمل"; agents[ref] = dc; demo[ref] = true; if (TRIAL_CODES.has(upper)) trial[ref] = true; }
+        else remaining.push(ref);
       }
+      if (remaining.length) {
+        try {
+          const r = await orderStatuses(remaining);
+          Object.assign(statuses, r.statuses);
+          Object.assign(agents, r.agents);
+          Object.assign(emails, r.emails);
+        } catch {
+          res.statusCode = 502;
+          return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+        }
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo, trial }));
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({ status: "ok", emailConfigured: !!RESEND_API_KEY }));
@@ -222,23 +484,106 @@ export default async function handler(req, res) {
   }
 
   // Order/purchase from checkout → CRM lead + team notification (lighter validation).
+  // A bank receipt (PDF) is mandatory — the n8n verification agent reads it from
+  // Notion and checks its amount against "إجمالي الطلب" before an order is confirmed.
   if (b.type === "order") {
     const name = String(b.name || "").trim().slice(0, 160);
     const phone = String(b.phone || "").trim().slice(0, 40);
     const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
     const ref = String(b.ref || "BP-" + Date.now().toString().slice(-6)).slice(0, 40);
     const items = (Array.isArray(b.items) ? b.items.map((x) => (typeof x === "string" ? x : (x && x.name) || "")).filter(Boolean) : [String(b.items || "")]).join("، ").slice(0, 900);
-    const total = String(b.total || "").slice(0, 40);
+    const totalNum = Number(b.total);
+    const total = Number.isFinite(totalNum) ? totalNum : 0;
     const agents = Array.isArray(b.agents) ? b.agents.map((s) => String(s).toLowerCase().trim()).filter((s) => /^[a-z0-9]{1,30}$/.test(s)).slice(0, 20) : [];
+    const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
+    const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
+    // Accept an image (screenshot — auto-verified by the AI reader) or a PDF. Use the
+    // real content type so the file uploads to Notion correctly; infer from the name if absent.
+    const rawType = String(b.receiptType || "").toLowerCase();
+    const receiptType = /^(image\/(jpeg|jpg|png|webp)|application\/pdf)$/.test(rawType)
+      ? rawType.replace("image/jpg", "image/jpeg")
+      : /\.(jpe?g)$/i.test(receiptName) ? "image/jpeg"
+      : /\.png$/i.test(receiptName) ? "image/png"
+      : /\.webp$/i.test(receiptName) ? "image/webp"
+      : "application/pdf";
+    const compliance = !!b.compliance;
+    const employerPlanKey = ["basic", "pro", "enterprise"].includes(b.employerPlan) ? b.employerPlan : "";
+    const company = String(b.company || "").trim().slice(0, 200) || name;
+    const crNumber = String(b.cr || "").trim().slice(0, 40);
+    const headcount = Number.isFinite(Number(b.headcount)) && b.headcount !== "" ? Number(b.headcount) : null;
+    const nationalAddress = String(b.nationalAddress || "").trim().slice(0, 200);
+    const surchargeFeeNum = Number(b.surchargeFee);
+    const surchargeFee = Number.isFinite(surchargeFeeNum) ? surchargeFeeNum : 0;
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
+    const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, receiptType);
     const agentsNote = agents.length ? `<p>موظفون أذكياء مطلوبون: <strong>${esc(agents.join("، "))}</strong> — بمجرد اعتماد الدفع، تفلّت الحالة لـ«مؤكد - قيد التنفيذ» يفتح للعميل بوابة الموظفين الأذكياء تلقائياً برقم مرجعه ${ref}.</p>` : "";
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}<p>بعد تأكيد الدفع: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const complianceNote = compliance
+      ? (OTP_SECRET && isEmail(email)
+          ? `<p>طلب اشتراك <strong>وكيل الامتثال</strong> — المنشأة: <strong>${esc(company)}</strong>. بعد تأكيد استلام التحويل البنكي:</p><p><a href="${MKT_SITE_BASE}/api/requests?action=approve-compliance&t=${encodeURIComponent(ssSeal({ company, email, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل اشتراك وكيل الامتثال</a></p><p style="color:#666;font-size:13px">لا تعتمد إلا بعد تأكيد وصول التحويل — سيصل العميل بريد فيه رمز الدخول لبوابة الامتثال تلقائياً.</p>`
+          : `<p>طلب اشتراك <strong>وكيل الامتثال</strong> — فعّله يدوياً في قاعدة "Client Compliance Intake" في Notion (حالة الاشتراك → نشط) بعد تأكيد التحويل.</p>`)
+      : "";
+    const employerNote = employerPlanKey
+      ? (OTP_SECRET && isEmail(email)
+          ? `<p>طلب اشتراك <strong>منصة التوظيف</strong> (${esc(EMP_PLAN_AR[employerPlanKey] || employerPlanKey)}) — الشركة: <strong>${esc(company)}</strong>. بعد تأكيد استلام التحويل البنكي:</p><p><a href="${MKT_SITE_BASE}/api/requests?action=approve-employer&t=${encodeURIComponent(ssSeal({ company, email, phone, ref, plan: employerPlanKey }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل اشتراك منصة التوظيف</a></p><p style="color:#666;font-size:13px">لا تعتمد إلا بعد تأكيد وصول التحويل — سيصل العميل بريد فيه رمز الوصول للوحة التوظيف تلقائياً.</p>`
+          : `<p>طلب اشتراك <strong>منصة التوظيف</strong> — فعّله يدوياً في قاعدة «أصحاب العمل» في Notion (الحالة → مفعّل) بعد تأكيد التحويل.</p>`)
+      : "";
+    const receiptNote = receiptUploadId
+      ? `<p>إيصال التحويل مرفق بصف الطلب في Notion — إيجنت التحقق في n8n يقارن مبلغه بـ«إجمالي الطلب» (${total} ﷼) تلقائياً.</p>`
+      : `<p style="color:#b91c1c">⚠️ تعذّر رفع الإيصال إلى Notion — راجع الإيصال يدوياً قبل التفعيل.</p>`;
+    const pkgFieldsNote = (crNumber || headcount != null || nationalAddress)
+      ? `<p>بيانات المنشأة — السجل التجاري الموحد: <strong>${esc(crNumber || "—")}</strong> · عدد الموظفين: <strong>${headcount != null ? headcount : "—"}</strong> · العنوان الوطني: <strong>${esc(nationalAddress || "—")}</strong>${surchargeFee ? ` · رسوم موظفين إضافيين مضمّنة: <strong>${surchargeFee} ﷼</strong>` : ""}</p>`
+      : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
+    // Immediate acknowledgment to the client — "we received your payment, we're verifying it".
+    // The n8n verification agent later sends the "confirmed / activated" email once the receipt amount matches.
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلبك ودفعتك ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك وإيصال التحويل البنكي بنجاح. فريقنا ووكيل التحقق الآلي يراجعان الإيصال الآن، وبمجرد تأكيد مطابقة المبلغ ستصلك رسالة تأكيد التفعيل مباشرةً.</p><table>${row("رقم المرجع", ref) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>يمكنك متابعة حالة طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر · محفول مكفول</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة", agents }),
+      isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pkgNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
+  }
+
+  // Client-initiated cancellation from /account — only for orders still under
+  // review (never a completed one). Flips the CRM row's حالة الطلب to ملغي so
+  // /account picks it up on its next live-status sync, and pings the team so
+  // no bank transfer gets processed for a cancelled order.
+  if (b.type === "cancel-order") {
+    const ref = String(b.ref || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const name = String(b.name || "").trim().slice(0, 160);
+    if (!ref || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const q = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+    });
+    if (!q.ok) { console.error("cancel-order query error", q.status, (await q.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const page = ((await q.json()).results || [])[0];
+    if (!page) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "order_not_found" })); }
+    const p = page.properties || {};
+    const notesText = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
+    const emailM = notesText.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+    if (!emailM || emailM[1].toLowerCase() !== email) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "email_mismatch" })); }
+    const status = p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name;
+    if (status === "مكتمل") { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "already_completed" })); }
+    if (status !== "ملغي") {
+      const patchRes = await fetch(`https://api.notion.com/v1/pages/${page.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ properties: { "حالة الطلب": { select: { name: "ملغي" } } } }),
+      });
+      if (!patchRes.ok) { console.error("cancel-order patch error", patchRes.status, (await patchRes.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const cHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto" dir="rtl"><h2 style="color:#0B1B5A">إلغاء طلب — ${esc(ref)}</h2><table>${row("الاسم", name) + row("البريد", email)}</table><p>ألغى العميل هذا الطلب من صفحة حسابه. تأكد أنه لا يوجد تحويل بنكي مستحق قبل إقفال الصف نهائياً في Notion.</p></div>`;
+      await sendEmail(TEAM_EMAIL, `إلغاء طلب ${ref}`, cHtml);
+    }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref }));
   }
@@ -266,6 +611,124 @@ export default async function handler(req, res) {
     ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
+  }
+
+  // Deal submission from /deals — offer a deal, seek a partner, or pitch an
+  // idea. Reviewed by the team before it's ever published on the deal wall;
+  // contact details are never shown publicly (double opt-in "request intro").
+  if (b.type === "deal") {
+    const DEAL_TYPE_AR = { offer: "🤝 عرض صفقة", seek: "🔎 يبحث عن شريك", idea: "💡 فكرة مشروع" };
+    const dealType = ["offer", "seek", "idea"].includes(b.dealType) ? b.dealType : "seek";
+    const title = String(b.title || "").trim().slice(0, 200);
+    const sector = String(b.sector || "").trim().slice(0, 60);
+    const city = String(b.city || "").trim().slice(0, 60);
+    const description = String(b.description || "").trim().slice(0, 1500);
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    if (!name || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "DL-" + Date.now().toString().slice(-6);
+    const typeLabel = DEAL_TYPE_AR[dealType];
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">صفقة جديدة — ${ref}</h2><table>${row("النوع", typeLabel) + row("العنوان", title) + row("القطاع", sector) + row("المدينة", city) + row("الوصف", description) + row("الاسم", name) + row("الجوال", phone) + row("الإيميل", email)}</table><p>راجع الملف واعتمده قبل ظهوره على حائط الصفقات.</p></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto" dir="rtl">
+      <h2 style="color:#0B1B5A">وصلنا ملفك بنجاح — ${ref}</h2>
+      <p>مرحباً ${esc(name)}، استلمنا ملف صفقتك وسيراجعه فريقنا خلال 24 ساعة. سنرسل لك تأكيداً عند النشر وعند أي مطابقة جديدة.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    const [teamSent] = await Promise.all([
+      sendEmail(TEAM_EMAIL, `صفقة جديدة (${typeLabel}) — ${title || name}`, teamHtml),
+      sendEmail(email, `وصلنا ملفك ${ref} — Business Partner`, clientHtml),
+      crmLead({ title: `صفقة — ${title || name}`, phone, email, notes: `Deals · ${typeLabel} · ${sector} · ${city} · ${description}`, ref }),
+      addToAudience(email, name),
+      forwardLead({ source: "deal", ref, dealType, title, sector, city, description, name, phone, email }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, emailSent: !!teamSent.ok }));
+  }
+
+  // Magazine PDF download gate (/magazine) — capture the lead, then email a
+  // link to the print-ready issue (the browser's print-to-PDF renders it —
+  // no server-side PDF library, so Arabic text shapes correctly for free).
+  if (b.type === "magazine") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    if (!name || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "MAG-" + Date.now().toString().slice(-6);
+    const printUrl = `${SITE_BASE}/magazine/print`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+      <h2 style="color:#0B1B5A">مجلة Business Partner جاهزة 📰</h2>
+      <p>مرحباً ${esc(name)}، شكراً لتسجيلك. اضغط الرابط لفتح نسختك من المجلة — واستخدم أمر الطباعة في متصفحك واختر "حفظ كـ PDF" لتنزيلها.</p>
+      <p><a href="${printUrl}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح المجلة</a></p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `تسجيل جديد لتحميل المجلة — ${name}`, `<div style="font-family:Arial,sans-serif">${row("الاسم", name)}${row("الجوال", phone)}${row("الإيميل", email)}</div>`),
+      sendEmail(email, "مجلة Business Partner — رابط التحميل", clientHtml),
+      crmLead({ title: `تسجيل مجلة — ${name}`, phone, email, notes: "Magazine PDF gate", ref }),
+      addToAudience(email, name),
+      forwardLead({ source: "magazine", ref, name, phone, email }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, printUrl: "/magazine/print" }));
+  }
+
+  // Investor business tourism request — Mahfol Makfol (/mahfol-makfol).
+  if (b.type === "investor-tourism") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const country = String(b.country || "").trim().slice(0, 120);
+    const date = String(b.date || "").trim().slice(0, 60);
+    const count = String(b.count || "").trim().slice(0, 20);
+    const sector = String(b.sector || "").trim().slice(0, 200);
+    const notes = String(b.notes || "").trim().slice(0, 1000);
+    if (!company || !person || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "MM-" + Date.now().toString().slice(-6);
+    const rows = row("الشركة / الجهة", company) + row("المسؤول", person) + row("الجوال", phone) + row("الإيميل", email) +
+      row("الدولة", country) + row("الفترة المفضّلة", date) + row("عدد الوفد", count) + row("مجال الاهتمام", sector) + row("تفاصيل إضافية", notes);
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب سياحة أعمال جديد (محفول مكفول) — ${ref}</h2><table>${rows}</table></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+      <h2 style="color:#0B1B5A">تم استلام طلبك — ${ref}</h2>
+      <p>مرحباً ${esc(person)}، استلمنا تفاصيل رحلتك الاستكشافية. فريق محفول مكفول يصمّم لك برنامجاً حسب نشاطك واهتمامك ويعود إليك خلال يوم عمل.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب سياحة أعمال جديد — ${company}`, teamHtml),
+      sendEmail(email, `تم استلام طلبك ${ref} — محفول مكفول`, clientHtml),
+      crmLead({ title: `سياحة أعمال (محفول مكفول) — ${company}`, phone, email, notes: `Mahfol Makfol · ${sector || "—"} · وفد ${count || "—"} · ${notes}`, ref }),
+      addToAudience(email, person),
+      forwardLead({ source: "investor-tourism", ref, name: person, company, phone, email, notes: `${country} · ${sector}` }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Leisure trip request — Mahfol Makfol trips track (/mahfol-makfol/trips).
+  if (b.type === "trip") {
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const dest = String(b.dest || "").trim().slice(0, 160);
+    const date = String(b.date || "").trim().slice(0, 60);
+    const count = String(b.count || "").trim().slice(0, 20);
+    const notes = String(b.notes || "").trim().slice(0, 1000);
+    if (!person || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "TR-" + Date.now().toString().slice(-6);
+    const rows = row("الاسم", person) + row("الجوال", phone) + row("الإيميل", email) +
+      row("الوجهة", dest) + row("التواريخ", date) + row("عدد الأشخاص", count) + row("تفاصيل إضافية", notes);
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب رحلة جديد (محفول مكفول) — ${ref}</h2><table>${rows}</table></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+      <h2 style="color:#0B1B5A">تم استلام طلب رحلتك — ${ref}</h2>
+      <p>مرحباً ${esc(person)}، استلمنا تفاصيل رحلتك${dest ? " إلى " + esc(dest) : ""}. فريق محفول مكفول يصمّم لك برنامجاً وتسعيرة ويعود إليك خلال يوم.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب رحلة جديد — ${dest || person}`, teamHtml),
+      sendEmail(email, `تم استلام طلب رحلتك ${ref} — محفول مكفول`, clientHtml),
+      crmLead({ title: `رحلة (محفول مكفول) — ${dest || person}`, phone, email, notes: `Mahfol Makfol trips · ${dest || "—"} · ${count || "—"} أشخاص · ${notes}`, ref }),
+      addToAudience(email, person),
+      forwardLead({ source: "trip", ref, name: person, phone, email, notes: `${dest} · ${date} · ${count}` }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
   }
 
   const type = b.type === "supplier" ? "supplier" : "event";
@@ -306,7 +769,7 @@ export default async function handler(req, res) {
   const [teamSent, clientSent] = await Promise.all([
     sendEmail(TEAM_EMAIL, `${title} — ${f.company}`, teamHtml),
     sendEmail(f.email, `${type === "event" ? "تأكيد طلب الفعالية" : "تأكيد تسجيل المورّد"} ${ref} — Business Partner`, clientHtml),
-    crmLead({ title, phone: f.phone, email: f.email, notes: crmNotes, ref }),
+    crmLead({ title: type === "event" ? `فعالية مؤسسية — ${f.company}` : `تسجيل مورّد — ${f.company}`, phone: f.phone, email: f.email, notes: crmNotes, ref }),
     addToAudience(f.email, f.person),
     forwardLead({ source: type, ref, name: f.person, company: f.company, phone: f.phone, email: f.email, notes: crmNotes }),
   ]);

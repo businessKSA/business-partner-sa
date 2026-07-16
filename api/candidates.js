@@ -29,9 +29,36 @@ const CODES = (process.env.EMPLOYER_CODES || "").split(",").map((s) => s.trim())
 const NOTION_VERSION = "2022-06-28";
 // Employers subscriptions DB — a paid, ACTIVE row unlocks access dynamically (no redeploy).
 const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
+// Job postings DB — an employer can open more than one, each screened by AI against this pool.
+const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
+// Canonical Field taxonomy — must stay in sync with site/scripts/generate.mjs's
+// FIELD_TAXONOMY, site/assets/js/main.js's BP.FIELD_TAXONOMY and this file's
+// own FIELD_RULES-equivalent in api/candidate.js (guessField()).
+const FIELD_OPTIONS = [
+  "هندسة", "تقنية معلومات", "مبيعات وتسويق", "محاسبة ومالية", "إداري وسكرتارية", "موارد بشرية",
+  "ضيافة وسياحة", "مقاولات وإنشاءات", "عقارات", "صحة وطب", "تعليم", "لوجستيات ونقل",
+  "قانون", "تصنيع وصناعة", "طاقة ونفط وغاز", "إعلام وإبداع", "حكومي وقطاع عام", "زراعة وبيئة",
+  "تجزئة وتجارة إلكترونية", "أمن وسلامة", "حرف مهنية وصيانة", "علوم وأبحاث", "طيران وبحري", "تجميل وعناية",
+  "خدمات منزلية", "أخرى",
+];
 
-// Paging through 1600+ ATS rows needs more than the default serverless budget.
-export const config = { maxDuration: 60 };
+async function readBody(req) {
+  let b = req.body;
+  if (typeof b === "string") { try { b = JSON.parse(b); } catch { b = {}; } }
+  if (b && typeof b === "object") return b;
+  return await new Promise((resolve) => { let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } }); });
+}
+async function notionFetch(path, method, payload) {
+  return fetch(`https://api.notion.com/v1/${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
+}
+
+// Paging through the ~14k-row ATS needs more than the default serverless
+// budget — an unfiltered browse can be ~120 sequential Notion API calls.
+export const config = { maxDuration: 300 };
 
 const txt = (p) => {
   if (!p) return "";
@@ -61,8 +88,11 @@ const OWNER_CODE = process.env.OWNER_DEMO_CODE || "demo123";
 // for an ACTIVE row by access code.
 async function resolvePlan(code) {
   if (!code) return { unlocked: false, plan: "" };
-  if (code === OWNER_CODE) return { unlocked: true, plan: "مؤسسية" };
-  if (CODES.includes(code)) return { unlocked: true, plan: "" };
+  // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
+  // all resolve the same way, matching how the front-end already normalizes
+  // its own client-only demo trigger codes.
+  if (code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, plan: "مؤسسية" };
+  if (CODES.some((c) => c.toLowerCase() === code.toLowerCase())) return { unlocked: true, plan: "" };
   try {
     const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
       method: "POST",
@@ -89,36 +119,167 @@ async function resolvePlan(code) {
   return { unlocked: false, plan: "" };
 }
 
+// Job postings: an employer can open more than one, each with its own title/
+// city/description, and pull an AI-screened shortlist against the pool from
+// that description via /api/hire (task:"match") on the client side.
+async function handlePostings(req, res) {
+  const b = await readBody(req);
+  const code = String(b.code || "").trim();
+  const { unlocked } = await resolvePlan(code);
+  if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
+
+  if (b.action === "create-posting") {
+    const title = String(b.title || "").trim().slice(0, 200);
+    const city = String(b.city || "").trim().slice(0, 120);
+    const description = String(b.description || "").trim().slice(0, 4000);
+    const field = String(b.field || "").trim();
+    if (!title || !description) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const props = {
+      "العنوان الوظيفي": { title: [{ text: { content: title } }] },
+      "رمز صاحب العمل": { rich_text: [{ text: { content: code } }] },
+      "الشركة": { rich_text: [{ text: { content: String(b.company || "").trim().slice(0, 200) } }] },
+      "المدينة": { rich_text: [{ text: { content: city } }] },
+      "الوصف والمتطلبات": { rich_text: [{ text: { content: description } }] },
+      "الحالة": { select: { name: "نشطة" } },
+    };
+    if (FIELD_OPTIONS.includes(field)) props["المجال"] = { select: { name: field } };
+    const r = await notionFetch("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props });
+    if (!r.ok) { console.error("posting create error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const page = await r.json();
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, id: page.id, title, city, field, description }));
+  }
+
+  if (b.action === "close-posting") {
+    const id = String(b.id || "").trim();
+    if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const page = await notionFetch(`pages/${id}`, "GET");
+    const pdata = page.ok ? await page.json() : null;
+    const owner = pdata && txt(pdata.properties && pdata.properties["رمز صاحب العمل"]);
+    if (!pdata || owner !== code) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "forbidden" })); }
+    await notionFetch(`pages/${id}`, "PATCH", { properties: { "الحالة": { select: { name: "مغلقة" } } } });
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true }));
+  }
+
+  if (b.action === "list-postings") {
+    const r = await notionFetch(`databases/${JOBS_DB}/query`, "POST", {
+      page_size: 50,
+      filter: { property: "رمز صاحب العمل", rich_text: { equals: code } },
+      sorts: [{ property: "تاريخ النشر", direction: "descending" }],
+    });
+    if (!r.ok) { console.error("postings list error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const data = await r.json();
+    const postings = (data.results || []).map((pg) => {
+      const p = pg.properties || {};
+      return {
+        id: pg.id,
+        title: txt(p["العنوان الوظيفي"]),
+        city: txt(p["المدينة"]),
+        field: txt(p["المجال"]),
+        description: txt(p["الوصف والمتطلبات"]),
+        status: txt(p["الحالة"]),
+      };
+    });
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, postings }));
+  }
+
+  res.statusCode = 400;
+  return res.end(JSON.stringify({ ok: false, error: "bad_action" }));
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
+  if (req.method === "POST") {
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    try { return await handlePostings(req, res); } catch (e) { console.error("postings handler error", e); res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "server_error" })); }
+  }
   if (req.method !== "GET") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
   if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+
+  const url0 = new URL(req.url, "http://x");
+  // Public job board: every ACTIVE posting from every employer, for the /careers
+  // "Jobs from our employer clients" section — no code/auth needed (unlike the
+  // employer-only browse/create/list-postings actions above).
+  if (url0.searchParams.get("openJobs") === "1") {
+    try {
+      const r = await notionFetch(`databases/${JOBS_DB}/query`, "POST", {
+        page_size: 50,
+        filter: { property: "الحالة", select: { equals: "نشطة" } },
+        sorts: [{ property: "تاريخ النشر", direction: "descending" }],
+      });
+      if (!r.ok) { console.error("open jobs query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const data = await r.json();
+      const jobs = (data.results || []).map((pg) => {
+        const p = pg.properties || {};
+        return {
+          id: pg.id,
+          title: txt(p["العنوان الوظيفي"]),
+          company: txt(p["الشركة"]),
+          city: txt(p["المدينة"]),
+          field: txt(p["المجال"]),
+          description: txt(p["الوصف والمتطلبات"]).slice(0, 400),
+        };
+      }).filter((j) => j.title);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, jobs }));
+    } catch (e) {
+      console.error("open jobs handler error", e);
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
 
   const url = new URL(req.url, "http://x");
   const qField = (url.searchParams.get("field") || "").trim();
   const qCity = (url.searchParams.get("city") || "").trim().toLowerCase();
+  const qCountry = (url.searchParams.get("country") || "").trim().toLowerCase();
   const qNat = (url.searchParams.get("nat") || "").trim();
   const qText = (url.searchParams.get("q") || "").trim().toLowerCase();
   const code = (url.searchParams.get("code") || "").trim();
+  // Resume a previous, still-in-progress scan (see the time-budget note below)
+  // instead of re-querying from the start every time.
+  const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
   const { unlocked, plan } = await resolvePlan(code);
 
   // Server-side Notion filter: only the website-sourced / active candidates.
   // "مخفي عن الموقع" = true means the CV failed to parse / is unreadable — the
   // ingestion pipeline flags it for review and it must never reach employers.
+  // City/country/field/nationality are pushed into the query too (not just
+  // filtered from the fetched page client-side) so a filtered search doesn't
+  // have to page through the whole ~17k-row database to find a few hundred matches.
   const notHidden = { property: "مخفي عن الموقع", checkbox: { equals: false } };
+  const andFilters = [notHidden];
+  if (qField) andFilters.push({ property: "Field", select: { equals: qField } });
+  if (qCity) andFilters.push({ property: "City", rich_text: { contains: qCity } });
+  if (qCountry) andFilters.push({ property: "Country", rich_text: { contains: qCountry } });
+  if (qNat) andFilters.push({ property: "Nationality Type", select: { equals: qNat } });
   const base = {
     page_size: 100,
     sorts: [{ property: "Candidate ID", direction: "descending" }],
-    filter: qField ? { and: [notHidden, { property: "Field", select: { equals: qField } }] } : notHidden,
+    filter: andFilters.length > 1 ? { and: andFilters } : notHidden,
   };
 
   try {
-    // Page through the whole database so employers see ALL candidates, not just
-    // the first page (Notion caps a page at 100). Guarded to a sane maximum.
+    // Page through the (filtered) result set so employers see ALL matching
+    // candidates, not just the first page (Notion caps a page at 100) — but
+    // bounded by a wall-clock time budget, not just a page-count guard: the
+    // pool (~17k rows and growing) can take longer to fully page through than
+    // Vercel's function timeout allows in one request. Rather than silently
+    // truncating at whatever page happens to be in flight when the platform
+    // kills the function (which is what produced a suspicious flat "10000"
+    // total in production), this stops itself early at a safe margin, reports
+    // exactly how far it actually got, and hands back a cursor so the caller
+    // can resume the scan — main.js's loadMore() does this automatically in
+    // the background so the displayed count keeps climbing to the real total
+    // instead of freezing on a partial number.
+    const deadline = Date.now() + 45000;
     let results = [];
-    let cursor = null;
-    for (let guard = 0; guard < 25; guard++) {
+    let cursor = startCursor;
+    let truncated = false;
+    for (let guard = 0; guard < 300; guard++) {
       const body = cursor ? { ...base, start_cursor: cursor } : base;
       const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
         method: "POST",
@@ -132,8 +293,9 @@ export default async function handler(req, res) {
       }
       const data = await r.json();
       results = results.concat(data.results || []);
-      if (!data.has_more || !data.next_cursor) break;
+      if (!data.has_more || !data.next_cursor) { cursor = null; break; }
       cursor = data.next_cursor;
+      if (Date.now() > deadline) { truncated = true; break; }
     }
     let rows = results.map((pg) => {
       const p = pg.properties || {};
@@ -149,10 +311,12 @@ export default async function handler(req, res) {
       const cvAts = txt(p["ATS CV (Drive)"]);
       const cvRaw = txt(p["CV Link"]);
       const rec = {
-        id: txt(p["Candidate ID"]),
+        id: pg.id,
         field: txt(p["Field"]),
         role: txt(p["Target Role"]) || txt(p["Original Position"]),
         city: txt(p["City"]),
+        country: txt(p["Country"]),
+        residenceStatus: txt(p["حالة الإقامة"]),
         experience: txt(p["Experience Years"]),
         education: txt(p["Education"]),
         nationalityType: txt(p["Nationality Type"]),
@@ -170,19 +334,29 @@ export default async function handler(req, res) {
         // only fall back to the raw file when no ATS version exists yet.
         rec.cv = cvAts || cvRaw;
         rec.cvKind = cvAts ? "ats" : (cvRaw ? "raw" : "");
+        // The actual CV text (not just a link to it), so the profile can be
+        // rendered as formatted content on the site itself.
+        rec.cvText = txt(p["ATS CV Text"]);
       } else {
         rec.name = maskName(primary);
       }
       return rec;
     });
 
-    // Client-ish filters that Notion can't do cheaply here.
-    if (qCity) rows = rows.filter((x) => x.city.toLowerCase().includes(qCity));
-    if (qNat) rows = rows.filter((x) => x.nationalityType === qNat);
+    // Free-text search across role/skills/field — no clean single Notion
+    // filter for an OR-across-properties "contains", so it's applied here
+    // against the already city/nationality/field-filtered rows from Notion.
     if (qText) rows = rows.filter((x) => (x.role + " " + x.skills + " " + x.field).toLowerCase().includes(qText));
 
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, plan, total: rows.length, candidates: rows }));
+    // nextCursor/done let the client resume the scan in the background (see
+    // main.js's loadMore()) instead of trusting a single request to fetch the
+    // entire filtered pool — the count it displays keeps climbing to the real
+    // total instead of silently freezing on whatever fit in one time budget.
+    return res.end(JSON.stringify({
+      ok: true, unlocked, plan, total: rows.length, candidates: rows,
+      nextCursor: cursor || null, done: !cursor && !truncated,
+    }));
   } catch (e) {
     console.error("candidates handler error", e);
     res.statusCode = 500;

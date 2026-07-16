@@ -47,6 +47,48 @@ const services = read("data/services.json");
 const categories = read("data/categories.json");
 const svcI18n = read("data/service-i18n.json");
 
+// Business Partner's own open roles — an ATS-style job board on /careers,
+// each with a single job page and an application routed through the same
+// candidate form (job context carried via ?job= and hidden fields).
+const JOBS = [
+  {
+    slug: "hr-operations-specialist",
+    field: "موارد بشرية",
+    tag: { en: "Riyadh · HR", ar: "الرياض · موارد بشرية" },
+    title: { en: "HR Operations & Government Relations Specialist", ar: "أخصائي عمليات موارد بشرية وعلاقات حكومية" },
+    summary: { en: "Run Qiwa, GOSI, Mudad, Muqeem and day-to-day HR operations for Business Partner clients.", ar: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر." },
+    meta: { en: "Full-time · Saudi market experience · Arabic/English", ar: "دوام كامل · خبرة سوق سعودي · عربي/إنجليزي" },
+    location: { en: "Riyadh, Saudi Arabia", ar: "الرياض، السعودية" },
+    type: { en: "Full-time", ar: "دوام كامل" },
+    responsibilities: {
+      en: ["Manage HR government platforms including Qiwa, GOSI, Mudad and Muqeem.", "Prepare employee files, contracts, onboarding checklists and HR operations trackers.", "Support clients with Saudization, WPS notes, employee data updates and practical HR compliance.", "Coordinate with candidates, employers and Business Partner internal teams through the ATS."],
+      ar: ["إدارة منصات قوى، التأمينات، مدد، ومقيم.", "تجهيز ملفات الموظفين والعقود وقوائم الأونبوردينج.", "دعم العملاء في التوطين، ملاحظات حماية الأجور، وتحديث بيانات الموظفين.", "تنسيق الطلبات بين المرشحين وأصحاب العمل وفريق بيزنس بارتنر داخل الـ ATS."],
+    },
+    requirements: {
+      en: ["Hands-on Saudi HR operations or government relations experience.", "Arabic fluency and working English.", "Comfort with digital platforms, spreadsheets, candidate tracking and client follow-up."],
+      ar: ["خبرة عملية في عمليات الموارد البشرية أو العلاقات الحكومية في السعودية.", "إجادة العربية ومعرفة عملية بالإنجليزية.", "قدرة على استخدام المنصات الرقمية والجداول وأنظمة متابعة المرشحين."],
+    },
+  },
+  {
+    slug: "recruitment-coordinator",
+    field: "موارد بشرية",
+    tag: { en: "Riyadh / Hybrid · Recruitment", ar: "الرياض / هجين · توظيف" },
+    title: { en: "Recruitment Coordinator", ar: "منسق توظيف" },
+    summary: { en: "Coordinate candidate sourcing, screening, interviews, offer follow-up, and employer communication.", ar: "تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين." },
+    meta: { en: "Full-time · Hiring pipeline · Candidate care", ar: "دوام كامل · ATS · عناية بالمرشحين" },
+    location: { en: "Riyadh, Saudi Arabia (hybrid)", ar: "الرياض، السعودية (هجين)" },
+    type: { en: "Full-time", ar: "دوام كامل" },
+    responsibilities: {
+      en: ["Source and screen candidates against open roles across the ATS.", "Schedule and coordinate interviews between candidates and employers.", "Keep candidate pipeline stages and notes up to date.", "Follow up on offers and onboarding handoff."],
+      ar: ["استقطاب وفرز المرشحين مقابل الوظائف المفتوحة عبر الـ ATS.", "جدولة وتنسيق المقابلات بين المرشحين وأصحاب العمل.", "تحديث مراحل وملاحظات المرشحين في المسار أولاً بأول.", "متابعة العروض الوظيفية وتسليم ملف الأونبوردينج."],
+    },
+    requirements: {
+      en: ["Prior recruitment or talent acquisition coordination experience.", "Strong communication in Arabic and English.", "Detail-oriented, comfortable juggling multiple open roles at once."],
+      ar: ["خبرة سابقة في تنسيق التوظيف أو استقطاب المواهب.", "تواصل قوي بالعربية والإنجليزية.", "دقة في التفاصيل والقدرة على متابعة أكثر من وظيفة مفتوحة في آن واحد."],
+    },
+  },
+];
+
 // Apply catalog overrides (price/name/description) from site.json to the list,
 // so cards, the calculator, and detail pages all reflect them.
 for (const s of services) {
@@ -61,6 +103,11 @@ for (const s of services) {
 
 const WA = site.whatsapp;
 const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
+// The Compliance Agent's actual client dashboard lives on the sibling site
+// (businesspartner.sa), not here — subscribers sign in there with the email
+// + access code they receive after activation, not with their account on
+// this site.
+const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -90,20 +137,59 @@ const I = {
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>',
   channel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>',
   bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M4 10v8M20 10v8M8 10v8M16 10v8M3 21h18"/></svg>',
+  cycle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.3 6.4L3 16"/><path d="M3 12a9 9 0 0 1 15.3-6.4L21 8"/><path d="M3 16v4h4M21 8V4h-4"/></svg>',
   calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',
   linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>',
   instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>',
   facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg>',
 };
 
-/* ---------- bilingual build-time engine ----------
-   The whole site is generated twice: English (LANG='en') at root paths,
-   and Arabic (LANG='ar') under the /ar/ prefix. L() picks the string for the
-   current build language; u() prefixes internal links for the Arabic tree. */
+/* ---------- multilingual build-time engine ----------
+   The whole site is generated once per language: English (LANG='en') at root
+   paths, Arabic (LANG='ar') under /ar/, and 7 more world languages under
+   their own prefix (/fr/, /es/, /zh/, /ru/, /hi/, /ko/, /ja/). L(en, ar)
+   keeps working exactly as before for English/Arabic (zero behavior change
+   there); for the extra languages it looks up the English string in
+   TRANSLATIONS[LANG] and falls back to English when no translation exists
+   yet — so pages never break or go blank, they just show English for
+   anything not yet translated. Only a core set of pages (EXTRA_LANG_PATHS)
+   is generated for the extra languages so far; u() routes any other link
+   back to the English URL instead of a 404 in that language. */
 let LANG = "en";
-const L = (en, ar) => esc(LANG === "ar" ? ar : en);
+const EXTRA_LANGS = ["fr", "es", "zh", "ru", "hi", "ko", "ja"];
+const ALL_LANGS = ["en", "ar", ...EXTRA_LANGS];
+const LANG_NAMES = { en: "English", ar: "العربية", fr: "Français", es: "Español", zh: "中文", ru: "Русский", hi: "हिन्दी", ko: "한국어", ja: "日本語" };
+const LANG_LOCALE = { en: "en_US", ar: "ar_SA", fr: "fr_FR", es: "es_ES", zh: "zh_CN", ru: "ru_RU", hi: "hi_IN", ko: "ko_KR", ja: "ja_JP" };
+// Pages generated for the extra languages that AREN'T fully translated yet
+// (site chrome + homepage + the main discovery pages). Everything else still
+// exists only in en/ar for those languages; u() below sends visitors to the
+// English URL instead of a 404. Languages in FULLY_READY_LANGS skip this
+// restriction entirely and get every page, same as en/ar.
+const EXTRA_LANG_PATHS = new Set(["/", "/about", "/services", "/packages", "/contact"]);
+// Extra languages with a complete, reviewed translation of every page —
+// added one at a time as each is finished. See docs/i18n-status.md.
+const FULLY_READY_LANGS = ["fr"];
+// A handful of pages (the internal AI-employee/portal tools) are hand-written
+// once for ar/en only — they're never part of the per-language build loop,
+// so even a "fully ready" language must not get a prefixed link to them.
+const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
+const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
+import { TRANSLATIONS } from "./i18n.mjs";
+function T(en) {
+  const dict = TRANSLATIONS[LANG];
+  return (dict && dict[en]) || en;
+}
+const L = (en, ar) => {
+  if (LANG === "ar") return esc(ar);
+  if (LANG === "en") return esc(en);
+  return esc(T(en));
+};
 // Raw (unescaped) variant for when the caller needs plain text (title/desc/attributes).
-const Lraw = (en, ar) => (LANG === "ar" ? ar : en);
+const Lraw = (en, ar) => {
+  if (LANG === "ar") return ar;
+  if (LANG === "en") return en;
+  return T(en);
+};
 // Arabic numeral-noun agreement: 1 → singular ("خدمة"), 2 → dual ("خدمتان"),
 // 3-10 → plural ("خدمات"), 11+ → singular again (classical counted-noun rule).
 function arCount(n, singular, dual, plural) {
@@ -116,17 +202,27 @@ function arCount(n, singular, dual, plural) {
 function enCount(n, singular, plural) {
   return n === 1 ? singular : plural;
 }
-// Internal-link prefixer: keeps external/anchor/asset links untouched.
+// Internal-link prefixer: keeps external/anchor/asset links untouched, and
+// (for the 7 extra languages) falls back to the English URL for any page
+// not yet built in that language, instead of linking to a 404.
 const u = (href) => {
-  if (LANG !== "ar") return href;
-  if (!href || href[0] !== "/" || href.startsWith("/assets") || href.startsWith("/api") || href.startsWith("/ar/") || href === "/ar") return href === "/" ? "/ar/" : href;
-  return "/ar" + href;
+  if (LANG === "en") return href;
+  if (!href || href[0] !== "/" || href.startsWith("/assets") || href.startsWith("/api")) return href;
+  if (ALL_LANGS.some((l) => l !== "en" && (href === "/" + l || href.startsWith("/" + l + "/")))) return href; // already prefixed
+  const bare = href === "/" ? "/" : href.split("#")[0].split("?")[0];
+  const hash = href.includes("#") ? "#" + href.split("#")[1] : "";
+  if (LANG !== "ar" && !langPathReady(LANG, bare)) return href; // not built yet in this language
+  return (bare === "/" ? `/${LANG}/` : `/${LANG}${bare}`) + hash;
 };
 
 // Standalone HR portal (hr.businesspartner.sa) — Arabic-first canonical paths
 // ("/", "/join", "/dashboard", "/candidates"); English lives under "/en/...".
 // Kept fully separate from the main site's nav/footer/services.
-const pu = (short) => (LANG === "ar" ? short : "/en" + (short === "/" ? "" : short));
+// Absolute (not root-relative) because these same pages are also reachable
+// under the main site's /portal/... paths (e.g. linked from /account) — a
+// root-relative "/join" would 404 there, since the vercel.json rewrite that
+// makes "/join" resolve only applies on the hr.businesspartner.sa host.
+const pu = (short) => "https://hr.businesspartner.sa" + (LANG === "ar" ? short : "/en" + (short === "/" ? "" : short));
 const PORTAL_LINKS = [
   { href: "/", en: "Home", ar: "الرئيسية" },
   { href: "/join", en: "For Employers", ar: "لأصحاب الأعمال" },
@@ -134,7 +230,9 @@ const PORTAL_LINKS = [
   { href: "/candidates", en: "For Candidates", ar: "للباحثين عن عمل" },
 ];
 function portalLangToggle(active) {
-  const other = LANG === "ar" ? "/en" + (active === "/" ? "" : active) : active;
+  // Absolute for the same reason as pu() above: these pages are also reachable
+  // under the main site's /portal/... paths, where a root-relative "/join" 404s.
+  const other = "https://hr.businesspartner.sa" + (LANG === "ar" ? "/en" + (active === "/" ? "" : active) : active);
   return `<a class="lang-toggle" href="${other}">${LANG === "ar" ? "English" : "العربية"}</a>`;
 }
 function portalHeader(active) {
@@ -172,7 +270,10 @@ function sName(s) {
   const m = svcI18n[s.code] || {};
   const ov = site.overrides[s.slug];
   if (LANG === "ar") return m.ar || (ov && ov.name) || s.name;
-  return m.en || (ov && ov.nameEn) || s.name;
+  if (LANG === "en") return m.en || (ov && ov.nameEn) || s.name;
+  // Extra languages: their own translated name if service-i18n.json has one
+  // yet, else the English name (never Arabic — this tree is non-Arabic).
+  return m[LANG] || m.en || (ov && ov.nameEn) || s.name;
 }
 // Arabic name regardless of current build language (for cart data attributes).
 const sNameArOf = (s) => { const m = svcI18n[s.code] || {}; const ov = site.overrides[s.slug]; return m.ar || (ov && ov.name) || s.name; };
@@ -185,7 +286,9 @@ function sDesc(s) {
     return `نتولّى في بيزنس بارتنر تنفيذ خدمة «${sName(s)}» نيابةً عنك ضمن ${catAr(s.category)} — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.`;
   }
   if (ov && ov.descriptionEn) return ov.descriptionEn;
-  return `Business Partner handles “${sName(s)}” on your behalf within ${catEn(s.category)} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.`;
+  return Lraw("Business Partner handles “{name}” on your behalf within {category} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.", "")
+    .replace("{name}", sName(s))
+    .replace("{category}", Lraw(catEn(s.category), catAr(s.category)));
 }
 const catEn = (key) => (CAT_META[key] ? CAT_META[key].en : key);
 const catAr = (key) => { const c = categories.find((x) => x.key === key); return c ? c.ar : key; };
@@ -227,7 +330,7 @@ const parseAmount = (str) => {
 const KIND_TOPIC = { package: "other", agent: "ai", misa: "misa", service: "other" };
 // Priced items → "Add to cart". Price-less items → "Book a consultation" (there is
 // no price to pay online, so we route the client to a booking + simple form).
-function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false }) {
+function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
   if (amount == null) {
     const topic = KIND_TOPIC[kind] || "other";
     const about = encodeURIComponent(LANG === "ar" ? nameAr : (nameEn || nameAr));
@@ -237,22 +340,24 @@ function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", gh
   }
   // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
   const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
-  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"`;
+  const surData = surchargeAmount != null ? ` data-surcharge-amount="${surchargeAmount}" data-surcharge-free="${surchargeFreeCount || 0}"` : "";
+  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
   </div>`;
 }
 
 /* ---------- layout ---------- */
-// Path of the same page in the other language.
-function mirrorUrl(path) {
+// URL of the same page (by canonical/English path) in a given language.
+function pathInLang(path, lang) {
   const p = path || "/";
-  if (LANG === "ar") return p; // Arabic → English root path
-  return p === "/" ? "/ar/" : "/ar" + p; // English → Arabic prefixed path
+  if (lang === "en") return p;
+  return p === "/" ? `/${lang}/` : `/${lang}${p}`;
 }
 function head(title, desc, path) {
-  const enUrl = path || "/";
-  const arUrl = enUrl === "/" ? "/ar/" : "/ar" + enUrl;
+  const canonical = path || "/";
+  const langsForPage = ["en", "ar", ...EXTRA_LANGS.filter((l) => langPathReady(l, canonical))];
+  const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}">
 <head>
@@ -264,12 +369,12 @@ function head(title, desc, path) {
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
-<meta property="og:locale" content="${LANG === "ar" ? "ar_SA" : "en_US"}">
+<meta property="og:locale" content="${LANG_LOCALE[LANG] || "en_US"}">
 <meta name="theme-color" content="#0B1B5A">
 <meta name="generator" content="Business Partner 3.0 Website">
-<link rel="alternate" hreflang="en" href="${enUrl}">
-<link rel="alternate" hreflang="ar" href="${arUrl}">
-<link rel="alternate" hreflang="x-default" href="${enUrl}">
+${hreflangs}
+<link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -281,17 +386,28 @@ function head(title, desc, path) {
 
 const NAV_GROUPS = [
   { href: "/", en: "Home", ar: "الرئيسية" },
+  { href: "/about", en: "About us", ar: "من نحن" },
   {
     en: "Our services", ar: "خدماتنا",
     items: [
-      { href: "/services", en: "All services (93)", ar: "كل الخدمات (93)" },
-      { href: "/packages", en: "Packages", ar: "الباقات" },
-      { href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡" },
-      { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
-      { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
+      { href: "/services", en: "Government Consulting Services", ar: "خدمة الاستشارات الحكومية", megaCategories: true },
+      { href: "/packages", en: "Packages", ar: "الباقات", megaPackages: true },
+      {
+        href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡",
+        sub: [
+          { href: "/ai-agents", en: "All AI Agents", ar: "كل الوكلاء الأذكياء" },
+          { href: "/compliance-agent", en: "Compliance", ar: "الامتثال" },
+          { href: "/portal", en: "Smart Employees", ar: "الموظفين الأذكياء" },
+          { href: "/shared-services", en: "Shared Services Team", ar: "فريق الخدمات المشتركة" },
+        ],
+      },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
     ],
   },
+  { href: "/hr", en: "Recruitment", ar: "التوظيف" },
+  { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
+  { href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال" },
+  { href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال" },
   {
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
@@ -301,15 +417,54 @@ const NAV_GROUPS = [
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
   },
-  { href: "/hr", en: "HR by Business Partner", ar: "الموارد البشرية من بزنس بارتنر" },
-  { href: "/about", en: "About us", ar: "من نحن" },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
 ];
 
-function langToggle(path) {
-  return `<a class="lang-toggle" href="${mirrorUrl(path)}" aria-label="Switch language / تبديل اللغة">
-    ${saudiFlag}<span class="lang-label">${LANG === "ar" ? "English" : "العربية"}</span></a>`;
+// Only en/ar + FULLY_READY_LANGS are shown in the language switcher. The
+// remaining extra languages are only partially translated — even the 5
+// pages built for them mix in untranslated English strings — so offering
+// them as a finished option in the UI does more harm than good. Their
+// pages/routes still exist (reachable by direct URL) for whenever that work
+// is finished; they're just not advertised in the switcher until then.
+// Every language here must always be fully built for every path (true for
+// en/ar, and true for FULLY_READY_LANGS by construction) — langMenu links
+// straight to the same path in that language with no existence check.
+const VISIBLE_LANGS = ["en", "ar", ...FULLY_READY_LANGS];
+function langMenu(path) {
+  const items = VISIBLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+  return `<div class="nav-group lang-group">
+    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة">${saudiFlag}<span class="lang-label">${LANG_NAMES[LANG]}</span>${I.chevron}</button>
+    <div class="nav-menu">${items}</div>
+  </div>`;
+}
+
+// Renders one entry inside a top-level nav-group's dropdown. Plain items are
+// a link; items flagged megaCategories/megaPackages or carrying a static
+// `sub` array become a second-level flyout (nav-group.nested) so the mobile
+// accordion CSS — which already flattens any .nav-drop/.nav-menu pair once
+// .nav.open is set, at any nesting depth — keeps working with no changes.
+function navSubItem(it, active) {
+  let sub = it.sub;
+  if (it.megaCategories) {
+    sub = [{ href: u("/services"), en: "All services (92)", ar: "كل الخدمات (92)", raw: true }]
+      .concat(categories.map((c) => ({ href: catUrl(c.key), en: catEn(c.key), ar: c.ar, icon: CAT_ICON[c.key] || "📁", raw: true })));
+  } else if (it.megaPackages) {
+    sub = [{ href: u("/packages"), en: "All packages", ar: "كل الباقات", raw: true }]
+      .concat((site.packages.groups || []).map((g) => ({ href: u("/packages") + "#pkg-" + g.key, en: g.en, ar: g.ar, raw: true })));
+  }
+  if (!sub) {
+    return `<a href="${u(it.href)}"${it.href === active ? ' class="active"' : ""}>${L(it.en, it.ar)}</a>`;
+  }
+  const isActive = sub.some((s) => (s.raw ? false : s.href) === active) || it.href === active;
+  const subLinks = sub.map((s) => {
+    const href = s.raw ? s.href : u(s.href);
+    return `<a href="${href}"${!s.raw && s.href === active ? ' class="active"' : ""}>${s.icon ? s.icon + " " : ""}${L(s.en, s.ar)}</a>`;
+  }).join("");
+  return `<div class="nav-group nested${isActive ? " active" : ""}">
+    <button type="button" class="nav-drop${isActive ? " active" : ""}" aria-expanded="false">${L(it.en, it.ar)} ${I.chevron}</button>
+    <div class="nav-menu">${subLinks}</div>
+  </div>`;
 }
 
 function header(active, path) {
@@ -318,9 +473,7 @@ function header(active, path) {
       return `<a href="${u(g.href)}"${g.href === active ? ' class="active"' : ""}>${L(g.en, g.ar)}</a>`;
     }
     const isActive = g.items.some((it) => it.href === active);
-    const menu = g.items
-      .map((it) => `<a href="${u(it.href)}"${it.href === active ? ' class="active"' : ""}>${L(it.en, it.ar)}</a>`)
-      .join("");
+    const menu = g.items.map((it) => navSubItem(it, active)).join("");
     return `<div class="nav-group${isActive ? " active" : ""}">
       <button type="button" class="nav-drop${isActive ? " active" : ""}" aria-expanded="false">${L(g.en, g.ar)} ${I.chevron}</button>
       <div class="nav-menu">${menu}</div>
@@ -330,7 +483,7 @@ function header(active, path) {
   <a class="logo" href="${u("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="nav" aria-label="Main navigation">${links}</nav>
   <div class="header-cta">
-    ${langToggle(path)}
+    ${langMenu(path)}
     <a class="icon-btn" href="${u("/account")}" aria-label="${Lraw("Account", "حسابي")}">${I.user}</a>
     <a class="icon-btn cart-link" href="${u("/cart")}" aria-label="${Lraw("Cart", "السلة")}">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
     <button class="nav-toggle" aria-label="${Lraw("Menu", "القائمة")}" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
@@ -365,19 +518,24 @@ function footer() {
     </div>
     <div class="footer-col"><h4>${L("Links", "روابط")}</h4><ul>
       ${fl("/about", "About", "من نحن")}
-      ${fl("/services", "Services", "الخدمات")}
-      ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
-      ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
-      ${fl("/task-force", "Task Force", "تاسك فورس")}
+      ${fl("/services", "All services", "كل الخدمات")}
       ${fl("/packages", "Packages", "الباقات")}
-      ${fl("/saudi-arabia", "Saudi Arabia", "السعودية")}
-      ${fl("/news", "News", "الأخبار")}
+      ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
+      ${fl("/workspaces", "Office spaces", "المكاتب ومساحات العمل")}
+      ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
+      ${fl("/mahfol-makfol", "Mahfol Makfol · Saudi travel", "محفول مكفول · سياحة السعودية")}
+      ${fl("/task-force", "Task Force", "تاسك فورس")}
+      ${fl("/hr", "HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}
+      ${fl("/employer-join", "For employers", "لأصحاب العمل")}
+      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
+      ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
+      ${fl("/news", "Insights & news", "الرؤى والأخبار")}
+      ${fl("/magazine", "Magazine (PDF)", "المجلة (PDF)")}
       ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
       ${fl("/careers", "Careers", "الوظائف")}
-      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/account", "Client portal", "منصّة العملاء")}
       ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
-      ${fl("/cart", "Cart", "السلة")}
+      ${fl("/terms", "Terms & Conditions", "الشروط والأحكام")}
       ${fl("/contact", "Contact", "اتصل بنا")}
     </ul></div>
     <div class="footer-col"><h4>${L("Selected services", "خدمات مختارة")}</h4><ul>${svcLinks}</ul></div>
@@ -436,7 +594,6 @@ function page({ title, desc, active, path, body, script = "" }) {
   );
 }
 
-const slugCat = (key) => "cat-" + key.toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "");
 // Clean slug + URL for a category's own page (e.g. /services/category/company-formation).
 const catSlugUrl = (key) => key.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const catUrl = (key) => u("/services/category/" + catSlugUrl(key));
@@ -468,31 +625,39 @@ const GOV_EN = {
   "وزارة الموارد البشرية": "Ministry of Human Resources",
   "بدون جهة حكومية": "No government authority",
 };
-const govLabel = (g) => (LANG === "ar" ? g : (GOV_EN[g] || g));
+// g is always the Arabic authority name (from services.json); every call
+// site applies esc() itself, so this returns raw text via Lraw()/T() (never
+// L(), which double-escapes). T() already falls back to the English name
+// for any language without its own translation of that string, so this
+// covers every extra language automatically as translations are added to
+// i18n.mjs.
+const govLabel = (g) => Lraw(GOV_EN[g] || g, g);
 
+// Note: these return raw (unescaped) text — every call site applies esc()
+// itself — so use Lraw()/T() here, never L() (which double-escapes).
 function audienceOf(s, ov) {
   if (LANG === "ar") {
     if (ov && ov.audience) return ov.audience;
     if (s.targetClient) return s.targetClient;
-    return "أفراد ومنشآت";
+    return Lraw("Individuals & businesses", "أفراد ومنشآت");
   }
   if (ov && ov.audienceEn) return ov.audienceEn;
-  return "Individuals & businesses";
+  return Lraw("Individuals & businesses", "أفراد ومنشآت");
 }
 function documentsOf(s, ov) {
   if (LANG === "ar") {
     if (ov && ov.documents) return ov.documents;
     return [
-      "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)",
-      "المستندات الخاصة بنشاطك أو بطلب الخدمة",
-      "سداد الرسوم المقررة للجهة المختصة",
+      Lraw("Official documents (Commercial Registration or ID as applicable)", "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)"),
+      Lraw("Documents specific to your activity or request", "المستندات الخاصة بنشاطك أو بطلب الخدمة"),
+      Lraw("Payment of the fees due to the relevant authority", "سداد الرسوم المقررة للجهة المختصة"),
     ];
   }
   if (ov && ov.documentsEn) return ov.documentsEn;
   return [
-    "Official documents (Commercial Registration or ID as applicable)",
-    "Documents specific to your activity or request",
-    "Payment of the fees due to the relevant authority",
+    Lraw("Official documents (Commercial Registration or ID as applicable)", "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)"),
+    Lraw("Documents specific to your activity or request", "المستندات الخاصة بنشاطك أو بطلب الخدمة"),
+    Lraw("Payment of the fees due to the relevant authority", "سداد الرسوم المقررة للجهة المختصة"),
   ];
 }
 // Arabic translations of the English-only deliverables in services.json (keyed by code),
@@ -530,9 +695,9 @@ function featuresOf(s, ov) {
   }
   if (ov && ov.featuresEn) return ov.featuresEn;
   return [
-    "We complete the procedure on your behalf, from start to issuance",
-    "Clear fees, with government fees separate and disclosed",
-    "Smart-agent support on WhatsApp 24/7",
+    Lraw("We complete the procedure on your behalf, from start to issuance", "ننجز الإجراء نيابةً عنك من البداية حتى الإصدار"),
+    Lraw("Clear fees, with government fees separate and disclosed", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة"),
+    Lraw("Smart-agent support on WhatsApp 24/7", "دعم الوكيل الذكي على واتساب 24/7"),
   ];
 }
 function faqOf(s, ov) {
@@ -551,14 +716,18 @@ function faqOf(s, ov) {
     faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا على واتساب، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
   } else {
     faq.push({
-      q: "How much are the fees for this service?",
+      q: Lraw("How much are the fees for this service?", ""),
       a:
-        (s.price.amount != null ? `Business Partner's fee for this service is ${localizeLabel(s.price.label)}. ` : "This service is quoted individually based on your case. ") +
-        (s.govFeesSeparate ? "Government fees are separate from our fees and are disclosed before we start." : "VAT is added."),
+        (s.price.amount != null
+          ? Lraw("Business Partner's fee for this service is {price}. ", "").replace("{price}", localizeLabel(s.price.label))
+          : Lraw("This service is quoted individually based on your case. ", "")) +
+        (s.govFeesSeparate
+          ? Lraw("Government fees are separate from our fees and are disclosed before we start.", "")
+          : Lraw("VAT is added.", "")),
     });
-    faq.push({ q: "Who is this service for?", a: `This service is available to ${audienceOf(s, ov)}.` });
-    if (s.govPlatform) faq.push({ q: "Which authority handles it?", a: `The service is delivered through ${govLabel(s.govPlatform)}; we handle the filing and follow-up with it.` });
-    faq.push({ q: "How do I start?", a: "Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately." });
+    faq.push({ q: Lraw("Who is this service for?", ""), a: Lraw("This service is available to {audience}.", "").replace("{audience}", audienceOf(s, ov)) });
+    if (s.govPlatform) faq.push({ q: Lraw("Which authority handles it?", ""), a: Lraw("The service is delivered through {authority}; we handle the filing and follow-up with it.", "").replace("{authority}", govLabel(s.govPlatform)) });
+    faq.push({ q: Lraw("How do I start?", ""), a: Lraw("Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately.", "") });
   }
   return faq;
 }
@@ -730,7 +899,7 @@ function buildAbout() {
     <span class="eyebrow">${L("About", "من نحن")}</span>
     <h1>${L(a.titleEn || a.title, a.title)}</h1>
     <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
-    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
+    <div class="hero-actions">${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
   </div></section>
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Our promise", "وعدنا")}</span><h2>${L(a.promiseEn || a.promise, a.promise)}</h2></div>
@@ -848,7 +1017,7 @@ function buildServiceDetail(s) {
 
   const body = `
   <section class="svc-hero"><div class="container">
-    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${u("/services")}#${slugCat(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
+    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${catUrl(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
     <h1>${esc(sName(s))}</h1>
     <div class="svc-meta">${serviceQuickFacts(s, ov)}</div>
   </div></section>
@@ -866,8 +1035,10 @@ function buildServiceDetail(s) {
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
         ${s.category === "Real Estate"
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
+          : s.category === "Tourism"
+          ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
           : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}
-        ${waBtn2("Discuss on WhatsApp", "ناقشنا على واتساب", "btn-ghost")}
+        ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
         <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
       </div>
@@ -907,7 +1078,7 @@ function buildAiAgents() {
     <span class="eyebrow">${L("AI Agents", "الوكلاء الأذكياء")}</span>
     <h1>${L(a.titleEn || a.title, a.title)}</h1>
     <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
-    <div class="hero-actions">${waBtn2(a.ctaEn || a.cta, a.cta, "btn-primary", true)}<a class="btn btn-ghost btn-lg" href="#agents">${L(a.learnEn || "استعرض الوكلاء", "استعرض الوكلاء")}</a></div>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agents">${L(a.learnEn || "استعرض الوكلاء", "استعرض الوكلاء")}</a></div>
     <div class="hero-badges">
       <span class="hero-badge">${I.check}${L("24/7 monitoring", "مراقبة 24/7")}</span>
       <span class="hero-badge">${I.check}${L("Autonomous execution", "تنفيذ ذاتي")}</span>
@@ -924,11 +1095,7 @@ function buildAiAgents() {
     <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
     <div class="grid grid-3">${cards}</div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
-    <div class="center mt-32"><a class="btn btn-ghost" href="/connect">🔌 ${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="cta-band"><h2>${L("Ready to see the agents at work?", "جاهز تشوف الوكلاء يشتغلون؟")}</h2><p>${L("Book a demo with our team and we'll design the system to fit your entity.", "احجز عرضاً توضيحياً مع فريقنا، ونصمّم لك المنظومة على مقاس منشأتك.")}</p>${waBtn2(a.ctaEn || a.cta, a.cta, "btn-white", true)}</div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
   </div></section>`;
   return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
@@ -1001,30 +1168,254 @@ function buildTaskForce() {
   return page({ title: Lraw("Task Force — Business Partner", "تاسك فورس — بيزنس بارتنر"), desc: Lraw("A dedicated executive service for hard, multi-party tasks and special projects.", "خدمة تنفيذية متخصصة لإدارة المهمات الصعبة والمشاريع متعددة الجهات."), active: "/task-force", path: "/task-force", body });
 }
 
+/* ---------- Deals & matchmaking (/deals) ---------- */
+const DEAL_SECTORS = [
+  { key: "food", icon: "🍽️", en: "Restaurants & Food", ar: "مطاعم وأغذية" },
+  { key: "retail", icon: "🛍️", en: "Retail", ar: "تجزئة" },
+  { key: "tech", icon: "🛠️", en: "Tech", ar: "تقنية" },
+  { key: "services", icon: "🧰", en: "Services", ar: "خدمات" },
+  { key: "industry", icon: "🪑", en: "Industry", ar: "صناعة" },
+  { key: "logistics", icon: "🚚", en: "Logistics", ar: "لوجستيات" },
+  { key: "beauty", icon: "💇‍♀️", en: "Beauty", ar: "تجميل" },
+  { key: "hr", icon: "👥", en: "HR", ar: "موارد بشرية" },
+  { key: "other", icon: "🗂️", en: "Other", ar: "أخرى" },
+];
+const DEAL_CITIES = [
+  { key: "riyadh", en: "Riyadh", ar: "الرياض" },
+  { key: "jeddah", en: "Jeddah", ar: "جدة" },
+  { key: "dammam", en: "Dammam", ar: "الدمام" },
+  { key: "other", en: "Other city", ar: "مدينة أخرى" },
+];
+const DEAL_TYPE_META = {
+  offer: { icon: "🤝", en: "Offering a deal", ar: "عرض صفقة" },
+  seek: { icon: "🔎", en: "Seeking a partner", ar: "يبحث عن شريك" },
+  idea: { icon: "💡", en: "Pitching an idea", ar: "فكرة مشروع" },
+};
+const DEAL_TICKETS = [
+  { type: "seek", sector: "food", city: "riyadh", titleEn: "Saudi cuisine restaurant — Riyadh", titleAr: "مطعم مأكولات سعودية — الرياض",
+    descEn: "A restaurant running for 3 years is looking for a funding partner to open a second branch in Jeddah, with an operating team ready to go.",
+    descAr: "مطعم قائم منذ 3 سنوات يبحث عن شريك مموّل لافتتاح فرع ثانٍ في جدة، مع خبرة تشغيلية جاهزة.",
+    statEn: "Stake offered", statAr: "الحصة المطروحة", valueEn: "30%", valueAr: "30%", postedEn: "Posted 2 days ago", postedAr: "نُشرت قبل يومين" },
+  { type: "idea", sector: "tech", city: "jeddah", titleEn: "On-demand home maintenance booking app", titleAr: "تطبيق حجز صيانة منزلية عند الطلب",
+    descEn: "A researched idea with initial market study — the founder is looking for a technical co-founder to build and launch the product.",
+    descAr: "فكرة مدروسة بدراسة سوق أولية، صاحبها يبحث عن شريك مؤسس تقني لبناء المنتج وإطلاقه.",
+    statEn: "Looking for", statAr: "المطلوب", valueEn: "Technical partner", valueAr: "شريك تقني", postedEn: "Posted yesterday", postedAr: "نُشرت أمس" },
+  { type: "offer", sector: "logistics", city: "dammam", titleEn: "Exclusive food-product distribution — Eastern Province", titleAr: "توزيع حصري لمنتجات غذائية — المنطقة الشرقية",
+    descEn: "An established distribution company offers an exclusive distribution agreement to retailers in the Eastern Province on preferential terms.",
+    descAr: "شركة توزيع قائمة تعرض اتفاقية توزيع حصري لتجار التجزئة في المنطقة الشرقية بشروط تفضيلية.",
+    statEn: "Minimum order", statAr: "الحد الأدنى للطلب", valueEn: "SAR 50,000", valueAr: "50 ألف ﷼", postedEn: "Posted 3 days ago", postedAr: "نُشرت قبل 3 أيام" },
+  { type: "seek", sector: "beauty", city: "jeddah", titleEn: "Women's beauty salon — new branch", titleAr: "صالون تجميل نسائي — فرع جديد",
+    descEn: "A successful 2-branch salon is looking for a partner to run and operate a third branch, with full training and a ready brand.",
+    descAr: "صالون ناجح بفرعين يبحث عن شريكة لإدارة وتشغيل فرع ثالث، مع تدريب كامل وعلامة تجارية جاهزة.",
+    statEn: "Capital required", statAr: "رأس المال المطلوب", valueEn: "SAR 180,000", valueAr: "180 ألف ﷼", postedEn: "Posted 4 days ago", postedAr: "نُشرت قبل 4 أيام" },
+  { type: "offer", sector: "industry", city: "riyadh", titleEn: "Wholesale furniture manufacturing for retailers", titleAr: "تصنيع أثاث بالجملة لتجار التجزئة",
+    descEn: "A local furniture factory offers wholesale manufacturing contracts at competitive prices for furniture and furnishing stores.",
+    descAr: "مصنع أثاث محلي يعرض تعاقدات تصنيع بالجملة بأسعار تنافسية لمتاجر الأثاث والمفروشات.",
+    statEn: "Lead time", statAr: "مدة التوريد", valueEn: "2–4 weeks", valueAr: "2–4 أسابيع", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
+  { type: "idea", sector: "hr", city: "riyadh", titleEn: "Remote hiring platform for Saudi talent", titleAr: "منصة توظيف عن بُعد للمواهب السعودية",
+    descEn: "An entrepreneur with 8 years of recruitment experience is looking for a technical co-founder to build a platform connecting companies with talent.",
+    descAr: "رائد أعمال يملك خبرة توظيف 8 سنوات ويبحث عن شريك مؤسس مطوّر لبناء منصة ربط الشركات بالمواهب.",
+    statEn: "Looking for", statAr: "المطلوب", valueEn: "Co-founder", valueAr: "شريك مؤسس", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
+];
+function buildDeals() {
+  const sectorOptions = DEAL_SECTORS.map((s) => `<option value="${s.key}">${L(s.en, s.ar)}</option>`).join("");
+  const cityOptions = DEAL_CITIES.map((c) => `<option value="${c.key}">${L(c.en, c.ar)}</option>`).join("");
+  const launcher = [
+    ["offer", "🤝", L("I have a deal to offer", "عندي صفقة أعرضها"), L("Restaurant, shop, factory — offering a partnership, distribution or ready financing", "مطعم، محل، مصنع — تعرض شراكة أو توزيع أو تمويل جاهز")],
+    ["seek", "🔎", L("I'm looking for a partner", "أبحث عن شريك"), L("For an existing project that needs a funding or operating partner", "لمشروع قائم يحتاج شريك مموّل أو شريك تشغيل")],
+    ["idea", "💡", L("I have a project idea", "عندي فكرة مشروع"), L("Looking for a co-founder or funder to take on the idea with you", "تبحث عن شريك مؤسس أو ممول يتبنى الفكرة معك")],
+  ].map((x) => `<button class="card deal-launcher" data-kind="${x[0]}" type="button"><span class="deal-launcher-ico ${x[0]}">${x[1]}</span><h3>${x[2]}</h3><p class="text-soft">${x[3]}</p></button>`).join("");
+  const steps = [
+    [1, L("Submit your file", "تقديم الملف"), L("Deal type, sector, city, and a short description — two minutes, no more.", "نوع الصفقة، القطاع، المدينة، ووصف مختصر — دقيقتين لا أكثر.")],
+    [2, L("Match calculation", "حساب المطابقة"), L("We instantly compare your file against every open opportunity and rank the closest matches for you.", "نقارن ملفك فورًا بكل الفرص المتاحة ونرشّح أقرب النتائج لك.")],
+    [3, L("Review & publish", "اعتماد ونشر"), L("Our team reviews seriousness and data before any deal appears publicly.", "فريقنا يراجع الجدية والبيانات قبل ظهور أي صفقة للعامة.")],
+    [4, L("Mutual-consent introduction", "تعارف بموافقة الطرفين"), L("Your data is never revealed until the other party agrees to the introduction.", "بياناتك لا تُكشف أبدًا إلا بعد موافقة الطرف الآخر على التعارف.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+  const chips = [["all", L("All", "الكل")], ["offer", L("Offering a deal", "عرض صفقة")], ["seek", L("Seeking a partner", "بحث عن شريك")], ["idea", L("Project idea", "فكرة مشروع")]]
+    .map((c, i) => `<button class="deal-chip${i === 0 ? " active" : ""}" data-filter="${c[0]}" type="button">${c[1]}</button>`).join("");
+  const tickets = DEAL_TICKETS.map((t) => {
+    const sec = DEAL_SECTORS.find((s) => s.key === t.sector);
+    const city = DEAL_CITIES.find((c) => c.key === t.city);
+    const meta = DEAL_TYPE_META[t.type];
+    return `<article class="card deal-ticket" data-type="${t.type}" data-sector="${t.sector}" data-city="${t.city}">
+      <span class="deal-badge ${t.type}">${meta.icon} ${L(meta.en, meta.ar)}</span>
+      <h3>${L(t.titleEn, t.titleAr)}</h3>
+      <div class="deal-ticket-meta"><span>${I.pin} ${L(city.en, city.ar)}</span><span>${sec.icon} ${L(sec.en, sec.ar)}</span></div>
+      <p class="text-soft">${L(t.descEn, t.descAr)}</p>
+      <div class="deal-ticket-stat"><span>${L(t.statEn, t.statAr)}</span><b>${L(t.valueEn, t.valueAr)}</b></div>
+      <div class="deal-ticket-foot"><span>${L(t.postedEn, t.postedAr)}</span><button class="deal-ticket-btn" type="button">${L("Request intro", "طلب تعارف")}</button></div>
+    </article>`;
+  }).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("New — smart matching + deals", "جديد — مطابقة ذكية + صفقات")}</span>
+    <h1>${L("We don't just list deals — we match you with the right partner", "ما نعرض لك صفقات فقط — نطابقك مع الشريك الصح")}</h1>
+    <p class="lead">${L("Submit your deal or file once, and we compare it instantly against every available opportunity by sector, city and deal type, then recommend the closest matches by name. Real introductions only happen with mutual consent.", "قدّم صفقتك أو ملفك مرة واحدة، ونقارنه فورًا بكل الفرص المتاحة حسب القطاع والمدينة ونوع الصفقة، ونرشّح لك أقرب النتائج بالاسم. التعارف الفعلي لا يتم إلا بعد موافقة الطرفين.")}</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" id="deal-open-hero" type="button">${L("Submit your deal now", "قدّم صفقتك الآن")}</button>
+      <a class="btn btn-ghost btn-lg" href="#deal-wall">${L("Browse published deals", "تصفح الصفقات المنشورة")}</a>
+    </div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Manual review before publishing", "مراجعة يدوية قبل النشر")}</span>
+      <span class="hero-badge">${I.check}${L("Automatic match score", "نسبة تطابق محسوبة تلقائيًا")}</span>
+      <span class="hero-badge">${I.check}${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><h2>${L("Choose what applies to your situation", "اختر ما ينطبق على وضعك")}</h2><p>${L("Every type goes through the same submission, matching and review journey.", "كل نوع يمر بنفس رحلة التقديم والمطابقة والمراجعة.")}</p></div>
+    <div class="grid grid-3">${launcher}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><h2>${L("From submission to introduction", "من التقديم إلى التعارف")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section" id="deal-wall"><div class="container">
+    <div class="section-head"><h2>${L("Deals published this week", "الصفقات المنشورة هذا الأسبوع")}</h2><p>${L("Browse for free, or submit your file so the system calculates your closest matches automatically.", "تصفح مجانًا، أو قدّم ملفك ليحسب النظام أقرب المطابقات لك تلقائيًا.")}</p></div>
+    <div class="deal-filters">${chips}<span class="deal-filters-count"><span id="deal-visible-count">0</span> ${L("deals visible", "صفقة ظاهرة")}</span></div>
+    <div class="grid grid-3" id="deal-wall-grid">${tickets}</div>
+    <div class="center mt-32"><button class="btn btn-primary" id="deal-open-bottom" type="button">${L("Add your deal to the wall", "أضف صفقتك للحائط")}</button></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="deal-trust">
+      <span>🔒 ${L("Manual review before publishing", "مراجعة يدوية قبل النشر")}</span>
+      <span>🎯 ${L("Automatically calculated match score", "نسبة تطابق محسوبة تلقائيًا")}</span>
+      <span>🤝 ${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
+      <span>✉️ ${L("Instant email updates", "تحديثات فورية بالبريد")}</span>
+    </div>
+  </div></section>
+
+  <div class="deal-scrim" id="deal-scrim"></div>
+  <aside class="deal-drawer" id="deal-drawer" role="dialog" aria-label="${Lraw("Submit a deal", "تقديم صفقة")}">
+    <div class="deal-drawer-head">
+      <b>${L("Submit your file and get matches", "قدّم ملفك واحصل على مطابقات")}</b>
+      <button class="deal-drawer-close" id="deal-drawer-close" type="button" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
+    </div>
+    <div class="deal-drawer-progress"><div class="deal-drawer-bar" id="deal-drawer-bar"></div></div>
+    <div class="deal-drawer-body">
+      <div class="deal-step active" data-step="1">
+        <h4>${L("Step 1 — Deal type", "الخطوة 1 — نوع الصفقة")}</h4>
+        <p class="hint">${L("Choose what applies to your current situation", "اختر ما ينطبق على وضعك الحالي")}</p>
+        <div class="deal-type-pick">
+          <label class="deal-type-opt" data-kind="offer"><input type="radio" name="dealType" value="offer" checked><span class="tico">🤝</span><span><b>${L("I have a deal to offer", "عندي صفقة أعرضها")}</b><span class="sub">${L("Partnership, distribution, ready financing", "شراكة، توزيع، تمويل جاهز")}</span></span></label>
+          <label class="deal-type-opt" data-kind="seek"><input type="radio" name="dealType" value="seek"><span class="tico">🔎</span><span><b>${L("I'm looking for a partner", "أبحث عن شريك")}</b><span class="sub">${L("For an existing project that needs funding or operations", "لمشروع قائم يحتاج تمويل أو تشغيل")}</span></span></label>
+          <label class="deal-type-opt" data-kind="idea"><input type="radio" name="dealType" value="idea"><span class="tico">💡</span><span><b>${L("I have a project idea", "عندي فكرة مشروع")}</b><span class="sub">${L("Looking for a co-founder or funder", "أبحث عن شريك مؤسس أو ممول")}</span></span></label>
+        </div>
+      </div>
+      <div class="deal-step" data-step="2">
+        <h4>${L("Step 2 — Deal details", "الخطوة 2 — تفاصيل الصفقة")}</h4>
+        <p class="hint">${L("These fields are what the match calculation uses", "هذه الحقول هي ما يُستخدم لحساب المطابقة")}</p>
+        <div class="field"><label for="deal-title">${L("Deal title", "عنوان الصفقة")}</label><input type="text" id="deal-title" placeholder="${Lraw("e.g. Restaurant looking for a funding partner", "مثال: مطعم يبحث عن شريك مموّل")}"></div>
+        <div class="grid grid-2" style="gap:0 16px">
+          <div class="field"><label for="deal-sector">${L("Sector", "القطاع")}</label><select id="deal-sector">${sectorOptions}</select></div>
+          <div class="field"><label for="deal-city">${L("City", "المدينة")}</label><select id="deal-city">${cityOptions}</select></div>
+        </div>
+        <div class="field"><label for="deal-desc">${L("Deal description", "وصف الصفقة")}</label><textarea id="deal-desc" rows="4" placeholder="${Lraw("Briefly explain the idea or deal...", "اشرح الفكرة أو الصفقة بإيجاز...")}"></textarea></div>
+      </div>
+      <div class="deal-step" data-step="3">
+        <h4>${L("Step 3 — Contact details", "الخطوة 3 — بيانات التواصل")}</h4>
+        <p class="hint">${L("Your data is never shown publicly — only revealed after the other party agrees to the introduction", "لن تظهر بياناتك للعامة أبدًا — تُكشف فقط بعد موافقة الطرف الآخر على التعارف")}</p>
+        <div class="grid grid-2" style="gap:0 16px">
+          <div class="field"><label for="deal-name">${L("Name", "الاسم")}</label><input type="text" id="deal-name" placeholder="${Lraw("Your full name", "اسمك الكامل")}"></div>
+          <div class="field"><label for="deal-phone">${L("Mobile", "الجوال")}</label><input type="tel" id="deal-phone" inputmode="tel" placeholder="05XXXXXXXX"></div>
+        </div>
+        <div class="field"><label for="deal-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="deal-email" placeholder="name@email.com"></div>
+        <label class="deal-consent"><input type="checkbox" id="deal-consent" checked><span>${L("I agree to have my file reviewed by the Business Partner team before publishing, and to receive email about any match or introduction request.", "أوافق على مراجعة ملفي من فريق بيزنس بارتنر قبل نشره، وعلى تلقّي بريد بأي مطابقة أو طلب تعارف.")}</span></label>
+        <div id="deal-wiz-message" class="deal-wiz-message" hidden></div>
+      </div>
+      <div class="deal-step" data-step="4">
+        <h4>${L("Step 4 — Your closest matches", "الخطوة 4 — أقرب المطابقات لك")}</h4>
+        <p class="hint">${L("Calculated by sector, city and deal type — your data isn't shown to them unless they agree to the introduction request", "محسوبة حسب القطاع والمدينة ونوع الصفقة — لن تظهر بياناتك لهم إلا إذا وافقوا على طلب التعارف")}</p>
+        <div class="deal-match-list" id="deal-match-results"></div>
+      </div>
+      <div class="deal-step" data-step="5">
+        <div class="deal-wiz-success">
+          <div class="deal-wiz-check">${I.check}</div>
+          <h4>${L("Your file was received", "وصلنا ملفك بنجاح")}</h4>
+          <p class="text-soft">${L("Saved in our system and will be reviewed by the team within 24 hours — we'll confirm by email once it's published and on every new match.", "حُفظ في نظامنا وسيراجعه الفريق خلال 24 ساعة، وسنرسل لك تأكيدًا بالبريد عند النشر وعند كل مطابقة جديدة.")}</p>
+        </div>
+      </div>
+    </div>
+    <div class="deal-drawer-foot" id="deal-drawer-foot">
+      <button class="btn btn-ghost" id="deal-step-back" type="button">${L("Back", "السابق")}</button>
+      <button class="btn btn-primary" id="deal-step-next" type="button">${L("Next", "التالي")}</button>
+    </div>
+  </aside>`;
+  return page({ title: Lraw("Deals & Smart Matchmaking — Business Partner", "الصفقات والمطابقة الذكية — بيزنس بارتنر"), desc: Lraw("Offer a deal, look for a partner, or pitch an idea — we automatically match you with the closest opportunities by sector and city, and never reveal your data until both sides agree.", "اعرض صفقتك، ابحث عن شريك، أو اطرح فكرتك — نطابقك تلقائيًا مع أقرب الفرص حسب القطاع والمدينة، ولا نكشف بياناتك إلا بعد موافقة الطرفين."), active: "/deals", path: "/deals", body });
+}
+
 function buildPackages() {
   const p = site.packages;
   const groups = p.groups || [{ key: "business", ar: p.title, en: p.titleEn, descAr: p.subtitle, descEn: p.subtitleEn, tiers: p.tiers }];
-  const tierCard = (t) => `<div class="pkg${t.highlight ? " pop" : ""}">
-      <div class="pk-name">${L(t.nameEn || t.name || t.nameAr, t.nameAr)}</div>
-      ${t.price ? `<div class="pk-price">${esc(localizeLabel(t.price))}</div>` : ""}
+  // Same annual-billing policy already established for employer packages
+  // (site.employerPlans.yearlyDiscount, 30%) — reused here so the two billing
+  // toggles on the site behave identically, not a new/invented number.
+  const yearlyDiscount = (site.employerPlans && site.employerPlans.yearlyDiscount) || 0;
+  const fmt = (n) => Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : "en-US");
+  const isMonthly = (t) => /شهري|monthly/i.test(t.priceEn || t.price || "");
+  const tierCard = (t) => {
+    const monthly = t.amount != null && isMonthly(t);
+    const name = L(t.nameEn || t.name || t.nameAr, t.nameAr);
+    const feats = `<ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>`;
+    const badgeAttr = t.highlight ? ` data-badge="${esc(L(t.badgeEn || "Most requested", t.badgeAr || "الأكثر طلباً"))}"` : "";
+    if (monthly) {
+      const yearly = employerYearly(t.amount, yearlyDiscount);
+      const nameAr = `${t.nameAr} — اشتراك شهري`;
+      const nameEn = `${t.nameEn || t.name} — Monthly subscription`;
+      const priceLabelM = `${fmt(t.amount)} ${L("SAR / mo", "ريال / شهرياً")}`;
+      const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
+      return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
+        <div class="pk-name">${esc(name)}</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>
+        <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
+        ${feats}
+        <button type="button" class="btn ${t.highlight ? "btn-primary" : "btn-ghost"} add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-${esc(t.key)}-monthly" data-kind="package"
+          data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}"
+          data-amount="${t.amount}" data-price="${esc(priceLabelM)}"
+          data-id-monthly="pkg-${esc(t.key)}-monthly" data-id-yearly="pkg-${esc(t.key)}-yearly"
+          data-amount-monthly="${t.amount}" data-amount-yearly="${yearly}"
+          data-price-monthly="${esc(priceLabelM)}" data-price-yearly="${esc(priceLabelY)}"
+        >🛒 ${L("Add to cart", "أضف إلى السلة")}</button>
+      </div>`;
+    }
+    return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
+      <div class="pk-name">${esc(name)}</div>
+      ${t.price ? `<div class="pk-price">${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
-      <ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
-      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: t.price || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
+      ${feats}
+      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
+      ${t.surcharge || t.surchargeEn ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
     </div>`;
+  };
   const tabs = groups
     .map((g, i) => `<button type="button" class="pk-tab${i === 0 ? " active" : ""}" data-group="${esc(g.key)}">${L(g.en, g.ar)}</button>`)
     .join("");
   const panels = groups
-    .map((g, i) => `<div class="pk-panel${i === 0 ? " active" : ""}" id="pkg-${esc(g.key)}">
+    .map((g, i) => {
+      const hasMonthly = yearlyDiscount > 0 && g.tiers.some(isMonthly);
+      const billingToggle = hasMonthly
+        ? `<div class="emp-billing-toggle" role="tablist">
+            <button type="button" class="emp-bill-btn active" data-bill="monthly">${L("Monthly", "شهري")}</button>
+            <button type="button" class="emp-bill-btn" data-bill="yearly">${L("Yearly", "سنوي")} <span class="emp-save">${L(`Save ${Math.round(yearlyDiscount * 100)}%`, `وفّر ${Math.round(yearlyDiscount * 100)}٪`)}</span></button>
+          </div>`
+        : "";
+      return `<div class="pk-panel${i === 0 ? " active" : ""}" id="pkg-${esc(g.key)}">
       ${g.descAr || g.descEn ? `<p class="pk-group-desc">${L(g.descEn || g.descAr, g.descAr || g.descEn)}</p>` : ""}
-      <div class="grid grid-3">${g.tiers.map(tierCard).join("")}</div>
-    </div>`)
+      ${billingToggle}
+      <div class="grid grid-${g.tiers.length >= 4 ? 4 : g.tiers.length === 2 ? 2 : 3}">${g.tiers.map(tierCard).join("")}</div>
+    </div>`;
+    })
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Packages", "الباقات")}</span>
     <h1>${L("Choose the package that fits your establishment", "اختر الباقة التي تناسب منشأتك")}</h1>
-    <p class="lead">${L("Business, company-formation and government-services packages — each is a starting price; your consultant tailors it to your case.", "باقات للأعمال، ولتأسيس الشركات، وللخدمات الحكومية — كل باقة سعرها ابتدائي، ومستشارك يضبطها على حالتك.")}</p>
+    <p class="lead">${L("Four annual service packages, plus one-time company-formation and investment services — all from our official catalog.", "أربع باقات خدمات سنوية، وخدمات تأسيس شركات واستثمار لمرة واحدة — كلها من الكتالوج الرسمي.")}</p>
+    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/calculator")}">🧮 ${L("Or design your own basket from the full catalog →", "أو صمّم سلّتك الخاصة من الكتالوج الكامل ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">
     <div class="pk-tabs" role="tablist">${tabs}</div>
@@ -1032,6 +1423,19 @@ function buildPackages() {
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(p.noteEn || p.note, p.note)}</p></div>
   </div></section>
   <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to activation", "أربع خطوات من التسجيل إلى التفعيل")}</h2></div>
+    <div class="steps-grid">${[
+      [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site.", "أنشئ حسابك في الموقع.")],
+      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
+      [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, your subscription is activated and you're notified.", "بمجرد التأكيد، يُفعَّل اشتراكك ويصلك إشعار.")],
+      [L("We start managing your account", "نبدأ إدارة حسابك"), L("Your dedicated team starts work on the platforms covered by your package.", "فريقك المخصّص يبدأ العمل على المنصات المشمولة بباقتك.")],
+    ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
+    <div class="hero-actions" style="margin-top:1.4rem">
+      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/account")}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
+    </div>
+  </div></section>
+  <section class="section"><div class="container">
     <div class="cta-band"><h2>${L("Not sure which package fits you?", "محتار أي باقة تناسبك؟")}</h2><p>${L("The smart agent asks a few questions and recommends the best package in minutes.", "الوكيل الذكي يسألك بضعة أسئلة ويرشّح لك الباقة الأنسب في دقائق.")}</p>${waBtn2("Help me choose", "ساعدني أختار", "btn-white", true)}</div>
   </div></section>
   <script>window.BP_PKG_LANG=${JSON.stringify(LANG)};</script>
@@ -1109,7 +1513,7 @@ function buildCalculator() {
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Cost calculator", "حاسبة التكلفة")}</span>
     <h1>${L("Build your service basket and see the cost", "كوّن سلّة خدماتك واعرف التكلفة")}</h1>
-    <p class="lead">${L("Pick services from the official catalog by category. The basket totals your one-time and monthly Business Partner fees instantly. Government fees (where applicable) are separate and announced before starting.", "اختر خدماتك حسب التصنيف من الكتالوج الرسمي. تتحدّث السلّة تلقائياً بإجمالي أتعاب بيزنس بارتنر لمرة واحدة والشهرية. الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.")}</p>
+    <p class="lead">${L("Pick services from the official catalog by category — no need to compare prices service by service. Once you're done, get the total cost for your basket in one step.", "اختر خدماتك حسب التصنيف من الكتالوج الرسمي — بدون ما تقارن الأسعار خدمة خدمة. وبعد ما تخلّص اختياراتك، اطلب السعر الإجمالي لسلّتك بخطوة وحدة.")}</p>
     <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/tools-and-calculators")}">🟢 ${L("Tools & calculators →", "الأدوات والحاسبات ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">
@@ -1121,14 +1525,15 @@ function buildCalculator() {
           <div class="calc2-selected" id="calc2-selected">
             <p class="calc2-empty" id="calc2-empty">${L("No services selected yet. Tap a service to add it.", "لم تختر أي خدمة بعد. اضغط على أي خدمة لإضافتها.")}</p>
           </div>
-          <div class="calc2-totals">
+          <button type="button" class="btn btn-primary" id="calc2-reveal" style="width:100%" disabled>${L("Calculate total price", "احسب السعر الإجمالي")}</button>
+          <div class="calc2-totals" id="calc2-totals" hidden>
             <div class="calc-line"><span class="k">${L("One-time fees", "أتعاب لمرة واحدة")}</span><span class="v" id="calc2-once">0 ﷼</span></div>
             <div class="calc-line"><span class="k">${L("Monthly fees", "أتعاب شهرية")}</span><span class="v" id="calc2-monthly">0 ﷼</span></div>
             <div class="calc-line calc2-vat"><span class="k">${L("+ VAT 15% (on fees)", "+ ضريبة القيمة المضافة 15% (على الأتعاب)")}</span><span class="v" id="calc2-vat">—</span></div>
           </div>
           <div class="calc2-warn" id="calc2-warn" hidden>${I.doc}<span>${L("Some selected services are priced on request (a quote after review). They are not included in the totals.", "بعض الخدمات المختارة تُسعّر حسب الطلب (عرض بعد المراجعة) ولا تدخل في الإجمالي.")}</span></div>
-          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/checkout")}" style="width:100%">${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
-          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or discuss on WhatsApp", "أو ناقشنا على واتساب")}</span></a>
+          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/checkout")}" style="width:100%" hidden>${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
+          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or chat with the smart agent", "أو تحدث مع الوكيل الذكي")}</span></a>
           <p class="calc-note">${L("Estimates from the official catalog; final pricing may vary by your case. Government fees are separate.", "تقديرات من الكتالوج الرسمي وقد تختلف حسب حالتك. الرسوم الحكومية منفصلة.")}</p>
         </div>
       </aside>
@@ -1136,53 +1541,6 @@ function buildCalculator() {
   </div></section>
   <script>window.BP_CALC = ${JSON.stringify(groups)};window.BP_CALC_LANG = ${JSON.stringify(LANG)};</script>`;
   return page({ title: Lraw("Cost calculator — Business Partner", "حاسبة التكلفة — بيزنس بارتنر"), desc: Lraw("Build a basket of Business Partner services and see one-time and monthly fees from the official catalog.", "كوّن سلّة من خدمات بيزنس بارتنر واعرف الأتعاب لمرة واحدة والشهرية من الكتالوج الرسمي."), active: "/calculator", body });
-}
-
-const INTAKE_WEBHOOK = "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";
-function intakeFormBlock() {
-  const chips = ["كل المنصات","قوى","مقيم","GOSI","مدد","السجل التجاري","أخرى"].map(function(pf){return '<label class="bp-chk"><input type="checkbox" name="platforms" value="'+pf+'"> '+pf+'</label>';}).join("");
-  return `
-  <form class="bp-intake" id="bp-intake" novalidate>
-    <div class="bp-intake-grid">
-      <div class="field"><label>${L("Establishment name *", "اسم المنشأة *")}</label><input name="company" required></div>
-      <div class="field"><label>${L("Unified number (700)", "الرقم الموحّد (700)")}</label><input name="unified"></div>
-      <div class="field"><label>${L("Qiwa establishment no.", "رقم منشأة قوى")}</label><input name="qiwa_id"></div>
-      <div class="field"><label>${L("Mudad establishment no.", "رقم منشأة مدد")}</label><input name="mudad_id"></div>
-      <div class="field"><label>${L("Employees in GOSI", "عدد الموظفين في التأمينات")}</label><input name="employees" type="number" min="0"></div>
-      <div class="field"><label>${L("WhatsApp / mobile *", "واتساب / الجوال *")}</label><input name="whatsapp" required></div>
-      <div class="field"><label>${L("Email", "البريد الإلكتروني")}</label><input name="email" type="email"></div>
-    </div>
-    <div class="field"><label>${L("Subscribed platforms", "المنصات المشترك بها")}</label><div class="bp-chips">${chips}</div></div>
-    <div class="field"><label>${L("Upload files: Qiwa / Muqeem / GOSI / Mudad — PDF, Excel, images *", "ارفع ملفاتك: قوى / مقيم / التأمينات / مدد — PDF أو Excel أو صور *")}</label><input name="files" id="bp-files" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp" required></div>
-    <div class="field"><label>${L("Notes", "ملاحظات")}</label><textarea name="notes" rows="2"></textarea></div>
-    <button type="submit" class="btn btn-primary btn-lg" id="bp-submit">📤 ${L("Send securely", "إرسال آمن")}</button>
-    <div class="bp-intake-msg" id="bp-msg" hidden></div>
-    <p class="form-note">🔒 ${L("Files are stored in your private client folder and used only for compliance analysis. No government action is taken without your approval.", "تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. لا يُنفَّذ أي إجراء حكومي دون موافقتك.")}</p>
-  </form>
-  <script>window.BP_INTAKE_URL=${JSON.stringify(INTAKE_WEBHOOK)};window.BP_INTAKE_LANG=${JSON.stringify(LANG)};</script>
-  <script>
-  (function(){
-    var f=document.getElementById("bp-intake"); if(!f) return;
-    var msg=document.getElementById("bp-msg"), btn=document.getElementById("bp-submit"), files=document.getElementById("bp-files");
-    var isAr=window.BP_INTAKE_LANG==="ar";
-    function show(t,cls){msg.hidden=false;msg.textContent=t;msg.className="bp-intake-msg "+cls;}
-    f.addEventListener("submit",function(e){
-      e.preventDefault();
-      if(!f.company.value.trim()||!f.whatsapp.value.trim()||!files.files.length){show(isAr?"يرجى تعبئة اسم المنشأة والجوال وإرفاق ملف واحد على الأقل.":"Please fill establishment name, mobile and attach at least one file.","err");return;}
-      var fd=new FormData();
-      ["company","unified","qiwa_id","mudad_id","employees","whatsapp","email","notes"].forEach(function(k){fd.append(k,f[k].value||"");});
-      var pf=[].slice.call(f.querySelectorAll("input[name=platforms]:checked")).map(function(x){return x.value;});
-      fd.append("platforms",pf.join(","));
-      for(var i=0;i<files.files.length;i++) fd.append("files",files.files[i]);
-      btn.disabled=true;btn.textContent=isAr?"جارٍ الإرسال…":"Sending…";
-      show(isAr?"جارٍ رفع ملفاتك بأمان…":"Uploading securely…","info");
-      fetch(window.BP_INTAKE_URL,{method:"POST",body:fd}).then(function(r){if(!r.ok)throw new Error("status "+r.status);return r.text();}).then(function(){
-        f.reset();
-        show(isAr?"✅ استلمنا بياناتك وملفاتك بنجاح! سيبدأ وكيل الامتثال متابعة منشأتك ونتواصل معك واتساب/إيميل.":"✅ Received! Our Compliance Agent will start tracking your establishment and contact you on WhatsApp/email.","ok");
-      }).catch(function(){show(isAr?"تعذّر الإرسال. جرّب مجدداً أو تواصل معنا واتساب.":"Couldn't send. Please retry or contact us on WhatsApp.","err");}).finally(function(){btn.disabled=false;btn.textContent=isAr?"📤 إرسال آمن":"📤 Send securely";});
-    });
-  })();
-  </script>`;
 }
 
 // Qiwa-style tools directory: one clean grid of cards, each linking straight
@@ -1193,10 +1551,8 @@ function buildToolsHub() {
     { icon: "🏖️", title: L("Annual leave", "حاسبة الإجازة السنوية"), desc: L("Leave entitlement and the cash value of unused days.", "استحقاق الإجازة والقيمة النقدية للأيام غير المستخدمة."), href: u("/calculators/annual-leave") },
     { icon: "⏱️", title: L("Overtime", "حاسبة العمل الإضافي"), desc: L("Overtime pay at the 1.5x rate per the Labor Law.", "أجر العمل الإضافي بمعدل 1.5× وفق نظام العمل."), href: u("/calculators/overtime") },
     { icon: "🏦", title: L("GOSI contributions", "حاسبة اشتراك التأمينات (GOSI)"), desc: L("Monthly social-insurance contributions, Saudi & non-Saudi.", "الاشتراكات الشهرية للتأمينات، للسعودي وغير السعودي."), href: u("/calculators/gosi") },
-    { icon: "🟢", title: L("Nitaqat calculator", "حاسبة النطاقات"), desc: L("Estimate your Nitaqat band and Saudization ratio by activity.", "قدّر نطاقك ونسبة التوطين حسب نشاطك."), href: u("/calculators/nitaqat") },
     { icon: "💰", title: L("Government cost calculator", "حاسبة التكاليف الحكومية"), desc: L("Estimate visa, Iqama and platform fees for your headcount.", "قدّر رسوم التأشيرات والإقامات والمنصات حسب عدد موظفيك."), href: u("/calculators/government-cost") },
     { icon: "🧑‍💼", title: L("Profession checker", "فاحص المهن"), desc: L("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."), href: u("/calculators/profession-checker") },
-    { icon: "🛡️", title: L("Compliance portal", "بوابة الامتثال"), desc: L("Upload your official files once — we build your file and track every deadline.", "ارفع ملفاتك الرسمية مرة واحدة — نبني ملفك ونتابع كل استحقاق."), href: u("/compliance-portal") },
   ];
   const cards = tools.map((t) => `<a class="card cat-card" href="${t.href}">
     <div class="cat-card-icon">${t.icon}</div>
@@ -1244,7 +1600,7 @@ function buildNitaqatCalculator() {
         <div class="field"><label for="cc-saudis">${L("Saudi employees (average)", "متوسط العمالة السعودية")}</label><input type="number" id="cc-saudis" min="0" value="3"></div>
       </div>
       <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
-      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-portal")}">${L("Upload your GOSI/Qiwa/Muqeem file and we'll extract them →", "ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←")}</a></p>
+      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-agent")}">${L("Subscribe to the Compliance Agent — it reads your GOSI/Qiwa/Muqeem files and tracks them for you →", "اشترك في وكيل الامتثال — يقرأ ملفات التأمينات/قوى/مقيم ويتابعها عنك ←")}</a></p>
       <div class="cc-result" id="cc-nit-result" hidden>
         <div class="cc-tiles">
           <div class="cc-tile"><span>${L("Saudization rate", "نسبة التوطين")}</span><strong id="cc-pct">—</strong></div>
@@ -1553,74 +1909,15 @@ function buildProfessionChecker() {
 }
 
 
-// Branded wrapper around the secure n8n intake form — clients never see a bare n8n URL.
-const COMPLIANCE_FORM_URL = "https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake";
-function buildCompliancePortal() {
-  const body = `
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
-    <h1>${L("Establishment Compliance Portal", "بوابة امتثال المنشأة")}</h1>
-    <p class="lead">${L("Upload your official Qiwa, Muqeem, GOSI and Mudad reports once — the Compliance Agent reads them, builds your establishment file, tracks every iqama and work-permit deadline, and alerts you on WhatsApp and email before any violation.", "ارفع تقاريرك الرسمية من قوى ومقيم والتأمينات (GOSI) ومدد مرة واحدة — وكيل الامتثال يقرأها، يبني ملف منشأتك، يتتبع كل استحقاق إقامة ورخصة عمل، وينبّهك واتساب وإيميل قبل أي مخالفة.")}</p>
-  </div></section>
-  <section class="section"><div class="container">
-    <div class="portal-wrap">
-      <div class="portal-form">
-        <div class="order-box" style="margin:0">${intakeFormBlock()}</div>
-      </div>
-      <aside class="portal-side">
-        <div class="order-box">
-          <h3>${L("What happens after you submit?", "وش يصير بعد الإرسال؟")}</h3>
-          <ol class="portal-steps">
-            <li><strong>${L("Your private folder is created", "يُنشأ مجلدك الخاص")}</strong><span>${L("Every file you upload is stored in a dedicated client folder.", "كل ملف ترفعه يُحفظ في مجلد عميل مخصص لمنشأتك.")}</span></li>
-            <li><strong>${L("The agent reads your reports", "الوكيل يقرأ تقاريرك")}</strong><span>${L("Employees, salaries, professions, iqama and border numbers are extracted automatically.", "يستخرج الموظفين والرواتب والمهن وأرقام الإقامات والحدود تلقائياً.")}</span></li>
-            <li><strong>${L("Your compliance file is built", "يُبنى ملف امتثالك")}</strong><span>${L("Nitaqat band, estimated government costs, and every upcoming deadline.", "نطاق السعودة، التكاليف الحكومية التقديرية، وكل استحقاق قادم.")}</span></li>
-            <li><strong>${L("Daily monitoring starts", "تبدأ المراقبة اليومية")}</strong><span>${L("Red/yellow early alerts on WhatsApp and email — with your approval before any government action.", "تنبيهات مبكرة أحمر/أصفر واتساب وإيميل — وبموافقتك قبل أي إجراء حكومي.")}</span></li>
-          </ol>
-        </div>
-        <div class="order-box portal-secure">
-          <h3>🔒 ${L("Your data is protected", "بياناتك محمية")}</h3>
-          <p>${L("Files are used for compliance analysis only, stored in your private client folder, and never shared. Concierge model: no action is ever taken on your establishment without written approval.", "الملفات تُستخدم لتحليل الامتثال فقط، وتُحفظ في مجلد عميلك الخاص، ولا تُشارك مع أي طرف. نموذج Concierge: لا يُنفَّذ أي إجراء على منشأتك دون موافقة خطية.")}</p>
-        </div>
-        <div class="order-box">
-          <h3>${L("Prefer to talk first?", "تبغى تتكلم مع أحد أولاً؟")}</h3>
-          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("WhatsApp us", "كلّمنا واتساب")}</span></a>
-          <a class="btn btn-ghost" href="${u("/tools-and-calculators")}" style="width:100%;margin-top:10px">${L("Free compliance calculators →", "حاسبات الامتثال المجانية ←")}</a>
-        </div>
-      </aside>
-    </div>
-  </div></section>
-  <style>
-    .portal-wrap{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;align-items:start}
-    .portal-form iframe{width:100%;min-height:1250px;border:1px solid var(--gray-line);border-radius:var(--radius-lg);background:var(--white)}
-    .portal-fallback{text-align:center;margin-top:10px}
-    .portal-side{display:flex;flex-direction:column;gap:16px}
-    .portal-side .order-box{margin:0}
-    .portal-steps{list-style:none;counter-reset:ps;margin:0;padding:0}
-    .portal-steps li{counter-increment:ps;position:relative;padding-inline-start:44px;margin-bottom:16px}
-    .portal-steps li::before{content:counter(ps);position:absolute;inset-inline-start:0;top:2px;width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
-    .portal-steps strong{display:block;color:var(--navy);margin-bottom:2px}
-    .portal-steps span{font-size:.86rem;color:var(--text-soft);line-height:1.7}
-    .portal-secure p{font-size:.88rem;color:var(--text-soft);line-height:1.8;margin:0}
-    @media(max-width:940px){.portal-wrap{grid-template-columns:1fr}}
-  </style>`;
-  return page({
-    title: Lraw("Establishment Compliance Portal — Business Partner", "بوابة امتثال المنشأة — بيزنس بارتنر"),
-    desc: Lraw("Upload your Qiwa, Muqeem, GOSI and Mudad reports — the Compliance Agent builds your file and alerts you before any violation.", "ارفع تقاريرك من قوى ومقيم والتأمينات ومدد — وكيل الامتثال يبني ملفك وينبّهك قبل أي مخالفة."),
-    active: "/calculator",
-    path: "/compliance-portal",
-    body,
-  });
-}
-
 // The paid Compliance Agent subscription product — full landing + pricing +
 // payment + intake, wrapped in the site's own header/footer/cart (unlike the
-// free compliance-portal tool above). Payment reuses api/pay.js same-origin.
+// Payment reuses api/pay.js same-origin.
 function buildComplianceAgent() {
   const platforms = ["قوى","مقيم","GOSI","مدد","نطاقات","السجل التجاري","المركز السعودي للأعمال","ZATCA","الغرفة التجارية","العنوان الوطني","بلدي","الدفاع المدني","إيجار","MISA"];
   const platformsEn = ["Qiwa","Muqeem","GOSI","Mudad","Nitaqat","CR","Saudi Business Center","ZATCA","Chamber","National Address","Balady","Civil Defense","Ejar","MISA"];
   const chips = platforms.map((p, i) => `<span class="hero-badge">${L(platformsEn[i], p)}</span>`).join("");
   const steps = [
-    ["1", L("Subscribe and upload your files", "تشترك وترفع ملفاتك"), L("CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses — image, PDF or Excel.", "السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.")],
+    ["1", L("Subscribe and register your establishment", "تشترك وتسجّل منشأتك"), L("CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses — image, PDF or Excel.", "السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.")],
     ["2", L("The agent reads and analyzes", "الوكيل يقرأ ويحلّل"), L("Extracts dates, numbers and statuses automatically and builds your compliance record.", "يستخرج التواريخ والأرقام والحالات تلقائياً ويبني سجل امتثال لمنشأتك.")],
     ["3", L("Daily monitoring", "مراقبة يومية"), L("Calculates days and risks, and alerts you before any expiry or violation via WhatsApp and email.", "يحسب الأيام والمخاطر، وينبّهك قبل أي انتهاء أو مخالفة عبر واتساب وإيميل.")],
     ["4", L("Every action needs your approval", "كل إجراء بموافقتك"), L("Prepares the renewal/action and shows it to you — nothing government-related runs without your approval.", "يجهّز التجديد/الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك.")],
@@ -1640,48 +1937,41 @@ function buildComplianceAgent() {
     <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
     <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#intake">${L("Start now — upload your files", "ابدأ الآن — ارفع ملفاتك")}</a>${waBtn2("Talk to us on WhatsApp", "تحدّث معنا واتساب", "btn-ghost", true)}</div>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+    </div>
     <div class="hero-badges">${chips}</div>
   </div></section>
 
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from uploading your files to a daily alert and a ready action pending your approval", "أربع خطوات — من رفع ملفاتك إلى تنبيه يومي وإجراء جاهز بموافقتك")}</h2></div>
-    <div class="steps-grid">${stepsHtml}</div>
+  <section id="intake" class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to opening your dashboard", "أربع خطوات من التسجيل إلى فتح لوحتك")}</h2></div>
+    <div class="steps-grid">${[
+      [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
+      [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
+      [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
+      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your account — the Compliance Agent card opens your dashboard directly.", "سجّل دخولك لحسابك — بطاقة وكيل الامتثال تفتح لوحتك مباشرة.")],
+    ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
   </div></section>
 
   <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from registering your establishment to a daily alert and a ready action pending your approval", "أربع خطوات — من تسجيل منشأتك إلى تنبيه يومي وإجراء جاهز بموافقتك")}</h2></div>
+    <div class="steps-grid">${stepsHtml}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
     <div class="order-box">
       <h3 style="margin-bottom:1rem">${L("What does the agent track for you?", "وش يتابع لك الوكيل؟")}</h3>
       <ul class="value-list">${valueItems}</ul>
     </div>
   </section></div>
 
-  <section class="section" style="padding-top:0"><div class="container">
+  <section id="pricing" class="section" style="padding-top:0"><div class="container">
     <div class="price-box">
       <div><div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
       <div class="text-soft">${L("Compliance subscription — daily monitoring and alerts. Government fees for actions are separate and only run with your approval.", "اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.")}</div></div>
-      <a class="btn btn-primary" href="#pay">${L("Subscribe now", "اشترك الآن")}</a>
+      ${cartBtns({ id: "agent-Compliance-Agent", nameEn: "Compliance & obligations agent", nameAr: "وكيل الامتثال والالتزام", amount: 250, priceLabel: L("From 250 ﷼ / monthly", "يبدأ من 250 ﷼ / شهرياً"), kind: "agent" })}
     </div>
-  </div></section>
-
-  <section id="pay" class="section" style="padding-top:0"><div class="container">
-    <div class="order-box">
-      <h3 style="margin-bottom:.3rem">${L("Complete your subscription", "استكمل الاشتراك")}</h3>
-      <p class="text-soft" style="margin-bottom:1rem">${L("Already registered below? Enter your establishment name and the access code you received by email, then complete payment to unlock your dashboard instantly.", "سجّلت منشأتك بالأسفل؟ ادخل اسم المنشأة ورمز الدخول اللي وصلك بالبريد، وأكمل الدفع لتُفتح لوحة التحكم فوراً.")}</p>
-      <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="pay-company">${L("Establishment name", "اسم المنشأة")}</label><input id="pay-company" required></div>
-        <div class="field"><label for="pay-code">${L("Access code (from confirmation email)", "رمز الدخول (من بريد التأكيد)")}</label><input id="pay-code" required></div>
-      </div>
-      <button type="button" class="btn btn-primary btn-lg" id="pay-start" style="margin-top:1rem">💳 ${L("Pay 250 SAR now", "ادفع 250 ريال الآن")}</button>
-      <div id="pay-form-box" style="margin-top:1rem"></div>
-      <div class="form-success" id="pay-msg" hidden></div>
-      <p class="form-note">🔒 ${L("Paid via Moyasar (mada / Visa / Mastercard / Apple Pay). Nothing is activated until payment is confirmed.", "الدفع عبر Moyasar (مدى / فيزا / ماستركارد / آبل باي). لا يتم أي تفعيل إلا بعد تأكيد الدفع.")}</p>
-    </div>
-  </div></section>
-
-  <section id="intake" class="section" style="background:var(--gray-bg)"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Registration", "التسجيل")}</span><h2>${L("Register your establishment and start monitoring", "سجّل منشأتك وابدأ المتابعة")}</h2></div>
-    <div class="order-box" style="margin:0">${intakeFormBlock()}</div>
   </div></section>
 
   <style>
@@ -1693,73 +1983,204 @@ function buildComplianceAgent() {
     .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
     .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
     .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
-  </style>
-  <script>
-    (function () {
-      var payCompany = document.getElementById('pay-company');
-      var payCode = document.getElementById('pay-code');
-      var payStart = document.getElementById('pay-start');
-      var payBox = document.getElementById('pay-form-box');
-      var payMsg = document.getElementById('pay-msg');
-      function showPay(t, cls) { payMsg.hidden = false; payMsg.textContent = t; payMsg.className = 'form-success ' + cls; }
-      function loadScript(src) { return new Promise(function (resolve, reject) { var s = document.createElement('script'); s.src = src; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); }); }
-      function loadCss(href) { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }
-      function verifyAndActivate(id, company, code) {
-        showPay('${L("Confirming payment…", "جارٍ تأكيد الدفع…")}', 'info');
-        fetch('/api/pay', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: id, context: 'compliance', company: company, code: code }) })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (d.ok) {
-              showPay('${L("Payment confirmed! Your service is now active — sign in to your dashboard.", "تم تأكيد الدفع! خدمتك مفعّلة الآن — سجّل الدخول للوحة التحكم.")}', 'ok');
-              payBox.innerHTML = '<a class="btn btn-primary" href="https://businesspartner.sa/ar/portal">📊 ${L("Go to dashboard", "دخول لوحة التحكم")}</a>';
-            } else {
-              showPay('${L("Payment not confirmed. Contact us on WhatsApp if you were charged.", "لم يتم تأكيد الدفع. تواصل معنا واتساب إذا خُصم المبلغ.")}', 'err');
-            }
-          }).catch(function () { showPay('${L("Could not verify payment. Contact us on WhatsApp.", "تعذّر التحقق من الدفع. تواصل معنا واتساب.")}', 'err'); });
-      }
-      (function checkReturn() {
-        var q = new URLSearchParams(location.search);
-        var id = q.get('id');
-        if (!id) return;
-        var company = localStorage.getItem('bp_pay_company') || '';
-        var code = localStorage.getItem('bp_pay_code') || '';
-        document.getElementById('pay').scrollIntoView({ block: 'start' });
-        if (payCompany) payCompany.value = company;
-        if (payCode) payCode.value = code;
-        verifyAndActivate(id, company, code);
-      })();
-      if (payStart) payStart.addEventListener('click', function () {
-        var company = payCompany.value.trim();
-        var code = payCode.value.trim();
-        if (!company || !code) { showPay('${L("Please enter your establishment name and access code.", "يرجى إدخال اسم المنشأة ورمز الدخول.")}', 'err'); return; }
-        payStart.disabled = true;
-        fetch('/api/pay').then(function (r) { return r.json(); }).then(function (cfg) {
-          if (!cfg.enabled) { showPay('${L("Online payment isn't enabled yet — contact us on WhatsApp to subscribe.", "الدفع الإلكتروني غير مُفعّل حالياً — تواصل معنا واتساب لإتمام الاشتراك.")}', 'err'); return; }
-          localStorage.setItem('bp_pay_company', company);
-          localStorage.setItem('bp_pay_code', code);
-          loadCss(cfg.cssUrl);
-          return loadScript(cfg.scriptUrl).then(function () {
-            payBox.innerHTML = '<div class="mysr-form"></div>';
-            Moyasar.init({
-              element: '.mysr-form', amount: 25000, currency: 'SAR',
-              description: '${L("Compliance Agent subscription", "اشتراك وكيل الامتثال")} — ' + company,
-              publishable_api_key: cfg.publishableKey,
-              callback_url: location.origin + location.pathname,
-              methods: ['creditcard', 'applepay'],
-            });
-            payStart.style.display = 'none';
-          });
-        }).catch(function () { showPay('${L("Could not load the payment form. Contact us on WhatsApp.", "تعذّر تحميل نموذج الدفع. تواصل معنا واتساب.")}', 'err'); })
-          .finally(function () { payStart.disabled = false; });
-      });
-    })();
-  </script>`;
+    .price-box .buy-row{margin-inline-start:auto}
+  </style>`;
 
   return page({
     title: Lraw("Compliance Agent — Business Partner", "وكيل الامتثال — بيزنس بارتنر"),
     desc: Lraw("Subscribe and get a virtual compliance team monitoring your company daily, alerting you before violations.", "اشترك واحصل على فريق امتثال افتراضي يراقب شركتك يومياً وينبّهك قبل المخالفات."),
     active: "/compliance-agent",
     path: "/compliance-agent",
+    body,
+  });
+}
+
+// Specialized-team AI employees — one dedicated feature page per agent
+// (same pattern as the Compliance Agent page above), linked from both the
+// /connect purchase grid and the /portal employee picker/chat switcher.
+const TEAM_AGENTS = [
+  {
+    slug: "baher", emoji: "🎯",
+    nameAr: "باهر", nameEn: "Baher",
+    roleAr: "مستشار الأعمال", roleEn: "Business Advisor",
+    taglineAr: "أول نقطة تواصل: يشخّص طلبك ويوجّهك للخدمة أو الموظف الصحيح.", taglineEn: "Your first point of contact — diagnoses what you need and routes you to the right service or employee.",
+    caps: [
+      ["Answers business questions and explains which Business Partner service fits your situation", "يجاوب على استفساراتك التجارية ويوضح لك أي خدمة من خدمات بزنس بارتنر تناسب حالتك"],
+      ["Runs an initial diagnosis of your sector and request before recommending a paid service", "يسوي تشخيصاً أولياً لقطاعك وطلبك قبل ما يرشّح لك خدمة مدفوعة"],
+      ["Routes you to the right specialist (legal, compliance, HR, sales…) instead of leaving you guessing", "يحوّلك للمتخصص الصحيح (قانوني، امتثال، موارد بشرية، مبيعات…) بدل ما تتوه بين الخدمات"],
+      ["Escalates anything that needs a human decision instead of guessing an answer", "يصعّد أي شيء يحتاج قرار بشري بدل ما يخمّن إجابة"],
+    ],
+  },
+  {
+    slug: "mazen", emoji: "🧭",
+    nameAr: "مازن", nameEn: "Mazen",
+    roleAr: "مدير العمليات", roleEn: "Operations Manager",
+    taglineAr: "يستقبل عملاءك ويوجّههم، ويتولى أي تصعيد يحتاج تدخلاً بشرياً.", taglineEn: "Receives and routes your customers, and owns every escalation that needs a human hand-off.",
+    caps: [
+      ["Greets incoming customer conversations and routes each one to the right place", "يستقبل محادثات عملائك الواردة ويوجّه كل واحدة للمكان الصحيح"],
+      ["Owns escalations: a phone request, a complaint, a sensitive document, a proposal that needs sign-off, a customer ready to sign", "يستلم التصعيدات: طلب اتصال، شكوى، مستند حساس، عرض يحتاج اعتماد، عميل جاهز للتعاقد"],
+      ["Never asks for sensitive documents or final pricing himself — flags them for your review instead", "لا يطلب مستندات حساسة ولا يعطي أسعاراً نهائية بنفسه — يرفعها لمراجعتك"],
+      ["Keeps a clear handoff trail so nothing falls through the cracks between agents", "يحافظ على مسار تسليم واضح بين الموظفين حتى ما يضيع أي طلب"],
+    ],
+  },
+  {
+    slug: "nasser", emoji: "👥",
+    nameAr: "ناصر", nameEn: "Nasser",
+    roleAr: "الموارد البشرية", roleEn: "HR",
+    taglineAr: "يدير التوظيف من نشر الوظيفة إلى قائمة مرشّحين جاهزة للمقابلة.", taglineEn: "Runs hiring end to end — from posting the role to a shortlist ready for interviews.",
+    caps: [
+      ["AI-powered matching against your candidate pool for any open role", "مطابقة ذكية بالذكاء الاصطناعي مع قاعدة المرشّحين لأي وظيفة مفتوحة"],
+      ["Screens and scores candidates against the role's requirements", "يقيّم ويصنّف المرشّحين مقابل متطلبات الوظيفة"],
+      ["Drafts interview questions tailored to the specific role", "يجهّز أسئلة مقابلة مخصّصة للوظيفة تحديداً"],
+      ["Prepares outreach messages to shortlisted candidates for your approval", "يجهّز رسائل تواصل مع المرشّحين المختارين بانتظار موافقتك"],
+      ["Tracks the hiring pipeline from posting to shortlist to offer", "يتابع مسار التوظيف من النشر إلى القائمة المختصرة إلى العرض"],
+    ],
+  },
+  {
+    slug: "mishari", emoji: "🛡️",
+    nameAr: "مشاري", nameEn: "Mishari",
+    roleAr: "الامتثال والالتزام", roleEn: "Compliance",
+    taglineAr: "فريق امتثال افتراضي يراقب منشأتك يومياً وينبّهك قبل أي مخالفة.", taglineEn: "A virtual compliance team monitoring your establishment daily and alerting you before violations.",
+    caps: [
+      ["Reads your registrations (CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses) and builds a live compliance record", "يقرأ تسجيلاتك (السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص) ويبني سجل امتثال حي لمنشأتك"],
+      ["Tracks Nitaqat/Saudization band and flags what you need to match or upgrade", "يتابع نطاقك ونسبة التوطين ويوضح ما تحتاجه للمطابقة أو الترقية"],
+      ["Daily monitoring with a WhatsApp/email alert before any expiry or violation", "مراقبة يومية مع تنبيه واتساب وإيميل قبل أي انتهاء أو مخالفة"],
+      ["Prepares the renewal/action and shows it to you — nothing government-related runs without your approval", "يجهّز التجديد أو الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك"],
+    ],
+  },
+  {
+    slug: "abdulaziz", emoji: "⚖️",
+    nameAr: "عبدالعزيز", nameEn: "Abdulaziz",
+    roleAr: "قانوني", roleEn: "Legal",
+    taglineAr: "أول رد آمن على أي استفسار قانوني، وتوضيح لما يحتاج مراجعة بشرية.", taglineEn: "A first, safe response to any legal question — and a clear flag for what needs human review.",
+    caps: [
+      ["Gives an initial, cautious answer to legal and compliance questions (contracts, licenses, residency eligibility)", "يعطي رداً أولياً حذراً على الاستفسارات القانونية والامتثالية (العقود، التراخيص، أهلية الإقامة)"],
+      ["Clearly flags what needs a licensed human review before you rely on it", "يوضّح بشكل صريح ما يحتاج مراجعة بشرية مرخّصة قبل الاعتماد عليه"],
+      ["Never gives final legal advice or confirms a government approval on his own", "لا يعطي استشارة قانونية نهائية ولا يؤكد موافقة حكومية بنفسه"],
+      ["Never collects sensitive documents through chat — routes those to a secure channel", "لا يستقبل مستندات حساسة عبر المحادثة — يحوّلها لقناة آمنة"],
+    ],
+  },
+  {
+    slug: "badr", emoji: "💼",
+    nameAr: "بدر", nameEn: "Badr",
+    roleAr: "مبيعات وتطوير أعمال", roleEn: "Sales & Business Development",
+    taglineAr: "يستلم أي طلب سعر أو عرض ويجهّز مسودة جاهزة لمراجعتك قبل الإرسال.", taglineEn: "Takes any pricing or proposal request and prepares a draft ready for your review before it goes out.",
+    caps: [
+      ["Explains the scope of every service commercially (company formation, HR, government relations, premium residency…)", "يوضح نطاق كل خدمة تجارياً (تأسيس الشركات، الموارد البشرية، العلاقات الحكومية، الإقامة المميزة…)"],
+      ["Only quotes prices from the official, approved services catalog — never invents one", "يستخدم فقط الأسعار المعتمدة في الكتالوج الرسمي — لا يخترع سعراً أبداً"],
+      ["Drafts a proposal and logs it as \"pending approval\" — nothing final goes out without your sign-off", "يجهّز مسودة عرض ويسجّلها «بانتظار الموافقة» — ولا يرسل أي عرض نهائي بدون اعتمادك"],
+      ["Keeps your CRM and sales pipeline updated automatically as the conversation progresses", "يحدّث CRM ومسار المبيعات تلقائياً مع تقدّم المحادثة"],
+      ["Never gives discounts, contracts, invoices, or payment links on his own", "لا يعطي خصومات ولا يرسل عقوداً أو فواتير أو روابط دفع بنفسه"],
+    ],
+  },
+  {
+    slug: "farah", emoji: "📣",
+    nameAr: "فرح", nameEn: "Farah",
+    roleAr: "تسويق ومحتوى", roleEn: "Marketing & Content",
+    taglineAr: "تنشئ وتدير المحتوى التسويقي على كل قنواتك — كمسودات بانتظار اعتمادك.", taglineEn: "Creates and manages your marketing content across every channel — as drafts pending your approval.",
+    caps: [
+      ["Creates content and campaign drafts across LinkedIn, Instagram, Email, WhatsApp, TikTok, Snapchat, Facebook and X", "تنشئ محتوى وحملات على LinkedIn وInstagram والإيميل وواتساب وTikTok وSnapchat وFacebook وX"],
+      ["Summarizes government decisions and platform updates relevant to your business", "تلخّص القرارات الحكومية وتحديثات المنصات المؤثرة على منشأتك"],
+      ["Prepares WhatsApp/email/notification broadcasts for your approval before sending", "تجهّز برودكاست واتساب/إيميل/إشعارات بانتظار موافقتك قبل الإرسال"],
+      ["Never publishes any content or broadcast without your sign-off", "لا تنشر أي محتوى أو برودكاست بدون اعتمادك"],
+    ],
+  },
+  {
+    slug: "malak", emoji: "🗂️",
+    nameAr: "ملاك", nameEn: "Malak",
+    roleAr: "مساعِدة تنفيذية", roleEn: "Executive Assistant",
+    taglineAr: "ملخصك اليومي كل صباح، وتنظيم مهامك واجتماعاتك وبريدك.", taglineEn: "Your daily brief every morning — and organizes your tasks, meetings and inbox.",
+    caps: [
+      ["A daily brief every morning: urgent and overdue items first, with owner and due date", "ملخص يومي كل صباح: العاجل والمتأخر أولاً مع المسؤول وتاريخ الاستحقاق"],
+      ["Reminders for upcoming meetings and deadlines for the week ahead", "تذكيرات بالمواعيد والمهام القادمة للأسبوع"],
+      ["Sorts your inbox: urgent / needs action / for your information", "تفرز بريدك: عاجل / يحتاج إجراء / للاطلاع"],
+      ["Summarizes meetings and long conversations into a decision-ready summary", "تلخّص الاجتماعات والمحادثات الطويلة في ملخص جاهز لاتخاذ القرار"],
+      ["Never handles OTPs, verification codes or passwords, and never messages anyone externally on her own", "لا تتعامل مع رموز التحقق OTP أو كلمات المرور، ولا ترسل أي رسالة خارجية بنفسها"],
+    ],
+  },
+  {
+    slug: "mohammed", emoji: "💻",
+    nameAr: "محمد", nameEn: "Mohammed",
+    roleAr: "تقنية معلومات", roleEn: "IT",
+    taglineAr: "يراقب صحة أنظمتك وتكاملاتك، ويشخّص الأعطال التقنية.", taglineEn: "Monitors your systems and integrations, and diagnoses technical issues.",
+    caps: [
+      ["Monitors the health of your connected agents, workflows and website", "يراقب صحة الموظفين المرتبطين والأنظمة الآلية والموقع"],
+      ["Manages integrations (Notion, automation platforms, WhatsApp, third-party subscriptions)", "يدير التكاملات (نوشن، منصات الأتمتة، واتساب، اشتراكات الأطراف الثالثة)"],
+      ["Diagnoses platform and connection failures before they affect your operations", "يشخّص أعطال المنصات والربط قبل ما تأثر على تشغيلك"],
+      ["Never touches customer credentials or OTPs, and never gives legal opinions", "لا يمس بيانات اعتماد العملاء ولا رموز التحقق، ولا يفتي قانونياً"],
+    ],
+  },
+  {
+    slug: "ahmed", emoji: "📦",
+    nameAr: "أحمد", nameEn: "Ahmed",
+    roleAr: "مشتريات وتوريد", roleEn: "Procurement & Supply",
+    taglineAr: "يقارن الموردين ويجهّز مسودة تفاوض جاهزة للاعتماد.", taglineEn: "Compares suppliers and prepares a negotiation draft ready for your sign-off.",
+    caps: [
+      ["A shortlist of up to 3 suppliers compared on price, scope, terms and readiness", "قائمة مختصرة بحد أقصى 3 موردين مقارَنين بالسعر والنطاق والشروط والجاهزية"],
+      ["Prefers your existing approved suppliers before suggesting new ones", "يفضّل الموردين المعتمدين لديك قبل اقتراح موردين جدد"],
+      ["Drafts an outreach or negotiation message ready for your approval", "يجهّز مسودة رسالة تواصل أو تفاوض جاهزة للاعتماد"],
+      ["Never commits to a purchase, signs, or pays — and never messages a supplier without your sign-off", "لا يلتزم بأي شراء ولا يوقّع ولا يدفع، ولا يراسل مورداً بدون اعتمادك"],
+    ],
+  },
+  {
+    slug: "abdulrahman", emoji: "💰",
+    nameAr: "عبدالرحمن", nameEn: "Abdulrahman",
+    roleAr: "المدير المالي", roleEn: "CFO",
+    taglineAr: "يدير ميزانياتك وتدفقك النقدي وفواتيرك، ويجهّز تقاريرك المالية بوضوح.", taglineEn: "Runs your budgets, cash flow and invoicing, and prepares your financial reports clearly.",
+    caps: [
+      ["Manages budgets and cash flow", "يدير الميزانيات والتدفق النقدي"],
+      ["Prepares invoices, collections and payment plans", "يجهّز الفواتير والتحصيل وخطط الدفع"],
+      ["Financial reports and KPIs explained clearly, not just numbers", "تقارير مالية ومؤشرات أداء موضّحة بوضوح، مو أرقام فقط"],
+      ["Tracks Zakat and VAT (ZATCA) obligations", "يتابع التزامات الزكاة وضريبة القيمة المضافة (ZATCA)"],
+      ["Bookkeeping via Qoyod", "محاسبة عبر منصة قيود"],
+      ["Never executes a payment, transfer, or invoice on his own — always prepares it for your explicit approval first", "لا ينفّذ أي دفعة أو تحويل أو فاتورة بنفسه — يجهّزها دائماً وينتظر موافقتك الصريحة"],
+    ],
+  },
+];
+
+function buildTeamAgent(agent) {
+  const capsHtml = agent.caps.map(([en, ar]) => `<li>${I.check}<span>${L(en, ar)}</span></li>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Smart Specialized Agent", "الموظف المتخصص")}</span>
+    <h1>${agent.emoji} ${L(agent.nameEn, agent.nameAr)} — ${L(agent.roleEn, agent.roleAr)}</h1>
+    <p class="lead">${L(agent.taglineEn, agent.taglineAr)}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Subscribe now", "🚀 اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/portal")}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:1rem">${L("What does " + agent.nameEn + " do?", "وش يسوي " + agent.nameAr + "؟")}</h3>
+      <ul class="value-list">${capsHtml}</ul>
+    </div>
+  </section></div>
+
+  <section class="section" style="padding-top:0"><div class="container">
+    <div class="price-box">
+      <div><div class="price-amt">500 <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
+      <div class="text-soft">${L("Part of the Smart Specialized Agents team — subscribe to one employee or several from the same cart.", "جزء من فريق الموظفين الأذكياء المتخصصين — اشترك بموظف واحد أو أكثر من نفس السلة.")}</div></div>
+      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Add to cart", "🚀 أضف للسلة")}</a>
+    </div>
+  </div></section>
+
+  <style>
+    .text-soft{color:var(--text-soft)}
+    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
+    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
+    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
+    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
+    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
+    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
+  </style>`;
+
+  return page({
+    title: Lraw(`${agent.nameEn} — ${agent.roleEn} — Business Partner`, `${agent.nameAr} — ${agent.roleAr} — بيزنس بارتنر`),
+    desc: Lraw(agent.taglineEn, agent.taglineAr),
+    active: "/ai-agents",
+    path: `/team/${agent.slug}`,
     body,
   });
 }
@@ -1981,12 +2402,8 @@ function buildGosiCalculator() {
 
 function buildTourism() {
   const t = site.tourism;
-  const b = site.businessTourism;
   const ev = t.events;
   const evFeats = ev.features.map((f, i) => `<li>${I.check}<span>${L((ev.featuresEn && ev.featuresEn[i]) || f, f)}</span></li>`).join("");
-  const items = b.includes.items
-    .map((it) => `<div class="card feature"><div class="card-icon">${I.globe}</div><h3>${L(it.titleEn || it.title, it.title)}</h3><p>${L(it.textEn || it.text, it.text)}</p></div>`)
-    .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Tourism & events", "السياحة والفعاليات")}</span>
@@ -1994,7 +2411,6 @@ function buildTourism() {
     <p class="lead">${L(t.leadEn || t.lead, t.lead)}</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="#events">${I.building}<span>${L("Staff events", "فعاليات الموظفين")}</span></a>
-      <a class="btn btn-ghost btn-lg" href="#investor">${I.globe}<span>${L("Investor business tourism", "سياحة الأعمال للمستثمر")}</span></a>
     </div>
   </div></section>
 
@@ -2047,7 +2463,7 @@ function buildTourism() {
           </select></div>
         <div class="field"><label for="ev-notes">${L("Extra details (optional)", "تفاصيل إضافية (اختياري)")}</label><textarea id="ev-notes" rows="3" placeholder="${Lraw("Theme, budget range, preferred city…", "الثيم، حدود الميزانية، المدينة المفضلة…")}"></textarea></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send event request", "أرسل طلب الفعالية")}</span></button>
-        <p class="form-note">${L("Your request reaches our team, we collect the best 5 supplier offers, and you pick the winner.", "يصل طلبك لفريقنا، نجمع لك أفضل 5 عروض من المزوّدين، وتختار الأنسب.")}</p>
+        <p class="form-note">${L("Your request reaches our team, we collect the best 5 supplier offers, and you pick the winner. You're registered as a client and your request is saved to your dashboard.", "يصل طلبك لفريقنا، نجمع لك أفضل 5 عروض من المزوّدين، وتختار الأنسب. ويتم تسجيلك كعميل وحفظ طلبك في لوحتك.")}</p>
         <div class="form-success" id="event-success" hidden></div>
       </form>
       <aside class="booking-side">
@@ -2061,29 +2477,874 @@ function buildTourism() {
     </div>
   </div></section>
 
-  <section class="section section--gray" id="investor"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Type two · investor business tourism", "النوع الثاني · سياحة الأعمال للمستثمر")}</span><h2>${L(b.titleEn || b.title, b.title)}</h2><p>${L(b.leadEn || b.lead, b.lead)}</p></div>
-    <div class="grid grid-3">${items}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L((b.noteEn || b.note) + " The price is set by program — contact us for pricing.", b.note + " السعر يُحدَّد حسب البرنامج — تواصل معنا للتسعير.")}</p></div>
-    <div class="center mt-32">${waBtn2(b.ctaEn || b.cta, b.cta, "btn-primary", true)}</div>
+  <section class="section"><div class="container">
+    <div class="cta-band"><h2>${L("Ready for us to arrange it?", "جاهز نرتّب لك؟")}</h2><p>${L("Tell us about your event and we'll tailor it to you.", "أخبرنا عن فعاليتك ونصمّمها على مقاسك.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
+  </div></section>`;
+  return page({ title: Lraw("Tourism & events — Business Partner", "السياحة والفعاليات — بيزنس بارتنر"), desc: Lraw((t.leadEn || t.lead).slice(0, 155), t.lead.slice(0, 155)), active: "/tourism", body });
+}
+
+// Sub-brand landing page: "Mahfol Makfol by Business Partner" — the premium
+// investor gateway. A multilingual, multiple-choice Investment Concierge up
+// top (client-side, works regardless of any backend), investor services,
+// city-by-city investor programs, target sectors, and the lead form that
+// still feeds the /api/requests investor-tourism pipeline (email + CRM/Notion).
+// Shared sub-nav for the two Mahfol Makfol tracks (investor + trips), so both
+// pages read as one sub-brand under Business Partner and cross-link cleanly.
+function mmSubnav(active) {
+  const items = [
+    { href: "/mahfol-makfol", en: "For investors", ar: "للمستثمر" },
+    { href: "/mahfol-makfol/trips", en: "Trips & experiences", ar: "الرحلات والتجارب" },
+    { href: "/tourism", en: "Corporate events", ar: "فعاليات الشركات" },
+  ];
+  return `<div class="mm-subnav"><a class="mm-subnav-brand" href="${u("/mahfol-makfol")}">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span></a><nav>` +
+    items.map((it) => `<a href="${u(it.href)}"${it.href === active ? ' class="on"' : ""}>${L(it.en, it.ar)}</a>`).join("") +
+    `</nav></div>`;
+}
+
+function buildMahfolMakfol() {
+  const b = site.businessTourism;
+
+  // Investor services (distinct from the generic tourism "includes").
+  const SERVICES = [
+    { ic: "🏛️", en: "MISA licensing & market entry", ar: "ترخيص وزارة الاستثمار ودخول السوق", de: "End-to-end MISA investor licensing, RHQ setup and the fastest compliant route into the Saudi market.", da: "ترخيص المستثمر من وزارة الاستثمار (MISA) وتأسيس المقر الإقليمي وأسرع مسار نظامي لدخول السوق." },
+    { ic: "🤝", en: "Government & authority relations", ar: "العلاقات الحكومية والجهات التنظيمية", de: "Introductions and coordinated meetings with the ministries and regulators that matter to your sector.", da: "تعريف ولقاءات منسّقة مع الوزارات والجهات التنظيمية ذات الصلة بقطاعك." },
+    { ic: "📅", en: "Curated executive meetings", ar: "لقاءات تنفيذية مُنسّقة", de: "One-on-one meetings with decision-makers, partners and potential clients — arranged around your agenda.", da: "لقاءات ثنائية مع صنّاع القرار والشركاء والعملاء المحتملين — مرتّبة حول جدول أعمالك." },
+    { ic: "🎤", en: "Forums, workshops & events", ar: "المنتديات وورش العمل والفعاليات", de: "Access to sector forums, investment workshops and official occasions during your visit.", da: "حضور المنتديات القطاعية وورش العمل الاستثمارية والمناسبات الرسمية خلال زيارتك." },
+    { ic: "🎯", en: "Investment opportunity sourcing", ar: "تحديد الفرص الاستثمارية", de: "A shortlist of vetted opportunities and promising sectors matched to your capital and appetite.", da: "قائمة مختصرة بفرص مدروسة وقطاعات واعدة تناسب رأس مالك وتوجّهك." },
+    { ic: "🥂", en: "Executive hospitality & protocol", ar: "الضيافة التنفيذية والبروتوكول", de: "Luxury hotels, business lunches, private tours and protocol befitting a foreign investor.", da: "فنادق فاخرة وغداءات أعمال وجولات خاصة وبروتوكول يليق بمستثمر أجنبي." },
+    { ic: "🕌", en: "Cultural immersion & lifestyle", ar: "الانغماس الثقافي ونمط الحياة", de: "Get to know Saudi culture, lifestyle and the way business is done — before you commit.", da: "تعرّف على الثقافة السعودية ونمط الحياة وطبيعة الأعمال — قبل أن تتخذ قرارك." },
+    { ic: "⚖️", en: "Legal, tax & advisory", ar: "الاستشارات القانونية والضريبية", de: "Trusted legal, tax and structuring advisors to de-risk your entry and protect your investment.", da: "مستشارون قانونيون وضريبيون موثوقون لتقليل مخاطر دخولك وحماية استثمارك." },
+  ];
+  const serviceCards = SERVICES.map((s) =>
+    `<div class="card feature"><div class="card-icon" style="font-size:26px">${s.ic}</div><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
+
+  // City-by-city investor programs.
+  const CITIES = [
+    { ic: "🏙️", en: "Riyadh", ar: "الرياض", mx: 576, my: 440, te: "Capital & decision-making center", ta: "العاصمة ومركز القرار", se: "Finance · Tech · Regional HQ (RHQ)", sa: "المال · التقنية · المقار الإقليمية", ee: "MISA · RHQ Program · Capital Market Authority · Riyadh Chamber", ea: "وزارة الاستثمار · برنامج المقار الإقليمية · هيئة السوق المالية · غرفة الرياض", ie: "Government briefings, RHQ consultation, C-level meetings, King Abdullah Financial District tour", ia: "إحاطات حكومية، استشارة المقر الإقليمي، لقاءات تنفيذية، جولة في مركز الملك عبدالله المالي" },
+    { ic: "🌊", en: "Jeddah", ar: "جدة", mx: 238, my: 600, te: "Red Sea gateway & trade", ta: "بوابة البحر الأحمر والتجارة", se: "Logistics · Trade · Tourism", sa: "اللوجستيات · التجارة · السياحة", ee: "Jeddah Chamber · Islamic Development Bank · Ports Authority", ea: "غرفة جدة · البنك الإسلامي للتنمية · هيئة الموانئ", ie: "Port & logistics visits, family-business networking, Red Sea projects briefing", ia: "زيارات الموانئ واللوجستيات، تواصل مع الشركات العائلية، إحاطة عن مشاريع البحر الأحمر" },
+    { ic: "🛢️", en: "Eastern Province", ar: "المنطقة الشرقية", mx: 735, my: 352, te: "Energy & industry heartland", ta: "قلب الطاقة والصناعة", se: "Energy · Industry · Petrochemicals", sa: "الطاقة · الصناعة · البتروكيماويات", ee: "Aramco ecosystem · Royal Commission (Jubail) · Dhahran Techno Valley", ea: "منظومة أرامكو · الهيئة الملكية بالجبيل · وادي الظهران للتقنية", ie: "Industrial-city visits, energy-sector meetings, supply-chain sourcing", ia: "زيارات المدن الصناعية، لقاءات قطاع الطاقة، سلاسل الإمداد" },
+    { ic: "🕋", en: "Makkah", ar: "مكة المكرمة", mx: 300, my: 640, te: "Religious economy & hospitality", ta: "اقتصاد ديني وضيافة", se: "Hospitality · Retail · Services", sa: "الضيافة · التجزئة · الخدمات", ee: "Makkah Chamber · Hospitality operators · Religious-tourism authorities", ea: "غرفة مكة · مشغّلو الضيافة · جهات السياحة الدينية", ie: "Religious-tourism investment briefing, hospitality operator meetings", ia: "إحاطة استثمار السياحة الدينية، لقاءات مشغّلي الضيافة" },
+    { ic: "🌱", en: "Madinah", ar: "المدينة المنورة", mx: 262, my: 452, te: "Knowledge economy & agriculture", ta: "اقتصاد المعرفة والزراعة", se: "Agriculture · Education · Tourism", sa: "الزراعة · التعليم · السياحة", ee: "Knowledge Economic City · Madinah Chamber · Agri authorities", ea: "مدينة المعرفة الاقتصادية · غرفة المدينة · الجهات الزراعية", ie: "Knowledge Economic City tour, agri-investment briefing", ia: "جولة في مدينة المعرفة الاقتصادية، إحاطة الاستثمار الزراعي" },
+    { ic: "⛰️", en: "Asir", ar: "عسير", mx: 392, my: 780, te: "Highlands tourism & nature", ta: "سياحة المرتفعات والطبيعة", se: "Tourism · Agriculture · Entertainment", sa: "السياحة · الزراعة · الترفيه", ee: "Soudah Development · Asir Chamber · Tourism authorities", ea: "تطوير السودة · غرفة عسير · جهات السياحة", ie: "Soudah Peaks overview, mountain-tourism investment, agri-tourism", ia: "جولة قمم السودة، استثمار سياحة الجبال، السياحة الزراعية" },
+    { ic: "🌐", en: "NEOM", ar: "نيوم", mx: 75, my: 272, te: "The future & innovation", ta: "المستقبل والابتكار", se: "Technology · Clean energy · Tourism", sa: "التقنية · الطاقة النظيفة · السياحة", ee: "NEOM · Oxagon · The Line · Investment office", ea: "نيوم · أوكساجون · ذا لاين · مكتب الاستثمار", ie: "NEOM briefing, The Line & Oxagon overview, clean-energy opportunities", ia: "إحاطة نيوم، نظرة على ذا لاين وأوكساجون، فرص الطاقة النظيفة" },
+    { ic: "⚓", en: "Jazan", ar: "جازان", mx: 405, my: 838, te: "Emerging industry & ports", ta: "صناعة ناشئة وموانئ", se: "Industry · Logistics · Agriculture", sa: "الصناعة · اللوجستيات · الزراعة", ee: "Jazan Economic City · Port authority · Energy sector", ea: "مدينة جازان الاقتصادية · هيئة الميناء · قطاع الطاقة", ie: "Jazan Economic City tour, port & energy briefing, agri-industry", ia: "جولة مدينة جازان الاقتصادية، إحاطة الميناء والطاقة، الصناعات الزراعية" },
+  ];
+  const cityCards = CITIES.map((c) => `
+    <div class="mm-city">
+      <div class="mm-city-top"><span class="mm-city-ic">${c.ic}</span><div><h3>${L(c.en, c.ar)}</h3><span class="mm-city-tag">${L(c.te, c.ta)}</span></div></div>
+      <div class="mm-city-row"><b>${L("Sectors", "القطاعات")}</b><span>${L(c.se, c.sa)}</span></div>
+      <div class="mm-city-row"><b>${L("Key entities", "أبرز الجهات")}</b><span>${L(c.ee, c.ea)}</span></div>
+      <div class="mm-city-row"><b>${L("Program includes", "يشمل البرنامج")}</b><span>${L(c.ie, c.ia)}</span></div>
+      <a class="btn btn-ghost" style="width:100%;margin-top:4px" href="#mm-form" data-mm-city="${Lraw(c.en, c.en)}">${I.arrow}<span>${L("Request this program", "اطلب هذا البرنامج")}</span></a>
+    </div>`).join("");
+
+  // Interactive investment map — inline SVG of Saudi Arabia with clickable
+  // region markers; each reveals that region's program (panels rendered below).
+  // Recognizable Saudi Arabia outline. Points are projected from real
+  // longitude/latitude with the SAME mapping used for the city markers
+  // (x = (lon-34)/22*1000, y = (33-lat)/17*900), so borders and markers align:
+  // NW (Gulf of Aqaba) → north (Jordan/Iraq) → east Gulf coast with the Qatar
+  // notch → SE Empty Quarter → south (Yemen) → Jazan → up the Red Sea coast.
+  const KSA_PATH = "M41 193 L92 201 L159 159 L214 64 L364 101 L486 191 L568 209 L659 238 L727 318 L760 400 L748 452 L792 470 L900 520 L982 560 L964 688 L862 712 L700 780 L560 812 L418 826 L389 852 L330 735 L236 614 L200 529 L146 413 L92 291 L50 238 Z";
+  const mapMarkers = CITIES.map((c, i) => `
+    <g class="mm-mk" data-idx="${i}" transform="translate(${c.mx},${c.my})" tabindex="0" role="button" aria-label="${Lraw(c.en, c.ar)}">
+      <circle class="mm-mk-ring" r="16"></circle>
+      <circle class="mm-mk-dot" r="8"></circle>
+      <text class="mm-mk-lbl" y="-22" text-anchor="middle">${L(c.en, c.ar)}</text>
+    </g>`).join("");
+  const mapPanels = CITIES.map((c, i) => `
+    <div class="mm-map-panel${i === 0 ? " on" : ""}" data-idx="${i}">
+      <div class="mm-city-top"><span class="mm-city-ic">${c.ic}</span><div><h3>${L(c.en, c.ar)}</h3><span class="mm-city-tag">${L(c.te, c.ta)}</span></div></div>
+      <div class="mm-city-row"><b>${L("Sectors", "القطاعات")}</b><span>${L(c.se, c.sa)}</span></div>
+      <div class="mm-city-row"><b>${L("Key entities", "أبرز الجهات")}</b><span>${L(c.ee, c.ea)}</span></div>
+      <div class="mm-city-row"><b>${L("Program includes", "يشمل البرنامج")}</b><span>${L(c.ie, c.ia)}</span></div>
+      <a class="btn btn-primary" style="width:100%;margin-top:6px" href="#mm-form" data-mm-city="${Lraw(c.en, c.en)}">${I.calendar}<span>${L("Request this program", "اطلب هذا البرنامج")}</span></a>
+    </div>`).join("");
+
+  // Target sectors.
+  const SECTORS = [
+    { ic: "⚡", en: "Energy & Industry", ar: "الطاقة والصناعة", de: "Oil, gas, petrochemicals, mining and manufacturing.", da: "النفط والغاز والبتروكيماويات والتعدين والصناعة." },
+    { ic: "💻", en: "Technology", ar: "التقنية", de: "Software, AI, data centers and digital infrastructure.", da: "البرمجيات والذكاء الاصطناعي ومراكز البيانات والبنية الرقمية." },
+    { ic: "✈️", en: "Tourism", ar: "السياحة", de: "Giga-projects, hospitality, entertainment and events.", da: "المشاريع الكبرى والضيافة والترفيه والفعاليات." },
+    { ic: "🏦", en: "Finance & Real Estate", ar: "المال والعقار", de: "Capital markets, fintech, funds and property development.", da: "أسواق المال والتقنية المالية والصناديق والتطوير العقاري." },
+    { ic: "🚢", en: "Logistics & Trade", ar: "اللوجستيات والتجارة", de: "Ports, transport, warehousing and re-export hubs.", da: "الموانئ والنقل والتخزين ومراكز إعادة التصدير." },
+    { ic: "🩺", en: "Healthcare", ar: "الرعاية الصحية", de: "Hospitals, biotech, medical devices and health services.", da: "المستشفيات والتقنية الحيوية والأجهزة الطبية والخدمات الصحية." },
+    { ic: "🏟️", en: "Sports & Entertainment", ar: "الرياضة والترفيه", de: "Clubs, venues, gaming, media and live events.", da: "الأندية والمنشآت والألعاب والإعلام والفعاليات الحية." },
+    { ic: "🌾", en: "Agriculture & Food", ar: "الزراعة والغذاء", de: "Agri-tech, food security, aquaculture and processing.", da: "التقنية الزراعية والأمن الغذائي والاستزراع والتصنيع." },
+  ];
+  const sectorCards = SECTORS.map((s) =>
+    `<div class="mm-sector"><span class="mm-sector-ic">${s.ic}</span><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
+
+  // How it works.
+  const STEPS = [
+    { n: "1", en: "Share your interest", ar: "شاركنا اهتمامك", de: "Answer a few questions in the concierge above — purpose, sector, city and timeline.", da: "أجب عن أسئلة قليلة في المستشار أعلاه — الهدف والقطاع والمدينة والتوقيت." },
+    { n: "2", en: "We design the program", ar: "نصمّم البرنامج", de: "We build a tailored itinerary of briefings, meetings, site visits and hospitality.", da: "نبني برنامجاً مخصّصاً من الإحاطات واللقاءات والزيارات الميدانية والضيافة." },
+    { n: "3", en: "Meetings & visits arranged", ar: "ترتيب اللقاءات والزيارات", de: "We coordinate the authorities, partners and occasions and confirm your agenda.", da: "ننسّق مع الجهات والشركاء والمناسبات ونؤكّد جدول أعمالك." },
+    { n: "4", en: "On-ground concierge", ar: "مرافقة ميدانية", de: "A dedicated team hosts you throughout the visit — protocol, transport and follow-up.", da: "فريق مخصّص يستضيفك طوال الزيارة — البروتوكول والتنقّل والمتابعة." },
+  ];
+  const stepCards = STEPS.map((s) =>
+    `<div class="mm-step"><span class="mm-step-n">${s.n}</span><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
+
+  const body = `
+  <style>
+    .mm-hero{background:linear-gradient(160deg,var(--navy-900),var(--navy) 60%,var(--navy-700));color:#fff;padding:64px 0 72px;position:relative;overflow:hidden}
+    .mm-hero .subbrand-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff}
+    .mm-hero .subbrand-badge small{color:rgba(255,255,255,.72)}
+    .mm-hero h1{color:#fff;margin:18px 0 12px;font-size:clamp(30px,5vw,50px)}
+    .mm-hero .lead{color:rgba(255,255,255,.86);max-width:760px}
+    .mm-gold-line{width:64px;height:4px;border-radius:4px;background:rgba(255,255,255,.85);margin:0 0 18px}
+    :root{--mm-gold:#0B1B5A;--mm-hi:#24409e}
+    .mm-cc{background:#fff;color:var(--text);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:760px;margin:34px auto 0;padding:26px 26px 30px;text-align:start}
+    .mm-cc-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+    .mm-cc-head .r{width:44px;height:44px;border-radius:12px;background:var(--navy);color:#fff;display:grid;place-items:center;flex:0 0 auto}
+    .mm-cc-head h3{margin:0;font-size:20px}
+    .mm-cc-head p{margin:2px 0 0;color:var(--text-soft);font-size:14px}
+    .mm-cc-lang{margin-inline-start:auto}
+    .mm-cc-lang select{border:1px solid var(--gray-line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--text)}
+    .mm-cc-bar{height:6px;border-radius:6px;background:var(--gray-line);margin:16px 0 20px;overflow:hidden}
+    .mm-cc-bar>i{display:block;height:100%;background:var(--navy);width:20%;transition:width .3s ease}
+    .mm-cc-q{font-size:18px;font-weight:700;margin:0 0 14px}
+    .mm-cc-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mm-cc-opt{border:1.5px solid var(--gray-line);background:#fff;border-radius:12px;padding:13px 15px;font:inherit;color:var(--text);cursor:pointer;text-align:start;transition:.15s;display:flex;align-items:center;gap:10px}
+    .mm-cc-opt:hover{border-color:var(--navy);background:var(--gray-bg)}
+    .mm-cc-opt.sel{border-color:var(--navy);background:var(--navy);color:#fff}
+    .mm-cc-nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+    .mm-cc-plan{border:1px solid var(--gray-line);border-radius:14px;background:var(--gray-bg);padding:18px 20px;margin-top:6px}
+    .mm-cc-plan h4{margin:0 0 10px;color:var(--navy)}
+    .mm-cc-plan .kv{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed var(--gray-line);font-size:15px}
+    .mm-cc-plan .kv:last-of-type{border-bottom:0}
+    .mm-cc-plan .kv b{min-width:120px;color:var(--text-soft);font-weight:600}
+    .mm-map-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:center}
+    .mm-map-svg{background:linear-gradient(160deg,#eef1fb,#f7f8fc);border:1px solid var(--gray-line);border-radius:var(--radius-lg);padding:14px}
+    .mm-map-svg svg{width:100%;height:auto;display:block;max-height:520px}
+    .mm-map-land{fill:#dfe4f5;stroke:var(--navy);stroke-width:3;stroke-linejoin:round}
+    .mm-mk{cursor:pointer;outline:none}
+    .mm-mk-ring{fill:var(--navy);opacity:.15;transform-box:fill-box;transform-origin:center;transition:.2s}
+    .mm-mk-dot{fill:var(--navy);stroke:#fff;stroke-width:3;transition:.2s}
+    .mm-mk-lbl{font-size:22px;font-weight:700;fill:var(--text);paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none;opacity:0;transition:.2s}
+    .mm-mk:hover .mm-mk-lbl,.mm-mk.on .mm-mk-lbl{opacity:1}
+    .mm-mk:hover .mm-mk-dot,.mm-mk:focus .mm-mk-dot{fill:var(--mm-hi)}
+    .mm-mk.on .mm-mk-dot{fill:var(--mm-hi);r:11}
+    .mm-mk.on .mm-mk-ring{fill:var(--mm-hi);opacity:.3;r:22}
+    .mm-map-panel{display:none;border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);padding:22px;flex-direction:column;gap:11px}
+    .mm-map-panel.on{display:flex}
+    @media(max-width:820px){.mm-map-wrap{grid-template-columns:1fr}}
+    .mm-city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+    .mm-city{border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);padding:20px;display:flex;flex-direction:column;gap:11px}
+    .mm-city-top{display:flex;align-items:center;gap:12px}
+    .mm-city-ic{font-size:30px}
+    .mm-city-top h3{margin:0;font-size:20px}
+    .mm-city-tag{color:var(--mm-gold);font-weight:700;font-size:13px}
+    .mm-city-row{font-size:14px;line-height:1.5}
+    .mm-city-row b{display:block;color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1px}
+    .mm-sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .mm-sector{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm)}
+    .mm-sector-ic{font-size:26px}
+    .mm-sector h3{margin:8px 0 5px;font-size:17px}
+    .mm-sector p{margin:0;color:var(--text-soft);font-size:14px}
+    .mm-step-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+    .mm-step{position:relative;border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:22px 18px 18px}
+    .mm-step-n{position:absolute;top:-14px;inset-inline-start:18px;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800}
+    .mm-step h3{margin:8px 0 6px;font-size:17px}
+    .mm-step p{margin:0;color:var(--text-soft);font-size:14px}
+    @media(max-width:560px){.mm-cc-opts{grid-template-columns:1fr}}
+  </style>
+
+  ${mmSubnav("/mahfol-makfol")}
+  <section class="mm-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
+    <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
+    <h1>${L("Your gateway to investing in Saudi Arabia", "بوابتك للاستثمار في السعودية")}</h1>
+    <div class="mm-gold-line"></div>
+    <p class="lead">${L("A concierge program for foreign investors — government relations, curated meetings, opportunity sourcing and executive hospitality across the Kingdom's key cities and sectors.", "برنامج استشاري للمستثمرين الأجانب — علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة وقطاعاتها.")}</p>
+    <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#mm-concierge">${I.robot}<span>${L("Start with the Investment Concierge", "ابدأ مع مستشار الاستثمار")}</span></a>${waBtn2("Chat on WhatsApp", "تواصل عبر واتساب", "btn-ghost")}</div>
+
+    <div class="mm-cc" id="mm-concierge">
+      <div class="mm-cc-head">
+        <span class="r">${I.robot}</span>
+        <div><h3>${L("Investment Concierge", "مستشار الاستثمار الذكي")}</h3><p>${L("Answer a few questions — we'll shape your visit.", "أجب عن أسئلة قليلة — نُصمّم زيارتك.")}</p></div>
+        <span class="mm-cc-lang"><select id="mmccLang" aria-label="Language">
+          <option value="en">English</option><option value="ar">العربية</option><option value="zh">中文</option><option value="ru">Русский</option><option value="es">Español</option><option value="fr">Français</option><option value="ko">한국어</option><option value="ja">日本語</option>
+        </select></span>
+      </div>
+      <div class="mm-cc-bar"><i id="mmccBar"></i></div>
+      <div id="mmccBody"></div>
+    </div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Ready for us to arrange it?", "جاهز نرتّب لك؟")}</h2><p>${L("Whether an event for your staff or an exploratory trip to the Saudi market — we tailor it to you.", "سواء فعالية لموظفيك أو رحلة استكشاف للسوق السعودي — نصمّمها على مقاسك.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
+    <div class="section-head"><span class="eyebrow">${L("What we do", "ماذا نقدّم")}</span><h2>${L("Investor concierge services", "خدمات استشارة المستثمر")}</h2><p>${L("Everything a foreign investor needs to explore, decide and enter the Saudi market — handled by one trusted partner.", "كل ما يحتاجه المستثمر الأجنبي ليستكشف ويقرّر ويدخل السوق السعودي — عبر شريك واحد موثوق.")}</p></div>
+    <div class="grid grid-3">${serviceCards}</div>
+  </div></section>
+
+  <section class="section" id="mm-map"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Explore the map", "استكشف الخريطة")}</span><h2>${L("Interactive investment map", "خريطة الاستثمار التفاعلية")}</h2><p>${L("Tap a region to explore its sectors, key entities and investor program.", "اضغط على منطقة لاستكشاف قطاعاتها وأبرز جهاتها وبرنامج المستثمر فيها.")}</p></div>
+    <div class="mm-map-wrap">
+      <div class="mm-map-svg">
+        <svg viewBox="0 0 1000 900" role="img" aria-label="${Lraw("Investment map of Saudi Arabia", "خريطة الاستثمار في السعودية")}" preserveAspectRatio="xMidYMid meet">
+          <path class="mm-map-land" d="${KSA_PATH}"></path>
+          ${mapMarkers}
+        </svg>
+      </div>
+      <div class="mm-map-info" id="mmMapInfo">${mapPanels}</div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Where you'll go", "إلى أين")}</span><h2>${L("Investor programs by city", "برامج المستثمر حسب المدينة")}</h2><p>${L("Each program maps your sector to the right authorities, entities and on-ground experiences.", "كل برنامج يربط قطاعك بالجهات والكيانات والتجارب الميدانية المناسبة.")}</p></div>
+    <div class="mm-city-grid">${cityCards}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Target sectors", "القطاعات المستهدفة")}</span><h2>${L("Promising sectors we cover", "القطاعات الواعدة التي نغطّيها")}</h2></div>
+    <div class="mm-sector-grid">${sectorCards}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف نعمل")}</span><h2>${L("From interest to on-ground visit", "من الاهتمام إلى الزيارة الميدانية")}</h2></div>
+    <div class="mm-step-grid">${stepCards}</div>
+  </div></section>
+
+  <section class="section" id="mm-form"><div class="container" style="max-width:720px">
+    <div class="section-head"><span class="eyebrow">${L("Plan your trip", "خطّط لرحلتك")}</span><h2>${L("Tell us about your visit", "أخبرنا عن زيارتك")}</h2><p>${L("We'll design a program around your activity and interests, and get back to you within a business day.", "نصمّم لك برنامجاً حسب نشاطك واهتمامك، ونعود إليك خلال يوم عمل.")}</p></div>
+    <form class="calc-form" id="mm-form-el" novalidate>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="mm-company">${L("Company / entity", "الشركة / الجهة")}</label><input id="mm-company" type="text" required></div>
+        <div class="field"><label for="mm-person">${L("Contact person", "الشخص المسؤول")}</label><input id="mm-person" type="text" required></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="mm-phone">${L("Mobile", "رقم الجوال")}</label><input id="mm-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+        <div class="field"><label for="mm-email">${L("Email", "الإيميل")}</label><input id="mm-email" type="email" required placeholder="name@company.com"></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="mm-country">${L("Country", "الدولة")}</label><input id="mm-country" type="text"></div>
+        <div class="field"><label for="mm-count">${L("Delegation size", "عدد الوفد")}</label><input id="mm-count" type="number" min="1" placeholder="1"></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="mm-date">${L("Preferred visit period", "الفترة المفضّلة للزيارة")}</label><input id="mm-date" type="text" placeholder="${Lraw("e.g. October 2026", "مثال: أكتوبر 2026")}"></div>
+        <div class="field"><label for="mm-sector">${L("Sector / activity of interest", "مجال النشاط أو الاهتمام")}</label><input id="mm-sector" type="text"></div>
+      </div>
+      <div class="field"><label for="mm-notes">${L("Anything else we should know?", "أي تفاصيل إضافية؟")}</label><textarea id="mm-notes" rows="3"></textarea></div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send request", "أرسل الطلب")}</span></button>
+      <div class="form-success" id="mm-success" hidden></div>
+    </form>
   </div></section>`;
-  return page({ title: Lraw("Tourism & events — Business Partner", "السياحة والفعاليات — بيزنس بارتنر"), desc: Lraw((t.leadEn || t.lead).slice(0, 155), t.lead.slice(0, 155)), active: "/tourism", body });
+
+  // Client-side multilingual Investment Concierge (multiple-choice, no backend
+  // dependency). It shapes a plan and hands off to the lead form (which feeds
+  // the /api/requests investor-tourism pipeline) or to WhatsApp.
+  const mmScript = `<script>
+(function(){
+  var PAGE_LANG = ${JSON.stringify(LANG === "ar" ? "ar" : "en")};
+  var WA = ${JSON.stringify(WA)};
+  var SEC = [
+    {en:"Energy & Industry",ar:"الطاقة والصناعة"},{en:"Technology",ar:"التقنية"},
+    {en:"Tourism",ar:"السياحة"},{en:"Finance & Real Estate",ar:"المال والعقار"},
+    {en:"Logistics & Trade",ar:"اللوجستيات والتجارة"},{en:"Healthcare",ar:"الرعاية الصحية"},
+    {en:"Sports & Entertainment",ar:"الرياضة والترفيه"},{en:"Agriculture & Food",ar:"الزراعة والغذاء"}
+  ];
+  var CIT = [
+    {en:"Riyadh",ar:"الرياض"},{en:"Jeddah",ar:"جدة"},{en:"Eastern Province",ar:"المنطقة الشرقية"},
+    {en:"Makkah",ar:"مكة المكرمة"},{en:"Madinah",ar:"المدينة المنورة"},{en:"Asir",ar:"عسير"},
+    {en:"NEOM",ar:"نيوم"},{en:"Jazan",ar:"جازان"},{en:"Not sure yet",ar:"لست متأكداً بعد"}
+  ];
+  var D = {
+    en:{q:["What brings you to Saudi Arabia?","Which sector interests you most?","Which city or region?","What is your timeline?"],
+      P:["Explore opportunities","Expand my business","Establish a regional HQ (RHQ)","Find a local partner","Attend an event or forum"],
+      T:["Within a month","1–3 months","3–6 months","Just researching"],
+      back:"Back",next:"Next",plan:"Get my plan",restart:"Start over",
+      ptitle:"Your tailored visit",pintro:"Here is the shape of your program. Complete the form below and our team will finalize it within a business day.",
+      kP:"Purpose",kS:"Sector",kC:"City / region",kT:"Timeline",wa:"Continue on WhatsApp",form:"Complete my request"},
+    ar:{q:["ما الذي يقودك إلى السعودية؟","ما القطاع الذي يهمّك أكثر؟","أي مدينة أو منطقة؟","ما الإطار الزمني لديك؟"],
+      P:["استكشاف الفرص","توسيع أعمالي","تأسيس مقر إقليمي (RHQ)","إيجاد شريك محلي","حضور فعالية أو منتدى"],
+      T:["خلال شهر","١–٣ أشهر","٣–٦ أشهر","مجرد استكشاف"],
+      back:"رجوع",next:"التالي",plan:"اعرض خطتي",restart:"ابدأ من جديد",
+      ptitle:"زيارتك المصمّمة",pintro:"هذه ملامح برنامجك. أكمل النموذج أدناه وسيقوم فريقنا بإنهائه خلال يوم عمل.",
+      kP:"الهدف",kS:"القطاع",kC:"المدينة / المنطقة",kT:"التوقيت",wa:"تابع عبر واتساب",form:"أكمل طلبي"},
+    zh:{q:["您为何来沙特阿拉伯？","您最感兴趣的行业？","哪个城市或地区？","您的时间安排？"],
+      P:["探索机会","拓展业务","设立地区总部 (RHQ)","寻找本地合作伙伴","参加活动或论坛"],
+      T:["一个月内","1–3 个月","3–6 个月","仅在调研"],
+      back:"返回",next:"下一步",plan:"获取方案",restart:"重新开始",
+      ptitle:"为您定制的行程",pintro:"这是您行程的框架。请填写下方表单，我们团队将在一个工作日内完成。",
+      kP:"目的",kS:"行业",kC:"城市 / 地区",kT:"时间",wa:"通过 WhatsApp 继续",form:"完成我的申请"},
+    ru:{q:["Что привело вас в Саудовскую Аравию?","Какой сектор вам интересен?","Какой город или регион?","Каковы ваши сроки?"],
+      P:["Изучить возможности","Расширить бизнес","Создать штаб-квартиру (RHQ)","Найти местного партнёра","Посетить мероприятие или форум"],
+      T:["В течение месяца","1–3 месяца","3–6 месяцев","Просто изучаю"],
+      back:"Назад",next:"Далее",plan:"Получить план",restart:"Начать заново",
+      ptitle:"Ваш индивидуальный визит",pintro:"Вот структура вашей программы. Заполните форму ниже, и наша команда завершит её в течение рабочего дня.",
+      kP:"Цель",kS:"Сектор",kC:"Город / регион",kT:"Сроки",wa:"Продолжить в WhatsApp",form:"Завершить заявку"},
+    es:{q:["¿Qué le trae a Arabia Saudí?","¿Qué sector le interesa más?","¿Qué ciudad o región?","¿Cuál es su plazo?"],
+      P:["Explorar oportunidades","Expandir mi negocio","Establecer una sede regional (RHQ)","Encontrar un socio local","Asistir a un evento o foro"],
+      T:["En un mes","1–3 meses","3–6 meses","Solo investigando"],
+      back:"Atrás",next:"Siguiente",plan:"Ver mi plan",restart:"Empezar de nuevo",
+      ptitle:"Su visita personalizada",pintro:"Este es el esquema de su programa. Complete el formulario y nuestro equipo lo finalizará en un día hábil.",
+      kP:"Objetivo",kS:"Sector",kC:"Ciudad / región",kT:"Plazo",wa:"Continuar en WhatsApp",form:"Completar mi solicitud"},
+    fr:{q:["Qu’est-ce qui vous amène en Arabie saoudite ?","Quel secteur vous intéresse le plus ?","Quelle ville ou région ?","Quel est votre calendrier ?"],
+      P:["Explorer les opportunités","Développer mon activité","Établir un siège régional (RHQ)","Trouver un partenaire local","Assister à un événement ou forum"],
+      T:["Sous un mois","1–3 mois","3–6 mois","Simple recherche"],
+      back:"Retour",next:"Suivant",plan:"Voir mon plan",restart:"Recommencer",
+      ptitle:"Votre visite sur mesure",pintro:"Voici la structure de votre programme. Remplissez le formulaire ci-dessous et notre équipe le finalisera sous un jour ouvré.",
+      kP:"Objectif",kS:"Secteur",kC:"Ville / région",kT:"Calendrier",wa:"Continuer sur WhatsApp",form:"Compléter ma demande"},
+    ko:{q:["사우디아라비아를 찾으신 목적은?","가장 관심 있는 분야는?","어느 도시나 지역인가요?","일정은 어떻게 되나요?"],
+      P:["기회 탐색","사업 확장","지역 본부(RHQ) 설립","현지 파트너 찾기","행사·포럼 참석"],
+      T:["한 달 이내","1–3개월","3–6개월","조사 중"],
+      back:"뒤로",next:"다음",plan:"내 계획 보기",restart:"다시 시작",
+      ptitle:"맞춤 방문 일정",pintro:"프로그램의 개요입니다. 아래 양식을 작성해 주시면 영업일 기준 하루 이내에 완성해 드립니다.",
+      kP:"목적",kS:"분야",kC:"도시/지역",kT:"일정",wa:"WhatsApp에서 계속",form:"요청 완료하기"},
+    ja:{q:["サウジアラビアへの目的は？","最も関心のある分野は？","どの都市・地域ですか？","ご予定の時期は？"],
+      P:["機会を探る","事業を拡大する","地域統括拠点(RHQ)を設立","現地パートナーを探す","イベント・フォーラムに参加"],
+      T:["1か月以内","1〜3か月","3〜6か月","情報収集中"],
+      back:"戻る",next:"次へ",plan:"プランを見る",restart:"最初から",
+      ptitle:"あなた専用の訪問プラン",pintro:"プログラムの概要です。下のフォームにご記入いただければ、営業日1日以内に仕上げます。",
+      kP:"目的",kS:"分野",kC:"都市・地域",kT:"時期",wa:"WhatsAppで続ける",form:"リクエストを完了"}
+  };
+  var body = document.getElementById("mmccBody");
+  var bar = document.getElementById("mmccBar");
+  var sel = document.getElementById("mmccLang");
+  if(!body||!sel) return;
+  var lang = D[PAGE_LANG] ? PAGE_LANG : "en";
+  sel.value = lang;
+  var st = {step:0, purpose:-1, sector:-1, city:-1, timeline:-1};
+  function esc(s){var d=document.createElement("span");d.textContent=s;return d.innerHTML;}
+  function lab(o){return lang==="ar"?o.ar:o.en;}
+  function optsFor(step){
+    var d=D[lang];
+    if(step===0) return d.P.map(function(x){return {t:x};});
+    if(step===1) return SEC.map(function(o){return {t:lab(o)};});
+    if(step===2) return CIT.map(function(o){return {t:lab(o)};});
+    return d.T.map(function(x){return {t:x};});
+  }
+  function curVal(step){return step===0?st.purpose:step===1?st.sector:step===2?st.city:st.timeline;}
+  function setVal(step,i){if(step===0)st.purpose=i;else if(step===1)st.sector=i;else if(step===2)st.city=i;else st.timeline=i;}
+  var root = document.getElementById("mm-concierge");
+  function render(){
+    if(root) root.dir = lang==="ar" ? "rtl" : "ltr";
+    var d=D[lang];
+    bar.style.width = (st.step>=4?100:((st.step+1)/5*100))+"%";
+    if(st.step<4){
+      var items=optsFor(st.step), sv=curVal(st.step), html="";
+      html+='<div class="mm-cc-q">'+esc(d.q[st.step])+'</div><div class="mm-cc-opts">';
+      for(var i=0;i<items.length;i++){html+='<button type="button" class="mm-cc-opt'+(sv===i?" sel":"")+'" data-i="'+i+'">'+esc(items[i].t)+'</button>';}
+      html+='</div><div class="mm-cc-nav">';
+      html+= st.step>0 ? '<button type="button" class="btn btn-ghost" data-nav="back">'+esc(d.back)+'</button>' : '<span></span>';
+      html+= '<button type="button" class="btn btn-primary" data-nav="fwd"'+(sv<0?" disabled":"")+'>'+esc(st.step<3?d.next:d.plan)+'</button>';
+      html+='</div>';
+      body.innerHTML=html;
+    } else {
+      var m='<div class="mm-cc-plan"><h4>'+esc(d.ptitle)+'</h4>';
+      m+='<div class="kv"><b>'+esc(d.kP)+'</b><span>'+esc(d.P[st.purpose])+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kS)+'</b><span>'+esc(lab(SEC[st.sector]))+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kC)+'</b><span>'+esc(lab(CIT[st.city]))+'</span></div>';
+      m+='<div class="kv"><b>'+esc(d.kT)+'</b><span>'+esc(d.T[st.timeline])+'</span></div>';
+      m+='<p style="margin:12px 0 0;color:var(--text-soft);font-size:14px">'+esc(d.pintro)+'</p></div>';
+      m+='<div class="mm-cc-nav"><button type="button" class="btn btn-ghost" data-nav="back">'+esc(d.back)+'</button>';
+      m+='<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-wa" id="mmccWa" target="_blank" rel="noopener">'+esc(d.wa)+'</a><button type="button" class="btn btn-primary" data-nav="form">'+esc(d.form)+'</button></div></div>';
+      body.innerHTML=m;
+      var msg="Mahfol Makfol — Investment Concierge\\nPurpose: "+D.en.P[st.purpose]+"\\nSector: "+SEC[st.sector].en+"\\nCity: "+CIT[st.city].en+"\\nTimeline: "+D.en.T[st.timeline];
+      var wa=document.getElementById("mmccWa");
+      wa.href = WA + (WA.indexOf("?")>-1?"&":"?") + "text=" + encodeURIComponent(msg);
+    }
+  }
+  body.addEventListener("click",function(e){
+    var o=e.target.closest(".mm-cc-opt");
+    if(o){setVal(st.step,parseInt(o.getAttribute("data-i"),10));if(st.step<3){st.step++;}else{st.step=4;}render();return;}
+    var n=e.target.closest("[data-nav]");
+    if(!n) return;
+    var a=n.getAttribute("data-nav");
+    if(a==="back"){st.step=Math.max(0,st.step-1);render();}
+    else if(a==="fwd"){if(curVal(st.step)<0)return;if(st.step<3){st.step++;}else{st.step=4;}render();}
+    else if(a==="form"){
+      var setv=function(id,v){var el=document.getElementById(id);if(el&&v)el.value=v;};
+      setv("mm-sector", SEC[st.sector].en);
+      setv("mm-notes", "Investment Concierge — Purpose: "+D.en.P[st.purpose]+" | City: "+CIT[st.city].en+" | Timeline: "+D.en.T[st.timeline]);
+      var f=document.getElementById("mm-form");
+      if(f)f.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+  });
+  sel.addEventListener("change",function(){lang=D[sel.value]?sel.value:"en";render();});
+  render();
+})();
+(function(){
+  var marks = document.querySelectorAll(".mm-mk");
+  var panels = document.querySelectorAll(".mm-map-panel");
+  if(!marks.length) return;
+  function pick(i){
+    for(var a=0;a<marks.length;a++) marks[a].classList.toggle("on", a===i);
+    for(var b=0;b<panels.length;b++) panels[b].classList.toggle("on", b===i);
+  }
+  for(var k=0;k<marks.length;k++){(function(m){
+    var idx=parseInt(m.getAttribute("data-idx"),10);
+    m.addEventListener("click",function(){pick(idx);});
+    m.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(idx);}});
+  })(marks[k]);}
+  pick(0);
+})();
+(function(){
+  document.addEventListener("click",function(e){
+    var a=e.target.closest("[data-mm-city]");
+    if(!a) return;
+    var city=a.getAttribute("data-mm-city");
+    var n=document.getElementById("mm-notes");
+    if(n && city){
+      var prev=(n.value||"").replace(/^Program of interest:[^—]*(?: — )?/,"");
+      n.value = "Program of interest: "+city + (prev?" — "+prev:"");
+    }
+  });
+})();
+</script>`;
+
+  return page({
+    title: Lraw("Mahfol Makfol by Business Partner — Invest in Saudi Arabia", "محفول مكفول من بزنس بارتنر — استثمر في السعودية"),
+    desc: Lraw("A concierge program for foreign investors in Saudi Arabia: MISA licensing, government relations, curated meetings, opportunity sourcing and executive hospitality across the Kingdom's key cities.", "برنامج استشاري للمستثمرين الأجانب في السعودية: ترخيص وزارة الاستثمار، علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة."),
+    active: "/mahfol-makfol", path: "/mahfol-makfol", body, script: mmScript,
+  });
+}
+
+// Mahfol Makfol — Trips & experiences track (leisure/experiential Saudi travel),
+// sibling of the investor track. Real destinations, signature experiences,
+// tourism-unit management (Gathern/Airbnb) and a trip-request form that feeds
+// the same requests pipeline (Notion + WhatsApp + dashboards).
+function buildMahfolTrips() {
+  // Real Saudi tourism photos (the client's own brochure assets on Google Drive).
+  const timg = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+  const DEST = [
+    { ic: "🏜️", k: "riyadh", price: 600, en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440,
+      hlEn: ["Edge of the World cliffs & desert safari", "Diriyah — the UNESCO old town of Saudi Arabia", "Boulevard, dining & modern Riyadh by night"], hlAr: ["حافة العالم والسفاري الصحراوي", "الدرعية التاريخية — موقع اليونسكو", "بوليفارد ومطاعم والرياض ليلاً"] },
+    { ic: "🏛️", k: "alula", price: 2029, en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339,
+      hlEn: ["Hegra — Saudi's first UNESCO site (Nabataean tombs)", "Elephant Rock & AlUla old town", "Maraya, Sharaan & desert stargazing"], hlAr: ["مدائن صالح (الحِجر) — أول موقع يونسكو", "جبل الفيل والبلدة القديمة", "مرايا وشرعان وتأمل النجوم"] },
+    { ic: "🕌", k: "jeddah", price: 2290, en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600,
+      hlEn: ["Historic Al-Balad — UNESCO old Jeddah", "Corniche, the fountain & Red Sea sunsets", "KAEC, diving & island day-trips"], hlAr: ["جدة البلد التاريخية — موقع اليونسكو", "الكورنيش والنافورة وغروب البحر الأحمر", "كايك والغوص ورحلات الجزر"] },
+    { ic: "🌊", k: "neom", price: 2065, en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272,
+      hlEn: ["Wadi Disah — palm canyons & springs", "Red Sea diving off Duba coast", "Untouched mountains & future landmarks"], hlAr: ["وادي ديسة — الأخاديد والنخيل والينابيع", "الغوص في البحر الأحمر بساحل ضباء", "جبال بكر ومعالم المستقبل"] },
+    { ic: "🐠", k: "yanbu", price: 2261, en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471,
+      hlEn: ["Umluj islands — the Saudi Maldives", "Snorkeling over vivid coral reefs", "Beach camps & boat trips"], hlAr: ["جزر أملج — مالديف السعودية", "سنوركل فوق الشعاب المرجانية", "مخيمات شاطئية ورحلات بحرية"] },
+    { ic: "🌲", k: "asir", price: 1945, en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780,
+      hlEn: ["Abha & the Habala hanging cliffs", "Cable car above the clouds", "Rijal Almaa heritage village"], hlAr: ["أبها ومنحدرات الحبلة", "التلفريك فوق السحاب", "قرية رجال ألمع التراثية"] },
+    { ic: "🏝️", k: "jazan", price: 1897, en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838,
+      hlEn: ["Farasan Islands — coral & wildlife archipelago", "Fifa mountains & terraced farms", "Coast, boats & fresh seafood"], hlAr: ["جزر فرسان — أرخبيل المرجان والحياة الفطرية", "جبال فيفاء والمدرجات الزراعية", "الساحل والقوارب والمأكولات البحرية"] },
+    { ic: "🌹", k: "taif", price: 1696, en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619,
+      hlEn: ["Rose farms & the old souq", "Al-Hada mountains & cable car", "Al-Shafa greenery & Al-Baha forests"], hlAr: ["مزارع الورد والسوق القديم", "جبال الهدا والتلفريك", "خضرة الشفا وغابات الباحة"] },
+    { ic: "🐪", k: "hail", price: null, en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291,
+      hlEn: ["Aja & Salma mountains and Hail heritage", "Jubbah rock art — UNESCO", "AlAhsa oasis & a Madinah add-on"], hlAr: ["جبال أجا وسلمى وتراث حائل", "نقوش جبة الصخرية — يونسكو", "واحة الأحساء وإضافة المدينة المنورة"] },
+  ];
+  // Purchasable trip card: priced → Add to cart (per-person; qty = travellers) →
+  // existing checkout (requires sign-in, payment, order in Notion, shows in the
+  // client portal). Price-less → request a custom quote via the form.
+  const tripBuy = (d, ghost = false) => d.price != null
+    ? cartBtns({ id: "trip-" + d.k, nameEn: "Trip — " + d.en, nameAr: "رحلة — " + d.ar, amount: d.price, priceLabel: L(d.pe, d.pa), kind: "trip", ghost })
+    : `<div class="buy-row"><a class="btn ${ghost ? "btn-ghost" : "btn-primary"}" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a></div>`;
+  const destCards = DEST.map((d) => `
+    <div class="card feature tr-dest" data-trip-open="${d.k}">
+      <div class="tr-dest-img" style="background-image:url('${timg(d.img)}')"></div>
+      <div class="tr-dest-body">
+        <h3><button type="button" class="tr-dest-name" data-trip-open="${d.k}">${L(d.en, d.ar)}</button></h3>
+        <p class="tr-tag">${L(d.te, d.ta)}</p>
+        <span class="tr-price">${L(d.pe, d.pa)}</span>
+        <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+          ${tripBuy(d)}
+          <a class="tr-inquire" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${L("or ask a question", "أو استفسر أولاً")}</a>
+        </div>
+      </div>
+    </div>`).join("");
+
+  const ACT = [
+    { ic: "🚙", en: "Safari & dune bashing", ar: "سفاري وتطعيس", de: "Wrangler jeeps, golden dunes, pro captains.", da: "جيب رانجلر وكثبان ذهبية وكباتن محترفون." },
+    { ic: "🥾", en: "Hiking & trails", ar: "هايكنج ومسارات", de: "Edge of the World, the Maze, hidden valleys.", da: "حافة العالم، المتاهة، الوادي الخفي." },
+    { ic: "🐎", en: "Horse & camel riding", ar: "ركوب الخيل والجمال", de: "Equestrian experiences in the countryside & beaches.", da: "تجارب فروسية في الريف والشواطئ." },
+    { ic: "🤿", en: "Diving & snorkeling", ar: "غوص وسنوركل", de: "Legendary Red Sea reefs in full colour.", da: "شعاب البحر الأحمر بألوانها الأسطورية." },
+    { ic: "🛥️", en: "Yacht trips", ar: "رحلات اليخوت", de: "Yacht or boat, 6–12 hours with snacks & seafood.", da: "يخت أو قارب 6-12 ساعة بسناكس وغداء بحري." },
+    { ic: "🎈", en: "AlUla hot-air balloon", ar: "منطاد العلا", de: "Sunrise over Hegra from the sky.", da: "شروق الشمس فوق الحِجر من السماء." },
+    { ic: "🏛️", en: "Heritage tours", ar: "جولات تراثية", de: "Jeddah Al-Balad, Diriyah, Shaqra & Ushaiqer.", da: "جدة البلد، الدرعية، شقراء وأوشيقر." },
+    { ic: "⭐", en: "Stargazing", ar: "تأمل النجوم", de: "AlUla's Gharameel and Riyadh's clear deserts.", da: "الغراميل بالعلا وصحاري الرياض الصافية." },
+  ];
+  const actCards = ACT.map((a) =>
+    `<div class="tr-act"><span class="tr-act-ic">${a.ic}</span><h3>${L(a.en, a.ar)}</h3><p>${L(a.de, a.da)}</p></div>`).join("");
+
+
+  const KSA = "M41 193 L92 201 L159 159 L214 64 L364 101 L486 191 L568 209 L659 238 L727 318 L760 400 L748 452 L792 470 L900 520 L982 560 L964 688 L862 712 L700 780 L560 812 L418 826 L389 852 L330 735 L236 614 L200 529 L146 413 L92 291 L50 238 Z";
+  const mapMarkers = DEST.map((d, i) => `
+    <g class="trm" data-idx="${i}" transform="translate(${d.mx},${d.my})" tabindex="0" role="button" aria-label="${Lraw(d.en, d.ar)}">
+      <circle class="trm-hit" r="24" fill="transparent"></circle>
+      <circle class="trm-ring" r="15"></circle><circle class="trm-dot" r="7"></circle>
+      <text class="trm-lbl" y="-20" text-anchor="middle">${L(d.en, d.ar)}</text></g>`).join("");
+  const mapPanels = DEST.map((d, i) => `
+    <div class="trm-panel${i === 0 ? " on" : ""}" data-idx="${i}">
+      <div class="trm-panel-img" style="background-image:url('${timg(d.img)}')"></div>
+      <div class="trm-panel-body"><h3>${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p><span class="tr-price">${L(d.pe, d.pa)}</span>
+      ${tripBuy(d)}</div>
+    </div>`).join("");
+
+  const body = `
+  <style>
+    :root{--mm-gold:#0B1B5A;--mm-gold-2:#24409e}
+    .tr-hero{position:relative;color:#fff;padding:62px 0 70px;overflow:hidden;background:var(--navy-900)}
+    .tr-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 120% at 85% 0%,#1b2f80 0%,var(--navy) 45%,var(--navy-900) 100%);z-index:0}
+    .tr-hero::after{content:"";position:absolute;inset:0;opacity:.5;z-index:0;background-image:radial-gradient(circle at 82% 30%,rgba(255,255,255,.10),transparent 40%);pointer-events:none}
+    .tr-hero>.container{position:relative;z-index:1}
+    .tr-hero .subbrand-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:#fff}
+    .tr-hero .subbrand-badge small{color:rgba(255,255,255,.75)}
+    .tr-hero h1{color:#fff;margin:16px 0 10px;font-size:clamp(28px,4.8vw,48px);text-shadow:0 2px 20px rgba(0,0,0,.25)}
+    .tr-hero .lead{color:rgba(255,255,255,.9);max-width:720px}
+    .tr-gold-line{width:64px;height:4px;border-radius:4px;background:rgba(255,255,255,.85);margin:0 0 16px}
+    .tr-trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;color:rgba(255,255,255,.92);font-size:.92rem}
+    .tr-trust span{display:inline-flex;align-items:center;gap:8px}
+    .tr-trust svg{width:18px;height:18px;flex:0 0 auto}
+    .tr-agent-head .r svg{width:22px;height:22px}
+    .tr-agent-cta .btn svg,.tr-opt svg{width:16px;height:16px}
+    /* Smart trip agent (chat) */
+    .tr-agent{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:820px;margin:30px auto 0;overflow:hidden;text-align:start}
+    .tr-agent-head{display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(135deg,var(--navy),var(--navy-700));color:#fff}
+    .tr-agent-head .r{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.15);display:grid;place-items:center;flex:0 0 auto}
+    .tr-agent-head h3{margin:0;font-size:18px}
+    .tr-agent-head p{margin:1px 0 0;font-size:13px;color:rgba(255,255,255,.8)}
+    .tr-agent{margin:0 auto}
+    .tr-agent-msgs{padding:20px;display:flex;flex-direction:column;gap:12px;min-height:120px;max-height:360px;overflow-y:auto;background:#fff}
+    .tr-b{max-width:86%;padding:11px 15px;border-radius:14px;font-size:15px;line-height:1.6}
+    .tr-b.bot{background:var(--gray-bg);border:1px solid var(--gray-line);border-start-start-radius:4px;align-self:flex-start;color:var(--text)}
+    .tr-b.me{background:var(--navy);color:#fff;border-start-end-radius:4px;align-self:flex-end}
+    .tr-opts{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
+    .tr-opt{border:1.5px solid var(--gray-line);background:#fff;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;color:var(--text);cursor:pointer;transition:.15s}
+    .tr-opt:hover{border-color:var(--navy);background:var(--gray-bg)}
+    .tr-opt.gold{border-color:var(--navy);color:var(--navy);font-weight:700}
+    .tr-agent-cta{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
+    /* Colored terrain map */
+    .tr-map-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center}
+    .tr-map-svg{border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--gray-line)}
+    .tr-map-svg svg{width:100%;height:auto;display:block;max-height:540px}
+    .trm{cursor:pointer;outline:none}
+    .trm-ring{fill:#fff;opacity:.5;transition:.2s}
+    .trm-dot{fill:var(--navy);stroke:#fff;stroke-width:2.5;transition:.2s}
+    .trm-lbl{font-size:21px;font-weight:800;fill:#0d1b3e;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none;opacity:0;transition:.2s}
+    .trm:hover .trm-lbl,.trm.on .trm-lbl{opacity:1}
+    .trm:hover .trm-dot,.trm:focus .trm-dot{fill:var(--mm-gold-2)}
+    .trm.on .trm-dot{fill:var(--mm-gold-2);r:10}
+    .trm.on .trm-ring{fill:var(--mm-gold-2);opacity:.55;r:20}
+    .trm-panel{display:none;border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);overflow:hidden}
+    .trm-panel.on{display:block}
+    .trm-panel-img{height:170px;background-size:cover;background-position:center}
+    .trm-panel-body{padding:18px;display:flex;flex-direction:column;gap:8px}
+    .trm-panel-body h3{margin:0;font-size:20px}
+    .trm-panel-body p{margin:0;color:var(--text-soft);font-size:14px}
+    @media(max-width:820px){.tr-map-wrap{grid-template-columns:1fr}}
+    /* Destination cards with photos */
+    .tr-dest{display:flex;flex-direction:column;padding:0;overflow:hidden}
+    .tr-dest-img{height:172px;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
+    .tr-dest-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,27,90,0) 55%,rgba(11,27,90,.35))}
+    .tr-dest-body{display:flex;flex-direction:column;gap:8px;padding:16px 18px 18px;flex:1}
+    .tr-dest-body h3{margin:0;font-size:19px}
+    .tr-tag{color:var(--text-soft);font-size:14px;margin:0}
+    .tr-price{color:var(--navy);font-weight:800;font-size:14px}
+    .tr-inquire{text-align:center;font-size:13px;color:var(--text-soft);text-decoration:none}
+    .tr-inquire:hover{color:var(--navy);text-decoration:underline}
+    .tr-buy-note{max-width:760px;margin:0 auto 22px;text-align:center;color:var(--text-soft);font-size:14px}
+    .tr-dest{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+    .tr-dest:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+    .tr-dest:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+    .tr-dest-name{background:none;border:0;padding:0;margin:0;font:inherit;color:var(--navy);cursor:pointer;text-align:start}
+    .tr-dest-name:hover,.tr-dest-name:focus-visible{text-decoration:underline;outline:none}
+    .tr-dest .buy-row,.tr-dest .tr-inquire,.tr-dest .add-cart{cursor:auto}
+    .tr-modal[hidden]{display:none}
+    .tr-modal{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
+    .tr-modal-ov{position:absolute;inset:0;background:rgba(11,27,90,.55);backdrop-filter:blur(2px)}
+    .tr-modal-card{position:relative;z-index:1;background:#fff;border-radius:var(--radius-lg);max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);text-align:start}
+    .tr-modal-x{position:absolute;z-index:2;top:10px;inset-inline-end:10px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.92);color:var(--navy);font-size:16px;cursor:pointer;box-shadow:var(--shadow-sm)}
+    .tr-modal-img{height:200px;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-start}
+    .tr-modal-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,27,90,0) 50%,rgba(11,27,90,.4))}
+    .tr-modal-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:10px}
+    .tr-modal-body h3{margin:0;font-size:22px;color:var(--navy)}
+    .tr-modal-body h4{margin:8px 0 0;font-size:14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.02em}
+    .tr-modal-hl,.tr-modal-inc{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:5px;font-size:15px}
+    .tr-modal-hl li::marker{color:var(--navy)}
+    .tr-modal-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .tr-modal-cta .btn{flex:1 1 auto}
+    .tr-modal-note{margin:4px 0 0;font-size:12.5px;color:var(--text-soft)}
+    .tr-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm);border-top:3px solid var(--mm-gold)}
+    .tr-act-ic{font-size:26px}
+    .tr-act h3{margin:8px 0 5px;font-size:16px}
+    .tr-act p{margin:0;color:var(--text-soft);font-size:13.5px}
+    .tr-owner{background:linear-gradient(135deg,#101c4d,#1b2f80);color:#fff;border-radius:var(--radius-lg);padding:30px;text-align:center;margin-top:26px}
+    .tr-owner h2{color:#fff;margin:0 0 8px}
+    .tr-owner p{color:rgba(255,255,255,.85);max-width:640px;margin:0 auto 18px}
+  </style>
+
+  ${mmSubnav("/mahfol-makfol/trips")}
+  <section class="tr-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
+    <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
+    <h1>${L("Discover Saudi Arabia — trips & experiences", "استكشف السعودية — رحلات وتجارب")}</h1>
+    <div class="tr-gold-line"></div>
+    <p class="lead">${L("Curated trips, camps, stays and activities across every region — designed around you and delivered through our vetted local partners.", "رحلات ومخيمات وإقامات وأنشطة مصمّمة في كل مناطق المملكة — حسب رغبتك وعبر شركائنا المحليين المعتمدين.")}</p>
+    <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#trip-form">${I.calendar}<span>${L("Design my trip", "صمّم رحلتي")}</span></a>${waBtn2("Book on WhatsApp", "احجز عبر واتساب", "btn-ghost")}</div>
+    <div class="tr-trust"><span>${I.check}${L("Vetted, audited suppliers", "موردون معتمدون ومدقّقون")}</span><span>${I.wa}${L("Instant booking on WhatsApp", "حجز فوري عبر الواتساب")}</span><span>${I.clock}${L("24/7 support", "دعم على مدار الساعة")}</span></div>
+  </div></section>
+
+  <section class="section"><div class="container" style="max-width:840px">
+    <div class="section-head"><span class="eyebrow">${L("Smart agent", "الوكيل الذكي")}</span><h2>${L("Plan your trip in 30 seconds", "خطّط رحلتك في 30 ثانية")}</h2><p>${L("Chat with our agent — pick a few options and we'll shape your trip or find your flight.", "تحدّث مع وكيلنا — اختر بعض الخيارات ونصمّم رحلتك أو نبحث لك عن الطيران.")}</p></div>
+    <div class="tr-agent" id="tr-agent">
+      <div class="tr-agent-head"><span class="r">${I.robot}</span><div><h3>${L("Mahfol Makfol Agent", "وكيل محفول مكفول الذكي")}</h3><p>${L("Trips • Flights • Experiences", "رحلات • طيران • تجارب")}</p></div></div>
+      <div class="tr-agent-msgs" id="tr-msgs"></div>
+      <div class="tr-opts" id="tr-opts"></div>
+      <div class="tr-agent-cta" id="tr-cta"></div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Explore the map", "استكشف الخريطة")}</span><h2>${L("Where to go — interactive map", "إلى أين — خريطة تفاعلية")}</h2><p>${L("Tap a destination to see photos, highlights and pricing.", "اضغط على وجهة لرؤية الصور والمميزات والأسعار.")}</p></div>
+    <div class="tr-map-wrap">
+      <div class="tr-map-svg"><svg viewBox="0 0 1000 900" role="img" aria-label="${Lraw("Tourism map of Saudi Arabia", "خريطة السعودية السياحية")}" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="mmsand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4e8ca"/><stop offset="1" stop-color="#e3cd9b"/></linearGradient>
+          <clipPath id="mmksa"><path d="${KSA}"/></clipPath>
+        </defs>
+        <rect x="0" y="0" width="1000" height="900" fill="#bfe3ef"/>
+        <path d="${KSA}" fill="url(#mmsand)" stroke="#0B1B5A" stroke-width="3" stroke-linejoin="round"/>
+        <g clip-path="url(#mmksa)">
+          <ellipse cx="380" cy="800" rx="150" ry="120" fill="#7fb27a" opacity=".45"></ellipse>
+          <ellipse cx="620" cy="500" rx="270" ry="190" fill="#e9c46a" opacity=".33"></ellipse>
+          <ellipse cx="840" cy="600" rx="180" ry="150" fill="#e7b56a" opacity=".38"></ellipse>
+          <ellipse cx="250" cy="470" rx="120" ry="150" fill="#8ec9d6" opacity=".33"></ellipse>
+          <g fill="#5c8f57" opacity=".85"><path d="M330 802 l28 -50 28 50 z"></path><path d="M372 814 l34 -60 34 60 z"></path><path d="M300 772 l24 -42 24 42 z"></path></g>
+          <g fill="none" stroke="#c39f52" stroke-width="6" opacity=".65" stroke-linecap="round"><path d="M520 560 q40 -30 80 0 q40 30 80 0"></path><path d="M560 612 q40 -28 80 0 q40 28 80 0"></path></g>
+          <g fill="#3f8f86" opacity=".7"><circle cx="235" cy="600" r="7"></circle><circle cx="250" cy="642" r="6"></circle><circle cx="220" cy="470" r="6"></circle></g>
+        </g>
+        ${mapMarkers}
+      </svg></div>
+      <div class="tr-map-info" id="tr-map-info">${mapPanels}</div>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Where to go", "إلى أين")}</span><h2>${L("Destinations across the Kingdom", "وجهات في كل المملكة")}</h2><p>${L("From the Edge of the World to AlUla, the Red Sea islands and the green south.", "من حافة العالم إلى العلا وجزر البحر الأحمر والجنوب الأخضر.")}</p></div>
+    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online or by bank transfer; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع أونلاين أو بتحويل بنكي، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
+    <div class="grid grid-3">${destCards}</div>
+  </div></section>
+
+  <div class="tr-modal" id="tr-modal" hidden>
+    <div class="tr-modal-ov" data-tr-close></div>
+    <div class="tr-modal-card" role="dialog" aria-modal="true" aria-labelledby="trm-title">
+      <button class="tr-modal-x" type="button" data-tr-close aria-label="${Lraw("Close", "إغلاق")}">✕</button>
+      <div class="tr-modal-img" id="trm-img"></div>
+      <div class="tr-modal-body">
+        <h3 id="trm-title"></h3>
+        <p class="tr-tag" id="trm-tag"></p>
+        <span class="tr-price" id="trm-price"></span>
+        <h4>${L("Trip highlights", "أبرز معالم الرحلة")}</h4>
+        <ul class="tr-modal-hl" id="trm-hl"></ul>
+        <h4>${L("What's included", "ماذا تشمل الرحلة")}</h4>
+        <ul class="tr-modal-inc">
+          <li>${L("Curated stays & camps", "إقامات ومخيمات مختارة")}</li>
+          <li>${L("Private transport & transfers", "تنقّل خاص واستقبال")}</li>
+          <li>${L("Expert local guide", "مرشد محلي خبير")}</li>
+          <li>${L("Signature experiences & activities", "تجارب وأنشطة مميّزة")}</li>
+        </ul>
+        <div class="tr-modal-cta" id="trm-cta"></div>
+        <p class="tr-modal-note">${L("Per-person price — set the number of travellers in your cart. Booking needs a free account.", "السعر للشخص — حدّد عدد المسافرين في السلة. الحجز يتطلب حساباً مجانياً.")}</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Things to do", "الأنشطة")}</span><h2>${L("Signature experiences", "تجارب مميّزة")}</h2></div>
+    <div class="tr-act-grid">${actCards}</div>
+  </div></section>
+
+  <section class="section section--gray" id="trip-form"><div class="container" style="max-width:720px">
+    <div class="section-head"><span class="eyebrow">${L("Design your trip", "صمّم رحلتك")}</span><h2>${L("Tell us about your trip", "أخبرنا عن رحلتك")}</h2><p>${L("Share what you're after and we'll come back with a tailored program and pricing within a day.", "أخبرنا بما ترغب ونعود لك ببرنامج وتسعيرة مخصّصة خلال يوم.")}</p></div>
+    <form class="calc-form" id="trip-form-el" novalidate>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-name">${L("Your name", "الاسم")}</label><input id="tr-name" type="text" required></div>
+        <div class="field"><label for="tr-phone">${L("Mobile", "رقم الجوال")}</label><input id="tr-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-email">${L("Email", "الإيميل")}</label><input id="tr-email" type="email" required placeholder="name@email.com"></div>
+        <div class="field"><label for="tr-dest">${L("Destination", "الوجهة")}</label><input id="tr-dest" type="text" placeholder="${Lraw("e.g. AlUla", "مثال: العلا")}"></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-count">${L("Group size", "عدد الأشخاص")}</label><input id="tr-count" type="number" min="1" placeholder="1"></div>
+        <div class="field"><label for="tr-dates">${L("Preferred dates", "التواريخ المفضّلة")}</label><input id="tr-dates" type="text" placeholder="${Lraw("e.g. October", "مثال: أكتوبر")}"></div>
+      </div>
+      <div class="field"><label for="tr-notes">${L("Anything else?", "أي تفاصيل إضافية؟")}</label><textarea id="tr-notes" rows="3"></textarea></div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send request", "أرسل الطلب")}</span></button>
+      <div class="form-success" id="trip-success" hidden></div>
+    </form>
+    <div class="callout" style="margin-top:22px"><span class="ico">🏛️</span><p>${L("Here for business, not leisure?", "زيارتك للأعمال وليست سياحية؟")} <a href="${u("/mahfol-makfol")}">${L("See the investor program →", "شاهد برنامج المستثمر ←")}</a></p></div>
+  </div></section>`;
+
+  const tripScript = `<script>
+(function(){
+  var LANG = ${JSON.stringify(LANG === "ar" ? "ar" : "en")};
+  var WA = ${JSON.stringify(WA)};
+  var CART = ${JSON.stringify(u("/cart"))};
+  var DST = ${JSON.stringify(DEST.map((d) => ({ en: d.en, ar: d.ar, k: d.k, price: d.price, pe: d.pe, pa: d.pa })))};
+  var DTL = ${JSON.stringify(DEST.map((d) => ({ k: d.k, ic: d.ic, en: d.en, ar: d.ar, te: d.te, ta: d.ta, pe: d.pe, pa: d.pa, price: d.price, img: timg(d.img), hlEn: d.hlEn || [], hlAr: d.hlAr || [] })))};
+  function tr(ar,en){return LANG==="ar"?ar:en;}
+  // ----- Smart trip/flight agent (chat, multiple-choice) -----
+  var msgs=document.getElementById("tr-msgs"), optsBox=document.getElementById("tr-opts"), ctaBox=document.getElementById("tr-cta");
+  if(msgs){
+    var destOpts=DST.map(function(d){return {v:d.en,la:d.ar,le:d.en};});
+    var KINDS=[{v:"adventure",la:"مغامرة وطبيعة",le:"Adventure & nature"},{v:"family",la:"عائلية",le:"Family"},{v:"luxury",la:"فاخرة VIP",le:"Luxury / VIP"},{v:"heritage",la:"تراث وثقافة",le:"Heritage & culture"},{v:"sea",la:"بحر وجزر",le:"Sea & islands"}];
+    var GROUPS=[{v:"1-2",la:"1–2",le:"1–2"},{v:"3-5",la:"3–5",le:"3–5"},{v:"6-10",la:"6–10",le:"6–10"},{v:"10+",la:"+10",le:"10+"}];
+    var WHENS=[{v:"month",la:"خلال شهر",le:"Within a month"},{v:"q",la:"1–3 أشهر",le:"1–3 months"},{v:"flex",la:"مرن",le:"Flexible"}];
+    var CLASSES=[{v:"economy",la:"اقتصادية",le:"Economy"},{v:"business",la:"رجال أعمال",le:"Business"},{v:"first",la:"أولى",le:"First"}];
+    var PAXES=[{v:"1",la:"1",le:"1"},{v:"2",la:"2",le:"2"},{v:"3-4",la:"3–4",le:"3–4"},{v:"5+",la:"+5",le:"5+"}];
+    var NOTSURE={v:"notsure",la:"لست متأكداً",le:"Not sure"}, INTL={v:"intl",la:"وجهة دولية",le:"International"};
+    var TRIP_STEPS=[
+      {key:"dest",q:tr("أي وجهة تشدّك؟","Which destination?"),opts:destOpts.concat([NOTSURE])},
+      {key:"kind",q:tr("نوع الرحلة؟","Trip style?"),opts:KINDS},
+      {key:"group",q:tr("كم عدد الأشخاص؟","Group size?"),opts:GROUPS},
+      {key:"when",q:tr("متى تنوي السفر؟","When?"),opts:WHENS}
+    ];
+    var FLIGHT_STEPS=[
+      {key:"to",q:tr("وين تبي تسافر؟","Where to?"),opts:destOpts.concat([INTL])},
+      {key:"cls",q:tr("درجة السفر؟","Cabin class?"),opts:CLASSES},
+      {key:"pax",q:tr("كم مسافر؟","Passengers?"),opts:PAXES},
+      {key:"when",q:tr("متى؟","When?"),opts:WHENS}
+    ];
+    var st={mode:null,step:0,data:{}}, steps=[];
+    function bubble(text,who){var b=document.createElement("div");b.className="tr-b "+who;b.textContent=text;msgs.appendChild(b);msgs.scrollTop=msgs.scrollHeight;}
+    function clearOpts(){optsBox.innerHTML="";ctaBox.innerHTML="";}
+    function optBtn(label,cb,gold){var b=document.createElement("button");b.type="button";b.className="tr-opt"+(gold?" gold":"");b.textContent=label;b.addEventListener("click",cb);optsBox.appendChild(b);}
+    function askMode(){
+      clearOpts();bubble(tr("أهلاً 👋 أنا وكيل محفول مكفول. كيف أساعدك اليوم؟","Hi 👋 I'm the Mahfol Makfol agent. How can I help today?"),"bot");
+      optBtn(tr("صمّم رحلة سياحية","Design a trip"),function(){start("trip");},true);
+      optBtn(tr("استعلام وحجز طيران","Flights & destination"),function(){start("flight");},true);
+    }
+    function start(mode){st.mode=mode;st.step=0;st.data={};steps=mode==="trip"?TRIP_STEPS:FLIGHT_STEPS;
+      bubble(mode==="trip"?tr("صمّم رحلة سياحية","Design a trip"):tr("استعلام وحجز طيران","Flights & destination"),"me");renderStep();}
+    function renderStep(){
+      clearOpts();
+      if(st.step>=steps.length){plan();return;}
+      var s=steps[st.step];bubble(s.q,"bot");
+      s.opts.forEach(function(o){optBtn(LANG==="ar"?o.la:o.le,function(){st.data[s.key]={v:o.v,le:o.le,la:o.la};bubble(LANG==="ar"?o.la:o.le,"me");st.step++;renderStep();});});
+    }
+    function summaryEN(){
+      var d=st.data;var parts=[];
+      if(st.mode==="flight"){parts.push("FLIGHT");if(d.to)parts.push("To: "+d.to.le);if(d.cls)parts.push("Class: "+d.cls.le);if(d.pax)parts.push("Pax: "+d.pax.le);}
+      else{parts.push("TRIP");if(d.dest)parts.push("Destination: "+d.dest.le);if(d.kind)parts.push("Style: "+d.kind.le);if(d.group)parts.push("Group: "+d.group.le);}
+      if(d.when)parts.push("When: "+d.when.le);
+      return parts.join(" | ");
+    }
+    function findDest(v){for(var i=0;i<DST.length;i++){if(DST[i].en===v)return DST[i];}return null;}
+    var GQ={"1-2":2,"3-5":4,"6-10":8,"10+":10};
+    function bookAndPay(qty){
+      var sel=(st.data.dest||st.data.to);if(!sel)return;var dd=findDest(sel.v);if(!dd||dd.price==null)return;
+      var item={id:"trip-"+dd.k,nameEn:"Trip — "+dd.en,nameAr:"رحلة — "+dd.ar,amount:dd.price,price:(LANG==="ar"?dd.pa:dd.pe),kind:"trip",qty:qty||1};
+      try{if(window.BP&&BP.cart){var c=BP.cart.read();var ex=null;for(var i=0;i<c.length;i++){if(c[i].id===item.id){ex=c[i];break;}}if(ex)ex.qty=item.qty;else c.push(item);BP.cart.write(c);}}catch(e){}
+      location.href=CART;
+    }
+    function plan(){
+      clearOpts();
+      var sel=(st.data.dest||st.data.to);var dd=sel?findDest(sel.v):null;
+      var hasBook=st.mode==="trip"&&dd&&dd.price!=null;
+      var q=(st.data.group&&GQ[st.data.group.v])||1;
+      bubble(st.mode==="flight"?tr("تمام! سنبحث لك عن أفضل الرحلات ونؤكد الحجز. أكمل بياناتك أو تواصل واتساب الآن.","Done! We'll find the best flights and confirm your booking. Complete your details or chat on WhatsApp."):(hasBook?tr("تمام! وجهتك جاهزة للحجز الفوري 👇","Done! Your destination is ready to book instantly 👇"):tr("تمام! جهّزت ملخص رحلتك. أكمل بياناتك ونعود لك ببرنامج وتسعيرة خلال يوم — أو تواصل واتساب الآن.","Done! I've drafted your trip. Complete your details and we'll come back within a day — or chat on WhatsApp.")),"bot");
+      var sum=summaryEN();
+      if(hasBook){
+        bubble(tr(dd.ar+" — "+dd.price+" ر.س للشخص × "+q+" مسافر (تقدر تعدّل العدد في السلة قبل الدفع).",dd.en+" — "+dd.price+" SAR/person × "+q+" travellers (adjust the number in your cart before paying)."),"bot");
+        var bk=document.createElement("button");bk.type="button";bk.className="btn btn-primary";bk.textContent=tr("احجز وادفع الآن","Book & pay now");
+        bk.addEventListener("click",function(){bookAndPay(q);});ctaBox.appendChild(bk);
+      }
+      var wa=document.createElement("a");wa.className="btn btn-wa";wa.target="_blank";wa.rel="noopener";
+      wa.href=WA+(WA.indexOf("?")>-1?"&":"?")+"text="+encodeURIComponent("Mahfol Makfol — "+sum);wa.textContent=tr("تواصل واتساب","Chat on WhatsApp");ctaBox.appendChild(wa);
+      var f=document.createElement("button");f.type="button";f.className=hasBook?"btn btn-ghost":"btn btn-primary";f.textContent=hasBook?tr("أو أكمل بياناتي","Or complete my details"):tr("أكمل بياناتي","Complete my details");
+      f.addEventListener("click",function(){
+        var dest=(st.data.dest||st.data.to);var destEl=document.getElementById("tr-dest");
+        if(destEl&&dest)destEl.value=dest.le;
+        var n=document.getElementById("tr-notes");if(n)n.value=sum;
+        var form=document.getElementById("trip-form");if(form)form.scrollIntoView({behavior:"smooth",block:"start"});
+      });ctaBox.appendChild(f);
+      var rs=document.createElement("button");rs.type="button";rs.className="btn btn-ghost";rs.textContent=tr("من جديد","Start over");
+      rs.addEventListener("click",function(){msgs.innerHTML="";askMode();});ctaBox.appendChild(rs);
+    }
+    askMode();
+  }
+  // ----- Colored map: destination markers <-> panels -----
+  (function(){
+    var marks=document.querySelectorAll(".trm"),panels=document.querySelectorAll(".trm-panel");
+    if(!marks.length)return;
+    function pick(i){for(var a=0;a<marks.length;a++)marks[a].classList.toggle("on",a===i);for(var b=0;b<panels.length;b++)panels[b].classList.toggle("on",b===i);}
+    for(var k=0;k<marks.length;k++){(function(m){var idx=parseInt(m.getAttribute("data-idx"),10);
+      m.addEventListener("click",function(){pick(idx);});
+      m.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(idx);}});})(marks[k]);}
+    pick(0);
+  })();
+  // ----- Destination "request" buttons prefill the form -----
+  document.addEventListener("click",function(e){
+    var a=e.target.closest("[data-trip-dest]");
+    if(!a) return;
+    var d=document.getElementById("tr-dest");
+    if(d) d.value=a.getAttribute("data-trip-dest");
+  });
+  // ----- Trip details modal (click a destination card to open it) -----
+  (function(){
+    var modal=document.getElementById("tr-modal");
+    if(!modal) return;
+    function findD(k){for(var i=0;i<DTL.length;i++){if(DTL[i].k===k)return DTL[i];}return null;}
+    function addToCart(d,qty){
+      var item={id:"trip-"+d.k,nameEn:"Trip — "+d.en,nameAr:"رحلة — "+d.ar,amount:d.price,price:(LANG==="ar"?d.pa:d.pe),kind:"trip",qty:qty||1};
+      try{if(window.BP&&BP.cart){var c=BP.cart.read();var ex=null;for(var i=0;i<c.length;i++){if(c[i].id===item.id){ex=c[i];break;}}if(ex)ex.qty=item.qty;else c.push(item);BP.cart.write(c);}}catch(e){}
+    }
+    function gotoForm(d){
+      close();
+      var el=document.getElementById("tr-dest");if(el)el.value=(LANG==="ar"?d.en:d.en);
+      var f=document.getElementById("trip-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+    function open(k){
+      var d=findD(k);if(!d)return;
+      document.getElementById("trm-img").style.backgroundImage="url('"+d.img+"')";
+      document.getElementById("trm-title").textContent=(LANG==="ar"?d.ar:d.en);
+      document.getElementById("trm-tag").textContent=(LANG==="ar"?d.ta:d.te);
+      document.getElementById("trm-price").textContent=(LANG==="ar"?d.pa:d.pe);
+      var hl=(LANG==="ar"?d.hlAr:d.hlEn)||[];var ul=document.getElementById("trm-hl");ul.innerHTML="";
+      hl.forEach(function(h){var li=document.createElement("li");li.textContent=h;ul.appendChild(li);});
+      var cta=document.getElementById("trm-cta");cta.innerHTML="";
+      if(d.price!=null){
+        var bk=document.createElement("button");bk.type="button";bk.className="btn btn-primary";
+        bk.textContent=(LANG==="ar"?"احجز وادفع الآن":"Book & pay now");
+        bk.addEventListener("click",function(){addToCart(d,1);location.href=CART;});cta.appendChild(bk);
+      }else{
+        var rq=document.createElement("button");rq.type="button";rq.className="btn btn-primary";
+        rq.textContent=(LANG==="ar"?"اطلب عرض سعر":"Request a quote");
+        rq.addEventListener("click",function(){gotoForm(d);});cta.appendChild(rq);
+      }
+      var ask=document.createElement("button");ask.type="button";ask.className="btn btn-ghost";
+      ask.textContent=(LANG==="ar"?"استفسر أولاً":"Ask a question");
+      ask.addEventListener("click",function(){gotoForm(d);});cta.appendChild(ask);
+      modal.hidden=false;document.body.style.overflow="hidden";
+    }
+    function close(){modal.hidden=true;document.body.style.overflow="";}
+    document.addEventListener("click",function(e){
+      if(e.target.closest("[data-tr-close]")){close();return;}
+      if(e.target.closest(".add-cart,.buy-row,.tr-inquire")) return;
+      var opener=e.target.closest("[data-trip-open]");
+      if(opener) open(opener.getAttribute("data-trip-open"));
+    });
+    document.addEventListener("keydown",function(e){
+      if(e.key==="Escape"&&!modal.hidden)close();
+    });
+  })();
+})();
+</script>`;
+
+  return page({
+    title: Lraw("Trips & experiences — Mahfol Makfol by Business Partner", "الرحلات والتجارب — محفول مكفول من بزنس بارتنر"),
+    desc: Lraw("Curated Saudi trips, camps, stays and activities across every region — Mahfol Makfol by Business Partner.", "رحلات ومخيمات وإقامات وأنشطة سعودية مصمّمة في كل مناطق المملكة — محفول مكفول من بزنس بارتنر."),
+    active: "/mahfol-makfol", path: "/mahfol-makfol/trips", body, script: tripScript,
+  });
 }
 
 function buildSaudi() {
   const s = site.saudiArabia;
   const targets = s.vision.targets.map((t) => `<div class="stat"><div class="num">${esc(t.value)}</div><div class="lbl">${L(t.labelEn || t.label, t.label)}</div></div>`).join("");
   const sectors = s.sectors.items
-    .map(
-      (it) => `<a class="card svc-card" href="${u("/services")}#${slugCat(it.category)}">
+    .map((it) => {
+      // "Tourism" isn't a services category (it has its own dedicated page) —
+      // every other sector here maps to a real category page.
+      const href = it.category === "Tourism" ? u("/tourism") : catUrl(it.category);
+      return `<a class="card svc-card" href="${href}">
       <div class="card-icon">${I.building}</div>
       <h3>${L(it.titleEn || it.title, it.title)}</h3><p class="desc">${L(it.textEn || it.text, it.text)}</p>
-      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`
-    )
+      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`;
+    })
     .join("");
   const articles = s.knowledge.articles
     .map(
@@ -2104,7 +3365,7 @@ function buildSaudi() {
     .join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("Saudi Arabia", "السعودية")}</span>
+    <span class="eyebrow">${L("Invest in Saudi", "الاستثمار في السعودية")}</span>
     <h1>${L(s.titleEn || s.title, s.title)}</h1>
     <p class="lead">${L(s.leadEn || s.lead, s.lead)}</p>
     <div class="hero-actions">${waBtn2("Start your investment", "ابدأ استثمارك", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
@@ -2196,7 +3457,10 @@ function buildNews() {
         <div class="hub-sec" id="weekly">
           <h2>${L("Weekly roundup", "الملخص الأسبوعي")}</h2>
           <div class="callout"><span class="ico">🗞️</span><p>${L(n.weeklyNoteEn || n.weeklyNote || "", n.weeklyNote || "")}</p></div>
-          ${site.whatsappChannel ? `<div style="margin-top:14px"><a class="btn btn-wa" href="${site.whatsappChannel}" target="_blank" rel="noopener">${I.channel}<span>${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</span></a></div>` : ""}
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <a class="btn btn-primary" href="${u("/magazine")}">${I.doc}<span>${L("Browse the magazine & download PDF", "تصفّح المجلة وحمّلها PDF")}</span></a>
+            ${site.whatsappChannel ? `<a class="btn btn-wa" href="${site.whatsappChannel}" target="_blank" rel="noopener">${I.channel}<span>${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</span></a>` : ""}
+          </div>
         </div>
       </div>
     </div>
@@ -2204,23 +3468,63 @@ function buildNews() {
   return page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — بيزنس بارتنر"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من بيزنس بارتنر."), active: "/news", body });
 }
 
+// Browsable, branded news magazine — content is the same live Notion feed as
+// /news, but the PDF issue (browser print-to-PDF, see /magazine/print) is
+// gated behind a short registration so we capture the lead first.
+function buildMagazine() {
+  const today = new Date().toISOString().slice(0, 7);
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Magazine", "المجلة")}</span>
+    <h1>${L("Business Partner Magazine", "مجلة بيزنس بارتنر")}</h1>
+    <p class="lead">${L("Every government decision and compliance update that matters for your business — browse free, or register once to download the branded PDF issue.", "كل قرار حكومي وتحديث امتثال يهم أعمالك — تصفّح مجاناً، أو سجّل مرة واحدة لتحميل العدد بصيغة PDF بهوية الشركة.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="grid grid-2" data-live-news="20"></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container" style="max-width:560px">
+    <div class="section-head"><span class="eyebrow">${L("PDF issue", "العدد بصيغة PDF")}</span><h2>${L("Download the branded PDF issue", "حمّل العدد بصيغة PDF بهوية الشركة")}</h2><p>${L("Register once and we'll open your printable, brand-designed issue — use your browser's “Save as PDF” to download it, and we'll also email you the link.", "سجّل مرة واحدة وسنفتح لك العدد الجاهز للطباعة بتصميم الشركة — استخدم خيار “حفظ كـ PDF” في متصفحك لتنزيله، وسنرسل لك الرابط على بريدك أيضاً.")}</p></div>
+    <form class="calc-form" id="mag-form" novalidate>
+      <div class="field"><label for="mag-name">${L("Full name", "الاسم الكامل")}</label><input id="mag-name" type="text" required></div>
+      <div class="field"><label for="mag-phone">${L("Mobile", "رقم الجوال")}</label><input id="mag-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+      <div class="field"><label for="mag-email">${L("Email", "الإيميل")}</label><input id="mag-email" type="email" required></div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.doc}<span>${L("Get my PDF issue", "احصل على عددي بصيغة PDF")}</span></button>
+      <div class="form-success" id="mag-success" hidden></div>
+    </form>
+  </div></section>`;
+  return page({ title: Lraw("Magazine — Business Partner", "المجلة — بيزنس بارتنر"), desc: Lraw("Government decisions and compliance updates for your business — browse the magazine or download the branded PDF issue.", "قرارات حكومية وتحديثات امتثال تهم أعمالك — تصفّح المجلة أو حمّل العدد بصيغة PDF."), active: "/magazine", path: "/magazine", body });
+}
+
+// Print-ready issue: same live news feed, styled for print with the site's
+// header/footer/WhatsApp button hidden (see the @media print rules in
+// styles.css) so the browser's "Save as PDF" produces a clean, branded PDF —
+// no server-side PDF library needed, and Arabic text shapes correctly for
+// free because the browser itself renders it.
+function buildMagazinePrint() {
+  const issue = new Date().toISOString().slice(0, 10);
+  const body = `
+  <section class="container mag-print"><div class="mag-print-cover">
+    <img src="/assets/img/logo.png" alt="Business Partner" width="220" height="42">
+    <h1>${L("Business Partner Magazine", "مجلة بيزنس بارتنر")}</h1>
+    <p>${L("Issue", "العدد")} — ${esc(issue)}</p>
+  </div>
+  <div class="grid grid-2" data-live-news="30" data-auto-print="1"></div>
+  <p class="mag-print-footer">${L("Business Partner · businesspartner.sa — sources: automated compilation of public news; verify with the official source before acting.", "بيزنس بارتنر · businesspartner.sa — المصادر: تجميع آلي من الأخبار العامة — يُرجى التحقق من المصدر الرسمي قبل أي إجراء.")}</p>
+  </section>
+  <p class="text-soft center mt-32 no-print">${L("Preparing your printable issue — your browser's print dialog will open automatically. Choose “Save as PDF” as the destination.", "جارٍ تجهيز عددك القابل للطباعة — سيفتح مربع الطباعة في متصفحك تلقائياً. اختر “حفظ كـ PDF” كوجهة الطباعة.")}</p>`;
+  return page({ title: Lraw("Magazine — printable issue | Business Partner", "المجلة — نسخة للطباعة | بيزنس بارتنر"), desc: Lraw("Printable Business Partner magazine issue.", "نسخة قابلة للطباعة من مجلة بيزنس بارتنر."), path: "/magazine/print", body });
+}
+
 // Pilot: "HR by Business Partner" — a sub-brand landing page that pulls
 // together everything HR-related already on the site (services catalog,
 // employer recruitment platform, job-seeker intake) under one identity,
 // without spinning up a separate site/domain.
 function buildHR() {
-  const hrServices = services.filter((s) => s.category === "HR Services" || s.category === "Recruitment").slice(0, 6);
-  const svcCards = hrServices.map((s) => {
-    const d = sDesc(s);
-    return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
-      <h3>${esc(sName(s))}</h3>
-      <p class="desc">${esc(d.slice(0, 100))}${d.length > 100 ? "…" : ""}</p>
-      <span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></a>`;
-  }).join("");
   const entryCards = [
     ["🏢", L("For employers", "لأصحاب الأعمال"), L("Hire from our pre-screened, Saudization-checked candidate pool — we handle sourcing to onboarding.", "وظّف من قاعدة مرشّحين مُصنّفين ومفحوصين للتوطين — نتولّى من الاستقطاب حتى التعيين."), "/employers", L("Browse candidates", "تصفّح المرشّحين")],
-    ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Join our candidate pool once — employers hiring through Business Partner reach you.", "سجّل مرة واحدة — وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Submit your CV", "أرسل سيرتك")],
-    ["📋", L("HR & compliance services", "خدمات الموارد البشرية والامتثال"), L("Qiwa, GOSI, Mudad, contracts, Saudization and everyday HR administration.", "قوى، التأمينات، مدد، العقود، التوطين وإدارة الموارد البشرية اليومية."), "/services/category/hr-services", L("Browse services", "استعرض الخدمات")],
+    ["🧑‍🎓", L("For job seekers", "للباحثين عن عمل"), L("Browse open roles and apply — or join our candidate pool once and employers hiring through Business Partner reach you.", "تصفّح الوظائف المفتوحة وقدّم — أو سجّل مرة واحدة في قاعدة المرشّحين وأصحاب العمل الذين يوظّفون عبرنا يصلونك."), "/careers", L("Browse jobs", "تصفّح الوظائف")],
   ].map((p) => `<a class="card feature" href="${u(p[3])}">
     <div class="card-icon" style="font-size:1.6rem">${p[0]}</div>
     <h3>${p[1]}</h3><p>${p[2]}</p>
@@ -2229,33 +3533,27 @@ function buildHR() {
   <section class="hero"><div class="container hero-inner" style="max-width:900px">
     <div class="subbrand-badge">${I.building}<span>${L("HR", "الموارد البشرية")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}</h1>
-    <p class="lead">${L("Everything HR under one roof: a recruitment platform for employers, a candidate pool for job seekers, and a full catalog of HR & compliance services — Qiwa, GOSI, Mudad and Saudization, managed for you.", "كل ما يخص الموارد البشرية تحت مظلة واحدة: منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال — قوى والتأمينات ومدد والتوطين، بندير لك كل شي.")}</p>
-    <div class="hero-actions">${waBtn2("Talk to us", "تحدث معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/services/category/hr-services")}">${L("Browse HR services", "استعرض خدمات الموارد البشرية")}</a></div>
+    <p class="lead">${L("A recruitment platform for employers and a candidate pool for job seekers — sourcing, screening, interviews, and hiring, managed for you.", "منصة توظيف لأصحاب الأعمال وقاعدة مرشّحين للباحثين عن عمل — استقطاب، فرز، مقابلات، وتوظيف، بندير لك كل شي.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary" href="${u("/careers")}#open-jobs">${L("Browse open jobs", "تصفّح الوظائف المفتوحة")}</a></div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Three ways in", "ثلاث طرق للبدء")}</span><h2>${L("Whichever side you're on, we've got you", "أياً كان موقعك، عندنا لك حل")}</h2></div>
-    <div class="grid grid-3">${entryCards}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Catalog", "الكتالوج")}</span><h2>${L("A sample of our HR services", "نماذج من خدماتنا في الموارد البشرية")}</h2></div>
-    <div class="grid grid-3">${svcCards}</div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/services/category/hr-services")}">${L("View all HR services", "استعرض كل خدمات الموارد البشرية")} ${I.arrow}</a></div>
+    <div class="section-head"><span class="eyebrow">${L("Two ways in", "طريقتان للبدء")}</span><h2>${L("Whichever side you're on, we've got you", "أياً كان موقعك، عندنا لك حل")}</h2></div>
+    <div class="grid grid-2">${entryCards}</div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Ready to start?", "جاهز نبدأ؟")}</h2><p>${L("Tell us what you need — hiring, HR admin, or a job — and we'll point you to the right track.", "أخبرنا باحتياجك — توظيف، إدارة موارد بشرية، أو وظيفة — ونوجّهك للمسار المناسب.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready to start?", "جاهز نبدأ؟")}</h2><p>${L("Tell us what you need — hiring or a job — and we'll point you to the right track.", "أخبرنا باحتياجك — توظيف أو وظيفة — ونوجّهك للمسار المناسب.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: Lraw("HR by Business Partner", "الموارد البشرية من بزنس بارتنر"), desc: Lraw("A recruitment platform for employers, a candidate pool for job seekers, and a full HR & compliance services catalog.", "منصة توظيف لأصحاب الأعمال، قاعدة مرشّحين للباحثين عن عمل، وكتالوج كامل لخدمات الموارد البشرية والامتثال."), active: "/hr", path: "/hr", body });
+  return page({ title: Lraw("HR by Business Partner", "الموارد البشرية من بزنس بارتنر"), desc: Lraw("A recruitment platform for employers and a candidate pool for job seekers.", "منصة توظيف لأصحاب الأعمال وقاعدة مرشّحين للباحثين عن عمل."), active: "/hr", path: "/hr", body });
 }
 
 function buildEmployers() {
   const value = [
-    ["🗂️", L("A live pool of pre-screened candidates", "قاعدة حيّة من المرشّحين المُصنّفين"), L("Browse candidates by field, city, experience and availability — updated continuously.", "تصفّح المرشّحين حسب المجال والمدينة والخبرة والجاهزية — محدّثة باستمرار.")],
-    ["⚡", L("We manage hiring end to end", "ندير التوظيف من البداية للنهاية"), L("Sourcing, screening, interviews, offer and onboarding — handled for you.", "استقطاب، فرز، مقابلات، عرض وتعيين — نتولّاها عنك.")],
-    ["🛡️", L("Saudization-checked", "مفحوص للتوطين"), L("Each candidate is flagged against HRSD Saudization rules for your activity.", "كل مرشّح مفحوص وفق قواعد التوطين لنشاطك.")],
-  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
+    [I.users, L("A live pool of pre-screened candidates", "قاعدة حيّة من المرشّحين المُصنّفين"), L("Browse candidates by field, city, experience and availability — updated continuously.", "تصفّح المرشّحين حسب المجال والمدينة والخبرة والجاهزية — محدّثة باستمرار.")],
+    [I.cycle, L("We manage hiring end to end", "ندير التوظيف من البداية للنهاية"), L("Sourcing, screening, interviews, offer and onboarding — handled for you.", "استقطاب، فرز، مقابلات، عرض وتعيين — نتولّاها عنك.")],
+    [I.shield, L("Saudization-checked", "مفحوص للتوطين"), L("Each candidate is flagged against HRSD Saudization rules for your activity.", "كل مرشّح مفحوص وفق قواعد التوطين لنشاطك.")],
+  ].map((x) => `<div class="card"><div class="card-icon">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner" style="max-width:960px">
     <span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span>
@@ -2263,40 +3561,13 @@ function buildEmployers() {
     <p class="lead">${L("Subscribe and get access to pre-screened, Saudization-checked candidates from our ATS — browse, shortlist, and we handle interviews to onboarding.", "اشترك واحصل على مرشّحين مُصنّفين ومفحوصين للتوطين من نظام التوظيف لدينا — تصفّح، رشّح، ونحن نتولّى من المقابلات حتى التعيين.")}</p>
     <div class="talent-actions" style="margin-top:26px">
       <a class="btn btn-primary" href="${u("/employer-join")}">${I.users}<span>${L("Subscribe now", "اشترك الآن")}</span></a>
-      <a class="btn btn-ghost" href="#emp-pool">${L("Browse candidates", "تصفّح المرشّحين")}</a>
-      <a class="btn btn-ghost" href="${u("/careers")}">${L("I'm a job seeker →", "أنا باحث عن عمل ←")}</a>
     </div>
+    <p class="emp-note" style="text-align:center">${L("Already have an account?", "عندك حساب من قبل؟")} <a href="${u("/employer-login")}">${L("Log in", "سجّل الدخول")}</a></p>
   </div></section>
 
   <section class="section"><div class="container">
     <div class="grid grid-3">${value}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Plans", "الباقات")}</span><h2>${L("Choose your subscription", "اختر اشتراكك")}</h2><p>${L("Subscribe to unlock full candidate contacts, CVs, shortlist and hiring pipeline.", "اشترك لفتح بيانات التواصل الكاملة والسير الذاتية والقائمة المختصرة ومراحل التوظيف.")}</p></div>
-    ${employerPlanCards({ selectable: false })}
-  </div></section>
-
-  <section class="section section--gray" id="emp-pool"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Candidate pool", "قاعدة المرشّحين")}</span><h2>${L("Browse available candidates", "تصفّح المرشّحين المتاحين")}</h2><p>${L("Live from our ATS. Contact details are unlocked for subscribed employers.", "مباشرة من نظام التوظيف لدينا. بيانات التواصل تُفتح لأصحاب العمل المشتركين.")}</p></div>
-
-    <div class="emp-access" id="emp-access">
-      <div class="emp-filters">
-        <input type="text" id="emp-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
-        <select id="emp-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
-        <select id="emp-city"><option value="">${L("All cities", "كل المدن")}</option></select>
-        <select id="emp-nat"><option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option></select>
-      </div>
-      <div class="emp-unlock">
-        <input type="text" id="emp-code" placeholder="${Lraw("Subscription code (optional)", "رمز الاشتراك (اختياري)")}">
-        <button type="button" class="btn btn-primary" id="emp-load">${L("Show candidates", "اعرض المرشّحين")}</button>
-      </div>
-    </div>
-    <p class="emp-note" id="emp-status"></p>
-    <div class="emp-grid" id="emp-grid"></div>
-    <div class="cta-band" style="margin-top:34px"><h2>${L("Want full profiles & contacts?", "تبغى الملفات الكاملة وبيانات التواصل؟")}</h2><p>${L("Subscribe and our team shortlists matched candidates and shares full CVs.", "اشترك ويقوم فريقنا بترشيح المرشّحين المطابقين ومشاركة السير الكاملة.")}</p><a class="btn btn-white btn-lg" href="${u("/employer-join")}">${L("Subscribe now", "اشترك الآن")}</a></div>
-  </div></section>
-  <script>window.BP_EMP_LANG=${JSON.stringify(LANG)};</script>`;
+  </div></section>`;
   return page({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — بيزنس بارتنر"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
 }
 
@@ -2304,7 +3575,7 @@ function employerYearly(monthly, discount) {
   return Math.round((Number(monthly) * 12 * (1 - discount)) / 10) * 10;
 }
 
-function employerPlanCards({ selectable }) {
+function employerPlanCards({ selectable, standalone }) {
   const plans = (site.employerPlans && site.employerPlans.tiers) || [];
   const discount = (site.employerPlans && site.employerPlans.yearlyDiscount) || 0;
   const fmt = (n) => Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : "en-US");
@@ -2320,19 +3591,41 @@ function employerPlanCards({ selectable }) {
         <button type="button" class="emp-bill-btn" data-bill="yearly">${L("Yearly", "سنوي")} <span class="emp-save">${L(`Save ${Math.round(discount * 100)}%`, `وفّر ${Math.round(discount * 100)}٪`)}</span></button>
       </div>`
     : "";
-  const cards = plans.map((t, i) => {
+  const cards = plans.map((t) => {
     const feats = (LANG === "ar" ? t.features : (t.featuresEn || t.features)) || [];
     const list = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
     const badge = t.popular ? `<span class="pk-badge">${L("Most popular", "الأكثر طلباً")}</span>` : "";
     const name = L(t.nameEn || t.name, t.name);
-    if (selectable) {
-      return `<label class="pkg emp-plan${t.popular ? " pop" : ""}">
-        <input type="radio" name="emp-plan" value="${esc(t.key)}"${i === 1 ? " checked" : ""}>
+    if (standalone) {
+      // Local single-select (no cart/checkout): used by /portal/join, which
+      // registers directly against api/employer.js rather than routing
+      // through the main site's cart+checkout flow.
+      return `<div class="pkg emp-plan${t.popular ? " pop" : ""}">
         ${badge}<div class="pk-name">${esc(name)}</div>
         <div class="pk-price">${priceHtml(t)}</div>
         <ul>${list}</ul>
-        <span class="pk-pick">${L("Select this plan", "اختر هذه الباقة")}</span>
-      </label>`;
+        <button type="button" class="pk-pick emp-plan-pick" data-plan-key="${esc(t.key)}">${L("Select this plan", "اختر هذه الباقة")}</button>
+      </div>`;
+    }
+    if (selectable) {
+      const yearly = t.price != null ? employerYearly(t.price, discount) : null;
+      const nameAr = `${t.name} — اشتراك صاحب عمل`;
+      const nameEn = `${t.nameEn || t.name} — Employer subscription`;
+      const priceLabelM = t.price != null ? `${fmt(t.price)} ${L("SAR / mo", "ريال / شهرياً")}` : "";
+      const priceLabelY = yearly != null ? `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}` : "";
+      return `<div class="pkg emp-plan${t.popular ? " pop" : ""}">
+        ${badge}<div class="pk-name">${esc(name)}</div>
+        <div class="pk-price">${priceHtml(t)}</div>
+        <ul>${list}</ul>
+        <button type="button" class="pk-pick add-cart emp-plan-btn"
+          data-id="employer-plan-${esc(t.key)}-monthly" data-kind="package"
+          data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}"
+          data-amount="${t.price != null ? t.price : ""}" data-price="${esc(priceLabelM)}"
+          data-id-monthly="employer-plan-${esc(t.key)}-monthly" data-id-yearly="employer-plan-${esc(t.key)}-yearly"
+          data-amount-monthly="${t.price != null ? t.price : ""}" data-amount-yearly="${yearly != null ? yearly : ""}"
+          data-price-monthly="${esc(priceLabelM)}" data-price-yearly="${esc(priceLabelY)}"
+        >${L("Select this plan", "اختر هذه الباقة")}</button>
+      </div>`;
     }
     return `<div class="pkg${t.popular ? " pop" : ""}">
       ${badge}<div class="pk-name">${esc(name)}</div>
@@ -2349,39 +3642,40 @@ function buildEmployerJoin() {
   <section class="hero"><div class="container hero-inner" style="max-width:1040px">
     <span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span>
     <h1>${L("Subscribe to the recruitment platform", "اشترك في منصة التوظيف")}</h1>
-    <p class="lead">${L("Pick a plan, register your company, and unlock full access to our pre-screened candidate pool — search, contacts, CVs, shortlist and hiring pipeline.", "اختر باقة، سجّل شركتك، وافتح الوصول الكامل لقاعدة مرشّحينا المُصنّفين — بحث، بيانات تواصل، سير ذاتية، قائمة مختصرة ومراحل توظيف.")}</p>
+    <p class="lead">${L("Pick a plan to add it to your cart, then complete registration and payment — full access to our pre-screened candidate pool unlocks right after: search, contacts, CVs, shortlist and hiring pipeline.", "اختر باقة لإضافتها إلى سلتك، ثم أكمل التسجيل والدفع — يفتح مباشرة الوصول الكامل لقاعدة مرشّحينا المُصنّفين: بحث، بيانات تواصل، سير ذاتية، قائمة مختصرة ومراحل توظيف.")}</p>
   </div></section>
 
   <section class="section"><div class="container">
-    <form id="emp-join" novalidate>
-      <div class="section-head" style="margin-bottom:22px"><span class="eyebrow">${L("Step 1", "الخطوة 1")}</span><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
-      ${employerPlanCards({ selectable: true })}
-
-      <div class="section-head" style="margin:44px 0 22px"><span class="eyebrow">${L("Step 2", "الخطوة 2")}</span><h2>${L("Company details", "بيانات الشركة")}</h2></div>
-      <div class="join-grid">
-        <div class="field"><label for="ej-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="ej-company" required></div>
-        <div class="field"><label for="ej-cr">${L("Commercial Registration (CR)", "رقم السجل التجاري")}</label><input type="text" id="ej-cr" inputmode="numeric" placeholder="${Lraw("Optional", "اختياري")}"></div>
-        <div class="field"><label for="ej-contact">${L("Contact person", "اسم المسؤول")}</label><input type="text" id="ej-contact"></div>
-        <div class="field"><label for="ej-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="ej-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
-        <div class="field"><label for="ej-email">${L("Work email", "البريد الإلكتروني للعمل")}</label><input type="email" id="ej-email" placeholder="name@company.com"></div>
-        <div class="field field-full"><label for="ej-notes">${L("Notes (roles you're hiring for, etc.)", "ملاحظات (الوظائف المطلوبة، إلخ)")}</label><textarea id="ej-notes" rows="3"></textarea></div>
-      </div>
-
-      <div class="join-actions">
-        <button type="submit" class="btn btn-primary btn-lg" id="ej-submit">${L("Continue to subscribe", "متابعة الاشتراك")}</button>
-        <p class="emp-note">${L("After registering you'll complete payment (or bank transfer) and we activate your access.", "بعد التسجيل تُكمل الدفع (أو تحويل بنكي) ونفعّل وصولك.")}</p>
-      </div>
-      <div class="form-success" hidden id="ej-result"></div>
-    </form>
-  </div></section>
-
-  <script>window.BP_EMP_PLANS=${JSON.stringify((site.employerPlans && site.employerPlans.tiers || []).map((t) => ({ key: t.key, name: L(t.nameEn || t.name, t.name), price: t.price, yearlyPrice: t.price != null ? employerYearly(t.price, (site.employerPlans && site.employerPlans.yearlyDiscount) || 0) : null })))};window.BP_BANK=${JSON.stringify({ bank: L(site.bank.bankNameEn, site.bank.bankName), iban: site.bank.iban, beneficiary: L(site.bank.beneficiaryEn, site.bank.beneficiary) })};</script>`;
+    <div class="section-head" style="margin-bottom:22px"><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
+    ${employerPlanCards({ selectable: true })}
+    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay by bank transfer at checkout — we activate your access right after.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع بالتحويل البنكي عند إتمام الطلب — نفعّل وصولك مباشرة بعدها.")}</p>
+  </div></section>`;
   return page({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
+}
+
+function buildEmployerLogin() {
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:520px">
+    <span class="eyebrow">${L("For employers", "لأصحاب الأعمال")}</span>
+    <h1>${L("Log in to your account", "سجّل الدخول لحسابك")}</h1>
+    <p class="lead">${L("Access your hiring dashboard — browse candidates, match with AI, and manage your pipeline.", "ادخل للوحة التوظيف — تصفّح المرشّحين، طابِق بالذكاء، وأدر مسارك.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:480px">
+    <form id="el-form" novalidate>
+      <div class="field"><label for="el-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="el-email" required></div>
+      <div class="field"><label for="el-password">${L("Password", "كلمة المرور")}</label><input type="password" id="el-password" required></div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="el-submit">${L("Log in", "دخول")}</button>
+      <p class="emp-note" id="el-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+    </form>
+    <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/portal/join")}">${L("Create one", "أنشئ حساب")}</a></p>
+    <p class="emp-note" style="text-align:center;margin-top:6px">${L("Or", "أو")} <a href="${u("/employer-join")}">${L("subscribe from our plans", "اشترك من باقاتنا")}</a></p>
+  </div></section>`;
+  return page({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
 }
 
 function buildNewsletter() {
   const perks = [
-    ["🗞️", L("Weekly regulatory updates", "تحديثات الأنظمة أسبوعياً"), L("New rules from MISA, HRSD, ZATCA, Qiwa and more — summarized simply.", "أنظمة جديدة من الاستثمار والموارد البشرية والزكاة وقوى وغيرها — مُلخّصة ببساطة.")],
+    ["🗞️", L("Weekly compliance & regulatory digest", "نشرة أسبوعية للامتثال والأنظمة"), L("Every Sunday: government decisions and regulatory news that matter for companies across every sector — MISA, HRSD, ZATCA, GOSI, Qiwa, Mudad and more.", "كل أحد: قرارات حكومية وأخبار تنظيمية تهم الشركات في جميع القطاعات — الاستثمار، الموارد البشرية، الزكاة والضريبة، التأمينات، قوى، مدد وغيرها.")],
     ["💡", L("Practical guides", "أدلة عملية"), L("Step-by-step guides for formation, licensing, Saudization and compliance.", "أدلة خطوة بخطوة للتأسيس والتراخيص والتوطين والامتثال.")],
     ["📊", L("Market insights", "قراءات السوق"), L("Opportunities and trends across Saudi sectors, tied to Vision 2030.", "فرص واتجاهات في القطاعات السعودية مرتبطة برؤية 2030.")],
     ["🎁", L("Subscriber-only offers", "عروض خاصة للمشتركين"), L("Occasional offers on our services and packages.", "عروض من حين لآخر على خدماتنا وباقاتنا.")],
@@ -2390,21 +3684,41 @@ function buildNewsletter() {
   <section class="hero"><div class="container hero-inner" style="max-width:820px">
     <span class="eyebrow">${L("Newsletter", "النشرة الإخبارية")}</span>
     <h1>${L("Stay ahead of Saudi business & regulations", "ابقَ في الصدارة بأخبار الأعمال والأنظمة السعودية")}</h1>
-    <p class="lead">${L("Join our weekly newsletter — the news that matters for doing business in Saudi Arabia, summarized and actionable.", "انضم لنشرتنا الأسبوعية — الأخبار المهمة لممارسة الأعمال في السعودية، مُلخّصة وقابلة للتطبيق.")}</p>
+    <p class="lead">${L("Every Sunday morning — compliance decisions and business news that matter across every sector, summarized and actionable.", "كل أحد صباحاً — قرارات الامتثال وأخبار الأعمال المهمة في جميع القطاعات، مُلخّصة وقابلة للتطبيق.")}</p>
     <form class="newsletter-form newsletter-hero" data-nl>
       <input type="email" placeholder="${Lraw("Your email", "بريدك الإلكتروني")}" aria-label="${Lraw("Email", "البريد الإلكتروني")}" data-nl-email required>
       <button type="submit" class="btn btn-primary btn-lg">${L("Subscribe", "اشترك")}</button>
     </form>
     <p class="nl-msg" data-nl-msg hidden></p>
     <p class="emp-note">${L("Free. No spam. Unsubscribe anytime.", "مجاناً. بدون إزعاج. يمكنك إلغاء الاشتراك في أي وقت.")}</p>
+    ${site.whatsappChannel ? `<div style="margin-top:14px"><a class="btn btn-wa" href="${site.whatsappChannel}" target="_blank" rel="noopener">${I.channel}<span>${L("Or follow our WhatsApp channel", "أو تابع قناتنا على واتساب")}</span></a></div>` : ""}
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("What you'll get", "ماذا ستحصل عليه")}</span><h2>${L("Every week in your inbox", "كل أسبوع في بريدك")}</h2></div>
+    <div class="section-head"><span class="eyebrow">${L("What you'll get", "ماذا ستحصل عليه")}</span><h2>${L("Every Sunday in your inbox", "كل أحد في بريدك")}</h2></div>
     <div class="grid grid-4">${perks}</div>
     <div class="center mt-32"><a class="btn btn-ghost" href="${u("/news")}">${L("Browse past insights", "تصفّح الأعداد السابقة")}</a></div>
   </div></section>`;
   return page({ title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
+}
+
+// Canonical Field taxonomy — shared by the employer job-posting form, the
+// employer browse filter (populated client-side, see main.js fillFilters),
+// api/candidates.js's FIELD_OPTIONS validation and api/candidate.js's
+// guessField() classifier. Keep all four in sync when editing this list.
+const FIELD_TAXONOMY = [
+  ["هندسة", "Engineering"], ["تقنية معلومات", "IT & Software"], ["مبيعات وتسويق", "Sales & Marketing"],
+  ["محاسبة ومالية", "Accounting & Finance"], ["إداري وسكرتارية", "Admin & Secretarial"], ["موارد بشرية", "Human Resources"],
+  ["ضيافة وسياحة", "Hospitality & Tourism"], ["مقاولات وإنشاءات", "Construction"], ["عقارات", "Real Estate"],
+  ["صحة وطب", "Health & Medical"], ["تعليم", "Education"], ["لوجستيات ونقل", "Logistics & Transportation"],
+  ["قانون", "Legal"], ["تصنيع وصناعة", "Manufacturing & Industrial"], ["طاقة ونفط وغاز", "Energy, Oil & Gas"],
+  ["إعلام وإبداع", "Media & Creative"], ["حكومي وقطاع عام", "Government & Public Sector"], ["زراعة وبيئة", "Agriculture & Environment"],
+  ["تجزئة وتجارة إلكترونية", "Retail & E-commerce"], ["أمن وسلامة", "Security & Safety"], ["حرف مهنية وصيانة", "Skilled Trades & Maintenance"],
+  ["علوم وأبحاث", "Science & Research"], ["طيران وبحري", "Aviation & Maritime"], ["تجميل وعناية", "Beauty & Wellness"],
+  ["خدمات منزلية", "Domestic & Household Services"], ["أخرى", "Other"],
+];
+function fieldOptionsHtml() {
+  return FIELD_TAXONOMY.map(([ar, en]) => `<option value="${esc(ar)}">${esc(L(en, ar))}</option>`).join("");
 }
 
 function buildEmployerDashboard() {
@@ -2429,6 +3743,7 @@ function buildEmployerDashboard() {
         <span style="font-weight:600">🔒 ${L("Free browsing. Subscribe to unlock contacts + AI tools.", "تصفّح مجاني. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</span>
         <input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;text-align:center;letter-spacing:1px">
         <button class="btn btn-primary btn-sm" id="empd-enter">${L("Unlock", "فتح")}</button>
+        <a href="${u("/employer-login")}" class="btn btn-ghost btn-sm">${L("Log in", "تسجيل الدخول")}</a>
         <button type="button" class="btn btn-ghost btn-sm" id="empd-demo">${L("Demo", "تجربة")}</button>
         <a href="${u("/employer-join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a>
       </div>
@@ -2436,6 +3751,7 @@ function buildEmployerDashboard() {
       <div class="empd-bar">
         <div class="empd-tabs">
           <button class="empd-tab" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
+          <button class="empd-tab" data-tab="postings">📋 ${L("Job Postings", "الوظائف المنشورة")}</button>
           <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
           <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
           <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
@@ -2454,11 +3770,28 @@ function buildEmployerDashboard() {
         <div class="emp-grid" id="empd-match-grid"></div>
       </div>
 
+      <div class="empd-panel" data-panel="postings" hidden>
+        <div class="empd-match-box">
+          <h3>📋 ${L("Post a job", "انشر وظيفة")}</h3>
+          <p class="emp-note">${L("Open as many job postings as you need. AI screens and shortlists candidates for each one automatically.", "افتح عدد الوظائف اللي تحتاجه. الذكاء يفلتر ويرشّح المرشّحين المناسبين لكل وظيفة تلقائياً.")}</p>
+          <div class="grid grid-2" style="gap:0 14px">
+            <div class="field"><label for="empjob-title">${L("Job title", "المسمى الوظيفي")}</label><input id="empjob-title" type="text" placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
+            <div class="field"><label for="empjob-city">${L("City", "المدينة")}</label><input id="empjob-city" type="text" placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
+          </div>
+          <div class="field"><label for="empjob-field">${L("Field", "المجال")}</label><select id="empjob-field"><option value="">${L("Auto-detect from title", "يُحدَّد تلقائياً من المسمى")}</option>${fieldOptionsHtml()}</select></div>
+          <div class="field"><label for="empjob-desc">${L("Description & requirements", "الوصف والمتطلبات")}</label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
+          <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
+          <p class="emp-note" id="empjob-status"></p>
+        </div>
+        <div id="empjob-list"></div>
+      </div>
+
       <div class="empd-panel" data-panel="browse">
         <div class="emp-access"><div class="emp-filters">
-          <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
-          <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
-          <select id="empd-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+          <input type="text" id="empd-q" placeholder="${Lraw("Search job title, skill…", "ابحث بالمسمى الوظيفي أو المهارة…")}">
+          <input type="text" id="empd-field" placeholder="${Lraw("All fields", "كل المجالات")}">
+          <input type="text" id="empd-country" placeholder="${Lraw("All countries", "كل الدول")}">
+          <input type="text" id="empd-city" placeholder="${Lraw("All cities", "كل المدن")}">
           <select id="empd-nat">${nats}</select>
           <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
         </div></div>
@@ -2525,19 +3858,23 @@ function buildPortalJoin() {
   <section class="section"><div class="container">
     <form id="emp-join" novalidate>
       <div class="section-head" style="margin-bottom:22px"><span class="eyebrow">${L("Step 1", "الخطوة 1")}</span><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
-      ${employerPlanCards({ selectable: true })}
+      ${employerPlanCards({ standalone: true })}
+      <input type="hidden" id="ej-plan" required>
+      <p class="emp-note" id="ej-plan-note" style="text-align:center;margin-top:8px"></p>
       <div class="section-head" style="margin:44px 0 22px"><span class="eyebrow">${L("Step 2", "الخطوة 2")}</span><h2>${L("Company details", "بيانات الشركة")}</h2></div>
       <div class="join-grid">
         <div class="field"><label for="ej-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="ej-company" required></div>
         <div class="field"><label for="ej-cr">${L("Commercial Registration (CR)", "رقم السجل التجاري")}</label><input type="text" id="ej-cr" inputmode="numeric" placeholder="${Lraw("Optional", "اختياري")}"></div>
         <div class="field"><label for="ej-contact">${L("Contact person", "اسم المسؤول")}</label><input type="text" id="ej-contact"></div>
         <div class="field"><label for="ej-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="ej-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
-        <div class="field"><label for="ej-email">${L("Work email", "البريد الإلكتروني للعمل")}</label><input type="email" id="ej-email" placeholder="name@company.com"></div>
+        <div class="field"><label for="ej-email">${L("Work email", "البريد الإلكتروني للعمل")} *</label><input type="email" id="ej-email" placeholder="name@company.com" required></div>
+        <div class="field"><label for="ej-password">${L("Password", "كلمة المرور")} *</label><input type="password" id="ej-password" minlength="8" placeholder="${Lraw("At least 8 characters", "8 أحرف على الأقل")}" required></div>
         <div class="field field-full"><label for="ej-notes">${L("Notes (roles you're hiring for, etc.)", "ملاحظات (الوظائف المطلوبة، إلخ)")}</label><textarea id="ej-notes" rows="3"></textarea></div>
       </div>
       <div class="join-actions">
-        <button type="submit" class="btn btn-primary btn-lg" id="ej-submit">${L("Continue to subscribe", "متابعة الاشتراك")}</button>
-        <p class="emp-note">${L("After registering you'll complete payment (or bank transfer) and we activate your access.", "بعد التسجيل تُكمل الدفع (أو تحويل بنكي) ونفعّل وصولك.")}</p>
+        <button type="submit" class="btn btn-primary btn-lg" id="ej-submit">${L("Create account & continue to subscribe", "أنشئ حسابك وتابع الاشتراك")}</button>
+        <p class="emp-note">${L("After registering you'll complete payment (or bank transfer) and we activate your access. Use this email + password to log in any time.", "بعد التسجيل تُكمل الدفع (أو تحويل بنكي) ونفعّل وصولك. استخدم هذا البريد وكلمة المرور لتسجيل الدخول في أي وقت.")}</p>
+        <p class="emp-note">${L("Already have an account?", "عندك حساب من قبل؟")} <a href="${u("/employer-login")}">${L("Log in", "سجّل الدخول")}</a></p>
       </div>
       <div class="form-success" hidden id="ej-result"></div>
     </form>
@@ -2574,6 +3911,7 @@ function buildPortalDashboard() {
       <div class="empd-bar">
         <div class="empd-tabs">
           <button class="empd-tab" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
+          <button class="empd-tab" data-tab="postings">📋 ${L("Job Postings", "الوظائف المنشورة")}</button>
           <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
           <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
           <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
@@ -2592,11 +3930,28 @@ function buildPortalDashboard() {
         <div class="emp-grid" id="empd-match-grid"></div>
       </div>
 
+      <div class="empd-panel" data-panel="postings" hidden>
+        <div class="empd-match-box">
+          <h3>📋 ${L("Post a job", "انشر وظيفة")}</h3>
+          <p class="emp-note">${L("Open as many job postings as you need. AI screens and shortlists candidates for each one automatically.", "افتح عدد الوظائف اللي تحتاجه. الذكاء يفلتر ويرشّح المرشّحين المناسبين لكل وظيفة تلقائياً.")}</p>
+          <div class="grid grid-2" style="gap:0 14px">
+            <div class="field"><label for="empjob-title">${L("Job title", "المسمى الوظيفي")}</label><input id="empjob-title" type="text" placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
+            <div class="field"><label for="empjob-city">${L("City", "المدينة")}</label><input id="empjob-city" type="text" placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
+          </div>
+          <div class="field"><label for="empjob-field">${L("Field", "المجال")}</label><select id="empjob-field"><option value="">${L("Auto-detect from title", "يُحدَّد تلقائياً من المسمى")}</option>${fieldOptionsHtml()}</select></div>
+          <div class="field"><label for="empjob-desc">${L("Description & requirements", "الوصف والمتطلبات")}</label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
+          <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
+          <p class="emp-note" id="empjob-status"></p>
+        </div>
+        <div id="empjob-list"></div>
+      </div>
+
       <div class="empd-panel" data-panel="browse">
         <div class="emp-access"><div class="emp-filters">
-          <input type="text" id="empd-q" placeholder="${Lraw("Search role, skill…", "ابحث بالمسمى أو المهارة…")}">
-          <select id="empd-field"><option value="">${L("All fields", "كل المجالات")}</option></select>
-          <select id="empd-city"><option value="">${L("All cities", "كل المدن")}</option></select>
+          <input type="text" id="empd-q" placeholder="${Lraw("Search job title, skill…", "ابحث بالمسمى الوظيفي أو المهارة…")}">
+          <input type="text" id="empd-field" placeholder="${Lraw("All fields", "كل المجالات")}">
+          <input type="text" id="empd-country" placeholder="${Lraw("All countries", "كل الدول")}">
+          <input type="text" id="empd-city" placeholder="${Lraw("All cities", "كل المدن")}">
           <select id="empd-nat">${nats}</select>
           <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
         </div></div>
@@ -2625,6 +3980,145 @@ function buildPortalDashboard() {
   return portalPage({ title: Lraw("AI Hiring OS — HR portal", "نظام التوظيف الذكي — بوابة التوظيف"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), path: "/portal/dashboard", active: "/dashboard", body });
 }
 
+// ---- Careers / ATS: job board cards, single job pages, application form extras ----
+function jobCardsHtml() {
+  const cards = JOBS.map((j) => `<article class="card ats-job-card">
+        <span class="emp-tag">${L(j.tag.en, j.tag.ar)}</span>
+        <h3>${L(j.title.en, j.title.ar)}</h3>
+        <p>${L(j.summary.en, j.summary.ar)}</p>
+        <div class="emp-meta">${L(j.meta.en, j.meta.ar)}</div>
+        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="${u("/jobs/" + j.slug)}">${L("View job", "عرض الوظيفة")}</a><a class="btn btn-ghost btn-sm" href="${u("/jobs/" + j.slug)}#apply-form">${L("Apply", "تقديم")}</a></div>
+      </article>`).join("");
+  const poolCard = `<article class="card ats-job-card">
+        <span class="emp-tag">${L("Candidate pool", "قاعدة المرشحين")}</span>
+        <h3>${L("General candidate pool", "قاعدة المرشحين العامة")}</h3>
+        <p>${L("Not seeing the right role? Join the pool once and we'll match you with suitable employer requests.", "إذا لم تجد وظيفة مناسبة الآن، انضم للقاعدة ونطابقك مع طلبات أصحاب العمل.")}</p>
+        <div class="emp-meta">${L("All fields · Saudi Arabia · Consent-based sharing", "كل المجالات · السعودية · مشاركة بموافقتك")}</div>
+        <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="${esc(L("General candidate pool", "قاعدة المرشحين العامة"))}">${L("Join pool", "انضم للقاعدة")}</a></div>
+      </article>`;
+  return `<section class="section section--gray" id="open-jobs"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Careers / Jobs", "الوظائف")}</span><h2>${L("Open roles at Business Partner", "الوظائف المفتوحة عبر بيزنس بارتنر")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed to the right hiring stage.", "كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.")}</p></div>
+    <div class="grid grid-3 ats-jobs">${cards}${poolCard}</div>
+  </div></section>
+  <section class="section" id="client-jobs"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Employer clients", "عملاء بيزنس بارتنر")}</span><h2>${L("Jobs from our employer clients", "وظائف من عملائنا أصحاب العمل")}</h2><p>${L("Companies hiring through the Business Partner platform. Apply directly — your application goes straight to their pipeline.", "شركات توظّف عبر منصة بيزنس بارتنر. قدّم مباشرة — طلبك يذهب مباشرة إلى مسار توظيفهم.")}</p></div>
+    <p class="emp-note" id="client-jobs-status">${L("Loading…", "جارٍ التحميل…")}</p>
+    <div class="grid grid-3 ats-jobs" id="client-jobs-grid"></div>
+  </div></section>`;
+}
+function applicationExtraFieldsHtml() {
+  return `
+        <input id="c-job-id" name="jobId" type="hidden" value="candidate-pool">
+        <input id="c-job-title" name="jobTitle" type="hidden" value="${esc(L("General candidate pool", "قاعدة المرشحين العامة"))}">
+        <div class="ats-selected-job" id="ats-selected-job">${L("Applying for", "التقديم على")}: <strong>${L("General candidate pool", "قاعدة المرشحين العامة")}</strong></div>`;
+}
+function applicationQuestionsHtml() {
+  return `
+        <div class="field"><label for="c-q1">${L("Why are you interested in this role?", "لماذا ترغب بهذه الوظيفة؟")}</label><textarea id="c-q1" name="question1" rows="3" placeholder="${Lraw("Briefly explain your interest and fit.", "اكتب باختصار سبب اهتمامك ومدى ملاءمتك.")}"></textarea></div>
+        <div class="field"><label for="c-q2">${L("What are your strongest relevant skills?", "ما أقوى مهاراتك المرتبطة بالوظيفة؟")}</label><textarea id="c-q2" name="question2" rows="3" placeholder="${Lraw("Systems, tools, sectors, or achievements.", "اذكر الأنظمة، الأدوات، القطاعات، أو الإنجازات.")}"></textarea></div>`;
+}
+// Shared application form — used standalone per job page (fixedJob set, so
+// the application is scoped to that one posting) and on /careers + the
+// candidate-pool portal page (fixedJob null, so the job stays whatever the
+// visitor picked via an Apply link, defaulting to the general pool).
+function seekerFormHtml(f, fixedJob) {
+  const jobFieldsHtml = fixedJob
+    ? `<input id="c-job-id" name="jobId" type="hidden" value="${esc(fixedJob.id)}"><input id="c-job-title" name="jobTitle" type="hidden" value="${esc(fixedJob.title)}">`
+    : applicationExtraFieldsHtml();
+  return `
+      <form class="calc-form cv-form" id="cv-form" novalidate>
+        ${jobFieldsHtml}
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
+          <div class="field"><label for="c-phone">${L("Mobile (with country code)", "الجوال (مع رمز الدولة)")}</label><input id="c-phone" name="phone" type="tel" required placeholder="+9665XXXXXXXX"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-email">${L("Email", f.email)} *</label><input id="c-email" name="email" type="email" required></div>
+          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)} *</label><input id="c-exp" name="experience" type="text" required placeholder="${Lraw("Type or pick, e.g. 5+ years", "اكتب أو اختر، مثال: 5+ سنوات")}"></div>
+        </div>
+        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")} *</label><input id="c-field" name="field" type="text" required placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-nationality">${L("Nationality", "الجنسية")} *</label><input id="c-nationality" name="nationality" type="text" required placeholder="${Lraw("Type or pick a country", "اكتب أو اختر دولة")}"></div>
+          <div class="field"><label for="c-residence">${L("Residence status", "حالة الإقامة")} *</label>
+            <select id="c-residence" name="residenceStatus" required>
+              <option value="">${L("Choose…", "اختر…")}</option>
+              <option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>
+              <option value="مقيم بإقامة نظامية قابلة للنقل">${L("Resident in KSA — transferable iqama", "مقيم في السعودية — إقامة قابلة للنقل")}</option>
+              <option value="مقيم بإقامة غير قابلة للنقل">${L("Resident in KSA — non-transferable iqama", "مقيم في السعودية — إقامة غير قابلة للنقل")}</option>
+              <option value="خارج السعودية">${L("Outside Saudi Arabia", "خارج السعودية")}</option>
+              <option value="أخرى">${L("Other", "أخرى")}</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-country">${L("Country (current location)", "الدولة (موقعك الحالي)")} *</label><input id="c-country" name="country" type="text" required placeholder="${Lraw("Type or pick a country", "اكتب أو اختر دولة")}"></div>
+          <div class="field"><label for="c-city">${L("City", "المدينة")} *</label><input id="c-city" name="city" type="text" required placeholder="${Lraw("Type or pick a city", "اكتب أو اختر مدينة")}"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")} *</label><input id="c-salary" name="salary" type="text" required placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
+          <div class="field"><label for="c-notice">${L("Notice period", "فترة الإشعار")}</label>
+            <select id="c-notice" name="notice">
+              <option value="">${L("Choose…", "اختر…")}</option>
+              <option value="فوري">${L("Immediate", "فوري")}</option>
+              <option value="أسبوعين">${L("2 weeks", "أسبوعين")}</option>
+              <option value="شهر">${L("1 month", "شهر")}</option>
+              <option value="شهرين">${L("2 months", "شهرين")}</option>
+              <option value="3 أشهر فأكثر">${L("3+ months", "3 أشهر فأكثر")}</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
+        ${applicationQuestionsHtml()}
+        <div class="field">
+          <label>${L("CV — PDF or Word", "السيرة الذاتية — PDF أو Word")}</label>
+          <label class="file-drop" for="c-cv" id="cv-drop">
+            <span class="file-ico">${I.upload}</span>
+            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
+          </label>
+          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
+        </div>
+        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
+        <p class="form-note" id="cv-note">${L("Upload your CV (PDF or Word) to reach our team securely.", "ارفع سيرتك (PDF أو Word) لتصل لفريقنا بأمان.")}</p>
+        <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
+      </form>
+      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>`;
+}
+function buildJobPage(job) {
+  const f = site.careers.seeker.fields;
+  const title = L(job.title.en, job.title.ar);
+  const resp = job.responsibilities[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
+  const reqs = job.requirements[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
+  // Each posted job carries its own embedded application form (not a shared
+  // one across every job) — applying here is scoped to this posting only.
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("Open job", "وظيفة مفتوحة")}</span>
+    <h1>${esc(title)}</h1>
+    <p class="lead">${esc(L(job.summary.en, job.summary.ar))}</p>
+    <div class="talent-actions"><a class="btn btn-primary" href="#apply-form">${L("Apply now", "قدّم الآن")}</a><a class="btn btn-ghost" href="${u("/careers")}#open-jobs">${L("Back to jobs", "العودة للوظائف")}</a></div>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:900px">
+    <div class="grid grid-3" style="margin-bottom:28px">
+      <div class="card"><h3>${L("Location", "الموقع")}</h3><p>${esc(L(job.location.en, job.location.ar))}</p></div>
+      <div class="card"><h3>${L("Type", "النوع")}</h3><p>${esc(L(job.type.en, job.type.ar))}</p></div>
+      <div class="card"><h3>${L("Pipeline", "المسار")}</h3><p>${L("New → Screening → Interview → Offer", "جديد ← فرز ← مقابلة ← عرض")}</p></div>
+    </div>
+    <h2>${L("What you will do", "المهام")}</h2>
+    <ul class="check-list">${resp}</ul>
+    <h2>${L("What we are looking for", "المتطلبات")}</h2>
+    <ul class="check-list">${reqs}</ul>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS بيزنس بارتنر وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="#apply-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
+  </div></section>
+  <section class="section" style="padding-top:0"><div class="container">
+    <div style="max-width:640px;margin:0 auto" id="apply-form">
+      <h2 class="center">${L("Apply for this role", "قدّم على هذه الوظيفة")}</h2>
+      ${seekerFormHtml(f, { id: job.slug, title })}
+    </div>
+  </div></section>`;
+  return page({ title: Lraw(`${title} — Business Partner`, `${title} — بيزنس بارتنر`), desc: Lraw(`Apply for ${title} through the Business Partner ATS.`, `قدّم على وظيفة ${title} عبر ATS بيزنس بارتنر.`), active: "/careers", path: "/jobs/" + job.slug, body });
+}
+
 function buildPortalCandidates() {
   const c = site.careers;
   const f = c.seeker.fields;
@@ -2646,37 +4140,11 @@ function buildPortalCandidates() {
   <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
     <div style="max-width:640px;margin:0 auto" id="seeker-form">
-      <form class="calc-form cv-form" id="cv-form" novalidate>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
-          <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-email">${L("Email", f.email)}</label><input id="c-email" name="email" type="email"></div>
-          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="${Lraw("e.g. 3 years", "مثال: 3 سنوات")}"></div>
-        </div>
-        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accountant, marketing specialist, engineer", "مثال: محاسب، أخصائي تسويق، مهندس")}"></div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")}</label><input id="c-city" name="city" type="text" placeholder="${Lraw("e.g. Riyadh, Jeddah", "مثال: الرياض، جدة")}"></div>
-          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")}</label><input id="c-salary" name="salary" type="text" placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
-        </div>
-        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
-        <div class="field">
-          <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
-          <label class="file-drop" for="c-cv" id="cv-drop">
-            <span class="file-ico">${I.upload}</span>
-            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
-          </label>
-          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
-        </div>
-        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Join the candidate pool", "انضم لقاعدة المرشّحين")}</span></button>
-        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team and join the candidate pool.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا وتنضم لقاعدة المرشّحين.")}</p>
-        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
-      </form>
-      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
+      ${seekerFormHtml(f, null)}
     </div>
-  </div></section>`;
+  </div></section>
+
+  ${trackApplicationHtml()}`;
   return portalPage({ title: Lraw("Jobs for job seekers — HR portal", "التوظيف للباحثين عن عمل — بوابة التوظيف"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), path: "/portal/candidates", active: "/candidates", body });
 }
 
@@ -2749,6 +4217,24 @@ function buildWorkspaceRequest() {
   return page({ title: Lraw("Request a workspace — Business Partner", "اطلب مساحة عمل — بيزنس بارتنر"), desc: Lraw("Tell us your workspace requirements and we match you with the best options in Saudi Arabia.", "أخبرنا بمتطلبات مساحتك ونطابقك مع أفضل الخيارات في السعودية."), active: "/workspaces", path: "/workspace-request", body });
 }
 
+// Lets a candidate see how their own profile looks (pipeline stage, CV
+// links) using the same phone+email pair they applied with — no separate
+// login system needed.
+function trackApplicationHtml() {
+  return `
+  <section class="section section--gray"><div class="container">
+    <div style="max-width:520px;margin:0 auto">
+      <h2 class="center">${L("Track your application", "تابع طلبك")}</h2>
+      <p class="center text-soft">${L("Enter the phone and email you applied with to see your current status.", "أدخل الجوال والبريد اللذين قدّمت بهما لمشاهدة حالتك الحالية.")}</p>
+      <form id="track-form" novalidate class="grid grid-2" style="gap:0 20px;margin-top:16px">
+        <div class="field"><label for="tr-phone">${L("Mobile", "الجوال")}</label><input id="tr-phone" type="tel" required></div>
+        <div class="field"><label for="tr-email">${L("Email", "البريد الإلكتروني")}</label><input id="tr-email" type="email" required></div>
+        <div class="field field-full"><button type="submit" class="btn btn-primary" style="width:100%">${L("Check status", "تحقّق من الحالة")}</button></div>
+      </form>
+      <div id="track-result" hidden style="margin-top:20px"></div>
+    </div>
+  </div></section>`;
+}
 function buildCareers() {
   const c = site.careers;
   const f = c.seeker.fields;
@@ -2761,48 +4247,26 @@ function buildCareers() {
   <section class="hero"><div class="container hero-inner" style="max-width:960px">
     <span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span>
     <h1>${L("Find your next opportunity", "فرصتك القادمة تبدأ هنا")}</h1>
-    <p class="lead">${L("Join our candidate pool once — employers hiring through Business Partner reach you when a suitable role opens.", "انضم لقاعدة مرشّحينا مرة واحدة — وأصحاب العمل الذين يوظّفون عبر بيزنس بارتنر يصلونك عند توفّر فرصة مناسبة.")}</p>
+    <p class="lead">${L("Browse open roles, apply once with your CV, and move through Business Partner's hiring flow with screening, shortlisting, interviews, and employer updates.", "تصفّح الوظائف المفتوحة، قدّم مرة واحدة بسيرتك الذاتية، وانتقل داخل مسار توظيف واضح: فرز، ترشيح، مقابلة، ثم عرض.")}</p>
     <div class="talent-actions" style="margin-top:22px">
-      <a class="btn btn-primary" href="#seeker-form">${I.upload}<span>${L("Submit your CV", "أرسل سيرتك الذاتية")}</span></a>
+      <a class="btn btn-primary" href="#open-jobs">${I.upload}<span>${L("Browse jobs", "تصفّح الوظائف")}</span></a>
       <a class="btn btn-ghost" href="${u("/employers")}">${L("I'm an employer →", "أنا صاحب عمل ←")}</a>
     </div>
   </div></section>
 
+  ${jobCardsHtml()}
+
   <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
     <div style="max-width:640px;margin:0 auto" id="seeker-form">
-      <form class="calc-form cv-form" id="cv-form" novalidate>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-name">${L("Full name", f.name)}</label><input id="c-name" name="name" type="text" required></div>
-          <div class="field"><label for="c-phone">${L("Mobile", f.phone)}</label><input id="c-phone" name="phone" type="tel" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-email">${L("Email", f.email)}</label><input id="c-email" name="email" type="email"></div>
-          <div class="field"><label for="c-exp">${L("Years of experience", f.experience)}</label><input id="c-exp" name="experience" type="text" placeholder="${Lraw("e.g. 3 years", "مثال: 3 سنوات")}"></div>
-        </div>
-        <div class="field"><label for="c-field">${L("Field / target roles", "المجال / المسميات المستهدفة")}</label><input id="c-field" name="field" type="text" placeholder="${Lraw("e.g. accountant, marketing specialist, engineer", "مثال: محاسب، أخصائي تسويق، مهندس")}"></div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-city">${L("City / preferred cities", "المدينة / المدن المفضّلة")}</label><input id="c-city" name="city" type="text" placeholder="${Lraw("e.g. Riyadh, Jeddah", "مثال: الرياض، جدة")}"></div>
-          <div class="field"><label for="c-salary">${L("Expected salary range", "نطاق الراتب المتوقع")}</label><input id="c-salary" name="salary" type="text" placeholder="${Lraw("e.g. 8,000–12,000", "مثال: 8,000–12,000")}"></div>
-        </div>
-        <div class="field"><label for="c-linkedin">${L("LinkedIn profile (optional)", "رابط لينكدإن (اختياري)")}</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
-        <div class="field">
-          <label>${L("CV (PDF) — optional", "السيرة الذاتية (PDF) — اختياري")}</label>
-          <label class="file-drop" for="c-cv" id="cv-drop">
-            <span class="file-ico">${I.upload}</span>
-            <span class="file-text" id="cv-filename">${L("Drag your CV here or click to choose — PDF or Word", "اسحب سيرتك هنا أو اضغط للاختيار — PDF أو Word")}</span>
-          </label>
-          <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
-        </div>
-        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Join the candidate pool", "انضم لقاعدة المرشّحين")}</span></button>
-        <p class="form-note" id="cv-note">${L("Upload your CV (PDF/Word) to reach our team and join the candidate pool.", "ارفع سيرتك (PDF/Word) لتصل لفريقنا وتنضم لقاعدة المرشّحين.")}</p>
-        <div class="form-success" id="cv-success" hidden>${L("✅ Your CV has been received. We'll review it and reach out when a suitable opportunity comes up.", "✅ تم استلام سيرتك الذاتية. سنراجعها ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
-      </form>
-      <div class="center mt-16">${waBtn2("Or send it via WhatsApp", "أو أرسلها عبر واتساب", "btn-ghost")}</div>
+      <h2 class="center">${L("Join the general candidate pool", "انضم لقاعدة المرشحين العامة")}</h2>
+      <p class="center text-soft" style="margin-top:-8px">${L("Not applying for a specific posting above? Submit here and we'll match you when a suitable role opens.", "لا تقدّم على وظيفة محددة أعلاه؟ قدّم هنا وسنطابقك عند توفّر فرصة مناسبة.")}</p>
+      ${seekerFormHtml(f, null)}
     </div>
-  </div></section>`;
-  return page({ title: Lraw("Jobs for job seekers — Business Partner", "التوظيف للباحثين عن عمل — بيزنس بارتنر"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), active: "/careers", body });
+  </div></section>
+
+  ${trackApplicationHtml()}`;
+  return page({ title: Lraw("Careers — Business Partner", "الوظائف — بيزنس بارتنر"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر بيزنس بارتنر."), active: "/careers", body });
 }
 
 function buildContact() {
@@ -2868,6 +4332,7 @@ function buildCart() {
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="cart-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
+          <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
           <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
         </div>
@@ -2900,8 +4365,17 @@ function buildCheckout() {
             <div class="field"><label for="co-phone">${L("Mobile", "رقم الجوال")}</label><input id="co-phone" name="phone" type="tel" required></div>
           </div>
           <div class="grid grid-2" style="gap:0 20px">
-            <div class="field"><label for="co-email">${L("Email", "البريد الإلكتروني")}</label><input id="co-email" name="email" type="email"></div>
-            <div class="field"><label for="co-entity">${L("Company / entity (optional)", "المنشأة (اختياري)")}</label><input id="co-entity" name="entity" type="text"></div>
+            <div class="field"><label for="co-email">${L("Email *", "البريد الإلكتروني *")}</label><input id="co-email" name="email" type="email" required></div>
+            <div class="field"><label for="co-entity" id="co-entity-label">${L("Company / entity (optional)", "المنشأة (اختياري)")}</label><input id="co-entity" name="entity" type="text"></div>
+          </div>
+          <div id="pkg-details-box" class="field-group" hidden>
+            <h2>${L("Establishment details", "بيانات المنشأة")}</h2>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="co-cr">${L("Commercial Registration (unified) number", "رقم السجل التجاري (الموحد)")}</label><input id="co-cr" name="cr" type="text" inputmode="numeric"></div>
+              <div class="field"><label for="co-headcount">${L("Number of employees", "عدد الموظفين")}</label><input id="co-headcount" name="headcount" type="number" min="1" value="1"></div>
+            </div>
+            <div class="field"><label for="co-address">${L("National address (optional)", "العنوان الوطني (اختياري)")}</label><input id="co-address" name="address" type="text"></div>
+            <p class="calc-note" id="pkg-surcharge-note" hidden></p>
           </div>
           <h2>${L("Upload your documents", "ارفع مستنداتك")}</h2>
           <div class="field">
@@ -2924,14 +4398,16 @@ function buildCheckout() {
             </ul>
             <p class="calc-note">${L(bank.noteEn || bank.note, bank.note)}</p>
           </div>
-          <h2>${L("Upload transfer receipt", "ارفع إيصال التحويل")}</h2>
+          <h2>${L("Upload transfer receipt", "ارفع إيصال التحويل")} <span class="req-star">*</span></h2>
           <div class="field">
             <label class="file-drop" for="co-receipt" id="receipt-drop"><span class="file-ico">${I.upload}</span>
-              <span class="file-text" id="receipt-filename">${L("Bank transfer receipt (image/PDF)", "صورة إيصال التحويل (صورة/PDF)")}</span></label>
-            <input id="co-receipt" name="receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden>
+              <span class="file-text" id="receipt-filename">${L("Bank transfer receipt — a screenshot/image is fastest (auto-verified), or PDF — same amount as your order total", "إيصال التحويل البنكي — صورة (لقطة شاشة) هي الأسرع (تحقق تلقائي)، أو PDF — بنفس قيمة إجمالي طلبك")}</span></label>
+            <input id="co-receipt" name="receipt" type="file" accept=".pdf,application/pdf,.jpg,.jpeg,.png,.webp,image/*" required hidden>
           </div>
+          <p class="calc-note" id="receipt-required-note">${L("Required: a bank receipt (image or PDF) showing a transfer of the exact order total. An image (screenshot) is verified automatically in minutes; PDF may need a short manual check. Orders without a matching receipt won't be activated.", "إلزامي: إيصال تحويل بنكي (صورة أو PDF) يوضح تحويل مبلغ يطابق إجمالي الطلب تماماً. الصورة (لقطة الشاشة) يتم التحقق منها تلقائياً خلال دقائق، أما PDF فقد يحتاج مراجعة يدوية سريعة. الطلبات بدون إيصال مطابق لن تُفعّل.")}</p>
+          <label class="req-checkbox"><input type="checkbox" id="co-terms" required><span>${L("I acknowledge and agree to the", "أقر وأوافق على")} <a href="${u("/terms")}" target="_blank" rel="noopener">${L("Terms & Conditions", "الشروط والأحكام")}</a></span></label>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Submit order", "أرسل الطلب")}</button>
-          <p class="form-note">${L("On submit we save your order to your account on this device and open WhatsApp to notify our team. (Automated CRM/Drive link — Notion + n8n — coming soon.)", "عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز ونفتح واتساب لإشعار فريقنا. (الربط الآلي مع CRM وDrive — Notion وn8n — قيد الإطلاق.)")}</p>
+          <p class="form-note">${L("On submit we save your order to your account on this device, upload your receipt to our team's system for verification, and open WhatsApp to notify our team.", "عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز، ونرفع إيصالك لنظام فريقنا للتحقق، ونفتح واتساب لإشعار فريقنا.")}</p>
           <div class="form-success" id="checkout-success" hidden></div>
         </form>
       </div>
@@ -2950,6 +4426,51 @@ function buildCheckout() {
   return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body });
 }
 
+function buildTerms() {
+  const tm = site.terms;
+  const sections = tm.sections
+    .map((s) => {
+      let inner = "";
+      if (s.body || s.bodyEn) inner = `<p>${L(s.bodyEn || s.body, s.body)}</p>`;
+      else if (s.items) {
+        inner = `<dl class="terms-defs">${s.items
+          .map(([ar, arDesc, en, enDesc]) => `<div><dt>${L(en, ar)}</dt><dd>${L(enDesc, arDesc)}</dd></div>`)
+          .join("")}</dl>`;
+      } else if (s.list) {
+        inner = `<ol class="terms-list">${s.list.map(([ar, en]) => `<li>${L(en, ar)}</li>`).join("")}</ol>`;
+      }
+      return `<div class="terms-section"><h2>${L(s.titleEn, s.title)}</h2>${inner}</div>`;
+    })
+    .join("");
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Legal", "قانوني")}</span>
+    <h1>${L(tm.titleEn, tm.title)}</h1>
+    <p class="lead">${L(tm.introEn, tm.intro)}</p>
+    <p class="mini text-soft">${L("Last updated", "آخر تحديث")}: ${L(tm.updatedEn, tm.updated)}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:860px">
+    ${sections}
+    <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L(tm.noteEn, tm.note)}</p></div>
+  </div></section>
+  <style>
+    .terms-section{margin-bottom:32px}
+    .terms-section h2{color:var(--navy);font-size:1.25rem;margin-bottom:14px}
+    .terms-defs{display:grid;gap:16px}
+    .terms-defs dt{font-weight:700;color:var(--navy);margin-bottom:4px}
+    .terms-defs dd{margin:0;color:var(--text);line-height:1.8}
+    .terms-list{padding-inline-start:22px;display:grid;gap:12px;color:var(--text);line-height:1.8}
+    .terms-list li::marker{color:var(--navy);font-weight:700}
+  </style>`;
+  return page({
+    title: Lraw("Terms & Conditions — Business Partner", "الشروط والأحكام — بيزنس بارتنر"),
+    desc: Lraw("The terms and conditions governing subscriptions and purchases with Business Partner.", "الشروط والأحكام التي تحكم الاشتراكات والمشتريات مع بيزنس بارتنر."),
+    active: "/terms",
+    path: "/terms",
+    body,
+  });
+}
+
 function buildAccount() {
   const ac = site.account;
   const body = `
@@ -2959,6 +4480,7 @@ function buildAccount() {
     <p class="lead">${L("Sign in to track your orders, upload documents, and follow your services with Business Partner.", ac.lead)}</p>
   </div></section>
   <section class="section"><div class="container">
+    <div class="callout" id="checkout-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">🛒</span><p>${L("Sign in or create an account to continue with your purchase — this keeps every order tied to a real customer record.", "سجّل دخولك أو أنشئ حساباً لإكمال عملية الشراء — هذا يضمن ربط كل طلب بسجل عميل حقيقي.")}</p></div>
     <div class="account-wrap" id="account-auth">
       <div class="auth-tabs">
         <button type="button" class="auth-tab active" data-tab="login">${L("Sign in", ac.loginTitle)}</button>
@@ -3030,8 +4552,11 @@ function buildAccount() {
             <div class="portal-grid">
               <a class="portal-card" href="${u("/services")}"><span>🗂️</span><strong>${L("Request a service", "اطلب خدمة")}</strong></a>
               <a class="portal-card" href="${u("/packages")}"><span>📦</span><strong>${L("Packages", "الباقات")}</strong></a>
+              <a class="portal-card" href="${u("/mahfol-makfol/trips")}"><span>🧳</span><strong>${L("Trips & experiences", "الرحلات والتجارب")}</strong></a>
+              <a class="portal-card" href="${u("/mahfol-makfol")}"><span>🌍</span><strong>${L("Business tourism", "سياحة الأعمال")}</strong></a>
+              <a class="portal-card" href="${u("/tourism")}"><span>🎉</span><strong>${L("Company events", "فعاليات الشركات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
-              <a class="portal-card" href="${u("/compliance-agent")}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
+              <a class="portal-card" href="${COMPLIANCE_PORTAL_URL}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
@@ -3083,14 +4608,14 @@ function buildAccount() {
         <div class="dash-panel" id="panel-documents">
           <div class="dash-panel-head"><h2>${L("My documents", "مستنداتي")}</h2><p>${L("Files attached to your orders.", "الملفات المرفقة بطلباتك.")}</p></div>
           <div class="dash-card"><div id="all-uploads"><p class="dash-empty">${L("No documents yet — attach them when you place an order.", "لا توجد مستندات بعد — أرفقها عند تقديم طلب.")}</p></div>
-            <a class="btn btn-ghost" href="${u("/compliance-portal")}">🛡️ ${L("Upload via the compliance portal", "ارفع عبر بوابة الامتثال")}</a></div>
+            <a class="btn btn-ghost" href="${u("/compliance-agent")}">🛡️ ${L("Subscribe to the Compliance Agent", "اشترك في وكيل الامتثال")}</a></div>
         </div>
 
         <!-- Support -->
         <div class="dash-panel" id="panel-support">
           <div class="dash-panel-head"><h2>${L("Support", "مركز الدعم")}</h2><p>${L("We're here to help — reach us any time.", "نحن هنا لمساعدتك — تواصل معنا في أي وقت.")}</p></div>
           <div class="dash-card">
-            <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("Chat on WhatsApp", "تواصل عبر واتساب")}</span></a>
+            <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>
             <a class="btn btn-ghost" href="${u("/consultation")}" style="width:100%;margin-top:10px">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a>
             <a class="btn btn-ghost" href="${u("/contact")}" style="width:100%;margin-top:10px">${L("Contact us", "اتصل بنا")}</a>
           </div>
@@ -3152,7 +4677,7 @@ function buildConsultation() {
             <li>${I.check}<span>${L("First consultation is free", "الاستشارة الأولى مجانية")}</span></li>
           </ul>
           <p class="mini">${L("Prefer chatting? The smart agent replies 24/7.", "تفضّل المحادثة؟ الوكيل الذكي يرد 24/7.")}</p>
-          ${waBtn2("Chat on WhatsApp", "تحدث على واتساب", "btn-ghost")}
+          ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
         </div>
       </aside>
     </div>
@@ -3218,10 +4743,10 @@ function buildSuppliers() {
 }
 
 function buildMonitor() {
-  // BP Inbox page is authored as a standalone raw HTML file (src/monitor.page.html)
+  // BP Inbox page is authored as a standalone raw HTML file (scripts/assets/monitor.page.html)
   // and emitted verbatim. Keeping it out of a JS template literal avoids escaping
   // hazards (backticks / ${} / backslashes) that previously broke the page script.
-  return fs.readFileSync(path.join(ROOT, '..', 'src', 'monitor.page.html'), 'utf8');
+  return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8');
 }
 
 /* ---------- owner dashboard: control + live-test the specialized-team agents ---------- */
@@ -3296,6 +4821,7 @@ function buildDashboard() {
       </div>
     </div>
     <div class="grid" id="grid"></div>
+
     <div class="foot">
       🔒 النموذج التشغيلي Concierge: الإيجنت يجهّز ويوصي — أي مخرج خارجي «بانتظار الموافقة» ولا يُرسل آلياً. لا OTP ولا كلمات مرور.
       <div class="note">حالة «مدفوع/مُفعّل» محفوظة في متصفحك للتحكم والاختبار. ربط الدفع الفعلي (بوابة دفع + قاعدة بيانات) خطوة تالية لفرض القفل على العملاء الحقيقيين.</div>
@@ -3428,7 +4954,7 @@ function buildDashboard() {
 // Standalone client-facing page (has its own chrome). Presents the AI employees
 // as a subscription product, a Connectors hub (guided step-by-step per tool with
 // cost/token transparency + a done-for-you option), and packages.
-function buildConnect() {
+function buildConnect(pre = "/") {
   return `<!doctype html>
 <html dir="rtl" lang="ar">
 <head>
@@ -3474,6 +5000,8 @@ function buildConnect() {
     .emp b{font-size:.95rem;color:var(--navy)}
     .emp span{display:block;font-size:.76rem;color:var(--green);font-weight:600}
     .emp-cart{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:.55rem;font-weight:700;font-size:.82rem;cursor:pointer}
+    .emp-details{font-size:.78rem;color:var(--green);font-weight:600;text-decoration:none}
+    .emp-details:hover{text-decoration:underline}
     .emp-note{font-size:.85rem;color:var(--muted);margin-top:1rem;text-align:center}
     .emp-note a{color:var(--navy);font-weight:700;text-decoration:underline}
     .bp-toast{position:fixed;inset-inline-start:50%;bottom:90px;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:999px;box-shadow:var(--shadow);z-index:1200;opacity:0;transition:opacity .28s,transform .28s;font-weight:600;pointer-events:none}
@@ -3548,7 +5076,7 @@ function buildConnect() {
     <div class="mn-links">
       <a href="#connect">الأدوات</a>
       <a href="#pricing">الباقات</a>
-      <a class="mn-cta" href="/portal">🔐 دخول بوابتي</a>
+      <a class="mn-cta" href="${pre}portal">🔐 دخول بوابتي</a>
     </div>
   </div>
   <div class="hero">
@@ -3557,7 +5085,7 @@ function buildConnect() {
       <h1>وظّف <span class="hi">موظفاً ذكياً</span> متخصصاً، واربطه بأدوات شركتك<br/>فيشتغل فعلياً نيابةً عنك.</h1>
       <p>مو مجرد شات — موظف حقيقي في مجاله (مساعدة تنفيذية، مبيعات، تسويق، عمليات…). تربطه بجيميل ونوشن وواتساب وتيمس بضغطة، فيقرأ ويرسل وينظّم ويرد <b>داخل حساباتك أنت</b>. أسرع، أقوى، ومخرجات مباشرة.</p>
       <div class="cta">
-        <a href="/portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
+        <a href="${pre}portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
         <a href="#connect" class="btn btn-o">🔌 شوف الأدوات</a>
       </div>
       <div class="valuerow">
@@ -3569,9 +5097,11 @@ function buildConnect() {
   </div>
   <section>
     <div class="wrap">
-      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p></div>
+      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p>
+        <p style="margin-top:.6rem"><a href="${pre}portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
+      </div>
       <div class="emps" id="emps"></div>
-      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="/portal">بوابة الموظفين الأذكياء</a>.</p>
+      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -3591,19 +5121,19 @@ function buildConnect() {
           <h3>وكيل الامتثال والالتزام</h3>
           <div class="pr">250 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>مراقبة قوى ومقيم والتأمينات ومدد والنطاقات</li><li>تنبيهات المهل والمخالفات فور ظهورها</li><li>حاسبات النطاقات والتكاليف مجانية ضمن الباقة</li></ul>
-          <a href="/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
         </div>
         <div class="pc feat">
           <h3>موظفك الذكي المتخصص</h3>
           <div class="pr">500 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>موظف تسويق أو إداري أو مبيعات أو تقني</li><li>يعمل 24 ساعة ضمن سياسات منشأتك</li><li>ربط أدواتك (قوقل / نوشن / سلاك) من هذه الصفحة</li></ul>
-          <a href="/ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
         </div>
         <div class="pc">
           <h3>فريق الخدمات المشتركة</h3>
           <div class="pr">1,500 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>وكيل الامتثال + فريق العمل الذكي مدموجان بالكامل</li><li>لوحة موحّدة لكل منصّاتك وفرقك</li><li>أولوية في التنفيذ والدعم</li></ul>
-          <a href="/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
         </div>
       </div>
       <div class="addon">
@@ -3757,12 +5287,14 @@ function buildConnect() {
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
       {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
-      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'}
+      {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'},
+      {slug:'abdulrahman',e:'💰',name:'عبدالرحمن',role:'المدير المالي',nameEn:'Abdulrahman — CFO'}
     ];
     var empGrid=document.getElementById('emps');
     EMPLOYEES.forEach(function(m){
       var d=document.createElement('div'); d.className='emp';
       d.innerHTML='<div class="emp-top"><span class="e">'+m.e+'</span><div><b>'+m.name+'</b><span>'+m.role+'</span></div></div>'+
+        '<a href="/ar/team/'+m.slug+'" target="_blank" rel="noopener" class="emp-details">ايش يقدم؟ التفاصيل الكاملة ←</a>'+
         '<button type="button" class="emp-cart add-cart" data-id="employee-'+m.slug+'" data-name-en="'+m.nameEn+'" data-name-ar="'+m.name+' — '+m.role+'" data-amount="500" data-price="500 ﷼ / شهرياً" data-kind="employee">🛒 أضف للسلة — 500 ﷼/شهرياً</button>';
       empGrid.appendChild(d);
     });
@@ -3776,7 +5308,7 @@ function buildConnect() {
 // Full client-facing flow. Agents are the live n8n team webhooks (real chat).
 // Subscription gate uses an access code (issued after payment) — swap for a real
 // payment gateway + server-side check later.
-function buildPortal() {
+function buildPortal(pre = "/") {
   return `<!doctype html>
 <html dir="rtl" lang="ar">
 <head>
@@ -3808,6 +5340,7 @@ function buildPortal() {
     .field input:focus{border-color:var(--navy)}
     .bigbtn{width:100%;background:var(--navy);color:#fff;border:0;border-radius:12px;padding:.8rem;font-weight:700;font-size:1rem;margin-top:.3rem}
     .bigbtn.green{background:var(--green)}
+    .bigbtn.trial{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
     .err{color:#dc2626;font-size:.82rem;min-height:1.1em;margin-top:.5rem}
     .muted{color:var(--muted);font-size:.82rem;margin-top:1rem;line-height:1.7}
     .hint-code{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:.55rem .7rem;font-size:.8rem;margin-top:.9rem}
@@ -3820,6 +5353,8 @@ function buildPortal() {
     .pickrow .e{font-size:1.1rem}
     .pickrow b{color:var(--navy)}
     .pickrow .r{color:var(--muted);margin-inline-start:auto;font-size:.78rem}
+    .pick-details{color:var(--green);font-weight:600;font-size:.76rem;text-decoration:none;flex-shrink:0}
+    .pick-details:hover{text-decoration:underline}
     .ws{max-width:1050px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
     .ws h2{color:var(--navy);font-size:1.25rem;margin-bottom:.2rem}
     .ws .lead{color:var(--muted);font-size:.9rem;margin-bottom:1.1rem}
@@ -3827,6 +5362,8 @@ function buildPortal() {
     .ag{background:var(--surface);border:1.5px solid var(--line);border-radius:13px;padding:.6rem .85rem;display:flex;gap:.5rem;align-items:center;cursor:pointer;transition:.12s}
     .ag:hover{border-color:var(--navy)}
     .ag.sel{border-color:var(--navy);background:#eef1fb}
+    .ag-details{margin-inline-start:auto;flex-shrink:0;text-decoration:none;font-size:.95rem;opacity:.7}
+    .ag-details:hover{opacity:1}
     .ag .e{font-size:1.3rem}
     .ag b{font-size:.92rem;color:var(--navy)}
     .ag span{display:block;font-size:.72rem;color:var(--muted)}
@@ -3835,10 +5372,14 @@ function buildPortal() {
     .p-head .e{font-size:1.5rem}
     .p-head b{color:var(--navy)}
     .p-head span{display:block;font-size:.78rem;color:var(--green);font-weight:600}
+    .p-head a{color:var(--green);font-weight:600;font-size:.78rem;text-decoration:none;flex-shrink:0}
+    .p-head a:hover{text-decoration:underline}
+    .ph-trial{background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:999px;padding:.2rem .6rem;font-size:.74rem;font-weight:700;flex-shrink:0}
     .chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.55rem;background:#fbfcfe}
     .msg{padding:.6rem .8rem;border-radius:13px;max-width:80%;white-space:pre-wrap;font-size:.92rem}
     .msg.me{background:var(--navy);color:#fff;align-self:flex-start;border-start-start-radius:3px}
     .msg.bot{background:#fff;border:1px solid var(--line);align-self:flex-end;border-start-end-radius:3px}
+    .msg.upsell{background:#fffbeb;border:1px solid #fde68a;color:#92400e;align-self:center;max-width:95%;text-align:center;font-weight:600}
     .msg.empty{color:var(--muted);align-self:center;background:none;font-size:.85rem}
     .composer{display:flex;gap:.5rem;padding:.7rem;border-top:1px solid var(--line);background:#fff}
     .composer input{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:.65rem .8rem;font:inherit;outline:none}
@@ -3895,33 +5436,34 @@ function buildPortal() {
 <body>
   <div class="topbar">
     <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
-    <a class="tb-link" href="/connect">الأدوات والباقات</a>
-    <a class="tb-link" href="/">الموقع</a>
+    <a class="tb-link" href="${pre}connect">الأدوات والباقات</a>
+    <a class="tb-link" href="${pre}">الموقع</a>
     <div class="sp"></div>
+    <a id="subscribeNow" href="${pre}connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
     <div class="who" id="who"></div>
     <button id="logout" style="display:none">خروج</button>
   </div>
   <div class="center" id="screen-login">
-    <div class="card">
+    <div class="card wide">
       <h1>تسجيل الدخول</h1>
-      <p class="sub">ادخل بريدك للوصول إلى موظفيك الأذكياء.</p>
+      <p class="sub">ادخل نفس البريد اللي اشتريت فيه، مع كود التفعيل.</p>
       <div class="field"><label>البريد الإلكتروني</label><input id="email" type="email" placeholder="you@company.com" /></div>
-      <div class="field"><label>اسم الشركة (اختياري)</label><input id="company" type="text" placeholder="شركتك" /></div>
+      <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn" id="loginBtn">دخول</button>
       <div class="err" id="loginErr"></div>
+      <button type="button" class="bigbtn trial" id="trialBtn">🎁 جرّب الفريق كامل مجاناً (3 رسائل لكل موظف)</button>
+      <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم — على نفس البريد اللي اشتريت فيه.</div>
+      <button class="linkbtn" id="noCodeBtn">ما اشتريت بعد؟ اختر موظفيك وابدأ الطلب</button>
       <p class="muted">بالدخول أنت توافق على الاستخدام الآمن. لا نطلب كلمات مرور حساسة ولا OTP.</p>
     </div>
   </div>
   <div class="center" id="screen-gate" style="display:none">
     <div class="card wide">
-      <h1>فعّل اشتراكك</h1>
-      <p class="sub">اختر الموظفين اللي تبي تشترك فيهم وأضفهم للسلة، أو فعّل مباشرة برقم طلبك بعد اعتماد الدفع.</p>
+      <h1>اختر موظفيك</h1>
+      <p class="sub">اختر الموظفين اللي تبي تشترك فيهم وأضفهم للسلة. بعد الدفع نرسل لك كود تفعيل يفتح فقط اللي اشتريته.</p>
       <div class="pickwrap" id="pickwrap"></div>
       <button class="bigbtn green" id="cartBtn">🛒 أضف المحدد للسلة وأكمل الشراء</button>
-      <div class="field" style="margin-top:1.1rem"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
-      <button class="bigbtn" id="codeBtn">تفعيل</button>
-      <div class="err" id="codeErr"></div>
-      <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم. للتجربة العامة استخدم الكود: <b>BP-DEMO</b> (يفتح كل الموظفين — للتجربة فقط).</div>
+      <button class="linkbtn" id="backToLoginBtn">عندي كود بالفعل — رجوع لتسجيل الدخول</button>
     </div>
   </div>
   <div id="screen-ws" style="display:none">
@@ -3929,14 +5471,14 @@ function buildPortal() {
       <div class="tabs">
         <button class="tab active" data-tab="emp">👥 موظفوك</button>
         <button class="tab" data-tab="tools">🔌 أدواتك</button>
-        <a class="tab-link" href="/connect">الباقات ↗</a>
+        <a class="tab-link" href="${pre}connect">الباقات ↗</a>
       </div>
       <div id="tab-emp">
         <h2>اختر موظفك</h2>
         <p class="lead">اختر موظفاً وابدأ التعامل معه مباشرة. كل موظف خبير في مجاله.</p>
         <div class="agents" id="agents"></div>
         <div class="panel">
-          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div></div>
+          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div><span class="ph-trial" id="ph-trial" style="display:none"></span><a id="ph-details" href="#" target="_blank" rel="noopener" style="display:none;margin-inline-start:auto">ايش يقدم؟ التفاصيل ←</a></div>
           <div class="chat" id="chat"><div class="msg empty">اختر موظفاً من الأعلى وابدأ المحادثة.</div></div>
           <div class="composer"><input id="msg" type="text" placeholder="اكتب رسالتك…" disabled /><button id="send" disabled>إرسال</button></div>
         </div>
@@ -3968,7 +5510,8 @@ function buildPortal() {
       {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
       {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
       {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
-      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'}
+      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'},
+      {slug:'abdulrahman',path:'abdulrahman-intake',name:'عبدالرحمن',role:'المدير المالي',e:'💰'}
     ];
     var TOOLS=[
       {id:'gmail',ic:'📧',name:'Gmail',u:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.',type:'easy',lead:'ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.',steps:['اضغط ربط الآن فتفتح صفحة تسجيل قوقل.','اختر حساب الشركة ووافق على الصلاحيات.','يشتغل الموظف داخل بريدك مباشرة.']},
@@ -4019,53 +5562,77 @@ function buildPortal() {
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
-    // Demo codes unlock agents for testing only — never issued to real clients.
-    // Real clients unlock by entering their own order reference (e.g. BP-506275)
-    // once we've confirmed payment and flipped the order's status in the CRM —
-    // see /api/requests. One code per package tier lets you log in with a test
-    // email and see exactly what each bundle size looks like.
-    var CODES={
-      'BP-DEMO':'ALL','BP2026':'ALL','DEMO123':'ALL',
-      'DEMO-ONE':['badr'],
-      'DEMO-THREE':['badr','malak','farah'],
-      'DEMO-TEAM':['baher','mazen','nasser','mishari','abdulrahman','abdulaziz','badr','farah','malak','mohammed','ahmed']
-    };
     var CONFIRMED=['مؤكد - قيد التنفيذ','مكتمل'];
     var OWNER_EMAIL='dr.baher.magnas@gmail.com';
-    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents'};
+    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents',trial:'bp_portal_trial'};
     var CHAT_PREFIX='bp_portal_chat_';
+    var TRIAL_LIMIT=3;
+    function trialCountKey(slug){ return 'bp_portal_trialn_'+slug; }
+    function trialCount(slug){ return parseInt(localStorage.getItem(trialCountKey(slug))||'0',10); }
+    function trialInc(slug){ localStorage.setItem(trialCountKey(slug),String(trialCount(slug)+1)); }
     function $(id){return document.getElementById(id);}
     function show(id){['screen-login','screen-gate','screen-ws'].forEach(function(s){$(s).style.display=(s===id)?'':'none';});}
     var email=localStorage.getItem(LS.email)||'';
-    if(!email){
-      var qEmail=new URLSearchParams(location.search).get('email');
-      if(qEmail){ email=qEmail; localStorage.setItem(LS.email,email); }
-    }
+    var qEmail=new URLSearchParams(location.search).get('email');
+    if(qEmail && !email){ email=qEmail; localStorage.setItem(LS.email,email); }
     var subbed=localStorage.getItem(LS.sub)==='1';
+    var isTrial=localStorage.getItem(LS.trial)==='1';
     if(email && email.toLowerCase()===OWNER_EMAIL && (!subbed || localStorage.getItem(LS.agents)!=='"ALL"')){
-      subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL'));
+      subbed=true; isTrial=false; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL')); localStorage.removeItem(LS.trial);
     }
     var cur=null;
+    var showGate=false;
     function route(){
-      if(!email){ show('screen-login'); $('who').textContent=''; $('logout').style.display='none'; return; }
-      $('who').textContent=email; $('logout').style.display='';
-      if(!subbed){ show('screen-gate'); buildPicker(); return; }
+      if(!subbed){ show(showGate?'screen-gate':'screen-login'); if(showGate) buildPicker(); $('who').textContent=email||''; $('logout').style.display=email?'':'none'; return; }
+      $('who').textContent=email+(isTrial?' 🎁 (تجربة مجانية)':''); $('logout').style.display='';
+      $('subscribeNow').style.display=isTrial?'':'none';
       show('screen-ws'); buildAgents();
+    }
+    function unlock(slugs,trialFlag){
+      subbed=true; isTrial=!!trialFlag;
+      localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs));
+      if(isTrial) localStorage.setItem(LS.trial,'1'); else localStorage.removeItem(LS.trial);
+      route();
     }
     $('loginBtn').onclick=function(){
       var e=($('email').value||'').trim();
+      var c=($('code').value||'').trim().toUpperCase();
       if(!e || e.indexOf('@')<0){ $('loginErr').textContent='ادخل بريداً صحيحاً.'; return; }
       email=e; localStorage.setItem(LS.email,e);
-      localStorage.setItem(LS.company,($('company').value||'').trim());
-      if(email.toLowerCase()===OWNER_EMAIL){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL')); }
-      route();
+      if(e.toLowerCase()===OWNER_EMAIL){ unlock('ALL'); return; }
+      if(!c){ $('loginErr').textContent='ادخل كود التفعيل.'; return; }
+      var btn=$('loginBtn'); btn.disabled=true; $('loginErr').textContent='جارٍ التحقق…';
+      fetch('/api/requests?refs='+encodeURIComponent(c))
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var st=d && d.statuses && d.statuses[c];
+          var ag=d && d.agents && d.agents[c];
+          var orderEmail=d && d.emails && d.emails[c];
+          var isDemo=d && d.demo && d.demo[c];
+          var isTrialCode=d && d.trial && d.trial[c];
+          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length && (isDemo || (orderEmail && orderEmail.toLowerCase()===e.toLowerCase()))){ unlock(ag,isTrialCode); }
+          else if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ $('loginErr').textContent='هذا الكود مسجّل على بريد مختلف — استخدم نفس البريد اللي اشتريت فيه.'; }
+          else if(st){ $('loginErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
+          else { $('loginErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وابدأ الطلب.'; }
+        })
+        .catch(function(){ $('loginErr').textContent='تعذّر التحقق الآن — حاول مرة أخرى.'; })
+        .then(function(){ btn.disabled=false; });
     };
     $('email').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
+    $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
+    $('noCodeBtn').onclick=function(){ showGate=true; route(); };
+    $('backToLoginBtn').onclick=function(){ showGate=false; route(); };
+    $('trialBtn').onclick=function(){
+      var e=($('email').value||'').trim();
+      if(!e || e.indexOf('@')<0){ $('loginErr').textContent='ادخل بريداً صحيحاً أولاً عشان تبدأ التجربة.'; return; }
+      $('code').value='TRIAL'; $('loginBtn').click();
+    };
     function buildPicker(){
       var box=$('pickwrap'); if(box.dataset.done) return; box.dataset.done='1';
       AGENTS.forEach(function(a){
         var lb=document.createElement('label'); lb.className='pickrow';
-        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>';
+        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>'+
+          '<a href="/ar/team/'+a.slug+'" target="_blank" rel="noopener" class="pick-details" onclick="event.stopPropagation()">ايش يقدم؟</a>';
         box.appendChild(lb);
       });
     }
@@ -4074,10 +5641,9 @@ function buildPortal() {
       var out=[]; for(var i=0;i<boxes.length;i++) out.push(boxes[i].value);
       return out;
     }
-    function unlock(slugs){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs)); route(); }
     $('cartBtn').onclick=function(){
       var slugs=pickedSlugs();
-      if(!slugs.length){ $('codeErr').textContent='اختر موظفاً واحداً على الأقل قبل الإضافة للسلة.'; return; }
+      if(!slugs.length){ alert('اختر موظفاً واحداً على الأقل قبل الإضافة للسلة.'); return; }
       var cart=[]; try{ cart=JSON.parse(localStorage.getItem('bp_cart')||'[]'); }catch(e){ cart=[]; }
       slugs.forEach(function(slug){
         var a=AGENTS.filter(function(x){return x.slug===slug;})[0]; if(!a) return;
@@ -4086,27 +5652,9 @@ function buildPortal() {
         cart.push({id:id,nameEn:a.name+' — '+a.role,nameAr:a.name+' — '+a.role,amount:500,price:'500 ﷼ / شهرياً',kind:'employee',qty:1});
       });
       localStorage.setItem('bp_cart',JSON.stringify(cart));
-      location.href='/cart';
+      location.href='${pre}cart';
     };
-    $('codeBtn').onclick=function(){
-      var c=($('code').value||'').trim().toUpperCase();
-      var slugs=CODES[c];
-      if(slugs){ unlock(slugs); return; }
-      var btn=$('codeBtn'); btn.disabled=true; $('codeErr').textContent='جارٍ التحقق…';
-      fetch('/api/requests?refs='+encodeURIComponent(c))
-        .then(function(r){return r.json();})
-        .then(function(d){
-          var st=d && d.statuses && d.statuses[c];
-          var ag=d && d.agents && d.agents[c];
-          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ unlock(ag); }
-          else if(st){ $('codeErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
-          else { $('codeErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وأضفهم للسلة.'; }
-        })
-        .catch(function(){ $('codeErr').textContent='تعذّر التحقق الآن — حاول مرة أخرى.'; })
-        .then(function(){ btn.disabled=false; });
-    };
-    $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('codeBtn').click();});
-    $('logout').onclick=function(){ localStorage.removeItem(LS.email); email=''; route(); };
+    $('logout').onclick=function(){ localStorage.removeItem(LS.email); localStorage.removeItem(LS.sub); localStorage.removeItem(LS.agents); localStorage.removeItem(LS.trial); email=''; subbed=false; isTrial=false; showGate=false; route(); };
     function entitledSlugs(){
       var raw=localStorage.getItem(LS.agents);
       if(!raw) return [];
@@ -4119,7 +5667,8 @@ function buildPortal() {
       if(!list.length){ box.innerHTML='<p class="muted">لا يوجد موظفون مفعّلون على هذا الكود.</p>'; return; }
       list.forEach(function(a){
         var el=document.createElement('div'); el.className='ag'; el.dataset.slug=a.slug;
-        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
+        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>'+
+          '<a href="/ar/team/'+a.slug+'" target="_blank" rel="noopener" class="ag-details" onclick="event.stopPropagation()">ℹ️</a>';
         el.onclick=function(){ selectAgent(a,el); };
         box.appendChild(el);
       });
@@ -4133,11 +5682,20 @@ function buildPortal() {
       chatHist.forEach(function(m){ var d=document.createElement('div'); d.className='msg '+m.cls; d.textContent=m.text; c.appendChild(d); });
       c.scrollTop=c.scrollHeight;
     }
+    function updateTrialBadge(slug){
+      var badge=$('ph-trial');
+      if(!isTrial){ badge.style.display='none'; return; }
+      var left=Math.max(0,TRIAL_LIMIT-trialCount(slug));
+      badge.textContent='🎁 '+left+'/'+TRIAL_LIMIT+' رسائل تجريبية متبقية';
+      badge.style.display='';
+    }
     function selectAgent(a,el){
       cur=a;
       var chips=document.querySelectorAll('.ag'); for(var i=0;i<chips.length;i++) chips[i].classList.remove('sel');
       el.classList.add('sel');
       $('ph-e').textContent=a.e; $('ph-n').textContent=a.name; $('ph-r').textContent=a.role;
+      $('ph-details').href='/ar/team/'+a.slug; $('ph-details').style.display='';
+      updateTrialBadge(a.slug);
       chatHist=loadChat(a.slug);
       renderChat();
       $('msg').disabled=false; $('send').disabled=false; $('msg').focus();
@@ -4148,8 +5706,13 @@ function buildPortal() {
     }
     function send(){
       if(!cur) return;
+      if(isTrial && trialCount(cur.slug)>=TRIAL_LIMIT){
+        push('🎁 خلصت رسائلك المجانية مع '+cur.name+' ('+TRIAL_LIMIT+' رسائل). اشترك الآن عشان تكمل المحادثة بلا حدود.','bot upsell');
+        return;
+      }
       var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
       var agentAtSend=cur, histRef=chatHist;
+      if(isTrial){ trialInc(agentAtSend.slug); updateTrialBadge(agentAtSend.slug); }
       inp.value=''; push(m,'me');
       histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
       var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
@@ -4783,47 +6346,59 @@ function write(rel, html) {
   fs.writeFileSync(full, html);
 }
 
-// Clean previously-generated pages (both trees) so stale files don't linger.
-for (const dir of [ROOT, path.join(ROOT, "ar")]) {
-  if (!fs.existsSync(dir)) continue;
+// Clean previously-generated pages (both trees, all subdirectories) so stale
+// files don't linger when a route is removed or renamed (e.g. a deleted
+// service/category, or a page moved out of a subfolder like services/category
+// or magazine — a shallow top-level-only clean used to miss those).
+function cleanHtml(dir) {
+  if (!fs.existsSync(dir)) return;
   for (const f of fs.readdirSync(dir)) {
-    if (f.endsWith(".html")) fs.unlinkSync(path.join(dir, f));
+    if (f === "assets") continue;
+    const full = path.join(dir, f);
+    if (fs.statSync(full).isDirectory()) cleanHtml(full);
+    else if (f.endsWith(".html")) fs.unlinkSync(full);
   }
-  const sd = path.join(dir, "services");
-  if (fs.existsSync(sd)) for (const f of fs.readdirSync(sd)) if (f.endsWith(".html")) fs.unlinkSync(path.join(sd, f));
 }
+for (const dir of [ROOT, ...ALL_LANGS.filter((l) => l !== "en").map((l) => path.join(ROOT, l))]) cleanHtml(dir);
 if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.join(ROOT, "business-tourism.html"));
 if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 
 let pageCount = 0;
-for (const lang of ["en", "ar"]) {
-  LANG = lang;
-  const pre = lang === "ar" ? "ar/" : "";
+// The full page set for one language tree — shared by en/ar (always full)
+// and by any extra language once it's in FULLY_READY_LANGS.
+function writeFullSite(pre) {
   write(`${pre}index.html`, buildHome());
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
+  write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
+  write(`${pre}mahfol-makfol/trips.html`, buildMahfolTrips());
   write(`${pre}task-force.html`, buildTaskForce());
+  write(`${pre}deals.html`, buildDeals());
   write(`${pre}packages.html`, buildPackages());
-  // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
+  write(`${pre}calculator.html`, buildCalculator());
   write(`${pre}tools-and-calculators.html`, buildToolsHub());
-  write(`${pre}calculators/nitaqat.html`, buildNitaqatCalculator());
+  // /calculators/nitaqat removed at owner's request (2026-07-16) — kept as
+  // unused dead code below, not linked or generated anywhere.
   write(`${pre}calculators/government-cost.html`, buildGovernmentCostCalculator());
   write(`${pre}calculators/profession-checker.html`, buildProfessionChecker());
   write(`${pre}calculators/end-of-service.html`, buildEndOfServiceCalculator());
   write(`${pre}calculators/annual-leave.html`, buildAnnualLeaveCalculator());
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
-  write(`${pre}compliance-portal.html`, buildCompliancePortal());
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
+  TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
+  write(`${pre}magazine.html`, buildMagazine());
+  write(`${pre}magazine/print.html`, buildMagazinePrint());
   write(`${pre}careers.html`, buildCareers());
   write(`${pre}hr.html`, buildHR());
   write(`${pre}employers.html`, buildEmployers());
   write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
+  write(`${pre}employer-login.html`, buildEmployerLogin());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
   write(`${pre}portal/index.html`, buildPortalHome());
   write(`${pre}portal/join.html`, buildPortalJoin());
@@ -4834,13 +6409,40 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
   write(`${pre}checkout.html`, buildCheckout());
+  write(`${pre}terms.html`, buildTerms());
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
-  pageCount += 15 + services.length + categories.length;
+  JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
+  pageCount += 16 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
+}
+
+for (const lang of ["en", "ar"]) {
+  LANG = lang;
+  writeFullSite(lang === "ar" ? "ar/" : "");
+}
+
+// Extra world languages: languages fully translated (FULLY_READY_LANGS) get
+// every page, same as en/ar. The rest still only get the core discovery
+// pages (site chrome + homepage matter most for a first-touch international
+// visitor) — u() routes any other internal link back to the English page
+// instead of a 404 for those; see EXTRA_LANG_PATHS.
+for (const lang of EXTRA_LANGS) {
+  LANG = lang;
+  const pre = `${lang}/`;
+  if (FULLY_READY_LANGS.includes(lang)) {
+    writeFullSite(pre);
+    continue;
+  }
+  write(`${pre}index.html`, buildHome());
+  write(`${pre}about.html`, buildAbout());
+  write(`${pre}services.html`, buildServicesIndex());
+  write(`${pre}packages.html`, buildPackages());
+  write(`${pre}contact.html`, buildContact());
+  pageCount += 5;
 }
 LANG = "en";
 
@@ -4852,23 +6454,73 @@ write("dashboard.html", buildDashboard());
 
 // Client product page: AI employees + connectors hub + pricing (noindex).
 // Emit under both / and /ar/ so localized nav links (u("/connect") -> /ar/connect) resolve.
-write("connect.html", buildConnect());
-write("ar/connect.html", buildConnect());
+write("connect.html", buildConnect("/"));
+write("ar/connect.html", buildConnect("/ar/"));
 
 // Client portal: login -> subscription gate -> pick agent -> live chat (noindex)
-write("portal.html", buildPortal());
-write("ar/portal.html", buildPortal());
+write("portal.html", buildPortal("/"));
+write("ar/portal.html", buildPortal("/ar/"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/task-force", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+  .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
-  .concat(services.map((s) => `/services/${s.slug}`));
+  .concat(services.map((s) => `/services/${s.slug}`))
+  .concat(JOBS.map((j) => `/jobs/${j.slug}`));
 const urls = paths
-  .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p])
+  .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p].concat(EXTRA_LANG_PATHS.has(p) ? EXTRA_LANGS.map((l) => (p === "/" ? `/${l}/` : `/${l}${p}`)) : []))
   .map((p) => `  <url><loc>${base}${p}</loc></url>`)
   .join("\n");
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 
-console.log(`Generated ${pageCount} pages (en + ar) + sitemap.`);
+// assets/data/catalog.json — public, no-auth, zero-serverless-cost quote data
+// source for external integrations (the WhatsApp AI agent in n8n, the on-site
+// smart advisor, or any future bot). Generated from the exact same services/
+// categories/packages data that drives the website, so a quote given here can
+// never drift from what a customer sees on the pages themselves. Static file,
+// does not count against the Vercel Hobby 12-serverless-function cap.
+const catalogJson = {
+  updatedAt: new Date().toISOString(),
+  currency: "SAR",
+  services: services.map((s) => {
+    const m = svcI18n[s.code] || {};
+    const ov = site.overrides[s.slug];
+    return {
+      code: s.code,
+      nameAr: sNameArOf(s),
+      nameEn: m.en || (ov && ov.nameEn) || s.name,
+      category: s.category,
+      categoryAr: s.categoryAr,
+      govPlatform: s.govPlatform,
+      pricingModel: s.pricingModel,
+      amount: s.price.amount,
+      priceLabel: s.price.label,
+      govFeesSeparate: !!s.govFeesSeparate,
+      requiresProposal: !!s.requiresProposal,
+      url: `${base}/services/${s.slug}`,
+    };
+  }),
+  categories: categories.map((c) => ({ key: c.key, nameAr: c.ar, nameEn: (CAT_META[c.key] || {}).en || c.key, count: services.filter((s) => s.category === c.key).length })),
+  packages: (site.packages.groups || []).flatMap((g) =>
+    g.tiers.map((t) => ({
+      group: g.key,
+      groupNameAr: g.ar,
+      groupNameEn: g.en,
+      code: t.code || null,
+      key: t.key,
+      nameAr: t.nameAr,
+      nameEn: t.nameEn || t.name,
+      amount: t.amount != null ? t.amount : null,
+      priceLabel: t.priceEn || t.price,
+      billingPeriod: t.price && /شهري|monthly/i.test(t.priceEn || t.price) ? "monthly" : "one_time",
+      featuresAr: t.features,
+      featuresEn: t.featuresEn,
+      url: `${base}/packages`,
+    }))
+  ),
+};
+write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
+
+console.log(`Generated ${pageCount} pages (en + ar) + sitemap + catalog.json.`);

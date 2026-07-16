@@ -126,7 +126,7 @@
         {
           "title": "الموارد البشرية والتوظيف",
           "text": "إدارة قوى وGOSI ومدد والعقود، واستقطاب الكفاءات وإجراءات الاستقدام من البداية للنهاية.",
-          "category": "HR & Recruitment"
+          "category": "HR Services"
         }
       ]
     },
@@ -248,254 +248,513 @@
   "packages": {
     "title": "الباقات",
     "subtitle": "ثلاث باقات تغطّي رحلتك — من أول فكرة حتى التوسّع. اختر الأقرب لك، والوكيل الذكي يضبطها على حالتك.",
-    "note": "تُحدَّد أسعار الباقات بعرض حسب نطاق العمل والخدمات المطلوبة — تواصل معنا للتسعير ونجهّز لك عرضاً مخصّصاً خلال دقائق.",
+    "note": "الأسعار أعلاه من الكتالوج الرسمي وتشمل أتعاب بيزنس بارتنر فقط ما لم يُذكر غير ذلك — الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء. لأي مزيج مخصص من الخدمات، استخدم حاسبة التكلفة.",
     "tiers": [
       {
-        "key": "start",
-        "name": "Start",
-        "nameAr": "البداية",
-        "for": "لأصحاب الأفكار والمنشآت الجديدة",
+        "key": "silver",
+        "name": "Silver",
+        "nameAr": "الباقة الفضية",
+        "nameEn": "Silver Package",
+        "code": null,
+        "amount": 7500,
+        "price": "تبدأ من 7,500 ﷼ / سنويًا",
+        "priceEn": "Starting from 7,500 SAR / yearly",
+        "for": "للمنشآت الصغيرة",
+        "forEn": "For small establishments",
         "highlight": false,
+        "surcharge": "سيتم فرض رسوم إضافية قدرها 500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 4 موظفين.",
+        "surchargeEn": "An extra fee of 500 SAR per additional employee applies once headcount exceeds 4 employees.",
         "features": [
-          "استشارة ما قبل التأسيس",
-          "قيد سجل تجاري / تأسيس مؤسسة فردية",
-          "حجز اسم تجاري وإنشاء الحسابات الحكومية",
-          "عضوية الغرفة التجارية",
-          "دعم الوكيل الذكي على واتساب"
+          "إدارة السجل التجاري",
+          "التسجيل والمتابعة في منصة قوى",
+          "إدارة التأمينات الاجتماعية",
+          "إدارة التأمين الطبي",
+          "الامتثال الزكوي والضريبي الأساسي"
         ],
-        "forEn": "For founders and new businesses",
         "featuresEn": [
-          "Pre-incorporation consultation",
-          "CR registration / sole establishment setup",
-          "Trade name reservation & government account creation",
-          "Chamber of Commerce membership",
-          "Smart-agent support on WhatsApp"
+          "Commercial Registration management",
+          "Qiwa platform registration & follow-up",
+          "Social insurance (GOSI) management",
+          "Medical insurance management",
+          "Basic Zakat & tax compliance"
         ],
-        "nameEn": "Start",
-        "amount": 5000,
-        "price": "ابتداءً من 5,000 ﷼"
+        "surchargeAmount": 500,
+        "surchargeFreeCount": 4
       },
       {
-        "key": "operate",
-        "name": "Operate",
-        "nameAr": "التشغيل",
-        "for": "للمنشآت النامية التي تحتاج تشغيلاً متكاملاً",
+        "key": "gold",
+        "name": "Gold",
+        "nameAr": "الباقة الذهبية",
+        "nameEn": "Gold Package",
+        "code": null,
+        "amount": 13500,
+        "price": "تبدأ من 13,500 ﷼ / سنويًا",
+        "priceEn": "Starting from 13,500 SAR / yearly",
+        "for": "للمنشآت المتوسطة",
+        "forEn": "For medium establishments",
+        "highlight": false,
+        "surcharge": "سيتم فرض رسوم إضافية قدرها 750 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
+        "surchargeEn": "An extra fee of 750 SAR per additional employee applies once headcount exceeds 9 employees.",
+        "features": [
+          "تشمل جميع مزايا الباقة الفضية",
+          "إدارة شؤون الموظفين والعقود",
+          "إدارة وحماية الأجور",
+          "متابعة دورية للالتزامات النظامية",
+          "دعم تشغيلي موسّع للمنشأة"
+        ],
+        "featuresEn": [
+          "Everything in the Silver package",
+          "Employee affairs & contracts management",
+          "Wage management & wage protection",
+          "Periodic follow-up on regulatory obligations",
+          "Extended operational support"
+        ],
+        "surchargeAmount": 750,
+        "surchargeFreeCount": 9
+      },
+      {
+        "key": "platinum",
+        "name": "Platinum",
+        "nameAr": "الباقة البلاتينية",
+        "nameEn": "Platinum Package",
+        "code": null,
+        "amount": 20000,
+        "price": "تبدأ من 20,000 ﷼ / سنويًا",
+        "priceEn": "Starting from 20,000 SAR / yearly",
+        "for": "للمنشآت الكبيرة",
+        "forEn": "For large establishments",
         "highlight": true,
+        "surcharge": "سيتم فرض رسوم إضافية قدرها 1,000 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
+        "surchargeEn": "An extra fee of 1,000 SAR per additional employee applies once headcount exceeds 9 employees.",
         "features": [
-          "كل ما في باقة البداية",
-          "تأسيس شركة ذات مسؤولية محدودة",
-          "التراخيص القطاعية اللازمة لنشاطك",
-          "إدارة قوى والتأمينات والموارد البشرية",
-          "متابعة الامتثال والالتزامات الدورية",
-          "أولوية في الرد والتنفيذ"
+          "تشمل جميع مزايا الباقة الذهبية",
+          "إدارة متقدمة للموارد البشرية",
+          "إدارة الإقرارات والمتابعة الشاملة",
+          "تقارير تشغيلية وتنظيمية دورية",
+          "استشارات قانونية وتشغيلية مستمرة"
         ],
-        "forEn": "For growing businesses that need full operations",
         "featuresEn": [
-          "Everything in the Start package",
-          "LLC company formation",
-          "Sector licenses required for your activity",
-          "Managing Qiwa, GOSI and HR",
-          "Compliance follow-up and periodic obligations",
-          "Priority in response and execution"
+          "Everything in the Gold package",
+          "Advanced HR management",
+          "Filings management & comprehensive follow-up",
+          "Periodic operational & regulatory reports",
+          "Ongoing legal & operational consultations"
         ],
-        "nameEn": "Operate",
-        "amount": 10000,
-        "price": "ابتداءً من 10,000 ﷼"
+        "badgeAr": "موصى به",
+        "badgeEn": "Recommended",
+        "surchargeAmount": 1000,
+        "surchargeFreeCount": 9
       },
       {
-        "key": "grow",
-        "name": "Grow",
-        "nameAr": "النمو",
-        "for": "للمستثمرين والمنشآت الكبيرة والشركات الأجنبية",
+        "key": "diamond",
+        "name": "Diamond",
+        "nameAr": "الباقة الماسية",
+        "nameEn": "Diamond Package",
+        "code": null,
+        "amount": null,
+        "price": "باقة حسب الطلب",
+        "priceEn": "Custom package, priced on request",
+        "for": "للمنشآت الكبرى ذات الاحتياجات الخاصة",
+        "forEn": "For large establishments with custom needs",
         "highlight": false,
+        "surcharge": "سيتم فرض رسوم إضافية قدرها 1,500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 60 موظفاً.",
+        "surchargeEn": "An extra fee of 1,500 SAR per additional employee applies once headcount exceeds 60 employees.",
         "features": [
-          "كل ما في باقة التشغيل",
-          "ترخيص استثمار أجنبي وتأسيس شركة أجنبية",
-          "الإقامة المميزة للمستثمرين والكفاءات",
-          "إدارة العلاقات الحكومية بمعقّب مخصّص",
-          "دراسات الجدوى والدعم الاستراتيجي",
-          "مدير حساب مخصّص"
+          "تشمل جميع مزايا الباقة البلاتينية",
+          "مدير حساب مخصص للمنشأة",
+          "أولوية تنفيذ ومتابعة فورية",
+          "حلول مخصصة حسب احتياج النشاط",
+          "دعم استباقي شامل دون تدخل العميل",
+          "دعم فريق الدعم التشغيلي ومتابعة المنصات",
+          "تقارير ومؤشرات لمتابعة النشاط والأداء"
         ],
-        "forEn": "For investors, large businesses and foreign companies",
         "featuresEn": [
-          "Everything in the Operate package",
-          "Foreign investment license & foreign company formation",
-          "Premium Residency for investors and talent",
-          "Government relations with a dedicated liaison",
-          "Feasibility studies and strategic support",
-          "Dedicated account manager"
+          "Everything in the Platinum package",
+          "Dedicated account manager",
+          "Priority execution & instant follow-up",
+          "Custom solutions tailored to your activity",
+          "Comprehensive proactive support, no client follow-up needed",
+          "Dedicated operational support team & platform follow-up",
+          "Reports & KPIs to track activity and performance"
         ],
-        "nameEn": "Grow",
-        "amount": 15000,
-        "price": "ابتداءً من 15,000 ﷼"
+        "surchargeAmount": 1500,
+        "surchargeFreeCount": 60
       }
     ],
     "titleEn": "Packages",
     "subtitleEn": "Three packages that cover your journey — from first idea to expansion. Pick the closest one, and the smart agent tailors it to your case.",
-    "noteEn": "Package pricing is quoted by scope of work and services required — contact us for pricing and we'll prepare a custom quote in minutes.",
+    "noteEn": "Prices above are from the official catalog and cover Business Partner fees only unless stated otherwise — government fees (where applicable) are separate and announced before starting. For a custom mix of services, use the cost calculator.",
     "groups": [
       {
-        "key": "business",
-        "ar": "باقات الأعمال",
-        "en": "Business packages",
-        "descAr": "باقات متكاملة تغطّي رحلتك من الفكرة حتى التوسّع.",
-        "descEn": "End-to-end packages from idea to expansion.",
+        "key": "management",
+        "ar": "باقات الخدمات",
+        "en": "Service packages",
+        "descAr": "أربع باقات سنوية لإدارة منصاتك ومنشأتك الحكومية.",
+        "descEn": "Four annual packages to manage your government platforms and establishment.",
         "tiers": [
           {
-            "key": "start",
-            "name": "Start",
-            "nameAr": "البداية",
-            "for": "لأصحاب الأفكار والمنشآت الجديدة",
+            "key": "silver",
+            "name": "Silver",
+            "nameAr": "الباقة الفضية",
+            "nameEn": "Silver Package",
+            "code": null,
+            "amount": 7500,
+            "price": "تبدأ من 7,500 ﷼ / سنويًا",
+            "priceEn": "Starting from 7,500 SAR / yearly",
+            "for": "للمنشآت الصغيرة",
+            "forEn": "For small establishments",
             "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 4 موظفين.",
+            "surchargeEn": "An extra fee of 500 SAR per additional employee applies once headcount exceeds 4 employees.",
             "features": [
-              "استشارة ما قبل التأسيس",
-              "قيد سجل تجاري / تأسيس مؤسسة فردية",
-              "حجز اسم تجاري وإنشاء الحسابات الحكومية",
-              "عضوية الغرفة التجارية",
-              "دعم الوكيل الذكي على واتساب"
+              "إدارة السجل التجاري",
+              "التسجيل والمتابعة في منصة قوى",
+              "إدارة التأمينات الاجتماعية",
+              "إدارة التأمين الطبي",
+              "الامتثال الزكوي والضريبي الأساسي"
             ],
-            "forEn": "For founders and new businesses",
             "featuresEn": [
-              "Pre-incorporation consultation",
-              "CR registration / sole establishment setup",
-              "Trade name reservation & government account creation",
-              "Chamber of Commerce membership",
-              "Smart-agent support on WhatsApp"
+              "Commercial Registration management",
+              "Qiwa platform registration & follow-up",
+              "Social insurance (GOSI) management",
+              "Medical insurance management",
+              "Basic Zakat & tax compliance"
             ],
-            "nameEn": "Start",
-            "amount": 5000,
-            "price": "ابتداءً من 5,000 ﷼"
+            "surchargeAmount": 500,
+            "surchargeFreeCount": 4
           },
           {
-            "key": "operate",
-            "name": "Operate",
-            "nameAr": "التشغيل",
-            "for": "للمنشآت النامية التي تحتاج تشغيلاً متكاملاً",
+            "key": "gold",
+            "name": "Gold",
+            "nameAr": "الباقة الذهبية",
+            "nameEn": "Gold Package",
+            "code": null,
+            "amount": 13500,
+            "price": "تبدأ من 13,500 ﷼ / سنويًا",
+            "priceEn": "Starting from 13,500 SAR / yearly",
+            "for": "للمنشآت المتوسطة",
+            "forEn": "For medium establishments",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 750 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
+            "surchargeEn": "An extra fee of 750 SAR per additional employee applies once headcount exceeds 9 employees.",
+            "features": [
+              "تشمل جميع مزايا الباقة الفضية",
+              "إدارة شؤون الموظفين والعقود",
+              "إدارة وحماية الأجور",
+              "متابعة دورية للالتزامات النظامية",
+              "دعم تشغيلي موسّع للمنشأة"
+            ],
+            "featuresEn": [
+              "Everything in the Silver package",
+              "Employee affairs & contracts management",
+              "Wage management & wage protection",
+              "Periodic follow-up on regulatory obligations",
+              "Extended operational support"
+            ],
+            "surchargeAmount": 750,
+            "surchargeFreeCount": 9
+          },
+          {
+            "key": "platinum",
+            "name": "Platinum",
+            "nameAr": "الباقة البلاتينية",
+            "nameEn": "Platinum Package",
+            "code": null,
+            "amount": 20000,
+            "price": "تبدأ من 20,000 ﷼ / سنويًا",
+            "priceEn": "Starting from 20,000 SAR / yearly",
+            "for": "للمنشآت الكبيرة",
+            "forEn": "For large establishments",
             "highlight": true,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 1,000 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
+            "surchargeEn": "An extra fee of 1,000 SAR per additional employee applies once headcount exceeds 9 employees.",
             "features": [
-              "كل ما في باقة البداية",
-              "تأسيس شركة ذات مسؤولية محدودة",
-              "التراخيص القطاعية اللازمة لنشاطك",
-              "إدارة قوى والتأمينات والموارد البشرية",
-              "متابعة الامتثال والالتزامات الدورية",
-              "أولوية في الرد والتنفيذ"
+              "تشمل جميع مزايا الباقة الذهبية",
+              "إدارة متقدمة للموارد البشرية",
+              "إدارة الإقرارات والمتابعة الشاملة",
+              "تقارير تشغيلية وتنظيمية دورية",
+              "استشارات قانونية وتشغيلية مستمرة"
             ],
-            "forEn": "For growing businesses that need full operations",
             "featuresEn": [
-              "Everything in the Start package",
-              "LLC company formation",
-              "Sector licenses required for your activity",
-              "Managing Qiwa, GOSI and HR",
-              "Compliance follow-up and periodic obligations",
-              "Priority in response and execution"
+              "Everything in the Gold package",
+              "Advanced HR management",
+              "Filings management & comprehensive follow-up",
+              "Periodic operational & regulatory reports",
+              "Ongoing legal & operational consultations"
             ],
-            "nameEn": "Operate",
-            "amount": 10000,
-            "price": "ابتداءً من 10,000 ﷼"
+            "badgeAr": "موصى به",
+            "badgeEn": "Recommended",
+            "surchargeAmount": 1000,
+            "surchargeFreeCount": 9
           },
           {
-            "key": "grow",
-            "name": "Grow",
-            "nameAr": "النمو",
-            "for": "للمستثمرين والمنشآت الكبيرة والشركات الأجنبية",
+            "key": "diamond",
+            "name": "Diamond",
+            "nameAr": "الباقة الماسية",
+            "nameEn": "Diamond Package",
+            "code": null,
+            "amount": null,
+            "price": "باقة حسب الطلب",
+            "priceEn": "Custom package, priced on request",
+            "for": "للمنشآت الكبرى ذات الاحتياجات الخاصة",
+            "forEn": "For large establishments with custom needs",
             "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 1,500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 60 موظفاً.",
+            "surchargeEn": "An extra fee of 1,500 SAR per additional employee applies once headcount exceeds 60 employees.",
             "features": [
-              "كل ما في باقة التشغيل",
-              "ترخيص استثمار أجنبي وتأسيس شركة أجنبية",
-              "الإقامة المميزة للمستثمرين والكفاءات",
-              "إدارة العلاقات الحكومية بمعقّب مخصّص",
-              "دراسات الجدوى والدعم الاستراتيجي",
-              "مدير حساب مخصّص"
+              "تشمل جميع مزايا الباقة البلاتينية",
+              "مدير حساب مخصص للمنشأة",
+              "أولوية تنفيذ ومتابعة فورية",
+              "حلول مخصصة حسب احتياج النشاط",
+              "دعم استباقي شامل دون تدخل العميل",
+              "دعم فريق الدعم التشغيلي ومتابعة المنصات",
+              "تقارير ومؤشرات لمتابعة النشاط والأداء"
             ],
-            "forEn": "For investors, large businesses and foreign companies",
             "featuresEn": [
-              "Everything in the Operate package",
-              "Foreign investment license & foreign company formation",
-              "Premium Residency for investors and talent",
-              "Government relations with a dedicated liaison",
-              "Feasibility studies and strategic support",
-              "Dedicated account manager"
+              "Everything in the Platinum package",
+              "Dedicated account manager",
+              "Priority execution & instant follow-up",
+              "Custom solutions tailored to your activity",
+              "Comprehensive proactive support, no client follow-up needed",
+              "Dedicated operational support team & platform follow-up",
+              "Reports & KPIs to track activity and performance"
             ],
-            "nameEn": "Grow",
-            "amount": 15000,
-            "price": "ابتداءً من 15,000 ﷼"
+            "surchargeAmount": 1500,
+            "surchargeFreeCount": 60
           }
         ]
       },
       {
         "key": "formation",
-        "ar": "تأسيس الشركات والاستثمار",
-        "en": "Company formation & investment",
-        "descAr": "تأسيس منشأتك محلياً أو كمستثمر أجنبي، وصولاً للإقامة المميزة.",
-        "descEn": "Set up locally or as a foreign investor, up to Premium Residency.",
+        "ar": "تأسيس الشركات",
+        "en": "Company Formation",
+        "descAr": "تأسيس شركتك محلياً أو كمستثمر أجنبي.",
+        "descEn": "Set up your company locally or as a foreign investor.",
         "tiers": [
           {
-            "key": "llc",
-            "nameAr": "تأسيس شركة سعودية",
-            "nameEn": "Saudi company formation",
-            "price": "ابتداءً من 7,500 ﷼",
-            "amount": 7500,
-            "for": "لرواد الأعمال والملاك السعوديين والخليجيين",
-            "forEn": "For Saudi & GCC entrepreneurs and owners",
-            "features": [
-              "حجز الاسم التجاري",
-              "صياغة وتوثيق عقد التأسيس",
-              "إصدار السجل التجاري",
-              "عضوية الغرفة التجارية",
-              "التسجيل المبدئي في الزكاة والضريبة"
-            ],
-            "featuresEn": [
-              "Trade name reservation",
-              "Articles of Association drafting & notarization",
-              "Commercial Registration (CR)",
-              "Chamber of Commerce membership",
-              "Initial ZATCA/VAT registration"
-            ]
-          },
-          {
-            "key": "misa",
-            "nameAr": "تأسيس استثمار أجنبي (MISA)",
-            "nameEn": "Foreign investment (MISA)",
-            "price": "ابتداءً من 15,000 ﷼",
-            "amount": 15000,
-            "highlight": true,
+            "key": "foreign-formation",
+            "name": "Foreign Companies Formation",
+            "nameAr": "باقة تأسيس الشركات الأجنبية",
+            "nameEn": "Foreign Companies Formation Package",
+            "code": null,
+            "amount": 57500,
+            "price": "تبدأ من 57,500 ﷼ / سنويًا",
+            "priceEn": "Starting from 57,500 SAR / yearly",
             "for": "للمستثمرين والشركات الأجنبية",
             "forEn": "For foreign investors and companies",
+            "highlight": true,
+            "badgeAr": "موصى به",
+            "badgeEn": "Recommended",
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 400 ريال سعودي لكل موظف إضافي في حال تجاوز عدد الموظفين 25 موظفاً.",
+            "surchargeEn": "An extra fee of 400 SAR per additional employee applies once headcount exceeds 25 employees.",
             "features": [
-              "ترخيص وزارة الاستثمار (MISA)",
-              "تأسيس الشركة الأجنبية",
-              "السجل التجاري وعضوية الغرفة",
-              "التسجيل في الزكاة والضريبة",
-              "فتح الملفات الحكومية (قوى/مقيم/مدد)"
+              "التقديم على ترخيص الاستثمار الأجنبي",
+              "إعداد وصياغة عقد التأسيس وتوثيقه",
+              "إصدار السجل التجاري",
+              "التسجيل في الزكاة والضريبة والتأمينات وقوى ومدد ومقيم",
+              "متابعة الإجراءات حتى اكتمال التأسيس",
+              "استخراج تأشيرات للإدارة — عدد 3"
             ],
             "featuresEn": [
-              "MISA investment license",
-              "Foreign entity incorporation",
-              "CR & Chamber membership",
-              "ZATCA/VAT registration",
-              "Opening government files (Qiwa/Muqeem/Mudad)"
-            ]
+              "Application for the foreign investment license",
+              "Drafting & notarizing the articles of association",
+              "Commercial Registration issuance",
+              "Registration in Zakat/tax, GOSI, Qiwa, Mudad and Muqeem",
+              "Follow-up on procedures until formation is complete",
+              "Issuance of 3 management visas"
+            ],
+            "surchargeAmount": 400,
+            "surchargeFreeCount": 25
           },
           {
-            "key": "pr",
-            "nameAr": "الإقامة المميزة (بريميوم)",
-            "nameEn": "Premium Residency",
-            "price": "ابتداءً من 5,000 ﷼",
-            "amount": 5000,
-            "for": "للمستثمرين والكفاءات",
-            "forEn": "For investors and talents",
+            "key": "saudi-gulf-formation",
+            "name": "Saudi & Gulf Companies Formation",
+            "nameAr": "باقة تأسيس الشركات السعودية والخليجية",
+            "nameEn": "Saudi & Gulf Companies Formation Package",
+            "code": null,
+            "amount": 23000,
+            "price": "تبدأ من 23,000 ﷼ / سنويًا",
+            "priceEn": "Starting from 23,000 SAR / yearly",
+            "for": "لرواد الأعمال السعوديين والخليجيين",
+            "forEn": "For Saudi & Gulf entrepreneurs",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 400 ريال سعودي لكل موظف إضافي في حال تجاوز عدد الموظفين 10 موظفين.",
+            "surchargeEn": "An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.",
             "features": [
-              "تقييم الأهلية والمسار الأنسب",
-              "تجهيز ومراجعة المستندات",
-              "تقديم الطلب والمتابعة",
-              "متابعة الحالة حتى القرار"
+              "إعداد وصياغة عقد التأسيس وتوثيقه",
+              "إصدار السجل التجاري",
+              "التسجيل في الزكاة والضريبة",
+              "التسجيل في التأمينات الاجتماعية ومنصة قوى ومدد ومقيم",
+              "إصدار الرخصة البلدية (إن لزم)",
+              "استشارة قانونية لاختيار الكيان المناسب"
             ],
             "featuresEn": [
-              "Eligibility & pathway assessment",
-              "Document preparation & review",
-              "Application submission & follow-up",
-              "Status tracking to a decision"
-            ]
+              "Drafting & notarizing the articles of association",
+              "Commercial Registration issuance",
+              "Zakat/tax registration",
+              "Registration in GOSI, Qiwa, Mudad and Muqeem",
+              "Municipal license issuance (if required)",
+              "Legal consultation to choose the right entity type"
+            ],
+            "surchargeAmount": 400,
+            "surchargeFreeCount": 10
+          }
+        ]
+      },
+      {
+        "key": "legal",
+        "ar": "الباقات القانونية",
+        "en": "Legal Packages",
+        "descAr": "باقات استشارات وخدمات قانونية سنوية لمنشأتك.",
+        "descEn": "Annual legal consultation and services packages for your establishment.",
+        "tiers": [
+          {
+            "key": "strategic",
+            "name": "Strategic",
+            "nameAr": "الباقة الاستراتيجية",
+            "nameEn": "Strategic Package",
+            "code": null,
+            "amount": 59000,
+            "price": "تبدأ من 59,000 ﷼ / سنويًا",
+            "priceEn": "Starting from 59,000 SAR / yearly",
+            "for": "للمنشآت الكبيرة ذات الاحتياج القانوني الموسّع",
+            "forEn": "For large establishments with extensive legal needs",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 800 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 50 موظفاً.",
+            "surchargeEn": "An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 25 سنويًا",
+              "صياغة ومراجعة عقود: 20 عقداً",
+              "مذكرات ولوائح قانونية: 15",
+              "خدمات ملكية فكرية: 4",
+              "تأسيس/تحويل/اندماج كيانات: 3 خدمات",
+              "حضور اجتماعات بمحامٍ: 4 اجتماعات",
+              "تمثيل قضائي: حتى 10 قضايا عمالية سنويًا",
+              "ورشة توعية قانونية للموظفين: مرة سنويًا",
+              "خصم على خدمات التوثيق: 25%"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 25 / year",
+              "Contract drafting & review: 20 contracts",
+              "Legal memos & pleadings: 15",
+              "IP services: 4",
+              "Entity formation/conversion/merger: 3 services",
+              "Meetings with a lawyer: 4 meetings",
+              "Litigation representation: up to 10 labor cases / year",
+              "Legal awareness workshop for employees: once a year",
+              "25% discount on notarization services"
+            ],
+            "surchargeAmount": 800,
+            "surchargeFreeCount": 50
+          },
+          {
+            "key": "comprehensive",
+            "name": "Comprehensive",
+            "nameAr": "الباقة الشاملة",
+            "nameEn": "Comprehensive Package",
+            "code": null,
+            "amount": 39000,
+            "price": "تبدأ من 39,000 ﷼ / سنويًا",
+            "priceEn": "Starting from 39,000 SAR / yearly",
+            "for": "للمنشآت المتوسطة والكبيرة",
+            "forEn": "For medium and large establishments",
+            "highlight": true,
+            "badgeAr": "موصى به",
+            "badgeEn": "Recommended",
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 800 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 50 موظفاً.",
+            "surchargeEn": "An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 15 سنويًا",
+              "صياغة ومراجعة عقود: 15 عقداً",
+              "مذكرات ولوائح قانونية: 10",
+              "خدمات ملكية فكرية: 4",
+              "تأسيس/تحويل كيانات: خدمتان",
+              "حضور اجتماعات بمحامٍ: اجتماعان",
+              "تمثيل قضائي: حتى 6 قضايا عمالية",
+              "خصم على خدمات التوثيق: 20%"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 15 / year",
+              "Contract drafting & review: 15 contracts",
+              "Legal memos & pleadings: 10",
+              "IP services: 4",
+              "Entity formation/conversion: 2 services",
+              "Meetings with a lawyer: 2 meetings",
+              "Litigation representation: up to 6 labor cases",
+              "20% discount on notarization services"
+            ],
+            "surchargeAmount": 800,
+            "surchargeFreeCount": 50
+          },
+          {
+            "key": "advanced",
+            "name": "Advanced",
+            "nameAr": "الباقة المتقدمة",
+            "nameEn": "Advanced Package",
+            "code": null,
+            "amount": 19900,
+            "price": "تبدأ من 19,900 ﷼ / سنويًا",
+            "priceEn": "Starting from 19,900 SAR / yearly",
+            "for": "للمنشآت المتوسطة",
+            "forEn": "For medium establishments",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 600 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 25 موظفاً.",
+            "surchargeEn": "An extra fee of 600 SAR per additional employee applies once headcount exceeds 25 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 8 سنويًا",
+              "صياغة ومراجعة عقود: 12 عقداً",
+              "خدمات ملكية فكرية: 2",
+              "تأسيس/تعديل كيان: خدمة واحدة",
+              "تمثيل قضائي: حتى 4 قضايا عمالية سنويًا",
+              "خصم على خدمات التوثيق: 15%"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 8 / year",
+              "Contract drafting & review: 12 contracts",
+              "IP services: 2",
+              "Entity formation/amendment: 1 service",
+              "Litigation representation: up to 4 labor cases / year",
+              "15% discount on notarization services"
+            ],
+            "surchargeAmount": 600,
+            "surchargeFreeCount": 25
+          },
+          {
+            "key": "basic-legal",
+            "name": "Basic",
+            "nameAr": "الباقة الأساسية",
+            "nameEn": "Basic Package",
+            "code": null,
+            "amount": 9900,
+            "price": "تبدأ من 9,900 ﷼ / سنويًا",
+            "priceEn": "Starting from 9,900 SAR / yearly",
+            "for": "للمنشآت الصغيرة",
+            "forEn": "For small establishments",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 400 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 10 موظفين.",
+            "surchargeEn": "An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 4 سنويًا",
+              "صياغة ومراجعة عقود: 6 عقود",
+              "تمثيل قضائي: حتى قضيتين عماليتين سنويًا",
+              "خصم على خدمات التوثيق: 10%"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 4 / year",
+              "Contract drafting & review: 6 contracts",
+              "Litigation representation: up to 2 labor cases / year",
+              "10% discount on notarization services"
+            ],
+            "surchargeAmount": 400,
+            "surchargeFreeCount": 10
           }
         ]
       }
@@ -869,7 +1128,7 @@
         {
           "title": "الشركة الأجنبية أم الخليجية؟",
           "excerpt": "الخليجي يُعامل معاملة السعودي تقريباً (بلا رسوم جمركية بين دول المجلس)، بينما تحتاج الشركة الأجنبية ترخيص MISA ومستندات مصدّقة. نحدد لك المسار الصحيح حسب جنسيتك ونشاطك.",
-          "link": "/services#cat-foreign-investment",
+          "link": "/services/category/foreign-investment",
           "titleEn": "Foreign company or Gulf company?",
           "excerptEn": "A Gulf national is treated almost like a Saudi (no customs duties between GCC states), while a foreign company needs a MISA license and attested documents. We identify the right track for your nationality and activity."
         },
@@ -923,7 +1182,7 @@
           "gov": "وزارة التجارة",
           "what": "بوابة تأسيس المنشآت: السجلات التجارية، الأسماء التجارية، عقود التأسيس، والتأكيد السنوي.",
           "help": "نتولّى التأسيس والتعديلات والتجديدات نيابةً عنك.",
-          "link": "/services#cat-company-formation",
+          "link": "/services/category/company-formation",
           "nameEn": "Saudi Business Center",
           "govEn": "Ministry of Commerce",
           "whatEn": "The business-formation gateway: commercial registrations, trade names, articles of association, and annual confirmation.",
@@ -934,7 +1193,7 @@
           "gov": "MISA",
           "what": "الجهة المنظّمة للاستثمار الأجنبي: تراخيص الاستثمار ومسارات دخول السوق للمستثمر الأجنبي.",
           "help": "نستخرج ترخيص الاستثمار ونؤسّس كيانك الأجنبي.",
-          "link": "/services#cat-foreign-investment",
+          "link": "/services/category/foreign-investment",
           "nameEn": "Ministry of Investment",
           "govEn": "MISA",
           "whatEn": "The regulator of foreign investment: investment licenses and market-entry tracks for the foreign investor.",
@@ -945,7 +1204,7 @@
           "gov": "وزارة الموارد البشرية",
           "what": "منصة إدارة العمالة: توثيق العقود، التأشيرات، نقل الخدمات، ومؤشرات التوطين (نطاقات).",
           "help": "ندير ملفك على قوى ونتابع التزاماتك.",
-          "link": "/services#cat-government-relations",
+          "link": "/services/category/government-relations",
           "nameEn": "Qiwa",
           "govEn": "Ministry of Human Resources",
           "whatEn": "Labor management platform: contract authentication, visas, sponsorship transfer, and Saudization indicators (Nitaqat).",
@@ -956,7 +1215,7 @@
           "gov": "GOSI",
           "what": "تسجيل المشتركين، الشهادات، والفوترة الخاصة بالتأمينات.",
           "help": "نسجّل ونحدّث ونتابع اشتراكاتك.",
-          "link": "/services#cat-hr-services",
+          "link": "/services/category/hr-services",
           "nameEn": "Social Insurance",
           "govEn": "GOSI",
           "whatEn": "Registering subscribers, certificates, and insurance billing.",
@@ -967,7 +1226,7 @@
           "gov": "ZATCA",
           "what": "التسجيل الضريبي، الإقرارات، والفوترة الإلكترونية.",
           "help": "نتولّى التسجيل والإقرارات والامتثال الضريبي.",
-          "link": "/services#cat-government-relations",
+          "link": "/services/category/government-relations",
           "nameEn": "Zakat, Tax and Customs",
           "govEn": "ZATCA",
           "whatEn": "Tax registration, returns, and e-invoicing.",
@@ -1000,7 +1259,7 @@
           "gov": "الجوازات",
           "what": "إصدار وتجديد الإقامات وتأشيرات الخروج والعودة وإدارة بيانات العمالة.",
           "help": "ندير إجراءات إقامات موظفيك وتأشيراتهم.",
-          "link": "/services#cat-government-relations",
+          "link": "/services/category/government-relations",
           "nameEn": "Muqeem / Absher Business",
           "govEn": "Passports",
           "whatEn": "Issuing and renewing residencies, exit-and-re-entry visas, and managing labor data.",
@@ -1648,5 +1907,249 @@
         ]
       }
     ]
+  },
+  "terms": {
+    "title": "الشروط والأحكام",
+    "titleEn": "Terms & Conditions",
+    "updated": "16 يوليو 2026",
+    "updatedEn": "July 16, 2026",
+    "intro": "تحكم هذه الشروط والأحكام اشتراكك في باقات ومنصة بيزنس بارتنر. بمجرد توقيعك على نموذج الاشتراك أو إتمام عملية الشراء عبر الموقع، فإنك توافق على الالتزام بها بالكامل.",
+    "introEn": "These Terms & Conditions govern your subscription to Business Partner's packages and platform. By signing the subscription form or completing a purchase through the site, you agree to be fully bound by them.",
+    "sections": [
+      {
+        "title": "أولاً: التعريفات",
+        "titleEn": "First: Definitions",
+        "items": [
+          [
+            "\"بيزنس بارتنر\" - مزوّد الخدمة",
+            "منصة بيزنس بارتنر لتقديم الخدمات التشغيلية والاستشارية لمنشآت الأعمال في المملكة العربية السعودية.",
+            "\"Business Partner\" — the service provider",
+            "The Business Partner platform providing operational and advisory services to business establishments in Saudi Arabia."
+          ],
+          [
+            "\"باقات بيزنس بارتنر\"",
+            "خدمة إدارة الخدمات الإلكترونية للجهات الحكومية للمنشآت، حيث تكون الخدمة خاصة بالخدمات الإلكترونية فقط وليست لمراجعة الجهات الحكومية حضورياً.",
+            "\"Business Partner Packages\"",
+            "The service of managing establishments' electronic government-platform services — the service covers electronic services only, not in-person visits to government entities."
+          ],
+          [
+            "\"المشترك\"",
+            "هو المستفيد من خدمات باقات بيزنس بارتنر.",
+            "\"Subscriber\"",
+            "The beneficiary of Business Partner's package services."
+          ],
+          [
+            "\"الظروف القاهرة\"",
+            "الأسباب الخارجة عن السيطرة المعقولة، وتشمل على سبيل المثال لا الحصر: الحرائق، الحوادث، أو الاشتراطات الحكومية المستجدّة.",
+            "\"Force Majeure\"",
+            "Causes beyond reasonable control, including but not limited to: fires, accidents, or new government requirements."
+          ],
+          [
+            "\"الباقة الفضية\"",
+            "تتيح إدارة الخدمات الإلكترونية للمنشأة وتشمل: إدارة السجل التجاري، التسجيل والمتابعة في منصة قوى، إدارة التأمينات الاجتماعية، إدارة التأمين الطبي، والامتثال الزكوي والضريبي الأساسي.",
+            "\"Silver Package\"",
+            "Covers Commercial Registration management, Qiwa platform registration & follow-up, GOSI management, medical insurance management, and basic Zakat & tax compliance."
+          ],
+          [
+            "\"الباقة الذهبية\"",
+            "تشمل جميع مزايا الباقة الفضية بالإضافة إلى: إدارة شؤون الموظفين والعقود، إدارة وحماية الأجور، المتابعة الدورية للالتزامات النظامية، ودعم تشغيلي موسّع.",
+            "\"Gold Package\"",
+            "Everything in Silver plus: employee affairs & contracts management, wage management & wage protection, periodic follow-up on regulatory obligations, and extended operational support."
+          ],
+          [
+            "\"الباقة البلاتينية\"",
+            "تشمل جميع مزايا الباقة الذهبية بالإضافة إلى: إدارة متقدمة للموارد البشرية، إدارة الإقرارات والمتابعة الشاملة، تقارير تشغيلية وتنظيمية دورية، واستشارات قانونية وتشغيلية مستمرة.",
+            "\"Platinum Package\"",
+            "Everything in Gold plus: advanced HR management, filings management & comprehensive follow-up, periodic operational & regulatory reports, and ongoing legal & operational consultations."
+          ],
+          [
+            "\"الباقة الماسية\"",
+            "تشمل جميع مزايا الباقة البلاتينية بالإضافة إلى: مدير حساب مخصص، أولوية تنفيذ ومتابعة فورية، حلول مخصصة حسب احتياج النشاط، ودعم استباقي شامل. باقة حسب الطلب، تُسعَّر بعد مراجعة احتياج المنشأة.",
+            "\"Diamond Package\"",
+            "Everything in Platinum plus: a dedicated account manager, priority execution & instant follow-up, custom solutions, and comprehensive proactive support. A custom package, priced after reviewing the establishment's needs."
+          ]
+        ]
+      },
+      {
+        "title": "ثانياً: فئة الاشتراك",
+        "titleEn": "Second: Subscription Category",
+        "body": "يجب على المشترك تحديد فئة الاشتراك التي يرغب بها، وهي إما: الباقة الفضية، أو الباقة الذهبية، أو الباقة البلاتينية، أو الباقة الماسية، حسب ما هو موضّح في صفحة الباقات على موقع بيزنس بارتنر.",
+        "bodyEn": "The subscriber must choose their subscription tier: Silver, Gold, Platinum, or Diamond, as detailed on the Business Partner packages page."
+      },
+      {
+        "title": "ثالثاً: مدة الاشتراك",
+        "titleEn": "Third: Subscription Term",
+        "body": "الاشتراك ساري المفعول لمدة سنة ميلادية كاملة من تاريخ توقيع نموذج الاشتراك، ويتجدد تلقائياً ما لم يُخطر المشترك بيزنس بارتنر برغبته في عدم التجديد قبل شهر من تاريخ نهاية الاشتراك، وذلك من خلال نموذج عدم الرغبة في التجديد المتاح على الموقع، أو ما لم يُنهَ الاشتراك بموجب البند التاسع.",
+        "bodyEn": "The subscription is valid for one full Gregorian year from the date the subscription form is signed, and renews automatically unless the subscriber notifies Business Partner of their wish not to renew at least one month before the subscription end date, via the non-renewal form available on the site, or unless the subscription is terminated under Section Nine."
+      },
+      {
+        "title": "رابعاً: وقت توفير الخدمة",
+        "titleEn": "Fourth: Service Availability",
+        "body": "تبذل بيزنس بارتنر قصارى جهدها لتوفير الخدمة على مدار الأربع والعشرين ساعة وخلال العطل الرسمية، مع عدم تحمّلها المسؤولية في حال عدم توفر الخدمة لأي سبب من الأسباب.",
+        "bodyEn": "Business Partner makes its best effort to provide the service around the clock, including official holidays, and bears no liability if the service is unavailable for any reason."
+      },
+      {
+        "title": "خامساً: التزامات المشترك",
+        "titleEn": "Fifth: Subscriber Obligations",
+        "list": [
+          [
+            "يتعهد المشترك بعدم تعطيل الخدمة والتعاون مع بيزنس بارتنر في تقديم الخدمة لمنشأته بأسرع وقت، وفي حال عدم التعاون يحق لمزوّد الخدمة إنهاء الاشتراك.",
+            "The subscriber undertakes not to obstruct the service and to cooperate with Business Partner so the service reaches their establishment as quickly as possible; failing to cooperate entitles the provider to terminate the subscription."
+          ],
+          [
+            "يتعهد المشترك بعدم الإساءة لموظفي بيزنس بارتنر أو لكيان الشركة، وسلوك الطرق النظامية الصحيحة في حال وجود أي شكاوى تجاه الخدمة، ويتعهد عند الإخلال بذلك بدفع التعويض اللازم عن أي ضرر أو خسائر بحسب ما تقرره الأنظمة النافذة في المملكة، كما يتحمّل كافة الغرامات الصادرة بحقه من الجهات المختصة.",
+            "The subscriber undertakes not to abuse Business Partner's staff or the company itself, and to follow proper channels for any complaints; breaching this obligates the subscriber to pay compensation for any resulting damage or loss per applicable Saudi regulations, and to bear any fines issued against them by the relevant authorities."
+          ],
+          [
+            "يتحمّل المشترك كافة المسؤوليات الناتجة عن الطلبات الصادرة من الموظف أو المفوَّض بالتعامل مع بيزنس بارتنر والذي فوّضه في نموذج الاشتراك.",
+            "The subscriber bears full responsibility for requests made by the employee or representative authorized to deal with Business Partner as named in the subscription form."
+          ],
+          [
+            "لا يحق للمشترك مطالبة بيزنس بارتنر بتقديم خدمة لمنشأة غير المنشأة الموقَّع عليها نموذج الاشتراك.",
+            "The subscriber may not request the service be provided to any establishment other than the one named in the signed subscription form."
+          ],
+          [
+            "لا يحق للمشترك مطالبة بيزنس بارتنر بأي تعويض نظير تأخّر الخدمة بسبب أعطال تقنية أو أسباب أخرى خارجة عن إرادتها.",
+            "The subscriber may not claim compensation for service delays caused by technical faults or other causes beyond Business Partner's control."
+          ],
+          [
+            "يتعهد المشترك بتزويد بيزنس بارتنر بكافة أسماء المستخدمين وكلمات المرور لجميع حسابات المنشأة في الجهات الحكومية، وبإعلام الشركة فور تغييرها.",
+            "The subscriber undertakes to provide Business Partner with all usernames and passwords for the establishment's government-entity accounts, and to notify the company immediately if they change."
+          ]
+        ]
+      },
+      {
+        "title": "سادساً: بداية تفعيل الخدمة",
+        "titleEn": "Sixth: Service Activation",
+        "body": "تبدأ الخدمة بعد سداد قيمة الاشتراك. وفي حال رغبة المشترك بتعديل الباقة أو إضافة خدمات جديدة بعد توقيع نموذج الاشتراك، تتم مراعاة ذلك بشرط توفر المستندات المطلوبة وسداد الفروقات للخدمات المضافة.",
+        "bodyEn": "The service begins after the subscription fee is paid. Should the subscriber wish to change their package or add new services after signing the subscription form, this is accommodated provided the required documents are available and the difference for added services is paid."
+      },
+      {
+        "title": "سابعاً: تكلفة الخدمة",
+        "titleEn": "Seventh: Service Cost",
+        "body": "يدفع المشترك قيمة الاشتراك الموضّحة في نموذج الاشتراك، ولا يتحمّل أي مبالغ أخرى خلال مدة الاشتراك. لا يدخل ضمن قيمة هذا الاشتراك أي رسوم حكومية أو ما شابهها، وإنما المبلغ نظير تقديم الخدمة فقط.",
+        "bodyEn": "The subscriber pays the subscription amount stated in the subscription form and bears no other amounts during the subscription term. This amount does not include any government fees or similar charges — it covers the service fee only."
+      },
+      {
+        "title": "ثامناً: تسوية الخلافات",
+        "titleEn": "Eighth: Dispute Resolution",
+        "body": "يخضع هذا الاشتراك للأنظمة المعمول بها في المملكة العربية السعودية، ويُنفَّذ ويُفسَّر بموجبها. وأي خلاف ينشأ عن تطبيق هذا الاشتراك أو ما يتعلق به ولم يتم التوصل إلى تسويته وديّاً، يُحسَم وفقاً لأنظمة المملكة العربية السعودية.",
+        "bodyEn": "This subscription is governed by, executed and interpreted under the regulations in force in Saudi Arabia. Any dispute arising from this subscription that is not resolved amicably shall be settled in accordance with the regulations of the Kingdom of Saudi Arabia."
+      },
+      {
+        "title": "تاسعاً: أحكام عامة",
+        "titleEn": "Ninth: General Provisions",
+        "list": [
+          [
+            "لا تتحمّل بيزنس بارتنر مسؤولية المشاكل الناتجة عن عدم صحة أو تحديث المعلومات المقدَّمة من المشترك أو من الجهات المختصة عبر نظام المنشأة.",
+            "Business Partner bears no responsibility for problems arising from inaccurate or outdated information provided by the subscriber or by the relevant authorities via the establishment's system."
+          ],
+          [
+            "لا تتحمّل بيزنس بارتنر المخالفات التي تقع على المنشأة لأي سبب من الأسباب، ولا يحق للمشترك مطالبتها بذلك.",
+            "Business Partner bears no responsibility for violations issued against the establishment for any reason, and the subscriber may not hold it liable for them."
+          ],
+          [
+            "لا تتحمّل بيزنس بارتنر أي مسؤولية تجاه أي خسائر تقع على المشترك (مباشرة أو غير مباشرة) ناتجة عن تنفيذ هذا الاشتراك.",
+            "Business Partner bears no liability for any losses (direct or indirect) incurred by the subscriber arising from performance of this subscription."
+          ],
+          [
+            "تحتفظ بيزنس بارتنر بحقها في تقييد استخدام الخدمة بوضع حدّ أقصى للخدمات المقدَّمة.",
+            "Business Partner reserves the right to limit the use of the service by capping the services provided."
+          ],
+          [
+            "يوافق المشترك على إخلاء مسؤولية بيزنس بارتنر عن أخطاء مقدّمي خدمات الاتصالات أو مواقع الجهات الحكومية، مثل تعطّل الاتصال بالموقع الإلكتروني.",
+            "The subscriber agrees to release Business Partner from liability for errors by telecom providers or government-entity websites, such as connectivity failures."
+          ],
+          [
+            "يوافق المشترك على أن لبيزنس بارتنر الحق في إتلاف أو عدم إبراز أصول المستندات، ويُعتبر ما تقدّمه بيزنس بارتنر من صور لها حجّة إثبات لدى الجهات المختصة والقضاء طالما أنها تحمل شعار وختم بيزنس بارتنر.",
+            "The subscriber agrees that Business Partner has the right to dispose of or not produce original documents, and that copies provided by Business Partner bearing its logo and seal are considered valid evidence before the relevant authorities and courts."
+          ],
+          [
+            "يحق لبيزنس بارتنر إنهاء الاشتراك في حال رغبتها بعدم الاستمرار دون أي قيود، أو في حال استخدام المشترك للنظام في غير الغرض المخصَّص له، أو إخلاله بأحد أحكام وشروط استخدام الخدمة، أو في حال طلب الجهات المختصة إيقاف الخدمة عن المشترك. وفي هذه الحالة فقط تُعاد المبالغ المدفوعة عن المدة المتبقية من الاشتراك دون المطالبة بأي تعويض آخر، كما ينتهي الاشتراك في حال الظروف القاهرة.",
+            "Business Partner may terminate the subscription at will without restriction, or if the subscriber uses the system for purposes other than intended, breaches any of the service's terms, or if the relevant authorities request the service be stopped for the subscriber. Only in this case are amounts paid for the remaining subscription period refunded, without any further claim for compensation; the subscription also ends in the event of force majeure."
+          ],
+          [
+            "لا يحق للمشترك مطالبة بيزنس بارتنر بمراجعات حضورية للجهات الحكومية أو شبه الحكومية، حيث إن الخدمة مقتصرة على إدارة الخدمات الإلكترونية، ويتولّى المشترك توفير من يقوم بالمراجعات الحضورية عند الحاجة.",
+            "The subscriber may not request in-person visits to government or quasi-government entities, as the service is limited to managing electronic services; the subscriber is responsible for arranging any needed in-person visits."
+          ]
+        ]
+      },
+      {
+        "title": "عاشراً: الشروط والأحكام الخاصة بباقات بيزنس بارتنر",
+        "titleEn": "Tenth: Terms Specific to Business Partner Packages",
+        "list": [
+          [
+            "تنطبق على خدمة الاشتراك في باقات بيزنس بارتنر جميع الشروط والأحكام السابقة من البند الأول إلى البند التاسع.",
+            "All preceding terms from Section One through Section Nine apply to the Business Partner packages subscription service."
+          ],
+          [
+            "يحق لمزوّد الخدمة تغيير تسعيرة خدمة الاشتراك في الباقات عند تجديد الاشتراك أو إضافة خدمات جديدة، ويُعتبر استمرار المشترك أو مفوَّضه في الاشتراك بعد إشعاره بالتغيير موافقةً منه على القيمة الجديدة والالتزام بدفع المبالغ والرسوم المترتبة على ذلك.",
+            "The provider may change the package subscription pricing upon renewal or when new services are added; the subscriber (or their representative) continuing the subscription after being notified of the change is considered acceptance of the new price and an undertaking to pay the resulting amounts and fees."
+          ],
+          [
+            "تنحصر إدارة خدمات وزارة الموارد البشرية في الخدمة الإلكترونية المتوفرة في حساب المنشأة فقط وفق النظام المعمول به، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير نظامية.",
+            "Management of Ministry of Human Resources services is limited to the electronic service available in the establishment's account per applicable regulations; the subscriber may not request Business Partner to carry out any non-regulatory transaction."
+          ],
+          [
+            "تنحصر إدارة خدمات وزارة التجارة في الخدمات الإلكترونية التالية فقط: تجديد السجلات التجارية، شطب السجلات التجارية، تعديل السجلات التجارية، حجز الأسماء التجارية.",
+            "Management of Ministry of Commerce services is limited to the following electronic services only: CR renewal, CR cancellation, CR amendment, and trade name reservation."
+          ],
+          [
+            "تنحصر إدارة خدمات التأمينات الاجتماعية (GOSI) في الخدمة الإلكترونية المتوفرة في حساب المنشأة فقط وفق النظام المعمول به، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير متوفرة في حساب المنشأة.",
+            "Management of GOSI services is limited to the electronic service available in the establishment's account per applicable regulations; the subscriber may not request any transaction not available in that account."
+          ],
+          [
+            "تنحصر إدارة خدمات هيئة الزكاة والضريبة والجمارك في الخدمات الإلكترونية التالية فقط: تقديم الإقرارات الزكوية، تقديم الإقرارات الضريبية، تسجيل المنشأة، إلغاء تسجيل المنشأة.",
+            "Management of Zakat, Tax and Customs Authority services is limited to the following electronic services only: filing Zakat returns, filing tax returns, establishment registration, and de-registration."
+          ],
+          [
+            "تنحصر إدارة خدمات وزارة الداخلية في الخدمة الإلكترونية المتوفرة في حساب أبشر أعمال أو خدمة مقيم فقط، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير متوفرة في تلك الحسابات.",
+            "Management of Ministry of Interior services is limited to the electronic service available via the Absher Business account or Muqeem service only; the subscriber may not request any transaction not available in those accounts."
+          ],
+          [
+            "تنحصر إدارة خدمات بلدي في الخدمات الإلكترونية التالية فقط: إصدار رخصة بلدية، تجديد رخصة بلدية، إلغاء رخصة بلدية، تعديل رخصة بلدية.",
+            "Management of Balady services is limited to the following electronic services only: municipal license issuance, renewal, cancellation, and amendment."
+          ],
+          [
+            "تنحصر إدارة خدمات الدفاع المدني (سلامة) في الخدمات الإلكترونية التالية فقط: تقديم طلب إصدار رخصة الدفاع المدني، تجديد رخصة الدفاع المدني.",
+            "Management of Civil Defense (Salamah) services is limited to the following electronic services only: submitting a Civil Defense license application and renewing the license."
+          ],
+          [
+            "تنحصر إدارة خدمات شركات التأمين في الخدمات الإلكترونية التالية فقط: إصدار وثيقة التأمين الطبي للعمالة، تجديد وثيقة التأمين الطبي.",
+            "Management of insurance-company services is limited to the following electronic services only: issuing employee medical-insurance policies and renewing them."
+          ],
+          [
+            "تنحصر خدمة اشتراك حماية الأجور في: رفع ملفات الرواتب، تدقيق الملفات، تصحيح الأخطاء والمخالفات — وفق ما هو مشمول في الباقة المشترَك بها.",
+            "The wage-protection subscription service is limited to: uploading payroll files, auditing files, and correcting errors and violations — as covered by the subscriber's chosen package."
+          ],
+          [
+            "تُقدَّم خدمة الاستشارات، حيث تشملها الباقة، وفق العدد والنطاق الموضَّحين في تفاصيل الباقة المشترَك بها على صفحة الباقات.",
+            "Where included in the package, consultation services are provided per the number and scope detailed for the subscriber's chosen package on the packages page."
+          ],
+          [
+            "تنحصر خدمة تخفيف الأعباء عن المنشآت، حيث تشملها الباقة، في تسجيل منشأة المشترك في المبادرات الحكومية المتاحة، أو دراسة وضع المنشأة بشكل عام، ومساعدة متخذي القرار عبر إعداد تقرير بذلك إن أمكن.",
+            "Where included in the package, the burden-reduction service is limited to registering the subscriber's establishment in available government initiatives, or a general review of the establishment's status, assisting decision-makers with a report where possible."
+          ],
+          [
+            "تنحصر خدمة تصميم الموقع الإلكتروني، حيث تشملها الباقة، في إنشاء موقع تعريفي من عدد محدود من الصفحات. وفي حال رغبة المشترك بتصميم موقع احترافي أو متجر إلكتروني، فيكون ذلك بعقد مستقل ولا يدخل ضمن هذا الاشتراك.",
+            "Where included in the package, the website-design service is limited to building a basic informational site with a limited number of pages. A professional site or online store, if desired, is a separate contract outside this subscription."
+          ],
+          [
+            "تنحصر خدمة التسويق عبر مواقع التواصل الاجتماعي، حيث تشملها الباقة، في إنشاء حسابات للمنشأة وربطها بموقعها الإلكتروني، وفي حال رغبة المشترك بالتسويق المدفوع عبر تلك المنصات، فتكون رسوم الإعلانات على حساب المشترك ولا يحق له مطالبة بيزنس بارتنر بها.",
+            "Where included in the package, social-media marketing is limited to creating establishment accounts and linking them to its website; paid advertising fees on those platforms, if desired, are the subscriber's responsibility."
+          ],
+          [
+            "تنحصر خدمة تأهيل وتدريب الموظفين، حيث تشملها الباقة، في إدارة الخدمات الإلكترونية لعدد محدود من الموظفين حسب ما هو موضَّح في الباقة، وفي حال رغبة المشترك بزيادة العدد، تكون الزيادة برسوم إضافية تُحدَّد في فاتورة مستقلة.",
+            "Where included in the package, employee qualification & training is limited to a set number of employees per the package; increasing that number, if desired, incurs an additional fee on a separate invoice."
+          ],
+          [
+            "تنحصر خدمة إعداد اللوائح الداخلية للمنشأة في الجانب المتعلق بوزارة الموارد البشرية، ويُعدّ عقد العمل لكل موظف مرة واحدة فقط خلال العام، ولا يحق للمشترك مطالبة بيزنس بارتنر بإعداد العقود أكثر من مرة كل عام ما لم يُتفَق على غير ذلك.",
+            "The internal-regulations preparation service is limited to the Ministry of Human Resources aspect; each employee's contract is prepared once per year, and the subscriber may not request contracts be redrafted more than once a year unless otherwise agreed."
+          ]
+        ]
+      }
+    ],
+    "note": "هذه الشروط مُهيّأة لتوقيع نموذج الاشتراك الورقي/الإلكتروني بين بيزنس بارتنر والمشترك. باستخدامك للموقع وإتمام أي طلب شراء، فإنك تقرّ بموافقتك عليها.",
+    "noteEn": "These terms are formatted for the paper/electronic subscription form signed between Business Partner and the subscriber. By using the site and completing any purchase, you acknowledge your agreement to them."
   }
 }

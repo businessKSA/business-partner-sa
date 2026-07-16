@@ -2,22 +2,58 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://businesspartner.sa/</loc></url>
   <url><loc>https://businesspartner.sa/ar/</loc></url>
+  <url><loc>https://businesspartner.sa/fr/</loc></url>
+  <url><loc>https://businesspartner.sa/es/</loc></url>
+  <url><loc>https://businesspartner.sa/zh/</loc></url>
+  <url><loc>https://businesspartner.sa/ru/</loc></url>
+  <url><loc>https://businesspartner.sa/hi/</loc></url>
+  <url><loc>https://businesspartner.sa/ko/</loc></url>
+  <url><loc>https://businesspartner.sa/ja/</loc></url>
   <url><loc>https://businesspartner.sa/about</loc></url>
   <url><loc>https://businesspartner.sa/ar/about</loc></url>
+  <url><loc>https://businesspartner.sa/fr/about</loc></url>
+  <url><loc>https://businesspartner.sa/es/about</loc></url>
+  <url><loc>https://businesspartner.sa/zh/about</loc></url>
+  <url><loc>https://businesspartner.sa/ru/about</loc></url>
+  <url><loc>https://businesspartner.sa/hi/about</loc></url>
+  <url><loc>https://businesspartner.sa/ko/about</loc></url>
+  <url><loc>https://businesspartner.sa/ja/about</loc></url>
   <url><loc>https://businesspartner.sa/services</loc></url>
   <url><loc>https://businesspartner.sa/ar/services</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services</loc></url>
+  <url><loc>https://businesspartner.sa/es/services</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services</loc></url>
+  <url><loc>https://businesspartner.sa/ru/services</loc></url>
+  <url><loc>https://businesspartner.sa/hi/services</loc></url>
+  <url><loc>https://businesspartner.sa/ko/services</loc></url>
+  <url><loc>https://businesspartner.sa/ja/services</loc></url>
   <url><loc>https://businesspartner.sa/ai-agents</loc></url>
   <url><loc>https://businesspartner.sa/ar/ai-agents</loc></url>
   <url><loc>https://businesspartner.sa/tourism</loc></url>
   <url><loc>https://businesspartner.sa/ar/tourism</loc></url>
+  <url><loc>https://businesspartner.sa/mahfol-makfol</loc></url>
+  <url><loc>https://businesspartner.sa/ar/mahfol-makfol</loc></url>
+  <url><loc>https://businesspartner.sa/mahfol-makfol/trips</loc></url>
+  <url><loc>https://businesspartner.sa/ar/mahfol-makfol/trips</loc></url>
   <url><loc>https://businesspartner.sa/task-force</loc></url>
   <url><loc>https://businesspartner.sa/ar/task-force</loc></url>
+  <url><loc>https://businesspartner.sa/magazine</loc></url>
+  <url><loc>https://businesspartner.sa/ar/magazine</loc></url>
+  <url><loc>https://businesspartner.sa/magazine/print</loc></url>
+  <url><loc>https://businesspartner.sa/ar/magazine/print</loc></url>
   <url><loc>https://businesspartner.sa/packages</loc></url>
   <url><loc>https://businesspartner.sa/ar/packages</loc></url>
+  <url><loc>https://businesspartner.sa/fr/packages</loc></url>
+  <url><loc>https://businesspartner.sa/es/packages</loc></url>
+  <url><loc>https://businesspartner.sa/zh/packages</loc></url>
+  <url><loc>https://businesspartner.sa/ru/packages</loc></url>
+  <url><loc>https://businesspartner.sa/hi/packages</loc></url>
+  <url><loc>https://businesspartner.sa/ko/packages</loc></url>
+  <url><loc>https://businesspartner.sa/ja/packages</loc></url>
+  <url><loc>https://businesspartner.sa/calculator</loc></url>
+  <url><loc>https://businesspartner.sa/ar/calculator</loc></url>
   <url><loc>https://businesspartner.sa/tools-and-calculators</loc></url>
   <url><loc>https://businesspartner.sa/ar/tools-and-calculators</loc></url>
-  <url><loc>https://businesspartner.sa/calculators/nitaqat</loc></url>
-  <url><loc>https://businesspartner.sa/ar/calculators/nitaqat</loc></url>
   <url><loc>https://businesspartner.sa/calculators/government-cost</loc></url>
   <url><loc>https://businesspartner.sa/ar/calculators/government-cost</loc></url>
   <url><loc>https://businesspartner.sa/calculators/profession-checker</loc></url>
@@ -30,8 +66,6 @@
   <url><loc>https://businesspartner.sa/ar/calculators/overtime</loc></url>
   <url><loc>https://businesspartner.sa/calculators/gosi</loc></url>
   <url><loc>https://businesspartner.sa/ar/calculators/gosi</loc></url>
-  <url><loc>https://businesspartner.sa/compliance-portal</loc></url>
-  <url><loc>https://businesspartner.sa/ar/compliance-portal</loc></url>
   <url><loc>https://businesspartner.sa/compliance-agent</loc></url>
   <url><loc>https://businesspartner.sa/ar/compliance-agent</loc></url>
   <url><loc>https://businesspartner.sa/saudi-arabia</loc></url>
@@ -48,6 +82,8 @@
   <url><loc>https://businesspartner.sa/ar/employers</loc></url>
   <url><loc>https://businesspartner.sa/employer-join</loc></url>
   <url><loc>https://businesspartner.sa/ar/employer-join</loc></url>
+  <url><loc>https://businesspartner.sa/employer-login</loc></url>
+  <url><loc>https://businesspartner.sa/ar/employer-login</loc></url>
   <url><loc>https://businesspartner.sa/employer-dashboard</loc></url>
   <url><loc>https://businesspartner.sa/ar/employer-dashboard</loc></url>
   <url><loc>https://businesspartner.sa/workspaces</loc></url>
@@ -56,10 +92,19 @@
   <url><loc>https://businesspartner.sa/ar/workspace-request</loc></url>
   <url><loc>https://businesspartner.sa/contact</loc></url>
   <url><loc>https://businesspartner.sa/ar/contact</loc></url>
+  <url><loc>https://businesspartner.sa/fr/contact</loc></url>
+  <url><loc>https://businesspartner.sa/es/contact</loc></url>
+  <url><loc>https://businesspartner.sa/zh/contact</loc></url>
+  <url><loc>https://businesspartner.sa/ru/contact</loc></url>
+  <url><loc>https://businesspartner.sa/hi/contact</loc></url>
+  <url><loc>https://businesspartner.sa/ko/contact</loc></url>
+  <url><loc>https://businesspartner.sa/ja/contact</loc></url>
   <url><loc>https://businesspartner.sa/cart</loc></url>
   <url><loc>https://businesspartner.sa/ar/cart</loc></url>
   <url><loc>https://businesspartner.sa/checkout</loc></url>
   <url><loc>https://businesspartner.sa/ar/checkout</loc></url>
+  <url><loc>https://businesspartner.sa/terms</loc></url>
+  <url><loc>https://businesspartner.sa/ar/terms</loc></url>
   <url><loc>https://businesspartner.sa/account</loc></url>
   <url><loc>https://businesspartner.sa/ar/account</loc></url>
   <url><loc>https://businesspartner.sa/shared-services</loc></url>
@@ -68,6 +113,28 @@
   <url><loc>https://businesspartner.sa/ar/consultation</loc></url>
   <url><loc>https://businesspartner.sa/suppliers</loc></url>
   <url><loc>https://businesspartner.sa/ar/suppliers</loc></url>
+  <url><loc>https://businesspartner.sa/team/baher</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/baher</loc></url>
+  <url><loc>https://businesspartner.sa/team/mazen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/mazen</loc></url>
+  <url><loc>https://businesspartner.sa/team/nasser</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/nasser</loc></url>
+  <url><loc>https://businesspartner.sa/team/mishari</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/mishari</loc></url>
+  <url><loc>https://businesspartner.sa/team/abdulaziz</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/abdulaziz</loc></url>
+  <url><loc>https://businesspartner.sa/team/badr</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/badr</loc></url>
+  <url><loc>https://businesspartner.sa/team/farah</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/farah</loc></url>
+  <url><loc>https://businesspartner.sa/team/malak</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/malak</loc></url>
+  <url><loc>https://businesspartner.sa/team/mohammed</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/mohammed</loc></url>
+  <url><loc>https://businesspartner.sa/team/ahmed</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/ahmed</loc></url>
+  <url><loc>https://businesspartner.sa/team/abdulrahman</loc></url>
+  <url><loc>https://businesspartner.sa/ar/team/abdulrahman</loc></url>
   <url><loc>https://businesspartner.sa/services/category/company-formation</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/category/company-formation</loc></url>
   <url><loc>https://businesspartner.sa/services/category/foreign-investment</loc></url>
@@ -86,8 +153,6 @@
   <url><loc>https://businesspartner.sa/ar/services/category/real-estate</loc></url>
   <url><loc>https://businesspartner.sa/services/category/ai-automation</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/category/ai-automation</loc></url>
-  <url><loc>https://businesspartner.sa/services/category/tourism</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/category/tourism</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-chamber-01</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-chamber-01</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-pl-0001</loc></url>
@@ -272,6 +337,8 @@
   <url><loc>https://businesspartner.sa/ar/services/bp-ai-01</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-ai-02</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-ai-02</loc></url>
-  <url><loc>https://businesspartner.sa/services/bp-tour-01</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/bp-tour-01</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/hr-operations-specialist</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/hr-operations-specialist</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/recruitment-coordinator</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/recruitment-coordinator</loc></url>
 </urlset>
