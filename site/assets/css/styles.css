@@ -1243,3 +1243,11 @@ html[dir="rtl"] .deal-drawer { transform: translateX(-105%); }
   .lang-drop svg:first-child { width: 17px; height: 12px; }
   .container { padding: 0 12px; }
 }
+
+/* Partners repeater (bank-account & formation-contract forms) */
+.partners-rows { display: grid; gap: 8px; margin-bottom: 8px; }
+.partner-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr auto; gap: 8px; align-items: center; }
+.partner-row.with-share { grid-template-columns: 1.1fr .9fr 1.3fr .55fr auto; }
+.partner-row input { width: 100%; }
+.partner-row .pr-del { background: #fee2e2; color: #991b1b; border: 0; border-radius: 9px; width: 34px; height: 34px; cursor: pointer; font-weight: 700; }
+@media (max-width: 720px) { .partner-row, .partner-row.with-share { grid-template-columns: 1fr 1fr; } .partner-row .pr-del { width: 100%; } }
