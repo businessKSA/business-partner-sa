@@ -3336,19 +3336,12 @@ function buildEmployers() {
     <p class="lead">${L("Subscribe and get access to pre-screened, Saudization-checked candidates from our ATS — browse, shortlist, and we handle interviews to onboarding.", "اشترك واحصل على مرشّحين مُصنّفين ومفحوصين للتوطين من نظام التوظيف لدينا — تصفّح، رشّح، ونحن نتولّى من المقابلات حتى التعيين.")}</p>
     <div class="talent-actions" style="margin-top:26px">
       <a class="btn btn-primary" href="${u("/employer-join")}">${I.users}<span>${L("Subscribe now", "اشترك الآن")}</span></a>
-      <a class="btn btn-ghost" href="${u("/employer-dashboard")}">${L("Browse candidates", "تصفّح المرشّحين")}</a>
     </div>
-    <p class="emp-note" style="text-align:center">${L("Already have an account?", "عندك حساب من قبل؟")} <a href="${u("/employer-login")}">${L("Log in", "سجّل الدخول")}</a> · <a href="${u("/careers")}">${L("I'm a job seeker →", "أنا باحث عن عمل ←")}</a></p>
+    <p class="emp-note" style="text-align:center">${L("Already have an account?", "عندك حساب من قبل؟")} <a href="${u("/employer-login")}">${L("Log in", "سجّل الدخول")}</a></p>
   </div></section>
 
   <section class="section"><div class="container">
     <div class="grid grid-3">${value}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Plans", "الباقات")}</span><h2>${L("Choose your subscription", "اختر اشتراكك")}</h2><p>${L("Subscribe to unlock full candidate contacts, CVs, shortlist and hiring pipeline.", "اشترك لفتح بيانات التواصل الكاملة والسير الذاتية والقائمة المختصرة ومراحل التوظيف.")}</p></div>
-    ${employerPlanCards({ selectable: false })}
-    <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to see the candidate pool?", "جاهز تشوف قاعدة المرشّحين؟")}</h2><p>${L("Browse free, or log in to your account to unlock full profiles and contacts.", "تصفّح مجاناً، أو سجّل الدخول لحسابك لفتح الملفات الكاملة وبيانات التواصل.")}</p><a class="btn btn-white btn-lg" href="${u("/employer-dashboard")}">${L("Browse candidates", "تصفّح المرشّحين")}</a></div>
   </div></section>`;
   return page({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — بيزنس بارتنر"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
 }
