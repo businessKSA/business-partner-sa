@@ -368,6 +368,7 @@ const NAV_GROUPS = [
       { href: "/services", en: "All services (92)", ar: "كل الخدمات (92)" },
       { href: "/packages", en: "Packages", ar: "الباقات" },
       { href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡" },
+      { href: "/portal", en: "My Employees Portal 🔐", ar: "بوابة موظفيّ الأذكياء 🔐" },
       { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
