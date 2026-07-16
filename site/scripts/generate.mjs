@@ -7323,6 +7323,13 @@ write("ar/connect.html", buildConnect("/ar/"));
 write("portal.html", buildPortal("/"));
 write("ar/portal.html", buildPortal("/ar/"));
 
+// Compliance Agent client dashboard (email + access-code login, document
+// upload wizard, alerts/costs) — a prebuilt self-contained page that talks
+// only to n8n webhooks. Its source of truth lives under assets/data (which
+// cleanHtml never touches) and is copied into the ar/ tree on every build;
+// editing it in place under ar/ would be silently deleted by the next run.
+write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8"));
+
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
 const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
