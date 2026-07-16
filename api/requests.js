@@ -599,6 +599,29 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }
 
+  // Official-quote request from the cost calculator — no payment/receipt step.
+  // Lands in the client's dashboard (via bp_orders locally) and in the CRM with
+  // status «بانتظار التسعير» so the team prices it and comes back with an offer.
+  if (b.type === "quote") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPQ-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const items = (Array.isArray(b.items) ? b.items.map((x) => (typeof x === "string" ? x : (x && x.name) || "")).filter(Boolean) : [String(b.items || "")]).join("، ").slice(0, 900);
+    if (!name || !isEmail(email) || !items) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب عرض سعر رسمي ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items)}</table><p>العميل طلب عرضاً رسمياً من حاسبة التكلفة — سعّر السلة وارجع له بالعرض، ثم حدّث حالة الطلب في «Sales Pipeline» (رقم المرجع ${ref}).</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب العرض ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لعرض سعر رسمي على الخدمات التالية، وفريقنا يجهّز لك العرض الآن وسنعود إليك سريعاً.</p><table>${row("رقم المرجع", ref) + row("الخدمات", items)}</table><p>تابع حالة طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب عرض رسمي ${ref} — ${name}`, oHtml),
+      sendEmail(email, `استلمنا طلب العرض — ${ref}`, cHtml),
+      crmLead({ title: `طلب عرض رسمي — ${name}`, phone, email, notes: `عرض سعر · ${items}`, ref, orderStatus: "بانتظار التسعير" }),
+      addToAudience(email, name),
+      forwardLead({ source: "quote", ref, name, phone, email, items }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   // Client-initiated cancellation from /account — only for orders still under
   // review (never a completed one). Flips the CRM row's حالة الطلب to ملغي so
   // /account picks it up on its next live-status sync, and pings the team so
