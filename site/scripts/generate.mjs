@@ -1220,53 +1220,6 @@ function buildCalculator() {
   return page({ title: Lraw("Cost calculator — Business Partner", "حاسبة التكلفة — بيزنس بارتنر"), desc: Lraw("Build a basket of Business Partner services and see one-time and monthly fees from the official catalog.", "كوّن سلّة من خدمات بيزنس بارتنر واعرف الأتعاب لمرة واحدة والشهرية من الكتالوج الرسمي."), active: "/calculator", body });
 }
 
-const INTAKE_WEBHOOK = "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";
-function intakeFormBlock() {
-  const chips = ["كل المنصات","قوى","مقيم","GOSI","مدد","السجل التجاري","أخرى"].map(function(pf){return '<label class="bp-chk"><input type="checkbox" name="platforms" value="'+pf+'"> '+pf+'</label>';}).join("");
-  return `
-  <form class="bp-intake" id="bp-intake" novalidate>
-    <div class="bp-intake-grid">
-      <div class="field"><label>${L("Establishment name *", "اسم المنشأة *")}</label><input name="company" required></div>
-      <div class="field"><label>${L("Unified number (700)", "الرقم الموحّد (700)")}</label><input name="unified"></div>
-      <div class="field"><label>${L("Qiwa establishment no.", "رقم منشأة قوى")}</label><input name="qiwa_id"></div>
-      <div class="field"><label>${L("Mudad establishment no.", "رقم منشأة مدد")}</label><input name="mudad_id"></div>
-      <div class="field"><label>${L("Employees in GOSI", "عدد الموظفين في التأمينات")}</label><input name="employees" type="number" min="0"></div>
-      <div class="field"><label>${L("WhatsApp / mobile *", "واتساب / الجوال *")}</label><input name="whatsapp" required></div>
-      <div class="field"><label>${L("Email", "البريد الإلكتروني")}</label><input name="email" type="email"></div>
-    </div>
-    <div class="field"><label>${L("Subscribed platforms", "المنصات المشترك بها")}</label><div class="bp-chips">${chips}</div></div>
-    <div class="field"><label>${L("Upload files: Qiwa / Muqeem / GOSI / Mudad — PDF, Excel, images *", "ارفع ملفاتك: قوى / مقيم / التأمينات / مدد — PDF أو Excel أو صور *")}</label><input name="files" id="bp-files" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp" required></div>
-    <div class="field"><label>${L("Notes", "ملاحظات")}</label><textarea name="notes" rows="2"></textarea></div>
-    <button type="submit" class="btn btn-primary btn-lg" id="bp-submit">📤 ${L("Send securely", "إرسال آمن")}</button>
-    <div class="bp-intake-msg" id="bp-msg" hidden></div>
-    <p class="form-note">🔒 ${L("Files are stored in your private client folder and used only for compliance analysis. No government action is taken without your approval.", "تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. لا يُنفَّذ أي إجراء حكومي دون موافقتك.")}</p>
-  </form>
-  <script>window.BP_INTAKE_URL=${JSON.stringify(INTAKE_WEBHOOK)};window.BP_INTAKE_LANG=${JSON.stringify(LANG)};</script>
-  <script>
-  (function(){
-    var f=document.getElementById("bp-intake"); if(!f) return;
-    var msg=document.getElementById("bp-msg"), btn=document.getElementById("bp-submit"), files=document.getElementById("bp-files");
-    var isAr=window.BP_INTAKE_LANG==="ar";
-    function show(t,cls){msg.hidden=false;msg.textContent=t;msg.className="bp-intake-msg "+cls;}
-    f.addEventListener("submit",function(e){
-      e.preventDefault();
-      if(!f.company.value.trim()||!f.whatsapp.value.trim()||!files.files.length){show(isAr?"يرجى تعبئة اسم المنشأة والجوال وإرفاق ملف واحد على الأقل.":"Please fill establishment name, mobile and attach at least one file.","err");return;}
-      var fd=new FormData();
-      ["company","unified","qiwa_id","mudad_id","employees","whatsapp","email","notes"].forEach(function(k){fd.append(k,f[k].value||"");});
-      var pf=[].slice.call(f.querySelectorAll("input[name=platforms]:checked")).map(function(x){return x.value;});
-      fd.append("platforms",pf.join(","));
-      for(var i=0;i<files.files.length;i++) fd.append("files",files.files[i]);
-      btn.disabled=true;btn.textContent=isAr?"جارٍ الإرسال…":"Sending…";
-      show(isAr?"جارٍ رفع ملفاتك بأمان…":"Uploading securely…","info");
-      fetch(window.BP_INTAKE_URL,{method:"POST",body:fd}).then(function(r){if(!r.ok)throw new Error("status "+r.status);return r.text();}).then(function(){
-        f.reset();
-        show(isAr?"✅ استلمنا بياناتك وملفاتك بنجاح! سيبدأ وكيل الامتثال متابعة منشأتك ونتواصل معك واتساب/إيميل.":"✅ Received! Our Compliance Agent will start tracking your establishment and contact you on WhatsApp/email.","ok");
-      }).catch(function(){show(isAr?"تعذّر الإرسال. جرّب مجدداً أو تواصل معنا واتساب.":"Couldn't send. Please retry or contact us on WhatsApp.","err");}).finally(function(){btn.disabled=false;btn.textContent=isAr?"📤 إرسال آمن":"📤 Send securely";});
-    });
-  })();
-  </script>`;
-}
-
 // Qiwa-style tools directory: one clean grid of cards, each linking straight
 // to its calculator/tool (deep-linked via #hash into the right tab).
 function buildToolsHub() {
@@ -1278,7 +1231,6 @@ function buildToolsHub() {
     { icon: "🟢", title: L("Nitaqat calculator", "حاسبة النطاقات"), desc: L("Estimate your Nitaqat band and Saudization ratio by activity.", "قدّر نطاقك ونسبة التوطين حسب نشاطك."), href: u("/calculators/nitaqat") },
     { icon: "💰", title: L("Government cost calculator", "حاسبة التكاليف الحكومية"), desc: L("Estimate visa, Iqama and platform fees for your headcount.", "قدّر رسوم التأشيرات والإقامات والمنصات حسب عدد موظفيك."), href: u("/calculators/government-cost") },
     { icon: "🧑‍💼", title: L("Profession checker", "فاحص المهن"), desc: L("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."), href: u("/calculators/profession-checker") },
-    { icon: "🛡️", title: L("Compliance portal", "بوابة الامتثال"), desc: L("Upload your official files once — we build your file and track every deadline.", "ارفع ملفاتك الرسمية مرة واحدة — نبني ملفك ونتابع كل استحقاق."), href: u("/compliance-portal") },
   ];
   const cards = tools.map((t) => `<a class="card cat-card" href="${t.href}">
     <div class="cat-card-icon">${t.icon}</div>
@@ -1326,7 +1278,7 @@ function buildNitaqatCalculator() {
         <div class="field"><label for="cc-saudis">${L("Saudi employees (average)", "متوسط العمالة السعودية")}</label><input type="number" id="cc-saudis" min="0" value="3"></div>
       </div>
       <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
-      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-portal")}">${L("Upload your GOSI/Qiwa/Muqeem file and we'll extract them →", "ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←")}</a></p>
+      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-agent")}">${L("Subscribe to the Compliance Agent — it reads your GOSI/Qiwa/Muqeem files and tracks them for you →", "اشترك في وكيل الامتثال — يقرأ ملفات التأمينات/قوى/مقيم ويتابعها عنك ←")}</a></p>
       <div class="cc-result" id="cc-nit-result" hidden>
         <div class="cc-tiles">
           <div class="cc-tile"><span>${L("Saudization rate", "نسبة التوطين")}</span><strong id="cc-pct">—</strong></div>
@@ -1635,68 +1587,9 @@ function buildProfessionChecker() {
 }
 
 
-// Branded wrapper around the secure n8n intake form — clients never see a bare n8n URL.
-const COMPLIANCE_FORM_URL = "https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake";
-function buildCompliancePortal() {
-  const body = `
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
-    <h1>${L("Establishment Compliance Portal", "بوابة امتثال المنشأة")}</h1>
-    <p class="lead">${L("Upload your official Qiwa, Muqeem, GOSI and Mudad reports once — the Compliance Agent reads them, builds your establishment file, tracks every iqama and work-permit deadline, and alerts you on WhatsApp and email before any violation.", "ارفع تقاريرك الرسمية من قوى ومقيم والتأمينات (GOSI) ومدد مرة واحدة — وكيل الامتثال يقرأها، يبني ملف منشأتك، يتتبع كل استحقاق إقامة ورخصة عمل، وينبّهك واتساب وإيميل قبل أي مخالفة.")}</p>
-  </div></section>
-  <section class="section"><div class="container">
-    <div class="portal-wrap">
-      <div class="portal-form">
-        <div class="order-box" style="margin:0">${intakeFormBlock()}</div>
-      </div>
-      <aside class="portal-side">
-        <div class="order-box">
-          <h3>${L("What happens after you submit?", "وش يصير بعد الإرسال؟")}</h3>
-          <ol class="portal-steps">
-            <li><strong>${L("Your private folder is created", "يُنشأ مجلدك الخاص")}</strong><span>${L("Every file you upload is stored in a dedicated client folder.", "كل ملف ترفعه يُحفظ في مجلد عميل مخصص لمنشأتك.")}</span></li>
-            <li><strong>${L("The agent reads your reports", "الوكيل يقرأ تقاريرك")}</strong><span>${L("Employees, salaries, professions, iqama and border numbers are extracted automatically.", "يستخرج الموظفين والرواتب والمهن وأرقام الإقامات والحدود تلقائياً.")}</span></li>
-            <li><strong>${L("Your compliance file is built", "يُبنى ملف امتثالك")}</strong><span>${L("Nitaqat band, estimated government costs, and every upcoming deadline.", "نطاق السعودة، التكاليف الحكومية التقديرية، وكل استحقاق قادم.")}</span></li>
-            <li><strong>${L("Daily monitoring starts", "تبدأ المراقبة اليومية")}</strong><span>${L("Red/yellow early alerts on WhatsApp and email — with your approval before any government action.", "تنبيهات مبكرة أحمر/أصفر واتساب وإيميل — وبموافقتك قبل أي إجراء حكومي.")}</span></li>
-          </ol>
-        </div>
-        <div class="order-box portal-secure">
-          <h3>🔒 ${L("Your data is protected", "بياناتك محمية")}</h3>
-          <p>${L("Files are used for compliance analysis only, stored in your private client folder, and never shared. Concierge model: no action is ever taken on your establishment without written approval.", "الملفات تُستخدم لتحليل الامتثال فقط، وتُحفظ في مجلد عميلك الخاص، ولا تُشارك مع أي طرف. نموذج Concierge: لا يُنفَّذ أي إجراء على منشأتك دون موافقة خطية.")}</p>
-        </div>
-        <div class="order-box">
-          <h3>${L("Prefer to talk first?", "تبغى تتكلم مع أحد أولاً؟")}</h3>
-          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>
-          <a class="btn btn-ghost" href="${u("/tools-and-calculators")}" style="width:100%;margin-top:10px">${L("Free compliance calculators →", "حاسبات الامتثال المجانية ←")}</a>
-        </div>
-      </aside>
-    </div>
-  </div></section>
-  <style>
-    .portal-wrap{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;align-items:start}
-    .portal-form iframe{width:100%;min-height:1250px;border:1px solid var(--gray-line);border-radius:var(--radius-lg);background:var(--white)}
-    .portal-fallback{text-align:center;margin-top:10px}
-    .portal-side{display:flex;flex-direction:column;gap:16px}
-    .portal-side .order-box{margin:0}
-    .portal-steps{list-style:none;counter-reset:ps;margin:0;padding:0}
-    .portal-steps li{counter-increment:ps;position:relative;padding-inline-start:44px;margin-bottom:16px}
-    .portal-steps li::before{content:counter(ps);position:absolute;inset-inline-start:0;top:2px;width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
-    .portal-steps strong{display:block;color:var(--navy);margin-bottom:2px}
-    .portal-steps span{font-size:.86rem;color:var(--text-soft);line-height:1.7}
-    .portal-secure p{font-size:.88rem;color:var(--text-soft);line-height:1.8;margin:0}
-    @media(max-width:940px){.portal-wrap{grid-template-columns:1fr}}
-  </style>`;
-  return page({
-    title: Lraw("Establishment Compliance Portal — Business Partner", "بوابة امتثال المنشأة — بيزنس بارتنر"),
-    desc: Lraw("Upload your Qiwa, Muqeem, GOSI and Mudad reports — the Compliance Agent builds your file and alerts you before any violation.", "ارفع تقاريرك من قوى ومقيم والتأمينات ومدد — وكيل الامتثال يبني ملفك وينبّهك قبل أي مخالفة."),
-    active: "/calculator",
-    path: "/compliance-portal",
-    body,
-  });
-}
-
 // The paid Compliance Agent subscription product — full landing + pricing +
 // payment + intake, wrapped in the site's own header/footer/cart (unlike the
-// free compliance-portal tool above). Payment reuses api/pay.js same-origin.
+// Payment reuses api/pay.js same-origin.
 function buildComplianceAgent() {
   const platforms = ["قوى","مقيم","GOSI","مدد","نطاقات","السجل التجاري","المركز السعودي للأعمال","ZATCA","الغرفة التجارية","العنوان الوطني","بلدي","الدفاع المدني","إيجار","MISA"];
   const platformsEn = ["Qiwa","Muqeem","GOSI","Mudad","Nitaqat","CR","Saudi Business Center","ZATCA","Chamber","National Address","Balady","Civil Defense","Ejar","MISA"];
@@ -4000,7 +3893,7 @@ function buildAccount() {
         <div class="dash-panel" id="panel-documents">
           <div class="dash-panel-head"><h2>${L("My documents", "مستنداتي")}</h2><p>${L("Files attached to your orders.", "الملفات المرفقة بطلباتك.")}</p></div>
           <div class="dash-card"><div id="all-uploads"><p class="dash-empty">${L("No documents yet — attach them when you place an order.", "لا توجد مستندات بعد — أرفقها عند تقديم طلب.")}</p></div>
-            <a class="btn btn-ghost" href="${u("/compliance-portal")}">🛡️ ${L("Upload via the compliance portal", "ارفع عبر بوابة الامتثال")}</a></div>
+            <a class="btn btn-ghost" href="${u("/compliance-agent")}">🛡️ ${L("Subscribe to the Compliance Agent", "اشترك في وكيل الامتثال")}</a></div>
         </div>
 
         <!-- Support -->
@@ -5364,7 +5257,6 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}calculators/annual-leave.html`, buildAnnualLeaveCalculator());
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
-  write(`${pre}compliance-portal.html`, buildCompliancePortal());
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
@@ -5428,7 +5320,7 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
   .concat(JOBS.map((j) => `/jobs/${j.slug}`));

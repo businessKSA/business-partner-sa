@@ -11,7 +11,9 @@
   },
   "redirects": [
     { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },
-    { "source": "/business-tourism", "destination": "/tourism", "permanent": true }
+    { "source": "/business-tourism", "destination": "/tourism", "permanent": true },
+    { "source": "/compliance-portal", "destination": "/compliance-agent", "permanent": true },
+    { "source": "/ar/compliance-portal", "destination": "/ar/compliance-agent", "permanent": true }
   ],
   "rewrites": [
     { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
