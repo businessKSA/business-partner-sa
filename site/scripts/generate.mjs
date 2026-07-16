@@ -4275,25 +4275,6 @@ function buildDashboard() {
     .hint{font-size:.75rem;color:var(--muted);min-height:1em;margin-top:.35rem}
     .foot{margin-top:2.2rem;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:1rem 1.25rem;font-size:.86rem}
     .foot .note{margin-top:.5rem;color:#78716c}
-    .leads{margin-top:2.2rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.3rem 1.4rem;box-shadow:var(--shadow)}
-    .leads-head h2{color:var(--navy);font-size:1.3rem;margin-bottom:.2rem}
-    .leads-head p{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
-    .leads-gate{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.8rem}
-    .leads-gate input[type=password]{flex:1;min-width:200px;border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font:inherit}
-    .leads-gate button{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:.6rem 1.2rem;font-weight:600}
-    .leads-remember{font-size:.82rem;color:var(--muted);display:inline-flex;gap:.35rem;align-items:center;cursor:pointer}
-    .leads-msg{font-size:.86rem;color:var(--muted);min-height:1em;margin-bottom:.6rem}
-    .leads-list{display:flex;flex-direction:column;gap:.6rem}
-    .lead{display:flex;gap:.9rem;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;background:#fff}
-    .lead-main{flex:1;min-width:200px}
-    .lead-main strong{color:var(--navy);display:block;font-size:.98rem}
-    .lead-meta{color:var(--muted);font-size:.8rem;margin-top:.15rem}
-    .lead-stage{font-size:.74rem;padding:.2rem .6rem;border-radius:999px;background:#eef1fb;color:var(--navy);font-weight:700;white-space:nowrap}
-    .lead-actions{display:flex;gap:.45rem;align-items:center}
-    .lead-actions a{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;color:#fff;text-decoration:none}
-    .lead-wa{background:#25D366}.lead-mail{background:var(--navy)}.lead-call{background:#0ea5e9}
-    .lead-actions a:hover{opacity:.9}
-    .leads-empty{color:var(--muted);font-size:.9rem;padding:.5rem 0}
   </style>
 </head>
 <body>
@@ -4309,20 +4290,6 @@ function buildDashboard() {
       </div>
     </div>
     <div class="grid" id="grid"></div>
-
-    <section class="leads" id="leads">
-      <div class="leads-head">
-        <h2>📥 الطلبات الواردة</h2>
-        <p>كل الطلبات القادمة من الموقع ومحفول مكفول — مباشرة من نظام العملاء (Notion CRM). تواصل مع العميل بضغطة واتساب.</p>
-      </div>
-      <div class="leads-gate" id="leads-gate">
-        <input type="password" id="leads-key" placeholder="مفتاح الوصول (LEADS_KEY)" autocomplete="off" />
-        <button type="button" id="leads-load">تحميل الطلبات</button>
-        <label class="leads-remember"><input type="checkbox" id="leads-save" checked /> تذكّر على هذا الجهاز</label>
-      </div>
-      <div class="leads-msg" id="leads-msg"></div>
-      <div class="leads-list" id="leads-list"></div>
-    </section>
 
     <div class="foot">
       🔒 النموذج التشغيلي Concierge: الإيجنت يجهّز ويوصي — أي مخرج خارجي «بانتظار الموافقة» ولا يُرسل آلياً. لا OTP ولا كلمات مرور.
@@ -4446,53 +4413,6 @@ function buildDashboard() {
         for (var j=0;j<cards.length;j++) applyLock(cards[j]);
       });
     }
-
-    // ---- Incoming requests (leads) from the CRM ----
-    (function(){
-      var LKEY='bp_leads_key';
-      var keyIn=document.getElementById('leads-key');
-      var loadBtn=document.getElementById('leads-load');
-      var saveCb=document.getElementById('leads-save');
-      var msg=document.getElementById('leads-msg');
-      var list=document.getElementById('leads-list');
-      var gate=document.getElementById('leads-gate');
-      if(!loadBtn) return;
-      var WA_SVG='<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="#fff" d="M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.2A9 9 0 1012 3zm3.9 10.4c-.2-.1-1.3-.6-1.5-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.1-.2.1-.4 0-.2-.1-.9-.3-1.6-1-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.3.1-.4l.3-.4.2-.3v-.3c0-.1-.5-1.2-.7-1.6-.2-.4-.3-.4-.5-.4h-.4c-.1 0-.4.1-.5.3-.2.2-.7.7-.7 1.7s.7 2 .8 2.1c.1.2 1.5 2.3 3.6 3.1 1.7.7 2 .6 2.4.5.4 0 1.3-.5 1.4-1 .2-.5.2-.9.1-1z"/></svg>';
-      function waLink(phone){ var d=(phone||'').replace(/[^0-9]/g,''); if(!d) return ''; if(d.charAt(0)==='0') d='966'+d.slice(1); if(d.indexOf('966')!==0 && d.length<=9) d='966'+d; return 'https://wa.me/'+d; }
-      function esc(s){ var e=document.createElement('span'); e.textContent=(s==null?'':String(s)); return e.innerHTML; }
-      function render(leads){
-        if(!leads.length){ list.innerHTML='<div class="leads-empty">لا توجد طلبات بعد.</div>'; return; }
-        list.innerHTML=leads.map(function(l){
-          var acts=''; var wl=waLink(l.phone);
-          if(wl) acts+='<a class="lead-wa" href="'+wl+'?text='+encodeURIComponent('مرحباً، بخصوص طلبك '+(l.ref||''))+'" target="_blank" rel="noopener" title="واتساب">'+WA_SVG+'</a>';
-          if(l.email) acts+='<a class="lead-mail" href="mailto:'+esc(l.email)+'" title="إيميل">✉</a>';
-          if(l.phone) acts+='<a class="lead-call" href="tel:'+esc(l.phone)+'" title="اتصال">☎</a>';
-          var meta=[l.at, l.email, l.phone].filter(Boolean).map(esc).join(' · ');
-          var badge=(l.status||l.stage);
-          return '<div class="lead"><div class="lead-main"><strong>'+esc(l.title||l.ref||'طلب')+'</strong><div class="lead-meta">'+meta+'</div></div>'+
-            (badge?'<span class="lead-stage">'+esc(badge)+'</span>':'')+
-            '<div class="lead-actions">'+acts+'</div></div>';
-        }).join('');
-      }
-      function fetchLeads(key){
-        msg.textContent='جارٍ التحميل…';
-        fetch('/api/requests?action=leads&limit=40&key='+encodeURIComponent(key))
-          .then(function(r){ return r.json().then(function(d){ return {s:r.status,d:d}; }); })
-          .then(function(res){
-            if(res.d && res.d.ok){ msg.textContent=res.d.leads.length+' طلب'; render(res.d.leads); if(gate) gate.style.display='none';
-              if(saveCb.checked){ try{ localStorage.setItem(LKEY,key); }catch(e){} } return; }
-            if(res.s===401) msg.textContent='مفتاح غير صحيح.';
-            else if(res.s===503) msg.textContent='لم يُضبط LEADS_KEY في إعدادات الخادم (Vercel).';
-            else msg.textContent='تعذّر التحميل.';
-            try{ localStorage.removeItem(LKEY); }catch(e){}
-          })
-          .catch(function(){ msg.textContent='تعذّر الاتصال.'; });
-      }
-      loadBtn.addEventListener('click', function(){ var k=(keyIn.value||'').trim(); if(!k){ msg.textContent='أدخل المفتاح.'; return; } fetchLeads(k); });
-      keyIn.addEventListener('keydown', function(e){ if(e.key==='Enter') loadBtn.click(); });
-      var saved=''; try{ saved=localStorage.getItem(LKEY)||''; }catch(e){}
-      if(saved){ keyIn.value=saved; fetchLeads(saved); }
-    })();
   </script>
 </body>
 </html>`;
