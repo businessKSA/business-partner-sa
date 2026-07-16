@@ -126,7 +126,7 @@
         {
           "title": "الموارد البشرية والتوظيف",
           "text": "إدارة قوى وGOSI ومدد والعقود، واستقطاب الكفاءات وإجراءات الاستقدام من البداية للنهاية.",
-          "category": "HR & Recruitment"
+          "category": "HR Services"
         }
       ]
     },
@@ -869,7 +869,7 @@
         {
           "title": "الشركة الأجنبية أم الخليجية؟",
           "excerpt": "الخليجي يُعامل معاملة السعودي تقريباً (بلا رسوم جمركية بين دول المجلس)، بينما تحتاج الشركة الأجنبية ترخيص MISA ومستندات مصدّقة. نحدد لك المسار الصحيح حسب جنسيتك ونشاطك.",
-          "link": "/services#cat-foreign-investment",
+          "link": "/services/category/foreign-investment",
           "titleEn": "Foreign company or Gulf company?",
           "excerptEn": "A Gulf national is treated almost like a Saudi (no customs duties between GCC states), while a foreign company needs a MISA license and attested documents. We identify the right track for your nationality and activity."
         },
@@ -923,7 +923,7 @@
           "gov": "وزارة التجارة",
           "what": "بوابة تأسيس المنشآت: السجلات التجارية، الأسماء التجارية، عقود التأسيس، والتأكيد السنوي.",
           "help": "نتولّى التأسيس والتعديلات والتجديدات نيابةً عنك.",
-          "link": "/services#cat-company-formation",
+          "link": "/services/category/company-formation",
           "nameEn": "Saudi Business Center",
           "govEn": "Ministry of Commerce",
           "whatEn": "The business-formation gateway: commercial registrations, trade names, articles of association, and annual confirmation.",
@@ -934,7 +934,7 @@
           "gov": "MISA",
           "what": "الجهة المنظّمة للاستثمار الأجنبي: تراخيص الاستثمار ومسارات دخول السوق للمستثمر الأجنبي.",
           "help": "نستخرج ترخيص الاستثمار ونؤسّس كيانك الأجنبي.",
-          "link": "/services#cat-foreign-investment",
+          "link": "/services/category/foreign-investment",
           "nameEn": "Ministry of Investment",
           "govEn": "MISA",
           "whatEn": "The regulator of foreign investment: investment licenses and market-entry tracks for the foreign investor.",
@@ -945,7 +945,7 @@
           "gov": "وزارة الموارد البشرية",
           "what": "منصة إدارة العمالة: توثيق العقود، التأشيرات، نقل الخدمات، ومؤشرات التوطين (نطاقات).",
           "help": "ندير ملفك على قوى ونتابع التزاماتك.",
-          "link": "/services#cat-government-relations",
+          "link": "/services/category/government-relations",
           "nameEn": "Qiwa",
           "govEn": "Ministry of Human Resources",
           "whatEn": "Labor management platform: contract authentication, visas, sponsorship transfer, and Saudization indicators (Nitaqat).",
@@ -956,7 +956,7 @@
           "gov": "GOSI",
           "what": "تسجيل المشتركين، الشهادات، والفوترة الخاصة بالتأمينات.",
           "help": "نسجّل ونحدّث ونتابع اشتراكاتك.",
-          "link": "/services#cat-hr-services",
+          "link": "/services/category/hr-services",
           "nameEn": "Social Insurance",
           "govEn": "GOSI",
           "whatEn": "Registering subscribers, certificates, and insurance billing.",
@@ -967,7 +967,7 @@
           "gov": "ZATCA",
           "what": "التسجيل الضريبي، الإقرارات، والفوترة الإلكترونية.",
           "help": "نتولّى التسجيل والإقرارات والامتثال الضريبي.",
-          "link": "/services#cat-government-relations",
+          "link": "/services/category/government-relations",
           "nameEn": "Zakat, Tax and Customs",
           "govEn": "ZATCA",
           "whatEn": "Tax registration, returns, and e-invoicing.",
@@ -1000,7 +1000,7 @@
           "gov": "الجوازات",
           "what": "إصدار وتجديد الإقامات وتأشيرات الخروج والعودة وإدارة بيانات العمالة.",
           "help": "ندير إجراءات إقامات موظفيك وتأشيراتهم.",
-          "link": "/services#cat-government-relations",
+          "link": "/services/category/government-relations",
           "nameEn": "Muqeem / Absher Business",
           "govEn": "Passports",
           "whatEn": "Issuing and renewing residencies, exit-and-re-entry visas, and managing labor data.",

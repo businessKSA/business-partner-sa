@@ -3,21 +3,7 @@
   "type": "module",
   "version": "3.0.0",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build --skip-check",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/check": "^0.9.3",
-    "@astrojs/sitemap": "^3.1.6",
-    "@astrojs/vercel": "^8.2.6",
-    "@types/node": "^24.3.0",
-    "@types/nodemailer": "^7.0.1",
-    "astro": "^5.13.3",
-    "googleapis": "^159.0.0",
-    "nodemailer": "^7.0.6",
-    "typescript": "^5.6.2"
+    "build": "node site/scripts/generate.mjs",
+    "dev": "node site/scripts/generate.mjs && npx http-server site -p 8080 -s"
   }
 }

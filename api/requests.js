@@ -528,6 +528,44 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }
 
+  // Client-initiated cancellation from /account — only for orders still under
+  // review (never a completed one). Flips the CRM row's حالة الطلب to ملغي so
+  // /account picks it up on its next live-status sync, and pings the team so
+  // no bank transfer gets processed for a cancelled order.
+  if (b.type === "cancel-order") {
+    const ref = String(b.ref || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const name = String(b.name || "").trim().slice(0, 160);
+    if (!ref || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const q = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+    });
+    if (!q.ok) { console.error("cancel-order query error", q.status, (await q.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const page = ((await q.json()).results || [])[0];
+    if (!page) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "order_not_found" })); }
+    const p = page.properties || {};
+    const notesText = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
+    const emailM = notesText.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+    if (!emailM || emailM[1].toLowerCase() !== email) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "email_mismatch" })); }
+    const status = p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name;
+    if (status === "مكتمل") { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "already_completed" })); }
+    if (status !== "ملغي") {
+      const patchRes = await fetch(`https://api.notion.com/v1/pages/${page.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ properties: { "حالة الطلب": { select: { name: "ملغي" } } } }),
+      });
+      if (!patchRes.ok) { console.error("cancel-order patch error", patchRes.status, (await patchRes.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const cHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto" dir="rtl"><h2 style="color:#0B1B5A">إلغاء طلب — ${esc(ref)}</h2><table>${row("الاسم", name) + row("البريد", email)}</table><p>ألغى العميل هذا الطلب من صفحة حسابه. تأكد أنه لا يوجد تحويل بنكي مستحق قبل إقفال الصف نهائياً في Notion.</p></div>`;
+      await sendEmail(TEAM_EMAIL, `إلغاء طلب ${ref}`, cHtml);
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   // Task Force intake from /task-force — a complex/multi-party executive task.
   if (b.type === "task-force") {
     const company = String(b.company || "").trim().slice(0, 200);

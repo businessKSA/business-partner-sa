@@ -7,8 +7,9 @@
   var nav = document.querySelector(".nav");
   if (toggle && nav) {
     toggle.addEventListener("click", function () {
-      nav.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", nav.classList.contains("open"));
+      var isOpen = nav.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", isOpen);
+      document.body.classList.toggle("nav-open", isOpen);
     });
   }
 
@@ -818,13 +819,13 @@ var BP = window.BP = window.BP || {};
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var cart = BP.cart.read();
-      if (!cart.length) { alert(BP.t("Your cart is empty.", "سلتك فارغة.")); location.href = "/services"; return; }
+      if (!cart.length) { alert(BP.t("Your cart is empty.", "سلتك فارغة.")); location.href = BP.lang === "ar" ? "/ar/services" : "/services"; return; }
       var session2 = checkoutSession();
       var name = (session2 && session2.name) || document.getElementById("co-name").value.trim();
       var phone = document.getElementById("co-phone").value.trim();
       var email = ((session2 && session2.email) || document.getElementById("co-email").value.trim()).toLowerCase();
       var isEmailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
-      if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = "/account"; return; }
+      if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = BP.lang === "ar" ? "/ar/account" : "/account"; return; }
       var receipt = document.getElementById("co-receipt");
       var receiptFile = receipt && receipt.files && receipt.files.length ? receipt.files[0] : null;
       var isPdf = receiptFile && (receiptFile.type === "application/pdf" || /\.pdf$/i.test(receiptFile.name || ""));
@@ -1036,10 +1037,13 @@ var BP = window.BP = window.BP || {};
       var waIcon = '<a class="ord-wa" href="https://wa.me/966507034157?text=' + encodeURIComponent(waMsg) +
         '" target="_blank" rel="noopener" title="' + BP.t("Contact us on WhatsApp", "تواصل معنا عبر واتساب") + '" aria-label="WhatsApp">' +
         '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.2A9 9 0 1012 3zm0 2a7 7 0 11-3.6 13l-.3-.2-2.3.6.6-2.2-.2-.3A7 7 0 0112 5zm3.9 8.4c-.2-.1-1.3-.6-1.5-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.1-.2.1-.4 0-.2-.1-.9-.3-1.6-1-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.3.1-.4l.3-.4.2-.3v-.3c0-.1-.5-1.2-.7-1.6-.2-.4-.3-.4-.5-.4h-.4c-.1 0-.4.1-.5.3-.2.2-.7.7-.7 1.7s.7 2 .8 2.1c.1.2 1.5 2.3 3.6 3.1 1.7.7 2 .6 2.4.5.4 0 1.3-.5 1.4-1 .2-.5.2-.9.1-1z"/></svg></a>';
+      var cancelBtn = (!cancelled && !done)
+        ? '<button type="button" class="ord-cancel" data-ref="' + esc2(o.ref) + '" data-email="' + esc2(o.email || "") + '" data-name="' + esc2(o.name || "") + '">' + BP.t("Cancel order", "إلغاء الطلب") + '</button>'
+        : "";
       return '<div class="ord"><div class="ord-main"><strong>' + esc2(o.ref) + '</strong>' +
         '<span class="text-soft"> · ' + esc2(o.at || "") + '</span>' +
         '<div class="text-soft ord-items">' + items + '</div></div>' +
-        '<div class="ord-side"><span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span>' + waIcon + '</div></div>';
+        '<div class="ord-side"><span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span>' + waIcon + cancelBtn + '</div></div>';
     }
 
     function renderOrders() {
@@ -1076,6 +1080,38 @@ var BP = window.BP = window.BP || {};
           '<a class="btn btn-ghost" href="' + (BP.lang === "ar" ? "/ar" : "") + '/packages">' + BP.t("View package details", "تفاصيل الباقة") + '</a></div>';
       }
     }
+
+    document.addEventListener("click", function (e) {
+      var btn = e.target.closest(".ord-cancel");
+      if (!btn) return;
+      var ref = btn.getAttribute("data-ref");
+      var email = btn.getAttribute("data-email");
+      var name = btn.getAttribute("data-name");
+      if (!ref || !email) return;
+      if (!confirm(BP.t("Cancel this order? This can't be undone.", "إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."))) return;
+      var lbl = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = BP.t("Cancelling…", "جارٍ الإلغاء…");
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "cancel-order", ref: ref, email: email, name: name }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) {
+          btn.disabled = false; btn.textContent = lbl;
+          alert(d && d.error === "already_completed"
+            ? BP.t("This order is already completed and can't be cancelled online — contact us on WhatsApp.", "هذا الطلب مكتمل بالفعل ولا يمكن إلغاؤه من هنا — تواصل معنا عبر واتساب.")
+            : BP.t("Couldn't cancel the order. Try again or contact us on WhatsApp.", "تعذّر إلغاء الطلب. حاول مرة أخرى أو تواصل معنا عبر واتساب."));
+          return;
+        }
+        var orders = ordersData();
+        orders.forEach(function (o) { if (o.ref === ref) o.status = BP.t("Cancelled", "ملغي"); });
+        try { localStorage.setItem("bp_orders", JSON.stringify(orders)); } catch (er) {}
+        renderOrders();
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = lbl;
+        alert(BP.t("Network error — try again.", "خطأ في الاتصال — حاول مرة أخرى."));
+      });
+    });
 
     if (loginF) loginF.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -1771,7 +1807,7 @@ var BP_EMP_BILLING = "monthly";
   document.addEventListener("click", function (e) {
     var btn = e.target.closest(".emp-plan-btn");
     if (!btn) return;
-    location.href = "/cart";
+    location.href = BP.lang === "ar" ? "/ar/cart" : "/cart";
   });
 })();
 

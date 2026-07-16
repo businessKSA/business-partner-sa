@@ -79,6 +79,7 @@ p { color: var(--text-soft); }
 .site-header { position: sticky; top: 0; z-index: 60; background: rgba(255,255,255,.92);
   backdrop-filter: saturate(180%) blur(12px); border-bottom: 1px solid var(--gray-line); }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 18px; }
+.logo { flex-shrink: 0; }
 .logo img { height: 34px; width: auto; }
 .nav { display: flex; align-items: center; gap: 6px; }
 .nav a { color: var(--text); font-weight: 600; font-size: .98rem; padding: 8px 13px; border-radius: 8px; white-space: nowrap; }
@@ -369,6 +370,7 @@ p { color: var(--text-soft); }
   flex-wrap: wrap; gap: 12px; font-size: .86rem; color: rgba(255,255,255,.6); }
 
 /* WhatsApp floating */
+body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .wa-fab { position: fixed; inset-inline-end: 22px; bottom: 22px; z-index: 80; display: inline-flex; align-items: center; gap: 10px;
   background: var(--wa); color: #05330f; font-weight: 700; padding: 13px 20px; border-radius: 999px;
   box-shadow: 0 10px 30px rgba(37,211,102,.4); transition: transform .15s ease; }
@@ -388,7 +390,7 @@ p { color: var(--text-soft); }
   .header-cta .btn-ghost, .header-cta > .btn-primary { display: none; }
   .lang-drop .lang-label { display: none; }
 }
-@media (max-width: 1080px) {
+@media (max-width: 1400px) {
   .nav, .header-cta .btn { display: none; }
   .nav-toggle { display: block; }
   .header-inner { gap: 10px; }
@@ -559,6 +561,9 @@ p { color: var(--text-soft); }
 .ord-side { display: flex; align-items: center; gap: 8px; }
 .ord-wa { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 999px; background: #25D366; color: #fff; flex: 0 0 auto; transition: transform .15s ease; }
 .ord-wa:hover { transform: translateY(-1px); }
+.ord-cancel { font-size: .78rem; padding: 5px 12px; border-radius: 999px; border: 1px solid #e0b4b4; background: #fff; color: #9a1c1c; cursor: pointer; white-space: nowrap; flex: 0 0 auto; transition: background .15s ease; }
+.ord-cancel:hover { background: #fbe8e8; }
+.ord-cancel:disabled { opacity: .6; cursor: default; }
 .upl { padding: 8px 0; border-bottom: 1px dashed var(--gray-line); font-size: .92rem; }
 .req-star { color: #c0392b; }
 
@@ -688,7 +693,7 @@ p { color: var(--text-soft); }
 .nav-menu a { display: block; padding: 10px 14px; border-radius: 9px; font-weight: 600; color: var(--text); white-space: nowrap; }
 .nav-menu a:hover, .nav-menu a.active { background: var(--gray-bg); color: var(--navy); }
 .nav-cta.btn-primary { display: none; }
-@media (max-width: 1080px) {
+@media (max-width: 1400px) {
   .nav.open .nav-group { width: 100%; }
   .nav.open .nav-drop { width: 100%; justify-content: flex-start; padding: 12px; font-size: .82rem; color: var(--text-soft);
     letter-spacing: .06em; text-transform: uppercase; cursor: default; }

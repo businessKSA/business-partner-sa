@@ -159,10 +159,20 @@ const EXTRA_LANGS = ["fr", "es", "zh", "ru", "hi", "ko", "ja"];
 const ALL_LANGS = ["en", "ar", ...EXTRA_LANGS];
 const LANG_NAMES = { en: "English", ar: "العربية", fr: "Français", es: "Español", zh: "中文", ru: "Русский", hi: "हिन्दी", ko: "한국어", ja: "日本語" };
 const LANG_LOCALE = { en: "en_US", ar: "ar_SA", fr: "fr_FR", es: "es_ES", zh: "zh_CN", ru: "ru_RU", hi: "hi_IN", ko: "ko_KR", ja: "ja_JP" };
-// Pages generated for the 7 extra languages so far (site chrome + homepage +
-// the main discovery pages). Everything else still exists only in en/ar;
-// u() below sends extra-language visitors to the English URL for those.
+// Pages generated for the extra languages that AREN'T fully translated yet
+// (site chrome + homepage + the main discovery pages). Everything else still
+// exists only in en/ar for those languages; u() below sends visitors to the
+// English URL instead of a 404. Languages in FULLY_READY_LANGS skip this
+// restriction entirely and get every page, same as en/ar.
 const EXTRA_LANG_PATHS = new Set(["/", "/about", "/services", "/packages", "/contact"]);
+// Extra languages with a complete, reviewed translation of every page —
+// added one at a time as each is finished. See docs/i18n-status.md.
+const FULLY_READY_LANGS = ["fr"];
+// A handful of pages (the internal AI-employee/portal tools) are hand-written
+// once for ar/en only — they're never part of the per-language build loop,
+// so even a "fully ready" language must not get a prefixed link to them.
+const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
+const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
 import { TRANSLATIONS } from "./i18n.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
@@ -200,14 +210,18 @@ const u = (href) => {
   if (ALL_LANGS.some((l) => l !== "en" && (href === "/" + l || href.startsWith("/" + l + "/")))) return href; // already prefixed
   const bare = href === "/" ? "/" : href.split("#")[0].split("?")[0];
   const hash = href.includes("#") ? "#" + href.split("#")[1] : "";
-  if (LANG !== "ar" && !EXTRA_LANG_PATHS.has(bare)) return href; // not built yet in this language
+  if (LANG !== "ar" && !langPathReady(LANG, bare)) return href; // not built yet in this language
   return (bare === "/" ? `/${LANG}/` : `/${LANG}${bare}`) + hash;
 };
 
 // Standalone HR portal (hr.businesspartner.sa) — Arabic-first canonical paths
 // ("/", "/join", "/dashboard", "/candidates"); English lives under "/en/...".
 // Kept fully separate from the main site's nav/footer/services.
-const pu = (short) => (LANG === "ar" ? short : "/en" + (short === "/" ? "" : short));
+// Absolute (not root-relative) because these same pages are also reachable
+// under the main site's /portal/... paths (e.g. linked from /account) — a
+// root-relative "/join" would 404 there, since the vercel.json rewrite that
+// makes "/join" resolve only applies on the hr.businesspartner.sa host.
+const pu = (short) => "https://hr.businesspartner.sa" + (LANG === "ar" ? short : "/en" + (short === "/" ? "" : short));
 const PORTAL_LINKS = [
   { href: "/", en: "Home", ar: "الرئيسية" },
   { href: "/join", en: "For Employers", ar: "لأصحاب الأعمال" },
@@ -215,7 +229,9 @@ const PORTAL_LINKS = [
   { href: "/candidates", en: "For Candidates", ar: "للباحثين عن عمل" },
 ];
 function portalLangToggle(active) {
-  const other = LANG === "ar" ? "/en" + (active === "/" ? "" : active) : active;
+  // Absolute for the same reason as pu() above: these pages are also reachable
+  // under the main site's /portal/... paths, where a root-relative "/join" 404s.
+  const other = "https://hr.businesspartner.sa" + (LANG === "ar" ? "/en" + (active === "/" ? "" : active) : active);
   return `<a class="lang-toggle" href="${other}">${LANG === "ar" ? "English" : "العربية"}</a>`;
 }
 function portalHeader(active) {
@@ -253,7 +269,10 @@ function sName(s) {
   const m = svcI18n[s.code] || {};
   const ov = site.overrides[s.slug];
   if (LANG === "ar") return m.ar || (ov && ov.name) || s.name;
-  return m.en || (ov && ov.nameEn) || s.name;
+  if (LANG === "en") return m.en || (ov && ov.nameEn) || s.name;
+  // Extra languages: their own translated name if service-i18n.json has one
+  // yet, else the English name (never Arabic — this tree is non-Arabic).
+  return m[LANG] || m.en || (ov && ov.nameEn) || s.name;
 }
 // Arabic name regardless of current build language (for cart data attributes).
 const sNameArOf = (s) => { const m = svcI18n[s.code] || {}; const ov = site.overrides[s.slug]; return m.ar || (ov && ov.name) || s.name; };
@@ -266,7 +285,9 @@ function sDesc(s) {
     return `نتولّى في بيزنس بارتنر تنفيذ خدمة «${sName(s)}» نيابةً عنك ضمن ${catAr(s.category)} — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.`;
   }
   if (ov && ov.descriptionEn) return ov.descriptionEn;
-  return `Business Partner handles “${sName(s)}” on your behalf within ${catEn(s.category)} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.`;
+  return Lraw("Business Partner handles “{name}” on your behalf within {category} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.", "")
+    .replace("{name}", sName(s))
+    .replace("{category}", Lraw(catEn(s.category), catAr(s.category)));
 }
 const catEn = (key) => (CAT_META[key] ? CAT_META[key].en : key);
 const catAr = (key) => { const c = categories.find((x) => x.key === key); return c ? c.ar : key; };
@@ -333,7 +354,7 @@ function pathInLang(path, lang) {
 }
 function head(title, desc, path) {
   const canonical = path || "/";
-  const langsForPage = ["en", "ar", ...(EXTRA_LANG_PATHS.has(canonical) ? EXTRA_LANGS : [])];
+  const langsForPage = ["en", "ar", ...EXTRA_LANGS.filter((l) => langPathReady(l, canonical))];
   const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}">
@@ -391,8 +412,18 @@ const NAV_GROUPS = [
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
 ];
 
+// Only en/ar + FULLY_READY_LANGS are shown in the language switcher. The
+// remaining extra languages are only partially translated — even the 5
+// pages built for them mix in untranslated English strings — so offering
+// them as a finished option in the UI does more harm than good. Their
+// pages/routes still exist (reachable by direct URL) for whenever that work
+// is finished; they're just not advertised in the switcher until then.
+// Every language here must always be fully built for every path (true for
+// en/ar, and true for FULLY_READY_LANGS by construction) — langMenu links
+// straight to the same path in that language with no existence check.
+const VISIBLE_LANGS = ["en", "ar", ...FULLY_READY_LANGS];
 function langMenu(path) {
-  const items = ALL_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+  const items = VISIBLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
   return `<div class="nav-group lang-group">
     <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة">${saudiFlag}<span class="lang-label">${LANG_NAMES[LANG]}</span>${I.chevron}</button>
     <div class="nav-menu">${items}</div>
@@ -527,7 +558,6 @@ function page({ title, desc, active, path, body, script = "" }) {
   );
 }
 
-const slugCat = (key) => "cat-" + key.toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "");
 // Clean slug + URL for a category's own page (e.g. /services/category/company-formation).
 const catSlugUrl = (key) => key.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const catUrl = (key) => u("/services/category/" + catSlugUrl(key));
@@ -559,31 +589,39 @@ const GOV_EN = {
   "وزارة الموارد البشرية": "Ministry of Human Resources",
   "بدون جهة حكومية": "No government authority",
 };
-const govLabel = (g) => (LANG === "ar" ? g : (GOV_EN[g] || g));
+// g is always the Arabic authority name (from services.json); every call
+// site applies esc() itself, so this returns raw text via Lraw()/T() (never
+// L(), which double-escapes). T() already falls back to the English name
+// for any language without its own translation of that string, so this
+// covers every extra language automatically as translations are added to
+// i18n.mjs.
+const govLabel = (g) => Lraw(GOV_EN[g] || g, g);
 
+// Note: these return raw (unescaped) text — every call site applies esc()
+// itself — so use Lraw()/T() here, never L() (which double-escapes).
 function audienceOf(s, ov) {
   if (LANG === "ar") {
     if (ov && ov.audience) return ov.audience;
     if (s.targetClient) return s.targetClient;
-    return "أفراد ومنشآت";
+    return Lraw("Individuals & businesses", "أفراد ومنشآت");
   }
   if (ov && ov.audienceEn) return ov.audienceEn;
-  return "Individuals & businesses";
+  return Lraw("Individuals & businesses", "أفراد ومنشآت");
 }
 function documentsOf(s, ov) {
   if (LANG === "ar") {
     if (ov && ov.documents) return ov.documents;
     return [
-      "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)",
-      "المستندات الخاصة بنشاطك أو بطلب الخدمة",
-      "سداد الرسوم المقررة للجهة المختصة",
+      Lraw("Official documents (Commercial Registration or ID as applicable)", "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)"),
+      Lraw("Documents specific to your activity or request", "المستندات الخاصة بنشاطك أو بطلب الخدمة"),
+      Lraw("Payment of the fees due to the relevant authority", "سداد الرسوم المقررة للجهة المختصة"),
     ];
   }
   if (ov && ov.documentsEn) return ov.documentsEn;
   return [
-    "Official documents (Commercial Registration or ID as applicable)",
-    "Documents specific to your activity or request",
-    "Payment of the fees due to the relevant authority",
+    Lraw("Official documents (Commercial Registration or ID as applicable)", "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)"),
+    Lraw("Documents specific to your activity or request", "المستندات الخاصة بنشاطك أو بطلب الخدمة"),
+    Lraw("Payment of the fees due to the relevant authority", "سداد الرسوم المقررة للجهة المختصة"),
   ];
 }
 // Arabic translations of the English-only deliverables in services.json (keyed by code),
@@ -621,9 +659,9 @@ function featuresOf(s, ov) {
   }
   if (ov && ov.featuresEn) return ov.featuresEn;
   return [
-    "We complete the procedure on your behalf, from start to issuance",
-    "Clear fees, with government fees separate and disclosed",
-    "Smart-agent support on WhatsApp 24/7",
+    Lraw("We complete the procedure on your behalf, from start to issuance", "ننجز الإجراء نيابةً عنك من البداية حتى الإصدار"),
+    Lraw("Clear fees, with government fees separate and disclosed", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة"),
+    Lraw("Smart-agent support on WhatsApp 24/7", "دعم الوكيل الذكي على واتساب 24/7"),
   ];
 }
 function faqOf(s, ov) {
@@ -642,14 +680,18 @@ function faqOf(s, ov) {
     faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا على واتساب، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
   } else {
     faq.push({
-      q: "How much are the fees for this service?",
+      q: Lraw("How much are the fees for this service?", ""),
       a:
-        (s.price.amount != null ? `Business Partner's fee for this service is ${localizeLabel(s.price.label)}. ` : "This service is quoted individually based on your case. ") +
-        (s.govFeesSeparate ? "Government fees are separate from our fees and are disclosed before we start." : "VAT is added."),
+        (s.price.amount != null
+          ? Lraw("Business Partner's fee for this service is {price}. ", "").replace("{price}", localizeLabel(s.price.label))
+          : Lraw("This service is quoted individually based on your case. ", "")) +
+        (s.govFeesSeparate
+          ? Lraw("Government fees are separate from our fees and are disclosed before we start.", "")
+          : Lraw("VAT is added.", "")),
     });
-    faq.push({ q: "Who is this service for?", a: `This service is available to ${audienceOf(s, ov)}.` });
-    if (s.govPlatform) faq.push({ q: "Which authority handles it?", a: `The service is delivered through ${govLabel(s.govPlatform)}; we handle the filing and follow-up with it.` });
-    faq.push({ q: "How do I start?", a: "Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately." });
+    faq.push({ q: Lraw("Who is this service for?", ""), a: Lraw("This service is available to {audience}.", "").replace("{audience}", audienceOf(s, ov)) });
+    if (s.govPlatform) faq.push({ q: Lraw("Which authority handles it?", ""), a: Lraw("The service is delivered through {authority}; we handle the filing and follow-up with it.", "").replace("{authority}", govLabel(s.govPlatform)) });
+    faq.push({ q: Lraw("How do I start?", ""), a: Lraw("Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately.", "") });
   }
   return faq;
 }
@@ -939,7 +981,7 @@ function buildServiceDetail(s) {
 
   const body = `
   <section class="svc-hero"><div class="container">
-    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${u("/services")}#${slugCat(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
+    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${catUrl(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
     <h1>${esc(sName(s))}</h1>
     <div class="svc-meta">${serviceQuickFacts(s, ov)}</div>
   </div></section>
@@ -1017,7 +1059,7 @@ function buildAiAgents() {
     <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
     <div class="grid grid-3">${cards}</div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
-    <div class="center mt-32"><a class="btn btn-ghost" href="/connect">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a></div>
   </div></section>`;
   return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
 }
@@ -2892,12 +2934,15 @@ function buildSaudi() {
   const s = site.saudiArabia;
   const targets = s.vision.targets.map((t) => `<div class="stat"><div class="num">${esc(t.value)}</div><div class="lbl">${L(t.labelEn || t.label, t.label)}</div></div>`).join("");
   const sectors = s.sectors.items
-    .map(
-      (it) => `<a class="card svc-card" href="${u("/services")}#${slugCat(it.category)}">
+    .map((it) => {
+      // "Tourism" isn't a services category (it has its own dedicated page) —
+      // every other sector here maps to a real category page.
+      const href = it.category === "Tourism" ? u("/tourism") : catUrl(it.category);
+      return `<a class="card svc-card" href="${href}">
       <div class="card-icon">${I.building}</div>
       <h3>${L(it.titleEn || it.title, it.title)}</h3><p class="desc">${L(it.textEn || it.text, it.text)}</p>
-      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`
-    )
+      <span class="card-link">${L("Browse services", "استعرض الخدمات")} ${I.arrow}</span></a>`;
+    })
     .join("");
   const articles = s.knowledge.articles
     .map(
@@ -4216,10 +4261,10 @@ function buildSuppliers() {
 }
 
 function buildMonitor() {
-  // BP Inbox page is authored as a standalone raw HTML file (src/monitor.page.html)
+  // BP Inbox page is authored as a standalone raw HTML file (scripts/assets/monitor.page.html)
   // and emitted verbatim. Keeping it out of a JS template literal avoids escaping
   // hazards (backticks / ${} / backslashes) that previously broke the page script.
-  return fs.readFileSync(path.join(ROOT, '..', 'src', 'monitor.page.html'), 'utf8');
+  return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8');
 }
 
 /* ---------- owner dashboard: control + live-test the specialized-team agents ---------- */
@@ -4426,7 +4471,7 @@ function buildDashboard() {
 // Standalone client-facing page (has its own chrome). Presents the AI employees
 // as a subscription product, a Connectors hub (guided step-by-step per tool with
 // cost/token transparency + a done-for-you option), and packages.
-function buildConnect() {
+function buildConnect(pre = "/") {
   return `<!doctype html>
 <html dir="rtl" lang="ar">
 <head>
@@ -4548,7 +4593,7 @@ function buildConnect() {
     <div class="mn-links">
       <a href="#connect">الأدوات</a>
       <a href="#pricing">الباقات</a>
-      <a class="mn-cta" href="/portal">🔐 دخول بوابتي</a>
+      <a class="mn-cta" href="${pre}portal">🔐 دخول بوابتي</a>
     </div>
   </div>
   <div class="hero">
@@ -4557,7 +4602,7 @@ function buildConnect() {
       <h1>وظّف <span class="hi">موظفاً ذكياً</span> متخصصاً، واربطه بأدوات شركتك<br/>فيشتغل فعلياً نيابةً عنك.</h1>
       <p>مو مجرد شات — موظف حقيقي في مجاله (مساعدة تنفيذية، مبيعات، تسويق، عمليات…). تربطه بجيميل ونوشن وواتساب وتيمس بضغطة، فيقرأ ويرسل وينظّم ويرد <b>داخل حساباتك أنت</b>. أسرع، أقوى، ومخرجات مباشرة.</p>
       <div class="cta">
-        <a href="/portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
+        <a href="${pre}portal" class="btn btn-g">🚀 ابدأ الآن — دخول بوابتي</a>
         <a href="#connect" class="btn btn-o">🔌 شوف الأدوات</a>
       </div>
       <div class="valuerow">
@@ -4570,10 +4615,10 @@ function buildConnect() {
   <section>
     <div class="wrap">
       <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p>
-        <p style="margin-top:.6rem"><a href="/portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
+        <p style="margin-top:.6rem"><a href="${pre}portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
       </div>
       <div class="emps" id="emps"></div>
-      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="/portal">بوابة الموظفين الأذكياء</a>.</p>
+      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -4593,19 +4638,19 @@ function buildConnect() {
           <h3>وكيل الامتثال والالتزام</h3>
           <div class="pr">250 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>مراقبة قوى ومقيم والتأمينات ومدد والنطاقات</li><li>تنبيهات المهل والمخالفات فور ظهورها</li><li>حاسبات النطاقات والتكاليف مجانية ضمن الباقة</li></ul>
-          <a href="/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
         </div>
         <div class="pc feat">
           <h3>موظفك الذكي المتخصص</h3>
           <div class="pr">500 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>موظف تسويق أو إداري أو مبيعات أو تقني</li><li>يعمل 24 ساعة ضمن سياسات منشأتك</li><li>ربط أدواتك (قوقل / نوشن / سلاك) من هذه الصفحة</li></ul>
-          <a href="/ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
         </div>
         <div class="pc">
           <h3>فريق الخدمات المشتركة</h3>
           <div class="pr">1,500 ﷼ <small>يبدأ من / شهرياً</small></div>
           <ul><li>وكيل الامتثال + فريق العمل الذكي مدموجان بالكامل</li><li>لوحة موحّدة لكل منصّاتك وفرقك</li><li>أولوية في التنفيذ والدعم</li></ul>
-          <a href="/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+          <a href="${pre}ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
         </div>
       </div>
       <div class="addon">
@@ -4773,7 +4818,7 @@ function buildConnect() {
 // Full client-facing flow. Agents are the live n8n team webhooks (real chat).
 // Subscription gate uses an access code (issued after payment) — swap for a real
 // payment gateway + server-side check later.
-function buildPortal() {
+function buildPortal(pre = "/") {
   return `<!doctype html>
 <html dir="rtl" lang="ar">
 <head>
@@ -4901,10 +4946,10 @@ function buildPortal() {
 <body>
   <div class="topbar">
     <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
-    <a class="tb-link" href="/connect">الأدوات والباقات</a>
-    <a class="tb-link" href="/">الموقع</a>
+    <a class="tb-link" href="${pre}connect">الأدوات والباقات</a>
+    <a class="tb-link" href="${pre}">الموقع</a>
     <div class="sp"></div>
-    <a id="subscribeNow" href="/connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
+    <a id="subscribeNow" href="${pre}connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
     <div class="who" id="who"></div>
     <button id="logout" style="display:none">خروج</button>
   </div>
@@ -4936,7 +4981,7 @@ function buildPortal() {
       <div class="tabs">
         <button class="tab active" data-tab="emp">👥 موظفوك</button>
         <button class="tab" data-tab="tools">🔌 أدواتك</button>
-        <a class="tab-link" href="/connect">الباقات ↗</a>
+        <a class="tab-link" href="${pre}connect">الباقات ↗</a>
       </div>
       <div id="tab-emp">
         <h2>اختر موظفك</h2>
@@ -5112,7 +5157,7 @@ function buildPortal() {
         cart.push({id:id,nameEn:a.name+' — '+a.role,nameAr:a.name+' — '+a.role,amount:500,price:'500 ﷼ / شهرياً',kind:'employee',qty:1});
       });
       localStorage.setItem('bp_cart',JSON.stringify(cart));
-      location.href='/cart';
+      location.href='${pre}cart';
     };
     $('logout').onclick=function(){ localStorage.removeItem(LS.email); localStorage.removeItem(LS.sub); localStorage.removeItem(LS.agents); localStorage.removeItem(LS.trial); email=''; subbed=false; isTrial=false; showGate=false; route(); };
     function entitledSlugs(){
@@ -5393,9 +5438,9 @@ if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.
 if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 
 let pageCount = 0;
-for (const lang of ["en", "ar"]) {
-  LANG = lang;
-  const pre = lang === "ar" ? "ar/" : "";
+// The full page set for one language tree — shared by en/ar (always full)
+// and by any extra language once it's in FULLY_READY_LANGS.
+function writeFullSite(pre) {
   write(`${pre}index.html`, buildHome());
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
@@ -5445,13 +5490,23 @@ for (const lang of ["en", "ar"]) {
   pageCount += 15 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
 }
 
-// 7 extra world languages: core discovery pages only for now (site chrome +
-// homepage everywhere is what matters most for a first-touch international
-// visitor). u() already routes any other internal link back to the English
-// page instead of a 404 — see EXTRA_LANG_PATHS.
+for (const lang of ["en", "ar"]) {
+  LANG = lang;
+  writeFullSite(lang === "ar" ? "ar/" : "");
+}
+
+// Extra world languages: languages fully translated (FULLY_READY_LANGS) get
+// every page, same as en/ar. The rest still only get the core discovery
+// pages (site chrome + homepage matter most for a first-touch international
+// visitor) — u() routes any other internal link back to the English page
+// instead of a 404 for those; see EXTRA_LANG_PATHS.
 for (const lang of EXTRA_LANGS) {
   LANG = lang;
   const pre = `${lang}/`;
+  if (FULLY_READY_LANGS.includes(lang)) {
+    writeFullSite(pre);
+    continue;
+  }
   write(`${pre}index.html`, buildHome());
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
@@ -5469,12 +5524,12 @@ write("dashboard.html", buildDashboard());
 
 // Client product page: AI employees + connectors hub + pricing (noindex).
 // Emit under both / and /ar/ so localized nav links (u("/connect") -> /ar/connect) resolve.
-write("connect.html", buildConnect());
-write("ar/connect.html", buildConnect());
+write("connect.html", buildConnect("/"));
+write("ar/connect.html", buildConnect("/ar/"));
 
 // Client portal: login -> subscription gate -> pick agent -> live chat (noindex)
-write("portal.html", buildPortal());
-write("ar/portal.html", buildPortal());
+write("portal.html", buildPortal("/"));
+write("ar/portal.html", buildPortal("/ar/"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
