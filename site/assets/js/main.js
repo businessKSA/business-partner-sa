@@ -210,10 +210,26 @@ var BP = window.BP = window.BP || {};
       }).join("");
     }
     renderTotals("cart-subtotal", "cart-vat", "cart-total");
+    // Registration is required before payment: if the visitor isn't signed in,
+    // the checkout button takes them to register/sign in first (then back to checkout).
+    var co = document.getElementById("cart-checkout");
+    if (co) {
+      var signed = false; try { signed = !!JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
+      var note = document.getElementById("cart-signin-note");
+      if (c.length && !signed) {
+        co.setAttribute("href", (BP.lang === "ar" ? "/ar/account" : "/account") + "?redirect=checkout");
+        co.textContent = BP.t("Sign in / register to check out", "سجّل الدخول أو أنشئ حساباً لإتمام الطلب");
+        if (note) note.hidden = false;
+      } else {
+        co.setAttribute("href", BP.lang === "ar" ? "/ar/checkout" : "/checkout");
+        co.textContent = BP.t("Checkout", "إتمام الطلب");
+        if (note) note.hidden = true;
+      }
+    }
   }
 
   function kindLabel(k) {
-    var m = { service: ["Service", "خدمة"], package: ["Package", "باقة"], agent: ["AI agent", "وكيل ذكي"], employee: ["AI employee", "موظف ذكي"], misa: ["Investor track", "مسار مستثمر"] };
+    var m = { service: ["Service", "خدمة"], package: ["Package", "باقة"], agent: ["AI agent", "وكيل ذكي"], employee: ["AI employee", "موظف ذكي"], misa: ["Investor track", "مسار مستثمر"], trip: ["Trip", "رحلة"] };
     var p = m[k] || m.service;
     return BP.t(p[0], p[1]);
   }
@@ -994,9 +1010,12 @@ var BP = window.BP = window.BP || {};
       if (termsBox && !termsBox.checked) { alert(BP.t("Please agree to the Terms & Conditions to continue.", "الرجاء الموافقة على الشروط والأحكام للمتابعة.")); return; }
       var receipt = document.getElementById("co-receipt");
       var receiptFile = receipt && receipt.files && receipt.files.length ? receipt.files[0] : null;
-      var isPdf = receiptFile && (receiptFile.type === "application/pdf" || /\.pdf$/i.test(receiptFile.name || ""));
-      if (!receiptFile) { alert(BP.t("A bank transfer receipt (PDF) is required to submit your order.", "إيصال التحويل البنكي (PDF) إلزامي لإرسال الطلب.")); return; }
-      if (!isPdf) { alert(BP.t("The receipt must be a PDF file matching your order total.", "يجب أن يكون الإيصال ملف PDF ويطابق إجمالي طلبك.")); return; }
+      var okReceipt = receiptFile && (
+        receiptFile.type === "application/pdf" || /\.pdf$/i.test(receiptFile.name || "") ||
+        /^image\//.test(receiptFile.type || "") || /\.(jpe?g|png|webp)$/i.test(receiptFile.name || "")
+      );
+      if (!receiptFile) { alert(BP.t("A bank transfer receipt (image or PDF) is required to submit your order.", "إيصال التحويل البنكي (صورة أو PDF) إلزامي لإرسال الطلب.")); return; }
+      if (!okReceipt) { alert(BP.t("The receipt must be an image or PDF file matching your order total.", "يجب أن يكون الإيصال صورة أو ملف PDF ويطابق إجمالي طلبك.")); return; }
       var ref = "BP-" + Date.now().toString().slice(-6);
       var docs = document.getElementById("co-docs");
       var files = [];
@@ -1036,7 +1055,7 @@ var BP = window.BP = window.BP || {};
               employerPlan: employerPlanKey, employerBilling: employerBilling,
               company: companyName || companyProfile.name || "",
               cr: crNumber, headcount: pkgVisible ? headcount : "", nationalAddress: nationalAddress, surchargeFee: surchargeFee,
-              receiptName: receiptFile.name, receiptBase64: receiptBase64 || ""
+              receiptName: receiptFile.name, receiptType: receiptFile.type || "", receiptBase64: receiptBase64 || ""
             })
           }).catch(function () {});
         } catch (e) {}
@@ -1733,13 +1752,27 @@ var BP = window.BP = window.BP || {};
   function val(id) { var el = document.getElementById(id); return el ? (el.value || "").trim() : ""; }
   function selText(id) { var el = document.getElementById(id); return el && el.selectedIndex >= 0 ? el.options[el.selectedIndex].text : val(id); }
 
-  function wire(formId, boxId, build, validate, waText) {
+  function readJSON(k, fallback) { try { return JSON.parse(localStorage.getItem(k) || fallback); } catch (e) { return JSON.parse(fallback); } }
+  function wire(formId, boxId, build, validate, waText, opts) {
+    opts = opts || {};
     var form = document.getElementById(formId);
     if (!form) return;
     var dateEl = form.querySelector('input[type="date"]');
     if (dateEl) {
       var n = new Date();
       dateEl.min = n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0") + "-" + String(n.getDate()).padStart(2, "0");
+    }
+    // Prefill from the signed-in client's dashboard profile, so a returning
+    // client doesn't retype their details (and the request stays tied to them).
+    if (opts.prefill) {
+      var ses0 = readJSON("bp_session", "null"), comp0 = readJSON("bp_company", "{}");
+      var usr0 = (readJSON("bp_users", "{}")[ses0 && ses0.email]) || {};
+      if (ses0) {
+        var pf = opts.prefill;
+        function setv(id, v) { var el = id && document.getElementById(id); if (el && !el.value && v) el.value = v; }
+        setv(pf.person, ses0.name); setv(pf.email, ses0.email);
+        setv(pf.phone, comp0.phone || usr0.phone); setv(pf.company, comp0.name);
+      }
     }
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -1774,9 +1807,31 @@ var BP = window.BP = window.BP || {};
             }
           }
         } catch (e) {}
+        // Register the requester as a client in the dashboard: save their company
+        // profile and sign them in (soft account) so /account shows them as a client
+        // with their info + this service. The CRM record is created server-side.
+        var registered = false;
+        if (opts.register && ref && !/^(LOCAL|مبدئي)$/.test(ref)) {
+          try {
+            var comp = readJSON("bp_company", "{}");
+            if (data.company) comp.name = data.company;
+            if (data.phone) comp.phone = data.phone;
+            if (data.email) comp.email = data.email;
+            if (data.person) comp.contact = data.person;
+            localStorage.setItem("bp_company", JSON.stringify(comp));
+            var ses = readJSON("bp_session", "null");
+            if (!ses && data.email) {
+              localStorage.setItem("bp_session", JSON.stringify({ email: data.email, name: data.person || data.company || "", viaRequest: true }));
+            }
+            registered = true;
+            try { document.dispatchEvent(new CustomEvent("bp:langchange")); } catch (e2) {}
+          } catch (e1) {}
+        }
+        var acct = BP.lang === "ar" ? "/ar/account" : "/account";
         var box = document.getElementById(boxId);
         box.hidden = false;
         box.innerHTML = "✅ <strong>" + BP.t("Request received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
+          (registered ? BP.t("You're now registered as a client — your details and this request are saved in ", "تم تسجيلك كعميل — بياناتك وطلبك محفوظة في ") + '<a href="' + acct + '">' + BP.t("your dashboard", "لوحتك") + "</a>.<br>" : "") +
           (emailSent ? BP.t("A confirmation was sent to your email.", "أرسلنا التأكيد إلى بريدك.")
                      : BP.t("You can also notify us on WhatsApp.", "تقدر كذلك تشعرنا عبر واتساب.")) +
           ' <a class="btn btn-ghost" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' +
@@ -1811,7 +1866,8 @@ var BP = window.BP = window.BP || {};
                       "الرجاء استخدام إيميل الشركة الرسمي — لا تُقبل الإيميلات المجانية (Gmail وHotmail وغيرها).");
         return null;
       },
-      function (d, ref) { return "طلب فعالية " + ref + "\nالشركة: " + d.company + "\nالنوع: " + d.eventType + "\nالتاريخ: " + d.date + "\nالأفراد: " + d.count; });
+      function (d, ref) { return "طلب فعالية " + ref + "\nالشركة: " + d.company + "\nالنوع: " + d.eventType + "\nالتاريخ: " + d.date + "\nالأفراد: " + d.count; },
+      { register: true, prefill: { company: "ev-company", person: "ev-person", email: "ev-email", phone: "ev-phone" } });
 
     wire("supplier-form", "supplier-success",
       function () {
@@ -1836,7 +1892,8 @@ var BP = window.BP = window.BP || {};
           return BP.t("Please fill all required fields.", "الرجاء تعبئة كل الحقول المطلوبة.");
         return null;
       },
-      function (d, ref) { return "طلب سياحة أعمال " + ref + "\nالشركة: " + d.company + "\nالدولة: " + d.country + "\nعدد الوفد: " + d.count; });
+      function (d, ref) { return "طلب سياحة أعمال " + ref + "\nالشركة: " + d.company + "\nالدولة: " + d.country + "\nعدد الوفد: " + d.count; },
+      { register: true, prefill: { company: "mm-company", person: "mm-person", email: "mm-email", phone: "mm-phone" } });
 
     wire("trip-form-el", "trip-success",
       function () {
