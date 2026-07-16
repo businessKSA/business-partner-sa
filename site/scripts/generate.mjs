@@ -405,30 +405,49 @@ const NAV_GROUPS = [
         ],
       },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
-    ],
-  },
-  { href: "/hr", en: "Recruitment", ar: "التوظيف" },
-  { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
-  { href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال" },
-  { href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال" },
-  {
-    en: "Catering & Hospitality", ar: "التموين والضيافة للشركات",
-    items: [
-      { href: "/farina", en: "Overview", ar: "نظرة عامة" },
-      { href: "/farina#coffee-break", en: "Coffee Break", ar: "الكوفي بريك" },
-      { href: "/farina#vip-coffee", en: "VIP Coffee Break", ar: "كوفي بريك VIP" },
-      { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
-      { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
-      { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
-    ],
-  },
-  {
-    en: "Knowledge Center", ar: "مركز المعرفة",
-    items: [
-      { href: "/tools-and-calculators", en: "Tools & calculators", ar: "الأدوات والحاسبات" },
-      { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
-      { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
-      { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
+      {
+        href: "/hr", en: "Recruitment", ar: "التوظيف",
+        sub: [
+          { href: "/hr", en: "Recruitment services", ar: "خدمات التوظيف" },
+          { href: "/employers", en: "For employers", ar: "لأصحاب العمل" },
+          { href: "/careers", en: "Open jobs", ar: "الوظائف المتاحة" },
+        ],
+      },
+      { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
+      {
+        href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال",
+        sub: [
+          { href: "/mahfol-makfol", en: "For investors", ar: "للمستثمر" },
+          { href: "/mahfol-makfol/trips", en: "Trips & experiences", ar: "الرحلات والتجارب" },
+          { href: "/tourism", en: "Corporate events", ar: "فعاليات الشركات" },
+        ],
+      },
+      {
+        href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال",
+        sub: [
+          { href: "/workspaces", en: "Browse spaces", ar: "استعراض المساحات" },
+          { href: "/workspace-request", en: "Request a workspace", ar: "اطلب مساحة عمل" },
+        ],
+      },
+      {
+        href: "/farina", en: "Catering & Hospitality", ar: "التموين والضيافة للشركات",
+        sub: [
+          { href: "/farina", en: "Overview", ar: "نظرة عامة" },
+          { href: "/farina#coffee-break", en: "Coffee Break", ar: "الكوفي بريك" },
+          { href: "/farina#vip-coffee", en: "VIP Coffee Break", ar: "كوفي بريك VIP" },
+          { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
+          { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
+          { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
+        ],
+      },
+      {
+        href: "/saudi-arabia", en: "Knowledge Center", ar: "مركز المعرفة",
+        sub: [
+          { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
+          { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
+          { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
+        ],
+      },
     ],
   },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
@@ -486,7 +505,7 @@ function header(active, path) {
     if (g.href) {
       return `<a href="${u(g.href)}"${g.href === active ? ' class="active"' : ""}>${L(g.en, g.ar)}</a>`;
     }
-    const isActive = g.items.some((it) => it.href === active);
+    const isActive = g.items.some((it) => it.href === active || (it.sub || []).some((s) => s.href === active));
     const menu = g.items.map((it) => navSubItem(it, active)).join("");
     return `<div class="nav-group${isActive ? " active" : ""}">
       <button type="button" class="nav-drop${isActive ? " active" : ""}" aria-expanded="false">${L(g.en, g.ar)} ${I.chevron}</button>
@@ -808,7 +827,6 @@ function buildHome() {
   const pkgQuickLinks = site.packages.tiers
     .map((t) => `<a class="quick-link" href="${u("/packages")}"><span class="q-icon">📦</span><span>${L(t.nameEn || t.nameAr, t.nameAr)}</span></a>`)
     .join("");
-  const agentBullets = h.agent.bullets.map((b, i) => `<li>${I.check}<span>${L(EN.agentBullets[i], b)}</span></li>`).join("");
   const stats = h.stats.items.map((s, i) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(EN.stats[i].label, s.label)}</div></div>`).join("");
   const quotes = h.testimonials.items
     .map((q, i) => `<div class="quote"><p>${L(EN.reviewsItems[i].text, q.text)}</p><div class="who">${L(EN.reviewsItems[i].name, q.name)}</div><div class="role">${L(EN.reviewsItems[i].role, q.role)}</div></div>`)
@@ -874,22 +892,6 @@ function buildHome() {
       <a class="btn btn-primary" href="${u("/packages")}">${L("View packages", "استعرض الباقات")} ${I.arrow}</a>
     </div>
     <div class="quick-links">${pkgQuickLinks}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="agent"><div class="agent-inner">
-      <div>
-        <span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(EN.agentEyebrow, "الميزة القاتلة")}</span>
-        <h2>${L(EN.agentTitle, h.agent.title)}</h2>
-        <p>${L(EN.agentText, h.agent.text)}</p>
-        <ul class="agent-list">${agentBullets}</ul>
-        <div class="hero-actions">${waBtn2(EN.agentCta, h.agent.cta, "btn-white", true)}<a class="btn btn-lg" href="${u("/ai-agents")}" style="border-color:rgba(255,255,255,.5);color:#fff">${L(EN.agentLearn, "تعرّف على منظومة الوكلاء")}</a></div>
-      </div>
-      <div class="agent-visual">
-        <div class="bubble"><span>${L(EN.bubbleYou, "أنت")}</span>${L(EN.bubbleQ, "أبغى أأسس شركة أجنبية، وش المستندات؟")}</div>
-        <div class="bubble me"><span>${L(EN.bubbleAgent, "الوكيل الذكي · الآن")}</span>${L(EN.bubbleA, "تمام! أحتاج السجل التجاري للشركة الأم مصدّق، القوائم المالية، وقرار مجلس الإدارة. أجهّز لك القائمة كاملة؟")}</div>
-      </div>
-    </div></div>
   </div></section>
 
   <section class="section"><div class="container">
@@ -1546,7 +1548,7 @@ function buildCalculator() {
             <div class="calc-line calc2-vat"><span class="k">${L("+ VAT 15% (on fees)", "+ ضريبة القيمة المضافة 15% (على الأتعاب)")}</span><span class="v" id="calc2-vat">—</span></div>
           </div>
           <div class="calc2-warn" id="calc2-warn" hidden>${I.doc}<span>${L("Some selected services are priced on request (a quote after review). They are not included in the totals.", "بعض الخدمات المختارة تُسعّر حسب الطلب (عرض بعد المراجعة) ولا تدخل في الإجمالي.")}</span></div>
-          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/checkout")}" style="width:100%" hidden>${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
+          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/account")}?redirect=quote" style="width:100%" hidden>${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
           <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or chat with the smart agent", "أو تحدث مع الوكيل الذكي")}</span></a>
           <p class="calc-note">${L("Estimates from the official catalog; final pricing may vary by your case. Government fees are separate.", "تقديرات من الكتالوج الرسمي وقد تختلف حسب حالتك. الرسوم الحكومية منفصلة.")}</p>
         </div>
@@ -4603,6 +4605,7 @@ function buildAccount() {
   </div></section>
   <section class="section"><div class="container">
     <div class="callout" id="checkout-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">🛒</span><p>${L("Sign in or create an account to continue with your purchase — this keeps every order tied to a real customer record.", "سجّل دخولك أو أنشئ حساباً لإكمال عملية الشراء — هذا يضمن ربط كل طلب بسجل عميل حقيقي.")}</p></div>
+    <div class="callout" id="quote-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">📋</span><p>${L("Sign in or create an account to send your official quote request — it will appear in your dashboard and our team will get back to you with the offer.", "سجّل دخولك أو أنشئ حساباً لإرسال طلب العرض الرسمي — سيظهر الطلب في لوحتك وفريقنا يعود لك بالعرض.")}</p></div>
     <div class="account-wrap" id="account-auth">
       <div class="auth-tabs">
         <button type="button" class="auth-tab active" data-tab="login">${L("Sign in", ac.loginTitle)}</button>

@@ -1093,9 +1093,13 @@ var BP = window.BP = window.BP || {};
     var regF = document.getElementById("register-form");
     var otpF = document.getElementById("otp-form");
     var pending = null; // { name, email, phone, pass, challenge }
-    if (new URLSearchParams(location.search).get("redirect") === "checkout") {
+    var redirectKind = new URLSearchParams(location.search).get("redirect");
+    if (redirectKind === "checkout") {
       var note = document.getElementById("checkout-redirect-note");
       if (note) note.hidden = false;
+    } else if (redirectKind === "quote") {
+      var qnote = document.getElementById("quote-redirect-note");
+      if (qnote) qnote.hidden = false;
     }
     tabs.forEach(function (tb) {
       tb.addEventListener("click", function () {
@@ -1108,10 +1112,37 @@ var BP = window.BP = window.BP || {};
       });
     });
 
+    // A quote request stashed by the cost calculator (bp_pending_quote) becomes
+    // a real dashboard request the moment the visitor is signed in — that's the
+    // whole flow: calculator → register/sign in → the request shows in المهام.
+    function consumePendingQuote(s) {
+      var pending = null;
+      try { pending = JSON.parse(localStorage.getItem("bp_pending_quote") || "null"); } catch (e) {}
+      if (!pending || !pending.items || !pending.items.length) return;
+      try { localStorage.removeItem("bp_pending_quote"); } catch (e) {}
+      var ref = "BPQ-" + Date.now().toString().slice(-6);
+      var order = {
+        ref: ref, name: s.name || "", email: s.email || "",
+        items: pending.items.map(function (i) { return { name: (BP.lang === "ar" ? i.nameAr : i.nameEn) || i.nameAr || i.nameEn, qty: 1, priceLabel: i.price }; }),
+        at: new Date().toISOString().slice(0, 10),
+        status: BP.t("Quote requested", "بانتظار التسعير"),
+      };
+      var orders = ordersData();
+      orders.unshift(order);
+      try { localStorage.setItem("bp_orders", JSON.stringify(orders)); } catch (e) {}
+      try {
+        fetch("/api/requests", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "quote", ref: ref, name: s.name || "", email: s.email || "", phone: s.phone || "", items: order.items.map(function (i) { return i.name; }) }),
+        }).catch(function () {});
+      } catch (e) {}
+    }
+
     function render() {
       var s = session();
       if (s) {
         auth.hidden = true; dash.hidden = false;
+        consumePendingQuote(s);
         var nm = s.name || s.email;
         document.getElementById("dash-hello").textContent = BP.t("Welcome, ", "مرحباً، ") + nm;
         document.getElementById("dash-email").textContent = s.email;
@@ -1177,6 +1208,7 @@ var BP = window.BP = window.BP || {};
     // Live status (set by the ops team in Notion after confirming payment).
     var LIVE_STATUS_LABEL = {
       "قيد المراجعة": ["Under review", "قيد المراجعة"],
+      "بانتظار التسعير": ["Quote in progress", "بانتظار التسعير"],
       "بانتظار الدفع": ["Awaiting payment", "بانتظار الدفع"],
       "مؤكد - قيد التنفيذ": ["Confirmed — in progress", "مؤكد - قيد التنفيذ"],
       "مكتمل": ["Completed", "مكتمل"],
@@ -1528,20 +1560,20 @@ var BP = window.BP = window.BP || {};
     }
   });
 
-  // "Request official quote" → push selected into the cart, go to checkout
+  // "Request official quote" → NOT a purchase: the request goes to the client
+  // dashboard (/account). Signed-out users register/sign in first; the pending
+  // selection is stashed and turned into a dashboard request right after.
   var quote = document.getElementById("calc2-quote");
   if (quote) quote.addEventListener("click", function (e) {
     var ids = Object.keys(selected);
-    if (!ids.length || !window.BP || !BP.cart) return; // let default nav happen
+    if (!ids.length) return; // let default nav happen
     e.preventDefault();
-    var cart = BP.cart.read();
-    ids.forEach(function (id) {
+    var items = ids.map(function (id) {
       var it = selected[id];
-      if (cart.some(function (c) { return c.id === it.id; })) return;
-      cart.push({ id: it.id, nameEn: it.nameEn, nameAr: it.nameAr, amount: it.ptype === "onrequest" || it.ptype === "from" ? (it.ptype === "from" ? it.amount : null) : it.amount, price: priceText(it), kind: "service", qty: 1 });
+      return { nameEn: it.nameEn, nameAr: it.nameAr, price: priceText(it) };
     });
-    BP.cart.write(cart);
-    location.href = quote.getAttribute("href");
+    try { localStorage.setItem("bp_pending_quote", JSON.stringify({ items: items, at: new Date().toISOString().slice(0, 10) })); } catch (err) {}
+    location.href = (BP.lang === "ar" ? "/ar/account" : "/account") + "?redirect=quote";
   });
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
