@@ -1599,11 +1599,12 @@ var BP = window.BP = window.BP || {};
           if (ref && !/^(LOCAL|مبدئي)$/.test(ref)) {
             var LABELS = {
               "investor-tourism": BP.t("Business tourism — Mahfol Makfol", "سياحة أعمال — محفول مكفول"),
+              "trip": BP.t("Trip — Mahfol Makfol", "رحلة — محفول مكفول"),
               "event": BP.t("Corporate event", "فعالية مؤسسية"),
               "supplier": BP.t("Supplier registration", "تسجيل مورّد"),
             };
             var label = LABELS[data.type] || BP.t("Request", "طلب");
-            var extra = data.sector || data.eventType || data.category || "";
+            var extra = data.dest || data.sector || data.eventType || data.category || "";
             var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
             if (!orders.some(function (o) { return o.ref === ref; })) {
               orders.unshift({
@@ -1679,6 +1680,18 @@ var BP = window.BP = window.BP || {};
         return null;
       },
       function (d, ref) { return "طلب سياحة أعمال " + ref + "\nالشركة: " + d.company + "\nالدولة: " + d.country + "\nعدد الوفد: " + d.count; });
+
+    wire("trip-form-el", "trip-success",
+      function () {
+        return { type: "trip", person: val("tr-name"), phone: val("tr-phone"), email: val("tr-email"),
+          dest: val("tr-dest"), count: val("tr-count"), date: val("tr-dates"), notes: val("tr-notes") };
+      },
+      function (d) {
+        if (!d.person || !d.phone || !d.email)
+          return BP.t("Please fill all required fields.", "الرجاء تعبئة كل الحقول المطلوبة.");
+        return null;
+      },
+      function (d, ref) { return "طلب رحلة " + ref + "\nالاسم: " + d.person + "\nالوجهة: " + (d.dest || "-") + "\nعدد الأشخاص: " + (d.count || "-") + "\nالتواريخ: " + (d.date || "-"); });
   });
 })();
 

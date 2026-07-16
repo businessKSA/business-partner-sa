@@ -40,6 +40,27 @@ async function forwardLead(payload) {
 // email typed at login matches the email the order was placed under, so a
 // leaked/guessed reference can't be used to unlock someone else's agents.
 const CONFIRMED_ORDER_STATUSES = new Set(["مؤكد - قيد التنفيذ", "مكتمل"]);
+
+// Demo/test codes for the AI-employees portal — checked here (server-side)
+// instead of shipping the list in the page's client-side JS, so codes meant
+// only for internal package-size testing aren't readable via view-source.
+// BP-DEMO/demo123 are intentionally advertised on the login screen for public
+// trial; the others are for testing specific bundle sizes and stay unlisted.
+const DEMO_CODES = {
+  "BP-DEMO": "ALL",
+  "BP2026": "ALL",
+  "DEMO123": "ALL",
+  "TRIAL": "ALL",
+  "DEMO-ONE": ["badr"],
+  "DEMO-THREE": ["badr", "malak", "farah"],
+  "DEMO-TEAM": ["baher", "mazen", "nasser", "mishari", "abdulaziz", "badr", "farah", "malak", "mohammed", "ahmed"],
+};
+// Public, self-serve free trial (advertised on /connect and /ai-agents) —
+// unlocks every agent like the other demo codes, but the client enforces a
+// capped number of real messages per agent before prompting to subscribe.
+// BP-DEMO/BP2026/DEMO123 stay unlimited — those are for the owner/internal testing.
+const TRIAL_CODES = new Set(["TRIAL"]);
+
 async function orderStatuses(refs) {
   if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
   if (!NOTION_TOKEN) return { statuses: {}, agents: {}, emails: {} };
@@ -398,14 +419,27 @@ export default async function handler(req, res) {
     const refs = (url.searchParams.get("refs") || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 30);
     if (refs.length) {
       res.setHeader("Cache-Control", "no-store");
-      try {
-        const { statuses, agents, emails } = await orderStatuses(refs);
-        res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, statuses, agents, emails }));
-      } catch {
-        res.statusCode = 502;
-        return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+      const statuses = {}, agents = {}, emails = {}, demo = {}, trial = {};
+      const remaining = [];
+      for (const ref of refs) {
+        const upper = ref.toUpperCase();
+        const dc = DEMO_CODES[upper];
+        if (dc) { statuses[ref] = "مكتمل"; agents[ref] = dc; demo[ref] = true; if (TRIAL_CODES.has(upper)) trial[ref] = true; }
+        else remaining.push(ref);
       }
+      if (remaining.length) {
+        try {
+          const r = await orderStatuses(remaining);
+          Object.assign(statuses, r.statuses);
+          Object.assign(agents, r.agents);
+          Object.assign(emails, r.emails);
+        } catch {
+          res.statusCode = 502;
+          return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+        }
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo, trial }));
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({ status: "ok", emailConfigured: !!RESEND_API_KEY }));
@@ -571,6 +605,35 @@ export default async function handler(req, res) {
       crmLead({ title: `سياحة أعمال (محفول مكفول) — ${company}`, phone, email, notes: `Mahfol Makfol · ${sector || "—"} · وفد ${count || "—"} · ${notes}`, ref }),
       addToAudience(email, person),
       forwardLead({ source: "investor-tourism", ref, name: person, company, phone, email, notes: `${country} · ${sector}` }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Leisure trip request — Mahfol Makfol trips track (/mahfol-makfol/trips).
+  if (b.type === "trip") {
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const dest = String(b.dest || "").trim().slice(0, 160);
+    const date = String(b.date || "").trim().slice(0, 60);
+    const count = String(b.count || "").trim().slice(0, 20);
+    const notes = String(b.notes || "").trim().slice(0, 1000);
+    if (!person || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "TR-" + Date.now().toString().slice(-6);
+    const rows = row("الاسم", person) + row("الجوال", phone) + row("الإيميل", email) +
+      row("الوجهة", dest) + row("التواريخ", date) + row("عدد الأشخاص", count) + row("تفاصيل إضافية", notes);
+    const teamHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب رحلة جديد (محفول مكفول) — ${ref}</h2><table>${rows}</table></div>`;
+    const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+      <h2 style="color:#0B1B5A">تم استلام طلب رحلتك — ${ref}</h2>
+      <p>مرحباً ${esc(person)}، استلمنا تفاصيل رحلتك${dest ? " إلى " + esc(dest) : ""}. فريق محفول مكفول يصمّم لك برنامجاً وتسعيرة ويعود إليك خلال يوم.</p>
+      <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب رحلة جديد — ${dest || person}`, teamHtml),
+      sendEmail(email, `تم استلام طلب رحلتك ${ref} — محفول مكفول`, clientHtml),
+      crmLead({ title: `رحلة (محفول مكفول) — ${dest || person}`, phone, email, notes: `Mahfol Makfol trips · ${dest || "—"} · ${count || "—"} أشخاص · ${notes}`, ref }),
+      addToAudience(email, person),
+      forwardLead({ source: "trip", ref, name: person, phone, email, notes: `${dest} · ${date} · ${count}` }),
     ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref }));

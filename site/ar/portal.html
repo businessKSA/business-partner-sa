@@ -29,6 +29,7 @@
     .field input:focus{border-color:var(--navy)}
     .bigbtn{width:100%;background:var(--navy);color:#fff;border:0;border-radius:12px;padding:.8rem;font-weight:700;font-size:1rem;margin-top:.3rem}
     .bigbtn.green{background:var(--green)}
+    .bigbtn.trial{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
     .err{color:#dc2626;font-size:.82rem;min-height:1.1em;margin-top:.5rem}
     .muted{color:var(--muted);font-size:.82rem;margin-top:1rem;line-height:1.7}
     .hint-code{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:.55rem .7rem;font-size:.8rem;margin-top:.9rem}
@@ -41,6 +42,8 @@
     .pickrow .e{font-size:1.1rem}
     .pickrow b{color:var(--navy)}
     .pickrow .r{color:var(--muted);margin-inline-start:auto;font-size:.78rem}
+    .pick-details{color:var(--green);font-weight:600;font-size:.76rem;text-decoration:none;flex-shrink:0}
+    .pick-details:hover{text-decoration:underline}
     .ws{max-width:1050px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
     .ws h2{color:var(--navy);font-size:1.25rem;margin-bottom:.2rem}
     .ws .lead{color:var(--muted);font-size:.9rem;margin-bottom:1.1rem}
@@ -48,6 +51,8 @@
     .ag{background:var(--surface);border:1.5px solid var(--line);border-radius:13px;padding:.6rem .85rem;display:flex;gap:.5rem;align-items:center;cursor:pointer;transition:.12s}
     .ag:hover{border-color:var(--navy)}
     .ag.sel{border-color:var(--navy);background:#eef1fb}
+    .ag-details{margin-inline-start:auto;flex-shrink:0;text-decoration:none;font-size:.95rem;opacity:.7}
+    .ag-details:hover{opacity:1}
     .ag .e{font-size:1.3rem}
     .ag b{font-size:.92rem;color:var(--navy)}
     .ag span{display:block;font-size:.72rem;color:var(--muted)}
@@ -56,10 +61,14 @@
     .p-head .e{font-size:1.5rem}
     .p-head b{color:var(--navy)}
     .p-head span{display:block;font-size:.78rem;color:var(--green);font-weight:600}
+    .p-head a{color:var(--green);font-weight:600;font-size:.78rem;text-decoration:none;flex-shrink:0}
+    .p-head a:hover{text-decoration:underline}
+    .ph-trial{background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:999px;padding:.2rem .6rem;font-size:.74rem;font-weight:700;flex-shrink:0}
     .chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.55rem;background:#fbfcfe}
     .msg{padding:.6rem .8rem;border-radius:13px;max-width:80%;white-space:pre-wrap;font-size:.92rem}
     .msg.me{background:var(--navy);color:#fff;align-self:flex-start;border-start-start-radius:3px}
     .msg.bot{background:#fff;border:1px solid var(--line);align-self:flex-end;border-start-end-radius:3px}
+    .msg.upsell{background:#fffbeb;border:1px solid #fde68a;color:#92400e;align-self:center;max-width:95%;text-align:center;font-weight:600}
     .msg.empty{color:var(--muted);align-self:center;background:none;font-size:.85rem}
     .composer{display:flex;gap:.5rem;padding:.7rem;border-top:1px solid var(--line);background:#fff}
     .composer input{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:.65rem .8rem;font:inherit;outline:none}
@@ -119,6 +128,7 @@
     <a class="tb-link" href="/connect">الأدوات والباقات</a>
     <a class="tb-link" href="/">الموقع</a>
     <div class="sp"></div>
+    <a id="subscribeNow" href="/connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
     <div class="who" id="who"></div>
     <button id="logout" style="display:none">خروج</button>
   </div>
@@ -130,6 +140,7 @@
       <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn" id="loginBtn">دخول</button>
       <div class="err" id="loginErr"></div>
+      <button type="button" class="bigbtn trial" id="trialBtn">🎁 جرّب الفريق كامل مجاناً (3 رسائل لكل موظف)</button>
       <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم — على نفس البريد اللي اشتريت فيه.</div>
       <button class="linkbtn" id="noCodeBtn">ما اشتريت بعد؟ اختر موظفيك وابدأ الطلب</button>
       <p class="muted">بالدخول أنت توافق على الاستخدام الآمن. لا نطلب كلمات مرور حساسة ولا OTP.</p>
@@ -156,7 +167,7 @@
         <p class="lead">اختر موظفاً وابدأ التعامل معه مباشرة. كل موظف خبير في مجاله.</p>
         <div class="agents" id="agents"></div>
         <div class="panel">
-          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div></div>
+          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div><span class="ph-trial" id="ph-trial" style="display:none"></span><a id="ph-details" href="#" target="_blank" rel="noopener" style="display:none;margin-inline-start:auto">ايش يقدم؟ التفاصيل ←</a></div>
           <div class="chat" id="chat"><div class="msg empty">اختر موظفاً من الأعلى وابدأ المحادثة.</div></div>
           <div class="composer"><input id="msg" type="text" placeholder="اكتب رسالتك…" disabled /><button id="send" disabled>إرسال</button></div>
         </div>
@@ -235,38 +246,38 @@
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
-    // Demo codes unlock agents for testing only — never issued to real clients.
-    // Real clients unlock by entering their own order reference (e.g. BP-506275)
-    // once we've confirmed payment and flipped the order's status in the CRM —
-    // see /api/requests. One code per package tier lets you log in with a test
-    // email and see exactly what each bundle size looks like.
-    var CODES={
-      'BP-DEMO':'ALL','BP2026':'ALL','DEMO123':'ALL',
-      'DEMO-ONE':['badr'],
-      'DEMO-THREE':['badr','malak','farah'],
-      'DEMO-TEAM':['baher','mazen','nasser','mishari','abdulaziz','badr','farah','malak','mohammed','ahmed']
-    };
     var CONFIRMED=['مؤكد - قيد التنفيذ','مكتمل'];
     var OWNER_EMAIL='dr.baher.magnas@gmail.com';
-    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents'};
+    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents',trial:'bp_portal_trial'};
     var CHAT_PREFIX='bp_portal_chat_';
+    var TRIAL_LIMIT=3;
+    function trialCountKey(slug){ return 'bp_portal_trialn_'+slug; }
+    function trialCount(slug){ return parseInt(localStorage.getItem(trialCountKey(slug))||'0',10); }
+    function trialInc(slug){ localStorage.setItem(trialCountKey(slug),String(trialCount(slug)+1)); }
     function $(id){return document.getElementById(id);}
     function show(id){['screen-login','screen-gate','screen-ws'].forEach(function(s){$(s).style.display=(s===id)?'':'none';});}
     var email=localStorage.getItem(LS.email)||'';
     var qEmail=new URLSearchParams(location.search).get('email');
     if(qEmail && !email){ email=qEmail; localStorage.setItem(LS.email,email); }
     var subbed=localStorage.getItem(LS.sub)==='1';
+    var isTrial=localStorage.getItem(LS.trial)==='1';
     if(email && email.toLowerCase()===OWNER_EMAIL && (!subbed || localStorage.getItem(LS.agents)!=='"ALL"')){
-      subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL'));
+      subbed=true; isTrial=false; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL')); localStorage.removeItem(LS.trial);
     }
     var cur=null;
     var showGate=false;
     function route(){
       if(!subbed){ show(showGate?'screen-gate':'screen-login'); if(showGate) buildPicker(); $('who').textContent=email||''; $('logout').style.display=email?'':'none'; return; }
-      $('who').textContent=email; $('logout').style.display='';
+      $('who').textContent=email+(isTrial?' 🎁 (تجربة مجانية)':''); $('logout').style.display='';
+      $('subscribeNow').style.display=isTrial?'':'none';
       show('screen-ws'); buildAgents();
     }
-    function unlock(slugs){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs)); route(); }
+    function unlock(slugs,trialFlag){
+      subbed=true; isTrial=!!trialFlag;
+      localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs));
+      if(isTrial) localStorage.setItem(LS.trial,'1'); else localStorage.removeItem(LS.trial);
+      route();
+    }
     $('loginBtn').onclick=function(){
       var e=($('email').value||'').trim();
       var c=($('code').value||'').trim().toUpperCase();
@@ -274,8 +285,6 @@
       email=e; localStorage.setItem(LS.email,e);
       if(e.toLowerCase()===OWNER_EMAIL){ unlock('ALL'); return; }
       if(!c){ $('loginErr').textContent='ادخل كود التفعيل.'; return; }
-      var slugs=CODES[c];
-      if(slugs){ unlock(slugs); return; }
       var btn=$('loginBtn'); btn.disabled=true; $('loginErr').textContent='جارٍ التحقق…';
       fetch('/api/requests?refs='+encodeURIComponent(c))
         .then(function(r){return r.json();})
@@ -283,7 +292,9 @@
           var st=d && d.statuses && d.statuses[c];
           var ag=d && d.agents && d.agents[c];
           var orderEmail=d && d.emails && d.emails[c];
-          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length && orderEmail && orderEmail.toLowerCase()===e.toLowerCase()){ unlock(ag); }
+          var isDemo=d && d.demo && d.demo[c];
+          var isTrialCode=d && d.trial && d.trial[c];
+          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length && (isDemo || (orderEmail && orderEmail.toLowerCase()===e.toLowerCase()))){ unlock(ag,isTrialCode); }
           else if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ $('loginErr').textContent='هذا الكود مسجّل على بريد مختلف — استخدم نفس البريد اللي اشتريت فيه.'; }
           else if(st){ $('loginErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
           else { $('loginErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وابدأ الطلب.'; }
@@ -295,11 +306,17 @@
     $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
     $('noCodeBtn').onclick=function(){ showGate=true; route(); };
     $('backToLoginBtn').onclick=function(){ showGate=false; route(); };
+    $('trialBtn').onclick=function(){
+      var e=($('email').value||'').trim();
+      if(!e || e.indexOf('@')<0){ $('loginErr').textContent='ادخل بريداً صحيحاً أولاً عشان تبدأ التجربة.'; return; }
+      $('code').value='TRIAL'; $('loginBtn').click();
+    };
     function buildPicker(){
       var box=$('pickwrap'); if(box.dataset.done) return; box.dataset.done='1';
       AGENTS.forEach(function(a){
         var lb=document.createElement('label'); lb.className='pickrow';
-        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>';
+        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>'+
+          '<a href="/ar/team/'+a.slug+'" target="_blank" rel="noopener" class="pick-details" onclick="event.stopPropagation()">ايش يقدم؟</a>';
         box.appendChild(lb);
       });
     }
@@ -321,7 +338,7 @@
       localStorage.setItem('bp_cart',JSON.stringify(cart));
       location.href='/cart';
     };
-    $('logout').onclick=function(){ localStorage.removeItem(LS.email); localStorage.removeItem(LS.sub); localStorage.removeItem(LS.agents); email=''; subbed=false; showGate=false; route(); };
+    $('logout').onclick=function(){ localStorage.removeItem(LS.email); localStorage.removeItem(LS.sub); localStorage.removeItem(LS.agents); localStorage.removeItem(LS.trial); email=''; subbed=false; isTrial=false; showGate=false; route(); };
     function entitledSlugs(){
       var raw=localStorage.getItem(LS.agents);
       if(!raw) return [];
@@ -334,7 +351,8 @@
       if(!list.length){ box.innerHTML='<p class="muted">لا يوجد موظفون مفعّلون على هذا الكود.</p>'; return; }
       list.forEach(function(a){
         var el=document.createElement('div'); el.className='ag'; el.dataset.slug=a.slug;
-        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
+        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>'+
+          '<a href="/ar/team/'+a.slug+'" target="_blank" rel="noopener" class="ag-details" onclick="event.stopPropagation()">ℹ️</a>';
         el.onclick=function(){ selectAgent(a,el); };
         box.appendChild(el);
       });
@@ -348,11 +366,20 @@
       chatHist.forEach(function(m){ var d=document.createElement('div'); d.className='msg '+m.cls; d.textContent=m.text; c.appendChild(d); });
       c.scrollTop=c.scrollHeight;
     }
+    function updateTrialBadge(slug){
+      var badge=$('ph-trial');
+      if(!isTrial){ badge.style.display='none'; return; }
+      var left=Math.max(0,TRIAL_LIMIT-trialCount(slug));
+      badge.textContent='🎁 '+left+'/'+TRIAL_LIMIT+' رسائل تجريبية متبقية';
+      badge.style.display='';
+    }
     function selectAgent(a,el){
       cur=a;
       var chips=document.querySelectorAll('.ag'); for(var i=0;i<chips.length;i++) chips[i].classList.remove('sel');
       el.classList.add('sel');
       $('ph-e').textContent=a.e; $('ph-n').textContent=a.name; $('ph-r').textContent=a.role;
+      $('ph-details').href='/ar/team/'+a.slug; $('ph-details').style.display='';
+      updateTrialBadge(a.slug);
       chatHist=loadChat(a.slug);
       renderChat();
       $('msg').disabled=false; $('send').disabled=false; $('msg').focus();
@@ -363,8 +390,13 @@
     }
     function send(){
       if(!cur) return;
+      if(isTrial && trialCount(cur.slug)>=TRIAL_LIMIT){
+        push('🎁 خلصت رسائلك المجانية مع '+cur.name+' ('+TRIAL_LIMIT+' رسائل). اشترك الآن عشان تكمل المحادثة بلا حدود.','bot upsell');
+        return;
+      }
       var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
       var agentAtSend=cur, histRef=chatHist;
+      if(isTrial){ trialInc(agentAtSend.slug); updateTrialBadge(agentAtSend.slug); }
       inp.value=''; push(m,'me');
       histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
       var think=push('…','bot'); var btn=$('send'); btn.disabled=true;

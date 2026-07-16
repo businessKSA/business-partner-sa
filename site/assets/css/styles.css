@@ -1114,3 +1114,12 @@ mark.cc-hit{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 2px}
   .mag-print-cover{border-bottom-color:#000}
   .mag-print-cover h1{color:#000}
 }
+
+/* Mahfol Makfol sub-brand sub-nav (investor + trips tracks) */
+.mm-subnav{display:flex;align-items:center;gap:16px;flex-wrap:wrap;max-width:var(--maxw);margin:0 auto;padding:10px 24px;border-bottom:1px solid var(--gray-line)}
+.mm-subnav-brand{display:inline-flex;align-items:center;gap:7px;font-weight:800;color:var(--navy);text-decoration:none}
+.mm-subnav-brand svg{width:18px;height:18px}
+.mm-subnav nav{display:flex;gap:6px;flex-wrap:wrap}
+.mm-subnav nav a{padding:7px 15px;border-radius:999px;text-decoration:none;color:var(--text-soft);font-weight:600;font-size:.92rem;transition:.15s}
+.mm-subnav nav a:hover{background:var(--gray-bg);color:var(--navy)}
+.mm-subnav nav a.on{background:var(--navy);color:#fff}

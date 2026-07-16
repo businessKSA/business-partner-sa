@@ -103,6 +103,11 @@ for (const s of services) {
 
 const WA = site.whatsapp;
 const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
+// The Compliance Agent's actual client dashboard lives on the sibling site
+// (businesspartner.sa), not here — subscribers sign in there with the email
+// + access code they receive after activation, not with their account on
+// this site.
+const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -346,6 +351,7 @@ function head(title, desc, path) {
 <meta name="generator" content="Business Partner 3.0 Website">
 ${hreflangs}
 <link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -363,6 +369,7 @@ const NAV_GROUPS = [
       { href: "/services", en: "All services (92)", ar: "كل الخدمات (92)" },
       { href: "/packages", en: "Packages", ar: "الباقات" },
       { href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡" },
+      { href: "/portal", en: "My Employees Portal 🔐", ar: "بوابة موظفيّ الأذكياء 🔐" },
       { href: "/workspaces", en: "Office spaces", ar: "المكاتب ومساحات العمل" },
       { href: "/tourism", en: "Tourism & events", ar: "السياحة والفعاليات" },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
@@ -378,14 +385,14 @@ const NAV_GROUPS = [
     ],
   },
   { href: "/hr", en: "HR by Business Partner", ar: "الموارد البشرية من بزنس بارتنر" },
-  { href: "/mahfol-makfol", en: "Mahfol Makfol", ar: "محفول مكفول" },
+  { href: "/mahfol-makfol", en: "Mahfol Makfol · Saudi travel", ar: "محفول مكفول · سياحة السعودية" },
   { href: "/about", en: "About us", ar: "من نحن" },
   { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
 ];
 
 function langMenu(path) {
-  const items = ALL_LANGS.map((l) => `<a href="${pathInLang(path, l)}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+  const items = ALL_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
   return `<div class="nav-group lang-group">
     <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة">${saudiFlag}<span class="lang-label">${LANG_NAMES[LANG]}</span>${I.chevron}</button>
     <div class="nav-menu">${items}</div>
@@ -450,7 +457,7 @@ function footer() {
       ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
       ${fl("/workspaces", "Office spaces", "المكاتب ومساحات العمل")}
       ${fl("/tourism", "Tourism & Events", "السياحة والفعاليات")}
-      ${fl("/mahfol-makfol", "Mahfol Makfol", "محفول مكفول")}
+      ${fl("/mahfol-makfol", "Mahfol Makfol · Saudi travel", "محفول مكفول · سياحة السعودية")}
       ${fl("/task-force", "Task Force", "تاسك فورس")}
       ${fl("/hr", "HR by Business Partner", "الموارد البشرية من بزنس بارتنر")}
       ${fl("/employer-join", "For employers", "لأصحاب العمل")}
@@ -1220,53 +1227,6 @@ function buildCalculator() {
   return page({ title: Lraw("Cost calculator — Business Partner", "حاسبة التكلفة — بيزنس بارتنر"), desc: Lraw("Build a basket of Business Partner services and see one-time and monthly fees from the official catalog.", "كوّن سلّة من خدمات بيزنس بارتنر واعرف الأتعاب لمرة واحدة والشهرية من الكتالوج الرسمي."), active: "/calculator", body });
 }
 
-const INTAKE_WEBHOOK = "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";
-function intakeFormBlock() {
-  const chips = ["كل المنصات","قوى","مقيم","GOSI","مدد","السجل التجاري","أخرى"].map(function(pf){return '<label class="bp-chk"><input type="checkbox" name="platforms" value="'+pf+'"> '+pf+'</label>';}).join("");
-  return `
-  <form class="bp-intake" id="bp-intake" novalidate>
-    <div class="bp-intake-grid">
-      <div class="field"><label>${L("Establishment name *", "اسم المنشأة *")}</label><input name="company" required></div>
-      <div class="field"><label>${L("Unified number (700)", "الرقم الموحّد (700)")}</label><input name="unified"></div>
-      <div class="field"><label>${L("Qiwa establishment no.", "رقم منشأة قوى")}</label><input name="qiwa_id"></div>
-      <div class="field"><label>${L("Mudad establishment no.", "رقم منشأة مدد")}</label><input name="mudad_id"></div>
-      <div class="field"><label>${L("Employees in GOSI", "عدد الموظفين في التأمينات")}</label><input name="employees" type="number" min="0"></div>
-      <div class="field"><label>${L("WhatsApp / mobile *", "واتساب / الجوال *")}</label><input name="whatsapp" required></div>
-      <div class="field"><label>${L("Email", "البريد الإلكتروني")}</label><input name="email" type="email"></div>
-    </div>
-    <div class="field"><label>${L("Subscribed platforms", "المنصات المشترك بها")}</label><div class="bp-chips">${chips}</div></div>
-    <div class="field"><label>${L("Upload files: Qiwa / Muqeem / GOSI / Mudad — PDF, Excel, images *", "ارفع ملفاتك: قوى / مقيم / التأمينات / مدد — PDF أو Excel أو صور *")}</label><input name="files" id="bp-files" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp" required></div>
-    <div class="field"><label>${L("Notes", "ملاحظات")}</label><textarea name="notes" rows="2"></textarea></div>
-    <button type="submit" class="btn btn-primary btn-lg" id="bp-submit">📤 ${L("Send securely", "إرسال آمن")}</button>
-    <div class="bp-intake-msg" id="bp-msg" hidden></div>
-    <p class="form-note">🔒 ${L("Files are stored in your private client folder and used only for compliance analysis. No government action is taken without your approval.", "تُحفظ الملفات في مجلد عميلك الخاص وتُستخدم لتحليل الامتثال فقط. لا يُنفَّذ أي إجراء حكومي دون موافقتك.")}</p>
-  </form>
-  <script>window.BP_INTAKE_URL=${JSON.stringify(INTAKE_WEBHOOK)};window.BP_INTAKE_LANG=${JSON.stringify(LANG)};</script>
-  <script>
-  (function(){
-    var f=document.getElementById("bp-intake"); if(!f) return;
-    var msg=document.getElementById("bp-msg"), btn=document.getElementById("bp-submit"), files=document.getElementById("bp-files");
-    var isAr=window.BP_INTAKE_LANG==="ar";
-    function show(t,cls){msg.hidden=false;msg.textContent=t;msg.className="bp-intake-msg "+cls;}
-    f.addEventListener("submit",function(e){
-      e.preventDefault();
-      if(!f.company.value.trim()||!f.whatsapp.value.trim()||!files.files.length){show(isAr?"يرجى تعبئة اسم المنشأة والجوال وإرفاق ملف واحد على الأقل.":"Please fill establishment name, mobile and attach at least one file.","err");return;}
-      var fd=new FormData();
-      ["company","unified","qiwa_id","mudad_id","employees","whatsapp","email","notes"].forEach(function(k){fd.append(k,f[k].value||"");});
-      var pf=[].slice.call(f.querySelectorAll("input[name=platforms]:checked")).map(function(x){return x.value;});
-      fd.append("platforms",pf.join(","));
-      for(var i=0;i<files.files.length;i++) fd.append("files",files.files[i]);
-      btn.disabled=true;btn.textContent=isAr?"جارٍ الإرسال…":"Sending…";
-      show(isAr?"جارٍ رفع ملفاتك بأمان…":"Uploading securely…","info");
-      fetch(window.BP_INTAKE_URL,{method:"POST",body:fd}).then(function(r){if(!r.ok)throw new Error("status "+r.status);return r.text();}).then(function(){
-        f.reset();
-        show(isAr?"✅ استلمنا بياناتك وملفاتك بنجاح! سيبدأ وكيل الامتثال متابعة منشأتك ونتواصل معك واتساب/إيميل.":"✅ Received! Our Compliance Agent will start tracking your establishment and contact you on WhatsApp/email.","ok");
-      }).catch(function(){show(isAr?"تعذّر الإرسال. جرّب مجدداً أو تواصل معنا واتساب.":"Couldn't send. Please retry or contact us on WhatsApp.","err");}).finally(function(){btn.disabled=false;btn.textContent=isAr?"📤 إرسال آمن":"📤 Send securely";});
-    });
-  })();
-  </script>`;
-}
-
 // Qiwa-style tools directory: one clean grid of cards, each linking straight
 // to its calculator/tool (deep-linked via #hash into the right tab).
 function buildToolsHub() {
@@ -1278,7 +1238,6 @@ function buildToolsHub() {
     { icon: "🟢", title: L("Nitaqat calculator", "حاسبة النطاقات"), desc: L("Estimate your Nitaqat band and Saudization ratio by activity.", "قدّر نطاقك ونسبة التوطين حسب نشاطك."), href: u("/calculators/nitaqat") },
     { icon: "💰", title: L("Government cost calculator", "حاسبة التكاليف الحكومية"), desc: L("Estimate visa, Iqama and platform fees for your headcount.", "قدّر رسوم التأشيرات والإقامات والمنصات حسب عدد موظفيك."), href: u("/calculators/government-cost") },
     { icon: "🧑‍💼", title: L("Profession checker", "فاحص المهن"), desc: L("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."), href: u("/calculators/profession-checker") },
-    { icon: "🛡️", title: L("Compliance portal", "بوابة الامتثال"), desc: L("Upload your official files once — we build your file and track every deadline.", "ارفع ملفاتك الرسمية مرة واحدة — نبني ملفك ونتابع كل استحقاق."), href: u("/compliance-portal") },
   ];
   const cards = tools.map((t) => `<a class="card cat-card" href="${t.href}">
     <div class="cat-card-icon">${t.icon}</div>
@@ -1326,7 +1285,7 @@ function buildNitaqatCalculator() {
         <div class="field"><label for="cc-saudis">${L("Saudi employees (average)", "متوسط العمالة السعودية")}</label><input type="number" id="cc-saudis" min="0" value="3"></div>
       </div>
       <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
-      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-portal")}">${L("Upload your GOSI/Qiwa/Muqeem file and we'll extract them →", "ارفع ملف التأمينات/قوى/مقيم ونستخرجها عنك ←")}</a></p>
+      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-agent")}">${L("Subscribe to the Compliance Agent — it reads your GOSI/Qiwa/Muqeem files and tracks them for you →", "اشترك في وكيل الامتثال — يقرأ ملفات التأمينات/قوى/مقيم ويتابعها عنك ←")}</a></p>
       <div class="cc-result" id="cc-nit-result" hidden>
         <div class="cc-tiles">
           <div class="cc-tile"><span>${L("Saudization rate", "نسبة التوطين")}</span><strong id="cc-pct">—</strong></div>
@@ -1635,68 +1594,9 @@ function buildProfessionChecker() {
 }
 
 
-// Branded wrapper around the secure n8n intake form — clients never see a bare n8n URL.
-const COMPLIANCE_FORM_URL = "https://businesspartnerai.app.n8n.cloud/form/client-compliance-intake";
-function buildCompliancePortal() {
-  const body = `
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
-    <h1>${L("Establishment Compliance Portal", "بوابة امتثال المنشأة")}</h1>
-    <p class="lead">${L("Upload your official Qiwa, Muqeem, GOSI and Mudad reports once — the Compliance Agent reads them, builds your establishment file, tracks every iqama and work-permit deadline, and alerts you on WhatsApp and email before any violation.", "ارفع تقاريرك الرسمية من قوى ومقيم والتأمينات (GOSI) ومدد مرة واحدة — وكيل الامتثال يقرأها، يبني ملف منشأتك، يتتبع كل استحقاق إقامة ورخصة عمل، وينبّهك واتساب وإيميل قبل أي مخالفة.")}</p>
-  </div></section>
-  <section class="section"><div class="container">
-    <div class="portal-wrap">
-      <div class="portal-form">
-        <div class="order-box" style="margin:0">${intakeFormBlock()}</div>
-      </div>
-      <aside class="portal-side">
-        <div class="order-box">
-          <h3>${L("What happens after you submit?", "وش يصير بعد الإرسال؟")}</h3>
-          <ol class="portal-steps">
-            <li><strong>${L("Your private folder is created", "يُنشأ مجلدك الخاص")}</strong><span>${L("Every file you upload is stored in a dedicated client folder.", "كل ملف ترفعه يُحفظ في مجلد عميل مخصص لمنشأتك.")}</span></li>
-            <li><strong>${L("The agent reads your reports", "الوكيل يقرأ تقاريرك")}</strong><span>${L("Employees, salaries, professions, iqama and border numbers are extracted automatically.", "يستخرج الموظفين والرواتب والمهن وأرقام الإقامات والحدود تلقائياً.")}</span></li>
-            <li><strong>${L("Your compliance file is built", "يُبنى ملف امتثالك")}</strong><span>${L("Nitaqat band, estimated government costs, and every upcoming deadline.", "نطاق السعودة، التكاليف الحكومية التقديرية، وكل استحقاق قادم.")}</span></li>
-            <li><strong>${L("Daily monitoring starts", "تبدأ المراقبة اليومية")}</strong><span>${L("Red/yellow early alerts on WhatsApp and email — with your approval before any government action.", "تنبيهات مبكرة أحمر/أصفر واتساب وإيميل — وبموافقتك قبل أي إجراء حكومي.")}</span></li>
-          </ol>
-        </div>
-        <div class="order-box portal-secure">
-          <h3>🔒 ${L("Your data is protected", "بياناتك محمية")}</h3>
-          <p>${L("Files are used for compliance analysis only, stored in your private client folder, and never shared. Concierge model: no action is ever taken on your establishment without written approval.", "الملفات تُستخدم لتحليل الامتثال فقط، وتُحفظ في مجلد عميلك الخاص، ولا تُشارك مع أي طرف. نموذج Concierge: لا يُنفَّذ أي إجراء على منشأتك دون موافقة خطية.")}</p>
-        </div>
-        <div class="order-box">
-          <h3>${L("Prefer to talk first?", "تبغى تتكلم مع أحد أولاً؟")}</h3>
-          <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener" style="width:100%">${I.wa}<span>${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>
-          <a class="btn btn-ghost" href="${u("/tools-and-calculators")}" style="width:100%;margin-top:10px">${L("Free compliance calculators →", "حاسبات الامتثال المجانية ←")}</a>
-        </div>
-      </aside>
-    </div>
-  </div></section>
-  <style>
-    .portal-wrap{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;align-items:start}
-    .portal-form iframe{width:100%;min-height:1250px;border:1px solid var(--gray-line);border-radius:var(--radius-lg);background:var(--white)}
-    .portal-fallback{text-align:center;margin-top:10px}
-    .portal-side{display:flex;flex-direction:column;gap:16px}
-    .portal-side .order-box{margin:0}
-    .portal-steps{list-style:none;counter-reset:ps;margin:0;padding:0}
-    .portal-steps li{counter-increment:ps;position:relative;padding-inline-start:44px;margin-bottom:16px}
-    .portal-steps li::before{content:counter(ps);position:absolute;inset-inline-start:0;top:2px;width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
-    .portal-steps strong{display:block;color:var(--navy);margin-bottom:2px}
-    .portal-steps span{font-size:.86rem;color:var(--text-soft);line-height:1.7}
-    .portal-secure p{font-size:.88rem;color:var(--text-soft);line-height:1.8;margin:0}
-    @media(max-width:940px){.portal-wrap{grid-template-columns:1fr}}
-  </style>`;
-  return page({
-    title: Lraw("Establishment Compliance Portal — Business Partner", "بوابة امتثال المنشأة — بيزنس بارتنر"),
-    desc: Lraw("Upload your Qiwa, Muqeem, GOSI and Mudad reports — the Compliance Agent builds your file and alerts you before any violation.", "ارفع تقاريرك من قوى ومقيم والتأمينات ومدد — وكيل الامتثال يبني ملفك وينبّهك قبل أي مخالفة."),
-    active: "/calculator",
-    path: "/compliance-portal",
-    body,
-  });
-}
-
 // The paid Compliance Agent subscription product — full landing + pricing +
 // payment + intake, wrapped in the site's own header/footer/cart (unlike the
-// free compliance-portal tool above). Payment reuses api/pay.js same-origin.
+// Payment reuses api/pay.js same-origin.
 function buildComplianceAgent() {
   const platforms = ["قوى","مقيم","GOSI","مدد","نطاقات","السجل التجاري","المركز السعودي للأعمال","ZATCA","الغرفة التجارية","العنوان الوطني","بلدي","الدفاع المدني","إيجار","MISA"];
   const platformsEn = ["Qiwa","Muqeem","GOSI","Mudad","Nitaqat","CR","Saudi Business Center","ZATCA","Chamber","National Address","Balady","Civil Defense","Ejar","MISA"];
@@ -1724,7 +1624,7 @@ function buildComplianceAgent() {
     <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="#pricing">${L("Subscribe now", "اشترك الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="${u("/account")}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
     </div>
     <div class="hero-badges">${chips}</div>
   </div></section>
@@ -1739,7 +1639,7 @@ function buildComplianceAgent() {
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
     <div class="hero-actions" style="margin-top:1.4rem">
       <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
-      <a class="btn btn-ghost btn-lg" href="${u("/account")}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
     </div>
   </div></section>
 
@@ -1780,6 +1680,182 @@ function buildComplianceAgent() {
     desc: Lraw("Subscribe and get a virtual compliance team monitoring your company daily, alerting you before violations.", "اشترك واحصل على فريق امتثال افتراضي يراقب شركتك يومياً وينبّهك قبل المخالفات."),
     active: "/compliance-agent",
     path: "/compliance-agent",
+    body,
+  });
+}
+
+// Specialized-team AI employees — one dedicated feature page per agent
+// (same pattern as the Compliance Agent page above), linked from both the
+// /connect purchase grid and the /portal employee picker/chat switcher.
+const TEAM_AGENTS = [
+  {
+    slug: "baher", emoji: "🎯",
+    nameAr: "باهر", nameEn: "Baher",
+    roleAr: "مستشار الأعمال", roleEn: "Business Advisor",
+    taglineAr: "أول نقطة تواصل: يشخّص طلبك ويوجّهك للخدمة أو الموظف الصحيح.", taglineEn: "Your first point of contact — diagnoses what you need and routes you to the right service or employee.",
+    caps: [
+      ["Answers business questions and explains which Business Partner service fits your situation", "يجاوب على استفساراتك التجارية ويوضح لك أي خدمة من خدمات بزنس بارتنر تناسب حالتك"],
+      ["Runs an initial diagnosis of your sector and request before recommending a paid service", "يسوي تشخيصاً أولياً لقطاعك وطلبك قبل ما يرشّح لك خدمة مدفوعة"],
+      ["Routes you to the right specialist (legal, compliance, HR, sales…) instead of leaving you guessing", "يحوّلك للمتخصص الصحيح (قانوني، امتثال، موارد بشرية، مبيعات…) بدل ما تتوه بين الخدمات"],
+      ["Escalates anything that needs a human decision instead of guessing an answer", "يصعّد أي شيء يحتاج قرار بشري بدل ما يخمّن إجابة"],
+    ],
+  },
+  {
+    slug: "mazen", emoji: "🧭",
+    nameAr: "مازن", nameEn: "Mazen",
+    roleAr: "مدير العمليات", roleEn: "Operations Manager",
+    taglineAr: "يستقبل عملاءك ويوجّههم، ويتولى أي تصعيد يحتاج تدخلاً بشرياً.", taglineEn: "Receives and routes your customers, and owns every escalation that needs a human hand-off.",
+    caps: [
+      ["Greets incoming customer conversations and routes each one to the right place", "يستقبل محادثات عملائك الواردة ويوجّه كل واحدة للمكان الصحيح"],
+      ["Owns escalations: a phone request, a complaint, a sensitive document, a proposal that needs sign-off, a customer ready to sign", "يستلم التصعيدات: طلب اتصال، شكوى، مستند حساس، عرض يحتاج اعتماد، عميل جاهز للتعاقد"],
+      ["Never asks for sensitive documents or final pricing himself — flags them for your review instead", "لا يطلب مستندات حساسة ولا يعطي أسعاراً نهائية بنفسه — يرفعها لمراجعتك"],
+      ["Keeps a clear handoff trail so nothing falls through the cracks between agents", "يحافظ على مسار تسليم واضح بين الموظفين حتى ما يضيع أي طلب"],
+    ],
+  },
+  {
+    slug: "nasser", emoji: "👥",
+    nameAr: "ناصر", nameEn: "Nasser",
+    roleAr: "الموارد البشرية", roleEn: "HR",
+    taglineAr: "يدير التوظيف من نشر الوظيفة إلى قائمة مرشّحين جاهزة للمقابلة.", taglineEn: "Runs hiring end to end — from posting the role to a shortlist ready for interviews.",
+    caps: [
+      ["AI-powered matching against your candidate pool for any open role", "مطابقة ذكية بالذكاء الاصطناعي مع قاعدة المرشّحين لأي وظيفة مفتوحة"],
+      ["Screens and scores candidates against the role's requirements", "يقيّم ويصنّف المرشّحين مقابل متطلبات الوظيفة"],
+      ["Drafts interview questions tailored to the specific role", "يجهّز أسئلة مقابلة مخصّصة للوظيفة تحديداً"],
+      ["Prepares outreach messages to shortlisted candidates for your approval", "يجهّز رسائل تواصل مع المرشّحين المختارين بانتظار موافقتك"],
+      ["Tracks the hiring pipeline from posting to shortlist to offer", "يتابع مسار التوظيف من النشر إلى القائمة المختصرة إلى العرض"],
+    ],
+  },
+  {
+    slug: "mishari", emoji: "🛡️",
+    nameAr: "مشاري", nameEn: "Mishari",
+    roleAr: "الامتثال والالتزام", roleEn: "Compliance",
+    taglineAr: "فريق امتثال افتراضي يراقب منشأتك يومياً وينبّهك قبل أي مخالفة.", taglineEn: "A virtual compliance team monitoring your establishment daily and alerting you before violations.",
+    caps: [
+      ["Reads your registrations (CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses) and builds a live compliance record", "يقرأ تسجيلاتك (السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص) ويبني سجل امتثال حي لمنشأتك"],
+      ["Tracks Nitaqat/Saudization band and flags what you need to match or upgrade", "يتابع نطاقك ونسبة التوطين ويوضح ما تحتاجه للمطابقة أو الترقية"],
+      ["Daily monitoring with a WhatsApp/email alert before any expiry or violation", "مراقبة يومية مع تنبيه واتساب وإيميل قبل أي انتهاء أو مخالفة"],
+      ["Prepares the renewal/action and shows it to you — nothing government-related runs without your approval", "يجهّز التجديد أو الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك"],
+    ],
+  },
+  {
+    slug: "abdulaziz", emoji: "⚖️",
+    nameAr: "عبدالعزيز", nameEn: "Abdulaziz",
+    roleAr: "قانوني", roleEn: "Legal",
+    taglineAr: "أول رد آمن على أي استفسار قانوني، وتوضيح لما يحتاج مراجعة بشرية.", taglineEn: "A first, safe response to any legal question — and a clear flag for what needs human review.",
+    caps: [
+      ["Gives an initial, cautious answer to legal and compliance questions (contracts, licenses, residency eligibility)", "يعطي رداً أولياً حذراً على الاستفسارات القانونية والامتثالية (العقود، التراخيص، أهلية الإقامة)"],
+      ["Clearly flags what needs a licensed human review before you rely on it", "يوضّح بشكل صريح ما يحتاج مراجعة بشرية مرخّصة قبل الاعتماد عليه"],
+      ["Never gives final legal advice or confirms a government approval on his own", "لا يعطي استشارة قانونية نهائية ولا يؤكد موافقة حكومية بنفسه"],
+      ["Never collects sensitive documents through chat — routes those to a secure channel", "لا يستقبل مستندات حساسة عبر المحادثة — يحوّلها لقناة آمنة"],
+    ],
+  },
+  {
+    slug: "badr", emoji: "💼",
+    nameAr: "بدر", nameEn: "Badr",
+    roleAr: "مبيعات وتطوير أعمال", roleEn: "Sales & Business Development",
+    taglineAr: "يستلم أي طلب سعر أو عرض ويجهّز مسودة جاهزة لمراجعتك قبل الإرسال.", taglineEn: "Takes any pricing or proposal request and prepares a draft ready for your review before it goes out.",
+    caps: [
+      ["Explains the scope of every service commercially (company formation, HR, government relations, premium residency…)", "يوضح نطاق كل خدمة تجارياً (تأسيس الشركات، الموارد البشرية، العلاقات الحكومية، الإقامة المميزة…)"],
+      ["Only quotes prices from the official, approved services catalog — never invents one", "يستخدم فقط الأسعار المعتمدة في الكتالوج الرسمي — لا يخترع سعراً أبداً"],
+      ["Drafts a proposal and logs it as \"pending approval\" — nothing final goes out without your sign-off", "يجهّز مسودة عرض ويسجّلها «بانتظار الموافقة» — ولا يرسل أي عرض نهائي بدون اعتمادك"],
+      ["Keeps your CRM and sales pipeline updated automatically as the conversation progresses", "يحدّث CRM ومسار المبيعات تلقائياً مع تقدّم المحادثة"],
+      ["Never gives discounts, contracts, invoices, or payment links on his own", "لا يعطي خصومات ولا يرسل عقوداً أو فواتير أو روابط دفع بنفسه"],
+    ],
+  },
+  {
+    slug: "farah", emoji: "📣",
+    nameAr: "فرح", nameEn: "Farah",
+    roleAr: "تسويق ومحتوى", roleEn: "Marketing & Content",
+    taglineAr: "تنشئ وتدير المحتوى التسويقي على كل قنواتك — كمسودات بانتظار اعتمادك.", taglineEn: "Creates and manages your marketing content across every channel — as drafts pending your approval.",
+    caps: [
+      ["Creates content and campaign drafts across LinkedIn, Instagram, Email, WhatsApp, TikTok, Snapchat, Facebook and X", "تنشئ محتوى وحملات على LinkedIn وInstagram والإيميل وواتساب وTikTok وSnapchat وFacebook وX"],
+      ["Summarizes government decisions and platform updates relevant to your business", "تلخّص القرارات الحكومية وتحديثات المنصات المؤثرة على منشأتك"],
+      ["Prepares WhatsApp/email/notification broadcasts for your approval before sending", "تجهّز برودكاست واتساب/إيميل/إشعارات بانتظار موافقتك قبل الإرسال"],
+      ["Never publishes any content or broadcast without your sign-off", "لا تنشر أي محتوى أو برودكاست بدون اعتمادك"],
+    ],
+  },
+  {
+    slug: "malak", emoji: "🗂️",
+    nameAr: "ملاك", nameEn: "Malak",
+    roleAr: "مساعِدة تنفيذية", roleEn: "Executive Assistant",
+    taglineAr: "ملخصك اليومي كل صباح، وتنظيم مهامك واجتماعاتك وبريدك.", taglineEn: "Your daily brief every morning — and organizes your tasks, meetings and inbox.",
+    caps: [
+      ["A daily brief every morning: urgent and overdue items first, with owner and due date", "ملخص يومي كل صباح: العاجل والمتأخر أولاً مع المسؤول وتاريخ الاستحقاق"],
+      ["Reminders for upcoming meetings and deadlines for the week ahead", "تذكيرات بالمواعيد والمهام القادمة للأسبوع"],
+      ["Sorts your inbox: urgent / needs action / for your information", "تفرز بريدك: عاجل / يحتاج إجراء / للاطلاع"],
+      ["Summarizes meetings and long conversations into a decision-ready summary", "تلخّص الاجتماعات والمحادثات الطويلة في ملخص جاهز لاتخاذ القرار"],
+      ["Never handles OTPs, verification codes or passwords, and never messages anyone externally on her own", "لا تتعامل مع رموز التحقق OTP أو كلمات المرور، ولا ترسل أي رسالة خارجية بنفسها"],
+    ],
+  },
+  {
+    slug: "mohammed", emoji: "💻",
+    nameAr: "محمد", nameEn: "Mohammed",
+    roleAr: "تقنية معلومات", roleEn: "IT",
+    taglineAr: "يراقب صحة أنظمتك وتكاملاتك، ويشخّص الأعطال التقنية.", taglineEn: "Monitors your systems and integrations, and diagnoses technical issues.",
+    caps: [
+      ["Monitors the health of your connected agents, workflows and website", "يراقب صحة الموظفين المرتبطين والأنظمة الآلية والموقع"],
+      ["Manages integrations (Notion, automation platforms, WhatsApp, third-party subscriptions)", "يدير التكاملات (نوشن، منصات الأتمتة، واتساب، اشتراكات الأطراف الثالثة)"],
+      ["Diagnoses platform and connection failures before they affect your operations", "يشخّص أعطال المنصات والربط قبل ما تأثر على تشغيلك"],
+      ["Never touches customer credentials or OTPs, and never gives legal opinions", "لا يمس بيانات اعتماد العملاء ولا رموز التحقق، ولا يفتي قانونياً"],
+    ],
+  },
+  {
+    slug: "ahmed", emoji: "📦",
+    nameAr: "أحمد", nameEn: "Ahmed",
+    roleAr: "مشتريات وتوريد", roleEn: "Procurement & Supply",
+    taglineAr: "يقارن الموردين ويجهّز مسودة تفاوض جاهزة للاعتماد.", taglineEn: "Compares suppliers and prepares a negotiation draft ready for your sign-off.",
+    caps: [
+      ["A shortlist of up to 3 suppliers compared on price, scope, terms and readiness", "قائمة مختصرة بحد أقصى 3 موردين مقارَنين بالسعر والنطاق والشروط والجاهزية"],
+      ["Prefers your existing approved suppliers before suggesting new ones", "يفضّل الموردين المعتمدين لديك قبل اقتراح موردين جدد"],
+      ["Drafts an outreach or negotiation message ready for your approval", "يجهّز مسودة رسالة تواصل أو تفاوض جاهزة للاعتماد"],
+      ["Never commits to a purchase, signs, or pays — and never messages a supplier without your sign-off", "لا يلتزم بأي شراء ولا يوقّع ولا يدفع، ولا يراسل مورداً بدون اعتمادك"],
+    ],
+  },
+];
+
+function buildTeamAgent(agent) {
+  const capsHtml = agent.caps.map(([en, ar]) => `<li>${I.check}<span>${L(en, ar)}</span></li>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Smart Specialized Agent", "الموظف المتخصص")}</span>
+    <h1>${agent.emoji} ${L(agent.nameEn, agent.nameAr)} — ${L(agent.roleEn, agent.roleAr)}</h1>
+    <p class="lead">${L(agent.taglineEn, agent.taglineAr)}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Subscribe now", "🚀 اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/portal")}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:1rem">${L("What does " + agent.nameEn + " do?", "وش يسوي " + agent.nameAr + "؟")}</h3>
+      <ul class="value-list">${capsHtml}</ul>
+    </div>
+  </section></div>
+
+  <section class="section" style="padding-top:0"><div class="container">
+    <div class="price-box">
+      <div><div class="price-amt">500 <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
+      <div class="text-soft">${L("Part of the Smart Specialized Agents team — subscribe to one employee or several from the same cart.", "جزء من فريق الموظفين الأذكياء المتخصصين — اشترك بموظف واحد أو أكثر من نفس السلة.")}</div></div>
+      <a class="btn btn-primary btn-lg" href="${u("/connect")}">${L("🚀 Add to cart", "🚀 أضف للسلة")}</a>
+    </div>
+  </div></section>
+
+  <style>
+    .text-soft{color:var(--text-soft)}
+    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
+    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
+    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
+    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
+    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
+    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
+  </style>`;
+
+  return page({
+    title: Lraw(`${agent.nameEn} — ${agent.roleEn} — Business Partner`, `${agent.nameAr} — ${agent.roleAr} — بيزنس بارتنر`),
+    desc: Lraw(agent.taglineEn, agent.taglineAr),
+    active: "/ai-agents",
+    path: `/team/${agent.slug}`,
     body,
   });
 }
@@ -2088,6 +2164,18 @@ function buildTourism() {
 // top (client-side, works regardless of any backend), investor services,
 // city-by-city investor programs, target sectors, and the lead form that
 // still feeds the /api/requests investor-tourism pipeline (email + CRM/Notion).
+// Shared sub-nav for the two Mahfol Makfol tracks (investor + trips), so both
+// pages read as one sub-brand under Business Partner and cross-link cleanly.
+function mmSubnav(active) {
+  const items = [
+    { href: "/mahfol-makfol", en: "For investors", ar: "للمستثمر" },
+    { href: "/mahfol-makfol/trips", en: "Trips & experiences", ar: "الرحلات والتجارب" },
+  ];
+  return `<div class="mm-subnav"><a class="mm-subnav-brand" href="${u("/mahfol-makfol")}">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span></a><nav>` +
+    items.map((it) => `<a href="${u(it.href)}"${it.href === active ? ' class="on"' : ""}>${L(it.en, it.ar)}</a>`).join("") +
+    `</nav></div>`;
+}
+
 function buildMahfolMakfol() {
   const b = site.businessTourism;
 
@@ -2176,11 +2264,11 @@ function buildMahfolMakfol() {
   <style>
     .mm-hero{background:linear-gradient(160deg,var(--navy-900),var(--navy) 60%,var(--navy-700));color:#fff;padding:64px 0 72px;position:relative;overflow:hidden}
     .mm-hero .subbrand-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff}
-    .mm-hero .subbrand-badge small{color:var(--mm-gold)}
+    .mm-hero .subbrand-badge small{color:rgba(255,255,255,.72)}
     .mm-hero h1{color:#fff;margin:18px 0 12px;font-size:clamp(30px,5vw,50px)}
     .mm-hero .lead{color:rgba(255,255,255,.86);max-width:760px}
-    .mm-gold-line{width:64px;height:4px;border-radius:4px;background:var(--mm-gold);margin:0 0 18px}
-    :root{--mm-gold:#c6a45c}
+    .mm-gold-line{width:64px;height:4px;border-radius:4px;background:rgba(255,255,255,.85);margin:0 0 18px}
+    :root{--mm-gold:#0B1B5A;--mm-hi:#24409e}
     .mm-cc{background:#fff;color:var(--text);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:760px;margin:34px auto 0;padding:26px 26px 30px;text-align:start}
     .mm-cc-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
     .mm-cc-head .r{width:44px;height:44px;border-radius:12px;background:var(--navy);color:#fff;display:grid;place-items:center;flex:0 0 auto}
@@ -2210,9 +2298,9 @@ function buildMahfolMakfol() {
     .mm-mk-dot{fill:var(--navy);stroke:#fff;stroke-width:3;transition:.2s}
     .mm-mk-lbl{font-size:22px;font-weight:700;fill:var(--text);paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none;opacity:0;transition:.2s}
     .mm-mk:hover .mm-mk-lbl,.mm-mk.on .mm-mk-lbl{opacity:1}
-    .mm-mk:hover .mm-mk-dot,.mm-mk:focus .mm-mk-dot{fill:var(--mm-gold)}
-    .mm-mk.on .mm-mk-dot{fill:var(--mm-gold);r:11}
-    .mm-mk.on .mm-mk-ring{fill:var(--mm-gold);opacity:.3;r:22}
+    .mm-mk:hover .mm-mk-dot,.mm-mk:focus .mm-mk-dot{fill:var(--mm-hi)}
+    .mm-mk.on .mm-mk-dot{fill:var(--mm-hi);r:11}
+    .mm-mk.on .mm-mk-ring{fill:var(--mm-hi);opacity:.3;r:22}
     .mm-map-panel{display:none;border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);padding:22px;flex-direction:column;gap:11px}
     .mm-map-panel.on{display:flex}
     @media(max-width:820px){.mm-map-wrap{grid-template-columns:1fr}}
@@ -2237,6 +2325,7 @@ function buildMahfolMakfol() {
     @media(max-width:560px){.mm-cc-opts{grid-template-columns:1fr}}
   </style>
 
+  ${mmSubnav("/mahfol-makfol")}
   <section class="mm-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
     <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("Your gateway to investing in Saudi Arabia", "بوابتك للاستثمار في السعودية")}</h1>
@@ -2482,6 +2571,323 @@ function buildMahfolMakfol() {
     title: Lraw("Mahfol Makfol by Business Partner — Invest in Saudi Arabia", "محفول مكفول من بزنس بارتنر — استثمر في السعودية"),
     desc: Lraw("A concierge program for foreign investors in Saudi Arabia: MISA licensing, government relations, curated meetings, opportunity sourcing and executive hospitality across the Kingdom's key cities.", "برنامج استشاري للمستثمرين الأجانب في السعودية: ترخيص وزارة الاستثمار، علاقات حكومية، لقاءات مُنسّقة، تحديد للفرص، وضيافة تنفيذية في أبرز مدن المملكة."),
     active: "/mahfol-makfol", path: "/mahfol-makfol", body, script: mmScript,
+  });
+}
+
+// Mahfol Makfol — Trips & experiences track (leisure/experiential Saudi travel),
+// sibling of the investor track. Real destinations, signature experiences,
+// tourism-unit management (Gathern/Airbnb) and a trip-request form that feeds
+// the same requests pipeline (Notion + WhatsApp + dashboards).
+function buildMahfolTrips() {
+  // Real Saudi tourism photos (the client's own brochure assets on Google Drive).
+  const timg = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+  const DEST = [
+    { ic: "🏜️", en: "Riyadh & around", ar: "الرياض وضواحيها", te: "Edge of the World, an hour from the capital", ta: "حافة العالم على بُعد ساعة من العاصمة", pe: "from 600 SAR / person", pa: "من 600 ر.س للشخص", img: "1rW3H3X3_VkPIZIrq8B6mAcfJpldLAhdN", mx: 576, my: 440 },
+    { ic: "🏛️", en: "AlUla", ar: "العلا", te: "An open-air museum 200,000 years old", ta: "متحف مفتوح عمره 200,000 سنة", pe: "3-day packages from 2,029 SAR", pa: "باقات 3 أيام من 2,029 ر.س", img: "1Ja-GvMorEDtgsgPRN0Qb9kRggz48xwEb", mx: 177, my: 339 },
+    { ic: "🕌", en: "Jeddah & KAEC", ar: "جدة وكايك", te: "Bride of the Red Sea & gateway to history", ta: "عروس البحر الأحمر وبوابة التاريخ", pe: "from 2,290 SAR / person", pa: "من 2,290 ر.س للشخص", img: "1eQQc_8ZMlhQNxCDWbL0axc9r6Q7yfz5Y", mx: 238, my: 600 },
+    { ic: "🌊", en: "NEOM, Duba & Disah", ar: "نيوم وضباء وديسة", te: "Where the tourism of the future is written", ta: "حيث تُكتب سياحة المستقبل", pe: "from 2,065 SAR / person", pa: "من 2,065 ر.س للشخص", img: "1DXjFLZe0rvPURNa4wsGXwq9YWjtoIKs2", mx: 75, my: 272 },
+    { ic: "🐠", en: "Yanbu, Umluj & AlWajh", ar: "ينبع وأملج والوجه", te: "The Maldives of Saudi Arabia", ta: "مالديف السعودية على البحر الأحمر", pe: "from 2,261 SAR / person", pa: "من 2,261 ر.س للشخص", img: "1uY9IzbUEz7uI-HvY48DCrvjM3OG9GRKI", mx: 185, my: 471 },
+    { ic: "🌲", en: "Asir & Abha", ar: "عسير وأبها", te: "Bride of the mountain, above the clouds", ta: "عروس الجبل فوق السحاب", pe: "from 1,945 SAR / person", pa: "من 1,945 ر.س للشخص", img: "1QrvOGRZYQf0TF-9Cwwt03ZVeRUEorjBO", mx: 392, my: 780 },
+    { ic: "🏝️", en: "Jazan & Farasan", ar: "جازان وجزر فرسان", te: "The south's paradise & UNESCO archipelago", ta: "جنة الجنوب وأرخبيل اليونسكو", pe: "from 1,897 SAR / person", pa: "من 1,897 ر.س للشخص", img: "1Gc0OASTIu_yukc0Zpdom6FfTzgasYJCX", mx: 405, my: 838 },
+    { ic: "🌹", en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 1,696 SAR / person", pa: "من 1,696 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619 },
+    { ic: "🐪", en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291 },
+  ];
+  const destCards = DEST.map((d) => `
+    <div class="card feature tr-dest">
+      <div class="tr-dest-img" style="background-image:url('${timg(d.img)}')"><span class="tr-dest-ic">${d.ic}</span></div>
+      <div class="tr-dest-body">
+        <h3>${L(d.en, d.ar)}</h3>
+        <p class="tr-tag">${L(d.te, d.ta)}</p>
+        <span class="tr-price">${L(d.pe, d.pa)}</span>
+        <a class="btn btn-ghost" style="width:100%;margin-top:auto" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.arrow}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a>
+      </div>
+    </div>`).join("");
+
+  const ACT = [
+    { ic: "🚙", en: "Safari & dune bashing", ar: "سفاري وتطعيس", de: "Wrangler jeeps, golden dunes, pro captains.", da: "جيب رانجلر وكثبان ذهبية وكباتن محترفون." },
+    { ic: "🥾", en: "Hiking & trails", ar: "هايكنج ومسارات", de: "Edge of the World, the Maze, hidden valleys.", da: "حافة العالم، المتاهة، الوادي الخفي." },
+    { ic: "🐎", en: "Horse & camel riding", ar: "ركوب الخيل والجمال", de: "Equestrian experiences in the countryside & beaches.", da: "تجارب فروسية في الريف والشواطئ." },
+    { ic: "🤿", en: "Diving & snorkeling", ar: "غوص وسنوركل", de: "Legendary Red Sea reefs in full colour.", da: "شعاب البحر الأحمر بألوانها الأسطورية." },
+    { ic: "🛥️", en: "Yacht trips", ar: "رحلات اليخوت", de: "Yacht or boat, 6–12 hours with snacks & seafood.", da: "يخت أو قارب 6-12 ساعة بسناكس وغداء بحري." },
+    { ic: "🎈", en: "AlUla hot-air balloon", ar: "منطاد العلا", de: "Sunrise over Hegra from the sky.", da: "شروق الشمس فوق الحِجر من السماء." },
+    { ic: "🏛️", en: "Heritage tours", ar: "جولات تراثية", de: "Jeddah Al-Balad, Diriyah, Shaqra & Ushaiqer.", da: "جدة البلد، الدرعية، شقراء وأوشيقر." },
+    { ic: "⭐", en: "Stargazing", ar: "تأمل النجوم", de: "AlUla's Gharameel and Riyadh's clear deserts.", da: "الغراميل بالعلا وصحاري الرياض الصافية." },
+  ];
+  const actCards = ACT.map((a) =>
+    `<div class="tr-act"><span class="tr-act-ic">${a.ic}</span><h3>${L(a.en, a.ar)}</h3><p>${L(a.de, a.da)}</p></div>`).join("");
+
+  const UNIT = [
+    { ic: "📋", en: "Listing & marketing", ar: "الإدراج والتسويق", de: "Professional listings on Gathern, Airbnb & Booking with photography.", da: "إعلان احترافي على جاذرن وAirbnb وBooking مع تصوير ووصف جذاب." },
+    { ic: "💰", en: "Dynamic pricing", ar: "التسعير الديناميكي", de: "Priced by season and events for the highest yield.", da: "نسعّر حسب المواسم والفعاليات لتحقق أعلى عائد." },
+    { ic: "💬", en: "24/7 guest communication", ar: "تواصل مع الضيوف 24/7", de: "Handling enquiries, check-in and check-out.", da: "رد على الاستفسارات وإدارة الوصول والمغادرة." },
+    { ic: "🧹", en: "Operations & cleaning", ar: "تشغيل ونظافة", de: "The unit prepared to hospitality standards between bookings.", da: "تجهيز الوحدة بين كل حجز بمعايير الضيافة." },
+    { ic: "📊", en: "Monthly reports", ar: "تقارير شهرية", de: "Occupancy, revenue, expenses and your net return — clearly.", da: "إشغال وإيرادات ومصاريف وصافي عائدك بوضوح." },
+    { ic: "🛡️", en: "Licensing & compliance", ar: "توثيق وتراخيص", de: "Following Ministry of Tourism requirements and unit permits.", da: "متابعة اشتراطات وزارة السياحة ورخص الوحدات." },
+  ];
+  const unitCards = UNIT.map((s) =>
+    `<div class="card feature"><div class="card-icon" style="font-size:24px">${s.ic}</div><h3>${L(s.en, s.ar)}</h3><p>${L(s.de, s.da)}</p></div>`).join("");
+
+  const KSA = "M41 193 L92 201 L159 159 L214 64 L364 101 L486 191 L568 209 L659 238 L727 318 L760 400 L748 452 L792 470 L900 520 L982 560 L964 688 L862 712 L700 780 L560 812 L418 826 L389 852 L330 735 L236 614 L200 529 L146 413 L92 291 L50 238 Z";
+  const mapMarkers = DEST.map((d, i) => `
+    <g class="trm" data-idx="${i}" transform="translate(${d.mx},${d.my})" tabindex="0" role="button" aria-label="${Lraw(d.en, d.ar)}">
+      <circle class="trm-hit" r="24" fill="transparent"></circle>
+      <circle class="trm-ring" r="15"></circle><circle class="trm-dot" r="7"></circle>
+      <text class="trm-lbl" y="-20" text-anchor="middle">${L(d.en, d.ar)}</text></g>`).join("");
+  const mapPanels = DEST.map((d, i) => `
+    <div class="trm-panel${i === 0 ? " on" : ""}" data-idx="${i}">
+      <div class="trm-panel-img" style="background-image:url('${timg(d.img)}')"></div>
+      <div class="trm-panel-body"><h3>${d.ic} ${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p><span class="tr-price">${L(d.pe, d.pa)}</span>
+      <a class="btn btn-primary" style="width:100%" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request this trip", "اطلب هذه الرحلة")}</span></a></div>
+    </div>`).join("");
+
+  const body = `
+  <style>
+    :root{--mm-gold:#0B1B5A;--mm-gold-2:#24409e}
+    .tr-hero{position:relative;color:#fff;padding:62px 0 70px;overflow:hidden;background:var(--navy-900)}
+    .tr-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 120% at 85% 0%,#1b2f80 0%,var(--navy) 45%,var(--navy-900) 100%);z-index:0}
+    .tr-hero::after{content:"";position:absolute;inset:0;opacity:.5;z-index:0;background-image:radial-gradient(circle at 82% 30%,rgba(255,255,255,.10),transparent 40%);pointer-events:none}
+    .tr-hero>.container{position:relative;z-index:1}
+    .tr-hero .subbrand-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:#fff}
+    .tr-hero .subbrand-badge small{color:rgba(255,255,255,.75)}
+    .tr-hero h1{color:#fff;margin:16px 0 10px;font-size:clamp(28px,4.8vw,48px);text-shadow:0 2px 20px rgba(0,0,0,.25)}
+    .tr-hero .lead{color:rgba(255,255,255,.9);max-width:720px}
+    .tr-gold-line{width:64px;height:4px;border-radius:4px;background:rgba(255,255,255,.85);margin:0 0 16px}
+    .tr-trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;color:rgba(255,255,255,.92);font-size:.92rem}
+    .tr-trust span{display:inline-flex;align-items:center;gap:8px}
+    .tr-trust svg{width:18px;height:18px;flex:0 0 auto}
+    .tr-agent-head .r svg{width:22px;height:22px}
+    .tr-agent-cta .btn svg,.tr-opt svg{width:16px;height:16px}
+    /* Smart trip agent (chat) */
+    .tr-agent{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:820px;margin:30px auto 0;overflow:hidden;text-align:start}
+    .tr-agent-head{display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(135deg,var(--navy),var(--navy-700));color:#fff}
+    .tr-agent-head .r{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.15);display:grid;place-items:center;flex:0 0 auto}
+    .tr-agent-head h3{margin:0;font-size:18px}
+    .tr-agent-head p{margin:1px 0 0;font-size:13px;color:rgba(255,255,255,.8)}
+    .tr-agent{margin:0 auto}
+    .tr-agent-msgs{padding:20px;display:flex;flex-direction:column;gap:12px;min-height:120px;max-height:360px;overflow-y:auto;background:#fff}
+    .tr-b{max-width:86%;padding:11px 15px;border-radius:14px;font-size:15px;line-height:1.6}
+    .tr-b.bot{background:var(--gray-bg);border:1px solid var(--gray-line);border-start-start-radius:4px;align-self:flex-start;color:var(--text)}
+    .tr-b.me{background:var(--navy);color:#fff;border-start-end-radius:4px;align-self:flex-end}
+    .tr-opts{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
+    .tr-opt{border:1.5px solid var(--gray-line);background:#fff;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;color:var(--text);cursor:pointer;transition:.15s}
+    .tr-opt:hover{border-color:var(--navy);background:var(--gray-bg)}
+    .tr-opt.gold{border-color:var(--navy);color:var(--navy);font-weight:700}
+    .tr-agent-cta{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 20px}
+    /* Colored terrain map */
+    .tr-map-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center}
+    .tr-map-svg{border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--gray-line)}
+    .tr-map-svg svg{width:100%;height:auto;display:block;max-height:540px}
+    .trm{cursor:pointer;outline:none}
+    .trm-ring{fill:#fff;opacity:.5;transition:.2s}
+    .trm-dot{fill:var(--navy);stroke:#fff;stroke-width:2.5;transition:.2s}
+    .trm-lbl{font-size:21px;font-weight:800;fill:#0d1b3e;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none;opacity:0;transition:.2s}
+    .trm:hover .trm-lbl,.trm.on .trm-lbl{opacity:1}
+    .trm:hover .trm-dot,.trm:focus .trm-dot{fill:var(--mm-gold-2)}
+    .trm.on .trm-dot{fill:var(--mm-gold-2);r:10}
+    .trm.on .trm-ring{fill:var(--mm-gold-2);opacity:.55;r:20}
+    .trm-panel{display:none;border:1px solid var(--gray-line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm);overflow:hidden}
+    .trm-panel.on{display:block}
+    .trm-panel-img{height:170px;background-size:cover;background-position:center}
+    .trm-panel-body{padding:18px;display:flex;flex-direction:column;gap:8px}
+    .trm-panel-body h3{margin:0;font-size:20px}
+    .trm-panel-body p{margin:0;color:var(--text-soft);font-size:14px}
+    @media(max-width:820px){.tr-map-wrap{grid-template-columns:1fr}}
+    /* Destination cards with photos */
+    .tr-dest{display:flex;flex-direction:column;padding:0;overflow:hidden}
+    .tr-dest-img{height:172px;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
+    .tr-dest-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,27,90,0) 55%,rgba(11,27,90,.35))}
+    .tr-dest-ic{position:relative;z-index:1;margin:10px;font-size:22px;background:rgba(255,255,255,.92);width:40px;height:40px;border-radius:11px;display:grid;place-items:center;box-shadow:var(--shadow-sm)}
+    .tr-dest-body{display:flex;flex-direction:column;gap:8px;padding:16px 18px 18px;flex:1}
+    .tr-dest-body h3{margin:0;font-size:19px}
+    .tr-tag{color:var(--text-soft);font-size:14px;margin:0}
+    .tr-price{color:var(--navy);font-weight:800;font-size:14px}
+    .tr-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .tr-act{border:1px solid var(--gray-line);border-radius:14px;background:#fff;padding:18px;box-shadow:var(--shadow-sm);border-top:3px solid var(--mm-gold)}
+    .tr-act-ic{font-size:26px}
+    .tr-act h3{margin:8px 0 5px;font-size:16px}
+    .tr-act p{margin:0;color:var(--text-soft);font-size:13.5px}
+    .tr-owner{background:linear-gradient(135deg,#101c4d,#1b2f80);color:#fff;border-radius:var(--radius-lg);padding:30px;text-align:center;margin-top:26px}
+    .tr-owner h2{color:#fff;margin:0 0 8px}
+    .tr-owner p{color:rgba(255,255,255,.85);max-width:640px;margin:0 auto 18px}
+  </style>
+
+  ${mmSubnav("/mahfol-makfol/trips")}
+  <section class="tr-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
+    <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
+    <h1>${L("Discover Saudi Arabia — trips & experiences", "استكشف السعودية — رحلات وتجارب")}</h1>
+    <div class="tr-gold-line"></div>
+    <p class="lead">${L("Curated trips, camps, stays and activities across every region — designed around you and delivered through our vetted local partners.", "رحلات ومخيمات وإقامات وأنشطة مصمّمة في كل مناطق المملكة — حسب رغبتك وعبر شركائنا المحليين المعتمدين.")}</p>
+    <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#trip-form">${I.calendar}<span>${L("Design my trip", "صمّم رحلتي")}</span></a>${waBtn2("Book on WhatsApp", "احجز عبر واتساب", "btn-ghost")}</div>
+    <div class="tr-trust"><span>${I.check}${L("Vetted, audited suppliers", "موردون معتمدون ومدقّقون")}</span><span>${I.wa}${L("Instant booking on WhatsApp", "حجز فوري عبر الواتساب")}</span><span>${I.clock}${L("24/7 support", "دعم على مدار الساعة")}</span></div>
+  </div></section>
+
+  <section class="section"><div class="container" style="max-width:840px">
+    <div class="section-head"><span class="eyebrow">${L("Smart agent", "الوكيل الذكي")}</span><h2>${L("Plan your trip in 30 seconds", "خطّط رحلتك في 30 ثانية")}</h2><p>${L("Chat with our agent — pick a few options and we'll shape your trip or find your flight.", "تحدّث مع وكيلنا — اختر بعض الخيارات ونصمّم رحلتك أو نبحث لك عن الطيران.")}</p></div>
+    <div class="tr-agent" id="tr-agent">
+      <div class="tr-agent-head"><span class="r">${I.robot}</span><div><h3>${L("Mahfol Makfol Agent", "وكيل محفول مكفول الذكي")}</h3><p>${L("Trips • Flights • Experiences", "رحلات • طيران • تجارب")}</p></div></div>
+      <div class="tr-agent-msgs" id="tr-msgs"></div>
+      <div class="tr-opts" id="tr-opts"></div>
+      <div class="tr-agent-cta" id="tr-cta"></div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Explore the map", "استكشف الخريطة")}</span><h2>${L("Where to go — interactive map", "إلى أين — خريطة تفاعلية")}</h2><p>${L("Tap a destination to see photos, highlights and pricing.", "اضغط على وجهة لرؤية الصور والمميزات والأسعار.")}</p></div>
+    <div class="tr-map-wrap">
+      <div class="tr-map-svg"><svg viewBox="0 0 1000 900" role="img" aria-label="${Lraw("Tourism map of Saudi Arabia", "خريطة السعودية السياحية")}" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="mmsand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4e8ca"/><stop offset="1" stop-color="#e3cd9b"/></linearGradient>
+          <clipPath id="mmksa"><path d="${KSA}"/></clipPath>
+        </defs>
+        <rect x="0" y="0" width="1000" height="900" fill="#bfe3ef"/>
+        <path d="${KSA}" fill="url(#mmsand)" stroke="#0B1B5A" stroke-width="3" stroke-linejoin="round"/>
+        <g clip-path="url(#mmksa)">
+          <ellipse cx="380" cy="800" rx="150" ry="120" fill="#7fb27a" opacity=".45"></ellipse>
+          <ellipse cx="620" cy="500" rx="270" ry="190" fill="#e9c46a" opacity=".33"></ellipse>
+          <ellipse cx="840" cy="600" rx="180" ry="150" fill="#e7b56a" opacity=".38"></ellipse>
+          <ellipse cx="250" cy="470" rx="120" ry="150" fill="#8ec9d6" opacity=".33"></ellipse>
+          <g fill="#5c8f57" opacity=".85"><path d="M330 802 l28 -50 28 50 z"></path><path d="M372 814 l34 -60 34 60 z"></path><path d="M300 772 l24 -42 24 42 z"></path></g>
+          <g fill="none" stroke="#c39f52" stroke-width="6" opacity=".65" stroke-linecap="round"><path d="M520 560 q40 -30 80 0 q40 30 80 0"></path><path d="M560 612 q40 -28 80 0 q40 28 80 0"></path></g>
+          <g fill="#3f8f86" opacity=".7"><circle cx="235" cy="600" r="7"></circle><circle cx="250" cy="642" r="6"></circle><circle cx="220" cy="470" r="6"></circle></g>
+        </g>
+        ${mapMarkers}
+      </svg></div>
+      <div class="tr-map-info" id="tr-map-info">${mapPanels}</div>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Where to go", "إلى أين")}</span><h2>${L("Destinations across the Kingdom", "وجهات في كل المملكة")}</h2><p>${L("From the Edge of the World to AlUla, the Red Sea islands and the green south.", "من حافة العالم إلى العلا وجزر البحر الأحمر والجنوب الأخضر.")}</p></div>
+    <div class="grid grid-3">${destCards}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Things to do", "الأنشطة")}</span><h2>${L("Signature experiences", "تجارب مميّزة")}</h2></div>
+    <div class="tr-act-grid">${actCards}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Stays & property management", "الإقامة وإدارة الوحدات")}</span><h2>${L("We manage your tourism unit — Gathern & Airbnb style", "ندير وحدتك السياحية — بأسلوب جاذرن وAirbnb")}</h2><p>${L("Own a chalet, farm or apartment? We list, price, host and operate it for you and report your net return.", "عندك شاليه أو مزرعة أو شقة؟ ندرجها ونسعّرها ونستضيف ونشغّل نيابةً عنك ونعطيك صافي عائدك.")}</p></div>
+    <div class="grid grid-3">${unitCards}</div>
+    <div class="tr-owner"><h2>${L("List your unit with us", "أدرج وحدتك معنا")}</h2><p>${L("Turn your property into managed, high-yield hospitality income.", "حوّل عقارك إلى دخل ضيافة مُدار وعائد مرتفع.")}</p><a class="btn btn-primary btn-lg" href="#trip-form">${I.building}<span>${L("Become a host partner", "كن شريكاً مالكاً")}</span></a></div>
+  </div></section>
+
+  <section class="section section--gray" id="trip-form"><div class="container" style="max-width:720px">
+    <div class="section-head"><span class="eyebrow">${L("Design your trip", "صمّم رحلتك")}</span><h2>${L("Tell us about your trip", "أخبرنا عن رحلتك")}</h2><p>${L("Share what you're after and we'll come back with a tailored program and pricing within a day.", "أخبرنا بما ترغب ونعود لك ببرنامج وتسعيرة مخصّصة خلال يوم.")}</p></div>
+    <form class="calc-form" id="trip-form-el" novalidate>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-name">${L("Your name", "الاسم")}</label><input id="tr-name" type="text" required></div>
+        <div class="field"><label for="tr-phone">${L("Mobile", "رقم الجوال")}</label><input id="tr-phone" type="tel" required placeholder="05xxxxxxxx"></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-email">${L("Email", "الإيميل")}</label><input id="tr-email" type="email" required placeholder="name@email.com"></div>
+        <div class="field"><label for="tr-dest">${L("Destination", "الوجهة")}</label><input id="tr-dest" type="text" placeholder="${Lraw("e.g. AlUla", "مثال: العلا")}"></div>
+      </div>
+      <div class="grid grid-2" style="gap:0 20px">
+        <div class="field"><label for="tr-count">${L("Group size", "عدد الأشخاص")}</label><input id="tr-count" type="number" min="1" placeholder="1"></div>
+        <div class="field"><label for="tr-dates">${L("Preferred dates", "التواريخ المفضّلة")}</label><input id="tr-dates" type="text" placeholder="${Lraw("e.g. October", "مثال: أكتوبر")}"></div>
+      </div>
+      <div class="field"><label for="tr-notes">${L("Anything else?", "أي تفاصيل إضافية؟")}</label><textarea id="tr-notes" rows="3"></textarea></div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.calendar}<span>${L("Send request", "أرسل الطلب")}</span></button>
+      <div class="form-success" id="trip-success" hidden></div>
+    </form>
+    <div class="callout" style="margin-top:22px"><span class="ico">🏛️</span><p>${L("Here for business, not leisure?", "زيارتك للأعمال وليست سياحية؟")} <a href="${u("/mahfol-makfol")}">${L("See the investor program →", "شاهد برنامج المستثمر ←")}</a></p></div>
+  </div></section>`;
+
+  const tripScript = `<script>
+(function(){
+  var LANG = ${JSON.stringify(LANG === "ar" ? "ar" : "en")};
+  var WA = ${JSON.stringify(WA)};
+  var DST = ${JSON.stringify(DEST.map((d) => ({ en: d.en, ar: d.ar })))};
+  function tr(ar,en){return LANG==="ar"?ar:en;}
+  // ----- Smart trip/flight agent (chat, multiple-choice) -----
+  var msgs=document.getElementById("tr-msgs"), optsBox=document.getElementById("tr-opts"), ctaBox=document.getElementById("tr-cta");
+  if(msgs){
+    var destOpts=DST.map(function(d){return {v:d.en,la:d.ar,le:d.en};});
+    var KINDS=[{v:"adventure",la:"مغامرة وطبيعة",le:"Adventure & nature"},{v:"family",la:"عائلية",le:"Family"},{v:"luxury",la:"فاخرة VIP",le:"Luxury / VIP"},{v:"heritage",la:"تراث وثقافة",le:"Heritage & culture"},{v:"sea",la:"بحر وجزر",le:"Sea & islands"}];
+    var GROUPS=[{v:"1-2",la:"1–2",le:"1–2"},{v:"3-5",la:"3–5",le:"3–5"},{v:"6-10",la:"6–10",le:"6–10"},{v:"10+",la:"+10",le:"10+"}];
+    var WHENS=[{v:"month",la:"خلال شهر",le:"Within a month"},{v:"q",la:"1–3 أشهر",le:"1–3 months"},{v:"flex",la:"مرن",le:"Flexible"}];
+    var CLASSES=[{v:"economy",la:"اقتصادية",le:"Economy"},{v:"business",la:"رجال أعمال",le:"Business"},{v:"first",la:"أولى",le:"First"}];
+    var PAXES=[{v:"1",la:"1",le:"1"},{v:"2",la:"2",le:"2"},{v:"3-4",la:"3–4",le:"3–4"},{v:"5+",la:"+5",le:"5+"}];
+    var NOTSURE={v:"notsure",la:"لست متأكداً",le:"Not sure"}, INTL={v:"intl",la:"وجهة دولية",le:"International"};
+    var TRIP_STEPS=[
+      {key:"dest",q:tr("أي وجهة تشدّك؟","Which destination?"),opts:destOpts.concat([NOTSURE])},
+      {key:"kind",q:tr("نوع الرحلة؟","Trip style?"),opts:KINDS},
+      {key:"group",q:tr("كم عدد الأشخاص؟","Group size?"),opts:GROUPS},
+      {key:"when",q:tr("متى تنوي السفر؟","When?"),opts:WHENS}
+    ];
+    var FLIGHT_STEPS=[
+      {key:"to",q:tr("وين تبي تسافر؟","Where to?"),opts:destOpts.concat([INTL])},
+      {key:"cls",q:tr("درجة السفر؟","Cabin class?"),opts:CLASSES},
+      {key:"pax",q:tr("كم مسافر؟","Passengers?"),opts:PAXES},
+      {key:"when",q:tr("متى؟","When?"),opts:WHENS}
+    ];
+    var st={mode:null,step:0,data:{}}, steps=[];
+    function bubble(text,who){var b=document.createElement("div");b.className="tr-b "+who;b.textContent=text;msgs.appendChild(b);msgs.scrollTop=msgs.scrollHeight;}
+    function clearOpts(){optsBox.innerHTML="";ctaBox.innerHTML="";}
+    function optBtn(label,cb,gold){var b=document.createElement("button");b.type="button";b.className="tr-opt"+(gold?" gold":"");b.textContent=label;b.addEventListener("click",cb);optsBox.appendChild(b);}
+    function askMode(){
+      clearOpts();bubble(tr("أهلاً 👋 أنا وكيل محفول مكفول. كيف أساعدك اليوم؟","Hi 👋 I'm the Mahfol Makfol agent. How can I help today?"),"bot");
+      optBtn(tr("صمّم رحلة سياحية","Design a trip"),function(){start("trip");},true);
+      optBtn(tr("استعلام وحجز طيران","Flights & destination"),function(){start("flight");},true);
+    }
+    function start(mode){st.mode=mode;st.step=0;st.data={};steps=mode==="trip"?TRIP_STEPS:FLIGHT_STEPS;
+      bubble(mode==="trip"?tr("صمّم رحلة سياحية","Design a trip"):tr("استعلام وحجز طيران","Flights & destination"),"me");renderStep();}
+    function renderStep(){
+      clearOpts();
+      if(st.step>=steps.length){plan();return;}
+      var s=steps[st.step];bubble(s.q,"bot");
+      s.opts.forEach(function(o){optBtn(LANG==="ar"?o.la:o.le,function(){st.data[s.key]={v:o.v,le:o.le,la:o.la};bubble(LANG==="ar"?o.la:o.le,"me");st.step++;renderStep();});});
+    }
+    function summaryEN(){
+      var d=st.data;var parts=[];
+      if(st.mode==="flight"){parts.push("FLIGHT");if(d.to)parts.push("To: "+d.to.le);if(d.cls)parts.push("Class: "+d.cls.le);if(d.pax)parts.push("Pax: "+d.pax.le);}
+      else{parts.push("TRIP");if(d.dest)parts.push("Destination: "+d.dest.le);if(d.kind)parts.push("Style: "+d.kind.le);if(d.group)parts.push("Group: "+d.group.le);}
+      if(d.when)parts.push("When: "+d.when.le);
+      return parts.join(" | ");
+    }
+    function plan(){
+      clearOpts();
+      bubble(st.mode==="flight"?tr("تمام! سنبحث لك عن أفضل الرحلات ونؤكد الحجز. أكمل بياناتك أو تواصل واتساب الآن.","Done! We'll find the best flights and confirm your booking. Complete your details or chat on WhatsApp."):tr("تمام! جهّزت ملخص رحلتك. أكمل بياناتك ونعود لك ببرنامج وتسعيرة خلال يوم — أو تواصل واتساب الآن.","Done! I've drafted your trip. Complete your details and we'll come back within a day — or chat on WhatsApp."),"bot");
+      var sum=summaryEN();
+      var wa=document.createElement("a");wa.className="btn btn-wa";wa.target="_blank";wa.rel="noopener";
+      wa.href=WA+(WA.indexOf("?")>-1?"&":"?")+"text="+encodeURIComponent("Mahfol Makfol — "+sum);wa.textContent=tr("تواصل واتساب","Chat on WhatsApp");ctaBox.appendChild(wa);
+      var f=document.createElement("button");f.type="button";f.className="btn btn-primary";f.textContent=tr("أكمل بياناتي","Complete my details");
+      f.addEventListener("click",function(){
+        var dest=(st.data.dest||st.data.to);var destEl=document.getElementById("tr-dest");
+        if(destEl&&dest)destEl.value=dest.le;
+        var n=document.getElementById("tr-notes");if(n)n.value=sum;
+        var form=document.getElementById("trip-form");if(form)form.scrollIntoView({behavior:"smooth",block:"start"});
+      });ctaBox.appendChild(f);
+      var rs=document.createElement("button");rs.type="button";rs.className="btn btn-ghost";rs.textContent=tr("من جديد","Start over");
+      rs.addEventListener("click",function(){msgs.innerHTML="";askMode();});ctaBox.appendChild(rs);
+    }
+    askMode();
+  }
+  // ----- Colored map: destination markers <-> panels -----
+  (function(){
+    var marks=document.querySelectorAll(".trm"),panels=document.querySelectorAll(".trm-panel");
+    if(!marks.length)return;
+    function pick(i){for(var a=0;a<marks.length;a++)marks[a].classList.toggle("on",a===i);for(var b=0;b<panels.length;b++)panels[b].classList.toggle("on",b===i);}
+    for(var k=0;k<marks.length;k++){(function(m){var idx=parseInt(m.getAttribute("data-idx"),10);
+      m.addEventListener("click",function(){pick(idx);});
+      m.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(idx);}});})(marks[k]);}
+    pick(0);
+  })();
+  // ----- Destination "request" buttons prefill the form -----
+  document.addEventListener("click",function(e){
+    var a=e.target.closest("[data-trip-dest]");
+    if(!a) return;
+    var d=document.getElementById("tr-dest");
+    if(d) d.value=a.getAttribute("data-trip-dest");
+  });
+})();
+</script>`;
+
+  return page({
+    title: Lraw("Trips & experiences — Mahfol Makfol by Business Partner", "الرحلات والتجارب — محفول مكفول من بزنس بارتنر"),
+    desc: Lraw("Curated Saudi trips, camps, stays and activities across every region, plus Gathern/Airbnb-style tourism-unit management — Mahfol Makfol by Business Partner.", "رحلات ومخيمات وإقامات وأنشطة سعودية مصمّمة في كل المناطق، وإدارة وحدات سياحية بأسلوب جاذرن وAirbnb — محفول مكفول من بزنس بارتنر."),
+    active: "/mahfol-makfol", path: "/mahfol-makfol/trips", body, script: tripScript,
   });
 }
 
@@ -3651,7 +4057,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/services")}"><span>🗂️</span><strong>${L("Request a service", "اطلب خدمة")}</strong></a>
               <a class="portal-card" href="${u("/packages")}"><span>📦</span><strong>${L("Packages", "الباقات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
-              <a class="portal-card" href="${u("/compliance-agent")}#pricing"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
+              <a class="portal-card" href="${COMPLIANCE_PORTAL_URL}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
@@ -3703,7 +4109,7 @@ function buildAccount() {
         <div class="dash-panel" id="panel-documents">
           <div class="dash-panel-head"><h2>${L("My documents", "مستنداتي")}</h2><p>${L("Files attached to your orders.", "الملفات المرفقة بطلباتك.")}</p></div>
           <div class="dash-card"><div id="all-uploads"><p class="dash-empty">${L("No documents yet — attach them when you place an order.", "لا توجد مستندات بعد — أرفقها عند تقديم طلب.")}</p></div>
-            <a class="btn btn-ghost" href="${u("/compliance-portal")}">🛡️ ${L("Upload via the compliance portal", "ارفع عبر بوابة الامتثال")}</a></div>
+            <a class="btn btn-ghost" href="${u("/compliance-agent")}">🛡️ ${L("Subscribe to the Compliance Agent", "اشترك في وكيل الامتثال")}</a></div>
         </div>
 
         <!-- Support -->
@@ -3901,25 +4307,6 @@ function buildDashboard() {
     .hint{font-size:.75rem;color:var(--muted);min-height:1em;margin-top:.35rem}
     .foot{margin-top:2.2rem;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:1rem 1.25rem;font-size:.86rem}
     .foot .note{margin-top:.5rem;color:#78716c}
-    .leads{margin-top:2.2rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.3rem 1.4rem;box-shadow:var(--shadow)}
-    .leads-head h2{color:var(--navy);font-size:1.3rem;margin-bottom:.2rem}
-    .leads-head p{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
-    .leads-gate{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.8rem}
-    .leads-gate input[type=password]{flex:1;min-width:200px;border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font:inherit}
-    .leads-gate button{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:.6rem 1.2rem;font-weight:600}
-    .leads-remember{font-size:.82rem;color:var(--muted);display:inline-flex;gap:.35rem;align-items:center;cursor:pointer}
-    .leads-msg{font-size:.86rem;color:var(--muted);min-height:1em;margin-bottom:.6rem}
-    .leads-list{display:flex;flex-direction:column;gap:.6rem}
-    .lead{display:flex;gap:.9rem;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;background:#fff}
-    .lead-main{flex:1;min-width:200px}
-    .lead-main strong{color:var(--navy);display:block;font-size:.98rem}
-    .lead-meta{color:var(--muted);font-size:.8rem;margin-top:.15rem}
-    .lead-stage{font-size:.74rem;padding:.2rem .6rem;border-radius:999px;background:#eef1fb;color:var(--navy);font-weight:700;white-space:nowrap}
-    .lead-actions{display:flex;gap:.45rem;align-items:center}
-    .lead-actions a{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;color:#fff;text-decoration:none}
-    .lead-wa{background:#25D366}.lead-mail{background:var(--navy)}.lead-call{background:#0ea5e9}
-    .lead-actions a:hover{opacity:.9}
-    .leads-empty{color:var(--muted);font-size:.9rem;padding:.5rem 0}
   </style>
 </head>
 <body>
@@ -3935,20 +4322,6 @@ function buildDashboard() {
       </div>
     </div>
     <div class="grid" id="grid"></div>
-
-    <section class="leads" id="leads">
-      <div class="leads-head">
-        <h2>📥 الطلبات الواردة</h2>
-        <p>كل الطلبات القادمة من الموقع ومحفول مكفول — مباشرة من نظام العملاء (Notion CRM). تواصل مع العميل بضغطة واتساب.</p>
-      </div>
-      <div class="leads-gate" id="leads-gate">
-        <input type="password" id="leads-key" placeholder="مفتاح الوصول (LEADS_KEY)" autocomplete="off" />
-        <button type="button" id="leads-load">تحميل الطلبات</button>
-        <label class="leads-remember"><input type="checkbox" id="leads-save" checked /> تذكّر على هذا الجهاز</label>
-      </div>
-      <div class="leads-msg" id="leads-msg"></div>
-      <div class="leads-list" id="leads-list"></div>
-    </section>
 
     <div class="foot">
       🔒 النموذج التشغيلي Concierge: الإيجنت يجهّز ويوصي — أي مخرج خارجي «بانتظار الموافقة» ولا يُرسل آلياً. لا OTP ولا كلمات مرور.
@@ -4072,53 +4445,6 @@ function buildDashboard() {
         for (var j=0;j<cards.length;j++) applyLock(cards[j]);
       });
     }
-
-    // ---- Incoming requests (leads) from the CRM ----
-    (function(){
-      var LKEY='bp_leads_key';
-      var keyIn=document.getElementById('leads-key');
-      var loadBtn=document.getElementById('leads-load');
-      var saveCb=document.getElementById('leads-save');
-      var msg=document.getElementById('leads-msg');
-      var list=document.getElementById('leads-list');
-      var gate=document.getElementById('leads-gate');
-      if(!loadBtn) return;
-      var WA_SVG='<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="#fff" d="M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.2A9 9 0 1012 3zm3.9 10.4c-.2-.1-1.3-.6-1.5-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.1-.2.1-.4 0-.2-.1-.9-.3-1.6-1-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.3.1-.4l.3-.4.2-.3v-.3c0-.1-.5-1.2-.7-1.6-.2-.4-.3-.4-.5-.4h-.4c-.1 0-.4.1-.5.3-.2.2-.7.7-.7 1.7s.7 2 .8 2.1c.1.2 1.5 2.3 3.6 3.1 1.7.7 2 .6 2.4.5.4 0 1.3-.5 1.4-1 .2-.5.2-.9.1-1z"/></svg>';
-      function waLink(phone){ var d=(phone||'').replace(/[^0-9]/g,''); if(!d) return ''; if(d.charAt(0)==='0') d='966'+d.slice(1); if(d.indexOf('966')!==0 && d.length<=9) d='966'+d; return 'https://wa.me/'+d; }
-      function esc(s){ var e=document.createElement('span'); e.textContent=(s==null?'':String(s)); return e.innerHTML; }
-      function render(leads){
-        if(!leads.length){ list.innerHTML='<div class="leads-empty">لا توجد طلبات بعد.</div>'; return; }
-        list.innerHTML=leads.map(function(l){
-          var acts=''; var wl=waLink(l.phone);
-          if(wl) acts+='<a class="lead-wa" href="'+wl+'?text='+encodeURIComponent('مرحباً، بخصوص طلبك '+(l.ref||''))+'" target="_blank" rel="noopener" title="واتساب">'+WA_SVG+'</a>';
-          if(l.email) acts+='<a class="lead-mail" href="mailto:'+esc(l.email)+'" title="إيميل">✉</a>';
-          if(l.phone) acts+='<a class="lead-call" href="tel:'+esc(l.phone)+'" title="اتصال">☎</a>';
-          var meta=[l.at, l.email, l.phone].filter(Boolean).map(esc).join(' · ');
-          var badge=(l.status||l.stage);
-          return '<div class="lead"><div class="lead-main"><strong>'+esc(l.title||l.ref||'طلب')+'</strong><div class="lead-meta">'+meta+'</div></div>'+
-            (badge?'<span class="lead-stage">'+esc(badge)+'</span>':'')+
-            '<div class="lead-actions">'+acts+'</div></div>';
-        }).join('');
-      }
-      function fetchLeads(key){
-        msg.textContent='جارٍ التحميل…';
-        fetch('/api/requests?action=leads&limit=40&key='+encodeURIComponent(key))
-          .then(function(r){ return r.json().then(function(d){ return {s:r.status,d:d}; }); })
-          .then(function(res){
-            if(res.d && res.d.ok){ msg.textContent=res.d.leads.length+' طلب'; render(res.d.leads); if(gate) gate.style.display='none';
-              if(saveCb.checked){ try{ localStorage.setItem(LKEY,key); }catch(e){} } return; }
-            if(res.s===401) msg.textContent='مفتاح غير صحيح.';
-            else if(res.s===503) msg.textContent='لم يُضبط LEADS_KEY في إعدادات الخادم (Vercel).';
-            else msg.textContent='تعذّر التحميل.';
-            try{ localStorage.removeItem(LKEY); }catch(e){}
-          })
-          .catch(function(){ msg.textContent='تعذّر الاتصال.'; });
-      }
-      loadBtn.addEventListener('click', function(){ var k=(keyIn.value||'').trim(); if(!k){ msg.textContent='أدخل المفتاح.'; return; } fetchLeads(k); });
-      keyIn.addEventListener('keydown', function(e){ if(e.key==='Enter') loadBtn.click(); });
-      var saved=''; try{ saved=localStorage.getItem(LKEY)||''; }catch(e){}
-      if(saved){ keyIn.value=saved; fetchLeads(saved); }
-    })();
   </script>
 </body>
 </html>`;
@@ -4174,6 +4500,8 @@ function buildConnect() {
     .emp b{font-size:.95rem;color:var(--navy)}
     .emp span{display:block;font-size:.76rem;color:var(--green);font-weight:600}
     .emp-cart{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:.55rem;font-weight:700;font-size:.82rem;cursor:pointer}
+    .emp-details{font-size:.78rem;color:var(--green);font-weight:600;text-decoration:none}
+    .emp-details:hover{text-decoration:underline}
     .emp-note{font-size:.85rem;color:var(--muted);margin-top:1rem;text-align:center}
     .emp-note a{color:var(--navy);font-weight:700;text-decoration:underline}
     .bp-toast{position:fixed;inset-inline-start:50%;bottom:90px;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:999px;box-shadow:var(--shadow);z-index:1200;opacity:0;transition:opacity .28s,transform .28s;font-weight:600;pointer-events:none}
@@ -4269,7 +4597,9 @@ function buildConnect() {
   </div>
   <section>
     <div class="wrap">
-      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p></div>
+      <div class="sec-head"><h2>اختَر موظفك</h2><p>كل موظف خبير في مجاله — أضف اللي يناسبك للسلة (تقدر تختار أكثر من موظف).</p>
+        <p style="margin-top:.6rem"><a href="/portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
+      </div>
       <div class="emps" id="emps"></div>
       <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="/portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
@@ -4457,6 +4787,7 @@ function buildConnect() {
     EMPLOYEES.forEach(function(m){
       var d=document.createElement('div'); d.className='emp';
       d.innerHTML='<div class="emp-top"><span class="e">'+m.e+'</span><div><b>'+m.name+'</b><span>'+m.role+'</span></div></div>'+
+        '<a href="/ar/team/'+m.slug+'" target="_blank" rel="noopener" class="emp-details">ايش يقدم؟ التفاصيل الكاملة ←</a>'+
         '<button type="button" class="emp-cart add-cart" data-id="employee-'+m.slug+'" data-name-en="'+m.nameEn+'" data-name-ar="'+m.name+' — '+m.role+'" data-amount="500" data-price="500 ﷼ / شهرياً" data-kind="employee">🛒 أضف للسلة — 500 ﷼/شهرياً</button>';
       empGrid.appendChild(d);
     });
@@ -4502,6 +4833,7 @@ function buildPortal() {
     .field input:focus{border-color:var(--navy)}
     .bigbtn{width:100%;background:var(--navy);color:#fff;border:0;border-radius:12px;padding:.8rem;font-weight:700;font-size:1rem;margin-top:.3rem}
     .bigbtn.green{background:var(--green)}
+    .bigbtn.trial{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
     .err{color:#dc2626;font-size:.82rem;min-height:1.1em;margin-top:.5rem}
     .muted{color:var(--muted);font-size:.82rem;margin-top:1rem;line-height:1.7}
     .hint-code{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:.55rem .7rem;font-size:.8rem;margin-top:.9rem}
@@ -4514,6 +4846,8 @@ function buildPortal() {
     .pickrow .e{font-size:1.1rem}
     .pickrow b{color:var(--navy)}
     .pickrow .r{color:var(--muted);margin-inline-start:auto;font-size:.78rem}
+    .pick-details{color:var(--green);font-weight:600;font-size:.76rem;text-decoration:none;flex-shrink:0}
+    .pick-details:hover{text-decoration:underline}
     .ws{max-width:1050px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
     .ws h2{color:var(--navy);font-size:1.25rem;margin-bottom:.2rem}
     .ws .lead{color:var(--muted);font-size:.9rem;margin-bottom:1.1rem}
@@ -4521,6 +4855,8 @@ function buildPortal() {
     .ag{background:var(--surface);border:1.5px solid var(--line);border-radius:13px;padding:.6rem .85rem;display:flex;gap:.5rem;align-items:center;cursor:pointer;transition:.12s}
     .ag:hover{border-color:var(--navy)}
     .ag.sel{border-color:var(--navy);background:#eef1fb}
+    .ag-details{margin-inline-start:auto;flex-shrink:0;text-decoration:none;font-size:.95rem;opacity:.7}
+    .ag-details:hover{opacity:1}
     .ag .e{font-size:1.3rem}
     .ag b{font-size:.92rem;color:var(--navy)}
     .ag span{display:block;font-size:.72rem;color:var(--muted)}
@@ -4529,10 +4865,14 @@ function buildPortal() {
     .p-head .e{font-size:1.5rem}
     .p-head b{color:var(--navy)}
     .p-head span{display:block;font-size:.78rem;color:var(--green);font-weight:600}
+    .p-head a{color:var(--green);font-weight:600;font-size:.78rem;text-decoration:none;flex-shrink:0}
+    .p-head a:hover{text-decoration:underline}
+    .ph-trial{background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:999px;padding:.2rem .6rem;font-size:.74rem;font-weight:700;flex-shrink:0}
     .chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.55rem;background:#fbfcfe}
     .msg{padding:.6rem .8rem;border-radius:13px;max-width:80%;white-space:pre-wrap;font-size:.92rem}
     .msg.me{background:var(--navy);color:#fff;align-self:flex-start;border-start-start-radius:3px}
     .msg.bot{background:#fff;border:1px solid var(--line);align-self:flex-end;border-start-end-radius:3px}
+    .msg.upsell{background:#fffbeb;border:1px solid #fde68a;color:#92400e;align-self:center;max-width:95%;text-align:center;font-weight:600}
     .msg.empty{color:var(--muted);align-self:center;background:none;font-size:.85rem}
     .composer{display:flex;gap:.5rem;padding:.7rem;border-top:1px solid var(--line);background:#fff}
     .composer input{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:.65rem .8rem;font:inherit;outline:none}
@@ -4592,6 +4932,7 @@ function buildPortal() {
     <a class="tb-link" href="/connect">الأدوات والباقات</a>
     <a class="tb-link" href="/">الموقع</a>
     <div class="sp"></div>
+    <a id="subscribeNow" href="/connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
     <div class="who" id="who"></div>
     <button id="logout" style="display:none">خروج</button>
   </div>
@@ -4603,6 +4944,7 @@ function buildPortal() {
       <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn" id="loginBtn">دخول</button>
       <div class="err" id="loginErr"></div>
+      <button type="button" class="bigbtn trial" id="trialBtn">🎁 جرّب الفريق كامل مجاناً (3 رسائل لكل موظف)</button>
       <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم — على نفس البريد اللي اشتريت فيه.</div>
       <button class="linkbtn" id="noCodeBtn">ما اشتريت بعد؟ اختر موظفيك وابدأ الطلب</button>
       <p class="muted">بالدخول أنت توافق على الاستخدام الآمن. لا نطلب كلمات مرور حساسة ولا OTP.</p>
@@ -4629,7 +4971,7 @@ function buildPortal() {
         <p class="lead">اختر موظفاً وابدأ التعامل معه مباشرة. كل موظف خبير في مجاله.</p>
         <div class="agents" id="agents"></div>
         <div class="panel">
-          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div></div>
+          <div class="p-head"><span class="e" id="ph-e">🤖</span><div><b id="ph-n">اختر موظفاً</b><span id="ph-r"></span></div><span class="ph-trial" id="ph-trial" style="display:none"></span><a id="ph-details" href="#" target="_blank" rel="noopener" style="display:none;margin-inline-start:auto">ايش يقدم؟ التفاصيل ←</a></div>
           <div class="chat" id="chat"><div class="msg empty">اختر موظفاً من الأعلى وابدأ المحادثة.</div></div>
           <div class="composer"><input id="msg" type="text" placeholder="اكتب رسالتك…" disabled /><button id="send" disabled>إرسال</button></div>
         </div>
@@ -4708,38 +5050,38 @@ function buildPortal() {
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
     var TKEY='bp_connect_demo_v1'; var tst={}; try{tst=JSON.parse(localStorage.getItem(TKEY)||'{}')}catch(e){tst={}}
-    // Demo codes unlock agents for testing only — never issued to real clients.
-    // Real clients unlock by entering their own order reference (e.g. BP-506275)
-    // once we've confirmed payment and flipped the order's status in the CRM —
-    // see /api/requests. One code per package tier lets you log in with a test
-    // email and see exactly what each bundle size looks like.
-    var CODES={
-      'BP-DEMO':'ALL','BP2026':'ALL','DEMO123':'ALL',
-      'DEMO-ONE':['badr'],
-      'DEMO-THREE':['badr','malak','farah'],
-      'DEMO-TEAM':['baher','mazen','nasser','mishari','abdulaziz','badr','farah','malak','mohammed','ahmed']
-    };
     var CONFIRMED=['مؤكد - قيد التنفيذ','مكتمل'];
     var OWNER_EMAIL='dr.baher.magnas@gmail.com';
-    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents'};
+    var LS={email:'bp_portal_email',company:'bp_portal_company',sub:'bp_portal_sub',agents:'bp_portal_agents',trial:'bp_portal_trial'};
     var CHAT_PREFIX='bp_portal_chat_';
+    var TRIAL_LIMIT=3;
+    function trialCountKey(slug){ return 'bp_portal_trialn_'+slug; }
+    function trialCount(slug){ return parseInt(localStorage.getItem(trialCountKey(slug))||'0',10); }
+    function trialInc(slug){ localStorage.setItem(trialCountKey(slug),String(trialCount(slug)+1)); }
     function $(id){return document.getElementById(id);}
     function show(id){['screen-login','screen-gate','screen-ws'].forEach(function(s){$(s).style.display=(s===id)?'':'none';});}
     var email=localStorage.getItem(LS.email)||'';
     var qEmail=new URLSearchParams(location.search).get('email');
     if(qEmail && !email){ email=qEmail; localStorage.setItem(LS.email,email); }
     var subbed=localStorage.getItem(LS.sub)==='1';
+    var isTrial=localStorage.getItem(LS.trial)==='1';
     if(email && email.toLowerCase()===OWNER_EMAIL && (!subbed || localStorage.getItem(LS.agents)!=='"ALL"')){
-      subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL'));
+      subbed=true; isTrial=false; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify('ALL')); localStorage.removeItem(LS.trial);
     }
     var cur=null;
     var showGate=false;
     function route(){
       if(!subbed){ show(showGate?'screen-gate':'screen-login'); if(showGate) buildPicker(); $('who').textContent=email||''; $('logout').style.display=email?'':'none'; return; }
-      $('who').textContent=email; $('logout').style.display='';
+      $('who').textContent=email+(isTrial?' 🎁 (تجربة مجانية)':''); $('logout').style.display='';
+      $('subscribeNow').style.display=isTrial?'':'none';
       show('screen-ws'); buildAgents();
     }
-    function unlock(slugs){ subbed=true; localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs)); route(); }
+    function unlock(slugs,trialFlag){
+      subbed=true; isTrial=!!trialFlag;
+      localStorage.setItem(LS.sub,'1'); localStorage.setItem(LS.agents,JSON.stringify(slugs));
+      if(isTrial) localStorage.setItem(LS.trial,'1'); else localStorage.removeItem(LS.trial);
+      route();
+    }
     $('loginBtn').onclick=function(){
       var e=($('email').value||'').trim();
       var c=($('code').value||'').trim().toUpperCase();
@@ -4747,8 +5089,6 @@ function buildPortal() {
       email=e; localStorage.setItem(LS.email,e);
       if(e.toLowerCase()===OWNER_EMAIL){ unlock('ALL'); return; }
       if(!c){ $('loginErr').textContent='ادخل كود التفعيل.'; return; }
-      var slugs=CODES[c];
-      if(slugs){ unlock(slugs); return; }
       var btn=$('loginBtn'); btn.disabled=true; $('loginErr').textContent='جارٍ التحقق…';
       fetch('/api/requests?refs='+encodeURIComponent(c))
         .then(function(r){return r.json();})
@@ -4756,7 +5096,9 @@ function buildPortal() {
           var st=d && d.statuses && d.statuses[c];
           var ag=d && d.agents && d.agents[c];
           var orderEmail=d && d.emails && d.emails[c];
-          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length && orderEmail && orderEmail.toLowerCase()===e.toLowerCase()){ unlock(ag); }
+          var isDemo=d && d.demo && d.demo[c];
+          var isTrialCode=d && d.trial && d.trial[c];
+          if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length && (isDemo || (orderEmail && orderEmail.toLowerCase()===e.toLowerCase()))){ unlock(ag,isTrialCode); }
           else if(st && CONFIRMED.indexOf(st)>=0 && ag && ag.length){ $('loginErr').textContent='هذا الكود مسجّل على بريد مختلف — استخدم نفس البريد اللي اشتريت فيه.'; }
           else if(st){ $('loginErr').textContent='طلبك ('+c+') لسه قيد المراجعة — بيفتح تلقائياً بمجرد اعتماد الدفع.'; }
           else { $('loginErr').textContent='كود غير صحيح. تأكد من رقم الطلب أو اختر موظفيك وابدأ الطلب.'; }
@@ -4768,11 +5110,17 @@ function buildPortal() {
     $('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
     $('noCodeBtn').onclick=function(){ showGate=true; route(); };
     $('backToLoginBtn').onclick=function(){ showGate=false; route(); };
+    $('trialBtn').onclick=function(){
+      var e=($('email').value||'').trim();
+      if(!e || e.indexOf('@')<0){ $('loginErr').textContent='ادخل بريداً صحيحاً أولاً عشان تبدأ التجربة.'; return; }
+      $('code').value='TRIAL'; $('loginBtn').click();
+    };
     function buildPicker(){
       var box=$('pickwrap'); if(box.dataset.done) return; box.dataset.done='1';
       AGENTS.forEach(function(a){
         var lb=document.createElement('label'); lb.className='pickrow';
-        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>';
+        lb.innerHTML='<input type="checkbox" value="'+a.slug+'"><span class="e">'+a.e+'</span><b>'+a.name+'</b><span class="r">'+a.role+'</span>'+
+          '<a href="/ar/team/'+a.slug+'" target="_blank" rel="noopener" class="pick-details" onclick="event.stopPropagation()">ايش يقدم؟</a>';
         box.appendChild(lb);
       });
     }
@@ -4794,7 +5142,7 @@ function buildPortal() {
       localStorage.setItem('bp_cart',JSON.stringify(cart));
       location.href='/cart';
     };
-    $('logout').onclick=function(){ localStorage.removeItem(LS.email); localStorage.removeItem(LS.sub); localStorage.removeItem(LS.agents); email=''; subbed=false; showGate=false; route(); };
+    $('logout').onclick=function(){ localStorage.removeItem(LS.email); localStorage.removeItem(LS.sub); localStorage.removeItem(LS.agents); localStorage.removeItem(LS.trial); email=''; subbed=false; isTrial=false; showGate=false; route(); };
     function entitledSlugs(){
       var raw=localStorage.getItem(LS.agents);
       if(!raw) return [];
@@ -4807,7 +5155,8 @@ function buildPortal() {
       if(!list.length){ box.innerHTML='<p class="muted">لا يوجد موظفون مفعّلون على هذا الكود.</p>'; return; }
       list.forEach(function(a){
         var el=document.createElement('div'); el.className='ag'; el.dataset.slug=a.slug;
-        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
+        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>'+
+          '<a href="/ar/team/'+a.slug+'" target="_blank" rel="noopener" class="ag-details" onclick="event.stopPropagation()">ℹ️</a>';
         el.onclick=function(){ selectAgent(a,el); };
         box.appendChild(el);
       });
@@ -4821,11 +5170,20 @@ function buildPortal() {
       chatHist.forEach(function(m){ var d=document.createElement('div'); d.className='msg '+m.cls; d.textContent=m.text; c.appendChild(d); });
       c.scrollTop=c.scrollHeight;
     }
+    function updateTrialBadge(slug){
+      var badge=$('ph-trial');
+      if(!isTrial){ badge.style.display='none'; return; }
+      var left=Math.max(0,TRIAL_LIMIT-trialCount(slug));
+      badge.textContent='🎁 '+left+'/'+TRIAL_LIMIT+' رسائل تجريبية متبقية';
+      badge.style.display='';
+    }
     function selectAgent(a,el){
       cur=a;
       var chips=document.querySelectorAll('.ag'); for(var i=0;i<chips.length;i++) chips[i].classList.remove('sel');
       el.classList.add('sel');
       $('ph-e').textContent=a.e; $('ph-n').textContent=a.name; $('ph-r').textContent=a.role;
+      $('ph-details').href='/ar/team/'+a.slug; $('ph-details').style.display='';
+      updateTrialBadge(a.slug);
       chatHist=loadChat(a.slug);
       renderChat();
       $('msg').disabled=false; $('send').disabled=false; $('msg').focus();
@@ -4836,8 +5194,13 @@ function buildPortal() {
     }
     function send(){
       if(!cur) return;
+      if(isTrial && trialCount(cur.slug)>=TRIAL_LIMIT){
+        push('🎁 خلصت رسائلك المجانية مع '+cur.name+' ('+TRIAL_LIMIT+' رسائل). اشترك الآن عشان تكمل المحادثة بلا حدود.','bot upsell');
+        return;
+      }
       var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
       var agentAtSend=cur, histRef=chatHist;
+      if(isTrial){ trialInc(agentAtSend.slug); updateTrialBadge(agentAtSend.slug); }
       inp.value=''; push(m,'me');
       histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
       var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
@@ -5067,6 +5430,7 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
+  write(`${pre}mahfol-makfol/trips.html`, buildMahfolTrips());
   write(`${pre}task-force.html`, buildTaskForce());
   write(`${pre}packages.html`, buildPackages());
   // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
@@ -5078,8 +5442,8 @@ for (const lang of ["en", "ar"]) {
   write(`${pre}calculators/annual-leave.html`, buildAnnualLeaveCalculator());
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
-  write(`${pre}compliance-portal.html`, buildCompliancePortal());
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
+  TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}news.html`, buildNews());
   write(`${pre}magazine.html`, buildMagazine());
@@ -5106,7 +5470,7 @@ for (const lang of ["en", "ar"]) {
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 15 + services.length + categories.length + JOBS.length;
+  pageCount += 15 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
 }
 
 // 7 extra world languages: core discovery pages only for now (site chrome +
@@ -5142,7 +5506,8 @@ write("ar/portal.html", buildPortal());
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-portal", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+  .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
   .concat(JOBS.map((j) => `/jobs/${j.slug}`));
