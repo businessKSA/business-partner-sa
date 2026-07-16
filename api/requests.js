@@ -246,7 +246,7 @@ function ssRef(email) { const h = crypto.createHmac("sha256", OTP_SECRET || "x")
 // Client Compliance Intake DB (same one the n8n intake/portal workflows read/write).
 const COMPLIANCE_DB = process.env.NOTION_COMPLIANCE_DB || "5d570a75009b41019857060d0670642f";
 const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
-const MKT_SITE_BASE = process.env.MKT_SITE_BASE || "https://new.businesspartner.sa";
+const MKT_SITE_BASE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
 function complianceCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("compliance|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-" + o; }
 async function findComplianceRecord(company) {
   if (!NOTION_TOKEN || !company) return null;
