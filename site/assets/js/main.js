@@ -1351,8 +1351,7 @@ var BP = window.BP = window.BP || {};
       row.type = "button";
       row.className = "calc2-item";
       row.setAttribute("data-id", it.id);
-      row.innerHTML = '<span class="calc2-check">' + '</span><span class="calc2-iname">' + esc(nm(it)) + "</span>" +
-        '<span class="calc2-iprice">' + esc(priceText(it)) + "</span>";
+      row.innerHTML = '<span class="calc2-check">' + '</span><span class="calc2-iname">' + esc(nm(it)) + "</span>";
       row.addEventListener("click", function () { toggle(it, row); });
       list.appendChild(row);
     });
@@ -1366,15 +1365,17 @@ var BP = window.BP = window.BP || {};
     catsEl.appendChild(acc);
   });
 
+  var revealed = false;
+
   function toggle(it, row) {
     if (selected[it.id]) { delete selected[it.id]; row.classList.remove("on"); }
     else { selected[it.id] = it; row.classList.add("on"); }
+    revealed = false;
     render();
   }
 
   function render() {
     var wrap = document.getElementById("calc2-selected");
-    var empty = document.getElementById("calc2-empty");
     var ids = Object.keys(selected);
     var once = 0, monthly = 0, hasReq = false;
     ids.forEach(function (id) {
@@ -1388,16 +1389,36 @@ var BP = window.BP = window.BP || {};
     } else {
       wrap.innerHTML = ids.map(function (id) {
         var it = selected[id];
-        return '<div class="calc2-sel"><span>' + esc(nm(it)) + "</span><span class=\"calc2-selp\">" + esc(priceText(it)) +
+        return '<div class="calc2-sel"><span>' + esc(nm(it)) +
           '</span><button type="button" class="calc2-rm" data-id="' + id + '" aria-label="remove">✕</button></div>';
       }).join("");
+    }
+    var revealBtn = document.getElementById("calc2-reveal");
+    var totalsBox = document.getElementById("calc2-totals");
+    var quoteBtn = document.getElementById("calc2-quote");
+    if (revealBtn) revealBtn.disabled = !ids.length;
+    if (!revealed) {
+      if (totalsBox) totalsBox.hidden = true;
+      if (quoteBtn) quoteBtn.hidden = true;
+      var warnEl = document.getElementById("calc2-warn");
+      if (warnEl) warnEl.hidden = true;
+      return;
     }
     document.getElementById("calc2-once").textContent = money(once);
     document.getElementById("calc2-monthly").textContent = money(monthly);
     var vat = (once + monthly) * VAT;
     document.getElementById("calc2-vat").textContent = (once + monthly) ? money(vat) : "—";
     document.getElementById("calc2-warn").hidden = !hasReq;
+    if (totalsBox) totalsBox.hidden = false;
+    if (quoteBtn) quoteBtn.hidden = false;
   }
+
+  var revealBtnEl = document.getElementById("calc2-reveal");
+  if (revealBtnEl) revealBtnEl.addEventListener("click", function () {
+    if (!Object.keys(selected).length) return;
+    revealed = true;
+    render();
+  });
 
   document.addEventListener("click", function (e) {
     var rm = e.target.closest(".calc2-rm");
@@ -1406,6 +1427,7 @@ var BP = window.BP = window.BP || {};
       delete selected[id];
       var row = catsEl.querySelector('.calc2-item[data-id="' + id + '"]');
       if (row) row.classList.remove("on");
+      revealed = false;
       render();
     }
   });

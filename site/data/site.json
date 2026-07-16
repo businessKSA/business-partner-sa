@@ -1875,5 +1875,249 @@
         ]
       }
     ]
+  },
+  "terms": {
+    "title": "الشروط والأحكام",
+    "titleEn": "Terms & Conditions",
+    "updated": "16 يوليو 2026",
+    "updatedEn": "July 16, 2026",
+    "intro": "تحكم هذه الشروط والأحكام اشتراكك في باقات ومنصة بيزنس بارتنر. بمجرد توقيعك على نموذج الاشتراك أو إتمام عملية الشراء عبر الموقع، فإنك توافق على الالتزام بها بالكامل.",
+    "introEn": "These Terms & Conditions govern your subscription to Business Partner's packages and platform. By signing the subscription form or completing a purchase through the site, you agree to be fully bound by them.",
+    "sections": [
+      {
+        "title": "أولاً: التعريفات",
+        "titleEn": "First: Definitions",
+        "items": [
+          [
+            "\"بيزنس بارتنر\" - مزوّد الخدمة",
+            "منصة بيزنس بارتنر لتقديم الخدمات التشغيلية والاستشارية لمنشآت الأعمال في المملكة العربية السعودية.",
+            "\"Business Partner\" — the service provider",
+            "The Business Partner platform providing operational and advisory services to business establishments in Saudi Arabia."
+          ],
+          [
+            "\"باقات بيزنس بارتنر\"",
+            "خدمة إدارة الخدمات الإلكترونية للجهات الحكومية للمنشآت، حيث تكون الخدمة خاصة بالخدمات الإلكترونية فقط وليست لمراجعة الجهات الحكومية حضورياً.",
+            "\"Business Partner Packages\"",
+            "The service of managing establishments' electronic government-platform services — the service covers electronic services only, not in-person visits to government entities."
+          ],
+          [
+            "\"المشترك\"",
+            "هو المستفيد من خدمات باقات بيزنس بارتنر.",
+            "\"Subscriber\"",
+            "The beneficiary of Business Partner's package services."
+          ],
+          [
+            "\"الظروف القاهرة\"",
+            "الأسباب الخارجة عن السيطرة المعقولة، وتشمل على سبيل المثال لا الحصر: الحرائق، الحوادث، أو الاشتراطات الحكومية المستجدّة.",
+            "\"Force Majeure\"",
+            "Causes beyond reasonable control, including but not limited to: fires, accidents, or new government requirements."
+          ],
+          [
+            "\"الباقة الفضية\"",
+            "تتيح إدارة الخدمات الإلكترونية للمنشأة وتشمل: إدارة السجل التجاري، التسجيل والمتابعة في منصة قوى، إدارة التأمينات الاجتماعية، إدارة التأمين الطبي، والامتثال الزكوي والضريبي الأساسي.",
+            "\"Silver Package\"",
+            "Covers Commercial Registration management, Qiwa platform registration & follow-up, GOSI management, medical insurance management, and basic Zakat & tax compliance."
+          ],
+          [
+            "\"الباقة الذهبية\"",
+            "تشمل جميع مزايا الباقة الفضية بالإضافة إلى: إدارة شؤون الموظفين والعقود، إدارة وحماية الأجور، المتابعة الدورية للالتزامات النظامية، ودعم تشغيلي موسّع.",
+            "\"Gold Package\"",
+            "Everything in Silver plus: employee affairs & contracts management, wage management & wage protection, periodic follow-up on regulatory obligations, and extended operational support."
+          ],
+          [
+            "\"الباقة البلاتينية\"",
+            "تشمل جميع مزايا الباقة الذهبية بالإضافة إلى: إدارة متقدمة للموارد البشرية، إدارة الإقرارات والمتابعة الشاملة، تقارير تشغيلية وتنظيمية دورية، واستشارات قانونية وتشغيلية مستمرة.",
+            "\"Platinum Package\"",
+            "Everything in Gold plus: advanced HR management, filings management & comprehensive follow-up, periodic operational & regulatory reports, and ongoing legal & operational consultations."
+          ],
+          [
+            "\"الباقة الماسية\"",
+            "تشمل جميع مزايا الباقة البلاتينية بالإضافة إلى: مدير حساب مخصص، أولوية تنفيذ ومتابعة فورية، حلول مخصصة حسب احتياج النشاط، ودعم استباقي شامل. باقة حسب الطلب، تُسعَّر بعد مراجعة احتياج المنشأة.",
+            "\"Diamond Package\"",
+            "Everything in Platinum plus: a dedicated account manager, priority execution & instant follow-up, custom solutions, and comprehensive proactive support. A custom package, priced after reviewing the establishment's needs."
+          ]
+        ]
+      },
+      {
+        "title": "ثانياً: فئة الاشتراك",
+        "titleEn": "Second: Subscription Category",
+        "body": "يجب على المشترك تحديد فئة الاشتراك التي يرغب بها، وهي إما: الباقة الفضية، أو الباقة الذهبية، أو الباقة البلاتينية، أو الباقة الماسية، حسب ما هو موضّح في صفحة الباقات على موقع بيزنس بارتنر.",
+        "bodyEn": "The subscriber must choose their subscription tier: Silver, Gold, Platinum, or Diamond, as detailed on the Business Partner packages page."
+      },
+      {
+        "title": "ثالثاً: مدة الاشتراك",
+        "titleEn": "Third: Subscription Term",
+        "body": "الاشتراك ساري المفعول لمدة سنة ميلادية كاملة من تاريخ توقيع نموذج الاشتراك، ويتجدد تلقائياً ما لم يُخطر المشترك بيزنس بارتنر برغبته في عدم التجديد قبل شهر من تاريخ نهاية الاشتراك، وذلك من خلال نموذج عدم الرغبة في التجديد المتاح على الموقع، أو ما لم يُنهَ الاشتراك بموجب البند التاسع.",
+        "bodyEn": "The subscription is valid for one full Gregorian year from the date the subscription form is signed, and renews automatically unless the subscriber notifies Business Partner of their wish not to renew at least one month before the subscription end date, via the non-renewal form available on the site, or unless the subscription is terminated under Section Nine."
+      },
+      {
+        "title": "رابعاً: وقت توفير الخدمة",
+        "titleEn": "Fourth: Service Availability",
+        "body": "تبذل بيزنس بارتنر قصارى جهدها لتوفير الخدمة على مدار الأربع والعشرين ساعة وخلال العطل الرسمية، مع عدم تحمّلها المسؤولية في حال عدم توفر الخدمة لأي سبب من الأسباب.",
+        "bodyEn": "Business Partner makes its best effort to provide the service around the clock, including official holidays, and bears no liability if the service is unavailable for any reason."
+      },
+      {
+        "title": "خامساً: التزامات المشترك",
+        "titleEn": "Fifth: Subscriber Obligations",
+        "list": [
+          [
+            "يتعهد المشترك بعدم تعطيل الخدمة والتعاون مع بيزنس بارتنر في تقديم الخدمة لمنشأته بأسرع وقت، وفي حال عدم التعاون يحق لمزوّد الخدمة إنهاء الاشتراك.",
+            "The subscriber undertakes not to obstruct the service and to cooperate with Business Partner so the service reaches their establishment as quickly as possible; failing to cooperate entitles the provider to terminate the subscription."
+          ],
+          [
+            "يتعهد المشترك بعدم الإساءة لموظفي بيزنس بارتنر أو لكيان الشركة، وسلوك الطرق النظامية الصحيحة في حال وجود أي شكاوى تجاه الخدمة، ويتعهد عند الإخلال بذلك بدفع التعويض اللازم عن أي ضرر أو خسائر بحسب ما تقرره الأنظمة النافذة في المملكة، كما يتحمّل كافة الغرامات الصادرة بحقه من الجهات المختصة.",
+            "The subscriber undertakes not to abuse Business Partner's staff or the company itself, and to follow proper channels for any complaints; breaching this obligates the subscriber to pay compensation for any resulting damage or loss per applicable Saudi regulations, and to bear any fines issued against them by the relevant authorities."
+          ],
+          [
+            "يتحمّل المشترك كافة المسؤوليات الناتجة عن الطلبات الصادرة من الموظف أو المفوَّض بالتعامل مع بيزنس بارتنر والذي فوّضه في نموذج الاشتراك.",
+            "The subscriber bears full responsibility for requests made by the employee or representative authorized to deal with Business Partner as named in the subscription form."
+          ],
+          [
+            "لا يحق للمشترك مطالبة بيزنس بارتنر بتقديم خدمة لمنشأة غير المنشأة الموقَّع عليها نموذج الاشتراك.",
+            "The subscriber may not request the service be provided to any establishment other than the one named in the signed subscription form."
+          ],
+          [
+            "لا يحق للمشترك مطالبة بيزنس بارتنر بأي تعويض نظير تأخّر الخدمة بسبب أعطال تقنية أو أسباب أخرى خارجة عن إرادتها.",
+            "The subscriber may not claim compensation for service delays caused by technical faults or other causes beyond Business Partner's control."
+          ],
+          [
+            "يتعهد المشترك بتزويد بيزنس بارتنر بكافة أسماء المستخدمين وكلمات المرور لجميع حسابات المنشأة في الجهات الحكومية، وبإعلام الشركة فور تغييرها.",
+            "The subscriber undertakes to provide Business Partner with all usernames and passwords for the establishment's government-entity accounts, and to notify the company immediately if they change."
+          ]
+        ]
+      },
+      {
+        "title": "سادساً: بداية تفعيل الخدمة",
+        "titleEn": "Sixth: Service Activation",
+        "body": "تبدأ الخدمة بعد سداد قيمة الاشتراك. وفي حال رغبة المشترك بتعديل الباقة أو إضافة خدمات جديدة بعد توقيع نموذج الاشتراك، تتم مراعاة ذلك بشرط توفر المستندات المطلوبة وسداد الفروقات للخدمات المضافة.",
+        "bodyEn": "The service begins after the subscription fee is paid. Should the subscriber wish to change their package or add new services after signing the subscription form, this is accommodated provided the required documents are available and the difference for added services is paid."
+      },
+      {
+        "title": "سابعاً: تكلفة الخدمة",
+        "titleEn": "Seventh: Service Cost",
+        "body": "يدفع المشترك قيمة الاشتراك الموضّحة في نموذج الاشتراك، ولا يتحمّل أي مبالغ أخرى خلال مدة الاشتراك. لا يدخل ضمن قيمة هذا الاشتراك أي رسوم حكومية أو ما شابهها، وإنما المبلغ نظير تقديم الخدمة فقط.",
+        "bodyEn": "The subscriber pays the subscription amount stated in the subscription form and bears no other amounts during the subscription term. This amount does not include any government fees or similar charges — it covers the service fee only."
+      },
+      {
+        "title": "ثامناً: تسوية الخلافات",
+        "titleEn": "Eighth: Dispute Resolution",
+        "body": "يخضع هذا الاشتراك للأنظمة المعمول بها في المملكة العربية السعودية، ويُنفَّذ ويُفسَّر بموجبها. وأي خلاف ينشأ عن تطبيق هذا الاشتراك أو ما يتعلق به ولم يتم التوصل إلى تسويته وديّاً، يُحسَم وفقاً لأنظمة المملكة العربية السعودية.",
+        "bodyEn": "This subscription is governed by, executed and interpreted under the regulations in force in Saudi Arabia. Any dispute arising from this subscription that is not resolved amicably shall be settled in accordance with the regulations of the Kingdom of Saudi Arabia."
+      },
+      {
+        "title": "تاسعاً: أحكام عامة",
+        "titleEn": "Ninth: General Provisions",
+        "list": [
+          [
+            "لا تتحمّل بيزنس بارتنر مسؤولية المشاكل الناتجة عن عدم صحة أو تحديث المعلومات المقدَّمة من المشترك أو من الجهات المختصة عبر نظام المنشأة.",
+            "Business Partner bears no responsibility for problems arising from inaccurate or outdated information provided by the subscriber or by the relevant authorities via the establishment's system."
+          ],
+          [
+            "لا تتحمّل بيزنس بارتنر المخالفات التي تقع على المنشأة لأي سبب من الأسباب، ولا يحق للمشترك مطالبتها بذلك.",
+            "Business Partner bears no responsibility for violations issued against the establishment for any reason, and the subscriber may not hold it liable for them."
+          ],
+          [
+            "لا تتحمّل بيزنس بارتنر أي مسؤولية تجاه أي خسائر تقع على المشترك (مباشرة أو غير مباشرة) ناتجة عن تنفيذ هذا الاشتراك.",
+            "Business Partner bears no liability for any losses (direct or indirect) incurred by the subscriber arising from performance of this subscription."
+          ],
+          [
+            "تحتفظ بيزنس بارتنر بحقها في تقييد استخدام الخدمة بوضع حدّ أقصى للخدمات المقدَّمة.",
+            "Business Partner reserves the right to limit the use of the service by capping the services provided."
+          ],
+          [
+            "يوافق المشترك على إخلاء مسؤولية بيزنس بارتنر عن أخطاء مقدّمي خدمات الاتصالات أو مواقع الجهات الحكومية، مثل تعطّل الاتصال بالموقع الإلكتروني.",
+            "The subscriber agrees to release Business Partner from liability for errors by telecom providers or government-entity websites, such as connectivity failures."
+          ],
+          [
+            "يوافق المشترك على أن لبيزنس بارتنر الحق في إتلاف أو عدم إبراز أصول المستندات، ويُعتبر ما تقدّمه بيزنس بارتنر من صور لها حجّة إثبات لدى الجهات المختصة والقضاء طالما أنها تحمل شعار وختم بيزنس بارتنر.",
+            "The subscriber agrees that Business Partner has the right to dispose of or not produce original documents, and that copies provided by Business Partner bearing its logo and seal are considered valid evidence before the relevant authorities and courts."
+          ],
+          [
+            "يحق لبيزنس بارتنر إنهاء الاشتراك في حال رغبتها بعدم الاستمرار دون أي قيود، أو في حال استخدام المشترك للنظام في غير الغرض المخصَّص له، أو إخلاله بأحد أحكام وشروط استخدام الخدمة، أو في حال طلب الجهات المختصة إيقاف الخدمة عن المشترك. وفي هذه الحالة فقط تُعاد المبالغ المدفوعة عن المدة المتبقية من الاشتراك دون المطالبة بأي تعويض آخر، كما ينتهي الاشتراك في حال الظروف القاهرة.",
+            "Business Partner may terminate the subscription at will without restriction, or if the subscriber uses the system for purposes other than intended, breaches any of the service's terms, or if the relevant authorities request the service be stopped for the subscriber. Only in this case are amounts paid for the remaining subscription period refunded, without any further claim for compensation; the subscription also ends in the event of force majeure."
+          ],
+          [
+            "لا يحق للمشترك مطالبة بيزنس بارتنر بمراجعات حضورية للجهات الحكومية أو شبه الحكومية، حيث إن الخدمة مقتصرة على إدارة الخدمات الإلكترونية، ويتولّى المشترك توفير من يقوم بالمراجعات الحضورية عند الحاجة.",
+            "The subscriber may not request in-person visits to government or quasi-government entities, as the service is limited to managing electronic services; the subscriber is responsible for arranging any needed in-person visits."
+          ]
+        ]
+      },
+      {
+        "title": "عاشراً: الشروط والأحكام الخاصة بباقات بيزنس بارتنر",
+        "titleEn": "Tenth: Terms Specific to Business Partner Packages",
+        "list": [
+          [
+            "تنطبق على خدمة الاشتراك في باقات بيزنس بارتنر جميع الشروط والأحكام السابقة من البند الأول إلى البند التاسع.",
+            "All preceding terms from Section One through Section Nine apply to the Business Partner packages subscription service."
+          ],
+          [
+            "يحق لمزوّد الخدمة تغيير تسعيرة خدمة الاشتراك في الباقات عند تجديد الاشتراك أو إضافة خدمات جديدة، ويُعتبر استمرار المشترك أو مفوَّضه في الاشتراك بعد إشعاره بالتغيير موافقةً منه على القيمة الجديدة والالتزام بدفع المبالغ والرسوم المترتبة على ذلك.",
+            "The provider may change the package subscription pricing upon renewal or when new services are added; the subscriber (or their representative) continuing the subscription after being notified of the change is considered acceptance of the new price and an undertaking to pay the resulting amounts and fees."
+          ],
+          [
+            "تنحصر إدارة خدمات وزارة الموارد البشرية في الخدمة الإلكترونية المتوفرة في حساب المنشأة فقط وفق النظام المعمول به، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير نظامية.",
+            "Management of Ministry of Human Resources services is limited to the electronic service available in the establishment's account per applicable regulations; the subscriber may not request Business Partner to carry out any non-regulatory transaction."
+          ],
+          [
+            "تنحصر إدارة خدمات وزارة التجارة في الخدمات الإلكترونية التالية فقط: تجديد السجلات التجارية، شطب السجلات التجارية، تعديل السجلات التجارية، حجز الأسماء التجارية.",
+            "Management of Ministry of Commerce services is limited to the following electronic services only: CR renewal, CR cancellation, CR amendment, and trade name reservation."
+          ],
+          [
+            "تنحصر إدارة خدمات التأمينات الاجتماعية (GOSI) في الخدمة الإلكترونية المتوفرة في حساب المنشأة فقط وفق النظام المعمول به، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير متوفرة في حساب المنشأة.",
+            "Management of GOSI services is limited to the electronic service available in the establishment's account per applicable regulations; the subscriber may not request any transaction not available in that account."
+          ],
+          [
+            "تنحصر إدارة خدمات هيئة الزكاة والضريبة والجمارك في الخدمات الإلكترونية التالية فقط: تقديم الإقرارات الزكوية، تقديم الإقرارات الضريبية، تسجيل المنشأة، إلغاء تسجيل المنشأة.",
+            "Management of Zakat, Tax and Customs Authority services is limited to the following electronic services only: filing Zakat returns, filing tax returns, establishment registration, and de-registration."
+          ],
+          [
+            "تنحصر إدارة خدمات وزارة الداخلية في الخدمة الإلكترونية المتوفرة في حساب أبشر أعمال أو خدمة مقيم فقط، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير متوفرة في تلك الحسابات.",
+            "Management of Ministry of Interior services is limited to the electronic service available via the Absher Business account or Muqeem service only; the subscriber may not request any transaction not available in those accounts."
+          ],
+          [
+            "تنحصر إدارة خدمات بلدي في الخدمات الإلكترونية التالية فقط: إصدار رخصة بلدية، تجديد رخصة بلدية، إلغاء رخصة بلدية، تعديل رخصة بلدية.",
+            "Management of Balady services is limited to the following electronic services only: municipal license issuance, renewal, cancellation, and amendment."
+          ],
+          [
+            "تنحصر إدارة خدمات الدفاع المدني (سلامة) في الخدمات الإلكترونية التالية فقط: تقديم طلب إصدار رخصة الدفاع المدني، تجديد رخصة الدفاع المدني.",
+            "Management of Civil Defense (Salamah) services is limited to the following electronic services only: submitting a Civil Defense license application and renewing the license."
+          ],
+          [
+            "تنحصر إدارة خدمات شركات التأمين في الخدمات الإلكترونية التالية فقط: إصدار وثيقة التأمين الطبي للعمالة، تجديد وثيقة التأمين الطبي.",
+            "Management of insurance-company services is limited to the following electronic services only: issuing employee medical-insurance policies and renewing them."
+          ],
+          [
+            "تنحصر خدمة اشتراك حماية الأجور في: رفع ملفات الرواتب، تدقيق الملفات، تصحيح الأخطاء والمخالفات — وفق ما هو مشمول في الباقة المشترَك بها.",
+            "The wage-protection subscription service is limited to: uploading payroll files, auditing files, and correcting errors and violations — as covered by the subscriber's chosen package."
+          ],
+          [
+            "تُقدَّم خدمة الاستشارات، حيث تشملها الباقة، وفق العدد والنطاق الموضَّحين في تفاصيل الباقة المشترَك بها على صفحة الباقات.",
+            "Where included in the package, consultation services are provided per the number and scope detailed for the subscriber's chosen package on the packages page."
+          ],
+          [
+            "تنحصر خدمة تخفيف الأعباء عن المنشآت، حيث تشملها الباقة، في تسجيل منشأة المشترك في المبادرات الحكومية المتاحة، أو دراسة وضع المنشأة بشكل عام، ومساعدة متخذي القرار عبر إعداد تقرير بذلك إن أمكن.",
+            "Where included in the package, the burden-reduction service is limited to registering the subscriber's establishment in available government initiatives, or a general review of the establishment's status, assisting decision-makers with a report where possible."
+          ],
+          [
+            "تنحصر خدمة تصميم الموقع الإلكتروني، حيث تشملها الباقة، في إنشاء موقع تعريفي من عدد محدود من الصفحات. وفي حال رغبة المشترك بتصميم موقع احترافي أو متجر إلكتروني، فيكون ذلك بعقد مستقل ولا يدخل ضمن هذا الاشتراك.",
+            "Where included in the package, the website-design service is limited to building a basic informational site with a limited number of pages. A professional site or online store, if desired, is a separate contract outside this subscription."
+          ],
+          [
+            "تنحصر خدمة التسويق عبر مواقع التواصل الاجتماعي، حيث تشملها الباقة، في إنشاء حسابات للمنشأة وربطها بموقعها الإلكتروني، وفي حال رغبة المشترك بالتسويق المدفوع عبر تلك المنصات، فتكون رسوم الإعلانات على حساب المشترك ولا يحق له مطالبة بيزنس بارتنر بها.",
+            "Where included in the package, social-media marketing is limited to creating establishment accounts and linking them to its website; paid advertising fees on those platforms, if desired, are the subscriber's responsibility."
+          ],
+          [
+            "تنحصر خدمة تأهيل وتدريب الموظفين، حيث تشملها الباقة، في إدارة الخدمات الإلكترونية لعدد محدود من الموظفين حسب ما هو موضَّح في الباقة، وفي حال رغبة المشترك بزيادة العدد، تكون الزيادة برسوم إضافية تُحدَّد في فاتورة مستقلة.",
+            "Where included in the package, employee qualification & training is limited to a set number of employees per the package; increasing that number, if desired, incurs an additional fee on a separate invoice."
+          ],
+          [
+            "تنحصر خدمة إعداد اللوائح الداخلية للمنشأة في الجانب المتعلق بوزارة الموارد البشرية، ويُعدّ عقد العمل لكل موظف مرة واحدة فقط خلال العام، ولا يحق للمشترك مطالبة بيزنس بارتنر بإعداد العقود أكثر من مرة كل عام ما لم يُتفَق على غير ذلك.",
+            "The internal-regulations preparation service is limited to the Ministry of Human Resources aspect; each employee's contract is prepared once per year, and the subscriber may not request contracts be redrafted more than once a year unless otherwise agreed."
+          ]
+        ]
+      }
+    ],
+    "note": "هذه الشروط مُهيّأة لتوقيع نموذج الاشتراك الورقي/الإلكتروني بين بيزنس بارتنر والمشترك. باستخدامك للموقع وإتمام أي طلب شراء، فإنك تقرّ بموافقتك عليها.",
+    "noteEn": "These terms are formatted for the paper/electronic subscription form signed between Business Partner and the subscriber. By using the site and completing any purchase, you acknowledge your agreement to them."
   }
 }
