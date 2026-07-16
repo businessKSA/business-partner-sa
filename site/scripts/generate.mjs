@@ -5739,7 +5739,7 @@ function writeFullSite(pre) {
   write(`${pre}task-force.html`, buildTaskForce());
   write(`${pre}deals.html`, buildDeals());
   write(`${pre}packages.html`, buildPackages());
-  // /calculator (service-fee catalog) retired — service prices are negotiated, not listed.
+  write(`${pre}calculator.html`, buildCalculator());
   write(`${pre}tools-and-calculators.html`, buildToolsHub());
   write(`${pre}calculators/nitaqat.html`, buildNitaqatCalculator());
   write(`${pre}calculators/government-cost.html`, buildGovernmentCostCalculator());
@@ -5823,7 +5823,7 @@ write("ar/portal.html", buildPortal("/ar/"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/nitaqat", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/contact", "/cart", "/checkout", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
