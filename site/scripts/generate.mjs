@@ -5324,7 +5324,8 @@ function buildDashboard() {
       { slug:'farah',     path:'farah-intake',      name:'فرح',      en:'Farah',     role:'التسويق والمحتوى',        emoji:'📣' },
       { slug:'malak',     path:'malak-intake',      name:'ملاك',     en:'Malak',     role:'مساعِدة تنفيذية ذكية',    emoji:'🗂️' },
       { slug:'mohammed',  path:'mohammed-intake',   name:'محمد',     en:'Mohammed',  role:'تقنية المعلومات',         emoji:'💻' },
-      { slug:'ahmed',     path:'ahmed-procurement', name:'أحمد',     en:'Ahmed',     role:'المشتريات والتوريد',      emoji:'📦' }
+      { slug:'strategy',  path:'strategy-intake',   name:'أحمد',     en:'Ahmed',     role:'مدير التخطيط الاستراتيجي', emoji:'📈' },
+      { slug:'ahmed',     path:'ahmed-procurement', name:'عبدالله',  en:'Abdullah',  role:'المشتريات والتوريد',      emoji:'📦' }
     ];
 
     var KEY = 'bp_agent_controls_v1';
@@ -5770,7 +5771,8 @@ function buildConnect(pre = "/") {
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
       {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
-      {slug:'ahmed',e:'📦',name:'أحمد',role:'مشتريات وتوريد',nameEn:'Ahmed — Procurement & Supply'},
+      {slug:'strategy',e:'📈',name:'أحمد',role:'مدير التخطيط الاستراتيجي',nameEn:'Ahmed — Strategic Planning'},
+      {slug:'ahmed',e:'📦',name:'عبدالله',role:'مشتريات وتوريد',nameEn:'Abdullah — Procurement & Supply'},
       {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'}
     ];
     var empGrid=document.getElementById('emps');
@@ -5993,7 +5995,8 @@ function buildPortal(pre = "/") {
       {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
       {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
       {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
-      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'}
+      {slug:'strategy',path:'strategy-intake',name:'أحمد',role:'مدير التخطيط الاستراتيجي',e:'📈'},
+      {slug:'ahmed',path:'ahmed-procurement',name:'عبدالله',role:'مشتريات وتوريد',e:'📦'}
     ];
     var TOOLS=[
       {id:'gmail',ic:'📧',name:'Gmail',u:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.',type:'easy',lead:'ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.',steps:['اضغط ربط الآن فتفتح صفحة تسجيل قوقل.','اختر حساب الشركة ووافق على الصلاحيات.','يشتغل الموظف داخل بريدك مباشرة.']},
@@ -6269,7 +6272,8 @@ function buildSharedServices() {
     { e: "📣", en: "Farah — Marketing", ar: "فرح — تسويق ومحتوى" },
     { e: "🗂️", en: "Malak — Executive Assistant", ar: "ملاك — مساعِدة تنفيذية" },
     { e: "💻", en: "Mohammed — IT", ar: "محمد — تقنية المعلومات" },
-    { e: "🛒", en: "Ahmed — Procurement", ar: "أحمد — مشتريات وتوريد" },
+    { e: "📈", en: "Ahmed — Strategic Planning", ar: "أحمد — مدير التخطيط الاستراتيجي" },
+    { e: "🛒", en: "Abdullah — Procurement", ar: "عبدالله — مشتريات وتوريد" },
   ];
   const busyMsg = Lraw("The team is busy right now — please try again in a moment.", "الفريق مشغول الحين — جرّب بعد لحظات.");
   const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
@@ -6290,7 +6294,8 @@ function buildSharedServices() {
     { slug: "farah", e: "📣", ar: "فرح", arRole: "تسويق ومحتوى", en: "Farah", enRole: "Marketing & Content", path: "farah-intake" },
     { slug: "malak", e: "🗂️", ar: "ملاك", arRole: "مساعِدة تنفيذية", en: "Malak", enRole: "Executive Assistant", path: "malak-intake" },
     { slug: "mohammed", e: "💻", ar: "محمد", arRole: "تقنية المعلومات", en: "Mohammed", enRole: "IT", path: "mohammed-intake" },
-    { slug: "ahmed", e: "🛒", ar: "أحمد", arRole: "مشتريات وتوريد", en: "Ahmed", enRole: "Procurement & Supply", path: "ahmed-procurement" },
+    { slug: "strategy", e: "📈", ar: "أحمد", arRole: "مدير التخطيط الاستراتيجي", en: "Ahmed", enRole: "Strategic Planning Manager", path: "strategy-intake" },
+    { slug: "ahmed", e: "🛒", ar: "عبدالله", arRole: "مشتريات وتوريد", en: "Abdullah", enRole: "Procurement & Supply", path: "ahmed-procurement" },
   ];
   const AGENTS_JS = JSON.stringify(
     agentData.map((a) => ({ slug: a.slug, e: a.e, name: LANG === "ar" ? a.ar : a.en, role: LANG === "ar" ? a.arRole : a.enRole, mode: a.mode || "intake", path: a.path || "", ep: a.ep || "" }))
@@ -6388,7 +6393,10 @@ function buildSharedServices() {
     { e: "💻", ar: "محمد", arRole: "تقنية المعلومات", en: "Mohammed", enRole: "IT",
       svcAr: ["المواقع والتطبيقات", "الأتمتة", "ربط الـAPIs", "الدعم التقني"], svcEn: ["Sites & apps", "Automation", "API integration", "Tech support"],
       mAr: "يبني ويشغّل حلولك التقنية ويربط أنظمتك.", mEn: "Builds and runs your tech and connects your systems." },
-    { e: "🛒", ar: "أحمد", arRole: "مشتريات وتوريد", en: "Ahmed", enRole: "Procurement & Supply",
+    { e: "📈", ar: "أحمد", arRole: "مدير التخطيط الاستراتيجي", en: "Ahmed", enRole: "Strategic Planning Manager",
+      svcAr: ["الرؤية والخطط السنوية", "الأهداف وOKRs", "خرائط الطريق", "متابعة التنفيذ"], svcEn: ["Vision & annual plans", "OKRs & KPIs", "Roadmaps", "Execution tracking"],
+      mAr: "يحوّل طموحك لخطة مكتوبة بأهداف ومؤشرات وخارطة طريق ربعية — ويتابع التنفيذ.", mEn: "Turns your ambition into a written plan with OKRs, KPIs and a quarterly roadmap — and tracks execution." },
+    { e: "🛒", ar: "عبدالله", arRole: "مشتريات وتوريد", en: "Abdullah", enRole: "Procurement & Supply",
       svcAr: ["إيجاد الموردين", "مقارنة العروض", "طلبات عروض الأسعار (RFQ)", "التفاوض التمهيدي"], svcEn: ["Sourcing suppliers", "Comparing offers", "RFQs", "Initial negotiation"],
       mAr: "يجد الموردين ويجهّز طلبات الشراء — والإرسال الخارجي بموافقتك.", mEn: "Finds suppliers and prepares purchase requests — external sending needs your approval." },
   ];
@@ -6672,7 +6680,8 @@ function buildSharedServicesPortal() {
     { e: "📣", en: "Farah — Marketing", ar: "فرح — تسويق ومحتوى" },
     { e: "🗂️", en: "Malak — Executive Assistant", ar: "ملاك — مساعِدة تنفيذية" },
     { e: "💻", en: "Mohammed — IT", ar: "محمد — تقنية المعلومات" },
-    { e: "🛒", en: "Ahmed — Procurement", ar: "أحمد — مشتريات وتوريد" },
+    { e: "📈", en: "Ahmed — Strategic Planning", ar: "أحمد — مدير التخطيط الاستراتيجي" },
+    { e: "🛒", en: "Abdullah — Procurement", ar: "عبدالله — مشتريات وتوريد" },
   ];
   const busyMsg = Lraw("The team is busy right now — please try again in a moment.", "الفريق مشغول الحين — جرّب بعد لحظات.");
   const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
@@ -6693,7 +6702,8 @@ function buildSharedServicesPortal() {
     { slug: "farah", e: "📣", ar: "فرح", arRole: "تسويق ومحتوى", en: "Farah", enRole: "Marketing & Content", path: "farah-intake" },
     { slug: "malak", e: "🗂️", ar: "ملاك", arRole: "مساعِدة تنفيذية", en: "Malak", enRole: "Executive Assistant", path: "malak-intake" },
     { slug: "mohammed", e: "💻", ar: "محمد", arRole: "تقنية المعلومات", en: "Mohammed", enRole: "IT", path: "mohammed-intake" },
-    { slug: "ahmed", e: "🛒", ar: "أحمد", arRole: "مشتريات وتوريد", en: "Ahmed", enRole: "Procurement & Supply", path: "ahmed-procurement" },
+    { slug: "strategy", e: "📈", ar: "أحمد", arRole: "مدير التخطيط الاستراتيجي", en: "Ahmed", enRole: "Strategic Planning Manager", path: "strategy-intake" },
+    { slug: "ahmed", e: "🛒", ar: "عبدالله", arRole: "مشتريات وتوريد", en: "Abdullah", enRole: "Procurement & Supply", path: "ahmed-procurement" },
   ];
   const AGENTS_JS = JSON.stringify(
     agentData.map((a) => ({ slug: a.slug, e: a.e, name: LANG === "ar" ? a.ar : a.en, role: LANG === "ar" ? a.arRole : a.enRole, mode: a.mode || "intake", path: a.path || "", ep: a.ep || "" }))
@@ -6791,7 +6801,10 @@ function buildSharedServicesPortal() {
     { e: "💻", ar: "محمد", arRole: "تقنية المعلومات", en: "Mohammed", enRole: "IT",
       svcAr: ["المواقع والتطبيقات", "الأتمتة", "ربط الـAPIs", "الدعم التقني"], svcEn: ["Sites & apps", "Automation", "API integration", "Tech support"],
       mAr: "يبني ويشغّل حلولك التقنية ويربط أنظمتك.", mEn: "Builds and runs your tech and connects your systems." },
-    { e: "🛒", ar: "أحمد", arRole: "مشتريات وتوريد", en: "Ahmed", enRole: "Procurement & Supply",
+    { e: "📈", ar: "أحمد", arRole: "مدير التخطيط الاستراتيجي", en: "Ahmed", enRole: "Strategic Planning Manager",
+      svcAr: ["الرؤية والخطط السنوية", "الأهداف وOKRs", "خرائط الطريق", "متابعة التنفيذ"], svcEn: ["Vision & annual plans", "OKRs & KPIs", "Roadmaps", "Execution tracking"],
+      mAr: "يحوّل طموحك لخطة مكتوبة بأهداف ومؤشرات وخارطة طريق ربعية — ويتابع التنفيذ.", mEn: "Turns your ambition into a written plan with OKRs, KPIs and a quarterly roadmap — and tracks execution." },
+    { e: "🛒", ar: "عبدالله", arRole: "مشتريات وتوريد", en: "Abdullah", enRole: "Procurement & Supply",
       svcAr: ["إيجاد الموردين", "مقارنة العروض", "طلبات عروض الأسعار (RFQ)", "التفاوض التمهيدي"], svcEn: ["Sourcing suppliers", "Comparing offers", "RFQs", "Initial negotiation"],
       mAr: "يجد الموردين ويجهّز طلبات الشراء — والإرسال الخارجي بموافقتك.", mEn: "Finds suppliers and prepares purchase requests — external sending needs your approval." },
   ];
