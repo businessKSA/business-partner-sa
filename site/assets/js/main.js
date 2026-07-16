@@ -1768,6 +1768,8 @@ var BP = window.BP = window.BP || {};
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   var status = document.getElementById("emp-status");
   var loadBtn = document.getElementById("emp-load");
+  var CANDS = [];
+  function findC(id) { return CANDS.filter(function (c) { return c.id === id; })[0]; }
 
   function card(c) {
     var meta = [];
@@ -1784,12 +1786,97 @@ var BP = window.BP = window.BP || {};
         (c.cv ? '<a target="_blank" rel="noopener" href="' + esc(c.cv) + '">📄 ' + T("CV", "السيرة") + "</a>" : "") +
         "</div>";
     }
-    return '<div class="emp-card">' +
-      '<div class="emp-card-top"><strong>' + esc(c.name || "—") + "</strong>" + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
-      (c.role ? '<div class="emp-role">' + esc(c.role) + "</div>" : "") +
+    // Name and role are both click targets into the full profile — same
+    // pattern as the full dashboard (/employer-dashboard), so this simpler
+    // preview page behaves consistently instead of being a dead end.
+    return '<div class="emp-card" data-id="' + esc(c.id) + '">' +
+      '<div class="emp-card-top"><strong class="emp-name-link" data-id="' + esc(c.id) + '">' + esc(c.name || "—") + "</strong>" + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
+      (c.role ? '<div class="emp-role emp-role-link" data-id="' + esc(c.id) + '">' + esc(c.role) + "</div>" : "") +
       (c.skills ? '<div class="emp-skills">' + esc(c.skills) + "</div>" : "") +
       '<div class="emp-meta">' + meta.join(" · ") + "</div>" +
-      contact + "</div>";
+      contact +
+      '<button type="button" class="empd-view" data-id="' + esc(c.id) + '">👤 ' + T("View profile", "عرض الملف") + "</button>" +
+      "</div>";
+  }
+
+  // A Google Doc "edit" link opens the viewer; export?format=pdf triggers a
+  // one-click file download instead — used for the ATS-formatted CV.
+  function cvDownloadUrl(url) {
+    var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
+    return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
+  }
+  // Minimal markdown → HTML for the AI-generated CV text.
+  function mdToHtml(md) {
+    var lines = String(md || "").replace(/\r/g, "").split("\n");
+    var html = "", inList = false;
+    function closeList() { if (inList) { html += "</ul>"; inList = false; } }
+    function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+    lines.forEach(function (line) {
+      var t = line.trim();
+      if (!t) { closeList(); return; }
+      var h = /^(#{1,3})\s+(.*)/.exec(t);
+      if (h) { closeList(); html += "<h" + (h[1].length + 2) + ">" + inline(h[2]) + "</h" + (h[1].length + 2) + ">"; return; }
+      var li = /^[-*]\s+(.*)/.exec(t);
+      if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(li[1]) + "</li>"; return; }
+      closeList();
+      html += "<p>" + inline(t) + "</p>";
+    });
+    closeList();
+    return html;
+  }
+  function profileHtml(c) {
+    var rows = [
+      [T("Name", "الاسم"), c.name ? (esc(c.name) + (c.nameAlt ? " (" + esc(c.nameAlt) + ")" : "")) : ""],
+      [T("Target role", "المسمى المستهدف"), c.role],
+      [T("Field", "المجال"), c.field],
+      [T("City", "المدينة"), c.city],
+      [T("Country", "الدولة"), c.country],
+      [T("Nationality", "الجنسية"), c.nationalityType],
+      [T("Residence status", "حالة الإقامة"), c.residenceStatus],
+      [T("Experience", "الخبرة"), c.experience ? (c.experience + (isAr ? " سنة" : "y")) : ""],
+      [T("Education", "التعليم"), c.education],
+      [T("Availability", "الجاهزية"), c.availability],
+      [T("Languages", "اللغات"), c.languages],
+      [T("Skills", "المهارات"), c.skills],
+      [T("Saudization", "التوطين"), c.saudization],
+      [T("Phone", "الجوال"), c.phone ? ('<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>") : ""],
+      [T("Email", "البريد"), c.email ? ('<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>") : ""],
+    ].filter(function (r) { return r[1]; });
+    var html = '<div class="empd-profile">' + rows.map(function (r) {
+      return '<div class="empd-profile-row"><span class="empd-profile-k">' + esc(r[0]) + '</span><span class="empd-profile-v">' + r[1] + "</span></div>";
+    }).join("") + "</div>";
+    if (c.cvText) {
+      html += '<h3 style="margin-top:18px">' + T("CV", "السيرة الذاتية") + '</h3><div class="empd-cv-text">' + mdToHtml(c.cvText) + "</div>";
+    }
+    if (c.cv) {
+      html += '<a class="btn btn-primary" style="margin-top:14px;display:inline-block" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
+        (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
+    } else {
+      html += '<p class="emp-note" style="margin-top:14px">🔒 ' + T("Subscribe to view contact details, read the full CV and download it.", "اشترك لعرض بيانات التواصل وقراءة السيرة الذاتية كاملة وتحميلها.") + "</p>";
+    }
+    return html;
+  }
+  var modal = document.getElementById("empd-modal");
+  function openModal(title, html) {
+    if (!modal) return;
+    document.getElementById("empd-modal-title").textContent = title;
+    document.getElementById("empd-modal-body").innerHTML = html;
+    modal.hidden = false;
+  }
+  function closeModal() { if (modal) modal.hidden = true; }
+  if (modal) {
+    var modalX = document.getElementById("empd-modal-x");
+    if (modalX) modalX.addEventListener("click", closeModal);
+    modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+  }
+  function viewProfile(id) {
+    var c = findC(id); if (!c) return;
+    openModal(T("Candidate profile", "الملف الشخصي للمرشح"), profileHtml(c));
+  }
+  function bindCards() {
+    grid.querySelectorAll(".empd-view, .emp-name-link, .emp-role-link").forEach(function (b) {
+      b.addEventListener("click", function () { viewProfile(b.getAttribute("data-id")); });
+    });
   }
 
   // Filters use the same shared, canonical taxonomy/combobox widget as the
@@ -1827,7 +1914,9 @@ var BP = window.BP = window.BP || {};
         if (!d.candidates.length) { status.textContent = T("No candidates match these filters.", "لا يوجد مرشّحون مطابقون لهذه الفلاتر."); return; }
         var countTxt = d.total + " " + T(d.done ? "candidates" : "candidates (first batch)", d.done ? "مرشّح" : "مرشّح (أول دفعة)");
         status.textContent = (d.unlocked ? T("Showing full profiles — ", "عرض الملفات الكاملة — ") : T("Showing anonymized profiles — subscribe to unlock contacts. ", "عرض ملفات مموّهة — اشترك لفتح بيانات التواصل. ")) + countTxt;
+        CANDS = d.candidates;
         grid.innerHTML = d.candidates.map(card).join("");
+        bindCards();
       })
       .catch(function () { status.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
   }

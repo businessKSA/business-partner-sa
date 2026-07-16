@@ -3151,6 +3151,11 @@ function buildEmployers() {
     <div class="emp-grid" id="emp-grid"></div>
     <div class="cta-band" style="margin-top:34px"><h2>${L("Want full profiles & contacts?", "تبغى الملفات الكاملة وبيانات التواصل؟")}</h2><p>${L("Subscribe and our team shortlists matched candidates and shares full CVs.", "اشترك ويقوم فريقنا بترشيح المرشّحين المطابقين ومشاركة السير الكاملة.")}</p><a class="btn btn-white btn-lg" href="${u("/employer-join")}">${L("Subscribe now", "اشترك الآن")}</a></div>
   </div></section>
+  <div class="empd-modal" id="empd-modal" hidden><div class="empd-modal-in">
+    <button class="empd-modal-x" id="empd-modal-x">✕</button>
+    <h3 id="empd-modal-title"></h3>
+    <div class="empd-modal-body" id="empd-modal-body"></div>
+  </div></div>
   <script>window.BP_EMP_LANG=${JSON.stringify(LANG)};</script>`;
   return page({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — بيزنس بارتنر"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
 }
