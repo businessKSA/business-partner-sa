@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=7a8f1c1e5a">
+<link rel="stylesheet" href="/assets/css/styles.css?v=35f714e22e">
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/ar/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
@@ -38,7 +38,7 @@
     <div class="nav-menu"><a href="/ar/services">كل الخدمات (92)</a><a href="/ar/services/category/company-formation">🏢 تأسيس الشركات</a><a href="/ar/services/category/foreign-investment">🌍 الاستثمار الأجنبي</a><a href="/ar/services/category/premium-residency">🪪 الإقامة المميزة</a><a href="/ar/services/category/government-relations">🏛️ العلاقات الحكومية</a><a href="/ar/services/category/hr-services">👥 الموارد البشرية</a><a href="/ar/services/category/recruitment">🧑‍💼 التوظيف والاستقدام</a><a href="/ar/services/category/business-support">📊 دعم الأعمال</a><a href="/ar/services/category/real-estate">🏗️ المكاتب ومساحات العمل</a><a href="/ar/services/category/ai-automation">🤖 الأتمتة والذكاء الاصطناعي</a></div>
   </div><div class="nav-group nested active">
     <button type="button" class="nav-drop active" aria-expanded="false">الباقات <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/ar/packages">كل الباقات</a><a href="/ar/packages#pkg-management">الإدارة الشهرية</a><a href="/ar/packages#pkg-formation">تأسيس الشركات والاستثمار</a></div>
+    <div class="nav-menu"><a href="/ar/packages">كل الباقات</a><a href="/ar/packages#pkg-management">باقات الخدمات</a><a href="/ar/packages#pkg-formation">تأسيس الشركات والاستثمار</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">الوكلاء الأذكياء ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/ar/ai-agents">كل الوكلاء الأذكياء</a><a href="/ar/compliance-agent">الامتثال</a><a href="/ar/portal">الموظفين الأذكياء</a><a href="/ar/shared-services">فريق الخدمات المشتركة</a></div>
@@ -60,70 +60,51 @@
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">الباقات</span>
     <h1>اختر الباقة التي تناسب منشأتك</h1>
-    <p class="lead">باقات إدارة شهرية بأسعار ثابتة، وخدمات تأسيس شركات واستثمار لمرة واحدة — كلها من الكتالوج الرسمي.</p>
+    <p class="lead">أربع باقات خدمات سنوية، وخدمات تأسيس شركات واستثمار لمرة واحدة — كلها من الكتالوج الرسمي.</p>
     <p style="margin-top:14px"><a class="btn btn-ghost" href="/ar/calculator">🧮 أو صمّم سلّتك الخاصة من الكتالوج الكامل ←</a></p>
   </div></section>
   <section class="section"><div class="container">
-    <div class="pk-tabs" role="tablist"><button type="button" class="pk-tab active" data-group="management">الإدارة الشهرية</button><button type="button" class="pk-tab" data-group="formation">تأسيس الشركات والاستثمار</button></div>
+    <div class="pk-tabs" role="tablist"><button type="button" class="pk-tab active" data-group="management">باقات الخدمات</button><button type="button" class="pk-tab" data-group="formation">تأسيس الشركات والاستثمار</button></div>
     <div class="pk-panel active" id="pkg-management">
-      <p class="pk-group-desc">باقات شهرية ثابتة لإدارة منصاتك الحكومية والتزاماتك التشغيلية — بدون التزام سنوي.</p>
-      <div class="emp-billing-toggle" role="tablist">
-            <button type="button" class="emp-bill-btn active" data-bill="monthly">شهري</button>
-            <button type="button" class="emp-bill-btn" data-bill="yearly">سنوي <span class="emp-save">وفّر 30٪</span></button>
-          </div>
+      <p class="pk-group-desc">أربع باقات سنوية لإدارة منصاتك ومنشأتك الحكومية.</p>
+      
       <div class="grid grid-4"><div class="pkg">
-        <div class="pk-name">بيزنس بارتنر Start</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">٣٬٥٠٠ <span class="pk-per">ريال / شهرياً</span></span><span class="emp-price emp-price-y" hidden>٢٩٬٤٠٠ <span class="pk-per">ريال / سنوياً</span></span></div>
-        <p class="pk-for">للمنشآت الصغيرة والمتوسطة</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة منصة قوى</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة التأمينات الاجتماعية (GOSI)</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة منصة مقيم</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة المنصات التشغيلية الأساسية الأخرى</span></li></ul>
-        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-start-monthly" data-kind="package"
-          data-name-ar="بيزنس بارتنر Start — اشتراك شهري" data-name-en="Business Partner Start — Monthly subscription"
-          data-amount="3500" data-price="٣٬٥٠٠ ريال / شهرياً"
-          data-id-monthly="pkg-start-monthly" data-id-yearly="pkg-start-yearly"
-          data-amount-monthly="3500" data-amount-yearly="29400"
-          data-price-monthly="٣٬٥٠٠ ريال / شهرياً" data-price-yearly="٢٩٬٤٠٠ ريال / سنوياً"
-        >🛒 أضف إلى السلة</button>
-      </div><div class="pkg pop" data-badge="الأكثر طلباً">
-        <div class="pk-name">بيزنس بارتنر Growth</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">٧٬٥٠٠ <span class="pk-per">ريال / شهرياً</span></span><span class="emp-price emp-price-y" hidden>٦٣٬٠٠٠ <span class="pk-per">ريال / سنوياً</span></span></div>
-        <p class="pk-for">للشركات في مرحلة النمو</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>كل ما في باقة Start</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة المنصات الحكومية بشكل أشمل</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة الخدمات المتكررة الأساسية</span></li></ul>
-        <button type="button" class="btn btn-primary add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-growth-monthly" data-kind="package"
-          data-name-ar="بيزنس بارتنر Growth — اشتراك شهري" data-name-en="Business Partner Growth — Monthly subscription"
-          data-amount="7500" data-price="٧٬٥٠٠ ريال / شهرياً"
-          data-id-monthly="pkg-growth-monthly" data-id-yearly="pkg-growth-yearly"
-          data-amount-monthly="7500" data-amount-yearly="63000"
-          data-price-monthly="٧٬٥٠٠ ريال / شهرياً" data-price-yearly="٦٣٬٠٠٠ ريال / سنوياً"
-        >🛒 أضف إلى السلة</button>
-      </div><div class="pkg">
-        <div class="pk-name">بيزنس بارتنر Pro</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">١٥٬٠٠٠ <span class="pk-per">ريال / شهرياً</span></span><span class="emp-price emp-price-y" hidden>١٢٦٬٠٠٠ <span class="pk-per">ريال / سنوياً</span></span></div>
-        <p class="pk-for">للمنشآت التي تحتاج إدارة شاملة ومستمرة</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>كل ما في باقة Growth</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة شاملة للمنصات الحكومية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة تشغيلية مستمرة</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تنبيهات دورية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تنسيق الخدمات المتكررة</span></li></ul>
-        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-pro-monthly" data-kind="package"
-          data-name-ar="بيزنس بارتنر Pro — اشتراك شهري" data-name-en="Business Partner Pro — Monthly subscription"
-          data-amount="15000" data-price="١٥٬٠٠٠ ريال / شهرياً"
-          data-id-monthly="pkg-pro-monthly" data-id-yearly="pkg-pro-yearly"
-          data-amount-monthly="15000" data-amount-yearly="126000"
-          data-price-monthly="١٥٬٠٠٠ ريال / شهرياً" data-price-yearly="١٢٦٬٠٠٠ ريال / سنوياً"
-        >🛒 أضف إلى السلة</button>
-      </div><div class="pkg">
-        <div class="pk-name">باقة GRO الشهرية</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">٢٬٥٠٠ <span class="pk-per">ريال / شهرياً</span></span><span class="emp-price emp-price-y" hidden>٢١٬٠٠٠ <span class="pk-per">ريال / سنوياً</span></span></div>
-        <p class="pk-for">للمنشآت التي تحتاج إدارة علاقات حكومية بأقل تكلفة</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة معاملات العلاقات الحكومية (GRO) الشهرية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة العمليات التشغيلية الأساسية</span></li></ul>
-        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-gro-monthly" data-kind="package"
-          data-name-ar="باقة GRO الشهرية — اشتراك شهري" data-name-en="GRO Monthly Package — Monthly subscription"
-          data-amount="2500" data-price="٢٬٥٠٠ ريال / شهرياً"
-          data-id-monthly="pkg-gro-monthly" data-id-yearly="pkg-gro-yearly"
-          data-amount-monthly="2500" data-amount-yearly="21000"
-          data-price-monthly="٢٬٥٠٠ ريال / شهرياً" data-price-yearly="٢١٬٠٠٠ ريال / سنوياً"
-        >🛒 أضف إلى السلة</button>
-      </div></div>
+      <div class="pk-name">الباقة الفضية</div>
+      <div class="pk-price">تبدأ من 7,500 ﷼ / سنويًا</div>
+      <p class="pk-for">للمنشآت الصغيرة</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة السجل التجاري</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>التسجيل والمتابعة في منصة قوى</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة التأمينات الاجتماعية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة التأمين الطبي</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>الامتثال الزكوي والضريبي الأساسي</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-silver" data-name-en="Silver Package" data-name-ar="الباقة الفضية" data-amount="7500" data-price="تبدأ من 7,500 ﷼ / سنويًا" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+      <p class="pk-surcharge">سيتم فرض رسوم إضافية قدرها 500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 4 موظفين.</p>
+    </div><div class="pkg">
+      <div class="pk-name">الباقة الذهبية</div>
+      <div class="pk-price">تبدأ من 13,500 ﷼ / سنويًا</div>
+      <p class="pk-for">للمنشآت المتوسطة</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تشمل جميع مزايا الباقة الفضية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة شؤون الموظفين والعقود</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة وحماية الأجور</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>متابعة دورية للالتزامات النظامية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>دعم تشغيلي موسّع للمنشأة</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-gold" data-name-en="Gold Package" data-name-ar="الباقة الذهبية" data-amount="13500" data-price="تبدأ من 13,500 ﷼ / سنويًا" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+      <p class="pk-surcharge">سيتم فرض رسوم إضافية قدرها 750 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.</p>
+    </div><div class="pkg pop" data-badge="موصى به">
+      <div class="pk-name">الباقة البلاتينية</div>
+      <div class="pk-price">تبدأ من 20,000 ﷼ / سنويًا</div>
+      <p class="pk-for">للمنشآت الكبيرة</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تشمل جميع مزايا الباقة الذهبية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة متقدمة للموارد البشرية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>إدارة الإقرارات والمتابعة الشاملة</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تقارير تشغيلية وتنظيمية دورية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>استشارات قانونية وتشغيلية مستمرة</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-primary add-cart" data-id="pkg-platinum" data-name-en="Platinum Package" data-name-ar="الباقة البلاتينية" data-amount="20000" data-price="تبدأ من 20,000 ﷼ / سنويًا" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
+  </div>
+      <p class="pk-surcharge">سيتم فرض رسوم إضافية قدرها 1,000 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.</p>
+    </div><div class="pkg">
+      <div class="pk-name">الباقة الماسية</div>
+      <div class="pk-price">باقة حسب الطلب</div>
+      <p class="pk-for">للمنشآت الكبرى ذات الاحتياجات الخاصة</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تشمل جميع مزايا الباقة البلاتينية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>مدير حساب مخصص للمنشأة</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>أولوية تنفيذ ومتابعة فورية</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>حلول مخصصة حسب احتياج النشاط</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>دعم استباقي شامل دون تدخل العميل</span></li></ul>
+      <div class="buy-row">
+    <a class="btn btn-ghost" href="/ar/consultation?topic=other&about=%D8%A7%D9%84%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D9%85%D8%A7%D8%B3%D9%8A%D8%A9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>احجز استشارة</span></a>
+  </div>
+      <p class="pk-surcharge">سيتم فرض رسوم إضافية قدرها 1,500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 60 موظفاً.</p>
+    </div></div>
     </div><div class="pk-panel" id="pkg-formation">
       <p class="pk-group-desc">تأسيس منشأتك محلياً أو كمستثمر أجنبي، وصولاً للإقامة المميزة.</p>
       
@@ -135,6 +116,7 @@
       <div class="buy-row">
     <button type="button" class="btn btn-ghost add-cart" data-id="pkg-llc" data-name-en="Saudi company formation" data-name-ar="تأسيس شركة سعودية" data-amount="7500" data-price="ابتداءً من 7,500 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
   </div>
+      
     </div><div class="pkg pop" data-badge="الأكثر طلباً">
       <div class="pk-name">تأسيس استثمار أجنبي (MISA)</div>
       <div class="pk-price">22,500 ﷼</div>
@@ -143,6 +125,7 @@
       <div class="buy-row">
     <button type="button" class="btn btn-primary add-cart" data-id="pkg-misa" data-name-en="Foreign investment (MISA)" data-name-ar="تأسيس استثمار أجنبي (MISA)" data-amount="22500" data-price="22,500 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
   </div>
+      
     </div><div class="pkg">
       <div class="pk-name">الإقامة المميزة (بريميوم)</div>
       <div class="pk-price">ابتداءً من 5,000 ﷼</div>
@@ -151,6 +134,7 @@
       <div class="buy-row">
     <button type="button" class="btn btn-ghost add-cart" data-id="pkg-pr" data-name-en="Premium Residency" data-name-ar="الإقامة المميزة (بريميوم)" data-amount="5000" data-price="ابتداءً من 5,000 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>أضف إلى السلة</span></button>
   </div>
+      
     </div></div>
     </div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>الأسعار أعلاه من الكتالوج الرسمي وتشمل أتعاب بيزنس بارتنر فقط ما لم يُذكر غير ذلك — الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء. لأي مزيج مخصص من الخدمات، استخدم حاسبة التكلفة.</p></div>

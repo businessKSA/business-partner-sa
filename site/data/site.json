@@ -251,99 +251,121 @@
     "note": "الأسعار أعلاه من الكتالوج الرسمي وتشمل أتعاب بيزنس بارتنر فقط ما لم يُذكر غير ذلك — الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء. لأي مزيج مخصص من الخدمات، استخدم حاسبة التكلفة.",
     "tiers": [
       {
-        "key": "start",
-        "name": "Business Partner Start",
-        "nameAr": "بيزنس بارتنر Start",
-        "nameEn": "Business Partner Start",
-        "code": "BP-PKG-03",
-        "amount": 3500,
-        "price": "3,500 ﷼ / شهرياً",
-        "priceEn": "3,500 SAR / monthly",
-        "for": "للمنشآت الصغيرة والمتوسطة",
-        "forEn": "For small & medium establishments",
-        "highlight": false,
-        "features": [
-          "متابعة منصة قوى",
-          "متابعة التأمينات الاجتماعية (GOSI)",
-          "متابعة منصة مقيم",
-          "متابعة المنصات التشغيلية الأساسية الأخرى"
-        ],
-        "featuresEn": [
-          "Qiwa platform follow-up",
-          "GOSI (social insurance) follow-up",
-          "Muqeem platform follow-up",
-          "Follow-up on other core operating platforms"
-        ]
-      },
-      {
-        "key": "growth",
-        "name": "Business Partner Growth",
-        "nameAr": "بيزنس بارتنر Growth",
-        "nameEn": "Business Partner Growth",
-        "code": "BP-PKG-02",
+        "key": "silver",
+        "name": "Silver",
+        "nameAr": "الباقة الفضية",
+        "nameEn": "Silver Package",
+        "code": null,
         "amount": 7500,
-        "price": "7,500 ﷼ / شهرياً",
-        "priceEn": "7,500 SAR / monthly",
-        "for": "للشركات في مرحلة النمو",
-        "forEn": "For growing companies",
+        "price": "تبدأ من 7,500 ﷼ / سنويًا",
+        "priceEn": "Starting from 7,500 SAR / yearly",
+        "for": "للمنشآت الصغيرة",
+        "forEn": "For small establishments",
+        "highlight": false,
+        "surcharge": "سيتم فرض رسوم إضافية قدرها 500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 4 موظفين.",
+        "surchargeEn": "An extra fee of 500 SAR per additional employee applies once headcount exceeds 4 employees.",
+        "features": [
+          "إدارة السجل التجاري",
+          "التسجيل والمتابعة في منصة قوى",
+          "إدارة التأمينات الاجتماعية",
+          "إدارة التأمين الطبي",
+          "الامتثال الزكوي والضريبي الأساسي"
+        ],
+        "featuresEn": [
+          "Commercial Registration management",
+          "Qiwa platform registration & follow-up",
+          "Social insurance (GOSI) management",
+          "Medical insurance management",
+          "Basic Zakat & tax compliance"
+        ]
+      },
+      {
+        "key": "gold",
+        "name": "Gold",
+        "nameAr": "الباقة الذهبية",
+        "nameEn": "Gold Package",
+        "code": null,
+        "amount": 13500,
+        "price": "تبدأ من 13,500 ﷼ / سنويًا",
+        "priceEn": "Starting from 13,500 SAR / yearly",
+        "for": "للمنشآت المتوسطة",
+        "forEn": "For medium establishments",
+        "highlight": false,
+        "surcharge": "سيتم فرض رسوم إضافية قدرها 750 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
+        "surchargeEn": "An extra fee of 750 SAR per additional employee applies once headcount exceeds 9 employees.",
+        "features": [
+          "تشمل جميع مزايا الباقة الفضية",
+          "إدارة شؤون الموظفين والعقود",
+          "إدارة وحماية الأجور",
+          "متابعة دورية للالتزامات النظامية",
+          "دعم تشغيلي موسّع للمنشأة"
+        ],
+        "featuresEn": [
+          "Everything in the Silver package",
+          "Employee affairs & contracts management",
+          "Wage management & wage protection",
+          "Periodic follow-up on regulatory obligations",
+          "Extended operational support"
+        ]
+      },
+      {
+        "key": "platinum",
+        "name": "Platinum",
+        "nameAr": "الباقة البلاتينية",
+        "nameEn": "Platinum Package",
+        "code": null,
+        "amount": 20000,
+        "price": "تبدأ من 20,000 ﷼ / سنويًا",
+        "priceEn": "Starting from 20,000 SAR / yearly",
+        "for": "للمنشآت الكبيرة",
+        "forEn": "For large establishments",
         "highlight": true,
+        "surcharge": "سيتم فرض رسوم إضافية قدرها 1,000 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
+        "surchargeEn": "An extra fee of 1,000 SAR per additional employee applies once headcount exceeds 9 employees.",
         "features": [
-          "كل ما في باقة Start",
-          "إدارة المنصات الحكومية بشكل أشمل",
-          "متابعة الخدمات المتكررة الأساسية"
+          "تشمل جميع مزايا الباقة الذهبية",
+          "إدارة متقدمة للموارد البشرية",
+          "إدارة الإقرارات والمتابعة الشاملة",
+          "تقارير تشغيلية وتنظيمية دورية",
+          "استشارات قانونية وتشغيلية مستمرة"
         ],
         "featuresEn": [
-          "Everything in Start",
-          "Broader government-platform management",
-          "Follow-up on core recurring services"
-        ]
+          "Everything in the Gold package",
+          "Advanced HR management",
+          "Filings management & comprehensive follow-up",
+          "Periodic operational & regulatory reports",
+          "Ongoing legal & operational consultations"
+        ],
+        "badgeAr": "موصى به",
+        "badgeEn": "Recommended"
       },
       {
-        "key": "pro",
-        "name": "Business Partner Pro",
-        "nameAr": "بيزنس بارتنر Pro",
-        "nameEn": "Business Partner Pro",
-        "code": "BP-PKG-01",
-        "amount": 15000,
-        "price": "15,000 ﷼ / شهرياً",
-        "priceEn": "15,000 SAR / monthly",
-        "for": "للمنشآت التي تحتاج إدارة شاملة ومستمرة",
-        "forEn": "For establishments needing comprehensive, ongoing management",
+        "key": "diamond",
+        "name": "Diamond",
+        "nameAr": "الباقة الماسية",
+        "nameEn": "Diamond Package",
+        "code": null,
+        "amount": null,
+        "price": "باقة حسب الطلب",
+        "priceEn": "Custom package, priced on request",
+        "for": "للمنشآت الكبرى ذات الاحتياجات الخاصة",
+        "forEn": "For large establishments with custom needs",
         "highlight": false,
+        "surcharge": "سيتم فرض رسوم إضافية قدرها 1,500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 60 موظفاً.",
+        "surchargeEn": "An extra fee of 1,500 SAR per additional employee applies once headcount exceeds 60 employees.",
         "features": [
-          "كل ما في باقة Growth",
-          "إدارة شاملة للمنصات الحكومية",
-          "متابعة تشغيلية مستمرة",
-          "تنبيهات دورية",
-          "تنسيق الخدمات المتكررة"
+          "تشمل جميع مزايا الباقة البلاتينية",
+          "مدير حساب مخصص للمنشأة",
+          "أولوية تنفيذ ومتابعة فورية",
+          "حلول مخصصة حسب احتياج النشاط",
+          "دعم استباقي شامل دون تدخل العميل"
         ],
         "featuresEn": [
-          "Everything in Growth",
-          "Comprehensive government-platform management",
-          "Ongoing operational follow-up",
-          "Periodic alerts",
-          "Coordination of recurring services"
-        ]
-      },
-      {
-        "key": "gro",
-        "name": "GRO Monthly Package",
-        "nameAr": "باقة GRO الشهرية",
-        "nameEn": "GRO Monthly Package",
-        "code": "BP-PKG-04",
-        "amount": 2500,
-        "price": "2,500 ﷼ / شهرياً",
-        "priceEn": "2,500 SAR / monthly",
-        "for": "للمنشآت التي تحتاج إدارة علاقات حكومية بأقل تكلفة",
-        "forEn": "For establishments needing low-cost, ongoing government-relations (GRO) management",
-        "highlight": false,
-        "features": [
-          "متابعة معاملات العلاقات الحكومية (GRO) الشهرية",
-          "إدارة العمليات التشغيلية الأساسية"
-        ],
-        "featuresEn": [
-          "Monthly government-relations (GRO) transaction follow-up",
-          "Core operational management"
+          "Everything in the Platinum package",
+          "Dedicated account manager",
+          "Priority execution & instant follow-up",
+          "Custom solutions tailored to your activity",
+          "Comprehensive proactive support, no client follow-up needed"
         ]
       }
     ],
@@ -353,105 +375,127 @@
     "groups": [
       {
         "key": "management",
-        "ar": "الإدارة الشهرية",
-        "en": "Monthly management",
-        "descAr": "باقات شهرية ثابتة لإدارة منصاتك الحكومية والتزاماتك التشغيلية — بدون التزام سنوي.",
-        "descEn": "Fixed monthly packages to manage your government platforms and operational obligations — no annual commitment.",
+        "ar": "باقات الخدمات",
+        "en": "Service packages",
+        "descAr": "أربع باقات سنوية لإدارة منصاتك ومنشأتك الحكومية.",
+        "descEn": "Four annual packages to manage your government platforms and establishment.",
         "tiers": [
           {
-            "key": "start",
-            "name": "Business Partner Start",
-            "nameAr": "بيزنس بارتنر Start",
-            "nameEn": "Business Partner Start",
-            "code": "BP-PKG-03",
-            "amount": 3500,
-            "price": "3,500 ﷼ / شهرياً",
-            "priceEn": "3,500 SAR / monthly",
-            "for": "للمنشآت الصغيرة والمتوسطة",
-            "forEn": "For small & medium establishments",
-            "highlight": false,
-            "features": [
-              "متابعة منصة قوى",
-              "متابعة التأمينات الاجتماعية (GOSI)",
-              "متابعة منصة مقيم",
-              "متابعة المنصات التشغيلية الأساسية الأخرى"
-            ],
-            "featuresEn": [
-              "Qiwa platform follow-up",
-              "GOSI (social insurance) follow-up",
-              "Muqeem platform follow-up",
-              "Follow-up on other core operating platforms"
-            ]
-          },
-          {
-            "key": "growth",
-            "name": "Business Partner Growth",
-            "nameAr": "بيزنس بارتنر Growth",
-            "nameEn": "Business Partner Growth",
-            "code": "BP-PKG-02",
+            "key": "silver",
+            "name": "Silver",
+            "nameAr": "الباقة الفضية",
+            "nameEn": "Silver Package",
+            "code": null,
             "amount": 7500,
-            "price": "7,500 ﷼ / شهرياً",
-            "priceEn": "7,500 SAR / monthly",
-            "for": "للشركات في مرحلة النمو",
-            "forEn": "For growing companies",
+            "price": "تبدأ من 7,500 ﷼ / سنويًا",
+            "priceEn": "Starting from 7,500 SAR / yearly",
+            "for": "للمنشآت الصغيرة",
+            "forEn": "For small establishments",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 4 موظفين.",
+            "surchargeEn": "An extra fee of 500 SAR per additional employee applies once headcount exceeds 4 employees.",
+            "features": [
+              "إدارة السجل التجاري",
+              "التسجيل والمتابعة في منصة قوى",
+              "إدارة التأمينات الاجتماعية",
+              "إدارة التأمين الطبي",
+              "الامتثال الزكوي والضريبي الأساسي"
+            ],
+            "featuresEn": [
+              "Commercial Registration management",
+              "Qiwa platform registration & follow-up",
+              "Social insurance (GOSI) management",
+              "Medical insurance management",
+              "Basic Zakat & tax compliance"
+            ]
+          },
+          {
+            "key": "gold",
+            "name": "Gold",
+            "nameAr": "الباقة الذهبية",
+            "nameEn": "Gold Package",
+            "code": null,
+            "amount": 13500,
+            "price": "تبدأ من 13,500 ﷼ / سنويًا",
+            "priceEn": "Starting from 13,500 SAR / yearly",
+            "for": "للمنشآت المتوسطة",
+            "forEn": "For medium establishments",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 750 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
+            "surchargeEn": "An extra fee of 750 SAR per additional employee applies once headcount exceeds 9 employees.",
+            "features": [
+              "تشمل جميع مزايا الباقة الفضية",
+              "إدارة شؤون الموظفين والعقود",
+              "إدارة وحماية الأجور",
+              "متابعة دورية للالتزامات النظامية",
+              "دعم تشغيلي موسّع للمنشأة"
+            ],
+            "featuresEn": [
+              "Everything in the Silver package",
+              "Employee affairs & contracts management",
+              "Wage management & wage protection",
+              "Periodic follow-up on regulatory obligations",
+              "Extended operational support"
+            ]
+          },
+          {
+            "key": "platinum",
+            "name": "Platinum",
+            "nameAr": "الباقة البلاتينية",
+            "nameEn": "Platinum Package",
+            "code": null,
+            "amount": 20000,
+            "price": "تبدأ من 20,000 ﷼ / سنويًا",
+            "priceEn": "Starting from 20,000 SAR / yearly",
+            "for": "للمنشآت الكبيرة",
+            "forEn": "For large establishments",
             "highlight": true,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 1,000 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
+            "surchargeEn": "An extra fee of 1,000 SAR per additional employee applies once headcount exceeds 9 employees.",
             "features": [
-              "كل ما في باقة Start",
-              "إدارة المنصات الحكومية بشكل أشمل",
-              "متابعة الخدمات المتكررة الأساسية"
+              "تشمل جميع مزايا الباقة الذهبية",
+              "إدارة متقدمة للموارد البشرية",
+              "إدارة الإقرارات والمتابعة الشاملة",
+              "تقارير تشغيلية وتنظيمية دورية",
+              "استشارات قانونية وتشغيلية مستمرة"
             ],
             "featuresEn": [
-              "Everything in Start",
-              "Broader government-platform management",
-              "Follow-up on core recurring services"
-            ]
+              "Everything in the Gold package",
+              "Advanced HR management",
+              "Filings management & comprehensive follow-up",
+              "Periodic operational & regulatory reports",
+              "Ongoing legal & operational consultations"
+            ],
+            "badgeAr": "موصى به",
+            "badgeEn": "Recommended"
           },
           {
-            "key": "pro",
-            "name": "Business Partner Pro",
-            "nameAr": "بيزنس بارتنر Pro",
-            "nameEn": "Business Partner Pro",
-            "code": "BP-PKG-01",
-            "amount": 15000,
-            "price": "15,000 ﷼ / شهرياً",
-            "priceEn": "15,000 SAR / monthly",
-            "for": "للمنشآت التي تحتاج إدارة شاملة ومستمرة",
-            "forEn": "For establishments needing comprehensive, ongoing management",
+            "key": "diamond",
+            "name": "Diamond",
+            "nameAr": "الباقة الماسية",
+            "nameEn": "Diamond Package",
+            "code": null,
+            "amount": null,
+            "price": "باقة حسب الطلب",
+            "priceEn": "Custom package, priced on request",
+            "for": "للمنشآت الكبرى ذات الاحتياجات الخاصة",
+            "forEn": "For large establishments with custom needs",
             "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 1,500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 60 موظفاً.",
+            "surchargeEn": "An extra fee of 1,500 SAR per additional employee applies once headcount exceeds 60 employees.",
             "features": [
-              "كل ما في باقة Growth",
-              "إدارة شاملة للمنصات الحكومية",
-              "متابعة تشغيلية مستمرة",
-              "تنبيهات دورية",
-              "تنسيق الخدمات المتكررة"
+              "تشمل جميع مزايا الباقة البلاتينية",
+              "مدير حساب مخصص للمنشأة",
+              "أولوية تنفيذ ومتابعة فورية",
+              "حلول مخصصة حسب احتياج النشاط",
+              "دعم استباقي شامل دون تدخل العميل"
             ],
             "featuresEn": [
-              "Everything in Growth",
-              "Comprehensive government-platform management",
-              "Ongoing operational follow-up",
-              "Periodic alerts",
-              "Coordination of recurring services"
-            ]
-          },
-          {
-            "key": "gro",
-            "name": "GRO Monthly Package",
-            "nameAr": "باقة GRO الشهرية",
-            "nameEn": "GRO Monthly Package",
-            "code": "BP-PKG-04",
-            "amount": 2500,
-            "price": "2,500 ﷼ / شهرياً",
-            "priceEn": "2,500 SAR / monthly",
-            "for": "للمنشآت التي تحتاج إدارة علاقات حكومية بأقل تكلفة",
-            "forEn": "For establishments needing low-cost, ongoing government-relations (GRO) management",
-            "highlight": false,
-            "features": [
-              "متابعة معاملات العلاقات الحكومية (GRO) الشهرية",
-              "إدارة العمليات التشغيلية الأساسية"
-            ],
-            "featuresEn": [
-              "Monthly government-relations (GRO) transaction follow-up",
-              "Core operational management"
+              "Everything in the Platinum package",
+              "Dedicated account manager",
+              "Priority execution & instant follow-up",
+              "Custom solutions tailored to your activity",
+              "Comprehensive proactive support, no client follow-up needed"
             ]
           }
         ]

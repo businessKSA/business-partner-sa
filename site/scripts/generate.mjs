@@ -1358,7 +1358,7 @@ function buildPackages() {
     const monthly = t.amount != null && isMonthly(t);
     const name = L(t.nameEn || t.name || t.nameAr, t.nameAr);
     const feats = `<ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>`;
-    const badgeAttr = t.highlight ? ` data-badge="${esc(L("Most requested", "الأكثر طلباً"))}"` : "";
+    const badgeAttr = t.highlight ? ` data-badge="${esc(L(t.badgeEn || "Most requested", t.badgeAr || "الأكثر طلباً"))}"` : "";
     if (monthly) {
       const yearly = employerYearly(t.amount, yearlyDiscount);
       const nameAr = `${t.nameAr} — اشتراك شهري`;
@@ -1386,6 +1386,7 @@ function buildPackages() {
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight })}
+      ${t.surcharge || t.surchargeEn ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
     </div>`;
   };
   const tabs = groups
@@ -1411,7 +1412,7 @@ function buildPackages() {
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Packages", "الباقات")}</span>
     <h1>${L("Choose the package that fits your establishment", "اختر الباقة التي تناسب منشأتك")}</h1>
-    <p class="lead">${L("Fixed-price monthly management packages, plus one-time company-formation and investment services — all from our official catalog.", "باقات إدارة شهرية بأسعار ثابتة، وخدمات تأسيس شركات واستثمار لمرة واحدة — كلها من الكتالوج الرسمي.")}</p>
+    <p class="lead">${L("Four annual service packages, plus one-time company-formation and investment services — all from our official catalog.", "أربع باقات خدمات سنوية، وخدمات تأسيس شركات واستثمار لمرة واحدة — كلها من الكتالوج الرسمي.")}</p>
     <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/calculator")}">🧮 ${L("Or design your own basket from the full catalog →", "أو صمّم سلّتك الخاصة من الكتالوج الكامل ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">

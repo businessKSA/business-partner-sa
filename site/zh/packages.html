@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=7a8f1c1e5a">
+<link rel="stylesheet" href="/assets/css/styles.css?v=35f714e22e">
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/zh/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
@@ -38,7 +38,7 @@
     <div class="nav-menu"><a href="/zh/services">全部服务 (92)</a><a href="/services/category/company-formation">🏢 公司注册</a><a href="/services/category/foreign-investment">🌍 外商投资</a><a href="/services/category/premium-residency">🪪 高端居留</a><a href="/services/category/government-relations">🏛️ 政府事务关系</a><a href="/services/category/hr-services">👥 人力资源服务</a><a href="/services/category/recruitment">🧑‍💼 招聘与人才引进</a><a href="/services/category/business-support">📊 Business Support</a><a href="/services/category/real-estate">🏗️ Real Estate</a><a href="/services/category/ai-automation">🤖 AI &amp; Automation</a></div>
   </div><div class="nav-group nested active">
     <button type="button" class="nav-drop active" aria-expanded="false">套餐 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/packages">All packages</a><a href="/zh/packages#pkg-management">Monthly management</a><a href="/zh/packages#pkg-formation">Company formation &amp; investment</a></div>
+    <div class="nav-menu"><a href="/zh/packages">All packages</a><a href="/zh/packages#pkg-management">Service packages</a><a href="/zh/packages#pkg-formation">Company formation &amp; investment</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">AI 智能助手 ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/ai-agents">All AI Agents</a><a href="/compliance-agent">Compliance</a><a href="/portal">Smart Employees</a><a href="/shared-services">Shared Services Team</a></div>
@@ -60,70 +60,51 @@
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">套餐</span>
     <h1>Choose the package that fits your establishment</h1>
-    <p class="lead">Fixed-price monthly management packages, plus one-time company-formation and investment services — all from our official catalog.</p>
+    <p class="lead">Four annual service packages, plus one-time company-formation and investment services — all from our official catalog.</p>
     <p style="margin-top:14px"><a class="btn btn-ghost" href="/calculator">🧮 Or design your own basket from the full catalog →</a></p>
   </div></section>
   <section class="section"><div class="container">
-    <div class="pk-tabs" role="tablist"><button type="button" class="pk-tab active" data-group="management">Monthly management</button><button type="button" class="pk-tab" data-group="formation">Company formation &amp; investment</button></div>
+    <div class="pk-tabs" role="tablist"><button type="button" class="pk-tab active" data-group="management">Service packages</button><button type="button" class="pk-tab" data-group="formation">Company formation &amp; investment</button></div>
     <div class="pk-panel active" id="pkg-management">
-      <p class="pk-group-desc">Fixed monthly packages to manage your government platforms and operational obligations — no annual commitment.</p>
-      <div class="emp-billing-toggle" role="tablist">
-            <button type="button" class="emp-bill-btn active" data-bill="monthly">Monthly</button>
-            <button type="button" class="emp-bill-btn" data-bill="yearly">Yearly <span class="emp-save">Save 30%</span></button>
-          </div>
+      <p class="pk-group-desc">Four annual packages to manage your government platforms and establishment.</p>
+      
       <div class="grid grid-4"><div class="pkg">
-        <div class="pk-name">Business Partner Start</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">3,500 <span class="pk-per">SAR / mo</span></span><span class="emp-price emp-price-y" hidden>29,400 <span class="pk-per">SAR / yr</span></span></div>
-        <p class="pk-for">For small &amp; medium establishments</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Qiwa platform follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>GOSI (social insurance) follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Muqeem platform follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Follow-up on other core operating platforms</span></li></ul>
-        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-start-monthly" data-kind="package"
-          data-name-ar="بيزنس بارتنر Start — اشتراك شهري" data-name-en="Business Partner Start — Monthly subscription"
-          data-amount="3500" data-price="3,500 SAR / mo"
-          data-id-monthly="pkg-start-monthly" data-id-yearly="pkg-start-yearly"
-          data-amount-monthly="3500" data-amount-yearly="29400"
-          data-price-monthly="3,500 SAR / mo" data-price-yearly="29,400 SAR / yr"
-        >🛒 Add to cart</button>
-      </div><div class="pkg pop" data-badge="Most requested">
-        <div class="pk-name">Business Partner Growth</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">7,500 <span class="pk-per">SAR / mo</span></span><span class="emp-price emp-price-y" hidden>63,000 <span class="pk-per">SAR / yr</span></span></div>
-        <p class="pk-for">For growing companies</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in Start</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Broader government-platform management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Follow-up on core recurring services</span></li></ul>
-        <button type="button" class="btn btn-primary add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-growth-monthly" data-kind="package"
-          data-name-ar="بيزنس بارتنر Growth — اشتراك شهري" data-name-en="Business Partner Growth — Monthly subscription"
-          data-amount="7500" data-price="7,500 SAR / mo"
-          data-id-monthly="pkg-growth-monthly" data-id-yearly="pkg-growth-yearly"
-          data-amount-monthly="7500" data-amount-yearly="63000"
-          data-price-monthly="7,500 SAR / mo" data-price-yearly="63,000 SAR / yr"
-        >🛒 Add to cart</button>
-      </div><div class="pkg">
-        <div class="pk-name">Business Partner Pro</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">15,000 <span class="pk-per">SAR / mo</span></span><span class="emp-price emp-price-y" hidden>126,000 <span class="pk-per">SAR / yr</span></span></div>
-        <p class="pk-for">For establishments needing comprehensive, ongoing management</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in Growth</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Comprehensive government-platform management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Ongoing operational follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic alerts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Coordination of recurring services</span></li></ul>
-        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-pro-monthly" data-kind="package"
-          data-name-ar="بيزنس بارتنر Pro — اشتراك شهري" data-name-en="Business Partner Pro — Monthly subscription"
-          data-amount="15000" data-price="15,000 SAR / mo"
-          data-id-monthly="pkg-pro-monthly" data-id-yearly="pkg-pro-yearly"
-          data-amount-monthly="15000" data-amount-yearly="126000"
-          data-price-monthly="15,000 SAR / mo" data-price-yearly="126,000 SAR / yr"
-        >🛒 Add to cart</button>
-      </div><div class="pkg">
-        <div class="pk-name">GRO Monthly Package</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">2,500 <span class="pk-per">SAR / mo</span></span><span class="emp-price emp-price-y" hidden>21,000 <span class="pk-per">SAR / yr</span></span></div>
-        <p class="pk-for">For establishments needing low-cost, ongoing government-relations (GRO) management</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Monthly government-relations (GRO) transaction follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Core operational management</span></li></ul>
-        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-gro-monthly" data-kind="package"
-          data-name-ar="باقة GRO الشهرية — اشتراك شهري" data-name-en="GRO Monthly Package — Monthly subscription"
-          data-amount="2500" data-price="2,500 SAR / mo"
-          data-id-monthly="pkg-gro-monthly" data-id-yearly="pkg-gro-yearly"
-          data-amount-monthly="2500" data-amount-yearly="21000"
-          data-price-monthly="2,500 SAR / mo" data-price-yearly="21,000 SAR / yr"
-        >🛒 Add to cart</button>
-      </div></div>
+      <div class="pk-name">Silver Package</div>
+      <div class="pk-price">Starting from 7,500 SAR / yearly</div>
+      <p class="pk-for">For small establishments</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial Registration management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Qiwa platform registration &amp; follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Social insurance (GOSI) management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Medical insurance management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Basic Zakat &amp; tax compliance</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-silver" data-name-en="Silver Package" data-name-ar="الباقة الفضية" data-amount="7500" data-price="Starting from 7,500 SAR / yearly" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
+  </div>
+      <p class="pk-surcharge">An extra fee of 500 SAR per additional employee applies once headcount exceeds 4 employees.</p>
+    </div><div class="pkg">
+      <div class="pk-name">Gold Package</div>
+      <div class="pk-price">Starting from 13,500 SAR / yearly</div>
+      <p class="pk-for">For medium establishments</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Silver package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Employee affairs &amp; contracts management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Wage management &amp; wage protection</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic follow-up on regulatory obligations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Extended operational support</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-gold" data-name-en="Gold Package" data-name-ar="الباقة الذهبية" data-amount="13500" data-price="Starting from 13,500 SAR / yearly" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
+  </div>
+      <p class="pk-surcharge">An extra fee of 750 SAR per additional employee applies once headcount exceeds 9 employees.</p>
+    </div><div class="pkg pop" data-badge="Recommended">
+      <div class="pk-name">Platinum Package</div>
+      <div class="pk-price">Starting from 20,000 SAR / yearly</div>
+      <p class="pk-for">For large establishments</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Gold package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Advanced HR management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Filings management &amp; comprehensive follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic operational &amp; regulatory reports</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Ongoing legal &amp; operational consultations</span></li></ul>
+      <div class="buy-row">
+    <button type="button" class="btn btn-primary add-cart" data-id="pkg-platinum" data-name-en="Platinum Package" data-name-ar="الباقة البلاتينية" data-amount="20000" data-price="Starting from 20,000 SAR / yearly" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
+  </div>
+      <p class="pk-surcharge">An extra fee of 1,000 SAR per additional employee applies once headcount exceeds 9 employees.</p>
+    </div><div class="pkg">
+      <div class="pk-name">Diamond Package</div>
+      <div class="pk-price">Custom package, priced on request</div>
+      <p class="pk-for">For large establishments with custom needs</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Platinum package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Dedicated account manager</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Priority execution &amp; instant follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Custom solutions tailored to your activity</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Comprehensive proactive support, no client follow-up needed</span></li></ul>
+      <div class="buy-row">
+    <a class="btn btn-ghost" href="/consultation?topic=other&about=Diamond%20Package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>预约咨询</span></a>
+  </div>
+      <p class="pk-surcharge">An extra fee of 1,500 SAR per additional employee applies once headcount exceeds 60 employees.</p>
+    </div></div>
     </div><div class="pk-panel" id="pkg-formation">
       <p class="pk-group-desc">Set up locally or as a foreign investor, up to Premium Residency.</p>
       
@@ -135,6 +116,7 @@
       <div class="buy-row">
     <button type="button" class="btn btn-ghost add-cart" data-id="pkg-llc" data-name-en="Saudi company formation" data-name-ar="تأسيس شركة سعودية" data-amount="7500" data-price="From 7,500 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
   </div>
+      
     </div><div class="pkg pop" data-badge="Most requested">
       <div class="pk-name">Foreign investment (MISA)</div>
       <div class="pk-price">22,500 ﷼</div>
@@ -143,6 +125,7 @@
       <div class="buy-row">
     <button type="button" class="btn btn-primary add-cart" data-id="pkg-misa" data-name-en="Foreign investment (MISA)" data-name-ar="تأسيس استثمار أجنبي (MISA)" data-amount="22500" data-price="22,500 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
   </div>
+      
     </div><div class="pkg">
       <div class="pk-name">高端居留</div>
       <div class="pk-price">From 5,000 ﷼</div>
@@ -151,6 +134,7 @@
       <div class="buy-row">
     <button type="button" class="btn btn-ghost add-cart" data-id="pkg-pr" data-name-en="Premium Residency" data-name-ar="الإقامة المميزة (بريميوم)" data-amount="5000" data-price="From 5,000 ﷼" data-kind="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
   </div>
+      
     </div></div>
     </div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>Prices above are from the official catalog and cover Business Partner fees only unless stated otherwise — government fees (where applicable) are separate and announced before starting. For a custom mix of services, use the cost calculator.</p></div>

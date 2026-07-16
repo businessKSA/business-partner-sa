@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-16T17:04:02.125Z",
+  "updatedAt": "2026-07-16T17:22:21.793Z",
   "currency": "SAR",
   "services": [
     {
@@ -1350,97 +1350,109 @@
   "packages": [
     {
       "group": "management",
-      "groupNameAr": "الإدارة الشهرية",
-      "groupNameEn": "Monthly management",
-      "code": "BP-PKG-03",
-      "key": "start",
-      "nameAr": "بيزنس بارتنر Start",
-      "nameEn": "Business Partner Start",
-      "amount": 3500,
-      "priceLabel": "3,500 SAR / monthly",
-      "billingPeriod": "monthly",
-      "featuresAr": [
-        "متابعة منصة قوى",
-        "متابعة التأمينات الاجتماعية (GOSI)",
-        "متابعة منصة مقيم",
-        "متابعة المنصات التشغيلية الأساسية الأخرى"
-      ],
-      "featuresEn": [
-        "Qiwa platform follow-up",
-        "GOSI (social insurance) follow-up",
-        "Muqeem platform follow-up",
-        "Follow-up on other core operating platforms"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "management",
-      "groupNameAr": "الإدارة الشهرية",
-      "groupNameEn": "Monthly management",
-      "code": "BP-PKG-02",
-      "key": "growth",
-      "nameAr": "بيزنس بارتنر Growth",
-      "nameEn": "Business Partner Growth",
+      "groupNameAr": "باقات الخدمات",
+      "groupNameEn": "Service packages",
+      "code": null,
+      "key": "silver",
+      "nameAr": "الباقة الفضية",
+      "nameEn": "Silver Package",
       "amount": 7500,
-      "priceLabel": "7,500 SAR / monthly",
-      "billingPeriod": "monthly",
+      "priceLabel": "Starting from 7,500 SAR / yearly",
+      "billingPeriod": "one_time",
       "featuresAr": [
-        "كل ما في باقة Start",
-        "إدارة المنصات الحكومية بشكل أشمل",
-        "متابعة الخدمات المتكررة الأساسية"
+        "إدارة السجل التجاري",
+        "التسجيل والمتابعة في منصة قوى",
+        "إدارة التأمينات الاجتماعية",
+        "إدارة التأمين الطبي",
+        "الامتثال الزكوي والضريبي الأساسي"
       ],
       "featuresEn": [
-        "Everything in Start",
-        "Broader government-platform management",
-        "Follow-up on core recurring services"
+        "Commercial Registration management",
+        "Qiwa platform registration & follow-up",
+        "Social insurance (GOSI) management",
+        "Medical insurance management",
+        "Basic Zakat & tax compliance"
       ],
       "url": "https://businesspartner.sa/packages"
     },
     {
       "group": "management",
-      "groupNameAr": "الإدارة الشهرية",
-      "groupNameEn": "Monthly management",
-      "code": "BP-PKG-01",
-      "key": "pro",
-      "nameAr": "بيزنس بارتنر Pro",
-      "nameEn": "Business Partner Pro",
-      "amount": 15000,
-      "priceLabel": "15,000 SAR / monthly",
-      "billingPeriod": "monthly",
+      "groupNameAr": "باقات الخدمات",
+      "groupNameEn": "Service packages",
+      "code": null,
+      "key": "gold",
+      "nameAr": "الباقة الذهبية",
+      "nameEn": "Gold Package",
+      "amount": 13500,
+      "priceLabel": "Starting from 13,500 SAR / yearly",
+      "billingPeriod": "one_time",
       "featuresAr": [
-        "كل ما في باقة Growth",
-        "إدارة شاملة للمنصات الحكومية",
-        "متابعة تشغيلية مستمرة",
-        "تنبيهات دورية",
-        "تنسيق الخدمات المتكررة"
+        "تشمل جميع مزايا الباقة الفضية",
+        "إدارة شؤون الموظفين والعقود",
+        "إدارة وحماية الأجور",
+        "متابعة دورية للالتزامات النظامية",
+        "دعم تشغيلي موسّع للمنشأة"
       ],
       "featuresEn": [
-        "Everything in Growth",
-        "Comprehensive government-platform management",
-        "Ongoing operational follow-up",
-        "Periodic alerts",
-        "Coordination of recurring services"
+        "Everything in the Silver package",
+        "Employee affairs & contracts management",
+        "Wage management & wage protection",
+        "Periodic follow-up on regulatory obligations",
+        "Extended operational support"
       ],
       "url": "https://businesspartner.sa/packages"
     },
     {
       "group": "management",
-      "groupNameAr": "الإدارة الشهرية",
-      "groupNameEn": "Monthly management",
-      "code": "BP-PKG-04",
-      "key": "gro",
-      "nameAr": "باقة GRO الشهرية",
-      "nameEn": "GRO Monthly Package",
-      "amount": 2500,
-      "priceLabel": "2,500 SAR / monthly",
-      "billingPeriod": "monthly",
+      "groupNameAr": "باقات الخدمات",
+      "groupNameEn": "Service packages",
+      "code": null,
+      "key": "platinum",
+      "nameAr": "الباقة البلاتينية",
+      "nameEn": "Platinum Package",
+      "amount": 20000,
+      "priceLabel": "Starting from 20,000 SAR / yearly",
+      "billingPeriod": "one_time",
       "featuresAr": [
-        "متابعة معاملات العلاقات الحكومية (GRO) الشهرية",
-        "إدارة العمليات التشغيلية الأساسية"
+        "تشمل جميع مزايا الباقة الذهبية",
+        "إدارة متقدمة للموارد البشرية",
+        "إدارة الإقرارات والمتابعة الشاملة",
+        "تقارير تشغيلية وتنظيمية دورية",
+        "استشارات قانونية وتشغيلية مستمرة"
       ],
       "featuresEn": [
-        "Monthly government-relations (GRO) transaction follow-up",
-        "Core operational management"
+        "Everything in the Gold package",
+        "Advanced HR management",
+        "Filings management & comprehensive follow-up",
+        "Periodic operational & regulatory reports",
+        "Ongoing legal & operational consultations"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "management",
+      "groupNameAr": "باقات الخدمات",
+      "groupNameEn": "Service packages",
+      "code": null,
+      "key": "diamond",
+      "nameAr": "الباقة الماسية",
+      "nameEn": "Diamond Package",
+      "amount": null,
+      "priceLabel": "Custom package, priced on request",
+      "billingPeriod": "one_time",
+      "featuresAr": [
+        "تشمل جميع مزايا الباقة البلاتينية",
+        "مدير حساب مخصص للمنشأة",
+        "أولوية تنفيذ ومتابعة فورية",
+        "حلول مخصصة حسب احتياج النشاط",
+        "دعم استباقي شامل دون تدخل العميل"
+      ],
+      "featuresEn": [
+        "Everything in the Platinum package",
+        "Dedicated account manager",
+        "Priority execution & instant follow-up",
+        "Custom solutions tailored to your activity",
+        "Comprehensive proactive support, no client follow-up needed"
       ],
       "url": "https://businesspartner.sa/packages"
     },

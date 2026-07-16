@@ -201,6 +201,7 @@ p { color: var(--text-soft); }
 @media (max-width: 960px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .steps-grid { grid-template-columns: 1fr; } }
 .pkg .pk-for { color: var(--text-soft); margin: 10px 0 20px; font-size: .96rem; }
+.pkg .pk-surcharge { color: var(--text-soft); font-size: .78rem; line-height: 1.6; margin-top: 14px; }
 .pkg ul { list-style: none; display: grid; gap: 12px; margin-bottom: 26px; flex: 1; }
 .pkg li { display: flex; gap: 10px; align-items: flex-start; font-size: .96rem; color: var(--text); }
 .pkg li svg { width: 20px; height: 20px; color: var(--wa); flex-shrink: 0; margin-top: 3px; }
