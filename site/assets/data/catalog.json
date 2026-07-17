@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-17T07:13:27.339Z",
+  "updatedAt": "2026-07-17T07:13:57.594Z",
   "currency": "SAR",
   "services": [
     {
@@ -1277,6 +1277,34 @@
       "url": "https://businesspartner.sa/services/bp-re-06"
     },
     {
+      "code": "BP-HOUSING-01",
+      "nameAr": "تسكين العمالة — سكن جماعي مرخّص",
+      "nameEn": "Worker housing — licensed collective housing",
+      "category": "HR Services",
+      "categoryAr": "الموارد البشرية",
+      "govPlatform": "بلدي",
+      "pricingModel": "Requires Proposal",
+      "amount": null,
+      "priceLabel": "عرض سعر مخصص",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-housing-01"
+    },
+    {
+      "code": "BP-HOUSING-02",
+      "nameAr": "نقل العمالة — من السكن إلى مواقع العمل",
+      "nameEn": "Worker transport — housing to work sites",
+      "category": "HR Services",
+      "categoryAr": "الموارد البشرية",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Requires Proposal",
+      "amount": null,
+      "priceLabel": "عرض سعر مخصص",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-housing-02"
+    },
+    {
       "code": "BP-AI-01",
       "nameAr": "منظومة الأعمال بالذكاء الاصطناعي (Enterprise)",
       "nameEn": "AI Business Partner Enterprise",
@@ -1334,7 +1362,7 @@
       "key": "HR Services",
       "nameAr": "الموارد البشرية",
       "nameEn": "HR Services",
-      "count": 8
+      "count": 10
     },
     {
       "key": "Recruitment",

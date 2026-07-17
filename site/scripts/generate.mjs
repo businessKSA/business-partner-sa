@@ -1,3 +1,4 @@
+// build-marker: force production rebuild for BP-RE-06 + real-estate nav (deploy 2)
 // Business Partner — static site generator (no framework, plain Node)
 // Reads data/*.json and emits static HTML pages into the site root.
 import fs from "node:fs";
@@ -440,6 +441,17 @@ const NAV_GROUPS = [
         ],
       },
       {
+        href: "/worker-housing", en: "Worker Housing ⚡", ar: "تسكين العمالة ⚡",
+        sub: [
+          { href: "/worker-housing", en: "Overview", ar: "نظرة عامة" },
+          { href: "/worker-housing#wh-request", en: "Request housing", ar: "اطلب سكن لعمالتك" },
+          { href: "/worker-housing#wh-fines", en: "Regulations & fines", ar: "الاشتراطات والغرامات" },
+          { href: "/services/bp-housing-01", en: "Licensing service", ar: "خدمة الترخيص والتوثيق" },
+          { href: "/services/bp-housing-02", en: "Worker transport", ar: "نقل العمالة" },
+          { href: "/farina#workforce", en: "Workforce catering (Farina)", ar: "إعاشة العمالة (فارينا)" },
+        ],
+      },
+      {
         href: "/farina", en: "Catering & Hospitality", ar: "التموين والضيافة للشركات",
         sub: [
           { href: "/farina", en: "Overview", ar: "نظرة عامة" },
@@ -448,6 +460,7 @@ const NAV_GROUPS = [
           { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
           { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
           { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
+          { href: "/worker-housing", en: "Worker Housing", ar: "تسكين العمالة" },
         ],
       },
     ],
@@ -564,6 +577,7 @@ function footer() {
       ${fl("/deals", "Deals", "الصفقات")}
       ${fl("/mahfol-makfol", "Business Tourism", "سياحة الأعمال")}
       ${fl("/workspaces", "Business Spaces", "مساحات الأعمال")}
+      ${fl("/worker-housing", "Worker Housing", "تسكين العمالة")}
       ${fl("/farina", "Catering & Hospitality", "التموين والضيافة")}
     </ul></div>
     <div class="footer-col"><h4>${L("Platforms & portals", "المنصات والبوابات")}</h4><ul>
@@ -4310,12 +4324,132 @@ function buildFarina() {
   </div></section>
 
   <section class="section"><div class="container">
+    <div class="cta-band" style="margin-bottom:26px"><h2>${L("Feeding workers in collective housing?", "عمالتك في سكن جماعي؟")}</h2><p>${L("Pair workforce catering with our Worker Housing solution: licensed housing, Balady license, Civil Defense, transport — one contract.", "اجمع إعاشة العمالة مع حل تسكين العمالة: سكن مرخّص، رخصة بلدي، الدفاع المدني، ونقل يومي — بعقد واحد.")}</p><a class="btn btn-white btn-lg" href="${u("/worker-housing")}">🏠 ${L("Explore Worker Housing", "استعرض تسكين العمالة")}</a></div>
     <div class="cta-band"><h2>${L("Ready to start your establishment's hospitality program?", "جاهزين نبدأ برنامج الضيافة في منشأتكم؟")}</h2><p>${L("The smart agent replies instantly on WhatsApp and sets your next step.", "الوكيل الذكي يرد فوراً على واتساب ويحدد لك الخطوة التالية.")}</p>${waBtn2("Request a quote", "اطلب عرض سعر", "btn-white", true)}</div>
   </div></section>`;
   return page({
     title: Lraw("Catering & Hospitality for Companies — Farina × Business Partner", "التموين والضيافة للشركات — فارينا × بيزنس بارتنر"),
     desc: Lraw("Coffee breaks, staff meals and VIP hospitality for companies, government entities, hospitals, hotels, recruitment companies and contractors — one monthly contract.", "كوفي بريك، وجبات موظفين، وضيافة كبار الزوار للشركات والجهات الحكومية والمستشفيات والفنادق وشركات الاستقدام والمقاولات — بعقد شهري واحد."),
     active: "/farina", path: "/farina", body,
+  });
+}
+
+function buildWorkerHousing() {
+  const services = [
+    ["🏢", L("Ready licensed housing", "سكن جاهز ومرخّص"), L("Worker housing units compliant with MoMaH requirements, close to your project sites.", "وحدات سكن عمالة مطابقة لاشتراطات وزارة البلديات والإسكان، قريبة من مواقع مشاريعك.")],
+    ["📋", L("Licensing & attestation", "الترخيص والتوثيق"), L("Balady collective-housing license, Ejar contract attestation, Civil Defense certificate, and Muqeem address updates.", "رخصة السكن الجماعي من بلدي، توثيق عقد الإيجار في إيجار، شهادة الدفاع المدني، وتحديث عناوين العمالة في مقيم."), "/services/bp-housing-01", L("Service details →", "تفاصيل الخدمة ←")],
+    ["🛠️", L("Operations management", "إدارة وتشغيل السكن"), L("Housing supervisor, cleaning and maintenance, resident register, signage — everything inspection committees check.", "مشرف سكن، نظافة وصيانة دورية، سجل الساكنين، لوحات إرشادية، وكل متطلبات الجولات الرقابية.")],
+    ["🍽️", L("Catering — via Farina", "الإعاشة والتغذية — عبر فارينا"), L("Breakfast, lunch and dinner from Farina's licensed SFDA-compliant kitchen, rotating 4-week menu — from 8 SAR / worker / day.", "فطور وغداء وعشاء من مطبخ فارينا المرخّص والمطابق لاشتراطات SFDA، بقائمة متجددة بدورة 4 أسابيع — من 8 ريال / عامل / يوم."), "/farina#workforce", L("Workforce catering from Farina →", "خدمة إعاشة العمالة من فارينا ←")],
+    ["🚌", L("Worker transport", "نقل العمالة"), L("Daily transport between housing and work sites: licensed drivers, shift-based scheduling, one monthly contract.", "نقل يومي منظّم من السكن إلى مواقع العمل والعكس: سائقون مرخصون، جدولة حسب الورديات، وعقد شهري واحد."), "/services/bp-housing-02", L("Service details →", "تفاصيل الخدمة ←")],
+    ["🔔", L("Compliance monitoring", "مراقبة امتثال وتنبيهات"), L("Always ready for the quarterly inspection rounds, with alerts before every license, contract or certificate expires.", "جاهزية دائمة للجولات الرقابية الربع سنوية، وتنبيهات قبل انتهاء الرخص والعقود والشهادات.")],
+  ].map(([icon, title, desc, href, cta]) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${icon}</div><h3>${title}</h3><p>${desc}</p>${href ? `<a href="${u(href)}" style="display:inline-block;margin-top:10px;font-weight:600;color:var(--navy)">${cta}</a>` : ""}</div>`).join("");
+
+  const fines = [
+    [L("Operating collective housing without an operating license", "ممارسة نشاط السكن الجماعي دون ترخيص تشغيلي"), L("up to 10,000 SAR", "حتى 10,000 ريال"), L("Major — facility may be closed", "جسيمة — وقد تُغلق المنشأة")],
+    [L("No clinic/nurse for capacity above 1,000 workers", "عدم توفير عيادة/ممرض للسعة فوق 1000 فرد"), L("up to 8,000 SAR", "حتى 8,000 ريال"), L("Major", "جسيمة")],
+    [L("Violating the minimum area per worker in bedrooms", "عدم الالتزام بالمساحة المحددة للفرد في غرفة النوم"), L("up to 5,000 SAR", "حتى 5,000 ريال"), L("Major", "جسيمة")],
+    [L("Bathrooms below minimum (toilet + sink + shower per 8 workers)", "دورات مياه أقل من الحد الأدنى (مرحاض + مغسلة + استحمام لكل 8 أفراد)"), L("up to 5,000 SAR", "حتى 5,000 ريال"), L("Major", "جسيمة")],
+    [L("Exceeding licensed capacity", "تجاوز الطاقة الاستيعابية المحددة في الرخصة"), L("up to 5,000 SAR", "حتى 5,000 ريال"), L("Major", "جسيمة")],
+    [L("No air conditioning and heating in bedrooms", "عدم توفر تكييف وتدفئة في غرف النوم"), L("up to 4,000 SAR", "حتى 4,000 ريال"), L("Major", "جسيمة")],
+    [L("No resident register and medical insurance per resident", "عدم توفر سجل ساكنين وتأمين طبي لكل ساكن"), L("up to 4,000 SAR", "حتى 4,000 ريال"), L("Major", "جسيمة")],
+    [L("Not separating women's housing from men's", "عدم فصل سكن النساء عن سكن الرجال"), L("up to 3,000 SAR", "حتى 3,000 ريال"), L("Major", "جسيمة")],
+    [L("No equipped isolation room for sick residents", "عدم توفر غرفة عزل مجهزة للحالات المرضية"), L("up to 3,000 SAR", "حتى 3,000 ريال"), L("Major", "جسيمة")],
+    [L("No bed and wardrobe per worker", "عدم توفير سرير وخزانة ملابس لكل فرد"), L("up to 2,000 SAR", "حتى 2,000 ريال"), L("Major", "جسيمة")],
+  ].map(([v, a, c]) => `<tr><td style="padding:10px 14px;border-bottom:1px solid var(--gray-line)">${v}</td><td style="padding:10px 14px;border-bottom:1px solid var(--gray-line);font-weight:700;color:#b3261e;white-space:nowrap">${a}</td><td style="padding:10px 14px;border-bottom:1px solid var(--gray-line)">${c}</td></tr>`).join("");
+
+  const facts = [
+    [L("20+ workers", "20+ فرد"), L("counts as collective housing and requires an operating license", "يُصنَّف سكناً جماعياً ويلزمه ترخيص تشغيلي")],
+    [L("4 ministries", "4 وزارات"), L("permanent committees inspect worker housing (MoMaH, Interior, Health, HR)", "لجان رقابية دائمة تفتش على سكن العمالة")],
+    [L("Every quarter", "كل ربع سنة"), L("a scheduled inspection round for every housing license", "جولة رقابية مجدولة لكل رخصة سكن")],
+    [L("Ewaa platform", "منصة إيفاء"), L("violations are logged electronically; fines double on repeat", "المخالفات تُسجل إلكترونياً وتتضاعف الغرامة عند التكرار")],
+  ].map(([b, s]) => `<div class="card"><h3 style="color:var(--navy)">${b}</h3><p>${s}</p></div>`).join("");
+
+  const steps = [
+    [L("Send your request", "ترسل طلبك"), L("Fill the form with your city, worker count and needs — or message us on WhatsApp.", "تعبّئ النموذج: المدينة، عدد العمالة، ومتطلباتك — أو تكلمنا واتساب مباشرة.")],
+    [L("We shortlist options", "نرشّح لك الخيارات"), L("Licensed, compliant units near your project, with a clear quote.", "وحدات سكن مرخصة ومطابقة قريبة من مشروعك، مع عرض سعر واضح.")],
+    [L("We handle all paperwork", "نجهّز كل الأوراق"), L("Operating license, Ejar attestation, Civil Defense, and Muqeem address updates — all on us.", "الترخيص التشغيلي، توثيق إيجار، الدفاع المدني، وتحديث عناوين العمالة في مقيم — كلها علينا.")],
+    [L("Move in & ongoing follow-up", "تسكين ومتابعة مستمرة"), L("Your workers move into ready housing; we track operations, compliance and renewals all year.", "عمالتك تنتقل لسكن جاهز، واحنا نتابع التشغيل والامتثال والتجديدات طول السنة.")],
+  ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
+
+  const cities = ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الظهران", "بريدة", "أبها", "تبوك", "حائل", "جازان", "نجران", "الطائف", "الهفوف", "ينبع", "الجبيل"]
+    .map((c) => `<span class="chip">📍 ${c}</span>`).join("");
+
+  const reqTypes = [["Ready housing (rent)", "سكن جاهز (إيجار)"], ["License my existing housing", "ترخيص وتوثيق سكن حالي"], ["Housing + catering + transport", "سكن + إعاشة + نقل"], ["Operate an existing housing", "إدارة وتشغيل سكن قائم"], ["Consultation / not sure", "استشارة / غير محدد"]]
+    .map((t) => `<option value="${t[1]}">${L(t[0], t[1])}</option>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Worker Housing", "تسكين العمالة")}</span>
+    <h1>${L("House your workers in ready, licensed housing — we handle every procedure", "سكّن عمالتك في سكن جاهز ومرخّص… من غير ما تشيل هم أي إجراء")}</h1>
+    <p class="lead">${L("A complete worker-housing solution: units compliant with MoMaH requirements, plus the operating license, attestation, operations and catering — every government step on us.", "حل تسكين العمالة كاملاً: وحدات مطابقة لاشتراطات وزارة البلديات والإسكان، مع الترخيص التشغيلي والتوثيق والإدارة والإعاشة — وكل إجراء حكومي علينا.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#wh-request">${I.check}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a>${waBtn2("WhatsApp us", "كلمنا واتساب", "btn-wa", true)}</div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Licensed units across the Kingdom", "وحدات مرخصة في مدن المملكة")}</span>
+      <span class="hero-badge">${I.check}${L("Balady + Ejar + Civil Defense + Muqeem", "بلدي + إيجار + الدفاع المدني + مقيم")}</span>
+      <span class="hero-badge">${I.check}${L("Always inspection-ready", "جاهزية دائمة للجولات الرقابية")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("One place", "في مكان واحد")}</span><h2>${L("Everything worker housing needs", "كل احتياجات تسكين العمالة")}</h2><p>${L("Pick what you need — housing, licensing, operations, catering, transport — and we execute.", "تختار اللي تحتاجه — سكن، ترخيص، تشغيل، إعاشة، نقل — واحنا نتولى التنفيذ.")}</p></div>
+    <div class="grid grid-3">${services}</div>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Housing + Catering + Transport — one contract", "سكن + إعاشة + نقل — بعقد واحد")}</h2><p>${L("The full bundle: licensed housing, three daily meals from Farina's licensed kitchen, and daily transport to your sites — one monthly invoice.", "الباقة الكاملة: سكن مرخّص، وثلاث وجبات يومياً من مطبخ فارينا المرخّص، ونقل يومي لمواقعك — بفاتورة شهرية واحدة.")}</p><a class="btn btn-white btn-lg" href="#wh-request">${L("Request the full bundle", "اطلب الباقة الكاملة")}</a></div>
+  </div></section>
+
+  <section class="section" id="wh-fines"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("The regulations", "وش يقول النظام؟")}</span><h2>${L("Why random housing became a real risk", "ليش السكن العشوائي صار مخاطرة")}</h2><p>${L("From MoMaH's supervision guide for collective housing (ministerial decision 4600218548/1 — 1446H / 2025):", "من الدليل الاسترشادي لإجراءات الرقابة على السكن الجماعي للأفراد (قرار وزاري 4600218548/1 — 1446هـ / 2025م):")}</p></div>
+    <div class="grid grid-4" style="margin-bottom:28px">${facts}</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:640px;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)">
+      <thead><tr>
+        <th style="background:var(--navy);color:var(--white);padding:12px 14px;text-align:start">${L("Violation", "المخالفة")}</th>
+        <th style="background:var(--navy);color:var(--white);padding:12px 14px;text-align:start">${L("Fine (Category-1 cities)", "الغرامة (الفئة الأولى)")}</th>
+        <th style="background:var(--navy);color:var(--white);padding:12px 14px;text-align:start">${L("Class", "التصنيف")}</th>
+      </tr></thead>
+      <tbody>${fines}</tbody>
+    </table></div>
+    <p class="text-soft" style="font-size:.9rem;margin-top:10px">${L("Source: MoMaH supervision guide (momah.gov.sa). Fines scale by municipality category and double on repeat.", "المصدر: الدليل الاسترشادي — وزارة البلديات والإسكان (momah.gov.sa). الغرامات تتدرج حسب تصنيف الأمانة وتتضاعف عند التكرار.")}</p>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف نشتغل؟")}</span><h2>${L("Four steps to fully compliant housing", "أربع خطوات من الطلب إلى تسكين نظامي 100%")}</h2></div>
+    <div class="steps-grid">${steps}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Coverage", "التغطية")}</span><h2>${L("We cover the Kingdom's cities", "نغطي مدن المملكة")}</h2></div>
+    <div class="svc-meta">${cities}</div>
+  </div></section>
+
+  <section class="section section--gray" id="wh-request"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Request housing", "اطلب سكن لعمالتك")}</span><h2>${L("Send your request — quote within one working day", "أرسل طلبك — عرض سعر خلال يوم عمل")}</h2></div>
+    <form id="wh-form" novalidate style="max-width:840px;margin:0 auto">
+      <div class="join-grid">
+        <div class="field"><label for="wh-company">${L("Company name", "اسم المنشأة")} *</label><input type="text" id="wh-company" required></div>
+        <div class="field"><label for="wh-phone">${L("Mobile / WhatsApp", "الجوال / واتساب")} *</label><input type="tel" id="wh-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
+        <div class="field"><label for="wh-city">${L("City", "المدينة")} *</label><input type="text" id="wh-city" required placeholder="${Lraw("e.g. Riyadh", "مثال: الرياض")}"></div>
+        <div class="field"><label for="wh-count">${L("Worker count", "عدد العمالة")} *</label><input type="number" id="wh-count" min="1" inputmode="numeric" placeholder="${Lraw("e.g. 50", "مثال: 50")}" required></div>
+        <div class="field"><label for="wh-type">${L("Request type", "نوع الطلب")}</label><select id="wh-type">${reqTypes}</select></div>
+        <div class="field"><label for="wh-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="wh-email" placeholder="name@company.com"></div>
+        <div class="field field-full"><label for="wh-notes">${L("Notes (duration, preferred district, special requirements…)", "ملاحظات (المدة، الموقع المفضل، متطلبات خاصة…)")}</label><textarea id="wh-notes" rows="3"></textarea></div>
+      </div>
+      <div class="join-actions">
+        <button type="submit" class="btn btn-primary btn-lg" id="wh-submit">${L("Send request", "أرسل الطلب")}</button>
+        <p class="emp-note">${L("Your data is protected and used only to prepare your quote. We never ask for passwords or OTP codes.", "بياناتك محمية وتُستخدم لتجهيز عرضك فقط. لا نطلب كلمات مرور أو رموز OTP.")}</p>
+      </div>
+      <div class="form-success" hidden id="wh-result"></div>
+    </form>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="cta-band"><h2>${L("Ready to house your workers the compliant way?", "جاهز تسكّن عمالتك بشكل نظامي؟")}</h2><p>${L("The smart agent replies instantly on WhatsApp and sets your next step.", "الوكيل الذكي يرد فوراً على واتساب ويحدد لك الخطوة التالية.")}</p>${waBtn2("WhatsApp us", "كلمنا واتساب", "btn-white", true)}</div>
+  </div></section>`;
+
+  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
+
+  return page({
+    title: Lraw("Worker Housing — licensed housing, licensing & operations | Business Partner", "تسكين العمالة — سكن مرخّص وترخيص وتشغيل | بيزنس بارتنر"),
+    desc: Lraw("Ready licensed worker housing + Balady license, Ejar attestation, Civil Defense, Muqeem updates, catering and transport — fully compliant with MoMaH's collective housing regulations.", "سكن عمالة جاهز ومرخّص + رخصة بلدي وتوثيق إيجار والدفاع المدني وتحديث مقيم وإعاشة ونقل — متوافق مع اشتراطات وزارة البلديات والإسكان للسكن الجماعي."),
+    active: "/worker-housing", path: "/worker-housing", body, script,
   });
 }
 
@@ -7453,6 +7587,7 @@ function writeFullSite(pre) {
   write(`${pre}workspaces.html`, buildWorkspaces());
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
   write(`${pre}farina.html`, buildFarina());
+  write(`${pre}worker-housing.html`, buildWorkerHousing());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
   write(`${pre}installments.html`, buildInstallments());
@@ -7522,7 +7657,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
