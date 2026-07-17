@@ -3849,6 +3849,22 @@ function buildEmployerLogin() {
   return page({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
 }
 
+// A dedicated, full page for one candidate (instead of the old in-modal
+// preview) — content is filled client-side from /api/candidates?id=… by the
+// #cp-app IIFE in main.js, laid out like a profile page (header, badges,
+// skills, full CV) rather than a raw field dump.
+function buildCandidateProfile() {
+  const body = `
+  <section class="section" style="padding-top:26px"><div class="container" style="max-width:780px">
+    <a class="back-link" href="${u("/employer-dashboard")}">${I.arrow} ${L("Back to dashboard", "رجوع للوحة التوظيف")}</a>
+    <div id="cp-app" style="margin-top:18px">
+      <p class="emp-note" id="cp-status" style="text-align:center;padding:60px 0">${L("Loading candidate…", "جارٍ تحميل بيانات المرشّح…")}</p>
+    </div>
+  </div></section>
+  <script>window.BP_EMP_LANG=${JSON.stringify(LANG)};</script>`;
+  return page({ title: Lraw("Candidate profile — Business Partner", "الملف الشخصي للمرشّح — بيزنس بارتنر"), desc: Lraw("Full candidate profile — experience, education, skills and CV.", "الملف الشخصي الكامل للمرشّح — الخبرة والتعليم والمهارات والسيرة الذاتية."), active: "/employers", path: "/candidate-profile", body });
+}
+
 function buildNewsletter() {
   const perks = [
     ["🗞️", L("Weekly compliance & regulatory digest", "نشرة أسبوعية للامتثال والأنظمة"), L("Every Sunday: government decisions and regulatory news that matter for companies across every sector — MISA, HRSD, ZATCA, GOSI, Qiwa, Mudad and more.", "كل أحد: قرارات حكومية وأخبار تنظيمية تهم الشركات في جميع القطاعات — الاستثمار، الموارد البشرية، الزكاة والضريبة، التأمينات، قوى، مدد وغيرها.")],
@@ -7727,6 +7743,7 @@ function writeFullSite(pre) {
   write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
   write(`${pre}employer-login.html`, buildEmployerLogin());
+  write(`${pre}candidate-profile.html`, buildCandidateProfile());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
   write(`${pre}portal/index.html`, buildPortalHome());
   write(`${pre}portal/join.html`, buildPortalJoin());
