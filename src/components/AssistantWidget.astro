@@ -1,7 +1,9 @@
 ---
 // ودجت "اسأل خالد" — مساعد محادثة داخل الصفحة على طريقة "اسأل أمين" في التأمينات،
 // لكن بهوية شريك الأعمال. زر عائم بشخصية خالد يفتح نافذة محادثة متصلة بوكيل n8n.
+// الشخصية متحركة (رمش وإيماءة) وتنطق ردودها صوتياً مع تحريك الفم أثناء الكلام.
 import type { Language } from '../utils/i18n';
+import KhaledAvatar from './KhaledAvatar.astro';
 
 interface Props {
   lang?: Language;
@@ -35,6 +37,7 @@ const STRINGS = {
       'خالد مشغول شوي الحين 😅 جرّب بعد دقائق، أو تواصل معنا مباشرة على 0503793356.',
     netError: 'تعذّر الاتصال حالياً. تأكد من الإنترنت وحاول مرة ثانية.',
     footNote: 'مدعوم بالذكاء الاصطناعي — الإجابات استرشادية',
+    ttsLabel: 'صوت خالد',
   },
   en: {
     fabLabel: 'Ask Khaled',
@@ -58,6 +61,7 @@ const STRINGS = {
       'Khaled is a bit busy right now 😅 Please try again in a few minutes, or call us directly at +966 50 379 3356.',
     netError: 'Connection failed. Check your internet and try again.',
     footNote: 'AI-powered — answers are for guidance',
+    ttsLabel: "Khaled's voice",
   },
 } as const;
 
@@ -74,20 +78,30 @@ const t = STRINGS[lang] ?? STRINGS.ar;
   <!-- الزر العائم -->
   <button class="bpw-fab" id="bpwFab" aria-label={t.fabAria} aria-expanded="false" aria-controls="bpwPanel">
     <span class="bpw-fab-avatar">
-      <img src="/khaled-avatar.svg" alt="" width="60" height="60" loading="lazy" />
+      <KhaledAvatar uid="fab" size={56} />
       <span class="bpw-online-dot" aria-hidden="true"></span>
     </span>
     <span class="bpw-fab-label">{t.fabLabel}</span>
   </button>
 
   <!-- نافذة المحادثة -->
-  <section class="bpw-panel" id="bpwPanel" hidden aria-label={t.fabLabel}>
+  <section class="bpw-panel" id="bpwPanel" hidden role="dialog" aria-label={t.fabLabel}>
     <header class="bpw-head">
-      <img class="bpw-head-avatar" src="/khaled-avatar.svg" alt="" width="44" height="44" />
+      <span class="bpw-head-avatar">
+        <KhaledAvatar uid="head" size={44} />
+      </span>
       <div class="bpw-head-info">
         <strong>{t.name}</strong>
         <span><i class="bpw-online" aria-hidden="true"></i>{t.role}</span>
       </div>
+      <button class="bpw-ic" id="bpwTts" aria-pressed="true" title={t.ttsLabel} aria-label={t.ttsLabel}>
+        <svg class="bpw-tts-on" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z" />
+        </svg>
+        <svg class="bpw-tts-off" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <path d="M16.5 12a4.5 4.5 0 0 0-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.9 8.9 0 0 0 21 12a9 9 0 0 0-7-8.77v2.06A7 7 0 0 1 19 12zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25a6.9 6.9 0 0 1-2.25 1.16v2.06a8.9 8.9 0 0 0 3.69-1.81L19.73 21 21 19.73 4.27 3zM12 4 9.91 6.09 12 8.18V4z" />
+        </svg>
+      </button>
       <a class="bpw-ic" href="/voice" title={t.voiceTitle} aria-label={t.voiceTitle}>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
           <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z" />
@@ -128,7 +142,7 @@ const t = STRINGS[lang] ?? STRINGS.ar;
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
-    z-index: 999;
+    z-index: 1001; /* فوق هيدر الموقع الثابت (z-index: 1000) */
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -167,13 +181,12 @@ const t = STRINGS[lang] ?? STRINGS.ar;
     height: 56px;
     flex: none;
   }
-  .bpw-fab-avatar img {
+  .bpw-fab-avatar .bpw-avatar {
     width: 100%;
     height: 100%;
     display: block;
     border-radius: 50%;
-    background: #fff;
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
   }
   .bpw-fab-avatar::after {
     content: '';
@@ -263,9 +276,62 @@ const t = STRINGS[lang] ?? STRINGS.ar;
   .bpw-head-avatar {
     width: 44px;
     height: 44px;
-    border-radius: 50%;
-    background: #fff;
     flex: none;
+  }
+  .bpw-head-avatar .bpw-avatar {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+  }
+
+  /* ————— حركة الشخصية ————— */
+  .bpw-avatar .av-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: bpw-eyeblink 4.4s infinite;
+  }
+  /* اسم مختلف عن bpw-blink حقّت نقاط الكتابة — التكرار يلغي الرمش */
+  @keyframes bpw-eyeblink {
+    0%, 93%, 100% { transform: scaleY(1); }
+    95.5%, 97.5% { transform: scaleY(0.08); }
+  }
+  .bpw-avatar .av-head {
+    transform-box: fill-box;
+    transform-origin: 50% 80%;
+  }
+  .bpw-fab .bpw-avatar .av-head {
+    animation: bpw-bob 3.8s ease-in-out infinite;
+  }
+  @keyframes bpw-bob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    28% { transform: translateY(-1.6px) rotate(-1.8deg); }
+    62% { transform: translateY(0.5px) rotate(1.4deg); }
+  }
+  .bpw-avatar .av-mouth-open {
+    transform-box: fill-box;
+    transform-origin: 50% 15%;
+    transform: scaleY(0.25);
+  }
+  .bpw-talking .bpw-avatar .av-mouth-smile { opacity: 0; }
+  .bpw-talking .bpw-avatar .av-mouth-open {
+    opacity: 1;
+    animation: bpw-talk 0.3s ease-in-out infinite alternate;
+  }
+  @keyframes bpw-talk {
+    from { transform: scaleY(0.25); }
+    to { transform: scaleY(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bpw-avatar .av-eyes,
+    .bpw-fab .bpw-avatar .av-head,
+    .bpw-talking .bpw-avatar .av-mouth-open {
+      animation: none;
+    }
+    /* بدون الأنيميشن تصير الهالة حلقة ثابتة دائمة — نخفيها بالكامل */
+    .bpw-fab-avatar::after { display: none; }
+    .bpw-talking .bpw-avatar .av-mouth-open { transform: scaleY(0.7); }
   }
   .bpw-head-info {
     display: flex;
@@ -309,6 +375,11 @@ const t = STRINGS[lang] ?? STRINGS.ar;
     transition: background 0.2s ease;
   }
   .bpw-ic:hover { background: rgba(255, 255, 255, 0.28); }
+  .bpw-ic[hidden] { display: none; }
+  #bpwTts .bpw-tts-off { display: none; }
+  #bpwTts.bpw-muted .bpw-tts-on { display: none; }
+  #bpwTts.bpw-muted .bpw-tts-off { display: block; }
+  #bpwTts.bpw-muted { opacity: 0.75; }
 
   .bpw-log {
     flex: 1;
@@ -460,7 +531,7 @@ const t = STRINGS[lang] ?? STRINGS.ar;
   }
 </style>
 
-<script is:inline define:vars={{ WEBHOOK_URL, welcome: t.welcome, busyError: t.busyError, netError: t.netError }}>
+<script is:inline define:vars={{ WEBHOOK_URL, LANG: lang, welcome: t.welcome, busyError: t.busyError, netError: t.netError }}>
   (function () {
     const root = document.getElementById('bpw');
     if (!root || root.dataset.ready) return;
@@ -476,14 +547,122 @@ const t = STRINGS[lang] ?? STRINGS.ar;
     const closeBtn = document.getElementById('bpwClose');
     const teaser = document.getElementById('bpwTeaser');
     const teaserClose = document.getElementById('bpwTeaserClose');
+    const ttsBtn = document.getElementById('bpwTts');
 
     let busy = false;
 
+    // ————— نطق الردود وتحريك الفم —————
+    const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
+    let ttsOn = true;
+    let ttsUnlocked = false;
+    let talkTimer = null;
+    let utterQueue = []; // مراجع الأجزاء النشطة: تمنع أحداث أجزاء ملغاة من العبث بالحالة، وتمنع كروم من إسقاط الأحداث بعد GC
+    try { ttsOn = (localStorage.getItem('bp_tts') || '1') === '1'; } catch (_) {}
+    if (!synth) ttsBtn.hidden = true;
+
+    function updateTtsBtn() {
+      ttsBtn.setAttribute('aria-pressed', String(ttsOn));
+      ttsBtn.classList.toggle('bpw-muted', !ttsOn);
+    }
+    updateTtsBtn();
+
+    function startTalk() { root.classList.add('bpw-talking'); }
+    function stopTalk() {
+      root.classList.remove('bpw-talking');
+      if (talkTimer) { clearTimeout(talkTimer); talkTimer = null; }
+    }
+    function pulseTalk(ms) {
+      startTalk();
+      if (talkTimer) clearTimeout(talkTimer);
+      talkTimer = setTimeout(stopTalk, ms);
+    }
+    function stopSpeech() {
+      utterQueue = [];
+      if (synth) { try { synth.cancel(); } catch (_) {} }
+      stopTalk();
+    }
+
+    // iOS يتطلب أول نطق داخل إيماءة مستخدم — نطق صامت لفتح القفل
+    function unlockTts() {
+      if (ttsUnlocked || !synth || !ttsOn) return;
+      ttsUnlocked = true;
+      try {
+        const u = new SpeechSynthesisUtterance(' ');
+        u.volume = 0;
+        synth.speak(u);
+      } catch (_) {}
+    }
+
+    ttsBtn.addEventListener('click', function () {
+      ttsOn = !ttsOn;
+      try { localStorage.setItem('bp_tts', ttsOn ? '1' : '0'); } catch (_) {}
+      if (ttsOn) unlockTts(); // ضغطة التشغيل إيماءة مستخدم — تفك قفل iOS
+      else stopSpeech();
+      updateTtsBtn();
+    });
+
+    function speak(text) {
+      if (!ttsOn) return; // المستخدم كاتم الصوت: لا نطق ولا تحريك فم
+      // تقدير مدة تحريك الفم في حال ما توفر النطق الفعلي
+      const est = Math.min(9000, Math.max(2200, text.length * 60));
+      if (!synth) { pulseTalk(Math.min(4000, est)); return; }
+      try {
+        stopSpeech();
+        const clean = text
+          .replace(/https?:\/\/\S+/g, ' ')
+          .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (!clean) { pulseTalk(2500); return; }
+        // تقسيم لجُمل قصيرة: كروم يوقف الأصوات السحابية بعد ~15 ثانية للجملة الواحدة
+        const parts = (clean.match(/[^.!?؟…]+[.!?؟…]*\s*/g) || [clean])
+          .flatMap(function (s) {
+            return s.length > 180 ? (s.match(/.{1,180}(?:\s|$)/g) || [s]) : [s];
+          })
+          .map(function (s) { return s.trim(); })
+          .filter(Boolean);
+        const voices = synth.getVoices();
+        const v = voices.find(function (vc) {
+          return vc.lang && vc.lang.toLowerCase().indexOf(LANG === 'ar' ? 'ar' : 'en') === 0;
+        });
+        const last = parts.length - 1;
+        let started = false; // هل بدأ نطق فعلي؟ لو لا، نخلي الحركة الاحتياطية تكمل مدتها
+        parts.forEach(function (part, i) {
+          const u = new SpeechSynthesisUtterance(part);
+          u.lang = LANG === 'ar' ? 'ar-SA' : 'en-US';
+          if (v) u.voice = v;
+          u.rate = 1;
+          u.pitch = 1;
+          u.onstart = function () {
+            if (utterQueue.indexOf(u) === -1) return; // جزء ملغى — تجاهله
+            started = true;
+            if (talkTimer) clearTimeout(talkTimer);
+            startTalk();
+            talkTimer = setTimeout(stopTalk, 60000); // سقف أمان لو ضاعت الأحداث
+          };
+          u.onend = u.onerror = function () {
+            if (utterQueue.indexOf(u) === -1) return;
+            if (i === last) {
+              utterQueue = [];
+              if (started) stopTalk();
+            }
+          };
+          utterQueue.push(u);
+          synth.speak(u);
+        });
+        // احتياط: لو ما بدأ النطق إطلاقاً (ما فيه أصوات متاحة) يتحرك الفم فترة مناسبة ثم يتوقف
+        pulseTalk(est);
+      } catch (_) {
+        pulseTalk(3000);
+      }
+    }
+
     // جلسة ثابتة لذاكرة الوكيل + حفظ المحادثة أثناء التنقل بين الصفحات
-    let sid = sessionStorage.getItem('bp_chat_sid');
+    let sid = null;
+    try { sid = sessionStorage.getItem('bp_chat_sid'); } catch (_) {}
     if (!sid) {
       sid = 'chat-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
-      sessionStorage.setItem('bp_chat_sid', sid);
+      try { sessionStorage.setItem('bp_chat_sid', sid); } catch (_) {}
     }
 
     function loadHistory() {
@@ -518,18 +697,34 @@ const t = STRINGS[lang] ?? STRINGS.ar;
     }
     render();
 
+    // على الجوال النافذة تغطي الشاشة: نعزل بقية الصفحة عن التركيز وقارئ الشاشة (inert)
+    const fullscreenMq = window.matchMedia('(max-width: 540px)');
+    function syncModal() {
+      const modal = !panel.hidden && fullscreenMq.matches;
+      panel.setAttribute('aria-modal', String(modal));
+      for (const el of document.body.children) {
+        if (el !== root) el.inert = modal;
+      }
+    }
+    if (fullscreenMq.addEventListener) fullscreenMq.addEventListener('change', syncModal);
+
     function openPanel() {
       panel.hidden = false;
       root.classList.add('bpw-open');
       fab.setAttribute('aria-expanded', 'true');
       hideTeaser();
+      syncModal();
       log.scrollTop = log.scrollHeight;
       setTimeout(function () { input.focus(); }, 60);
     }
     function closePanel() {
+      const hadFocus = panel.contains(document.activeElement);
       panel.hidden = true;
       root.classList.remove('bpw-open');
       fab.setAttribute('aria-expanded', 'false');
+      syncModal();
+      stopSpeech();
+      if (hadFocus) fab.focus(); // بعد إزالة bpw-open حتى يكون الزر ظاهراً
     }
 
     // فقاعة الترحيب: مرة واحدة لكل جلسة تصفح
@@ -537,7 +732,9 @@ const t = STRINGS[lang] ?? STRINGS.ar;
       teaser.hidden = true;
       try { sessionStorage.setItem('bp_teaser_seen', '1'); } catch (_) {}
     }
-    if (!sessionStorage.getItem('bp_teaser_seen') && history.length === 0) {
+    let teaserSeen = false;
+    try { teaserSeen = !!sessionStorage.getItem('bp_teaser_seen'); } catch (_) {}
+    if (!teaserSeen && history.length === 0) {
       setTimeout(function () {
         if (panel.hidden) teaser.hidden = false;
       }, 4000);
@@ -599,6 +796,7 @@ const t = STRINGS[lang] ?? STRINGS.ar;
           addMsg(busyError, 'bot err', false);
         } else {
           addMsg(reply, 'bot', true);
+          if (!panel.hidden) speak(reply); // لو أغلق المستخدم النافذة قبل وصول الرد لا ننطقه
         }
       } catch (err) {
         thinking.remove();
@@ -612,6 +810,7 @@ const t = STRINGS[lang] ?? STRINGS.ar;
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      unlockTts();
       const v = input.value;
       input.value = '';
       send(v);
@@ -619,7 +818,10 @@ const t = STRINGS[lang] ?? STRINGS.ar;
 
     chips.addEventListener('click', function (e) {
       const btn = e.target.closest('.bpw-chip');
-      if (btn) send(btn.dataset.q || btn.textContent);
+      if (btn) {
+        unlockTts();
+        send(btn.dataset.q || btn.textContent);
+      }
     });
   })();
 </script>

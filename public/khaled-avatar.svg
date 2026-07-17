@@ -1,88 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="المساعد الذكي">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
   <defs>
-    <linearGradient id="bpwBg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0a84e8"/>
       <stop offset="1" stop-color="#0057ad"/>
     </linearGradient>
-    <!-- نقشة الشماغ الأحمر -->
-    <pattern id="bpwSh" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="5" height="5" fill="#f7f2ef"/>
-      <rect width="2.5" height="2.5" fill="#c8102e"/>
-      <rect x="2.5" y="2.5" width="2.5" height="2.5" fill="#c8102e"/>
+    <pattern id="shPat" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="4" height="4" fill="#f7f2f0"/>
+      <rect width="2" height="2" fill="#d92040"/>
+      <rect x="2" y="2" width="2" height="2" fill="#d92040"/>
     </pattern>
-    <clipPath id="bpwClip"><circle cx="60" cy="60" r="58"/></clipPath>
+    <clipPath id="clip"><circle cx="60" cy="60" r="58"/></clipPath>
   </defs>
 
-  <circle cx="60" cy="60" r="58" fill="url(#bpwBg)"/>
+  <circle cx="60" cy="60" r="58" fill="url(#bg)"/>
 
-  <g clip-path="url(#bpwClip)">
-    <!-- الشماغ: الطرفان الجانبيان خلف الرأس -->
-    <path d="M34 44 Q25 80 32 106 L54 106 L47 64 Z" fill="url(#bpwSh)" stroke="#e5d8d2" stroke-width="0.8"/>
-    <path d="M86 44 Q95 80 88 106 L66 106 L73 64 Z" fill="url(#bpwSh)" stroke="#e5d8d2" stroke-width="0.8"/>
+  <g clip-path="url(#clip)">
+    <!-- neck + thobe -->
+    <path d="M52 70 h16 v18 q-8 7 -16 0 Z" fill="#e0a274"/>
+    <path d="M52 72 h16 v5 q-8 4 -16 0 Z" fill="#c98a5c" opacity="0.55"/>
+    <path d="M13 121 Q15 96 38 90 Q48 87.4 52 87 L60 95 L68 87 Q72 87.4 82 90 Q105 96 107 121 Z" fill="#fcfbf8"/>
+    <path d="M31 121 Q32 105 37 97" fill="none" stroke="#e6e2d8" stroke-width="1"/>
+    <path d="M89 121 Q88 105 83 97" fill="none" stroke="#e6e2d8" stroke-width="1"/>
+    <path d="M52 84.5 L60 92 L58.6 95.4 L50.2 88.2 Q50.7 85.7 52 84.5 Z" fill="#ffffff" stroke="#ddd8cc" stroke-width="0.8"/>
+    <path d="M68 84.5 L60 92 L61.4 95.4 L69.8 88.2 Q69.3 85.7 68 84.5 Z" fill="#ffffff" stroke="#ddd8cc" stroke-width="0.8"/>
+    <circle cx="60" cy="97" r="1.5" fill="#eae6dc" stroke="#cfc9bb" stroke-width="0.6"/>
 
-    <!-- الثوب الأبيض -->
-    <path d="M12 122 Q16 92 44 87 L60 94 L76 87 Q104 92 108 122 Z" fill="#fbfbf9"/>
-    <path d="M12 122 Q16 92 44 87 L60 94 L76 87 Q104 92 108 122" fill="none" stroke="#e3e1da" stroke-width="1"/>
-    <!-- الياقة -->
-    <path d="M49 85 L60 96 L71 85 L71 92 L60 102 L49 92 Z" fill="#ffffff" stroke="#dcd9d0" stroke-width="1"/>
-    <!-- الزر الذهبي -->
-    <circle cx="60" cy="103" r="1.8" fill="#c9a227"/>
+    <g class="av-head">
+      <!-- shemagh drapes -->
+      <path d="M38.5 36 Q28 54 26.8 78 Q26.2 95 29.5 110 L53 110 Q49.6 86 48.2 62 Q47.4 46 42.5 38 Z" fill="url(#shPat)" stroke="#e9dcd6" stroke-width="0.8"/>
+      <path d="M33 48 Q30.6 72 30.8 98" fill="none" stroke="#9c1c2e" stroke-width="2" opacity="0.25"/>
+      <path d="M48.2 62 Q49.6 86 53 110 L47.6 110 Q44.6 86 43.4 62 Q45.8 60.8 48.2 62 Z" fill="#f7f2f0"/>
+      <path d="M45.9 65 L48 70 L45.5 75 L48.4 80 L46 85 L48.9 90 L46.5 95 L49.4 100 L47 105 L49.8 110" fill="none" stroke="#d92040" stroke-width="1.1"/>
+      <path d="M81.5 36 Q92 54 93.2 78 Q93.8 95 90.5 110 L67 110 Q70.4 86 71.8 62 Q72.6 46 77.5 38 Z" fill="url(#shPat)" stroke="#e9dcd6" stroke-width="0.8"/>
+      <path d="M77 44 Q73.8 70 71.4 96 Q74 96 76 94 Q78.2 68 80.5 46 Z" fill="#9c1c2e" opacity="0.22"/>
+      <path d="M85 48 Q86.6 74 85.8 100" fill="none" stroke="#f7f2f0" stroke-width="1.4" opacity="0.6"/>
 
-    <!-- الرقبة -->
-    <path d="M52 72 h16 v13 l-8 9 -8 -9 Z" fill="#e2a878"/>
+      <!-- ears + face -->
+      <ellipse cx="40" cy="58.5" rx="3.4" ry="5.4" fill="#e5ab79"/>
+      <ellipse cx="80" cy="58.5" rx="3.4" ry="5.4" fill="#e5ab79"/>
+      <path d="M39.4 57 Q40.6 58.5 39.8 60.4" fill="none" stroke="#c98a5c" stroke-width="1"/>
+      <path d="M80.6 57 Q79.4 58.5 80.2 60.4" fill="none" stroke="#c98a5c" stroke-width="1"/>
+      <path d="M60 35.5 Q79 35.5 80 54 Q80.6 66 73.5 73.5 Q67.5 79.5 60 79.5 Q52.5 79.5 46.5 73.5 Q39.4 66 40 54 Q41 35.5 60 35.5 Z" fill="#eeb98a"/>
+      <ellipse cx="46.8" cy="65" rx="3" ry="2" fill="#e59a6b" opacity="0.35"/>
+      <ellipse cx="73.2" cy="65" rx="3" ry="2" fill="#e59a6b" opacity="0.35"/>
+      <path d="M44 42.6 Q52 40.6 55.5 42.1 L60 46.4 L64.5 42.1 Q68 40.6 76 42.6" fill="none" stroke="#d89a67" stroke-width="1.5" opacity="0.35"/>
 
-    <!-- الوجه -->
-    <ellipse cx="60" cy="55" rx="20.5" ry="22" fill="#f2bd8d"/>
-    <!-- الأذنان -->
-    <ellipse cx="39.5" cy="57" rx="3.5" ry="5" fill="#e2a878"/>
-    <ellipse cx="80.5" cy="57" rx="3.5" ry="5" fill="#e2a878"/>
+      <!-- goatee -->
+      <path fill-rule="evenodd" fill="#1f1a16" d="M48.4 64 Q52 60.4 60 60.9 Q68 60.4 71.6 64 Q73.3 68.5 73.6 72.4 Q74 78.6 68.8 81.4 Q64.6 83.6 60 83.6 Q55.4 83.6 51.2 81.4 Q46 78.6 46.4 72.4 Q46.7 68.5 48.4 64 Z M60 64.9 Q53.5 64.9 51.6 68 Q50.1 71.4 53.4 74.9 Q56.4 77.9 60 77.9 Q63.6 77.9 66.6 74.9 Q69.9 71.4 68.4 68 Q66.5 64.9 60 64.9 Z"/>
 
-    <!-- اللحية -->
-    <path d="M41.5 55
-             Q40.5 74 48 79.5
-             Q54 84 60 84
-             Q66 84 72 79.5
-             Q79.5 74 78.5 55
-             Q77 62 74 65.5
-             L74 70 Q68 76.5 60 76.5 Q52 76.5 46 70 L46 65.5
-             Q43 62 41.5 55 Z"
-          fill="#2e2620"/>
-    <!-- الشارب -->
-    <path d="M50 66.5 Q55 63.5 60 65 Q65 63.5 70 66.5 Q65 69 60 68 Q55 69 50 66.5 Z" fill="#2e2620"/>
+      <!-- mouth -->
+      <g class="av-mouth-smile">
+        <path d="M52 66 Q60 70.2 68 66 Q67.4 74.6 60 74.6 Q52.6 74.6 52 66 Z" fill="#6d3126"/>
+        <path d="M53.2 66.5 Q60 69.9 66.8 66.5 Q65.8 71.4 60 71.4 Q54.2 71.4 53.2 66.5 Z" fill="#ffffff"/>
+      </g>
+      <g class="av-mouth-open" opacity="0">
+        <path d="M52 66.2 Q60 64.4 68 66.2 Q70.4 74 64.8 76.6 Q60 78.4 55.2 76.6 Q49.6 74 52 66.2 Z" fill="#5f2921"/>
+        <path d="M53.2 66.1 Q60 64.7 66.8 66.1 L66.4 69.3 Q60 70.4 53.6 69.3 Z" fill="#ffffff"/>
+        <path d="M55.4 75.2 Q60 77.6 64.6 75.2 Q62.4 77.9 60 77.9 Q57.6 77.9 55.4 75.2 Z" fill="#b4574a"/>
+      </g>
 
-    <!-- الابتسامة والأسنان -->
-    <path d="M50.5 68.5 Q60 76 69.5 68.5 Q65 73.5 60 73.5 Q55 73.5 50.5 68.5 Z" fill="#7a3b2e"/>
-    <path d="M53 68.8 Q60 73.2 67 68.8 Q60 71.8 53 68.8 Z" fill="#ffffff"/>
+      <!-- nose -->
+      <path d="M59.2 56 Q57.6 61.4 59.4 62.8 Q60.9 63.6 62 62.6" fill="none" stroke="#d0885c" stroke-width="1.8" stroke-linecap="round"/>
 
-    <!-- الأنف -->
-    <path d="M60 55 Q58.2 61 60.8 62.5" fill="none" stroke="#d99c66" stroke-width="2" stroke-linecap="round"/>
+      <!-- eyes -->
+      <g class="av-eyes">
+        <circle cx="50.5" cy="56.6" r="2.3" fill="#2a2320"/>
+        <circle cx="69.5" cy="56.6" r="2.3" fill="#2a2320"/>
+        <circle cx="51.3" cy="55.8" r="0.75" fill="#ffffff"/>
+        <circle cx="70.3" cy="55.8" r="0.75" fill="#ffffff"/>
+      </g>
+      <path d="M48.1 58.8 Q50.5 60 52.9 58.8" fill="none" stroke="#d89a67" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
+      <path d="M67.1 58.8 Q69.5 60 71.9 58.8" fill="none" stroke="#d89a67" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
 
-    <!-- العينان -->
-    <circle cx="51" cy="56.8" r="2.4" fill="#2b2b33"/>
-    <circle cx="69" cy="56.8" r="2.4" fill="#2b2b33"/>
-    <circle cx="51.8" cy="56.1" r="0.8" fill="#ffffff"/>
-    <circle cx="69.8" cy="56.1" r="0.8" fill="#ffffff"/>
+      <!-- brows -->
+      <g class="av-brows">
+        <path d="M44.3 49.8 Q49.5 46.9 54.6 48.7" fill="none" stroke="#241d18" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M65.4 48.7 Q70.5 46.9 75.7 49.8" fill="none" stroke="#241d18" stroke-width="2.4" stroke-linecap="round"/>
+      </g>
 
-    <!-- الحاجبان -->
-    <path d="M45.5 49 Q50.5 47.2 55 48.4" fill="none" stroke="#33291f" stroke-width="2.2" stroke-linecap="round"/>
-    <path d="M65 48.4 Q69.5 47.2 74.5 49" fill="none" stroke="#33291f" stroke-width="2.2" stroke-linecap="round"/>
+      <!-- clear glasses -->
+      <rect x="42.6" y="51" width="15.4" height="9.6" rx="4" fill="#ffffff" fill-opacity="0.12" stroke="#cfbdb8" stroke-width="1.5"/>
+      <rect x="62" y="51" width="15.4" height="9.6" rx="4" fill="#ffffff" fill-opacity="0.12" stroke="#cfbdb8" stroke-width="1.5"/>
+      <path d="M58 54.6 Q60 53.4 62 54.6" fill="none" stroke="#cfbdb8" stroke-width="1.5"/>
+      <path d="M42.6 54.6 L39.6 55.8" fill="none" stroke="#cfbdb8" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M77.4 54.6 L80.4 55.8" fill="none" stroke="#cfbdb8" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M45 59.8 L50 52 L52.4 52 L47.4 59.8 Z" fill="#ffffff" opacity="0.3"/>
+      <path d="M48.8 59.8 L53.8 52 L55 52 L50 59.8 Z" fill="#ffffff" opacity="0.16"/>
+      <path d="M64.4 59.8 L69.4 52 L71.8 52 L66.8 59.8 Z" fill="#ffffff" opacity="0.3"/>
+      <path d="M68.2 59.8 L73.2 52 L74.4 52 L69.4 59.8 Z" fill="#ffffff" opacity="0.16"/>
 
-    <!-- النظارة: إطار علوي غامق وسفلي رفيع -->
-    <rect x="42" y="51.2" width="16.5" height="3" rx="1.5" fill="#1e1e22"/>
-    <rect x="61.5" y="51.2" width="16.5" height="3" rx="1.5" fill="#1e1e22"/>
-    <path d="M43.5 54.2 v2.6 q0 4 4.5 4 h5.5 q4.5 0 4.5 -4 v-2.6" fill="none" stroke="#9a938b" stroke-width="1.2"/>
-    <path d="M62 54.2 v2.6 q0 4 4.5 4 h5.5 q4.5 0 4.5 -4 v-2.6" fill="none" stroke="#9a938b" stroke-width="1.2"/>
-    <path d="M58.5 53.6 h3" stroke="#b9b2a8" stroke-width="1.3"/>
-    <path d="M42 52.6 L39 53.8" stroke="#1e1e22" stroke-width="1.5" stroke-linecap="round"/>
-    <path d="M78 52.6 L81 53.8" stroke="#1e1e22" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- shemagh crown -->
+      <path d="M35.2 56 Q31.6 17.5 60 17.5 Q88.4 17.5 84.8 56 Q83.2 44.4 77.8 40.6 Q69 38.6 65 40.6 L60 45 L55 40.6 Q51 38.6 42.2 40.6 Q36.8 44.4 35.2 56 Z" fill="url(#shPat)"/>
+      <path d="M42.2 40.6 Q51 38.6 55 40.6 L60 45 L65 40.6 Q69 38.6 77.8 40.6" fill="none" stroke="#f7f2f0" stroke-width="1.9" opacity="0.95"/>
+      <path d="M43 38 Q51.5 36.2 55.6 38.2 L60 42.2 L64.4 38.2 Q68.5 36.2 77 38" fill="none" stroke="#9c1c2e" stroke-width="1.8" opacity="0.28"/>
+      <path d="M48 22 Q45 30 44.5 38" fill="none" stroke="#9c1c2e" stroke-width="1.6" opacity="0.25"/>
+      <path d="M72 22 Q75 30 75.5 38" fill="none" stroke="#9c1c2e" stroke-width="1.6" opacity="0.25"/>
 
-    <!-- الشماغ: الجزء العلوي فوق الجبهة -->
-    <path d="M60 19 Q89 19 88 54 Q88 45 81 42 Q84 29 60 29 Q36 29 39 42 Q32 45 32 54 Q31 19 60 19 Z" fill="url(#bpwSh)"/>
-    <path d="M32 54 Q32 36 41 32 Q36 43 39 50 Z" fill="url(#bpwSh)"/>
-    <path d="M88 54 Q88 36 79 32 Q84 43 81 50 Z" fill="url(#bpwSh)"/>
-
-    <!-- العقال: طبقتان سميكتان -->
-    <path d="M37 39 Q60 29 83 39" fill="none" stroke="#17181c" stroke-width="6" stroke-linecap="round"/>
-    <path d="M37 45.5 Q60 36 83 45.5" fill="none" stroke="#26272c" stroke-width="5.4" stroke-linecap="round"/>
+      <!-- iqal -->
+      <path d="M38.6 38 Q60 26.2 81.4 38" fill="none" stroke="#17181b" stroke-width="5.4" stroke-linecap="round"/>
+      <path d="M40.6 27.6 Q60 17.9 79.4 27.6" fill="none" stroke="#212228" stroke-width="4.6" stroke-linecap="round"/>
+    </g>
   </g>
 </svg>
