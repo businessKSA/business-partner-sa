@@ -391,6 +391,7 @@ ${hreflangs}
 const NAV_GROUPS = [
   { href: "/", en: "Home", ar: "الرئيسية" },
   { href: "/about", en: "About us", ar: "من نحن" },
+  { href: "/employers", en: "For employers", ar: "لأصحاب العمل" },
   {
     en: "Our services", ar: "خدماتنا",
     items: [
