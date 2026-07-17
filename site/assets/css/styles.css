@@ -1280,3 +1280,57 @@ html[dir="rtl"] .deal-drawer { transform: translateX(-105%); }
 .pb-sub { display: flex; align-items: flex-start; gap: 7px; font-size: .84rem; cursor: pointer; line-height: 1.45; }
 .pb-sub input { margin-top: 3px; flex: 0 0 auto; }
 @media (max-width: 640px) { .pb-subs { grid-template-columns: 1fr; } .perm-bar .pb-count { font-size: .7rem; } }
+
+/* اسأل خالد — animated talking avatar for the advisor widget.
+   Keep at end of file: these extend/override the base .advisor-* rules. */
+.kh-avatar { display: block; border-radius: 50%; }
+.advisor-fab { padding: 6px 18px 6px 8px; gap: 10px; }
+[dir="rtl"] .advisor-fab { padding: 6px 8px 6px 18px; }
+.advisor-fab-avatar { position: relative; width: 46px; height: 46px; flex: 0 0 auto; }
+.advisor-fab-avatar .kh-avatar { width: 46px; height: 46px; box-shadow: 0 0 0 2px rgba(255,255,255,.9); }
+.advisor-fab-avatar::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid rgba(255,255,255,.55); animation: kh-pulse 2.4s ease-out infinite; pointer-events: none; }
+@keyframes kh-pulse { 0% { transform: scale(.9); opacity: .9; } 70%, 100% { transform: scale(1.25); opacity: 0; } }
+.advisor-dot { position: absolute; bottom: 1px; inset-inline-end: 1px; width: 12px; height: 12px; border-radius: 50%; background: #10b981; border: 2.5px solid #fff; }
+.advisor-head-avatar { width: 42px; height: 42px; flex: 0 0 auto; }
+.advisor-head-avatar .kh-avatar { width: 42px; height: 42px; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+.advisor-online { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #34d399; margin-inline-end: 5px; box-shadow: 0 0 0 2.5px rgba(52,211,153,.3); }
+.advisor-ic { flex: 0 0 auto; width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 10px; background: rgba(255,255,255,.14); color: #fff; cursor: pointer; }
+.advisor-ic:hover { background: rgba(255,255,255,.28); }
+.advisor-ic .adv-tts-off { display: none; }
+.advisor-ic.muted .adv-tts-on { display: none; }
+.advisor-ic.muted .adv-tts-off { display: block; }
+.advisor-ic.muted { opacity: .75; }
+.advisor-title { min-width: 0; margin-inline-end: auto; }
+
+/* character animation: blink always, bob on the floating button, mouth while talking */
+.kh-avatar .av-eyes { transform-box: fill-box; transform-origin: center; animation: kh-eyeblink 4.4s infinite; }
+@keyframes kh-eyeblink { 0%, 93%, 100% { transform: scaleY(1); } 95.5%, 97.5% { transform: scaleY(.08); } }
+.kh-avatar .av-head { transform-box: fill-box; transform-origin: 50% 80%; }
+.advisor-fab .kh-avatar .av-head { animation: kh-bob 3.8s ease-in-out infinite; }
+@keyframes kh-bob { 0%, 100% { transform: translateY(0) rotate(0); } 28% { transform: translateY(-1.6px) rotate(-1.8deg); } 62% { transform: translateY(.5px) rotate(1.4deg); } }
+.kh-avatar .av-mouth-open { transform-box: fill-box; transform-origin: 50% 15%; transform: scaleY(.25); }
+.talking .kh-avatar .av-mouth-smile { opacity: 0; }
+.talking .kh-avatar .av-mouth-open { opacity: 1; animation: kh-talk .3s ease-in-out infinite alternate; }
+@keyframes kh-talk { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .kh-avatar .av-eyes, .advisor-fab .kh-avatar .av-head, .talking .kh-avatar .av-mouth-open { animation: none; }
+  .advisor-fab-avatar::after { display: none; }
+  .talking .kh-avatar .av-mouth-open { transform: scaleY(.7); }
+}
+
+/* teaser bubble (once per browsing session) */
+.advisor-teaser { position: fixed; inset-inline-start: 22px; bottom: 92px; z-index: 81; max-width: 260px; background: #fff; color: var(--text); border: 1px solid var(--gray-line); border-radius: 14px; border-end-start-radius: 4px; padding: 12px 14px; font-size: .87rem; line-height: 1.6; box-shadow: 0 12px 32px rgba(15,23,42,.16); cursor: pointer; }
+.advisor-teaser[hidden] { display: none; }
+.advisor-teaser p { margin: 0; }
+.advisor-teaser-close { position: absolute; top: -9px; inset-inline-end: -9px; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gray-line); background: #fff; color: var(--text-soft); font-size: .68rem; line-height: 1; cursor: pointer; }
+
+/* quick chips above the input */
+.advisor-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 14px 10px; background: var(--gray-bg); }
+.advisor-chips[hidden] { display: none; }
+.advisor-chip { border: 1px solid #c7d2ea; background: #eef2fb; color: var(--navy); border-radius: 999px; padding: 7px 13px; font-family: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .2s ease, transform .15s ease; }
+.advisor-chip:hover { background: var(--navy); border-color: var(--navy); color: #fff; transform: translateY(-1px); }
+@media (max-width: 640px) {
+  .advisor-fab .lbl { display: none; }
+  .advisor-fab { padding: 4px; border-radius: 999px; }
+  .advisor-teaser { inset-inline-start: 14px; bottom: 84px; }
+}
