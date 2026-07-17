@@ -53,7 +53,7 @@ const DEMO_CODES = {
   "TRIAL": "ALL",
   "DEMO-ONE": ["badr"],
   "DEMO-THREE": ["badr", "malak", "farah"],
-  "DEMO-TEAM": ["baher", "mazen", "nasser", "mishari", "abdulaziz", "badr", "farah", "malak", "mohammed", "ahmed"],
+  "DEMO-TEAM": ["baher", "mazen", "nasser", "mishari", "abdulaziz", "badr", "farah", "malak", "mohammed", "ahmed", "abdulrahman", "strategy"],
 };
 // Public, self-serve free trial (advertised on /connect and /ai-agents) —
 // unlocks every agent like the other demo codes, but the client enforces a
@@ -88,9 +88,50 @@ async function orderStatuses(refs) {
     if (refText && status && CONFIRMED_ORDER_STATUSES.has(status)) {
       const notesText = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
       const m = notesText.match(/AGENTS:([a-z0-9,]+)/i);
-      if (m) agents[refText] = m[1].split(",").filter(Boolean);
+      // "all" is the bundle entitlement (e.g. the shared-services team SKU) —
+      // the portal expects the literal string "ALL" to unlock every employee.
+      if (m) {
+        const list = m[1].split(",").filter(Boolean);
+        agents[refText] = list.map((s) => s.toLowerCase()).includes("all") ? "ALL" : list;
+      }
       const em = notesText.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
       if (em) emails[refText] = em[1];
+    }
+  }
+  return { statuses, agents, emails };
+}
+
+// Compliance Agent subscribers sign in to the same /portal with the access
+// code (رمز الدخول, BP-XXXXXX) emailed on activation — the legacy Astro site
+// that used to host their dashboard at businesspartner.sa/ar/portal was
+// removed and the domain now serves this site, so the unified portal resolves
+// their code here and unlocks Mishari (the compliance agent) for them.
+async function complianceByCode(refs) {
+  if (!refs.length || !NOTION_TOKEN) return { statuses: {}, agents: {}, emails: {} };
+  const r = await fetch(`https://api.notion.com/v1/databases/${COMPLIANCE_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({
+      page_size: refs.length,
+      filter: { or: refs.map((ref) => ({ property: "رمز الدخول", rich_text: { equals: ref } })) },
+    }),
+  });
+  if (!r.ok) {
+    console.error("compliance-code query error", r.status, (await r.text()).slice(0, 300));
+    throw new Error("notion_failed");
+  }
+  const data = await r.json();
+  const statuses = {}, agents = {}, emails = {};
+  for (const pg of data.results || []) {
+    const p = pg.properties || {};
+    const code = ((p["رمز الدخول"] && p["رمز الدخول"].rich_text) || []).map((t) => t.plain_text).join("").trim();
+    if (!code) continue;
+    const active = p["حالة الاشتراك"] && p["حالة الاشتراك"].select && p["حالة الاشتراك"].select.name === "نشط";
+    statuses[code] = active ? "مكتمل" : "قيد المراجعة";
+    if (active) {
+      agents[code] = ["mishari"];
+      const em = p["البريد"] && p["البريد"].email;
+      if (em) emails[code] = em;
     }
   }
   return { statuses, agents, emails };
@@ -156,7 +197,7 @@ async function uploadFileToNotion(base64, filename, contentType) {
   } catch (e) { console.error("uploadFileToNotion exception", String(e).slice(0, 200)); return null; }
 }
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName }) {
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
@@ -171,9 +212,14 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
   if (typeof total === "number" && !Number.isNaN(total)) props["إجمالي الطلب"] = { number: total };
-  if (receiptUploadId) {
-    props["الإيصال البنكي"] = { files: [{ type: "file_upload", file_upload: { id: receiptUploadId }, name: (receiptName || "receipt.pdf").slice(0, 100) }] };
-    props["تحقق المبلغ"] = { select: { name: "لم يُفحص بعد" } };
+  const fileList = [];
+  if (receiptUploadId) fileList.push({ type: "file_upload", file_upload: { id: receiptUploadId }, name: (receiptName || "receipt.pdf").slice(0, 100) });
+  for (const uEntry of Array.isArray(uploads) ? uploads : []) {
+    if (uEntry && uEntry.id) fileList.push({ type: "file_upload", file_upload: { id: uEntry.id }, name: String(uEntry.name || "file.pdf").slice(0, 100) });
+  }
+  if (fileList.length) {
+    props["الإيصال البنكي"] = { files: fileList.slice(0, 20) };
+    if (receiptUploadId) props["تحقق المبلغ"] = { select: { name: "لم يُفحص بعد" } };
   }
   try {
     const r = await fetch("https://api.notion.com/v1/pages", {
@@ -245,8 +291,12 @@ function ssRef(email) { const h = crypto.createHmac("sha256", OTP_SECRET || "x")
 // ---- Compliance Agent: order -> owner approval -> Notion activation -> emailed code ----
 // Client Compliance Intake DB (same one the n8n intake/portal workflows read/write).
 const COMPLIANCE_DB = process.env.NOTION_COMPLIANCE_DB || "5d570a75009b41019857060d0670642f";
-const COMPLIANCE_PORTAL_URL = "https://businesspartner.sa/ar/portal";
 const MKT_SITE_BASE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
+// Compliance subscribers sign in to the unified AI-employees portal on this
+// site with their emailed access code — complianceByCode() above resolves the
+// code and unlocks Mishari. (The legacy Astro dashboard at this same path on
+// the old site was removed when the domain moved here.)
+const COMPLIANCE_PORTAL_URL = `${MKT_SITE_BASE}/ar/portal`;
 function complianceCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("compliance|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-" + o; }
 async function findComplianceRecord(company) {
   if (!NOTION_TOKEN || !company) return null;
@@ -433,6 +483,15 @@ export default async function handler(req, res) {
           Object.assign(statuses, r.statuses);
           Object.assign(agents, r.agents);
           Object.assign(emails, r.emails);
+          // Codes not found in Sales Pipeline may be Compliance Agent access
+          // codes (رمز الدخول) — resolve those against the Compliance Intake DB.
+          const unresolved = remaining.filter((ref) => !statuses[ref]);
+          if (unresolved.length) {
+            const c = await complianceByCode(unresolved);
+            Object.assign(statuses, c.statuses);
+            Object.assign(agents, c.agents);
+            Object.assign(emails, c.emails);
+          }
         } catch {
           res.statusCode = 502;
           return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
@@ -497,12 +556,26 @@ export default async function handler(req, res) {
     const agents = Array.isArray(b.agents) ? b.agents.map((s) => String(s).toLowerCase().trim()).filter((s) => /^[a-z0-9]{1,30}$/.test(s)).slice(0, 20) : [];
     const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
     const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
+    // Accept an image (screenshot — auto-verified by the AI reader) or a PDF. Use the
+    // real content type so the file uploads to Notion correctly; infer from the name if absent.
+    const rawType = String(b.receiptType || "").toLowerCase();
+    const receiptType = /^(image\/(jpeg|jpg|png|webp)|application\/pdf)$/.test(rawType)
+      ? rawType.replace("image/jpg", "image/jpeg")
+      : /\.(jpe?g)$/i.test(receiptName) ? "image/jpeg"
+      : /\.png$/i.test(receiptName) ? "image/png"
+      : /\.webp$/i.test(receiptName) ? "image/webp"
+      : "application/pdf";
     const compliance = !!b.compliance;
     const employerPlanKey = ["basic", "pro", "enterprise"].includes(b.employerPlan) ? b.employerPlan : "";
     const company = String(b.company || "").trim().slice(0, 200) || name;
+    const crNumber = String(b.cr || "").trim().slice(0, 40);
+    const headcount = Number.isFinite(Number(b.headcount)) && b.headcount !== "" ? Number(b.headcount) : null;
+    const nationalAddress = String(b.nationalAddress || "").trim().slice(0, 200);
+    const surchargeFeeNum = Number(b.surchargeFee);
+    const surchargeFee = Number.isFinite(surchargeFeeNum) ? surchargeFeeNum : 0;
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
-    const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, "application/pdf");
+    const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, receiptType);
     const agentsNote = agents.length ? `<p>موظفون أذكياء مطلوبون: <strong>${esc(agents.join("، "))}</strong> — بمجرد اعتماد الدفع، تفلّت الحالة لـ«مؤكد - قيد التنفيذ» يفتح للعميل بوابة الموظفين الأذكياء تلقائياً برقم مرجعه ${ref}.</p>` : "";
     const complianceNote = compliance
       ? (OTP_SECRET && isEmail(email)
@@ -517,15 +590,278 @@ export default async function handler(req, res) {
     const receiptNote = receiptUploadId
       ? `<p>إيصال التحويل مرفق بصف الطلب في Notion — إيجنت التحقق في n8n يقارن مبلغه بـ«إجمالي الطلب» (${total} ﷼) تلقائياً.</p>`
       : `<p style="color:#b91c1c">⚠️ تعذّر رفع الإيصال إلى Notion — راجع الإيصال يدوياً قبل التفعيل.</p>`;
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const pkgFieldsNote = (crNumber || headcount != null || nationalAddress)
+      ? `<p>بيانات المنشأة — السجل التجاري الموحد: <strong>${esc(crNumber || "—")}</strong> · عدد الموظفين: <strong>${headcount != null ? headcount : "—"}</strong> · العنوان الوطني: <strong>${esc(nationalAddress || "—")}</strong>${surchargeFee ? ` · رسوم موظفين إضافيين مضمّنة: <strong>${surchargeFee} ﷼</strong>` : ""}</p>`
+      : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
+    // Immediate acknowledgment to the client — "we received your payment, we're verifying it".
+    // The n8n verification agent later sends the "confirmed / activated" email once the receipt amount matches.
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلبك ودفعتك ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك وإيصال التحويل البنكي بنجاح. فريقنا ووكيل التحقق الآلي يراجعان الإيصال الآن، وبمجرد تأكيد مطابقة المبلغ ستصلك رسالة تأكيد التفعيل مباشرةً.</p><table>${row("رقم المرجع", ref) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>يمكنك متابعة حالة طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر · محفول مكفول</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pkgNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
+  }
+
+  // Wallet top-up: the client transfers money and uploads the receipt; the team
+  // confirms it in the CRM (حالة الطلب → مؤكد/مكتمل) and the dashboard credits
+  // the balance through the same live-status sync orders use.
+  if (b.type === "wallet-topup") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPW-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const amountNum = Number(b.amount);
+    const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
+    const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
+    const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
+    const rawType = String(b.receiptType || "").toLowerCase();
+    const receiptType = /^(image\/(jpeg|jpg|png|webp)|application\/pdf)$/.test(rawType)
+      ? rawType.replace("image/jpg", "image/jpeg")
+      : /\.(jpe?g)$/i.test(receiptName) ? "image/jpeg"
+      : /\.png$/i.test(receiptName) ? "image/png"
+      : /\.webp$/i.test(receiptName) ? "image/webp"
+      : "application/pdf";
+    if (!name || !isEmail(email) || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    if (!receiptBase64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "receipt_required" })); }
+    const receiptUploadId = await uploadFileToNotion(receiptBase64, receiptName, receiptType);
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">شحن محفظة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("مبلغ الشحن", amount + " ﷼")}</table><p>${receiptUploadId ? "الإيصال مرفق بصف الطلب في Notion — قارن مبلغه ثم غيّر حالة الطلب إلى «مؤكد - قيد التنفيذ» ليظهر الرصيد للعميل فوراً في /account." : "⚠️ تعذّر رفع الإيصال — راجعه يدوياً قبل الاعتماد."}</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب شحن محفظتك ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلب شحن محفظتك بمبلغ <strong>${amount} ﷼</strong> مع إيصال التحويل. بمجرد تأكيد الفريق يظهر الرصيد في لوحتك ويمكنك السداد منه مباشرة.</p><table>${row("رقم المرجع", ref) + row("المبلغ", amount + " ﷼")}</table><p>تابع رصيدك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `شحن محفظة ${ref} — ${name} (${amount} ﷼)`, oHtml),
+      sendEmail(email, `استلمنا طلب شحن محفظتك — ${ref}`, cHtml),
+      crmLead({ title: `شحن محفظة — ${name}`, phone, email, notes: `محفظة · شحن رصيد ${amount} ﷼`, ref, orderStatus: "قيد المراجعة", total: amount, receiptUploadId, receiptName }),
+      addToAudience(email, name),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
+  }
+
+  // Wallet payment: the client asks us to pay a government fee / SADAD invoice
+  // from their wallet balance. The team validates the balance in the CRM ledger
+  // (top-ups minus payments), executes the payment, and completes the row.
+  if (b.type === "wallet-pay") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPP-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const what = String(b.what || "").trim().slice(0, 400);
+    const amountNum = Number(b.amount);
+    const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
+    if (!name || !isEmail(email) || !amount || !what) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">سداد من المحفظة ${ref}</h2><table>${row("الاسم", name) + row("البريد", email) + row("المطلوب سداده", what) + row("المبلغ", amount + " ﷼")}</table><p>تحقق من رصيد محفظة العميل (مجموع شحنات BPW المؤكدة ناقص مدفوعات BPP) قبل التنفيذ، ثم نفّذ السداد وأرفق الإثبات وحدّث حالة الطلب إلى «مكتمل».</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب السداد ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لسداد: <strong>${esc(what)}</strong> بمبلغ <strong>${amount} ﷼</strong> من محفظتك. سننفذه ونرسل لك إثبات السداد.</p><table>${row("رقم المرجع", ref) + row("المبلغ", amount + " ﷼")}</table><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `سداد من المحفظة ${ref} — ${name} (${amount} ﷼)`, oHtml),
+      sendEmail(email, `استلمنا طلب السداد — ${ref}`, cHtml),
+      crmLead({ title: `سداد رسوم من المحفظة — ${name}`, phone: String(b.phone || "").slice(0, 40), email, notes: `محفظة · سداد ${amount} ﷼ · ${what}`, ref, orderStatus: "قيد المراجعة", total: amount }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Instalment request: we arrange financing for government fees through the
+  // client's bank / BNPL / e-wallets. The financing decision is the provider's;
+  // this creates the coordination request in the CRM.
+  if (b.type === "installment") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPI-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const service = String(b.service || "").trim().slice(0, 400);
+    const amountNum = Number(b.amount);
+    const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
+    const monthsNum = Number(b.months);
+    const months = [3, 6, 12].includes(monthsNum) ? monthsNum : 6;
+    const CH = { bank: "بنك العميل", bnpl: "تابي / تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
+    const channel = CH[b.channel] || CH.any;
+    if (!name || !phone || !isEmail(email) || !service || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const monthly = Math.ceil(amount / months);
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تقسيط ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", service) + row("المبلغ", amount + " ﷼") + row("المدة", months + " أشهر") + row("القناة المفضلة", channel) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>رتّب عرض التمويل مع الجهة المناسبة وعد للعميل بالعرض، ثم حدّث حالة الطلب في «Sales Pipeline».</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب التقسيط ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لتقسيط <strong>${esc(service)}</strong> بمبلغ <strong>${amount} ﷼</strong> على <strong>${months} أشهر</strong> (${channel}). فريقنا يجهّز العروض المتاحة وسيعود لك سريعاً.</p><table>${row("رقم المرجع", ref) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>تابع طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب تقسيط ${ref} — ${name} (${amount} ﷼ / ${months} أشهر)`, oHtml),
+      sendEmail(email, `استلمنا طلب التقسيط — ${ref}`, cHtml),
+      crmLead({ title: `طلب تقسيط — ${name}`, phone, email, notes: `تقسيط · ${service} · ${amount} ﷼ على ${months} أشهر · ${channel}`, ref, orderStatus: "قيد المراجعة", total: amount }),
+      addToAudience(email, name),
+      forwardLead({ source: "installment", ref, name, phone, email, items: service, total: amount }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Corporate bank-account opening: file prepared from the company profile,
+  // online appointment with the bank officer — EVERY partner + the manager
+  // receive the proposed appointment by email; the team confirms with the bank.
+  if (b.type === "bank-account") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const cr = String(b.cr || "").trim().slice(0, 40);
+    const manager = String(b.manager || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const bank = String(b.bank || "").trim().slice(0, 80);
+    const when = String(b.when || "").trim().slice(0, 40);
+    const ref = String(b.ref || "BPB-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const partners = (Array.isArray(b.partners) ? b.partners : []).slice(0, 15).map((p) => ({
+      name: String((p && p.name) || "").trim().slice(0, 160),
+      phone: String((p && p.phone) || "").trim().slice(0, 40),
+      email: String((p && p.email) || "").trim().toLowerCase().slice(0, 160),
+    })).filter((p) => p.name && isEmail(p.email));
+    if (!company || !cr || !manager || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const whenTxt = when ? when.replace("T", " الساعة ") : "يُحدد بالتنسيق مع البنك";
+    const partnersRows = partners.map((p) => row("شريك", `${p.name} · ${p.phone || "—"} · ${p.email}`)).join("");
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب فتح حساب بنكي ${ref}</h2><table>${row("الشركة", company) + row("السجل التجاري", cr) + row("البنك المفضل", bank) + row("الموعد المقترح (أونلاين)", whenTxt) + row("المدير", `${manager} · ${phone} · ${email}`) + partnersRows}</table><p>جهّز ملف فتح الحساب من بيانات المنشأة، نسّق مع البنك موعد الاجتماع الأونلاين، ثم أكّد الموعد للجميع — الشركاء والمدير وصلتهم دعوة مبدئية بالفعل.</p></div>`;
+    const invite = (who) => `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">دعوة: فتح الحساب البنكي لشركة ${esc(company)} 🏦</h2><p>مرحباً ${esc(who)},</p><p>تم تقديم طلب فتح حساب بنكي لشركة <strong>${esc(company)}</strong> (سجل تجاري ${esc(cr)}) لدى <strong>${esc(bank)}</strong>.</p><p><strong>الموعد المقترح للاجتماع الأونلاين مع موظف البنك:</strong> ${esc(whenTxt)}</p><p>حضوركم مطلوب نظاماً بصفتكم من الشركاء/الإدارة. سنؤكد الموعد النهائي ورابط الاجتماع بعد التنسيق مع البنك — فضلاً أبقوا هذا الموعد محجوزاً.</p><table>${row("رقم المرجع", ref)}</table><p style="color:#0B1B5A">بزنس بارتنر · شريك تشغيلك</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `فتح حساب بنكي ${ref} — ${company} (${bank})`, oHtml),
+      sendEmail(email, `دعوة موعد فتح الحساب البنكي — ${ref}`, invite(manager)),
+      ...partners.map((p) => sendEmail(p.email, `دعوة موعد فتح الحساب البنكي — ${company}`, invite(p.name))),
+      crmLead({ title: `فتح حساب بنكي — ${company}`, phone, email, notes: `بنك · ${bank} · س.ت ${cr} · موعد مقترح ${whenTxt} · شركاء: ${partners.map((p) => p.name).join("، ") || "—"}`, ref, orderStatus: "قيد المراجعة" }),
+      addToAudience(email, manager),
+      forwardLead({ source: "bank-account", ref, name: manager, phone, email, items: `${company} · ${bank}` }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, partnersNotified: partners.length }));
+  }
+
+  // Multi-partner company formation: incorporation contract drafted and
+  // submitted through the Saudi Business Center; every partner is emailed.
+  // v2: sensitive full file — partner identity (type, Gregorian DOB, national
+  // address, ID/iqama/passport/CR number + document uploads) and managers with
+  // their Article-5 powers (exercise mode, delegation right, sub-powers).
+  if (b.type === "formation-contract") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const entity = { llc: "شركة ذات مسؤولية محدودة", sjsc: "شركة مساهمة مبسطة", other: "أخرى/استشارة" }[b.entity] || "شركة ذات مسؤولية محدودة";
+    const capital = Number.isFinite(Number(b.capital)) && b.capital !== "" ? Number(b.capital) : null;
+    const activity = String(b.activity || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPF-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const TYPE_AR = { saudi: "سعودي", resident: "مقيم", foreign: "مستثمر أجنبي (فرد)", company: "شركة أجنبية" };
+    const ID_AR = { saudi: "الهوية الوطنية", resident: "الإقامة", foreign: "جواز السفر", company: "السجل/الرخصة التجارية" };
+    const partners = (Array.isArray(b.partners) ? b.partners : []).slice(0, 15).map((p) => ({
+      type: TYPE_AR[p && p.type] ? String(p.type) : "saudi",
+      name: String((p && p.name) || "").trim().slice(0, 160),
+      dob: String((p && p.dob) || "").trim().slice(0, 20),
+      idNumber: String((p && p.idNumber) || "").trim().slice(0, 40),
+      address: String((p && p.address) || "").trim().slice(0, 20),
+      phone: String((p && p.phone) || "").trim().slice(0, 40),
+      email: String((p && p.email) || "").trim().toLowerCase().slice(0, 160),
+      share: Number.isFinite(Number(p && p.share)) ? Number(p.share) : null,
+      files: (Array.isArray(p && p.files) ? p.files : []).slice(0, 3).map((f) => ({
+        label: String((f && f.label) || "").slice(0, 80),
+        name: String((f && f.name) || "file.pdf").slice(0, 120),
+        contentType: String((f && f.contentType) || "application/pdf").slice(0, 80),
+        data: typeof (f && f.data) === "string" && f.data.length < 3_600_000 ? f.data : null,
+      })).filter((f) => f.data),
+    })).filter((p) => p.name && isEmail(p.email));
+    const FC_G = { cr: "السجلات التجارية", banking: "الصلاحيات البنكية", assets: "إدارة الأملاك", companies: "الشركات والمشاركات", judicial: "القضاء والتمثيل", gov: "الجهات والمنصات الحكومية", labor: "العمالة والاستقدام والإقامات", fundamental: "تعديل عقد التأسيس والقرارات الجوهرية" };
+    const FC_SUBS = {
+      cr: { issue: "الإصدار (الرئيسية والفرعية)", confirm: "التأكيد السنوي", amend: "تعديل السجلات ونقلها وإدارتها", strike: "الشطب" },
+      banking: { accounts: "فتح وقفل الحسابات البنكية", credits: "فتح الاعتمادات", operate: "الإيداع والسحب وتحديث الحسابات", cheques: "إصدار الشيكات وكشوف الحسابات", facilities: "طلب التسهيلات والضمانات", loans: "عقود القروض والأوراق التجارية وسندات لأمر" },
+      assets: { realestate: "شراء وبيع وإفراغ العقار والأراضي", shares: "شراء وبيع الأسهم", mortgage: "الرهن وفك الرهن والقبض", leases: "توقيع وتجديد وفسخ عقود الإيجار" },
+      companies: { contracts: "توقيع عقود الشركات وقرارات الشركاء", stakes: "شراء وبيع الحصص", represent: "تمثيل الشركة في الشركات المساهم فيها", incorporate: "تأسيس الشركات باسم الشركة" },
+      judicial: { plead: "المرافعة والمدافعة والمطالبة والمخاصمة", settle: "المصالحة والتحكيم والصلح", appoint: "تعيين المحكمين والمحامين", notary: "كتابات العدل وخدمات وزارة العدل" },
+      gov: { chamber: "الغرفة التجارية", zakat: "الزكاة والدخل والتأمينات والدفاع المدني", licenses: "استخراج وتجديد وتعديل التراخيص", tenders: "دخول المناقصات واستلام الاستمارات", etimad: "منصة اعتماد والموارد البشرية والاتصالات" },
+      labor: { visas: "التأشيرات: استخراجها وإلغاؤها واسترداد مبالغها", recruit: "الاستقدام وفتح الملفات", iqama: "الإقامات والخروج والعودة والخروج النهائي", sponsorship: "نقل الكفالات وتعديل المهن" },
+      fundamental: { capital: "زيادة أو تخفيض رأس المال", partners: "دخول وخروج الشركاء والتنازل عن الحصص", entity: "تغيير الكيان القانوني والاندماج", liquidate: "تصفية الشركة أو تحويلها لمؤسسة" },
+    };
+    const managers = (Array.isArray(b.managers) ? b.managers : []).slice(0, 6).map((m) => ({
+      name: String((m && m.name) || "").trim().slice(0, 160),
+      nationality: String((m && m.nationality) || "").trim().slice(0, 80),
+      partner: !!(m && m.partner),
+      perms: m && m.perms && typeof m.perms === "object" ? m.perms : {},
+    })).filter((m) => m.name);
+    if (!company || !activity || !person || !isEmail(email) || partners.length < 2) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+
+    // Upload every partner document to Notion so the whole identity file
+    // lands on the CRM lead (capped: the request body itself is size-limited).
+    const uploads = [];
+    for (const p of partners) {
+      for (const f of p.files) {
+        if (uploads.length >= 12) break;
+        const id = await uploadFileToNotion(f.data, f.name, f.contentType);
+        if (id) uploads.push({ id, name: `${p.name} — ${f.label || f.name}`.slice(0, 100) });
+      }
+    }
+
+    const partnersRows = partners.map((p) =>
+      row(`شريك (${TYPE_AR[p.type]})`, `${p.name} · ${p.share != null ? p.share + "%" : "—"} · ${ID_AR[p.type]}: ${p.idNumber || "—"} · ميلاد (ميلادي): ${p.dob || "—"} · عنوان وطني: ${p.address || "—"} · ${p.phone || "—"} · ${p.email} · مرفقات: ${p.files.length}`)
+    ).join("");
+    const managerRows = managers.map((m) => {
+      const groups = Object.entries(m.perms).slice(0, 12).map(([g, v]) => {
+        const mode = v && v.mode === "joint" ? "يمارسها بموافقة كل المديرين" : "يمارسها منفرداً";
+        const tk = v && v.tawkeel ? " · له حق التوكيل" : "";
+        const subs = (Array.isArray(v && v.subs) ? v.subs : []).slice(0, 12).map((s) => (FC_SUBS[g] && FC_SUBS[g][s]) || String(s).slice(0, 40)).join("، ");
+        return `<li style="margin-bottom:6px"><strong>${esc(FC_G[g] || String(g).slice(0, 40))}</strong> — ${mode}${tk}<br><span style="color:#555">${esc(subs)}</span></li>`;
+      }).join("");
+      return row(`مدير${m.partner ? " (من الشركاء)" : m.nationality ? ` (${m.nationality})` : ""}`, m.name) + (groups ? `<tr><td colspan="2" style="padding:4px 10px 12px"><ul style="margin:0;padding-inline-start:18px">${groups}</ul></td></tr>` : "");
+    }).join("");
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تأسيس بين شركاء ${ref}</h2><table>${row("الاسم المقترح", company) + row("الكيان", entity) + row("رأس المال", capital != null ? capital + " ﷼" : "—") + row("النشاط", activity) + row("مقدم الطلب", `${person} · ${phone} · ${email}`) + partnersRows}</table><h3 style="color:#0B1B5A">المديرون وصلاحياتهم (المادة الخامسة)</h3><table>${managerRows || row("المديرون", "لم تُحدد")}</table><p>مستندات الشركاء (${uploads.length}) مرفوعة على بطاقة العميل في Notion. صِغ عقد التأسيس وفق الحصص وجدول الصلاحيات أعلاه وقدّمه عبر المركز السعودي للأعمال، ثم رتّب توقيع الشركاء إلكترونياً — وصلتهم رسالة تمهيدية بالفعل.</p></div>`;
+    const invite = (who, share) => `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تأسيس شركة ${esc(company)} — أنت من الشركاء 🖋️</h2><p>مرحباً ${esc(who)},</p><p>بدأنا إجراءات تأسيس <strong>${esc(company)}</strong> (${esc(entity)}${share != null ? ` — حصتك ${share}%` : ""}) عبر <strong>المركز السعودي للأعمال</strong>.</p><p>سنصيغ عقد التأسيس بصلاحيات المديرين المحددة ونرسل لكم دعوة التوقيع الإلكتروني فور جاهزيته، ثم نتابع حتى إصدار السجل التجاري.</p><table>${row("رقم المرجع", ref)}</table><p style="color:#0B1B5A">بزنس بارتنر · شريك تشغيلك</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `تأسيس بين شركاء ${ref} — ${company}`, oHtml),
+      sendEmail(email, `بدأنا تأسيس ${company} — ${ref}`, invite(person, null)),
+      ...partners.map((p) => sendEmail(p.email, `تأسيس شركة ${company} — دعوة الشركاء`, invite(p.name, p.share))),
+      crmLead({ title: `تأسيس بين شركاء — ${company}`, phone, email, notes: `تأسيس · ${entity} · ${activity}${capital != null ? " · رأس مال " + capital : ""} · شركاء: ${partners.map((p) => `${p.name} (${TYPE_AR[p.type]}${p.share != null ? " " + p.share + "%" : ""})`).join("، ")} · مديرون: ${managers.map((m) => m.name).join("، ") || "—"}`, ref, orderStatus: "قيد المراجعة", uploads }),
+      addToAudience(email, person),
+      forwardLead({ source: "formation-contract", ref, name: person, phone, email, items: company }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, partnersNotified: partners.length, filesUploaded: uploads.length }));
+  }
+
+  // Estrdad (Monsha'at fee-refund) eligibility assessment + file preparation.
+  if (b.type === "estrdad") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPE-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const startYear = String(b.startYear || "").slice(0, 20);
+    const workers = Number.isFinite(Number(b.workers)) && b.workers !== "" ? Number(b.workers) : null;
+    const notes = String(b.notes || "").trim().slice(0, 900);
+    if (!company || !person || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب استرداد رسوم (منشآت) ${ref}</h2><table>${row("المنشأة", company) + row("المسؤول", person) + row("الجوال", phone) + row("البريد", email) + row("سنة بدء النشاط", startYear || "—") + row("عدد العمالة الأجنبية", workers != null ? String(workers) : "—")}${notes ? row("ملاحظات", notes) : ""}</table><p>قيّم الأهلية وفق اشتراطات مبادرة استرداد (سريان السجل والشهادات، نطاقات المطوّر، بدء النشاط 2024-2026…) وعد للعميل بفجوات الامتثال وخطة التجهيز.</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب تقييم الاسترداد ✅</h2><p>مرحباً ${esc(person)},</p><p>وصلنا طلبك لتقييم أهلية <strong>${esc(company)}</strong> لمبادرة «استرداد» من منشآت. سنراجع وضع منشأتك وفق الاشتراطات الرسمية ونعود لك بفجوات الامتثال وخطة تجهيز الملف.</p><table>${row("رقم المرجع", ref)}</table><p>تابع طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب استرداد رسوم ${ref} — ${company}`, oHtml),
+      sendEmail(email, `استلمنا طلب تقييم الاسترداد — ${ref}`, cHtml),
+      crmLead({ title: `استرداد رسوم (منشآت) — ${company}`, phone, email, notes: `استرداد · بدء النشاط: ${startYear || "—"} · عمالة أجنبية: ${workers != null ? workers : "—"}${notes ? " · " + notes : ""}`, ref, orderStatus: "قيد المراجعة" }),
+      addToAudience(email, person),
+      forwardLead({ source: "estrdad", ref, name: person, phone, email, items: company }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Official-quote request from the cost calculator — no payment/receipt step.
+  // Lands in the client's dashboard (via bp_orders locally) and in the CRM with
+  // status «بانتظار التسعير» so the team prices it and comes back with an offer.
+  if (b.type === "quote") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const ref = String(b.ref || "BPQ-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const items = (Array.isArray(b.items) ? b.items.map((x) => (typeof x === "string" ? x : (x && x.name) || "")).filter(Boolean) : [String(b.items || "")]).join("، ").slice(0, 900);
+    if (!name || !isEmail(email) || !items) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب عرض سعر رسمي ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items)}</table><p>العميل طلب عرضاً رسمياً من حاسبة التكلفة — سعّر السلة وارجع له بالعرض، ثم حدّث حالة الطلب في «Sales Pipeline» (رقم المرجع ${ref}).</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب العرض ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لعرض سعر رسمي على الخدمات التالية، وفريقنا يجهّز لك العرض الآن وسنعود إليك سريعاً.</p><table>${row("رقم المرجع", ref) + row("الخدمات", items)}</table><p>تابع حالة طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب عرض رسمي ${ref} — ${name}`, oHtml),
+      sendEmail(email, `استلمنا طلب العرض — ${ref}`, cHtml),
+      crmLead({ title: `طلب عرض رسمي — ${name}`, phone, email, notes: `عرض سعر · ${items}`, ref, orderStatus: "بانتظار التسعير" }),
+      addToAudience(email, name),
+      forwardLead({ source: "quote", ref, name, phone, email, items }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
   }
 
   // Client-initiated cancellation from /account — only for orders still under
@@ -747,7 +1083,7 @@ export default async function handler(req, res) {
   const [teamSent, clientSent] = await Promise.all([
     sendEmail(TEAM_EMAIL, `${title} — ${f.company}`, teamHtml),
     sendEmail(f.email, `${type === "event" ? "تأكيد طلب الفعالية" : "تأكيد تسجيل المورّد"} ${ref} — Business Partner`, clientHtml),
-    crmLead({ title, phone: f.phone, email: f.email, notes: crmNotes, ref }),
+    crmLead({ title: type === "event" ? `فعالية مؤسسية — ${f.company}` : `تسجيل مورّد — ${f.company}`, phone: f.phone, email: f.email, notes: crmNotes, ref }),
     addToAudience(f.email, f.person),
     forwardLead({ source: type, ref, name: f.person, company: f.company, phone: f.phone, email: f.email, notes: crmNotes }),
   ]);

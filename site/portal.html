@@ -125,7 +125,7 @@
 <body>
   <div class="topbar">
     <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
-    <a class="tb-link" href="/connect">الأدوات والباقات</a>
+    <a class="tb-link" href="/connect">الأدوات ورحلة العميل</a>
     <a class="tb-link" href="/">الموقع</a>
     <div class="sp"></div>
     <a id="subscribeNow" href="/connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
@@ -193,12 +193,14 @@
       {slug:'mazen',path:'mazen-intake',name:'مازن',role:'مدير العمليات',e:'🧭'},
       {slug:'nasser',path:'nasser-intake',name:'ناصر',role:'الموارد البشرية',e:'👥'},
       {slug:'mishari',path:'mishari-intake',name:'مشاري',role:'الامتثال والالتزام',e:'🛡️'},
+      {slug:'abdulrahman',path:'abdulrahman-intake',name:'عبدالرحمن',role:'المدير المالي',e:'💰'},
       {slug:'abdulaziz',path:'abdulaziz-intake',name:'عبدالعزيز',role:'قانوني',e:'⚖️'},
       {slug:'badr',path:'badr-intake',name:'بدر',role:'مبيعات وتطوير أعمال',e:'💼'},
       {slug:'farah',path:'farah-intake',name:'فرح',role:'تسويق ومحتوى',e:'📣'},
       {slug:'malak',path:'malak-intake',name:'ملاك',role:'مساعِدة تنفيذية',e:'🗂️'},
       {slug:'mohammed',path:'mohammed-intake',name:'محمد',role:'تقنية معلومات',e:'💻'},
-      {slug:'ahmed',path:'ahmed-procurement',name:'أحمد',role:'مشتريات وتوريد',e:'📦'}
+      {slug:'strategy',path:'strategy-intake',name:'أحمد',role:'مدير التخطيط الاستراتيجي',e:'📈'},
+      {slug:'ahmed',path:'ahmed-procurement',name:'عبدالله',role:'مشتريات وتوريد',e:'📦'}
     ];
     var TOOLS=[
       {id:'gmail',ic:'📧',name:'Gmail',u:'يقرأ ويصنّف بريدك، يسوّد ويرسل الردود.',type:'easy',lead:'ربط بضغطة عبر تسجيل دخول قوقل — بدون توكن، مجاناً.',steps:['اضغط ربط الآن فتفتح صفحة تسجيل قوقل.','اختر حساب الشركة ووافق على الصلاحيات.','يشتغل الموظف داخل بريدك مباشرة.']},
@@ -208,7 +210,8 @@
       {id:'whatsapp',ic:'🟢',name:'WhatsApp',u:'يرد على عملائك على واتساب ٢٤/٧.',type:'cost',lead:'يحتاج رقم أعمال + إعداد WhatsApp Cloud API من Meta. فيه تكلفة رسائل تُدفع لـ Meta.',pay:'تكلفة الرسائل تُدفع لـ Meta حسب عدد المحادثات.',steps:['أنشئ حساب Meta Business + رقم واتساب أعمال.','فعّل WhatsApp Cloud API واحصل على التوكن.','الصق التوكن (يُخزّن مشفّراً) أو أرسله لنا.','اربط فيرد الموظف على عملائك.']},
       {id:'ms',ic:'🟦',name:'Microsoft (Teams/Outlook)',u:'يدير أوتلوك وتقويم ورسائل تيمس.',type:'token',lead:'ربط عبر تسجيل دخول مايكروسوفت. قد يحتاج اشتراك Microsoft 365.',pay:'إن لم يكن لديك 365 يلزم اشتراك من مايكروسوفت.',steps:['سجّل دخول مايكروسوفت للعمل.','وافق على صلاحيات البريد/التقويم/تيمس.','يشتغل داخل بيئة مايكروسوفت.']},
       {id:'drive',ic:'📁',name:'Google Drive',u:'ينظّم ملفاتك ويلخّص المستندات.',type:'easy',lead:'ربط بضغطة مع حساب قوقل — مجاناً.',steps:['سجّل دخول قوقل.','وافق على صلاحية Drive.','يقرأ وينظّم ملفاتك.']},
-      {id:'crm',ic:'📊',name:'CRM / جداول',u:'يحدّث العملاء والصفقات في CRM أو Sheets.',type:'token',lead:'نربطه بـ Google Sheets أو CRM لديك (قد يحتاج مفتاح API).',steps:['أخبرنا بنظامك.','نجهّز الربط المناسب.','يحدّث بياناتك تلقائياً.']}
+      {id:'crm',ic:'📊',name:'CRM / جداول',u:'يحدّث العملاء والصفقات في CRM أو Sheets.',type:'token',lead:'نربطه بـ Google Sheets أو CRM لديك (قد يحتاج مفتاح API).',steps:['أخبرنا بنظامك.','نجهّز الربط المناسب.','يحدّث بياناتك تلقائياً.']},
+      {id:'qoyod',ic:'🧾',name:'قيود (Qoyod)',u:'محاسبة وفوترة: فواتير ZATCA ومزامنة القيود.',type:'token',lead:'ربط بمفتاح API خاص من حساب قيود لديك — متوافق مع ZATCA. أي إصدار فاتورة بموافقتك.',pay:'يتطلب اشتراك قيود فعّال (الـ API مجاني على الباقات المدفوعة).',steps:['من قيود: الإعدادات ← API، أنشئ مفتاحاً.','الصق المفتاح (يُخزّن مشفّراً) أو أرسله لنا.','يصدر الفواتير ويزامن القيود — بموافقتك.']}
     ];
     var ICONS={
       gmail:'<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="#EA4335"/><path d="M2 7l10 7 10-7" stroke="#fff" stroke-width="2" fill="none"/></svg>',
@@ -230,7 +233,8 @@
       ms:'Microsoft 365 — Outlook, Calendar & Teams',
       drive:'Google Drive — organizes files & summaries',
       sheets:'CRM / Sheets — updates customers & deals',
-      crm:'CRM / Sheets — updates customers & deals'
+      crm:'CRM / Sheets — updates customers & deals',
+      qoyod:'Qoyod — ZATCA invoicing & accounting sync'
     };
     var URLS={
       gmail:'https://mail.google.com',
@@ -241,7 +245,8 @@
       ms:'https://www.microsoft.com/microsoft-365',
       drive:'https://drive.google.com',
       sheets:'https://www.google.com/sheets/about',
-      crm:'https://www.google.com/sheets/about'
+      crm:'https://www.google.com/sheets/about',
+      qoyod:'https://www.qoyod.com'
     };
     var LOGO={gmail:1,gcal:1,notion:1,whatsapp:1,drive:1,sheets:1,crm:1};
     function mark(t){ return LOGO[t.id] ? '<img class="brand" src="/assets/img/logos/'+t.id+'.svg" alt="'+t.name+'" loading="lazy">' : (ICONS[t.id]||t.ic); }
