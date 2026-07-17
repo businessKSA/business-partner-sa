@@ -1,9 +1,9 @@
 ---
-// ودجت "اسأل خالد" — مساعد محادثة داخل الصفحة على طريقة "اسأل أمين" في التأمينات،
-// لكن بهوية شريك الأعمال. زر عائم بشخصية خالد يفتح نافذة محادثة متصلة بوكيل n8n.
+// ودجت "اسأل باهر" — مساعد محادثة داخل الصفحة على طريقة "اسأل أمين" في التأمينات،
+// لكن بهوية شريك الأعمال. زر عائم بشخصية باهر يفتح نافذة محادثة متصلة بوكيل n8n.
 // الشخصية متحركة (رمش وإيماءة) وتنطق ردودها صوتياً مع تحريك الفم أثناء الكلام.
 import type { Language } from '../utils/i18n';
-import KhaledAvatar from './KhaledAvatar.astro';
+import BaherAvatar from './BaherAvatar.astro';
 
 interface Props {
   lang?: Language;
@@ -16,15 +16,15 @@ const WEBHOOK_URL =
 
 const STRINGS = {
   ar: {
-    fabLabel: 'اسأل خالد',
-    fabAria: 'افتح المحادثة مع خالد، المساعد الذكي',
-    teaser: 'حياك الله 👋 أنا خالد، مساعدك الذكي. عندك سؤال عن التأسيس أو المنصات الحكومية؟',
-    name: 'خالد',
+    fabLabel: 'اسأل باهر',
+    fabAria: 'افتح المحادثة مع باهر، المساعد الذكي',
+    teaser: 'حياك الله 👋 أنا باهر، مساعدك الذكي. عندك سؤال عن التأسيس أو المنصات الحكومية؟',
+    name: 'باهر',
     role: 'شريكك الذكي — متصل الآن',
     voiceTitle: 'التحدث بالصوت',
     closeAria: 'إغلاق المحادثة',
     welcome:
-      'حياك الله 👋 أنا خالد، مساعدك الذكي في شريك الأعمال.\nاسألني عن تأسيس الشركات، الاستثمار الأجنبي، إدارة المنصات الحكومية (قوى، التأمينات، مقيم)، أو أي خدمة ثانية.',
+      'حياك الله 👋 أنا باهر، مساعدك الذكي في شريك الأعمال.\nاسألني عن تأسيس الشركات، الاستثمار الأجنبي، إدارة المنصات الحكومية (قوى، التأمينات، مقيم)، أو أي خدمة ثانية.',
     chips: [
       '🏢 تأسيس شركة باستثمار أجنبي',
       '💼 إدارة المنصات الحكومية',
@@ -34,21 +34,21 @@ const STRINGS = {
     placeholder: 'اكتب سؤالك هنا…',
     sendAria: 'إرسال',
     busyError:
-      'خالد مشغول شوي الحين 😅 جرّب بعد دقائق، أو تواصل معنا مباشرة على 0503793356.',
+      'باهر مشغول شوي الحين 😅 جرّب بعد دقائق، أو تواصل معنا مباشرة على 0503793356.',
     netError: 'تعذّر الاتصال حالياً. تأكد من الإنترنت وحاول مرة ثانية.',
     footNote: 'مدعوم بالذكاء الاصطناعي — الإجابات استرشادية',
-    ttsLabel: 'صوت خالد',
+    ttsLabel: 'صوت باهر',
   },
   en: {
-    fabLabel: 'Ask Khaled',
-    fabAria: 'Open chat with Khaled, the smart assistant',
-    teaser: 'Hi 👋 I’m Khaled, your smart assistant. Questions about company setup or government platforms?',
-    name: 'Khaled',
+    fabLabel: 'Ask Baher',
+    fabAria: 'Open chat with Baher, the smart assistant',
+    teaser: 'Hi 👋 I’m Baher, your smart assistant. Questions about company setup or government platforms?',
+    name: 'Baher',
     role: 'Your smart partner — online now',
     voiceTitle: 'Talk by voice',
     closeAria: 'Close chat',
     welcome:
-      'Hi 👋 I’m Khaled, your smart assistant at Business Partner.\nAsk me about company formation, foreign investment, government platform management (Qiwa, GOSI, Muqeem), or any other service.',
+      'Hi 👋 I’m Baher, your smart assistant at Business Partner.\nAsk me about company formation, foreign investment, government platform management (Qiwa, GOSI, Muqeem), or any other service.',
     chips: [
       '🏢 Foreign investment company setup',
       '💼 Government platforms management',
@@ -58,10 +58,10 @@ const STRINGS = {
     placeholder: 'Type your question…',
     sendAria: 'Send',
     busyError:
-      'Khaled is a bit busy right now 😅 Please try again in a few minutes, or call us directly at +966 50 379 3356.',
+      'Baher is a bit busy right now 😅 Please try again in a few minutes, or call us directly at +966 50 379 3356.',
     netError: 'Connection failed. Check your internet and try again.',
     footNote: 'AI-powered — answers are for guidance',
-    ttsLabel: "Khaled's voice",
+    ttsLabel: "Baher's voice",
   },
 } as const;
 
@@ -78,7 +78,7 @@ const t = STRINGS[lang] ?? STRINGS.ar;
   <!-- الزر العائم -->
   <button class="bpw-fab" id="bpwFab" aria-label={t.fabAria} aria-expanded="false" aria-controls="bpwPanel">
     <span class="bpw-fab-avatar">
-      <KhaledAvatar uid="fab" size={56} />
+      <BaherAvatar uid="fab" size={56} />
       <span class="bpw-online-dot" aria-hidden="true"></span>
     </span>
     <span class="bpw-fab-label">{t.fabLabel}</span>
@@ -88,7 +88,7 @@ const t = STRINGS[lang] ?? STRINGS.ar;
   <section class="bpw-panel" id="bpwPanel" hidden role="dialog" aria-label={t.fabLabel}>
     <header class="bpw-head">
       <span class="bpw-head-avatar">
-        <KhaledAvatar uid="head" size={44} />
+        <BaherAvatar uid="head" size={44} />
       </span>
       <div class="bpw-head-info">
         <strong>{t.name}</strong>
