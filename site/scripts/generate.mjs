@@ -6847,6 +6847,7 @@ function buildSharedServicesPortal() {
 
       <div class="ss-tabs" role="tablist">
         <button class="ss-tab active" data-tab="team" type="button">👥 ${L("The team", "الفريق")}</button>
+        <button class="ss-tab" data-tab="svc" type="button">🧰 ${L("Services", "الخدمات")}</button>
         <button class="ss-tab" data-tab="tools" type="button">🔌 ${L("Connectors", "الموصلات")}</button>
         <button class="ss-tab" data-tab="comp" type="button">🛡️ ${L("Compliance", "الامتثال")}</button>
       </div>
@@ -6862,6 +6863,27 @@ function buildSharedServicesPortal() {
             <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
           </form>
         </div>
+      </div>
+
+      <div class="ss-pane" id="pane-svc" hidden>
+        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Khaled in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لخالد في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
+        <div class="ss-svc">
+          <a href="${u("/services")}"><span class="e">🗂️</span><b>${L("All services (93)", "كل الخدمات (93)")}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
+          <a href="${u("/packages")}"><span class="e">📦</span><b>${L("Packages", "الباقات")}</b><span>${L("Bundled services at a clear starting price.", "باقات جاهزة بسعر ابتدائي واضح.")}</span></a>
+          <a href="${u("/calculator")}"><span class="e">🧮</span><b>${L("Cost calculator", "حاسبة التكلفة")}</b><span>${L("Build your basket and see one-time & monthly fees.", "كوّن سلّتك واعرف الأتعاب لمرة واحدة والشهرية.")}</span></a>
+          <a href="${u("/tools-and-calculators")}"><span class="e">🧰</span><b>${L("Free calculators", "الحاسبات المجانية")}</b><span>${L("Nitaqat, government cost, end of service, GOSI and more.", "النطاقات، التكاليف الحكومية، نهاية الخدمة، GOSI والمزيد.")}</span></a>
+          <a href="${u("/compliance-agent")}"><span class="e">🛡️</span><b>${L("Compliance subscription", "اشتراك الامتثال")}</b><span>${L("Daily monitoring & alerts before every deadline.", "مراقبة يومية وتنبيهات قبل كل استحقاق.")}</span></a>
+          <a href="${u("/consultation")}"><span class="e">📅</span><b>${L("Book a consultation", "احجز استشارة")}</b><span>${L("A specialist calls you about your case.", "متخصص يتواصل معك بخصوص حالتك.")}</span></a>
+          <a href="${u("/hr")}"><span class="e">👔</span><b>${L("Recruitment (HR)", "التوظيف")}</b><span>${L("Employer platform & pre-screened candidate pool.", "منصة أصحاب الأعمال وقاعدة مرشّحين مفحوصة.")}</span></a>
+          <a href="${u("/workspaces")}"><span class="e">🏢</span><b>${L("Office spaces", "مساحات العمل")}</b><span>${L("Offices and registered addresses.", "مكاتب ومقرات وعناوين وطنية.")}</span></a>
+          <a href="${u("/task-force")}"><span class="e">⚡</span><b>${L("Task Force", "تاسك فورس")}</b><span>${L("Executive service for hard multi-party missions.", "خدمة تنفيذية للمهمات الصعبة متعددة الجهات.")}</span></a>
+          <a href="${u("/deals")}"><span class="e">🤝</span><b>${L("Deals & matchmaking", "الصفقات والمطابقة")}</b><span>${L("Offer a deal or find a partner — matched automatically.", "اعرض صفقة أو ابحث عن شريك — مطابقة تلقائية.")}</span></a>
+          <a href="${u("/tourism")}"><span class="e">🧳</span><b>${L("Tourism & events", "السياحة والفعاليات")}</b><span>${L("Business tourism, trips and event logistics.", "سياحة أعمال ورحلات وتنظيم فعاليات.")}</span></a>
+          <a href="${u("/connect")}"><span class="e">🧑‍💼</span><b>${L("Individual smart employee", "الموظف الذكي الفردي")}</b><span>${L("Hire one specialist agent on its own.", "وظّف متخصصاً ذكياً واحداً لحاله.")}</span></a>
+          <a href="${u("/saudi-arabia")}"><span class="e">🇸🇦</span><b>${L("Invest in Saudi", "الاستثمار في السعودية")}</b><span>${L("Investor data, guides and sector insights.", "بيانات وأدلة المستثمر ورؤى القطاعات.")}</span></a>
+          <a href="${u("/account")}"><span class="e">🧾</span><b>${L("My orders & account", "طلباتي وحسابي")}</b><span>${L("Track your orders, documents and payments.", "تابع طلباتك ومستنداتك ومدفوعاتك.")}</span></a>
+        </div>
+        <p class="ss-secure">💡 ${L("Tip: anything here can also be requested through Khaled — he prepares it and anything binding waits for your approval.", "تلميح: أي خدمة هنا تقدر تطلبها عبر خالد مباشرة — يجهّزها لك وأي إجراء ملزم ينتظر موافقتك.")}</p>
       </div>
 
       <div class="ss-pane" id="pane-tools" hidden>
@@ -6996,6 +7018,12 @@ function buildSharedServicesPortal() {
     .ss-comp-links a:hover{border-color:var(--brand,#0b1b5a);transform:translateY(-1px)}
     .ss-comp-links b{display:block;color:var(--brand,#0b1b5a);font-size:.95rem}
     .ss-comp-links span{display:block;font-size:.8rem;color:var(--text-soft,#5b6b86);margin-top:3px;line-height:1.6}
+    .ss-svc{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+    .ss-svc a{display:block;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;text-decoration:none;transition:.12s;box-shadow:0 4px 14px rgba(11,27,90,.04)}
+    .ss-svc a:hover{border-color:var(--brand,#0b1b5a);transform:translateY(-2px);box-shadow:0 10px 24px rgba(11,27,90,.08)}
+    .ss-svc a span{display:block;font-size:.8rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+    .ss-svc a .e{font-size:1.5rem;color:inherit;line-height:1;margin-bottom:9px}
+    .ss-svc b{display:block;color:var(--brand,#0b1b5a);font-size:.95rem;margin-bottom:4px}
     @media(max-width:820px){.ss-comp{grid-template-columns:1fr}}
     .ss-access{max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 10px 30px rgba(11,27,90,.06)}
     .ss-access h2{margin:0 0 8px}
@@ -7081,7 +7109,6 @@ function buildSharedServicesPortal() {
     var inited=false;
     function openService(){ if(gate)gate.hidden=true; if(dash){dash.hidden=false; if(!inited){initDash();inited=true;} greet(); dash.scrollIntoView({behavior:'smooth',block:'start'});} }
     function greet(){ var c=getClient(); var h=document.querySelector('.ss-dash-head h2'); if(c&&h) h.textContent=${JSON.stringify(Lraw("Dashboard — ", "لوحة "))}+c.name; }
-    if(getClient()) openService();
     var unl=document.getElementById('ss-unlock');
     if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
       var code=(document.getElementById('unl-code').value||'').trim();
@@ -7102,7 +7129,7 @@ function buildSharedServicesPortal() {
     // ---------- tabs ----------
     var toolsBuilt=false;
     function switchTab(t){
-      ['team','tools','comp'].forEach(function(k){var p=document.getElementById('pane-'+k);if(p)p.hidden=(k!==t);});
+      ['team','svc','tools','comp'].forEach(function(k){var p=document.getElementById('pane-'+k);if(p)p.hidden=(k!==t);});
       var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',tabs[i].getAttribute('data-tab')===t);
       if(t==='tools'&&!toolsBuilt){buildTools();toolsBuilt=true;}
     }
@@ -7187,6 +7214,7 @@ function buildSharedServicesPortal() {
 
     // ---------- init ----------
     function initDash(){buildAgents();var first=document.querySelector('.ss-ag');selectAgent(AGENTS[0],first);}
+    if(getClient()) openService();
   })();</script>`;
   return page({
     title: Lraw("Service portal — Shared Services | Business Partner", "بوابة الخدمة — الخدمات المشتركة | بيزنس بارتنر"),
