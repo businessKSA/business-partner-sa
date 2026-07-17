@@ -6913,10 +6913,10 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-pane" id="pane-team">
-        <p class="ss-pane-lead">${L("Pick a specialist and deal with them directly — each one is an expert in their field.", "اختر متخصصاً وتعامل معه مباشرة — كل واحد خبير في مجاله.")}</p>
+        <p class="ss-pane-lead">${L("Pick a specialist and deal with them directly — each one is an expert in their field. ✏️ You can rename any of them to whatever you like — the new name sticks, and the agent itself adopts it.", "اختر متخصصاً وتعامل معه مباشرة — كل واحد خبير في مجاله. ✏️ وتقدر تغيّر اسم أي موظف لأي اسم يعجبك — الاسم الجديد يثبت لك، والموظف نفسه يتبنّاه ويتعامل به.")}</p>
         <div class="ss-agents" id="ss-agents"></div>
         <div class="ss-panel">
-          <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><span class="ss-live">● ${L("Live", "مباشر")}</span></div>
+          <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}" style="background:none;border:1px solid var(--line);border-radius:9px;cursor:pointer;font:inherit;font-size:.82rem;padding:5px 10px;margin-inline-start:10px;color:var(--brand,#0b1b5a)">✏️ ${L("Rename", "غيّر الاسم")}</button><span class="ss-live">● ${L("Live", "مباشر")}</span></div>
           <div class="ss-log" id="ss-log"></div>
           <form class="ss-form" id="ss-form">
             <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
@@ -7166,6 +7166,9 @@ function buildSharedServicesPortal() {
     var SKEY='bp_ss_client_v1';
     function getClient(){ try{ return JSON.parse(localStorage.getItem(SKEY)||'null'); }catch(e){ return null; } }
     function setClient(c){ try{ localStorage.setItem(SKEY,JSON.stringify(c)); }catch(e){} }
+    function getNames(){ var c=getClient(); return (c&&c.names&&typeof c.names==='object')?c.names:{}; }
+    function saveNames(nm){ var c=getClient(); if(!c)return; c.names=nm; setClient(c); }
+    function dispName(a){ var n=getNames()[a.slug]; return (typeof n==='string'&&n.trim())?n.trim():a.name; }
     var inited=false;
     function openService(){ if(gate)gate.hidden=true; if(dash){dash.hidden=false; if(!inited){initDash();inited=true;} greet(); dash.scrollIntoView({behavior:'smooth',block:'start'});} }
     function greet(){ var c=getClient(); var h=document.querySelector('.ss-dash-head h2'); if(c&&h) h.textContent=${JSON.stringify(Lraw("Dashboard — ", "لوحة "))}+c.name; }
@@ -7178,7 +7181,7 @@ function buildSharedServicesPortal() {
       note(box,${JSON.stringify(Lraw("Checking your code…", "نتحقق من رمزك…"))},'ok');
       fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d&&d.ok){ setClient({code:code.toUpperCase(),name:d.name||${JSON.stringify(Lraw("Client", "عميل"))}}); note(box,${JSON.stringify(Lraw("Welcome ", "أهلاً "))}+(d.name||'')+' 👋','ok'); openService(); }
+        .then(function(d){ if(d&&d.ok){ setClient({code:code.toUpperCase(),name:d.name||${JSON.stringify(Lraw("Client", "عميل"))},names:(d.names&&typeof d.names==='object')?d.names:{}}); note(box,${JSON.stringify(Lraw("Welcome ", "أهلاً "))}+(d.name||'')+' 👋','ok'); openService(); }
           else if(d&&d.blocked){ note(box,${JSON.stringify(Lraw("This account is suspended — contact us to reactivate.", "هذا الحساب موقوف — تواصل معنا لإعادة التفعيل."))},'err'); }
           else { note(box,${JSON.stringify(Lraw("Incorrect code. Use the code emailed to you after payment.", "الرمز غير صحيح. استخدم الرمز الذي وصلك على بريدك بعد الدفع."))},'err'); } })
         .catch(function(){ note(box,${JSON.stringify(Lraw("Connection issue — try again.", "تعذّر الاتصال — حاول مرة ثانية."))},'err'); });
@@ -7201,15 +7204,24 @@ function buildSharedServicesPortal() {
     function chatKey(s){ var c=getClient(); return CHAT_PREFIX+((c&&c.code)||'anon')+'_'+s; }
     function loadChat(s){try{return JSON.parse(localStorage.getItem(chatKey(s))||'[]');}catch(e){return[];}}
     function saveChat(s,h){try{localStorage.setItem(chatKey(s),JSON.stringify(h.slice(-80)));}catch(e){}}
-    function renderChat(){log.innerHTML='';if(!chatHist.length){var em=document.createElement('div');em.className='ss-msg bot empty';em.textContent=${JSON.stringify(Lraw("Start your conversation with ", "ابدأ محادثتك مع "))}+cur.name+' 👋';log.appendChild(em);return;}
+    function renderChat(){log.innerHTML='';if(!chatHist.length){var em=document.createElement('div');em.className='ss-msg bot empty';em.textContent=${JSON.stringify(Lraw("Start your conversation with ", "ابدأ محادثتك مع "))}+dispName(cur)+' 👋';log.appendChild(em);return;}
       chatHist.forEach(function(m){var d=document.createElement('div');d.className='ss-msg '+m.cls;d.textContent=m.text;log.appendChild(d);});log.scrollTop=log.scrollHeight;}
     function selectAgent(a,el){cur=a;var chips=document.querySelectorAll('.ss-ag');for(var i=0;i<chips.length;i++)chips[i].classList.remove('sel');if(el)el.classList.add('sel');
-      document.getElementById('ph-e').textContent=a.e;document.getElementById('ph-n').textContent=a.name;document.getElementById('ph-r').textContent=a.role;
+      document.getElementById('ph-e').textContent=a.e;document.getElementById('ph-n').textContent=dispName(a);document.getElementById('ph-r').textContent=a.role;
       chatHist=loadChat(a.slug);renderChat();input.disabled=false;document.querySelector('#ss-form button').disabled=false;input.focus();}
     function buildAgents(){var box=document.getElementById('ss-agents');box.innerHTML='';
       AGENTS.forEach(function(a){var el=document.createElement('button');el.type='button';el.className='ss-ag';el.dataset.slug=a.slug;
-        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+a.name+'</b><span>'+a.role+'</span></div>';
+        el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+dispName(a)+'</b><span>'+a.role+'</span></div>';
         el.onclick=function(){selectAgent(a,el);};box.appendChild(el);});}
+    var rb=document.getElementById('ss-rename');
+    if(rb) rb.onclick=function(){ if(!cur)return; var curName=dispName(cur);
+      var v=prompt(${JSON.stringify(Lraw("New name for «", "اكتب الاسم الجديد لـ «"))}+cur.name+${JSON.stringify(Lraw("» (leave empty to restore the original name):", "» (اتركه فارغاً لاستعادة الاسم الأصلي):"))},curName===cur.name?'':curName);
+      if(v===null)return; v=v.trim().slice(0,40);
+      var nm=getNames(); if(v){nm[cur.slug]=v;} else {delete nm[cur.slug];}
+      saveNames(nm); buildAgents(); var sel=document.querySelector('.ss-ag[data-slug="'+cur.slug+'"]'); selectAgent(cur,sel);
+      var c=getClient();
+      if(c&&!c.demo){ fetch(N8N+'/ss-names',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code,names:nm})}).catch(function(){}); }
+    };
     function sid(){var s=localStorage.getItem('bp_ss_sid');if(!s){s='ss-'+Date.now()+'-'+Math.random().toString(16).slice(2);localStorage.setItem('bp_ss_sid',s);}return s;}
     var busy=false;
     function push(text,cls){var em=log.querySelector('.empty');if(em)em.remove();var d=document.createElement('div');d.className='ss-msg '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
@@ -7219,6 +7231,7 @@ function buildSharedServicesPortal() {
       var th=push('…','bot');var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},110000);
       var c=getClient()||{code:'demo123'};
       var url=N8N+'/ss-chat', payload={code:c.code,agent:agent.slug,message:m};
+      if(c.demo)payload.names=getNames();
       fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
         .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}rep=rep||BUSY;th.textContent=rep;href.push({text:rep,cls:'bot'});saveChat(agent.slug,href);})
         .catch(function(er){clearTimeout(timer);var msg=(er&&er.name==='AbortError')?BUSY:ERRT;th.textContent=msg;href.push({text:msg,cls:'bot'});saveChat(agent.slug,href);})
