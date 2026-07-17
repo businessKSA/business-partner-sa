@@ -150,22 +150,70 @@
     </div>
   </section>
 
-  <section class="ss-sec ss-hier-sec">
+  <section class="ss-sec ss-hier-sec" id="ss-structure">
     <div class="wrap">
-      <div class="sec-head"><h2>The internal structure</h2><p>Who manages whom, who talks to whom, and where a human stays in control.</p></div>
-      <div class="ss-hier">
-        <div class="ss-tier ss-t1"><span class="e">👑</span><div><b>Khaled</b><span>Single point of contact + coordinator</span></div></div>
-        <div class="ss-hconn"></div>
-        <div class="ss-tier ss-t2"><span class="e">🧭</span><div><b>Mazen</b><span>Operations manager — coordinates multi-step execution</span></div></div>
-        <div class="ss-hconn"></div>
-        <div class="ss-tier-row"><span class="ss-mini"><span>👥</span>Nasser</span><span class="ss-mini"><span>🛡️</span>Mishari</span><span class="ss-mini"><span>💰</span>Abdulrahman</span><span class="ss-mini"><span>⚖️</span>Abdulaziz</span><span class="ss-mini"><span>💼</span>Badr</span><span class="ss-mini"><span>📣</span>Farah</span><span class="ss-mini"><span>🗂️</span>Malak</span><span class="ss-mini"><span>💻</span>Mohammed</span><span class="ss-mini"><span>📈</span>Ahmed</span><span class="ss-mini"><span>🛒</span>Abdullah</span></div>
-        <div class="ss-hgrid">
-          <div class="ss-hcard"><b>🎯 Advisory council</b><span>Baher is consulted on major decisions.</span></div>
-          <div class="ss-hcard"><b>📲 Human escalation</b><span>WhatsApp to the client's own staff for financial, field &amp; government work.</span></div>
-          <div class="ss-hcard gov"><b>🔒 Governance</b><span>Human approval before payment, signature or external send.</span></div>
+      <div class="sec-head"><h2>The internal structure — how they all work together</h2><p>Your request's journey step by step: one channel in, a full team executing behind the scenes, and your approval before anything binding.</p></div>
+      <div class="ss-org">
+        <div class="ss-onode you"><span class="e">👤</span><div><b>You — the client</b><span>Write your request in plain language — one channel only, no chasing anyone.</span></div></div>
+        <div class="ss-oconn"><i>1</i><em>The request</em></div>
+        <div class="ss-onode lead"><span class="e">👑</span><div><b>Khaled — Chief of Staff</b><span>Receives your request, owns it end to end, assigns the right specialist, collects the work, and hands you a finished result.</span></div></div>
+        <div class="ss-oconn"><i>2</i><em>Coordination</em></div>
+        <div class="ss-onode ops"><span class="e">🧭</span><div><b>Mazen — Operations Manager</b><span>Coordinates multi-step execution across specialists and guards delivery quality — works behind the scenes.</span></div></div>
+        <div class="ss-oconn"><i>3</i><em>Specialist execution</em></div>
+        <div class="ss-ogroups">
+          <div class="ss-ogroup"><b>🎯 Advisory &amp; planning</b>
+            <span class="ss-oa"><i>💡</i>Baher — Business Advisor</span>
+            <span class="ss-oa"><i>📈</i>Ahmed — Strategic Planning</span></div>
+          <div class="ss-ogroup"><b>⚖️ Finance, compliance &amp; legal</b>
+            <span class="ss-oa"><i>💰</i>Abdulrahman — CFO</span>
+            <span class="ss-oa"><i>🛡️</i>Mishari — Compliance</span>
+            <span class="ss-oa"><i>📜</i>Abdulaziz — Legal</span></div>
+          <div class="ss-ogroup"><b>📣 Growth</b>
+            <span class="ss-oa"><i>🤝</i>Badr — Sales &amp; BD</span>
+            <span class="ss-oa"><i>🎨</i>Farah — Marketing</span></div>
+          <div class="ss-ogroup"><b>🛠️ Operations &amp; support</b>
+            <span class="ss-oa"><i>👥</i>Nasser — HR</span>
+            <span class="ss-oa"><i>🛒</i>Abdullah — Procurement</span>
+            <span class="ss-oa"><i>💻</i>Mohammed — IT</span>
+            <span class="ss-oa"><i>📋</i>Malak — Executive Assistant</span></div>
         </div>
+        <div class="ss-opeer">↔️ Peer consult: any specialist may consult one colleague when your request crosses fields — without bothering you with the details.</div>
+        <div class="ss-oconn gold"><i>4</i><em>Governance gate</em></div>
+        <div class="ss-onode gov"><span class="e">🔒</span><div><b>Your mandatory approval</b><span>Any payment, signature, binding commitment, paid government submission or official external message is prepared ready-to-go — then WAITS for your approval.</span></div></div>
+        <div class="ss-oconn green"><i>5</i><em>Delivery</em></div>
+        <div class="ss-onode done"><span class="e">✅</span><div><b>Finished output + documentation</b><span>Khaled hands you the result, and every task and conversation is logged in your own isolated workspace.</span></div></div>
+      </div>
+      <div class="ss-hgrid">
+        <div class="ss-hcard"><b>📲 Human escalation</b><span>Field, financial and government work is escalated by WhatsApp to your own staff.</span></div>
+        <div class="ss-hcard"><b>🗄️ Isolated workspace per client</b><span>Your tasks, conversations and approvals live in your own private space — zero overlap with other clients.</span></div>
+        <div class="ss-hcard gov"><b>🔐 Security</b><span>We never ask for passwords or OTP. Your access code is secret and emailed only to your registered address.</span></div>
       </div>
     </div>
+    <style>
+      .ss-org{display:flex;flex-direction:column;align-items:center;max-width:860px;margin:0 auto}
+      .ss-onode{display:flex;gap:14px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:16px 22px;box-shadow:0 8px 24px rgba(11,27,90,.07);max-width:600px;width:100%;text-align:start}
+      .ss-onode .e{font-size:1.9rem;line-height:1}
+      .ss-onode b{display:block;color:var(--brand,#0b1b5a);font-size:1.02rem;margin-bottom:3px}
+      .ss-onode span{display:block;font-size:.84rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+      .ss-onode.you{border-color:#12b3ad;box-shadow:0 8px 24px rgba(18,179,173,.14)}
+      .ss-onode.lead{border-color:var(--brand,#0b1b5a);border-width:2px}
+      .ss-onode.gov{border-color:#e8c35a;background:#fffdf4}
+      .ss-onode.done{border-color:#4caf7d;background:#f6fcf8}
+      .ss-oconn{position:relative;width:2px;height:46px;background:var(--line);margin:2px 0}
+      .ss-oconn::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--line);border-bottom:0}
+      .ss-oconn i{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:var(--brand,#0b1b5a);color:#fff;font-style:normal;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px #f6f9fc}
+      .ss-oconn em{position:absolute;top:50%;transform:translateY(-50%);inset-inline-start:calc(50% + 22px);white-space:nowrap;font-style:normal;font-size:.8rem;font-weight:700;color:var(--brand,#0b1b5a)}
+      .ss-oconn.gold i{background:#c99617}
+      .ss-oconn.green i{background:#2f9e64}
+      .ss-ogroups{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;margin:2px 0}
+      .ss-ogroup{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+      .ss-ogroup>b{display:block;color:var(--brand,#0b1b5a);font-size:.88rem;margin-bottom:9px}
+      .ss-oa{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:#3d4a63;background:#f4f8fb;border:1px solid var(--line);border-radius:9px;padding:6px 9px;margin-top:6px}
+      .ss-oa i{font-style:normal}
+      .ss-opeer{margin:12px 0 2px;max-width:640px;text-align:center;font-size:.82rem;color:var(--text-soft,#5b6b86);border:1.5px dashed #b9c6dd;border-radius:12px;padding:10px 16px;background:#fbfdff;line-height:1.7}
+      @media(max-width:900px){.ss-ogroups{grid-template-columns:1fr 1fr}}
+      @media(max-width:560px){.ss-ogroups{grid-template-columns:1fr}.ss-oconn em{display:none}}
+    </style>
   </section>
 
   <section class="ss-sec" id="ss-subscribe">

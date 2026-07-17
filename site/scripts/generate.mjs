@@ -6453,22 +6453,70 @@ function buildSharedServices() {
     </div>
   </section>
 
-  <section class="ss-sec ss-hier-sec">
+  <section class="ss-sec ss-hier-sec" id="ss-structure">
     <div class="wrap">
-      <div class="sec-head"><h2>${L("The internal structure", "الهيكل الداخلي")}</h2><p>${L("Who manages whom, who talks to whom, and where a human stays in control.", "مَن يدير مَن، ومَن يكلّم مَن، وأين يبقى الإنسان مسيطراً.")}</p></div>
-      <div class="ss-hier">
-        <div class="ss-tier ss-t1"><span class="e">👑</span><div><b>${L("Khaled", "خالد")}</b><span>${L("Single point of contact + coordinator", "نقطة الاتصال الواحدة + المنسّق")}</span></div></div>
-        <div class="ss-hconn"></div>
-        <div class="ss-tier ss-t2"><span class="e">🧭</span><div><b>${L("Mazen", "مازن")}</b><span>${L("Operations manager — coordinates multi-step execution", "مدير العمليات — ينسّق التنفيذ متعدّد الخطوات")}</span></div></div>
-        <div class="ss-hconn"></div>
-        <div class="ss-tier-row">${roster.filter((r) => !["خالد", "مازن", "باهر"].includes(r.ar)).map((r) => `<span class="ss-mini"><span>${r.e}</span>${L(r.en, r.ar)}</span>`).join("")}</div>
-        <div class="ss-hgrid">
-          <div class="ss-hcard"><b>🎯 ${L("Advisory council", "المجلس الاستشاري")}</b><span>${L("Baher is consulted on major decisions.", "باهر يُستشار في القرارات الكبرى.")}</span></div>
-          <div class="ss-hcard"><b>📲 ${L("Human escalation", "التصعيد البشري")}</b><span>${L("WhatsApp to the client's own staff for financial, field & government work.", "واتساب لموظفي العميل نفسه للأعمال المالية والميدانية والحكومية.")}</span></div>
-          <div class="ss-hcard gov"><b>🔒 ${L("Governance", "الحوكمة")}</b><span>${L("Human approval before payment, signature or external send.", "موافقة بشرية قبل الدفع أو التوقيع أو الإرسال الخارجي.")}</span></div>
+      <div class="sec-head"><h2>${L("The internal structure — how they all work together", "الهيكل الداخلي — كيف يعمل الفريق معاً")}</h2><p>${L("Your request's journey step by step: one channel in, a full team executing behind the scenes, and your approval before anything binding.", "رحلة طلبك خطوة بخطوة: قناة واحدة تدخل منها، فريق كامل ينفّذ خلف الكواليس، وموافقتك قبل أي إجراء ملزم.")}</p></div>
+      <div class="ss-org">
+        <div class="ss-onode you"><span class="e">👤</span><div><b>${L("You — the client", "أنت — العميل")}</b><span>${L("Write your request in plain language — one channel only, no chasing anyone.", "تكتب طلبك بلغتك العادية — قناة واحدة فقط، وما تحتاج تلاحق أحداً.")}</span></div></div>
+        <div class="ss-oconn"><i>1</i><em>${L("The request", "الطلب")}</em></div>
+        <div class="ss-onode lead"><span class="e">👑</span><div><b>${L("Khaled — Chief of Staff", "خالد — رئيس الأركان")}</b><span>${L("Receives your request, owns it end to end, assigns the right specialist, collects the work, and hands you a finished result.", "يستقبل طلبك، يملكه من أوله لآخره، يكلّف المتخصص المناسب، يجمع الشغل، ويسلّمك نتيجة جاهزة.")}</span></div></div>
+        <div class="ss-oconn"><i>2</i><em>${L("Coordination", "التوزيع والتنسيق")}</em></div>
+        <div class="ss-onode ops"><span class="e">🧭</span><div><b>${L("Mazen — Operations Manager", "مازن — مدير العمليات")}</b><span>${L("Coordinates multi-step execution across specialists and guards delivery quality — works behind the scenes.", "ينسّق التنفيذ متعدد الخطوات بين المتخصصين ويراقب جودة التسليم — يعمل خلف الكواليس.")}</span></div></div>
+        <div class="ss-oconn"><i>3</i><em>${L("Specialist execution", "التنفيذ المتخصص")}</em></div>
+        <div class="ss-ogroups">
+          <div class="ss-ogroup"><b>🎯 ${L("Advisory & planning", "الاستشارة والتخطيط")}</b>
+            <span class="ss-oa"><i>💡</i>${L("Baher — Business Advisor", "باهر — مستشار الأعمال")}</span>
+            <span class="ss-oa"><i>📈</i>${L("Ahmed — Strategic Planning", "أحمد — التخطيط الاستراتيجي")}</span></div>
+          <div class="ss-ogroup"><b>⚖️ ${L("Finance, compliance & legal", "المال والامتثال والقانون")}</b>
+            <span class="ss-oa"><i>💰</i>${L("Abdulrahman — CFO", "عبدالرحمن — المدير المالي")}</span>
+            <span class="ss-oa"><i>🛡️</i>${L("Mishari — Compliance", "مشاري — الامتثال الحكومي")}</span>
+            <span class="ss-oa"><i>📜</i>${L("Abdulaziz — Legal", "عبدالعزيز — القانوني")}</span></div>
+          <div class="ss-ogroup"><b>📣 ${L("Growth", "النمو")}</b>
+            <span class="ss-oa"><i>🤝</i>${L("Badr — Sales & BD", "بدر — المبيعات وتطوير الأعمال")}</span>
+            <span class="ss-oa"><i>🎨</i>${L("Farah — Marketing", "فرح — التسويق والمحتوى")}</span></div>
+          <div class="ss-ogroup"><b>🛠️ ${L("Operations & support", "التشغيل والدعم")}</b>
+            <span class="ss-oa"><i>👥</i>${L("Nasser — HR", "ناصر — الموارد البشرية")}</span>
+            <span class="ss-oa"><i>🛒</i>${L("Abdullah — Procurement", "عبدالله — المشتريات والتوريد")}</span>
+            <span class="ss-oa"><i>💻</i>${L("Mohammed — IT", "محمد — التقنية")}</span>
+            <span class="ss-oa"><i>📋</i>${L("Malak — Executive Assistant", "ملاك — مساعِدة تنفيذية")}</span></div>
         </div>
+        <div class="ss-opeer">↔️ ${L("Peer consult: any specialist may consult one colleague when your request crosses fields — without bothering you with the details.", "استشارة الزملاء: أي متخصص يستشير زميلاً واحداً لو احتاج طلبك خبرة إضافية — بدون ما يشغلك بالتفاصيل.")}</div>
+        <div class="ss-oconn gold"><i>4</i><em>${L("Governance gate", "بوابة الحوكمة")}</em></div>
+        <div class="ss-onode gov"><span class="e">🔒</span><div><b>${L("Your mandatory approval", "موافقتك الإلزامية")}</b><span>${L("Any payment, signature, binding commitment, paid government submission or official external message is prepared ready-to-go — then WAITS for your approval.", "أي دفع أو توقيع أو التزام ملزم أو تقديم حكومي مدفوع أو رسالة رسمية خارجية — تتجهّز كاملة ثم تقف عند «بانتظار موافقتك».")}</span></div></div>
+        <div class="ss-oconn green"><i>5</i><em>${L("Delivery", "التسليم")}</em></div>
+        <div class="ss-onode done"><span class="e">✅</span><div><b>${L("Finished output + documentation", "مخرج جاهز + توثيق")}</b><span>${L("Khaled hands you the result, and every task and conversation is logged in your own isolated workspace.", "خالد يسلّمك النتيجة، وكل مهمة ومحادثة تُوثَّق في مساحتك الخاصة المعزولة عن بقية العملاء.")}</span></div></div>
+      </div>
+      <div class="ss-hgrid">
+        <div class="ss-hcard"><b>📲 ${L("Human escalation", "التصعيد البشري")}</b><span>${L("Field, financial and government work is escalated by WhatsApp to your own staff.", "الأعمال الميدانية والمالية والحكومية تُصعَّد بواتساب لموظفيك أنت.")}</span></div>
+        <div class="ss-hcard"><b>🗄️ ${L("Isolated workspace per client", "مساحة معزولة لكل عميل")}</b><span>${L("Your tasks, conversations and approvals live in your own private space — zero overlap with other clients.", "مهامك ومحادثاتك وموافقاتك في مساحة خاصة بك — صفر تداخل مع أي عميل آخر.")}</span></div>
+        <div class="ss-hcard gov"><b>🔐 ${L("Security", "الأمان")}</b><span>${L("We never ask for passwords or OTP. Your access code is secret and emailed only to your registered address.", "لا نطلب كلمات مرور أو OTP أبداً. رمز دخولك سرّي ويُرسل لبريدك المسجّل فقط.")}</span></div>
       </div>
     </div>
+    <style>
+      .ss-org{display:flex;flex-direction:column;align-items:center;max-width:860px;margin:0 auto}
+      .ss-onode{display:flex;gap:14px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:16px 22px;box-shadow:0 8px 24px rgba(11,27,90,.07);max-width:600px;width:100%;text-align:start}
+      .ss-onode .e{font-size:1.9rem;line-height:1}
+      .ss-onode b{display:block;color:var(--brand,#0b1b5a);font-size:1.02rem;margin-bottom:3px}
+      .ss-onode span{display:block;font-size:.84rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+      .ss-onode.you{border-color:#12b3ad;box-shadow:0 8px 24px rgba(18,179,173,.14)}
+      .ss-onode.lead{border-color:var(--brand,#0b1b5a);border-width:2px}
+      .ss-onode.gov{border-color:#e8c35a;background:#fffdf4}
+      .ss-onode.done{border-color:#4caf7d;background:#f6fcf8}
+      .ss-oconn{position:relative;width:2px;height:46px;background:var(--line);margin:2px 0}
+      .ss-oconn::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--line);border-bottom:0}
+      .ss-oconn i{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:var(--brand,#0b1b5a);color:#fff;font-style:normal;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px #f6f9fc}
+      .ss-oconn em{position:absolute;top:50%;transform:translateY(-50%);inset-inline-start:calc(50% + 22px);white-space:nowrap;font-style:normal;font-size:.8rem;font-weight:700;color:var(--brand,#0b1b5a)}
+      .ss-oconn.gold i{background:#c99617}
+      .ss-oconn.green i{background:#2f9e64}
+      .ss-ogroups{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;margin:2px 0}
+      .ss-ogroup{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+      .ss-ogroup>b{display:block;color:var(--brand,#0b1b5a);font-size:.88rem;margin-bottom:9px}
+      .ss-oa{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:#3d4a63;background:#f4f8fb;border:1px solid var(--line);border-radius:9px;padding:6px 9px;margin-top:6px}
+      .ss-oa i{font-style:normal}
+      .ss-opeer{margin:12px 0 2px;max-width:640px;text-align:center;font-size:.82rem;color:var(--text-soft,#5b6b86);border:1.5px dashed #b9c6dd;border-radius:12px;padding:10px 16px;background:#fbfdff;line-height:1.7}
+      @media(max-width:900px){.ss-ogroups{grid-template-columns:1fr 1fr}}
+      @media(max-width:560px){.ss-ogroups{grid-template-columns:1fr}.ss-oconn em{display:none}}
+    </style>
   </section>
 
   <section class="ss-sec" id="ss-subscribe">
