@@ -1748,6 +1748,24 @@
         "Property details, confirmed to be inside an approved ownership zone (and the client a Saudi company or Muslim individual if in Makkah/Madinah)",
         "Payment of government fees: real estate transfer fee (up to 5%) + Real Estate Transaction Tax (5%)"
       ]
+    },
+    "bp-housing-01": {
+      "description": "نوفّر لمنشأتك حل تسكين العمالة كاملاً وفق الدليل الاسترشادي لإجراءات الرقابة على السكن الجماعي للأفراد (وزارة البلديات والإسكان — قرار وزاري 4600218548/1). أي منشأة تسكّن 20 فرداً فأكثر تلزمها رخصة تشغيلية، وتخضع لجولات رقابية ربع سنوية من لجان أربع وزارات، وتصل غرامة النشاط بدون ترخيص إلى 10,000 ريال مع احتمال إغلاق السكن. نتولّى توفير سكن جاهز ومرخّص أو ترخيص سكنك الحالي: رخصة بلدي، توثيق إيجار، شهادة الدفاع المدني، تحديث عناوين العمالة في مقيم، مع خيارات الإعاشة والنقل وإدارة التشغيل.",
+      "descriptionEn": "A complete worker-housing solution under MoMaH's collective-housing supervision guide (ministerial decision 4600218548/1). Any facility housing 20+ workers needs an operating license and faces quarterly inspections by four-ministry committees; operating unlicensed carries fines up to SAR 10,000 and possible closure. We provide ready licensed housing or license your existing one: Balady license, Ejar contract attestation, Civil Defense certificate, bulk Muqeem address updates — plus optional catering, transport and operations management.",
+      "documents": [
+        "السجل التجاري للمنشأة",
+        "عقد إيجار السكن (أو نوثقه لك في إيجار)",
+        "بيانات موقع السكن وعدد العمالة",
+        "رخصة السكن الجماعي الحالية إن وجدت (أو نصدرها من بلدي)",
+        "قائمة العمالة لتحديث عناوينهم في مقيم"
+      ],
+      "documentsEn": [
+        "Company Commercial Registration",
+        "Housing lease contract (or we attest it in Ejar)",
+        "Housing site details and worker count",
+        "Existing collective-housing license if any (or we issue it via Balady)",
+        "Worker list for Muqeem address updates"
+      ]
     }
   },
   "social": {

@@ -374,5 +374,9 @@
   "BP-RE-06": {
     "en": "Foreign Property Ownership",
     "ar": "تملّك العقار للأجانب"
+  },
+  "BP-HOUSING-01": {
+    "en": "Worker housing — licensed collective housing",
+    "ar": "تسكين العمالة — سكن جماعي مرخّص"
   }
 }

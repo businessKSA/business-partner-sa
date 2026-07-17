@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-17T02:25:29.884Z",
+  "updatedAt": "2026-07-17T02:32:27.976Z",
   "currency": "SAR",
   "services": [
     {
@@ -1277,6 +1277,20 @@
       "url": "https://businesspartner.sa/services/bp-re-06"
     },
     {
+      "code": "BP-HOUSING-01",
+      "nameAr": "تسكين العمالة — سكن جماعي مرخّص",
+      "nameEn": "Worker housing — licensed collective housing",
+      "category": "HR Services",
+      "categoryAr": "الموارد البشرية",
+      "govPlatform": "بلدي",
+      "pricingModel": "Requires Proposal",
+      "amount": null,
+      "priceLabel": "عرض سعر مخصص",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-housing-01"
+    },
+    {
       "code": "BP-AI-01",
       "nameAr": "منظومة الأعمال بالذكاء الاصطناعي (Enterprise)",
       "nameEn": "AI Business Partner Enterprise",
@@ -1334,7 +1348,7 @@
       "key": "HR Services",
       "nameAr": "الموارد البشرية",
       "nameEn": "HR Services",
-      "count": 8
+      "count": 9
     },
     {
       "key": "Recruitment",
