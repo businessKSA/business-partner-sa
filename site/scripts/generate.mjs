@@ -7061,6 +7061,23 @@ function buildSharedServicesPortal() {
             <a href="${u("/tools-and-calculators")}"><b>🧮 ${L("Free calculators", "الحاسبات المجانية")}</b><span>${L("Nitaqat, government cost, end of service and more.", "النطاقات، التكاليف الحكومية، نهاية الخدمة والمزيد.")}</span></a>
           </div>
         </div>
+        <div class="ss-compdash">
+          <div class="ss-compdash-head">
+            <div><b>🛡️ ${L("Your live compliance dashboard", "لوحة الامتثال الحيّة لمنشأتك")}</b>
+            <span>${L("Compliance score, alerts, government entities, document uploads and estimated costs — sign in below with your compliance email + code.", "درجة الامتثال، التنبيهات، الجهات الحكومية، رفع المستندات والتكاليف التقديرية — سجّل دخولك بالأسفل بإيميل ورمز اشتراك الامتثال.")}</span></div>
+            <a class="btn btn-ghost" href="/ar/compliance-dashboard" target="_blank" rel="noopener">${L("Open full page ↗", "افتحها في صفحة مستقلة ↗")}</a>
+          </div>
+          <iframe id="ss-compdash-frame" data-src="/ar/compliance-dashboard" loading="lazy" title="${Lraw("Compliance dashboard", "لوحة الامتثال")}"></iframe>
+        </div>
+        <style>
+          .ss-compdash{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,27,90,.07)}
+          .ss-compdash-head{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#f6f9fc,#fff)}
+          .ss-compdash-head b{display:block;color:var(--brand,#0b1b5a);font-size:1rem;margin-bottom:3px}
+          .ss-compdash-head span{display:block;font-size:.83rem;color:var(--text-soft,#5b6b86);line-height:1.7}
+          .ss-compdash-head .btn{white-space:nowrap}
+          #ss-compdash-frame{display:block;width:100%;height:960px;border:0;background:#fff}
+          @media(max-width:640px){#ss-compdash-frame{height:760px}}
+        </style>
       </div>
     </div>
   </section>
@@ -7286,6 +7303,7 @@ function buildSharedServicesPortal() {
       ['team','svc','tools','comp'].forEach(function(k){var p=document.getElementById('pane-'+k);if(p)p.hidden=(k!==t);});
       var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',tabs[i].getAttribute('data-tab')===t);
       if(t==='tools'&&!toolsBuilt){buildTools();toolsBuilt=true;}
+      if(t==='comp'){var fr=document.getElementById('ss-compdash-frame');if(fr&&!fr.src)fr.src=fr.getAttribute('data-src');}
     }
     (function(){var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++){(function(b){b.onclick=function(){switchTab(b.getAttribute('data-tab'));};})(tabs[i]);}})();
 
