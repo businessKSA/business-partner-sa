@@ -1835,10 +1835,10 @@ var BP = window.BP = window.BP || {};
     var est = Math.min(9000, Math.max(2200, text.length * 60));
     pulseTalk(est); // مؤشر فوري ريثما يجهز الصوت الطبيعي
     if (!window.Audio || !window.fetch) { speakBrowser(text); return; }
-    fetch("/api/tts", {
+    fetch("/api/chat", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text: text }),
+      body: JSON.stringify({ tts: text }),
     })
       .then(function (r) { if (!r.ok) throw new Error("tts " + r.status); return r.blob(); })
       .then(function (blob) {
