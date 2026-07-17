@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=548fb188f0">
+<link rel="stylesheet" href="/assets/css/styles.css?v=1ea355ee9d">
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/fr/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
@@ -77,14 +77,17 @@
 
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">Comment ça marche</span><h2>From partners' agreement to a registered company</h2></div>
-    <div class="home-steps"><div class="hstep"><span class="hstep-n">1</span><h3>Company &amp; partners details</h3><p>Proposed name, entity type, capital, and every partner with their share.</p></div><div class="hstep"><span class="hstep-n">2</span><h3>We draft the incorporation contract</h3><p>A compliant عقد تأسيس drafted per the Companies Law and your shares.</p></div><div class="hstep"><span class="hstep-n">3</span><h3>Submission via the Saudi Business Center</h3><p>We submit and track the contract through the Saudi Business Center until approval.</p></div><div class="hstep"><span class="hstep-n">4</span><h3>Partners e-sign &amp; CR issued</h3><p>Every partner gets the signing invitation by email; we finish with CR issuance and next steps (bank account, licenses).</p></div></div>
+    <div class="home-steps"><div class="hstep"><span class="hstep-n">1</span><h3>Company &amp; partners details</h3><p>Proposed name, entity type and capital; every partner with their identity documents and share; and the managers with their Article-5 powers — behind your dashboard sign-in.</p></div><div class="hstep"><span class="hstep-n">2</span><h3>We draft the incorporation contract</h3><p>A compliant عقد تأسيس drafted per the Companies Law and your shares.</p></div><div class="hstep"><span class="hstep-n">3</span><h3>Submission via the Saudi Business Center</h3><p>We submit and track the contract through the Saudi Business Center until approval.</p></div><div class="hstep"><span class="hstep-n">4</span><h3>Partners e-sign &amp; CR issued</h3><p>Every partner gets the signing invitation by email; we finish with CR issuance and next steps (bank account, licenses).</p></div></div>
     <div class="callout" style="max-width:760px;margin:28px auto 0"><span class="ico">💰</span><p>Good to know: incorporation-contract publication and CR fees are among the fees Monsha'at's Estrdad refunds to compliant SMEs. <a href="/fr/estrdad">Fee refunds ←</a></p></div>
   </div></section>
 
-  <section class="section" id="fc-form"><div class="container" style="max-width:920px">
-    <div class="section-head"><h2>Start your company formation</h2><p>Shares must total 100% — every partner receives the updates and the signing invitation by email.</p></div>
+  <section class="section" id="fc-form"><div class="container" style="max-width:980px">
+    <div class="section-head"><h2>Start your company formation</h2><p>The full formation form: every partner's identity, documents and share, plus the managers' powers exactly as in the Ministry of Commerce articles of association.</p></div>
+    <div class="callout" id="fc-gate" style="margin-bottom:16px"><span class="ico">🔒</span><p><strong>This form is available after signing in.</strong> Formation data is sensitive (IDs, passports, powers) so it's collected inside your client dashboard only — sign in or create a free account and you'll return here automatically. <a href="/fr/account?redirect=formation">Sign in / create account ←</a></p></div>
+    <div id="fc-form-wrap" hidden>
     <div class="order-box">
       <form id="fc-form-el" novalidate>
+        <h3 class="fc-step">1 · Company details</h3>
         <div class="cc-grid">
           <div class="field"><label for="fc-name">Proposed company name *</label><input type="text" id="fc-name" required></div>
           <div class="field"><label for="fc-type">Entity type</label><select id="fc-type">
@@ -98,17 +101,22 @@
           <div class="field"><label for="fc-phone">Mobile *</label><input type="tel" id="fc-phone" placeholder="05XXXXXXXX" required></div>
           <div class="field"><label for="fc-email">E-mail *</label><input type="email" id="fc-email" required></div>
         </div>
-        
-      <div class="field"><label>Partners (name, mobile, email, share %)</label>
-        <div class="partners-rows" data-partners data-with-share="1"></div>
-        <button type="button" class="btn btn-ghost btn-sm" data-add-partner>＋ Add partner</button>
-        <p class="mini">Every partner receives the updates and the appointment invitation by email.</p>
-      </div>
-        <div class="calc-line" style="border:0;padding-top:0"><span class="k" style="color:var(--text-soft)">Shares total</span><span class="v" id="fc-share-total" style="color:var(--navy)">0%</span></div>
+        <h3 class="fc-step">2 · Partners &amp; their documents</h3>
+        <p class="mini">For each partner: type (Saudi / resident / foreign investor / foreign company), Gregorian date of birth, short national address, share % — and the required attachment per type (national ID, iqama + passport, passport, or CR/trade license).</p>
+        <div id="fc-partners" class="fc-cards"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="fc-add-partner">＋ Add partner</button>
+        <div class="calc-line" style="border:0;padding-top:6px"><span class="k" style="color:var(--text-soft)">Shares total</span><span class="v" id="fc-share-total" style="color:var(--navy)">0%</span></div>
+        <h3 class="fc-step">3 · Managers &amp; their powers (Article 5)</h3>
+        <p class="mini">Pick the manager (a partner or external), then open each power bar and set: exercise mode (solely / with all managers' approval), delegation right, and the sub-powers — exactly as they appear in the articles of association.</p>
+        <div id="fc-managers" class="fc-cards"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="fc-add-manager">＋ Add manager</button>
+        <p class="mini" style="margin-top:14px">🔐 Attachments go encrypted over HTTPS straight to the formation team; nothing is stored in your browser. Max 2.5MB per file (PDF/JPG/PNG).</p>
         <button type="submit" class="btn btn-primary btn-lg">Send the formation request</button>
         <div class="form-success" id="fc-success" hidden></div>
       </form>
     </div>
+    </div>
+    <script>window.FC_CONFIG={"types":[{"key":"saudi","label":"Saudi partner","id":"National ID number","dob":true,"files":[{"key":"nid","label":"National ID copy"}]},{"key":"resident","label":"Resident partner (iqama)","id":"Iqama number","dob":true,"files":[{"key":"iqama","label":"Iqama copy"},{"key":"passport","label":"Passport"}]},{"key":"foreign","label":"Foreign investor (individual)","id":"Passport number","dob":true,"files":[{"key":"passport","label":"Passport"}]},{"key":"company","label":"Foreign company (corporate partner)","id":"CR / trade-license number","dob":false,"files":[{"key":"cr","label":"CR or trade license copy"}]}],"modes":[{"key":"solo","label":"Exercised solely"},{"key":"joint","label":"With all managers' approval"}],"tawkeel":"May delegate (tawkeel)","perms":[{"key":"cr","label":"Commercial registrations","subs":[{"key":"issue","label":"Issuing (main & branch CRs)"},{"key":"confirm","label":"Annual confirmation"},{"key":"amend","label":"Amending, transferring & managing CRs"},{"key":"strike","label":"Striking off (شطب)"}]},{"key":"banking","label":"Banking","subs":[{"key":"accounts","label":"Opening & closing bank accounts in the company's name"},{"key":"credits","label":"Opening documentary credits"},{"key":"operate","label":"Deposit, withdrawal & account updates"},{"key":"cheques","label":"Issuing cheques & obtaining statements"},{"key":"facilities","label":"Requesting facilities & guarantees"},{"key":"loans","label":"Signing loan contracts, commercial papers & promissory notes"}]},{"key":"assets","label":"Property management","subs":[{"key":"realestate","label":"Buying, selling & conveying real estate and land"},{"key":"shares","label":"Buying & selling shares"},{"key":"mortgage","label":"Mortgage, release & receipt"},{"key":"leases","label":"Signing, renewing & terminating lease contracts"}]},{"key":"companies","label":"Companies & participations","subs":[{"key":"contracts","label":"Signing companies' contracts & partners' resolutions"},{"key":"stakes","label":"Buying & selling stakes"},{"key":"represent","label":"Representing the company in companies it holds"},{"key":"incorporate","label":"Incorporating companies in the company's name (incl. before the notary)"}]},{"key":"judicial","label":"Judiciary & representation","subs":[{"key":"plead","label":"Pleading, defending, claiming & litigating"},{"key":"settle","label":"Conciliation, accepting/refusing arbitration & settlement"},{"key":"appoint","label":"Appointing arbitrators & lawyers"},{"key":"notary","label":"Representation before notaries & MoJ e-services"}]},{"key":"gov","label":"Government bodies & platforms","subs":[{"key":"chamber","label":"Chamber of Commerce (subscription, signature approval, documents)"},{"key":"zakat","label":"ZATCA, GOSI & Civil Defense"},{"key":"licenses","label":"Issuing, renewing, amending & transferring licenses"},{"key":"tenders","label":"Entering tenders & receiving forms"},{"key":"etimad","label":"Etimad, HRSD & CITC e-services"}]},{"key":"labor","label":"Workforce & residency","subs":[{"key":"visas","label":"Visas: issuance, cancellation & refunds"},{"key":"recruit","label":"Recruitment & opening files"},{"key":"iqama","label":"Iqamas: issuance, renewal, exit/re-entry & final exit"},{"key":"sponsorship","label":"Sponsorship transfer & profession amendment"}]},{"key":"fundamental","label":"Contract amendments & fundamental decisions","subs":[{"key":"capital","label":"Increasing / decreasing capital"},{"key":"partners","label":"Partners entering & exiting; accepting stake waivers"},{"key":"entity","label":"Changing the legal entity & mergers"},{"key":"liquidate","label":"Liquidating the company / converting it to an establishment"}]}]};</script>
   </div></section></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
@@ -188,4 +196,4 @@
       <button type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
     </form>
     <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Vous préférez discuter avec notre équipe sur WhatsApp ?</span></a>
-  </section><script src="/assets/js/main.js?v=6770652c43"></script></body></html>
+  </section><script src="/assets/js/main.js?v=cd934791f2"></script></body></html>

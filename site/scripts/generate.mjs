@@ -1061,7 +1061,7 @@ function buildServiceDetail(s) {
         <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
           : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
-        ${s.category === "Real Estate"
+        ${s.category === "Real Estate" && !s.ctaConsultation
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
@@ -4694,12 +4694,88 @@ function buildBankAccount() {
   return page({ title: Lraw("Corporate bank account opening — Business Partner", "فتح حساب بنكي للشركات — بيزنس بارتنر"), desc: Lraw("We prepare the file, coordinate with your bank and book an online meeting — all partners notified.", "نجهّز الملف وننسق مع بنكك ونحجز اجتماعاً أونلاين — مع إشعار جميع الشركاء."), active: "/bank-account", path: "/bank-account", body });
 }
 
+// Manager powers in the formation form — the main→sub structure and wording
+// mirror the actual Ministry of Commerce نظام أساس supplied by the owner
+// (المادة الخامسة: إدارة الشركة): every granted power carries an exercise mode
+// (يمارسها منفرداً / بموافقة كل المديرين) plus a يحق التوكيل flag.
+const FC_PERMS = [
+  { key: "cr", en: "Commercial registrations", ar: "السجلات التجارية", subs: [
+    ["issue", "Issuing (main & branch CRs)", "الإصدار (الرئيسية والفرعية)"],
+    ["confirm", "Annual confirmation", "التأكيد السنوي"],
+    ["amend", "Amending, transferring & managing CRs", "تعديل السجلات ونقلها وإدارتها"],
+    ["strike", "Striking off (شطب)", "الشطب"],
+  ]},
+  { key: "banking", en: "Banking", ar: "الصلاحيات البنكية", subs: [
+    ["accounts", "Opening & closing bank accounts in the company's name", "فتح وقفل الحسابات لدى البنوك باسم الشركة"],
+    ["credits", "Opening documentary credits", "فتح الاعتمادات"],
+    ["operate", "Deposit, withdrawal & account updates", "الإيداع والسحب وتحديث الحسابات"],
+    ["cheques", "Issuing cheques & obtaining statements", "إصدار الشيكات واستخراج كشوف الحسابات"],
+    ["facilities", "Requesting facilities & guarantees", "طلب التسهيلات والضمانات"],
+    ["loans", "Signing loan contracts, commercial papers & promissory notes", "توقيع عقود القروض والأوراق التجارية وسندات لأمر"],
+  ]},
+  { key: "assets", en: "Property management", ar: "إدارة الأملاك", subs: [
+    ["realestate", "Buying, selling & conveying real estate and land", "شراء وبيع وإفراغ العقار والأراضي"],
+    ["shares", "Buying & selling shares", "شراء وبيع الأسهم"],
+    ["mortgage", "Mortgage, release & receipt", "حق الرهن وفك الرهن والقبض"],
+    ["leases", "Signing, renewing & terminating lease contracts", "توقيع وتجديد وفسخ عقود الإيجار"],
+  ]},
+  { key: "companies", en: "Companies & participations", ar: "الشركات والمشاركات", subs: [
+    ["contracts", "Signing companies' contracts & partners' resolutions", "توقيع عقود الشركات وقرارات الشركاء"],
+    ["stakes", "Buying & selling stakes", "شراء وبيع الحصص"],
+    ["represent", "Representing the company in companies it holds", "تمثيل الشركة في الشركات المساهم فيها"],
+    ["incorporate", "Incorporating companies in the company's name (incl. before the notary)", "تأسيس الشركات باسم الشركة والتمثيل أمام كاتب العدل"],
+  ]},
+  { key: "judicial", en: "Judiciary & representation", ar: "القضاء والتمثيل", subs: [
+    ["plead", "Pleading, defending, claiming & litigating", "المرافعة والمدافعة والمطالبة والمخاصمة"],
+    ["settle", "Conciliation, accepting/refusing arbitration & settlement", "المصالحة ورفض وقبول التحكيم والصلح"],
+    ["appoint", "Appointing arbitrators & lawyers", "تعيين المحكمين والمحامين"],
+    ["notary", "Representation before notaries & MoJ e-services", "التمثيل أمام كتابات العدل وخدمات وزارة العدل الإلكترونية"],
+  ]},
+  { key: "gov", en: "Government bodies & platforms", ar: "الجهات والمنصات الحكومية", subs: [
+    ["chamber", "Chamber of Commerce (subscription, signature approval, documents)", "الغرفة التجارية (الاشتراك واعتماد التوقيع والمستندات)"],
+    ["zakat", "ZATCA, GOSI & Civil Defense", "الزكاة والدخل والتأمينات والدفاع المدني"],
+    ["licenses", "Issuing, renewing, amending & transferring licenses", "استخراج وتجديد وتعديل ونقل التراخيص"],
+    ["tenders", "Entering tenders & receiving forms", "دخول المناقصات واستلام الاستمارات"],
+    ["etimad", "Etimad, HRSD & CITC e-services", "منصة اعتماد وخدمات الموارد البشرية وهيئة الاتصالات"],
+  ]},
+  { key: "labor", en: "Workforce & residency", ar: "العمالة والاستقدام والإقامات", subs: [
+    ["visas", "Visas: issuance, cancellation & refunds", "التأشيرات: استخراجها وإلغاؤها واسترداد مبالغها"],
+    ["recruit", "Recruitment & opening files", "الاستقدام وفتح الملفات"],
+    ["iqama", "Iqamas: issuance, renewal, exit/re-entry & final exit", "الإقامات: إصدارها وتجديدها والخروج والعودة والخروج النهائي"],
+    ["sponsorship", "Sponsorship transfer & profession amendment", "نقل الكفالات وتعديل المهن"],
+  ]},
+  { key: "fundamental", en: "Contract amendments & fundamental decisions", ar: "تعديل عقد التأسيس والقرارات الجوهرية", subs: [
+    ["capital", "Increasing / decreasing capital", "زيادة أو تخفيض رأس المال"],
+    ["partners", "Partners entering & exiting; accepting stake waivers", "دخول وخروج الشركاء وقبول التنازل عن الحصص"],
+    ["entity", "Changing the legal entity & mergers", "تغيير الكيان القانوني والاندماج"],
+    ["liquidate", "Liquidating the company / converting it to an establishment", "تصفية الشركة أو تحويلها إلى مؤسسة"],
+  ]},
+];
+
 // Multi-partner company formation: incorporation contract (عقد التأسيس)
 // prepared and submitted through the Saudi Business Center, partners e-sign,
 // then CR issuance — every partner is kept in the loop by email.
 function buildFormationContract() {
+  // Everything the client-side form builder (main.js) needs: partner types
+  // with their per-type ID label + required attachments, the two exercise
+  // modes from the contract, and the Article-5 power groups (FC_PERMS).
+  // Sensitive by design: the form only renders after a dashboard sign-in.
+  const fcConfig = {
+    types: [
+      { key: "saudi", label: Lraw("Saudi partner", "شريك سعودي"), id: Lraw("National ID number", "رقم الهوية الوطنية"), dob: true, files: [{ key: "nid", label: Lraw("National ID copy", "صورة الهوية الوطنية") }] },
+      { key: "resident", label: Lraw("Resident partner (iqama)", "شريك مقيم (إقامة)"), id: Lraw("Iqama number", "رقم الإقامة"), dob: true, files: [{ key: "iqama", label: Lraw("Iqama copy", "صورة الإقامة") }, { key: "passport", label: Lraw("Passport", "جواز السفر") }] },
+      { key: "foreign", label: Lraw("Foreign investor (individual)", "مستثمر أجنبي (فرد)"), id: Lraw("Passport number", "رقم جواز السفر"), dob: true, files: [{ key: "passport", label: Lraw("Passport", "جواز السفر") }] },
+      { key: "company", label: Lraw("Foreign company (corporate partner)", "شركة أجنبية (شريك اعتباري)"), id: Lraw("CR / trade-license number", "رقم السجل التجاري أو الرخصة التجارية"), dob: false, files: [{ key: "cr", label: Lraw("CR or trade license copy", "صورة السجل التجاري أو الرخصة التجارية") }] },
+    ],
+    modes: [
+      { key: "solo", label: Lraw("Exercised solely", "يمارسها منفرداً") },
+      { key: "joint", label: Lraw("With all managers' approval", "يمارسها بموافقة كل المديرين") },
+    ],
+    tawkeel: Lraw("May delegate (tawkeel)", "يحق له التوكيل"),
+    perms: FC_PERMS.map((g) => ({ key: g.key, label: Lraw(g.en, g.ar), subs: g.subs.map(([k, en, ar]) => ({ key: k, label: Lraw(en, ar) })) })),
+  };
   const steps = [
-    [1, L("Company & partners details", "بيانات الشركة والشركاء"), L("Proposed name, entity type, capital, and every partner with their share.", "الاسم المقترح، الكيان، رأس المال، وكل شريك بنسبته.")],
+    [1, L("Company & partners details", "بيانات الشركة والشركاء"), L("Proposed name, entity type and capital; every partner with their identity documents and share; and the managers with their Article-5 powers — behind your dashboard sign-in.", "الاسم والكيان ورأس المال؛ وكل شريك بهويته ومستنداته ونسبته؛ والمديرون بصلاحيات المادة الخامسة — عبر تسجيل الدخول للوحتك.")],
     [2, L("We draft the incorporation contract", "نصيغ عقد التأسيس"), L("A compliant عقد تأسيس drafted per the Companies Law and your shares.", "عقد تأسيس متوافق مع نظام الشركات وحصصكم.")],
     [3, L("Submission via the Saudi Business Center", "التقديم عبر المركز السعودي للأعمال"), L("We submit and track the contract through the Saudi Business Center until approval.", "نقدّم العقد ونتابعه عبر المركز السعودي للأعمال حتى الاعتماد.")],
     [4, L("Partners e-sign & CR issued", "الشركاء يوقّعون ويصدر السجل"), L("Every partner gets the signing invitation by email; we finish with CR issuance and next steps (bank account, licenses).", "كل شريك يستلم دعوة التوقيع على بريده؛ ونُكمل بإصدار السجل والخطوات التالية (الحساب البنكي، التراخيص).")],
@@ -4723,10 +4799,13 @@ function buildFormationContract() {
     <div class="callout" style="max-width:760px;margin:28px auto 0"><span class="ico">💰</span><p>${L("Good to know: incorporation-contract publication and CR fees are among the fees Monsha'at's Estrdad refunds to compliant SMEs.", "معلومة تهمك: رسوم نشر عقد التأسيس وإصدار السجل من الرسوم التي تعيدها مبادرة «استرداد» للمنشآت الممتثلة.")} <a href="${u("/estrdad")}">${L("Fee refunds ←", "استرداد الرسوم ←")}</a></p></div>
   </div></section>
 
-  <section class="section" id="fc-form"><div class="container" style="max-width:920px">
-    <div class="section-head"><h2>${L("Start your company formation", "ابدأ تأسيس شركتكم")}</h2><p>${L("Shares must total 100% — every partner receives the updates and the signing invitation by email.", "مجموع النسب يجب أن يساوي 100% — وكل شريك يستلم التحديثات ودعوة التوقيع على بريده.")}</p></div>
+  <section class="section" id="fc-form"><div class="container" style="max-width:980px">
+    <div class="section-head"><h2>${L("Start your company formation", "ابدأ تأسيس شركتكم")}</h2><p>${L("The full formation form: every partner's identity, documents and share, plus the managers' powers exactly as in the Ministry of Commerce articles of association.", "نموذج التأسيس الكامل: هوية كل شريك ومستنداته ونسبته، وصلاحيات المديرين كما في نظام الأساس المعتمد من وزارة التجارة.")}</p></div>
+    <div class="callout" id="fc-gate" style="margin-bottom:16px"><span class="ico">🔒</span><p><strong>${L("This form is available after signing in.", "هذا النموذج متاح بعد تسجيل الدخول.")}</strong> ${L("Formation data is sensitive (IDs, passports, powers) so it's collected inside your client dashboard only — sign in or create a free account and you'll return here automatically.", "بيانات التأسيس حسّاسة (هويات، جوازات، صلاحيات) لذلك تُعبأ عبر لوحة العميل فقط — سجّل الدخول أو أنشئ حساباً مجانياً وسنعيدك لهذه الصفحة تلقائياً.")} <a href="${u("/account")}?redirect=formation">${L("Sign in / create account ←", "سجّل الدخول / أنشئ حساباً ←")}</a></p></div>
+    <div id="fc-form-wrap" hidden>
     <div class="order-box">
       <form id="fc-form-el" novalidate>
+        <h3 class="fc-step">${L("1 · Company details", "١ · بيانات الشركة")}</h3>
         <div class="cc-grid">
           <div class="field"><label for="fc-name">${L("Proposed company name", "اسم الشركة المقترح")} *</label><input type="text" id="fc-name" required></div>
           <div class="field"><label for="fc-type">${L("Entity type", "الكيان")}</label><select id="fc-type">
@@ -4740,12 +4819,22 @@ function buildFormationContract() {
           <div class="field"><label for="fc-phone">${L("Mobile", "الجوال")} *</label><input type="tel" id="fc-phone" placeholder="05XXXXXXXX" required></div>
           <div class="field"><label for="fc-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="fc-email" required></div>
         </div>
-        ${partnersBlock({ withShare: true })}
-        <div class="calc-line" style="border:0;padding-top:0"><span class="k" style="color:var(--text-soft)">${L("Shares total", "مجموع النسب")}</span><span class="v" id="fc-share-total" style="color:var(--navy)">0%</span></div>
+        <h3 class="fc-step">${L("2 · Partners & their documents", "٢ · الشركاء ومستنداتهم")}</h3>
+        <p class="mini">${L("For each partner: type (Saudi / resident / foreign investor / foreign company), Gregorian date of birth, short national address, share % — and the required attachment per type (national ID, iqama + passport, passport, or CR/trade license).", "لكل شريك: النوع (سعودي / مقيم / مستثمر أجنبي / شركة أجنبية)، تاريخ الميلاد بالميلادي، العنوان الوطني المختصر، نسبة الملكية — والمرفق المطلوب حسب النوع (هوية وطنية، إقامة + جواز، جواز سفر، أو سجل تجاري/رخصة تجارية).")}</p>
+        <div id="fc-partners" class="fc-cards"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="fc-add-partner">＋ ${L("Add partner", "أضف شريكاً")}</button>
+        <div class="calc-line" style="border:0;padding-top:6px"><span class="k" style="color:var(--text-soft)">${L("Shares total", "مجموع النسب")}</span><span class="v" id="fc-share-total" style="color:var(--navy)">0%</span></div>
+        <h3 class="fc-step">${L("3 · Managers & their powers (Article 5)", "٣ · المديرون وصلاحياتهم (المادة الخامسة)")}</h3>
+        <p class="mini">${L("Pick the manager (a partner or external), then open each power bar and set: exercise mode (solely / with all managers' approval), delegation right, and the sub-powers — exactly as they appear in the articles of association.", "حدد المدير (من الشركاء أو خارجي)، ثم افتح شريط كل صلاحية أساسية وحدد: طريقة الممارسة (منفرداً / بموافقة كل المديرين)، حق التوكيل، والصلاحيات الفرعية — كما تُكتب حرفياً في نظام الأساس.")}</p>
+        <div id="fc-managers" class="fc-cards"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="fc-add-manager">＋ ${L("Add manager", "أضف مديراً")}</button>
+        <p class="mini" style="margin-top:14px">🔐 ${L("Attachments go encrypted over HTTPS straight to the formation team; nothing is stored in your browser. Max 2.5MB per file (PDF/JPG/PNG).", "المرفقات تُرسل مشفّرة عبر HTTPS مباشرة إلى فريق التأسيس ولا تُخزّن في متصفحك. الحد الأقصى 2.5 م.ب للملف (PDF/JPG/PNG).")}</p>
         <button type="submit" class="btn btn-primary btn-lg">${L("Send the formation request", "أرسل طلب التأسيس")}</button>
         <div class="form-success" id="fc-success" hidden></div>
       </form>
     </div>
+    </div>
+    <script>window.FC_CONFIG=${JSON.stringify(fcConfig).replace(/</g, "\\u003c")};</script>
   </div></section>`;
   return page({ title: Lraw("Company formation with partners (incorporation contract) — Business Partner", "تأسيس الشركات بين الشركاء (عقد التأسيس) — بيزنس بارتنر"), desc: Lraw("We draft the incorporation contract, submit via the Saudi Business Center, and get every partner to e-sign.", "نصيغ عقد التأسيس ونقدّمه عبر المركز السعودي للأعمال وننسق توقيع كل الشركاء إلكترونياً."), active: "/formation-contract", path: "/formation-contract", body });
 }
@@ -4924,6 +5013,7 @@ function buildAccount() {
   <section class="section"><div class="container">
     <div class="callout" id="checkout-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">🛒</span><p>${L("Sign in or create an account to continue with your purchase — this keeps every order tied to a real customer record.", "سجّل دخولك أو أنشئ حساباً لإكمال عملية الشراء — هذا يضمن ربط كل طلب بسجل عميل حقيقي.")}</p></div>
     <div class="callout" id="quote-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">📋</span><p>${L("Sign in or create an account to send your official quote request — it will appear in your dashboard and our team will get back to you with the offer.", "سجّل دخولك أو أنشئ حساباً لإرسال طلب العرض الرسمي — سيظهر الطلب في لوحتك وفريقنا يعود لك بالعرض.")}</p></div>
+    <div class="callout" id="fc-redirect-note" style="max-width:640px;margin:0 auto 24px" hidden><span class="ico">🔒</span><p>${L("Formation data (IDs, passports, managers' powers) is sensitive, so the formation form opens after sign-in only — sign in or create a free account and we'll take you straight back to it.", "بيانات التأسيس (هويات، جوازات، صلاحيات المديرين) حسّاسة، لذلك نموذج التأسيس يفتح بعد تسجيل الدخول فقط — سجّل دخولك أو أنشئ حساباً مجانياً وسنعيدك إليه مباشرة.")}</p></div>
     <div class="account-wrap" id="account-auth">
       <div class="auth-tabs">
         <button type="button" class="auth-tab active" data-tab="login">${L("Sign in", ac.loginTitle)}</button>
@@ -5008,6 +5098,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/shared-services")}"><span>🤝</span><strong>${L("Shared Services", "الخدمات المشتركة")}</strong></a>
               <a class="portal-card" href="${u("/bank-account")}"><span>🏦</span><strong>${L("Open a bank account", "فتح حساب بنكي")}</strong></a>
               <a class="portal-card" href="${u("/estrdad")}"><span>💰</span><strong>${L("Fee refunds (Estrdad)", "استرداد الرسوم")}</strong></a>
+              <a class="portal-card" href="${u("/formation-contract")}#fc-form"><span>🖋️</span><strong>${L("Partners formation", "تأسيس بين شركاء")}</strong></a>
             </div>
           </div>
           <div class="dash-card"><h3>${L("Recent orders", "أحدث الطلبات")}</h3><div id="ov-orders"><p class="dash-empty">${L("No orders yet — browse the services to get started.", "لا توجد طلبات بعد — تصفّح الخدمات للبدء.")}</p></div></div>
