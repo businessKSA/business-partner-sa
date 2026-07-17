@@ -1,0 +1,376 @@
+---
+import '../../styles/global.css';
+export const prerender = true;
+const INTAKE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web';
+const WHATSAPP = 'https://wa.me/966503793356';
+
+const services = [
+  ['🏢','توفير سكن جاهز ومرخّص','وحدات سكن عمالة مجهزة ومطابقة لاشتراطات وزارة البلديات والإسكان، قريبة من مواقع مشاريعك.'],
+  ['📋','الترخيص التشغيلي والتوثيق','إصدار رخصة السكن الجماعي من بلدي، توثيق عقد الإيجار في إيجار، شهادة الدفاع المدني، وتحديث عناوين العمالة في مقيم.'],
+  ['🛠️','إدارة وتشغيل السكن','مشرف سكن، نظافة وصيانة دورية، سجل الساكنين، لوحات إرشادية، وكل متطلبات الجولات الرقابية.'],
+  ['🍽️','الإعاشة والتغذية','خدمة إعاشة ومطابخ مركزية مرخصة بعمالة حاصلة على الشهادات الصحية.'],
+  ['🚌','نقل العمالة','ترتيب نقل يومي من السكن إلى مواقع العمل والعكس.'],
+  ['🔔','مراقبة امتثال وتنبيهات','متابعة دورية لجاهزية السكن قبل الجولات الرقابية الربع سنوية، وتنبيهات قبل انتهاء الرخص والعقود والشهادات.'],
+];
+
+const fines = [
+  ['ممارسة نشاط السكن الجماعي دون ترخيص تشغيلي','حتى 10,000 ريال','جسيمة — وقد تُغلق المنشأة'],
+  ['عدم توفير عيادة/ممرض للسعة فوق 1000 فرد','حتى 8,000 ريال','جسيمة'],
+  ['عدم الالتزام بالمساحة المحددة للفرد في غرفة النوم','حتى 5,000 ريال','جسيمة'],
+  ['دورات مياه أقل من الحد الأدنى (مرحاض + مغسلة + استحمام لكل 8 أفراد)','حتى 5,000 ريال','جسيمة'],
+  ['تجاوز الطاقة الاستيعابية المحددة في الرخصة','حتى 5,000 ريال','جسيمة'],
+  ['عدم توفر تكييف وتدفئة في غرف النوم','حتى 4,000 ريال','جسيمة'],
+  ['عدم توفر سجل ساكنين وتأمين طبي لكل ساكن','حتى 4,000 ريال','جسيمة'],
+  ['عدم فصل سكن النساء عن سكن الرجال','حتى 3,000 ريال','جسيمة'],
+  ['عدم توفر غرفة عزل مجهزة للحالات المرضية','حتى 3,000 ريال','جسيمة'],
+  ['عدم توفير سرير وخزانة ملابس لكل فرد','حتى 2,000 ريال','جسيمة'],
+];
+
+const steps = [
+  ['1','ترسل طلبك','تعبّئ نموذج الطلب: المدينة، عدد العمالة، ومتطلباتك — أو تكلمنا واتساب مباشرة.'],
+  ['2','نرشّح لك الخيارات','نعرض عليك وحدات سكن مرخصة ومطابقة قريبة من مشروعك، مع عرض سعر واضح.'],
+  ['3','نجهّز كل الأوراق','الترخيص التشغيلي، توثيق إيجار، الدفاع المدني، وتحديث عناوين العمالة في مقيم — كلها علينا.'],
+  ['4','تسكين ومتابعة مستمرة','عمالتك تنتقل لسكن جاهز، واحنا نتابع التشغيل والامتثال والتجديدات طول السنة.'],
+];
+
+const cities = ['الرياض','جدة','مكة المكرمة','المدينة المنورة','الدمام','الخبر','الظهران','بريدة','أبها','تبوك','حائل','جازان','نجران','الطائف','الهفوف','ينبع','الجبيل'];
+
+const faqs = [
+  ['متى يعتبر السكن "سكن جماعي" يحتاج ترخيص؟','حسب الدليل الرسمي، أي منشأة تقدم خدمة السكن الجماعي وتستوعب 20 فرداً فأكثر (ذكوراً أو إناثاً) تعتبر سكناً جماعياً للأفراد وتحتاج ترخيصاً تشغيلياً من الوزارة.'],
+  ['من الذي يتحمل المخالفة — المالك أم المستأجر؟','المسؤول هو "مالك حق الانتفاع": مالك المبنى في حال تعدد المستأجرين، أو المستأجر في حال استئجار المبنى بالكامل، أو منفذ المشروع للكبائن المتنقلة.'],
+  ['كيف تتم الرقابة على سكن العمالة؟','لجان دائمة مشكّلة من أربع وزارات (البلديات والإسكان، الداخلية، الصحة، الموارد البشرية) تنفذ جولة رقابية ربع سنوية لكل رخصة، إضافة إلى زيارات البلاغات، وتُسجل المخالفات في منصة إيفاء وتصدر فواتير سداد.'],
+  ['وش يصير عند تكرار المخالفة؟','الغرامة تتضاعف عند التكرار، وللجان صلاحية إغلاق المنشأة إذا استدعت الحاجة، وقد تصل بعض الحالات للإحالة إلى النيابة العامة.'],
+  ['هل تغطون كل مدن المملكة؟','نعم — نخدم جميع مناطق المملكة، والغرامات نفسها تُطبق حسب تصنيف الأمانات (الفئة الأولى مثل الرياض وجدة والدمام تُطبق أعلى الغرامات).'],
+  ['هل تطلبون كلمات مرور أو رموز دخول؟','لا نطلب كلمات مرور أو رموز نفاذ (OTP) أبداً، ولا يُنفَّذ أي إجراء حكومي دون موافقتك.'],
+];
+---
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسكين العمالة — سكن عمال مرخّص وإدارة متكاملة | شريك الأعمال</title>
+  <meta name="description" content="سكن عمالة جاهز ومرخّص + الترخيص التشغيلي ورخصة بلدي وتوثيق إيجار والدفاع المدني وتحديث مقيم + إعاشة ونقل وإدارة تشغيل — كل احتياجات تسكين العمالة في منصة واحدة، متوافقة مع دليل وزارة البلديات والإسكان." />
+  <link rel="canonical" href="https://businesspartner.sa/ar/worker-housing" />
+  <meta property="og:title" content="تسكين العمالة من شريك الأعمال — سكن مرخّص وإدارة متكاملة" />
+  <meta property="og:description" content="سكن + ترخيص + إعاشة + نقل + امتثال. كل احتياجات تسكين العمالة في مكان واحد." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://businesspartner.sa/logo.svg" />
+  <meta property="og:locale" content="ar_SA" />
+  <script type="application/ld+json" is:inline>
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "خدمة تسكين العمالة",
+    "provider": { "@type": "Organization", "name": "شريك الأعمال", "url": "https://businesspartner.sa" },
+    "areaServed": "SA",
+    "description": "توفير سكن عمالة مرخص، الترخيص التشغيلي للسكن الجماعي، توثيق عقود الإيجار، شهادة الدفاع المدني، تحديث عناوين العمالة، إعاشة ونقل وإدارة تشغيل السكن."
+  }
+  </script>
+  <style>
+    :root{ --navy:#1e293b; --brand:#0066cc; --gold:#0066cc; --accent:#10b981; --ink:#1e293b; --mut:#64748b; --line:#e2e8f0; }
+    body{ padding-top:0; background:#f8fafc; color:var(--ink); }
+    .wrap{ max-width:1140px; margin-inline:auto; padding-inline:1.1rem; }
+    a{ text-decoration:none; }
+    .topbar{ background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:50; }
+    .topbar .wrap{ display:flex; align-items:center; gap:.7rem; padding-block:.65rem; }
+    .topbar img{ height:32px; }
+    .topbar b{ color:var(--navy); }
+    .topbar .btn{ margin-inline-start:auto; }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.8rem 1.3rem; border-radius:12px; font-weight:700; font-size:.98rem; cursor:pointer; border:0; }
+    .btn-gold{ background:var(--brand); color:#fff; }
+    .btn-ghost{ background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.35); }
+    .btn-wa{ background:#25D366; color:#0a2e14; }
+    .btn-navy{ background:var(--navy); color:#fff; width:100%; font-size:1.05rem; padding:1rem; }
+    .btn-sm{ padding:.55rem .95rem; font-size:.9rem; border-radius:10px; }
+    /* hero */
+    .hero{ background:linear-gradient(135deg,#1e293b 0%,#334155 100%); color:#fff; padding:3.2rem 0 3.6rem; }
+    .hero .grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:2.2rem; align-items:start; }
+    .kicker{ display:inline-flex; align-items:center; gap:.45rem; background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.4); color:#6ee7b7; padding:.35rem .8rem; border-radius:999px; font-size:.85rem; font-weight:700; margin-bottom:1rem; }
+    .hero h1{ font-size:2.5rem; line-height:1.22; max-width:20ch; }
+    .hero p.lead{ font-size:1.15rem; max-width:56ch; color:#e2e8f0; margin-top:.8rem; }
+    .ticks{ display:grid; gap:.45rem; margin-top:1.1rem; }
+    .ticks div{ display:flex; gap:.5rem; align-items:flex-start; color:#e2e8f0; font-size:.98rem; }
+    .cta{ display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1.3rem; }
+    /* lead form card */
+    .lead-card{ background:#fff; border-radius:20px; padding:1.5rem; box-shadow:0 24px 60px rgba(3,10,40,.35); color:var(--ink); }
+    .lead-card h3{ color:var(--navy); font-size:1.2rem; margin-bottom:.2rem; }
+    .lead-card .hint{ color:var(--mut); font-size:.88rem; margin-bottom:1rem; }
+    .formgrid{ display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+    .field{ display:flex; flex-direction:column; gap:.28rem; }
+    .field.full{ grid-column:1 / -1; }
+    label{ font-size:.86rem; font-weight:600; color:#334; }
+    input,select,textarea{ border:1px solid #cfd8e6; border-radius:10px; padding:.68rem .8rem; font:inherit; background:#fff; }
+    input:focus,select:focus,textarea:focus{ outline:2px solid #bcd2ff; border-color:var(--brand); }
+    .req{ color:#d33; }
+    .msg{ margin-top:.8rem; padding:.75rem 1rem; border-radius:10px; font-weight:600; display:none; font-size:.92rem; }
+    .msg.ok{ background:#e7f8ee; color:#137a3e; display:block; }
+    .msg.err{ background:#fdecec; color:#b3261e; display:block; }
+    .note{ font-size:.8rem; color:var(--mut); margin-top:.7rem; display:flex; gap:.4rem; }
+    /* stats strip */
+    .stats{ background:var(--navy); color:#fff; padding:1.2rem 0; border-top:1px solid rgba(255,255,255,.12); }
+    .stats .wrap{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; text-align:center; }
+    .stat b{ display:block; font-size:1.45rem; color:#34d399; }
+    .stat span{ font-size:.85rem; color:#cbd5e1; }
+    /* sections */
+    .section{ padding:3.2rem 0; }
+    .section h2{ font-size:1.85rem; color:var(--navy); margin-bottom:.4rem; }
+    .section .sub{ color:var(--mut); margin-bottom:1.7rem; max-width:70ch; }
+    .cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; }
+    .card{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:1.4rem; box-shadow:0 8px 24px rgba(11,27,90,.05); }
+    .card .ic{ font-size:1.9rem; margin-bottom:.6rem; }
+    .card h3{ font-size:1.08rem; color:var(--navy); margin-bottom:.35rem; }
+    .card p{ color:var(--mut); font-size:.95rem; }
+    /* compliance */
+    .law{ background:#fff; border:1px solid var(--line); border-radius:20px; padding:1.7rem; box-shadow:0 10px 30px rgba(11,27,90,.06); }
+    .law .facts{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:.9rem; margin:1.1rem 0 1.5rem; }
+    .fact{ background:#f8fafc; border:1px solid var(--line); border-radius:14px; padding:.95rem 1.1rem; }
+    .fact b{ color:var(--navy); display:block; margin-bottom:.15rem; }
+    .fact span{ font-size:.9rem; color:var(--mut); }
+    .tbl-scroll{ overflow-x:auto; }
+    table.fines{ width:100%; border-collapse:collapse; font-size:.93rem; min-width:640px; }
+    table.fines th{ background:var(--navy); color:#fff; padding:.7rem .9rem; text-align:right; }
+    table.fines th:first-child{ border-start-end-radius:0; border-start-start-radius:12px; }
+    table.fines th:last-child{ border-start-end-radius:12px; }
+    table.fines td{ padding:.65rem .9rem; border-bottom:1px solid var(--line); color:#333; }
+    table.fines tr:nth-child(even) td{ background:#f8faff; }
+    .amt-cell{ font-weight:800; color:#b3261e; white-space:nowrap; }
+    .src{ font-size:.82rem; color:var(--mut); margin-top:.8rem; }
+    /* steps */
+    .steps{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
+    .step{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:1.25rem; box-shadow:0 8px 24px rgba(11,27,90,.05); }
+    .step .n{ width:36px; height:36px; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; margin-bottom:.6rem; }
+    .step h3{ font-size:1.05rem; color:var(--navy); margin-bottom:.3rem; }
+    .step p{ color:var(--mut); font-size:.93rem; }
+    /* cities */
+    .citychips{ display:flex; flex-wrap:wrap; gap:.55rem; }
+    .citychips span{ background:#fff; border:1px solid var(--line); border-radius:999px; padding:.45rem 1rem; font-size:.92rem; color:var(--navy); font-weight:600; box-shadow:0 4px 12px rgba(11,27,90,.04); }
+    /* compare */
+    .compare{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .comp{ border-radius:18px; padding:1.5rem; }
+    .comp.bad{ background:#fff; border:1px solid #f0dede; }
+    .comp.good{ background:linear-gradient(135deg,#1e293b,#334155); color:#fff; }
+    .comp h3{ margin-bottom:.8rem; font-size:1.1rem; }
+    .comp.bad h3{ color:#8a2b2b; }
+    .comp ul{ list-style:none; display:grid; gap:.55rem; font-size:.95rem; }
+    .comp.bad li{ color:#6b5b5b; }
+    .comp.good li{ color:#e2e8f0; }
+    /* faq */
+    .faq{ display:grid; gap:.8rem; }
+    .faq details{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:1rem 1.2rem; }
+    .faq summary{ font-weight:700; color:var(--navy); cursor:pointer; }
+    .faq p{ color:var(--mut); margin-top:.6rem; font-size:.95rem; }
+    /* final cta */
+    .final{ background:linear-gradient(135deg,#1e293b,#0066cc); border-radius:22px; color:#fff; padding:2.4rem; display:flex; flex-wrap:wrap; align-items:center; gap:1.2rem; }
+    .final h2{ color:#fff !important; font-size:1.6rem; margin:0 !important; }
+    .final p{ color:#e2e8f0; }
+    .final .cta{ margin-top:0; margin-inline-start:auto; }
+    footer{ background:var(--navy); color:#cbd5e1; padding:1.5rem 0; font-size:.85rem; }
+    @media(max-width:880px){
+      .hero .grid{ grid-template-columns:1fr; }
+      .hero h1{ font-size:1.95rem; }
+      .compare{ grid-template-columns:1fr; }
+      .formgrid{ grid-template-columns:1fr; }
+      .final .cta{ margin-inline-start:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <a href="/ar/" style="display:flex; align-items:center; gap:.6rem;">
+        <img src="/logo.png" alt="شريك الأعمال" style="height:38px; width:auto;" />
+      </a>
+      <b>تسكين العمالة</b>
+      <a href="/ar/" style="color:var(--mut); font-size:.9rem; margin-inline-start:1rem;">الرئيسية</a>
+      <a href="/ar/#services" style="color:var(--mut); font-size:.9rem;">خدماتنا</a>
+      <a class="btn btn-gold btn-sm" href="#request" style="margin-inline-start:auto;">اطلب سكن الآن</a>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="wrap grid">
+      <div>
+        <span class="kicker">⚡ سكن + ترخيص + إعاشة + نقل — في منصة واحدة</span>
+        <h1>سكّن عمالتك في سكن جاهز ومرخّص… من غير ما تشيل هم أي إجراء</h1>
+        <p class="lead">شريك الأعمال يوفر لك حلول تسكين العمالة كاملة: وحدات سكن مطابقة لاشتراطات وزارة البلديات والإسكان، مع الترخيص التشغيلي والتوثيق والإدارة والتشغيل — وكل إجراء حكومي علينا.</p>
+        <div class="ticks">
+          <div>✅ <span>وحدات سكن مرخصة ومطابقة للضوابط الصحية في مدن المملكة</span></div>
+          <div>✅ <span>ترخيص بلدي + توثيق إيجار + الدفاع المدني + تحديث مقيم</span></div>
+          <div>✅ <span>إدارة تشغيل كاملة: مشرف، نظافة، صيانة، سجل ساكنين</span></div>
+          <div>✅ <span>جاهزية دائمة للجولات الرقابية الربع سنوية</span></div>
+        </div>
+        <div class="cta">
+          <a class="btn btn-gold" href="#request">اطلب عرض سعر</a>
+          <a class="btn btn-wa" href={WHATSAPP} target="_blank" rel="noopener">كلمنا واتساب</a>
+        </div>
+      </div>
+
+      <form id="bp-form" class="lead-card" novalidate>
+        <h3>اطلب سكن لعمالتك</h3>
+        <p class="hint">عبّئ الطلب ونرجع لك بخيارات وعرض سعر خلال يوم عمل.</p>
+        <div class="formgrid">
+          <div class="field"><label>اسم المنشأة <span class="req">*</span></label><input name="company" required /></div>
+          <div class="field"><label>الجوال / واتساب <span class="req">*</span></label><input name="whatsapp" required placeholder="05xxxxxxxx" /></div>
+          <div class="field"><label>المدينة <span class="req">*</span></label><input name="city" required placeholder="مثال: الرياض" /></div>
+          <div class="field"><label>عدد العمالة <span class="req">*</span></label><input name="workers_count" type="number" min="1" required placeholder="مثال: 50" /></div>
+          <div class="field"><label>نوع الطلب</label>
+            <select name="request_type">
+              <option>سكن جاهز (إيجار)</option>
+              <option>ترخيص وتوثيق سكن حالي</option>
+              <option>سكن + إعاشة + نقل</option>
+              <option>إدارة وتشغيل سكن قائم</option>
+              <option>استشارة / غير محدد</option>
+            </select></div>
+          <div class="field"><label>البريد الإلكتروني</label><input type="email" name="email" /></div>
+          <div class="field full"><label>ملاحظات (المدة، الموقع المفضل، متطلبات خاصة…)</label><textarea name="notes" rows="2"></textarea></div>
+        </div>
+        <button type="submit" class="btn btn-navy" id="bp-submit" style="margin-top:.9rem">🏠 اطلب الآن — عرض سعر مجاني</button>
+        <div class="msg" id="bp-msg"></div>
+        <div class="note">🔒 <span>بياناتك محمية وتُستخدم لتجهيز عرضك فقط. لا نطلب كلمات مرور أو رموز OTP.</span></div>
+      </form>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="wrap">
+      <div class="stat"><b>20+ فرد</b><span>يُصنَّف سكناً جماعياً ويلزمه ترخيص تشغيلي</span></div>
+      <div class="stat"><b>4 وزارات</b><span>لجان رقابية دائمة تفتش على سكن العمالة</span></div>
+      <div class="stat"><b>كل ربع سنة</b><span>جولة رقابية مجدولة لكل رخصة سكن</span></div>
+      <div class="stat"><b>10,000 ريال</b><span>غرامة النشاط بدون ترخيص — وقد تُغلق المنشأة</span></div>
+    </div>
+  </div>
+
+  <section class="section"><div class="wrap">
+    <h2>كل احتياجات تسكين العمالة… في مكان واحد</h2>
+    <p class="sub">مثل ما تحجز سكن، تقدر تطلب الترخيص والإعاشة والنقل والإدارة — تختار اللي تحتاجه، واحنا نتولى التنفيذ.</p>
+    <div class="cards">
+      {services.map(([ic,t,d])=> (
+        <div class="card"><div class="ic">{ic}</div><h3>{t}</h3><p>{d}</p></div>
+      ))}
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <div class="law">
+      <h2>وش يقول النظام؟ — وليش السكن العشوائي صار مخاطرة</h2>
+      <p class="sub" style="margin-bottom:0">وزارة البلديات والإسكان أصدرت دليلاً استرشادياً لإجراءات الرقابة على السكن الجماعي للأفراد (قرار وزاري رقم 4600218548/1 — 1446هـ / 2025م). أبرز ما فيه:</p>
+      <div class="facts">
+        <div class="fact"><b>السكن الجماعي</b><span>أي منشأة تستوعب 20 فرداً فأكثر من العمالة أو العزّاب — داخل العمران أو خارجه.</span></div>
+        <div class="fact"><b>الترخيص التشغيلي</b><span>ممارسة النشاط تتطلب موافقة مكتوبة من الوزارة وفق الاشتراطات المنظمة.</span></div>
+        <div class="fact"><b>لجان من 4 وزارات</b><span>البلديات والإسكان، الداخلية، الصحة، والموارد البشرية — جولات مجدولة وبلاغات ميدانية.</span></div>
+        <div class="fact"><b>منصة إيفاء</b><span>المخالفات تُسجل إلكترونياً وتصدر فواتير سداد، وتتضاعف الغرامة عند التكرار.</span></div>
+      </div>
+      <h3 style="color:var(--navy); margin-bottom:.7rem">أمثلة من جدول الغرامات (أمانات الفئة الأولى: الرياض، جدة، مكة، المدينة، الشرقية)</h3>
+      <div class="tbl-scroll">
+        <table class="fines">
+          <thead><tr><th>المخالفة</th><th>الغرامة</th><th>التصنيف</th></tr></thead>
+          <tbody>
+            {fines.map(([v,a,c])=> (
+              <tr><td>{v}</td><td class="amt-cell">{a}</td><td>{c}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">المصدر: الدليل الاسترشادي لإجراءات الرقابة على السكن الجماعي للأفراد — وزارة البلديات والإسكان (momah.gov.sa). الغرامات تتدرج حسب تصنيف الأمانة/البلدية وتتضاعف عند التكرار.</p>
+      <div class="cta" style="margin-top:1.2rem">
+        <a class="btn btn-gold" href="#request">تأكد أن سكنك نظامي — اطلب فحص مجاني</a>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <h2>كيف نشتغل؟</h2>
+    <p class="sub">أربع خطوات من الطلب إلى تسكين نظامي 100%.</p>
+    <div class="steps">
+      {steps.map(([n,t,d])=> (
+        <div class="step"><div class="n">{n}</div><h3>{t}</h3><p>{d}</p></div>
+      ))}
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <h2>نغطي مدن المملكة</h2>
+    <p class="sub">أينما كان مشروعك — نوفر لك سكناً مرخصاً أو نرخّص سكنك الحالي.</p>
+    <div class="citychips">
+      {cities.map((c)=> <span>📍 {c}</span>)}
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <h2>ليش شريك الأعمال؟</h2>
+    <p class="sub">الفرق بين تسكين تديره بنفسك… وتسكين يديره فريق متخصص بالمنصات الحكومية.</p>
+    <div class="compare">
+      <div class="comp bad">
+        <h3>❌ التسكين العشوائي</h3>
+        <ul>
+          <li>• سكن غير مرخص = غرامات تصل 10,000 ريال وقد يُغلق</li>
+          <li>• عقد غير موثق في إيجار يعطّل رخصة السكن وإجراءات أخرى</li>
+          <li>• عناوين العمالة غير محدثة في مقيم</li>
+          <li>• مفاجآت في الجولات الرقابية الربع سنوية</li>
+          <li>• وقت فريقك يضيع بين بلدي وإيجار والدفاع المدني</li>
+        </ul>
+      </div>
+      <div class="comp good">
+        <h3>✅ التسكين مع شريك الأعمال</h3>
+        <ul>
+          <li>• سكن مرخص ومطابق من أول يوم — أو ترخيص سكنك الحالي</li>
+          <li>• كل التوثيق علينا: بلدي، إيجار، الدفاع المدني، مقيم</li>
+          <li>• إدارة تشغيل: مشرف، نظافة، صيانة، سجل ساكنين</li>
+          <li>• جاهزية دائمة للجولات + تنبيهات قبل كل انتهاء</li>
+          <li>• خبرتنا اليومية في المنصات الحكومية (قوى، مقيم، التأمينات، مدد)</li>
+        </ul>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <h2>أسئلة شائعة</h2>
+    <div class="faq">
+      {faqs.map(([q,a])=> (
+        <details><summary>{q}</summary><p>{a}</p></details>
+      ))}
+    </div>
+  </div></section>
+
+  <section id="request" class="section" style="padding-top:0"><div class="wrap">
+    <div class="final">
+      <div>
+        <h2>جاهز تسكّن عمالتك بشكل نظامي؟</h2>
+        <p>اطلب الآن ونرجع لك بعرض سعر خلال يوم عمل — أو كلمنا واتساب مباشرة.</p>
+      </div>
+      <div class="cta">
+        <a class="btn btn-gold" href="#bp-form" onclick="document.getElementById('bp-form').scrollIntoView({behavior:'smooth'}); return false;">اطلب عرض سعر</a>
+        <a class="btn btn-wa" href={WHATSAPP} target="_blank" rel="noopener">واتساب: 0503793356</a>
+      </div>
+    </div>
+  </div></section>
+
+  <footer><div class="wrap">شريك الأعمال · businesspartner.sa · المعلومات النظامية الواردة استرشادية وتخضع للتأكيد من المصادر الرسمية. لا يُنفَّذ أي إجراء حكومي دون موافقتك.</div></footer>
+
+  <script define:vars={{ INTAKE_URL }}>
+    const f = document.getElementById('bp-form');
+    const msg = document.getElementById('bp-msg');
+    const btn = document.getElementById('bp-submit');
+    const show = (t, cls) => { msg.textContent = t; msg.className = 'msg ' + cls; };
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!f.company.value.trim() || !f.whatsapp.value.trim() || !f.city.value.trim() || !f.workers_count.value.trim()) {
+        show('يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.', 'err'); return;
+      }
+      const fd = new FormData();
+      ['company','whatsapp','city','workers_count','request_type','email','notes']
+        .forEach((k) => fd.append(k, (f[k] && f[k].value) || ''));
+      fd.append('source', 'website-worker-housing');
+      fd.append('service', 'worker-housing');
+      btn.disabled = true; btn.textContent = '... جارٍ الإرسال';
+      fetch(INTAKE_URL, { method: 'POST', body: fd })
+        .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
+        .then(() => { show('✅ استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.', 'ok'); f.reset(); })
+        .catch(() => show('تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.', 'err'))
+        .finally(() => { btn.disabled = false; btn.textContent = '🏠 اطلب الآن — عرض سعر مجاني'; });
+    });
+  </script>
+</body>
+</html>
