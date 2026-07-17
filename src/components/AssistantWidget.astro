@@ -78,7 +78,7 @@ const t = STRINGS[lang] ?? STRINGS.ar;
   <!-- الزر العائم -->
   <button class="bpw-fab" id="bpwFab" aria-label={t.fabAria} aria-expanded="false" aria-controls="bpwPanel">
     <span class="bpw-fab-avatar">
-      <BaherAvatar uid="fab" size={56} />
+      <BaherAvatar size={56} />
       <span class="bpw-online-dot" aria-hidden="true"></span>
     </span>
     <span class="bpw-fab-label">{t.fabLabel}</span>
@@ -88,7 +88,7 @@ const t = STRINGS[lang] ?? STRINGS.ar;
   <section class="bpw-panel" id="bpwPanel" hidden role="dialog" aria-label={t.fabLabel}>
     <header class="bpw-head">
       <span class="bpw-head-avatar">
-        <BaherAvatar uid="head" size={44} />
+        <BaherAvatar size={44} />
       </span>
       <div class="bpw-head-info">
         <strong>{t.name}</strong>
@@ -286,52 +286,62 @@ const t = STRINGS[lang] ?? STRINGS.ar;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
   }
 
-  /* ————— حركة الشخصية ————— */
-  .bpw-avatar .av-eyes {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: bpw-eyeblink 4.4s infinite;
+  /* ————— الصورة ومؤشر الكلام ————— */
+  .bpw-avatar {
+    position: relative;
+    display: block;
   }
-  /* اسم مختلف عن bpw-blink حقّت نقاط الكتابة — التكرار يلغي الرمش */
-  @keyframes bpw-eyeblink {
-    0%, 93%, 100% { transform: scaleY(1); }
-    95.5%, 97.5% { transform: scaleY(0.08); }
+  .bpw-avatar img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
   }
-  .bpw-avatar .av-head {
-    transform-box: fill-box;
-    transform-origin: 50% 80%;
+  /* هالة نابضة حول الصورة أثناء نطق الرد */
+  .bpw-talking .bpw-avatar img {
+    animation: bpw-speak-glow 1.1s ease-in-out infinite;
   }
-  .bpw-fab .bpw-avatar .av-head {
-    animation: bpw-bob 3.8s ease-in-out infinite;
+  @keyframes bpw-speak-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55); }
+    60% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
   }
-  @keyframes bpw-bob {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    28% { transform: translateY(-1.6px) rotate(-1.8deg); }
-    62% { transform: translateY(0.5px) rotate(1.4deg); }
+  /* موجات صوت صغيرة أسفل الصورة أثناء الكلام */
+  .bpw-speak-bars {
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    align-items: flex-end;
+    gap: 2px;
+    padding: 3px 5px;
+    background: var(--bpw-accent);
+    border-radius: 999px;
+    border: 2px solid #fff;
   }
-  .bpw-avatar .av-mouth-open {
-    transform-box: fill-box;
-    transform-origin: 50% 15%;
-    transform: scaleY(0.25);
+  .bpw-talking .bpw-speak-bars { display: inline-flex; }
+  .bpw-speak-bars i {
+    width: 2.5px;
+    height: 8px;
+    background: #fff;
+    border-radius: 2px;
+    transform-origin: bottom;
+    animation: bpw-eq 0.7s ease-in-out infinite;
   }
-  .bpw-talking .bpw-avatar .av-mouth-smile { opacity: 0; }
-  .bpw-talking .bpw-avatar .av-mouth-open {
-    opacity: 1;
-    animation: bpw-talk 0.3s ease-in-out infinite alternate;
-  }
-  @keyframes bpw-talk {
-    from { transform: scaleY(0.25); }
-    to { transform: scaleY(1); }
+  .bpw-speak-bars i:nth-child(2) { height: 11px; animation-delay: 0.18s; }
+  .bpw-speak-bars i:nth-child(3) { animation-delay: 0.34s; }
+  @keyframes bpw-eq {
+    0%, 100% { transform: scaleY(0.35); }
+    50% { transform: scaleY(1); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .bpw-avatar .av-eyes,
-    .bpw-fab .bpw-avatar .av-head,
-    .bpw-talking .bpw-avatar .av-mouth-open {
+    .bpw-talking .bpw-avatar img,
+    .bpw-speak-bars i {
       animation: none;
     }
     /* بدون الأنيميشن تصير الهالة حلقة ثابتة دائمة — نخفيها بالكامل */
     .bpw-fab-avatar::after { display: none; }
-    .bpw-talking .bpw-avatar .av-mouth-open { transform: scaleY(0.7); }
   }
   .bpw-head-info {
     display: flex;
