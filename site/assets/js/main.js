@@ -3964,6 +3964,13 @@ var BP_EMP_BILLING = "monthly";
           if (pipe[id] === st) delete pipe[id]; else { pipe[id] = st; if (c && !inShort(id)) { short.push(c); writeLS("bp_shortlist", short); renderCounts(); } }
           writeLS("bp_pipeline", pipe);
           b.parentNode.querySelectorAll(".empd-stage-btn").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-stage") === pipe[id]); });
+          // Persist the stage (and, the first time, the interview/hired date)
+          // to Notion so it's tracked internally — this used to live only in
+          // this browser's localStorage with no record of when it happened.
+          if (pipe[id]) {
+            fetch("/api/candidates", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "update-stage", code: CODE, id: id, stage: pipe[id] }) })
+              .catch(function () {});
+          }
         });
       });
       scope.querySelectorAll(".empd-rm").forEach(function (b) { b.addEventListener("click", function () { var id = b.getAttribute("data-id"); short = short.filter(function (x) { return x.id !== id; }); writeLS("bp_shortlist", short); renderCounts(); renderShort(); }); });

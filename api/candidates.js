@@ -185,6 +185,34 @@ async function handlePostings(req, res) {
     return res.end(JSON.stringify({ ok: true, postings }));
   }
 
+  // Moves a candidate through the hiring pipeline (New/Screening/Interview/
+  // Offer/Hired/Rejected) — previously this only lived in the employer's own
+  // browser (localStorage), so there was no internal record of *when* a
+  // candidate was interviewed or hired. Persists the stage to Notion and,
+  // the first time a candidate reaches Interview or Hired, stamps that date
+  // (never overwritten on later stage changes, so it stays the true first date).
+  if (b.action === "update-stage") {
+    const id = String(b.id || "").trim();
+    const STAGE_MAP = { new: "جديد", screening: "فرز", interview: "مقابلة", offer: "عرض", hired: "تم التوظيف", rejected: "مرفوض" };
+    const stageAr = STAGE_MAP[String(b.stage || "")];
+    if (!id || !stageAr) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const page = await notionFetch(`pages/${id}`, "GET");
+    if (!page.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const pdata = await page.json();
+    const props = { "Pipeline Stage": { select: { name: stageAr } } };
+    const today = new Date().toISOString().slice(0, 10);
+    if (stageAr === "مقابلة" && !(pdata.properties && pdata.properties["Interview Date"] && pdata.properties["Interview Date"].date)) {
+      props["Interview Date"] = { date: { start: today } };
+    }
+    if (stageAr === "تم التوظيف" && !(pdata.properties && pdata.properties["Hired Date"] && pdata.properties["Hired Date"].date)) {
+      props["Hired Date"] = { date: { start: today } };
+    }
+    const r = await notionFetch(`pages/${id}`, "PATCH", { properties: props });
+    if (!r.ok) { console.error("update-stage error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true }));
+  }
+
   res.statusCode = 400;
   return res.end(JSON.stringify({ ok: false, error: "bad_action" }));
 }
