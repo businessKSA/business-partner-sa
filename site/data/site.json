@@ -1730,6 +1730,24 @@
         }
       ],
       "durationEn": "30–45 working days"
+    },
+    "bp-re-06": {
+      "description": "نساعد الأفراد والشركات غير السعودية على تملّك العقار في السعودية وفق نظام تملّك غير السعوديين للعقار (النافذ في 2026) عبر منصة «عقارات السعودية» التابعة للهيئة العامة للعقار (REGA). نتولّى فحص الأهلية والنطاق الجغرافي المعتمد، تجهيز الهوية الرقمية (نفاذ) للأفراد أو التسجيل والرقم الموحّد في وزارة الاستثمار للشركات، ترجمة وتصديق المستندات، مطابقتك بعقار داخل نطاق معتمد، تقديم ومتابعة الطلب على المنصة، وتنسيق التوثيق الإلكتروني والإفراغ حتى إصدار الصك. الرسوم الحكومية (رسم النقل حتى 5% + ضريبة التصرفات 5% ≈ 10%) منفصلة ومعلنة.",
+      "descriptionEn": "We help non-Saudi individuals and companies own property in Saudi Arabia under the Non-Saudi Real Estate Ownership Law (effective 2026) via REGA's Saudi Properties portal. We handle eligibility and approved-zone review, digital identity (Nafath) for individuals or MISA registration and a unified number for companies, document translation and legalization, matching you to a property inside an approved zone, submitting and tracking the portal application, and coordinating e-notarization and title transfer through to deed issuance. Government fees (up to 5% transfer fee + 5% RETT ≈ 10%) are separate and disclosed.",
+      "documents": [
+        "إثبات الهوية: الإقامة (للمقيم) · هوية رقمية عبر نفاذ (لغير المقيم) · رقم موحّد من وزارة الاستثمار (للشركات)",
+        "للشركات الأجنبية: سجل تجاري من بلد المنشأ مترجم ومصدّق من السفارة السعودية",
+        "للشركات الأجنبية: عقد التأسيس مترجم ومصدّق + وكالة معتمدة لتعيين ممثل الشركة",
+        "بيانات العقار والتأكد من وقوعه داخل نطاق تملّك معتمد (وأن يكون العميل شركة سعودية أو فردًا مسلمًا إذا كان في مكة أو المدينة)",
+        "سداد الرسوم الحكومية: رسم النقل العقاري (حتى 5%) + ضريبة التصرفات العقارية (5%)"
+      ],
+      "documentsEn": [
+        "Proof of identity: Iqama (resident) · Nafath digital identity (non-resident) · MISA unified number (companies)",
+        "Foreign companies: home-country Commercial Registration, translated and authenticated by the Saudi Embassy",
+        "Foreign companies: articles of incorporation (translated & certified) + a certified power of attorney appointing a representative",
+        "Property details, confirmed to be inside an approved ownership zone (and the client a Saudi company or Muslim individual if in Makkah/Madinah)",
+        "Payment of government fees: real estate transfer fee (up to 5%) + Real Estate Transaction Tax (5%)"
+      ]
     }
   },
   "social": {
