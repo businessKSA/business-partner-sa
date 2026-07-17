@@ -197,7 +197,7 @@ async function uploadFileToNotion(base64, filename, contentType) {
   } catch (e) { console.error("uploadFileToNotion exception", String(e).slice(0, 200)); return null; }
 }
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName }) {
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
@@ -212,9 +212,14 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
   if (typeof total === "number" && !Number.isNaN(total)) props["إجمالي الطلب"] = { number: total };
-  if (receiptUploadId) {
-    props["الإيصال البنكي"] = { files: [{ type: "file_upload", file_upload: { id: receiptUploadId }, name: (receiptName || "receipt.pdf").slice(0, 100) }] };
-    props["تحقق المبلغ"] = { select: { name: "لم يُفحص بعد" } };
+  const fileList = [];
+  if (receiptUploadId) fileList.push({ type: "file_upload", file_upload: { id: receiptUploadId }, name: (receiptName || "receipt.pdf").slice(0, 100) });
+  for (const uEntry of Array.isArray(uploads) ? uploads : []) {
+    if (uEntry && uEntry.id) fileList.push({ type: "file_upload", file_upload: { id: uEntry.id }, name: String(uEntry.name || "file.pdf").slice(0, 100) });
+  }
+  if (fileList.length) {
+    props["الإيصال البنكي"] = { files: fileList.slice(0, 20) };
+    if (receiptUploadId) props["تحقق المبلغ"] = { select: { name: "لم يُفحص بعد" } };
   }
   try {
     const r = await fetch("https://api.notion.com/v1/pages", {
@@ -726,6 +731,9 @@ export default async function handler(req, res) {
 
   // Multi-partner company formation: incorporation contract drafted and
   // submitted through the Saudi Business Center; every partner is emailed.
+  // v2: sensitive full file — partner identity (type, Gregorian DOB, national
+  // address, ID/iqama/passport/CR number + document uploads) and managers with
+  // their Article-5 powers (exercise mode, delegation right, sub-powers).
   if (b.type === "formation-contract") {
     const company = String(b.company || "").trim().slice(0, 200);
     const entity = { llc: "شركة ذات مسؤولية محدودة", sjsc: "شركة مساهمة مبسطة", other: "أخرى/استشارة" }[b.entity] || "شركة ذات مسؤولية محدودة";
@@ -735,26 +743,78 @@ export default async function handler(req, res) {
     const phone = String(b.phone || "").trim().slice(0, 40);
     const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
     const ref = String(b.ref || "BPF-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const TYPE_AR = { saudi: "سعودي", resident: "مقيم", foreign: "مستثمر أجنبي (فرد)", company: "شركة أجنبية" };
+    const ID_AR = { saudi: "الهوية الوطنية", resident: "الإقامة", foreign: "جواز السفر", company: "السجل/الرخصة التجارية" };
     const partners = (Array.isArray(b.partners) ? b.partners : []).slice(0, 15).map((p) => ({
+      type: TYPE_AR[p && p.type] ? String(p.type) : "saudi",
       name: String((p && p.name) || "").trim().slice(0, 160),
+      dob: String((p && p.dob) || "").trim().slice(0, 20),
+      idNumber: String((p && p.idNumber) || "").trim().slice(0, 40),
+      address: String((p && p.address) || "").trim().slice(0, 20),
       phone: String((p && p.phone) || "").trim().slice(0, 40),
       email: String((p && p.email) || "").trim().toLowerCase().slice(0, 160),
       share: Number.isFinite(Number(p && p.share)) ? Number(p.share) : null,
+      files: (Array.isArray(p && p.files) ? p.files : []).slice(0, 3).map((f) => ({
+        label: String((f && f.label) || "").slice(0, 80),
+        name: String((f && f.name) || "file.pdf").slice(0, 120),
+        contentType: String((f && f.contentType) || "application/pdf").slice(0, 80),
+        data: typeof (f && f.data) === "string" && f.data.length < 3_600_000 ? f.data : null,
+      })).filter((f) => f.data),
     })).filter((p) => p.name && isEmail(p.email));
+    const FC_G = { cr: "السجلات التجارية", banking: "الصلاحيات البنكية", assets: "إدارة الأملاك", companies: "الشركات والمشاركات", judicial: "القضاء والتمثيل", gov: "الجهات والمنصات الحكومية", labor: "العمالة والاستقدام والإقامات", fundamental: "تعديل عقد التأسيس والقرارات الجوهرية" };
+    const FC_SUBS = {
+      cr: { issue: "الإصدار (الرئيسية والفرعية)", confirm: "التأكيد السنوي", amend: "تعديل السجلات ونقلها وإدارتها", strike: "الشطب" },
+      banking: { accounts: "فتح وقفل الحسابات البنكية", credits: "فتح الاعتمادات", operate: "الإيداع والسحب وتحديث الحسابات", cheques: "إصدار الشيكات وكشوف الحسابات", facilities: "طلب التسهيلات والضمانات", loans: "عقود القروض والأوراق التجارية وسندات لأمر" },
+      assets: { realestate: "شراء وبيع وإفراغ العقار والأراضي", shares: "شراء وبيع الأسهم", mortgage: "الرهن وفك الرهن والقبض", leases: "توقيع وتجديد وفسخ عقود الإيجار" },
+      companies: { contracts: "توقيع عقود الشركات وقرارات الشركاء", stakes: "شراء وبيع الحصص", represent: "تمثيل الشركة في الشركات المساهم فيها", incorporate: "تأسيس الشركات باسم الشركة" },
+      judicial: { plead: "المرافعة والمدافعة والمطالبة والمخاصمة", settle: "المصالحة والتحكيم والصلح", appoint: "تعيين المحكمين والمحامين", notary: "كتابات العدل وخدمات وزارة العدل" },
+      gov: { chamber: "الغرفة التجارية", zakat: "الزكاة والدخل والتأمينات والدفاع المدني", licenses: "استخراج وتجديد وتعديل التراخيص", tenders: "دخول المناقصات واستلام الاستمارات", etimad: "منصة اعتماد والموارد البشرية والاتصالات" },
+      labor: { visas: "التأشيرات: استخراجها وإلغاؤها واسترداد مبالغها", recruit: "الاستقدام وفتح الملفات", iqama: "الإقامات والخروج والعودة والخروج النهائي", sponsorship: "نقل الكفالات وتعديل المهن" },
+      fundamental: { capital: "زيادة أو تخفيض رأس المال", partners: "دخول وخروج الشركاء والتنازل عن الحصص", entity: "تغيير الكيان القانوني والاندماج", liquidate: "تصفية الشركة أو تحويلها لمؤسسة" },
+    };
+    const managers = (Array.isArray(b.managers) ? b.managers : []).slice(0, 6).map((m) => ({
+      name: String((m && m.name) || "").trim().slice(0, 160),
+      nationality: String((m && m.nationality) || "").trim().slice(0, 80),
+      partner: !!(m && m.partner),
+      perms: m && m.perms && typeof m.perms === "object" ? m.perms : {},
+    })).filter((m) => m.name);
     if (!company || !activity || !person || !isEmail(email) || partners.length < 2) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const partnersRows = partners.map((p) => row("شريك", `${p.name} · ${p.share != null ? p.share + "%" : "—"} · ${p.phone || "—"} · ${p.email}`)).join("");
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تأسيس بين شركاء ${ref}</h2><table>${row("الاسم المقترح", company) + row("الكيان", entity) + row("رأس المال", capital != null ? capital + " ﷼" : "—") + row("النشاط", activity) + row("مقدم الطلب", `${person} · ${phone} · ${email}`) + partnersRows}</table><p>صِغ عقد التأسيس وفق الحصص أعلاه وقدّمه عبر المركز السعودي للأعمال، ثم رتّب توقيع الشركاء إلكترونياً — وصلتهم رسالة تمهيدية بالفعل.</p></div>`;
-    const invite = (who, share) => `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تأسيس شركة ${esc(company)} — أنت من الشركاء 🖋️</h2><p>مرحباً ${esc(who)},</p><p>بدأنا إجراءات تأسيس <strong>${esc(company)}</strong> (${esc(entity)}${share != null ? ` — حصتك ${share}%` : ""}) عبر <strong>المركز السعودي للأعمال</strong>.</p><p>سنصيغ عقد التأسيس ونرسل لكم دعوة التوقيع الإلكتروني فور جاهزيته، ثم نتابع حتى إصدار السجل التجاري.</p><table>${row("رقم المرجع", ref)}</table><p style="color:#0B1B5A">بزنس بارتنر · شريك تشغيلك</p></div>`;
+
+    // Upload every partner document to Notion so the whole identity file
+    // lands on the CRM lead (capped: the request body itself is size-limited).
+    const uploads = [];
+    for (const p of partners) {
+      for (const f of p.files) {
+        if (uploads.length >= 12) break;
+        const id = await uploadFileToNotion(f.data, f.name, f.contentType);
+        if (id) uploads.push({ id, name: `${p.name} — ${f.label || f.name}`.slice(0, 100) });
+      }
+    }
+
+    const partnersRows = partners.map((p) =>
+      row(`شريك (${TYPE_AR[p.type]})`, `${p.name} · ${p.share != null ? p.share + "%" : "—"} · ${ID_AR[p.type]}: ${p.idNumber || "—"} · ميلاد (ميلادي): ${p.dob || "—"} · عنوان وطني: ${p.address || "—"} · ${p.phone || "—"} · ${p.email} · مرفقات: ${p.files.length}`)
+    ).join("");
+    const managerRows = managers.map((m) => {
+      const groups = Object.entries(m.perms).slice(0, 12).map(([g, v]) => {
+        const mode = v && v.mode === "joint" ? "يمارسها بموافقة كل المديرين" : "يمارسها منفرداً";
+        const tk = v && v.tawkeel ? " · له حق التوكيل" : "";
+        const subs = (Array.isArray(v && v.subs) ? v.subs : []).slice(0, 12).map((s) => (FC_SUBS[g] && FC_SUBS[g][s]) || String(s).slice(0, 40)).join("، ");
+        return `<li style="margin-bottom:6px"><strong>${esc(FC_G[g] || String(g).slice(0, 40))}</strong> — ${mode}${tk}<br><span style="color:#555">${esc(subs)}</span></li>`;
+      }).join("");
+      return row(`مدير${m.partner ? " (من الشركاء)" : m.nationality ? ` (${m.nationality})` : ""}`, m.name) + (groups ? `<tr><td colspan="2" style="padding:4px 10px 12px"><ul style="margin:0;padding-inline-start:18px">${groups}</ul></td></tr>` : "");
+    }).join("");
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تأسيس بين شركاء ${ref}</h2><table>${row("الاسم المقترح", company) + row("الكيان", entity) + row("رأس المال", capital != null ? capital + " ﷼" : "—") + row("النشاط", activity) + row("مقدم الطلب", `${person} · ${phone} · ${email}`) + partnersRows}</table><h3 style="color:#0B1B5A">المديرون وصلاحياتهم (المادة الخامسة)</h3><table>${managerRows || row("المديرون", "لم تُحدد")}</table><p>مستندات الشركاء (${uploads.length}) مرفوعة على بطاقة العميل في Notion. صِغ عقد التأسيس وفق الحصص وجدول الصلاحيات أعلاه وقدّمه عبر المركز السعودي للأعمال، ثم رتّب توقيع الشركاء إلكترونياً — وصلتهم رسالة تمهيدية بالفعل.</p></div>`;
+    const invite = (who, share) => `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تأسيس شركة ${esc(company)} — أنت من الشركاء 🖋️</h2><p>مرحباً ${esc(who)},</p><p>بدأنا إجراءات تأسيس <strong>${esc(company)}</strong> (${esc(entity)}${share != null ? ` — حصتك ${share}%` : ""}) عبر <strong>المركز السعودي للأعمال</strong>.</p><p>سنصيغ عقد التأسيس بصلاحيات المديرين المحددة ونرسل لكم دعوة التوقيع الإلكتروني فور جاهزيته، ثم نتابع حتى إصدار السجل التجاري.</p><table>${row("رقم المرجع", ref)}</table><p style="color:#0B1B5A">بزنس بارتنر · شريك تشغيلك</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `تأسيس بين شركاء ${ref} — ${company}`, oHtml),
       sendEmail(email, `بدأنا تأسيس ${company} — ${ref}`, invite(person, null)),
       ...partners.map((p) => sendEmail(p.email, `تأسيس شركة ${company} — دعوة الشركاء`, invite(p.name, p.share))),
-      crmLead({ title: `تأسيس بين شركاء — ${company}`, phone, email, notes: `تأسيس · ${entity} · ${activity}${capital != null ? " · رأس مال " + capital : ""} · شركاء: ${partners.map((p) => p.name + (p.share != null ? " " + p.share + "%" : "")).join("، ")}`, ref, orderStatus: "قيد المراجعة" }),
+      crmLead({ title: `تأسيس بين شركاء — ${company}`, phone, email, notes: `تأسيس · ${entity} · ${activity}${capital != null ? " · رأس مال " + capital : ""} · شركاء: ${partners.map((p) => `${p.name} (${TYPE_AR[p.type]}${p.share != null ? " " + p.share + "%" : ""})`).join("، ")} · مديرون: ${managers.map((m) => m.name).join("، ") || "—"}`, ref, orderStatus: "قيد المراجعة", uploads }),
       addToAudience(email, person),
       forwardLead({ source: "formation-contract", ref, name: person, phone, email, items: company }),
     ]);
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, ref, partnersNotified: partners.length }));
+    return res.end(JSON.stringify({ ok: true, ref, partnersNotified: partners.length, filesUploaded: uploads.length }));
   }
 
   // Estrdad (Monsha'at fee-refund) eligibility assessment + file preparation.

@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=548fb188f0">
+<link rel="stylesheet" href="/assets/css/styles.css?v=1ea355ee9d">
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/ar/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
@@ -77,14 +77,17 @@
 
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">كيف تعمل</span><h2>من اتفاق الشركاء إلى شركة مسجّلة</h2></div>
-    <div class="home-steps"><div class="hstep"><span class="hstep-n">1</span><h3>بيانات الشركة والشركاء</h3><p>الاسم المقترح، الكيان، رأس المال، وكل شريك بنسبته.</p></div><div class="hstep"><span class="hstep-n">2</span><h3>نصيغ عقد التأسيس</h3><p>عقد تأسيس متوافق مع نظام الشركات وحصصكم.</p></div><div class="hstep"><span class="hstep-n">3</span><h3>التقديم عبر المركز السعودي للأعمال</h3><p>نقدّم العقد ونتابعه عبر المركز السعودي للأعمال حتى الاعتماد.</p></div><div class="hstep"><span class="hstep-n">4</span><h3>الشركاء يوقّعون ويصدر السجل</h3><p>كل شريك يستلم دعوة التوقيع على بريده؛ ونُكمل بإصدار السجل والخطوات التالية (الحساب البنكي، التراخيص).</p></div></div>
+    <div class="home-steps"><div class="hstep"><span class="hstep-n">1</span><h3>بيانات الشركة والشركاء</h3><p>الاسم والكيان ورأس المال؛ وكل شريك بهويته ومستنداته ونسبته؛ والمديرون بصلاحيات المادة الخامسة — عبر تسجيل الدخول للوحتك.</p></div><div class="hstep"><span class="hstep-n">2</span><h3>نصيغ عقد التأسيس</h3><p>عقد تأسيس متوافق مع نظام الشركات وحصصكم.</p></div><div class="hstep"><span class="hstep-n">3</span><h3>التقديم عبر المركز السعودي للأعمال</h3><p>نقدّم العقد ونتابعه عبر المركز السعودي للأعمال حتى الاعتماد.</p></div><div class="hstep"><span class="hstep-n">4</span><h3>الشركاء يوقّعون ويصدر السجل</h3><p>كل شريك يستلم دعوة التوقيع على بريده؛ ونُكمل بإصدار السجل والخطوات التالية (الحساب البنكي، التراخيص).</p></div></div>
     <div class="callout" style="max-width:760px;margin:28px auto 0"><span class="ico">💰</span><p>معلومة تهمك: رسوم نشر عقد التأسيس وإصدار السجل من الرسوم التي تعيدها مبادرة «استرداد» للمنشآت الممتثلة. <a href="/ar/estrdad">استرداد الرسوم ←</a></p></div>
   </div></section>
 
-  <section class="section" id="fc-form"><div class="container" style="max-width:920px">
-    <div class="section-head"><h2>ابدأ تأسيس شركتكم</h2><p>مجموع النسب يجب أن يساوي 100% — وكل شريك يستلم التحديثات ودعوة التوقيع على بريده.</p></div>
+  <section class="section" id="fc-form"><div class="container" style="max-width:980px">
+    <div class="section-head"><h2>ابدأ تأسيس شركتكم</h2><p>نموذج التأسيس الكامل: هوية كل شريك ومستنداته ونسبته، وصلاحيات المديرين كما في نظام الأساس المعتمد من وزارة التجارة.</p></div>
+    <div class="callout" id="fc-gate" style="margin-bottom:16px"><span class="ico">🔒</span><p><strong>هذا النموذج متاح بعد تسجيل الدخول.</strong> بيانات التأسيس حسّاسة (هويات، جوازات، صلاحيات) لذلك تُعبأ عبر لوحة العميل فقط — سجّل الدخول أو أنشئ حساباً مجانياً وسنعيدك لهذه الصفحة تلقائياً. <a href="/ar/account?redirect=formation">سجّل الدخول / أنشئ حساباً ←</a></p></div>
+    <div id="fc-form-wrap" hidden>
     <div class="order-box">
       <form id="fc-form-el" novalidate>
+        <h3 class="fc-step">١ · بيانات الشركة</h3>
         <div class="cc-grid">
           <div class="field"><label for="fc-name">اسم الشركة المقترح *</label><input type="text" id="fc-name" required></div>
           <div class="field"><label for="fc-type">الكيان</label><select id="fc-type">
@@ -98,17 +101,22 @@
           <div class="field"><label for="fc-phone">الجوال *</label><input type="tel" id="fc-phone" placeholder="05XXXXXXXX" required></div>
           <div class="field"><label for="fc-email">البريد الإلكتروني *</label><input type="email" id="fc-email" required></div>
         </div>
-        
-      <div class="field"><label>الشركاء (الاسم، الجوال، البريد، نسبة الملكية)</label>
-        <div class="partners-rows" data-partners data-with-share="1"></div>
-        <button type="button" class="btn btn-ghost btn-sm" data-add-partner>＋ أضف شريكاً</button>
-        <p class="mini">كل شريك يستلم التحديثات ودعوة الموعد على بريده.</p>
-      </div>
-        <div class="calc-line" style="border:0;padding-top:0"><span class="k" style="color:var(--text-soft)">مجموع النسب</span><span class="v" id="fc-share-total" style="color:var(--navy)">0%</span></div>
+        <h3 class="fc-step">٢ · الشركاء ومستنداتهم</h3>
+        <p class="mini">لكل شريك: النوع (سعودي / مقيم / مستثمر أجنبي / شركة أجنبية)، تاريخ الميلاد بالميلادي، العنوان الوطني المختصر، نسبة الملكية — والمرفق المطلوب حسب النوع (هوية وطنية، إقامة + جواز، جواز سفر، أو سجل تجاري/رخصة تجارية).</p>
+        <div id="fc-partners" class="fc-cards"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="fc-add-partner">＋ أضف شريكاً</button>
+        <div class="calc-line" style="border:0;padding-top:6px"><span class="k" style="color:var(--text-soft)">مجموع النسب</span><span class="v" id="fc-share-total" style="color:var(--navy)">0%</span></div>
+        <h3 class="fc-step">٣ · المديرون وصلاحياتهم (المادة الخامسة)</h3>
+        <p class="mini">حدد المدير (من الشركاء أو خارجي)، ثم افتح شريط كل صلاحية أساسية وحدد: طريقة الممارسة (منفرداً / بموافقة كل المديرين)، حق التوكيل، والصلاحيات الفرعية — كما تُكتب حرفياً في نظام الأساس.</p>
+        <div id="fc-managers" class="fc-cards"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="fc-add-manager">＋ أضف مديراً</button>
+        <p class="mini" style="margin-top:14px">🔐 المرفقات تُرسل مشفّرة عبر HTTPS مباشرة إلى فريق التأسيس ولا تُخزّن في متصفحك. الحد الأقصى 2.5 م.ب للملف (PDF/JPG/PNG).</p>
         <button type="submit" class="btn btn-primary btn-lg">أرسل طلب التأسيس</button>
         <div class="form-success" id="fc-success" hidden></div>
       </form>
     </div>
+    </div>
+    <script>window.FC_CONFIG={"types":[{"key":"saudi","label":"شريك سعودي","id":"رقم الهوية الوطنية","dob":true,"files":[{"key":"nid","label":"صورة الهوية الوطنية"}]},{"key":"resident","label":"شريك مقيم (إقامة)","id":"رقم الإقامة","dob":true,"files":[{"key":"iqama","label":"صورة الإقامة"},{"key":"passport","label":"جواز السفر"}]},{"key":"foreign","label":"مستثمر أجنبي (فرد)","id":"رقم جواز السفر","dob":true,"files":[{"key":"passport","label":"جواز السفر"}]},{"key":"company","label":"شركة أجنبية (شريك اعتباري)","id":"رقم السجل التجاري أو الرخصة التجارية","dob":false,"files":[{"key":"cr","label":"صورة السجل التجاري أو الرخصة التجارية"}]}],"modes":[{"key":"solo","label":"يمارسها منفرداً"},{"key":"joint","label":"يمارسها بموافقة كل المديرين"}],"tawkeel":"يحق له التوكيل","perms":[{"key":"cr","label":"السجلات التجارية","subs":[{"key":"issue","label":"الإصدار (الرئيسية والفرعية)"},{"key":"confirm","label":"التأكيد السنوي"},{"key":"amend","label":"تعديل السجلات ونقلها وإدارتها"},{"key":"strike","label":"الشطب"}]},{"key":"banking","label":"الصلاحيات البنكية","subs":[{"key":"accounts","label":"فتح وقفل الحسابات لدى البنوك باسم الشركة"},{"key":"credits","label":"فتح الاعتمادات"},{"key":"operate","label":"الإيداع والسحب وتحديث الحسابات"},{"key":"cheques","label":"إصدار الشيكات واستخراج كشوف الحسابات"},{"key":"facilities","label":"طلب التسهيلات والضمانات"},{"key":"loans","label":"توقيع عقود القروض والأوراق التجارية وسندات لأمر"}]},{"key":"assets","label":"إدارة الأملاك","subs":[{"key":"realestate","label":"شراء وبيع وإفراغ العقار والأراضي"},{"key":"shares","label":"شراء وبيع الأسهم"},{"key":"mortgage","label":"حق الرهن وفك الرهن والقبض"},{"key":"leases","label":"توقيع وتجديد وفسخ عقود الإيجار"}]},{"key":"companies","label":"الشركات والمشاركات","subs":[{"key":"contracts","label":"توقيع عقود الشركات وقرارات الشركاء"},{"key":"stakes","label":"شراء وبيع الحصص"},{"key":"represent","label":"تمثيل الشركة في الشركات المساهم فيها"},{"key":"incorporate","label":"تأسيس الشركات باسم الشركة والتمثيل أمام كاتب العدل"}]},{"key":"judicial","label":"القضاء والتمثيل","subs":[{"key":"plead","label":"المرافعة والمدافعة والمطالبة والمخاصمة"},{"key":"settle","label":"المصالحة ورفض وقبول التحكيم والصلح"},{"key":"appoint","label":"تعيين المحكمين والمحامين"},{"key":"notary","label":"التمثيل أمام كتابات العدل وخدمات وزارة العدل الإلكترونية"}]},{"key":"gov","label":"الجهات والمنصات الحكومية","subs":[{"key":"chamber","label":"الغرفة التجارية (الاشتراك واعتماد التوقيع والمستندات)"},{"key":"zakat","label":"الزكاة والدخل والتأمينات والدفاع المدني"},{"key":"licenses","label":"استخراج وتجديد وتعديل ونقل التراخيص"},{"key":"tenders","label":"دخول المناقصات واستلام الاستمارات"},{"key":"etimad","label":"منصة اعتماد وخدمات الموارد البشرية وهيئة الاتصالات"}]},{"key":"labor","label":"العمالة والاستقدام والإقامات","subs":[{"key":"visas","label":"التأشيرات: استخراجها وإلغاؤها واسترداد مبالغها"},{"key":"recruit","label":"الاستقدام وفتح الملفات"},{"key":"iqama","label":"الإقامات: إصدارها وتجديدها والخروج والعودة والخروج النهائي"},{"key":"sponsorship","label":"نقل الكفالات وتعديل المهن"}]},{"key":"fundamental","label":"تعديل عقد التأسيس والقرارات الجوهرية","subs":[{"key":"capital","label":"زيادة أو تخفيض رأس المال"},{"key":"partners","label":"دخول وخروج الشركاء وقبول التنازل عن الحصص"},{"key":"entity","label":"تغيير الكيان القانوني والاندماج"},{"key":"liquidate","label":"تصفية الشركة أو تحويلها إلى مؤسسة"}]}]};</script>
   </div></section></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
@@ -188,4 +196,4 @@
       <button type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
     </form>
     <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>تفضّل التحدث مع فريقنا على واتساب؟</span></a>
-  </section><script src="/assets/js/main.js?v=6770652c43"></script></body></html>
+  </section><script src="/assets/js/main.js?v=cd934791f2"></script></body></html>

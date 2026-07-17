@@ -1104,6 +1104,9 @@ var BP = window.BP = window.BP || {};
     } else if (redirectKind === "quote") {
       var qnote = document.getElementById("quote-redirect-note");
       if (qnote) qnote.hidden = false;
+    } else if (redirectKind === "formation") {
+      var fnote = document.getElementById("fc-redirect-note");
+      if (fnote) fnote.hidden = false;
     }
     tabs.forEach(function (tb) {
       tb.addEventListener("click", function () {
@@ -1346,6 +1349,7 @@ var BP = window.BP = window.BP || {};
     function goToRedirectTarget() {
       var target = new URLSearchParams(location.search).get("redirect");
       if (target === "checkout") location.href = BP.lang === "ar" ? "/ar/checkout" : "/checkout";
+      else if (target === "formation") location.href = (BP.lang === "ar" ? "/ar/formation-contract" : "/formation-contract") + "#fc-form";
     }
 
     function otpErr(msg) {
@@ -1435,8 +1439,13 @@ var BP = window.BP = window.BP || {};
     var out = document.getElementById("logout-btn");
     if (out) out.addEventListener("click", function () { try { localStorage.removeItem("bp_session"); } catch (e) {} render(); });
 
-    if (session() && new URLSearchParams(location.search).get("redirect") === "checkout") {
+    var alreadyIn = session() && new URLSearchParams(location.search).get("redirect");
+    if (alreadyIn === "checkout") {
       location.href = BP.lang === "ar" ? "/ar/checkout" : "/checkout";
+      return;
+    }
+    if (alreadyIn === "formation") {
+      location.href = (BP.lang === "ar" ? "/ar/formation-contract" : "/formation-contract") + "#fc-form";
       return;
     }
     render();
@@ -2872,14 +2881,216 @@ var BP_EMP_BILLING = "monthly";
       });
     }
 
-    // ---- Formation contract (partners) ----
+    // ---- Formation contract v2 (sensitive: gated behind dashboard sign-in) ----
+    // Partner identity cards (type → DOB, national address, per-type document
+    // uploads) + managers with the Article-5 power bars from window.FC_CONFIG.
     var fc = document.getElementById("fc-form-el");
-    if (fc) {
-      try {
-        var ses2 = JSON.parse(localStorage.getItem("bp_session") || "null");
-        if (ses2 && !val("fc-person")) document.getElementById("fc-person").value = ses2.name || "";
-        if (ses2 && !val("fc-email")) document.getElementById("fc-email").value = ses2.email || "";
-      } catch (e) {}
+    var fcWrap = document.getElementById("fc-form-wrap");
+    if (fc && fcWrap && window.FC_CONFIG) {
+      var CFG = window.FC_CONFIG;
+      var ses2 = null;
+      try { ses2 = JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
+      if (ses2 && ses2.email) {
+        var fcGate = document.getElementById("fc-gate");
+        if (fcGate) fcGate.hidden = true;
+        fcWrap.hidden = false;
+        initFc();
+      }
+    }
+
+    function initFc() {
+      var CFG = window.FC_CONFIG;
+      var pWrap = document.getElementById("fc-partners");
+      var mWrap = document.getElementById("fc-managers");
+      var totalEl = document.getElementById("fc-share-total");
+      var seq = 0;
+      if (ses2 && !val("fc-person")) document.getElementById("fc-person").value = ses2.name || "";
+      if (ses2 && !val("fc-email")) document.getElementById("fc-email").value = ses2.email || "";
+
+      function typeOf(key) {
+        for (var i = 0; i < CFG.types.length; i++) if (CFG.types[i].key === key) return CFG.types[i];
+        return CFG.types[0];
+      }
+      function fcRecalc() {
+        var total = 0;
+        pWrap.querySelectorAll('[data-p="share"]').forEach(function (i) { total += Number(i.value) || 0; });
+        totalEl.textContent = total + "%";
+        totalEl.style.color = total === 100 ? "#16a34a" : "var(--navy)";
+      }
+      function renumber() {
+        pWrap.querySelectorAll(".partner-card .fc-card-n").forEach(function (el, i) { el.textContent = T("Partner ", "الشريك ") + (i + 1); });
+        mWrap.querySelectorAll(".manager-card .fc-card-n").forEach(function (el, i) { el.textContent = T("Manager ", "المدير ") + (i + 1); });
+      }
+      function applyType(card) {
+        var t = typeOf(card.querySelector('[data-p="type"]').value);
+        var dobField = card.querySelector(".fc-dob");
+        dobField.hidden = !t.dob;
+        card.querySelector(".fc-id-label").textContent = t.id + " *";
+        // National address is a Saudi-address requirement → starred only for
+        // partners resident in the Kingdom.
+        var local = t.key === "saudi" || t.key === "resident";
+        card.querySelector(".fc-addr-label").textContent = T("Short national address", "العنوان الوطني المختصر") + (local ? " *" : "");
+        var files = card.querySelector(".fc-files");
+        files.innerHTML = t.files.map(function (f) {
+          return '<div class="field"><label>📎 ' + f.label + ' *</label><input type="file" data-f="' + f.key + '" data-flabel="' + f.label + '" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"></div>';
+        }).join("");
+      }
+      function addPartner() {
+        var card = document.createElement("div");
+        card.className = "fc-card partner-card";
+        card.innerHTML =
+          '<div class="fc-card-head"><strong class="fc-card-n"></strong><button type="button" class="pr-del" aria-label="' + T("Remove", "حذف") + '">✕</button></div>' +
+          '<div class="cc-grid">' +
+          '<div class="field"><label>' + T("Partner type", "نوع الشريك") + '</label><select data-p="type">' + CFG.types.map(function (t) { return '<option value="' + t.key + '">' + t.label + "</option>"; }).join("") + "</select></div>" +
+          '<div class="field"><label>' + T("Full name / company name", "الاسم الكامل / اسم الشركة") + ' *</label><input type="text" data-p="name"></div>' +
+          '<div class="field fc-dob"><label>' + T("Date of birth (Gregorian)", "تاريخ الميلاد (بالميلادي)") + ' *</label><input type="date" data-p="dob"></div>' +
+          '<div class="field"><label class="fc-id-label"></label><input type="text" data-p="idNumber"></div>' +
+          '<div class="field"><label class="fc-addr-label"></label><input type="text" data-p="address" maxlength="8" placeholder="ABCD1234" style="text-transform:uppercase"></div>' +
+          '<div class="field"><label>' + T("Mobile", "الجوال") + '</label><input type="tel" data-p="phone" placeholder="05XXXXXXXX"></div>' +
+          '<div class="field"><label>' + T("Email", "البريد الإلكتروني") + ' *</label><input type="email" data-p="email" placeholder="email@company.com"></div>' +
+          '<div class="field"><label>' + T("Ownership share %", "نسبة الملكية %") + ' *</label><input type="number" data-p="share" min="0" max="100" placeholder="%"></div>' +
+          "</div>" +
+          '<div class="fc-files cc-grid"></div>';
+        card.querySelector(".pr-del").addEventListener("click", function () { card.remove(); renumber(); fcRecalc(); });
+        card.querySelector('[data-p="type"]').addEventListener("change", function () { applyType(card); });
+        card.querySelector('[data-p="share"]').addEventListener("input", fcRecalc);
+        pWrap.appendChild(card);
+        applyType(card);
+        renumber();
+      }
+      function permBars(cardId) {
+        return CFG.perms.map(function (g) {
+          var radios = CFG.modes.map(function (m, i) {
+            return '<label class="pb-pill"><input type="radio" name="pm-' + cardId + "-" + g.key + '" value="' + m.key + '"' + (i === 0 ? " checked" : "") + "> " + m.label + "</label>";
+          }).join("");
+          var subs = g.subs.map(function (s) {
+            return '<label class="pb-sub"><input type="checkbox" data-sub="' + s.key + '"> ' + s.label + "</label>";
+          }).join("");
+          return '<details class="perm-bar" data-g="' + g.key + '"><summary><span class="pb-name">' + g.label + '</span><span class="pb-count">' + T("Not granted", "غير ممنوحة") + "</span></summary>" +
+            '<div class="pb-body"><div class="pb-opts">' + radios + '<label class="pb-pill pb-tk"><input type="checkbox" data-tawkeel> ' + CFG.tawkeel + "</label></div>" +
+            '<div class="pb-subs">' + subs + "</div></div></details>";
+        }).join("");
+      }
+      function updateBar(bar) {
+        var n = bar.querySelectorAll("[data-sub]:checked").length;
+        var count = bar.querySelector(".pb-count");
+        if (!n) { count.textContent = T("Not granted", "غير ممنوحة"); bar.classList.remove("granted"); return; }
+        var mode = bar.querySelector('input[type="radio"]:checked');
+        var modeLbl = mode && mode.value === "joint" ? T("all managers", "بموافقة الجميع") : T("solely", "منفرداً");
+        var tk = bar.querySelector("[data-tawkeel]").checked;
+        count.textContent = n + " · " + modeLbl + (tk ? " · " + T("delegation", "توكيل") : "");
+        bar.classList.add("granted");
+      }
+      function whoOptions(sel) {
+        var current = sel.value;
+        var names = [];
+        pWrap.querySelectorAll('[data-p="name"]').forEach(function (i) { names.push(i.value.trim()); });
+        sel.innerHTML = '<option value="">' + T("— pick a partner —", "— اختر من الشركاء —") + "</option>" +
+          names.map(function (n, i) { return '<option value="p' + i + '">' + (n || T("Partner ", "الشريك ") + (i + 1)) + "</option>"; }).join("") +
+          '<option value="__ext">' + T("External manager (not a partner)", "مدير خارجي (غير شريك)") + "</option>";
+        sel.value = current;
+      }
+      function addManager() {
+        var id = ++seq;
+        var card = document.createElement("div");
+        card.className = "fc-card manager-card";
+        card.innerHTML =
+          '<div class="fc-card-head"><strong class="fc-card-n"></strong><button type="button" class="pr-del" aria-label="' + T("Remove", "حذف") + '">✕</button></div>' +
+          '<div class="cc-grid">' +
+          '<div class="field"><label>' + T("The manager", "المدير") + ' *</label><select data-m="who"></select></div>' +
+          '<div class="field fc-ext" hidden><label>' + T("External manager name", "اسم المدير الخارجي") + ' *</label><input type="text" data-m="name"></div>' +
+          '<div class="field fc-ext" hidden><label>' + T("Nationality", "جنسيته") + '</label><input type="text" data-m="nationality"></div>' +
+          "</div>" +
+          '<div class="perm-bars">' + permBars(id) + "</div>";
+        var sel = card.querySelector('[data-m="who"]');
+        whoOptions(sel);
+        sel.addEventListener("focus", function () { whoOptions(sel); });
+        sel.addEventListener("change", function () {
+          var ext = sel.value === "__ext";
+          card.querySelectorAll(".fc-ext").forEach(function (f) { f.hidden = !ext; });
+        });
+        card.querySelector(".pr-del").addEventListener("click", function () { card.remove(); renumber(); });
+        card.querySelectorAll(".perm-bar").forEach(function (bar) {
+          bar.addEventListener("change", function () { updateBar(bar); });
+        });
+        mWrap.appendChild(card);
+        renumber();
+      }
+
+      addPartner(); addPartner(); // formation needs two partners minimum
+      addManager();
+      document.getElementById("fc-add-partner").addEventListener("click", addPartner);
+      document.getElementById("fc-add-manager").addEventListener("click", addManager);
+
+      function readFile(input) {
+        return new Promise(function (resolve, reject) {
+          var f = input.files && input.files[0];
+          if (!f) return resolve(null);
+          var r = new FileReader();
+          r.onload = function () { resolve({ key: input.getAttribute("data-f"), label: input.getAttribute("data-flabel"), name: f.name, contentType: f.type || "application/pdf", data: String(r.result).split(",")[1] || "" }); };
+          r.onerror = function () { reject(new Error("read")); };
+          r.readAsDataURL(f);
+        });
+      }
+      function collectPartners() {
+        var cards = pWrap.querySelectorAll(".partner-card");
+        var out = [], err = null, totalBytes = 0;
+        cards.forEach(function (card, i) {
+          if (err) return;
+          var t = typeOf(card.querySelector('[data-p="type"]').value);
+          var g = function (k) { var el = card.querySelector('[data-p="' + k + '"]'); return el ? el.value.trim() : ""; };
+          var label = T("partner ", "الشريك ") + (i + 1);
+          var p = { type: t.key, typeLabel: t.label, name: g("name"), dob: g("dob"), idNumber: g("idNumber"), address: g("address").toUpperCase(), phone: g("phone"), email: g("email"), share: g("share"), inputs: [] };
+          if (!p.name) { err = T("Enter the name of ", "أدخل اسم ") + label; return; }
+          if (t.dob && !p.dob) { err = T("Enter the Gregorian date of birth of ", "أدخل تاريخ الميلاد بالميلادي لـ") + label + " (" + p.name + ")"; return; }
+          if (!p.idNumber) { err = t.id + " " + T("is required for ", "مطلوب لـ") + label + " (" + p.name + ")"; return; }
+          if ((t.key === "saudi" || t.key === "resident") && !p.address) { err = T("Enter the short national address of ", "أدخل العنوان الوطني المختصر لـ") + label + " (" + p.name + ")"; return; }
+          if (!EMAIL.test(p.email)) { err = T("Enter a valid email for ", "أدخل بريداً صحيحاً لـ") + label + " (" + p.name + ")"; return; }
+          if (p.phone && !MOBILE.test(p.phone.replace(/\s/g, ""))) { err = T("Invalid mobile for ", "جوال غير صحيح لـ") + label + " (" + p.name + ")"; return; }
+          if (p.share === "" || isNaN(Number(p.share))) { err = T("Enter the ownership share % of ", "أدخل نسبة الملكية لـ") + label + " (" + p.name + ")"; return; }
+          p.share = Number(p.share);
+          var fileInputs = card.querySelectorAll("input[type=file]");
+          for (var k = 0; k < fileInputs.length; k++) {
+            var input = fileInputs[k], f = input.files && input.files[0];
+            if (!f) { err = T("Attach: ", "أرفق: ") + input.getAttribute("data-flabel") + " — " + label + " (" + p.name + ")"; return; }
+            if (f.size > 2.5 * 1024 * 1024) { err = input.getAttribute("data-flabel") + " — " + label + ": " + T("file exceeds 2.5MB, compress it and retry.", "الملف يتجاوز 2.5 م.ب، صغّره وأعد المحاولة."); return; }
+            totalBytes += f.size;
+            p.inputs.push(input);
+          }
+          out.push(p);
+        });
+        if (!err && totalBytes > 3.2 * 1024 * 1024) err = T("Total attachments exceed the upload limit — compress the files (target under 3MB total) and retry.", "مجموع المرفقات يتجاوز حد الرفع — صغّر الملفات (أقل من 3 م.ب إجمالاً) وأعد المحاولة.");
+        return { partners: out, error: err };
+      }
+      function collectManagers(partners) {
+        var cards = mWrap.querySelectorAll(".manager-card");
+        var out = [], err = null;
+        cards.forEach(function (card, i) {
+          if (err) return;
+          var who = card.querySelector('[data-m="who"]').value;
+          var m = { name: "", nationality: "", partner: false, perms: {} };
+          if (who === "__ext") {
+            m.name = card.querySelector('[data-m="name"]').value.trim();
+            m.nationality = card.querySelector('[data-m="nationality"]').value.trim();
+            if (!m.name) { err = T("Enter the external manager's name (manager ", "أدخل اسم المدير الخارجي (المدير ") + (i + 1) + ")"; return; }
+          } else if (/^p\d+$/.test(who)) {
+            var p = partners[Number(who.slice(1))];
+            if (!p) { err = T("Pick the manager (manager ", "اختر المدير (المدير ") + (i + 1) + ")"; return; }
+            m.name = p.name; m.partner = true;
+          } else { err = T("Pick the manager (manager ", "اختر المدير (المدير ") + (i + 1) + ")"; return; }
+          card.querySelectorAll(".perm-bar").forEach(function (bar) {
+            var subs = [];
+            bar.querySelectorAll("[data-sub]:checked").forEach(function (c) { subs.push(c.getAttribute("data-sub")); });
+            if (!subs.length) return;
+            var mode = bar.querySelector('input[type="radio"]:checked');
+            m.perms[bar.getAttribute("data-g")] = { mode: mode ? mode.value : "solo", tawkeel: bar.querySelector("[data-tawkeel]").checked, subs: subs };
+          });
+          if (!Object.keys(m.perms).length) { err = T("Grant at least one power to the manager: ", "امنح صلاحية واحدة على الأقل للمدير: ") + m.name; return; }
+          out.push(m);
+        });
+        return { managers: out, error: err };
+      }
+
       fc.addEventListener("submit", function (e) {
         e.preventDefault();
         var name = val("fc-name"), activity = val("fc-activity"), person = val("fc-person"), phone = val("fc-phone"), email = val("fc-email");
@@ -2887,42 +3098,50 @@ var BP_EMP_BILLING = "monthly";
         if (!person) { alert(T("Enter the requester's name.", "أدخل اسم مقدم الطلب.")); return; }
         if (!MOBILE.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile.", "أدخل جوالاً سعودياً صحيحاً.")); return; }
         if (!EMAIL.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
-        var wrap = fc.querySelector("[data-partners]");
-        var partners = collect(wrap);
+        var cp = collectPartners();
+        if (cp.error) { alert(cp.error); return; }
+        var partners = cp.partners;
         if (partners.length < 2) { alert(T("A partners formation needs at least two partners.", "التأسيس بين شركاء يحتاج شريكين على الأقل.")); return; }
-        var pErr = validPartners(partners);
-        if (pErr) { alert(pErr); return; }
         var total = partners.reduce(function (s, p) { return s + (Number(p.share) || 0); }, 0);
         if (total !== 100) { alert(T("Partners' shares must total exactly 100% (now: ", "مجموع نسب الشركاء يجب أن يساوي 100% بالضبط (الآن: ") + total + "%)"); return; }
+        var cm = collectManagers(partners);
+        if (cm.error) { alert(cm.error); return; }
+        if (!cm.managers.length) { alert(T("Add at least one manager with their powers.", "أضف مديراً واحداً على الأقل بصلاحياته.")); return; }
         var btn = fc.querySelector("button[type=submit]"), lbl = btn.textContent;
-        btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+        btn.disabled = true; btn.textContent = T("Uploading documents…", "جارٍ رفع المستندات…");
         var ref = "BPF-" + Date.now().toString().slice(-6);
         var waMsg = encodeURIComponent(T("Formation request ", "طلب تأسيس ") + ref + " — " + name);
-        fetch("/api/requests", {
-          method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ type: "formation-contract", ref: ref, company: name, entity: val("fc-type"), capital: val("fc-capital"), activity: activity, person: person, phone: phone, email: email, partners: partners }),
+        function fail(net) {
+          btn.disabled = false; btn.textContent = lbl;
+          var box = document.getElementById("fc-success");
+          box.hidden = false;
+          box.innerHTML = "⚠️ " + (net ? T("Couldn't reach the server — send it on WhatsApp.", "تعذّر الاتصال بالخادم — أرسله عبر واتساب.") : T("Couldn't send — contact us on WhatsApp.", "تعذّر الإرسال — تواصل عبر واتساب.")) + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
+        }
+        Promise.all(partners.map(function (p) {
+          return Promise.all(p.inputs.map(readFile)).then(function (files) {
+            var out = { type: p.type, typeLabel: p.typeLabel, name: p.name, dob: p.dob, idNumber: p.idNumber, address: p.address, phone: p.phone, email: p.email, share: p.share, files: files.filter(Boolean) };
+            return out;
+          });
+        })).then(function (cleanPartners) {
+          btn.textContent = T("Sending…", "جارٍ الإرسال…");
+          return fetch("/api/requests", {
+            method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify({ type: "formation-contract", ref: ref, company: name, entity: val("fc-type"), capital: val("fc-capital"), activity: activity, person: person, phone: phone, email: email, partners: cleanPartners, managers: cm.managers }),
+          });
         }).then(function (r) { return r.json(); }).then(function (d) {
+          if (!d || !d.ok) return fail(false);
           btn.disabled = false; btn.textContent = lbl;
           var box = document.getElementById("fc-success");
           box.hidden = false;
-          if (d && d.ok) {
-            box.innerHTML = "✅ <strong>" + T("Formation request received", "تم استلام طلب التأسيس") + " — " + ref + "</strong><br>" +
-              T("We draft the incorporation contract and submit via the Saudi Business Center — every partner will get the signing invitation by email.", "نصيغ عقد التأسيس ونقدّمه عبر المركز السعودي للأعمال — وسيستلم كل شريك دعوة التوقيع على بريده.");
-            try {
-              var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
-              orders.unshift({ ref: ref, name: person, email: email, items: [{ name: T("Company formation: ", "تأسيس شركة: ") + name, qty: 1 }], at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
-              localStorage.setItem("bp_orders", JSON.stringify(orders));
-            } catch (err) {}
-            fc.reset(); recalc(wrap);
-          } else {
-            box.innerHTML = "⚠️ " + T("Couldn't send — contact us on WhatsApp.", "تعذّر الإرسال — تواصل عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
-          }
-        }).catch(function () {
-          btn.disabled = false; btn.textContent = lbl;
-          var box = document.getElementById("fc-success");
-          box.hidden = false;
-          box.innerHTML = "⚠️ " + T("Couldn't reach the server — send it on WhatsApp.", "تعذّر الاتصال بالخادم — أرسله عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("WhatsApp", "واتساب") + "</a>";
-        });
+          box.innerHTML = "✅ <strong>" + T("Formation request received", "تم استلام طلب التأسيس") + " — " + ref + "</strong><br>" +
+            T("Documents received securely. We draft the incorporation contract with the managers' powers as specified and submit via the Saudi Business Center — every partner will get the signing invitation by email.", "استلمنا المستندات بأمان. نصيغ عقد التأسيس بصلاحيات المديرين كما حددتها ونقدّمه عبر المركز السعودي للأعمال — وسيستلم كل شريك دعوة التوقيع على بريده.");
+          try {
+            var orders = JSON.parse(localStorage.getItem("bp_orders") || "[]");
+            orders.unshift({ ref: ref, name: person, email: email, items: [{ name: T("Company formation: ", "تأسيس شركة: ") + name, qty: 1 }], at: new Date().toISOString().slice(0, 10), status: T("Under review", "قيد المراجعة") });
+            localStorage.setItem("bp_orders", JSON.stringify(orders));
+          } catch (err) {}
+          box.scrollIntoView({ behavior: "smooth", block: "center" });
+        }).catch(function () { fail(true); });
       });
     }
   });
