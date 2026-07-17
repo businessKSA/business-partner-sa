@@ -939,7 +939,8 @@ h3 { font-size: 1.08rem; }
 .btn-sm { padding: 7px 14px; font-size: .85rem; }
 .empd-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid var(--gray-line); padding-bottom: 12px; }
 .empd-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-.empd-tab { background: var(--gray-bg); border: 1px solid var(--gray-line); color: var(--navy); font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 999px; cursor: pointer; }
+.empd-tab { background: transparent; border: 1px solid transparent; color: var(--text-soft); font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 999px; cursor: pointer; }
+.empd-tab:hover:not(.active) { background: var(--gray-bg); color: var(--navy); }
 .empd-tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
 .empd-count { display: inline-block; min-width: 18px; padding: 0 5px; font-size: .72rem; background: rgba(255,255,255,.25); border-radius: 999px; }
 .empd-tab:not(.active) .empd-count { background: rgba(11,27,90,.12); }

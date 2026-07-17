@@ -746,12 +746,15 @@ var BP = window.BP = window.BP || {};
 
       function ok(ref) {
         var box = form.querySelector(".form-success");
+        // Only prompt to send the CV over WhatsApp when the form submission
+        // didn't actually include one — asking for it again after a
+        // successful upload is redundant and confusing.
         var hasCv = cvEl && cvEl.files && cvEl.files.length;
-        var waTxt = encodeURIComponent("تقديم مرشّح " + (ref || "") + "\nالاسم: " + name + "\nالجوال: " + phone + (hasCv ? "\n(أرفق السيرة الذاتية هنا)" : ""));
+        var waTxt = encodeURIComponent("تقديم مرشّح " + (ref || "") + "\nالاسم: " + name + "\nالجوال: " + phone + "\n(أرفق السيرة الذاتية هنا)");
         box.hidden = false;
         box.innerHTML = "✅ <strong>" + BP.t("You're in the candidate pool", "تم إضافتك لقاعدة المرشّحين") + (ref ? " — " + ref : "") + "</strong><br>" +
           BP.t("We'll reach out when a suitable role opens.", "سنتواصل معك عند توفّر فرصة مناسبة.") +
-          (hasCv ? "<br>" + BP.t("Send your CV file to us on WhatsApp to attach it to your profile:", "أرسل ملف سيرتك عبر واتساب لإرفاقه بملفك:") +
+          (!hasCv ? "<br>" + BP.t("Send your CV file to us on WhatsApp to attach it to your profile:", "أرسل ملف سيرتك عبر واتساب لإرفاقه بملفك:") +
             ' <a class="btn btn-wa" style="margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waTxt + '">' + BP.t("Send CV on WhatsApp", "أرسل السيرة عبر واتساب") + "</a>" : "");
         box.scrollIntoView({ behavior: "smooth", block: "center" });
       }
@@ -3765,6 +3768,31 @@ var BP_EMP_BILLING = "monthly";
     if (window.BP && BP.initCombobox && titleEl && cityEl) {
       BP.initCombobox(titleEl, function () { return BP.jobTitleOptions(isAr ? "ar" : "en"); });
       BP.initCombobox(cityEl, function () { return BP.cityOptions(isAr ? "ar" : "en"); });
+    }
+    var aiWriteBtn = document.getElementById("empjob-ai-write");
+    if (aiWriteBtn) {
+      aiWriteBtn.addEventListener("click", function () {
+        var title = titleEl ? titleEl.value.trim() : "";
+        if (!title) { alert(T("Enter a job title first.", "اكتب المسمى الوظيفي أولاً.")); return; }
+        var descEl = document.getElementById("empjob-desc");
+        var fieldEl = document.getElementById("empjob-field");
+        var label = aiWriteBtn.textContent;
+        aiWriteBtn.disabled = true; aiWriteBtn.textContent = "✨ " + T("Writing…", "جارٍ الكتابة…");
+        fetch("/api/hire", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ task: "jobdesc", title: title, field: fieldEl ? fieldEl.value : "", city: cityEl ? cityEl.value.trim() : "" }),
+        }).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+          .then(function (res) {
+            aiWriteBtn.disabled = false; aiWriteBtn.textContent = label;
+            if (res.s === 503) { alert(T("AI isn't enabled yet.", "الذكاء غير مفعّل بعد.")); return; }
+            if (!res.d || !res.d.ok || !res.d.result) { alert(T("Couldn't generate. Try again.", "تعذّر التوليد. حاول مجدداً.")); return; }
+            descEl.value = res.d.result;
+          })
+          .catch(function () {
+            aiWriteBtn.disabled = false; aiWriteBtn.textContent = label;
+            alert(T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."));
+          });
+      });
     }
     var POSTINGS = [];
     function loadPostings() {

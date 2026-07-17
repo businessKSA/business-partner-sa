@@ -281,17 +281,29 @@ export default async function handler(req, res) {
     let truncated = false;
     for (let guard = 0; guard < 300; guard++) {
       const body = cursor ? { ...base, start_cursor: cursor } : base;
-      const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!r.ok) {
+      // A full scan can take 100+ sequential requests against Notion's
+      // ~3 req/s rate limit, so a single 429 mid-scan used to fail the whole
+      // request (that's what "Couldn't query Notion" meant in practice, not
+      // an actual sharing/permission problem). Retry 429s a few times with
+      // backoff (honoring Retry-After when Notion sends one) before giving up.
+      let r, data;
+      for (let attempt = 0; ; attempt++) {
+        r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (r.ok) { data = await r.json(); break; }
+        if (r.status === 429 && attempt < 4 && Date.now() < deadline) {
+          const retryAfter = Number(r.headers.get("retry-after"));
+          const waitMs = retryAfter > 0 ? retryAfter * 1000 : 300 * Math.pow(2, attempt);
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+          continue;
+        }
         console.error("Notion query error", r.status, (await r.text()).slice(0, 400));
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
       }
-      const data = await r.json();
       results = results.concat(data.results || []);
       if (!data.has_more || !data.next_cursor) { cursor = null; break; }
       cursor = data.next_cursor;
