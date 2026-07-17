@@ -149,39 +149,13 @@
       </div>
 
       <div class="ss-pane" id="pane-comp" hidden>
-        <div class="ss-comp">
-          <div class="ss-comp-main">
-            <div class="ss-comp-lead">
-              <span class="e">🛡️</span>
-              <div><b>Mishari — your compliance lead</b>
-              <p>Monitors Qiwa, Muqeem, GOSI, Mudad, Nitaqat and ZATCA, and alerts you before any deadline or violation — every government action stays pending your approval.</p></div>
-              <button class="btn btn-primary" id="ss-comp-chat" type="button">Talk to Mishari</button>
-            </div>
-            <div class="ss-plat-head">Platforms under watch</div>
-            <div class="ss-plat"><span class="ss-plat-chip"><span class="dot"></span>Qiwa</span><span class="ss-plat-chip"><span class="dot"></span>Muqeem</span><span class="ss-plat-chip"><span class="dot"></span>GOSI</span><span class="ss-plat-chip"><span class="dot"></span>Mudad</span><span class="ss-plat-chip"><span class="dot"></span>Nitaqat</span><span class="ss-plat-chip"><span class="dot"></span>ZATCA</span></div>
-          </div>
-          <div class="ss-comp-links">
-            <a href="/compliance-portal"><b>📤 Upload your reports</b><span>Qiwa, Muqeem, GOSI &amp; Mudad — the agent builds your establishment file.</span></a>
-            <a href="/compliance-agent"><b>🛡️ Compliance subscription</b><span>Daily monitoring and alerts before every deadline.</span></a>
-            <a href="/tools-and-calculators"><b>🧮 Free calculators</b><span>Nitaqat, government cost, end of service and more.</span></a>
-          </div>
-        </div>
         <div class="ss-compdash">
-          <div class="ss-compdash-head">
-            <div><b>🛡️ Your live compliance dashboard</b>
-            <span>Compliance score, alerts, government entities, document uploads and estimated costs — sign in below with your compliance email + code.</span></div>
-            <a class="btn btn-ghost" href="/ar/compliance-dashboard" target="_blank" rel="noopener">Open full page ↗</a>
-          </div>
           <iframe id="ss-compdash-frame" data-src="/ar/compliance-dashboard" loading="lazy" title="Compliance dashboard"></iframe>
         </div>
         <style>
-          .ss-compdash{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,27,90,.07)}
-          .ss-compdash-head{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#f6f9fc,#fff)}
-          .ss-compdash-head b{display:block;color:var(--brand,#0b1b5a);font-size:1rem;margin-bottom:3px}
-          .ss-compdash-head span{display:block;font-size:.83rem;color:var(--text-soft,#5b6b86);line-height:1.7}
-          .ss-compdash-head .btn{white-space:nowrap}
-          #ss-compdash-frame{display:block;width:100%;height:960px;border:0;background:#fff}
-          @media(max-width:640px){#ss-compdash-frame{height:760px}}
+          .ss-compdash{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,27,90,.07)}
+          #ss-compdash-frame{display:block;width:100%;height:calc(100vh - 180px);min-height:760px;border:0;background:#fff}
+          @media(max-width:640px){#ss-compdash-frame{min-height:640px}}
         </style>
       </div>
     </div>
