@@ -1744,24 +1744,32 @@ var BP = window.BP = window.BP || {};
   render();
 })();
 
-/* المستشار — advisor chatbot client */
+/* اسأل خالد — animated, talking advisor client (Khaled avatar).
+   Same /api/chat pipeline as before, plus: eye-blink/head-bob CSS hooks,
+   Web Speech TTS with mouth animation while speaking (mute persisted in
+   localStorage bp_tts), a one-per-session teaser bubble, quick chips, and
+   conversation persistence across pages (sessionStorage bp_adv_history). */
 (function () {
   "use strict";
   var fab = document.getElementById("advisor-fab");
   var panel = document.getElementById("advisor-panel");
   if (!fab || !panel) return;
+  var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
   var closeBtn = document.getElementById("advisor-close");
   var msgs = document.getElementById("advisor-msgs");
   var form = document.getElementById("advisor-form");
   var input = document.getElementById("advisor-input");
-  var sendBtn = form.querySelector("button");
-  var history = []; // {role, content}
+  var chips = document.getElementById("advisor-chips");
+  var teaser = document.getElementById("advisor-teaser");
+  var teaserClose = document.getElementById("advisor-teaser-close");
+  var ttsBtn = document.getElementById("advisor-tts");
+  var sendBtn = form.querySelector("button[type=submit]");
   var busy = false;
 
-  function open() { panel.hidden = false; fab.classList.add("hide"); setTimeout(function () { input.focus(); }, 50); }
-  function close() { panel.hidden = true; fab.classList.remove("hide"); }
-  fab.addEventListener("click", open);
-  closeBtn.addEventListener("click", close);
+  // ---- conversation persists while browsing (per tab) ----
+  function loadHistory() { try { return JSON.parse(sessionStorage.getItem("bp_adv_history") || "[]"); } catch (e) { return []; } }
+  function saveHistory() { try { sessionStorage.setItem("bp_adv_history", JSON.stringify(history.slice(-40))); } catch (e) {} }
+  var history = loadHistory(); // {role, content}
 
   function addMsg(text, who) {
     var el = document.createElement("div");
@@ -1771,17 +1779,111 @@ var BP = window.BP = window.BP || {};
     msgs.scrollTop = msgs.scrollHeight;
     return el;
   }
+  // Replay the saved conversation under the fixed welcome bubble.
+  history.forEach(function (m) { addMsg(m.content, m.role === "user" ? "me" : "bot"); });
+  if (chips && history.length) chips.hidden = true;
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var text = input.value.trim();
+  // ---- speech: Khaled reads his replies, mouth animates while talking ----
+  var synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+  var ttsOn = true, ttsUnlocked = false, talkTimer = null, utterQueue = [];
+  try { ttsOn = (localStorage.getItem("bp_tts") || "1") === "1"; } catch (e) {}
+  if (!synth && ttsBtn) ttsBtn.hidden = true;
+  function updateTtsBtn() {
+    if (!ttsBtn) return;
+    ttsBtn.setAttribute("aria-pressed", String(ttsOn));
+    ttsBtn.classList.toggle("muted", !ttsOn);
+  }
+  updateTtsBtn();
+  function startTalk() { fab.classList.add("talking"); panel.classList.add("talking"); }
+  function stopTalk() {
+    fab.classList.remove("talking"); panel.classList.remove("talking");
+    if (talkTimer) { clearTimeout(talkTimer); talkTimer = null; }
+  }
+  function pulseTalk(ms) { startTalk(); if (talkTimer) clearTimeout(talkTimer); talkTimer = setTimeout(stopTalk, ms); }
+  function stopSpeech() { utterQueue = []; if (synth) { try { synth.cancel(); } catch (e) {} } stopTalk(); }
+  // iOS only speaks after a user gesture — unlock with a silent utterance.
+  function unlockTts() {
+    if (ttsUnlocked || !synth || !ttsOn) return;
+    ttsUnlocked = true;
+    try { var u = new SpeechSynthesisUtterance(" "); u.volume = 0; synth.speak(u); } catch (e) {}
+  }
+  if (ttsBtn) ttsBtn.addEventListener("click", function () {
+    ttsOn = !ttsOn;
+    try { localStorage.setItem("bp_tts", ttsOn ? "1" : "0"); } catch (e) {}
+    if (ttsOn) unlockTts(); else stopSpeech();
+    updateTtsBtn();
+  });
+  function speak(text) {
+    if (!ttsOn) return;
+    var est = Math.min(9000, Math.max(2200, text.length * 60));
+    if (!synth) { pulseTalk(Math.min(4000, est)); return; }
+    try {
+      stopSpeech();
+      var clean = text.replace(/https?:\/\/\S+/g, " ").replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, " ").replace(/\s+/g, " ").trim();
+      if (!clean) { pulseTalk(2500); return; }
+      // Short chunks: Chrome kills cloud voices after ~15s per utterance.
+      var parts = (clean.match(/[^.!?؟…]+[.!?؟…]*\s*/g) || [clean])
+        .reduce(function (acc, s) { return acc.concat(s.length > 180 ? (s.match(/.{1,180}(?:\s|$)/g) || [s]) : [s]); }, [])
+        .map(function (s) { return s.trim(); }).filter(Boolean);
+      var lang = (window.BP && BP.lang) === "en" ? "en" : "ar";
+      var voices = synth.getVoices();
+      var v = voices.find(function (vc) { return vc.lang && vc.lang.toLowerCase().indexOf(lang) === 0; });
+      var last = parts.length - 1, started = false;
+      parts.forEach(function (part, i) {
+        var u = new SpeechSynthesisUtterance(part);
+        u.lang = lang === "ar" ? "ar-SA" : "en-US";
+        if (v) u.voice = v;
+        u.onstart = function () {
+          if (utterQueue.indexOf(u) === -1) return; // cancelled chunk
+          started = true;
+          if (talkTimer) clearTimeout(talkTimer);
+          startTalk();
+          talkTimer = setTimeout(stopTalk, 60000); // safety cap if events get lost
+        };
+        u.onend = u.onerror = function () {
+          if (utterQueue.indexOf(u) === -1) return;
+          if (i === last) { utterQueue = []; if (started) stopTalk(); }
+        };
+        utterQueue.push(u);
+        synth.speak(u);
+      });
+      pulseTalk(est); // fallback if no voice ever starts
+    } catch (e) { pulseTalk(3000); }
+  }
+
+  // ---- open/close + teaser ----
+  function open() { panel.hidden = false; fab.classList.add("hide"); hideTeaser(); msgs.scrollTop = msgs.scrollHeight; setTimeout(function () { input.focus(); }, 50); }
+  function close() { panel.hidden = true; fab.classList.remove("hide"); stopSpeech(); }
+  fab.addEventListener("click", function () { unlockTts(); open(); });
+  closeBtn.addEventListener("click", close);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !panel.hidden) close(); });
+
+  function hideTeaser() {
+    if (!teaser) return;
+    teaser.hidden = true;
+    try { sessionStorage.setItem("bp_teaser_seen", "1"); } catch (e) {}
+  }
+  var teaserSeen = false;
+  try { teaserSeen = !!sessionStorage.getItem("bp_teaser_seen"); } catch (e) {}
+  if (teaser && !teaserSeen && !history.length) {
+    setTimeout(function () { if (panel.hidden) teaser.hidden = false; }, 4000);
+  }
+  if (teaser) teaser.addEventListener("click", function (e) {
+    if (e.target === teaserClose) return;
+    unlockTts(); open();
+  });
+  if (teaserClose) teaserClose.addEventListener("click", function (e) { e.stopPropagation(); hideTeaser(); });
+
+  // ---- sending ----
+  function send(text) {
+    text = (text || "").trim();
     if (!text || busy) return;
-    input.value = "";
     addMsg(text, "me");
     history.push({ role: "user", content: text });
+    saveHistory();
+    if (chips) chips.hidden = true;
     busy = true; sendBtn.disabled = true;
-    var typing = addMsg("يكتب…", "bot typing");
-
+    var typing = addMsg(T("Typing…", "يكتب…"), "bot typing");
     fetch("/api/chat", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -1790,15 +1892,28 @@ var BP = window.BP = window.BP || {};
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (data) {
         typing.remove();
-        var reply = (data && data.reply) || "تعذّر الرد الآن. تواصل معنا على واتساب وبنساعدك فوراً.";
+        var reply = (data && data.reply) || T("Couldn't reply right now. Message us on WhatsApp and we'll help immediately.", "تعذّر الرد الآن. تواصل معنا على واتساب وبنساعدك فوراً.");
         addMsg(reply, "bot");
         history.push({ role: "assistant", content: reply });
+        saveHistory();
+        if (data && data.reply && !panel.hidden) speak(reply); // don't voice a reply that lands after close
       })
       .catch(function () {
         typing.remove();
-        addMsg("المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً.", "bot");
+        addMsg(T("The advisor runs on the published site. Message us on WhatsApp and we'll help immediately.", "المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً."), "bot");
       })
       .finally(function () { busy = false; sendBtn.disabled = false; input.focus(); });
+  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    unlockTts();
+    var v = input.value;
+    input.value = "";
+    send(v);
+  });
+  if (chips) chips.addEventListener("click", function (e) {
+    var btn = e.target.closest(".advisor-chip");
+    if (btn) { unlockTts(); send(btn.getAttribute("data-q") || btn.textContent); }
   });
 })();
 
