@@ -8,7 +8,8 @@
   "trailingSlash": false,
   "functions": {
     "api/candidate.js": { "maxDuration": 30 },
-    "api/chat.js": { "maxDuration": 60 }
+    "api/chat.js": { "maxDuration": 60 },
+    "api/tts.js": { "maxDuration": 30 }
   },
   "redirects": [
     { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },

@@ -1783,11 +1783,14 @@ var BP = window.BP = window.BP || {};
   history.forEach(function (m) { addMsg(m.content, m.role === "user" ? "me" : "bot"); });
   if (chips && history.length) chips.hidden = true;
 
-  // ---- speech: Khaled reads his replies, mouth animates while talking ----
+  // ---- speech: باهر ينطق ردوده بصوت رجل طبيعي عبر /api/tts (نفس لغة الرد
+  //      تلقائياً: عربي/إنجليزي/فرنسي/صيني...)، وإذا تعطّلت الخدمة يسقط
+  //      تلقائياً على صوت المتصفح كخيار أخير ----
   var synth = "speechSynthesis" in window ? window.speechSynthesis : null;
   var ttsOn = true, ttsUnlocked = false, talkTimer = null, utterQueue = [];
+  var audioEl = null, audioUrl = null;
   try { ttsOn = (localStorage.getItem("bp_tts") || "1") === "1"; } catch (e) {}
-  if (!synth && ttsBtn) ttsBtn.hidden = true;
+  if (ttsBtn && !window.Audio && !synth) ttsBtn.hidden = true;
   function updateTtsBtn() {
     if (!ttsBtn) return;
     ttsBtn.setAttribute("aria-pressed", String(ttsOn));
@@ -1800,12 +1803,25 @@ var BP = window.BP = window.BP || {};
     if (talkTimer) { clearTimeout(talkTimer); talkTimer = null; }
   }
   function pulseTalk(ms) { startTalk(); if (talkTimer) clearTimeout(talkTimer); talkTimer = setTimeout(stopTalk, ms); }
-  function stopSpeech() { utterQueue = []; if (synth) { try { synth.cancel(); } catch (e) {} } stopTalk(); }
-  // iOS only speaks after a user gesture — unlock with a silent utterance.
+  function stopSpeech() {
+    utterQueue = [];
+    if (audioEl) { try { audioEl.pause(); } catch (e) {} }
+    if (audioUrl) { try { URL.revokeObjectURL(audioUrl); } catch (e) {} audioUrl = null; }
+    if (synth) { try { synth.cancel(); } catch (e) {} }
+    stopTalk();
+  }
+  // iOS يشغّل الصوت فقط بعد إيماءة مستخدم — نجهّز عنصر الصوت بمقطع صامت
+  // داخل الإيماءة ثم نعيد استخدام نفس العنصر لكل الردود.
   function unlockTts() {
-    if (ttsUnlocked || !synth || !ttsOn) return;
+    if (ttsUnlocked || !ttsOn) return;
     ttsUnlocked = true;
-    try { var u = new SpeechSynthesisUtterance(" "); u.volume = 0; synth.speak(u); } catch (e) {}
+    try {
+      if (window.Audio) {
+        audioEl = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=");
+        var p = audioEl.play(); if (p && p.catch) p.catch(function () {});
+      }
+    } catch (e) {}
+    if (synth) { try { var u = new SpeechSynthesisUtterance(" "); u.volume = 0; synth.speak(u); } catch (e) {} }
   }
   if (ttsBtn) ttsBtn.addEventListener("click", function () {
     ttsOn = !ttsOn;
@@ -1814,14 +1830,38 @@ var BP = window.BP = window.BP || {};
     updateTtsBtn();
   });
   function speak(text) {
+    if (!ttsOn || !text) return;
+    stopSpeech();
+    var est = Math.min(9000, Math.max(2200, text.length * 60));
+    pulseTalk(est); // مؤشر فوري ريثما يجهز الصوت الطبيعي
+    if (!window.Audio || !window.fetch) { speakBrowser(text); return; }
+    fetch("/api/tts", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: text }),
+    })
+      .then(function (r) { if (!r.ok) throw new Error("tts " + r.status); return r.blob(); })
+      .then(function (blob) {
+        if (!ttsOn) return;
+        if (!audioEl) audioEl = new Audio();
+        if (audioUrl) { try { URL.revokeObjectURL(audioUrl); } catch (e) {} }
+        audioUrl = URL.createObjectURL(blob);
+        audioEl.src = audioUrl;
+        audioEl.onplay = function () { if (talkTimer) clearTimeout(talkTimer); startTalk(); talkTimer = setTimeout(stopTalk, 120000); };
+        audioEl.onended = audioEl.onerror = function () { stopTalk(); };
+        var p = audioEl.play();
+        if (p && p.catch) p.catch(function () { speakBrowser(text); });
+      })
+      .catch(function () { speakBrowser(text); });
+  }
+  // الخيار الأخير: صوت المتصفح (مقسّم لجُمل قصيرة — كروم يقطع الأصوات السحابية بعد ~15ث)
+  function speakBrowser(text) {
     if (!ttsOn) return;
     var est = Math.min(9000, Math.max(2200, text.length * 60));
     if (!synth) { pulseTalk(Math.min(4000, est)); return; }
     try {
-      stopSpeech();
       var clean = text.replace(/https?:\/\/\S+/g, " ").replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, " ").replace(/\s+/g, " ").trim();
       if (!clean) { pulseTalk(2500); return; }
-      // Short chunks: Chrome kills cloud voices after ~15s per utterance.
       var parts = (clean.match(/[^.!?؟…]+[.!?؟…]*\s*/g) || [clean])
         .reduce(function (acc, s) { return acc.concat(s.length > 180 ? (s.match(/.{1,180}(?:\s|$)/g) || [s]) : [s]); }, [])
         .map(function (s) { return s.trim(); }).filter(Boolean);
