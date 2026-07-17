@@ -1576,7 +1576,6 @@ function buildCalculator() {
     <span class="eyebrow">${L("Cost calculator", "حاسبة التكلفة")}</span>
     <h1>${L("Build your service basket and see the cost", "كوّن سلّة خدماتك واعرف التكلفة")}</h1>
     <p class="lead">${L("Pick services from the official catalog by category — no need to compare prices service by service. Once you're done, get the total cost for your basket in one step.", "اختر خدماتك حسب التصنيف من الكتالوج الرسمي — بدون ما تقارن الأسعار خدمة خدمة. وبعد ما تخلّص اختياراتك، اطلب السعر الإجمالي لسلّتك بخطوة وحدة.")}</p>
-    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/tools-and-calculators")}">🟢 ${L("Tools & calculators →", "الأدوات والحاسبات ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">
     <div class="calc2" id="calc2">
