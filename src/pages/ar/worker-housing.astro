@@ -69,8 +69,8 @@ const faqs = [
   }
   </script>
   <style>
-    :root{ --navy:#0B1B5A; --brand:#0066cc; --gold:#C79A3A; --ink:#1c2333; --mut:#5b6472; --line:#e6eaf2; }
-    body{ padding-top:0; background:#f5f7fb; color:var(--ink); }
+    :root{ --navy:#1e293b; --brand:#0066cc; --gold:#0066cc; --accent:#10b981; --ink:#1e293b; --mut:#64748b; --line:#e2e8f0; }
+    body{ padding-top:0; background:#f8fafc; color:var(--ink); }
     .wrap{ max-width:1140px; margin-inline:auto; padding-inline:1.1rem; }
     a{ text-decoration:none; }
     .topbar{ background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:50; }
@@ -79,19 +79,19 @@ const faqs = [
     .topbar b{ color:var(--navy); }
     .topbar .btn{ margin-inline-start:auto; }
     .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.8rem 1.3rem; border-radius:12px; font-weight:700; font-size:.98rem; cursor:pointer; border:0; }
-    .btn-gold{ background:var(--gold); color:#221a00; }
+    .btn-gold{ background:var(--brand); color:#fff; }
     .btn-ghost{ background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.35); }
     .btn-wa{ background:#25D366; color:#0a2e14; }
     .btn-navy{ background:var(--navy); color:#fff; width:100%; font-size:1.05rem; padding:1rem; }
     .btn-sm{ padding:.55rem .95rem; font-size:.9rem; border-radius:10px; }
     /* hero */
-    .hero{ background:linear-gradient(150deg,#0B1B5A 0%,#12307f 55%,#0066cc 130%); color:#fff; padding:3.2rem 0 3.6rem; }
+    .hero{ background:linear-gradient(135deg,#1e293b 0%,#334155 100%); color:#fff; padding:3.2rem 0 3.6rem; }
     .hero .grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:2.2rem; align-items:start; }
-    .kicker{ display:inline-flex; align-items:center; gap:.45rem; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.25); color:#ffe9c4; padding:.35rem .8rem; border-radius:999px; font-size:.85rem; font-weight:700; margin-bottom:1rem; }
+    .kicker{ display:inline-flex; align-items:center; gap:.45rem; background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.4); color:#6ee7b7; padding:.35rem .8rem; border-radius:999px; font-size:.85rem; font-weight:700; margin-bottom:1rem; }
     .hero h1{ font-size:2.5rem; line-height:1.22; max-width:20ch; }
-    .hero p.lead{ font-size:1.15rem; max-width:56ch; color:#e7ecfb; margin-top:.8rem; }
+    .hero p.lead{ font-size:1.15rem; max-width:56ch; color:#e2e8f0; margin-top:.8rem; }
     .ticks{ display:grid; gap:.45rem; margin-top:1.1rem; }
-    .ticks div{ display:flex; gap:.5rem; align-items:flex-start; color:#eaf0ff; font-size:.98rem; }
+    .ticks div{ display:flex; gap:.5rem; align-items:flex-start; color:#e2e8f0; font-size:.98rem; }
     .cta{ display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1.3rem; }
     /* lead form card */
     .lead-card{ background:#fff; border-radius:20px; padding:1.5rem; box-shadow:0 24px 60px rgba(3,10,40,.35); color:var(--ink); }
@@ -111,8 +111,8 @@ const faqs = [
     /* stats strip */
     .stats{ background:var(--navy); color:#fff; padding:1.2rem 0; border-top:1px solid rgba(255,255,255,.12); }
     .stats .wrap{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; text-align:center; }
-    .stat b{ display:block; font-size:1.45rem; color:#ffd98a; }
-    .stat span{ font-size:.85rem; color:#cfd6f5; }
+    .stat b{ display:block; font-size:1.45rem; color:#34d399; }
+    .stat span{ font-size:.85rem; color:#cbd5e1; }
     /* sections */
     .section{ padding:3.2rem 0; }
     .section h2{ font-size:1.85rem; color:var(--navy); margin-bottom:.4rem; }
@@ -125,7 +125,7 @@ const faqs = [
     /* compliance */
     .law{ background:#fff; border:1px solid var(--line); border-radius:20px; padding:1.7rem; box-shadow:0 10px 30px rgba(11,27,90,.06); }
     .law .facts{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:.9rem; margin:1.1rem 0 1.5rem; }
-    .fact{ background:#f2f6ff; border:1px solid #dce6ff; border-radius:14px; padding:.95rem 1.1rem; }
+    .fact{ background:#f8fafc; border:1px solid var(--line); border-radius:14px; padding:.95rem 1.1rem; }
     .fact b{ color:var(--navy); display:block; margin-bottom:.15rem; }
     .fact span{ font-size:.9rem; color:var(--mut); }
     .tbl-scroll{ overflow-x:auto; }
@@ -150,23 +150,23 @@ const faqs = [
     .compare{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
     .comp{ border-radius:18px; padding:1.5rem; }
     .comp.bad{ background:#fff; border:1px solid #f0dede; }
-    .comp.good{ background:linear-gradient(150deg,#0B1B5A,#12307f); color:#fff; }
+    .comp.good{ background:linear-gradient(135deg,#1e293b,#334155); color:#fff; }
     .comp h3{ margin-bottom:.8rem; font-size:1.1rem; }
     .comp.bad h3{ color:#8a2b2b; }
     .comp ul{ list-style:none; display:grid; gap:.55rem; font-size:.95rem; }
     .comp.bad li{ color:#6b5b5b; }
-    .comp.good li{ color:#e7ecfb; }
+    .comp.good li{ color:#e2e8f0; }
     /* faq */
     .faq{ display:grid; gap:.8rem; }
     .faq details{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:1rem 1.2rem; }
     .faq summary{ font-weight:700; color:var(--navy); cursor:pointer; }
     .faq p{ color:var(--mut); margin-top:.6rem; font-size:.95rem; }
     /* final cta */
-    .final{ background:linear-gradient(150deg,#0B1B5A,#0066cc); border-radius:22px; color:#fff; padding:2.4rem; display:flex; flex-wrap:wrap; align-items:center; gap:1.2rem; }
+    .final{ background:linear-gradient(135deg,#1e293b,#0066cc); border-radius:22px; color:#fff; padding:2.4rem; display:flex; flex-wrap:wrap; align-items:center; gap:1.2rem; }
     .final h2{ color:#fff !important; font-size:1.6rem; margin:0 !important; }
-    .final p{ color:#dfe7fb; }
+    .final p{ color:#e2e8f0; }
     .final .cta{ margin-top:0; margin-inline-start:auto; }
-    footer{ background:var(--navy); color:#cfd6f5; padding:1.5rem 0; font-size:.85rem; }
+    footer{ background:var(--navy); color:#cbd5e1; padding:1.5rem 0; font-size:.85rem; }
     @media(max-width:880px){
       .hero .grid{ grid-template-columns:1fr; }
       .hero h1{ font-size:1.95rem; }
@@ -179,9 +179,13 @@ const faqs = [
 <body>
   <div class="topbar">
     <div class="wrap">
-      <img src="/logo.svg" alt="شريك الأعمال" />
-      <b>شريك الأعمال · تسكين العمالة</b>
-      <a class="btn btn-gold btn-sm" href="#request">اطلب سكن الآن</a>
+      <a href="/ar/" style="display:flex; align-items:center; gap:.6rem;">
+        <img src="/logo.png" alt="شريك الأعمال" style="height:38px; width:auto;" />
+      </a>
+      <b>تسكين العمالة</b>
+      <a href="/ar/" style="color:var(--mut); font-size:.9rem; margin-inline-start:1rem;">الرئيسية</a>
+      <a href="/ar/#services" style="color:var(--mut); font-size:.9rem;">خدماتنا</a>
+      <a class="btn btn-gold btn-sm" href="#request" style="margin-inline-start:auto;">اطلب سكن الآن</a>
     </div>
   </div>
 

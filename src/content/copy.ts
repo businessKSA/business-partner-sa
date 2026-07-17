@@ -13,6 +13,7 @@ export const copy = {
       packages: 'الحلول',
       setup: 'المراحل',
       deals: 'الصفقات',
+      housing: 'تسكين العمالة',
       contact: 'ابدأ الآن',
       language: 'English',
     },
@@ -65,6 +66,12 @@ export const copy = {
         {
           title: '📋 العلاقات الحكومية',
           description: 'معالجة التأشيرات • تصاريح العمل • خدمات الإقامة • منصة قوى • امتثال مدد',
+        },
+        {
+          title: '🏠 تسكين العمالة',
+          description: 'سكن عمال جاهز ومرخّص • رخصة بلدي • توثيق إيجار • الدفاع المدني • تحديث مقيم • إعاشة ونقل',
+          link: '/ar/worker-housing',
+          linkLabel: 'اطلب سكن الآن ←',
         },
       ],
     },
@@ -190,6 +197,7 @@ export const copy = {
       packages: 'Solutions',
       setup: 'Process',
       deals: 'Deals',
+      housing: 'Worker Housing',
       contact: 'Get Started',
       language: 'العربية',
     },
@@ -242,6 +250,12 @@ export const copy = {
         {
           title: '📋 Government Relations (GRO)',
           description: 'Visa processing • Work permits • Iqama services • Qiwa platform • Mudad compliance',
+        },
+        {
+          title: '🏠 Worker Housing',
+          description: 'Licensed worker housing • Balady license • Ejar attestation • Civil Defense certificate • Muqeem updates • Catering & transport',
+          link: '/ar/worker-housing',
+          linkLabel: 'Request housing →',
         },
       ],
     },
