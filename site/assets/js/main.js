@@ -3860,74 +3860,12 @@ var BP_EMP_BILLING = "monthly";
         '<button class="empd-ai-btn" data-ai="interview" data-id="' + esc(id) + '">❓ ' + T("Interview Qs", "أسئلة مقابلة") + '</button>' +
         '<button class="empd-ai-btn" data-ai="outreach" data-id="' + esc(id) + '">✉️ ' + T("Outreach", "رسالة تواصل") + '</button></div>';
     }
-    // A Google Doc "edit" link opens the viewer; export?format=pdf triggers a
-    // one-click file download instead — used for the ATS-formatted CV.
-    function cvDownloadUrl(url) {
-      var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
-      return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
-    }
-    // Minimal markdown → HTML for the AI-generated CV text (headings, bold,
-    // bullet lists) — just enough to render it as formatted content on the
-    // page instead of a wall of raw markdown syntax.
-    function mdToHtml(md) {
-      var lines = String(md || "").replace(/\r/g, "").split("\n");
-      var html = "", inList = false;
-      function closeList() { if (inList) { html += "</ul>"; inList = false; } }
-      function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
-      lines.forEach(function (line) {
-        var t = line.trim();
-        if (!t) { closeList(); return; }
-        var h = /^(#{1,3})\s+(.*)/.exec(t);
-        if (h) { closeList(); html += "<h" + (h[1].length + 2) + ">" + inline(h[2]) + "</h" + (h[1].length + 2) + ">"; return; }
-        var li = /^[-*]\s+(.*)/.exec(t);
-        if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(li[1]) + "</li>"; return; }
-        closeList();
-        html += "<p>" + inline(t) + "</p>";
-      });
-      closeList();
-      return html;
-    }
-    // Full structured profile — every field the API returned, laid out as
-    // readable data (not a raw file), plus the actual CV text rendered as
-    // formatted content on the page. Contact fields, CV text and the
-    // download button only appear when the API actually included them, i.e.
-    // the employer is subscribed/unlocked — never rendered to a locked/
-    // browsing visitor.
-    function profileHtml(c) {
-      var rows = [
-        [T("Name", "الاسم"), c.name ? (esc(c.name) + (c.nameAlt ? " (" + esc(c.nameAlt) + ")" : "")) : ""],
-        [T("Target role", "المسمى المستهدف"), c.role],
-        [T("Field", "المجال"), c.field],
-        [T("City", "المدينة"), c.city],
-        [T("Country", "الدولة"), c.country],
-        [T("Nationality", "الجنسية"), c.nationalityType],
-        [T("Residence status", "حالة الإقامة"), c.residenceStatus],
-        [T("Experience", "الخبرة"), c.experience ? (c.experience + (isAr ? " سنة" : "y")) : ""],
-        [T("Education", "التعليم"), c.education],
-        [T("Availability", "الجاهزية"), c.availability],
-        [T("Languages", "اللغات"), c.languages],
-        [T("Skills", "المهارات"), c.skills],
-        [T("Saudization", "التوطين"), c.saudization],
-        [T("Phone", "الجوال"), c.phone ? ('<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>") : ""],
-        [T("Email", "البريد"), c.email ? ('<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>") : ""],
-      ].filter(function (r) { return r[1]; });
-      var html = '<div class="empd-profile">' + rows.map(function (r) {
-        return '<div class="empd-profile-row"><span class="empd-profile-k">' + esc(r[0]) + '</span><span class="empd-profile-v">' + r[1] + "</span></div>";
-      }).join("") + "</div>";
-      if (c.cvText) {
-        html += '<h3 style="margin-top:18px">' + T("CV", "السيرة الذاتية") + '</h3><div class="empd-cv-text">' + mdToHtml(c.cvText) + "</div>";
-      }
-      if (c.cv) {
-        html += '<a class="btn btn-primary" style="margin-top:14px;display:inline-block" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
-          (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
-      } else {
-        html += '<p class="emp-note" style="margin-top:14px">🔒 ' + T("Subscribe to view contact details, read the full CV and download it.", "اشترك لعرض بيانات التواصل وقراءة السيرة الذاتية كاملة وتحميلها.") + "</p>";
-      }
-      return html;
-    }
     function viewProfile(id) {
-      var c = findC(id); if (!c) return;
-      openModal(T("Candidate profile", "الملف الشخصي للمرشح"), profileHtml(c));
+      // A dedicated page (not a modal) — organized like a real profile
+      // (header, badges, skills, full CV), and shareable/bookmarkable via
+      // its own URL. It re-fetches fresh from the API rather than reusing
+      // the in-memory card data, so it works even opened directly.
+      location.href = "/candidate-profile?id=" + encodeURIComponent(id) + (CODE ? "&code=" + encodeURIComponent(CODE) : "");
     }
     function card(c, opts) {
       opts = opts || {};
@@ -4162,6 +4100,143 @@ var BP_EMP_BILLING = "monthly";
           document.getElementById("empd-modal-body").innerHTML = html;
         })
         .catch(function () { document.getElementById("empd-modal-body").innerHTML = "<p>" + T("Network error.", "خطأ في الاتصال.") + "</p>"; });
+    }
+  });
+})();
+
+/* ---------- Dedicated candidate profile page (/candidate-profile) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var app = document.getElementById("cp-app");
+    if (!app) return;
+    var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
+    function T(en, ar) { return isAr ? ar : en; }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function cvDownloadUrl(url) {
+      var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
+      return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
+    }
+    function mdToHtml(md) {
+      var lines = String(md || "").replace(/\r/g, "").split("\n");
+      var html = "", inList = false;
+      function closeList() { if (inList) { html += "</ul>"; inList = false; } }
+      function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+      lines.forEach(function (line) {
+        var t = line.trim();
+        if (!t) { closeList(); return; }
+        var h = /^(#{1,3})\s+(.*)/.exec(t);
+        if (h) { closeList(); html += "<h" + (h[1].length + 2) + ">" + inline(h[2]) + "</h" + (h[1].length + 2) + ">"; return; }
+        var li = /^[-*]\s+(.*)/.exec(t);
+        if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(li[1]) + "</li>"; return; }
+        closeList();
+        html += "<p>" + inline(t) + "</p>";
+      });
+      closeList();
+      return html;
+    }
+    function readLS(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
+    function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+    var params = new URLSearchParams(location.search);
+    var id = params.get("id");
+    var CODE = params.get("code") || (function () { try { return localStorage.getItem("bp_emp_code") || ""; } catch (e) { return ""; } })();
+    var status = document.getElementById("cp-status");
+    if (!id) { status.textContent = T("No candidate specified.", "لم يتم تحديد مرشّح."); return; }
+
+    var STAGES = [
+      ["new", T("New", "مرشّح جديد")], ["screening", T("Screening", "الفرز")], ["interview", T("Interview", "المقابلة")],
+      ["offer", T("Offer", "العرض الوظيفي")], ["hired", T("Hired", "تم التوظيف")],
+    ];
+    var REJECTED = ["rejected", T("Rejected", "مرفوض")];
+
+    fetch("/api/candidates?id=" + encodeURIComponent(id) + (CODE ? "&code=" + encodeURIComponent(CODE) : ""))
+      .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.s === 404) { app.innerHTML = "<p class='emp-note' style='text-align:center;padding:60px 0'>" + T("Candidate not found.", "المرشّح غير موجود.") + "</p>"; return; }
+        if (!res.d || !res.d.ok) { app.innerHTML = "<p class='emp-note' style='text-align:center;padding:60px 0'>" + T("Couldn't load this profile. Try again.", "تعذّر تحميل الملف. حاول مجدداً.") + "</p>"; return; }
+        render(res.d.candidate, res.d.unlocked);
+      })
+      .catch(function () { app.innerHTML = "<p class='emp-note' style='text-align:center;padding:60px 0'>" + T("Network error.", "خطأ في الاتصال.") + "</p>"; });
+
+    function badge(label) { return label ? '<span class="cp-badge">' + esc(label) + "</span>" : ""; }
+
+    function render(c, unlocked) {
+      var pipe = readLS("bp_pipeline", {});
+      var short = readLS("bp_shortlist", []);
+      var inShort = short.some(function (x) { return x.id === c.id; });
+
+      var badges = [
+        c.field, [c.city, c.country].filter(Boolean).join(", "), c.nationalityType,
+        c.experience ? (c.experience + (isAr ? " سنة خبرة" : "y experience")) : "", c.education, c.availability, c.saudization,
+      ].filter(Boolean).map(badge).join("");
+
+      var skillsHtml = "";
+      if (c.skills) {
+        skillsHtml = '<div class="cp-section"><h3>' + T("Skills", "المهارات") + '</h3><div class="cp-skills">' +
+          c.skills.split(/[,،]/).map(function (s) { return s.trim(); }).filter(Boolean).map(function (s) { return '<span class="cp-skill-tag">' + esc(s) + "</span>"; }).join("") +
+          "</div></div>";
+      }
+
+      var contactHtml = "";
+      if (unlocked && (c.phone || c.email)) {
+        contactHtml = '<div class="cp-section"><h3>' + T("Contact", "التواصل") + '</h3><div class="cp-contact-row">' +
+          (c.phone ? '<a class="btn btn-ghost btn-sm" href="tel:' + esc(c.phone) + '">📞 ' + esc(c.phone) + "</a>" : "") +
+          (c.email ? '<a class="btn btn-ghost btn-sm" href="mailto:' + esc(c.email) + '">✉️ ' + esc(c.email) + "</a>" : "") +
+          "</div></div>";
+      }
+
+      var cvHtml = "";
+      if (unlocked && c.cvText) {
+        cvHtml = '<div class="cp-section"><h3>' + T("Full CV", "السيرة الذاتية الكاملة") + '</h3><div class="cp-cv-text">' + mdToHtml(c.cvText) + "</div></div>";
+      }
+      var downloadHtml = "";
+      if (unlocked && c.cv) {
+        downloadHtml = '<a class="btn btn-primary btn-sm" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
+          (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
+      }
+      var lockedNote = !unlocked ? '<p class="emp-note" style="margin-top:10px">🔒 ' + T("Subscribe to view contact details and the full CV.", "اشترك لعرض بيانات التواصل والسيرة الذاتية كاملة.") + "</p>" : "";
+
+      var stageLin = STAGES.map(function (s) { return '<button data-stage="' + s[0] + '" class="empd-stage-btn' + (pipe[c.id] === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>"; }).join("");
+      var stageRej = '<button data-stage="' + REJECTED[0] + '" class="empd-stage-btn empd-stage-reject' + (pipe[c.id] === REJECTED[0] ? " on" : "") + '">✕ ' + esc(REJECTED[1]) + "</button>";
+
+      app.innerHTML =
+        '<div class="cp-header">' +
+          '<h1 class="cp-name">' + esc(c.name || "—") + (c.nameAlt ? ' <span class="cp-name-alt">(' + esc(c.nameAlt) + ")</span>" : "") + "</h1>" +
+          (c.role ? '<p class="cp-role">' + esc(c.role) + "</p>" : "") +
+          '<div class="cp-badges">' + badges + "</div>" +
+          lockedNote +
+          '<div class="cp-actions"><button class="empd-save' + (inShort ? " on" : "") + '" id="cp-save">' + (inShort ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Save to shortlist", "أضف للمفضّلة")) + "</button>" + downloadHtml + "</div>" +
+          '<div class="empd-stages">' + stageLin + stageRej + "</div>" +
+        "</div>" +
+        skillsHtml + contactHtml + cvHtml;
+
+      var saveBtn = document.getElementById("cp-save");
+      saveBtn.addEventListener("click", function () {
+        var list = readLS("bp_shortlist", []);
+        var has = list.some(function (x) { return x.id === c.id; });
+        if (has) list = list.filter(function (x) { return x.id !== c.id; }); else list.push(c);
+        writeLS("bp_shortlist", list);
+        saveBtn.classList.toggle("on", !has);
+        saveBtn.innerHTML = has ? "☆ " + T("Save to shortlist", "أضف للمفضّلة") : "★ " + T("Saved", "محفوظ");
+      });
+
+      app.querySelectorAll(".empd-stage-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var st = b.getAttribute("data-stage");
+          var pipeNow = readLS("bp_pipeline", {});
+          if (pipeNow[c.id] === st) delete pipeNow[c.id]; else {
+            pipeNow[c.id] = st;
+            var listNow = readLS("bp_shortlist", []);
+            if (!listNow.some(function (x) { return x.id === c.id; })) { listNow.push(c); writeLS("bp_shortlist", listNow); }
+          }
+          writeLS("bp_pipeline", pipeNow);
+          app.querySelectorAll(".empd-stage-btn").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-stage") === pipeNow[c.id]); });
+          if (pipeNow[c.id]) {
+            fetch("/api/candidates", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "update-stage", code: CODE, id: c.id, stage: pipeNow[c.id] }) }).catch(function () {});
+          }
+        });
+      });
     }
   });
 })();
