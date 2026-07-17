@@ -2154,8 +2154,21 @@ const TEAM_AGENTS = [
     ],
   },
   {
-    slug: "ahmed", emoji: "📦",
+    slug: "strategy", emoji: "📈",
     nameAr: "أحمد", nameEn: "Ahmed",
+    roleAr: "مدير التخطيط الاستراتيجي", roleEn: "Strategic Planning Manager",
+    taglineAr: "يبني رؤيتك وخططك السنوية والربعية ويتابع تنفيذها بمؤشرات واضحة.", taglineEn: "Builds your vision, annual and quarterly plans, and tracks execution with clear metrics.",
+    caps: [
+      ["Shapes your company's vision and mission into an actionable direction", "يصيغ رؤية ورسالة شركتك في اتجاه قابل للتنفيذ"],
+      ["Annual and quarterly plans broken into concrete initiatives", "خطط سنوية وربعية مقسّمة إلى مبادرات ملموسة"],
+      ["Sets OKRs and KPIs so progress is measurable, not guesswork", "يحدد أهداف OKRs ومؤشرات KPIs حتى يكون التقدم قابلاً للقياس لا تخميناً"],
+      ["Builds roadmaps and follows up on execution across the team", "يبني خرائط طريق ويتابع التنفيذ عبر الفريق"],
+      ["Flags drift early — when actual progress diverges from the plan", "ينبّهك مبكراً عندما ينحرف التنفيذ الفعلي عن الخطة"],
+    ],
+  },
+  {
+    slug: "ahmed", emoji: "📦",
+    nameAr: "عبدالله", nameEn: "Abdullah",
     roleAr: "مشتريات وتوريد", roleEn: "Procurement & Supply",
     taglineAr: "يقارن الموردين ويجهّز مسودة تفاوض جاهزة للاعتماد.", taglineEn: "Compares suppliers and prepares a negotiation draft ready for your sign-off.",
     caps: [
@@ -5770,7 +5783,6 @@ function buildConnect(pre = "/") {
       {slug:'abdulaziz',e:'⚖️',name:'عبدالعزيز',role:'قانوني',nameEn:'Abdulaziz — Legal'},
       {slug:'badr',e:'💼',name:'بدر',role:'مبيعات وتطوير أعمال',nameEn:'Badr — Sales & Business Development'},
       {slug:'farah',e:'📣',name:'فرح',role:'تسويق ومحتوى',nameEn:'Farah — Marketing & Content'},
-      {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
       {slug:'strategy',e:'📈',name:'أحمد',role:'مدير التخطيط الاستراتيجي',nameEn:'Ahmed — Strategic Planning'},
       {slug:'ahmed',e:'📦',name:'عبدالله',role:'مشتريات وتوريد',nameEn:'Abdullah — Procurement & Supply'},
       {slug:'mohammed',e:'💻',name:'محمد',role:'تقنية معلومات',nameEn:'Mohammed — IT'}
@@ -7350,6 +7362,13 @@ write("ar/connect.html", buildConnect("/ar/"));
 // Client portal: login -> subscription gate -> pick agent -> live chat (noindex)
 write("portal.html", buildPortal("/"));
 write("ar/portal.html", buildPortal("/ar/"));
+
+// Compliance Agent client dashboard (email + access-code login, document
+// upload wizard, alerts/costs) — a prebuilt self-contained page that talks
+// only to n8n webhooks. Its source of truth lives under assets/data (which
+// cleanHtml never touches) and is copied into the ar/ tree on every build;
+// editing it in place under ar/ would be silently deleted by the next run.
+write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";

@@ -53,7 +53,7 @@ const DEMO_CODES = {
   "TRIAL": "ALL",
   "DEMO-ONE": ["badr"],
   "DEMO-THREE": ["badr", "malak", "farah"],
-  "DEMO-TEAM": ["baher", "mazen", "nasser", "mishari", "abdulaziz", "badr", "farah", "malak", "mohammed", "ahmed", "abdulrahman"],
+  "DEMO-TEAM": ["baher", "mazen", "nasser", "mishari", "abdulaziz", "badr", "farah", "malak", "mohammed", "ahmed", "abdulrahman", "strategy"],
 };
 // Public, self-serve free trial (advertised on /connect and /ai-agents) —
 // unlocks every agent like the other demo codes, but the client enforces a
