@@ -431,6 +431,12 @@ const NAV_GROUPS = [
         sub: [
           { href: "/workspaces", en: "Browse spaces", ar: "استعراض المساحات" },
           { href: "/workspace-request", en: "Request a workspace", ar: "اطلب مساحة عمل" },
+          { href: "/services/bp-re-01", en: "Private office", ar: "مكتب خاص" },
+          { href: "/services/bp-re-02", en: "Coworking space", ar: "مساحة عمل مشتركة" },
+          { href: "/services/bp-re-03", en: "Virtual office + National Address", ar: "مكتب افتراضي مع عنوان وطني" },
+          { href: "/services/bp-re-04", en: "Dedicated desk", ar: "مكتب ثابت في مساحة مشتركة" },
+          { href: "/services/bp-re-05", en: "Office search service", ar: "خدمة البحث عن مكتب" },
+          { href: "/services/bp-re-06", en: "Foreign property ownership", ar: "تملّك العقار للأجانب" },
         ],
       },
       {
