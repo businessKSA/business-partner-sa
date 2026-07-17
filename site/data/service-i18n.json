@@ -378,5 +378,9 @@
   "BP-HOUSING-01": {
     "en": "Worker housing — licensed collective housing",
     "ar": "تسكين العمالة — سكن جماعي مرخّص"
+  },
+  "BP-HOUSING-02": {
+    "en": "Worker transport — housing to work sites",
+    "ar": "نقل العمالة — من السكن إلى مواقع العمل"
   }
 }

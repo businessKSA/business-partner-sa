@@ -447,6 +447,8 @@ const NAV_GROUPS = [
           { href: "/worker-housing#wh-request", en: "Request housing", ar: "اطلب سكن لعمالتك" },
           { href: "/worker-housing#wh-fines", en: "Regulations & fines", ar: "الاشتراطات والغرامات" },
           { href: "/services/bp-housing-01", en: "Licensing service", ar: "خدمة الترخيص والتوثيق" },
+          { href: "/services/bp-housing-02", en: "Worker transport", ar: "نقل العمالة" },
+          { href: "/farina#workforce", en: "Workforce catering (Farina)", ar: "إعاشة العمالة (فارينا)" },
         ],
       },
       {
@@ -458,6 +460,7 @@ const NAV_GROUPS = [
           { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
           { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
           { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
+          { href: "/worker-housing", en: "Worker Housing", ar: "تسكين العمالة" },
         ],
       },
     ],
@@ -4321,6 +4324,7 @@ function buildFarina() {
   </div></section>
 
   <section class="section"><div class="container">
+    <div class="cta-band" style="margin-bottom:26px"><h2>${L("Feeding workers in collective housing?", "عمالتك في سكن جماعي؟")}</h2><p>${L("Pair workforce catering with our Worker Housing solution: licensed housing, Balady license, Civil Defense, transport — one contract.", "اجمع إعاشة العمالة مع حل تسكين العمالة: سكن مرخّص، رخصة بلدي، الدفاع المدني، ونقل يومي — بعقد واحد.")}</p><a class="btn btn-white btn-lg" href="${u("/worker-housing")}">🏠 ${L("Explore Worker Housing", "استعرض تسكين العمالة")}</a></div>
     <div class="cta-band"><h2>${L("Ready to start your establishment's hospitality program?", "جاهزين نبدأ برنامج الضيافة في منشأتكم؟")}</h2><p>${L("The smart agent replies instantly on WhatsApp and sets your next step.", "الوكيل الذكي يرد فوراً على واتساب ويحدد لك الخطوة التالية.")}</p>${waBtn2("Request a quote", "اطلب عرض سعر", "btn-white", true)}</div>
   </div></section>`;
   return page({
@@ -4333,12 +4337,12 @@ function buildFarina() {
 function buildWorkerHousing() {
   const services = [
     ["🏢", L("Ready licensed housing", "سكن جاهز ومرخّص"), L("Worker housing units compliant with MoMaH requirements, close to your project sites.", "وحدات سكن عمالة مطابقة لاشتراطات وزارة البلديات والإسكان، قريبة من مواقع مشاريعك.")],
-    ["📋", L("Licensing & attestation", "الترخيص والتوثيق"), L("Balady collective-housing license, Ejar contract attestation, Civil Defense certificate, and Muqeem address updates.", "رخصة السكن الجماعي من بلدي، توثيق عقد الإيجار في إيجار، شهادة الدفاع المدني، وتحديث عناوين العمالة في مقيم.")],
+    ["📋", L("Licensing & attestation", "الترخيص والتوثيق"), L("Balady collective-housing license, Ejar contract attestation, Civil Defense certificate, and Muqeem address updates.", "رخصة السكن الجماعي من بلدي، توثيق عقد الإيجار في إيجار، شهادة الدفاع المدني، وتحديث عناوين العمالة في مقيم."), "/services/bp-housing-01", L("Service details →", "تفاصيل الخدمة ←")],
     ["🛠️", L("Operations management", "إدارة وتشغيل السكن"), L("Housing supervisor, cleaning and maintenance, resident register, signage — everything inspection committees check.", "مشرف سكن، نظافة وصيانة دورية، سجل الساكنين، لوحات إرشادية، وكل متطلبات الجولات الرقابية.")],
-    ["🍽️", L("Catering", "الإعاشة والتغذية"), L("Licensed central-kitchen catering with health-certified staff — from 8 SAR / worker / day via Farina.", "خدمة إعاشة ومطابخ مركزية مرخصة بعمالة حاصلة على الشهادات الصحية — عبر فارينا من 8 ريال / عامل / يوم.")],
-    ["🚌", L("Worker transport", "نقل العمالة"), L("Daily transport between housing and work sites.", "ترتيب نقل يومي من السكن إلى مواقع العمل والعكس.")],
+    ["🍽️", L("Catering — via Farina", "الإعاشة والتغذية — عبر فارينا"), L("Breakfast, lunch and dinner from Farina's licensed SFDA-compliant kitchen, rotating 4-week menu — from 8 SAR / worker / day.", "فطور وغداء وعشاء من مطبخ فارينا المرخّص والمطابق لاشتراطات SFDA، بقائمة متجددة بدورة 4 أسابيع — من 8 ريال / عامل / يوم."), "/farina#workforce", L("Workforce catering from Farina →", "خدمة إعاشة العمالة من فارينا ←")],
+    ["🚌", L("Worker transport", "نقل العمالة"), L("Daily transport between housing and work sites: licensed drivers, shift-based scheduling, one monthly contract.", "نقل يومي منظّم من السكن إلى مواقع العمل والعكس: سائقون مرخصون، جدولة حسب الورديات، وعقد شهري واحد."), "/services/bp-housing-02", L("Service details →", "تفاصيل الخدمة ←")],
     ["🔔", L("Compliance monitoring", "مراقبة امتثال وتنبيهات"), L("Always ready for the quarterly inspection rounds, with alerts before every license, contract or certificate expires.", "جاهزية دائمة للجولات الرقابية الربع سنوية، وتنبيهات قبل انتهاء الرخص والعقود والشهادات.")],
-  ].map(([icon, title, desc]) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${icon}</div><h3>${title}</h3><p>${desc}</p></div>`).join("");
+  ].map(([icon, title, desc, href, cta]) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${icon}</div><h3>${title}</h3><p>${desc}</p>${href ? `<a href="${u(href)}" style="display:inline-block;margin-top:10px;font-weight:600;color:var(--navy)">${cta}</a>` : ""}</div>`).join("");
 
   const fines = [
     [L("Operating collective housing without an operating license", "ممارسة نشاط السكن الجماعي دون ترخيص تشغيلي"), L("up to 10,000 SAR", "حتى 10,000 ريال"), L("Major — facility may be closed", "جسيمة — وقد تُغلق المنشأة")],
@@ -4389,6 +4393,7 @@ function buildWorkerHousing() {
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("One place", "في مكان واحد")}</span><h2>${L("Everything worker housing needs", "كل احتياجات تسكين العمالة")}</h2><p>${L("Pick what you need — housing, licensing, operations, catering, transport — and we execute.", "تختار اللي تحتاجه — سكن، ترخيص، تشغيل، إعاشة، نقل — واحنا نتولى التنفيذ.")}</p></div>
     <div class="grid grid-3">${services}</div>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Housing + Catering + Transport — one contract", "سكن + إعاشة + نقل — بعقد واحد")}</h2><p>${L("The full bundle: licensed housing, three daily meals from Farina's licensed kitchen, and daily transport to your sites — one monthly invoice.", "الباقة الكاملة: سكن مرخّص، وثلاث وجبات يومياً من مطبخ فارينا المرخّص، ونقل يومي لمواقعك — بفاتورة شهرية واحدة.")}</p><a class="btn btn-white btn-lg" href="#wh-request">${L("Request the full bundle", "اطلب الباقة الكاملة")}</a></div>
   </div></section>
 
   <section class="section" id="wh-fines"><div class="container">

@@ -1766,6 +1766,20 @@
         "Existing collective-housing license if any (or we issue it via Balady)",
         "Worker list for Muqeem address updates"
       ]
+    },
+    "bp-housing-02": {
+      "description": "ننقل عمالتك يومياً بين السكن ومواقع العمل بحافلات بسائقين مرخصين وجدولة تُبنى على ورديات العمل الفعلية. الخدمة تُقدَّم مستقلة أو ضمن حل تسكين العمالة المتكامل (سكن مرخّص + إعاشة عبر فارينا + نقل) بعقد شهري واحد وفاتورة واحدة.",
+      "descriptionEn": "Daily worker transport between housing and work sites with licensed drivers and scheduling built around your actual shifts. Available standalone or as part of the integrated worker-housing solution (licensed housing + Farina catering + transport) on one monthly contract and invoice.",
+      "documents": [
+        "عدد العمالة ومواقع السكن والعمل",
+        "جدول الورديات وأوقات التشغيل",
+        "المدة المطلوبة (شهري / سنوي)"
+      ],
+      "documentsEn": [
+        "Worker count, housing and work-site locations",
+        "Shift schedule and operating hours",
+        "Required duration (monthly / yearly)"
+      ]
     }
   },
   "social": {
