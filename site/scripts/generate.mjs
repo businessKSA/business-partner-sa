@@ -467,6 +467,28 @@ const NAV_GROUPS = [
     ],
   },
   {
+    en: "Solutions", ar: "الحلول",
+    items: [
+      {
+        href: "/packages", en: "By company size", ar: "حسب حجم منشأتك",
+        sub: [
+          { href: "/packages#pkg-formation", en: "Startups — forming a new company", ar: "شركات ناشئة — تأسيس شركة جديدة" },
+          { href: "/packages#pkg-management", en: "SMEs — ongoing service packages", ar: "شركات صغيرة ومتوسطة — باقات خدمات مستمرة" },
+          { href: "/packages#pkg-legal", en: "Enterprises — comprehensive legal packages", ar: "شركات كبرى — باقات قانونية شاملة" },
+        ],
+      },
+      {
+        href: "/services", en: "By industry", ar: "حسب القطاع",
+        sub: [
+          { href: "/mahfol-makfol", en: "Business tourism & investor trips", ar: "سياحة الأعمال ورحلات المستثمرين" },
+          { href: "/worker-housing", en: "Labor-intensive sectors (worker housing)", ar: "القطاعات كثيفة العمالة (تسكين العمالة)" },
+          { href: "/farina", en: "Hospitality & catering for companies", ar: "الضيافة والتموين للشركات" },
+          { href: "/workspaces", en: "Offices & coworking spaces", ar: "المكاتب ومساحات العمل المشتركة" },
+        ],
+      },
+    ],
+  },
+  {
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
       { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
@@ -1604,13 +1626,17 @@ function buildPackages() {
   <script>
   (function(){
     var tabs=document.querySelectorAll(".pk-tab");
-    tabs.forEach(function(t){t.addEventListener("click",function(){
+    function activate(group){
       tabs.forEach(function(x){x.classList.remove("active");});
       document.querySelectorAll(".pk-panel").forEach(function(x){x.classList.remove("active");});
-      t.classList.add("active");
-      var el=document.getElementById("pkg-"+t.dataset.group);
-      if(el)el.classList.add("active");
-    });});
+      var tab=document.querySelector('.pk-tab[data-group="'+group+'"]');
+      var panel=document.getElementById("pkg-"+group);
+      if(tab)tab.classList.add("active");
+      if(panel)panel.classList.add("active");
+    }
+    tabs.forEach(function(t){t.addEventListener("click",function(){activate(t.dataset.group);});});
+    var hashGroup=(location.hash||"").replace("#pkg-","");
+    if(hashGroup)activate(hashGroup);
   })();
   </script>`;
   return page({ title: Lraw("Packages — Business Partner", "الباقات — بيزنس بارتنر"), desc: Lraw(p.subtitleEn || p.subtitle, p.subtitle), active: "/packages", body });
