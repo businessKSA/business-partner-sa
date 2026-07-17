@@ -646,108 +646,32 @@ function waFab() {
   return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="${Lraw("Contact on WhatsApp", "تواصل عبر واتساب")}">${I.wa}<span class="lbl">${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>`;
 }
 
-// Khaled — the site owner's animated avatar (red shemagh, black igal, clear
-// glasses, goatee, white thobe). Inline SVG split into animatable groups:
-// av-head (nod), av-eyes (blink), av-mouth-smile / av-mouth-open (talking).
-// uid keeps defs ids unique when embedded twice on one page (fab + header).
-function khaledSvg(uid) {
-  const bg = `khbg-${uid}`, sh = `khsh-${uid}`, cl = `khcl-${uid}`;
-  return `<svg class="kh-avatar" viewBox="0 0 120 120" aria-hidden="true">
-  <defs>
-    <linearGradient id="${bg}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16307a"/><stop offset="1" stop-color="#0B1B5A"/></linearGradient>
-    <pattern id="${sh}" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="#f7f2f0"/><rect width="2" height="2" fill="#d92040"/><rect x="2" y="2" width="2" height="2" fill="#d92040"/></pattern>
-    <clipPath id="${cl}"><circle cx="60" cy="60" r="58"/></clipPath>
-  </defs>
-  <circle cx="60" cy="60" r="58" fill="url(#${bg})"/>
-  <g clip-path="url(#${cl})">
-    <path d="M52 70 h16 v18 q-8 7 -16 0 Z" fill="#e0a274"/>
-    <path d="M52 72 h16 v5 q-8 4 -16 0 Z" fill="#c98a5c" opacity="0.55"/>
-    <path d="M13 121 Q15 96 38 90 Q48 87.4 52 87 L60 95 L68 87 Q72 87.4 82 90 Q105 96 107 121 Z" fill="#fcfbf8"/>
-    <path d="M31 121 Q32 105 37 97" fill="none" stroke="#e6e2d8" stroke-width="1"/>
-    <path d="M89 121 Q88 105 83 97" fill="none" stroke="#e6e2d8" stroke-width="1"/>
-    <path d="M52 84.5 L60 92 L58.6 95.4 L50.2 88.2 Q50.7 85.7 52 84.5 Z" fill="#ffffff" stroke="#ddd8cc" stroke-width="0.8"/>
-    <path d="M68 84.5 L60 92 L61.4 95.4 L69.8 88.2 Q69.3 85.7 68 84.5 Z" fill="#ffffff" stroke="#ddd8cc" stroke-width="0.8"/>
-    <circle cx="60" cy="97" r="1.5" fill="#eae6dc" stroke="#cfc9bb" stroke-width="0.6"/>
-    <g class="av-head">
-      <path d="M38.5 36 Q28 54 26.8 78 Q26.2 95 29.5 110 L53 110 Q49.6 86 48.2 62 Q47.4 46 42.5 38 Z" fill="url(#${sh})" stroke="#e9dcd6" stroke-width="0.8"/>
-      <path d="M33 48 Q30.6 72 30.8 98" fill="none" stroke="#9c1c2e" stroke-width="2" opacity="0.25"/>
-      <path d="M48.2 62 Q49.6 86 53 110 L47.6 110 Q44.6 86 43.4 62 Q45.8 60.8 48.2 62 Z" fill="#f7f2f0"/>
-      <path d="M45.9 65 L48 70 L45.5 75 L48.4 80 L46 85 L48.9 90 L46.5 95 L49.4 100 L47 105 L49.8 110" fill="none" stroke="#d92040" stroke-width="1.1"/>
-      <path d="M81.5 36 Q92 54 93.2 78 Q93.8 95 90.5 110 L67 110 Q70.4 86 71.8 62 Q72.6 46 77.5 38 Z" fill="url(#${sh})" stroke="#e9dcd6" stroke-width="0.8"/>
-      <path d="M77 44 Q73.8 70 71.4 96 Q74 96 76 94 Q78.2 68 80.5 46 Z" fill="#9c1c2e" opacity="0.22"/>
-      <path d="M85 48 Q86.6 74 85.8 100" fill="none" stroke="#f7f2f0" stroke-width="1.4" opacity="0.6"/>
-      <ellipse cx="40" cy="58.5" rx="3.4" ry="5.4" fill="#e5ab79"/>
-      <ellipse cx="80" cy="58.5" rx="3.4" ry="5.4" fill="#e5ab79"/>
-      <path d="M39.4 57 Q40.6 58.5 39.8 60.4" fill="none" stroke="#c98a5c" stroke-width="1"/>
-      <path d="M80.6 57 Q79.4 58.5 80.2 60.4" fill="none" stroke="#c98a5c" stroke-width="1"/>
-      <path d="M60 35.5 Q79 35.5 80 54 Q80.6 66 73.5 73.5 Q67.5 79.5 60 79.5 Q52.5 79.5 46.5 73.5 Q39.4 66 40 54 Q41 35.5 60 35.5 Z" fill="#eeb98a"/>
-      <ellipse cx="46.8" cy="65" rx="3" ry="2" fill="#e59a6b" opacity="0.35"/>
-      <ellipse cx="73.2" cy="65" rx="3" ry="2" fill="#e59a6b" opacity="0.35"/>
-      <path d="M44 42.6 Q52 40.6 55.5 42.1 L60 46.4 L64.5 42.1 Q68 40.6 76 42.6" fill="none" stroke="#d89a67" stroke-width="1.5" opacity="0.35"/>
-      <path fill-rule="evenodd" fill="#1f1a16" d="M48.4 64 Q52 60.4 60 60.9 Q68 60.4 71.6 64 Q73.3 68.5 73.6 72.4 Q74 78.6 68.8 81.4 Q64.6 83.6 60 83.6 Q55.4 83.6 51.2 81.4 Q46 78.6 46.4 72.4 Q46.7 68.5 48.4 64 Z M60 64.9 Q53.5 64.9 51.6 68 Q50.1 71.4 53.4 74.9 Q56.4 77.9 60 77.9 Q63.6 77.9 66.6 74.9 Q69.9 71.4 68.4 68 Q66.5 64.9 60 64.9 Z"/>
-      <g class="av-mouth-smile">
-        <path d="M52 66 Q60 70.2 68 66 Q67.4 74.6 60 74.6 Q52.6 74.6 52 66 Z" fill="#6d3126"/>
-        <path d="M53.2 66.5 Q60 69.9 66.8 66.5 Q65.8 71.4 60 71.4 Q54.2 71.4 53.2 66.5 Z" fill="#ffffff"/>
-      </g>
-      <g class="av-mouth-open" opacity="0">
-        <path d="M52 66.2 Q60 64.4 68 66.2 Q70.4 74 64.8 76.6 Q60 78.4 55.2 76.6 Q49.6 74 52 66.2 Z" fill="#5f2921"/>
-        <path d="M53.2 66.1 Q60 64.7 66.8 66.1 L66.4 69.3 Q60 70.4 53.6 69.3 Z" fill="#ffffff"/>
-        <path d="M55.4 75.2 Q60 77.6 64.6 75.2 Q62.4 77.9 60 77.9 Q57.6 77.9 55.4 75.2 Z" fill="#b4574a"/>
-      </g>
-      <path d="M59.2 56 Q57.6 61.4 59.4 62.8 Q60.9 63.6 62 62.6" fill="none" stroke="#d0885c" stroke-width="1.8" stroke-linecap="round"/>
-      <g class="av-eyes">
-        <circle cx="50.5" cy="56.6" r="2.3" fill="#2a2320"/>
-        <circle cx="69.5" cy="56.6" r="2.3" fill="#2a2320"/>
-        <circle cx="51.3" cy="55.8" r="0.75" fill="#ffffff"/>
-        <circle cx="70.3" cy="55.8" r="0.75" fill="#ffffff"/>
-      </g>
-      <path d="M48.1 58.8 Q50.5 60 52.9 58.8" fill="none" stroke="#d89a67" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
-      <path d="M67.1 58.8 Q69.5 60 71.9 58.8" fill="none" stroke="#d89a67" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
-      <g class="av-brows">
-        <path d="M44.3 49.8 Q49.5 46.9 54.6 48.7" fill="none" stroke="#241d18" stroke-width="2.4" stroke-linecap="round"/>
-        <path d="M65.4 48.7 Q70.5 46.9 75.7 49.8" fill="none" stroke="#241d18" stroke-width="2.4" stroke-linecap="round"/>
-      </g>
-      <rect x="42.6" y="51" width="15.4" height="9.6" rx="4" fill="#ffffff" fill-opacity="0.12" stroke="#cfbdb8" stroke-width="1.5"/>
-      <rect x="62" y="51" width="15.4" height="9.6" rx="4" fill="#ffffff" fill-opacity="0.12" stroke="#cfbdb8" stroke-width="1.5"/>
-      <path d="M58 54.6 Q60 53.4 62 54.6" fill="none" stroke="#cfbdb8" stroke-width="1.5"/>
-      <path d="M42.6 54.6 L39.6 55.8" fill="none" stroke="#cfbdb8" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M77.4 54.6 L80.4 55.8" fill="none" stroke="#cfbdb8" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M45 59.8 L50 52 L52.4 52 L47.4 59.8 Z" fill="#ffffff" opacity="0.3"/>
-      <path d="M48.8 59.8 L53.8 52 L55 52 L50 59.8 Z" fill="#ffffff" opacity="0.16"/>
-      <path d="M64.4 59.8 L69.4 52 L71.8 52 L66.8 59.8 Z" fill="#ffffff" opacity="0.3"/>
-      <path d="M68.2 59.8 L73.2 52 L74.4 52 L69.4 59.8 Z" fill="#ffffff" opacity="0.16"/>
-      <path d="M35.2 56 Q31.6 17.5 60 17.5 Q88.4 17.5 84.8 56 Q83.2 44.4 77.8 40.6 Q69 38.6 65 40.6 L60 45 L55 40.6 Q51 38.6 42.2 40.6 Q36.8 44.4 35.2 56 Z" fill="url(#${sh})"/>
-      <path d="M42.2 40.6 Q51 38.6 55 40.6 L60 45 L65 40.6 Q69 38.6 77.8 40.6" fill="none" stroke="#f7f2f0" stroke-width="1.9" opacity="0.95"/>
-      <path d="M43 38 Q51.5 36.2 55.6 38.2 L60 42.2 L64.4 38.2 Q68.5 36.2 77 38" fill="none" stroke="#9c1c2e" stroke-width="1.8" opacity="0.28"/>
-      <path d="M48 22 Q45 30 44.5 38" fill="none" stroke="#9c1c2e" stroke-width="1.6" opacity="0.25"/>
-      <path d="M72 22 Q75 30 75.5 38" fill="none" stroke="#9c1c2e" stroke-width="1.6" opacity="0.25"/>
-      <path d="M38.6 38 Q60 26.2 81.4 38" fill="none" stroke="#17181b" stroke-width="5.4" stroke-linecap="round"/>
-      <path d="M40.6 27.6 Q60 17.9 79.4 27.6" fill="none" stroke="#212228" stroke-width="4.6" stroke-linecap="round"/>
-    </g>
-  </g>
-</svg>`;
+// باهر — صورة صاحب الموقع الحقيقية (بدل الرسمة). span بنفس كلاس kh-avatar حتى
+// تنطبق مقاسات الودجت، مع موجات صوت تظهر أثناء نطق الرد (كلاس talking).
+function khaledSvg() {
+  return `<span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><span class="kh-speak-bars"><i></i><i></i><i></i></span></span>`;
 }
 
 function advisorWidget() {
   return `<div class="advisor-teaser" id="advisor-teaser" hidden>
     <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="${Lraw("Close", "إغلاق")}">✕</button>
-    <p>${L("Hi 👋 I'm Khaled, your smart assistant. Questions about formation or government platforms?", "حياك الله 👋 أنا خالد، مساعدك الذكي. عندك سؤال عن التأسيس أو المنصات الحكومية؟")}</p>
+    <p>${L("Hi 👋 I'm Baher, your smart assistant. Questions about formation or government platforms?", "حياك الله 👋 أنا باهر، مساعدك الذكي. عندك سؤال عن التأسيس أو المنصات الحكومية؟")}</p>
   </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open chat with Khaled, the smart assistant", "افتح المحادثة مع خالد، المساعد الذكي")}">
+  <button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open chat with Baher, the smart assistant", "افتح المحادثة مع باهر، المساعد الذكي")}">
     <span class="advisor-fab-avatar">${khaledSvg("fab")}<span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">${L("Ask Khaled", "اسأل خالد")}</span>
+    <span class="lbl">${L("Ask Baher", "اسأل باهر")}</span>
   </button>
-  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="${Lraw("Ask Khaled", "اسأل خالد")}">
+  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="${Lraw("Ask Baher", "اسأل باهر")}">
     <header class="advisor-head">
-      <div class="advisor-title"><span class="advisor-head-avatar">${khaledSvg("head")}</span><div><strong>${L("Khaled", "خالد")}</strong><span><i class="advisor-online" aria-hidden="true"></i>${L("Your smart partner — online now", "شريكك الذكي — متصل الآن")}</span></div></div>
-      <button class="advisor-ic" id="advisor-tts" aria-pressed="true" title="${Lraw("Khaled's voice", "صوت خالد")}" aria-label="${Lraw("Khaled's voice", "صوت خالد")}">
+      <div class="advisor-title"><span class="advisor-head-avatar">${khaledSvg("head")}</span><div><strong>${L("Baher", "باهر")}</strong><span><i class="advisor-online" aria-hidden="true"></i>${L("Your smart partner — online now", "شريكك الذكي — متصل الآن")}</span></div></div>
+      <button class="advisor-ic" id="advisor-tts" aria-pressed="true" title="${Lraw("Baher's voice", "صوت باهر")}" aria-label="${Lraw("Baher's voice", "صوت باهر")}">
         <svg class="adv-tts-on" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
         <svg class="adv-tts-off" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M16.5 12a4.5 4.5 0 0 0-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.9 8.9 0 0 0 21 12a9 9 0 0 0-7-8.77v2.06A7 7 0 0 1 19 12zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25a6.9 6.9 0 0 1-2.25 1.16v2.06a8.9 8.9 0 0 0 3.69-1.81L19.73 21 21 19.73 4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
       </button>
       <button class="advisor-close" id="advisor-close" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
     </header>
     <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">${L("Hi 👋 I'm Khaled, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "حياك الله 👋 أنا خالد، مساعدك الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
+      <div class="advisor-msg bot">${L("Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "حياك الله 👋 أنا باهر، مساعدك الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
     </div>
     <div class="advisor-chips" id="advisor-chips">
       <button type="button" class="advisor-chip" data-q="${Lraw("Foreign investment company setup", "تأسيس شركة باستثمار أجنبي")}">🏢 ${L("Foreign investment setup", "تأسيس شركة باستثمار أجنبي")}</button>
@@ -6697,13 +6621,13 @@ function buildPortal(pre = "/") {
 
 /* ---------- Shared Services landing (client-facing) ---------- */
 // Dashboard → this page: explains the Shared Services executive team and lets the
-// client open the service live (chat with Khaled, who leads and routes the team).
-// Chat calls Khaled's public n8n chat webhook directly from the browser.
+// client open the service live (chat with Baher, who leads and routes the team).
+// Chat calls Baher's public n8n chat webhook directly from the browser.
 function buildSharedServices() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
-    { e: "👑", en: "Khaled — Chief of Staff & Customer Service", ar: "خالد — قائد الفريق وخدمة العملاء" },
+    { e: "👑", en: "Baher — Chief of Staff & Customer Service", ar: "باهر — قائد الفريق وخدمة العملاء" },
     { e: "🎯", en: "Baher — Business Advisor", ar: "باهر — مستشار الأعمال" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
     { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
@@ -6720,11 +6644,11 @@ function buildSharedServices() {
   const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
 
   // Full roster for the dashboard — each specialist is chatted with individually.
-  // Khaled leads via his chat webhook (chatTrigger protocol); the rest use their
+  // Baher leads via his chat webhook (chatTrigger protocol); the rest use their
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
   const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
   const agentData = [
-    { slug: "khaled", e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
+    { slug: "khaled", e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
     { slug: "baher", e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", path: "baher-intake" },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
@@ -6801,7 +6725,7 @@ function buildSharedServices() {
 
   // Detailed roster — services each agent delivers + how they work. Public info.
   const roster = [
-    { e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service",
+    { e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service",
       svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
       mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
     { e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
@@ -6847,7 +6771,7 @@ function buildSharedServices() {
     <div class="wrap">
       <span class="eyebrow">${L("Shared Services", "الخدمات المشتركة")}</span>
       <h1>${L("Your smart executive team", "فريقك التنفيذي الذكي")}</h1>
-      <p class="lead">${L("Instead of hiring a whole office, get a full team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant — led by Khaled, who understands your request, delegates to the right specialist, executes, and escalates only what needs your approval.", "بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يعملون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعِدة تنفيذية — بقيادة خالد الذي يفهم طلبك، يوزّعه على المتخصص المناسب، ينفّذ، ويصعّد فقط ما يحتاج موافقتك.")}</p>
+      <p class="lead">${L("Instead of hiring a whole office, get a full team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant — led by Baher, who understands your request, delegates to the right specialist, executes, and escalates only what needs your approval.", "بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يعملون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعِدة تنفيذية — بقيادة باهر الذي يفهم طلبك، يوزّعه على المتخصص المناسب، ينفّذ، ويصعّد فقط ما يحتاج موافقتك.")}</p>
       <div class="ss-cta">
         <a class="btn btn-primary" href="${u("/shared-services/dashboard")}">🔑 ${L("Service portal — sign in", "دخول بوابة الخدمة")}</a>
         <a class="btn btn-primary" style="background:#12b3ad;border-color:#12b3ad" href="#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
@@ -6861,7 +6785,7 @@ function buildSharedServices() {
       <div class="sec-head"><h2>${L("How the service works", "كيف تعمل الخدمة")}</h2><p>${L("One request in plain language — the team takes it from there.", "طلب واحد بلغتك العادية — والفريق يتكفّل بالباقي.")}</p></div>
       <div class="ss-how">
         <div class="ss-how-s"><span class="n">1</span><b>${L("Ask in plain words", "اطلب بلغتك")}</b><p>${L("Write your request in everyday Arabic or English.", "اكتب طلبك بالعربي أو الإنجليزي العادي.")}</p></div>
-        <div class="ss-how-s"><span class="n">2</span><b>${L("Khaled routes it", "خالد يوزّعه")}</b><p>${L("He understands the request and hands it to the right specialist.", "يفهم الطلب ويسلّمه للمتخصص المناسب.")}</p></div>
+        <div class="ss-how-s"><span class="n">2</span><b>${L("Baher routes it", "باهر يوزّعه")}</b><p>${L("He understands the request and hands it to the right specialist.", "يفهم الطلب ويسلّمه للمتخصص المناسب.")}</p></div>
         <div class="ss-how-s"><span class="n">3</span><b>${L("The specialist executes", "المتخصص ينفّذ")}</b><p>${L("The work is done and logged in your isolated workspace.", "يُنفَّذ العمل ويُوثَّق في مساحتك المعزولة.")}</p></div>
         <div class="ss-how-s"><span class="n">4</span><b>${L("You approve what binds", "توافق على الملزم")}</b><p>${L("Any payment, signature or external send waits for your approval.", "أي دفع أو توقيع أو إرسال خارجي ينتظر موافقتك.")}</p></div>
       </div>
@@ -6888,7 +6812,7 @@ function buildSharedServices() {
       <div class="ss-org">
         <div class="ss-onode you"><span class="e">👤</span><div><b>${L("You — the client", "أنت — العميل")}</b><span>${L("Write your request in plain language — one channel only, no chasing anyone.", "تكتب طلبك بلغتك العادية — قناة واحدة فقط، وما تحتاج تلاحق أحداً.")}</span></div></div>
         <div class="ss-oconn"><i>1</i><em>${L("The request", "الطلب")}</em></div>
-        <div class="ss-onode lead"><span class="e">👑</span><div><b>${L("Khaled — Chief of Staff", "خالد — رئيس الأركان")}</b><span>${L("Receives your request, owns it end to end, assigns the right specialist, collects the work, and hands you a finished result.", "يستقبل طلبك، يملكه من أوله لآخره، يكلّف المتخصص المناسب، يجمع الشغل، ويسلّمك نتيجة جاهزة.")}</span></div></div>
+        <div class="ss-onode lead"><span class="e">👑</span><div><b>${L("Baher — Chief of Staff", "باهر — رئيس الأركان")}</b><span>${L("Receives your request, owns it end to end, assigns the right specialist, collects the work, and hands you a finished result.", "يستقبل طلبك، يملكه من أوله لآخره، يكلّف المتخصص المناسب، يجمع الشغل، ويسلّمك نتيجة جاهزة.")}</span></div></div>
         <div class="ss-oconn"><i>2</i><em>${L("Coordination", "التوزيع والتنسيق")}</em></div>
         <div class="ss-onode ops"><span class="e">🧭</span><div><b>${L("Mazen — Operations Manager", "مازن — مدير العمليات")}</b><span>${L("Coordinates multi-step execution across specialists and guards delivery quality — works behind the scenes.", "ينسّق التنفيذ متعدد الخطوات بين المتخصصين ويراقب جودة التسليم — يعمل خلف الكواليس.")}</span></div></div>
         <div class="ss-oconn"><i>3</i><em>${L("Specialist execution", "التنفيذ المتخصص")}</em></div>
@@ -6913,7 +6837,7 @@ function buildSharedServices() {
         <div class="ss-oconn gold"><i>4</i><em>${L("Governance gate", "بوابة الحوكمة")}</em></div>
         <div class="ss-onode gov"><span class="e">🔒</span><div><b>${L("Your mandatory approval", "موافقتك الإلزامية")}</b><span>${L("Any payment, signature, binding commitment, paid government submission or official external message is prepared ready-to-go — then WAITS for your approval.", "أي دفع أو توقيع أو التزام ملزم أو تقديم حكومي مدفوع أو رسالة رسمية خارجية — تتجهّز كاملة ثم تقف عند «بانتظار موافقتك».")}</span></div></div>
         <div class="ss-oconn green"><i>5</i><em>${L("Delivery", "التسليم")}</em></div>
-        <div class="ss-onode done"><span class="e">✅</span><div><b>${L("Finished output + documentation", "مخرج جاهز + توثيق")}</b><span>${L("Khaled hands you the result, and every task and conversation is logged in your own isolated workspace.", "خالد يسلّمك النتيجة، وكل مهمة ومحادثة تُوثَّق في مساحتك الخاصة المعزولة عن بقية العملاء.")}</span></div></div>
+        <div class="ss-onode done"><span class="e">✅</span><div><b>${L("Finished output + documentation", "مخرج جاهز + توثيق")}</b><span>${L("Baher hands you the result, and every task and conversation is logged in your own isolated workspace.", "باهر يسلّمك النتيجة، وكل مهمة ومحادثة تُوثَّق في مساحتك الخاصة المعزولة عن بقية العملاء.")}</span></div></div>
       </div>
       <div class="ss-hgrid">
         <div class="ss-hcard"><b>📲 ${L("Human escalation", "التصعيد البشري")}</b><span>${L("Field, financial and government work is escalated by WhatsApp to your own staff.", "الأعمال الميدانية والمالية والحكومية تُصعَّد بواتساب لموظفيك أنت.")}</span></div>
@@ -7150,7 +7074,7 @@ function buildSharedServices() {
   const script = "";
   return page({
     title: Lraw("Shared Services — your smart executive team | Business Partner", "الخدمات المشتركة — فريقك التنفيذي الذكي | بيزنس بارتنر"),
-    desc: Lraw("A full AI executive team that works as your own staff, led by Khaled: government, compliance, sales, marketing, IT, procurement and admin — one subscription.", "فريق تنفيذي ذكي متكامل يعمل كموظفيك بقيادة خالد: حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات وإدارة — باشتراك واحد."),
+    desc: Lraw("A full AI executive team that works as your own staff, led by Baher: government, compliance, sales, marketing, IT, procurement and admin — one subscription.", "فريق تنفيذي ذكي متكامل يعمل كموظفيك بقيادة باهر: حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات وإدارة — باشتراك واحد."),
     active: "/shared-services", path: "/shared-services", body, script,
   });
 }
@@ -7159,7 +7083,7 @@ function buildSharedServicesPortal() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
-    { e: "👑", en: "Khaled — Chief of Staff & Customer Service", ar: "خالد — قائد الفريق وخدمة العملاء" },
+    { e: "👑", en: "Baher — Chief of Staff & Customer Service", ar: "باهر — قائد الفريق وخدمة العملاء" },
     { e: "🎯", en: "Baher — Business Advisor", ar: "باهر — مستشار الأعمال" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
     { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
@@ -7176,11 +7100,11 @@ function buildSharedServicesPortal() {
   const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
 
   // Full roster for the dashboard — each specialist is chatted with individually.
-  // Khaled leads via his chat webhook (chatTrigger protocol); the rest use their
+  // Baher leads via his chat webhook (chatTrigger protocol); the rest use their
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
   const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
   const agentData = [
-    { slug: "khaled", e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
+    { slug: "khaled", e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
     { slug: "baher", e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", path: "baher-intake" },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
@@ -7257,7 +7181,7 @@ function buildSharedServicesPortal() {
 
   // Detailed roster — services each agent delivers + how they work. Public info.
   const roster = [
-    { e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service",
+    { e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service",
       svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
       mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
     { e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
@@ -7355,7 +7279,7 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-pane" id="pane-svc" hidden>
-        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Khaled in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لخالد في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
+        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Baher in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لباهر في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
         <div class="ss-svc">
           <a href="${u("/services")}"><span class="e">🗂️</span><b>${L("All services (93)", "كل الخدمات (93)")}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
           <a href="${u("/packages")}"><span class="e">📦</span><b>${L("Packages", "الباقات")}</b><span>${L("Bundled services at a clear starting price.", "باقات جاهزة بسعر ابتدائي واضح.")}</span></a>
@@ -7372,7 +7296,7 @@ function buildSharedServicesPortal() {
           <a href="${u("/saudi-arabia")}"><span class="e">🇸🇦</span><b>${L("Invest in Saudi", "الاستثمار في السعودية")}</b><span>${L("Investor data, guides and sector insights.", "بيانات وأدلة المستثمر ورؤى القطاعات.")}</span></a>
           <a href="${u("/account")}"><span class="e">🧾</span><b>${L("My orders & account", "طلباتي وحسابي")}</b><span>${L("Track your orders, documents and payments.", "تابع طلباتك ومستنداتك ومدفوعاتك.")}</span></a>
         </div>
-        <p class="ss-secure">💡 ${L("Tip: anything here can also be requested through Khaled — he prepares it and anything binding waits for your approval.", "تلميح: أي خدمة هنا تقدر تطلبها عبر خالد مباشرة — يجهّزها لك وأي إجراء ملزم ينتظر موافقتك.")}</p>
+        <p class="ss-secure">💡 ${L("Tip: anything here can also be requested through Baher — he prepares it and anything binding waits for your approval.", "تلميح: أي خدمة هنا تقدر تطلبها عبر باهر مباشرة — يجهّزها لك وأي إجراء ملزم ينتظر موافقتك.")}</p>
       </div>
 
       <div class="ss-pane" id="pane-tools" hidden>

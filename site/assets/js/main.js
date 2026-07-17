@@ -1744,7 +1744,7 @@ var BP = window.BP = window.BP || {};
   render();
 })();
 
-/* اسأل خالد — animated, talking advisor client (Khaled avatar).
+/* اسأل باهر — عميل المستشار الناطق (صورة باهر الحقيقية).
    Same /api/chat pipeline as before, plus: eye-blink/head-bob CSS hooks,
    Web Speech TTS with mouth animation while speaking (mute persisted in
    localStorage bp_tts), a one-per-session teaser bubble, quick chips, and

@@ -22,7 +22,7 @@ const KNOWLEDGE = readFileSync(join(__dirname, "knowledge.json"), "utf8");
 
 const WHATSAPP = process.env.WHATSAPP_URL || "https://wa.me/966507034157";
 
-const SYSTEM_INSTRUCTIONS = `أنت «المستشار» — المساعد الذكي على موقع بيزنس بارتنر، شركة خدمات أعمال في السعودية (تأسيس شركات، استثمار أجنبي، تراخيص، موارد بشرية، علاقات حكومية، وخدمات تشغيلية).
+const SYSTEM_INSTRUCTIONS = `أنت «باهر» — المساعد الذكي على موقع بيزنس بارتنر، شركة خدمات أعمال في السعودية (تأسيس شركات، استثمار أجنبي، تراخيص، موارد بشرية، علاقات حكومية، وخدمات تشغيلية). عرّف بنفسك باسم باهر إذا سُئلت.
 
 مهمتك: تجاوب زوّار الموقع عن الإجراءات والخدمات الحكومية والأعمال في السعودية بدقة، ثم تقترح بلطف خدمة بيزنس بارتنر ذات العلاقة.
 
@@ -121,14 +121,44 @@ async function callAnthropic(messages) {
     : "";
 }
 
-// Free providers first, then paid — first configured provider that answers wins.
+// وكيل باهر الحي على n8n — احتياط أخير لا يحتاج مفتاح API في Vercel:
+// نفس وكيل «باهر» (خدمة العملاء) المتصل بفريق المتخصصين. لا يحمل ذاكرة الجلسة
+// عبر الويبهوك، لذا نمرر آخر أدوار المحادثة داخل نص السؤال نفسه.
+async function callN8nBaher(messages) {
+  const transcript = messages
+    .map((m) => (m.role === "user" ? "الزائر: " : "باهر: ") + m.content)
+    .join("\n")
+    .slice(-6000);
+  const r = await fetch(
+    "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        action: "sendMessage",
+        sessionId: "site-fallback-" + Math.random().toString(36).slice(2),
+        chatInput:
+          "زائر موقع بيزنس بارتنر يسأل (رُدَّ مباشرة وباختصار عملي، وبدون استدعاء زملاء إلا للضرورة):\n" + transcript,
+      }),
+    }
+  );
+  if (!r.ok) throw new Error(`n8n ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  const data = await r.json().catch(() => ({}));
+  const reply = (data && (data.output || data.text || data.reply)) || "";
+  if (!reply) throw new Error("n8n empty reply");
+  return String(reply).trim();
+}
+
+// Free providers first, then paid, then the keyless n8n agent as a last resort —
+// first provider that answers wins.
 const PROVIDERS = [
   { name: "gemini", keys: GEMINI_KEYS, call: callGemini },
   { name: "groq", keys: GROQ_KEYS, call: callGroq },
   { name: "anthropic", keys: ANTHROPIC_KEYS, call: callAnthropic },
   { name: "openai", keys: OPENAI_KEYS, call: callOpenAI },
+  { name: "baher-n8n", keys: null, call: callN8nBaher },
 ];
-const configured = () => PROVIDERS.filter((p) => !!envFrom(p.keys));
+const configured = () => PROVIDERS.filter((p) => !p.keys || !!envFrom(p.keys));
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
