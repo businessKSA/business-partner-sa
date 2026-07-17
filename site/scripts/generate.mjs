@@ -7050,39 +7050,13 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-pane" id="pane-comp" hidden>
-        <div class="ss-comp">
-          <div class="ss-comp-main">
-            <div class="ss-comp-lead">
-              <span class="e">🛡️</span>
-              <div><b>${L("Mishari — your compliance lead", "مشاري — قائد الامتثال لديك")}</b>
-              <p>${L("Monitors Qiwa, Muqeem, GOSI, Mudad, Nitaqat and ZATCA, and alerts you before any deadline or violation — every government action stays pending your approval.", "يراقب قوى ومقيم والتأمينات ومدد والنطاقات وZATCA، وينبّهك قبل أي استحقاق أو مخالفة — وكل إجراء حكومي يبقى بانتظار موافقتك.")}</p></div>
-              <button class="btn btn-primary" id="ss-comp-chat" type="button">${L("Talk to Mishari", "كلّم مشاري")}</button>
-            </div>
-            <div class="ss-plat-head">${L("Platforms under watch", "المنصّات تحت المراقبة")}</div>
-            <div class="ss-plat">${compPlatforms}</div>
-          </div>
-          <div class="ss-comp-links">
-            <a href="${u("/compliance-portal")}"><b>📤 ${L("Upload your reports", "ارفع تقاريرك")}</b><span>${L("Qiwa, Muqeem, GOSI & Mudad — the agent builds your establishment file.", "قوى، مقيم، التأمينات ومدد — الوكيل يبني ملف منشأتك.")}</span></a>
-            <a href="${u("/compliance-agent")}"><b>🛡️ ${L("Compliance subscription", "اشتراك الامتثال")}</b><span>${L("Daily monitoring and alerts before every deadline.", "مراقبة يومية وتنبيهات قبل كل استحقاق.")}</span></a>
-            <a href="${u("/tools-and-calculators")}"><b>🧮 ${L("Free calculators", "الحاسبات المجانية")}</b><span>${L("Nitaqat, government cost, end of service and more.", "النطاقات، التكاليف الحكومية، نهاية الخدمة والمزيد.")}</span></a>
-          </div>
-        </div>
         <div class="ss-compdash">
-          <div class="ss-compdash-head">
-            <div><b>🛡️ ${L("Your live compliance dashboard", "لوحة الامتثال الحيّة لمنشأتك")}</b>
-            <span>${L("Compliance score, alerts, government entities, document uploads and estimated costs — sign in below with your compliance email + code.", "درجة الامتثال، التنبيهات، الجهات الحكومية، رفع المستندات والتكاليف التقديرية — سجّل دخولك بالأسفل بإيميل ورمز اشتراك الامتثال.")}</span></div>
-            <a class="btn btn-ghost" href="/ar/compliance-dashboard" target="_blank" rel="noopener">${L("Open full page ↗", "افتحها في صفحة مستقلة ↗")}</a>
-          </div>
           <iframe id="ss-compdash-frame" data-src="/ar/compliance-dashboard" loading="lazy" title="${Lraw("Compliance dashboard", "لوحة الامتثال")}"></iframe>
         </div>
         <style>
-          .ss-compdash{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,27,90,.07)}
-          .ss-compdash-head{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#f6f9fc,#fff)}
-          .ss-compdash-head b{display:block;color:var(--brand,#0b1b5a);font-size:1rem;margin-bottom:3px}
-          .ss-compdash-head span{display:block;font-size:.83rem;color:var(--text-soft,#5b6b86);line-height:1.7}
-          .ss-compdash-head .btn{white-space:nowrap}
-          #ss-compdash-frame{display:block;width:100%;height:960px;border:0;background:#fff}
-          @media(max-width:640px){#ss-compdash-frame{height:760px}}
+          .ss-compdash{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,27,90,.07)}
+          #ss-compdash-frame{display:block;width:100%;height:calc(100vh - 180px);min-height:760px;border:0;background:#fff}
+          @media(max-width:640px){#ss-compdash-frame{min-height:640px}}
         </style>
       </div>
     </div>
