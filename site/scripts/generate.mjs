@@ -1,3 +1,4 @@
+// build-marker: force production rebuild for BP-RE-06 + real-estate nav (deploy 2)
 // Business Partner — static site generator (no framework, plain Node)
 // Reads data/*.json and emits static HTML pages into the site root.
 import fs from "node:fs";
