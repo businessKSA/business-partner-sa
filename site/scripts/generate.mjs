@@ -4715,6 +4715,14 @@ function buildContact() {
         <div class="map-embed">
           <iframe src="https://www.google.com/maps?q=${encodeURIComponent("حي الملقا الرياض")}&output=embed" loading="lazy" title="${Lraw("Business Partner location", "موقع بيزنس بارتنر")}"></iframe>
         </div>
+        ${site.social ? `<div class="social-row-wrap">
+          <div class="k" style="font-size:.82rem;color:var(--text-soft);margin-bottom:10px">${L("Follow us", "تابعنا")}</div>
+          <div class="social-row">
+            ${site.social.linkedin ? `<a href="${site.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${I.linkedin}</a>` : ""}
+            ${site.social.instagram ? `<a href="${site.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${I.instagram}</a>` : ""}
+            ${site.social.facebook ? `<a href="${site.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${I.facebook}</a>` : ""}
+          </div>
+        </div>` : ""}
       </div>
       <div>
         <h2>${L("Send your message", "أرسل رسالتك")}</h2>
