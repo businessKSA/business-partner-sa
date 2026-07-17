@@ -3493,7 +3493,7 @@ const FIELD_TAXONOMY = [
   ["خدمات منزلية", "Domestic & Household Services"], ["أخرى", "Other"],
 ];
 function fieldOptionsHtml() {
-  return FIELD_TAXONOMY.map(([ar, en]) => `<option value="${esc(ar)}">${esc(L(en, ar))}</option>`).join("");
+  return FIELD_TAXONOMY.map(([ar, en]) => `<option value="${esc(ar)}">${L(en, ar)}</option>`).join("");
 }
 
 function buildEmployerDashboard() {
@@ -3514,14 +3514,16 @@ function buildEmployerDashboard() {
         <span>4️⃣ ${L("Assess / Interview", "تقييم / مقابلة")}</span><span>›</span>
         <span>5️⃣ ${L("Pipeline → Hire", "المسار ← توظيف")}</span>
       </div>
-      <div id="empd-unlock" class="empd-unlock-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:14px">
+      <div id="empd-unlock" class="empd-unlock-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:6px">
         <span style="font-weight:600">🔒 ${L("Free browsing. Subscribe to unlock contacts + AI tools.", "تصفّح مجاني. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</span>
         <input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;text-align:center;letter-spacing:1px">
         <button class="btn btn-primary btn-sm" id="empd-enter">${L("Unlock", "فتح")}</button>
-        <a href="${u("/employer-login")}" class="btn btn-ghost btn-sm">${L("Log in", "تسجيل الدخول")}</a>
-        <button type="button" class="btn btn-ghost btn-sm" id="empd-demo">${L("Demo", "تجربة")}</button>
-        <a href="${u("/employer-join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a>
       </div>
+      <p class="emp-note" style="text-align:center;margin:0 0 14px">
+        <a href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a> ·
+        <a href="${u("/employer-join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a> ·
+        <button type="button" class="linkbtn" id="empd-demo" style="font-weight:400">${L("Try a demo", "جرّب نسخة تجريبية")}</button>
+      </p>
       <p id="empd-gate-msg" class="emp-note" style="min-height:18px;text-align:center"></p>
       <div class="empd-bar">
         <div class="empd-tabs">
@@ -3554,7 +3556,7 @@ function buildEmployerDashboard() {
             <div class="field"><label for="empjob-city">${L("City", "المدينة")}</label><input id="empjob-city" type="text" placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
           </div>
           <div class="field"><label for="empjob-field">${L("Field", "المجال")}</label><select id="empjob-field"><option value="">${L("Auto-detect from title", "يُحدَّد تلقائياً من المسمى")}</option>${fieldOptionsHtml()}</select></div>
-          <div class="field"><label for="empjob-desc">${L("Description & requirements", "الوصف والمتطلبات")}</label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
+          <div class="field"><label for="empjob-desc" style="display:flex;justify-content:space-between;align-items:center;gap:8px">${L("Description & requirements", "الوصف والمتطلبات")}<button type="button" class="linkbtn" id="empjob-ai-write" style="font-size:.85rem;padding:0">✨ ${L("Write with AI", "اكتبها بالذكاء")}</button></label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
           <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
           <p class="emp-note" id="empjob-status"></p>
         </div>
@@ -3714,7 +3716,7 @@ function buildPortalDashboard() {
             <div class="field"><label for="empjob-city">${L("City", "المدينة")}</label><input id="empjob-city" type="text" placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
           </div>
           <div class="field"><label for="empjob-field">${L("Field", "المجال")}</label><select id="empjob-field"><option value="">${L("Auto-detect from title", "يُحدَّد تلقائياً من المسمى")}</option>${fieldOptionsHtml()}</select></div>
-          <div class="field"><label for="empjob-desc">${L("Description & requirements", "الوصف والمتطلبات")}</label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
+          <div class="field"><label for="empjob-desc" style="display:flex;justify-content:space-between;align-items:center;gap:8px">${L("Description & requirements", "الوصف والمتطلبات")}<button type="button" class="linkbtn" id="empjob-ai-write" style="font-size:.85rem;padding:0">✨ ${L("Write with AI", "اكتبها بالذكاء")}</button></label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
           <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
           <p class="emp-note" id="empjob-status"></p>
         </div>
