@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-17T01:26:18.004Z",
+  "updatedAt": "2026-07-17T01:30:26.443Z",
   "currency": "SAR",
   "services": [
     {
@@ -1263,6 +1263,20 @@
       "url": "https://businesspartner.sa/services/bp-re-05"
     },
     {
+      "code": "BP-RE-06",
+      "nameAr": "تملّك العقار للأجانب",
+      "nameEn": "Foreign Property Ownership",
+      "category": "Real Estate",
+      "categoryAr": "العقارات",
+      "govPlatform": "الهيئة العامة للعقار (REGA) · منصة عقارات السعودية",
+      "pricingModel": "Requires Proposal",
+      "amount": null,
+      "priceLabel": "عرض سعر مخصص",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-re-06"
+    },
+    {
       "code": "BP-AI-01",
       "nameAr": "منظومة الأعمال بالذكاء الاصطناعي (Enterprise)",
       "nameEn": "AI Business Partner Enterprise",
@@ -1338,7 +1352,7 @@
       "key": "Real Estate",
       "nameAr": "المكاتب ومساحات العمل",
       "nameEn": "Real Estate",
-      "count": 5
+      "count": 6
     },
     {
       "key": "AI Automation",

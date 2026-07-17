@@ -1061,7 +1061,7 @@ function buildServiceDetail(s) {
         <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
           : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
-        ${s.category === "Real Estate"
+        ${s.category === "Real Estate" && !s.ctaConsultation
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
