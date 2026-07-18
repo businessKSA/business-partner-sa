@@ -659,7 +659,7 @@ function waFab() {
 // باهر — صورة صاحب الموقع الحقيقية (بدل الرسمة). span بنفس كلاس kh-avatar حتى
 // تنطبق مقاسات الودجت، مع موجات صوت تظهر أثناء نطق الرد (كلاس talking).
 function khaledSvg() {
-  return `<span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><span class="kh-speak-bars"><i></i><i></i><i></i></span></span>`;
+  return `<span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span>`;
 }
 
 function advisorWidget() {
@@ -674,10 +674,6 @@ function advisorWidget() {
   <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="${Lraw("Ask Baher", "اسأل باهر")}">
     <header class="advisor-head">
       <div class="advisor-title"><span class="advisor-head-avatar">${khaledSvg("head")}</span><div><strong>${L("Baher", "باهر")}</strong><span><i class="advisor-online" aria-hidden="true"></i>${L("Your smart partner — online now", "شريكك الذكي — متصل الآن")}</span></div></div>
-      <button class="advisor-ic" id="advisor-tts" aria-pressed="true" title="${Lraw("Baher's voice", "صوت باهر")}" aria-label="${Lraw("Baher's voice", "صوت باهر")}">
-        <svg class="adv-tts-on" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
-        <svg class="adv-tts-off" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M16.5 12a4.5 4.5 0 0 0-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.9 8.9 0 0 0 21 12a9 9 0 0 0-7-8.77v2.06A7 7 0 0 1 19 12zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25a6.9 6.9 0 0 1-2.25 1.16v2.06a8.9 8.9 0 0 0 3.69-1.81L19.73 21 21 19.73 4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
-      </button>
       <button class="advisor-close" id="advisor-close" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
     </header>
     <div class="advisor-msgs" id="advisor-msgs">
