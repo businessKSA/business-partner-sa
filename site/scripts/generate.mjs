@@ -47,6 +47,10 @@ const site = read("data/site.json");
 const services = read("data/services.json");
 const categories = read("data/categories.json");
 const svcI18n = read("data/service-i18n.json");
+// Saudi entrepreneurship-ecosystem directory (incubators, accelerators, VCs,
+// angel networks, coworking) + their programs — sourced from our verified
+// Notion research databases. Powers /directory.
+const ecosystem = read("data/ecosystem.json");
 
 // Business Partner's own open roles — an ATS-style job board on /careers,
 // each with a single job page and an application routed through the same
@@ -469,6 +473,7 @@ const NAV_GROUPS = [
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
       { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
+      { href: "/directory", en: "Startup Ecosystem Directory", ar: "دليل ريادة الأعمال" },
       { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
@@ -588,6 +593,7 @@ function footer() {
     </ul></div>
     <div class="footer-col"><h4>${L("Knowledge Center", "مركز المعرفة")}</h4><ul>
       ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
+      ${fl("/directory", "Startup Ecosystem Directory", "دليل ريادة الأعمال")}
       ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/news", "Insights & news", "الرؤى والأخبار")}
       ${fl("/magazine", "Magazine (PDF)", "المجلة (PDF)")}
@@ -956,6 +962,197 @@ function buildAbout() {
     <div class="cta-band"><h2>${L("Ready to start your journey?", "جاهز نبدأ رحلتك؟")}</h2><p>${L("The smart agent replies instantly on WhatsApp and sets your next step.", "الوكيل الذكي يرد فوراً على واتساب ويحدد لك الخطوة التالية.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
   </div></section>`;
   return page({ title: Lraw("About — Business Partner", "من نحن — بيزنس بارتنر"), desc: Lraw(a.leadEn || a.lead, a.lead), active: "/about", body });
+}
+
+/* ---------- Saudi entrepreneurship ecosystem directory (/directory) ---------- */
+// Category metadata: label per language + an accent color drawn from the brand
+// palette. Keys match ecosystem.json's `cat` field.
+const ECO_CATS = {
+  incubator:   { en: "Incubators",        ar: "حاضنات الأعمال",       c: "#0B1B5A" },
+  accelerator: { en: "Accelerators",      ar: "مسرّعات الأعمال",      c: "#1E88C7" },
+  vc:          { en: "Venture Capital",   ar: "صناديق استثمارية",     c: "#2E7D5B" },
+  angel:       { en: "Angel Investors",   ar: "مستثمرون ملائكة",      c: "#B07A16" },
+  coworking:   { en: "Coworking Spaces",  ar: "مساحات عمل مشتركة",    c: "#7A3FB0" },
+  training:    { en: "Training Programs", ar: "برامج تدريب وتأهيل",   c: "#0E8B8B" },
+};
+const ecoCatLabel = (k) => (ECO_CATS[k] ? L(ECO_CATS[k].en, ECO_CATS[k].ar) : esc(k));
+
+function buildDirectory() {
+  const orgs = ecosystem.orgs || [];
+  const programs = ecosystem.programs || [];
+
+  // Counts per category (entities) for the hero stats.
+  const catCount = (k) => orgs.filter((o) => o.cat === k).length;
+  const cities = [...new Set(orgs.map((o) => o.city).filter((c) => c && c !== "Online"))]
+    .sort((a, b) => a.localeCompare(b, "ar"));
+  const openPrograms = programs.filter((p) => /مستمر|دائم/.test(p.status)).length;
+
+  // ----- hero -----
+  const stats = [
+    { n: orgs.length, en: "Entities", ar: "جهة" },
+    { n: catCount("incubator"), en: "Incubators", ar: "حاضنة" },
+    { n: catCount("accelerator"), en: "Accelerators", ar: "مسرّعة" },
+    { n: catCount("vc") + catCount("angel"), en: "Investors & funds", ar: "مستثمر وصندوق" },
+    { n: programs.length, en: "Programs", ar: "برنامج" },
+    { n: cities.length, en: "Cities", ar: "مدينة" },
+  ].map((s) => `<div class="eco-stat"><strong>${s.n}</strong><span>${L(s.en, s.ar)}</span></div>`).join("");
+
+  // ----- category filter chips (shared) -----
+  const chip = (key, label) =>
+    `<button type="button" class="eco-chip${key === "all" ? " active" : ""}" data-cat="${key}"${
+      key !== "all" ? ` style="--bc:${ECO_CATS[key].c}"` : ""
+    }>${label}</button>`;
+  const chips =
+    chip("all", L("All", "الكل")) +
+    Object.keys(ECO_CATS).map((k) => chip(k, ecoCatLabel(k))).join("");
+
+  // ----- city select -----
+  const cityOpts =
+    `<option value="all">${L("All cities", "كل المدن")}</option>` +
+    cities.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+
+  // ----- entity cards -----
+  const contactLinks = (o) => {
+    const parts = [];
+    if (o.url) parts.push(`<a href="${esc(o.url)}" target="_blank" rel="noopener" title="${Lraw("Website", "الموقع")}">${I.globe}<span>${L("Website", "الموقع")}</span></a>`);
+    if (o.email) parts.push(`<a href="mailto:${esc(o.email)}" title="${esc(o.email)}">${I.mail}<span>${L("Email", "البريد")}</span></a>`);
+    if (o.phone) parts.push(`<a href="tel:${esc(o.phone)}" title="${esc(o.phone)}">${I.phone}<span>${L("Call", "اتصال")}</span></a>`);
+    return parts.length ? `<div class="eco-links">${parts.join("")}</div>` : "";
+  };
+  const orgCards = orgs.map((o) => {
+    const cat = ECO_CATS[o.cat] || ECO_CATS.incubator;
+    const text = `${o.name} ${o.desc} ${o.type} ${o.city}`.toLowerCase();
+    const d = o.desc || "";
+    return `<article class="eco-card" data-kind="orgs" data-cat="${o.cat}" data-city="${esc(o.city)}" data-text="${esc(text)}">
+      <div class="eco-card-top">
+        <span class="eco-badge" style="--bc:${cat.c}">${ecoCatLabel(o.cat)}</span>
+        ${o.city ? `<span class="eco-city">${I.pin}${esc(o.city)}</span>` : ""}
+      </div>
+      <h3>${esc(o.name)}</h3>
+      ${o.type ? `<p class="eco-type">${esc(o.type)}</p>` : ""}
+      ${d ? `<p class="eco-desc">${esc(d)}</p>` : ""}
+      ${contactLinks(o)}
+    </article>`;
+  }).join("");
+
+  // ----- program cards -----
+  const statusMeta = (s) => {
+    if (/مستمر|دائم/.test(s)) return { cls: "open", label: L("Open now", "تقديم مفتوح") };
+    if (/مغلق/.test(s)) return { cls: "closed", label: L("Closed", "مغلق") };
+    return { cls: "na", label: L("By schedule", "حسب الجدول") };
+  };
+  const progCards = programs.map((p) => {
+    const cat = ECO_CATS[p.cat] || ECO_CATS.incubator;
+    const st = statusMeta(p.status);
+    const text = `${p.name} ${p.desc} ${(p.tags || []).join(" ")}`.toLowerCase();
+    const details = [];
+    if (p.eligibility) details.push(`<div class="eco-det"><h4>${L("Eligibility", "شروط الأهلية")}</h4><p>${esc(p.eligibility)}</p></div>`);
+    if (p.benefits) details.push(`<div class="eco-det"><h4>${L("Support & benefits", "الدعم والمزايا")}</h4><p>${esc(p.benefits)}</p></div>`);
+    if (p.contact) details.push(`<div class="eco-det"><h4>${L("How to reach", "قنوات التواصل")}</h4><p>${esc(p.contact)}</p></div>`);
+    const more = details.length
+      ? `<details class="eco-more"><summary>${L("Requirements & benefits", "المتطلبات والمزايا")}</summary>${details.join("")}</details>`
+      : "";
+    return `<article class="eco-card eco-prog" data-kind="programs" data-cat="${p.cat}" data-city="all" data-text="${esc(text)}">
+      <div class="eco-card-top">
+        <span class="eco-badge" style="--bc:${cat.c}">${ecoCatLabel(p.cat)}</span>
+        <span class="eco-status ${st.cls}">${st.label}</span>
+      </div>
+      <h3>${esc(p.name)}</h3>
+      ${p.desc ? `<p class="eco-desc">${esc(p.desc)}</p>` : ""}
+      ${more}
+      ${p.url ? `<div class="eco-links"><a href="${esc(p.url)}" target="_blank" rel="noopener">${I.arrow}<span>${L("Apply / details", "التقديم / التفاصيل")}</span></a></div>` : ""}
+    </article>`;
+  }).join("");
+
+  const body = `
+  <section class="hero hero--sm eco-hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Knowledge Center", "مركز المعرفة")}</span>
+    <h1>${L("Saudi Startup Ecosystem Directory", "دليل منظومة ريادة الأعمال في السعودية")}</h1>
+    <p class="lead">${L(
+      "Every incubator, accelerator, venture-capital fund, angel network and coworking space we track across the Kingdom — plus their live programs, eligibility and how to apply. Verified from official sources.",
+      "كل حاضنة ومسرّعة أعمال وصندوق استثماري وشبكة ملائكة ومساحة عمل مشتركة نرصدها في المملكة — مع برامجها القائمة وشروط الأهلية وطريقة التقديم. مُوثّقة من مصادر رسمية."
+    )}</p>
+    <div class="eco-stats">${stats}</div>
+  </div></section>
+
+  <section class="section eco-wrap"><div class="container" id="eco">
+    <div class="eco-controls">
+      <div class="eco-search-box">${I.doc}<input type="search" id="eco-search" placeholder="${Lraw("Search by name, city or focus…", "ابحث بالاسم أو المدينة أو المجال…")}" aria-label="${Lraw("Search the directory", "ابحث في الدليل")}"></div>
+      <div class="eco-city-box" id="eco-city-box"><label for="eco-city" class="sr-only">${L("City", "المدينة")}</label>${I.pin}<select id="eco-city" aria-label="${Lraw("Filter by city", "تصفية حسب المدينة")}">${cityOpts}</select></div>
+    </div>
+
+    <div class="eco-tabs" role="tablist">
+      <button type="button" class="eco-tab active" data-tab="orgs" role="tab">${L("Entities", "الجهات")} <span class="eco-tab-n">${orgs.length}</span></button>
+      <button type="button" class="eco-tab" data-tab="programs" role="tab">${L("Programs", "البرامج")} <span class="eco-tab-n">${programs.length}</span></button>
+    </div>
+
+    <div class="eco-chips" aria-label="${Lraw("Filter by category", "تصفية حسب الفئة")}">${chips}</div>
+
+    <p class="eco-resultline">${L("Showing", "عرض")} <span id="eco-count">${orgs.length}</span> ${L("of", "من")} <span id="eco-total">${orgs.length}</span></p>
+
+    <div class="eco-grid" id="eco-grid">${orgCards}${progCards}</div>
+    <p class="eco-empty" id="eco-empty" hidden>${L("No results match your filters. Try clearing the search or category.", "لا توجد نتائج مطابقة. جرّب مسح البحث أو الفئة.")}</p>
+
+    <div class="cta-band eco-cta"><h2>${L("Building or backing a startup in Saudi Arabia?", "تؤسّس أو تدعم شركة ناشئة في السعودية؟")}</h2><p>${L("We help founders and funds with licensing, MISA foreign investment, formation and compliance. Talk to the smart agent to find the right path.", "نساعد المؤسسين والصناديق في التراخيص والاستثمار الأجنبي (MISA) والتأسيس والامتثال. تحدّث مع الوكيل الذكي لتحديد المسار المناسب.")}</p>${waBtn2("Talk to us", "تواصل معنا", "btn-white", true)}</div>
+  </div></section>`;
+
+  const script = `<script>
+  (function(){
+    var root=document.getElementById('eco'); if(!root)return;
+    var search=root.querySelector('#eco-search');
+    var citySel=root.querySelector('#eco-city');
+    var cityBox=root.querySelector('#eco-city-box');
+    var chips=root.querySelectorAll('.eco-chip');
+    var tabs=root.querySelectorAll('.eco-tab');
+    var cards=root.querySelectorAll('.eco-card');
+    var countEl=root.querySelector('#eco-count');
+    var totalEl=root.querySelector('#eco-total');
+    var emptyEl=root.querySelector('#eco-empty');
+    var state={cat:'all',city:'all',q:'',tab:'orgs'};
+    var totals={orgs:0,programs:0};
+    cards.forEach(function(c){ totals[c.getAttribute('data-kind')]++; });
+    function apply(){
+      var q=(state.q||'').trim().toLowerCase();
+      var shown=0;
+      cards.forEach(function(c){
+        var inTab=c.getAttribute('data-kind')===state.tab;
+        var okCat=state.cat==='all'||c.getAttribute('data-cat')===state.cat;
+        var okCity=state.tab!=='orgs'||state.city==='all'||c.getAttribute('data-city')===state.city;
+        var okQ=!q||c.getAttribute('data-text').indexOf(q)>-1;
+        var show=inTab&&okCat&&okCity&&okQ;
+        c.style.display=show?'':'none';
+        if(show)shown++;
+      });
+      if(countEl)countEl.textContent=shown;
+      if(totalEl)totalEl.textContent=totals[state.tab];
+      if(emptyEl)emptyEl.hidden=shown!==0;
+    }
+    search&&search.addEventListener('input',function(){state.q=this.value;apply();});
+    citySel&&citySel.addEventListener('change',function(){state.city=this.value;apply();});
+    chips.forEach(function(ch){ch.addEventListener('click',function(){
+      chips.forEach(function(x){x.classList.remove('active');});
+      ch.classList.add('active');state.cat=ch.getAttribute('data-cat');apply();
+    });});
+    tabs.forEach(function(t){t.addEventListener('click',function(){
+      tabs.forEach(function(x){x.classList.remove('active');});
+      t.classList.add('active');state.tab=t.getAttribute('data-tab');
+      if(cityBox)cityBox.style.display=state.tab==='orgs'?'':'none';
+      apply();
+    });});
+    apply();
+  })();
+  </script>`;
+
+  return page({
+    title: Lraw("Saudi Startup Ecosystem Directory — Business Partner", "دليل منظومة ريادة الأعمال في السعودية — بيزنس بارتنر"),
+    desc: Lraw(
+      "Directory of Saudi incubators, accelerators, venture-capital funds, angel networks and coworking spaces, with their programs and how to apply.",
+      "دليل الحاضنات والمسرّعات والصناديق الاستثمارية وشبكات الملائكة ومساحات العمل المشتركة في السعودية، مع برامجها وطريقة التقديم."
+    ),
+    active: "/directory",
+    body,
+    script,
+  });
 }
 
 // One card per category on the services hub → links to that category's own page.
@@ -7596,6 +7793,7 @@ function writeFullSite(pre) {
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
   TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
+  write(`${pre}directory.html`, buildDirectory());
   write(`${pre}news.html`, buildNews());
   write(`${pre}magazine.html`, buildMagazine());
   write(`${pre}magazine/print.html`, buildMagazinePrint());
@@ -7683,7 +7881,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
