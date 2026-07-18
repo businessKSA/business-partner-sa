@@ -391,7 +391,6 @@ ${hreflangs}
 const NAV_GROUPS = [
   { href: "/", en: "Home", ar: "الرئيسية" },
   { href: "/about", en: "About us", ar: "من نحن" },
-  { href: "/employers", en: "For employers", ar: "لأصحاب العمل" },
   {
     en: "Our services", ar: "خدماتنا",
     items: [
@@ -462,28 +461,6 @@ const NAV_GROUPS = [
           { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
           { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
           { href: "/worker-housing", en: "Worker Housing", ar: "تسكين العمالة" },
-        ],
-      },
-    ],
-  },
-  {
-    en: "Solutions", ar: "الحلول",
-    items: [
-      {
-        href: "/packages", en: "By company size", ar: "حسب حجم منشأتك",
-        sub: [
-          { href: "/packages#pkg-formation", en: "Startups — forming a new company", ar: "شركات ناشئة — تأسيس شركة جديدة" },
-          { href: "/packages#pkg-management", en: "SMEs — ongoing service packages", ar: "شركات صغيرة ومتوسطة — باقات خدمات مستمرة" },
-          { href: "/packages#pkg-legal", en: "Enterprises — comprehensive legal packages", ar: "شركات كبرى — باقات قانونية شاملة" },
-        ],
-      },
-      {
-        href: "/services", en: "By industry", ar: "حسب القطاع",
-        sub: [
-          { href: "/mahfol-makfol", en: "Business tourism & investor trips", ar: "سياحة الأعمال ورحلات المستثمرين" },
-          { href: "/worker-housing", en: "Labor-intensive sectors (worker housing)", ar: "القطاعات كثيفة العمالة (تسكين العمالة)" },
-          { href: "/farina", en: "Hospitality & catering for companies", ar: "الضيافة والتموين للشركات" },
-          { href: "/workspaces", en: "Offices & coworking spaces", ar: "المكاتب ومساحات العمل المشتركة" },
         ],
       },
     ],
