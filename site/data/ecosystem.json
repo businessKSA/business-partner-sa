@@ -1,0 +1,3974 @@
+{
+ "orgs": [
+  {
+   "name": "1957 Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://1957ventures.com/",
+   "desc": "منشئ مشاريع تقنية مالية بدعم من بنك الرياض وشركة الرياض المالية، أُطلق مايو 2024."
+  },
+  {
+   "name": "500 Falcons (500 Global)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://500.co",
+   "desc": "الذراع الإقليمية لصندوق 500 Global بمنطقة الشرق الأوسط وشمال أفريقيا."
+  },
+  {
+   "name": "500 MENA, L.P. (500 Global)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://500.co/",
+   "desc": ""
+  },
+  {
+   "name": "6722",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "maleid@6722.space",
+   "phone": "966570576722",
+   "url": "https://sian.monshaat.gov.sa/ar/members/48/6722",
+   "desc": "مساحة عمل مشتركة تستهدف المشاريع الريادية والشركات الناشئة والمستقلين."
+  },
+  {
+   "name": "7 سنابل",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "Online",
+   "email": "sevensbabil@gmail.com",
+   "phone": "966503654483",
+   "url": "https://sian.monshaat.gov.sa/ar/members/187/7-%D8%B3%D9%86%D8%A7%D8%A8%D9%84",
+   "desc": "رؤيتنا: تصبح منصة 7سنابل وجهة عصرية إقليمية موثوقة."
+  },
+  {
+   "name": "اب سكيل",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@upscale.com.sa",
+   "phone": "966500500437",
+   "url": "https://sian.monshaat.gov.sa/ar/members/40/%D8%A7%D8%A8-%D8%B3%D9%83%D9%8A%D9%84",
+   "desc": "ابسكيل شركة استشارية تعمل على تقديم الخدمات اللازمة لتنمية الأعمال."
+  },
+  {
+   "name": "اتحاد نورين - سبارك هوب",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "abduljabbarm242@gmail.com",
+   "phone": "966505241025",
+   "url": "https://sian.monshaat.gov.sa/ar/members/62/%D8%A7%D8%AA%D8%AD%D8%A7%D8%AF-%D9%86%D9%88%D8%B1%D9%8A%D9%86-%D8%B3%D8%A8%D8%A7%D8%B1%D9%83-%D9%87%D9%88%D8%A8",
+   "desc": "منصة أعمال تسعى لخلق مجتمع ريادي فعال وطموح."
+  },
+  {
+   "name": "أرُب للأعمال والاستثمار",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "مكة المكرمة",
+   "email": "info@arob.sa",
+   "phone": "966560779304",
+   "url": "https://sian.monshaat.gov.sa/ar/members/140/%D8%A3%D8%B1-%D8%A8-%D9%84%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D9%88%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%AB%D9%85%D8%A7%D8%B1",
+   "desc": "شركة استشارات إدارية ومالية وتسويقية، تسعى لتمكين رواد ورائدات الأعمال."
+  },
+  {
+   "name": "استرولابز",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "ksa@astrolabs.com",
+   "phone": "966501933316",
+   "url": "https://sian.monshaat.gov.sa/ar/members/46/%D8%A7%D8%B3%D8%AA%D8%B1%D9%88%D9%84%D8%A7%D8%A8%D8%B2",
+   "desc": "نقوم بتوفير خدماتنا للشركات الناشئة في مراحلها المختلفة: مساحات عمل مشتركة ومستشارين."
+  },
+  {
+   "name": "أصول وبخيت للاستثمار (OBIC)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://obic.com.sa",
+   "desc": "شركة وساطة وإدارة استثمار مدرجة بنمو (رمز 9586)، أطلقت الصندوق الاستثماري الأول لها \"Rua\" بشراكة iMENA."
+  },
+  {
+   "name": "اعقلها",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@e3qlha.com",
+   "phone": "966556542692",
+   "url": "https://sian.monshaat.gov.sa/ar/members/150/%D8%A7%D8%B9%D9%82%D9%84%D9%87%D8%A7",
+   "desc": "حاضنة ومسرعة اعمال افتراضية تقدم خدمات الاحتضان والدعم والارشاد عبر خطة مدروسه حسب احتياج العميل ووقته عن بعد \"افتراضياً..."
+  },
+  {
+   "name": "الصفحة الواحدة | حاضنة محرك الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@onepage.sa",
+   "phone": "966555504982",
+   "url": "https://sian.monshaat.gov.sa/ar/members/179/%D8%A7%D9%84%D8%B5%D9%81%D8%AD%D8%A9-%D8%A7%D9%84%D9%88%D8%A7%D8%AD%D8%AF%D8%A9-%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D9%85%D8%AD%D8%B1%D9%83-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "محرك الأعمال اطار عمل سعودي متخصص في إدارة الحاضنات التقنية عن بعد."
+  },
+  {
+   "name": "العبقري",
+   "type": "",
+   "cat": "incubator",
+   "city": "الأحساء",
+   "email": "info@genius-cs.com",
+   "phone": "966550513773",
+   "url": "https://sian.monshaat.gov.sa/ar/members/87/%D8%A7%D9%84%D8%B9%D8%A8%D9%82%D8%B1%D9%8A",
+   "desc": "مساحات عمل مشتركة، مكاتب و غرف اجتماعات لرواد الأعمال."
+  },
+  {
+   "name": "المحور | THE HUB",
+   "type": "",
+   "cat": "incubator",
+   "city": "",
+   "email": "",
+   "phone": "966503730339",
+   "url": "https://sian.monshaat.gov.sa/ar/members/137/%D8%A7%D9%84%D9%85%D8%AD%D9%88%D8%B1-the-hub",
+   "desc": "مساحات عمل مشتركة مكاتب مؤثثة للايجار غرفة اجتماعات"
+  },
+  {
+   "name": "المكان",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@the-space.me",
+   "phone": "966507500808",
+   "url": "https://sian.monshaat.gov.sa/ar/members/22/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D9%86",
+   "desc": "حاضنة و مسرعة اعمال و مساحات عمل مشتركة."
+  },
+  {
+   "name": "ألور هب",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@allure-hub.com",
+   "phone": "966501175999",
+   "url": "https://sian.monshaat.gov.sa/ar/members/100/%D8%A3%D9%84%D9%88%D8%B1-%D9%87%D8%A8",
+   "desc": "Allure Hub is a leading coworking space in the kingdom"
+  },
+  {
+   "name": "أنظمة ريادة",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "account.managers@eriyada.com",
+   "phone": "966539185317",
+   "url": "https://sian.monshaat.gov.sa/ar/members/126/%D8%A3%D9%86%D8%B8%D9%85%D8%A9-%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9",
+   "desc": "أنظمة ريادة بيت تطوير سعودي متخصص بتطوير الحلول والانظمة القيادية."
+  },
+  {
+   "name": "باكورة الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@bacoraksa.com",
+   "phone": "966533848383",
+   "url": "https://sian.monshaat.gov.sa/ar/members/26/%D8%A8%D8%A7%D9%83%D9%88%D8%B1%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "احتضان المشاريع الناشئة و تقديم الاستشارات الادارية و التسهيلات و ورش العمل التي تساعد في تطوير اعمالهم ..."
+  },
+  {
+   "name": "برنامج ريادة الأعمال - رواد بجامعة الأمير سطام بن عبدالعزيز",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الخرج",
+   "email": "rowadpsau@psau.edu.sa",
+   "phone": "966555993353",
+   "url": "https://sian.monshaat.gov.sa/ar/members/124/%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC-%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D8%B1%D9%88%D8%A7%D8%AF-%D8%A8%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%A7%D9%84%D8%A3%D9%85%D9%8A%D8%B1-%D8%B3%D8%B7%D8%A7%D9%85-%D8%A8%D9%86-%D8%B9%D8%A8%D8%AF%D8%A7%D9%84%D8%B9%D8%B2%D9%8A%D8%B2",
+   "desc": "انطلاقاً من رؤية المملكة 2030 التي ركزت على الابتكار والريادة من خلال دعم وتزويد الطلبة بالمعارف والمهارات والخبرات وتنم..."
+  },
+  {
+   "name": "بزنس هب",
+   "type": "",
+   "cat": "incubator",
+   "city": "المدينة المنورة",
+   "email": "info@businesshub.com.sa",
+   "phone": "966508313518",
+   "url": "https://sian.monshaat.gov.sa/ar/members/43/%D8%A8%D8%B2%D9%86%D8%B3-%D9%87%D8%A8",
+   "desc": "بزنس هب هي عبارة مساحات عمل مشتركة تهتم بدعم وتطوير رواد الأعمال والمشاريع الناشئة في المدينة المنورة عن طريق توفير بيئة..."
+  },
+  {
+   "name": "بوابة الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "isnotq@gmail.com",
+   "phone": "",
+   "url": "https://sian.monshaat.gov.sa/ar/members/153/%D8%A8%D9%88%D8%A7%D8%A8%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "حاضنة ومسرعة اعمال ومساحة عمل مشتركة"
+  },
+  {
+   "name": "بيئة الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@beeahb.com",
+   "phone": "966536699191",
+   "url": "https://sian.monshaat.gov.sa/ar/members/37/%D8%A8%D9%8A%D8%A6%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "بيئة الأعمال حاضنة أعمال ومساحة عمل مشتركة تدعم مجالات العمارة والتصميم."
+  },
+  {
+   "name": "بيت المنشآت | Startups House",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "جدة",
+   "email": "Info@Startupshouse.com",
+   "phone": "966122293421",
+   "url": "https://sian.monshaat.gov.sa/ar/members/61/%D8%A8%D9%8A%D8%AA-%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A2%D8%AA-startups-house",
+   "desc": "نتعاون مع منظمات دعم ريادة الأعمال الوطنية والإقليمية والعالمية."
+  },
+  {
+   "name": "بيهايف",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "abdurahman@beehive.com.sa",
+   "phone": "966599660393",
+   "url": "https://sian.monshaat.gov.sa/ar/members/33/%D8%A8%D9%8A%D9%87%D8%A7%D9%8A%D9%81",
+   "desc": "برنامج بيهايف لمسرعات الأعمال، جلسات استشارية مجانية."
+  },
+  {
+   "name": "تسامي لصناعة الأثر",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "ask@tasamy.com",
+   "phone": "966920011437",
+   "url": "https://sian.monshaat.gov.sa/ar/members/39/%D8%AA%D8%B3%D8%A7%D9%85%D9%8A-%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D8%A9-%D8%A7%D9%84%D8%A3%D8%AB%D8%B1",
+   "desc": "تسامي هي منظمة تعنى بتمكين الأثر وصانعيه عبر تبني الحلول المسـتدامة وتعزيز انتشارها وتنميتها بمختلف الخدمات...."
+  },
+  {
+   "name": "تسعة أعشار (910ths)",
+   "type": "مستثمر ملاك / شبكة ملائكة",
+   "cat": "angel",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://910ths.sa",
+   "desc": "منصة/مبادرة تدعم رواد الأعمال والمنشآت الصغيرة والمتوسطة والعاملين المستقلين بحلول تمويلية وخدمات تمكين أعمال."
+  },
+  {
+   "name": "جامعة تبوك",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "تبوك",
+   "email": "teu@ut.edu.sa",
+   "phone": "966554123321",
+   "url": "https://sian.monshaat.gov.sa/ar/members/125/%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%AA%D8%A8%D9%88%D9%83",
+   "desc": "أنشات جامعة تبوك عام 1427 هـ 2006 م."
+  },
+  {
+   "name": "جامعة طيبة",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "المدينة المنورة",
+   "email": "tu.bizincubator@gmail.com",
+   "phone": "966554683330",
+   "url": "https://sian.monshaat.gov.sa/ar/members/24/%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%B7%D9%8A%D8%A8%D8%A9",
+   "desc": "ادارة الابتكار وريادة الأعمال في جامعة طيبة تقدم سنويا مسابقة ريادة الأعمال."
+  },
+  {
+   "name": "جدوى للاستثمار (Jadwa Investment)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://jadwa.com",
+   "desc": "من أكبر شركات إدارة الاستثمار المتوافقة مع الشريعة بالسعودية، تدير صندوق \"جدوى فنتشرز\"."
+  },
+  {
+   "name": "جمعية البر بالمدينة المنورة",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "المدينة المنورة",
+   "email": "pr@biralmedina.com",
+   "phone": "966505327236",
+   "url": "https://sian.monshaat.gov.sa/ar/members/191/%D8%AC%D9%85%D8%B9%D9%8A%D8%A9-%D8%A7%D9%84%D8%A8%D8%B1-%D8%A8%D8%A7%D9%84%D9%85%D8%AF%D9%8A%D9%86%D8%A9-%D8%A7%D9%84%D9%85%D9%86%D9%88%D8%B1%D8%A9",
+   "desc": "حاضنة عذق للجمعيات الناشئة"
+  },
+  {
+   "name": "جمعية بناء للإرشاد الأسري",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "bina@bina.org.sa",
+   "phone": "966556514500",
+   "url": "https://sian.monshaat.gov.sa/ar/members/192/%D8%AC%D9%85%D8%B9%D9%8A%D8%A9-%D8%A8%D9%86%D8%A7%D8%A1-%D9%84%D9%84%D8%A5%D8%B1%D8%B4%D8%A7%D8%AF-%D8%A7%D9%84%D8%A3%D8%B3%D8%B1%D9%8A",
+   "desc": ""
+  },
+  {
+   "name": "جوفيا",
+   "type": "",
+   "cat": "incubator",
+   "city": "الدمام",
+   "email": "m@jovia.sa",
+   "phone": "966536508008",
+   "url": "https://sian.monshaat.gov.sa/ar/members/45/%D8%AC%D9%88%D9%81%D9%8A%D8%A7",
+   "desc": "جوفيا هي أول مساحات عمل مشتركة في المنطقة الشرقية - الخبر."
+  },
+  {
+   "name": "جي آي بي كابيتال (GIB Capital)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://gibcapital.com",
+   "desc": "الذراع المصرفية الاستثمارية لبنك الخليج الدولي."
+  },
+  {
+   "name": "چرا ڤيتا لمساحات العمل المشتركة",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@gravita.com.sa",
+   "phone": "9668003020004",
+   "url": "https://sian.monshaat.gov.sa/ar/members/146/%DA%86%D8%B1%D8%A7-%DA%A4%D9%8A%D8%AA%D8%A7-%D9%84%D9%85%D8%B3%D8%A7%D8%AD%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%85%D9%84-%D8%A7%D9%84%D9%85%D8%B4%D8%AA%D8%B1%D9%83%D8%A9",
+   "desc": "چرا ڤيتا لمساحات العمل المشتركة هو مركز للإبداع بالنسبة للشركات الصغيرة والمتوسطة وكبرى الشركات ورواد الأعمال، ويعتبر مؤ..."
+  },
+  {
+   "name": "حاضنة \"ابتكار\" (النسخة 5) ومركز \"كود\" (جامعة القصيم)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "بريدة",
+   "email": "",
+   "phone": "",
+   "url": "https://www.qu.edu.sa/news/72733/",
+   "desc": "حاضنة \"ابتكار\" التابعة لمركز الابتكار والملكية الفكرية بجامعة القصيم ببريدة."
+  },
+  {
+   "name": "حاضنة أعمال جامعة الباحة",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الباحة",
+   "email": "bbi@bu.edu.sa",
+   "phone": "966509797640",
+   "url": "https://sian.monshaat.gov.sa/ar/members/86/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%A7%D9%84%D8%A8%D8%A7%D8%AD%D8%A9",
+   "desc": "تسعى حاضنة أعمال جامعة الباحة على توفير بيئة ريادية محفزة."
+  },
+  {
+   "name": "حاضنة أعمال جامعة الملك فيصل (مركز الابتكار وريادة الأعمال)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الأحساء",
+   "email": "",
+   "phone": "",
+   "url": "https://www.kfu.edu.sa/en/Centers/Innovation/Pages/Description.aspx",
+   "desc": "حاضنة أعمال تابعة لمركز الابتكار وريادة الأعمال بجامعة الملك فيصل في الأحساء."
+  },
+  {
+   "name": "حاضنة أعمال عشرة أضعاف",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جيزان",
+   "email": "imharesh@10fold.com.sa",
+   "phone": "966556034178",
+   "url": "https://sian.monshaat.gov.sa/ar/members/71/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D8%B9%D8%B4%D8%B1%D8%A9-%D8%A3%D8%B6%D8%B9%D8%A7%D9%81",
+   "desc": "عشرة أضعاف هي حاضنة أعمال ومساحة عمل مشتركة سعودية تأسست عام 2020 في منطقة جازان."
+  },
+  {
+   "name": "حاضنة الأعمال \"سحابة الوشم\" (جامعة شقراء)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "شقراء",
+   "email": "",
+   "phone": "",
+   "url": "https://www.su.edu.sa/",
+   "desc": "حاضنة أعمال تابعة لقسم إدارة الأعمال بجامعة شقراء."
+  },
+  {
+   "name": "حاضنة المسيرات الخضراء",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "guv@greenvalley.sa",
+   "phone": "966555454542",
+   "url": "https://sian.monshaat.gov.sa/ar/members/379/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%A7%D9%84%D9%85%D8%B3%D9%8A%D8%B1%D8%A7%D8%AA-%D8%A7%D9%84%D8%AE%D8%B6%D8%B1%D8%A7%D8%A1",
+   "desc": "حاضنة اعمال متخصصة في مجال الطائرات بدون طيار"
+  },
+  {
+   "name": "حاضنة المشتل الإبداعية",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "info@almashtal.io",
+   "phone": "966505852336",
+   "url": "https://sian.monshaat.gov.sa/ar/members/228/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%A7%D9%84%D9%85%D8%B4%D8%AA%D9%84-%D8%A7%D9%84%D8%A5%D8%A8%D8%AF%D8%A7%D8%B9%D9%8A%D8%A9",
+   "desc": "المشتل حاضنة إبداعية تحقق للمجتمع الإبداعي استدامة شغفهم."
+  },
+  {
+   "name": "حاضنة بادر الدمام بالشراكة مع الشركة السعودية للكهرباء",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الدمام",
+   "email": "salquwaiz@badir.com.sa",
+   "phone": "966920020992",
+   "url": "https://sian.monshaat.gov.sa/ar/members/31/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%A8%D8%A7%D8%AF%D8%B1-%D8%A7%D9%84%D8%AF%D9%85%D8%A7%D9%85-%D8%A8%D8%A7%D9%84%D8%B4%D8%B1%D8%A7%D9%83%D8%A9-%D9%85%D8%B9-%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D8%B3%D8%B9%D9%88%D8%AF%D9%8A%D8%A9-%D9%84%D9%84%D9%83%D9%87%D8%B1%D8%A8%D8%A7%D8%A1",
+   "desc": "تهدف إلى تعزيز نمو المشاريع ذات الجانب التقني."
+  },
+  {
+   "name": "حاضنة بادر الرياض للتقنية الحيوية",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@badir.com.sa",
+   "phone": "966920020992",
+   "url": "https://sian.monshaat.gov.sa/ar/members/29/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%A8%D8%A7%D8%AF%D8%B1-%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6-%D9%84%D9%84%D8%AA%D9%82%D9%86%D9%8A%D8%A9-%D8%A7%D9%84%D8%AD%D9%8A%D9%88%D9%8A%D8%A9",
+   "desc": "تتخذ من مدينة الملك فهد الطبية في الرياض مقرًّا لها، وتعمل على دعم قطاع التقنية الحيوية."
+  },
+  {
+   "name": "حاضنة بادر الطائف (Badir Taif)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://www.tu.edu.sa/",
+   "desc": "حاضنة تقنية تابعة لبرنامج بادر (KACST) تأسست عام 2015 بالطائف."
+  },
+  {
+   "name": "حاضنة بادر القصيم (Badir Qassim)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://qcc.org.sa/",
+   "desc": "حاضنة تقنية تابعة لبرنامج بادر التابع لمدينة الملك عبدالعزيز للعلوم والتقنية (KACST)."
+  },
+  {
+   "name": "حاضنة بادر جدة",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "galsafi@badir.com.sa",
+   "phone": "966920020992",
+   "url": "https://sian.monshaat.gov.sa/ar/members/30/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%A8%D8%A7%D8%AF%D8%B1-%D8%AC%D8%AF%D8%A9",
+   "desc": "تأسست حاضنة جدة في العام 2013م بالتعاون مع الغرفة التجارية الصناعية بجدة."
+  },
+  {
+   "name": "حاضنة بزنس قروث",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "support@bez-growth.com",
+   "phone": "966590109948",
+   "url": "https://sian.monshaat.gov.sa/ar/members/107/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%A8%D8%B2%D9%86%D8%B3-%D9%82%D8%B1%D9%88%D8%AB",
+   "desc": "حاضنة اعمال ومساحة عمل مشتركة"
+  },
+  {
+   "name": "حاضنة حلول لتطوير الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الظهران",
+   "email": "hololincubator@gmail.com",
+   "phone": "966501866635",
+   "url": "https://sian.monshaat.gov.sa/ar/members/19/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%AD%D9%84%D9%88%D9%84-%D9%84%D8%AA%D8%B7%D9%88%D9%8A%D8%B1-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "برنامج تطوير يختص في تطوير الشباب من اصحاب الافكار والمهارات التجارية."
+  },
+  {
+   "name": "حاضنة رواد المستقبل",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "cie@uj.edu.sa",
+   "phone": "966551994646",
+   "url": "https://sian.monshaat.gov.sa/ar/members/90/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D8%B1%D9%88%D8%A7%D8%AF-%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%82%D8%A8%D9%84",
+   "desc": "الرؤية أن نكون روا ًدا وطنيين في مجال الابتكار وريادة ا􏰁عمال الرسالة مهمتنا هي تعزيز الابتكار وريادة ا􏰁عمال بين طـلاب..."
+  },
+  {
+   "name": "حاضنة قِوام الرقمية",
+   "type": "حاضنة رقمية",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@qewam.com",
+   "phone": "966592064499",
+   "url": "https://sian.monshaat.gov.sa/ar/members/97/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D9%82-%D9%88%D8%A7%D9%85-%D8%A7%D9%84%D8%B1%D9%82%D9%85%D9%8A%D8%A9",
+   "desc": "قِوام هي حاضنة أعمال افتراضية تتكون من فريق متخصص من خبراء تطوير الأعمال الذين يتمتعون بسنوات من الخبرة في العمل مع الشر..."
+  },
+  {
+   "name": "حاضنة نكون",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "أبها",
+   "email": "faisal@nkoon.sa",
+   "phone": "966507996685",
+   "url": "https://sian.monshaat.gov.sa/ar/members/51/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-%D9%86%D9%83%D9%88%D9%86",
+   "desc": "تقديم برامج متخصصة ومتكاملة في الاحتضان ومسرعات الأعمال"
+  },
+  {
+   "name": "حاضنة ومسرعة أعمال الملكية الفكرية \"ناوي\" (جامعة أم القرى)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://uqu.edu.sa/ipmo/152308",
+   "desc": "حاضنة ومسرعة أعمال متخصصة في الملكية الفكرية تابعة لجامعة أم القرى بمكة المكرمة."
+  },
+  {
+   "name": "حاضنة ومسرعة الأعمال الناشئة \"jnnov8\" (جامعة جازان)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جيزان",
+   "email": "",
+   "phone": "",
+   "url": "https://biac.com.sa/project/jnnov8-incubator-accelerator/?lang=en",
+   "desc": "حاضنة ومسرعة الأعمال الناشئة \"jnnov8\" التابعة لمركز الابتكار وريادة الأعمال بجامعة جازان."
+  },
+  {
+   "name": "حاضنة AIP الصناعية",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "info@saudiaip.com",
+   "phone": "966556416116",
+   "url": "https://sian.monshaat.gov.sa/ar/members/340/%D8%AD%D8%A7%D8%B6%D9%86%D8%A9-aip-%D8%A7%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D9%8A%D8%A9",
+   "desc": ""
+  },
+  {
+   "name": "خارطة الصناع",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "makersmapp@gmail.com",
+   "phone": "966551444289",
+   "url": "https://sian.monshaat.gov.sa/ar/members/166/%D8%AE%D8%A7%D8%B1%D8%B7%D8%A9-%D8%A7%D9%84%D8%B5%D9%86%D8%A7%D8%B9",
+   "desc": "شركة ميكرز ماب مساحة عمل متخصصة في التقنية والذكاء الاصطناعي."
+  },
+  {
+   "name": "خبراء",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "أبها",
+   "email": "haifadalan@gmail.com",
+   "phone": "966503078788",
+   "url": "https://sian.monshaat.gov.sa/ar/members/81/%D8%AE%D8%A8%D8%B1%D8%A7%D8%A1",
+   "desc": "حاضنة أعمال تقدم خدمات التدريب والاستشارات والخدمات والسلع."
+  },
+  {
+   "name": "خطوة أولى",
+   "type": "",
+   "cat": "incubator",
+   "city": "مكة المكرمة",
+   "email": "first.s.ksa@gmail.com",
+   "phone": "966581450059",
+   "url": "https://sian.monshaat.gov.sa/ar/members/85/%D8%AE%D8%B7%D9%88%D8%A9-%D8%A3%D9%88%D9%84%D9%89",
+   "desc": "مكاتب خطوة أولى هي أول مساحة عمل مشتركة بأيدي سعودية في مكة المكرمة في بيئة مريحة عملية وجذابة ومناسبة للأنشطة الصغيرة..."
+  },
+  {
+   "name": "دار راء",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "management@rhouse.co",
+   "phone": "966535991102",
+   "url": "https://sian.monshaat.gov.sa/ar/members/72/%D8%AF%D8%A7%D8%B1-%D8%B1%D8%A7%D8%A1",
+   "desc": "آر هاوس مساحة حيوية معاصرة بتصاميم تحاكي التفكير العصري للمبتكرين."
+  },
+  {
+   "name": "دور الريادة",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الطائف",
+   "email": "info@dour-alriyadah.com",
+   "phone": "966502473782",
+   "url": "https://sian.monshaat.gov.sa/ar/members/82/%D8%AF%D9%88%D8%B1-%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9",
+   "desc": "دور الريادة أول حاضنة أعمال ومساحات عمل مشتركة بالطائف."
+  },
+  {
+   "name": "ديوم",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "hello@diom.sa",
+   "phone": "966920004352",
+   "url": "https://sian.monshaat.gov.sa/ar/members/196/%D8%AF%D9%8A%D9%88%D9%85",
+   "desc": "مساحات عمل إحترافية للمستقلين, رواد الأعمال والعاملين عن بعد."
+  },
+  {
+   "name": "ذا ستيج",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "md.almousa@tammt.com",
+   "phone": "966500192910",
+   "url": "https://sian.monshaat.gov.sa/ar/members/49/%D8%B0%D8%A7-%D8%B3%D8%AA%D9%8A%D8%AC",
+   "desc": "ذا ستيج \"منصة العمل\" هي مساحة هدفها بدء شراكات جديدة بين رواد الأعمال."
+  },
+  {
+   "name": "رزم للاستثمار (RZM)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://rzm.com.sa",
+   "desc": "شركة استثمارية سعودية متنوعة (جذور تعود لثمانينات 1980، رأس مال 1 مليار ريال): أسهم عامة وخاصة وعقار، مع ذراع رأس مال جريء يستهدف شركات النمو التقنية (تعليم، صحة، تقنية معلومات)."
+  },
+  {
+   "name": "رواسي للاستثمار المتقدم (Alt Capital حاليًا)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://rawasyinvest.com",
+   "desc": "شركة استثمار سعودية للاستحواذات والنمو ترخصها هيئة السوق المالية، غيّرت اسمها إلى \"Alt Capital\" أكتوبر 2025."
+  },
+  {
+   "name": "رياديون ورواد لحاضنات ومسرعات الأعمال",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "help@digitalstudio.com",
+   "phone": "966568638310",
+   "url": "https://sian.monshaat.gov.sa/ar/members/172/%D8%B1%D9%8A%D8%A7%D8%AF%D9%8A%D9%88%D9%86-%D9%88%D8%B1%D9%88%D8%A7%D8%AF-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": ""
+  },
+  {
+   "name": "سبعين للاستثمار (Sabeen Investment)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://sabeen.sa",
+   "desc": "شركة مساهمة مقفلة سعودية (مرخصة من هيئة السوق المالية 2021) تابعة لمجموعة سبعين، تستثمر مباشرة أو عبر صناديق، ونشطة أيضًا بالسياحة والترفيه."
+  },
+  {
+   "name": "سحابة الامام",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "oalajaimi@oceanx.sa",
+   "phone": "966564666068",
+   "url": "https://sian.monshaat.gov.sa/ar/members/34/%D8%B3%D8%AD%D8%A7%D8%A8%D8%A9-%D8%A7%D9%84%D8%A7%D9%85%D8%A7%D9%85",
+   "desc": "حاضنة أعمال جامعة الامام محمد بن سعود الاسلامية."
+  },
+  {
+   "name": "سمارت اوفيس",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@smartoffice.com.sa",
+   "phone": "966568764560",
+   "url": "https://sian.monshaat.gov.sa/ar/members/76/%D8%B3%D9%85%D8%A7%D8%B1%D8%AA-%D8%A7%D9%88%D9%81%D9%8A%D8%B3",
+   "desc": "مساحة للعمل - للتعلم - للتواصل - للتعاون في بيئة عمل ريادية ذكية"
+  },
+  {
+   "name": "سند",
+   "type": "",
+   "cat": "incubator",
+   "city": "بريدة",
+   "email": "info@sand.business",
+   "phone": "966502729394",
+   "url": "https://sian.monshaat.gov.sa/ar/members/77/%D8%B3%D9%86%D8%AF",
+   "desc": "بيئة عمل تحفز على الإبداع من خلال مساحة العمل المشتركة."
+  },
+  {
+   "name": "شارك هب",
+   "type": "",
+   "cat": "incubator",
+   "city": "الخبر",
+   "email": "customer.service@sharik-hub.com",
+   "phone": "966531510700",
+   "url": "https://sian.monshaat.gov.sa/ar/members/221/%D8%B4%D8%A7%D8%B1%D9%83-%D9%87%D8%A8",
+   "desc": "شارك هب هي شركة سعودية متخصصة بتوفير مساحات عمل مشتركة في عدة مراكز بالمملكة."
+  },
+  {
+   "name": "شراكة فنتشرز (Sharaka Ventures)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://sharaka.sa",
+   "desc": "صندوق رأس مال جريء تابع لشركة شراكة المالية، بذرة حتى سلسلة أ."
+  },
+  {
+   "name": "شركة أبعاد لحاضنات ومسرعات الاعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الأحساء",
+   "email": "mohsen@intlaca.com",
+   "phone": "966544699990",
+   "url": "https://sian.monshaat.gov.sa/ar/members/54/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A3%D8%A8%D8%B9%D8%A7%D8%AF-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "انضم إلى أول مجتمع أعمال في الاحساء • التعرف على أشخاص جدد • الالتقاء بالمنشآت المحلية • مشاركة الآراء والأفكار ..."
+  },
+  {
+   "name": "شركة أسس الأعمال لخدمات الأعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "contact@basix.work",
+   "phone": "966569999996",
+   "url": "https://sian.monshaat.gov.sa/ar/members/3/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A3%D8%B3%D8%B3-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D9%84%D8%AE%D8%AF%D9%85%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "مساحة عمل مشتركة"
+  },
+  {
+   "name": "شركة الأدوات والحلول",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "info@tools-solutions.com",
+   "phone": "966114509942",
+   "url": "https://sian.monshaat.gov.sa/ar/members/120/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D8%A7%D8%AA-%D9%88%D8%A7%D9%84%D8%AD%D9%84%D9%88%D9%84",
+   "desc": "T&S is a business solutions company based in Saudi Arabia."
+  },
+  {
+   "name": "شركة الأعمال المبتكرة لحاضنات ومسرعات الاعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "asaad@innovaion-sa.com",
+   "phone": "966504301454",
+   "url": "https://sian.monshaat.gov.sa/ar/members/69/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D8%A7%D9%84%D9%85%D8%A8%D8%AA%D9%83%D8%B1%D8%A9-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "تقديم خدمات إستشارية وفنية وإدارية ولوجستية"
+  },
+  {
+   "name": "شركة الجهاز للاستثمار",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "musa.bahri@algihaz.com",
+   "phone": "966505144189",
+   "url": "https://sian.monshaat.gov.sa/ar/members/8/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D8%AC%D9%87%D8%A7%D8%B2-%D9%84%D9%84%D8%A7%D8%B3%D8%AA%D8%AB%D9%85%D8%A7%D8%B1",
+   "desc": "شركة الجهاز للاستثمار هي شركة رائدة في مجال تقديم خدمات مساحات العمل المشتركة."
+  },
+  {
+   "name": "شركة الحالمون لحاضنات ومسرعات الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "Online",
+   "email": "Dreams@alhalimon.com",
+   "phone": "966598190043",
+   "url": "https://sian.monshaat.gov.sa/ar/members/122/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D8%AD%D8%A7%D9%84%D9%85%D9%88%D9%86-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "الحالمون هي حاضنة أعمال تم تأسيسها في المملكة العربية السعودية بهدف تقديم الاستشارات والتوجيه وتوفير مساحة العمل، نعمل..."
+  },
+  {
+   "name": "شركة الركن الذكي للتطوير والاستثمار العقاري",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "ahmad@workenspace.com",
+   "phone": "966503631186",
+   "url": "https://sian.monshaat.gov.sa/ar/members/130/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D8%B1%D9%83%D9%86-%D8%A7%D9%84%D8%B0%D9%83%D9%8A-%D9%84%D9%84%D8%AA%D8%B7%D9%88%D9%8A%D8%B1-%D9%88%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%AB%D9%85%D8%A7%D8%B1-%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%D9%8A",
+   "desc": "وركين اسبيس حاضنة و مسرعة أعمال و مساحة عمل مشتركة."
+  },
+  {
+   "name": "شركة المراسم التجارية",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "aasamtrd@hotmail.com",
+   "phone": "966557740000",
+   "url": "https://sian.monshaat.gov.sa/ar/members/16/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D9%85%D8%B1%D8%A7%D8%B3%D9%85-%D8%A7%D9%84%D8%AA%D8%AC%D8%A7%D8%B1%D9%8A%D8%A9",
+   "desc": "توفير بيئة محفزه للعمل"
+  },
+  {
+   "name": "شركة المساحات المشتركة لحاضنات و مسرعات الأعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "Online",
+   "email": "tr.roaa@gmail.com",
+   "phone": "966551444289",
+   "url": "https://sian.monshaat.gov.sa/ar/members/190/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D9%85%D8%B3%D8%A7%D8%AD%D8%A7%D8%AA-%D8%A7%D9%84%D9%85%D8%B4%D8%AA%D8%B1%D9%83%D8%A9-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88-%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "مساحة عمل مشتركة وقاعات للاجتماعات"
+  },
+  {
+   "name": "شركة الهيدب لحاضنات ومسرعات الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الباحة",
+   "email": "info@alhaidab.com",
+   "phone": "966553343324",
+   "url": "https://sian.monshaat.gov.sa/ar/members/233/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D9%87%D9%8A%D8%AF%D8%A8-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "جهة متخصصة في مجال تطوير الأعمال والاستشارات والأبحاث والتسويق."
+  },
+  {
+   "name": "شركة باسقات للأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "المدينة المنورة",
+   "email": "info@baseqatbusiness.com",
+   "phone": "966555021920",
+   "url": "https://sian.monshaat.gov.sa/ar/members/2/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A8%D8%A7%D8%B3%D9%82%D8%A7%D8%AA-%D9%84%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "منصة متكاملة تقدم دعما شاملا لرواد الاعمال لتاسيس مشاريعهم."
+  },
+  {
+   "name": "شركة تدرج لحاضنات ومسرعات الأعمال",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "Sale@betterh.net",
+   "phone": "966566613154",
+   "url": "https://sian.monshaat.gov.sa/ar/members/145/%D8%B4%D8%B1%D9%83%D8%A9-%D8%AA%D8%AF%D8%B1%D8%AC-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": ""
+  },
+  {
+   "name": "شركة جيرة لحاضنات ومسرعات الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "mdalfadel@ryadiy.com",
+   "phone": "966563555502",
+   "url": "https://sian.monshaat.gov.sa/ar/members/1/%D8%B4%D8%B1%D9%83%D8%A9-%D8%AC%D9%8A%D8%B1%D8%A9-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "توفير مساحات عمل مشتركة وبرامج إرشادية وتقديم إستشارات لرواد ورائدات الأعمال وخدمات تقنية من برمجة المواقع والتطبيقات وا..."
+  },
+  {
+   "name": "شركة حاضة الابداع للاعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "ioc.comp20@gmail.com",
+   "phone": "966535373508",
+   "url": "https://sian.monshaat.gov.sa/ar/members/84/%D8%B4%D8%B1%D9%83%D8%A9-%D8%AD%D8%A7%D8%B6%D8%A9-%D8%A7%D9%84%D8%A7%D8%A8%D8%AF%D8%A7%D8%B9-%D9%84%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "شركة تدعم الشركات والمؤسسات والافراد ورواد الاعمال ضمن رؤية 2030."
+  },
+  {
+   "name": "شركة ذكي لحاضنات ومسرعات الأعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@startupsmart.net",
+   "phone": "966555065520",
+   "url": "https://sian.monshaat.gov.sa/ar/members/209/%D8%B4%D8%B1%D9%83%D8%A9-%D8%B0%D9%83%D9%8A-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "ذكي لحاضنات ومسرعات الأعمال عبارة عن مساحة عمل مشتركة."
+  },
+  {
+   "name": "شركة ساحات التنموية لحاضنات ومسرعات الاعمال",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "Online",
+   "email": "info@sahatvs.com",
+   "phone": "966500515735",
+   "url": "https://sian.monshaat.gov.sa/ar/members/268/%D8%B4%D8%B1%D9%83%D8%A9-%D8%B3%D8%A7%D8%AD%D8%A7%D8%AA-%D8%A7%D9%84%D8%AA%D9%86%D9%85%D9%88%D9%8A%D8%A9-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "استوديو شركات ناشئة اجتماعية، يجتمع فيه المبتكرون والمبدعون بالخبراء."
+  },
+  {
+   "name": "شركة ساحات التنموية لحاضنات ومسرعات الاعمال",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "info@sahatvs.com",
+   "phone": "966591692425",
+   "url": "https://sian.monshaat.gov.sa/ar/members/275/%D8%B4%D8%B1%D9%83%D8%A9-%D8%B3%D8%A7%D8%AD%D8%A7%D8%AA-%D8%A7%D9%84%D8%AA%D9%86%D9%85%D9%88%D9%8A%D8%A9-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "استوديو شركات ناشئة، يجتمع فيه المبتكرون والمبدعون بالخبراء."
+  },
+  {
+   "name": "شركة سبع سنابل لحاضنات و مسرعات الأعمال",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "sevensnabil@gmail.com",
+   "phone": "",
+   "url": "https://sian.monshaat.gov.sa/ar/members/188/%D8%B4%D8%B1%D9%83%D8%A9-%D8%B3%D8%A8%D8%B9-%D8%B3%D9%86%D8%A7%D8%A8%D9%84-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88-%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "رؤيتنا تصبح منصة 7سنابل وجهة عصرية إقليمية موثوقة للباحثين عن الفرص الاستثمارية."
+  },
+  {
+   "name": "شركة شركاء الشباب لحاضنات ومسرعات الاعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الدمام",
+   "email": "info@youthmate.sa",
+   "phone": "966557992049",
+   "url": "https://sian.monshaat.gov.sa/ar/members/103/%D8%B4%D8%B1%D9%83%D8%A9-%D8%B4%D8%B1%D9%83%D8%A7%D8%A1-%D8%A7%D9%84%D8%B4%D8%A8%D8%A7%D8%A8-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "حاضنة ومسرعة أعمال توفر حلول وخدمات غير تقليدية منها التمويل المباشر."
+  },
+  {
+   "name": "شركة عنصر المستقبل لحاضنات و مسرعات الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "alsultas@tcd.ie",
+   "phone": "966505916442",
+   "url": "https://sian.monshaat.gov.sa/ar/members/131/%D8%B4%D8%B1%D9%83%D8%A9-%D8%B9%D9%86%D8%B5%D8%B1-%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%82%D8%A8%D9%84-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88-%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": ""
+  },
+  {
+   "name": "شركة فلات سيكس لابز العربية للاستشارات الادارية شركة شخص واحد",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "rana.alshehri@flat6labs.com",
+   "phone": "966558998813",
+   "url": "https://sian.monshaat.gov.sa/ar/members/164/%D8%B4%D8%B1%D9%83%D8%A9-%D9%81%D9%84%D8%A7%D8%AA-%D8%B3%D9%8A%D9%83%D8%B3-%D9%84%D8%A7%D8%A8%D8%B2-%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9-%D9%84%D9%84%D8%A7%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%AF%D8%A7%D8%B1%D9%8A%D8%A9-%D8%B4%D8%B1%D9%83%D8%A9-%D8%B4%D8%AE%D8%B5-%D9%88%D8%A7%D8%AD%D8%AF",
+   "desc": "برنامج الرياض للتمويل الأولي هو بنامج مسرعة افتراضية مدتها 4 أشهر."
+  },
+  {
+   "name": "شركة متكامل لحاضنات ومسرعات الاعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@dospace-ksa.com",
+   "phone": "966502089761",
+   "url": "https://sian.monshaat.gov.sa/ar/members/274/%D8%B4%D8%B1%D9%83%D8%A9-%D9%85%D8%AA%D9%83%D8%A7%D9%85%D9%84-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "شركه محلية توفر مجموعة متنوعة من المساحات الإبداعية المشتركة."
+  },
+  {
+   "name": "شركة محاكاة لحاضنات ومسرعات الاعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "contact@mohakah.com",
+   "phone": "966565202030",
+   "url": "https://sian.monshaat.gov.sa/ar/members/152/%D8%B4%D8%B1%D9%83%D8%A9-%D9%85%D8%AD%D8%A7%D9%83%D8%A7%D8%A9-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "مساحة تحاكي احتياجات روّاد ورائدات الاعمال في الشركات الناشئة."
+  },
+  {
+   "name": "شركة محرك الأعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "alkuaik@bemarketing.sa",
+   "phone": "966543577722",
+   "url": "https://sian.monshaat.gov.sa/ar/members/237/%D8%B4%D8%B1%D9%83%D8%A9-%D9%85%D8%AD%D8%B1%D9%83-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "مساحة عمل مشتركة تضم أكثر من شركة ناشئة الى متوسطة."
+  },
+  {
+   "name": "شركة مزج العمرانية لحاضنات ومسرعات الأعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "الخبر",
+   "email": "info@mazj.org",
+   "phone": "966534600488",
+   "url": "https://sian.monshaat.gov.sa/ar/members/234/%D8%B4%D8%B1%D9%83%D8%A9-%D9%85%D8%B2%D8%AC-%D8%A7%D9%84%D8%B9%D9%85%D8%B1%D8%A7%D9%86%D9%8A%D8%A9-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "مساحات عمل مشتركة تشكل بيئة تفاعلية تعلمية للمجتمع العمراني."
+  },
+  {
+   "name": "شركة مساحات لحاضنات ومسرعات الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الأحساء",
+   "email": "info@spacesksa.com",
+   "phone": "966539171229",
+   "url": "https://sian.monshaat.gov.sa/ar/members/89/%D8%B4%D8%B1%D9%83%D8%A9-%D9%85%D8%B3%D8%A7%D8%AD%D8%A7%D8%AA-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "الهدف من إنشاء حاضنة الأعمال هو خلق بيئة مناسبة لاحتضان شركات ناشئة."
+  },
+  {
+   "name": "شركة مساحة تحول لحاضنات ومسرعات الأعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "الأحساء",
+   "email": "swtchspace@gmail.com",
+   "phone": "966568161772",
+   "url": "https://sian.monshaat.gov.sa/ar/members/231/%D8%B4%D8%B1%D9%83%D8%A9-%D9%85%D8%B3%D8%A7%D8%AD%D8%A9-%D8%AA%D8%AD%D9%88%D9%84-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "مساحة سويتش، بيئة تساعدك على الإنجاز بشكل مريح وهادئ."
+  },
+  {
+   "name": "شركة مسار الأعمال للتطوير والاستثمار التجاري",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "m.alburaykan@bpc.sa",
+   "phone": "966550074747",
+   "url": "https://sian.monshaat.gov.sa/ar/members/15/%D8%B4%D8%B1%D9%83%D8%A9-%D9%85%D8%B3%D8%A7%D8%B1-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D9%84%D9%84%D8%AA%D8%B7%D9%88%D9%8A%D8%B1-%D9%88%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%AB%D9%85%D8%A7%D8%B1-%D8%A7%D9%84%D8%AA%D8%AC%D8%A7%D8%B1%D9%8A",
+   "desc": "شركة مسار الأعمال هي شركة حاضنة ومسرعة للأعمال عبر دعم صاحب المشروع ومشاركته الهدف النهائي ذاته وهو تحويل الأفكار المبتك..."
+  },
+  {
+   "name": "شركة نسيم العوالي العقارية",
+   "type": "مسرعات منشآت",
+   "cat": "accelerator",
+   "city": "",
+   "email": "h555519@gmail.com",
+   "phone": "96650802085",
+   "url": "https://sian.monshaat.gov.sa/ar/members/232/%D8%B4%D8%B1%D9%83%D8%A9-%D9%86%D8%B3%D9%8A%D9%85-%D8%A7%D9%84%D8%B9%D9%88%D8%A7%D9%84%D9%8A-%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%D9%8A%D8%A9",
+   "desc": "شركة ذات مسئولية محدودة متعددة الأنشطة"
+  },
+  {
+   "name": "شركة نيلوفر لحاضنات ومسرعات الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "alrmdhi@gmail.com",
+   "phone": "966555210231",
+   "url": "https://sian.monshaat.gov.sa/ar/members/106/%D8%B4%D8%B1%D9%83%D8%A9-%D9%86%D9%8A%D9%84%D9%88%D9%81%D8%B1-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "ترخيص حاضنة أعمال، النشاط مساحة عمل مشتركة، مسرعات أعمل."
+  },
+  {
+   "name": "شركة هاد مرشد الاعمال للخدمات التجارية",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@haad.sa",
+   "phone": "966555634754",
+   "url": "https://sian.monshaat.gov.sa/ar/members/105/%D8%B4%D8%B1%D9%83%D8%A9-%D9%87%D8%A7%D8%AF-%D9%85%D8%B1%D8%B4%D8%AF-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84-%D9%84%D9%84%D8%AE%D8%AF%D9%85%D8%A7%D8%AA-%D8%A7%D9%84%D8%AA%D8%AC%D8%A7%D8%B1%D9%8A%D8%A9",
+   "desc": "دعم الشركات والمؤسسات والافراد ورواد الاعمال ضمن رؤية 2030."
+  },
+  {
+   "name": "شركة وادي الرياض (Riyadh Valley Company - RVC)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://rvc.com.sa/en/",
+   "desc": ""
+  },
+  {
+   "name": "شركة وادي مكة للتقنية",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "مكة المكرمة",
+   "email": "info@wadimakkah.sa",
+   "phone": "966125503322",
+   "url": "https://sian.monshaat.gov.sa/ar/members/118/%D8%B4%D8%B1%D9%83%D8%A9-%D9%88%D8%A7%D8%AF%D9%8A-%D9%85%D9%83%D8%A9-%D9%84%D9%84%D8%AA%D9%82%D9%86%D9%8A%D8%A9",
+   "desc": "شركة استثمارية تمتلكها بالكامل جامعة أم القرى."
+  },
+  {
+   "name": "شي ووركس",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "maha@sheworks.com.sa",
+   "phone": "966505714747",
+   "url": "https://sian.monshaat.gov.sa/ar/members/42/%D8%B4%D9%8A-%D9%88%D9%88%D8%B1%D9%83%D8%B3",
+   "desc": "شي ووركس هي مساحة العمل المشتركة الوحيدة المخصصة للسيدات في مدينة الرياض ، حيث تختص بتوفير بيئة عمل متكاملة للمرأة و لرا..."
+  },
+  {
+   "name": "صندوق رياض تقنية (RTF)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://riyadtaqnia.com",
+   "desc": "مشروع مشترك بين الرياض المالية وتقنية (تأسس 2016)، من البذرة حتى السلسلة ب."
+  },
+  {
+   "name": "عُقدة || UQDA",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "Online",
+   "email": "ask@uq-cs.com",
+   "phone": "966559790729",
+   "url": "https://sian.monshaat.gov.sa/ar/members/240/%D8%B9-%D9%82%D8%AF%D8%A9-uqda",
+   "desc": "عُقدة تأسست من الشغف، وتخصصت في عقد الخيط الأساسي لأي مشروع."
+  },
+  {
+   "name": "فلك (Falak Investment Hub)",
+   "type": "مستثمر ملاك / شبكة ملائكة",
+   "cat": "angel",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://falak.sa",
+   "desc": "منصة سعودية هجينة تدعم الشركات الناشئة بالتمويل المباشر والعيني وبرامج التدريب والربط بالمستثمرين."
+  },
+  {
+   "name": "فلك الأعمال للاستثمار",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "falak@falak.sa",
+   "phone": "966920005610",
+   "url": "https://sian.monshaat.gov.sa/ar/members/65/%D9%81%D9%84%D9%83-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D9%84%D9%84%D8%A7%D8%B3%D8%AA%D8%AB%D9%85%D8%A7%D8%B1",
+   "desc": "برنامج مدته 12 أسبوع يتم فيه استثمار مبلغ لايقل عن ٤مليون ريال سعودي."
+  },
+  {
+   "name": "في-فند لتقنية المعلومات (Ve-Fund)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://ve-fund.com",
+   "desc": "منصة تقنية لإدارة صفقات الاستثمار وربط الشركات الناشئة بالمستثمرين/الملائكة."
+  },
+  {
+   "name": "قيادة",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الدمام",
+   "email": "info@qeyadasa.com",
+   "phone": "966556001491",
+   "url": "https://sian.monshaat.gov.sa/ar/members/67/%D9%82%D9%8A%D8%A7%D8%AF%D8%A9",
+   "desc": "مهمتنا توفير بيئة داعمة لدراسة وتطوير المشاريع من خلال توفير المكاتب."
+  },
+  {
+   "name": "كادن للاستثمار (Kaden Investment)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://kaden-sa.com",
+   "desc": "شركة استثمار وتطوير عقاري سعودية (تأسست ~2015)، من أبرز مشاريعها \"الرياض فرونت\"."
+  },
+  {
+   "name": "كوالتا",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "support@qualita.ventures",
+   "phone": "",
+   "url": "https://sian.monshaat.gov.sa/ar/members/129/%D9%83%D9%88%D8%A7%D9%84%D8%AA%D8%A7",
+   "desc": "كوالتا هو استيديو شركات ناشئة متخصص بالتطبيقات الاجتماعية."
+  },
+  {
+   "name": "كور فيجن للاستثمار (Core Vision)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://corevision.sa",
+   "desc": "صندوق رأس مال جريء سعودي (تأسس 2023) لمرحلتي ما قبل البذرة والبذرة."
+  },
+  {
+   "name": "لدن للاستثمار (Ladun Investment)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://ladun.sa",
+   "desc": "شركة مساهمة سعودية (تأسست 1968) تعمل بالتطوير العقاري وإدارة الأصول."
+  },
+  {
+   "name": "لون ستوديو",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@lun.sa",
+   "phone": "966563667455",
+   "url": "https://sian.monshaat.gov.sa/ar/members/205/%D9%84%D9%88%D9%86-%D8%B3%D8%AA%D9%88%D8%AF%D9%8A%D9%88",
+   "desc": "لون ستوديو هو كيان يهدف لصناعة الشركات التقنية الناشئة بشكل مستمر ومتكرر."
+  },
+  {
+   "name": "مؤسسة عُقال (عقول وأموال الوقفية)",
+   "type": "مستثمر ملاك / شبكة ملائكة",
+   "cat": "angel",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://oqal.org",
+   "desc": "مؤسسة وقفية (تأسست 2011) تربط رواد الأعمال بمستثمرين ملائكة."
+  },
+  {
+   "name": "مجمع ريادة الأعمال بالرياض | Startup Hub Riyadh",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@startuphubriyadh.sa",
+   "phone": "966565327533",
+   "url": "https://sian.monshaat.gov.sa/ar/members/101/%D9%85%D8%AC%D9%85%D8%B9-%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D8%A8%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6-startup-hub-riyadh",
+   "desc": "مجمع ريادة الأعمال بالرياض تحت مظلة الهيئة العامة للمنشآت الصغيرة والمتوسطة."
+  },
+  {
+   "name": "مجموعة أي زد المحدودة",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "support@azworkspace.net",
+   "phone": "966555373880",
+   "url": "https://sian.monshaat.gov.sa/ar/members/185/%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9-%D8%A3%D9%8A-%D8%B2%D8%AF-%D8%A7%D9%84%D9%85%D8%AD%D8%AF%D9%88%D8%AF%D8%A9",
+   "desc": "تأسسـنا فـي عـام 2020 مـع الرؤية لنكون واحد من أقوى الشـركات التي تقدم المكاتب المجهـزة الملائمة والمريحة نحـن مـن أفض..."
+  },
+  {
+   "name": "مداد للحلول المكتبية المحدودة",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "hello@medadoffices.com",
+   "phone": "966596797366",
+   "url": "https://sian.monshaat.gov.sa/ar/members/181/%D9%85%D8%AF%D8%A7%D8%AF-%D9%84%D9%84%D8%AD%D9%84%D9%88%D9%84-%D8%A7%D9%84%D9%85%D9%83%D8%AA%D8%A8%D9%8A%D8%A9-%D8%A7%D9%84%D9%85%D8%AD%D8%AF%D9%88%D8%AF%D8%A9",
+   "desc": "تقدم مداد حلول مكتبية شاملة بالإضافة لكونها شريك امتياز تجاري."
+  },
+  {
+   "name": "مدر للاستثمار (MDR Investment)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://mdr.sa",
+   "desc": "شركة استثمار عقاري سعودية (تأسست 2009)."
+  },
+  {
+   "name": "مركز إبرام للأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "المدينة المنورة",
+   "email": "info@ebram.sa",
+   "phone": "966509618284",
+   "url": "https://sian.monshaat.gov.sa/ar/members/58/%D9%85%D8%B1%D9%83%D8%B2-%D8%A5%D8%A8%D8%B1%D8%A7%D9%85-%D9%84%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "مركز إبرام للأعمال مركز متكامل الخدمات في المدينة المنورة لدعم المنشآت الناشئة والصغيرة والريادية من خلال تقديم مساحات ع..."
+  },
+  {
+   "name": "مركز أرامكو السعودية لريادة الأعمال - واعد",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الظهران",
+   "email": "startupstudio@waed.net",
+   "phone": "966531648751",
+   "url": "https://sian.monshaat.gov.sa/ar/members/148/%D9%85%D8%B1%D9%83%D8%B2-%D8%A3%D8%B1%D8%A7%D9%85%D9%83%D9%88-%D8%A7%D9%84%D8%B3%D8%B9%D9%88%D8%AF%D9%8A%D8%A9-%D9%84%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D9%88%D8%A7%D8%B9%D8%AF",
+   "desc": "أنشأت أرامكو مركز واعد في العام 2011 لبث روح ريادة الأعمال في المملكة."
+  },
+  {
+   "name": "مركز أعمال | To Be",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "maldwaikh@tobehub.co",
+   "phone": "966557070575",
+   "url": "https://sian.monshaat.gov.sa/ar/members/64/%D9%85%D8%B1%D9%83%D8%B2-%D8%A3%D8%B9%D9%85%D8%A7%D9%84-to-be",
+   "desc": "مركز أعمال | To Be يقدم العديد من الخدمات لتسهيل ودعم الأعمال التجارية من مساحات عمل مشتركة واستشارات في جميع المجالات ا..."
+  },
+  {
+   "name": "مركز الابتكار السعودي لتقنيات المياه",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الجبيل",
+   "email": "care@swic.sa",
+   "phone": "966504967034",
+   "url": "https://sian.monshaat.gov.sa/ar/members/117/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%A7%D8%A8%D8%AA%D9%83%D8%A7%D8%B1-%D8%A7%D9%84%D8%B3%D8%B9%D9%88%D8%AF%D9%8A-%D9%84%D8%AA%D9%82%D9%86%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D9%85%D9%8A%D8%A7%D9%87",
+   "desc": "مشروع داعم ومعزز للابتكارات في مجال تقنيات المياه."
+  },
+  {
+   "name": "مركز الابتكار وريادة الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "سكاكا",
+   "email": "iec@ju.edu.sa",
+   "phone": "966591584424",
+   "url": "https://sian.monshaat.gov.sa/ar/members/73/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%A7%D8%A8%D8%AA%D9%83%D8%A7%D8%B1-%D9%88%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "خدمات يتم تقديمها من قبل وحدة حاضنة الأعمال، برامج تدريبية ومساحات عمل."
+  },
+  {
+   "name": "مركز الابتكار وريادة الأعمال (نمو / حاضنة كود AI) - جامعة الأميرة نورة",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://pnu.edu.sa/ar/Centers/InnovationAndEntrepreneurship/Pages/home.aspx",
+   "desc": "مركز تابع لجامعة الأميرة نورة بنت عبدالرحمن يدعم ريادة الأعمال لدى الطالبات."
+  },
+  {
+   "name": "مركز الابداع وريادة الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "haahmari@uqu.edu.sa",
+   "phone": "966555696588",
+   "url": "https://sian.monshaat.gov.sa/ar/members/11/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%A7%D8%A8%D8%AF%D8%A7%D8%B9-%D9%88%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "انطلاقا من رؤية المملكة 2030 والتي أكدت على التركيز على الابتكار في التقنيات المتطورة."
+  },
+  {
+   "name": "مركز الابداع وريادة الاعمال بجامعة الملك عبد العزيز",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "kauacc@kau.edu.sa",
+   "phone": "966507331400",
+   "url": "https://sian.monshaat.gov.sa/ar/members/123/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%A7%D8%A8%D8%AF%D8%A7%D8%B9-%D9%88%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84-%D8%A8%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%A7%D9%84%D9%85%D9%84%D9%83-%D8%B9%D8%A8%D8%AF-%D8%A7%D9%84%D8%B9%D8%B2%D9%8A%D8%B2",
+   "desc": "مسرعة وحاضنة اعمال حكومية تحت مظلة جامعة الملك عبدالعزيز"
+  },
+  {
+   "name": "مركز الأمير أحمد بن فهد بن سلمان لتطوير الأعمال (سنا)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الأحساء",
+   "email": "sana@alahsa.com",
+   "phone": "966135871178",
+   "url": "https://sian.monshaat.gov.sa/ar/members/50/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%A3%D9%85%D9%8A%D8%B1-%D8%A3%D8%AD%D9%85%D8%AF-%D8%A8%D9%86-%D9%81%D9%87%D8%AF-%D8%A8%D9%86-%D8%B3%D9%84%D9%85%D8%A7%D9%86-%D9%84%D8%AA%D8%B7%D9%88%D9%8A%D8%B1-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D8%B3%D9%86%D8%A7",
+   "desc": "يتطلع المركز إلى بناء مجتمع أعمال ريادي ومبتكر يجعل من الأحساء مركز لريادة الأعمال في المملكة ونموذج مثالي يحتذى به، يسا..."
+  },
+  {
+   "name": "مركز التنمية الصناعية - ينبع الصناعية",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "ينبع البحر",
+   "email": "id@rcyci.edu.sa",
+   "phone": "966143946137",
+   "url": "https://sian.monshaat.gov.sa/ar/members/128/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%AA%D9%86%D9%85%D9%8A%D8%A9-%D8%A7%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D9%8A%D8%A9-%D9%8A%D9%86%D8%A8%D8%B9-%D8%A7%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D9%8A%D8%A9",
+   "desc": "مركز متخصص في ريادة الأعمال تحت مظلة الإدارة العامة للتعليم بالهيئة الملكية بينبع."
+  },
+  {
+   "name": "مركز التنمية الصناعية بالهيئة الملكية بالجبيل",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الجبيل",
+   "email": "idc@jti.edu.sa",
+   "phone": "966508970143",
+   "url": "https://sian.monshaat.gov.sa/ar/members/27/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%AA%D9%86%D9%85%D9%8A%D8%A9-%D8%A7%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D9%8A%D8%A9-%D8%A8%D8%A7%D9%84%D9%87%D9%8A%D8%A6%D8%A9-%D8%A7%D9%84%D9%85%D9%84%D9%83%D9%8A%D8%A9-%D8%A8%D8%A7%D9%84%D8%AC%D8%A8%D9%8A%D9%84",
+   "desc": "يقوم مركز التنمية الصناعية بالجبيل بدعم المشروعات الصغيرة للشباب السعوديين التي تقوم على أفكار جديدة قابلة للتطبيق في ال..."
+  },
+  {
+   "name": "مركز الموهبة والإبداع وريادة الأعمال \"مدارك\" (جامعة الملك خالد)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "أبها",
+   "email": "",
+   "phone": "",
+   "url": "https://ctc.kku.edu.sa/",
+   "desc": "مركز تابع لجامعة الملك خالد في أبها يُعنى برعاية موهبة وإبداع وريادة أعمال الطلاب."
+  },
+  {
+   "name": "مركز بيادر لخدمات الأعمال",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الدمام",
+   "email": "info@psfw.org",
+   "phone": "96613814003",
+   "url": "https://sian.monshaat.gov.sa/ar/members/13/%D9%85%D8%B1%D9%83%D8%B2-%D8%A8%D9%8A%D8%A7%D8%AF%D8%B1-%D9%84%D8%AE%D8%AF%D9%85%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "برنامج نمو - مسرعات اعمال - برنامج start up Business."
+  },
+  {
+   "name": "مركز دور الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "khaled@dbc.com.sa",
+   "phone": "966592707030",
+   "url": "https://sian.monshaat.gov.sa/ar/members/21/%D9%85%D8%B1%D9%83%D8%B2-%D8%AF%D9%88%D8%B1-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "برامج احتضان مشاريع استشارات ادارية وتطويرية استشارات قانونية تجارية."
+  },
+  {
+   "name": "مركز مرتكز لحاضنات الأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "info@mazeej.com.sa",
+   "phone": "966503136589",
+   "url": "https://sian.monshaat.gov.sa/ar/members/263/%D9%85%D8%B1%D9%83%D8%B2-%D9%85%D8%B1%D8%AA%D9%83%D8%B2-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "مقر مجهز مكاتب مشتركة وقاعة اجتماعات وتدريب مميزة"
+  },
+  {
+   "name": "مزج العمرانية",
+   "type": "",
+   "cat": "incubator",
+   "city": "الدمام",
+   "email": "m.almulla@mazj.org",
+   "phone": "966503600488",
+   "url": "https://sian.monshaat.gov.sa/ar/members/63/%D9%85%D8%B2%D8%AC-%D8%A7%D9%84%D8%B9%D9%85%D8%B1%D8%A7%D9%86%D9%8A%D8%A9",
+   "desc": "مزج العمرانية مساحة عمل مشتركة متخصصة، تهدف لتنمية المجتمع العمراني."
+  },
+  {
+   "name": "مساحات مدارك الأعمال (Business Madark)",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "",
+   "phone": "966539459133",
+   "url": "https://www.madark.org/",
+   "desc": "مساحات عمل مشتركة داخل مبنى غرفة التجارة والصناعة بأبها."
+  },
+  {
+   "name": "مساحة كون للتصنيع",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "sarah@koun.com.sa",
+   "phone": "966506467267",
+   "url": "https://sian.monshaat.gov.sa/ar/members/57/%D9%85%D8%B3%D8%A7%D8%AD%D8%A9-%D9%83%D9%88%D9%86-%D9%84%D9%84%D8%AA%D8%B5%D9%86%D9%8A%D8%B9",
+   "desc": "كون هي مساحة تصنيع مشتركة، توفر الأدوات اللازمة للابتكار والابداع."
+  },
+  {
+   "name": "مساحتي لحاضنات و مسرعات الأعمال ( MYSPACE )",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@myspaceksa.com",
+   "phone": "966541130271",
+   "url": "https://sian.monshaat.gov.sa/ar/members/169/%D9%85%D8%B3%D8%A7%D8%AD%D8%AA%D9%8A-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88-%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-myspace",
+   "desc": "مساحات عمل مشتركة ( مكاتب مشتركة ، مكاتب مغلقة ، مكاتب مخصصة ، قاعات اجتماعات ، قاعات تدريب ، اسنديوهات ، مقهى ، فعاليات..."
+  },
+  {
+   "name": "مُستقَر",
+   "type": "",
+   "cat": "incubator",
+   "city": "الظهران",
+   "email": "info@mustqr.org",
+   "phone": "966509990886",
+   "url": "https://sian.monshaat.gov.sa/ar/members/78/%D9%85-%D8%B3%D8%AA%D9%82-%D8%B1",
+   "desc": "مستقَر المساحة الأولى في المنطقة الشرقية المخصصة لشابات ورائدات الأعمال."
+  },
+  {
+   "name": "مسرعة أعمال جامعة الملك عبدالعزيز",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "جدة",
+   "email": "kauacc@kau.edu.sa",
+   "phone": "966581869970",
+   "url": "https://sian.monshaat.gov.sa/ar/members/38/%D9%85%D8%B3%D8%B1%D8%B9%D8%A9-%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%A7%D9%84%D9%85%D9%84%D9%83-%D8%B9%D8%A8%D8%AF%D8%A7%D9%84%D8%B9%D8%B2%D9%8A%D8%B2",
+   "desc": "تقدم مسرعة الأعمال مجموعة من البرامج وورش العمل لمدة 4 شهور."
+  },
+  {
+   "name": "مسرعة سنابل مع 500 Global (Sanabil Accelerator)",
+   "type": "مسرعة دولية",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://sanabil.com",
+   "desc": "برنامج تسريع مدته 12 أسبوعًا بشراكة بين سنابل و500 Global، لشركات النمو التقني."
+  },
+  {
+   "name": "معهد الريادة في الأعمال في جامعة الملك فهد للبترول والمعادن",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الظهران",
+   "email": "info@kfupm.edu.sa",
+   "phone": "966138600000",
+   "url": "https://sian.monshaat.gov.sa/ar/members/119/%D9%85%D8%B9%D9%87%D8%AF-%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9-%D9%81%D9%8A-%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84-%D9%81%D9%8A-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%A7%D9%84%D9%85%D9%84%D9%83-%D9%81%D9%87%D8%AF-%D9%84%D9%84%D8%A8%D8%AA%D8%B1%D9%88%D9%84-%D9%88%D8%A7%D9%84%D9%85%D8%B9%D8%A7%D8%AF%D9%86",
+   "desc": "أنشأت جامعة الملك فهد للبترول والمعادن معهد الريادة في الأعمال بتاريخ 28/5/1431هـ."
+  },
+  {
+   "name": "معهد ريادة الاعمال بجامعة الملك سعود (خطى)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "khota@ksu.edu.sa",
+   "phone": "966118050767",
+   "url": "https://sian.monshaat.gov.sa/ar/members/23/%D9%85%D8%B9%D9%87%D8%AF-%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84-%D8%A8%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%A7%D9%84%D9%85%D9%84%D9%83-%D8%B3%D8%B9%D9%88%D8%AF-%D8%AE%D8%B7%D9%89",
+   "desc": "يوفر مركز حاضنات ومسرعات الأعمال بيئة عمل مناسبة لدعم المبدعين."
+  },
+  {
+   "name": "مكاتب فايبز",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "Community@vibesoffices.com",
+   "phone": "966566297620",
+   "url": "https://sian.monshaat.gov.sa/ar/members/66/%D9%85%D9%83%D8%A7%D8%AA%D8%A8-%D9%81%D8%A7%D9%8A%D8%A8%D8%B2",
+   "desc": "نحن في فايبز نؤمن بإضافة القيم لأعضائنا وشراكائنا مهما كان المشروع. ويعد هدفنا الأساسي كمجتمع وأفراد ورواد أعمال هو دعم..."
+  },
+  {
+   "name": "منصة الريادة",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "mnst.al.ryadh@gmail.com",
+   "phone": "966581691221",
+   "url": "https://sian.monshaat.gov.sa/ar/members/55/%D9%85%D9%86%D8%B5%D8%A9-%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9",
+   "desc": "شركة منصة الريادة تدعم رواد الاعمال والاسر المنتجة."
+  },
+  {
+   "name": "منصة ثيتا",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "ali.aljedaie@20seeds.net",
+   "phone": "966555415557",
+   "url": "https://sian.monshaat.gov.sa/ar/members/70/%D9%85%D9%86%D8%B5%D8%A9-%D8%AB%D9%8A%D8%AA%D8%A7",
+   "desc": "مساحة عمل لجميع المبدعين، تجمع بين كونها مساحة عمل، معمل ابتكار، ومقهى."
+  },
+  {
+   "name": "منصة جريء (Jaree Platform)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://jaree.sa/",
+   "desc": ""
+  },
+  {
+   "name": "نادي بايونيرز للأعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@pioneers-sa.com",
+   "phone": "966533002297",
+   "url": "https://sian.monshaat.gov.sa/ar/members/147/%D9%86%D8%A7%D8%AF%D9%8A-%D8%A8%D8%A7%D9%8A%D9%88%D9%86%D9%8A%D8%B1%D8%B2-%D9%84%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "شركة سعودية متخصصة في مجال المكاتب الخاصة ومساحات العمل المشتركة بالإضافة إلى حاضنات ومسرعات الأعمال, التي تقدم خدماتها ..."
+  },
+  {
+   "name": "نفيسة شمس",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@nafisashams.com",
+   "phone": "966507524899",
+   "url": "https://sian.monshaat.gov.sa/ar/members/6/%D9%86%D9%81%D9%8A%D8%B3%D8%A9-%D8%B4%D9%85%D8%B3",
+   "desc": "على ضوء رؤية 2030 وبهدف دعم مسيرة ريادة الأعمال للفتيات."
+  },
+  {
+   "name": "نوافذ",
+   "type": "",
+   "cat": "incubator",
+   "city": "خميس مشيط",
+   "email": "al.resalah@hotmail.com",
+   "phone": "966597350350",
+   "url": "https://sian.monshaat.gov.sa/ar/members/41/%D9%86%D9%88%D8%A7%D9%81%D8%B0",
+   "desc": "نوافذ ريادية شركة سعودية تم إنشاؤها على أيدي شباب سعوديين."
+  },
+  {
+   "name": "واحة أجا للتعليم والتكنولوجيا (جامعة حائل)",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "حائل",
+   "email": "",
+   "phone": "",
+   "url": "https://www.uoh.edu.sa",
+   "desc": "مركز ابتكار واحتضان تابع لجامعة حائل، دشّنه أمير منطقة حائل في مايو 2024."
+  },
+  {
+   "name": "وثيق المالية (Watheeq Capital)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://watheeq.com",
+   "desc": "شركة إدارة استثمار مرخصة تدير صندوق \"وثيق العقاري التقني\" لرأس المال الجريء."
+  },
+  {
+   "name": "وحدة الابتكار لحاضنات و مسرعات الاعمال",
+   "type": "",
+   "cat": "incubator",
+   "city": "",
+   "email": "info@beyondsquares.com",
+   "phone": "966563064444",
+   "url": "https://sian.monshaat.gov.sa/ar/members/327/%D9%88%D8%AD%D8%AF%D8%A9-%D8%A7%D9%84%D8%A7%D8%A8%D8%AA%D9%83%D8%A7%D8%B1-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88-%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": ""
+  },
+  {
+   "name": "Access Bridge Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://access-bridge.com",
+   "desc": "صندوق رأس مال جريء مقره أبوظبي، يستثمر في شركات ناشئة سعودية بمرحلة ما قبل السلسلة أ."
+  },
+  {
+   "name": "Adaverse (أدفيرس)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://adaverse.co",
+   "desc": "أول صندوق استثمار جريء سعودي متخصص بالويب 3 والبلوكتشين، مقرها الرياض."
+  },
+  {
+   "name": "Al Madinah Angels (شبكة ملائكة المدينة المنورة)",
+   "type": "مستثمر ملاك / شبكة ملائكة",
+   "cat": "angel",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://madinahangels.vc/",
+   "desc": "شبكة ملائكة استثمار إقليمية أُطلقت في المدينة المنورة في يونيو 2025."
+  },
+  {
+   "name": "Aliph Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://aliph.capital",
+   "desc": "شركة أسهم خاصة مقرها أبوظبي، تستثمر بشركات متوسطة بدول الخليج، تلقت استثمارًا استراتيجيًا من SVC في صندوقها الأول."
+  },
+  {
+   "name": "Alpha Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://alphacapital.com.sa",
+   "desc": "شركة إدارة استثمار سعودية مرخصة (تأسست 2018)، استثمارات بديلة متوافقة مع الشريعة (أسهم خاصة، عقار، منتجات مهيكلة) وبنك استثماري."
+  },
+  {
+   "name": "Antler (برنامج الرياض / MENAP I)",
+   "type": "مسرعة دولية",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://antler.co/location/menap",
+   "desc": "صندوق ومنصة عالمية لبناء الشركات الناشئة من الصفر."
+  },
+  {
+   "name": "Aramco LAB7",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "",
+   "email": "lab7@aramco.com",
+   "phone": "",
+   "url": "https://www.aramco.com/en/news-media/elements-magazine/2021/lab7-is-empowering-a-new-generation-of-innovators",
+   "desc": "مختبر بناء المنشآت تقني عميق تابع لأرامكو في الظهران."
+  },
+  {
+   "name": "Aramco Taleed (تليد)",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://www.aramco.com/en/what-we-do/commercial-ecosystems/taleed",
+   "desc": "برنامج أرامكو لتسريع نمو المنشآت الصغيرة والمتوسطة، أطلق 2022."
+  },
+  {
+   "name": "Aramco Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://aramcoventures.com",
+   "desc": "الذراع الاستثمارية لأرامكو السعودية، تدير أكثر من 7.5 مليار دولار عبر عدة صناديق (منها واعد فينتشرز وبروسبيرتي7)، تركز على الطاقة والاستدامة والتقنية الصناعية."
+  },
+  {
+   "name": "Arzan VC",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://arzanvc.com",
+   "desc": "صندوق تأسس بالكويت (لاحقًا دبي) يستثمر بشركات مبكرة بمنطقة الشرق الأوسط وشمال أفريقيا."
+  },
+  {
+   "name": "AZ Working Space",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "hello@azworkspace.net",
+   "phone": "",
+   "url": "https://azworkspace.net/",
+   "desc": "مساحة عمل مشتركة تعمل 24 ساعة في مجمع إعمار سكواير (بوابة جدة)."
+  },
+  {
+   "name": "Aziz Smart Space",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "",
+   "phone": "966598312422",
+   "url": "https://azizsmartspace.com/en/",
+   "desc": "مساحة عمل مشتركة في الراكة الجنوبية بالخبر (برج الوفا)."
+  },
+  {
+   "name": "Basix Coworking Space",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "",
+   "phone": "966569999996",
+   "url": "https://basix.space/",
+   "desc": "مساحة عمل مشتركة في حي الزهراء بجدة، صديقة للكلاب."
+  },
+  {
+   "name": "BECO Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://becocapital.com",
+   "desc": "صندوق استثماري مقره دبي بمكتب مخصص بالرياض (COLABS Narjis)، من ما قبل البذرة حتى الطرح العام، تقنية بناء وتقنية مالية وعقارية وذكاء اصطناعي."
+  },
+  {
+   "name": "BIM Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://bimventures.com",
+   "desc": "استوديو/صندوق استثماري سعودي (تأسس 2017)، يدير صندوقًا مشتركًا بقيمة 100 مليون دولار مع مجموعة SBI اليابانية."
+  },
+  {
+   "name": "Bitkraft Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://bitkraft.vc",
+   "desc": "صندوق عالمي متخصص بالألعاب والرياضات الإلكترونية والويب 3، من مصادر تمويله جهات خليجية مرتبطة بالسعودية (لا يوجد مكتب محلي)."
+  },
+  {
+   "name": "Black Iris Angel Network (بيان / Bayan)",
+   "type": "مستثمر ملاك / شبكة ملائكة",
+   "cat": "angel",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "",
+   "desc": "شبكة ملائكة استثمار متخصصة أُطلقت في الرياض في ديسمبر 2025."
+  },
+  {
+   "name": "Blossom Accelerator",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "info@blossommena.com",
+   "phone": "966558091947",
+   "url": "https://sian.monshaat.gov.sa/ar/members/10/blossom-accelerator",
+   "desc": "بلوسوم الشركة الأولى والرائدة في برامج الابتكار ذو طابع شمولي على مستوى منطقة الشرق الأوسط وشمال إفريقيا. نحن نوفر المعر..."
+  },
+  {
+   "name": "Business Valley",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "bader@businessvalley.sa",
+   "phone": "966555470055",
+   "url": "https://sian.monshaat.gov.sa/ar/members/56/business-valley",
+   "desc": "حاضنة و مسرعة ومساحات عمل مشتركة"
+  },
+  {
+   "name": "Chair Location (تشير لوكيشن)",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://www.chairlocation.com/en",
+   "desc": "منصة حجز إلكترونية في جدة تتيح حجز مكاتب مشتركة."
+  },
+  {
+   "name": "CITY Hub",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@cityhubsa.com",
+   "phone": "966556560782",
+   "url": "https://sian.monshaat.gov.sa/ar/members/102/city-hub",
+   "desc": "تم تأسيس CITY hub للأشخاص المبدعين الاجتماعيين الذين يمتلكون الشغف ويعملون بجد من أجل ترك أثر جيد على المجتمع. هُم أفراد..."
+  },
+  {
+   "name": "Cloud Spaces (KSA)",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://www.cloudspaces.sa/",
+   "desc": "علامة مساحات عمل مرنة فاخرة، أصلها من الإمارات، دخلت السوق السعودي في الرياض."
+  },
+  {
+   "name": "COTU Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://cotu.vc",
+   "desc": "صندوق دبي لمرحلتي ما قبل البذرة والبذرة، يستثمر بالخليج ومصر وباكستان."
+  },
+  {
+   "name": "Coworking Space 67|22",
+   "type": "",
+   "cat": "incubator",
+   "city": "الخرج",
+   "email": "welcome@6722.space",
+   "phone": "966570576722",
+   "url": "https://sian.monshaat.gov.sa/ar/members/160/coworking-space-67-22",
+   "desc": "مكتب لأعمالكم أو مكان لتنظيم لقاءاتكم ودوراتكم وورش العمل."
+  },
+  {
+   "name": "CyberME Studio",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "hello@cyberme.studio",
+   "phone": "",
+   "url": "https://sian.monshaat.gov.sa/ar/members/245/cyberme-studio",
+   "desc": "سايبر مي أحد ستوديوهات إنشاء وتطوير الشركات الناشئة بالمملكة."
+  },
+  {
+   "name": "Deem Space",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "الرياض",
+   "email": "info@deemspace.com",
+   "phone": "966555944814",
+   "url": "https://sian.monshaat.gov.sa/ar/members/99/deem-space",
+   "desc": "استكمالًا لدور ديم المناهل التنموي \"صندوق الأميرة مضاوي بنت مساعد بن عبد العزيز للتنمية\" في دعم ممارسة العمل الحر وامتلا..."
+  },
+  {
+   "name": "Derayah Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://derayah.vc",
+   "desc": "صندوق سعودي متوافق مع الشريعة، من البذرة حتى السلسلة أ."
+  },
+  {
+   "name": "ECAPS SPACE",
+   "type": "",
+   "cat": "incubator",
+   "city": "مكة المكرمة",
+   "email": "ECAPSSPACE.SA@GMAIL.COM",
+   "phone": "966541881452",
+   "url": "https://sian.monshaat.gov.sa/ar/members/88/ecaps-space",
+   "desc": "مساحات عمل مشتركة يمكنكم من خلالها العمل أو الدراسة وقضاء وقت ممتع ،كل ذلك في مكان واحد. رؤيتنا : جلب الإلهام لكل ريا..."
+  },
+  {
+   "name": "Efficiency Center",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الخبر",
+   "email": "info@efficiencys.com.sa",
+   "phone": "966556193033",
+   "url": "https://sian.monshaat.gov.sa/ar/members/127/efficiency-center",
+   "desc": "مركز الكفاءة هي حاضنة ومسرعة أعمال توفر مكاتب ومساحات عمل مشتركة وفردية."
+  },
+  {
+   "name": "Emkan Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://emkan.vc",
+   "desc": "صندوق سعودي لمرحلة ما قبل البذرة والبذرة."
+  },
+  {
+   "name": "Endeavor Catalyst (إندفر السعودية)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://saudi.endeavor.org",
+   "desc": "صندوق مشارك استثماري تابع لشبكة إندفر العالمية غير الربحية، يستثمر إلى جانب جولات تمويل رياديين معتمدين (مثل يونيفونك ونون أكاديمي)."
+  },
+  {
+   "name": "Enlight Space (مساحة انلايت)",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "Enlight.sa@gmail.com",
+   "phone": "966558255850",
+   "url": "https://enlight.sa/en",
+   "desc": "مساحة عمل مشتركة هادئة في حي البساتين بجدة."
+  },
+  {
+   "name": "ENW | شبكة الإنجاز لحاضنات ومسرعات الاعمال",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الدمام",
+   "email": "info@enw.sa",
+   "phone": "966580175339",
+   "url": "https://sian.monshaat.gov.sa/ar/members/132/enw-%D8%B4%D8%A8%D9%83%D8%A9-%D8%A7%D9%84%D8%A5%D9%86%D8%AC%D8%A7%D8%B2-%D9%84%D8%AD%D8%A7%D8%B6%D9%86%D8%A7%D8%AA-%D9%88%D9%85%D8%B3%D8%B1%D8%B9%D8%A7%D8%AA-%D8%A7%D9%84%D8%A7%D8%B9%D9%85%D8%A7%D9%84",
+   "desc": "قبل 13 عاما تأسست مجموعة شبكة الانجاز لتكون احدى الكيانات الرائدة."
+  },
+  {
+   "name": "EQ2 Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://eq2ventures.com",
+   "desc": "صندوق دبي من البذرة حتى السلسلة أ، يستهدف التوسع بالسعودية."
+  },
+  {
+   "name": "eWTP Arabia Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "",
+   "desc": "صندوق/كيان مشترك بين مجموعة علي بابا/eWTP الصينية وصندوق الاستثمارات العامة السعودي (عبر جدوى)."
+  },
+  {
+   "name": "Faith Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://faithcapital.com",
+   "desc": "صندوق كويتي لمرحلة البذرة، السعودية ثاني أكبر أسواق استثماره."
+  },
+  {
+   "name": "Fintactics Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://fintactics.ventures",
+   "desc": "صندوق/باني مشاريع سعودي (تأسس 2022، ~40 مليون دولار) مدعوم من Revival Lab/Arbah Capital."
+  },
+  {
+   "name": "FutureSpark Base Camp Accelerator (NEOM / NTDP / Outlier Ventures)",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://outlierventures.io/article/outlier-ventures-ntdp-and-neom-conclude-the-first-deep-tech-web3-accelerator-program-in-riyadh/",
+   "desc": "أول مسرعة تقنية عميقة للويب 3 في السعودية، أطلقتها Outlier Ventures بالشراكة مع NTDP ونيوم."
+  },
+  {
+   "name": "Garagena",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "fsamaani@garagena.com",
+   "phone": "966553832001",
+   "url": "https://sian.monshaat.gov.sa/ar/members/104/garagena",
+   "desc": "قراجنا محطة انطلاق اصحاب الشغف ومصدر الهامهم مساحة امنة للتجارب."
+  },
+  {
+   "name": "GCC Asia Growth Fund",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "",
+   "desc": "صندوق أسهم خاصة لمرحلة النمو مقره سنغافورة (يدار عبر Turmeric Capital)، جدوى (صندوق الاستثمارات العامة) أحد الممولين، يستثمر بدول الخليج والهند وجنوب شرق آسيا."
+  },
+  {
+   "name": "General Atlantic Saudi Arabia",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://www.generalatlantic.com/general-atlantic-saudi-arabia",
+   "desc": "أول مكتب للشرق الأوسط لشركة الأسهم النموية الأمريكية (برج الفيصلية، الرياض، منذ أكتوبر 2024)، مرخصة من هيئة السوق المالية."
+  },
+  {
+   "name": "Global Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://global.vc",
+   "desc": "صندوق مقره دبي لمرحلة النمو (شركات بإيرادات فعلية)، له فريق مخصص بالسعودية، يستثمر بالشرق الأوسط وأفريقيا."
+  },
+  {
+   "name": "Graphene Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://graphenevc.com",
+   "desc": "صندوق أمريكي (بالو ألتو) له استثمارات سعودية لكن لا يوجد عنوان مكتب مؤكد."
+  },
+  {
+   "name": "HALA Capital (سابقًا Hala Venture)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://hala.vc",
+   "desc": "شركة استثمار سعودية تأسست 2018 بالخبر، توسعت من رأس المال الجريء إلى الأسهم الخاصة."
+  },
+  {
+   "name": "i-be hub",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@ibehub.com",
+   "phone": "966506774772",
+   "url": "https://sian.monshaat.gov.sa/ar/members/59/i-be-hub",
+   "desc": "i-be هي حاضنة ومسرعة أعمال تعمل تحت شعار \"إطلاق شركة ناجحة كل يوم\"."
+  },
+  {
+   "name": "Impact46",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://impact46.sa",
+   "desc": "شركة إدارة استثمار سعودية مرخصة (تأسست 2019)، من مراحل مبكرة حتى النمو."
+  },
+  {
+   "name": "InspireU (stc group)",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "",
+   "email": "inspireu@stc.com.sa",
+   "phone": "",
+   "url": "https://www.stc.com/content/stcgroupwebsite/sa/en/inspire-u/apply-now.html",
+   "desc": "مسرعة شركات تابعة لمجموعة stc، أطلقت 2015."
+  },
+  {
+   "name": "Investcorp Saudi Arabia",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://investcorp.com",
+   "desc": "الذراع السعودية لشركة الاستثمار البحرينية (مكتب برج الفيصلية، الرياض، منذ 2008)."
+  },
+  {
+   "name": "ITOR Space",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "",
+   "phone": "966502177700",
+   "url": "https://itorsa.com",
+   "desc": "مساحة عمل مشتركة في الرياض تضم مختبر تصنيع للطباعة ثلاثية الأبعاد."
+  },
+  {
+   "name": "IWG",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "ali.chamoun@iwgplc.com",
+   "phone": "966561170417",
+   "url": "https://sian.monshaat.gov.sa/ar/members/75/iwg",
+   "desc": "تُعد ريجس أكبر موفر للمكاتب المجهّزة في العالم."
+  },
+  {
+   "name": "JOA Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://joacapital.com",
+   "desc": "شركة استثمار سعودية (تأسست 2020) لمرحلة البذرة والنمو، فينتك وسوفتوير وألعاب/رياضات إلكترونية ولوجستيات تقنية وعقار تقني."
+  },
+  {
+   "name": "KAUST Innovation Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://innovation.kaust.edu.sa",
+   "desc": "الذراع الاستثمارية لجامعة الملك عبدالله للعلوم والتقنية، تمويل تقنية عميقة من ما قبل البذرة حتى السلسلة أ المبكرة (صحة، طاقة، غذاء، مياه، ذكاء اصطناعي)، تموّل شركات منبثقة عن الجامعة."
+  },
+  {
+   "name": "Khwarizmi Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://khwarizmiventures.com",
+   "desc": "صندوق سعودي (تأسس 2021) لمرحلتي البذرة والسلسلة أ."
+  },
+  {
+   "name": "Kun (كُن مساحات عمل مشتركة)",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "",
+   "phone": "966535420969",
+   "url": "https://kunws.com/ar/",
+   "desc": "مساحة عمل مشتركة في شمال الرياض تستهدف المبدعين ورواد الأعمال."
+  },
+  {
+   "name": "Lean Node",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://leannode.com",
+   "desc": "استوديو بناء شركات ناشئة سعودي، أسس أكثر من 18 شركة ناشئة."
+  },
+  {
+   "name": "Level Up Gaming Accelerator (NEOM)",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://neomlevelup.game/",
+   "desc": "أطول مسرعة ألعاب ورياضات إلكترونية في المملكة، تقودها نيوم بالشراكة مع DigiPen."
+  },
+  {
+   "name": "Link Hub",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "Linkhub.co@gmail.com",
+   "phone": "966508218880",
+   "url": "https://sian.monshaat.gov.sa/ar/members/193/link-hub",
+   "desc": ""
+  },
+  {
+   "name": "MASNA Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "engage@masnavc.com",
+   "phone": "",
+   "url": "https://masnavc.com/",
+   "desc": "أول صندوق رأس مال جريء سعودي متخصص بقطاع الدفاع."
+  },
+  {
+   "name": "Merak Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://merak.capital",
+   "desc": "شركة استثمار سعودية متعددة الاستراتيجيات (رأس مال جريء + أسهم خاصة + تمويل خاص)، تأسست 2018، تقنية مؤسسية وألعاب وبنية تحتية رقمية."
+  },
+  {
+   "name": "Middle East Venture Partners (MEVP)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://mevp.com",
+   "desc": "صندوق مقره دبي بمكتب مخصص بالرياض بقيادة محلية."
+  },
+  {
+   "name": "Misk Accelerator (مسرعة مسك)",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://hub.misk.org.sa/programs/entrepreneurship/misk-accelerator/",
+   "desc": "مسرعة أعمال تابعة لمؤسسة مسك تأسست 2019، مدتها 12 أسبوعًا بدون التنازل عن حصص."
+  },
+  {
+   "name": "Mobily Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "",
+   "desc": "الذراع الاستثمارية التابعة لشركة اتحاد اتصالات (موبايلي)، أُطلقت عام 2014."
+  },
+  {
+   "name": "MSA Capital (MSA Novo)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "",
+   "desc": "صندوق عالمي له ذراع أسواق ناشئة \"MSA Novo\" بمكتب فعلي بالرياض، من أوائل مستثمري تابي."
+  },
+  {
+   "name": "Nama Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://namaventures.com",
+   "desc": "صندوق سعودي لمرحلة البذرة (تأسس 2018)، من محفظته تمارا وباكس لابز."
+  },
+  {
+   "name": "NmoHub",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "Online",
+   "email": "info@nmohub.com",
+   "phone": "966554332552",
+   "url": "https://sian.monshaat.gov.sa/ar/members/210/nmohub",
+   "desc": "حاضنة أعمال ، مسرعة أعمال ، حاضنة افتراضية ، مساحات عمل مشتركة"
+  },
+  {
+   "name": "Nuwa Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://nuwacapital.io",
+   "desc": "صندوق مزدوج المقر (الرياض ودبي)، تأسس 2020، من ما قبل البذرة حتى السلسلة ب، نحو 35% من محفظته بالسعودية."
+  },
+  {
+   "name": "Olive Rock Partners",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://oliverockpartners.com",
+   "desc": "شركة أسهم خاصة مقرها أبوظبي، تستثمر بالسعودية والإمارات."
+  },
+  {
+   "name": "Outliers Venture Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://outliers.vc",
+   "desc": "صندوق سعودي مقره الرياض، استثمار مبكر بقيادة مؤسسين تنفيذيين."
+  },
+  {
+   "name": "PLEXUS",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@plexus.sa",
+   "phone": "966558441006",
+   "url": "https://sian.monshaat.gov.sa/ar/members/35/plexus",
+   "desc": "توفير مساحات عمل مشتركة مغلقة ومفتوحة مع خدمات سكرتارية."
+  },
+  {
+   "name": "Plug and Play Saudi Arabia",
+   "type": "مسرعة دولية",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://plugandplaytechcenter.com/saudi-arabia",
+   "desc": "منصة ابتكار ومسرعة عالمية بمكتب فعلي بالرياض منذ 2018."
+  },
+  {
+   "name": "Plus VC (+VC)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://plus.vc/",
+   "desc": ""
+  },
+  {
+   "name": "Propeller VC",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://propellervc.com",
+   "desc": "صندوق مقره عمّان بمكتب بالرياض، مدعوم من SVC، سوفتوير مؤسسي وبنية تحتية سحابية وذكاء اصطناعي، يربط مواهب المنطقة بأمريكا."
+  },
+  {
+   "name": "Prosperity7 Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://prosperity7vc.com",
+   "desc": "الذراع الاستثمارية لأرامكو فنتشرز لمراحل النمو العالمية (صندوق 3 مليار دولار)."
+  },
+  {
+   "name": "Q Fund (ذراع قِوام القابضة الاستثمارية)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "",
+   "desc": "الذراع الاستثمارية الجديدة لمجموعة قِوام القابضة، أُطلقت في نوفمبر 2025."
+  },
+  {
+   "name": "Raed Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://raed.vc",
+   "desc": "صندوق سعودي (تأسس 2015) لمرحلتي البذرة والسلسلة أ."
+  },
+  {
+   "name": "Riyadh Angel Investors (RAI)",
+   "type": "مستثمر ملاك / شبكة ملائكة",
+   "cat": "angel",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://riyadhangels.com/home-default",
+   "desc": "شبكة ملائكة استثمار تأسست في الرياض عام 2019، تضم أكثر من 50 مستثمرًا."
+  },
+  {
+   "name": "Rua Growth Fund",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://rua.vc",
+   "desc": "أول صندوق رأس مال جريء لشركة أصول وبخيت بشراكة مجموعة iMENA (تأسس 2020، 45 مليون دولار)."
+  },
+  {
+   "name": "SABIC Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://ventures.sabic.com/en",
+   "desc": "الذراع الاستثمارية للمشاريع التابعة لشركة سابك، تأسست عام 2011."
+  },
+  {
+   "name": "Sadu Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://sadu.vc",
+   "desc": "صندوق سعودي (تأسس 2021) لمرحلتي ما قبل البذرة والبذرة."
+  },
+  {
+   "name": "Salica Investments (سابقًا Hambro Perks) — Oryx Fund",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://salicainvestments.com",
+   "desc": "شركة استثمار بريطانية تدير صندوق Oryx بدعم من صندوق الاستثمارات العامة عبر جدوى."
+  },
+  {
+   "name": "Sanabil Investments",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://sanabil.com",
+   "desc": "الذراع الاستثمارية المملوكة بالكامل لصندوق الاستثمارات العامة، من البذرة حتى النمو."
+  },
+  {
+   "name": "Saudi Angel Investors (SAI)",
+   "type": "مستثمر ملاك / شبكة ملائكة",
+   "cat": "angel",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://saudiangel.com/home-default.html",
+   "desc": "مجموعة استثمار ملائكة صغيرة الحجم أطلقها 60 مستثمرًا سعوديًا في أكتوبر 2020."
+  },
+  {
+   "name": "Scale Business Solutions",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "info@scale.sa",
+   "phone": "966531233334",
+   "url": "https://sian.monshaat.gov.sa/ar/members/83/scale-business-solutions",
+   "desc": "مساحة عمل مشتركة، تُقدم العديد من الخدمات المُتميزة."
+  },
+  {
+   "name": "SEA Ventures",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@seavent.org",
+   "phone": "966570875915",
+   "url": "https://sian.monshaat.gov.sa/ar/members/25/sea-ventures",
+   "desc": "حاضنة ومسرعة الأعمال سي فنشرز تعمل على تمكين رواد الأعمال."
+  },
+  {
+   "name": "Seedra Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://seedra.com",
+   "desc": "صندوق/شريك بناء سعودي (تأسس 2020) لمرحلة ما قبل البذرة والمبكرة، من محفظته تمارا وليندو وزد."
+  },
+  {
+   "name": "Servcorp",
+   "type": "",
+   "cat": "incubator",
+   "city": "الرياض",
+   "email": "sa.info@servcorp.com",
+   "phone": "966533311405",
+   "url": "https://sian.monshaat.gov.sa/ar/members/5/servcorp",
+   "desc": "نحن نؤمن بضرورة الإهتمام الفعلي بتنمية ونجاح أعمالك."
+  },
+  {
+   "name": "Shorooq Partners",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://shorooq.com",
+   "desc": "صندوق مقره أبوظبي (تأسس 2016) له حضور مباشر بالرياض إضافة لدبي ومصر وكوريا، بذرة وسلسلة أ، فينتك وخدمات أعمال تقنية (تامارا وليندو وموزن ضمن محفظته)."
+  },
+  {
+   "name": "SparkLabs Saudi Arabia (SparkLabs KSU Fund I)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://sparklabssaudi.com/",
+   "desc": ""
+  },
+  {
+   "name": "Spots Coworking Spaces (سبوتس)",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://spotsws.sa/en/",
+   "desc": "شركة سعودية لمساحات العمل المشتركة في الرياض."
+  },
+  {
+   "name": "STC Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://stcventures.com/",
+   "desc": "صندوق رأس المال الجريء المؤسسي الأقدم التابع لمجموعة stc."
+  },
+  {
+   "name": "STV (Saudi Technology Ventures)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://stv.vc",
+   "desc": "أكبر صندوق تقني بمنطقة الشرق الأوسط وشمال أفريقيا (نحو 1.4 مليار دولار)، مرحلة النمو، من محفظته كريم ويونيفونك وتابي وسلة."
+  },
+  {
+   "name": "Sukna Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://suknaventures.com",
+   "desc": "صندوق سعودي من مرحلة مبكرة حتى النمو، فينتك وبنية تحتية رقمية ولوجستيات، يطلق أيضًا صندوق تمويل متوافق مع الشريعة للمنشآت الصغيرة والمتوسطة."
+  },
+  {
+   "name": "Superoffice (سوبر أوفيس)",
+   "type": "مساحة عمل مشترك",
+   "cat": "coworking",
+   "city": "",
+   "email": "info@superoffice.sa",
+   "phone": "",
+   "url": "https://superoffice.sa/",
+   "desc": "مساحات عمل مشتركة ومكاتب خاصة في الرياض."
+  },
+  {
+   "name": "SVC (الشركة السعودية للاستثمار الجريء - Saudi Venture Capital Company)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://svc.com.sa/en/",
+   "desc": "صندوق حكومي سعودي متعدد الطبقات تابع لبنك المنشآت الصغيرة والمتوسطة، رأسماله 2.8 مليار ريال."
+  },
+  {
+   "name": "tali ventures (تالي فنتشرز)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://tali.vc/",
+   "desc": "الذراع الاستثمارية للمشاريع التابعة لمجموعة stc."
+  },
+  {
+   "name": "TAQADAM Startup Accelerator (KAUST)",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "",
+   "email": "taqadam@kaust.edu.sa",
+   "phone": "",
+   "url": "https://taqadam.kaust.edu.sa/",
+   "desc": "مسرعة أعمال مدتها 6 أشهر أطلقتها جامعة الملك عبدالله للعلوم والتقنية عام 2016."
+  },
+  {
+   "name": "Tech Invest Com",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://techinvestcom.com",
+   "desc": "شركة مساهمة مقفلة سعودية برأس مال مليار ريال، من البذرة حتى السلسلة ب."
+  },
+  {
+   "name": "Techstars Founder Catalyst (جدة والأحساء)",
+   "type": "مسرعة دولية",
+   "cat": "accelerator",
+   "city": "",
+   "email": "founder.catalyst@techstars.com",
+   "phone": "",
+   "url": "https://www.techstars.com/newsroom/techstars-saudi-national-bank-and-mcit-announce-two-founder-catalyst",
+   "desc": "برنامجان منفصلان لتكستارز في جدة والأحساء، أطلقهما البنك الأهلي السعودي."
+  },
+  {
+   "name": "Techstars Riyadh Accelerator",
+   "type": "مسرعة دولية",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://techstars.com",
+   "desc": "مسرعة عالمية تدير برنامج الرياض بالشراكة مع وزارة الاتصالات وتقنية المعلومات."
+  },
+  {
+   "name": "TVM Capital Healthcare",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://tvmcapitalhealthcare.com",
+   "desc": "شركة استثمار متخصصة بقطاع الرعاية الصحية بمكتب فعلي بالرياض، أطلقت صندوق \"عافية\" الصحي."
+  },
+  {
+   "name": "Venture Center",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "adumyati@mbsc.edu.sa",
+   "phone": "966590000309",
+   "url": "https://sian.monshaat.gov.sa/ar/members/4/venture-center",
+   "desc": "يتبع مركز المشروع الريادي Venture Center إلى كلية الأمير محمد بن سلمان للإدارة وريادة الأعمال، أول مؤسّسة أكاديميّة بحثي..."
+  },
+  {
+   "name": "VentureSouq (VSQ)",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://venturesouq.com",
+   "desc": "صندوق مقره دبي متخصص بالتقنية المالية وتقنية المناخ، له فريق مخصص للسعودية."
+  },
+  {
+   "name": "Vibes AlUla",
+   "type": "",
+   "cat": "incubator",
+   "city": "العلا",
+   "email": "community@vibesalula.com",
+   "phone": "966566887265",
+   "url": "https://sian.monshaat.gov.sa/ar/members/225/vibes-alula",
+   "desc": "Vibes AlUla is an entrepreneurship hub, owned by the Royal Commission of AlUla."
+  },
+  {
+   "name": "Vision Ventures",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://visionvc.co",
+   "desc": "الذراع الاستثمارية لشركة ساهارا نت (مقرها الدمام، تأسست 2016)."
+  },
+  {
+   "name": "Wamda Capital",
+   "type": "صندوق استثماري (VC)",
+   "cat": "vc",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://wamdacapital.com",
+   "desc": "صندوق مقره دبي (تأسس 2010) للمرحلة المبكرة بمنطقة الشرق الأوسط وتركيا وأفريقيا، لا يوجد مكتب مخصص بالسعودية لكن يستثمر فيها (تابي، كريم)."
+  },
+  {
+   "name": "ًWhite Space",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "info@wspace.com.sa",
+   "phone": "966550700117",
+   "url": "https://sian.monshaat.gov.sa/ar/members/151/white-space",
+   "desc": "وايت سبيس هي مساحة عمل مشتركة مقرها السعودية تقدم حلولاً متنوعة للمساحات مصممة خصيصاً لأصحاب الأعمال والمستقلين والشركات..."
+  },
+  {
+   "name": "Women Spark (بدعم من PLAYBOOK)",
+   "type": "مستثمر ملاك / شبكة ملائكة",
+   "cat": "angel",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://www.get-playbook.com/women-spark",
+   "desc": "أول شبكة استثمار ملائكة نسائية سعودية، استحوذت عليها منصة Playbook فبراير 2024."
+  },
+  {
+   "name": "Work corner",
+   "type": "حاضنة أعمال",
+   "cat": "incubator",
+   "city": "أبها",
+   "email": "wo@workcorner.co",
+   "phone": "966558788819",
+   "url": "https://sian.monshaat.gov.sa/ar/members/134/work-corner",
+   "desc": "هي حاضنة للأعمال فئة أ التي تتضمن برنامج متكامل لدعم رواد الأعمال على برامج توجيه وارشاد وتطوير الأعمال , كما نسعى لتهي..."
+  },
+  {
+   "name": "WORK&CO",
+   "type": "",
+   "cat": "incubator",
+   "city": "جدة",
+   "email": "hello@wandco.co",
+   "phone": "966582890513",
+   "url": "https://sian.monshaat.gov.sa/ar/members/227/work-co",
+   "desc": "ورك آند كو مصمم لمساعدتك على العمل بطريقة أفضل من خلال خلق مجتمع."
+  },
+  {
+   "name": "Zain Great Idea (ZGI) - زين السعودية",
+   "type": "مسرعة أعمال",
+   "cat": "accelerator",
+   "city": "",
+   "email": "",
+   "phone": "",
+   "url": "https://www.zaingreatidea.com/what-is-zgi",
+   "desc": "مسرعة الشركات الرائدة لمجموعة زين، أطلقت في الكويت عام 2010."
+  }
+ ],
+ "programs": [
+  {
+   "name": "استوديو الشركات الناشئة الاجتماعية - شركة ساحات التنموية",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "شركة ساحات التنموية لحاضنات ومسرعات الأعمال، مسجلة رسمياً في SIAN، تقدم نفسها كاستوديو شركات ناشئة اجتماعي يجمع المبتكرين بالخبراء والمحترفين.",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "",
+   "benefits": "نموذج استوديو يجمع المبتكرين بالخبراء والمحترفين لإيجاد حلول تنموية فعّالة.",
+   "contact": "info@sahatvs.com | 966500515735"
+  },
+  {
+   "name": "استوديو لون للشركات الناشئة (Lun Startup Studio)",
+   "tags": [
+    "مسرعة أعمال",
+    "حاضنة تقنية"
+   ],
+   "cat": "accelerator",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "https://www.lun.sa",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "استوديو CyberME الريادي (CyberME Studio)",
+   "tags": [
+    "مسرعة أعمال",
+    "حاضنة تقنية"
+   ],
+   "cat": "accelerator",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://cyberme.studio",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "أكاديمية قراجنا (Garagena Academy)",
+   "tags": [
+    "تدريب وتأهيل"
+   ],
+   "cat": "training",
+   "desc": "برنامج تعليمي وتطبيقي في إدارة الأعمال لرواد الأعمال.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://garagena.com/academy/",
+   "eligibility": "غير موثقة بالتفصيل؛ برنامج تطوير شخصي ومهني عام.",
+   "benefits": "دمج بين بناء المعرفة والتطبيق العملي بإشراف خبراء/مستشارين؛ مكان مجاني للقاءات/ورش حضورية؛ نفس مزايا مجتمعات قراجنا.",
+   "contact": "حي الرايان، الرياض؛ +966 50 629 2277."
+  },
+  {
+   "name": "الصفحة الواحدة | حاضنة محرك الأعمال",
+   "tags": [
+    "حاضنة تقنية",
+    "حاضنة رقمية"
+   ],
+   "cat": "incubator",
+   "desc": "حاضنة تقنية سعودية مقرها الرياض تديرها شركة الصفحة الواحدة، تدير منصة رقمية لإدارة الحاضنات وبناء الشركات التقنية الناشئة عن بُعد.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://onepage.sa/",
+   "eligibility": "التركيز الأساسي على الشركات والمشاريع ذات الطابع التقني منذ ولادة الفكرة.",
+   "benefits": "برامج احتضان تقني متكاملة، تمويل عبر قروض ورأس مال جريء، إرشاد، بنية تقنية جاهزة، اشتراكات لخدمات تنمية المهارات.",
+   "contact": "onepage.sa | X: @OnePageSA"
+  },
+  {
+   "name": "برامج مجمع ريادة الأعمال بالرياض (Startup Hub Riyadh)",
+   "tags": [
+    "مساحة عمل مشترك",
+    "حاضنة تقنية",
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "أول مجمع ريادة أعمال متكامل في منطقة الرياض المركزية، يعمل تحت مظلة منشآت. يقدم مساحات عمل مشتركة، احتضان/تسريع أعمال، خدمات لوجستية وإدارية، وورش تدريب/إرشاد/استشارات دورية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://startuphubriyadh.sa/",
+   "eligibility": "لا يشترط وجود سجل تجاري لاستخدام المساحة المشتركة؛ الحد الأقصى العام لبقاء المحتضَن في مراكز منشآت غالبًا 3 سنوات.",
+   "benefits": "مساحات عمل مشتركة وخاصة، إنترنت عالي السرعة، طباعة لاسلكية، قاعات اجتماعات، دخول 24/7، ورش/تدريب/فعاليات، إرشاد واستشارات، مختبر تصنيع رقمي.",
+   "contact": "info@startuphubriyadh.sa، هاتف: +966 56 823 2522، الرياض."
+  },
+  {
+   "name": "برامج مسرعة بلوسوم (Blossom Accelerator)",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "بلوسوم مسرعة أعمال رائدة مقرها الرياض تأسست عام 2017، أول مسرعة سعودية ركزت على تمكين الشركات الناشئة التي تقودها نساء. نفذت أكثر من 150 برنامجاً واحتضنت أكثر من 3000 رائد أعمال.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://blossom.sa/",
+   "eligibility": "تختلف حسب البرنامج المحدد؛ بشكل عام تستهدف الشركات الناشئة الباحثة عن دخول السوق السعودي أو التوسع فيه.",
+   "benefits": "برنامج Soft Landing لدعم دخول الشركات الأجنبية، مكتبة مفتوحة بأدوات وقوالب لريادة الأعمال، شبكة تمويل وتوجيه.",
+   "contact": "info@blossommena.com | +966558091947"
+  },
+  {
+   "name": "برنامج احتضان الأعمال – بيئة الأعمال",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "حاضنة أعمال ومساحة عمل مشترك في الرياض، متخصصة بدعم رواد الأعمال والمبدعين في مجالات العمارة والتصميم والهندسة.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "",
+   "benefits": "احتضان أعمال ومساحات عمل مشتركة موجهة لمجالات العمارة والتصميم والهندسة والإبداع.",
+   "contact": "info@beeahb.com | +966536699191"
+  },
+  {
+   "name": "برنامج احتضان الأعمال – حاضنة بزنس قروث",
+   "tags": [
+    "مساحة عمل مشترك",
+    "تدريب وتأهيل"
+   ],
+   "cat": "coworking",
+   "desc": "حاضنة أعمال ومساحة عمل مشترك تأسست 2019 في حي الفيحاء بجدة، توفر أكثر من 70 مساحة عمل مؤثثة بالكامل.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "",
+   "benefits": "قاعات اجتماعات، مساحات مكاتب مشتركة، مكاتب خاصة من 6 إلى 60 مترًا مربعًا، أكثر من 70 مساحة عمل مؤثثة.",
+   "contact": "support@bez-growth.com | +966590109948"
+  },
+  {
+   "name": "برنامج احتضان الأعمال – حاضنة حلول لتطوير الأعمال",
+   "tags": [
+    "تدريب وتأهيل"
+   ],
+   "cat": "training",
+   "desc": "حاضنة أعمال مرخصة من منشآت، تحوّل الأفكار والمهارات التجارية القابلة للتطوير لدى الشباب إلى مشاريع قابلة للتشغيل والنمو.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "تستهدف الشباب أصحاب الأفكار والمهارات التجارية القابلة للتطوير.",
+   "benefits": "برنامج تطوير متخصص، دراسة جدوى، تدريب وتأهيل، بناء نموذج عمل، متابعة ما بعد التخرج.",
+   "contact": "hololincubator@gmail.com | +966501866635"
+  },
+  {
+   "name": "برنامج الاحتضان (حاضنة قِوام الرقمية)",
+   "tags": [
+    "حاضنة رقمية"
+   ],
+   "cat": "incubator",
+   "desc": "يدعم رواد الأعمال من مرحلة الفكرة حتى النمو/الاستثمار عبر محتوى تعليمي، إرشاد أسبوعي، وأدوات/منهجيات بناء الشركات الناشئة.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://app.qewam.com/",
+   "eligibility": "يستهدف رواد الأعمال في السعودية ومنطقة الشرق الأوسط؛ لا يشترط مكتب فعلي (حاضنة رقمية بالكامل).",
+   "benefits": "محتوى تعليمي بالعربية، إرشاد أسبوعي مع مرشد مخصص، أدوات/منهجيات بناء الشركات الناشئة؛ منظومة أوسع تشمل QSpace وQewamX وQHub وQPioneers.",
+   "contact": "www.qewam.com، الرياض."
+  },
+  {
+   "name": "برنامج الاحتضان والتسريع – أرُب للأعمال والاستثمار",
+   "tags": [
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "شركة استشارات إدارية ومالية وتسويقية تأسست 2018 في مكة المكرمة، تصمم وتنفذ برامج تسريع واحتضان ومعسكرات وهاكاثونات.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "",
+   "benefits": "تصميم استراتيجيات تسريع واحتضان، معسكرات وهاكاثونات، متابعة المشاريع حتى الإطلاق.",
+   "contact": "info@arob.sa | +966560779304"
+  },
+  {
+   "name": "برنامج الاحتضان والتسريع – معهد الابتكار وريادة الأعمال بجامعة أم القرى",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "مركز تابع لجامعة أم القرى، حاصل على ترخيص حاضنة ومسرعة أعمال ملكية فكرية من منشآت، يضم حاضنة نمو الأعمال التابعة لوادي مكة للتقنية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "يستهدف منتسبي جامعة أم القرى.",
+   "benefits": "احتضان عبر حاضنة نمو الأعمال، وخدمات تسريع بموجب ترخيص حاضنة/مسرعة أعمال صادر عن منشآت.",
+   "contact": "haahmari@uqu.edu.sa | +966555696588"
+  },
+  {
+   "name": "برنامج الاحتضان والتسريع – Business Valley",
+   "tags": [
+    "مسرعة أعمال",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "accelerator",
+   "desc": "مجتمع أعمال متكامل في الرياض يجمع بين الاحتضان والتسريع ومساحات العمل المشترك لخدمة رواد الأعمال والمبدعين.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "",
+   "benefits": "احتضان أعمال، تسريع أعمال، ومساحات عمل مشترك ضمن بيئة واحدة.",
+   "contact": "bader@businessvalley.sa | +966555470055"
+  },
+  {
+   "name": "برنامج التسريع – مسرعة أعمال جامعة الملك عبدالعزيز",
+   "tags": [
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "أحد مساري مركز الإبداع وريادة الأعمال (CIE) بجامعة الملك عبدالعزيز في جدة، يساعد طلاب الجامعة وخريجيها على تحويل أفكارهم الريادية إلى شركات.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "طلاب وخريجي جامعة الملك عبدالعزيز أصحاب أفكار ريادية قابلة للتطوير تجاريًا.",
+   "benefits": "برنامج وورش عمل لمدة نحو 4 أشهر، مكاتب مخصصة مجهزة، قاعة تدريب، مسرح محاضرات، معامل حاسب آلي.",
+   "contact": "kauacc@kau.edu.sa | +966581869970"
+  },
+  {
+   "name": "برنامج بادر لحاضنات ومسرعات التقنية",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "برنامج وطني (تأسس 1428هـ) تابع لكاكست، يضم 8 حاضنات و4 مسرعات في عدة مناطق. يدعم الشركات الناشئة التقنية/المعرفية عبر الإرشاد، مساحات العمل، تسهيل التمويل.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.badir.com.sa",
+   "eligibility": "يستهدف رواد الأعمال في المشاريع التقنية بمراحلها المبكرة؛ يُشترط وجود فكرة/نموذج أولي أو منتج تقني جاهز.",
+   "benefits": "احتضان + تسريع + إرشاد + ورش تدريبية + مساحات مكتبية + تسهيل الوصول لشبكات تمويل/مستثمرين.",
+   "contact": "info@badir.com.sa، الرياض."
+  },
+  {
+   "name": "برنامج تسريع الأعمال – شركة الأدوات والحلول",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "شركة سعودية مقرها الرياض تعمل في حلول الأعمال الشاملة، مسجلة كمسرعة أعمال ضمن دليل سيان.",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "",
+   "benefits": "خدمات أعمال، حلول رقمية، تعلم وتطوير، وممارسات متعلقة بالأفراد والفرق.",
+   "contact": "info@tools-solutions.com | +966114509942"
+  },
+  {
+   "name": "برنامج دعم رواد الأعمال والأسر المنتجة - منصة الريادة",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "منصة الريادة شركة مقرها الرياض، مسجلة رسميًا في SIAN، تدعم رواد الأعمال والأسر المنتجة وتعمل على تحويل الفكرة إلى مشروع.",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "",
+   "benefits": "دعم رواد الأعمال والأسر المنتجة، والمساعدة في تحويل الفكرة إلى مشروع.",
+   "contact": "mnst.al.ryadh@gmail.com | 966581691221"
+  },
+  {
+   "name": "برنامج رواد العلا الريادي (Vibes AlUla Entrepreneurship Program)",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.vibesalula.com",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "برنامج ريادة الأعمال - رواد (Rowad) بجامعة الأمير سطام بن عبدالعزيز",
+   "tags": [
+    "تدريب وتأهيل"
+   ],
+   "cat": "training",
+   "desc": "برنامج رواد هو برنامج ريادة الأعمال التابع لجامعة الأمير سطام بن عبدالعزيز بالخرج، أحد مبادرات برنامج التحول الوطني 2020 ورؤية 2030.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://rowad.psau.edu.sa/",
+   "eligibility": "يستهدف بشكل أساسي طلاب وخريجي جامعة الأمير سطام بن عبدالعزيز.",
+   "benefits": "دعم تطوير نماذج الأعمال الجديدة، شراكات مع جهات داعمة، قاعة رواد المستقبل ومعسكر منجم الأفكار.",
+   "contact": "rowadpsau@psau.edu.sa | +966555993353"
+  },
+  {
+   "name": "برنامج مساحة تحول (Masahat Tahawol Program)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "برنامج نُساهم 2.0",
+   "tags": [
+    "تدريب وتأهيل"
+   ],
+   "cat": "training",
+   "desc": "برنامج مساهمة مجتمعية/تدريبي تابع لمعهد الريادة.",
+   "status": "غير محدد",
+   "url": "https://ei.kfupm.edu.sa/arabic/nusahem20-program/",
+   "eligibility": "سعودي الجنسية، حاصل على مؤهل جامعي أو يعمل حاليًا في القطاع الصناعي، لديه فكرة مشروع في مجال صناعي، ويُفضَّل فريق متعدد التخصصات.",
+   "benefits": "مدة 4 أشهر؛ 54 ساعة تواصل دراسي + 64 ساعة إرشادية؛ إرشاد فردي من مختصين من سابك؛ فرصة عمل داخل معهد الريادة؛ شهادة تعليم مستمر؛ مكافأة شهرية.",
+   "contact": "ei@kfupm.edu.sa، +966 13 860 7781، الظهران."
+  },
+  {
+   "name": "برنامج RY Jumpstart للاحتضان (RY Jumpstart Incubation Program)",
+   "tags": [
+    "مساحة عمل مشترك",
+    "تدريب وتأهيل"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://almashtal.io",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "تسامي لصناعة الأثر (Tasamy for Impact) — مسرعة أعمال",
+   "tags": [
+    "مسرعة أعمال",
+    "تدريب وتأهيل",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "accelerator",
+   "desc": "منظمة/مسرعة أعمال في الرياض تُعنى بتمكين صناعة الأثر الاجتماعي عبر برامج احتضان وتسريع للمشاريع في مرحلتي التأسيس وما بعد التأسيس.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://tasamy.com/",
+   "eligibility": "",
+   "benefits": "",
+   "contact": "tasamy.com/contact-us · X: @TasamySA"
+  },
+  {
+   "name": "چرا ڤيتا (Gravita)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://gravita.com.sa",
+   "eligibility": "لا يوجد شرط أهلية رسمي - مفتوحة لأي فرد أو شركة أو رائد أعمال يبحث عن مساحة عمل مشترك بمقابل اشتراك شهري.",
+   "benefits": "إنترنت عالي السرعة، دخول على مدار الساعة، قاعات اجتماعات، صالة استراحة، دعم تقني، وجبات خفيفة وقهوة، مواقف سيارات، استقبال وخدمات سكرتارية.",
+   "contact": "هاتف: +966 800 302 0004 · البريد: info@gravita.com.sa · جدة."
+  },
+  {
+   "name": "حاضنات ومسرعات الهيدب للأعمال (Al-Haidab Business Incubators & Accelerators)",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "accelerator",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "https://alhaidab.com",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "حاضنات ومسرعات جامعة الملك عبدالعزيز",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "نموذج بمسارين (حاضنات + مسرعات) لتحويل أفكار الطلاب والباحثين البحثية والابتكارية لمنتجات/خدمات تجارية.",
+   "status": "غير محدد",
+   "url": "https://iec.kau.edu.sa/",
+   "eligibility": "بشكل أساسي لطلبة كليات الجامعة؛ الفكرة يجب أن تكون مبتكرة وقابلة للتنفيذ.",
+   "benefits": "مكاتب مخصصة مجهزة تقنيًا، قاعة تدريب/ورش، قاعة محاضرات، معامل حاسوبية؛ فعالية إطلاق ختامية للقاء المستثمرين.",
+   "contact": "kauacc@kau.edu.sa، جدة."
+  },
+  {
+   "name": "حاضنة اعقلها (E3qelha Incubator)",
+   "tags": [
+    "حاضنة رقمية"
+   ],
+   "cat": "incubator",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://e3qlha.sa",
+   "eligibility": "لا يوجد شرط أهلية رسمي منشور - مفتوحة لرواد الأعمال وأصحاب المشاريع الناشئة.",
+   "benefits": "دراسات جدوى، تصميم مواقع ومتاجر إلكترونية، تسويق رقمي، تسهيلات مالية، استشارات مجانية من خبراء متخصصين.",
+   "contact": "الموقع: e3qlha.sa."
+  },
+  {
+   "name": "حاضنة أعمال الطائرات المسيّرة - وادي المسيّرات الخضراء (Green Unmanned Valley)",
+   "tags": [
+    "حاضنة تقنية"
+   ],
+   "cat": "incubator",
+   "desc": "وادي المسيّرات الخضراء منصة وطنية سعودية للأنظمة المسيّرة، تمكّن تطوير وتنظيم وتوطين صناعات الطائرات بدون طيار، وتقدم حاضنة أعمال متخصصة.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://greenvalley.sa/",
+   "eligibility": "يُفترض استهداف رواد أعمال وشركات ناشئة في مجال الأنظمة المسيّرة.",
+   "benefits": "برنامج حاضنة أعمال متخصص بالطائرات بدون طيار، برامج تدريب، وخدمات اختبار للطائرات المسيّرة.",
+   "contact": "guv@greenvalley.sa | +966555454542"
+  },
+  {
+   "name": "حاضنة أعمال جامعة الباحة (حاضنة أعمال)",
+   "tags": [
+    "حاضنة تقنية",
+    "تدريب وتأهيل",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/86",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "حاضنة أعمال سحابة الإمام - جامعة الإمام محمد بن سعود الإسلامية",
+   "tags": [
+    "حاضنة تقنية"
+   ],
+   "cat": "incubator",
+   "desc": "سحابة الإمام حاضنة أعمال تابعة لجامعة الإمام محمد بن سعود الإسلامية في الرياض، دُشّنت في 28 نوفمبر 2017، حصلت على رخصة حاضنات الأعمال من منشآت.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "موجهة لطلبة وخريجي جامعة الإمام محمد بن سعود الإسلامية فقط.",
+   "benefits": "بيئة عمل ملائمة وخدمات استشارية متخصصة لدعم مشروعات ريادة الأعمال الطلابية.",
+   "contact": "oalajaimi@oceanx.sa | 966564666068"
+  },
+  {
+   "name": "حاضنة أعمال معهد الريادة (KFUPM-EI)",
+   "tags": [
+    "حاضنة تقنية"
+   ],
+   "cat": "incubator",
+   "desc": "تقع في مجمع الابتكار بوادي الظهران للتقنية. صُنّفت كأفضل حاضنة أعمال مرخصة أداءً في السعودية (تقييم منشآت 2020).",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://ei.kfupm.edu.sa/arabic/",
+   "eligibility": "شركات تقنية/معرفية ضمن 6 مجالات رئيسية: الطاقة والبتروكيماويات والمياه، تقنية النانو، تقنيات البناء.",
+   "benefits": "صقل نماذج الأعمال وخطط العمل وبناء نماذج أولية (MVP)، إرشاد مكثف من مرشدين وأكاديميين ورجال أعمال.",
+   "contact": "ei@kfupm.edu.sa، الظهران."
+  },
+  {
+   "name": "حاضنة أعمال نفيسة شمس لتمكين المرأة",
+   "tags": [
+    "تدريب وتأهيل"
+   ],
+   "cat": "training",
+   "desc": "حاضنة أعمال مقرها جدة أطلقتها نفيسة شمس بموافقة منشآت، تركز على رعاية وتمكين روادات الأعمال من السيدات في مجالات الحرف والفنون والتصميم.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.nafisashams.com/en/",
+   "eligibility": "تستهدف المرأة رائدة الأعمال في جدة والمملكة، مع تركيز على مجالي الأزياء والتصميم والحرف.",
+   "benefits": "فعاليات ومحاضرات وتدريب متخصص، استشارات وتوجيه، دعم مشاريع ريادة الأعمال الاجتماعية، برنامج حاضنة بيت الحرفيات.",
+   "contact": "info@nafisashams.com | 966507524899+"
+  },
+  {
+   "name": "حاضنة أعمال ENW | شبكة الإنجاز",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "ENW مقرها الدمام، تأسست منذ أكثر من 13 عاماً، رائدة في التطوير العقاري والاستشارات الهندسية وحاضنة الأعمال. تقدم مكاتب خاصة ومشتركة وافتراضية.",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "",
+   "benefits": "مكاتب خاصة ومشتركة وافتراضية، مساحات عصف ذهني وتصميم معماري وداخلي للمشاريع.",
+   "contact": "info@enw.sa | 966580175339+"
+  },
+  {
+   "name": "حاضنة الأعمال - جامعة تبوك",
+   "tags": [
+    "حاضنة تقنية",
+    "تدريب وتأهيل"
+   ],
+   "cat": "incubator",
+   "desc": "حاضنة أعمال جامعية مرخصة من منشآت تتبع جامعة تبوك، تنظم بالشراكة مع منشآت فعاليات مثل معسكر ريادة الأعمال الجامعية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/125",
+   "eligibility": "يستهدف منسوبي وطلاب جامعة تبوك، مع تركيز معلن على قطاعي التقنية والطاقات المتجددة.",
+   "benefits": "احتضان الأفكار والمشاريع الابتكارية، تسويق الابتكارات وحماية الملكية الفكرية، فعاليات ومعسكرات ريادة الأعمال.",
+   "contact": "teu@ut.edu.sa | 0554123321"
+  },
+  {
+   "name": "حاضنة الأعمال - جامعة طيبة",
+   "tags": [
+    "حاضنة تقنية"
+   ],
+   "cat": "incubator",
+   "desc": "حاضنة أعمال جامعية مرخصة من منشآت، تتبع وكالة الجامعة للأعمال والإبداع المعرفي في جامعة طيبة بالمدينة المنورة.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/24",
+   "eligibility": "عادة طلاب/خريجي/منسوبي الجامعة أو رواد الأعمال بالمنطقة.",
+   "benefits": "احتضان المشاريع الناشئة، مسابقة سنوية لريادة الأعمال، معامل ابتكار، إرشاد أكاديمي وريادي.",
+   "contact": "tu.bizincubator@gmail.com | 0554683330"
+  },
+  {
+   "name": "حاضنة الأعمال - شركة مساحات لحاضنات ومسرعات الأعمال",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "حاضنة أعمال خاصة مقرها الأحساء، مرخصة من منشآت، تهدف إلى خلق بيئة مناسبة لاحتضان الشركات الناشئة المبنية على أساس تقني/معرفي.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/89",
+   "eligibility": "استهداف الشركات الناشئة ذات الأساس التقني/المعرفي في المجالات الصناعية أو التقنية أو الخدمية.",
+   "benefits": "بيئة احتضان للشركات الناشئة التقنية/المعرفية، إرشاد وتدريب على ريادة الأعمال، مساحات عمل.",
+   "contact": "info@spacesksa.com | 0539171229"
+  },
+  {
+   "name": "حاضنة الأعمال والمساحات المشتركة - دور الريادة",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "أول حاضنة أعمال ومساحات عمل مشتركة ومكاتب عمل افتراضية في مدينة الطائف، تقع في حي الفيصلية، مع مسار تقني متخصص باسم TechUp.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/82",
+   "eligibility": "تستهدف رواد الأعمال بمختلف المجالات في الطائف ومحيطها؛ مسار TechUp يستهدف المشاريع ذات الطابع التقني.",
+   "benefits": "مساحات عمل مرنة، استشارات احترافية، ورش عمل وبرامج تأهيلية، مسار تقني متخصص، مكاتب عمل افتراضية.",
+   "contact": "info@dour-alriyadah.com | حي الفيصلية، الطائف"
+  },
+  {
+   "name": "حاضنة المياه - مركز الابتكار السعودي لتقنيات المياه (SWIC)",
+   "tags": [
+    "حاضنة تقنية",
+    "تدريب وتأهيل"
+   ],
+   "cat": "incubator",
+   "desc": "مركز الابتكار السعودي لتقنيات المياه (SWIC) مقره الجبيل، أنشئ بالشراكة بين منشآت والهيئة السعودية للمياه عام 1439هـ/2018م.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://swic.sa/",
+   "eligibility": "يمكن التسجيل بأكثر من مشروع واحد؛ يركز على الأفكار والابتكارات في قطاع تقنية المياه تحديداً.",
+   "benefits": "برنامج حاضنة المياه: دعم مادي وإرشاد وتوجيه، تأهيل أصحاب المشاريع، إتاحة التسجيل في أكثر من مشروع واحد.",
+   "contact": "care@swic.sa | 966504967034+"
+  },
+  {
+   "name": "حاضنة سبع سنابل للأعمال (7 Sanabel Business Incubator)",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "http://sian.monshaat.gov.sa/ar/members/188",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "حاضنة عذق لمسرعة الأعمال الاجتماعية (Athq Social Enterprise Incubator)",
+   "tags": [
+    "تدريب وتأهيل"
+   ],
+   "cat": "training",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "https://ethq.biralmadinah.org.sa",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "حاضنة مركز التنمية الصناعية (الهيئة الملكية بالجبيل)",
+   "tags": [
+    "حاضنة تقنية",
+    "تدريب وتأهيل"
+   ],
+   "cat": "incubator",
+   "desc": "حاضنة أعمال صناعية تابعة لمركز التنمية الصناعية بمعهد الجبيل التقني ضمن الهيئة الملكية للجبيل وينبع، حصلت على رخصة حاضنات الأعمال من منشآت عام 2018.",
+   "status": "غير محدد",
+   "url": "https://www.rcjy.gov.sa/",
+   "eligibility": "",
+   "benefits": "",
+   "contact": "الهيئة الملكية للجبيل وينبع، مدينة الجبيل الصناعية."
+  },
+  {
+   "name": "حاضنة نمو 2026 (NmoHub)",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "تشغّلها شركة وادي مكة للتقنية. تدعم رياديي المرحلة المبكرة عبر ورش تأهيلية، إرشاد وتوجيه، مساحات عمل مشتركة، استشارات متخصصة، مختبر ابتكار، وخدمات قانونية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://nmohub.com.sa/",
+   "eligibility": "مفتوحة لأصحاب الأفكار الجديدة وأصحاب المشاريع الراغبين بالتوسع.",
+   "benefits": "ورش تأهيلية، إرشاد وتوجيه، دعم فني، وربط بشبكة مستثمرين، تحليل جدوى شامل.",
+   "contact": "إنستغرام @nmohub1، X @nmohub، الرياض."
+  },
+  {
+   "name": "حاضنة ومساحة عمل باسقات للأعمال",
+   "tags": [
+    "تدريب وتأهيل",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "منصة متكاملة ومقرها المدينة المنورة تقدم دعماً شاملاً لرواد الأعمال لتأسيس مشاريعهم وتطويرها عبر الإرشاد والدعم الفني، وتوفير مواقع عمل مجهزة.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://baseqatbusiness.com/",
+   "eligibility": "تستهدف رواد الأعمال والشركات الناشئة والأفراد المستقلين الراغبين في تأسيس أو تطوير مشاريعهم.",
+   "benefits": "مساحات عمل مجهزة ومؤجرة، دورات تدريبية في التسويق الرقمي وتطوير البرمجيات والقيادة والتصميم الجرافيكي، إرشاد ودعم فني، تسهيل التواصل مع المستثمرين.",
+   "contact": "info@baseqatbusiness.com | 966555021920+"
+  },
+  {
+   "name": "حاضنة ومسرعة أعمال i-be hub",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "i-be hub حاضنة ومسرعة أعمال مقرها الرياض، تابعة لمجموعة قدرة القابضة، تعمل تحت شعار إطلاق شركة ناجحة كل يوم.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://ibehub.com/",
+   "eligibility": "موجهة عموماً لأصحاب الأفكار والمشاريع الريادية في مختلف مراحل النضج.",
+   "benefits": "دعم شامل عبر دورة حياة المشروع: اكتشاف، ابتكار، إطلاق، نمو، استدامة، وحتى مرحلة البيع؛ برامج متخصصة مثل حاضنة مجاز وبرنامج وثبة.",
+   "contact": "info@ibehub.com | 966506774772+"
+  },
+  {
+   "name": "حاضنة ومسرعة الأعمال - مركز الابتكار وريادة الأعمال (جامعة الجوف)",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "مركز تابع لجامعة الجوف في سكاكا، مرخص من منشآت. يضم وحدة حاضنة أعمال (احتضان حتى 3 سنوات) ووحدة مسرعة أعمال (حتى 9 أشهر).",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/73",
+   "eligibility": "تركّز خدمات المركز على منتسبي جامعة الجوف ورواد الأعمال في منطقة الجوف عمومًا.",
+   "benefits": "برامج تدريبية وتأهيلية، مساحات عمل، استشارات وتوجيه ريادي، احتضان يصل حتى 3 سنوات، وتسريع أعمال يصل حتى 9 أشهر.",
+   "contact": "iec@ju.edu.sa | 0591584424"
+  },
+  {
+   "name": "حاضنة ومسرعة الأعمال خطى - معهد ريادة الأعمال بجامعة الملك سعود",
+   "tags": [
+    "حاضنة تقنية",
+    "تدريب وتأهيل"
+   ],
+   "cat": "incubator",
+   "desc": "مركز حاضنات ومسرعات الأعمال خطى التابع لمعهد الملك سلمان لريادة الأعمال بجامعة الملك سعود، الرياض. يوفر بيئة عمل لدعم أصحاب الأفكار الواعدة.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://alriyadah.ksu.edu.sa/ar/IncubatorsTerms",
+   "eligibility": "أن تكون فكرة المشروع متميزة وقابلة للتطبيق؛ يجب ألا يكون طالب الاحتضان عضواً في حاضنة أو مسرعة أعمال أخرى.",
+   "benefits": "توفير الإمكانات البشرية والمادية والتقنية، أطر ومناهج تعليمية وبرامج تدريبية، مرافق حديثة وخدمات استشارية، برنامج حاضنة الأعمال الصناعية بالشراكة مع صندوق التنمية الصناعية.",
+   "contact": "khota@ksu.edu.sa | 966118050767+"
+  },
+  {
+   "name": "حاضنة AIP الصناعية (حاضنة أعمال)",
+   "tags": [
+    "حاضنة تقنية"
+   ],
+   "cat": "incubator",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "https://sian.monshaat.gov.sa/ar/members/340",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "خبراء (حاضنة أعمال)",
+   "tags": [
+    "حاضنة تقنية",
+    "تدريب وتأهيل"
+   ],
+   "cat": "incubator",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/81",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "خدمات احتضان الأعمال - مركز دور الأعمال",
+   "tags": [
+    "حاضنة تقنية"
+   ],
+   "cat": "incubator",
+   "desc": "مركز دور الأعمال هو حاضنة أعمال مقرها الرياض، مسجلة رسميًا في SIAN. تقدم برامج احتضان مشاريع تشمل استشارات إدارية وتطويرية وقانونية وتجارية.",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "",
+   "benefits": "استشارات إدارية وتطويرية، استشارات قانونية وتجارية، توجيه وإرشاد تقني، والمساعدة في تحويل الأفكار إلى منتجات ملموسة.",
+   "contact": "khaled@dbc.com.sa | 0592707030، الرياض."
+  },
+  {
+   "name": "خدمات احتضان وتسريع - شركة مسار الأعمال (BPC)",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "شركة مسار الأعمال للتطوير والاستثمار التجاري (BPC) حاضنة ومسرعة أعمال مقرها الرياض، تأسست عام 2018، مرخصة من منشآت ومسجلة لدى SIAN.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.bpc.sa/",
+   "eligibility": "",
+   "benefits": "استراتيجيات أعمال وإرشاد، مساحات عمل، ووسائل تمويل وفق نماذج مختلفة، برامج دعم طويلة المدى.",
+   "contact": "m.alburaykan@bpc.sa | +966550074747"
+  },
+  {
+   "name": "خدمات الاحتضان وريادة الأعمال - حاضنة أعمال عشرة أضعاف (10 FOLD)",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "حاضنة أعمال ومساحة عمل مشتركة سعودية تأسست عام 2020 في منطقة جازان، تركز على قطاعات الحلول المالية والسياحة والبرمجيات كخدمة.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://10fold.com.sa/",
+   "eligibility": "تستهدف رواد أعمال وشركات ناشئة في القطاعات المذكورة، مع تركيز جغرافي على منطقة جازان.",
+   "benefits": "خدمات توجيه وإرشاد ريادي، خدمات قانونية، استشارات مالية، خدمات تسويق، ومساحة عمل مشتركة.",
+   "contact": "imharesh@10fold.com.sa، جيزان."
+  },
+  {
+   "name": "خدمات تطوير الأعمال (عُقدة UQDA)",
+   "tags": [
+    "تدريب وتأهيل"
+   ],
+   "cat": "training",
+   "desc": "حاضنة/استشارات أعمال عامة تقدم خدمات: موارد بشرية وتوظيف، إرشاد وتوجيه، تصميم وهوية بصرية، علاقات عامة وتسويق، مساعدين افتراضيين، وتطوير أعمال.",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "لا يوجد معيار أهلية رسمي لأنها استشارات/خدمات أعمال مدفوعة.",
+   "benefits": "موارد بشرية وتوظيف، إرشاد وتوجيه، تصميم وهوية بصرية، علاقات عامة وتسويق، مساعدون افتراضيون، تطوير أعمال.",
+   "contact": "ask@uq-cs.com."
+  },
+  {
+   "name": "خدمات حاضنة - شركة الأعمال المبتكرة لحاضنات ومسرعات الأعمال",
+   "tags": [
+    "حاضنة تقنية"
+   ],
+   "cat": "incubator",
+   "desc": "شركة الأعمال المبتكرة لحاضنات ومسرعات الأعمال جهة مقرها الرياض مرخصة ضمن دليل SIAN، تقدم خدمات استشارية وفنية وإدارية ولوجستية.",
+   "status": "غير محدد",
+   "url": "https://sian.monshaat.gov.sa/ar/members/69",
+   "eligibility": "",
+   "benefits": "خدمات استشارية وفنية وإدارية ولوجستية لأصحاب المشاريع الناشئة.",
+   "contact": "asaad@innovaion-sa.com | +966504301454"
+  },
+  {
+   "name": "خدمات حاضنة الأعمال - باكورة الأعمال (BACORA)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "باكورة الأعمال (BACORA) حاضنة أعمال ومساحة عمل مشتركة مقرها الرياض، مرخصة ومدرجة في دليل SIAN التابع لمنشآت وفي منصة مزايا الحكومية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://mazaya.monshaat.gov.sa/ar/mazaya/732",
+   "eligibility": "عادة ما تتطلب صاحب فكرة أو مشروع ناشئ وسجل تجاري أو نية لتأسيسه.",
+   "benefits": "مساحات عمل مكتبية جاهزة، استشارات إدارية، تسهيلات تشغيلية، وورش عمل تطويرية.",
+   "contact": "info@bacoraksa.com | +966533848383"
+  },
+  {
+   "name": "خدمات حاضنة الأعمال الأولى فئة (أ) بالأحساء - شركة أبعاد لحاضنات ومسرعات الأعمال",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "شركة أبعاد لحاضنات ومسرعات الأعمال أول حاضنة أعمال فئة (أ) مرخصة في محافظة الأحساء، تأسست عام 2020، تقدم مكاتب ومساحات عمل مجهزة.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://abaadincgroup.com/",
+   "eligibility": "تستهدف رواد ورائدات الأعمال في محافظة الأحساء.",
+   "benefits": "مكاتب مجهزة بأسعار منافسة، خدمات متكاملة لرواد الأعمال، بناء مجتمع أعمال محلي.",
+   "contact": "mohsen@intlaca.com | +966544699990"
+  },
+  {
+   "name": "خدمات لينك هب لحاضنات ومسرعات الأعمال (Link Hub Business Incubation Services)",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "accelerator",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "https://linkhubksa.com",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "خدمات مساحات العمل المشتركة - Efficiency Center",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "مركز الكفاءة هو حاضنة ومسرعة أعمال مقرها الخبر، يوفر مكاتب ومساحات عمل مشتركة وفردية مجهزة، بالإضافة إلى مكاتب افتراضية وقاعات فعاليات واجتماعات.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.efficiencys.com.sa/",
+   "eligibility": "موجه للشركات ورواد الأعمال والأفراد الراغبين في استئجار مكتب/مساحة عمل في الخبر.",
+   "benefits": "مكاتب ومساحات عمل مشتركة وفردية مجهزة، مكاتب افتراضية، قاعات فعاليات واجتماعات، تسهيلات وصول لذوي الإعاقة.",
+   "contact": "info@efficiencys.com.sa | 966556193033، الخبر"
+  },
+  {
+   "name": "خدمات مساحة عمل واحتضان - شركة الجهاز للاستثمار",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "شركة الجهاز للاستثمار، إحدى شركات مجموعة الجهاز القابضة (مؤسسة 2010 في الرياض)، أسست حاضنة أعمال مسجلة في SIAN.",
+   "status": "مستمر / تقديم دائم",
+   "url": "",
+   "eligibility": "",
+   "benefits": "خدمات مساحات عمل مشتركة وحاضنة أعمال تابعة لمجموعة استثمارية راسخة.",
+   "contact": "musa.bahri@algihaz.com | 966505144189، الرياض"
+  },
+  {
+   "name": "خدمات مساحة عمل واحتضان - Worken Space (شركة الركن الذكي)",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "شركة الركن الذكي للتطوير والاستثمار العقاري تعمل تحت الاسم التجاري Worken Space، حاضنة ومسرعة أعمال ومساحة عمل مشتركة مسجلة في SIAN.",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "",
+   "benefits": "مساحات عمل مشتركة وفرص التعلم والتواصل والتعاون في بيئة ريادية ذكية.",
+   "contact": "ahmad@workenspace.com | 966503631186"
+  },
+  {
+   "name": "ديم سبيس (Deem Space) — مسرعة ومساحة عمل مشتركة",
+   "tags": [
+    "مسرعة أعمال",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "accelerator",
+   "desc": "مسرعة أعمال ومساحة عمل مشتركة في الرياض تابعة لمؤسسة ديم المناهل الخيرية، تقدم بيئة عمل متكاملة ومحفزة لرواد الأعمال.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.workcoworking.com",
+   "eligibility": "",
+   "benefits": "",
+   "contact": "info@deemspace.com · هاتف: 0555944814"
+  },
+  {
+   "name": "شركة حاضة الابداع للاعمال (حاضنة أعمال)",
+   "tags": [
+    "مساحة عمل مشترك",
+    "حاضنة تقنية"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "https://sian.monshaat.gov.sa/ar/members/84",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "شركة شركاء الشباب لحاضنات ومسرعات الاعمال (حاضنة أعمال)",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال",
+    "برنامج تمويل"
+   ],
+   "cat": "vc",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/103",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "شركة عنصر المستقبل لحاضنات ومسرعات الأعمال (حاضنة أعمال)",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/131",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "شركة وادي مكة للتقنية (مسرعة أعمال)",
+   "tags": [
+    "مسرعة أعمال",
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "accelerator",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/118",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "فينتشر سنتر (Venture Center) — كلية الأمير محمد بن سلمان",
+   "tags": [
+    "حاضنة تقنية",
+    "برنامج تمويل",
+    "تدريب وتأهيل"
+   ],
+   "cat": "vc",
+   "desc": "برنامج احتضان تابع لكلية الأمير محمد بن سلمان للإدارة وريادة الأعمال (MBSC) في مدينة الملك عبدالله الاقتصادية بجدة، يستهدف المشاريع التقنية والاجتماعية والفينتك والإدتك.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.mbsc.edu.sa/",
+   "eligibility": "",
+   "benefits": "",
+   "contact": "mbsc.edu.sa، جدة."
+  },
+  {
+   "name": "مجتمع الحالمون الثقافي لريادة الأعمال (Alhalimon)",
+   "tags": [
+    "حاضنة رقمية"
+   ],
+   "cat": "incubator",
+   "desc": "الحالمون حاضنة أعمال سعودية ذات طابع ثقافي/مجتمعي تعمل بشكل أساسي عبر الإنترنت، مع وجود فعلي في منطقة الشاطئ بجدة، تقدم استشارات وتوجيهاً ومساحة عمل.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://alhalimon.com/",
+   "eligibility": "مفتوح لأصحاب المشاريع ورواد الأعمال الراغبين في الانضمام لمجتمع داعم رقمياً.",
+   "benefits": "استشارات وتوجيه، مساحة عمل (افتراضية/مجتمعية)، وبناء مجتمع داعم لرواد الأعمال.",
+   "contact": "Dreams@alhalimon.com | +966598190043"
+  },
+  {
+   "name": "مجتمعات قراجنا (Garagena Communities)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "استوديو/مختبر إبداعي للشركات الناشئة يقدم مساحات عمل مشتركة، تأجير مكاتب، تسويق رقمي، إنتاج محتوى، ودعم تقني ولوجستي.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://garagena.com/communities/",
+   "eligibility": "لا يشترط تخصص علمي/أكاديمي معين؛ مفتوح لأي مجتمع مهتم.",
+   "benefits": "أسعار مخفضة على استئجار المكاتب، تسويق رقمي، إنتاج محتوى، دعم تقني ولوجستي، فعاليات، بطاقات عضوية وشهادات.",
+   "contact": "الرياض؛ هاتف: +966 50 629 2277."
+  },
+  {
+   "name": "محرك الأعمال (مصنع الشركات الناشئة)",
+   "tags": [
+    "حاضنة تقنية",
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "تشغّلها شركة الصفحة الواحدة، إطار مصنع شركات ناشئة بثلاث مراحل: مخيم توليد الأفكار، المعسكر التدريبي، برنامج مسرعة الأعمال. مقرها الرياض.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://onepage.sa/",
+   "eligibility": "يستهدف الشركات الناشئة التقنية تحديدًا.",
+   "benefits": "منهجية تصنيع متكاملة للشركات الناشئة (فرق تشغيلية: موارد بشرية، تقنية، مالية، إدارية، قانونية)، دعم قانوني لتأسيس الشركة، ربط بالمستثمرين.",
+   "contact": "info@onepage.sa، X: @OnePageSA."
+  },
+  {
+   "name": "مختبر واعد لريادة الأعمال (لتبدأ / لتنمو)",
+   "tags": [
+    "حاضنة تقنية",
+    "تدريب وتأهيل"
+   ],
+   "cat": "incubator",
+   "desc": "مساران: لتبدأ لإطلاق مشاريع جديدة ولتنمو لتنمية المشاريع القائمة، إضافة لمنح وتدريب وإرشاد لرواد الأعمال.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://waed.net/ar/funding.html",
+   "eligibility": "يقتصر الدعم على مالكي مشاريع سعوديي الجنسية ضمن قطاع التقنية بشكل عام.",
+   "benefits": "احتضان لمدة 6 أشهر قابلة للتمديد؛ منح تأسيسية تصل حتى 100,000 ريال سعودي؛ مساحة عمل مشتركة وتدريب وإرشاد؛ برنامج StartUp Lab التأسيسي مدته 10 أسابيع.",
+   "contact": "pr_support@waed.net، الظهران."
+  },
+  {
+   "name": "مركز إبرام للأعمال (Ebram Business Center)",
+   "tags": [
+    "مساحة عمل مشترك",
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "مركز متكامل الخدمات في المدينة المنورة، تأسس عام 2017، يقدّم مكاتب إدارية مجهزة ومساحات عمل مشتركة وخدمات احتضان وتسريع وتمويل.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://ebram.sa/",
+   "eligibility": "",
+   "benefits": "",
+   "contact": "ebram.sa · @EbramBC"
+  },
+  {
+   "name": "مركز التنمية الصناعية - ينبع الصناعية (حاضنة أعمال)",
+   "tags": [
+    "حاضنة تقنية",
+    "تدريب وتأهيل",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/128",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "مركز بيادر لخدمات الأعمال (حاضنة ومسرعة أعمال نسائية)",
+   "tags": [
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/13",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "مساحات ديوم المرنة (Dewom Flex Coworking)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://deom.com.sa",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "مساحات شارك هب المشتركة (Sharik Hub Coworking Spaces)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sharik.com.sa",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "مساحات مداد المكتبية (Medad Office Solutions — Spaces, Regus, HQ, Signature, No18)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://medadoffices.com",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "مساحات وحاضنة الأعمال المشتركة (Al-Masahat Al-Mushtaraka Coworking & Incubation)",
+   "tags": [
+    "مساحة عمل مشترك",
+    "حاضنة تقنية"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "غير محدد",
+   "url": "",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "مساحات White Space المشتركة",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://wspace.com.sa",
+   "eligibility": "لا يوجد شرط أهلية - اشتراك/تأجير مباشر، مفتوح للشركات والمستقلين.",
+   "benefits": "مكاتب خاصة ومشتركة، قاعات اجتماعات، مساحات فعاليات، مكاتب افتراضية، دعم تقني وخدمات مكتبية.",
+   "contact": "المبيعات: +966 55 070 0117 · info@wspace.com.sa · فروع: جدة والرياض والخبر والمدينة المنورة."
+  },
+  {
+   "name": "مساحات WORK&CO المشتركة (WORK&CO Coworking Spaces)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://wnco.sa",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "مساحة 67|22 المشتركة (Coworking Space 67|22)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://6722.space",
+   "eligibility": "لا يوجد شرط أهلية - مفتوحة لأي مستقل/رائد أعمال/مهني يبحث عن مساحة عمل مرنة.",
+   "benefits": "مكيف هواء، طباعة، قهوة مجانية، مطبخ حديث، خزائن تخزين، عنوان بريد تجاري، إنترنت لاسلكي.",
+   "contact": "هاتف: +966 57 057 6722، الرياض."
+  },
+  {
+   "name": "مساحة مزج المشتركة (Mazj Coworking Space)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://mazj.org",
+   "eligibility": "",
+   "benefits": "",
+   "contact": ""
+  },
+  {
+   "name": "مسرّعة أعمال سنا (مركز الأمير أحمد بن فهد بن سلمان لتطوير الأعمال)",
+   "tags": [
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "برنامج مسرعة أعمال مدته ثلاثة أشهر تابع لمركز سنا في غرفة الأحساء، يقدّم دعمًا تأهيليًا وتوجيهيًا واستشاريًا لرواد ورائدات الأعمال.",
+   "status": "غير محدد",
+   "url": "https://www.sna.sa/",
+   "eligibility": "",
+   "benefits": "",
+   "contact": "غرفة الأحساء التجارية الصناعية · @sanaalahsa"
+  },
+  {
+   "name": "مسرعة الأعمال - بيت المنشآت | Startups House",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "مسرعة أعمال خاصة تأسست عام 2017 في جدة، مرخصة من منشآت، صُنّفت ضمن أفضل 5 مسرعات وطنية عام 2021. أطلقت برامج مثل أطلق والمحفزات الرقمية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://sian.monshaat.gov.sa/ar/members/61",
+   "eligibility": "تدعم الشركات في مختلف مراحل نموها، من المراحل المبكرة إلى المتقدمة.",
+   "benefits": "برنامج أطلق وبرنامج المحفزات الرقمية، دعم للمنشآت في كل مرحلة، شراكات مع جهات دعم ريادة أعمال محلية وإقليمية وعالمية.",
+   "contact": "Info@Startupshouse.com | +966122293421"
+  },
+  {
+   "name": "مسرعة جيرة العقارية (Jeerah Real Estate Accelerator) تابعة لشركة جيرة لحاضنات ومسرعات الأعمال",
+   "tags": [
+    "مسرعة أعمال",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "accelerator",
+   "desc": "شركة جيرة لحاضنات ومسرعات الأعمال جهة مقرها جدة. توفر مساحات عمل مشتركة وبرامج إرشادية واستشارات لرواد الأعمال وخدمات تقنية، بالإضافة إلى مسرعة جيرة العقارية.",
+   "status": "غير محدد",
+   "url": "https://jeerahspace.com/ar",
+   "eligibility": "يُرجّح استهداف رواد أعمال في القطاع العقاري والتقنيات المرتبطة به (Proptech).",
+   "benefits": "مساحات عمل مشتركة ومكاتب افتراضية وقاعات اجتماعات، برامج إرشادية واستشارات، تمويل محتمل قد يصل إلى 500,000 ريال.",
+   "contact": "mdalfadel@ryadiy.com | +966563555502"
+  },
+  {
+   "name": "مسرعة فلك للاستثمار - برنامج التسريع (Falak Accelerator)",
+   "tags": [
+    "مسرعة أعمال",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "accelerator",
+   "desc": "فلك للأعمال والاستثمار شركة استثمار متكاملة مقرها الرياض، تأسست عام 2018. تقدم برنامج مسرعة مدته 12 أسبوعًا، ممول 100% من مستثمرين أفراد في الخليج.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://falak.sa/ar/investors/acceleration-investment",
+   "eligibility": "شركات تقنية ناشئة (مرحلة مبكرة إلى متوسطة)، ذات نموذج أعمال قابل للتوسع والاستثمار.",
+   "benefits": "استثمار مباشر لا يقل عن 4 ملايين ريال سعودي في 7-10 شركات خلال 4 أشهر، دعم تقني واستشاري مكثف، مساحة عمل مشتركة.",
+   "contact": "falak@falak.sa | 966920005610، الرياض."
+  },
+  {
+   "name": "مسرعة ومساحة عمل مشتركة بيهايف BeeHive",
+   "tags": [
+    "مساحة عمل مشترك",
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "بيهايف مساحة عمل مشتركة وفعاليات مقرها الرياض (مع فرع في الخرج)، توفر مكاتب وقاعات اجتماعات يمكن حجزها يومياً أو شهرياً. تقدم أيضاً برنامج مسرعات الأعمال بجلسات استشارية مجانية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://beehive.com.sa/",
+   "eligibility": "المساحات المشتركة متاحة للاشتراك المباشر؛ جلسات المسرعة تتطلب وجود مشروع/فكرة قيد التأسيس.",
+   "benefits": "مكاتب وقاعات اجتماعات قابلة للحجز، مرافق كاملة، برنامج مسرعات الأعمال بجلسات استشارية مجانية.",
+   "contact": "abdurahman@beehive.com.sa | 966599660393+"
+  },
+  {
+   "name": "نادي بايونيرز للأعمال (Pioneers Business Club)",
+   "tags": [
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://pioneers-sa.com",
+   "eligibility": "لا يوجد شرط أهلية رسمي - مفتوحة لرواد الأعمال والشركات الناشئة والمهنيين.",
+   "benefits": "مكاتب خاصة، مساحات عمل مشترك، مكاتب افتراضية، قاعات اجتماعات، تقنيات مكتبية ذكية، خدمات كونسيرج.",
+   "contact": "هاتف: +966 53 322 2608، جدة."
+  },
+  {
+   "name": "نكون - خدمات الاحتضان ومساحات العمل",
+   "tags": [
+    "حاضنة تقنية",
+    "مساحة عمل مشترك"
+   ],
+   "cat": "coworking",
+   "desc": "حاضنة أعمال سعودية مقرها أبها (منطقة عسير)، توفر مساحات عمل ومكاتب وقاعات اجتماعات قابلة للحجز، وبرامج احتضان.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://nkoon.sa/",
+   "eligibility": "تستهدف عمومًا رواد الأعمال في منطقة عسير الراغبين في تأسيس مشروع أو تطويره.",
+   "benefits": "مساحات عمل ومكاتب وقاعات اجتماعات قابلة للحجز والتخصيص، برامج احتضان، فعاليات ولقاءات تعريفية.",
+   "contact": "nkoon.sa، أبها."
+  },
+  {
+   "name": "واعد فينتشرز (Wa'ed Ventures)",
+   "tags": [
+    "صندوق استثماري"
+   ],
+   "cat": "vc",
+   "desc": "صندوق استثمار جريء تابع لأرامكو بقيمة 500 مليون دولار، يستثمر في الشركات التقنية الناشئة السعودية مع تركيز على الذكاء الاصطناعي وتقنية الفضاء والروبوتات والتقنية المالية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.waed.com/",
+   "eligibility": "شركات ناشئة سعودية/إقليمية تقنية في مراحل النمو من التأسيس حتى النضج (Seed حتى Series C).",
+   "benefits": "صندوق استثماري بقيمة 500 مليون دولار، حجم استثمار 2-5 مليون دولار وقد يصل حتى 20 مليون دولار، إرشاد استراتيجي واستشارات فردية.",
+   "contact": "vc@waed.net، الظهران."
+  },
+  {
+   "name": "واعد للإقراض (Wa'ed Loans)",
+   "tags": [
+    "برنامج تمويل"
+   ],
+   "cat": "vc",
+   "desc": "تمويل غير مضمون (قروض بدون ضمانات) لرياديين لبدء/توسيع أعمالهم في السعودية، مع دعم قبل وبعد التمويل.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://waed.net/ar/loan-financing.html",
+   "eligibility": "للمواطنين السعوديين فقط؛ العمر 18-65 سنة؛ مؤهل ثانوي كحد أدنى؛ عدم وجود سجل جنائي؛ عدم الحصول على قرض واعد سابق.",
+   "benefits": "قروض بدون ضمانات، سداد حتى 5 سنوات مع إمكانية تمديد سنتين، صرف على دفعات مرتبطة بمعالم المشروع، تدريب وإرشاد. أمثلة سابقة لقروض وصلت 5 ملايين ريال.",
+   "contact": "pr_support@waed.net، الظهران."
+  },
+  {
+   "name": "وورك كورنر (Work Corner) — أبها",
+   "tags": [
+    "مساحة عمل مشترك",
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "أول حاضنة ومسرعة أعمال في منطقة عسير، انطلقت من أبها عام 2021، تقدّم مكاتب خاصة وقاعات اجتماعات ومساحات عمل مشتركة مجهزة بالكامل.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://www.workcorner.co/",
+   "eligibility": "",
+   "benefits": "",
+   "contact": "طريق الملك خالد، حي النسب، أبها."
+  },
+  {
+   "name": "EEL Acceleration Program",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "مسار تسريع أعمال تابع لمعهد الريادة بجامعة الملك فهد.",
+   "status": "غير محدد",
+   "url": "https://ei.kfupm.edu.sa/our-programs/eel-acceleration-program/",
+   "eligibility": "مفتوح لجميع طلاب وأعضاء هيئة تدريس جامعة الملك فهد وأي راغب في ريادة الأعمال.",
+   "benefits": "منهج من 9 وحدات، برنامج إرشاد، ندوات من خبراء أعمال، إتاحة مساحة حاضنة المعهد، دعم بناء MVP وخطة العمل.",
+   "contact": "ei@kfupm.edu.sa، الظهران."
+  },
+  {
+   "name": "Flat6Labs Fintech Accelerator",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "برنامج مكثف لمدة 3 أشهر لغاية 10 شركات ناشئة في قطاع التقنية المالية (فينتك)، يشمل خدمات دعم وورش عمل وتدريب فردي، وينتهي بيوم عرض (Demo Day) للمستثمرين. بالشراكة مع فينتك السعودية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://flat6labs.com/program/fintech-accelerator/",
+   "eligibility": "شركات مسجلة رسميًا (private companies)، بنموذج عمل مُختبر ومستخدمين فعليين، وتوليد إيرادات خلال آخر 3 أشهر قبل التقديم؛ يشمل مسارين: Regulation Track وBusiness Track.",
+   "benefits": "تدريب وإرشاد وتطوير أعمال، وصول لشبكة إقليمية من مستثمرين وخبراء، دعم بناء نماذج أولية؛ تمويل أولي يقارب 30-50 ألف دولار مقابل حصة ملكية بسيطة؛ بالشراكة مع Fintech Saudi وساما وهيئة السوق المالية.",
+   "contact": "نفس القنوات العامة لفلات6لابز (flat6labs.com/stay-connected)."
+  },
+  {
+   "name": "Flat6Labs Riyadh Seed Program",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "برنامج تسريع للمرحلة الأولية بالشراكة مع SVC وNTDP. انطلق 2023، حتى يناير 2026 أكمل دفعته السادسة، يدعم أكثر من 20 شركة ناشئة سنويًا.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://flat6labs.com/program/riyadh-seed-program-page/",
+   "eligibility": "الإقامة في أي مدينة بالمملكة؛ التزام كامل ودوام تام لمدة 4 أشهر.",
+   "benefits": "تمويل نقدي مبدئي 500,000 ريال سعودي لكل شركة، مع إمكانية تمويل متابعة حتى 2,400,000 ريال؛ مساحة مكتبية، إرشاد استراتيجي، تدريب.",
+   "contact": "info@flat6labs.com."
+  },
+  {
+   "name": "Founders Track (وادي الظهران × KFUPM)",
+   "tags": [
+    "مسرعة أعمال"
+   ],
+   "cat": "accelerator",
+   "desc": "برنامج تطوير مؤسسين للتقنية العميقة مدته 8 أشهر بتمويل كامل، يربط الطلاب والباحثين السعوديين بمنظومة الابتكار العالمية.",
+   "status": "مغلق",
+   "url": "https://kfupmfounders.com/",
+   "eligibility": "حصريًا لطلاب جامعة الملك فهد للبترول والمعادن الحاليين.",
+   "benefits": "برنامج 8 أشهر بتمويل كامل: معسكر مكثف 10 أيام في سان فرانسيسكو، يتبعه انغماس عالمي/تدريب عملي 8 أسابيع مع شركة ناشئة فعلية في أمريكا.",
+   "contact": "admissions@kfupm.edu.sa، يُفضَّل التقديم عبر kfupmfounders.com."
+  },
+  {
+   "name": "KFUPM EXPONENTIAL",
+   "tags": [
+    "مسرعة أعمال",
+    "تدريب وتأهيل"
+   ],
+   "cat": "accelerator",
+   "desc": "برنامج عملي تطبيقي يقدم مقدمة عن منهجية الريادة القائمة على الابتكار (Innovation-Driven Entrepreneurship) عبر مشاريع تطبيقية.",
+   "status": "مستمر / تقديم دائم",
+   "url": "https://ei.kfupm.edu.sa/our-programs/kfupm-exponential/",
+   "eligibility": "غير موثقة بالتفصيل؛ يبدو موجهًا لطلاب/فرق جامعة الملك فهد.",
+   "benefits": "برنامج عملي تطبيقي يقدّم مقدمة عن منهجية الريادة القائمة على الابتكار.",
+   "contact": "ei@kfupm.edu.sa، الظهران."
+  },
+  {
+   "name": "SEA Ventures - خدمات الاحتضان والتسريع",
+   "tags": [
+    "مسرعة أعمال",
+    "حاضنة تقنية"
+   ],
+   "cat": "accelerator",
+   "desc": "مسرّعة وحاضنة أعمال سعودية تأسست عام 2017، مقرها جدة مع مكاتب في الرياض والهفوف، تقدم برامج تسريع واحتضان وبناء مشاريع.",
+   "status": "غير محدد",
+   "url": "https://www.seavent.org",
+   "eligibility": "تستهدف عمومًا رواد الأعمال في المراحل المبكرة (Seed/Pre-seed).",
+   "benefits": "تدريب في التصميم الخدمي والتفكير التصميمي، إرشاد من خبراء ورواد أعمال، شبكة مستثمرين وشركاء، مسابقات وهاكاثونات.",
+   "contact": "info@seavent.org | 0570875915"
+  }
+ ]
+}
