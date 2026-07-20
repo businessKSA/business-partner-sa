@@ -390,6 +390,14 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .wa-fab { position: fixed; inset-inline-end: 22px; bottom: 22px; z-index: 80; display: inline-flex; align-items: center; gap: 10px;
   background: var(--wa); color: #05330f; font-weight: 700; padding: 13px 20px; border-radius: 999px;
   box-shadow: 0 10px 30px rgba(37,211,102,.4); transition: transform .15s ease; }
+/* Dual WhatsApp FAB: advisor (navy) + smart agent (green), stacked bottom-end */
+.wa-fab-stack { position: fixed; inset-inline-end: 22px; bottom: 22px; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.wa-fab-stack .wa-fab { position: static; inset-inline-end: auto; bottom: auto; }
+.wa-fab--advisor { background: var(--navy); color: #fff; border: 1px solid rgba(255,255,255,.22); box-shadow: 0 10px 30px rgba(11,27,90,.4); }
+.wa-fab--advisor:hover { color: #fff; }
+body.nav-open .wa-fab-stack { display: none; }
+@media (max-width: 560px) { .wa-fab-stack { inset-inline-end: 16px; bottom: 16px; } }
+@media (max-width: 400px) { .wa-fab-stack { inset-inline-end: 14px; bottom: 14px; } }
 .wa-fab:hover { transform: translateY(-3px); color: #05330f; }
 .wa-fab svg { width: 26px; height: 26px; }
 .wa-fab .lbl { font-size: .96rem; }
