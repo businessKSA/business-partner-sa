@@ -619,6 +619,7 @@ function footer() {
       <li>${I.phone}<span>${esc(c.phone)}</span></li>
       <li>${I.mail}<span>${esc(c.email)}</span></li>
       <li>${I.pin}<span>${L(c.addressEn || c.address, c.address)}</span></li>
+      <li>${I.wa}<a href="${WA_SUPPORT}" target="_blank" rel="noopener">${L("Talk to your advisor", "تواصل مع مستشارك")}</a></li>
       <li>${I.wa}<a href="${WA}" target="_blank" rel="noopener">${L("Smart agent on WhatsApp", "الوكيل الذكي على واتساب")}</a></li>
       ${site.whatsappChannel ? `<li>${I.channel}<a href="${site.whatsappChannel}" target="_blank" rel="noopener">${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</a></li>` : ""}
     </ul>
@@ -636,7 +637,10 @@ function footer() {
 }
 
 function waFab() {
-  return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="${Lraw("Contact on WhatsApp", "تواصل عبر واتساب")}">${I.wa}<span class="lbl">${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>`;
+  return `<div class="wa-fab-stack">
+    <a class="wa-fab wa-fab--advisor" href="${WA_SUPPORT}" target="_blank" rel="noopener" aria-label="${Lraw("Talk to your advisor on WhatsApp", "تواصل مع مستشارك على واتساب")}">${I.wa}<span class="lbl">${L("Talk to your advisor", "تواصل مع مستشارك")}</span></a>
+    <a class="wa-fab wa-fab--agent" href="${WA}" target="_blank" rel="noopener" aria-label="${Lraw("Chat with the smart agent on WhatsApp", "تحدث مع الوكيل الذكي على واتساب")}">${I.wa}<span class="lbl">${L("Smart agent", "الوكيل الذكي")}</span></a>
+  </div>`;
 }
 
 // باهر — صورة صاحب الموقع الحقيقية (بدل الرسمة). span بنفس كلاس kh-avatar حتى
@@ -4836,7 +4840,7 @@ function buildContact() {
         <h2>${L("Contact information", "معلومات التواصل")}</h2>
         <ul class="info-list">
           <li><span class="ico">${I.wa}</span><div><div class="k">${L("WhatsApp — smart agent", "واتساب — الوكيل الذكي")}</div><a class="v" href="${WA}" target="_blank" rel="noopener">${esc(c.whatsappAgent)}</a></div></li>
-          <li><span class="ico">${I.wa}</span><div><div class="k">${L("WhatsApp — human support", "واتساب — الدعم البشري")}</div><a class="v" href="${WA_SUPPORT}" target="_blank" rel="noopener">${esc(c.whatsappSupport)}</a></div></li>
+          <li><span class="ico">${I.wa}</span><div><div class="k">${L("WhatsApp — talk to your advisor", "واتساب — تواصل مع مستشارك")}</div><a class="v" href="${WA_SUPPORT}" target="_blank" rel="noopener">${esc(c.whatsappSupport)}</a></div></li>
           ${site.whatsappChannel ? `<li><span class="ico">${I.channel}</span><div><div class="k">${L("WhatsApp channel", "قناة واتساب")}</div><a class="v" href="${site.whatsappChannel}" target="_blank" rel="noopener">${L("Follow our WhatsApp channel", "تابع قناتنا في واتساب")}</a></div></li>` : ""}
           <li><span class="ico">${I.phone}</span><div><div class="k">${L("Phone", "التواصل الهاتفي")}</div><a class="v" href="tel:${esc(c.phoneIntl)}">${esc(c.phone)}</a></div></li>
           <li><span class="ico">${I.mail}</span><div><div class="k">${L("Email", "البريد الإلكتروني")}</div><a class="v" href="mailto:${esc(c.email)}">${esc(c.email)}</a></div></li>
