@@ -21,7 +21,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<<<<<<< HEAD
 <link rel="stylesheet" href="/assets/css/styles.css?v=faa7788d53">
+=======
+<link rel="stylesheet" href="/assets/css/styles.css?v=95989c93d6">
+>>>>>>> 6b65235a (Company-documents wizard in account; remove Farina; drop its prices)
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/fr/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
@@ -47,10 +51,7 @@
     <div class="nav-menu"><a href="/fr/workspaces">Browse spaces</a><a href="/fr/workspace-request">Request a workspace</a><a href="/fr/services/bp-re-01">Private office</a><a href="/fr/services/bp-re-02">Coworking space</a><a href="/fr/services/bp-re-03">Virtual office + National Address</a><a href="/fr/services/bp-re-04">Dedicated desk</a><a href="/fr/services/bp-re-05">Office search service</a><a href="/fr/services/bp-re-06">Foreign property ownership</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/worker-housing">Overview</a><a href="/fr/worker-housing#wh-request">Request housing</a><a href="/fr/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/fr/services/bp-housing-01">Licensing service</a><a href="/fr/services/bp-housing-02">Worker transport</a><a href="/fr/farina#workforce">Workforce catering (Farina)</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Catering &amp; Hospitality <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/farina">Overview</a><a href="/fr/farina#coffee-break">Coffee Break</a><a href="/fr/farina#vip-coffee">VIP Coffee Break</a><a href="/fr/farina#executive-lunch">Executive Lunch</a><a href="/fr/farina#vip-hospitality">VIP Hospitality</a><a href="/fr/farina#workforce">Workforce Catering</a><a href="/fr/worker-housing">Worker Housing</a></div>
+    <div class="nav-menu"><a href="/fr/worker-housing">Overview</a><a href="/fr/worker-housing#wh-request">Request housing</a><a href="/fr/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/fr/services/bp-housing-01">Licensing service</a><a href="/fr/services/bp-housing-02">Worker transport</a></div>
   </div></div>
     </div><div class="nav-group">
       <button type="button" class="nav-drop" aria-expanded="false">Centre de connaissances <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
@@ -257,9 +258,135 @@
 
         <!-- Documents -->
         <div class="dash-panel" id="panel-documents">
-          <div class="dash-panel-head"><h2>My documents</h2><p>Files attached to your orders.</p></div>
-          <div class="dash-card"><div id="all-uploads"><p class="dash-empty">No documents yet — attach them when you place an order.</p></div>
-            <a class="btn btn-ghost" href="/fr/compliance-agent">🛡️ Subscribe to the Compliance Agent</a></div>
+          <div class="dash-panel-head"><h2>Company documents</h2><p>Attach your establishment's documents so our team has your full file ready. Everything here is optional — add what you have now and complete the rest later.</p></div>
+          <div class="dash-card">
+            <div id="docs-wizard" data-total="4">
+    <p class="calc-note" style="color:var(--text-soft);margin:0 0 14px">All documents are optional. Your entries are saved on this device as you go — use Back/Next to move between sections.</p>
+    <div class="docwiz-dots"><span class="docwiz-dot active" data-dot="0" title="Registration &amp; incorporation"></span><span class="docwiz-dot" data-dot="1" title="Government certificates"></span><span class="docwiz-dot" data-dot="2" title="Qiwa &amp; GOSI files"></span><span class="docwiz-dot" data-dot="3" title="Manager &amp; owners IDs"></span></div>
+    <div class="docwiz-step" data-step="0">
+      <h3 class="docwiz-step-title">Registration &amp; incorporation</h3>
+      <div class="doc-rows"><div class="docrow" data-doc="cr">
+    <div class="docrow-info"><span class="docrow-title">Commercial Registration (CR)</span><span class="docrow-hint">Saudi or foreign — attach the file and paste the barcode link if any</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="cr" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="cr">Choose file</span></span></label>
+      <input type="url" class="doc-link" data-doclink="cr" placeholder="Barcode link (optional)">
+      <span class="doc-clear" data-docclear="cr" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div><div class="docrow" data-doc="aoa">
+    <div class="docrow-info"><span class="docrow-title">Articles of Association</span><span class="docrow-hint">The notarised incorporation contract</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="aoa" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="aoa">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="aoa" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div><div class="docrow" data-doc="chamber">
+    <div class="docrow-info"><span class="docrow-title">Chamber of Commerce membership</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="chamber" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="chamber">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="chamber" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div></div>
+      
+    </div><div class="docwiz-step" data-step="1" hidden>
+      <h3 class="docwiz-step-title">Government certificates</h3>
+      <div class="doc-rows"><div class="docrow" data-doc="national-address">
+    <div class="docrow-info"><span class="docrow-title">National Address certificate</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="national-address" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="national-address">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="national-address" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div><div class="docrow" data-doc="zakat">
+    <div class="docrow-info"><span class="docrow-title">Zakat certificate</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="zakat" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="zakat">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="zakat" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div><div class="docrow" data-doc="vat">
+    <div class="docrow-info"><span class="docrow-title">VAT certificate</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="vat" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="vat">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="vat" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div><div class="docrow" data-doc="gosi-cert">
+    <div class="docrow-info"><span class="docrow-title">GOSI certificate</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="gosi-cert" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="gosi-cert">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="gosi-cert" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div></div>
+      
+    </div><div class="docwiz-step" data-step="2" hidden>
+      <h3 class="docwiz-step-title">Qiwa &amp; GOSI files</h3>
+      <div class="doc-rows"><div class="docrow" data-doc="wps">
+    <div class="docrow-info"><span class="docrow-title">Wage Protection certificate (Qiwa)</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="wps" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="wps">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="wps" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div><div class="docrow" data-doc="qiwa-debts">
+    <div class="docrow-info"><span class="docrow-title">Liabilities certificate (Qiwa)</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="qiwa-debts" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="qiwa-debts">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="qiwa-debts" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div><div class="docrow" data-doc="gosi-excel">
+    <div class="docrow-info"><span class="docrow-title">GOSI file (Excel)</span><span class="docrow-hint">The employees file exported from GOSI</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="gosi-excel" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="gosi-excel">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="gosi-excel" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div><div class="docrow" data-doc="employee-contracts">
+    <div class="docrow-info"><span class="docrow-title">Employee contracts (Qiwa)</span><span class="docrow-hint">You can attach more than one file</span></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="employee-contracts" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="employee-contracts">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="employee-contracts" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div></div>
+      
+    </div><div class="docwiz-step" data-step="3" hidden>
+      <h3 class="docwiz-step-title">Manager &amp; owners IDs</h3>
+      <div class="doc-rows"><div class="docrow" data-doc="manager-id">
+    <div class="docrow-info"><span class="docrow-title">Manager ID</span><select class="doc-idtype" data-docidtype="manager-id" aria-label="ID type">
+        <option value="">ID type</option>
+        <option value="national">Saudi national ID</option>
+        <option value="iqama">Residency (Iqama)</option>
+        <option value="passport">Passport</option>
+      </select></div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="manager-id" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="manager-id">Choose file</span></span></label>
+      
+      <span class="doc-clear" data-docclear="manager-id" role="button" tabindex="0" hidden aria-label="Remove">✕</span>
+    </div>
+  </div></div>
+      <div class="doc-owners-wrap">
+          <div class="docrow-info" style="margin-bottom:8px"><span class="docrow-title">Owners' IDs</span><span class="docrow-hint">Add each owner — national ID, residency or passport.</span></div>
+          <div id="doc-owners"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="doc-add-owner">＋ Add owner</button>
+        </div>
+    </div>
+    <div class="docwiz-nav">
+      <button type="button" class="btn btn-ghost" data-docwiz-back hidden>← Back</button>
+      <span class="docwiz-progress">Step <b data-docwiz-cur>1</b> of 4</span>
+      <button type="button" class="btn btn-primary" data-docwiz-next>Next →</button>
+      <button type="button" class="btn btn-primary" data-docwiz-send hidden>Save &amp; send to team</button>
+    </div>
+    <div class="form-success" id="docs-sent" hidden></div>
+  </div>
+          </div>
+          <div class="dash-card" style="margin-top:16px">
+            <h3 style="margin:0 0 6px">Files attached to your orders</h3>
+            <div id="all-uploads"><p class="dash-empty">No order attachments yet — you can also attach files when placing an order.</p></div>
+            <a class="btn btn-ghost" href="/fr/compliance-agent" style="margin-top:12px">🛡️ Subscribe to the Compliance Agent</a>
+          </div>
         </div>
 
         <!-- Support -->
@@ -303,7 +430,6 @@
       <li><a href="/fr/mahfol-makfol">Business Tourism</a></li>
       <li><a href="/fr/workspaces">Business Spaces</a></li>
       <li><a href="/fr/worker-housing">Worker Housing</a></li>
-      <li><a href="/fr/farina">Catering &amp; Hospitality</a></li>
     </ul></div>
     <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
       <li><a href="/fr/account">Espace client</a></li>
@@ -419,4 +545,8 @@
     </div>
 
     <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Vous préférez discuter avec notre équipe sur WhatsApp ?</span></a>
+<<<<<<< HEAD
   </section><script src="/assets/js/main.js?v=fb3fc5bc18"></script></body></html>
+=======
+  </section><script src="/assets/js/main.js?v=64952254ed"></script></body></html>
+>>>>>>> 6b65235a (Company-documents wizard in account; remove Farina; drop its prices)

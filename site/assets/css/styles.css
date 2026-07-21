@@ -601,6 +601,27 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .dash-main { min-width: 0; }
 .dash-panel { display: none; }
 .dash-panel.active { display: block; }
+/* Company-documents wizard */
+.docwiz-dots { display: flex; gap: 8px; margin: 0 0 18px; }
+.docwiz-dot { width: 30px; height: 5px; border-radius: 99px; background: var(--gray-line); transition: background .18s; cursor: pointer; }
+.docwiz-dot.active { background: var(--navy); }
+.docwiz-step-title { margin: 0 0 14px; font-size: 1.05rem; color: var(--navy); }
+.doc-rows { display: grid; gap: 10px; }
+.docrow { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid var(--gray-line); border-radius: 12px; background: var(--white); }
+.docrow-info { display: flex; flex-direction: column; gap: 3px; min-width: 200px; flex: 1; }
+.docrow-title { font-weight: 600; color: var(--navy); font-size: .95rem; }
+.docrow-hint { font-size: .78rem; color: var(--text-soft); line-height: 1.5; }
+.docrow-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.doc-file { cursor: pointer; }
+.doc-file-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px dashed var(--gray-line); border-radius: 10px; font-size: .85rem; color: var(--navy); background: var(--gray-bg); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-file:hover .doc-file-btn { border-color: var(--navy); }
+.doc-link, .doc-idtype { padding: 8px 12px; border: 1px solid var(--gray-line); border-radius: 10px; font-size: .85rem; font-family: inherit; max-width: 240px; }
+.doc-clear { cursor: pointer; color: var(--text-soft); font-size: .9rem; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; }
+.doc-clear:hover { background: rgba(217,32,64,.1); color: #d92040; }
+.doc-owners-wrap { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--gray-line); }
+.doc-owner { margin-bottom: 8px; }
+.docwiz-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+.docwiz-progress { color: var(--text-soft); font-size: .85rem; }
 .dash-panel-head { margin-bottom: 18px; }
 .dash-panel-head h2 { margin-bottom: 4px; }
 .dash-panel-head p { color: var(--text-soft); font-size: .93rem; }

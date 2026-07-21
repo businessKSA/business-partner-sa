@@ -825,6 +825,46 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref }));
   }
 
+  // Company-documents checklist submitted from the client dashboard. We can't
+  // receive the binary files through this JSON endpoint, so this records WHICH
+  // documents the client has ready (names + any links + owner IDs) and notifies
+  // the team; the client then shares the actual files on WhatsApp.
+  if (b.type === "documents") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const company = String(b.company || "").trim().slice(0, 200) || name;
+    const cr = String(b.cr || "").trim().slice(0, 40);
+    const ref = String(b.ref || "BPD-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const DOC_LABELS = {
+      cr: "السجل التجاري", aoa: "عقد التأسيس", chamber: "اشتراك الغرفة التجارية",
+      "national-address": "شهادة العنوان الوطني", zakat: "شهادة الزكاة", vat: "شهادة الضريبة",
+      "gosi-cert": "شهادة التأمينات", wps: "شهادة حماية الأجور (قوى)", "qiwa-debts": "شهادة المديونيات (قوى)",
+      "gosi-excel": "ملف التأمينات (Excel)", "employee-contracts": "عقود الموظفين (قوى)", "manager-id": "هوية المدير",
+    };
+    const ID_LABELS = { national: "هوية وطنية", iqama: "إقامة", passport: "جواز سفر", "": "—" };
+    const docs = Array.isArray(b.docs) ? b.docs.slice(0, 40) : [];
+    const owners = Array.isArray(b.owners) ? b.owners.slice(0, 30) : [];
+    const docRows = docs.map((d) => {
+      const label = DOC_LABELS[d && d.k] || String((d && d.k) || "").slice(0, 60);
+      const parts = [];
+      if (d && d.name) parts.push(esc(String(d.name).slice(0, 160)));
+      if (d && d.idtype) parts.push(ID_LABELS[d.idtype] || esc(String(d.idtype)));
+      if (d && d.link) parts.push(`<a href="${esc(String(d.link).slice(0, 400))}">${esc(String(d.link).slice(0, 80))}</a>`);
+      return row(label, parts.join(" · ") || "✓");
+    }).join("");
+    const ownerRows = owners.map((o, i) => row(`مالك ${i + 1}`, `${ID_LABELS[(o && o.idtype) || ""] || "—"}${o && o.name ? " · " + esc(String(o.name).slice(0, 160)) : ""}`)).join("");
+    if (!docRows && !ownerRows) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_documents" })); }
+    const readyCount = docs.length + owners.length;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">مستندات منشأة ${ref}</h2><table>${row("المنشأة", company) + (cr ? row("السجل التجاري", cr) : "") + (name ? row("المسؤول", name) : "") + (email ? row("البريد", email) : "")}</table><h3 style="color:#0B1B5A">المستندات الجاهزة (${readyCount})</h3><table>${docRows}${ownerRows}</table><p>العميل سيشارك الملفات نفسها عبر واتساب — جهّز ملف المنشأة في «Sales Pipeline» / نظام الملفات.</p></div>`;
+    const notes = `مستندات المنشأة (${readyCount} جاهز): ${docs.map((d) => DOC_LABELS[d && d.k] || (d && d.k)).filter(Boolean).join("، ")}${owners.length ? ` · ملّاك: ${owners.length}` : ""}`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `مستندات منشأة ${ref} — ${company} (${readyCount})`, oHtml),
+      email && isEmail(email) ? crmLead({ title: `مستندات منشأة — ${company}`, phone: "", email, notes, ref, orderStatus: "قيد المراجعة", total: 0 }) : Promise.resolve(),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   // Corporate bank-account opening: file prepared from the company profile,
   // online appointment with the bank officer — EVERY partner + the manager
   // receive the proposed appointment by email; the team confirms with the bank.

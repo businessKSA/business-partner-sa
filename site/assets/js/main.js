@@ -1600,6 +1600,146 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
+/* ---------- Company documents wizard (account dashboard) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var wiz = document.getElementById("docs-wizard");
+    if (!wiz) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    var KEY = "bp_docs";
+    var total = parseInt(wiz.getAttribute("data-total"), 10) || 1;
+    var cur = 0;
+    function esc3(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function load() { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { return {}; } }
+    function save(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {} }
+    var data = load();
+    if (!data.items) data.items = {};
+    if (!data.owners) data.owners = [];
+
+    // ---- render saved state into the fields ----
+    function paintItem(k) {
+      var rec = data.items[k] || {};
+      var nameEl = wiz.querySelector('[data-docname="' + k + '"]');
+      var clr = wiz.querySelector('[data-docclear="' + k + '"]');
+      var linkEl = wiz.querySelector('[data-doclink="' + k + '"]');
+      var typeEl = wiz.querySelector('[data-docidtype="' + k + '"]');
+      if (nameEl) nameEl.textContent = rec.name || T("Choose file", "اختر ملف");
+      if (clr) clr.hidden = !rec.name;
+      if (linkEl && rec.link != null) linkEl.value = rec.link;
+      if (typeEl && rec.idtype != null) typeEl.value = rec.idtype;
+    }
+    function paintAll() { Object.keys(data.items).forEach(paintItem); wiz.querySelectorAll("[data-docfile]").forEach(function (f) { paintItem(f.getAttribute("data-docfile")); }); }
+
+    // ---- file / link / type inputs ----
+    wiz.addEventListener("change", function (e) {
+      var f = e.target.closest("[data-docfile]");
+      if (f) {
+        var k = f.getAttribute("data-docfile");
+        var names = Array.prototype.map.call(f.files || [], function (x) { return x.name; });
+        data.items[k] = data.items[k] || {};
+        data.items[k].name = names.length ? (names.length > 1 ? names[0] + " +" + (names.length - 1) : names[0]) : "";
+        save(data); paintItem(k); return;
+      }
+      var lk = e.target.closest("[data-doclink]");
+      if (lk) { var lkk = lk.getAttribute("data-doclink"); data.items[lkk] = data.items[lkk] || {}; data.items[lkk].link = lk.value.trim(); save(data); return; }
+      var tp = e.target.closest("[data-docidtype]");
+      if (tp) { var tpk = tp.getAttribute("data-docidtype"); data.items[tpk] = data.items[tpk] || {}; data.items[tpk].idtype = tp.value; save(data); return; }
+    });
+    wiz.addEventListener("click", function (e) {
+      var clr = e.target.closest("[data-docclear]");
+      if (clr) {
+        var k = clr.getAttribute("data-docclear");
+        if (data.items[k]) { delete data.items[k].name; }
+        var input = wiz.querySelector('[data-docfile="' + k + '"]'); if (input) input.value = "";
+        save(data); paintItem(k); return;
+      }
+    });
+
+    // ---- owners repeater ----
+    var ownersBox = document.getElementById("doc-owners");
+    var TYPE_OPTS = [["", T("ID type", "نوع الهوية")], ["national", T("Saudi national ID", "هوية وطنية سعودية")], ["iqama", T("Residency (Iqama)", "إقامة")], ["passport", T("Passport", "جواز سفر")]];
+    function ownerRow(o, idx) {
+      var opts = TYPE_OPTS.map(function (t) { return '<option value="' + t[0] + '"' + (o.idtype === t[0] ? " selected" : "") + ">" + esc3(t[1]) + "</option>"; }).join("");
+      return '<div class="docrow doc-owner" data-owner="' + idx + '">' +
+        '<div class="docrow-info"><select class="doc-idtype" data-owner-type="' + idx + '">' + opts + "</select></div>" +
+        '<div class="docrow-actions">' +
+        '<label class="doc-file"><input type="file" data-owner-file="' + idx + '" accept=".pdf,.jpg,.jpeg,.png" hidden><span class="doc-file-btn">📎 <span data-owner-name="' + idx + '">' + esc3(o.name || T("Choose file", "اختر ملف")) + "</span></span></label>" +
+        '<span class="doc-clear" data-owner-remove="' + idx + '" role="button" tabindex="0" aria-label="' + T("Remove", "إزالة") + '">✕</span>' +
+        "</div></div>";
+    }
+    function renderOwners() {
+      if (!ownersBox) return;
+      ownersBox.innerHTML = data.owners.map(ownerRow).join("");
+    }
+    if (ownersBox) {
+      ownersBox.addEventListener("change", function (e) {
+        var tp = e.target.closest("[data-owner-type]");
+        if (tp) { var i = +tp.getAttribute("data-owner-type"); data.owners[i].idtype = tp.value; save(data); return; }
+        var f = e.target.closest("[data-owner-file]");
+        if (f) { var j = +f.getAttribute("data-owner-file"); data.owners[j].name = (f.files && f.files[0]) ? f.files[0].name : ""; save(data); var nm = ownersBox.querySelector('[data-owner-name="' + j + '"]'); if (nm) nm.textContent = data.owners[j].name || T("Choose file", "اختر ملف"); return; }
+      });
+      ownersBox.addEventListener("click", function (e) {
+        var rm = e.target.closest("[data-owner-remove]");
+        if (rm) { var i = +rm.getAttribute("data-owner-remove"); data.owners.splice(i, 1); save(data); renderOwners(); }
+      });
+      var addBtn = document.getElementById("doc-add-owner");
+      if (addBtn) addBtn.addEventListener("click", function () { data.owners.push({ idtype: "", name: "" }); save(data); renderOwners(); });
+      renderOwners();
+    }
+
+    // ---- step navigation ----
+    var steps = wiz.querySelectorAll(".docwiz-step");
+    var backBtn = wiz.querySelector("[data-docwiz-back]");
+    var nextBtn = wiz.querySelector("[data-docwiz-next]");
+    var sendBtn = wiz.querySelector("[data-docwiz-send]");
+    var curEl = wiz.querySelector("[data-docwiz-cur]");
+    function showStep(n) {
+      cur = Math.max(0, Math.min(total - 1, n));
+      steps.forEach(function (s) { s.hidden = +s.getAttribute("data-step") !== cur; });
+      wiz.querySelectorAll(".docwiz-dot").forEach(function (d) { d.classList.toggle("active", +d.getAttribute("data-dot") <= cur); });
+      if (curEl) curEl.textContent = cur + 1;
+      if (backBtn) backBtn.hidden = cur === 0;
+      var last = cur === total - 1;
+      if (nextBtn) nextBtn.hidden = last;
+      if (sendBtn) sendBtn.hidden = !last;
+    }
+    if (backBtn) backBtn.addEventListener("click", function () { showStep(cur - 1); wiz.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    if (nextBtn) nextBtn.addEventListener("click", function () { showStep(cur + 1); wiz.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    wiz.querySelectorAll(".docwiz-dot").forEach(function (d) { d.addEventListener("click", function () { showStep(+d.getAttribute("data-dot")); }); });
+
+    // ---- send the checklist to the team ----
+    if (sendBtn) sendBtn.addEventListener("click", function () {
+      var ses = null; try { ses = JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
+      var company = {}; try { company = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e) {}
+      var ready = [];
+      Object.keys(data.items).forEach(function (k) { var r = data.items[k]; if (r && (r.name || r.link)) ready.push({ k: k, name: r.name || "", link: r.link || "", idtype: r.idtype || "" }); });
+      var owners = (data.owners || []).filter(function (o) { return o.name || o.idtype; });
+      if (!ready.length && !owners.length) { alert(T("Attach at least one document first.", "أرفق مستنداً واحداً على الأقل أولاً.")); return; }
+      var lbl = sendBtn.textContent; sendBtn.disabled = true; sendBtn.textContent = T("Sending…", "جارٍ الإرسال…");
+      var ref = "BPD-" + Date.now().toString().slice(-6);
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "documents", ref: ref, name: (ses && ses.name) || company.name || "", email: (ses && ses.email) || "", company: company.name || "", cr: company.cr || "", docs: ready, owners: owners }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        sendBtn.disabled = false; sendBtn.textContent = lbl;
+        var box = document.getElementById("docs-sent"); box.hidden = false;
+        var waTxt = encodeURIComponent(T("Hi, I've prepared my company documents ", "السلام عليكم، جهّزت مستندات منشأتي ") + ref + T(" and want to send the files.", " وأرغب بإرسال الملفات."));
+        box.innerHTML = (d && d.ok ? "✅ <strong>" + T("Sent to our team", "وصلت لفريقنا") + " — " + ref + "</strong><br>" + T("Now share the actual files with us on WhatsApp so we file them for you.", "الآن شارك الملفات نفسها معنا عبر واتساب لنحفظها في ملفك.") : "⚠️ " + T("Couldn't send — share them on WhatsApp instead.", "تعذّر الإرسال — شاركها عبر واتساب.")) +
+          ' <a class="btn btn-wa" style="margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waTxt + '">' + T("Send files on WhatsApp", "أرسل الملفات عبر واتساب") + "</a>";
+      }).catch(function () {
+        sendBtn.disabled = false; sendBtn.textContent = lbl;
+        var box = document.getElementById("docs-sent"); box.hidden = false;
+        var waTxt = encodeURIComponent(T("Hi, I've prepared my company documents and want to send the files.", "السلام عليكم، جهّزت مستندات منشأتي وأرغب بإرسال الملفات."));
+        box.innerHTML = "⚠️ " + T("Couldn't reach the server — share them on WhatsApp.", "تعذّر الاتصال بالخادم — شاركها عبر واتساب.") + ' <a class="btn btn-wa" style="margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waTxt + '">' + T("Send files on WhatsApp", "أرسل الملفات عبر واتساب") + "</a>";
+      });
+    });
+
+    paintAll();
+    showStep(0);
+  });
+})();
+
 /* ---------- Services calculator (accordion + basket) ---------- */
 (function () {
   "use strict";

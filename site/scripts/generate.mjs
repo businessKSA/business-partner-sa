@@ -454,19 +454,6 @@ const NAV_GROUPS = [
           { href: "/worker-housing#wh-fines", en: "Regulations & fines", ar: "الاشتراطات والغرامات" },
           { href: "/services/bp-housing-01", en: "Licensing service", ar: "خدمة الترخيص والتوثيق" },
           { href: "/services/bp-housing-02", en: "Worker transport", ar: "نقل العمالة" },
-          { href: "/farina#workforce", en: "Workforce catering (Farina)", ar: "إعاشة العمالة (فارينا)" },
-        ],
-      },
-      {
-        href: "/farina", en: "Catering & Hospitality", ar: "التموين والضيافة للشركات",
-        sub: [
-          { href: "/farina", en: "Overview", ar: "نظرة عامة" },
-          { href: "/farina#coffee-break", en: "Coffee Break", ar: "الكوفي بريك" },
-          { href: "/farina#vip-coffee", en: "VIP Coffee Break", ar: "كوفي بريك VIP" },
-          { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
-          { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
-          { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
-          { href: "/worker-housing", en: "Worker Housing", ar: "تسكين العمالة" },
         ],
       },
     ],
@@ -599,7 +586,6 @@ function footer() {
       ${fl("/mahfol-makfol", "Business Tourism", "سياحة الأعمال")}
       ${fl("/workspaces", "Business Spaces", "مساحات الأعمال")}
       ${fl("/worker-housing", "Worker Housing", "تسكين العمالة")}
-      ${fl("/farina", "Catering & Hospitality", "التموين والضيافة")}
     </ul></div>
     <div class="footer-col"><h4>${L("Platforms & portals", "المنصات والبوابات")}</h4><ul>
       ${fl("/account", "Client portal", "منصّة العملاء")}
@@ -4649,7 +4635,7 @@ function buildWorkerHousing() {
     ["🏢", L("Ready licensed housing", "سكن جاهز ومرخّص"), L("Worker housing units compliant with MoMaH requirements, close to your project sites.", "وحدات سكن عمالة مطابقة لاشتراطات وزارة البلديات والإسكان، قريبة من مواقع مشاريعك.")],
     ["📋", L("Licensing & attestation", "الترخيص والتوثيق"), L("Balady collective-housing license, Ejar contract attestation, Civil Defense certificate, and Muqeem address updates.", "رخصة السكن الجماعي من بلدي، توثيق عقد الإيجار في إيجار، شهادة الدفاع المدني، وتحديث عناوين العمالة في مقيم."), "/services/bp-housing-01", L("Service details →", "تفاصيل الخدمة ←")],
     ["🛠️", L("Operations management", "إدارة وتشغيل السكن"), L("Housing supervisor, cleaning and maintenance, resident register, signage — everything inspection committees check.", "مشرف سكن، نظافة وصيانة دورية، سجل الساكنين، لوحات إرشادية، وكل متطلبات الجولات الرقابية.")],
-    ["🍽️", L("Catering — via Farina", "الإعاشة والتغذية — عبر فارينا"), L("Breakfast, lunch and dinner from Farina's licensed SFDA-compliant kitchen, rotating 4-week menu — from 8 SAR / worker / day.", "فطور وغداء وعشاء من مطبخ فارينا المرخّص والمطابق لاشتراطات SFDA، بقائمة متجددة بدورة 4 أسابيع — من 8 ريال / عامل / يوم."), "/farina#workforce", L("Workforce catering from Farina →", "خدمة إعاشة العمالة من فارينا ←")],
+    ["🍽️", L("Catering & meals", "الإعاشة والتغذية"), L("Breakfast, lunch and dinner from a licensed SFDA-compliant kitchen, with a rotating 4-week menu — priced to your headcount.", "فطور وغداء وعشاء من مطبخ مرخّص ومطابق لاشتراطات SFDA، بقائمة متجددة بدورة 4 أسابيع — بسعر حسب عدد العمالة.")],
     ["🚌", L("Worker transport", "نقل العمالة"), L("Daily transport between housing and work sites: licensed drivers, shift-based scheduling, one monthly contract.", "نقل يومي منظّم من السكن إلى مواقع العمل والعكس: سائقون مرخصون، جدولة حسب الورديات، وعقد شهري واحد."), "/services/bp-housing-02", L("Service details →", "تفاصيل الخدمة ←")],
     ["🔔", L("Compliance monitoring", "مراقبة امتثال وتنبيهات"), L("Always ready for the quarterly inspection rounds, with alerts before every license, contract or certificate expires.", "جاهزية دائمة للجولات الرقابية الربع سنوية، وتنبيهات قبل انتهاء الرخص والعقود والشهادات.")],
   ].map(([icon, title, desc, href, cta]) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${icon}</div><h3>${title}</h3><p>${desc}</p>${href ? `<a href="${u(href)}" style="display:inline-block;margin-top:10px;font-weight:600;color:var(--navy)">${cta}</a>` : ""}</div>`).join("");
@@ -4703,7 +4689,7 @@ function buildWorkerHousing() {
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("One place", "في مكان واحد")}</span><h2>${L("Everything worker housing needs", "كل احتياجات تسكين العمالة")}</h2><p>${L("Pick what you need — housing, licensing, operations, catering, transport — and we execute.", "تختار اللي تحتاجه — سكن، ترخيص، تشغيل، إعاشة، نقل — واحنا نتولى التنفيذ.")}</p></div>
     <div class="grid grid-3">${services}</div>
-    <div class="cta-band" style="margin-top:34px"><h2>${L("Housing + Catering + Transport — one contract", "سكن + إعاشة + نقل — بعقد واحد")}</h2><p>${L("The full bundle: licensed housing, three daily meals from Farina's licensed kitchen, and daily transport to your sites — one monthly invoice.", "الباقة الكاملة: سكن مرخّص، وثلاث وجبات يومياً من مطبخ فارينا المرخّص، ونقل يومي لمواقعك — بفاتورة شهرية واحدة.")}</p><a class="btn btn-white btn-lg" href="#wh-request">${L("Request the full bundle", "اطلب الباقة الكاملة")}</a></div>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Housing + Catering + Transport — one contract", "سكن + إعاشة + نقل — بعقد واحد")}</h2><p>${L("The full bundle: licensed housing, three daily meals from a licensed kitchen, and daily transport to your sites — one monthly invoice.", "الباقة الكاملة: سكن مرخّص، وثلاث وجبات يومياً من مطبخ مرخّص، ونقل يومي لمواقعك — بفاتورة شهرية واحدة.")}</p><a class="btn btn-white btn-lg" href="#wh-request">${L("Request the full bundle", "اطلب الباقة الكاملة")}</a></div>
   </div></section>
 
   <section class="section" id="wh-fines"><div class="container">
@@ -5835,6 +5821,99 @@ function buildTerms() {
   });
 }
 
+// Company-documents vault shown in the client dashboard. A multi-step wizard
+// (back/next) that lets the client attach every establishment document — all
+// optional. Files are referenced by name (same as order attachments — the
+// static site has no binary store); the checklist state + any links/notes are
+// saved to localStorage (bp_docs) and can be sent to the team, who then
+// collect the actual files via WhatsApp. Steps/items are bilingual data so the
+// list stays easy to maintain.
+const DOC_STEPS = [
+  {
+    ar: "السجل والتأسيس", en: "Registration & incorporation",
+    items: [
+      { k: "cr", ar: "السجل التجاري", en: "Commercial Registration (CR)", hAr: "سعودي أو أجنبي — أرفق الملف وألصق رابط الباركود إن وُجد", hEn: "Saudi or foreign — attach the file and paste the barcode link if any", link: true },
+      { k: "aoa", ar: "عقد تأسيس الشركة", en: "Articles of Association", hAr: "عقد التأسيس الموثّق", hEn: "The notarised incorporation contract" },
+      { k: "chamber", ar: "شهادة اشتراك الغرفة التجارية", en: "Chamber of Commerce membership" },
+    ],
+  },
+  {
+    ar: "الشهادات الحكومية", en: "Government certificates",
+    items: [
+      { k: "national-address", ar: "شهادة إثبات العنوان الوطني", en: "National Address certificate" },
+      { k: "zakat", ar: "شهادة الزكاة", en: "Zakat certificate" },
+      { k: "vat", ar: "شهادة الضريبة (القيمة المضافة)", en: "VAT certificate" },
+      { k: "gosi-cert", ar: "شهادة التأمينات الاجتماعية", en: "GOSI certificate" },
+    ],
+  },
+  {
+    ar: "قوى والتأمينات", en: "Qiwa & GOSI files",
+    items: [
+      { k: "wps", ar: "شهادة حماية الأجور (قوى)", en: "Wage Protection certificate (Qiwa)" },
+      { k: "qiwa-debts", ar: "شهادة المديونيات (قوى)", en: "Liabilities certificate (Qiwa)" },
+      { k: "gosi-excel", ar: "ملف التأمينات الاجتماعية (Excel)", en: "GOSI file (Excel)", hAr: "ملف الموظفين المُصدَّر من التأمينات", hEn: "The employees file exported from GOSI" },
+      { k: "employee-contracts", ar: "عقود الموظفين (قوى)", en: "Employee contracts (Qiwa)", multiple: true, hAr: "يمكن إرفاق أكثر من ملف", hEn: "You can attach more than one file" },
+    ],
+  },
+  {
+    ar: "هويات المدير والملاك", en: "Manager & owners IDs",
+    items: [
+      { k: "manager-id", ar: "هوية المدير", en: "Manager ID", idType: true },
+    ],
+    owners: true,
+  },
+];
+function docFileRow(it) {
+  const label = LANG === "ar" ? it.ar : it.en;
+  const hint = LANG === "ar" ? it.hAr : it.hEn;
+  const idSel = it.idType
+    ? `<select class="doc-idtype" data-docidtype="${it.k}" aria-label="${Lraw("ID type", "نوع الهوية")}">
+        <option value="">${Lraw("ID type", "نوع الهوية")}</option>
+        <option value="national">${Lraw("Saudi national ID", "هوية وطنية سعودية")}</option>
+        <option value="iqama">${Lraw("Residency (Iqama)", "إقامة")}</option>
+        <option value="passport">${Lraw("Passport", "جواز سفر")}</option>
+      </select>`
+    : "";
+  return `<div class="docrow" data-doc="${it.k}">
+    <div class="docrow-info"><span class="docrow-title">${label}</span>${hint ? `<span class="docrow-hint">${hint}</span>` : ""}${idSel}</div>
+    <div class="docrow-actions">
+      <label class="doc-file"><input type="file" data-docfile="${it.k}"${it.multiple ? " multiple" : ""} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><span class="doc-file-btn">📎 <span data-docname="${it.k}">${L("Choose file", "اختر ملف")}</span></span></label>
+      ${it.link ? `<input type="url" class="doc-link" data-doclink="${it.k}" placeholder="${Lraw("Barcode link (optional)", "رابط الباركود (اختياري)")}">` : ""}
+      <span class="doc-clear" data-docclear="${it.k}" role="button" tabindex="0" hidden aria-label="${Lraw("Remove", "إزالة")}">✕</span>
+    </div>
+  </div>`;
+}
+function docsWizard() {
+  const steps = DOC_STEPS.map((st, i) => {
+    const rows = st.items.map(docFileRow).join("");
+    const owners = st.owners
+      ? `<div class="doc-owners-wrap">
+          <div class="docrow-info" style="margin-bottom:8px"><span class="docrow-title">${L("Owners' IDs", "هويات الملّاك")}</span><span class="docrow-hint">${L("Add each owner — national ID, residency or passport.", "أضف كل مالك — هوية وطنية أو إقامة أو جواز سفر.")}</span></div>
+          <div id="doc-owners"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="doc-add-owner">＋ ${L("Add owner", "أضف مالكاً")}</button>
+        </div>`
+      : "";
+    return `<div class="docwiz-step" data-step="${i}"${i > 0 ? " hidden" : ""}>
+      <h3 class="docwiz-step-title">${L(st.en, st.ar)}</h3>
+      <div class="doc-rows">${rows}</div>
+      ${owners}
+    </div>`;
+  }).join("");
+  const dots = DOC_STEPS.map((st, i) => `<span class="docwiz-dot${i === 0 ? " active" : ""}" data-dot="${i}" title="${L(st.en, st.ar)}"></span>`).join("");
+  return `<div id="docs-wizard" data-total="${DOC_STEPS.length}">
+    <p class="calc-note" style="color:var(--text-soft);margin:0 0 14px">${L("All documents are optional. Your entries are saved on this device as you go — use Back/Next to move between sections.", "كل المستندات اختيارية. تُحفظ إدخالاتك على هذا الجهاز أولاً بأول — استخدم السابق/التالي للتنقل بين الأقسام.")}</p>
+    <div class="docwiz-dots">${dots}</div>
+    ${steps}
+    <div class="docwiz-nav">
+      <button type="button" class="btn btn-ghost" data-docwiz-back hidden>${L("← Back", "→ السابق")}</button>
+      <span class="docwiz-progress">${L("Step", "الخطوة")} <b data-docwiz-cur>1</b> ${L("of", "من")} ${DOC_STEPS.length}</span>
+      <button type="button" class="btn btn-primary" data-docwiz-next>${L("Next →", "التالي ←")}</button>
+      <button type="button" class="btn btn-primary" data-docwiz-send hidden>${L("Save & send to team", "حفظ وإرسال للفريق")}</button>
+    </div>
+    <div class="form-success" id="docs-sent" hidden></div>
+  </div>`;
+}
+
 function buildAccount() {
   const ac = site.account;
   const body = `
@@ -6026,9 +6105,15 @@ function buildAccount() {
 
         <!-- Documents -->
         <div class="dash-panel" id="panel-documents">
-          <div class="dash-panel-head"><h2>${L("My documents", "مستنداتي")}</h2><p>${L("Files attached to your orders.", "الملفات المرفقة بطلباتك.")}</p></div>
-          <div class="dash-card"><div id="all-uploads"><p class="dash-empty">${L("No documents yet — attach them when you place an order.", "لا توجد مستندات بعد — أرفقها عند تقديم طلب.")}</p></div>
-            <a class="btn btn-ghost" href="${u("/compliance-agent")}">🛡️ ${L("Subscribe to the Compliance Agent", "اشترك في وكيل الامتثال")}</a></div>
+          <div class="dash-panel-head"><h2>${L("Company documents", "مستندات المنشأة")}</h2><p>${L("Attach your establishment's documents so our team has your full file ready. Everything here is optional — add what you have now and complete the rest later.", "أرفق مستندات منشأتك ليكون ملفك كاملاً لدى فريقنا. كل ما هنا اختياري — أضف ما لديك الآن وأكمل الباقي لاحقاً.")}</p></div>
+          <div class="dash-card">
+            ${docsWizard()}
+          </div>
+          <div class="dash-card" style="margin-top:16px">
+            <h3 style="margin:0 0 6px">${L("Files attached to your orders", "الملفات المرفقة بطلباتك")}</h3>
+            <div id="all-uploads"><p class="dash-empty">${L("No order attachments yet — you can also attach files when placing an order.", "لا توجد مرفقات طلبات بعد — يمكنك أيضاً إرفاق ملفات عند تقديم طلب.")}</p></div>
+            <a class="btn btn-ghost" href="${u("/compliance-agent")}" style="margin-top:12px">🛡️ ${L("Subscribe to the Compliance Agent", "اشترك في وكيل الامتثال")}</a>
+          </div>
         </div>
 
         <!-- Support -->
@@ -8427,7 +8512,7 @@ function writeFullSite(pre) {
   write(`${pre}portal/candidates.html`, buildPortalCandidates());
   write(`${pre}workspaces.html`, buildWorkspaces());
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
-  write(`${pre}farina.html`, buildFarina());
+  // /farina (Farina catering vertical) removed at owner's request — buildFarina() kept as dead code, not generated or linked.
   write(`${pre}worker-housing.html`, buildWorkerHousing());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
@@ -8498,7 +8583,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
