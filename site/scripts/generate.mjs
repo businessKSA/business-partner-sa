@@ -2333,7 +2333,7 @@ function buildComplianceAgent() {
 const TEAM_AGENTS = [
   {
     slug: "baher", emoji: "🎯",
-    nameAr: "باهر", nameEn: "Baher",
+    nameAr: "المستشار الأول", nameEn: "Senior Advisor",
     roleAr: "مستشار الأعمال", roleEn: "Business Advisor",
     taglineAr: "أول نقطة تواصل: يشخّص طلبك ويوجّهك للخدمة أو الموظف الصحيح.", taglineEn: "Your first point of contact — diagnoses what you need and routes you to the right service or employee.",
     caps: [
@@ -6228,7 +6228,7 @@ function buildDashboard() {
   <script>
     var N8N_BASE = 'https://businesspartnerai.app.n8n.cloud/webhook';
     var AGENTS = [
-      { slug:'baher',     path:'baher-intake',      name:'باهر',     en:'Baher',     role:'مستشار الأعمال',          emoji:'🎯' },
+      { slug:'baher',     path:'baher-intake',      name:'المستشار الأول', en:'Senior Advisor', role:'مستشار الأعمال',          emoji:'🎯' },
       { slug:'mazen',     path:'mazen-intake',      name:'مازن',     en:'Mazen',     role:'مدير العمليات',           emoji:'🧭' },
       { slug:'nasser',    path:'nasser-intake',     name:'ناصر',     en:'Nasser',    role:'الموارد البشرية',         emoji:'👥' },
       { slug:'mishari',   path:'mishari-intake',    name:'مشاري',    en:'Mishari',   role:'الامتثال والالتزام',       emoji:'🛡️' },
@@ -6555,7 +6555,7 @@ function buildConnect(pre = "/") {
         </div>
         <div class="org-tier"><span class="org-label">المتخصصون</span>
           <div class="org-cards">
-            <span class="org-card">🎯 باهر — مستشار الأعمال</span>
+            <span class="org-card">🎯 المستشار الأول — الأعمال</span>
             <span class="org-card">👥 ناصر — الموارد البشرية</span>
             <span class="org-card">🛡️ مشاري — الامتثال</span>
             <span class="org-card">⚖️ عبدالعزيز — القانوني</span>
@@ -6723,7 +6723,7 @@ function buildConnect(pre = "/") {
     }
     var EMPLOYEES=[
       {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
-      {slug:'baher',e:'🎯',name:'باهر',role:'مستشار الأعمال',nameEn:'Baher — Business Advisor'},
+      {slug:'baher',e:'🎯',name:'المستشار الأول',role:'مستشار الأعمال',nameEn:'Senior Business Advisor'},
       {slug:'mazen',e:'🧭',name:'مازن',role:'مدير العمليات',nameEn:'Mazen — Operations Manager'},
       {slug:'nasser',e:'👥',name:'ناصر',role:'الموارد البشرية',nameEn:'Nasser — HR'},
       {slug:'mishari',e:'🛡️',name:'مشاري',role:'الامتثال والالتزام',nameEn:'Mishari — Compliance'},
@@ -6945,7 +6945,7 @@ function buildPortal(pre = "/") {
   <script>
     var N8N_BASE='https://businesspartnerai.app.n8n.cloud/webhook';
     var AGENTS=[
-      {slug:'baher',path:'baher-intake',name:'باهر',role:'مستشار الأعمال',e:'🎯'},
+      {slug:'baher',path:'baher-intake',name:'المستشار الأول',role:'مستشار الأعمال',e:'🎯'},
       {slug:'mazen',path:'mazen-intake',name:'مازن',role:'مدير العمليات',e:'🧭'},
       {slug:'nasser',path:'nasser-intake',name:'ناصر',role:'الموارد البشرية',e:'👥'},
       {slug:'mishari',path:'mishari-intake',name:'مشاري',role:'الامتثال والالتزام',e:'🛡️'},
@@ -7223,7 +7223,7 @@ function buildSharedServices() {
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
     { e: "👑", en: "Baher — Chief of Staff & Customer Service", ar: "باهر — قائد الفريق وخدمة العملاء" },
-    { e: "🎯", en: "Baher — Business Advisor", ar: "باهر — مستشار الأعمال" },
+    { e: "🎯", en: "Senior Business Advisor", ar: "المستشار الأول — الأعمال" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
     { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
     { e: "🛡️", en: "Mishari — Compliance", ar: "مشاري — الامتثال والالتزام" },
@@ -7244,7 +7244,7 @@ function buildSharedServices() {
   const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
   const agentData = [
     { slug: "khaled", e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
-    { slug: "baher", e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", path: "baher-intake" },
+    { slug: "baher", e: "🎯", ar: "المستشار الأول", arRole: "مستشار الأعمال", en: "Senior Advisor", enRole: "Business Advisor", path: "baher-intake" },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
     { slug: "mishari", e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance", path: "mishari-intake" },
@@ -7329,7 +7329,7 @@ function buildSharedServices() {
     { e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service",
       svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
       mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
-    { e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
+    { e: "🎯", ar: "المستشار الأول", arRole: "مستشار الأعمال", en: "Senior Advisor", enRole: "Business Advisor",
       svcAr: ["الاستراتيجية والنمو", "إعادة الهيكلة", "دراسات الجدوى", "القرارات الكبيرة"], svcEn: ["Strategy & growth", "Restructuring", "Feasibility", "Big decisions"],
       mAr: "المجلس الاستشاري — يُستشار في القرارات الكبرى قبل التنفيذ.", mEn: "The advisory seat — consulted on major decisions before execution." },
     { e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager",
@@ -7429,7 +7429,7 @@ function buildSharedServices() {
         <div class="ss-oconn"><i>3</i><em>${L("Specialist execution", "التنفيذ المتخصص")}</em></div>
         <div class="ss-ogroups">
           <div class="ss-ogroup"><b>🎯 ${L("Advisory & planning", "الاستشارة والتخطيط")}</b>
-            <span class="ss-oa"><i>💡</i>${L("Baher — Business Advisor", "باهر — مستشار الأعمال")}</span>
+            <span class="ss-oa"><i>💡</i>${L("Senior Business Advisor", "المستشار الأول — الأعمال")}</span>
             <span class="ss-oa"><i>📈</i>${L("Ahmed — Strategic Planning", "أحمد — التخطيط الاستراتيجي")}</span></div>
           <div class="ss-ogroup"><b>⚖️ ${L("Finance, compliance & legal", "المال والامتثال والقانون")}</b>
             <span class="ss-oa"><i>💰</i>${L("Abdulrahman — CFO", "عبدالرحمن — المدير المالي")}</span>
@@ -7695,7 +7695,7 @@ function buildSharedServicesPortal() {
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
     { e: "👑", en: "Baher — Chief of Staff & Customer Service", ar: "باهر — قائد الفريق وخدمة العملاء" },
-    { e: "🎯", en: "Baher — Business Advisor", ar: "باهر — مستشار الأعمال" },
+    { e: "🎯", en: "Senior Business Advisor", ar: "المستشار الأول — الأعمال" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
     { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
     { e: "🛡️", en: "Mishari — Compliance", ar: "مشاري — الامتثال والالتزام" },
@@ -7716,7 +7716,7 @@ function buildSharedServicesPortal() {
   const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
   const agentData = [
     { slug: "khaled", e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
-    { slug: "baher", e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", path: "baher-intake" },
+    { slug: "baher", e: "🎯", ar: "المستشار الأول", arRole: "مستشار الأعمال", en: "Senior Advisor", enRole: "Business Advisor", path: "baher-intake" },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
     { slug: "mishari", e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance", path: "mishari-intake" },
@@ -7801,7 +7801,7 @@ function buildSharedServicesPortal() {
     { e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service",
       svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
       mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
-    { e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
+    { e: "🎯", ar: "المستشار الأول", arRole: "مستشار الأعمال", en: "Senior Advisor", enRole: "Business Advisor",
       svcAr: ["الاستراتيجية والنمو", "إعادة الهيكلة", "دراسات الجدوى", "القرارات الكبيرة"], svcEn: ["Strategy & growth", "Restructuring", "Feasibility", "Big decisions"],
       mAr: "المجلس الاستشاري — يُستشار في القرارات الكبرى قبل التنفيذ.", mEn: "The advisory seat — consulted on major decisions before execution." },
     { e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager",
@@ -7926,7 +7926,7 @@ function buildSharedServicesPortal() {
           <div class="ss-kcard"><b>👥 ${L("Work distribution across the team", "توزيع العمل على الفريق")}</b><div id="ss-kagents" class="ss-krows"></div></div>
           <div class="ss-kcard"><b>🕓 ${L("Latest interactions", "آخر التفاعلات")}</b><div id="ss-krecent" class="ss-krows"></div></div>
         </div>
-        <p class="ss-secure">📌 ${L("Every number here comes from your documented Notion workspace — ask Khaled for a detailed report anytime.", "كل رقم هنا من مساحتك الموثقة — اطلب من خالد تقريراً تفصيلياً في أي وقت.")}</p>
+        <p class="ss-secure">📌 ${L("Every number here comes from your documented Notion workspace — ask Baher for a detailed report anytime.", "كل رقم هنا من مساحتك الموثقة — اطلب من باهر تقريراً تفصيلياً في أي وقت.")}</p>
         <style>
           .ss-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
           .ss-ktile{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center}
