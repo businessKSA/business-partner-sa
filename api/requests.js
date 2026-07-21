@@ -387,7 +387,9 @@ const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666">${k}</td><td 
 
 // ---- Shared Services: subscribe → owner approval → emailed access code → unlock ----
 const OTP_SECRET = process.env.OTP_SECRET || "";
-const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
+// إشعارات المالك تذهب لإيميل الشركة افتراضياً (لا للإيميل الشخصي).
+// عند تساويه مع TEAM_EMAIL تصبح النسخ المكررة أدناه no-op تلقائياً.
+const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
 const SITE_BASE = process.env.SITE_BASE || "https://businesspartner.sa";
 const SS_BANK = { beneficiary: process.env.BP_BANK_BENEFICIARY || "شركة بيزنس بارتنر", bank: process.env.BP_BANK_NAME || "مصرف الراجحي", iban: process.env.BP_BANK_IBAN || "SA5380000511608016228498" };
 const ssKey = () => crypto.createHash("sha256").update(OTP_SECRET).digest();
@@ -1009,9 +1011,25 @@ export default async function handler(req, res) {
       } catch (e) { console.error("ticket create exception", String(e).slice(0, 150)); }
     }
     const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🎫 تذكرة دعم جديدة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", svcAr) + row("المجال", catAr) + row("تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — والتذكرة ظاهرة في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
+    // تأكيد للعميل: فتحنا تذكرة + خيار حجز موعد أو واتساب المستشار باهر
+    const bookUrl = `${MKT_SITE_BASE}/consultation`;
+    const waAdvisor = "https://wa.me/966530540231";
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
+      <h2 style="color:#0B1B5A">فتحنا لك تذكرة دعم ✅</h2>
+      <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وسيتواصل معك مستشارك <b>باهر</b> قريباً على رقمك/بريدك.</p>
+      <p style="margin:18px 0"><b>وتقدر تبدأ الآن مباشرة:</b></p>
+      <p><a href="${bookUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 احجز موعد استشارتك المجانية</a></p>
+      <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>
+      <p style="color:#666;margin-top:22px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
+    const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source: "support-ticket", ref, name, phone, email, transcript: `🎫 تذكرة: ${svcAr}${catAr ? " (" + catAr + ")" : ""}${note ? "\n" + note : ""}`, url: `${MKT_SITE_BASE}/monitor` }),
+    }).catch(() => {});
     await Promise.all([
       sendEmail(TEAM_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml),
       OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml) : Promise.resolve(),
+      isEmail(email) ? sendEmail(email, `فتحنا لك تذكرة دعم — بيزنس بارتنر (${ref})`, cHtml) : Promise.resolve(),
+      waNotify,
       forwardLead({ source: "support-ticket", ref, name, phone, email, items: svcAr }),
       email ? addToAudience(email, name) : Promise.resolve(),
     ]);
