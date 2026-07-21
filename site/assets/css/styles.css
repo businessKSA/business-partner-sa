@@ -1404,3 +1404,13 @@ html[dir="rtl"] .deal-drawer { transform: translateX(-105%); }
   .eco-tabs { display: flex; width: 100%; }
   .eco-tab { flex: 1; text-align: center; padding: 10px; }
 }
+
+/* Advisor soft contact-capture card (shown once on buying intent) */
+.advisor-capture { max-width: 100% !important; }
+.advisor-capture .adv-cap-h { font-weight: 600; margin-bottom: 8px; line-height: 1.5; }
+.advisor-capture .adv-cap-i { display: block; width: 100%; box-sizing: border-box; margin-bottom: 7px; padding: 9px 11px; border: 1px solid var(--gray-line); border-radius: 10px; font-family: inherit; font-size: .9rem; }
+.advisor-capture .adv-cap-i:focus { outline: none; border-color: var(--navy); }
+.advisor-capture .adv-cap-row { display: flex; gap: 8px; margin-top: 2px; }
+.advisor-capture .adv-cap-send { flex: 1; background: var(--navy); color: #fff; border: 0; border-radius: 10px; padding: 9px; font-family: inherit; font-weight: 600; cursor: pointer; }
+.advisor-capture .adv-cap-skip { background: transparent; color: var(--text-soft); border: 1px solid var(--gray-line); border-radius: 10px; padding: 9px 12px; font-family: inherit; cursor: pointer; }
+.advisor-capture .adv-cap-msg { color: #b91c1c; font-size: .82rem; margin-top: 6px; }
