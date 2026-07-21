@@ -197,6 +197,7 @@
         <div class="brand">BP Inbox<small>مركز محادثات واتساب — مباشر</small></div>
         <div class="spacer"></div>
         <div class="conn"><span class="dot" id="connDot"></span><span id="connText">متصل</span></div>
+        <button id="notifBtn" title="فعّل تنبيهات الجهاز">🔕</button>
         <a class="btn-ghost" id="notionDbBtn" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener" style="color:#fff;border-color:rgba(255,255,255,.25);background:transparent">📊 نوشن</a>
         <button id="logoutBtn">خروج</button>
       </div>
@@ -507,8 +508,36 @@
 
       function render() { renderSidebar(); renderChat(); }
 
+      // ---- Sound + on-device (system) notifications ----
+      var audioCtx = null, notifsOn = false, knownIds = null;
+      function unlockAudio() { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) {} }
       function beep() {
-        try { var c = new (window.AudioContext || window.webkitAudioContext)(); var o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = .05; o.start(); o.stop(c.currentTime + .12); } catch (e) {}
+        try {
+          unlockAudio(); if (!audioCtx) return; var now = audioCtx.currentTime;
+          [[880, 0], [1320, 0.15]].forEach(function (p) {
+            var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.type = 'sine'; o.frequency.value = p[0]; o.connect(g); g.connect(audioCtx.destination);
+            g.gain.setValueAtTime(0.0001, now + p[1]);
+            g.gain.exponentialRampToValueAtTime(0.28, now + p[1] + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + p[1] + 0.38);
+            o.start(now + p[1]); o.stop(now + p[1] + 0.4);
+          });
+        } catch (e) {}
+      }
+      function updateBell() { var b = $('notifBtn'); if (!b) return; b.textContent = notifsOn ? '🔔' : '🔕'; b.title = notifsOn ? 'التنبيهات مفعّلة' : 'فعّل تنبيهات الجهاز'; }
+      function enableNotifs() {
+        unlockAudio();
+        if (!('Notification' in window)) { notifsOn = false; updateBell(); return; }
+        if (Notification.permission === 'granted') { notifsOn = true; updateBell(); beep(); return; }
+        Notification.requestPermission().then(function (p) { notifsOn = (p === 'granted'); updateBell(); if (notifsOn) beep(); });
+      }
+      function notify(title, body) {
+        try {
+          if (notifsOn && 'Notification' in window && Notification.permission === 'granted') {
+            var n = new Notification(title, { body: body, tag: 'bp-inbox', renotify: true, icon: '/assets/img/logo.png', lang: 'ar', dir: 'rtl' });
+            n.onclick = function () { window.focus(); n.close(); };
+          }
+        } catch (e) {}
       }
       var flashTimer = null, baseTitle = 'BP Inbox';
       function flashTitle(n) {
@@ -521,10 +550,25 @@
       function poll() {
         return fetchFeed().then(function (data) {
           if (data && data.ok) {
-            var grew = data.count > lastCount && lastCount > 0;
-            lastCount = data.count;
             messages = data.messages || [];
-            if (grew) { beep(); if (document.hidden) { flashTitle(data.count); } }
+            var newCust = [];
+            if (knownIds === null) {
+              knownIds = {}; for (var i = 0; i < messages.length; i++) knownIds[messages[i].id] = 1;
+            } else {
+              for (var j = 0; j < messages.length; j++) {
+                var m = messages[j];
+                if (m.id && !knownIds[m.id]) { knownIds[m.id] = 1; if (m.sender === 'العميل') newCust.push(m); }
+              }
+            }
+            lastCount = data.count;
+            if (newCust.length) {
+              beep();
+              var last = newCust[newCust.length - 1];
+              var who = last.phone ? ('+' + last.phone) : 'عميل';
+              var body = who + '\n' + (last.text || '').replace(/\s+/g, ' ').slice(0, 90);
+              notify(newCust.length > 1 ? ('💬 ' + newCust.length + ' رسائل جديدة من العملاء') : '💬 رسالة جديدة من عميل', body);
+              flashTitle(data.count);
+            }
             render();
             $('connDot').className = 'dot'; $('connText').textContent = 'متصل';
           }
@@ -710,6 +754,11 @@
       $('fileInput').onchange = function () { if (this.files && this.files[0]) sendMedia(this.files[0]); this.value = ''; };
       $('searchInput').addEventListener('input', function () { search = this.value; renderSidebar(); });
       $('logoutBtn').onclick = logout;
+      $('notifBtn').onclick = enableNotifs;
+      $('enterBtn').addEventListener('click', enableNotifs);
+      document.addEventListener('pointerdown', unlockAudio, { once: true });
+      if ('Notification' in window && Notification.permission === 'granted') notifsOn = true;
+      updateBell();
       $('backBtn').onclick = function () { $('cols').classList.remove('chat-open'); activePhone = null; };
 
       if (accessKey) {
