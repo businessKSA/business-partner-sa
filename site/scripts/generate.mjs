@@ -461,11 +461,11 @@ const NAV_GROUPS = [
   {
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
-      { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
       { href: "/directory", en: "Startup Ecosystem Directory", ar: "دليل ريادة الأعمال" },
       {
-        href: "/guide/saudi-market", en: "Saudi Guide", ar: "دليل السعودية",
+        href: "/saudi-arabia", en: "Saudi Guide", ar: "دليل السعودية",
         sub: [
+          { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
           { href: "/guide/saudi-market", en: "The Saudi Market", ar: "السوق السعودي" },
           { href: "/guide/business-setup", en: "Business Setup", ar: "تأسيس الأعمال" },
           { href: "/guide/run-your-business", en: "Run Your Business", ar: "تشغيل عملك" },
@@ -5104,7 +5104,13 @@ function guideHero({ eyebrowEn, eyebrowAr, titleEn, titleAr, leadEn, leadAr }) {
     <div class="hero-actions">${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/consultation")}">${L("Book a consultation", "احجز استشارة")}</a></div>
   </div></section>`;
 }
-const GUIDE_DISCLAIMER = `<div class="callout" style="max-width:900px;margin:32px auto 0"><span class="ico">📌</span><p>${L("Government rules, fees and programs change often. This guide is a starting reference — always confirm current figures with the official portal or ask our smart agent before relying on a specific number.", "الأنظمة والرسوم والبرامج الحكومية تتغيّر بشكل متكرر. هذا الدليل مرجع أولي — تأكد دائماً من الأرقام الحالية عبر البوابة الرسمية أو اسأل الوكيل الذكي قبل الاعتماد على رقم محدد.")}</p></div>`;
+const guideDisclaimer = () => `<div class="callout" style="max-width:900px;margin:32px auto 0"><span class="ico">📌</span><p>${L("Government rules, fees and programs change often. This guide is a starting reference — always confirm current figures with the official portal or ask our smart agent before relying on a specific number.", "الأنظمة والرسوم والبرامج الحكومية تتغيّر بشكل متكرر. هذا الدليل مرجع أولي — تأكد دائماً من الأرقام الحالية عبر البوابة الرسمية أو اسأل الوكيل الذكي قبل الاعتماد على رقم محدد.")}</p></div>`;
+// Sticky in-page jump-nav for the long guide pages. `items` are [id, en, ar]
+// tuples matching the `id` of each guideBlock section on the same page.
+function guideNav(items) {
+  const links = items.map(([id, en, ar]) => `<a href="#${id}" data-guide-link>${L(en, ar)}</a>`).join("");
+  return `<nav class="guide-nav" aria-label="${Lraw("On this page", "في هذه الصفحة")}"><div class="container guide-nav-inner">${links}</div></nav>`;
+}
 
 function buildGuideSaudiMarket() {
   const body =
@@ -5114,6 +5120,11 @@ function buildGuideSaudiMarket() {
       leadEn: "GDP size, Vision 2030's giga-projects, and the practical culture-and-business norms every foreign company should plan around — sourced and updated regularly.",
       leadAr: "حجم الاقتصاد، مشاريع رؤية 2030 العملاقة، وأعراف ثقافة العمل العملية التي يحتاجها كل مستثمر أجنبي — بمصادر موثقة ومحدّثة دورياً.",
     }) +
+    guideNav([
+      ["economy", "The economy", "الاقتصاد"],
+      ["giga-projects", "Giga-projects", "المشاريع العملاقة"],
+      ["culture-business", "Culture & business", "الثقافة والأعمال"],
+    ]) +
     guideBlock({
       id: "economy",
       eyebrowEn: "The economy", eyebrowAr: "الاقتصاد",
@@ -5161,7 +5172,7 @@ function buildGuideSaudiMarket() {
         ["Gender-mixing restrictions in workplaces have relaxed considerably since 2017; 2024/2025 Labor Law amendments explicitly prohibit gender-based employment discrimination.", "قيود اختلاط الجنسين في أماكن العمل تراجعت بشكل ملحوظ منذ 2017؛ وتعديلات نظام العمل 2024/2025 تحظر صراحة التمييز الوظيفي القائم على الجنس."],
         ["Arabic is the official language and legally required in contracts and commercial dealings; English is very widely used in business settings.", "العربية هي اللغة الرسمية ومطلوبة نظاماً في العقود والتعاملات التجارية؛ والإنجليزية مستخدمة بشكل واسع جداً في بيئة الأعمال."],
       ],
-    }) + GUIDE_DISCLAIMER;
+    }) + guideDisclaimer();
   return page({ title: Lraw("The Saudi Market — Business Partner", "السوق السعودي — بيزنس بارتنر"), desc: Lraw("The Saudi economy, Vision 2030 giga-projects, and business culture — sourced guide for foreign investors.", "الاقتصاد السعودي ومشاريع رؤية 2030 العملاقة وثقافة الأعمال — دليل موثق للمستثمرين الأجانب."), active: "/guide/saudi-market", path: "/guide/saudi-market", body });
 }
 
@@ -5172,6 +5183,14 @@ function buildGuideBusinessSetup() {
       titleEn: "How to set up a company in Saudi Arabia", titleAr: "كيف تؤسس شركة في السعودية",
       leadEn: "The real registration sequence, the 8 MISA license types, Special Economic Zones and the RHQ program — with every figure source-flagged.", leadAr: "تسلسل التسجيل الفعلي، وأنواع تراخيص وزارة الاستثمار الثمانية، والمناطق الاقتصادية الخاصة وبرنامج المقر الإقليمي — مع توثيق مصدر كل رقم.",
     }) +
+    guideNav([
+      ["process", "Setup process", "خطوات التأسيس"],
+      ["licenses", "License types", "أنواع التراخيص"],
+      ["sez", "Economic Zones", "المناطق الاقتصادية"],
+      ["rhq", "RHQ program", "المقر الإقليمي"],
+      ["national-address", "National address", "العنوان الوطني"],
+      ["activities", "Activity codes", "تصنيف الأنشطة"],
+    ]) +
     guideBlock({
       id: "process",
       eyebrowEn: "Step by step", eyebrowAr: "خطوة بخطوة",
@@ -5252,7 +5271,7 @@ function buildGuideBusinessSetup() {
         ["The Saudi Business Center offers a public \"Assisted Inquiry\" e-service to search for the correct activity/code before or during CR registration.", "يوفّر المركز السعودي للأعمال خدمة \"الاستعلام المساعد\" الإلكترونية للبحث عن النشاط أو الرمز الصحيح قبل أو أثناء تسجيل السجل التجاري."],
         ["Foreign-ownership eligibility per activity is checked separately, against MISA's list of restricted/excluded activities — not shown inline in the activity lookup itself.", "أهلية التملك الأجنبي لكل نشاط تُفحص بشكل منفصل، وفق قائمة وزارة الاستثمار للأنشطة المقيّدة أو المستثناة — ولا تظهر ضمن أداة البحث عن النشاط نفسها."],
       ],
-    }) + GUIDE_DISCLAIMER;
+    }) + guideDisclaimer();
   return page({ title: Lraw("Business Setup in Saudi Arabia — Business Partner", "تأسيس الأعمال في السعودية — بيزنس بارتنر"), desc: Lraw("The real company-setup process, all 8 MISA license types, Special Economic Zones and the RHQ program.", "خطوات التأسيس الفعلية، وأنواع التراخيص الثمانية، والمناطق الاقتصادية الخاصة وبرنامج المقر الإقليمي."), active: "/guide/business-setup", path: "/guide/business-setup", body });
 }
 
@@ -5263,6 +5282,12 @@ function buildGuideRunBusiness() {
       titleEn: "Operating a company in Saudi Arabia", titleAr: "تشغيل شركتك في السعودية",
       leadEn: "The government portals you'll live in, the real corporate tax rates, Saudization rules, and what PRO/GRO functions actually cover.", leadAr: "البوابات الحكومية التي ستتعامل معها يومياً، معدلات الضرائب المؤسسية الفعلية، أنظمة السعودة، وما تغطيه فعلياً وظائف العلاقات الحكومية.",
     }) +
+    guideNav([
+      ["portals", "Gov portals", "البوابات الحكومية"],
+      ["taxation", "Taxation", "الضرائب"],
+      ["saudization", "HR & Saudization", "السعودة"],
+      ["pro-gro", "PRO & GRO", "العلاقات الحكومية"],
+    ]) +
     guideBlock({
       id: "portals",
       eyebrowEn: "Digital government", eyebrowAr: "الحكومة الرقمية",
@@ -5321,7 +5346,7 @@ function buildGuideRunBusiness() {
         ["Also covers labor-office liaison, business/commercial licensing renewals, and acting as the daily point of contact with HRSD/MOI/municipal authorities.", "تشمل أيضاً التواصل مع مكتب العمل، وتجديد التراخيص التجارية، والعمل كجهة اتصال يومية مع وزارة الموارد البشرية والداخلية والجهات البلدية."],
         ["Commonly reported reference fees: Iqama renewal ~SAR 650/year; dependent levy ~SAR 400/month per dependent — both should be confirmed at time of transaction, as government fee schedules change.", "رسوم مرجعية مُبلّغ عنها: تجديد الإقامة نحو 650 ريال سنوياً؛ رسوم المرافقين نحو 400 ريال شهرياً لكل مرافق — يجب التأكد منها وقت المعاملة لأن الجداول الحكومية للرسوم تتغيّر."],
       ],
-    }) + GUIDE_DISCLAIMER;
+    }) + guideDisclaimer();
   return page({ title: Lraw("Run Your Business in Saudi Arabia — Business Partner", "تشغيل عملك في السعودية — بيزنس بارتنر"), desc: Lraw("Government portals, corporate tax rates, Saudization rules and PRO/GRO services — a sourced operating guide.", "البوابات الحكومية ومعدلات الضرائب المؤسسية وأنظمة السعودة وخدمات العلاقات الحكومية — دليل تشغيلي موثق."), active: "/guide/run-your-business", path: "/guide/run-your-business", body });
 }
 
@@ -5332,6 +5357,13 @@ function buildGuideLiveInSaudi() {
       titleEn: "Relocating your team to Saudi Arabia", titleAr: "نقل فريقك للعيش في السعودية",
       leadEn: "What executives and staff relocating with your company need to know — lifestyle, schools, healthcare and driving.", leadAr: "ما يحتاج معرفته المسؤولون والموظفون المنتقلون مع شركتك — نمط الحياة، التعليم، الرعاية الصحية، والقيادة.",
     }) +
+    guideNav([
+      ["lifestyle", "Lifestyle", "نمط الحياة"],
+      ["education", "Education", "التعليم"],
+      ["healthcare", "Healthcare", "الرعاية الصحية"],
+      ["driving", "Driving", "القيادة"],
+      ["residency-preview", "Residency", "الإقامة"],
+    ]) +
     guideBlock({
       id: "lifestyle",
       eyebrowEn: "Lifestyle", eyebrowAr: "نمط الحياة",
@@ -5393,7 +5425,7 @@ function buildGuideLiveInSaudi() {
       ],
     }) +
     `<section class="section section--gray"><div class="container" style="text-align:center"><a class="btn btn-primary btn-lg" href="${u("/guide/residency")}">${L("Read the full Residency guide →", "اقرأ دليل الإقامة الكامل ←")}</a></div></section>` +
-    GUIDE_DISCLAIMER;
+    guideDisclaimer();
   return page({ title: Lraw("Live in Saudi Arabia — Business Partner", "الحياة في السعودية — بيزنس بارتنر"), desc: Lraw("Lifestyle, education, healthcare and driving for expat staff and executives relocating to Saudi Arabia.", "نمط الحياة والتعليم والرعاية الصحية والقيادة للموظفين والمسؤولين المنتقلين للسعودية."), active: "/guide/live-in-saudi", path: "/guide/live-in-saudi", body });
 }
 
@@ -5404,6 +5436,11 @@ function buildGuideResidency() {
       titleEn: "Residency options in Saudi Arabia", titleAr: "خيارات الإقامة في السعودية",
       leadEn: "Standard Iqama, Premium Residency and sponsorship-transfer rules — including the fee figures our research could and could not confirm.", leadAr: "الإقامة النظامية، والإقامة المميزة، وأنظمة نقل الكفالة — بما في ذلك الرسوم التي تمكّن بحثنا من تأكيدها والتي لم يتمكّن.",
     }) +
+    guideNav([
+      ["iqama", "Standard Iqama", "الإقامة النظامية"],
+      ["premium-residency", "Premium Residency", "الإقامة المميزة"],
+      ["transfer-rules", "Transfer rules", "نقل الكفالة"],
+    ]) +
     guideBlock({
       id: "iqama",
       eyebrowEn: "Standard residency", eyebrowAr: "الإقامة النظامية",
@@ -5443,7 +5480,7 @@ function buildGuideResidency() {
         ["Domestic/household workers, agricultural workers, and a handful of other categories are excluded from the general Labor Law and this transfer framework — they're governed separately via the Musaned platform, which uses a mutual-consent transfer process instead.", "العمالة المنزلية والزراعية وعدد قليل من الفئات الأخرى مستثناة من نظام العمل العام وإطار النقل هذا — وتُدار بشكل منفصل عبر منصة مساند، التي تعتمد إجراء نقل بالتراضي بدلاً من ذلك."],
         ["2025 press coverage describes a further shift toward a fully contract-based system (widely headlined as \"ending kafala\") — this appears to be an expansion of the 2021 mobility framework with phased eligibility conditions, not an instant unconditional change; treat headline \"abolition\" framing with caution.", "تصف تغطية صحفية لعام 2025 تحولاً إضافياً نحو نظام قائم بالكامل على العقد (وصفته عناوين كثيرة بـ\"إنهاء الكفالة\") — ويبدو أن هذا توسّع لإطار التنقل لعام 2021 بشروط أهلية مرحلية، وليس تغييراً فورياً غير مشروط؛ تعامل مع صياغة \"الإلغاء\" في العناوين بحذر."],
       ],
-    }) + GUIDE_DISCLAIMER;
+    }) + guideDisclaimer();
   return page({ title: Lraw("Residency in Saudi Arabia — Business Partner", "الإقامة في السعودية — بيزنس بارتنر"), desc: Lraw("Iqama, Premium Residency and sponsorship-transfer rules — with source-flagged fee figures.", "الإقامة النظامية والإقامة المميزة وأنظمة نقل الكفالة — بأرقام رسوم موثقة المصدر."), active: "/guide/residency", path: "/guide/residency", body });
 }
 

@@ -29,7 +29,10 @@
 [hidden] { display: none !important; }
 
 html { scroll-behavior: smooth; }
-html, body { overflow-x: hidden; max-width: 100%; }
+/* overflow-x: clip (not hidden) prevents horizontal scroll without turning the
+   root into a scroll container — which would break position: sticky (header +
+   in-page jump-navs) across the site. */
+html, body { overflow-x: clip; max-width: 100%; }
 
 body {
   font-family: "IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -771,6 +774,18 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   .hub-side { position: sticky; top: var(--header-h); z-index: 40; }
   .hub-nav { flex-direction: row; overflow-x: auto; white-space: nowrap; border-radius: 0; border-inline: 0; margin: 0 -22px; padding: 10px 16px; }
 }
+
+/* ============ Saudi Guide sticky jump-nav ============ */
+.guide-nav { position: sticky; top: var(--header-h); z-index: 30; background: rgba(255,255,255,.92);
+  backdrop-filter: saturate(1.1) blur(8px); border-bottom: 1px solid var(--gray-line); }
+.guide-nav-inner { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 12px 0; }
+.guide-nav-inner::-webkit-scrollbar { display: none; }
+.guide-nav a { flex: 0 0 auto; padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: .9rem;
+  color: var(--text-soft); background: var(--gray-bg); border: 1px solid var(--gray-line); white-space: nowrap;
+  transition: background .16s, color .16s, border-color .16s; }
+.guide-nav a:hover { color: var(--navy); border-color: var(--navy); }
+.guide-nav a.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.section[id] { scroll-margin-top: calc(var(--header-h) + 64px); }
 
 /* ============ Consultation booking ============ */
 .booking-wrap { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
