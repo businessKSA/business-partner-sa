@@ -171,6 +171,58 @@ async function listLeads(limit) {
   });
 }
 
+// Website advisor conversations → flat message list for the BP Inbox monitor.
+// Each CRM page (Lead Source = «مستشار الموقع») is one thread keyed by its ref;
+// Notes carries the meta line + labelled transcript we parse back into bubbles.
+async function listConversations(limit) {
+  if (!NOTION_TOKEN) return [];
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({
+      page_size: Math.min(Math.max(Number(limit) || 40, 1), 60),
+      filter: { property: "Lead Source", select: { equals: CONV_SOURCE } },
+      sorts: [{ property: "Last Activity", direction: "descending" }],
+    }),
+  });
+  if (!r.ok) { console.error("conv query error", r.status, (await r.text()).slice(0, 200)); throw new Error("notion_failed"); }
+  const data = await r.json();
+  const txt = (arr) => (arr || []).map((t) => t.plain_text).join("");
+  const out = [];
+  for (const pg of data.results || []) {
+    const p = pg.properties || {};
+    const ref = txt(p["رقم المرجع"] && p["رقم المرجع"].rich_text).trim() || pg.id;
+    const notes = txt(p["Notes"] && p["Notes"].rich_text);
+    const nameM = notes.match(/الموقع\)\s*·\s*([^·\n]+?)(?:\s*·|\n)/);
+    const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
+    const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+    const name = nameM ? nameM[1].trim() : "";
+    const phone = phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "";
+    const email = emailM ? emailM[1] : "";
+    const crm = `https://www.notion.so/${String(pg.id).replace(/-/g, "")}`;
+    // Timeline base: spread synthetic per-message times before last_edited so order holds.
+    const base = new Date(pg.last_edited_time || pg.created_time || Date.now()).getTime();
+    const lines = notes.split("\n").slice(1).filter((l) => /^(🧑|🤖)/.test(l));
+    lines.forEach((line, i) => {
+      const isBot = line.startsWith("🤖");
+      const text = line.replace(/^(🧑\s*الزائر:|🤖\s*باهر:)\s*/, "").trim();
+      out.push({
+        phone: ref,
+        source: "المستشار",
+        name: name || "زائر الموقع",
+        contactPhone: phone,
+        contactEmail: email,
+        sender: isBot ? "الوكيل" : "العميل",
+        text,
+        time: new Date(base - (lines.length - i) * 1000).toISOString(),
+        crm,
+      });
+    });
+    if (!lines.length) out.push({ phone: ref, source: "المستشار", name: name || "زائر الموقع", sender: "الوكيل", text: "—", time: new Date(base).toISOString(), crm });
+  }
+  return out;
+}
+
 // Upload a base64 file to Notion's File Upload API. Returns the file_upload id
 // (attachable to a page's "files" property) or null if it fails — never blocks
 // the order itself, since the n8n agent can also be pointed at a fallback.
@@ -230,6 +282,63 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     if (!r.ok) console.error("CRM lead error", r.status, (await r.text()).slice(0, 300));
   } catch (e) { console.error("CRM lead exception", String(e).slice(0, 150)); }
 }
+
+// ---- Website advisor ("باهر") conversations ----
+// Each browser session is one CRM page (رقم المرجع = "WEB-<sid>") so the /monitor
+// inbox and the CRM show the whole thread, upserted as it grows. Notes holds a
+// meta line + the labelled transcript ("🧑 الزائر: …" / "🤖 باهر: …") which the
+// monitor feed (GET ?action=advisor-inbox) parses straight back into messages.
+const CONV_SOURCE = "مستشار الموقع";
+function convNotes({ phone, email, name, messages }) {
+  const meta = `قناة: المستشار (الموقع)${name ? " · " + name : ""}${phone ? " · الجوال: " + phone : ""}${email ? " · البريد: " + email : ""}`;
+  const lines = messages.map((m) => (m.role === "assistant" ? "🤖 باهر: " : "🧑 الزائر: ") + String(m.content || "").replace(/\s+/g, " ").trim());
+  return (meta + "\n" + lines.join("\n")).slice(-6000);
+}
+// Notion caps a single rich_text object at 2000 chars — split long transcripts.
+function richChunks(text) {
+  const out = []; let s = String(text || "");
+  while (s.length) { out.push({ text: { content: s.slice(0, 1900) } }); s = s.slice(1900); }
+  return out.length ? out : [{ text: { content: "" } }];
+}
+async function findConvPage(ref) {
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+  });
+  if (!r.ok) return null;
+  const data = await r.json();
+  return (data.results && data.results[0] && data.results[0].id) || null;
+}
+async function upsertConversation({ sid, messages, phone, email, name, hot }) {
+  if (!NOTION_TOKEN || !sid) return;
+  const ref = ("WEB-" + sid).slice(0, 60);
+  const today = new Date().toISOString().slice(0, 10);
+  const firstQ = (messages.find((m) => m.role === "user") || {}).content || "محادثة موقع";
+  const title = `💬 محادثة موقع — ${String(firstQ).replace(/\s+/g, " ").trim().slice(0, 60)}`;
+  const props = {
+    "Opportunity Name": { title: [{ text: { content: title.slice(0, 200) } }] },
+    "Lead Source": { select: { name: CONV_SOURCE } },
+    "Stage": { select: { name: hot ? "مهتم" : "New" } },
+    "Human Required": { checkbox: !!hot },
+    "Notes": { rich_text: richChunks(convNotes({ phone, email, name, messages })) },
+    "Last Activity": { date: { start: today } },
+    "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
+    "حالة الطلب": { select: { name: "محادثة موقع" } },
+  };
+  try {
+    const existing = await findConvPage(ref);
+    const url = existing ? `https://api.notion.com/v1/pages/${existing}` : "https://api.notion.com/v1/pages";
+    const body = existing ? { properties: props } : { parent: { database_id: CRM_DB }, properties: props };
+    const r = await fetch(url, {
+      method: existing ? "PATCH" : "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) console.error("conv upsert error", r.status, (await r.text()).slice(0, 200));
+  } catch (e) { console.error("conv upsert exception", String(e).slice(0, 150)); }
+}
+
 async function addToAudience(email, name) {
   if (!RESEND_API_KEY || !RESEND_AUDIENCE || !isEmail(email)) return;
   try {
@@ -458,6 +567,24 @@ export default async function handler(req, res) {
       const leads = await listLeads(q.limit);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, leads }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
+  // Website advisor conversations feed for the BP Inbox (/monitor). Same key as
+  // the leads feed (set LEADS_KEY in Vercel to the value you type in the inbox).
+  // Returns a flat message array — same shape the WhatsApp feed uses — so the
+  // monitor merges them into one list, tagged «المستشار».
+  if ((q.action || "") === "advisor-inbox") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!LEADS_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    if ((q.key || "") !== LEADS_KEY) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const messages = await listConversations(q.limit);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, messages }));
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
@@ -839,6 +966,39 @@ export default async function handler(req, res) {
     ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Website advisor ("باهر") conversation sync — the widget posts this in the
+  // background as the chat grows (notify:false = silent upsert for the /monitor
+  // inbox + CRM), and once, on buying intent with the visitor's contact
+  // (notify:true), it also emails the owner and fires the WhatsApp lead pipe so
+  // they can follow up. Never blocks the chat reply (that's a separate call).
+  if (b.type === "advisor-chat") {
+    const sid = String(b.sid || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+    const messages = (Array.isArray(b.messages) ? b.messages : [])
+      .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .slice(-24)
+      .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+    if (!sid || !messages.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const contact = b.contact && typeof b.contact === "object" ? b.contact : {};
+    const name = String(contact.name || "").trim().slice(0, 120);
+    const phone = String(contact.phone || "").trim().slice(0, 40);
+    const email = String(contact.email || "").trim().toLowerCase().slice(0, 160);
+    const notify = !!b.notify && (phone || isEmail(email));
+    await upsertConversation({ sid, messages, phone, email, name, hot: notify });
+    if (notify) {
+      const ref = "WEB-" + sid;
+      const transcript = messages.map((m) => (m.role === "assistant" ? "باهر: " : "الزائر: ") + m.content).join("\n").slice(-3500);
+      const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">عميل من «المستشار» يريد المتابعة 💬</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("المرجع", ref)}</table><h3 style="color:#0B1B5A">نص المحادثة</h3><pre style="white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:8px;font-family:inherit">${esc(transcript)}</pre><p>تابع العميل عبر واتساب أو البريد أعلاه — والمحادثة كاملة في شاشة «BP Inbox» تحت وسم «المستشار».</p></div>`;
+      await Promise.all([
+        sendEmail(TEAM_EMAIL, `🌐 عميل من المستشار — ${name || phone || email}`, oHtml),
+        OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🌐 عميل من المستشار — ${name || phone || email}`, oHtml) : Promise.resolve(),
+        forwardLead({ source: "advisor-chat", ref, name, phone, email, items: (messages.find((m) => m.role === "user") || {}).content || "" }),
+        email ? addToAudience(email, name) : Promise.resolve(),
+      ]);
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref: "WEB-" + sid, notified: notify }));
   }
 
   // Official-quote request from the cost calculator — no payment/receipt step.

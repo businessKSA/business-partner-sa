@@ -1768,6 +1768,35 @@ var BP = window.BP = window.BP || {};
   function saveHistory() { try { sessionStorage.setItem("bp_adv_history", JSON.stringify(history.slice(-40))); } catch (e) {} }
   var history = loadHistory(); // {role, content}
 
+  // ---- stable session id so the owner's inbox/CRM keeps one thread per visitor ----
+  var sid = "";
+  try { sid = sessionStorage.getItem("bp_adv_sid") || ""; } catch (e) {}
+  if (!sid) { sid = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); try { sessionStorage.setItem("bp_adv_sid", sid); } catch (e) {} }
+  var captured = false;
+  try { captured = !!sessionStorage.getItem("bp_adv_captured"); } catch (e) {}
+
+  // Mirror the conversation to the owner's BP Inbox + CRM (silent). On buying
+  // intent, once, we pass the visitor's contact with notify=true so the owner
+  // gets a WhatsApp + email alert to follow up. Fire-and-forget — never blocks.
+  function syncConversation(notify, contact) {
+    if (!history.length) return;
+    try {
+      fetch("/api/requests", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        keepalive: true,
+        body: JSON.stringify({ type: "advisor-chat", sid: sid, messages: history.slice(-24), notify: !!notify, contact: contact || null }),
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  var INTENT = /(سعر|كم|تكلف|اشتراك|أبغ|ابغ|أبي|ابي|طلب|تأسيس|تاسيس|رخص|عرض|تواصل|جوال|رقم|واتس|price|cost|subscribe|quote|contact|whatsapp)/i;
+  function maybeAskContact() {
+    if (captured) return;
+    var userTurns = history.filter(function (m) { return m.role === "user"; });
+    var lastUser = userTurns.length ? userTurns[userTurns.length - 1].content : "";
+    if (userTurns.length >= 2 || INTENT.test(lastUser)) showCaptureCard();
+  }
+
   function addMsg(text, who) {
     var el = document.createElement("div");
     el.className = "advisor-msg " + who;
@@ -1825,12 +1854,49 @@ var BP = window.BP = window.BP || {};
         addMsg(reply, "bot");
         history.push({ role: "assistant", content: reply });
         saveHistory();
+        syncConversation(false);   // mirror to the owner's inbox + CRM
+        maybeAskContact();         // offer follow-up on buying intent
       })
       .catch(function () {
         typing.remove();
         addMsg(T("The advisor runs on the published site. Message us on WhatsApp and we'll help immediately.", "المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً."), "bot");
       })
       .finally(function () { busy = false; sendBtn.disabled = false; input.focus(); });
+  }
+
+  // ---- soft contact capture (shown once, on buying intent) ----
+  var MOBILE_RE = /^(?:\+?966|0)?5\d{8}$/;
+  var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  function showCaptureCard() {
+    if (captured || document.getElementById("adv-capture")) return;
+    var card = document.createElement("div");
+    card.className = "advisor-msg bot advisor-capture";
+    card.id = "adv-capture";
+    card.innerHTML =
+      '<div class="adv-cap-h">' + T("Want a team member to follow up with you? Leave your number or email 👇", "تحب أحد من الفريق يتابع معك؟ اترك رقمك أو بريدك 👇") + '</div>' +
+      '<input class="adv-cap-i" data-c="name" type="text" placeholder="' + T("Name (optional)", "الاسم (اختياري)") + '">' +
+      '<input class="adv-cap-i" data-c="phone" type="tel" placeholder="05XXXXXXXX">' +
+      '<input class="adv-cap-i" data-c="email" type="email" placeholder="email@example.com">' +
+      '<div class="adv-cap-row"><button type="button" class="adv-cap-send">' + T("Send", "أرسل") + '</button>' +
+      '<button type="button" class="adv-cap-skip">' + T("No thanks", "لا شكراً") + '</button></div>' +
+      '<div class="adv-cap-msg" hidden></div>';
+    msgs.appendChild(card);
+    msgs.scrollTop = msgs.scrollHeight;
+    var val = function (c) { var el = card.querySelector('[data-c="' + c + '"]'); return el ? el.value.trim() : ""; };
+    var note = card.querySelector(".adv-cap-msg");
+    card.querySelector(".adv-cap-skip").addEventListener("click", function () {
+      captured = true; try { sessionStorage.setItem("bp_adv_captured", "1"); } catch (e) {}
+      card.remove();
+    });
+    card.querySelector(".adv-cap-send").addEventListener("click", function () {
+      var phone = val("phone"), email = val("email"), name = val("name");
+      if (!phone && !email) { note.hidden = false; note.textContent = T("Enter a phone or email so we can reach you.", "أدخل رقماً أو بريداً لنتواصل معك."); return; }
+      if (phone && !MOBILE_RE.test(phone.replace(/\s/g, ""))) { note.hidden = false; note.textContent = T("Enter a valid Saudi mobile.", "أدخل جوالاً سعودياً صحيحاً."); return; }
+      if (email && !EMAIL_RE.test(email)) { note.hidden = false; note.textContent = T("Enter a valid email.", "أدخل بريداً صحيحاً."); return; }
+      captured = true; try { sessionStorage.setItem("bp_adv_captured", "1"); } catch (e) {}
+      syncConversation(true, { name: name, phone: phone, email: email });
+      card.innerHTML = '<div class="adv-cap-h">✅ ' + T("Thank you! A team member will follow up with you shortly.", "شكراً لك! سيتابع معك أحد أعضاء الفريق قريباً.") + '</div>';
+    });
   }
   form.addEventListener("submit", function (e) {
     e.preventDefault();
