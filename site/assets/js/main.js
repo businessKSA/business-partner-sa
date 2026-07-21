@@ -1778,7 +1778,7 @@ var BP = window.BP = window.BP || {};
   var history = loadHistory();
 
   // ---- view manager ----
-  var VIEWS = ["advisor-intake", "advisor-home", "advisor-sub", "advisor-ticket", "advisor-chat"];
+  var VIEWS = ["advisor-intake", "advisor-home", "advisor-sub", "advisor-ticket", "advisor-book", "advisor-chat"];
   var current = "advisor-intake";
   function show(view, canBack) {
     current = view;
@@ -1880,6 +1880,88 @@ var BP = window.BP = window.BP || {};
       });
   }
 
+  // ---- book a consultation (BP hours: 9am–6pm Riyadh, closed Friday) ----
+  var bookDate = "", bookTime = "";
+  var DOW_AR = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+  var DOW_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var MON_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+  var MON_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function ymd(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function openBooking() {
+    bookDate = ""; bookTime = "";
+    var done = $("advisor-book-done"); if (done) { done.hidden = true; done.innerHTML = ""; }
+    var go = $("advisor-book-go"); if (go) go.hidden = true;
+    renderBookDays();
+    $("advisor-book-slots").innerHTML = '<div class="adv-book-hint">' + T("Pick a day first.", "اختر اليوم أولاً.") + "</div>";
+    show("advisor-book", true);
+  }
+  function renderBookDays() {
+    var wrap = $("advisor-book-days"); if (!wrap) return;
+    wrap.innerHTML = "";
+    var d = new Date(); d.setHours(0, 0, 0, 0);
+    var shown = 0, guard = 0;
+    while (shown < 12 && guard < 30) {
+      guard++;
+      var day = new Date(d.getTime() + guard * 86400000); // ابتداءً من الغد
+      if (day.getDay() === 5) continue; // 5 = الجمعة — إجازة
+      var val = ymd(day);
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "adv-book-day"; b.setAttribute("data-d", val);
+      b.innerHTML = "<b>" + (isAr() ? DOW_AR[day.getDay()] : DOW_EN[day.getDay()]) + "</b><span>" + day.getDate() + " " + (isAr() ? MON_AR[day.getMonth()] : MON_EN[day.getMonth()]) + "</span>";
+      b.addEventListener("click", function () { pickDay(this.getAttribute("data-d"), this); });
+      wrap.appendChild(b);
+      shown++;
+    }
+  }
+  function pickDay(val, el) {
+    bookDate = val; bookTime = "";
+    var days = $("advisor-book-days").querySelectorAll(".adv-book-day");
+    for (var i = 0; i < days.length; i++) days[i].classList.remove("on");
+    if (el) el.classList.add("on");
+    var go = $("advisor-book-go"); if (go) go.hidden = true;
+    var slots = $("advisor-book-slots"); slots.innerHTML = "";
+    // فترات كل ساعة من ٩ ص إلى ٥ م (آخر موعد يبدأ ٥ وينتهي ٦)
+    for (var h = 9; h <= 17; h++) {
+      var hh = ("0" + h).slice(-2) + ":00";
+      var label = (h > 12 ? (h - 12) : h) + (isAr() ? (h >= 12 ? " م" : " ص") : (h >= 12 ? " PM" : " AM"));
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "adv-book-slot"; b.setAttribute("data-t", hh); b.textContent = label;
+      b.addEventListener("click", function () { pickSlot(this.getAttribute("data-t"), this); });
+      slots.appendChild(b);
+    }
+  }
+  function pickSlot(val, el) {
+    bookTime = val;
+    var s = $("advisor-book-slots").querySelectorAll(".adv-book-slot");
+    for (var i = 0; i < s.length; i++) s[i].classList.remove("on");
+    if (el) el.classList.add("on");
+    var go = $("advisor-book-go"); if (go) go.hidden = false;
+  }
+  function confirmBooking() {
+    if (!contact) { goHome(); return; }
+    if (!bookDate || !bookTime) return;
+    var go = $("advisor-book-go"), done = $("advisor-book-done");
+    go.disabled = true; go.textContent = T("Booking…", "جارٍ الحجز…");
+    fetch("/api/requests", {
+      method: "POST", headers: { "content-type": "application/json" }, keepalive: true,
+      body: JSON.stringify({ type: "booking", sid: sid, contact: contact, date: bookDate, time: bookTime }),
+    }).then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (d) {
+        go.hidden = true;
+        done.hidden = false;
+        var ref = (d && d.ref) || "";
+        var cal = (d && d.gcalUrl) || "";
+        done.innerHTML = "✅ <strong>" + T("Your consultation is booked", "تم حجز استشارتك") + (ref ? " — " + ref : "") + "</strong><br>" +
+          T("Your advisor Baher will confirm shortly.", "بيأكّد لك مستشارك باهر قريباً.") +
+          '<div class="adv-ticket-acts">' +
+          (cal ? '<a class="adv-primary" target="_blank" rel="noopener" href="' + cal + '">📅 ' + T("Add to Google Calendar", "أضِف إلى تقويم Google") + "</a>" : "") +
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
+      }).catch(function () {
+        go.disabled = false; go.textContent = "✅ " + T("Confirm appointment", "أكّد الموعد");
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't book — try WhatsApp.", "تعذّر الحجز — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp", "واتساب") + "</a>";
+      });
+  }
+
   // ---- intake ----
   function submitIntake() {
     var name = (($("adv-in-name") || {}).value || "").trim();
@@ -1964,6 +2046,8 @@ var BP = window.BP = window.BP || {};
   });
   var chatOpen = $("advisor-chat-open"); if (chatOpen) chatOpen.addEventListener("click", openChat);
   var ticketGo = $("advisor-ticket-go"); if (ticketGo) ticketGo.addEventListener("click", createTicket);
+  var bookOpen = $("advisor-book-open"); if (bookOpen) bookOpen.addEventListener("click", openBooking);
+  var bookGo = $("advisor-book-go"); if (bookGo) bookGo.addEventListener("click", confirmBooking);
   if (form) form.addEventListener("submit", function (e) { e.preventDefault(); var v = input.value; input.value = ""; send(v); });
   if (chips) chips.addEventListener("click", function (e) { var btn = e.target.closest(".advisor-chip"); if (btn) send(btn.getAttribute("data-q") || btn.textContent); });
 })();

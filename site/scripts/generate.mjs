@@ -683,7 +683,18 @@ function advisorWidget() {
       <div class="adv-home-hd" id="advisor-hello"></div>
       <div class="adv-home-sub">${L("Pick the service you need:", "اختر الخدمة التي تحتاجها:")}</div>
       <div class="adv-cats" id="advisor-cats"><div class="adv-loading">${L("Loading services…", "جارٍ تحميل الخدمات…")}</div></div>
+      <button type="button" class="adv-book-open" id="advisor-book-open">📅 ${L("Book a free consultation", "احجز استشارة مجانية")}</button>
       <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 ${L("Or ask Baher directly", "أو اسأل باهر مباشرة")}</button>
+    </div>
+
+    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
+    <div class="advisor-view" id="advisor-book" hidden>
+      <div class="adv-book-hd">📅 ${L("Book a free consultation", "احجز استشارة مجانية")}</div>
+      <div class="adv-book-sub">${L("Pick a day and time (Riyadh · 9am–6pm · closed Friday):", "اختر اليوم والوقت (الرياض · ٩ص–٦م · الجمعة إجازة):")}</div>
+      <div class="adv-book-days" id="advisor-book-days"></div>
+      <div class="adv-book-slots" id="advisor-book-slots"></div>
+      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ ${L("Confirm appointment", "أكّد الموعد")}</button>
+      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
     </div>
 
     <!-- Step 2b: sub-services of a chosen category -->
