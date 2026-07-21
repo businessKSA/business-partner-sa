@@ -1816,7 +1816,7 @@ var BP = window.BP = window.BP || {};
     fetch("/api/chat", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ messages: history }),
+      body: JSON.stringify({ messages: history, lang: (window.BP && BP.lang) || "ar", url: location.pathname }),
     })
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (data) {
