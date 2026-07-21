@@ -4890,14 +4890,21 @@ function buildInstallments() {
   ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("New service ⚡", "خدمة جديدة ⚡")}</span>
+    <span class="eyebrow">${L("Beta service · for establishments ⚡", "خدمة تحت التجربة · للمنشآت ⚡")}</span>
     <h1>${L("Pay government fees in instalments", "قسّط رسوم خدماتك الحكومية")}</h1>
     <p class="lead">${L("Don't let a big government fee block your growth — we split it through your bank, Tabby/Tamara or e-wallets, pay it for you, and follow the service to issuance.", "لا تدع رسوماً حكومية كبيرة توقف نموك — نقسّطها لك عبر بنكك أو تابي/تمارا أو المحافظ الإلكترونية، نسددها عنك، ونتابع خدمتك حتى الإصدار.")}</p>
     <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#inst-form">${L("Request an instalment plan", "اطلب خطة تقسيط")}</a>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-ghost")}</div>
     <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("For SMEs — not individuals", "للمنشآت الصغيرة والمتوسطة — لا للأفراد")}</span>
       <span class="hero-badge">${I.check}${L("Banks, BNPL & wallets", "بنوك وتقسيط آجل ومحافظ")}</span>
-      <span class="hero-badge">${I.check}${L("We handle the paperwork", "نجهّز الملف كاملاً")}</span>
       <span class="hero-badge">${I.check}${L("We pay & follow through", "نسدد ونتابع حتى الإصدار")}</span>
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:28px;padding-bottom:0"><div class="container">
+    <div class="callout" style="max-width:900px;margin:0 auto;border:1px solid var(--gray-line);background:#fff8ec">
+      <span class="ico">🧪</span>
+      <p><strong>${L("This service is currently in trial (beta).", "هذه الخدمة حالياً تحت التجربة (نسخة تجريبية).")}</strong> ${L("It is offered to small and medium establishments (SMEs) only — not to individuals — for splitting government-service fees. Terms and availability may change while we pilot it; the final financing offer is set by the bank / provider.", "وهي موجّهة للمنشآت الصغيرة والمتوسطة فقط — وليست للأفراد — لتقسيط رسوم الخدمات الحكومية. قد تتغيّر الشروط والإتاحة أثناء فترة التجربة، والعرض التمويلي النهائي تحدده جهة التمويل / البنك.")}</p>
     </div>
   </div></section>
 
@@ -4914,11 +4921,13 @@ function buildInstallments() {
   </div></section>
 
   <section class="section section--gray" id="inst-form"><div class="container" style="max-width:920px">
-    <div class="section-head"><h2>${L("Request your instalment plan", "اطلب خطة التقسيط")}</h2><p>${L("Fill it in a minute — we come back with the available offers.", "عبّئه في دقيقة — ونعود لك بالعروض المتاحة.")}</p></div>
+    <div class="section-head"><h2>${L("Request your instalment plan", "اطلب خطة التقسيط")}</h2><p>${L("For registered establishments (with a CR) — fill it in a minute and we come back with the available offers.", "للمنشآت المسجّلة (بسجل تجاري) — عبّئه في دقيقة ونعود لك بالعروض المتاحة.")}</p></div>
     <div class="order-box">
       <form id="inst-form-el" novalidate>
         <div class="cc-grid">
-          <div class="field"><label for="inst-name">${L("Name", "الاسم")} *</label><input type="text" id="inst-name" required></div>
+          <div class="field"><label for="inst-company">${L("Establishment name", "اسم المنشأة")} *</label><input type="text" id="inst-company" required></div>
+          <div class="field"><label for="inst-cr">${L("Commercial Registration (CR) number", "رقم السجل التجاري")}</label><input type="text" id="inst-cr" inputmode="numeric" placeholder="${Lraw("e.g. 1010xxxxxx", "مثال: 1010xxxxxx")}"></div>
+          <div class="field"><label for="inst-name">${L("Contact name", "اسم المسؤول")} *</label><input type="text" id="inst-name" required></div>
           <div class="field"><label for="inst-phone">${L("Mobile", "الجوال")} *</label><input type="tel" id="inst-phone" placeholder="05XXXXXXXX" required></div>
           <div class="field"><label for="inst-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="inst-email" required></div>
           <div class="field"><label for="inst-service">${L("Service / invoice to split", "الخدمة / الفاتورة المراد تقسيطها")} *</label><input type="text" id="inst-service" placeholder="${Lraw("e.g. MISA license 62,000 SAR", "مثال: رخصة استثمار MISA بقيمة 62,000 ﷼")}"></div>

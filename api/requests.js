@@ -797,6 +797,8 @@ export default async function handler(req, res) {
   // this creates the coordination request in the CRM.
   if (b.type === "installment") {
     const name = String(b.name || "").trim().slice(0, 160);
+    const company = String(b.company || "").trim().slice(0, 200);
+    const cr = String(b.cr || "").trim().slice(0, 40);
     const phone = String(b.phone || "").trim().slice(0, 40);
     const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
     const ref = String(b.ref || "BPI-" + Date.now().toString().slice(-6)).slice(0, 40);
@@ -809,12 +811,12 @@ export default async function handler(req, res) {
     const channel = CH[b.channel] || CH.any;
     if (!name || !phone || !isEmail(email) || !service || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const monthly = Math.ceil(amount / months);
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تقسيط ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", service) + row("المبلغ", amount + " ﷼") + row("المدة", months + " أشهر") + row("القناة المفضلة", channel) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>رتّب عرض التمويل مع الجهة المناسبة وعد للعميل بالعرض، ثم حدّث حالة الطلب في «Sales Pipeline».</p></div>`;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تقسيط ${ref}</h2><p style="color:#8a6d1a;background:#fff8ec;padding:8px 12px;border-radius:8px">🧪 خدمة تحت التجربة · للمنشآت الصغيرة والمتوسطة فقط (لا للأفراد)</p><table>${row("المنشأة", company || "—") + (cr ? row("السجل التجاري", cr) : "") + row("المسؤول", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", service) + row("المبلغ", amount + " ﷼") + row("المدة", months + " أشهر") + row("القناة المفضلة", channel) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>رتّب عرض التمويل مع الجهة المناسبة وعد للعميل بالعرض، ثم حدّث حالة الطلب في «Sales Pipeline».</p></div>`;
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب التقسيط ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لتقسيط <strong>${esc(service)}</strong> بمبلغ <strong>${amount} ﷼</strong> على <strong>${months} أشهر</strong> (${channel}). فريقنا يجهّز العروض المتاحة وسيعود لك سريعاً.</p><table>${row("رقم المرجع", ref) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>تابع طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب تقسيط ${ref} — ${name} (${amount} ﷼ / ${months} أشهر)`, oHtml),
       sendEmail(email, `استلمنا طلب التقسيط — ${ref}`, cHtml),
-      crmLead({ title: `طلب تقسيط — ${name}`, phone, email, notes: `تقسيط · ${service} · ${amount} ﷼ على ${months} أشهر · ${channel}`, ref, orderStatus: "قيد المراجعة", total: amount }),
+      crmLead({ title: `طلب تقسيط — ${company || name}`, phone, email, notes: `تقسيط (تجريبي/منشآت) · ${company ? "المنشأة: " + company + (cr ? " · س.ت: " + cr : "") + " · " : ""}${service} · ${amount} ﷼ على ${months} أشهر · ${channel}`, ref, orderStatus: "قيد المراجعة", total: amount }),
       addToAudience(email, name),
       forwardLead({ source: "installment", ref, name, phone, email, items: service, total: amount }),
     ]);

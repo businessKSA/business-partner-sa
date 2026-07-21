@@ -2932,7 +2932,9 @@ var BP_EMP_BILLING = "monthly";
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var name = val("inst-name"), phone = val("inst-phone"), email = val("inst-email"), service = val("inst-service");
+      var company = val("inst-company"), cr = val("inst-cr");
       var amount = Number(val("inst-amount")), months = Number(val("inst-months")) || 6, channel = val("inst-channel") || "any";
+      if (!company) { alert(T("This service is for establishments — enter your establishment name.", "هذه الخدمة للمنشآت — أدخل اسم منشأتك.")); return; }
       if (!name || !service) { alert(T("Fill in your name and the service to split.", "عبّئ اسمك والخدمة المراد تقسيطها.")); return; }
       if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile (05XXXXXXXX).", "أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX).")); return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
@@ -2943,7 +2945,7 @@ var BP_EMP_BILLING = "monthly";
       var waMsg = encodeURIComponent(T("Instalment request ", "طلب تقسيط ") + ref + "\n" + service + " — " + amount + " ﷼ / " + months + " " + T("months", "أشهر"));
       fetch("/api/requests", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ type: "installment", ref: ref, name: name, phone: phone, email: email, service: service, amount: amount, months: months, channel: channel }),
+        body: JSON.stringify({ type: "installment", ref: ref, name: name, company: company, cr: cr, phone: phone, email: email, service: service, amount: amount, months: months, channel: channel }),
       }).then(function (r) { return r.json(); }).then(function (d) {
         btn.disabled = false; btn.textContent = lbl;
         var box = document.getElementById("inst-success");
