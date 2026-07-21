@@ -1039,12 +1039,29 @@ export default async function handler(req, res) {
     await upsertConversation({ sid, messages, phone, email, name, hot: notify });
     if (notify) {
       const ref = "WEB-" + sid;
+      const bookUrl = `${MKT_SITE_BASE}/consultation`;
+      const waAdvisor = "https://wa.me/966530540231"; // واتساب المستشار باهر
       const transcript = messages.map((m) => (m.role === "assistant" ? "باهر: " : "الزائر: ") + m.content).join("\n").slice(-3500);
+      // إشعار الشركة فقط (business@) — بلا نسخة على الإيميل الشخصي
       const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">عميل من «المستشار» يريد المتابعة 💬</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("المرجع", ref)}</table><h3 style="color:#0B1B5A">نص المحادثة</h3><pre style="white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:8px;font-family:inherit">${esc(transcript)}</pre><p>تابع العميل عبر واتساب أو البريد أعلاه — والمحادثة كاملة في شاشة «BP Inbox» تحت وسم «المستشار».</p></div>`;
+      // تأكيد للعميل: فتحنا تذكرة + خيار حجز موعد أو واتساب المستشار
+      const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
+        <h2 style="color:#0B1B5A">استلمنا طلبك وفتحنا لك تذكرة متابعة ✅</h2>
+        <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وسيتواصل معك مستشارك <b>باهر</b> قريباً.</p>
+        <p style="margin:18px 0"><b>وتقدر تبدأ الآن مباشرة:</b></p>
+        <p><a href="${bookUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 احجز موعد استشارتك المجانية</a></p>
+        <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>
+        <p style="color:#666;margin-top:22px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
+      // إشعار واتساب لباهر عبر ورك فلو n8n (best-effort — لا يوقف شيئاً إن فشل)
+      const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source: "advisor-chat", ref, name, phone, email, transcript, url: `${MKT_SITE_BASE}/monitor` }),
+      }).catch(() => {});
       await Promise.all([
         sendEmail(TEAM_EMAIL, `🌐 عميل من المستشار — ${name || phone || email}`, oHtml),
-        OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🌐 عميل من المستشار — ${name || phone || email}`, oHtml) : Promise.resolve(),
+        isEmail(email) ? sendEmail(email, `تم استلام طلبك — بيزنس بارتنر (${ref})`, cHtml) : Promise.resolve(),
         forwardLead({ source: "advisor-chat", ref, name, phone, email, items: (messages.find((m) => m.role === "user") || {}).content || "" }),
+        waNotify,
         email ? addToAudience(email, name) : Promise.resolve(),
       ]);
     }
