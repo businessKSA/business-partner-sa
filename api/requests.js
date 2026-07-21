@@ -180,8 +180,8 @@ async function listConversations(limit) {
     method: "POST",
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
     body: JSON.stringify({
-      page_size: Math.min(Math.max(Number(limit) || 40, 1), 60),
-      filter: { property: "Lead Source", select: { equals: CONV_SOURCE } },
+      page_size: Math.min(Math.max(Number(limit) || 40, 1), 80),
+      filter: { or: [{ property: "Lead Source", select: { equals: CONV_SOURCE } }, { property: "Lead Source", select: { equals: TICKET_SOURCE } }] },
       sorts: [{ property: "Last Activity", direction: "descending" }],
     }),
   });
@@ -191,34 +191,32 @@ async function listConversations(limit) {
   const out = [];
   for (const pg of data.results || []) {
     const p = pg.properties || {};
+    const src = (p["Lead Source"] && p["Lead Source"].select && p["Lead Source"].select.name) || CONV_SOURCE;
+    const isTicket = src === TICKET_SOURCE;
     const ref = txt(p["رقم المرجع"] && p["رقم المرجع"].rich_text).trim() || pg.id;
     const notes = txt(p["Notes"] && p["Notes"].rich_text);
-    const nameM = notes.match(/الموقع\)\s*·\s*([^·\n]+?)(?:\s*·|\n)/);
+    const nameM = notes.match(/(?:الموقع\)|دعم)\s*·\s*([^·\n]+?)(?:\s*·|\n)/);
     const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
     const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
     const name = nameM ? nameM[1].trim() : "";
     const phone = phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "";
     const email = emailM ? emailM[1] : "";
     const crm = `https://www.notion.so/${String(pg.id).replace(/-/g, "")}`;
-    // Timeline base: spread synthetic per-message times before last_edited so order holds.
     const base = new Date(pg.last_edited_time || pg.created_time || Date.now()).getTime();
+    const source = isTicket ? "تذكرة" : "المستشار";
+    if (isTicket) {
+      // A ticket is a single record — render it as one summary message.
+      const body = notes.split("\n").filter((l) => /^(الخدمة|تفاصيل):/.test(l)).join(" · ") || notes;
+      out.push({ phone: ref, source, ref, name: name || "عميل", contactPhone: phone, contactEmail: email, sender: "العميل", text: "🎫 " + body, time: new Date(base).toISOString(), crm });
+      continue;
+    }
     const lines = notes.split("\n").slice(1).filter((l) => /^(🧑|🤖)/.test(l));
     lines.forEach((line, i) => {
       const isBot = line.startsWith("🤖");
       const text = line.replace(/^(🧑\s*الزائر:|🤖\s*باهر:)\s*/, "").trim();
-      out.push({
-        phone: ref,
-        source: "المستشار",
-        name: name || "زائر الموقع",
-        contactPhone: phone,
-        contactEmail: email,
-        sender: isBot ? "الوكيل" : "العميل",
-        text,
-        time: new Date(base - (lines.length - i) * 1000).toISOString(),
-        crm,
-      });
+      out.push({ phone: ref, source, name: name || "زائر الموقع", contactPhone: phone, contactEmail: email, sender: isBot ? "الوكيل" : "العميل", text, time: new Date(base - (lines.length - i) * 1000).toISOString(), crm });
     });
-    if (!lines.length) out.push({ phone: ref, source: "المستشار", name: name || "زائر الموقع", sender: "الوكيل", text: "—", time: new Date(base).toISOString(), crm });
+    if (!lines.length) out.push({ phone: ref, source, name: name || "زائر الموقع", sender: "الوكيل", text: "—", time: new Date(base).toISOString(), crm });
   }
   return out;
 }
@@ -289,6 +287,7 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
 // meta line + the labelled transcript ("🧑 الزائر: …" / "🤖 باهر: …") which the
 // monitor feed (GET ?action=advisor-inbox) parses straight back into messages.
 const CONV_SOURCE = "مستشار الموقع";
+const TICKET_SOURCE = "تذكرة دعم";
 function convNotes({ phone, email, name, messages }) {
   const meta = `قناة: المستشار (الموقع)${name ? " · " + name : ""}${phone ? " · الجوال: " + phone : ""}${email ? " · البريد: " + email : ""}`;
   const lines = messages.map((m) => (m.role === "assistant" ? "🤖 باهر: " : "🧑 الزائر: ") + String(m.content || "").replace(/\s+/g, " ").trim());
@@ -965,6 +964,56 @@ export default async function handler(req, res) {
       crmLead({ title: `استرداد رسوم (منشآت) — ${company}`, phone, email, notes: `استرداد · بدء النشاط: ${startYear || "—"} · عمالة أجنبية: ${workers != null ? workers : "—"}${notes ? " · " + notes : ""}`, ref, orderStatus: "قيد المراجعة" }),
       addToAudience(email, person),
       forwardLead({ source: "estrdad", ref, name: person, phone, email, items: company }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Support ticket from the advisor's guided desk: the visitor gave their
+  // contact first, then picked a service (main window → sub-service). Creates a
+  // CRM ticket, emails the team + owner, fires the WhatsApp lead pipe, and shows
+  // up in the BP Inbox tagged «تذكرة». One ticket = one CRM page (ref BPT-…).
+  if (b.type === "support-ticket") {
+    const sid = String(b.sid || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+    const c = b.contact && typeof b.contact === "object" ? b.contact : {};
+    const name = String(c.name || "").trim().slice(0, 120);
+    const phone = String(c.phone || "").trim().slice(0, 40);
+    const email = String(c.email || "").trim().toLowerCase().slice(0, 160);
+    const s = b.service && typeof b.service === "object" ? b.service : {};
+    const svcAr = String(s.nameAr || s.nameEn || "طلب عام").trim().slice(0, 200);
+    const catAr = String(s.categoryAr || "").trim().slice(0, 120);
+    const svcCode = String(s.code || "").trim().slice(0, 40);
+    const note = String(b.note || "").trim().slice(0, 1200);
+    if (!name || (!phone && !isEmail(email))) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = ("BPT-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const today = new Date().toISOString().slice(0, 10);
+    const notesText = `قناة: تذكرة دعم · ${name}${phone ? " · الجوال: " + phone : ""}${email ? " · البريد: " + email : ""}\nالخدمة: ${svcAr}${catAr ? " (" + catAr + ")" : ""}${svcCode ? " [" + svcCode + "]" : ""}${note ? "\nتفاصيل: " + note : ""}`;
+    if (NOTION_TOKEN) {
+      const props = {
+        "Opportunity Name": { title: [{ text: { content: `🎫 تذكرة — ${svcAr}`.slice(0, 200) } }] },
+        "Lead Source": { select: { name: TICKET_SOURCE } },
+        "Stage": { select: { name: "مهتم" } },
+        "Human Required": { checkbox: true },
+        "Notes": { rich_text: richChunks(notesText) },
+        "Last Activity": { date: { start: today } },
+        "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
+        "حالة الطلب": { select: { name: "تذكرة دعم" } },
+      };
+      try {
+        const r = await fetch("https://api.notion.com/v1/pages", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify({ parent: { database_id: CRM_DB }, properties: props }),
+        });
+        if (!r.ok) console.error("ticket create error", r.status, (await r.text()).slice(0, 200));
+      } catch (e) { console.error("ticket create exception", String(e).slice(0, 150)); }
+    }
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🎫 تذكرة دعم جديدة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", svcAr) + row("المجال", catAr) + row("تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — والتذكرة ظاهرة في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml),
+      OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml) : Promise.resolve(),
+      forwardLead({ source: "support-ticket", ref, name, phone, email, items: svcAr }),
+      email ? addToAudience(email, name) : Promise.resolve(),
     ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref }));

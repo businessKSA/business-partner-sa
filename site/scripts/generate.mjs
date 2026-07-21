@@ -656,22 +656,61 @@ function advisorWidget() {
   </button>
   <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="${Lraw("Ask Baher", "اسأل باهر")}">
     <header class="advisor-head">
-      <div class="advisor-title"><span class="advisor-head-avatar">${khaledSvg("head")}</span><div><strong>${L("Baher", "باهر")}</strong><span><i class="advisor-online" aria-hidden="true"></i>${L("Your smart partner — online now", "شريكك الذكي — متصل الآن")}</span></div></div>
+      <button class="advisor-back" id="advisor-back" aria-label="${Lraw("Back", "رجوع")}" hidden>${I.arrow}</button>
+      <div class="advisor-title"><span class="advisor-head-avatar">${khaledSvg("head")}</span><div><strong>${L("Baher", "باهر")}</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">${L("Your smart partner — online now", "شريكك الذكي — متصل الآن")}</span></span></div></div>
       <button class="advisor-close" id="advisor-close" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
     </header>
-    <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">${L("Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "حياك الله 👋 أنا باهر، مساعدك الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
+
+    <!-- Step 1: contact intake (required first) -->
+    <div class="advisor-view" id="advisor-intake">
+      <div class="adv-intake-hd">${L("Welcome 👋 First, tell us about yourself so we can serve you and follow up on your request.", "أهلاً بك 👋 أولاً عرّفنا بنفسك حتى نخدمك ونتابع طلبك.")}</div>
+      <input class="adv-in" id="adv-in-name" type="text" placeholder="${Lraw("Full name *", "الاسم الكامل *")}" autocomplete="name">
+      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="${Lraw("Mobile 05XXXXXXXX *", "الجوال 05XXXXXXXX *")}" autocomplete="tel">
+      <input class="adv-in" id="adv-in-email" type="email" placeholder="${Lraw("Email *", "البريد الإلكتروني *")}" autocomplete="email">
+      <button type="button" class="adv-primary" id="advisor-intake-go">${L("Start ›", "ابدأ ›")}</button>
+      <div class="adv-err" id="adv-intake-err" hidden></div>
+      <p class="adv-note">🔒 ${L("Your details are used only to serve you and follow up on your request.", "بياناتك تُستخدم فقط لخدمتك ومتابعة طلبك.")}</p>
     </div>
-    <div class="advisor-chips" id="advisor-chips">
-      <button type="button" class="advisor-chip" data-q="${Lraw("Foreign investment company setup", "تأسيس شركة باستثمار أجنبي")}">🏢 ${L("Foreign investment setup", "تأسيس شركة باستثمار أجنبي")}</button>
-      <button type="button" class="advisor-chip" data-q="${Lraw("Government platforms management", "إدارة المنصات الحكومية")}">💼 ${L("Government platforms", "إدارة المنصات الحكومية")}</button>
-      <button type="button" class="advisor-chip" data-q="${Lraw("Packages & pricing", "الباقات والأسعار")}">💰 ${L("Packages & pricing", "الباقات والأسعار")}</button>
-      <button type="button" class="advisor-chip" data-q="${Lraw("I want a free consultation", "أبغى استشارة مجانية")}">📞 ${L("Free consultation", "أبغى استشارة مجانية")}</button>
+
+    <!-- Step 2: home — service windows (main → sub) -->
+    <div class="advisor-view" id="advisor-home" hidden>
+      <div class="adv-home-hd" id="advisor-hello"></div>
+      <div class="adv-home-sub">${L("Pick the service you need:", "اختر الخدمة التي تحتاجها:")}</div>
+      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">${L("Loading services…", "جارٍ تحميل الخدمات…")}</div></div>
+      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 ${L("Or ask Baher directly", "أو اسأل باهر مباشرة")}</button>
     </div>
-    <form class="advisor-form" id="advisor-form">
-      <input id="advisor-input" type="text" autocomplete="off" placeholder="${Lraw("Type your question here…", "اكتب سؤالك هنا…")}" aria-label="${Lraw("Type your question", "اكتب سؤالك")}">
-      <button type="submit" aria-label="${Lraw("Send", "إرسال")}">${I.send}</button>
-    </form>
+
+    <!-- Step 2b: sub-services of a chosen category -->
+    <div class="advisor-view" id="advisor-sub" hidden>
+      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
+      <div class="adv-svcs" id="advisor-svcs"></div>
+    </div>
+
+    <!-- Step 3: open a support ticket for the chosen service -->
+    <div class="advisor-view" id="advisor-ticket" hidden>
+      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
+      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="${Lraw("Describe your request (optional)", "اكتب تفاصيل طلبك (اختياري)")}"></textarea>
+      <button type="button" class="adv-primary" id="advisor-ticket-go">🎫 ${L("Open a support ticket", "افتح تذكرة دعم")}</button>
+      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
+    </div>
+
+    <!-- Chat with Baher (available after intake) -->
+    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
+      <div class="advisor-msgs" id="advisor-msgs">
+        <div class="advisor-msg bot">${L("Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "حياك الله 👋 أنا باهر، مساعدك الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
+      </div>
+      <div class="advisor-chips" id="advisor-chips">
+        <button type="button" class="advisor-chip" data-q="${Lraw("Foreign investment company setup", "تأسيس شركة باستثمار أجنبي")}">🏢 ${L("Foreign investment setup", "تأسيس شركة باستثمار أجنبي")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("Government platforms management", "إدارة المنصات الحكومية")}">💼 ${L("Government platforms", "إدارة المنصات الحكومية")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("Packages & pricing", "الباقات والأسعار")}">💰 ${L("Packages & pricing", "الباقات والأسعار")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("I want a free consultation", "أبغى استشارة مجانية")}">📞 ${L("Free consultation", "أبغى استشارة مجانية")}</button>
+      </div>
+      <form class="advisor-form" id="advisor-form">
+        <input id="advisor-input" type="text" autocomplete="off" placeholder="${Lraw("Type your question here…", "اكتب سؤالك هنا…")}" aria-label="${Lraw("Type your question", "اكتب سؤالك")}">
+        <button type="submit" aria-label="${Lraw("Send", "إرسال")}">${I.send}</button>
+      </form>
+    </div>
+
     <a class="advisor-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Prefer to chat with our team on WhatsApp?", "تفضّل التحدث مع فريقنا على واتساب؟")}</span></a>
   </section>`;
 }
