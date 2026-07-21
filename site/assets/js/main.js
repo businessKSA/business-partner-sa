@@ -1744,170 +1744,227 @@ var BP = window.BP = window.BP || {};
   render();
 })();
 
-/* اسأل باهر — عميل المستشار (صورة باهر الحقيقية).
-   نص فقط عبر /api/chat، مع فقاعة ترحيب مرة لكل جلسة، أزرار سريعة،
-   وحفظ المحادثة أثناء التنقل (sessionStorage bp_adv_history). بدون نطق صوتي. */
+/* اسأل باهر — مكتب دعم موجّه:
+   ١) بيانات العميل أولاً (اسم/جوال/بريد إلزامي)،
+   ٢) اختيار الخدمة من نوافذ رئيسية (فئات الموقع) وفرعية (خدماتها) ← تذكرة دعم،
+   ٣) ومحادثة باهر الذكية متاحة بعد البيانات.
+   كل تذكرة/محادثة تُرسل للمالك (BP Inbox + CRM + إشعار واتساب/بريد). */
 (function () {
   "use strict";
   var fab = document.getElementById("advisor-fab");
   var panel = document.getElementById("advisor-panel");
   if (!fab || !panel) return;
   var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
-  var closeBtn = document.getElementById("advisor-close");
-  var msgs = document.getElementById("advisor-msgs");
-  var form = document.getElementById("advisor-form");
-  var input = document.getElementById("advisor-input");
-  var chips = document.getElementById("advisor-chips");
-  var teaser = document.getElementById("advisor-teaser");
-  var teaserClose = document.getElementById("advisor-teaser-close");
-  var sendBtn = form.querySelector("button[type=submit]");
+  var isAr = function () { return !(window.BP && BP.lang === "en"); };
+  var $ = function (id) { return document.getElementById(id); };
+  var closeBtn = $("advisor-close"), backBtn = $("advisor-back"), statusEl = $("advisor-status");
+  var teaser = $("advisor-teaser"), teaserClose = $("advisor-teaser-close");
+  var msgs = $("advisor-msgs"), form = $("advisor-form"), input = $("advisor-input"), chips = $("advisor-chips");
+  var sendBtn = form ? form.querySelector("button[type=submit]") : null;
+  var MOBILE_RE = /^(?:\+?966|0)?5\d{8}$/;
+  var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  var CAT_ICON = { "Company Formation": "🏢", "Foreign Investment": "🌍", "Premium Residency": "🪪", "Government Relations": "🏛️", "HR Services": "👥", "Recruitment": "🧑‍💼", "Business Support": "📊", "Real Estate": "🏗️", "AI Automation": "🤖", "Tourism": "✈️" };
   var busy = false;
 
-  // ---- conversation persists while browsing (per tab) ----
+  // ---- stable session id + saved contact (per tab) ----
+  var sid = ""; try { sid = sessionStorage.getItem("bp_adv_sid") || ""; } catch (e) {}
+  if (!sid) { sid = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); try { sessionStorage.setItem("bp_adv_sid", sid); } catch (e) {} }
+  var contact = null; try { contact = JSON.parse(sessionStorage.getItem("bp_adv_contact") || "null"); } catch (e) {}
+  function saveContact(c) { contact = c; try { sessionStorage.setItem("bp_adv_contact", JSON.stringify(c)); } catch (e) {} }
+
+  // ---- chat history (per tab) ----
   function loadHistory() { try { return JSON.parse(sessionStorage.getItem("bp_adv_history") || "[]"); } catch (e) { return []; } }
   function saveHistory() { try { sessionStorage.setItem("bp_adv_history", JSON.stringify(history.slice(-40))); } catch (e) {} }
-  var history = loadHistory(); // {role, content}
+  var history = loadHistory();
 
-  // ---- stable session id so the owner's inbox/CRM keeps one thread per visitor ----
-  var sid = "";
-  try { sid = sessionStorage.getItem("bp_adv_sid") || ""; } catch (e) {}
-  if (!sid) { sid = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); try { sessionStorage.setItem("bp_adv_sid", sid); } catch (e) {} }
-  var captured = false;
-  try { captured = !!sessionStorage.getItem("bp_adv_captured"); } catch (e) {}
+  // ---- view manager ----
+  var VIEWS = ["advisor-intake", "advisor-home", "advisor-sub", "advisor-ticket", "advisor-chat"];
+  var current = "advisor-intake";
+  function show(view, canBack) {
+    current = view;
+    VIEWS.forEach(function (v) { var el = $(v); if (el) el.hidden = v !== view; });
+    if (backBtn) backBtn.hidden = !canBack;
+    if (statusEl) statusEl.textContent = view === "advisor-chat"
+      ? T("Your smart partner — online now", "شريكك الذكي — متصل الآن")
+      : T("Support desk", "مكتب الدعم");
+  }
+  function goHome() {
+    if (!contact) { show("advisor-intake", false); setTimeout(function () { var n = $("adv-in-name"); if (n) n.focus(); }, 50); return; }
+    var hello = $("advisor-hello");
+    if (hello) hello.textContent = "👋 " + T("Welcome, ", "أهلاً ") + (contact.name || "") + " — " + T("how can we help?", "كيف نقدر نساعدك؟");
+    show("advisor-home", false);
+    loadCatalog();
+  }
 
-  // Mirror the conversation to the owner's BP Inbox + CRM (silent). On buying
-  // intent, once, we pass the visitor's contact with notify=true so the owner
-  // gets a WhatsApp + email alert to follow up. Fire-and-forget — never blocks.
-  function syncConversation(notify, contact) {
+  // ---- catalog (9 main windows -> sub-services) ----
+  var catalog = null, catalogLoading = false;
+  function loadCatalog() {
+    var wrap = $("advisor-cats");
+    if (catalog) { renderCats(); return; }
+    if (catalogLoading) return;
+    catalogLoading = true;
+    fetch("/assets/data/catalog.json", { cache: "force-cache" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { catalog = d; catalogLoading = false; renderCats(); })
+      .catch(function () { catalogLoading = false; if (wrap) wrap.innerHTML = '<div class="adv-loading">' + T("Couldn't load services — use chat or WhatsApp.", "تعذّر تحميل الخدمات — استخدم المحادثة أو واتساب.") + "</div>"; });
+  }
+  function catName(c) { return isAr() ? c.nameAr : (c.nameEn || c.nameAr); }
+  function svcName(s) { return isAr() ? s.nameAr : (s.nameEn || s.nameAr); }
+  function renderCats() {
+    var wrap = $("advisor-cats"); if (!wrap || !catalog) return;
+    wrap.innerHTML = "";
+    (catalog.categories || []).forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "adv-cat";
+      b.innerHTML = '<span class="adv-cat-ico">' + (CAT_ICON[c.key] || "📁") + '</span><span class="adv-cat-nm">' + catName(c) + '</span><span class="adv-cat-n">' + (c.count || "") + "</span>";
+      b.addEventListener("click", function () { openCategory(c); });
+      wrap.appendChild(b);
+    });
+  }
+  function openCategory(c) {
+    var hd = $("advisor-sub-hd"); if (hd) hd.textContent = (CAT_ICON[c.key] || "📁") + " " + catName(c);
+    var list = $("advisor-svcs"); list.innerHTML = "";
+    (catalog.services || []).filter(function (s) { return s.category === c.key; }).forEach(function (s) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "adv-svc";
+      b.innerHTML = '<span class="adv-svc-nm">' + svcName(s) + '</span>' + (s.priceLabel ? '<span class="adv-svc-p">' + s.priceLabel + "</span>" : "");
+      b.addEventListener("click", function () { openTicket(c, s); });
+      list.appendChild(b);
+    });
+    var other = document.createElement("button");
+    other.type = "button"; other.className = "adv-svc adv-svc-other";
+    other.innerHTML = '<span class="adv-svc-nm">🎫 ' + T("Other / general request in this area", "أخرى / طلب عام في هذا المجال") + "</span>";
+    other.addEventListener("click", function () { openTicket(c, { code: "", nameAr: "طلب عام — " + c.nameAr, nameEn: "General — " + (c.nameEn || c.nameAr) }); });
+    list.appendChild(other);
+    show("advisor-sub", true);
+  }
+  var pendingService = null, pendingCat = null;
+  function openTicket(c, s) {
+    pendingCat = c; pendingService = s;
+    var hd = $("advisor-ticket-hd");
+    if (hd) hd.innerHTML = "🎫 " + T("Support ticket for:", "تذكرة دعم لـ:") + ' <strong>' + svcName(s) + "</strong>";
+    var note = $("advisor-ticket-note"); if (note) note.value = "";
+    var done = $("advisor-ticket-done"); if (done) { done.hidden = true; done.innerHTML = ""; }
+    var go = $("advisor-ticket-go"); if (go) { go.hidden = false; go.disabled = false; go.textContent = "🎫 " + T("Open a support ticket", "افتح تذكرة دعم"); }
+    show("advisor-ticket", true);
+  }
+
+  // ---- create support ticket ----
+  function createTicket() {
+    if (!contact) { goHome(); return; }
+    var go = $("advisor-ticket-go"), done = $("advisor-ticket-done");
+    var note = ($("advisor-ticket-note") || {}).value || "";
+    go.disabled = true; go.textContent = T("Opening…", "جارٍ الفتح…");
+    var svc = pendingService || {}, cat = pendingCat || {};
+    fetch("/api/requests", {
+      method: "POST", headers: { "content-type": "application/json" }, keepalive: true,
+      body: JSON.stringify({
+        type: "support-ticket", sid: sid, contact: contact,
+        service: { code: svc.code || "", nameAr: svc.nameAr || "", nameEn: svc.nameEn || "", category: (cat.key || ""), categoryAr: (cat.nameAr || "") },
+        note: note.slice(0, 1200),
+      }),
+    }).then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (d) {
+        go.hidden = true;
+        done.hidden = false;
+        var ref = (d && d.ref) || "";
+        done.innerHTML = "✅ <strong>" + T("Your support ticket is open", "تم فتح تذكرة الدعم") + (ref ? " — " + ref : "") + "</strong><br>" +
+          T("Our team will contact you shortly on your number/email. You can also reach us on WhatsApp.", "سيتواصل معك فريقنا قريباً على رقمك/بريدك. وتقدر تتواصل معنا على واتساب.") +
+          '<div class="adv-ticket-acts"><button type="button" class="adv-primary" id="adv-ticket-more">' + T("New request", "طلب جديد") + '</button>' +
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966507034157">' + T("WhatsApp", "واتساب") + "</a></div>";
+        var more = $("adv-ticket-more"); if (more) more.addEventListener("click", goHome);
+      }).catch(function () {
+        go.disabled = false; go.textContent = "🎫 " + T("Open a support ticket", "افتح تذكرة دعم");
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't open the ticket — try WhatsApp.", "تعذّر فتح التذكرة — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966507034157">' + T("WhatsApp", "واتساب") + "</a>";
+      });
+  }
+
+  // ---- intake ----
+  function submitIntake() {
+    var name = (($("adv-in-name") || {}).value || "").trim();
+    var phone = (($("adv-in-phone") || {}).value || "").trim();
+    var email = (($("adv-in-email") || {}).value || "").trim();
+    var err = $("adv-intake-err");
+    function fail(m) { if (err) { err.hidden = false; err.textContent = m; } }
+    if (!name) return fail(T("Please enter your name.", "الرجاء إدخال اسمك."));
+    if (!MOBILE_RE.test(phone.replace(/\s/g, ""))) return fail(T("Enter a valid Saudi mobile (05XXXXXXXX).", "أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX)."));
+    if (!EMAIL_RE.test(email)) return fail(T("Enter a valid email.", "أدخل بريداً صحيحاً."));
+    if (err) err.hidden = true;
+    saveContact({ name: name, phone: phone, email: email });
+    goHome();
+  }
+
+  // ---- chat (available after intake) ----
+  function addMsg(text, who) {
+    var el = document.createElement("div"); el.className = "advisor-msg " + who; el.textContent = text;
+    msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight; return el;
+  }
+  var historyReplayed = false;
+  function openChat() {
+    show("advisor-chat", true);
+    if (!historyReplayed) {
+      history.forEach(function (m) { addMsg(m.content, m.role === "user" ? "me" : "bot"); });
+      if (chips && history.length) chips.hidden = true;
+      historyReplayed = true;
+    }
+    setTimeout(function () { if (input) input.focus(); }, 50);
+  }
+  function syncConversation() {
     if (!history.length) return;
     try {
       fetch("/api/requests", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        keepalive: true,
-        body: JSON.stringify({ type: "advisor-chat", sid: sid, messages: history.slice(-24), notify: !!notify, contact: contact || null }),
+        method: "POST", headers: { "content-type": "application/json" }, keepalive: true,
+        body: JSON.stringify({ type: "advisor-chat", sid: sid, messages: history.slice(-24), notify: false, contact: contact || null }),
       }).catch(function () {});
     } catch (e) {}
   }
-  var INTENT = /(سعر|كم|تكلف|اشتراك|أبغ|ابغ|أبي|ابي|طلب|تأسيس|تاسيس|رخص|عرض|تواصل|جوال|رقم|واتس|price|cost|subscribe|quote|contact|whatsapp)/i;
-  function maybeAskContact() {
-    if (captured) return;
-    var userTurns = history.filter(function (m) { return m.role === "user"; });
-    var lastUser = userTurns.length ? userTurns[userTurns.length - 1].content : "";
-    if (userTurns.length >= 2 || INTENT.test(lastUser)) showCaptureCard();
-  }
-
-  function addMsg(text, who) {
-    var el = document.createElement("div");
-    el.className = "advisor-msg " + who;
-    el.textContent = text;
-    msgs.appendChild(el);
-    msgs.scrollTop = msgs.scrollHeight;
-    return el;
-  }
-  // Replay the saved conversation under the fixed welcome bubble.
-  history.forEach(function (m) { addMsg(m.content, m.role === "user" ? "me" : "bot"); });
-  if (chips && history.length) chips.hidden = true;
-
-  // ---- open/close + teaser ----
-  function open() { panel.hidden = false; fab.classList.add("hide"); hideTeaser(); msgs.scrollTop = msgs.scrollHeight; setTimeout(function () { input.focus(); }, 50); }
-  function close() { panel.hidden = true; fab.classList.remove("hide"); }
-  fab.addEventListener("click", function () { open(); });
-  closeBtn.addEventListener("click", close);
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !panel.hidden) close(); });
-
-  function hideTeaser() {
-    if (!teaser) return;
-    teaser.hidden = true;
-    try { sessionStorage.setItem("bp_teaser_seen", "1"); } catch (e) {}
-  }
-  var teaserSeen = false;
-  try { teaserSeen = !!sessionStorage.getItem("bp_teaser_seen"); } catch (e) {}
-  if (teaser && !teaserSeen && !history.length) {
-    setTimeout(function () { if (panel.hidden) teaser.hidden = false; }, 4000);
-  }
-  if (teaser) teaser.addEventListener("click", function (e) {
-    if (e.target === teaserClose) return;
-    open();
-  });
-  if (teaserClose) teaserClose.addEventListener("click", function (e) { e.stopPropagation(); hideTeaser(); });
-
-  // ---- sending ----
   function send(text) {
     text = (text || "").trim();
     if (!text || busy) return;
-    addMsg(text, "me");
-    history.push({ role: "user", content: text });
-    saveHistory();
+    addMsg(text, "me"); history.push({ role: "user", content: text }); saveHistory();
     if (chips) chips.hidden = true;
-    busy = true; sendBtn.disabled = true;
+    busy = true; if (sendBtn) sendBtn.disabled = true;
     var typing = addMsg(T("Typing…", "يكتب…"), "bot typing");
-    fetch("/api/chat", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ messages: history, lang: (window.BP && BP.lang) || "ar", url: location.pathname }),
-    })
+    fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: history }) })
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (data) {
         typing.remove();
         var reply = (data && data.reply) || T("Couldn't reply right now. Message us on WhatsApp and we'll help immediately.", "تعذّر الرد الآن. تواصل معنا على واتساب وبنساعدك فوراً.");
-        addMsg(reply, "bot");
-        history.push({ role: "assistant", content: reply });
-        saveHistory();
-        syncConversation(false);   // mirror to the owner's inbox + CRM
-        maybeAskContact();         // offer follow-up on buying intent
+        addMsg(reply, "bot"); history.push({ role: "assistant", content: reply }); saveHistory();
+        syncConversation();
       })
-      .catch(function () {
-        typing.remove();
-        addMsg(T("The advisor runs on the published site. Message us on WhatsApp and we'll help immediately.", "المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً."), "bot");
-      })
-      .finally(function () { busy = false; sendBtn.disabled = false; input.focus(); });
+      .catch(function () { typing.remove(); addMsg(T("The advisor runs on the published site. Message us on WhatsApp and we'll help immediately.", "المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً."), "bot"); })
+      .finally(function () { busy = false; if (sendBtn) sendBtn.disabled = false; if (input) input.focus(); });
   }
 
-  // ---- soft contact capture (shown once, on buying intent) ----
-  var MOBILE_RE = /^(?:\+?966|0)?5\d{8}$/;
-  var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-  function showCaptureCard() {
-    if (captured || document.getElementById("adv-capture")) return;
-    var card = document.createElement("div");
-    card.className = "advisor-msg bot advisor-capture";
-    card.id = "adv-capture";
-    card.innerHTML =
-      '<div class="adv-cap-h">' + T("Want a team member to follow up with you? Leave your number or email 👇", "تحب أحد من الفريق يتابع معك؟ اترك رقمك أو بريدك 👇") + '</div>' +
-      '<input class="adv-cap-i" data-c="name" type="text" placeholder="' + T("Name (optional)", "الاسم (اختياري)") + '">' +
-      '<input class="adv-cap-i" data-c="phone" type="tel" placeholder="05XXXXXXXX">' +
-      '<input class="adv-cap-i" data-c="email" type="email" placeholder="email@example.com">' +
-      '<div class="adv-cap-row"><button type="button" class="adv-cap-send">' + T("Send", "أرسل") + '</button>' +
-      '<button type="button" class="adv-cap-skip">' + T("No thanks", "لا شكراً") + '</button></div>' +
-      '<div class="adv-cap-msg" hidden></div>';
-    msgs.appendChild(card);
-    msgs.scrollTop = msgs.scrollHeight;
-    var val = function (c) { var el = card.querySelector('[data-c="' + c + '"]'); return el ? el.value.trim() : ""; };
-    var note = card.querySelector(".adv-cap-msg");
-    card.querySelector(".adv-cap-skip").addEventListener("click", function () {
-      captured = true; try { sessionStorage.setItem("bp_adv_captured", "1"); } catch (e) {}
-      card.remove();
-    });
-    card.querySelector(".adv-cap-send").addEventListener("click", function () {
-      var phone = val("phone"), email = val("email"), name = val("name");
-      if (!phone && !email) { note.hidden = false; note.textContent = T("Enter a phone or email so we can reach you.", "أدخل رقماً أو بريداً لنتواصل معك."); return; }
-      if (phone && !MOBILE_RE.test(phone.replace(/\s/g, ""))) { note.hidden = false; note.textContent = T("Enter a valid Saudi mobile.", "أدخل جوالاً سعودياً صحيحاً."); return; }
-      if (email && !EMAIL_RE.test(email)) { note.hidden = false; note.textContent = T("Enter a valid email.", "أدخل بريداً صحيحاً."); return; }
-      captured = true; try { sessionStorage.setItem("bp_adv_captured", "1"); } catch (e) {}
-      syncConversation(true, { name: name, phone: phone, email: email });
-      card.innerHTML = '<div class="adv-cap-h">✅ ' + T("Thank you! A team member will follow up with you shortly.", "شكراً لك! سيتابع معك أحد أعضاء الفريق قريباً.") + '</div>';
-    });
+  // ---- open/close + back + teaser ----
+  function open() { panel.hidden = false; fab.classList.add("hide"); hideTeaser(); goHome(); }
+  function close() { panel.hidden = true; fab.classList.remove("hide"); }
+  function back() {
+    if (current === "advisor-sub" || current === "advisor-chat") goHome();
+    else if (current === "advisor-ticket") { if (pendingCat) openCategory(pendingCat); else goHome(); }
+    else goHome();
   }
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var v = input.value;
-    input.value = "";
-    send(v);
+  fab.addEventListener("click", open);
+  closeBtn.addEventListener("click", close);
+  if (backBtn) backBtn.addEventListener("click", back);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !panel.hidden) close(); });
+
+  function hideTeaser() { if (!teaser) return; teaser.hidden = true; try { sessionStorage.setItem("bp_teaser_seen", "1"); } catch (e) {} }
+  var teaserSeen = false; try { teaserSeen = !!sessionStorage.getItem("bp_teaser_seen"); } catch (e) {}
+  if (teaser && !teaserSeen) setTimeout(function () { if (panel.hidden) teaser.hidden = false; }, 4000);
+  if (teaser) teaser.addEventListener("click", function (e) { if (e.target === teaserClose) return; open(); });
+  if (teaserClose) teaserClose.addEventListener("click", function (e) { e.stopPropagation(); hideTeaser(); });
+
+  // ---- wire controls ----
+  var intakeGo = $("advisor-intake-go"); if (intakeGo) intakeGo.addEventListener("click", submitIntake);
+  ["adv-in-name", "adv-in-phone", "adv-in-email"].forEach(function (id) {
+    var el = $(id); if (el) el.addEventListener("keydown", function (e) { if (e.key === "Enter") submitIntake(); });
   });
-  if (chips) chips.addEventListener("click", function (e) {
-    var btn = e.target.closest(".advisor-chip");
-    if (btn) { send(btn.getAttribute("data-q") || btn.textContent); }
-  });
+  var chatOpen = $("advisor-chat-open"); if (chatOpen) chatOpen.addEventListener("click", openChat);
+  var ticketGo = $("advisor-ticket-go"); if (ticketGo) ticketGo.addEventListener("click", createTicket);
+  if (form) form.addEventListener("submit", function (e) { e.preventDefault(); var v = input.value; input.value = ""; send(v); });
+  if (chips) chips.addEventListener("click", function (e) { var btn = e.target.closest(".advisor-chip"); if (btn) send(btn.getAttribute("data-q") || btn.textContent); });
 })();
 
 /* ---------- Grouped nav dropdowns (Business Partner 3.0) ---------- */

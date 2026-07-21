@@ -423,10 +423,12 @@
             var un = unread(phone, msgs);
             var tag = tags[phone] || '';
             var tagObj = null; for (var t = 0; t < TAGS.length; t++) if (TAGS[t].k === tag) tagObj = TAGS[t];
-            var web = !!(msgs[0] && msgs[0].source === 'المستشار');
+            var wsrc = msgs[0] && msgs[0].source;
+            var web = wsrc === 'المستشار' || wsrc === 'تذكرة';
+            var ticket = wsrc === 'تذكرة';
             var div = document.createElement('div');
             div.className = 'conv' + (phone === activePhone ? ' active' : '');
-            var initials = web ? '🌐' : phone.slice(-2);
+            var initials = ticket ? '🎫' : (web ? '🌐' : phone.slice(-2));
             var pre = last.sender === 'العميل' ? '' : (last.sender === 'المالك' ? '↩ ' : (last.sender === 'تنبيه' ? '🔔 ' : '🤖 '));
             var av = document.createElement('div'); av.className = 'avatar'; av.style.background = web ? '#0B1B5A' : avColor(phone); av.textContent = initials;
             var meta = document.createElement('div'); meta.className = 'meta';
@@ -437,7 +439,7 @@
             var r2 = document.createElement('div'); r2.className = 'row2';
             var lastEl = document.createElement('div'); lastEl.className = 'last'; lastEl.textContent = pre + (last.text || '').slice(0, 48);
             r2.appendChild(lastEl);
-            if (web) { var wp = document.createElement('span'); wp.className = 'pill'; wp.style.background = '#0B1B5A'; wp.textContent = '🌐 المستشار'; r2.appendChild(wp); }
+            if (web) { var wp = document.createElement('span'); wp.className = 'pill'; wp.style.background = '#0B1B5A'; wp.textContent = ticket ? '🎫 تذكرة' : '🌐 المستشار'; r2.appendChild(wp); }
             if (tagObj) { var pill = document.createElement('span'); pill.className = 'pill'; pill.style.background = tagObj.c; pill.textContent = tagObj.k; r2.appendChild(pill); }
             if (needsHuman(msgs) && un === 0) { var adot = document.createElement('span'); adot.className = 'adot'; r2.appendChild(adot); }
             if (un > 0) { var b = document.createElement('span'); b.className = 'badge'; b.textContent = un > 99 ? '99+' : un; r2.appendChild(b); }
@@ -469,17 +471,19 @@
         if (!activePhone) { $('noConv').style.display = 'flex'; $('chatMain').style.display = 'none'; return; }
         $('noConv').style.display = 'none'; $('chatMain').style.display = 'flex';
         var msgs = groupByPhone().get(activePhone) || [];
-        var web = !!(msgs[0] && msgs[0].source === 'المستشار');
+        var wsrc = msgs[0] && msgs[0].source;
+        var web = wsrc === 'المستشار' || wsrc === 'تذكرة';
+        var ticket = wsrc === 'تذكرة';
         var crm = null; for (var i = msgs.length - 1; i >= 0; i--) { if (msgs[i].crm) { crm = msgs[i].crm; break; } }
         var crmB = $('crmBtn'); if (crm) { crmB.href = crm; crmB.style.display = 'inline-flex'; } else { crmB.style.display = 'none'; }
         var badge = $('aiBadge'), toggle = $('aiToggle');
         if (web) {
-          // Website advisor thread: read-only. Follow up via the shown contact.
+          // Website advisor / ticket thread: read-only. Follow up via the shown contact.
           var w0 = msgs[0];
-          $('chatName').textContent = '🌐 ' + (w0.name || 'زائر الموقع');
+          $('chatName').textContent = (ticket ? '🎫 ' : '🌐 ') + (w0.name || 'زائر الموقع');
           var cc = []; if (w0.contactPhone) cc.push('📱 ' + w0.contactPhone); if (w0.contactEmail) cc.push('✉️ ' + w0.contactEmail);
-          $('chatSub').textContent = 'من المستشار (الموقع)' + (cc.length ? ' · ' + cc.join(' · ') : '') + ' · ' + msgs.length + ' رسالة';
-          badge.className = 'ai-badge on'; badge.textContent = '🌐 من المستشار'; toggle.style.display = 'none';
+          $('chatSub').textContent = (ticket ? 'تذكرة دعم' : 'من المستشار (الموقع)') + (cc.length ? ' · ' + cc.join(' · ') : '') + ' · ' + msgs.length + ' رسالة';
+          badge.className = 'ai-badge on'; badge.textContent = ticket ? '🎫 تذكرة دعم' : '🌐 من المستشار'; toggle.style.display = 'none';
           buildTagSelect(); renderContactPanel(msgs);
           $('msgInput').disabled = true; $('msgInput').placeholder = 'محادثة من الموقع — تابع العميل عبر واتساب/البريد المعروض أعلاه';
           $('sendBtn').disabled = true; $('suggestAr').disabled = true; $('suggestEn').disabled = true;
