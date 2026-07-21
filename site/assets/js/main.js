@@ -1227,6 +1227,34 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
+/* ---------- Header account button: reflect the signed-in user ---------- */
+(function () {
+  "use strict";
+  function lbl(en, ar) { return (window.BP && BP.lang === "ar") ? ar : en; }
+  function upd() {
+    var a = document.querySelector("[data-account-link]");
+    if (!a) return;
+    var span = a.querySelector("[data-account-label]");
+    var ses = null; try { ses = JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
+    if (ses) {
+      var comp = {}; try { comp = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e2) {}
+      var name = (ses.name && ses.name.trim()) || (comp.name && comp.name.trim()) || (ses.email ? ses.email.split("@")[0] : "");
+      if (!name) name = lbl("My account", "حسابي");
+      if (span) span.textContent = name.length > 20 ? name.slice(0, 19) + "…" : name;
+      a.setAttribute("aria-label", name);
+      a.classList.add("hdr-btn--signedin");
+    } else {
+      if (span) span.textContent = lbl("Sign in", "تسجيل الدخول");
+      a.setAttribute("aria-label", lbl("Sign in", "تسجيل الدخول"));
+      a.classList.remove("hdr-btn--signedin");
+    }
+  }
+  document.addEventListener("DOMContentLoaded", upd);
+  document.addEventListener("bp:auth", upd);
+  document.addEventListener("bp:langchange", upd);
+  window.addEventListener("storage", function (e) { if (!e || e.key === "bp_session" || e.key === "bp_company") upd(); });
+})();
+
 /* ---------- Account (client-side demo auth + dashboard) ---------- */
 (function () {
   "use strict";
@@ -1487,6 +1515,7 @@ var BP = window.BP = window.BP || {};
       var u = users()[email];
       if (!u || u.pass !== pass) { alert(BP.t("No matching account. Try registering.", "لا يوجد حساب مطابق. جرّب إنشاء حساب جديد.")); return; }
       try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: u.name })); } catch (er) {}
+      try { document.dispatchEvent(new CustomEvent("bp:auth")); } catch (e2) {}
       goToRedirectTarget();
       render();
     });
@@ -1567,6 +1596,7 @@ var BP = window.BP = window.BP || {};
           u[pending.email] = { name: pending.name, pass: pending.pass, phone: pending.phone, verified: true };
           saveUsers(u);
           try { localStorage.setItem("bp_session", JSON.stringify({ email: pending.email, name: pending.name, verified: true })); } catch (er) {}
+          try { document.dispatchEvent(new CustomEvent("bp:auth")); } catch (e3) {}
           if (otpF) otpF.hidden = true;
           pending = null;
           goToRedirectTarget();
@@ -1584,7 +1614,7 @@ var BP = window.BP = window.BP || {};
     });
 
     var out = document.getElementById("logout-btn");
-    if (out) out.addEventListener("click", function () { try { localStorage.removeItem("bp_session"); } catch (e) {} render(); });
+    if (out) out.addEventListener("click", function () { try { localStorage.removeItem("bp_session"); } catch (e) {} try { document.dispatchEvent(new CustomEvent("bp:auth")); } catch (e2) {} render(); });
 
     var alreadyIn = session() && new URLSearchParams(location.search).get("redirect");
     if (alreadyIn === "checkout") {

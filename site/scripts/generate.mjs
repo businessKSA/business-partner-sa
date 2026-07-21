@@ -461,7 +461,6 @@ const NAV_GROUPS = [
   {
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
-      { href: "/directory", en: "Startup Ecosystem Directory", ar: "دليل ريادة الأعمال" },
       {
         href: "/saudi-arabia", en: "Saudi Guide", ar: "دليل السعودية",
         sub: [
@@ -469,6 +468,7 @@ const NAV_GROUPS = [
           { href: "/guide/saudi-market", en: "The Saudi Market", ar: "السوق السعودي" },
           { href: "/guide/business-setup", en: "Business Setup", ar: "تأسيس الأعمال" },
           { href: "/guide/run-your-business", en: "Run Your Business", ar: "تشغيل عملك" },
+          { href: "/directory", en: "Entrepreneurship guide", ar: "دليل ريادة الأعمال" },
           { href: "/guide/live-in-saudi", en: "Live in Saudi", ar: "الحياة في السعودية" },
           { href: "/guide/residency", en: "Residency in KSA", ar: "الإقامة في السعودية" },
         ],
@@ -547,7 +547,7 @@ function header(active, path) {
   <nav class="nav" aria-label="Main navigation">${links}</nav>
   <div class="header-cta">
     ${langMenu(path)}
-    <a class="hdr-btn" href="${u("/account")}" aria-label="${Lraw("Sign in", "تسجيل الدخول")}">${I.user}<span class="hdr-btn-t">${L("Sign in", "تسجيل الدخول")}</span></a>
+    <a class="hdr-btn" data-account-link href="${u("/account")}" aria-label="${Lraw("Sign in", "تسجيل الدخول")}">${I.user}<span class="hdr-btn-t" data-account-label>${L("Sign in", "تسجيل الدخول")}</span></a>
     <a class="hdr-btn hdr-btn--partners" href="${u("/suppliers")}" aria-label="${Lraw("Partners registration", "تسجيل الشركاء")}">${I.users}<span class="hdr-btn-t">${L("Partners", "تسجيل الشركاء")}</span></a>
     <a class="icon-btn cart-link" href="${u("/cart")}" aria-label="${Lraw("Cart", "السلة")}">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
     <button class="nav-toggle" aria-label="${Lraw("Menu", "القائمة")}" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
