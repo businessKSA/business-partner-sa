@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=9dad97b75b">
+<link rel="stylesheet" href="/assets/css/styles.css?v=faa7788d53">
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/fr/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
@@ -29,14 +29,14 @@
       <button type="button" class="nav-drop" aria-expanded="false">Nos services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="nav-menu"><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/services">Tous les services (92)</a><a href="/fr/services/category/company-formation">🏢 Création d'entreprise</a><a href="/fr/services/category/foreign-investment">🌍 Investissement étranger</a><a href="/fr/services/category/premium-residency">🪪 Résidence Premium</a><a href="/fr/services/category/government-relations">🏛️ Relations gouvernementales</a><a href="/fr/services/category/hr-services">👥 Services RH</a><a href="/fr/services/category/recruitment">🧑‍💼 Recrutement et embauche</a><a href="/fr/services/category/business-support">📊 Business Support</a><a href="/fr/services/category/real-estate">🏗️ Real Estate</a><a href="/fr/services/category/ai-automation">🤖 AI &amp; Automation</a></div>
+    <div class="nav-menu"><a href="/fr/services">Tous les services (92)</a><a href="/fr/services/category/company-formation">🏢 Création d'entreprise</a><a href="/fr/services/category/foreign-investment">🌍 Investissement étranger</a><a href="/fr/services/category/premium-residency">🪪 Résidence Premium</a><a href="/fr/services/category/government-relations">🏛️ Relations gouvernementales</a><a href="/fr/services/category/hr-services">👥 Services RH</a><a href="/fr/services/category/recruitment">🧑‍💼 Recrutement et embauche</a><a href="/fr/services/category/business-support">📊 Business Support</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Forfaits <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/fr/packages">All packages</a><a href="/fr/packages#pkg-management">Service packages</a><a href="/fr/packages#pkg-formation">Création d'entreprise</a><a href="/fr/packages#pkg-legal">Legal Packages</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Agents IA ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/fr/ai-agents">All AI Agents</a><a href="/fr/compliance-agent">Compliance</a><a href="/portal">Smart Employees</a><a href="/fr/shared-services">Shared Services Team</a></div>
-  </div><a href="/fr/task-force">Cellule d'intervention ⚡</a><div class="nav-group nested">
+  </div><a href="/fr/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/fr/task-force">Cellule d'intervention ⚡</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/fr/hr">Recruitment services</a><a href="/fr/employers">Pour les employeurs</a><a href="/fr/careers">Open jobs</a></div>
   </div><a href="/fr/deals">Deals ⚡</a><a href="/fr/installments">Instalments ⚡</a><a href="/fr/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/fr/bank-account">Corporate bank account ⚡</a><a href="/fr/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
@@ -195,7 +195,18 @@
       <div class="adv-home-hd" id="advisor-hello"></div>
       <div class="adv-home-sub">Pick the service you need:</div>
       <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Loading services…</div></div>
+      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Réserver une consultation gratuite</button>
       <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 Or ask Baher directly</button>
+    </div>
+
+    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
+    <div class="advisor-view" id="advisor-book" hidden>
+      <div class="adv-book-hd">📅 Réserver une consultation gratuite</div>
+      <div class="adv-book-sub">Pick a day and time (Riyadh · 9am–6pm · closed Friday):</div>
+      <div class="adv-book-days" id="advisor-book-days"></div>
+      <div class="adv-book-slots" id="advisor-book-slots"></div>
+      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirm appointment</button>
+      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
     </div>
 
     <!-- Step 2b: sub-services of a chosen category -->
@@ -230,4 +241,4 @@
     </div>
 
     <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Vous préférez discuter avec notre équipe sur WhatsApp ?</span></a>
-  </section><script src="/assets/js/main.js?v=9a5aa74d9e"></script></body></html>
+  </section><script src="/assets/js/main.js?v=fb3fc5bc18"></script></body></html>

@@ -1431,6 +1431,23 @@ textarea.adv-in { resize: vertical; }
 .adv-cat-n { flex: 0 0 auto; font-size: .78rem; color: var(--text-soft); background: var(--gray-bg); border-radius: 999px; padding: 2px 9px; }
 .adv-chat-open { margin-top: 6px; background: var(--gray-bg); color: var(--navy); border: 1px dashed var(--gray-line); border-radius: 12px; padding: 12px; font-family: inherit; font-weight: 600; cursor: pointer; }
 .adv-chat-open:hover { background: #eef2ff; border-color: var(--navy); }
+.adv-book-open { margin-top: 8px; background: var(--navy); color: #fff; border: 0; border-radius: 12px; padding: 13px; font-family: inherit; font-weight: 700; font-size: .95rem; cursor: pointer; }
+.adv-book-open:hover { filter: brightness(1.08); }
+/* نافذة حجز الاستشارة */
+.adv-book-hd { font-weight: 800; color: var(--navy); font-size: 1.02rem; }
+.adv-book-sub { font-size: .84rem; color: var(--muted, #64748b); margin: 2px 0 6px; }
+.adv-book-days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.adv-book-day { flex: 0 0 auto; min-width: 62px; background: #fff; border: 1px solid var(--gray-line); border-radius: 12px; padding: 9px 8px; font-family: inherit; cursor: pointer; text-align: center; line-height: 1.5; transition: border-color .15s, background .15s; }
+.adv-book-day b { display: block; font-size: .82rem; color: var(--navy); }
+.adv-book-day span { display: block; font-size: .74rem; color: var(--muted, #64748b); }
+.adv-book-day.on { background: var(--navy); border-color: var(--navy); }
+.adv-book-day.on b, .adv-book-day.on span { color: #fff; }
+.adv-book-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 10px; }
+.adv-book-slot { background: #fff; border: 1px solid var(--gray-line); border-radius: 10px; padding: 10px 4px; font-family: inherit; font-weight: 600; font-size: .86rem; color: var(--text); cursor: pointer; transition: border-color .15s, background .15s; }
+.adv-book-slot:hover { border-color: var(--navy); background: #f8faff; }
+.adv-book-slot.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+.adv-book-hint { grid-column: 1 / -1; color: var(--muted, #64748b); font-size: .84rem; padding: 6px 2px; }
+.adv-ticket-acts .adv-ghost { flex: 1; text-align: center; padding: 10px; border: 1px solid var(--gray-line); border-radius: 12px; color: var(--navy); text-decoration: none; font-weight: 600; background: #fff; }
 .adv-sub-hd { font-weight: 700; color: var(--navy); }
 .adv-svcs { display: flex; flex-direction: column; gap: 7px; }
 .adv-svc { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: start; background: #fff; border: 1px solid var(--gray-line); border-radius: 11px; padding: 11px 13px; font-family: inherit; font-size: .9rem; color: var(--text); cursor: pointer; transition: border-color .15s, background .15s; }

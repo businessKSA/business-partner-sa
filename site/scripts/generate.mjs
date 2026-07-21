@@ -409,6 +409,8 @@ const NAV_GROUPS = [
           { href: "/shared-services", en: "Shared Services Team", ar: "فريق الخدمات المشتركة" },
         ],
       },
+      // Promoted out of the categories flyout to a top-level services item (owner request).
+      { href: "/services/category/ai-automation", en: "AI & Automation ⚡", ar: "الأتمتة والذكاء الاصطناعي ⚡" },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
       {
         href: "/hr", en: "Recruitment", ar: "التوظيف",
@@ -518,8 +520,12 @@ function langMenu(path) {
 function navSubItem(it, active) {
   let sub = it.sub;
   if (it.megaCategories) {
+    // AI Automation is promoted to its own top-level services item; Real Estate
+    // is surfaced via the top-level "Business Spaces" item — both are excluded
+    // here to avoid duplicate entries in the categories flyout (owner request).
+    const NAV_HIDE_CATS = ["AI Automation", "Real Estate"];
     sub = [{ href: u("/services"), en: "All services (92)", ar: "كل الخدمات (92)", raw: true }]
-      .concat(categories.map((c) => ({ href: catUrl(c.key), en: catEn(c.key), ar: c.ar, icon: CAT_ICON[c.key] || "📁", raw: true })));
+      .concat(categories.filter((c) => !NAV_HIDE_CATS.includes(c.key)).map((c) => ({ href: catUrl(c.key), en: catEn(c.key), ar: c.ar, icon: CAT_ICON[c.key] || "📁", raw: true })));
   } else if (it.megaPackages) {
     sub = [{ href: u("/packages"), en: "All packages", ar: "كل الباقات", raw: true }]
       .concat((site.packages.groups || []).map((g) => ({ href: u("/packages") + "#pkg-" + g.key, en: g.en, ar: g.ar, raw: true })));
@@ -677,7 +683,18 @@ function advisorWidget() {
       <div class="adv-home-hd" id="advisor-hello"></div>
       <div class="adv-home-sub">${L("Pick the service you need:", "اختر الخدمة التي تحتاجها:")}</div>
       <div class="adv-cats" id="advisor-cats"><div class="adv-loading">${L("Loading services…", "جارٍ تحميل الخدمات…")}</div></div>
+      <button type="button" class="adv-book-open" id="advisor-book-open">📅 ${L("Book a free consultation", "احجز استشارة مجانية")}</button>
       <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 ${L("Or ask Baher directly", "أو اسأل باهر مباشرة")}</button>
+    </div>
+
+    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
+    <div class="advisor-view" id="advisor-book" hidden>
+      <div class="adv-book-hd">📅 ${L("Book a free consultation", "احجز استشارة مجانية")}</div>
+      <div class="adv-book-sub">${L("Pick a day and time (Riyadh · 9am–6pm · closed Friday):", "اختر اليوم والوقت (الرياض · ٩ص–٦م · الجمعة إجازة):")}</div>
+      <div class="adv-book-days" id="advisor-book-days"></div>
+      <div class="adv-book-slots" id="advisor-book-slots"></div>
+      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ ${L("Confirm appointment", "أكّد الموعد")}</button>
+      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
     </div>
 
     <!-- Step 2b: sub-services of a chosen category -->
@@ -842,7 +859,7 @@ function faqOf(s, ov) {
     faq.push({
       q: "كم تبلغ أتعاب هذه الخدمة؟",
       a:
-        (s.price.amount != null ? `أتعاب بيزنس بارتنر لهذه الخدمة ${s.price.label}. ` : "تُسعّر هذه الخدمة بعرض مخصّص حسب حالتك. ") +
+        (SHOW_SERVICE_PRICES && s.price.amount != null ? `أتعاب بيزنس بارتنر لهذه الخدمة ${s.price.label}. ` : "تُسعّر هذه الخدمة بعرض مخصّص حسب حالتك. ") +
         (s.govFeesSeparate ? "الرسوم الحكومية منفصلة عن الأتعاب وتُعلن قبل البدء." : "وتُضاف ضريبة القيمة المضافة."),
     });
     faq.push({ q: "لمن هذه الخدمة؟", a: `هذه الخدمة متاحة لـ${audienceOf(s, ov)}.` });
@@ -852,7 +869,7 @@ function faqOf(s, ov) {
     faq.push({
       q: Lraw("How much are the fees for this service?", ""),
       a:
-        (s.price.amount != null
+        (SHOW_SERVICE_PRICES && s.price.amount != null
           ? Lraw("Business Partner's fee for this service is {price}. ", "").replace("{price}", localizeLabel(s.price.label))
           : Lraw("This service is quoted individually based on your case. ", "")) +
         (s.govFeesSeparate
@@ -1254,6 +1271,12 @@ function buildServicesIndex() {
 }
 
 // One page per category listing only that category's services.
+// Owner's policy: individual catalog services are always custom-quoted — no
+// numeric price is shown anywhere for them (the government fees are separate
+// and the fee depends on the client's case). Only packages, AI agents and
+// smart-employees keep listed prices. Flip this to re-enable service prices.
+const SHOW_SERVICE_PRICES = false;
+
 function buildServiceCategory(cat) {
   const list = services.filter((s) => s.category === cat.key);
   const cards = list
@@ -1263,7 +1286,7 @@ function buildServiceCategory(cat) {
         <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
         <h3>${esc(sName(s))}</h3>
         <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price-soft">${s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+        <div class="foot"><span class="price-soft">${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
       </a>`;
     })
     .join("");
@@ -1340,7 +1363,7 @@ function buildServiceDetail(s) {
     </div>
     <aside class="svc-aside">
       <div class="order-box">
-        ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
+        ${SHOW_SERVICE_PRICES && s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
           ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
         <div class="price-note">${esc(priceNote)}</div>
         ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}

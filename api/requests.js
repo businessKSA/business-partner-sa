@@ -1037,6 +1037,60 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref }));
   }
 
+  // حجز استشارة من ودجت باهر — العميل يختار يوماً ووقتاً ضمن دوام بزنس بارتنر
+  // (٩ص–٦م بتوقيت الرياض، الجمعة إجازة). ننشئ رابط موعد Google Calendar، ونؤكّد
+  // للعميل ونشعر الفريق (بريد + واتساب) ونسجّل في CRM. باهر يؤكّد الموعد يدوياً.
+  if (b.type === "booking") {
+    const contact = b.contact && typeof b.contact === "object" ? b.contact : {};
+    const name = String(contact.name || "").trim().slice(0, 120);
+    const phone = String(contact.phone || "").trim().slice(0, 40);
+    const email = String(contact.email || "").trim().toLowerCase().slice(0, 160);
+    const date = String(b.date || "").trim();
+    const time = String(b.time || "").trim();
+    // تحقّق: التاريخ صحيح ومستقبلي وليس جمعة، والوقت ضمن ٩ص–٥م
+    const okDate = /^\d{4}-\d{2}-\d{2}$/.test(date);
+    const okTime = /^(0[9]|1[0-7]):00$/.test(time);
+    const d = okDate ? new Date(date + "T12:00:00Z") : null; // ظهر UTC = نفس اليوم التقويمي لكل المناطق
+    const isFriday = d && d.getUTCDay() === 5; // 5 = الجمعة
+    if (!name || !isEmail(email) || !okDate || !okTime || !d || isFriday) {
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_slot" }));
+    }
+    const ref = "BK-" + Date.now().toString().slice(-6);
+    const dt = date.replace(/-/g, "");
+    const hh = time.slice(0, 2);
+    const startG = `${dt}T${hh}0000`;
+    const endG = `${dt}T${("0" + (Number(hh) + 1)).slice(-2)}0000`;
+    const gcalUrl = "https://calendar.google.com/calendar/render?" + new URLSearchParams({
+      action: "TEMPLATE",
+      text: "استشارة Business Partner",
+      dates: `${startG}/${endG}`,
+      ctz: "Asia/Riyadh",
+      details: `استشارة مجانية مع فريق بزنس بارتنر.\nرقم المرجع: ${ref}\nمستشارك: باهر · wa.me/966530540231`,
+      location: "Business Partner — Riyadh / Online",
+    }).toString();
+    const whenTxt = `${date} · ${time} ${Number(hh) >= 12 ? "م" : "ص"} (توقيت الرياض)`;
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">📅 حجز استشارة جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الموعد", whenTxt)}</table><p>أكّد الموعد مع العميل، وهو ظاهر في «BP Inbox».</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
+      <h2 style="color:#0B1B5A">تم حجز استشارتك ✅</h2>
+      <p>مرحباً ${esc(name)}، حجزنا لك استشارة مجانية بتاريخ <b>${esc(whenTxt)}</b> (رقم المرجع <b>${ref}</b>)، وبيأكّد لك مستشارك <b>باهر</b> قريباً.</p>
+      <p style="margin:16px 0"><a href="${gcalUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أضِف الموعد إلى تقويم Google</a></p>
+      <p><a href="https://wa.me/966530540231" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر</a></p>
+      <p style="color:#666;margin-top:20px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
+    const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source: "booking", ref, name, phone, email, transcript: `📅 حجز استشارة: ${whenTxt}`, url: `${MKT_SITE_BASE}/monitor` }),
+    }).catch(() => {});
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `📅 حجز استشارة ${ref} — ${name} · ${whenTxt}`, oHtml),
+      sendEmail(email, `تم حجز استشارتك — بيزنس بارتنر (${ref})`, cHtml),
+      waNotify,
+      crmLead({ title: `📅 حجز استشارة — ${name}`, phone, email, notes: `حجز استشارة · ${whenTxt}`, ref, orderStatus: "حجز استشارة" }),
+      addToAudience(email, name),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, gcalUrl }));
+  }
+
   // Website advisor ("باهر") conversation sync — the widget posts this in the
   // background as the chat grows (notify:false = silent upsert for the /monitor
   // inbox + CRM), and once, on buying intent with the visitor's contact
