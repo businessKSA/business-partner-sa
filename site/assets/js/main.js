@@ -1740,6 +1740,127 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
+/* ---------- Partner dashboard (partners portal, linked to client orders) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var gate = document.getElementById("partner-gate");
+    var app = document.getElementById("partner-app");
+    if (!gate || !app) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    function esc4(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function partner() { try { return JSON.parse(localStorage.getItem("bp_partner") || "null"); } catch (e) { return null; } }
+    function ordersData() { try { return JSON.parse(localStorage.getItem("bp_orders") || "[]"); } catch (e) { return []; } }
+    function offersData() { try { return JSON.parse(localStorage.getItem("bp_partner_offers") || "[]"); } catch (e) { return []; } }
+
+    // A client order/request becomes a partner opportunity. On this device the
+    // client's own orders (bp_orders) are the live source; in production the team/
+    // n8n route matching requests from every client to the partner network.
+    function opportunities() {
+      var orders = ordersData();
+      var opps = [];
+      orders.forEach(function (o) {
+        (o.items || []).forEach(function (it, idx) {
+          var kind = it.kind || "";
+          // Services/events/trips are partner-serviceable; packages/agents are internal.
+          if (/package|agent|employee/i.test(kind)) return;
+          opps.push({ ref: (o.ref || "REQ") + "-" + (idx + 1), title: it.name || T("Client request", "طلب عميل"), kind: kind, city: (o.city || ""), at: o.at || "" });
+        });
+      });
+      return opps;
+    }
+
+    function render() {
+      var p = partner();
+      if (!p) { gate.hidden = false; app.hidden = true; return; }
+      gate.hidden = true; app.hidden = false;
+      var company = document.getElementById("pt-company");
+      var contact = document.getElementById("pt-contact");
+      var catEl = document.getElementById("pt-stat-cat");
+      if (company) company.textContent = p.company || "—";
+      if (contact) contact.textContent = [p.person, p.email, p.city].filter(Boolean).join(" · ") || "—";
+      if (catEl) catEl.textContent = p.category || T("All", "الكل");
+      var opps = opportunities();
+      var offers = offersData();
+      var openEl = document.getElementById("pt-stat-open"); if (openEl) openEl.textContent = opps.length;
+      var offEl = document.getElementById("pt-stat-offers"); if (offEl) offEl.textContent = offers.length;
+      var feed = document.getElementById("pt-feed");
+      if (feed) {
+        if (!opps.length) {
+          feed.innerHTML = '<p class="dash-empty">' + T("No open requests right now — new client requests will appear here.", "لا توجد طلبات متاحة حالياً — ستظهر طلبات العملاء الجديدة هنا.") + "</p>";
+        } else {
+          feed.innerHTML = opps.map(function (o) {
+            var sent = offers.indexOf(o.ref) !== -1;
+            return '<div class="dash-card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">' +
+              "<div><strong>" + esc4(o.title) + "</strong><br><span class=\"text-soft\" style=\"font-size:.82rem\">" + esc4([o.city, o.at, o.ref].filter(Boolean).join(" · ")) + "</span></div>" +
+              (sent ? '<span class="pkg-tag">' + T("Offer sent", "تم إرسال العرض") + "</span>"
+                    : '<button class="btn btn-primary btn-sm pt-offer-btn" data-ref="' + esc4(o.ref) + '" data-title="' + esc4(o.title) + '">' + T("Send offer", "قدّم عرضك") + "</button>") +
+              "</div>";
+          }).join("");
+        }
+      }
+    }
+
+    // Login gate
+    var loginForm = document.getElementById("partner-login-form");
+    if (loginForm) loginForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var company = (document.getElementById("pl-company").value || "").trim();
+      var email = (document.getElementById("pl-email").value || "").trim();
+      if (!company || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert(T("Enter your company and a valid email.", "أدخل اسم شركتك وبريداً صحيحاً.")); return; }
+      var existing = partner() || {};
+      existing.company = company; existing.email = email;
+      try { localStorage.setItem("bp_partner", JSON.stringify(existing)); } catch (er) {}
+      render();
+    });
+
+    var logout = document.getElementById("pt-logout");
+    if (logout) logout.addEventListener("click", function () { try { localStorage.removeItem("bp_partner"); } catch (e) {} render(); });
+
+    // Offer modal
+    var modal = document.getElementById("pt-modal");
+    document.addEventListener("click", function (e) {
+      var b = e.target.closest(".pt-offer-btn");
+      if (b && modal) {
+        document.getElementById("pt-offer-ref").value = b.getAttribute("data-ref");
+        document.getElementById("pt-offer-for").textContent = T("Request: ", "الطلب: ") + b.getAttribute("data-title");
+        var sent = document.getElementById("pt-offer-sent"); if (sent) sent.hidden = true;
+        modal.hidden = false;
+      }
+      if (e.target.id === "pt-modal-x" || e.target === modal) modal.hidden = true;
+    });
+    var offerForm = document.getElementById("pt-offer-form");
+    if (offerForm) offerForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var p = partner() || {};
+      var oref = document.getElementById("pt-offer-ref").value;
+      var price = document.getElementById("pt-offer-price").value;
+      var notes = document.getElementById("pt-offer-notes").value.trim();
+      var btn = offerForm.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "partner-offer", requestRef: oref, company: p.company || "", person: p.person || "", email: p.email || "", phone: p.phone || "", category: p.category || "", price: price, notes: notes }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("pt-offer-sent"); box.hidden = false;
+        box.innerHTML = (d && d.ok) ? "✅ " + T("Offer sent — we'll coordinate with the client.", "تم إرسال عرضك — سننسّق مع العميل.") : "⚠️ " + T("Couldn't send — try again.", "تعذّر الإرسال — حاول مجدداً.");
+        if (d && d.ok) {
+          try { var offers = offersData(); offers.push(oref); localStorage.setItem("bp_partner_offers", JSON.stringify(offers)); } catch (er) {}
+          setTimeout(function () { if (modal) modal.hidden = true; render(); }, 1200);
+        }
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = lbl;
+        var box = document.getElementById("pt-offer-sent"); box.hidden = false;
+        box.innerHTML = "⚠️ " + T("Couldn't reach the server — try again.", "تعذّر الاتصال — حاول مجدداً.");
+      });
+    });
+
+    render();
+    document.addEventListener("bp:langchange", render);
+  });
+})();
+
 /* ---------- Services calculator (accordion + basket) ---------- */
 (function () {
   "use strict";
@@ -2457,6 +2578,18 @@ var BP = window.BP = window.BP || {};
         return null;
       },
       function (d, ref) { return "تسجيل مورّد " + ref + "\nالشركة: " + d.company + "\nالتصنيف: " + d.category; });
+    // Save a partner session so the partner dashboard opens for them right away.
+    var spForm = document.getElementById("supplier-form");
+    if (spForm) spForm.addEventListener("submit", function () {
+      var company = val("sp-company"), email = val("sp-email");
+      if (!company || !email) return;
+      try {
+        localStorage.setItem("bp_partner", JSON.stringify({
+          company: company, person: val("sp-person"), email: email, phone: val("sp-phone"),
+          city: val("sp-city"), cr: val("sp-cr"), category: selText("sp-cat"),
+        }));
+      } catch (e) {}
+    });
 
     wire("mm-form-el", "mm-success",
       function () {

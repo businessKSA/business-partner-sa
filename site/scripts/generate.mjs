@@ -6248,7 +6248,7 @@ function buildSuppliers() {
   <section class="section"><div class="container">
     <div class="booking-wrap">
       <form class="calc-form" id="supplier-form" novalidate>
-        <h2>${L("Partner registration", "تسجيل الشركاء")}</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">${L("Partner registration", "تسجيل الشركاء")}</h2><a class="btn btn-ghost btn-sm" href="${u("/partner-dashboard")}">${L("Already a partner? Open dashboard →", "شريك بالفعل؟ افتح اللوحة ←")}</a></div>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="sp-company">${L("Company name", "اسم الشركة")}</label><input id="sp-company" type="text" required></div>
           <div class="field"><label for="sp-person">${L("Contact person", "الشخص المسؤول")}</label><input id="sp-person" type="text" required></div>
@@ -6282,6 +6282,79 @@ function buildSuppliers() {
     </div>
   </div></section>`;
   return page({ title: Lraw("Partners portal — Business Partner", "بوابة الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
+}
+
+// Partner dashboard — the operational side of the partners portal, wired to the
+// client side: client orders/requests (bp_orders, the same store the client
+// dashboard uses) surface here as opportunities the partner can bid on. A
+// partner "logs in" with company + email (demo session in bp_partner, same
+// device-local pattern as the client account); matched requests are also
+// routed by the team/n8n once the partner is activated. Submitting an offer
+// POSTs to /api/requests (type: partner-offer).
+function buildPartnerDashboard() {
+  const cats = ["فعاليات ومؤتمرات", "قاعات ومواقع", "ضيافة وكيترينق", "أنشطة خارجية", "نقل ولوجستيات", "تصوير وإعلام", "رحلات شركات", "أخرى"];
+  const catOpts = cats.map((c) => `<option>${esc(c)}</option>`).join("");
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Partners portal", "بوابة الشركاء")}</span>
+    <h1>${L("Partner dashboard", "لوحة الشركاء")}</h1>
+    <p class="lead">${L("Your live feed of client requests. When a client places a request or buys on the site, matching opportunities show up here so you can send an offer.", "متابعتك المباشرة لطلبات العملاء. عندما يطلب عميل أو يشتري خدمة على الموقع، تظهر الفرص المطابقة هنا لتقدّم عرضك.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:1000px">
+
+    <!-- Login gate (no partner session) -->
+    <div id="partner-gate">
+      <div class="dash-card" style="max-width:520px;margin:0 auto">
+        <h2>${L("Partner sign in", "دخول الشركاء")}</h2>
+        <p class="text-soft" style="margin-bottom:14px">${L("Enter your company and the email you registered with to open your dashboard.", "أدخل اسم شركتك والبريد الذي سجّلت به لفتح لوحتك.")}</p>
+        <form id="partner-login-form" class="calc-form">
+          <div class="field"><label for="pl-company">${L("Company name", "اسم الشركة")}</label><input id="pl-company" type="text" required></div>
+          <div class="field"><label for="pl-email">${L("Email", "البريد الإلكتروني")}</label><input id="pl-email" type="email" required></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Open my dashboard", "افتح لوحتي")}</button>
+        </form>
+        <p class="mini" style="margin-top:12px">${L("Not registered yet?", "لست مسجّلاً بعد؟")} <a href="${u("/suppliers")}">${L("Register as a partner", "سجّل كشريك")}</a></p>
+      </div>
+    </div>
+
+    <!-- Dashboard (has session) -->
+    <div id="partner-app" hidden>
+      <div class="dash-stats" style="margin-bottom:20px">
+        <div class="dash-stat"><div class="ds-ico">📥</div><div class="num" id="pt-stat-open">0</div><div class="lbl">${L("Open requests", "طلبات متاحة")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📨</div><div class="num" id="pt-stat-offers">0</div><div class="lbl">${L("Offers sent", "عروض مُرسلة")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">🏷️</div><div class="num" id="pt-stat-cat" style="font-size:1rem">—</div><div class="lbl">${L("Your category", "تصنيفك")}</div></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div><h3 style="margin:0" id="pt-company">—</h3><p class="text-soft" style="margin:0" id="pt-contact">—</p></div>
+          <button class="btn btn-ghost btn-sm" id="pt-logout">${L("Sign out", "خروج")}</button>
+        </div>
+      </div>
+
+      <div class="dash-panel-head"><h2>${L("Available client requests", "طلبات العملاء المتاحة")}</h2><p>${L("Matched to your service category. Send an offer and we coordinate directly with the client.", "مطابقة لتصنيف خدمتك. قدّم عرضك وننسّق معك مباشرة مع العميل.")}</p></div>
+      <div id="pt-feed"><p class="dash-empty">${L("No open requests right now — new client requests will appear here.", "لا توجد طلبات متاحة حالياً — ستظهر طلبات العملاء الجديدة هنا.")}</p></div>
+
+      <div class="callout" style="margin-top:20px"><span class="ico">🔗</span><p>${L("This dashboard is linked to the client side: every request or purchase on the site is matched to partners. Live routing to your WhatsApp/email is activated by our team after onboarding.", "هذه اللوحة مربوطة بجانب العملاء: كل طلب أو عملية شراء على الموقع تُطابَق مع الشركاء. التوجيه المباشر لواتسابك/بريدك يُفعّله فريقنا بعد إتمام الانضمام.")}</p></div>
+    </div>
+  </div></section>
+
+  <!-- Offer modal -->
+  <div class="empd-modal" id="pt-modal" hidden><div class="empd-modal-in">
+    <button class="empd-modal-x" id="pt-modal-x">✕</button>
+    <h3>${L("Send your offer", "قدّم عرضك")}</h3>
+    <div class="empd-modal-body">
+      <form id="pt-offer-form" class="calc-form">
+        <input type="hidden" id="pt-offer-ref">
+        <div class="field"><label id="pt-offer-for" style="font-weight:600"></label></div>
+        <div class="field"><label for="pt-offer-price">${L("Your price (SAR)", "سعرك (ريال)")}</label><input id="pt-offer-price" type="number" min="0"></div>
+        <div class="field"><label for="pt-offer-notes">${L("Offer details", "تفاصيل العرض")}</label><textarea id="pt-offer-notes" rows="3" placeholder="${Lraw("What's included, timeline, terms…", "ما يشمله العرض، المدة، الشروط…")}"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Send offer", "أرسل العرض")}</button>
+        <div class="form-success" id="pt-offer-sent" hidden></div>
+      </form>
+    </div>
+  </div></div>
+  <script>window.BP_PARTNER_CATS=${JSON.stringify(cats)};</script>`;
+  return page({ title: Lraw("Partner dashboard — Business Partner", "لوحة الشركاء — بيزنس بارتنر"), desc: Lraw("Partner dashboard: see matched client requests and send offers.", "لوحة الشركاء: شاهد طلبات العملاء المطابقة وقدّم عروضك."), active: "/suppliers", path: "/partner-dashboard", body });
 }
 
 function buildMonitor() {
@@ -8564,6 +8637,7 @@ function writeFullSite(pre) {
   write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
   write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
+  write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
@@ -8620,7 +8694,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

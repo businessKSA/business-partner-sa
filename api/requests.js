@@ -865,6 +865,29 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, ref }));
   }
 
+  // Partner offer on a client request (from the partner dashboard). Routes the
+  // partner's competing offer to the team, who coordinate with the client.
+  if (b.type === "partner-offer") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const category = String(b.category || "").trim().slice(0, 120);
+    const requestRef = String(b.requestRef || "").trim().slice(0, 60);
+    const notes = String(b.notes || "").trim().slice(0, 900);
+    const priceNum = Number(b.price);
+    const price = Number.isFinite(priceNum) && priceNum > 0 ? priceNum : null;
+    const ref = "BPO-" + Date.now().toString().slice(-6);
+    if (!company) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">عرض شريك ${ref}</h2><table>${row("الشركة الشريكة", company) + (person ? row("المسؤول", person) : "") + (phone ? row("الجوال", phone) : "") + (email ? row("البريد", email) : "") + (category ? row("التصنيف", category) : "") + row("على الطلب", requestRef || "—") + (price != null ? row("السعر المعروض", price + " ﷼") : "") + (notes ? row("تفاصيل العرض", esc(notes)) : "")}</table><p>نسّق العرض مع العميل صاحب الطلب ${esc(requestRef)} وحدّث الحالة في «Sales Pipeline».</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `عرض شريك ${ref} — ${company}${price != null ? " (" + price + " ﷼)" : ""}`, oHtml),
+      email && isEmail(email) ? crmLead({ title: `عرض شريك — ${company}`, phone, email, notes: `عرض على الطلب ${requestRef} · ${category} · ${price != null ? price + " ﷼" : "بدون سعر"} · ${notes}`.slice(0, 900), ref, orderStatus: "قيد المراجعة", total: price || 0 }) : Promise.resolve(),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   // Corporate bank-account opening: file prepared from the company profile,
   // online appointment with the bank officer — EVERY partner + the manager
   // receive the proposed appointment by email; the team confirms with the bank.
