@@ -101,6 +101,7 @@
           <h2>لوحة الخدمات المشتركة</h2>
           <p>فريقك التنفيذي كامل في مكان واحد — تعامل مع كل متخصص على حدة، اربط أدواتك، وأدر الامتثال. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.</p>
         </div>
+        <button class="ss-logout" id="ss-know" type="button">🧠 عرّف الفريق على شركتك</button>
         <button class="ss-logout" id="ss-install" type="button" hidden>📱 ثبّت كتطبيق</button>
         <button class="ss-logout" id="ss-logout" type="button">خروج</button>
       </div>
@@ -539,7 +540,7 @@
       note(box,"نتحقق من رمزك…",'ok');
       fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d&&d.ok){ setClient({code:code.toUpperCase(),name:d.name||"عميل",names:(d.names&&typeof d.names==='object')?d.names:{}}); note(box,"أهلاً "+(d.name||'')+' 👋','ok'); openService(); }
+        .then(function(d){ if(d&&d.ok){ setClient({code:code.toUpperCase(),name:d.name||"عميل",names:(d.names&&typeof d.names==='object')?d.names:{},kb:d.has_profile===true}); note(box,"أهلاً "+(d.name||'')+' 👋','ok'); openService(); }
           else if(d&&d.blocked){ note(box,"هذا الحساب موقوف — تواصل معنا لإعادة التفعيل.",'err'); }
           else { note(box,"الرمز غير صحيح. استخدم الرمز الذي وصلك على بريدك بعد الدفع.",'err'); } })
         .catch(function(){ note(box,"تعذّر الاتصال — حاول مرة ثانية.",'err'); });
@@ -602,6 +603,22 @@
       AGENTS.forEach(function(a){var el=document.createElement('button');el.type='button';el.className='ss-ag';el.dataset.slug=a.slug;
         el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+dispName(a)+'</b><span>'+a.role+'</span></div>';
         el.onclick=function(){selectAgent(a,el);};box.appendChild(el);});}
+    var kb=document.getElementById('ss-know');
+    function kbLabel(){ var c=getClient(); if(kb)kb.textContent=(c&&c.kb)?'🧠 '+"حدّث ملف شركتك":'🧠 '+"عرّف الفريق على شركتك"; }
+    kbLabel();
+    if(kb) kb.onclick=function(){
+      var c=getClient(); if(!c)return;
+      if(c.demo){ alert("في الحساب الفعلي: تلصق رابط موقعك والفريق كله يتعلم شركتك — جرّبها بعد الاشتراك."); return; }
+      var v=prompt("الصق رابط موقعك (أو اكتب نبذة قصيرة عن شركتك):",'');
+      if(v===null)return; v=v.trim(); if(!v)return;
+      var isUrl=/^(https?:\/\/)?[\w\u0600-\u06ff.-]+\.[a-z\u0600-\u06ff]{2,}([\/?#][^\s]*)?$/i.test(v)&&v.indexOf(' ')===-1;
+      var body={code:c.code}; if(isUrl)body.website=v; else body.about=v;
+      kb.disabled=true; kb.textContent='🧠 '+"نقرأ ونتعلّم…";
+      fetch(N8N+'/ss-knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+        .then(function(r){return r.json();})
+        .then(function(d){ kb.disabled=false; if(d&&d.ok){ c.kb=true; setClient(c); kbLabel(); alert('✅ '+"تم! فريقك كله الآن يعرف شركتك — اسأل أي موظف عنها."); } else { kbLabel(); alert("تعذرت القراءة — تأكد من الرابط وحاول مرة ثانية."); } })
+        .catch(function(){ kb.disabled=false; kbLabel(); alert("تعذّر الاتصال — حاول مرة ثانية."); });
+    };
     var rb=document.getElementById('ss-rename');
     if(rb) rb.onclick=function(){ if(!cur)return; var curName=dispName(cur);
       var v=prompt("اكتب الاسم الجديد لـ «"+cur.name+"» (اتركه فارغاً لاستعادة الاسم الأصلي):",curName===cur.name?'':curName);
