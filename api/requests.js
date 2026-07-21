@@ -1015,8 +1015,8 @@ export default async function handler(req, res) {
     const bookUrl = `${MKT_SITE_BASE}/consultation`;
     const waAdvisor = "https://wa.me/966530540231";
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
-      <h2 style="color:#0B1B5A">فتحنا لك تذكرة دعم ✅</h2>
-      <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وسيتواصل معك مستشارك <b>باهر</b> قريباً على رقمك/بريدك.</p>
+      <h2 style="color:#0B1B5A">استلمنا طلبك لعرض السعر ✅</h2>
+      <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وبيجهّز لك مستشارك <b>باهر</b> عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.</p>
       <p style="margin:18px 0"><b>وتقدر تبدأ الآن مباشرة:</b></p>
       <p><a href="${bookUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 احجز موعد استشارتك المجانية</a></p>
       <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>

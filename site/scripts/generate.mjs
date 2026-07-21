@@ -690,7 +690,7 @@ function advisorWidget() {
     <div class="advisor-view" id="advisor-ticket" hidden>
       <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
       <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="${Lraw("Describe your request (optional)", "اكتب تفاصيل طلبك (اختياري)")}"></textarea>
-      <button type="button" class="adv-primary" id="advisor-ticket-go">🎫 ${L("Open a support ticket", "افتح تذكرة دعم")}</button>
+      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 ${L("Request a price quote", "اطلب عرض السعر")}</button>
       <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
     </div>
 
