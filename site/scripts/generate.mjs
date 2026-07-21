@@ -2333,7 +2333,7 @@ function buildComplianceAgent() {
 const TEAM_AGENTS = [
   {
     slug: "baher", emoji: "🎯",
-    nameAr: "المستشار الأول", nameEn: "Senior Advisor",
+    nameAr: "باهر", nameEn: "Baher",
     roleAr: "مستشار الأعمال", roleEn: "Business Advisor",
     taglineAr: "أول نقطة تواصل: يشخّص طلبك ويوجّهك للخدمة أو الموظف الصحيح.", taglineEn: "Your first point of contact — diagnoses what you need and routes you to the right service or employee.",
     caps: [
@@ -6228,7 +6228,7 @@ function buildDashboard() {
   <script>
     var N8N_BASE = 'https://businesspartnerai.app.n8n.cloud/webhook';
     var AGENTS = [
-      { slug:'baher',     path:'baher-intake',      name:'المستشار الأول', en:'Senior Advisor', role:'مستشار الأعمال',          emoji:'🎯' },
+      { slug:'baher',     path:'baher-intake',      name:'باهر', en:'Baher', role:'مستشار الأعمال',          emoji:'🎯' },
       { slug:'mazen',     path:'mazen-intake',      name:'مازن',     en:'Mazen',     role:'مدير العمليات',           emoji:'🧭' },
       { slug:'nasser',    path:'nasser-intake',     name:'ناصر',     en:'Nasser',    role:'الموارد البشرية',         emoji:'👥' },
       { slug:'mishari',   path:'mishari-intake',    name:'مشاري',    en:'Mishari',   role:'الامتثال والالتزام',       emoji:'🛡️' },
@@ -6555,7 +6555,7 @@ function buildConnect(pre = "/") {
         </div>
         <div class="org-tier"><span class="org-label">المتخصصون</span>
           <div class="org-cards">
-            <span class="org-card">🎯 المستشار الأول — الأعمال</span>
+            <span class="org-card">🎯 باهر — مستشار الأعمال</span>
             <span class="org-card">👥 ناصر — الموارد البشرية</span>
             <span class="org-card">🛡️ مشاري — الامتثال</span>
             <span class="org-card">⚖️ عبدالعزيز — القانوني</span>
@@ -6723,7 +6723,7 @@ function buildConnect(pre = "/") {
     }
     var EMPLOYEES=[
       {slug:'malak',e:'🗂️',name:'ملاك',role:'مساعِدة تنفيذية',nameEn:'Malak — Executive Assistant'},
-      {slug:'baher',e:'🎯',name:'المستشار الأول',role:'مستشار الأعمال',nameEn:'Senior Business Advisor'},
+      {slug:'baher',e:'🎯',name:'باهر',role:'مستشار الأعمال',nameEn:'Baher — Business Advisor'},
       {slug:'mazen',e:'🧭',name:'مازن',role:'مدير العمليات',nameEn:'Mazen — Operations Manager'},
       {slug:'nasser',e:'👥',name:'ناصر',role:'الموارد البشرية',nameEn:'Nasser — HR'},
       {slug:'mishari',e:'🛡️',name:'مشاري',role:'الامتثال والالتزام',nameEn:'Mishari — Compliance'},
@@ -6945,7 +6945,7 @@ function buildPortal(pre = "/") {
   <script>
     var N8N_BASE='https://businesspartnerai.app.n8n.cloud/webhook';
     var AGENTS=[
-      {slug:'baher',path:'baher-intake',name:'المستشار الأول',role:'مستشار الأعمال',e:'🎯'},
+      {slug:'baher',path:'baher-intake',name:'باهر',role:'مستشار الأعمال',e:'🎯'},
       {slug:'mazen',path:'mazen-intake',name:'مازن',role:'مدير العمليات',e:'🧭'},
       {slug:'nasser',path:'nasser-intake',name:'ناصر',role:'الموارد البشرية',e:'👥'},
       {slug:'mishari',path:'mishari-intake',name:'مشاري',role:'الامتثال والالتزام',e:'🛡️'},
@@ -7222,8 +7222,7 @@ function buildSharedServices() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
-    { e: "👑", en: "Baher — Chief of Staff & Customer Service", ar: "باهر — قائد الفريق وخدمة العملاء" },
-    { e: "🎯", en: "Senior Business Advisor", ar: "المستشار الأول — الأعمال" },
+    { e: "👑", en: "Baher — Business Advisor & Team Lead", ar: "باهر — مستشار الأعمال وقائد الفريق" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
     { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
     { e: "🛡️", en: "Mishari — Compliance", ar: "مشاري — الامتثال والالتزام" },
@@ -7243,8 +7242,7 @@ function buildSharedServices() {
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
   const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
   const agentData = [
-    { slug: "khaled", e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
-    { slug: "baher", e: "🎯", ar: "المستشار الأول", arRole: "مستشار الأعمال", en: "Senior Advisor", enRole: "Business Advisor", path: "baher-intake" },
+    { slug: "khaled", e: "👑", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", mode: "chat", ep: KHALED_EP },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
     { slug: "mishari", e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance", path: "mishari-intake" },
@@ -7326,12 +7324,9 @@ function buildSharedServices() {
 
   // Detailed roster — services each agent delivers + how they work. Public info.
   const roster = [
-    { e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service",
+    { e: "👑", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
       svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
       mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
-    { e: "🎯", ar: "المستشار الأول", arRole: "مستشار الأعمال", en: "Senior Advisor", enRole: "Business Advisor",
-      svcAr: ["الاستراتيجية والنمو", "إعادة الهيكلة", "دراسات الجدوى", "القرارات الكبيرة"], svcEn: ["Strategy & growth", "Restructuring", "Feasibility", "Big decisions"],
-      mAr: "المجلس الاستشاري — يُستشار في القرارات الكبرى قبل التنفيذ.", mEn: "The advisory seat — consulted on major decisions before execution." },
     { e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager",
       svcAr: ["تنسيق التنفيذ", "تقسيم المهام", "إجراءات التشغيل (SOP)", "ضبط الجودة"], svcEn: ["Execution coordination", "Task breakdown", "SOPs", "Quality control"],
       mAr: "ينسّق الأعمال متعدّدة الخطوات داخلياً بين المتخصصين حتى التسليم.", mEn: "Coordinates multi-step work internally across specialists through to delivery." },
@@ -7381,7 +7376,7 @@ function buildSharedServices() {
       <div class="ss-proof">
         <span>⚡ ${L("Picks up your request in seconds", "يستلم طلبك خلال ثوانٍ")}</span>
         <span>🕐 ${L("Works 24/7", "يعمل 24/7")}</span>
-        <span>👥 ${L("13 specialists in one subscription — a full team, not a single bot", "13 متخصصاً باشتراك واحد — فريق كامل، لا وكيل واحد")}</span>
+        <span>👥 ${L("12 specialists in one subscription — a full team, not a single bot", "12 متخصصاً باشتراك واحد — فريق كامل، لا وكيل واحد")}</span>
         <span>🔒 ${L("Anything binding waits for your approval", "أي التزام ينتظر موافقتك")}</span>
       </div>
       <style>
@@ -7423,13 +7418,12 @@ function buildSharedServices() {
       <div class="ss-org">
         <div class="ss-onode you"><span class="e">👤</span><div><b>${L("You — the client", "أنت — العميل")}</b><span>${L("Write your request in plain language — one channel only, no chasing anyone.", "تكتب طلبك بلغتك العادية — قناة واحدة فقط، وما تحتاج تلاحق أحداً.")}</span></div></div>
         <div class="ss-oconn"><i>1</i><em>${L("The request", "الطلب")}</em></div>
-        <div class="ss-onode lead"><span class="e">👑</span><div><b>${L("Baher — Chief of Staff", "باهر — رئيس الأركان")}</b><span>${L("Receives your request, owns it end to end, assigns the right specialist, collects the work, and hands you a finished result.", "يستقبل طلبك، يملكه من أوله لآخره، يكلّف المتخصص المناسب، يجمع الشغل، ويسلّمك نتيجة جاهزة.")}</span></div></div>
+        <div class="ss-onode lead"><span class="e">👑</span><div><b>${L("Baher — Business Advisor & Team Lead", "باهر — مستشار الأعمال وقائد الفريق")}</b><span>${L("Receives your request, owns it end to end, assigns the right specialist, collects the work, and hands you a finished result.", "يستقبل طلبك، يملكه من أوله لآخره، يكلّف المتخصص المناسب، يجمع الشغل، ويسلّمك نتيجة جاهزة.")}</span></div></div>
         <div class="ss-oconn"><i>2</i><em>${L("Coordination", "التوزيع والتنسيق")}</em></div>
         <div class="ss-onode ops"><span class="e">🧭</span><div><b>${L("Mazen — Operations Manager", "مازن — مدير العمليات")}</b><span>${L("Coordinates multi-step execution across specialists and guards delivery quality — works behind the scenes.", "ينسّق التنفيذ متعدد الخطوات بين المتخصصين ويراقب جودة التسليم — يعمل خلف الكواليس.")}</span></div></div>
         <div class="ss-oconn"><i>3</i><em>${L("Specialist execution", "التنفيذ المتخصص")}</em></div>
         <div class="ss-ogroups">
           <div class="ss-ogroup"><b>🎯 ${L("Advisory & planning", "الاستشارة والتخطيط")}</b>
-            <span class="ss-oa"><i>💡</i>${L("Senior Business Advisor", "المستشار الأول — الأعمال")}</span>
             <span class="ss-oa"><i>📈</i>${L("Ahmed — Strategic Planning", "أحمد — التخطيط الاستراتيجي")}</span></div>
           <div class="ss-ogroup"><b>⚖️ ${L("Finance, compliance & legal", "المال والامتثال والقانون")}</b>
             <span class="ss-oa"><i>💰</i>${L("Abdulrahman — CFO", "عبدالرحمن — المدير المالي")}</span>
@@ -7494,7 +7488,7 @@ function buildSharedServices() {
       </div>
       <div class="ss-price-box">
         <div><div class="ss-price-amt">1,500 <small>${L("SAR / monthly — starting price", "﷼ / شهرياً — سعر البداية")}</small></div>
-        <div class="ss-price-note">${L("A full executive team (11 specialists + team leader) working under one subscription.", "فريق تنفيذي كامل (11 متخصصاً + قائد الفريق) يعمل تحت اشتراك واحد.")}</div></div>
+        <div class="ss-price-note">${L("A full executive team of 12 (11 specialists led by Baher) under one subscription.", "فريق تنفيذي كامل من 12 (11 متخصصاً بقيادة باهر) تحت اشتراك واحد.")}</div></div>
         <button type="button" class="btn btn-primary btn-lg add-cart" data-id="agent-Shared-services-team" data-name-en="Shared services team" data-name-ar="فريق الخدمات المشتركة" data-amount="1500" data-price="${Lraw("From 1,500 SAR / monthly", "يبدأ من 1,500 ﷼ / شهرياً")}" data-kind="agent">${L("🛒 Add to cart", "🛒 أضف للسلة")}</button>
       </div>
       <div class="ss-cta" style="justify-content:center;margin-top:26px">
@@ -7694,8 +7688,7 @@ function buildSharedServicesPortal() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
-    { e: "👑", en: "Baher — Chief of Staff & Customer Service", ar: "باهر — قائد الفريق وخدمة العملاء" },
-    { e: "🎯", en: "Senior Business Advisor", ar: "المستشار الأول — الأعمال" },
+    { e: "👑", en: "Baher — Business Advisor & Team Lead", ar: "باهر — مستشار الأعمال وقائد الفريق" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
     { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
     { e: "🛡️", en: "Mishari — Compliance", ar: "مشاري — الامتثال والالتزام" },
@@ -7715,8 +7708,7 @@ function buildSharedServicesPortal() {
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
   const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
   const agentData = [
-    { slug: "khaled", e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
-    { slug: "baher", e: "🎯", ar: "المستشار الأول", arRole: "مستشار الأعمال", en: "Senior Advisor", enRole: "Business Advisor", path: "baher-intake" },
+    { slug: "khaled", e: "👑", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", mode: "chat", ep: KHALED_EP },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
     { slug: "mishari", e: "🛡️", ar: "مشاري", arRole: "الامتثال والالتزام", en: "Mishari", enRole: "Compliance", path: "mishari-intake" },
@@ -7798,12 +7790,9 @@ function buildSharedServicesPortal() {
 
   // Detailed roster — services each agent delivers + how they work. Public info.
   const roster = [
-    { e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service",
+    { e: "👑", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
       svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
       mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
-    { e: "🎯", ar: "المستشار الأول", arRole: "مستشار الأعمال", en: "Senior Advisor", enRole: "Business Advisor",
-      svcAr: ["الاستراتيجية والنمو", "إعادة الهيكلة", "دراسات الجدوى", "القرارات الكبيرة"], svcEn: ["Strategy & growth", "Restructuring", "Feasibility", "Big decisions"],
-      mAr: "المجلس الاستشاري — يُستشار في القرارات الكبرى قبل التنفيذ.", mEn: "The advisory seat — consulted on major decisions before execution." },
     { e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager",
       svcAr: ["تنسيق التنفيذ", "تقسيم المهام", "إجراءات التشغيل (SOP)", "ضبط الجودة"], svcEn: ["Execution coordination", "Task breakdown", "SOPs", "Quality control"],
       mAr: "ينسّق الأعمال متعدّدة الخطوات داخلياً بين المتخصصين حتى التسليم.", mEn: "Coordinates multi-step work internally across specialists through to delivery." },
