@@ -6124,18 +6124,7 @@ function buildAccount() {
             <p class="mini" style="margin-top:10px">${L("Card / Apple Pay top-up is coming once the payment gateway goes live.", "الشحن بالبطاقة / أبل باي قادم فور تفعيل بوابة الدفع الإلكتروني.")}</p>
           </div>
 
-          <div class="dash-card">
-            <h3>🏛️ ${L("Pay government fees from my balance", "سدّد رسوماً حكومية من رصيدي")}</h3>
-            <p class="text-soft" style="margin-bottom:14px">${L("Tell us which fee to pay (Qiwa, MISA, Balady, GOSI, traffic, ministry invoices…) and we execute it from your wallet and attach the payment proof to your request.", "حدد الرسوم المطلوب سدادها (قوى، الاستثمار، بلدي، التأمينات، فواتير سداد…) وننفذها من محفظتك ونرفق لك إثبات السداد على طلبك.")}</p>
-            <form id="wal-pay-form" novalidate>
-              <div class="cc-grid">
-                <div class="field"><label for="wal-pay-what">${L("Fee / invoice description", "وصف الرسوم / الفاتورة")}</label><input type="text" id="wal-pay-what" placeholder="${Lraw("e.g. SADAD invoice 123456 — MISA license renewal", "مثال: فاتورة سداد 123456 — تجديد رخصة الاستثمار")}"></div>
-                <div class="field"><label for="wal-pay-amount">${L("Amount (SAR)", "المبلغ (ريال)")}</label><input type="number" id="wal-pay-amount" min="1" placeholder="500"></div>
-              </div>
-              <button type="submit" class="btn btn-primary">${L("Request payment from wallet", "اطلب السداد من المحفظة")}</button>
-              <div class="form-success" id="wal-pay-success" hidden></div>
-            </form>
-          </div>
+          <!-- Government-fee payment ("سداد الخدمات الحكومية") removed at owner's request — to be re-added later. -->
 
           <div class="dash-card"><h3>${L("Wallet transactions", "حركات المحفظة")}</h3><div id="wal-list"><p class="dash-empty">${L("No wallet transactions yet.", "لا توجد حركات بعد.")}</p></div></div>
           <div class="callout"><span class="ico">💰</span><p>${L("Fees we pay for you (chamber, municipal, licenses…) may be refundable via Monsha'at's Estrdad initiative — if your establishment stays compliant.", "الرسوم التي نسددها عنك (الغرفة، البلدية، التراخيص…) قد تكون قابلة للاسترداد عبر مبادرة «استرداد» من منشآت — بشرط بقاء منشأتك ممتثلة.")} <a href="${u("/estrdad")}">${L("Check your eligibility ←", "تحقق من أهليتك ←")}</a></p></div>
