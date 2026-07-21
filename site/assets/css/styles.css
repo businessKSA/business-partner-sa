@@ -514,6 +514,13 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   border-radius: 12px; color: var(--navy); border: 1px solid var(--gray-line); background: var(--white); }
 .icon-btn:hover { background: var(--gray-bg); color: var(--navy); }
 .icon-btn svg { width: 21px; height: 21px; }
+/* Labelled header buttons (Sign in / Partners) */
+.hdr-btn { display: inline-flex; align-items: center; gap: 7px; height: 42px; padding: 0 14px; border-radius: 12px;
+  color: var(--navy); border: 1px solid var(--gray-line); background: var(--white); font-size: .86rem; font-weight: 600; white-space: nowrap; }
+.hdr-btn:hover { background: var(--gray-bg); color: var(--navy); }
+.hdr-btn svg { width: 19px; height: 19px; flex-shrink: 0; }
+.hdr-btn--partners { background: var(--navy); color: #fff; border-color: var(--navy); }
+.hdr-btn--partners:hover { background: #16307a; color: #fff; }
 .cart-badge { position: absolute; top: -6px; inset-inline-end: -6px; background: var(--navy); color: #fff; font-size: .68rem;
   min-width: 18px; height: 18px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; }
 .cart-badge[hidden] { display: none; }
@@ -1266,6 +1273,8 @@ html[dir="rtl"] .deal-drawer { transform: translateX(-105%); }
 .deal-match-reasons span { font-size: .7rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--gray-bg); border: 1px solid var(--gray-line); color: var(--text-soft); }
 .deal-match-empty { text-align: center; padding: 24px 12px; color: var(--text-soft); font-size: .88rem; background: var(--gray-bg); border: 1px dashed var(--gray-line); border-radius: 10px; }
 @media (max-width: 640px) { .deal-drawer { width: 100%; } }
+/* Header labelled buttons collapse to icon-only on narrower screens to avoid overflow. */
+@media (max-width: 860px) { .hdr-btn-t { display: none; } .hdr-btn { padding: 0; width: 42px; justify-content: center; } }
 
 /* Phones: the full header row (logo + language + account + cart + burger)
    overflowed ~50px at 390px, clipping the logo and pushing the menu button
@@ -1274,8 +1283,8 @@ html[dir="rtl"] .deal-drawer { transform: translateX(-105%); }
   .header-inner { gap: 4px; }
   .logo img { height: 22px; }
   .header-cta { gap: 3px; }
-  .icon-btn { width: 36px; height: 36px; }
-  .icon-btn svg { width: 19px; height: 19px; }
+  .icon-btn, .hdr-btn { width: 36px; height: 36px; }
+  .icon-btn svg, .hdr-btn svg { width: 19px; height: 19px; }
   .lang-drop { padding: 4px 8px; }
   .lang-drop svg:last-child { display: none; }
   .nav-toggle { padding: 5px; }
@@ -1284,8 +1293,8 @@ html[dir="rtl"] .deal-drawer { transform: translateX(-105%); }
 }
 @media (max-width: 380px) {
   .logo img { height: 18px; }
-  .icon-btn { width: 32px; height: 32px; }
-  .icon-btn svg { width: 17px; height: 17px; }
+  .icon-btn, .hdr-btn { width: 32px; height: 32px; }
+  .icon-btn svg, .hdr-btn svg { width: 17px; height: 17px; }
   .lang-drop svg:first-child { width: 17px; height: 12px; }
   .container { padding: 0 12px; }
 }

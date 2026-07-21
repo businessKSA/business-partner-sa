@@ -477,7 +477,6 @@ const NAV_GROUPS = [
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
   },
-  { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
   { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
 ];
 
@@ -548,7 +547,8 @@ function header(active, path) {
   <nav class="nav" aria-label="Main navigation">${links}</nav>
   <div class="header-cta">
     ${langMenu(path)}
-    <a class="icon-btn" href="${u("/account")}" aria-label="${Lraw("Account", "حسابي")}">${I.user}</a>
+    <a class="hdr-btn" href="${u("/account")}" aria-label="${Lraw("Sign in", "تسجيل الدخول")}">${I.user}<span class="hdr-btn-t">${L("Sign in", "تسجيل الدخول")}</span></a>
+    <a class="hdr-btn hdr-btn--partners" href="${u("/suppliers")}" aria-label="${Lraw("Partners registration", "تسجيل الشركاء")}">${I.users}<span class="hdr-btn-t">${L("Partners", "تسجيل الشركاء")}</span></a>
     <a class="icon-btn cart-link" href="${u("/cart")}" aria-label="${Lraw("Cart", "السلة")}">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
     <button class="nav-toggle" aria-label="${Lraw("Menu", "القائمة")}" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
@@ -562,7 +562,7 @@ function footer() {
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>${L("Subscribe to our newsletter", "اشترك في نشرتنا الإخبارية")}</h3>
-      <p>${L("The latest business & regulatory news in Saudi Arabia — weekly, straight to your inbox.", "آخر أخبار الأعمال والأنظمة في السعودية — أسبوعياً مباشرة إلى بريدك.")}</p>
+      <p>${L("The latest business & regulatory news in Saudi Arabia — weekly, in both Arabic and English, straight to your inbox.", "آخر أخبار الأعمال والأنظمة في السعودية — أسبوعياً بالعربية والإنجليزية مباشرة إلى بريدك.")}</p>
     </div>
     <form class="newsletter-form" data-nl>
       <input type="email" placeholder="${Lraw("Your email", "بريدك الإلكتروني")}" aria-label="${Lraw("Email", "البريد الإلكتروني")}" data-nl-email required>
@@ -589,7 +589,7 @@ function footer() {
     </ul></div>
     <div class="footer-col"><h4>${L("Platforms & portals", "المنصات والبوابات")}</h4><ul>
       ${fl("/account", "Client portal", "منصّة العملاء")}
-      ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
+      ${fl("/suppliers", "Partners portal", "بوابة الشركاء")}
       ${fl("/employer-join", "For employers", "لأصحاب العمل")}
       ${fl("/portal", "Smart employees portal", "بوابة الموظفين الأذكياء")}
     </ul></div>
@@ -2826,7 +2826,7 @@ function buildTourism() {
           <h3>${L("How it works", "كيف تعمل")}</h3>
           <ul class="feat-list">${evFeats}</ul>
           <p class="mini">${L("Are you an events supplier?", "هل أنت مورّد فعاليات؟")}</p>
-          <a class="btn btn-ghost" href="${u("/suppliers")}">${L("Join our suppliers portal", "سجّل في بوابة الموردين")}</a>
+          <a class="btn btn-ghost" href="${u("/suppliers")}">${L("Join our partners portal", "سجّل في بوابة الشركاء")}</a>
         </div>
       </aside>
     </div>
@@ -4055,7 +4055,7 @@ function buildNewsletter() {
   <section class="hero"><div class="container hero-inner" style="max-width:820px">
     <span class="eyebrow">${L("Newsletter", "النشرة الإخبارية")}</span>
     <h1>${L("Stay ahead of Saudi business & regulations", "ابقَ في الصدارة بأخبار الأعمال والأنظمة السعودية")}</h1>
-    <p class="lead">${L("Every Sunday morning — compliance decisions and business news that matter across every sector, summarized and actionable.", "كل أحد صباحاً — قرارات الامتثال وأخبار الأعمال المهمة في جميع القطاعات، مُلخّصة وقابلة للتطبيق.")}</p>
+    <p class="lead">${L("Every Sunday morning — compliance decisions and business news that matter across every sector, summarized and actionable, delivered in both Arabic and English.", "كل أحد صباحاً — قرارات الامتثال وأخبار الأعمال المهمة في جميع القطاعات، مُلخّصة وقابلة للتطبيق، وتصلك بالعربية والإنجليزية.")}</p>
     <form class="newsletter-form newsletter-hero" data-nl>
       <input type="email" placeholder="${Lraw("Your email", "بريدك الإلكتروني")}" aria-label="${Lraw("Email", "البريد الإلكتروني")}" data-nl-email required>
       <button type="submit" class="btn btn-primary btn-lg">${L("Subscribe", "اشترك")}</button>
@@ -6005,7 +6005,7 @@ function buildAccount() {
               <a class="portal-card" href="${u(COMPLIANCE_PORTAL_URL)}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
-              <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Suppliers portal", "بوابة الموردين")}</strong></a>
+              <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Partners portal", "بوابة الشركاء")}</strong></a>
               <a class="portal-card" id="ai-employees-link" href="${u("/portal")}"><span>🤖</span><strong>${L("Smart Specialized Agent", "الموظف المتخصص")}</strong></a>
               <a class="portal-card" href="${u("/shared-services")}"><span>🤝</span><strong>${L("Shared Services", "الخدمات المشتركة")}</strong></a>
               <a class="portal-card" href="${u("/bank-account")}"><span>🏦</span><strong>${L("Open a bank account", "فتح حساب بنكي")}</strong></a>
@@ -6204,14 +6204,14 @@ function buildSuppliers() {
   const catOpts = cats.map((c2) => `<option>${L(c2.en, c2.ar)}</option>`).join("");
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Suppliers portal", "بوابة الموردين")}</span>
-    <h1>${L("Become a Business Partner supplier", "انضم كمورّد لدى بيزنس بارتنر")}</h1>
+    <span class="eyebrow">${L("Partners portal", "بوابة الشركاء")}</span>
+    <h1>${L("Join the Business Partner network", "انضم كشريك لدى بيزنس بارتنر")}</h1>
     <p class="lead">${L("We send our clients' event and service requests to registered suppliers and collect competing offers. Register once — receive matching requests.", "نرسل طلبات عملائنا (فعاليات وخدمات) للموردين المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — وتصلك الطلبات المناسبة لنشاطك.")}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="booking-wrap">
       <form class="calc-form" id="supplier-form" novalidate>
-        <h2>${L("Supplier registration", "تسجيل مورّد")}</h2>
+        <h2>${L("Partner registration", "تسجيل الشركاء")}</h2>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="sp-company">${L("Company name", "اسم الشركة")}</label><input id="sp-company" type="text" required></div>
           <div class="field"><label for="sp-person">${L("Contact person", "الشخص المسؤول")}</label><input id="sp-person" type="text" required></div>
@@ -6227,7 +6227,7 @@ function buildSuppliers() {
         <div class="field"><label for="sp-cat">${L("Service category", "تصنيف الخدمة")}</label>
           <select id="sp-cat">${catOpts}</select></div>
         <div class="field"><label for="sp-notes">${L("Describe your services briefly", "اوصف خدماتك باختصار")}</label><textarea id="sp-notes" rows="3"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a supplier", "سجّل كمورّد")}</button>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a partner", "سجّل كشريك")}</button>
         <p class="form-note">${L("We review registrations and contact you to complete onboarding.", "نراجع التسجيلات ونتواصل معك لاستكمال الانضمام.")}</p>
         <div class="form-success" id="supplier-success" hidden></div>
       </form>
@@ -6244,7 +6244,7 @@ function buildSuppliers() {
       </aside>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Suppliers portal — Business Partner", "بوابة الموردين — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner supplier and receive matching client requests.", "سجّل كمورّد لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
+  return page({ title: Lraw("Partners portal — Business Partner", "بوابة الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
 }
 
 function buildMonitor() {
