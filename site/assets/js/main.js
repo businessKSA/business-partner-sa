@@ -4571,3 +4571,31 @@ var BP_EMP_BILLING = "monthly";
     }
   });
 })();
+
+/* Saudi Guide sticky jump-nav: highlight the section in view. */
+(function () {
+  var nav = document.querySelector(".guide-nav");
+  if (!nav) return;
+  var links = Array.prototype.slice.call(nav.querySelectorAll("a[data-guide-link]"));
+  if (!links.length) return;
+  var byId = {};
+  var sections = links.map(function (a) {
+    var id = a.getAttribute("href").slice(1);
+    byId[id] = a;
+    return document.getElementById(id);
+  }).filter(Boolean);
+  if (!("IntersectionObserver" in window)) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (l) { l.classList.remove("active"); });
+      var a = byId[e.target.id];
+      if (a) {
+        a.classList.add("active");
+        // keep the active pill in view on the horizontal bar
+        a.scrollIntoView({ inline: "center", block: "nearest" });
+      }
+    });
+  }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+  sections.forEach(function (s) { io.observe(s); });
+})();
