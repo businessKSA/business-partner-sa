@@ -47,6 +47,10 @@ const site = read("data/site.json");
 const services = read("data/services.json");
 const categories = read("data/categories.json");
 const svcI18n = read("data/service-i18n.json");
+// Saudi entrepreneurship-ecosystem directory (incubators, accelerators, VCs,
+// angel networks, coworking) + their programs — sourced from our verified
+// Notion research databases. Powers /directory.
+const ecosystem = read("data/ecosystem.json");
 
 // Business Partner's own open roles — an ATS-style job board on /careers,
 // each with a single job page and an application routed through the same
@@ -469,6 +473,17 @@ const NAV_GROUPS = [
     en: "Knowledge Center", ar: "مركز المعرفة",
     items: [
       { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
+      { href: "/directory", en: "Startup Ecosystem Directory", ar: "دليل ريادة الأعمال" },
+      {
+        href: "/guide/saudi-market", en: "Saudi Guide", ar: "دليل السعودية",
+        sub: [
+          { href: "/guide/saudi-market", en: "The Saudi Market", ar: "السوق السعودي" },
+          { href: "/guide/business-setup", en: "Business Setup", ar: "تأسيس الأعمال" },
+          { href: "/guide/run-your-business", en: "Run Your Business", ar: "تشغيل عملك" },
+          { href: "/guide/live-in-saudi", en: "Live in Saudi", ar: "الحياة في السعودية" },
+          { href: "/guide/residency", en: "Residency in KSA", ar: "الإقامة في السعودية" },
+        ],
+      },
       { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
@@ -588,6 +603,7 @@ function footer() {
     </ul></div>
     <div class="footer-col"><h4>${L("Knowledge Center", "مركز المعرفة")}</h4><ul>
       ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
+      ${fl("/directory", "Startup Ecosystem Directory", "دليل ريادة الأعمال")}
       ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/news", "Insights & news", "الرؤى والأخبار")}
       ${fl("/magazine", "Magazine (PDF)", "المجلة (PDF)")}
@@ -623,20 +639,78 @@ function waFab() {
   return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="${Lraw("Contact on WhatsApp", "تواصل عبر واتساب")}">${I.wa}<span class="lbl">${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>`;
 }
 
+// باهر — صورة صاحب الموقع الحقيقية (بدل الرسمة). span بنفس كلاس kh-avatar حتى
+// تنطبق مقاسات الودجت، مع موجات صوت تظهر أثناء نطق الرد (كلاس talking).
+function khaledSvg() {
+  return `<span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span>`;
+}
+
 function advisorWidget() {
-  return `<button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open the smart advisor", "افتح المستشار الذكي")}">${I.robot}<span class="lbl">${L("Advisor", "المستشار")}</span></button>
-  <section class="advisor-panel" id="advisor-panel" hidden aria-label="${Lraw("Smart advisor", "المستشار الذكي")}">
+  return `<div class="advisor-teaser" id="advisor-teaser" hidden>
+    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="${Lraw("Close", "إغلاق")}">✕</button>
+    <p>${L("Hi 👋 I'm Baher, your smart assistant. Questions about formation or government platforms?", "حياك الله 👋 أنا باهر، مساعدك الذكي. عندك سؤال عن التأسيس أو المنصات الحكومية؟")}</p>
+  </div>
+  <button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open chat with Baher, the smart assistant", "افتح المحادثة مع باهر، المساعد الذكي")}">
+    <span class="advisor-fab-avatar">${khaledSvg("fab")}<span class="advisor-dot" aria-hidden="true"></span></span>
+    <span class="lbl">${L("Ask Baher", "اسأل باهر")}</span>
+  </button>
+  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="${Lraw("Ask Baher", "اسأل باهر")}">
     <header class="advisor-head">
-      <div class="advisor-title">${I.robot}<div><strong>${L("Smart Advisor", "المستشار الذكي")}</strong><span>${L("Answers about services & procedures", "يجاوبك عن الخدمات والإجراءات")}</span></div></div>
+      <button class="advisor-back" id="advisor-back" aria-label="${Lraw("Back", "رجوع")}" hidden>${I.arrow}</button>
+      <div class="advisor-title"><span class="advisor-head-avatar">${khaledSvg("head")}</span><div><strong>${L("Baher", "باهر")}</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">${L("Your smart partner — online now", "شريكك الذكي — متصل الآن")}</span></span></div></div>
       <button class="advisor-close" id="advisor-close" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
     </header>
-    <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">${L("Hi 👋 I'm the Business Partner smart advisor. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "مرحباً 👋 أنا المستشار الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
+
+    <!-- Step 1: contact intake (required first) -->
+    <div class="advisor-view" id="advisor-intake">
+      <div class="adv-intake-hd">${L("Welcome 👋 First, tell us about yourself so we can serve you and follow up on your request.", "أهلاً بك 👋 أولاً عرّفنا بنفسك حتى نخدمك ونتابع طلبك.")}</div>
+      <input class="adv-in" id="adv-in-name" type="text" placeholder="${Lraw("Full name *", "الاسم الكامل *")}" autocomplete="name">
+      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="${Lraw("Mobile 05XXXXXXXX *", "الجوال 05XXXXXXXX *")}" autocomplete="tel">
+      <input class="adv-in" id="adv-in-email" type="email" placeholder="${Lraw("Email *", "البريد الإلكتروني *")}" autocomplete="email">
+      <button type="button" class="adv-primary" id="advisor-intake-go">${L("Start ›", "ابدأ ›")}</button>
+      <div class="adv-err" id="adv-intake-err" hidden></div>
+      <p class="adv-note">🔒 ${L("Your details are used only to serve you and follow up on your request.", "بياناتك تُستخدم فقط لخدمتك ومتابعة طلبك.")}</p>
     </div>
-    <form class="advisor-form" id="advisor-form">
-      <input id="advisor-input" type="text" autocomplete="off" placeholder="${Lraw("Type your question here…", "اكتب سؤالك هنا…")}" aria-label="${Lraw("Type your question", "اكتب سؤالك")}">
-      <button type="submit" aria-label="${Lraw("Send", "إرسال")}">${I.send}</button>
-    </form>
+
+    <!-- Step 2: home — service windows (main → sub) -->
+    <div class="advisor-view" id="advisor-home" hidden>
+      <div class="adv-home-hd" id="advisor-hello"></div>
+      <div class="adv-home-sub">${L("Pick the service you need:", "اختر الخدمة التي تحتاجها:")}</div>
+      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">${L("Loading services…", "جارٍ تحميل الخدمات…")}</div></div>
+      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 ${L("Or ask Baher directly", "أو اسأل باهر مباشرة")}</button>
+    </div>
+
+    <!-- Step 2b: sub-services of a chosen category -->
+    <div class="advisor-view" id="advisor-sub" hidden>
+      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
+      <div class="adv-svcs" id="advisor-svcs"></div>
+    </div>
+
+    <!-- Step 3: open a support ticket for the chosen service -->
+    <div class="advisor-view" id="advisor-ticket" hidden>
+      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
+      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="${Lraw("Describe your request (optional)", "اكتب تفاصيل طلبك (اختياري)")}"></textarea>
+      <button type="button" class="adv-primary" id="advisor-ticket-go">🎫 ${L("Open a support ticket", "افتح تذكرة دعم")}</button>
+      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
+    </div>
+
+    <!-- Chat with Baher (available after intake) -->
+    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
+      <div class="advisor-msgs" id="advisor-msgs">
+        <div class="advisor-msg bot">${L("Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "حياك الله 👋 أنا باهر، مساعدك الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
+      </div>
+      <div class="advisor-chips" id="advisor-chips">
+        <button type="button" class="advisor-chip" data-q="${Lraw("Foreign investment company setup", "تأسيس شركة باستثمار أجنبي")}">🏢 ${L("Foreign investment setup", "تأسيس شركة باستثمار أجنبي")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("Government platforms management", "إدارة المنصات الحكومية")}">💼 ${L("Government platforms", "إدارة المنصات الحكومية")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("Packages & pricing", "الباقات والأسعار")}">💰 ${L("Packages & pricing", "الباقات والأسعار")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("I want a free consultation", "أبغى استشارة مجانية")}">📞 ${L("Free consultation", "أبغى استشارة مجانية")}</button>
+      </div>
+      <form class="advisor-form" id="advisor-form">
+        <input id="advisor-input" type="text" autocomplete="off" placeholder="${Lraw("Type your question here…", "اكتب سؤالك هنا…")}" aria-label="${Lraw("Type your question", "اكتب سؤالك")}">
+        <button type="submit" aria-label="${Lraw("Send", "إرسال")}">${I.send}</button>
+      </form>
+    </div>
+
     <a class="advisor-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Prefer to chat with our team on WhatsApp?", "تفضّل التحدث مع فريقنا على واتساب؟")}</span></a>
   </section>`;
 }
@@ -957,6 +1031,198 @@ function buildAbout() {
   </div></section>`;
   return page({ title: Lraw("About — Business Partner", "من نحن — بيزنس بارتنر"), desc: Lraw(a.leadEn || a.lead, a.lead), active: "/about", body });
 }
+
+/* ---------- Saudi entrepreneurship ecosystem directory (/directory) ---------- */
+// Category metadata: label per language + an accent color drawn from the brand
+// palette. Keys match ecosystem.json's `cat` field.
+const ECO_CATS = {
+  incubator:   { en: "Incubators",        ar: "حاضنات الأعمال",       c: "#0B1B5A" },
+  accelerator: { en: "Accelerators",      ar: "مسرّعات الأعمال",      c: "#1E88C7" },
+  vc:          { en: "Venture Capital",   ar: "صناديق استثمارية",     c: "#2E7D5B" },
+  angel:       { en: "Angel Investors",   ar: "مستثمرون ملائكة",      c: "#B07A16" },
+  coworking:   { en: "Coworking Spaces",  ar: "مساحات عمل مشتركة",    c: "#7A3FB0" },
+  training:    { en: "Training Programs", ar: "برامج تدريب وتأهيل",   c: "#0E8B8B" },
+};
+const ecoCatLabel = (k) => (ECO_CATS[k] ? L(ECO_CATS[k].en, ECO_CATS[k].ar) : esc(k));
+
+function buildDirectory() {
+  const orgs = ecosystem.orgs || [];
+  const programs = ecosystem.programs || [];
+
+  // Counts per category (entities) for the hero stats.
+  const catCount = (k) => orgs.filter((o) => o.cat === k).length;
+  const cities = [...new Set(orgs.map((o) => o.city).filter((c) => c && c !== "Online"))]
+    .sort((a, b) => a.localeCompare(b, "ar"));
+  const openPrograms = programs.filter((p) => /مستمر|دائم/.test(p.status)).length;
+
+  // ----- hero -----
+  const stats = [
+    { n: orgs.length, en: "Entities", ar: "جهة" },
+    { n: catCount("incubator"), en: "Incubators", ar: "حاضنة" },
+    { n: catCount("accelerator"), en: "Accelerators", ar: "مسرّعة" },
+    { n: catCount("vc") + catCount("angel"), en: "Investors & funds", ar: "مستثمر وصندوق" },
+    { n: programs.length, en: "Programs", ar: "برنامج" },
+    { n: cities.length, en: "Cities", ar: "مدينة" },
+  ].map((s) => `<div class="eco-stat"><strong>${s.n}</strong><span>${L(s.en, s.ar)}</span></div>`).join("");
+
+  // ----- category filter chips (shared) -----
+  const chip = (key, label) =>
+    `<button type="button" class="eco-chip${key === "all" ? " active" : ""}" data-cat="${key}"${
+      key !== "all" ? ` style="--bc:${ECO_CATS[key].c}"` : ""
+    }>${label}</button>`;
+  const chips =
+    chip("all", L("All", "الكل")) +
+    Object.keys(ECO_CATS).map((k) => chip(k, ecoCatLabel(k))).join("");
+
+  // ----- city select -----
+  const cityOpts =
+    `<option value="all">${L("All cities", "كل المدن")}</option>` +
+    cities.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+
+  // ----- entity cards -----
+  const contactLinks = (o) => {
+    const parts = [];
+    if (o.url) parts.push(`<a href="${esc(o.url)}" target="_blank" rel="noopener" title="${Lraw("Website", "الموقع")}">${I.globe}<span>${L("Website", "الموقع")}</span></a>`);
+    if (o.email) parts.push(`<a href="mailto:${esc(o.email)}" title="${esc(o.email)}">${I.mail}<span>${L("Email", "البريد")}</span></a>`);
+    if (o.phone) parts.push(`<a href="tel:${esc(o.phone)}" title="${esc(o.phone)}">${I.phone}<span>${L("Call", "اتصال")}</span></a>`);
+    return parts.length ? `<div class="eco-links">${parts.join("")}</div>` : "";
+  };
+  const orgCards = orgs.map((o) => {
+    const cat = ECO_CATS[o.cat] || ECO_CATS.incubator;
+    const text = `${o.name} ${o.desc} ${o.type} ${o.city}`.toLowerCase();
+    const d = o.desc || "";
+    return `<article class="eco-card" data-kind="orgs" data-cat="${o.cat}" data-city="${esc(o.city)}" data-text="${esc(text)}">
+      <div class="eco-card-top">
+        <span class="eco-badge" style="--bc:${cat.c}">${ecoCatLabel(o.cat)}</span>
+        ${o.city ? `<span class="eco-city">${I.pin}${esc(o.city)}</span>` : ""}
+      </div>
+      <h3>${esc(o.name)}</h3>
+      ${o.type ? `<p class="eco-type">${esc(o.type)}</p>` : ""}
+      ${d ? `<p class="eco-desc">${esc(d)}</p>` : ""}
+      ${contactLinks(o)}
+    </article>`;
+  }).join("");
+
+  // ----- program cards -----
+  const statusMeta = (s) => {
+    if (/مستمر|دائم/.test(s)) return { cls: "open", label: L("Open now", "تقديم مفتوح") };
+    if (/مغلق/.test(s)) return { cls: "closed", label: L("Closed", "مغلق") };
+    return { cls: "na", label: L("By schedule", "حسب الجدول") };
+  };
+  const progCards = programs.map((p) => {
+    const cat = ECO_CATS[p.cat] || ECO_CATS.incubator;
+    const st = statusMeta(p.status);
+    const text = `${p.name} ${p.desc} ${(p.tags || []).join(" ")}`.toLowerCase();
+    const details = [];
+    if (p.eligibility) details.push(`<div class="eco-det"><h4>${L("Eligibility", "شروط الأهلية")}</h4><p>${esc(p.eligibility)}</p></div>`);
+    if (p.benefits) details.push(`<div class="eco-det"><h4>${L("Support & benefits", "الدعم والمزايا")}</h4><p>${esc(p.benefits)}</p></div>`);
+    if (p.contact) details.push(`<div class="eco-det"><h4>${L("How to reach", "قنوات التواصل")}</h4><p>${esc(p.contact)}</p></div>`);
+    const more = details.length
+      ? `<details class="eco-more"><summary>${L("Requirements & benefits", "المتطلبات والمزايا")}</summary>${details.join("")}</details>`
+      : "";
+    return `<article class="eco-card eco-prog" data-kind="programs" data-cat="${p.cat}" data-city="all" data-text="${esc(text)}">
+      <div class="eco-card-top">
+        <span class="eco-badge" style="--bc:${cat.c}">${ecoCatLabel(p.cat)}</span>
+        <span class="eco-status ${st.cls}">${st.label}</span>
+      </div>
+      <h3>${esc(p.name)}</h3>
+      ${p.desc ? `<p class="eco-desc">${esc(p.desc)}</p>` : ""}
+      ${more}
+      ${p.url ? `<div class="eco-links"><a href="${esc(p.url)}" target="_blank" rel="noopener">${I.arrow}<span>${L("Apply / details", "التقديم / التفاصيل")}</span></a></div>` : ""}
+    </article>`;
+  }).join("");
+
+  const body = `
+  <section class="hero hero--sm eco-hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Knowledge Center", "مركز المعرفة")}</span>
+    <h1>${L("Saudi Startup Ecosystem Directory", "دليل منظومة ريادة الأعمال في السعودية")}</h1>
+    <p class="lead">${L(
+      "Every incubator, accelerator, venture-capital fund, angel network and coworking space we track across the Kingdom — plus their live programs, eligibility and how to apply. Verified from official sources.",
+      "كل حاضنة ومسرّعة أعمال وصندوق استثماري وشبكة ملائكة ومساحة عمل مشتركة نرصدها في المملكة — مع برامجها القائمة وشروط الأهلية وطريقة التقديم. مُوثّقة من مصادر رسمية."
+    )}</p>
+    <div class="eco-stats">${stats}</div>
+  </div></section>
+
+  <section class="section eco-wrap"><div class="container" id="eco">
+    <div class="eco-controls">
+      <div class="eco-search-box">${I.doc}<input type="search" id="eco-search" placeholder="${Lraw("Search by name, city or focus…", "ابحث بالاسم أو المدينة أو المجال…")}" aria-label="${Lraw("Search the directory", "ابحث في الدليل")}"></div>
+      <div class="eco-city-box" id="eco-city-box"><label for="eco-city" class="sr-only">${L("City", "المدينة")}</label>${I.pin}<select id="eco-city" aria-label="${Lraw("Filter by city", "تصفية حسب المدينة")}">${cityOpts}</select></div>
+    </div>
+
+    <div class="eco-tabs" role="tablist">
+      <button type="button" class="eco-tab active" data-tab="orgs" role="tab">${L("Entities", "الجهات")} <span class="eco-tab-n">${orgs.length}</span></button>
+      <button type="button" class="eco-tab" data-tab="programs" role="tab">${L("Programs", "البرامج")} <span class="eco-tab-n">${programs.length}</span></button>
+    </div>
+
+    <div class="eco-chips" aria-label="${Lraw("Filter by category", "تصفية حسب الفئة")}">${chips}</div>
+
+    <p class="eco-resultline">${L("Showing", "عرض")} <span id="eco-count">${orgs.length}</span> ${L("of", "من")} <span id="eco-total">${orgs.length}</span></p>
+
+    <div class="eco-grid" id="eco-grid">${orgCards}${progCards}</div>
+    <p class="eco-empty" id="eco-empty" hidden>${L("No results match your filters. Try clearing the search or category.", "لا توجد نتائج مطابقة. جرّب مسح البحث أو الفئة.")}</p>
+
+    <div class="cta-band eco-cta"><h2>${L("Building or backing a startup in Saudi Arabia?", "تؤسّس أو تدعم شركة ناشئة في السعودية؟")}</h2><p>${L("We help founders and funds with licensing, MISA foreign investment, formation and compliance. Talk to the smart agent to find the right path.", "نساعد المؤسسين والصناديق في التراخيص والاستثمار الأجنبي (MISA) والتأسيس والامتثال. تحدّث مع الوكيل الذكي لتحديد المسار المناسب.")}</p>${waBtn2("Talk to us", "تواصل معنا", "btn-white", true)}</div>
+  </div></section>`;
+
+  const script = `<script>
+  (function(){
+    var root=document.getElementById('eco'); if(!root)return;
+    var search=root.querySelector('#eco-search');
+    var citySel=root.querySelector('#eco-city');
+    var cityBox=root.querySelector('#eco-city-box');
+    var chips=root.querySelectorAll('.eco-chip');
+    var tabs=root.querySelectorAll('.eco-tab');
+    var cards=root.querySelectorAll('.eco-card');
+    var countEl=root.querySelector('#eco-count');
+    var totalEl=root.querySelector('#eco-total');
+    var emptyEl=root.querySelector('#eco-empty');
+    var state={cat:'all',city:'all',q:'',tab:'orgs'};
+    var totals={orgs:0,programs:0};
+    cards.forEach(function(c){ totals[c.getAttribute('data-kind')]++; });
+    function apply(){
+      var q=(state.q||'').trim().toLowerCase();
+      var shown=0;
+      cards.forEach(function(c){
+        var inTab=c.getAttribute('data-kind')===state.tab;
+        var okCat=state.cat==='all'||c.getAttribute('data-cat')===state.cat;
+        var okCity=state.tab!=='orgs'||state.city==='all'||c.getAttribute('data-city')===state.city;
+        var okQ=!q||c.getAttribute('data-text').indexOf(q)>-1;
+        var show=inTab&&okCat&&okCity&&okQ;
+        c.style.display=show?'':'none';
+        if(show)shown++;
+      });
+      if(countEl)countEl.textContent=shown;
+      if(totalEl)totalEl.textContent=totals[state.tab];
+      if(emptyEl)emptyEl.hidden=shown!==0;
+    }
+    search&&search.addEventListener('input',function(){state.q=this.value;apply();});
+    citySel&&citySel.addEventListener('change',function(){state.city=this.value;apply();});
+    chips.forEach(function(ch){ch.addEventListener('click',function(){
+      chips.forEach(function(x){x.classList.remove('active');});
+      ch.classList.add('active');state.cat=ch.getAttribute('data-cat');apply();
+    });});
+    tabs.forEach(function(t){t.addEventListener('click',function(){
+      tabs.forEach(function(x){x.classList.remove('active');});
+      t.classList.add('active');state.tab=t.getAttribute('data-tab');
+      if(cityBox)cityBox.style.display=state.tab==='orgs'?'':'none';
+      apply();
+    });});
+    apply();
+  })();
+  </script>`;
+
+  return page({
+    title: Lraw("Saudi Startup Ecosystem Directory — Business Partner", "دليل منظومة ريادة الأعمال في السعودية — بيزنس بارتنر"),
+    desc: Lraw(
+      "Directory of Saudi incubators, accelerators, venture-capital funds, angel networks and coworking spaces, with their programs and how to apply.",
+      "دليل الحاضنات والمسرّعات والصناديق الاستثمارية وشبكات الملائكة ومساحات العمل المشتركة في السعودية، مع برامجها وطريقة التقديم."
+    ),
+    active: "/directory",
+    body,
+    script,
+  });
+}
+
 
 // One card per category on the services hub → links to that category's own page.
 function categoryCards() {
@@ -1504,13 +1770,17 @@ function buildPackages() {
   <script>
   (function(){
     var tabs=document.querySelectorAll(".pk-tab");
-    tabs.forEach(function(t){t.addEventListener("click",function(){
+    function activate(group){
       tabs.forEach(function(x){x.classList.remove("active");});
       document.querySelectorAll(".pk-panel").forEach(function(x){x.classList.remove("active");});
-      t.classList.add("active");
-      var el=document.getElementById("pkg-"+t.dataset.group);
-      if(el)el.classList.add("active");
-    });});
+      var tab=document.querySelector('.pk-tab[data-group="'+group+'"]');
+      var panel=document.getElementById("pkg-"+group);
+      if(tab)tab.classList.add("active");
+      if(panel)panel.classList.add("active");
+    }
+    tabs.forEach(function(t){t.addEventListener("click",function(){activate(t.dataset.group);});});
+    var hashGroup=(location.hash||"").replace("#pkg-","");
+    if(hashGroup)activate(hashGroup);
   })();
   </script>`;
   return page({ title: Lraw("Packages — Business Partner", "الباقات — بيزنس بارتنر"), desc: Lraw(p.subtitleEn || p.subtitle, p.subtitle), active: "/packages", body });
@@ -1576,7 +1846,6 @@ function buildCalculator() {
     <span class="eyebrow">${L("Cost calculator", "حاسبة التكلفة")}</span>
     <h1>${L("Build your service basket and see the cost", "كوّن سلّة خدماتك واعرف التكلفة")}</h1>
     <p class="lead">${L("Pick services from the official catalog by category — no need to compare prices service by service. Once you're done, get the total cost for your basket in one step.", "اختر خدماتك حسب التصنيف من الكتالوج الرسمي — بدون ما تقارن الأسعار خدمة خدمة. وبعد ما تخلّص اختياراتك، اطلب السعر الإجمالي لسلّتك بخطوة وحدة.")}</p>
-    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/tools-and-calculators")}">🟢 ${L("Tools & calculators →", "الأدوات والحاسبات ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">
     <div class="calc2" id="calc2">
@@ -3750,6 +4019,22 @@ function buildEmployerLogin() {
   return page({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
 }
 
+// A dedicated, full page for one candidate (instead of the old in-modal
+// preview) — content is filled client-side from /api/candidates?id=… by the
+// #cp-app IIFE in main.js, laid out like a profile page (header, badges,
+// skills, full CV) rather than a raw field dump.
+function buildCandidateProfile() {
+  const body = `
+  <section class="section" style="padding-top:26px"><div class="container" style="max-width:780px">
+    <a class="back-link" href="${u("/employer-dashboard")}">${I.arrow} ${L("Back to dashboard", "رجوع للوحة التوظيف")}</a>
+    <div id="cp-app" style="margin-top:18px">
+      <p class="emp-note" id="cp-status" style="text-align:center;padding:60px 0">${L("Loading candidate…", "جارٍ تحميل بيانات المرشّح…")}</p>
+    </div>
+  </div></section>
+  <script>window.BP_EMP_LANG=${JSON.stringify(LANG)};</script>`;
+  return page({ title: Lraw("Candidate profile — Business Partner", "الملف الشخصي للمرشّح — بيزنس بارتنر"), desc: Lraw("Full candidate profile — experience, education, skills and CV.", "الملف الشخصي الكامل للمرشّح — الخبرة والتعليم والمهارات والسيرة الذاتية."), active: "/employers", path: "/candidate-profile", body });
+}
+
 function buildNewsletter() {
   const perks = [
     ["🗞️", L("Weekly compliance & regulatory digest", "نشرة أسبوعية للامتثال والأنظمة"), L("Every Sunday: government decisions and regulatory news that matter for companies across every sector — MISA, HRSD, ZATCA, GOSI, Qiwa, Mudad and more.", "كل أحد: قرارات حكومية وأخبار تنظيمية تهم الشركات في جميع القطاعات — الاستثمار، الموارد البشرية، الزكاة والضريبة، التأمينات، قوى، مدد وغيرها.")],
@@ -3795,7 +4080,7 @@ const FIELD_TAXONOMY = [
   ["خدمات منزلية", "Domestic & Household Services"], ["أخرى", "Other"],
 ];
 function fieldOptionsHtml() {
-  return FIELD_TAXONOMY.map(([ar, en]) => `<option value="${esc(ar)}">${esc(L(en, ar))}</option>`).join("");
+  return FIELD_TAXONOMY.map(([ar, en]) => `<option value="${esc(ar)}">${L(en, ar)}</option>`).join("");
 }
 
 function buildEmployerDashboard() {
@@ -3816,14 +4101,16 @@ function buildEmployerDashboard() {
         <span>4️⃣ ${L("Assess / Interview", "تقييم / مقابلة")}</span><span>›</span>
         <span>5️⃣ ${L("Pipeline → Hire", "المسار ← توظيف")}</span>
       </div>
-      <div id="empd-unlock" class="empd-unlock-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:14px">
+      <div id="empd-unlock" class="empd-unlock-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:6px">
         <span style="font-weight:600">🔒 ${L("Free browsing. Subscribe to unlock contacts + AI tools.", "تصفّح مجاني. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</span>
         <input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;text-align:center;letter-spacing:1px">
         <button class="btn btn-primary btn-sm" id="empd-enter">${L("Unlock", "فتح")}</button>
-        <a href="${u("/employer-login")}" class="btn btn-ghost btn-sm">${L("Log in", "تسجيل الدخول")}</a>
-        <button type="button" class="btn btn-ghost btn-sm" id="empd-demo">${L("Demo", "تجربة")}</button>
-        <a href="${u("/employer-join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a>
       </div>
+      <p class="emp-note" style="text-align:center;margin:0 0 14px">
+        <a href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a> ·
+        <a href="${u("/employer-join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a> ·
+        <button type="button" class="linkbtn" id="empd-demo" style="font-weight:400">${L("Try a demo", "جرّب نسخة تجريبية")}</button>
+      </p>
       <p id="empd-gate-msg" class="emp-note" style="min-height:18px;text-align:center"></p>
       <div class="empd-bar">
         <div class="empd-tabs">
@@ -3856,7 +4143,7 @@ function buildEmployerDashboard() {
             <div class="field"><label for="empjob-city">${L("City", "المدينة")}</label><input id="empjob-city" type="text" placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
           </div>
           <div class="field"><label for="empjob-field">${L("Field", "المجال")}</label><select id="empjob-field"><option value="">${L("Auto-detect from title", "يُحدَّد تلقائياً من المسمى")}</option>${fieldOptionsHtml()}</select></div>
-          <div class="field"><label for="empjob-desc">${L("Description & requirements", "الوصف والمتطلبات")}</label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
+          <div class="field"><label for="empjob-desc" style="display:flex;justify-content:space-between;align-items:center;gap:8px">${L("Description & requirements", "الوصف والمتطلبات")}<button type="button" class="linkbtn" id="empjob-ai-write" style="font-size:.85rem;padding:0">✨ ${L("Write with AI", "اكتبها بالذكاء")}</button></label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
           <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
           <p class="emp-note" id="empjob-status"></p>
         </div>
@@ -4016,7 +4303,7 @@ function buildPortalDashboard() {
             <div class="field"><label for="empjob-city">${L("City", "المدينة")}</label><input id="empjob-city" type="text" placeholder="${Lraw("Type or pick, e.g. Saudi Arabia — Riyadh", "اكتب أو اختر، مثال: السعودية — الرياض")}"></div>
           </div>
           <div class="field"><label for="empjob-field">${L("Field", "المجال")}</label><select id="empjob-field"><option value="">${L("Auto-detect from title", "يُحدَّد تلقائياً من المسمى")}</option>${fieldOptionsHtml()}</select></div>
-          <div class="field"><label for="empjob-desc">${L("Description & requirements", "الوصف والمتطلبات")}</label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
+          <div class="field"><label for="empjob-desc" style="display:flex;justify-content:space-between;align-items:center;gap:8px">${L("Description & requirements", "الوصف والمتطلبات")}<button type="button" class="linkbtn" id="empjob-ai-write" style="font-size:.85rem;padding:0">✨ ${L("Write with AI", "اكتبها بالذكاء")}</button></label><textarea id="empjob-desc" rows="4" placeholder="${Lraw("Responsibilities, required experience, certifications, nationality preference…", "المهام، الخبرة المطلوبة، الشهادات، تفضيل الجنسية…")}"></textarea></div>
           <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
           <p class="emp-note" id="empjob-status"></p>
         </div>
@@ -4598,6 +4885,14 @@ function buildContact() {
         <div class="map-embed">
           <iframe src="https://www.google.com/maps?q=${encodeURIComponent("حي الملقا الرياض")}&output=embed" loading="lazy" title="${Lraw("Business Partner location", "موقع بيزنس بارتنر")}"></iframe>
         </div>
+        ${site.social ? `<div class="social-row-wrap">
+          <div class="k" style="font-size:.82rem;color:var(--text-soft);margin-bottom:10px">${L("Follow us", "تابعنا")}</div>
+          <div class="social-row">
+            ${site.social.linkedin ? `<a href="${site.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${I.linkedin}</a>` : ""}
+            ${site.social.instagram ? `<a href="${site.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${I.instagram}</a>` : ""}
+            ${site.social.facebook ? `<a href="${site.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${I.facebook}</a>` : ""}
+          </div>
+        </div>` : ""}
       </div>
       <div>
         <h2>${L("Send your message", "أرسل رسالتك")}</h2>
@@ -4634,14 +4929,21 @@ function buildInstallments() {
   ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("New service ⚡", "خدمة جديدة ⚡")}</span>
+    <span class="eyebrow">${L("Beta service · for establishments ⚡", "خدمة تحت التجربة · للمنشآت ⚡")}</span>
     <h1>${L("Pay government fees in instalments", "قسّط رسوم خدماتك الحكومية")}</h1>
     <p class="lead">${L("Don't let a big government fee block your growth — we split it through your bank, Tabby/Tamara or e-wallets, pay it for you, and follow the service to issuance.", "لا تدع رسوماً حكومية كبيرة توقف نموك — نقسّطها لك عبر بنكك أو تابي/تمارا أو المحافظ الإلكترونية، نسددها عنك، ونتابع خدمتك حتى الإصدار.")}</p>
     <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#inst-form">${L("Request an instalment plan", "اطلب خطة تقسيط")}</a>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-ghost")}</div>
     <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("For SMEs — not individuals", "للمنشآت الصغيرة والمتوسطة — لا للأفراد")}</span>
       <span class="hero-badge">${I.check}${L("Banks, BNPL & wallets", "بنوك وتقسيط آجل ومحافظ")}</span>
-      <span class="hero-badge">${I.check}${L("We handle the paperwork", "نجهّز الملف كاملاً")}</span>
       <span class="hero-badge">${I.check}${L("We pay & follow through", "نسدد ونتابع حتى الإصدار")}</span>
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:28px;padding-bottom:0"><div class="container">
+    <div class="callout" style="max-width:900px;margin:0 auto;border:1px solid var(--gray-line);background:#fff8ec">
+      <span class="ico">🧪</span>
+      <p><strong>${L("This service is currently in trial (beta).", "هذه الخدمة حالياً تحت التجربة (نسخة تجريبية).")}</strong> ${L("It is offered to small and medium establishments (SMEs) only — not to individuals — for splitting government-service fees. Terms and availability may change while we pilot it; the final financing offer is set by the bank / provider.", "وهي موجّهة للمنشآت الصغيرة والمتوسطة فقط — وليست للأفراد — لتقسيط رسوم الخدمات الحكومية. قد تتغيّر الشروط والإتاحة أثناء فترة التجربة، والعرض التمويلي النهائي تحدده جهة التمويل / البنك.")}</p>
     </div>
   </div></section>
 
@@ -4658,11 +4960,13 @@ function buildInstallments() {
   </div></section>
 
   <section class="section section--gray" id="inst-form"><div class="container" style="max-width:920px">
-    <div class="section-head"><h2>${L("Request your instalment plan", "اطلب خطة التقسيط")}</h2><p>${L("Fill it in a minute — we come back with the available offers.", "عبّئه في دقيقة — ونعود لك بالعروض المتاحة.")}</p></div>
+    <div class="section-head"><h2>${L("Request your instalment plan", "اطلب خطة التقسيط")}</h2><p>${L("For registered establishments (with a CR) — fill it in a minute and we come back with the available offers.", "للمنشآت المسجّلة (بسجل تجاري) — عبّئه في دقيقة ونعود لك بالعروض المتاحة.")}</p></div>
     <div class="order-box">
       <form id="inst-form-el" novalidate>
         <div class="cc-grid">
-          <div class="field"><label for="inst-name">${L("Name", "الاسم")} *</label><input type="text" id="inst-name" required></div>
+          <div class="field"><label for="inst-company">${L("Establishment name", "اسم المنشأة")} *</label><input type="text" id="inst-company" required></div>
+          <div class="field"><label for="inst-cr">${L("Commercial Registration (CR) number", "رقم السجل التجاري")}</label><input type="text" id="inst-cr" inputmode="numeric" placeholder="${Lraw("e.g. 1010xxxxxx", "مثال: 1010xxxxxx")}"></div>
+          <div class="field"><label for="inst-name">${L("Contact name", "اسم المسؤول")} *</label><input type="text" id="inst-name" required></div>
           <div class="field"><label for="inst-phone">${L("Mobile", "الجوال")} *</label><input type="tel" id="inst-phone" placeholder="05XXXXXXXX" required></div>
           <div class="field"><label for="inst-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="inst-email" required></div>
           <div class="field"><label for="inst-service">${L("Service / invoice to split", "الخدمة / الفاتورة المراد تقسيطها")} *</label><input type="text" id="inst-service" placeholder="${Lraw("e.g. MISA license 62,000 SAR", "مثال: رخصة استثمار MISA بقيمة 62,000 ﷼")}"></div>
@@ -4766,6 +5070,372 @@ function buildEstrdad() {
     <div class="callout" style="margin-top:20px"><span class="ico">⚖️</span><p>${L("Estrdad is a Monsha'at initiative and requests are submitted on its official portal; Business Partner prepares your file, keeps you compliant and follows your request — we are not the disbursing authority.", "«استرداد» مبادرة من هيئة منشآت والتقديم عبر بوابتها الرسمية؛ بيزنس بارتنر يجهّز ملفك ويحافظ على امتثالك ويتابع طلبك — ولسنا الجهة الصارفة.")}</p></div>
   </div></section>`;
   return page({ title: Lraw("Reclaim government fees (Estrdad) — Business Partner", "استرداد الرسوم الحكومية (مبادرة استرداد) — بيزنس بارتنر"), desc: Lraw("Monsha'at refunds SME government fees — if you stay compliant. We keep you eligible and handle the file.", "منشآت تعيد رسومك الحكومية — بشرط الامتثال المستمر. نُبقيك مستحقاً ونجهّز ملفك كاملاً."), active: "/estrdad", path: "/estrdad", body });
+}
+
+// ---------- دليل السعودية (Saudi Guide) — knowledge-hub pillars ----------
+// Content sourced via multi-agent WebSearch research (July 2026). Direct
+// WebFetch to .gov.sa domains is blocked in this build environment, so every
+// fact below is WebSearch-snippet-derived from official sources or reputable
+// secondary sources (Big-4/law-firm tax alerts, SPA, GASTAT, PIF, ZATCA,
+// HRSD). Genuinely uncertain/conflicting figures carry an inline ⚠️ caveat
+// instead of being stated as flat fact — never silently pick a side.
+function guideBlock({ eyebrowEn, eyebrowAr, titleEn, titleAr, leadEn, leadAr, bullets, caveatEn, caveatAr, gray, id }) {
+  const items = bullets.map((b) => `<li>${I.check}<span>${L(b[0], b[1])}</span></li>`).join("");
+  return `<section class="section${gray ? " section--gray" : ""}"${id ? ` id="${id}"` : ""}><div class="container">
+    <div class="section-head"><span class="eyebrow">${L(eyebrowEn, eyebrowAr)}</span><h2>${L(titleEn, titleAr)}</h2><p>${L(leadEn, leadAr)}</p></div>
+    <ul class="feat-list" style="max-width:900px;margin:0 auto">${items}</ul>
+    ${caveatEn ? `<div class="callout" style="max-width:900px;margin:24px auto 0"><span class="ico">⚠️</span><p>${L(caveatEn, caveatAr)}</p></div>` : ""}
+  </div></section>`;
+}
+function guideHero({ eyebrowEn, eyebrowAr, titleEn, titleAr, leadEn, leadAr }) {
+  return `<section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L(eyebrowEn, eyebrowAr)}</span>
+    <h1>${L(titleEn, titleAr)}</h1>
+    <p class="lead">${L(leadEn, leadAr)}</p>
+    <div class="hero-actions">${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/consultation")}">${L("Book a consultation", "احجز استشارة")}</a></div>
+  </div></section>`;
+}
+const GUIDE_DISCLAIMER = `<div class="callout" style="max-width:900px;margin:32px auto 0"><span class="ico">📌</span><p>${L("Government rules, fees and programs change often. This guide is a starting reference — always confirm current figures with the official portal or ask our smart agent before relying on a specific number.", "الأنظمة والرسوم والبرامج الحكومية تتغيّر بشكل متكرر. هذا الدليل مرجع أولي — تأكد دائماً من الأرقام الحالية عبر البوابة الرسمية أو اسأل الوكيل الذكي قبل الاعتماد على رقم محدد.")}</p></div>`;
+
+function buildGuideSaudiMarket() {
+  const body =
+    guideHero({
+      eyebrowEn: "The Saudi Market", eyebrowAr: "السوق السعودي",
+      titleEn: "Where the Saudi economy is heading", titleAr: "إلى أين يتجه الاقتصاد السعودي",
+      leadEn: "GDP size, Vision 2030's giga-projects, and the practical culture-and-business norms every foreign company should plan around — sourced and updated regularly.",
+      leadAr: "حجم الاقتصاد، مشاريع رؤية 2030 العملاقة، وأعراف ثقافة العمل العملية التي يحتاجها كل مستثمر أجنبي — بمصادر موثقة ومحدّثة دورياً.",
+    }) +
+    guideBlock({
+      id: "economy",
+      eyebrowEn: "The economy", eyebrowAr: "الاقتصاد",
+      titleEn: "The Saudi economy at a glance", titleAr: "الاقتصاد السعودي في لمحة",
+      leadEn: "The largest economy in the Middle East and the G20's only Arab member — diversifying fast away from oil.", leadAr: "أكبر اقتصاد في الشرق الأوسط والعضو العربي الوحيد في مجموعة العشرين — يتنوّع بسرعة بعيداً عن النفط.",
+      bullets: [
+        ["Nominal GDP of roughly $1.24–1.25 trillion (2024) — World Bank / IMF.", "ناتج محلي إجمالي اسمي نحو 1.24–1.25 تريليون دولار (2024) — البنك الدولي / صندوق النقد الدولي."],
+        ["GASTAT reported 4.5% real GDP growth for full-year 2025, driven by oil, non-oil and government activities.", "أعلنت الهيئة العامة للإحصاء نمواً حقيقياً بنسبة 4.5% للناتج المحلي في 2025، مدفوعاً بالأنشطة النفطية وغير النفطية والحكومية."],
+        ["Non-oil activities reached roughly 55% of real GDP in 2025 per official Vision 2030 reporting.", "بلغت الأنشطة غير النفطية نحو 55% من الناتج المحلي الحقيقي في 2025 بحسب تقارير رؤية 2030 الرسمية."],
+        ["Inflation has run low and stable, around 1.9%–2.3% through 2025 (GASTAT CPI).", "التضخم منخفض ومستقر، بين 1.9%–2.3% خلال 2025 (مؤشر أسعار المستهلك من الهيئة العامة للإحصاء)."],
+        ["FDI inflows rose 24.2% year-on-year to about SAR 119.2 billion (~$31.7B) in 2024 — still below the government's $100B/year 2030 target.", "ارتفعت تدفقات الاستثمار الأجنبي المباشر 24.2% لتبلغ نحو 119.2 مليار ريال (~31.7 مليار دولار) في 2024 — لا تزال أقل من مستهدف 100 مليار دولار سنوياً بحلول 2030."],
+        ["VAT introduced in 2018 at 5%, raised to 15% since 1 July 2020, administered by ZATCA with mandatory e-invoicing (FATOORA).", "طُبّقت ضريبة القيمة المضافة 2018 بنسبة 5% ورُفعت إلى 15% منذ 1 يوليو 2020، وتديرها هيئة الزكاة والضريبة والجمارك مع الفوترة الإلكترونية الإلزامية (فاتورة)."],
+        ["The Public Investment Fund's assets reached roughly SAR 4.54 trillion (~$1.21 trillion) by end-2025 — the primary vehicle behind the giga-projects.", "بلغت أصول صندوق الاستثمارات العامة نحو 4.54 تريليون ريال (~1.21 تريليون دولار) بنهاية 2025 — وهو الذراع الرئيسية وراء المشاريع العملاقة."],
+        ["Sovereign credit ratings as of 2025: S&P A+, Fitch A+, Moody's Aa3 — all stable/positive outlook.", "التصنيفات الائتمانية السيادية حتى 2025: S&P عند A+، وفيتش A+، وموديز Aa3 — بنظرة مستقبلية مستقرة."],
+        ["Female labor-force participation rose from ~17% (2017) to ~36% (2024/2025), already exceeding the original 30%-by-2030 target.", "ارتفعت مشاركة المرأة في القوى العاملة من ~17% (2017) إلى ~36% (2024/2025)، متجاوزة المستهدف الأصلي البالغ 30% بحلول 2030."],
+      ],
+    }) +
+    guideBlock({
+      gray: true, id: "giga-projects",
+      eyebrowEn: "Vision 2030", eyebrowAr: "رؤية 2030",
+      titleEn: "The giga-projects", titleAr: "المشاريع العملاقة",
+      leadEn: "PIF-backed developments reshaping tourism, real estate and urban life. Several have opened in phases through 2025–2026; some (especially NEOM) have seen publicly reported scope changes — treat headline figures as evolving.", leadAr: "مشاريع بدعم من صندوق الاستثمارات العامة تعيد تشكيل السياحة والعقار والحياة الحضرية. افتُتح بعضها على مراحل خلال 2025-2026؛ وشهد بعضها (خصوصاً نيوم) تغييرات مُعلنة في النطاق — تعامل مع الأرقام الرئيسية على أنها متطورة.",
+      bullets: [
+        ["NEOM: announced 2017 at $500B, covering THE LINE, Oxagon and Trojena. Recent press reports scope reductions and delays to THE LINE — treat specific revised figures as unconfirmed.", "نيوم: أُعلن 2017 بقيمة 500 مليار دولار، ويشمل ذا لاين وأوكساجون وتروجينا. تقارير صحفية حديثة تشير لتقليص نطاق \"ذا لاين\" وتأخيرات — تعامل مع الأرقام المُعدّلة المحددة كغير مؤكدة."],
+        ["Qiddiya: PIF-owned entertainment/sports city near Riyadh. Six Flags Qiddiya City opened 31 December 2025 (28 rides). Official targets: 48 million visitors/year and 325,000 jobs by 2030.", "قدية: مدينة ترفيهية ورياضية بملكية صندوق الاستثمارات العامة قرب الرياض. افتتحت Six Flags قدية سيتي في 31 ديسمبر 2025 (28 لعبة). المستهدفات الرسمية: 48 مليون زائر سنوياً و325,000 وظيفة بحلول 2030."],
+        ["The Red Sea Project / AMAALA (Red Sea Global): ultra-luxury coastal tourism, opened in phases through 2025. Official targets: up to 9 resorts, ~50,000 jobs, 100% renewable energy.", "مشروع البحر الأحمر / أمالا (ريد سي جلوبال): سياحة ساحلية فاخرة افتُتحت على مراحل خلال 2025. المستهدفات الرسمية: حتى 9 منتجعات، نحو 50,000 وظيفة، طاقة متجددة 100%."],
+        ["Diriyah Gate: heritage/cultural megaproject around At-Turaif (UNESCO World Heritage Site). Officially cited masterplan value ~$63B; Bujairi Terrace dining district is operational.", "بوابة الدرعية: مشروع تراثي وثقافي حول حي الطريف (موقع يونسكو للتراث العالمي). القيمة المعلنة للمخطط الرئيسي نحو 63 مليار دولار؛ حي بجيري للمطاعم يعمل حالياً."],
+        ["ROSHN: PIF's giga real-estate developer (est. 2020), land bank over 200 million m². Flagship SEDRA community in Riyadh is delivering homes; supports Vision 2030's 70% homeownership target.", "روشن: المطوّر العقاري العملاق لصندوق الاستثمارات العامة (تأسس 2020)، برصيد أراضٍ يتجاوز 200 مليون م². مجتمع سدرة الرائد في الرياض يسلّم الوحدات؛ يدعم مستهدف تملك المساكن 70% ضمن رؤية 2030."],
+        ["King Salman Park: on the site of Riyadh's former domestic airport, aiming to be the world's largest urban park; targets Riyadh's green space rising from 1.5% to 9.1%, mostly by 2030.", "منتزه الملك سلمان: على موقع مطار الرياض المحلي السابق، ويهدف لأن يكون أكبر متنزه حضري في العالم؛ يستهدف رفع المساحات الخضراء في الرياض من 1.5% إلى 9.1%، ومعظمه بحلول 2030."],
+        ["New Murabba: 19 km² downtown Riyadh development (incl. The Mukaab landmark). Officially stated plans: 104,000 residential units, 9,000 hotel rooms, ~400,000 residents.", "نيو مربع: مشروع بمساحة 19 كم² في وسط الرياض (يشمل معلم المكعب). الخطط المعلنة رسمياً: 104,000 وحدة سكنية، 9,000 غرفة فندقية، نحو 400,000 نسمة."],
+      ],
+      caveatEn: "Several cost/timeline figures reported in the press for New Murabba, King Salman Park and Qiddiya (and NEOM's leaked cost/timeline) are market estimates or unconfirmed press reports, not official PIF disclosures — we present only the officially stated targets above and flag the rest as unverified.",
+      caveatAr: "بعض أرقام التكلفة والجداول الزمنية المتداولة صحفياً لنيو مربع ومنتزه الملك سلمان وقدية (وتقارير مُسرّبة عن نيوم) هي تقديرات سوقية أو تقارير صحفية غير مؤكدة، وليست إفصاحات رسمية من صندوق الاستثمارات العامة — نعرض هنا المستهدفات المعلنة رسمياً فقط ونشير لما عداها كغير مؤكد.",
+    }) +
+    guideBlock({
+      id: "culture-business",
+      eyebrowEn: "Culture & business", eyebrowAr: "الثقافة والأعمال",
+      titleEn: "Business etiquette & the working week", titleAr: "أعراف العمل وأسبوع الدوام",
+      leadEn: "Practical norms for a foreign company operating day-to-day in Saudi Arabia.", leadAr: "أعراف عملية لأي شركة أجنبية تدير عملها يومياً في السعودية.",
+      bullets: [
+        ["The working week is Sunday–Thursday, Friday–Saturday weekend — set by royal order since June 2013 to align with global markets.", "أسبوع العمل من الأحد إلى الخميس، وعطلة نهاية الأسبوع الجمعة والسبت — بموجب أمر ملكي منذ يونيو 2013 لمواءمة الأسواق العالمية."],
+        ["Standard working hours are 8 hours/day or 48 hours/week under Saudi Labor Law.", "ساعات العمل النظامية 8 ساعات يومياً أو 48 ساعة أسبوعياً بموجب نظام العمل السعودي."],
+        ["During Ramadan, working hours for fasting Muslim employees are legally capped at 6 hours/day (36 hours/week) — Labor Law Article 98.", "خلال رمضان، ساعات العمل للموظفين المسلمين الصائمين محددة نظاماً بـ6 ساعات يومياً (36 ساعة أسبوعياً) — المادة 98 من نظام العمل."],
+        ["Key public holidays affecting business: Founding Day (22 Feb), Saudi National Day (23 Sep), and Eid al-Fitr / Eid al-Adha (dates set by the Hijri calendar).", "أهم الإجازات الرسمية المؤثرة على الأعمال: يوم التأسيس (22 فبراير)، اليوم الوطني السعودي (23 سبتمبر)، وعيدا الفطر والأضحى (بحسب التقويم الهجري)."],
+        ["Gender-mixing restrictions in workplaces have relaxed considerably since 2017; 2024/2025 Labor Law amendments explicitly prohibit gender-based employment discrimination.", "قيود اختلاط الجنسين في أماكن العمل تراجعت بشكل ملحوظ منذ 2017؛ وتعديلات نظام العمل 2024/2025 تحظر صراحة التمييز الوظيفي القائم على الجنس."],
+        ["Arabic is the official language and legally required in contracts and commercial dealings; English is very widely used in business settings.", "العربية هي اللغة الرسمية ومطلوبة نظاماً في العقود والتعاملات التجارية؛ والإنجليزية مستخدمة بشكل واسع جداً في بيئة الأعمال."],
+      ],
+    }) + GUIDE_DISCLAIMER;
+  return page({ title: Lraw("The Saudi Market — Business Partner", "السوق السعودي — بيزنس بارتنر"), desc: Lraw("The Saudi economy, Vision 2030 giga-projects, and business culture — sourced guide for foreign investors.", "الاقتصاد السعودي ومشاريع رؤية 2030 العملاقة وثقافة الأعمال — دليل موثق للمستثمرين الأجانب."), active: "/guide/saudi-market", path: "/guide/saudi-market", body });
+}
+
+function buildGuideBusinessSetup() {
+  const body =
+    guideHero({
+      eyebrowEn: "Business Setup", eyebrowAr: "تأسيس الأعمال",
+      titleEn: "How to set up a company in Saudi Arabia", titleAr: "كيف تؤسس شركة في السعودية",
+      leadEn: "The real registration sequence, the 8 MISA license types, Special Economic Zones and the RHQ program — with every figure source-flagged.", leadAr: "تسلسل التسجيل الفعلي، وأنواع تراخيص وزارة الاستثمار الثمانية، والمناطق الاقتصادية الخاصة وبرنامج المقر الإقليمي — مع توثيق مصدر كل رقم.",
+    }) +
+    guideBlock({
+      id: "process",
+      eyebrowEn: "Step by step", eyebrowAr: "خطوة بخطوة",
+      titleEn: "Company setup process", titleAr: "خطوات تأسيس الشركة",
+      leadEn: "A foreign investor's registration chain — most steps are digital and several are auto-triggered once your CR is issued.", leadAr: "سلسلة تسجيل المستثمر الأجنبي — معظم الخطوات رقمية، وبعضها يُفعّل تلقائياً فور صدور السجل التجاري.",
+      bullets: [
+        ["1) Investment license from the Ministry of Investment (MISA) — select your ISIC-coded activity and legal structure (LLC most common).", "1) رخصة استثمار من وزارة الاستثمار (MISA) — اختيار النشاط المصنّف ISIC والشكل القانوني (الشركة ذات المسؤولية المحدودة الأكثر شيوعاً)."],
+        ["2) Commercial Registration (CR) via the Saudi Business Center — this single step auto-registers you with HRSD/Qiwa, ZATCA, GOSI, Saudi Post and the Chamber of Commerce.", "2) السجل التجاري عبر المركز السعودي للأعمال — هذه الخطوة الواحدة تسجّلك تلقائياً لدى وزارة الموارد البشرية (قوى) والزكاة والضريبة والتأمينات الاجتماعية والبريد السعودي والغرفة التجارية."],
+        ["3) National address registration (Saudi Post/SPL) — can be completed during CR issuance.", "3) تسجيل العنوان الوطني (البريد السعودي) — يمكن إتمامه أثناء إصدار السجل التجاري."],
+        ["4) Municipal (Baladiya) license via the Balady platform, once you have a physical premises — requires an Ejar-registered lease.", "4) الرخصة البلدية عبر منصة بلدي، بعد توفر مقر فعلي — تتطلب عقد إيجار موثّقاً في إيجار."],
+        ["5) GOSI activation and Qiwa/HRSD registration for employee social insurance and Saudization compliance.", "5) تفعيل التأمينات الاجتماعية والتسجيل في قوى/وزارة الموارد البشرية للتأمين على الموظفين وامتثال السعودة."],
+        ["6) Bank account opening — typically the GM's personal account first, then the company account.", "6) فتح الحساب البنكي — عادة حساب المدير العام الشخصي أولاً ثم حساب الشركة."],
+      ],
+      caveatEn: "Under Saudi Arabia's new Investment Law (reported effective ~Feb 2025), MISA is reportedly replacing the traditional \"Foreign Investment License\" with a unified \"Investment Registration Certificate\" — a material terminology shift we're tracking. Realistic full setup timelines vary widely by activity (commonly reported 1–6 months in practice) and are not an official published SLA.", caveatAr: "بموجب نظام الاستثمار الجديد (المفعّل تقريباً منذ فبراير 2025)، تشير التقارير إلى أن وزارة الاستثمار تستبدل \"رخصة الاستثمار الأجنبي\" التقليدية بـ\"شهادة تسجيل الاستثمار\" الموحدة — وهو تغيير مصطلحات جوهري نتابعه. الجدول الزمني الفعلي للتأسيس الكامل يتفاوت بشدة حسب النشاط (يُذكر عادة 1-6 أشهر عملياً) وليس مدة معتمدة رسمياً منشورة.",
+    }) +
+    guideBlock({
+      gray: true, id: "licenses",
+      eyebrowEn: "License types", eyebrowAr: "أنواع التراخيص",
+      titleEn: "The 8 MISA business license types", titleAr: "أنواع التراخيص التجارية الثمانية",
+      leadEn: "Which license gates what a foreign-owned entity may legally do.", leadAr: "أي رخصة تحدد ما يحق للكيان المملوك أجنبياً القيام به قانونياً.",
+      bullets: [
+        ["Service License — the broadest category: IT/software, consulting, marketing, F&B and general professional services.", "الرخصة الخدمية — الأوسع انتشاراً: تقنية المعلومات، الاستشارات، التسويق، المطاعم والخدمات المهنية العامة."],
+        ["Entrepreneurial License — for startups, requires an endorsement letter from a MISA-recognized incubator/accelerator.", "الرخصة الريادية — للشركات الناشئة، تتطلب خطاب تزكية من حاضنة أو مسرّعة معتمدة من وزارة الاستثمار."],
+        ["Industrial License — for manufacturing, jointly regulated with the Ministry of Industry and Mineral Resources.", "الرخصة الصناعية — للتصنيع، تُنظّم بالاشتراك مع وزارة الصناعة والثروة المعدنية."],
+        ["Agricultural License — for farming, cultivation and livestock activities.", "الرخصة الزراعية — لأنشطة الزراعة والمحاصيل والثروة الحيوانية."],
+        ["Real Estate (Development) License — reported minimum project investment SAR 30 million, outside Mecca/Medina boundaries.", "الرخصة العقارية (التطوير) — الحد الأدنى المُبلّغ عنه لاستثمار المشروع 30 مليون ريال، خارج حدود مكة والمدينة."],
+        ["Trading (Commercial) License — import/export and wholesale/retail; reported capital figures vary by source (SAR 26–30 million range).", "الرخصة التجارية — الاستيراد والتصدير والبيع بالجملة والتجزئة؛ الأرقام المُبلّغ عنها لرأس المال تتفاوت حسب المصدر (نطاق 26-30 مليون ريال)."],
+        ["Mining License — for mining activities; applicant entity typically must be established abroad for at least 1 year.", "رخصة التعدين — لأنشطة التعدين؛ عادة يُشترط تأسيس الكيان المتقدم خارج المملكة لمدة سنة على الأقل."],
+        ["Professional License — for specific consulting fields (engineering, marine, mining consulting); one of the only categories requiring a Saudi partner (≥25%).", "الرخصة المهنية — لمجالات استشارية محددة (هندسية، بحرية، استشارات تعدين)؛ من الفئات القليلة التي تتطلب شريكاً سعودياً (25% فأكثر)."],
+      ],
+      caveatEn: "Specific SAR capital-requirement figures above vary across secondary sources and could not be confirmed against a primary MISA page in this research pass — treat every number here as indicative and confirm current requirements directly with MISA or our team before budgeting your setup.", caveatAr: "أرقام رأس المال المذكورة أعلاه تتفاوت بين المصادر الثانوية ولم نتمكن من تأكيدها من صفحة رسمية مباشرة لوزارة الاستثمار في هذا البحث — تعامل مع كل رقم هنا كإرشادي، وتأكد من المتطلبات الحالية مباشرة مع الوزارة أو فريقنا قبل وضع ميزانية التأسيس.",
+    }) +
+    guideBlock({
+      id: "sez",
+      eyebrowEn: "Special Economic Zones", eyebrowAr: "المناطق الاقتصادية الخاصة",
+      titleEn: "Saudi Arabia's Special Economic Zones", titleAr: "المناطق الاقتصادية الخاصة في السعودية",
+      leadEn: "Four zones launched by ECZA on 13 April 2023, plus a fifth logistics zone governed by GACA — each with its own sector focus and tax incentives.", leadAr: "أربع مناطق أطلقتها هيئة المدن الاقتصادية والمناطق الخاصة في 13 أبريل 2023، بالإضافة لمنطقة لوجستية خامسة تُدار من الهيئة العامة للطيران المدني — لكل منها تركيز قطاعي وحوافز ضريبية.",
+      bullets: [
+        ["King Abdullah Economic City (KAEC) SEZ — advanced manufacturing, automotive, ICT, pharma/MedTech and logistics.", "منطقة مدينة الملك عبدالله الاقتصادية — التصنيع المتقدم، السيارات، تقنية المعلومات، الأدوية والتقنيات الطبية واللوجستيات."],
+        ["Ras Al-Khair SEZ — maritime industries, shipbuilding, rig/platform maintenance.", "منطقة رأس الخير — الصناعات البحرية وبناء السفن وصيانة المنصات."],
+        ["Jazan SEZ — a trade gateway to Africa; food processing, metals conversion, logistics.", "منطقة جازان — بوابة تجارية لأفريقيا؛ تصنيع الأغذية وتحويل المعادن واللوجستيات."],
+        ["Cloud Computing SEZ — a \"virtual\" zone headquartered at KACST in Riyadh; data centers, AI and cybersecurity, 100% foreign ownership without a local partner.", "منطقة الحوسبة السحابية — منطقة \"افتراضية\" مقرها مدينة الملك عبدالعزيز للعلوم والتقنية بالرياض؛ مراكز بيانات وذكاء اصطناعي وأمن سيبراني، بتملك أجنبي كامل دون شريك محلي."],
+        ["Special Integrated Logistics Zone (SILZ, Riyadh Airport) — warehousing, distribution and re-export logistics; governed by GACA, not ECZA.", "المنطقة اللوجستية المتكاملة الخاصة (مطار الرياض) — التخزين والتوزيع ولوجستيات إعادة التصدير؛ تُدار من الهيئة العامة للطيران المدني وليس هيئة المدن الاقتصادية."],
+        ["ECZA-zone incentives commonly reported: 5% corporate income tax for up to 20 years, 0% withholding tax, and customs/VAT relief on qualifying goods.", "الحوافز المُبلّغ عنها للمناطق التابعة للهيئة: ضريبة دخل مؤسسي 5% لمدة تصل إلى 20 عاماً، ضريبة استقطاع 0%، وإعفاءات جمركية وضريبة قيمة مضافة على السلع المؤهلة."],
+        ["SILZ incentive commonly reported: 0% income tax for up to 50 years on eligible zone-activity income.", "حافز المنطقة اللوجستية المُبلّغ عنه: ضريبة دخل 0% لمدة تصل إلى 50 عاماً على دخل الأنشطة المؤهلة داخل المنطقة."],
+      ],
+    }) +
+    guideBlock({
+      gray: true, id: "rhq",
+      eyebrowEn: "Regional Headquarters", eyebrowAr: "المقر الإقليمي",
+      titleEn: "The RHQ program", titleAr: "برنامج المقر الإقليمي (RHQ)",
+      leadEn: "MISA's program to bring multinational regional headquarters to Riyadh — a real, officially announced 30-year tax incentive.", leadAr: "برنامج وزارة الاستثمار لجذب المقرات الإقليمية للشركات متعددة الجنسيات إلى الرياض — حافز ضريبي حقيقي ومُعلن رسمياً لمدة 30 عاماً.",
+      bullets: [
+        ["Eligibility: a multinational corporation with operations in at least two countries other than Saudi Arabia and its home country.", "الأهلية: شركة متعددة الجنسيات لديها عمليات في دولتين على الأقل غير السعودية ودولة المقر الأم."],
+        ["Incentive: 0% corporate income tax and 0% withholding tax on RHQ-eligible activities for 30 years from license grant, renewable — officially announced by MISA/ZATCA/Ministry of Finance (5 Dec 2023).", "الحافز: ضريبة دخل مؤسسي 0% وضريبة استقطاع 0% على الأنشطة المؤهلة للمقر الإقليمي لمدة 30 عاماً من منح الترخيص، قابلة للتجديد — أُعلنت رسمياً من وزارة الاستثمار والزكاة والضريبة ووزارة المالية (5 ديسمبر 2023)."],
+        ["Substance requirements: at least 3 executives within the first year, minimum 15 employees within one year, at least one Kingdom-resident executive.", "متطلبات الجوهر الاقتصادي: 3 مسؤولين تنفيذيين على الأقل خلال السنة الأولى، وحد أدنى 15 موظفاً خلال سنة، ومسؤول تنفيذي واحد مقيم في المملكة على الأقل."],
+        ["Since 1 January 2024, multinationals eligible for RHQ status but without a licensed RHQ generally cannot contract with Saudi government entities (limited exemptions exist, e.g. contracts under SAR 1 million).", "منذ 1 يناير 2024، الشركات متعددة الجنسيات المؤهلة لبرنامج المقر الإقليمي ولكن دون ترخيص فعلي لا يمكنها عموماً التعاقد مع الجهات الحكومية السعودية (مع استثناءات محدودة، مثل العقود أقل من مليون ريال)."],
+      ],
+    }) +
+    guideBlock({
+      id: "national-address",
+      eyebrowEn: "National address", eyebrowAr: "العنوان الوطني",
+      titleEn: "National address for business", titleAr: "العنوان الوطني للمنشآت",
+      leadEn: "Saudi Post's standardized addressing system — your establishment's official legal address of record.", leadAr: "نظام العنونة الموحد من البريد السعودي — العنوان القانوني الرسمي المسجّل لمنشأتك.",
+      bullets: [
+        ["Mandatory for businesses operating in the Kingdom — required for contracts, licenses and official correspondence.", "إلزامي للمنشآت العاملة في المملكة — مطلوب للعقود والتراخيص والمراسلات الرسمية."],
+        ["Registered via the Saudi Business Center during CR issuance, or separately via the Saudi Post (SPL) portal using your CR number.", "يُسجَّل عبر المركز السعودي للأعمال أثناء إصدار السجل التجاري، أو منفصلاً عبر بوابة البريد السعودي باستخدام رقم السجل التجاري."],
+        ["Renews annually; new companies are commonly reported as exempt from the subscription fee in the first year.", "يُجدَّد سنوياً؛ وتُعفى الشركات الجديدة عادةً من رسوم الاشتراك في السنة الأولى بحسب المصادر المتاحة."],
+      ],
+    }) +
+    guideBlock({
+      gray: true, id: "activities",
+      eyebrowEn: "Activity classification", eyebrowAr: "تصنيف الأنشطة",
+      titleEn: "Check your business activity code", titleAr: "تحقق من رمز نشاطك التجاري",
+      leadEn: "Every Commercial Registration must specify one or more coded activities from Saudi Arabia's national classification, based on the UN's ISIC system.", leadAr: "كل سجل تجاري يجب أن يحدد نشاطاً واحداً أو أكثر مصنّفاً وفق التصنيف الوطني السعودي، المبني على نظام ISIC الأممي.",
+      bullets: [
+        ["The national classification covers 2,800+ distinct economic activities, coded per ISIC Revision 4.", "يغطي التصنيف الوطني أكثر من 2,800 نشاط اقتصادي مختلف، مصنّفة وفق المراجعة الرابعة لنظام ISIC."],
+        ["The Saudi Business Center offers a public \"Assisted Inquiry\" e-service to search for the correct activity/code before or during CR registration.", "يوفّر المركز السعودي للأعمال خدمة \"الاستعلام المساعد\" الإلكترونية للبحث عن النشاط أو الرمز الصحيح قبل أو أثناء تسجيل السجل التجاري."],
+        ["Foreign-ownership eligibility per activity is checked separately, against MISA's list of restricted/excluded activities — not shown inline in the activity lookup itself.", "أهلية التملك الأجنبي لكل نشاط تُفحص بشكل منفصل، وفق قائمة وزارة الاستثمار للأنشطة المقيّدة أو المستثناة — ولا تظهر ضمن أداة البحث عن النشاط نفسها."],
+      ],
+    }) + GUIDE_DISCLAIMER;
+  return page({ title: Lraw("Business Setup in Saudi Arabia — Business Partner", "تأسيس الأعمال في السعودية — بيزنس بارتنر"), desc: Lraw("The real company-setup process, all 8 MISA license types, Special Economic Zones and the RHQ program.", "خطوات التأسيس الفعلية، وأنواع التراخيص الثمانية، والمناطق الاقتصادية الخاصة وبرنامج المقر الإقليمي."), active: "/guide/business-setup", path: "/guide/business-setup", body });
+}
+
+function buildGuideRunBusiness() {
+  const body =
+    guideHero({
+      eyebrowEn: "Run Your Business", eyebrowAr: "تشغيل عملك",
+      titleEn: "Operating a company in Saudi Arabia", titleAr: "تشغيل شركتك في السعودية",
+      leadEn: "The government portals you'll live in, the real corporate tax rates, Saudization rules, and what PRO/GRO functions actually cover.", leadAr: "البوابات الحكومية التي ستتعامل معها يومياً، معدلات الضرائب المؤسسية الفعلية، أنظمة السعودة، وما تغطيه فعلياً وظائف العلاقات الحكومية.",
+    }) +
+    guideBlock({
+      id: "portals",
+      eyebrowEn: "Digital government", eyebrowAr: "الحكومة الرقمية",
+      titleEn: "The government portals you'll use", titleAr: "البوابات الحكومية التي ستستخدمها",
+      leadEn: "Nine platforms, each run by a different ministry, covering labor, immigration, tax, commerce, municipal licensing, procurement and payroll.", leadAr: "تسع منصات، كل واحدة تديرها جهة مختلفة، تغطي العمل والهجرة والضرائب والتجارة والتراخيص البلدية والمشتريات والرواتب.",
+      bullets: [
+        ["Qiwa (qiwa.sa) — HRSD's unified labor platform: work permits, e-contracts, employee transfers, Saudization compliance.", "قوى (qiwa.sa) — منصة العمل الموحدة لوزارة الموارد البشرية: تصاريح العمل، العقود الإلكترونية، نقل الموظفين، امتثال السعودة."],
+        ["Absher (absher.sa) — the Ministry of Interior's national e-government platform for passports, civil affairs, traffic and residency.", "أبشر (absher.sa) — منصة وزارة الداخلية الوطنية للحكومة الإلكترونية للجوازات والأحوال المدنية والمرور والإقامة."],
+        ["Muqeem (muqeem.sa) — the employer-facing portal (under Jawazat) for managing employees' Iqama and visa transactions.", "مقيم (muqeem.sa) — بوابة موجّهة لأصحاب العمل (تابعة للجوازات) لإدارة معاملات الإقامة والتأشيرات للموظفين."],
+        ["GOSI (gosi.gov.sa) — social insurance: pensions, occupational-hazard coverage and unemployment insurance (SANED).", "التأمينات الاجتماعية (gosi.gov.sa) — التأمين الاجتماعي: المعاشات، تغطية الأخطار المهنية، والتأمين ضد التعطل (ساند)."],
+        ["ZATCA (zatca.gov.sa) — Zakat/tax registration, filing, payments and e-invoicing via the FATOORA platform.", "هيئة الزكاة والضريبة والجمارك (zatca.gov.sa) — تسجيل الزكاة والضرائب وتقديم الإقرارات والمدفوعات والفوترة الإلكترونية عبر منصة فاتورة."],
+        ["Saudi Business Center — one-stop CR issuance/amendment; registering here auto-registers you with HRSD, ZATCA, GOSI and Saudi Post.", "المركز السعودي للأعمال — نافذة موحدة لإصدار وتعديل السجل التجاري؛ التسجيل هنا يسجّلك تلقائياً لدى الموارد البشرية والزكاة والتأمينات والبريد."],
+        ["Balady (balady.gov.sa) — municipal permits and licenses, run by the Ministry of Municipal, Rural Affairs and Housing.", "بلدي (balady.gov.sa) — التراخيص والتصاريح البلدية، تديرها وزارة الشؤون البلدية والقروية والإسكان."],
+        ["Etimad (portal.etimad.sa) — government tenders, e-procurement and supplier payments, run by the Ministry of Finance.", "اعتماد (portal.etimad.sa) — المنافسات الحكومية والمشتريات الإلكترونية ومدفوعات الموردين، تديرها وزارة المالية."],
+        ["Mudad (mudad.com.sa) — Wage Protection System (WPS) compliance: monthly payroll submission mandated by HRSD.", "مدد (mudad.com.sa) — الامتثال لنظام حماية الأجور: تقديم بيانات الرواتب الشهرية بموجب إلزام وزارة الموارد البشرية."],
+      ],
+    }) +
+    guideBlock({
+      gray: true, id: "taxation",
+      eyebrowEn: "Corporate taxation", eyebrowAr: "الضرائب المؤسسية",
+      titleEn: "Corporate taxation in Saudi Arabia", titleAr: "الضرائب المؤسسية في السعودية",
+      leadEn: "Tax liability splits by ownership: Zakat on the Saudi/GCC-owned share, income tax on the foreign-owned share — all administered by ZATCA.", leadAr: "الالتزام الضريبي ينقسم حسب الملكية: الزكاة على الحصة السعودية/الخليجية، وضريبة الدخل على الحصة الأجنبية — وتديرهما هيئة الزكاة والضريبة والجمارك.",
+      bullets: [
+        ["Zakat: 2.5% of the Zakat base, on the Saudi/GCC-owned share of a resident company.", "الزكاة: 2.5% من الوعاء الزكوي، على الحصة السعودية/الخليجية من الشركة المقيمة."],
+        ["Corporate Income Tax: 20% flat, on the foreign-owned share of a resident company and on non-residents with a Saudi permanent establishment.", "ضريبة الدخل المؤسسي: 20% ثابتة، على الحصة الأجنبية من الشركة المقيمة وعلى غير المقيمين ذوي المنشأة الدائمة في السعودية."],
+        ["VAT: 15% standard rate since 1 July 2020; mandatory registration above SAR 375,000 annual taxable supplies.", "ضريبة القيمة المضافة: 15% نسبة أساسية منذ 1 يوليو 2020؛ التسجيل إلزامي فوق 375,000 ريال من المبيعات الخاضعة سنوياً."],
+        ["Withholding tax on payments to non-residents: commonly cited at 5% (dividends, interest, rent), 15% (royalties), 20% (management fees) — technical/consulting-service rates are reported inconsistently across sources.", "ضريبة الاستقطاع على المدفوعات لغير المقيمين: يُذكر عادة 5% (الأرباح، الفوائد، الإيجار)، 15% (الإتاوات)، 20% (رسوم الإدارة) — أما رسوم الخدمات الفنية والاستشارية فالنسب المُبلّغ عنها غير متسقة بين المصادر."],
+        ["RHQ tax incentive: 0% corporate tax and 0% withholding tax for 30 years on eligible RHQ activities (see the Business Setup guide).", "حافز المقر الإقليمي: ضريبة مؤسسية 0% وضريبة استقطاع 0% لمدة 30 عاماً على أنشطة المقر الإقليمي المؤهلة (راجع دليل تأسيس الأعمال)."],
+        ["Transfer pricing rules are OECD-aligned (Master File, Local File, Country-by-Country Report); the disclosure form is due within 120 days of fiscal year-end.", "قواعد تسعير التحويل متوافقة مع منظمة التعاون الاقتصادي (الملف الرئيسي، الملف المحلي، تقرير الدولة)؛ ونموذج الإفصاح مستحق خلال 120 يوماً من نهاية السنة المالية."],
+        ["Annual Zakat/CIT return due within 120 days of fiscal year-end (e.g. 30 April for a standard calendar year).", "إقرار الزكاة/ضريبة الدخل السنوي مستحق خلال 120 يوماً من نهاية السنة المالية (مثلاً 30 أبريل للسنة المالية التقويمية القياسية)."],
+      ],
+      caveatEn: "The exact withholding-tax rate for technical/consulting services, oil-sector tax tiers, and transfer-pricing documentation thresholds are reported inconsistently across sources — confirm current figures with ZATCA or our team before relying on a specific rate.", caveatAr: "نسبة ضريبة الاستقطاع الدقيقة للخدمات الفنية والاستشارية، وشرائح الضريبة في قطاع النفط، وحدود توثيق تسعير التحويل، جميعها مُبلّغ عنها بشكل غير متسق بين المصادر — تأكد من الأرقام الحالية مع الهيئة أو فريقنا قبل الاعتماد على نسبة محددة.",
+    }) +
+    guideBlock({
+      id: "saudization",
+      eyebrowEn: "HR & localization", eyebrowAr: "الموارد البشرية والتوطين",
+      titleEn: "HR & Saudization", titleAr: "الموارد البشرية والسعودة",
+      leadEn: "The Nitaqat localization system, GOSI contributions, wage protection, and the labor-law basics every employer needs.", leadAr: "نظام التوطين نطاقات، اشتراكات التأمينات الاجتماعية، حماية الأجور، وأساسيات نظام العمل التي يحتاجها كل صاحب عمل.",
+      bullets: [
+        ["Nitaqat (run via Qiwa, HRSD) assigns private-sector employers to color bands — the current version is officially called \"Nitaqat Mutawar\" (evolved Nitaqat).", "نطاقات (تُدار عبر قوى، وزارة الموارد البشرية) تصنّف أصحاب العمل في القطاع الخاص إلى نطاقات لونية — النسخة الحالية تُسمى رسمياً \"نطاقات مطوّر\"."],
+        ["There's no single flat Saudization percentage — requirements are sector- and size-specific; check your establishment's exact requirement via Qiwa's Nitaqat calculator.", "لا توجد نسبة سعودة موحدة — المتطلبات تختلف حسب القطاع وحجم المنشأة؛ تحقق من متطلب منشأتك الدقيق عبر حاسبة النطاقات في قوى."],
+        ["GOSI: 2% Occupational Hazards (employer-paid, applies to Saudi and non-Saudi employees). Saudi nationals also pay Annuities/Pension and SANED (unemployment insurance) — rates are mid-transition under a new Social Insurance Law effective ~July 2025; confirm current rates directly with GOSI.", "التأمينات الاجتماعية: 2% أخطار مهنية (يدفعها صاحب العمل، تشمل السعوديين وغير السعوديين). السعوديون يدفعون أيضاً معاشات وساند (تأمين تعطل) — والنسب في مرحلة انتقالية بموجب نظام تأمينات اجتماعية جديد نافذ منذ يوليو 2025 تقريباً؛ تأكد من النسب الحالية مباشرة مع التأمينات."],
+        ["Wage Protection System (WPS) via Mudad: mandatory bank-transferred salary payment and monthly payroll-data submission for private-sector employers.", "نظام حماية الأجور عبر مدد: إلزامية دفع الرواتب عبر تحويل بنكي وتقديم بيانات الرواتب الشهرية لأصحاب العمل في القطاع الخاص."],
+        ["Probation period: 90 days by default, extendable to a maximum of 180 days by written agreement (Labor Law Article 53).", "فترة التجربة: 90 يوماً افتراضياً، قابلة للتمديد لحد أقصى 180 يوماً باتفاق كتابي (المادة 53 من نظام العمل)."],
+        ["Notice period (post-probation, per Feb 2025 amendments): 30 days if the employee resigns, 60 days if the employer terminates.", "فترة الإشعار (بعد التجربة، وفق تعديلات فبراير 2025): 30 يوماً في حال استقالة الموظف، و60 يوماً في حال إنهاء صاحب العمل للعقد."],
+        ["End-of-service gratuity (Article 84): commonly described as half a month's wage per year for the first 5 years, then a full month's wage per year beyond that, pro-rated for partial years.", "مكافأة نهاية الخدمة (المادة 84): تُوصف عادة بنصف شهر أجر عن كل سنة من السنوات الخمس الأولى، ثم شهر كامل عن كل سنة بعدها، وتُحتسب تناسبياً للكسور."],
+      ],
+    }) +
+    guideBlock({
+      gray: true, id: "pro-gro",
+      eyebrowEn: "PRO & GRO", eyebrowAr: "PRO & GRO",
+      titleEn: "What PRO & GRO services cover", titleAr: "ما الذي تغطيه خدمات PRO وGRO",
+      leadEn: "\"PRO\" (Public Relations Officer) and \"GRO\" (Government Relations Officer) are industry-standard function labels across the Gulf — not legally defined titles — for the team that handles your ongoing government-facing admin.", leadAr: "\"PRO\" (مسؤول العلاقات العامة) و\"GRO\" (مسؤول العلاقات الحكومية) مسميات وظيفية معتادة في السوق الخليجي — وليست ألقاباً نظامية — للفريق الذي يتولى أعمالك الإدارية الحكومية المستمرة.",
+      bullets: [
+        ["Core functions: visa/Iqama processing and renewal, work-permit issuance, navigating Qiwa/Muqeem/Absher/GOSI/Mudad, and Nitaqat compliance monitoring.", "الوظائف الأساسية: معالجة وتجديد التأشيرات والإقامات، إصدار تصاريح العمل، التعامل مع قوى ومقيم وأبشر والتأمينات ومدد، ومتابعة امتثال النطاقات."],
+        ["Also covers labor-office liaison, business/commercial licensing renewals, and acting as the daily point of contact with HRSD/MOI/municipal authorities.", "تشمل أيضاً التواصل مع مكتب العمل، وتجديد التراخيص التجارية، والعمل كجهة اتصال يومية مع وزارة الموارد البشرية والداخلية والجهات البلدية."],
+        ["Commonly reported reference fees: Iqama renewal ~SAR 650/year; dependent levy ~SAR 400/month per dependent — both should be confirmed at time of transaction, as government fee schedules change.", "رسوم مرجعية مُبلّغ عنها: تجديد الإقامة نحو 650 ريال سنوياً؛ رسوم المرافقين نحو 400 ريال شهرياً لكل مرافق — يجب التأكد منها وقت المعاملة لأن الجداول الحكومية للرسوم تتغيّر."],
+      ],
+    }) + GUIDE_DISCLAIMER;
+  return page({ title: Lraw("Run Your Business in Saudi Arabia — Business Partner", "تشغيل عملك في السعودية — بيزنس بارتنر"), desc: Lraw("Government portals, corporate tax rates, Saudization rules and PRO/GRO services — a sourced operating guide.", "البوابات الحكومية ومعدلات الضرائب المؤسسية وأنظمة السعودة وخدمات العلاقات الحكومية — دليل تشغيلي موثق."), active: "/guide/run-your-business", path: "/guide/run-your-business", body });
+}
+
+function buildGuideLiveInSaudi() {
+  const body =
+    guideHero({
+      eyebrowEn: "Live in Saudi", eyebrowAr: "الحياة في السعودية",
+      titleEn: "Relocating your team to Saudi Arabia", titleAr: "نقل فريقك للعيش في السعودية",
+      leadEn: "What executives and staff relocating with your company need to know — lifestyle, schools, healthcare and driving.", leadAr: "ما يحتاج معرفته المسؤولون والموظفون المنتقلون مع شركتك — نمط الحياة، التعليم، الرعاية الصحية، والقيادة.",
+    }) +
+    guideBlock({
+      id: "lifestyle",
+      eyebrowEn: "Lifestyle", eyebrowAr: "نمط الحياة",
+      titleEn: "Saudi lifestyle for expats", titleAr: "نمط الحياة للمقيمين الأجانب",
+      leadEn: "Significant social and entertainment liberalization since 2016 has reshaped daily life for foreign residents.", leadAr: "تحرر اجتماعي وترفيهي كبير منذ 2016 أعاد تشكيل الحياة اليومية للمقيمين الأجانب.",
+      bullets: [
+        ["Cinemas reopened in 2018 after a 35-year ban; the General Entertainment Authority (est. 2016) now licenses concerts, festivals and live events nationwide.", "أُعيد افتتاح دور السينما في 2018 بعد حظر دام 35 عاماً؛ وتُرخّص الهيئة العامة للترفيه (تأسست 2016) الحفلات والمهرجانات والفعاليات الحية في أنحاء المملكة."],
+        ["The tourist e-visa launched September 2019 — a one-year multiple-entry visa for ~66 eligible nationalities, plus visa-on-arrival for valid US/UK/Schengen visa holders.", "أُطلقت تأشيرة السياحة الإلكترونية في سبتمبر 2019 — تأشيرة متعددة الدخول لمدة سنة لنحو 66 جنسية مؤهلة، مع تأشيرة عند الوصول لحاملي تأشيرات أمريكية/بريطانية/شنغن سارية."],
+        ["The abaya/headscarf requirement for foreign women was lifted in September 2019; \"modest dress\" is the general expectation instead.", "أُلغي إلزام العباءة وتغطية الرأس للنساء الأجنبيات في سبتمبر 2019؛ ويُتوقع \"الزي المحتشم\" عموماً بدلاً من ذلك."],
+        ["Cost of living: Mercer's 2024 ranking placed Riyadh 90th and Jeddah 97th globally (out of 226 cities) — both cheaper than Dubai (15th).", "تكلفة المعيشة: صنّف مؤشر ميرسر لعام 2024 الرياض في المرتبة 90 وجدة في المرتبة 97 عالمياً (من أصل 226 مدينة) — وكلتاهما أرخص من دبي (المرتبة 15)."],
+        ["Major expat hubs: Riyadh (capital, largest expat population), Jeddah (commercial/Red Sea gateway), and the Eastern Province (Dammam/Khobar/Dhahran — the oil-industry hub with the Kingdom's longest-established Western expat community).", "أهم تجمعات المقيمين الأجانب: الرياض (العاصمة، أكبر تجمع للمقيمين)، جدة (بوابة تجارية على البحر الأحمر)، والمنطقة الشرقية (الدمام والخبر والظهران — مركز صناعة النفط وأقدم تجمع غربي مستقر في المملكة)."],
+      ],
+    }) +
+    guideBlock({
+      gray: true, id: "education",
+      eyebrowEn: "Education", eyebrowAr: "التعليم",
+      titleEn: "Schooling for expat families", titleAr: "التعليم لعائلات المقيمين",
+      leadEn: "Expat families typically enroll children in fee-paying international schools rather than the free Arabic-medium public system.", leadAr: "عادة ما تُلحق عائلات المقيمين أبناءها بمدارس دولية مدفوعة بدلاً من النظام الحكومي المجاني الناطق بالعربية.",
+      bullets: [
+        ["The Ministry of Education licenses and supervises all international and private schools operating in the Kingdom.", "وزارة التعليم تُرخّص وتُشرف على جميع المدارس الدولية والأهلية العاملة في المملكة."],
+        ["Riyadh, Jeddah and Al Khobar host schools offering British, American, IB and other national curricula — avoid citing a precise school count, as no single authoritative figure was found.", "تستضيف الرياض وجدة والخبر مدارس تقدّم مناهج بريطانية وأمريكية والبكالوريا الدولية ومناهج وطنية أخرى — نتجنب ذكر عدد دقيق للمدارس لعدم وجود رقم رسمي موثّق واحد."],
+        ["School enrollment requires a valid Iqama for both the student and guardian; dependents under 18 qualify for family-sponsored residency.", "يتطلب التسجيل المدرسي إقامة سارية لكل من الطالب وولي الأمر؛ ويؤهل المرافقون دون 18 عاماً للإقامة العائلية."],
+        ["The 2025–2026 academic year ran 24 August 2025 – 25 June 2026 under a two-semester calendar (many international schools set their own dates — always confirm with the specific school).", "امتد العام الدراسي 2025-2026 من 24 أغسطس 2025 إلى 25 يونيو 2026 وفق نظام فصلين دراسيين (تحدد كثير من المدارس الدولية تواريخها الخاصة — تأكد دائماً مع المدرسة تحديداً)."],
+      ],
+    }) +
+    guideBlock({
+      id: "healthcare",
+      eyebrowEn: "Healthcare", eyebrowAr: "الرعاية الصحية",
+      titleEn: "Healthcare for expats & employers", titleAr: "الرعاية الصحية للمقيمين وأصحاب العمل",
+      leadEn: "A dual system: subsidized public care for citizens, and mandatory employer-provided private insurance for expatriate workers.", leadAr: "نظام مزدوج: رعاية عامة مدعومة للمواطنين، وتأمين خاص إلزامي من صاحب العمل للعمالة الوافدة.",
+      bullets: [
+        ["The Council of Cooperative Health Insurance (CCHI) regulates health insurance and sets the mandatory minimum benefits package.", "مجلس الضمان الصحي التعاوني ينظّم التأمين الصحي ويحدد الحد الأدنى الإلزامي للتغطية."],
+        ["Every private-sector employer must provide CCHI-approved health insurance for expatriate employees, at the employer's cost.", "كل صاحب عمل في القطاع الخاص ملزم بتوفير تأمين صحي معتمد من مجلس الضمان الصحي للموظفين الوافدين، على نفقة صاحب العمل."],
+        ["Coverage generally extends to legal dependents (spouse, sons under 25, unmarried/unemployed daughters).", "التغطية تشمل عموماً المرافقين النظاميين (الزوجة، الأبناء دون 25 عاماً، البنات غير المتزوجات وغير العاملات)."],
+        ["Since late 2025, health insurance reportedly must be secured before a work visa is issued, with Jawazat checking coverage before Iqama issuance/renewal — a relatively recent procedural tightening worth reconfirming close to your relocation date.", "منذ أواخر 2025، يُذكر أن التأمين الصحي بات مطلوباً قبل إصدار تأشيرة العمل، مع تحقق الجوازات من التغطية قبل إصدار أو تجديد الإقامة — تشديد إجرائي حديث نسبياً يستحق التأكد منه قرب موعد انتقالك."],
+        ["Expats generally cannot access subsidized public healthcare except in life-threatening emergencies; virtually all expat healthcare runs through private, employer-sponsored insurance.", "لا يستطيع المقيمون الأجانب عموماً الوصول للرعاية الصحية الحكومية المدعومة إلا في الحالات الطارئة المهددة للحياة؛ وتمر رعايتهم الصحية عملياً عبر التأمين الخاص المموّل من صاحب العمل."],
+      ],
+    }) +
+    guideBlock({
+      gray: true, id: "driving",
+      eyebrowEn: "Driving", eyebrowAr: "القيادة",
+      titleEn: "Driving in Saudi Arabia", titleAr: "القيادة في السعودية",
+      leadEn: "A Saudi driving license requires a valid Iqama; the process depends heavily on which country issued your existing license.", leadAr: "تتطلب رخصة القيادة السعودية إقامة سارية؛ وتعتمد الإجراءات بشكل كبير على الدولة التي أصدرت رخصتك الحالية.",
+      bullets: [
+        ["Eligibility: valid Iqama, minimum age 18 for a private-vehicle license (21+ for professional/public driving), plus a medical/vision exam.", "الأهلية: إقامة سارية، حد أدنى للعمر 18 عاماً لرخصة المركبة الخاصة (21 فأكثر للقيادة المهنية/العامة)، إضافة لفحص طبي وبصري."],
+        ["GCC-country licenses can generally be converted directly; a number of other countries have reciprocal exchange agreements — this approved list changes periodically, so always verify current eligibility on Absher before relocating staff.", "يمكن عموماً تحويل رخص دول مجلس التعاون الخليجي مباشرة؛ ولدى عدد من الدول الأخرى اتفاقيات تبادل متبادلة — تتغيّر هذه القائمة المعتمدة بشكل دوري، لذا تأكد دائماً من الأهلية الحالية عبر أبشر قبل نقل الموظفين."],
+        ["Women driving has been legal since 24 June 2018, following a royal decree issued September 2017 — no male-guardian permission is required.", "أصبحت قيادة المرأة قانونية منذ 24 يونيو 2018، بعد مرسوم ملكي صدر في سبتمبر 2017 — دون الحاجة لإذن ولي أمر ذكر."],
+        ["Absher (Ministry of Interior) is the channel for booking test appointments, license issuance/renewal, and checking outstanding traffic violations.", "أبشر (وزارة الداخلية) هي القناة لحجز مواعيد الاختبار، وإصدار وتجديد الرخصة، والتحقق من المخالفات المرورية القائمة."],
+      ],
+    }) +
+    guideBlock({
+      id: "residency-preview",
+      eyebrowEn: "Residency", eyebrowAr: "الإقامة",
+      titleEn: "Residency options — the short version", titleAr: "خيارات الإقامة — النسخة المختصرة",
+      leadEn: "Employer-sponsored Iqamas cover most staff; Premium Residency lets qualifying individuals live in Saudi Arabia without a sponsor. Full detail — including current fee figures and the 2021 labor-mobility reforms — is on our dedicated Residency guide.", leadAr: "الإقامة المسندة من صاحب العمل تغطي معظم الموظفين؛ والإقامة المميزة تتيح للأفراد المؤهلين العيش في السعودية دون كفيل. التفاصيل الكاملة — بما فيها الرسوم الحالية وإصلاحات تنقل العمالة لعام 2021 — في دليل الإقامة المخصص لدينا.",
+      bullets: [
+        ["Standard Iqama: the employer-sponsored residence permit, tied to your work contract, managed via Muqeem/Absher.", "الإقامة النظامية: تصريح الإقامة المسند من صاحب العمل، مرتبط بعقد العمل، وتُدار عبر مقيم وأبشر."],
+        ["Premium Residency (pr.gov.sa): self-sponsored status — no Saudi kafeel required — with products ranging from the flagship permanent/renewable tiers to newer category-specific tracks (talent, investor, entrepreneur, real-estate owner).", "الإقامة المميزة (pr.gov.sa): إقامة ذاتية الكفالة — دون الحاجة لكفيل سعودي — بمنتجات تتراوح بين المستويات الرئيسية الدائمة والمتجددة ومسارات فئوية أحدث (المواهب، المستثمرين، رواد الأعمال، ملّاك العقار)."],
+      ],
+    }) +
+    `<section class="section section--gray"><div class="container" style="text-align:center"><a class="btn btn-primary btn-lg" href="${u("/guide/residency")}">${L("Read the full Residency guide →", "اقرأ دليل الإقامة الكامل ←")}</a></div></section>` +
+    GUIDE_DISCLAIMER;
+  return page({ title: Lraw("Live in Saudi Arabia — Business Partner", "الحياة في السعودية — بيزنس بارتنر"), desc: Lraw("Lifestyle, education, healthcare and driving for expat staff and executives relocating to Saudi Arabia.", "نمط الحياة والتعليم والرعاية الصحية والقيادة للموظفين والمسؤولين المنتقلين للسعودية."), active: "/guide/live-in-saudi", path: "/guide/live-in-saudi", body });
+}
+
+function buildGuideResidency() {
+  const body =
+    guideHero({
+      eyebrowEn: "Residency in KSA", eyebrowAr: "الإقامة في السعودية",
+      titleEn: "Residency options in Saudi Arabia", titleAr: "خيارات الإقامة في السعودية",
+      leadEn: "Standard Iqama, Premium Residency and sponsorship-transfer rules — including the fee figures our research could and could not confirm.", leadAr: "الإقامة النظامية، والإقامة المميزة، وأنظمة نقل الكفالة — بما في ذلك الرسوم التي تمكّن بحثنا من تأكيدها والتي لم يتمكّن.",
+    }) +
+    guideBlock({
+      id: "iqama",
+      eyebrowEn: "Standard residency", eyebrowAr: "الإقامة النظامية",
+      titleEn: "Iqama (employer-sponsored residency)", titleAr: "الإقامة (المسندة من صاحب العمل)",
+      leadEn: "The standard residence permit for foreign workers, issued by the Ministry of Interior's General Directorate of Passports (Jawazat).", leadAr: "تصريح الإقامة النظامي للعمالة الوافدة، تصدره المديرية العامة للجوازات التابعة لوزارة الداخلية.",
+      bullets: [
+        ["Historically tied to the kafala (sponsorship) relationship; the 2021 Labor Reform Initiative (LRI, effective 14 March 2021) loosened this considerably — see the Transfer Rules section below.", "كانت تاريخياً مرتبطة بنظام الكفالة؛ وخفّفت مبادرة إصلاح سوق العمل (نافذة منذ 14 مارس 2021) هذا الارتباط بشكل كبير — راجع قسم أنظمة النقل أدناه."],
+        ["Underlying legal residency status is renewed on a cycle (commonly annual, some sources report flexible 3/6/9/12-month increments); a separately-reported 5-year physical Resident ID card (since ~Q1 2026) does not change the underlying renewal obligation — the two should not be conflated.", "الحالة القانونية للإقامة تُجدَّد دورياً (سنوياً عادة، وتُذكر مصادر إمكانية التجديد المرن كل 3/6/9/12 شهراً)؛ وبطاقة الإقامة الفعلية المُبلّغ عنها بصلاحية 5 سنوات (منذ نحو الربع الأول من 2026) لا تُغيّر التزام التجديد الأساسي — لا ينبغي الخلط بين الأمرين."],
+        ["Dependent (family) Iqamas are sponsored by the employee, subject to income conditions; a commonly cited dependent levy is SAR 400/month per dependent.", "إقامات المرافقين (العائلة) يكفلها الموظف، بشروط دخل معينة؛ ويُذكر عادة رسم مرافقين قدره 400 ريال شهرياً لكل مرافق."],
+        ["An expired Iqama blocks re-entry and must be renewed (with late fees) before travel resumes; Saudi Arabia lifted the automatic 3-year re-entry ban for overstays, reportedly effective 16 January 2024 — administrative fines still apply.", "الإقامة المنتهية تمنع إعادة الدخول ويجب تجديدها (مع رسوم التأخير) قبل استئناف السفر؛ ألغت السعودية حظر إعادة الدخول التلقائي لمدة 3 سنوات لحالات تجاوز مدة الإقامة، ويُذكر أن ذلك سرى اعتباراً من 16 يناير 2024 — وتبقى الغرامات الإدارية سارية."],
+        ["Muqeem is the employer-facing portal for managing employees' Iqama and visa transactions; Absher is the individual-facing platform for personal government services.", "مقيم هي البوابة الموجّهة لأصحاب العمل لإدارة معاملات إقامة وتأشيرات الموظفين؛ وأبشر هي المنصة الموجّهة للأفراد للخدمات الحكومية الشخصية."],
+      ],
+      caveatEn: "Exact overstay/late-renewal fine amounts and the 5-year physical-card claim come from secondary sources only in this research pass — confirm current figures directly via Absher/Jawazat before publishing or relying on a specific number.", caveatAr: "المبالغ الدقيقة لغرامات تجاوز المدة والتجديد المتأخر، وكذلك بطاقة الخمس سنوات الفعلية، مصدرها ثانوي فقط في هذا البحث — تأكد من الأرقام الحالية مباشرة عبر أبشر أو الجوازات قبل النشر أو الاعتماد على رقم محدد.",
+    }) +
+    guideBlock({
+      gray: true, id: "premium-residency",
+      eyebrowEn: "Self-sponsored residency", eyebrowAr: "الإقامة ذاتية الكفالة",
+      titleEn: "Premium Residency (نظام الإقامة المميزة)", titleAr: "نظام الإقامة المميزة",
+      leadEn: "A self-sponsored residence status — no Saudi kafeel required — run by the Premium Residency Center via pr.gov.sa.", leadAr: "وضع إقامة ذاتية الكفالة — دون حاجة لكفيل سعودي — يديره مركز الإقامة المميزة عبر بوابة pr.gov.sa.",
+      bullets: [
+        ["Two original core products: Permanent (Unlimited Duration) Residency — a one-time fee commonly reported at SAR 800,000 — and Special (Renewable) Residency — an annual fee commonly reported at SAR 100,000.", "منتجان أساسيان أصليان: الإقامة الدائمة (غير محددة المدة) — برسم لمرة واحدة يُذكر عادة بـ800,000 ريال — والإقامة الخاصة (المتجددة) — برسم سنوي يُذكر عادة بـ100,000 ريال."],
+        ["On 10 January 2024, five additional category-specific products were introduced at a reported ~SAR 4,000/year fee each: Special Talent, Gifted, Investor, Entrepreneur, and Real Estate Owner residency — these are additional tracks alongside the original two products, not a replacement of their fees.", "في 10 يناير 2024، أُدرجت خمسة منتجات فئوية إضافية برسم يُذكر بنحو 4,000 ريال سنوياً لكل منها: إقامة الكفاءات المتميزة، والموهوبين، والمستثمرين، ورواد الأعمال، وملّاك العقار — وهذه مسارات إضافية إلى جانب المنتجين الأصليين، وليست بديلاً عن رسومهما."],
+        ["Real Estate Owner Residency: requires ownership of a mortgage-free residential property valued at a reported minimum of SAR 4 million.", "إقامة ملّاك العقار: تتطلب تملّك عقار سكني خالٍ من الرهن بقيمة يُذكر أن حدها الأدنى 4 ملايين ريال."],
+        ["Investor Residency: reported thresholds around SAR 7 million investment (or a higher SAR 15 million tier with job-creation requirements) — figures vary somewhat by source.", "إقامة المستثمرين: حدود يُذكر أنها نحو 7 ملايين ريال استثمار (أو مستوى أعلى بـ15 مليون ريال مع شروط لخلق وظائف) — الأرقام تتفاوت قليلاً حسب المصدر."],
+        ["General eligibility across products: valid passport (6+ months), proof of financial solvency, clean criminal record, medical fitness, minimum age 21.", "الأهلية العامة لكافة المنتجات: جواز سفر ساري (6 أشهر فأكثر)، إثبات ملاءة مالية، سجل جنائي نظيف، لياقة طبية، حد أدنى للعمر 21 عاماً."],
+      ],
+      caveatEn: "The SAR 800,000 / SAR 100,000 figures were repeated consistently across many 2025–2026-dated sources including one reporting them as confirmed unchanged as of October 2025 — but no primary pr.gov.sa fee page could be directly loaded in this research to give 100% certainty. Given the commercial stakes, always confirm current fees directly with the Premium Residency Center (pr.gov.sa) or our team before a client relies on a specific figure.", caveatAr: "تكرر رقما 800,000 و100,000 ريال بشكل متسق عبر مصادر عديدة مؤرخة 2025-2026، بما فيها مصدر أكد أنهما دون تغيير حتى أكتوبر 2025 — لكن لم نتمكن من تحميل صفحة الرسوم الرسمية مباشرة من pr.gov.sa لتأكيد ذلك بشكل كامل في هذا البحث. نظراً للأهمية التجارية، تأكد دائماً من الرسوم الحالية مباشرة مع مركز الإقامة المميزة (pr.gov.sa) أو فريقنا قبل اعتماد العميل على رقم محدد.",
+    }) +
+    guideBlock({
+      id: "transfer-rules",
+      eyebrowEn: "Sponsorship transfer", eyebrowAr: "نقل الكفالة",
+      titleEn: "Iqama transfer rules", titleAr: "أنظمة نقل الإقامة",
+      leadEn: "Managed via Qiwa since the 2021 Labor Reform Initiative, with further easing reported through 2025.", leadAr: "تُدار عبر قوى منذ مبادرة إصلاح سوق العمل عام 2021، مع مزيد من التسهيل مُبلّغ عنه حتى 2025.",
+      bullets: [
+        ["Since the 2021 LRI, workers can generally transfer employers without the current employer's consent once their contract ends, or after completing 12 months of service.", "منذ مبادرة 2021، يمكن للعامل عموماً نقل كفالته دون موافقة صاحب العمل الحالي عند انتهاء عقده، أو بعد إتمام 12 شهراً من الخدمة."],
+        ["No-consent transfer is also allowed if wages go unpaid for 3+ consecutive months, the work permit/Iqama expires without renewal, or in cases of documented labor disputes.", "يُسمح أيضاً بالنقل دون موافقة في حال تأخر الرواتب 3 أشهر متتالية فأكثر، أو انتهاء تصريح العمل/الإقامة دون تجديد، أو في حالات النزاعات العمالية الموثقة."],
+        ["Domestic/household workers, agricultural workers, and a handful of other categories are excluded from the general Labor Law and this transfer framework — they're governed separately via the Musaned platform, which uses a mutual-consent transfer process instead.", "العمالة المنزلية والزراعية وعدد قليل من الفئات الأخرى مستثناة من نظام العمل العام وإطار النقل هذا — وتُدار بشكل منفصل عبر منصة مساند، التي تعتمد إجراء نقل بالتراضي بدلاً من ذلك."],
+        ["2025 press coverage describes a further shift toward a fully contract-based system (widely headlined as \"ending kafala\") — this appears to be an expansion of the 2021 mobility framework with phased eligibility conditions, not an instant unconditional change; treat headline \"abolition\" framing with caution.", "تصف تغطية صحفية لعام 2025 تحولاً إضافياً نحو نظام قائم بالكامل على العقد (وصفته عناوين كثيرة بـ\"إنهاء الكفالة\") — ويبدو أن هذا توسّع لإطار التنقل لعام 2021 بشروط أهلية مرحلية، وليس تغييراً فورياً غير مشروط؛ تعامل مع صياغة \"الإلغاء\" في العناوين بحذر."],
+      ],
+    }) + GUIDE_DISCLAIMER;
+  return page({ title: Lraw("Residency in Saudi Arabia — Business Partner", "الإقامة في السعودية — بيزنس بارتنر"), desc: Lraw("Iqama, Premium Residency and sponsorship-transfer rules — with source-flagged fee figures.", "الإقامة النظامية والإقامة المميزة وأنظمة نقل الكفالة — بأرقام رسوم موثقة المصدر."), active: "/guide/residency", path: "/guide/residency", body });
 }
 
 // Shared partners-repeater markup: rows of (name, mobile, email[, share%]).
@@ -5689,7 +6359,7 @@ function buildConnect(pre = "/") {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>موظفك الذكي — مركز الربط والباقات | Business Partner</title>
+  <title>موظفك الذكي — رحلة العميل ومركز الربط | Business Partner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -5772,6 +6442,23 @@ function buildConnect(pre = "/") {
     .pc li::before{content:"\\2714";position:absolute;inset-inline-start:0;color:var(--green);font-weight:700}
     .pc .btn{justify-content:center;margin-top:auto}
     .addon{background:var(--amber-soft);border:1px solid #fde68a;color:#7a5b00;border-radius:14px;padding:1.1rem 1.3rem;margin-top:1.2rem;font-size:.9rem}
+    .jgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:.9rem}
+    .jstep{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.4rem}
+    .jstep .jn{width:30px;height:30px;border-radius:999px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+    .jstep b{color:var(--navy);font-size:.95rem}
+    .jstep span:not(.jn){font-size:.82rem;color:var(--muted);line-height:1.7}
+    .jstep a{color:var(--green);font-weight:700}
+    .org{display:flex;flex-direction:column;gap:1rem}
+    .org-tier{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;box-shadow:var(--shadow)}
+    .org-label{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:.25rem .9rem;font-size:.8rem;font-weight:700;margin-bottom:.7rem}
+    .org-cards{display:flex;flex-wrap:wrap;gap:.5rem}
+    .org-card{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:.5rem .8rem;font-size:.85rem;font-weight:600;color:var(--text)}
+    .demo-box{max-width:720px;margin:0 auto}
+    .demo-ph{background:var(--navy);color:#fff;border-radius:18px;padding:2.6rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:.4rem;text-align:center;font-size:2rem}
+    .demo-ph b{font-size:1.15rem}
+    .demo-ph span{font-size:.9rem;opacity:.85;max-width:420px;line-height:1.8}
+    @media(max-width:900px){.jgrid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:560px){.jgrid{grid-template-columns:1fr}}
     .addon b{color:#5b4300}
     .foot{background:var(--navy-900);color:#cdd6f5;text-align:center;padding:1.6rem 1rem;font-size:.85rem;margin-top:1rem}
     .ov{position:fixed;inset:0;background:rgba(8,12,30,.55);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
@@ -5803,7 +6490,9 @@ function buildConnect(pre = "/") {
     <a class="mn-logo" href="/">Business Partner</a>
     <div class="mn-links">
       <a href="#connect">الأدوات</a>
-      <a href="#pricing">الباقات</a>
+      <a href="#journey">رحلة العميل</a>
+      <a href="#structure">الهيكلة</a>
+      <a href="#demo">الديمو</a>
       <a class="mn-cta" href="${pre}portal">🔐 دخول بوابتي</a>
     </div>
   </div>
@@ -5841,30 +6530,58 @@ function buildConnect(pre = "/") {
       <div class="cgrid" id="cgrid"></div>
     </div>
   </section>
-  <section id="pricing">
+  <section id="journey">
     <div class="wrap">
-      <div class="sec-head"><h2>💳 الباقات</h2><p>الباقات موحّدة الآن ضمن منظومة الوكلاء الأذكياء — اختر باقتك من هناك، وأدواتك تُربط هنا بضغطة.</p></div>
-      <div class="pgrid">
-        <div class="pc">
-          <h3>وكيل الامتثال والالتزام</h3>
-          <div class="pr">250 ﷼ <small>يبدأ من / شهرياً</small></div>
-          <ul><li>مراقبة قوى ومقيم والتأمينات ومدد والنطاقات</li><li>تنبيهات المهل والمخالفات فور ظهورها</li><li>حاسبات النطاقات والتكاليف مجانية ضمن الباقة</li></ul>
-          <a href="${pre}ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+      <div class="sec-head"><h2>🧭 رحلة العميل — من الاختيار إلى التشغيل</h2><p>خمس خطوات واضحة، كلها داخل الموقع — بدون واتساب وبدون انتظار.</p></div>
+      <div class="jgrid">
+        <div class="jstep"><span class="jn">1</span><b>اختر موظفيك</b><span>حدّد من هذه الصفحة موظفاً واحداً أو أكثر وأضفهم للسلة (500 ﷼/شهرياً للموظف).</span></div>
+        <div class="jstep"><span class="jn">2</span><b>ادفع وأرفق الإيصال</b><span>أكمل الطلب من السلة بالتحويل البنكي وأرفق إيصال PDF — يصلك رقم طلب مثل BP-506275.</span></div>
+        <div class="jstep"><span class="jn">3</span><b>نتحقق ونفعّل</b><span>نطابق الإيصال مع طلبك ونعتمد الدفع — رقم طلبك نفسه يصير كود التفعيل.</span></div>
+        <div class="jstep"><span class="jn">4</span><b>ادخل بوابتك</b><span>افتح <a href="${pre}portal">بوابة الموظفين الأذكياء</a> بنفس بريدك + كودك — يفتح لك بالضبط اللي اشتريته.</span></div>
+        <div class="jstep"><span class="jn">5</span><b>اشتغل واربط أدواتك</b><span>حادث موظفك بلغتك العادية، واربط Gmail ونوشن وأدواتك من مركز الربط أعلاه.</span></div>
+      </div>
+    </div>
+  </section>
+  <section id="structure" style="background:#eef1f8">
+    <div class="wrap">
+      <div class="sec-head"><h2>🏛️ هيكلة الفريق</h2><p>12 موظفاً متخصصاً يعملون كفريق واحد — يتشاور الموظف مع زميله تلقائياً لما يحتاج خبرة خارج تخصصه، ويذكر لك مين استشار.</p></div>
+      <div class="org">
+        <div class="org-tier"><span class="org-label">الإدارة</span>
+          <div class="org-cards">
+            <span class="org-card">🧭 مازن — العمليات</span>
+            <span class="org-card">💰 عبدالرحمن — المالية</span>
+            <span class="org-card">📈 أحمد — الاستراتيجية والتخطيط</span>
+          </div>
         </div>
-        <div class="pc feat">
-          <h3>موظفك الذكي المتخصص</h3>
-          <div class="pr">500 ﷼ <small>يبدأ من / شهرياً</small></div>
-          <ul><li>موظف تسويق أو إداري أو مبيعات أو تقني</li><li>يعمل 24 ساعة ضمن سياسات منشأتك</li><li>ربط أدواتك (قوقل / نوشن / سلاك) من هذه الصفحة</li></ul>
-          <a href="${pre}ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
-        </div>
-        <div class="pc">
-          <h3>فريق الخدمات المشتركة</h3>
-          <div class="pr">1,500 ﷼ <small>يبدأ من / شهرياً</small></div>
-          <ul><li>وكيل الامتثال + فريق العمل الذكي مدموجان بالكامل</li><li>لوحة موحّدة لكل منصّاتك وفرقك</li><li>أولوية في التنفيذ والدعم</li></ul>
-          <a href="${pre}ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+        <div class="org-tier"><span class="org-label">المتخصصون</span>
+          <div class="org-cards">
+            <span class="org-card">🎯 باهر — مستشار الأعمال</span>
+            <span class="org-card">👥 ناصر — الموارد البشرية</span>
+            <span class="org-card">🛡️ مشاري — الامتثال</span>
+            <span class="org-card">⚖️ عبدالعزيز — القانوني</span>
+            <span class="org-card">💼 بدر — المبيعات</span>
+            <span class="org-card">📣 فرح — التسويق</span>
+            <span class="org-card">🗂️ ملاك — مساعِدة تنفيذية</span>
+            <span class="org-card">💻 محمد — التقنية</span>
+            <span class="org-card">📦 عبدالله — المشتريات</span>
+          </div>
         </div>
       </div>
-      <div class="addon">
+      <div class="addon" style="margin-top:1.2rem">
+        <b>🔀 هيكلة على كيفك:</b> تبي علاقة مدير↔موظف معيّنة، أو فريق مصغّر يخدم قسماً محدداً عندك؟ الهيكلة مرنة — كلمنا ونرتبها لمنشأتك.<br/>
+        <b>🔒 خصوصية تامة:</b> كل موظف يشتغل على أدواتك أنت (بريدك، نوشنك، واتسابك) — بياناتك ملكك وحدك، وكل اللي نعرفه أنك عميل مشترك.
+      </div>
+    </div>
+  </section>
+  <section id="demo">
+    <div class="wrap">
+      <div class="sec-head"><h2>🎬 شاهد الخدمة قبل ما تشترك</h2><p>ديمو سريع يوريك البوابة من الدخول إلى المحادثة وربط الأدوات.</p></div>
+      <div class="demo-box">
+        <div class="demo-ph">🎬<b>فيديو الديمو قريباً</b><span>نصوّر لك جولة كاملة في البوابة — وإلى حينها جرّبها بنفسك مجاناً.</span>
+          <a href="${pre}portal" class="btn btn-g" style="margin-top:.8rem">🎁 جرّب الآن مجاناً — 3 رسائل مع كل موظف</a>
+        </div>
+      </div>
+      <div class="addon" style="margin-top:1.2rem">
         <b>➕ رسوم الاشتراكات الإضافية (عشان الخدمة ما تتوقف):</b> بعض الأدوات لها تكاليف خارجية تُدفع لمزوّدها (مثل رسائل واتساب من Meta، أو اشتراك Microsoft 365، أو استهلاك الذكاء الاصطناعي عند التوسّع). نوضّحها لك بشفافية وتُضاف على الباقة.<br/>
         <b>🛠️ خدمة الإعداد (Done-for-you):</b> ما تبي تلمس شي؟ نأسّس لك كل التربيط الخاص فيك ونسلّمك الموظف جاهز — <b>رسوم إعداد لمرة واحدة</b>.
       </div>
@@ -6164,7 +6881,7 @@ function buildPortal(pre = "/") {
 <body>
   <div class="topbar">
     <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
-    <a class="tb-link" href="${pre}connect">الأدوات والباقات</a>
+    <a class="tb-link" href="${pre}connect">الأدوات ورحلة العميل</a>
     <a class="tb-link" href="${pre}">الموقع</a>
     <div class="sp"></div>
     <a id="subscribeNow" href="${pre}connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
@@ -6499,13 +7216,13 @@ function buildPortal(pre = "/") {
 
 /* ---------- Shared Services landing (client-facing) ---------- */
 // Dashboard → this page: explains the Shared Services executive team and lets the
-// client open the service live (chat with Khaled, who leads and routes the team).
-// Chat calls Khaled's public n8n chat webhook directly from the browser.
+// client open the service live (chat with Baher, who leads and routes the team).
+// Chat calls Baher's public n8n chat webhook directly from the browser.
 function buildSharedServices() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
-    { e: "👑", en: "Khaled — Chief of Staff & Customer Service", ar: "خالد — قائد الفريق وخدمة العملاء" },
+    { e: "👑", en: "Baher — Chief of Staff & Customer Service", ar: "باهر — قائد الفريق وخدمة العملاء" },
     { e: "🎯", en: "Baher — Business Advisor", ar: "باهر — مستشار الأعمال" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
     { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
@@ -6522,11 +7239,11 @@ function buildSharedServices() {
   const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
 
   // Full roster for the dashboard — each specialist is chatted with individually.
-  // Khaled leads via his chat webhook (chatTrigger protocol); the rest use their
+  // Baher leads via his chat webhook (chatTrigger protocol); the rest use their
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
   const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
   const agentData = [
-    { slug: "khaled", e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
+    { slug: "khaled", e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
     { slug: "baher", e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", path: "baher-intake" },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
@@ -6609,7 +7326,7 @@ function buildSharedServices() {
 
   // Detailed roster — services each agent delivers + how they work. Public info.
   const roster = [
-    { e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service",
+    { e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service",
       svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
       mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
     { e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
@@ -6655,7 +7372,7 @@ function buildSharedServices() {
     <div class="wrap">
       <span class="eyebrow">${L("Shared Services", "الخدمات المشتركة")}</span>
       <h1>${L("Your smart executive team", "فريقك التنفيذي الذكي")}</h1>
-      <p class="lead">${L("Instead of hiring a whole office, get a full team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant — led by Khaled, who understands your request, delegates to the right specialist, executes, and escalates only what needs your approval.", "بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يعملون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعِدة تنفيذية — بقيادة خالد الذي يفهم طلبك، يوزّعه على المتخصص المناسب، ينفّذ، ويصعّد فقط ما يحتاج موافقتك.")}</p>
+      <p class="lead">${L("Instead of hiring a whole office, get a full team of smart agents that work as your own staff: government & compliance, sales, marketing, IT, procurement, and an executive assistant — led by Baher, who understands your request, delegates to the right specialist, executes, and escalates only what needs your approval.", "بدل ما توظّف مكتباً كاملاً، احصل على فريق وكلاء أذكياء يعملون كموظفيك: حكومي وامتثال، مبيعات، تسويق، تقنية، مشتريات، ومساعِدة تنفيذية — بقيادة باهر الذي يفهم طلبك، يوزّعه على المتخصص المناسب، ينفّذ، ويصعّد فقط ما يحتاج موافقتك.")}</p>
       <div class="ss-cta">
         <a class="btn btn-primary" href="${u("/shared-services/dashboard")}">🔑 ${L("Service portal — sign in", "دخول بوابة الخدمة")}</a>
         <a class="btn btn-primary" style="background:#12b3ad;border-color:#12b3ad" href="#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
@@ -6679,7 +7396,7 @@ function buildSharedServices() {
       <div class="sec-head"><h2>${L("How the service works", "كيف تعمل الخدمة")}</h2><p>${L("One request in plain language — the team takes it from there.", "طلب واحد بلغتك العادية — والفريق يتكفّل بالباقي.")}</p></div>
       <div class="ss-how">
         <div class="ss-how-s"><span class="n">1</span><b>${L("Ask in plain words", "اطلب بلغتك")}</b><p>${L("Write your request in everyday Arabic or English.", "اكتب طلبك بالعربي أو الإنجليزي العادي.")}</p></div>
-        <div class="ss-how-s"><span class="n">2</span><b>${L("Khaled routes it", "خالد يوزّعه")}</b><p>${L("He understands the request and hands it to the right specialist.", "يفهم الطلب ويسلّمه للمتخصص المناسب.")}</p></div>
+        <div class="ss-how-s"><span class="n">2</span><b>${L("Baher routes it", "باهر يوزّعه")}</b><p>${L("He understands the request and hands it to the right specialist.", "يفهم الطلب ويسلّمه للمتخصص المناسب.")}</p></div>
         <div class="ss-how-s"><span class="n">3</span><b>${L("The specialist executes", "المتخصص ينفّذ")}</b><p>${L("The work is done and logged in your isolated workspace.", "يُنفَّذ العمل ويُوثَّق في مساحتك المعزولة.")}</p></div>
         <div class="ss-how-s"><span class="n">4</span><b>${L("You approve what binds", "توافق على الملزم")}</b><p>${L("Any payment, signature or external send waits for your approval.", "أي دفع أو توقيع أو إرسال خارجي ينتظر موافقتك.")}</p></div>
       </div>
@@ -6706,7 +7423,7 @@ function buildSharedServices() {
       <div class="ss-org">
         <div class="ss-onode you"><span class="e">👤</span><div><b>${L("You — the client", "أنت — العميل")}</b><span>${L("Write your request in plain language — one channel only, no chasing anyone.", "تكتب طلبك بلغتك العادية — قناة واحدة فقط، وما تحتاج تلاحق أحداً.")}</span></div></div>
         <div class="ss-oconn"><i>1</i><em>${L("The request", "الطلب")}</em></div>
-        <div class="ss-onode lead"><span class="e">👑</span><div><b>${L("Khaled — Chief of Staff", "خالد — رئيس الأركان")}</b><span>${L("Receives your request, owns it end to end, assigns the right specialist, collects the work, and hands you a finished result.", "يستقبل طلبك، يملكه من أوله لآخره، يكلّف المتخصص المناسب، يجمع الشغل، ويسلّمك نتيجة جاهزة.")}</span></div></div>
+        <div class="ss-onode lead"><span class="e">👑</span><div><b>${L("Baher — Chief of Staff", "باهر — رئيس الأركان")}</b><span>${L("Receives your request, owns it end to end, assigns the right specialist, collects the work, and hands you a finished result.", "يستقبل طلبك، يملكه من أوله لآخره، يكلّف المتخصص المناسب، يجمع الشغل، ويسلّمك نتيجة جاهزة.")}</span></div></div>
         <div class="ss-oconn"><i>2</i><em>${L("Coordination", "التوزيع والتنسيق")}</em></div>
         <div class="ss-onode ops"><span class="e">🧭</span><div><b>${L("Mazen — Operations Manager", "مازن — مدير العمليات")}</b><span>${L("Coordinates multi-step execution across specialists and guards delivery quality — works behind the scenes.", "ينسّق التنفيذ متعدد الخطوات بين المتخصصين ويراقب جودة التسليم — يعمل خلف الكواليس.")}</span></div></div>
         <div class="ss-oconn"><i>3</i><em>${L("Specialist execution", "التنفيذ المتخصص")}</em></div>
@@ -6731,7 +7448,7 @@ function buildSharedServices() {
         <div class="ss-oconn gold"><i>4</i><em>${L("Governance gate", "بوابة الحوكمة")}</em></div>
         <div class="ss-onode gov"><span class="e">🔒</span><div><b>${L("Your mandatory approval", "موافقتك الإلزامية")}</b><span>${L("Any payment, signature, binding commitment, paid government submission or official external message is prepared ready-to-go — then WAITS for your approval.", "أي دفع أو توقيع أو التزام ملزم أو تقديم حكومي مدفوع أو رسالة رسمية خارجية — تتجهّز كاملة ثم تقف عند «بانتظار موافقتك».")}</span></div></div>
         <div class="ss-oconn green"><i>5</i><em>${L("Delivery", "التسليم")}</em></div>
-        <div class="ss-onode done"><span class="e">✅</span><div><b>${L("Finished output + documentation", "مخرج جاهز + توثيق")}</b><span>${L("Khaled hands you the result, and every task and conversation is logged in your own isolated workspace.", "خالد يسلّمك النتيجة، وكل مهمة ومحادثة تُوثَّق في مساحتك الخاصة المعزولة عن بقية العملاء.")}</span></div></div>
+        <div class="ss-onode done"><span class="e">✅</span><div><b>${L("Finished output + documentation", "مخرج جاهز + توثيق")}</b><span>${L("Baher hands you the result, and every task and conversation is logged in your own isolated workspace.", "باهر يسلّمك النتيجة، وكل مهمة ومحادثة تُوثَّق في مساحتك الخاصة المعزولة عن بقية العملاء.")}</span></div></div>
       </div>
       <div class="ss-hgrid">
         <div class="ss-hcard"><b>📲 ${L("Human escalation", "التصعيد البشري")}</b><span>${L("Field, financial and government work is escalated by WhatsApp to your own staff.", "الأعمال الميدانية والمالية والحكومية تُصعَّد بواتساب لموظفيك أنت.")}</span></div>
@@ -6968,7 +7685,7 @@ function buildSharedServices() {
   const script = "";
   return page({
     title: Lraw("Shared Services — your smart executive team | Business Partner", "الخدمات المشتركة — فريقك التنفيذي الذكي | بيزنس بارتنر"),
-    desc: Lraw("A full AI executive team that works as your own staff, led by Khaled: government, compliance, sales, marketing, IT, procurement and admin — one subscription.", "فريق تنفيذي ذكي متكامل يعمل كموظفيك بقيادة خالد: حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات وإدارة — باشتراك واحد."),
+    desc: Lraw("A full AI executive team that works as your own staff, led by Baher: government, compliance, sales, marketing, IT, procurement and admin — one subscription.", "فريق تنفيذي ذكي متكامل يعمل كموظفيك بقيادة باهر: حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات وإدارة — باشتراك واحد."),
     active: "/shared-services", path: "/shared-services", body, script,
   });
 }
@@ -6977,7 +7694,7 @@ function buildSharedServicesPortal() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
   const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
   const team = [
-    { e: "👑", en: "Khaled — Chief of Staff & Customer Service", ar: "خالد — قائد الفريق وخدمة العملاء" },
+    { e: "👑", en: "Baher — Chief of Staff & Customer Service", ar: "باهر — قائد الفريق وخدمة العملاء" },
     { e: "🎯", en: "Baher — Business Advisor", ar: "باهر — مستشار الأعمال" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
     { e: "👥", en: "Nasser — HR", ar: "ناصر — الموارد البشرية" },
@@ -6994,11 +7711,11 @@ function buildSharedServicesPortal() {
   const errMsg = Lraw("Connection issue — please try again.", "تعذّر الاتصال — حاول مرة ثانية.");
 
   // Full roster for the dashboard — each specialist is chatted with individually.
-  // Khaled leads via his chat webhook (chatTrigger protocol); the rest use their
+  // Baher leads via his chat webhook (chatTrigger protocol); the rest use their
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
   const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
   const agentData = [
-    { slug: "khaled", e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
+    { slug: "khaled", e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service", mode: "chat", ep: KHALED_EP },
     { slug: "baher", e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", path: "baher-intake" },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
     { slug: "nasser", e: "👥", ar: "ناصر", arRole: "الموارد البشرية", en: "Nasser", enRole: "Human Resources", path: "nasser-intake" },
@@ -7081,7 +7798,7 @@ function buildSharedServicesPortal() {
 
   // Detailed roster — services each agent delivers + how they work. Public info.
   const roster = [
-    { e: "👑", ar: "خالد", arRole: "قائد الفريق وخدمة العملاء", en: "Khaled", enRole: "Chief of Staff & Customer Service",
+    { e: "👑", ar: "باهر", arRole: "قائد الفريق وخدمة العملاء", en: "Baher", enRole: "Chief of Staff & Customer Service",
       svcAr: ["استقبال الطلبات", "التوجيه للمتخصص", "متابعة التنفيذ", "تسليم المخرجات"], svcEn: ["Request intake", "Routing", "Follow-through", "Delivery"],
       mAr: "الواجهة الواحدة — يفهم طلبك، يملكه، يوزّعه على المتخصص، يجمع النتيجة ويسلّمها جاهزة.", mEn: "Your single interface — understands the request, owns it, delegates, and delivers a finished result." },
     { e: "🎯", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor",
@@ -7181,7 +7898,7 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-pane" id="pane-svc" hidden>
-        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Khaled in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لخالد في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
+        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Baher in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لباهر في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
         <div class="ss-svc">
           <a href="${u("/services")}"><span class="e">🗂️</span><b>${L("All services (93)", "كل الخدمات (93)")}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
           <a href="${u("/packages")}"><span class="e">📦</span><b>${L("Packages", "الباقات")}</b><span>${L("Bundled services at a clear starting price.", "باقات جاهزة بسعر ابتدائي واضح.")}</span></a>
@@ -7198,7 +7915,7 @@ function buildSharedServicesPortal() {
           <a href="${u("/saudi-arabia")}"><span class="e">🇸🇦</span><b>${L("Invest in Saudi", "الاستثمار في السعودية")}</b><span>${L("Investor data, guides and sector insights.", "بيانات وأدلة المستثمر ورؤى القطاعات.")}</span></a>
           <a href="${u("/account")}"><span class="e">🧾</span><b>${L("My orders & account", "طلباتي وحسابي")}</b><span>${L("Track your orders, documents and payments.", "تابع طلباتك ومستنداتك ومدفوعاتك.")}</span></a>
         </div>
-        <p class="ss-secure">💡 ${L("Tip: anything here can also be requested through Khaled — he prepares it and anything binding waits for your approval.", "تلميح: أي خدمة هنا تقدر تطلبها عبر خالد مباشرة — يجهّزها لك وأي إجراء ملزم ينتظر موافقتك.")}</p>
+        <p class="ss-secure">💡 ${L("Tip: anything here can also be requested through Baher — he prepares it and anything binding waits for your approval.", "تلميح: أي خدمة هنا تقدر تطلبها عبر باهر مباشرة — يجهّزها لك وأي إجراء ملزم ينتظر موافقتك.")}</p>
       </div>
 
       <div class="ss-pane" id="pane-stats" hidden>
@@ -7658,6 +8375,12 @@ function writeFullSite(pre) {
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
   TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
+  write(`${pre}directory.html`, buildDirectory());
+  write(`${pre}guide/saudi-market.html`, buildGuideSaudiMarket());
+  write(`${pre}guide/business-setup.html`, buildGuideBusinessSetup());
+  write(`${pre}guide/run-your-business.html`, buildGuideRunBusiness());
+  write(`${pre}guide/live-in-saudi.html`, buildGuideLiveInSaudi());
+  write(`${pre}guide/residency.html`, buildGuideResidency());
   write(`${pre}news.html`, buildNews());
   write(`${pre}magazine.html`, buildMagazine());
   write(`${pre}magazine/print.html`, buildMagazinePrint());
@@ -7667,6 +8390,7 @@ function writeFullSite(pre) {
   write(`${pre}newsletter.html`, buildNewsletter());
   write(`${pre}employer-join.html`, buildEmployerJoin());
   write(`${pre}employer-login.html`, buildEmployerLogin());
+  write(`${pre}candidate-profile.html`, buildCandidateProfile());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
   write(`${pre}portal/index.html`, buildPortalHome());
   write(`${pre}portal/join.html`, buildPortalJoin());
@@ -7745,7 +8469,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

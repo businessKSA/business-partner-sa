@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>موظفك الذكي — مركز الربط والباقات | Business Partner</title>
+  <title>موظفك الذكي — رحلة العميل ومركز الربط | Business Partner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -87,6 +87,23 @@
     .pc li::before{content:"\2714";position:absolute;inset-inline-start:0;color:var(--green);font-weight:700}
     .pc .btn{justify-content:center;margin-top:auto}
     .addon{background:var(--amber-soft);border:1px solid #fde68a;color:#7a5b00;border-radius:14px;padding:1.1rem 1.3rem;margin-top:1.2rem;font-size:.9rem}
+    .jgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:.9rem}
+    .jstep{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.4rem}
+    .jstep .jn{width:30px;height:30px;border-radius:999px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+    .jstep b{color:var(--navy);font-size:.95rem}
+    .jstep span:not(.jn){font-size:.82rem;color:var(--muted);line-height:1.7}
+    .jstep a{color:var(--green);font-weight:700}
+    .org{display:flex;flex-direction:column;gap:1rem}
+    .org-tier{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;box-shadow:var(--shadow)}
+    .org-label{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:.25rem .9rem;font-size:.8rem;font-weight:700;margin-bottom:.7rem}
+    .org-cards{display:flex;flex-wrap:wrap;gap:.5rem}
+    .org-card{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:.5rem .8rem;font-size:.85rem;font-weight:600;color:var(--text)}
+    .demo-box{max-width:720px;margin:0 auto}
+    .demo-ph{background:var(--navy);color:#fff;border-radius:18px;padding:2.6rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:.4rem;text-align:center;font-size:2rem}
+    .demo-ph b{font-size:1.15rem}
+    .demo-ph span{font-size:.9rem;opacity:.85;max-width:420px;line-height:1.8}
+    @media(max-width:900px){.jgrid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:560px){.jgrid{grid-template-columns:1fr}}
     .addon b{color:#5b4300}
     .foot{background:var(--navy-900);color:#cdd6f5;text-align:center;padding:1.6rem 1rem;font-size:.85rem;margin-top:1rem}
     .ov{position:fixed;inset:0;background:rgba(8,12,30,.55);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
@@ -118,7 +135,9 @@
     <a class="mn-logo" href="/">Business Partner</a>
     <div class="mn-links">
       <a href="#connect">الأدوات</a>
-      <a href="#pricing">الباقات</a>
+      <a href="#journey">رحلة العميل</a>
+      <a href="#structure">الهيكلة</a>
+      <a href="#demo">الديمو</a>
       <a class="mn-cta" href="/ar/portal">🔐 دخول بوابتي</a>
     </div>
   </div>
@@ -156,30 +175,58 @@
       <div class="cgrid" id="cgrid"></div>
     </div>
   </section>
-  <section id="pricing">
+  <section id="journey">
     <div class="wrap">
-      <div class="sec-head"><h2>💳 الباقات</h2><p>الباقات موحّدة الآن ضمن منظومة الوكلاء الأذكياء — اختر باقتك من هناك، وأدواتك تُربط هنا بضغطة.</p></div>
-      <div class="pgrid">
-        <div class="pc">
-          <h3>وكيل الامتثال والالتزام</h3>
-          <div class="pr">250 ﷼ <small>يبدأ من / شهرياً</small></div>
-          <ul><li>مراقبة قوى ومقيم والتأمينات ومدد والنطاقات</li><li>تنبيهات المهل والمخالفات فور ظهورها</li><li>حاسبات النطاقات والتكاليف مجانية ضمن الباقة</li></ul>
-          <a href="/ar/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+      <div class="sec-head"><h2>🧭 رحلة العميل — من الاختيار إلى التشغيل</h2><p>خمس خطوات واضحة، كلها داخل الموقع — بدون واتساب وبدون انتظار.</p></div>
+      <div class="jgrid">
+        <div class="jstep"><span class="jn">1</span><b>اختر موظفيك</b><span>حدّد من هذه الصفحة موظفاً واحداً أو أكثر وأضفهم للسلة (500 ﷼/شهرياً للموظف).</span></div>
+        <div class="jstep"><span class="jn">2</span><b>ادفع وأرفق الإيصال</b><span>أكمل الطلب من السلة بالتحويل البنكي وأرفق إيصال PDF — يصلك رقم طلب مثل BP-506275.</span></div>
+        <div class="jstep"><span class="jn">3</span><b>نتحقق ونفعّل</b><span>نطابق الإيصال مع طلبك ونعتمد الدفع — رقم طلبك نفسه يصير كود التفعيل.</span></div>
+        <div class="jstep"><span class="jn">4</span><b>ادخل بوابتك</b><span>افتح <a href="/ar/portal">بوابة الموظفين الأذكياء</a> بنفس بريدك + كودك — يفتح لك بالضبط اللي اشتريته.</span></div>
+        <div class="jstep"><span class="jn">5</span><b>اشتغل واربط أدواتك</b><span>حادث موظفك بلغتك العادية، واربط Gmail ونوشن وأدواتك من مركز الربط أعلاه.</span></div>
+      </div>
+    </div>
+  </section>
+  <section id="structure" style="background:#eef1f8">
+    <div class="wrap">
+      <div class="sec-head"><h2>🏛️ هيكلة الفريق</h2><p>12 موظفاً متخصصاً يعملون كفريق واحد — يتشاور الموظف مع زميله تلقائياً لما يحتاج خبرة خارج تخصصه، ويذكر لك مين استشار.</p></div>
+      <div class="org">
+        <div class="org-tier"><span class="org-label">الإدارة</span>
+          <div class="org-cards">
+            <span class="org-card">🧭 مازن — العمليات</span>
+            <span class="org-card">💰 عبدالرحمن — المالية</span>
+            <span class="org-card">📈 أحمد — الاستراتيجية والتخطيط</span>
+          </div>
         </div>
-        <div class="pc feat">
-          <h3>موظفك الذكي المتخصص</h3>
-          <div class="pr">500 ﷼ <small>يبدأ من / شهرياً</small></div>
-          <ul><li>موظف تسويق أو إداري أو مبيعات أو تقني</li><li>يعمل 24 ساعة ضمن سياسات منشأتك</li><li>ربط أدواتك (قوقل / نوشن / سلاك) من هذه الصفحة</li></ul>
-          <a href="/ar/ai-agents" class="btn btn-g">التفاصيل والاشتراك</a>
-        </div>
-        <div class="pc">
-          <h3>فريق الخدمات المشتركة</h3>
-          <div class="pr">1,500 ﷼ <small>يبدأ من / شهرياً</small></div>
-          <ul><li>وكيل الامتثال + فريق العمل الذكي مدموجان بالكامل</li><li>لوحة موحّدة لكل منصّاتك وفرقك</li><li>أولوية في التنفيذ والدعم</li></ul>
-          <a href="/ar/ai-agents" class="btn btn-o" style="background:#fff;color:var(--navy);border:1px solid var(--line)">التفاصيل والاشتراك</a>
+        <div class="org-tier"><span class="org-label">المتخصصون</span>
+          <div class="org-cards">
+            <span class="org-card">🎯 باهر — مستشار الأعمال</span>
+            <span class="org-card">👥 ناصر — الموارد البشرية</span>
+            <span class="org-card">🛡️ مشاري — الامتثال</span>
+            <span class="org-card">⚖️ عبدالعزيز — القانوني</span>
+            <span class="org-card">💼 بدر — المبيعات</span>
+            <span class="org-card">📣 فرح — التسويق</span>
+            <span class="org-card">🗂️ ملاك — مساعِدة تنفيذية</span>
+            <span class="org-card">💻 محمد — التقنية</span>
+            <span class="org-card">📦 عبدالله — المشتريات</span>
+          </div>
         </div>
       </div>
-      <div class="addon">
+      <div class="addon" style="margin-top:1.2rem">
+        <b>🔀 هيكلة على كيفك:</b> تبي علاقة مدير↔موظف معيّنة، أو فريق مصغّر يخدم قسماً محدداً عندك؟ الهيكلة مرنة — كلمنا ونرتبها لمنشأتك.<br/>
+        <b>🔒 خصوصية تامة:</b> كل موظف يشتغل على أدواتك أنت (بريدك، نوشنك، واتسابك) — بياناتك ملكك وحدك، وكل اللي نعرفه أنك عميل مشترك.
+      </div>
+    </div>
+  </section>
+  <section id="demo">
+    <div class="wrap">
+      <div class="sec-head"><h2>🎬 شاهد الخدمة قبل ما تشترك</h2><p>ديمو سريع يوريك البوابة من الدخول إلى المحادثة وربط الأدوات.</p></div>
+      <div class="demo-box">
+        <div class="demo-ph">🎬<b>فيديو الديمو قريباً</b><span>نصوّر لك جولة كاملة في البوابة — وإلى حينها جرّبها بنفسك مجاناً.</span>
+          <a href="/ar/portal" class="btn btn-g" style="margin-top:.8rem">🎁 جرّب الآن مجاناً — 3 رسائل مع كل موظف</a>
+        </div>
+      </div>
+      <div class="addon" style="margin-top:1.2rem">
         <b>➕ رسوم الاشتراكات الإضافية (عشان الخدمة ما تتوقف):</b> بعض الأدوات لها تكاليف خارجية تُدفع لمزوّدها (مثل رسائل واتساب من Meta، أو اشتراك Microsoft 365، أو استهلاك الذكاء الاصطناعي عند التوسّع). نوضّحها لك بشفافية وتُضاف على الباقة.<br/>
         <b>🛠️ خدمة الإعداد (Done-for-you):</b> ما تبي تلمس شي؟ نأسّس لك كل التربيط الخاص فيك ونسلّمك الموظف جاهز — <b>رسوم إعداد لمرة واحدة</b>.
       </div>

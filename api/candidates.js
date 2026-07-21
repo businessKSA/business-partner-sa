@@ -80,6 +80,62 @@ const maskName = (n) => {
   return parts.slice(0, 2).map((w) => w[0] + ".").join(" ");
 };
 
+// Shared row → API-shape mapper for both the list/browse scan and the
+// single-candidate detail lookup, so the two never drift out of sync on
+// what fields exist or how locked/unlocked masking works.
+function mapCandidate(pg, unlocked, opts) {
+  opts = opts || {};
+  const p = pg.properties || {};
+  // "Candidate Name" is often an auto-transliterated guess (esp. for
+  // LinkedIn-sourced, non-Arab candidates — e.g. "غيردار سينغ" for
+  // "Girdhar Singh"). "Name (EN)" is the clean, source-accurate name, so
+  // it takes priority; we keep the other one alongside when it differs
+  // so employers see both scripts instead of a garbled single name.
+  const nameAr = txt(p["Candidate Name"]);
+  const nameEn = txt(p["Name (EN)"]);
+  const primary = nameEn || nameAr;
+  const secondary = nameEn && nameAr && nameAr !== nameEn ? nameAr : "";
+  const cvAts = txt(p["ATS CV (Drive)"]);
+  const cvRaw = txt(p["CV Link"]);
+  const rec = {
+    id: pg.id,
+    field: txt(p["Field"]),
+    role: txt(p["Target Role"]) || txt(p["Original Position"]),
+    city: txt(p["City"]),
+    country: txt(p["Country"]),
+    residenceStatus: txt(p["حالة الإقامة"]),
+    experience: txt(p["Experience Years"]),
+    education: txt(p["Education"]),
+    nationalityType: txt(p["Nationality Type"]),
+    availability: txt(p["Availability"]),
+    languages: txt(p["Languages"]),
+    skills: opts.full ? txt(p["Skills"]) : txt(p["Skills"]).slice(0, 160),
+    saudization: txt(p["التوطين Saudization"]),
+  };
+  if (opts.full) {
+    rec.registered = pg.created_time || "";
+    rec.interviewDate = p["Interview Date"] && p["Interview Date"].date ? p["Interview Date"].date.start : "";
+    rec.hiredDate = p["Hired Date"] && p["Hired Date"].date ? p["Hired Date"].date.start : "";
+    rec.pipelineStage = txt(p["Pipeline Stage"]);
+  }
+  if (unlocked) {
+    rec.name = primary;
+    rec.nameAlt = secondary;
+    rec.phone = txt(p["Phone"]);
+    rec.email = txt(p["Email"]);
+    // Show the ATS-formatted CV to the client, never the raw original —
+    // only fall back to the raw file when no ATS version exists yet.
+    rec.cv = cvAts || cvRaw;
+    rec.cvKind = cvAts ? "ats" : (cvRaw ? "raw" : "");
+    // The actual CV text (not just a link to it), so the profile can be
+    // rendered as formatted content on the site itself.
+    rec.cvText = txt(p["ATS CV Text"]);
+  } else {
+    rec.name = maskName(primary);
+  }
+  return rec;
+}
+
 // Owner testing override — always unlocks the top-tier plan, no Notion lookup.
 const OWNER_CODE = process.env.OWNER_DEMO_CODE || "demo123";
 
@@ -185,6 +241,34 @@ async function handlePostings(req, res) {
     return res.end(JSON.stringify({ ok: true, postings }));
   }
 
+  // Moves a candidate through the hiring pipeline (New/Screening/Interview/
+  // Offer/Hired/Rejected) — previously this only lived in the employer's own
+  // browser (localStorage), so there was no internal record of *when* a
+  // candidate was interviewed or hired. Persists the stage to Notion and,
+  // the first time a candidate reaches Interview or Hired, stamps that date
+  // (never overwritten on later stage changes, so it stays the true first date).
+  if (b.action === "update-stage") {
+    const id = String(b.id || "").trim();
+    const STAGE_MAP = { new: "جديد", screening: "فرز", interview: "مقابلة", offer: "عرض", hired: "تم التوظيف", rejected: "مرفوض" };
+    const stageAr = STAGE_MAP[String(b.stage || "")];
+    if (!id || !stageAr) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const page = await notionFetch(`pages/${id}`, "GET");
+    if (!page.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const pdata = await page.json();
+    const props = { "Pipeline Stage": { select: { name: stageAr } } };
+    const today = new Date().toISOString().slice(0, 10);
+    if (stageAr === "مقابلة" && !(pdata.properties && pdata.properties["Interview Date"] && pdata.properties["Interview Date"].date)) {
+      props["Interview Date"] = { date: { start: today } };
+    }
+    if (stageAr === "تم التوظيف" && !(pdata.properties && pdata.properties["Hired Date"] && pdata.properties["Hired Date"].date)) {
+      props["Hired Date"] = { date: { start: today } };
+    }
+    const r = await notionFetch(`pages/${id}`, "PATCH", { properties: props });
+    if (!r.ok) { console.error("update-stage error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true }));
+  }
+
   res.statusCode = 400;
   return res.end(JSON.stringify({ ok: false, error: "bad_action" }));
 }
@@ -244,6 +328,23 @@ export default async function handler(req, res) {
   const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
   const { unlocked, plan } = await resolvePlan(code);
 
+  // Single-candidate detail lookup for the dedicated /candidate-profile page
+  // — one cheap page GET instead of paging the whole filtered pool, with the
+  // exact same locked/unlocked masking as the browse list.
+  const qId = (url.searchParams.get("id") || "").trim();
+  if (qId) {
+    const page = await notionFetch(`pages/${qId}`, "GET");
+    if (page.status === 404) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+    if (!page.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const pdata = await page.json();
+    if (pdata.properties && pdata.properties["مخفي عن الموقع"] && pdata.properties["مخفي عن الموقع"].checkbox) {
+      res.statusCode = 404;
+      return res.end(JSON.stringify({ ok: false, error: "not_found" }));
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, unlocked, plan, candidate: mapCandidate(pdata, unlocked, { full: true }) }));
+  }
+
   // Server-side Notion filter: only the website-sourced / active candidates.
   // "مخفي عن الموقع" = true means the CV failed to parse / is unreadable — the
   // ingestion pipeline flags it for review and it must never reach employers.
@@ -281,67 +382,35 @@ export default async function handler(req, res) {
     let truncated = false;
     for (let guard = 0; guard < 300; guard++) {
       const body = cursor ? { ...base, start_cursor: cursor } : base;
-      const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!r.ok) {
+      // A full scan can take 100+ sequential requests against Notion's
+      // ~3 req/s rate limit, so a single 429 mid-scan used to fail the whole
+      // request (that's what "Couldn't query Notion" meant in practice, not
+      // an actual sharing/permission problem). Retry 429s a few times with
+      // backoff (honoring Retry-After when Notion sends one) before giving up.
+      let r, data;
+      for (let attempt = 0; ; attempt++) {
+        r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (r.ok) { data = await r.json(); break; }
+        if (r.status === 429 && attempt < 4 && Date.now() < deadline) {
+          const retryAfter = Number(r.headers.get("retry-after"));
+          const waitMs = retryAfter > 0 ? retryAfter * 1000 : 300 * Math.pow(2, attempt);
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+          continue;
+        }
         console.error("Notion query error", r.status, (await r.text()).slice(0, 400));
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
       }
-      const data = await r.json();
       results = results.concat(data.results || []);
       if (!data.has_more || !data.next_cursor) { cursor = null; break; }
       cursor = data.next_cursor;
       if (Date.now() > deadline) { truncated = true; break; }
     }
-    let rows = results.map((pg) => {
-      const p = pg.properties || {};
-      // "Candidate Name" is often an auto-transliterated guess (esp. for
-      // LinkedIn-sourced, non-Arab candidates — e.g. "غيردار سينغ" for
-      // "Girdhar Singh"). "Name (EN)" is the clean, source-accurate name, so
-      // it takes priority; we keep the other one alongside when it differs
-      // so employers see both scripts instead of a garbled single name.
-      const nameAr = txt(p["Candidate Name"]);
-      const nameEn = txt(p["Name (EN)"]);
-      const primary = nameEn || nameAr;
-      const secondary = nameEn && nameAr && nameAr !== nameEn ? nameAr : "";
-      const cvAts = txt(p["ATS CV (Drive)"]);
-      const cvRaw = txt(p["CV Link"]);
-      const rec = {
-        id: pg.id,
-        field: txt(p["Field"]),
-        role: txt(p["Target Role"]) || txt(p["Original Position"]),
-        city: txt(p["City"]),
-        country: txt(p["Country"]),
-        residenceStatus: txt(p["حالة الإقامة"]),
-        experience: txt(p["Experience Years"]),
-        education: txt(p["Education"]),
-        nationalityType: txt(p["Nationality Type"]),
-        availability: txt(p["Availability"]),
-        languages: txt(p["Languages"]),
-        skills: txt(p["Skills"]).slice(0, 160),
-        saudization: txt(p["التوطين Saudization"]),
-      };
-      if (unlocked) {
-        rec.name = primary;
-        rec.nameAlt = secondary;
-        rec.phone = txt(p["Phone"]);
-        rec.email = txt(p["Email"]);
-        // Show the ATS-formatted CV to the client, never the raw original —
-        // only fall back to the raw file when no ATS version exists yet.
-        rec.cv = cvAts || cvRaw;
-        rec.cvKind = cvAts ? "ats" : (cvRaw ? "raw" : "");
-        // The actual CV text (not just a link to it), so the profile can be
-        // rendered as formatted content on the site itself.
-        rec.cvText = txt(p["ATS CV Text"]);
-      } else {
-        rec.name = maskName(primary);
-      }
-      return rec;
-    });
+    let rows = results.map((pg) => mapCandidate(pg, unlocked));
 
     // Free-text search across role/skills/field — no clean single Notion
     // filter for an OR-across-properties "contains", so it's applied here

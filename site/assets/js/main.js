@@ -470,17 +470,70 @@ var BP = window.BP = window.BP || {};
     ["Systems Analyst", "محلل أنظمة"], ["IT Project Coordinator", "منسّق مشاريع تقنية"], ["Help Desk Technician", "فنّي دعم فني"],
     ["Visual Merchandising Manager", "مدير عرض تجاري"], ["Shop Floor Supervisor", "مشرف صالة عرض"], ["Pricing Analyst", "محلل تسعير"],
     ["Textile Designer", "مصمم منسوجات"], ["Pattern Maker", "صانع باترون"],
+    // Third expansion round — remaining gaps across product/startup roles,
+    // industrial automation, allied health, education support, supply chain,
+    // hospitality operations, entry-level labor, creative/UX, agribusiness,
+    // governance, and BPO/retail floor roles.
+    ["Product Owner", "مالك منتج"], ["Growth Hacker", "خبير نمو"], ["Developer Relations Engineer", "مهندس علاقات المطورين"],
+    ["Technical Program Manager", "مدير برامج تقنية"], ["Innovation Manager", "مدير ابتكار"], ["Chief of Staff", "رئيس الأركان"],
+    ["Industrial Engineer", "مهندس صناعي"], ["Automation Engineer", "مهندس أتمتة"], ["Robotics Engineer", "مهندس روبوتات"],
+    ["Lean / Six Sigma Specialist", "أخصائي Lean / Six Sigma"], ["Instrumentation Engineer", "مهندس أجهزة قياس"],
+    ["Optician", "أخصائي نظارات"], ["Anesthesia Technician", "فنّي تخدير"], ["Radiographer", "فنّي أشعة"],
+    ["Nutritionist", "أخصائي تغذية علاجية"], ["Phlebotomist", "فنّي سحب دم"], ["Dialysis Technician", "فنّي غسيل كلى"],
+    ["Emergency Medical Technician (EMT)", "فنّي طوارئ طبية"], ["Medical Equipment Technician", "فنّي أجهزة طبية"],
+    ["ESL / Language Instructor", "معلّم لغة إنجليزية كلغة أجنبية"], ["School Counselor", "مرشد طلابي"],
+    ["Teaching Assistant", "مساعد تدريس"], ["Vocational Trainer", "مدرّب مهني"], ["E-learning Specialist", "أخصائي تعليم إلكتروني"],
+    ["Supply Chain Analyst", "محلل سلسلة إمداد"], ["Customs Broker", "وسيط جمركي"], ["Procurement Manager", "مدير مشتريات"],
+    ["Demand Planner", "مخطط طلب"],
+    ["Valet Attendant", "موظف صف سيارات"], ["Doorman", "بواب"], ["Laundry Manager", "مدير مغسلة"],
+    ["Banquet Manager", "مدير حفلات"], ["Room Service Attendant", "موظف خدمة الغرف"],
+    ["General Laborer", "عامل عام"], ["Porter", "حمّال"], ["Loader", "عامل تحميل"],
+    ["UX Researcher", "باحث تجربة مستخدم"], ["Motion Graphics Designer", "مصمم موشن غرافيك"], ["Podcast Producer", "منتج بودكاست"],
+    ["Community Moderator", "مشرف مجتمع رقمي"],
+    ["Poultry Farm Manager", "مدير مزرعة دواجن"], ["Dairy Farm Manager", "مدير مزرعة ألبان"],
+    ["Chairman", "رئيس مجلس الإدارة"], ["Board Member", "عضو مجلس إدارة"], ["Non-Executive Director", "عضو مجلس إدارة غير تنفيذي"],
+    ["Municipal Engineer", "مهندس بلدي"], ["Government Auditor", "مدقق حكومي"], ["Policy Advisor", "مستشار سياسات"],
+    ["Intern", "متدرّب"], ["Trainee", "متدرّب مبتدئ"], ["Volunteer Coordinator", "منسّق متطوعين"],
+    ["Technical Support Agent", "موظف دعم فني"], ["Chat Support Agent", "موظف دعم عبر المحادثة"],
+    ["Stock Clerk", "كاتب مخزون تجزئة"], ["Visual Display Artist", "فنان عرض تجاري"],
+    ["Elevator Technician", "فنّي مصاعد"], ["Solar Panel Installer", "فنّي تركيب ألواح شمسية"],
   ];
 
   var SA_CITIES = [
     "Riyadh", "Jeddah", "Mecca", "Medina", "Dammam", "Khobar", "Dhahran", "Taif", "Buraidah",
     "Tabuk", "Hail", "Hafr Al-Batin", "Jubail", "Yanbu", "Abha", "Khamis Mushait", "Najran",
     "Jazan", "Al Ahsa", "Qatif", "Sakaka", "Arar", "Al Bahah", "Al Kharj", "Unaizah", "Rabigh",
+    // Further coverage of every Saudi region's district/governorate seats —
+    // still free-typed, this just widens what shows up while typing.
+    "Diriyah", "Al Majmaah", "Az Zulfi", "Shaqra", "Al Quwayiyah", "Afif", "Dawadmi",
+    "Wadi ad-Dawasir", "Al Aflaj", "Al Ghat", "Huraymila", "Al Muzahmiyah",
+    "Al Lith", "Khulais", "Al Jumum", "Turubah", "King Abdullah Economic City",
+    "Al Ula", "Badr",
+    "Al Rass", "Al Bukayriyah", "Riyadh Al Khabra", "Al Midhnab", "Al Badayea",
+    "Ras Tanura", "Al Khafji", "Buqayq", "Al Nairyah", "Qaisumah",
+    "Bisha", "Al Namas", "Muhayil Aseer", "Ahad Rafidah", "Rijal Almaa", "Tanomah",
+    "Duba", "Umluj", "Al Wajh", "Haql", "Tayma", "NEOM",
+    "Baqaa", "Rafha", "Turaif", "Al Uwayqilah", "Al Qurayyat",
+    "Sharurah", "Badr Al Janoub",
+    "Sabya", "Abu Arish", "Samtah", "Al Darb", "Farasan",
+    "Baljurashi", "Al Mikhwah",
   ];
   var SA_CITIES_AR = [
     "الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الظهران", "الطائف", "بريدة",
     "تبوك", "حائل", "حفر الباطن", "الجبيل", "ينبع", "أبها", "خميس مشيط", "نجران",
     "جازان", "الأحساء", "القطيف", "سكاكا", "عرعر", "الباحة", "الخرج", "عنيزة", "رابغ",
+    "الدرعية", "المجمعة", "الزلفي", "شقراء", "القويعية", "عفيف", "الدوادمي",
+    "وادي الدواسر", "الأفلاج", "الغاط", "حريملاء", "المزاحمية",
+    "الليث", "خليص", "الجموم", "تربة", "مدينة الملك عبدالله الاقتصادية",
+    "العلا", "بدر",
+    "الرس", "البكيرية", "رياض الخبراء", "المذنب", "البدائع",
+    "رأس تنورة", "الخفجي", "بقيق", "النعيرية", "القيصومة",
+    "بيشة", "النماص", "محايل عسير", "أحد رفيدة", "رجال ألمع", "تنومة",
+    "ضباء", "أملج", "الوجه", "حقل", "تيماء", "نيوم",
+    "البقعاء", "رفحاء", "طريف", "العويقيلة", "القريات",
+    "شرورة", "بدر الجنوب",
+    "صبيا", "أبو عريش", "صامطة", "الدرب", "فرسان",
+    "بلجرشي", "المخواة",
   ];
   var WORLD_CITIES = [
     ["Dubai", "United Arab Emirates", "دبي", "الإمارات"], ["Abu Dhabi", "United Arab Emirates", "أبوظبي", "الإمارات"],
@@ -516,6 +569,79 @@ var BP = window.BP = window.BP || {};
     ["Mexico City", "Mexico", "مكسيكو سيتي", "المكسيك"], ["Sao Paulo", "Brazil", "ساو باولو", "البرازيل"],
     ["Buenos Aires", "Argentina", "بوينس آيرس", "الأرجنتين"],
     ["Sydney", "Australia", "سيدني", "أستراليا"], ["Melbourne", "Australia", "ملبورن", "أستراليا"], ["Auckland", "New Zealand", "أوكلاند", "نيوزيلندا"],
+    // At least one (usually the capital) city for every remaining country in
+    // COUNTRIES so the combobox has a matching city suggestion everywhere —
+    // still free-typed, this just widens what shows up while typing.
+    ["Ramallah", "Palestine", "رام الله", "فلسطين"], ["Nouakchott", "Mauritania", "نواكشوط", "موريتانيا"],
+    ["Mogadishu", "Somalia", "مقديشو", "الصومال"], ["Djibouti City", "Djibouti", "مدينة جيبوتي", "جيبوتي"],
+    ["Moroni", "Comoros", "موروني", "جزر القمر"], ["Tehran", "Iran", "طهران", "إيران"], ["Kabul", "Afghanistan", "كابل", "أفغانستان"],
+    ["Thimphu", "Bhutan", "تيمفو", "بوتان"], ["Malé", "Maldives", "ماليه", "المالديف"], ["Yangon", "Myanmar", "يانغون", "ميانمار"],
+    ["Phnom Penh", "Cambodia", "بنوم بنه", "كمبوديا"], ["Vientiane", "Laos", "فيينتيان", "لاوس"],
+    ["Singapore", "Singapore", "سنغافورة", "سنغافورة"], ["Bandar Seri Begawan", "Brunei", "بندر سري بكاوان", "بروناي"],
+    ["Dili", "Timor-Leste", "ديلي", "تيمور الشرقية"], ["Pyongyang", "North Korea", "بيونغيانغ", "كوريا الشمالية"],
+    ["Ulaanbaatar", "Mongolia", "أولان باتور", "منغوليا"], ["Taipei", "Taiwan", "تايبيه", "تايوان"],
+    ["Astana", "Kazakhstan", "أستانا", "كازاخستان"], ["Tashkent", "Uzbekistan", "طشقند", "أوزبكستان"],
+    ["Ashgabat", "Turkmenistan", "عشق آباد", "تركمانستان"], ["Dushanbe", "Tajikistan", "دوشنبه", "طاجيكستان"],
+    ["Bishkek", "Kyrgyzstan", "بيشكك", "قيرغيزستان"], ["Baku", "Azerbaijan", "باكو", "أذربيجان"],
+    ["Yerevan", "Armenia", "يريفان", "أرمينيا"], ["Tbilisi", "Georgia", "تبليسي", "جورجيا"],
+    ["Dublin", "Ireland", "دبلن", "أيرلندا"], ["Brussels", "Belgium", "بروكسل", "بلجيكا"],
+    ["Luxembourg City", "Luxembourg", "مدينة لوكسمبورغ", "لوكسمبورغ"], ["Lisbon", "Portugal", "لشبونة", "البرتغال"],
+    ["Nicosia", "Cyprus", "نيقوسيا", "قبرص"], ["Valletta", "Malta", "فاليتا", "مالطا"],
+    ["Stockholm", "Sweden", "ستوكهولم", "السويد"], ["Oslo", "Norway", "أوسلو", "النرويج"],
+    ["Copenhagen", "Denmark", "كوبنهاغن", "الدنمارك"], ["Helsinki", "Finland", "هلسنكي", "فنلندا"],
+    ["Reykjavik", "Iceland", "ريكيافيك", "آيسلندا"], ["Prague", "Czech Republic", "براغ", "التشيك"],
+    ["Bratislava", "Slovakia", "براتيسلافا", "سلوفاكيا"], ["Budapest", "Hungary", "بودابست", "المجر"],
+    ["Bucharest", "Romania", "بوخارست", "رومانيا"], ["Sofia", "Bulgaria", "صوفيا", "بلغاريا"],
+    ["Zagreb", "Croatia", "زغرب", "كرواتيا"], ["Belgrade", "Serbia", "بلغراد", "صربيا"],
+    ["Sarajevo", "Bosnia and Herzegovina", "سراييفو", "البوسنة والهرسك"], ["Skopje", "North Macedonia", "سكوبيه", "مقدونيا الشمالية"],
+    ["Tirana", "Albania", "تيرانا", "ألبانيا"], ["Ljubljana", "Slovenia", "ليوبليانا", "سلوفينيا"],
+    ["Podgorica", "Montenegro", "بودغوريتسا", "الجبل الأسود"], ["Pristina", "Kosovo", "بريشتينا", "كوسوفو"],
+    ["Chisinau", "Moldova", "كيشيناو", "مولدوفا"], ["Kyiv", "Ukraine", "كييف", "أوكرانيا"],
+    ["Minsk", "Belarus", "مينسك", "بيلاروسيا"], ["Tallinn", "Estonia", "تالين", "إستونيا"],
+    ["Riga", "Latvia", "ريغا", "لاتفيا"], ["Vilnius", "Lithuania", "فيلنيوس", "ليتوانيا"],
+    ["Santiago", "Chile", "سانتياغو", "تشيلي"], ["Bogotá", "Colombia", "بوغوتا", "كولومبيا"],
+    ["Lima", "Peru", "ليما", "بيرو"], ["Caracas", "Venezuela", "كراكاس", "فنزويلا"], ["Quito", "Ecuador", "كيتو", "الإكوادور"],
+    ["La Paz", "Bolivia", "لا باز", "بوليفيا"], ["Montevideo", "Uruguay", "مونتيفيديو", "أوروغواي"],
+    ["Asunción", "Paraguay", "أسونسيون", "باراغواي"], ["Panama City", "Panama", "مدينة بنما", "بنما"],
+    ["San José", "Costa Rica", "سان خوسيه", "كوستاريكا"], ["Havana", "Cuba", "هافانا", "كوبا"],
+    ["Santo Domingo", "Dominican Republic", "سانتو دومينغو", "جمهورية الدومينيكان"], ["Kingston", "Jamaica", "كينغستون", "جامايكا"],
+    ["Guatemala City", "Guatemala", "مدينة غواتيمالا", "غواتيمالا"], ["Tegucigalpa", "Honduras", "تيغوسيغالبا", "هندوراس"],
+    ["San Salvador", "El Salvador", "سان سلفادور", "السلفادور"], ["Managua", "Nicaragua", "ماناغوا", "نيكاراغوا"],
+    ["Dar es Salaam", "Tanzania", "دار السلام", "تنزانيا"], ["Abidjan", "Ivory Coast", "أبيدجان", "ساحل العاج"],
+    ["Yaoundé", "Cameroon", "ياوندي", "الكاميرون"], ["Lusaka", "Zambia", "لوساكا", "زامبيا"],
+    ["Harare", "Zimbabwe", "هراري", "زيمبابوي"], ["Kigali", "Rwanda", "كيغالي", "رواندا"],
+    ["Bamako", "Mali", "باماكو", "مالي"], ["Niamey", "Niger", "نيامي", "النيجر"], ["N'Djamena", "Chad", "إنجامينا", "تشاد"],
+    ["Luanda", "Angola", "لواندا", "أنغولا"], ["Maputo", "Mozambique", "مابوتو", "موزمبيق"],
+    ["Gaborone", "Botswana", "غابورون", "بوتسوانا"], ["Windhoek", "Namibia", "ويندهوك", "ناميبيا"],
+    ["Lilongwe", "Malawi", "ليلونغوي", "ملاوي"], ["Libreville", "Gabon", "ليبرفيل", "الغابون"],
+    ["Suva", "Fiji", "سوفا", "فيجي"], ["Port Moresby", "Papua New Guinea", "بورت مورسبي", "بابوا غينيا الجديدة"],
+    ["Andorra la Vella", "Andorra", "أندورا لا فيلا", "أندورا"], ["Vaduz", "Liechtenstein", "فادوز", "ليختنشتاين"],
+    ["Monaco", "Monaco", "موناكو", "موناكو"], ["San Marino", "San Marino", "سان مارينو", "سان مارينو"],
+    ["Vatican City", "Vatican City", "الفاتيكان", "الفاتيكان"],
+    ["Nassau", "Bahamas", "ناسو", "باهاماس"], ["Bridgetown", "Barbados", "بريدجتاون", "باربادوس"],
+    ["Belmopan", "Belize", "بلموبان", "بليز"], ["Saint John's", "Antigua and Barbuda", "سانت جونز", "أنتيغوا وباربودا"],
+    ["Roseau", "Dominica", "روزو", "دومينيكا"], ["Saint George's", "Grenada", "سانت جورجز", "غرينادا"],
+    ["Georgetown", "Guyana", "جورجتاون", "غيانا"], ["Port-au-Prince", "Haiti", "بورت أو برنس", "هايتي"],
+    ["Basseterre", "Saint Kitts and Nevis", "باستير", "سانت كيتس ونيفيس"], ["Castries", "Saint Lucia", "كاستريز", "سانت لوسيا"],
+    ["Kingstown", "Saint Vincent and the Grenadines", "كينغستاون", "سانت فينسنت والغرينادين"],
+    ["Paramaribo", "Suriname", "باراماريبو", "سورينام"], ["Port of Spain", "Trinidad and Tobago", "بورت أوف سبين", "ترينيداد وتوباغو"],
+    ["Cotonou", "Benin", "كوتونو", "بنين"], ["Ouagadougou", "Burkina Faso", "واغادوغو", "بوركينا فاسو"],
+    ["Bujumbura", "Burundi", "بوجمبورا", "بوروندي"], ["Praia", "Cabo Verde", "برايا", "الرأس الأخضر"],
+    ["Bangui", "Central African Republic", "بانغي", "جمهورية أفريقيا الوسطى"], ["Brazzaville", "Republic of the Congo", "برازافيل", "الكونغو"],
+    ["Kinshasa", "Democratic Republic of the Congo", "كينشاسا", "جمهورية الكونغو الديمقراطية"],
+    ["Malabo", "Equatorial Guinea", "مالابو", "غينيا الاستوائية"], ["Asmara", "Eritrea", "أسمرة", "إريتريا"],
+    ["Mbabane", "Eswatini", "مبابان", "إسواتيني"], ["Banjul", "Gambia", "بانجول", "غامبيا"],
+    ["Conakry", "Guinea", "كوناكري", "غينيا"], ["Bissau", "Guinea-Bissau", "بيساو", "غينيا بيساو"],
+    ["Maseru", "Lesotho", "ماسيرو", "ليسوتو"], ["Monrovia", "Liberia", "مونروفيا", "ليبيريا"],
+    ["Antananarivo", "Madagascar", "أنتاناناريفو", "مدغشقر"], ["Port Louis", "Mauritius", "بورت لويس", "موريشيوس"],
+    ["São Tomé", "Sao Tome and Principe", "ساو تومي", "ساو تومي وبرينسيبي"], ["Victoria", "Seychelles", "فيكتوريا", "سيشل"],
+    ["Freetown", "Sierra Leone", "فريتاون", "سيراليون"], ["Juba", "South Sudan", "جوبا", "جنوب السودان"],
+    ["Lomé", "Togo", "لومي", "توغو"], ["Tarawa", "Kiribati", "تاراوا", "كيريباتي"],
+    ["Majuro", "Marshall Islands", "ماجورو", "جزر مارشال"], ["Palikir", "Micronesia", "باليكير", "ميكرونيزيا"],
+    ["Yaren", "Nauru", "يارين", "ناورو"], ["Ngerulmud", "Palau", "نغيرولمود", "بالاو"],
+    ["Apia", "Samoa", "أبيا", "ساموا"], ["Honiara", "Solomon Islands", "هونيارا", "جزر سليمان"],
+    ["Nuku'alofa", "Tonga", "نوكوعالوفا", "تونغا"], ["Funafuti", "Tuvalu", "فونافوتي", "توفالو"],
+    ["Port Vila", "Vanuatu", "بورت فيلا", "فانواتو"],
     ["Remote / Work from home", "", "عن بُعد / من المنزل", ""],
   ];
 
@@ -561,6 +687,24 @@ var BP = window.BP = window.BP || {};
     ["Mali", "مالي"], ["Niger", "النيجر"], ["Chad", "تشاد"], ["Angola", "أنغولا"], ["Mozambique", "موزمبيق"],
     ["Botswana", "بوتسوانا"], ["Namibia", "ناميبيا"], ["Malawi", "ملاوي"], ["Gabon", "الغابون"],
     ["Australia", "أستراليا"], ["New Zealand", "نيوزيلندا"], ["Fiji", "فيجي"], ["Papua New Guinea", "بابوا غينيا الجديدة"],
+    // Remaining UN member/observer states not already covered above — added
+    // for full world coverage even though this field is free-typed anyway.
+    ["Andorra", "أندورا"], ["Liechtenstein", "ليختنشتاين"], ["Monaco", "موناكو"], ["San Marino", "سان مارينو"],
+    ["Vatican City", "الفاتيكان"],
+    ["Bahamas", "باهاماس"], ["Barbados", "باربادوس"], ["Belize", "بليز"], ["Antigua and Barbuda", "أنتيغوا وباربودا"],
+    ["Dominica", "دومينيكا"], ["Grenada", "غرينادا"], ["Guyana", "غيانا"], ["Haiti", "هايتي"], ["Saint Kitts and Nevis", "سانت كيتس ونيفيس"],
+    ["Saint Lucia", "سانت لوسيا"], ["Saint Vincent and the Grenadines", "سانت فينسنت والغرينادين"], ["Suriname", "سورينام"],
+    ["Trinidad and Tobago", "ترينيداد وتوباغو"],
+    ["Benin", "بنين"], ["Burkina Faso", "بوركينا فاسو"], ["Burundi", "بوروندي"], ["Cabo Verde", "الرأس الأخضر"],
+    ["Central African Republic", "جمهورية أفريقيا الوسطى"], ["Republic of the Congo", "الكونغو"],
+    ["Democratic Republic of the Congo", "جمهورية الكونغو الديمقراطية"], ["Equatorial Guinea", "غينيا الاستوائية"],
+    ["Eritrea", "إريتريا"], ["Eswatini", "إسواتيني"], ["Gambia", "غامبيا"], ["Guinea", "غينيا"], ["Guinea-Bissau", "غينيا بيساو"],
+    ["Lesotho", "ليسوتو"], ["Liberia", "ليبيريا"], ["Madagascar", "مدغشقر"], ["Mauritius", "موريشيوس"],
+    ["Sao Tome and Principe", "ساو تومي وبرينسيبي"], ["Seychelles", "سيشل"], ["Sierra Leone", "سيراليون"],
+    ["South Sudan", "جنوب السودان"], ["Togo", "توغو"],
+    ["Kiribati", "كيريباتي"], ["Marshall Islands", "جزر مارشال"], ["Micronesia", "ميكرونيزيا"], ["Nauru", "ناورو"],
+    ["Palau", "بالاو"], ["Samoa", "ساموا"], ["Solomon Islands", "جزر سليمان"], ["Tonga", "تونغا"], ["Tuvalu", "توفالو"],
+    ["Vanuatu", "فانواتو"],
     ["Other / not listed", "أخرى / غير مدرجة"],
   ];
 
@@ -746,12 +890,15 @@ var BP = window.BP = window.BP || {};
 
       function ok(ref) {
         var box = form.querySelector(".form-success");
+        // Only prompt to send the CV over WhatsApp when the form submission
+        // didn't actually include one — asking for it again after a
+        // successful upload is redundant and confusing.
         var hasCv = cvEl && cvEl.files && cvEl.files.length;
-        var waTxt = encodeURIComponent("تقديم مرشّح " + (ref || "") + "\nالاسم: " + name + "\nالجوال: " + phone + (hasCv ? "\n(أرفق السيرة الذاتية هنا)" : ""));
+        var waTxt = encodeURIComponent("تقديم مرشّح " + (ref || "") + "\nالاسم: " + name + "\nالجوال: " + phone + "\n(أرفق السيرة الذاتية هنا)");
         box.hidden = false;
         box.innerHTML = "✅ <strong>" + BP.t("You're in the candidate pool", "تم إضافتك لقاعدة المرشّحين") + (ref ? " — " + ref : "") + "</strong><br>" +
           BP.t("We'll reach out when a suitable role opens.", "سنتواصل معك عند توفّر فرصة مناسبة.") +
-          (hasCv ? "<br>" + BP.t("Send your CV file to us on WhatsApp to attach it to your profile:", "أرسل ملف سيرتك عبر واتساب لإرفاقه بملفك:") +
+          (!hasCv ? "<br>" + BP.t("Send your CV file to us on WhatsApp to attach it to your profile:", "أرسل ملف سيرتك عبر واتساب لإرفاقه بملفك:") +
             ' <a class="btn btn-wa" style="margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waTxt + '">' + BP.t("Send CV on WhatsApp", "أرسل السيرة عبر واتساب") + "</a>" : "");
         box.scrollIntoView({ behavior: "smooth", block: "center" });
       }
@@ -1597,62 +1744,227 @@ var BP = window.BP = window.BP || {};
   render();
 })();
 
-/* المستشار — advisor chatbot client */
+/* اسأل باهر — مكتب دعم موجّه:
+   ١) بيانات العميل أولاً (اسم/جوال/بريد إلزامي)،
+   ٢) اختيار الخدمة من نوافذ رئيسية (فئات الموقع) وفرعية (خدماتها) ← تذكرة دعم،
+   ٣) ومحادثة باهر الذكية متاحة بعد البيانات.
+   كل تذكرة/محادثة تُرسل للمالك (BP Inbox + CRM + إشعار واتساب/بريد). */
 (function () {
   "use strict";
   var fab = document.getElementById("advisor-fab");
   var panel = document.getElementById("advisor-panel");
   if (!fab || !panel) return;
-  var closeBtn = document.getElementById("advisor-close");
-  var msgs = document.getElementById("advisor-msgs");
-  var form = document.getElementById("advisor-form");
-  var input = document.getElementById("advisor-input");
-  var sendBtn = form.querySelector("button");
-  var history = []; // {role, content}
+  var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+  var isAr = function () { return !(window.BP && BP.lang === "en"); };
+  var $ = function (id) { return document.getElementById(id); };
+  var closeBtn = $("advisor-close"), backBtn = $("advisor-back"), statusEl = $("advisor-status");
+  var teaser = $("advisor-teaser"), teaserClose = $("advisor-teaser-close");
+  var msgs = $("advisor-msgs"), form = $("advisor-form"), input = $("advisor-input"), chips = $("advisor-chips");
+  var sendBtn = form ? form.querySelector("button[type=submit]") : null;
+  var MOBILE_RE = /^(?:\+?966|0)?5\d{8}$/;
+  var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  var CAT_ICON = { "Company Formation": "🏢", "Foreign Investment": "🌍", "Premium Residency": "🪪", "Government Relations": "🏛️", "HR Services": "👥", "Recruitment": "🧑‍💼", "Business Support": "📊", "Real Estate": "🏗️", "AI Automation": "🤖", "Tourism": "✈️" };
   var busy = false;
 
-  function open() { panel.hidden = false; fab.classList.add("hide"); setTimeout(function () { input.focus(); }, 50); }
-  function close() { panel.hidden = true; fab.classList.remove("hide"); }
-  fab.addEventListener("click", open);
-  closeBtn.addEventListener("click", close);
+  // ---- stable session id + saved contact (per tab) ----
+  var sid = ""; try { sid = sessionStorage.getItem("bp_adv_sid") || ""; } catch (e) {}
+  if (!sid) { sid = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); try { sessionStorage.setItem("bp_adv_sid", sid); } catch (e) {} }
+  var contact = null; try { contact = JSON.parse(sessionStorage.getItem("bp_adv_contact") || "null"); } catch (e) {}
+  function saveContact(c) { contact = c; try { sessionStorage.setItem("bp_adv_contact", JSON.stringify(c)); } catch (e) {} }
 
-  function addMsg(text, who) {
-    var el = document.createElement("div");
-    el.className = "advisor-msg " + who;
-    el.textContent = text;
-    msgs.appendChild(el);
-    msgs.scrollTop = msgs.scrollHeight;
-    return el;
+  // ---- chat history (per tab) ----
+  function loadHistory() { try { return JSON.parse(sessionStorage.getItem("bp_adv_history") || "[]"); } catch (e) { return []; } }
+  function saveHistory() { try { sessionStorage.setItem("bp_adv_history", JSON.stringify(history.slice(-40))); } catch (e) {} }
+  var history = loadHistory();
+
+  // ---- view manager ----
+  var VIEWS = ["advisor-intake", "advisor-home", "advisor-sub", "advisor-ticket", "advisor-chat"];
+  var current = "advisor-intake";
+  function show(view, canBack) {
+    current = view;
+    VIEWS.forEach(function (v) { var el = $(v); if (el) el.hidden = v !== view; });
+    if (backBtn) backBtn.hidden = !canBack;
+    if (statusEl) statusEl.textContent = view === "advisor-chat"
+      ? T("Your smart partner — online now", "شريكك الذكي — متصل الآن")
+      : T("Support desk", "مكتب الدعم");
+  }
+  function goHome() {
+    if (!contact) { show("advisor-intake", false); setTimeout(function () { var n = $("adv-in-name"); if (n) n.focus(); }, 50); return; }
+    var hello = $("advisor-hello");
+    if (hello) hello.textContent = "👋 " + T("Welcome, ", "أهلاً ") + (contact.name || "") + " — " + T("how can we help?", "كيف نقدر نساعدك؟");
+    show("advisor-home", false);
+    loadCatalog();
   }
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var text = input.value.trim();
-    if (!text || busy) return;
-    input.value = "";
-    addMsg(text, "me");
-    history.push({ role: "user", content: text });
-    busy = true; sendBtn.disabled = true;
-    var typing = addMsg("يكتب…", "bot typing");
+  // ---- catalog (9 main windows -> sub-services) ----
+  var catalog = null, catalogLoading = false;
+  function loadCatalog() {
+    var wrap = $("advisor-cats");
+    if (catalog) { renderCats(); return; }
+    if (catalogLoading) return;
+    catalogLoading = true;
+    fetch("/assets/data/catalog.json", { cache: "force-cache" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { catalog = d; catalogLoading = false; renderCats(); })
+      .catch(function () { catalogLoading = false; if (wrap) wrap.innerHTML = '<div class="adv-loading">' + T("Couldn't load services — use chat or WhatsApp.", "تعذّر تحميل الخدمات — استخدم المحادثة أو واتساب.") + "</div>"; });
+  }
+  function catName(c) { return isAr() ? c.nameAr : (c.nameEn || c.nameAr); }
+  function svcName(s) { return isAr() ? s.nameAr : (s.nameEn || s.nameAr); }
+  function renderCats() {
+    var wrap = $("advisor-cats"); if (!wrap || !catalog) return;
+    wrap.innerHTML = "";
+    (catalog.categories || []).forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "adv-cat";
+      b.innerHTML = '<span class="adv-cat-ico">' + (CAT_ICON[c.key] || "📁") + '</span><span class="adv-cat-nm">' + catName(c) + '</span><span class="adv-cat-n">' + (c.count || "") + "</span>";
+      b.addEventListener("click", function () { openCategory(c); });
+      wrap.appendChild(b);
+    });
+  }
+  function openCategory(c) {
+    var hd = $("advisor-sub-hd"); if (hd) hd.textContent = (CAT_ICON[c.key] || "📁") + " " + catName(c);
+    var list = $("advisor-svcs"); list.innerHTML = "";
+    (catalog.services || []).filter(function (s) { return s.category === c.key; }).forEach(function (s) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "adv-svc";
+      b.innerHTML = '<span class="adv-svc-nm">' + svcName(s) + '</span>' + (s.priceLabel ? '<span class="adv-svc-p">' + s.priceLabel + "</span>" : "");
+      b.addEventListener("click", function () { openTicket(c, s); });
+      list.appendChild(b);
+    });
+    var other = document.createElement("button");
+    other.type = "button"; other.className = "adv-svc adv-svc-other";
+    other.innerHTML = '<span class="adv-svc-nm">🎫 ' + T("Other / general request in this area", "أخرى / طلب عام في هذا المجال") + "</span>";
+    other.addEventListener("click", function () { openTicket(c, { code: "", nameAr: "طلب عام — " + c.nameAr, nameEn: "General — " + (c.nameEn || c.nameAr) }); });
+    list.appendChild(other);
+    show("advisor-sub", true);
+  }
+  var pendingService = null, pendingCat = null;
+  function openTicket(c, s) {
+    pendingCat = c; pendingService = s;
+    var hd = $("advisor-ticket-hd");
+    if (hd) hd.innerHTML = "🎫 " + T("Support ticket for:", "تذكرة دعم لـ:") + ' <strong>' + svcName(s) + "</strong>";
+    var note = $("advisor-ticket-note"); if (note) note.value = "";
+    var done = $("advisor-ticket-done"); if (done) { done.hidden = true; done.innerHTML = ""; }
+    var go = $("advisor-ticket-go"); if (go) { go.hidden = false; go.disabled = false; go.textContent = "🎫 " + T("Open a support ticket", "افتح تذكرة دعم"); }
+    show("advisor-ticket", true);
+  }
 
-    fetch("/api/chat", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ messages: history }),
-    })
+  // ---- create support ticket ----
+  function createTicket() {
+    if (!contact) { goHome(); return; }
+    var go = $("advisor-ticket-go"), done = $("advisor-ticket-done");
+    var note = ($("advisor-ticket-note") || {}).value || "";
+    go.disabled = true; go.textContent = T("Opening…", "جارٍ الفتح…");
+    var svc = pendingService || {}, cat = pendingCat || {};
+    fetch("/api/requests", {
+      method: "POST", headers: { "content-type": "application/json" }, keepalive: true,
+      body: JSON.stringify({
+        type: "support-ticket", sid: sid, contact: contact,
+        service: { code: svc.code || "", nameAr: svc.nameAr || "", nameEn: svc.nameEn || "", category: (cat.key || ""), categoryAr: (cat.nameAr || "") },
+        note: note.slice(0, 1200),
+      }),
+    }).then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (d) {
+        go.hidden = true;
+        done.hidden = false;
+        var ref = (d && d.ref) || "";
+        done.innerHTML = "✅ <strong>" + T("Your support ticket is open", "تم فتح تذكرة الدعم") + (ref ? " — " + ref : "") + "</strong><br>" +
+          T("Our team will contact you shortly on your number/email. You can also reach us on WhatsApp.", "سيتواصل معك فريقنا قريباً على رقمك/بريدك. وتقدر تتواصل معنا على واتساب.") +
+          '<div class="adv-ticket-acts"><button type="button" class="adv-primary" id="adv-ticket-more">' + T("New request", "طلب جديد") + '</button>' +
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966507034157">' + T("WhatsApp", "واتساب") + "</a></div>";
+        var more = $("adv-ticket-more"); if (more) more.addEventListener("click", goHome);
+      }).catch(function () {
+        go.disabled = false; go.textContent = "🎫 " + T("Open a support ticket", "افتح تذكرة دعم");
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't open the ticket — try WhatsApp.", "تعذّر فتح التذكرة — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966507034157">' + T("WhatsApp", "واتساب") + "</a>";
+      });
+  }
+
+  // ---- intake ----
+  function submitIntake() {
+    var name = (($("adv-in-name") || {}).value || "").trim();
+    var phone = (($("adv-in-phone") || {}).value || "").trim();
+    var email = (($("adv-in-email") || {}).value || "").trim();
+    var err = $("adv-intake-err");
+    function fail(m) { if (err) { err.hidden = false; err.textContent = m; } }
+    if (!name) return fail(T("Please enter your name.", "الرجاء إدخال اسمك."));
+    if (!MOBILE_RE.test(phone.replace(/\s/g, ""))) return fail(T("Enter a valid Saudi mobile (05XXXXXXXX).", "أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX)."));
+    if (!EMAIL_RE.test(email)) return fail(T("Enter a valid email.", "أدخل بريداً صحيحاً."));
+    if (err) err.hidden = true;
+    saveContact({ name: name, phone: phone, email: email });
+    goHome();
+  }
+
+  // ---- chat (available after intake) ----
+  function addMsg(text, who) {
+    var el = document.createElement("div"); el.className = "advisor-msg " + who; el.textContent = text;
+    msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight; return el;
+  }
+  var historyReplayed = false;
+  function openChat() {
+    show("advisor-chat", true);
+    if (!historyReplayed) {
+      history.forEach(function (m) { addMsg(m.content, m.role === "user" ? "me" : "bot"); });
+      if (chips && history.length) chips.hidden = true;
+      historyReplayed = true;
+    }
+    setTimeout(function () { if (input) input.focus(); }, 50);
+  }
+  function syncConversation() {
+    if (!history.length) return;
+    try {
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" }, keepalive: true,
+        body: JSON.stringify({ type: "advisor-chat", sid: sid, messages: history.slice(-24), notify: false, contact: contact || null }),
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  function send(text) {
+    text = (text || "").trim();
+    if (!text || busy) return;
+    addMsg(text, "me"); history.push({ role: "user", content: text }); saveHistory();
+    if (chips) chips.hidden = true;
+    busy = true; if (sendBtn) sendBtn.disabled = true;
+    var typing = addMsg(T("Typing…", "يكتب…"), "bot typing");
+    fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: history }) })
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (data) {
         typing.remove();
-        var reply = (data && data.reply) || "تعذّر الرد الآن. تواصل معنا على واتساب وبنساعدك فوراً.";
-        addMsg(reply, "bot");
-        history.push({ role: "assistant", content: reply });
+        var reply = (data && data.reply) || T("Couldn't reply right now. Message us on WhatsApp and we'll help immediately.", "تعذّر الرد الآن. تواصل معنا على واتساب وبنساعدك فوراً.");
+        addMsg(reply, "bot"); history.push({ role: "assistant", content: reply }); saveHistory();
+        syncConversation();
       })
-      .catch(function () {
-        typing.remove();
-        addMsg("المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً.", "bot");
-      })
-      .finally(function () { busy = false; sendBtn.disabled = false; input.focus(); });
+      .catch(function () { typing.remove(); addMsg(T("The advisor runs on the published site. Message us on WhatsApp and we'll help immediately.", "المستشار يعمل على النسخة المنشورة من الموقع. تواصل معنا على واتساب وبنساعدك فوراً."), "bot"); })
+      .finally(function () { busy = false; if (sendBtn) sendBtn.disabled = false; if (input) input.focus(); });
+  }
+
+  // ---- open/close + back + teaser ----
+  function open() { panel.hidden = false; fab.classList.add("hide"); hideTeaser(); goHome(); }
+  function close() { panel.hidden = true; fab.classList.remove("hide"); }
+  function back() {
+    if (current === "advisor-sub" || current === "advisor-chat") goHome();
+    else if (current === "advisor-ticket") { if (pendingCat) openCategory(pendingCat); else goHome(); }
+    else goHome();
+  }
+  fab.addEventListener("click", open);
+  closeBtn.addEventListener("click", close);
+  if (backBtn) backBtn.addEventListener("click", back);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !panel.hidden) close(); });
+
+  function hideTeaser() { if (!teaser) return; teaser.hidden = true; try { sessionStorage.setItem("bp_teaser_seen", "1"); } catch (e) {} }
+  var teaserSeen = false; try { teaserSeen = !!sessionStorage.getItem("bp_teaser_seen"); } catch (e) {}
+  if (teaser && !teaserSeen) setTimeout(function () { if (panel.hidden) teaser.hidden = false; }, 4000);
+  if (teaser) teaser.addEventListener("click", function (e) { if (e.target === teaserClose) return; open(); });
+  if (teaserClose) teaserClose.addEventListener("click", function (e) { e.stopPropagation(); hideTeaser(); });
+
+  // ---- wire controls ----
+  var intakeGo = $("advisor-intake-go"); if (intakeGo) intakeGo.addEventListener("click", submitIntake);
+  ["adv-in-name", "adv-in-phone", "adv-in-email"].forEach(function (id) {
+    var el = $(id); if (el) el.addEventListener("keydown", function (e) { if (e.key === "Enter") submitIntake(); });
   });
+  var chatOpen = $("advisor-chat-open"); if (chatOpen) chatOpen.addEventListener("click", openChat);
+  var ticketGo = $("advisor-ticket-go"); if (ticketGo) ticketGo.addEventListener("click", createTicket);
+  if (form) form.addEventListener("submit", function (e) { e.preventDefault(); var v = input.value; input.value = ""; send(v); });
+  if (chips) chips.addEventListener("click", function (e) { var btn = e.target.closest(".advisor-chip"); if (btn) send(btn.getAttribute("data-q") || btn.textContent); });
 })();
 
 /* ---------- Grouped nav dropdowns (Business Partner 3.0) ---------- */
@@ -2677,7 +2989,9 @@ var BP_EMP_BILLING = "monthly";
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var name = val("inst-name"), phone = val("inst-phone"), email = val("inst-email"), service = val("inst-service");
+      var company = val("inst-company"), cr = val("inst-cr");
       var amount = Number(val("inst-amount")), months = Number(val("inst-months")) || 6, channel = val("inst-channel") || "any";
+      if (!company) { alert(T("This service is for establishments — enter your establishment name.", "هذه الخدمة للمنشآت — أدخل اسم منشأتك.")); return; }
       if (!name || !service) { alert(T("Fill in your name and the service to split.", "عبّئ اسمك والخدمة المراد تقسيطها.")); return; }
       if (!/^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, ""))) { alert(T("Enter a valid Saudi mobile (05XXXXXXXX).", "أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX).")); return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert(T("Enter a valid email.", "أدخل بريداً صحيحاً.")); return; }
@@ -2688,7 +3002,7 @@ var BP_EMP_BILLING = "monthly";
       var waMsg = encodeURIComponent(T("Instalment request ", "طلب تقسيط ") + ref + "\n" + service + " — " + amount + " ﷼ / " + months + " " + T("months", "أشهر"));
       fetch("/api/requests", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ type: "installment", ref: ref, name: name, phone: phone, email: email, service: service, amount: amount, months: months, channel: channel }),
+        body: JSON.stringify({ type: "installment", ref: ref, name: name, company: company, cr: cr, phone: phone, email: email, service: service, amount: amount, months: months, channel: channel }),
       }).then(function (r) { return r.json(); }).then(function (d) {
         btn.disabled = false; btn.textContent = lbl;
         var box = document.getElementById("inst-success");
@@ -3598,74 +3912,12 @@ var BP_EMP_BILLING = "monthly";
         '<button class="empd-ai-btn" data-ai="interview" data-id="' + esc(id) + '">❓ ' + T("Interview Qs", "أسئلة مقابلة") + '</button>' +
         '<button class="empd-ai-btn" data-ai="outreach" data-id="' + esc(id) + '">✉️ ' + T("Outreach", "رسالة تواصل") + '</button></div>';
     }
-    // A Google Doc "edit" link opens the viewer; export?format=pdf triggers a
-    // one-click file download instead — used for the ATS-formatted CV.
-    function cvDownloadUrl(url) {
-      var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
-      return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
-    }
-    // Minimal markdown → HTML for the AI-generated CV text (headings, bold,
-    // bullet lists) — just enough to render it as formatted content on the
-    // page instead of a wall of raw markdown syntax.
-    function mdToHtml(md) {
-      var lines = String(md || "").replace(/\r/g, "").split("\n");
-      var html = "", inList = false;
-      function closeList() { if (inList) { html += "</ul>"; inList = false; } }
-      function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
-      lines.forEach(function (line) {
-        var t = line.trim();
-        if (!t) { closeList(); return; }
-        var h = /^(#{1,3})\s+(.*)/.exec(t);
-        if (h) { closeList(); html += "<h" + (h[1].length + 2) + ">" + inline(h[2]) + "</h" + (h[1].length + 2) + ">"; return; }
-        var li = /^[-*]\s+(.*)/.exec(t);
-        if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(li[1]) + "</li>"; return; }
-        closeList();
-        html += "<p>" + inline(t) + "</p>";
-      });
-      closeList();
-      return html;
-    }
-    // Full structured profile — every field the API returned, laid out as
-    // readable data (not a raw file), plus the actual CV text rendered as
-    // formatted content on the page. Contact fields, CV text and the
-    // download button only appear when the API actually included them, i.e.
-    // the employer is subscribed/unlocked — never rendered to a locked/
-    // browsing visitor.
-    function profileHtml(c) {
-      var rows = [
-        [T("Name", "الاسم"), c.name ? (esc(c.name) + (c.nameAlt ? " (" + esc(c.nameAlt) + ")" : "")) : ""],
-        [T("Target role", "المسمى المستهدف"), c.role],
-        [T("Field", "المجال"), c.field],
-        [T("City", "المدينة"), c.city],
-        [T("Country", "الدولة"), c.country],
-        [T("Nationality", "الجنسية"), c.nationalityType],
-        [T("Residence status", "حالة الإقامة"), c.residenceStatus],
-        [T("Experience", "الخبرة"), c.experience ? (c.experience + (isAr ? " سنة" : "y")) : ""],
-        [T("Education", "التعليم"), c.education],
-        [T("Availability", "الجاهزية"), c.availability],
-        [T("Languages", "اللغات"), c.languages],
-        [T("Skills", "المهارات"), c.skills],
-        [T("Saudization", "التوطين"), c.saudization],
-        [T("Phone", "الجوال"), c.phone ? ('<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>") : ""],
-        [T("Email", "البريد"), c.email ? ('<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>") : ""],
-      ].filter(function (r) { return r[1]; });
-      var html = '<div class="empd-profile">' + rows.map(function (r) {
-        return '<div class="empd-profile-row"><span class="empd-profile-k">' + esc(r[0]) + '</span><span class="empd-profile-v">' + r[1] + "</span></div>";
-      }).join("") + "</div>";
-      if (c.cvText) {
-        html += '<h3 style="margin-top:18px">' + T("CV", "السيرة الذاتية") + '</h3><div class="empd-cv-text">' + mdToHtml(c.cvText) + "</div>";
-      }
-      if (c.cv) {
-        html += '<a class="btn btn-primary" style="margin-top:14px;display:inline-block" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
-          (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
-      } else {
-        html += '<p class="emp-note" style="margin-top:14px">🔒 ' + T("Subscribe to view contact details, read the full CV and download it.", "اشترك لعرض بيانات التواصل وقراءة السيرة الذاتية كاملة وتحميلها.") + "</p>";
-      }
-      return html;
-    }
     function viewProfile(id) {
-      var c = findC(id); if (!c) return;
-      openModal(T("Candidate profile", "الملف الشخصي للمرشح"), profileHtml(c));
+      // A dedicated page (not a modal) — organized like a real profile
+      // (header, badges, skills, full CV), and shareable/bookmarkable via
+      // its own URL. It re-fetches fresh from the API rather than reusing
+      // the in-memory card data, so it works even opened directly.
+      location.href = "/candidate-profile?id=" + encodeURIComponent(id) + (CODE ? "&code=" + encodeURIComponent(CODE) : "");
     }
     function card(c, opts) {
       opts = opts || {};
@@ -3702,6 +3954,13 @@ var BP_EMP_BILLING = "monthly";
           if (pipe[id] === st) delete pipe[id]; else { pipe[id] = st; if (c && !inShort(id)) { short.push(c); writeLS("bp_shortlist", short); renderCounts(); } }
           writeLS("bp_pipeline", pipe);
           b.parentNode.querySelectorAll(".empd-stage-btn").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-stage") === pipe[id]); });
+          // Persist the stage (and, the first time, the interview/hired date)
+          // to Notion so it's tracked internally — this used to live only in
+          // this browser's localStorage with no record of when it happened.
+          if (pipe[id]) {
+            fetch("/api/candidates", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "update-stage", code: CODE, id: id, stage: pipe[id] }) })
+              .catch(function () {});
+          }
         });
       });
       scope.querySelectorAll(".empd-rm").forEach(function (b) { b.addEventListener("click", function () { var id = b.getAttribute("data-id"); short = short.filter(function (x) { return x.id !== id; }); writeLS("bp_shortlist", short); renderCounts(); renderShort(); }); });
@@ -3765,6 +4024,31 @@ var BP_EMP_BILLING = "monthly";
     if (window.BP && BP.initCombobox && titleEl && cityEl) {
       BP.initCombobox(titleEl, function () { return BP.jobTitleOptions(isAr ? "ar" : "en"); });
       BP.initCombobox(cityEl, function () { return BP.cityOptions(isAr ? "ar" : "en"); });
+    }
+    var aiWriteBtn = document.getElementById("empjob-ai-write");
+    if (aiWriteBtn) {
+      aiWriteBtn.addEventListener("click", function () {
+        var title = titleEl ? titleEl.value.trim() : "";
+        if (!title) { alert(T("Enter a job title first.", "اكتب المسمى الوظيفي أولاً.")); return; }
+        var descEl = document.getElementById("empjob-desc");
+        var fieldEl = document.getElementById("empjob-field");
+        var label = aiWriteBtn.textContent;
+        aiWriteBtn.disabled = true; aiWriteBtn.textContent = "✨ " + T("Writing…", "جارٍ الكتابة…");
+        fetch("/api/hire", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ task: "jobdesc", title: title, field: fieldEl ? fieldEl.value : "", city: cityEl ? cityEl.value.trim() : "" }),
+        }).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+          .then(function (res) {
+            aiWriteBtn.disabled = false; aiWriteBtn.textContent = label;
+            if (res.s === 503) { alert(T("AI isn't enabled yet.", "الذكاء غير مفعّل بعد.")); return; }
+            if (!res.d || !res.d.ok || !res.d.result) { alert(T("Couldn't generate. Try again.", "تعذّر التوليد. حاول مجدداً.")); return; }
+            descEl.value = res.d.result;
+          })
+          .catch(function () {
+            aiWriteBtn.disabled = false; aiWriteBtn.textContent = label;
+            alert(T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."));
+          });
+      });
     }
     var POSTINGS = [];
     function loadPostings() {
@@ -3868,6 +4152,143 @@ var BP_EMP_BILLING = "monthly";
           document.getElementById("empd-modal-body").innerHTML = html;
         })
         .catch(function () { document.getElementById("empd-modal-body").innerHTML = "<p>" + T("Network error.", "خطأ في الاتصال.") + "</p>"; });
+    }
+  });
+})();
+
+/* ---------- Dedicated candidate profile page (/candidate-profile) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var app = document.getElementById("cp-app");
+    if (!app) return;
+    var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
+    function T(en, ar) { return isAr ? ar : en; }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function cvDownloadUrl(url) {
+      var m = /docs\.google\.com\/document\/d\/([^/]+)/.exec(url || "");
+      return m ? ("https://docs.google.com/document/d/" + m[1] + "/export?format=pdf") : url;
+    }
+    function mdToHtml(md) {
+      var lines = String(md || "").replace(/\r/g, "").split("\n");
+      var html = "", inList = false;
+      function closeList() { if (inList) { html += "</ul>"; inList = false; } }
+      function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+      lines.forEach(function (line) {
+        var t = line.trim();
+        if (!t) { closeList(); return; }
+        var h = /^(#{1,3})\s+(.*)/.exec(t);
+        if (h) { closeList(); html += "<h" + (h[1].length + 2) + ">" + inline(h[2]) + "</h" + (h[1].length + 2) + ">"; return; }
+        var li = /^[-*]\s+(.*)/.exec(t);
+        if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(li[1]) + "</li>"; return; }
+        closeList();
+        html += "<p>" + inline(t) + "</p>";
+      });
+      closeList();
+      return html;
+    }
+    function readLS(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
+    function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+    var params = new URLSearchParams(location.search);
+    var id = params.get("id");
+    var CODE = params.get("code") || (function () { try { return localStorage.getItem("bp_emp_code") || ""; } catch (e) { return ""; } })();
+    var status = document.getElementById("cp-status");
+    if (!id) { status.textContent = T("No candidate specified.", "لم يتم تحديد مرشّح."); return; }
+
+    var STAGES = [
+      ["new", T("New", "مرشّح جديد")], ["screening", T("Screening", "الفرز")], ["interview", T("Interview", "المقابلة")],
+      ["offer", T("Offer", "العرض الوظيفي")], ["hired", T("Hired", "تم التوظيف")],
+    ];
+    var REJECTED = ["rejected", T("Rejected", "مرفوض")];
+
+    fetch("/api/candidates?id=" + encodeURIComponent(id) + (CODE ? "&code=" + encodeURIComponent(CODE) : ""))
+      .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.s === 404) { app.innerHTML = "<p class='emp-note' style='text-align:center;padding:60px 0'>" + T("Candidate not found.", "المرشّح غير موجود.") + "</p>"; return; }
+        if (!res.d || !res.d.ok) { app.innerHTML = "<p class='emp-note' style='text-align:center;padding:60px 0'>" + T("Couldn't load this profile. Try again.", "تعذّر تحميل الملف. حاول مجدداً.") + "</p>"; return; }
+        render(res.d.candidate, res.d.unlocked);
+      })
+      .catch(function () { app.innerHTML = "<p class='emp-note' style='text-align:center;padding:60px 0'>" + T("Network error.", "خطأ في الاتصال.") + "</p>"; });
+
+    function badge(label) { return label ? '<span class="cp-badge">' + esc(label) + "</span>" : ""; }
+
+    function render(c, unlocked) {
+      var pipe = readLS("bp_pipeline", {});
+      var short = readLS("bp_shortlist", []);
+      var inShort = short.some(function (x) { return x.id === c.id; });
+
+      var badges = [
+        c.field, [c.city, c.country].filter(Boolean).join(", "), c.nationalityType,
+        c.experience ? (c.experience + (isAr ? " سنة خبرة" : "y experience")) : "", c.education, c.availability, c.saudization,
+      ].filter(Boolean).map(badge).join("");
+
+      var skillsHtml = "";
+      if (c.skills) {
+        skillsHtml = '<div class="cp-section"><h3>' + T("Skills", "المهارات") + '</h3><div class="cp-skills">' +
+          c.skills.split(/[,،]/).map(function (s) { return s.trim(); }).filter(Boolean).map(function (s) { return '<span class="cp-skill-tag">' + esc(s) + "</span>"; }).join("") +
+          "</div></div>";
+      }
+
+      var contactHtml = "";
+      if (unlocked && (c.phone || c.email)) {
+        contactHtml = '<div class="cp-section"><h3>' + T("Contact", "التواصل") + '</h3><div class="cp-contact-row">' +
+          (c.phone ? '<a class="btn btn-ghost btn-sm" href="tel:' + esc(c.phone) + '">📞 ' + esc(c.phone) + "</a>" : "") +
+          (c.email ? '<a class="btn btn-ghost btn-sm" href="mailto:' + esc(c.email) + '">✉️ ' + esc(c.email) + "</a>" : "") +
+          "</div></div>";
+      }
+
+      var cvHtml = "";
+      if (unlocked && c.cvText) {
+        cvHtml = '<div class="cp-section"><h3>' + T("Full CV", "السيرة الذاتية الكاملة") + '</h3><div class="cp-cv-text">' + mdToHtml(c.cvText) + "</div></div>";
+      }
+      var downloadHtml = "";
+      if (unlocked && c.cv) {
+        downloadHtml = '<a class="btn btn-primary btn-sm" href="' + esc(cvDownloadUrl(c.cv)) + '" target="_blank" rel="noopener" download>⬇️ ' +
+          (c.cvKind === "ats" ? T("Download CV (ATS-formatted)", "تحميل السيرة الذاتية (منسّقة ATS)") : T("Download CV (original)", "تحميل السيرة الذاتية (الأصلية)")) + "</a>";
+      }
+      var lockedNote = !unlocked ? '<p class="emp-note" style="margin-top:10px">🔒 ' + T("Subscribe to view contact details and the full CV.", "اشترك لعرض بيانات التواصل والسيرة الذاتية كاملة.") + "</p>" : "";
+
+      var stageLin = STAGES.map(function (s) { return '<button data-stage="' + s[0] + '" class="empd-stage-btn' + (pipe[c.id] === s[0] ? " on" : "") + '">' + esc(s[1]) + "</button>"; }).join("");
+      var stageRej = '<button data-stage="' + REJECTED[0] + '" class="empd-stage-btn empd-stage-reject' + (pipe[c.id] === REJECTED[0] ? " on" : "") + '">✕ ' + esc(REJECTED[1]) + "</button>";
+
+      app.innerHTML =
+        '<div class="cp-header">' +
+          '<h1 class="cp-name">' + esc(c.name || "—") + (c.nameAlt ? ' <span class="cp-name-alt">(' + esc(c.nameAlt) + ")</span>" : "") + "</h1>" +
+          (c.role ? '<p class="cp-role">' + esc(c.role) + "</p>" : "") +
+          '<div class="cp-badges">' + badges + "</div>" +
+          lockedNote +
+          '<div class="cp-actions"><button class="empd-save' + (inShort ? " on" : "") + '" id="cp-save">' + (inShort ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Save to shortlist", "أضف للمفضّلة")) + "</button>" + downloadHtml + "</div>" +
+          '<div class="empd-stages">' + stageLin + stageRej + "</div>" +
+        "</div>" +
+        skillsHtml + contactHtml + cvHtml;
+
+      var saveBtn = document.getElementById("cp-save");
+      saveBtn.addEventListener("click", function () {
+        var list = readLS("bp_shortlist", []);
+        var has = list.some(function (x) { return x.id === c.id; });
+        if (has) list = list.filter(function (x) { return x.id !== c.id; }); else list.push(c);
+        writeLS("bp_shortlist", list);
+        saveBtn.classList.toggle("on", !has);
+        saveBtn.innerHTML = has ? "☆ " + T("Save to shortlist", "أضف للمفضّلة") : "★ " + T("Saved", "محفوظ");
+      });
+
+      app.querySelectorAll(".empd-stage-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var st = b.getAttribute("data-stage");
+          var pipeNow = readLS("bp_pipeline", {});
+          if (pipeNow[c.id] === st) delete pipeNow[c.id]; else {
+            pipeNow[c.id] = st;
+            var listNow = readLS("bp_shortlist", []);
+            if (!listNow.some(function (x) { return x.id === c.id; })) { listNow.push(c); writeLS("bp_shortlist", listNow); }
+          }
+          writeLS("bp_pipeline", pipeNow);
+          app.querySelectorAll(".empd-stage-btn").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-stage") === pipeNow[c.id]); });
+          if (pipeNow[c.id]) {
+            fetch("/api/candidates", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "update-stage", code: CODE, id: c.id, stage: pipeNow[c.id] }) }).catch(function () {});
+          }
+        });
+      });
     }
   });
 })();
