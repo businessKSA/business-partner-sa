@@ -786,6 +786,10 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .guide-nav a:hover { color: var(--navy); border-color: var(--navy); }
 .guide-nav a.active { background: var(--navy); color: #fff; border-color: var(--navy); }
 .section[id] { scroll-margin-top: calc(var(--header-h) + 64px); }
+.guide-xlink { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  font-weight: 600; color: var(--navy); }
+.guide-xlink svg { flex: 0 0 auto; }
+.guide-xlink:hover { border-color: var(--navy); }
 
 /* ============ Consultation booking ============ */
 .booking-wrap { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }

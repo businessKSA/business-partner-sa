@@ -5112,6 +5112,38 @@ function guideNav(items) {
   return `<nav class="guide-nav" aria-label="${Lraw("On this page", "في هذه الصفحة")}"><div class="container guide-nav-inner">${links}</div></nav>`;
 }
 
+// Related Business Partner service categories for a guide page. `cats` are
+// category keys from data/categories.json — we link to each category's page so
+// the guide's government-platform mentions map to services we actually offer.
+function guideRelated(cats) {
+  const cards = cats.map((key) => `<a class="card svc-card" href="${catUrl(key)}">
+    <h3>${L(catEn(key), catAr(key))}</h3>
+    <span class="card-link">${L("Explore services", "استعرض الخدمات")} ${I.arrow}</span></a>`).join("");
+  return `<section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How we help", "كيف نساعدك")}</span><h2>${L("Business Partner services for this stage", "خدمات بزنس بارتنر لهذه المرحلة")}</h2><p>${L("We handle the government platforms and paperwork above — end to end.", "نتولّى المنصات الحكومية والإجراءات المذكورة أعلاه — من البداية للنهاية.")}</p></div>
+    <div class="grid grid-3" style="max-width:980px;margin:0 auto">${cards}</div>
+  </div></section>`;
+}
+
+// Cross-links between the Saudi-guide pages (and /saudi-arabia) so every guide
+// points to its siblings.
+const GUIDE_PAGES = [
+  ["/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية"],
+  ["/guide/saudi-market", "The Saudi Market", "السوق السعودي"],
+  ["/guide/business-setup", "Business Setup", "تأسيس الأعمال"],
+  ["/guide/run-your-business", "Run Your Business", "تشغيل عملك"],
+  ["/guide/live-in-saudi", "Live in Saudi", "الحياة في السعودية"],
+  ["/guide/residency", "Residency in KSA", "الإقامة في السعودية"],
+];
+function guideCrossLinks(currentPath) {
+  const links = GUIDE_PAGES.filter(([p]) => p !== currentPath).map(([p, en, ar]) =>
+    `<a class="card guide-xlink" href="${u(p)}"><span>${L(en, ar)}</span>${I.arrow}</a>`).join("");
+  return `<section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Saudi Guide", "دليل السعودية")}</span><h2>${L("Continue exploring the guide", "تابع استكشاف الدليل")}</h2></div>
+    <div class="grid grid-3" style="max-width:980px;margin:0 auto">${links}</div>
+  </div></section>`;
+}
+
 function buildGuideSaudiMarket() {
   const body =
     guideHero({
@@ -5172,7 +5204,7 @@ function buildGuideSaudiMarket() {
         ["Gender-mixing restrictions in workplaces have relaxed considerably since 2017; 2024/2025 Labor Law amendments explicitly prohibit gender-based employment discrimination.", "قيود اختلاط الجنسين في أماكن العمل تراجعت بشكل ملحوظ منذ 2017؛ وتعديلات نظام العمل 2024/2025 تحظر صراحة التمييز الوظيفي القائم على الجنس."],
         ["Arabic is the official language and legally required in contracts and commercial dealings; English is very widely used in business settings.", "العربية هي اللغة الرسمية ومطلوبة نظاماً في العقود والتعاملات التجارية؛ والإنجليزية مستخدمة بشكل واسع جداً في بيئة الأعمال."],
       ],
-    }) + guideDisclaimer();
+    }) + guideRelated(["Foreign Investment", "Company Formation"]) + guideCrossLinks("/guide/saudi-market") + guideDisclaimer();
   return page({ title: Lraw("The Saudi Market — Business Partner", "السوق السعودي — بيزنس بارتنر"), desc: Lraw("The Saudi economy, Vision 2030 giga-projects, and business culture — sourced guide for foreign investors.", "الاقتصاد السعودي ومشاريع رؤية 2030 العملاقة وثقافة الأعمال — دليل موثق للمستثمرين الأجانب."), active: "/guide/saudi-market", path: "/guide/saudi-market", body });
 }
 
@@ -5271,7 +5303,7 @@ function buildGuideBusinessSetup() {
         ["The Saudi Business Center offers a public \"Assisted Inquiry\" e-service to search for the correct activity/code before or during CR registration.", "يوفّر المركز السعودي للأعمال خدمة \"الاستعلام المساعد\" الإلكترونية للبحث عن النشاط أو الرمز الصحيح قبل أو أثناء تسجيل السجل التجاري."],
         ["Foreign-ownership eligibility per activity is checked separately, against MISA's list of restricted/excluded activities — not shown inline in the activity lookup itself.", "أهلية التملك الأجنبي لكل نشاط تُفحص بشكل منفصل، وفق قائمة وزارة الاستثمار للأنشطة المقيّدة أو المستثناة — ولا تظهر ضمن أداة البحث عن النشاط نفسها."],
       ],
-    }) + guideDisclaimer();
+    }) + guideRelated(["Company Formation", "Foreign Investment", "Premium Residency"]) + guideCrossLinks("/guide/business-setup") + guideDisclaimer();
   return page({ title: Lraw("Business Setup in Saudi Arabia — Business Partner", "تأسيس الأعمال في السعودية — بيزنس بارتنر"), desc: Lraw("The real company-setup process, all 8 MISA license types, Special Economic Zones and the RHQ program.", "خطوات التأسيس الفعلية، وأنواع التراخيص الثمانية، والمناطق الاقتصادية الخاصة وبرنامج المقر الإقليمي."), active: "/guide/business-setup", path: "/guide/business-setup", body });
 }
 
@@ -5346,7 +5378,7 @@ function buildGuideRunBusiness() {
         ["Also covers labor-office liaison, business/commercial licensing renewals, and acting as the daily point of contact with HRSD/MOI/municipal authorities.", "تشمل أيضاً التواصل مع مكتب العمل، وتجديد التراخيص التجارية، والعمل كجهة اتصال يومية مع وزارة الموارد البشرية والداخلية والجهات البلدية."],
         ["Commonly reported reference fees: Iqama renewal ~SAR 650/year; dependent levy ~SAR 400/month per dependent — both should be confirmed at time of transaction, as government fee schedules change.", "رسوم مرجعية مُبلّغ عنها: تجديد الإقامة نحو 650 ريال سنوياً؛ رسوم المرافقين نحو 400 ريال شهرياً لكل مرافق — يجب التأكد منها وقت المعاملة لأن الجداول الحكومية للرسوم تتغيّر."],
       ],
-    }) + guideDisclaimer();
+    }) + guideRelated(["Government Relations", "HR Services", "Recruitment"]) + guideCrossLinks("/guide/run-your-business") + guideDisclaimer();
   return page({ title: Lraw("Run Your Business in Saudi Arabia — Business Partner", "تشغيل عملك في السعودية — بيزنس بارتنر"), desc: Lraw("Government portals, corporate tax rates, Saudization rules and PRO/GRO services — a sourced operating guide.", "البوابات الحكومية ومعدلات الضرائب المؤسسية وأنظمة السعودة وخدمات العلاقات الحكومية — دليل تشغيلي موثق."), active: "/guide/run-your-business", path: "/guide/run-your-business", body });
 }
 
@@ -5425,7 +5457,7 @@ function buildGuideLiveInSaudi() {
       ],
     }) +
     `<section class="section section--gray"><div class="container" style="text-align:center"><a class="btn btn-primary btn-lg" href="${u("/guide/residency")}">${L("Read the full Residency guide →", "اقرأ دليل الإقامة الكامل ←")}</a></div></section>` +
-    guideDisclaimer();
+    guideRelated(["Government Relations", "HR Services", "Real Estate"]) + guideCrossLinks("/guide/live-in-saudi") + guideDisclaimer();
   return page({ title: Lraw("Live in Saudi Arabia — Business Partner", "الحياة في السعودية — بيزنس بارتنر"), desc: Lraw("Lifestyle, education, healthcare and driving for expat staff and executives relocating to Saudi Arabia.", "نمط الحياة والتعليم والرعاية الصحية والقيادة للموظفين والمسؤولين المنتقلين للسعودية."), active: "/guide/live-in-saudi", path: "/guide/live-in-saudi", body });
 }
 
@@ -5480,7 +5512,7 @@ function buildGuideResidency() {
         ["Domestic/household workers, agricultural workers, and a handful of other categories are excluded from the general Labor Law and this transfer framework — they're governed separately via the Musaned platform, which uses a mutual-consent transfer process instead.", "العمالة المنزلية والزراعية وعدد قليل من الفئات الأخرى مستثناة من نظام العمل العام وإطار النقل هذا — وتُدار بشكل منفصل عبر منصة مساند، التي تعتمد إجراء نقل بالتراضي بدلاً من ذلك."],
         ["2025 press coverage describes a further shift toward a fully contract-based system (widely headlined as \"ending kafala\") — this appears to be an expansion of the 2021 mobility framework with phased eligibility conditions, not an instant unconditional change; treat headline \"abolition\" framing with caution.", "تصف تغطية صحفية لعام 2025 تحولاً إضافياً نحو نظام قائم بالكامل على العقد (وصفته عناوين كثيرة بـ\"إنهاء الكفالة\") — ويبدو أن هذا توسّع لإطار التنقل لعام 2021 بشروط أهلية مرحلية، وليس تغييراً فورياً غير مشروط؛ تعامل مع صياغة \"الإلغاء\" في العناوين بحذر."],
       ],
-    }) + guideDisclaimer();
+    }) + guideRelated(["Premium Residency", "Government Relations"]) + guideCrossLinks("/guide/residency") + guideDisclaimer();
   return page({ title: Lraw("Residency in Saudi Arabia — Business Partner", "الإقامة في السعودية — بيزنس بارتنر"), desc: Lraw("Iqama, Premium Residency and sponsorship-transfer rules — with source-flagged fee figures.", "الإقامة النظامية والإقامة المميزة وأنظمة نقل الكفالة — بأرقام رسوم موثقة المصدر."), active: "/guide/residency", path: "/guide/residency", body });
 }
 
