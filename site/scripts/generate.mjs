@@ -7872,6 +7872,7 @@ function buildSharedServicesPortal() {
           <h2>${L("Your Shared Services dashboard", "لوحة الخدمات المشتركة")}</h2>
           <p>${L("Your full executive team in one place — talk to each specialist individually, connect your tools, and run compliance. No passwords or OTP; anything binding waits for your approval.", "فريقك التنفيذي كامل في مكان واحد — تعامل مع كل متخصص على حدة، اربط أدواتك، وأدر الامتثال. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p>
         </div>
+        <button class="ss-logout" id="ss-know" type="button">🧠 ${L("Teach the team your company", "عرّف الفريق على شركتك")}</button>
         <button class="ss-logout" id="ss-install" type="button" hidden>📱 ${L("Install as app", "ثبّت كتطبيق")}</button>
         <button class="ss-logout" id="ss-logout" type="button">${L("Sign out", "خروج")}</button>
       </div>
@@ -8178,7 +8179,7 @@ function buildSharedServicesPortal() {
       note(box,${JSON.stringify(Lraw("Checking your code…", "نتحقق من رمزك…"))},'ok');
       fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d&&d.ok){ setClient({code:code.toUpperCase(),name:d.name||${JSON.stringify(Lraw("Client", "عميل"))},names:(d.names&&typeof d.names==='object')?d.names:{}}); note(box,${JSON.stringify(Lraw("Welcome ", "أهلاً "))}+(d.name||'')+' 👋','ok'); openService(); }
+        .then(function(d){ if(d&&d.ok){ setClient({code:code.toUpperCase(),name:d.name||${JSON.stringify(Lraw("Client", "عميل"))},names:(d.names&&typeof d.names==='object')?d.names:{},kb:d.has_profile===true}); note(box,${JSON.stringify(Lraw("Welcome ", "أهلاً "))}+(d.name||'')+' 👋','ok'); openService(); }
           else if(d&&d.blocked){ note(box,${JSON.stringify(Lraw("This account is suspended — contact us to reactivate.", "هذا الحساب موقوف — تواصل معنا لإعادة التفعيل."))},'err'); }
           else { note(box,${JSON.stringify(Lraw("Incorrect code. Use the code emailed to you after payment.", "الرمز غير صحيح. استخدم الرمز الذي وصلك على بريدك بعد الدفع."))},'err'); } })
         .catch(function(){ note(box,${JSON.stringify(Lraw("Connection issue — try again.", "تعذّر الاتصال — حاول مرة ثانية."))},'err'); });
@@ -8241,6 +8242,22 @@ function buildSharedServicesPortal() {
       AGENTS.forEach(function(a){var el=document.createElement('button');el.type='button';el.className='ss-ag';el.dataset.slug=a.slug;
         el.innerHTML='<span class="e">'+a.e+'</span><div><b>'+dispName(a)+'</b><span>'+a.role+'</span></div>';
         el.onclick=function(){selectAgent(a,el);};box.appendChild(el);});}
+    var kb=document.getElementById('ss-know');
+    function kbLabel(){ var c=getClient(); if(kb)kb.textContent=(c&&c.kb)?'🧠 '+${JSON.stringify(Lraw("Update your company file", "حدّث ملف شركتك"))}:'🧠 '+${JSON.stringify(Lraw("Teach the team your company", "عرّف الفريق على شركتك"))}; }
+    kbLabel();
+    if(kb) kb.onclick=function(){
+      var c=getClient(); if(!c)return;
+      if(c.demo){ alert(${JSON.stringify(Lraw("In the live account: paste your website link and the whole team learns your company — try it after subscribing.", "في الحساب الفعلي: تلصق رابط موقعك والفريق كله يتعلم شركتك — جرّبها بعد الاشتراك."))}); return; }
+      var v=prompt(${JSON.stringify(Lraw("Paste your website link (or write a short brief about your company):", "الصق رابط موقعك (أو اكتب نبذة قصيرة عن شركتك):"))},'');
+      if(v===null)return; v=v.trim(); if(!v)return;
+      var isUrl=/^(https?:\\/\\/)?[\\w\\u0600-\\u06ff.-]+\\.[a-z\\u0600-\\u06ff]{2,}([\\/?#][^\\s]*)?$/i.test(v)&&v.indexOf(' ')===-1;
+      var body={code:c.code}; if(isUrl)body.website=v; else body.about=v;
+      kb.disabled=true; kb.textContent='🧠 '+${JSON.stringify(Lraw("Reading & learning…", "نقرأ ونتعلّم…"))};
+      fetch(N8N+'/ss-knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+        .then(function(r){return r.json();})
+        .then(function(d){ kb.disabled=false; if(d&&d.ok){ c.kb=true; setClient(c); kbLabel(); alert('✅ '+${JSON.stringify(Lraw("Done! Your whole team now knows your company — ask any agent about it.", "تم! فريقك كله الآن يعرف شركتك — اسأل أي موظف عنها."))}); } else { kbLabel(); alert(${JSON.stringify(Lraw("Could not read that — check the link and try again.", "تعذرت القراءة — تأكد من الرابط وحاول مرة ثانية."))}); } })
+        .catch(function(){ kb.disabled=false; kbLabel(); alert(${JSON.stringify(Lraw("Connection issue — try again.", "تعذّر الاتصال — حاول مرة ثانية."))}); });
+    };
     var rb=document.getElementById('ss-rename');
     if(rb) rb.onclick=function(){ if(!cur)return; var curName=dispName(cur);
       var v=prompt(${JSON.stringify(Lraw("New name for «", "اكتب الاسم الجديد لـ «"))}+cur.name+${JSON.stringify(Lraw("» (leave empty to restore the original name):", "» (اتركه فارغاً لاستعادة الاسم الأصلي):"))},curName===cur.name?'':curName);
