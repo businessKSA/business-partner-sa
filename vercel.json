@@ -11,6 +11,8 @@
     "api/chat.js": { "maxDuration": 60 }
   },
   "redirects": [
+    { "source": "/installments", "destination": "/", "permanent": false },
+    { "source": "/ar/installments", "destination": "/ar", "permanent": false },
     { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },
     { "source": "/business-tourism", "destination": "/tourism", "permanent": true },
     { "source": "/compliance-portal", "destination": "/compliance-agent", "permanent": true },
