@@ -421,7 +421,6 @@ const NAV_GROUPS = [
         ],
       },
       { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
-      { href: "/installments", en: "Instalments ⚡", ar: "تقسيط الخدمات ⚡" },
       { href: "/estrdad", en: "Fee refunds (Estrdad) ⚡", ar: "استرداد الرسوم ⚡" },
       { href: "/bank-account", en: "Corporate bank account ⚡", ar: "فتح حساب بنكي ⚡" },
       { href: "/formation-contract", en: "Formation with partners ⚡", ar: "تأسيس بين شركاء ⚡" },
@@ -5751,7 +5750,7 @@ function buildCart() {
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
           <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
           <p class="mini">${L("Payment is by bank transfer: you upload the transfer receipt at checkout and we activate right after confirming it.", "الدفع بالتحويل البنكي: ترفع إيصال التحويل عند إتمام الطلب ونفعّل خدمتك فور تأكيده.")}</p>
-          <p class="mini">📆 <a href="${u("/installments")}" id="cart-inst-link">${L("Large amount? Split it in instalments", "المبلغ كبير؟ قسّطه على دفعات")}</a> · 💳 <a href="${u("/account")}">${L("Or pay from your wallet", "أو اسدد من محفظتك")}</a></p>
+          <p class="mini">💳 <a href="${u("/account")}">${L("Pay from your wallet", "اسدد من محفظتك")}</a></p>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
           <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
         </div>
@@ -8647,7 +8646,7 @@ function writeFullSite(pre) {
   write(`${pre}worker-housing.html`, buildWorkerHousing());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
-  write(`${pre}installments.html`, buildInstallments());
+  // /installments hidden at owner's request — buildInstallments() kept as dead code, not generated or linked.
   write(`${pre}estrdad.html`, buildEstrdad());
   write(`${pre}bank-account.html`, buildBankAccount());
   write(`${pre}formation-contract.html`, buildFormationContract());
@@ -8715,7 +8714,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
