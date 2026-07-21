@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-  "updatedAt": "2026-07-21T02:18:34.984Z",
-=======
-  "updatedAt": "2026-07-21T02:19:36.086Z",
->>>>>>> 6b65235a (Company-documents wizard in account; remove Farina; drop its prices)
+  "updatedAt": "2026-07-21T02:22:01.011Z",
   "currency": "SAR",
   "services": [
     {
