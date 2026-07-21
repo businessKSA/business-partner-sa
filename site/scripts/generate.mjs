@@ -6594,6 +6594,12 @@ function buildSharedServices() {
       payAr: "يتطلب اشتراك قيود فعّال لدى شركتك (الـ API مجاني على الباقات المدفوعة).", payEn: "Requires an active Qoyod subscription (the API is free on paid plans).",
       stepsAr: ["من حساب قيود: الإعدادات ← API، أنشئ مفتاحاً خاصاً.", "الصق المفتاح هنا (يُخزّن مشفّراً).", "يصير الوكيل يصدر الفواتير ويزامن القيود — بموافقتك قبل أي إصدار."],
       stepsEn: ["In Qoyod: Settings → API, create a private key.", "Paste the key here (stored encrypted).", "The agent issues invoices & syncs entries — with your approval before any issuance."] },
+    { id: "salla", ic: "🛒", name: LANG === "ar" ? "سلة (Salla)" : "Salla", type: "token",
+      uAr: "متجرك الإلكتروني: الطلبات والعملاء والمنتجات تصل لفريقك مباشرة.", uEn: "Your e-commerce store: orders, customers and products flow straight to your team.",
+      leadAr: "نربط متجرك في سلة عبر مفتاح API خاص — الفريق يتابع الطلبات الجديدة، يجهّز ردود عملاء متجرك، ويبني تقارير المبيعات. أي إجراء يغيّر بيانات المتجر بموافقتك.", leadEn: "We connect your Salla store via a private API key — the team tracks new orders, drafts customer replies and builds sales reports. Any change to store data needs your approval.",
+      payAr: "يتطلب متجراً فعّالاً على منصة سلة.", payEn: "Requires an active Salla store.",
+      stepsAr: ["من لوحة سلة: التطبيقات ← مفاتيح API، أنشئ مفتاحاً خاصاً.", "الصق المفتاح هنا (يُخزّن مشفّراً).", "يبدأ الفريق بمتابعة طلباتك وتقاريرك — وأي تعديل على المتجر بموافقتك."],
+      stepsEn: ["In Salla admin: Apps → API keys, create a private key.", "Paste the key here (stored encrypted).", "The team tracks orders & reports — store changes need your approval."] },
   ];
   const TOOLS_JS = JSON.stringify(
     toolData.map((t) => ({ id: t.id, ic: t.ic, name: t.name, type: t.type, u: LANG === "ar" ? t.uAr : t.uEn, lead: LANG === "ar" ? t.leadAr : t.leadEn, pay: (LANG === "ar" ? t.payAr : t.payEn) || "", steps: LANG === "ar" ? t.stepsAr : t.stepsEn }))
@@ -6655,6 +6661,16 @@ function buildSharedServices() {
         <a class="btn btn-primary" style="background:#12b3ad;border-color:#12b3ad" href="#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
         <a class="btn btn-ghost" href="#ss-roster">${L("Meet the team", "تعرّف على الفريق")}</a>
       </div>
+      <div class="ss-proof">
+        <span>⚡ ${L("Picks up your request in seconds", "يستلم طلبك خلال ثوانٍ")}</span>
+        <span>🕐 ${L("Works 24/7", "يعمل 24/7")}</span>
+        <span>👥 ${L("13 specialists in one subscription — a full team, not a single bot", "13 متخصصاً باشتراك واحد — فريق كامل، لا وكيل واحد")}</span>
+        <span>🔒 ${L("Anything binding waits for your approval", "أي التزام ينتظر موافقتك")}</span>
+      </div>
+      <style>
+        .ss-proof{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:20px}
+        .ss-proof span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:.84rem;font-weight:600;color:var(--brand,#0b1b5a);box-shadow:0 4px 12px rgba(11,27,90,.05)}
+      </style>
     </div>
   </section>
 
@@ -7050,6 +7066,12 @@ function buildSharedServicesPortal() {
       payAr: "يتطلب اشتراك قيود فعّال لدى شركتك (الـ API مجاني على الباقات المدفوعة).", payEn: "Requires an active Qoyod subscription (the API is free on paid plans).",
       stepsAr: ["من حساب قيود: الإعدادات ← API، أنشئ مفتاحاً خاصاً.", "الصق المفتاح هنا (يُخزّن مشفّراً).", "يصير الوكيل يصدر الفواتير ويزامن القيود — بموافقتك قبل أي إصدار."],
       stepsEn: ["In Qoyod: Settings → API, create a private key.", "Paste the key here (stored encrypted).", "The agent issues invoices & syncs entries — with your approval before any issuance."] },
+    { id: "salla", ic: "🛒", name: LANG === "ar" ? "سلة (Salla)" : "Salla", type: "token",
+      uAr: "متجرك الإلكتروني: الطلبات والعملاء والمنتجات تصل لفريقك مباشرة.", uEn: "Your e-commerce store: orders, customers and products flow straight to your team.",
+      leadAr: "نربط متجرك في سلة عبر مفتاح API خاص — الفريق يتابع الطلبات الجديدة، يجهّز ردود عملاء متجرك، ويبني تقارير المبيعات. أي إجراء يغيّر بيانات المتجر بموافقتك.", leadEn: "We connect your Salla store via a private API key — the team tracks new orders, drafts customer replies and builds sales reports. Any change to store data needs your approval.",
+      payAr: "يتطلب متجراً فعّالاً على منصة سلة.", payEn: "Requires an active Salla store.",
+      stepsAr: ["من لوحة سلة: التطبيقات ← مفاتيح API، أنشئ مفتاحاً خاصاً.", "الصق المفتاح هنا (يُخزّن مشفّراً).", "يبدأ الفريق بمتابعة طلباتك وتقاريرك — وأي تعديل على المتجر بموافقتك."],
+      stepsEn: ["In Salla admin: Apps → API keys, create a private key.", "Paste the key here (stored encrypted).", "The team tracks orders & reports — store changes need your approval."] },
   ];
   const TOOLS_JS = JSON.stringify(
     toolData.map((t) => ({ id: t.id, ic: t.ic, name: t.name, type: t.type, u: LANG === "ar" ? t.uAr : t.uEn, lead: LANG === "ar" ? t.leadAr : t.leadEn, pay: (LANG === "ar" ? t.payAr : t.payEn) || "", steps: LANG === "ar" ? t.stepsAr : t.stepsEn }))
@@ -7133,12 +7155,14 @@ function buildSharedServicesPortal() {
           <h2>${L("Your Shared Services dashboard", "لوحة الخدمات المشتركة")}</h2>
           <p>${L("Your full executive team in one place — talk to each specialist individually, connect your tools, and run compliance. No passwords or OTP; anything binding waits for your approval.", "فريقك التنفيذي كامل في مكان واحد — تعامل مع كل متخصص على حدة، اربط أدواتك، وأدر الامتثال. بدون كلمات مرور أو رموز تحقق؛ أي إجراء ملزم ينتظر موافقتك.")}</p>
         </div>
+        <button class="ss-logout" id="ss-install" type="button" hidden>📱 ${L("Install as app", "ثبّت كتطبيق")}</button>
         <button class="ss-logout" id="ss-logout" type="button">${L("Sign out", "خروج")}</button>
       </div>
 
       <div class="ss-tabs" role="tablist">
         <button class="ss-tab active" data-tab="team" type="button">👥 ${L("The team", "الفريق")}</button>
         <button class="ss-tab" data-tab="svc" type="button">🧰 ${L("Services", "الخدمات")}</button>
+        <button class="ss-tab" data-tab="stats" type="button">📊 ${L("Reports", "التقارير")}</button>
         <button class="ss-tab" data-tab="tools" type="button">🔌 ${L("Connectors", "الموصلات")}</button>
         <button class="ss-tab" data-tab="comp" type="button">🛡️ ${L("Compliance", "الامتثال")}</button>
       </div>
@@ -7175,6 +7199,30 @@ function buildSharedServicesPortal() {
           <a href="${u("/account")}"><span class="e">🧾</span><b>${L("My orders & account", "طلباتي وحسابي")}</b><span>${L("Track your orders, documents and payments.", "تابع طلباتك ومستنداتك ومدفوعاتك.")}</span></a>
         </div>
         <p class="ss-secure">💡 ${L("Tip: anything here can also be requested through Khaled — he prepares it and anything binding waits for your approval.", "تلميح: أي خدمة هنا تقدر تطلبها عبر خالد مباشرة — يجهّزها لك وأي إجراء ملزم ينتظر موافقتك.")}</p>
+      </div>
+
+      <div class="ss-pane" id="pane-stats" hidden>
+        <p class="ss-pane-lead">${L("Your team's performance in numbers — live from your documented tasks and conversations, in your own isolated workspace.", "أداء فريقك بالأرقام — مباشرة من مهامك ومحادثاتك الموثقة في مساحتك المعزولة.")}</p>
+        <div class="ss-kpis" id="ss-kpis"></div>
+        <div class="ss-kgrid">
+          <div class="ss-kcard"><b>👥 ${L("Work distribution across the team", "توزيع العمل على الفريق")}</b><div id="ss-kagents" class="ss-krows"></div></div>
+          <div class="ss-kcard"><b>🕓 ${L("Latest interactions", "آخر التفاعلات")}</b><div id="ss-krecent" class="ss-krows"></div></div>
+        </div>
+        <p class="ss-secure">📌 ${L("Every number here comes from your documented Notion workspace — ask Khaled for a detailed report anytime.", "كل رقم هنا من مساحتك الموثقة — اطلب من خالد تقريراً تفصيلياً في أي وقت.")}</p>
+        <style>
+          .ss-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+          .ss-ktile{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center}
+          .ss-ktile .n{font-size:1.7rem;font-weight:800;color:var(--brand,#0b1b5a);line-height:1.2}
+          .ss-ktile .l{font-size:.8rem;color:var(--text-soft,#5b6b86);margin-top:4px}
+          .ss-kgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+          .ss-kcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+          .ss-kcard>b{display:block;color:var(--brand,#0b1b5a);font-size:.92rem;margin-bottom:10px}
+          .ss-krows>div{display:flex;justify-content:space-between;gap:10px;font-size:.84rem;color:#3d4a63;padding:7px 0;border-bottom:1px dashed var(--line)}
+          .ss-krows>div:last-child{border-bottom:0}
+          .ss-krows .c{font-weight:700;color:var(--brand,#0b1b5a);white-space:nowrap}
+          .ss-kempty{color:var(--text-soft,#5b6b86);font-size:.85rem;padding:8px 0}
+          @media(max-width:820px){.ss-kpis{grid-template-columns:1fr 1fr}.ss-kgrid{grid-template-columns:1fr}}
+        </style>
       </div>
 
       <div class="ss-pane" id="pane-tools" hidden>
@@ -7384,6 +7432,16 @@ function buildSharedServicesPortal() {
     var gate=document.getElementById('ss-gate'),dash=document.getElementById('ss-dash');
     function note(el,t,cls){el.hidden=false;el.textContent=t;el.className='ss-note-box '+cls;}
 
+    // ---------- PWA: installable portal ----------
+    (function(){
+      var l=document.createElement('link');l.rel='manifest';l.href='/manifest.webmanifest';document.head.appendChild(l);
+      var m=document.createElement('meta');m.name='theme-color';m.content='#0b1b5a';document.head.appendChild(m);
+      if('serviceWorker' in navigator){try{navigator.serviceWorker.register('/sw.js').catch(function(){});}catch(e){}}
+      var deferred=null,ib=document.getElementById('ss-install');
+      window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;if(ib)ib.hidden=false;});
+      if(ib)ib.onclick=function(){if(!deferred)return;deferred.prompt();deferred.userChoice.then(function(){deferred=null;ib.hidden=true;});};
+    })();
+
     // ---------- access gate: real server-side login (ss-login) ----------
     var SKEY='bp_ss_client_v1';
     function getClient(){ try{ return JSON.parse(localStorage.getItem(SKEY)||'null'); }catch(e){ return null; } }
@@ -7414,10 +7472,40 @@ function buildSharedServicesPortal() {
     // ---------- tabs ----------
     var toolsBuilt=false;
     function switchTab(t){
-      ['team','svc','tools','comp'].forEach(function(k){var p=document.getElementById('pane-'+k);if(p)p.hidden=(k!==t);});
+      ['team','svc','stats','tools','comp'].forEach(function(k){var p=document.getElementById('pane-'+k);if(p)p.hidden=(k!==t);});
       var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',tabs[i].getAttribute('data-tab')===t);
       if(t==='tools'&&!toolsBuilt){buildTools();toolsBuilt=true;}
+      if(t==='stats')loadStats();
       if(t==='comp'){var fr=document.getElementById('ss-compdash-frame');if(fr&&!fr.src)fr.src=fr.getAttribute('data-src');}
+    }
+    var statsLoaded=false;
+    function agentLabel(slug){for(var i=0;i<AGENTS.length;i++)if(AGENTS[i].slug===slug)return dispName(AGENTS[i]);return slug;}
+    function renderStats(d){
+      var tiles=document.getElementById('ss-kpis');
+      var inprog=(d.tasks_by_status&&(d.tasks_by_status[${JSON.stringify(Lraw("In progress", "قيد التنفيذ"))}]||d.tasks_by_status['قيد التنفيذ']))||0;
+      var last=(d.last_activity||'').slice(0,10)||'—';
+      tiles.innerHTML='<div class="ss-ktile"><div class="n">'+(d.conv_total||0)+'</div><div class="l">${Lraw("Conversations", "محادثة مع الفريق")}</div></div>'
+        +'<div class="ss-ktile"><div class="n">'+(d.tasks_total||0)+'</div><div class="l">${Lraw("Documented tasks", "مهمة موثقة")}</div></div>'
+        +'<div class="ss-ktile"><div class="n">'+inprog+'</div><div class="l">${Lraw("In progress", "قيد التنفيذ")}</div></div>'
+        +'<div class="ss-ktile"><div class="n" style="font-size:1.05rem;padding-top:8px">'+last+'</div><div class="l">${Lraw("Last activity", "آخر نشاط")}</div></div>';
+      var ag=document.getElementById('ss-kagents');ag.innerHTML='';
+      var keys=Object.keys(d.agents||{}).sort(function(a,b){return d.agents[b]-d.agents[a];});
+      if(!keys.length)ag.innerHTML='<div class="ss-kempty">${Lraw("No interactions yet — start from the Team tab.", "لا تفاعلات بعد — ابدأ من تبويب الفريق.")}</div>';
+      keys.forEach(function(k){var r=document.createElement('div');r.innerHTML='<span>'+agentLabel(k)+'</span><span class="c">'+d.agents[k]+'</span>';ag.appendChild(r);});
+      var rc=document.getElementById('ss-krecent');rc.innerHTML='';
+      var recent=d.recent||[];
+      if(!recent.length)rc.innerHTML='<div class="ss-kempty">${Lraw("Nothing yet.", "لا يوجد بعد.")}</div>';
+      recent.forEach(function(m){var r=document.createElement('div');r.innerHTML='<span>'+(m.t||'')+'</span><span class="c">'+agentLabel(m.agent)+' · '+(m.date||'')+'</span>';rc.appendChild(r);});
+    }
+    function loadStats(){
+      if(statsLoaded)return;statsLoaded=true;
+      var c=getClient()||{};
+      if(c.demo){renderStats({conv_total:12,tasks_total:5,tasks_by_status:{'قيد التنفيذ':2},agents:{khaled:5,mishari:3,farah:2,mohammed:2},recent:[{t:${JSON.stringify(Lraw("Quarterly marketing plan", "خطة تسويقية للربع"))},agent:'farah',date:'2026-07-15'},{t:${JSON.stringify(Lraw("Nitaqat check before hiring", "فحص النطاقات قبل توظيف عامل"))},agent:'mishari',date:'2026-07-14'}],last_activity:'2026-07-16'});return;}
+      document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Loading your numbers…", "نحمّل أرقامك…")}</div>';
+      fetch(N8N+'/ss-stats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code})})
+        .then(function(r){return r.json();})
+        .then(function(d){if(d&&d.ok){renderStats(d);}else{document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;}})
+        .catch(function(){document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;});
     }
     (function(){var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++){(function(b){b.onclick=function(){switchTab(b.getAttribute('data-tab'));};})(tabs[i]);}})();
 
