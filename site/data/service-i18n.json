@@ -252,11 +252,11 @@
     "ar": "إصدار تأشيرة زيارة عائلية"
   },
   "BP-REC-01": {
-    "en": "Recruitment & work-visa issuance services",
+    "en": "Recruitment Services & Work Visa Issuance",
     "ar": "خدمات الاستقدام واستخراج تأشيرات العمل"
   },
   "BP-REC-02": {
-    "en": "Work visa issuance (recruitment visa)",
+    "en": "Work Visa Issuance",
     "ar": "إصدار تأشيرة عمل (تأشيرة استقدام)"
   },
   "BP-REC-03": {
@@ -340,19 +340,19 @@
     "ar": "فتح حساب بنكي (تنسيق ومواعيد)"
   },
   "BP-RE-01": {
-    "en": "Private office (for a set number of people)",
+    "en": "Private Office",
     "ar": "مكتب خاص (لعدد محدد من الأشخاص)"
   },
   "BP-RE-02": {
-    "en": "Coworking space",
+    "en": "Coworking Space",
     "ar": "مساحة عمل مشتركة (Coworking)"
   },
   "BP-RE-03": {
-    "en": "Virtual office with a National Address",
+    "en": "Virtual Office with National Address",
     "ar": "مكتب افتراضي مع عنوان وطني"
   },
   "BP-RE-04": {
-    "en": "Dedicated desk in a coworking space",
+    "en": "Dedicated Desk",
     "ar": "مكتب ثابت في مساحة مشتركة (Dedicated Desk)"
   },
   "BP-RE-05": {

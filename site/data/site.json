@@ -4482,6 +4482,266 @@
           "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
         }
       ]
+    },
+    "bp-rec-01": {
+      "name": "خدمات الاستقدام واستخراج تأشيرات العمل",
+      "nameEn": "Recruitment Services & Work Visa Issuance",
+      "description": "خدمات الاستقدام واستخراج تأشيرات العمل عبر منصة قوى — نجهّز الطلب والمتطلبات ونتابعها حتى إصدار التأشيرات.",
+      "descriptionEn": "Recruitment and work visa issuance services including application preparation and requirements follow-up until visas are issued.",
+      "audience": "الشركات التي تحتاج استقطاباً أو توظيفاً أو تشغيل فرق عمل",
+      "audienceEn": "Companies that need talent attraction, hiring or workforce operation",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات العامل أو الإقامة أو الجواز (حسب الخدمة)",
+        "صلاحية الدخول لحساب قوى"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Worker/Iqama/passport details (per the service)",
+        "Qiwa account access"
+      ],
+      "features": [
+        "تجهيز طلب الاستقدام والمتطلبات",
+        "استخراج تأشيرات العمل عبر قوى",
+        "متابعة الإجراء حتى الإصدار"
+      ],
+      "featuresEn": [
+        "Preparing the recruitment request & requirements",
+        "Work-visa issuance via Qiwa",
+        "Following up until issuance"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-rec-02": {
+      "name": "إصدار تأشيرة عمل (تأشيرة استقدام)",
+      "nameEn": "Work Visa Issuance",
+      "description": "إصدار تأشيرة عمل (تأشيرة استقدام) مع تجهيز الطلب ومتابعة المتطلبات حتى إصدار التأشيرة.",
+      "descriptionEn": "Work visa issuance with application preparation and requirements follow-up until the visa is issued.",
+      "audience": "الشركات التي تحتاج استقطاباً أو توظيفاً أو تشغيل فرق عمل",
+      "audienceEn": "Companies that need talent attraction, hiring or workforce operation",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات العامل أو الإقامة أو الجواز (حسب الخدمة)",
+        "صلاحية الدخول لحساب قوى"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Worker/Iqama/passport details (per the service)",
+        "Qiwa account access"
+      ],
+      "features": [
+        "تجهيز طلب تأشيرة العمل",
+        "التقديم عبر قوى",
+        "متابعة حتى إصدار التأشيرة"
+      ],
+      "featuresEn": [
+        "Preparing the work-visa request",
+        "Filing via Qiwa",
+        "Following up until the visa is issued"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-re-01": {
+      "name": "مكتب خاص (لعدد محدد من الأشخاص)",
+      "nameEn": "Private Office (for a fixed number of people)",
+      "description": "توفير مكتب خاص لعدد محدد من الأشخاص بمساحة مناسبة حسب احتياجك والباقة المتاحة.",
+      "descriptionEn": "Private office provision for a fixed number of people with suitable space based on client needs and available package.",
+      "audience": "الشركات والمستثمرون الباحثون عن حلول مكاتب أو عقار تشغيلي",
+      "audienceEn": "Companies and investors seeking office or operational-property solutions",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "features": [
+        "تحديد المساحة حسب عدد الأشخاص",
+        "تجهيز المكتب الخاص",
+        "خدمات تشغيلية مساندة حسب الباقة"
+      ],
+      "featuresEn": [
+        "Sizing the space to your headcount",
+        "Preparing the private office",
+        "Supporting office services per package"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب حالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-re-02": {
+      "name": "مساحة عمل مشتركة (Coworking)",
+      "nameEn": "Coworking Space",
+      "description": "الوصول إلى مساحة عمل مشتركة بمكتب مرن وخدمات مكتبية حسب الباقة المختارة.",
+      "descriptionEn": "Coworking space access with a flexible desk and office services based on the selected package.",
+      "audience": "الشركات والمستثمرون الباحثون عن حلول مكاتب أو عقار تشغيلي",
+      "audienceEn": "Companies and investors seeking office or operational-property solutions",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "features": [
+        "مكتب مرن في مساحة مشتركة",
+        "خدمات مكتبية مشتركة",
+        "مرونة حسب الباقة"
+      ],
+      "featuresEn": [
+        "A flexible desk in a shared space",
+        "Shared office services",
+        "Flexibility per package"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب حالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-re-03": {
+      "name": "مكتب افتراضي مع عنوان وطني",
+      "nameEn": "Virtual Office with National Address",
+      "description": "خدمة مكتب افتراضي مع عنوان وطني وإدارة البريد للشركة دون الحاجة إلى مكتب فعلي.",
+      "descriptionEn": "Virtual office service with a National Address and mail handling for the company without requiring a physical office.",
+      "audience": "الشركات والمستثمرون الباحثون عن حلول مكاتب أو عقار تشغيلي",
+      "audienceEn": "Companies and investors seeking office or operational-property solutions",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "بيانات العنوان",
+        "عقد الإيجار أو إثبات الموقع",
+        "بيانات المفوض"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Address details",
+        "Lease contract or proof of location",
+        "Authorized person's details"
+      ],
+      "features": [
+        "عنوان وطني مسجّل للشركة",
+        "إدارة البريد الوارد",
+        "بدون الحاجة لمكتب فعلي"
+      ],
+      "featuresEn": [
+        "A registered National Address",
+        "Incoming mail handling",
+        "No physical office required"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-re-04": {
+      "name": "مكتب ثابت في مساحة مشتركة (Dedicated Desk)",
+      "nameEn": "Dedicated Desk in a Coworking Space",
+      "description": "مكتب ثابت مخصّص لك في مساحة عمل مشتركة مع خدمات مكتبية حسب الباقة الشهرية.",
+      "descriptionEn": "Dedicated desk in a coworking space with office services based on the monthly package.",
+      "audience": "الشركات والمستثمرون الباحثون عن حلول مكاتب أو عقار تشغيلي",
+      "audienceEn": "Companies and investors seeking office or operational-property solutions",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "features": [
+        "مكتب ثابت مخصّص لك",
+        "خدمات مكتبية في مساحة مشتركة",
+        "اشتراك شهري مرن"
+      ],
+      "featuresEn": [
+        "Your own dedicated desk",
+        "Office services in a shared space",
+        "Flexible monthly subscription"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب حالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-re-05": {
+      "name": "خدمة البحث عن مكتب",
+      "nameEn": "Office Search Service",
+      "description": "خدمة البحث عن مكتب للمنشأة — تحديد الاحتياج، وتنسيق الخيارات، ومتابعة حتى الاختيار.",
+      "descriptionEn": "Office search service for the entity, including needs definition, option coordination, and follow-up until selection.",
+      "audience": "الشركات والمستثمرون الباحثون عن حلول مكاتب أو عقار تشغيلي",
+      "audienceEn": "Companies and investors seeking office or operational-property solutions",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "features": [
+        "تحديد احتياج المكتب",
+        "تنسيق الخيارات المناسبة",
+        "المتابعة حتى الاختيار"
+      ],
+      "featuresEn": [
+        "Defining your office needs",
+        "Coordinating suitable options",
+        "Following up until selection"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب حالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
     }
   },
   "social": {

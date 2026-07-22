@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T22:03:14.602Z",
+  "updatedAt": "2026-07-22T22:04:31.827Z",
   "currency": "SAR",
   "services": [
     {
@@ -887,7 +887,7 @@
     {
       "code": "BP-REC-01",
       "nameAr": "خدمات الاستقدام واستخراج تأشيرات العمل",
-      "nameEn": "Recruitment & work-visa issuance services",
+      "nameEn": "Recruitment Services & Work Visa Issuance",
       "category": "Recruitment",
       "categoryAr": "التوظيف والاستقدام",
       "govPlatform": "قوى",
@@ -901,7 +901,7 @@
     {
       "code": "BP-REC-02",
       "nameAr": "إصدار تأشيرة عمل (تأشيرة استقدام)",
-      "nameEn": "Work visa issuance (recruitment visa)",
+      "nameEn": "Work Visa Issuance",
       "category": "Recruitment",
       "categoryAr": "التوظيف والاستقدام",
       "govPlatform": "قوى",
@@ -1195,7 +1195,7 @@
     {
       "code": "BP-RE-01",
       "nameAr": "مكتب خاص (لعدد محدد من الأشخاص)",
-      "nameEn": "Private office (for a set number of people)",
+      "nameEn": "Private Office",
       "category": "Real Estate",
       "categoryAr": "العقارات",
       "govPlatform": "بدون جهة حكومية",
@@ -1209,7 +1209,7 @@
     {
       "code": "BP-RE-02",
       "nameAr": "مساحة عمل مشتركة (Coworking)",
-      "nameEn": "Coworking space",
+      "nameEn": "Coworking Space",
       "category": "Real Estate",
       "categoryAr": "العقارات",
       "govPlatform": "بدون جهة حكومية",
@@ -1223,7 +1223,7 @@
     {
       "code": "BP-RE-03",
       "nameAr": "مكتب افتراضي مع عنوان وطني",
-      "nameEn": "Virtual office with a National Address",
+      "nameEn": "Virtual Office with National Address",
       "category": "Real Estate",
       "categoryAr": "العقارات",
       "govPlatform": "سُبل",
@@ -1237,7 +1237,7 @@
     {
       "code": "BP-RE-04",
       "nameAr": "مكتب ثابت في مساحة مشتركة (Dedicated Desk)",
-      "nameEn": "Dedicated desk in a coworking space",
+      "nameEn": "Dedicated Desk",
       "category": "Real Estate",
       "categoryAr": "العقارات",
       "govPlatform": "بدون جهة حكومية",
