@@ -415,7 +415,11 @@ const PANEL_STATUSES = new Set(["قيد المراجعة", "بانتظار ال�
 // Content editing commits straight to GitHub; Vercel then rebuilds the site,
 // so a saved change is live in ~2 minutes. Needs a repo-write token in env.
 const CONTENT_REPO = process.env.CONTENT_REPO || "businessKSA/business-partner-sa";
-const CONTENT_BRANCH = process.env.CONTENT_BRANCH || "master";
+// The live site deploys from the production branch, so panel edits are read
+// from and committed to it (a save is live in ~2 minutes). master is kept in
+// sync with a best-effort second commit so the default branch doesn't drift.
+const CONTENT_BRANCH = process.env.CONTENT_BRANCH || "claude/bpic-marketing-site-jvrnga";
+const CONTENT_SYNC_BRANCH = process.env.CONTENT_SYNC_BRANCH || "master";
 const GH_TOKEN = envFrom(["GITHUB_TOKEN", "GH_TOKEN", "GITHUB_PAT", "CONTENT_GITHUB_TOKEN"]);
 const CONTENT_FILES = {
   "services": "site/data/services.json",
@@ -449,17 +453,17 @@ async function setLeadStatus(ref, status) {
 }
 
 const GH_HEADERS = () => ({ Authorization: `Bearer ${GH_TOKEN}`, Accept: "application/vnd.github+json", "User-Agent": "bp-admin-panel", "content-type": "application/json" });
-async function ghGetFile(filePath) {
-  const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}?ref=${encodeURIComponent(CONTENT_BRANCH)}`, { headers: GH_HEADERS() });
+async function ghGetFile(filePath, branch) {
+  const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}?ref=${encodeURIComponent(branch || CONTENT_BRANCH)}`, { headers: GH_HEADERS() });
   if (!r.ok) { console.error("gh get error", r.status, (await r.text()).slice(0, 300)); throw new Error("github_failed"); }
   const d = await r.json();
   return { sha: d.sha, content: Buffer.from(d.content || "", "base64").toString("utf8") };
 }
-async function ghPutFile(filePath, content, sha, message) {
+async function ghPutFile(filePath, content, sha, message, branch) {
   const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}`, {
     method: "PUT",
     headers: GH_HEADERS(),
-    body: JSON.stringify({ message, branch: CONTENT_BRANCH, sha, content: Buffer.from(content, "utf8").toString("base64") }),
+    body: JSON.stringify({ message, branch: branch || CONTENT_BRANCH, sha, content: Buffer.from(content, "utf8").toString("base64") }),
   });
   if (!r.ok) { console.error("gh put error", r.status, (await r.text()).slice(0, 300)); throw new Error("github_failed"); }
   const d = await r.json();
@@ -662,9 +666,17 @@ export default async function handler(req, res) {
       let parsed;
       try { parsed = JSON.parse(String(b.content || "")); } catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_json" })); }
       try {
-        const cur = await ghGetFile(filePath);
         const pretty = JSON.stringify(parsed, null, 2) + "\n";
-        const commit = await ghPutFile(filePath, pretty, cur.sha, `Update ${filePath} from /admin panel`);
+        const msg = `Update ${filePath} from /admin panel`;
+        const cur = await ghGetFile(filePath);
+        const commit = await ghPutFile(filePath, pretty, cur.sha, msg);
+        // Best-effort sync commit so the default branch doesn't drift.
+        if (CONTENT_SYNC_BRANCH && CONTENT_SYNC_BRANCH !== CONTENT_BRANCH) {
+          try {
+            const syncCur = await ghGetFile(filePath, CONTENT_SYNC_BRANCH);
+            if (syncCur.content !== pretty) await ghPutFile(filePath, pretty, syncCur.sha, msg, CONTENT_SYNC_BRANCH);
+          } catch (e) { console.error("content sync-branch error", String(e).slice(0, 150)); }
+        }
         res.statusCode = 200;
         return res.end(JSON.stringify({ ok: true, commit }));
       } catch {
