@@ -673,7 +673,19 @@
             edNote('', '');
             $('editorPanel').scrollIntoView({ behavior:'smooth', block:'start' });
           } else if (out && out.error === 'content_not_configured'){
-            edNote('err', 'تحرير المحتوى غير مهيأ بعد — أضف متغير GITHUB_TOKEN (بصلاحية كتابة على المستودع) في إعدادات Vercel ثم أعد النشر.');
+            // No GitHub token yet — the data files ship with the site itself,
+            // so load the published copy read-only until the token is added.
+            fetch('/data/' + def.id + '.json', { cache:'no-store' })
+              .then(function(r){ if (!r.ok) throw new Error('x'); return r.text(); })
+              .then(function(txt){
+                $('edBox').value = txt;
+                $('edStamp').textContent = 'النسخة المنشورة حالياً (عرض فقط)';
+                edNote('info', '👁️ عرض فقط — تقدر تتصفح المحتوى، لكن «حفظ ونشر» يحتاج خطوة إعداد وحيدة: أضف GITHUB_TOKEN (صلاحية كتابة على المستودع) في إعدادات Vercel ثم أعد النشر.');
+                $('editorPanel').scrollIntoView({ behavior:'smooth', block:'start' });
+              })
+              .catch(function(){
+                edNote('err', 'تحرير المحتوى غير مهيأ بعد — أضف متغير GITHUB_TOKEN (بصلاحية كتابة على المستودع) في إعدادات Vercel ثم أعد النشر.');
+              });
           } else {
             edNote('err', 'تعذّر تحميل الملف — حاول مرة أخرى.');
           }
