@@ -826,14 +826,14 @@ function featuresOf(s, ov) {
     if (dv.length) feats.push(...dv.slice(0, 4));
     feats.push("ننجز الإجراء نيابةً عنك من البداية حتى الإصدار");
     feats.push("أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة");
-    feats.push("دعم الوكيل الذكي على واتساب 24/7");
+    feats.push("دعم الوكيل الذكي على مدار الساعة");
     return feats.slice(0, 7);
   }
   if (ov && ov.featuresEn) return ov.featuresEn;
   return [
     Lraw("We complete the procedure on your behalf, from start to issuance", "ننجز الإجراء نيابةً عنك من البداية حتى الإصدار"),
     Lraw("Clear fees, with government fees separate and disclosed", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة"),
-    Lraw("Smart-agent support on WhatsApp 24/7", "دعم الوكيل الذكي على واتساب 24/7"),
+    Lraw("Smart-agent support around the clock", "دعم الوكيل الذكي على مدار الساعة"),
   ];
 }
 function faqOf(s, ov) {
@@ -849,7 +849,7 @@ function faqOf(s, ov) {
     });
     faq.push({ q: "لمن هذه الخدمة؟", a: `هذه الخدمة متاحة لـ${audienceOf(s, ov)}.` });
     if (s.govPlatform) faq.push({ q: "ما الجهة المختصة؟", a: `تُقدَّم الخدمة عبر ${govLabel(s.govPlatform)}، ونتولّى نحن التقديم والمتابعة معها.` });
-    faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا على واتساب، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
+    faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
   } else {
     faq.push({
       q: Lraw("How much are the fees for this service?", ""),
@@ -863,7 +863,7 @@ function faqOf(s, ov) {
     });
     faq.push({ q: Lraw("Who is this service for?", ""), a: Lraw("This service is available to {audience}.", "").replace("{audience}", audienceOf(s, ov)) });
     if (s.govPlatform) faq.push({ q: Lraw("Which authority handles it?", ""), a: Lraw("The service is delivered through {authority}; we handle the filing and follow-up with it.", "").replace("{authority}", govLabel(s.govPlatform)) });
-    faq.push({ q: Lraw("How do I start?", ""), a: Lraw("Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately.", "") });
+    faq.push({ q: Lraw("How do I start?", ""), a: Lraw("Contact us — the smart agent identifies your requirements, prepares your document list, and starts your request immediately.", "") });
   }
   return faq;
 }
@@ -1018,7 +1018,7 @@ function buildAbout() {
     <span class="eyebrow">${L("About", "من نحن")}</span>
     <h1>${L(a.titleEn || a.title, a.title)}</h1>
     <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
-    <div class="hero-actions">${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
+    <div class="hero-actions">${waBtn2("Book a consultation", "احجز استشارة", "btn-primary")}<a class="btn btn-ghost" href="${u("/services")}">${L("Browse services", "استعرض الخدمات")}</a></div>
   </div></section>
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Our promise", "وعدنا")}</span><h2>${L(a.promiseEn || a.promise, a.promise)}</h2></div>
@@ -1361,8 +1361,7 @@ function buildServiceDetail(s) {
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
           : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}`}
-        ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
-        <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
+        <p class="mini">${L("First consultation is free", "الاستشارة الأولى مجانية")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
       </div>
     </aside>
@@ -6278,8 +6277,7 @@ function buildConsultation() {
             <li>${I.check}<span>${L("Transparent pricing before you commit", "تسعير شفاف قبل أي التزام")}</span></li>
             <li>${I.check}<span>${L("First consultation is free", "الاستشارة الأولى مجانية")}</span></li>
           </ul>
-          <p class="mini">${L("Prefer chatting? The smart agent replies 24/7.", "تفضّل المحادثة؟ الوكيل الذكي يرد 24/7.")}</p>
-          ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
+          <p class="mini">${L("Prefer chatting? Tap the assistant button at the bottom of the page — it replies 24/7.", "تفضّل المحادثة؟ اضغط زر المساعد أسفل الصفحة — يرد على مدار الساعة.")}</p>
         </div>
       </aside>
     </div>
