@@ -1,0 +1,137 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>حسابي — بيزنس بارتنر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0B1B5A;--navy-900:#081345;--green:#16a34a;--green-soft:#dcfce7;--bg:#F5F6FA;--surface:#fff;--line:#E4E7F0;--text:#1F2430;--muted:#6a7085;--radius:16px;--shadow:0 8px 30px rgba(11,27,90,.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.wrap{max-width:820px;margin:0 auto;padding:1.4rem 1.1rem 4rem}
+.top{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-900) 100%);color:#fff;border-radius:20px;padding:1.5rem;text-align:center;margin-bottom:1.3rem;box-shadow:var(--shadow)}
+.top h1{font-size:1.5rem;margin-bottom:.3rem}
+.top p{opacity:.9;font-size:.92rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.3rem;box-shadow:var(--shadow);margin-bottom:1.1rem}
+.card h2{font-size:1.12rem;color:var(--navy);margin-bottom:.9rem;display:flex;gap:.5rem;align-items:center}
+label{display:block;font-size:.86rem;color:var(--muted);margin:.6rem 0 .3rem}
+input{width:100%;border:1px solid var(--line);border-radius:11px;padding:.7rem .8rem;font:inherit;outline:none}
+input:focus{border-color:var(--navy)}
+.btn{width:100%;background:var(--green);color:#fff;border:0;border-radius:11px;padding:.8rem;font:inherit;font-weight:600;cursor:pointer;margin-top:.9rem}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.ghost{background:#eef1f8;color:var(--navy)}
+.hint{font-size:.82rem;min-height:1.1em;margin-top:.55rem}
+.hint.err{color:#b3261e}.hint.ok{color:#137a3e}
+.row{display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px dashed var(--line);font-size:.95rem}
+.row:last-child{border-bottom:0}
+.row .k{color:var(--muted)}.row .v{font-weight:600;text-align:left}
+.pill{display:inline-block;background:var(--green-soft);color:#065f46;border-radius:999px;padding:.2rem .7rem;font-size:.8rem;font-weight:700}
+.links{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.links a{display:block;text-align:center;background:#eef1f8;color:var(--navy);border-radius:12px;padding:.8rem;text-decoration:none;font-weight:600;font-size:.9rem}
+.links a.wa{background:var(--green-soft);color:#065f46}
+.hidden{display:none}
+.muted{color:var(--muted);font-size:.88rem}
+@media(max-width:560px){.links{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>🏢 حسابي — بيزنس بارتنر</h1><p>تابع بياناتك وطلباتك واستشاراتك في مكان واحد</p></div>
+
+  <div class="card" id="loginCard">
+    <h2>🔐 تسجيل الدخول</h2>
+    <p class="muted">ادخل بنفس البريد الإلكتروني اللي سجّلته مع الوكيل الذكي في واتساب.</p>
+    <div id="step1">
+      <label for="email">البريد الإلكتروني</label>
+      <input id="email" type="email" inputmode="email" placeholder="name@email.com" autocomplete="email"/>
+      <button class="btn" id="sendBtn">أرسل رمز الدخول 📧</button>
+    </div>
+    <div id="step2" class="hidden">
+      <label for="code">رمز التحقق (وصلك على البريد)</label>
+      <input id="code" type="text" inputmode="numeric" maxlength="6" placeholder="******"/>
+      <button class="btn" id="loginBtn">دخول ✅</button>
+      <button class="btn ghost" id="backBtn">تغيير البريد</button>
+    </div>
+    <div class="hint" id="msg"></div>
+  </div>
+
+  <div id="dash" class="hidden">
+    <div class="card">
+      <h2>👤 بياناتي</h2>
+      <div class="row"><span class="k">الاسم</span><span class="v" id="d-name">—</span></div>
+      <div class="row"><span class="k">البريد</span><span class="v" id="d-email">—</span></div>
+      <div class="row"><span class="k">الجوال</span><span class="v" id="d-phone">—</span></div>
+      <div class="row"><span class="k">المنشأة</span><span class="v" id="d-company">—</span></div>
+    </div>
+    <div class="card">
+      <h2>📋 طلبي</h2>
+      <div class="row"><span class="k">الخدمة المطلوبة</span><span class="v" id="d-service">—</span></div>
+      <div class="row"><span class="k">الحالة</span><span class="v" id="d-status">—</span></div>
+      <div class="row"><span class="k">الاستشارة</span><span class="v" id="d-consult">—</span></div>
+    </div>
+    <div class="card">
+      <h2>⚡ روابط سريعة</h2>
+      <div class="links">
+        <a href="https://businesspartner.sa/ar/services">كل الخدمات</a>
+        <a href="https://businesspartner.sa/ar/packages">الباقات</a>
+        <a href="https://businesspartner.sa/ar/consultation">احجز استشارة</a>
+        <a class="wa" href="https://wa.me/966507034157">تواصل مع الوكيل 💬</a>
+      </div>
+      <button class="btn ghost" id="logoutBtn" style="margin-top:1rem">تسجيل الخروج</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var API="/api/otp";
+  var challenge="", email="";
+  var $=function(id){return document.getElementById(id)};
+  function msg(t,cls){var m=$("msg");m.textContent=t||"";m.className="hint "+(cls||"")}
+  function post(body){return fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(j){return {status:r.status,j:j}})})}
+  function txt(v){return (v&&String(v).trim())?String(v):"—"}
+
+  $("sendBtn").onclick=function(){
+    email=($("email").value||"").trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg("اكتب بريد إلكتروني صحيح.","err");return}
+    var b=$("sendBtn");b.disabled=true;msg("جارٍ إرسال الرمز…","");
+    post({action:"start",email:email}).then(function(res){
+      b.disabled=false;
+      if(!res.j.ok){msg(res.j.message||"تعذّر إرسال الرمز الآن. جرّب لاحقاً أو تواصل واتساب.","err");return}
+      challenge=res.j.challenge;
+      $("step1").classList.add("hidden");$("step2").classList.remove("hidden");
+      if(res.j.devCode){$("code").value=res.j.devCode}
+      msg("أرسلنا رمز التحقق إلى "+(res.j.to||email)+" 📧","ok");
+    }).catch(function(){b.disabled=false;msg("تعذّر الاتصال. حاول مرة ثانية.","err")});
+  };
+  $("backBtn").onclick=function(){$("step2").classList.add("hidden");$("step1").classList.remove("hidden");msg("","")};
+  $("loginBtn").onclick=function(){
+    var code=($("code").value||"").trim();
+    if(code.length<4){msg("اكتب رمز التحقق.","err");return}
+    var b=$("loginBtn");b.disabled=true;msg("جارٍ التحقق…","");
+    post({action:"portal",email:email,challenge:challenge,code:code}).then(function(res){
+      b.disabled=false;
+      if(!res.j.ok){var e=res.j.error;msg(e==="wrong_code"?"الرمز غير صحيح.":e==="expired"?"انتهت صلاحية الرمز، أرسل رمزاً جديداً.":"تعذّر الدخول.","err");return}
+      var c=res.j.customer||{};
+      if(c.error){msg("تم الدخول، لكن تعذّر جلب بياناتك الآن. حاول لاحقاً.","err")}
+      if(c.found===false){msg("ما لقينا حساب بهذا البريد. تأكد إنه نفس البريد اللي سجّلته مع الوكيل في واتساب.","err");return}
+      render(c);
+    }).catch(function(){b.disabled=false;msg("تعذّر الاتصال. حاول مرة ثانية.","err")});
+  };
+  function render(c){
+    $("d-name").textContent=txt(c.name);
+    $("d-email").textContent=txt(c.email||email);
+    $("d-phone").textContent=txt(c.phone);
+    $("d-company").textContent=txt(c.company);
+    $("d-service").textContent=txt(c.service);
+    var st=$("d-status");st.innerHTML=c.status?'<span class="pill">'+c.status+'</span>':"—";
+    $("d-consult").innerHTML=c.consultationBooked?'<span class="pill">محجوزة ✅</span>':'<a href="https://businesspartner.sa/ar/consultation">احجز الآن 🗓️</a>';
+    $("loginCard").classList.add("hidden");$("dash").classList.remove("hidden");
+  }
+  $("logoutBtn").onclick=function(){location.reload()};
+})();
+</script>
+</body></html>
