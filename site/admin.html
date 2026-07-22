@@ -130,6 +130,31 @@
     .editor-head{display:flex;gap:8px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
     .editor-head .file-lbl{font-weight:700;color:var(--navy);flex:1;min-width:140px}
     .jsonbox{width:100%;min-height:430px;border:0;padding:14px 18px;font:12.5px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;direction:ltr;text-align:left;outline:none;resize:vertical;background:#fbfcfe;color:#1e293b}
+    .modetabs{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+    .modetabs .mt{border:0;background:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--soft)}
+    .modetabs .mt.active{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(11,27,90,.12)}
+    .edform{padding:14px 18px;max-height:650px;overflow-y:auto;background:#fbfcfe}
+    .f-row{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+    .f-row>label{font-size:11.5px;font-weight:700;color:var(--soft)}
+    .f-in{border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-family:inherit;font-size:13.5px;outline:none;background:#fff;width:100%}
+    .f-in:focus{border-color:var(--navy)}
+    textarea.f-in{resize:vertical;min-height:64px;line-height:1.7}
+    .f-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;cursor:pointer}
+    .f-obj{border:1px solid var(--line);border-radius:12px;padding:12px 12px 4px;background:#fff;margin-bottom:10px}
+    .f-obj>.f-obj-title{font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .f-item{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:8px}
+    .f-item>summary{cursor:pointer;padding:10px 13px;font-weight:700;color:var(--navy);font-size:13px;list-style:none;display:flex;align-items:center;gap:8px}
+    .f-item>summary::before{content:'▸';color:var(--muted);transition:transform .12s}
+    .f-item[open]>summary::before{transform:rotate(90deg)}
+    .f-item>summary .sm-hint{font-weight:400;color:var(--muted);font-size:11.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .f-body{padding:12px 13px 4px;border-top:1px dashed var(--line)}
+    .f-ctl{display:flex;gap:6px;justify-content:flex-start;padding:0 13px 10px}
+    .f-ctl button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 10px;font-size:11.5px;font-weight:700;color:var(--soft)}
+    .f-ctl button:hover{color:var(--navy)}
+    .f-ctl button.del{color:#b91c1c}
+    .f-add{width:100%;border:1px dashed var(--navy);background:#fff;border-radius:10px;padding:9px;font-weight:700;color:var(--navy);font-size:13px;margin:2px 0 12px}
+    .f-add:hover{background:var(--bg)}
+    .f-search{margin-bottom:10px}
     .edmsg{padding:9px 18px;font-size:12.5px;font-weight:600;display:none;border-bottom:1px solid var(--line)}
     .edmsg.ok{display:block;background:var(--good-bg);color:var(--good-ink)}
     .edmsg.err{display:block;background:var(--bad-bg);color:var(--bad-ink)}
@@ -288,12 +313,17 @@
           <div class="editor-head">
             <span class="file-lbl" id="edLabel">—</span>
             <span class="stamp" id="edStamp"></span>
+            <div class="modetabs">
+              <button class="mt active" id="modeForm">📝 تحرير مباشر</button>
+              <button class="mt" id="modeJson">&lt;/&gt; JSON</button>
+            </div>
             <button class="refresh" id="edFormat">✓ تحقق وتنسيق</button>
             <button class="refresh" id="edReload">↻ استرجاع الأصل</button>
             <button class="btn" id="edSave">💾 حفظ ونشر</button>
           </div>
           <div class="edmsg" id="edMsg"></div>
-          <textarea class="jsonbox" id="edBox" spellcheck="false" dir="ltr"></textarea>
+          <div class="edform" id="edForm"></div>
+          <textarea class="jsonbox" id="edBox" spellcheck="false" dir="ltr" style="display:none"></textarea>
         </div>
       </section>
 
@@ -645,6 +675,179 @@
       m.className = 'edmsg' + (text ? ' ' + cls : '');
       m.textContent = text || '';
     }
+
+    // ===== no-code form editor: renders any JSON as Arabic-labeled fields =====
+    var LABELS = {
+      title:'العنوان', titleAr:'العنوان (عربي)', titleEn:'العنوان (إنجليزي)',
+      name:'الاسم', nameAr:'الاسم (عربي)', nameEn:'الاسم (إنجليزي)',
+      ar:'النص العربي', en:'النص الإنجليزي', href:'الرابط', url:'الرابط',
+      text:'النص', textAr:'النص (عربي)', textEn:'النص (إنجليزي)',
+      desc:'الوصف', descAr:'الوصف (عربي)', descEn:'الوصف (إنجليزي)', description:'الوصف',
+      price:'السعر', label:'التسمية', value:'القيمة', icon:'الأيقونة',
+      items:'العناصر', links:'الروابط', columns:'أعمدة الروابط', groups:'القوائم',
+      sub:'القائمة الفرعية', cards:'البطاقات', stats:'الأرقام', tiers:'الباقات',
+      newsletter:'النشرة البريدية', taglineAr:'الشعار النصي (عربي)', taglineEn:'الشعار النصي (إنجليزي)',
+      contact:'بيانات التواصل', contactTitleAr:'عنوان عمود التواصل (عربي)', contactTitleEn:'عنوان عمود التواصل (إنجليزي)',
+      social:'السوشال ميديا', brand:'الهوية', home:'الصفحة الرئيسية', packages:'الباقات',
+      phone:'الجوال', email:'البريد', address:'العنوان (عربي)', addressEn:'العنوان (إنجليزي)',
+      hours:'ساعات الدوام (عربي)', hoursEn:'ساعات الدوام (إنجليزي)',
+      heroTitle:'عنوان الهيرو', heroSubtitle:'النص التعريفي', heroCta:'زر الهيرو', heroCtaSecondary:'الزر الثانوي',
+      why:'لماذا نحن', coreServices:'الخدمات الأساسية', testimonials:'آراء العملاء', eyebrow:'العنوان الصغير',
+      megaCategories:'قائمة التصنيفات التلقائية', megaPackages:'قائمة الباقات التلقائية',
+      linkedin:'لينكدإن', instagram:'إنستجرام', facebook:'فيسبوك', twitter:'تويتر/X',
+      whatsapp:'واتساب', whatsappChannel:'قناة واتساب', role:'الصفة', category:'التصنيف', sector:'القطاع',
+      slug:'المعرّف (slug)', code:'الكود', key:'المفتاح', shortBio:'نبذة مختصرة (عربي)', shortBioEn:'نبذة مختصرة (إنجليزي)'
+    };
+    function labelFor(k){ return LABELS[k] || k; }
+    function isObj(v){ return v && typeof v === 'object' && !Array.isArray(v); }
+    function summaryOf(item, i){
+      if (isObj(item)){
+        var keys = ['titleAr','title','nameAr','name','ar','labelAr','label','en','value','href'];
+        for (var k = 0; k < keys.length; k++){
+          var v = item[keys[k]];
+          if (typeof v === 'string' && v.trim()) return v.slice(0, 60);
+        }
+      } else if (typeof item === 'string' && item.trim()) return item.slice(0, 60);
+      return 'عنصر ' + (i + 1);
+    }
+    function blankClone(v){
+      if (Array.isArray(v)) return v.length ? [blankClone(v[0])] : [];
+      if (isObj(v)){ var o = {}; for (var k in v) o[k] = blankClone(v[k]); return o; }
+      if (typeof v === 'number') return 0;
+      if (typeof v === 'boolean') return false;
+      return '';
+    }
+    function primInput(val, set){
+      if (typeof val === 'boolean'){
+        var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = val;
+        cb.onchange = function(){ set(this.checked); };
+        return cb;
+      }
+      var el;
+      if (typeof val === 'string' && (val.length > 70 || val.indexOf('\n') !== -1)){
+        el = document.createElement('textarea'); el.value = val;
+      } else {
+        el = document.createElement('input');
+        el.type = typeof val === 'number' ? 'number' : 'text';
+        el.value = val;
+      }
+      el.className = 'f-in'; el.dir = 'auto';
+      el.oninput = function(){ set(typeof val === 'number' ? (Number(this.value) || 0) : this.value); };
+      return el;
+    }
+    function renderValue(val, set, depth, keyName){
+      if (Array.isArray(val)) return renderArray(val, depth, keyName);
+      if (isObj(val)) return renderObject(val, depth);
+      return primInput(val, set);
+    }
+    function renderObject(obj, depth){
+      var box = document.createElement('div');
+      if (depth > 0) box.className = 'f-obj';
+      Object.keys(obj).forEach(function(k){
+        if (k === '_comment' || k.charAt(0) === '_') return;
+        var v = obj[k];
+        if (typeof v === 'boolean'){
+          var lab = document.createElement('label'); lab.className = 'f-check';
+          lab.appendChild(primInput(v, function(nv){ obj[k] = nv; }));
+          lab.appendChild(document.createTextNode(labelFor(k)));
+          box.appendChild(lab); return;
+        }
+        var row = document.createElement('div'); row.className = 'f-row';
+        var lb = document.createElement('label'); lb.textContent = labelFor(k);
+        row.appendChild(lb);
+        row.appendChild(renderValue(v, function(nv){ obj[k] = nv; }, depth + 1, k));
+        box.appendChild(row);
+      });
+      return box;
+    }
+    function renderArray(arr, depth, keyName){
+      var wrap = document.createElement('div');
+      function rebuild(){
+        wrap.innerHTML = '';
+        if (arr.length > 8){
+          var s = document.createElement('input');
+          s.className = 'f-in f-search'; s.type = 'search'; s.dir = 'auto';
+          s.placeholder = '🔍 ابحث في ' + (labelFor(keyName) || 'العناصر') + ' (' + arr.length + ')';
+          s.oninput = function(){
+            var q = this.value.trim().toLowerCase();
+            var its = wrap.querySelectorAll('.f-item');
+            for (var i = 0; i < its.length; i++){
+              var hay = its[i].getAttribute('data-hay') || '';
+              its[i].style.display = !q || hay.indexOf(q) !== -1 ? '' : 'none';
+            }
+          };
+          wrap.appendChild(s);
+        }
+        arr.forEach(function(item, i){
+          if (isObj(item) || Array.isArray(item)){
+            var d = document.createElement('details'); d.className = 'f-item';
+            if (arr.length <= 3) d.open = true;
+            d.setAttribute('data-hay', JSON.stringify(item).toLowerCase());
+            var sm = document.createElement('summary');
+            sm.textContent = summaryOf(item, i);
+            var hint = document.createElement('span'); hint.className = 'sm-hint';
+            var enHint = isObj(item) && typeof item.en === 'string' ? item.en : '';
+            hint.textContent = enHint;
+            sm.appendChild(hint);
+            d.appendChild(sm);
+            var body = document.createElement('div'); body.className = 'f-body';
+            body.appendChild(renderValue(item, function(nv){ arr[i] = nv; }, depth + 1, keyName));
+            d.appendChild(body);
+            var ctl = document.createElement('div'); ctl.className = 'f-ctl';
+            var mkBtn = function(txt, fn, cls){ var b = document.createElement('button'); b.type = 'button'; b.textContent = txt; if (cls) b.className = cls; b.onclick = fn; return b; };
+            ctl.appendChild(mkBtn('⬆ فوق', function(){ if (i > 0){ arr.splice(i - 1, 0, arr.splice(i, 1)[0]); rebuild(); } }));
+            ctl.appendChild(mkBtn('⬇ تحت', function(){ if (i < arr.length - 1){ arr.splice(i + 1, 0, arr.splice(i, 1)[0]); rebuild(); } }));
+            ctl.appendChild(mkBtn('🗑 حذف', function(){ if (confirm('حذف «' + summaryOf(item, i) + '»؟')){ arr.splice(i, 1); rebuild(); } }, 'del'));
+            d.appendChild(ctl);
+            wrap.appendChild(d);
+          } else {
+            var row = document.createElement('div'); row.className = 'f-row';
+            var inner = document.createElement('div'); inner.style.display = 'flex'; inner.style.gap = '6px';
+            var inp = primInput(item, function(nv){ arr[i] = nv; });
+            inner.appendChild(inp);
+            var del = document.createElement('button'); del.type = 'button'; del.className = 'actbtn'; del.textContent = '🗑';
+            del.onclick = function(){ arr.splice(i, 1); rebuild(); };
+            inner.appendChild(del);
+            row.appendChild(inner);
+            wrap.appendChild(row);
+          }
+        });
+        var add = document.createElement('button'); add.type = 'button'; add.className = 'f-add';
+        add.textContent = '＋ إضافة عنصر جديد';
+        add.onclick = function(){
+          arr.push(arr.length ? blankClone(arr[arr.length - 1]) : '');
+          rebuild();
+          var last = wrap.querySelectorAll('.f-item'); if (last.length) last[last.length - 1].open = true;
+        };
+        wrap.appendChild(add);
+      }
+      rebuild();
+      return wrap;
+    }
+    var formData = null, edMode = 'form';
+    function buildForm(){
+      var root = $('edForm'); root.innerHTML = '';
+      if (formData === null) return;
+      root.appendChild(renderValue(formData, function(nv){ formData = nv; }, 0, ''));
+    }
+    function applyMode(){
+      $('edForm').style.display = edMode === 'form' ? 'block' : 'none';
+      $('edBox').style.display = edMode === 'json' ? 'block' : 'none';
+      $('edFormat').style.display = edMode === 'json' ? '' : 'none';
+      $('modeForm').classList.toggle('active', edMode === 'form');
+      $('modeJson').classList.toggle('active', edMode === 'json');
+    }
+    $('modeForm').onclick = function(){
+      if (edMode === 'form') return;
+      try { formData = JSON.parse($('edBox').value); }
+      catch(e){ edNote('err', '⚠️ صحّح صيغة JSON أولاً: ' + String(e.message || e).slice(0, 120)); return; }
+      edMode = 'form'; buildForm(); applyMode(); edNote('', '');
+    };
+    $('modeJson').onclick = function(){
+      if (edMode === 'json') return;
+      if (formData !== null) $('edBox').value = JSON.stringify(formData, null, 2);
+      edMode = 'json'; applyMode();
+    };
     function renderContentCards(){
       var box = $('contentFiles'); box.innerHTML = '';
       for (var i = 0; i < CONTENT_DEFS.length; i++){
@@ -671,6 +874,7 @@
           edLoading = false;
           if (out && out.ok){
             $('edBox').value = out.content;
+            initEditorContent(out.content);
             $('edStamp').textContent = out.path + ' ← ' + out.branch;
             edNote('', '');
             $('editorPanel').scrollIntoView({ behavior:'smooth', block:'start' });
@@ -684,6 +888,7 @@
               .then(function(r){ if (!r.ok) throw new Error('x'); return r.text(); })
               .then(function(txt){
                 $('edBox').value = txt;
+                initEditorContent(txt);
                 $('edStamp').textContent = 'النسخة المنشورة مع هذا الموقع';
                 if (tokenMissing) edNote('info', '👁️ عرض فقط — تقدر تتصفح المحتوى، لكن «حفظ ونشر» يحتاج خطوة إعداد وحيدة: أضف GITHUB_TOKEN (صلاحية كتابة على المستودع) في إعدادات Vercel ثم أعد النشر.');
                 else edNote('info', 'ℹ️ حُمّلت النسخة المنشورة مع هذا الموقع — عند الحفظ يُنشأ/يُحدَّث الملف في فرع النشر مباشرة.');
@@ -697,6 +902,13 @@
           }
         });
     }
+    // Fill both editor modes from freshly loaded file text; prefer the
+    // no-code form when the JSON parses (it always should).
+    function initEditorContent(txt){
+      try { formData = JSON.parse(txt); edMode = 'form'; buildForm(); }
+      catch(e){ formData = null; edMode = 'json'; }
+      applyMode();
+    }
     $('edFormat').onclick = function(){
       try { $('edBox').value = JSON.stringify(JSON.parse($('edBox').value), null, 2); edNote('ok', '✅ الصيغة سليمة.'); }
       catch(e){ edNote('err', '⚠️ خطأ في الصيغة: ' + String(e.message || e).slice(0, 140)); }
@@ -704,12 +916,19 @@
     $('edReload').onclick = function(){ if (curDef) loadContent(curDef); };
     $('edSave').onclick = function(){
       if (!curDef || edLoading) return;
-      try { JSON.parse($('edBox').value); }
-      catch(e){ edNote('err', '⚠️ ما ينحفظ — خطأ في الصيغة: ' + String(e.message || e).slice(0, 140)); return; }
+      var content;
+      if (edMode === 'form' && formData !== null){
+        content = JSON.stringify(formData, null, 2);
+        $('edBox').value = content;
+      } else {
+        try { JSON.parse($('edBox').value); }
+        catch(e){ edNote('err', '⚠️ ما ينحفظ — خطأ في الصيغة: ' + String(e.message || e).slice(0, 140)); return; }
+        content = $('edBox').value;
+      }
       if (!confirm('سيُحفظ التعديل ويُنشر على الموقع خلال دقيقتين تقريباً. متابعة؟')) return;
       var btn = $('edSave'); btn.disabled = true;
       edNote('info', '⏳ جاري الحفظ والنشر…');
-      postPanel({ action:'panel-save-content', file: curDef.id, content: $('edBox').value })
+      postPanel({ action:'panel-save-content', file: curDef.id, content: content })
         .then(function(out){
           btn.disabled = false;
           if (out && out.ok) edNote('ok', '✅ تم الحفظ — بدأ تحديث الموقع، والتغيير بيكون ظاهراً خلال دقيقتين تقريباً.');
