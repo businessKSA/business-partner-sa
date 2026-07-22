@@ -473,6 +473,7 @@ const NAV_GROUPS = [
           { href: "/guide/residency", en: "Residency in KSA", ar: "الإقامة في السعودية" },
         ],
       },
+      { href: "/opportunities", en: "Investment Opportunities", ar: "الفرص الاستثمارية" },
       { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
       { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
     ],
@@ -595,6 +596,7 @@ function footer() {
     </ul></div>
     <div class="footer-col"><h4>${L("Knowledge Center", "مركز المعرفة")}</h4><ul>
       ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
+      ${fl("/opportunities", "Investment Opportunities", "الفرص الاستثمارية")}
       ${fl("/directory", "Startup Ecosystem Directory", "دليل ريادة الأعمال")}
       ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
       ${fl("/news", "Insights & news", "الرؤى والأخبار")}
@@ -1600,29 +1602,6 @@ function buildDeals() {
       <div class="deal-ticket-foot"><span>${L(t.postedEn, t.postedAr)}</span><button class="deal-ticket-btn" type="button">${L("Request intro", "طلب تعارف")}</button></div>
     </article>`;
   }).join("");
-  const moChips = [["all", L("All", "الكل")], ...MO_SECTORS.map((s) => [s.key, `${s.icon} ${L(s.en, s.ar)}`])]
-    .map((c, i) => `<button class="deal-chip mo-chip${i === 0 ? " active" : ""}" data-mo="${c[0]}" type="button">${c[1]}</button>`).join("");
-  const moCards = MARKET_OPPORTUNITIES.map((o) => {
-    const sec = MO_SECTORS.find((s) => s.key === o.sector);
-    return `<article class="card deal-ticket mo-card" data-sector="${o.sector}">
-      <span class="deal-badge offer">${sec.icon} ${L(sec.en, sec.ar)}</span>
-      <h3>${L(o.titleEn, o.titleAr)}</h3>
-      <div class="deal-ticket-meta"><span>${I.pin} ${L(o.regEn, o.regAr)}</span><span>${esc(L(o.projEn, o.projAr))}</span></div>
-      <p class="text-soft">${L(o.sumEn, o.sumAr)}</p>
-      <div class="deal-ticket-stat"><span>${L("Est. value", "القيمة التقديرية")}</span><b>${L(o.valEn, o.valAr)}</b></div>
-      <div class="mo-tags" style="margin-top:10px;font-size:13px;color:#0B1B5A;font-weight:600">${L(o.tagsEn, o.tagsAr)}</div>
-      <div class="deal-ticket-foot"><a href="${o.src}" target="_blank" rel="noopener">${L("Source", "المصدر")}</a><a class="deal-ticket-btn" href="${u("/contact")}">${L("Register interest", "سجّل اهتمامك")}</a></div>
-    </article>`;
-  }).join("");
-  const moSection = `
-  <section class="section" id="market-opportunities"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("From knowledge to deal", "من المعرفة إلى الصفقة")}</span><h2>${L("Major market projects & opportunities we track", "فرص ومشاريع السوق الكبرى التي نرصدها")}</h2><p>${L("We continuously track Saudi giga-projects and government tenders across every sector, then position our clients as vendors, subcontractors, operators or co-investors. Browse a sample below — each links to its public source.", "نرصد باستمرار المشاريع العملاقة والمنافسات الحكومية في السعودية عبر كل القطاعات، ثم نُموضِع عملاءنا كموردين أو مقاولي باطن أو مشغّلين أو شركاء استثمار. تصفّح نماذج أدناه — كل فرصة مرتبطة بمصدرها العام.")}</p></div>
-    <div class="deal-filters">${moChips}<span class="deal-filters-count"><span id="mo-count">0</span> ${L("opportunities", "فرصة")}</span></div>
-    <div class="grid grid-3" id="mo-grid">${moCards}</div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/contact")}">${L("Talk to us about an opportunity", "كلّمنا عن فرصة تناسبك")}</a> <a class="btn btn-ghost" href="${u("/saudi-arabia")}">${L("Investment knowledge center", "مركز المعرفة الاستثمارية")}</a></div>
-    <p class="text-soft center mt-16" style="font-size:13px">${L("A curated sample of publicly sourced opportunities, updated periodically. Values are indicative. Not an offer or investment advice.", "نماذج مختارة من فرص عامة موثّقة المصادر، تُحدَّث دورياً. القيم تقديرية. هذا ليس عرضاً أو نصيحة استثمارية.")}</p>
-  </div></section>
-  <script>(function(){var g=document.getElementById('mo-grid');if(!g)return;var chips=document.querySelectorAll('.mo-chip');var cnt=document.getElementById('mo-count');function apply(f){var n=0;g.querySelectorAll('.mo-card').forEach(function(c){var show=f==='all'||c.getAttribute('data-sector')===f;c.style.display=show?'':'none';if(show)n++;});if(cnt)cnt.textContent=n;}chips.forEach(function(ch){ch.addEventListener('click',function(){chips.forEach(function(x){x.classList.remove('active');});ch.classList.add('active');apply(ch.getAttribute('data-mo'));});});apply('all');})();</script>`;
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("New — smart matching + deals", "جديد — مطابقة ذكية + صفقات")}</span>
@@ -1638,7 +1617,7 @@ function buildDeals() {
       <span class="hero-badge">${I.check}${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
     </div>
   </div></section>
-${moSection}
+
   <section class="section"><div class="container">
     <div class="section-head"><h2>${L("Choose what applies to your situation", "اختر ما ينطبق على وضعك")}</h2><p>${L("Every type goes through the same submission, matching and review journey.", "كل نوع يمر بنفس رحلة التقديم والمطابقة والمراجعة.")}</p></div>
     <div class="grid grid-3">${launcher}</div>
@@ -1722,6 +1701,42 @@ ${moSection}
     </div>
   </aside>`;
   return page({ title: Lraw("Deals & Smart Matchmaking — Business Partner", "الصفقات والمطابقة الذكية — بيزنس بارتنر"), desc: Lraw("Offer a deal, look for a partner, or pitch an idea — we automatically match you with the closest opportunities by sector and city, and never reveal your data until both sides agree.", "اعرض صفقتك، ابحث عن شريك، أو اطرح فكرتك — نطابقك تلقائيًا مع أقرب الفرص حسب القطاع والمدينة، ولا نكشف بياناتك إلا بعد موافقة الطرفين."), active: "/deals", path: "/deals", body });
+}
+
+/* ---------- Investment opportunities / major Saudi projects (/opportunities) ---------- */
+function buildOpportunities() {
+  const chips = [["all", L("All", "الكل")], ...MO_SECTORS.map((s) => [s.key, `${s.icon} ${L(s.en, s.ar)}`])]
+    .map((c, i) => `<button class="deal-chip mo-chip${i === 0 ? " active" : ""}" data-mo="${c[0]}" type="button">${c[1]}</button>`).join("");
+  const cards = MARKET_OPPORTUNITIES.map((o) => {
+    const sec = MO_SECTORS.find((s) => s.key === o.sector);
+    return `<article class="card deal-ticket mo-card" data-sector="${o.sector}">
+      <span class="deal-badge offer">${sec.icon} ${L(sec.en, sec.ar)}</span>
+      <h3>${L(o.titleEn, o.titleAr)}</h3>
+      <div class="deal-ticket-meta"><span>${I.pin} ${L(o.regEn, o.regAr)}</span><span>${esc(L(o.projEn, o.projAr))}</span></div>
+      <p class="text-soft">${L(o.sumEn, o.sumAr)}</p>
+      <div class="deal-ticket-stat"><span>${L("Est. value", "القيمة التقديرية")}</span><b>${L(o.valEn, o.valAr)}</b></div>
+      <div class="mo-tags" style="margin-top:10px;font-size:13px;color:#0B1B5A;font-weight:600">${L(o.tagsEn, o.tagsAr)}</div>
+      <div class="deal-ticket-foot"><a href="${o.src}" target="_blank" rel="noopener">${L("Source", "المصدر")}</a><a class="deal-ticket-btn" href="${u("/contact")}">${L("Register interest", "سجّل اهتمامك")}</a></div>
+    </article>`;
+  }).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Saudi giga-projects & tenders", "مشاريع المملكة الكبرى والمنافسات")}</span>
+    <h1>${L("Investment opportunities & major projects in Saudi Arabia", "الفرص الاستثمارية والمشاريع الكبرى في المملكة")}</h1>
+    <p class="lead">${L("We continuously track Saudi giga-projects and government tenders across every sector, then position our clients as vendors, subcontractors, operators or co-investors. Each opportunity links to its public source.", "نرصد باستمرار المشاريع العملاقة والمنافسات الحكومية في السعودية عبر كل القطاعات، ثم نُموضِع عملاءنا كموردين أو مقاولي باطن أو مشغّلين أو شركاء استثمار. كل فرصة مرتبطة بمصدرها العام.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/contact")}">${L("Talk to us about an opportunity", "كلّمنا عن فرصة تناسبك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/saudi-arabia")}">${L("Investment knowledge center", "مركز المعرفة الاستثمارية")}</a>
+    </div>
+  </div></section>
+
+  <section class="section" id="market-opportunities"><div class="container">
+    <div class="deal-filters">${chips}<span class="deal-filters-count"><span id="mo-count">0</span> ${L("opportunities", "فرصة")}</span></div>
+    <div class="grid grid-3" id="mo-grid">${cards}</div>
+    <p class="text-soft center mt-24" style="font-size:13px">${L("A curated sample of publicly sourced opportunities, updated periodically. Values are indicative. Not an offer or investment advice. Looking for a business partnership or deal for your SME? Visit the ", "نماذج مختارة من فرص عامة موثّقة المصادر، تُحدَّث دورياً. القيم تقديرية. هذا ليس عرضاً أو نصيحة استثمارية. تبحث عن شراكة أو صفقة لمنشأتك الصغيرة/المتوسطة؟ زُر ")}<a href="${u("/deals")}">${L("Deals page", "صفحة الصفقات")}</a>.</p>
+  </div></section>
+  <script>(function(){var g=document.getElementById('mo-grid');if(!g)return;var chips=document.querySelectorAll('.mo-chip');var cnt=document.getElementById('mo-count');function apply(f){var n=0;g.querySelectorAll('.mo-card').forEach(function(c){var show=f==='all'||c.getAttribute('data-sector')===f;c.style.display=show?'':'none';if(show)n++;});if(cnt)cnt.textContent=n;}chips.forEach(function(ch){ch.addEventListener('click',function(){chips.forEach(function(x){x.classList.remove('active');});ch.classList.add('active');apply(ch.getAttribute('data-mo'));});});apply('all');})();</script>`;
+  return page({ title: Lraw("Investment Opportunities in Saudi Arabia — Business Partner", "الفرص الاستثمارية في المملكة — بيزنس بارتنر"), desc: Lraw("Major Saudi giga-projects and government tenders we track — enter as a vendor, subcontractor, operator or co-investor. Each links to its public source.", "أبرز المشاريع العملاقة والمنافسات الحكومية في السعودية التي نرصدها — ادخل كمورد أو مقاول باطن أو مشغّل أو شريك استثمار. كل فرصة مرتبطة بمصدرها."), active: "/opportunities", path: "/opportunities", body });
 }
 
 function buildPackages() {
@@ -8643,6 +8658,7 @@ function writeFullSite(pre) {
   write(`${pre}mahfol-makfol/trips.html`, buildMahfolTrips());
   write(`${pre}task-force.html`, buildTaskForce());
   write(`${pre}deals.html`, buildDeals());
+  write(`${pre}opportunities.html`, buildOpportunities());
   write(`${pre}packages.html`, buildPackages());
   write(`${pre}calculator.html`, buildCalculator());
   write(`${pre}tools-and-calculators.html`, buildToolsHub());
@@ -8752,7 +8768,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
