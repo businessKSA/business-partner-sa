@@ -4,7 +4,7 @@
     "ar": "عضوية الغرفة التجارية"
   },
   "BP-PL-0001": {
-    "en": "Saudi LLC company formation",
+    "en": "Saudi Limited Liability Company (LLC) Formation",
     "ar": "تأسيس شركة سعودية (ذات مسؤولية محدودة)"
   },
   "BP-PL-0066": {
@@ -96,7 +96,7 @@
     "ar": "تأسيس شركة لمستثمر أجنبي"
   },
   "BP-FI-02": {
-    "en": "Foreign investment license issuance",
+    "en": "Foreign Investment License Issuance",
     "ar": "استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)"
   },
   "BP-FI-03": {
@@ -104,16 +104,16 @@
     "ar": "تأسيس شركة أجنبية 100% ملكية (فرع أجنبي)"
   },
   "BP-FI-04": {
-    "en": "Joint-venture company formation (with a foreign partner)",
+    "en": "Joint-Venture Company Formation",
     "ar": "تأسيس شركة بشراكة أجنبية (مشتركة)"
   },
   "BP-FI-05": {
-    "en": "Company formation under an entrepreneur license",
+    "en": "Entrepreneur-License Company Formation",
     "ar": "تأسيس شركة برخصة ريادة الأعمال (رائد أعمال)"
   },
   "BP-FI-06": {
-    "en": "Branch registration (foreign company)",
-    "ar": "تسجيل فرع (شركة أجنبية)"
+    "en": "Foreign Company Branch Registration",
+    "ar": "تسجيل فرع لشركة أجنبية"
   },
   "BP-PL-0067": {
     "en": "MISA investor license application",
@@ -124,7 +124,7 @@
     "ar": "خدمة الإقامة المميزة (إجراءات + تقديم)"
   },
   "BP-PR-02": {
-    "en": "Premium Residency consultation",
+    "en": "Premium Residency Consultation",
     "ar": "استشارة الإقامة المميزة"
   },
   "BP-ABSHER-01": {

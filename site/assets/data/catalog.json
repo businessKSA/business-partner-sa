@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T03:31:10.294Z",
+  "updatedAt": "2026-07-22T03:48:59.347Z",
   "currency": "SAR",
   "services": [
     {
@@ -19,7 +19,7 @@
     {
       "code": "BP-PL-0001",
       "nameAr": "تأسيس شركة سعودية (ذات مسؤولية محدودة)",
-      "nameEn": "Saudi LLC company formation",
+      "nameEn": "Saudi Limited Liability Company (LLC) Formation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "",
@@ -341,7 +341,7 @@
     {
       "code": "BP-FI-02",
       "nameAr": "استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)",
-      "nameEn": "Foreign investment license issuance",
+      "nameEn": "Foreign Investment License Issuance",
       "category": "Foreign Investment",
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
@@ -369,7 +369,7 @@
     {
       "code": "BP-FI-04",
       "nameAr": "تأسيس شركة بشراكة أجنبية (مشتركة)",
-      "nameEn": "Joint-venture company formation (with a foreign partner)",
+      "nameEn": "Joint-Venture Company Formation",
       "category": "Foreign Investment",
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
@@ -383,7 +383,7 @@
     {
       "code": "BP-FI-05",
       "nameAr": "تأسيس شركة برخصة ريادة الأعمال (رائد أعمال)",
-      "nameEn": "Company formation under an entrepreneur license",
+      "nameEn": "Entrepreneur-License Company Formation",
       "category": "Foreign Investment",
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
@@ -396,8 +396,8 @@
     },
     {
       "code": "BP-FI-06",
-      "nameAr": "تسجيل فرع (شركة أجنبية)",
-      "nameEn": "Branch registration (foreign company)",
+      "nameAr": "تسجيل فرع لشركة أجنبية",
+      "nameEn": "Foreign Company Branch Registration",
       "category": "Foreign Investment",
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
@@ -439,7 +439,7 @@
     {
       "code": "BP-PR-02",
       "nameAr": "استشارة الإقامة المميزة",
-      "nameEn": "Premium Residency consultation",
+      "nameEn": "Premium Residency Consultation",
       "category": "Premium Residency",
       "categoryAr": "الإقامة المميزة",
       "govPlatform": "الإقامة المميزة",

@@ -1700,6 +1700,446 @@
           "a": "No. Government registration fees are separate from our professional fees; we set them out clearly in the formal proposal."
         }
       ]
+    },
+    "bp-sbc-01": {
+      "name": "تأسيس شركة سعودية",
+      "nameEn": "Saudi Company Formation",
+      "description": "تأسيس كامل لشركة سعودية (ذات مسؤولية محدودة) من البداية حتى الإصدار — نجهّز المتطلبات النظامية ونتابع السجل التجاري والتراخيص عبر المركز السعودي للأعمال حتى اكتمال التأسيس.",
+      "descriptionEn": "End-to-end formation of a Saudi-owned company (LLC) — we prepare the regulatory requirements and follow the commercial registration and licensing through the Saudi Business Center until formation is complete.",
+      "audience": "رواد الأعمال والشركات تحت التأسيس أو التوسع",
+      "audienceEn": "Entrepreneurs and companies being formed or expanding",
+      "duration": "حسب جاهزية المستندات — غالباً من عدة أيام إلى عدة أسابيع",
+      "durationEn": "Depends on document readiness — usually a few days to a few weeks",
+      "documents": [
+        "هوية أو جواز الشركاء",
+        "بيانات النشاط التجاري",
+        "العنوان الوطني",
+        "عقد أو قرارات الشركة (حسب الحالة)"
+      ],
+      "documentsEn": [
+        "Partners' national ID or passport",
+        "Business activity details",
+        "National Address",
+        "Company contract or resolutions (as applicable)"
+      ],
+      "features": [
+        "حجز الاسم التجاري",
+        "صياغة وتوثيق عقد التأسيس",
+        "إصدار السجل التجاري",
+        "عضوية الغرفة التجارية",
+        "التسجيل المبدئي في الزكاة والضريبة (VAT)"
+      ],
+      "featuresEn": [
+        "Reserved trade name",
+        "Drafted & notarized Articles of Association",
+        "Commercial Registration (CR) issuance",
+        "Chamber of Commerce membership",
+        "Initial ZATCA / VAT registration"
+      ],
+      "faq": [
+        {
+          "q": "ما نوع الكيان الأنسب؟",
+          "a": "الشركة ذات المسؤولية المحدودة (LLC) هي الأكثر شيوعاً، ونساعدك في اختيار الكيان المناسب لنشاطك."
+        },
+        {
+          "q": "كم تستغرق المدة؟",
+          "a": "بعض الإصدارات يوم عمل واحد، وبعضها يمتد حتى 7–10 أيام حسب المتطلبات وجاهزية المستندات."
+        },
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Which entity type is best?",
+          "a": "A Limited Liability Company (LLC) is the most common; we help you choose the right entity for your activity."
+        },
+        {
+          "q": "How long does it take?",
+          "a": "Some issuances take one business day; others extend to 7–10 days depending on requirements and document readiness."
+        },
+        {
+          "q": "Are government fees included?",
+          "a": "No, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0001": {
+      "name": "تأسيس شركة سعودية (ذات مسؤولية محدودة)",
+      "nameEn": "Saudi Limited Liability Company (LLC) Formation",
+      "description": "تأسيس شركة سعودية ذات مسؤولية محدودة (LLC) — نجهّز المتطلبات النظامية، ونصيغ عقد التأسيس، ونتابع التسجيل حتى إصدار السجل التجاري وعضوية الغرفة التجارية.",
+      "descriptionEn": "Formation of a Saudi limited liability company (LLC) — we prepare the regulatory requirements, draft the Articles of Association, and follow registration through to the Commercial Registration and Chamber of Commerce membership.",
+      "audience": "رواد الأعمال والشركات تحت التأسيس أو التوسع",
+      "audienceEn": "Entrepreneurs and companies being formed or expanding",
+      "duration": "حسب جاهزية المستندات — غالباً من عدة أيام إلى عدة أسابيع",
+      "durationEn": "Depends on document readiness — usually a few days to a few weeks",
+      "documents": [
+        "هوية أو جواز الشركاء",
+        "بيانات النشاط التجاري",
+        "العنوان الوطني",
+        "قرارات الشركاء (حسب الحالة)"
+      ],
+      "documentsEn": [
+        "Partners' national ID or passport",
+        "Business activity details",
+        "National Address",
+        "Partners' resolutions (as applicable)"
+      ],
+      "features": [
+        "صياغة وتوثيق عقد التأسيس",
+        "إصدار السجل التجاري",
+        "عضوية الغرفة التجارية",
+        "متابعة الإجراءات حتى اكتمال التأسيس"
+      ],
+      "featuresEn": [
+        "Drafted & notarized Articles of Association",
+        "Commercial Registration (CR) issuance",
+        "Chamber of Commerce membership",
+        "Follow-up until formation is complete"
+      ],
+      "faq": [
+        {
+          "q": "ما الفرق بين المؤسسة الفردية والشركة ذات المسؤولية المحدودة؟",
+          "a": "الشركة ذات المسؤولية المحدودة كيان مستقل بذمة مالية منفصلة وشريك واحد أو أكثر، ونساعدك في اختيار الأنسب لحالتك."
+        },
+        {
+          "q": "كم تستغرق المدة؟",
+          "a": "غالباً من عدة أيام إلى عدة أسابيع حسب جاهزية المستندات."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Sole establishment vs. LLC?",
+          "a": "An LLC is a separate legal entity with its own liability and one or more partners; we help you choose what fits your case."
+        },
+        {
+          "q": "How long does it take?",
+          "a": "Usually a few days to a few weeks depending on document readiness."
+        }
+      ]
+    },
+    "bp-fi-01": {
+      "name": "تأسيس شركة لمستثمر أجنبي",
+      "nameEn": "Foreign Investor Company Formation",
+      "description": "تأسيس شركة مملوكة 100% لمستثمر أجنبي — من ترخيص وزارة الاستثمار (MISA) إلى السجل التجاري وعضوية الغرفة والتسجيل في الزكاة والضريبة. تتوفر التراخيص الثانوية وخدمات الـ Back-office كإضافات.",
+      "descriptionEn": "Formation of a 100% foreign-owned company — from the MISA investment license through the Commercial Registration, Chamber membership and ZATCA/VAT registration. Secondary licensing and back-office are available as add-ons.",
+      "audience": "المستثمرون والشركات الأجنبية والتوسعية",
+      "audienceEn": "Foreign investors and companies, and expanding businesses",
+      "duration": "حسب نوع الترخيص وجاهزية المستندات — عادةً من عدة أيام إلى عدة أسابيع",
+      "durationEn": "Depends on the license type and document readiness — usually a few days to a few weeks",
+      "documents": [
+        "مستندات الشركة الأم أو المستثمر",
+        "جوازات الشركاء",
+        "القوائم المالية (عند الحاجة)",
+        "قرار مجلس أو تفويض رسمي"
+      ],
+      "documentsEn": [
+        "Parent company / investor documents",
+        "Partners' passports",
+        "Financial statements (if required)",
+        "Board resolution or power of attorney"
+      ],
+      "features": [
+        "استخراج ترخيص وزارة الاستثمار (MISA)",
+        "إصدار السجل التجاري",
+        "عضوية الغرفة التجارية",
+        "التسجيل في الزكاة والضريبة (VAT)",
+        "تراخيص ثانوية وخدمات Back-office كإضافات"
+      ],
+      "featuresEn": [
+        "MISA investment license",
+        "Commercial Registration (CR)",
+        "Chamber of Commerce membership",
+        "ZATCA / VAT registration",
+        "Secondary licensing & back-office as add-ons"
+      ],
+      "faq": [
+        {
+          "q": "متى تتاح الملكية الكاملة 100%؟",
+          "a": "تتاح في كثير من الأنشطة وفق ضوابط وزارة الاستثمار وحسب النشاط المصنّف؛ نتحقق من أهلية نشاطك قبل البدء."
+        },
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "لا، الرسوم الحكومية (وزارة الاستثمار والجهات ذات العلاقة) منفصلة عن أتعابنا، ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "When is 100% ownership available?",
+          "a": "Available for many activities per MISA rules and the classified activity; we verify your activity's eligibility before starting."
+        },
+        {
+          "q": "Are government fees included?",
+          "a": "No, MISA and related authority fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-fi-02": {
+      "name": "استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)",
+      "nameEn": "Foreign Investment License Issuance",
+      "description": "استخراج ترخيص الاستثمار الأجنبي من وزارة الاستثمار (MISA) — نجهّز الطلب والمستندات ونتابع الموافقة حتى إصدار الترخيص.",
+      "descriptionEn": "Issuance of the foreign investment license through MISA — we prepare the application and documents and follow the approval through to license issuance.",
+      "audience": "المستثمرون والشركات الأجنبية والتوسعية",
+      "audienceEn": "Foreign investors and companies, and expanding businesses",
+      "duration": "حسب نوع الترخيص وجاهزية المستندات — عادةً من عدة أيام إلى عدة أسابيع",
+      "durationEn": "Depends on the license type and document readiness — usually a few days to a few weeks",
+      "documents": [
+        "مستندات الشركة الأم أو المستثمر",
+        "جوازات الشركاء",
+        "القوائم المالية (عند الحاجة)",
+        "قرار مجلس أو تفويض رسمي"
+      ],
+      "documentsEn": [
+        "Parent company / investor documents",
+        "Partners' passports",
+        "Financial statements (if required)",
+        "Board resolution or power of attorney"
+      ],
+      "features": [
+        "تجهيز طلب الترخيص والمستندات",
+        "التقديم على منصة وزارة الاستثمار",
+        "متابعة الموافقة حتى الإصدار"
+      ],
+      "featuresEn": [
+        "Preparing the license application & documents",
+        "Submission on the MISA platform",
+        "Following the approval through to issuance"
+      ],
+      "faq": [
+        {
+          "q": "ما الفرق بين الترخيص وتأسيس الشركة؟",
+          "a": "الترخيص من وزارة الاستثمار خطوة تسبق أو ترافق التأسيس؛ يمكننا استخراجه وحده أو ضمن مسار تأسيس كامل."
+        },
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "لا، الرسوم الحكومية (وزارة الاستثمار والجهات ذات العلاقة) منفصلة عن أتعابنا، ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "License vs. company formation?",
+          "a": "The MISA license precedes or accompanies formation; we can issue it on its own or as part of a full formation track."
+        },
+        {
+          "q": "Are government fees included?",
+          "a": "No, MISA and related authority fees are separate and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-fi-04": {
+      "name": "تأسيس شركة بشراكة أجنبية (مشتركة)",
+      "nameEn": "Joint-Venture Company Formation (with a foreign partner)",
+      "description": "تأسيس شركة مشتركة بين شريك محلي وشريك أجنبي — نهيكل الشراكة، ونجهّز المتطلبات النظامية، ونتابع الترخيص والتسجيل حتى الإصدار.",
+      "descriptionEn": "Formation of a joint-venture company with a foreign partner — we structure the partnership, prepare the regulatory requirements, and follow the licensing and registration through to issuance.",
+      "audience": "المستثمرون والشركات الأجنبية والتوسعية",
+      "audienceEn": "Foreign investors and companies, and expanding businesses",
+      "duration": "حسب نوع الترخيص وجاهزية المستندات — عادةً من عدة أيام إلى عدة أسابيع",
+      "durationEn": "Depends on the license type and document readiness — usually a few days to a few weeks",
+      "documents": [
+        "مستندات الشركة الأم أو المستثمر",
+        "جوازات الشركاء",
+        "القوائم المالية (عند الحاجة)",
+        "قرار مجلس أو تفويض رسمي"
+      ],
+      "documentsEn": [
+        "Parent company / investor documents",
+        "Partners' passports",
+        "Financial statements (if required)",
+        "Board resolution or power of attorney"
+      ],
+      "features": [
+        "هيكلة الشراكة بين الطرفين",
+        "استخراج ترخيص وزارة الاستثمار (MISA)",
+        "إصدار السجل التجاري",
+        "عضوية الغرفة التجارية"
+      ],
+      "featuresEn": [
+        "Structuring the partnership between the parties",
+        "MISA investment license",
+        "Commercial Registration (CR)",
+        "Chamber of Commerce membership"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُوزّع الحصص بين الشريك المحلي والأجنبي؟",
+          "a": "تُحدَّد الحصص في عقد التأسيس وفق اتفاق الطرفين وضوابط النشاط؛ نساعدك في الصياغة النظامية."
+        },
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "لا، الرسوم الحكومية (وزارة الاستثمار والجهات ذات العلاقة) منفصلة عن أتعابنا، ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are shares split between local and foreign partners?",
+          "a": "Shares are set in the Articles of Association per the parties' agreement and activity rules; we help with the legal drafting."
+        },
+        {
+          "q": "Are government fees included?",
+          "a": "No, MISA and related authority fees are separate and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-fi-05": {
+      "name": "تأسيس شركة برخصة ريادة الأعمال (رائد أعمال)",
+      "nameEn": "Entrepreneur-License Company Formation",
+      "description": "تأسيس شركة برخصة ريادة الأعمال من وزارة الاستثمار (MISA) — نجهّز خطاب الدعم والمتطلبات، ونتابع الطلب حتى إصدار الرخصة والسجل التجاري.",
+      "descriptionEn": "Company formation under a MISA Entrepreneur license — we prepare the support letter and requirements and follow the application through to the license and Commercial Registration.",
+      "audience": "المستثمرون والشركات الأجنبية والتوسعية",
+      "audienceEn": "Foreign investors and companies, and expanding businesses",
+      "duration": "حسب نوع الترخيص وجاهزية المستندات — عادةً من عدة أيام إلى عدة أسابيع",
+      "durationEn": "Depends on the license type and document readiness — usually a few days to a few weeks",
+      "documents": [
+        "مستندات الشركة الأم أو المستثمر",
+        "جوازات الشركاء",
+        "القوائم المالية (عند الحاجة)",
+        "قرار مجلس أو تفويض رسمي"
+      ],
+      "documentsEn": [
+        "Parent company / investor documents",
+        "Partners' passports",
+        "Financial statements (if required)",
+        "Board resolution or power of attorney"
+      ],
+      "features": [
+        "تجهيز خطاب الدعم والمتطلبات",
+        "استخراج رخصة ريادة الأعمال من وزارة الاستثمار",
+        "إصدار السجل التجاري",
+        "عضوية الغرفة التجارية"
+      ],
+      "featuresEn": [
+        "Support letter & requirements preparation",
+        "MISA Entrepreneur license issuance",
+        "Commercial Registration (CR)",
+        "Chamber of Commerce membership"
+      ],
+      "faq": [
+        {
+          "q": "ما الذي تتطلبه رخصة ريادة الأعمال؟",
+          "a": "تتطلب عادةً خطاب دعم من جهة معتمدة واستيفاء متطلبات وزارة الاستثمار؛ نتحقق من جاهزيتها قبل التقديم."
+        },
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "لا، الرسوم الحكومية (وزارة الاستثمار والجهات ذات العلاقة) منفصلة عن أتعابنا، ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "What does the Entrepreneur license require?",
+          "a": "It typically requires a support letter from an accredited body and meeting MISA requirements; we verify readiness before applying."
+        },
+        {
+          "q": "Are government fees included?",
+          "a": "No, MISA and related authority fees are separate and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-fi-06": {
+      "name": "تسجيل فرع لشركة أجنبية",
+      "nameEn": "Foreign Company Branch Registration",
+      "description": "تسجيل فرع لشركة أجنبية قائمة في السعودية — نجهّز المتطلبات النظامية ونتابع الترخيص والتسجيل حتى إصدار السجل التجاري للفرع.",
+      "descriptionEn": "Registration of a branch for an existing foreign company in Saudi Arabia — we prepare the regulatory requirements and follow the licensing and registration through to the branch's Commercial Registration.",
+      "audience": "المستثمرون والشركات الأجنبية والتوسعية",
+      "audienceEn": "Foreign investors and companies, and expanding businesses",
+      "duration": "حسب نوع الترخيص وجاهزية المستندات — عادةً من عدة أيام إلى عدة أسابيع",
+      "durationEn": "Depends on the license type and document readiness — usually a few days to a few weeks",
+      "documents": [
+        "مستندات الشركة الأم أو المستثمر",
+        "جوازات الشركاء",
+        "القوائم المالية (عند الحاجة)",
+        "قرار مجلس أو تفويض رسمي"
+      ],
+      "documentsEn": [
+        "Parent company / investor documents",
+        "Partners' passports",
+        "Financial statements (if required)",
+        "Board resolution or power of attorney"
+      ],
+      "features": [
+        "تجهيز متطلبات ترخيص الفرع",
+        "استخراج ترخيص وزارة الاستثمار (MISA)",
+        "إصدار السجل التجاري للفرع",
+        "عضوية الغرفة التجارية"
+      ],
+      "featuresEn": [
+        "Preparing the branch license requirements",
+        "MISA investment license",
+        "Branch Commercial Registration (CR)",
+        "Chamber of Commerce membership"
+      ],
+      "faq": [
+        {
+          "q": "ما الفرق بين الفرع والشركة المستقلة؟",
+          "a": "الفرع امتداد للشركة الأم بنفس كيانها القانوني، بينما الشركة المستقلة كيان جديد؛ نساعدك في اختيار الأنسب."
+        },
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "لا، الرسوم الحكومية (وزارة الاستثمار والجهات ذات العلاقة) منفصلة عن أتعابنا، ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Branch vs. standalone company?",
+          "a": "A branch is an extension of the parent under the same legal entity, while a standalone company is a new entity; we help you choose."
+        },
+        {
+          "q": "Are government fees included?",
+          "a": "No, MISA and related authority fees are separate and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pr-02": {
+      "name": "استشارة الإقامة المميزة",
+      "nameEn": "Premium Residency Consultation",
+      "description": "استشارة الإقامة المميزة لتوضيح الخيارات والشروط وتحديد المسار الأنسب قبل بدء الإجراءات — مع تقييم الأهلية والتوصية بالمسار المناسب.",
+      "descriptionEn": "A Premium Residency consultation to clarify the options and requirements and identify the most suitable path before starting procedures — including an eligibility assessment and a recommended pathway.",
+      "audience": "الأفراد والمستثمرون الساعون إلى مسارات الإقامة المميزة",
+      "audienceEn": "Individuals and investors pursuing Premium Residency pathways",
+      "duration": "حسب نطاق الاستشارة",
+      "durationEn": "Depends on the scope of the consultation",
+      "documents": [
+        "جواز السفر",
+        "الهوية أو الإقامة",
+        "التقارير المالية أو الصحية (عند الحاجة)",
+        "المستندات الداعمة للمسار"
+      ],
+      "documentsEn": [
+        "Passport",
+        "National ID or residency",
+        "Financial or medical reports (if required)",
+        "Supporting documents for the pathway"
+      ],
+      "features": [
+        "تقييم الأهلية لمسارات الإقامة المميزة",
+        "توضيح الشروط والخيارات",
+        "التوصية بالمسار الأنسب قبل بدء الإجراءات"
+      ],
+      "featuresEn": [
+        "Eligibility assessment for Premium Residency pathways",
+        "Clarifying the requirements and options",
+        "Recommending the most suitable pathway before starting"
+      ],
+      "faq": [
+        {
+          "q": "ما مسارات الإقامة المميزة؟",
+          "a": "تشمل منتجات دائمة ومتجددة ومسارات فئوية متعددة؛ نحدد الأنسب لحالتك في الاستشارة. تأكد دائماً من الرسوم والشروط الحالية مع مركز الإقامة المميزة."
+        },
+        {
+          "q": "هل الاستشارة تضمن القبول؟",
+          "a": "الاستشارة توضّح أهليتك والمسار الأنسب، لكن القرار النهائي يعود للجهة المختصة."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "What Premium Residency pathways exist?",
+          "a": "They include permanent, renewable and several category-based products; we identify the best fit in the consultation. Always confirm current fees and conditions with the Premium Residency Center."
+        },
+        {
+          "q": "Does the consultation guarantee approval?",
+          "a": "The consultation clarifies your eligibility and best path, but the final decision rests with the competent authority."
+        }
+      ]
     }
   },
   "social": {
