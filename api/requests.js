@@ -426,6 +426,8 @@ const CONTENT_FILES = {
   "opportunities": "site/data/opportunities.json",
   "categories": "site/data/categories.json",
   "site": "site/data/site.json",
+  "nav": "site/data/nav.json",
+  "footer": "site/data/footer.json",
   "ecosystem": "site/data/ecosystem.json",
   "service-i18n": "site/data/service-i18n.json",
 };
