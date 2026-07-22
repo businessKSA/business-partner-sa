@@ -16,6 +16,8 @@
     { "source": "/ar/compliance-portal", "destination": "/ar/compliance-agent", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/jobs-feed.xml", "destination": "/api/jobs-feed" },
+    { "source": "/indeed.xml", "destination": "/api/jobs-feed" },
     { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
     { "source": "/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/join" },
     { "source": "/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/dashboard" },
