@@ -3762,6 +3762,726 @@
           "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
         }
       ]
+    },
+    "bp-sbc-02": {
+      "name": "إصدار سجل تجاري جديد",
+      "nameEn": "New Commercial Registration Issuance",
+      "description": "إصدار سجل تجاري جديد للمنشأة مع تجهيز المتطلبات ومتابعة الإصدار.",
+      "descriptionEn": "New Commercial Registration issuance with requirements preparation and issuance follow-up.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "تجهيز متطلبات السجل",
+        "إصدار السجل التجاري الجديد"
+      ],
+      "featuresEn": [
+        "Preparing the CR requirements",
+        "Issuing the new CR"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-03": {
+      "name": "إصدار عقد تأسيس وتوثيقه (لشركة جديدة)",
+      "nameEn": "AoA Issuance & Notarization (new company)",
+      "description": "صياغة عقد التأسيس وتوثيقه لشركة جديدة حتى الاعتماد.",
+      "descriptionEn": "Articles of Association issuance and notarization for a new company through to attestation.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "حسب نوع الخدمة ودرجة جاهزية المستندات؛ غالباً من عدة أيام إلى عدة أسابيع.",
+      "durationEn": "Usually a few days to a few weeks depending on readiness",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "صياغة عقد التأسيس",
+        "توثيق العقد واعتماده"
+      ],
+      "featuresEn": [
+        "Drafting the Articles of Association",
+        "Notarizing & attesting them"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-04": {
+      "name": "إصدار سجل تجاري",
+      "nameEn": "Commercial Registration Issuance",
+      "description": "إصدار السجل التجاري للمنشأة مع متابعة الإجراء حتى الإصدار.",
+      "descriptionEn": "Commercial Registration issuance with follow-up until the CR is issued.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "تجهيز بيانات السجل",
+        "إصدار السجل التجاري"
+      ],
+      "featuresEn": [
+        "Preparing the CR data",
+        "Issuing the CR"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-05": {
+      "name": "حجز اسم شركة",
+      "nameEn": "Company Name Reservation",
+      "description": "حجز اسم الشركة عبر المركز السعودي للأعمال ومتابعة الاعتماد.",
+      "descriptionEn": "Company name reservation via the Saudi Business Center with approval follow-up.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "اقتراح ومراجعة الاسم",
+        "حجز الاسم واعتماده"
+      ],
+      "featuresEn": [
+        "Proposing & checking the name",
+        "Reserving & approving it"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-06": {
+      "name": "فتح حساب شركة على منصة أبشر أعمال",
+      "nameEn": "Company Account on Absher Business",
+      "description": "فتح وتفعيل حساب الشركة على منصة أبشر أعمال وربطه بالخدمات المطلوبة.",
+      "descriptionEn": "Opening and activating the company's Absher Business account and linking it to required services.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "فتح حساب أبشر أعمال",
+        "ربط الحساب بالخدمات"
+      ],
+      "featuresEn": [
+        "Opening the Absher Business account",
+        "Linking it to services"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-07": {
+      "name": "فتح فرع لشركة قائمة (محلية أو أجنبية)",
+      "nameEn": "Opening a Branch for an Existing Company",
+      "description": "فتح فرع لشركة قائمة (محلية أو أجنبية) مع تجهيز المتطلبات ومتابعة الإصدار.",
+      "descriptionEn": "Opening a branch for an existing company (local or foreign) with requirements preparation and issuance follow-up.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "تجهيز متطلبات الفرع",
+        "إصدار سجل الفرع"
+      ],
+      "featuresEn": [
+        "Preparing the branch requirements",
+        "Issuing the branch CR"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-08": {
+      "name": "تصفية شركة (شطب السجل وإنهاء الكيان)",
+      "nameEn": "Company Liquidation (CR cancellation & closure)",
+      "description": "تصفية الشركة وشطب السجل وإنهاء الكيان مع متابعة الإجراءات النظامية حتى الإتمام.",
+      "descriptionEn": "Company liquidation, CR cancellation and entity closure with follow-up of the statutory procedures until completion.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "إجراءات التصفية",
+        "شطب السجل وإنهاء الكيان"
+      ],
+      "featuresEn": [
+        "Liquidation procedures",
+        "CR cancellation & entity closure"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-09": {
+      "name": "إصدار شهادة شطب سجل تجاري",
+      "nameEn": "CR Cancellation Certificate Issuance",
+      "description": "استخراج شهادة شطب السجل التجاري بعد إتمام الإجراءات.",
+      "descriptionEn": "Issuance of the CR cancellation certificate after completing the procedures.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "يوم عمل واحد عادةً.",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "مراجعة حالة الشطب",
+        "استخراج شهادة الشطب"
+      ],
+      "featuresEn": [
+        "Reviewing the cancellation status",
+        "Issuing the cancellation certificate"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-10": {
+      "name": "تعديل عقد تأسيس / قرارات شركاء",
+      "nameEn": "Amending AoA / Partners' Resolutions",
+      "description": "تعديل عقد التأسيس أو قرارات الشركاء وتوثيقها حتى الاعتماد.",
+      "descriptionEn": "Amending the Articles of Association or partners' resolutions and notarizing them through to attestation.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "حسب نوع الخدمة ودرجة جاهزية المستندات؛ غالباً من عدة أيام إلى عدة أسابيع.",
+      "durationEn": "Usually a few days to a few weeks depending on readiness",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "صياغة التعديل",
+        "توثيق واعتماد التعديل"
+      ],
+      "featuresEn": [
+        "Drafting the amendment",
+        "Notarizing & attesting it"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-11": {
+      "name": "تعديل سجل تجاري",
+      "nameEn": "Commercial Registration Amendment",
+      "description": "تعديل بيانات السجل التجاري ومتابعة الاعتماد.",
+      "descriptionEn": "Commercial Registration amendment with approval follow-up.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "تحديد بيانات التعديل",
+        "تنفيذ تعديل السجل"
+      ],
+      "featuresEn": [
+        "Defining the amendment data",
+        "Executing the CR amendment"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-12": {
+      "name": "حجز اسم تجاري",
+      "nameEn": "Trade Name Reservation",
+      "description": "حجز الاسم التجاري ومتابعة الاعتماد عبر المركز السعودي للأعمال.",
+      "descriptionEn": "Trade name reservation with approval follow-up via the Saudi Business Center.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "اقتراح ومراجعة الاسم",
+        "حجز الاسم التجاري"
+      ],
+      "featuresEn": [
+        "Proposing & checking the name",
+        "Reserving the trade name"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-13": {
+      "name": "شطب سجل تجاري (إلغاء السجل)",
+      "nameEn": "Commercial Registration Cancellation",
+      "description": "شطب السجل التجاري (إلغاء السجل) ومتابعة الإجراءات حتى الإتمام.",
+      "descriptionEn": "Commercial Registration cancellation with follow-up until completion.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "مراجعة متطلبات الشطب",
+        "تنفيذ إلغاء السجل"
+      ],
+      "featuresEn": [
+        "Reviewing cancellation requirements",
+        "Executing the CR cancellation"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-14": {
+      "name": "تحويل الشكل القانوني للمنشأة",
+      "nameEn": "Legal Form Transformation",
+      "description": "تحويل الشكل القانوني للمنشأة (مؤسسة ↔ شركة) مع تجهيز المتطلبات ومتابعتها.",
+      "descriptionEn": "Transforming the legal form of the entity (sole ↔ company) with requirements preparation and follow-up.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "حسب نوع الخدمة ودرجة جاهزية المستندات؛ غالباً من عدة أيام إلى عدة أسابيع.",
+      "durationEn": "Usually a few days to a few weeks depending on readiness",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "تحديد الشكل القانوني المستهدف",
+        "تنفيذ التحويل ومتابعته"
+      ],
+      "featuresEn": [
+        "Defining the target legal form",
+        "Executing & following up the transformation"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-15": {
+      "name": "صياغة عقد التأسيس ودعم التوثيق",
+      "nameEn": "AoA Drafting & Notarization Support",
+      "description": "صياغة عقد التأسيس ودعم توثيقه حتى الاعتماد.",
+      "descriptionEn": "Articles of Association drafting and notarization support through to attestation.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "صياغة عقد التأسيس",
+        "دعم التوثيق والاعتماد"
+      ],
+      "featuresEn": [
+        "Drafting the Articles of Association",
+        "Supporting notarization & attestation"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-17": {
+      "name": "طلب إفادة تجارية (خطاب من وزارة التجارة)",
+      "nameEn": "Commercial Statement Request",
+      "description": "استخراج إفادة تجارية (خطاب من وزارة التجارة) حسب الغرض المطلوب.",
+      "descriptionEn": "Commercial statement (Ministry of Commerce letter) issuance for the required purpose.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "تحديد الغرض من الإفادة",
+        "استخراج الخطاب"
+      ],
+      "featuresEn": [
+        "Defining the statement's purpose",
+        "Issuing the letter"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-18": {
+      "name": "تحويل مؤسسة إلى شركة (أو العكس)",
+      "nameEn": "Converting an Establishment into a Company",
+      "description": "تحويل المؤسسة إلى شركة (أو العكس) مع تجهيز المتطلبات ومتابعة الإصدار.",
+      "descriptionEn": "Converting an establishment into a company (or vice versa) with requirements preparation and issuance follow-up.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "تحديد الكيان المستهدف",
+        "تنفيذ التحويل والإصدار"
+      ],
+      "featuresEn": [
+        "Defining the target entity",
+        "Executing the conversion & issuance"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-19": {
+      "name": "تجديد سجل تجاري",
+      "nameEn": "Commercial Registration Renewal",
+      "description": "تجديد السجل التجاري ومتابعة الإجراء حتى الإتمام.",
+      "descriptionEn": "Commercial Registration renewal with follow-up until completion.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "يوم عمل واحد عادةً.",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "مراجعة صلاحية السجل",
+        "تنفيذ التجديد"
+      ],
+      "featuresEn": [
+        "Checking CR validity",
+        "Processing the renewal"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sbc-20": {
+      "name": "استخراج مستخرج سجل تجاري تفصيلي",
+      "nameEn": "Detailed CR Extract Issuance",
+      "description": "استخراج مستخرج تفصيلي للسجل التجاري حسب الغرض المطلوب.",
+      "descriptionEn": "Issuance of a detailed Commercial Registration extract for the required purpose.",
+      "audience": "رواد الأعمال والشركات القائمة أو تحت التعديل",
+      "audienceEn": "Entrepreneurs and companies, existing or amending their records",
+      "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+      "durationEn": "Usually one business day to a few days",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط والعنوان الوطني",
+        "قرارات أو مستندات الشركاء (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details & National Address",
+        "Partners' resolutions or documents (per the service)"
+      ],
+      "features": [
+        "تحديد الغرض من المستخرج",
+        "استخراج المستخرج التفصيلي"
+      ],
+      "featuresEn": [
+        "Defining the extract's purpose",
+        "Issuing the detailed extract"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية (المركز السعودي للأعمال) منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, Saudi Business Center fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
     }
   },
   "social": {

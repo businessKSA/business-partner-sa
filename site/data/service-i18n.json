@@ -16,59 +16,59 @@
     "ar": "تأسيس شركة سعودية"
   },
   "BP-SBC-02": {
-    "en": "New Commercial Registration issuance",
+    "en": "New Commercial Registration Issuance",
     "ar": "إصدار سجل تجاري جديد"
   },
   "BP-SBC-03": {
-    "en": "Articles of Association issuance & notarization (new company)",
+    "en": "AoA Issuance & Notarization (new company)",
     "ar": "إصدار عقد تأسيس وتوثيقه (لشركة جديدة)"
   },
   "BP-SBC-04": {
-    "en": "Commercial Registration (CR) issuance",
+    "en": "Commercial Registration Issuance",
     "ar": "إصدار سجل تجاري"
   },
   "BP-SBC-05": {
-    "en": "Company name reservation",
-    "ar": "حجز اسم الشركة"
+    "en": "Company Name Reservation",
+    "ar": "حجز اسم شركة"
   },
   "BP-SBC-06": {
-    "en": "Company account setup on Absher Business",
+    "en": "Company Account on Absher Business",
     "ar": "فتح حساب شركة على منصة أبشر أعمال"
   },
   "BP-SBC-07": {
-    "en": "Opening a branch for an existing company (local or foreign)",
+    "en": "Opening a Branch for an Existing Company",
     "ar": "فتح فرع لشركة قائمة (محلية أو أجنبية)"
   },
   "BP-SBC-08": {
-    "en": "Company liquidation (CR cancellation & entity closure)",
+    "en": "Company Liquidation (CR cancellation & closure)",
     "ar": "تصفية شركة (شطب السجل وإنهاء الكيان)"
   },
   "BP-SBC-09": {
-    "en": "CR cancellation certificate issuance",
+    "en": "CR Cancellation Certificate Issuance",
     "ar": "إصدار شهادة شطب سجل تجاري"
   },
   "BP-SBC-10": {
-    "en": "Amending Articles of Association / partners' resolutions",
+    "en": "Amending AoA / Partners' Resolutions",
     "ar": "تعديل عقد تأسيس / قرارات شركاء"
   },
   "BP-SBC-11": {
-    "en": "Commercial Registration amendment",
+    "en": "Commercial Registration Amendment",
     "ar": "تعديل سجل تجاري"
   },
   "BP-SBC-12": {
-    "en": "Trade name reservation",
+    "en": "Trade Name Reservation",
     "ar": "حجز اسم تجاري"
   },
   "BP-SBC-13": {
-    "en": "Commercial Registration cancellation",
+    "en": "Commercial Registration Cancellation",
     "ar": "شطب سجل تجاري (إلغاء السجل)"
   },
   "BP-SBC-14": {
-    "en": "Legal form transformation (sole → LLC / LLC → sole)",
-    "ar": "تحويل الشكل القانوني (مؤسسة ↔ شركة ذات مسؤولية محدودة)"
+    "en": "Legal Form Transformation",
+    "ar": "تحويل الشكل القانوني للمنشأة"
   },
   "BP-SBC-15": {
-    "en": "Articles of Association drafting & notarization support",
+    "en": "AoA Drafting & Notarization Support",
     "ar": "صياغة عقد التأسيس ودعم التوثيق"
   },
   "BP-SBC-16": {
@@ -76,19 +76,19 @@
     "ar": "خدمات تأسيس مصانع وإصدار تراخيص صناعية"
   },
   "BP-SBC-17": {
-    "en": "Commercial statement request (Ministry of Commerce letter)",
+    "en": "Commercial Statement Request",
     "ar": "طلب إفادة تجارية (خطاب من وزارة التجارة)"
   },
   "BP-SBC-18": {
-    "en": "Converting an establishment into a company (or vice versa)",
+    "en": "Converting an Establishment into a Company",
     "ar": "تحويل مؤسسة إلى شركة (أو العكس)"
   },
   "BP-SBC-19": {
-    "en": "Commercial Registration renewal",
+    "en": "Commercial Registration Renewal",
     "ar": "تجديد سجل تجاري"
   },
   "BP-SBC-20": {
-    "en": "Detailed Commercial Registration extract",
+    "en": "Detailed CR Extract Issuance",
     "ar": "استخراج مستخرج سجل تجاري تفصيلي"
   },
   "BP-FI-01": {

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T04:14:21.563Z",
+  "updatedAt": "2026-07-22T04:15:50.691Z",
   "currency": "SAR",
   "services": [
     {
@@ -61,7 +61,7 @@
     {
       "code": "BP-SBC-02",
       "nameAr": "إصدار سجل تجاري جديد",
-      "nameEn": "New Commercial Registration issuance",
+      "nameEn": "New Commercial Registration Issuance",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -75,7 +75,7 @@
     {
       "code": "BP-SBC-03",
       "nameAr": "إصدار عقد تأسيس وتوثيقه (لشركة جديدة)",
-      "nameEn": "Articles of Association issuance & notarization (new company)",
+      "nameEn": "AoA Issuance & Notarization (new company)",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -89,7 +89,7 @@
     {
       "code": "BP-SBC-04",
       "nameAr": "إصدار سجل تجاري",
-      "nameEn": "Commercial Registration (CR) issuance",
+      "nameEn": "Commercial Registration Issuance",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -102,8 +102,8 @@
     },
     {
       "code": "BP-SBC-05",
-      "nameAr": "حجز اسم الشركة",
-      "nameEn": "Company name reservation",
+      "nameAr": "حجز اسم شركة",
+      "nameEn": "Company Name Reservation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -117,10 +117,10 @@
     {
       "code": "BP-SBC-06",
       "nameAr": "فتح حساب شركة على منصة أبشر أعمال",
-      "nameEn": "Company account setup on Absher Business",
+      "nameEn": "Company Account on Absher Business",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
-      "govPlatform": "أبشر أعمال",
+      "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
       "amount": 200,
       "priceLabel": "200 ﷼",
@@ -131,7 +131,7 @@
     {
       "code": "BP-SBC-07",
       "nameAr": "فتح فرع لشركة قائمة (محلية أو أجنبية)",
-      "nameEn": "Opening a branch for an existing company (local or foreign)",
+      "nameEn": "Opening a Branch for an Existing Company",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -145,7 +145,7 @@
     {
       "code": "BP-SBC-08",
       "nameAr": "تصفية شركة (شطب السجل وإنهاء الكيان)",
-      "nameEn": "Company liquidation (CR cancellation & entity closure)",
+      "nameEn": "Company Liquidation (CR cancellation & closure)",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -159,7 +159,7 @@
     {
       "code": "BP-SBC-09",
       "nameAr": "إصدار شهادة شطب سجل تجاري",
-      "nameEn": "CR cancellation certificate issuance",
+      "nameEn": "CR Cancellation Certificate Issuance",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -173,7 +173,7 @@
     {
       "code": "BP-SBC-10",
       "nameAr": "تعديل عقد تأسيس / قرارات شركاء",
-      "nameEn": "Amending Articles of Association / partners' resolutions",
+      "nameEn": "Amending AoA / Partners' Resolutions",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -187,7 +187,7 @@
     {
       "code": "BP-SBC-11",
       "nameAr": "تعديل سجل تجاري",
-      "nameEn": "Commercial Registration amendment",
+      "nameEn": "Commercial Registration Amendment",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -201,7 +201,7 @@
     {
       "code": "BP-SBC-12",
       "nameAr": "حجز اسم تجاري",
-      "nameEn": "Trade name reservation",
+      "nameEn": "Trade Name Reservation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -215,7 +215,7 @@
     {
       "code": "BP-SBC-13",
       "nameAr": "شطب سجل تجاري (إلغاء السجل)",
-      "nameEn": "Commercial Registration cancellation",
+      "nameEn": "Commercial Registration Cancellation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -228,8 +228,8 @@
     },
     {
       "code": "BP-SBC-14",
-      "nameAr": "تحويل الشكل القانوني (مؤسسة ↔ شركة ذات مسؤولية محدودة)",
-      "nameEn": "Legal form transformation (sole → LLC / LLC → sole)",
+      "nameAr": "تحويل الشكل القانوني للمنشأة",
+      "nameEn": "Legal Form Transformation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -243,7 +243,7 @@
     {
       "code": "BP-SBC-15",
       "nameAr": "صياغة عقد التأسيس ودعم التوثيق",
-      "nameEn": "Articles of Association drafting & notarization support",
+      "nameEn": "AoA Drafting & Notarization Support",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -271,7 +271,7 @@
     {
       "code": "BP-SBC-17",
       "nameAr": "طلب إفادة تجارية (خطاب من وزارة التجارة)",
-      "nameEn": "Commercial statement request (Ministry of Commerce letter)",
+      "nameEn": "Commercial Statement Request",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -285,7 +285,7 @@
     {
       "code": "BP-SBC-18",
       "nameAr": "تحويل مؤسسة إلى شركة (أو العكس)",
-      "nameEn": "Converting an establishment into a company (or vice versa)",
+      "nameEn": "Converting an Establishment into a Company",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -299,7 +299,7 @@
     {
       "code": "BP-SBC-19",
       "nameAr": "تجديد سجل تجاري",
-      "nameEn": "Commercial Registration renewal",
+      "nameEn": "Commercial Registration Renewal",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -313,7 +313,7 @@
     {
       "code": "BP-SBC-20",
       "nameAr": "استخراج مستخرج سجل تجاري تفصيلي",
-      "nameEn": "Detailed Commercial Registration extract",
+      "nameEn": "Detailed CR Extract Issuance",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
