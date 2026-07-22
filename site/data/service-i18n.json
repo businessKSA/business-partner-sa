@@ -128,11 +128,11 @@
     "ar": "استشارة الإقامة المميزة"
   },
   "BP-ABSHER-01": {
-    "en": "Absher Business setup",
+    "en": "Absher Business Setup",
     "ar": "تفعيل أبشر أعمال"
   },
   "BP-BALADY-01": {
-    "en": "Municipal license issuance (commercial premises)",
+    "en": "Municipal License Issuance",
     "ar": "إصدار رخصة بلدية (مقر تجاري)"
   },
   "BP-BALADY-02": {
@@ -140,19 +140,19 @@
     "ar": "عقد نظافة إلكتروني (متطلب بلدي)"
   },
   "BP-GOSI-01": {
-    "en": "GOSI (social insurance) registration",
+    "en": "GOSI Registration",
     "ar": "التسجيل في التأمينات الاجتماعية (GOSI)"
   },
   "BP-GOSI-02": {
-    "en": "Adding a Saudi employee to GOSI",
+    "en": "Add a Saudi Employee in GOSI",
     "ar": "إضافة موظف سعودي في التأمينات"
   },
   "BP-GOSI-03": {
-    "en": "GOSI certificate issuance",
+    "en": "GOSI Certificate Issuance",
     "ar": "استخراج شهادة التأمينات الاجتماعية"
   },
   "BP-GOSI-04": {
-    "en": "GOSI registration",
+    "en": "GOSI Registration",
     "ar": "التسجيل في التأمينات الاجتماعية"
   },
   "BP-GR-01": {
@@ -176,19 +176,19 @@
     "ar": "إصدار تأشيرة خروج وعودة"
   },
   "BP-QIWA-01": {
-    "en": "Qiwa setup & onboarding",
-    "ar": "تفعيل منصة قوى وتهيئتها"
+    "en": "Qiwa Setup & Onboarding",
+    "ar": "إعداد وتفعيل منصة قوى"
   },
   "BP-QIWA-02": {
-    "en": "Employee sponsorship transfer",
+    "en": "Employee Sponsorship Transfer",
     "ar": "نقل كفالة عامل (نقل خدمة)"
   },
   "BP-QIWA-03": {
-    "en": "Employee profession change",
+    "en": "Employee Profession Change",
     "ar": "تغيير مهنة عامل"
   },
   "BP-QIWA-04": {
-    "en": "Adding an authorized representative to an entity",
+    "en": "Adding an Authorized Representative",
     "ar": "إضافة مفوض لمنشأة"
   },
   "BP-SAIP-01": {
@@ -196,27 +196,27 @@
     "ar": "تسجيل علامة تجارية جديدة"
   },
   "BP-SUBL-01": {
-    "en": "National Address registration",
-    "ar": "تسجيل العنوان الوطني"
+    "en": "National Address Registration",
+    "ar": "التسجيل في العنوان الوطني"
   },
   "BP-ZATCA-01": {
-    "en": "ZATCA registration (VAT & Zakat)",
+    "en": "VAT & Zakat Registration",
     "ar": "التسجيل في الزكاة والضريبة (VAT & Zakat)"
   },
   "BP-ZATCA-02": {
-    "en": "Tax (VAT) number issuance",
+    "en": "VAT Number Issuance",
     "ar": "استخراج رقم ضريبي (VAT)"
   },
   "BP-ZATCA-03": {
-    "en": "Annual Zakat return filing",
+    "en": "Annual Zakat Return Filing",
     "ar": "تقديم إقرار الزكاة السنوي"
   },
   "BP-ZATCA-04": {
-    "en": "ZATCA VAT registration",
+    "en": "ZATCA VAT Registration",
     "ar": "التسجيل في ضريبة القيمة المضافة (زاتكا)"
   },
   "BP-ZATCA-05": {
-    "en": "VAT return filing",
+    "en": "VAT Return Filing",
     "ar": "تقديم إقرار ضريبة قيمة مضافة"
   },
   "BP-HR-01": {

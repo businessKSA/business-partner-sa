@@ -2140,6 +2140,696 @@
           "a": "The consultation clarifies your eligibility and best path, but the final decision rests with the competent authority."
         }
       ]
+    },
+    "bp-zatca-01": {
+      "name": "التسجيل في الزكاة والضريبة (VAT & Zakat)",
+      "nameEn": "VAT & Zakat Registration",
+      "description": "فتح الملف الضريبي للمنشأة والتسجيل في الزكاة وضريبة القيمة المضافة لدى هيئة الزكاة والضريبة والجمارك، مع متابعة المتطلبات حتى تفعيل الحساب.",
+      "descriptionEn": "VAT and Zakat registration with ZATCA — we handle the requirements and follow up until the tax account is activated.",
+      "audience": "المنشآت الجديدة أو التي تحتاج فتح الملف الضريبي",
+      "audienceEn": "New establishments, or those needing to open a tax file",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المفوض",
+        "بيانات النشاط والعنوان"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Authorized person's details",
+        "Business activity and address details"
+      ],
+      "features": [
+        "فتح الملف الضريبي للمنشأة",
+        "التسجيل في الزكاة وضريبة القيمة المضافة",
+        "متابعة المتطلبات حتى تفعيل الحساب"
+      ],
+      "featuresEn": [
+        "Opening the establishment's tax file",
+        "VAT & Zakat registration",
+        "Following up until the account is active"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-zatca-02": {
+      "name": "استخراج رقم ضريبي (VAT)",
+      "nameEn": "VAT Number Issuance",
+      "description": "استخراج الرقم الضريبي للمنشأة ومتابعة التسجيل أو التفعيل لدى هيئة الزكاة والضريبة والجمارك.",
+      "descriptionEn": "VAT number issuance for the entity with registration or activation follow-up at ZATCA.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "رقم الهوية أو الإقامة للمفوض",
+        "بيانات النشاط",
+        "البيانات المالية أو الفواتير (عند الحاجة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Authorized person's national ID or Iqama",
+        "Business activity details",
+        "Financial statements or invoices (if required)"
+      ],
+      "features": [
+        "تجهيز بيانات التسجيل الضريبي",
+        "استخراج الرقم الضريبي (VAT)",
+        "متابعة التفعيل لدى الهيئة"
+      ],
+      "featuresEn": [
+        "Preparing the tax registration data",
+        "Issuing the VAT number",
+        "Following up activation with the authority"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-zatca-03": {
+      "name": "تقديم إقرار الزكاة السنوي",
+      "nameEn": "Annual Zakat Return Filing",
+      "description": "إعداد وتقديم إقرار الزكاة السنوي للمنشأة، مع متابعة المتطلبات والبيانات حتى اكتمال التقديم.",
+      "descriptionEn": "Annual Zakat return filing with requirements and data follow-up until submission is complete.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "رقم الهوية أو الإقامة للمفوض",
+        "بيانات النشاط",
+        "البيانات المالية أو الفواتير (عند الحاجة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Authorized person's national ID or Iqama",
+        "Business activity details",
+        "Financial statements or invoices (if required)"
+      ],
+      "features": [
+        "مراجعة البيانات المالية للإقرار",
+        "إعداد وتقديم إقرار الزكاة السنوي",
+        "متابعة القبول حتى اكتمال التقديم"
+      ],
+      "featuresEn": [
+        "Reviewing the financial data for the return",
+        "Preparing & filing the annual Zakat return",
+        "Following up until submission is complete"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-zatca-04": {
+      "name": "التسجيل في ضريبة القيمة المضافة (زاتكا)",
+      "nameEn": "ZATCA VAT Registration",
+      "description": "التسجيل في ضريبة القيمة المضافة لدى هيئة الزكاة والضريبة والجمارك، مع متابعة المتطلبات حتى التفعيل.",
+      "descriptionEn": "VAT registration with ZATCA, including requirements follow-up and activation.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "رقم الهوية أو الإقامة للمفوض",
+        "بيانات النشاط",
+        "البيانات المالية أو الفواتير (عند الحاجة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Authorized person's national ID or Iqama",
+        "Business activity details",
+        "Financial statements or invoices (if required)"
+      ],
+      "features": [
+        "تجهيز متطلبات التسجيل في ضريبة القيمة المضافة",
+        "التقديم على منصة زاتكا",
+        "متابعة التفعيل"
+      ],
+      "featuresEn": [
+        "Preparing the VAT registration requirements",
+        "Filing on the ZATCA platform",
+        "Following up activation"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-zatca-05": {
+      "name": "تقديم إقرار ضريبة القيمة المضافة",
+      "nameEn": "VAT Return Filing",
+      "description": "إعداد وتقديم إقرار ضريبة القيمة المضافة للمنشأة، مع متابعة التقديم حتى الاكتمال.",
+      "descriptionEn": "VAT return filing with tax data preparation and submission follow-up until completion.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "رقم الهوية أو الإقامة للمفوض",
+        "بيانات النشاط",
+        "البيانات المالية أو الفواتير (عند الحاجة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Authorized person's national ID or Iqama",
+        "Business activity details",
+        "Financial statements or invoices (if required)"
+      ],
+      "features": [
+        "مراجعة الفواتير والبيانات الضريبية",
+        "إعداد وتقديم إقرار ضريبة القيمة المضافة",
+        "متابعة التقديم حتى الاكتمال"
+      ],
+      "featuresEn": [
+        "Reviewing invoices and tax data",
+        "Preparing & filing the VAT return",
+        "Following up until completion"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-gosi-01": {
+      "name": "التسجيل في التأمينات الاجتماعية (GOSI)",
+      "nameEn": "GOSI Registration",
+      "description": "التسجيل في التأمينات الاجتماعية للمنشأة والتحقق من المتطلبات ومتابعة التفعيل حتى اكتمال التسجيل.",
+      "descriptionEn": "GOSI registration with requirements validation and follow-up until service activation or registration completion.",
+      "audience": "المنشآت الجديدة أو التي تحتاج تفعيل ملف التأمينات",
+      "audienceEn": "New establishments, or those needing to activate their GOSI file",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات المفوض المسؤول"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Authorized person's details"
+      ],
+      "features": [
+        "التحقق من متطلبات التسجيل",
+        "التسجيل في التأمينات الاجتماعية",
+        "متابعة التفعيل حتى اكتمال التسجيل"
+      ],
+      "featuresEn": [
+        "Validating the registration requirements",
+        "GOSI registration",
+        "Following up until registration is complete"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-gosi-02": {
+      "name": "إضافة موظف سعودي في التأمينات",
+      "nameEn": "Add a Saudi Employee in GOSI",
+      "description": "إضافة موظف سعودي في التأمينات الاجتماعية ومتابعة بيانات الموظف والمنشأة حتى الاكتمال.",
+      "descriptionEn": "Adding a Saudi employee in GOSI, including employee and establishment data follow-up until completion.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات المشترك أو الموظف (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Subscriber or employee details (per the service)"
+      ],
+      "features": [
+        "مراجعة بيانات الموظف والمنشأة",
+        "إضافة الموظف في التأمينات",
+        "متابعة الإجراء حتى الاكتمال"
+      ],
+      "featuresEn": [
+        "Reviewing the employee and establishment data",
+        "Adding the employee in GOSI",
+        "Following up until completion"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-gosi-03": {
+      "name": "استخراج شهادة التأمينات الاجتماعية",
+      "nameEn": "GOSI Certificate Issuance",
+      "description": "استخراج شهادة التأمينات الاجتماعية للمنشأة أو الموظفين بناءً على البيانات المطلوبة والسجلات المتاحة.",
+      "descriptionEn": "GOSI certificate issuance for the entity or employees based on required information and available records.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات المشترك أو الموظف (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Subscriber or employee details (per the service)"
+      ],
+      "features": [
+        "مراجعة سجل المنشأة في التأمينات",
+        "استخراج شهادة التأمينات الاجتماعية"
+      ],
+      "featuresEn": [
+        "Reviewing the GOSI establishment record",
+        "Issuing the GOSI certificate"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-gosi-04": {
+      "name": "التسجيل في التأمينات الاجتماعية",
+      "nameEn": "GOSI Registration",
+      "description": "التسجيل في التأمينات الاجتماعية للمنشأة مع متابعة التفعيل وربط بيانات المنشأة حسب المتطلب.",
+      "descriptionEn": "GOSI registration for the entity, including activation follow-up and establishment data linkage as required.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات المشترك أو الموظف (حسب الخدمة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Subscriber or employee details (per the service)"
+      ],
+      "features": [
+        "تجهيز بيانات المنشأة للتسجيل",
+        "التسجيل في التأمينات الاجتماعية",
+        "متابعة التفعيل"
+      ],
+      "featuresEn": [
+        "Preparing the establishment data",
+        "GOSI registration",
+        "Following up activation"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-qiwa-01": {
+      "name": "إعداد وتفعيل منصة قوى",
+      "nameEn": "Qiwa Setup & Onboarding",
+      "description": "إعداد وتفعيل حساب المنشأة في منصة قوى وربطه بإجراءات الموارد البشرية المطلوبة.",
+      "descriptionEn": "Qiwa setup and onboarding for the entity, linked to required HR procedures.",
+      "audience": "المنشآت الجديدة أو التي لم تستكمل تفعيل قوى",
+      "audienceEn": "New establishments, or those that haven't completed Qiwa activation",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات المفوض",
+        "بيانات موظفين أولية (عند الحاجة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Authorized person's details",
+        "Initial employee data (if required)"
+      ],
+      "features": [
+        "تفعيل حساب المنشأة في قوى",
+        "تحديد المفوض المسؤول",
+        "ربط الحساب بإجراءات الموارد البشرية"
+      ],
+      "featuresEn": [
+        "Activating the establishment's Qiwa account",
+        "Assigning the authorized representative",
+        "Linking the account to HR procedures"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-qiwa-02": {
+      "name": "نقل كفالة عامل (نقل خدمة)",
+      "nameEn": "Employee Sponsorship Transfer",
+      "description": "خدمة نقل كفالة عامل (نقل الخدمة) مع متابعة الطلب والمتطلبات النظامية حتى الاكتمال.",
+      "descriptionEn": "Employee sponsorship transfer service with request and regulatory requirements follow-up until completion.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات العامل أو الإقامة أو الجواز (حسب الخدمة)",
+        "صلاحية الدخول لحساب قوى"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Worker/Iqama/passport details (per the service)",
+        "Qiwa account access"
+      ],
+      "features": [
+        "مراجعة أهلية نقل الخدمة",
+        "تقديم طلب نقل الكفالة عبر قوى",
+        "متابعة الطلب حتى الاكتمال"
+      ],
+      "featuresEn": [
+        "Checking transfer eligibility",
+        "Filing the sponsorship-transfer request via Qiwa",
+        "Following up until completion"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-qiwa-03": {
+      "name": "تغيير مهنة عامل",
+      "nameEn": "Employee Profession Change",
+      "description": "تغيير مهنة عامل عبر القنوات الرسمية مع متابعة الطلب حتى تحديث بيانات المهنة.",
+      "descriptionEn": "Employee profession change through official channels with application follow-up until profession data is updated.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات العامل أو الإقامة أو الجواز (حسب الخدمة)",
+        "صلاحية الدخول لحساب قوى"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Worker/Iqama/passport details (per the service)",
+        "Qiwa account access"
+      ],
+      "features": [
+        "مراجعة المسمى المهني المطلوب",
+        "تقديم طلب تغيير المهنة",
+        "متابعة التحديث حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Reviewing the requested profession title",
+        "Filing the profession-change request",
+        "Following up until it's updated"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-qiwa-04": {
+      "name": "إضافة مفوض لمنشأة",
+      "nameEn": "Adding an Authorized Representative",
+      "description": "إضافة مفوض للمنشأة وتفعيل الصلاحيات المطلوبة على المنصات الحكومية ذات العلاقة.",
+      "descriptionEn": "Adding an authorized representative to the establishment and enabling the required permissions on relevant government platforms.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "بيانات العامل أو الإقامة أو الجواز (حسب الخدمة)",
+        "صلاحية الدخول لحساب قوى"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Worker/Iqama/passport details (per the service)",
+        "Qiwa account access"
+      ],
+      "features": [
+        "تحديد المفوض والصلاحيات المطلوبة",
+        "إضافة المفوض على قوى",
+        "تفعيل الصلاحيات على المنصات ذات العلاقة"
+      ],
+      "featuresEn": [
+        "Defining the representative and permissions",
+        "Adding the representative on Qiwa",
+        "Enabling permissions on the relevant platforms"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-subl-01": {
+      "name": "التسجيل في العنوان الوطني",
+      "nameEn": "National Address Registration",
+      "description": "تسجيل أو تحديث العنوان الوطني للمنشأة وربطه ببيانات السجل والمنصات ذات العلاقة.",
+      "descriptionEn": "National Address registration or update for the entity and linking it with registration data and related platforms.",
+      "audience": "المنشآت الجديدة أو القائمة التي تحتاج تسجيل أو تحديث العنوان الوطني",
+      "audienceEn": "New or existing establishments needing to register or update their National Address",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات العنوان الوطني",
+        "عقد الإيجار أو إثبات الموقع",
+        "بيانات المفوض"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "National Address details",
+        "Lease contract or proof of location",
+        "Authorized person's details"
+      ],
+      "features": [
+        "تسجيل أو تحديث العنوان الوطني",
+        "ربط العنوان ببيانات السجل التجاري",
+        "تحديثه على المنصات ذات العلاقة"
+      ],
+      "featuresEn": [
+        "Registering or updating the National Address",
+        "Linking it to the CR data",
+        "Updating it across relevant platforms"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-balady-01": {
+      "name": "إصدار رخصة بلدية (مقر تجاري)",
+      "nameEn": "Municipal License Issuance (commercial premises)",
+      "description": "إصدار الرخصة البلدية لمقر تجاري ومتابعة اشتراطات بلدي والموقع حتى إصدار الرخصة.",
+      "descriptionEn": "Municipal license issuance for commercial premises with Balady and site requirements follow-up until license issuance.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "السجل التجاري",
+        "عقد الإيجار أو الصك",
+        "بيانات الموقع",
+        "شهادة السلامة أو العقود الداعمة (عند الحاجة)"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Lease contract or title deed",
+        "Location details",
+        "Safety certificate or supporting contracts (if required)"
+      ],
+      "features": [
+        "مراجعة اشتراطات الموقع والنشاط",
+        "تقديم طلب الرخصة على منصة بلدي",
+        "متابعة الاشتراطات حتى الإصدار"
+      ],
+      "featuresEn": [
+        "Reviewing site and activity requirements",
+        "Filing the license request on Balady",
+        "Following up requirements until issuance"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-absher-01": {
+      "name": "تفعيل أبشر أعمال",
+      "nameEn": "Absher Business Setup",
+      "description": "إعداد وتفعيل حساب أبشر أعمال للمنشأة وربطه بالخدمات الحكومية المطلوبة.",
+      "descriptionEn": "Absher Business account setup and activation for the entity, linked to required government services.",
+      "audience": "المنشآت الجديدة أو التي تحتاج تفعيل أبشر أعمال",
+      "audienceEn": "New establishments or those needing to activate Absher Business",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "هوية المفوض",
+        "بيانات المنشأة الأساسية"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Authorized person's ID",
+        "Basic establishment details"
+      ],
+      "features": [
+        "تفعيل حساب أبشر أعمال",
+        "تحديد المستخدم المفوض",
+        "ربط الحساب بالخدمات الحكومية المطلوبة"
+      ],
+      "featuresEn": [
+        "Activating the Absher Business account",
+        "Assigning the authorized user",
+        "Linking it to the required government services"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
     }
   },
   "social": {

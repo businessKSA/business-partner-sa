@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T04:04:06.171Z",
+  "updatedAt": "2026-07-22T04:08:55.465Z",
   "currency": "SAR",
   "services": [
     {
@@ -453,7 +453,7 @@
     {
       "code": "BP-ABSHER-01",
       "nameAr": "تفعيل أبشر أعمال",
-      "nameEn": "Absher Business setup",
+      "nameEn": "Absher Business Setup",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "أبشر أعمال",
@@ -467,7 +467,7 @@
     {
       "code": "BP-BALADY-01",
       "nameAr": "إصدار رخصة بلدية (مقر تجاري)",
-      "nameEn": "Municipal license issuance (commercial premises)",
+      "nameEn": "Municipal License Issuance",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "بلدي",
@@ -495,7 +495,7 @@
     {
       "code": "BP-GOSI-01",
       "nameAr": "التسجيل في التأمينات الاجتماعية (GOSI)",
-      "nameEn": "GOSI (social insurance) registration",
+      "nameEn": "GOSI Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "التأمينات GOSI",
@@ -509,7 +509,7 @@
     {
       "code": "BP-GOSI-02",
       "nameAr": "إضافة موظف سعودي في التأمينات",
-      "nameEn": "Adding a Saudi employee to GOSI",
+      "nameEn": "Add a Saudi Employee in GOSI",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "التأمينات GOSI",
@@ -523,7 +523,7 @@
     {
       "code": "BP-GOSI-03",
       "nameAr": "استخراج شهادة التأمينات الاجتماعية",
-      "nameEn": "GOSI certificate issuance",
+      "nameEn": "GOSI Certificate Issuance",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "التأمينات GOSI",
@@ -537,7 +537,7 @@
     {
       "code": "BP-GOSI-04",
       "nameAr": "التسجيل في التأمينات الاجتماعية",
-      "nameEn": "GOSI registration",
+      "nameEn": "GOSI Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "التأمينات GOSI",
@@ -620,8 +620,8 @@
     },
     {
       "code": "BP-QIWA-01",
-      "nameAr": "تفعيل منصة قوى وتهيئتها",
-      "nameEn": "Qiwa setup & onboarding",
+      "nameAr": "إعداد وتفعيل منصة قوى",
+      "nameEn": "Qiwa Setup & Onboarding",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "قوى",
@@ -635,7 +635,7 @@
     {
       "code": "BP-QIWA-02",
       "nameAr": "نقل كفالة عامل (نقل خدمة)",
-      "nameEn": "Employee sponsorship transfer",
+      "nameEn": "Employee Sponsorship Transfer",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "قوى",
@@ -649,7 +649,7 @@
     {
       "code": "BP-QIWA-03",
       "nameAr": "تغيير مهنة عامل",
-      "nameEn": "Employee profession change",
+      "nameEn": "Employee Profession Change",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "قوى",
@@ -663,7 +663,7 @@
     {
       "code": "BP-QIWA-04",
       "nameAr": "إضافة مفوض لمنشأة",
-      "nameEn": "Adding an authorized representative to an entity",
+      "nameEn": "Adding an Authorized Representative",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "قوى",
@@ -690,8 +690,8 @@
     },
     {
       "code": "BP-SUBL-01",
-      "nameAr": "تسجيل العنوان الوطني",
-      "nameEn": "National Address registration",
+      "nameAr": "التسجيل في العنوان الوطني",
+      "nameEn": "National Address Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "سُبل",
@@ -705,7 +705,7 @@
     {
       "code": "BP-ZATCA-01",
       "nameAr": "التسجيل في الزكاة والضريبة (VAT & Zakat)",
-      "nameEn": "ZATCA registration (VAT & Zakat)",
+      "nameEn": "VAT & Zakat Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -719,7 +719,7 @@
     {
       "code": "BP-ZATCA-02",
       "nameAr": "استخراج رقم ضريبي (VAT)",
-      "nameEn": "Tax (VAT) number issuance",
+      "nameEn": "VAT Number Issuance",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -733,7 +733,7 @@
     {
       "code": "BP-ZATCA-03",
       "nameAr": "تقديم إقرار الزكاة السنوي",
-      "nameEn": "Annual Zakat return filing",
+      "nameEn": "Annual Zakat Return Filing",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -747,7 +747,7 @@
     {
       "code": "BP-ZATCA-04",
       "nameAr": "التسجيل في ضريبة القيمة المضافة (زاتكا)",
-      "nameEn": "ZATCA VAT registration",
+      "nameEn": "ZATCA VAT Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -761,7 +761,7 @@
     {
       "code": "BP-ZATCA-05",
       "nameAr": "تقديم إقرار ضريبة قيمة مضافة",
-      "nameEn": "VAT return filing",
+      "nameEn": "VAT Return Filing",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
