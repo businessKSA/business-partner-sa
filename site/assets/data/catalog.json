@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T04:09:32.047Z",
+  "updatedAt": "2026-07-22T04:11:36.964Z",
   "currency": "SAR",
   "services": [
     {
@@ -550,8 +550,8 @@
     },
     {
       "code": "BP-GR-01",
-      "nameAr": "تصنيف المقاولين (الحصول على شهادة تصنيف)",
-      "nameEn": "Contractor classification (classification certificate)",
+      "nameAr": "تصنيف المقاولين (شهادة تصنيف)",
+      "nameEn": "Contractor Classification Certificate",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "متعدد الجهات",
@@ -565,7 +565,7 @@
     {
       "code": "BP-MOD-01",
       "nameAr": "إصدار تصريح الدفاع المدني (شهادة سلامة)",
-      "nameEn": "Civil Defense permit issuance (safety certificate)",
+      "nameEn": "Civil Defense Permit & Safety Certificate",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الدفاع المدني",
@@ -579,7 +579,7 @@
     {
       "code": "BP-MOD-02",
       "nameAr": "تقرير فني سلامة (متطلب الدفاع المدني)",
-      "nameEn": "Technical safety report (Civil Defense requirement)",
+      "nameEn": "Technical Safety Report",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الدفاع المدني",
@@ -592,8 +592,8 @@
     },
     {
       "code": "BP-MUDAD-01",
-      "nameAr": "تفعيل نظام مُدد (حماية الأجور)",
-      "nameEn": "Mudad setup (WPS)",
+      "nameAr": "إعداد منصة مدد لنظام حماية الأجور",
+      "nameEn": "Mudad WPS Setup",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "مدد",
@@ -607,7 +607,7 @@
     {
       "code": "BP-MUQEEM-01",
       "nameAr": "إصدار تأشيرة خروج وعودة",
-      "nameEn": "Exit & Re-entry visa issuance",
+      "nameEn": "Exit & Re-entry Visa Issuance",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "مقيم",
@@ -775,7 +775,7 @@
     {
       "code": "BP-HR-01",
       "nameAr": "إصدار شهادة صحية للموظفين",
-      "nameEn": "Employee health certificate issuance",
+      "nameEn": "Employee Health Certificate Issuance",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "وزارة الموارد البشرية",
@@ -789,7 +789,7 @@
     {
       "code": "BP-HR-02",
       "nameAr": "فتح ملف منشأة في وزارة الموارد البشرية",
-      "nameEn": "Opening an entity file at the Ministry of HR",
+      "nameEn": "Establishment File Opening at MHRSD",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "وزارة الموارد البشرية",
@@ -803,7 +803,7 @@
     {
       "code": "BP-HR-03",
       "nameAr": "خدمات الموارد البشرية وإدارة الموظفين",
-      "nameEn": "HR services & employee management",
+      "nameEn": "HR & Employee Management Services",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "بدون جهة حكومية",
@@ -817,7 +817,7 @@
     {
       "code": "BP-MUDAD-02",
       "nameAr": "رفع ملف حماية الأجور (نظام مُدد)",
-      "nameEn": "Wage Protection file upload (Mudad)",
+      "nameEn": "Mudad Wage Protection File Upload",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مدد",
@@ -831,7 +831,7 @@
     {
       "code": "BP-MUDAD-03",
       "nameAr": "معالجة ملاحظات نظام حماية الأجور",
-      "nameEn": "Resolving Wage Protection System notes",
+      "nameEn": "Wage Protection System Notes Resolution",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مدد",
@@ -845,7 +845,7 @@
     {
       "code": "BP-MUQEEM-02",
       "nameAr": "إصدار إقامة جديدة (لموظف أجنبي)",
-      "nameEn": "New residency (Iqama) issuance for a foreign employee",
+      "nameEn": "New Iqama Issuance",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مقيم",
@@ -859,7 +859,7 @@
     {
       "code": "BP-MUQEEM-03",
       "nameAr": "تجديد إقامة (هوية مقيم)",
-      "nameEn": "Residency (Iqama) renewal",
+      "nameEn": "Iqama Renewal",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مقيم",
@@ -873,7 +873,7 @@
     {
       "code": "BP-MUQEEM-04",
       "nameAr": "إصدار تأشيرة زيارة عائلية",
-      "nameEn": "Family visit visa issuance",
+      "nameEn": "Family Visit Visa Issuance",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مقيم",

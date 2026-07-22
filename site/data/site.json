@@ -1536,42 +1536,46 @@
       "durationEn": "4–8 weeks depending on project size"
     },
     "bp-gr-01": {
-      "description": "خدمة من وزارة الشؤون البلدية والقروية والإسكان لتصنيف المقاولين حسب قدراتهم المالية والفنية والإدارية. شهادة التصنيف شرط أساسي للمشاركة في المشاريع الحكومية الكبرى — تعكس الكفاءة وتعزّز ثقة العملاء. نتولّى في بيزنس بارتنر كامل إجراءات التصنيف من التقييم حتى إصدار الشهادة.",
-      "duration": "30–45 يوم عمل",
-      "audience": "منشآت",
+      "name": "تصنيف المقاولين (شهادة تصنيف)",
+      "nameEn": "Contractor Classification Certificate",
+      "description": "خدمة تصنيف المقاولين واستخراج شهادة التصنيف مع متابعة المتطلبات حتى الاكتمال.",
+      "descriptionEn": "Contractor classification service and certificate issuance with requirements follow-up until completion.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
       "documents": [
-        "سجل تجاري ساري",
-        "التسجيل في الهيئة السعودية للمقاولين",
-        "مهندس/مهني معتمد واحد على الأقل لدى الشركة",
-        "إيداع القوائم المالية في برنامج «قوائم»",
-        "شهادات إنجاز المشاريع السابقة + تفاصيل القدرات الفنية والإدارية"
+        "السجل التجاري",
+        "بيانات الشركاء أو الموظفين",
+        "التفويضات والمستندات الداعمة لكل جهة"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Partners' or employees' details",
+        "Authorizations and supporting documents per authority"
       ],
       "features": [
-        "المنافسة في المشاريع الحكومية الكبرى",
-        "تعزيز ثقة العملاء",
-        "دليل على الكفاءة الفنية والمالية",
-        "تحسين جودة الأداء",
-        "شرط لبعض أشكال الدعم المالي"
+        "مراجعة متطلبات التصنيف",
+        "تقديم طلب التصنيف",
+        "متابعة حتى استخراج شهادة التصنيف"
+      ],
+      "featuresEn": [
+        "Reviewing classification requirements",
+        "Filing the classification request",
+        "Following up until the certificate is issued"
       ],
       "faq": [
         {
-          "q": "ما فوائد التصنيف؟",
-          "a": "يتيح المنافسة في المشاريع الحكومية الكبرى ويعزّز مصداقيتك."
-        },
-        {
-          "q": "ما المستندات؟",
-          "a": "القوائم المالية، شهادات الإنجاز، وتفاصيل القدرات الفنية والإدارية."
-        },
-        {
-          "q": "ما المدة؟",
-          "a": "30–45 يوم عمل."
-        },
-        {
-          "q": "هل هو إلزامي؟",
-          "a": "نعم للمشاركة في المشاريع الحكومية الكبرى."
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
         }
       ],
-      "durationEn": "30–45 working days"
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
     },
     "bp-re-06": {
       "description": "نساعد الأفراد والشركات غير السعودية على تملّك العقار في السعودية وفق نظام تملّك غير السعوديين للعقار (النافذ في 2026) عبر منصة «عقارات السعودية» التابعة للهيئة العامة للعقار (REGA). نتولّى فحص الأهلية والنطاق الجغرافي المعتمد، تجهيز الهوية الرقمية (نفاذ) للأفراد أو التسجيل والرقم الموحّد في وزارة الاستثمار للشركات، ترجمة وتصديق المستندات، مطابقتك بعقار داخل نطاق معتمد، تقديم ومتابعة الطلب على المنصة، وتنسيق التوثيق الإلكتروني والإفراغ حتى إصدار الصك. الرسوم الحكومية (رسم النقل حتى 5% + ضريبة التصرفات 5% ≈ 10%) منفصلة ومعلنة.",
@@ -2830,6 +2834,486 @@
           "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
         }
       ]
+    },
+    "bp-muqeem-01": {
+      "name": "إصدار تأشيرة خروج وعودة",
+      "nameEn": "Exit & Re-entry Visa Issuance",
+      "description": "إصدار تأشيرة خروج وعودة لموظف أو مقيم عبر منصة مقيم، مع متابعة الطلب حتى الإصدار.",
+      "descriptionEn": "Exit and re-entry visa issuance for an employee or resident with application follow-up until issuance.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "رقم الحدود أو الإقامة أو الجواز",
+        "بيانات العامل",
+        "صلاحية الدخول لمنصة مقيم"
+      ],
+      "documentsEn": [
+        "Border number, Iqama or passport",
+        "Worker details",
+        "Muqeem platform access"
+      ],
+      "features": [
+        "مراجعة بيانات المقيم",
+        "تقديم طلب تأشيرة الخروج والعودة عبر مقيم",
+        "متابعة الطلب حتى الإصدار"
+      ],
+      "featuresEn": [
+        "Reviewing the resident's data",
+        "Filing the exit & re-entry request via Muqeem",
+        "Following up until issuance"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-muqeem-02": {
+      "name": "إصدار إقامة جديدة (لموظف أجنبي)",
+      "nameEn": "New Iqama Issuance (for a foreign employee)",
+      "description": "إصدار إقامة جديدة لموظف أجنبي مع متابعة المتطلبات النظامية حتى الإصدار.",
+      "descriptionEn": "New Iqama issuance for a foreign employee, including regulatory requirements follow-up until issuance.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "رقم الحدود أو الإقامة أو الجواز",
+        "بيانات العامل",
+        "صلاحية الدخول لمنصة مقيم"
+      ],
+      "documentsEn": [
+        "Border number, Iqama or passport",
+        "Worker details",
+        "Muqeem platform access"
+      ],
+      "features": [
+        "مراجعة متطلبات الإصدار",
+        "تقديم طلب الإقامة عبر مقيم",
+        "متابعة الإجراء حتى إصدار الإقامة"
+      ],
+      "featuresEn": [
+        "Reviewing the issuance requirements",
+        "Filing the Iqama request via Muqeem",
+        "Following up until the Iqama is issued"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-muqeem-03": {
+      "name": "تجديد إقامة (هوية مقيم)",
+      "nameEn": "Iqama Renewal",
+      "description": "تجديد إقامة الموظف الأجنبي عبر منصة مقيم مع متابعة المتطلبات حتى اكتمال التجديد.",
+      "descriptionEn": "Iqama renewal service with regulatory requirements follow-up until renewal completion.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "رقم الحدود أو الإقامة أو الجواز",
+        "بيانات العامل",
+        "صلاحية الدخول لمنصة مقيم"
+      ],
+      "documentsEn": [
+        "Border number, Iqama or passport",
+        "Worker details",
+        "Muqeem platform access"
+      ],
+      "features": [
+        "مراجعة صلاحية الإقامة ومتطلبات التجديد",
+        "تنفيذ التجديد عبر مقيم",
+        "متابعة حتى اكتمال التجديد"
+      ],
+      "featuresEn": [
+        "Checking Iqama validity & renewal requirements",
+        "Processing the renewal via Muqeem",
+        "Following up until renewal is complete"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-muqeem-04": {
+      "name": "إصدار تأشيرة زيارة عائلية",
+      "nameEn": "Family Visit Visa Issuance",
+      "description": "إصدار تأشيرة زيارة عائلية مع تجهيز الطلب ومتابعة المتطلبات حتى إصدار التأشيرة.",
+      "descriptionEn": "Family visit visa issuance with application preparation and requirements follow-up until the visa is issued.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "رقم الحدود أو الإقامة أو الجواز",
+        "بيانات العامل",
+        "صلاحية الدخول لمنصة مقيم"
+      ],
+      "documentsEn": [
+        "Border number, Iqama or passport",
+        "Worker details",
+        "Muqeem platform access"
+      ],
+      "features": [
+        "تجهيز طلب تأشيرة الزيارة العائلية",
+        "التقديم عبر القنوات الرسمية",
+        "متابعة الطلب حتى الإصدار"
+      ],
+      "featuresEn": [
+        "Preparing the family visit visa request",
+        "Filing via the official channels",
+        "Following up until issuance"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-mudad-01": {
+      "name": "إعداد منصة مدد لنظام حماية الأجور",
+      "nameEn": "Mudad WPS Setup",
+      "description": "إعداد منصة مدد لنظام حماية الأجور وربط بيانات الرواتب ومتابعة جاهزية الامتثال.",
+      "descriptionEn": "Mudad WPS setup, including payroll data linkage and compliance readiness follow-up.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنشأة",
+        "ملف الرواتب أو بيانات الموظفين",
+        "صلاحية الدخول للمنصة"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Establishment details",
+        "Payroll file or employee data",
+        "Platform access"
+      ],
+      "features": [
+        "تفعيل ملف المنشأة في مدد",
+        "ربط بيانات الرواتب",
+        "تجهيز جاهزية الامتثال لحماية الأجور"
+      ],
+      "featuresEn": [
+        "Activating the establishment's Mudad file",
+        "Linking payroll data",
+        "Preparing WPS compliance readiness"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-mudad-02": {
+      "name": "رفع ملف حماية الأجور (نظام مُدد)",
+      "nameEn": "Mudad Wage Protection File Upload",
+      "description": "رفع ملف حماية الأجور عبر منصة مدد مع متابعة حالة الملف حتى اكتمال المعالجة.",
+      "descriptionEn": "Wage Protection file upload through Mudad with file status follow-up until processing is complete.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "بيانات المنشأة",
+        "ملف الرواتب أو بيانات الموظفين",
+        "صلاحية الدخول لمنصة مدد"
+      ],
+      "documentsEn": [
+        "Establishment details",
+        "Payroll file or employee data",
+        "Mudad platform access"
+      ],
+      "features": [
+        "تجهيز ملف الرواتب للرفع",
+        "رفع الملف عبر منصة مدد",
+        "متابعة الحالة حتى اكتمال المعالجة"
+      ],
+      "featuresEn": [
+        "Preparing the payroll file for upload",
+        "Uploading via Mudad",
+        "Following up until processing completes"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-mudad-03": {
+      "name": "معالجة ملاحظات نظام حماية الأجور",
+      "nameEn": "Wage Protection System Notes Resolution",
+      "description": "معالجة ملاحظات نظام حماية الأجور ومتابعة الإجراءات التصحيحية حتى تحسّن حالة الامتثال.",
+      "descriptionEn": "Resolving Wage Protection System notes and following up corrective actions until compliance status improves.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "بيانات المنشأة",
+        "ملف الرواتب أو بيانات الموظفين",
+        "صلاحية الدخول لمنصة مدد"
+      ],
+      "documentsEn": [
+        "Establishment details",
+        "Payroll file or employee data",
+        "Mudad platform access"
+      ],
+      "features": [
+        "تحليل ملاحظات حماية الأجور",
+        "تنفيذ الإجراءات التصحيحية",
+        "متابعة حتى تحسّن حالة الامتثال"
+      ],
+      "featuresEn": [
+        "Analyzing the WPS notes",
+        "Applying corrective actions",
+        "Following up until compliance improves"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-mod-01": {
+      "name": "إصدار تصريح الدفاع المدني (شهادة سلامة)",
+      "nameEn": "Civil Defense Permit & Safety Certificate",
+      "description": "إصدار تصريح الدفاع المدني (شهادة السلامة) للموقع مع متابعة المتطلبات حتى الاكتمال.",
+      "descriptionEn": "Civil Defense permit and safety certificate issuance with requirements follow-up until completion.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "documents": [
+        "بيانات الموقع",
+        "عقد الإيجار أو الصك",
+        "المخططات أو التقرير الفني",
+        "السجل التجاري"
+      ],
+      "documentsEn": [
+        "Location details",
+        "Lease contract or title deed",
+        "Plans or technical report",
+        "Commercial Registration"
+      ],
+      "features": [
+        "مراجعة اشتراطات السلامة للموقع",
+        "تقديم طلب تصريح الدفاع المدني",
+        "متابعة حتى إصدار شهادة السلامة"
+      ],
+      "featuresEn": [
+        "Reviewing the site's safety requirements",
+        "Filing the Civil Defense permit request",
+        "Following up until the safety certificate is issued"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-mod-02": {
+      "name": "تقرير فني سلامة (متطلب الدفاع المدني)",
+      "nameEn": "Technical Safety Report (Civil Defense requirement)",
+      "description": "إعداد تقرير فني للسلامة كمتطلب للدفاع المدني مع متابعة الموافقة ضمن إجراءات الترخيص.",
+      "descriptionEn": "Technical safety report preparation as a Civil Defense requirement with approval follow-up within licensing procedures.",
+      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
+      "audienceEn": "Establishments that need government transactions managed and followed up",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "documents": [
+        "بيانات الموقع",
+        "عقد الإيجار أو الصك",
+        "المخططات أو التقرير الفني",
+        "السجل التجاري"
+      ],
+      "documentsEn": [
+        "Location details",
+        "Lease contract or title deed",
+        "Plans or technical report",
+        "Commercial Registration"
+      ],
+      "features": [
+        "إعداد التقرير الفني للسلامة",
+        "التقديم ضمن إجراءات الترخيص",
+        "متابعة الموافقة"
+      ],
+      "featuresEn": [
+        "Preparing the technical safety report",
+        "Filing within licensing procedures",
+        "Following up the approval"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-hr-01": {
+      "name": "إصدار شهادة صحية للموظفين",
+      "nameEn": "Employee Health Certificate Issuance",
+      "description": "إصدار الشهادة الصحية للموظفين مع متابعة الفحص الطبي والمتطلبات البلدية حتى الإصدار.",
+      "descriptionEn": "Employee health certificate issuance with medical check and municipal requirements follow-up until issuance.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "يوم عمل واحد عادةً",
+      "durationEn": "Usually one business day",
+      "features": [
+        "متابعة الفحص الطبي للموظفين",
+        "استيفاء المتطلبات البلدية",
+        "إصدار الشهادة الصحية"
+      ],
+      "featuresEn": [
+        "Following up the employees' medical check",
+        "Meeting the municipal requirements",
+        "Issuing the health certificate"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-hr-02": {
+      "name": "فتح ملف منشأة في وزارة الموارد البشرية",
+      "nameEn": "Establishment File Opening at MHRSD",
+      "description": "فتح ملف المنشأة في وزارة الموارد البشرية والتنمية الاجتماعية مع متابعة التفعيل والمتطلبات ذات العلاقة.",
+      "descriptionEn": "Opening an establishment file at MHRSD with activation and related requirements follow-up.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
+      "features": [
+        "تجهيز متطلبات فتح الملف",
+        "فتح ملف المنشأة في وزارة الموارد البشرية",
+        "متابعة التفعيل"
+      ],
+      "featuresEn": [
+        "Preparing the file-opening requirements",
+        "Opening the establishment file at MHRSD",
+        "Following up activation"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-hr-03": {
+      "name": "خدمات الموارد البشرية وإدارة الموظفين",
+      "nameEn": "HR & Employee Management Services",
+      "description": "خدمات الموارد البشرية وإدارة الموظفين — تنظيم الملفات والإجراءات والمتابعة التشغيلية حسب النطاق المتفق عليه.",
+      "descriptionEn": "HR and employee management services including file organization, procedures, and operational follow-up based on scope.",
+      "audience": "المنشآت التي تحتاج خدمات تشغيل موظفين وامتثال موارد بشرية",
+      "audienceEn": "Establishments needing employee operations and HR compliance",
+      "duration": "خدمة أو اشتراك شهري مستمر",
+      "durationEn": "An ongoing monthly service or subscription",
+      "documents": [
+        "بيانات العميل أو الشركة",
+        "وصف الخدمة المطلوبة",
+        "المستندات التشغيلية أو التعاقدية المرتبطة"
+      ],
+      "documentsEn": [
+        "Client or company details",
+        "Description of the required service",
+        "Related operational or contractual documents"
+      ],
+      "features": [
+        "تنظيم ملفات الموظفين والإجراءات",
+        "المتابعة التشغيلية المستمرة",
+        "دعم الامتثال في الموارد البشرية"
+      ],
+      "featuresEn": [
+        "Organizing employee files & procedures",
+        "Ongoing operational follow-up",
+        "HR compliance support"
+      ],
+      "faq": [],
+      "faqEn": []
     }
   },
   "social": {

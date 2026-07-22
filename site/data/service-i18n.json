@@ -156,23 +156,23 @@
     "ar": "التسجيل في التأمينات الاجتماعية"
   },
   "BP-GR-01": {
-    "en": "Contractor classification (classification certificate)",
-    "ar": "تصنيف المقاولين (الحصول على شهادة تصنيف)"
+    "en": "Contractor Classification Certificate",
+    "ar": "تصنيف المقاولين (شهادة تصنيف)"
   },
   "BP-MOD-01": {
-    "en": "Civil Defense permit issuance (safety certificate)",
+    "en": "Civil Defense Permit & Safety Certificate",
     "ar": "إصدار تصريح الدفاع المدني (شهادة سلامة)"
   },
   "BP-MOD-02": {
-    "en": "Technical safety report (Civil Defense requirement)",
+    "en": "Technical Safety Report",
     "ar": "تقرير فني سلامة (متطلب الدفاع المدني)"
   },
   "BP-MUDAD-01": {
-    "en": "Mudad setup (WPS)",
-    "ar": "تفعيل نظام مُدد (حماية الأجور)"
+    "en": "Mudad WPS Setup",
+    "ar": "إعداد منصة مدد لنظام حماية الأجور"
   },
   "BP-MUQEEM-01": {
-    "en": "Exit & Re-entry visa issuance",
+    "en": "Exit & Re-entry Visa Issuance",
     "ar": "إصدار تأشيرة خروج وعودة"
   },
   "BP-QIWA-01": {
@@ -220,35 +220,35 @@
     "ar": "تقديم إقرار ضريبة قيمة مضافة"
   },
   "BP-HR-01": {
-    "en": "Employee health certificate issuance",
+    "en": "Employee Health Certificate Issuance",
     "ar": "إصدار شهادة صحية للموظفين"
   },
   "BP-HR-02": {
-    "en": "Opening an entity file at the Ministry of HR",
+    "en": "Establishment File Opening at MHRSD",
     "ar": "فتح ملف منشأة في وزارة الموارد البشرية"
   },
   "BP-HR-03": {
-    "en": "HR services & employee management",
+    "en": "HR & Employee Management Services",
     "ar": "خدمات الموارد البشرية وإدارة الموظفين"
   },
   "BP-MUDAD-02": {
-    "en": "Wage Protection file upload (Mudad)",
+    "en": "Mudad Wage Protection File Upload",
     "ar": "رفع ملف حماية الأجور (نظام مُدد)"
   },
   "BP-MUDAD-03": {
-    "en": "Resolving Wage Protection System notes",
+    "en": "Wage Protection System Notes Resolution",
     "ar": "معالجة ملاحظات نظام حماية الأجور"
   },
   "BP-MUQEEM-02": {
-    "en": "New residency (Iqama) issuance for a foreign employee",
+    "en": "New Iqama Issuance",
     "ar": "إصدار إقامة جديدة (لموظف أجنبي)"
   },
   "BP-MUQEEM-03": {
-    "en": "Residency (Iqama) renewal",
+    "en": "Iqama Renewal",
     "ar": "تجديد إقامة (هوية مقيم)"
   },
   "BP-MUQEEM-04": {
-    "en": "Family visit visa issuance",
+    "en": "Family Visit Visa Issuance",
     "ar": "إصدار تأشيرة زيارة عائلية"
   },
   "BP-REC-01": {
