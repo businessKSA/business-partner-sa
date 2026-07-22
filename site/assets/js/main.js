@@ -106,6 +106,8 @@ var BP = window.BP = window.BP || {};
   BP.lang = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0 ? "ar" : "en";
   BP.t = function (en, ar) { return BP.lang === "ar" ? ar : en; };
   BP.money = function (n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }) + " ﷼"; };
+  // Owner policy: never reveal any price anywhere (set via data-prices="off" on <html>).
+  BP.pricesOn = document.documentElement.getAttribute("data-prices") !== "off";
   // Canonical Field/sector taxonomy — must stay in sync with generate.mjs's
   // FIELD_TAXONOMY, api/candidates.js's FIELD_OPTIONS and api/candidate.js's
   // guessField() classifier. [arabic value, english label] — the Arabic
@@ -130,6 +132,9 @@ var BP = window.BP = window.BP || {};
   "use strict";
   var KEY = "bp_cart";
   var VAT = 0.15;
+  // Owner policy: never reveal any price. When prices are off the cart is a
+  // request basket — line items and totals show "quoted", never an amount.
+  var PRICES_ON = document.documentElement.getAttribute("data-prices") !== "off";
 
   function read() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
   function write(c) { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} updateBadge(); }
@@ -200,7 +205,7 @@ var BP = window.BP = window.BP || {};
     else {
       if (empty) empty.hidden = true;
       wrap.innerHTML = c.map(function (i, idx) {
-        var priceTxt = i.amount ? BP.money(i.amount) : (i.price || BP.t("Quoted on review", "يُسعّر عند المراجعة"));
+        var priceTxt = (PRICES_ON && i.amount) ? BP.money(i.amount) : BP.t("Quoted on review", "يُسعّر عند المراجعة");
         return '<div class="cart-item">' +
           '<div class="ci-main"><strong>' + esc(name(i)) + '</strong><span class="ci-kind">' + kindLabel(i.kind) + '</span></div>' +
           '<div class="ci-qty"><button type="button" class="ci-dec" data-i="' + idx + '">−</button><span>' + (i.qty || 1) + '</span><button type="button" class="ci-inc" data-i="' + idx + '">+</button></div>' +
@@ -235,6 +240,12 @@ var BP = window.BP = window.BP || {};
   }
 
   function renderTotals(subId, vatId, totId) {
+    function set0(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+    if (!PRICES_ON) {
+      var q0 = BP.t("Quoted on review", "يُسعّر عند المراجعة");
+      set0(subId, q0); set0(vatId, "—"); set0(totId, q0);
+      return;
+    }
     var extra = (typeof BP.extraCheckoutFee === "function") ? (BP.extraCheckoutFee() || 0) : 0;
     var sub = subtotal() + extra, vat = sub * VAT, tot = sub + vat;
     var q = hasQuoteItems();
@@ -268,7 +279,7 @@ var BP = window.BP = window.BP || {};
     if (!wrap) return;
     var c = read();
     wrap.innerHTML = c.length ? c.map(function (i) {
-      var priceTxt = i.amount ? BP.money(i.amount * (i.qty || 1)) : (i.price || BP.t("Quoted", "تُسعّر"));
+      var priceTxt = (PRICES_ON && i.amount) ? BP.money(i.amount * (i.qty || 1)) : BP.t("Quoted on review", "يُسعّر عند المراجعة");
       return '<div class="co-line"><span>' + esc(name(i)) + ' ×' + (i.qty || 1) + '</span><span>' + esc(priceTxt) + '</span></div>';
     }).join("") : '<p class="text-soft">' + BP.t("Cart is empty.", "السلة فارغة.") + '</p>';
     renderTotals("co-subtotal", "co-vat", "co-total");
@@ -1126,7 +1137,7 @@ var BP = window.BP = window.BP || {};
       var note = document.getElementById("pkg-surcharge-note");
       if (!note) return;
       var fee = BP.extraCheckoutFee();
-      if (fee > 0) {
+      if (fee > 0 && BP.pricesOn) {
         note.hidden = false;
         note.textContent = BP.t("Extra employee fee included: ", "رسوم الموظفين الإضافيين مضمّنة: ") + BP.money(fee);
       } else {
@@ -2895,7 +2906,8 @@ var BP_EMP_BILLING = "monthly";
         noteEl.style.color = "";
         if (plan) {
           var price = window.BP_EMP_BILLING === "yearly" && plan.yearlyPrice != null ? plan.yearlyPrice : plan.price;
-          noteEl.textContent = T("Selected: ", "تم اختيار: ") + plan.name + (price != null ? " — " + price + " " + T("SAR", "ريال") : "");
+          var showP = BP.pricesOn && price != null;
+          noteEl.textContent = T("Selected: ", "تم اختيار: ") + plan.name + (showP ? " — " + price + " " + T("SAR", "ريال") : "");
         }
       });
     });

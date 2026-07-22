@@ -367,7 +367,7 @@ function head(title, desc, path) {
   const langsForPage = ["en", "ar", ...EXTRA_LANGS.filter((l) => langPathReady(l, canonical))];
   const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
-<html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}">
+<html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}"${SHOW_PRICES ? "" : ' data-prices="off"'}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -388,6 +388,7 @@ ${hreflangs}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=${CSS_V}">
+${SHOW_PRICES ? "" : '<style>/* Owner policy: never reveal any price. Safety net for pure-price elements incl. JS-populated ones. */.tr-price,.price-amt,.emp-price,.emp-price-m,.emp-price-y,.pk-per,.emp-billing-toggle,.cart-totals-block{display:none!important}</style>'}
 </head>
 <body>`;
 }
@@ -1256,11 +1257,12 @@ function buildServicesIndex() {
 }
 
 // One page per category listing only that category's services.
-// Owner's policy: individual catalog services are always custom-quoted — no
-// numeric price is shown anywhere for them (the government fees are separate
-// and the fee depends on the client's case). Only packages, AI agents and
-// smart-employees keep listed prices. Flip this to re-enable service prices.
-const SHOW_SERVICE_PRICES = false;
+// Owner's policy (updated): NO price is revealed anywhere on the site — not for
+// services, packages, AI agents, smart-employees, trips or catering. Everything
+// is quoted to the client's case. Flip SHOW_PRICES to true to re-enable every
+// price display at once.
+const SHOW_PRICES = false;
+const SHOW_SERVICE_PRICES = SHOW_PRICES;
 
 function buildServiceCategory(cat) {
   const list = services.filter((s) => s.category === cat.key);
@@ -1398,7 +1400,7 @@ function buildAiAgents() {
       const btnsWithTry = tryBtn ? btns.replace('<div class="buy-row">', `<div class="buy-row">${tryBtn}`) : btns;
       return `<div class="pkg${g.highlight ? " pop" : ""}">
       <div class="pk-name">${nameHtml}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
-      <div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>
+      ${SHOW_PRICES ? `<div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>` : ""}
       <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
       <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
       ${btnsWithTry}
@@ -1705,7 +1707,7 @@ function buildPackages() {
       const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
       return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
         <div class="pk-name">${esc(name)}</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>
+        ${SHOW_PRICES ? `<div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>` : ""}
         <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
         ${feats}
         <button type="button" class="btn ${t.highlight ? "btn-primary" : "btn-ghost"} add-cart emp-plan-btn" style="width:100%"
@@ -1720,11 +1722,11 @@ function buildPackages() {
     }
     return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
       <div class="pk-name">${esc(name)}</div>
-      ${t.price ? `<div class="pk-price">${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
+      ${SHOW_PRICES && t.price ? `<div class="pk-price">${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
-      ${t.surcharge || t.surchargeEn ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
+      ${SHOW_PRICES && (t.surcharge || t.surchargeEn) ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
     </div>`;
   };
   const tabs = groups
@@ -1732,7 +1734,7 @@ function buildPackages() {
     .join("");
   const panels = groups
     .map((g, i) => {
-      const hasMonthly = yearlyDiscount > 0 && g.tiers.some(isMonthly);
+      const hasMonthly = SHOW_PRICES && yearlyDiscount > 0 && g.tiers.some(isMonthly);
       const billingToggle = hasMonthly
         ? `<div class="emp-billing-toggle" role="tablist">
             <button type="button" class="emp-bill-btn active" data-bill="monthly">${L("Monthly", "شهري")}</button>
@@ -2300,7 +2302,7 @@ function buildComplianceAgent() {
 
   <section id="pricing" class="section" style="padding-top:0"><div class="container">
     <div class="price-box">
-      <div><div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
+      <div>${SHOW_PRICES ? `<div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>` : ""}
       <div class="text-soft">${L("Compliance subscription — daily monitoring and alerts. Government fees for actions are separate and only run with your approval.", "اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.")}</div></div>
       ${cartBtns({ id: "agent-Compliance-Agent", nameEn: "Compliance & obligations agent", nameAr: "وكيل الامتثال والالتزام", amount: 250, priceLabel: L("From 250 ﷼ / monthly", "يبدأ من 250 ﷼ / شهرياً"), kind: "agent" })}
     </div>
@@ -2505,9 +2507,9 @@ function buildTeamAgent(agent) {
 
   <section class="section" style="padding-top:0" id="pricing"><div class="container">
     <div class="price-box">
-      <div><div class="price-amt">500 <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>
+      <div>${SHOW_PRICES ? `<div class="price-amt">500 <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>` : ""}
       <div class="text-soft">${L("Part of the Smart Specialized Agents team — subscribe to one employee or several from the same cart.", "جزء من فريق الموظفين الأذكياء المتخصصين — اشترك بموظف واحد أو أكثر من نفس السلة.")}</div></div>
-      <button type="button" class="btn btn-primary btn-lg add-cart" data-id="employee-${agent.slug}" data-name-en="${esc(agent.nameEn)} — ${esc(agent.roleEn)}" data-name-ar="${esc(agent.nameAr)} — ${esc(agent.roleAr)}" data-amount="500" data-price="500 ﷼ / ${Lraw("monthly", "شهرياً")}" data-kind="employee">${L("🛒 Add to cart — 500 SAR/mo", "🛒 أضف للسلة — 500 ﷼/شهرياً")}</button>
+      <button type="button" class="btn btn-primary btn-lg add-cart" data-id="employee-${agent.slug}" data-name-en="${esc(agent.nameEn)} — ${esc(agent.roleEn)}" data-name-ar="${esc(agent.nameAr)} — ${esc(agent.roleAr)}" data-amount="500" data-price="500 ﷼ / ${Lraw("monthly", "شهرياً")}" data-kind="employee">${L(SHOW_PRICES ? "🛒 Add to cart — 500 SAR/mo" : "🛒 Add to cart", SHOW_PRICES ? "🛒 أضف للسلة — 500 ﷼/شهرياً" : "🛒 أضف للسلة")}</button>
       <a class="btn btn-ghost" href="${u("/connect")}">${L("Browse the full team", "استعرض الفريق كاملاً")}</a>
     </div>
   </div></section>
@@ -3275,7 +3277,7 @@ function buildMahfolTrips() {
   // Purchasable trip card: priced → Add to cart (per-person; qty = travellers) →
   // existing checkout (requires sign-in, payment, order in Notion, shows in the
   // client portal). Price-less → request a custom quote via the form.
-  const tripBuy = (d, ghost = false) => d.price != null
+  const tripBuy = (d, ghost = false) => d.price != null && SHOW_PRICES
     ? cartBtns({ id: "trip-" + d.k, nameEn: "Trip — " + d.en, nameAr: "رحلة — " + d.ar, amount: d.price, priceLabel: L(d.pe, d.pa), kind: "trip", ghost })
     : `<div class="buy-row"><a class="btn ${ghost ? "btn-ghost" : "btn-primary"}" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a></div>`;
   const destCards = DEST.map((d) => `
@@ -3284,7 +3286,7 @@ function buildMahfolTrips() {
       <div class="tr-dest-body">
         <h3><button type="button" class="tr-dest-name" data-trip-open="${d.k}">${L(d.en, d.ar)}</button></h3>
         <p class="tr-tag">${L(d.te, d.ta)}</p>
-        <span class="tr-price">${L(d.pe, d.pa)}</span>
+        ${SHOW_PRICES ? `<span class="tr-price">${L(d.pe, d.pa)}</span>` : ""}
         <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
           ${tripBuy(d)}
           <a class="tr-inquire" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${L("or ask a question", "أو استفسر أولاً")}</a>
@@ -3315,7 +3317,7 @@ function buildMahfolTrips() {
   const mapPanels = DEST.map((d, i) => `
     <div class="trm-panel${i === 0 ? " on" : ""}" data-idx="${i}">
       <div class="trm-panel-img" style="background-image:url('${timg(d.img)}')"></div>
-      <div class="trm-panel-body"><h3>${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p><span class="tr-price">${L(d.pe, d.pa)}</span>
+      <div class="trm-panel-body"><h3>${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p>${SHOW_PRICES ? `<span class="tr-price">${L(d.pe, d.pa)}</span>` : ""}
       ${tripBuy(d)}</div>
     </div>`).join("");
 
@@ -3926,12 +3928,13 @@ function employerPlanCards({ selectable, standalone }) {
   const discount = (site.employerPlans && site.employerPlans.yearlyDiscount) || 0;
   const fmt = (n) => Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : "en-US");
   const priceHtml = (t) => {
+    if (!SHOW_PRICES) return "";
     if (t.price == null) return `<span class="pk-soon">${L("Pricing on request", "السعر عند الطلب")}</span>`;
     const yearly = employerYearly(t.price, discount);
     return `<span class="emp-price emp-price-m">${fmt(t.price)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span>
       <span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span>`;
   };
-  const toggle = discount
+  const toggle = discount && SHOW_PRICES
     ? `<div class="emp-billing-toggle" role="tablist">
         <button type="button" class="emp-bill-btn active" data-bill="monthly">${L("Monthly", "شهري")}</button>
         <button type="button" class="emp-bill-btn" data-bill="yearly">${L("Yearly", "سنوي")} <span class="emp-save">${L(`Save ${Math.round(discount * 100)}%`, `وفّر ${Math.round(discount * 100)}٪`)}</span></button>
@@ -4541,18 +4544,18 @@ function buildFarina() {
       ["Mini croissants & sandwiches", "Savory & sweet danish", "Dry cakes & sweets", "For daily team meetings"],
       ["ميني كرواسان وساندويتشات", "دانيش مالح وحلو", "كيك جاف وحلويات", "لاجتماعات الفريق اليومية"]),
     menuTier("vip-coffee", "VIP Coffee Break", "كوفي بريك VIP", "Custom quote", "حسب عدد الأفراد",
-      ["Cheese platter & 4 croissant varieties", "Smoked salmon bruschetta", "Arabic coffee, served traditionally", "Premium Farina chocolate"],
-      ["تشيز بلاتر وكرواسان بأربعة أنواع", "بروشيتا سلمون مدخن", "قهوة عربية تُقدَّم بمراسم تقليدية", "شوكولاتة فارينا الفاخرة"]),
+      ["Cheese platter & 4 croissant varieties", "Smoked salmon bruschetta", "Arabic coffee, served traditionally", "Premium chocolate selection"],
+      ["تشيز بلاتر وكرواسان بأربعة أنواع", "بروشيتا سلمون مدخن", "قهوة عربية تُقدَّم بمراسم تقليدية", "تشكيلة شوكولاتة فاخرة"]),
     menuTier("executive-lunch", "Executive Lunch", "غداء تنفيذي", "Custom quote", "يوميًا لعدد أيام العمل المتفق عليها",
       ["4 rotating menus", "Beef tenderloin, grilled salmon, seasonal dishes", "Personally supervised by our head of kitchen", "Daily during working days"],
       ["4 قوائم متناوبة", "تندرلوين لحم، سلمون مشوي، وأطباق موسمية", "إشراف شخصي من مدير قسم الطهي", "يوميًا خلال أيام العمل"]),
     menuTier("sharing", "Cheese Platter & Finger Food", "تشيز بلاتر وفينجر فوود", "Custom quote", "حسب عدد الأفراد",
       ["Imported cheese & cold cuts", "Seasonal fruit", "Served with sparkling juices", "For private events and gatherings"],
       ["أجبان مستوردة ولحوم باردة", "فواكه موسمية", "تُقدَّم مع عصائر فوارة", "للفعاليات والتجمعات الخاصة"]),
-    menuTier("vip-hospitality", "VIP Hospitality", "ضيافة كبار الشخصيات", "From 990 SAR", "من 990 ريال",
+    menuTier("vip-hospitality", "VIP Hospitality", "ضيافة كبار الشخصيات", "Custom quote", "حسب عدد الأفراد",
       ["Traditional Gahwaji coffee service", "Premium dates", "Crystal cups, white linen", "For up to 50 guests"],
       ["مراسم القهوجي التقليدية", "تمور فاخرة", "كؤوس كريستالية ومفارش بيضاء", "لما يصل إلى 50 ضيفًا"]),
-    menuTier("workforce", "Monthly Workforce Catering", "إعاشة عمالة شهرية", "From 8 SAR / person / day", "من 8 ريال / عامل / يوم",
+    menuTier("workforce", "Monthly Workforce Catering", "إعاشة عمالة شهرية", "Custom quote", "حسب عدد الأفراد وأيام العمل",
       ["Breakfast, lunch and dinner", "Rotating 4-week menu, nationality-aware", "Organized daily delivery", "Licensed kitchen, SFDA-compliant"],
       ["فطور وغداء وعشاء", "منيو متجدد بدورة 4 أسابيع يراعي الجاليات", "توصيل يومي منظّم", "مطبخ مرخّص ومطابق لاشتراطات SFDA"]),
   ].join("");
@@ -5736,9 +5739,11 @@ function buildCart() {
       <aside class="cart-aside">
         <div class="order-box">
           <h3>${L("Summary", "الملخص")}</h3>
+          <div class="cart-totals-block">
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="cart-subtotal">—</span></div>
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="cart-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
+          </div>
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
           <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
           <p class="mini">${L("Payment is by bank transfer: you upload the transfer receipt at checkout and we activate right after confirming it.", "الدفع بالتحويل البنكي: ترفع إيصال التحويل عند إتمام الطلب ونفعّل خدمتك فور تأكيده.")}</p>
@@ -5825,9 +5830,11 @@ function buildCheckout() {
         <div class="order-box">
           <h3>${L("Order summary", "ملخص الطلب")}</h3>
           <div id="checkout-items"></div>
+          <div class="cart-totals-block">
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="co-subtotal">—</span></div>
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="co-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="co-total">—</span></div>
+          </div>
           <a class="btn btn-ghost" href="${u("/cart")}" style="width:100%">${L("Edit cart", "تعديل السلة")}</a>
         </div>
       </aside>
@@ -6764,7 +6771,7 @@ function buildConnect(pre = "/") {
     <div class="wrap">
       <div class="sec-head"><h2>🧭 رحلة العميل — من الاختيار إلى التشغيل</h2><p>خمس خطوات واضحة، كلها داخل الموقع — بدون واتساب وبدون انتظار.</p></div>
       <div class="jgrid">
-        <div class="jstep"><span class="jn">1</span><b>اختر موظفيك</b><span>حدّد من هذه الصفحة موظفاً واحداً أو أكثر وأضفهم للسلة (500 ﷼/شهرياً للموظف).</span></div>
+        <div class="jstep"><span class="jn">1</span><b>اختر موظفيك</b><span>حدّد من هذه الصفحة موظفاً واحداً أو أكثر وأضفهم للسلة${SHOW_PRICES ? " (500 ﷼/شهرياً للموظف)" : ""}.</span></div>
         <div class="jstep"><span class="jn">2</span><b>ادفع وأرفق الإيصال</b><span>أكمل الطلب من السلة بالتحويل البنكي وأرفق إيصال PDF — يصلك رقم طلب مثل BP-506275.</span></div>
         <div class="jstep"><span class="jn">3</span><b>نتحقق ونفعّل</b><span>نطابق الإيصال مع طلبك ونعتمد الدفع — رقم طلبك نفسه يصير كود التفعيل.</span></div>
         <div class="jstep"><span class="jn">4</span><b>ادخل بوابتك</b><span>افتح <a href="${pre}portal">بوابة الموظفين الأذكياء</a> بنفس بريدك + كودك — يفتح لك بالضبط اللي اشتريته.</span></div>
@@ -6970,7 +6977,7 @@ function buildConnect(pre = "/") {
       var d=document.createElement('div'); d.className='emp';
       d.innerHTML='<div class="emp-top"><span class="e">'+m.e+'</span><div><b>'+m.name+'</b><span>'+m.role+'</span></div></div>'+
         '<a href="/ar/team/'+m.slug+'" target="_blank" rel="noopener" class="emp-details">ايش يقدم؟ التفاصيل الكاملة ←</a>'+
-        '<button type="button" class="emp-cart add-cart" data-id="employee-'+m.slug+'" data-name-en="'+m.nameEn+'" data-name-ar="'+m.name+' — '+m.role+'" data-amount="500" data-price="500 ﷼ / شهرياً" data-kind="employee">🛒 أضف للسلة — 500 ﷼/شهرياً</button>';
+        '<button type="button" class="emp-cart add-cart" data-id="employee-'+m.slug+'" data-name-en="'+m.nameEn+'" data-name-ar="'+m.name+' — '+m.role+'" data-amount="500" data-price="500 ﷼ / شهرياً" data-kind="employee">${SHOW_PRICES ? "🛒 أضف للسلة — 500 ﷼/شهرياً" : "🛒 أضف للسلة"}</button>';
       empGrid.appendChild(d);
     });
   </script>

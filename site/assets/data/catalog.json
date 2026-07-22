@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T03:17:44.709Z",
+  "updatedAt": "2026-07-22T03:31:10.294Z",
   "currency": "SAR",
   "services": [
     {
@@ -949,7 +949,7 @@
       "govPlatform": "بدون جهة حكومية",
       "pricingModel": "Percent",
       "amount": null,
-      "priceLabel": "نصف الراتب الشهري",
+      "priceLabel": "عرض مخصّص حسب الحالة",
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-rec-05"
