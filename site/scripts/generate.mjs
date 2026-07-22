@@ -1836,14 +1836,12 @@ function buildCalculator() {
         const m = svcI18n[s.code] || {};
         const ov = site.overrides[s.slug];
         return {
+          // Request builder only — no prices embedded. Every service is
+          // quoted to the client's case; the calculator just collects a basket.
           id: s.code,
           nameEn: m.en || (ov && ov.nameEn) || s.name,
           nameAr: m.ar || (ov && ov.name) || s.name,
           slug: s.slug,
-          amount: s.price.amount,
-          label: s.price.label,
-          ptype: priceType(s),
-          gov: s.govFeesSeparate,
         };
       }),
     };
@@ -1851,9 +1849,9 @@ function buildCalculator() {
 
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Cost calculator", "حاسبة التكلفة")}</span>
-    <h1>${L("Build your service basket and see the cost", "كوّن سلّة خدماتك واعرف التكلفة")}</h1>
-    <p class="lead">${L("Pick services from the official catalog by category — no need to compare prices service by service. Once you're done, get the total cost for your basket in one step.", "اختر خدماتك حسب التصنيف من الكتالوج الرسمي — بدون ما تقارن الأسعار خدمة خدمة. وبعد ما تخلّص اختياراتك، اطلب السعر الإجمالي لسلّتك بخطوة وحدة.")}</p>
+    <span class="eyebrow">${L("Build your request", "كوّن طلبك")}</span>
+    <h1>${L("Build your service basket", "كوّن سلّة خدماتك")}</h1>
+    <p class="lead">${L("Pick the services you need from the official catalog by category. When you're done, request an official quote for your case or book a free consultation — every service is priced to your situation.", "اختر الخدمات اللي تحتاجها حسب التصنيف من الكتالوج الرسمي. وبعد ما تخلّص، اطلب عرضاً رسمياً لحالتك أو احجز استشارة مجانية — كل خدمة تُسعّر حسب وضعك.")}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="calc2" id="calc2">
@@ -1864,22 +1862,16 @@ function buildCalculator() {
           <div class="calc2-selected" id="calc2-selected">
             <p class="calc2-empty" id="calc2-empty">${L("No services selected yet. Tap a service to add it.", "لم تختر أي خدمة بعد. اضغط على أي خدمة لإضافتها.")}</p>
           </div>
-          <button type="button" class="btn btn-primary" id="calc2-reveal" style="width:100%" disabled>${L("Calculate total price", "احسب السعر الإجمالي")}</button>
-          <div class="calc2-totals" id="calc2-totals" hidden>
-            <div class="calc-line"><span class="k">${L("One-time fees", "أتعاب لمرة واحدة")}</span><span class="v" id="calc2-once">0 ﷼</span></div>
-            <div class="calc-line"><span class="k">${L("Monthly fees", "أتعاب شهرية")}</span><span class="v" id="calc2-monthly">0 ﷼</span></div>
-            <div class="calc-line calc2-vat"><span class="k">${L("+ VAT 15% (on fees)", "+ ضريبة القيمة المضافة 15% (على الأتعاب)")}</span><span class="v" id="calc2-vat">—</span></div>
-          </div>
-          <div class="calc2-warn" id="calc2-warn" hidden>${I.doc}<span>${L("Some selected services are priced on request (a quote after review). They are not included in the totals.", "بعض الخدمات المختارة تُسعّر حسب الطلب (عرض بعد المراجعة) ولا تدخل في الإجمالي.")}</span></div>
-          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/account")}?redirect=quote" style="width:100%" hidden>${L("Request an official quote", "اطلب عرضاً رسمياً")}</a>
+          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/account")}?redirect=quote" style="width:100%" hidden>${L("Request an official quote by email", "اطلب عرضاً رسمياً بالبريد")}</a>
+          <a class="btn btn-ghost btn-lg" href="${u("/consultation")}" style="width:100%">${I.calendar}<span>${L("Book a free consultation", "احجز استشارة مجانية")}</span></a>
           <a class="btn btn-wa" href="${WA}" target="_blank" rel="noopener">${I.wa}<span>${L("Or chat with the smart agent", "أو تحدث مع الوكيل الذكي")}</span></a>
-          <p class="calc-note">${L("Estimates from the official catalog; final pricing may vary by your case. Government fees are separate.", "تقديرات من الكتالوج الرسمي وقد تختلف حسب حالتك. الرسوم الحكومية منفصلة.")}</p>
+          <p class="calc-note">${L("No prices shown — each service is quoted to your case. Pick what you need and we'll send you an official quote. Government fees are always separate.", "بدون أسعار معروضة — كل خدمة تُسعّر حسب حالتك. اختر ما تحتاجه ونرسل لك عرضاً رسمياً. الرسوم الحكومية منفصلة دائماً.")}</p>
         </div>
       </aside>
     </div>
   </div></section>
   <script>window.BP_CALC = ${JSON.stringify(groups)};window.BP_CALC_LANG = ${JSON.stringify(LANG)};</script>`;
-  return page({ title: Lraw("Cost calculator — Business Partner", "حاسبة التكلفة — بيزنس بارتنر"), desc: Lraw("Build a basket of Business Partner services and see one-time and monthly fees from the official catalog.", "كوّن سلّة من خدمات بيزنس بارتنر واعرف الأتعاب لمرة واحدة والشهرية من الكتالوج الرسمي."), active: "/calculator", body });
+  return page({ title: Lraw("Build your service request — Business Partner", "كوّن طلب خدماتك — بيزنس بارتنر"), desc: Lraw("Pick Business Partner services from the official catalog and request an official quote or book a consultation — each service is priced to your case.", "اختر خدمات بيزنس بارتنر من الكتالوج الرسمي واطلب عرضاً رسمياً أو احجز استشارة — كل خدمة تُسعّر حسب حالتك."), active: "/calculator", body });
 }
 
 // Qiwa-style tools directory: one clean grid of cards, each linking straight

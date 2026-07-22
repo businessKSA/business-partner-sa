@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-21T14:58:23.130Z",
+  "updatedAt": "2026-07-22T03:07:50.841Z",
   "currency": "SAR",
   "services": [
     {
@@ -1396,24 +1396,24 @@
       "groupNameEn": "Service packages",
       "code": null,
       "key": "silver",
-      "nameAr": "الباقة الفضية",
-      "nameEn": "Silver Package",
-      "amount": 7500,
-      "priceLabel": "Starting from 7,500 SAR / yearly",
+      "nameAr": "باقة الانطلاق",
+      "nameEn": "Launch Package",
+      "amount": 6000,
+      "priceLabel": "Starting from 6,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "إدارة السجل التجاري",
-        "التسجيل والمتابعة في منصة قوى",
-        "إدارة التأمينات الاجتماعية",
-        "إدارة التأمين الطبي",
-        "الامتثال الزكوي والضريبي الأساسي"
+        "تشغيل وإدارة السجل التجاري ومتابعة تجديده",
+        "تفعيل حساب المنشأة في منصة قوى ومتابعته",
+        "إدارة اشتراك التأمينات الاجتماعية",
+        "تنظيم التأمين الطبي للموظفين",
+        "متابعة الالتزام الزكوي والضريبي الأساسي"
       ],
       "featuresEn": [
-        "Commercial Registration management",
-        "Qiwa platform registration & follow-up",
-        "Social insurance (GOSI) management",
-        "Medical insurance management",
-        "Basic Zakat & tax compliance"
+        "Commercial Registration operation & renewal follow-up",
+        "Activating & monitoring your Qiwa establishment account",
+        "GOSI subscription management",
+        "Employee medical insurance setup",
+        "Follow-up on core Zakat & tax compliance"
       ],
       "url": "https://businesspartner.sa/packages"
     },
@@ -1423,24 +1423,24 @@
       "groupNameEn": "Service packages",
       "code": null,
       "key": "gold",
-      "nameAr": "الباقة الذهبية",
-      "nameEn": "Gold Package",
-      "amount": 13500,
-      "priceLabel": "Starting from 13,500 SAR / yearly",
+      "nameAr": "باقة النمو",
+      "nameEn": "Growth Package",
+      "amount": 10800,
+      "priceLabel": "Starting from 10,800 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "تشمل جميع مزايا الباقة الفضية",
-        "إدارة شؤون الموظفين والعقود",
-        "إدارة وحماية الأجور",
-        "متابعة دورية للالتزامات النظامية",
-        "دعم تشغيلي موسّع للمنشأة"
+        "كل ما في باقة الانطلاق",
+        "إدارة ملفات الموظفين والعقود إلكترونياً",
+        "إدارة الأجور والتسجيل في نظام حماية الأجور",
+        "متابعة دورية لالتزامات المنشأة النظامية",
+        "دعم تشغيلي موسّع طوال فترة الاشتراك"
       ],
       "featuresEn": [
-        "Everything in the Silver package",
-        "Employee affairs & contracts management",
-        "Wage management & wage protection",
-        "Periodic follow-up on regulatory obligations",
-        "Extended operational support"
+        "Everything in the Launch package",
+        "Digital employee files & contracts management",
+        "Payroll management & Wage Protection System enrollment",
+        "Periodic follow-up on your regulatory obligations",
+        "Extended operational support throughout the subscription"
       ],
       "url": "https://businesspartner.sa/packages"
     },
@@ -1450,22 +1450,22 @@
       "groupNameEn": "Service packages",
       "code": null,
       "key": "platinum",
-      "nameAr": "الباقة البلاتينية",
-      "nameEn": "Platinum Package",
-      "amount": 20000,
-      "priceLabel": "Starting from 20,000 SAR / yearly",
+      "nameAr": "باقة التوسّع",
+      "nameEn": "Scale Package",
+      "amount": 16000,
+      "priceLabel": "Starting from 16,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "تشمل جميع مزايا الباقة الذهبية",
-        "إدارة متقدمة للموارد البشرية",
-        "إدارة الإقرارات والمتابعة الشاملة",
+        "كل ما في باقة النمو",
+        "إدارة متقدمة لملف الموارد البشرية",
+        "إعداد ومتابعة الإقرارات والالتزامات الشاملة",
         "تقارير تشغيلية وتنظيمية دورية",
         "استشارات قانونية وتشغيلية مستمرة"
       ],
       "featuresEn": [
-        "Everything in the Gold package",
-        "Advanced HR management",
-        "Filings management & comprehensive follow-up",
+        "Everything in the Growth package",
+        "Advanced HR file management",
+        "Preparing & tracking filings and full compliance",
         "Periodic operational & regulatory reports",
         "Ongoing legal & operational consultations"
       ],
@@ -1477,28 +1477,28 @@
       "groupNameEn": "Service packages",
       "code": null,
       "key": "diamond",
-      "nameAr": "الباقة الماسية",
-      "nameEn": "Diamond Package",
+      "nameAr": "باقة الشراكة المؤسسية",
+      "nameEn": "Enterprise Partnership",
       "amount": null,
       "priceLabel": "Custom package, priced on request",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "تشمل جميع مزايا الباقة البلاتينية",
-        "مدير حساب مخصص للمنشأة",
-        "أولوية تنفيذ ومتابعة فورية",
-        "حلول مخصصة حسب احتياج النشاط",
-        "دعم استباقي شامل دون تدخل العميل",
-        "دعم فريق الدعم التشغيلي ومتابعة المنصات",
-        "تقارير ومؤشرات لمتابعة النشاط والأداء"
+        "كل ما في باقة التوسّع",
+        "مدير حساب مخصّص لمنشأتك",
+        "أولوية في التنفيذ ومتابعة فورية",
+        "حلول مصمّمة حسب نشاط منشأتك",
+        "دعم استباقي شامل دون الحاجة لمتابعة من العميل",
+        "فريق دعم تشغيلي مخصّص لمتابعة المنصّات",
+        "تقارير ومؤشرات أداء لمتابعة نشاطك"
       ],
       "featuresEn": [
-        "Everything in the Platinum package",
-        "Dedicated account manager",
+        "Everything in the Scale package",
+        "Dedicated account manager for your establishment",
         "Priority execution & instant follow-up",
-        "Custom solutions tailored to your activity",
-        "Comprehensive proactive support, no client follow-up needed",
-        "Dedicated operational support team & platform follow-up",
-        "Reports & KPIs to track activity and performance"
+        "Solutions tailored to your business activity",
+        "Comprehensive proactive support with no client follow-up needed",
+        "Dedicated operational support team monitoring your platforms",
+        "Reports & KPIs to track your activity and performance"
       ],
       "url": "https://businesspartner.sa/packages"
     },
@@ -1510,8 +1510,8 @@
       "key": "foreign-formation",
       "nameAr": "باقة تأسيس الشركات الأجنبية",
       "nameEn": "Foreign Companies Formation Package",
-      "amount": 57500,
-      "priceLabel": "Starting from 57,500 SAR / yearly",
+      "amount": 46000,
+      "priceLabel": "Starting from 46,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "التقديم على ترخيص الاستثمار الأجنبي",
@@ -1539,8 +1539,8 @@
       "key": "saudi-gulf-formation",
       "nameAr": "باقة تأسيس الشركات السعودية والخليجية",
       "nameEn": "Saudi & Gulf Companies Formation Package",
-      "amount": 23000,
-      "priceLabel": "Starting from 23,000 SAR / yearly",
+      "amount": 18400,
+      "priceLabel": "Starting from 18,400 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "إعداد وصياغة عقد التأسيس وتوثيقه",
@@ -1557,136 +1557,6 @@
         "Registration in GOSI, Qiwa, Mudad and Muqeem",
         "Municipal license issuance (if required)",
         "Legal consultation to choose the right entity type"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "legal",
-      "groupNameAr": "الباقات القانونية",
-      "groupNameEn": "Legal Packages",
-      "code": null,
-      "key": "strategic",
-      "nameAr": "الباقة الاستراتيجية",
-      "nameEn": "Strategic Package",
-      "amount": 59000,
-      "priceLabel": "Starting from 59,000 SAR / yearly",
-      "billingPeriod": "one_time",
-      "featuresAr": [
-        "استشارات هاتفية غير محدودة",
-        "استشارات مكتوبة: 25 سنويًا",
-        "صياغة ومراجعة عقود: 20 عقداً",
-        "مذكرات ولوائح قانونية: 15",
-        "خدمات ملكية فكرية: 4",
-        "تأسيس/تحويل/اندماج كيانات: 3 خدمات",
-        "حضور اجتماعات بمحامٍ: 4 اجتماعات",
-        "تمثيل قضائي: حتى 10 قضايا عمالية سنويًا",
-        "ورشة توعية قانونية للموظفين: مرة سنويًا",
-        "خصم على خدمات التوثيق: 25%"
-      ],
-      "featuresEn": [
-        "Unlimited phone consultations",
-        "Written consultations: 25 / year",
-        "Contract drafting & review: 20 contracts",
-        "Legal memos & pleadings: 15",
-        "IP services: 4",
-        "Entity formation/conversion/merger: 3 services",
-        "Meetings with a lawyer: 4 meetings",
-        "Litigation representation: up to 10 labor cases / year",
-        "Legal awareness workshop for employees: once a year",
-        "25% discount on notarization services"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "legal",
-      "groupNameAr": "الباقات القانونية",
-      "groupNameEn": "Legal Packages",
-      "code": null,
-      "key": "comprehensive",
-      "nameAr": "الباقة الشاملة",
-      "nameEn": "Comprehensive Package",
-      "amount": 39000,
-      "priceLabel": "Starting from 39,000 SAR / yearly",
-      "billingPeriod": "one_time",
-      "featuresAr": [
-        "استشارات هاتفية غير محدودة",
-        "استشارات مكتوبة: 15 سنويًا",
-        "صياغة ومراجعة عقود: 15 عقداً",
-        "مذكرات ولوائح قانونية: 10",
-        "خدمات ملكية فكرية: 4",
-        "تأسيس/تحويل كيانات: خدمتان",
-        "حضور اجتماعات بمحامٍ: اجتماعان",
-        "تمثيل قضائي: حتى 6 قضايا عمالية",
-        "خصم على خدمات التوثيق: 20%"
-      ],
-      "featuresEn": [
-        "Unlimited phone consultations",
-        "Written consultations: 15 / year",
-        "Contract drafting & review: 15 contracts",
-        "Legal memos & pleadings: 10",
-        "IP services: 4",
-        "Entity formation/conversion: 2 services",
-        "Meetings with a lawyer: 2 meetings",
-        "Litigation representation: up to 6 labor cases",
-        "20% discount on notarization services"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "legal",
-      "groupNameAr": "الباقات القانونية",
-      "groupNameEn": "Legal Packages",
-      "code": null,
-      "key": "advanced",
-      "nameAr": "الباقة المتقدمة",
-      "nameEn": "Advanced Package",
-      "amount": 19900,
-      "priceLabel": "Starting from 19,900 SAR / yearly",
-      "billingPeriod": "one_time",
-      "featuresAr": [
-        "استشارات هاتفية غير محدودة",
-        "استشارات مكتوبة: 8 سنويًا",
-        "صياغة ومراجعة عقود: 12 عقداً",
-        "خدمات ملكية فكرية: 2",
-        "تأسيس/تعديل كيان: خدمة واحدة",
-        "تمثيل قضائي: حتى 4 قضايا عمالية سنويًا",
-        "خصم على خدمات التوثيق: 15%"
-      ],
-      "featuresEn": [
-        "Unlimited phone consultations",
-        "Written consultations: 8 / year",
-        "Contract drafting & review: 12 contracts",
-        "IP services: 2",
-        "Entity formation/amendment: 1 service",
-        "Litigation representation: up to 4 labor cases / year",
-        "15% discount on notarization services"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "legal",
-      "groupNameAr": "الباقات القانونية",
-      "groupNameEn": "Legal Packages",
-      "code": null,
-      "key": "basic-legal",
-      "nameAr": "الباقة الأساسية",
-      "nameEn": "Basic Package",
-      "amount": 9900,
-      "priceLabel": "Starting from 9,900 SAR / yearly",
-      "billingPeriod": "one_time",
-      "featuresAr": [
-        "استشارات هاتفية غير محدودة",
-        "استشارات مكتوبة: 4 سنويًا",
-        "صياغة ومراجعة عقود: 6 عقود",
-        "تمثيل قضائي: حتى قضيتين عماليتين سنويًا",
-        "خصم على خدمات التوثيق: 10%"
-      ],
-      "featuresEn": [
-        "Unlimited phone consultations",
-        "Written consultations: 4 / year",
-        "Contract drafting & review: 6 contracts",
-        "Litigation representation: up to 2 labor cases / year",
-        "10% discount on notarization services"
       ],
       "url": "https://businesspartner.sa/packages"
     }

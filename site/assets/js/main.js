@@ -1906,14 +1906,6 @@ var BP = window.BP = window.BP || {};
   function money(n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 0 }) + " ﷼"; }
   function t(en, ar) { return isAr ? ar : en; }
 
-  function priceText(it) {
-    if (it.ptype === "onrequest") return t("On request", "حسب الطلب");
-    if (it.ptype === "monthly") return money(it.amount) + t(" / mo", " / شهرياً");
-    if (it.ptype === "from") return t("From ", "من ") + money(it.amount);
-    if (it.ptype === "percandidate") return money(it.amount) + t(" / candidate", " / لكل مرشّح");
-    return money(it.amount);
-  }
-
   // Build accordions
   groups.forEach(function (g, gi) {
     if (!g.items.length) return;
@@ -1960,13 +1952,6 @@ var BP = window.BP = window.BP || {};
   function render() {
     var wrap = document.getElementById("calc2-selected");
     var ids = Object.keys(selected);
-    var once = 0, monthly = 0, hasReq = false;
-    ids.forEach(function (id) {
-      var it = selected[id];
-      if (it.ptype === "onrequest") hasReq = true;
-      else if (it.ptype === "monthly") monthly += it.amount || 0;
-      else once += it.amount || 0;
-    });
     if (!ids.length) {
       wrap.innerHTML = '<p class="calc2-empty" id="calc2-empty">' + t("No services selected yet. Tap a service to add it.", "لم تختر أي خدمة بعد. اضغط على أي خدمة لإضافتها.") + "</p>";
     } else {
@@ -1976,32 +1961,11 @@ var BP = window.BP = window.BP || {};
           '</span><button type="button" class="calc2-rm" data-id="' + id + '" aria-label="remove">✕</button></div>';
       }).join("");
     }
-    var revealBtn = document.getElementById("calc2-reveal");
-    var totalsBox = document.getElementById("calc2-totals");
+    // No prices/totals — the calculator is now a request builder. The
+    // "official quote" button appears once at least one service is selected.
     var quoteBtn = document.getElementById("calc2-quote");
-    if (revealBtn) revealBtn.disabled = !ids.length;
-    if (!revealed) {
-      if (totalsBox) totalsBox.hidden = true;
-      if (quoteBtn) quoteBtn.hidden = true;
-      var warnEl = document.getElementById("calc2-warn");
-      if (warnEl) warnEl.hidden = true;
-      return;
-    }
-    document.getElementById("calc2-once").textContent = money(once);
-    document.getElementById("calc2-monthly").textContent = money(monthly);
-    var vat = (once + monthly) * VAT;
-    document.getElementById("calc2-vat").textContent = (once + monthly) ? money(vat) : "—";
-    document.getElementById("calc2-warn").hidden = !hasReq;
-    if (totalsBox) totalsBox.hidden = false;
-    if (quoteBtn) quoteBtn.hidden = false;
+    if (quoteBtn) quoteBtn.hidden = !ids.length;
   }
-
-  var revealBtnEl = document.getElementById("calc2-reveal");
-  if (revealBtnEl) revealBtnEl.addEventListener("click", function () {
-    if (!Object.keys(selected).length) return;
-    revealed = true;
-    render();
-  });
 
   document.addEventListener("click", function (e) {
     var rm = e.target.closest(".calc2-rm");
@@ -2010,7 +1974,6 @@ var BP = window.BP = window.BP || {};
       delete selected[id];
       var row = catsEl.querySelector('.calc2-item[data-id="' + id + '"]');
       if (row) row.classList.remove("on");
-      revealed = false;
       render();
     }
   });
@@ -2025,7 +1988,7 @@ var BP = window.BP = window.BP || {};
     e.preventDefault();
     var items = ids.map(function (id) {
       var it = selected[id];
-      return { nameEn: it.nameEn, nameAr: it.nameAr, price: priceText(it) };
+      return { nameEn: it.nameEn, nameAr: it.nameAr };
     });
     try { localStorage.setItem("bp_pending_quote", JSON.stringify({ items: items, at: new Date().toISOString().slice(0, 10) })); } catch (err) {}
     location.href = (BP.lang === "ar" ? "/ar/account" : "/account") + "?redirect=quote";
