@@ -10,6 +10,9 @@
 //   EMPLOYER_CODES          comma-separated subscription codes that unlock contacts
 //
 // GET /api/candidates?field=&city=&nat=&q=&code=   -> { ok, unlocked, total, candidates:[...] }
+// GET /api/candidates?feed=jobs   -> Indeed-compatible XML job feed (see jobsFeed below)
+
+import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
 
 // Accept the token under any of these env-var names (be forgiving about naming).
 const envFrom = (names) => {
@@ -31,6 +34,13 @@ const NOTION_VERSION = "2022-06-28";
 const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
 // Job postings DB — an employer can open more than one, each screened by AI against this pool.
 const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
+// Workshop hiring-campaign DB — source of the public Indeed XML job feed (?feed=jobs).
+const WORKSHOP_DB = process.env.NOTION_WORKSHOP_DB || "f83bce33eab7481a8b803495c6cd7619";
+const FEED_COMPANY = process.env.JOBS_FEED_COMPANY || "Business Partner";
+const FEED_CITY = process.env.JOBS_FEED_CITY || "Riyadh";
+const FEED_STATE = process.env.JOBS_FEED_STATE || "Riyadh Province";
+const FEED_COUNTRY = process.env.JOBS_FEED_COUNTRY || "SA";
+const FEED_PUBLISHED = "منشورة على الموقع";
 // Canonical Field taxonomy — must stay in sync with site/scripts/generate.mjs's
 // FIELD_TAXONOMY, site/assets/js/main.js's BP.FIELD_TAXONOMY and this file's
 // own FIELD_RULES-equivalent in api/candidate.js (guessField()).
@@ -273,6 +283,82 @@ async function handlePostings(req, res) {
   return res.end(JSON.stringify({ ok: false, error: "bad_action" }));
 }
 
+// ---- Indeed XML job feed (?feed=jobs, also served at /jobs-feed.xml, /indeed.xml) ----
+// Emits a <source> feed of the workshop-campaign vacancies marked "منشورة على الموقع"
+// in the Notion campaign DB, in the format Indeed crawls to index jobs organically.
+// Register the feed URL once in Indeed and every published job appears automatically —
+// no manual posting. The confidential salary range is intentionally not emitted.
+const xmlEsc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const cdata = (s) => "<![CDATA[" + String(s || "").replace(/]]>/g, "]]]]><![CDATA[>") + "]]>";
+function feedDescription(slug, title, dept, vacancies) {
+  const jd = WORKSHOP_JDS[slug];
+  if (jd) {
+    return jd.split(/\n{2,}/).map((para) => {
+      const lines = para.split("\n").map((l) => l.trim()).filter(Boolean);
+      const bullets = lines.filter((l) => l.startsWith("•"));
+      if (bullets.length && bullets.length === lines.length) {
+        return "<ul>" + bullets.map((b) => `<li>${xmlEsc(b.replace(/^•\s*/, ""))}</li>`).join("") + "</ul>";
+      }
+      return "<p>" + lines.map(xmlEsc).join("<br/>") + "</p>";
+    }).join("");
+  }
+  const parts = [`<p>${xmlEsc(title)} — ${xmlEsc(FEED_COMPANY)} (${xmlEsc(dept)}).</p>`];
+  if (vacancies) parts.push(`<p>Open positions: ${xmlEsc(vacancies)}.</p>`);
+  parts.push("<p>Apply through the link to join our events-fabrication workshop team.</p>");
+  return parts.join("");
+}
+async function jobsFeed(res) {
+  const jobs = [];
+  let cursor;
+  do {
+    const r = await notionFetch(`databases/${WORKSHOP_DB}/query`, "POST", {
+      page_size: 100, start_cursor: cursor,
+      filter: { property: "حالة النشر", select: { equals: FEED_PUBLISHED } },
+    });
+    if (!r.ok) { console.error("jobs feed query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; res.setHeader("Content-Type", "text/plain"); return res.end("notion_failed"); }
+    const data = await r.json();
+    for (const pg of data.results || []) {
+      const p = pg.properties || {};
+      const title = txt(p["الوظيفة"]);
+      const url = txt(p["رابط الوظيفة"]);
+      if (!title || !url) continue;
+      const slug = txt(p["معرف الوظيفة ATS"]) || pg.id;
+      jobs.push({
+        title, url, ref: slug, dept: txt(p["القسم"]), vacancies: txt(p["عدد الشواغر"]),
+        date: new Date(pg.last_edited_time || pg.created_time || Date.now()).toUTCString(),
+      });
+    }
+    cursor = data.has_more ? data.next_cursor : undefined;
+  } while (cursor);
+
+  const items = jobs.map((j) => [
+    "  <job>",
+    `    <title>${cdata(j.title)}</title>`,
+    `    <date>${cdata(j.date)}</date>`,
+    `    <referencenumber>${cdata(j.ref)}</referencenumber>`,
+    `    <url>${cdata(j.url)}</url>`,
+    `    <company>${cdata(FEED_COMPANY)}</company>`,
+    `    <city>${cdata(FEED_CITY)}</city>`,
+    `    <state>${cdata(FEED_STATE)}</state>`,
+    `    <country>${cdata(FEED_COUNTRY)}</country>`,
+    `    <jobtype>${cdata("fulltime")}</jobtype>`,
+    `    <category>${cdata(j.dept)}</category>`,
+    `    <description>${cdata(feedDescription(j.ref, j.title, j.dept, j.vacancies))}</description>`,
+    "  </job>",
+  ].join("\n")).join("\n");
+
+  const xml =
+    '<?xml version="1.0" encoding="utf-8"?>\n<source>\n' +
+    `  <publisher>${xmlEsc(FEED_COMPANY)}</publisher>\n` +
+    "  <publisherurl>https://businesspartner.sa</publisherurl>\n" +
+    `  <lastBuildDate>${xmlEsc(new Date().toUTCString())}</lastBuildDate>\n` +
+    items + (items ? "\n" : "") + "</source>\n";
+  res.statusCode = 200;
+  res.setHeader("Content-Type", "application/xml; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=1800, s-maxage=1800");
+  return res.end(xml);
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
@@ -284,6 +370,11 @@ export default async function handler(req, res) {
   if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
 
   const url0 = new URL(req.url, "http://x");
+  // Public Indeed XML job feed — no code/auth (served at /jobs-feed.xml & /indeed.xml).
+  if (url0.searchParams.get("feed") === "jobs") {
+    try { return await jobsFeed(res); }
+    catch (e) { console.error("jobs feed handler error", e); res.statusCode = 500; res.setHeader("Content-Type", "text/plain"); return res.end("server_error"); }
+  }
   // Public job board: every ACTIVE posting from every employer, for the /careers
   // "Jobs from our employer clients" section — no code/auth needed (unlike the
   // employer-only browse/create/list-postings actions above).
