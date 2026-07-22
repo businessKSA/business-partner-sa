@@ -1555,6 +1555,22 @@ const DEAL_TICKETS = [
     descAr: "رائد أعمال يملك خبرة توظيف 8 سنوات ويبحث عن شريك مؤسس مطوّر لبناء منصة ربط الشركات بالمواهب.",
     statEn: "Looking for", statAr: "المطلوب", valueEn: "Co-founder", valueAr: "شريك مؤسس", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
 ];
+
+/* Curated, source-backed market opportunities Business Partner tracks (giga-projects
+   + government tenders). Public-facing "knowledge → deal" showcase on /deals. Each item
+   links to a public source; internal/unverified items are intentionally excluded. */
+const MO_SECTORS = [
+  { key: "realestate", icon: "🏗️", en: "Real estate", ar: "عقاري وتطوير" },
+  { key: "hospitality", icon: "🏨", en: "Hospitality & tourism", ar: "ضيافة وسياحة" },
+  { key: "infra", icon: "⚡", en: "Infrastructure & energy", ar: "بنية تحتية وطاقة" },
+  { key: "digital", icon: "💻", en: "Digital & data", ar: "رقمنة وبيانات" },
+  { key: "health", icon: "🏥", en: "Health & education", ar: "صحة وتعليم" },
+  { key: "transport", icon: "🚆", en: "Transport & logistics", ar: "نقل ولوجستيات" },
+  { key: "retail", icon: "🛍️", en: "Retail & entertainment", ar: "ترفيه وتجزئة" },
+  { key: "services", icon: "🧰", en: "Services & facilities", ar: "خدمات ومرافق" },
+];
+// Editable market opportunities shown on /deals (source of truth: data/opportunities.json).
+const MARKET_OPPORTUNITIES = read("data/opportunities.json").items;
 function buildDeals() {
   const sectorOptions = DEAL_SECTORS.map((s) => `<option value="${s.key}">${L(s.en, s.ar)}</option>`).join("");
   const cityOptions = DEAL_CITIES.map((c) => `<option value="${c.key}">${L(c.en, c.ar)}</option>`).join("");
@@ -1584,6 +1600,29 @@ function buildDeals() {
       <div class="deal-ticket-foot"><span>${L(t.postedEn, t.postedAr)}</span><button class="deal-ticket-btn" type="button">${L("Request intro", "طلب تعارف")}</button></div>
     </article>`;
   }).join("");
+  const moChips = [["all", L("All", "الكل")], ...MO_SECTORS.map((s) => [s.key, `${s.icon} ${L(s.en, s.ar)}`])]
+    .map((c, i) => `<button class="deal-chip mo-chip${i === 0 ? " active" : ""}" data-mo="${c[0]}" type="button">${c[1]}</button>`).join("");
+  const moCards = MARKET_OPPORTUNITIES.map((o) => {
+    const sec = MO_SECTORS.find((s) => s.key === o.sector);
+    return `<article class="card deal-ticket mo-card" data-sector="${o.sector}">
+      <span class="deal-badge offer">${sec.icon} ${L(sec.en, sec.ar)}</span>
+      <h3>${L(o.titleEn, o.titleAr)}</h3>
+      <div class="deal-ticket-meta"><span>${I.pin} ${L(o.regEn, o.regAr)}</span><span>${esc(L(o.projEn, o.projAr))}</span></div>
+      <p class="text-soft">${L(o.sumEn, o.sumAr)}</p>
+      <div class="deal-ticket-stat"><span>${L("Est. value", "القيمة التقديرية")}</span><b>${L(o.valEn, o.valAr)}</b></div>
+      <div class="mo-tags" style="margin-top:10px;font-size:13px;color:#0B1B5A;font-weight:600">${L(o.tagsEn, o.tagsAr)}</div>
+      <div class="deal-ticket-foot"><a href="${o.src}" target="_blank" rel="noopener">${L("Source", "المصدر")}</a><a class="deal-ticket-btn" href="${u("/contact")}">${L("Register interest", "سجّل اهتمامك")}</a></div>
+    </article>`;
+  }).join("");
+  const moSection = `
+  <section class="section" id="market-opportunities"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("From knowledge to deal", "من المعرفة إلى الصفقة")}</span><h2>${L("Major market projects & opportunities we track", "فرص ومشاريع السوق الكبرى التي نرصدها")}</h2><p>${L("We continuously track Saudi giga-projects and government tenders across every sector, then position our clients as vendors, subcontractors, operators or co-investors. Browse a sample below — each links to its public source.", "نرصد باستمرار المشاريع العملاقة والمنافسات الحكومية في السعودية عبر كل القطاعات، ثم نُموضِع عملاءنا كموردين أو مقاولي باطن أو مشغّلين أو شركاء استثمار. تصفّح نماذج أدناه — كل فرصة مرتبطة بمصدرها العام.")}</p></div>
+    <div class="deal-filters">${moChips}<span class="deal-filters-count"><span id="mo-count">0</span> ${L("opportunities", "فرصة")}</span></div>
+    <div class="grid grid-3" id="mo-grid">${moCards}</div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/contact")}">${L("Talk to us about an opportunity", "كلّمنا عن فرصة تناسبك")}</a> <a class="btn btn-ghost" href="${u("/saudi-arabia")}">${L("Investment knowledge center", "مركز المعرفة الاستثمارية")}</a></div>
+    <p class="text-soft center mt-16" style="font-size:13px">${L("A curated sample of publicly sourced opportunities, updated periodically. Values are indicative. Not an offer or investment advice.", "نماذج مختارة من فرص عامة موثّقة المصادر، تُحدَّث دورياً. القيم تقديرية. هذا ليس عرضاً أو نصيحة استثمارية.")}</p>
+  </div></section>
+  <script>(function(){var g=document.getElementById('mo-grid');if(!g)return;var chips=document.querySelectorAll('.mo-chip');var cnt=document.getElementById('mo-count');function apply(f){var n=0;g.querySelectorAll('.mo-card').forEach(function(c){var show=f==='all'||c.getAttribute('data-sector')===f;c.style.display=show?'':'none';if(show)n++;});if(cnt)cnt.textContent=n;}chips.forEach(function(ch){ch.addEventListener('click',function(){chips.forEach(function(x){x.classList.remove('active');});ch.classList.add('active');apply(ch.getAttribute('data-mo'));});});apply('all');})();</script>`;
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("New — smart matching + deals", "جديد — مطابقة ذكية + صفقات")}</span>
@@ -1599,7 +1638,7 @@ function buildDeals() {
       <span class="hero-badge">${I.check}${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
     </div>
   </div></section>
-
+${moSection}
   <section class="section"><div class="container">
     <div class="section-head"><h2>${L("Choose what applies to your situation", "اختر ما ينطبق على وضعك")}</h2><p>${L("Every type goes through the same submission, matching and review journey.", "كل نوع يمر بنفس رحلة التقديم والمطابقة والمراجعة.")}</p></div>
     <div class="grid grid-3">${launcher}</div>
