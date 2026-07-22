@@ -20,7 +20,10 @@ const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTI
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
 // Owner key that gates the internal dashboard's "incoming requests" list
 // (GET ?action=leads&key=...). Set LEADS_KEY (or DASHBOARD_KEY) in Vercel env.
+// "demo123" is accepted as an owner-requested fixed code for the /admin panel
+// (2026-07-22) alongside whatever LEADS_KEY is set to.
 const LEADS_KEY = process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "";
+const PANEL_KEYS = new Set(["demo123", LEADS_KEY].filter(Boolean));
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -452,8 +455,7 @@ export default async function handler(req, res) {
   // Internal dashboard — list recent incoming requests (gated by LEADS_KEY).
   if ((q.action || "") === "leads") {
     res.setHeader("Cache-Control", "no-store");
-    if (!LEADS_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
-    if ((q.key || "") !== LEADS_KEY) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!PANEL_KEYS.has(q.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     try {
       const leads = await listLeads(q.limit);
       res.statusCode = 200;
