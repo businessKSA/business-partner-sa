@@ -4742,6 +4742,978 @@
           "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
         }
       ]
+    },
+    "bp-fi-07": {
+      "name": "دخول مستثمر أجنبي",
+      "nameEn": "Foreign Investor Entry",
+      "description": "خدمة أولية لدعم دخول المستثمر الأجنبي إلى السوق السعودي — اختيار المسار، وتحديد المتطلبات الأساسية، وإرشاد مبكّر للتأسيس أو الترخيص.",
+      "descriptionEn": "Initial service to support foreign investor entry into the market, including path selection, core requirements, and early guidance for setup or licensing.",
+      "audience": "المستثمرون الأجانب أو الشركات الأجنبية الراغبة في دخول السوق السعودي.",
+      "audienceEn": "Foreign investors or companies wishing to enter the Saudi market",
+      "duration": "عادةً من عدة أيام إلى عدة أسابيع حسب المسار المطلوب وجاهزية المستندات.",
+      "durationEn": "Usually a few days to a few weeks, depending on the path and document readiness",
+      "documents": [
+        "بيانات المستثمر أو الشركة الأم",
+        "نبذة عن النشاط",
+        "أي مستندات تأسيس متاحة"
+      ],
+      "documentsEn": [
+        "Investor or parent-company details",
+        "Business activity overview",
+        "Any available incorporation documents"
+      ],
+      "features": [
+        "تحديد مسار الدخول المناسب",
+        "تحديد المتطلبات الأساسية",
+        "إرشاد مبكّر للتأسيس أو الترخيص"
+      ],
+      "featuresEn": [
+        "Selecting the right entry path",
+        "Defining the core requirements",
+        "Early guidance for setup or licensing"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-diag-01": {
+      "name": "تقرير تشخيص",
+      "nameEn": "Diagnostic Report",
+      "description": "تقرير تشخيص لتقييم وضع العميل أو المشروع، وتحديد الفجوات والفرص، وتقديم توصيات قابلة للتنفيذ.",
+      "descriptionEn": "Diagnostic report to assess the client or project situation, identify gaps and opportunities, and provide actionable recommendations.",
+      "audience": "الشركات ورواد الأعمال الذين يحتاجون تقييماً سريعاً قبل البدء أو التوسع.",
+      "audienceEn": "Companies and entrepreneurs needing a quick assessment before starting or expanding",
+      "duration": "عادةً من يومي عمل إلى 7 أيام عمل حسب نطاق التشخيص.",
+      "durationEn": "Usually 2–7 business days depending on scope",
+      "documents": [
+        "نبذة عن النشاط",
+        "المستندات أو البيانات المتاحة",
+        "أي مواد داعمة مرتبطة بالنطاق"
+      ],
+      "documentsEn": [
+        "Business overview",
+        "Available documents or data",
+        "Any supporting materials for the scope"
+      ],
+      "features": [
+        "تقييم الوضع الحالي",
+        "تحديد الفجوات والفرص",
+        "توصيات قابلة للتنفيذ وخارطة أولويات"
+      ],
+      "featuresEn": [
+        "Assessing the current situation",
+        "Identifying gaps & opportunities",
+        "Actionable recommendations & a priority map"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب حالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-guide-01": {
+      "name": "دليل قطاعي عام",
+      "nameEn": "General Industry Guide",
+      "description": "دليل قطاعي عام لقطاع أو سوق محدد — نظرة سريعة ومعلومات أساسية تدعم الفهم واتخاذ القرار.",
+      "descriptionEn": "General guide for a specific sector or market, including a quick overview and essential information to support understanding and decision-making.",
+      "audience": "الأفراد والشركات الذين يحتاجون فهماً أولياً سريعاً لقطاع معين.",
+      "audienceEn": "Individuals and companies needing a quick primer on a sector",
+      "duration": "عادةً من يوم إلى 5 أيام عمل حسب العمق المطلوب.",
+      "durationEn": "Usually 1–5 business days depending on depth",
+      "documents": [
+        "موضوع القطاع أو النشاط المطلوب",
+        "أي معايير خاصة مطلوبة إن وجدت"
+      ],
+      "documentsEn": [
+        "The target sector or activity",
+        "Any specific criteria required"
+      ],
+      "features": [
+        "نظرة سوقية سريعة",
+        "معلومات أساسية عن القطاع",
+        "نقاط رئيسية لدعم القرار"
+      ],
+      "featuresEn": [
+        "A quick market overview",
+        "Essential sector information",
+        "Key decision-support points"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب حالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-guide-02": {
+      "name": "دليل مخصص",
+      "nameEn": "Custom Guide",
+      "description": "دليل مخصّص مبني على احتياج العميل أو المشروع، بمعلومات منظّمة وتوصيات مصمّمة حسب النطاق المطلوب.",
+      "descriptionEn": "Custom guide built around the client or project need, with organized information and recommendations tailored to the requested scope.",
+      "audience": "العملاء الذين يحتاجون محتوى مخصصاً ودليلاً عملياً موجهاً لحالة محددة.",
+      "audienceEn": "Clients needing custom content and a practical guide for a specific case",
+      "duration": "عادةً من 3 إلى 10 أيام عمل حسب مستوى التخصيص.",
+      "durationEn": "Usually 3–10 business days depending on customization",
+      "documents": [
+        "تفاصيل النطاق",
+        "أي مستندات مرجعية",
+        "أهداف الاستخدام"
+      ],
+      "documentsEn": [
+        "Scope details",
+        "Any reference documents",
+        "The intended use goals"
+      ],
+      "features": [
+        "محتوى مخصّص حسب حالتك",
+        "تحليل موجّه",
+        "توصيات عملية حسب النطاق"
+      ],
+      "featuresEn": [
+        "Custom content for your case",
+        "Targeted analysis",
+        "Practical recommendations per scope"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب حالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0088": {
+      "name": "تسجيل قيد وكالة تجارية",
+      "nameEn": "Commercial Agency Registration",
+      "description": "تسجيل قيد وكالة تجارية جديدة — تجهيز المستندات ومتابعة الطلب حتى القيد لدى المركز السعودي للأعمال.",
+      "descriptionEn": "New commercial agency registration with document preparation and application follow-up until registration.",
+      "audience": "الشركات التي تعمل عبر وكلاء أو تمثيل تجاري.",
+      "audienceEn": "Companies operating through agents or commercial representation",
+      "duration": "يوم عمل واحد.",
+      "durationEn": "About one business day",
+      "documents": [
+        "العقود",
+        "بيانات الأطراف",
+        "السجل التجاري",
+        "أي تصديقات مطلوبة"
+      ],
+      "documentsEn": [
+        "The contracts",
+        "Parties' details",
+        "Commercial Registration",
+        "Any required attestations"
+      ],
+      "features": [
+        "تجهيز مستندات الوكالة",
+        "تقديم طلب القيد",
+        "المتابعة حتى إتمام القيد"
+      ],
+      "featuresEn": [
+        "Preparing the agency documents",
+        "Filing the registration request",
+        "Following up until registration"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0089": {
+      "name": "تعديل قيد وكالة تجارية",
+      "nameEn": "Commercial Agency Registration Amendment",
+      "description": "تعديل قيد وكالة تجارية عند تغيّر البيانات أو الأطراف أو نطاق الوكالة، مع متابعة الاعتماد.",
+      "descriptionEn": "Commercial agency registration amendment when data, parties, or agency scope changes, with approval follow-up.",
+      "audience": "الشركات أو الوكلاء التجاريون.",
+      "audienceEn": "Companies or commercial agents",
+      "duration": "يوم عمل واحد.",
+      "durationEn": "About one business day",
+      "documents": [
+        "القيد الحالي",
+        "مستندات التعديل",
+        "بيانات الأطراف أو التصديقات اللازمة"
+      ],
+      "documentsEn": [
+        "The current registration",
+        "Amendment documents",
+        "Parties' details or attestations"
+      ],
+      "features": [
+        "تحديد بيانات التعديل",
+        "تنفيذ تعديل القيد",
+        "المتابعة حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Defining the amendment data",
+        "Executing the registration amendment",
+        "Following up approval"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0090": {
+      "name": "تجديد قيد وكالة تجارية",
+      "nameEn": "Commercial Agency Registration Renewal",
+      "description": "تجديد قيد وكالة تجارية مع تحديث البيانات والمستندات ومتابعة الاعتماد لدى الجهة المختصة.",
+      "descriptionEn": "Commercial agency registration renewal with data and document updates and approval follow-up with the relevant authority.",
+      "audience": "الوكلاء التجاريون والشركات المرتبطة بهم.",
+      "audienceEn": "Commercial agents and their related companies",
+      "duration": "يوم عمل واحد.",
+      "durationEn": "About one business day",
+      "documents": [
+        "القيد الحالي",
+        "بيانات الأطراف",
+        "أي مستندات داعمة للتجديد"
+      ],
+      "documentsEn": [
+        "The current registration",
+        "Parties' details",
+        "Any supporting renewal documents"
+      ],
+      "features": [
+        "مراجعة القيد الحالي",
+        "تحديث البيانات والمستندات",
+        "المتابعة حتى التجديد"
+      ],
+      "featuresEn": [
+        "Reviewing the current registration",
+        "Updating data & documents",
+        "Following up until renewal"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0091": {
+      "name": "شطب قيد وكالة تجارية",
+      "nameEn": "Commercial Agency Registration Cancellation",
+      "description": "شطب قيد وكالة تجارية وإنهاؤه بعد استيفاء المتطلبات وإجراءات المتابعة.",
+      "descriptionEn": "Commercial agency registration cancellation and closure after completing requirements and follow-up procedures.",
+      "audience": "الشركات والوكلاء التجاريون.",
+      "audienceEn": "Companies and commercial agents",
+      "duration": "يوم عمل واحد.",
+      "durationEn": "About one business day",
+      "documents": [
+        "القيد الحالي",
+        "طلب الشطب",
+        "مستندات الأطراف أو المخالصات عند الحاجة"
+      ],
+      "documentsEn": [
+        "The current registration",
+        "Cancellation request",
+        "Parties' documents or clearances if needed"
+      ],
+      "features": [
+        "مراجعة متطلبات الشطب",
+        "تقديم طلب الشطب",
+        "المتابعة حتى إنهاء القيد"
+      ],
+      "featuresEn": [
+        "Reviewing cancellation requirements",
+        "Filing the cancellation request",
+        "Following up until closure"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0092": {
+      "name": "تراخيص التخفيضات",
+      "nameEn": "Discount License Issuance",
+      "description": "إصدار ترخيص التخفيضات للمنشأة أو المتجر مع متابعة المتطلبات حتى الاعتماد.",
+      "descriptionEn": "Discount license issuance for the entity or store with requirements follow-up until approval.",
+      "audience": "محال التجزئة والأنشطة التجارية.",
+      "audienceEn": "Retail stores and commercial activities",
+      "duration": "حسب المراجعة.",
+      "durationEn": "Depends on the authority review",
+      "documents": [
+        "السجل التجاري",
+        "بيانات المنتجات أو العروض",
+        "أي مستندات داعمة تطلبها الجهة"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Product or offer details",
+        "Any supporting documents the authority requires"
+      ],
+      "features": [
+        "تجهيز متطلبات ترخيص التخفيضات",
+        "تقديم الطلب",
+        "المتابعة حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Preparing the discount-license requirements",
+        "Filing the request",
+        "Following up until approval"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0093": {
+      "name": "تراخيص الأحجار الكريمة والمعادن الثمينة",
+      "nameEn": "Precious Stones and Precious Metals Licenses",
+      "description": "إصدار ترخيص الأحجار الكريمة والمعادن الثمينة مع متابعة المتطلبات النظامية حتى الاعتماد.",
+      "descriptionEn": "Precious stones and metals license issuance with regulatory requirements follow-up until approval.",
+      "audience": "تجار الذهب والمجوهرات والأنشطة المرتبطة.",
+      "audienceEn": "Gold and jewellery traders and related activities",
+      "duration": "يوم عمل واحد.",
+      "durationEn": "About one business day",
+      "documents": [
+        "السجل التجاري",
+        "بيانات النشاط",
+        "أي تصاريح أو نماذج مطلوبة"
+      ],
+      "documentsEn": [
+        "Commercial Registration",
+        "Activity details",
+        "Any required permits or forms"
+      ],
+      "features": [
+        "تجهيز متطلبات الترخيص",
+        "تقديم الطلب",
+        "المتابعة حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Preparing the license requirements",
+        "Filing the request",
+        "Following up until approval"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0094": {
+      "name": "قيد الامتياز التجاري (فرنشايز)",
+      "nameEn": "Franchise Registration",
+      "description": "قيد الامتياز التجاري (فرنشايز) — تجهيز المستندات ومتابعة القيد لدى وزارة التجارة.",
+      "descriptionEn": "Franchise registration with document preparation and registration follow-up at the Ministry of Commerce.",
+      "audience": "المانحون والمستفيدون من الامتياز التجاري.",
+      "audienceEn": "Franchisors and franchisees",
+      "duration": "حسب المراجعة.",
+      "durationEn": "Depends on the authority review",
+      "documents": [
+        "عقد الامتياز",
+        "السجل التجاري",
+        "بيانات الأطراف",
+        "أي إفصاحات لازمة"
+      ],
+      "documentsEn": [
+        "The franchise agreement",
+        "Commercial Registration",
+        "Parties' details",
+        "Any required disclosures"
+      ],
+      "features": [
+        "تجهيز مستندات الامتياز",
+        "تقديم طلب القيد",
+        "المتابعة حتى القيد لدى وزارة التجارة"
+      ],
+      "featuresEn": [
+        "Preparing the franchise documents",
+        "Filing the registration request",
+        "Following up with the Ministry of Commerce"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0076": {
+      "name": "إصدار الترخيص الصناعي (تأسيس)",
+      "nameEn": "Industrial License Issuance for Establishment",
+      "description": "إصدار الترخيص الصناعي لتأسيس منشأة صناعية — تجهيز ملف الطلب ومتابعة المتطلبات حتى الإصدار.",
+      "descriptionEn": "Industrial license issuance for establishing an industrial entity with application file preparation and requirements follow-up.",
+      "audience": "المنشآت الصناعية الجديدة.",
+      "audienceEn": "New industrial establishments",
+      "duration": "7 أيام عمل.",
+      "durationEn": "About 7 business days",
+      "documents": [
+        "بيانات المنشأة",
+        "السجل التجاري عند الحاجة",
+        "بيانات الموقع",
+        "المستندات الفنية أو التشغيلية المرتبطة"
+      ],
+      "documentsEn": [
+        "Establishment details",
+        "Commercial Registration (if required)",
+        "Location details",
+        "Related technical or operational documents"
+      ],
+      "features": [
+        "تجهيز ملف الترخيص الصناعي",
+        "تقديم الطلب",
+        "المتابعة حتى الإصدار"
+      ],
+      "featuresEn": [
+        "Preparing the industrial-license file",
+        "Filing the application",
+        "Following up until issuance"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0077": {
+      "name": "تجديد الترخيص الصناعي",
+      "nameEn": "Industrial License Renewal",
+      "description": "تجديد الترخيص الصناعي للمنشأة مع متابعة المتطلبات النظامية حتى اكتمال التجديد.",
+      "descriptionEn": "Industrial license renewal for the entity with regulatory requirements follow-up until renewal completion.",
+      "audience": "المصانع والمنشآت الصناعية القائمة.",
+      "audienceEn": "Existing factories and industrial establishments",
+      "duration": "يوم عمل واحد.",
+      "durationEn": "About one business day",
+      "documents": [
+        "بيانات الترخيص الحالي",
+        "بيانات المنشأة",
+        "أي مستندات داعمة تطلبها الجهة"
+      ],
+      "documentsEn": [
+        "Current license details",
+        "Establishment details",
+        "Any supporting documents the authority requires"
+      ],
+      "features": [
+        "مراجعة الترخيص الحالي",
+        "تنفيذ التجديد",
+        "المتابعة حتى الاكتمال"
+      ],
+      "featuresEn": [
+        "Reviewing the current license",
+        "Processing the renewal",
+        "Following up until complete"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0078": {
+      "name": "تعديل الترخيص الصناعي",
+      "nameEn": "Industrial License Amendment",
+      "description": "تعديل الترخيص الصناعي عند تغيّر البيانات أو النشاط أو الطاقة الإنتاجية، مع متابعة الاعتماد.",
+      "descriptionEn": "Industrial license amendment for data, activity, or production capacity changes with approval follow-up.",
+      "audience": "المنشآت الصناعية القائمة.",
+      "audienceEn": "Existing industrial establishments",
+      "duration": "2 يوم عمل.",
+      "durationEn": "About 2 business days",
+      "documents": [
+        "بيانات الترخيص الحالي",
+        "تفاصيل التعديل",
+        "المستندات المؤيدة للتغيير"
+      ],
+      "documentsEn": [
+        "Current license details",
+        "Amendment details",
+        "Documents supporting the change"
+      ],
+      "features": [
+        "تحديد بيانات التعديل",
+        "تنفيذ التعديل",
+        "المتابعة حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Defining the amendment data",
+        "Executing the amendment",
+        "Following up approval"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0079": {
+      "name": "نقل ملكية الترخيص الصناعي",
+      "nameEn": "Industrial License Ownership Transfer",
+      "description": "نقل ملكية الترخيص الصناعي مع تجهيز المستندات ومتابعة الاعتماد لدى الجهة المختصة.",
+      "descriptionEn": "Industrial license ownership transfer with document preparation and approval follow-up with the relevant authority.",
+      "audience": "المنشآت الصناعية التي تمر بإعادة هيكلة أو نقل ملكية.",
+      "audienceEn": "Industrial establishments undergoing restructuring or ownership transfer",
+      "duration": "3 أيام عمل.",
+      "durationEn": "About 3 business days",
+      "documents": [
+        "الترخيص الحالي",
+        "مستندات المالك الجديد",
+        "قرارات أو عقود نقل الملكية"
+      ],
+      "documentsEn": [
+        "The current license",
+        "New owner documents",
+        "Ownership-transfer resolutions or contracts"
+      ],
+      "features": [
+        "تجهيز مستندات نقل الملكية",
+        "تنفيذ النقل",
+        "المتابعة حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Preparing the ownership-transfer documents",
+        "Executing the transfer",
+        "Following up approval"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0080": {
+      "name": "طلب تأييد العمالة",
+      "nameEn": "Labor Endorsement Request",
+      "description": "طلب تأييد العمالة للمنشأة مع تجهيز المبررات والمتطلبات ومتابعتها حتى النتيجة.",
+      "descriptionEn": "Labor endorsement request for the entity with justification and requirements preparation and follow-up until outcome.",
+      "audience": "المنشآت الصناعية والتشغيلية.",
+      "audienceEn": "Industrial and operational establishments",
+      "duration": "يوم عمل واحد.",
+      "durationEn": "About one business day",
+      "documents": [
+        "بيانات المنشأة",
+        "الخطة التشغيلية أو الاحتياج",
+        "أي مستندات داعمة تطلبها الجهة"
+      ],
+      "documentsEn": [
+        "Establishment details",
+        "Operational plan or need",
+        "Any supporting documents the authority requires"
+      ],
+      "features": [
+        "تجهيز مبررات الاحتياج",
+        "تقديم طلب التأييد",
+        "المتابعة حتى النتيجة"
+      ],
+      "featuresEn": [
+        "Preparing the justification",
+        "Filing the endorsement request",
+        "Following up until the outcome"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0081": {
+      "name": "إعفاء جمركي (مواد/آلات/قطع غيار)",
+      "nameEn": "Customs Exemption for Materials, Machinery, and Spare Parts",
+      "description": "طلب إعفاء جمركي للمواد أو الآلات أو قطع الغيار مع تجهيز المستندات ومتابعة الاعتماد.",
+      "descriptionEn": "Customs exemption request for materials, machinery, or spare parts with document preparation and approval follow-up.",
+      "audience": "المنشآت الصناعية والاستيرادية.",
+      "audienceEn": "Industrial and importing establishments",
+      "duration": "45 يوم عمل.",
+      "durationEn": "About 45 business days",
+      "documents": [
+        "الفواتير",
+        "المواصفات",
+        "بيانات الاستيراد",
+        "ملف المنشأة النظامي"
+      ],
+      "documentsEn": [
+        "Invoices",
+        "Specifications",
+        "Import data",
+        "The establishment's regulatory file"
+      ],
+      "features": [
+        "تجهيز مستندات الإعفاء",
+        "تقديم الطلب",
+        "المتابعة حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Preparing the exemption documents",
+        "Filing the request",
+        "Following up approval"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0082": {
+      "name": "إصدار شهادة المنشأ",
+      "nameEn": "Certificate of Origin Issuance",
+      "description": "إصدار شهادة المنشأ للسلع أو المنتجات وفق متطلبات التصدير والتصديق المعتمدة.",
+      "descriptionEn": "Certificate of origin issuance for goods or products according to approved export and attestation requirements.",
+      "audience": "المنشآت المصدرة أو المصنعة.",
+      "audienceEn": "Exporting or manufacturing establishments",
+      "duration": "3 أيام عمل.",
+      "durationEn": "About 3 business days",
+      "documents": [
+        "الفواتير",
+        "بيانات الشحنة أو المنتج",
+        "المستندات التجارية الداعمة"
+      ],
+      "documentsEn": [
+        "Invoices",
+        "Shipment or product data",
+        "Supporting commercial documents"
+      ],
+      "features": [
+        "تجهيز مستندات الشحنة",
+        "إصدار شهادة المنشأ"
+      ],
+      "featuresEn": [
+        "Preparing the shipment documents",
+        "Issuing the certificate of origin"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0083": {
+      "name": "طلب الفسح الكيميائي",
+      "nameEn": "Chemical Clearance Request",
+      "description": "إدارة طلب الفسح الكيميائي مع تجهيز المستندات ومتابعة الاعتماد للمواد الخاضعة للرقابة.",
+      "descriptionEn": "Chemical clearance request management with document preparation and approval follow-up for regulated materials.",
+      "audience": "المنشآت الصناعية والاستيرادية.",
+      "audienceEn": "Industrial and importing establishments",
+      "duration": "3 أيام عمل.",
+      "durationEn": "About 3 business days",
+      "documents": [
+        "قوائم المواد",
+        "نشرات السلامة",
+        "الفواتير",
+        "مستندات الشحنة أو التصنيع"
+      ],
+      "documentsEn": [
+        "Materials lists",
+        "Safety data sheets",
+        "Invoices",
+        "Shipment or manufacturing documents"
+      ],
+      "features": [
+        "تجهيز مستندات الفسح",
+        "تقديم الطلب",
+        "المتابعة حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Preparing the clearance documents",
+        "Filing the request",
+        "Following up approval"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0084": {
+      "name": "ترقية البنود الجمركية",
+      "nameEn": "Customs Tariff Items Upgrade",
+      "description": "ترقية البنود الجمركية أو تحديث التصنيف بما يتوافق مع متطلبات الاستيراد والتخليص.",
+      "descriptionEn": "Customs tariff item upgrade or classification update in line with import and clearance requirements.",
+      "audience": "المستوردون والمنشآت الصناعية.",
+      "audienceEn": "Importers and industrial establishments",
+      "duration": "حسب نطاق الطلب.",
+      "durationEn": "Depends on the request scope",
+      "documents": [
+        "الفواتير",
+        "المواصفات الفنية",
+        "بيانات الاستيراد أو التصنيع",
+        "أي خطابات داعمة"
+      ],
+      "documentsEn": [
+        "Invoices",
+        "Technical specifications",
+        "Import or manufacturing data",
+        "Any supporting letters"
+      ],
+      "features": [
+        "مراجعة البنود الحالية",
+        "تحديث التصنيف الجمركي"
+      ],
+      "featuresEn": [
+        "Reviewing the current items",
+        "Updating the customs classification"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0085": {
+      "name": "رخصة الاستطلاع (تعدين)",
+      "nameEn": "Mining Reconnaissance License",
+      "description": "إصدار رخصة الاستطلاع (تعدين) للمناطق أو المواد المؤهلة مع تجهيز الطلب ومتابعة المتطلبات.",
+      "descriptionEn": "Mining reconnaissance license issuance for eligible areas or materials with application preparation and requirements follow-up.",
+      "audience": "المستثمرون في قطاع التعدين.",
+      "audienceEn": "Investors in the mining sector",
+      "duration": "15 يوم عمل.",
+      "durationEn": "About 15 business days",
+      "documents": [
+        "بيانات الكيان",
+        "خرائط الموقع",
+        "المستندات الفنية أو القانونية المطلوبة"
+      ],
+      "documentsEn": [
+        "Entity details",
+        "Site maps",
+        "Required technical or legal documents"
+      ],
+      "features": [
+        "تجهيز طلب رخصة الاستطلاع",
+        "تقديم الطلب",
+        "المتابعة حتى الإصدار"
+      ],
+      "featuresEn": [
+        "Preparing the reconnaissance-license request",
+        "Filing the application",
+        "Following up until issuance"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0086": {
+      "name": "المسح الصناعي",
+      "nameEn": "Industrial Survey",
+      "description": "إتمام المسح الصناعي وتحديث بيانات المنشأة الصناعية بما يتوافق مع متطلبات الجهة.",
+      "descriptionEn": "Industrial survey completion and industrial entity data update in line with authority requirements.",
+      "audience": "المصانع والمنشآت الصناعية.",
+      "audienceEn": "Factories and industrial establishments",
+      "duration": "10 أيام عمل.",
+      "durationEn": "About 10 business days",
+      "documents": [
+        "بيانات المنشأة",
+        "خطوط الإنتاج",
+        "المعلومات التشغيلية أو الفنية المطلوبة"
+      ],
+      "documentsEn": [
+        "Establishment details",
+        "Production lines",
+        "Required operational or technical information"
+      ],
+      "features": [
+        "تجهيز بيانات المسح",
+        "إتمام المسح الصناعي",
+        "تحديث بيانات المنشأة"
+      ],
+      "featuresEn": [
+        "Preparing the survey data",
+        "Completing the industrial survey",
+        "Updating the establishment data"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-pl-0087": {
+      "name": "تصريح الاستشارات الأمنية",
+      "nameEn": "Security Consulting Permit",
+      "description": "إصدار تصريح الاستشارات الأمنية مع تجهيز المتطلبات ومتابعة الاعتماد لدى الجهات المختصة.",
+      "descriptionEn": "Security consulting permit issuance with requirements preparation and approval follow-up with relevant authorities.",
+      "audience": "شركات الاستشارات الأمنية أو الجهات ذات العلاقة.",
+      "audienceEn": "Security-consulting firms and related entities",
+      "duration": "30 يوم عمل.",
+      "durationEn": "About 30 business days",
+      "documents": [
+        "مستندات الكيان",
+        "المؤهلات أو التراخيص المهنية",
+        "المستندات النظامية المطلوبة"
+      ],
+      "documentsEn": [
+        "Entity documents",
+        "Professional qualifications or licenses",
+        "Required regulatory documents"
+      ],
+      "features": [
+        "تجهيز متطلبات التصريح",
+        "تقديم الطلب",
+        "المتابعة حتى الاعتماد"
+      ],
+      "featuresEn": [
+        "Preparing the permit requirements",
+        "Filing the request",
+        "Following up with the relevant authorities"
+      ],
+      "faq": [
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "Are government fees included?",
+          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
     }
   },
   "social": {

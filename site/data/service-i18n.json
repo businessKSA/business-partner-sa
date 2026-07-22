@@ -382,5 +382,97 @@
   "BP-HOUSING-02": {
     "en": "Worker transport — housing to work sites",
     "ar": "نقل العمالة — من السكن إلى مواقع العمل"
+  },
+  "BP-FI-07": {
+    "ar": "دخول مستثمر أجنبي",
+    "en": "Foreign Investor Entry"
+  },
+  "BP-DIAG-01": {
+    "ar": "تقرير تشخيص",
+    "en": "Diagnostic Report"
+  },
+  "BP-GUIDE-01": {
+    "ar": "دليل قطاعي عام",
+    "en": "General Industry Guide"
+  },
+  "BP-GUIDE-02": {
+    "ar": "دليل مخصص",
+    "en": "Custom Guide"
+  },
+  "BP-PL-0088": {
+    "ar": "تسجيل قيد وكالة تجارية",
+    "en": "Commercial Agency Registration"
+  },
+  "BP-PL-0089": {
+    "ar": "تعديل قيد وكالة تجارية",
+    "en": "Commercial Agency Registration Amendment"
+  },
+  "BP-PL-0090": {
+    "ar": "تجديد قيد وكالة تجارية",
+    "en": "Commercial Agency Registration Renewal"
+  },
+  "BP-PL-0091": {
+    "ar": "شطب قيد وكالة تجارية",
+    "en": "Commercial Agency Registration Cancellation"
+  },
+  "BP-PL-0092": {
+    "ar": "تراخيص التخفيضات",
+    "en": "Discount License Issuance"
+  },
+  "BP-PL-0093": {
+    "ar": "تراخيص الأحجار الكريمة والمعادن الثمينة",
+    "en": "Precious Stones and Precious Metals Licenses"
+  },
+  "BP-PL-0094": {
+    "ar": "قيد الامتياز التجاري (فرنشايز)",
+    "en": "Franchise Registration"
+  },
+  "BP-PL-0076": {
+    "ar": "إصدار الترخيص الصناعي (تأسيس)",
+    "en": "Industrial License Issuance for Establishment"
+  },
+  "BP-PL-0077": {
+    "ar": "تجديد الترخيص الصناعي",
+    "en": "Industrial License Renewal"
+  },
+  "BP-PL-0078": {
+    "ar": "تعديل الترخيص الصناعي",
+    "en": "Industrial License Amendment"
+  },
+  "BP-PL-0079": {
+    "ar": "نقل ملكية الترخيص الصناعي",
+    "en": "Industrial License Ownership Transfer"
+  },
+  "BP-PL-0080": {
+    "ar": "طلب تأييد العمالة",
+    "en": "Labor Endorsement Request"
+  },
+  "BP-PL-0081": {
+    "ar": "إعفاء جمركي (مواد/آلات/قطع غيار)",
+    "en": "Customs Exemption for Materials, Machinery, and Spare Parts"
+  },
+  "BP-PL-0082": {
+    "ar": "إصدار شهادة المنشأ",
+    "en": "Certificate of Origin Issuance"
+  },
+  "BP-PL-0083": {
+    "ar": "طلب الفسح الكيميائي",
+    "en": "Chemical Clearance Request"
+  },
+  "BP-PL-0084": {
+    "ar": "ترقية البنود الجمركية",
+    "en": "Customs Tariff Items Upgrade"
+  },
+  "BP-PL-0085": {
+    "ar": "رخصة الاستطلاع (تعدين)",
+    "en": "Mining Reconnaissance License"
+  },
+  "BP-PL-0086": {
+    "ar": "المسح الصناعي",
+    "en": "Industrial Survey"
+  },
+  "BP-PL-0087": {
+    "ar": "تصريح الاستشارات الأمنية",
+    "en": "Security Consulting Permit"
   }
 }
