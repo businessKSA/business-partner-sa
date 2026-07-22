@@ -455,17 +455,23 @@ async function setLeadStatus(ref, status) {
 }
 
 const GH_HEADERS = () => ({ Authorization: `Bearer ${GH_TOKEN}`, Accept: "application/vnd.github+json", "User-Agent": "bp-admin-panel", "content-type": "application/json" });
+// Returns null when the file doesn't exist on that branch yet (a newly
+// data-driven file that hasn't reached the deploy branch) — a subsequent
+// ghPutFile without a sha then creates it.
 async function ghGetFile(filePath, branch) {
   const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}?ref=${encodeURIComponent(branch || CONTENT_BRANCH)}`, { headers: GH_HEADERS() });
+  if (r.status === 404) return null;
   if (!r.ok) { console.error("gh get error", r.status, (await r.text()).slice(0, 300)); throw new Error("github_failed"); }
   const d = await r.json();
   return { sha: d.sha, content: Buffer.from(d.content || "", "base64").toString("utf8") };
 }
 async function ghPutFile(filePath, content, sha, message, branch) {
+  const body = { message, branch: branch || CONTENT_BRANCH, content: Buffer.from(content, "utf8").toString("base64") };
+  if (sha) body.sha = sha;
   const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}`, {
     method: "PUT",
     headers: GH_HEADERS(),
-    body: JSON.stringify({ message, branch: branch || CONTENT_BRANCH, sha, content: Buffer.from(content, "utf8").toString("base64") }),
+    body: JSON.stringify(body),
   });
   if (!r.ok) { console.error("gh put error", r.status, (await r.text()).slice(0, 300)); throw new Error("github_failed"); }
   const d = await r.json();
@@ -557,6 +563,7 @@ export default async function handler(req, res) {
     if (!GH_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "content_not_configured" })); }
     try {
       const f = await ghGetFile(filePath);
+      if (!f) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "file_not_found" })); }
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, file: q.file, path: filePath, branch: CONTENT_BRANCH, sha: f.sha, content: f.content }));
     } catch {
@@ -671,12 +678,12 @@ export default async function handler(req, res) {
         const pretty = JSON.stringify(parsed, null, 2) + "\n";
         const msg = `Update ${filePath} from /admin panel`;
         const cur = await ghGetFile(filePath);
-        const commit = await ghPutFile(filePath, pretty, cur.sha, msg);
+        const commit = await ghPutFile(filePath, pretty, cur && cur.sha, msg);
         // Best-effort sync commit so the default branch doesn't drift.
         if (CONTENT_SYNC_BRANCH && CONTENT_SYNC_BRANCH !== CONTENT_BRANCH) {
           try {
             const syncCur = await ghGetFile(filePath, CONTENT_SYNC_BRANCH);
-            if (syncCur.content !== pretty) await ghPutFile(filePath, pretty, syncCur.sha, msg, CONTENT_SYNC_BRANCH);
+            if (!syncCur || syncCur.content !== pretty) await ghPutFile(filePath, pretty, syncCur && syncCur.sha, msg, CONTENT_SYNC_BRANCH);
           } catch (e) { console.error("content sync-branch error", String(e).slice(0, 150)); }
         }
         res.statusCode = 200;
