@@ -1,0 +1,492 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>لوحة تحكم الموقع — Business Partner</title>
+  <link rel="icon" href="/assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --navy:#0B1B5A; --navy-700:#13246e; --navy-900:#081345;
+      --bg:#F5F6FA; --surface:#fff; --line:#E4E7F0;
+      --text:#1F2430; --soft:#6a7085; --muted:#9aa0b4;
+      --good-bg:#dcfce7; --good-ink:#14532d;
+      --warn-bg:#fef3c7; --warn-ink:#92400e;
+      --bad-bg:#fee2e2; --bad-ink:#991b1b;
+      --info-bg:#e0f2fe; --info-ink:#075985;
+      --radius:16px; --shadow:0 8px 30px rgba(11,27,90,.06);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100dvh}
+    button{font-family:inherit;cursor:pointer}
+    a{color:inherit}
+
+    /* ---- login gate ---- */
+    #gate{min-height:100dvh;display:flex;align-items:center;justify-content:center;background:radial-gradient(1200px 600px at 70% -10%,#17307f 0%,var(--navy) 45%,var(--navy-900) 100%);padding:16px}
+    .gate-card{background:#fff;border-radius:20px;padding:38px 32px;width:100%;max-width:410px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+    .gate-card img{height:54px;margin-bottom:8px}
+    .gate-card h1{color:var(--navy);font-size:20px;margin:6px 0 4px}
+    .gate-card p{color:var(--soft);font-size:13.5px;margin-bottom:22px;line-height:1.6}
+    .gate-card input{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:12px;font-size:16px;text-align:center;direction:ltr;outline:none}
+    .gate-card input:focus{border-color:var(--navy)}
+    .gate-card button{width:100%;margin-top:14px;padding:13px;background:var(--navy);color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700}
+    .gate-card button:hover{background:var(--navy-700)}
+    .gate-err{color:#dc2626;font-size:13px;margin-top:10px;min-height:18px}
+
+    /* ---- app shell ---- */
+    #app{display:none;min-height:100dvh}
+    #app.on{display:flex}
+    .side{width:250px;flex-shrink:0;background:linear-gradient(180deg,var(--navy) 0%,var(--navy-900) 100%);color:#fff;display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:100dvh}
+    .side .logo{display:flex;flex-direction:column;gap:8px;padding:0 8px 16px;border-bottom:1px solid rgba(255,255,255,.14);margin-bottom:16px;overflow:hidden}
+    .side .logo img{max-width:150px;height:auto;align-self:flex-start}
+    .side .logo .t{font-weight:700;font-size:14.5px;line-height:1.3}
+    .side .logo .t small{display:block;font-weight:400;font-size:10.5px;opacity:.75}
+    .nav{display:flex;flex-direction:column;gap:4px}
+    .nav button{display:flex;align-items:center;gap:10px;background:none;border:0;color:rgba(255,255,255,.82);border-radius:11px;padding:11px 12px;font-size:14px;font-weight:600;text-align:right;width:100%}
+    .nav button:hover{background:rgba(255,255,255,.08);color:#fff}
+    .nav button.active{background:rgba(255,255,255,.16);color:#fff}
+    .side .grow{flex:1}
+    .side .foot{border-top:1px solid rgba(255,255,255,.14);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+    .side .foot a,.side .foot button{display:flex;align-items:center;gap:9px;background:none;border:0;color:rgba(255,255,255,.75);font-size:13px;font-weight:600;padding:8px 12px;border-radius:10px;text-decoration:none}
+    .side .foot a:hover,.side .foot button:hover{background:rgba(255,255,255,.08);color:#fff}
+
+    .main{flex:1;min-width:0;padding:26px 28px 60px;max-width:1180px}
+    .pagehead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+    .pagehead h2{color:var(--navy);font-size:1.35rem}
+    .pagehead .sub{color:var(--soft);font-size:.86rem;flex-basis:100%}
+    .pagehead .spacer{flex:1}
+    .refresh{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--navy)}
+    .refresh:hover{background:var(--bg)}
+    .refresh:disabled{opacity:.5;cursor:default}
+    .stamp{font-size:11.5px;color:var(--muted)}
+
+    /* ---- stat tiles ---- */
+    .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:22px}
+    .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+    .tile .k{font-size:12.5px;font-weight:600;color:var(--soft);display:flex;align-items:center;gap:6px}
+    .tile .v{font-size:1.9rem;font-weight:700;color:var(--navy);line-height:1.3;font-variant-numeric:tabular-nums}
+    .tile .d{font-size:11.5px;color:var(--muted)}
+
+    /* ---- panels / cards ---- */
+    .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
+    .panel-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+    .panel-head h3{color:var(--navy);font-size:1rem;flex:1}
+    .panel-head .more{font-size:12.5px;font-weight:700;color:var(--navy);background:none;border:0;text-decoration:none}
+    .panel-head .more:hover{text-decoration:underline}
+
+    /* ---- leads table ---- */
+    .filters{display:flex;gap:8px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+    .filters input[type="search"]{flex:1;min-width:180px;padding:9px 13px;border:1px solid var(--line);border-radius:10px;font-size:13.5px;font-family:inherit;background:var(--bg);outline:none}
+    .filters input[type="search"]:focus{border-color:var(--navy);background:#fff}
+    .chip{font-size:12px;font-weight:700;color:var(--soft);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+    .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .chip .n{opacity:.75;font-size:11px;margin-inline-start:4px}
+    .tbl-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:680px}
+    th{background:#f8fafc;color:var(--soft);font-size:12px;font-weight:700;text-align:right;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+    td{padding:11px 14px;border-bottom:1px solid #f2f4f8;vertical-align:middle}
+    tr:last-child td{border-bottom:0}
+    tbody tr:hover{background:#f8fafc}
+    .ref{font-weight:700;color:var(--navy);direction:ltr;white-space:nowrap}
+    .lead-title{font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .when{color:var(--muted);font-size:12px;white-space:nowrap;direction:ltr;text-align:right}
+    .status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+    .status.good{background:var(--good-bg);color:var(--good-ink)}
+    .status.warn{background:var(--warn-bg);color:var(--warn-ink)}
+    .status.bad{background:var(--bad-bg);color:var(--bad-ink)}
+    .status.info{background:var(--info-bg);color:var(--info-ink)}
+    .status.plain{background:var(--bg);color:var(--soft);border:1px solid var(--line)}
+    .stage{font-size:12px;color:var(--soft);white-space:nowrap}
+    .acts{display:flex;gap:6px;justify-content:flex-start}
+    .act{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:14px;text-decoration:none}
+    .act:hover{background:var(--bg)}
+    .empty{padding:34px 20px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.8}
+
+    /* ---- tools grid ---- */
+    .tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+    .tool{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-decoration:none;display:flex;flex-direction:column;gap:6px;transition:transform .12s ease,border-color .12s ease}
+    .tool:hover{transform:translateY(-2px);border-color:var(--navy)}
+    .tool .ico{font-size:1.7rem;line-height:1}
+    .tool h4{color:var(--navy);font-size:.98rem}
+    .tool p{color:var(--soft);font-size:.82rem;line-height:1.6;flex:1}
+    .tool .go{font-size:.8rem;font-weight:700;color:var(--navy)}
+    .tool .tag{align-self:flex-start;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--info-bg);color:var(--info-ink)}
+    .tool .tag.ext{background:#f3e8ff;color:#6b21a8}
+
+    .view{display:none}
+    .view.on{display:block}
+
+    /* ---- mobile ---- */
+    .mobilebar{display:none}
+    @media (max-width: 860px){
+      #app.on{flex-direction:column}
+      .side{display:none}
+      .mobilebar{display:block;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-900) 100%);color:#fff;padding:14px 16px 0;position:sticky;top:0;z-index:20}
+      .mobilebar .row{display:flex;align-items:center;gap:10px;padding-bottom:12px}
+      .mobilebar img{max-width:110px;height:auto}
+      .mobilebar .t{font-weight:700;font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .mobilebar .out{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:9px;padding:6px 12px;font-size:12px;font-weight:700}
+      .mobilebar .tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+      .mobilebar .tabs button{background:none;border:0;color:rgba(255,255,255,.75);font-size:13px;font-weight:700;padding:9px 13px;border-radius:10px 10px 0 0;white-space:nowrap}
+      .mobilebar .tabs button.active{background:var(--bg);color:var(--navy)}
+      .main{padding:18px 14px 50px}
+    }
+  </style>
+</head>
+<body>
+  <div id="gate">
+    <div class="gate-card">
+      <img src="/assets/img/logo.png" alt="Business Partner" onerror="this.style.display='none'" />
+      <h1>لوحة تحكم الموقع</h1>
+      <p>لوحة خاصة بمالك Business Partner — الطلبات الواردة، مؤشرات سريعة، وكل الأدوات الداخلية في مكان واحد. أدخل مفتاح الوصول.</p>
+      <input id="keyInput" type="password" placeholder="مفتاح الوصول" autocomplete="current-password" />
+      <button id="enterBtn">دخول</button>
+      <div class="gate-err" id="gateErr"></div>
+    </div>
+  </div>
+
+  <div id="app">
+    <aside class="side">
+      <div class="logo">
+        <img src="/assets/img/logo.png" alt="BP" onerror="this.style.display='none'" />
+        <div class="t">لوحة التحكم<small>Business Partner — للمالك</small></div>
+      </div>
+      <nav class="nav" id="navDesk">
+        <button data-v="overview" class="active">📊 نظرة عامة</button>
+        <button data-v="leads">📥 الطلبات الواردة</button>
+        <button data-v="tools">🧰 الأدوات واللوحات</button>
+      </nav>
+      <div class="grow"></div>
+      <div class="foot">
+        <a href="/" target="_blank" rel="noopener">🌐 فتح الموقع</a>
+        <button id="logoutBtn">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <div class="mobilebar">
+      <div class="row">
+        <img src="/assets/img/logo.png" alt="BP" onerror="this.style.display='none'" />
+        <div class="t">لوحة تحكم الموقع</div>
+        <button class="out" id="logoutBtnM">خروج</button>
+      </div>
+      <div class="tabs" id="navMob">
+        <button data-v="overview" class="active">📊 نظرة عامة</button>
+        <button data-v="leads">📥 الطلبات</button>
+        <button data-v="tools">🧰 الأدوات</button>
+      </div>
+    </div>
+
+    <main class="main">
+      <!-- ============ overview ============ -->
+      <section class="view on" id="view-overview">
+        <div class="pagehead">
+          <h2>📊 نظرة عامة</h2>
+          <div class="spacer"></div>
+          <span class="stamp" id="stampOverview"></span>
+          <button class="refresh" data-refresh>↻ تحديث</button>
+          <div class="sub">مؤشرات محسوبة من أحدث الطلبات في نظام CRM (آخر ٥٠ طلباً).</div>
+        </div>
+
+        <div class="tiles">
+          <div class="tile"><div class="k">📥 أحدث الطلبات</div><div class="v" id="tTotal">—</div><div class="d">آخر ما وصل من الموقع</div></div>
+          <div class="tile"><div class="k">☀️ اليوم</div><div class="v" id="tToday">—</div><div class="d">طلبات وصلت اليوم</div></div>
+          <div class="tile"><div class="k">🗓️ آخر ٧ أيام</div><div class="v" id="tWeek">—</div><div class="d">نشاط الأسبوع</div></div>
+          <div class="tile"><div class="k">⏳ قيد المراجعة</div><div class="v" id="tPending">—</div><div class="d">تحتاج قرارك</div></div>
+          <div class="tile"><div class="k">✅ مؤكدة / مكتملة</div><div class="v" id="tDone">—</div><div class="d">من المعروض حالياً</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>أحدث الطلبات</h3>
+            <button class="more" data-goto="leads">عرض الكل ←</button>
+          </div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>المرجع</th><th>الطلب</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+            <tbody id="recentBody"><tr><td colspan="4" class="empty">جاري التحميل…</td></tr></tbody>
+          </table></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>وصول سريع</h3></div>
+          <div class="tools" style="padding:16px 18px">
+            <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="ico">💬</span><h4>BP Inbox</h4><p>محادثات واتساب المباشرة والرد بمساعدة الذكاء.</p><span class="go">فتح ←</span></a>
+            <a class="tool" href="/dashboard" target="_blank" rel="noopener"><span class="ico">🎛️</span><h4>فريق الإيجنتس</h4><p>اختبار الموظفين الأذكياء والتحكم بتفعيلهم.</p><span class="go">فتح ←</span></a>
+            <a class="tool" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener"><span class="ico">📇</span><h4>CRM — نوشن</h4><p>قاعدة العملاء والصفقات الكاملة.</p><span class="go">فتح ←</span></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ leads ============ -->
+      <section class="view" id="view-leads">
+        <div class="pagehead">
+          <h2>📥 الطلبات الواردة</h2>
+          <div class="spacer"></div>
+          <span class="stamp" id="stampLeads"></span>
+          <button class="refresh" data-refresh>↻ تحديث</button>
+          <div class="sub">كل طلب يصل من الموقع (خدمات، امتثال، توظيف، فعاليات…) يُسجّل في CRM ويظهر هنا. التحديث تلقائي كل دقيقة.</div>
+        </div>
+
+        <div class="panel">
+          <div class="filters">
+            <input id="leadSearch" type="search" placeholder="🔍 ابحث بالمرجع أو اسم الطلب أو الجوال أو البريد" />
+            <div id="statusChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          </div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>المرجع</th><th>الطلب</th><th>الحالة</th><th>المرحلة</th><th>التاريخ</th><th>تواصل</th></tr></thead>
+            <tbody id="leadsBody"><tr><td colspan="6" class="empty">جاري التحميل…</td></tr></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ============ tools ============ -->
+      <section class="view" id="view-tools">
+        <div class="pagehead">
+          <h2>🧰 الأدوات واللوحات</h2>
+          <div class="sub">كل اللوحات الداخلية وأدوات التشغيل في مكان واحد.</div>
+        </div>
+
+        <div class="tools">
+          <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">💬</span><h4>BP Inbox — مركز المحادثات</h4><p>متابعة محادثات واتساب والرد المباشر بمساعدة الذكاء، مع إيقاف/تفعيل الوكيل لكل عميل.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="/dashboard" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🎛️</span><h4>لوحة فريق الإيجنتس</h4><p>اختبار كل موظف ذكي مباشرة، والتحكم في تشغيله وقفله حتى الدفع.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="/ar/compliance-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🛡️</span><h4>لوحة وكيل الامتثال</h4><p>اللوحة التي يراها مشترك خدمة الامتثال — مراقبة المنصات الحكومية والتنبيهات.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="/ar/employer-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🏢</span><h4>لوحة منصة التوظيف</h4><p>لوحة أصحاب العمل المشتركين في منصة التوظيف — المرشحون والطلبات.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="/ar/portal/dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">👥</span><h4>بوابة الاستقدام HR</h4><p>لوحة عملاء بوابة الاستقدام والتوظيف hr.businesspartner.sa.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="/account" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">📄</span><h4>بوابة العملاء</h4><p>تتبع الطلبات والمستندات — ما يراه العميل بعد شراء أي خدمة.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">📇</span><h4>CRM — نوشن</h4><p>قاعدة Sales Pipeline الكاملة: العملاء، الصفقات، الحالات، والمرفقات.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="https://businesspartnerai.app.n8n.cloud" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">⚙️</span><h4>n8n — الأتمتة</h4><p>سيناريوهات الوكلاء وواتساب — التوكنات، الاعتمادات، وسجل التشغيل.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="https://vercel.com" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">▲</span><h4>Vercel — الاستضافة</h4><p>نشر الموقع، السجلات، ومتغيرات البيئة (المفاتيح والتوكنات).</p><span class="go">فتح ←</span></a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    var LEADS_URL = '/api/requests?action=leads';
+    var KEY_STORE = 'bp_admin_key';
+    var POLL_MS = 60000;
+
+    var accessKey = localStorage.getItem(KEY_STORE) || '';
+    var leads = [];
+    var lastFetch = null;
+    var pollTimer = null;
+    var statusFilter = 'all';
+    var search = '';
+
+    function $(id){ return document.getElementById(id); }
+
+    // ---- status mapping: icon + label always together (never color alone) ----
+    function statusMeta(s){
+      s = (s || '').trim();
+      if (!s) return { cls:'plain', icon:'•', label:'بدون حالة' };
+      if (s === 'مكتمل') return { cls:'good', icon:'✅', label:s };
+      if (s.indexOf('مؤكد') === 0) return { cls:'good', icon:'🟢', label:s };
+      if (s.indexOf('قيد المراجعة') === 0) return { cls:'warn', icon:'⏳', label:s };
+      if (s.indexOf('ملغي') === 0 || s.indexOf('مرفوض') === 0) return { cls:'bad', icon:'✖️', label:s };
+      return { cls:'info', icon:'ℹ️', label:s };
+    }
+    function statusHtml(s){
+      var m = statusMeta(s);
+      return '<span class="status ' + m.cls + '"><span>' + m.icon + '</span>' + esc(m.label) + '</span>';
+    }
+    function esc(x){ return String(x || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    function fmtDate(iso){
+      if (!iso) return '—';
+      var d = new Date(iso);
+      if (isNaN(d)) return esc(iso);
+      var da = daysAgo(iso);
+      if (da === 0) return 'اليوم';
+      if (da === 1) return 'أمس';
+      // Gregorian explicitly — ar-SA alone defaults to the Hijri calendar.
+      return d.toLocaleDateString('ar-SA-u-ca-gregory', { day:'numeric', month:'short' });
+    }
+    function daysAgo(iso){
+      if (!iso) return Infinity;
+      var d = new Date(iso); if (isNaN(d)) return Infinity;
+      var now = new Date();
+      var a = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      var b = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((b - a) / 86400000);
+    }
+
+    function fetchLeads(){
+      return fetch(LEADS_URL + '&limit=50&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+        .then(function(r){
+          if (r.status === 401) throw new Error('unauthorized');
+          if (r.status === 503) throw new Error('not_configured');
+          if (!r.ok) throw new Error('http ' + r.status);
+          return r.json();
+        })
+        .then(function(data){
+          if (!data.ok) throw new Error(data.error || 'failed');
+          leads = data.leads || [];
+          lastFetch = new Date();
+          return leads;
+        });
+    }
+
+    // ---- overview ----
+    function renderOverview(){
+      var today = 0, week = 0, pending = 0, done = 0;
+      for (var i = 0; i < leads.length; i++){
+        var l = leads[i];
+        var da = daysAgo(l.at);
+        if (da === 0) today++;
+        if (da <= 6) week++;
+        var s = (l.status || '');
+        if (s.indexOf('قيد المراجعة') === 0) pending++;
+        if (s === 'مكتمل' || s.indexOf('مؤكد') === 0) done++;
+      }
+      $('tTotal').textContent = leads.length;
+      $('tToday').textContent = today;
+      $('tWeek').textContent = week;
+      $('tPending').textContent = pending;
+      $('tDone').textContent = done;
+
+      var rows = '';
+      var recent = leads.slice(0, 6);
+      for (var j = 0; j < recent.length; j++){
+        var r = recent[j];
+        rows += '<tr>' +
+          '<td class="ref">' + esc(r.ref || '—') + '</td>' +
+          '<td class="lead-title" title="' + esc(r.title) + '">' + esc(r.title || '—') + '</td>' +
+          '<td>' + statusHtml(r.status) + '</td>' +
+          '<td class="when">' + fmtDate(r.at) + '</td>' +
+        '</tr>';
+      }
+      $('recentBody').innerHTML = rows || '<tr><td colspan="4" class="empty">لا توجد طلبات بعد — أول ما يصل طلب من الموقع يظهر هنا.</td></tr>';
+      $('stampOverview').textContent = lastFetch ? ('آخر تحديث: ' + lastFetch.toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' })) : '';
+    }
+
+    // ---- leads view ----
+    function buildChips(){
+      var counts = { all: leads.length };
+      for (var i = 0; i < leads.length; i++){
+        var k = statusMeta(leads[i].status).cls;
+        counts[k] = (counts[k] || 0) + 1;
+      }
+      var defs = [
+        { id:'all', label:'الكل' },
+        { id:'warn', label:'⏳ قيد المراجعة' },
+        { id:'good', label:'✅ مؤكدة / مكتملة' },
+        { id:'info', label:'ℹ️ أخرى' },
+        { id:'bad', label:'✖️ ملغاة' }
+      ];
+      var html = '';
+      for (var j = 0; j < defs.length; j++){
+        var d = defs[j]; var c = counts[d.id] || 0;
+        if (d.id !== 'all' && !c) continue;
+        html += '<button class="chip' + (statusFilter === d.id ? ' active' : '') + '" data-f="' + d.id + '">' + d.label + '<span class="n">' + c + '</span></button>';
+      }
+      var box = $('statusChips'); box.innerHTML = html;
+      var btns = box.querySelectorAll('.chip');
+      for (var b = 0; b < btns.length; b++) btns[b].onclick = function(){ statusFilter = this.getAttribute('data-f'); renderLeads(); };
+    }
+
+    function renderLeads(){
+      buildChips();
+      var rows = '';
+      for (var i = 0; i < leads.length; i++){
+        var l = leads[i];
+        if (statusFilter !== 'all' && statusMeta(l.status).cls !== statusFilter) continue;
+        if (search){
+          var hay = (l.ref + ' ' + l.title + ' ' + l.phone + ' ' + l.email + ' ' + l.status + ' ' + l.stage).toLowerCase();
+          if (hay.indexOf(search.toLowerCase()) === -1) continue;
+        }
+        var acts = '';
+        if (l.phone) acts += '<a class="act" title="واتساب" target="_blank" rel="noopener" href="https://wa.me/' + esc(l.phone.replace(/[^\d]/g,'')) + '">💬</a>';
+        if (l.email) acts += '<a class="act" title="إيميل" href="mailto:' + esc(l.email) + '">✉️</a>';
+        rows += '<tr>' +
+          '<td class="ref">' + esc(l.ref || '—') + '</td>' +
+          '<td class="lead-title" title="' + esc(l.title) + '">' + esc(l.title || '—') + '</td>' +
+          '<td>' + statusHtml(l.status) + '</td>' +
+          '<td class="stage">' + esc(l.stage || '—') + '</td>' +
+          '<td class="when">' + fmtDate(l.at) + '</td>' +
+          '<td><div class="acts">' + (acts || '<span class="stage">—</span>') + '</div></td>' +
+        '</tr>';
+      }
+      $('leadsBody').innerHTML = rows || '<tr><td colspan="6" class="empty">لا توجد طلبات مطابقة.</td></tr>';
+      $('stampLeads').textContent = lastFetch ? ('آخر تحديث: ' + lastFetch.toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' })) : '';
+    }
+
+    function renderAll(){ renderOverview(); renderLeads(); }
+
+    function refresh(btns){
+      var list = document.querySelectorAll('[data-refresh]');
+      for (var i = 0; i < list.length; i++) list[i].disabled = true;
+      return fetchLeads().then(renderAll)
+        .catch(function(e){
+          if (String(e.message) === 'unauthorized'){ logout(); return; }
+          // keep last data; note the failure in the stamps
+          $('stampOverview').textContent = 'تعذّر التحديث — سيُعاد تلقائياً';
+          $('stampLeads').textContent = 'تعذّر التحديث — سيُعاد تلقائياً';
+        })
+        .then(function(){ for (var i = 0; i < list.length; i++) list[i].disabled = false; });
+    }
+
+    // ---- navigation ----
+    function switchView(v){
+      var views = document.querySelectorAll('.view');
+      for (var i = 0; i < views.length; i++) views[i].classList.toggle('on', views[i].id === 'view-' + v);
+      var btns = document.querySelectorAll('.nav button, .mobilebar .tabs button');
+      for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('active', btns[j].getAttribute('data-v') === v);
+      window.scrollTo(0, 0);
+    }
+    (function(){
+      var btns = document.querySelectorAll('.nav button, .mobilebar .tabs button');
+      for (var i = 0; i < btns.length; i++) btns[i].onclick = function(){ switchView(this.getAttribute('data-v')); };
+      var gotos = document.querySelectorAll('[data-goto]');
+      for (var j = 0; j < gotos.length; j++) gotos[j].onclick = function(){ switchView(this.getAttribute('data-goto')); };
+      var refs = document.querySelectorAll('[data-refresh]');
+      for (var k = 0; k < refs.length; k++) refs[k].onclick = function(){ refresh(); };
+    })();
+
+    $('leadSearch').addEventListener('input', function(){ search = this.value; renderLeads(); });
+
+    // ---- gate / session ----
+    function enter(){
+      var k = $('keyInput').value.trim();
+      if (!k){ $('gateErr').textContent = 'أدخل مفتاح الوصول'; return; }
+      $('gateErr').textContent = 'جاري التحقق…';
+      accessKey = k;
+      fetchLeads().then(function(){
+        localStorage.setItem(KEY_STORE, k);
+        startApp();
+      }).catch(function(e){
+        accessKey = '';
+        $('gateErr').textContent = String(e.message) === 'not_configured'
+          ? 'اللوحة غير مهيأة — أضف LEADS_KEY في إعدادات Vercel'
+          : 'مفتاح غير صحيح ❌';
+      });
+    }
+    function startApp(){
+      $('gate').style.display = 'none';
+      $('app').classList.add('on');
+      renderAll();
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(function(){ refresh(); }, POLL_MS);
+    }
+    function logout(){
+      localStorage.removeItem(KEY_STORE);
+      if (pollTimer) clearInterval(pollTimer);
+      location.reload();
+    }
+
+    $('enterBtn').onclick = enter;
+    $('keyInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') enter(); });
+    $('logoutBtn').onclick = logout;
+    $('logoutBtnM').onclick = logout;
+
+    if (accessKey){
+      fetchLeads().then(startApp).catch(function(e){
+        if (String(e.message) === 'unauthorized'){ localStorage.removeItem(KEY_STORE); accessKey = ''; }
+        $('gate').style.display = 'flex';
+      });
+    }
+  </script>
+</body>
+</html>

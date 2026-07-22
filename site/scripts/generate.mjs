@@ -5712,6 +5712,11 @@ function buildMonitor() {
   return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8');
 }
 
+function buildAdmin() {
+  // Owner control panel (/admin) — same standalone-raw-file pattern as monitor.
+  return fs.readFileSync(path.join(__dirname, 'assets', 'admin.page.html'), 'utf8');
+}
+
 /* ---------- owner dashboard: control + live-test the specialized-team agents ---------- */
 // Standalone owner page (noindex, no site chrome). One card per BP Team agent.
 // Calls the n8n intake webhooks DIRECTLY from the browser (webhooks allow all
@@ -7898,6 +7903,9 @@ LANG = "en";
 
 // Owner-only live chat monitor (standalone page, no site chrome, noindex)
 write("monitor.html", buildMonitor());
+
+// Owner-only unified control panel for the site (standalone page, noindex)
+write("admin.html", buildAdmin());
 
 // Owner-only control + live-test dashboard for the specialized-team agents (noindex)
 write("dashboard.html", buildDashboard());
