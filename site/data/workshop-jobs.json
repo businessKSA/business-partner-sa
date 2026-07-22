@@ -1,5 +1,5 @@
 {
-  "_comment": "Client hiring campaign: events fabrication workshop for an entertainment & events services provider (client kept anonymous on the public site). Role content distilled from the client's job description pack; openings counts from the client's workshop hiring plan (May–Dec 2026). Salaries are intentionally NOT published — they are client-confidential; the application form collects the candidate's expected salary instead. Roles in the hiring plan without an approved JD (finance/HR/procurement officers, electrical team, detailing engineers, engineering staff roles) are not posted here — see docs/events-workshop-recruitment-plan.md.",
+  "_comment": "Client hiring campaign: events fabrication workshop for an entertainment & events services provider (client kept anonymous on the public site). Role content distilled from the client's job description pack; openings counts from the client's workshop hiring plan (May–Dec 2026). Salaries are intentionally NOT published — they are client-confidential; the application form collects the candidate's expected salary instead. Per owner request (2026-07-22) ALL plan roles are published, including those without a client JD (content drafted by Business Partner from the hiring plan and sibling JDs) — see docs/events-workshop-recruitment-plan.md.",
   "campaign": {
     "slug": "events-workshop",
     "title": { "en": "Events Fabrication Workshop — Mega Hiring Campaign", "ar": "ورشة تصنيع الفعاليات — حملة توظيف كبرى" },
@@ -8,7 +8,7 @@
       "ar": "شركة رائدة في خدمات الترفيه والفعاليات في السعودية تؤسس ورشة تصنيع متكاملة لتصميم وبناء هياكل الفعاليات المخصصة، أجنحة المعارض، العناصر المشهدية، والمجسمات — وتوظّف عبر بيزنس بارتنر في كل الأقسام: إدارة، هندسة، قادة فرق، فنيين، وعمالة ماهرة."
     },
     "stats": [
-      { "value": "150+", "label": { "en": "Openings across all waves", "ar": "فرصة عمل عبر كل الدفعات" } },
+      { "value": "180+", "label": { "en": "Openings across all waves", "ar": "فرصة عمل عبر كل الدفعات" } },
       { "value": "10+", "label": { "en": "Departments hiring", "ar": "أقسام توظّف الآن" } },
       { "value": "4", "label": { "en": "Hiring waves through Dec 2026", "ar": "دفعات توظيف حتى ديسمبر 2026" } }
     ],
@@ -18,7 +18,8 @@
       { "key": "leaders", "title": { "en": "Team Leaders", "ar": "قادة الفرق" } },
       { "key": "logistics", "title": { "en": "Warehouse & Logistics", "ar": "المستودعات واللوجستيات" } },
       { "key": "technicians", "title": { "en": "Technicians", "ar": "الفنيون" } },
-      { "key": "trades", "title": { "en": "Skilled Trades & Labor", "ar": "العمالة الماهرة" } }
+      { "key": "trades", "title": { "en": "Skilled Trades & Labor", "ar": "العمالة الماهرة" } },
+      { "key": "staff", "title": { "en": "Finance, HR & Procurement", "ar": "المالية والموارد البشرية والمشتريات" } }
     ]
   },
   "jobs": [
@@ -970,6 +971,497 @@
           "قدرة على العمل في بيئة ورشة — ضجيج وغبار وحرارة — وفي مواقع الفعاليات.",
           "لياقة بدنية للرفع والوقوف والعمل بإيقاع سريع.",
           "التزام بقواعد السلامة وانضباط الفريق؛ وتُعد خبرة قطاع الفعاليات ميزة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-production-team-leader",
+      "group": "leaders",
+      "tag": { "en": "Saudi Arabia · Production", "ar": "السعودية · إنتاج" },
+      "title": { "en": "Production Team Leader — Events Workshop", "ar": "قائد فريق إنتاج — ورشة فعاليات" },
+      "summary": { "en": "Hands-on leadership of the workshop floor across carpenters, welders, and painters — the daily link between project managers and fabrication.", "ar": "قيادة ميدانية لأرضية الورشة عبر النجارين واللحامين والدهانين — حلقة الوصل اليومية بين مديري المشاريع والتصنيع." },
+      "meta": { "en": "Full-time · 5+ years scenic/exhibit fabrication · Team leadership", "ar": "دوام كامل · خبرة 5+ سنوات تصنيع مشهدي/معارض · قيادة فريق" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Lead, mentor, and task the workshop team to meet tight event deadlines; run daily toolbox talks.",
+          "Interpret technical drawings, CAD files, and design briefs to guide fabrication.",
+          "Coordinate workshop workflow to cut waste and downtime; support on-site load-in/out at peak times.",
+          "Enforce HSE rules and 5S; inspect finished products before they leave the workshop.",
+          "Manage raw-materials inventory and keep equipment (saws, welders, routers) in working order."
+        ],
+        "ar": [
+          "قيادة فريق الورشة وتوجيهه وتوزيع المهام لتلبية مواعيد الفعاليات الضيقة مع اجتماعات سلامة يومية.",
+          "قراءة الرسومات الفنية وملفات CAD وموجزات التصميم لتوجيه التصنيع.",
+          "تنسيق سير العمل في الورشة لتقليل الهدر والتوقف ودعم الإدخال والإخراج بالمواقع وقت الذروة.",
+          "تطبيق قواعد السلامة و5S وفحص المنتجات الجاهزة قبل خروجها من الورشة.",
+          "إدارة مخزون المواد الخام والحفاظ على جاهزية المعدات (مناشير، لحام، راوترات)."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in scenic construction or exhibit fabrication in a high-paced workshop.",
+          "Proven team leadership with strong interpersonal skills.",
+          "Reads technical drawings; hands-on woodworking, metalworking, or scenic painting.",
+          "Calm under pressure; ERP/Excel reporting a plus."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في البناء المشهدي أو تصنيع المعارض في ورشة سريعة الإيقاع.",
+          "قيادة فريق مثبتة مع مهارات تواصل قوية.",
+          "قراءة الرسومات الفنية وخبرة عملية في النجارة أو المعادن أو الدهان المشهدي.",
+          "هدوء تحت الضغط؛ وتُعد تقارير ERP/Excel ميزة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-electrical-team-leader",
+      "group": "leaders",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Electrical", "ar": "السعودية · كهرباء" },
+      "title": { "en": "Electrical Team Leader — Events Workshop", "ar": "قائد فريق كهرباء — ورشة فعاليات" },
+      "summary": { "en": "Lead the electrical section wiring, lighting, and powering custom event structures and scenic elements — safely and show-ready.", "ar": "قيادة قسم الكهرباء لتمديد وإنارة وتغذية هياكل الفعاليات والعناصر المشهدية المخصصة — بأمان وجاهزية للعرض." },
+      "meta": { "en": "Full-time · 5+ years events/site electrical · Team leadership", "ar": "دوام كامل · خبرة 5+ سنوات كهرباء فعاليات/مواقع · قيادة فريق" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Lead the electrical team; allocate daily tasks and run toolbox talks.",
+          "Install and integrate lighting, power distribution, and electrical components into scenic elements and event structures.",
+          "Read electrical schematics and coordinate with designers, foam, steel, and carpentry sections.",
+          "Test all wiring and connections before dispatch; support on-site power-up and troubleshooting.",
+          "Enforce electrical safety standards and proper isolation on the workshop floor and at venues."
+        ],
+        "ar": [
+          "قيادة فريق الكهرباء وتوزيع المهام اليومية وعقد اجتماعات السلامة.",
+          "تركيب ودمج الإنارة وتوزيع الطاقة والمكونات الكهربائية داخل العناصر المشهدية وهياكل الفعاليات.",
+          "قراءة المخططات الكهربائية والتنسيق مع المصممين وأقسام الفوم والحديد والنجارة.",
+          "اختبار كل التمديدات والتوصيلات قبل الشحن ودعم التشغيل والمعالجة في المواقع.",
+          "تطبيق معايير السلامة الكهربائية والعزل السليم في الورشة والمواقع."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years of electrical work, preferably in events, exhibitions, or site installations.",
+          "Proven team leadership with strong communication.",
+          "Reads electrical schematics and technical drawings; safe wiring and testing practices.",
+          "Electrical certification or vocational diploma preferred."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في الأعمال الكهربائية، ويفضَّل في الفعاليات أو المعارض أو تركيبات المواقع.",
+          "قيادة فريق مثبتة مع مهارات تواصل قوية.",
+          "قراءة المخططات الكهربائية والرسومات الفنية مع ممارسات تمديد واختبار آمنة.",
+          "يفضَّل شهادة كهربائية أو دبلوم مهني."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-electrical-technician",
+      "group": "technicians",
+      "openings": 5,
+      "tag": { "en": "Saudi Arabia · Electrical", "ar": "السعودية · كهرباء" },
+      "title": { "en": "Electrical Technician — Events", "ar": "فني كهرباء — فعاليات" },
+      "summary": { "en": "Wire, light, and power custom scenic elements and event structures in the workshop and on site.", "ar": "تمديد وإنارة وتغذية العناصر المشهدية وهياكل الفعاليات المخصصة في الورشة والمواقع." },
+      "meta": { "en": "Full-time · 3+ years electrical · 5 openings", "ar": "دوام كامل · خبرة 3+ سنوات كهرباء · 5 فرص" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Install wiring, lighting, sockets, and distribution boards for scenic elements and event structures.",
+          "Integrate LED and lighting effects into foam, wood, and steel builds with the fabrication teams.",
+          "Test circuits and connections before dispatch; assist with on-site hookup and dismantling.",
+          "Maintain electrical tools and materials; keep tidy, labeled cabling.",
+          "Follow electrical safety standards and PPE requirements at all times."
+        ],
+        "ar": [
+          "تركيب التمديدات والإنارة والأفياش ولوحات التوزيع للعناصر المشهدية وهياكل الفعاليات.",
+          "دمج إضاءات LED والمؤثرات الضوئية في مجسمات الفوم والخشب والحديد مع فرق التصنيع.",
+          "اختبار الدوائر والتوصيلات قبل الشحن والمساعدة في التوصيل والفك بالمواقع.",
+          "صيانة العدد والمواد الكهربائية والحفاظ على تمديدات مرتبة ومعلّمة.",
+          "الالتزام الدائم بمعايير السلامة الكهربائية ومعدات الوقاية."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "3+ years of electrical installation experience; events or fit-out preferred.",
+          "Reads basic electrical schematics.",
+          "Safe wiring, testing, and troubleshooting skills.",
+          "Physical fitness for workshop and site work; vocational certificate preferred."
+        ],
+        "ar": [
+          "خبرة 3+ سنوات في التمديدات الكهربائية، ويفضَّل في الفعاليات أو التشطيبات.",
+          "قراءة المخططات الكهربائية الأساسية.",
+          "مهارات تمديد واختبار ومعالجة أعطال آمنة.",
+          "لياقة بدنية للعمل في الورشة والمواقع؛ ويفضَّل شهادة مهنية."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-branding-technician",
+      "group": "technicians",
+      "openings": 6,
+      "tag": { "en": "Saudi Arabia · Branding & Fabric", "ar": "السعودية · براندنج وأقمشة" },
+      "title": { "en": "Installation / Fabric & Branding Technician — Events", "ar": "فني تركيب / أقمشة وبراندنج — فعاليات" },
+      "summary": { "en": "Apply vinyl, graphics, fabric, and branding to event structures, stands, and venues — precise finishing that carries the client's brand.", "ar": "تركيب الفينيل والجرافيك والأقمشة والبراندنج على هياكل الفعاليات والأجنحة والمواقع — تشطيب دقيق يعكس هوية العميل." },
+      "meta": { "en": "Full-time · 3+ years branding/signage installation · 6 openings", "ar": "دوام كامل · خبرة 3+ سنوات تركيب براندنج/لوحات · 6 فرص" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Apply vinyl wraps, printed graphics, and branding to walls, stands, vehicles, and scenic structures.",
+          "Install fabric elements — tension fabric, drapery, banners — on frames and rigging.",
+          "Prepare surfaces, measure, align, and finish applications bubble-free and seam-true.",
+          "Support load-in/load-out and on-site installation under event deadlines.",
+          "Handle materials and tools carefully; keep work areas clean and safe."
+        ],
+        "ar": [
+          "تركيب الفينيل والجرافيك المطبوع والبراندنج على الجدران والأجنحة والمركبات والهياكل المشهدية.",
+          "تركيب العناصر القماشية — أقمشة الشد والستائر والبنرات — على الإطارات وأنظمة التعليق.",
+          "تجهيز الأسطح والقياس والمحاذاة وإنهاء التركيب بدون فقاعات وبوصلات دقيقة.",
+          "دعم الإدخال والإخراج والتركيب في المواقع ضمن مواعيد الفعاليات.",
+          "التعامل بعناية مع المواد والأدوات والحفاظ على نظافة وسلامة مناطق العمل."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "3+ years applying vinyl, signage, or fabric branding, preferably in events or exhibitions.",
+          "Steady hands and sharp eye for alignment and finish quality.",
+          "Comfortable working at heights and on fast-paced sites.",
+          "Team player who follows team-leader instructions precisely."
+        ],
+        "ar": [
+          "خبرة 3+ سنوات في تركيب الفينيل أو اللوحات أو البراندنج القماشي، ويفضَّل في الفعاليات والمعارض.",
+          "يد ثابتة وعين دقيقة للمحاذاة وجودة التشطيب.",
+          "ارتياح للعمل على ارتفاعات وفي مواقع سريعة الإيقاع.",
+          "روح فريق والتزام دقيق بتعليمات قائد الفريق."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-production-engineer",
+      "group": "engineering",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Engineering", "ar": "السعودية · هندسة" },
+      "title": { "en": "Production Engineer — Events Fabrication", "ar": "مهندس إنتاج — تصنيع فعاليات" },
+      "summary": { "en": "Plan and optimize fabrication workflows across carpentry, steel, printing, foam, and painting — capacity, methods, and cost.", "ar": "تخطيط وتحسين مسارات التصنيع عبر النجارة والحديد والطباعة والفوم والدهان — الطاقة الإنتاجية والأساليب والتكلفة." },
+      "meta": { "en": "Full-time · 5+ years production engineering · Fabrication environment", "ar": "دوام كامل · خبرة 5+ سنوات هندسة إنتاج · بيئة تصنيع" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Translate project schedules into daily production plans across all workshop sections.",
+          "Define fabrication methods, routings, and time estimates from shop drawings.",
+          "Track output, bottlenecks, and material usage; drive waste and downtime reduction.",
+          "Coordinate between engineering, procurement, and the workshop floor.",
+          "Support costing and post-project reconciliation with real production data."
+        ],
+        "ar": [
+          "تحويل جداول المشاريع إلى خطط إنتاج يومية عبر كل أقسام الورشة.",
+          "تحديد أساليب التصنيع والمسارات وتقديرات الوقت من الرسومات التنفيذية.",
+          "متابعة الإنتاج والاختناقات واستهلاك المواد وقيادة خفض الهدر والتوقف.",
+          "التنسيق بين الهندسة والمشتريات وأرضية الورشة.",
+          "دعم التكاليف والمطابقة بعد المشاريع ببيانات إنتاج فعلية."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in production or industrial engineering, preferably custom fabrication or events.",
+          "Bachelor's degree in industrial, mechanical, or production engineering.",
+          "Solid grasp of carpentry, steel, printing, foam, and finishing processes.",
+          "Strong Excel/ERP skills; CAD literacy preferred."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في هندسة الإنتاج أو الهندسة الصناعية، ويفضَّل التصنيع المخصص أو الفعاليات.",
+          "بكالوريوس هندسة صناعية أو ميكانيكية أو إنتاج.",
+          "إلمام متين بعمليات النجارة والحديد والطباعة والفوم والتشطيب.",
+          "مهارات قوية في Excel/ERP؛ ويفضَّل معرفة CAD."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-quality-engineer",
+      "group": "engineering",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Quality", "ar": "السعودية · جودة" },
+      "title": { "en": "Quality Engineer — Events Fabrication", "ar": "مهندس جودة — تصنيع فعاليات" },
+      "summary": { "en": "Run in-process inspections and final release checks on custom event structures — supporting the Quality Manager's system on the floor.", "ar": "تنفيذ الفحوصات أثناء التصنيع وفحوص الإفراج النهائي لهياكل الفعاليات المخصصة — دعم نظام مدير الجودة ميدانياً." },
+      "meta": { "en": "Full-time · 5+ years QA/QC engineering · Fabrication", "ar": "دوام كامل · خبرة 5+ سنوات هندسة جودة · تصنيع" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Perform in-process audits across carpentry, steel, printing, foam, and painting per the quality SOPs.",
+          "Inspect incoming raw materials against specifications.",
+          "Run final cosmetic, structural, and functional checks before dispatch.",
+          "Document non-conformities, support root-cause analysis and corrective actions.",
+          "Keep inspection records, traceability logs, and client certification files current."
+        ],
+        "ar": [
+          "تنفيذ تدقيقات أثناء التصنيع عبر النجارة والحديد والطباعة والفوم والدهان وفق إجراءات الجودة.",
+          "فحص المواد الخام الواردة مقابل المواصفات.",
+          "إجراء الفحوص النهائية الشكلية والإنشائية والوظيفية قبل الشحن.",
+          "توثيق حالات عدم المطابقة ودعم تحليل الأسباب الجذرية والإجراءات التصحيحية.",
+          "تحديث سجلات الفحص والتتبع وملفات شهادات العملاء باستمرار."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in QA/QC engineering, preferably fabrication or construction.",
+          "Bachelor's degree in engineering or equivalent QC certification.",
+          "Blueprint reading and measurement-tool proficiency.",
+          "Excel reporting; ISO 9001 familiarity preferred."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في هندسة الجودة، ويفضَّل التصنيع أو الإنشاءات.",
+          "بكالوريوس هندسة أو شهادة جودة معادلة.",
+          "قراءة المخططات وإتقان أدوات القياس.",
+          "تقارير Excel؛ ويفضَّل الإلمام بـ ISO 9001."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-installation-engineer",
+      "group": "engineering",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Installation", "ar": "السعودية · تركيب" },
+      "title": { "en": "Installation Engineer — Events", "ar": "مهندس تركيب — فعاليات" },
+      "summary": { "en": "Engineer the on-site build: method statements, site surveys, and technical supervision of installation crews.", "ar": "هندسة التنفيذ الميداني: خطط التركيب ومعاينات المواقع والإشراف الفني على فرق التركيب." },
+      "meta": { "en": "Full-time · 5+ years site/installation engineering · Events", "ar": "دوام كامل · خبرة 5+ سنوات هندسة مواقع/تركيب · فعاليات" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Conduct site surveys and verify venue conditions against design drawings.",
+          "Prepare installation method statements, sequencing, and rigging plans with the engineering team.",
+          "Supervise installation technically — leveling, anchoring, structural connections, and safety compliance.",
+          "Resolve on-site technical clashes fast and document as-built deviations.",
+          "Coordinate handover inspections with quality and the client's site representatives."
+        ],
+        "ar": [
+          "إجراء معاينات المواقع والتحقق من ظروف المكان مقابل رسومات التصميم.",
+          "إعداد خطط التركيب والتسلسل ومخططات التعليق مع فريق الهندسة.",
+          "الإشراف الفني على التركيب — الاستواء والتثبيت والوصلات الإنشائية والامتثال للسلامة.",
+          "حل التعارضات الفنية في الموقع بسرعة وتوثيق الانحرافات كما نُفذت.",
+          "تنسيق فحوص التسليم مع الجودة وممثلي العميل في الموقع."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in site or installation engineering, preferably events, exhibitions, or fit-out.",
+          "Bachelor's degree in civil or mechanical engineering.",
+          "Reads structural drawings; understands rigging and temporary structures.",
+          "Mobile and site-ready; strong coordination under deadline pressure."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في هندسة المواقع أو التركيب، ويفضَّل الفعاليات أو المعارض أو التشطيبات.",
+          "بكالوريوس هندسة مدنية أو ميكانيكية.",
+          "قراءة الرسومات الإنشائية وفهم أنظمة التعليق والهياكل المؤقتة.",
+          "جاهزية للتنقل والعمل الميداني وتنسيق قوي تحت ضغط المواعيد."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-detailing-engineer",
+      "group": "engineering",
+      "openings": 4,
+      "tag": { "en": "Saudi Arabia · Engineering", "ar": "السعودية · هندسة" },
+      "title": { "en": "Detailing Engineer / Detailer — Events", "ar": "مهندس تفاصيل (ديتيلر) — فعاليات" },
+      "summary": { "en": "Produce precise shop drawings, cut lists, and CNC-ready files from the design team's models — the drawings the workshop builds from.", "ar": "إنتاج رسومات تنفيذية دقيقة وقوائم قص وملفات جاهزة لـ CNC من نماذج فريق التصميم — الرسومات التي تبني منها الورشة." },
+      "meta": { "en": "Full-time · 3+ years drafting/detailing · AutoCAD · 4 openings", "ar": "دوام كامل · خبرة 3+ سنوات رسم/تفصيل · AutoCAD · 4 فرص" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Turn 3D models and design drawings into dimensioned shop drawings for every section.",
+          "Produce cut lists, BOMs, and nesting/CNC files for routers and cutters.",
+          "Detail joints, connections, and assembly sequences for fast, accurate builds.",
+          "Update drawings through engineering change notices and keep revisions controlled.",
+          "Support the workshop floor with clarifications during fabrication."
+        ],
+        "ar": [
+          "تحويل النماذج ثلاثية الأبعاد ورسومات التصميم إلى رسومات تنفيذية مقاسة لكل قسم.",
+          "إنتاج قوائم القص وقوائم المواد وملفات التعشيش/CNC للراوترات والقواطع.",
+          "تفصيل الوصلات والتجميع وتسلسل التركيب لبناء سريع ودقيق.",
+          "تحديث الرسومات عبر إشعارات التغيير الهندسي وضبط المراجعات.",
+          "دعم أرضية الورشة بالتوضيحات أثناء التصنيع."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "3+ years drafting/detailing in fabrication, joinery, steel, or exhibitions.",
+          "Strong AutoCAD; SolidWorks or Inventor a plus.",
+          "Understands carpentry, steel, and foam fabrication constraints.",
+          "Meticulous with dimensions, revisions, and file organization."
+        ],
+        "ar": [
+          "خبرة 3+ سنوات في الرسم والتفصيل في التصنيع أو النجارة أو الحديد أو المعارض.",
+          "إتقان AutoCAD؛ وتُعد SolidWorks أو Inventor ميزة.",
+          "فهم قيود تصنيع النجارة والحديد والفوم.",
+          "دقة عالية في المقاسات والمراجعات وتنظيم الملفات."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-maintenance-technician",
+      "group": "technicians",
+      "openings": 2,
+      "tag": { "en": "Saudi Arabia · Maintenance", "ar": "السعودية · صيانة" },
+      "title": { "en": "Maintenance Technician (Mechatronics) — Workshop", "ar": "فني صيانة (ميكاترونكس) — ورشة" },
+      "summary": { "en": "Keep CNC routers, welders, printers, and workshop infrastructure running — preventative maintenance and fast breakdown response.", "ar": "الحفاظ على جاهزية راوترات CNC وماكينات اللحام والطابعات وبنية الورشة — صيانة وقائية واستجابة سريعة للأعطال." },
+      "meta": { "en": "Full-time · 3+ years industrial maintenance · 2 openings", "ar": "دوام كامل · خبرة 3+ سنوات صيانة صناعية · فرصتان" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Execute the preventative maintenance schedule on CNC routers, saws, welders, printers, and compressors.",
+          "Troubleshoot mechanical, electrical, and pneumatic breakdowns to minimize downtime.",
+          "Maintain facility systems: lighting, compressed air, and workshop utilities.",
+          "Log work orders and parts usage in the CMMS.",
+          "Follow lockout/tagout and machine-safety procedures strictly."
+        ],
+        "ar": [
+          "تنفيذ جدول الصيانة الوقائية على راوترات CNC والمناشير وماكينات اللحام والطابعات والضواغط.",
+          "معالجة الأعطال الميكانيكية والكهربائية والهوائية لتقليل التوقف.",
+          "صيانة أنظمة المنشأة: الإنارة والهواء المضغوط ومرافق الورشة.",
+          "توثيق أوامر العمل واستهلاك القطع في نظام CMMS.",
+          "الالتزام الصارم بإجراءات العزل والوسم وسلامة الماكينات."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "3+ years of industrial/machine maintenance; fabrication equipment experience preferred.",
+          "Mechatronics or electromechanical diploma.",
+          "Hands-on mechanical, electrical, and pneumatic troubleshooting.",
+          "Available for urgent callouts during event peaks."
+        ],
+        "ar": [
+          "خبرة 3+ سنوات في صيانة الماكينات الصناعية، ويفضَّل معدات التصنيع.",
+          "دبلوم ميكاترونكس أو كهروميكانيك.",
+          "قدرة عملية على معالجة الأعطال الميكانيكية والكهربائية والهوائية.",
+          "جاهزية للاستدعاء العاجل في ذروة الفعاليات."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-finance-officer",
+      "group": "staff",
+      "openings": 3,
+      "tag": { "en": "Saudi Arabia · Finance", "ar": "السعودية · مالية" },
+      "title": { "en": "Finance Officer — Events Workshop", "ar": "موظف مالية — ورشة فعاليات" },
+      "summary": { "en": "Run day-to-day finance for a fast-moving fabrication workshop — project costing, supplier payments, payroll inputs, and reporting.", "ar": "إدارة المالية اليومية لورشة تصنيع سريعة الإيقاع — تكاليف المشاريع ومدفوعات الموردين ومدخلات الرواتب والتقارير." },
+      "meta": { "en": "Full-time · 3+ years accounting/finance · ERP", "ar": "دوام كامل · خبرة 3+ سنوات محاسبة/مالية · ERP" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Process supplier invoices, payments, and petty cash for materials and site expenses.",
+          "Track project costs against budgets and flag variances early.",
+          "Prepare payroll inputs, expense claims, and month-end closing entries.",
+          "Reconcile accounts and maintain clean, audit-ready records.",
+          "Produce weekly cost and cash reports for management."
+        ],
+        "ar": [
+          "معالجة فواتير الموردين والمدفوعات والنثريات لمصاريف المواد والمواقع.",
+          "متابعة تكاليف المشاريع مقابل الميزانيات والتنبيه المبكر للانحرافات.",
+          "تجهيز مدخلات الرواتب ومطالبات المصاريف وقيود الإقفال الشهري.",
+          "مطابقة الحسابات والحفاظ على سجلات نظيفة جاهزة للتدقيق.",
+          "إعداد تقارير أسبوعية للتكاليف والسيولة للإدارة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "3+ years in accounting or finance operations; project-based environments preferred.",
+          "Bachelor's degree in accounting or finance.",
+          "Strong Excel and ERP experience.",
+          "Arabic and working English; organized under month-end pressure."
+        ],
+        "ar": [
+          "خبرة 3+ سنوات في المحاسبة أو العمليات المالية، ويفضَّل بيئات المشاريع.",
+          "بكالوريوس محاسبة أو مالية.",
+          "خبرة قوية في Excel وأنظمة ERP.",
+          "عربية وإنجليزية عملية؛ وتنظيم عالٍ تحت ضغط الإقفالات."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-hr-officer",
+      "group": "staff",
+      "openings": 3,
+      "tag": { "en": "Saudi Arabia · HR & Gov. Relations", "ar": "السعودية · موارد بشرية وعلاقات حكومية" },
+      "title": { "en": "HR / Government Relations Officer — Events Workshop", "ar": "موظف موارد بشرية وعلاقات حكومية — ورشة فعاليات" },
+      "summary": { "en": "Run HR operations and government platforms for a 180+ workforce — Qiwa, GOSI, Muqeem, Mudad, contracts, and site compliance.", "ar": "إدارة عمليات الموارد البشرية والمنصات الحكومية لقوى عاملة تتجاوز 180 موظفاً — قوى، التأمينات، مقيم، مدد، العقود، والامتثال." },
+      "meta": { "en": "Full-time · 3+ years Saudi HR/GR · Qiwa, GOSI, Muqeem", "ar": "دوام كامل · خبرة 3+ سنوات موارد بشرية/علاقات حكومية · قوى والتأمينات ومقيم" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Manage employee files, contracts, onboarding, and attendance for workshop staff.",
+          "Operate Qiwa, GOSI, Muqeem, and Mudad: contracts, iqama renewals, WPS, and Saudization tracking.",
+          "Coordinate with third-party manpower suppliers on worker documentation and compliance.",
+          "Handle leaves, medical insurance, and end-of-service settlements.",
+          "Support HSE and labor-law compliance on the workshop floor."
+        ],
+        "ar": [
+          "إدارة ملفات الموظفين والعقود والتهيئة والحضور لمنسوبي الورشة.",
+          "تشغيل منصات قوى والتأمينات ومقيم ومدد: العقود وتجديد الإقامات وحماية الأجور ومتابعة التوطين.",
+          "التنسيق مع موردي العمالة (الطرف الثالث) بشأن وثائق العاملين والامتثال.",
+          "معالجة الإجازات والتأمين الطبي وتسويات نهاية الخدمة.",
+          "دعم الامتثال لأنظمة العمل والسلامة في الورشة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "3+ years of Saudi HR operations or government relations.",
+          "Hands-on Qiwa, GOSI, Muqeem, and Mudad experience.",
+          "Knowledge of Saudi labor law and Saudization rules.",
+          "Arabic fluency and working English; strong follow-up discipline."
+        ],
+        "ar": [
+          "خبرة 3+ سنوات في عمليات الموارد البشرية أو العلاقات الحكومية في السعودية.",
+          "خبرة عملية في قوى والتأمينات ومقيم ومدد.",
+          "معرفة بنظام العمل السعودي وقواعد التوطين.",
+          "إجادة العربية وإنجليزية عملية مع انضباط قوي في المتابعة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-procurement-officer",
+      "group": "staff",
+      "openings": 3,
+      "tag": { "en": "Saudi Arabia · Procurement", "ar": "السعودية · مشتريات" },
+      "title": { "en": "Procurement Officer — Events Workshop", "ar": "موظف مشتريات — ورشة فعاليات" },
+      "summary": { "en": "Source and buy materials for custom fabrication — wood, steel, foam, print media, paint — on tight event timelines.", "ar": "توريد وشراء مواد التصنيع المخصص — خشب وحديد وفوم وخامات طباعة ودهانات — ضمن مواعيد فعاليات ضيقة." },
+      "meta": { "en": "Full-time · 3+ years procurement · Materials sourcing", "ar": "دوام كامل · خبرة 3+ سنوات مشتريات · توريد مواد" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Source and compare quotations for raw materials, consumables, and spare parts.",
+          "Issue purchase orders and chase urgent deliveries against production deadlines.",
+          "Build reliable supplier relationships for wood, steel, foam, fabric, print media, and paint.",
+          "Coordinate with stores on receiving inspection and stock levels.",
+          "Track spending against budgets and keep procurement records clean."
+        ],
+        "ar": [
+          "توريد ومقارنة عروض الأسعار للمواد الخام والمستهلكات وقطع الغيار.",
+          "إصدار أوامر الشراء ومتابعة التوريدات العاجلة مقابل مواعيد الإنتاج.",
+          "بناء علاقات موثوقة مع موردي الخشب والحديد والفوم والأقمشة وخامات الطباعة والدهانات.",
+          "التنسيق مع المستودعات في فحص الاستلام ومستويات المخزون.",
+          "متابعة الإنفاق مقابل الميزانيات وحفظ سجلات مشتريات منظمة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "3+ years in procurement or purchasing, preferably fabrication, construction, or events.",
+          "Knowledge of local material markets and supplier landscape.",
+          "Negotiation skills and urgency discipline for last-minute event needs.",
+          "Strong Excel/ERP skills; Arabic and working English."
+        ],
+        "ar": [
+          "خبرة 3+ سنوات في المشتريات، ويفضَّل التصنيع أو الإنشاءات أو الفعاليات.",
+          "معرفة بأسواق المواد المحلية وشبكة الموردين.",
+          "مهارات تفاوض وانضباط في التعامل مع الاحتياجات العاجلة للفعاليات.",
+          "مهارات قوية في Excel/ERP؛ وعربية وإنجليزية عملية."
         ]
       }
     }
