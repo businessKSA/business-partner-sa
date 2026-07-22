@@ -886,7 +886,7 @@ function buildHome() {
     heroSubtitle: "From company formation and foreign investment to licensing, HR and government compliance — we get it done clearly and quickly, and follow it through to issuance.",
     heroCta: "Start now", heroCtaSecondary: "Browse services",
     why: { title: "Why Business Partner", items: [
-      { title: "Smart agent on WhatsApp", text: "Answers your questions 24/7, identifies the right service for your case, and starts preparing your document list automatically." },
+      { title: "24/7 smart agent", text: "Answers your questions 24/7, identifies the right service for your case, and starts preparing your document list automatically." },
       { title: "Fast execution", text: "Ready-made tracks and precise knowledge of the regulations save time — we start as soon as your documents are complete." },
       { title: "Full transparency", text: "Clear fees, with government fees separate and disclosed. You know what you pay and why before you begin." },
     ]},
@@ -900,7 +900,7 @@ function buildHome() {
       { title: "Recruitment & Hiring", text: "Talent attraction and end-to-end recruitment procedures." },
     ],
     allServices: "All services", packagesDetails: "Package details",
-    agentEyebrow: "The killer feature", agentTitle: "The killer feature: the smart agent on WhatsApp",
+    agentEyebrow: "The killer feature", agentTitle: "The killer feature: the instant smart agent",
     agentText: "Instead of waiting for office hours, the smart agent replies instantly, any time — it understands your case, recognises your client type (individual/business, Saudi/Gulf/foreign), gives you the right requirements and documents, and starts preparing your request immediately. When a human decision is needed, it hands you to our team at once.",
     agentBullets: ["Instant reply 24/7, no waiting", "Identifies the right service and track for your case", "Prepares your document list automatically", "Hands you to a human expert when needed"],
     agentCta: "Try the smart agent now", agentLearn: "Meet the agents system",
@@ -914,10 +914,10 @@ function buildHome() {
     whyEyebrow: "Why us", servicesEyebrow: "Services", packagesEyebrow: "Packages", reviewsEyebrow: "Client reviews",
     reviewsItems: [
       { text: "They completed my company formation quickly and every step was clear from the start.", name: "Client — retail sector", role: "Company formation" },
-      { text: "The agent on WhatsApp answered me at night and prepared my document list right away.", name: "Client — investor", role: "Foreign investment" },
+      { text: "The smart agent answered me at night and prepared my document list right away.", name: "Client — investor", role: "Foreign investment" },
       { text: "Clear fees with no surprises, and they followed through until the license was issued.", name: "Client — industrial sector", role: "Industrial license" },
     ],
-    finalTitle: "Ready to start?", finalText: "Send us your enquiry on WhatsApp now — the smart agent replies instantly and sets your next step.", finalCta: "Start on WhatsApp",
+    finalTitle: "Ready to start?", finalText: "Send us your enquiry now — the smart agent replies instantly and sets your next step.", finalCta: "Start now",
   };
 
   const whyCards = h.why.items
