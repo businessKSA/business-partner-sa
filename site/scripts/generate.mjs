@@ -5650,6 +5650,12 @@ function buildDashboard() {
     .hint{font-size:.75rem;color:var(--muted);min-height:1em;margin-top:.35rem}
     .foot{margin-top:2.2rem;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:1rem 1.25rem;font-size:.86rem}
     .foot .note{margin-top:.5rem;color:#78716c}
+    .tools{margin-top:1.4rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.25rem 1.4rem;box-shadow:var(--shadow)}
+    .tools h2{font-size:1.05rem;color:var(--navy);margin-bottom:.3rem}
+    .tools p{color:var(--muted);font-size:.88rem;margin-bottom:.9rem}
+    .toolrow{display:flex;flex-wrap:wrap;gap:.6rem}
+    .toolbtn{display:inline-flex;align-items:center;gap:.4rem;background:var(--navy);color:#fff;text-decoration:none;padding:.6rem 1rem;border-radius:10px;font-size:.88rem;font-weight:600}
+    .toolbtn:hover{background:var(--navy-700)}
   </style>
 </head>
 <body>
@@ -5665,6 +5671,16 @@ function buildDashboard() {
       </div>
     </div>
     <div class="grid" id="grid"></div>
+
+    <section class="tools">
+      <h2>🎯 أدوات وكيل التوظيف — Sourcing &amp; Screening</h2>
+      <p>استقبال طلبات التقديم من مواقع الوظائف تلقائي بالكامل (عبر مراقبة البريد الإلكتروني). الأدوات التالية يستخدمها فريق التوظيف يدوياً — كل ما بعدها (التقييم، حجز المقابلة، إشعار العميل) يتم تلقائياً.</p>
+      <div class="toolrow">
+        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/5b3298ae-2361-420b-9de3-b573837e44e6" target="_blank" rel="noopener">➕ تسجيل مرشح (Headhunting)</a>
+        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/97fdba3a-a01d-46d1-821d-bfccc0334408" target="_blank" rel="noopener">📝 تقييم مقابلة الفرز</a>
+        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/32932655-821b-47f8-b985-5821a293a76b" target="_blank" rel="noopener">📄 صياغة إعلان وظيفة بالذكاء الاصطناعي</a>
+      </div>
+    </section>
 
     <div class="foot">
       🔒 النموذج التشغيلي Concierge: الإيجنت يجهّز ويوصي — أي مخرج خارجي «بانتظار الموافقة» ولا يُرسل آلياً. لا OTP ولا كلمات مرور.
