@@ -1623,6 +1623,84 @@
         "Shift schedule and operating hours",
         "Required duration (monthly / yearly)"
       ]
+    },
+    "bp-pl-0019": {
+      "name": "الامتثال والقيد بنظام الامتياز التجاري (فرنشايز)",
+      "nameEn": "Franchise Law compliance & registration",
+      "description": "نساعد مانحي الامتياز (الفرنشايز) على تحقيق الامتثال الكامل لنظام الامتياز التجاري السعودي — الصادر بالمرسوم الملكي رقم (م/22) وتاريخ 1441/02/09هـ — ولائحته التنفيذية. نتولّى المسار كاملاً: تقييم وضعك التنظيمي وتحليل الفجوات، إعداد ومراجعة وثيقة الإفصاح واتفاقية الامتياز، الترجمة القانونية المعتمدة إلى العربية، ثم قيد الاتفاقية ووثيقة الإفصاح لدى وزارة التجارة خلال المدة النظامية، مع دعم امتثال مستمر. الرسوم الحكومية للقيد منفصلة، ونحدّد نطاق العمل والأتعاب بدقة بعد الاطلاع على وضعك.",
+      "descriptionEn": "We help franchisors achieve full compliance with the Saudi Franchise Law — issued by Royal Decree No. (M/22) dated 09/02/1441H — and its Implementing Regulations. We run the whole track: a regulatory assessment and gap analysis, preparing and reviewing the disclosure document and franchise agreement, certified Arabic legal translation, then registering the agreement and disclosure document with the Ministry of Commerce within the statutory window, with ongoing compliance support. Government registration fees are separate; we scope the work and fees precisely once we review your case.",
+      "duration": "يُحدَّد بعد تقييم الوضع ونطاق العمل",
+      "durationEn": "Confirmed after the assessment and scoping",
+      "audience": "مانحو الامتياز (الفرنشايز) — محليون ودوليون",
+      "audienceEn": "Franchisors — local and international",
+      "documents": [
+        "اتفاقية الامتياز (وأي نسخ/تعديلات سابقة)",
+        "وثيقة الإفصاح إن وُجدت",
+        "دليل التشغيل وإرشادات العلامة إن وُجدت",
+        "بيانات تسجيل العلامة التجارية في السعودية",
+        "السجل التجاري وبيانات الكيان لمانح الامتياز",
+        "بيانات أصحاب الامتياز (الفرنشايزي) في المملكة"
+      ],
+      "documentsEn": [
+        "Franchise agreement (and any earlier versions/amendments)",
+        "Disclosure document, if one exists",
+        "Operations manual & brand guidelines, if available",
+        "Trademark registration details in Saudi Arabia",
+        "Franchisor's commercial registration & entity details",
+        "Details of the Saudi franchisees"
+      ],
+      "features": [
+        "تقييم الامتثال التنظيمي وتحليل الفجوات مقابل النظام ولائحته",
+        "إعداد أو مراجعة وثيقة الإفصاح (تُسلَّم للفرنشايزي قبل التوقيع بمدة لا تقل عن 14 يوماً)",
+        "مراجعة اتفاقية الامتياز وصياغة التعديلات اللازمة",
+        "الترجمة القانونية المعتمدة إلى العربية",
+        "قيد الاتفاقية ووثيقة الإفصاح لدى وزارة التجارة خلال 90 يوماً من التوقيع",
+        "دعم امتثال مستمر وتدريب لمانح الامتياز"
+      ],
+      "featuresEn": [
+        "Regulatory compliance assessment & gap analysis against the Law and its Regulations",
+        "Preparing or reviewing the disclosure document (delivered to the franchisee at least 14 days before signing)",
+        "Franchise agreement review and drafting of required amendments",
+        "Certified Arabic legal translation",
+        "Registering the agreement & disclosure document with the Ministry of Commerce within 90 days of signing",
+        "Ongoing compliance support and franchisor training"
+      ],
+      "faq": [
+        {
+          "q": "ما نظام الامتياز التجاري ولماذا الامتثال مهم؟",
+          "a": "نظام سعودي صدر بالمرسوم الملكي (م/22) 1441هـ ولائحته التنفيذية، ينظّم العلاقة بين مانح الامتياز وصاحبه ويشترط الإفصاح والقيد. عدم الامتثال قد يعرّض الاتفاقية والعلاقة التجارية للمخاطر النظامية."
+        },
+        {
+          "q": "ما وثيقة الإفصاح ومتى تُسلَّم؟",
+          "a": "وثيقة تُفصح عن أبرز الحقوق والالتزامات والمخاطر الجوهرية لفرصة الامتياز، ويجب تسليمها للفرنشايزي قبل توقيع الاتفاقية أو أي دفعة بمدة لا تقل عن 14 يوماً، وتكون بالعربية أو بترجمة معتمدة."
+        },
+        {
+          "q": "ما مدة القيد لدى وزارة التجارة؟",
+          "a": "يجب قيد اتفاقية الامتياز الموقعة ووثيقة الإفصاح لدى الوزارة خلال 90 يوماً من تاريخ التوقيع، وكذلك قيد أي تعديل خلال 90 يوماً من إجرائه."
+        },
+        {
+          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+          "a": "لا، الرسوم الحكومية للقيد منفصلة عن أتعابنا المهنية، ونوضّحها لك ضمن العرض الرسمي."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "What is the Franchise Law and why does compliance matter?",
+          "a": "A Saudi law issued by Royal Decree (M/22), 1441H, with its Implementing Regulations. It governs the franchisor–franchisee relationship and requires disclosure and registration. Non-compliance can expose the agreement and the commercial relationship to regulatory risk."
+        },
+        {
+          "q": "What is the disclosure document and when is it delivered?",
+          "a": "A document disclosing the key rights, obligations and material risks of the franchise opportunity. It must be given to the franchisee at least 14 days before signing the agreement or making any payment, in Arabic or via a certified translation."
+        },
+        {
+          "q": "What is the registration window at the Ministry of Commerce?",
+          "a": "The signed franchise agreement and the disclosure document must be registered with the Ministry within 90 days of signing; any amendment must also be registered within 90 days of being made."
+        },
+        {
+          "q": "Are government fees included in your fees?",
+          "a": "No. Government registration fees are separate from our professional fees; we set them out clearly in the formal proposal."
+        }
+      ]
     }
   },
   "social": {

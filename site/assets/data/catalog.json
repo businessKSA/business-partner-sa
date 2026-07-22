@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T03:07:50.841Z",
+  "updatedAt": "2026-07-22T03:17:44.709Z",
   "currency": "SAR",
   "services": [
     {
@@ -984,15 +984,15 @@
     },
     {
       "code": "BP-PL-0019",
-      "nameAr": "تسجيل وكالة تجارية/فرنشايز",
-      "nameEn": "Commercial agency / franchise registration",
+      "nameAr": "الامتثال والقيد بنظام الامتياز التجاري (فرنشايز)",
+      "nameEn": "Franchise Law compliance & registration",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
-      "govPlatform": "",
+      "govPlatform": "وزارة التجارة",
       "pricingModel": "One Time",
       "amount": 1500,
       "priceLabel": "1,500 ﷼",
-      "govFeesSeparate": false,
+      "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-pl-0019"
     },
