@@ -19,6 +19,51 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const TTL_MS = 10 * 60 * 1000; // code valid for 10 minutes
 const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
 
+// ---- Client dashboard ("my account") data source: the WhatsApp-agent CRM in
+// Notion. Reuses the site Notion integration token (share that DB with it).
+// Env: NOTION_TOKEN (or one of the aliases), NOTION_PORTAL_DB (WhatsApp CRM id).
+const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
+const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
+const PORTAL_DB = process.env.NOTION_PORTAL_DB || "b322a7ec23a94ceb875e52c07b00eadf";
+const NOTION_VERSION = "2022-06-28";
+
+const rt = (p) => ((p && p.rich_text) || []).map((t) => t.plain_text).join("").trim();
+const tt = (p) => ((p && p.title) || []).map((t) => t.plain_text).join("").trim();
+
+// Look up the customer's CRM page by the email they verified, and shape the
+// dashboard payload. Returns null when not found / not configured.
+async function fetchCustomer(email) {
+  if (!NOTION_TOKEN) return { error: "notion_not_configured" };
+  const r = await fetch(`https://api.notion.com/v1/databases/${PORTAL_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "Email", email: { equals: email } } }),
+  });
+  if (!r.ok) { console.error("portal notion error", r.status, (await r.text()).slice(0, 300)); return { error: "notion_failed" }; }
+  const data = await r.json();
+  const pg = (data.results || [])[0];
+  if (!pg) return { found: false };
+  const p = pg.properties || {};
+  const phoneOf = (x) => (x && x.phone_number) || "";
+  const selOf = (x) => (x && x.select && x.select.name) || "";
+  const statusOf = (x) => (x && x.status && x.status.name) || "";
+  const eventId = rt(p["Google Calendar Event ID"]);
+  return {
+    found: true,
+    name: (tt(p["Name"]) || tt(p["title"]) || rt(p["Title"]) || "").trim(),
+    email,
+    phone: phoneOf(p["WhatsApp"]) || phoneOf(p["WhatsApp Phone"]) || "",
+    company: rt(p["Company Name"]),
+    country: rt(p["Country"]),
+    service: rt(p["Service Required"]),
+    status: statusOf(p["Status"]),
+    nextAction: rt(p["Next Action"]),
+    consultationBooked: !!eventId,
+    updated: pg.last_edited_time || "",
+    crmUrl: pg.url || "",
+  };
+}
+
 const b64u = (buf) => Buffer.from(buf).toString("base64url");
 const keyFromSecret = () => crypto.createHash("sha256").update(SECRET).digest(); // 32 bytes
 
@@ -125,6 +170,26 @@ export default async function handler(req, res) {
     if (!ok) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "wrong_code" })); }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, token: sessionToken(email), email }));
+  }
+
+  // 3) Portal: verify the code (like "verify") AND return the customer's
+  //    dashboard data in one call — stateless, no separate session needed.
+  if (action === "portal") {
+    const code = String(body.code || "").trim();
+    const email = String(body.email || "").trim().toLowerCase();
+    let challengeData;
+    try { challengeData = unseal(String(body.challenge || "")); }
+    catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_challenge" })); }
+    if (Date.now() > challengeData.exp) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "expired" })); }
+    if (challengeData.email !== email) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "email_mismatch" })); }
+    const expected = String(challengeData.code);
+    const good = code.length === expected.length && crypto.timingSafeEqual(Buffer.from(code), Buffer.from(expected));
+    if (!good) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "wrong_code" })); }
+    let customer;
+    try { customer = await fetchCustomer(email); }
+    catch (e) { console.error("portal fetch exception", e); customer = { error: "notion_failed" }; }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, email, customer }));
   }
 
   res.statusCode = 400;
