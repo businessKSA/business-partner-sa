@@ -408,6 +408,90 @@ async function activateEmployerSubscription({ company, email, phone, planKey }) 
   return code;
 }
 
+/* ---------- /admin panel: owner-gated management (status, approvals, content) ---------- */
+// Every panel action below is gated by PANEL_KEYS — the same key that unlocks
+// the leads list and the /admin page itself.
+const PANEL_STATUSES = new Set(["قيد المراجعة", "بانتظار الدفع", "مؤكد - قيد التنفيذ", "مكتمل", "ملغي"]);
+// Content editing commits straight to GitHub; Vercel then rebuilds the site,
+// so a saved change is live in ~2 minutes. Needs a repo-write token in env.
+const CONTENT_REPO = process.env.CONTENT_REPO || "businessKSA/business-partner-sa";
+const CONTENT_BRANCH = process.env.CONTENT_BRANCH || "master";
+const GH_TOKEN = envFrom(["GITHUB_TOKEN", "GH_TOKEN", "GITHUB_PAT", "CONTENT_GITHUB_TOKEN"]);
+const CONTENT_FILES = {
+  "services": "site/data/services.json",
+  "opportunities": "site/data/opportunities.json",
+  "categories": "site/data/categories.json",
+  "site": "site/data/site.json",
+  "ecosystem": "site/data/ecosystem.json",
+  "service-i18n": "site/data/service-i18n.json",
+};
+
+// Flip a CRM lead's حالة الطلب by its BP-xxxxxx reference.
+async function setLeadStatus(ref, status) {
+  if (!NOTION_TOKEN) throw new Error("notion_not_configured");
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+  });
+  if (!r.ok) throw new Error("notion_failed");
+  const pg = ((await r.json()).results || [])[0];
+  if (!pg) throw new Error("ref_not_found");
+  const u = await fetch(`https://api.notion.com/v1/pages/${pg.id}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ properties: {
+      "حالة الطلب": { select: { name: status } },
+      "Last Activity": { date: { start: new Date().toISOString().slice(0, 10) } },
+    } }),
+  });
+  if (!u.ok) { console.error("panel status error", u.status, (await u.text()).slice(0, 300)); throw new Error("notion_failed"); }
+}
+
+const GH_HEADERS = () => ({ Authorization: `Bearer ${GH_TOKEN}`, Accept: "application/vnd.github+json", "User-Agent": "bp-admin-panel", "content-type": "application/json" });
+async function ghGetFile(filePath) {
+  const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}?ref=${encodeURIComponent(CONTENT_BRANCH)}`, { headers: GH_HEADERS() });
+  if (!r.ok) { console.error("gh get error", r.status, (await r.text()).slice(0, 300)); throw new Error("github_failed"); }
+  const d = await r.json();
+  return { sha: d.sha, content: Buffer.from(d.content || "", "base64").toString("utf8") };
+}
+async function ghPutFile(filePath, content, sha, message) {
+  const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}`, {
+    method: "PUT",
+    headers: GH_HEADERS(),
+    body: JSON.stringify({ message, branch: CONTENT_BRANCH, sha, content: Buffer.from(content, "utf8").toString("base64") }),
+  });
+  if (!r.ok) { console.error("gh put error", r.status, (await r.text()).slice(0, 300)); throw new Error("github_failed"); }
+  const d = await r.json();
+  return d.commit && d.commit.sha;
+}
+
+// The three approval flows, shared by the emailed sealed links (GET branches
+// below) and the /admin panel's activate action. Each returns the client code
+// (null = activation failed) after emailing it to the client.
+async function approveShared({ email, name, phone, ref }) {
+  const code = ssCode(email);
+  const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل خدمتك 🎉</h2><p>كود الوصول الخاص بك للخدمات المشتركة:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${SITE_BASE}/shared-services" style="background:#12b3ad;color:#04211f;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح الخدمة</a> — أدخل بريدك والكود.</p></div>`;
+  await sendEmail(email, `كود الوصول — الخدمات المشتركة (${code})`, codeHtml);
+  await crmLead({ title: `تفعيل خدمات مشتركة — ${name || email}`, phone: phone || "", email, notes: `معتمد ومفعّل · ${ref}`, ref });
+  return code;
+}
+async function approveCompliance({ company, email, phone }) {
+  const code = await activateComplianceSubscription({ company, email, phone });
+  if (!code) return null;
+  const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في وكيل الامتثال 🎉</h2><p>المنشأة: <b>${esc(company)}</b></p><p>رمز الدخول لبوابة وكيل الامتثال:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${COMPLIANCE_PORTAL_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة وكيل الامتثال</a> — أدخل بريدك (${esc(email)}) والرمز أعلاه.</p></div>`;
+  await sendEmail(email, `تم تفعيل اشتراكك — وكيل الامتثال (${esc(company)})`, codeHtml);
+  return code;
+}
+async function approveEmployer({ company, email, phone, plan }) {
+  const code = await activateEmployerSubscription({ company, email, phone, planKey: plan });
+  if (!code) return null;
+  const planAr = EMP_PLAN_AR[plan] || "";
+  const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في منصة التوظيف 🎉</h2><p>الشركة: <b>${esc(company)}</b>${planAr ? ` — الباقة: <b>${esc(planAr)}</b>` : ""}</p><p>رمز الوصول للوحة التوظيف:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${EMP_DASHBOARD_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح لوحة التوظيف</a> — أدخل الرمز أعلاه.</p></div>`;
+  await sendEmail(email, `تم تفعيل اشتراكك — منصة التوظيف (${esc(company)})`, codeHtml);
+  return code;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -417,10 +501,7 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
     let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
-    const code = ssCode(d.email);
-    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل خدمتك 🎉</h2><p>كود الوصول الخاص بك للخدمات المشتركة:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${SITE_BASE}/shared-services" style="background:#12b3ad;color:#04211f;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح الخدمة</a> — أدخل بريدك والكود.</p></div>`;
-    await sendEmail(d.email, `كود الوصول — الخدمات المشتركة (${code})`, codeHtml);
-    await crmLead({ title: `تفعيل خدمات مشتركة — ${d.name || d.email}`, phone: d.phone || "", email: d.email, notes: `معتمد ومفعّل · ${d.ref}`, ref: d.ref });
+    await approveShared({ email: d.email, name: d.name, phone: d.phone, ref: d.ref });
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم الاعتماد</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
@@ -430,10 +511,8 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
     let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
-    const code = await activateComplianceSubscription({ company: d.company, email: d.email, phone: d.phone });
+    const code = await approveCompliance({ company: d.company, email: d.email, phone: d.phone });
     if (!code) { res.statusCode = 500; return res.end("<h3>تعذّر التفعيل — تحقّق من إعداد Notion (NOTION_TOKEN) واسم المنشأة.</h3>"); }
-    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في وكيل الامتثال 🎉</h2><p>المنشأة: <b>${esc(d.company)}</b></p><p>رمز الدخول لبوابة وكيل الامتثال:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${COMPLIANCE_PORTAL_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة وكيل الامتثال</a> — أدخل بريدك (${esc(d.email)}) والرمز أعلاه.</p></div>`;
-    await sendEmail(d.email, `تم تفعيل اشتراكك — وكيل الامتثال (${esc(d.company)})`, codeHtml);
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
@@ -443,11 +522,8 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
     let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
-    const code = await activateEmployerSubscription({ company: d.company, email: d.email, phone: d.phone, planKey: d.plan });
+    const code = await approveEmployer({ company: d.company, email: d.email, phone: d.phone, plan: d.plan });
     if (!code) { res.statusCode = 500; return res.end("<h3>تعذّر التفعيل — تحقّق من إعداد Notion (NOTION_TOKEN) واسم الشركة.</h3>"); }
-    const planAr = EMP_PLAN_AR[d.plan] || "";
-    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في منصة التوظيف 🎉</h2><p>الشركة: <b>${esc(d.company)}</b>${planAr ? ` — الباقة: <b>${esc(planAr)}</b>` : ""}</p><p>رمز الوصول للوحة التوظيف:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${EMP_DASHBOARD_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح لوحة التوظيف</a> — أدخل الرمز أعلاه.</p></div>`;
-    await sendEmail(d.email, `تم تفعيل اشتراكك — منصة التوظيف (${esc(d.company)})`, codeHtml);
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل رمز الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
@@ -463,6 +539,23 @@ export default async function handler(req, res) {
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
+  // /admin panel — read an editable content file (site/data/*.json) from GitHub.
+  if ((q.action || "") === "panel-content") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_KEYS.has(q.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const filePath = CONTENT_FILES[q.file || ""];
+    if (!filePath) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
+    if (!GH_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "content_not_configured" })); }
+    try {
+      const f = await ghGetFile(filePath);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, file: q.file, path: filePath, branch: CONTENT_BRANCH, sha: f.sha, content: f.content }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "github_failed" }));
     }
   }
 
@@ -508,6 +601,81 @@ export default async function handler(req, res) {
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
 
   const b = await readBody(req);
+
+  // ---- /admin panel actions (owner key, POST) ----
+  if (String(b.action || "").startsWith("panel-")) {
+    res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_KEYS.has(b.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+
+    // Change a CRM lead's حالة الطلب (approve / complete / cancel …).
+    if (b.action === "panel-status") {
+      const ref = String(b.ref || "").trim();
+      const status = String(b.status || "").trim();
+      if (!ref || !PANEL_STATUSES.has(status)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      try {
+        await setLeadStatus(ref, status);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
+    // Activate a subscription and email the client their access code —
+    // same flows as the emailed approval links, driven from the panel.
+    if (b.action === "panel-activate") {
+      const kind = String(b.kind || "");
+      const email = String(b.email || "").trim();
+      const company = String(b.company || "").trim();
+      if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_email" })); }
+      if ((kind === "compliance" || kind === "employer") && !company) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_company" })); }
+      try {
+        let code = null;
+        if (kind === "shared") {
+          if (!OTP_SECRET) throw new Error("not_configured");
+          code = await approveShared({ email, name: String(b.name || ""), phone: String(b.phone || ""), ref: String(b.ref || "") });
+        } else if (kind === "compliance") {
+          code = await approveCompliance({ company, email, phone: String(b.phone || "") });
+        } else if (kind === "employer") {
+          code = await approveEmployer({ company, email, phone: String(b.phone || ""), plan: String(b.plan || "") });
+        } else {
+          res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_kind" }));
+        }
+        if (!code) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "activation_failed" })); }
+        // Best-effort: reflect the approval on the originating lead too.
+        if (b.ref) { try { await setLeadStatus(String(b.ref).trim(), "مؤكد - قيد التنفيذ"); } catch {} }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, code }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
+    // Save an editable content file: validate JSON, commit to GitHub —
+    // Vercel rebuilds and the change is live in ~2 minutes.
+    if (b.action === "panel-save-content") {
+      const filePath = CONTENT_FILES[b.file || ""];
+      if (!filePath) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
+      if (!GH_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "content_not_configured" })); }
+      let parsed;
+      try { parsed = JSON.parse(String(b.content || "")); } catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_json" })); }
+      try {
+        const cur = await ghGetFile(filePath);
+        const pretty = JSON.stringify(parsed, null, 2) + "\n";
+        const commit = await ghPutFile(filePath, pretty, cur.sha, `Update ${filePath} from /admin panel`);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, commit }));
+      } catch {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "github_failed" }));
+      }
+    }
+
+    res.statusCode = 400;
+    return res.end(JSON.stringify({ ok: false, error: "unknown_action" }));
+  }
 
   // Shared Services — client places a subscription order (bank transfer for now).
   if (b.action === "subscribe") {

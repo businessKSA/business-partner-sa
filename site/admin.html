@@ -120,6 +120,37 @@
     .view{display:none}
     .view.on{display:block}
 
+    /* ---- buttons / status select / editor / modal ---- */
+    .btn{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700}
+    .btn:hover{background:var(--navy-700)}
+    .btn:disabled{opacity:.5;cursor:default}
+    .statsel{font-family:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:9px;padding:5px 7px;background:#fff;color:var(--text);max-width:135px}
+    .actbtn{font-size:11.5px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:9px;padding:5px 9px;white-space:nowrap}
+    .actbtn:hover{background:var(--bg)}
+    .editor-head{display:flex;gap:8px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+    .editor-head .file-lbl{font-weight:700;color:var(--navy);flex:1;min-width:140px}
+    .jsonbox{width:100%;min-height:430px;border:0;padding:14px 18px;font:12.5px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;direction:ltr;text-align:left;outline:none;resize:vertical;background:#fbfcfe;color:#1e293b}
+    .edmsg{padding:9px 18px;font-size:12.5px;font-weight:600;display:none;border-bottom:1px solid var(--line)}
+    .edmsg.ok{display:block;background:var(--good-bg);color:var(--good-ink)}
+    .edmsg.err{display:block;background:var(--bad-bg);color:var(--bad-ink)}
+    .edmsg.info{display:block;background:var(--info-bg);color:var(--info-ink)}
+    .modal-back{position:fixed;inset:0;background:rgba(8,19,69,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+    .modal-back.on{display:flex}
+    .modal{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:22px;max-height:92dvh;overflow-y:auto}
+    .modal h3{color:var(--navy);margin-bottom:4px}
+    .modal .mnote{font-size:12.5px;color:var(--soft);margin-bottom:10px;line-height:1.7}
+    .modal label{font-size:12px;font-weight:700;color:var(--soft);display:block;margin:10px 0 4px}
+    .modal input,.modal select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;outline:none}
+    .modal input:focus,.modal select:focus{border-color:var(--navy)}
+    .rowbtns{display:flex;gap:8px;margin-top:18px}
+    .rowbtns .ghost{flex-shrink:0;background:#fff;color:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700}
+    .mmsg{font-size:12.5px;font-weight:600;margin-top:10px;min-height:18px}
+    .page-row{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid #f2f4f8;flex-wrap:wrap}
+    .page-row:last-child{border-bottom:0}
+    .page-row .pn{font-weight:600;flex:1;min-width:140px}
+    .page-row .pu{font-size:12px;color:var(--muted);direction:ltr}
+    .page-row a.actbtn{text-decoration:none}
+
     /* ---- mobile ---- */
     .mobilebar{display:none}
     @media (max-width: 860px){
@@ -157,7 +188,9 @@
       </div>
       <nav class="nav" id="navDesk">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
-        <button data-v="leads">📥 الطلبات الواردة</button>
+        <button data-v="leads">📥 الطلبات والموافقات</button>
+        <button data-v="content">📝 محتوى الموقع</button>
+        <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات واللوحات</button>
       </nav>
       <div class="grow"></div>
@@ -176,6 +209,8 @@
       <div class="tabs" id="navMob">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات</button>
+        <button data-v="content">📝 المحتوى</button>
+        <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات</button>
       </div>
     </div>
@@ -223,11 +258,11 @@
       <!-- ============ leads ============ -->
       <section class="view" id="view-leads">
         <div class="pagehead">
-          <h2>📥 الطلبات الواردة</h2>
+          <h2>📥 الطلبات والموافقات</h2>
           <div class="spacer"></div>
           <span class="stamp" id="stampLeads"></span>
           <button class="refresh" data-refresh>↻ تحديث</button>
-          <div class="sub">كل طلب يصل من الموقع (خدمات، امتثال، توظيف، فعاليات…) يُسجّل في CRM ويظهر هنا. التحديث تلقائي كل دقيقة.</div>
+          <div class="sub">كل طلب يصل من الموقع يُسجّل في CRM ويظهر هنا. غيّر الحالة مباشرة من عمود «الحالة»، وزر «تفعيل» يرسل للعميل كود الوصول لاشتراكه (امتثال / توظيف / خدمات مشتركة).</div>
         </div>
 
         <div class="panel">
@@ -236,10 +271,39 @@
             <div id="statusChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
           </div>
           <div class="tbl-wrap"><table>
-            <thead><tr><th>المرجع</th><th>الطلب</th><th>الحالة</th><th>المرحلة</th><th>التاريخ</th><th>تواصل</th></tr></thead>
-            <tbody id="leadsBody"><tr><td colspan="6" class="empty">جاري التحميل…</td></tr></tbody>
+            <thead><tr><th>المرجع</th><th>الطلب</th><th>الحالة</th><th>المرحلة</th><th>التاريخ</th><th>تواصل</th><th>إجراء</th></tr></thead>
+            <tbody id="leadsBody"><tr><td colspan="7" class="empty">جاري التحميل…</td></tr></tbody>
           </table></div>
         </div>
+      </section>
+
+      <!-- ============ content ============ -->
+      <section class="view" id="view-content">
+        <div class="pagehead">
+          <h2>📝 محتوى الموقع</h2>
+          <div class="sub">عدّل محتوى الموقع وانشره بنفسك — عند الحفظ يُحدَّث الموقع تلقائياً خلال دقيقتين تقريباً.</div>
+        </div>
+        <div class="tools" id="contentFiles" style="margin-bottom:22px"></div>
+        <div class="panel" id="editorPanel" style="display:none">
+          <div class="editor-head">
+            <span class="file-lbl" id="edLabel">—</span>
+            <span class="stamp" id="edStamp"></span>
+            <button class="refresh" id="edFormat">✓ تحقق وتنسيق</button>
+            <button class="refresh" id="edReload">↻ استرجاع الأصل</button>
+            <button class="btn" id="edSave">💾 حفظ ونشر</button>
+          </div>
+          <div class="edmsg" id="edMsg"></div>
+          <textarea class="jsonbox" id="edBox" spellcheck="false" dir="ltr"></textarea>
+        </div>
+      </section>
+
+      <!-- ============ pages ============ -->
+      <section class="view" id="view-pages">
+        <div class="pagehead">
+          <h2>📄 صفحات الموقع</h2>
+          <div class="sub">كل صفحات الموقع الرئيسية — افتح أي صفحة، وإذا كان محتواها قابلاً للتعديل من اللوحة تلقى زر «عدّل المحتوى» يوديك له مباشرة.</div>
+        </div>
+        <div id="pagesList"></div>
       </section>
 
       <!-- ============ tools ============ -->
@@ -264,10 +328,39 @@
     </main>
   </div>
 
+  <!-- activation modal -->
+  <div class="modal-back" id="modalBack">
+    <div class="modal">
+      <h3>⚡ تفعيل اشتراك وإرسال الكود</h3>
+      <div class="mnote">يُفعّل الاشتراك في نظامنا ويرسل للعميل بريداً فيه كود الوصول — نفس مفعول رابط الاعتماد في الإيميل. لا تفعّل إلا بعد تأكيد وصول التحويل البنكي.</div>
+      <label>نوع الاشتراك</label>
+      <select id="mKind">
+        <option value="compliance">🛡️ وكيل الامتثال</option>
+        <option value="employer">🏢 منصة التوظيف</option>
+        <option value="shared">🤝 الخدمات المشتركة</option>
+      </select>
+      <div id="mCompanyWrap"><label>اسم المنشأة / الشركة (كما سُجّل في الطلب)</label><input id="mCompany" type="text" /></div>
+      <div id="mPlanWrap" style="display:none"><label>الباقة</label>
+        <select id="mPlan"><option value="basic">أساسية</option><option value="pro">احترافية</option><option value="enterprise">مؤسسية</option></select>
+      </div>
+      <label>بريد العميل (يوصله الكود عليه)</label>
+      <input id="mEmail" type="email" dir="ltr" />
+      <label>جوال العميل (اختياري)</label>
+      <input id="mPhone" type="tel" dir="ltr" />
+      <div class="mmsg" id="mMsg"></div>
+      <div class="rowbtns">
+        <button class="btn" id="mGo" style="flex:1">⚡ تفعيل وإرسال الكود</button>
+        <button class="ghost" id="mCancel">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    var LEADS_URL = '/api/requests?action=leads';
+    var API_URL = '/api/requests';
+    var LEADS_URL = API_URL + '?action=leads';
     var KEY_STORE = 'bp_admin_key';
     var POLL_MS = 60000;
+    var STATUSES = ['قيد المراجعة', 'بانتظار الدفع', 'مؤكد - قيد التنفيذ', 'مكتمل', 'ملغي'];
 
     var accessKey = localStorage.getItem(KEY_STORE) || '';
     var leads = [];
@@ -387,9 +480,30 @@
       for (var b = 0; b < btns.length; b++) btns[b].onclick = function(){ statusFilter = this.getAttribute('data-f'); renderLeads(); };
     }
 
+    function postPanel(payload){
+      payload.key = accessKey;
+      return fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify(payload) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); });
+    }
+
+    function changeStatus(ref, status, sel){
+      if (!status) return;
+      if (!confirm('تغيير حالة الطلب ' + ref + ' إلى «' + status + '»؟')) { sel.value = ''; return; }
+      sel.disabled = true;
+      postPanel({ action:'panel-status', ref: ref, status: status }).then(function(out){
+        if (out && out.ok){ refresh(); }
+        else {
+          alert(out && out.error === 'ref_not_found' ? 'ما لقيت الطلب في الـ CRM — تأكد من الرقم المرجعي.' : 'تعذّر تغيير الحالة — حاول مرة أخرى.');
+          sel.disabled = false; sel.value = '';
+        }
+      });
+    }
+
+    var shownLeads = [];
     function renderLeads(){
       buildChips();
       var rows = '';
+      shownLeads = [];
       for (var i = 0; i < leads.length; i++){
         var l = leads[i];
         if (statusFilter !== 'all' && statusMeta(l.status).cls !== statusFilter) continue;
@@ -397,9 +511,13 @@
           var hay = (l.ref + ' ' + l.title + ' ' + l.phone + ' ' + l.email + ' ' + l.status + ' ' + l.stage).toLowerCase();
           if (hay.indexOf(search.toLowerCase()) === -1) continue;
         }
+        shownLeads.push(l);
+        var idx = shownLeads.length - 1;
         var acts = '';
         if (l.phone) acts += '<a class="act" title="واتساب" target="_blank" rel="noopener" href="https://wa.me/' + esc(l.phone.replace(/[^\d]/g,'')) + '">💬</a>';
         if (l.email) acts += '<a class="act" title="إيميل" href="mailto:' + esc(l.email) + '">✉️</a>';
+        var statOpts = '<option value="" selected>🔄 تغيير الحالة…</option>';
+        for (var s0 = 0; s0 < STATUSES.length; s0++) statOpts += '<option value="' + STATUSES[s0] + '">' + STATUSES[s0] + '</option>';
         rows += '<tr>' +
           '<td class="ref">' + esc(l.ref || '—') + '</td>' +
           '<td class="lead-title" title="' + esc(l.title) + '">' + esc(l.title || '—') + '</td>' +
@@ -407,9 +525,18 @@
           '<td class="stage">' + esc(l.stage || '—') + '</td>' +
           '<td class="when">' + fmtDate(l.at) + '</td>' +
           '<td><div class="acts">' + (acts || '<span class="stage">—</span>') + '</div></td>' +
+          '<td><div class="acts">' +
+            (l.ref ? '<select class="statsel" data-i="' + idx + '">' + statOpts + '</select>' : '') +
+            '<button class="actbtn" data-actv="' + idx + '">⚡ تفعيل</button>' +
+          '</div></td>' +
         '</tr>';
       }
-      $('leadsBody').innerHTML = rows || '<tr><td colspan="6" class="empty">لا توجد طلبات مطابقة.</td></tr>';
+      var body = $('leadsBody');
+      body.innerHTML = rows || '<tr><td colspan="7" class="empty">لا توجد طلبات مطابقة.</td></tr>';
+      var sels = body.querySelectorAll('.statsel');
+      for (var a = 0; a < sels.length; a++) sels[a].onchange = function(){ changeStatus(shownLeads[+this.getAttribute('data-i')].ref, this.value, this); };
+      var actvs = body.querySelectorAll('[data-actv]');
+      for (var c = 0; c < actvs.length; c++) actvs[c].onclick = function(){ openModal(shownLeads[+this.getAttribute('data-actv')]); };
       $('stampLeads').textContent = lastFetch ? ('آخر تحديث: ' + lastFetch.toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' })) : '';
     }
 
@@ -446,6 +573,198 @@
     })();
 
     $('leadSearch').addEventListener('input', function(){ search = this.value; renderLeads(); });
+
+    // ---- activation modal ----
+    var modalRef = '';
+    function syncKind(){
+      var k = $('mKind').value;
+      $('mPlanWrap').style.display = k === 'employer' ? 'block' : 'none';
+      $('mCompanyWrap').style.display = k === 'shared' ? 'none' : 'block';
+    }
+    function openModal(l){
+      modalRef = (l && l.ref) || '';
+      var t = (l && l.title) || '';
+      var kind = 'compliance';
+      if (t.indexOf('توظيف') !== -1) kind = 'employer';
+      else if (t.indexOf('مشترك') !== -1) kind = 'shared';
+      $('mKind').value = kind;
+      var company = '';
+      var m = t.replace(/\(BP-[^)]*\)\s*$/, '').match(/[—–-]\s*([^—–-]+)$/);
+      if (m) company = m[1].trim();
+      $('mCompany').value = company;
+      $('mEmail').value = (l && l.email) || '';
+      $('mPhone').value = (l && l.phone) || '';
+      $('mMsg').textContent = ''; $('mMsg').style.color = '';
+      $('mGo').disabled = false;
+      syncKind();
+      $('modalBack').classList.add('on');
+    }
+    function closeModal(){ $('modalBack').classList.remove('on'); }
+    $('mKind').onchange = syncKind;
+    $('mCancel').onclick = closeModal;
+    $('modalBack').addEventListener('click', function(e){ if (e.target === this) closeModal(); });
+    $('mGo').onclick = function(){
+      var kind = $('mKind').value;
+      var email = $('mEmail').value.trim();
+      var company = $('mCompany').value.trim();
+      var msg = $('mMsg');
+      if (!email || email.indexOf('@') === -1){ msg.style.color = '#dc2626'; msg.textContent = 'أدخل بريد العميل.'; return; }
+      if (kind !== 'shared' && !company){ msg.style.color = '#dc2626'; msg.textContent = 'أدخل اسم المنشأة كما سُجّل في الطلب.'; return; }
+      var btn = $('mGo'); btn.disabled = true;
+      msg.style.color = ''; msg.textContent = '⏳ جاري التفعيل وإرسال الكود…';
+      postPanel({ action:'panel-activate', kind: kind, company: company, email: email, phone: $('mPhone').value.trim(), plan: $('mPlan').value, ref: modalRef })
+        .then(function(out){
+          if (out && out.ok){
+            msg.style.color = '#14532d';
+            msg.textContent = '✅ تم التفعيل — أُرسل الكود ' + (out.code || '') + ' إلى ' + email;
+            refresh();
+          } else {
+            btn.disabled = false;
+            msg.style.color = '#dc2626';
+            msg.textContent = out && out.error === 'activation_failed'
+              ? 'تعذّر التفعيل — تأكد أن اسم المنشأة مطابق لما في نوشن.'
+              : 'تعذّر التفعيل — حاول مرة أخرى.';
+          }
+        });
+    };
+
+    // ---- content editor ----
+    var CONTENT_DEFS = [
+      { id:'services', icon:'🛠️', name:'الخدمات والأسعار', desc:'كتالوج الخدمات كاملاً: الأسماء، الأوصاف، الأسعار — يغذّي صفحة الخدمات وكل صفحات الخدمة.' },
+      { id:'opportunities', icon:'📈', name:'الفرص الاستثمارية', desc:'قائمة الفرص المعروضة في صفحة الصفقات — أضف أو عدّل أو احذف فرصة.' },
+      { id:'categories', icon:'🗂️', name:'تصنيفات الخدمات', desc:'أقسام الخدمات وترتيبها في صفحة الخدمات والقوائم.' },
+      { id:'site', icon:'⚙️', name:'إعدادات الموقع', desc:'البيانات العامة للموقع (أرقام التواصل، الروابط، الإعدادات).' },
+      { id:'ecosystem', icon:'🌐', name:'الشركاء والمنظومة', desc:'شبكة الشركاء والجهات المعروضة في صفحات التعريف.' },
+      { id:'service-i18n', icon:'🌍', name:'ترجمات الخدمات', desc:'النصوص المترجمة للخدمات في اللغات الإضافية.' }
+    ];
+    var curDef = null, edLoading = false;
+    function edNote(cls, text){
+      var m = $('edMsg');
+      m.className = 'edmsg' + (text ? ' ' + cls : '');
+      m.textContent = text || '';
+    }
+    function renderContentCards(){
+      var box = $('contentFiles'); box.innerHTML = '';
+      for (var i = 0; i < CONTENT_DEFS.length; i++){
+        (function(def){
+          var el = document.createElement('a');
+          el.className = 'tool'; el.href = 'javascript:void(0)';
+          el.innerHTML = '<span class="ico">' + def.icon + '</span><h4>' + def.name + '</h4><p>' + def.desc + '</p><span class="go">تعديل ←</span>';
+          el.onclick = function(){ loadContent(def); };
+          box.appendChild(el);
+        })(CONTENT_DEFS[i]);
+      }
+    }
+    function loadContent(def){
+      curDef = def; edLoading = true;
+      switchView('content');
+      $('editorPanel').style.display = 'block';
+      $('edLabel').textContent = def.icon + ' ' + def.name;
+      $('edStamp').textContent = '';
+      $('edBox').value = '';
+      edNote('info', '⏳ جاري تحميل الملف…');
+      fetch(API_URL + '?action=panel-content&file=' + encodeURIComponent(def.id) + '&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          edLoading = false;
+          if (out && out.ok){
+            $('edBox').value = out.content;
+            $('edStamp').textContent = out.path + ' ← ' + out.branch;
+            edNote('', '');
+            $('editorPanel').scrollIntoView({ behavior:'smooth', block:'start' });
+          } else if (out && out.error === 'content_not_configured'){
+            edNote('err', 'تحرير المحتوى غير مهيأ بعد — أضف متغير GITHUB_TOKEN (بصلاحية كتابة على المستودع) في إعدادات Vercel ثم أعد النشر.');
+          } else {
+            edNote('err', 'تعذّر تحميل الملف — حاول مرة أخرى.');
+          }
+        });
+    }
+    $('edFormat').onclick = function(){
+      try { $('edBox').value = JSON.stringify(JSON.parse($('edBox').value), null, 2); edNote('ok', '✅ الصيغة سليمة.'); }
+      catch(e){ edNote('err', '⚠️ خطأ في الصيغة: ' + String(e.message || e).slice(0, 140)); }
+    };
+    $('edReload').onclick = function(){ if (curDef) loadContent(curDef); };
+    $('edSave').onclick = function(){
+      if (!curDef || edLoading) return;
+      try { JSON.parse($('edBox').value); }
+      catch(e){ edNote('err', '⚠️ ما ينحفظ — خطأ في الصيغة: ' + String(e.message || e).slice(0, 140)); return; }
+      if (!confirm('سيُحفظ التعديل ويُنشر على الموقع خلال دقيقتين تقريباً. متابعة؟')) return;
+      var btn = $('edSave'); btn.disabled = true;
+      edNote('info', '⏳ جاري الحفظ والنشر…');
+      postPanel({ action:'panel-save-content', file: curDef.id, content: $('edBox').value })
+        .then(function(out){
+          btn.disabled = false;
+          if (out && out.ok) edNote('ok', '✅ تم الحفظ — بدأ تحديث الموقع، والتغيير بيكون ظاهراً خلال دقيقتين تقريباً.');
+          else if (out && out.error === 'invalid_json') edNote('err', '⚠️ الصيغة غير سليمة — اضغط «تحقق وتنسيق» أولاً.');
+          else if (out && out.error === 'content_not_configured') edNote('err', 'تحرير المحتوى غير مهيأ — أضف GITHUB_TOKEN في إعدادات Vercel.');
+          else edNote('err', 'تعذّر الحفظ — حاول مرة أخرى.');
+        });
+    };
+
+    // ---- pages directory ----
+    var PAGES = [
+      { g:'🏠 الصفحات الرئيسية', items:[
+        ['الرئيسية', '/ar', null],
+        ['الخدمات', '/ar/services', 'services'],
+        ['الباقات', '/ar/packages', 'services'],
+        ['موظفو الذكاء الاصطناعي', '/ar/ai-agents', null],
+        ['وكيل الامتثال', '/ar/compliance-agent', null],
+        ['الفرص والصفقات', '/ar/deals', 'opportunities'],
+        ['من نحن', '/ar/about', null],
+        ['تواصل معنا', '/ar/contact', null]
+      ]},
+      { g:'📰 المحتوى والمعرفة', items:[
+        ['المجلة', '/ar/magazine', null],
+        ['الأخبار', '/ar/news', null],
+        ['السعودية للأعمال', '/ar/saudi-arabia', null],
+        ['النشرة البريدية', '/ar/newsletter', null],
+        ['دليل الموردين', '/ar/suppliers', null],
+        ['الوظائف', '/careers', null]
+      ]},
+      { g:'🧮 الأدوات والحاسبات', items:[
+        ['مركز الأدوات', '/ar/tools-and-calculators', null],
+        ['حاسبة التكاليف الحكومية', '/ar/calculators/government-cost', null],
+        ['حاسبة نهاية الخدمة', '/ar/calculators/end-of-service', null],
+        ['حاسبة الإجازة السنوية', '/ar/calculators/annual-leave', null],
+        ['حاسبة العمل الإضافي', '/ar/calculators/overtime', null],
+        ['حاسبة التأمينات', '/ar/calculators/gosi', null]
+      ]},
+      { g:'🚪 البوابات وصفحات العملاء', items:[
+        ['بوابة العملاء', '/account', null],
+        ['بوابة التوظيف HR', '/ar/portal', null],
+        ['الخدمات المشتركة', '/ar/shared-services', null],
+        ['مساحات العمل', '/ar/workspaces', null],
+        ['السياحة والفعاليات', '/ar/tourism', null]
+      ]}
+    ];
+    function contentDefById(id){ for (var i = 0; i < CONTENT_DEFS.length; i++) if (CONTENT_DEFS[i].id === id) return CONTENT_DEFS[i]; return null; }
+    function renderPages(){
+      var box = $('pagesList'); box.innerHTML = '';
+      for (var g = 0; g < PAGES.length; g++){
+        var grp = PAGES[g];
+        var panel = document.createElement('div'); panel.className = 'panel';
+        var head = document.createElement('div'); head.className = 'panel-head';
+        head.innerHTML = '<h3>' + grp.g + '</h3>';
+        panel.appendChild(head);
+        for (var i = 0; i < grp.items.length; i++){
+          (function(it){
+            var row = document.createElement('div'); row.className = 'page-row';
+            row.innerHTML = '<span class="pn">' + it[0] + '</span><span class="pu">' + it[1] + '</span>';
+            var open = document.createElement('a'); open.className = 'actbtn'; open.textContent = '↗ فتح'; open.href = it[1]; open.target = '_blank'; open.rel = 'noopener';
+            row.appendChild(open);
+            if (it[2]){
+              var ed = document.createElement('button'); ed.className = 'actbtn'; ed.textContent = '📝 عدّل المحتوى';
+              ed.onclick = function(){ var d = contentDefById(it[2]); if (d) loadContent(d); };
+              row.appendChild(ed);
+            }
+            panel.appendChild(row);
+          })(grp.items[i]);
+        }
+        box.appendChild(panel);
+      }
+    }
+    renderContentCards();
+    renderPages();
 
     // ---- gate / session ----
     function enter(){
