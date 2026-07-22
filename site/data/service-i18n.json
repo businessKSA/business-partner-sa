@@ -276,7 +276,7 @@
     "ar": "التوظيف الجماعي"
   },
   "BP-BS-01": {
-    "en": "Digital marketing & advertising services",
+    "en": "Digital Marketing & Advertising",
     "ar": "خدمات التسويق الرقمي والإعلان"
   },
   "BP-PL-0019": {
@@ -284,35 +284,35 @@
     "ar": "الامتثال والقيد بنظام الامتياز التجاري (فرنشايز)"
   },
   "BP-PL-0035": {
-    "en": "Muqeem account management (data add & update)",
+    "en": "Muqeem Account Management",
     "ar": "إدارة حساب مقيم (إضافة وتحديث البيانات)"
   },
   "BP-PL-0050": {
-    "en": "VIP service (VIP transaction handling)",
+    "en": "VIP Transaction Processing",
     "ar": "خدمة كبار الشخصيات (إنهاء المعاملات VIP)"
   },
   "BP-PL-0051": {
-    "en": "Opening a corporate bank account",
+    "en": "Corporate Bank Account Opening",
     "ar": "فتح حساب بنكي تجاري للشركة"
   },
   "BP-PL-0052": {
-    "en": "Internal company bylaws (governance) preparation",
+    "en": "Internal Company Regulations (Governance)",
     "ar": "إعداد لوائح الشركة الداخلية (حوكمة)"
   },
   "BP-PL-0053": {
-    "en": "Company structuring & reorganization",
+    "en": "Company Restructuring & Organization",
     "ar": "هيكلة وتنظيم الشركة (إعادة هيكلة)"
   },
   "BP-PL-0054": {
-    "en": "Corporate legal representation (litigation)",
+    "en": "Corporate Legal Representation",
     "ar": "التمثيل القانوني للشركات (محاماة)"
   },
   "BP-PL-0055": {
-    "en": "Legal consulting on the Companies Law",
+    "en": "Corporate Law Consultation",
     "ar": "استشارات قانونية لنظام الشركات"
   },
   "BP-PL-0056": {
-    "en": "General business & investment consulting",
+    "en": "General Business & Investment Consultation",
     "ar": "استشارات أعمال واستثمار عامة"
   },
   "BP-PL-0057": {
@@ -320,23 +320,23 @@
     "ar": "إعداد دراسة جدوى اقتصادية"
   },
   "BP-PL-0058": {
-    "en": "Business plan & strategy development",
+    "en": "Business Plan & Strategy Development",
     "ar": "إعداد خطة عمل وتطوير استراتيجيات"
   },
   "BP-PL-0059": {
-    "en": "Financial advisor service (accounting & bookkeeping)",
+    "en": "Financial Advisor (Accounting & Bookkeeping)",
     "ar": "خدمة المستشار المالي (محاسبة ودفاتر)"
   },
   "BP-PL-0060": {
-    "en": "Audit & tax review (financial auditing)",
+    "en": "Audit & Tax Review",
     "ar": "مراجعة حسابات وضريبة (تدقيق مالي)"
   },
   "BP-PL-0063": {
-    "en": "Public relations & corporate communications",
+    "en": "Public Relations & Corporate Communications",
     "ar": "خدمة العلاقات العامة والاتصال المؤسسي"
   },
   "BP-PL-0075": {
-    "en": "Bank account opening (liaison & appointments)",
+    "en": "Bank Account Opening — Liaison & Appointments",
     "ar": "فتح حساب بنكي (تنسيق ومواعيد)"
   },
   "BP-RE-01": {

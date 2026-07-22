@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T04:11:36.964Z",
+  "updatedAt": "2026-07-22T04:14:21.563Z",
   "currency": "SAR",
   "services": [
     {
@@ -971,7 +971,7 @@
     {
       "code": "BP-BS-01",
       "nameAr": "خدمات التسويق الرقمي والإعلان",
-      "nameEn": "Digital marketing & advertising services",
+      "nameEn": "Digital Marketing & Advertising",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "بدون جهة حكومية",
@@ -999,7 +999,7 @@
     {
       "code": "BP-PL-0035",
       "nameAr": "إدارة حساب مقيم (إضافة وتحديث البيانات)",
-      "nameEn": "Muqeem account management (data add & update)",
+      "nameEn": "Muqeem Account Management",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1013,7 +1013,7 @@
     {
       "code": "BP-PL-0050",
       "nameAr": "خدمة كبار الشخصيات (إنهاء المعاملات VIP)",
-      "nameEn": "VIP service (VIP transaction handling)",
+      "nameEn": "VIP Transaction Processing",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1027,7 +1027,7 @@
     {
       "code": "BP-PL-0051",
       "nameAr": "فتح حساب بنكي تجاري للشركة",
-      "nameEn": "Opening a corporate bank account",
+      "nameEn": "Corporate Bank Account Opening",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1041,7 +1041,7 @@
     {
       "code": "BP-PL-0052",
       "nameAr": "إعداد لوائح الشركة الداخلية (حوكمة)",
-      "nameEn": "Internal company bylaws (governance) preparation",
+      "nameEn": "Internal Company Regulations (Governance)",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1055,7 +1055,7 @@
     {
       "code": "BP-PL-0053",
       "nameAr": "هيكلة وتنظيم الشركة (إعادة هيكلة)",
-      "nameEn": "Company structuring & reorganization",
+      "nameEn": "Company Restructuring & Organization",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1069,7 +1069,7 @@
     {
       "code": "BP-PL-0054",
       "nameAr": "التمثيل القانوني للشركات (محاماة)",
-      "nameEn": "Corporate legal representation (litigation)",
+      "nameEn": "Corporate Legal Representation",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1083,7 +1083,7 @@
     {
       "code": "BP-PL-0055",
       "nameAr": "استشارات قانونية لنظام الشركات",
-      "nameEn": "Legal consulting on the Companies Law",
+      "nameEn": "Corporate Law Consultation",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1097,7 +1097,7 @@
     {
       "code": "BP-PL-0056",
       "nameAr": "استشارات أعمال واستثمار عامة",
-      "nameEn": "General business & investment consulting",
+      "nameEn": "General Business & Investment Consultation",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1125,7 +1125,7 @@
     {
       "code": "BP-PL-0058",
       "nameAr": "إعداد خطة عمل وتطوير استراتيجيات",
-      "nameEn": "Business plan & strategy development",
+      "nameEn": "Business Plan & Strategy Development",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1139,7 +1139,7 @@
     {
       "code": "BP-PL-0059",
       "nameAr": "خدمة المستشار المالي (محاسبة ودفاتر)",
-      "nameEn": "Financial advisor service (accounting & bookkeeping)",
+      "nameEn": "Financial Advisor (Accounting & Bookkeeping)",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1153,7 +1153,7 @@
     {
       "code": "BP-PL-0060",
       "nameAr": "مراجعة حسابات وضريبة (تدقيق مالي)",
-      "nameEn": "Audit & tax review (financial auditing)",
+      "nameEn": "Audit & Tax Review",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1167,7 +1167,7 @@
     {
       "code": "BP-PL-0063",
       "nameAr": "خدمة العلاقات العامة والاتصال المؤسسي",
-      "nameEn": "Public relations & corporate communications",
+      "nameEn": "Public Relations & Corporate Communications",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1181,7 +1181,7 @@
     {
       "code": "BP-PL-0075",
       "nameAr": "فتح حساب بنكي (تنسيق ومواعيد)",
-      "nameEn": "Bank account opening (liaison & appointments)",
+      "nameEn": "Bank Account Opening — Liaison & Appointments",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",

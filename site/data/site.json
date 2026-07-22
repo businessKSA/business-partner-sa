@@ -3314,6 +3314,454 @@
       ],
       "faq": [],
       "faqEn": []
+    },
+    "bp-bs-01": {
+      "name": "خدمات التسويق الرقمي والإعلان",
+      "nameEn": "Digital Marketing & Advertising",
+      "description": "خدمات التسويق الرقمي والإعلان — تخطيط وتنفيذ ومتابعة الحملات عبر القنوات المطلوبة حسب أهدافك.",
+      "descriptionEn": "Digital marketing and advertising services including planning, execution, and follow-up across the required campaign channels.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "تخطيط الحملات حسب أهدافك",
+        "تنفيذ الحملات عبر القنوات المناسبة",
+        "متابعة الأداء والتحسين"
+      ],
+      "featuresEn": [
+        "Campaign planning around your goals",
+        "Execution across the right channels",
+        "Performance tracking & optimization"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0051": {
+      "name": "فتح حساب بنكي تجاري للشركة",
+      "nameEn": "Corporate Bank Account Opening",
+      "description": "فتح حساب بنكي تجاري للشركة — تجهيز المتطلبات والتنسيق مع البنك حتى فتح الحساب.",
+      "descriptionEn": "Corporate bank account opening with requirements preparation and bank coordination until the account is opened.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "تجهيز متطلبات فتح الحساب",
+        "التنسيق مع البنك وتحديد المواعيد",
+        "المتابعة حتى فتح الحساب"
+      ],
+      "featuresEn": [
+        "Preparing the account-opening requirements",
+        "Coordinating with the bank & appointments",
+        "Following up until the account is open"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0075": {
+      "name": "فتح حساب بنكي (تنسيق ومواعيد)",
+      "nameEn": "Bank Account Opening — Liaison & Appointments",
+      "description": "خدمة التنسيق وحجز المواعيد لفتح حساب بنكي — تجهيز المتطلبات ومتابعة الإجراءات حتى الاكتمال.",
+      "descriptionEn": "Bank account opening liaison and appointment coordination with requirements preparation until account procedures are completed.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "حجز مواعيد فتح الحساب",
+        "تجهيز المتطلبات والمستندات",
+        "متابعة الإجراءات حتى الاكتمال"
+      ],
+      "featuresEn": [
+        "Booking account-opening appointments",
+        "Preparing requirements & documents",
+        "Following up procedures to completion"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0052": {
+      "name": "إعداد لوائح الشركة الداخلية (حوكمة)",
+      "nameEn": "Internal Company Regulations (Governance)",
+      "description": "إعداد اللوائح الداخلية وسياسات الحوكمة لتنظيم العمل ودعم الامتثال الإداري والتنظيمي.",
+      "descriptionEn": "Preparation of internal company regulations and governance policies to organize work and support administrative and regulatory compliance.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "صياغة اللوائح الداخلية",
+        "إعداد سياسات الحوكمة",
+        "تنظيم العمل ودعم الامتثال"
+      ],
+      "featuresEn": [
+        "Drafting internal regulations",
+        "Preparing governance policies",
+        "Organizing work & supporting compliance"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0053": {
+      "name": "هيكلة وتنظيم الشركة (إعادة هيكلة)",
+      "nameEn": "Company Restructuring & Organization",
+      "description": "هيكلة وتنظيم الشركة — الكيان أو العمليات أو الحوكمة بما يناسب احتياج نشاطك.",
+      "descriptionEn": "Company restructuring and organization covering entity structure, operations, or governance based on business needs.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "مراجعة الهيكل الحالي",
+        "إعادة تنظيم الكيان أو العمليات",
+        "تحسين الحوكمة والكفاءة"
+      ],
+      "featuresEn": [
+        "Reviewing the current structure",
+        "Reorganizing the entity or operations",
+        "Improving governance & efficiency"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0054": {
+      "name": "التمثيل القانوني للشركات (محاماة)",
+      "nameEn": "Corporate Legal Representation",
+      "description": "التمثيل القانوني للشركات والدعم الاستشاري في الالتزامات والعقود والإجراءات النظامية.",
+      "descriptionEn": "Corporate legal representation and legal advisory support for obligations, contracts, and regulatory procedures.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "التمثيل القانوني للشركة",
+        "مراجعة العقود والالتزامات",
+        "الدعم في الإجراءات النظامية"
+      ],
+      "featuresEn": [
+        "Legal representation for the company",
+        "Reviewing contracts & obligations",
+        "Support with regulatory procedures"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0055": {
+      "name": "استشارات قانونية لنظام الشركات",
+      "nameEn": "Corporate Law Consultation",
+      "description": "استشارات قانونية متعلقة بنظام الشركات والالتزامات النظامية وقرارات الأعمال.",
+      "descriptionEn": "Legal consultation related to corporate law, regulatory obligations, and business decisions.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "استشارة في نظام الشركات",
+        "توضيح الالتزامات النظامية",
+        "دعم قرارات الأعمال قانونياً"
+      ],
+      "featuresEn": [
+        "Corporate-law consultation",
+        "Clarifying regulatory obligations",
+        "Legal support for business decisions"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0056": {
+      "name": "استشارات أعمال واستثمار عامة",
+      "nameEn": "General Business & Investment Consultation",
+      "description": "استشارات أعمال واستثمار عامة لدعم قرارات التأسيس والتوسع والتشغيل.",
+      "descriptionEn": "General business and investment consultation to support formation, expansion, and operational decisions.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "استشارة تأسيس وتوسع",
+        "تحليل فرص الاستثمار",
+        "دعم القرارات التشغيلية"
+      ],
+      "featuresEn": [
+        "Formation & expansion advice",
+        "Analyzing investment opportunities",
+        "Supporting operational decisions"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0058": {
+      "name": "إعداد خطة عمل وتطوير استراتيجيات",
+      "nameEn": "Business Plan & Strategy Development",
+      "description": "إعداد خطة عمل وتطوير استراتيجيات لدعم التأسيس أو النمو أو التوسع.",
+      "descriptionEn": "Business plan preparation and strategy development to support formation, growth, or expansion.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "إعداد خطة العمل",
+        "تطوير الاستراتيجية",
+        "خارطة تنفيذ للنمو والتوسع"
+      ],
+      "featuresEn": [
+        "Preparing the business plan",
+        "Developing the strategy",
+        "An execution roadmap for growth"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0059": {
+      "name": "خدمة المستشار المالي (محاسبة ودفاتر)",
+      "nameEn": "Financial Advisor (Accounting & Bookkeeping)",
+      "description": "خدمة المستشار المالي — المحاسبة ومسك الدفاتر ومتابعة السجلات المالية حسب النطاق المتفق عليه.",
+      "descriptionEn": "Financial advisor service covering accounting, bookkeeping, and financial record follow-up based on the agreed scope.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "المحاسبة ومسك الدفاتر",
+        "متابعة السجلات المالية",
+        "تقارير مالية دورية حسب النطاق"
+      ],
+      "featuresEn": [
+        "Accounting & bookkeeping",
+        "Maintaining financial records",
+        "Periodic financial reports per scope"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0060": {
+      "name": "مراجعة حسابات وضريبة (تدقيق مالي)",
+      "nameEn": "Audit & Tax Review",
+      "description": "مراجعة الحسابات والضريبة والمراجعة المالية للمنشأة حسب النطاق المطلوب.",
+      "descriptionEn": "Audit, tax review, and financial review services for the entity based on the required scope.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "مراجعة الحسابات",
+        "المراجعة الضريبية",
+        "تقرير مراجعة مالية"
+      ],
+      "featuresEn": [
+        "Accounts audit",
+        "Tax review",
+        "A financial review report"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0063": {
+      "name": "خدمة العلاقات العامة والاتصال المؤسسي",
+      "nameEn": "Public Relations & Corporate Communications",
+      "description": "خدمة العلاقات العامة والاتصال المؤسسي — الرسائل والتنسيق ودعم التواصل حسب احتياج المنشأة.",
+      "descriptionEn": "Public relations and corporate communications service including messaging, coordination, and communication support based on entity needs.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "إدارة الرسائل المؤسسية",
+        "التنسيق الإعلامي",
+        "دعم التواصل مع الجمهور"
+      ],
+      "featuresEn": [
+        "Managing corporate messaging",
+        "Media coordination",
+        "Supporting audience communication"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0035": {
+      "name": "إدارة حساب مقيم (إضافة وتحديث البيانات)",
+      "nameEn": "Muqeem Account Management",
+      "description": "إدارة حساب مقيم — إضافة وتحديث بيانات المقيمين والموظفين حسب احتياج المنشأة.",
+      "descriptionEn": "Muqeem account management, including adding or updating resident and employee data based on entity needs.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "إدارة حساب مقيم للمنشأة",
+        "إضافة وتحديث بيانات الموظفين",
+        "متابعة دقة البيانات"
+      ],
+      "featuresEn": [
+        "Managing the entity's Muqeem account",
+        "Adding & updating employee data",
+        "Keeping the data accurate"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-pl-0050": {
+      "name": "خدمة كبار الشخصيات (إنهاء المعاملات VIP)",
+      "nameEn": "VIP Transaction Processing",
+      "description": "خدمة كبار الشخصيات لإنهاء المعاملات بمتابعة مخصّصة وتنسيق سريع حسب نطاق الطلب.",
+      "descriptionEn": "VIP transaction processing service with dedicated follow-up and expedited coordination based on request scope.",
+      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
+      "audienceEn": "Businesses needing operational, regulatory or commercial support",
+      "duration": "حسب نطاق الخدمة",
+      "durationEn": "Depends on the scope of the service",
+      "features": [
+        "متابعة مخصّصة للمعاملات",
+        "تنسيق سريع مع الجهات",
+        "إنجاز بأولوية عالية"
+      ],
+      "featuresEn": [
+        "Dedicated transaction follow-up",
+        "Expedited coordination with authorities",
+        "High-priority completion"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
     }
   },
   "social": {
