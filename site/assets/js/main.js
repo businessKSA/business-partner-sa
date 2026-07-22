@@ -3836,18 +3836,18 @@ var BP_EMP_BILLING = "monthly";
       e.preventDefault();
       var name = val("f-name"), phone = val("f-phone"), service = val("f-service"), msg = val("f-msg");
       if (!name) { alert(T("Please enter your name.", "الرجاء إدخال اسمك.")); return; }
-      // Best-effort CRM lead; WhatsApp (below) is the primary channel either way.
-      try {
-        fetch("/api/requests", {
-          method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ type: "contact", company: name, person: name, phone: phone, email: "", eventType: service, notes: msg }),
-        }).catch(function () {});
-      } catch (err) {}
-      var lines = [T("Enquiry from the website contact page", "استفسار من صفحة تواصل معنا"), T("Name", "الاسم") + ": " + name];
-      if (phone) lines.push(T("Mobile", "الجوال") + ": " + phone);
-      if (service) lines.push(T("Service", "الخدمة") + ": " + service);
-      if (msg) lines.push(T("Details", "التفاصيل") + ": " + msg);
-      window.open("https://wa.me/966507034157?text=" + encodeURIComponent(lines.join("\n")), "_blank", "noopener");
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.style.opacity = "0.7"; }
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "contact", company: name, person: name, phone: phone, email: "", eventType: service, notes: msg }),
+      }).then(function () {
+        form.innerHTML = '<div class="form-note" style="font-size:1rem;color:var(--navy)">✓ ' +
+          T("Thank you — your request has reached our team and we'll get back to you soon.", "شكراً لك — وصل طلبك لفريقنا وسنعاود التواصل معك قريباً.") + "</div>";
+      }).catch(function () {
+        if (btn) { btn.disabled = false; btn.style.opacity = "1"; }
+        alert(T("Couldn't reach the server. Please try again.", "تعذّر الاتصال بالخادم. حاول مرة أخرى."));
+      });
     });
   });
 })();
