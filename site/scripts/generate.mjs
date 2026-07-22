@@ -94,6 +94,16 @@ const JOBS = [
   },
 ];
 
+// Client hiring campaign — events fabrication workshop for an entertainment &
+// events services provider (client kept anonymous on the public site; salaries
+// are client-confidential and not published). Role content and openings live
+// in data/workshop-jobs.json; every role gets its own /jobs/<slug> page with
+// an application scoped to that posting (same ATS flow as JOBS above), plus a
+// campaign hub page at /jobs/<campaign.slug> grouping roles by department.
+const workshop = read("data/workshop-jobs.json");
+const WORKSHOP_JOBS = workshop.jobs;
+const WORKSHOP_CAMPAIGN = workshop.campaign;
+
 // Apply catalog overrides (price/name/description) from site.json to the list,
 // so cards, the calculator, and detail pages all reflect them.
 for (const s of services) {
@@ -4309,11 +4319,18 @@ function jobCardsHtml() {
         <div class="emp-meta">${L("All fields · Saudi Arabia · Consent-based sharing", "كل المجالات · السعودية · مشاركة بموافقتك")}</div>
         <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="${esc(L("General candidate pool", "قاعدة المرشحين العامة"))}">${L("Join pool", "انضم للقاعدة")}</a></div>
       </article>`;
+  const wc = WORKSHOP_CAMPAIGN;
+  const campaignBand = `<section class="section" id="workshop-campaign"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Client hiring campaign", "حملة توظيف لعميلنا")}</span><h2>${L(wc.title.en, wc.title.ar)}</h2><p>${L(wc.intro.en, wc.intro.ar)}</p></div>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:28px">${wc.stats.map((s) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(s.label.en, s.label.ar)}</div></div>`).join("")}</div>
+    <div class="center"><a class="btn btn-primary btn-lg" href="${u("/jobs/" + wc.slug)}">${L("Browse all workshop roles", "تصفّح كل وظائف الورشة")}</a></div>
+  </div></section>`;
   return `<section class="section section--gray" id="open-jobs"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Careers / Jobs", "الوظائف")}</span><h2>${L("Open roles at Business Partner", "الوظائف المفتوحة عبر بيزنس بارتنر")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed to the right hiring stage.", "كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.")}</p></div>
     <div class="grid grid-3 ats-jobs">${cards}${poolCard}</div>
   </div></section>
-  <section class="section" id="client-jobs"><div class="container">
+  ${campaignBand}
+  <section class="section section--gray" id="client-jobs"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Employer clients", "عملاء بيزنس بارتنر")}</span><h2>${L("Jobs from our employer clients", "وظائف من عملائنا أصحاب العمل")}</h2><p>${L("Companies hiring through the Business Partner platform. Apply directly — your application goes straight to their pipeline.", "شركات توظّف عبر منصة بيزنس بارتنر. قدّم مباشرة — طلبك يذهب مباشرة إلى مسار توظيفهم.")}</p></div>
     <p class="emp-note" id="client-jobs-status">${L("Loading…", "جارٍ التحميل…")}</p>
     <div class="grid grid-3 ats-jobs" id="client-jobs-grid"></div>
@@ -4402,6 +4419,12 @@ function buildJobPage(job) {
   const title = L(job.title.en, job.title.ar);
   const resp = job.responsibilities[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
   const reqs = job.requirements[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
+  // Workshop-campaign roles (job.group set) navigate back to the campaign hub
+  // and show the openings count; Business Partner's own roles keep /careers.
+  const backHref = job.group ? u("/jobs/" + WORKSHOP_CAMPAIGN.slug) : `${u("/careers")}#open-jobs`;
+  const thirdCard = job.openings
+    ? `<div class="card"><h3>${L("Openings", "عدد الشواغر")}</h3><p>${esc(String(job.openings))}</p></div>`
+    : `<div class="card"><h3>${L("Pipeline", "المسار")}</h3><p>${L("New → Screening → Interview → Offer", "جديد ← فرز ← مقابلة ← عرض")}</p></div>`;
   // Each posted job carries its own embedded application form (not a shared
   // one across every job) — applying here is scoped to this posting only.
   const body = `
@@ -4409,13 +4432,13 @@ function buildJobPage(job) {
     <span class="eyebrow">${L("Open job", "وظيفة مفتوحة")}</span>
     <h1>${esc(title)}</h1>
     <p class="lead">${esc(L(job.summary.en, job.summary.ar))}</p>
-    <div class="talent-actions"><a class="btn btn-primary" href="#apply-form">${L("Apply now", "قدّم الآن")}</a><a class="btn btn-ghost" href="${u("/careers")}#open-jobs">${L("Back to jobs", "العودة للوظائف")}</a></div>
+    <div class="talent-actions"><a class="btn btn-primary" href="#apply-form">${L("Apply now", "قدّم الآن")}</a><a class="btn btn-ghost" href="${backHref}">${L("Back to jobs", "العودة للوظائف")}</a></div>
   </div></section>
   <section class="section"><div class="container" style="max-width:900px">
     <div class="grid grid-3" style="margin-bottom:28px">
       <div class="card"><h3>${L("Location", "الموقع")}</h3><p>${esc(L(job.location.en, job.location.ar))}</p></div>
       <div class="card"><h3>${L("Type", "النوع")}</h3><p>${esc(L(job.type.en, job.type.ar))}</p></div>
-      <div class="card"><h3>${L("Pipeline", "المسار")}</h3><p>${L("New → Screening → Interview → Offer", "جديد ← فرز ← مقابلة ← عرض")}</p></div>
+      ${thirdCard}
     </div>
     <h2>${L("What you will do", "المهام")}</h2>
     <ul class="check-list">${resp}</ul>
@@ -4430,6 +4453,45 @@ function buildJobPage(job) {
     </div>
   </div></section>`;
   return page({ title: Lraw(`${title} — Business Partner`, `${title} — بيزنس بارتنر`), desc: Lraw(`Apply for ${title} through the Business Partner ATS.`, `قدّم على وظيفة ${title} عبر ATS بيزنس بارتنر.`), active: "/careers", path: "/jobs/" + job.slug, body });
+}
+
+// Campaign hub: all events-workshop roles grouped by department. Lives under
+// /jobs/ beside the single job pages; each card links to that role's own page
+// where the embedded application is scoped to the posting.
+function buildWorkshopCampaign() {
+  const wc = WORKSHOP_CAMPAIGN;
+  const statsHtml = wc.stats.map((s) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(s.label.en, s.label.ar)}</div></div>`).join("");
+  const groupsHtml = wc.groups.map((g) => {
+    const jobs = WORKSHOP_JOBS.filter((j) => j.group === g.key);
+    if (!jobs.length) return "";
+    const cards = jobs.map((j) => `<article class="card ats-job-card">
+        <span class="emp-tag">${L(j.tag.en, j.tag.ar)}</span>
+        <h3>${L(j.title.en, j.title.ar)}</h3>
+        <p>${L(j.summary.en, j.summary.ar)}</p>
+        <div class="emp-meta">${L(j.meta.en, j.meta.ar)}</div>
+        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="${u("/jobs/" + j.slug)}">${L("View job", "عرض الوظيفة")}</a><a class="btn btn-ghost btn-sm" href="${u("/jobs/" + j.slug)}#apply-form">${L("Apply", "تقديم")}</a></div>
+      </article>`).join("");
+    return `<div class="section-head" style="margin-top:30px"><h2>${L(g.title.en, g.title.ar)}</h2></div>
+    <div class="grid grid-3 ats-jobs">${cards}</div>`;
+  }).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("Client hiring campaign", "حملة توظيف لعميلنا")}</span>
+    <h1>${L(wc.title.en, wc.title.ar)}</h1>
+    <p class="lead">${L(wc.intro.en, wc.intro.ar)}</p>
+    <div class="talent-actions" style="margin-top:22px"><a class="btn btn-primary" href="#workshop-roles">${L("Browse roles", "تصفّح الوظائف")}</a><a class="btn btn-ghost" href="${u("/careers")}#open-jobs">${L("All open jobs", "كل الوظائف المفتوحة")}</a></div>
+  </div></section>
+  <section class="section section--navy trust-band"><div class="container">
+    <div class="stats" style="grid-template-columns:repeat(3,1fr)">${statsHtml}</div>
+  </div></section>
+  <section class="section section--gray" id="workshop-roles"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Open roles", "الوظائف المفتوحة")}</span><h2>${L("Pick your department and apply", "اختر قسمك وقدّم الآن")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed straight to the client's hiring pipeline.", "كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه مباشرة إلى مسار توظيف العميل.")}</p></div>
+    ${groupsHtml}
+  </div></section>
+  <section class="section"><div class="container">
+    <div class="cta-band"><h2>${L("Don't see your exact trade?", "لم تجد تخصصك؟")}</h2><p>${L("Hiring runs in waves through December 2026 and more roles open with each wave — join the general candidate pool and we'll match you.", "التوظيف يجري على دفعات حتى ديسمبر 2026 وتُفتح وظائف جديدة مع كل دفعة — انضم لقاعدة المرشحين العامة وسنطابقك مع المناسب.")}</p><a class="btn btn-white btn-lg" href="${u("/careers")}#seeker-form">${L("Join the candidate pool", "انضم لقاعدة المرشحين")}</a></div>
+  </div></section>`;
+  return page({ title: Lraw("Events Fabrication Workshop Hiring — Business Partner", "توظيف ورشة تصنيع الفعاليات — بيزنس بارتنر"), desc: Lraw("150+ openings at an events fabrication workshop in Saudi Arabia — managers, engineers, team leaders, technicians, and skilled trades. Apply through Business Partner.", "أكثر من 150 فرصة عمل في ورشة تصنيع فعاليات بالسعودية — مدراء ومهندسون وقادة فرق وفنيون وعمالة ماهرة. قدّم عبر بيزنس بارتنر."), active: "/careers", path: "/jobs/" + wc.slug, body });
 }
 
 function buildPortalCandidates() {
@@ -7867,7 +7929,9 @@ function writeFullSite(pre) {
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 17 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length;
+  write(`${pre}jobs/${WORKSHOP_CAMPAIGN.slug}.html`, buildWorkshopCampaign());
+  WORKSHOP_JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
+  pageCount += 17 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
 }
 
 for (const lang of ["en", "ar"]) {
@@ -7924,7 +7988,9 @@ const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-ma
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
-  .concat(JOBS.map((j) => `/jobs/${j.slug}`));
+  .concat(JOBS.map((j) => `/jobs/${j.slug}`))
+  .concat([`/jobs/${WORKSHOP_CAMPAIGN.slug}`])
+  .concat(WORKSHOP_JOBS.map((j) => `/jobs/${j.slug}`));
 const urls = paths
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p].concat(EXTRA_LANG_PATHS.has(p) ? EXTRA_LANGS.map((l) => (p === "/" ? `/${l}/` : `/${l}${p}`)) : []))
   .map((p) => `  <url><loc>${base}${p}</loc></url>`)

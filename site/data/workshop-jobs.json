@@ -1,0 +1,977 @@
+{
+  "_comment": "Client hiring campaign: events fabrication workshop for an entertainment & events services provider (client kept anonymous on the public site). Role content distilled from the client's job description pack; openings counts from the client's workshop hiring plan (May–Dec 2026). Salaries are intentionally NOT published — they are client-confidential; the application form collects the candidate's expected salary instead. Roles in the hiring plan without an approved JD (finance/HR/procurement officers, electrical team, detailing engineers, engineering staff roles) are not posted here — see docs/events-workshop-recruitment-plan.md.",
+  "campaign": {
+    "slug": "events-workshop",
+    "title": { "en": "Events Fabrication Workshop — Mega Hiring Campaign", "ar": "ورشة تصنيع الفعاليات — حملة توظيف كبرى" },
+    "intro": {
+      "en": "A leading entertainment and events services provider in Saudi Arabia is building a full-scale fabrication workshop that designs and builds custom event structures, exhibition stands, scenic elements, and props — and is hiring across every department through Business Partner: management, engineering, team leaders, technicians, and skilled trades.",
+      "ar": "شركة رائدة في خدمات الترفيه والفعاليات في السعودية تؤسس ورشة تصنيع متكاملة لتصميم وبناء هياكل الفعاليات المخصصة، أجنحة المعارض، العناصر المشهدية، والمجسمات — وتوظّف عبر بيزنس بارتنر في كل الأقسام: إدارة، هندسة، قادة فرق، فنيين، وعمالة ماهرة."
+    },
+    "stats": [
+      { "value": "150+", "label": { "en": "Openings across all waves", "ar": "فرصة عمل عبر كل الدفعات" } },
+      { "value": "10+", "label": { "en": "Departments hiring", "ar": "أقسام توظّف الآن" } },
+      { "value": "4", "label": { "en": "Hiring waves through Dec 2026", "ar": "دفعات توظيف حتى ديسمبر 2026" } }
+    ],
+    "groups": [
+      { "key": "management", "title": { "en": "Management", "ar": "الإدارة" } },
+      { "key": "engineering", "title": { "en": "Engineering & Design", "ar": "الهندسة والتصميم" } },
+      { "key": "leaders", "title": { "en": "Team Leaders", "ar": "قادة الفرق" } },
+      { "key": "logistics", "title": { "en": "Warehouse & Logistics", "ar": "المستودعات واللوجستيات" } },
+      { "key": "technicians", "title": { "en": "Technicians", "ar": "الفنيون" } },
+      { "key": "trades", "title": { "en": "Skilled Trades & Labor", "ar": "العمالة الماهرة" } }
+    ]
+  },
+  "jobs": [
+    {
+      "slug": "workshop-factory-manager",
+      "group": "management",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Management", "ar": "السعودية · إدارة" },
+      "title": { "en": "Factory / Plant Manager — Events Fabrication", "ar": "مدير مصنع — تصنيع فعاليات" },
+      "summary": { "en": "Lead all daily operations of a custom events fabrication workshop — production, quality, safety, and dispatch of scenic builds on time and on budget.", "ar": "قيادة كل العمليات اليومية لورشة تصنيع فعاليات مخصصة — الإنتاج والجودة والسلامة وتسليم المشاريع في الوقت والميزانية." },
+      "meta": { "en": "Full-time · 15+ years events fabrication · Leadership", "ar": "دوام كامل · خبرة 15+ سنة تصنيع فعاليات · قيادة" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Plan and manage day-to-day workshop operations and production schedules, ensuring on-time delivery for event setups.",
+          "Oversee all fabrication teams — carpentry, metalwork and welding, printing, foam works, and painting — building custom, high-end scenic elements.",
+          "Enforce quality standards and final inspections before dispatch to event venues.",
+          "Lead, mentor, and allocate the workshop workforce; conduct performance reviews and manage staffing to workload.",
+          "Enforce HSE protocols, maintain workshop machinery through preventative maintenance, and control materials inventory and budgets.",
+          "Report workshop performance and production KPIs to senior management."
+        ],
+        "ar": [
+          "تخطيط وإدارة عمليات الورشة اليومية وجداول الإنتاج وضمان التسليم في الموعد لتجهيزات الفعاليات.",
+          "الإشراف على كل فرق التصنيع — النجارة، الحدادة واللحام، الطباعة، أعمال الفوم، والدهان — لبناء عناصر مشهدية مخصصة عالية الجودة.",
+          "فرض معايير الجودة والفحص النهائي قبل الشحن إلى مواقع الفعاليات.",
+          "قيادة وتوجيه وتوزيع القوى العاملة في الورشة وإجراء تقييمات الأداء وإدارة التوظيف حسب حجم العمل.",
+          "تطبيق اشتراطات الصحة والسلامة المهنية، وصيانة معدات الورشة وقائياً، وضبط مخزون المواد والميزانيات.",
+          "رفع تقارير أداء الورشة ومؤشرات الإنتاج للإدارة العليا."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "15+ years in fabrication operations, with strong preference for the events industry.",
+          "Proficiency reading engineering drawings, blueprints, and CAD files; knowledge of printing, carpentry, steel fabrication, foam works, and finishing.",
+          "Experience with ERP/MRP systems and Microsoft Office.",
+          "Proven team leadership under high pressure and tight event deadlines; bachelor's degree in production management or industrial engineering preferred."
+        ],
+        "ar": [
+          "خبرة 15+ سنة في عمليات التصنيع، ويفضَّل بقوة خبرة قطاع الفعاليات.",
+          "إتقان قراءة الرسومات الهندسية والمخططات وملفات CAD، ومعرفة بالطباعة والنجارة وتصنيع الحديد وأعمال الفوم والتشطيبات.",
+          "خبرة في أنظمة ERP/MRP وبرامج مايكروسوفت أوفيس.",
+          "قدرة قيادية مثبتة تحت الضغط ومواعيد الفعاليات الضيقة؛ يفضَّل بكالوريوس إدارة إنتاج أو هندسة صناعية."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-production-manager",
+      "group": "management",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Production", "ar": "السعودية · إنتاج" },
+      "title": { "en": "Production Manager — Events Fabrication", "ar": "مدير إنتاج — تصنيع فعاليات" },
+      "summary": { "en": "Own the full production cycle of event structures, exhibition stands, sets, and custom props — from design interpretation to final installation.", "ar": "إدارة دورة الإنتاج الكاملة لهياكل الفعاليات وأجنحة المعارض والديكورات والمجسمات المخصصة — من قراءة التصميم حتى التركيب النهائي." },
+      "meta": { "en": "Full-time · 10+ years events production · Multi-discipline workshop", "ar": "دوام كامل · خبرة 10+ سنوات إنتاج فعاليات · ورشة متعددة التخصصات" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Develop and manage production schedules based on factory capacity, ensuring on-time delivery.",
+          "Review technical drawings with the design team to ensure production feasibility.",
+          "Supervise, train, and mentor workshop staff across carpentry, metal fabrication, printing, foam, and painting.",
+          "Manage materials, inventory, budgets, and cost estimates; reduce wastage.",
+          "Enforce quality standards and HSE compliance; inspect final outputs before dispatch.",
+          "Pre-plan and oversee on-site installation and dismantlement; report weekly to management."
+        ],
+        "ar": [
+          "إعداد وإدارة جداول الإنتاج وفق طاقة المصنع وضمان التسليم في الموعد.",
+          "مراجعة الرسومات الفنية مع فريق التصميم لضمان قابلية التنفيذ.",
+          "الإشراف على فرق الورشة وتدريبها في النجارة وتصنيع المعادن والطباعة والفوم والدهان.",
+          "إدارة المواد والمخزون والميزانيات وتقديرات التكلفة وتقليل الهدر.",
+          "فرض معايير الجودة والامتثال لاشتراطات السلامة وفحص المخرجات النهائية قبل الشحن.",
+          "التخطيط المسبق والإشراف على التركيب والفك في المواقع، ورفع تقارير أسبوعية للإدارة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "10+ years as a production manager in the events industry across carpentry, metalwork, printing, foam, and painting shops.",
+          "Deep understanding of fabrication techniques and material sourcing.",
+          "MS Office required; CAD or ERP experience preferred.",
+          "Strong team management; bachelor's degree in engineering or production management preferred."
+        ],
+        "ar": [
+          "خبرة 10+ سنوات مديرَ إنتاج في قطاع الفعاليات عبر أقسام النجارة والمعادن والطباعة والفوم والدهان.",
+          "فهم عميق لتقنيات التصنيع وتوريد المواد.",
+          "إتقان أوفيس؛ ويفضَّل خبرة CAD أو ERP.",
+          "قدرة قوية على إدارة الفرق؛ ويفضَّل بكالوريوس هندسة أو إدارة إنتاج."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-installation-manager",
+      "group": "management",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Installation", "ar": "السعودية · تركيب" },
+      "title": { "en": "Installation Manager — Events", "ar": "مدير تركيب — فعاليات" },
+      "summary": { "en": "Plan and lead on-site installation of custom-built scenic elements, exhibits, and event structures — crews, logistics, safety, and client liaison.", "ar": "تخطيط وقيادة تركيب العناصر المشهدية والمعارض وهياكل الفعاليات في المواقع — إدارة الفرق واللوجستيات والسلامة والتنسيق مع العميل." },
+      "meta": { "en": "Full-time · 10+ years events installation · Site leadership", "ar": "دوام كامل · خبرة 10+ سنوات تركيب فعاليات · قيادة مواقع" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Conduct site surveys, plan load-in/load-out logistics, and verify structural requirements.",
+          "Direct installations to design specifications, timelines, and quality standards; troubleshoot site obstacles in real time.",
+          "Supervise internal installation crews and subcontractors; enforce safety protocols and PPE.",
+          "Act as primary contact for clients, project managers, and venue staff during installation.",
+          "Coordinate with the workshop so fabricated items are ready, packed, and shipped correctly.",
+          "Prepare daily progress reports, snag lists, and post-installation documentation."
+        ],
+        "ar": [
+          "إجراء معاينات المواقع وتخطيط لوجستيات الإدخال والإخراج والتحقق من المتطلبات الإنشائية.",
+          "إدارة التركيب وفق مواصفات التصميم والجداول ومعايير الجودة، وحل مشكلات الموقع فورياً.",
+          "الإشراف على فرق التركيب والمقاولين من الباطن، وتطبيق بروتوكولات السلامة ومعدات الوقاية.",
+          "تمثيل نقطة التواصل الأساسية مع العملاء ومديري المشاريع وإدارة المواقع أثناء التركيب.",
+          "التنسيق مع الورشة لضمان جاهزية القطع وتغليفها وشحنها بشكل صحيح.",
+          "إعداد تقارير التقدم اليومية وقوائم الملاحظات وتوثيق ما بعد التركيب."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "10+ years as installation manager in events, scenery construction, or exhibition fabrication.",
+          "Reads technical drawings, blueprints, and CAD files; strong knowledge of carpentry, metal fabrication, branding works, and painting.",
+          "Proven leadership of teams and subcontractors in high-pressure environments.",
+          "Experience with material handling, transport, and site logistics; MS Office, with MS Project or AutoCAD a plus."
+        ],
+        "ar": [
+          "خبرة 10+ سنوات مديرَ تركيب في الفعاليات أو بناء الديكورات المشهدية أو تصنيع المعارض.",
+          "قراءة الرسومات الفنية والمخططات وملفات CAD، ومعرفة قوية بالنجارة وتصنيع المعادن وأعمال البراندنج والدهان.",
+          "قيادة مثبتة للفرق والمقاولين في بيئات عالية الضغط.",
+          "خبرة في مناولة المواد والنقل ولوجستيات المواقع؛ إتقان أوفيس، وتعد MS Project أو AutoCAD ميزة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-engineering-manager",
+      "group": "management",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Engineering", "ar": "السعودية · هندسة" },
+      "title": { "en": "Engineering Manager — Events Fabrication", "ar": "مدير هندسة — تصنيع فعاليات" },
+      "summary": { "en": "Lead the technical team turning artistic concepts into safe, buildable event structures — CAD, shop drawings, structural analysis, and design-for-fabrication.", "ar": "قيادة الفريق الفني لتحويل المفاهيم الإبداعية إلى هياكل فعاليات آمنة وقابلة للتنفيذ — CAD، رسومات تنفيذية، تحليل إنشائي، وتصميم قابل للتصنيع." },
+      "meta": { "en": "Full-time · 10+ years scenic engineering · AutoCAD/SolidWorks", "ar": "دوام كامل · خبرة 10+ سنوات هندسة مشهدية · AutoCAD/SolidWorks" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Lead designers and engineers translating briefs and renderings into accurate 2D/3D shop drawings (AutoCAD, Inventor, SolidWorks).",
+          "Perform and review structural analysis and load calculations for custom structures, rigging points, and suspended elements.",
+          "Apply design-for-fabrication principles to optimize efficiency, material usage, and cost.",
+          "Generate BOMs and CNC programs; review all fabrication drawings before release to production.",
+          "Ensure products meet fire, structural, and public-venue safety codes.",
+          "Support cost estimation, procurement coordination, and the engineering change process."
+        ],
+        "ar": [
+          "قيادة المصممين والمهندسين في تحويل الموجزات والتصورات إلى رسومات تنفيذية دقيقة ثنائية وثلاثية الأبعاد (AutoCAD وInventor وSolidWorks).",
+          "إجراء ومراجعة التحليل الإنشائي وحسابات الأحمال للهياكل المخصصة ونقاط التعليق والعناصر المعلّقة.",
+          "تطبيق مبادئ التصميم القابل للتصنيع لتحسين الكفاءة واستهلاك المواد والتكلفة.",
+          "إعداد قوائم المواد وبرامج CNC ومراجعة كل رسومات التصنيع قبل إطلاقها للإنتاج.",
+          "ضمان مطابقة المنتجات لاشتراطات السلامة الإنشائية والحريق والأماكن العامة.",
+          "دعم تقدير التكاليف والتنسيق مع المشتريات وإدارة التغييرات الهندسية."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "10+ years as an engineering manager in custom event fabrication or scenic workshops.",
+          "Strong materials engineering knowledge (metals, plastics, wood) and fabrication processes: welding, carpentry, foam, printing, painting.",
+          "Advanced AutoCAD, SolidWorks, Inventor; SAP experience valued.",
+          "Bachelor's degree in mechanical or structural engineering."
+        ],
+        "ar": [
+          "خبرة 10+ سنوات مديرَ هندسة في تصنيع الفعاليات المخصصة أو ورش الديكور المشهدي.",
+          "معرفة قوية بهندسة المواد (معادن، بلاستيك، خشب) وعمليات التصنيع: اللحام والنجارة والفوم والطباعة والدهان.",
+          "مستوى متقدم في AutoCAD وSolidWorks وInventor؛ وتُعد خبرة SAP ميزة.",
+          "بكالوريوس هندسة ميكانيكية أو إنشائية."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-quality-manager",
+      "group": "management",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Quality", "ar": "السعودية · جودة" },
+      "title": { "en": "Quality Manager — Events Fabrication", "ar": "مدير جودة — تصنيع فعاليات" },
+      "summary": { "en": "Build and run the quality system for custom event structures — from raw materials to final installed products, with a correct-at-source culture.", "ar": "بناء وإدارة نظام الجودة لهياكل الفعاليات المخصصة — من المواد الخام حتى المنتج المركّب نهائياً، بثقافة الإتقان من المصدر." },
+      "meta": { "en": "Full-time · 10+ years QA/QC · ISO 9001 preferred", "ar": "دوام كامل · خبرة 10+ سنوات جودة · يفضَّل ISO 9001" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Develop and enforce a quality management system with SOPs for carpentry, metal fabrication, printing, foam, painting, and assembly.",
+          "Join design reviews to catch feasibility and structural issues early; verify compliance with safety and legal standards.",
+          "Run in-process audits and final inspections of bespoke structures before shipping.",
+          "Inspect incoming raw materials; lead root-cause investigations and corrective actions on non-conforming items.",
+          "Maintain records for client certifications, material traceability, and safety audits."
+        ],
+        "ar": [
+          "تطوير وتطبيق نظام إدارة جودة بإجراءات تشغيل قياسية للنجارة وتصنيع المعادن والطباعة والفوم والدهان والتجميع.",
+          "المشاركة في مراجعات التصميم لاكتشاف مشكلات القابلية للتنفيذ والإنشائية مبكراً والتحقق من الامتثال لمعايير السلامة والأنظمة.",
+          "تنفيذ تدقيقات أثناء التصنيع وفحوصات نهائية للهياكل المخصصة قبل الشحن.",
+          "فحص المواد الخام الواردة وقيادة تحليل الأسباب الجذرية والإجراءات التصحيحية للحالات غير المطابقة.",
+          "حفظ سجلات شهادات العملاء وتتبع المواد وتدقيقات السلامة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "10+ years in QA/QC management, preferably in event fabrication or construction.",
+          "Strong grasp of welding and/or carpentry, finishing techniques, and blueprint interpretation.",
+          "ISO 9001 lead auditor training highly desirable.",
+          "Excel reporting; CAD/CAM familiarity a plus; experience leading inspectors and technicians."
+        ],
+        "ar": [
+          "خبرة 10+ سنوات في إدارة الجودة، ويفضَّل في تصنيع الفعاليات أو الإنشاءات.",
+          "إلمام قوي باللحام و/أو النجارة وتقنيات التشطيب وقراءة المخططات.",
+          "يفضَّل بشدة تدريب كبير مدققي ISO 9001.",
+          "تقارير عبر Excel؛ ومعرفة CAD/CAM ميزة؛ وخبرة في قيادة المفتشين والفنيين."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-maintenance-manager",
+      "group": "management",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Maintenance", "ar": "السعودية · صيانة" },
+      "title": { "en": "Maintenance Manager (Mechatronics) — Fabrication Workshop", "ar": "مدير صيانة (ميكاترونكس) — ورشة تصنيع" },
+      "summary": { "en": "Lead maintenance for all fabrication equipment and facility infrastructure — preventative maintenance program, breakdown response, and safety.", "ar": "قيادة صيانة كل معدات التصنيع والبنية التحتية للمنشأة — برنامج صيانة وقائية، استجابة للأعطال، وسلامة." },
+      "meta": { "en": "Full-time · 10+ years industrial maintenance · Mechatronics degree", "ar": "دوام كامل · خبرة 10+ سنوات صيانة صناعية · بكالوريوس ميكاترونكس" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Develop and run a preventative maintenance program for CNC routers, welders, saws, and pneumatic tools.",
+          "Troubleshoot mechanical, electrical, hydraulic, and pneumatic breakdowns to minimize downtime.",
+          "Maintain the facility: lighting, HVAC, electrical, and compressed air systems; manage expansion projects.",
+          "Lead maintenance technicians; manage external contractors and spare-parts inventory.",
+          "Track work in a CMMS and manage the annual maintenance budget; enforce safety standards."
+        ],
+        "ar": [
+          "تطوير وتشغيل برنامج صيانة وقائية لراوترات CNC وماكينات اللحام والمناشير والأدوات الهوائية.",
+          "معالجة الأعطال الميكانيكية والكهربائية والهيدروليكية والهوائية لتقليل التوقف.",
+          "صيانة المنشأة: الإنارة والتكييف والكهرباء وأنظمة الهواء المضغوط، وإدارة مشاريع التوسعة.",
+          "قيادة فنيي الصيانة وإدارة المقاولين الخارجيين ومخزون قطع الغيار.",
+          "توثيق الأعمال في نظام CMMS وإدارة ميزانية الصيانة السنوية وتطبيق معايير السلامة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "10+ years in industrial/manufacturing maintenance management, preferably custom fabrication.",
+          "Strong electrical, mechanical, hydraulic, and pneumatic systems knowledge.",
+          "Direct experience with CNC routers, laser cutters, woodworking and metalworking equipment.",
+          "CMMS proficiency; bachelor's degree in mechatronics engineering."
+        ],
+        "ar": [
+          "خبرة 10+ سنوات في إدارة الصيانة الصناعية/التصنيعية، ويفضَّل في التصنيع المخصص.",
+          "معرفة قوية بالأنظمة الكهربائية والميكانيكية والهيدروليكية والهوائية.",
+          "خبرة مباشرة مع راوترات CNC وقواطع الليزر ومعدات النجارة وتشغيل المعادن.",
+          "إتقان أنظمة CMMS؛ وبكالوريوس هندسة ميكاترونكس."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-warehouse-manager",
+      "group": "logistics",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Warehouse", "ar": "السعودية · مستودعات" },
+      "title": { "en": "Warehouse Manager — Events Fabrication", "ar": "مدير مستودع — تصنيع فعاليات" },
+      "summary": { "en": "Manage receiving, storage, and dispatch of raw materials and high-value finished event assets on tight, project-based deadlines.", "ar": "إدارة استلام وتخزين وشحن المواد الخام والأصول الجاهزة عالية القيمة للفعاليات ضمن مواعيد مشاريع ضيقة." },
+      "meta": { "en": "Full-time · 10+ years warehouse management · WMS", "ar": "دوام كامل · خبرة 10+ سنوات إدارة مستودعات · WMS" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Coordinate inbound materials and high-priority delivery of finished projects to event sites.",
+          "Track and audit stock of raw materials (lumber, metal, foam, fabric), consumables, and reusable event assets.",
+          "Optimize storage layouts for large, unique, or fragile event pieces.",
+          "Inspect incoming materials; oversee packing, loading, and secure transport of finished goods.",
+          "Lead and train warehouse staff; enforce safety standards; maintain digital inventory records."
+        ],
+        "ar": [
+          "تنسيق المواد الواردة والتسليم العاجل للمشاريع الجاهزة إلى مواقع الفعاليات.",
+          "تتبع وجرد مخزون المواد الخام (خشب، معادن، فوم، أقمشة) والمستهلكات والأصول القابلة لإعادة الاستخدام.",
+          "تحسين تخطيط التخزين للقطع الكبيرة أو الفريدة أو القابلة للكسر.",
+          "فحص المواد الواردة والإشراف على التغليف والتحميل والنقل الآمن للمنتجات الجاهزة.",
+          "قيادة وتدريب فريق المستودع وتطبيق معايير السلامة وحفظ سجلات مخزون رقمية."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "10+ years of warehouse management, preferably in event fabrication.",
+          "Bachelor's degree in logistics, business administration, or related field.",
+          "Strong WMS and MS Office proficiency.",
+          "Basic understanding of event construction materials; leadership under deadline pressure."
+        ],
+        "ar": [
+          "خبرة 10+ سنوات في إدارة المستودعات، ويفضَّل في تصنيع الفعاليات.",
+          "بكالوريوس لوجستيات أو إدارة أعمال أو تخصص ذي صلة.",
+          "إتقان قوي لأنظمة WMS وبرامج أوفيس.",
+          "فهم أساسي لمواد بناء الفعاليات وقيادة الفرق تحت ضغط المواعيد."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-design-engineer",
+      "group": "engineering",
+      "openings": 6,
+      "tag": { "en": "Saudi Arabia · Engineering", "ar": "السعودية · هندسة" },
+      "title": { "en": "Technical Design Engineer — Events", "ar": "مهندس تصميم فني — فعاليات" },
+      "summary": { "en": "Translate creative concepts into build-ready CAD drawings for events, exhibitions, and activations — the bridge between design and the workshop floor.", "ar": "تحويل المفاهيم الإبداعية إلى رسومات CAD جاهزة للتنفيذ للفعاليات والمعارض والتفعيلات — حلقة الوصل بين التصميم وأرضية الورشة." },
+      "meta": { "en": "Full-time · 5+ years custom fabrication · SolidWorks/AutoCAD", "ar": "دوام كامل · خبرة 5+ سنوات تصنيع مخصص · SolidWorks/AutoCAD" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Produce detailed production drawings, 3D concepts, and construction plans in AutoCAD/SolidWorks.",
+          "Perform structural analysis and load calculations for custom structures, rigging points, and suspended elements.",
+          "Design prototypes, jigs, and fixtures for efficient assembly.",
+          "Ensure designs are structurally sound and compliant with event and H&S regulations.",
+          "Create bills of materials, select materials, and keep engineering records and as-built drawings current."
+        ],
+        "ar": [
+          "إنتاج رسومات إنتاج تفصيلية وتصورات ثلاثية الأبعاد وخطط تنفيذ عبر AutoCAD/SolidWorks.",
+          "إجراء التحليل الإنشائي وحسابات الأحمال للهياكل المخصصة ونقاط التعليق والعناصر المعلّقة.",
+          "تصميم نماذج أولية وقوالب وتجهيزات لتسهيل التجميع.",
+          "ضمان سلامة التصاميم إنشائياً وامتثالها لأنظمة الفعاليات والصحة والسلامة.",
+          "إعداد قوائم المواد واختيارها وتحديث السجلات الهندسية ورسومات ما بعد التنفيذ."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in custom fabrication, scenic construction, exhibition design, or event production.",
+          "Bachelor's degree in mechanical engineering, industrial design, or related field.",
+          "Advanced 3D CAD (SolidWorks or Inventor), 2D AutoCAD, and Adobe Creative Suite.",
+          "Understanding of sheet metal, CNC machining, and carpentry processes; hands-on shop-floor attitude."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في التصنيع المخصص أو بناء الديكورات المشهدية أو تصميم المعارض أو إنتاج الفعاليات.",
+          "بكالوريوس هندسة ميكانيكية أو تصميم صناعي أو تخصص ذي صلة.",
+          "مستوى متقدم في CAD ثلاثي الأبعاد (SolidWorks أو Inventor) وAutoCAD وحزمة أدوبي.",
+          "فهم عمليات الصاج وCNC والنجارة، وروح عملية على أرضية الورشة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-logistics-supervisor",
+      "group": "logistics",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Logistics", "ar": "السعودية · لوجستيات" },
+      "title": { "en": "Logistics Supervisor — Events", "ar": "مشرف لوجستيات — فعاليات" },
+      "summary": { "en": "Coordinate end-to-end movement, storage, and setup of materials and equipment for events — from workshop to site and back.", "ar": "تنسيق حركة وتخزين وتجهيز المواد والمعدات للفعاليات من الورشة إلى الموقع والعودة." },
+      "meta": { "en": "Full-time · 5+ years logistics/events · ERP", "ar": "دوام كامل · خبرة 5+ سنوات لوجستيات/فعاليات · ERP" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Develop logistics plans, timelines, and kit lists for event materials and equipment.",
+          "Supervise logistics for event setup, operation, and dismantling; ensure H&S compliance throughout.",
+          "Manage inventory, storage, and maintenance of event materials; run audits and cycle counts.",
+          "Lead logistics staff and manage 3PL providers and vendors to SLA.",
+          "Track budgets and analyze logistics data for efficiency improvements."
+        ],
+        "ar": [
+          "إعداد خطط لوجستية وجداول زمنية وقوائم تجهيز لمواد ومعدات الفعاليات.",
+          "الإشراف على لوجستيات التجهيز والتشغيل والفك وضمان الامتثال للسلامة في كل المراحل.",
+          "إدارة المخزون والتخزين وصيانة مواد الفعاليات وتنفيذ الجرد الدوري.",
+          "قيادة فريق اللوجستيات وإدارة مزودي الخدمات اللوجستية والموردين وفق اتفاقيات مستوى الخدمة.",
+          "متابعة الميزانيات وتحليل البيانات اللوجستية لتحسين الكفاءة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in logistics, warehouse management, or event operations.",
+          "Bachelor's degree in supply chain, logistics, or business administration preferred.",
+          "Strong Excel, ERP (e.g. SAP), and logistics software skills.",
+          "Solid grasp of transport management and inventory control; basic knowledge of event construction materials."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في اللوجستيات أو إدارة المستودعات أو عمليات الفعاليات.",
+          "يفضَّل بكالوريوس سلاسل إمداد أو لوجستيات أو إدارة أعمال.",
+          "مهارات قوية في Excel وأنظمة ERP (مثل SAP) وبرمجيات اللوجستيات.",
+          "إلمام متين بإدارة النقل وضبط المخزون ومعرفة أساسية بمواد بناء الفعاليات."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-store-keeper",
+      "group": "logistics",
+      "openings": 3,
+      "tag": { "en": "Saudi Arabia · Stores", "ar": "السعودية · مستودعات" },
+      "title": { "en": "Store Keeper — Events Workshop", "ar": "أمين مستودع — ورشة فعاليات" },
+      "summary": { "en": "Manage receipt, storage, and issuance of materials, tools, and equipment for events, exhibitions, and fit-out projects.", "ar": "إدارة استلام وتخزين وصرف المواد والأدوات والمعدات لمشاريع الفعاليات والمعارض والتجهيز." },
+      "meta": { "en": "Full-time · 5+ years storekeeping · WMS", "ar": "دوام كامل · خبرة 5+ سنوات أمانة مستودع · WMS" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Receive goods against purchase orders; inspect for damage and discrepancies.",
+          "Issue materials and tools to production, installation, and site teams on approved requests.",
+          "Keep accurate stock records; run daily and monthly physical counts and reconciliations.",
+          "Coordinate packing and loading for transport to venues; process returns after events.",
+          "Maintain a clean, safe store; prepare stock reports, MRRs, and issue vouchers."
+        ],
+        "ar": [
+          "استلام البضائع مقابل أوامر الشراء وفحصها من التلف والفروقات.",
+          "صرف المواد والأدوات لفرق الإنتاج والتركيب والمواقع وفق الطلبات المعتمدة.",
+          "حفظ سجلات مخزون دقيقة وتنفيذ جرد فعلي يومي وشهري مع المطابقة.",
+          "تنسيق التغليف والتحميل للنقل إلى المواقع ومعالجة المرتجعات بعد الفعاليات.",
+          "الحفاظ على مستودع نظيف وآمن وإعداد تقارير المخزون ومحاضر الاستلام وسندات الصرف."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years as a store keeper, preferably in event fabrication.",
+          "Degree or diploma in logistics, business administration, or related field.",
+          "WMS and MS Office proficiency.",
+          "Basic knowledge of event construction materials; organized under deadline pressure."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات أمينَ مستودع، ويفضَّل في تصنيع الفعاليات.",
+          "شهادة جامعية أو دبلوم في اللوجستيات أو إدارة الأعمال أو تخصص ذي صلة.",
+          "إتقان أنظمة WMS وبرامج أوفيس.",
+          "معرفة أساسية بمواد بناء الفعاليات وتنظيم عالٍ تحت ضغط المواعيد."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-installation-team-leader",
+      "group": "leaders",
+      "openings": 5,
+      "tag": { "en": "Saudi Arabia · Installation", "ar": "السعودية · تركيب" },
+      "title": { "en": "Installation Team Leader — Events", "ar": "قائد فريق تركيب — فعاليات" },
+      "summary": { "en": "Hands-on leadership of on-site installs: ship, assemble, and deliver fabricated event sets safely, on time, and to spec.", "ar": "قيادة ميدانية لفرق التركيب في المواقع: شحن وتجميع وتسليم تجهيزات الفعاليات بأمان وفي الموعد وحسب المواصفات." },
+      "meta": { "en": "Full-time · 5+ years events/scenic · Site leadership", "ar": "دوام كامل · خبرة 5+ سنوات فعاليات/ديكور مشهدي · قيادة مواقع" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Plan and schedule on-site execution; ensure components are pre-assembled and tested before dispatch.",
+          "Supervise packing, loading, and securement of event assets for transit.",
+          "Lead daily site operations, allocating tasks to fabricators, carpenters, and technicians.",
+          "Enforce RAMS, PPE, and safe machinery handling on site; keep the site clean and organized (5S).",
+          "Inspect installed work against design specifications and quality standards; liaise with project managers and site management."
+        ],
+        "ar": [
+          "تخطيط وجدولة التنفيذ في الموقع وضمان التجميع المسبق واختبار المكونات قبل الشحن.",
+          "الإشراف على تغليف وتحميل وتثبيت أصول الفعاليات أثناء النقل.",
+          "قيادة العمليات اليومية بالموقع وتوزيع المهام على الفنيين والنجارين والمُصنّعين.",
+          "تطبيق تقييمات المخاطر ومعدات الوقاية والتعامل الآمن مع المعدات، والحفاظ على موقع منظم (5S).",
+          "فحص الأعمال المركّبة مقابل مواصفات التصميم ومعايير الجودة والتنسيق مع مديري المشاريع وإدارة الموقع."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in event production, theatrical scenic construction, or exhibition fabrication.",
+          "Deep knowledge of carpentry, metalwork, rigging, AV, lighting, or scenic paint.",
+          "Reads technical drawings, CAD files, and design specifications.",
+          "H&S qualifications (IOSH, OSHA, IPAF, or PASMA) valued; strong leadership under pressure."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في إنتاج الفعاليات أو الديكور المسرحي أو تصنيع المعارض.",
+          "معرفة عميقة بالنجارة أو المعادن أو الريجينج أو الصوتيات والإضاءة أو الدهان المشهدي.",
+          "قراءة الرسومات الفنية وملفات CAD ومواصفات التصميم.",
+          "تُقدَّر شهادات السلامة (IOSH أو OSHA أو IPAF أو PASMA)؛ وقيادة قوية تحت الضغط."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-carpentry-team-leader",
+      "group": "leaders",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Carpentry", "ar": "السعودية · نجارة" },
+      "title": { "en": "Carpentry Team Leader — Events Workshop", "ar": "قائد فريق نجارة — ورشة فعاليات" },
+      "summary": { "en": "Lead the carpentry section building scenic elements, custom displays, and furniture — hands-on, quality-first, deadline-driven.", "ar": "قيادة قسم النجارة لبناء العناصر المشهدية والمجسمات والأثاث المخصص — عمل ميداني بجودة عالية ومواعيد صارمة." },
+      "meta": { "en": "Full-time · 5+ years scenic carpentry · Team leadership", "ar": "دوام كامل · خبرة 5+ سنوات نجارة مشهدية · قيادة فريق" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Lead, mentor, and task the carpentry team to meet tight event deadlines; run daily toolbox talks.",
+          "Build, repair, and modify scenery, exhibit stands, and props in wood, laminates, plastics, and metal.",
+          "Work from technical drawings, CAD files, and designer sketches; deliver show-ready finishes.",
+          "Operate and maintain shop equipment (table saws, routers, CNC, pneumatic tools) safely.",
+          "Inspect finished work, manage section materials, and support on-site installation at peak times."
+        ],
+        "ar": [
+          "قيادة فريق النجارة وتوجيهه وتوزيع مهامه لتلبية مواعيد الفعاليات الضيقة مع اجتماعات سلامة يومية.",
+          "بناء وإصلاح وتعديل الديكورات وأجنحة المعارض والمجسمات بالخشب واللامينيت والبلاستيك والمعادن.",
+          "العمل من الرسومات الفنية وملفات CAD واسكتشات المصممين وتسليم تشطيبات جاهزة للعرض.",
+          "تشغيل وصيانة معدات الورشة (مناشير، راوترات، CNC، أدوات هوائية) بأمان.",
+          "فحص الأعمال الجاهزة وإدارة مواد القسم ودعم التركيب في المواقع وقت الذروة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in scenic carpentry or exhibit fabrication in a high-paced workshop.",
+          "Proven team leadership with strong communication.",
+          "Proficient in reading technical drawings; woodworking and scenic finishing skills.",
+          "ERP/inventory software basics and Excel reporting a plus."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في النجارة المشهدية أو تصنيع المعارض في ورشة سريعة الإيقاع.",
+          "قيادة فريق مثبتة مع مهارات تواصل قوية.",
+          "إتقان قراءة الرسومات الفنية ومهارات النجارة والتشطيب المشهدي.",
+          "تُعد أساسيات ERP وتقارير Excel ميزة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-steel-team-leader",
+      "group": "leaders",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Steel & Welding", "ar": "السعودية · حدادة ولحام" },
+      "title": { "en": "Steel Fabrication Team Leader — Events Workshop", "ar": "قائد فريق تصنيع حديد — ورشة فعاليات" },
+      "summary": { "en": "Lead the steel section fabricating custom structures, rigging frames, and scenic supports with MIG/TIG welding to show-quality finish.", "ar": "قيادة قسم الحديد لتصنيع الهياكل المخصصة وإطارات التعليق والدعامات المشهدية بلحام MIG/TIG وبتشطيب جاهز للعرض." },
+      "meta": { "en": "Full-time · 5+ years metal fabrication · MIG/TIG", "ar": "دوام كامل · خبرة 5+ سنوات تصنيع معادن · MIG/TIG" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Lead and task the steel fabrication team; run daily toolbox talks on status, safety, and goals.",
+          "Read CAD drawings, blueprints, and engineering specs to ensure accurate fabrication.",
+          "Cut, shape, weld, grind, and finish steel structures using MIG/TIG, grinders, and plasma cutters.",
+          "Inspect components for structural integrity and safety compliance before dispatch.",
+          "Coordinate with installation teams for seamless on-site fit; manage section materials and machinery upkeep."
+        ],
+        "ar": [
+          "قيادة فريق تصنيع الحديد وتوزيع المهام مع اجتماعات يومية حول الحالة والسلامة والأهداف.",
+          "قراءة رسومات CAD والمخططات والمواصفات الهندسية لضمان دقة التصنيع.",
+          "قص وتشكيل ولحام وجلخ وتشطيب الهياكل الحديدية بلحام MIG/TIG والجلاخات وقواطع البلازما.",
+          "فحص المكونات للتأكد من السلامة الإنشائية والامتثال قبل الشحن.",
+          "التنسيق مع فرق التركيب لضمان التطابق في الموقع وإدارة مواد القسم وصيانة معداته."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in metalwork for scenic construction or exhibit fabrication, reading technical drawings.",
+          "Proven team leadership with strong communication.",
+          "Hands-on MIG/TIG welding and finishing expertise.",
+          "ERP/inventory software basics and Excel reporting a plus."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في أعمال المعادن للديكور المشهدي أو تصنيع المعارض مع قراءة الرسومات الفنية.",
+          "قيادة فريق مثبتة مع مهارات تواصل قوية.",
+          "خبرة عملية في لحام MIG/TIG والتشطيب.",
+          "تُعد أساسيات ERP وتقارير Excel ميزة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-printing-team-leader",
+      "group": "leaders",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Printing", "ar": "السعودية · طباعة" },
+      "title": { "en": "Printing Team Leader — Events Workshop", "ar": "قائد فريق طباعة — ورشة فعاليات" },
+      "summary": { "en": "Lead the large-format printing section producing graphics, signage, and branding for events — machines, people, color, and deadlines.", "ar": "قيادة قسم الطباعة كبيرة الحجم لإنتاج الجرافيك واللوحات والبراندنج للفعاليات — إدارة الماكينات والفريق والألوان والمواعيد." },
+      "meta": { "en": "Full-time · 5+ years large-format printing · Team leadership", "ar": "دوام كامل · خبرة 5+ سنوات طباعة كبيرة الحجم · قيادة فريق" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Lead the printing team; allocate daily tasks and run toolbox talks.",
+          "Operate large-format inkjet, UV flatbed printers, and vinyl plotters (Durst, HP Latex class).",
+          "Prepare machines and substrates; monitor runs for color consistency and registration.",
+          "Oversee post-print finishing: trimming, laminating, mounting to rigid substrates, weeding vinyl.",
+          "Run equipment maintenance schedules; keep a safe workspace with proper ink and solvent handling."
+        ],
+        "ar": [
+          "قيادة فريق الطباعة وتوزيع المهام اليومية وعقد اجتماعات السلامة.",
+          "تشغيل طابعات الإنكجت كبيرة الحجم وطابعات UV المسطحة وكاتر الفينيل (فئة Durst وHP Latex).",
+          "تجهيز الماكينات والخامات ومراقبة التشغيل لثبات الألوان ودقة المحاذاة.",
+          "الإشراف على التشطيب بعد الطباعة: القص والتغليف والتركيب على الخامات الصلبة وتنظيف الفينيل.",
+          "إدارة جداول صيانة المعدات والحفاظ على بيئة عمل آمنة مع التعامل السليم مع الأحبار والمذيبات."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years leading large-format print production for events, exhibitions, or activations.",
+          "Proven team leadership with strong communication.",
+          "Deep knowledge of substrates, inks, and finishing processes.",
+          "ERP/inventory software basics and Excel reporting a plus."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في قيادة إنتاج الطباعة كبيرة الحجم للفعاليات أو المعارض أو التفعيلات.",
+          "قيادة فريق مثبتة مع مهارات تواصل قوية.",
+          "معرفة عميقة بالخامات والأحبار وعمليات التشطيب.",
+          "تُعد أساسيات ERP وتقارير Excel ميزة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-foam-team-leader",
+      "group": "leaders",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Foam Sculpting", "ar": "السعودية · نحت فوم" },
+      "title": { "en": "Foam Fabrication Team Leader — Events Workshop", "ar": "قائد فريق نحت وتصنيع فوم — ورشة فعاليات" },
+      "summary": { "en": "Lead the foam section turning EPS/PU foam into detailed 3D props and large-scale scenic structures with CNC and hand-carving.", "ar": "قيادة قسم الفوم لتحويل فوم EPS/PU إلى مجسمات ثلاثية الأبعاد وهياكل مشهدية ضخمة عبر CNC والنحت اليدوي." },
+      "meta": { "en": "Full-time · 5+ years foam sculpting/prop-making · Team leadership", "ar": "دوام كامل · خبرة 5+ سنوات نحت فوم ومجسمات · قيادة فريق" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Lead the foam fabrication team; allocate tasks and run daily toolbox talks.",
+          "Interpret drawings, 3D models, and sketches into accurately scaled physical props.",
+          "Carve and sculpt foam with 3D robots, hot wire cutters, rasps, and rotary tools; assemble large-scale structures.",
+          "Apply detailing, textures, and hard coatings (polyurea, epoxy, sand-coat) for durability.",
+          "Work with designers, painters, and welders to integrate armatures and electrical components; maintain specialized machinery."
+        ],
+        "ar": [
+          "قيادة فريق تصنيع الفوم وتوزيع المهام وعقد اجتماعات السلامة اليومية.",
+          "تحويل الرسومات والنماذج ثلاثية الأبعاد والاسكتشات إلى مجسمات فعلية بمقاسات دقيقة.",
+          "نحت وتشكيل الفوم بروبوتات ثلاثية الأبعاد وقواطع السلك الحراري والمباشط والأدوات الدوارة وتجميع الهياكل الضخمة.",
+          "تنفيذ التفاصيل والخامات والطلاءات الصلبة (بوليوريا، إيبوكسي، ساند كوت) لضمان المتانة.",
+          "العمل مع المصممين والدهانين واللحامين لدمج الهياكل المعدنية والمكونات الكهربائية وصيانة المعدات المتخصصة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years of professional foam sculpting, prop-making, or scenic art, ideally in events or film.",
+          "Proven team leadership with strong communication.",
+          "Expert hand-carving plus 3D robot and hot-wire operation; strong 3D visualization from 2D drawings.",
+          "Scenic painting and texturing proficiency; physical stamina for large materials."
+        ],
+        "ar": [
+          "خبرة احترافية 5+ سنوات في نحت الفوم أو صناعة المجسمات أو الفن المشهدي، ويفضَّل في الفعاليات أو السينما.",
+          "قيادة فريق مثبتة مع مهارات تواصل قوية.",
+          "إتقان النحت اليدوي وتشغيل الروبوتات ثلاثية الأبعاد والسلك الحراري وتصور ثلاثي الأبعاد قوي من الرسومات.",
+          "إتقان الدهان المشهدي والخامات ولياقة بدنية للتعامل مع المواد الكبيرة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-painting-team-leader",
+      "group": "leaders",
+      "openings": 1,
+      "tag": { "en": "Saudi Arabia · Painting", "ar": "السعودية · دهان" },
+      "title": { "en": "Painting Team Leader — Events Workshop", "ar": "قائد فريق دهان — ورشة فعاليات" },
+      "summary": { "en": "Lead the painting section: color matching, prep, spraying, and scenic finishes for custom-built elements, props, and structures.", "ar": "قيادة قسم الدهان: مطابقة الألوان والتجهيز والرش والتشطيبات المشهدية للعناصر والمجسمات والهياكل المخصصة." },
+      "meta": { "en": "Full-time · 5+ years scenic/industrial painting · Team leadership", "ar": "دوام كامل · خبرة 5+ سنوات دهان مشهدي/صناعي · قيادة فريق" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Lead the painting team; allocate tasks and run daily toolbox talks.",
+          "Prepare surfaces — clean, sand, fill, prime — across wood, metal, foam, and plastics.",
+          "Apply paints, enamels, varnishes, and lacquers with spray guns, rollers, and brushes.",
+          "Create custom scenic finishes, faux textures, and precise color matches.",
+          "Inspect finished surfaces; enforce HSE rules for chemical handling; maintain spray booths and equipment."
+        ],
+        "ar": [
+          "قيادة فريق الدهان وتوزيع المهام وعقد اجتماعات السلامة اليومية.",
+          "تجهيز الأسطح — تنظيف وصنفرة ومعجون وأساس — على الخشب والمعادن والفوم والبلاستيك.",
+          "تطبيق الدهانات والإينامل والورنيش واللاكيه بمسدسات الرش والرولات والفُرش.",
+          "تنفيذ تشطيبات مشهدية مخصصة وخامات محاكاة ومطابقة ألوان دقيقة.",
+          "فحص الأسطح النهائية وتطبيق قواعد السلامة في التعامل مع الكيماويات وصيانة كبائن الرش والمعدات."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years as a team leader in professional painting, ideally an event, fabrication, or scenic shop.",
+          "Proven team leadership with strong communication.",
+          "Proficiency with spray equipment, power tools, and sanders; exceptional finish quality.",
+          "ERP/inventory software basics and Excel reporting a plus."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات قائدَ فريق دهان محترف، ويفضَّل في ورش الفعاليات أو التصنيع أو الديكور المشهدي.",
+          "قيادة فريق مثبتة مع مهارات تواصل قوية.",
+          "إتقان معدات الرش والأدوات الكهربائية والصنفرة مع جودة تشطيب استثنائية.",
+          "تُعد أساسيات ERP وتقارير Excel ميزة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-carpenter",
+      "group": "technicians",
+      "openings": 35,
+      "tag": { "en": "Saudi Arabia · Carpentry", "ar": "السعودية · نجارة" },
+      "title": { "en": "Carpenter — Events Fabrication", "ar": "نجار — تصنيع فعاليات" },
+      "summary": { "en": "Build and finish custom scenic elements, exhibition stands, props, and furniture from technical drawings — precise, fast, show-ready.", "ar": "بناء وتشطيب العناصر المشهدية وأجنحة المعارض والمجسمات والأثاث المخصص من الرسومات الفنية — بدقة وسرعة وجاهزية للعرض." },
+      "meta": { "en": "Full-time · 3+ years scenic carpentry · 35 openings", "ar": "دوام كامل · خبرة 3+ سنوات نجارة مشهدية · 35 فرصة" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Build, repair, and modify scenery, exhibit stands, and props in wood, laminates, plastics, and metal.",
+          "Read and work from technical drawings, CAD files, and designer sketches.",
+          "Apply show-ready finishes: painting, laminating, and trimming.",
+          "Operate and maintain shop equipment: table saws, routers, CNC machines, pneumatic tools.",
+          "Pack and load items for transport; assist with on-site installation and strikes."
+        ],
+        "ar": [
+          "بناء وإصلاح وتعديل الديكورات وأجنحة المعارض والمجسمات بالخشب واللامينيت والبلاستيك والمعادن.",
+          "القراءة والعمل من الرسومات الفنية وملفات CAD واسكتشات المصممين.",
+          "تنفيذ تشطيبات جاهزة للعرض: دهان وتغليف وتشذيب.",
+          "تشغيل وصيانة معدات الورشة: مناشير الطاولة والراوترات وماكينات CNC والأدوات الهوائية.",
+          "تغليف وتحميل القطع للنقل والمساعدة في التركيب والفك بالمواقع."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "3+ years in scenic carpentry or custom exhibit fabrication.",
+          "Proficient woodworking, blueprint reading, and shop-tool operation.",
+          "Familiar with timber, MDF, plywood, plastics, steel, and aluminum.",
+          "Physical stamina for lifting, heights, and long standing; high safety awareness."
+        ],
+        "ar": [
+          "خبرة 3+ سنوات في النجارة المشهدية أو تصنيع المعارض المخصصة.",
+          "إتقان النجارة وقراءة المخططات وتشغيل أدوات الورشة.",
+          "إلمام بالخشب وMDF والأبلكاش والبلاستيك والحديد والألمنيوم.",
+          "لياقة بدنية للرفع والعمل على ارتفاعات والوقوف الطويل مع وعي عالٍ بالسلامة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-steel-fabricator",
+      "group": "technicians",
+      "openings": 6,
+      "tag": { "en": "Saudi Arabia · Steel & Welding", "ar": "السعودية · حدادة ولحام" },
+      "title": { "en": "Steel Fabricator / Welder — Events", "ar": "حداد / لحام — فعاليات" },
+      "summary": { "en": "Cut, weld, and assemble custom metal structures for stages, sets, and exhibition stands — MIG/TIG precision with public-facing finish quality.", "ar": "قص ولحام وتجميع الهياكل المعدنية المخصصة للمسارح والديكورات وأجنحة المعارض — دقة MIG/TIG وجودة تشطيب للعرض العام." },
+      "meta": { "en": "Full-time · 5+ years metal fabrication · MIG/TIG · 6 openings", "ar": "دوام كامل · خبرة 5+ سنوات تصنيع معادن · MIG/TIG · 6 فرص" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Fabricate custom structures, rigging frames, and scenic supports using MIG/TIG welding, grinders, and plasma cutters.",
+          "Read CAD drawings, blueprints, and engineering specifications for accurate fabrication.",
+          "Inspect and measure finished components for structural integrity and safety compliance.",
+          "Operate workshop machinery (brake presses, shears, drills) and material handling equipment safely.",
+          "Grind and finish for smooth, paint-ready surfaces; coordinate with installation teams."
+        ],
+        "ar": [
+          "تصنيع الهياكل المخصصة وإطارات التعليق والدعامات المشهدية بلحام MIG/TIG والجلاخات وقواطع البلازما.",
+          "قراءة رسومات CAD والمخططات والمواصفات الهندسية لضمان دقة التصنيع.",
+          "فحص وقياس المكونات الجاهزة للتأكد من السلامة الإنشائية والامتثال.",
+          "تشغيل معدات الورشة (مكابس الثني والمقصات والمثاقب) ومعدات المناولة بأمان.",
+          "الجلخ والتشطيب لأسطح ناعمة جاهزة للدهان والتنسيق مع فرق التركيب."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years in metal fabrication, preferably custom or light-structural steel.",
+          "Proficient MIG/TIG/stick welding; welding certification preferred.",
+          "Strong blueprint reading and precision for custom work.",
+          "Physical stamina for standing, lifting, and varied positions."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات في تصنيع المعادن، ويفضَّل الحديد المخصص أو الإنشائي الخفيف.",
+          "إتقان لحام MIG/TIG/العادي؛ ويفضَّل شهادة لحام.",
+          "قراءة قوية للمخططات ودقة عالية للأعمال المخصصة.",
+          "لياقة بدنية للوقوف والرفع والعمل بأوضاع متنوعة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-printing-operator",
+      "group": "technicians",
+      "openings": 6,
+      "tag": { "en": "Saudi Arabia · Printing", "ar": "السعودية · طباعة" },
+      "title": { "en": "Printing Operator — Large Format", "ar": "مشغل طباعة — كبيرة الحجم" },
+      "summary": { "en": "Produce high-quality large-format graphics, signage, and branding on digital printers, vinyl cutters, and finishing equipment.", "ar": "إنتاج جرافيك ولوحات وبراندنج كبيرة الحجم بجودة عالية على الطابعات الرقمية وكاتر الفينيل ومعدات التشطيب." },
+      "meta": { "en": "Full-time · 5+ years large-format printing · RIP software · 6 openings", "ar": "دوام كامل · خبرة 5+ سنوات طباعة كبيرة الحجم · برامج RIP · 6 فرص" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Operate large-format inkjet, UV flatbed printers, and vinyl plotters (Durst, HP Latex class).",
+          "Load substrates and inks; configure RIP software (ONYX, Caldera) for color, resolution, and quality.",
+          "Monitor runs for color consistency and registration; correct banding and misalignment.",
+          "Perform post-print finishing: trimming, laminating, mounting to rigid substrates, weeding vinyl.",
+          "Run daily/weekly maintenance on printheads and equipment; keep a clean, safe workspace."
+        ],
+        "ar": [
+          "تشغيل طابعات الإنكجت كبيرة الحجم وطابعات UV المسطحة وكاتر الفينيل (فئة Durst وHP Latex).",
+          "تحميل الخامات والأحبار وضبط برامج RIP (مثل ONYX وCaldera) للألوان والدقة والجودة.",
+          "مراقبة التشغيل لثبات الألوان ودقة المحاذاة ومعالجة العيوب فور ظهورها.",
+          "تنفيذ التشطيب بعد الطباعة: القص والتغليف والتركيب على الخامات الصلبة وتنظيف الفينيل.",
+          "صيانة يومية وأسبوعية لرؤوس الطباعة والمعدات والحفاظ على بيئة عمل نظيفة وآمنة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years as a large-format printer operator in a print shop or fabrication environment.",
+          "Proficient with RIP software (ONYX, Caldera) and Adobe Creative Suite.",
+          "Strong knowledge of print media, substrates, and ink types.",
+          "Mechanical aptitude, color-accuracy precision, and ability to lift heavy materials."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات مشغلَ طابعات كبيرة الحجم في مطبعة أو بيئة تصنيع.",
+          "إتقان برامج RIP (مثل ONYX وCaldera) وحزمة أدوبي.",
+          "معرفة قوية بخامات الطباعة والوسائط وأنواع الأحبار.",
+          "قدرة ميكانيكية ودقة في الألوان وقدرة على رفع المواد الثقيلة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-tailor",
+      "group": "technicians",
+      "openings": 3,
+      "tag": { "en": "Saudi Arabia · Fabric & Drapery", "ar": "السعودية · أقمشة ومفروشات" },
+      "title": { "en": "Tailor / Scenic Stitcher — Events", "ar": "خياط مشهدي — فعاليات" },
+      "summary": { "en": "Produce large-scale fabric installations — drapery, stage curtains, custom decor — for event production and trade shows.", "ar": "إنتاج تجهيزات قماشية ضخمة — ستائر مسارح ومفروشات وديكورات مخصصة — لإنتاج الفعاليات والمعارض." },
+      "meta": { "en": "Full-time · 5+ years scenic stitching/drapery · 3 openings", "ar": "دوام كامل · خبرة 5+ سنوات خياطة مشهدية/ستائر · 3 فرص" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Measure, cut, and sew large-scale fabric elements: event drapery, stage curtains, tablecloths, cushions, scenic props.",
+          "Work with heavy-duty, sheer, vinyl, and specialty decor fabrics.",
+          "Create custom patterns from sketches and blueprints; cut to exact dimensions.",
+          "Perform upholstery and rapid repairs on furniture, pipe-and-drape, and props — in shop and on site.",
+          "Operate and maintain industrial sewing machines, sergers, and steamers; integrate fabric with wood and metal structures."
+        ],
+        "ar": [
+          "قياس وقص وخياطة عناصر قماشية ضخمة: ستائر فعاليات ومسارح ومفارش ووسائد ومجسمات مشهدية.",
+          "العمل مع الأقمشة الثقيلة والشفافة والفينيل وأقمشة الديكور المتخصصة.",
+          "إعداد باترونات مخصصة من الاسكتشات والمخططات والقص بمقاسات دقيقة.",
+          "تنفيذ التنجيد والإصلاحات السريعة للأثاث وأنظمة الستائر والمجسمات — في الورشة والموقع.",
+          "تشغيل وصيانة ماكينات الخياطة الصناعية والأوفرلوك وأجهزة البخار ودمج الأقمشة مع الهياكل الخشبية والمعدنية."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years as a tailor, seamstress, or scenic stitcher in theatrical drapery, upholstery, or production.",
+          "Proficient on industrial machines: straight stitch, overlock, blind hem.",
+          "Exceptional measuring and cutting precision.",
+          "Stamina for long standing and heavy fabric rolls; fast under event deadlines."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات خياطاً أو خياطة مشهدية في الستائر المسرحية أو التنجيد أو الإنتاج.",
+          "إتقان الماكينات الصناعية: الغرزة المستقيمة والأوفرلوك والحبكة المخفية.",
+          "دقة استثنائية في القياس والقص.",
+          "لياقة للوقوف الطويل ورفع لفات الأقمشة الثقيلة وسرعة تحت مواعيد الفعاليات."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-foam-fabricator",
+      "group": "technicians",
+      "openings": 3,
+      "tag": { "en": "Saudi Arabia · Foam Sculpting", "ar": "السعودية · نحت فوم" },
+      "title": { "en": "Foam Sculptor / Fabricator — Events", "ar": "نحات / مُصنّع فوم — فعاليات" },
+      "summary": { "en": "Turn EPS and PU foam into detailed 3D props and large-scale scenic structures with CNC-cut components and skilled hand-carving.", "ar": "تحويل فوم EPS وPU إلى مجسمات ثلاثية الأبعاد وهياكل مشهدية ضخمة عبر مكونات CNC والنحت اليدوي الماهر." },
+      "meta": { "en": "Full-time · 5+ years foam sculpting · 3 openings", "ar": "دوام كامل · خبرة 5+ سنوات نحت فوم · 3 فرص" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Carve and sculpt foam into 3D models using 3D robots, hot wire cutters, rasps, rotary tools, and hand saws.",
+          "Translate drawings, 3D models, and sketches into accurately scaled physical props.",
+          "Assemble foam blocks into large-scale structures with transport-ready structural integrity.",
+          "Apply fine detailing and textures (wood grain, stone, character features).",
+          "Apply hard coatings (polyurea, epoxy, sand-coat) for indoor/outdoor durability; maintain specialized tools."
+        ],
+        "ar": [
+          "نحت وتشكيل الفوم إلى نماذج ثلاثية الأبعاد بالروبوتات وقواطع السلك الحراري والمباشط والأدوات الدوارة والمناشير اليدوية.",
+          "تحويل الرسومات والنماذج ثلاثية الأبعاد والاسكتشات إلى مجسمات فعلية بمقاسات دقيقة.",
+          "تجميع كتل الفوم في هياكل ضخمة بسلامة إنشائية جاهزة للنقل.",
+          "تنفيذ التفاصيل الدقيقة والخامات (عروق الخشب، الحجر، ملامح الشخصيات).",
+          "تطبيق الطلاءات الصلبة (بوليوريا، إيبوكسي، ساند كوت) للمتانة داخلياً وخارجياً وصيانة الأدوات المتخصصة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years of professional foam sculpting, prop-making, or scenic art, ideally in events or film.",
+          "Expert hand-carving plus 3D robot and hot-wire operation.",
+          "Exceptional 3D visualization from 2D drawings or CAD data.",
+          "Strong sense of form, texture, and proportion; scenic painting proficiency."
+        ],
+        "ar": [
+          "خبرة احترافية 5+ سنوات في نحت الفوم أو صناعة المجسمات أو الفن المشهدي، ويفضَّل في الفعاليات أو السينما.",
+          "إتقان النحت اليدوي وتشغيل الروبوتات ثلاثية الأبعاد والسلك الحراري.",
+          "قدرة استثنائية على التصور ثلاثي الأبعاد من الرسومات أو بيانات CAD.",
+          "حس قوي بالشكل والخامة والنِّسب مع إتقان الدهان المشهدي."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-painter",
+      "group": "technicians",
+      "openings": 6,
+      "tag": { "en": "Saudi Arabia · Painting", "ar": "السعودية · دهان" },
+      "title": { "en": "Painter — Events Fabrication", "ar": "دهان — تصنيع فعاليات" },
+      "summary": { "en": "Prep, paint, and finish custom-built scenic elements, props, and structures — spray painting, color matching, and scenic finishes.", "ar": "تجهيز ودهان وتشطيب العناصر المشهدية والمجسمات والهياكل المخصصة — رش ومطابقة ألوان وتشطيبات مشهدية." },
+      "meta": { "en": "Full-time · 5+ years professional painting · 6 openings", "ar": "دوام كامل · خبرة 5+ سنوات دهان محترف · 6 فرص" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Prepare surfaces: clean, sand, fill, and prime wood, metal, foam, and plastics.",
+          "Apply paint, enamel, varnish, and lacquer with spray guns, rollers, and brushes.",
+          "Create custom scenic finishes, faux textures, and effects to designer specs.",
+          "Mix and match colors to exact custom requirements.",
+          "Inspect finishes for quality; maintain spray booths and equipment; follow HSE chemical-handling rules."
+        ],
+        "ar": [
+          "تجهيز الأسطح: تنظيف وصنفرة ومعجون وأساس على الخشب والمعادن والفوم والبلاستيك.",
+          "تطبيق الدهانات والإينامل والورنيش واللاكيه بمسدسات الرش والرولات والفُرش.",
+          "تنفيذ تشطيبات مشهدية وخامات محاكاة ومؤثرات حسب مواصفات المصمم.",
+          "خلط ومطابقة الألوان وفق متطلبات مخصصة دقيقة.",
+          "فحص جودة التشطيبات وصيانة كبائن الرش والمعدات والالتزام بقواعد السلامة في التعامل مع الكيماويات."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "5+ years of professional painting in industrial, fabrication, or scenic shops.",
+          "Proficient with spray equipment, power tools, and sanders.",
+          "Exceptional attention to finish detail; able to juggle multiple projects.",
+          "Physical stamina for lifting, long standing, and varied temperatures."
+        ],
+        "ar": [
+          "خبرة 5+ سنوات دهاناً محترفاً في الورش الصناعية أو التصنيعية أو المشهدية.",
+          "إتقان معدات الرش والأدوات الكهربائية وأدوات الصنفرة.",
+          "اهتمام استثنائي بتفاصيل التشطيب وقدرة على العمل في عدة مشاريع معاً.",
+          "لياقة بدنية للرفع والوقوف الطويل والعمل في درجات حرارة متفاوتة."
+        ]
+      }
+    },
+    {
+      "slug": "workshop-skilled-labor",
+      "group": "trades",
+      "openings": 70,
+      "tag": { "en": "Saudi Arabia · All trades", "ar": "السعودية · كل التخصصات" },
+      "title": { "en": "Skilled Labor — Carpentry, Steel, Printing, Foam, Painting, Warehouse", "ar": "عمالة ماهرة — نجارة، حدادة، طباعة، فوم، دهان، مستودعات" },
+      "summary": { "en": "Multiple openings for skilled workers supporting every fabrication section — carpentry, steel, printing, foam, painting, warehouse, and logistics.", "ar": "فرص متعددة لعمال مهرة لدعم كل أقسام التصنيع — النجارة والحدادة والطباعة والفوم والدهان والمستودعات واللوجستيات." },
+      "meta": { "en": "Full-time · Hands-on trade experience · 70 openings", "ar": "دوام كامل · خبرة عملية في المهنة · 70 فرصة" },
+      "location": { "en": "Saudi Arabia", "ar": "السعودية" },
+      "type": { "en": "Full-time", "ar": "دوام كامل" },
+      "responsibilities": {
+        "en": [
+          "Support technicians and team leaders in your trade: cutting, assembly, sanding, priming, packing, loading, and site support.",
+          "Handle materials safely — wood, steel, foam, fabric, print media — in the workshop and at event sites.",
+          "Keep work areas clean and organized to 5S and HSE standards; always use PPE.",
+          "Assist with load-in/load-out, transport, and on-site installation during event peaks.",
+          "Follow instructions from team leaders precisely and flag issues early."
+        ],
+        "ar": [
+          "دعم الفنيين وقادة الفرق في تخصصك: قص وتجميع وصنفرة وتأسيس وتغليف وتحميل ودعم مواقع.",
+          "التعامل الآمن مع المواد — خشب، حديد، فوم، أقمشة، خامات طباعة — في الورشة ومواقع الفعاليات.",
+          "الحفاظ على نظافة وتنظيم مناطق العمل وفق معايير 5S والسلامة مع استخدام معدات الوقاية دائماً.",
+          "المساعدة في الإدخال والإخراج والنقل والتركيب بالمواقع في أوقات الذروة.",
+          "تنفيذ تعليمات قادة الفرق بدقة والإبلاغ المبكر عن أي مشكلة."
+        ]
+      },
+      "requirements": {
+        "en": [
+          "Hands-on experience in at least one trade: carpentry, steel/welding, printing, foam, painting, electrical, installation & branding, warehouse, or logistics.",
+          "Ability to work in a workshop environment — noise, dust, heat — and at event sites.",
+          "Physical fitness for lifting, standing, and fast-paced work.",
+          "Commitment to safety rules and team discipline; event-industry experience is a plus."
+        ],
+        "ar": [
+          "خبرة عملية في مهنة واحدة على الأقل: نجارة، حدادة/لحام، طباعة، فوم، دهان، كهرباء، تركيب وبراندنج، مستودعات، أو لوجستيات.",
+          "قدرة على العمل في بيئة ورشة — ضجيج وغبار وحرارة — وفي مواقع الفعاليات.",
+          "لياقة بدنية للرفع والوقوف والعمل بإيقاع سريع.",
+          "التزام بقواعد السلامة وانضباط الفريق؛ وتُعد خبرة قطاع الفعاليات ميزة."
+        ]
+      }
+    }
+  ]
+}
