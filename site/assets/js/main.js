@@ -3009,6 +3009,46 @@ var BP_EMP_BILLING = "monthly";
     function T(en, ar) { return isAr ? ar : en; }
     var errEl = document.getElementById("el-error");
     function dashUrl() { return "/hr/employer"; } // the new hiring console is the flagship destination
+
+    // Email verification gate: after the password checks out, a 6-digit code
+    // is emailed (via /api/otp) and must be entered before the portal opens.
+    // The employer's access code + company stay in memory until the code is
+    // verified — nothing is stored on a half-finished login. If OTP delivery
+    // isn't available (email not configured / send failure), the login falls
+    // through directly so no one gets locked out.
+    var pending = null; // { code, company, status, email }
+    var loginWrap = document.getElementById("el-login-wrap");
+    var otpStep = document.getElementById("el-otp-step");
+    var otpNote = document.getElementById("el-otp-note");
+    var otpErr = document.getElementById("el-otp-error");
+    function finishLogin(msgEl) {
+      if (!pending) return;
+      try { localStorage.setItem("bp_emp_code", pending.code); localStorage.setItem("bp_emp_company", pending.company || ""); } catch (e2) {}
+      if (pending.status && pending.status !== "مفعّل" && msgEl) {
+        msgEl.style.color = "";
+        msgEl.textContent = T("Logged in — payment pending. You can browse, but contacts unlock once payment is confirmed.", "تم الدخول — بانتظار تأكيد الدفع. تقدر تتصفّح، وتفتح بيانات التواصل بعد تأكيد الدفع.");
+        setTimeout(function () { location.href = dashUrl(); }, 1800);
+        return;
+      }
+      location.href = dashUrl();
+    }
+    function startOtp() {
+      return fetch("/api/otp", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "start", email: pending.email }),
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (!(j && j.ok && j.challenge)) return false;
+        pending.challenge = j.challenge;
+        if (loginWrap && otpStep) {
+          loginWrap.hidden = true; otpStep.hidden = false;
+          otpNote.textContent = T("We sent a 6-digit code to ", "أرسلنا رمز تحقق من 6 أرقام إلى ") + (j.to || pending.email) + T(". Enter it to open the portal.", "، أدخله لفتح البوابة.");
+          otpErr.textContent = "";
+          var inp = document.getElementById("el-otp-code");
+          if (inp) { inp.value = ""; inp.focus(); }
+        }
+        return true;
+      });
+    }
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var email = document.getElementById("el-email").value.trim();
@@ -3021,25 +3061,70 @@ var BP_EMP_BILLING = "monthly";
         method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({ action: "login", email: email, password: password }),
       }).then(function (r) { return r.json(); }).then(function (d) {
-        submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
         if (!d || !d.ok) {
+          submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
           errEl.textContent = (d && d.error === "invalid_credentials")
             ? T("Incorrect email or password.", "البريد أو كلمة المرور غير صحيحة.")
             : T("Couldn't log in. Please try again.", "تعذّر تسجيل الدخول. حاول مجدداً.");
           return;
         }
-        try { localStorage.setItem("bp_emp_code", d.code); localStorage.setItem("bp_emp_company", d.company || ""); } catch (e2) {}
-        if (d.status && d.status !== "مفعّل") {
-          errEl.style.color = "";
-          errEl.textContent = T("Account created — payment pending. You can browse, but contacts unlock once payment is confirmed.", "تم إنشاء الحساب — بانتظار تأكيد الدفع. تقدر تتصفّح، وتفتح بيانات التواصل بعد تأكيد الدفع.");
-          setTimeout(function () { location.href = dashUrl(); }, 1800);
-          return;
-        }
-        location.href = dashUrl();
+        pending = { code: d.code, company: d.company || "", status: d.status || "", email: email.toLowerCase() };
+        submitBtn.textContent = T("Sending code to your email…", "جارٍ إرسال الرمز إلى بريدك…");
+        startOtp().then(function (sent) {
+          submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
+          if (!sent) finishLogin(errEl);
+        }).catch(function () {
+          submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
+          finishLogin(errEl);
+        });
       }).catch(function () {
         submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
         errEl.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
       });
+    });
+    var otpForm = document.getElementById("el-otp-form");
+    if (otpForm) otpForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!pending || !pending.challenge) return;
+      var code = document.getElementById("el-otp-code").value.trim();
+      if (code.length < 4) { otpErr.textContent = T("Enter the 6-digit code from your email.", "أدخل الرمز المكوّن من 6 أرقام من بريدك."); return; }
+      var vBtn = document.getElementById("el-otp-submit");
+      vBtn.disabled = true; vBtn.textContent = T("Verifying…", "جارٍ التحقق…");
+      fetch("/api/otp", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "verify", email: pending.email, code: code, challenge: pending.challenge, company: pending.company }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        vBtn.disabled = false; vBtn.textContent = T("Verify & open the portal", "تحقق وافتح البوابة");
+        if (d && d.ok) { otpErr.textContent = ""; finishLogin(otpErr); return; }
+        otpErr.textContent = (d && d.error === "expired")
+          ? T("The code expired — resend a new one.", "انتهت صلاحية الرمز — أعد إرسال رمز جديد.")
+          : T("Incorrect code. Try again.", "الرمز غير صحيح. حاول مجدداً.");
+      }).catch(function () {
+        vBtn.disabled = false; vBtn.textContent = T("Verify & open the portal", "تحقق وافتح البوابة");
+        otpErr.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+      });
+    });
+    var otpResend = document.getElementById("el-otp-resend");
+    if (otpResend) otpResend.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (!pending) return;
+      otpErr.style.color = "";
+      otpErr.textContent = T("Sending a new code…", "جارٍ إرسال رمز جديد…");
+      startOtp().then(function (sent) {
+        otpErr.style.color = "#B91C1C";
+        otpErr.textContent = sent ? "" : T("Couldn't send right now. Try again shortly.", "تعذّر الإرسال الآن. حاول بعد قليل.");
+        if (sent) { otpErr.style.color = ""; otpErr.textContent = T("A new code was sent.", "تم إرسال رمز جديد."); }
+      }).catch(function () {
+        otpErr.style.color = "#B91C1C";
+        otpErr.textContent = T("Couldn't send right now. Try again shortly.", "تعذّر الإرسال الآن. حاول بعد قليل.");
+      });
+    });
+    var otpBack = document.getElementById("el-otp-back");
+    if (otpBack) otpBack.addEventListener("click", function (e) {
+      e.preventDefault();
+      pending = null;
+      if (otpStep) otpStep.hidden = true;
+      if (loginWrap) loginWrap.hidden = false;
     });
     // Alternative entry: an access code (from the activation email) instead of
     // email+password — validated the same lightweight way the dashboard does,

@@ -74,6 +74,7 @@
     <p class="lead">ادخل للوحة التوظيف — تصفّح المرشّحين، طابِق بالذكاء، وأدر مسارك.</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:480px">
+    <div id="el-login-wrap">
     <form id="el-form" novalidate>
       <div class="field"><label for="el-email">البريد الإلكتروني</label><input type="email" id="el-email" required></div>
       <div class="field"><label for="el-password">كلمة المرور</label><input type="password" id="el-password" required></div>
@@ -87,6 +88,20 @@
       <p class="emp-note" id="el-code-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
     </form>
     <p class="emp-note" style="text-align:center;margin-top:18px">ما عندك حساب؟ <a href="/ar/employer-join">اشترك من باقاتنا</a></p>
+    </div>
+    <div id="el-otp-step" hidden>
+      <div class="card" style="text-align:center;padding:26px 22px">
+        <div style="font-size:2rem">📧</div>
+        <h3 style="margin:8px 0 4px">تحقق من بريدك</h3>
+        <p class="emp-note" id="el-otp-note" style="margin:0 0 16px"></p>
+        <form id="el-otp-form" novalidate>
+          <div class="field"><input type="text" id="el-otp-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:1.4rem;font-weight:700" aria-label="رمز التحقق"></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="el-otp-submit">تحقق وافتح البوابة</button>
+          <p class="emp-note" id="el-otp-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+        </form>
+        <p class="emp-note" style="margin-top:6px"><a href="#" id="el-otp-resend">إعادة إرسال الرمز</a> · <a href="#" id="el-otp-back">رجوع</a></p>
+      </div>
+    </div>
   </div></section></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
@@ -227,4 +242,4 @@
         <button type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=4c2ac0ce6f"></script></body></html>
+  </section><script src="/assets/js/main.js?v=c11284174c"></script></body></html>
