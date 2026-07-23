@@ -855,13 +855,28 @@ var BP = window.BP = window.BP || {};
         status.hidden = true;
         grid.innerHTML = jobs.map(function (j) {
           var tag = [j.company, j.city].filter(Boolean).join(" · ") || (j.field || "");
-          return '<article class="card ats-job-card"><span class="emp-tag">' + esc2(tag) + '</span><h3>' + esc2(j.title) + '</h3><p>' + esc2(j.description || "") + '</p>' +
+          // Show a short, tidy teaser on the card only — the full description
+          // is intentionally kept out of the card so every card stays uniform;
+          // applicants get the details in the application step.
+          var teaser = clipTeaser(j.description || "", 140);
+          return '<article class="card ats-job-card"><span class="emp-tag">' + esc2(tag) + '</span><h3>' + esc2(j.title) + '</h3>' +
+            (teaser ? '<p>' + esc2(teaser) + '</p>' : '') +
             '<div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
         }).join("");
       })
       .catch(function () { status.textContent = BP.t("Couldn't load employer jobs.", "تعذّر تحميل وظائف أصحاب العمل."); });
   }
   function esc2(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  // Collapse whitespace/bullets and cut to a short teaser at a word boundary so
+  // long job descriptions don't overflow the client-job cards.
+  function clipTeaser(s, n) {
+    var t = String(s == null ? "" : s).replace(/[•\r\n\t]+/g, " ").replace(/\s+/g, " ").trim();
+    if (t.length <= n) return t;
+    var cut = t.slice(0, n);
+    var sp = cut.lastIndexOf(" ");
+    if (sp > n * 0.6) cut = cut.slice(0, sp);
+    return cut.replace(/[\s،,.:;-]+$/, "") + "…";
+  }
   document.addEventListener("DOMContentLoaded", function () {
     loadClientJobs();
     var form = document.getElementById("cv-form");
