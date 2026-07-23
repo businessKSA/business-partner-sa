@@ -420,8 +420,7 @@ const NAV_GROUPS = [
         ],
       },
       { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
-      { href: "/lead-generation", en: "Lead Generation ⚡", ar: "توليد العملاء ⚡" },
-      { href: "/data", en: "Companies Database ⚡", ar: "قاعدة بيانات الشركات ⚡" },
+      { href: "/data", en: "B2B Leads Database ⚡", ar: "قاعدة عملاء الأعمال ⚡" },
       {
         href: "/hr", en: "Recruitment", ar: "التوظيف",
         sub: [
@@ -2398,7 +2397,7 @@ function buildLeadGen() {
 function buildDataPortal() {
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("KSA Companies Database", "قاعدة بيانات الشركات السعودية")}</span>
+    <span class="eyebrow">${L("Saudi B2B Leads Database", "قاعدة عملاء الأعمال (B2B)")}</span>
     <h1>${L("Direct access to updated Saudi company records", "وصول مباشر لبيانات شركات سعودية محدّثة")}</h1>
     <p class="lead">${L("Thousands of Saudi companies with sector, city, official phone, website and email — continuously updated. Subscribe to get an access code and reach decision-makers to build relationships, sell, schedule meetings and sign deals.", "آلاف الشركات السعودية مع القطاع والمدينة والهاتف الرسمي والموقع والإيميل — محدّثة باستمرار. اشترك لتحصل على كود وصول وتقدر توصل الشركات لبناء علاقات، بيع خدماتك، تنسيق مواعيد وتوقيع اتفاقيات.")}</p>
     <div class="hero-actions">
@@ -2442,6 +2441,10 @@ function buildDataPortal() {
       ${cartBtns({ id: "companies-data-access", nameEn: "Companies Database — monthly access", nameAr: "قاعدة بيانات الشركات — اشتراك شهري", amount: 375, priceLabel: L("375 ﷼ / monthly", "375 ﷼ / شهرياً"), kind: "service" })}
     </div>
     <p class="text-soft" style="max-width:820px;margin:1rem auto 0;text-align:center">${L("Data is for legitimate B2B outreach. Use it in line with Saudi PDPL and each channel's rules; recipients can opt out at any time.", "البيانات للتواصل التجاري المشروع (B2B). استخدمها وفق نظام حماية البيانات السعودي وقواعد كل قناة، ويحق لأي جهة إلغاء الاشتراك في أي وقت.")}</p>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🤝</span><p>${L("Don't want to run the outreach yourself? We can do it for you — targeting, personalized LinkedIn + email + WhatsApp campaigns, and booked meetings delivered to your calendar.", "ما تبي تشغّل التواصل بنفسك؟ نسوّيه لك — استهداف، حملات مخصّصة عبر لنكدإن والإيميل والواتساب، ومواعيد محجوزة تصلك في تقويمك.")} <a href="${u("/connect")}">${L("Talk to us →", "كلّمنا ←")}</a></p></div>
   </div></section>
 
   <style>
@@ -2512,8 +2515,8 @@ function buildDataPortal() {
   </script>`;
 
   return page({
-    title: Lraw("Companies Database — Business Partner", "قاعدة بيانات الشركات — بيزنس بارتنر"),
-    desc: Lraw("Subscribe for direct access to an updated database of Saudi companies — sector, city, phone, website and email — for B2B outreach.", "اشترك للوصول المباشر لقاعدة محدّثة لشركات سعودية — القطاع والمدينة والهاتف والموقع والإيميل — للتواصل التجاري."),
+    title: Lraw("B2B Leads Database — Business Partner", "قاعدة عملاء الأعمال — بيزنس بارتنر"),
+    desc: Lraw("Subscribe for direct access to an updated database of Saudi companies — sector, city, phone, website and email — for B2B outreach, or let us run the outreach for you.", "اشترك للوصول المباشر لقاعدة محدّثة لشركات سعودية — القطاع والمدينة والهاتف والموقع والإيميل — للتواصل التجاري، أو نشغّل الحملة عنك."),
     active: "/data",
     path: "/data",
     body,
@@ -8109,7 +8112,6 @@ function writeFullSite(pre) {
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
-  write(`${pre}lead-generation.html`, buildLeadGen());
   write(`${pre}data.html`, buildDataPortal());
   TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
