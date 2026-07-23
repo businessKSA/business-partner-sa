@@ -4203,6 +4203,7 @@ function buildEmployerLogin() {
     <p class="lead">${L("Access your hiring dashboard — browse candidates, match with AI, and manage your pipeline.", "ادخل للوحة التوظيف — تصفّح المرشّحين، طابِق بالذكاء، وأدر مسارك.")}</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:480px">
+    <div id="el-login-wrap">
     <form id="el-form" novalidate>
       <div class="field"><label for="el-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="el-email" required></div>
       <div class="field"><label for="el-password">${L("Password", "كلمة المرور")}</label><input type="password" id="el-password" required></div>
@@ -4216,6 +4217,20 @@ function buildEmployerLogin() {
       <p class="emp-note" id="el-code-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
     </form>
     <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/employer-join")}">${L("Subscribe from our plans", "اشترك من باقاتنا")}</a></p>
+    </div>
+    <div id="el-otp-step" hidden>
+      <div class="card" style="text-align:center;padding:26px 22px">
+        <div style="font-size:2rem">📧</div>
+        <h3 style="margin:8px 0 4px">${L("Check your email", "تحقق من بريدك")}</h3>
+        <p class="emp-note" id="el-otp-note" style="margin:0 0 16px"></p>
+        <form id="el-otp-form" novalidate>
+          <div class="field"><input type="text" id="el-otp-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:1.4rem;font-weight:700" aria-label="${Lraw("Verification code", "رمز التحقق")}"></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="el-otp-submit">${L("Verify & open the portal", "تحقق وافتح البوابة")}</button>
+          <p class="emp-note" id="el-otp-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+        </form>
+        <p class="emp-note" style="margin-top:6px"><a href="#" id="el-otp-resend">${L("Resend code", "إعادة إرسال الرمز")}</a> · <a href="#" id="el-otp-back">${L("Back", "رجوع")}</a></p>
+      </div>
+    </div>
   </div></section>`;
   return page({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
 }
