@@ -1534,16 +1534,46 @@ var BP = window.BP = window.BP || {};
       });
     });
 
+    function finishLogin(email, name) {
+      try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: name })); } catch (er) {}
+      try { document.dispatchEvent(new CustomEvent("bp:auth")); } catch (e2) {}
+      goToRedirectTarget();
+      render();
+    }
+    // Employer-subscription credentials live server-side (Notion), while portal
+    // accounts are per-device. Verifying against the server both logs the
+    // customer in on a new device and hands back their employer access code,
+    // which auto-unlocks the employer dashboard without retyping it.
+    function serverLogin(email, pass) {
+      return fetch("/api/employer", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "login", email: email, password: pass }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) return null;
+        if (d.code) { try { localStorage.setItem("bp_emp_code", d.code); } catch (e3) {} }
+        return d;
+      }).catch(function () { return null; });
+    }
     if (loginF) loginF.addEventListener("submit", function (e) {
       e.preventDefault();
       var email = document.getElementById("lg-email").value.trim().toLowerCase();
       var pass = document.getElementById("lg-pass").value;
       var u = users()[email];
-      if (!u || u.pass !== pass) { alert(BP.t("No matching account. Try registering.", "لا يوجد حساب مطابق. جرّب إنشاء حساب جديد.")); return; }
-      try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: u.name })); } catch (er) {}
-      try { document.dispatchEvent(new CustomEvent("bp:auth")); } catch (e2) {}
-      goToRedirectTarget();
-      render();
+      if (u && u.pass === pass) {
+        serverLogin(email, pass); // background: sync employer code for the dashboard
+        finishLogin(email, u.name);
+        return;
+      }
+      var sb = loginF.querySelector('button[type="submit"]');
+      var lbl = sb ? sb.textContent : "";
+      if (sb) { sb.disabled = true; sb.textContent = BP.t("Signing in…", "جارٍ الدخول…"); }
+      serverLogin(email, pass).then(function (d) {
+        if (sb) { sb.disabled = false; sb.textContent = lbl; }
+        if (!d) { alert(BP.t("No matching account. Try registering.", "لا يوجد حساب مطابق. جرّب إنشاء حساب جديد.")); return; }
+        var name = d.company || email.split("@")[0];
+        var all = users(); all[email] = { name: name, pass: pass }; saveUsers(all);
+        finishLogin(email, name);
+      });
     });
 
     // After sign-in/registration, return the customer to whatever page sent
