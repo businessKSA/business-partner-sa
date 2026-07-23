@@ -219,6 +219,32 @@ async function handlePostings(req, res) {
     return res.end(JSON.stringify({ ok: true, id: page.id, title, city, field, description }));
   }
 
+  // Edit an existing posting in place. Ownership is enforced server-side:
+  // the page's "رمز صاحب العمل" must match the caller's code before any patch.
+  if (b.action === "update-posting") {
+    const id = String(b.id || "").trim();
+    if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const pageR = await notionFetch(`pages/${id}`, "GET");
+    if (!pageR.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+    const page = await pageR.json();
+    const ownerCode = txt(page.properties && page.properties["رمز صاحب العمل"]);
+    if (!ownerCode || ownerCode.toLowerCase() !== code.toLowerCase()) {
+      res.statusCode = 403;
+      return res.end(JSON.stringify({ ok: false, error: "not_owner" }));
+    }
+    const props = {};
+    if (b.title) props["العنوان الوظيفي"] = { title: [{ text: { content: String(b.title).trim().slice(0, 200) } }] };
+    if (b.city != null) props["المدينة"] = { rich_text: [{ text: { content: String(b.city).trim().slice(0, 120) } }] };
+    if (b.description) props["الوصف والمتطلبات"] = { rich_text: [{ text: { content: String(b.description).trim().slice(0, 4000) } }] };
+    if (b.field && FIELD_OPTIONS.includes(String(b.field).trim())) props["المجال"] = { select: { name: String(b.field).trim() } };
+    if (b.status === "نشطة" || b.status === "مغلقة") props["الحالة"] = { select: { name: b.status } };
+    if (!Object.keys(props).length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const r = await notionFetch(`pages/${id}`, "PATCH", { properties: props });
+    if (!r.ok) { console.error("posting update error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true }));
+  }
+
   if (b.action === "close-posting") {
     const id = String(b.id || "").trim();
     if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }

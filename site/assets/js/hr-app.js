@@ -369,6 +369,7 @@
     function menuHtml(j) {
       var items = j.real
         ? '<a href="/hr/employer/matching">المطابقة الذكية</a>' +
+          '<a href="/hr/employer/jobs/new?id=' + j.id + '">تعديل</a>' +
           '<a href="/hr/employer/job?id=' + j.id + '">معاينة</a>' +
           '<button data-act="copy" data-id="' + j.id + '">نسخ الوظيفة</button>' +
           '<button data-act="share" data-id="' + j.id + '">مشاركة رابط التقديم</button>' +
@@ -832,7 +833,18 @@
       if (editId) {
         HRStore.editJob(editId, jobData);
         if (publish) HRStore.editJob(editId, { status: "منشورة" });
-        toast("حُفظت التعديلات.");
+        var edited = HRStore.job(editId);
+        var rc2 = realCode();
+        if (edited && edited.real && rc2) {
+          fetch("/api/candidates", {
+            method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify({ action: "update-posting", code: rc2, id: editId, title: jobData.title, city: jobData.city, description: jobData.description, status: publish ? "نشطة" : undefined }),
+          }).then(function (r) { return r.json(); }).then(function (dd) {
+            toast(dd && dd.ok ? "حُفظت التعديلات على الموقع ✓" : "حُفظت محلياً — تعذّر تحديث الموقع، أعد المحاولة.");
+          }).catch(function () { toast("حُفظت محلياً — تعذّر الاتصال بالموقع."); });
+        } else {
+          toast("حُفظت التعديلات.");
+        }
       } else {
         HRStore.addJob(jobData, publish);
         toast(publish ? "نُشرت الوظيفة 🎉" : "حُفظت المسودة.");
