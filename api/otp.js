@@ -176,6 +176,10 @@ export default async function handler(req, res) {
       dbReachable,
       dbError,
       usersCount,
+      // Non-sensitive booleans so the owner can verify /admin gating without
+      // exposing any value: is a panel key set, and did it need trimming?
+      panelKeyConfigured: !!(process.env.PANEL_KEY || "").trim(),
+      panelKeyHadWhitespace: (process.env.PANEL_KEY || "") !== (process.env.PANEL_KEY || "").trim(),
     }));
   }
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
