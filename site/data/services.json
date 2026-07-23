@@ -161,7 +161,7 @@
     "name": "فتح حساب شركة على منصة أبشر أعمال",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
-    "govPlatform": "المركز السعودي للأعمال",
+    "govPlatform": "أبشر أعمال",
     "description": "نتولّى في Business Partner تنفيذ «فتح حساب شركة على منصة أبشر أعمال» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
@@ -1805,8 +1805,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "5,000 ﷼",
+      "amount": 5000
     }
   },
   {
@@ -1823,8 +1823,8 @@
     "govFeesSeparate": false,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "1,500 ﷼",
+      "amount": 1500
     }
   },
   {
@@ -1841,8 +1841,8 @@
     "govFeesSeparate": false,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "499 ﷼",
+      "amount": 499
     }
   },
   {
@@ -1859,8 +1859,8 @@
     "govFeesSeparate": false,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "3,000 ﷼",
+      "amount": 3000
     }
   },
   {
@@ -1877,8 +1877,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "4,000 ﷼",
+      "amount": 4000
     }
   },
   {
@@ -1895,8 +1895,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "4,000 ﷼",
+      "amount": 4000
     }
   },
   {
@@ -1913,8 +1913,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "1,200 ﷼",
+      "amount": 1200
     }
   },
   {
@@ -1931,8 +1931,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "4,000 ﷼",
+      "amount": 4000
     }
   },
   {
@@ -1949,8 +1949,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "280 ﷼",
+      "amount": 280
     }
   },
   {
@@ -1967,8 +1967,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "2,400 ﷼",
+      "amount": 2400
     }
   },
   {
@@ -1985,8 +1985,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "1,200 ﷼",
+      "amount": 1200
     }
   },
   {
@@ -2003,8 +2003,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "2,500 ﷼",
+      "amount": 2500
     }
   },
   {
@@ -2021,8 +2021,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "1,248 ﷼",
+      "amount": 1248
     }
   },
   {
@@ -2039,8 +2039,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "2,400 ﷼",
+      "amount": 2400
     }
   },
   {
@@ -2057,8 +2057,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "2,072 ﷼",
+      "amount": 2072
     }
   },
   {
@@ -2075,8 +2075,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "1,248 ﷼",
+      "amount": 1248
     }
   },
   {
@@ -2093,8 +2093,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "2,488 ﷼",
+      "amount": 2488
     }
   },
   {
@@ -2111,8 +2111,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "1,656 ﷼",
+      "amount": 1656
     }
   },
   {
@@ -2129,8 +2129,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "2,488 ﷼",
+      "amount": 2488
     }
   },
   {
@@ -2147,8 +2147,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "2,400 ﷼",
+      "amount": 2400
     }
   },
   {
@@ -2165,8 +2165,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "4,144 ﷼",
+      "amount": 4144
     }
   },
   {
@@ -2183,8 +2183,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "4,800 ﷼",
+      "amount": 4800
     }
   },
   {
@@ -2201,8 +2201,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": null,
-      "amount": null
+      "label": "7,000 ﷼",
+      "amount": 7000
     }
   }
 ]
