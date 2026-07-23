@@ -172,6 +172,10 @@
   // flag lets anyone explore the app with the mock data set.
   var CODE = (function () { try { return localStorage.getItem("bp_emp_code") || ""; } catch (e) { return ""; } })();
   var DEMO_OK = readLS("bp_hr_demo", false);
+  function hrRealCode() {
+    var c = CODE || "";
+    return c && ["BP-DEMO", "BP-EMP-DEMO"].indexOf(c.toUpperCase()) < 0 ? c : "";
+  }
   if (!CODE && !DEMO_OK) {
     var content = $("hr-content");
     if (content) {
@@ -1505,8 +1509,14 @@
 
 
   /* ================= talent pool ================= */
+  // With a real access code the pool is the LIVE CV bank (10k+ from the
+  // site's /api/candidates, server-side filters + resumable scan). Demo mode
+  // keeps the small sample set with a clear banner.
   function pageTalent() {
+    var rc = hrRealCode();
+    if (rc) { realTalentPool(rc); return; }
     HRStore.ready().then(function (d) {
+      $("tp-count").insertAdjacentHTML("beforebegin", '<div class="hr-error" style="background:var(--hr-orange-bg);color:var(--hr-orange)">هذه عيّنة تجريبية صغيرة — <a class="hr-link" href="/ar/employer-login">سجّل دخولك برمز اشتراكك</a> لعرض قاعدة السير الكاملة (+10 آلاف سيرة).</div>');
       var apps = HRStore.applications();
       function allCands() { return HRStore.candidates().concat(HRStore.bag("manualCands")); }
       var cities = {};
@@ -1526,58 +1536,72 @@
           if (list === "invited" && !Object.keys(HRStore.bag("invites2")).some(function (k) { return k.indexOf(":" + c.id) > -1; })) return false;
           return true;
         });
-        $("tp-count").textContent = rows.length + " مرشّح";
+        $("tp-count").textContent = rows.length + " مرشّح (عيّنة)";
         $("tp-grid").innerHTML = rows.length ? rows.map(function (c) {
           var ca = appsOf(c.id);
-          var dup = allCands().filter(function (x) { return x.id !== c.id && (x.email === c.email || x.phone === c.phone); }).length;
-          return '<div class="hr-jcard"><div style="display:flex;gap:10px;align-items:center"><span class="hr-avatar">' + esc(initials(c.name)) + '</span><div><b style="color:var(--hr-navy)">' + esc(c.name) + "</b>" + (dup ? ' <span class="hr-tag t-orange">تكرار محتمل</span>' : "") + '<div class="hr-hint">' + esc(c.title) + " · " + c.years + " سنة · " + esc(c.city) + '</div></div></div>' +
-            '<div class="meta"><span>المصدر: ' + esc(c.source || "يدوي") + "</span><span>تقديمات: " + ca.length + '</span></div>' +
+          return '<div class="hr-jcard"><div style="display:flex;gap:10px;align-items:center"><span class="hr-avatar">' + esc(initials(c.name)) + '</span><div><b style="color:var(--hr-navy)">' + esc(c.name) + '</b><div class="hr-hint">' + esc(c.title) + " · " + c.years + " سنة · " + esc(c.city) + '</div></div></div>' +
             '<div style="display:flex;flex-wrap:wrap;gap:5px">' + (c.skills || []).slice(0, 3).map(function (sk) { return '<span class="hr-tag">' + esc(sk) + "</span>"; }).join("") + "</div>" +
-            '<div class="foot"><span class="hr-match">' + (c.match || "—") + '%</span><span style="display:flex;gap:6px">' +
-            (ca.length ? '<a class="hr-btn hr-btn-sm hr-btn-ghost" href="/hr/employer/applicant?id=' + ca[0].id + '">الملف</a>' : "") +
-            '<button class="hr-btn hr-btn-sm hr-btn-soft" data-tp-invite="' + c.id + '">دعوة للتقديم</button></span></div></div>';
-        }).join("") : '<div class="hr-empty" style="grid-column:1/-1"><b>لا نتائج</b><p>عدّل البحث أو الفلاتر.</p></div>';
-        $("tp-grid").querySelectorAll("[data-tp-invite]").forEach(function (b) {
-          b.addEventListener("click", function () {
-            var cid = b.getAttribute("data-tp-invite");
-            var c = allCands().filter(function (x) { return x.id === cid; })[0];
-            confirmModal("دعوة للتقديم", "ستُسجل دعوة لـ " + c.name + " — الإرسال الفعلي يتفعّل مع ربط قنوات التواصل.", "تسجيل الدعوة").then(function (ok) {
-              if (!ok) return;
-              var inv = HRStore.bag("invites2");
-              inv["pool:" + cid] = { at: new Date().toISOString() };
-              HRStore.setBag("invites2", inv);
-              HRStore.logActivity("stage", "سُجلت دعوة تقديم لـ " + c.name + " من قاعدة المواهب");
-              toast("سُجلت الدعوة.");
-            });
-          });
-        });
+            '<div class="foot"><span class="hr-match">' + (c.match || "—") + '%</span>' + (ca.length ? '<a class="hr-link" href="/hr/employer/applicant?id=' + ca[0].id + '">الملف ←</a>' : "") + "</div></div>";
+        }).join("") : '<div class="hr-empty" style="grid-column:1/-1"><b>لا نتائج</b></div>';
       }
       ["tp-q", "tp-nat", "tp-city", "tp-list"].forEach(function (id) { $(id).addEventListener(id === "tp-q" ? "input" : "change", render); });
-      $("tp-add").addEventListener("click", function () {
-        var w = $("tp-add-form");
-        w.hidden = !w.hidden;
-        if (!w.innerHTML) {
-          w.innerHTML = '<section class="hr-card"><div class="bd"><h3 style="color:var(--hr-navy);margin-bottom:10px">إضافة مرشّح يدوياً</h3><div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 14px">' +
-            '<div class="hr-field"><label>الاسم *</label><input id="tpn-name"></div><div class="hr-field"><label>المسمى</label><input id="tpn-title"></div>' +
-            '<div class="hr-field"><label>المدينة</label><input id="tpn-city" value="الرياض"></div><div class="hr-field"><label>سنوات الخبرة</label><input id="tpn-years" type="number" min="0" value="3"></div>' +
-            '<div class="hr-field"><label>الجوال</label><input id="tpn-phone"></div><div class="hr-field"><label>البريد</label><input id="tpn-email"></div></div>' +
-            '<button class="hr-btn hr-btn-primary hr-btn-sm" id="tpn-save">حفظ المرشّح</button> <span class="hr-hint">المصدر يُسجل: MANUAL_ENTRY</span></div></section>';
-          $("tpn-save").addEventListener("click", function () {
-            var name = $("tpn-name").value.trim();
-            if (!name) { toast("الاسم مطلوب."); return; }
-            var mc = HRStore.bag("manualCands");
-            var dup = HRStore.candidates().concat(mc).filter(function (x) { return ($("tpn-email").value && x.email === $("tpn-email").value) || ($("tpn-phone").value && x.phone === $("tpn-phone").value); }).length;
-            mc.push({ id: "c_m" + Date.now(), companyId: d.company.id, name: name, title: $("tpn-title").value, years: Number($("tpn-years").value) || 0, city: $("tpn-city").value || "الرياض", country: "السعودية", nationality: "", skills: [], languages: [], match: null, source: "إدخال يدوي", sourceKey: "MANUAL_ENTRY", email: $("tpn-email").value, phone: $("tpn-phone").value });
-            HRStore.setBag("manualCands", mc);
-            toast(dup ? "حُفظ — ⚠️ يوجد سجل مشابه (بريد/جوال) راجعه لتفادي التكرار." : "حُفظ المرشّح.");
-            w.hidden = true;
-            render();
-          });
-        }
-      });
-      $("tp-import").addEventListener("click", function () { toast("استيراد CSV ورفع السير يتفعّل مع خط معالجة السير (CV Pipeline) — قريباً."); });
+      $("tp-add").addEventListener("click", function () { toast("الإضافة اليدوية تتفعّل مع تسجيل الدخول برمزك الحقيقي."); });
+      $("tp-import").addEventListener("click", function () { toast("استيراد CSV ورفع السير يتفعّل مع خط معالجة السير — قريباً."); });
       render();
     }).catch(function () { dataError("tp-grid"); });
+  }
+  function realTalentPool(code) {
+    var MAX_RENDER = 500;
+    var seq = 0;
+    $("tp-list").hidden = true;
+    $("tp-city").innerHTML = '<option value="">كل المدن</option><option>الرياض</option><option>جدة</option><option>الدمام</option><option>مكة</option><option>الخبر</option><option>المدينة</option>';
+    $("tp-add").addEventListener("click", function () { toast("الإضافة اليدوية للسجل الحقيقي تُبنى مع نموذج الإدخال الموحد — استخدم نموذج المرشحين في الموقع حالياً."); });
+    $("tp-import").addEventListener("click", function () { toast("استيراد CSV ورفع السير يتفعّل مع خط معالجة السير — قريباً."); });
+    function realCard(c) {
+      var name = c.name || "مرشّح";
+      var skills = String(c.skills || "").split(/[،,]/).map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 3);
+      return '<div class="hr-jcard"><div style="display:flex;gap:10px;align-items:center"><span class="hr-avatar">' + esc(initials(name)) + '</span><div><b style="color:var(--hr-navy)">' + esc(name) + '</b><div class="hr-hint">' + esc(c.role || c.field || "") + (c.experience ? " · خبرة " + esc(c.experience) : "") + (c.city ? " · " + esc(c.city) : "") + "</div></div></div>" +
+        '<div class="meta"><span>' + esc(c.nationalityType || "") + "</span><span>" + esc(c.field || "") + "</span></div>" +
+        '<div style="display:flex;flex-wrap:wrap;gap:5px">' + skills.map(function (sk) { return '<span class="hr-tag">' + esc(sk) + "</span>"; }).join("") + "</div>" +
+        '<div class="foot"><span class="hr-hint">بنك السير</span><span style="display:flex;gap:8px">' + (c.cv ? '<a class="hr-link" target="_blank" rel="noopener" href="' + esc(c.cv) + '">السيرة CV</a>' : "") + '<a class="hr-link" href="/ar/candidate-profile?id=' + c.id + '">الملف الكامل ←</a></span></div></div>';
+    }
+    function scan() {
+      var mySeq = ++seq;
+      var q = $("tp-q").value.trim(), nat = $("tp-nat").value, city = $("tp-city").value;
+      var params = new URLSearchParams({ code: code });
+      if (q) params.set("q", q);
+      if (city) params.set("city", city);
+      if (nat === "سعودي") params.set("nat", "سعودي");
+      if (nat === "غير") params.set("nat", "غير سعودي");
+      var total = 0, shown = 0;
+      $("tp-grid").innerHTML = '<div class="hr-skel" style="height:120px;grid-column:1/-1"></div>';
+      $("tp-count").textContent = "جارٍ البحث في قاعدة السير…";
+      function step(cursor) {
+        var qs2 = new URLSearchParams(params);
+        if (cursor) qs2.set("cursor", cursor);
+        fetch("/api/candidates?" + qs2).then(function (r) { return r.json(); }).then(function (d) {
+          if (mySeq !== seq) return;
+          if (!d || !d.ok) { $("tp-grid").innerHTML = '<div class="hr-error" style="grid-column:1/-1">تعذّر تحميل قاعدة السير — أعد المحاولة.</div>'; return; }
+          var page = d.candidates || [];
+          if (total === 0) $("tp-grid").innerHTML = "";
+          total += page.length;
+          if (shown < MAX_RENDER && page.length) {
+            var slice = page.slice(0, MAX_RENDER - shown);
+            shown += slice.length;
+            $("tp-grid").insertAdjacentHTML("beforeend", slice.map(realCard).join(""));
+          }
+          if (!total && d.done) { $("tp-grid").innerHTML = '<div class="hr-empty" style="grid-column:1/-1"><b>لا نتائج مطابقة</b><p>جرّب بحثاً أوسع.</p></div>'; $("tp-count").textContent = "0 مرشّح"; return; }
+          $("tp-count").textContent = total.toLocaleString("en-US") + " مرشّح" + (d.done ? "" : " حتى الآن — العدّ مستمر…") + (total > MAX_RENDER ? " · يُعرض أول " + MAX_RENDER + " — ضيّق بالفلاتر لنتائج أدق" : "");
+          if (!d.done && d.nextCursor) step(d.nextCursor);
+        }).catch(function () { if (mySeq === seq) $("tp-count").textContent = "خطأ في الاتصال — أعد المحاولة."; });
+      }
+      step(null);
+    }
+    var deb = null;
+    ["tp-q", "tp-nat", "tp-city"].forEach(function (id) {
+      $(id).addEventListener(id === "tp-q" ? "input" : "change", function () { clearTimeout(deb); deb = setTimeout(scan, 500); });
+    });
+    scan();
   }
 
   /* ================= interviews ================= */
