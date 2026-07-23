@@ -191,7 +191,8 @@ async function handleLeads(req, res) {
       { property: "Phone", phone_number: { is_not_empty: true } },
       { property: "Email", email: { is_not_empty: true } },
     ] };
-    const body = { page_size: 50, filter: and.length ? { and: [...and, contact] } : contact,
+    const notDup = { property: "Duplicate", checkbox: { equals: false } };
+    const body = { page_size: 50, filter: { and: [...and, notDup, contact] },
       sorts: [{ property: "Sector", direction: "ascending" }] };
     if (q.cursor) body.start_cursor = String(q.cursor);
     const data = await leadsQuery(body);
