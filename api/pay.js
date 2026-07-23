@@ -117,6 +117,97 @@ async function readBody(req) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Companies data portal (merged here to stay under the Vercel Hobby 12-function
+// cap). GET /api/pay?resource=leads[&code=&cursor=&q=&sector=&city=] serves the
+// "BP — Companies Sales DB" Notion database (built by the n8n collectors) behind
+// an access code, for the paid data-access portal at /data. Without a valid code
+// only a non-PII teaser is returned.
+const LEADS_DB = process.env.NOTION_LEADS_DB || "26faca2761884b6ab584924c374f2d22";
+const leadsCodes = () => {
+  // ENV-ONLY: this repo is public, so a hardcoded demo code here would be a
+  // public key to a PII database (company contacts). Set LEADS_ACCESS_CODES
+  // (comma-separated) in Vercel to grant access.
+  const raw = process.env.LEADS_ACCESS_CODES || process.env.LEADS_KEY || "";
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
+};
+const leadsCodeOk = (code) => {
+  const c = String(code || "").trim();
+  return !!c && leadsCodes().some((k) => k.toLowerCase() === c.toLowerCase());
+};
+const lTitle = (p) => ((p && p.title) || []).map((t) => t.plain_text).join("").trim();
+const lText = (p) => ((p && p.rich_text) || []).map((t) => t.plain_text).join("").trim();
+const lSel = (p) => (p && p.select && p.select.name) || "";
+async function leadsQuery(body) {
+  const r = await fetch(`https://api.notion.com/v1/databases/${LEADS_DB}/query`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${NOTION_TOKEN}`,
+      "Notion-Version": "2022-06-28",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body || {}),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j && j.message ? j.message : `notion ${r.status}`);
+  return j;
+}
+function leadsMap(page) {
+  const pr = page.properties || {};
+  return {
+    name: lTitle(pr["Name"]),
+    sector: lSel(pr["Sector"]),
+    city: lSel(pr["City"]),
+    ownership: lSel(pr["Ownership"]),
+    phone: (pr["Phone"] && pr["Phone"].phone_number) || "",
+    email: (pr["Email"] && pr["Email"].email) || "",
+    website: (pr["Domain"] && pr["Domain"].url) || "",
+    linkedin: (pr["LinkedIn"] && pr["LinkedIn"].url) || "",
+    maps: (pr["Maps"] && pr["Maps"].url) || "",
+    description: lText(pr["Description"]),
+  };
+}
+async function handleLeads(req, res) {
+  const q = req.query || {};
+  const code = q.code;
+  if (!code) {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true, unlocked: false,
+      teaser: {
+        sectors: ["Contracting & Construction", "Manufacturing & Industry", "Healthcare",
+          "IT & Services", "Logistics & Transport", "Retail & Restaurants", "Real Estate",
+          "Hospitality & Tourism", "Finance & Insurance", "Education", "Defense & Security"],
+        cities: ["Riyadh", "Jeddah", "Makkah", "Madinah", "Dammam", "Tabuk", "Abha"],
+      },
+    }));
+  }
+  if (!leadsCodeOk(code)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "invalid_code" })); }
+  if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+  try {
+    const and = [];
+    if (q.sector) and.push({ property: "Sector", select: { equals: String(q.sector) } });
+    if (q.city) and.push({ property: "City", select: { equals: String(q.city) } });
+    const contact = { or: [
+      { property: "Phone", phone_number: { is_not_empty: true } },
+      { property: "Email", email: { is_not_empty: true } },
+    ] };
+    const notDup = { property: "Duplicate", checkbox: { equals: false } };
+    const body = { page_size: 50, filter: { and: [...and, notDup, contact] },
+      sorts: [{ property: "Sector", direction: "ascending" }] };
+    if (q.cursor) body.start_cursor = String(q.cursor);
+    const data = await leadsQuery(body);
+    let rows = (data.results || []).map(leadsMap).filter((r) => r.name);
+    const term = String(q.q || "").trim().toLowerCase();
+    if (term) rows = rows.filter((r) => [r.name, r.sector, r.city, r.description].join(" ").toLowerCase().includes(term));
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, unlocked: true, rows, next_cursor: data.next_cursor || "", has_more: !!data.has_more }));
+  } catch (e) {
+    res.statusCode = 500;
+    return res.end(JSON.stringify({ ok: false, error: String(e.message || e) }));
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   // Called cross-origin from the brand's own domains only (the compliance
@@ -133,6 +224,11 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "content-type");
   if (req.method === "OPTIONS") { res.statusCode = 204; return res.end(); }
+
+  // Companies data portal endpoint (see handleLeads above).
+  if ((req.query && (req.query.resource === "leads" || req.query.leads))) {
+    return handleLeads(req, res);
+  }
 
   if (req.method === "GET") {
     res.statusCode = 200;
