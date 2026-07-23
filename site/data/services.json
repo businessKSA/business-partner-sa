@@ -18,28 +18,6 @@
     }
   },
   {
-    "code": "BP-PL-0001",
-    "slug": "bp-pl-0001",
-    "name": "تأسيس شركة سعودية (ذات مسؤولية محدودة)",
-    "category": "Company Formation",
-    "categoryAr": "تأسيس الشركات",
-    "govPlatform": "",
-    "description": "نتولّى في Business Partner تنفيذ «تأسيس شركة سعودية (ذات مسؤولية محدودة)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
-    "deliverables": [
-      "Commercial Registration (CR)",
-      "Articles of Association",
-      "Chamber of Commerce membership"
-    ],
-    "targetClient": "",
-    "pricingModel": "One Time",
-    "govFeesSeparate": false,
-    "requiresProposal": true,
-    "price": {
-      "label": "5,000 ﷼",
-      "amount": 5000
-    }
-  },
-  {
     "code": "BP-PL-0066",
     "slug": "bp-pl-0066",
     "name": "Pre‑incorporation consultation",
@@ -559,26 +537,6 @@
     }
   },
   {
-    "code": "BP-PL-0067",
-    "slug": "bp-pl-0067",
-    "name": "MISA investor license application",
-    "category": "Foreign Investment",
-    "categoryAr": "الاستثمار الأجنبي",
-    "govPlatform": "",
-    "description": "نتولّى في Business Partner تنفيذ «MISA investor license application» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
-    "deliverables": [
-      "MISA investor license"
-    ],
-    "targetClient": "",
-    "pricingModel": "One Time",
-    "govFeesSeparate": false,
-    "requiresProposal": true,
-    "price": {
-      "label": "9,500 ﷼",
-      "amount": 9500
-    }
-  },
-  {
     "code": "BP-PR-01",
     "slug": "bp-pr-01",
     "name": "خدمة الإقامة المميزة (إجراءات + تقديم)",
@@ -725,24 +683,6 @@
     "price": {
       "label": "150 ﷼",
       "amount": 150
-    }
-  },
-  {
-    "code": "BP-GOSI-04",
-    "slug": "bp-gosi-04",
-    "name": "GOSI registration",
-    "category": "Government Relations",
-    "categoryAr": "العلاقات الحكومية",
-    "govPlatform": "التأمينات GOSI",
-    "description": "نتولّى في Business Partner تنفيذ «GOSI registration» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
-    "deliverables": [],
-    "targetClient": "",
-    "pricingModel": "One Time",
-    "govFeesSeparate": true,
-    "requiresProposal": true,
-    "price": {
-      "label": "250 ﷼",
-      "amount": 250
     }
   },
   {
@@ -1315,12 +1255,12 @@
     "name": "تسجيل وكالة تجارية/فرنشايز",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
-    "govPlatform": "",
+    "govPlatform": "وزارة التجارة",
     "description": "نتولّى في Business Partner تنفيذ «تسجيل وكالة تجارية/فرنشايز» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
-    "govFeesSeparate": false,
+    "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
       "label": "1,500 ﷼",
@@ -1562,24 +1502,6 @@
     }
   },
   {
-    "code": "BP-PL-0075",
-    "slug": "bp-pl-0075",
-    "name": "Bank account opening (liaison & appointments)",
-    "category": "Business Support",
-    "categoryAr": "دعم الأعمال",
-    "govPlatform": "",
-    "description": "نتولّى في Business Partner تنفيذ «Bank account opening (liaison & appointments)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
-    "deliverables": [],
-    "targetClient": "",
-    "pricingModel": "One Time",
-    "govFeesSeparate": false,
-    "requiresProposal": true,
-    "price": {
-      "label": "1,200 ﷼",
-      "amount": 1200
-    }
-  },
-  {
     "code": "BP-RE-01",
     "slug": "bp-re-01",
     "name": "مكتب خاص (لعدد محدد من الأشخاص)",
@@ -1789,6 +1711,456 @@
     "price": {
       "label": "2,500 ﷼ / شهرياً",
       "amount": 2500
+    }
+  },
+  {
+    "code": "BP-FI-07",
+    "slug": "bp-fi-07",
+    "name": "دخول مستثمر أجنبي",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "خدمة أولية لدعم دخول المستثمر الأجنبي إلى السوق السعودي — اختيار المسار، وتحديد المتطلبات الأساسية، وإرشاد مبكّر للتأسيس أو الترخيص.",
+    "deliverables": [],
+    "targetClient": "المستثمرون الأجانب أو الشركات الأجنبية الراغبة في دخول السوق السعودي.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "5,000 ﷼",
+      "amount": 5000
+    }
+  },
+  {
+    "code": "BP-DIAG-01",
+    "slug": "bp-diag-01",
+    "name": "تقرير تشخيص",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "تقرير تشخيص لتقييم وضع العميل أو المشروع، وتحديد الفجوات والفرص، وتقديم توصيات قابلة للتنفيذ.",
+    "deliverables": [],
+    "targetClient": "الشركات ورواد الأعمال الذين يحتاجون تقييماً سريعاً قبل البدء أو التوسع.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-GUIDE-01",
+    "slug": "bp-guide-01",
+    "name": "دليل قطاعي عام",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "دليل قطاعي عام لقطاع أو سوق محدد — نظرة سريعة ومعلومات أساسية تدعم الفهم واتخاذ القرار.",
+    "deliverables": [],
+    "targetClient": "الأفراد والشركات الذين يحتاجون فهماً أولياً سريعاً لقطاع معين.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "499 ﷼",
+      "amount": 499
+    }
+  },
+  {
+    "code": "BP-GUIDE-02",
+    "slug": "bp-guide-02",
+    "name": "دليل مخصص",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "دليل مخصّص مبني على احتياج العميل أو المشروع، بمعلومات منظّمة وتوصيات مصمّمة حسب النطاق المطلوب.",
+    "deliverables": [],
+    "targetClient": "العملاء الذين يحتاجون محتوى مخصصاً ودليلاً عملياً موجهاً لحالة محددة.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "3,000 ﷼",
+      "amount": 3000
+    }
+  },
+  {
+    "code": "BP-PL-0088",
+    "slug": "bp-pl-0088",
+    "name": "تسجيل قيد وكالة تجارية",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "تسجيل قيد وكالة تجارية جديدة — تجهيز المستندات ومتابعة الطلب حتى القيد لدى المركز السعودي للأعمال.",
+    "deliverables": [],
+    "targetClient": "الشركات التي تعمل عبر وكلاء أو تمثيل تجاري.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "4,000 ﷼",
+      "amount": 4000
+    }
+  },
+  {
+    "code": "BP-PL-0089",
+    "slug": "bp-pl-0089",
+    "name": "تعديل قيد وكالة تجارية",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "تعديل قيد وكالة تجارية عند تغيّر البيانات أو الأطراف أو نطاق الوكالة، مع متابعة الاعتماد.",
+    "deliverables": [],
+    "targetClient": "الشركات أو الوكلاء التجاريون.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "4,000 ﷼",
+      "amount": 4000
+    }
+  },
+  {
+    "code": "BP-PL-0090",
+    "slug": "bp-pl-0090",
+    "name": "تجديد قيد وكالة تجارية",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "تجديد قيد وكالة تجارية مع تحديث البيانات والمستندات ومتابعة الاعتماد لدى الجهة المختصة.",
+    "deliverables": [],
+    "targetClient": "الوكلاء التجاريون والشركات المرتبطة بهم.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-PL-0091",
+    "slug": "bp-pl-0091",
+    "name": "شطب قيد وكالة تجارية",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "شطب قيد وكالة تجارية وإنهاؤه بعد استيفاء المتطلبات وإجراءات المتابعة.",
+    "deliverables": [],
+    "targetClient": "الشركات والوكلاء التجاريون.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "4,000 ﷼",
+      "amount": 4000
+    }
+  },
+  {
+    "code": "BP-PL-0092",
+    "slug": "bp-pl-0092",
+    "name": "تراخيص التخفيضات",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "إصدار ترخيص التخفيضات للمنشأة أو المتجر مع متابعة المتطلبات حتى الاعتماد.",
+    "deliverables": [],
+    "targetClient": "محال التجزئة والأنشطة التجارية.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "280 ﷼",
+      "amount": 280
+    }
+  },
+  {
+    "code": "BP-PL-0093",
+    "slug": "bp-pl-0093",
+    "name": "تراخيص الأحجار الكريمة والمعادن الثمينة",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "إصدار ترخيص الأحجار الكريمة والمعادن الثمينة مع متابعة المتطلبات النظامية حتى الاعتماد.",
+    "deliverables": [],
+    "targetClient": "تجار الذهب والمجوهرات والأنشطة المرتبطة.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,400 ﷼",
+      "amount": 2400
+    }
+  },
+  {
+    "code": "BP-PL-0076",
+    "slug": "bp-pl-0076",
+    "name": "إصدار الترخيص الصناعي (تأسيس)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "إصدار الترخيص الصناعي لتأسيس منشأة صناعية — تجهيز ملف الطلب ومتابعة المتطلبات حتى الإصدار.",
+    "deliverables": [],
+    "targetClient": "المنشآت الصناعية الجديدة.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,500 ﷼",
+      "amount": 2500
+    }
+  },
+  {
+    "code": "BP-PL-0077",
+    "slug": "bp-pl-0077",
+    "name": "تجديد الترخيص الصناعي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "تجديد الترخيص الصناعي للمنشأة مع متابعة المتطلبات النظامية حتى اكتمال التجديد.",
+    "deliverables": [],
+    "targetClient": "المصانع والمنشآت الصناعية القائمة.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "1,248 ﷼",
+      "amount": 1248
+    }
+  },
+  {
+    "code": "BP-PL-0078",
+    "slug": "bp-pl-0078",
+    "name": "تعديل الترخيص الصناعي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "تعديل الترخيص الصناعي عند تغيّر البيانات أو النشاط أو الطاقة الإنتاجية، مع متابعة الاعتماد.",
+    "deliverables": [],
+    "targetClient": "المنشآت الصناعية القائمة.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,400 ﷼",
+      "amount": 2400
+    }
+  },
+  {
+    "code": "BP-PL-0079",
+    "slug": "bp-pl-0079",
+    "name": "نقل ملكية الترخيص الصناعي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "نقل ملكية الترخيص الصناعي مع تجهيز المستندات ومتابعة الاعتماد لدى الجهة المختصة.",
+    "deliverables": [],
+    "targetClient": "المنشآت الصناعية التي تمر بإعادة هيكلة أو نقل ملكية.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,072 ﷼",
+      "amount": 2072
+    }
+  },
+  {
+    "code": "BP-PL-0080",
+    "slug": "bp-pl-0080",
+    "name": "طلب تأييد العمالة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "طلب تأييد العمالة للمنشأة مع تجهيز المبررات والمتطلبات ومتابعتها حتى النتيجة.",
+    "deliverables": [],
+    "targetClient": "المنشآت الصناعية والتشغيلية.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "1,248 ﷼",
+      "amount": 1248
+    }
+  },
+  {
+    "code": "BP-PL-0081",
+    "slug": "bp-pl-0081",
+    "name": "إعفاء جمركي (مواد/آلات/قطع غيار)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "طلب إعفاء جمركي للمواد أو الآلات أو قطع الغيار مع تجهيز المستندات ومتابعة الاعتماد.",
+    "deliverables": [],
+    "targetClient": "المنشآت الصناعية والاستيرادية.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,488 ﷼",
+      "amount": 2488
+    }
+  },
+  {
+    "code": "BP-PL-0082",
+    "slug": "bp-pl-0082",
+    "name": "إصدار شهادة المنشأ",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "الغرفة التجارية",
+    "description": "إصدار شهادة المنشأ للسلع أو المنتجات وفق متطلبات التصدير والتصديق المعتمدة.",
+    "deliverables": [],
+    "targetClient": "المنشآت المصدرة أو المصنعة.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "1,656 ﷼",
+      "amount": 1656
+    }
+  },
+  {
+    "code": "BP-PL-0083",
+    "slug": "bp-pl-0083",
+    "name": "طلب الفسح الكيميائي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "إدارة طلب الفسح الكيميائي مع تجهيز المستندات ومتابعة الاعتماد للمواد الخاضعة للرقابة.",
+    "deliverables": [],
+    "targetClient": "المنشآت الصناعية والاستيرادية.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,488 ﷼",
+      "amount": 2488
+    }
+  },
+  {
+    "code": "BP-PL-0084",
+    "slug": "bp-pl-0084",
+    "name": "ترقية البنود الجمركية",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "ترقية البنود الجمركية أو تحديث التصنيف بما يتوافق مع متطلبات الاستيراد والتخليص.",
+    "deliverables": [],
+    "targetClient": "المستوردون والمنشآت الصناعية.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,400 ﷼",
+      "amount": 2400
+    }
+  },
+  {
+    "code": "BP-PL-0085",
+    "slug": "bp-pl-0085",
+    "name": "رخصة الاستطلاع (تعدين)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "إصدار رخصة الاستطلاع (تعدين) للمناطق أو المواد المؤهلة مع تجهيز الطلب ومتابعة المتطلبات.",
+    "deliverables": [],
+    "targetClient": "المستثمرون في قطاع التعدين.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "4,144 ﷼",
+      "amount": 4144
+    }
+  },
+  {
+    "code": "BP-PL-0086",
+    "slug": "bp-pl-0086",
+    "name": "المسح الصناعي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "إتمام المسح الصناعي وتحديث بيانات المنشأة الصناعية بما يتوافق مع متطلبات الجهة.",
+    "deliverables": [],
+    "targetClient": "المصانع والمنشآت الصناعية.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "4,800 ﷼",
+      "amount": 4800
+    }
+  },
+  {
+    "code": "BP-PL-0087",
+    "slug": "bp-pl-0087",
+    "name": "تصريح الاستشارات الأمنية",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "متعدد الجهات",
+    "description": "إصدار تصريح الاستشارات الأمنية مع تجهيز المتطلبات ومتابعة الاعتماد لدى الجهات المختصة.",
+    "deliverables": [],
+    "targetClient": "شركات الاستشارات الأمنية أو الجهات ذات العلاقة.",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": true,
+    "price": {
+      "label": "7,000 ﷼",
+      "amount": 7000
+    }
+  },
+  {
+    "code": "BP-SUB-01",
+    "slug": "bp-sub-01",
+    "name": "اشتراك تحديثات",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "اشتراك شهري لتحديثات دورية ومتابعة مستمرة للمستجدات المتعلقة بموضوع أو قطاع أو ملف عمل محدد.",
+    "deliverables": [],
+    "targetClient": "العملاء الذين يحتاجون متابعة مستمرة وتغذية دورية بالمستجدات",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "750 ﷼ / شهرياً",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-VENDOR-01",
+    "slug": "bp-vendor-01",
+    "name": "تأهيل مورد",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "تأهيل مورد جديد أو قائم عبر مراجعة الجاهزية وفحص الوثائق وتحديد المتطلبات اللازمة للبدء.",
+    "deliverables": [],
+    "targetClient": "الشركات التي تحتاج تأهيل موردين أو تنظيم عملية إدخالهم",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "3,500 ﷼",
+      "amount": 3500
+    }
+  },
+  {
+    "code": "BP-VENDOR-02",
+    "slug": "bp-vendor-02",
+    "name": "متابعة مورد",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "متابعة شهرية للمورد تشمل التنسيق والتحقق من الالتزامات ومراقبة التقدم والمتطلبات المفتوحة.",
+    "deliverables": [],
+    "targetClient": "الشركات التي تحتاج متابعة تشغيلية شهرية مع الموردين",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,000 ﷼ / شهرياً",
+      "amount": 2000
     }
   }
 ]

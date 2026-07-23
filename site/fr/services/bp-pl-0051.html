@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Opening a corporate bank account — Business Partner</title>
-<meta name="description" content="Business Partner handles “Opening a corporate bank account” on your behalf within Business Support — from preparing the documents and filing with the relev">
-<meta property="og:title" content="Opening a corporate bank account — Business Partner">
-<meta property="og:description" content="Business Partner handles “Opening a corporate bank account” on your behalf within Business Support — from preparing the documents and filing with the relev">
+<title>Corporate Bank Account Opening — Business Partner</title>
+<meta name="description" content="Corporate bank account opening with requirements preparation and bank coordination until the account is opened.">
+<meta property="og:title" content="Corporate Bank Account Opening — Business Partner">
+<meta property="og:description" content="Corporate bank account opening with requirements preparation and bank coordination until the account is opened.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="fr_FR">
@@ -21,7 +21,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=332165c7de">
+<link rel="stylesheet" href="/assets/css/styles.css?v=2096378d4f">
+<style>/* Owner policy: never reveal any price. Safety net for pure-price elements incl. JS-populated ones. */.tr-price,.price-amt,.emp-price,.emp-price-m,.emp-price-y,.pk-per,.emp-billing-toggle,.cart-totals-block{display:none!important}</style>
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/fr/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
@@ -29,17 +30,17 @@
       <button type="button" class="nav-drop active" aria-expanded="false">Nos services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="nav-menu"><div class="nav-group nested active">
     <button type="button" class="nav-drop active" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/services">All services (95)</a><a href="/fr/services/category/company-formation">🏢 Création d'entreprise</a><a href="/fr/services/category/foreign-investment">🌍 Investissement étranger</a><a href="/fr/services/category/premium-residency">🪪 Résidence Premium</a><a href="/fr/services/category/government-relations">🏛️ Relations gouvernementales</a><a href="/fr/services/category/hr-services">👥 Services RH</a><a href="/fr/services/category/recruitment">🧑‍💼 Recrutement et embauche</a><a href="/fr/services/category/business-support">📊 Business Support</a><a href="/fr/services/category/real-estate">🏗️ Real Estate</a><a href="/fr/services/category/ai-automation">🤖 AI &amp; Automation</a></div>
+    <div class="nav-menu"><a href="/fr/services">All services (116)</a><a href="/fr/services/category/company-formation">🏢 Création d'entreprise</a><a href="/fr/services/category/foreign-investment">🌍 Investissement étranger</a><a href="/fr/services/category/premium-residency">🪪 Résidence Premium</a><a href="/fr/services/category/government-relations">🏛️ Relations gouvernementales</a><a href="/fr/services/category/hr-services">👥 Services RH</a><a href="/fr/services/category/recruitment">🧑‍💼 Recrutement et embauche</a><a href="/fr/services/category/business-support">📊 Business Support</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Forfaits <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/packages">All packages</a><a href="/fr/packages#pkg-management">Service packages</a><a href="/fr/packages#pkg-formation">Création d'entreprise</a><a href="/fr/packages#pkg-legal">Legal Packages</a></div>
+    <div class="nav-menu"><a href="/fr/packages">All packages</a><a href="/fr/packages#pkg-management">Service packages</a><a href="/fr/packages#pkg-formation">Création d'entreprise</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Agents IA ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/fr/ai-agents">All AI Agents</a><a href="/fr/compliance-agent">Compliance</a><a href="/portal">Smart Employees</a><a href="/fr/shared-services">Shared Services Team</a></div>
-  </div><a href="/fr/task-force">Cellule d'intervention ⚡</a><a href="/fr/data">B2B Leads Database ⚡</a><div class="nav-group nested">
+  </div><a href="/fr/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/fr/task-force">Cellule d'intervention ⚡</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/fr/hr">Recruitment services</a><a href="/fr/employers">Pour les employeurs</a><a href="/fr/careers">Open jobs</a></div>
-  </div><a href="/fr/deals">Deals ⚡</a><a href="/fr/installments">Instalments ⚡</a><a href="/fr/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/fr/bank-account">Corporate bank account ⚡</a><a href="/fr/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
+  </div><a href="/fr/deals">Deals ⚡</a><a href="/fr/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/fr/bank-account">Corporate bank account ⚡</a><a href="/fr/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Business Tourism <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/fr/mahfol-makfol">For investors</a><a href="/fr/mahfol-makfol/trips">Trips &amp; experiences</a><a href="/fr/tourism">Corporate events</a></div>
   </div><div class="nav-group nested">
@@ -47,59 +48,56 @@
     <div class="nav-menu"><a href="/fr/workspaces">Browse spaces</a><a href="/fr/workspace-request">Request a workspace</a><a href="/fr/services/bp-re-01">Private office</a><a href="/fr/services/bp-re-02">Coworking space</a><a href="/fr/services/bp-re-03">Virtual office + National Address</a><a href="/fr/services/bp-re-04">Dedicated desk</a><a href="/fr/services/bp-re-05">Office search service</a><a href="/fr/services/bp-re-06">Foreign property ownership</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/worker-housing">Overview</a><a href="/fr/worker-housing#wh-request">Request housing</a><a href="/fr/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/fr/services/bp-housing-01">Licensing service</a><a href="/fr/services/bp-housing-02">Worker transport</a><a href="/fr/farina#workforce">Workforce catering (Farina)</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Catering &amp; Hospitality <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/farina">Overview</a><a href="/fr/farina#coffee-break">Coffee Break</a><a href="/fr/farina#vip-coffee">VIP Coffee Break</a><a href="/fr/farina#executive-lunch">Executive Lunch</a><a href="/fr/farina#vip-hospitality">VIP Hospitality</a><a href="/fr/farina#workforce">Workforce Catering</a><a href="/fr/worker-housing">Worker Housing</a></div>
+    <div class="nav-menu"><a href="/fr/worker-housing">Overview</a><a href="/fr/worker-housing#wh-request">Request housing</a><a href="/fr/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/fr/services/bp-housing-01">Licensing service</a><a href="/fr/services/bp-housing-02">Worker transport</a></div>
   </div></div>
     </div><div class="nav-group">
       <button type="button" class="nav-drop" aria-expanded="false">Centre de connaissances <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/fr/saudi-arabia">Investir en Arabie saoudite</a><a href="/fr/directory">Startup Ecosystem Directory</a><a href="/fr/news">Actualités et analyses</a><a href="/fr/newsletter">Newsletter</a></div>
-    </div><a href="/fr/suppliers">Portail fournisseurs</a><a href="/fr/contact">Contactez-nous</a></nav>
+      <div class="nav-menu"><div class="nav-group nested">
+    <button type="button" class="nav-drop" aria-expanded="false">Saudi Guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/saudi-arabia">Investir en Arabie saoudite</a><a href="/fr/guide/saudi-market">The Saudi Market</a><a href="/fr/guide/business-setup">Business Setup</a><a href="/fr/guide/run-your-business">Run Your Business</a><a href="/fr/directory">Entrepreneurship guide</a><a href="/fr/guide/live-in-saudi">Live in Saudi</a><a href="/fr/guide/residency">Residency in KSA</a></div>
+  </div><a href="/fr/opportunities">Investment Opportunities</a><a href="/fr/news">Actualités et analyses</a><a href="/fr/newsletter">Newsletter</a></div>
+    </div><a href="/fr/contact">Contactez-nous</a></nav>
   <div class="header-cta">
     <div class="nav-group lang-group">
     <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></svg><span class="lang-label">Français</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/services/bp-pl-0051" data-lang="en">English</a><a href="/ar/services/bp-pl-0051" data-lang="ar">العربية</a><a href="/fr/services/bp-pl-0051" data-lang="fr" class="active">Français</a></div>
   </div>
-    <a class="icon-btn" href="/fr/account" aria-label="Compte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></a>
+    <a class="hdr-btn" data-account-link href="/fr/account" aria-label="Sign in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Sign in</span></a>
+    <a class="hdr-btn hdr-btn--partners" href="/fr/suppliers" aria-label="Partners registration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Partners</span></a>
     <a class="icon-btn cart-link" href="/fr/cart" aria-label="Panier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header><main>
   <section class="svc-hero"><div class="container">
     <div class="breadcrumb"><a href="/fr/">Accueil</a> → <a href="/fr/services">Services</a> → <a href="/fr/services/category/business-support">Business Support</a></div>
-    <h1>Opening a corporate bank account</h1>
-    <div class="svc-meta"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 12 22l-9-9V3h10l7.59 7.59a2 2 0 0 1 0 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Business Support</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>Individuals &amp; businesses</span></div>
+    <h1>Corporate Bank Account Opening</h1>
+    <div class="svc-meta"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 12 22l-9-9V3h10l7.59 7.59a2 2 0 0 1 0 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Business Support</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Depends on the scope of the service</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>Businesses needing operational, regulatory or commercial support</span></div>
   </div></section>
   <div class="container"><div class="svc-layout">
     <div class="svc-main">
-      <section><h2>Service description</h2><p class="lead-p">Business Partner handles “Opening a corporate bank account” on your behalf within Business Support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.</p></section>
-      <section><h2>Required documents</h2><ul class="doc-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Official documents (Commercial Registration or ID as applicable)</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Documents specific to your activity or request</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Payment of the fees due to the relevant authority</span></li></ul><div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>The smart agent confirms the exact document list for your case as soon as you reach out on WhatsApp.</p></div></section>
-      <section><h2>Service features with Business Partner</h2><ul class="feat-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>We complete the procedure on your behalf, from start to issuance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Clear fees, with government fees separate and disclosed</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Smart-agent support on WhatsApp 24/7</span></li></ul></section>
+      <section><h2>Service description</h2><p class="lead-p">Corporate bank account opening with requirements preparation and bank coordination until the account is opened.</p></section>
+      <section><h2>Required documents</h2><ul class="doc-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Official documents (Commercial Registration or ID as applicable)</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Documents specific to your activity or request</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Payment of the fees due to the relevant authority</span></li></ul><div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>The smart agent confirms the exact document list for your case as soon as you reach out.</p></div></section>
+      <section><h2>Service features with Business Partner</h2><ul class="feat-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Preparing the account-opening requirements</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Coordinating with the bank &amp; appointments</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Following up until the account is open</span></li></ul></section>
       <section><h2>Frequently asked questions</h2><div class="faq-item"><button class="faq-q" aria-expanded="false">How much are the fees for this service? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="faq-a"><p>Business Partner's fee for this service is 1,000 ﷼. VAT is added.</p></div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">Who is this service for? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="faq-a"><p>This service is available to Individuals &amp; businesses.</p></div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">How do I start? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="faq-a"><p>Contact us on WhatsApp — the smart agent identifies your requirements, prepares your document list, and starts your request immediately.</p></div></div></section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>Business Partner advantage:</strong> The WhatsApp smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.</p></div></section>
+    <div class="faq-a"><p>This service is quoted individually based on your case. VAT is added.</p></div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">Who is this service for? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="faq-a"><p>This service is available to Businesses needing operational, regulatory or commercial support.</p></div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">How do I start? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="faq-a"><p>Contact us — the smart agent identifies your requirements, prepares your document list, and starts your request immediately.</p></div></div></section>
+      <section><div class="callout"><span class="ico">⚡</span><p><strong>Business Partner advantage:</strong> The smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.</p></div></section>
     </div>
     <aside class="svc-aside">
       <div class="order-box">
-        <div class="price-tailored">1,000 ﷼</div>
-        <div class="price-note">Fees exclude VAT.</div>
-        <div class="buy-row">
-    <button type="button" class="btn btn-primary add-cart" data-id="svc-bp-pl-0051" data-name-en="فتح حساب بنكي تجاري للشركة" data-name-ar="فتح حساب بنكي تجاري للشركة" data-amount="1000" data-price="1,000 ﷼" data-kind="service"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-        <a class="btn btn-ghost" href="/fr/consultation?about=Opening%20a%20corporate%20bank%20account" style="width:100%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Or book a free consultation</span></a>
-        <a class="btn btn-ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Discuter avec l'agent intelligent</span></a>
-        <p class="mini">Instant reply from the smart agent 24/7</p>
-        <ul class="order-facts"><li><span class="k">Category</span><span class="v">Business Support</span></li><li><span class="k">Available to</span><span class="v">Individuals &amp; businesses</span></li><li><span class="k">Code</span><span class="v">BP-PL-0051</span></li></ul>
+        <div class="price-tailored">Pricing tailored to your case</div>
+        <div class="price-note">Tell us what you need and we'll prepare a custom quote — the first consultation is free.</div>
+        <a class="btn btn-primary" href="/fr/consultation?about=Corporate%20Bank%20Account%20Opening" style="width:100%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Request a quote / consultation</span></a>
+        <p class="mini">First consultation is free</p>
+        <ul class="order-facts"><li><span class="k">Category</span><span class="v">Business Support</span></li><li><span class="k">Duration</span><span class="v">Depends on the scope of the service</span></li><li><span class="k">Available to</span><span class="v">Businesses needing operational, regulatory or commercial support</span></li><li><span class="k">Code</span><span class="v">BP-PL-0051</span></li></ul>
       </div>
     </aside>
   </div></div></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>Abonnez-vous à notre newsletter</h3>
-      <p>Les dernières actualités des affaires et de la réglementation en Arabie saoudite — chaque semaine, directement dans votre boîte de réception.</p>
+      <p>The latest business &amp; regulatory news in Saudi Arabia — weekly, in both Arabic and English, straight to your inbox.</p>
     </div>
     <form class="newsletter-form" data-nl>
       <input type="email" placeholder="Votre e-mail" aria-label="E-mail" data-nl-email required>
@@ -123,16 +121,16 @@
       <li><a href="/fr/mahfol-makfol">Business Tourism</a></li>
       <li><a href="/fr/workspaces">Business Spaces</a></li>
       <li><a href="/fr/worker-housing">Worker Housing</a></li>
-      <li><a href="/fr/farina">Catering &amp; Hospitality</a></li>
     </ul></div>
     <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
       <li><a href="/fr/account">Espace client</a></li>
-      <li><a href="/fr/suppliers">Portail fournisseurs</a></li>
+      <li><a href="/fr/suppliers">Partners portal</a></li>
       <li><a href="/fr/employer-join">Pour les employeurs</a></li>
       <li><a href="/portal">Smart employees portal</a></li>
     </ul></div>
     <div class="footer-col"><h4>Centre de connaissances</h4><ul>
       <li><a href="/fr/saudi-arabia">Investir en Arabie saoudite</a></li>
+      <li><a href="/fr/opportunities">Investment Opportunities</a></li>
       <li><a href="/fr/directory">Startup Ecosystem Directory</a></li>
       <li><a href="/fr/tools-and-calculators">Outils et calculateurs</a></li>
       <li><a href="/fr/news">Actualités et analyses</a></li>
@@ -149,8 +147,6 @@
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex</span></li>
-      <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><a href="https://wa.me/966507034157" target="_blank" rel="noopener">Agent intelligent sur WhatsApp</a></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg><a href="https://whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X" target="_blank" rel="noopener">Suivez notre chaîne WhatsApp</a></li>
     </ul>
     <div class="footer-social" aria-label="Réseaux sociaux">
       <a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
@@ -160,20 +156,81 @@
   </div>
   <div class="footer-bottom">
     <span>© 2026 Business Partner · All rights reserved</span>
-    <span>Sun–Thu · 9 AM – 6 PM · and the smart agent on WhatsApp 24/7</span>
+    <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contacter sur WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Discuter avec l'agent intelligent</span></a><button class="advisor-fab" id="advisor-fab" aria-label="Ouvrir le conseiller intelligent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg><span class="lbl">Conseiller</span></button>
-  <section class="advisor-panel" id="advisor-panel" hidden aria-label="Conseiller intelligent">
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contacter sur WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Discuter avec l'agent intelligent</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
+    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="Fermer">✕</button>
+    <p>Hi 👋 I'm Baher, your smart assistant. Questions about formation or government platforms?</p>
+  </div>
+  <button class="advisor-fab" id="advisor-fab" aria-label="Open chat with Baher, the smart assistant">
+    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
+    <span class="lbl">Ask Baher</span>
+  </button>
+  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Ask Baher">
     <header class="advisor-head">
-      <div class="advisor-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg><div><strong>Conseiller Intelligent</strong><span>Répond à vos questions sur les services et procédures</span></div></div>
+      <button class="advisor-back" id="advisor-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Your smart partner — online now</span></span></div></div>
       <button class="advisor-close" id="advisor-close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </header>
-    <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">Bonjour 👋 Je suis le conseiller intelligent de Business Partner. Posez-moi vos questions sur la création d'entreprise, l'investissement étranger, les licences ou toute procédure gouvernementale — je vous orienterai vers le bon service.</div>
+
+    <!-- Step 1: contact intake (required first) -->
+    <div class="advisor-view" id="advisor-intake">
+      <div class="adv-intake-hd">Welcome 👋 First, tell us about yourself so we can serve you and follow up on your request.</div>
+      <input class="adv-in" id="adv-in-name" type="text" placeholder="Full name *" autocomplete="name">
+      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
+      <input class="adv-in" id="adv-in-email" type="email" placeholder="Email *" autocomplete="email">
+      <button type="button" class="adv-primary" id="advisor-intake-go">Start ›</button>
+      <div class="adv-err" id="adv-intake-err" hidden></div>
+      <p class="adv-note">🔒 Your details are used only to serve you and follow up on your request.</p>
     </div>
-    <form class="advisor-form" id="advisor-form">
-      <input id="advisor-input" type="text" autocomplete="off" placeholder="Écrivez votre question ici…" aria-label="Écrivez votre question">
-      <button type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-    </form>
-    <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Vous préférez discuter avec notre équipe sur WhatsApp ?</span></a>
-  </section><script src="/assets/js/main.js?v=ec8e73fc82"></script></body></html>
+
+    <!-- Step 2: home — service windows (main → sub) -->
+    <div class="advisor-view" id="advisor-home" hidden>
+      <div class="adv-home-hd" id="advisor-hello"></div>
+      <div class="adv-home-sub">Pick the service you need:</div>
+      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Loading services…</div></div>
+      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Réserver une consultation gratuite</button>
+      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 Or ask Baher directly</button>
+    </div>
+
+    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
+    <div class="advisor-view" id="advisor-book" hidden>
+      <div class="adv-book-hd">📅 Réserver une consultation gratuite</div>
+      <div class="adv-book-sub">Pick a day and time (Riyadh · 9am–6pm · closed Friday):</div>
+      <div class="adv-book-days" id="advisor-book-days"></div>
+      <div class="adv-book-slots" id="advisor-book-slots"></div>
+      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirm appointment</button>
+      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
+    </div>
+
+    <!-- Step 2b: sub-services of a chosen category -->
+    <div class="advisor-view" id="advisor-sub" hidden>
+      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
+      <div class="adv-svcs" id="advisor-svcs"></div>
+    </div>
+
+    <!-- Step 3: open a support ticket for the chosen service -->
+    <div class="advisor-view" id="advisor-ticket" hidden>
+      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
+      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Describe your request (optional)"></textarea>
+      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Request a price quote</button>
+      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
+    </div>
+
+    <!-- Chat with Baher (available after intake) -->
+    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
+      <div class="advisor-msgs" id="advisor-msgs">
+        <div class="advisor-msg bot">Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.</div>
+      </div>
+      <div class="advisor-chips" id="advisor-chips">
+        <button type="button" class="advisor-chip" data-q="Foreign investment company setup">🏢 Foreign investment setup</button>
+        <button type="button" class="advisor-chip" data-q="Government platforms management">💼 Government platforms</button>
+        <button type="button" class="advisor-chip" data-q="Packages & pricing">💰 Packages &amp; pricing</button>
+        <button type="button" class="advisor-chip" data-q="I want a free consultation">📞 Free consultation</button>
+      </div>
+      <form class="advisor-form" id="advisor-form">
+        <input id="advisor-input" type="text" autocomplete="off" placeholder="Écrivez votre question ici…" aria-label="Écrivez votre question">
+        <button type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+      </form>
+    </div>
+  </section><script src="/assets/js/main.js?v=c11284174c"></script></body></html>

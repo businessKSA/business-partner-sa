@@ -55,14 +55,14 @@
           ]
         },
         {
+          "href": "/services/category/ai-automation",
+          "en": "AI & Automation ⚡",
+          "ar": "الأتمتة والذكاء الاصطناعي ⚡"
+        },
+        {
           "href": "/task-force",
           "en": "Task Force ⚡",
           "ar": "تاسك فورس ⚡"
-        },
-        {
-          "href": "/data",
-          "en": "B2B Leads Database ⚡",
-          "ar": "قاعدة عملاء الأعمال ⚡"
         },
         {
           "href": "/hr",
@@ -90,11 +90,6 @@
           "href": "/deals",
           "en": "Deals ⚡",
           "ar": "الصفقات ⚡"
-        },
-        {
-          "href": "/installments",
-          "en": "Instalments ⚡",
-          "ar": "تقسيط الخدمات ⚡"
         },
         {
           "href": "/estrdad",
@@ -209,53 +204,6 @@
               "href": "/services/bp-housing-02",
               "en": "Worker transport",
               "ar": "نقل العمالة"
-            },
-            {
-              "href": "/farina#workforce",
-              "en": "Workforce catering (Farina)",
-              "ar": "إعاشة العمالة (فارينا)"
-            }
-          ]
-        },
-        {
-          "href": "/farina",
-          "en": "Catering & Hospitality",
-          "ar": "التموين والضيافة للشركات",
-          "sub": [
-            {
-              "href": "/farina",
-              "en": "Overview",
-              "ar": "نظرة عامة"
-            },
-            {
-              "href": "/farina#coffee-break",
-              "en": "Coffee Break",
-              "ar": "الكوفي بريك"
-            },
-            {
-              "href": "/farina#vip-coffee",
-              "en": "VIP Coffee Break",
-              "ar": "كوفي بريك VIP"
-            },
-            {
-              "href": "/farina#executive-lunch",
-              "en": "Executive Lunch",
-              "ar": "الغداء التنفيذي"
-            },
-            {
-              "href": "/farina#vip-hospitality",
-              "en": "VIP Hospitality",
-              "ar": "ضيافة كبار الشخصيات"
-            },
-            {
-              "href": "/farina#workforce",
-              "en": "Workforce Catering",
-              "ar": "إعاشة العمالة"
-            },
-            {
-              "href": "/worker-housing",
-              "en": "Worker Housing",
-              "ar": "تسكين العمالة"
             }
           ]
         }
@@ -267,13 +215,50 @@
       "items": [
         {
           "href": "/saudi-arabia",
-          "en": "Invest in Saudi",
-          "ar": "الاستثمار في السعودية"
+          "en": "Saudi Guide",
+          "ar": "دليل السعودية",
+          "sub": [
+            {
+              "href": "/saudi-arabia",
+              "en": "Invest in Saudi",
+              "ar": "الاستثمار في السعودية"
+            },
+            {
+              "href": "/guide/saudi-market",
+              "en": "The Saudi Market",
+              "ar": "السوق السعودي"
+            },
+            {
+              "href": "/guide/business-setup",
+              "en": "Business Setup",
+              "ar": "تأسيس الأعمال"
+            },
+            {
+              "href": "/guide/run-your-business",
+              "en": "Run Your Business",
+              "ar": "تشغيل عملك"
+            },
+            {
+              "href": "/directory",
+              "en": "Entrepreneurship guide",
+              "ar": "دليل ريادة الأعمال"
+            },
+            {
+              "href": "/guide/live-in-saudi",
+              "en": "Live in Saudi",
+              "ar": "الحياة في السعودية"
+            },
+            {
+              "href": "/guide/residency",
+              "en": "Residency in KSA",
+              "ar": "الإقامة في السعودية"
+            }
+          ]
         },
         {
-          "href": "/directory",
-          "en": "Startup Ecosystem Directory",
-          "ar": "دليل ريادة الأعمال"
+          "href": "/opportunities",
+          "en": "Investment Opportunities",
+          "ar": "الفرص الاستثمارية"
         },
         {
           "href": "/news",
@@ -286,11 +271,6 @@
           "ar": "النشرة الإخبارية"
         }
       ]
-    },
-    {
-      "href": "/suppliers",
-      "en": "Suppliers portal",
-      "ar": "بوابة الموردين"
     },
     {
       "href": "/contact",

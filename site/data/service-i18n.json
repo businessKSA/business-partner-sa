@@ -3,10 +3,6 @@
     "en": "Chamber of Commerce membership",
     "ar": "عضوية الغرفة التجارية"
   },
-  "BP-PL-0001": {
-    "en": "Saudi LLC company formation",
-    "ar": "تأسيس شركة سعودية (ذات مسؤولية محدودة)"
-  },
   "BP-PL-0066": {
     "en": "Pre-incorporation consultation",
     "ar": "استشارة ما قبل التأسيس"
@@ -16,59 +12,59 @@
     "ar": "تأسيس شركة سعودية"
   },
   "BP-SBC-02": {
-    "en": "New Commercial Registration issuance",
+    "en": "New Commercial Registration Issuance",
     "ar": "إصدار سجل تجاري جديد"
   },
   "BP-SBC-03": {
-    "en": "Articles of Association issuance & notarization (new company)",
+    "en": "AoA Issuance & Notarization (new company)",
     "ar": "إصدار عقد تأسيس وتوثيقه (لشركة جديدة)"
   },
   "BP-SBC-04": {
-    "en": "Commercial Registration (CR) issuance",
+    "en": "Commercial Registration Issuance",
     "ar": "إصدار سجل تجاري"
   },
   "BP-SBC-05": {
-    "en": "Company name reservation",
-    "ar": "حجز اسم الشركة"
+    "en": "Company Name Reservation",
+    "ar": "حجز اسم شركة"
   },
   "BP-SBC-06": {
-    "en": "Company account setup on Absher Business",
+    "en": "Company Account on Absher Business",
     "ar": "فتح حساب شركة على منصة أبشر أعمال"
   },
   "BP-SBC-07": {
-    "en": "Opening a branch for an existing company (local or foreign)",
+    "en": "Opening a Branch for an Existing Company",
     "ar": "فتح فرع لشركة قائمة (محلية أو أجنبية)"
   },
   "BP-SBC-08": {
-    "en": "Company liquidation (CR cancellation & entity closure)",
+    "en": "Company Liquidation (CR cancellation & closure)",
     "ar": "تصفية شركة (شطب السجل وإنهاء الكيان)"
   },
   "BP-SBC-09": {
-    "en": "CR cancellation certificate issuance",
+    "en": "CR Cancellation Certificate Issuance",
     "ar": "إصدار شهادة شطب سجل تجاري"
   },
   "BP-SBC-10": {
-    "en": "Amending Articles of Association / partners' resolutions",
+    "en": "Amending AoA / Partners' Resolutions",
     "ar": "تعديل عقد تأسيس / قرارات شركاء"
   },
   "BP-SBC-11": {
-    "en": "Commercial Registration amendment",
+    "en": "Commercial Registration Amendment",
     "ar": "تعديل سجل تجاري"
   },
   "BP-SBC-12": {
-    "en": "Trade name reservation",
+    "en": "Trade Name Reservation",
     "ar": "حجز اسم تجاري"
   },
   "BP-SBC-13": {
-    "en": "Commercial Registration cancellation",
+    "en": "Commercial Registration Cancellation",
     "ar": "شطب سجل تجاري (إلغاء السجل)"
   },
   "BP-SBC-14": {
-    "en": "Legal form transformation (sole → LLC / LLC → sole)",
-    "ar": "تحويل الشكل القانوني (مؤسسة ↔ شركة ذات مسؤولية محدودة)"
+    "en": "Legal Form Transformation",
+    "ar": "تحويل الشكل القانوني للمنشأة"
   },
   "BP-SBC-15": {
-    "en": "Articles of Association drafting & notarization support",
+    "en": "AoA Drafting & Notarization Support",
     "ar": "صياغة عقد التأسيس ودعم التوثيق"
   },
   "BP-SBC-16": {
@@ -76,19 +72,19 @@
     "ar": "خدمات تأسيس مصانع وإصدار تراخيص صناعية"
   },
   "BP-SBC-17": {
-    "en": "Commercial statement request (Ministry of Commerce letter)",
+    "en": "Commercial Statement Request",
     "ar": "طلب إفادة تجارية (خطاب من وزارة التجارة)"
   },
   "BP-SBC-18": {
-    "en": "Converting an establishment into a company (or vice versa)",
+    "en": "Converting an Establishment into a Company",
     "ar": "تحويل مؤسسة إلى شركة (أو العكس)"
   },
   "BP-SBC-19": {
-    "en": "Commercial Registration renewal",
+    "en": "Commercial Registration Renewal",
     "ar": "تجديد سجل تجاري"
   },
   "BP-SBC-20": {
-    "en": "Detailed Commercial Registration extract",
+    "en": "Detailed CR Extract Issuance",
     "ar": "استخراج مستخرج سجل تجاري تفصيلي"
   },
   "BP-FI-01": {
@@ -96,7 +92,7 @@
     "ar": "تأسيس شركة لمستثمر أجنبي"
   },
   "BP-FI-02": {
-    "en": "Foreign investment license issuance",
+    "en": "Foreign Investment License Issuance",
     "ar": "استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)"
   },
   "BP-FI-03": {
@@ -104,35 +100,31 @@
     "ar": "تأسيس شركة أجنبية 100% ملكية (فرع أجنبي)"
   },
   "BP-FI-04": {
-    "en": "Joint-venture company formation (with a foreign partner)",
+    "en": "Joint-Venture Company Formation",
     "ar": "تأسيس شركة بشراكة أجنبية (مشتركة)"
   },
   "BP-FI-05": {
-    "en": "Company formation under an entrepreneur license",
+    "en": "Entrepreneur-License Company Formation",
     "ar": "تأسيس شركة برخصة ريادة الأعمال (رائد أعمال)"
   },
   "BP-FI-06": {
-    "en": "Branch registration (foreign company)",
-    "ar": "تسجيل فرع (شركة أجنبية)"
-  },
-  "BP-PL-0067": {
-    "en": "MISA investor license application",
-    "ar": "طلب ترخيص مستثمر من وزارة الاستثمار (MISA)"
+    "en": "Foreign Company Branch Registration",
+    "ar": "تسجيل فرع لشركة أجنبية"
   },
   "BP-PR-01": {
     "en": "Premium Residency service (procedures + application)",
     "ar": "خدمة الإقامة المميزة (إجراءات + تقديم)"
   },
   "BP-PR-02": {
-    "en": "Premium Residency consultation",
+    "en": "Premium Residency Consultation",
     "ar": "استشارة الإقامة المميزة"
   },
   "BP-ABSHER-01": {
-    "en": "Absher Business setup",
+    "en": "Absher Business Setup",
     "ar": "تفعيل أبشر أعمال"
   },
   "BP-BALADY-01": {
-    "en": "Municipal license issuance (commercial premises)",
+    "en": "Municipal License Issuance",
     "ar": "إصدار رخصة بلدية (مقر تجاري)"
   },
   "BP-BALADY-02": {
@@ -140,55 +132,51 @@
     "ar": "عقد نظافة إلكتروني (متطلب بلدي)"
   },
   "BP-GOSI-01": {
-    "en": "GOSI (social insurance) registration",
+    "en": "GOSI Registration",
     "ar": "التسجيل في التأمينات الاجتماعية (GOSI)"
   },
   "BP-GOSI-02": {
-    "en": "Adding a Saudi employee to GOSI",
+    "en": "Add a Saudi Employee in GOSI",
     "ar": "إضافة موظف سعودي في التأمينات"
   },
   "BP-GOSI-03": {
-    "en": "GOSI certificate issuance",
+    "en": "GOSI Certificate Issuance",
     "ar": "استخراج شهادة التأمينات الاجتماعية"
   },
-  "BP-GOSI-04": {
-    "en": "GOSI registration",
-    "ar": "التسجيل في التأمينات الاجتماعية"
-  },
   "BP-GR-01": {
-    "en": "Contractor classification (classification certificate)",
-    "ar": "تصنيف المقاولين (الحصول على شهادة تصنيف)"
+    "en": "Contractor Classification Certificate",
+    "ar": "تصنيف المقاولين (شهادة تصنيف)"
   },
   "BP-MOD-01": {
-    "en": "Civil Defense permit issuance (safety certificate)",
+    "en": "Civil Defense Permit & Safety Certificate",
     "ar": "إصدار تصريح الدفاع المدني (شهادة سلامة)"
   },
   "BP-MOD-02": {
-    "en": "Technical safety report (Civil Defense requirement)",
+    "en": "Technical Safety Report",
     "ar": "تقرير فني سلامة (متطلب الدفاع المدني)"
   },
   "BP-MUDAD-01": {
-    "en": "Mudad setup (WPS)",
-    "ar": "تفعيل نظام مُدد (حماية الأجور)"
+    "en": "Mudad WPS Setup",
+    "ar": "إعداد منصة مدد لنظام حماية الأجور"
   },
   "BP-MUQEEM-01": {
-    "en": "Exit & Re-entry visa issuance",
+    "en": "Exit & Re-entry Visa Issuance",
     "ar": "إصدار تأشيرة خروج وعودة"
   },
   "BP-QIWA-01": {
-    "en": "Qiwa setup & onboarding",
-    "ar": "تفعيل منصة قوى وتهيئتها"
+    "en": "Qiwa Setup & Onboarding",
+    "ar": "إعداد وتفعيل منصة قوى"
   },
   "BP-QIWA-02": {
-    "en": "Employee sponsorship transfer",
+    "en": "Employee Sponsorship Transfer",
     "ar": "نقل كفالة عامل (نقل خدمة)"
   },
   "BP-QIWA-03": {
-    "en": "Employee profession change",
+    "en": "Employee Profession Change",
     "ar": "تغيير مهنة عامل"
   },
   "BP-QIWA-04": {
-    "en": "Adding an authorized representative to an entity",
+    "en": "Adding an Authorized Representative",
     "ar": "إضافة مفوض لمنشأة"
   },
   "BP-SAIP-01": {
@@ -196,67 +184,67 @@
     "ar": "تسجيل علامة تجارية جديدة"
   },
   "BP-SUBL-01": {
-    "en": "National Address registration",
-    "ar": "تسجيل العنوان الوطني"
+    "en": "National Address Registration",
+    "ar": "التسجيل في العنوان الوطني"
   },
   "BP-ZATCA-01": {
-    "en": "ZATCA registration (VAT & Zakat)",
+    "en": "VAT & Zakat Registration",
     "ar": "التسجيل في الزكاة والضريبة (VAT & Zakat)"
   },
   "BP-ZATCA-02": {
-    "en": "Tax (VAT) number issuance",
+    "en": "VAT Number Issuance",
     "ar": "استخراج رقم ضريبي (VAT)"
   },
   "BP-ZATCA-03": {
-    "en": "Annual Zakat return filing",
+    "en": "Annual Zakat Return Filing",
     "ar": "تقديم إقرار الزكاة السنوي"
   },
   "BP-ZATCA-04": {
-    "en": "ZATCA VAT registration",
+    "en": "ZATCA VAT Registration",
     "ar": "التسجيل في ضريبة القيمة المضافة (زاتكا)"
   },
   "BP-ZATCA-05": {
-    "en": "VAT return filing",
+    "en": "VAT Return Filing",
     "ar": "تقديم إقرار ضريبة قيمة مضافة"
   },
   "BP-HR-01": {
-    "en": "Employee health certificate issuance",
+    "en": "Employee Health Certificate Issuance",
     "ar": "إصدار شهادة صحية للموظفين"
   },
   "BP-HR-02": {
-    "en": "Opening an entity file at the Ministry of HR",
+    "en": "Establishment File Opening at MHRSD",
     "ar": "فتح ملف منشأة في وزارة الموارد البشرية"
   },
   "BP-HR-03": {
-    "en": "HR services & employee management",
+    "en": "HR & Employee Management Services",
     "ar": "خدمات الموارد البشرية وإدارة الموظفين"
   },
   "BP-MUDAD-02": {
-    "en": "Wage Protection file upload (Mudad)",
+    "en": "Mudad Wage Protection File Upload",
     "ar": "رفع ملف حماية الأجور (نظام مُدد)"
   },
   "BP-MUDAD-03": {
-    "en": "Resolving Wage Protection System notes",
+    "en": "Wage Protection System Notes Resolution",
     "ar": "معالجة ملاحظات نظام حماية الأجور"
   },
   "BP-MUQEEM-02": {
-    "en": "New residency (Iqama) issuance for a foreign employee",
+    "en": "New Iqama Issuance",
     "ar": "إصدار إقامة جديدة (لموظف أجنبي)"
   },
   "BP-MUQEEM-03": {
-    "en": "Residency (Iqama) renewal",
+    "en": "Iqama Renewal",
     "ar": "تجديد إقامة (هوية مقيم)"
   },
   "BP-MUQEEM-04": {
-    "en": "Family visit visa issuance",
+    "en": "Family Visit Visa Issuance",
     "ar": "إصدار تأشيرة زيارة عائلية"
   },
   "BP-REC-01": {
-    "en": "Recruitment & work-visa issuance services",
+    "en": "Recruitment Services & Work Visa Issuance",
     "ar": "خدمات الاستقدام واستخراج تأشيرات العمل"
   },
   "BP-REC-02": {
-    "en": "Work visa issuance (recruitment visa)",
+    "en": "Work Visa Issuance",
     "ar": "إصدار تأشيرة عمل (تأشيرة استقدام)"
   },
   "BP-REC-03": {
@@ -276,43 +264,43 @@
     "ar": "التوظيف الجماعي"
   },
   "BP-BS-01": {
-    "en": "Digital marketing & advertising services",
+    "en": "Digital Marketing & Advertising",
     "ar": "خدمات التسويق الرقمي والإعلان"
   },
   "BP-PL-0019": {
-    "en": "Commercial agency / franchise registration",
-    "ar": "تسجيل وكالة تجارية/فرنشايز"
+    "en": "Franchise Law compliance & registration",
+    "ar": "الامتثال والقيد بنظام الامتياز التجاري (فرنشايز)"
   },
   "BP-PL-0035": {
-    "en": "Muqeem account management (data add & update)",
+    "en": "Muqeem Account Management",
     "ar": "إدارة حساب مقيم (إضافة وتحديث البيانات)"
   },
   "BP-PL-0050": {
-    "en": "VIP service (VIP transaction handling)",
+    "en": "VIP Transaction Processing",
     "ar": "خدمة كبار الشخصيات (إنهاء المعاملات VIP)"
   },
   "BP-PL-0051": {
-    "en": "Opening a corporate bank account",
+    "en": "Corporate Bank Account Opening",
     "ar": "فتح حساب بنكي تجاري للشركة"
   },
   "BP-PL-0052": {
-    "en": "Internal company bylaws (governance) preparation",
+    "en": "Internal Company Regulations (Governance)",
     "ar": "إعداد لوائح الشركة الداخلية (حوكمة)"
   },
   "BP-PL-0053": {
-    "en": "Company structuring & reorganization",
+    "en": "Company Restructuring & Organization",
     "ar": "هيكلة وتنظيم الشركة (إعادة هيكلة)"
   },
   "BP-PL-0054": {
-    "en": "Corporate legal representation (litigation)",
+    "en": "Corporate Legal Representation",
     "ar": "التمثيل القانوني للشركات (محاماة)"
   },
   "BP-PL-0055": {
-    "en": "Legal consulting on the Companies Law",
+    "en": "Corporate Law Consultation",
     "ar": "استشارات قانونية لنظام الشركات"
   },
   "BP-PL-0056": {
-    "en": "General business & investment consulting",
+    "en": "General Business & Investment Consultation",
     "ar": "استشارات أعمال واستثمار عامة"
   },
   "BP-PL-0057": {
@@ -320,39 +308,35 @@
     "ar": "إعداد دراسة جدوى اقتصادية"
   },
   "BP-PL-0058": {
-    "en": "Business plan & strategy development",
+    "en": "Business Plan & Strategy Development",
     "ar": "إعداد خطة عمل وتطوير استراتيجيات"
   },
   "BP-PL-0059": {
-    "en": "Financial advisor service (accounting & bookkeeping)",
+    "en": "Financial Advisor (Accounting & Bookkeeping)",
     "ar": "خدمة المستشار المالي (محاسبة ودفاتر)"
   },
   "BP-PL-0060": {
-    "en": "Audit & tax review (financial auditing)",
+    "en": "Audit & Tax Review",
     "ar": "مراجعة حسابات وضريبة (تدقيق مالي)"
   },
   "BP-PL-0063": {
-    "en": "Public relations & corporate communications",
+    "en": "Public Relations & Corporate Communications",
     "ar": "خدمة العلاقات العامة والاتصال المؤسسي"
   },
-  "BP-PL-0075": {
-    "en": "Bank account opening (liaison & appointments)",
-    "ar": "فتح حساب بنكي (تنسيق ومواعيد)"
-  },
   "BP-RE-01": {
-    "en": "Private office (for a set number of people)",
+    "en": "Private Office",
     "ar": "مكتب خاص (لعدد محدد من الأشخاص)"
   },
   "BP-RE-02": {
-    "en": "Coworking space",
+    "en": "Coworking Space",
     "ar": "مساحة عمل مشتركة (Coworking)"
   },
   "BP-RE-03": {
-    "en": "Virtual office with a National Address",
+    "en": "Virtual Office with National Address",
     "ar": "مكتب افتراضي مع عنوان وطني"
   },
   "BP-RE-04": {
-    "en": "Dedicated desk in a coworking space",
+    "en": "Dedicated Desk",
     "ar": "مكتب ثابت في مساحة مشتركة (Dedicated Desk)"
   },
   "BP-RE-05": {
@@ -382,5 +366,105 @@
   "BP-HOUSING-02": {
     "en": "Worker transport — housing to work sites",
     "ar": "نقل العمالة — من السكن إلى مواقع العمل"
+  },
+  "BP-FI-07": {
+    "ar": "دخول مستثمر أجنبي",
+    "en": "Foreign Investor Entry"
+  },
+  "BP-DIAG-01": {
+    "ar": "تقرير تشخيص",
+    "en": "Diagnostic Report"
+  },
+  "BP-GUIDE-01": {
+    "ar": "دليل قطاعي عام",
+    "en": "General Industry Guide"
+  },
+  "BP-GUIDE-02": {
+    "ar": "دليل مخصص",
+    "en": "Custom Guide"
+  },
+  "BP-PL-0088": {
+    "ar": "تسجيل قيد وكالة تجارية",
+    "en": "Commercial Agency Registration"
+  },
+  "BP-PL-0089": {
+    "ar": "تعديل قيد وكالة تجارية",
+    "en": "Commercial Agency Registration Amendment"
+  },
+  "BP-PL-0090": {
+    "ar": "تجديد قيد وكالة تجارية",
+    "en": "Commercial Agency Registration Renewal"
+  },
+  "BP-PL-0091": {
+    "ar": "شطب قيد وكالة تجارية",
+    "en": "Commercial Agency Registration Cancellation"
+  },
+  "BP-PL-0092": {
+    "ar": "تراخيص التخفيضات",
+    "en": "Discount License Issuance"
+  },
+  "BP-PL-0093": {
+    "ar": "تراخيص الأحجار الكريمة والمعادن الثمينة",
+    "en": "Precious Stones and Precious Metals Licenses"
+  },
+  "BP-PL-0076": {
+    "ar": "إصدار الترخيص الصناعي (تأسيس)",
+    "en": "Industrial License Issuance for Establishment"
+  },
+  "BP-PL-0077": {
+    "ar": "تجديد الترخيص الصناعي",
+    "en": "Industrial License Renewal"
+  },
+  "BP-PL-0078": {
+    "ar": "تعديل الترخيص الصناعي",
+    "en": "Industrial License Amendment"
+  },
+  "BP-PL-0079": {
+    "ar": "نقل ملكية الترخيص الصناعي",
+    "en": "Industrial License Ownership Transfer"
+  },
+  "BP-PL-0080": {
+    "ar": "طلب تأييد العمالة",
+    "en": "Labor Endorsement Request"
+  },
+  "BP-PL-0081": {
+    "ar": "إعفاء جمركي (مواد/آلات/قطع غيار)",
+    "en": "Customs Exemption for Materials, Machinery, and Spare Parts"
+  },
+  "BP-PL-0082": {
+    "ar": "إصدار شهادة المنشأ",
+    "en": "Certificate of Origin Issuance"
+  },
+  "BP-PL-0083": {
+    "ar": "طلب الفسح الكيميائي",
+    "en": "Chemical Clearance Request"
+  },
+  "BP-PL-0084": {
+    "ar": "ترقية البنود الجمركية",
+    "en": "Customs Tariff Items Upgrade"
+  },
+  "BP-PL-0085": {
+    "ar": "رخصة الاستطلاع (تعدين)",
+    "en": "Mining Reconnaissance License"
+  },
+  "BP-PL-0086": {
+    "ar": "المسح الصناعي",
+    "en": "Industrial Survey"
+  },
+  "BP-PL-0087": {
+    "ar": "تصريح الاستشارات الأمنية",
+    "en": "Security Consulting Permit"
+  },
+  "BP-SUB-01": {
+    "ar": "اشتراك تحديثات",
+    "en": "Updates Subscription"
+  },
+  "BP-VENDOR-01": {
+    "ar": "تأهيل مورد",
+    "en": "Vendor Qualification"
+  },
+  "BP-VENDOR-02": {
+    "ar": "متابعة مورد",
+    "en": "Vendor Follow-up"
   }
 }
