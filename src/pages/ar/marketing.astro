@@ -1,0 +1,353 @@
+---
+import '../../styles/global.css';
+export const prerender = true;
+const API_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-marketing-dashboard';
+const APPROVE_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-marketing-approve';
+const GATE_PASSPHRASE = 'farah2026';
+---
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <title>لوحة المحتوى التسويقي | فرح — بزنس بارتنر</title>
+  <style>
+    :root{ --navy:#0B1B5A; --brand:#0066cc; --gold:#C79A3A; --red:#dc2626; --yellow:#d97706; --green:#16a34a; --gray:#6b7280; }
+    body{ padding-top:0; background:#eef1f7; min-height:100vh; }
+    .wrap{ max-width:1180px; margin-inline:auto; padding:1.2rem; }
+    #gate{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; background:linear-gradient(150deg,#0B1B5A 0%,#12307f 60%,#0066cc 130%); }
+    .gate-card{ background:#fff; border-radius:20px; padding:2rem; width:100%; max-width:380px; box-shadow:0 20px 50px rgba(0,0,0,.25); }
+    .gate-card img{ height:32px; margin-bottom:.6rem; }
+    .gate-card h1{ font-size:1.25rem; color:var(--navy); margin-bottom:.3rem; }
+    .gate-card p{ color:#667; font-size:.85rem; margin-bottom:1.1rem; }
+    .field{ margin-bottom:.9rem; display:flex; flex-direction:column; gap:.3rem; }
+    .field label{ font-size:.85rem; font-weight:600; color:#334; }
+    .field input{ border:1px solid #cfd8e6; border-radius:10px; padding:.75rem .9rem; font:inherit; }
+    .btn{ border:0; border-radius:12px; padding:.75rem 1rem; font-weight:700; cursor:pointer; font-size:.95rem; }
+    .btn-block{ width:100%; padding:.85rem; }
+    .btn-navy{ background:var(--navy); color:#fff; }
+    .btn-gold{ background:var(--gold); color:#221a00; }
+    .btn-ghost{ background:#eef2fb; color:var(--navy); }
+    .gate-err{ color:#b3261e; background:#fdecec; border-radius:8px; padding:.6rem .8rem; font-size:.85rem; margin-top:.8rem; display:none; }
+    #dash{ display:none; }
+    header.top{ background:var(--navy); color:#fff; padding:1rem 0; position:sticky; top:0; z-index:40; }
+    header.top .wrap{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.6rem; padding-block:0; }
+    header.top .brand{ display:flex; align-items:center; gap:.5rem; font-weight:700; }
+    header.top .brand img{ height:22px; }
+    header.top .actions{ display:flex; gap:.5rem; align-items:center; }
+    .icon-btn{ background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:#fff; padding:.45rem .9rem; border-radius:8px; font-size:.82rem; cursor:pointer; }
+    .tabs{ display:flex; gap:.3rem; background:#fff; border-radius:14px; padding:.35rem; box-shadow:0 4px 14px rgba(11,27,90,.06); margin:1rem 0; overflow-x:auto; }
+    .tab{ border:0; background:transparent; padding:.6rem 1rem; border-radius:10px; font-weight:700; font-size:.86rem; color:#5b6472; cursor:pointer; white-space:nowrap; }
+    .tab.active{ background:var(--navy); color:#fff; }
+    .panel{ display:none; }
+    .panel.active{ display:block; }
+    .grid{ display:grid; gap:1rem; }
+    .cols-auto{ grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); }
+    .qgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:.8rem; }
+    .qtile{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1rem .7rem; text-align:center; box-shadow:0 6px 16px rgba(11,27,90,.05); }
+    .qicon{ width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin:0 auto .5rem; }
+    .qicon.gray{ background:#f1f3f8; } .qicon.blue{ background:#e0edff; } .qicon.orange{ background:#ffedd5; }
+    .qicon.purple{ background:#f2e7fb; } .qicon.green{ background:#dcfce7; } .qicon.red{ background:#fee2e2; } .qicon.yellow{ background:#fef9c3; }
+    .qn{ font-size:1.4rem; font-weight:800; color:#222; }
+    .ql{ color:#8a94a6; font-size:.76rem; margin-top:.2rem; }
+    h3.sec{ font-size:1.02rem; color:var(--navy); margin:1.4rem 0 .8rem; display:flex; align-items:center; gap:.4rem; }
+    .platform-card{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; padding:1rem; box-shadow:0 6px 18px rgba(11,27,90,.05); cursor:pointer; text-align:right; }
+    .platform-card .badge-logo{ width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:.6rem; color:#fff; font-weight:800; font-size:1.1rem; }
+    .platform-card .label{ font-weight:700; color:#222; font-size:.92rem; }
+    .platform-card .stat-line{ color:#8a94a6; font-size:.78rem; margin-top:.3rem; }
+    .platform-card .stat-line b{ color:var(--navy); }
+    .post-card{ background:#fff; border:1px solid #e6eaf2; border-radius:16px; overflow:hidden; box-shadow:0 6px 18px rgba(11,27,90,.05); margin-bottom:1rem; display:grid; grid-template-columns:180px 1fr; }
+    .post-card img{ width:100%; height:100%; object-fit:cover; background:#0B1B5A; min-height:160px; }
+    .post-body{ padding:1rem 1.1rem; }
+    .post-head{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; }
+    .platform-chip{ display:inline-block; color:#fff; font-weight:700; font-size:.74rem; padding:.22rem .6rem; border-radius:999px; }
+    .pillar-chip{ display:inline-block; background:#eef2fb; color:var(--navy); font-weight:700; font-size:.72rem; padding:.2rem .55rem; border-radius:999px; }
+    .post-title{ font-weight:700; color:#222; font-size:.95rem; margin-bottom:.4rem; }
+    .post-caption{ color:#4b5262; font-size:.86rem; line-height:1.55; white-space:pre-line; margin-bottom:.6rem; max-height:6.5em; overflow:hidden; }
+    .post-hashtags{ color:var(--brand); font-size:.78rem; margin-bottom:.7rem; }
+    .post-actions{ display:flex; gap:.5rem; flex-wrap:wrap; }
+    .post-actions .btn{ padding:.5rem .9rem; font-size:.82rem; }
+    .reject-box{ display:none; margin-top:.6rem; gap:.5rem; }
+    .reject-box textarea{ flex:1; border:1px solid #cfd8e6; border-radius:10px; padding:.5rem .7rem; font:inherit; font-size:.82rem; resize:vertical; min-height:2.4rem; }
+    .empty{ color:#8a94a6; font-size:.88rem; padding:1.2rem; text-align:center; background:#fff; border-radius:16px; border:1px solid #e6eaf2; }
+    .err-banner{ background:#fdecec; color:#b3261e; border-radius:10px; padding:.8rem 1rem; margin-bottom:1rem; display:none; }
+    .toast{ position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:.7rem 1.2rem; border-radius:999px; font-size:.85rem; font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,.25); display:none; z-index:60; }
+    @media(max-width:640px){ .post-card{ grid-template-columns:1fr; } .post-card img{ min-height:200px; } }
+  </style>
+</head>
+<body>
+  <div id="gate">
+    <form class="gate-card" id="gate-form">
+      <img src="/logo.svg" alt="" />
+      <h1>لوحة المحتوى التسويقي</h1>
+      <p>للفريق الداخلي فقط — أدخل كلمة المرور لمتابعة تقويم المحتوى والموافقات.</p>
+      <div class="field"><label>كلمة المرور</label><input type="password" id="gate-pass" required autocomplete="off" /></div>
+      <button type="submit" class="btn btn-navy btn-block">دخول</button>
+      <div class="gate-err" id="gate-err">كلمة المرور غير صحيحة.</div>
+    </form>
+  </div>
+
+  <div id="dash">
+    <header class="top">
+      <div class="wrap">
+        <div class="brand"><img src="/logo.svg" alt="" /><span>لوحة المحتوى — فرح</span></div>
+        <div class="actions">
+          <button class="icon-btn" id="refresh-btn">↻ تحديث</button>
+          <button class="icon-btn" id="logout-btn">خروج</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <div class="err-banner" id="dash-err"></div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">نظرة عامة</button>
+        <button class="tab" data-tab="review">بانتظار المراجعة</button>
+        <button class="tab" data-tab="week">هذا الأسبوع</button>
+        <button class="tab" data-tab="all">كل المحتوى</button>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div class="panel active" id="panel-overview">
+        <h3 class="sec">📊 حالة التقويم</h3>
+        <div class="qgrid" id="status-grid"><div class="empty">جارٍ التحميل...</div></div>
+
+        <h3 class="sec">📣 المنصات السبع</h3>
+        <div class="grid cols-auto" id="platform-grid"></div>
+      </div>
+
+      <!-- NEEDS REVIEW -->
+      <div class="panel" id="panel-review">
+        <h3 class="sec">✅ بانتظار موافقتك</h3>
+        <div id="review-list"><div class="empty">جارٍ التحميل...</div></div>
+      </div>
+
+      <!-- THIS WEEK -->
+      <div class="panel" id="panel-week">
+        <h3 class="sec">🗓️ مجدول هذا الأسبوع</h3>
+        <div id="week-list"><div class="empty">جارٍ التحميل...</div></div>
+      </div>
+
+      <!-- ALL -->
+      <div class="panel" id="panel-all">
+        <h3 class="sec">📚 كل المحتوى</h3>
+        <div id="all-list"><div class="empty">جارٍ التحميل...</div></div>
+      </div>
+
+      <div style="height:3rem"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script define:vars={{ API_URL, APPROVE_URL, GATE_PASSPHRASE }}>
+    const PLATFORM_BADGES = {
+      'Instagram': { bg:'#C13584' }, 'Facebook': { bg:'#0866FF' }, 'LinkedIn': { bg:'#0A66C2' },
+      'Snapchat': { bg:'#FFC800' }, 'TikTok': { bg:'#111111' }, 'WhatsApp Channel': { bg:'#25D366' },
+      'Telegram Channel': { bg:'#229ED9' }
+    };
+    const STATUS_ICONS = {
+      'Idea': { icon:'💡', cls:'gray' }, 'Draft': { icon:'📝', cls:'gray' }, 'Needs Design': { icon:'🎨', cls:'yellow' },
+      'Ready for Review': { icon:'👀', cls:'orange' }, 'Approved': { icon:'✅', cls:'blue' },
+      'Scheduled': { icon:'⏰', cls:'purple' }, 'Published': { icon:'🚀', cls:'green' }, 'Rejected': { icon:'✕', cls:'red' }
+    };
+    const STATUS_LABELS_AR = {
+      'Idea':'أفكار','Draft':'مسودة','Needs Design':'يحتاج تصميم','Ready for Review':'جاهز للمراجعة',
+      'Approved':'موافَق عليه','Scheduled':'مجدول','Published':'منشور','Rejected':'مرفوض'
+    };
+
+    const gate = document.getElementById('gate');
+    const dash = document.getElementById('dash');
+    const gateForm = document.getElementById('gate-form');
+    const gateErr = document.getElementById('gate-err');
+    const dashErr = document.getElementById('dash-err');
+    let lastData = null;
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2600);
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+    }
+    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+    function badge(platform) {
+      const b = PLATFORM_BADGES[platform] || { bg: '#0B1B5A' };
+      return '<span class="platform-chip" style="background:' + b.bg + '">' + platform + '</span>';
+    }
+
+    function postCard(p, opts) {
+      opts = opts || {};
+      const img = p.designUrl ? '<img src="' + p.designUrl + '" alt="" loading="lazy" />' : '<div style="min-height:160px;background:#0B1B5A"></div>';
+      const caption = p.captionAr || p.captionEn || '';
+      const actions = opts.showActions ? (
+        '<div class="post-actions">' +
+          '<button class="btn btn-navy approve-btn" data-id="' + p.id + '">✅ موافقة</button>' +
+          '<button class="btn btn-ghost reject-toggle" data-id="' + p.id + '">✕ رفض</button>' +
+        '</div>' +
+        '<div class="reject-box" id="reject-box-' + p.id + '">' +
+          '<textarea placeholder="سبب الرفض (اختياري)" id="reject-reason-' + p.id + '"></textarea>' +
+          '<button class="btn btn-ghost reject-confirm" data-id="' + p.id + '" style="background:#fdecec;color:#b3261e">تأكيد الرفض</button>' +
+        '</div>'
+      ) : (p.status ? '<div class="pillar-chip">' + (STATUS_LABELS_AR[p.status] || p.status) + '</div>' : '');
+      return '<div class="post-card">' + img +
+        '<div class="post-body">' +
+          '<div class="post-head">' + badge(p.platform) + (p.pillar ? '<span class="pillar-chip">' + p.pillar + '</span>' : '') + '</div>' +
+          '<div class="post-title">' + (p.title || '') + '</div>' +
+          '<div class="post-caption">' + caption + '</div>' +
+          (p.hashtags ? '<div class="post-hashtags">' + p.hashtags + '</div>' : '') +
+          actions +
+        '</div></div>';
+    }
+
+    function wireActions(container) {
+      container.querySelectorAll('.reject-toggle').forEach(btn => btn.addEventListener('click', () => {
+        const box = document.getElementById('reject-box-' + btn.dataset.id);
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+      }));
+      container.querySelectorAll('.approve-btn').forEach(btn => btn.addEventListener('click', () => doApprove(btn.dataset.id, btn)));
+      container.querySelectorAll('.reject-confirm').forEach(btn => btn.addEventListener('click', () => {
+        const reason = document.getElementById('reject-reason-' + btn.dataset.id).value;
+        doReject(btn.dataset.id, reason, btn);
+      }));
+    }
+
+    async function doApprove(pageId, btn) {
+      btn.disabled = true; btn.textContent = '...جارٍ الحفظ';
+      try {
+        await fetch(APPROVE_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pageId: pageId, action: 'approve', approver: 'فريق بزنس بارتنر' })
+        });
+        showToast('تمت الموافقة ✅');
+        loadDashboard();
+      } catch (e) {
+        showToast('تعذّر الحفظ، حاول مرة أخرى');
+        btn.disabled = false; btn.textContent = '✅ موافقة';
+      }
+    }
+
+    async function doReject(pageId, reason, btn) {
+      btn.disabled = true; btn.textContent = '...جارٍ الحفظ';
+      try {
+        await fetch(APPROVE_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pageId: pageId, action: 'reject', rejectionReason: reason || '' })
+        });
+        showToast('تم الرفض');
+        loadDashboard();
+      } catch (e) {
+        showToast('تعذّر الحفظ، حاول مرة أخرى');
+        btn.disabled = false; btn.textContent = 'تأكيد الرفض';
+      }
+    }
+
+    function renderStatusGrid(counts) {
+      const el = document.getElementById('status-grid');
+      const order = ['Idea','Draft','Needs Design','Ready for Review','Approved','Scheduled','Published','Rejected'];
+      el.innerHTML = order.map(s => {
+        const meta = STATUS_ICONS[s];
+        return '<div class="qtile"><div class="qicon ' + meta.cls + '">' + meta.icon + '</div>' +
+          '<div class="qn">' + (counts[s] || 0) + '</div><div class="ql">' + STATUS_LABELS_AR[s] + '</div></div>';
+      }).join('');
+    }
+
+    function renderPlatformGrid(byPlatform) {
+      const el = document.getElementById('platform-grid');
+      el.innerHTML = Object.keys(byPlatform).map(p => {
+        const b = PLATFORM_BADGES[p] || { bg:'#0B1B5A' };
+        const stat = byPlatform[p];
+        return '<div class="platform-card" data-platform="' + p + '">' +
+          '<div class="badge-logo" style="background:' + b.bg + '">' + p.charAt(0) + '</div>' +
+          '<div class="label">' + p + '</div>' +
+          '<div class="stat-line"><b>' + stat.total + '</b> منشور · <b>' + stat.needsReview + '</b> بانتظار المراجعة · <b>' + stat.published + '</b> منشور فعلياً</div>' +
+        '</div>';
+      }).join('');
+      el.querySelectorAll('.platform-card').forEach(el2 => el2.addEventListener('click', () => {
+        switchTab('all');
+        renderAllList(lastData.posts.filter(p => p.platform === el2.dataset.platform));
+      }));
+    }
+
+    function renderReviewList(items) {
+      const el = document.getElementById('review-list');
+      el.innerHTML = items.length ? items.map(p => postCard(p, { showActions: true })).join('') : '<div class="empty">ما فيه محتوى بانتظار المراجعة حالياً ✅</div>';
+      wireActions(el);
+    }
+
+    function renderWeekList(items) {
+      const el = document.getElementById('week-list');
+      el.innerHTML = items.length ? items.map(p => postCard(p, { showActions: false })).join('') : '<div class="empty">ما فيه محتوى مجدول هالأسبوع بعد</div>';
+    }
+
+    function renderAllList(items) {
+      const el = document.getElementById('all-list');
+      el.innerHTML = items.length ? items.map(p => postCard(p, { showActions: false })).join('') : '<div class="empty">ما فيه محتوى بعد</div>';
+    }
+
+    function renderAll(data) {
+      renderStatusGrid(data.counts || {});
+      renderPlatformGrid(data.byPlatform || {});
+      renderReviewList(data.needsReview || []);
+      renderWeekList(data.thisWeek || []);
+      renderAllList(data.posts || []);
+    }
+
+    async function loadDashboard() {
+      dashErr.style.display = 'none';
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        if (!data || data.ok === false) throw new Error('bad response');
+        lastData = data;
+        renderAll(data);
+      } catch (e) {
+        dashErr.textContent = 'تعذّر تحميل بيانات التقويم. حاول التحديث.';
+        dashErr.style.display = 'block';
+      }
+    }
+
+    gateForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const pass = document.getElementById('gate-pass').value;
+      if (pass === GATE_PASSPHRASE) {
+        sessionStorage.setItem('bp_marketing_gate', '1');
+        gate.style.display = 'none';
+        dash.style.display = 'block';
+        loadDashboard();
+      } else {
+        gateErr.style.display = 'block';
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      sessionStorage.removeItem('bp_marketing_gate');
+      dash.style.display = 'none';
+      gate.style.display = 'flex';
+    });
+
+    document.getElementById('refresh-btn').addEventListener('click', function () {
+      const btn = this;
+      btn.disabled = true; btn.textContent = '...جارٍ التحديث';
+      loadDashboard().finally(() => { btn.disabled = false; btn.textContent = '↻ تحديث'; });
+    });
+
+    (function init() {
+      if (sessionStorage.getItem('bp_marketing_gate') === '1') {
+        gate.style.display = 'none';
+        dash.style.display = 'block';
+        loadDashboard();
+      }
+    })();
+  </script>
+</body>
+</html>
