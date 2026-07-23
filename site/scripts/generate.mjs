@@ -7801,6 +7801,16 @@ write("monitor.html", buildMonitor());
 // Owner-only unified control panel for the site (standalone page, noindex)
 write("admin.html", buildAdmin());
 
+// Client Operations Center — the new /account (approved design). One bilingual
+// standalone page (AR default, ع/E toggle) emitted verbatim over the legacy
+// buildAccount() output for en+ar; extra languages keep the legacy page until
+// the center is translated for them.
+function buildAccountCenter() {
+  return fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8');
+}
+write("account.html", buildAccountCenter());
+write("ar/account.html", buildAccountCenter());
+
 // Owner-only control + live-test dashboard for the specialized-team agents (noindex)
 write("dashboard.html", buildDashboard());
 
