@@ -677,6 +677,83 @@ export default async function handler(req, res) {
     }
   }
 
+  // P3 — unified portal opening: the logged-in client's own credentials are
+  // looked up server-side (Notion is queried by the SESSION email only —
+  // never by client input) and returned as localStorage seeds + target URL.
+  // Legacy manual logins keep working unchanged; no n8n workflows touched.
+  if ((q.action || "") === "sso-open") {
+    res.setHeader("Cache-Control", "no-store");
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const email = String((sess.user && sess.user.email) || "").toLowerCase();
+    const portal = String(q.portal || "");
+    const nq = async (db, filter, size) => {
+      const r = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ page_size: size || 5, filter }),
+      });
+      if (!r.ok) throw new Error("notion_failed");
+      return (await r.json()).results || [];
+    };
+    const rtxt = (p, k) => ((p[k] && p[k].rich_text) || []).map((t) => t.plain_text).join("").trim();
+    try {
+      if (portal === "compliance") {
+        const rows = await nq(COMPLIANCE_DB, { and: [{ property: "البريد", email: { equals: email } }, { property: "حالة الاشتراك", select: { equals: "نشط" } }] }, 1);
+        const p = rows[0] && rows[0].properties;
+        const code = p ? rtxt(p, "رمز الدخول") : "";
+        if (!code) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "no_subscription" })); }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, url: "/ar/compliance-dashboard", seed: { bp_portal_email: email, bp_portal_code: code } }));
+      }
+      if (portal === "employees") {
+        // Latest confirmed CRM order for this email that carries an AGENTS tag.
+        const rows = await nq(CRM_DB, {
+          and: [
+            { property: "Notes", rich_text: { contains: email } },
+            { or: [{ property: "حالة الطلب", select: { equals: "مؤكد - قيد التنفيذ" } }, { property: "حالة الطلب", select: { equals: "مكتمل" } }] },
+          ],
+        }, 10);
+        let agents = null;
+        for (const pg of rows) {
+          const notes = rtxt(pg.properties || {}, "Notes");
+          const m = notes.match(/AGENTS:([a-z0-9,]+)/i);
+          if (m) { const list = m[1].split(",").filter(Boolean); agents = list.map((s) => s.toLowerCase()).includes("all") ? "ALL" : list; break; }
+        }
+        // Compliance subscribers get Mishari in the unified portal.
+        if (!agents) {
+          const c = await nq(COMPLIANCE_DB, { and: [{ property: "البريد", email: { equals: email } }, { property: "حالة الاشتراك", select: { equals: "نشط" } }] }, 1);
+          if (c.length) agents = ["mishari"];
+        }
+        if (!agents) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "no_subscription" })); }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, url: "/ar/portal", seed: { bp_portal_email: email, bp_portal_sub: "1", bp_portal_agents: JSON.stringify(agents) } }));
+      }
+      if (portal === "employer") {
+        const rows = await nq(EMP_DB, { and: [{ property: "البريد", email: { equals: email } }, { property: "الحالة", select: { equals: "مفعّل" } }] }, 1);
+        const p = rows[0] && rows[0].properties;
+        const code = p ? rtxt(p, "رمز الوصول") : "";
+        if (!code) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "no_subscription" })); }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, url: "/employer-dashboard", seed: { bp_emp_code: code } }));
+      }
+      if (portal === "shared") {
+        if (!OTP_SECRET) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "no_subscription" })); }
+        // SS access codes are the deterministic HMAC issued at approval time,
+        // so the client's own code can be re-derived for auto-login. The SS
+        // dashboard still validates it against n8n /ss-login as usual.
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, url: "/shared-services/dashboard", seed: { bp_ss_client_v1: JSON.stringify({ code: ssCode(email), email }) } }));
+      }
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "bad_portal" }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
   // /admin panel — read an editable content file (site/data/*.json) from GitHub.
   if ((q.action || "") === "panel-content") {
     res.setHeader("Cache-Control", "no-store");

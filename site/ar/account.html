@@ -693,6 +693,7 @@
               for (var k = 0; k < o.items.length; k++) if (o.items[k] && o.items[k].name) names.push(String(o.items[k].name));
               title = names.join(' + ');
             }
+            if (!title && (o.title || o.name)) title = String(o.title || o.name);
             out.push({ ref: String(o.ref), title: title, status: String(o.status || '') });
           }
         }
@@ -774,6 +775,37 @@
       if (x.indexOf('وكلاء') !== -1 || x.indexOf('موظف') !== -1 || /agent|employee/i.test(x)) return '/ar/portal';
       return '/ar/services';
     }
+    // P3 — unified opening: portal URL → sso-open portal key. The server looks
+    // the client's own credentials up by SESSION email and returns localStorage
+    // seeds; we plant them and navigate, so the portal opens without a second
+    // login. If the lookup finds no subscription, fall through to the plain URL.
+    var SSO_PORTALS = {
+      '/ar/compliance-dashboard': 'compliance',
+      '/ar/portal': 'employees',
+      '/employer-dashboard': 'employer',
+      '/shared-services/dashboard': 'shared'
+    };
+    function ssoNavigate(url){
+      var key = SSO_PORTALS[url];
+      if (!key){ location.href = url; return; }
+      fetch('/api/requests?action=sso-open&portal=' + encodeURIComponent(key), { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (out && out.ok && out.seed){
+            try { for (var k in out.seed) localStorage.setItem(k, out.seed[k]); } catch (e) {}
+            location.href = out.url || url;
+          } else {
+            location.href = url;
+          }
+        })
+        .catch(function(){ location.href = url; });
+    }
+    document.addEventListener('click', function(e){
+      var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (!a) return;
+      var href = a.getAttribute('href') || '';
+      if (SSO_PORTALS[href]){ e.preventDefault(); ssoNavigate(href); }
+    });
     function isPay(s){ return String(s || '').indexOf('بانتظار الدفع') === 0; }
     function isConfirmed(s){ return String(s || '').indexOf('مؤكد') === 0; }
     function isDone(s){ return String(s || '') === 'مكتمل'; }
