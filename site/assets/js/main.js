@@ -1551,7 +1551,7 @@ var BP = window.BP = window.BP || {};
         body: JSON.stringify({ action: "login", email: email, password: pass }),
       }).then(function (r) { return r.json(); }).then(function (d) {
         if (!d || !d.ok) return null;
-        if (d.code) { try { localStorage.setItem("bp_emp_code", d.code); } catch (e3) {} }
+        if (d.code) { try { localStorage.setItem("bp_emp_code", d.code); localStorage.setItem("bp_emp_company", d.company || ""); } catch (e3) {} }
         return d;
       }).catch(function () { return null; });
     }
@@ -3028,7 +3028,7 @@ var BP_EMP_BILLING = "monthly";
             : T("Couldn't log in. Please try again.", "تعذّر تسجيل الدخول. حاول مجدداً.");
           return;
         }
-        try { localStorage.setItem("bp_emp_code", d.code); } catch (e2) {}
+        try { localStorage.setItem("bp_emp_code", d.code); localStorage.setItem("bp_emp_company", d.company || ""); } catch (e2) {}
         if (d.status && d.status !== "مفعّل") {
           errEl.style.color = "";
           errEl.textContent = T("Account created — payment pending. You can browse, but contacts unlock once payment is confirmed.", "تم إنشاء الحساب — بانتظار تأكيد الدفع. تقدر تتصفّح، وتفتح بيانات التواصل بعد تأكيد الدفع.");
