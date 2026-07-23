@@ -24,8 +24,12 @@ const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
 // hardcoded fallback key (the old "demo123") would be a public master key to
 // customer data, order statuses, activations and GitHub content writes.
 // Set PANEL_KEY (or LEADS_KEY / DASHBOARD_KEY) in Vercel env.
-const LEADS_KEY = process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "";
-const PANEL_KEYS = new Set([process.env.PANEL_KEY, LEADS_KEY].filter(Boolean));
+// Values are trimmed: a stray space/newline pasted into the Vercel env UI
+// must not permanently lock the owner out.
+const LEADS_KEY = (process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "").trim();
+const PANEL_KEY = (process.env.PANEL_KEY || "").trim();
+const PANEL_KEYS = new Set([PANEL_KEY, LEADS_KEY].filter(Boolean));
+const panelKeyOk = (k) => PANEL_KEYS.size > 0 && PANEL_KEYS.has(String(k || "").trim());
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -745,7 +749,7 @@ export default async function handler(req, res) {
   // Internal dashboard — list recent incoming requests (gated by LEADS_KEY).
   if ((q.action || "") === "leads") {
     res.setHeader("Cache-Control", "no-store");
-    if (!PANEL_KEYS.has(q.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelKeyOk(q.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     try {
       const leads = await listLeads(q.limit);
       res.statusCode = 200;
@@ -934,7 +938,7 @@ export default async function handler(req, res) {
   // /admin panel — read an editable content file (site/data/*.json) from GitHub.
   if ((q.action || "") === "panel-content") {
     res.setHeader("Cache-Control", "no-store");
-    if (!PANEL_KEYS.has(q.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelKeyOk(q.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     const filePath = CONTENT_FILES[q.file || ""];
     if (!filePath) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
     if (!GH_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "content_not_configured" })); }
@@ -1087,7 +1091,7 @@ export default async function handler(req, res) {
   // ---- /admin panel actions (owner key, POST) ----
   if (String(b.action || "").startsWith("panel-")) {
     res.setHeader("Cache-Control", "no-store");
-    if (!PANEL_KEYS.has(b.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelKeyOk(b.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
 
     // Change a CRM lead's حالة الطلب (approve / complete / cancel …).
     if (b.action === "panel-status") {
