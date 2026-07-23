@@ -407,6 +407,60 @@ export default async function handler(req, res) {
     }
   }
 
+  // Live pool count (?count=1) — Notion has no COUNT endpoint, so this pages
+  // through the visible pool with title-only payloads (filter_properties keeps
+  // each response tiny) under a time budget, handing back a cursor so the
+  // client can keep adding until the real total. CDN-cached per cursor URL so
+  // repeat visitors get the number instantly while it revalidates behind them.
+  if (url0.searchParams.get("count") === "1") {
+    try {
+      res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+      const countCursor = (url0.searchParams.get("cursor") || "").trim() || null;
+      if (!handler._titleProp) {
+        const dbr = await notionFetch(`databases/${DB_ID}`, "GET");
+        if (dbr.ok) {
+          const db = await dbr.json();
+          for (const p of Object.values(db.properties || {})) if (p.type === "title") { handler._titleProp = p.id; break; }
+        }
+      }
+      const fp = handler._titleProp ? `?filter_properties=${encodeURIComponent(handler._titleProp)}` : "";
+      const deadline = Date.now() + 40000;
+      let total = 0, cursor = countCursor, truncated = false;
+      for (let guard = 0; guard < 300; guard++) {
+        const body = { page_size: 100, filter: { property: "مخفي عن الموقع", checkbox: { equals: false } } };
+        if (cursor) body.start_cursor = cursor;
+        let r;
+        for (let attempt = 0; ; attempt++) {
+          r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query${fp}`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+            body: JSON.stringify(body),
+          });
+          if (r.ok) break;
+          if (r.status === 429 && attempt < 4 && Date.now() < deadline) {
+            const retryAfter = Number(r.headers.get("retry-after"));
+            await new Promise((resolve) => setTimeout(resolve, retryAfter > 0 ? retryAfter * 1000 : 300 * Math.pow(2, attempt)));
+            continue;
+          }
+          console.error("pool count query error", r.status, (await r.text()).slice(0, 300));
+          res.statusCode = 502;
+          return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+        }
+        const data = await r.json();
+        total += (data.results || []).length;
+        if (!data.has_more || !data.next_cursor) { cursor = null; break; }
+        cursor = data.next_cursor;
+        if (Date.now() > deadline) { truncated = true; break; }
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, total, nextCursor: cursor || null, done: !cursor && !truncated }));
+    } catch (e) {
+      console.error("pool count handler error", e);
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
   const url = new URL(req.url, "http://x");
   const qField = (url.searchParams.get("field") || "").trim();
   const qCity = (url.searchParams.get("city") || "").trim().toLowerCase();
@@ -418,6 +472,14 @@ export default async function handler(req, res) {
   // instead of re-querying from the start every time.
   const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
   const { unlocked, plan } = await resolvePlan(code);
+
+  // Lightweight code check (?validate=1&code=…) for the login page and the
+  // dashboard's saved-code revalidation — one Employers-DB lookup instead of
+  // paging the whole candidate pool just to learn whether a code is active.
+  if (url.searchParams.get("validate") === "1") {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, unlocked, plan }));
+  }
 
   // Single-candidate detail lookup for the dedicated /candidate-profile page
   // — one cheap page GET instead of paging the whole filtered pool, with the

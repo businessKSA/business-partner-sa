@@ -1534,16 +1534,46 @@ var BP = window.BP = window.BP || {};
       });
     });
 
+    function finishLogin(email, name) {
+      try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: name })); } catch (er) {}
+      try { document.dispatchEvent(new CustomEvent("bp:auth")); } catch (e2) {}
+      goToRedirectTarget();
+      render();
+    }
+    // Employer-subscription credentials live server-side (Notion), while portal
+    // accounts are per-device. Verifying against the server both logs the
+    // customer in on a new device and hands back their employer access code,
+    // which auto-unlocks the employer dashboard without retyping it.
+    function serverLogin(email, pass) {
+      return fetch("/api/employer", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "login", email: email, password: pass }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) return null;
+        if (d.code) { try { localStorage.setItem("bp_emp_code", d.code); } catch (e3) {} }
+        return d;
+      }).catch(function () { return null; });
+    }
     if (loginF) loginF.addEventListener("submit", function (e) {
       e.preventDefault();
       var email = document.getElementById("lg-email").value.trim().toLowerCase();
       var pass = document.getElementById("lg-pass").value;
       var u = users()[email];
-      if (!u || u.pass !== pass) { alert(BP.t("No matching account. Try registering.", "لا يوجد حساب مطابق. جرّب إنشاء حساب جديد.")); return; }
-      try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: u.name })); } catch (er) {}
-      try { document.dispatchEvent(new CustomEvent("bp:auth")); } catch (e2) {}
-      goToRedirectTarget();
-      render();
+      if (u && u.pass === pass) {
+        serverLogin(email, pass); // background: sync employer code for the dashboard
+        finishLogin(email, u.name);
+        return;
+      }
+      var sb = loginF.querySelector('button[type="submit"]');
+      var lbl = sb ? sb.textContent : "";
+      if (sb) { sb.disabled = true; sb.textContent = BP.t("Signing in…", "جارٍ الدخول…"); }
+      serverLogin(email, pass).then(function (d) {
+        if (sb) { sb.disabled = false; sb.textContent = lbl; }
+        if (!d) { alert(BP.t("No matching account. Try registering.", "لا يوجد حساب مطابق. جرّب إنشاء حساب جديد.")); return; }
+        var name = d.company || email.split("@")[0];
+        var all = users(); all[email] = { name: name, pass: pass }; saveUsers(all);
+        finishLogin(email, name);
+      });
     });
 
     // After sign-in/registration, return the customer to whatever page sent
@@ -2977,6 +3007,7 @@ var BP_EMP_BILLING = "monthly";
     var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
     function T(en, ar) { return isAr ? ar : en; }
     var errEl = document.getElementById("el-error");
+    function dashUrl() { return isAr ? "/ar/employer-dashboard" : "/employer-dashboard"; }
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var email = document.getElementById("el-email").value.trim();
@@ -3000,14 +3031,37 @@ var BP_EMP_BILLING = "monthly";
         if (d.status && d.status !== "مفعّل") {
           errEl.style.color = "";
           errEl.textContent = T("Account created — payment pending. You can browse, but contacts unlock once payment is confirmed.", "تم إنشاء الحساب — بانتظار تأكيد الدفع. تقدر تتصفّح، وتفتح بيانات التواصل بعد تأكيد الدفع.");
-          setTimeout(function () { location.href = "/employer-dashboard"; }, 1800);
+          setTimeout(function () { location.href = dashUrl(); }, 1800);
           return;
         }
-        location.href = "/employer-dashboard";
+        location.href = dashUrl();
       }).catch(function () {
         submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
         errEl.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
       });
+    });
+    // Alternative entry: an access code (from the activation email) instead of
+    // email+password — validated the same lightweight way the dashboard does,
+    // then stored so the dashboard opens already unlocked.
+    var codeForm = document.getElementById("el-code-form");
+    if (codeForm) codeForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var code = document.getElementById("el-code").value.trim();
+      var errC = document.getElementById("el-code-error");
+      if (!code) return;
+      var btn = document.getElementById("el-code-submit");
+      btn.disabled = true; errC.textContent = T("Checking…", "جارٍ التحقق…");
+      fetch("/api/candidates?validate=1&code=" + encodeURIComponent(code))
+        .then(function (r) { return r.json(); }).then(function (d) {
+          btn.disabled = false;
+          if (!d || !d.unlocked) { errC.textContent = T("Invalid or inactive code. Contact us to activate.", "رمز غير صحيح أو غير مفعّل. تواصل معنا للتفعيل."); return; }
+          errC.textContent = "";
+          try { localStorage.setItem("bp_emp_code", code); } catch (e2) {}
+          location.href = dashUrl();
+        }).catch(function () {
+          btn.disabled = false;
+          errC.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+        });
     });
   });
 })();
@@ -4086,7 +4140,17 @@ var BP_EMP_BILLING = "monthly";
     var UNLOCKED = false;
     var PLAN = "";
     function planRank() { if (DEMO) return 3; if (!PLAN) return UNLOCKED ? 3 : 0; return ({ "أساسية": 1, "احترافية": 2, "مؤسسية": 3 })[PLAN] || 1; }
-    function setUnlocked(on) { UNLOCKED = on; var ub = document.getElementById("empd-unlock"); if (ub) ub.hidden = on; }
+    function setUnlocked(on) {
+      UNLOCKED = on;
+      // Main-site dashboard: a clean gate card ↔ the full app. The standalone
+      // portal variant keeps its inline unlock bar, so fall back to hiding it.
+      var lk = document.getElementById("empd-locked"), mn = document.getElementById("empd-main");
+      if (lk && mn) { lk.hidden = on; mn.hidden = !on; return; }
+      var ub = document.getElementById("empd-unlock"); if (ub) ub.hidden = on;
+    }
+    // On the main-site dashboard the whole app is hidden while locked, so
+    // there's nothing to preload; the portal variant still free-browses.
+    function gatedApp() { return !!document.getElementById("empd-locked"); }
     function apiErr(d) { var e = d && d.error; if (e === "not_configured") return T("Notion isn't connected on the server.", "قاعدة Notion غير مربوطة بالخادم."); if (e === "notion_failed") return T("Couldn't query Notion — is the ATS DB shared with the integration?", "تعذّر الاستعلام من Notion — هل القاعدة مُشاركة مع التكامل؟"); if (e === "server_error") return T("Server error (the pool may be large — retry).", "خطأ في الخادم (قد تكون القاعدة كبيرة — أعد المحاولة)."); return T("Couldn't load candidates.", "تعذّر تحميل المرشّحين."); }
     // Only codes that exist purely client-side (never a real subscription/owner
     // code) belong here. "DEMO123" used to be listed too, which silently
@@ -4146,7 +4210,9 @@ var BP_EMP_BILLING = "monthly";
 
     function validate(code, cb) {
       if (isDemoCode(code)) { cb(true, { unlocked: true, demo: true, candidates: DEMO_CANDS }); return; }
-      fetch("/api/candidates?code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
+      // validate=1 answers from the Employers DB alone — no full pool scan
+      // just to learn whether a code is active.
+      fetch("/api/candidates?validate=1&code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
         .then(function (d) { cb(!!(d && d.unlocked), d); }).catch(function () { cb(false, null); });
     }
     function enter(code, data) {
@@ -4161,13 +4227,20 @@ var BP_EMP_BILLING = "monthly";
       renderCounts();
       var planTxt = PLAN ? (" — " + T("plan", "الباقة") + ": " + PLAN) : "";
       gateMsg.textContent = DEMO ? T("Demo mode — sample data.", "وضع تجربة — بيانات عيّنة.") : (T("Unlocked — contacts enabled.", "تم الفتح — بيانات التواصل مفعّلة.") + planTxt);
+      var wt = document.getElementById("empd-welcome-txt");
+      if (wt) wt.textContent = DEMO ? T("Demo mode — sample data", "وضع تجربة — بيانات عيّنة")
+        : T("Welcome — your account is active", "أهلاً بك — حسابك مفعّل") + (PLAN ? " · " + T("Plan:", "الباقة:") + " " + PLAN : "");
+      // The gated dashboard opens on "My jobs & matches" — load the employer's
+      // postings right away so the first screen is their own jobs, not filters.
+      if (gatedApp()) loadPostings();
     }
-    document.getElementById("empd-enter").addEventListener("click", function () {
+    var enterBtn = document.getElementById("empd-enter");
+    if (enterBtn) enterBtn.addEventListener("click", function () {
       var code = (codeInput.value || "").trim(); if (!code) return;
       gateMsg.textContent = T("Checking…", "جارٍ التحقق…");
       validate(code, function (ok, data) { if (ok) enter(code, data); else gateMsg.textContent = T("Invalid or inactive code. Contact us to activate.", "رمز غير صحيح أو غير مفعّل. تواصل معنا للتفعيل."); });
     });
-    codeInput.addEventListener("keydown", function (e) { if (e.key === "Enter") document.getElementById("empd-enter").click(); });
+    if (codeInput) codeInput.addEventListener("keydown", function (e) { if (e.key === "Enter") { var b = document.getElementById("empd-enter"); if (b) b.click(); } });
     var demoBtn = document.getElementById("empd-demo");
     if (demoBtn) demoBtn.addEventListener("click", function () { enter("BP-DEMO", { unlocked: true, demo: true, candidates: DEMO_CANDS }); });
     document.getElementById("empd-logout").addEventListener("click", function () { try { localStorage.removeItem("bp_emp_code"); } catch (e) {} location.reload(); });
@@ -4175,8 +4248,8 @@ var BP_EMP_BILLING = "monthly";
     // must always be an explicit, one-time click so a stale localStorage
     // value can't make a real subscriber's dashboard look empty/fake forever.
     var saved = readLS("bp_emp_code", "");
-    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); load(); renderCounts(); } }); }
-    else { if (isDemoCode(saved)) writeLS("bp_emp_code", ""); CODE = ""; setUnlocked(false); load(); renderCounts(); }
+    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); } }); }
+    else { if (isDemoCode(saved)) writeLS("bp_emp_code", ""); CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); }
 
     Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
       t.addEventListener("click", function () {
@@ -4458,7 +4531,7 @@ var BP_EMP_BILLING = "monthly";
     }
     function renderPostings() {
       var list = document.getElementById("empjob-list");
-      if (!POSTINGS.length) { list.innerHTML = '<p class="emp-note">' + T("No job postings yet — publish your first one above.", "لا يوجد وظائف منشورة بعد — انشر أول وظيفة أعلاه.") + "</p>"; return; }
+      if (!POSTINGS.length) { list.innerHTML = '<p class="emp-note">' + T("No job postings yet — publish your first one from the form below.", "لا يوجد وظائف منشورة بعد — انشر أول وظيفة من النموذج بالأسفل.") + "</p>"; return; }
       list.innerHTML = POSTINGS.map(function (p, i) {
         return '<div class="empd-match-box empjob-card" data-i="' + i + '">' +
           '<div class="empd-flow" style="justify-content:space-between"><h3 style="margin:0">' + esc(p.title) + (p.city ? ' <span class="emp-tag">📍 ' + esc(p.city) + "</span>" : "") + '</h3>' +
@@ -4766,4 +4839,34 @@ var BP_EMP_BILLING = "monthly";
     });
   }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
   sections.forEach(function (s) { io.observe(s); });
+})();
+
+/* ---------- Live candidate-pool counter ---------- */
+// Fills every [data-pool-count] element with the real, current size of the
+// candidate pool. The API pages Notion under a time budget and hands back a
+// cursor, so the number climbs live until the true total instead of showing
+// a stale marketing figure.
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var els = document.querySelectorAll("[data-pool-count]");
+    if (!els.length) return;
+    var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
+    var total = 0;
+    function render(done) {
+      var txt = total.toLocaleString("en-US") + " " + (isAr ? "مرشّح" : "candidates") + (done ? "" : "…");
+      Array.prototype.forEach.call(els, function (el) { el.textContent = txt; });
+    }
+    function step(cursor) {
+      fetch("/api/candidates?count=1" + (cursor ? "&cursor=" + encodeURIComponent(cursor) : ""))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) return;
+          total += d.total || 0;
+          render(!d.nextCursor);
+          if (d.nextCursor) step(d.nextCursor);
+        }).catch(function () {});
+    }
+    step(null);
+  });
 })();
