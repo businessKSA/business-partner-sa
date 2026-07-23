@@ -4423,8 +4423,23 @@ var BP_EMP_BILLING = "monthly";
         .then(function (d) {
           POSTINGS = (d && d.ok && d.postings) || [];
           renderPostings();
+          autoScreenPostings();
         })
         .catch(function () { list.innerHTML = '<p class="emp-note">' + T("Couldn't load your job postings.", "تعذّر تحميل وظائفك المنشورة.") + "</p>"; });
+    }
+    // Live matching: screen every posting automatically when the dashboard
+    // opens (staggered so the AI endpoint isn't hammered), instead of waiting
+    // for the employer to click each posting's screen button. The candidate
+    // pool loads in parallel, so poll briefly until it's there.
+    var AUTO_SCREENED = false;
+    function autoScreenPostings() {
+      if (AUTO_SCREENED || !POSTINGS.length || !UNLOCKED || planRank() < 2) return;
+      var tries = 0;
+      (function waitCands() {
+        if (!CANDS.length) { if (++tries > 20) return; return setTimeout(waitCands, 1500); }
+        AUTO_SCREENED = true;
+        POSTINGS.forEach(function (p, i) { setTimeout(function () { screenPosting(i); }, i * 1500); });
+      })();
     }
     function renderPostings() {
       var list = document.getElementById("empjob-list");
@@ -4453,7 +4468,7 @@ var BP_EMP_BILLING = "monthly";
       st.textContent = "✨ " + T("AI is screening your best-fit candidates…", "الذكاء يفحص أنسب المرشّحين…"); grid.innerHTML = "";
       var pool = p.field ? CANDS.filter(function (c) { return c.field === p.field; }) : CANDS;
       if (!pool.length) pool = CANDS;
-      fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: "match", role: role, candidates: pool.map(function (c) { return { id: c.id, role: c.role, field: c.field, city: c.city, experience: c.experience, education: c.education, nationalityType: c.nationalityType, skills: c.skills }; }) }) })
+      fetch("/api/hire", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ task: "match", postingId: p.id, role: role, candidates: pool.map(function (c) { return { id: c.id, role: c.role, field: c.field, city: c.city, experience: c.experience, education: c.education, nationalityType: c.nationalityType, skills: c.skills }; }) }) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) {
           var d = res.d;

@@ -8,6 +8,13 @@
 // GET  /api/hire  -> { status, providers }
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
+// Notion access — used to persist per-posting AI matches into the Job Postings
+// DB's "المرشحون المطابقون" relation (postings ↔ ATS candidates).
+const NOTION_TOKEN = envFrom([
+  "NOTION_TOKEN", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY",
+  "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
+  "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
+]);
 const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
 const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
 const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
@@ -134,6 +141,23 @@ export default async function handler(req, res) {
         const m = out.match(/\[[\s\S]*\]/);
         ranked = JSON.parse(m ? m[0] : out);
       } catch { ranked = []; }
+      // When screening a published posting, mirror the shortlist into Notion:
+      // the posting's "المرشحون المطابقون" relation links to the matched ATS
+      // candidate pages (candidate ids ARE Notion page ids). Non-fatal — the
+      // dashboard still gets its live results even if the relation write fails.
+      if (b.postingId && Array.isArray(ranked) && ranked.length && NOTION_TOKEN) {
+        try {
+          const ids = ranked.slice(0, 12).map((m) => String(m.id || "").trim()).filter((s) => /^[0-9a-f]{8}-?[0-9a-f-]{20,28}$/i.test(s));
+          if (ids.length) {
+            const pr = await fetch(`https://api.notion.com/v1/pages/${String(b.postingId).trim()}`, {
+              method: "PATCH",
+              headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": "2022-06-28", "content-type": "application/json" },
+              body: JSON.stringify({ properties: { "المرشحون المطابقون": { relation: ids.map((id) => ({ id })) } } }),
+            });
+            if (!pr.ok) console.error("posting relation update failed", pr.status, (await pr.text()).slice(0, 200));
+          }
+        } catch (e) { console.error("posting relation update error", e); }
+      }
       return res.end(JSON.stringify({ ok: true, task, ranked, raw: ranked.length ? undefined : out }));
     }
     return res.end(JSON.stringify({ ok: true, task, result: out }));
