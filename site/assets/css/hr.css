@@ -4,15 +4,17 @@
    site keeps styles.css — this app has its own chrome.
    ============================================================ */
 :root {
-  /* Central Business Partner design tokens — never hardcode colors in components */
-  --hr-brand-primary: #0F766E;        /* الأخضر المزرق — الأزرار والإجراءات */
-  --hr-brand-primary-hover: #0B5D57;
-  --hr-brand-dark: #0B1B5A;           /* كحلي الهوية — الشريط الجانبي والعناوين */
-  --hr-brand-accent: #14B8A6;
+  /* Central Business Partner design tokens — extracted from the live site:
+     .btn-primary = --navy #0B1B5A (hover #13246e), logo fill #1a3a7d.
+     Never hardcode colors in components. */
+  --hr-brand-primary: #0B1B5A;        /* كحلي الهوية — الأزرار والإجراءات (نفس أزرار الموقع) */
+  --hr-brand-primary-hover: #13246e;  /* --navy-700 في الموقع */
+  --hr-brand-dark: #0B1B5A;           /* الشريط الجانبي والعناوين */
+  --hr-brand-accent: #1a3a7d;         /* أزرق الشعار */
   --hr-teal: var(--hr-brand-primary);
   --hr-teal-600: var(--hr-brand-primary-hover);
-  --hr-teal-050: #F0FDFA;
-  --hr-teal-100: #CCFBF1;
+  --hr-teal-050: #EEF1FA;
+  --hr-teal-100: #DCE3F7;
   --hr-navy: var(--hr-brand-dark);
   --hr-text: #182036;
   --hr-soft: #5B6472;
@@ -58,9 +60,9 @@ input, select, textarea { font-family: inherit; font-size: .95rem; color: var(--
 .hr-nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; color: rgba(255,255,255,.78); font-size: .9rem; font-weight: 500; white-space: nowrap; }
 .hr-nav a svg { flex: none; width: 18px; height: 18px; }
 .hr-nav a:hover { background: rgba(255,255,255,.08); color: #fff; }
-.hr-nav a.active { background: rgba(20,184,166,.18); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--hr-brand-accent); }
-html[dir="rtl"] .hr-nav a.active { box-shadow: inset -3px 0 0 var(--hr-brand-accent); }
-.hr-nav .nv-badge { margin-inline-start: auto; background: var(--hr-brand-accent); color: #06302B; font-size: .68rem; border-radius: 99px; padding: 0 7px; line-height: 1.6; }
+.hr-nav a.active { background: rgba(255,255,255,.14); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 #fff; }
+html[dir="rtl"] .hr-nav a.active { box-shadow: inset -3px 0 0 #fff; }
+.hr-nav .nv-badge { margin-inline-start: auto; background: #fff; color: var(--hr-brand-dark); font-size: .68rem; border-radius: 99px; padding: 0 7px; line-height: 1.6; }
 .side-collapsed .hr-side .nv-txt, .side-collapsed .hr-side .hr-nav-label, .side-collapsed .hr-brand b, .side-collapsed .hr-brand small, .side-collapsed .hr-nav .nv-badge { display: none; }
 .side-collapsed .hr-nav a { justify-content: center; padding: 10px; }
 
@@ -118,7 +120,7 @@ html[dir="ltr"] .hr-search input { padding: 8px 12px 8px 38px; }
 .hr-field label { font-size: .82rem; font-weight: 600; color: var(--hr-text); }
 .hr-field .req { color: var(--hr-red); }
 .hr-field input, .hr-field select, .hr-field textarea { border: 1px solid var(--hr-line); border-radius: 10px; padding: 9px 12px; background: #fff; width: 100%; }
-.hr-field input:focus, .hr-field select:focus, .hr-field textarea:focus { border-color: var(--hr-teal-600); outline: none; box-shadow: 0 0 0 3px rgba(15,118,110,.15); }
+.hr-field input:focus, .hr-field select:focus, .hr-field textarea:focus { border-color: var(--hr-teal-600); outline: none; box-shadow: 0 0 0 3px rgba(11,27,90,.15); }
 .hr-field .err { color: var(--hr-red); font-size: .76rem; display: none; }
 .hr-field.invalid input, .hr-field.invalid select, .hr-field.invalid textarea { border-color: var(--hr-red); }
 .hr-field.invalid .err { display: block; }
@@ -228,7 +230,7 @@ table.hr-tbl { width: 100%; border-collapse: collapse; font-size: .87rem; min-wi
 /* Toast + modal */
 .hr-toast { position: fixed; bottom: 22px; inset-inline-start: 50%; transform: translateX(-50%); background: var(--hr-navy); color: #fff; border-radius: 12px; padding: 11px 18px; font-size: .88rem; display: flex; gap: 14px; align-items: center; box-shadow: var(--hr-sh-md); z-index: 200; }
 html[dir="rtl"] .hr-toast { transform: translateX(50%); }
-.hr-toast button { background: none; border: none; color: #7DE3D8; font-weight: 700; font-size: .88rem; }
+.hr-toast button { background: none; border: none; color: #AAB8F0; font-weight: 700; font-size: .88rem; }
 .hr-modal { position: fixed; inset: 0; background: rgba(11,27,90,.45); display: grid; place-items: center; z-index: 300; padding: 16px; }
 .hr-modal-in { background: #fff; border-radius: var(--hr-r-lg); max-width: 430px; width: 100%; padding: 22px; box-shadow: var(--hr-sh-md); }
 .hr-modal-in h3 { color: var(--hr-navy); margin-bottom: 8px; font-size: 1.02rem; }
@@ -307,7 +309,7 @@ html[dir="rtl"] .hr-toast { transform: translateX(50%); }
 .hr-quality { display: inline-flex; align-items: center; gap: 8px; background: var(--hr-green-bg); color: var(--hr-green); border-radius: 99px; padding: 4px 14px; font-size: .82rem; font-weight: 700; }
 .hr-edit-block { border: 1px dashed transparent; border-radius: 10px; padding: 10px 12px; transition: .15s; }
 .hr-edit-block:hover { border-color: var(--hr-line); background: #FAFBFC; }
-.hr-edit-block:focus { border-color: var(--hr-brand-primary); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(15,118,110,.1); }
+.hr-edit-block:focus { border-color: var(--hr-brand-primary); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(11,27,90,.1); }
 .hr-edit-hint { font-size: .72rem; color: var(--hr-mute); }
 .hr-qq { background: #fff; border: 1px solid var(--hr-line); border-radius: var(--hr-r-lg); padding: 20px; max-width: 520px; margin: 0 auto; text-align: center; }
 .hr-qq h3 { color: var(--hr-navy); margin-bottom: 12px; }

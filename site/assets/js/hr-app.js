@@ -61,19 +61,40 @@
     function overlay() { return readLS(OV_KEY, { stages: {}, jobs: [], jobEdits: {}, notes: {}, ratings: {}, read: {}, activities: [] }); }
     function saveOverlay(ov) { writeLS(OV_KEY, ov); }
 
+    var REAL_MODE = false;
+    function loadRealJobs() {
+      var code = hrRealCode();
+      if (!code) return Promise.resolve();
+      return fetch("/api/candidates", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "list-postings", code: code }),
+      }).then(function (r) { return r.json(); }).then(function (d2) {
+        if (!d2 || !d2.ok || !d2.postings || !d2.postings.length) return;
+        DATA.mockJobs = DATA.jobs;
+        DATA.jobs = d2.postings.map(function (pp) {
+          return { id: pp.id, companyId: "real", title: pp.title, dept: pp.field || "عام", city: pp.city || "", country: "السعودية", branch: "", type: "دوام كامل", workMode: "حضوري", openings: 1, status: pp.status === "نشطة" ? "منشورة" : pp.status === "مغلقة" ? "مغلقة" : (pp.status || "منشورة"), postedAt: "", closesAt: "", hiringManager: "", salaryVisible: false, description: pp.description || "", skills: [], mustHave: [], languages: ["العربية"], real: true };
+        });
+        REAL_MODE = true;
+      }).catch(function () {});
+    }
     function ready() {
       if (DATA) return Promise.resolve(DATA);
       if (loadErr) return Promise.reject(loadErr);
       return fetch("/data/hr-mock.json").then(function (r) {
         if (!r.ok) throw new Error("load_failed");
         return r.json();
-      }).then(function (d) { DATA = d; return d; }).catch(function (e) { loadErr = e; throw e; });
+      }).then(function (d) { DATA = d; return loadRealJobs().then(function () { return DATA; }); })
+        .catch(function (e) { loadErr = e; throw e; });
     }
     function jobs() {
       var ov = overlay();
       return DATA.jobs.map(function (j) { return Object.assign({}, j, ov.jobEdits[j.id] || {}); }).concat(ov.jobs);
     }
-    function job(id) { return jobs().filter(function (j) { return j.id === id; })[0] || null; }
+    function job(id) {
+      var hit = jobs().filter(function (j) { return j.id === id; })[0];
+      if (hit) return hit;
+      return (DATA.mockJobs || []).filter(function (j) { return j.id === id; })[0] || null;
+    }
     function candidates() { return DATA.candidates; }
     function candidate(id) { return DATA.candidates.filter(function (c) { return c.id === id; })[0] || null; }
     function applications() {
@@ -164,6 +185,7 @@
       markRead: markRead, addJob: addJob, editJob: editJob,
       notesFor: notesFor, addNote: addNote, ratingFor: ratingFor, setRating: setRating,
       logActivity: logActivity, bag: bag, setBag: setBag, company: company,
+      isReal: function () { return REAL_MODE; },
     };
   })();
 
@@ -211,11 +233,15 @@
     var mb = $("hr-msgs"); if (mb) mb.addEventListener("click", function () { location.href = "/hr/employer/messages"; });
     if (!withData) return;
     HRStore.ready().then(function (d) {
-      $("hr-user-name").textContent = d.user.name;
-      $("hr-user-co").textContent = d.company.name;
-      $("hr-user-av").textContent = initials(d.user.name);
-      $("hr-co-name").textContent = d.company.name;
-      $("hr-co-logo").textContent = initials(d.company.logoText || d.company.name);
+      var ses = readLS("bp_session", null);
+      var realCo = (function () { try { return localStorage.getItem("bp_emp_company") || ""; } catch (e) { return ""; } })();
+      var uName = hrRealCode() && ses && (ses.name || ses.email) ? (ses.name || String(ses.email).split("@")[0]) : d.user.name;
+      var coName = hrRealCode() && realCo ? realCo : (hrRealCode() ? "حسابك المشترك" : d.company.name);
+      $("hr-user-name").textContent = uName;
+      $("hr-user-co").textContent = coName;
+      $("hr-user-av").textContent = initials(uName);
+      $("hr-co-name").textContent = coName;
+      $("hr-co-logo").textContent = initials(coName);
       var newN = HRStore.applications().filter(function (a) { return a.unread; }).length;
       var badge = $("nav-new-count");
       if (badge && newN) { badge.textContent = newN; badge.hidden = false; }
@@ -341,16 +367,21 @@
       return rows;
     }
     function menuHtml(j) {
+      var items = j.real
+        ? '<a href="/hr/employer/matching">المطابقة الذكية</a>' +
+          '<a href="/hr/employer/job?id=' + j.id + '">معاينة</a>' +
+          '<button data-act="copy" data-id="' + j.id + '">نسخ الوظيفة</button>' +
+          '<button data-act="share" data-id="' + j.id + '">مشاركة رابط التقديم</button>' +
+          '<button data-act="close" data-id="' + j.id + '" class="danger">إغلاق الوظيفة</button>'
+        : '<a href="/hr/employer/applicants?job=' + j.id + '">عرض المتقدمين</a>' +
+          '<a href="/hr/employer/jobs/new?id=' + j.id + '">تعديل</a>' +
+          '<a href="/hr/employer/job?id=' + j.id + '">معاينة</a>' +
+          '<button data-act="copy" data-id="' + j.id + '">نسخ الوظيفة</button>' +
+          '<button data-act="share" data-id="' + j.id + '">مشاركة رابط التقديم</button>' +
+          '<button data-act="toggle" data-id="' + j.id + '">' + (j.status === "منشورة" ? "إيقاف مؤقت" : "نشر / إعادة نشر") + "</button>" +
+          '<button data-act="close" data-id="' + j.id + '" class="danger">إغلاق الوظيفة</button>';
       return '<div class="hr-menu"><button aria-label="إجراءات" data-menu="' + j.id + '"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>' +
-        '<div class="hr-menu-pop" hidden data-pop="' + j.id + '">' +
-        '<a href="/hr/employer/applicants?job=' + j.id + '">عرض المتقدمين</a>' +
-        '<a href="/hr/employer/jobs/new?id=' + j.id + '">تعديل</a>' +
-        '<a href="/hr/employer/job?id=' + j.id + '">معاينة</a>' +
-        '<button data-act="copy" data-id="' + j.id + '">نسخ الوظيفة</button>' +
-        '<button data-act="share" data-id="' + j.id + '">مشاركة رابط التقديم</button>' +
-        '<button data-act="toggle" data-id="' + j.id + '">' + (j.status === "منشورة" ? "إيقاف مؤقت" : "نشر / إعادة نشر") + "</button>" +
-        '<button data-act="close" data-id="' + j.id + '" class="danger">إغلاق الوظيفة</button>' +
-        "</div></div>";
+        '<div class="hr-menu-pop" hidden data-pop="' + j.id + '">' + items + "</div></div>";
     }
     function render() {
       var rows = filtered();
@@ -363,7 +394,7 @@
       } else if (view === "table") {
         wrap.innerHTML = '<div class="hr-tbl-wrap"><table class="hr-tbl"><thead><tr><th>الوظيفة</th><th>الموقع</th><th>الدوام</th><th>الشواغر</th><th>المتقدمون</th><th>مؤهلون</th><th>مدير التوظيف</th><th>النشر</th><th>الانتهاء</th><th>الحالة</th><th></th></tr></thead><tbody>' +
           slice.map(function (j) {
-            return "<tr><td><a class='t-title' href='/hr/employer/job?id=" + j.id + "'>" + esc(j.title) + "</a><div class='t-sub'>" + esc(j.dept) + "</div></td><td>" + esc(j.branch || "") + " · " + esc(j.city) + "</td><td>" + esc(j.type) + "</td><td>" + j.openings + "</td><td><a class='hr-link' href='/hr/employer/applicants?job=" + j.id + "'>" + j.appsCount + "</a></td><td>" + (j.qualifiedCount || 0) + "</td><td>" + esc(j.hiringManager || "—") + "</td><td>" + fmtDate(j.postedAt) + "</td><td>" + fmtDate(j.closesAt) + "</td><td>" + jobStatusTag(j.status) + "</td><td>" + menuHtml(j) + "</td></tr>";
+            return "<tr><td><a class='t-title' href='/hr/employer/job?id=" + j.id + "'>" + esc(j.title) + "</a><div class='t-sub'>" + esc(j.dept) + "</div></td><td>" + esc(j.branch || "") + " · " + esc(j.city) + "</td><td>" + esc(j.type) + "</td><td>" + j.openings + "</td><td><a class='hr-link' href='/hr/employer/applicants?job=" + j.id + "'>" + (j.real ? "—" : j.appsCount) + "</a></td><td>" + (j.real ? "—" : (j.qualifiedCount || 0)) + "</td><td>" + esc(j.hiringManager || "—") + "</td><td>" + fmtDate(j.postedAt) + "</td><td>" + fmtDate(j.closesAt) + "</td><td>" + jobStatusTag(j.status) + "</td><td>" + menuHtml(j) + "</td></tr>";
           }).join("") + "</tbody></table></div>";
       } else {
         wrap.innerHTML = '<div class="bd"><div class="hr-grid">' + slice.map(function (j) {
@@ -408,9 +439,19 @@
           } else if (act === "close") {
             confirmModal("إغلاق الوظيفة", "سيتوقف استقبال المتقدمين على «" + j.title + "». متأكد؟", "إغلاق", true).then(function (ok) {
               if (!ok) return;
-              HRStore.editJob(id, { status: "مغلقة" });
-              toast("أُغلقت الوظيفة.");
-              render();
+              if (j.real && hrRealCode()) {
+                fetch("/api/candidates", {
+                  method: "POST", headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ action: "close-posting", code: hrRealCode(), id: j.id }),
+                }).then(function (r) { return r.json(); }).then(function (dd) {
+                  if (dd && dd.ok) { HRStore.editJob(id, { status: "مغلقة" }); toast("أُغلقت الوظيفة على الموقع."); render(); }
+                  else toast("تعذّر الإغلاق — حاول مجدداً.");
+                }).catch(function () { toast("خطأ في الاتصال."); });
+              } else {
+                HRStore.editJob(id, { status: "مغلقة" });
+                toast("أُغلقت الوظيفة.");
+                render();
+              }
             });
           }
         });
@@ -438,6 +479,24 @@
   }
 
   /* ================= job wizard ================= */
+  function skillsForTitle(title) {
+    var maps = [
+      [/محاسب|مالية/, ["محاسبة عامة", "Excel", "أنظمة ERP", "تقارير مالية"]],
+      [/موارد بشرية|HR/, ["قوى", "التأمينات", "عقود عمل", "التوظيف"]],
+      [/مبيعات/, ["تطوير أعمال", "التفاوض", "إدارة علاقات العملاء"]],
+      [/تسويق/, ["التسويق الرقمي", "إدارة الحملات", "المحتوى"]],
+      [/خدمة عملاء|استقبال/, ["التواصل الفعال", "حل المشكلات", "أنظمة CRM"]],
+      [/مهندس/, ["قراءة المخططات", "AutoCAD", "إدارة مشاريع"]],
+      [/نجار|نجارة/, ["نجارة ديكور", "قراءة رسومات"]],
+      [/كهرباء|كهربائي/, ["تمديدات", "إنارة LED", "لوحات توزيع"]],
+      [/باريستا|قهوة/, ["تحضير القهوة", "خدمة العملاء", "النظافة"]],
+      [/سائق|توصيل/, ["رخصة قيادة سارية", "معرفة الطرق"]],
+      [/مدير/, ["قيادة فرق", "تخطيط", "إدارة أداء"]],
+    ];
+    for (var i = 0; i < maps.length; i++) if (maps[i][0].test(title)) return maps[i][1];
+    return ["إتقان مهام الدور", "التواصل الفعال", "العمل ضمن فريق"];
+  }
+
   function pageJobNew() {
     var qs0 = new URLSearchParams(location.search);
     var editId = qs0.get("id") || "";
@@ -471,20 +530,7 @@
       out.title = title || raw;
       return out;
     }
-    function skillsFor(title) {
-      var maps = [
-        [/محاسب|مالية/, ["محاسبة عامة", "Excel", "أنظمة ERP", "تقارير مالية"]],
-        [/موارد بشرية|HR/, ["قوى", "التأمينات", "عقود عمل", "التوظيف"]],
-        [/مبيعات/, ["تطوير أعمال", "التفاوض", "إدارة علاقات العملاء", "تحقيق الأهداف"]],
-        [/تسويق/, ["التسويق الرقمي", "إدارة الحملات", "المحتوى", "التحليلات"]],
-        [/خدمة عملاء|استقبال/, ["التواصل الفعال", "حل المشكلات", "أنظمة CRM"]],
-        [/مهندس/, ["قراءة المخططات", "AutoCAD", "إدارة مشاريع"]],
-        [/باريستا|قهوة/, ["تحضير القهوة المختصة", "خدمة العملاء", "النظافة والسلامة الغذائية"]],
-        [/سائق|توصيل/, ["رخصة قيادة سارية", "معرفة الطرق", "الالتزام بالمواعيد"]],
-      ];
-      for (var i = 0; i < maps.length; i++) if (maps[i][0].test(title)) return maps[i][1];
-      return ["إتقان مهام الدور", "التواصل الفعال", "العمل ضمن فريق", "الالتزام"];
-    }
+    function skillsFor(title) { return skillsForTitle(title); }
     function questionsFor(title, parsed) {
       var qs = ["كم سنة خبرة لديك في " + title + "؟", "ما مدة الإشعار المطلوبة في عملك الحالي؟", "ما الراتب المتوقع؟"];
       if (parsed.city && parsed.city !== "عن بعد") qs.splice(1, 0, "هل أنت متاح للعمل في " + parsed.city + "؟");
@@ -944,6 +990,9 @@
       });
     }
     HRStore.ready().then(function () {
+      if (HRStore.isReal()) {
+        $("ap-root").insertAdjacentHTML("beforebegin", '<div class="hr-error" style="background:var(--hr-blue-bg);color:var(--hr-blue)">التقديمات أدناه عيّنة توضيحية لتجربة المسار — ربط المتقدمين الحقيقيين من الموقع والقنوات ضمن المرحلة القادمة. وظائفك الحقيقية ظاهرة في «الوظائف» و«المطابقة الذكية».</div>');
+      }
       var jobSel = $("ap-job");
       jobSel.innerHTML = '<option value="">كل الوظائف</option>' + HRStore.jobs().map(function (j) { return '<option value="' + j.id + '"' + (state.job === j.id ? " selected" : "") + ">" + esc(j.title) + "</option>"; }).join("");
       var srcs = {};
@@ -1331,6 +1380,7 @@
       $("mt-run").addEventListener("click", function () {
         var job = HRStore.job($("mt-job").value);
         if (!job) return;
+        if (job.real && (!job.skills || !job.skills.length)) { job.skills = skillsForTitle(job.title); }
         $("mt-results").innerHTML = '<div class="hr-skel" style="height:200px"></div>';
         setTimeout(function () {
           lastResults = runMatch(job, weights);
