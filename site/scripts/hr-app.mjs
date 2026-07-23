@@ -133,6 +133,20 @@ const dashboardBody = `
         <div><h1 id="dash-hello">مرحباً 👋</h1><p>إليك نظرة عامة على أداء التوظيف في شركتك اليوم.</p></div>
         <a class="hr-btn hr-btn-primary" href="/hr/employer/jobs/new">${ic("plus", 16)} نشر وظيفة جديدة</a>
       </div>
+      <section class="hr-hero-ask">
+        <h2>من تريد توظيفه اليوم؟</h2>
+        <div class="ask-row">
+          <input type="text" id="dash-ask" placeholder="اكتب المسمى الوظيفي… مثال: أخصائي موارد بشرية" aria-label="المسمى الوظيفي">
+          <button class="hr-btn hr-btn-primary" id="dash-ask-go" style="padding:13px 22px">أنشئ الوظيفة</button>
+        </div>
+        <div class="hr-chips" id="dash-ask-chips">
+          <button class="hr-chip">أخصائي موارد بشرية</button>
+          <button class="hr-chip">محاسب</button>
+          <button class="hr-chip">مدير مبيعات</button>
+          <button class="hr-chip">مسؤول خدمة عملاء</button>
+          <button class="hr-chip">أخصائي تسويق</button>
+        </div>
+      </section>
       <div class="hr-kpis" id="dash-kpis"><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
         <section class="hr-card"><div class="hd"><h2>قمع التوظيف</h2><a href="/hr/employer/applicants">التفاصيل</a></div><div class="bd"><div class="hr-funnel" id="dash-funnel"></div></div></section>
@@ -165,27 +179,72 @@ const jobsBody = `
 
 const jobNewBody = `
       <div class="hr-page-head">
-        <div><h1 id="wiz-title">نشر وظيفة جديدة</h1><p id="jn-sub">اكتب المسمى الوظيفي فقط — الذكاء يكتب الوصف كاملاً وتنشر بضغطة.</p></div>
+        <div><h1 id="wiz-title">نشر وظيفة جديدة</h1><p id="jn-sub"></p></div>
         <a class="hr-btn hr-btn-ghost" href="/hr/employer/jobs">رجوع للوظائف</a>
       </div>
-      <section class="hr-card" id="qp-card" style="max-width:720px;margin:0 auto;width:100%"><div class="bd">
-        <h3 style="color:var(--hr-navy);margin-bottom:4px">⚡ النشر السريع</h3>
-        <p class="hr-hint" style="margin-bottom:14px">المسمى يكفي. كل التفاصيل الأخرى اختيارية وتقدر تعدّل الوصف قبل النشر.</p>
-        <div class="hr-field"><label for="qp-title">المسمى الوظيفي <span class="req">*</span></label><input id="qp-title" type="text" placeholder="مثال: باريستا، محاسب تكاليف، مهندس إنتاج…"></div>
-        <div class="hr-field"><label for="qp-city">المدينة</label><input id="qp-city" type="text" value="الرياض"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <button class="hr-btn hr-btn-primary" id="qp-go" type="button">✨ اكتب الوصف بالذكاء</button>
-          <button class="hr-link" id="jn-full" type="button">تبغى تفاصيل أكثر؟ النموذج التفصيلي</button>
+
+      <!-- الحالة 1: سؤال واحد -->
+      <section class="hr-card hr-ask-card" id="qp-ask"><div class="bd" style="padding:34px 26px">
+        <h2>ما المنصب الذي تريد توظيفه؟</h2>
+        <p class="hint">اكتب المسمى فقط — أو اطلبها بلغتك: «أحتاج 5 باريستا سعوديين بالرياض»</p>
+        <input type="text" id="qp-title" placeholder="أخصائي موارد بشرية" aria-label="المنصب المطلوب">
+        <div class="hr-chips" id="qp-chips" style="justify-content:center">
+          <button class="hr-chip">أخصائي موارد بشرية</button>
+          <button class="hr-chip">محاسب</button>
+          <button class="hr-chip">مدير مبيعات</button>
+          <button class="hr-chip">مسؤول خدمة عملاء</button>
+          <button class="hr-chip">أخصائي تسويق</button>
         </div>
-        <p class="hr-hint" id="qp-status" style="min-height:18px;margin-top:8px"></p>
-        <div id="qp-preview" hidden>
-          <div class="hr-field"><label for="qp-desc">الوصف المُولّد — راجعه وعدّله قبل النشر</label><textarea id="qp-desc" rows="12"></textarea></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="hr-btn hr-btn-primary" id="qp-publish" type="button">📢 انشر الوظيفة الآن</button>
-            <button class="hr-btn hr-btn-ghost" id="qp-regen" type="button">✨ أعد التوليد</button>
+        <button class="hr-btn hr-btn-primary hr-btn-lg" id="qp-go" type="button" style="width:100%;margin-top:18px;padding:14px">✨ إنشاء الوظيفة بالذكاء الاصطناعي</button>
+        <p class="hr-hint" id="qp-status" style="min-height:18px;margin-top:10px"></p>
+        <details style="margin-top:14px;text-align:center"><summary class="hr-hint" style="cursor:pointer">خيارات أخرى</summary>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px">
+            <button class="hr-chip" data-alt="upload">رفع وصف وظيفي (PDF/Word)</button>
+            <button class="hr-chip" data-alt="copy">نسخ وظيفة سابقة</button>
+            <button class="hr-chip" data-alt="template">استخدام قالب</button>
+            <button class="hr-chip" id="jn-full">إنشاء يدوي متقدم</button>
           </div>
-        </div>
+        </details>
       </div></section>
+
+      <!-- سؤال ضروري واحد فقط عند الحاجة -->
+      <div class="hr-qq" id="qp-city-q" hidden>
+        <h3>أين ستكون الوظيفة؟</h3>
+        <div class="hr-chips" style="justify-content:center">
+          <button class="hr-chip" data-city="الرياض">الرياض</button>
+          <button class="hr-chip" data-city="جدة">جدة</button>
+          <button class="hr-chip" data-city="الدمام">الدمام</button>
+          <button class="hr-chip" data-city="عن بعد">عن بعد</button>
+        </div>
+      </div>
+
+      <!-- الحالة 2: التقدم -->
+      <div class="hr-gen-progress" id="qp-progress" hidden>
+        <div class="hr-spin" aria-hidden="true"></div>
+        <h3 style="color:var(--hr-navy);margin-bottom:14px">نجهز لك الإعلان الوظيفي…</h3>
+        <div class="gp-step" data-gp="0">📝 نكتب الوصف الوظيفي</div>
+        <div class="gp-step" data-gp="1">🛠️ نحدد المهارات والمتطلبات</div>
+        <div class="gp-step" data-gp="2">❓ نجهز أسئلة الفرز</div>
+        <div class="gp-step" data-gp="3">✨ نجهز المطابقة مع قاعدة المواهب</div>
+      </div>
+
+      <!-- الحالة 3: المعاينة الذكية -->
+      <div id="qp-preview" hidden>
+        <section class="hr-card"><div class="bd">
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
+            <div><span class="hr-quality">✓ وظيفتك جاهزة للنشر</span> <span class="hr-tag" id="qp-quality"></span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="hr-btn hr-btn-primary" id="qp-publish" type="button">📢 نشر الآن</button>
+              <button class="hr-btn hr-btn-ghost" id="qp-edit-toggle" type="button">مراجعة وتعديل</button>
+              <button class="hr-btn hr-btn-ghost" id="qp-regen" type="button">✨ إعادة إنشاء</button>
+            </div>
+          </div>
+          <div id="qp-understood" style="margin-top:12px"></div>
+        </div></section>
+        <section class="hr-card"><div class="bd" id="qp-doc"></div></section>
+        <section class="hr-card"><div class="hd"><h2>أسئلة الفرز <span class="hr-tag t-ai">أنشأها الذكاء</span></h2><button class="hr-link" id="qp-q-off">تعطيل أسئلة الفرز</button></div><div class="bd" id="qp-questions"></div></section>
+      </div>
+
       <div class="hr-wiz" id="wiz-wrap" hidden>
         <aside class="hr-wiz-steps" id="wiz-steps" aria-label="خطوات النشر"></aside>
         <section class="hr-card"><div class="bd">

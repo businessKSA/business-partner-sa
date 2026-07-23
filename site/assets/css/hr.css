@@ -4,11 +4,16 @@
    site keeps styles.css — this app has its own chrome.
    ============================================================ */
 :root {
-  --hr-teal: #0B1B5A;
-  --hr-teal-600: #13246e;
-  --hr-teal-050: #EEF1FA;
-  --hr-teal-100: #DEE5F8;
-  --hr-navy: #0B1B5A;
+  /* Central Business Partner design tokens — never hardcode colors in components */
+  --hr-brand-primary: #0F766E;        /* الأخضر المزرق — الأزرار والإجراءات */
+  --hr-brand-primary-hover: #0B5D57;
+  --hr-brand-dark: #0B1B5A;           /* كحلي الهوية — الشريط الجانبي والعناوين */
+  --hr-brand-accent: #14B8A6;
+  --hr-teal: var(--hr-brand-primary);
+  --hr-teal-600: var(--hr-brand-primary-hover);
+  --hr-teal-050: #F0FDFA;
+  --hr-teal-100: #CCFBF1;
+  --hr-navy: var(--hr-brand-dark);
   --hr-text: #182036;
   --hr-soft: #5B6472;
   --hr-mute: #8A93A3;
@@ -43,19 +48,19 @@ input, select, textarea { font-family: inherit; font-size: .95rem; color: var(--
 .hr-shell.side-collapsed { grid-template-columns: 66px minmax(0, 1fr); }
 
 /* Sidebar (right in RTL) */
-.hr-side { background: var(--hr-card); border-inline-end: 1px solid var(--hr-line); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 40; }
-.hr-brand { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--hr-line); min-height: var(--hr-top-h); }
-.hr-brand b { color: var(--hr-navy); font-size: .95rem; white-space: nowrap; }
-.hr-brand small { display: block; color: var(--hr-mute); font-size: .72rem; font-weight: 500; }
-.hr-brand-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--hr-navy); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .8rem; flex: none; }
+.hr-side { background: var(--hr-brand-dark); border-inline-end: 1px solid var(--hr-brand-dark); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 40; }
+.hr-brand { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.12); min-height: var(--hr-top-h); }
+.hr-brand b { color: #fff; font-size: .95rem; white-space: nowrap; }
+.hr-brand small { display: block; color: rgba(255,255,255,.55); font-size: .72rem; font-weight: 500; }
+.hr-brand-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--hr-brand-primary); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .8rem; flex: none; }
 .hr-nav { padding: 10px 10px 20px; display: flex; flex-direction: column; gap: 2px; }
-.hr-nav-label { font-size: .68rem; color: var(--hr-mute); font-weight: 600; padding: 12px 10px 4px; letter-spacing: .3px; }
-.hr-nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; color: var(--hr-soft); font-size: .9rem; font-weight: 500; white-space: nowrap; }
+.hr-nav-label { font-size: .68rem; color: rgba(255,255,255,.45); font-weight: 600; padding: 12px 10px 4px; letter-spacing: .3px; }
+.hr-nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; color: rgba(255,255,255,.78); font-size: .9rem; font-weight: 500; white-space: nowrap; }
 .hr-nav a svg { flex: none; width: 18px; height: 18px; }
-.hr-nav a:hover { background: var(--hr-gray-bg); color: var(--hr-text); }
-.hr-nav a.active { background: var(--hr-teal-050); color: var(--hr-teal); font-weight: 600; box-shadow: inset 3px 0 0 var(--hr-teal); }
-html[dir="rtl"] .hr-nav a.active { box-shadow: inset -3px 0 0 var(--hr-teal); }
-.hr-nav .nv-badge { margin-inline-start: auto; background: var(--hr-teal); color: #fff; font-size: .68rem; border-radius: 99px; padding: 0 7px; line-height: 1.6; }
+.hr-nav a:hover { background: rgba(255,255,255,.08); color: #fff; }
+.hr-nav a.active { background: rgba(20,184,166,.18); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--hr-brand-accent); }
+html[dir="rtl"] .hr-nav a.active { box-shadow: inset -3px 0 0 var(--hr-brand-accent); }
+.hr-nav .nv-badge { margin-inline-start: auto; background: var(--hr-brand-accent); color: #06302B; font-size: .68rem; border-radius: 99px; padding: 0 7px; line-height: 1.6; }
 .side-collapsed .hr-side .nv-txt, .side-collapsed .hr-side .hr-nav-label, .side-collapsed .hr-brand b, .side-collapsed .hr-brand small, .side-collapsed .hr-nav .nv-badge { display: none; }
 .side-collapsed .hr-nav a { justify-content: center; padding: 10px; }
 
@@ -91,7 +96,7 @@ html[dir="ltr"] .hr-search input { padding: 8px 12px 8px 38px; }
 .hr-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 10px; border: 1px solid transparent; padding: 9px 16px; font-size: .9rem; font-weight: 600; transition: .15s; }
 .hr-btn svg { width: 16px; height: 16px; }
 .hr-btn-primary { background: var(--hr-teal); color: #fff; }
-.hr-btn-primary:hover { background: #081345; }
+.hr-btn-primary:hover { background: var(--hr-brand-primary-hover); }
 .hr-btn-ghost { background: #fff; color: var(--hr-text); border-color: var(--hr-line); }
 .hr-btn-ghost:hover { border-color: var(--hr-teal); color: var(--hr-teal); }
 .hr-btn-soft { background: var(--hr-teal-050); color: var(--hr-teal); }
@@ -113,7 +118,7 @@ html[dir="ltr"] .hr-search input { padding: 8px 12px 8px 38px; }
 .hr-field label { font-size: .82rem; font-weight: 600; color: var(--hr-text); }
 .hr-field .req { color: var(--hr-red); }
 .hr-field input, .hr-field select, .hr-field textarea { border: 1px solid var(--hr-line); border-radius: 10px; padding: 9px 12px; background: #fff; width: 100%; }
-.hr-field input:focus, .hr-field select:focus, .hr-field textarea:focus { border-color: var(--hr-teal-600); outline: none; box-shadow: 0 0 0 3px rgba(11,27,90,.12); }
+.hr-field input:focus, .hr-field select:focus, .hr-field textarea:focus { border-color: var(--hr-teal-600); outline: none; box-shadow: 0 0 0 3px rgba(15,118,110,.15); }
 .hr-field .err { color: var(--hr-red); font-size: .76rem; display: none; }
 .hr-field.invalid input, .hr-field.invalid select, .hr-field.invalid textarea { border-color: var(--hr-red); }
 .hr-field.invalid .err { display: block; }
@@ -223,7 +228,7 @@ table.hr-tbl { width: 100%; border-collapse: collapse; font-size: .87rem; min-wi
 /* Toast + modal */
 .hr-toast { position: fixed; bottom: 22px; inset-inline-start: 50%; transform: translateX(-50%); background: var(--hr-navy); color: #fff; border-radius: 12px; padding: 11px 18px; font-size: .88rem; display: flex; gap: 14px; align-items: center; box-shadow: var(--hr-sh-md); z-index: 200; }
 html[dir="rtl"] .hr-toast { transform: translateX(50%); }
-.hr-toast button { background: none; border: none; color: #AAB8F0; font-weight: 700; font-size: .88rem; }
+.hr-toast button { background: none; border: none; color: #7DE3D8; font-weight: 700; font-size: .88rem; }
 .hr-modal { position: fixed; inset: 0; background: rgba(11,27,90,.45); display: grid; place-items: center; z-index: 300; padding: 16px; }
 .hr-modal-in { background: #fff; border-radius: var(--hr-r-lg); max-width: 430px; width: 100%; padding: 22px; box-shadow: var(--hr-sh-md); }
 .hr-modal-in h3 { color: var(--hr-navy); margin-bottom: 8px; font-size: 1.02rem; }
@@ -277,3 +282,33 @@ html[dir="rtl"] .hr-toast { transform: translateX(50%); }
   .hr-kpis { grid-template-columns: repeat(2, 1fr); }
   .hr-page-head h1 { font-size: 1.15rem; }
 }
+
+/* ---------- Quick job creation (اكتب المسمى وانشر) ---------- */
+.hr-hero-ask { background: linear-gradient(135deg, var(--hr-brand-dark), #14286f); border-radius: var(--hr-r-lg); padding: 24px 22px; color: #fff; }
+.hr-hero-ask h2 { font-size: 1.15rem; margin-bottom: 12px; color: #fff; }
+.hr-hero-ask .ask-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.hr-hero-ask input { flex: 1; min-width: 220px; border: none; border-radius: 12px; padding: 13px 16px; font-size: 1rem; }
+.hr-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.hr-chip { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff; border-radius: 99px; padding: 5px 14px; font-size: .82rem; cursor: pointer; }
+.hr-chip:hover { background: rgba(255,255,255,.18); }
+.hr-ask-card { max-width: 640px; margin: 4vh auto 0; text-align: center; }
+.hr-ask-card h2 { color: var(--hr-navy); font-size: 1.3rem; margin-bottom: 6px; }
+.hr-ask-card .hint { color: var(--hr-soft); font-size: .88rem; margin-bottom: 18px; }
+.hr-ask-card input[type="text"] { width: 100%; border: 2px solid var(--hr-line); border-radius: 14px; padding: 15px 18px; font-size: 1.05rem; text-align: center; }
+.hr-ask-card input[type="text"]:focus { border-color: var(--hr-brand-primary); outline: none; }
+.hr-ask-card .hr-chip { border-color: var(--hr-line); background: #fff; color: var(--hr-soft); }
+.hr-ask-card .hr-chip:hover { border-color: var(--hr-brand-primary); color: var(--hr-brand-primary); background: var(--hr-teal-050); }
+.hr-gen-progress { max-width: 520px; margin: 6vh auto; text-align: center; }
+.hr-gen-progress .gp-step { display: flex; align-items: center; gap: 10px; justify-content: center; color: var(--hr-soft); font-size: .95rem; margin: 8px 0; transition: .3s; opacity: .35; }
+.hr-gen-progress .gp-step.on { opacity: 1; color: var(--hr-navy); font-weight: 600; }
+.hr-gen-progress .gp-step.done { opacity: 1; color: var(--hr-brand-primary); }
+.hr-spin { width: 42px; height: 42px; border: 4px solid var(--hr-teal-100); border-top-color: var(--hr-brand-primary); border-radius: 50%; margin: 0 auto 18px; animation: hrspin .9s linear infinite; }
+@keyframes hrspin { to { transform: rotate(360deg); } }
+.hr-quality { display: inline-flex; align-items: center; gap: 8px; background: var(--hr-green-bg); color: var(--hr-green); border-radius: 99px; padding: 4px 14px; font-size: .82rem; font-weight: 700; }
+.hr-edit-block { border: 1px dashed transparent; border-radius: 10px; padding: 10px 12px; transition: .15s; }
+.hr-edit-block:hover { border-color: var(--hr-line); background: #FAFBFC; }
+.hr-edit-block:focus { border-color: var(--hr-brand-primary); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(15,118,110,.1); }
+.hr-edit-hint { font-size: .72rem; color: var(--hr-mute); }
+.hr-qq { background: #fff; border: 1px solid var(--hr-line); border-radius: var(--hr-r-lg); padding: 20px; max-width: 520px; margin: 0 auto; text-align: center; }
+.hr-qq h3 { color: var(--hr-navy); margin-bottom: 12px; }
+.hr-src-tag { font-size: .68rem; border-radius: 6px; padding: 1px 7px; background: var(--hr-gray-bg); color: var(--hr-mute); vertical-align: middle; }

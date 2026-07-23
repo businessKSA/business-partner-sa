@@ -235,6 +235,12 @@
   function pageDashboard() {
     HRStore.ready().then(function (d) {
       $("dash-hello").textContent = "مرحباً " + d.user.name + " 👋";
+      // «من تريد توظيفه اليوم؟» — يدخل مباشرة على مسار الإنشاء بالذكاء
+      function goCreate(t) { location.href = "/hr/employer/jobs/new?title=" + encodeURIComponent(t); }
+      var ask = $("dash-ask"), askGo = $("dash-ask-go"), chips = $("dash-ask-chips");
+      if (askGo) askGo.addEventListener("click", function () { if (ask.value.trim()) goCreate(ask.value.trim()); else ask.focus(); });
+      if (ask) ask.addEventListener("keydown", function (e) { if (e.key === "Enter" && ask.value.trim()) goCreate(ask.value.trim()); });
+      if (chips) chips.querySelectorAll(".hr-chip").forEach(function (c) { c.addEventListener("click", function () { goCreate(c.textContent); }); });
       var apps = HRStore.applications(), jobs = HRStore.jobs();
       var mainStages = d.stages.map(function (s) { return s.key; });
       var inPipe = apps.filter(function (a) { return mainStages.indexOf(a.stage) > -1; });
@@ -428,90 +434,225 @@
     var qs0 = new URLSearchParams(location.search);
     var editId = qs0.get("id") || "";
     var fullMode = editId || qs0.get("mode") === "full";
-    // Quick publish: title (+city) → real AI writes the JD via the site's
-    // existing /api/hire jobdesc task → review → publish. When a real access
-    // code is present the job is ALSO published to the live Job Postings DB
-    // (same create-posting action the site dashboard uses), so it appears on
-    // /careers — not just in this console.
+    // «اكتب المسمى وانشر»: حقل واحد يقبل مسمى أو طلباً بلغة طبيعية، الذكاء
+    // الحقيقي (/api/hire jobdesc) يكتب الوصف، والباقي يُشتق من ملف الشركة
+    // وقيم افتراضية موسومة بمصدرها — ولا يضيف الذكاء أي شرط حساس من نفسه.
+    var CITIES = ["الرياض", "جدة", "الدمام", "مكة", "المدينة المنورة", "الخبر", "أبها", "تبوك", "بريدة", "عن بعد"];
+    var SRC_LABEL = { USER_PROVIDED: "من طلبك", COMPANY_PROFILE: "من ملف الشركة", COMPANY_DEFAULT: "افتراضي الشركة", AI_GENERATED: "أنشأه الذكاء", SYSTEM_DEFAULT: "افتراضي" };
     function realCode() {
       var c = CODE || "";
       return c && ["BP-DEMO", "BP-EMP-DEMO"].indexOf(c.toUpperCase()) < 0 ? c : "";
     }
-    function quickFallback(title, city) {
-      return "نبحث عن " + title + " للانضمام إلى فريقنا في " + (city || "الرياض") + ".\n\nالمهام:\n• تنفيذ مهام الدور اليومية وفق معايير الجودة المعتمدة.\n• التنسيق مع الفريق وإعداد التقارير الدورية.\n• الالتزام بسياسات الشركة وإجراءات السلامة.\n\nالمتطلبات:\n• خبرة عملية في مجال مشابه.\n• مهارات تواصل وتنظيم عالية.\n• جدية والتزام.\n\nللتقديم: أرسل سيرتك الذاتية عبر منصة التقديم.";
+    function parseNL(text) {
+      var raw = String(text || "").trim();
+      var out = { raw: raw, title: raw, count: null, city: "", nationality: "", years: null };
+      var t = " " + raw + " ";
+      CITIES.forEach(function (c) { if (!out.city && t.indexOf(c) > -1) out.city = c; });
+      var mN = t.match(/[\s^](\d+)\s/);
+      if (mN && Number(mN[1]) <= 500) out.count = Number(mN[1]);
+      if (/سعودي/.test(t)) out.nationality = "سعودي";
+      var mE = t.match(/خبرة\s*(\d+)/);
+      if (mE) out.years = Number(mE[1]);
+      var title = raw
+        .replace(/أحتاج|ابغى|أبغى|نحتاج|نبغى|مطلوب|توظيف/g, " ")
+        .replace(/خبرة\s*\d+\s*(سنوات|سنة|سنين)?/g, " ")
+        .replace(/سعوديين|سعوديات|سعودي|سعودية/g, " ")
+        .replace(/\d+/g, " ");
+      CITIES.forEach(function (c) { title = title.split("بال" + c.replace(/^ال/, "")).join(" ").split("في " + c).join(" ").split(c).join(" "); });
+      title = title.replace(/\s+/g, " ").trim();
+      out.title = title || raw;
+      return out;
     }
-    function initQuickPost() {
-      var goBtn = $("qp-go");
-      if (!goBtn) return;
+    function skillsFor(title) {
+      var maps = [
+        [/محاسب|مالية/, ["محاسبة عامة", "Excel", "أنظمة ERP", "تقارير مالية"]],
+        [/موارد بشرية|HR/, ["قوى", "التأمينات", "عقود عمل", "التوظيف"]],
+        [/مبيعات/, ["تطوير أعمال", "التفاوض", "إدارة علاقات العملاء", "تحقيق الأهداف"]],
+        [/تسويق/, ["التسويق الرقمي", "إدارة الحملات", "المحتوى", "التحليلات"]],
+        [/خدمة عملاء|استقبال/, ["التواصل الفعال", "حل المشكلات", "أنظمة CRM"]],
+        [/مهندس/, ["قراءة المخططات", "AutoCAD", "إدارة مشاريع"]],
+        [/باريستا|قهوة/, ["تحضير القهوة المختصة", "خدمة العملاء", "النظافة والسلامة الغذائية"]],
+        [/سائق|توصيل/, ["رخصة قيادة سارية", "معرفة الطرق", "الالتزام بالمواعيد"]],
+      ];
+      for (var i = 0; i < maps.length; i++) if (maps[i][0].test(title)) return maps[i][1];
+      return ["إتقان مهام الدور", "التواصل الفعال", "العمل ضمن فريق", "الالتزام"];
+    }
+    function questionsFor(title, parsed) {
+      var qs = ["كم سنة خبرة لديك في " + title + "؟", "ما مدة الإشعار المطلوبة في عملك الحالي؟", "ما الراتب المتوقع؟"];
+      if (parsed.city && parsed.city !== "عن بعد") qs.splice(1, 0, "هل أنت متاح للعمل في " + parsed.city + "؟");
+      if (/محاسب/.test(title)) qs.splice(1, 0, "هل لديك خبرة في أنظمة ERP؟");
+      return qs.slice(0, 5);
+    }
+    function fallbackDesc(title, city) {
+      return "نبحث عن " + title + " للانضمام إلى فريقنا في " + (city || "الرياض") + ".\n\nالمهام:\n• تنفيذ مهام الدور اليومية وفق معايير الجودة المعتمدة.\n• التنسيق مع الفريق وإعداد التقارير الدورية.\n• الالتزام بسياسات الشركة وإجراءات السلامة.\n\nالمتطلبات:\n• خبرة عملية في مجال مشابه.\n• مهارات تواصل وتنظيم عالية.";
+    }
+    var GEN = null; // { parsed, fields, sections, questions, questionsOff }
+    function buildSections(aiText, parsed, d) {
+      var co = (d && d.company) || {};
+      var txt = String(aiText || "");
+      var intro = txt, resp = "", reqs = "";
+      var mR = txt.match(/(المهام|المسؤوليات)\s*:?([\s\S]*?)(?=(المتطلبات|المؤهلات)|$)/);
+      var mQ = txt.match(/(المتطلبات|المؤهلات)\s*:?([\s\S]*)$/);
+      if (mR) { resp = mR[2].trim(); intro = txt.slice(0, mR.index).trim(); }
+      if (mQ) { reqs = mQ[2].trim(); if (!mR) intro = txt.slice(0, mQ.index).trim(); }
+      return [
+        ["about", "نبذة عن الوظيفة", intro || ("فرصة للانضمام إلى " + (co.name || "فريقنا") + " في دور " + parsed.title + ".")],
+        ["resp", "المسؤوليات", resp || "• تنفيذ مهام الدور اليومية.\n• التعاون مع الفريق وتحقيق الأهداف."],
+        ["reqs", "المؤهلات والمتطلبات", reqs || "• خبرة مناسبة في المجال.\n• مهارات تواصل وتنظيم."],
+        ["skills", "المهارات", skillsFor(parsed.title).join("، ")],
+        ["details", "تفاصيل العمل", "المدينة: " + (GEN.fields.city.value) + " · الدوام: دوام كامل · عدد الشواغر: " + GEN.fields.count.value + " · الراتب: غير معلن" + (parsed.nationality ? " · الجنسية: " + parsed.nationality + " (بحسب طلبك)" : "")],
+        ["benefits", "المزايا", "تأمين طبي · إجازات نظامية · بيئة عمل محفزة (عدّلها بما يناسب شركتك)"],
+        ["apply", "خطوات التقديم", "قدّم عبر صفحة الوظيفة وسنتواصل مع المرشحين المناسبين خلال أيام."],
+      ];
+    }
+    function startGeneration(parsed) {
+      var d = HRStore.data();
+      var co = (d && d.company) || {};
+      GEN = { parsed: parsed, questionsOff: false, fields: {
+        title: { value: parsed.title, source: "USER_PROVIDED", confidence: 1 },
+        city: { value: parsed.city || co.city || "الرياض", source: parsed.city ? "USER_PROVIDED" : "COMPANY_PROFILE", confidence: parsed.city ? 1 : 0.8 },
+        count: { value: parsed.count || 1, source: parsed.count ? "USER_PROVIDED" : "SYSTEM_DEFAULT", confidence: 1 },
+        type: { value: "دوام كامل", source: "COMPANY_DEFAULT", confidence: 0.9 },
+        salary: { value: "غير معلن", source: "SYSTEM_DEFAULT", confidence: 1 },
+      } };
+      if (parsed.nationality) GEN.fields.nationality = { value: parsed.nationality, source: "USER_PROVIDED", confidence: 1 };
+      if (parsed.years) GEN.fields.years = { value: "خبرة " + parsed.years + "+ سنوات", source: "USER_PROVIDED", confidence: 1 };
+      $("qp-ask").hidden = true;
+      $("qp-city-q").hidden = true;
+      $("qp-progress").hidden = false;
+      var steps = document.querySelectorAll("[data-gp]");
+      var si = 0;
+      var iv = setInterval(function () {
+        if (si > 0) steps[si - 1].classList.add("done");
+        if (si < steps.length) { steps[si].classList.add("on"); si++; } else clearInterval(iv);
+      }, 850);
+      var minWait = new Promise(function (r) { setTimeout(r, 3600); });
+      var aiCall = fetch("/api/hire", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ task: "jobdesc", title: parsed.title, field: "", city: GEN.fields.city.value }),
+      }).then(function (r) { return r.json(); }).catch(function () { return null; });
+      Promise.all([aiCall, minWait]).then(function (rr) {
+        clearInterval(iv);
+        var aiText = rr[0] && rr[0].ok && rr[0].result ? rr[0].result : "";
+        GEN.aiOk = !!aiText;
+        GEN.sections = buildSections(aiText || fallbackDesc(parsed.title, GEN.fields.city.value), parsed, d);
+        GEN.questions = questionsFor(parsed.title, parsed);
+        renderPreview();
+      });
+    }
+    function renderPreview() {
+      $("qp-progress").hidden = true;
+      $("qp-preview").hidden = false;
+      $("qp-quality").textContent = "جودة الإعلان: " + (GEN.aiOk ? "ممتازة" : "جيدة — نص مبدئي، حسّنه بالتعديل المباشر");
+      $("qp-understood").innerHTML = '<span class="hr-hint">ما فهمناه:</span> ' + Object.keys(GEN.fields).map(function (k) {
+        var f = GEN.fields[k];
+        return '<span class="hr-tag" style="margin:2px">' + esc(String(f.value)) + ' <span class="hr-src-tag">' + (SRC_LABEL[f.source] || f.source) + "</span></span>";
+      }).join(" ");
+      $("qp-doc").innerHTML = '<h2 style="color:var(--hr-navy);margin-bottom:4px">' + esc(GEN.parsed.title) + '</h2><p class="hr-hint" style="margin-bottom:14px">' + esc(GEN.fields.city.value) + " · دوام كامل · اضغط أي فقرة لتعديلها مباشرة</p>" +
+        GEN.sections.map(function (sec) {
+          return '<div style="margin-bottom:12px"><b style="color:var(--hr-navy);font-size:.9rem">' + sec[1] + '</b><div class="hr-edit-block" contenteditable="true" data-sec="' + sec[0] + '" style="white-space:pre-wrap;font-size:.9rem">' + esc(sec[2]) + "</div></div>";
+        }).join("");
+      renderQuestions();
+      $("qp-doc").querySelectorAll(".hr-edit-block").forEach(function (b) {
+        b.addEventListener("blur", function () {
+          var k = b.getAttribute("data-sec");
+          GEN.sections.forEach(function (sec) { if (sec[0] === k) sec[2] = b.textContent; });
+        });
+      });
+    }
+    function renderQuestions() {
+      var box = $("qp-questions");
+      if (GEN.questionsOff) { box.innerHTML = '<p class="hr-hint">أسئلة الفرز معطّلة لهذه الوظيفة. <button class="hr-link" id="qp-q-on">إعادة تفعيلها</button></p>'; var on = $("qp-q-on"); if (on) on.addEventListener("click", function () { GEN.questionsOff = false; renderQuestions(); }); return; }
+      box.innerHTML = GEN.questions.map(function (q, i) {
+        return '<div class="hr-cand" style="align-items:center"><div class="c-body" style="font-size:.88rem">' + (i + 1) + ". " + esc(q) + '</div><button class="hr-link" data-qdel="' + i + '">حذف</button></div>';
+      }).join("") + '<div style="display:flex;gap:8px;margin-top:10px"><input type="text" id="qp-q-new" placeholder="أضف سؤالاً…" style="flex:1;border:1px solid var(--hr-line);border-radius:9px;padding:7px 11px"><button class="hr-btn hr-btn-sm hr-btn-ghost" id="qp-q-add">إضافة</button></div>';
+      box.querySelectorAll("[data-qdel]").forEach(function (b) {
+        b.addEventListener("click", function () { GEN.questions.splice(Number(b.getAttribute("data-qdel")), 1); renderQuestions(); });
+      });
+      $("qp-q-add").addEventListener("click", function () {
+        var v = $("qp-q-new").value.trim();
+        if (v) { GEN.questions.push(v); renderQuestions(); }
+      });
+    }
+    function composeDescription() {
+      return GEN.sections.filter(function (s2) { return ["about", "resp", "reqs", "skills", "benefits", "apply"].indexOf(s2[0]) > -1; })
+        .map(function (s2) { return s2[1] + ":\n" + s2[2]; }).join("\n\n");
+    }
+    function publishNow() {
+      var pb = $("qp-publish");
+      pb.disabled = true;
+      var desc = composeDescription();
+      var f = GEN.fields;
+      HRStore.addJob({
+        title: GEN.parsed.title, city: f.city.value, country: "السعودية", dept: "عام",
+        type: f.type.value, workMode: f.city.value === "عن بعد" ? "عن بعد" : "حضوري",
+        openings: f.count.value, description: desc, experienceYears: GEN.parsed.years ? GEN.parsed.years + "+" : "",
+        closesAt: "", screeningQuestions: GEN.questionsOff ? [] : GEN.questions, _fields: f,
+      }, true);
+      var rc = realCode();
+      var done = function (liveOk) {
+        toast(liveOk ? "نُشرت الوظيفة على الموقع وبدأت المطابقة 🎉" : "نُشرت في لوحتك 🎉 (النشر على الموقع يتفعّل مع تسجيل الدخول برمزك)");
+        setTimeout(function () { location.href = "/hr/employer/jobs"; }, 900);
+      };
+      if (!rc) { done(false); return; }
+      fetch("/api/candidates", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "create-posting", code: rc, title: GEN.parsed.title, city: f.city.value, description: desc }),
+      }).then(function (r) { return r.json(); }).then(function (dd) { done(!!(dd && dd.ok)); }).catch(function () { done(false); });
+    }
+    function initQuickCreate() {
       if (fullMode) {
-        $("qp-card").hidden = true;
+        $("qp-ask").hidden = true;
         $("wiz-wrap").hidden = false;
-        $("jn-sub").textContent = "أكمل الخطوات — تُحفظ المسودة تلقائياً في كل خطوة.";
+        $("jn-sub").textContent = "الوضع اليدوي المتقدم — كل التفاصيل تحت سيطرتك.";
         return;
       }
-      var fullBtn = $("jn-full");
-      if (fullBtn) fullBtn.addEventListener("click", function () {
-        var t = $("qp-title").value.trim();
-        location.href = "/hr/employer/jobs/new?mode=full" + (t ? "&title=" + encodeURIComponent(t) : "");
-      });
-      function generate() {
-        var title = $("qp-title").value.trim();
-        var city = $("qp-city").value.trim();
-        if (!title) { $("qp-status").textContent = "اكتب المسمى الوظيفي أولاً."; $("qp-title").focus(); return; }
-        goBtn.disabled = true;
-        $("qp-status").textContent = "✨ الذكاء يكتب الوصف الآن…";
-        fetch("/api/hire", {
-          method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ task: "jobdesc", title: title, field: "", city: city }),
-        }).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
-          .then(function (res) {
-            goBtn.disabled = false;
-            if (res.d && res.d.ok && res.d.result) {
-              $("qp-desc").value = res.d.result;
-              $("qp-status").textContent = "جاهز — راجع الوصف ثم انشر.";
-            } else {
-              $("qp-desc").value = quickFallback(title, city);
-              $("qp-status").textContent = "تعذّر الوصول لمحرك الذكاء الآن — هذا نص مبدئي، عدّله ثم انشر.";
-            }
-            $("qp-preview").hidden = false;
-            $("qp-desc").scrollIntoView({ behavior: "smooth", block: "center" });
-          })
-          .catch(function () {
-            goBtn.disabled = false;
-            $("qp-desc").value = quickFallback(title, city);
-            $("qp-status").textContent = "تعذّر الاتصال — هذا نص مبدئي، عدّله ثم انشر.";
-            $("qp-preview").hidden = false;
+      $("jn-sub").textContent = "";
+      var goBtn = $("qp-go");
+      function begin() {
+        var raw = $("qp-title").value.trim();
+        if (!raw) { $("qp-status").textContent = "اكتب المنصب أولاً."; $("qp-title").focus(); return; }
+        var parsed = parseNL(raw);
+        if (!parsed.city) {
+          // سؤال ضروري واحد فقط — المدينة لا يمكن استنتاجها
+          $("qp-city-q").hidden = false;
+          $("qp-city-q").scrollIntoView({ behavior: "smooth", block: "center" });
+          $("qp-city-q").querySelectorAll("[data-city]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              parsed.city = b.getAttribute("data-city");
+              startGeneration(parsed);
+            });
           });
+          return;
+        }
+        startGeneration(parsed);
       }
-      goBtn.addEventListener("click", generate);
-      $("qp-title").addEventListener("keydown", function (e) { if (e.key === "Enter") generate(); });
-      var regen = $("qp-regen");
-      if (regen) regen.addEventListener("click", generate);
-      $("qp-publish").addEventListener("click", function () {
-        var title = $("qp-title").value.trim();
-        var city = $("qp-city").value.trim() || "الرياض";
-        var desc = $("qp-desc").value.trim();
-        if (!title || !desc) { $("qp-status").textContent = "المسمى والوصف مطلوبان."; return; }
-        var pb = $("qp-publish");
-        pb.disabled = true;
-        $("qp-status").textContent = "جارٍ النشر…";
-        HRStore.addJob({ title: title, city: city, country: "السعودية", dept: "عام", type: "دوام كامل", workMode: "حضوري", openings: 1, description: desc, experienceYears: "", closesAt: "" }, true);
-        var rc = realCode();
-        var done = function (liveOk) {
-          toast(liveOk ? "نُشرت الوظيفة على الموقع 🎉" : "نُشرت في لوحتك 🎉");
-          setTimeout(function () { location.href = "/hr/employer/jobs"; }, 800);
-        };
-        if (!rc) { done(false); return; }
-        fetch("/api/candidates", {
-          method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ action: "create-posting", code: rc, title: title, city: city, description: desc }),
-        }).then(function (r) { return r.json(); })
-          .then(function (d) { done(!!(d && d.ok)); })
-          .catch(function () { done(false); });
+      goBtn.addEventListener("click", begin);
+      $("qp-title").addEventListener("keydown", function (e) { if (e.key === "Enter") begin(); });
+      $("qp-chips").querySelectorAll(".hr-chip").forEach(function (c) {
+        if (c.hasAttribute("data-alt") || c.id === "jn-full") return;
+        c.addEventListener("click", function () { $("qp-title").value = c.textContent; begin(); });
       });
+      document.querySelectorAll("[data-alt]").forEach(function (b) {
+        b.addEventListener("click", function () { toast("هذا الخيار يتفعّل قريباً — الإنشاء بالذكاء جاهز الآن."); });
+      });
+      var fullBtn = $("jn-full");
+      if (fullBtn) fullBtn.addEventListener("click", function () { location.href = "/hr/employer/jobs/new?mode=full"; });
+      $("qp-publish").addEventListener("click", publishNow);
+      $("qp-regen").addEventListener("click", function () { if (GEN) startGeneration(GEN.parsed); });
+      $("qp-edit-toggle").addEventListener("click", function () {
+        var first = document.querySelector(".hr-edit-block");
+        if (first) { first.focus(); toast("اضغط أي فقرة وعدّلها في مكانها مباشرة."); }
+      });
+      $("qp-q-off").addEventListener("click", function () { if (GEN) { GEN.questionsOff = true; renderQuestions(); } });
+      // انطلاق مباشر من بطاقة «من تريد توظيفه اليوم؟» في اللوحة الرئيسية
+      var preset = qs0.get("title");
+      if (preset) {
+        $("qp-title").value = preset;
+        HRStore.ready().then(function () { begin(); });
+      }
     }
-    initQuickPost();
-    if (!fullMode) { HRStore.ready().catch(function () {}); }
+    HRStore.ready().then(function () { initQuickCreate(); }).catch(function () { initQuickCreate(); });
     var DRAFT_KEY = "bp_hr_job_draft" + (editId ? "_" + editId : "");
     var STEPS = [
       ["basic", "المعلومات الأساسية"], ["location", "الموقع ونوع الدوام"], ["desc", "الوصف والمسؤوليات"],

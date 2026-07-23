@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/hr.css?v=3867c52e43">
+<link rel="stylesheet" href="/assets/css/hr.css?v=7534df978e">
 </head>
 <body class="hr-body" data-hr-page="dashboard">
 <div class="hr-shell" id="hr-shell">
@@ -62,6 +62,20 @@
         <div><h1 id="dash-hello">مرحباً 👋</h1><p>إليك نظرة عامة على أداء التوظيف في شركتك اليوم.</p></div>
         <a class="hr-btn hr-btn-primary" href="/hr/employer/jobs/new"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> نشر وظيفة جديدة</a>
       </div>
+      <section class="hr-hero-ask">
+        <h2>من تريد توظيفه اليوم؟</h2>
+        <div class="ask-row">
+          <input type="text" id="dash-ask" placeholder="اكتب المسمى الوظيفي… مثال: أخصائي موارد بشرية" aria-label="المسمى الوظيفي">
+          <button class="hr-btn hr-btn-primary" id="dash-ask-go" style="padding:13px 22px">أنشئ الوظيفة</button>
+        </div>
+        <div class="hr-chips" id="dash-ask-chips">
+          <button class="hr-chip">أخصائي موارد بشرية</button>
+          <button class="hr-chip">محاسب</button>
+          <button class="hr-chip">مدير مبيعات</button>
+          <button class="hr-chip">مسؤول خدمة عملاء</button>
+          <button class="hr-chip">أخصائي تسويق</button>
+        </div>
+      </section>
       <div class="hr-kpis" id="dash-kpis"><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div><div class="hr-skel" style="height:96px"></div></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
         <section class="hr-card"><div class="hd"><h2>قمع التوظيف</h2><a href="/hr/employer/applicants">التفاصيل</a></div><div class="bd"><div class="hr-funnel" id="dash-funnel"></div></div></section>
@@ -78,6 +92,6 @@
 <div id="hr-toast-root"></div>
 <div id="hr-modal-root"></div>
 <script>window.HR_LANG="ar";</script>
-<script src="/assets/js/hr-app.js?v=8ca13ef90f" defer></script>
+<script src="/assets/js/hr-app.js?v=d54e3c966f" defer></script>
 </body>
 </html>
