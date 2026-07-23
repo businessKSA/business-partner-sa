@@ -65,6 +65,11 @@
           "ar": "تاسك فورس ⚡"
         },
         {
+          "href": "/data",
+          "en": "B2B Leads Database ⚡",
+          "ar": "قاعدة عملاء الأعمال ⚡"
+        },
+        {
           "href": "/hr",
           "en": "Recruitment",
           "ar": "التوظيف",
@@ -206,6 +211,11 @@
               "ar": "نقل العمالة"
             }
           ]
+        },
+        {
+          "href": "/consultation",
+          "en": "Book a free consultation",
+          "ar": "احجز استشارة مجانية"
         }
       ]
     },
@@ -269,6 +279,94 @@
           "href": "/newsletter",
           "en": "Newsletter",
           "ar": "النشرة الإخبارية"
+        },
+        {
+          "href": "/tools-and-calculators",
+          "en": "Tools & calculators",
+          "ar": "الأدوات والحاسبات",
+          "sub": [
+            {
+              "href": "/tools-and-calculators",
+              "en": "All tools",
+              "ar": "كل الأدوات"
+            },
+            {
+              "href": "/calculator",
+              "en": "Cost calculator",
+              "ar": "حاسبة التكاليف"
+            },
+            {
+              "href": "/calculators/government-cost",
+              "en": "Government cost",
+              "ar": "التكاليف الحكومية"
+            },
+            {
+              "href": "/calculators/profession-checker",
+              "en": "Profession checker",
+              "ar": "فاحص المهن"
+            },
+            {
+              "href": "/calculators/end-of-service",
+              "en": "End of service",
+              "ar": "مكافأة نهاية الخدمة"
+            },
+            {
+              "href": "/calculators/annual-leave",
+              "en": "Annual leave",
+              "ar": "الإجازة السنوية"
+            },
+            {
+              "href": "/calculators/overtime",
+              "en": "Overtime",
+              "ar": "العمل الإضافي"
+            },
+            {
+              "href": "/calculators/gosi",
+              "en": "GOSI calculator",
+              "ar": "حاسبة التأمينات"
+            }
+          ]
+        },
+        {
+          "href": "/magazine",
+          "en": "Magazine (PDF)",
+          "ar": "المجلة (PDF)"
+        }
+      ]
+    },
+    {
+      "en": "Platforms & portals",
+      "ar": "المنصات والبوابات",
+      "items": [
+        {
+          "href": "/account",
+          "en": "Client portal",
+          "ar": "منصّة العملاء"
+        },
+        {
+          "href": "/suppliers",
+          "en": "Partners portal",
+          "ar": "بوابة الشركاء"
+        },
+        {
+          "href": "/partner-dashboard",
+          "en": "Partner dashboard",
+          "ar": "لوحة الشريك"
+        },
+        {
+          "href": "/portal",
+          "en": "Smart employees portal",
+          "ar": "بوابة الموظفين الأذكياء"
+        },
+        {
+          "href": "/employer-join",
+          "en": "Employers — join",
+          "ar": "أصحاب العمل — انضم"
+        },
+        {
+          "href": "/employer-login",
+          "en": "Employers — sign in",
+          "ar": "أصحاب العمل — دخول"
         }
       ]
     },
