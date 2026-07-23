@@ -1321,6 +1321,7 @@
         '<div class="hr-hint">محرك ' + SCORING_VERSION + " · الدرجة = مجموع مرجّح للمكونات أعلاه.</div></div></details>" +
         '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">' +
         '<button class="hr-btn hr-btn-sm hr-btn-ghost" data-mact="profile" data-c="' + c.id + '">عرض الملف</button>' +
+        (c.cv ? '<a class="hr-btn hr-btn-sm hr-btn-ghost" target="_blank" rel="noopener" href="' + esc(c.cv) + '">📄 السيرة الذاتية</a>' : "") +
         (invited ? '<span class="hr-tag t-teal">دُعي للتقديم ✓</span>' : '<button class="hr-btn hr-btn-sm hr-btn-primary" data-mact="invite" data-c="' + c.id + '">دعوة للتقديم</button>') +
         '<button class="hr-btn hr-btn-sm hr-btn-soft" data-mact="shortlist" data-c="' + c.id + '">إضافة للمختصرة</button>' +
         '<button class="hr-btn hr-btn-sm hr-btn-ghost" data-mact="askinfo" data-c="' + c.id + '">طلب معلومات</button>' +
@@ -1403,19 +1404,22 @@
       $("mt-weights-toggle").addEventListener("click", function () { $("mt-weights").hidden = !$("mt-weights").hidden; });
       $("mt-weights-reset").addEventListener("click", function () { weights = Object.assign({}, defWeights); writeLS(W_KEY, weights); renderWeights(); toast("عادت الأوزان للافتراضي."); });
       $("mt-cat").addEventListener("change", function () { var j = HRStore.job($("mt-job").value); if (j) render(j); });
-      var MATCH_POOL_CAP = 400;
-      function loadMatchPool() {
+      var MATCH_POOL_CAP = 1000;
+      function loadMatchPool(job) {
         if (!HRStore.isReal()) return Promise.resolve(HRStore.candidates());
         var code = hrRealCode();
+        // فلترة على الخادم بمجال الوظيفة — مع قاعدة ضخمة نحلل الأنسب أولاً
+        var fieldFilter = job && job.dept && job.dept !== "عام" ? job.dept : "";
         return new Promise(function (resolve) {
           var out = [];
           function step(cursor) {
             var qs2 = new URLSearchParams({ code: code });
+            if (fieldFilter) qs2.set("field", fieldFilter);
             if (cursor) qs2.set("cursor", cursor);
             fetch("/api/candidates?" + qs2).then(function (r) { return r.json(); }).then(function (d2) {
               if (!d2 || !d2.ok) { resolve(out); return; }
               (d2.candidates || []).forEach(function (c) {
-                out.push({ id: c.id, name: c.name || "مرشّح", title: c.role || "", years: parseInt(c.experience, 10) || 0, city: c.city || "", country: c.country || "", nationality: c.nationalityType || "", workPermit: "", skills: String(c.skills || "").split(/[،,]/).map(function (t) { return t.trim(); }).filter(Boolean), languages: String(c.languages || "").split(/[،,]/).map(function (t) { return t.trim(); }).filter(Boolean), education: c.education || "", expectedSalary: null, noticeDays: null, source: "بنك السير", real: true });
+                out.push({ id: c.id, name: c.name || "مرشّح", title: c.role || "", years: parseInt(c.experience, 10) || 0, city: c.city || "", country: c.country || "", nationality: c.nationalityType || "", workPermit: "", skills: String(c.skills || "").split(/[،,]/).map(function (t) { return t.trim(); }).filter(Boolean), languages: String(c.languages || "").split(/[،,]/).map(function (t) { return t.trim(); }).filter(Boolean), education: c.education || "", expectedSalary: null, noticeDays: null, source: "منصة التوظيف Business Partner", cv: c.cv || "", email: c.email || "", phone: c.phone || "", real: true });
               });
               if (out.length < MATCH_POOL_CAP && !d2.done && d2.nextCursor) step(d2.nextCursor);
               else resolve(out.slice(0, MATCH_POOL_CAP));
@@ -1429,8 +1433,8 @@
         if (!job) return;
         if (job.real && (!job.skills || !job.skills.length)) { job.skills = skillsForTitle(job.title); }
         $("mt-results").innerHTML = '<div class="hr-skel" style="height:200px"></div>';
-        loadMatchPool().then(function (pool) {
-          if (HRStore.isReal()) $("mt-last-run").textContent = "يُحلل أول " + pool.length + " مرشّح من قاعدة السير — ضيّق لاحقاً بالفلاتر";
+        loadMatchPool(job).then(function (pool) {
+          if (HRStore.isReal()) $("mt-last-run").textContent = "حُلل " + pool.length + " مرشّحاً من قاعدتك" + (job.dept && job.dept !== "عام" ? " ضمن مجال «" + job.dept + "»" : "") + (pool.length >= MATCH_POOL_CAP ? " (أول " + MATCH_POOL_CAP + ")" : "");
           lastResults = runMatch(job, weights, pool);
           var runs = runsLog();
           runs.unshift({ at: new Date().toISOString(), jobTitle: job.title, analyzed: lastResults.length, strong: lastResults.filter(function (r) { return matchCategory(r) === "strong"; }).length, version: SCORING_VERSION });
