@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { DB_ON, sb, getSession, audit, notify } from "./_db.js";
 
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
@@ -505,6 +506,96 @@ async function approveEmployer({ company, email, phone, plan }) {
   return code;
 }
 
+/* ---------- P2: operational orders + wallet (Supabase) ---------- */
+// Catalog prices are read from the deploy branch's public catalog.json on
+// GitHub raw (the repo is public; this is published content, not a secret).
+// Cached per warm instance for 10 minutes.
+const RAW_CATALOG_URL = process.env.CATALOG_URL ||
+  `https://raw.githubusercontent.com/${CONTENT_REPO}/${CONTENT_BRANCH}/site/assets/data/catalog.json`;
+let _catCache = null, _catAt = 0, _svcIds = null;
+async function catalogPrices() {
+  if (_catCache && Date.now() - _catAt < 10 * 60 * 1000) return _catCache;
+  const r = await fetch(RAW_CATALOG_URL);
+  if (!r.ok) throw new Error("catalog_fetch_failed");
+  const c = await r.json();
+  const map = {};
+  for (const s of c.services || []) {
+    if (!s.code) continue;
+    map[String(s.code).toLowerCase()] = { amount: Number(s.amount) || 0, name: s.nameAr || s.nameEn || s.code };
+  }
+  for (const p of c.packages || []) {
+    const k = String(p.code || p.key || "").toLowerCase();
+    if (k) map[k] = { amount: Number(p.amount) || 0, name: p.nameAr || p.nameEn || k };
+  }
+  _catCache = map; _catAt = Date.now();
+  return map;
+}
+// Sync the catalog read-model into the services table (once per warm
+// instance) and return code(lower) → row id for order_items FKs.
+async function ensureServiceIds(map) {
+  if (_svcIds) return _svcIds;
+  const rows = Object.entries(map).map(([code, v]) => ({ code, name_ar: v.name, one_time_fee: v.amount, active: true }));
+  if (rows.length) {
+    await sb("services?on_conflict=code", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: rows });
+  }
+  const got = await sb("services?select=id,code&limit=2000");
+  const ids = {};
+  for (const r of got || []) ids[String(r.code).toLowerCase()] = r.id;
+  _svcIds = ids;
+  return ids;
+}
+// Dual-write a website order into the operational DB with SERVER-side
+// pricing (client totals are recorded for comparison only, never trusted).
+async function recordOrderInDb(req, b, ref) {
+  if (!DB_ON) return;
+  const sess = await getSession(req).catch(() => null);
+  const orgId = sess && sess.organization && sess.organization.id;
+  if (!orgId) return; // guest checkout: legacy flow only until sessions are universal
+  const prices = await catalogPrices().catch(() => null);
+  const ids = prices ? await ensureServiceIds(prices).catch(() => null) : null;
+  const items = Array.isArray(b.itemsData) ? b.itemsData.slice(0, 40) : [];
+  let bp = 0; const itemRows = [];
+  for (const it of items) {
+    const key = String(it.id || "").toLowerCase();
+    const cat = prices && prices[key];
+    const unit = cat ? cat.amount : 0;
+    const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
+    bp += unit * qty;
+    itemRows.push({ key, qty, unit, line: unit * qty });
+  }
+  const vat = Math.round(bp * 0.15 * 100) / 100;
+  const total = Math.round((bp + vat) * 100) / 100;
+  const orders = await sb("orders", {
+    method: "POST",
+    body: [{
+      ref,
+      organization_id: orgId,
+      created_by: sess.user && sess.user.id,
+      status: "payment_verification",
+      bp_fees: bp, gov_fees: 0, vat, total,
+    }],
+  });
+  const orderId = orders[0].id;
+  const oi = itemRows
+    .filter((r) => ids && ids[r.key])
+    .map((r) => ({ order_id: orderId, service_id: ids[r.key], quantity: r.qty, unit_price: r.unit, line_total: r.line }));
+  if (oi.length) await sb("order_items", { method: "POST", prefer: "return=minimal", body: oi });
+  const clientTotal = Number(b.total) || 0;
+  await audit({
+    organization_id: orgId,
+    actor_user_id: sess.user && sess.user.id,
+    action: "order.created",
+    entity_type: "order", entity_id: orderId,
+    after: { ref, server_total: total, client_total: clientTotal, mismatch: Math.abs(clientTotal - total) > 1 },
+  });
+  await notify({
+    organization_id: orgId,
+    event: "order_created", channel: "inapp",
+    title: `تم إنشاء طلبك ${ref} — بانتظار التحقق من الدفع`,
+    idempotency_key: `order_created:${ref}`,
+  });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -552,6 +643,37 @@ export default async function handler(req, res) {
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
+  // Client Operations Center — session-scoped overview (orders + wallet).
+  // Auth = the httpOnly bp_sid session cookie; RLS-equivalent scoping is
+  // enforced here by deriving organization_id from the session, never input.
+  if ((q.action || "") === "my-overview") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    try {
+      const [orders, bal, tx] = await Promise.all([
+        orgId ? sb(`orders?organization_id=eq.${orgId}&select=ref,status,bp_fees,gov_fees,vat,total,created_at&order=created_at.desc&limit=30`) : [],
+        orgId ? sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`) : [],
+        orgId ? sb(`wallet_transactions?organization_id=eq.${orgId}&select=type,amount,note,created_at&order=created_at.desc&limit=20`) : [],
+      ]);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        user: sess.user,
+        organization: sess.organization,
+        orders: orders || [],
+        walletBalance: (bal && bal[0] && Number(bal[0].balance)) || 0,
+        walletTransactions: tx || [],
+      }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
     }
   }
 
@@ -664,6 +786,36 @@ export default async function handler(req, res) {
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
+    // Owner confirms a wallet movement after verifying the transfer/receipt:
+    // type=topup credits, type=payment debits. The ledger is the only place
+    // balance comes from — there is no writable balance field anywhere.
+    if (b.action === "panel-wallet-entry") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const email = String(b.email || "").trim().toLowerCase();
+      const kind = b.type === "payment" ? "payment" : "topup";
+      const amountNum = Math.abs(Number(b.amount));
+      const note = String(b.note || "").slice(0, 300);
+      if (!isEmail(email) || !Number.isFinite(amountNum) || amountNum <= 0) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      try {
+        const users = await sb(`users?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+        if (!users.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "user_not_found" })); }
+        const mem = await sb(`organization_members?user_id=eq.${users[0].id}&status=eq.active&select=organization_id&limit=1`);
+        if (!mem.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "org_not_found" })); }
+        const orgId = mem[0].organization_id;
+        await sb("wallet_accounts?on_conflict=organization_id", { method: "POST", prefer: "resolution=ignore-duplicates,return=minimal", body: [{ organization_id: orgId }] });
+        const signed = kind === "payment" ? -amountNum : amountNum;
+        await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, type: kind, amount: signed, note }] });
+        const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`);
+        await audit({ organization_id: orgId, actor_label: "bp_operator:panel", action: `wallet.${kind}`, entity_type: "wallet", after: { amount: signed, note } });
+        await notify({ organization_id: orgId, event: `wallet_${kind}_confirmed`, channel: "inapp", title: kind === "topup" ? `تم اعتماد شحن محفظتك (+${amountNum} ﷼)` : `تم سداد ${amountNum} ﷼ من محفظتك`, idempotency_key: `wallet_entry:${kind}:${email}:${amountNum}:${note}` });
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, balance: (bal[0] && Number(bal[0].balance)) || 0 }));
+      } catch {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
       }
     }
 
@@ -797,6 +949,9 @@ export default async function handler(req, res) {
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
+    // P2: operational-DB dual write with server-side pricing (session-scoped).
+    // Best-effort — a DB hiccup must never fail the customer's order.
+    try { await recordOrderInDb(req, b, ref); } catch (e) { console.error("db order write failed", String(e).slice(0, 200)); }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }
@@ -831,6 +986,19 @@ export default async function handler(req, res) {
       crmLead({ title: `شحن محفظة — ${name}`, phone, email, notes: `محفظة · شحن رصيد ${amount} ﷼`, ref, orderStatus: "قيد المراجعة", total: amount, receiptUploadId, receiptName }),
       addToAudience(email, name),
     ]);
+    // P2: record the pending top-up in the operational DB (credit happens
+    // only when the owner confirms via panel-wallet-entry — never here).
+    if (DB_ON) {
+      try {
+        const sess = await getSession(req).catch(() => null);
+        const orgId = sess && sess.organization && sess.organization.id;
+        if (orgId) {
+          await sb("wallet_accounts?on_conflict=organization_id", { method: "POST", prefer: "resolution=ignore-duplicates,return=minimal", body: [{ organization_id: orgId }] });
+          await sb("payments", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, method: "bank_transfer", status: "pending_review", amount }] });
+          await notify({ organization_id: orgId, event: "wallet_topup_pending", channel: "inapp", title: `طلب شحن المحفظة ${ref} (${amount} ﷼) — بانتظار التحقق`, idempotency_key: `wallet_topup:${ref}` });
+        }
+      } catch (e) { console.error("db wallet write failed", String(e).slice(0, 200)); }
+    }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }

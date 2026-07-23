@@ -24,46 +24,9 @@ const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
 // a successful OTP verify upserts the user, ensures an organization, creates
 // a user_sessions row and sets an httpOnly cookie. Without them, verify
 // degrades to the legacy stateless behavior (db:false in the response).
-// Normalize defensively: owners paste these by hand — tolerate missing
-// scheme, stray whitespace/newlines and trailing slashes. If the pasted
-// value still isn't a valid *.supabase.co project URL, fall back to the
-// project's known URL (a public identifier, not a secret) so a paste
-// mishap can't take sessions down; a valid env value always wins.
-const DEFAULT_SUPABASE_URL = "https://cpmgffwjxrdgevvkybcm.supabase.co";
-let _su = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
-if (_su && !/^https?:\/\//i.test(_su)) _su = "https://" + _su;
-if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(_su)) _su = _su ? DEFAULT_SUPABASE_URL : "";
-const SUPABASE_URL = _su;
-const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-const DB_ON = !!(SUPABASE_URL && SUPABASE_KEY);
+// Shared DB helpers live in api/_db.js (not a deployed function).
+import { SUPABASE_URL, SUPABASE_KEY, DB_ON, sb, sha256, readCookie, getSession as dbGetSession, SESSION_COOKIE as COOKIE } from "./_db.js";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
-const COOKIE = "bp_sid";
-
-async function sb(path, { method = "GET", body, prefer } = {}) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method,
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-      "content-type": "application/json",
-      Prefer: prefer || (method === "GET" ? "" : "return=representation"),
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  const text = await r.text();
-  let data = null; try { data = text ? JSON.parse(text) : null; } catch {}
-  if (!r.ok) { console.error("supabase error", method, path, r.status, text.slice(0, 300)); throw new Error("db_failed"); }
-  return data;
-}
-const sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
-function readCookie(req, name) {
-  const raw = req.headers.cookie || "";
-  for (const part of raw.split(";")) {
-    const [k, ...v] = part.trim().split("=");
-    if (k === name) return decodeURIComponent(v.join("="));
-  }
-  return "";
-}
 function setSessionCookie(res, raw, maxAgeS) {
   res.setHeader("Set-Cookie", `${COOKIE}=${raw}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeS}`);
 }
@@ -106,22 +69,7 @@ async function createSession(req, { email, name, company }) {
   return { raw, user, orgId };
 }
 
-async function getSession(req) {
-  const raw = readCookie(req, COOKIE);
-  if (!raw || !DB_ON) return null;
-  const rows = await sb(
-    `user_sessions?token_hash=eq.${sha256(raw)}&revoked_at=is.null&expires_at=gt.${encodeURIComponent(new Date().toISOString())}` +
-    `&select=id,organization_id,expires_at,users(id,email,full_name,locale)&limit=1`
-  );
-  if (!rows.length) return null;
-  const s = rows[0];
-  let org = null;
-  if (s.organization_id) {
-    const orgs = await sb(`organizations?id=eq.${s.organization_id}&select=id,name_ar,name_en,cr_number,profile_completeness&limit=1`);
-    org = orgs[0] || null;
-  }
-  return { sessionId: s.id, user: s.users, organization: org, expiresAt: s.expires_at };
-}
+const getSession = dbGetSession;
 
 const b64u = (buf) => Buffer.from(buf).toString("base64url");
 const keyFromSecret = () => crypto.createHash("sha256").update(SECRET).digest(); // 32 bytes

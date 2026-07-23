@@ -316,8 +316,8 @@
             </div>
             <div class="card c3">
               <h4 data-t="wallet">رصيد المحفظة</h4>
-              <div class="kpi mut" data-t="soon">تُفعّل قريباً</div>
-              <div class="kpi"><small data-t="soonSub">بعد تهيئة قاعدة البيانات التشغيلية</small></div>
+              <div class="kpi mut" id="walletKpi" data-t="soon">تُفعّل قريباً</div>
+              <div class="kpi"><small id="walletSub" data-t="soonSub">بعد تهيئة قاعدة البيانات التشغيلية</small></div>
             </div>
             <div class="card c3" id="tlCard">
               <h4><span data-t="lastOrder">آخر طلب</span> <span class="ref" id="tlRef" style="font-size:10.5px"></span></h4>
@@ -401,7 +401,14 @@
 
         <!-- ===== placeholders ===== -->
         <section class="view" id="view-payments"><div class="pagehead"><h2 data-t="navPayments">المدفوعات والفواتير</h2></div><div class="ph"><div class="ic">◫</div><b data-t="navPayments">المدفوعات والفواتير</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p><p style="margin-top:10px"><a class="btn ghost" href="/ar/checkout" data-t="qaPay">دفع فاتورة</a></p></div></section>
-        <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2></div><div class="ph"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div></section>
+        <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2></div>
+          <div class="card" id="walletPanel" style="display:none">
+            <h4 data-t="wallet">رصيد المحفظة</h4>
+            <div class="kpi" id="walletBig">0 ﷼</div>
+            <div id="walletTx" style="margin-top:8px"></div>
+          </div>
+          <div class="ph" id="walletPh"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div>
+        </section>
         <section class="view" id="view-approvals"><div class="pagehead"><h2 data-t="navApprovals">الموافقات</h2></div><div class="ph"><div class="ic">✓</div><b data-t="navApprovals">الموافقات</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div></section>
         <section class="view" id="view-documents"><div class="pagehead"><h2 data-t="navDocuments">المستندات</h2></div><div class="ph"><div class="ic">⌸</div><b data-t="navDocuments">المستندات</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div></section>
         <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div><div class="ph"><div class="ic">﴾﴿</div><b data-t="navTeam">الموظفون والفريق</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P4)</p></div></section>
@@ -1119,6 +1126,48 @@
       });
     }
 
+    // P2: session-scoped live overview (DB orders + wallet ledger balance).
+    function fetchOverview(){
+      fetch('/api/requests?action=my-overview', { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok) return;
+          // wallet card + wallet view
+          var bal = Number(out.walletBalance) || 0;
+          var fmt = bal.toLocaleString(state.lang === 'ar' ? 'ar-SA-u-nu-latn' : 'en') + ' ﷼';
+          var kpi = $('walletKpi');
+          kpi.className = 'kpi'; kpi.removeAttribute('data-t'); kpi.textContent = fmt;
+          var sub = $('walletSub'); sub.removeAttribute('data-t');
+          sub.textContent = state.lang === 'ar' ? 'من دفتر قيود المحفظة' : 'From the wallet ledger';
+          $('walletPh').style.display = 'none';
+          $('walletPanel').style.display = '';
+          $('walletBig').textContent = fmt;
+          var tx = out.walletTransactions || [], txh = '';
+          for (var i = 0; i < tx.length; i++){
+            var v = Number(tx[i].amount) || 0;
+            txh += '<div class="rowline" data-srch><span class="badge ' + (v >= 0 ? 'ok' : 'warn') + '">' + (v >= 0 ? '+' : '') + v + ' ﷼</span>' +
+              '<span class="t">' + esc(tx[i].note || tx[i].type) + '</span>' +
+              '<span class="m">' + esc(String(tx[i].created_at || '').slice(0, 10)) + '</span></div>';
+          }
+          $('walletTx').innerHTML = txh || '<div class="emptyline">' + (state.lang === 'ar' ? 'لا حركات بعد — أول شحن يظهر هنا.' : 'No movements yet.') + '</div>';
+          // merge DB orders (authoritative) into the orders list by ref
+          var dbo = out.orders || [];
+          for (var j = 0; j < dbo.length; j++){
+            var found = null;
+            for (var k = 0; k < state.orders.length; k++) if (state.orders[k].ref === dbo[j].ref) { found = state.orders[k]; break; }
+            var mapped = { ref: dbo[j].ref, status: mapDbStatus(dbo[j].status), title: (state.lang === 'ar' ? 'طلب — إجمالي ' : 'Order — total ') + (Number(dbo[j].total) || 0) + ' ﷼' };
+            if (found) { if (!found.status) found.status = mapped.status; }
+            else state.orders.unshift(mapped);
+          }
+          renderAll();
+        })
+        .catch(function(){});
+    }
+    function mapDbStatus(s){
+      var m = { payment_pending: 'بانتظار الدفع', payment_verification: 'قيد المراجعة', paid: 'مؤكد - قيد التنفيذ', provisioning: 'مؤكد - قيد التنفيذ', action_required: 'مؤكد - قيد التنفيذ', active: 'مكتمل', cancelled: 'ملغي', expired: 'ملغي', suspended: 'قيد المراجعة' };
+      return m[s] || 'قيد المراجعة';
+    }
+
     function enterApp(){
       $('gate').style.display = 'none';
       $('app').classList.add('on');
@@ -1126,6 +1175,7 @@
       buildOrders();
       renderAll();
       fetchStatuses();
+      fetchOverview();
     }
     function doLogout(){
       otp({ action: 'logout' }).catch(function(){}).then(function(){ location.reload(); });
