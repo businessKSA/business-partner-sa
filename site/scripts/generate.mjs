@@ -3952,7 +3952,7 @@ function buildHR() {
 
 function buildEmployers() {
   const value = [
-    [I.users, L("A live pool of pre-screened candidates", "قاعدة حيّة من المرشّحين المُصنّفين"), L("Browse candidates by field, city, experience and availability — updated continuously.", "تصفّح المرشّحين حسب المجال والمدينة والخبرة والجاهزية — محدّثة باستمرار.")],
+    [I.users, L("A live pool of pre-screened candidates", "قاعدة حيّة من المرشّحين المُصنّفين"), L("Browse candidates by field, city, experience and availability — updated continuously.", "تصفّح المرشّحين حسب المجال والمدينة والخبرة والجاهزية — محدّثة باستمرار.") + ' <strong data-pool-count style="color:var(--brand)"></strong>'],
     [I.cycle, L("We manage hiring end to end", "ندير التوظيف من البداية للنهاية"), L("Sourcing, screening, interviews, offer and onboarding — handled for you.", "استقطاب، فرز، مقابلات، عرض وتعيين — نتولّاها عنك.")],
     [I.shield, L("Saudization-checked", "مفحوص للتوطين"), L("Each candidate is flagged against HRSD Saudization rules for your activity.", "كل مرشّح مفحوص وفق قواعد التوطين لنشاطك.")],
   ].map((x) => `<div class="card"><div class="card-icon">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
@@ -4070,8 +4070,13 @@ function buildEmployerLogin() {
       <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="el-submit">${L("Log in", "دخول")}</button>
       <p class="emp-note" id="el-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
     </form>
-    <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/portal/join")}">${L("Create one", "أنشئ حساب")}</a></p>
-    <p class="emp-note" style="text-align:center;margin-top:6px">${L("Or", "أو")} <a href="${u("/employer-join")}">${L("subscribe from our plans", "اشترك من باقاتنا")}</a></p>
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">${L("or", "أو")}</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
+    <form id="el-code-form" novalidate>
+      <div class="field"><label for="el-code">${L("Access code", "رمز الوصول")}</label><input type="text" id="el-code" placeholder="BP-EMP-XXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
+      <button type="submit" class="btn btn-ghost" style="width:100%" id="el-code-submit">${L("Enter with access code", "دخول برمز الوصول")}</button>
+      <p class="emp-note" id="el-code-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+    </form>
+    <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/employer-join")}">${L("Subscribe from our plans", "اشترك من باقاتنا")}</a></p>
   </div></section>`;
   return page({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
 }
@@ -4151,29 +4156,25 @@ function buildEmployerDashboard() {
 
   <section class="section"><div class="container">
     <div id="empd-app">
-      <div class="empd-flow" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:0 0 18px;font-size:.82rem;color:var(--text-soft)">
-        <span>1️⃣ ${L("Describe the role → AI Match", "اكتب الوظيفة ← مطابقة")}</span><span>›</span>
-        <span>2️⃣ ${L("Browse & filter", "تصفّح وفلترة")}</span><span>›</span>
-        <span>3️⃣ ${L("Shortlist", "أضف للمفضّلة")}</span><span>›</span>
-        <span>4️⃣ ${L("Assess / Interview", "تقييم / مقابلة")}</span><span>›</span>
-        <span>5️⃣ ${L("Pipeline → Hire", "المسار ← توظيف")}</span>
+      <div id="empd-locked" style="max-width:460px;margin:0 auto;text-align:center;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:34px 26px">
+        <div style="font-size:2rem" aria-hidden="true">🔐</div>
+        <h3 style="margin:10px 0 6px">${L("Log in to your hiring dashboard", "سجّل الدخول للوحة التوظيف")}</h3>
+        <p class="emp-note" style="margin:0 0 18px">${L("Your posted jobs, AI-matched candidates and hiring pipeline — all in one place.", "وظائفك المنشورة، والمرشّحون المطابقون بالذكاء، ومسار التوظيف — كلها في مكان واحد.")}</p>
+        <a class="btn btn-primary" style="width:100%" href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a>
+        <a class="btn btn-ghost" style="width:100%;margin-top:10px" href="${u("/employer-join")}">${L("New here? Subscribe", "جديد؟ اشترك الآن")}</a>
+        <p class="emp-note" style="margin:14px 0 0"><button type="button" class="linkbtn" id="empd-demo">${L("Try a demo", "جرّب نسخة تجريبية")}</button></p>
+        <p id="empd-gate-msg" class="emp-note" style="min-height:18px;margin:6px 0 0"></p>
       </div>
-      <div id="empd-unlock" class="empd-unlock-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:6px">
-        <span style="font-weight:600">🔒 ${L("Free browsing. Subscribe to unlock contacts + AI tools.", "تصفّح مجاني. اشترك لفتح بيانات التواصل وأدوات الذكاء.")}</span>
-        <input type="text" id="empd-code" placeholder="${Lraw("BP-EMP-XXXX", "BP-EMP-XXXX")}" style="padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;text-align:center;letter-spacing:1px">
-        <button class="btn btn-primary btn-sm" id="empd-enter">${L("Unlock", "فتح")}</button>
+      <div id="empd-main" hidden>
+      <div class="empd-welcome" style="display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 16px;margin-bottom:14px">
+        <span id="empd-welcome-txt" style="font-weight:600"></span>
+        <span class="emp-note" style="margin:0">${L("Candidate pool:", "قاعدة المرشّحين:")} <strong data-pool-count>…</strong></span>
       </div>
-      <p class="emp-note" style="text-align:center;margin:0 0 14px">
-        <a href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a> ·
-        <a href="${u("/employer-join")}" style="font-weight:700;color:var(--brand)">${L("Subscribe", "اشترك")}</a> ·
-        <button type="button" class="linkbtn" id="empd-demo" style="font-weight:400">${L("Try a demo", "جرّب نسخة تجريبية")}</button>
-      </p>
-      <p id="empd-gate-msg" class="emp-note" style="min-height:18px;text-align:center"></p>
       <div class="empd-bar">
         <div class="empd-tabs">
+          <button class="empd-tab active" data-tab="postings">📋 ${L("My jobs & matches", "وظائفي والمطابقات")}</button>
           <button class="empd-tab" data-tab="match">✨ ${L("AI Match", "مطابقة ذكية")}</button>
-          <button class="empd-tab" data-tab="postings">📋 ${L("Job Postings", "الوظائف المنشورة")}</button>
-          <button class="empd-tab active" data-tab="browse">${L("Browse", "تصفّح")}</button>
+          <button class="empd-tab" data-tab="browse">${L("Browse candidates", "تصفّح المرشّحين")}</button>
           <button class="empd-tab" data-tab="shortlist">${L("Shortlist", "المفضّلة")} <span class="empd-count" id="empd-short-count">0</span></button>
           <button class="empd-tab" data-tab="pipeline">${L("Pipeline", "مسار التوظيف")}</button>
         </div>
@@ -4191,9 +4192,12 @@ function buildEmployerDashboard() {
         <div class="emp-grid" id="empd-match-grid"></div>
       </div>
 
-      <div class="empd-panel" data-panel="postings" hidden>
-        <div class="empd-match-box">
-          <h3>📋 ${L("Post a job", "انشر وظيفة")}</h3>
+      <div class="empd-panel" data-panel="postings">
+        <h3 style="margin:0 0 4px">${L("Your posted jobs", "وظائفك المنشورة")}</h3>
+        <p class="emp-note" style="margin:0 0 14px">${L("AI screens the pool for every job automatically — matched candidates appear under each job with contact buttons.", "الذكاء يفرز القاعدة لكل وظيفة تلقائياً — والمرشّحون المطابقون يظهرون تحت كل وظيفة مع أزرار التواصل.")}</p>
+        <div id="empjob-list"></div>
+        <div class="empd-match-box" style="margin-top:18px">
+          <h3>📋 ${L("Post a new job", "انشر وظيفة جديدة")}</h3>
           <p class="emp-note">${L("Open as many job postings as you need. AI screens and shortlists candidates for each one automatically.", "افتح عدد الوظائف اللي تحتاجه. الذكاء يفلتر ويرشّح المرشّحين المناسبين لكل وظيفة تلقائياً.")}</p>
           <div class="grid grid-2" style="gap:0 14px">
             <div class="field"><label for="empjob-title">${L("Job title", "المسمى الوظيفي")}</label><input id="empjob-title" type="text" placeholder="${Lraw("Type or pick, e.g. Accountant", "اكتب أو اختر، مثال: محاسب")}"></div>
@@ -4204,10 +4208,9 @@ function buildEmployerDashboard() {
           <button class="btn btn-primary" id="empjob-publish">📋 ${L("Publish job posting", "انشر الوظيفة")}</button>
           <p class="emp-note" id="empjob-status"></p>
         </div>
-        <div id="empjob-list"></div>
       </div>
 
-      <div class="empd-panel" data-panel="browse">
+      <div class="empd-panel" data-panel="browse" hidden>
         <div class="emp-access"><div class="emp-filters">
           <input type="text" id="empd-q" placeholder="${Lraw("Search job title, skill…", "ابحث بالمسمى الوظيفي أو المهارة…")}">
           <input type="text" id="empd-field" placeholder="${Lraw("All fields", "كل المجالات")}">
@@ -4228,6 +4231,7 @@ function buildEmployerDashboard() {
       <div class="empd-panel" data-panel="pipeline" hidden>
         <p class="emp-note">${L("Move candidates through your hiring stages using the buttons on each card.", "انقل المرشّحين عبر مراحل التوظيف من الأزرار على كل بطاقة.")}</p>
         <div class="empd-pipe" id="empd-pipe"></div>
+      </div>
       </div>
     </div>
   </div></section>
