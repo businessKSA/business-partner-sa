@@ -176,10 +176,26 @@ export default async function handler(req, res) {
     res.statusCode = 200;
     // dbConfigured = env vars present; dbReachable = a live probe against the
     // sessions table (surfaces schema-not-applied and bad-key cases early).
-    let dbReachable = null;
+    // dbError carries a safe hint (HTTP status + error code only, no secrets)
+    // so setup mistakes (wrong URL / wrong key / missing schema) are
+    // diagnosable remotely.
+    let dbReachable = null, dbError = null;
     if (DB_ON) {
-      try { await sb("user_sessions?select=id&limit=1"); dbReachable = true; }
-      catch { dbReachable = false; }
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/user_sessions?select=id&limit=1`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+        });
+        if (r.ok) dbReachable = true;
+        else {
+          dbReachable = false;
+          const t = await r.text();
+          let code = ""; try { code = (JSON.parse(t).code || JSON.parse(t).message || "").slice(0, 60); } catch { code = t.slice(0, 60); }
+          dbError = `http_${r.status}${code ? ":" + code : ""}`;
+        }
+      } catch (e) {
+        dbReachable = false;
+        dbError = "fetch_failed:" + String(e && e.cause && e.cause.code || e.message || e).slice(0, 60);
+      }
     }
     return res.end(JSON.stringify({
       status: "ok",
@@ -189,6 +205,7 @@ export default async function handler(req, res) {
       devEcho: DEV_ECHO,
       dbConfigured: DB_ON,
       dbReachable,
+      dbError,
     }));
   }
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
