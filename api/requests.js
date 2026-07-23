@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { DB_ON, sb, getSession, audit, notify } from "./_db.js";
+import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign } from "./_db.js";
 
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
@@ -754,6 +754,55 @@ export default async function handler(req, res) {
     }
   }
 
+  // P4 — session-scoped operations data: notifications / tickets / documents /
+  // approvals / tasks. One GET with ?what=…; org always derived from session.
+  if ((q.action || "") === "my-ops") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    if (!orgId) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items: [] })); }
+    const what = String(q.what || "");
+    try {
+      if (what === "notifications") {
+        const items = await sb(`notifications?organization_id=eq.${orgId}&channel=eq.inapp&select=id,event,title,body,read_at,created_at&order=created_at.desc&limit=40`);
+        const unread = items.filter((n) => !n.read_at).length;
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items, unread }));
+      }
+      if (what === "tickets") {
+        const items = await sb(`support_tickets?organization_id=eq.${orgId}&select=id,number,subject,category,priority,status,created_at,ticket_messages(author_kind,body,created_at)&order=created_at.desc&limit=30`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      if (what === "documents") {
+        const items = await sb(`documents?organization_id=eq.${orgId}&select=id,category,title,expiry_date,verify_status,created_at,document_versions(id,version_no,file_name,storage_key,uploaded_at)&order=created_at.desc&limit=60`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      if (what === "doc-link") {
+        // Signed, short-lived download URL for one of the org's own versions.
+        const vid = String(q.version || "");
+        const vs = await sb(`document_versions?id=eq.${vid}&select=storage_key,documents!inner(organization_id)&limit=1`);
+        const v = vs[0];
+        if (!v || !v.documents || v.documents.organization_id !== orgId) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const url = await storageSign(v.storage_key, 600);
+        await audit({ organization_id: orgId, actor_user_id: sess.user && sess.user.id, action: "document.downloaded", entity_type: "document_version", entity_id: vid });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, url }));
+      }
+      if (what === "approvals") {
+        const items = await sb(`approvals?organization_id=eq.${orgId}&select=id,action_type,title,amount,target_entity,risk_note,deadline,status,decision_comment,created_at&order=created_at.desc&limit=30`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      if (what === "tasks") {
+        const items = await sb(`tasks?organization_id=eq.${orgId}&select=id,title,details,assignee,status,urgency,due_at,created_at&order=created_at.desc&limit=40`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_what" }));
+    } catch {
+      res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
   // /admin panel — read an editable content file (site/data/*.json) from GitHub.
   if ((q.action || "") === "panel-content") {
     res.setHeader("Cache-Control", "no-store");
@@ -814,6 +863,98 @@ export default async function handler(req, res) {
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
 
   const b = await readBody(req);
+
+  // ---- P4: client operations actions (session cookie, POST) ----
+  if (String(b.action || "").startsWith("ops-")) {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    const userId = sess.user && sess.user.id;
+    const email = (sess.user && sess.user.email) || "";
+    if (!orgId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_org" })); }
+    try {
+      if (b.action === "ops-notif-read") {
+        await sb(`notifications?organization_id=eq.${orgId}&read_at=is.null`, { method: "PATCH", prefer: "return=minimal", body: { read_at: new Date().toISOString() } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-ticket-create") {
+        const subject = String(b.subject || "").trim().slice(0, 200);
+        const bodyTxt = String(b.body || "").trim().slice(0, 4000);
+        const category = String(b.category || "عام").slice(0, 60);
+        if (!subject || !bodyTxt) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const number = "BP-TKT-" + String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+        const tk = await sb("support_tickets", { method: "POST", body: [{ number, organization_id: orgId, portal_source: "account", category, subject, status: "new", opened_by: userId }] });
+        await sb("ticket_messages", { method: "POST", prefer: "return=minimal", body: [{ ticket_id: tk[0].id, author_kind: "client", author_user_id: userId, body: bodyTxt }] });
+        await notify({ organization_id: orgId, event: "ticket_opened", channel: "inapp", title: `فُتحت تذكرتك ${number} — سنرد عليك قريباً`, idempotency_key: `ticket_opened:${number}` });
+        await sendEmail(TEAM_EMAIL, `تذكرة دعم جديدة ${number} — ${subject}`, `<div dir="rtl" style="font-family:Arial"><h3 style="color:#0B1B5A">${esc(number)}</h3><p><b>العميل:</b> ${esc(email)}</p><p><b>الموضوع:</b> ${esc(subject)}</p><p>${esc(bodyTxt)}</p><p>الرد: من لوحة /admin (قسم التذاكر) أو بالبريد مباشرة.</p></div>`);
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "ticket.created", entity_type: "support_ticket", entity_id: tk[0].id });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, number }));
+      }
+      if (b.action === "ops-ticket-reply") {
+        const tid = String(b.ticketId || "");
+        const bodyTxt = String(b.body || "").trim().slice(0, 4000);
+        if (!tid || !bodyTxt) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const tks = await sb(`support_tickets?id=eq.${tid}&organization_id=eq.${orgId}&select=id,number,subject&limit=1`);
+        if (!tks.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        await sb("ticket_messages", { method: "POST", prefer: "return=minimal", body: [{ ticket_id: tid, author_kind: "client", author_user_id: userId, body: bodyTxt }] });
+        await sb(`support_tickets?id=eq.${tid}`, { method: "PATCH", prefer: "return=minimal", body: { status: "waiting_bp" } });
+        await sendEmail(TEAM_EMAIL, `رد عميل على ${tks[0].number} — ${tks[0].subject}`, `<div dir="rtl" style="font-family:Arial"><p><b>${esc(email)}:</b></p><p>${esc(bodyTxt)}</p></div>`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-doc-upload") {
+        const category = String(b.category || "other").slice(0, 40);
+        const title = String(b.title || "").trim().slice(0, 200);
+        const fileName = String(b.fileName || "document.pdf").slice(0, 120);
+        const base64 = typeof b.base64 === "string" ? b.base64.slice(0, 11_000_000) : "";
+        const mime = /^(application\/pdf|image\/(jpeg|png|webp))$/.test(String(b.mime)) ? b.mime : "application/pdf";
+        const expiry = /^\d{4}-\d{2}-\d{2}$/.test(String(b.expiry || "")) ? b.expiry : null;
+        if (!title || !base64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const buf = Buffer.from(base64, "base64");
+        if (buf.length > 8 * 1024 * 1024) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
+        // versioning: reuse the doc row per (category,title); versions append
+        const existing = await sb(`documents?organization_id=eq.${orgId}&category=eq.${encodeURIComponent(category)}&title=eq.${encodeURIComponent(title)}&select=id&limit=1`);
+        let docId;
+        if (existing.length) docId = existing[0].id;
+        else {
+          const d = await sb("documents", { method: "POST", body: [{ organization_id: orgId, category, title, expiry_date: expiry, verify_status: "pending" }] });
+          docId = d[0].id;
+        }
+        const vers = await sb(`document_versions?document_id=eq.${docId}&select=version_no&order=version_no.desc&limit=1`);
+        const vno = vers.length ? vers[0].version_no + 1 : 1;
+        const key = `${orgId}/${docId}/v${vno}-${Date.now()}-${fileName.replace(/[^\w.\-]+/g, "_")}`;
+        await storagePut(key, buf, mime);
+        const vrow = await sb("document_versions", { method: "POST", body: [{ document_id: docId, version_no: vno, storage_key: key, file_name: fileName, mime, size_bytes: buf.length, sha256: crypto.createHash("sha256").update(buf).digest("hex"), malware_scan: "skipped", uploaded_by: userId }] });
+        await sb(`documents?id=eq.${docId}`, { method: "PATCH", prefer: "return=minimal", body: { current_version_id: vrow[0].id, ...(expiry ? { expiry_date: expiry } : {}), verify_status: "pending" } });
+        await notify({ organization_id: orgId, event: "document_uploaded", channel: "inapp", title: `رُفع المستند «${title}» (نسخة ${vno}) — قيد التحقق`, idempotency_key: `doc_up:${docId}:${vno}` });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "document.uploaded", entity_type: "document", entity_id: docId, after: { version: vno, file: fileName } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, documentId: docId, version: vno }));
+      }
+      if (b.action === "ops-approval-decide") {
+        const aid = String(b.id || "");
+        const decision = b.decision === "approved" ? "approved" : "rejected";
+        const comment = String(b.comment || "").trim().slice(0, 500);
+        if (!aid || (decision === "rejected" && !comment)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "comment_required" })); }
+        const rows = await sb(`approvals?id=eq.${aid}&organization_id=eq.${orgId}&status=eq.pending&select=id,title&limit=1`);
+        if (!rows.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        await sb(`approvals?id=eq.${aid}`, { method: "PATCH", prefer: "return=minimal", body: { status: decision, decided_by: userId, decided_at: new Date().toISOString(), decision_comment: comment || null } });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: `approval.${decision}`, entity_type: "approval", entity_id: aid, after: { comment } });
+        await sendEmail(TEAM_EMAIL, `قرار العميل: ${decision === "approved" ? "موافقة ✅" : "رفض ❌"} — ${rows[0].title}`, `<div dir="rtl" style="font-family:Arial"><p><b>${esc(email)}</b> ${decision === "approved" ? "وافق على" : "رفض"}: ${esc(rows[0].title)}</p>${comment ? `<p>التعليق: ${esc(comment)}</p>` : ""}</div>`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-task-done") {
+        const tid = String(b.id || "");
+        await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "unknown_action" }));
+    } catch (e) {
+      console.error("ops action failed", b.action, String(e).slice(0, 200));
+      res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
 
   // ---- /admin panel actions (owner key, POST) ----
   if (String(b.action || "").startsWith("panel-")) {
@@ -894,6 +1035,61 @@ export default async function handler(req, res) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
       }
+    }
+
+    // P4 owner-side: find an org by client email (shared helper for the three
+    // actions below).
+    const orgByEmail = async (em) => {
+      const users = await sb(`users?email=eq.${encodeURIComponent(String(em).toLowerCase())}&select=id&limit=1`);
+      if (!users.length) return null;
+      const mem = await sb(`organization_members?user_id=eq.${users[0].id}&status=eq.active&select=organization_id&limit=1`);
+      return mem.length ? mem[0].organization_id : null;
+    };
+    if (b.action === "panel-tickets") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const items = await sb(`support_tickets?select=id,number,subject,status,priority,created_at,organization_id,ticket_messages(author_kind,body,created_at)&order=created_at.desc&limit=30`);
+      res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+    }
+    if (b.action === "panel-ticket-reply") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const number = String(b.number || "").trim();
+      const bodyTxt = String(b.body || "").trim().slice(0, 4000);
+      const close = !!b.close;
+      if (!number || !bodyTxt) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const tks = await sb(`support_tickets?number=eq.${encodeURIComponent(number)}&select=id,organization_id,subject&limit=1`);
+        if (!tks.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        await sb("ticket_messages", { method: "POST", prefer: "return=minimal", body: [{ ticket_id: tks[0].id, author_kind: "bp", body: bodyTxt }] });
+        await sb(`support_tickets?id=eq.${tks[0].id}`, { method: "PATCH", prefer: "return=minimal", body: { status: close ? "closed" : "waiting_client", ...(close ? { closed_at: new Date().toISOString() } : {}) } });
+        await notify({ organization_id: tks[0].organization_id, event: "ticket_replied", channel: "inapp", title: `رد جديد على تذكرتك ${number}`, idempotency_key: `ticket_reply:${number}:${Date.now()}` });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+    if (b.action === "panel-approval-create") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const title = String(b.title || "").trim().slice(0, 200);
+      const actionType = String(b.actionType || "gov_submission").slice(0, 40);
+      const amount = Number.isFinite(Number(b.amount)) ? Number(b.amount) : null;
+      if (!isEmail(String(b.email || "")) || !title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const orgId = await orgByEmail(b.email);
+        if (!orgId) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "org_not_found" })); }
+        await sb("approvals", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, action_type: actionType, title, amount, target_entity: String(b.target || "").slice(0, 120) || null, risk_note: String(b.risk || "").slice(0, 400) || null, deadline: b.deadline || null, status: "pending" }] });
+        await notify({ organization_id: orgId, event: "approval_requested", channel: "inapp", title: `موافقة مطلوبة: ${title}${amount ? ` (${amount} ﷼)` : ""}`, idempotency_key: `approval_req:${orgId}:${title}` });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+    if (b.action === "panel-task-create") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const title = String(b.title || "").trim().slice(0, 200);
+      if (!isEmail(String(b.email || "")) || !title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const orgId = await orgByEmail(b.email);
+        if (!orgId) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "org_not_found" })); }
+        await sb("tasks", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, title, details: String(b.details || "").slice(0, 1000) || null, assignee: "client", urgency: ["urgent", "soon", "normal"].includes(b.urgency) ? b.urgency : "normal", due_at: b.due || null, source: "manual" }] });
+        await notify({ organization_id: orgId, event: "task_assigned", channel: "inapp", title: `مهمة جديدة: ${title}`, idempotency_key: `task:${orgId}:${title}` });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
     }
 
     // Save an editable content file: validate JSON, commit to GitHub —

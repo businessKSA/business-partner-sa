@@ -70,6 +70,42 @@ export async function audit(entry) {
   catch {}
 }
 
+// ---- Supabase Storage (documents vault) ----
+const BUCKET = "documents";
+let _bucketReady = false;
+async function ensureBucket() {
+  if (_bucketReady) return;
+  try {
+    await fetch(`${SUPABASE_URL}/storage/v1/bucket`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ id: BUCKET, name: BUCKET, public: false }),
+    });
+  } catch {}
+  _bucketReady = true; // exists-already errors are fine
+}
+export async function storagePut(path, buffer, contentType) {
+  await ensureBucket();
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "content-type": contentType || "application/octet-stream", "x-upsert": "true" },
+    body: buffer,
+  });
+  if (!r.ok) { console.error("storage put error", r.status, (await r.text()).slice(0, 200)); throw new Error("storage_failed"); }
+  return path;
+}
+// Short-lived signed download URL (default 10 minutes).
+export async function storageSign(path, expiresIn) {
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${path}`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "content-type": "application/json" },
+    body: JSON.stringify({ expiresIn: expiresIn || 600 }),
+  });
+  if (!r.ok) throw new Error("storage_sign_failed");
+  const d = await r.json();
+  return d.signedURL ? `${SUPABASE_URL}/storage/v1${d.signedURL}` : null;
+}
+
 // Best-effort idempotent in-app notification — never throws.
 export async function notify(row) {
   if (!DB_ON) return;
