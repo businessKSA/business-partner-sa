@@ -188,13 +188,25 @@ export default async function handler(req, res) {
     // dbError carries a safe hint (HTTP status + error code only, no secrets)
     // so setup mistakes (wrong URL / wrong key / missing schema) are
     // diagnosable remotely.
-    let dbReachable = null, dbError = null;
+    let dbReachable = null, dbError = null, usersCount = null;
     if (DB_ON) {
       try {
         const r = await fetch(`${SUPABASE_URL}/rest/v1/user_sessions?select=id&limit=1`, {
           headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
         });
-        if (r.ok) dbReachable = true;
+        if (r.ok) {
+          dbReachable = true;
+          // Non-sensitive aggregate so first-login writes are verifiable
+          // remotely (a count, never row data).
+          try {
+            const c = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
+              headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: "count=exact", Range: "0-0" },
+            });
+            const cr = c.headers.get("content-range") || "";
+            const total = parseInt(cr.split("/")[1], 10);
+            if (!Number.isNaN(total)) usersCount = total;
+          } catch {}
+        }
         else {
           dbReachable = false;
           const t = await r.text();
@@ -215,6 +227,7 @@ export default async function handler(req, res) {
       dbConfigured: DB_ON,
       dbReachable,
       dbError,
+      usersCount,
     }));
   }
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
