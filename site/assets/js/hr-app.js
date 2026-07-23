@@ -745,7 +745,7 @@
           return '<h3 style="color:var(--hr-navy);margin-bottom:10px">' + esc(d2.title || "بدون مسمى") + '</h3><div class="hr-kv">' +
             [["القسم", d2.dept], ["المدينة", d2.city], ["الدوام", d2.type], ["نمط العمل", d2.workMode], ["الشواغر", d2.openings], ["الخبرة", d2.experienceYears], ["المؤهل", d2.qualification], ["المهارات", d2.skills], ["الراتب", (d2.salaryMin || "؟") + " – " + (d2.salaryMax || "؟") + " ريال" + (d2.salaryVisible === "نعم" ? " (ظاهر)" : " (مخفي)")]].map(function (kv) { return '<span class="kv"><b>' + kv[0] + "</b>" + esc(kv[1] || "—") + "</span>"; }).join("") +
             '</div><div style="margin-top:14px;padding:12px;background:var(--hr-bg);border-radius:10px;font-size:.87rem;white-space:pre-wrap">' + esc(d2.description || "لا وصف بعد") + "</div>" +
-            '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap"><button class="hr-btn hr-btn-primary" type="button" id="wiz-publish">📢 ' + (editId ? "حفظ التعديلات" : "نشر الوظيفة الآن") + '</button><button class="hr-btn hr-btn-ghost" type="button" id="wiz-draft2">حفظ كمسودة</button></div>';
+            '<div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--hr-line);display:flex;gap:10px;flex-wrap:wrap"><button class="hr-btn hr-btn-primary" type="button" id="wiz-publish" style="padding:12px 34px;font-size:1rem">📢 انشر</button><button class="hr-btn hr-btn-ghost" type="button" id="wiz-draft2" style="padding:12px 24px">مسودة</button></div>';
         }
       }
       return "";
@@ -792,6 +792,7 @@
       $("wiz-form").innerHTML = stepHtml(STEPS[step][0]);
       $("wiz-prev").disabled = step === 0;
       $("wiz-next").hidden = step === STEPS.length - 1;
+      $("wiz-save").hidden = step === STEPS.length - 1; // زر «انشر/مسودة» أسفل المعاينة يكفي
       document.querySelectorAll("[data-ai]").forEach(function (b) {
         b.addEventListener("click", function () {
           collect();
