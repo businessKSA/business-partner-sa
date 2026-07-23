@@ -1,0 +1,955 @@
+{
+  "_note": "بيانات تجريبية للوحة صاحب العمل /hr/employer — تُستبدل لاحقاً بواجهات API حقيقية عبر طبقة HRStore في hr-app.js. كل الكيانات مربوطة بـ organizationId/companyId تمهيداً للتعدد.",
+  "organization": {
+    "id": "org_bp_1",
+    "name": "Business Partner"
+  },
+  "company": {
+    "id": "co_workshop_1",
+    "organizationId": "org_bp_1",
+    "name": "ورشة تصنيع الفعاليات",
+    "city": "الرياض",
+    "logoText": "ورشة",
+    "plan": "احترافية"
+  },
+  "user": {
+    "id": "u_1",
+    "name": "باهر",
+    "role": "مالك الحساب",
+    "companyId": "co_workshop_1"
+  },
+  "stages": [
+    {
+      "key": "new",
+      "label": "متقدم جديد",
+      "color": "blue"
+    },
+    {
+      "key": "review",
+      "label": "مراجعة أولية",
+      "color": "purple"
+    },
+    {
+      "key": "shortlist",
+      "label": "قائمة مختصرة",
+      "color": "teal"
+    },
+    {
+      "key": "interview",
+      "label": "مقابلة",
+      "color": "orange"
+    },
+    {
+      "key": "offer",
+      "label": "عرض وظيفي",
+      "color": "green"
+    },
+    {
+      "key": "hired",
+      "label": "تم التوظيف",
+      "color": "green"
+    }
+  ],
+  "sideStages": [
+    {
+      "key": "unqualified",
+      "label": "غير مؤهل",
+      "color": "gray"
+    },
+    {
+      "key": "rejected",
+      "label": "مستبعد",
+      "color": "red"
+    },
+    {
+      "key": "withdrawn",
+      "label": "منسحب",
+      "color": "gray"
+    },
+    {
+      "key": "docs",
+      "label": "بانتظار المستندات",
+      "color": "orange"
+    },
+    {
+      "key": "future",
+      "label": "محفوظ لفرصة مستقبلية",
+      "color": "teal"
+    },
+    {
+      "key": "duplicate",
+      "label": "طلب مكرر",
+      "color": "gray"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "job_1",
+      "companyId": "co_workshop_1",
+      "title": "مدير ورشة",
+      "titleEn": "Workshop Manager",
+      "dept": "الإدارة",
+      "city": "الرياض",
+      "country": "السعودية",
+      "branch": "المصنع الرئيسي",
+      "type": "دوام كامل",
+      "workMode": "حضوري",
+      "openings": 1,
+      "status": "منشورة",
+      "postedAt": "2026-07-01",
+      "closesAt": "2026-08-30",
+      "hiringManager": "باهر",
+      "salaryMin": 14000,
+      "salaryMax": 18000,
+      "salaryVisible": false,
+      "experienceYears": "8+",
+      "qualifiedCount": 4,
+      "description": "قيادة التشغيل اليومي لورشة تصنيع فعاليات (نجارة، حديد، طباعة، فوم، دهان) لفريق يتجاوز 180 موظفاً.",
+      "skills": [
+        "إدارة إنتاج",
+        "قيادة فرق",
+        "ERP",
+        "تخطيط"
+      ],
+      "mustHave": [
+        "قيادة فرق"
+      ],
+      "languages": [
+        "العربية"
+      ]
+    },
+    {
+      "id": "job_2",
+      "companyId": "co_workshop_1",
+      "title": "مهندس إنتاج",
+      "titleEn": "Production Engineer",
+      "dept": "الهندسة",
+      "city": "الرياض",
+      "country": "السعودية",
+      "branch": "المصنع الرئيسي",
+      "type": "دوام كامل",
+      "workMode": "حضوري",
+      "openings": 2,
+      "status": "منشورة",
+      "postedAt": "2026-07-05",
+      "closesAt": "2026-09-05",
+      "hiringManager": "م. سلطان",
+      "salaryMin": 9000,
+      "salaryMax": 13000,
+      "salaryVisible": false,
+      "experienceYears": "5+",
+      "qualifiedCount": 6,
+      "description": "تحويل جداول المشاريع إلى خطط إنتاج يومية وتحسين مسارات التصنيع عبر أقسام الورشة.",
+      "skills": [
+        "تخطيط إنتاج",
+        "AutoCAD",
+        "Excel متقدم",
+        "تحسين عمليات"
+      ],
+      "mustHave": [
+        "تخطيط إنتاج"
+      ],
+      "languages": [
+        "العربية"
+      ]
+    },
+    {
+      "id": "job_3",
+      "companyId": "co_workshop_1",
+      "title": "قائد فريق نجارة",
+      "titleEn": "Carpentry Team Leader",
+      "dept": "الإنتاج",
+      "city": "الرياض",
+      "country": "السعودية",
+      "branch": "المصنع الرئيسي",
+      "type": "دوام كامل",
+      "workMode": "حضوري",
+      "openings": 2,
+      "status": "منشورة",
+      "postedAt": "2026-07-08",
+      "closesAt": "2026-08-20",
+      "hiringManager": "أ. ماجد",
+      "salaryMin": 7000,
+      "salaryMax": 9500,
+      "salaryVisible": false,
+      "experienceYears": "5+",
+      "qualifiedCount": 3,
+      "description": "قيادة فريق النجارة في تنفيذ هياكل وديكورات الفعاليات وفق الرسومات التنفيذية.",
+      "skills": [
+        "نجارة ديكور",
+        "قراءة رسومات",
+        "قيادة فرق"
+      ],
+      "mustHave": [
+        "نجارة ديكور"
+      ],
+      "languages": [
+        "العربية"
+      ]
+    },
+    {
+      "id": "job_4",
+      "companyId": "co_workshop_1",
+      "title": "موظف موارد بشرية وعلاقات حكومية",
+      "titleEn": "HR & GR Officer",
+      "dept": "الموارد البشرية",
+      "city": "الرياض",
+      "country": "السعودية",
+      "branch": "المكتب الإداري",
+      "type": "دوام كامل",
+      "workMode": "حضوري",
+      "openings": 1,
+      "status": "منشورة",
+      "postedAt": "2026-07-10",
+      "closesAt": "2026-08-25",
+      "hiringManager": "باهر",
+      "salaryMin": 7000,
+      "salaryMax": 10000,
+      "salaryVisible": false,
+      "experienceYears": "3+",
+      "qualifiedCount": 5,
+      "description": "تشغيل منصات قوى والتأمينات ومقيم ومدد وإدارة ملفات الموظفين والعقود لقوى عاملة +180.",
+      "skills": [
+        "قوى",
+        "التأمينات",
+        "مقيم",
+        "عقود عمل"
+      ],
+      "mustHave": [
+        "قوى"
+      ],
+      "languages": [
+        "العربية"
+      ]
+    },
+    {
+      "id": "job_5",
+      "companyId": "co_workshop_1",
+      "title": "فني كهرباء فعاليات",
+      "titleEn": "Events Electrician",
+      "dept": "الكهرباء",
+      "city": "الرياض",
+      "country": "السعودية",
+      "branch": "المصنع الرئيسي",
+      "type": "دوام كامل",
+      "workMode": "حضوري",
+      "openings": 4,
+      "status": "منشورة",
+      "postedAt": "2026-07-12",
+      "closesAt": "2026-09-10",
+      "hiringManager": "م. خالد",
+      "salaryMin": 4500,
+      "salaryMax": 6500,
+      "salaryVisible": false,
+      "experienceYears": "3+",
+      "qualifiedCount": 7,
+      "description": "تمديد وإنارة وتغذية العناصر المشهدية وهياكل الفعاليات في الورشة والمواقع.",
+      "skills": [
+        "تمديدات",
+        "إنارة LED",
+        "لوحات توزيع"
+      ],
+      "mustHave": [
+        "تمديدات"
+      ],
+      "languages": [
+        "العربية"
+      ]
+    },
+    {
+      "id": "job_6",
+      "companyId": "co_workshop_1",
+      "title": "مصمم ثلاثي الأبعاد",
+      "titleEn": "3D Designer",
+      "dept": "التصميم",
+      "city": "الرياض",
+      "country": "السعودية",
+      "branch": "المكتب الإداري",
+      "type": "دوام كامل",
+      "workMode": "هجين",
+      "openings": 1,
+      "status": "قيد المراجعة",
+      "postedAt": "2026-07-18",
+      "closesAt": "2026-09-18",
+      "hiringManager": "أ. نوف",
+      "salaryMin": 8000,
+      "salaryMax": 12000,
+      "salaryVisible": false,
+      "experienceYears": "4+",
+      "qualifiedCount": 0,
+      "description": "تصميم مجسمات وأجنحة الفعاليات ثلاثية الأبعاد وتسليم ملفات جاهزة للتنفيذ.",
+      "skills": [
+        "3ds Max",
+        "V-Ray",
+        "تصميم أجنحة"
+      ],
+      "mustHave": [
+        "3ds Max"
+      ],
+      "languages": [
+        "العربية"
+      ]
+    },
+    {
+      "id": "job_7",
+      "companyId": "co_workshop_1",
+      "title": "محاسب تكاليف",
+      "titleEn": "Cost Accountant",
+      "dept": "المالية",
+      "city": "الرياض",
+      "country": "السعودية",
+      "branch": "المكتب الإداري",
+      "type": "دوام كامل",
+      "workMode": "حضوري",
+      "openings": 1,
+      "status": "مسودة",
+      "postedAt": "",
+      "closesAt": "",
+      "hiringManager": "أ. عبدالله",
+      "salaryMin": 8000,
+      "salaryMax": 11000,
+      "salaryVisible": false,
+      "experienceYears": "4+",
+      "qualifiedCount": 0,
+      "description": "متابعة تكاليف المشاريع مقابل الميزانيات وإعداد تقارير الانحرافات.",
+      "skills": [
+        "تكاليف معيارية",
+        "ERP",
+        "تقارير انحرافات"
+      ],
+      "mustHave": [
+        "ERP"
+      ],
+      "languages": [
+        "العربية"
+      ]
+    },
+    {
+      "id": "job_8",
+      "companyId": "co_workshop_1",
+      "title": "مشرف سلامة",
+      "titleEn": "Safety Supervisor",
+      "dept": "السلامة",
+      "city": "جدة",
+      "country": "السعودية",
+      "branch": "فرع جدة",
+      "type": "دوام كامل",
+      "workMode": "حضوري",
+      "openings": 1,
+      "status": "متوقفة",
+      "postedAt": "2026-06-15",
+      "closesAt": "2026-08-15",
+      "hiringManager": "م. خالد",
+      "salaryMin": 7500,
+      "salaryMax": 9500,
+      "salaryVisible": false,
+      "experienceYears": "5+",
+      "qualifiedCount": 2,
+      "description": "تطبيق اشتراطات السلامة في الورشة ومواقع الفعاليات وتدريب الفرق.",
+      "skills": [
+        "سلامة صناعية",
+        "OSHA",
+        "تدريب"
+      ],
+      "mustHave": [
+        "سلامة صناعية"
+      ],
+      "languages": [
+        "العربية"
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "id": "c_01",
+      "companyId": "co_workshop_1",
+      "name": "عبدالعزيز الشهري",
+      "title": "مدير مصنع",
+      "years": 11,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سعودي",
+      "residency": "مواطن",
+      "workPermit": "لا يحتاج",
+      "match": 92,
+      "skills": [
+        "إدارة إنتاج",
+        "Lean",
+        "قيادة فرق",
+        "ERP"
+      ],
+      "languages": [
+        "العربية",
+        "الإنجليزية"
+      ],
+      "education": "بكالوريوس هندسة صناعية",
+      "expectedSalary": 17000,
+      "noticeDays": 30,
+      "source": "بوابة التوظيف",
+      "phone": "+9665xxxxxx01",
+      "email": "a.alshehri@example.com",
+      "summary": "قاد تشغيل مصنع أثاث بطاقة 200 عامل، خفض الهدر 14% خلال سنتين، وخبرة مباشرة في جدولة إنتاج المشاريع المخصصة."
+    },
+    {
+      "id": "c_02",
+      "companyId": "co_workshop_1",
+      "name": "محمد عيسى",
+      "title": "مدير عمليات تصنيع",
+      "years": 9,
+      "city": "الدمام",
+      "country": "السعودية",
+      "nationality": "أردني",
+      "residency": "مقيم — إقامة قابلة للنقل",
+      "workPermit": "قابل للنقل",
+      "match": 84,
+      "skills": [
+        "تخطيط إنتاج",
+        "جودة",
+        "سلاسل إمداد"
+      ],
+      "languages": [
+        "العربية",
+        "الإنجليزية"
+      ],
+      "education": "بكالوريوس هندسة ميكانيكية",
+      "expectedSalary": 15000,
+      "noticeDays": 60,
+      "source": "LinkedIn",
+      "phone": "+9665xxxxxx02",
+      "email": "m.issa@example.com",
+      "summary": "خبرة تشغيل ورش معدنية وخشبية، أدار توسعة خط إنتاج كامل، يحتاج فترة إشعار 60 يوماً."
+    },
+    {
+      "id": "c_03",
+      "companyId": "co_workshop_1",
+      "name": "سارة القحطاني",
+      "title": "مهندسة إنتاج",
+      "years": 6,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سعودية",
+      "residency": "مواطنة",
+      "workPermit": "لا يحتاج",
+      "match": 89,
+      "skills": [
+        "تخطيط إنتاج",
+        "AutoCAD",
+        "Excel متقدم",
+        "تحسين عمليات"
+      ],
+      "languages": [
+        "العربية",
+        "الإنجليزية"
+      ],
+      "education": "بكالوريوس هندسة صناعية — جامعة الملك سعود",
+      "expectedSalary": 12000,
+      "noticeDays": 30,
+      "source": "بوابة التوظيف",
+      "phone": "+9665xxxxxx03",
+      "email": "s.alqahtani@example.com",
+      "summary": "ست سنوات في تخطيط إنتاج التصنيع المخصص، بنت نظام جدولة يومي خفّض التأخير 20%."
+    },
+    {
+      "id": "c_04",
+      "companyId": "co_workshop_1",
+      "name": "أحمد فتحي",
+      "title": "مهندس إنتاج أول",
+      "years": 8,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "مصري",
+      "residency": "مقيم",
+      "workPermit": "قابل للنقل",
+      "match": 81,
+      "skills": [
+        "CNC",
+        "تقدير تكاليف",
+        "قراءة مخططات"
+      ],
+      "languages": [
+        "العربية"
+      ],
+      "education": "بكالوريوس هندسة إنتاج",
+      "expectedSalary": 11000,
+      "noticeDays": 30,
+      "source": "Indeed",
+      "phone": "+9665xxxxxx04",
+      "email": "a.fathy@example.com",
+      "summary": "خلفية CNC وتعشيش قوية مع خبرة تقدير تكاليف التصنيع للمشاريع المخصصة."
+    },
+    {
+      "id": "c_05",
+      "companyId": "co_workshop_1",
+      "name": "خالد المطيري",
+      "title": "قائد فريق نجارة",
+      "years": 7,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سعودي",
+      "residency": "مواطن",
+      "workPermit": "لا يحتاج",
+      "match": 90,
+      "skills": [
+        "نجارة ديكور",
+        "قراءة رسومات",
+        "قيادة فرق"
+      ],
+      "languages": [
+        "العربية"
+      ],
+      "education": "دبلوم نجارة وتشطيبات",
+      "expectedSalary": 9000,
+      "noticeDays": 15,
+      "source": "صبّار",
+      "phone": "+9665xxxxxx05",
+      "email": "k.almutairi@example.com",
+      "summary": "سبع سنوات في نجارة أجنحة المعارض والديكور المخصص، قاد فرقاً حتى 12 نجاراً."
+    },
+    {
+      "id": "c_06",
+      "companyId": "co_workshop_1",
+      "name": "يوسف حسن",
+      "title": "نجار أول",
+      "years": 10,
+      "city": "جدة",
+      "country": "السعودية",
+      "nationality": "سوداني",
+      "residency": "مقيم",
+      "workPermit": "قابل للنقل",
+      "match": 76,
+      "skills": [
+        "نجارة إنشائية",
+        "تركيب مواقع"
+      ],
+      "languages": [
+        "العربية"
+      ],
+      "education": "ثانوية صناعية",
+      "expectedSalary": 7000,
+      "noticeDays": 30,
+      "source": "بوابة التوظيف",
+      "phone": "+9665xxxxxx06",
+      "email": "y.hassan@example.com",
+      "summary": "خبرة طويلة في النجارة الإنشائية وتركيب المواقع، يحتاج تقييم قيادة فرق."
+    },
+    {
+      "id": "c_07",
+      "companyId": "co_workshop_1",
+      "name": "نورة العتيبي",
+      "title": "أخصائية موارد بشرية",
+      "years": 5,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سعودية",
+      "residency": "مواطنة",
+      "workPermit": "لا يحتاج",
+      "match": 93,
+      "skills": [
+        "قوى",
+        "التأمينات",
+        "مدد",
+        "عقود عمل"
+      ],
+      "languages": [
+        "العربية",
+        "الإنجليزية"
+      ],
+      "education": "بكالوريوس إدارة موارد بشرية",
+      "expectedSalary": 9500,
+      "noticeDays": 30,
+      "source": "بوابة التوظيف",
+      "phone": "+9665xxxxxx07",
+      "email": "n.alotaibi@example.com",
+      "summary": "خمس سنوات تشغيل يومي لمنصات قوى والتأمينات ومدد لشركة مقاولات 250 موظفاً."
+    },
+    {
+      "id": "c_08",
+      "companyId": "co_workshop_1",
+      "name": "عمر بخاري",
+      "title": "موظف علاقات حكومية",
+      "years": 4,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سعودي",
+      "residency": "مواطن",
+      "workPermit": "لا يحتاج",
+      "match": 78,
+      "skills": [
+        "مقيم",
+        "أبشر أعمال",
+        "تجديد إقامات"
+      ],
+      "languages": [
+        "العربية"
+      ],
+      "education": "بكالوريوس إدارة أعمال",
+      "expectedSalary": 8000,
+      "noticeDays": 15,
+      "source": "LinkedIn",
+      "phone": "+9665xxxxxx08",
+      "email": "o.bukhari@example.com",
+      "summary": "أربع سنوات علاقات حكومية، سرعة إنجاز عالية في معاملات مقيم وأبشر أعمال."
+    },
+    {
+      "id": "c_09",
+      "companyId": "co_workshop_1",
+      "name": "حسين الزهراني",
+      "title": "فني كهرباء",
+      "years": 6,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سعودي",
+      "residency": "مواطن",
+      "workPermit": "لا يحتاج",
+      "match": 88,
+      "skills": [
+        "تمديدات",
+        "إنارة LED",
+        "لوحات توزيع"
+      ],
+      "languages": [
+        "العربية"
+      ],
+      "education": "دبلوم كهرباء",
+      "expectedSalary": 6000,
+      "noticeDays": 15,
+      "source": "صبّار",
+      "phone": "+9665xxxxxx09",
+      "email": "h.alzahrani@example.com",
+      "summary": "ست سنوات تمديدات وإنارة، منها سنتان في تجهيز فعاليات ومهرجانات."
+    },
+    {
+      "id": "c_10",
+      "companyId": "co_workshop_1",
+      "name": "رامي سليم",
+      "title": "كهربائي صناعي",
+      "years": 8,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سوري",
+      "residency": "مقيم",
+      "workPermit": "قابل للنقل",
+      "match": 82,
+      "skills": [
+        "كهرباء صناعية",
+        "أتمتة",
+        "صيانة"
+      ],
+      "languages": [
+        "العربية"
+      ],
+      "education": "معهد تقني كهرباء",
+      "expectedSalary": 6500,
+      "noticeDays": 30,
+      "source": "Indeed",
+      "phone": "+9665xxxxxx10",
+      "email": "r.salim@example.com",
+      "summary": "كهرباء صناعية وصيانة ماكينات، مناسب أيضاً لدعم فريق الصيانة."
+    },
+    {
+      "id": "c_11",
+      "companyId": "co_workshop_1",
+      "name": "ليان الدوسري",
+      "title": "مصممة ثلاثي الأبعاد",
+      "years": 4,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سعودية",
+      "residency": "مواطنة",
+      "workPermit": "لا يحتاج",
+      "match": 91,
+      "skills": [
+        "3ds Max",
+        "Blender",
+        "V-Ray",
+        "تصميم أجنحة"
+      ],
+      "languages": [
+        "العربية",
+        "الإنجليزية"
+      ],
+      "education": "بكالوريوس تصميم داخلي",
+      "expectedSalary": 10000,
+      "noticeDays": 30,
+      "source": "بوابة التوظيف",
+      "phone": "+9665xxxxxx11",
+      "email": "l.aldosari@example.com",
+      "summary": "بورتفوليو قوي في أجنحة المعارض ومجسمات الفعاليات، تسليم ملفات تنفيذية جاهزة للورشة."
+    },
+    {
+      "id": "c_12",
+      "companyId": "co_workshop_1",
+      "name": "فهد العنزي",
+      "title": "محاسب تكاليف",
+      "years": 5,
+      "city": "الرياض",
+      "country": "السعودية",
+      "nationality": "سعودي",
+      "residency": "مواطن",
+      "workPermit": "لا يحتاج",
+      "match": 85,
+      "skills": [
+        "تكاليف معيارية",
+        "ERP",
+        "تقارير انحرافات"
+      ],
+      "languages": [
+        "العربية",
+        "الإنجليزية"
+      ],
+      "education": "بكالوريوس محاسبة",
+      "expectedSalary": 10000,
+      "noticeDays": 30,
+      "source": "LinkedIn",
+      "phone": "+9665xxxxxx12",
+      "email": "f.alanazi@example.com",
+      "summary": "خمس سنوات محاسبة تكاليف في التصنيع، خبرة مباشرة في تكاليف المشاريع المخصصة."
+    }
+  ],
+  "applications": [
+    {
+      "id": "app_01",
+      "companyId": "co_workshop_1",
+      "jobId": "job_1",
+      "candidateId": "c_01",
+      "stage": "interview",
+      "appliedAt": "2026-07-14",
+      "unread": false,
+      "duplicate": false,
+      "aiRecommended": true
+    },
+    {
+      "id": "app_02",
+      "companyId": "co_workshop_1",
+      "jobId": "job_1",
+      "candidateId": "c_02",
+      "stage": "shortlist",
+      "appliedAt": "2026-07-15",
+      "unread": false,
+      "duplicate": false,
+      "aiRecommended": false
+    },
+    {
+      "id": "app_03",
+      "companyId": "co_workshop_1",
+      "jobId": "job_2",
+      "candidateId": "c_03",
+      "stage": "offer",
+      "appliedAt": "2026-07-10",
+      "unread": false,
+      "duplicate": false,
+      "aiRecommended": true
+    },
+    {
+      "id": "app_04",
+      "companyId": "co_workshop_1",
+      "jobId": "job_2",
+      "candidateId": "c_04",
+      "stage": "review",
+      "appliedAt": "2026-07-16",
+      "unread": true,
+      "duplicate": false,
+      "aiRecommended": false
+    },
+    {
+      "id": "app_05",
+      "companyId": "co_workshop_1",
+      "jobId": "job_3",
+      "candidateId": "c_05",
+      "stage": "interview",
+      "appliedAt": "2026-07-13",
+      "unread": false,
+      "duplicate": false,
+      "aiRecommended": true
+    },
+    {
+      "id": "app_06",
+      "companyId": "co_workshop_1",
+      "jobId": "job_3",
+      "candidateId": "c_06",
+      "stage": "review",
+      "appliedAt": "2026-07-17",
+      "unread": true,
+      "duplicate": false,
+      "aiRecommended": false
+    },
+    {
+      "id": "app_07",
+      "companyId": "co_workshop_1",
+      "jobId": "job_4",
+      "candidateId": "c_07",
+      "stage": "shortlist",
+      "appliedAt": "2026-07-15",
+      "unread": false,
+      "duplicate": false,
+      "aiRecommended": true
+    },
+    {
+      "id": "app_08",
+      "companyId": "co_workshop_1",
+      "jobId": "job_4",
+      "candidateId": "c_08",
+      "stage": "new",
+      "appliedAt": "2026-07-21",
+      "unread": true,
+      "duplicate": false,
+      "aiRecommended": false
+    },
+    {
+      "id": "app_09",
+      "companyId": "co_workshop_1",
+      "jobId": "job_5",
+      "candidateId": "c_09",
+      "stage": "shortlist",
+      "appliedAt": "2026-07-16",
+      "unread": false,
+      "duplicate": false,
+      "aiRecommended": true
+    },
+    {
+      "id": "app_10",
+      "companyId": "co_workshop_1",
+      "jobId": "job_5",
+      "candidateId": "c_10",
+      "stage": "new",
+      "appliedAt": "2026-07-22",
+      "unread": true,
+      "duplicate": false,
+      "aiRecommended": false
+    },
+    {
+      "id": "app_11",
+      "companyId": "co_workshop_1",
+      "jobId": "job_6",
+      "candidateId": "c_11",
+      "stage": "new",
+      "appliedAt": "2026-07-22",
+      "unread": true,
+      "duplicate": false,
+      "aiRecommended": true
+    },
+    {
+      "id": "app_12",
+      "companyId": "co_workshop_1",
+      "jobId": "job_7",
+      "candidateId": "c_12",
+      "stage": "new",
+      "appliedAt": "2026-07-21",
+      "unread": true,
+      "duplicate": true,
+      "aiRecommended": false
+    },
+    {
+      "id": "app_13",
+      "companyId": "co_workshop_1",
+      "jobId": "job_1",
+      "candidateId": "c_04",
+      "stage": "unqualified",
+      "appliedAt": "2026-07-09",
+      "unread": false,
+      "duplicate": false,
+      "aiRecommended": false
+    },
+    {
+      "id": "app_14",
+      "companyId": "co_workshop_1",
+      "jobId": "job_5",
+      "candidateId": "c_06",
+      "stage": "future",
+      "appliedAt": "2026-07-11",
+      "unread": false,
+      "duplicate": false,
+      "aiRecommended": false
+    }
+  ],
+  "interviews": [
+    {
+      "id": "iv_1",
+      "companyId": "co_workshop_1",
+      "applicationId": "app_01",
+      "candidateId": "c_01",
+      "jobId": "job_1",
+      "at": "2026-07-24T10:00:00+03:00",
+      "type": "حضورية",
+      "location": "المكتب الإداري — قاعة الاجتماعات",
+      "panel": [
+        "باهر",
+        "م. سلطان"
+      ],
+      "status": "مؤكدة"
+    },
+    {
+      "id": "iv_2",
+      "companyId": "co_workshop_1",
+      "applicationId": "app_05",
+      "candidateId": "c_05",
+      "jobId": "job_3",
+      "at": "2026-07-24T13:30:00+03:00",
+      "type": "فيديو",
+      "location": "Google Meet",
+      "panel": [
+        "أ. ماجد"
+      ],
+      "status": "مؤكدة"
+    },
+    {
+      "id": "iv_3",
+      "companyId": "co_workshop_1",
+      "applicationId": "app_03",
+      "candidateId": "c_03",
+      "jobId": "job_2",
+      "at": "2026-07-27T11:00:00+03:00",
+      "type": "حضورية",
+      "location": "المصنع الرئيسي",
+      "panel": [
+        "م. سلطان",
+        "أ. نوف"
+      ],
+      "status": "بانتظار التأكيد"
+    }
+  ],
+  "activities": [
+    {
+      "id": "ac_1",
+      "companyId": "co_workshop_1",
+      "at": "2026-07-22T21:40:00+03:00",
+      "type": "apply",
+      "text": "تقدّم ليان الدوسري على وظيفة مصمم ثلاثي الأبعاد"
+    },
+    {
+      "id": "ac_2",
+      "companyId": "co_workshop_1",
+      "at": "2026-07-22T18:15:00+03:00",
+      "type": "apply",
+      "text": "تقدّم رامي سليم على وظيفة فني كهرباء فعاليات"
+    },
+    {
+      "id": "ac_3",
+      "companyId": "co_workshop_1",
+      "at": "2026-07-22T10:05:00+03:00",
+      "type": "stage",
+      "text": "نُقل عبدالعزيز الشهري إلى مرحلة «مقابلة» لوظيفة مدير ورشة"
+    },
+    {
+      "id": "ac_4",
+      "companyId": "co_workshop_1",
+      "at": "2026-07-21T16:30:00+03:00",
+      "type": "interview",
+      "text": "حُددت مقابلة مع خالد المطيري — الخميس 1:30 م"
+    },
+    {
+      "id": "ac_5",
+      "companyId": "co_workshop_1",
+      "at": "2026-07-21T09:20:00+03:00",
+      "type": "offer",
+      "text": "أُرسل عرض وظيفي إلى سارة القحطاني — مهندس إنتاج"
+    },
+    {
+      "id": "ac_6",
+      "companyId": "co_workshop_1",
+      "at": "2026-07-18T12:00:00+03:00",
+      "type": "job",
+      "text": "أُرسلت وظيفة مصمم ثلاثي الأبعاد للمراجعة"
+    }
+  ]
+}

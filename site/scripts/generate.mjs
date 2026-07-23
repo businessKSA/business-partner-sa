@@ -8816,6 +8816,15 @@ for (const lang of ["en", "ar"]) {
   writeFullSite(lang === "ar" ? "ar/" : "");
 }
 
+// HR employer app (/hr/employer/*) — standalone Arabic-first app chrome,
+// generated once (not per language tree). See site/scripts/hr-app.mjs.
+{
+  const { buildHRAppPages } = await import("./hr-app.mjs");
+  const hrPages = buildHRAppPages();
+  for (const [rel, html] of hrPages) write(rel, html);
+  pageCount += hrPages.length;
+}
+
 // Extra world languages: languages fully translated (FULLY_READY_LANGS) get
 // every page, same as en/ar. The rest still only get the core discovery
 // pages (site chrome + homepage matter most for a first-touch international

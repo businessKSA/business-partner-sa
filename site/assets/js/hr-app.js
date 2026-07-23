@@ -1,0 +1,1108 @@
+/* HR Employer App (/hr/employer/*) — logic + data layer.
+   All UI reads/writes go through HRStore (adapter). Today HRStore serves
+   site/data/hr-mock.json + a localStorage overlay for mutations; swapping in
+   real APIs later means reimplementing the same HRStore methods with fetch —
+   no page code changes. */
+(function () {
+  "use strict";
+  if (!document.body || !document.body.getAttribute("data-hr-page")) return;
+  var PAGE = document.body.getAttribute("data-hr-page");
+
+  /* ---------- utils ---------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function $(id) { return document.getElementById(id); }
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso);
+    if (isNaN(d)) return "—";
+    return d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+  }
+  function fmtTime(iso) {
+    var d = new Date(iso);
+    var h = d.getHours(), m = ("0" + d.getMinutes()).slice(-2), am = h < 12 ? "ص" : "م";
+    h = h % 12 || 12;
+    return h + ":" + m + " " + am;
+  }
+  function dayName(iso) { return ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"][new Date(iso).getDay()]; }
+  function initials(name) { return String(name || "؟").trim().split(/\s+/).slice(0, 2).map(function (w) { return w[0]; }).join(""); }
+  function readLS(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+  function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  var toastTimer = null;
+  function toast(msg, actionLabel, onAction) {
+    var root = $("hr-toast-root");
+    if (!root) return;
+    clearTimeout(toastTimer);
+    root.innerHTML = '<div class="hr-toast" role="status"><span>' + esc(msg) + "</span>" +
+      (actionLabel ? '<button type="button" id="hr-toast-act">' + esc(actionLabel) + "</button>" : "") + "</div>";
+    if (actionLabel && onAction) {
+      $("hr-toast-act").addEventListener("click", function () { root.innerHTML = ""; onAction(); });
+    }
+    toastTimer = setTimeout(function () { root.innerHTML = ""; }, 6000);
+  }
+  function confirmModal(title, text, okLabel, danger) {
+    return new Promise(function (resolve) {
+      var root = $("hr-modal-root");
+      root.innerHTML = '<div class="hr-modal" role="dialog" aria-modal="true"><div class="hr-modal-in">' +
+        "<h3>" + esc(title) + "</h3><p>" + esc(text) + "</p>" +
+        '<div class="m-actions"><button class="hr-btn hr-btn-ghost" id="hm-no">إلغاء</button>' +
+        '<button class="hr-btn ' + (danger ? "hr-btn-danger" : "hr-btn-primary") + '" id="hm-ok">' + esc(okLabel || "تأكيد") + "</button></div></div></div>";
+      function close(v) { root.innerHTML = ""; resolve(v); }
+      $("hm-no").addEventListener("click", function () { close(false); });
+      $("hm-ok").addEventListener("click", function () { close(true); });
+      root.firstChild.addEventListener("click", function (e) { if (e.target === root.firstChild) close(false); });
+    });
+  }
+
+  /* ---------- data layer (adapter) ---------- */
+  var HRStore = (function () {
+    var DATA = null, loadErr = null;
+    var OV_KEY = "bp_hr_overlay";
+    function overlay() { return readLS(OV_KEY, { stages: {}, jobs: [], jobEdits: {}, notes: {}, ratings: {}, read: {}, activities: [] }); }
+    function saveOverlay(ov) { writeLS(OV_KEY, ov); }
+
+    function ready() {
+      if (DATA) return Promise.resolve(DATA);
+      if (loadErr) return Promise.reject(loadErr);
+      return fetch("/data/hr-mock.json").then(function (r) {
+        if (!r.ok) throw new Error("load_failed");
+        return r.json();
+      }).then(function (d) { DATA = d; return d; }).catch(function (e) { loadErr = e; throw e; });
+    }
+    function jobs() {
+      var ov = overlay();
+      return DATA.jobs.map(function (j) { return Object.assign({}, j, ov.jobEdits[j.id] || {}); }).concat(ov.jobs);
+    }
+    function job(id) { return jobs().filter(function (j) { return j.id === id; })[0] || null; }
+    function candidates() { return DATA.candidates; }
+    function candidate(id) { return DATA.candidates.filter(function (c) { return c.id === id; })[0] || null; }
+    function applications() {
+      var ov = overlay();
+      return DATA.applications.map(function (a) {
+        var out = Object.assign({}, a);
+        if (ov.stages[a.id]) out.stage = ov.stages[a.id];
+        if (ov.read[a.id]) out.unread = false;
+        out.candidate = candidate(a.candidateId);
+        out.job = job(a.jobId);
+        return out;
+      }).filter(function (a) { return a.candidate && a.job; });
+    }
+    function application(id) { return applications().filter(function (a) { return a.id === id; })[0] || null; }
+    function stageOf(key) {
+      return DATA.stages.concat(DATA.sideStages).filter(function (s) { return s.key === key; })[0] || { key: key, label: key, color: "gray" };
+    }
+    function activities() {
+      var ov = overlay();
+      return ov.activities.concat(DATA.activities).slice(0, 30);
+    }
+    function logActivity(type, text) {
+      var ov = overlay();
+      ov.activities.unshift({ id: "ac_l" + Date.now(), at: new Date().toISOString(), type: type, text: text });
+      ov.activities = ov.activities.slice(0, 40);
+      saveOverlay(ov);
+    }
+    function moveStage(appId, stageKey) {
+      var a = application(appId);
+      if (!a) return null;
+      var prev = a.stage;
+      var ov = overlay();
+      ov.stages[appId] = stageKey;
+      saveOverlay(ov);
+      logActivity("stage", "نُقل " + a.candidate.name + " إلى مرحلة «" + stageOf(stageKey).label + "» لوظيفة " + a.job.title);
+      return prev;
+    }
+    function setStageSilent(appId, stageKey) {
+      var ov = overlay();
+      ov.stages[appId] = stageKey;
+      saveOverlay(ov);
+    }
+    function markRead(appId) {
+      var ov = overlay();
+      if (!ov.read[appId]) { ov.read[appId] = true; saveOverlay(ov); }
+    }
+    function addJob(jobData, publish) {
+      var ov = overlay();
+      var id = "job_l" + Date.now();
+      var j = Object.assign({ id: id, companyId: DATA.company.id, qualifiedCount: 0, hiringManager: DATA.user.name }, jobData, {
+        status: publish ? "منشورة" : "مسودة",
+        postedAt: publish ? new Date().toISOString().slice(0, 10) : "",
+      });
+      ov.jobs.push(j);
+      saveOverlay(ov);
+      logActivity("job", (publish ? "نُشرت وظيفة " : "حُفظت مسودة وظيفة ") + (j.title || "بدون مسمى"));
+      return j;
+    }
+    function editJob(id, patch) {
+      var ov = overlay();
+      var local = ov.jobs.filter(function (j) { return j.id === id; })[0];
+      if (local) Object.assign(local, patch);
+      else ov.jobEdits[id] = Object.assign(ov.jobEdits[id] || {}, patch);
+      saveOverlay(ov);
+    }
+    function notesFor(refId) { return overlay().notes[refId] || []; }
+    function addNote(refId, body, shared) {
+      var ov = overlay();
+      (ov.notes[refId] = ov.notes[refId] || []).unshift({ at: new Date().toISOString(), by: DATA.user.name, body: body, shared: !!shared });
+      saveOverlay(ov);
+    }
+    function ratingFor(refId) { return overlay().ratings[refId] || null; }
+    function setRating(refId, r) {
+      var ov = overlay();
+      ov.ratings[refId] = Object.assign({ at: new Date().toISOString(), by: DATA.user.name }, r);
+      saveOverlay(ov);
+    }
+    return {
+      ready: ready,
+      data: function () { return DATA; },
+      jobs: jobs, job: job, candidates: candidates, candidate: candidate,
+      applications: applications, application: application, stageOf: stageOf,
+      activities: activities, moveStage: moveStage, setStageSilent: setStageSilent,
+      markRead: markRead, addJob: addJob, editJob: editJob,
+      notesFor: notesFor, addNote: addNote, ratingFor: ratingFor, setRating: setRating,
+      logActivity: logActivity,
+    };
+  })();
+
+  /* ---------- auth gate ---------- */
+  // Same key the employer dashboard/login already use (bp_emp_code); the demo
+  // flag lets anyone explore the app with the mock data set.
+  var CODE = (function () { try { return localStorage.getItem("bp_emp_code") || ""; } catch (e) { return ""; } })();
+  var DEMO_OK = readLS("bp_hr_demo", false);
+  if (!CODE && !DEMO_OK) {
+    var content = $("hr-content");
+    if (content) {
+      content.innerHTML = '<div class="hr-gate"><div style="font-size:2rem">🔐</div>' +
+        "<h2>سجّل الدخول للوحة صاحب العمل</h2>" +
+        "<p>وظائفك ومتقدموك ومسار التوظيف في مكان واحد. سجّل الدخول بحساب شركتك أو استكشف اللوحة بالبيانات التجريبية.</p>" +
+        '<a class="hr-btn hr-btn-primary" style="width:100%" href="/ar/employer-login">تسجيل الدخول</a>' +
+        '<button class="hr-btn hr-btn-ghost" style="width:100%;margin-top:10px" id="hr-gate-demo">استكشف بالبيانات التجريبية</button></div>';
+      var gd = $("hr-gate-demo");
+      if (gd) gd.addEventListener("click", function () { writeLS("bp_hr_demo", true); location.reload(); });
+    }
+    initChrome(false);
+    return;
+  }
+
+  /* ---------- chrome (sidebar/topbar) ---------- */
+  function initChrome(withData) {
+    var shell = $("hr-shell");
+    if (readLS("bp_hr_side_collapsed", false)) shell.classList.add("side-collapsed");
+    var col = $("hr-collapse");
+    if (col) col.addEventListener("click", function () {
+      shell.classList.toggle("side-collapsed");
+      writeLS("bp_hr_side_collapsed", shell.classList.contains("side-collapsed"));
+    });
+    var burger = $("hr-burger"), overlayEl = $("hr-overlay");
+    if (burger) burger.addEventListener("click", function () { shell.classList.add("side-open"); });
+    if (overlayEl) overlayEl.addEventListener("click", function () { shell.classList.remove("side-open"); });
+    var gq = $("hr-global-q");
+    if (gq) gq.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && gq.value.trim()) location.href = "/hr/employer/applicants?q=" + encodeURIComponent(gq.value.trim());
+    });
+    var nb = $("hr-notif"); if (nb) nb.addEventListener("click", function () { toast("لا إشعارات جديدة — مركز الإشعارات يتفعّل مع ربط الأحداث الحقيقية."); });
+    var mb = $("hr-msgs"); if (mb) mb.addEventListener("click", function () { location.href = "/hr/employer/messages"; });
+    if (!withData) return;
+    HRStore.ready().then(function (d) {
+      $("hr-user-name").textContent = d.user.name;
+      $("hr-user-co").textContent = d.company.name;
+      $("hr-user-av").textContent = initials(d.user.name);
+      $("hr-co-name").textContent = d.company.name;
+      $("hr-co-logo").textContent = initials(d.company.logoText || d.company.name);
+      var newN = HRStore.applications().filter(function (a) { return a.unread; }).length;
+      var badge = $("nav-new-count");
+      if (badge && newN) { badge.textContent = newN; badge.hidden = false; }
+      var dot = $("hr-notif-dot");
+      if (dot && newN) dot.hidden = false;
+    }).catch(function () {});
+  }
+  initChrome(true);
+
+  function dataError(rootId) {
+    var r = $(rootId);
+    if (r) r.innerHTML = '<div class="hr-error">تعذّر تحميل البيانات — أعد تحميل الصفحة أو حاول لاحقاً.</div>';
+  }
+
+  var STAGE_TAG = { blue: "t-blue", purple: "t-purple", teal: "t-teal", orange: "t-orange", green: "t-green", red: "t-red", gray: "" };
+  function stageTag(key) {
+    var s = HRStore.stageOf(key);
+    return '<span class="hr-tag ' + (STAGE_TAG[s.color] || "") + '">' + esc(s.label) + "</span>";
+  }
+  function candTags(c) {
+    return (c.skills || []).slice(0, 3).map(function (s) { return '<span class="hr-tag">' + esc(s) + "</span>"; }).join("");
+  }
+
+  /* ================= dashboard ================= */
+  function pageDashboard() {
+    HRStore.ready().then(function (d) {
+      $("dash-hello").textContent = "مرحباً " + d.user.name + " 👋";
+      var apps = HRStore.applications(), jobs = HRStore.jobs();
+      var mainStages = d.stages.map(function (s) { return s.key; });
+      var inPipe = apps.filter(function (a) { return mainStages.indexOf(a.stage) > -1; });
+      var newApps = apps.filter(function (a) { return a.unread; });
+      var upcoming = d.interviews.filter(function (iv) { return new Date(iv.at) > new Date("2026-07-23"); });
+      var recommended = apps.filter(function (a) { return a.aiRecommended && ["hired", "rejected", "unqualified"].indexOf(a.stage) < 0; });
+      var activeJobs = jobs.filter(function (j) { return j.status === "منشورة"; });
+      var offers = apps.filter(function (a) { return a.stage === "offer"; });
+
+      var kpis = [
+        ["إجمالي المتقدمين", apps.length, "+18%", "up", "آخر 30 يوماً", "/hr/employer/applicants", "users", "t-blue"],
+        ["مرشّحون جدد", newApps.length, "+4", "up", "بانتظار المراجعة", "/hr/employer/applicants", "spark", "t-teal"],
+        ["المقابلات القادمة", upcoming.length, "هذا الأسبوع", "", "", "/hr/employer/interviews", "calendar", "t-orange"],
+        ["مرشّحون موصى بهم", recommended.length, "AI", "", "بحسب المطابقة", "/hr/employer/applicants", "spark", "t-purple"],
+        ["الوظائف النشطة", activeJobs.length, "", "", "من أصل " + jobs.length, "/hr/employer/jobs", "briefcase", "t-green"],
+        ["العروض المعلقة", offers.length, "", "", "بانتظار الرد", "/hr/employer/offers", "filetext", "t-orange"],
+      ];
+      $("dash-kpis").innerHTML = kpis.map(function (k) {
+        return '<a class="hr-kpi" href="' + k[5] + '"><span class="k-top"><span>' + k[0] + "</span></span>" +
+          '<span class="k-num">' + k[1] + "</span>" +
+          '<span class="k-sub">' + (k[2] ? '<span class="k-delta ' + (k[3] || "") + '">' + k[2] + "</span>" : "") + (k[4] ? "<span>" + k[4] + "</span>" : "") + "</span>" +
+          '<span class="k-link">عرض التفاصيل ←</span></a>';
+      }).join("");
+
+      // funnel
+      var funnelDefs = [
+        ["إجمالي المتقدمين", apps.length],
+        ["تمت مراجعتهم", apps.filter(function (a) { return ["review", "shortlist", "interview", "offer", "hired"].indexOf(a.stage) > -1; }).length],
+        ["مؤهلون", apps.filter(function (a) { return ["shortlist", "interview", "offer", "hired"].indexOf(a.stage) > -1; }).length],
+        ["مقابلات", apps.filter(function (a) { return ["interview", "offer", "hired"].indexOf(a.stage) > -1; }).length],
+        ["تم التوظيف", apps.filter(function (a) { return a.stage === "hired"; }).length],
+      ];
+      var max = Math.max(apps.length, 1);
+      $("dash-funnel").innerHTML = funnelDefs.map(function (f, i) {
+        var pct = Math.round((f[1] / max) * 100);
+        return '<div class="f-row"><span>' + f[0] + '</span><span class="f-bar"><span class="f-fill" style="width:' + pct + "%;opacity:" + (1 - i * 0.13) + '"></span></span><span class="f-n">' + f[1] + "</span></div>";
+      }).join("");
+
+      // interviews
+      $("dash-interviews").innerHTML = upcoming.length ? upcoming.map(function (iv) {
+        var c = HRStore.candidate(iv.candidateId), j = HRStore.job(iv.jobId);
+        return '<div class="hr-cand"><span class="hr-avatar">' + esc(initials(c.name)) + '</span><div class="c-body"><b>' + esc(c.name) + '</b><div class="c-sub">' + esc(j.title) + " · " + dayName(iv.at) + " " + fmtDate(iv.at) + " · " + fmtTime(iv.at) + '</div><div class="c-sub">' + esc(iv.type) + " · " + esc(iv.panel.join("، ")) + '</div></div><a class="hr-btn hr-btn-sm hr-btn-ghost" href="/hr/employer/applicant?id=' + iv.applicationId + '">التفاصيل</a></div>';
+      }).join("") : '<div class="hr-empty"><b>لا مقابلات قادمة</b><p>حدد مقابلة من ملف أي مرشّح.</p></div>';
+
+      // active jobs table
+      $("dash-jobs").innerHTML = '<table class="hr-tbl"><thead><tr><th>الوظيفة</th><th>المدينة</th><th>المتقدمون</th><th>الحالة</th><th>تاريخ النشر</th><th></th></tr></thead><tbody>' +
+        activeJobs.slice(0, 5).map(function (j) {
+          var n = apps.filter(function (a) { return a.jobId === j.id; }).length;
+          return '<tr><td><a class="t-title" href="/hr/employer/job?id=' + j.id + '">' + esc(j.title) + '</a><div class="t-sub">' + esc(j.dept) + "</div></td><td>" + esc(j.city) + "</td><td>" + n + "</td><td>" + jobStatusTag(j.status) + "</td><td>" + fmtDate(j.postedAt) + '</td><td><a class="hr-link" href="/hr/employer/applicants?job=' + j.id + '">المتقدمون</a></td></tr>';
+        }).join("") + "</tbody></table>";
+
+      // recommended
+      $("dash-recommended").innerHTML = recommended.length ? recommended.slice(0, 4).map(function (a) {
+        var c = a.candidate;
+        return '<div class="hr-cand"><span class="hr-avatar">' + esc(initials(c.name)) + '</span><div class="c-body"><b>' + esc(c.name) + '</b> <span class="hr-match">' + c.match + '%</span><div class="c-sub">' + esc(c.title) + " · خبرة " + c.years + " سنة · " + esc(c.city) + '</div></div><span style="display:flex;gap:6px"><a class="hr-btn hr-btn-sm hr-btn-ghost" href="/hr/employer/applicant?id=' + a.id + '">الملف</a><a class="hr-btn hr-btn-sm hr-btn-soft" href="/hr/employer/applicant?id=' + a.id + '#contact">تواصل</a></span></div>';
+      }).join("") : '<div class="hr-empty"><b>لا توصيات بعد</b></div>';
+
+      // activity
+      var typeIc = { apply: "📥", stage: "🔁", interview: "📅", offer: "📄", job: "📋" };
+      $("dash-activity").innerHTML = HRStore.activities().slice(0, 6).map(function (ac) {
+        return '<div class="hr-cand" style="align-items:center"><span style="font-size:1.05rem">' + (typeIc[ac.type] || "•") + '</span><div class="c-body"><div style="font-size:.85rem">' + esc(ac.text) + '</div><div class="c-sub">' + fmtDate(ac.at) + " · " + fmtTime(ac.at) + "</div></div></div>";
+      }).join("");
+    }).catch(function () { dataError("hr-content"); });
+  }
+
+  var JOB_STATUS_TAG = { "منشورة": "t-green", "مسودة": "", "قيد المراجعة": "t-purple", "متوقفة": "t-orange", "منتهية": "t-red", "مغلقة": "t-red" };
+  function jobStatusTag(st) { return '<span class="hr-tag ' + (JOB_STATUS_TAG[st] || "") + '">' + esc(st) + "</span>"; }
+
+  /* ================= jobs list ================= */
+  function pageJobs() {
+    var view = readLS("bp_hr_jobs_view", "table");
+    var pageN = 1, PER = 8;
+    function filters() {
+      return { q: $("jb-q").value.trim(), status: $("jb-status").value, city: $("jb-city").value, sort: $("jb-sort").value };
+    }
+    function filtered() {
+      var f = filters();
+      var apps = HRStore.applications();
+      var rows = HRStore.jobs().map(function (j) {
+        return Object.assign({}, j, { appsCount: apps.filter(function (a) { return a.jobId === j.id; }).length });
+      });
+      if (f.q) rows = rows.filter(function (j) { return (j.title + " " + j.dept + " " + (j.titleEn || "")).indexOf(f.q) > -1; });
+      if (f.status) rows = rows.filter(function (j) { return j.status === f.status; });
+      if (f.city) rows = rows.filter(function (j) { return j.city === f.city; });
+      rows.sort(function (a, b) {
+        if (f.sort === "apps") return b.appsCount - a.appsCount;
+        var da = a.postedAt || "0", db = b.postedAt || "0";
+        return f.sort === "old" ? (da > db ? 1 : -1) : (da < db ? 1 : -1);
+      });
+      return rows;
+    }
+    function menuHtml(j) {
+      return '<div class="hr-menu"><button aria-label="إجراءات" data-menu="' + j.id + '"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>' +
+        '<div class="hr-menu-pop" hidden data-pop="' + j.id + '">' +
+        '<a href="/hr/employer/applicants?job=' + j.id + '">عرض المتقدمين</a>' +
+        '<a href="/hr/employer/jobs/new?id=' + j.id + '">تعديل</a>' +
+        '<a href="/hr/employer/job?id=' + j.id + '">معاينة</a>' +
+        '<button data-act="copy" data-id="' + j.id + '">نسخ الوظيفة</button>' +
+        '<button data-act="share" data-id="' + j.id + '">مشاركة رابط التقديم</button>' +
+        '<button data-act="toggle" data-id="' + j.id + '">' + (j.status === "منشورة" ? "إيقاف مؤقت" : "نشر / إعادة نشر") + "</button>" +
+        '<button data-act="close" data-id="' + j.id + '" class="danger">إغلاق الوظيفة</button>' +
+        "</div></div>";
+    }
+    function render() {
+      var rows = filtered();
+      var wrap = $("jb-wrap");
+      var totalPages = Math.max(1, Math.ceil(rows.length / PER));
+      if (pageN > totalPages) pageN = totalPages;
+      var slice = rows.slice((pageN - 1) * PER, pageN * PER);
+      if (!rows.length) {
+        wrap.innerHTML = '<div class="hr-empty"><div class="e-ic">📋</div><b>لا توجد وظائف مطابقة</b><p>عدّل الفلاتر أو انشر وظيفة جديدة.</p><a class="hr-btn hr-btn-primary" href="/hr/employer/jobs/new">نشر وظيفة جديدة</a></div>';
+      } else if (view === "table") {
+        wrap.innerHTML = '<div class="hr-tbl-wrap"><table class="hr-tbl"><thead><tr><th>الوظيفة</th><th>الموقع</th><th>الدوام</th><th>الشواغر</th><th>المتقدمون</th><th>مؤهلون</th><th>مدير التوظيف</th><th>النشر</th><th>الانتهاء</th><th>الحالة</th><th></th></tr></thead><tbody>' +
+          slice.map(function (j) {
+            return "<tr><td><a class='t-title' href='/hr/employer/job?id=" + j.id + "'>" + esc(j.title) + "</a><div class='t-sub'>" + esc(j.dept) + "</div></td><td>" + esc(j.branch || "") + " · " + esc(j.city) + "</td><td>" + esc(j.type) + "</td><td>" + j.openings + "</td><td><a class='hr-link' href='/hr/employer/applicants?job=" + j.id + "'>" + j.appsCount + "</a></td><td>" + (j.qualifiedCount || 0) + "</td><td>" + esc(j.hiringManager || "—") + "</td><td>" + fmtDate(j.postedAt) + "</td><td>" + fmtDate(j.closesAt) + "</td><td>" + jobStatusTag(j.status) + "</td><td>" + menuHtml(j) + "</td></tr>";
+          }).join("") + "</tbody></table></div>";
+      } else {
+        wrap.innerHTML = '<div class="bd"><div class="hr-grid">' + slice.map(function (j) {
+          return '<div class="hr-jcard"><div style="display:flex;justify-content:space-between;gap:8px"><h3><a href="/hr/employer/job?id=' + j.id + '">' + esc(j.title) + "</a></h3>" + menuHtml(j) + "</div>" +
+            '<div class="meta"><span>🏢 ' + esc(j.dept) + "</span><span>📍 " + esc(j.city) + "</span><span>🕐 " + esc(j.type) + "</span></div>" +
+            '<div class="meta"><span>المتقدمون: <b>' + j.appsCount + "</b></span><span>الشواغر: " + j.openings + "</span></div>" +
+            '<div class="foot">' + jobStatusTag(j.status) + '<a class="hr-link" href="/hr/employer/applicants?job=' + j.id + '">المتقدمون ←</a></div></div>';
+        }).join("") + "</div></div>";
+      }
+      var pgn = $("jb-pgn");
+      pgn.hidden = totalPages < 2;
+      pgn.innerHTML = '<button id="pg-prev"' + (pageN <= 1 ? " disabled" : "") + '>السابق</button><span>صفحة ' + pageN + " من " + totalPages + '</span><button id="pg-next"' + (pageN >= totalPages ? " disabled" : "") + ">التالي</button>";
+      var pp = $("pg-prev"), pn = $("pg-next");
+      if (pp) pp.addEventListener("click", function () { pageN--; render(); });
+      if (pn) pn.addEventListener("click", function () { pageN++; render(); });
+      bindMenus(wrap);
+    }
+    function bindMenus(scope) {
+      scope.querySelectorAll("[data-menu]").forEach(function (b) {
+        b.addEventListener("click", function (e) {
+          e.stopPropagation();
+          var id = b.getAttribute("data-menu");
+          document.querySelectorAll(".hr-menu-pop").forEach(function (p) { p.hidden = p.getAttribute("data-pop") !== id ? true : !p.hidden; });
+        });
+      });
+      scope.querySelectorAll(".hr-menu-pop [data-act]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
+          var j = HRStore.job(id);
+          if (!j) return;
+          if (act === "copy") {
+            HRStore.addJob(Object.assign({}, j, { title: j.title + " (نسخة)", id: undefined }), false);
+            toast("نُسخت الوظيفة كمسودة جديدة.");
+            render();
+          } else if (act === "share") {
+            var link = location.origin + "/ar/careers";
+            (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { toast("نُسخ رابط التقديم إلى الحافظة."); }, function () { toast(link); });
+          } else if (act === "toggle") {
+            HRStore.editJob(id, { status: j.status === "منشورة" ? "متوقفة" : "منشورة" });
+            toast(j.status === "منشورة" ? "أُوقفت الوظيفة مؤقتاً." : "نُشرت الوظيفة.");
+            render();
+          } else if (act === "close") {
+            confirmModal("إغلاق الوظيفة", "سيتوقف استقبال المتقدمين على «" + j.title + "». متأكد؟", "إغلاق", true).then(function (ok) {
+              if (!ok) return;
+              HRStore.editJob(id, { status: "مغلقة" });
+              toast("أُغلقت الوظيفة.");
+              render();
+            });
+          }
+        });
+      });
+    }
+    document.addEventListener("click", function () { document.querySelectorAll(".hr-menu-pop").forEach(function (p) { p.hidden = true; }); });
+    HRStore.ready().then(function () {
+      var cities = {};
+      HRStore.jobs().forEach(function (j) { cities[j.city] = 1; });
+      $("jb-city").innerHTML = '<option value="">كل المدن</option>' + Object.keys(cities).map(function (c) { return "<option>" + esc(c) + "</option>"; }).join("");
+      ["jb-q", "jb-status", "jb-city", "jb-sort"].forEach(function (id) {
+        $(id).addEventListener(id === "jb-q" ? "input" : "change", function () { pageN = 1; render(); });
+      });
+      function setView(v) {
+        view = v;
+        writeLS("bp_hr_jobs_view", v);
+        $("jb-view-table").classList.toggle("active", v === "table");
+        $("jb-view-cards").classList.toggle("active", v === "cards");
+        render();
+      }
+      $("jb-view-table").addEventListener("click", function () { setView("table"); });
+      $("jb-view-cards").addEventListener("click", function () { setView("cards"); });
+      setView(view);
+    }).catch(function () { dataError("jb-wrap"); });
+  }
+
+  /* ================= job wizard ================= */
+  function pageJobNew() {
+    var editId = new URLSearchParams(location.search).get("id") || "";
+    var DRAFT_KEY = "bp_hr_job_draft" + (editId ? "_" + editId : "");
+    var STEPS = [
+      ["basic", "المعلومات الأساسية"], ["location", "الموقع ونوع الدوام"], ["desc", "الوصف والمسؤوليات"],
+      ["quals", "المؤهلات والخبرة"], ["skills", "المهارات واللغات"], ["legal", "الجنسية والإقامة"],
+      ["salary", "الراتب والمزايا"], ["questions", "أسئلة الفرز"], ["stages", "مراحل التوظيف"],
+      ["team", "فريق التوظيف"], ["preview", "المعاينة والنشر"],
+    ];
+    var step = 0;
+    var draft = readLS(DRAFT_KEY, {});
+    function saveDraft() { writeLS(DRAFT_KEY, draft); }
+    function field(id, label, type, opts) {
+      opts = opts || {};
+      var req = opts.req ? ' <span class="req">*</span>' : "";
+      var val = draft[id] != null ? draft[id] : (opts.def != null ? opts.def : "");
+      var inner;
+      if (type === "select") inner = '<select id="wf-' + id + '">' + (opts.options || []).map(function (o) { return "<option" + (String(val) === String(o) ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>";
+      else if (type === "textarea") inner = '<textarea id="wf-' + id + '" rows="' + (opts.rows || 4) + '" placeholder="' + esc(opts.ph || "") + '">' + esc(val) + "</textarea>";
+      else inner = '<input id="wf-' + id + '" type="' + type + '" value="' + esc(val) + '" placeholder="' + esc(opts.ph || "") + '"' + (opts.min != null ? ' min="' + opts.min + '"' : "") + ">";
+      return '<div class="hr-field" data-f="' + id + '"' + (opts.req ? ' data-req="1"' : "") + "><label for=\"wf-" + id + '">' + label + req + "</label>" + inner + (opts.hint ? '<span class="hr-hint">' + opts.hint + "</span>" : "") + '<span class="err">هذا الحقل مطلوب</span></div>';
+    }
+    var aiNote = '<p class="hr-ai-note">أزرار AI هنا <b>ميزة تجريبية</b> — تعبّئ نصاً مقترحاً جاهزاً للتحرير، والربط بمحرك الذكاء الحقيقي يأتي لاحقاً.</p>';
+    function stepHtml(key) {
+      switch (key) {
+        case "basic": return field("title", "المسمى الوظيفي (عربي)", "text", { req: 1, ph: "مثال: مهندس إنتاج" }) + field("titleEn", "المسمى الوظيفي (إنجليزي)", "text", { ph: "Production Engineer" }) + field("dept", "القسم", "text", { ph: "الهندسة" }) + field("category", "التصنيف المهني", "select", { options: ["", "هندسة", "إداري وسكرتارية", "مالية ومحاسبة", "موارد بشرية", "إنتاج وتصنيع", "تصميم", "لوجستيات ونقل", "أخرى"] }) + field("openings", "عدد الشواغر", "number", { req: 1, def: 1, min: 1 });
+        case "location": return field("country", "الدولة", "select", { options: ["السعودية", "الإمارات", "مصر", "أخرى"], def: "السعودية" }) + field("city", "المدينة", "text", { req: 1, ph: "الرياض" }) + field("branch", "الفرع", "text", { ph: "المصنع الرئيسي" }) + field("inKsa", "موقع المرشّح", "select", { options: ["داخل السعودية", "خارج السعودية", "الاثنان"], def: "داخل السعودية" }) + field("workMode", "نمط العمل", "select", { options: ["حضوري", "عن بعد", "هجين"], def: "حضوري" }) + field("type", "نوع الدوام", "select", { options: ["دوام كامل", "دوام جزئي", "مرن", "موسمي", "تدريب"], def: "دوام كامل" });
+        case "desc": return '<div class="hr-ai-row"><button type="button" class="hr-ai-btn" data-ai="write">✨ إنشاء وصف وظيفي</button><button type="button" class="hr-ai-btn" data-ai="improve">✨ تحسين الوصف</button><button type="button" class="hr-ai-btn" data-ai="english">✨ نسخة إنجليزية</button></div>' + aiNote + field("description", "الوصف والمسؤوليات", "textarea", { req: 1, rows: 8, ph: "المهام اليومية، نطاق المسؤولية، بيئة العمل…" });
+        case "quals": return field("experienceYears", "سنوات الخبرة المطلوبة", "select", { options: ["0-2", "3+", "5+", "8+", "10+"], def: "3+" }) + field("qualification", "المؤهل", "select", { options: ["ثانوية", "دبلوم", "بكالوريوس", "ماجستير", "غير محدد"], def: "بكالوريوس" }) + field("certs", "شهادات مهنية (اختياري)", "text", { ph: "SOCPA، PMP…" });
+        case "skills": return '<div class="hr-ai-row"><button type="button" class="hr-ai-btn" data-ai="skills">✨ اقتراح المهارات</button></div>' + aiNote + field("skills", "المهارات (افصل بينها بفاصلة)", "text", { req: 1, ph: "تخطيط إنتاج, AutoCAD, قيادة فرق" }) + field("languages", "اللغات", "text", { def: "العربية", ph: "العربية, الإنجليزية" });
+        case "legal": return '<p class="hr-hint" style="margin-bottom:12px">حدد اشتراطات الجنسية فقط إن كانت قانونية وضرورية (مثل قرارات التوطين).</p>' + field("nationalityReq", "الجنسية المطلوبة", "select", { options: ["الكل", "سعودي فقط (توطين)", "غير محدد"], def: "الكل" }) + field("residencyReq", "حالة الإقامة", "select", { options: ["غير مهم", "إقامة سارية", "قابلة للنقل"], def: "غير مهم" }) + field("sponsorship", "نقل الكفالة متاح؟", "select", { options: ["نعم", "لا", "حسب الحالة"], def: "حسب الحالة" }) + field("docs", "المستندات المطلوبة", "text", { ph: "السيرة الذاتية, شهادة المؤهل, الهوية/الإقامة", def: "السيرة الذاتية" });
+        case "salary": return '<div class="hr-ai-row"><button type="button" class="hr-ai-btn" data-ai="salary">✨ اقتراح نطاق الراتب</button></div>' + aiNote + field("salaryMin", "الراتب الأدنى (ريال)", "number", { min: 0 }) + field("salaryMax", "الراتب الأعلى (ريال)", "number", { min: 0 }) + field("salaryVisible", "إظهار الراتب للمتقدمين؟", "select", { options: ["لا", "نعم"], def: "لا" }) + field("benefits", "المزايا", "textarea", { rows: 3, ph: "تأمين طبي، بدل سكن ومواصلات…" });
+        case "questions": return '<div class="hr-ai-row"><button type="button" class="hr-ai-btn" data-ai="questions">✨ اقتراح أسئلة الفرز</button></div>' + aiNote + field("questions", "أسئلة الفرز (سؤال في كل سطر)", "textarea", { rows: 5, ph: "كم سنة خبرتك في …؟\nهل لديك رخصة قيادة سارية؟" }) + field("mustAnswer", "إلزامية الإجابة", "select", { options: ["إلزامية", "اختيارية"], def: "إلزامية" });
+        case "stages": return '<p class="hr-hint" style="margin-bottom:12px">المراحل الافتراضية للمسار — تخصيص المراحل لكل وظيفة يأتي في تحديث لاحق.</p><div style="display:flex;flex-wrap:wrap;gap:8px">' + ["متقدم جديد", "مراجعة أولية", "قائمة مختصرة", "مقابلة", "عرض وظيفي", "تم التوظيف"].map(function (s, i) { return '<span class="hr-tag t-teal">' + (i + 1) + ". " + s + "</span>"; }).join("") + "</div>";
+        case "team": return field("hiringManager", "مدير التوظيف", "text", { def: "باهر" }) + field("interviewers", "المحاورون", "text", { ph: "أسماء أعضاء لجنة المقابلات" }) + '<p class="hr-hint">إدارة الأدوار والصلاحيات الكاملة من صفحة «فريق العمل والصلاحيات».</p>';
+        case "preview": {
+          var d2 = draft;
+          return '<h3 style="color:var(--hr-navy);margin-bottom:10px">' + esc(d2.title || "بدون مسمى") + '</h3><div class="hr-kv">' +
+            [["القسم", d2.dept], ["المدينة", d2.city], ["الدوام", d2.type], ["نمط العمل", d2.workMode], ["الشواغر", d2.openings], ["الخبرة", d2.experienceYears], ["المؤهل", d2.qualification], ["المهارات", d2.skills], ["الراتب", (d2.salaryMin || "؟") + " – " + (d2.salaryMax || "؟") + " ريال" + (d2.salaryVisible === "نعم" ? " (ظاهر)" : " (مخفي)")]].map(function (kv) { return '<span class="kv"><b>' + kv[0] + "</b>" + esc(kv[1] || "—") + "</span>"; }).join("") +
+            '</div><div style="margin-top:14px;padding:12px;background:var(--hr-bg);border-radius:10px;font-size:.87rem;white-space:pre-wrap">' + esc(d2.description || "لا وصف بعد") + "</div>" +
+            '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap"><button class="hr-btn hr-btn-primary" type="button" id="wiz-publish">📢 ' + (editId ? "حفظ التعديلات" : "نشر الوظيفة الآن") + '</button><button class="hr-btn hr-btn-ghost" type="button" id="wiz-draft2">حفظ كمسودة</button></div>';
+        }
+      }
+      return "";
+    }
+    var AI_FILL = {
+      write: ["description", function (d) { return "نبحث عن " + (d.title || "موظف") + " للانضمام إلى فريق " + (d.dept || "الشركة") + " في " + (d.city || "الرياض") + ".\n\nالمهام:\n• تنفيذ المهام اليومية للدور وفق أعلى معايير الجودة.\n• التنسيق مع الفرق الداخلية وإعداد التقارير الدورية.\n• الالتزام بإجراءات السلامة وسياسات الشركة.\n\nالمتطلبات:\n• خبرة " + (d.experienceYears || "3+") + " سنوات في مجال مشابه.\n• مهارات تواصل وتنظيم عالية."; }],
+      improve: ["description", function (d) { return (d.description || "") + "\n\nلماذا تنضم إلينا؟\n• بيئة عمل سعودية سريعة النمو ومشاريع فعاليات وطنية كبرى.\n• مسار تطوير مهني واضح وتدريب مستمر."; }],
+      english: ["description", function (d) { return (d.description || "") + "\n\n— English —\nWe are hiring a " + (d.titleEn || d.title || "professional") + " to join our " + (d.dept || "team") + " in " + (d.city || "Riyadh") + ". You will own day-to-day execution, coordinate with internal teams, and uphold our quality and safety standards."; }],
+      skills: ["skills", function (d) { return d.title && d.title.indexOf("مهندس") > -1 ? "قراءة مخططات, AutoCAD, تخطيط إنتاج, تقارير Excel, قيادة فرق" : "إدارة وقت, تواصل فعال, Excel, العمل تحت الضغط, روح الفريق"; }],
+      questions: ["questions", function (d) { return "كم سنة خبرتك العملية في " + (d.title || "هذا المجال") + "؟\nما آخر مشروع عملت عليه وما دورك فيه؟\nما مدة الإشعار المطلوبة في عملك الحالي؟\nما الراتب المتوقع؟"; }],
+      salary: ["salaryMin", function () { return ""; }],
+    };
+    function collect() {
+      STEPS.forEach(function () {});
+      document.querySelectorAll("#wiz-form [id^='wf-']").forEach(function (el) {
+        draft[el.id.slice(3)] = el.value;
+      });
+      saveDraft();
+    }
+    function validateStep() {
+      var ok = true;
+      document.querySelectorAll("#wiz-form .hr-field[data-req]").forEach(function (f) {
+        var input = f.querySelector("input,select,textarea");
+        var bad = !input || !String(input.value).trim();
+        f.classList.toggle("invalid", bad);
+        if (bad) ok = false;
+      });
+      return ok;
+    }
+    function renderSteps() {
+      $("wiz-steps").innerHTML = STEPS.map(function (s, i) {
+        return '<button type="button" data-step="' + i + '" class="' + (i === step ? "active" : i < step ? "done" : "") + '"><span class="n">' + (i < step ? "✓" : i + 1) + "</span><span>" + s[1] + "</span></button>";
+      }).join("");
+      $("wiz-steps").querySelectorAll("button").forEach(function (b) {
+        b.addEventListener("click", function () {
+          collect();
+          step = Number(b.getAttribute("data-step"));
+          render();
+        });
+      });
+    }
+    function render() {
+      renderSteps();
+      $("wiz-form").innerHTML = stepHtml(STEPS[step][0]);
+      $("wiz-prev").disabled = step === 0;
+      $("wiz-next").hidden = step === STEPS.length - 1;
+      document.querySelectorAll("[data-ai]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          collect();
+          var k = b.getAttribute("data-ai");
+          if (k === "salary") {
+            draft.salaryMin = draft.salaryMin || 6000;
+            draft.salaryMax = draft.salaryMax || 9000;
+            toast("نطاق تجريبي مقترح: 6,000–9,000 ريال — عدّله بما يناسبك.");
+            render();
+            return;
+          }
+          var def = AI_FILL[k];
+          if (!def) return;
+          draft[def[0]] = def[1](draft);
+          toast("تمت التعبئة (نص تجريبي) — راجعه وعدّله.");
+          render();
+        });
+      });
+      var pub = $("wiz-publish"), dr2 = $("wiz-draft2");
+      if (pub) pub.addEventListener("click", function () { finish(true); });
+      if (dr2) dr2.addEventListener("click", function () { finish(false); });
+    }
+    function finish(publish) {
+      collect();
+      if (publish && (!draft.title || !draft.city || !draft.description)) {
+        toast("أكمل الحقول الإلزامية أولاً: المسمى، المدينة، الوصف.");
+        return;
+      }
+      var jobData = {
+        title: draft.title, titleEn: draft.titleEn, dept: draft.dept || "عام", city: draft.city || "الرياض",
+        country: draft.country || "السعودية", branch: draft.branch || "", type: draft.type || "دوام كامل",
+        workMode: draft.workMode || "حضوري", openings: Number(draft.openings) || 1,
+        salaryMin: Number(draft.salaryMin) || null, salaryMax: Number(draft.salaryMax) || null,
+        salaryVisible: draft.salaryVisible === "نعم", experienceYears: draft.experienceYears || "",
+        description: draft.description || "", closesAt: "", hiringManager: draft.hiringManager || "",
+      };
+      if (editId) {
+        HRStore.editJob(editId, jobData);
+        if (publish) HRStore.editJob(editId, { status: "منشورة" });
+        toast("حُفظت التعديلات.");
+      } else {
+        HRStore.addJob(jobData, publish);
+        toast(publish ? "نُشرت الوظيفة 🎉" : "حُفظت المسودة.");
+      }
+      writeLS(DRAFT_KEY, {});
+      setTimeout(function () { location.href = "/hr/employer/jobs"; }, 700);
+    }
+    HRStore.ready().then(function () {
+      if (editId) {
+        var j = HRStore.job(editId);
+        if (j && !Object.keys(draft).length) {
+          draft = {
+            title: j.title, titleEn: j.titleEn, dept: j.dept, city: j.city, country: j.country, branch: j.branch,
+            type: j.type, workMode: j.workMode, openings: j.openings, salaryMin: j.salaryMin, salaryMax: j.salaryMax,
+            salaryVisible: j.salaryVisible ? "نعم" : "لا", experienceYears: j.experienceYears, description: j.description,
+            hiringManager: j.hiringManager,
+          };
+        }
+        $("wiz-title").textContent = "تعديل وظيفة: " + (draft.title || "");
+      }
+      $("wiz-prev").addEventListener("click", function () { collect(); if (step > 0) { step--; render(); } });
+      $("wiz-next").addEventListener("click", function () {
+        collect();
+        if (!validateStep()) return;
+        if (step < STEPS.length - 1) { step++; render(); }
+      });
+      $("wiz-save").addEventListener("click", function () { collect(); toast("حُفظت المسودة على هذا الجهاز."); });
+      render();
+    }).catch(function () { dataError("hr-content"); });
+  }
+
+  /* ================= job view ================= */
+  function pageJobView() {
+    var id = new URLSearchParams(location.search).get("id") || "";
+    HRStore.ready().then(function () {
+      var j = HRStore.job(id);
+      var root = $("jv-root");
+      if (!j) { root.innerHTML = '<div class="hr-empty"><b>الوظيفة غير موجودة</b><p><a class="hr-link" href="/hr/employer/jobs">رجوع للوظائف</a></p></div>'; return; }
+      var apps = HRStore.applications().filter(function (a) { return a.jobId === j.id; });
+      root.innerHTML =
+        '<div class="hr-page-head"><div><h1>' + esc(j.title) + "</h1><p>" + esc(j.dept) + " · " + esc(j.city) + " · " + esc(j.type) + "</p></div>" +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="hr-btn hr-btn-ghost" href="/hr/employer/jobs/new?id=' + j.id + '">تعديل</a><a class="hr-btn hr-btn-primary" href="/hr/employer/applicants?job=' + j.id + '">المتقدمون (' + apps.length + ")</a></div></div>" +
+        '<section class="hr-card"><div class="bd"><div class="hr-kv">' +
+        [["الحالة", null, jobStatusTag(j.status)], ["الشواغر", j.openings], ["نمط العمل", j.workMode], ["الخبرة", j.experienceYears], ["تاريخ النشر", fmtDate(j.postedAt)], ["ينتهي", fmtDate(j.closesAt)], ["مدير التوظيف", j.hiringManager]].map(function (kv) { return '<span class="kv"><b>' + kv[0] + "</b>" + (kv[2] || esc(kv[1] == null ? "—" : kv[1])) + "</span>"; }).join("") +
+        '</div><div style="margin-top:14px;padding:14px;background:var(--hr-bg);border-radius:12px;font-size:.9rem;white-space:pre-wrap">' + esc(j.description || "") + "</div></div></section>" +
+        '<section class="hr-card"><div class="hd"><h2>أحدث المتقدمين</h2><a href="/hr/employer/applicants?job=' + j.id + '">الكل</a></div><div class="bd">' +
+        (apps.length ? apps.slice(0, 5).map(function (a) {
+          return '<div class="hr-cand"><span class="hr-avatar">' + esc(initials(a.candidate.name)) + '</span><div class="c-body"><b>' + esc(a.candidate.name) + '</b> <span class="hr-match">' + a.candidate.match + '%</span><div class="c-sub">' + esc(a.candidate.title) + " · " + fmtDate(a.appliedAt) + "</div></div>" + stageTag(a.stage) + ' <a class="hr-btn hr-btn-sm hr-btn-ghost" href="/hr/employer/applicant?id=' + a.id + '">الملف</a></div>';
+        }).join("") : '<div class="hr-empty"><b>لا متقدمون بعد</b></div>') +
+        "</div></section>";
+    }).catch(function () { dataError("jv-root"); });
+  }
+
+  /* ================= applicants (kanban/table) ================= */
+  function pageApplicants() {
+    var params = new URLSearchParams(location.search);
+    var view = readLS("bp_hr_ap_view", "kanban");
+    var selected = {};
+    var state = { job: params.get("job") || "", q: params.get("q") || "", nat: "", src: "", match: "" };
+    function filtered() {
+      var rows = HRStore.applications();
+      if (state.job) rows = rows.filter(function (a) { return a.jobId === state.job; });
+      if (state.q) rows = rows.filter(function (a) { return (a.candidate.name + " " + a.candidate.title + " " + a.candidate.skills.join(" ")).indexOf(state.q) > -1; });
+      if (state.nat === "سعودي") rows = rows.filter(function (a) { return a.candidate.nationality.indexOf("سعودي") === 0; });
+      if (state.nat === "غير") rows = rows.filter(function (a) { return a.candidate.nationality.indexOf("سعودي") !== 0; });
+      if (state.src) rows = rows.filter(function (a) { return a.source === state.src || a.candidate.source === state.src; });
+      if (state.match) rows = rows.filter(function (a) { return a.candidate.match >= Number(state.match); });
+      return rows;
+    }
+    function updateBulk() {
+      var n = Object.keys(selected).filter(function (k) { return selected[k]; }).length;
+      $("ap-bulk").hidden = !n;
+      $("ap-bulk-n").textContent = "محدد: " + n;
+    }
+    function cardHtml(a) {
+      var c = a.candidate;
+      return '<div class="hr-ccard' + (a.unread ? " unread" : "") + '" draggable="true" data-app="' + a.id + '" role="article" aria-label="' + esc(c.name) + '">' +
+        '<label class="cc-check"><input type="checkbox" data-sel="' + a.id + '"' + (selected[a.id] ? " checked" : "") + "></label>" +
+        '<div class="cc-top"><span class="hr-avatar" style="width:34px;height:34px;font-size:.75rem">' + esc(initials(c.name)) + '</span><div><div class="cc-name">' + esc(c.name) + (a.duplicate ? ' <span class="hr-tag t-orange">مكرر</span>' : "") + (a.aiRecommended ? ' <span class="hr-tag t-ai">AI</span>' : "") + '</div><div class="cc-sub">' + esc(c.title) + " · " + c.years + " سنة</div></div></div>" +
+        '<div class="cc-tags">' + candTags(c) + "</div>" +
+        '<div class="cc-foot"><span>' + esc(c.city) + " · " + esc(a.source || c.source) + '</span><span class="hr-match">' + c.match + "%</span></div>" +
+        '<div class="cc-foot"><span>' + fmtDate(a.appliedAt) + '</span><a class="hr-link" href="/hr/employer/applicant?id=' + a.id + '">الملف ←</a></div></div>';
+    }
+    function renderKanban(rows) {
+      var d = HRStore.data();
+      var cols = d.stages.concat(d.sideStages);
+      $("ap-root").innerHTML = '<div class="hr-kanban">' + cols.map(function (s, idx) {
+        var inCol = rows.filter(function (a) { return a.stage === s.key; });
+        return '<div class="hr-col" data-col="' + s.key + '"' + (idx === d.stages.length ? ' style="border-inline-start:2px dashed var(--hr-line);margin-inline-start:6px"' : "") + '><div class="col-hd"><span class="col-dot" style="background:var(--hr-' + (s.color === "gray" ? "mute" : s.color) + ')"></span>' + esc(s.label) + '<span class="col-n">' + inCol.length + "</span></div>" +
+          inCol.map(cardHtml).join("") + "</div>";
+      }).join("") + "</div>";
+      bindCards();
+      bindDnd();
+    }
+    function renderTable(rows) {
+      $("ap-root").innerHTML = '<section class="hr-card"><div class="hr-tbl-wrap"><table class="hr-tbl"><thead><tr><th></th><th>المرشّح</th><th>الوظيفة</th><th>المرحلة</th><th>المطابقة</th><th>المصدر</th><th>تاريخ التقديم</th><th></th></tr></thead><tbody>' +
+        (rows.length ? rows.map(function (a) {
+          var c = a.candidate;
+          var opts = HRStore.data().stages.concat(HRStore.data().sideStages).map(function (s) { return '<option value="' + s.key + '"' + (a.stage === s.key ? " selected" : "") + ">" + s.label + "</option>"; }).join("");
+          return '<tr><td><input type="checkbox" data-sel="' + a.id + '"' + (selected[a.id] ? " checked" : "") + '></td><td><a class="t-title" href="/hr/employer/applicant?id=' + a.id + '">' + esc(c.name) + '</a><div class="t-sub">' + esc(c.title) + " · " + esc(c.city) + "</div></td><td>" + esc(a.job.title) + '</td><td><select data-stage-sel="' + a.id + '" style="border:1px solid var(--hr-line);border-radius:8px;padding:4px 8px;font-size:.8rem">' + opts + '</select></td><td><span class="hr-match">' + c.match + "%</span></td><td>" + esc(a.source || c.source) + "</td><td>" + fmtDate(a.appliedAt) + '</td><td><a class="hr-btn hr-btn-sm hr-btn-ghost" href="/hr/employer/applicant?id=' + a.id + '">الملف</a></td></tr>';
+        }).join("") : '<tr><td colspan="8"><div class="hr-empty"><b>لا نتائج مطابقة</b><p>عدّل الفلاتر.</p></div></td></tr>') +
+        "</tbody></table></div></section>";
+      bindCards();
+      $("ap-root").querySelectorAll("[data-stage-sel]").forEach(function (sel) {
+        sel.addEventListener("change", function () { requestMove(sel.getAttribute("data-stage-sel"), sel.value); });
+      });
+    }
+    function render() {
+      var rows = filtered();
+      if (view === "kanban") renderKanban(rows); else renderTable(rows);
+      $("ap-view-kanban").classList.toggle("active", view === "kanban");
+      $("ap-view-table").classList.toggle("active", view === "table");
+      updateBulk();
+    }
+    function bindCards() {
+      $("ap-root").querySelectorAll("[data-sel]").forEach(function (cb) {
+        cb.addEventListener("change", function () { selected[cb.getAttribute("data-sel")] = cb.checked; updateBulk(); });
+        cb.addEventListener("click", function (e) { e.stopPropagation(); });
+      });
+    }
+    var SENSITIVE = { rejected: "استبعاد المرشّح", hired: "تأكيد التوظيف" };
+    function requestMove(appId, stage) {
+      var a = HRStore.application(appId);
+      if (!a || a.stage === stage) return;
+      var doMove = function () {
+        var prev = HRStore.moveStage(appId, stage);
+        render();
+        toast("نُقل " + a.candidate.name + " إلى «" + HRStore.stageOf(stage).label + "»", "تراجع", function () {
+          HRStore.setStageSilent(appId, prev);
+          render();
+        });
+      };
+      if (SENSITIVE[stage]) {
+        confirmModal(SENSITIVE[stage], "سيُنقل " + a.candidate.name + " إلى «" + HRStore.stageOf(stage).label + "». متأكد؟", "تأكيد", stage === "rejected").then(function (ok) { if (ok) doMove(); else render(); });
+      } else doMove();
+    }
+    function bindDnd() {
+      var root = $("ap-root");
+      root.querySelectorAll(".hr-ccard").forEach(function (card) {
+        card.addEventListener("dragstart", function (e) {
+          card.classList.add("dragging");
+          e.dataTransfer.setData("text/plain", card.getAttribute("data-app"));
+          e.dataTransfer.effectAllowed = "move";
+        });
+        card.addEventListener("dragend", function () { card.classList.remove("dragging"); });
+      });
+      root.querySelectorAll(".hr-col").forEach(function (col) {
+        col.addEventListener("dragover", function (e) { e.preventDefault(); col.classList.add("drag-over"); });
+        col.addEventListener("dragleave", function () { col.classList.remove("drag-over"); });
+        col.addEventListener("drop", function (e) {
+          e.preventDefault();
+          col.classList.remove("drag-over");
+          var appId = e.dataTransfer.getData("text/plain");
+          if (appId) requestMove(appId, col.getAttribute("data-col"));
+        });
+      });
+    }
+    HRStore.ready().then(function () {
+      var jobSel = $("ap-job");
+      jobSel.innerHTML = '<option value="">كل الوظائف</option>' + HRStore.jobs().map(function (j) { return '<option value="' + j.id + '"' + (state.job === j.id ? " selected" : "") + ">" + esc(j.title) + "</option>"; }).join("");
+      var srcs = {};
+      HRStore.applications().forEach(function (a) { srcs[a.source || a.candidate.source] = 1; });
+      $("ap-src").innerHTML = '<option value="">كل المصادر</option>' + Object.keys(srcs).map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("");
+      if (state.q) $("ap-q").value = state.q;
+      jobSel.addEventListener("change", function () { state.job = jobSel.value; render(); });
+      $("ap-q").addEventListener("input", function () { state.q = $("ap-q").value.trim(); render(); });
+      $("ap-nat").addEventListener("change", function () { state.nat = $("ap-nat").value; render(); });
+      $("ap-src").addEventListener("change", function () { state.src = $("ap-src").value; render(); });
+      $("ap-match").addEventListener("change", function () { state.match = $("ap-match").value; render(); });
+      $("ap-view-kanban").addEventListener("click", function () { view = "kanban"; writeLS("bp_hr_ap_view", view); render(); });
+      $("ap-view-table").addEventListener("click", function () { view = "table"; writeLS("bp_hr_ap_view", view); render(); });
+      function bulkMove(stage) {
+        var ids = Object.keys(selected).filter(function (k) { return selected[k]; });
+        if (!ids.length) return;
+        var apply = function () {
+          ids.forEach(function (id) { HRStore.setStageSilent(id, stage); });
+          HRStore.logActivity("stage", "نُقل " + ids.length + " مرشّحين إلى «" + HRStore.stageOf(stage).label + "» (إجراء جماعي)");
+          selected = {};
+          render();
+          toast("نُقل " + ids.length + " مرشّحين.");
+        };
+        if (SENSITIVE[stage]) confirmModal(SENSITIVE[stage], "سيُطبق على " + ids.length + " مرشّحين. متأكد؟", "تأكيد", stage === "rejected").then(function (ok) { if (ok) apply(); });
+        else apply();
+      }
+      $("ap-bulk-shortlist").addEventListener("click", function () { bulkMove("shortlist"); });
+      $("ap-bulk-reject").addEventListener("click", function () { bulkMove("rejected"); });
+      render();
+    }).catch(function () { dataError("ap-root"); });
+  }
+
+  /* ================= applicant profile ================= */
+  function pageApplicant() {
+    var id = new URLSearchParams(location.search).get("id") || "";
+    HRStore.ready().then(function () {
+      var a = HRStore.application(id);
+      var root = $("cp-root");
+      if (!a) { root.innerHTML = '<div class="hr-empty"><b>الملف غير موجود</b><p><a class="hr-link" href="/hr/employer/applicants">رجوع للمتقدمين</a></p></div>'; return; }
+      HRStore.markRead(id);
+      var c = a.candidate;
+      var d = HRStore.data();
+      var stageOpts = d.stages.concat(d.sideStages).map(function (s) { return '<option value="' + s.key + '"' + (a.stage === s.key ? " selected" : "") + ">" + s.label + "</option>"; }).join("");
+      var TABS = [["overview", "نظرة عامة"], ["exp", "الخبرات"], ["edu", "التعليم"], ["skills", "المهارات"], ["answers", "إجابات التقديم"], ["evals", "التقييمات"], ["docs", "المستندات"], ["log", "سجل النشاط"]];
+      root.innerHTML =
+        '<a class="hr-link" href="/hr/employer/applicants">← رجوع للمتقدمين</a>' +
+        '<section class="hr-card" style="margin-top:10px"><div class="bd"><div class="hr-prof-head">' +
+        '<span class="hr-avatar">' + esc(initials(c.name)) + "</span>" +
+        '<div style="flex:1;min-width:200px"><h1 style="font-size:1.2rem;color:var(--hr-navy)">' + esc(c.name) + ' <span class="hr-match">' + c.match + '% مطابقة</span></h1>' +
+        '<p style="color:var(--hr-soft);font-size:.88rem">' + esc(c.title) + " · " + esc(c.city) + "، " + esc(c.country) + " · متقدم على: <b>" + esc(a.job.title) + "</b></p>" +
+        '<p style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">' + stageTag(a.stage) + (a.aiRecommended ? '<span class="hr-tag t-ai">توصية AI</span>' : "") + '<span class="hr-tag">' + esc(a.source || c.source) + "</span></p></div>" +
+        '<div style="display:flex;flex-direction:column;gap:8px" id="contact">' +
+        '<select id="cp-stage" class="hr-btn hr-btn-ghost" style="font-size:.85rem" aria-label="تغيير المرحلة">' + stageOpts + "</select>" +
+        '<a class="hr-btn hr-btn-primary hr-btn-sm" href="mailto:' + esc(c.email) + '">✉️ تواصل بالبريد</a>' +
+        '<button class="hr-btn hr-btn-soft hr-btn-sm" id="cp-interview">📅 تحديد مقابلة</button>' +
+        "</div></div></div></section>" +
+        '<div class="hr-tabs" id="cp-tabs">' + TABS.map(function (t, i) { return '<button data-tab="' + t[0] + '"' + (i === 0 ? ' class="active"' : "") + ">" + t[1] + "</button>"; }).join("") + "</div>" +
+        '<div id="cp-tab-body"></div>';
+
+      var evalCur = HRStore.ratingFor(id) || {};
+      function tabBody(key) {
+        switch (key) {
+          case "overview":
+            return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">' +
+              '<section class="hr-card"><div class="hd"><h2>البيانات الأساسية</h2></div><div class="bd"><div class="hr-kv">' +
+              [["الجنسية", c.nationality], ["الإقامة", c.residency], ["تصريح العمل", c.workPermit], ["الخبرة", c.years + " سنة"], ["الراتب المتوقع", (c.expectedSalary || "—") + " ريال"], ["مدة الإشعار", (c.noticeDays || "—") + " يوم"], ["الجوال", c.phone], ["البريد", c.email], ["اللغات", (c.languages || []).join("، ")]].map(function (kv) { return '<span class="kv"><b>' + kv[0] + "</b>" + esc(kv[1] == null ? "—" : kv[1]) + "</span>"; }).join("") +
+              "</div></div></section>" +
+              '<section class="hr-ai-box"><h3>✨ ملخص AI <span class="hr-tag t-orange">تجريبي</span></h3>' +
+              '<p style="font-size:.88rem;margin-bottom:10px">' + esc(c.summary || "") + "</p>" +
+              '<div style="font-size:.83rem;display:flex;flex-direction:column;gap:6px">' +
+              "<div><b>أسباب المطابقة:</b> تطابق المسمى والخبرة (" + c.years + " سنة) مع متطلبات «" + esc(a.job.title) + "»، ومهارات: " + esc((c.skills || []).slice(0, 3).join("، ")) + ".</div>" +
+              "<div><b>نقاط تحتاج تحقق:</b> " + (c.noticeDays > 30 ? "مدة إشعار طويلة (" + c.noticeDays + " يوماً). " : "") + (c.expectedSalary && a.job.salaryMax && c.expectedSalary > a.job.salaryMax ? "الراتب المتوقع أعلى من نطاق الوظيفة." : "لا شيء جوهري.") + "</div>" +
+              "<div><b>أسئلة مقترحة للمقابلة:</b> اطلب مثالاً عملياً عن أكبر تحدٍ في " + esc(c.skills[0] || "مجاله") + "، وتحقق من جاهزية الانتقال والالتزام بتاريخ مباشرة.</div>" +
+              '<div class="hr-ai-note">الذكاء الاصطناعي لا يصدر قرار رفض نهائي — القرار دائماً للفريق.</div></div></section></div>';
+          case "exp":
+            return '<section class="hr-card"><div class="bd"><div class="hr-cand"><span style="font-size:1.1rem">💼</span><div class="c-body"><b>' + esc(c.title) + '</b><div class="c-sub">آخر دور — خبرة إجمالية ' + c.years + " سنة</div><p style='font-size:.86rem;margin-top:6px'>" + esc(c.summary || "") + "</p></div></div><p class='hr-hint'>تفاصيل الخبرات الكاملة تُقرأ من السيرة الذاتية عند ربط محرك قراءة السير (CandidateExperience).</p></div></section>";
+          case "edu":
+            return '<section class="hr-card"><div class="bd"><div class="hr-cand"><span style="font-size:1.1rem">🎓</span><div class="c-body"><b>' + esc(c.education || "—") + "</b></div></div></div></section>";
+          case "skills":
+            return '<section class="hr-card"><div class="bd"><div style="display:flex;flex-wrap:wrap;gap:8px">' + (c.skills || []).map(function (s) { return '<span class="hr-tag t-teal">' + esc(s) + "</span>"; }).join("") + '</div><p class="hr-hint" style="margin-top:10px">اللغات: ' + esc((c.languages || []).join("، ")) + "</p></div></section>";
+          case "answers":
+            return '<section class="hr-card"><div class="bd"><div class="hr-empty"><b>لا أسئلة فرز لهذه الوظيفة</b><p>أضف أسئلة من نموذج نشر الوظيفة لتظهر إجابات المتقدمين هنا.</p></div></div></section>';
+          case "evals": {
+            var stars = "";
+            for (var i = 1; i <= 5; i++) stars += '<button type="button" data-star="' + i + '" class="' + (evalCur.rating >= i ? "on" : "") + '">★</button>';
+            var notes = HRStore.notesFor(id);
+            return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">' +
+              '<section class="hr-card"><div class="hd"><h2>تقييمك</h2></div><div class="bd">' +
+              '<div class="hr-field"><label>التقييم العام</label><span class="hr-stars" id="cp-stars">' + stars + "</span></div>" +
+              '<div class="hr-field"><label>نقاط القوة</label><textarea id="cp-strengths" rows="2">' + esc(evalCur.strengths || "") + "</textarea></div>" +
+              '<div class="hr-field"><label>نقاط التحفظ</label><textarea id="cp-concerns" rows="2">' + esc(evalCur.concerns || "") + "</textarea></div>" +
+              '<div class="hr-field"><label>التوصية</label><select id="cp-rec"><option' + (evalCur.rec === "توظيف" ? " selected" : "") + ">توظيف</option><option" + (evalCur.rec === "مقابلة إضافية" ? " selected" : "") + ">مقابلة إضافية</option><option" + (evalCur.rec === "غير مناسب" ? " selected" : "") + ">غير مناسب</option></select></div>" +
+              '<button class="hr-btn hr-btn-primary hr-btn-sm" id="cp-save-eval">حفظ التقييم</button>' +
+              (evalCur.at ? '<p class="hr-hint" style="margin-top:8px">آخر تعديل: ' + esc(evalCur.by) + " — " + fmtDate(evalCur.at) + "</p>" : "") +
+              "</div></section>" +
+              '<section class="hr-card"><div class="hd"><h2>الملاحظات</h2></div><div class="bd">' +
+              '<div class="hr-field"><textarea id="cp-note" rows="2" placeholder="أضف ملاحظة للفريق…"></textarea></div>' +
+              '<label style="font-size:.8rem;display:flex;gap:6px;align-items:center;margin-bottom:10px"><input type="checkbox" id="cp-note-shared" checked> مشتركة مع الفريق</label>' +
+              '<button class="hr-btn hr-btn-ghost hr-btn-sm" id="cp-add-note">إضافة</button>' +
+              '<div id="cp-notes" style="margin-top:12px">' + notes.map(function (n) { return '<div class="hr-cand"><div class="c-body"><div style="font-size:.86rem">' + esc(n.body) + '</div><div class="c-sub">' + esc(n.by) + " · " + fmtDate(n.at) + (n.shared ? " · مشتركة" : " · خاصة") + "</div></div></div>"; }).join("") + "</div>" +
+              "</div></section></div>";
+          }
+          case "docs":
+            return '<section class="hr-card"><div class="bd"><div class="hr-cand"><span style="font-size:1.1rem">📄</span><div class="c-body"><b>السيرة الذاتية الأصلية</b><div class="c-sub">تُعرض من التخزين عند ربط قاعدة السير الحقيقية (CandidateResume)</div></div><button class="hr-btn hr-btn-sm hr-btn-ghost" disabled>تنزيل</button></div></div></section>';
+          case "log": {
+            var acts = HRStore.activities().filter(function (ac) { return ac.text.indexOf(c.name) > -1; });
+            return '<section class="hr-card"><div class="bd">' + (acts.length ? acts.map(function (ac) { return '<div class="hr-cand"><div class="c-body"><div style="font-size:.86rem">' + esc(ac.text) + '</div><div class="c-sub">' + fmtDate(ac.at) + "</div></div></div>"; }).join("") : '<div class="hr-empty"><b>لا نشاط مسجل بعد</b></div>') + "</div></section>";
+          }
+        }
+        return "";
+      }
+      function renderTab(key) {
+        $("cp-tab-body").innerHTML = tabBody(key);
+        if (key === "evals") {
+          $("cp-stars").querySelectorAll("[data-star]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              evalCur.rating = Number(b.getAttribute("data-star"));
+              renderTab("evals");
+            });
+          });
+          $("cp-save-eval").addEventListener("click", function () {
+            HRStore.setRating(id, { rating: evalCur.rating || 0, strengths: $("cp-strengths").value, concerns: $("cp-concerns").value, rec: $("cp-rec").value });
+            evalCur = HRStore.ratingFor(id);
+            toast("حُفظ التقييم.");
+            renderTab("evals");
+          });
+          $("cp-add-note").addEventListener("click", function () {
+            var v = $("cp-note").value.trim();
+            if (!v) return;
+            HRStore.addNote(id, v, $("cp-note-shared").checked);
+            renderTab("evals");
+          });
+        }
+      }
+      $("cp-tabs").querySelectorAll("button").forEach(function (b) {
+        b.addEventListener("click", function () {
+          $("cp-tabs").querySelectorAll("button").forEach(function (x) { x.classList.remove("active"); });
+          b.classList.add("active");
+          renderTab(b.getAttribute("data-tab"));
+        });
+      });
+      renderTab("overview");
+      $("cp-stage").addEventListener("change", function () {
+        var v = $("cp-stage").value;
+        var apply = function () {
+          HRStore.moveStage(id, v);
+          toast("نُقل إلى «" + HRStore.stageOf(v).label + "»");
+        };
+        if (v === "rejected" || v === "hired") {
+          confirmModal(v === "rejected" ? "استبعاد المرشّح" : "تأكيد التوظيف", "متأكد من نقل " + c.name + "؟", "تأكيد", v === "rejected").then(function (ok) {
+            if (ok) apply(); else $("cp-stage").value = a.stage;
+          });
+        } else apply();
+      });
+      $("cp-interview").addEventListener("click", function () {
+        toast("جدولة المقابلات تُبنى في وحدة «المقابلات» — قادمة في المرحلة التالية.");
+      });
+    }).catch(function () { dataError("cp-root"); });
+  }
+
+  /* ================= matching (Matchmaking Engine v1-mock) ================= */
+  // Deterministic weighted scoring — NOT an opaque LLM percentage. Each
+  // component returns {score, status: MATCH/PARTIAL_MATCH/NO_MATCH/UNKNOWN,
+  // note}; UNKNOWN never disqualifies (it's surfaced and asked for instead).
+  var SCORING_VERSION = "v1-mock";
+  var WEIGHT_DEFS = [
+    ["skills", "المهارات الأساسية", 25], ["experience", "الخبرة ذات الصلة", 20], ["title", "المسمى والمسار", 10],
+    ["education", "المؤهل والشهادات", 10], ["location", "الموقع والانتقال", 10], ["eligibility", "الإقامة وتصريح العمل", 10],
+    ["salary", "الراتب المتوقع", 5], ["language", "اللغة", 5], ["availability", "التوفر ومدة الإشعار", 5],
+  ];
+  function matchComponents(job, c) {
+    var comps = {};
+    function comp(key, score, status, note) { comps[key] = { score: Math.max(0, Math.min(100, Math.round(score))), status: status, note: note }; }
+    var jSkills = job.skills || [], cSkills = c.skills || [];
+    if (!jSkills.length) comp("skills", 55, "UNKNOWN", "الوظيفة بلا مهارات محددة");
+    else {
+      var hit = jSkills.filter(function (s) { return cSkills.some(function (cs) { return cs.indexOf(s) > -1 || s.indexOf(cs) > -1; }); });
+      comp("skills", (hit.length / jSkills.length) * 100, hit.length === jSkills.length ? "MATCH" : hit.length ? "PARTIAL_MATCH" : "NO_MATCH", "تطابق " + hit.length + " من " + jSkills.length + (hit.length ? ": " + hit.join("، ") : ""));
+      comps.skills.hit = hit;
+      comps.skills.miss = jSkills.filter(function (s) { return hit.indexOf(s) < 0; });
+    }
+    var req = parseInt(job.experienceYears, 10) || 0;
+    if (!c.years && c.years !== 0) comp("experience", 55, "UNKNOWN", "سنوات الخبرة غير معروفة");
+    else if (c.years >= req) comp("experience", 100 - Math.min(15, Math.max(0, c.years - req - 6) * 3), "MATCH", c.years + " سنة (المطلوب " + (job.experienceYears || "غير محدد") + ")");
+    else comp("experience", Math.max(30, 100 - (req - c.years) * 22), c.years >= req - 2 ? "PARTIAL_MATCH" : "NO_MATCH", c.years + " سنة والمطلوب " + job.experienceYears);
+    var jt = (job.title || "").split(/\s+/), ct = (c.title || "").split(/\s+/);
+    var tHit = jt.filter(function (w) { return w.length > 2 && ct.some(function (cw) { return cw.indexOf(w) > -1 || w.indexOf(cw) > -1; }); });
+    comp("title", tHit.length ? Math.min(100, 55 + tHit.length * 22) : 40, tHit.length ? "MATCH" : "PARTIAL_MATCH", tHit.length ? "تقارب في المسمى: " + tHit.join(" ") : "مسمى مختلف — راجع المسار المهني");
+    if (!c.education) comp("education", 55, "UNKNOWN", "المؤهل غير معروف");
+    else comp("education", c.education.indexOf("بكالوريوس") > -1 || c.education.indexOf("ماجستير") > -1 ? 100 : 75, "MATCH", c.education);
+    if (c.city === job.city) comp("location", 100, "MATCH", "نفس المدينة (" + c.city + ")");
+    else if (c.country === job.country) comp("location", 65, "PARTIAL_MATCH", c.city + " — يحتاج تأكيد الانتقال إلى " + job.city);
+    else comp("location", 35, "NO_MATCH", "خارج " + job.country);
+    if (c.nationality && c.nationality.indexOf("سعودي") === 0) comp("eligibility", 100, "MATCH", "مواطن — لا يحتاج تصريح عمل");
+    else if (c.workPermit === "قابل للنقل") comp("eligibility", 85, "MATCH", "إقامة قابلة للنقل");
+    else if (!c.workPermit) comp("eligibility", 55, "UNKNOWN", "حالة تصريح العمل غير معروفة");
+    else comp("eligibility", 60, "PARTIAL_MATCH", c.workPermit);
+    if (!c.expectedSalary) comp("salary", 55, "UNKNOWN", "الراتب المتوقع غير معروف — اطلبه من المرشّح");
+    else if (!job.salaryMax) comp("salary", 70, "UNKNOWN", "نطاق الوظيفة غير محدد");
+    else if (c.expectedSalary <= job.salaryMax) comp("salary", 100, "MATCH", c.expectedSalary + " ريال ضمن النطاق");
+    else comp("salary", Math.max(25, 100 - ((c.expectedSalary - job.salaryMax) / job.salaryMax) * 200), "PARTIAL_MATCH", "يتوقع " + c.expectedSalary + " والنطاق حتى " + job.salaryMax);
+    var jl = job.languages || ["العربية"], cl = c.languages || [];
+    var lHit = jl.filter(function (l) { return cl.indexOf(l) > -1; });
+    comp("language", (lHit.length / jl.length) * 100 || 40, lHit.length === jl.length ? "MATCH" : "PARTIAL_MATCH", "يجيد: " + (cl.join("، ") || "غير معروف"));
+    if (!c.noticeDays && c.noticeDays !== 0) comp("availability", 55, "UNKNOWN", "مدة الإشعار غير معروفة");
+    else comp("availability", c.noticeDays <= 15 ? 100 : c.noticeDays <= 30 ? 88 : c.noticeDays <= 60 ? 62 : 45, c.noticeDays <= 30 ? "MATCH" : "PARTIAL_MATCH", "إشعار " + c.noticeDays + " يوماً");
+    return comps;
+  }
+  function runMatch(job, weights) {
+    var results = HRStore.candidates().map(function (c) {
+      var comps = matchComponents(job, c);
+      var total = 0, wsum = 0;
+      WEIGHT_DEFS.forEach(function (w) {
+        var wv = weights[w[0]] || 0;
+        total += (comps[w[0]] ? comps[w[0]].score : 55) * wv;
+        wsum += wv;
+      });
+      var overall = wsum ? Math.round(total / wsum) : 0;
+      var mustMiss = (job.mustHave || []).filter(function (s) {
+        return !(c.skills || []).some(function (cs) { return cs.indexOf(s) > -1 || s.indexOf(cs) > -1; });
+      });
+      var unknown = WEIGHT_DEFS.filter(function (w) { return comps[w[0]] && comps[w[0]].status === "UNKNOWN"; }).map(function (w) { return w[1]; });
+      return { candidate: c, comps: comps, overall: overall, mustMiss: mustMiss, hardFiltered: !!mustMiss.length, unknown: unknown };
+    });
+    results.sort(function (a, b) { return (a.hardFiltered ? 1 : 0) - (b.hardFiltered ? 1 : 0) || b.overall - a.overall; });
+    return results;
+  }
+  function matchCategory(r) {
+    if (r.hardFiltered) return "hard";
+    return r.overall >= 85 ? "strong" : r.overall >= 70 ? "good" : r.overall >= 50 ? "review" : "weak";
+  }
+  function pageMatching() {
+    var W_KEY = "bp_hr_match_weights";
+    var defWeights = {};
+    WEIGHT_DEFS.forEach(function (w) { defWeights[w[0]] = w[2]; });
+    var weights = readLS(W_KEY, defWeights);
+    var lastResults = null;
+    function ovInvites() { return readLS("bp_hr_invites", {}); }
+    function runsLog() { return readLS("bp_hr_match_runs", []); }
+    function renderWeights() {
+      $("mt-weights-grid").innerHTML = WEIGHT_DEFS.map(function (w) {
+        return '<span class="kv"><b>' + w[1] + '</b><input type="number" min="0" max="60" data-w="' + w[0] + '" value="' + (weights[w[0]] || 0) + '" style="width:76px;border:1px solid var(--hr-line);border-radius:8px;padding:4px 8px"> %</span>';
+      }).join("");
+      $("mt-weights-grid").querySelectorAll("[data-w]").forEach(function (inp) {
+        inp.addEventListener("change", function () {
+          weights[inp.getAttribute("data-w")] = Math.max(0, Math.min(60, Number(inp.value) || 0));
+          writeLS(W_KEY, weights);
+          var sum = WEIGHT_DEFS.reduce(function (s, w) { return s + (weights[w[0]] || 0); }, 0);
+          if (sum !== 100) toast("مجموع الأوزان الآن " + sum + "% — يُوزن نسبياً، والافتراضي 100%.");
+        });
+      });
+    }
+    function statusTag(st) {
+      return st === "MATCH" ? '<span class="hr-tag t-green">مطابق</span>' : st === "PARTIAL_MATCH" ? '<span class="hr-tag t-orange">جزئي</span>' : st === "UNKNOWN" ? '<span class="hr-tag">غير معروف</span>' : '<span class="hr-tag t-red">غير مطابق</span>';
+    }
+    function resultCard(r, job) {
+      var c = r.candidate;
+      var invited = ovInvites()[job.id + ":" + c.id];
+      var catTag = r.hardFiltered ? '<span class="hr-tag t-red">لا يحقق شرطاً إلزامياً</span>'
+        : r.overall >= 85 ? '<span class="hr-tag t-green">مطابقة قوية</span>'
+        : r.overall >= 70 ? '<span class="hr-tag t-teal">مطابق جيد</span>'
+        : r.overall >= 50 ? '<span class="hr-tag t-orange">يحتاج مراجعة</span>' : '<span class="hr-tag">مطابقة ضعيفة</span>';
+      var bars = WEIGHT_DEFS.map(function (w) {
+        var cp = r.comps[w[0]];
+        if (!cp) return "";
+        return '<div class="f-row"><span style="font-size:.78rem">' + w[1] + '</span><span class="f-bar"><span class="f-fill" style="width:' + cp.score + '%;background:' + (cp.status === "NO_MATCH" ? "var(--hr-red)" : cp.status === "UNKNOWN" ? "var(--hr-mute)" : cp.status === "PARTIAL_MATCH" ? "var(--hr-orange)" : "var(--hr-teal)") + '"></span></span><span class="f-n" style="font-size:.78rem">' + cp.score + "%</span></div>";
+      }).join("");
+      var matched = [], missing = [];
+      Object.keys(r.comps).forEach(function (k) {
+        var cp = r.comps[k];
+        if (cp.status === "MATCH") matched.push(cp.note);
+        if (cp.status === "NO_MATCH") missing.push(cp.note);
+      });
+      if (r.mustMiss.length) missing.unshift("شرط إلزامي غير متحقق: " + r.mustMiss.join("، "));
+      return '<section class="hr-card" style="margin-bottom:14px"><div class="bd">' +
+        '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">' +
+        '<span class="hr-avatar">' + esc(initials(c.name)) + "</span>" +
+        '<div style="flex:1;min-width:180px"><b style="color:var(--hr-navy)">' + esc(c.name) + "</b> " + catTag +
+        '<div style="font-size:.8rem;color:var(--hr-soft)">' + esc(c.title) + " · " + c.years + " سنة · " + esc(c.city) + " · المصدر: " + esc(c.source) + "</div></div>" +
+        '<div style="text-align:center"><div style="font-size:1.7rem;font-weight:700;color:var(--hr-' + (r.hardFiltered ? "red" : r.overall >= 70 ? "teal" : "orange") + ')">' + r.overall + '%</div><div class="hr-hint">الدرجة الموزونة</div></div></div>' +
+        '<details style="margin-top:10px"><summary style="cursor:pointer;font-size:.84rem;color:var(--hr-teal);font-weight:600">تفاصيل الحساب ولماذا ظهر هذا المرشّح؟</summary>' +
+        '<div class="hr-funnel" style="margin-top:10px">' + bars + "</div>" +
+        '<div style="margin-top:10px;font-size:.83rem;display:flex;flex-direction:column;gap:5px">' +
+        (matched.length ? "<div>✅ <b>المتطلبات المطابقة:</b> " + esc(matched.slice(0, 4).join(" · ")) + "</div>" : "") +
+        (missing.length ? "<div>❌ <b>غير المتوفرة:</b> " + esc(missing.join(" · ")) + "</div>" : "") +
+        (r.unknown.length ? "<div>❓ <b>غير معروفة (لا تستبعد):</b> " + esc(r.unknown.join("، ")) + " — اطلبها من المرشّح.</div>" : "") +
+        '<div class="hr-hint">محرك ' + SCORING_VERSION + " · الدرجة = مجموع مرجّح للمكونات أعلاه.</div></div></details>" +
+        '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">' +
+        '<button class="hr-btn hr-btn-sm hr-btn-ghost" data-mact="profile" data-c="' + c.id + '">عرض الملف</button>' +
+        (invited ? '<span class="hr-tag t-teal">دُعي للتقديم ✓</span>' : '<button class="hr-btn hr-btn-sm hr-btn-primary" data-mact="invite" data-c="' + c.id + '">دعوة للتقديم</button>') +
+        '<button class="hr-btn hr-btn-sm hr-btn-soft" data-mact="shortlist" data-c="' + c.id + '">إضافة للمختصرة</button>' +
+        '<button class="hr-btn hr-btn-sm hr-btn-ghost" data-mact="askinfo" data-c="' + c.id + '">طلب معلومات</button>' +
+        '<button class="hr-btn hr-btn-sm hr-btn-ghost" data-mact="interview" data-c="' + c.id + '">تحديد مقابلة</button>' +
+        '<button class="hr-btn hr-btn-sm hr-btn-danger" data-mact="exclude" data-c="' + c.id + '">استبعاد من هذه الوظيفة</button>' +
+        '<button class="hr-btn hr-btn-sm hr-btn-ghost" data-mact="save" data-c="' + c.id + '">حفظ لفرصة أخرى</button>' +
+        "</div></div></section>";
+    }
+    function render(job) {
+      if (!lastResults) return;
+      var cat = $("mt-cat").value;
+      var rows = lastResults.filter(function (r) { return !cat || matchCategory(r) === cat; });
+      var strong = lastResults.filter(function (r) { return matchCategory(r) === "strong"; }).length;
+      var review = lastResults.filter(function (r) { return matchCategory(r) === "review"; }).length;
+      var invitedN = Object.keys(ovInvites()).filter(function (k) { return k.indexOf(job.id + ":") === 0; }).length;
+      $("mt-kpis").hidden = false;
+      $("mt-kpis").innerHTML = [["مرشّحون تم تحليلهم", lastResults.length], ["مطابقات قوية", strong], ["تحتاج مراجعة", review], ["دعوات مرسلة", invitedN]].map(function (k) {
+        return '<div class="hr-kpi"><span class="k-top"><span>' + k[0] + '</span></span><span class="k-num">' + k[1] + "</span></div>";
+      }).join("");
+      var cats = [["strong", "قوية", "var(--hr-green)"], ["good", "جيدة", "var(--hr-teal)"], ["review", "مراجعة", "var(--hr-orange)"], ["weak", "ضعيفة", "var(--hr-mute)"], ["hard", "فلتر إلزامي", "var(--hr-red)"]];
+      var maxN = Math.max.apply(null, cats.map(function (ct) { return lastResults.filter(function (r) { return matchCategory(r) === ct[0]; }).length; }).concat([1]));
+      $("mt-dist-card").hidden = false;
+      $("mt-dist").innerHTML = '<div class="hr-funnel">' + cats.map(function (ct) {
+        var n = lastResults.filter(function (r) { return matchCategory(r) === ct[0]; }).length;
+        return '<div class="f-row"><span>' + ct[1] + '</span><span class="f-bar"><span class="f-fill" style="width:' + Math.round((n / maxN) * 100) + "%;background:" + ct[2] + '"></span></span><span class="f-n">' + n + "</span></div>";
+      }).join("") + "</div>";
+      $("mt-results").innerHTML = rows.length ? rows.map(function (r) { return resultCard(r, job); }).join("") : '<div class="hr-empty"><b>لا نتائج في هذه الفئة</b></div>';
+      bindActions(job);
+      var runs = runsLog();
+      $("mt-history-card").hidden = !runs.length;
+      $("mt-history").innerHTML = runs.slice(0, 6).map(function (rn) {
+        return '<div class="hr-cand"><div class="c-body"><div style="font-size:.85rem">' + esc(rn.jobTitle) + " — حُلل " + rn.analyzed + " مرشّحاً، " + rn.strong + ' مطابقة قوية</div><div class="c-sub">' + fmtDate(rn.at) + " · " + fmtTime(rn.at) + " · محرك " + esc(rn.version) + "</div></div></div>";
+      }).join("");
+    }
+    function bindActions(job) {
+      $("mt-results").querySelectorAll("[data-mact]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var act = b.getAttribute("data-mact"), cid = b.getAttribute("data-c");
+          var c = HRStore.candidate(cid);
+          var app = HRStore.applications().filter(function (a) { return a.candidateId === cid && a.jobId === job.id; })[0];
+          if (act === "profile") {
+            if (app) location.href = "/hr/employer/applicant?id=" + app.id;
+            else toast("لا يوجد ملف تقديم لهذه الوظيفة بعد — ادعُه للتقديم أولاً.");
+          } else if (act === "invite") {
+            confirmModal("دعوة للتقديم", "سترسل دعوة إلى " + c.name + " للتقديم على «" + job.title + "». الإرسال الفعلي يتفعّل مع ربط قنوات التواصل — الآن تُسجل الدعوة فقط.", "تسجيل الدعوة").then(function (ok) {
+              if (!ok) return;
+              var inv = ovInvites();
+              inv[job.id + ":" + cid] = { at: new Date().toISOString() };
+              writeLS("bp_hr_invites", inv);
+              HRStore.logActivity("stage", "سُجلت دعوة تقديم لـ " + c.name + " على وظيفة " + job.title);
+              render(job);
+            });
+          } else if (act === "shortlist") {
+            if (app) { HRStore.setStageSilent(app.id, "shortlist"); toast("أُضيف للقائمة المختصرة."); }
+            else toast("سيُنشأ ملف تقديم عند قبول الدعوة — سجّل دعوة أولاً.");
+          } else if (act === "askinfo") {
+            toast("طلب المعلومات يُرسل من وحدة الرسائل عند ربط القنوات — سُجل كإجراء مقترح.");
+          } else if (act === "interview") {
+            toast("جدولة المقابلات تُبنى في وحدة «المقابلات» القادمة.");
+          } else if (act === "exclude") {
+            confirmModal("استبعاد من هذه الوظيفة", "يُستبعد " + c.name + " من نتائج «" + job.title + "» فقط. القرار بشري ويُسجل.", "استبعاد", true).then(function (ok) {
+              if (!ok) return;
+              if (app) HRStore.setStageSilent(app.id, "rejected");
+              lastResults = lastResults.filter(function (r) { return r.candidate.id !== cid; });
+              HRStore.logActivity("stage", "استُبعد " + c.name + " من مطابقات " + job.title);
+              render(job);
+            });
+          } else if (act === "save") {
+            if (app) HRStore.setStageSilent(app.id, "future");
+            toast("حُفظ " + c.name + " لفرصة مستقبلية.");
+          }
+        });
+      });
+    }
+    HRStore.ready().then(function () {
+      var jobs = HRStore.jobs().filter(function (j) { return ["مغلقة", "منتهية"].indexOf(j.status) < 0; });
+      $("mt-job").innerHTML = jobs.map(function (j) { return '<option value="' + j.id + '">' + esc(j.title) + "</option>"; }).join("");
+      renderWeights();
+      $("mt-weights-toggle").addEventListener("click", function () { $("mt-weights").hidden = !$("mt-weights").hidden; });
+      $("mt-weights-reset").addEventListener("click", function () { weights = Object.assign({}, defWeights); writeLS(W_KEY, weights); renderWeights(); toast("عادت الأوزان للافتراضي."); });
+      $("mt-cat").addEventListener("change", function () { var j = HRStore.job($("mt-job").value); if (j) render(j); });
+      $("mt-run").addEventListener("click", function () {
+        var job = HRStore.job($("mt-job").value);
+        if (!job) return;
+        $("mt-results").innerHTML = '<div class="hr-skel" style="height:200px"></div>';
+        setTimeout(function () {
+          lastResults = runMatch(job, weights);
+          var runs = runsLog();
+          runs.unshift({ at: new Date().toISOString(), jobTitle: job.title, analyzed: lastResults.length, strong: lastResults.filter(function (r) { return matchCategory(r) === "strong"; }).length, version: SCORING_VERSION });
+          writeLS("bp_hr_match_runs", runs.slice(0, 20));
+          $("mt-last-run").textContent = "آخر تشغيل: الآن · محرك " + SCORING_VERSION;
+          render(job);
+        }, 350);
+      });
+      var runs = runsLog();
+      if (runs.length) $("mt-last-run").textContent = "آخر تشغيل: " + fmtDate(runs[0].at) + " " + fmtTime(runs[0].at) + " · محرك " + esc(runs[0].version);
+    }).catch(function () { dataError("mt-results"); });
+  }
+
+  /* ---------- dispatch ---------- */
+  if (PAGE === "dashboard") pageDashboard();
+  else if (PAGE === "jobs") pageJobs();
+  else if (PAGE === "job-new") pageJobNew();
+  else if (PAGE === "job-view") pageJobView();
+  else if (PAGE === "applicants") pageApplicants();
+  else if (PAGE === "applicant") pageApplicant();
+  else if (PAGE === "matching") pageMatching();
+})();
