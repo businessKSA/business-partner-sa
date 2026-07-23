@@ -98,6 +98,7 @@
     function candidates() { return DATA.candidates; }
     function candidate(id) { return DATA.candidates.filter(function (c) { return c.id === id; })[0] || null; }
     function applications() {
+      if (REAL_MODE) return []; // لا عينات في الحساب الحقيقي — المتقدمون الحقيقيون يُربطون من الموقع
       var ov = overlay();
       return DATA.applications.map(function (a) {
         var out = Object.assign({}, a);
@@ -114,7 +115,7 @@
     }
     function activities() {
       var ov = overlay();
-      return ov.activities.concat(DATA.activities).slice(0, 30);
+      return (REAL_MODE ? ov.activities : ov.activities.concat(DATA.activities)).slice(0, 30);
     }
     function logActivity(type, text) {
       var ov = overlay();
@@ -279,7 +280,8 @@
       var mainStages = d.stages.map(function (s) { return s.key; });
       var inPipe = apps.filter(function (a) { return mainStages.indexOf(a.stage) > -1; });
       var newApps = apps.filter(function (a) { return a.unread; });
-      var upcoming = d.interviews.filter(function (iv) { return new Date(iv.at) > new Date("2026-07-23"); });
+      var ivSrc = HRStore.isReal() ? [] : d.interviews;
+      var upcoming = ivSrc.filter(function (iv) { return new Date(iv.at) > new Date("2026-07-23"); });
       var recommended = apps.filter(function (a) { return a.aiRecommended && ["hired", "rejected", "unqualified"].indexOf(a.stage) < 0; });
       var activeJobs = jobs.filter(function (j) { return j.status === "منشورة"; });
       var offers = apps.filter(function (a) { return a.stage === "offer"; });
@@ -756,7 +758,7 @@
           return '<h3 style="color:var(--hr-navy);margin-bottom:10px">' + esc(d2.title || "بدون مسمى") + '</h3><div class="hr-kv">' +
             [["القسم", d2.dept], ["المدينة", d2.city], ["الدوام", d2.type], ["نمط العمل", d2.workMode], ["الشواغر", d2.openings], ["الخبرة", d2.experienceYears], ["المؤهل", d2.qualification], ["المهارات", d2.skills], ["الراتب", (d2.salaryMin || "؟") + " – " + (d2.salaryMax || "؟") + " ريال" + (d2.salaryVisible === "نعم" ? " (ظاهر)" : " (مخفي)")]].map(function (kv) { return '<span class="kv"><b>' + kv[0] + "</b>" + esc(kv[1] || "—") + "</span>"; }).join("") +
             '</div><div style="margin-top:14px;padding:12px;background:var(--hr-bg);border-radius:10px;font-size:.87rem;white-space:pre-wrap">' + esc(d2.description || "لا وصف بعد") + "</div>" +
-            '<div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--hr-line);display:flex;gap:10px;flex-wrap:wrap"><button class="hr-btn hr-btn-primary" type="button" id="wiz-publish" style="padding:12px 34px;font-size:1rem">📢 انشر</button><button class="hr-btn hr-btn-ghost" type="button" id="wiz-draft2" style="padding:12px 24px">مسودة</button></div>';
+            '<div dir="rtl" style="margin-top:22px;padding-top:16px;border-top:1px solid var(--hr-line);display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="hr-btn hr-btn-primary" type="button" id="wiz-publish" style="padding:12px 34px;font-size:1rem">📢 انشر</button><button class="hr-btn hr-btn-ghost" type="button" id="wiz-draft2" style="padding:12px 24px">مسودة</button></div>';
         }
       }
       return "";
@@ -1014,7 +1016,7 @@
     }
     HRStore.ready().then(function () {
       if (HRStore.isReal()) {
-        $("ap-root").insertAdjacentHTML("beforebegin", '<div class="hr-error" style="background:var(--hr-blue-bg);color:var(--hr-blue)">التقديمات أدناه عيّنة توضيحية لتجربة المسار — ربط المتقدمين الحقيقيين من الموقع والقنوات ضمن المرحلة القادمة. وظائفك الحقيقية ظاهرة في «الوظائف» و«المطابقة الذكية».</div>');
+        $("ap-root").insertAdjacentHTML("beforebegin", '<div class="hr-error" style="background:var(--hr-blue-bg);color:var(--hr-blue)">لا يوجد متقدمون بعد — أول متقدم حقيقي على وظائفك سيظهر هنا تلقائياً فور ربط التقديمات من الموقع. جرّب «المطابقة الذكية» الآن للبحث في قاعدة السير الجاهزة.</div>');
       }
       var jobSel = $("ap-job");
       jobSel.innerHTML = '<option value="">كل الوظائف</option>' + HRStore.jobs().map(function (j) { return '<option value="' + j.id + '"' + (state.job === j.id ? " selected" : "") + ">" + esc(j.title) + "</option>"; }).join("");
@@ -1238,8 +1240,8 @@
     else comp("availability", c.noticeDays <= 15 ? 100 : c.noticeDays <= 30 ? 88 : c.noticeDays <= 60 ? 62 : 45, c.noticeDays <= 30 ? "MATCH" : "PARTIAL_MATCH", "إشعار " + c.noticeDays + " يوماً");
     return comps;
   }
-  function runMatch(job, weights) {
-    var results = HRStore.candidates().map(function (c) {
+  function runMatch(job, weights, pool) {
+    var results = (pool || HRStore.candidates()).map(function (c) {
       var comps = matchComponents(job, c);
       var total = 0, wsum = 0;
       WEIGHT_DEFS.forEach(function (w) {
@@ -1357,10 +1359,11 @@
       $("mt-results").querySelectorAll("[data-mact]").forEach(function (b) {
         b.addEventListener("click", function () {
           var act = b.getAttribute("data-mact"), cid = b.getAttribute("data-c");
-          var c = HRStore.candidate(cid);
+          var c = HRStore.candidate(cid) || (lastResults || []).map(function (r2) { return r2.candidate; }).filter(function (x) { return x.id === cid; })[0];
           var app = HRStore.applications().filter(function (a) { return a.candidateId === cid && a.jobId === job.id; })[0];
           if (act === "profile") {
-            if (app) location.href = "/hr/employer/applicant?id=" + app.id;
+            if (c && c.real) location.href = "/ar/candidate-profile?id=" + cid;
+            else if (app) location.href = "/hr/employer/applicant?id=" + app.id;
             else toast("لا يوجد ملف تقديم لهذه الوظيفة بعد — ادعُه للتقديم أولاً.");
           } else if (act === "invite") {
             confirmModal("دعوة للتقديم", "سترسل دعوة إلى " + c.name + " للتقديم على «" + job.title + "». الإرسال الفعلي يتفعّل مع ربط قنوات التواصل — الآن تُسجل الدعوة فقط.", "تسجيل الدعوة").then(function (ok) {
@@ -1400,19 +1403,41 @@
       $("mt-weights-toggle").addEventListener("click", function () { $("mt-weights").hidden = !$("mt-weights").hidden; });
       $("mt-weights-reset").addEventListener("click", function () { weights = Object.assign({}, defWeights); writeLS(W_KEY, weights); renderWeights(); toast("عادت الأوزان للافتراضي."); });
       $("mt-cat").addEventListener("change", function () { var j = HRStore.job($("mt-job").value); if (j) render(j); });
+      var MATCH_POOL_CAP = 400;
+      function loadMatchPool() {
+        if (!HRStore.isReal()) return Promise.resolve(HRStore.candidates());
+        var code = hrRealCode();
+        return new Promise(function (resolve) {
+          var out = [];
+          function step(cursor) {
+            var qs2 = new URLSearchParams({ code: code });
+            if (cursor) qs2.set("cursor", cursor);
+            fetch("/api/candidates?" + qs2).then(function (r) { return r.json(); }).then(function (d2) {
+              if (!d2 || !d2.ok) { resolve(out); return; }
+              (d2.candidates || []).forEach(function (c) {
+                out.push({ id: c.id, name: c.name || "مرشّح", title: c.role || "", years: parseInt(c.experience, 10) || 0, city: c.city || "", country: c.country || "", nationality: c.nationalityType || "", workPermit: "", skills: String(c.skills || "").split(/[،,]/).map(function (t) { return t.trim(); }).filter(Boolean), languages: String(c.languages || "").split(/[،,]/).map(function (t) { return t.trim(); }).filter(Boolean), education: c.education || "", expectedSalary: null, noticeDays: null, source: "بنك السير", real: true });
+              });
+              if (out.length < MATCH_POOL_CAP && !d2.done && d2.nextCursor) step(d2.nextCursor);
+              else resolve(out.slice(0, MATCH_POOL_CAP));
+            }).catch(function () { resolve(out); });
+          }
+          step(null);
+        });
+      }
       $("mt-run").addEventListener("click", function () {
         var job = HRStore.job($("mt-job").value);
         if (!job) return;
         if (job.real && (!job.skills || !job.skills.length)) { job.skills = skillsForTitle(job.title); }
         $("mt-results").innerHTML = '<div class="hr-skel" style="height:200px"></div>';
-        setTimeout(function () {
-          lastResults = runMatch(job, weights);
+        loadMatchPool().then(function (pool) {
+          if (HRStore.isReal()) $("mt-last-run").textContent = "يُحلل أول " + pool.length + " مرشّح من قاعدة السير — ضيّق لاحقاً بالفلاتر";
+          lastResults = runMatch(job, weights, pool);
           var runs = runsLog();
           runs.unshift({ at: new Date().toISOString(), jobTitle: job.title, analyzed: lastResults.length, strong: lastResults.filter(function (r) { return matchCategory(r) === "strong"; }).length, version: SCORING_VERSION });
           writeLS("bp_hr_match_runs", runs.slice(0, 20));
-          $("mt-last-run").textContent = "آخر تشغيل: الآن · محرك " + SCORING_VERSION;
+          $("mt-last-run").textContent = ($("mt-last-run").textContent ? $("mt-last-run").textContent + " · " : "") + "آخر تشغيل: الآن · محرك " + SCORING_VERSION;
           render(job);
-        }, 350);
+        });
       });
       var runs = runsLog();
       if (runs.length) $("mt-last-run").textContent = "آخر تشغيل: " + fmtDate(runs[0].at) + " " + fmtTime(runs[0].at) + " · محرك " + esc(runs[0].version);
@@ -1498,7 +1523,8 @@
   function pageAutomations() {
     HRStore.ready().then(function (d) {
       var KINDS = { approval: ["موافقات مطلوبة", "🟠"], missing: ["معلومات ناقصة", "❓"], integration: ["التكاملات", "🔌"], delayed: ["متأخر", "⏱️"], interview: ["مقابلات", "📅"], onboarding: ["المباشرة", "🧾"] };
-      var items = d.automationInbox || [];
+      var items = HRStore.isReal() ? [] : (d.automationInbox || []);
+      if (HRStore.isReal() && !items.length) { $("am-inbox").innerHTML = '<section class="hr-card"><div class="bd"><div class="hr-empty"><b>لا شيء يحتاج تدخلك الآن ✅</b><p>ستظهر هنا الموافقات المطلوبة والتنبيهات فور تفعيل الأتمتة على بياناتك.</p></div></div></section>'; }
       var groups = {};
       items.forEach(function (it) { (groups[it.kind] = groups[it.kind] || []).push(it); });
       $("am-inbox").innerHTML = Object.keys(groups).map(function (k) {
@@ -1528,7 +1554,8 @@
   };
   function pageOnboarding() {
     HRStore.ready().then(function (d) {
-      var cases = d.onboardingCases || [];
+      var cases = HRStore.isReal() ? [] : (d.onboardingCases || []);
+      if (HRStore.isReal() && !cases.length) { $("ob-list").innerHTML = '<div class="hr-empty"><b>لا موظفون جدد بعد</b><p>عند قبول أول عرض وظيفي، تبدأ رحلة المباشرة هنا تلقائياً.</p></div>'; $("ob-detail").innerHTML = ""; return; }
       var view = "journey";
       var selected = cases.length ? cases[0].id : null;
       function caseOf(id) { return cases.filter(function (c) { return c.id === id; })[0]; }
@@ -1682,7 +1709,8 @@
     HRStore.ready().then(function (d) {
       function allIv() {
         var edits = HRStore.bag("ivEdits");
-        return d.interviews.map(function (iv) { return Object.assign({}, iv, edits[iv.id] || {}); }).concat(HRStore.bag("ivExtra"));
+        var base = HRStore.isReal() ? [] : d.interviews;
+        return base.map(function (iv) { return Object.assign({}, iv, edits[iv.id] || {}); }).concat(HRStore.bag("ivExtra"));
       }
       function render() {
         var ivs = allIv().slice().sort(function (a, b) { return a.at < b.at ? -1 : 1; });
