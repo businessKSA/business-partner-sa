@@ -174,12 +174,21 @@ export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   if (req.method === "GET") {
     res.statusCode = 200;
+    // dbConfigured = env vars present; dbReachable = a live probe against the
+    // sessions table (surfaces schema-not-applied and bad-key cases early).
+    let dbReachable = null;
+    if (DB_ON) {
+      try { await sb("user_sessions?select=id&limit=1"); dbReachable = true; }
+      catch { dbReachable = false; }
+    }
     return res.end(JSON.stringify({
       status: "ok",
       secretConfigured: !!SECRET,
       emailConfigured: !!RESEND_API_KEY,
       smsConfigured: false,
       devEcho: DEV_ECHO,
+      dbConfigured: DB_ON,
+      dbReachable,
     }));
   }
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
