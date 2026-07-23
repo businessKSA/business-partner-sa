@@ -4707,7 +4707,35 @@ var BP_EMP_BILLING = "monthly";
 
       var cvHtml = "";
       if (unlocked && c.cvText) {
-        cvHtml = '<div class="cp-section"><h3>' + T("Full CV", "السيرة الذاتية الكاملة") + '</h3><div class="cp-cv-text">' + mdToHtml(c.cvText) + "</div></div>";
+        // السيرة تُعرض كبطاقات مرتبة حسب الأقسام (تواصل/ملخص/مهارات/خبرات/
+        // تعليم/شهادات/لغات) بدل عمود نصي طويل — الأقسام الطويلة تأخذ عرض
+        // الصفحة كاملاً والقصيرة تتراص جنباً إلى جنب.
+        var sections = [];
+        var cur = null;
+        c.cvText.split("\n").forEach(function (line) {
+          var m = line.match(/^##\s+(.+)/);
+          if (m) { cur = { title: m[1].trim(), body: [] }; sections.push(cur); }
+          else if (cur) cur.body.push(line);
+          else { cur = { title: "", body: [line] }; sections.push(cur); }
+        });
+        var WIDE = /خبر|Experience|Work|ملخص|Summary|نبذة/i;
+        var CHIPY = /مهار|Skills|لغات|Languages|شهاد|Certific/i;
+        var ICONS = [[/تواصل|Contact/i, "📞"], [/ملخص|Summary|نبذة/i, "📋"], [/شخصية|Personal/i, "🪪"], [/مهار|Skills/i, "🛠️"], [/خبر|Experience|Work|Highlights/i, "💼"], [/تعليم|Education/i, "🎓"], [/شهاد|Certific/i, "🏅"], [/لغات|Languages/i, "🌐"]];
+        function secIcon(t) { for (var i = 0; i < ICONS.length; i++) if (ICONS[i][0].test(t)) return ICONS[i][1]; return "📄"; }
+        var cards = sections.filter(function (sec) { return sec.body.join("").trim(); }).map(function (sec) {
+          var bodyTxt = sec.body.join("\n").trim();
+          var inner;
+          if (CHIPY.test(sec.title)) {
+            var items = sec.body.map(function (l) { return l.replace(/^[-•\d.\s]+/, "").trim(); }).filter(Boolean);
+            inner = '<div class="cp-skills">' + items.map(function (it) { return '<span class="cp-skill-tag">' + esc(it) + "</span>"; }).join("") + "</div>";
+          } else {
+            inner = '<div class="cp-cv-text">' + mdToHtml(bodyTxt) + "</div>";
+          }
+          var wide = WIDE.test(sec.title) || bodyTxt.length > 600;
+          return '<div class="cp-section" style="margin:0' + (wide ? ";grid-column:1/-1" : "") + '"><h3>' + secIcon(sec.title) + " " + esc(sec.title || T("Details", "تفاصيل")) + "</h3>" + inner + "</div>";
+        }).join("");
+        cvHtml = '<div class="cp-section" style="background:none;border:none;box-shadow:none;padding:0"><h3 style="margin-bottom:12px">' + T("Full CV", "السيرة الذاتية الكاملة") + '</h3>' +
+          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start">' + cards + "</div></div>";
       }
       var downloadHtml = "";
       if (unlocked && c.cv) {
