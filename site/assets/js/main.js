@@ -3007,7 +3007,7 @@ var BP_EMP_BILLING = "monthly";
     var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
     function T(en, ar) { return isAr ? ar : en; }
     var errEl = document.getElementById("el-error");
-    function dashUrl() { return isAr ? "/ar/employer-dashboard" : "/employer-dashboard"; }
+    function dashUrl() { return "/hr/employer"; } // the new hiring console is the flagship destination
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var email = document.getElementById("el-email").value.trim();
