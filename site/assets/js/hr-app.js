@@ -502,6 +502,16 @@
     var qs0 = new URLSearchParams(location.search);
     var editId = qs0.get("id") || "";
     var fullMode = editId || qs0.get("mode") === "full";
+    // في وضع التعديل/اليدوي: أخفِ بطاقة الإنشاء السريع فوراً قبل تحميل
+    // البيانات — الانتظار كان يسبب وميض البطاقة ثم اختفاءها (glitch).
+    if (fullMode) {
+      var qaEl = $("qp-ask");
+      if (qaEl) qaEl.hidden = true;
+      var wwEl = $("wiz-wrap");
+      if (wwEl) wwEl.hidden = false;
+      var subEl = $("jn-sub");
+      if (subEl) subEl.textContent = "جارٍ تحميل بيانات الوظيفة…";
+    }
     // «اكتب المسمى وانشر»: حقل واحد يقبل مسمى أو طلباً بلغة طبيعية، الذكاء
     // الحقيقي (/api/hire jobdesc) يكتب الوصف، والباقي يُشتق من ملف الشركة
     // وقيم افتراضية موسومة بمصدرها — ولا يضيف الذكاء أي شرط حساس من نفسه.
