@@ -402,96 +402,11 @@ ${hreflangs}
 <body>`;
 }
 
-const NAV_GROUPS = [
-  { href: "/", en: "Home", ar: "الرئيسية" },
-  { href: "/about", en: "About us", ar: "من نحن" },
-  {
-    en: "Our services", ar: "خدماتنا",
-    items: [
-      { href: "/services", en: "Government Consulting Services", ar: "خدمة الاستشارات الحكومية", megaCategories: true },
-      { href: "/packages", en: "Packages", ar: "الباقات", megaPackages: true },
-      {
-        href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡",
-        sub: [
-          { href: "/ai-agents", en: "All AI Agents", ar: "كل الوكلاء الأذكياء" },
-          { href: "/compliance-agent", en: "Compliance", ar: "الامتثال" },
-          { href: "/portal", en: "Smart Employees", ar: "الموظفين الأذكياء" },
-          { href: "/shared-services", en: "Shared Services Team", ar: "فريق الخدمات المشتركة" },
-        ],
-      },
-      { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
-      { href: "/data", en: "B2B Leads Database ⚡", ar: "قاعدة عملاء الأعمال ⚡" },
-      {
-        href: "/hr", en: "Recruitment", ar: "التوظيف",
-        sub: [
-          { href: "/hr", en: "Recruitment services", ar: "خدمات التوظيف" },
-          { href: "/employers", en: "For employers", ar: "لأصحاب العمل" },
-          { href: "/careers", en: "Open jobs", ar: "الوظائف المتاحة" },
-        ],
-      },
-      { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
-      { href: "/installments", en: "Instalments ⚡", ar: "تقسيط الخدمات ⚡" },
-      { href: "/estrdad", en: "Fee refunds (Estrdad) ⚡", ar: "استرداد الرسوم ⚡" },
-      { href: "/bank-account", en: "Corporate bank account ⚡", ar: "فتح حساب بنكي ⚡" },
-      { href: "/formation-contract", en: "Formation with partners ⚡", ar: "تأسيس بين شركاء ⚡" },
-      {
-        href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال",
-        sub: [
-          { href: "/mahfol-makfol", en: "For investors", ar: "للمستثمر" },
-          { href: "/mahfol-makfol/trips", en: "Trips & experiences", ar: "الرحلات والتجارب" },
-          { href: "/tourism", en: "Corporate events", ar: "فعاليات الشركات" },
-        ],
-      },
-      {
-        href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال",
-        sub: [
-          { href: "/workspaces", en: "Browse spaces", ar: "استعراض المساحات" },
-          { href: "/workspace-request", en: "Request a workspace", ar: "اطلب مساحة عمل" },
-          { href: "/services/bp-re-01", en: "Private office", ar: "مكتب خاص" },
-          { href: "/services/bp-re-02", en: "Coworking space", ar: "مساحة عمل مشتركة" },
-          { href: "/services/bp-re-03", en: "Virtual office + National Address", ar: "مكتب افتراضي مع عنوان وطني" },
-          { href: "/services/bp-re-04", en: "Dedicated desk", ar: "مكتب ثابت في مساحة مشتركة" },
-          { href: "/services/bp-re-05", en: "Office search service", ar: "خدمة البحث عن مكتب" },
-          { href: "/services/bp-re-06", en: "Foreign property ownership", ar: "تملّك العقار للأجانب" },
-        ],
-      },
-      {
-        href: "/worker-housing", en: "Worker Housing ⚡", ar: "تسكين العمالة ⚡",
-        sub: [
-          { href: "/worker-housing", en: "Overview", ar: "نظرة عامة" },
-          { href: "/worker-housing#wh-request", en: "Request housing", ar: "اطلب سكن لعمالتك" },
-          { href: "/worker-housing#wh-fines", en: "Regulations & fines", ar: "الاشتراطات والغرامات" },
-          { href: "/services/bp-housing-01", en: "Licensing service", ar: "خدمة الترخيص والتوثيق" },
-          { href: "/services/bp-housing-02", en: "Worker transport", ar: "نقل العمالة" },
-          { href: "/farina#workforce", en: "Workforce catering (Farina)", ar: "إعاشة العمالة (فارينا)" },
-        ],
-      },
-      {
-        href: "/farina", en: "Catering & Hospitality", ar: "التموين والضيافة للشركات",
-        sub: [
-          { href: "/farina", en: "Overview", ar: "نظرة عامة" },
-          { href: "/farina#coffee-break", en: "Coffee Break", ar: "الكوفي بريك" },
-          { href: "/farina#vip-coffee", en: "VIP Coffee Break", ar: "كوفي بريك VIP" },
-          { href: "/farina#executive-lunch", en: "Executive Lunch", ar: "الغداء التنفيذي" },
-          { href: "/farina#vip-hospitality", en: "VIP Hospitality", ar: "ضيافة كبار الشخصيات" },
-          { href: "/farina#workforce", en: "Workforce Catering", ar: "إعاشة العمالة" },
-          { href: "/worker-housing", en: "Worker Housing", ar: "تسكين العمالة" },
-        ],
-      },
-    ],
-  },
-  {
-    en: "Knowledge Center", ar: "مركز المعرفة",
-    items: [
-      { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
-      { href: "/directory", en: "Startup Ecosystem Directory", ar: "دليل ريادة الأعمال" },
-      { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
-      { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
-    ],
-  },
-  { href: "/suppliers", en: "Suppliers portal", ar: "بوابة الموردين" },
-  { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
-];
+// Header menu lives in data/nav.json so the owner can edit it from /admin
+// (same data-driven pattern as services/opportunities). Shape: groups[] of
+// { href, en, ar } with optional items[]/sub[] and megaCategories/megaPackages.
+const navData = read("data/nav.json");
+const NAV_GROUPS = Array.isArray(navData.groups) ? navData.groups : [];
 
 // Only en/ar + FULLY_READY_LANGS are shown in the language switcher. The
 // remaining extra languages are only partially translated — even the 5
@@ -519,7 +434,7 @@ function langMenu(path) {
 function navSubItem(it, active) {
   let sub = it.sub;
   if (it.megaCategories) {
-    sub = [{ href: u("/services"), en: "All services (92)", ar: "كل الخدمات (92)", raw: true }]
+    sub = [{ href: u("/services"), en: `All services (${services.length})`, ar: `كل الخدمات (${services.length})`, raw: true }]
       .concat(categories.map((c) => ({ href: catUrl(c.key), en: catEn(c.key), ar: c.ar, icon: CAT_ICON[c.key] || "📁", raw: true })));
   } else if (it.megaPackages) {
     sub = [{ href: u("/packages"), en: "All packages", ar: "كل الباقات", raw: true }]
@@ -563,14 +478,23 @@ function header(active, path) {
 </div></header>`;
 }
 
+// Footer content lives in data/footer.json so the owner can edit it from
+// /admin. The contact column + social icons stay driven by site.json.
+const footerData = read("data/footer.json");
 function footer() {
   const c = site.contact;
+  const F = footerData;
   const fl = (href, en, ar) => `<li><a href="${u(href)}">${L(en, ar)}</a></li>`;
+  const cols = (F.columns || [])
+    .map((col) => `<div class="footer-col"><h4>${L(col.titleEn, col.titleAr)}</h4><ul>
+      ${(col.links || []).map((l) => fl(l.href, l.en, l.ar)).join("\n      ")}
+    </ul></div>`)
+    .join("\n    ");
   return `<footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
-      <h3>${L("Subscribe to our newsletter", "اشترك في نشرتنا الإخبارية")}</h3>
-      <p>${L("The latest business & regulatory news in Saudi Arabia — weekly, straight to your inbox.", "آخر أخبار الأعمال والأنظمة في السعودية — أسبوعياً مباشرة إلى بريدك.")}</p>
+      <h3>${L(F.newsletter.titleEn, F.newsletter.titleAr)}</h3>
+      <p>${L(F.newsletter.textEn, F.newsletter.textAr)}</p>
     </div>
     <form class="newsletter-form" data-nl>
       <input type="email" placeholder="${Lraw("Your email", "بريدك الإلكتروني")}" aria-label="${Lraw("Email", "البريد الإلكتروني")}" data-nl-email required>
@@ -582,41 +506,10 @@ function footer() {
     <div>
       <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
       <p>${L(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio)}</p>
-      <p class="footer-tag">${L("Partnering for your success", "شركاء نجاحك")}</p>
+      <p class="footer-tag">${L(F.taglineEn, F.taglineAr)}</p>
     </div>
-    <div class="footer-col"><h4>${L("Our services", "خدماتنا")}</h4><ul>
-      ${fl("/services", "All services", "كل الخدمات")}
-      ${fl("/packages", "Packages", "الباقات")}
-      ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
-      ${fl("/task-force", "Task Force", "تاسك فورس")}
-      ${fl("/hr", "Recruitment", "التوظيف")}
-      ${fl("/deals", "Deals", "الصفقات")}
-      ${fl("/mahfol-makfol", "Business Tourism", "سياحة الأعمال")}
-      ${fl("/workspaces", "Business Spaces", "مساحات الأعمال")}
-      ${fl("/worker-housing", "Worker Housing", "تسكين العمالة")}
-      ${fl("/farina", "Catering & Hospitality", "التموين والضيافة")}
-    </ul></div>
-    <div class="footer-col"><h4>${L("Platforms & portals", "المنصات والبوابات")}</h4><ul>
-      ${fl("/account", "Client portal", "منصّة العملاء")}
-      ${fl("/suppliers", "Suppliers portal", "بوابة الموردين")}
-      ${fl("/employer-join", "For employers", "لأصحاب العمل")}
-      ${fl("/portal", "Smart employees portal", "بوابة الموظفين الأذكياء")}
-    </ul></div>
-    <div class="footer-col"><h4>${L("Knowledge Center", "مركز المعرفة")}</h4><ul>
-      ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
-      ${fl("/directory", "Startup Ecosystem Directory", "دليل ريادة الأعمال")}
-      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
-      ${fl("/news", "Insights & news", "الرؤى والأخبار")}
-      ${fl("/magazine", "Magazine (PDF)", "المجلة (PDF)")}
-      ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
-    </ul></div>
-    <div class="footer-col"><h4>${L("Company", "الشركة")}</h4><ul>
-      ${fl("/about", "About us", "من نحن")}
-      ${fl("/careers", "Careers", "الوظائف")}
-      ${fl("/terms", "Terms & Conditions", "الشروط والأحكام")}
-      ${fl("/contact", "Contact us", "اتصل بنا")}
-    </ul></div>
-    <div class="footer-col"><h4>${L("Contact", "تواصل")}</h4><ul class="footer-contact">
+    ${cols}
+    <div class="footer-col"><h4>${L(F.contactTitleEn || "Contact", F.contactTitleAr || "تواصل")}</h4><ul class="footer-contact">
       <li>${I.phone}<span>${esc(c.phone)}</span></li>
       <li>${I.mail}<span>${esc(c.email)}</span></li>
       <li>${I.pin}<span>${L(c.addressEn || c.address, c.address)}</span></li>
@@ -5994,6 +5887,11 @@ function buildMonitor() {
   return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8');
 }
 
+function buildAdmin() {
+  // Owner control panel (/admin) — same standalone-raw-file pattern as monitor.
+  return fs.readFileSync(path.join(__dirname, 'assets', 'admin.page.html'), 'utf8');
+}
+
 /* ---------- owner dashboard: control + live-test the specialized-team agents ---------- */
 // Standalone owner page (noindex, no site chrome). One card per BP Team agent.
 // Calls the n8n intake webhooks DIRECTLY from the browser (webhooks allow all
@@ -7677,7 +7575,7 @@ function buildSharedServicesPortal() {
       <div class="ss-pane" id="pane-svc" hidden>
         <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Khaled in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لخالد في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
         <div class="ss-svc">
-          <a href="${u("/services")}"><span class="e">🗂️</span><b>${L("All services (93)", "كل الخدمات (93)")}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
+          <a href="${u("/services")}"><span class="e">🗂️</span><b>${L(`All services (${services.length})`, `كل الخدمات (${services.length})`)}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
           <a href="${u("/packages")}"><span class="e">📦</span><b>${L("Packages", "الباقات")}</b><span>${L("Bundled services at a clear starting price.", "باقات جاهزة بسعر ابتدائي واضح.")}</span></a>
           <a href="${u("/calculator")}"><span class="e">🧮</span><b>${L("Cost calculator", "حاسبة التكلفة")}</b><span>${L("Build your basket and see one-time & monthly fees.", "كوّن سلّتك واعرف الأتعاب لمرة واحدة والشهرية.")}</span></a>
           <a href="${u("/tools-and-calculators")}"><span class="e">🧰</span><b>${L("Free calculators", "الحاسبات المجانية")}</b><span>${L("Nitaqat, government cost, end of service, GOSI and more.", "النطاقات، التكاليف الحكومية، نهاية الخدمة، GOSI والمزيد.")}</span></a>
@@ -8183,6 +8081,19 @@ LANG = "en";
 
 // Owner-only live chat monitor (standalone page, no site chrome, noindex)
 write("monitor.html", buildMonitor());
+
+// Owner-only unified control panel for the site (standalone page, noindex)
+write("admin.html", buildAdmin());
+
+// Client Operations Center — the new /account (approved design). One bilingual
+// standalone page (AR default, ع/E toggle) emitted verbatim over the legacy
+// buildAccount() output for en+ar; extra languages keep the legacy page until
+// the center is translated for them.
+function buildAccountCenter() {
+  return fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8');
+}
+write("account.html", buildAccountCenter());
+write("ar/account.html", buildAccountCenter());
 
 // Owner-only control + live-test dashboard for the specialized-team agents (noindex)
 write("dashboard.html", buildDashboard());

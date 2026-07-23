@@ -1,0 +1,301 @@
+{
+  "_comment": "قائمة الهيدر (المنيو الرئيسي) — تُقرأ في generate.mjs. كل عنصر: href + en + ar، والقوائم المنسدلة عبر items/sub. العلمان megaCategories/megaPackages يولّدان قائمة التصنيفات/الباقات تلقائياً. عدّل من لوحة /admin ثم احفظ — الموقع يُعاد بناؤه تلقائياً.",
+  "groups": [
+    {
+      "href": "/",
+      "en": "Home",
+      "ar": "الرئيسية"
+    },
+    {
+      "href": "/about",
+      "en": "About us",
+      "ar": "من نحن"
+    },
+    {
+      "en": "Our services",
+      "ar": "خدماتنا",
+      "items": [
+        {
+          "href": "/services",
+          "en": "Government Consulting Services",
+          "ar": "خدمة الاستشارات الحكومية",
+          "megaCategories": true
+        },
+        {
+          "href": "/packages",
+          "en": "Packages",
+          "ar": "الباقات",
+          "megaPackages": true
+        },
+        {
+          "href": "/ai-agents",
+          "en": "AI Agents ⚡",
+          "ar": "الوكلاء الأذكياء ⚡",
+          "sub": [
+            {
+              "href": "/ai-agents",
+              "en": "All AI Agents",
+              "ar": "كل الوكلاء الأذكياء"
+            },
+            {
+              "href": "/compliance-agent",
+              "en": "Compliance",
+              "ar": "الامتثال"
+            },
+            {
+              "href": "/portal",
+              "en": "Smart Employees",
+              "ar": "الموظفين الأذكياء"
+            },
+            {
+              "href": "/shared-services",
+              "en": "Shared Services Team",
+              "ar": "فريق الخدمات المشتركة"
+            }
+          ]
+        },
+        {
+          "href": "/task-force",
+          "en": "Task Force ⚡",
+          "ar": "تاسك فورس ⚡"
+        },
+        {
+          "href": "/data",
+          "en": "B2B Leads Database ⚡",
+          "ar": "قاعدة عملاء الأعمال ⚡"
+        },
+        {
+          "href": "/hr",
+          "en": "Recruitment",
+          "ar": "التوظيف",
+          "sub": [
+            {
+              "href": "/hr",
+              "en": "Recruitment services",
+              "ar": "خدمات التوظيف"
+            },
+            {
+              "href": "/employers",
+              "en": "For employers",
+              "ar": "لأصحاب العمل"
+            },
+            {
+              "href": "/careers",
+              "en": "Open jobs",
+              "ar": "الوظائف المتاحة"
+            }
+          ]
+        },
+        {
+          "href": "/deals",
+          "en": "Deals ⚡",
+          "ar": "الصفقات ⚡"
+        },
+        {
+          "href": "/installments",
+          "en": "Instalments ⚡",
+          "ar": "تقسيط الخدمات ⚡"
+        },
+        {
+          "href": "/estrdad",
+          "en": "Fee refunds (Estrdad) ⚡",
+          "ar": "استرداد الرسوم ⚡"
+        },
+        {
+          "href": "/bank-account",
+          "en": "Corporate bank account ⚡",
+          "ar": "فتح حساب بنكي ⚡"
+        },
+        {
+          "href": "/formation-contract",
+          "en": "Formation with partners ⚡",
+          "ar": "تأسيس بين شركاء ⚡"
+        },
+        {
+          "href": "/mahfol-makfol",
+          "en": "Business Tourism",
+          "ar": "سياحة الأعمال",
+          "sub": [
+            {
+              "href": "/mahfol-makfol",
+              "en": "For investors",
+              "ar": "للمستثمر"
+            },
+            {
+              "href": "/mahfol-makfol/trips",
+              "en": "Trips & experiences",
+              "ar": "الرحلات والتجارب"
+            },
+            {
+              "href": "/tourism",
+              "en": "Corporate events",
+              "ar": "فعاليات الشركات"
+            }
+          ]
+        },
+        {
+          "href": "/workspaces",
+          "en": "Business Spaces",
+          "ar": "مساحات الأعمال",
+          "sub": [
+            {
+              "href": "/workspaces",
+              "en": "Browse spaces",
+              "ar": "استعراض المساحات"
+            },
+            {
+              "href": "/workspace-request",
+              "en": "Request a workspace",
+              "ar": "اطلب مساحة عمل"
+            },
+            {
+              "href": "/services/bp-re-01",
+              "en": "Private office",
+              "ar": "مكتب خاص"
+            },
+            {
+              "href": "/services/bp-re-02",
+              "en": "Coworking space",
+              "ar": "مساحة عمل مشتركة"
+            },
+            {
+              "href": "/services/bp-re-03",
+              "en": "Virtual office + National Address",
+              "ar": "مكتب افتراضي مع عنوان وطني"
+            },
+            {
+              "href": "/services/bp-re-04",
+              "en": "Dedicated desk",
+              "ar": "مكتب ثابت في مساحة مشتركة"
+            },
+            {
+              "href": "/services/bp-re-05",
+              "en": "Office search service",
+              "ar": "خدمة البحث عن مكتب"
+            },
+            {
+              "href": "/services/bp-re-06",
+              "en": "Foreign property ownership",
+              "ar": "تملّك العقار للأجانب"
+            }
+          ]
+        },
+        {
+          "href": "/worker-housing",
+          "en": "Worker Housing ⚡",
+          "ar": "تسكين العمالة ⚡",
+          "sub": [
+            {
+              "href": "/worker-housing",
+              "en": "Overview",
+              "ar": "نظرة عامة"
+            },
+            {
+              "href": "/worker-housing#wh-request",
+              "en": "Request housing",
+              "ar": "اطلب سكن لعمالتك"
+            },
+            {
+              "href": "/worker-housing#wh-fines",
+              "en": "Regulations & fines",
+              "ar": "الاشتراطات والغرامات"
+            },
+            {
+              "href": "/services/bp-housing-01",
+              "en": "Licensing service",
+              "ar": "خدمة الترخيص والتوثيق"
+            },
+            {
+              "href": "/services/bp-housing-02",
+              "en": "Worker transport",
+              "ar": "نقل العمالة"
+            },
+            {
+              "href": "/farina#workforce",
+              "en": "Workforce catering (Farina)",
+              "ar": "إعاشة العمالة (فارينا)"
+            }
+          ]
+        },
+        {
+          "href": "/farina",
+          "en": "Catering & Hospitality",
+          "ar": "التموين والضيافة للشركات",
+          "sub": [
+            {
+              "href": "/farina",
+              "en": "Overview",
+              "ar": "نظرة عامة"
+            },
+            {
+              "href": "/farina#coffee-break",
+              "en": "Coffee Break",
+              "ar": "الكوفي بريك"
+            },
+            {
+              "href": "/farina#vip-coffee",
+              "en": "VIP Coffee Break",
+              "ar": "كوفي بريك VIP"
+            },
+            {
+              "href": "/farina#executive-lunch",
+              "en": "Executive Lunch",
+              "ar": "الغداء التنفيذي"
+            },
+            {
+              "href": "/farina#vip-hospitality",
+              "en": "VIP Hospitality",
+              "ar": "ضيافة كبار الشخصيات"
+            },
+            {
+              "href": "/farina#workforce",
+              "en": "Workforce Catering",
+              "ar": "إعاشة العمالة"
+            },
+            {
+              "href": "/worker-housing",
+              "en": "Worker Housing",
+              "ar": "تسكين العمالة"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "en": "Knowledge Center",
+      "ar": "مركز المعرفة",
+      "items": [
+        {
+          "href": "/saudi-arabia",
+          "en": "Invest in Saudi",
+          "ar": "الاستثمار في السعودية"
+        },
+        {
+          "href": "/directory",
+          "en": "Startup Ecosystem Directory",
+          "ar": "دليل ريادة الأعمال"
+        },
+        {
+          "href": "/news",
+          "en": "Insights & news",
+          "ar": "الرؤى والأخبار"
+        },
+        {
+          "href": "/newsletter",
+          "en": "Newsletter",
+          "ar": "النشرة الإخبارية"
+        }
+      ]
+    },
+    {
+      "href": "/suppliers",
+      "en": "Suppliers portal",
+      "ar": "بوابة الموردين"
+    },
+    {
+      "href": "/contact",
+      "en": "Contact us",
+      "ar": "تواصل معنا"
+    }
+  ]
+}

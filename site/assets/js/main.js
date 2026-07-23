@@ -1053,6 +1053,7 @@ var BP = window.BP = window.BP || {};
             body: JSON.stringify({
               type: "order", ref: ref, name: name, phone: phone, email: email,
               items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
+              itemsData: order.items.map(function (i) { return { id: i.id || "", qty: i.qty || 1, price: i.price || 0 }; }),
               total: total,
               agents: employeeSlugs,
               compliance: boughtCompliance,

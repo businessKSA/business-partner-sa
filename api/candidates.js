@@ -81,7 +81,10 @@ const maskName = (n) => {
 };
 
 // Owner testing override — always unlocks the top-tier plan, no Notion lookup.
-const OWNER_CODE = process.env.OWNER_DEMO_CODE || "demo123";
+// ENV-ONLY: the old "demo123" default was a public master code exposing the
+// whole ATS candidate pool (names/phones/CVs) — repo is public, so any
+// hardcoded default is public. No env var → no owner bypass code.
+const OWNER_CODE = process.env.OWNER_DEMO_CODE || "";
 
 // Resolve a subscription code → { unlocked, plan }. Checks the owner override,
 // then the static EMPLOYER_CODES env (legacy), then the Employers Notion DB
@@ -91,7 +94,7 @@ async function resolvePlan(code) {
   // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
   // all resolve the same way, matching how the front-end already normalizes
   // its own client-only demo trigger codes.
-  if (code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, plan: "مؤسسية" };
+  if (OWNER_CODE && code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, plan: "مؤسسية" };
   if (CODES.some((c) => c.toLowerCase() === code.toLowerCase())) return { unlocked: true, plan: "" };
   try {
     const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {

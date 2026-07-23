@@ -120,8 +120,7 @@ export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
   if (req.method === "GET") {
-    const seenKeyNames = Object.keys(process.env).filter((k) => /notion/i.test(k));
-    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, store: DB_ID ? "database" : "page", seenKeyNames }));
+    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, store: DB_ID ? "database" : "page" }));
   }
   if (req.method !== "POST") {
     res.statusCode = 405;

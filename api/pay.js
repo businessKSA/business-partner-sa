@@ -125,10 +125,11 @@ async function readBody(req) {
 // only a non-PII teaser is returned.
 const LEADS_DB = process.env.NOTION_LEADS_DB || "26faca2761884b6ab584924c374f2d22";
 const leadsCodes = () => {
+  // ENV-ONLY: this repo is public, so a hardcoded demo code here would be a
+  // public key to a PII database (company contacts). Set LEADS_ACCESS_CODES
+  // (comma-separated) in Vercel to grant access.
   const raw = process.env.LEADS_ACCESS_CODES || process.env.LEADS_KEY || "";
-  const list = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  list.push("BP-DEMO-2026"); // built-in demo code so the portal works out of the box
-  return list;
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
 };
 const leadsCodeOk = (code) => {
   const c = String(code || "").trim();
@@ -209,9 +210,17 @@ async function handleLeads(req, res) {
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
-  // Called cross-origin from businesspartner.sa (the compliance product's own
-  // domain), which has no payment backend of its own.
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // Called cross-origin from the brand's own domains only (the compliance
+  // product used to live on a separate origin). Wildcard CORS on a payment
+  // endpoint invites hostile pages to drive it from users' browsers.
+  const ALLOWED_ORIGINS = new Set([
+    "https://www.businesspartner.sa",
+    "https://businesspartner.sa",
+    "https://new.businesspartner.sa",
+  ]);
+  const origin = req.headers.origin || "";
+  if (ALLOWED_ORIGINS.has(origin)) res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "content-type");
   if (req.method === "OPTIONS") { res.statusCode = 204; return res.end(); }
