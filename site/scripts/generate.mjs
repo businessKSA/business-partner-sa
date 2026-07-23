@@ -424,7 +424,7 @@ function langMenu(path) {
 function navSubItem(it, active) {
   let sub = it.sub;
   if (it.megaCategories) {
-    sub = [{ href: u("/services"), en: "All services (92)", ar: "كل الخدمات (92)", raw: true }]
+    sub = [{ href: u("/services"), en: `All services (${services.length})`, ar: `كل الخدمات (${services.length})`, raw: true }]
       .concat(categories.map((c) => ({ href: catUrl(c.key), en: catEn(c.key), ar: c.ar, icon: CAT_ICON[c.key] || "📁", raw: true })));
   } else if (it.megaPackages) {
     sub = [{ href: u("/packages"), en: "All packages", ar: "كل الباقات", raw: true }]
@@ -7294,7 +7294,7 @@ function buildSharedServicesPortal() {
       <div class="ss-pane" id="pane-svc" hidden>
         <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Khaled in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لخالد في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
         <div class="ss-svc">
-          <a href="${u("/services")}"><span class="e">🗂️</span><b>${L("All services (93)", "كل الخدمات (93)")}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
+          <a href="${u("/services")}"><span class="e">🗂️</span><b>${L(`All services (${services.length})`, `كل الخدمات (${services.length})`)}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
           <a href="${u("/packages")}"><span class="e">📦</span><b>${L("Packages", "الباقات")}</b><span>${L("Bundled services at a clear starting price.", "باقات جاهزة بسعر ابتدائي واضح.")}</span></a>
           <a href="${u("/calculator")}"><span class="e">🧮</span><b>${L("Cost calculator", "حاسبة التكلفة")}</b><span>${L("Build your basket and see one-time & monthly fees.", "كوّن سلّتك واعرف الأتعاب لمرة واحدة والشهرية.")}</span></a>
           <a href="${u("/tools-and-calculators")}"><span class="e">🧰</span><b>${L("Free calculators", "الحاسبات المجانية")}</b><span>${L("Nitaqat, government cost, end of service, GOSI and more.", "النطاقات، التكاليف الحكومية، نهاية الخدمة، GOSI والمزيد.")}</span></a>

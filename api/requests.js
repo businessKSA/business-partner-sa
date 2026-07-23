@@ -18,12 +18,13 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
-// Owner key that gates the internal dashboard's "incoming requests" list
-// (GET ?action=leads&key=...). Set LEADS_KEY (or DASHBOARD_KEY) in Vercel env.
-// "demo123" is accepted as an owner-requested fixed code for the /admin panel
-// (2026-07-22) alongside whatever LEADS_KEY is set to.
+// Owner key that gates the internal dashboard's "incoming requests" list and
+// every /admin panel action. ENV-ONLY on purpose: this repo is public, so a
+// hardcoded fallback key (the old "demo123") would be a public master key to
+// customer data, order statuses, activations and GitHub content writes.
+// Set PANEL_KEY (or LEADS_KEY / DASHBOARD_KEY) in Vercel env.
 const LEADS_KEY = process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "";
-const PANEL_KEYS = new Set(["demo123", LEADS_KEY].filter(Boolean));
+const PANEL_KEYS = new Set([process.env.PANEL_KEY, LEADS_KEY].filter(Boolean));
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";

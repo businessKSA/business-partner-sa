@@ -119,9 +119,17 @@ async function readBody(req) {
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
-  // Called cross-origin from businesspartner.sa (the compliance product's own
-  // domain), which has no payment backend of its own.
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // Called cross-origin from the brand's own domains only (the compliance
+  // product used to live on a separate origin). Wildcard CORS on a payment
+  // endpoint invites hostile pages to drive it from users' browsers.
+  const ALLOWED_ORIGINS = new Set([
+    "https://www.businesspartner.sa",
+    "https://businesspartner.sa",
+    "https://new.businesspartner.sa",
+  ]);
+  const origin = req.headers.origin || "";
+  if (ALLOWED_ORIGINS.has(origin)) res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "content-type");
   if (req.method === "OPTIONS") { res.statusCode = 204; return res.end(); }
