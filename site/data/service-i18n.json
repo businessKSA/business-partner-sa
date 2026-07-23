@@ -3,10 +3,6 @@
     "en": "Chamber of Commerce membership",
     "ar": "عضوية الغرفة التجارية"
   },
-  "BP-PL-0001": {
-    "en": "Saudi Limited Liability Company (LLC) Formation",
-    "ar": "تأسيس شركة سعودية (ذات مسؤولية محدودة)"
-  },
   "BP-PL-0066": {
     "en": "Pre-incorporation consultation",
     "ar": "استشارة ما قبل التأسيس"
@@ -115,10 +111,6 @@
     "en": "Foreign Company Branch Registration",
     "ar": "تسجيل فرع لشركة أجنبية"
   },
-  "BP-PL-0067": {
-    "en": "MISA investor license application",
-    "ar": "طلب ترخيص مستثمر من وزارة الاستثمار (MISA)"
-  },
   "BP-PR-01": {
     "en": "Premium Residency service (procedures + application)",
     "ar": "خدمة الإقامة المميزة (إجراءات + تقديم)"
@@ -150,10 +142,6 @@
   "BP-GOSI-03": {
     "en": "GOSI Certificate Issuance",
     "ar": "استخراج شهادة التأمينات الاجتماعية"
-  },
-  "BP-GOSI-04": {
-    "en": "GOSI Registration",
-    "ar": "التسجيل في التأمينات الاجتماعية"
   },
   "BP-GR-01": {
     "en": "Contractor Classification Certificate",
@@ -335,10 +323,6 @@
     "en": "Public Relations & Corporate Communications",
     "ar": "خدمة العلاقات العامة والاتصال المؤسسي"
   },
-  "BP-PL-0075": {
-    "en": "Bank Account Opening — Liaison & Appointments",
-    "ar": "فتح حساب بنكي (تنسيق ومواعيد)"
-  },
   "BP-RE-01": {
     "en": "Private Office",
     "ar": "مكتب خاص (لعدد محدد من الأشخاص)"
@@ -423,10 +407,6 @@
     "ar": "تراخيص الأحجار الكريمة والمعادن الثمينة",
     "en": "Precious Stones and Precious Metals Licenses"
   },
-  "BP-PL-0094": {
-    "ar": "قيد الامتياز التجاري (فرنشايز)",
-    "en": "Franchise Registration"
-  },
   "BP-PL-0076": {
     "ar": "إصدار الترخيص الصناعي (تأسيس)",
     "en": "Industrial License Issuance for Establishment"
@@ -474,5 +454,17 @@
   "BP-PL-0087": {
     "ar": "تصريح الاستشارات الأمنية",
     "en": "Security Consulting Permit"
+  },
+  "BP-SUB-01": {
+    "ar": "اشتراك تحديثات",
+    "en": "Updates Subscription"
+  },
+  "BP-VENDOR-01": {
+    "ar": "تأهيل مورد",
+    "en": "Vendor Qualification"
+  },
+  "BP-VENDOR-02": {
+    "ar": "متابعة مورد",
+    "en": "Vendor Follow-up"
   }
 }

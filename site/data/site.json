@@ -1769,60 +1769,6 @@
         }
       ]
     },
-    "bp-pl-0001": {
-      "name": "تأسيس شركة سعودية (ذات مسؤولية محدودة)",
-      "nameEn": "Saudi Limited Liability Company (LLC) Formation",
-      "description": "تأسيس شركة سعودية ذات مسؤولية محدودة (LLC) — نجهّز المتطلبات النظامية، ونصيغ عقد التأسيس، ونتابع التسجيل حتى إصدار السجل التجاري وعضوية الغرفة التجارية.",
-      "descriptionEn": "Formation of a Saudi limited liability company (LLC) — we prepare the regulatory requirements, draft the Articles of Association, and follow registration through to the Commercial Registration and Chamber of Commerce membership.",
-      "audience": "رواد الأعمال والشركات تحت التأسيس أو التوسع",
-      "audienceEn": "Entrepreneurs and companies being formed or expanding",
-      "duration": "حسب جاهزية المستندات — غالباً من عدة أيام إلى عدة أسابيع",
-      "durationEn": "Depends on document readiness — usually a few days to a few weeks",
-      "documents": [
-        "هوية أو جواز الشركاء",
-        "بيانات النشاط التجاري",
-        "العنوان الوطني",
-        "قرارات الشركاء (حسب الحالة)"
-      ],
-      "documentsEn": [
-        "Partners' national ID or passport",
-        "Business activity details",
-        "National Address",
-        "Partners' resolutions (as applicable)"
-      ],
-      "features": [
-        "صياغة وتوثيق عقد التأسيس",
-        "إصدار السجل التجاري",
-        "عضوية الغرفة التجارية",
-        "متابعة الإجراءات حتى اكتمال التأسيس"
-      ],
-      "featuresEn": [
-        "Drafted & notarized Articles of Association",
-        "Commercial Registration (CR) issuance",
-        "Chamber of Commerce membership",
-        "Follow-up until formation is complete"
-      ],
-      "faq": [
-        {
-          "q": "ما الفرق بين المؤسسة الفردية والشركة ذات المسؤولية المحدودة؟",
-          "a": "الشركة ذات المسؤولية المحدودة كيان مستقل بذمة مالية منفصلة وشريك واحد أو أكثر، ونساعدك في اختيار الأنسب لحالتك."
-        },
-        {
-          "q": "كم تستغرق المدة؟",
-          "a": "غالباً من عدة أيام إلى عدة أسابيع حسب جاهزية المستندات."
-        }
-      ],
-      "faqEn": [
-        {
-          "q": "Sole establishment vs. LLC?",
-          "a": "An LLC is a separate legal entity with its own liability and one or more partners; we help you choose what fits your case."
-        },
-        {
-          "q": "How long does it take?",
-          "a": "Usually a few days to a few weeks depending on document readiness."
-        }
-      ]
-    },
     "bp-fi-01": {
       "name": "تأسيس شركة لمستثمر أجنبي",
       "nameEn": "Foreign Investor Company Formation",
@@ -2473,48 +2419,6 @@
       "featuresEn": [
         "Reviewing the GOSI establishment record",
         "Issuing the GOSI certificate"
-      ],
-      "faq": [
-        {
-          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
-          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
-        }
-      ],
-      "faqEn": [
-        {
-          "q": "Are government fees included?",
-          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
-        }
-      ]
-    },
-    "bp-gosi-04": {
-      "name": "التسجيل في التأمينات الاجتماعية",
-      "nameEn": "GOSI Registration",
-      "description": "التسجيل في التأمينات الاجتماعية للمنشأة مع متابعة التفعيل وربط بيانات المنشأة حسب المتطلب.",
-      "descriptionEn": "GOSI registration for the entity, including activation follow-up and establishment data linkage as required.",
-      "audience": "المنشآت التي تحتاج إدارة ومتابعة معاملات الجهات الحكومية",
-      "audienceEn": "Establishments that need government transactions managed and followed up",
-      "duration": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
-      "durationEn": "Usually one business day to a few days, depending on the authority and complexity",
-      "documents": [
-        "السجل التجاري",
-        "بيانات المنشأة",
-        "بيانات المشترك أو الموظف (حسب الخدمة)"
-      ],
-      "documentsEn": [
-        "Commercial Registration",
-        "Establishment details",
-        "Subscriber or employee details (per the service)"
-      ],
-      "features": [
-        "تجهيز بيانات المنشأة للتسجيل",
-        "التسجيل في التأمينات الاجتماعية",
-        "متابعة التفعيل"
-      ],
-      "featuresEn": [
-        "Preparing the establishment data",
-        "GOSI registration",
-        "Following up activation"
       ],
       "faq": [
         {
@@ -3365,38 +3269,6 @@
         "Preparing the account-opening requirements",
         "Coordinating with the bank & appointments",
         "Following up until the account is open"
-      ],
-      "faq": [
-        {
-          "q": "كيف تُحدَّد الأتعاب؟",
-          "a": "نحدّد الأتعاب بعرض مخصّص حسب نطاق الخدمة وحالتك — احجز استشارة أو اطلب عرضاً."
-        }
-      ],
-      "faqEn": [
-        {
-          "q": "How are fees determined?",
-          "a": "We scope the fees to your case in a tailored proposal — book a consultation or request a quote."
-        }
-      ]
-    },
-    "bp-pl-0075": {
-      "name": "فتح حساب بنكي (تنسيق ومواعيد)",
-      "nameEn": "Bank Account Opening — Liaison & Appointments",
-      "description": "خدمة التنسيق وحجز المواعيد لفتح حساب بنكي — تجهيز المتطلبات ومتابعة الإجراءات حتى الاكتمال.",
-      "descriptionEn": "Bank account opening liaison and appointment coordination with requirements preparation until account procedures are completed.",
-      "audience": "الشركات التي تحتاج دعماً تشغيلياً أو تنظيمياً أو تجارياً",
-      "audienceEn": "Businesses needing operational, regulatory or commercial support",
-      "duration": "حسب نطاق الخدمة",
-      "durationEn": "Depends on the scope of the service",
-      "features": [
-        "حجز مواعيد فتح الحساب",
-        "تجهيز المتطلبات والمستندات",
-        "متابعة الإجراءات حتى الاكتمال"
-      ],
-      "featuresEn": [
-        "Booking account-opening appointments",
-        "Preparing requirements & documents",
-        "Following up procedures to completion"
       ],
       "faq": [
         {
@@ -5163,50 +5035,6 @@
         }
       ]
     },
-    "bp-pl-0094": {
-      "name": "قيد الامتياز التجاري (فرنشايز)",
-      "nameEn": "Franchise Registration",
-      "description": "قيد الامتياز التجاري (فرنشايز) — تجهيز المستندات ومتابعة القيد لدى وزارة التجارة.",
-      "descriptionEn": "Franchise registration with document preparation and registration follow-up at the Ministry of Commerce.",
-      "audience": "المانحون والمستفيدون من الامتياز التجاري.",
-      "audienceEn": "Franchisors and franchisees",
-      "duration": "حسب المراجعة.",
-      "durationEn": "Depends on the authority review",
-      "documents": [
-        "عقد الامتياز",
-        "السجل التجاري",
-        "بيانات الأطراف",
-        "أي إفصاحات لازمة"
-      ],
-      "documentsEn": [
-        "The franchise agreement",
-        "Commercial Registration",
-        "Parties' details",
-        "Any required disclosures"
-      ],
-      "features": [
-        "تجهيز مستندات الامتياز",
-        "تقديم طلب القيد",
-        "المتابعة حتى القيد لدى وزارة التجارة"
-      ],
-      "featuresEn": [
-        "Preparing the franchise documents",
-        "Filing the registration request",
-        "Following up with the Ministry of Commerce"
-      ],
-      "faq": [
-        {
-          "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
-          "a": "نعم، الرسوم الحكومية منفصلة عن أتعابنا ونوضّحها ضمن العرض."
-        }
-      ],
-      "faqEn": [
-        {
-          "q": "Are government fees included?",
-          "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
-        }
-      ]
-    },
     "bp-pl-0076": {
       "name": "إصدار الترخيص الصناعي (تأسيس)",
       "nameEn": "Industrial License Issuance for Establishment",
@@ -5712,6 +5540,132 @@
         {
           "q": "Are government fees included?",
           "a": "Yes, government fees are separate from our professional fees and are set out in the proposal."
+        }
+      ]
+    },
+    "bp-sub-01": {
+      "name": "اشتراك تحديثات",
+      "nameEn": "Updates Subscription",
+      "description": "اشتراك شهري لتحديثات دورية ومتابعة مستمرة للمستجدات المتعلقة بموضوع أو قطاع أو ملف عمل محدد.",
+      "descriptionEn": "Monthly subscription for periodic updates and ongoing tracking of developments related to a specific topic, sector, or workstream.",
+      "audience": "العملاء الذين يحتاجون متابعة مستمرة وتغذية دورية بالمستجدات",
+      "audienceEn": "Clients needing continuous tracking and periodic updates",
+      "duration": "اشتراك شهري مستمر",
+      "durationEn": "An ongoing monthly subscription",
+      "documents": [
+        "وصف النطاق",
+        "الجهة أو الموضوع المستهدف",
+        "أي مرجع أساسي للمتابعة"
+      ],
+      "documentsEn": [
+        "Scope description",
+        "The target entity or topic",
+        "Any base reference to track"
+      ],
+      "features": [
+        "تحديثات دورية وملخصات",
+        "تنبيهات بالمستجدات المهمة",
+        "متابعة مستمرة حسب النطاق"
+      ],
+      "featuresEn": [
+        "Periodic updates & summaries",
+        "Alerts on important developments",
+        "Ongoing tracking per scope"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب نطاقك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-vendor-01": {
+      "name": "تأهيل مورد",
+      "nameEn": "Vendor Qualification",
+      "description": "تأهيل مورد جديد أو قائم عبر مراجعة الجاهزية وفحص الوثائق وتحديد المتطلبات اللازمة للبدء.",
+      "descriptionEn": "Qualification of a new or existing vendor through readiness review, document checks, and mapping the requirements needed to start.",
+      "audience": "الشركات التي تحتاج تأهيل موردين أو تنظيم عملية إدخالهم",
+      "audienceEn": "Companies needing vendor qualification or organized onboarding",
+      "duration": "عادةً من 3 إلى 10 أيام عمل حسب تعقيد التأهيل",
+      "durationEn": "Usually 3–10 business days depending on complexity",
+      "documents": [
+        "بيانات المورد",
+        "الوثائق النظامية",
+        "معايير أو متطلبات الاعتماد"
+      ],
+      "documentsEn": [
+        "Vendor details",
+        "Regulatory documents",
+        "Accreditation criteria or requirements"
+      ],
+      "features": [
+        "تقييم جاهزية المورد",
+        "قائمة متطلبات واضحة",
+        "خطة تأهيل أو بدء"
+      ],
+      "featuresEn": [
+        "Vendor readiness assessment",
+        "A clear requirements list",
+        "A qualification or onboarding plan"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب نطاقك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
+        }
+      ]
+    },
+    "bp-vendor-02": {
+      "name": "متابعة مورد",
+      "nameEn": "Vendor Follow-up",
+      "description": "متابعة شهرية للمورد تشمل التنسيق والتحقق من الالتزامات ومراقبة التقدم والمتطلبات المفتوحة.",
+      "descriptionEn": "Monthly vendor follow-up covering coordination, commitment checks, and monitoring progress or open requirements.",
+      "audience": "الشركات التي تحتاج متابعة تشغيلية شهرية مع الموردين",
+      "audienceEn": "Companies needing monthly operational vendor follow-up",
+      "duration": "اشتراك شهري مستمر",
+      "durationEn": "An ongoing monthly subscription",
+      "documents": [
+        "العقود أو الاتفاقات ذات الصلة",
+        "بيانات المورد",
+        "النطاق التشغيلي المطلوب"
+      ],
+      "documentsEn": [
+        "Related contracts or agreements",
+        "Vendor details",
+        "The required operational scope"
+      ],
+      "features": [
+        "متابعة دورية للمورد",
+        "تقارير مختصرة",
+        "تنسيق وتصعيد حسب النطاق"
+      ],
+      "featuresEn": [
+        "Periodic vendor follow-up",
+        "Concise reports",
+        "Coordination & escalation per scope"
+      ],
+      "faq": [
+        {
+          "q": "كيف تُحدَّد الأتعاب؟",
+          "a": "تُحدَّد بعرض مخصّص حسب نطاقك — احجز استشارة أو اطلب عرضاً."
+        }
+      ],
+      "faqEn": [
+        {
+          "q": "How are fees determined?",
+          "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
         }
       ]
     }

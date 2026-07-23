@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-23T05:06:45.757Z",
+  "updatedAt": "2026-07-23T05:29:19.000Z",
   "currency": "SAR",
   "services": [
     {
@@ -15,20 +15,6 @@
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-chamber-01"
-    },
-    {
-      "code": "BP-PL-0001",
-      "nameAr": "تأسيس شركة سعودية (ذات مسؤولية محدودة)",
-      "nameEn": "Saudi Limited Liability Company (LLC) Formation",
-      "category": "Company Formation",
-      "categoryAr": "تأسيس الشركات",
-      "govPlatform": "",
-      "pricingModel": "One Time",
-      "amount": 5000,
-      "priceLabel": "5,000 ﷼",
-      "govFeesSeparate": false,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-pl-0001"
     },
     {
       "code": "BP-PL-0066",
@@ -409,20 +395,6 @@
       "url": "https://businesspartner.sa/services/bp-fi-06"
     },
     {
-      "code": "BP-PL-0067",
-      "nameAr": "طلب ترخيص مستثمر من وزارة الاستثمار (MISA)",
-      "nameEn": "MISA investor license application",
-      "category": "Foreign Investment",
-      "categoryAr": "الاستثمار الأجنبي",
-      "govPlatform": "",
-      "pricingModel": "One Time",
-      "amount": 9500,
-      "priceLabel": "9,500 ﷼",
-      "govFeesSeparate": false,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-pl-0067"
-    },
-    {
       "code": "BP-PR-01",
       "nameAr": "خدمة الإقامة المميزة (إجراءات + تقديم)",
       "nameEn": "Premium Residency service (procedures + application)",
@@ -533,20 +505,6 @@
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-gosi-03"
-    },
-    {
-      "code": "BP-GOSI-04",
-      "nameAr": "التسجيل في التأمينات الاجتماعية",
-      "nameEn": "GOSI Registration",
-      "category": "Government Relations",
-      "categoryAr": "العلاقات الحكومية",
-      "govPlatform": "التأمينات GOSI",
-      "pricingModel": "One Time",
-      "amount": 250,
-      "priceLabel": "250 ﷼",
-      "govFeesSeparate": true,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-gosi-04"
     },
     {
       "code": "BP-GR-01",
@@ -1179,20 +1137,6 @@
       "url": "https://businesspartner.sa/services/bp-pl-0063"
     },
     {
-      "code": "BP-PL-0075",
-      "nameAr": "فتح حساب بنكي (تنسيق ومواعيد)",
-      "nameEn": "Bank Account Opening — Liaison & Appointments",
-      "category": "Business Support",
-      "categoryAr": "دعم الأعمال",
-      "govPlatform": "",
-      "pricingModel": "One Time",
-      "amount": 1200,
-      "priceLabel": "1,200 ﷼",
-      "govFeesSeparate": false,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-pl-0075"
-    },
-    {
       "code": "BP-RE-01",
       "nameAr": "مكتب خاص (لعدد محدد من الأشخاص)",
       "nameEn": "Private Office",
@@ -1473,20 +1417,6 @@
       "url": "https://businesspartner.sa/services/bp-pl-0093"
     },
     {
-      "code": "BP-PL-0094",
-      "nameAr": "قيد الامتياز التجاري (فرنشايز)",
-      "nameEn": "Franchise Registration",
-      "category": "Business Support",
-      "categoryAr": "دعم الأعمال",
-      "govPlatform": "المركز السعودي للأعمال",
-      "pricingModel": "One Time",
-      "amount": 1200,
-      "priceLabel": "1,200 ﷼",
-      "govFeesSeparate": true,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-pl-0094"
-    },
-    {
       "code": "BP-PL-0076",
       "nameAr": "إصدار الترخيص الصناعي (تأسيس)",
       "nameEn": "Industrial License Issuance for Establishment",
@@ -1653,6 +1583,48 @@
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-pl-0087"
+    },
+    {
+      "code": "BP-SUB-01",
+      "nameAr": "اشتراك تحديثات",
+      "nameEn": "Updates Subscription",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "Monthly",
+      "amount": 750,
+      "priceLabel": "750 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-sub-01"
+    },
+    {
+      "code": "BP-VENDOR-01",
+      "nameAr": "تأهيل مورد",
+      "nameEn": "Vendor Qualification",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "One Time",
+      "amount": 3500,
+      "priceLabel": "3,500 ﷼",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-vendor-01"
+    },
+    {
+      "code": "BP-VENDOR-02",
+      "nameAr": "متابعة مورد",
+      "nameEn": "Vendor Follow-up",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "Monthly",
+      "amount": 2000,
+      "priceLabel": "2,000 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-vendor-02"
     }
   ],
   "categories": [
@@ -1660,13 +1632,13 @@
       "key": "Company Formation",
       "nameAr": "تأسيس الشركات",
       "nameEn": "Company Formation",
-      "count": 23
+      "count": 22
     },
     {
       "key": "Foreign Investment",
       "nameAr": "الاستثمار الأجنبي",
       "nameEn": "Foreign Investment",
-      "count": 8
+      "count": 7
     },
     {
       "key": "Premium Residency",
@@ -1678,7 +1650,7 @@
       "key": "Government Relations",
       "nameAr": "العلاقات الحكومية",
       "nameEn": "Government Relations",
-      "count": 35
+      "count": 34
     },
     {
       "key": "HR Services",
@@ -1696,7 +1668,7 @@
       "key": "Business Support",
       "nameAr": "دعم الأعمال",
       "nameEn": "Business Support",
-      "count": 26
+      "count": 27
     },
     {
       "key": "Real Estate",

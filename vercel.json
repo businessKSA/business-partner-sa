@@ -7,36 +7,200 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
-    "api/candidate.js": { "maxDuration": 30 },
-    "api/chat.js": { "maxDuration": 60 }
+    "api/candidate.js": {
+      "maxDuration": 30
+    },
+    "api/chat.js": {
+      "maxDuration": 60
+    }
   },
   "redirects": [
-    { "source": "/installments", "destination": "/", "permanent": false },
-    { "source": "/ar/installments", "destination": "/ar", "permanent": false },
-    { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },
-    { "source": "/business-tourism", "destination": "/tourism", "permanent": true },
-    { "source": "/compliance-portal", "destination": "/compliance-agent", "permanent": true },
-    { "source": "/ar/compliance-portal", "destination": "/ar/compliance-agent", "permanent": true }
+    {
+      "source": "/installments",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/ar/installments",
+      "destination": "/ar",
+      "permanent": false
+    },
+    {
+      "source": "/blog",
+      "destination": "/saudi-arabia",
+      "permanent": true
+    },
+    {
+      "source": "/business-tourism",
+      "destination": "/tourism",
+      "permanent": true
+    },
+    {
+      "source": "/compliance-portal",
+      "destination": "/compliance-agent",
+      "permanent": true
+    },
+    {
+      "source": "/ar/compliance-portal",
+      "destination": "/ar/compliance-agent",
+      "permanent": true
+    },
+    {
+      "source": "/services/bp-pl-0001",
+      "destination": "/services/bp-sbc-01",
+      "permanent": false
+    },
+    {
+      "source": "/ar/services/bp-pl-0001",
+      "destination": "/ar/services/bp-sbc-01",
+      "permanent": false
+    },
+    {
+      "source": "/services/bp-pl-0067",
+      "destination": "/services/bp-fi-02",
+      "permanent": false
+    },
+    {
+      "source": "/ar/services/bp-pl-0067",
+      "destination": "/ar/services/bp-fi-02",
+      "permanent": false
+    },
+    {
+      "source": "/services/bp-pl-0075",
+      "destination": "/services/bp-pl-0051",
+      "permanent": false
+    },
+    {
+      "source": "/ar/services/bp-pl-0075",
+      "destination": "/ar/services/bp-pl-0051",
+      "permanent": false
+    },
+    {
+      "source": "/services/bp-gosi-04",
+      "destination": "/services/bp-gosi-01",
+      "permanent": false
+    },
+    {
+      "source": "/ar/services/bp-gosi-04",
+      "destination": "/ar/services/bp-gosi-01",
+      "permanent": false
+    },
+    {
+      "source": "/services/bp-pl-0094",
+      "destination": "/services/bp-pl-0019",
+      "permanent": false
+    },
+    {
+      "source": "/ar/services/bp-pl-0094",
+      "destination": "/ar/services/bp-pl-0019",
+      "permanent": false
+    }
   ],
   "rewrites": [
-    { "source": "/jobs-feed.xml", "destination": "/api/candidates?feed=jobs" },
-    { "source": "/indeed.xml", "destination": "/api/candidates?feed=jobs" },
-    { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
-    { "source": "/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/join" },
-    { "source": "/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/dashboard" },
-    { "source": "/candidates", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/candidates" },
-    { "source": "/en", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/index" },
-    { "source": "/en/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/join" },
-    { "source": "/en/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/dashboard" },
-    { "source": "/en/candidates", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/candidates" }
+    {
+      "source": "/jobs-feed.xml",
+      "destination": "/api/candidates?feed=jobs"
+    },
+    {
+      "source": "/indeed.xml",
+      "destination": "/api/candidates?feed=jobs"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/ar/portal/index"
+    },
+    {
+      "source": "/join",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/ar/portal/join"
+    },
+    {
+      "source": "/dashboard",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/ar/portal/dashboard"
+    },
+    {
+      "source": "/candidates",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/ar/portal/candidates"
+    },
+    {
+      "source": "/en",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/portal/index"
+    },
+    {
+      "source": "/en/join",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/portal/join"
+    },
+    {
+      "source": "/en/dashboard",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/portal/dashboard"
+    },
+    {
+      "source": "/en/candidates",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/portal/candidates"
+    }
   ],
   "headers": [
     {
       "source": "/assets/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ],
   "crons": [
-    { "path": "/api/newsletter", "schedule": "0 6 * * 0" }
+    {
+      "path": "/api/newsletter",
+      "schedule": "0 6 * * 0"
+    }
   ]
 }

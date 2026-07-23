@@ -18,28 +18,6 @@
     }
   },
   {
-    "code": "BP-PL-0001",
-    "slug": "bp-pl-0001",
-    "name": "تأسيس شركة سعودية (ذات مسؤولية محدودة)",
-    "category": "Company Formation",
-    "categoryAr": "تأسيس الشركات",
-    "govPlatform": "",
-    "description": "نتولّى في Business Partner تنفيذ «تأسيس شركة سعودية (ذات مسؤولية محدودة)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
-    "deliverables": [
-      "Commercial Registration (CR)",
-      "Articles of Association",
-      "Chamber of Commerce membership"
-    ],
-    "targetClient": "",
-    "pricingModel": "One Time",
-    "govFeesSeparate": false,
-    "requiresProposal": true,
-    "price": {
-      "label": "5,000 ﷼",
-      "amount": 5000
-    }
-  },
-  {
     "code": "BP-PL-0066",
     "slug": "bp-pl-0066",
     "name": "Pre‑incorporation consultation",
@@ -559,26 +537,6 @@
     }
   },
   {
-    "code": "BP-PL-0067",
-    "slug": "bp-pl-0067",
-    "name": "MISA investor license application",
-    "category": "Foreign Investment",
-    "categoryAr": "الاستثمار الأجنبي",
-    "govPlatform": "",
-    "description": "نتولّى في Business Partner تنفيذ «MISA investor license application» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
-    "deliverables": [
-      "MISA investor license"
-    ],
-    "targetClient": "",
-    "pricingModel": "One Time",
-    "govFeesSeparate": false,
-    "requiresProposal": true,
-    "price": {
-      "label": "9,500 ﷼",
-      "amount": 9500
-    }
-  },
-  {
     "code": "BP-PR-01",
     "slug": "bp-pr-01",
     "name": "خدمة الإقامة المميزة (إجراءات + تقديم)",
@@ -725,24 +683,6 @@
     "price": {
       "label": "150 ﷼",
       "amount": 150
-    }
-  },
-  {
-    "code": "BP-GOSI-04",
-    "slug": "bp-gosi-04",
-    "name": "GOSI registration",
-    "category": "Government Relations",
-    "categoryAr": "العلاقات الحكومية",
-    "govPlatform": "التأمينات GOSI",
-    "description": "نتولّى في Business Partner تنفيذ «GOSI registration» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
-    "deliverables": [],
-    "targetClient": "",
-    "pricingModel": "One Time",
-    "govFeesSeparate": true,
-    "requiresProposal": true,
-    "price": {
-      "label": "250 ﷼",
-      "amount": 250
     }
   },
   {
@@ -1562,24 +1502,6 @@
     }
   },
   {
-    "code": "BP-PL-0075",
-    "slug": "bp-pl-0075",
-    "name": "Bank account opening (liaison & appointments)",
-    "category": "Business Support",
-    "categoryAr": "دعم الأعمال",
-    "govPlatform": "",
-    "description": "نتولّى في Business Partner تنفيذ «Bank account opening (liaison & appointments)» نيابةً عنك ضمن خدمات دعم الأعمال — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
-    "deliverables": [],
-    "targetClient": "",
-    "pricingModel": "One Time",
-    "govFeesSeparate": false,
-    "requiresProposal": true,
-    "price": {
-      "label": "1,200 ﷼",
-      "amount": 1200
-    }
-  },
-  {
     "code": "BP-RE-01",
     "slug": "bp-re-01",
     "name": "مكتب خاص (لعدد محدد من الأشخاص)",
@@ -1972,24 +1894,6 @@
     }
   },
   {
-    "code": "BP-PL-0094",
-    "slug": "bp-pl-0094",
-    "name": "قيد الامتياز التجاري (فرنشايز)",
-    "category": "Business Support",
-    "categoryAr": "دعم الأعمال",
-    "govPlatform": "المركز السعودي للأعمال",
-    "description": "قيد الامتياز التجاري (فرنشايز) — تجهيز المستندات ومتابعة القيد لدى وزارة التجارة.",
-    "deliverables": [],
-    "targetClient": "المانحون والمستفيدون من الامتياز التجاري.",
-    "pricingModel": "One Time",
-    "govFeesSeparate": true,
-    "requiresProposal": true,
-    "price": {
-      "label": "1,200 ﷼",
-      "amount": 1200
-    }
-  },
-  {
     "code": "BP-PL-0076",
     "slug": "bp-pl-0076",
     "name": "إصدار الترخيص الصناعي (تأسيس)",
@@ -2203,6 +2107,60 @@
     "price": {
       "label": "7,000 ﷼",
       "amount": 7000
+    }
+  },
+  {
+    "code": "BP-SUB-01",
+    "slug": "bp-sub-01",
+    "name": "اشتراك تحديثات",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "اشتراك شهري لتحديثات دورية ومتابعة مستمرة للمستجدات المتعلقة بموضوع أو قطاع أو ملف عمل محدد.",
+    "deliverables": [],
+    "targetClient": "العملاء الذين يحتاجون متابعة مستمرة وتغذية دورية بالمستجدات",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "750 ﷼ / شهرياً",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-VENDOR-01",
+    "slug": "bp-vendor-01",
+    "name": "تأهيل مورد",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "تأهيل مورد جديد أو قائم عبر مراجعة الجاهزية وفحص الوثائق وتحديد المتطلبات اللازمة للبدء.",
+    "deliverables": [],
+    "targetClient": "الشركات التي تحتاج تأهيل موردين أو تنظيم عملية إدخالهم",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "3,500 ﷼",
+      "amount": 3500
+    }
+  },
+  {
+    "code": "BP-VENDOR-02",
+    "slug": "bp-vendor-02",
+    "name": "متابعة مورد",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "",
+    "description": "متابعة شهرية للمورد تشمل التنسيق والتحقق من الالتزامات ومراقبة التقدم والمتطلبات المفتوحة.",
+    "deliverables": [],
+    "targetClient": "الشركات التي تحتاج متابعة تشغيلية شهرية مع الموردين",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "2,000 ﷼ / شهرياً",
+      "amount": 2000
     }
   }
 ]
