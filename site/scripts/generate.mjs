@@ -404,93 +404,11 @@ ${SHOW_PRICES ? "" : '<style>/* Owner policy: never reveal any price. Safety net
 <body>`;
 }
 
-const NAV_GROUPS = [
-  { href: "/", en: "Home", ar: "الرئيسية" },
-  { href: "/about", en: "About us", ar: "من نحن" },
-  {
-    en: "Our services", ar: "خدماتنا",
-    items: [
-      { href: "/services", en: "Government Consulting Services", ar: "خدمة الاستشارات الحكومية", megaCategories: true },
-      { href: "/packages", en: "Packages", ar: "الباقات", megaPackages: true },
-      {
-        href: "/ai-agents", en: "AI Agents ⚡", ar: "الوكلاء الأذكياء ⚡",
-        sub: [
-          { href: "/ai-agents", en: "All AI Agents", ar: "كل الوكلاء الأذكياء" },
-          { href: "/compliance-agent", en: "Compliance", ar: "الامتثال" },
-          { href: "/portal", en: "Smart Employees", ar: "الموظفين الأذكياء" },
-          { href: "/shared-services", en: "Shared Services Team", ar: "فريق الخدمات المشتركة" },
-        ],
-      },
-      // Promoted out of the categories flyout to a top-level services item (owner request).
-      { href: "/services/category/ai-automation", en: "AI & Automation ⚡", ar: "الأتمتة والذكاء الاصطناعي ⚡" },
-      { href: "/task-force", en: "Task Force ⚡", ar: "تاسك فورس ⚡" },
-      {
-        href: "/hr", en: "Recruitment", ar: "التوظيف",
-        sub: [
-          { href: "/hr", en: "Recruitment services", ar: "خدمات التوظيف" },
-          { href: "/employers", en: "For employers", ar: "لأصحاب العمل" },
-          { href: "/careers", en: "Open jobs", ar: "الوظائف المتاحة" },
-        ],
-      },
-      { href: "/deals", en: "Deals ⚡", ar: "الصفقات ⚡" },
-      { href: "/estrdad", en: "Fee refunds (Estrdad) ⚡", ar: "استرداد الرسوم ⚡" },
-      { href: "/bank-account", en: "Corporate bank account ⚡", ar: "فتح حساب بنكي ⚡" },
-      { href: "/formation-contract", en: "Formation with partners ⚡", ar: "تأسيس بين شركاء ⚡" },
-      {
-        href: "/mahfol-makfol", en: "Business Tourism", ar: "سياحة الأعمال",
-        sub: [
-          { href: "/mahfol-makfol", en: "For investors", ar: "للمستثمر" },
-          { href: "/mahfol-makfol/trips", en: "Trips & experiences", ar: "الرحلات والتجارب" },
-          { href: "/tourism", en: "Corporate events", ar: "فعاليات الشركات" },
-        ],
-      },
-      {
-        href: "/workspaces", en: "Business Spaces", ar: "مساحات الأعمال",
-        sub: [
-          { href: "/workspaces", en: "Browse spaces", ar: "استعراض المساحات" },
-          { href: "/workspace-request", en: "Request a workspace", ar: "اطلب مساحة عمل" },
-          { href: "/services/bp-re-01", en: "Private office", ar: "مكتب خاص" },
-          { href: "/services/bp-re-02", en: "Coworking space", ar: "مساحة عمل مشتركة" },
-          { href: "/services/bp-re-03", en: "Virtual office + National Address", ar: "مكتب افتراضي مع عنوان وطني" },
-          { href: "/services/bp-re-04", en: "Dedicated desk", ar: "مكتب ثابت في مساحة مشتركة" },
-          { href: "/services/bp-re-05", en: "Office search service", ar: "خدمة البحث عن مكتب" },
-          { href: "/services/bp-re-06", en: "Foreign property ownership", ar: "تملّك العقار للأجانب" },
-        ],
-      },
-      {
-        href: "/worker-housing", en: "Worker Housing ⚡", ar: "تسكين العمالة ⚡",
-        sub: [
-          { href: "/worker-housing", en: "Overview", ar: "نظرة عامة" },
-          { href: "/worker-housing#wh-request", en: "Request housing", ar: "اطلب سكن لعمالتك" },
-          { href: "/worker-housing#wh-fines", en: "Regulations & fines", ar: "الاشتراطات والغرامات" },
-          { href: "/services/bp-housing-01", en: "Licensing service", ar: "خدمة الترخيص والتوثيق" },
-          { href: "/services/bp-housing-02", en: "Worker transport", ar: "نقل العمالة" },
-        ],
-      },
-    ],
-  },
-  {
-    en: "Knowledge Center", ar: "مركز المعرفة",
-    items: [
-      {
-        href: "/saudi-arabia", en: "Saudi Guide", ar: "دليل السعودية",
-        sub: [
-          { href: "/saudi-arabia", en: "Invest in Saudi", ar: "الاستثمار في السعودية" },
-          { href: "/guide/saudi-market", en: "The Saudi Market", ar: "السوق السعودي" },
-          { href: "/guide/business-setup", en: "Business Setup", ar: "تأسيس الأعمال" },
-          { href: "/guide/run-your-business", en: "Run Your Business", ar: "تشغيل عملك" },
-          { href: "/directory", en: "Entrepreneurship guide", ar: "دليل ريادة الأعمال" },
-          { href: "/guide/live-in-saudi", en: "Live in Saudi", ar: "الحياة في السعودية" },
-          { href: "/guide/residency", en: "Residency in KSA", ar: "الإقامة في السعودية" },
-        ],
-      },
-      { href: "/opportunities", en: "Investment Opportunities", ar: "الفرص الاستثمارية" },
-      { href: "/news", en: "Insights & news", ar: "الرؤى والأخبار" },
-      { href: "/newsletter", en: "Newsletter", ar: "النشرة الإخبارية" },
-    ],
-  },
-  { href: "/contact", en: "Contact us", ar: "تواصل معنا" },
-];
+// Header menu lives in data/nav.json so the owner can edit it from /admin
+// (same data-driven pattern as services/opportunities). Shape: groups[] of
+// { href, en, ar } with optional items[]/sub[] and megaCategories/megaPackages.
+const navData = read("data/nav.json");
+const NAV_GROUPS = Array.isArray(navData.groups) ? navData.groups : [];
 
 // Only en/ar + FULLY_READY_LANGS are shown in the language switcher. The
 // remaining extra languages are only partially translated — even the 5
@@ -567,14 +485,23 @@ function header(active, path) {
 </div></header>`;
 }
 
+// Footer content lives in data/footer.json so the owner can edit it from
+// /admin. The contact column + social icons stay driven by site.json.
+const footerData = read("data/footer.json");
 function footer() {
   const c = site.contact;
+  const F = footerData;
   const fl = (href, en, ar) => `<li><a href="${u(href)}">${L(en, ar)}</a></li>`;
+  const cols = (F.columns || [])
+    .map((col) => `<div class="footer-col"><h4>${L(col.titleEn, col.titleAr)}</h4><ul>
+      ${(col.links || []).map((l) => fl(l.href, l.en, l.ar)).join("\n      ")}
+    </ul></div>`)
+    .join("\n    ");
   return `<footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
-      <h3>${L("Subscribe to our newsletter", "اشترك في نشرتنا الإخبارية")}</h3>
-      <p>${L("The latest business & regulatory news in Saudi Arabia — weekly, in both Arabic and English, straight to your inbox.", "آخر أخبار الأعمال والأنظمة في السعودية — أسبوعياً بالعربية والإنجليزية مباشرة إلى بريدك.")}</p>
+      <h3>${L(F.newsletter.titleEn, F.newsletter.titleAr)}</h3>
+      <p>${L(F.newsletter.textEn, F.newsletter.textAr)}</p>
     </div>
     <form class="newsletter-form" data-nl>
       <input type="email" placeholder="${Lraw("Your email", "بريدك الإلكتروني")}" aria-label="${Lraw("Email", "البريد الإلكتروني")}" data-nl-email required>
@@ -586,41 +513,10 @@ function footer() {
     <div>
       <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
       <p>${L(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio)}</p>
-      <p class="footer-tag">${L("Partnering for your success", "شركاء نجاحك")}</p>
+      <p class="footer-tag">${L(F.taglineEn, F.taglineAr)}</p>
     </div>
-    <div class="footer-col"><h4>${L("Our services", "خدماتنا")}</h4><ul>
-      ${fl("/services", "All services", "كل الخدمات")}
-      ${fl("/packages", "Packages", "الباقات")}
-      ${fl("/ai-agents", "AI Agents", "الوكلاء الأذكياء")}
-      ${fl("/task-force", "Task Force", "تاسك فورس")}
-      ${fl("/hr", "Recruitment", "التوظيف")}
-      ${fl("/deals", "Deals", "الصفقات")}
-      ${fl("/mahfol-makfol", "Business Tourism", "سياحة الأعمال")}
-      ${fl("/workspaces", "Business Spaces", "مساحات الأعمال")}
-      ${fl("/worker-housing", "Worker Housing", "تسكين العمالة")}
-    </ul></div>
-    <div class="footer-col"><h4>${L("Platforms & portals", "المنصات والبوابات")}</h4><ul>
-      ${fl("/account", "Client portal", "منصّة العملاء")}
-      ${fl("/suppliers", "Partners portal", "بوابة الشركاء")}
-      ${fl("/employer-join", "For employers", "لأصحاب العمل")}
-      ${fl("/portal", "Smart employees portal", "بوابة الموظفين الأذكياء")}
-    </ul></div>
-    <div class="footer-col"><h4>${L("Knowledge Center", "مركز المعرفة")}</h4><ul>
-      ${fl("/saudi-arabia", "Invest in Saudi", "الاستثمار في السعودية")}
-      ${fl("/opportunities", "Investment Opportunities", "الفرص الاستثمارية")}
-      ${fl("/directory", "Startup Ecosystem Directory", "دليل ريادة الأعمال")}
-      ${fl("/tools-and-calculators", "Tools & calculators", "الأدوات والحاسبات")}
-      ${fl("/news", "Insights & news", "الرؤى والأخبار")}
-      ${fl("/magazine", "Magazine (PDF)", "المجلة (PDF)")}
-      ${fl("/newsletter", "Newsletter", "النشرة الإخبارية")}
-    </ul></div>
-    <div class="footer-col"><h4>${L("Company", "الشركة")}</h4><ul>
-      ${fl("/about", "About us", "من نحن")}
-      ${fl("/careers", "Careers", "الوظائف")}
-      ${fl("/terms", "Terms & Conditions", "الشروط والأحكام")}
-      ${fl("/contact", "Contact us", "اتصل بنا")}
-    </ul></div>
-    <div class="footer-col"><h4>${L("Contact", "تواصل")}</h4><ul class="footer-contact">
+    ${cols}
+    <div class="footer-col"><h4>${L(F.contactTitleEn || "Contact", F.contactTitleAr || "تواصل")}</h4><ul class="footer-contact">
       <li>${I.phone}<span>${esc(c.phone)}</span></li>
       <li>${I.mail}<span>${esc(c.email)}</span></li>
       <li>${I.pin}<span>${L(c.addressEn || c.address, c.address)}</span></li>
@@ -1608,6 +1504,29 @@ function buildDeals() {
       <div class="deal-ticket-foot"><span>${L(t.postedEn, t.postedAr)}</span><button class="deal-ticket-btn" type="button">${L("Request intro", "طلب تعارف")}</button></div>
     </article>`;
   }).join("");
+  const moChips = [["all", L("All", "الكل")], ...MO_SECTORS.map((s) => [s.key, `${s.icon} ${L(s.en, s.ar)}`])]
+    .map((c, i) => `<button class="deal-chip mo-chip${i === 0 ? " active" : ""}" data-mo="${c[0]}" type="button">${c[1]}</button>`).join("");
+  const moCards = MARKET_OPPORTUNITIES.map((o) => {
+    const sec = MO_SECTORS.find((s) => s.key === o.sector);
+    return `<article class="card deal-ticket mo-card" data-sector="${o.sector}">
+      <span class="deal-badge offer">${sec.icon} ${L(sec.en, sec.ar)}</span>
+      <h3>${L(o.titleEn, o.titleAr)}</h3>
+      <div class="deal-ticket-meta"><span>${I.pin} ${L(o.regEn, o.regAr)}</span><span>${esc(L(o.projEn, o.projAr))}</span></div>
+      <p class="text-soft">${L(o.sumEn, o.sumAr)}</p>
+      <div class="deal-ticket-stat"><span>${L("Est. value", "القيمة التقديرية")}</span><b>${L(o.valEn, o.valAr)}</b></div>
+      <div class="mo-tags" style="margin-top:10px;font-size:13px;color:#0B1B5A;font-weight:600">${L(o.tagsEn, o.tagsAr)}</div>
+      <div class="deal-ticket-foot"><a href="${o.src}" target="_blank" rel="noopener">${L("Source", "المصدر")}</a><a class="deal-ticket-btn" href="${u("/contact")}">${L("Register interest", "سجّل اهتمامك")}</a></div>
+    </article>`;
+  }).join("");
+  const moSection = `
+  <section class="section" id="market-opportunities"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("From knowledge to deal", "من المعرفة إلى الصفقة")}</span><h2>${L("Major market projects & opportunities we track", "فرص ومشاريع السوق الكبرى التي نرصدها")}</h2><p>${L("We continuously track Saudi giga-projects and government tenders across every sector, then position our clients as vendors, subcontractors, operators or co-investors. Browse a sample below — each links to its public source.", "نرصد باستمرار المشاريع العملاقة والمنافسات الحكومية في السعودية عبر كل القطاعات، ثم نُموضِع عملاءنا كموردين أو مقاولي باطن أو مشغّلين أو شركاء استثمار. تصفّح نماذج أدناه — كل فرصة مرتبطة بمصدرها العام.")}</p></div>
+    <div class="deal-filters">${moChips}<span class="deal-filters-count"><span id="mo-count">0</span> ${L("opportunities", "فرصة")}</span></div>
+    <div class="grid grid-3" id="mo-grid">${moCards}</div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/contact")}">${L("Talk to us about an opportunity", "كلّمنا عن فرصة تناسبك")}</a> <a class="btn btn-ghost" href="${u("/saudi-arabia")}">${L("Investment knowledge center", "مركز المعرفة الاستثمارية")}</a></div>
+    <p class="text-soft center mt-16" style="font-size:13px">${L("A curated sample of publicly sourced opportunities, updated periodically. Values are indicative. Not an offer or investment advice.", "نماذج مختارة من فرص عامة موثّقة المصادر، تُحدَّث دورياً. القيم تقديرية. هذا ليس عرضاً أو نصيحة استثمارية.")}</p>
+  </div></section>
+  <script>(function(){var g=document.getElementById('mo-grid');if(!g)return;var chips=document.querySelectorAll('.mo-chip');var cnt=document.getElementById('mo-count');function apply(f){var n=0;g.querySelectorAll('.mo-card').forEach(function(c){var show=f==='all'||c.getAttribute('data-sector')===f;c.style.display=show?'':'none';if(show)n++;});if(cnt)cnt.textContent=n;}chips.forEach(function(ch){ch.addEventListener('click',function(){chips.forEach(function(x){x.classList.remove('active');});ch.classList.add('active');apply(ch.getAttribute('data-mo'));});});apply('all');})();</script>`;
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("New — smart matching + deals", "جديد — مطابقة ذكية + صفقات")}</span>
@@ -1623,7 +1542,7 @@ function buildDeals() {
       <span class="hero-badge">${I.check}${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
     </div>
   </div></section>
-
+${moSection}
   <section class="section"><div class="container">
     <div class="section-head"><h2>${L("Choose what applies to your situation", "اختر ما ينطبق على وضعك")}</h2><p>${L("Every type goes through the same submission, matching and review journey.", "كل نوع يمر بنفس رحلة التقديم والمطابقة والمراجعة.")}</p></div>
     <div class="grid grid-3">${launcher}</div>
@@ -2385,6 +2304,225 @@ function buildComplianceAgent() {
     active: "/compliance-agent",
     path: "/compliance-agent",
     body,
+  });
+}
+
+// Managed Lead Generation — a done-for-you B2B outreach subscription. We build
+// and maintain a live database of KSA companies (sector, official contact,
+// size, decision-signals), then run compliant multichannel outreach (LinkedIn +
+// email + WhatsApp-after-opt-in) on the client's behalf and hand back qualified
+// leads and booked meetings. The client never receives raw personal data — the
+// data stays managed by BP — so it stays inside data-provider terms and PDPL.
+function buildLeadGen() {
+  const sectors = ["مقاولات","تجزئة ومطاعم","صناعة","رعاية صحية","تقنية وخدمات","لوجستيات","عقار","ضيافة وسياحة","مالية وتأمين","تعليم"];
+  const sectorsEn = ["Contracting","Retail & F&B","Manufacturing","Healthcare","IT & Services","Logistics","Real Estate","Hospitality","Finance","Education"];
+  const chips = sectors.map((p, i) => `<span class="hero-badge">${L(sectorsEn[i], p)}</span>`).join("");
+
+  const steps = [
+    [L("You define your ideal customer", "تحدّد عميلك المثالي"), L("Sector, company size, city — and what you're selling. We turn it into a precise target list.", "القطاع، حجم الشركة، المدينة — وما الذي تبيعه. نحوّلها إلى قائمة استهداف دقيقة.")],
+    [L("We build & verify the data", "نبني الداتا ونتحقق منها"), L("A live database of matching KSA companies with sector, official contact and decision-signals — cleaned and verified.", "قاعدة بيانات حيّة للشركات السعودية المطابقة، مع القطاع وبيانات التواصل الرسمية وإشارات الحاجة — منظّفة ومتحقّق منها.")],
+    [L("We run the outreach for you", "نشغّل التواصل نيابةً عنك"), L("Personalized LinkedIn + email sequences (and WhatsApp only after opt-in) — sent on your behalf, within every channel's rules.", "تسلسل مخصّص عبر لنكدإن والإيميل (وواتساب بعد الموافقة فقط) — يُرسل باسمك وضمن قواعد كل قناة.")],
+    [L("You get qualified leads & meetings", "توصلك عملاء مؤهّلون ومواعيد"), L("Replies, qualified prospects and booked meetings land in your inbox and calendar — ready to close.", "الردود والعملاء المؤهّلون والمواعيد المحجوزة تصلك في بريدك وتقويمك — جاهزة للإغلاق.")],
+  ];
+  const stepsHtml = steps.map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
+
+  const valueItems = [
+    [L("Live KSA company database", "قاعدة شركات سعودية حيّة"), L("Continuously updated — sector, city, size, official phone, LinkedIn and website.", "محدّثة باستمرار — القطاع، المدينة، الحجم، الهاتف الرسمي، لنكدإن والموقع.")],
+    [L("Ideal-customer targeting (ICP)", "استهداف العميل المثالي (ICP)"), L("We score and prioritize companies that actually fit what you sell.", "نقيّم ونرتّب الشركات التي تناسب فعلاً ما تبيعه.")],
+    [L("Done-for-you multichannel outreach", "تواصل متعدد القنوات مُدار بالكامل"), L("LinkedIn + email sequences run on your behalf, with AI-personalized messaging.", "تسلسل لنكدإن وإيميل يُشغّل باسمك، برسائل مخصّصة بالذكاء الاصطناعي.")],
+    [L("Meetings booked for you", "مواعيد محجوزة لك"), L("Interested prospects are qualified and scheduled straight into your calendar.", "العملاء المهتمّون يُؤهّلون ويُحجزون مباشرة في تقويمك.")],
+    [L("Weekly performance report", "تقرير أداء أسبوعي"), L("Companies reached, reply rate, meetings and pipeline value — full transparency.", "الشركات المستهدَفة، معدّل الرد، المواعيد وقيمة الصفقات — شفافية كاملة.")],
+    [L("Compliant by design", "متوافق قانونياً بالتصميم"), L("The data stays managed by us; outreach respects PDPL and each channel's rules — no risky data reselling.", "الداتا تبقى مُدارة عندنا؛ والتواصل يحترم نظام حماية البيانات وقواعد كل قناة — بدون بيع بيانات محفوف بالمخاطر.")],
+  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Managed Lead Generation", "توليد العملاء المُدار")}</span>
+    <h1>${L("We find your next clients across Saudi Arabia — and bring you the meetings", "نجيب لك عملاءك القادمين من كل المملكة — ونوصّلك المواعيد")}</h1>
+    <p class="lead">${L("Subscribe and get a done-for-you sales engine: we build a live database of the right Saudi companies, reach the decision-makers on your behalf through LinkedIn, email and WhatsApp, and hand you qualified leads and booked meetings — so you just close.", "اشترك واحصل على محرّك مبيعات جاهز: نبني قاعدة بيانات حيّة للشركات السعودية المناسبة، نوصل صنّاع القرار نيابةً عنك عبر لنكدإن والإيميل والواتساب، ونسلّمك عملاء مؤهّلين ومواعيد محجوزة — وأنت تركّز على الإغلاق فقط.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/connect")}">${L("Talk to us first", "كلّمنا أولاً")}</a>
+    </div>
+    <div class="hero-badges">${chips}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from your ideal customer to a booked meeting", "أربع خطوات — من عميلك المثالي إلى موعد محجوز")}</h2></div>
+    <div class="steps-grid">${stepsHtml}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:1rem">${L("What's included in your subscription?", "وش يشمل اشتراكك؟")}</h3>
+      <ul class="value-list">${valueItems}</ul>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🔒</span><p>${L("Why “managed” and not a raw data dump? Reselling individuals' personal contacts can breach data-provider terms and Saudi PDPL. Instead, we keep the data and run the campaigns for you — you get the results (leads and meetings), safely and sustainably.", "ليش «مُدار» وليس بيع داتا خام؟ إعادة بيع بيانات الأفراد الشخصية قد تخالف شروط مزوّدي البيانات ونظام حماية البيانات السعودي (PDPL). بدلاً من ذلك، نحتفظ بالداتا ونشغّل الحملات لك — وأنت تحصل على النتيجة (عملاء ومواعيد)، بأمان واستدامة.")}</p></div>
+  </div></section>
+
+  <section id="pricing" class="section section--gray" style="padding-top:0"><div class="container">
+    <div class="price-box">
+      <div><div class="price-amt">${L("From 375", "يبدأ من 375")} <small>${L("SAR / monthly (~$100)", "ريال / شهرياً (≈ 100$)")}</small></div>
+      <div class="text-soft">${L("Managed lead-generation subscription — database, targeting, multichannel outreach, booked meetings and a weekly report. Ad spend (if any) is separate.", "اشتراك توليد العملاء المُدار — قاعدة بيانات، استهداف، تواصل متعدد القنوات، مواعيد محجوزة وتقرير أسبوعي. تكلفة الإعلانات (إن وُجدت) منفصلة.")}</div></div>
+      ${cartBtns({ id: "lead-generation", nameEn: "Managed Lead Generation", nameAr: "توليد العملاء المُدار", amount: 375, priceLabel: L("From 375 ﷼ / monthly", "يبدأ من 375 ﷼ / شهرياً"), kind: "service" })}
+    </div>
+  </div></section>
+
+  <style>
+    .text-soft{color:var(--text-soft)}
+    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
+    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
+    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
+    .value-list b{color:var(--navy)}
+    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
+    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
+    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
+    .price-box .buy-row{margin-inline-start:auto}
+  </style>`;
+
+  return page({
+    title: Lraw("Managed Lead Generation — Business Partner", "توليد العملاء المُدار — بيزنس بارتنر"),
+    desc: Lraw("A done-for-you B2B sales engine: we find the right Saudi companies, reach decision-makers on your behalf, and deliver qualified leads and booked meetings.", "محرّك مبيعات جاهز: نجيب لك الشركات السعودية المناسبة، نوصل صنّاع القرار نيابةً عنك، ونسلّمك عملاء مؤهّلين ومواعيد محجوزة."),
+    active: "/lead-generation",
+    path: "/lead-generation",
+    body,
+  });
+}
+
+// Companies data portal — a code-gated, paid access page to the KSA companies
+// database (built by the n8n collectors, stored in Notion). Public visitors see
+// only sector/city teasers; a valid access code (issued after subscription)
+// unlocks the searchable, exportable records via GET /api/pay?resource=leads.
+function buildDataPortal() {
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Saudi B2B Leads Database", "قاعدة عملاء الأعمال (B2B)")}</span>
+    <h1>${L("Direct access to updated Saudi company records", "وصول مباشر لبيانات شركات سعودية محدّثة")}</h1>
+    <p class="lead">${L("Thousands of Saudi companies with sector, city, official phone, website and email — continuously updated. Subscribe to get an access code and reach decision-makers to build relationships, sell, schedule meetings and sign deals.", "آلاف الشركات السعودية مع القطاع والمدينة والهاتف الرسمي والموقع والإيميل — محدّثة باستمرار. اشترك لتحصل على كود وصول وتقدر توصل الشركات لبناء علاقات، بيع خدماتك، تنسيق مواعيد وتوقيع اتفاقيات.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="#pricing">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="#access">${L("I have a code", "عندي كود")}</a>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Coverage", "التغطية")}</span><h2>${L("Sectors & cities covered", "القطاعات والمدن المغطّاة")}</h2></div>
+    <div id="lead-teaser" class="teaser-grid"><p class="text-soft">${L("Loading…", "جارٍ التحميل…")}</p></div>
+    <p class="text-soft" style="text-align:center;margin-top:1rem">${L("Each record includes: company name, sector, city, official phone, website, email (where available) and a short description.", "كل سجل يشمل: اسم الشركة، القطاع، المدينة، الهاتف الرسمي، الموقع الإلكتروني، الإيميل (عند توفره)، ووصف مختصر.")}</p>
+  </div></section>
+
+  <section id="access" class="section section--gray"><div class="container">
+    <div class="order-box" style="max-width:1100px;margin:0 auto">
+      <h3 style="margin-bottom:.8rem">${L("Access the database", "ادخل إلى القاعدة")}</h3>
+      <div class="access-row">
+        <input id="lead-code" type="text" placeholder="${L("Enter your access code", "أدخل كود الوصول")}" autocomplete="off" />
+        <button id="lead-unlock" class="btn btn-primary">${L("Unlock", "دخول")}</button>
+      </div>
+      <p id="lead-msg" class="text-soft" style="margin:.6rem 0 0"></p>
+      <div id="lead-tools" style="display:none;margin-top:1rem">
+        <div class="access-row">
+          <input id="lead-search" type="text" placeholder="${L("Search name / sector / city", "ابحث بالاسم / القطاع / المدينة")}" />
+          <button id="lead-export" class="btn btn-ghost">${L("Export CSV", "تصدير CSV")}</button>
+        </div>
+        <div class="table-wrap"><table id="lead-table"><thead><tr>
+          <th>${L("Company", "الشركة")}</th><th>${L("Sector", "القطاع")}</th><th>${L("City", "المدينة")}</th>
+          <th>${L("Phone", "الهاتف")}</th><th>${L("Email", "الإيميل")}</th><th>${L("Website", "الموقع")}</th>
+        </tr></thead><tbody></tbody></table></div>
+        <div style="text-align:center;margin-top:1rem"><button id="lead-more" class="btn btn-ghost" style="display:none">${L("Load more", "تحميل المزيد")}</button></div>
+      </div>
+    </div>
+  </div></section>
+
+  <section id="pricing" class="section"><div class="container">
+    <div class="price-box">
+      <div><div class="price-amt">${L("375", "375")} <small>${L("SAR / monthly (~$100)", "ريال / شهرياً (≈ 100$)")}</small></div>
+      <div class="text-soft">${L("Full access to the companies database + monthly updates. After payment you receive your access code by email.", "وصول كامل لقاعدة الشركات + تحديثات شهرية. بعد الدفع يصلك كود الوصول على بريدك.")}</div></div>
+      ${cartBtns({ id: "companies-data-access", nameEn: "Companies Database — monthly access", nameAr: "قاعدة بيانات الشركات — اشتراك شهري", amount: 375, priceLabel: L("375 ﷼ / monthly", "375 ﷼ / شهرياً"), kind: "service" })}
+    </div>
+    <p class="text-soft" style="max-width:820px;margin:1rem auto 0;text-align:center">${L("Data is for legitimate B2B outreach. Use it in line with Saudi PDPL and each channel's rules; recipients can opt out at any time.", "البيانات للتواصل التجاري المشروع (B2B). استخدمها وفق نظام حماية البيانات السعودي وقواعد كل قناة، ويحق لأي جهة إلغاء الاشتراك في أي وقت.")}</p>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🤝</span><p>${L("Don't want to run the outreach yourself? We can do it for you — targeting, personalized LinkedIn + email + WhatsApp campaigns, and booked meetings delivered to your calendar.", "ما تبي تشغّل التواصل بنفسك؟ نسوّيه لك — استهداف، حملات مخصّصة عبر لنكدإن والإيميل والواتساب، ومواعيد محجوزة تصلك في تقويمك.")} <a href="${u("/connect")}">${L("Talk to us →", "كلّمنا ←")}</a></p></div>
+  </div></section>
+
+  <style>
+    .text-soft{color:var(--text-soft)}
+    .teaser-grid{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+    .teaser-grid .chip{background:var(--white);border:1px solid var(--gray-line);border-radius:999px;padding:.4rem .9rem;font-weight:600;color:var(--navy)}
+    .access-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.6rem}
+    .access-row input{flex:1;min-width:220px;padding:.8rem 1rem;border:1px solid var(--gray-line);border-radius:12px;font:inherit}
+    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem;max-width:1100px;margin:0 auto}
+    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
+    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
+    .price-box .buy-row{margin-inline-start:auto}
+    .table-wrap{overflow-x:auto;border:1px solid var(--gray-line);border-radius:12px;margin-top:1rem}
+    #lead-table{width:100%;border-collapse:collapse;font-size:.92rem}
+    #lead-table th,#lead-table td{padding:.6rem .7rem;text-align:start;border-bottom:1px solid var(--gray-line);white-space:nowrap}
+    #lead-table th{background:var(--gray-bg,#f7f7f8);position:sticky;top:0}
+    #lead-table td a{color:var(--wa)}
+  </style>`;
+
+  const script = `<script>
+  (function(){
+    var API='/api/pay?resource=leads';
+    var rows=[], cursor='', code='';
+    var $=function(id){return document.getElementById(id);};
+    function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+    fetch(API).then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.teaser)return; var t=$('lead-teaser'); t.innerHTML='';
+      (d.teaser.sectors||[]).concat(d.teaser.cities||[]).forEach(function(x){var s=document.createElement('span');s.className='chip';s.textContent=x;t.appendChild(s);});
+    }).catch(function(){});
+    function render(){
+      var q=($('lead-search').value||'').toLowerCase();
+      var tb=$('lead-table').querySelector('tbody'); tb.innerHTML='';
+      rows.filter(function(r){return !q||[r.name,r.sector,r.city].join(' ').toLowerCase().indexOf(q)>-1;}).forEach(function(r){
+        var tr=document.createElement('tr');
+        var site=r.website?'<a href="'+esc(r.website)+'" target="_blank" rel="noopener">'+esc(r.website.replace(/^https?:\\/\\//,''))+'</a>':'';
+        var mail=r.email?'<a href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>':'';
+        var tel=r.phone?'<a href="tel:'+esc(r.phone)+'">'+esc(r.phone)+'</a>':'';
+        tr.innerHTML='<td>'+esc(r.name)+'</td><td>'+esc(r.sector)+'</td><td>'+esc(r.city)+'</td><td>'+tel+'</td><td>'+mail+'</td><td>'+site+'</td>';
+        tb.appendChild(tr);
+      });
+    }
+    function load(reset){
+      var url=API+'&code='+encodeURIComponent(code)+(cursor?'&cursor='+encodeURIComponent(cursor):'');
+      $('lead-msg').textContent='${L("Loading…", "جارٍ التحميل…")}';
+      fetch(url).then(function(r){return r.json();}).then(function(d){
+        if(!d.ok||!d.unlocked){$('lead-msg').textContent=d.error==='invalid_code'?'${L("Invalid code.", "الكود غير صحيح.")}':(d.error==='not_configured'?'${L("Service not configured yet.", "الخدمة غير مهيأة بعد.")}':'${L("Could not load.", "تعذّر التحميل.")}');return;}
+        if(reset){rows=[];}
+        rows=rows.concat(d.rows||[]); cursor=d.next_cursor||'';
+        $('lead-tools').style.display='block'; $('lead-msg').textContent='${L("Loaded", "تم تحميل")} '+rows.length+' ${L("records", "سجل")}';
+        $('lead-more').style.display=d.has_more?'inline-flex':'none';
+        try{localStorage.setItem('bpLeadCode',code);}catch(e){}
+        render();
+      }).catch(function(){$('lead-msg').textContent='${L("Could not load.", "تعذّر التحميل.")}';});
+    }
+    $('lead-unlock').onclick=function(){code=($('lead-code').value||'').trim();if(!code){return;}cursor='';load(true);};
+    $('lead-code').addEventListener('keydown',function(e){if(e.key==='Enter')$('lead-unlock').click();});
+    $('lead-more').onclick=function(){load(false);};
+    $('lead-search').addEventListener('input',render);
+    $('lead-export').onclick=function(){
+      var h=['Name','Sector','City','Phone','Email','Website','Description'];
+      var lines=[h.join(',')];
+      rows.forEach(function(r){lines.push([r.name,r.sector,r.city,r.phone,r.email,r.website,r.description].map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}).join(','));});
+      var blob=new Blob(['\\ufeff'+lines.join('\\n')],{type:'text/csv;charset=utf-8'});
+      var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bp-companies.csv';a.click();
+    };
+    try{var saved=localStorage.getItem('bpLeadCode');if(saved){$('lead-code').value=saved;}}catch(e){}
+  })();
+  </script>`;
+
+  return page({
+    title: Lraw("B2B Leads Database — Business Partner", "قاعدة عملاء الأعمال — بيزنس بارتنر"),
+    desc: Lraw("Subscribe for direct access to an updated database of Saudi companies — sector, city, phone, website and email — for B2B outreach, or let us run the outreach for you.", "اشترك للوصول المباشر لقاعدة محدّثة لشركات سعودية — القطاع والمدينة والهاتف والموقع والإيميل — للتواصل التجاري، أو نشغّل الحملة عنك."),
+    active: "/data",
+    path: "/data",
+    body,
+    script,
   });
 }
 
@@ -4622,6 +4760,7 @@ function buildWorkshopCampaign() {
   return page({ title: Lraw("Events Fabrication Workshop Hiring — Business Partner", "توظيف ورشة تصنيع الفعاليات — بيزنس بارتنر"), desc: Lraw("150+ openings at an events fabrication workshop in Saudi Arabia — managers, engineers, team leaders, technicians, and skilled trades. Apply through Business Partner.", "أكثر من 150 فرصة عمل في ورشة تصنيع فعاليات بالسعودية — مدراء ومهندسون وقادة فرق وفنيون وعمالة ماهرة. قدّم عبر بيزنس بارتنر."), active: "/careers", path: "/jobs/" + wc.slug, body });
 }
 
+
 function buildPortalCandidates() {
   const c = site.careers;
   const f = c.seeker.fields;
@@ -6512,6 +6651,11 @@ function buildMonitor() {
   // and emitted verbatim. Keeping it out of a JS template literal avoids escaping
   // hazards (backticks / ${} / backslashes) that previously broke the page script.
   return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8');
+}
+
+function buildAdmin() {
+  // Owner control panel (/admin) — same standalone-raw-file pattern as monitor.
+  return fs.readFileSync(path.join(__dirname, 'assets', 'admin.page.html'), 'utf8');
 }
 
 /* ---------- owner dashboard: control + live-test the specialized-team agents ---------- */
@@ -8764,6 +8908,7 @@ function writeFullSite(pre) {
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
+  write(`${pre}data.html`, buildDataPortal());
   TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
   write(`${pre}directory.html`, buildDirectory());
@@ -8850,6 +8995,19 @@ LANG = "en";
 
 // Owner-only live chat monitor (standalone page, no site chrome, noindex)
 write("monitor.html", buildMonitor());
+
+// Owner-only unified control panel for the site (standalone page, noindex)
+write("admin.html", buildAdmin());
+
+// Client Operations Center — the new /account (approved design). One bilingual
+// standalone page (AR default, ع/E toggle) emitted verbatim over the legacy
+// buildAccount() output for en+ar; extra languages keep the legacy page until
+// the center is translated for them.
+function buildAccountCenter() {
+  return fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8');
+}
+write("account.html", buildAccountCenter());
+write("ar/account.html", buildAccountCenter());
 
 // Owner-only control + live-test dashboard for the specialized-team agents (noindex)
 write("dashboard.html", buildDashboard());

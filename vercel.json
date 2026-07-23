@@ -16,6 +16,16 @@
   },
   "redirects": [
     {
+      "source": "/lead-generation",
+      "destination": "/data",
+      "permanent": true
+    },
+    {
+      "source": "/ar/lead-generation",
+      "destination": "/ar/data",
+      "permanent": true
+    },
+    {
       "source": "/installments",
       "destination": "/",
       "permanent": false
