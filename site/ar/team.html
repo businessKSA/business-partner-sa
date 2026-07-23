@@ -1,0 +1,208 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>فريقك — مساحة العمل | Business Partner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--navy:#0B1B5A;--navy-900:#081345;--green:#16a34a;--green-soft:#dcfce7;--amber:#b45309;--amber-soft:#fef3c7;--bg:#F5F6FA;--surface:#fff;--line:#E7EAF3;--text:#1F2430;--muted:#6a7085;--shadow:0 10px 34px rgba(11,27,90,.07)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100dvh}
+    button{font-family:inherit;cursor:pointer}
+    a{color:inherit}
+    .topbar{background:var(--navy);color:#fff;height:58px;display:flex;align-items:center;gap:12px;padding:0 16px}
+    .topbar .brand{font-weight:700}
+    .topbar .brand small{display:block;font-weight:400;font-size:11px;opacity:.8}
+    .topbar .sp{flex:1}
+    .topbar .tb-link{color:#dfe6ff;text-decoration:none;font-size:12.5px;padding:6px 8px;border-radius:8px}
+    .topbar .tb-link:hover{background:rgba(255,255,255,.1)}
+    .proto{background:#fffbeb;border-bottom:1px solid #fde68a;color:#92400e;text-align:center;font-size:.78rem;font-weight:600;padding:.35rem .8rem}
+    .ws{max-width:1050px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
+    .ws h1{color:var(--navy);font-size:1.45rem;margin-bottom:.15rem}
+    .ws .lead{color:var(--muted);font-size:.92rem;margin-bottom:1.2rem}
+    .tabs{display:flex;gap:.4rem;border-bottom:1px solid var(--line);margin-bottom:1.2rem;flex-wrap:wrap}
+    .tab{background:none;border:0;border-bottom:2.5px solid transparent;padding:.55rem .9rem;font-size:.92rem;font-weight:600;color:var(--muted)}
+    .tab.on{color:var(--navy);border-bottom-color:var(--navy)}
+    .view{display:none}
+    .view.on{display:block}
+    /* team grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:.8rem}
+    .agent{background:var(--surface);border:1.5px solid var(--line);border-radius:15px;padding:.95rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.35rem;transition:.12s}
+    .agent:hover{border-color:var(--navy);transform:translateY(-2px)}
+    .agent .top{display:flex;align-items:center;gap:.55rem}
+    .agent .e{font-size:1.7rem}
+    .agent b{color:var(--navy);font-size:.98rem}
+    .agent .role{font-size:.76rem;color:var(--muted)}
+    .agent .desc{font-size:.8rem;color:var(--text);opacity:.85;flex:1}
+    .agent .foot{display:flex;align-items:center;justify-content:space-between;margin-top:.3rem}
+    .dot{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:700;color:var(--green)}
+    .dot::before{content:"";width:8px;height:8px;border-radius:99px;background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+    .agent .talk{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:.35rem .8rem;font-size:.78rem;font-weight:700}
+    .agent.lead{grid-column:1/-1;flex-direction:row;align-items:center;background:linear-gradient(135deg,#0B1B5A,#122a7a);color:#fff;border:0}
+    .agent.lead b,.agent.lead .role{color:#fff}
+    .agent.lead .role{opacity:.85}
+    .agent.lead .e{font-size:2.3rem}
+    .agent.lead .desc{color:#dfe6ff;font-size:.85rem}
+    .agent.lead .talk{background:#fff;color:var(--navy)}
+    /* integrations */
+    .int-note{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:.8rem 1rem;font-size:.83rem;color:var(--muted);margin-bottom:1rem}
+    .int-note b{color:var(--navy)}
+    .igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.8rem}
+    .integ{background:var(--surface);border:1.5px solid var(--line);border-radius:15px;padding:.95rem;box-shadow:var(--shadow)}
+    .integ .top{display:flex;align-items:center;gap:.55rem;margin-bottom:.35rem}
+    .integ .e{font-size:1.5rem}
+    .integ b{color:var(--navy)}
+    .integ .what{font-size:.79rem;color:var(--muted);min-height:2.6em}
+    .pill{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.22rem .7rem;font-size:.74rem;font-weight:700;margin-top:.5rem}
+    .pill.api{background:var(--green-soft);color:#166534}
+    .pill.team{background:var(--amber-soft);color:var(--amber)}
+    .pill.soon{background:#eef1fb;color:var(--muted)}
+    .integ .meta{font-size:.72rem;color:var(--muted);margin-top:.45rem}
+    /* log */
+    .log{background:var(--surface);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:hidden}
+    .lrow{display:flex;gap:.7rem;align-items:flex-start;padding:.85rem 1rem;border-bottom:1px solid var(--line);font-size:.87rem}
+    .lrow:last-child{border-bottom:0}
+    .lrow .e{font-size:1.15rem;flex-shrink:0}
+    .lrow b{color:var(--navy)}
+    .lrow .t{color:var(--muted);font-size:.74rem;margin-inline-start:auto;flex-shrink:0}
+    .lrow .st{font-size:.74rem;font-weight:700}
+    .st.done{color:var(--green)}
+    .st.wait{color:var(--amber)}
+    /* chat mock */
+    .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;height:62vh;min-height:420px}
+    .p-head{background:#f8fafc;border-bottom:1px solid var(--line);padding:.8rem 1rem;display:flex;gap:.6rem;align-items:center}
+    .p-head .e{font-size:1.5rem}
+    .p-head b{color:var(--navy)}
+    .p-head span{display:block;font-size:.78rem;color:var(--green);font-weight:600}
+    .chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.55rem;background:#fbfcfe}
+    .msg{padding:.6rem .8rem;border-radius:13px;max-width:82%;white-space:pre-wrap;font-size:.92rem}
+    .msg.me{background:var(--navy);color:#fff;align-self:flex-start;border-start-start-radius:3px}
+    .msg.bot{background:#fff;border:1px solid var(--line);align-self:flex-end;border-start-end-radius:3px}
+    .composer{display:flex;gap:.5rem;padding:.7rem;border-top:1px solid var(--line);background:#fff}
+    .composer input{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:.65rem .8rem;font:inherit;outline:none}
+    .composer input:focus{border-color:var(--navy)}
+    .composer button{background:var(--green);color:#fff;border:0;border-radius:11px;padding:0 1.3rem;font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Business Partner<small>فريقك — مساحة العمل</small></div>
+    <div class="sp"></div>
+    <a class="tb-link" href="/ar/shared-services">عن الخدمة</a>
+    <a class="tb-link" href="/ar">الموقع الرئيسي</a>
+  </div>
+  <div class="proto">⚠️ نموذج أولي للعرض الداخلي — البيانات في هذه الصفحة توضيحية وليست حسابًا فعليًا</div>
+
+  <div class="ws">
+    <h1>فريقك 👋</h1>
+    <p class="lead">12 موظفًا ذكيًا يعملون لشركتك على مدار الساعة — اطلب، تابع، واستلم. القرارات المصيرية تبقى بيدك.</p>
+
+    <div class="tabs">
+      <button class="tab on" data-v="chat">💬 المحادثة</button>
+      <button class="tab" data-v="team">👥 الفريق</button>
+      <button class="tab" data-v="integrations">🏛️ الربط الحكومي</button>
+      <button class="tab" data-v="log">📋 سجل الأعمال</button>
+    </div>
+
+    <!-- المحادثة -->
+    <section class="view on" id="v-chat">
+      <div class="panel">
+        <div class="p-head"><span class="e">🎩</span><div><b>خالد — مدير المكتب</b><span>● متصل الآن</span></div></div>
+        <div class="chat" id="chat">
+          <div class="msg bot">أهلًا بك 👋 أنا خالد، مدير مكتبك. اطلب أي شيء — أفهم طلبك وأوجهه للمتخصص المناسب في الفريق، وأرجع لك بالنتيجة.</div>
+          <div class="msg me">كم موظف عندي تنتهي إقامته خلال 60 يوم؟</div>
+          <div class="msg bot">راجعت سجل موظفيك مع عبدالعزيز (الامتثال):
+
+👥 3 موظفين تنتهي إقاماتهم خلال 60 يومًا:
+• أحمد س. — تنتهي 2026/08/28 (36 يومًا)
+• راجيش ك. — تنتهي 2026/09/05 (44 يومًا)
+• محمد ع. — تنتهي 2026/09/14 (53 يومًا)
+
+💰 تكلفة التجديد التقديرية للثلاثة: 19,650 ريال
+هل أجهز طلبات التجديد لاعتمادك؟</div>
+        </div>
+        <div class="composer">
+          <input id="inp" placeholder="اكتب طلبك… (نموذج توضيحي)" />
+          <button id="send">إرسال</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- الفريق -->
+    <section class="view" id="v-team">
+      <div class="grid">
+        <div class="agent lead">
+          <span class="e">🎩</span>
+          <div style="flex:1">
+            <b>خالد</b><span class="role"> — مدير المكتب (المنسق)</span>
+            <div class="desc">نقطة تواصلك الوحيدة. يفهم طلبك، يوزعه على المتخصصين، ويتابع حتى التسليم.</div>
+          </div>
+          <button class="talk">تحدث معه</button>
+        </div>
+        <div class="agent"><div class="top"><span class="e">⚖️</span><div><b>عبدالعزيز</b><div class="role">القانون والامتثال</div></div></div><div class="desc">التراخيص، الإقامات، مواعيد التجديد، والغرامات قبل وقوعها.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">📣</span><div><b>فرح</b><div class="role">التسويق</div></div></div><div class="desc">المحتوى، الحملات، وهوية علامتك على المنصات.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">💼</span><div><b>بدر</b><div class="role">المبيعات</div></div></div><div class="desc">عروض الأسعار، متابعة العملاء المحتملين، وإغلاق الصفقات.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">🗂️</span><div><b>ملاك</b><div class="role">المساعدة التنفيذية</div></div></div><div class="desc">جدولة، مراسلات، تنظيم مهامك اليومية.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">💻</span><div><b>محمد</b><div class="role">تقنية المعلومات</div></div></div><div class="desc">موقعك، بريدك، أنظمتك — إعداد وحل مشكلات.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">📦</span><div><b>أحمد</b><div class="role">المشتريات</div></div></div><div class="desc">الموردون، المقارنات، وأوامر الشراء.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">🧭</span><div><b>المستشار الرئيسي</b><div class="role">الاستراتيجية</div></div></div><div class="desc">قرارات التوسع، دخول السوق، وترتيب الأولويات.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">🔎</span><div><b>أبحاث السوق</b><div class="role">التحليل</div></div></div><div class="desc">المنافسون، الفرص، وحجم السوق بالأرقام.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">🧩</span><div><b>نموذج الأعمال</b><div class="role">التخطيط</div></div></div><div class="desc">نموذج الإيراد، التسعير، وخطة النمو.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">💰</span><div><b>المالية والتسعير</b><div class="role">المال</div></div></div><div class="desc">التدفق النقدي، التكاليف، وتسعير خدماتك.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+        <div class="agent"><div class="top"><span class="e">🛠️</span><div><b>مازن</b><div class="role">العمليات</div></div></div><div class="desc">تشغيل يومي، متابعة تنفيذ، وتقارير إنجاز.</div><div class="foot"><span class="dot">نشط</span><button class="talk">تحدث</button></div></div>
+      </div>
+    </section>
+
+    <!-- الربط الحكومي -->
+    <section class="view" id="v-integrations">
+      <div class="int-note">🟢 <b>ربط رسمي</b> = تكامل مباشر عبر القنوات الرسمية للجهة &nbsp;•&nbsp; 🟡 <b>عبر الفريق</b> = ينفذه فريقنا المرخص خلال وقت محدد وتتابع حالته هنا &nbsp;•&nbsp; ⚪ <b>قريبًا</b> = قيد الاعتماد</div>
+      <div class="igrid">
+        <div class="integ"><div class="top"><span class="e">🏢</span><b>واثق — السجل التجاري</b></div><div class="what">بيانات سجلك التجاري ووثائقك من وزارة التجارة لحظيًا.</div><span class="pill api">🟢 ربط رسمي</span><div class="meta">آخر مزامنة: قبل ساعتين</div></div>
+        <div class="integ"><div class="top"><span class="e">🪪</span><b>نفاذ</b></div><div class="what">دخولك وتوقيعك الرسمي بهوية موثقة.</div><span class="pill api">🟢 ربط رسمي</span><div class="meta">مفعّل لحسابك</div></div>
+        <div class="integ"><div class="top"><span class="e">👷</span><b>قوى</b></div><div class="what">العقود، رخص العمل، ونطاقات المنشأة.</div><span class="pill team">🟡 عبر الفريق — 24 ساعة</span><div class="meta">التكامل الرسمي: قيد التقديم لبرنامج تكامل قوى</div></div>
+        <div class="integ"><div class="top"><span class="e">🛂</span><b>مقيم</b></div><div class="what">الإقامات، التأشيرات، وخروج وعودة الموظفين.</div><span class="pill team">🟡 عبر الفريق — 24 ساعة</span><div class="meta">آخر عملية: تجديد إقامة (أمس)</div></div>
+        <div class="integ"><div class="top"><span class="e">🧾</span><b>التأمينات الاجتماعية</b></div><div class="what">تسجيل الموظفين، الأجور، وشهادات السعودة.</div><span class="pill team">🟡 عبر الفريق — 24 ساعة</span><div class="meta">آخر عملية: شهادة سعودة (قبل 3 أيام)</div></div>
+        <div class="integ"><div class="top"><span class="e">💵</span><b>مدد</b></div><div class="what">الرواتب وحماية الأجور شهريًا.</div><span class="pill team">🟡 عبر الفريق — شهري</span><div class="meta">دورة يوليو: مكتملة ✓</div></div>
+        <div class="integ"><div class="top"><span class="e">🏛️</span><b>أبشر أعمال</b></div><div class="what">خدمات المنشأة والتفاويض الرسمية.</div><span class="pill team">🟡 عبر الفريق — 24 ساعة</span><div class="meta">تفويضكم ساري حتى 2027/01</div></div>
+        <div class="integ"><div class="top"><span class="e">🏗️</span><b>بلدي</b></div><div class="what">الرخص البلدية ومتطلبات المواقع.</div><span class="pill soon">⚪ قريبًا</span><div class="meta">قيد الاعتماد</div></div>
+        <div class="integ"><div class="top"><span class="e">📑</span><b>اعتماد</b></div><div class="what">المنافسات والمشتريات الحكومية.</div><span class="pill soon">⚪ قريبًا</span><div class="meta">قيد الاعتماد</div></div>
+      </div>
+    </section>
+
+    <!-- سجل الأعمال -->
+    <section class="view" id="v-log">
+      <div class="log">
+        <div class="lrow"><span class="e">🛂</span><div><b>تجديد إقامة — أحمد س.</b><div style="font-size:.78rem;color:var(--muted)">مقيم • نفذه الفريق بعد اعتمادك • رسوم 6,550 ريال</div><span class="st done">مكتمل ✓</span></div><span class="t">أمس 14:20</span></div>
+        <div class="lrow"><span class="e">🧾</span><div><b>شهادة سعودة</b><div style="font-size:.78rem;color:var(--muted)">التأمينات • طلبها عبدالعزيز آليًا وسلمت لبريدك</div><span class="st done">مكتمل ✓</span></div><span class="t">قبل 3 أيام</span></div>
+        <div class="lrow"><span class="e">⚠️</span><div><b>تنبيه استباقي: رخصة البلدية تنتهي خلال 40 يومًا</b><div style="font-size:.78rem;color:var(--muted)">عبدالعزيز رصدها قبل الغرامة • بانتظار قرارك للتجديد</div><span class="st wait">بانتظارك ⏳</span></div><span class="t">اليوم 09:00</span></div>
+        <div class="lrow"><span class="e">💵</span><div><b>دورة رواتب يوليو — 12 موظفًا</b><div style="font-size:.78rem;color:var(--muted)">مدد • جهزها الفريق واعتمدتها في 30 ثانية</div><span class="st done">مكتمل ✓</span></div><span class="t">01/07</span></div>
+        <div class="lrow"><span class="e">📣</span><div><b>خطة محتوى أغسطس</b><div style="font-size:.78rem;color:var(--muted)">فرح • 12 منشورًا جاهزًا للمراجعة</div><span class="st wait">بانتظارك ⏳</span></div><span class="t">قبل يومين</span></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // tabs
+    document.querySelectorAll('.tab').forEach(function(t){
+      t.addEventListener('click', function(){
+        document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+        document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on')});
+        t.classList.add('on');
+        document.getElementById('v-'+t.dataset.v).classList.add('on');
+      });
+    });
+    // demo chat (prototype only — real chat lives at /voice via api/agent proxy)
+    var chat=document.getElementById('chat'),inp=document.getElementById('inp');
+    function push(cls,txt){var d=document.createElement('div');d.className='msg '+cls;d.textContent=txt;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+    document.getElementById('send').addEventListener('click',function(){
+      var v=inp.value.trim();if(!v)return;push('me',v);inp.value='';
+      setTimeout(function(){push('bot','استلمت طلبك ✓ (هذه صفحة نموذج توضيحي — المحادثة الفعلية مع خالد تعمل من صفحة /voice في الموقع)')},600);
+    });
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('send').click()});
+  </script>
+</body>
+</html>
