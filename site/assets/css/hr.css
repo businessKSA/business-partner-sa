@@ -4,10 +4,10 @@
    site keeps styles.css — this app has its own chrome.
    ============================================================ */
 :root {
-  --hr-teal: #0F766E;
-  --hr-teal-600: #0D9488;
-  --hr-teal-050: #F0FDFA;
-  --hr-teal-100: #CCFBF1;
+  --hr-teal: #0B1B5A;
+  --hr-teal-600: #13246e;
+  --hr-teal-050: #EEF1FA;
+  --hr-teal-100: #DEE5F8;
   --hr-navy: #0B1B5A;
   --hr-text: #182036;
   --hr-soft: #5B6472;
@@ -91,7 +91,7 @@ html[dir="ltr"] .hr-search input { padding: 8px 12px 8px 38px; }
 .hr-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 10px; border: 1px solid transparent; padding: 9px 16px; font-size: .9rem; font-weight: 600; transition: .15s; }
 .hr-btn svg { width: 16px; height: 16px; }
 .hr-btn-primary { background: var(--hr-teal); color: #fff; }
-.hr-btn-primary:hover { background: #0B5D57; }
+.hr-btn-primary:hover { background: #081345; }
 .hr-btn-ghost { background: #fff; color: var(--hr-text); border-color: var(--hr-line); }
 .hr-btn-ghost:hover { border-color: var(--hr-teal); color: var(--hr-teal); }
 .hr-btn-soft { background: var(--hr-teal-050); color: var(--hr-teal); }
@@ -113,7 +113,7 @@ html[dir="ltr"] .hr-search input { padding: 8px 12px 8px 38px; }
 .hr-field label { font-size: .82rem; font-weight: 600; color: var(--hr-text); }
 .hr-field .req { color: var(--hr-red); }
 .hr-field input, .hr-field select, .hr-field textarea { border: 1px solid var(--hr-line); border-radius: 10px; padding: 9px 12px; background: #fff; width: 100%; }
-.hr-field input:focus, .hr-field select:focus, .hr-field textarea:focus { border-color: var(--hr-teal-600); outline: none; box-shadow: 0 0 0 3px rgba(13,148,136,.12); }
+.hr-field input:focus, .hr-field select:focus, .hr-field textarea:focus { border-color: var(--hr-teal-600); outline: none; box-shadow: 0 0 0 3px rgba(11,27,90,.12); }
 .hr-field .err { color: var(--hr-red); font-size: .76rem; display: none; }
 .hr-field.invalid input, .hr-field.invalid select, .hr-field.invalid textarea { border-color: var(--hr-red); }
 .hr-field.invalid .err { display: block; }
@@ -223,7 +223,7 @@ table.hr-tbl { width: 100%; border-collapse: collapse; font-size: .87rem; min-wi
 /* Toast + modal */
 .hr-toast { position: fixed; bottom: 22px; inset-inline-start: 50%; transform: translateX(-50%); background: var(--hr-navy); color: #fff; border-radius: 12px; padding: 11px 18px; font-size: .88rem; display: flex; gap: 14px; align-items: center; box-shadow: var(--hr-sh-md); z-index: 200; }
 html[dir="rtl"] .hr-toast { transform: translateX(50%); }
-.hr-toast button { background: none; border: none; color: #7DE3D8; font-weight: 700; font-size: .88rem; }
+.hr-toast button { background: none; border: none; color: #AAB8F0; font-weight: 700; font-size: .88rem; }
 .hr-modal { position: fixed; inset: 0; background: rgba(11,27,90,.45); display: grid; place-items: center; z-index: 300; padding: 16px; }
 .hr-modal-in { background: #fff; border-radius: var(--hr-r-lg); max-width: 430px; width: 100%; padding: 22px; box-shadow: var(--hr-sh-md); }
 .hr-modal-in h3 { color: var(--hr-navy); margin-bottom: 8px; font-size: 1.02rem; }

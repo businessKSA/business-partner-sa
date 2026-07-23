@@ -56,11 +56,13 @@ const NAV = [
   { href: "/hr/employer/interviews", key: "interviews", icon: "calendar", label: "المقابلات" },
   { href: "/hr/employer/messages", key: "messages", icon: "mail", label: "الرسائل" },
   { href: "/hr/employer/offers", key: "offers", icon: "filetext", label: "العروض والتعيين" },
+  { href: "/hr/employer/onboarding", key: "onboarding", icon: "shield", label: "التعيين والمباشرة" },
   { href: "/hr/employer/reports", key: "reports", icon: "chart", label: "التقارير" },
   { href: "/hr/employer/billing", key: "billing", icon: "card", label: "الفواتير والباقات" },
   { href: "/hr/employer/team", key: "team", icon: "shield", label: "فريق العمل والصلاحيات" },
   { href: "/hr/employer/company", key: "company", icon: "building", label: "صفحة الشركة" },
   { href: "/hr/employer/integrations", key: "integrations", icon: "plug", label: "التكاملات" },
+  { href: "/hr/employer/automations", key: "automations", icon: "settings", label: "مركز الأتمتة" },
   { href: "/hr/employer/settings", key: "settings", icon: "settings", label: "الإعدادات" },
   { href: "/hr/employer/help", key: "help", icon: "help", label: "مركز المساعدة" },
 ];
@@ -76,7 +78,7 @@ function shell({ title, active, page, body, wide }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title} — منصة التوظيف | Business Partner</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0F766E">
+<meta name="theme-color" content="#0B1B5A">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -163,10 +165,28 @@ const jobsBody = `
 
 const jobNewBody = `
       <div class="hr-page-head">
-        <div><h1 id="wiz-title">نشر وظيفة جديدة</h1><p>أكمل الخطوات — تُحفظ المسودة تلقائياً في كل خطوة.</p></div>
+        <div><h1 id="wiz-title">نشر وظيفة جديدة</h1><p id="jn-sub">اكتب المسمى الوظيفي فقط — الذكاء يكتب الوصف كاملاً وتنشر بضغطة.</p></div>
         <a class="hr-btn hr-btn-ghost" href="/hr/employer/jobs">رجوع للوظائف</a>
       </div>
-      <div class="hr-wiz">
+      <section class="hr-card" id="qp-card" style="max-width:720px;margin:0 auto;width:100%"><div class="bd">
+        <h3 style="color:var(--hr-navy);margin-bottom:4px">⚡ النشر السريع</h3>
+        <p class="hr-hint" style="margin-bottom:14px">المسمى يكفي. كل التفاصيل الأخرى اختيارية وتقدر تعدّل الوصف قبل النشر.</p>
+        <div class="hr-field"><label for="qp-title">المسمى الوظيفي <span class="req">*</span></label><input id="qp-title" type="text" placeholder="مثال: باريستا، محاسب تكاليف، مهندس إنتاج…"></div>
+        <div class="hr-field"><label for="qp-city">المدينة</label><input id="qp-city" type="text" value="الرياض"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="hr-btn hr-btn-primary" id="qp-go" type="button">✨ اكتب الوصف بالذكاء</button>
+          <button class="hr-link" id="jn-full" type="button">تبغى تفاصيل أكثر؟ النموذج التفصيلي</button>
+        </div>
+        <p class="hr-hint" id="qp-status" style="min-height:18px;margin-top:8px"></p>
+        <div id="qp-preview" hidden>
+          <div class="hr-field"><label for="qp-desc">الوصف المُولّد — راجعه وعدّله قبل النشر</label><textarea id="qp-desc" rows="12"></textarea></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="hr-btn hr-btn-primary" id="qp-publish" type="button">📢 انشر الوظيفة الآن</button>
+            <button class="hr-btn hr-btn-ghost" id="qp-regen" type="button">✨ أعد التوليد</button>
+          </div>
+        </div>
+      </div></section>
+      <div class="hr-wiz" id="wiz-wrap" hidden>
         <aside class="hr-wiz-steps" id="wiz-steps" aria-label="خطوات النشر"></aside>
         <section class="hr-card"><div class="bd">
           <form id="wiz-form" novalidate></form>
@@ -236,11 +256,9 @@ const STUBS = [
   ["interviews", "interviews", "المقابلات", "تقويم يومي وأسبوعي وشهري، ربط المقابلة بالوظيفة والمرشّح، لجان تقييم وتذكيرات.", "calendar"],
   ["messages", "messages", "الرسائل", "صندوق موحّد للبريد ورسائل المنصة مع قوالب ومتغيرات تلقائية وجدولة إرسال.", "mail"],
   ["offers", "offers", "العروض والتعيين", "إنشاء عرض وظيفي بالراتب والبدلات والمزايا، موافقات داخلية، وتحويل المقبولين إلى Onboarding.", "filetext"],
-  ["reports", "reports", "التقارير", "زمن التوظيف، مصادر المرشّحين، معدلات التحويل بين المراحل وأداء كل وظيفة.", "chart"],
   ["billing", "billing", "الفواتير والباقات", "باقتك الحالية وفواتيرك وسجل المدفوعات.", "card"],
   ["team", "team", "فريق العمل والصلاحيات", "أدوار (مالك، مدير موارد بشرية، مسؤول توظيف، مدير قسم، محاور، مشاهدة فقط) بصلاحيات دقيقة لكل إجراء.", "shield"],
   ["company", "company", "صفحة الشركة", "ملف شركتك العام الذي يراه المتقدمون: النبذة والفروع والصور.", "building"],
-  ["integrations", "integrations", "التكاملات", "الربط مع البريد وGoogle Calendar وواتساب Business وقنوات النشر.", "plug"],
   ["settings", "settings", "الإعدادات", "إعدادات الحساب والشركة ومراحل التوظيف الافتراضية.", "settings"],
   ["help", "help", "مركز المساعدة", "أدلة الاستخدام والتواصل مع فريق Business Partner.", "help"],
 ];
@@ -257,6 +275,41 @@ const stubBody = (title, desc, icon) => `
         </div>
       </div></section>`;
 
+
+const reportsBody = `
+      <div class="hr-page-head">
+        <div><h1>التقارير — مصادر المرشّحين</h1><p>من أين يأتي مرشّحوك فعلاً، وأي مصدر يوصل للمقابلة والتوظيف.</p></div>
+        <select id="rp-model" class="hr-btn hr-btn-ghost" style="font-size:.85rem" aria-label="نموذج الإسناد"><option value="first">First-touch (أول مصدر)</option><option value="last">Last-touch (آخر مصدر)</option></select>
+      </div>
+      <div class="hr-kpis" id="rp-kpis"></div>
+      <section class="hr-card"><div class="hd"><h2>الأداء حسب المصدر</h2></div><div class="hr-tbl-wrap" id="rp-table"></div></section>
+      <p class="hr-hint">تقارير التكلفة لكل متقدم/تعيين وأداء الحملات تتفعّل مع ربط روابط التتبع والحملات (Campaign Tracking Links) — انظر مركز التكاملات.</p>`;
+
+const integrationsBody = `
+      <div class="hr-page-head">
+        <div><h1>مركز التكاملات</h1><p>كل قناة بحالتها الحقيقية — قنوات رسمية فقط: APIs وWebhooks وFeeds وروابط متتبعة. لا Scraping ولا تخزين كلمات مرور.</p></div>
+      </div>
+      <div class="hr-kpis" id="ig-kpis"></div>
+      <div id="ig-list"><div class="hr-skel" style="height:220px"></div></div>`;
+
+const automationsBody = `
+      <div class="hr-page-head">
+        <div><h1>مركز الأتمتة</h1><p>ماذا يحدث الآن، ما الذي يحتاج تدخلك، وما الإجراء الأفضل التالي.</p></div>
+      </div>
+      <div id="am-inbox"><div class="hr-skel" style="height:200px"></div></div>
+      <section class="hr-card"><div class="hd"><h2>قوالب مسارات التوظيف</h2></div><div class="bd" id="am-templates"></div></section>`;
+
+const onboardingBody = `
+      <div class="hr-page-head">
+        <div><h1>التعيين والمباشرة (Onboarding)</h1><p>رحلة كل موظف جديد من قبول العرض حتى اجتياز فترة التجربة — بالمسار السعودي الكامل.</p></div>
+        <div class="hr-views" role="tablist" aria-label="طريقة العرض">
+          <button id="ob-view-journey" class="active">رحلة الموظف</button>
+          <button id="ob-view-depts">مهام الأقسام</button>
+        </div>
+      </div>
+      <section class="hr-card"><div class="hr-tbl-wrap" id="ob-list"></div></section>
+      <div id="ob-detail"></div>`;
+
 export function buildHRAppPages() {
   const pages = [
     ["hr/employer.html", shell({ title: "لوحة صاحب العمل", active: "home", page: "dashboard", body: dashboardBody })],
@@ -266,6 +319,10 @@ export function buildHRAppPages() {
     ["hr/employer/applicants.html", shell({ title: "المتقدمون", active: "applicants", page: "applicants", body: applicantsBody, wide: true })],
     ["hr/employer/applicant.html", shell({ title: "ملف المرشّح", active: "applicants", page: "applicant", body: applicantBody })],
     ["hr/employer/matching.html", shell({ title: "المطابقة الذكية", active: "matching", page: "matching", body: matchingBody })],
+    ["hr/employer/reports.html", shell({ title: "التقارير", active: "reports", page: "reports", body: reportsBody })],
+    ["hr/employer/integrations.html", shell({ title: "مركز التكاملات", active: "integrations", page: "integrations", body: integrationsBody })],
+    ["hr/employer/automations.html", shell({ title: "مركز الأتمتة", active: "automations", page: "automations", body: automationsBody })],
+    ["hr/employer/onboarding.html", shell({ title: "التعيين والمباشرة", active: "onboarding", page: "onboarding", body: onboardingBody })],
   ];
   for (const [slug, key, title, desc, icon] of STUBS) {
     pages.push([`hr/employer/${slug}.html`, shell({ title, active: key, page: `stub-${key}`, body: stubBody(title, desc, icon) })]);

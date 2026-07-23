@@ -388,7 +388,8 @@
       "source": "بوابة التوظيف",
       "phone": "+9665xxxxxx01",
       "email": "a.alshehri@example.com",
-      "summary": "قاد تشغيل مصنع أثاث بطاقة 200 عامل، خفض الهدر 14% خلال سنتين، وخبرة مباشرة في جدولة إنتاج المشاريع المخصصة."
+      "summary": "قاد تشغيل مصنع أثاث بطاقة 200 عامل، خفض الهدر 14% خلال سنتين، وخبرة مباشرة في جدولة إنتاج المشاريع المخصصة.",
+      "sourceKey": "WEBSITE_JOB_APPLICATION"
     },
     {
       "id": "c_02",
@@ -417,7 +418,8 @@
       "source": "LinkedIn",
       "phone": "+9665xxxxxx02",
       "email": "m.issa@example.com",
-      "summary": "خبرة تشغيل ورش معدنية وخشبية، أدار توسعة خط إنتاج كامل، يحتاج فترة إشعار 60 يوماً."
+      "summary": "خبرة تشغيل ورش معدنية وخشبية، أدار توسعة خط إنتاج كامل، يحتاج فترة إشعار 60 يوماً.",
+      "sourceKey": "LINKEDIN_JOB"
     },
     {
       "id": "c_03",
@@ -447,7 +449,8 @@
       "source": "بوابة التوظيف",
       "phone": "+9665xxxxxx03",
       "email": "s.alqahtani@example.com",
-      "summary": "ست سنوات في تخطيط إنتاج التصنيع المخصص، بنت نظام جدولة يومي خفّض التأخير 20%."
+      "summary": "ست سنوات في تخطيط إنتاج التصنيع المخصص، بنت نظام جدولة يومي خفّض التأخير 20%.",
+      "sourceKey": "WEBSITE_JOB_APPLICATION"
     },
     {
       "id": "c_04",
@@ -475,7 +478,8 @@
       "source": "Indeed",
       "phone": "+9665xxxxxx04",
       "email": "a.fathy@example.com",
-      "summary": "خلفية CNC وتعشيش قوية مع خبرة تقدير تكاليف التصنيع للمشاريع المخصصة."
+      "summary": "خلفية CNC وتعشيش قوية مع خبرة تقدير تكاليف التصنيع للمشاريع المخصصة.",
+      "sourceKey": "INDEED"
     },
     {
       "id": "c_05",
@@ -503,7 +507,8 @@
       "source": "صبّار",
       "phone": "+9665xxxxxx05",
       "email": "k.almutairi@example.com",
-      "summary": "سبع سنوات في نجارة أجنحة المعارض والديكور المخصص، قاد فرقاً حتى 12 نجاراً."
+      "summary": "سبع سنوات في نجارة أجنحة المعارض والديكور المخصص، قاد فرقاً حتى 12 نجاراً.",
+      "sourceKey": "SABBAR"
     },
     {
       "id": "c_06",
@@ -530,7 +535,8 @@
       "source": "بوابة التوظيف",
       "phone": "+9665xxxxxx06",
       "email": "y.hassan@example.com",
-      "summary": "خبرة طويلة في النجارة الإنشائية وتركيب المواقع، يحتاج تقييم قيادة فرق."
+      "summary": "خبرة طويلة في النجارة الإنشائية وتركيب المواقع، يحتاج تقييم قيادة فرق.",
+      "sourceKey": "WEBSITE_JOB_APPLICATION"
     },
     {
       "id": "c_07",
@@ -560,7 +566,8 @@
       "source": "بوابة التوظيف",
       "phone": "+9665xxxxxx07",
       "email": "n.alotaibi@example.com",
-      "summary": "خمس سنوات تشغيل يومي لمنصات قوى والتأمينات ومدد لشركة مقاولات 250 موظفاً."
+      "summary": "خمس سنوات تشغيل يومي لمنصات قوى والتأمينات ومدد لشركة مقاولات 250 موظفاً.",
+      "sourceKey": "WEBSITE_JOB_APPLICATION"
     },
     {
       "id": "c_08",
@@ -588,7 +595,8 @@
       "source": "LinkedIn",
       "phone": "+9665xxxxxx08",
       "email": "o.bukhari@example.com",
-      "summary": "أربع سنوات علاقات حكومية، سرعة إنجاز عالية في معاملات مقيم وأبشر أعمال."
+      "summary": "أربع سنوات علاقات حكومية، سرعة إنجاز عالية في معاملات مقيم وأبشر أعمال.",
+      "sourceKey": "LINKEDIN_JOB"
     },
     {
       "id": "c_09",
@@ -616,7 +624,8 @@
       "source": "صبّار",
       "phone": "+9665xxxxxx09",
       "email": "h.alzahrani@example.com",
-      "summary": "ست سنوات تمديدات وإنارة، منها سنتان في تجهيز فعاليات ومهرجانات."
+      "summary": "ست سنوات تمديدات وإنارة، منها سنتان في تجهيز فعاليات ومهرجانات.",
+      "sourceKey": "SABBAR"
     },
     {
       "id": "c_10",
@@ -644,7 +653,8 @@
       "source": "Indeed",
       "phone": "+9665xxxxxx10",
       "email": "r.salim@example.com",
-      "summary": "كهرباء صناعية وصيانة ماكينات، مناسب أيضاً لدعم فريق الصيانة."
+      "summary": "كهرباء صناعية وصيانة ماكينات، مناسب أيضاً لدعم فريق الصيانة.",
+      "sourceKey": "INDEED"
     },
     {
       "id": "c_11",
@@ -674,7 +684,8 @@
       "source": "بوابة التوظيف",
       "phone": "+9665xxxxxx11",
       "email": "l.aldosari@example.com",
-      "summary": "بورتفوليو قوي في أجنحة المعارض ومجسمات الفعاليات، تسليم ملفات تنفيذية جاهزة للورشة."
+      "summary": "بورتفوليو قوي في أجنحة المعارض ومجسمات الفعاليات، تسليم ملفات تنفيذية جاهزة للورشة.",
+      "sourceKey": "WEBSITE_JOB_APPLICATION"
     },
     {
       "id": "c_12",
@@ -703,7 +714,8 @@
       "source": "LinkedIn",
       "phone": "+9665xxxxxx12",
       "email": "f.alanazi@example.com",
-      "summary": "خمس سنوات محاسبة تكاليف في التصنيع، خبرة مباشرة في تكاليف المشاريع المخصصة."
+      "summary": "خمس سنوات محاسبة تكاليف في التصنيع، خبرة مباشرة في تكاليف المشاريع المخصصة.",
+      "sourceKey": "LINKEDIN_JOB"
     }
   ],
   "applications": [
@@ -950,6 +962,548 @@
       "at": "2026-07-18T12:00:00+03:00",
       "type": "job",
       "text": "أُرسلت وظيفة مصمم ثلاثي الأبعاد للمراجعة"
+    }
+  ],
+  "sourcesRegistry": [
+    {
+      "key": "WEBSITE_JOB_APPLICATION",
+      "label": "تقديم من الموقع",
+      "channel": "website"
+    },
+    {
+      "key": "WEBSITE_GENERAL_REGISTRATION",
+      "label": "تسجيل عام بالموقع",
+      "channel": "website"
+    },
+    {
+      "key": "LINKEDIN_JOB",
+      "label": "LinkedIn",
+      "channel": "jobboard"
+    },
+    {
+      "key": "INDEED",
+      "label": "Indeed",
+      "channel": "jobboard"
+    },
+    {
+      "key": "SABBAR",
+      "label": "صبّار",
+      "channel": "jobboard"
+    },
+    {
+      "key": "JADARAT",
+      "label": "جدارات",
+      "channel": "jobboard"
+    },
+    {
+      "key": "WHATSAPP_INBOUND",
+      "label": "واتساب وارد",
+      "channel": "messaging"
+    },
+    {
+      "key": "EMAIL_INBOUND",
+      "label": "بريد وارد",
+      "channel": "email"
+    },
+    {
+      "key": "EMPLOYEE_REFERRAL",
+      "label": "إحالة موظف",
+      "channel": "referral"
+    },
+    {
+      "key": "NOTION_IMPORT",
+      "label": "استيراد Notion",
+      "channel": "import"
+    },
+    {
+      "key": "MANUAL_ENTRY",
+      "label": "إدخال يدوي",
+      "channel": "manual"
+    }
+  ],
+  "touchpoints": [
+    {
+      "id": "tp_1",
+      "applicationId": "app_01",
+      "candidateId": "c_01",
+      "at": "2026-07-12T10:00:00+03:00",
+      "channel": "website",
+      "eventType": "JOB_VIEW",
+      "label": "شاهد صفحة وظيفة مدير ورشة (utm_source=google)"
+    },
+    {
+      "id": "tp_2",
+      "applicationId": "app_01",
+      "candidateId": "c_01",
+      "at": "2026-07-14T09:20:00+03:00",
+      "channel": "website",
+      "eventType": "APPLICATION_COMPLETED",
+      "label": "أكمل التقديم من الموقع"
+    },
+    {
+      "id": "tp_3",
+      "applicationId": "app_01",
+      "candidateId": "c_01",
+      "at": "2026-07-15T11:00:00+03:00",
+      "channel": "email",
+      "eventType": "EMAIL_OPENED",
+      "label": "فتح رسالة تأكيد الاستلام"
+    },
+    {
+      "id": "tp_4",
+      "applicationId": "app_01",
+      "candidateId": "c_01",
+      "at": "2026-07-22T10:05:00+03:00",
+      "channel": "platform",
+      "eventType": "INTERVIEW_BOOKED",
+      "label": "حُجزت مقابلة الخميس 10:00 ص"
+    },
+    {
+      "id": "tp_5",
+      "applicationId": "app_05",
+      "candidateId": "c_05",
+      "at": "2026-07-11T14:00:00+03:00",
+      "channel": "whatsapp",
+      "eventType": "WHATSAPP_MESSAGE_RECEIVED",
+      "label": "وصل عبر حملة واتساب (صبّار)"
+    },
+    {
+      "id": "tp_6",
+      "applicationId": "app_05",
+      "candidateId": "c_05",
+      "at": "2026-07-13T09:00:00+03:00",
+      "channel": "website",
+      "eventType": "APPLICATION_COMPLETED",
+      "label": "أكمل التقديم برابط متتبع"
+    },
+    {
+      "id": "tp_7",
+      "applicationId": "app_07",
+      "candidateId": "c_07",
+      "at": "2026-07-15T12:30:00+03:00",
+      "channel": "website",
+      "eventType": "APPLICATION_COMPLETED",
+      "label": "تقديم مباشر من صفحة الوظيفة"
+    }
+  ],
+  "integrations": [
+    {
+      "platform": "موقع Business Partner",
+      "type": "مدمج",
+      "status": "OFFICIAL_API_AVAILABLE",
+      "health": "Healthy",
+      "lastSync": "2026-07-23T05:00:00+03:00",
+      "jobs": 35,
+      "applicants": 14,
+      "error": "",
+      "owner": "النظام"
+    },
+    {
+      "platform": "Notion (بنك السير + الوظائف)",
+      "type": "API رسمي",
+      "status": "OFFICIAL_API_AVAILABLE",
+      "health": "Healthy",
+      "lastSync": "2026-07-23T04:30:00+03:00",
+      "jobs": 35,
+      "applicants": 0,
+      "error": "",
+      "owner": "n8n"
+    },
+    {
+      "platform": "Gmail (بريد وارد)",
+      "type": "Email Ingestion",
+      "status": "EMAIL_INGESTION_ONLY",
+      "health": "Healthy",
+      "lastSync": "2026-07-23T05:10:00+03:00",
+      "jobs": 0,
+      "applicants": 6,
+      "error": "",
+      "owner": "n8n"
+    },
+    {
+      "platform": "WhatsApp Business Cloud",
+      "type": "API رسمي + Webhook",
+      "status": "WEBHOOK_AVAILABLE",
+      "health": "Authentication Required",
+      "lastSync": "",
+      "jobs": 0,
+      "applicants": 0,
+      "error": "بانتظار اعتماد قالب Meta",
+      "owner": "n8n"
+    },
+    {
+      "platform": "Google Calendar",
+      "type": "API رسمي",
+      "status": "OFFICIAL_API_AVAILABLE",
+      "health": "Healthy",
+      "lastSync": "2026-07-23T05:12:00+03:00",
+      "jobs": 0,
+      "applicants": 0,
+      "error": "",
+      "owner": "n8n"
+    },
+    {
+      "platform": "Indeed",
+      "type": "XML Feed",
+      "status": "FEED_AVAILABLE",
+      "health": "Delayed",
+      "lastSync": "2026-07-22T20:00:00+03:00",
+      "jobs": 37,
+      "applicants": 2,
+      "error": "بانتظار تسجيل الفيد في حساب صاحب العمل",
+      "owner": "باهر"
+    },
+    {
+      "platform": "LinkedIn",
+      "type": "Connector جاهز",
+      "status": "PARTNER_APPROVAL_REQUIRED",
+      "health": "Disabled",
+      "lastSync": "",
+      "jobs": 0,
+      "applicants": 0,
+      "error": "يتطلب اعتماد شريك LinkedIn — لا Scraping",
+      "owner": "—"
+    },
+    {
+      "platform": "صبّار",
+      "type": "روابط متتبعة",
+      "status": "TRACKED_LINK_ONLY",
+      "health": "Healthy",
+      "lastSync": "",
+      "jobs": 0,
+      "applicants": 1,
+      "error": "",
+      "owner": "—"
+    },
+    {
+      "platform": "جدارات",
+      "type": "يدوي",
+      "status": "MANUAL_IMPORT",
+      "health": "Disabled",
+      "lastSync": "",
+      "jobs": 0,
+      "applicants": 0,
+      "error": "",
+      "owner": "—"
+    },
+    {
+      "platform": "Meta Ads",
+      "type": "روابط متتبعة",
+      "status": "TRACKED_LINK_ONLY",
+      "health": "Disabled",
+      "lastSync": "",
+      "jobs": 0,
+      "applicants": 0,
+      "error": "",
+      "owner": "—"
+    }
+  ],
+  "automationInbox": [
+    {
+      "kind": "approval",
+      "text": "8 مطابقات قوية لوظيفة فني كهرباء بانتظار مراجعتك قبل إرسال الدعوات",
+      "href": "/hr/employer/matching",
+      "urgent": true
+    },
+    {
+      "kind": "approval",
+      "text": "عرض وظيفي لسارة القحطاني بانتظار اعتماد الراتب النهائي",
+      "href": "/hr/employer/offers",
+      "urgent": true
+    },
+    {
+      "kind": "missing",
+      "text": "مرشحان بدون راتب متوقع — أرسل طلب استكمال بيانات",
+      "href": "/hr/employer/applicants",
+      "urgent": false
+    },
+    {
+      "kind": "integration",
+      "text": "تعذّر إرسال دعوة واحدة عبر واتساب وسنعيد المحاولة تلقائياً (قالب Meta قيد الاعتماد)",
+      "href": "/hr/employer/integrations",
+      "urgent": false
+    },
+    {
+      "kind": "delayed",
+      "text": "3 متقدمين لم تتم مراجعتهم منذ أكثر من 5 أيام",
+      "href": "/hr/employer/applicants",
+      "urgent": false
+    },
+    {
+      "kind": "interview",
+      "text": "مقابلة خالد المطيري تحتاج تعبئة نموذج التقييم",
+      "href": "/hr/employer/interviews",
+      "urgent": false
+    },
+    {
+      "kind": "onboarding",
+      "text": "موظف جديد ينتظر توثيق العقد في قوى",
+      "href": "/hr/employer/onboarding",
+      "urgent": true
+    }
+  ],
+  "onboardingCases": [
+    {
+      "id": "ob_1",
+      "name": "سارة القحطاني",
+      "job": "مهندس إنتاج",
+      "classification": "سعودية",
+      "startDate": "2026-08-03",
+      "status": "CONTRACT_SENT",
+      "completion": 62,
+      "blocked": null,
+      "stages": [
+        {
+          "label": "قبل المباشرة",
+          "tasks": [
+            [
+              "توقيع العرض",
+              "done"
+            ],
+            [
+              "جمع بيانات الهوية",
+              "done"
+            ],
+            [
+              "بيانات البنك وIBAN",
+              "done"
+            ],
+            [
+              "جهة اتصال الطوارئ",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "الجاهزية النظامية",
+          "tasks": [
+            [
+              "عقد العمل",
+              "done"
+            ],
+            [
+              "توثيق العقد عبر قوى",
+              "open"
+            ],
+            [
+              "التسجيل في التأمينات",
+              "open"
+            ],
+            [
+              "التأمين الطبي",
+              "open"
+            ],
+            [
+              "تسجيل الرواتب (مدد)",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "الجاهزية الداخلية",
+          "tasks": [
+            [
+              "بريد مؤسسي (IT)",
+              "open"
+            ],
+            [
+              "تجهيز الجهاز",
+              "open"
+            ],
+            [
+              "خطة أول أسبوع (المدير)",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "يوم المباشرة",
+          "tasks": [
+            [
+              "تسجيل المباشرة",
+              "open"
+            ],
+            [
+              "تسليم العهد",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "ما بعد المباشرة",
+          "tasks": [
+            [
+              "متابعة 7 أيام",
+              "open"
+            ],
+            [
+              "مراجعة 90 يوماً",
+              "open"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ob_2",
+      "name": "عبدالعزيز الشهري",
+      "job": "مدير ورشة",
+      "classification": "سعودي",
+      "startDate": "2026-08-10",
+      "status": "DOCUMENTS_UNDER_REVIEW",
+      "completion": 38,
+      "blocked": null,
+      "stages": [
+        {
+          "label": "قبل المباشرة",
+          "tasks": [
+            [
+              "توقيع العرض",
+              "done"
+            ],
+            [
+              "جمع بيانات الهوية",
+              "done"
+            ],
+            [
+              "المؤهلات والشهادات",
+              "review"
+            ],
+            [
+              "بيانات البنك",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "الجاهزية النظامية",
+          "tasks": [
+            [
+              "عقد العمل",
+              "open"
+            ],
+            [
+              "توثيق قوى",
+              "open"
+            ],
+            [
+              "التأمينات",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "الجاهزية الداخلية",
+          "tasks": [
+            [
+              "حسابات الأنظمة",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "يوم المباشرة",
+          "tasks": [
+            [
+              "تسجيل المباشرة",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "ما بعد المباشرة",
+          "tasks": [
+            [
+              "متابعة 7 أيام",
+              "open"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ob_3",
+      "name": "رامي سليم",
+      "job": "فني كهرباء فعاليات",
+      "classification": "غير سعودي داخل المملكة — نقل خدمات",
+      "startDate": "2026-08-17",
+      "status": "GOVERNMENT_ACTION_REQUIRED",
+      "completion": 25,
+      "blocked": {
+        "reason": "نقل الخدمات يحتاج موافقة صاحب العمل الحالي",
+        "owner": "موظف العلاقات الحكومية",
+        "action": "تقديم طلب نقل عبر قوى ورفع إثبات الإنجاز",
+        "due": "2026-07-30",
+        "severity": "عالية",
+        "impact": "قد يتأخر تاريخ المباشرة"
+      },
+      "stages": [
+        {
+          "label": "قبل المباشرة",
+          "tasks": [
+            [
+              "توقيع العرض",
+              "done"
+            ],
+            [
+              "بيانات الإقامة والجواز",
+              "done"
+            ],
+            [
+              "الفحص الطبي",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "الجاهزية النظامية",
+          "tasks": [
+            [
+              "نقل الخدمات (قوى)",
+              "blocked"
+            ],
+            [
+              "تصريح العمل",
+              "open"
+            ],
+            [
+              "التأمينات",
+              "open"
+            ],
+            [
+              "التأمين الطبي",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "الجاهزية الداخلية",
+          "tasks": [
+            [
+              "تجهيز العهد",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "يوم المباشرة",
+          "tasks": [
+            [
+              "تسجيل المباشرة",
+              "open"
+            ]
+          ]
+        },
+        {
+          "label": "ما بعد المباشرة",
+          "tasks": [
+            [
+              "متابعة 7 أيام",
+              "open"
+            ]
+          ]
+        }
+      ]
     }
   ]
 }
