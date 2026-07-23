@@ -4523,6 +4523,30 @@ function buildJobPage(job) {
   const thirdCard = job.openings
     ? `<div class="card"><h3>${L("Openings", "عدد الشواغر")}</h3><p>${esc(String(job.openings))}</p></div>`
     : `<div class="card"><h3>${L("Pipeline", "المسار")}</h3><p>${L("New → Screening → Interview → Offer", "جديد ← فرز ← مقابلة ← عرض")}</p></div>`;
+  // schema.org JobPosting structured data → Google for Jobs indexes the page
+  // automatically (free syndication). Built per-language from the same content.
+  const ldDesc =
+    `<p>${esc(L(job.summary.en, job.summary.ar))}</p>` +
+    `<p><b>${L("Responsibilities", "المهام")}:</b></p><ul>${resp}</ul>` +
+    `<p><b>${L("Requirements", "المتطلبات")}:</b></p><ul>${reqs}</ul>`;
+  const jobTypeLower = String(job.type.en || "").toLowerCase();
+  const employmentType = jobTypeLower.includes("part") ? "PART_TIME" : jobTypeLower.includes("contract") ? "CONTRACTOR" : "FULL_TIME";
+  const postedAt = new Date();
+  const validThrough = new Date(postedAt.getTime() + 60 * 864e5);
+  const jobLd = {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    title: L(job.title.en, job.title.ar),
+    description: ldDesc,
+    identifier: { "@type": "PropertyValue", name: "Business Partner", value: job.slug },
+    datePosted: postedAt.toISOString().slice(0, 10),
+    validThrough: validThrough.toISOString().slice(0, 10),
+    employmentType,
+    hiringOrganization: { "@type": "Organization", name: "Business Partner", sameAs: "https://businesspartner.sa" },
+    jobLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressCountry: "SA", addressLocality: L(job.location.en, job.location.ar) } },
+    directApply: true,
+  };
+  const jobLdScript = `<script type="application/ld+json">${JSON.stringify(jobLd).replace(/</g, "\\u003c")}</script>`;
   // Each posted job carries its own embedded application form (not a shared
   // one across every job) — applying here is scoped to this posting only.
   const body = `
@@ -4550,7 +4574,7 @@ function buildJobPage(job) {
       ${seekerFormHtml(f, { id: job.slug, title })}
     </div>
   </div></section>`;
-  return page({ title: Lraw(`${title} — Business Partner`, `${title} — بيزنس بارتنر`), desc: Lraw(`Apply for ${title} through the Business Partner ATS.`, `قدّم على وظيفة ${title} عبر ATS بيزنس بارتنر.`), active: "/careers", path: "/jobs/" + job.slug, body });
+  return page({ title: Lraw(`${title} — Business Partner`, `${title} — بيزنس بارتنر`), desc: Lraw(`Apply for ${title} through the Business Partner ATS.`, `قدّم على وظيفة ${title} عبر ATS بيزنس بارتنر.`), active: "/careers", path: "/jobs/" + job.slug, body: body + jobLdScript });
 }
 
 // Campaign hub: all events-workshop roles grouped by department. Lives under
