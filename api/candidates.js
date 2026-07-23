@@ -523,8 +523,34 @@ export default async function handler(req, res) {
       res.statusCode = 404;
       return res.end(JSON.stringify({ ok: false, error: "not_found" }));
     }
+    const cand = mapCandidate(pdata, unlocked, { full: true });
+    // The formatted ATS CV usually lives as the candidate PAGE BODY in Notion
+    // (structured sections), not in the "ATS CV Text" property — read the
+    // blocks as a markdown-ish fallback so the site can render the CV inline
+    // instead of only offering a file download.
+    if (unlocked && !cand.cvText) {
+      try {
+        let cur = null, guard = 0;
+        const out = [];
+        do {
+          const br = await notionFetch(`blocks/${qId}/children?page_size=100${cur ? `&start_cursor=${cur}` : ""}`, "GET");
+          if (!br.ok) break;
+          const bd = await br.json();
+          for (const blk of bd.results || []) {
+            const t = blk[blk.type];
+            if (!t || !Array.isArray(t.rich_text)) continue;
+            const line = t.rich_text.map((x) => x.plain_text).join("");
+            if (!line.trim()) continue;
+            const pre = /^heading/.test(blk.type) ? "## " : /list_item$/.test(blk.type) ? "- " : "";
+            out.push(pre + line);
+          }
+          cur = bd.has_more ? bd.next_cursor : null;
+        } while (cur && ++guard < 5);
+        if (out.length) cand.cvText = out.join("\n");
+      } catch (e) { console.error("cv body read error", String(e).slice(0, 120)); }
+    }
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, plan, candidate: mapCandidate(pdata, unlocked, { full: true }) }));
+    return res.end(JSON.stringify({ ok: true, unlocked, plan, candidate: cand }));
   }
 
   // Server-side Notion filter: only the website-sourced / active candidates.
