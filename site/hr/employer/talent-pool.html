@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/hr.css?v=7534df978e">
 </head>
-<body class="hr-body" data-hr-page="stub-talent">
+<body class="hr-body" data-hr-page="talent">
 <div class="hr-shell" id="hr-shell">
   <aside class="hr-side" id="hr-side" aria-label="التنقل الرئيسي">
     <div class="hr-brand">
@@ -58,22 +58,28 @@
     </header>
     <main class="hr-content" id="hr-content">
 
-      <div class="hr-page-head"><div><h1>قاعدة المواهب</h1></div></div>
-      <section class="hr-card"><div class="bd">
-        <div class="hr-empty">
-          <div class="e-ic"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5V12c0 1.7 3.6 3 8 3s8-1.3 8-3V5.5"/><path d="M4 12v6.5c0 1.7 3.6 3 8 3s8-1.3 8-3V12"/></svg></div>
-          <b>هذه الوحدة قيد البناء</b>
-          <p style="max-width:480px;margin:0 auto 14px">بحث موحّد في كل مرشّحي شركتك، قوائم محفوظة، وسوم، استيراد CSV ورفع سير ذاتية — مع كشف التكرار.</p>
-          <span class="hr-tag t-orange">قادمة في المرحلة التالية</span>
-          <p style="margin-top:16px"><a class="hr-btn hr-btn-ghost" href="/hr/employer">رجوع للوحة الرئيسية</a></p>
+      <div class="hr-page-head">
+        <div><h1>قاعدة المواهب</h1><p>كل مرشّحي شركتك في مكان واحد — ابحث، وسم، احفظ قوائم، وادعُ للتقديم.</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="hr-btn hr-btn-ghost" id="tp-add">إضافة مرشّح يدوياً</button>
+          <button class="hr-btn hr-btn-ghost" id="tp-import">استيراد CSV / رفع CV</button>
         </div>
-      </div></section>
+      </div>
+      <div class="hr-toolbar">
+        <input type="search" id="tp-q" placeholder="ابحث بالاسم أو المسمى أو المهارة…" aria-label="بحث">
+        <select id="tp-nat"><option value="">كل الجنسيات</option><option value="سعودي">سعوديون</option><option value="غير">غير سعوديين</option></select>
+        <select id="tp-city"><option value="">كل المدن</option></select>
+        <select id="tp-list"><option value="">كل المرشّحين</option><option value="future">محفوظون لفرص مستقبلية</option><option value="invited">مدعوون للتقديم</option><option value="noapp">لم يتقدموا على وظيفة</option></select>
+      </div>
+      <div id="tp-add-form" hidden></div>
+      <p class="hr-hint" id="tp-count"></p>
+      <div class="hr-grid" id="tp-grid"></div>
     </main>
   </div>
 </div>
 <div id="hr-toast-root"></div>
 <div id="hr-modal-root"></div>
 <script>window.HR_LANG="ar";</script>
-<script src="/assets/js/hr-app.js?v=d54e3c966f" defer></script>
+<script src="/assets/js/hr-app.js?v=adf12f4c88" defer></script>
 </body>
 </html>

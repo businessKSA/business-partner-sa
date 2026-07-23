@@ -308,32 +308,74 @@ const matchingBody = `
       <div id="mt-results"><div class="hr-empty"><div class="e-ic">✨</div><b>اختر وظيفة وشغّل المطابقة</b><p>يحلل المحرك كل المرشّحين في قاعدتك ويرتبهم بدرجة مفصّلة.</p></div></div>
       <section class="hr-card" id="mt-history-card" hidden><div class="hd"><h2>سجل عمليات المطابقة</h2></div><div class="bd" id="mt-history"></div></section>`;
 
-// Sections not yet built get a real page with the shared layout, a clear
-// "under construction" state and an honest scope note — nav never dead-ends.
-const STUBS = [
-  ["talent-pool", "talent", "قاعدة المواهب", "بحث موحّد في كل مرشّحي شركتك، قوائم محفوظة، وسوم، استيراد CSV ورفع سير ذاتية — مع كشف التكرار.", "database"],
-  ["interviews", "interviews", "المقابلات", "تقويم يومي وأسبوعي وشهري، ربط المقابلة بالوظيفة والمرشّح، لجان تقييم وتذكيرات.", "calendar"],
-  ["messages", "messages", "الرسائل", "صندوق موحّد للبريد ورسائل المنصة مع قوالب ومتغيرات تلقائية وجدولة إرسال.", "mail"],
-  ["offers", "offers", "العروض والتعيين", "إنشاء عرض وظيفي بالراتب والبدلات والمزايا، موافقات داخلية، وتحويل المقبولين إلى Onboarding.", "filetext"],
-  ["billing", "billing", "الفواتير والباقات", "باقتك الحالية وفواتيرك وسجل المدفوعات.", "card"],
-  ["team", "team", "فريق العمل والصلاحيات", "أدوار (مالك، مدير موارد بشرية، مسؤول توظيف، مدير قسم، محاور، مشاهدة فقط) بصلاحيات دقيقة لكل إجراء.", "shield"],
-  ["company", "company", "صفحة الشركة", "ملف شركتك العام الذي يراه المتقدمون: النبذة والفروع والصور.", "building"],
-  ["settings", "settings", "الإعدادات", "إعدادات الحساب والشركة ومراحل التوظيف الافتراضية.", "settings"],
-  ["help", "help", "مركز المساعدة", "أدلة الاستخدام والتواصل مع فريق Business Partner.", "help"],
-];
-
-const stubBody = (title, desc, icon) => `
-      <div class="hr-page-head"><div><h1>${title}</h1></div></div>
-      <section class="hr-card"><div class="bd">
-        <div class="hr-empty">
-          <div class="e-ic">${ic(icon, 34)}</div>
-          <b>هذه الوحدة قيد البناء</b>
-          <p style="max-width:480px;margin:0 auto 14px">${desc}</p>
-          <span class="hr-tag t-orange">قادمة في المرحلة التالية</span>
-          <p style="margin-top:16px"><a class="hr-btn hr-btn-ghost" href="/hr/employer">رجوع للوحة الرئيسية</a></p>
+const talentBody = `
+      <div class="hr-page-head">
+        <div><h1>قاعدة المواهب</h1><p>كل مرشّحي شركتك في مكان واحد — ابحث، وسم، احفظ قوائم، وادعُ للتقديم.</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="hr-btn hr-btn-ghost" id="tp-add">إضافة مرشّح يدوياً</button>
+          <button class="hr-btn hr-btn-ghost" id="tp-import">استيراد CSV / رفع CV</button>
         </div>
-      </div></section>`;
+      </div>
+      <div class="hr-toolbar">
+        <input type="search" id="tp-q" placeholder="ابحث بالاسم أو المسمى أو المهارة…" aria-label="بحث">
+        <select id="tp-nat"><option value="">كل الجنسيات</option><option value="سعودي">سعوديون</option><option value="غير">غير سعوديين</option></select>
+        <select id="tp-city"><option value="">كل المدن</option></select>
+        <select id="tp-list"><option value="">كل المرشّحين</option><option value="future">محفوظون لفرص مستقبلية</option><option value="invited">مدعوون للتقديم</option><option value="noapp">لم يتقدموا على وظيفة</option></select>
+      </div>
+      <div id="tp-add-form" hidden></div>
+      <p class="hr-hint" id="tp-count"></p>
+      <div class="hr-grid" id="tp-grid"></div>`;
 
+const interviewsBody = `
+      <div class="hr-page-head">
+        <div><h1>المقابلات</h1><p>مقابلات هذا الأسبوع وما بعده — مربوطة بالوظيفة والمرشّح واللجنة.</p></div>
+        <button class="hr-btn hr-btn-primary" id="iv-new">＋ مقابلة جديدة</button>
+      </div>
+      <div id="iv-form-wrap" hidden></div>
+      <div id="iv-list"><div class="hr-skel" style="height:200px"></div></div>`;
+
+const messagesBody = `
+      <div class="hr-page-head">
+        <div><h1>الرسائل</h1><p>قوالب جاهزة بمتغيرات تلقائية — البريد عبر n8n متاح، وواتساب بانتظار اعتماد قالب Meta.</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+        <section class="hr-card"><div class="hd"><h2>إنشاء رسالة</h2></div><div class="bd" id="ms-compose"></div></section>
+        <section class="hr-card"><div class="hd"><h2>سجل الرسائل</h2></div><div class="bd" id="ms-log"></div></section>
+      </div>
+      <section class="hr-card"><div class="hd"><h2>القوالب</h2></div><div class="bd" id="ms-templates"></div></section>`;
+
+const offersBody = `
+      <div class="hr-page-head">
+        <div><h1>العروض والتعيين</h1><p>أنشئ العرض، مرّره للاعتماد، وحوّل المقبولين إلى رحلة المباشرة.</p></div>
+        <button class="hr-btn hr-btn-primary" id="of-new">＋ عرض وظيفي جديد</button>
+      </div>
+      <div id="of-form-wrap" hidden></div>
+      <div id="of-list"><div class="hr-skel" style="height:180px"></div></div>`;
+
+const billingBody = `
+      <div class="hr-page-head"><div><h1>الفواتير والباقات</h1><p>باقتك الحالية وسجل مدفوعاتك.</p></div></div>
+      <div id="bl-root"><div class="hr-skel" style="height:200px"></div></div>`;
+
+const teamBody = `
+      <div class="hr-page-head">
+        <div><h1>فريق العمل والصلاحيات</h1><p>أدوار واضحة وصلاحيات دقيقة لكل إجراء حسّاس.</p></div>
+        <button class="hr-btn hr-btn-primary" id="tm-invite">＋ دعوة عضو</button>
+      </div>
+      <div id="tm-form-wrap" hidden></div>
+      <section class="hr-card"><div class="hd"><h2>الأعضاء</h2></div><div class="bd" id="tm-members"></div></section>
+      <section class="hr-card"><div class="hd"><h2>مصفوفة الصلاحيات</h2></div><div class="hr-tbl-wrap" id="tm-matrix"></div></section>`;
+
+const companyBody = `
+      <div class="hr-page-head"><div><h1>صفحة الشركة وإعدادات التوظيف الافتراضية</h1><p>تُعبّأ مرة واحدة وتُستخدم تلقائياً في كل وظيفة جديدة — فلا نسألك عنها مجدداً.</p></div></div>
+      <section class="hr-card"><div class="bd" id="co-form"></div></section>`;
+
+const settingsBody = `
+      <div class="hr-page-head"><div><h1>الإعدادات</h1></div></div>
+      <div id="st-root"><div class="hr-skel" style="height:180px"></div></div>`;
+
+const helpBody = `
+      <div class="hr-page-head"><div><h1>مركز المساعدة</h1><p>أدلة سريعة وتواصل مباشر مع فريق Business Partner.</p></div></div>
+      <div id="hp-root"></div>`;
 
 const reportsBody = `
       <div class="hr-page-head">
@@ -383,8 +425,14 @@ export function buildHRAppPages() {
     ["hr/employer/automations.html", shell({ title: "مركز الأتمتة", active: "automations", page: "automations", body: automationsBody })],
     ["hr/employer/onboarding.html", shell({ title: "التعيين والمباشرة", active: "onboarding", page: "onboarding", body: onboardingBody })],
   ];
-  for (const [slug, key, title, desc, icon] of STUBS) {
-    pages.push([`hr/employer/${slug}.html`, shell({ title, active: key, page: `stub-${key}`, body: stubBody(title, desc, icon) })]);
-  }
+  pages.push(["hr/employer/talent-pool.html", shell({ title: "قاعدة المواهب", active: "talent", page: "talent", body: talentBody })]);
+  pages.push(["hr/employer/interviews.html", shell({ title: "المقابلات", active: "interviews", page: "interviews", body: interviewsBody })]);
+  pages.push(["hr/employer/messages.html", shell({ title: "الرسائل", active: "messages", page: "messages", body: messagesBody })]);
+  pages.push(["hr/employer/offers.html", shell({ title: "العروض والتعيين", active: "offers", page: "offers", body: offersBody })]);
+  pages.push(["hr/employer/billing.html", shell({ title: "الفواتير والباقات", active: "billing", page: "billing", body: billingBody })]);
+  pages.push(["hr/employer/team.html", shell({ title: "فريق العمل والصلاحيات", active: "team", page: "team", body: teamBody })]);
+  pages.push(["hr/employer/company.html", shell({ title: "صفحة الشركة", active: "company", page: "company", body: companyBody })]);
+  pages.push(["hr/employer/settings.html", shell({ title: "الإعدادات", active: "settings", page: "settings", body: settingsBody })]);
+  pages.push(["hr/employer/help.html", shell({ title: "مركز المساعدة", active: "help", page: "help", body: helpBody })]);
   return pages;
 }

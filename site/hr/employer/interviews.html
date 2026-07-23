@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/hr.css?v=7534df978e">
 </head>
-<body class="hr-body" data-hr-page="stub-interviews">
+<body class="hr-body" data-hr-page="interviews">
 <div class="hr-shell" id="hr-shell">
   <aside class="hr-side" id="hr-side" aria-label="التنقل الرئيسي">
     <div class="hr-brand">
@@ -58,22 +58,18 @@
     </header>
     <main class="hr-content" id="hr-content">
 
-      <div class="hr-page-head"><div><h1>المقابلات</h1></div></div>
-      <section class="hr-card"><div class="bd">
-        <div class="hr-empty">
-          <div class="e-ic"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>
-          <b>هذه الوحدة قيد البناء</b>
-          <p style="max-width:480px;margin:0 auto 14px">تقويم يومي وأسبوعي وشهري، ربط المقابلة بالوظيفة والمرشّح، لجان تقييم وتذكيرات.</p>
-          <span class="hr-tag t-orange">قادمة في المرحلة التالية</span>
-          <p style="margin-top:16px"><a class="hr-btn hr-btn-ghost" href="/hr/employer">رجوع للوحة الرئيسية</a></p>
-        </div>
-      </div></section>
+      <div class="hr-page-head">
+        <div><h1>المقابلات</h1><p>مقابلات هذا الأسبوع وما بعده — مربوطة بالوظيفة والمرشّح واللجنة.</p></div>
+        <button class="hr-btn hr-btn-primary" id="iv-new">＋ مقابلة جديدة</button>
+      </div>
+      <div id="iv-form-wrap" hidden></div>
+      <div id="iv-list"><div class="hr-skel" style="height:200px"></div></div>
     </main>
   </div>
 </div>
 <div id="hr-toast-root"></div>
 <div id="hr-modal-root"></div>
 <script>window.HR_LANG="ar";</script>
-<script src="/assets/js/hr-app.js?v=d54e3c966f" defer></script>
+<script src="/assets/js/hr-app.js?v=adf12f4c88" defer></script>
 </body>
 </html>

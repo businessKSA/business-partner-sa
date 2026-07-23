@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/hr.css?v=7534df978e">
 </head>
-<body class="hr-body" data-hr-page="stub-team">
+<body class="hr-body" data-hr-page="team">
 <div class="hr-shell" id="hr-shell">
   <aside class="hr-side" id="hr-side" aria-label="التنقل الرئيسي">
     <div class="hr-brand">
@@ -58,22 +58,19 @@
     </header>
     <main class="hr-content" id="hr-content">
 
-      <div class="hr-page-head"><div><h1>فريق العمل والصلاحيات</h1></div></div>
-      <section class="hr-card"><div class="bd">
-        <div class="hr-empty">
-          <div class="e-ic"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4.5 5v6c0 5 3.2 8.6 7.5 10 4.3-1.4 7.5-5 7.5-10V5z"/></svg></div>
-          <b>هذه الوحدة قيد البناء</b>
-          <p style="max-width:480px;margin:0 auto 14px">أدوار (مالك، مدير موارد بشرية، مسؤول توظيف، مدير قسم، محاور، مشاهدة فقط) بصلاحيات دقيقة لكل إجراء.</p>
-          <span class="hr-tag t-orange">قادمة في المرحلة التالية</span>
-          <p style="margin-top:16px"><a class="hr-btn hr-btn-ghost" href="/hr/employer">رجوع للوحة الرئيسية</a></p>
-        </div>
-      </div></section>
+      <div class="hr-page-head">
+        <div><h1>فريق العمل والصلاحيات</h1><p>أدوار واضحة وصلاحيات دقيقة لكل إجراء حسّاس.</p></div>
+        <button class="hr-btn hr-btn-primary" id="tm-invite">＋ دعوة عضو</button>
+      </div>
+      <div id="tm-form-wrap" hidden></div>
+      <section class="hr-card"><div class="hd"><h2>الأعضاء</h2></div><div class="bd" id="tm-members"></div></section>
+      <section class="hr-card"><div class="hd"><h2>مصفوفة الصلاحيات</h2></div><div class="hr-tbl-wrap" id="tm-matrix"></div></section>
     </main>
   </div>
 </div>
 <div id="hr-toast-root"></div>
 <div id="hr-modal-root"></div>
 <script>window.HR_LANG="ar";</script>
-<script src="/assets/js/hr-app.js?v=d54e3c966f" defer></script>
+<script src="/assets/js/hr-app.js?v=adf12f4c88" defer></script>
 </body>
 </html>
