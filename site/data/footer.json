@@ -1,0 +1,159 @@
+{
+  "_comment": "الفوتر — يُقرأ في generate.mjs. عمود «تواصل» والسوشال ميديا يأتيان من site.json (contact/social). عدّل من لوحة /admin ثم احفظ — الموقع يُعاد بناؤه تلقائياً.",
+  "newsletter": {
+    "titleEn": "Subscribe to our newsletter",
+    "titleAr": "اشترك في نشرتنا الإخبارية",
+    "textEn": "The latest business & regulatory news in Saudi Arabia — weekly, in both Arabic and English, straight to your inbox.",
+    "textAr": "آخر أخبار الأعمال والأنظمة في السعودية — أسبوعياً بالعربية والإنجليزية مباشرة إلى بريدك."
+  },
+  "taglineEn": "Partnering for your success",
+  "taglineAr": "شركاء نجاحك",
+  "columns": [
+    {
+      "titleEn": "Our services",
+      "titleAr": "خدماتنا",
+      "links": [
+        {
+          "href": "/services",
+          "en": "All services",
+          "ar": "كل الخدمات"
+        },
+        {
+          "href": "/packages",
+          "en": "Packages",
+          "ar": "الباقات"
+        },
+        {
+          "href": "/ai-agents",
+          "en": "AI Agents",
+          "ar": "الوكلاء الأذكياء"
+        },
+        {
+          "href": "/task-force",
+          "en": "Task Force",
+          "ar": "تاسك فورس"
+        },
+        {
+          "href": "/hr",
+          "en": "Recruitment",
+          "ar": "التوظيف"
+        },
+        {
+          "href": "/deals",
+          "en": "Deals",
+          "ar": "الصفقات"
+        },
+        {
+          "href": "/mahfol-makfol",
+          "en": "Business Tourism",
+          "ar": "سياحة الأعمال"
+        },
+        {
+          "href": "/workspaces",
+          "en": "Business Spaces",
+          "ar": "مساحات الأعمال"
+        },
+        {
+          "href": "/worker-housing",
+          "en": "Worker Housing",
+          "ar": "تسكين العمالة"
+        }
+      ]
+    },
+    {
+      "titleEn": "Platforms & portals",
+      "titleAr": "المنصات والبوابات",
+      "links": [
+        {
+          "href": "/account",
+          "en": "Client portal",
+          "ar": "منصّة العملاء"
+        },
+        {
+          "href": "/suppliers",
+          "en": "Partners portal",
+          "ar": "بوابة الشركاء"
+        },
+        {
+          "href": "/employer-join",
+          "en": "For employers",
+          "ar": "لأصحاب العمل"
+        },
+        {
+          "href": "/portal",
+          "en": "Smart employees portal",
+          "ar": "بوابة الموظفين الأذكياء"
+        }
+      ]
+    },
+    {
+      "titleEn": "Knowledge Center",
+      "titleAr": "مركز المعرفة",
+      "links": [
+        {
+          "href": "/saudi-arabia",
+          "en": "Invest in Saudi",
+          "ar": "الاستثمار في السعودية"
+        },
+        {
+          "href": "/opportunities",
+          "en": "Investment Opportunities",
+          "ar": "الفرص الاستثمارية"
+        },
+        {
+          "href": "/directory",
+          "en": "Startup Ecosystem Directory",
+          "ar": "دليل ريادة الأعمال"
+        },
+        {
+          "href": "/tools-and-calculators",
+          "en": "Tools & calculators",
+          "ar": "الأدوات والحاسبات"
+        },
+        {
+          "href": "/news",
+          "en": "Insights & news",
+          "ar": "الرؤى والأخبار"
+        },
+        {
+          "href": "/magazine",
+          "en": "Magazine (PDF)",
+          "ar": "المجلة (PDF)"
+        },
+        {
+          "href": "/newsletter",
+          "en": "Newsletter",
+          "ar": "النشرة الإخبارية"
+        }
+      ]
+    },
+    {
+      "titleEn": "Company",
+      "titleAr": "الشركة",
+      "links": [
+        {
+          "href": "/about",
+          "en": "About us",
+          "ar": "من نحن"
+        },
+        {
+          "href": "/careers",
+          "en": "Careers",
+          "ar": "الوظائف"
+        },
+        {
+          "href": "/terms",
+          "en": "Terms & Conditions",
+          "ar": "الشروط والأحكام"
+        },
+        {
+          "href": "/contact",
+          "en": "Contact us",
+          "ar": "اتصل بنا"
+        }
+      ]
+    }
+  ],
+  "contactTitleEn": "Contact",
+  "contactTitleAr": "تواصل"
+}

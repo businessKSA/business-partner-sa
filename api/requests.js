@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign } from "./_db.js";
 
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
@@ -18,9 +19,13 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
-// Owner key that gates the internal dashboard's "incoming requests" list
-// (GET ?action=leads&key=...). Set LEADS_KEY (or DASHBOARD_KEY) in Vercel env.
+// Owner key that gates the internal dashboard's "incoming requests" list and
+// every /admin panel action. ENV-ONLY on purpose: this repo is public, so a
+// hardcoded fallback key (the old "demo123") would be a public master key to
+// customer data, order statuses, activations and GitHub content writes.
+// Set PANEL_KEY (or LEADS_KEY / DASHBOARD_KEY) in Vercel env.
 const LEADS_KEY = process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "";
+const PANEL_KEYS = new Set([process.env.PANEL_KEY, LEADS_KEY].filter(Boolean));
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -515,6 +520,192 @@ async function activateEmployerSubscription({ company, email, phone, planKey }) 
   return code;
 }
 
+/* ---------- /admin panel: owner-gated management (status, approvals, content) ---------- */
+// Every panel action below is gated by PANEL_KEYS — the same key that unlocks
+// the leads list and the /admin page itself.
+const PANEL_STATUSES = new Set(["قيد المراجعة", "بانتظار الدفع", "مؤكد - قيد التنفيذ", "مكتمل", "ملغي"]);
+// Content editing commits straight to GitHub; Vercel then rebuilds the site,
+// so a saved change is live in ~2 minutes. Needs a repo-write token in env.
+const CONTENT_REPO = process.env.CONTENT_REPO || "businessKSA/business-partner-sa";
+// The live site deploys from the production branch, so panel edits are read
+// from and committed to it (a save is live in ~2 minutes). master is kept in
+// sync with a best-effort second commit so the default branch doesn't drift.
+const CONTENT_BRANCH = process.env.CONTENT_BRANCH || "claude/bpic-marketing-site-jvrnga";
+const CONTENT_SYNC_BRANCH = process.env.CONTENT_SYNC_BRANCH || "master";
+const GH_TOKEN = envFrom(["GITHUB_TOKEN", "GH_TOKEN", "GITHUB_PAT", "CONTENT_GITHUB_TOKEN"]);
+const CONTENT_FILES = {
+  "services": "site/data/services.json",
+  "opportunities": "site/data/opportunities.json",
+  "categories": "site/data/categories.json",
+  "site": "site/data/site.json",
+  "nav": "site/data/nav.json",
+  "footer": "site/data/footer.json",
+  "ecosystem": "site/data/ecosystem.json",
+  "service-i18n": "site/data/service-i18n.json",
+};
+
+// Flip a CRM lead's حالة الطلب by its BP-xxxxxx reference.
+async function setLeadStatus(ref, status) {
+  if (!NOTION_TOKEN) throw new Error("notion_not_configured");
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+  });
+  if (!r.ok) throw new Error("notion_failed");
+  const pg = ((await r.json()).results || [])[0];
+  if (!pg) throw new Error("ref_not_found");
+  const u = await fetch(`https://api.notion.com/v1/pages/${pg.id}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ properties: {
+      "حالة الطلب": { select: { name: status } },
+      "Last Activity": { date: { start: new Date().toISOString().slice(0, 10) } },
+    } }),
+  });
+  if (!u.ok) { console.error("panel status error", u.status, (await u.text()).slice(0, 300)); throw new Error("notion_failed"); }
+}
+
+const GH_HEADERS = () => ({ Authorization: `Bearer ${GH_TOKEN}`, Accept: "application/vnd.github+json", "User-Agent": "bp-admin-panel", "content-type": "application/json" });
+// Returns null when the file doesn't exist on that branch yet (a newly
+// data-driven file that hasn't reached the deploy branch) — a subsequent
+// ghPutFile without a sha then creates it.
+async function ghGetFile(filePath, branch) {
+  const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}?ref=${encodeURIComponent(branch || CONTENT_BRANCH)}`, { headers: GH_HEADERS() });
+  if (r.status === 404) return null;
+  if (!r.ok) { console.error("gh get error", r.status, (await r.text()).slice(0, 300)); throw new Error("github_failed"); }
+  const d = await r.json();
+  return { sha: d.sha, content: Buffer.from(d.content || "", "base64").toString("utf8") };
+}
+async function ghPutFile(filePath, content, sha, message, branch) {
+  const body = { message, branch: branch || CONTENT_BRANCH, content: Buffer.from(content, "utf8").toString("base64") };
+  if (sha) body.sha = sha;
+  const r = await fetch(`https://api.github.com/repos/${CONTENT_REPO}/contents/${filePath}`, {
+    method: "PUT",
+    headers: GH_HEADERS(),
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) { console.error("gh put error", r.status, (await r.text()).slice(0, 300)); throw new Error("github_failed"); }
+  const d = await r.json();
+  return d.commit && d.commit.sha;
+}
+
+// The three approval flows, shared by the emailed sealed links (GET branches
+// below) and the /admin panel's activate action. Each returns the client code
+// (null = activation failed) after emailing it to the client.
+async function approveShared({ email, name, phone, ref }) {
+  const code = ssCode(email);
+  const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل خدمتك 🎉</h2><p>كود الوصول الخاص بك للخدمات المشتركة:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${SITE_BASE}/shared-services" style="background:#12b3ad;color:#04211f;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح الخدمة</a> — أدخل بريدك والكود.</p></div>`;
+  await sendEmail(email, `كود الوصول — الخدمات المشتركة (${code})`, codeHtml);
+  await crmLead({ title: `تفعيل خدمات مشتركة — ${name || email}`, phone: phone || "", email, notes: `معتمد ومفعّل · ${ref}`, ref });
+  return code;
+}
+async function approveCompliance({ company, email, phone }) {
+  const code = await activateComplianceSubscription({ company, email, phone });
+  if (!code) return null;
+  const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في وكيل الامتثال 🎉</h2><p>المنشأة: <b>${esc(company)}</b></p><p>رمز الدخول لبوابة وكيل الامتثال:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${COMPLIANCE_PORTAL_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة وكيل الامتثال</a> — أدخل بريدك (${esc(email)}) والرمز أعلاه.</p></div>`;
+  await sendEmail(email, `تم تفعيل اشتراكك — وكيل الامتثال (${esc(company)})`, codeHtml);
+  return code;
+}
+async function approveEmployer({ company, email, phone, plan }) {
+  const code = await activateEmployerSubscription({ company, email, phone, planKey: plan });
+  if (!code) return null;
+  const planAr = EMP_PLAN_AR[plan] || "";
+  const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في منصة التوظيف 🎉</h2><p>الشركة: <b>${esc(company)}</b>${planAr ? ` — الباقة: <b>${esc(planAr)}</b>` : ""}</p><p>رمز الوصول للوحة التوظيف:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${EMP_DASHBOARD_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح لوحة التوظيف</a> — أدخل الرمز أعلاه.</p></div>`;
+  await sendEmail(email, `تم تفعيل اشتراكك — منصة التوظيف (${esc(company)})`, codeHtml);
+  return code;
+}
+
+/* ---------- P2: operational orders + wallet (Supabase) ---------- */
+// Catalog prices are read from the deploy branch's public catalog.json on
+// GitHub raw (the repo is public; this is published content, not a secret).
+// Cached per warm instance for 10 minutes.
+const RAW_CATALOG_URL = process.env.CATALOG_URL ||
+  `https://raw.githubusercontent.com/${CONTENT_REPO}/${CONTENT_BRANCH}/site/assets/data/catalog.json`;
+let _catCache = null, _catAt = 0, _svcIds = null;
+async function catalogPrices() {
+  if (_catCache && Date.now() - _catAt < 10 * 60 * 1000) return _catCache;
+  const r = await fetch(RAW_CATALOG_URL);
+  if (!r.ok) throw new Error("catalog_fetch_failed");
+  const c = await r.json();
+  const map = {};
+  for (const s of c.services || []) {
+    if (!s.code) continue;
+    map[String(s.code).toLowerCase()] = { amount: Number(s.amount) || 0, name: s.nameAr || s.nameEn || s.code };
+  }
+  for (const p of c.packages || []) {
+    const k = String(p.code || p.key || "").toLowerCase();
+    if (k) map[k] = { amount: Number(p.amount) || 0, name: p.nameAr || p.nameEn || k };
+  }
+  _catCache = map; _catAt = Date.now();
+  return map;
+}
+// Sync the catalog read-model into the services table (once per warm
+// instance) and return code(lower) → row id for order_items FKs.
+async function ensureServiceIds(map) {
+  if (_svcIds) return _svcIds;
+  const rows = Object.entries(map).map(([code, v]) => ({ code, name_ar: v.name, one_time_fee: v.amount, active: true }));
+  if (rows.length) {
+    await sb("services?on_conflict=code", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: rows });
+  }
+  const got = await sb("services?select=id,code&limit=2000");
+  const ids = {};
+  for (const r of got || []) ids[String(r.code).toLowerCase()] = r.id;
+  _svcIds = ids;
+  return ids;
+}
+// Dual-write a website order into the operational DB with SERVER-side
+// pricing (client totals are recorded for comparison only, never trusted).
+async function recordOrderInDb(req, b, ref) {
+  if (!DB_ON) return;
+  const sess = await getSession(req).catch(() => null);
+  const orgId = sess && sess.organization && sess.organization.id;
+  if (!orgId) return; // guest checkout: legacy flow only until sessions are universal
+  const prices = await catalogPrices().catch(() => null);
+  const ids = prices ? await ensureServiceIds(prices).catch(() => null) : null;
+  const items = Array.isArray(b.itemsData) ? b.itemsData.slice(0, 40) : [];
+  let bp = 0; const itemRows = [];
+  for (const it of items) {
+    const key = String(it.id || "").toLowerCase();
+    const cat = prices && prices[key];
+    const unit = cat ? cat.amount : 0;
+    const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
+    bp += unit * qty;
+    itemRows.push({ key, qty, unit, line: unit * qty });
+  }
+  const vat = Math.round(bp * 0.15 * 100) / 100;
+  const total = Math.round((bp + vat) * 100) / 100;
+  const orders = await sb("orders", {
+    method: "POST",
+    body: [{
+      ref,
+      organization_id: orgId,
+      created_by: sess.user && sess.user.id,
+      status: "payment_verification",
+      bp_fees: bp, gov_fees: 0, vat, total,
+    }],
+  });
+  const orderId = orders[0].id;
+  const oi = itemRows
+    .filter((r) => ids && ids[r.key])
+    .map((r) => ({ order_id: orderId, service_id: ids[r.key], quantity: r.qty, unit_price: r.unit, line_total: r.line }));
+  if (oi.length) await sb("order_items", { method: "POST", prefer: "return=minimal", body: oi });
+  const clientTotal = Number(b.total) || 0;
+  await audit({
+    organization_id: orgId,
+    actor_user_id: sess.user && sess.user.id,
+    action: "order.created",
+    entity_type: "order", entity_id: orderId,
+    after: { ref, server_total: total, client_total: clientTotal, mismatch: Math.abs(clientTotal - total) > 1 },
+  });
+  await notify({
+    organization_id: orgId,
+    event: "order_created", channel: "inapp",
+    title: `تم إنشاء طلبك ${ref} — بانتظار التحقق من الدفع`,
+    idempotency_key: `order_created:${ref}`,
+  });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -524,10 +715,7 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
     let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
-    const code = ssCode(d.email);
-    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل خدمتك 🎉</h2><p>كود الوصول الخاص بك للخدمات المشتركة:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${SITE_BASE}/shared-services" style="background:#12b3ad;color:#04211f;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح الخدمة</a> — أدخل بريدك والكود.</p></div>`;
-    await sendEmail(d.email, `كود الوصول — الخدمات المشتركة (${code})`, codeHtml);
-    await crmLead({ title: `تفعيل خدمات مشتركة — ${d.name || d.email}`, phone: d.phone || "", email: d.email, notes: `معتمد ومفعّل · ${d.ref}`, ref: d.ref });
+    await approveShared({ email: d.email, name: d.name, phone: d.phone, ref: d.ref });
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم الاعتماد</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
@@ -537,10 +725,8 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
     let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
-    const code = await activateComplianceSubscription({ company: d.company, email: d.email, phone: d.phone });
+    const code = await approveCompliance({ company: d.company, email: d.email, phone: d.phone });
     if (!code) { res.statusCode = 500; return res.end("<h3>تعذّر التفعيل — تحقّق من إعداد Notion (NOTION_TOKEN) واسم المنشأة.</h3>"); }
-    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في وكيل الامتثال 🎉</h2><p>المنشأة: <b>${esc(d.company)}</b></p><p>رمز الدخول لبوابة وكيل الامتثال:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${COMPLIANCE_PORTAL_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة وكيل الامتثال</a> — أدخل بريدك (${esc(d.email)}) والرمز أعلاه.</p></div>`;
-    await sendEmail(d.email, `تم تفعيل اشتراكك — وكيل الامتثال (${esc(d.company)})`, codeHtml);
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل كود الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
@@ -550,11 +736,8 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
     let d; try { d = ssUnseal(q.t); } catch { res.statusCode = 400; return res.end("<h3>رابط اعتماد غير صالح.</h3>"); }
-    const code = await activateEmployerSubscription({ company: d.company, email: d.email, phone: d.phone, planKey: d.plan });
+    const code = await approveEmployer({ company: d.company, email: d.email, phone: d.phone, plan: d.plan });
     if (!code) { res.statusCode = 500; return res.end("<h3>تعذّر التفعيل — تحقّق من إعداد Notion (NOTION_TOKEN) واسم الشركة.</h3>"); }
-    const planAr = EMP_PLAN_AR[d.plan] || "";
-    const codeHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في منصة التوظيف 🎉</h2><p>الشركة: <b>${esc(d.company)}</b>${planAr ? ` — الباقة: <b>${esc(planAr)}</b>` : ""}</p><p>رمز الوصول للوحة التوظيف:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(code)}</p><p><a href="${EMP_DASHBOARD_URL}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح لوحة التوظيف</a> — أدخل الرمز أعلاه.</p></div>`;
-    await sendEmail(d.email, `تم تفعيل اشتراكك — منصة التوظيف (${esc(d.company)})`, codeHtml);
     res.statusCode = 200;
     return res.end(`<!doctype html><meta charset="utf-8"><div style="font-family:Arial;max-width:520px;margin:60px auto;text-align:center" dir="rtl"><h2 style="color:#0B1B5A">✅ تم التفعيل</h2><p>أُرسل رمز الوصول إلى <b>${esc(d.email)}</b>.</p></div>`);
   }
@@ -562,8 +745,7 @@ export default async function handler(req, res) {
   // Internal dashboard — list recent incoming requests (gated by LEADS_KEY).
   if ((q.action || "") === "leads") {
     res.setHeader("Cache-Control", "no-store");
-    if (!LEADS_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
-    if ((q.key || "") !== LEADS_KEY) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!PANEL_KEYS.has(q.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     try {
       const leads = await listLeads(q.limit);
       res.statusCode = 200;
@@ -589,6 +771,181 @@ export default async function handler(req, res) {
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
+  // Client Operations Center — session-scoped overview (orders + wallet).
+  // Auth = the httpOnly bp_sid session cookie; RLS-equivalent scoping is
+  // enforced here by deriving organization_id from the session, never input.
+  if ((q.action || "") === "my-overview") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    try {
+      const [orders, bal, tx] = await Promise.all([
+        orgId ? sb(`orders?organization_id=eq.${orgId}&select=ref,status,bp_fees,gov_fees,vat,total,created_at&order=created_at.desc&limit=30`) : [],
+        orgId ? sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`) : [],
+        orgId ? sb(`wallet_transactions?organization_id=eq.${orgId}&select=type,amount,note,created_at&order=created_at.desc&limit=20`) : [],
+      ]);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        user: sess.user,
+        organization: sess.organization,
+        orders: orders || [],
+        walletBalance: (bal && bal[0] && Number(bal[0].balance)) || 0,
+        walletTransactions: tx || [],
+      }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
+  // P3 — unified portal opening: the logged-in client's own credentials are
+  // looked up server-side (Notion is queried by the SESSION email only —
+  // never by client input) and returned as localStorage seeds + target URL.
+  // Legacy manual logins keep working unchanged; no n8n workflows touched.
+  if ((q.action || "") === "sso-open") {
+    res.setHeader("Cache-Control", "no-store");
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const email = String((sess.user && sess.user.email) || "").toLowerCase();
+    const portal = String(q.portal || "");
+    const nq = async (db, filter, size) => {
+      const r = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ page_size: size || 5, filter }),
+      });
+      if (!r.ok) throw new Error("notion_failed");
+      return (await r.json()).results || [];
+    };
+    const rtxt = (p, k) => ((p[k] && p[k].rich_text) || []).map((t) => t.plain_text).join("").trim();
+    try {
+      if (portal === "compliance") {
+        const rows = await nq(COMPLIANCE_DB, { and: [{ property: "البريد", email: { equals: email } }, { property: "حالة الاشتراك", select: { equals: "نشط" } }] }, 1);
+        const p = rows[0] && rows[0].properties;
+        const code = p ? rtxt(p, "رمز الدخول") : "";
+        if (!code) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "no_subscription" })); }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, url: "/ar/compliance-dashboard", seed: { bp_portal_email: email, bp_portal_code: code } }));
+      }
+      if (portal === "employees") {
+        // Latest confirmed CRM order for this email that carries an AGENTS tag.
+        const rows = await nq(CRM_DB, {
+          and: [
+            { property: "Notes", rich_text: { contains: email } },
+            { or: [{ property: "حالة الطلب", select: { equals: "مؤكد - قيد التنفيذ" } }, { property: "حالة الطلب", select: { equals: "مكتمل" } }] },
+          ],
+        }, 10);
+        let agents = null;
+        for (const pg of rows) {
+          const notes = rtxt(pg.properties || {}, "Notes");
+          const m = notes.match(/AGENTS:([a-z0-9,]+)/i);
+          if (m) { const list = m[1].split(",").filter(Boolean); agents = list.map((s) => s.toLowerCase()).includes("all") ? "ALL" : list; break; }
+        }
+        // Compliance subscribers get Mishari in the unified portal.
+        if (!agents) {
+          const c = await nq(COMPLIANCE_DB, { and: [{ property: "البريد", email: { equals: email } }, { property: "حالة الاشتراك", select: { equals: "نشط" } }] }, 1);
+          if (c.length) agents = ["mishari"];
+        }
+        if (!agents) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "no_subscription" })); }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, url: "/ar/portal", seed: { bp_portal_email: email, bp_portal_sub: "1", bp_portal_agents: JSON.stringify(agents) } }));
+      }
+      if (portal === "employer") {
+        const rows = await nq(EMP_DB, { and: [{ property: "البريد", email: { equals: email } }, { property: "الحالة", select: { equals: "مفعّل" } }] }, 1);
+        const p = rows[0] && rows[0].properties;
+        const code = p ? rtxt(p, "رمز الوصول") : "";
+        if (!code) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "no_subscription" })); }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, url: "/employer-dashboard", seed: { bp_emp_code: code } }));
+      }
+      if (portal === "shared") {
+        if (!OTP_SECRET) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, error: "no_subscription" })); }
+        // SS access codes are the deterministic HMAC issued at approval time,
+        // so the client's own code can be re-derived for auto-login. The SS
+        // dashboard still validates it against n8n /ss-login as usual.
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, url: "/shared-services/dashboard", seed: { bp_ss_client_v1: JSON.stringify({ code: ssCode(email), email }) } }));
+      }
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "bad_portal" }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
+  // P4 — session-scoped operations data: notifications / tickets / documents /
+  // approvals / tasks. One GET with ?what=…; org always derived from session.
+  if ((q.action || "") === "my-ops") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    if (!orgId) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items: [] })); }
+    const what = String(q.what || "");
+    try {
+      if (what === "notifications") {
+        const items = await sb(`notifications?organization_id=eq.${orgId}&channel=eq.inapp&select=id,event,title,body,read_at,created_at&order=created_at.desc&limit=40`);
+        const unread = items.filter((n) => !n.read_at).length;
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items, unread }));
+      }
+      if (what === "tickets") {
+        const items = await sb(`support_tickets?organization_id=eq.${orgId}&select=id,number,subject,category,priority,status,created_at,ticket_messages(author_kind,body,created_at)&order=created_at.desc&limit=30`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      if (what === "documents") {
+        const items = await sb(`documents?organization_id=eq.${orgId}&select=id,category,title,expiry_date,verify_status,created_at,document_versions(id,version_no,file_name,storage_key,uploaded_at)&order=created_at.desc&limit=60`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      if (what === "doc-link") {
+        // Signed, short-lived download URL for one of the org's own versions.
+        const vid = String(q.version || "");
+        const vs = await sb(`document_versions?id=eq.${vid}&select=storage_key,documents!inner(organization_id)&limit=1`);
+        const v = vs[0];
+        if (!v || !v.documents || v.documents.organization_id !== orgId) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const url = await storageSign(v.storage_key, 600);
+        await audit({ organization_id: orgId, actor_user_id: sess.user && sess.user.id, action: "document.downloaded", entity_type: "document_version", entity_id: vid });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, url }));
+      }
+      if (what === "approvals") {
+        const items = await sb(`approvals?organization_id=eq.${orgId}&select=id,action_type,title,amount,target_entity,risk_note,deadline,status,decision_comment,created_at&order=created_at.desc&limit=30`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      if (what === "tasks") {
+        const items = await sb(`tasks?organization_id=eq.${orgId}&select=id,title,details,assignee,status,urgency,due_at,created_at&order=created_at.desc&limit=40`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_what" }));
+    } catch {
+      res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
+  // /admin panel — read an editable content file (site/data/*.json) from GitHub.
+  if ((q.action || "") === "panel-content") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_KEYS.has(q.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const filePath = CONTENT_FILES[q.file || ""];
+    if (!filePath) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
+    if (!GH_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "content_not_configured" })); }
+    try {
+      const f = await ghGetFile(filePath);
+      if (!f) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "file_not_found" })); }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, file: q.file, path: filePath, branch: CONTENT_BRANCH, sha: f.sha, content: f.content }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "github_failed" }));
     }
   }
 
@@ -634,6 +991,266 @@ export default async function handler(req, res) {
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
 
   const b = await readBody(req);
+
+  // ---- P4: client operations actions (session cookie, POST) ----
+  if (String(b.action || "").startsWith("ops-")) {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    const userId = sess.user && sess.user.id;
+    const email = (sess.user && sess.user.email) || "";
+    if (!orgId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_org" })); }
+    try {
+      if (b.action === "ops-notif-read") {
+        await sb(`notifications?organization_id=eq.${orgId}&read_at=is.null`, { method: "PATCH", prefer: "return=minimal", body: { read_at: new Date().toISOString() } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-ticket-create") {
+        const subject = String(b.subject || "").trim().slice(0, 200);
+        const bodyTxt = String(b.body || "").trim().slice(0, 4000);
+        const category = String(b.category || "عام").slice(0, 60);
+        if (!subject || !bodyTxt) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const number = "BP-TKT-" + String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+        const tk = await sb("support_tickets", { method: "POST", body: [{ number, organization_id: orgId, portal_source: "account", category, subject, status: "new", opened_by: userId }] });
+        await sb("ticket_messages", { method: "POST", prefer: "return=minimal", body: [{ ticket_id: tk[0].id, author_kind: "client", author_user_id: userId, body: bodyTxt }] });
+        await notify({ organization_id: orgId, event: "ticket_opened", channel: "inapp", title: `فُتحت تذكرتك ${number} — سنرد عليك قريباً`, idempotency_key: `ticket_opened:${number}` });
+        await sendEmail(TEAM_EMAIL, `تذكرة دعم جديدة ${number} — ${subject}`, `<div dir="rtl" style="font-family:Arial"><h3 style="color:#0B1B5A">${esc(number)}</h3><p><b>العميل:</b> ${esc(email)}</p><p><b>الموضوع:</b> ${esc(subject)}</p><p>${esc(bodyTxt)}</p><p>الرد: من لوحة /admin (قسم التذاكر) أو بالبريد مباشرة.</p></div>`);
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "ticket.created", entity_type: "support_ticket", entity_id: tk[0].id });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, number }));
+      }
+      if (b.action === "ops-ticket-reply") {
+        const tid = String(b.ticketId || "");
+        const bodyTxt = String(b.body || "").trim().slice(0, 4000);
+        if (!tid || !bodyTxt) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const tks = await sb(`support_tickets?id=eq.${tid}&organization_id=eq.${orgId}&select=id,number,subject&limit=1`);
+        if (!tks.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        await sb("ticket_messages", { method: "POST", prefer: "return=minimal", body: [{ ticket_id: tid, author_kind: "client", author_user_id: userId, body: bodyTxt }] });
+        await sb(`support_tickets?id=eq.${tid}`, { method: "PATCH", prefer: "return=minimal", body: { status: "waiting_bp" } });
+        await sendEmail(TEAM_EMAIL, `رد عميل على ${tks[0].number} — ${tks[0].subject}`, `<div dir="rtl" style="font-family:Arial"><p><b>${esc(email)}:</b></p><p>${esc(bodyTxt)}</p></div>`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-doc-upload") {
+        const category = String(b.category || "other").slice(0, 40);
+        const title = String(b.title || "").trim().slice(0, 200);
+        const fileName = String(b.fileName || "document.pdf").slice(0, 120);
+        const base64 = typeof b.base64 === "string" ? b.base64.slice(0, 11_000_000) : "";
+        const mime = /^(application\/pdf|image\/(jpeg|png|webp))$/.test(String(b.mime)) ? b.mime : "application/pdf";
+        const expiry = /^\d{4}-\d{2}-\d{2}$/.test(String(b.expiry || "")) ? b.expiry : null;
+        if (!title || !base64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const buf = Buffer.from(base64, "base64");
+        if (buf.length > 8 * 1024 * 1024) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
+        // versioning: reuse the doc row per (category,title); versions append
+        const existing = await sb(`documents?organization_id=eq.${orgId}&category=eq.${encodeURIComponent(category)}&title=eq.${encodeURIComponent(title)}&select=id&limit=1`);
+        let docId;
+        if (existing.length) docId = existing[0].id;
+        else {
+          const d = await sb("documents", { method: "POST", body: [{ organization_id: orgId, category, title, expiry_date: expiry, verify_status: "pending" }] });
+          docId = d[0].id;
+        }
+        const vers = await sb(`document_versions?document_id=eq.${docId}&select=version_no&order=version_no.desc&limit=1`);
+        const vno = vers.length ? vers[0].version_no + 1 : 1;
+        const key = `${orgId}/${docId}/v${vno}-${Date.now()}-${fileName.replace(/[^\w.\-]+/g, "_")}`;
+        await storagePut(key, buf, mime);
+        const vrow = await sb("document_versions", { method: "POST", body: [{ document_id: docId, version_no: vno, storage_key: key, file_name: fileName, mime, size_bytes: buf.length, sha256: crypto.createHash("sha256").update(buf).digest("hex"), malware_scan: "skipped", uploaded_by: userId }] });
+        await sb(`documents?id=eq.${docId}`, { method: "PATCH", prefer: "return=minimal", body: { current_version_id: vrow[0].id, ...(expiry ? { expiry_date: expiry } : {}), verify_status: "pending" } });
+        await notify({ organization_id: orgId, event: "document_uploaded", channel: "inapp", title: `رُفع المستند «${title}» (نسخة ${vno}) — قيد التحقق`, idempotency_key: `doc_up:${docId}:${vno}` });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "document.uploaded", entity_type: "document", entity_id: docId, after: { version: vno, file: fileName } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, documentId: docId, version: vno }));
+      }
+      if (b.action === "ops-approval-decide") {
+        const aid = String(b.id || "");
+        const decision = b.decision === "approved" ? "approved" : "rejected";
+        const comment = String(b.comment || "").trim().slice(0, 500);
+        if (!aid || (decision === "rejected" && !comment)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "comment_required" })); }
+        const rows = await sb(`approvals?id=eq.${aid}&organization_id=eq.${orgId}&status=eq.pending&select=id,title&limit=1`);
+        if (!rows.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        await sb(`approvals?id=eq.${aid}`, { method: "PATCH", prefer: "return=minimal", body: { status: decision, decided_by: userId, decided_at: new Date().toISOString(), decision_comment: comment || null } });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: `approval.${decision}`, entity_type: "approval", entity_id: aid, after: { comment } });
+        await sendEmail(TEAM_EMAIL, `قرار العميل: ${decision === "approved" ? "موافقة ✅" : "رفض ❌"} — ${rows[0].title}`, `<div dir="rtl" style="font-family:Arial"><p><b>${esc(email)}</b> ${decision === "approved" ? "وافق على" : "رفض"}: ${esc(rows[0].title)}</p>${comment ? `<p>التعليق: ${esc(comment)}</p>` : ""}</div>`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-task-done") {
+        const tid = String(b.id || "");
+        await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "unknown_action" }));
+    } catch (e) {
+      console.error("ops action failed", b.action, String(e).slice(0, 200));
+      res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
+  // ---- /admin panel actions (owner key, POST) ----
+  if (String(b.action || "").startsWith("panel-")) {
+    res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_KEYS.has(b.key || "")) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+
+    // Change a CRM lead's حالة الطلب (approve / complete / cancel …).
+    if (b.action === "panel-status") {
+      const ref = String(b.ref || "").trim();
+      const status = String(b.status || "").trim();
+      if (!ref || !PANEL_STATUSES.has(status)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      try {
+        await setLeadStatus(ref, status);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
+    // Activate a subscription and email the client their access code —
+    // same flows as the emailed approval links, driven from the panel.
+    if (b.action === "panel-activate") {
+      const kind = String(b.kind || "");
+      const email = String(b.email || "").trim();
+      const company = String(b.company || "").trim();
+      if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_email" })); }
+      if ((kind === "compliance" || kind === "employer") && !company) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_company" })); }
+      try {
+        let code = null;
+        if (kind === "shared") {
+          if (!OTP_SECRET) throw new Error("not_configured");
+          code = await approveShared({ email, name: String(b.name || ""), phone: String(b.phone || ""), ref: String(b.ref || "") });
+        } else if (kind === "compliance") {
+          code = await approveCompliance({ company, email, phone: String(b.phone || "") });
+        } else if (kind === "employer") {
+          code = await approveEmployer({ company, email, phone: String(b.phone || ""), plan: String(b.plan || "") });
+        } else {
+          res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_kind" }));
+        }
+        if (!code) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "activation_failed" })); }
+        // Best-effort: reflect the approval on the originating lead too.
+        if (b.ref) { try { await setLeadStatus(String(b.ref).trim(), "مؤكد - قيد التنفيذ"); } catch {} }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, code }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
+    // Owner confirms a wallet movement after verifying the transfer/receipt:
+    // type=topup credits, type=payment debits. The ledger is the only place
+    // balance comes from — there is no writable balance field anywhere.
+    if (b.action === "panel-wallet-entry") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const email = String(b.email || "").trim().toLowerCase();
+      const kind = b.type === "payment" ? "payment" : "topup";
+      const amountNum = Math.abs(Number(b.amount));
+      const note = String(b.note || "").slice(0, 300);
+      if (!isEmail(email) || !Number.isFinite(amountNum) || amountNum <= 0) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      try {
+        const users = await sb(`users?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+        if (!users.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "user_not_found" })); }
+        const mem = await sb(`organization_members?user_id=eq.${users[0].id}&status=eq.active&select=organization_id&limit=1`);
+        if (!mem.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "org_not_found" })); }
+        const orgId = mem[0].organization_id;
+        await sb("wallet_accounts?on_conflict=organization_id", { method: "POST", prefer: "resolution=ignore-duplicates,return=minimal", body: [{ organization_id: orgId }] });
+        const signed = kind === "payment" ? -amountNum : amountNum;
+        await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, type: kind, amount: signed, note }] });
+        const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`);
+        await audit({ organization_id: orgId, actor_label: "bp_operator:panel", action: `wallet.${kind}`, entity_type: "wallet", after: { amount: signed, note } });
+        await notify({ organization_id: orgId, event: `wallet_${kind}_confirmed`, channel: "inapp", title: kind === "topup" ? `تم اعتماد شحن محفظتك (+${amountNum} ﷼)` : `تم سداد ${amountNum} ﷼ من محفظتك`, idempotency_key: `wallet_entry:${kind}:${email}:${amountNum}:${note}` });
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, balance: (bal[0] && Number(bal[0].balance)) || 0 }));
+      } catch {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+      }
+    }
+
+    // P4 owner-side: find an org by client email (shared helper for the three
+    // actions below).
+    const orgByEmail = async (em) => {
+      const users = await sb(`users?email=eq.${encodeURIComponent(String(em).toLowerCase())}&select=id&limit=1`);
+      if (!users.length) return null;
+      const mem = await sb(`organization_members?user_id=eq.${users[0].id}&status=eq.active&select=organization_id&limit=1`);
+      return mem.length ? mem[0].organization_id : null;
+    };
+    if (b.action === "panel-tickets") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const items = await sb(`support_tickets?select=id,number,subject,status,priority,created_at,organization_id,ticket_messages(author_kind,body,created_at)&order=created_at.desc&limit=30`);
+      res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+    }
+    if (b.action === "panel-ticket-reply") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const number = String(b.number || "").trim();
+      const bodyTxt = String(b.body || "").trim().slice(0, 4000);
+      const close = !!b.close;
+      if (!number || !bodyTxt) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const tks = await sb(`support_tickets?number=eq.${encodeURIComponent(number)}&select=id,organization_id,subject&limit=1`);
+        if (!tks.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        await sb("ticket_messages", { method: "POST", prefer: "return=minimal", body: [{ ticket_id: tks[0].id, author_kind: "bp", body: bodyTxt }] });
+        await sb(`support_tickets?id=eq.${tks[0].id}`, { method: "PATCH", prefer: "return=minimal", body: { status: close ? "closed" : "waiting_client", ...(close ? { closed_at: new Date().toISOString() } : {}) } });
+        await notify({ organization_id: tks[0].organization_id, event: "ticket_replied", channel: "inapp", title: `رد جديد على تذكرتك ${number}`, idempotency_key: `ticket_reply:${number}:${Date.now()}` });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+    if (b.action === "panel-approval-create") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const title = String(b.title || "").trim().slice(0, 200);
+      const actionType = String(b.actionType || "gov_submission").slice(0, 40);
+      const amount = Number.isFinite(Number(b.amount)) ? Number(b.amount) : null;
+      if (!isEmail(String(b.email || "")) || !title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const orgId = await orgByEmail(b.email);
+        if (!orgId) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "org_not_found" })); }
+        await sb("approvals", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, action_type: actionType, title, amount, target_entity: String(b.target || "").slice(0, 120) || null, risk_note: String(b.risk || "").slice(0, 400) || null, deadline: b.deadline || null, status: "pending" }] });
+        await notify({ organization_id: orgId, event: "approval_requested", channel: "inapp", title: `موافقة مطلوبة: ${title}${amount ? ` (${amount} ﷼)` : ""}`, idempotency_key: `approval_req:${orgId}:${title}` });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+    if (b.action === "panel-task-create") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const title = String(b.title || "").trim().slice(0, 200);
+      if (!isEmail(String(b.email || "")) || !title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const orgId = await orgByEmail(b.email);
+        if (!orgId) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "org_not_found" })); }
+        await sb("tasks", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, title, details: String(b.details || "").slice(0, 1000) || null, assignee: "client", urgency: ["urgent", "soon", "normal"].includes(b.urgency) ? b.urgency : "normal", due_at: b.due || null, source: "manual" }] });
+        await notify({ organization_id: orgId, event: "task_assigned", channel: "inapp", title: `مهمة جديدة: ${title}`, idempotency_key: `task:${orgId}:${title}` });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+
+    // Save an editable content file: validate JSON, commit to GitHub —
+    // Vercel rebuilds and the change is live in ~2 minutes.
+    if (b.action === "panel-save-content") {
+      const filePath = CONTENT_FILES[b.file || ""];
+      if (!filePath) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
+      if (!GH_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "content_not_configured" })); }
+      let parsed;
+      try { parsed = JSON.parse(String(b.content || "")); } catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_json" })); }
+      try {
+        const pretty = JSON.stringify(parsed, null, 2) + "\n";
+        const msg = `Update ${filePath} from /admin panel`;
+        const cur = await ghGetFile(filePath);
+        const commit = await ghPutFile(filePath, pretty, cur && cur.sha, msg);
+        // Best-effort sync commit so the default branch doesn't drift.
+        if (CONTENT_SYNC_BRANCH && CONTENT_SYNC_BRANCH !== CONTENT_BRANCH) {
+          try {
+            const syncCur = await ghGetFile(filePath, CONTENT_SYNC_BRANCH);
+            if (!syncCur || syncCur.content !== pretty) await ghPutFile(filePath, pretty, syncCur && syncCur.sha, msg, CONTENT_SYNC_BRANCH);
+          } catch (e) { console.error("content sync-branch error", String(e).slice(0, 150)); }
+        }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, commit }));
+      } catch {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "github_failed" }));
+      }
+    }
+
+    res.statusCode = 400;
+    return res.end(JSON.stringify({ ok: false, error: "unknown_action" }));
+  }
 
   // Shared Services — client places a subscription order (bank transfer for now).
   if (b.action === "subscribe") {
@@ -733,6 +1350,9 @@ export default async function handler(req, res) {
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
+    // P2: operational-DB dual write with server-side pricing (session-scoped).
+    // Best-effort — a DB hiccup must never fail the customer's order.
+    try { await recordOrderInDb(req, b, ref); } catch (e) { console.error("db order write failed", String(e).slice(0, 200)); }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }
@@ -767,6 +1387,19 @@ export default async function handler(req, res) {
       crmLead({ title: `شحن محفظة — ${name}`, phone, email, notes: `محفظة · شحن رصيد ${amount} ﷼`, ref, orderStatus: "قيد المراجعة", total: amount, receiptUploadId, receiptName }),
       addToAudience(email, name),
     ]);
+    // P2: record the pending top-up in the operational DB (credit happens
+    // only when the owner confirms via panel-wallet-entry — never here).
+    if (DB_ON) {
+      try {
+        const sess = await getSession(req).catch(() => null);
+        const orgId = sess && sess.organization && sess.organization.id;
+        if (orgId) {
+          await sb("wallet_accounts?on_conflict=organization_id", { method: "POST", prefer: "resolution=ignore-duplicates,return=minimal", body: [{ organization_id: orgId }] });
+          await sb("payments", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, method: "bank_transfer", status: "pending_review", amount }] });
+          await notify({ organization_id: orgId, event: "wallet_topup_pending", channel: "inapp", title: `طلب شحن المحفظة ${ref} (${amount} ﷼) — بانتظار التحقق`, idempotency_key: `wallet_topup:${ref}` });
+        }
+      } catch (e) { console.error("db wallet write failed", String(e).slice(0, 200)); }
+    }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, receiptUploaded: !!receiptUploadId }));
   }
