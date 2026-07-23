@@ -25,9 +25,14 @@ const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
 // a user_sessions row and sets an httpOnly cookie. Without them, verify
 // degrades to the legacy stateless behavior (db:false in the response).
 // Normalize defensively: owners paste these by hand — tolerate missing
-// scheme, stray whitespace/newlines and trailing slashes.
+// scheme, stray whitespace/newlines and trailing slashes. If the pasted
+// value still isn't a valid *.supabase.co project URL, fall back to the
+// project's known URL (a public identifier, not a secret) so a paste
+// mishap can't take sessions down; a valid env value always wins.
+const DEFAULT_SUPABASE_URL = "https://cpmgffwjxrdgevvkybcm.supabase.co";
 let _su = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
 if (_su && !/^https?:\/\//i.test(_su)) _su = "https://" + _su;
+if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(_su)) _su = _su ? DEFAULT_SUPABASE_URL : "";
 const SUPABASE_URL = _su;
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 const DB_ON = !!(SUPABASE_URL && SUPABASE_KEY);
