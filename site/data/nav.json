@@ -55,6 +55,11 @@
           ]
         },
         {
+          "href": "/services/category/ai-automation",
+          "en": "AI & Automation ⚡",
+          "ar": "الأتمتة والذكاء الاصطناعي ⚡"
+        },
+        {
           "href": "/task-force",
           "en": "Task Force ⚡",
           "ar": "تاسك فورس ⚡"
@@ -90,11 +95,6 @@
           "href": "/deals",
           "en": "Deals ⚡",
           "ar": "الصفقات ⚡"
-        },
-        {
-          "href": "/installments",
-          "en": "Instalments ⚡",
-          "ar": "تقسيط الخدمات ⚡"
         },
         {
           "href": "/estrdad",
@@ -209,55 +209,13 @@
               "href": "/services/bp-housing-02",
               "en": "Worker transport",
               "ar": "نقل العمالة"
-            },
-            {
-              "href": "/farina#workforce",
-              "en": "Workforce catering (Farina)",
-              "ar": "إعاشة العمالة (فارينا)"
             }
           ]
         },
         {
-          "href": "/farina",
-          "en": "Catering & Hospitality",
-          "ar": "التموين والضيافة للشركات",
-          "sub": [
-            {
-              "href": "/farina",
-              "en": "Overview",
-              "ar": "نظرة عامة"
-            },
-            {
-              "href": "/farina#coffee-break",
-              "en": "Coffee Break",
-              "ar": "الكوفي بريك"
-            },
-            {
-              "href": "/farina#vip-coffee",
-              "en": "VIP Coffee Break",
-              "ar": "كوفي بريك VIP"
-            },
-            {
-              "href": "/farina#executive-lunch",
-              "en": "Executive Lunch",
-              "ar": "الغداء التنفيذي"
-            },
-            {
-              "href": "/farina#vip-hospitality",
-              "en": "VIP Hospitality",
-              "ar": "ضيافة كبار الشخصيات"
-            },
-            {
-              "href": "/farina#workforce",
-              "en": "Workforce Catering",
-              "ar": "إعاشة العمالة"
-            },
-            {
-              "href": "/worker-housing",
-              "en": "Worker Housing",
-              "ar": "تسكين العمالة"
-            }
-          ]
+          "href": "/consultation",
+          "en": "Book a free consultation",
+          "ar": "احجز استشارة مجانية"
         }
       ]
     },
@@ -267,13 +225,50 @@
       "items": [
         {
           "href": "/saudi-arabia",
-          "en": "Invest in Saudi",
-          "ar": "الاستثمار في السعودية"
+          "en": "Saudi Guide",
+          "ar": "دليل السعودية",
+          "sub": [
+            {
+              "href": "/saudi-arabia",
+              "en": "Invest in Saudi",
+              "ar": "الاستثمار في السعودية"
+            },
+            {
+              "href": "/guide/saudi-market",
+              "en": "The Saudi Market",
+              "ar": "السوق السعودي"
+            },
+            {
+              "href": "/guide/business-setup",
+              "en": "Business Setup",
+              "ar": "تأسيس الأعمال"
+            },
+            {
+              "href": "/guide/run-your-business",
+              "en": "Run Your Business",
+              "ar": "تشغيل عملك"
+            },
+            {
+              "href": "/directory",
+              "en": "Entrepreneurship guide",
+              "ar": "دليل ريادة الأعمال"
+            },
+            {
+              "href": "/guide/live-in-saudi",
+              "en": "Live in Saudi",
+              "ar": "الحياة في السعودية"
+            },
+            {
+              "href": "/guide/residency",
+              "en": "Residency in KSA",
+              "ar": "الإقامة في السعودية"
+            }
+          ]
         },
         {
-          "href": "/directory",
-          "en": "Startup Ecosystem Directory",
-          "ar": "دليل ريادة الأعمال"
+          "href": "/opportunities",
+          "en": "Investment Opportunities",
+          "ar": "الفرص الاستثمارية"
         },
         {
           "href": "/news",
@@ -284,13 +279,96 @@
           "href": "/newsletter",
           "en": "Newsletter",
           "ar": "النشرة الإخبارية"
+        },
+        {
+          "href": "/tools-and-calculators",
+          "en": "Tools & calculators",
+          "ar": "الأدوات والحاسبات",
+          "sub": [
+            {
+              "href": "/tools-and-calculators",
+              "en": "All tools",
+              "ar": "كل الأدوات"
+            },
+            {
+              "href": "/calculator",
+              "en": "Cost calculator",
+              "ar": "حاسبة التكاليف"
+            },
+            {
+              "href": "/calculators/government-cost",
+              "en": "Government cost",
+              "ar": "التكاليف الحكومية"
+            },
+            {
+              "href": "/calculators/profession-checker",
+              "en": "Profession checker",
+              "ar": "فاحص المهن"
+            },
+            {
+              "href": "/calculators/end-of-service",
+              "en": "End of service",
+              "ar": "مكافأة نهاية الخدمة"
+            },
+            {
+              "href": "/calculators/annual-leave",
+              "en": "Annual leave",
+              "ar": "الإجازة السنوية"
+            },
+            {
+              "href": "/calculators/overtime",
+              "en": "Overtime",
+              "ar": "العمل الإضافي"
+            },
+            {
+              "href": "/calculators/gosi",
+              "en": "GOSI calculator",
+              "ar": "حاسبة التأمينات"
+            }
+          ]
+        },
+        {
+          "href": "/magazine",
+          "en": "Magazine (PDF)",
+          "ar": "المجلة (PDF)"
         }
       ]
     },
     {
-      "href": "/suppliers",
-      "en": "Suppliers portal",
-      "ar": "بوابة الموردين"
+      "en": "Platforms & portals",
+      "ar": "المنصات والبوابات",
+      "items": [
+        {
+          "href": "/account",
+          "en": "Client portal",
+          "ar": "منصّة العملاء"
+        },
+        {
+          "href": "/suppliers",
+          "en": "Partners portal",
+          "ar": "بوابة الشركاء"
+        },
+        {
+          "href": "/partner-dashboard",
+          "en": "Partner dashboard",
+          "ar": "لوحة الشريك"
+        },
+        {
+          "href": "/portal",
+          "en": "Smart employees portal",
+          "ar": "بوابة الموظفين الأذكياء"
+        },
+        {
+          "href": "/employer-join",
+          "en": "Employers — join",
+          "ar": "أصحاب العمل — انضم"
+        },
+        {
+          "href": "/employer-login",
+          "en": "Employers — sign in",
+          "ar": "أصحاب العمل — دخول"
+        }
+      ]
     },
     {
       "href": "/contact",

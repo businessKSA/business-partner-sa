@@ -170,6 +170,10 @@
     .ref{font-weight:700;color:var(--navy);direction:ltr;white-space:nowrap;text-align:end}
     html[dir="ltr"] .ref{text-align:start}
     .note{color:var(--muted);font-size:11px;padding:8px 16px}
+    textarea{font-family:inherit}
+    #docMain input,#docMain select,#tkMain input,#tkMain select,#tkMain textarea,
+    #apprMain input,[data-tkr]{border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12px;background:#fff;color:var(--text)}
+    #docMain input:focus,#tkMain input:focus,#tkMain textarea:focus,[data-tkr]:focus,[data-apc]:focus{outline:none;border-color:var(--navy)}
     .note.err{color:var(--warn-ink)}
 
     /* placeholder views */
@@ -356,9 +360,9 @@
                 <a href="/ar/packages" data-t="qaUpgrade">ترقية باقة</a>
                 <a href="/ar/checkout" data-t="qaPay">دفع فاتورة</a>
                 <span class="dis"><span data-t="qaWallet">شحن المحفظة</span><small data-t="soonShort">قريباً</small></span>
-                <span class="dis"><span data-t="qaDoc">رفع مستند</span><small data-t="soonShort">قريباً</small></span>
+                <a href="#" data-goto="documents" data-t="qaDoc">رفع مستند</a>
                 <span class="dis"><span data-t="qaUser">إضافة مستخدم</span><small data-t="soonShort">قريباً</small></span>
-                <a href="https://wa.me/966507034157" target="_blank" rel="noopener" data-t="qaTicket">فتح تذكرة</a>
+                <a href="#" data-goto="tickets" data-t="qaTicket">فتح تذكرة</a>
                 <a href="/ar/consultation" data-t="qaConsult">حجز استشارة</a>
                 <a href="/ar/compliance-dashboard" data-t="qaCompliance">وكيل الامتثال</a>
               </div>
@@ -377,7 +381,8 @@
         <!-- ===== tasks ===== -->
         <section class="view" id="view-tasks">
           <div class="pagehead"><h2 data-t="navTasks">المهام</h2><div class="sub" data-t="tasksSub">مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.</div></div>
-          <div class="panel"><div id="tasksList" style="padding:6px 16px"></div></div>
+          <div class="panel" id="srvTasksPanel" style="display:none;margin-bottom:14px"><div class="phead"><h3 data-t="srvTasksTitle">مهام من فريق Business Partner</h3></div><div id="srvTasksList" style="padding:6px 16px"></div></div>
+          <div class="panel"><div class="phead"><h3 data-t="derivedTasksTitle">مهام من طلباتك</h3></div><div id="tasksList" style="padding:6px 16px"></div></div>
         </section>
 
         <!-- ===== orders ===== -->
@@ -409,12 +414,72 @@
           </div>
           <div class="ph" id="walletPh"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div>
         </section>
-        <section class="view" id="view-approvals"><div class="pagehead"><h2 data-t="navApprovals">الموافقات</h2></div><div class="ph"><div class="ic">✓</div><b data-t="navApprovals">الموافقات</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div></section>
-        <section class="view" id="view-documents"><div class="pagehead"><h2 data-t="navDocuments">المستندات</h2></div><div class="ph"><div class="ic">⌸</div><b data-t="navDocuments">المستندات</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div></section>
+        <section class="view" id="view-approvals">
+          <div class="pagehead"><h2 data-t="navApprovals">الموافقات</h2><div class="sub" data-t="apprSub">لا تنفيذ لأي إجراء حساس دون موافقتك المسجلة هنا.</div></div>
+          <div class="ph" id="apprPh"><div class="ic">✓</div><b data-t="navApprovals">الموافقات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
+          <div id="apprMain" style="display:none">
+            <div class="panel"><div class="phead"><h3 data-t="apprPendingTitle">بانتظار قرارك</h3></div><div id="apprPending" style="padding:6px 16px 12px"></div></div>
+            <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="apprHistTitle">قرارات سابقة</h3></div><div id="apprHist" style="padding:6px 16px 12px"></div></div>
+          </div>
+        </section>
+        <section class="view" id="view-documents">
+          <div class="pagehead"><h2 data-t="navDocuments">المستندات</h2><div class="sub" data-t="docSub">خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.</div></div>
+          <div class="ph" id="docPh"><div class="ic">⌸</div><b data-t="navDocuments">المستندات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
+          <div id="docMain" style="display:none">
+            <div class="card c12">
+              <h4 data-t="qaDoc">رفع مستند</h4>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                <input id="docTitle" data-tp="docTitlePh" placeholder="اسم المستند (مثال: السجل التجاري)" style="flex:2;min-width:180px" />
+                <select id="docCat" style="flex:1;min-width:130px">
+                  <option value="cr" data-t="docCatCr">سجل تجاري</option>
+                  <option value="vat" data-t="docCatVat">شهادة ضريبية</option>
+                  <option value="contract" data-t="docCatContract">عقد</option>
+                  <option value="id" data-t="docCatId">هوية / إقامة</option>
+                  <option value="other" selected data-t="docCatOther">أخرى</option>
+                </select>
+                <input id="docExpiry" type="date" title="" style="flex:1;min-width:130px" />
+                <input id="docFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" style="flex:2;min-width:180px" />
+                <button class="btn sm" id="docSend" data-t="docSubmit">رفع</button>
+              </div>
+              <div class="note" id="docNote" style="display:none;margin-top:8px"></div>
+            </div>
+            <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="docListTitle">مستنداتي</h3></div><div id="docsList" style="padding:6px 16px 12px"></div></div>
+          </div>
+        </section>
         <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div><div class="ph"><div class="ic">﴾﴿</div><b data-t="navTeam">الموظفون والفريق</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P4)</p></div></section>
         <section class="view" id="view-reports"><div class="pagehead"><h2 data-t="navReports">التقارير والتحليلات</h2></div><div class="ph"><div class="ic">◔</div><b data-t="navReports">التقارير والتحليلات</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P4)</p></div></section>
-        <section class="view" id="view-tickets"><div class="pagehead"><h2 data-t="navTickets">التذاكر والدعم</h2></div><div class="ph"><div class="ic">◖</div><b data-t="navTickets">التذاكر والدعم</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p><p style="margin-top:10px"><a class="btn ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener" data-t="qaTicket">فتح تذكرة</a></p></div></section>
-        <section class="view" id="view-alerts"><div class="pagehead"><h2 data-t="navAlerts">التنبيهات</h2></div><div class="ph"><div class="ic">◉</div><b data-t="navAlerts">التنبيهات</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div></section>
+        <section class="view" id="view-tickets">
+          <div class="pagehead"><h2 data-t="navTickets">التذاكر والدعم</h2><div class="sub" data-t="tkSub">تذاكرك تصل فريقنا فوراً بالبريد، وترد عليك هنا وعلى بريدك.</div></div>
+          <div class="ph" id="tkPh"><div class="ic">◖</div><b data-t="navTickets">التذاكر والدعم</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p><p style="margin-top:10px"><a class="btn ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener" data-t="qaTicket">فتح تذكرة</a></p></div>
+          <div id="tkMain" style="display:none">
+            <div class="card c12">
+              <h4 data-t="tkNew">تذكرة جديدة</h4>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <input id="tkSubject" data-tp="tkSubjectPh" placeholder="الموضوع" style="flex:2;min-width:180px" />
+                <select id="tkCat" style="flex:1;min-width:130px">
+                  <option value="عام" data-t="tkCatGeneral">عام</option>
+                  <option value="طلب" data-t="tkCatOrder">عن طلب</option>
+                  <option value="دفع" data-t="tkCatBilling">دفع وفواتير</option>
+                  <option value="تقني" data-t="tkCatTech">مشكلة تقنية</option>
+                </select>
+              </div>
+              <textarea id="tkBody" rows="3" data-tp="tkBodyPh" placeholder="اشرح طلبك…" style="width:100%;margin-top:8px;box-sizing:border-box"></textarea>
+              <button class="btn sm" id="tkSend" style="margin-top:8px" data-t="tkSubmit">إرسال التذكرة</button>
+              <div class="note" id="tkNote" style="display:none;margin-top:8px"></div>
+            </div>
+            <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="tkMine">تذاكري</h3></div><div id="tickList" style="padding:6px 16px 12px"></div></div>
+          </div>
+        </section>
+        <section class="view" id="view-alerts">
+          <div class="pagehead"><h2 data-t="navAlerts">التنبيهات</h2><div class="sub" data-t="alSub">كل ما يخص طلباتك ومستنداتك وتذاكرك — أولاً بأول.</div></div>
+          <div class="ph" id="alPh"><div class="ic">◉</div><b data-t="navAlerts">التنبيهات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
+          <div id="alMain" style="display:none">
+            <div class="panel">
+              <div class="phead"><h3 data-t="navAlerts">التنبيهات</h3><button class="btn ghost sm" id="alReadAll" data-t="markAllRead">تحديد الكل كمقروء</button></div>
+              <div id="notifList" style="padding:6px 16px 12px"></div>
+            </div>
+          </div>
+        </section>
 
         <!-- ===== settings ===== -->
         <section class="view" id="view-settings">
@@ -549,6 +614,33 @@
         fetchFail: 'تعذّر تحديث الحالات من الخادم — تظهر آخر حالة معروفة.',
         noOrdersRow: 'لا توجد طلبات — أول طلب تشتريه من الموقع يظهر هنا، أو أضف رقم طلبك أعلاه.',
         phLine: 'يُفعّل ضمن المرحلة القادمة',
+        phEnable: 'تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة',
+        apprSub: 'لا تنفيذ لأي إجراء حساس دون موافقتك المسجلة هنا.',
+        apprPendingTitle: 'بانتظار قرارك', apprHistTitle: 'قرارات سابقة',
+        apprNonePending: 'لا موافقات معلقة حالياً.', apprNoneHist: 'لا قرارات سابقة.',
+        apprApprove: 'موافقة', apprReject: 'رفض', apprCommentPh: 'سبب الرفض (إلزامي)…',
+        apprNeedComment: 'اكتب سبب الرفض أولاً.', apprApproved: 'تمت الموافقة', apprRejected: 'مرفوض',
+        apprAmount: 'المبلغ', apprDeadline: 'المهلة',
+        docSub: 'خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.',
+        docTitlePh: 'اسم المستند (مثال: السجل التجاري)',
+        docCatCr: 'سجل تجاري', docCatVat: 'شهادة ضريبية', docCatContract: 'عقد', docCatId: 'هوية / إقامة', docCatOther: 'أخرى',
+        docSubmit: 'رفع', docListTitle: 'مستنداتي', docNone: 'لا مستندات بعد — ارفع أول مستند من الأعلى.',
+        docNeedFields: 'أدخل اسم المستند واختر ملفاً (PDF أو صورة).', docTooLarge: 'الملف أكبر من 8MB.',
+        docUploading: 'جارٍ الرفع…', docUploaded: 'تم رفع المستند ✅ — قيد التحقق.',
+        docVer: 'نسخة', docDownload: 'تنزيل', docExpiryLbl: 'ينتهي',
+        docStPending: 'قيد التحقق', docStVerified: 'موثق يدوياً', docStRejected: 'مرفوض',
+        tkSub: 'تذاكرك تصل فريقنا فوراً بالبريد، وترد عليك هنا وعلى بريدك.',
+        tkNew: 'تذكرة جديدة', tkSubjectPh: 'الموضوع', tkBodyPh: 'اشرح طلبك…',
+        tkCatGeneral: 'عام', tkCatOrder: 'عن طلب', tkCatBilling: 'دفع وفواتير', tkCatTech: 'مشكلة تقنية',
+        tkSubmit: 'إرسال التذكرة', tkMine: 'تذاكري', tkNone: 'لا تذاكر بعد — أنشئ أول تذكرة من الأعلى.',
+        tkNeedFields: 'أدخل الموضوع ونص الرسالة.', tkSending: 'جارٍ الإرسال…', tkSent: 'فُتحت التذكرة ✅',
+        tkReplyPh: 'اكتب ردك…', tkReplyBtn: 'رد', tkYou: 'أنت', tkTeam: 'فريق BP',
+        tkStNew: 'جديدة', tkStOpen: 'قيد المعالجة', tkStWait: 'وصلنا ردك', tkStClosed: 'مغلقة',
+        alSub: 'كل ما يخص طلباتك ومستنداتك وتذاكرك — أولاً بأول.',
+        markAllRead: 'تحديد الكل كمقروء', alNone: 'لا تنبيهات بعد.',
+        srvTasksTitle: 'مهام من فريق Business Partner', derivedTasksTitle: 'مهام من طلباتك',
+        taskDoneBtn: 'تم الإنجاز ✓', taskDue: 'الاستحقاق',
+        opsFail: 'تعذّر التحميل — حدّث الصفحة وحاول مرة أخرى.',
         langSetting: 'اللغة', accountLbl: 'الحساب', securityLbl: 'الأمان', restLbl: 'بقية الإعدادات',
         logout: 'تسجيل الخروج',
         secNote: 'جلساتك آمنة عبر كوكي HttpOnly — لا نخزن بيانات حساسة في المتصفح.'
@@ -626,6 +718,33 @@
         fetchFail: 'Could not refresh statuses from the server — showing the last known state.',
         noOrdersRow: 'No orders yet — your first purchase will appear here, or add your order reference above.',
         phLine: 'Activates in the next phase',
+        phEnable: 'Activates automatically after signing in with a full session',
+        apprSub: 'No sensitive action is executed without your recorded approval here.',
+        apprPendingTitle: 'Awaiting your decision', apprHistTitle: 'Past decisions',
+        apprNonePending: 'No pending approvals right now.', apprNoneHist: 'No past decisions.',
+        apprApprove: 'Approve', apprReject: 'Reject', apprCommentPh: 'Rejection reason (required)…',
+        apprNeedComment: 'Write the rejection reason first.', apprApproved: 'Approved', apprRejected: 'Rejected',
+        apprAmount: 'Amount', apprDeadline: 'Deadline',
+        docSub: 'Your document vault — versioned archives with short-lived signed download links.',
+        docTitlePh: 'Document name (e.g. Commercial Registration)',
+        docCatCr: 'Commercial registration', docCatVat: 'VAT certificate', docCatContract: 'Contract', docCatId: 'ID / Iqama', docCatOther: 'Other',
+        docSubmit: 'Upload', docListTitle: 'My documents', docNone: 'No documents yet — upload the first one above.',
+        docNeedFields: 'Enter a document name and choose a file (PDF or image).', docTooLarge: 'File is larger than 8MB.',
+        docUploading: 'Uploading…', docUploaded: 'Document uploaded ✅ — pending verification.',
+        docVer: 'v', docDownload: 'Download', docExpiryLbl: 'Expires',
+        docStPending: 'Pending verification', docStVerified: 'Manually verified', docStRejected: 'Rejected',
+        tkSub: 'Tickets reach our team instantly by email; replies land here and in your inbox.',
+        tkNew: 'New ticket', tkSubjectPh: 'Subject', tkBodyPh: 'Describe your request…',
+        tkCatGeneral: 'General', tkCatOrder: 'About an order', tkCatBilling: 'Billing', tkCatTech: 'Technical issue',
+        tkSubmit: 'Submit ticket', tkMine: 'My tickets', tkNone: 'No tickets yet — open your first one above.',
+        tkNeedFields: 'Enter a subject and a message.', tkSending: 'Sending…', tkSent: 'Ticket opened ✅',
+        tkReplyPh: 'Write a reply…', tkReplyBtn: 'Reply', tkYou: 'You', tkTeam: 'BP team',
+        tkStNew: 'New', tkStOpen: 'In progress', tkStWait: 'Reply received', tkStClosed: 'Closed',
+        alSub: 'Everything about your orders, documents and tickets — as it happens.',
+        markAllRead: 'Mark all read', alNone: 'No notifications yet.',
+        srvTasksTitle: 'Tasks from the Business Partner team', derivedTasksTitle: 'Tasks from your orders',
+        taskDoneBtn: 'Mark done ✓', taskDue: 'Due',
+        opsFail: 'Could not load — refresh and try again.',
         langSetting: 'Language', accountLbl: 'Account', securityLbl: 'Security', restLbl: 'Other settings',
         logout: 'Sign out',
         secNote: 'Your sessions are secured with an HttpOnly cookie — no sensitive data is stored in the browser.'
@@ -1028,6 +1147,7 @@
       renderServices();
       renderTasks();
       renderOrders();
+      if (state.db){ renderNotifs(); renderTickets(); renderDocs(); renderApprovals(); renderSrvTasks(); }
       filterSearch();
     }
 
@@ -1200,6 +1320,214 @@
       return m[s] || 'قيد المراجعة';
     }
 
+    // ---------------- P4: operations (notifications / tickets / documents / approvals / tasks) ----------------
+    function opsPost(body){
+      return fetch('/api/requests', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
+      }).then(function(r){ return r.json().catch(function(){ return {}; }); });
+    }
+    function opsGet(what, extra){
+      return fetch('/api/requests?action=my-ops&what=' + what + (extra || ''), { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); });
+    }
+    var ops = { notifs: [], unread: 0, tickets: [], docs: [], approvals: [], tasks: [] };
+    function fetchOps(){
+      if (!state.db) return;
+      ['apprPh','docPh','tkPh','alPh'].forEach(function(id){ var e = $(id); if (e) e.style.display = 'none'; });
+      ['apprMain','docMain','tkMain','alMain'].forEach(function(id){ var e = $(id); if (e) e.style.display = ''; });
+      opsGet('notifications').then(function(o){ if (o.ok){ ops.notifs = o.items || []; ops.unread = o.unread || 0; renderNotifs(); } });
+      opsGet('tickets').then(function(o){ if (o.ok){ ops.tickets = o.items || []; renderTickets(); } });
+      opsGet('documents').then(function(o){ if (o.ok){ ops.docs = o.items || []; renderDocs(); } });
+      opsGet('approvals').then(function(o){ if (o.ok){ ops.approvals = o.items || []; renderApprovals(); } });
+      opsGet('tasks').then(function(o){ if (o.ok){ ops.tasks = o.items || []; renderSrvTasks(); } });
+    }
+    function dts(v){ return esc(String(v || '').slice(0, 10)); }
+    function renderNotifs(){
+      $('bellDot').style.display = ops.unread > 0 ? '' : 'none';
+      var h = '';
+      for (var i = 0; i < ops.notifs.length; i++){
+        var n = ops.notifs[i];
+        h += '<div class="rowline" data-srch style="' + (n.read_at ? '' : 'font-weight:700') + '">' +
+          '<span>' + (n.read_at ? '·' : '●') + '</span>' +
+          '<span class="t">' + esc(n.title || n.event) + '</span>' +
+          '<span class="m">' + dts(n.created_at) + '</span></div>';
+      }
+      $('notifList').innerHTML = h || '<div class="emptyline">' + esc(t('alNone')) + '</div>';
+    }
+    function tkStatusBadge(s){
+      var map = { 'new': ['tkStNew', 'plain'], open: ['tkStOpen', 'warn'], waiting_bp: ['tkStWait', 'warn'], closed: ['tkStClosed', 'ok'] };
+      var mm = map[s] || ['tkStOpen', 'plain'];
+      return '<span class="badge ' + mm[1] + '">' + esc(t(mm[0])) + '</span>';
+    }
+    function renderTickets(){
+      var h = '';
+      for (var i = 0; i < ops.tickets.length; i++){
+        var tk = ops.tickets[i];
+        var msgs = (tk.ticket_messages || []).slice().sort(function(a, b){ return String(a.created_at).localeCompare(String(b.created_at)); });
+        var mh = '';
+        for (var j = 0; j < msgs.length; j++){
+          var mine = msgs[j].author_kind === 'client';
+          mh += '<div style="margin:4px 0;padding:7px 10px;border-radius:9px;background:' + (mine ? '#eef2ff' : '#f5f6f8') + ';font-size:12px">' +
+            '<b style="color:var(--navy)">' + esc(t(mine ? 'tkYou' : 'tkTeam')) + '</b> <span style="color:var(--soft);font-size:10.5px">' + dts(msgs[j].created_at) + '</span><br />' + esc(msgs[j].body || '') + '</div>';
+        }
+        var closed = tk.status === 'closed';
+        h += '<div class="card c12" data-srch style="margin:8px 0">' +
+          '<h4><span class="ref">' + esc(tk.number || '') + '</span> ' + esc(tk.subject || '') + ' ' + tkStatusBadge(tk.status) + '</h4>' + mh +
+          (closed ? '' :
+            '<div style="display:flex;gap:8px;margin-top:6px">' +
+            '<input data-tkr="' + esc(tk.id) + '" placeholder="' + esc(t('tkReplyPh')) + '" style="flex:1" />' +
+            '<button class="btn ghost sm" data-tks="' + esc(tk.id) + '">' + esc(t('tkReplyBtn')) + '</button></div>') +
+          '</div>';
+      }
+      $('tickList').innerHTML = h || '<div class="emptyline">' + esc(t('tkNone')) + '</div>';
+      var btns = document.querySelectorAll('[data-tks]');
+      for (var k = 0; k < btns.length; k++) btns[k].onclick = function(){
+        var id = this.getAttribute('data-tks');
+        var inp = document.querySelector('[data-tkr="' + id + '"]');
+        var txt = inp ? inp.value.trim() : '';
+        if (!txt) return;
+        var self = this; self.disabled = true;
+        opsPost({ action: 'ops-ticket-reply', ticketId: id, body: txt }).then(function(o){
+          self.disabled = false;
+          if (o.ok){ opsGet('tickets').then(function(x){ if (x.ok){ ops.tickets = x.items || []; renderTickets(); } }); }
+        });
+      };
+    }
+    function renderDocs(){
+      var h = '';
+      var vst = { pending: ['docStPending', 'warn'], verified: ['docStVerified', 'ok'], rejected: ['docStRejected', 'warn'] };
+      for (var i = 0; i < ops.docs.length; i++){
+        var d = ops.docs[i];
+        var vs = vst[d.verify_status] || vst.pending;
+        var vers = (d.document_versions || []).slice().sort(function(a, b){ return b.version_no - a.version_no; });
+        var vh = '';
+        for (var j = 0; j < vers.length; j++){
+          vh += '<div class="rowline"><span>' + esc(t('docVer')) + esc(String(vers[j].version_no)) + '</span>' +
+            '<span class="t" style="direction:ltr;text-align:start">' + esc(vers[j].file_name || '') + '</span>' +
+            '<span class="m">' + dts(vers[j].uploaded_at) + '</span>' +
+            '<button class="btn ghost sm" data-dl="' + esc(vers[j].id) + '">' + esc(t('docDownload')) + '</button></div>';
+        }
+        h += '<div class="card c12" data-srch style="margin:8px 0"><h4>' + esc(d.title || '') + ' <span class="badge ' + vs[1] + '">' + esc(t(vs[0])) + '</span>' +
+          (d.expiry_date ? ' <span style="font-size:10.5px;color:var(--soft)">' + esc(t('docExpiryLbl')) + ' ' + dts(d.expiry_date) + '</span>' : '') + '</h4>' + vh + '</div>';
+      }
+      $('docsList').innerHTML = h || '<div class="emptyline">' + esc(t('docNone')) + '</div>';
+      var dls = document.querySelectorAll('[data-dl]');
+      for (var k = 0; k < dls.length; k++) dls[k].onclick = function(){
+        var self = this; self.disabled = true;
+        opsGet('doc-link', '&version=' + encodeURIComponent(this.getAttribute('data-dl'))).then(function(o){
+          self.disabled = false;
+          if (o.ok && o.url) window.open(o.url, '_blank', 'noopener');
+        });
+      };
+    }
+    function uploadDoc(){
+      var title = $('docTitle').value.trim();
+      var f = $('docFile').files[0];
+      var note = $('docNote');
+      note.style.display = ''; note.className = 'note';
+      if (!title || !f){ note.className = 'note err'; note.textContent = t('docNeedFields'); return; }
+      if (f.size > 8 * 1024 * 1024){ note.className = 'note err'; note.textContent = t('docTooLarge'); return; }
+      note.textContent = t('docUploading');
+      $('docSend').disabled = true;
+      var rd = new FileReader();
+      rd.onload = function(){
+        var b64 = String(rd.result).split(',')[1] || '';
+        opsPost({
+          action: 'ops-doc-upload', title: title, category: $('docCat').value,
+          expiry: $('docExpiry').value || '', fileName: f.name, mime: f.type || 'application/pdf', base64: b64
+        }).then(function(o){
+          $('docSend').disabled = false;
+          if (o.ok){
+            note.textContent = t('docUploaded');
+            $('docTitle').value = ''; $('docFile').value = ''; $('docExpiry').value = '';
+            opsGet('documents').then(function(x){ if (x.ok){ ops.docs = x.items || []; renderDocs(); } });
+          } else { note.className = 'note err'; note.textContent = t('opsFail'); }
+        }).catch(function(){ $('docSend').disabled = false; note.className = 'note err'; note.textContent = t('opsFail'); });
+      };
+      rd.readAsDataURL(f);
+    }
+    function renderApprovals(){
+      var pend = '', hist = '';
+      for (var i = 0; i < ops.approvals.length; i++){
+        var a = ops.approvals[i];
+        var meta = [];
+        if (a.amount != null && a.amount !== '') meta.push(esc(t('apprAmount')) + ': ' + esc(String(a.amount)) + ' ﷼');
+        if (a.deadline) meta.push(esc(t('apprDeadline')) + ': ' + dts(a.deadline));
+        var head = '<b>' + esc(a.title || a.action_type || '') + '</b>' +
+          (a.risk_note ? '<div style="font-size:11px;color:var(--soft);margin-top:2px">' + esc(a.risk_note) + '</div>' : '') +
+          (meta.length ? '<div style="font-size:11px;color:var(--soft);margin-top:2px">' + meta.join(' · ') + '</div>' : '');
+        if (a.status === 'pending'){
+          pend += '<div class="card c12" data-srch style="margin:8px 0">' + head +
+            '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">' +
+            '<button class="btn sm" data-apok="' + esc(a.id) + '">' + esc(t('apprApprove')) + '</button>' +
+            '<input data-apc="' + esc(a.id) + '" placeholder="' + esc(t('apprCommentPh')) + '" style="flex:1;min-width:160px" />' +
+            '<button class="btn ghost sm" data-apno="' + esc(a.id) + '">' + esc(t('apprReject')) + '</button></div>' +
+            '<div class="note err" data-aperr="' + esc(a.id) + '" style="display:none;margin-top:6px"></div></div>';
+        } else {
+          hist += '<div class="rowline" data-srch><span class="badge ' + (a.status === 'approved' ? 'ok' : 'warn') + '">' +
+            esc(t(a.status === 'approved' ? 'apprApproved' : 'apprRejected')) + '</span>' +
+            '<span class="t">' + esc(a.title || '') + (a.decision_comment ? ' — ' + esc(a.decision_comment) : '') + '</span>' +
+            '<span class="m">' + dts(a.created_at) + '</span></div>';
+        }
+      }
+      $('apprPending').innerHTML = pend || '<div class="emptyline">' + esc(t('apprNonePending')) + '</div>';
+      $('apprHist').innerHTML = hist || '<div class="emptyline">' + esc(t('apprNoneHist')) + '</div>';
+      function decide(id, decision, comment, errEl){
+        opsPost({ action: 'ops-approval-decide', id: id, decision: decision, comment: comment }).then(function(o){
+          if (o.ok){ opsGet('approvals').then(function(x){ if (x.ok){ ops.approvals = x.items || []; renderApprovals(); } }); }
+          else if (errEl){ errEl.style.display = ''; errEl.textContent = t('opsFail'); }
+        });
+      }
+      var oks = document.querySelectorAll('[data-apok]');
+      for (var j = 0; j < oks.length; j++) oks[j].onclick = function(){
+        this.disabled = true;
+        decide(this.getAttribute('data-apok'), 'approved', '', document.querySelector('[data-aperr="' + this.getAttribute('data-apok') + '"]'));
+      };
+      var nos = document.querySelectorAll('[data-apno]');
+      for (var k = 0; k < nos.length; k++) nos[k].onclick = function(){
+        var id = this.getAttribute('data-apno');
+        var c = document.querySelector('[data-apc="' + id + '"]');
+        var err = document.querySelector('[data-aperr="' + id + '"]');
+        var txt = c ? c.value.trim() : '';
+        if (!txt){ if (err){ err.style.display = ''; err.textContent = t('apprNeedComment'); } return; }
+        if (err) err.style.display = 'none';
+        this.disabled = true;
+        decide(id, 'rejected', txt, err);
+      };
+    }
+    function renderSrvTasks(){
+      var open = ops.tasks.filter(function(x){ return x.status !== 'done' && x.status !== 'cancelled'; });
+      $('srvTasksPanel').style.display = ops.tasks.length ? '' : 'none';
+      var h = '';
+      for (var i = 0; i < ops.tasks.length; i++){
+        var x = ops.tasks[i];
+        var done = x.status === 'done';
+        h += '<div class="rowline" data-srch style="' + (done ? 'opacity:.55' : '') + '">' +
+          '<span>' + (done ? '✓' : (x.urgency === 'high' ? '⚠' : '☐')) + '</span>' +
+          '<span class="t">' + esc(x.title || '') + (x.details ? ' — ' + esc(x.details) : '') +
+          (x.due_at ? ' <span style="color:var(--soft);font-size:10.5px">(' + esc(t('taskDue')) + ' ' + dts(x.due_at) + ')</span>' : '') + '</span>' +
+          (done || x.assignee !== 'client' ? '' : '<button class="btn ghost sm" data-tdone="' + esc(x.id) + '">' + esc(t('taskDoneBtn')) + '</button>') +
+          '</div>';
+      }
+      $('srvTasksList').innerHTML = h;
+      var badge = $('sbTasks'), bb = $('bnTasks');
+      if (open.length){ badge.style.display = ''; badge.textContent = open.length; if (bb){ bb.style.display = ''; } }
+      var btns = document.querySelectorAll('[data-tdone]');
+      for (var j = 0; j < btns.length; j++) btns[j].onclick = function(){
+        this.disabled = true;
+        opsPost({ action: 'ops-task-done', id: this.getAttribute('data-tdone') }).then(function(){
+          opsGet('tasks').then(function(x){ if (x.ok){ ops.tasks = x.items || []; renderSrvTasks(); } });
+        });
+      };
+    }
+    function markAllRead(){
+      opsPost({ action: 'ops-notif-read' }).then(function(o){
+        if (o.ok){ opsGet('notifications').then(function(x){ if (x.ok){ ops.notifs = x.items || []; ops.unread = x.unread || 0; renderNotifs(); } }); }
+      });
+    }
+
     function enterApp(){
       $('gate').style.display = 'none';
       $('app').classList.add('on');
@@ -1208,6 +1536,7 @@
       renderAll();
       fetchStatuses();
       fetchOverview();
+      fetchOps();
     }
     function doLogout(){
       otp({ action: 'logout' }).catch(function(){}).then(function(){ location.reload(); });
@@ -1253,7 +1582,8 @@
       bindGoto(document);
 
       $('langBtn').onclick = toggleLang;
-      $('bellBtn').onclick = function(){ switchView('tasks'); };
+      $('bellBtn').onclick = function(){ switchView(state.db ? 'alerts' : 'tasks'); };
+      $('alReadAll').onclick = markAllRead;
       $('topSearch').addEventListener('input', filterSearch);
       $('bannerClose').onclick = function(){ $('limitedBanner').classList.remove('on'); };
       $('addRefBtn').onclick = addRef;
@@ -1267,6 +1597,24 @@
       $('setLangEn').onclick = function(){ if (state.lang !== 'en'){ state.lang = 'en'; applyLang(); renderAll(); } };
       $('logoutBtn').onclick = doLogout;
       $('logoutBtnM').onclick = doLogout;
+      $('docSend').onclick = uploadDoc;
+      $('tkSend').onclick = function(){
+        var subject = $('tkSubject').value.trim();
+        var body = $('tkBody').value.trim();
+        var note = $('tkNote');
+        note.style.display = ''; note.className = 'note';
+        if (!subject || !body){ note.className = 'note err'; note.textContent = t('tkNeedFields'); return; }
+        note.textContent = t('tkSending');
+        var btn = $('tkSend'); btn.disabled = true;
+        opsPost({ action: 'ops-ticket-create', subject: subject, category: $('tkCat').value, body: body }).then(function(o){
+          btn.disabled = false;
+          if (o.ok){
+            note.textContent = t('tkSent') + ' — ' + (o.number || '');
+            $('tkSubject').value = ''; $('tkBody').value = '';
+            opsGet('tickets').then(function(x){ if (x.ok){ ops.tickets = x.items || []; renderTickets(); } });
+          } else { note.className = 'note err'; note.textContent = t('opsFail'); }
+        }).catch(function(){ btn.disabled = false; note.className = 'note err'; note.textContent = t('opsFail'); });
+      };
     }
 
     // ---------------- boot ----------------
