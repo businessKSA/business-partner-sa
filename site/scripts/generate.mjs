@@ -4215,6 +4215,7 @@ function buildEmployerLogin() {
       <div class="field"><label for="el-code">${L("Access code", "رمز الوصول")}</label><input type="text" id="el-code" placeholder="BP-EMP-XXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
       <button type="submit" class="btn btn-ghost" style="width:100%" id="el-code-submit">${L("Enter with access code", "دخول برمز الوصول")}</button>
       <p class="emp-note" id="el-code-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="el-code-mail">📧 ${L("Don't have your code? Email it to me", "ما عندك الرمز؟ أرسله إلى بريدي")}</a></p>
     </form>
     <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/employer-join")}">${L("Subscribe from our plans", "اشترك من باقاتنا")}</a></p>
     </div>
