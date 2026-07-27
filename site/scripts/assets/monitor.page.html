@@ -279,6 +279,10 @@
       var SEND_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-send-x7k2m9';
       var SUGGEST_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-suggest-x7k2m9';
       var MEDIA_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-media-x7k2m9';
+      // Website advisor («باهر») conversations — served by the site itself
+      // (same key you type below = LEADS_KEY in Vercel). Read-only threads
+      // merged into this inbox and tagged «المستشار».
+      var ADVISOR_URL = '/api/requests?action=advisor-inbox';
       var POLL_MS = 7000;
       var KEY_STORE = 'bp_inbox_key';
       var TAG_STORE = 'bp_inbox_tags';
@@ -334,6 +338,14 @@
           if (!res.ok) throw new Error('http ' + res.status);
           return res.json();
         });
+      }
+      // Advisor feed is best-effort: if the key doesn't match LEADS_KEY (or it's
+      // unset) we simply show no website threads — the WhatsApp inbox is unaffected.
+      function fetchAdvisor() {
+        return fetch(ADVISOR_URL + '&key=' + encodeURIComponent(accessKey), { cache: 'no-store' })
+          .then(function (res) { return res.ok ? res.json() : null; })
+          .then(function (d) { return (d && d.ok && d.messages) || []; })
+          .catch(function () { return []; });
       }
 
       function groupByPhone() {
@@ -411,19 +423,23 @@
             var un = unread(phone, msgs);
             var tag = tags[phone] || '';
             var tagObj = null; for (var t = 0; t < TAGS.length; t++) if (TAGS[t].k === tag) tagObj = TAGS[t];
+            var wsrc = msgs[0] && msgs[0].source;
+            var web = wsrc === 'المستشار' || wsrc === 'تذكرة';
+            var ticket = wsrc === 'تذكرة';
             var div = document.createElement('div');
             div.className = 'conv' + (phone === activePhone ? ' active' : '');
-            var initials = phone.slice(-2);
+            var initials = ticket ? '🎫' : (web ? '🌐' : phone.slice(-2));
             var pre = last.sender === 'العميل' ? '' : (last.sender === 'المالك' ? '↩ ' : (last.sender === 'تنبيه' ? '🔔 ' : '🤖 '));
-            var av = document.createElement('div'); av.className = 'avatar'; av.style.background = avColor(phone); av.textContent = initials;
+            var av = document.createElement('div'); av.className = 'avatar'; av.style.background = web ? '#0B1B5A' : avColor(phone); av.textContent = initials;
             var meta = document.createElement('div'); meta.className = 'meta';
             var r1 = document.createElement('div'); r1.className = 'row1';
-            var nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = '+' + phone;
+            var nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = web ? ((msgs[0].name || 'زائر الموقع')) : ('+' + phone);
             var wh = document.createElement('div'); wh.className = 'when'; wh.textContent = fmtTime(last.time);
             r1.appendChild(nm); r1.appendChild(wh);
             var r2 = document.createElement('div'); r2.className = 'row2';
             var lastEl = document.createElement('div'); lastEl.className = 'last'; lastEl.textContent = pre + (last.text || '').slice(0, 48);
             r2.appendChild(lastEl);
+            if (web) { var wp = document.createElement('span'); wp.className = 'pill'; wp.style.background = '#0B1B5A'; wp.textContent = ticket ? '🎫 تذكرة' : '🌐 المستشار'; r2.appendChild(wp); }
             if (tagObj) { var pill = document.createElement('span'); pill.className = 'pill'; pill.style.background = tagObj.c; pill.textContent = tagObj.k; r2.appendChild(pill); }
             if (needsHuman(msgs) && un === 0) { var adot = document.createElement('span'); adot.className = 'adot'; r2.appendChild(adot); }
             if (un > 0) { var b = document.createElement('span'); b.className = 'badge'; b.textContent = un > 99 ? '99+' : un; r2.appendChild(b); }
@@ -455,27 +471,40 @@
         if (!activePhone) { $('noConv').style.display = 'flex'; $('chatMain').style.display = 'none'; return; }
         $('noConv').style.display = 'none'; $('chatMain').style.display = 'flex';
         var msgs = groupByPhone().get(activePhone) || [];
-        $('chatName').textContent = '+' + activePhone;
+        var wsrc = msgs[0] && msgs[0].source;
+        var web = wsrc === 'المستشار' || wsrc === 'تذكرة';
+        var ticket = wsrc === 'تذكرة';
         var crm = null; for (var i = msgs.length - 1; i >= 0; i--) { if (msgs[i].crm) { crm = msgs[i].crm; break; } }
         var crmB = $('crmBtn'); if (crm) { crmB.href = crm; crmB.style.display = 'inline-flex'; } else { crmB.style.display = 'none'; }
-        $('chatSub').textContent = msgs.length + ' رسالة';
-
-        var paused = isPaused(msgs);
         var badge = $('aiBadge'), toggle = $('aiToggle');
-        if (paused) {
-          badge.className = 'ai-badge off'; badge.textContent = '🔴 أنت المتحكم';
-          toggle.className = 'btn-toggle resume'; toggle.textContent = '▶️ فعّل الوكيل';
-          toggle.onclick = function () { setAgent('resume'); };
+        if (web) {
+          // Website advisor / ticket thread: read-only. Follow up via the shown contact.
+          var w0 = msgs[0];
+          $('chatName').textContent = (ticket ? '🎫 ' : '🌐 ') + (w0.name || 'زائر الموقع');
+          var cc = []; if (w0.contactPhone) cc.push('📱 ' + w0.contactPhone); if (w0.contactEmail) cc.push('✉️ ' + w0.contactEmail);
+          $('chatSub').textContent = (ticket ? 'تذكرة دعم' : 'من المستشار (الموقع)') + (cc.length ? ' · ' + cc.join(' · ') : '') + ' · ' + msgs.length + ' رسالة';
+          badge.className = 'ai-badge on'; badge.textContent = ticket ? '🎫 تذكرة دعم' : '🌐 من المستشار'; toggle.style.display = 'none';
+          buildTagSelect(); renderContactPanel(msgs);
+          $('msgInput').disabled = true; $('msgInput').placeholder = 'محادثة من الموقع — تابع العميل عبر واتساب/البريد المعروض أعلاه';
+          $('sendBtn').disabled = true; $('suggestAr').disabled = true; $('suggestEn').disabled = true;
         } else {
-          badge.className = 'ai-badge on'; badge.textContent = '🟢 الوكيل يرد';
-          toggle.className = 'btn-toggle pause'; toggle.textContent = '⏸️ أوقف الوكيل';
-          toggle.onclick = function () { setAgent('pause'); };
+          toggle.style.display = '';
+          $('chatName').textContent = '+' + activePhone;
+          $('chatSub').textContent = msgs.length + ' رسالة';
+          var paused = isPaused(msgs);
+          if (paused) {
+            badge.className = 'ai-badge off'; badge.textContent = '🔴 أنت المتحكم';
+            toggle.className = 'btn-toggle resume'; toggle.textContent = '▶️ فعّل الوكيل';
+            toggle.onclick = function () { setAgent('resume'); };
+          } else {
+            badge.className = 'ai-badge on'; badge.textContent = '🟢 الوكيل يرد';
+            toggle.className = 'btn-toggle pause'; toggle.textContent = '⏸️ أوقف الوكيل';
+            toggle.onclick = function () { setAgent('pause'); };
+          }
+          buildTagSelect(); renderContactPanel(msgs);
+          $('msgInput').disabled = false; $('msgInput').placeholder = 'اكتب ردك للعميل…'; $('sendBtn').disabled = false;
+          $('suggestAr').disabled = false; $('suggestEn').disabled = false;
         }
-        buildTagSelect();
-        renderContactPanel(msgs);
-
-        $('msgInput').disabled = false; $('sendBtn').disabled = false;
-        $('suggestAr').disabled = false; $('suggestEn').disabled = false;
 
         var area = $('chatArea');
         var nearBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 140;
@@ -519,12 +548,14 @@
       window.addEventListener('focus', stopFlash);
 
       function poll() {
-        return fetchFeed().then(function (data) {
+        return Promise.all([fetchFeed(), fetchAdvisor()]).then(function (r) {
+          var data = r[0], web = r[1] || [];
           if (data && data.ok) {
-            var grew = data.count > lastCount && lastCount > 0;
-            lastCount = data.count;
-            messages = data.messages || [];
-            if (grew) { beep(); if (document.hidden) { flashTitle(data.count); } }
+            var total = (data.count || 0) + web.length;
+            var grew = total > lastCount && lastCount > 0;
+            lastCount = total;
+            messages = (data.messages || []).concat(web);
+            if (grew) { beep(); if (document.hidden) { flashTitle(total); } }
             render();
             $('connDot').className = 'dot'; $('connText').textContent = 'متصل';
           }

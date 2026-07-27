@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-23T17:46:46.344Z",
+  "updatedAt": "2026-07-23T19:02:59.032Z",
   "currency": "SAR",
   "services": [
     {
@@ -15,20 +15,6 @@
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-chamber-01"
-    },
-    {
-      "code": "BP-PL-0001",
-      "nameAr": "تأسيس شركة سعودية (ذات مسؤولية محدودة)",
-      "nameEn": "Saudi LLC company formation",
-      "category": "Company Formation",
-      "categoryAr": "تأسيس الشركات",
-      "govPlatform": "",
-      "pricingModel": "One Time",
-      "amount": 5000,
-      "priceLabel": "5,000 ﷼",
-      "govFeesSeparate": false,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-pl-0001"
     },
     {
       "code": "BP-PL-0066",
@@ -61,7 +47,7 @@
     {
       "code": "BP-SBC-02",
       "nameAr": "إصدار سجل تجاري جديد",
-      "nameEn": "New Commercial Registration issuance",
+      "nameEn": "New Commercial Registration Issuance",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -75,7 +61,7 @@
     {
       "code": "BP-SBC-03",
       "nameAr": "إصدار عقد تأسيس وتوثيقه (لشركة جديدة)",
-      "nameEn": "Articles of Association issuance & notarization (new company)",
+      "nameEn": "AoA Issuance & Notarization (new company)",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -89,7 +75,7 @@
     {
       "code": "BP-SBC-04",
       "nameAr": "إصدار سجل تجاري",
-      "nameEn": "Commercial Registration (CR) issuance",
+      "nameEn": "Commercial Registration Issuance",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -102,8 +88,8 @@
     },
     {
       "code": "BP-SBC-05",
-      "nameAr": "حجز اسم الشركة",
-      "nameEn": "Company name reservation",
+      "nameAr": "حجز اسم شركة",
+      "nameEn": "Company Name Reservation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -117,7 +103,7 @@
     {
       "code": "BP-SBC-06",
       "nameAr": "فتح حساب شركة على منصة أبشر أعمال",
-      "nameEn": "Company account setup on Absher Business",
+      "nameEn": "Company Account on Absher Business",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "أبشر أعمال",
@@ -131,7 +117,7 @@
     {
       "code": "BP-SBC-07",
       "nameAr": "فتح فرع لشركة قائمة (محلية أو أجنبية)",
-      "nameEn": "Opening a branch for an existing company (local or foreign)",
+      "nameEn": "Opening a Branch for an Existing Company",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -145,7 +131,7 @@
     {
       "code": "BP-SBC-08",
       "nameAr": "تصفية شركة (شطب السجل وإنهاء الكيان)",
-      "nameEn": "Company liquidation (CR cancellation & entity closure)",
+      "nameEn": "Company Liquidation (CR cancellation & closure)",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -159,7 +145,7 @@
     {
       "code": "BP-SBC-09",
       "nameAr": "إصدار شهادة شطب سجل تجاري",
-      "nameEn": "CR cancellation certificate issuance",
+      "nameEn": "CR Cancellation Certificate Issuance",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -173,7 +159,7 @@
     {
       "code": "BP-SBC-10",
       "nameAr": "تعديل عقد تأسيس / قرارات شركاء",
-      "nameEn": "Amending Articles of Association / partners' resolutions",
+      "nameEn": "Amending AoA / Partners' Resolutions",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -187,7 +173,7 @@
     {
       "code": "BP-SBC-11",
       "nameAr": "تعديل سجل تجاري",
-      "nameEn": "Commercial Registration amendment",
+      "nameEn": "Commercial Registration Amendment",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -201,7 +187,7 @@
     {
       "code": "BP-SBC-12",
       "nameAr": "حجز اسم تجاري",
-      "nameEn": "Trade name reservation",
+      "nameEn": "Trade Name Reservation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -215,7 +201,7 @@
     {
       "code": "BP-SBC-13",
       "nameAr": "شطب سجل تجاري (إلغاء السجل)",
-      "nameEn": "Commercial Registration cancellation",
+      "nameEn": "Commercial Registration Cancellation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -228,8 +214,8 @@
     },
     {
       "code": "BP-SBC-14",
-      "nameAr": "تحويل الشكل القانوني (مؤسسة ↔ شركة ذات مسؤولية محدودة)",
-      "nameEn": "Legal form transformation (sole → LLC / LLC → sole)",
+      "nameAr": "تحويل الشكل القانوني للمنشأة",
+      "nameEn": "Legal Form Transformation",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -243,7 +229,7 @@
     {
       "code": "BP-SBC-15",
       "nameAr": "صياغة عقد التأسيس ودعم التوثيق",
-      "nameEn": "Articles of Association drafting & notarization support",
+      "nameEn": "AoA Drafting & Notarization Support",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -271,7 +257,7 @@
     {
       "code": "BP-SBC-17",
       "nameAr": "طلب إفادة تجارية (خطاب من وزارة التجارة)",
-      "nameEn": "Commercial statement request (Ministry of Commerce letter)",
+      "nameEn": "Commercial Statement Request",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -285,7 +271,7 @@
     {
       "code": "BP-SBC-18",
       "nameAr": "تحويل مؤسسة إلى شركة (أو العكس)",
-      "nameEn": "Converting an establishment into a company (or vice versa)",
+      "nameEn": "Converting an Establishment into a Company",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -299,7 +285,7 @@
     {
       "code": "BP-SBC-19",
       "nameAr": "تجديد سجل تجاري",
-      "nameEn": "Commercial Registration renewal",
+      "nameEn": "Commercial Registration Renewal",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -313,7 +299,7 @@
     {
       "code": "BP-SBC-20",
       "nameAr": "استخراج مستخرج سجل تجاري تفصيلي",
-      "nameEn": "Detailed Commercial Registration extract",
+      "nameEn": "Detailed CR Extract Issuance",
       "category": "Company Formation",
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
@@ -341,7 +327,7 @@
     {
       "code": "BP-FI-02",
       "nameAr": "استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)",
-      "nameEn": "Foreign investment license issuance",
+      "nameEn": "Foreign Investment License Issuance",
       "category": "Foreign Investment",
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
@@ -369,7 +355,7 @@
     {
       "code": "BP-FI-04",
       "nameAr": "تأسيس شركة بشراكة أجنبية (مشتركة)",
-      "nameEn": "Joint-venture company formation (with a foreign partner)",
+      "nameEn": "Joint-Venture Company Formation",
       "category": "Foreign Investment",
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
@@ -383,7 +369,7 @@
     {
       "code": "BP-FI-05",
       "nameAr": "تأسيس شركة برخصة ريادة الأعمال (رائد أعمال)",
-      "nameEn": "Company formation under an entrepreneur license",
+      "nameEn": "Entrepreneur-License Company Formation",
       "category": "Foreign Investment",
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
@@ -396,8 +382,8 @@
     },
     {
       "code": "BP-FI-06",
-      "nameAr": "تسجيل فرع (شركة أجنبية)",
-      "nameEn": "Branch registration (foreign company)",
+      "nameAr": "تسجيل فرع لشركة أجنبية",
+      "nameEn": "Foreign Company Branch Registration",
       "category": "Foreign Investment",
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
@@ -407,20 +393,6 @@
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-fi-06"
-    },
-    {
-      "code": "BP-PL-0067",
-      "nameAr": "طلب ترخيص مستثمر من وزارة الاستثمار (MISA)",
-      "nameEn": "MISA investor license application",
-      "category": "Foreign Investment",
-      "categoryAr": "الاستثمار الأجنبي",
-      "govPlatform": "",
-      "pricingModel": "One Time",
-      "amount": 9500,
-      "priceLabel": "9,500 ﷼",
-      "govFeesSeparate": false,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-pl-0067"
     },
     {
       "code": "BP-PR-01",
@@ -439,7 +411,7 @@
     {
       "code": "BP-PR-02",
       "nameAr": "استشارة الإقامة المميزة",
-      "nameEn": "Premium Residency consultation",
+      "nameEn": "Premium Residency Consultation",
       "category": "Premium Residency",
       "categoryAr": "الإقامة المميزة",
       "govPlatform": "الإقامة المميزة",
@@ -453,7 +425,7 @@
     {
       "code": "BP-ABSHER-01",
       "nameAr": "تفعيل أبشر أعمال",
-      "nameEn": "Absher Business setup",
+      "nameEn": "Absher Business Setup",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "أبشر أعمال",
@@ -467,7 +439,7 @@
     {
       "code": "BP-BALADY-01",
       "nameAr": "إصدار رخصة بلدية (مقر تجاري)",
-      "nameEn": "Municipal license issuance (commercial premises)",
+      "nameEn": "Municipal License Issuance",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "بلدي",
@@ -495,7 +467,7 @@
     {
       "code": "BP-GOSI-01",
       "nameAr": "التسجيل في التأمينات الاجتماعية (GOSI)",
-      "nameEn": "GOSI (social insurance) registration",
+      "nameEn": "GOSI Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "التأمينات GOSI",
@@ -509,7 +481,7 @@
     {
       "code": "BP-GOSI-02",
       "nameAr": "إضافة موظف سعودي في التأمينات",
-      "nameEn": "Adding a Saudi employee to GOSI",
+      "nameEn": "Add a Saudi Employee in GOSI",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "التأمينات GOSI",
@@ -523,7 +495,7 @@
     {
       "code": "BP-GOSI-03",
       "nameAr": "استخراج شهادة التأمينات الاجتماعية",
-      "nameEn": "GOSI certificate issuance",
+      "nameEn": "GOSI Certificate Issuance",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "التأمينات GOSI",
@@ -535,23 +507,9 @@
       "url": "https://businesspartner.sa/services/bp-gosi-03"
     },
     {
-      "code": "BP-GOSI-04",
-      "nameAr": "التسجيل في التأمينات الاجتماعية",
-      "nameEn": "GOSI registration",
-      "category": "Government Relations",
-      "categoryAr": "العلاقات الحكومية",
-      "govPlatform": "التأمينات GOSI",
-      "pricingModel": "One Time",
-      "amount": 250,
-      "priceLabel": "250 ﷼",
-      "govFeesSeparate": true,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-gosi-04"
-    },
-    {
       "code": "BP-GR-01",
-      "nameAr": "تصنيف المقاولين (الحصول على شهادة تصنيف)",
-      "nameEn": "Contractor classification (classification certificate)",
+      "nameAr": "تصنيف المقاولين (شهادة تصنيف)",
+      "nameEn": "Contractor Classification Certificate",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "متعدد الجهات",
@@ -565,7 +523,7 @@
     {
       "code": "BP-MOD-01",
       "nameAr": "إصدار تصريح الدفاع المدني (شهادة سلامة)",
-      "nameEn": "Civil Defense permit issuance (safety certificate)",
+      "nameEn": "Civil Defense Permit & Safety Certificate",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الدفاع المدني",
@@ -579,7 +537,7 @@
     {
       "code": "BP-MOD-02",
       "nameAr": "تقرير فني سلامة (متطلب الدفاع المدني)",
-      "nameEn": "Technical safety report (Civil Defense requirement)",
+      "nameEn": "Technical Safety Report",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الدفاع المدني",
@@ -592,8 +550,8 @@
     },
     {
       "code": "BP-MUDAD-01",
-      "nameAr": "تفعيل نظام مُدد (حماية الأجور)",
-      "nameEn": "Mudad setup (WPS)",
+      "nameAr": "إعداد منصة مدد لنظام حماية الأجور",
+      "nameEn": "Mudad WPS Setup",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "مدد",
@@ -607,7 +565,7 @@
     {
       "code": "BP-MUQEEM-01",
       "nameAr": "إصدار تأشيرة خروج وعودة",
-      "nameEn": "Exit & Re-entry visa issuance",
+      "nameEn": "Exit & Re-entry Visa Issuance",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "مقيم",
@@ -620,8 +578,8 @@
     },
     {
       "code": "BP-QIWA-01",
-      "nameAr": "تفعيل منصة قوى وتهيئتها",
-      "nameEn": "Qiwa setup & onboarding",
+      "nameAr": "إعداد وتفعيل منصة قوى",
+      "nameEn": "Qiwa Setup & Onboarding",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "قوى",
@@ -635,7 +593,7 @@
     {
       "code": "BP-QIWA-02",
       "nameAr": "نقل كفالة عامل (نقل خدمة)",
-      "nameEn": "Employee sponsorship transfer",
+      "nameEn": "Employee Sponsorship Transfer",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "قوى",
@@ -649,7 +607,7 @@
     {
       "code": "BP-QIWA-03",
       "nameAr": "تغيير مهنة عامل",
-      "nameEn": "Employee profession change",
+      "nameEn": "Employee Profession Change",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "قوى",
@@ -663,7 +621,7 @@
     {
       "code": "BP-QIWA-04",
       "nameAr": "إضافة مفوض لمنشأة",
-      "nameEn": "Adding an authorized representative to an entity",
+      "nameEn": "Adding an Authorized Representative",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "قوى",
@@ -690,8 +648,8 @@
     },
     {
       "code": "BP-SUBL-01",
-      "nameAr": "تسجيل العنوان الوطني",
-      "nameEn": "National Address registration",
+      "nameAr": "التسجيل في العنوان الوطني",
+      "nameEn": "National Address Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "سُبل",
@@ -705,7 +663,7 @@
     {
       "code": "BP-ZATCA-01",
       "nameAr": "التسجيل في الزكاة والضريبة (VAT & Zakat)",
-      "nameEn": "ZATCA registration (VAT & Zakat)",
+      "nameEn": "VAT & Zakat Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -719,7 +677,7 @@
     {
       "code": "BP-ZATCA-02",
       "nameAr": "استخراج رقم ضريبي (VAT)",
-      "nameEn": "Tax (VAT) number issuance",
+      "nameEn": "VAT Number Issuance",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -733,7 +691,7 @@
     {
       "code": "BP-ZATCA-03",
       "nameAr": "تقديم إقرار الزكاة السنوي",
-      "nameEn": "Annual Zakat return filing",
+      "nameEn": "Annual Zakat Return Filing",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -747,7 +705,7 @@
     {
       "code": "BP-ZATCA-04",
       "nameAr": "التسجيل في ضريبة القيمة المضافة (زاتكا)",
-      "nameEn": "ZATCA VAT registration",
+      "nameEn": "ZATCA VAT Registration",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -761,7 +719,7 @@
     {
       "code": "BP-ZATCA-05",
       "nameAr": "تقديم إقرار ضريبة قيمة مضافة",
-      "nameEn": "VAT return filing",
+      "nameEn": "VAT Return Filing",
       "category": "Government Relations",
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
@@ -775,7 +733,7 @@
     {
       "code": "BP-HR-01",
       "nameAr": "إصدار شهادة صحية للموظفين",
-      "nameEn": "Employee health certificate issuance",
+      "nameEn": "Employee Health Certificate Issuance",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "وزارة الموارد البشرية",
@@ -789,7 +747,7 @@
     {
       "code": "BP-HR-02",
       "nameAr": "فتح ملف منشأة في وزارة الموارد البشرية",
-      "nameEn": "Opening an entity file at the Ministry of HR",
+      "nameEn": "Establishment File Opening at MHRSD",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "وزارة الموارد البشرية",
@@ -803,7 +761,7 @@
     {
       "code": "BP-HR-03",
       "nameAr": "خدمات الموارد البشرية وإدارة الموظفين",
-      "nameEn": "HR services & employee management",
+      "nameEn": "HR & Employee Management Services",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "بدون جهة حكومية",
@@ -817,7 +775,7 @@
     {
       "code": "BP-MUDAD-02",
       "nameAr": "رفع ملف حماية الأجور (نظام مُدد)",
-      "nameEn": "Wage Protection file upload (Mudad)",
+      "nameEn": "Mudad Wage Protection File Upload",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مدد",
@@ -831,7 +789,7 @@
     {
       "code": "BP-MUDAD-03",
       "nameAr": "معالجة ملاحظات نظام حماية الأجور",
-      "nameEn": "Resolving Wage Protection System notes",
+      "nameEn": "Wage Protection System Notes Resolution",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مدد",
@@ -845,7 +803,7 @@
     {
       "code": "BP-MUQEEM-02",
       "nameAr": "إصدار إقامة جديدة (لموظف أجنبي)",
-      "nameEn": "New residency (Iqama) issuance for a foreign employee",
+      "nameEn": "New Iqama Issuance",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مقيم",
@@ -859,7 +817,7 @@
     {
       "code": "BP-MUQEEM-03",
       "nameAr": "تجديد إقامة (هوية مقيم)",
-      "nameEn": "Residency (Iqama) renewal",
+      "nameEn": "Iqama Renewal",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مقيم",
@@ -873,7 +831,7 @@
     {
       "code": "BP-MUQEEM-04",
       "nameAr": "إصدار تأشيرة زيارة عائلية",
-      "nameEn": "Family visit visa issuance",
+      "nameEn": "Family Visit Visa Issuance",
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مقيم",
@@ -887,7 +845,7 @@
     {
       "code": "BP-REC-01",
       "nameAr": "خدمات الاستقدام واستخراج تأشيرات العمل",
-      "nameEn": "Recruitment & work-visa issuance services",
+      "nameEn": "Recruitment Services & Work Visa Issuance",
       "category": "Recruitment",
       "categoryAr": "التوظيف والاستقدام",
       "govPlatform": "قوى",
@@ -901,7 +859,7 @@
     {
       "code": "BP-REC-02",
       "nameAr": "إصدار تأشيرة عمل (تأشيرة استقدام)",
-      "nameEn": "Work visa issuance (recruitment visa)",
+      "nameEn": "Work Visa Issuance",
       "category": "Recruitment",
       "categoryAr": "التوظيف والاستقدام",
       "govPlatform": "قوى",
@@ -949,7 +907,7 @@
       "govPlatform": "بدون جهة حكومية",
       "pricingModel": "Percent",
       "amount": null,
-      "priceLabel": "نصف الراتب الشهري",
+      "priceLabel": "عرض مخصّص حسب الحالة",
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-rec-05"
@@ -971,7 +929,7 @@
     {
       "code": "BP-BS-01",
       "nameAr": "خدمات التسويق الرقمي والإعلان",
-      "nameEn": "Digital marketing & advertising services",
+      "nameEn": "Digital Marketing & Advertising",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "بدون جهة حكومية",
@@ -984,22 +942,22 @@
     },
     {
       "code": "BP-PL-0019",
-      "nameAr": "تسجيل وكالة تجارية/فرنشايز",
-      "nameEn": "Commercial agency / franchise registration",
+      "nameAr": "الامتثال والقيد بنظام الامتياز التجاري (فرنشايز)",
+      "nameEn": "Franchise Law compliance & registration",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
-      "govPlatform": "",
+      "govPlatform": "وزارة التجارة",
       "pricingModel": "One Time",
       "amount": 1500,
       "priceLabel": "1,500 ﷼",
-      "govFeesSeparate": false,
+      "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-pl-0019"
     },
     {
       "code": "BP-PL-0035",
       "nameAr": "إدارة حساب مقيم (إضافة وتحديث البيانات)",
-      "nameEn": "Muqeem account management (data add & update)",
+      "nameEn": "Muqeem Account Management",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1013,7 +971,7 @@
     {
       "code": "BP-PL-0050",
       "nameAr": "خدمة كبار الشخصيات (إنهاء المعاملات VIP)",
-      "nameEn": "VIP service (VIP transaction handling)",
+      "nameEn": "VIP Transaction Processing",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1027,7 +985,7 @@
     {
       "code": "BP-PL-0051",
       "nameAr": "فتح حساب بنكي تجاري للشركة",
-      "nameEn": "Opening a corporate bank account",
+      "nameEn": "Corporate Bank Account Opening",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1041,7 +999,7 @@
     {
       "code": "BP-PL-0052",
       "nameAr": "إعداد لوائح الشركة الداخلية (حوكمة)",
-      "nameEn": "Internal company bylaws (governance) preparation",
+      "nameEn": "Internal Company Regulations (Governance)",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1055,7 +1013,7 @@
     {
       "code": "BP-PL-0053",
       "nameAr": "هيكلة وتنظيم الشركة (إعادة هيكلة)",
-      "nameEn": "Company structuring & reorganization",
+      "nameEn": "Company Restructuring & Organization",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1069,7 +1027,7 @@
     {
       "code": "BP-PL-0054",
       "nameAr": "التمثيل القانوني للشركات (محاماة)",
-      "nameEn": "Corporate legal representation (litigation)",
+      "nameEn": "Corporate Legal Representation",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1083,7 +1041,7 @@
     {
       "code": "BP-PL-0055",
       "nameAr": "استشارات قانونية لنظام الشركات",
-      "nameEn": "Legal consulting on the Companies Law",
+      "nameEn": "Corporate Law Consultation",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1097,7 +1055,7 @@
     {
       "code": "BP-PL-0056",
       "nameAr": "استشارات أعمال واستثمار عامة",
-      "nameEn": "General business & investment consulting",
+      "nameEn": "General Business & Investment Consultation",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1125,7 +1083,7 @@
     {
       "code": "BP-PL-0058",
       "nameAr": "إعداد خطة عمل وتطوير استراتيجيات",
-      "nameEn": "Business plan & strategy development",
+      "nameEn": "Business Plan & Strategy Development",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1139,7 +1097,7 @@
     {
       "code": "BP-PL-0059",
       "nameAr": "خدمة المستشار المالي (محاسبة ودفاتر)",
-      "nameEn": "Financial advisor service (accounting & bookkeeping)",
+      "nameEn": "Financial Advisor (Accounting & Bookkeeping)",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1153,7 +1111,7 @@
     {
       "code": "BP-PL-0060",
       "nameAr": "مراجعة حسابات وضريبة (تدقيق مالي)",
-      "nameEn": "Audit & tax review (financial auditing)",
+      "nameEn": "Audit & Tax Review",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1167,7 +1125,7 @@
     {
       "code": "BP-PL-0063",
       "nameAr": "خدمة العلاقات العامة والاتصال المؤسسي",
-      "nameEn": "Public relations & corporate communications",
+      "nameEn": "Public Relations & Corporate Communications",
       "category": "Business Support",
       "categoryAr": "دعم الأعمال",
       "govPlatform": "",
@@ -1179,23 +1137,9 @@
       "url": "https://businesspartner.sa/services/bp-pl-0063"
     },
     {
-      "code": "BP-PL-0075",
-      "nameAr": "فتح حساب بنكي (تنسيق ومواعيد)",
-      "nameEn": "Bank account opening (liaison & appointments)",
-      "category": "Business Support",
-      "categoryAr": "دعم الأعمال",
-      "govPlatform": "",
-      "pricingModel": "One Time",
-      "amount": 1200,
-      "priceLabel": "1,200 ﷼",
-      "govFeesSeparate": false,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-pl-0075"
-    },
-    {
       "code": "BP-RE-01",
       "nameAr": "مكتب خاص (لعدد محدد من الأشخاص)",
-      "nameEn": "Private office (for a set number of people)",
+      "nameEn": "Private Office",
       "category": "Real Estate",
       "categoryAr": "العقارات",
       "govPlatform": "بدون جهة حكومية",
@@ -1209,7 +1153,7 @@
     {
       "code": "BP-RE-02",
       "nameAr": "مساحة عمل مشتركة (Coworking)",
-      "nameEn": "Coworking space",
+      "nameEn": "Coworking Space",
       "category": "Real Estate",
       "categoryAr": "العقارات",
       "govPlatform": "بدون جهة حكومية",
@@ -1223,7 +1167,7 @@
     {
       "code": "BP-RE-03",
       "nameAr": "مكتب افتراضي مع عنوان وطني",
-      "nameEn": "Virtual office with a National Address",
+      "nameEn": "Virtual Office with National Address",
       "category": "Real Estate",
       "categoryAr": "العقارات",
       "govPlatform": "سُبل",
@@ -1237,7 +1181,7 @@
     {
       "code": "BP-RE-04",
       "nameAr": "مكتب ثابت في مساحة مشتركة (Dedicated Desk)",
-      "nameEn": "Dedicated desk in a coworking space",
+      "nameEn": "Dedicated Desk",
       "category": "Real Estate",
       "categoryAr": "العقارات",
       "govPlatform": "بدون جهة حكومية",
@@ -1331,6 +1275,356 @@
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-ai-02"
+    },
+    {
+      "code": "BP-FI-07",
+      "nameAr": "دخول مستثمر أجنبي",
+      "nameEn": "Foreign Investor Entry",
+      "category": "Foreign Investment",
+      "categoryAr": "الاستثمار الأجنبي",
+      "govPlatform": "وزارة الاستثمار MISA",
+      "pricingModel": "One Time",
+      "amount": 5000,
+      "priceLabel": "5,000 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-fi-07"
+    },
+    {
+      "code": "BP-DIAG-01",
+      "nameAr": "تقرير تشخيص",
+      "nameEn": "Diagnostic Report",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "One Time",
+      "amount": 1500,
+      "priceLabel": "1,500 ﷼",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-diag-01"
+    },
+    {
+      "code": "BP-GUIDE-01",
+      "nameAr": "دليل قطاعي عام",
+      "nameEn": "General Industry Guide",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "One Time",
+      "amount": 499,
+      "priceLabel": "499 ﷼",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-guide-01"
+    },
+    {
+      "code": "BP-GUIDE-02",
+      "nameAr": "دليل مخصص",
+      "nameEn": "Custom Guide",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "One Time",
+      "amount": 3000,
+      "priceLabel": "3,000 ﷼",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-guide-02"
+    },
+    {
+      "code": "BP-PL-0088",
+      "nameAr": "تسجيل قيد وكالة تجارية",
+      "nameEn": "Commercial Agency Registration",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "المركز السعودي للأعمال",
+      "pricingModel": "One Time",
+      "amount": 4000,
+      "priceLabel": "4,000 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0088"
+    },
+    {
+      "code": "BP-PL-0089",
+      "nameAr": "تعديل قيد وكالة تجارية",
+      "nameEn": "Commercial Agency Registration Amendment",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "المركز السعودي للأعمال",
+      "pricingModel": "One Time",
+      "amount": 4000,
+      "priceLabel": "4,000 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0089"
+    },
+    {
+      "code": "BP-PL-0090",
+      "nameAr": "تجديد قيد وكالة تجارية",
+      "nameEn": "Commercial Agency Registration Renewal",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "المركز السعودي للأعمال",
+      "pricingModel": "One Time",
+      "amount": 1200,
+      "priceLabel": "1,200 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0090"
+    },
+    {
+      "code": "BP-PL-0091",
+      "nameAr": "شطب قيد وكالة تجارية",
+      "nameEn": "Commercial Agency Registration Cancellation",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "المركز السعودي للأعمال",
+      "pricingModel": "One Time",
+      "amount": 4000,
+      "priceLabel": "4,000 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0091"
+    },
+    {
+      "code": "BP-PL-0092",
+      "nameAr": "تراخيص التخفيضات",
+      "nameEn": "Discount License Issuance",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "المركز السعودي للأعمال",
+      "pricingModel": "One Time",
+      "amount": 280,
+      "priceLabel": "280 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0092"
+    },
+    {
+      "code": "BP-PL-0093",
+      "nameAr": "تراخيص الأحجار الكريمة والمعادن الثمينة",
+      "nameEn": "Precious Stones and Precious Metals Licenses",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "المركز السعودي للأعمال",
+      "pricingModel": "One Time",
+      "amount": 2400,
+      "priceLabel": "2,400 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0093"
+    },
+    {
+      "code": "BP-PL-0076",
+      "nameAr": "إصدار الترخيص الصناعي (تأسيس)",
+      "nameEn": "Industrial License Issuance for Establishment",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 2500,
+      "priceLabel": "2,500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0076"
+    },
+    {
+      "code": "BP-PL-0077",
+      "nameAr": "تجديد الترخيص الصناعي",
+      "nameEn": "Industrial License Renewal",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 1248,
+      "priceLabel": "1,248 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0077"
+    },
+    {
+      "code": "BP-PL-0078",
+      "nameAr": "تعديل الترخيص الصناعي",
+      "nameEn": "Industrial License Amendment",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 2400,
+      "priceLabel": "2,400 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0078"
+    },
+    {
+      "code": "BP-PL-0079",
+      "nameAr": "نقل ملكية الترخيص الصناعي",
+      "nameEn": "Industrial License Ownership Transfer",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 2072,
+      "priceLabel": "2,072 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0079"
+    },
+    {
+      "code": "BP-PL-0080",
+      "nameAr": "طلب تأييد العمالة",
+      "nameEn": "Labor Endorsement Request",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 1248,
+      "priceLabel": "1,248 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0080"
+    },
+    {
+      "code": "BP-PL-0081",
+      "nameAr": "إعفاء جمركي (مواد/آلات/قطع غيار)",
+      "nameEn": "Customs Exemption for Materials, Machinery, and Spare Parts",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 2488,
+      "priceLabel": "2,488 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0081"
+    },
+    {
+      "code": "BP-PL-0082",
+      "nameAr": "إصدار شهادة المنشأ",
+      "nameEn": "Certificate of Origin Issuance",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "الغرفة التجارية",
+      "pricingModel": "One Time",
+      "amount": 1656,
+      "priceLabel": "1,656 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0082"
+    },
+    {
+      "code": "BP-PL-0083",
+      "nameAr": "طلب الفسح الكيميائي",
+      "nameEn": "Chemical Clearance Request",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 2488,
+      "priceLabel": "2,488 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0083"
+    },
+    {
+      "code": "BP-PL-0084",
+      "nameAr": "ترقية البنود الجمركية",
+      "nameEn": "Customs Tariff Items Upgrade",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 2400,
+      "priceLabel": "2,400 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0084"
+    },
+    {
+      "code": "BP-PL-0085",
+      "nameAr": "رخصة الاستطلاع (تعدين)",
+      "nameEn": "Mining Reconnaissance License",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 4144,
+      "priceLabel": "4,144 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0085"
+    },
+    {
+      "code": "BP-PL-0086",
+      "nameAr": "المسح الصناعي",
+      "nameEn": "Industrial Survey",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 4800,
+      "priceLabel": "4,800 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0086"
+    },
+    {
+      "code": "BP-PL-0087",
+      "nameAr": "تصريح الاستشارات الأمنية",
+      "nameEn": "Security Consulting Permit",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "متعدد الجهات",
+      "pricingModel": "One Time",
+      "amount": 7000,
+      "priceLabel": "7,000 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-pl-0087"
+    },
+    {
+      "code": "BP-SUB-01",
+      "nameAr": "اشتراك تحديثات",
+      "nameEn": "Updates Subscription",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "Monthly",
+      "amount": 750,
+      "priceLabel": "750 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-sub-01"
+    },
+    {
+      "code": "BP-VENDOR-01",
+      "nameAr": "تأهيل مورد",
+      "nameEn": "Vendor Qualification",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "One Time",
+      "amount": 3500,
+      "priceLabel": "3,500 ﷼",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-vendor-01"
+    },
+    {
+      "code": "BP-VENDOR-02",
+      "nameAr": "متابعة مورد",
+      "nameEn": "Vendor Follow-up",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "",
+      "pricingModel": "Monthly",
+      "amount": 2000,
+      "priceLabel": "2,000 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/bp-vendor-02"
     }
   ],
   "categories": [
@@ -1338,7 +1632,7 @@
       "key": "Company Formation",
       "nameAr": "تأسيس الشركات",
       "nameEn": "Company Formation",
-      "count": 23
+      "count": 22
     },
     {
       "key": "Foreign Investment",
@@ -1356,7 +1650,7 @@
       "key": "Government Relations",
       "nameAr": "العلاقات الحكومية",
       "nameEn": "Government Relations",
-      "count": 23
+      "count": 34
     },
     {
       "key": "HR Services",
@@ -1374,7 +1668,7 @@
       "key": "Business Support",
       "nameAr": "دعم الأعمال",
       "nameEn": "Business Support",
-      "count": 16
+      "count": 27
     },
     {
       "key": "Real Estate",
@@ -1396,24 +1690,24 @@
       "groupNameEn": "Service packages",
       "code": null,
       "key": "silver",
-      "nameAr": "الباقة الفضية",
-      "nameEn": "Silver Package",
-      "amount": 7500,
-      "priceLabel": "Starting from 7,500 SAR / yearly",
+      "nameAr": "باقة الانطلاق",
+      "nameEn": "Launch Package",
+      "amount": 6000,
+      "priceLabel": "Starting from 6,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "إدارة السجل التجاري",
-        "التسجيل والمتابعة في منصة قوى",
-        "إدارة التأمينات الاجتماعية",
-        "إدارة التأمين الطبي",
-        "الامتثال الزكوي والضريبي الأساسي"
+        "تشغيل وإدارة السجل التجاري ومتابعة تجديده",
+        "تفعيل حساب المنشأة في منصة قوى ومتابعته",
+        "إدارة اشتراك التأمينات الاجتماعية",
+        "تنظيم التأمين الطبي للموظفين",
+        "متابعة الالتزام الزكوي والضريبي الأساسي"
       ],
       "featuresEn": [
-        "Commercial Registration management",
-        "Qiwa platform registration & follow-up",
-        "Social insurance (GOSI) management",
-        "Medical insurance management",
-        "Basic Zakat & tax compliance"
+        "Commercial Registration operation & renewal follow-up",
+        "Activating & monitoring your Qiwa establishment account",
+        "GOSI subscription management",
+        "Employee medical insurance setup",
+        "Follow-up on core Zakat & tax compliance"
       ],
       "url": "https://businesspartner.sa/packages"
     },
@@ -1423,24 +1717,24 @@
       "groupNameEn": "Service packages",
       "code": null,
       "key": "gold",
-      "nameAr": "الباقة الذهبية",
-      "nameEn": "Gold Package",
-      "amount": 13500,
-      "priceLabel": "Starting from 13,500 SAR / yearly",
+      "nameAr": "باقة النمو",
+      "nameEn": "Growth Package",
+      "amount": 10800,
+      "priceLabel": "Starting from 10,800 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "تشمل جميع مزايا الباقة الفضية",
-        "إدارة شؤون الموظفين والعقود",
-        "إدارة وحماية الأجور",
-        "متابعة دورية للالتزامات النظامية",
-        "دعم تشغيلي موسّع للمنشأة"
+        "كل ما في باقة الانطلاق",
+        "إدارة ملفات الموظفين والعقود إلكترونياً",
+        "إدارة الأجور والتسجيل في نظام حماية الأجور",
+        "متابعة دورية لالتزامات المنشأة النظامية",
+        "دعم تشغيلي موسّع طوال فترة الاشتراك"
       ],
       "featuresEn": [
-        "Everything in the Silver package",
-        "Employee affairs & contracts management",
-        "Wage management & wage protection",
-        "Periodic follow-up on regulatory obligations",
-        "Extended operational support"
+        "Everything in the Launch package",
+        "Digital employee files & contracts management",
+        "Payroll management & Wage Protection System enrollment",
+        "Periodic follow-up on your regulatory obligations",
+        "Extended operational support throughout the subscription"
       ],
       "url": "https://businesspartner.sa/packages"
     },
@@ -1450,22 +1744,22 @@
       "groupNameEn": "Service packages",
       "code": null,
       "key": "platinum",
-      "nameAr": "الباقة البلاتينية",
-      "nameEn": "Platinum Package",
-      "amount": 20000,
-      "priceLabel": "Starting from 20,000 SAR / yearly",
+      "nameAr": "باقة التوسّع",
+      "nameEn": "Scale Package",
+      "amount": 16000,
+      "priceLabel": "Starting from 16,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "تشمل جميع مزايا الباقة الذهبية",
-        "إدارة متقدمة للموارد البشرية",
-        "إدارة الإقرارات والمتابعة الشاملة",
+        "كل ما في باقة النمو",
+        "إدارة متقدمة لملف الموارد البشرية",
+        "إعداد ومتابعة الإقرارات والالتزامات الشاملة",
         "تقارير تشغيلية وتنظيمية دورية",
         "استشارات قانونية وتشغيلية مستمرة"
       ],
       "featuresEn": [
-        "Everything in the Gold package",
-        "Advanced HR management",
-        "Filings management & comprehensive follow-up",
+        "Everything in the Growth package",
+        "Advanced HR file management",
+        "Preparing & tracking filings and full compliance",
         "Periodic operational & regulatory reports",
         "Ongoing legal & operational consultations"
       ],
@@ -1477,28 +1771,28 @@
       "groupNameEn": "Service packages",
       "code": null,
       "key": "diamond",
-      "nameAr": "الباقة الماسية",
-      "nameEn": "Diamond Package",
+      "nameAr": "باقة الشراكة المؤسسية",
+      "nameEn": "Enterprise Partnership",
       "amount": null,
       "priceLabel": "Custom package, priced on request",
       "billingPeriod": "one_time",
       "featuresAr": [
-        "تشمل جميع مزايا الباقة البلاتينية",
-        "مدير حساب مخصص للمنشأة",
-        "أولوية تنفيذ ومتابعة فورية",
-        "حلول مخصصة حسب احتياج النشاط",
-        "دعم استباقي شامل دون تدخل العميل",
-        "دعم فريق الدعم التشغيلي ومتابعة المنصات",
-        "تقارير ومؤشرات لمتابعة النشاط والأداء"
+        "كل ما في باقة التوسّع",
+        "مدير حساب مخصّص لمنشأتك",
+        "أولوية في التنفيذ ومتابعة فورية",
+        "حلول مصمّمة حسب نشاط منشأتك",
+        "دعم استباقي شامل دون الحاجة لمتابعة من العميل",
+        "فريق دعم تشغيلي مخصّص لمتابعة المنصّات",
+        "تقارير ومؤشرات أداء لمتابعة نشاطك"
       ],
       "featuresEn": [
-        "Everything in the Platinum package",
-        "Dedicated account manager",
+        "Everything in the Scale package",
+        "Dedicated account manager for your establishment",
         "Priority execution & instant follow-up",
-        "Custom solutions tailored to your activity",
-        "Comprehensive proactive support, no client follow-up needed",
-        "Dedicated operational support team & platform follow-up",
-        "Reports & KPIs to track activity and performance"
+        "Solutions tailored to your business activity",
+        "Comprehensive proactive support with no client follow-up needed",
+        "Dedicated operational support team monitoring your platforms",
+        "Reports & KPIs to track your activity and performance"
       ],
       "url": "https://businesspartner.sa/packages"
     },
@@ -1510,8 +1804,8 @@
       "key": "foreign-formation",
       "nameAr": "باقة تأسيس الشركات الأجنبية",
       "nameEn": "Foreign Companies Formation Package",
-      "amount": 57500,
-      "priceLabel": "Starting from 57,500 SAR / yearly",
+      "amount": 46000,
+      "priceLabel": "Starting from 46,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "التقديم على ترخيص الاستثمار الأجنبي",
@@ -1539,8 +1833,8 @@
       "key": "saudi-gulf-formation",
       "nameAr": "باقة تأسيس الشركات السعودية والخليجية",
       "nameEn": "Saudi & Gulf Companies Formation Package",
-      "amount": 23000,
-      "priceLabel": "Starting from 23,000 SAR / yearly",
+      "amount": 18400,
+      "priceLabel": "Starting from 18,400 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "إعداد وصياغة عقد التأسيس وتوثيقه",
@@ -1557,136 +1851,6 @@
         "Registration in GOSI, Qiwa, Mudad and Muqeem",
         "Municipal license issuance (if required)",
         "Legal consultation to choose the right entity type"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "legal",
-      "groupNameAr": "الباقات القانونية",
-      "groupNameEn": "Legal Packages",
-      "code": null,
-      "key": "strategic",
-      "nameAr": "الباقة الاستراتيجية",
-      "nameEn": "Strategic Package",
-      "amount": 59000,
-      "priceLabel": "Starting from 59,000 SAR / yearly",
-      "billingPeriod": "one_time",
-      "featuresAr": [
-        "استشارات هاتفية غير محدودة",
-        "استشارات مكتوبة: 25 سنويًا",
-        "صياغة ومراجعة عقود: 20 عقداً",
-        "مذكرات ولوائح قانونية: 15",
-        "خدمات ملكية فكرية: 4",
-        "تأسيس/تحويل/اندماج كيانات: 3 خدمات",
-        "حضور اجتماعات بمحامٍ: 4 اجتماعات",
-        "تمثيل قضائي: حتى 10 قضايا عمالية سنويًا",
-        "ورشة توعية قانونية للموظفين: مرة سنويًا",
-        "خصم على خدمات التوثيق: 25%"
-      ],
-      "featuresEn": [
-        "Unlimited phone consultations",
-        "Written consultations: 25 / year",
-        "Contract drafting & review: 20 contracts",
-        "Legal memos & pleadings: 15",
-        "IP services: 4",
-        "Entity formation/conversion/merger: 3 services",
-        "Meetings with a lawyer: 4 meetings",
-        "Litigation representation: up to 10 labor cases / year",
-        "Legal awareness workshop for employees: once a year",
-        "25% discount on notarization services"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "legal",
-      "groupNameAr": "الباقات القانونية",
-      "groupNameEn": "Legal Packages",
-      "code": null,
-      "key": "comprehensive",
-      "nameAr": "الباقة الشاملة",
-      "nameEn": "Comprehensive Package",
-      "amount": 39000,
-      "priceLabel": "Starting from 39,000 SAR / yearly",
-      "billingPeriod": "one_time",
-      "featuresAr": [
-        "استشارات هاتفية غير محدودة",
-        "استشارات مكتوبة: 15 سنويًا",
-        "صياغة ومراجعة عقود: 15 عقداً",
-        "مذكرات ولوائح قانونية: 10",
-        "خدمات ملكية فكرية: 4",
-        "تأسيس/تحويل كيانات: خدمتان",
-        "حضور اجتماعات بمحامٍ: اجتماعان",
-        "تمثيل قضائي: حتى 6 قضايا عمالية",
-        "خصم على خدمات التوثيق: 20%"
-      ],
-      "featuresEn": [
-        "Unlimited phone consultations",
-        "Written consultations: 15 / year",
-        "Contract drafting & review: 15 contracts",
-        "Legal memos & pleadings: 10",
-        "IP services: 4",
-        "Entity formation/conversion: 2 services",
-        "Meetings with a lawyer: 2 meetings",
-        "Litigation representation: up to 6 labor cases",
-        "20% discount on notarization services"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "legal",
-      "groupNameAr": "الباقات القانونية",
-      "groupNameEn": "Legal Packages",
-      "code": null,
-      "key": "advanced",
-      "nameAr": "الباقة المتقدمة",
-      "nameEn": "Advanced Package",
-      "amount": 19900,
-      "priceLabel": "Starting from 19,900 SAR / yearly",
-      "billingPeriod": "one_time",
-      "featuresAr": [
-        "استشارات هاتفية غير محدودة",
-        "استشارات مكتوبة: 8 سنويًا",
-        "صياغة ومراجعة عقود: 12 عقداً",
-        "خدمات ملكية فكرية: 2",
-        "تأسيس/تعديل كيان: خدمة واحدة",
-        "تمثيل قضائي: حتى 4 قضايا عمالية سنويًا",
-        "خصم على خدمات التوثيق: 15%"
-      ],
-      "featuresEn": [
-        "Unlimited phone consultations",
-        "Written consultations: 8 / year",
-        "Contract drafting & review: 12 contracts",
-        "IP services: 2",
-        "Entity formation/amendment: 1 service",
-        "Litigation representation: up to 4 labor cases / year",
-        "15% discount on notarization services"
-      ],
-      "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "legal",
-      "groupNameAr": "الباقات القانونية",
-      "groupNameEn": "Legal Packages",
-      "code": null,
-      "key": "basic-legal",
-      "nameAr": "الباقة الأساسية",
-      "nameEn": "Basic Package",
-      "amount": 9900,
-      "priceLabel": "Starting from 9,900 SAR / yearly",
-      "billingPeriod": "one_time",
-      "featuresAr": [
-        "استشارات هاتفية غير محدودة",
-        "استشارات مكتوبة: 4 سنويًا",
-        "صياغة ومراجعة عقود: 6 عقود",
-        "تمثيل قضائي: حتى قضيتين عماليتين سنويًا",
-        "خصم على خدمات التوثيق: 10%"
-      ],
-      "featuresEn": [
-        "Unlimited phone consultations",
-        "Written consultations: 4 / year",
-        "Contract drafting & review: 6 contracts",
-        "Litigation representation: up to 2 labor cases / year",
-        "10% discount on notarization services"
       ],
       "url": "https://businesspartner.sa/packages"
     }

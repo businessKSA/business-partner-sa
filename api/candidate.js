@@ -32,6 +32,25 @@ const DB_ID = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
 const NOTION_VERSION = "2022-06-28";
 const N8N_ATS_WEBHOOK = envFrom(["N8N_ATS_WEBHOOK", "N8N_CANDIDATE_WEBHOOK", "BP_ATS_WEBHOOK"])
   || "https://businesspartnerai.app.n8n.cloud/webhook/bp-ats-application";
+// Job postings + employer subscriptions DBs — used to look up who owns a
+// posting so we can email them when a candidate applies to it.
+const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
+const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
+
+// Email (Resend) — optional; activates once RESEND_API_KEY is set in Vercel.
+const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
+const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
+async function sendMail(to, subject, html) {
+  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    });
+    return { ok: r.ok };
+  } catch { return { ok: false }; }
+}
 
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
@@ -208,6 +227,38 @@ const txt = (p) => {
   return "";
 };
 
+// Best-effort — never throws, never blocks the candidate's own submission
+// from succeeding. jobId is the JOBS_DB page id the "Apply" button set, or
+// the "candidate-pool" placeholder for a general (not job-specific) signup,
+// which has no owner to notify.
+async function notifyEmployerOfApplication(jobId, jobTitle, candidate) {
+  if (!jobId || jobId === "candidate-pool" || !RESEND_API_KEY) return;
+  try {
+    const jobPage = await notion(`pages/${jobId}`, "GET");
+    if (!jobPage.ok) return;
+    const jobData = await jobPage.json();
+    const employerCode = txt(jobData.properties && jobData.properties["رمز صاحب العمل"]);
+    if (!employerCode) return;
+    const empR = await notion(`databases/${EMP_DB}/query`, "POST", {
+      page_size: 1,
+      filter: { property: "رمز الوصول", rich_text: { equals: employerCode } },
+    });
+    if (!empR.ok) return;
+    const empData = await empR.json();
+    const empRow = (empData.results || [])[0];
+    if (!empRow) return;
+    const employerEmail = txt(empRow.properties && empRow.properties["البريد"]);
+    if (!isEmail(employerEmail)) return;
+    const esc = (s) => String(s || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const html = `<p>مرشّح جديد تقدّم على وظيفة <strong>${esc(jobTitle)}</strong> اللي نشرتها في نظام التوظيف.</p>
+      <p><strong>الاسم:</strong> ${esc(candidate.name)}<br><strong>الجوال:</strong> ${esc(candidate.phone)}${candidate.field ? `<br><strong>المجال:</strong> ${esc(candidate.field)}` : ""}${candidate.city ? `<br><strong>المدينة:</strong> ${esc(candidate.city)}` : ""}</p>
+      <p>سجّل الدخول للوحة التوظيف لمراجعة الملف الكامل والتواصل معه.</p>`;
+    await sendMail(employerEmail, `مرشّح جديد تقدّم على وظيفة ${jobTitle}`, html);
+  } catch (e) {
+    console.error("employer application notify error", String(e).slice(0, 200));
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -354,6 +405,7 @@ export default async function handler(req, res) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
       }
+      await notifyEmployerOfApplication(jobId, jobTitle, { name, phone, field, city });
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, ref: "CV-" + existing.id.slice(-6), updated: true, n8n }));
     }
@@ -369,6 +421,7 @@ export default async function handler(req, res) {
     }
     const page = await r.json();
     const ref = "CV-" + page.id.slice(-6);
+    await notifyEmployerOfApplication(jobId, jobTitle, { name, phone, field, city });
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, updated: false, n8n }));
   } catch (e) {

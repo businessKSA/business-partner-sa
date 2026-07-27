@@ -70,8 +70,20 @@
   <url><loc>https://businesspartner.sa/ar/compliance-agent</loc></url>
   <url><loc>https://businesspartner.sa/saudi-arabia</loc></url>
   <url><loc>https://businesspartner.sa/ar/saudi-arabia</loc></url>
+  <url><loc>https://businesspartner.sa/opportunities</loc></url>
+  <url><loc>https://businesspartner.sa/ar/opportunities</loc></url>
   <url><loc>https://businesspartner.sa/directory</loc></url>
   <url><loc>https://businesspartner.sa/ar/directory</loc></url>
+  <url><loc>https://businesspartner.sa/guide/saudi-market</loc></url>
+  <url><loc>https://businesspartner.sa/ar/guide/saudi-market</loc></url>
+  <url><loc>https://businesspartner.sa/guide/business-setup</loc></url>
+  <url><loc>https://businesspartner.sa/ar/guide/business-setup</loc></url>
+  <url><loc>https://businesspartner.sa/guide/run-your-business</loc></url>
+  <url><loc>https://businesspartner.sa/ar/guide/run-your-business</loc></url>
+  <url><loc>https://businesspartner.sa/guide/live-in-saudi</loc></url>
+  <url><loc>https://businesspartner.sa/ar/guide/live-in-saudi</loc></url>
+  <url><loc>https://businesspartner.sa/guide/residency</loc></url>
+  <url><loc>https://businesspartner.sa/ar/guide/residency</loc></url>
   <url><loc>https://businesspartner.sa/news</loc></url>
   <url><loc>https://businesspartner.sa/ar/news</loc></url>
   <url><loc>https://businesspartner.sa/newsletter</loc></url>
@@ -92,12 +104,8 @@
   <url><loc>https://businesspartner.sa/ar/workspaces</loc></url>
   <url><loc>https://businesspartner.sa/workspace-request</loc></url>
   <url><loc>https://businesspartner.sa/ar/workspace-request</loc></url>
-  <url><loc>https://businesspartner.sa/farina</loc></url>
-  <url><loc>https://businesspartner.sa/ar/farina</loc></url>
   <url><loc>https://businesspartner.sa/worker-housing</loc></url>
   <url><loc>https://businesspartner.sa/ar/worker-housing</loc></url>
-  <url><loc>https://businesspartner.sa/installments</loc></url>
-  <url><loc>https://businesspartner.sa/ar/installments</loc></url>
   <url><loc>https://businesspartner.sa/estrdad</loc></url>
   <url><loc>https://businesspartner.sa/ar/estrdad</loc></url>
   <url><loc>https://businesspartner.sa/bank-account</loc></url>
@@ -127,6 +135,8 @@
   <url><loc>https://businesspartner.sa/ar/consultation</loc></url>
   <url><loc>https://businesspartner.sa/suppliers</loc></url>
   <url><loc>https://businesspartner.sa/ar/suppliers</loc></url>
+  <url><loc>https://businesspartner.sa/partner-dashboard</loc></url>
+  <url><loc>https://businesspartner.sa/ar/partner-dashboard</loc></url>
   <url><loc>https://businesspartner.sa/team/baher</loc></url>
   <url><loc>https://businesspartner.sa/ar/team/baher</loc></url>
   <url><loc>https://businesspartner.sa/team/mazen</loc></url>
@@ -171,8 +181,6 @@
   <url><loc>https://businesspartner.sa/ar/services/category/ai-automation</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-chamber-01</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-chamber-01</loc></url>
-  <url><loc>https://businesspartner.sa/services/bp-pl-0001</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0001</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-pl-0066</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-pl-0066</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-sbc-01</loc></url>
@@ -227,8 +235,6 @@
   <url><loc>https://businesspartner.sa/ar/services/bp-fi-05</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-fi-06</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-fi-06</loc></url>
-  <url><loc>https://businesspartner.sa/services/bp-pl-0067</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0067</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-pr-01</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-pr-01</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-pr-02</loc></url>
@@ -245,8 +251,6 @@
   <url><loc>https://businesspartner.sa/ar/services/bp-gosi-02</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-gosi-03</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-gosi-03</loc></url>
-  <url><loc>https://businesspartner.sa/services/bp-gosi-04</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/bp-gosi-04</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-gr-01</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-gr-01</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-mod-01</loc></url>
@@ -337,8 +341,6 @@
   <url><loc>https://businesspartner.sa/ar/services/bp-pl-0060</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-pl-0063</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-pl-0063</loc></url>
-  <url><loc>https://businesspartner.sa/services/bp-pl-0075</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0075</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-re-01</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-re-01</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-re-02</loc></url>
@@ -359,6 +361,56 @@
   <url><loc>https://businesspartner.sa/ar/services/bp-ai-01</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-ai-02</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-ai-02</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-fi-07</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-fi-07</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-diag-01</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-diag-01</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-guide-01</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-guide-01</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-guide-02</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-guide-02</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0088</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0088</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0089</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0089</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0090</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0090</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0091</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0091</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0092</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0092</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0093</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0093</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0076</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0076</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0077</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0077</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0078</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0078</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0079</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0079</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0080</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0080</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0081</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0081</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0082</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0082</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0083</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0083</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0084</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0084</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0085</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0085</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0086</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0086</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-pl-0087</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-pl-0087</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-sub-01</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-sub-01</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-vendor-01</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-vendor-01</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-vendor-02</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-vendor-02</loc></url>
   <url><loc>https://businesspartner.sa/jobs/hr-operations-specialist</loc></url>
   <url><loc>https://businesspartner.sa/ar/jobs/hr-operations-specialist</loc></url>
   <url><loc>https://businesspartner.sa/jobs/recruitment-coordinator</loc></url>
@@ -411,4 +463,28 @@
   <url><loc>https://businesspartner.sa/ar/jobs/workshop-painter</loc></url>
   <url><loc>https://businesspartner.sa/jobs/workshop-skilled-labor</loc></url>
   <url><loc>https://businesspartner.sa/ar/jobs/workshop-skilled-labor</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-production-team-leader</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-production-team-leader</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-electrical-team-leader</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-electrical-team-leader</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-electrical-technician</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-electrical-technician</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-branding-technician</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-branding-technician</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-production-engineer</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-production-engineer</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-quality-engineer</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-quality-engineer</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-installation-engineer</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-installation-engineer</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-detailing-engineer</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-detailing-engineer</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-maintenance-technician</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-maintenance-technician</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-finance-officer</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-finance-officer</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-hr-officer</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-hr-officer</loc></url>
+  <url><loc>https://businesspartner.sa/jobs/workshop-procurement-officer</loc></url>
+  <url><loc>https://businesspartner.sa/ar/jobs/workshop-procurement-officer</loc></url>
 </urlset>

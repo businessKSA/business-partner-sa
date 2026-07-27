@@ -180,6 +180,56 @@ async function listLeads(limit) {
   });
 }
 
+// Website advisor conversations → flat message list for the BP Inbox monitor.
+// Each CRM page (Lead Source = «مستشار الموقع») is one thread keyed by its ref;
+// Notes carries the meta line + labelled transcript we parse back into bubbles.
+async function listConversations(limit) {
+  if (!NOTION_TOKEN) return [];
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({
+      page_size: Math.min(Math.max(Number(limit) || 40, 1), 80),
+      filter: { or: [{ property: "Lead Source", select: { equals: CONV_SOURCE } }, { property: "Lead Source", select: { equals: TICKET_SOURCE } }] },
+      sorts: [{ property: "Last Activity", direction: "descending" }],
+    }),
+  });
+  if (!r.ok) { console.error("conv query error", r.status, (await r.text()).slice(0, 200)); throw new Error("notion_failed"); }
+  const data = await r.json();
+  const txt = (arr) => (arr || []).map((t) => t.plain_text).join("");
+  const out = [];
+  for (const pg of data.results || []) {
+    const p = pg.properties || {};
+    const src = (p["Lead Source"] && p["Lead Source"].select && p["Lead Source"].select.name) || CONV_SOURCE;
+    const isTicket = src === TICKET_SOURCE;
+    const ref = txt(p["رقم المرجع"] && p["رقم المرجع"].rich_text).trim() || pg.id;
+    const notes = txt(p["Notes"] && p["Notes"].rich_text);
+    const nameM = notes.match(/(?:الموقع\)|دعم)\s*·\s*([^·\n]+?)(?:\s*·|\n)/);
+    const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
+    const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+    const name = nameM ? nameM[1].trim() : "";
+    const phone = phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "";
+    const email = emailM ? emailM[1] : "";
+    const crm = `https://www.notion.so/${String(pg.id).replace(/-/g, "")}`;
+    const base = new Date(pg.last_edited_time || pg.created_time || Date.now()).getTime();
+    const source = isTicket ? "تذكرة" : "المستشار";
+    if (isTicket) {
+      // A ticket is a single record — render it as one summary message.
+      const body = notes.split("\n").filter((l) => /^(الخدمة|تفاصيل):/.test(l)).join(" · ") || notes;
+      out.push({ phone: ref, source, ref, name: name || "عميل", contactPhone: phone, contactEmail: email, sender: "العميل", text: "🎫 " + body, time: new Date(base).toISOString(), crm });
+      continue;
+    }
+    const lines = notes.split("\n").slice(1).filter((l) => /^(🧑|🤖)/.test(l));
+    lines.forEach((line, i) => {
+      const isBot = line.startsWith("🤖");
+      const text = line.replace(/^(🧑\s*الزائر:|🤖\s*باهر:)\s*/, "").trim();
+      out.push({ phone: ref, source, name: name || "زائر الموقع", contactPhone: phone, contactEmail: email, sender: isBot ? "الوكيل" : "العميل", text, time: new Date(base - (lines.length - i) * 1000).toISOString(), crm });
+    });
+    if (!lines.length) out.push({ phone: ref, source, name: name || "زائر الموقع", sender: "الوكيل", text: "—", time: new Date(base).toISOString(), crm });
+  }
+  return out;
+}
+
 // Upload a base64 file to Notion's File Upload API. Returns the file_upload id
 // (attachable to a page's "files" property) or null if it fails — never blocks
 // the order itself, since the n8n agent can also be pointed at a fallback.
@@ -239,6 +289,64 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     if (!r.ok) console.error("CRM lead error", r.status, (await r.text()).slice(0, 300));
   } catch (e) { console.error("CRM lead exception", String(e).slice(0, 150)); }
 }
+
+// ---- Website advisor ("باهر") conversations ----
+// Each browser session is one CRM page (رقم المرجع = "WEB-<sid>") so the /monitor
+// inbox and the CRM show the whole thread, upserted as it grows. Notes holds a
+// meta line + the labelled transcript ("🧑 الزائر: …" / "🤖 باهر: …") which the
+// monitor feed (GET ?action=advisor-inbox) parses straight back into messages.
+const CONV_SOURCE = "مستشار الموقع";
+const TICKET_SOURCE = "تذكرة دعم";
+function convNotes({ phone, email, name, messages }) {
+  const meta = `قناة: المستشار (الموقع)${name ? " · " + name : ""}${phone ? " · الجوال: " + phone : ""}${email ? " · البريد: " + email : ""}`;
+  const lines = messages.map((m) => (m.role === "assistant" ? "🤖 باهر: " : "🧑 الزائر: ") + String(m.content || "").replace(/\s+/g, " ").trim());
+  return (meta + "\n" + lines.join("\n")).slice(-6000);
+}
+// Notion caps a single rich_text object at 2000 chars — split long transcripts.
+function richChunks(text) {
+  const out = []; let s = String(text || "");
+  while (s.length) { out.push({ text: { content: s.slice(0, 1900) } }); s = s.slice(1900); }
+  return out.length ? out : [{ text: { content: "" } }];
+}
+async function findConvPage(ref) {
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+  });
+  if (!r.ok) return null;
+  const data = await r.json();
+  return (data.results && data.results[0] && data.results[0].id) || null;
+}
+async function upsertConversation({ sid, messages, phone, email, name, hot }) {
+  if (!NOTION_TOKEN || !sid) return;
+  const ref = ("WEB-" + sid).slice(0, 60);
+  const today = new Date().toISOString().slice(0, 10);
+  const firstQ = (messages.find((m) => m.role === "user") || {}).content || "محادثة موقع";
+  const title = `💬 محادثة موقع — ${String(firstQ).replace(/\s+/g, " ").trim().slice(0, 60)}`;
+  const props = {
+    "Opportunity Name": { title: [{ text: { content: title.slice(0, 200) } }] },
+    "Lead Source": { select: { name: CONV_SOURCE } },
+    "Stage": { select: { name: hot ? "مهتم" : "New" } },
+    "Human Required": { checkbox: !!hot },
+    "Notes": { rich_text: richChunks(convNotes({ phone, email, name, messages })) },
+    "Last Activity": { date: { start: today } },
+    "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
+    "حالة الطلب": { select: { name: "محادثة موقع" } },
+  };
+  try {
+    const existing = await findConvPage(ref);
+    const url = existing ? `https://api.notion.com/v1/pages/${existing}` : "https://api.notion.com/v1/pages";
+    const body = existing ? { properties: props } : { parent: { database_id: CRM_DB }, properties: props };
+    const r = await fetch(url, {
+      method: existing ? "PATCH" : "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) console.error("conv upsert error", r.status, (await r.text()).slice(0, 200));
+  } catch (e) { console.error("conv upsert exception", String(e).slice(0, 150)); }
+}
+
 async function addToAudience(email, name) {
   if (!RESEND_API_KEY || !RESEND_AUDIENCE || !isEmail(email)) return;
   try {
@@ -288,7 +396,9 @@ const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666">${k}</td><td 
 
 // ---- Shared Services: subscribe → owner approval → emailed access code → unlock ----
 const OTP_SECRET = process.env.OTP_SECRET || "";
-const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
+// إشعارات المالك تذهب لإيميل الشركة افتراضياً (لا للإيميل الشخصي).
+// عند تساويه مع TEAM_EMAIL تصبح النسخ المكررة أدناه no-op تلقائياً.
+const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
 const SITE_BASE = process.env.SITE_BASE || "https://businesspartner.sa";
 const SS_BANK = { beneficiary: process.env.BP_BANK_BENEFICIARY || "شركة بيزنس بارتنر", bank: process.env.BP_BANK_NAME || "مصرف الراجحي", iban: process.env.BP_BANK_IBAN || "SA5380000511608016228498" };
 const ssKey = () => crypto.createHash("sha256").update(OTP_SECRET).digest();
@@ -644,6 +754,24 @@ export default async function handler(req, res) {
       const leads = await listLeads(q.limit);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, leads }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
+  // Website advisor conversations feed for the BP Inbox (/monitor). Same key as
+  // the leads feed (set LEADS_KEY in Vercel to the value you type in the inbox).
+  // Returns a flat message array — same shape the WhatsApp feed uses — so the
+  // monitor merges them into one list, tagged «المستشار».
+  if ((q.action || "") === "advisor-inbox") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!LEADS_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    if ((q.key || "") !== LEADS_KEY) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const messages = await listConversations(q.limit);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, messages }));
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
@@ -1307,6 +1435,8 @@ export default async function handler(req, res) {
   // this creates the coordination request in the CRM.
   if (b.type === "installment") {
     const name = String(b.name || "").trim().slice(0, 160);
+    const company = String(b.company || "").trim().slice(0, 200);
+    const cr = String(b.cr || "").trim().slice(0, 40);
     const phone = String(b.phone || "").trim().slice(0, 40);
     const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
     const ref = String(b.ref || "BPI-" + Date.now().toString().slice(-6)).slice(0, 40);
@@ -1319,14 +1449,77 @@ export default async function handler(req, res) {
     const channel = CH[b.channel] || CH.any;
     if (!name || !phone || !isEmail(email) || !service || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const monthly = Math.ceil(amount / months);
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تقسيط ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", service) + row("المبلغ", amount + " ﷼") + row("المدة", months + " أشهر") + row("القناة المفضلة", channel) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>رتّب عرض التمويل مع الجهة المناسبة وعد للعميل بالعرض، ثم حدّث حالة الطلب في «Sales Pipeline».</p></div>`;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب تقسيط ${ref}</h2><p style="color:#8a6d1a;background:#fff8ec;padding:8px 12px;border-radius:8px">🧪 خدمة تحت التجربة · للمنشآت الصغيرة والمتوسطة فقط (لا للأفراد)</p><table>${row("المنشأة", company || "—") + (cr ? row("السجل التجاري", cr) : "") + row("المسؤول", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", service) + row("المبلغ", amount + " ﷼") + row("المدة", months + " أشهر") + row("القناة المفضلة", channel) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>رتّب عرض التمويل مع الجهة المناسبة وعد للعميل بالعرض، ثم حدّث حالة الطلب في «Sales Pipeline».</p></div>`;
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب التقسيط ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لتقسيط <strong>${esc(service)}</strong> بمبلغ <strong>${amount} ﷼</strong> على <strong>${months} أشهر</strong> (${channel}). فريقنا يجهّز العروض المتاحة وسيعود لك سريعاً.</p><table>${row("رقم المرجع", ref) + row("القسط التقديري", monthly + " ﷼/شهر")}</table><p>تابع طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب تقسيط ${ref} — ${name} (${amount} ﷼ / ${months} أشهر)`, oHtml),
       sendEmail(email, `استلمنا طلب التقسيط — ${ref}`, cHtml),
-      crmLead({ title: `طلب تقسيط — ${name}`, phone, email, notes: `تقسيط · ${service} · ${amount} ﷼ على ${months} أشهر · ${channel}`, ref, orderStatus: "قيد المراجعة", total: amount }),
+      crmLead({ title: `طلب تقسيط — ${company || name}`, phone, email, notes: `تقسيط (تجريبي/منشآت) · ${company ? "المنشأة: " + company + (cr ? " · س.ت: " + cr : "") + " · " : ""}${service} · ${amount} ﷼ على ${months} أشهر · ${channel}`, ref, orderStatus: "قيد المراجعة", total: amount }),
       addToAudience(email, name),
       forwardLead({ source: "installment", ref, name, phone, email, items: service, total: amount }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Company-documents checklist submitted from the client dashboard. We can't
+  // receive the binary files through this JSON endpoint, so this records WHICH
+  // documents the client has ready (names + any links + owner IDs) and notifies
+  // the team; the client then shares the actual files on WhatsApp.
+  if (b.type === "documents") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const company = String(b.company || "").trim().slice(0, 200) || name;
+    const cr = String(b.cr || "").trim().slice(0, 40);
+    const ref = String(b.ref || "BPD-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const DOC_LABELS = {
+      cr: "السجل التجاري", aoa: "عقد التأسيس", chamber: "اشتراك الغرفة التجارية",
+      "national-address": "شهادة العنوان الوطني", zakat: "شهادة الزكاة", vat: "شهادة الضريبة",
+      "gosi-cert": "شهادة التأمينات", wps: "شهادة حماية الأجور (قوى)", "qiwa-debts": "شهادة المديونيات (قوى)",
+      "gosi-excel": "ملف التأمينات (Excel)", "employee-contracts": "عقود الموظفين (قوى)", "manager-id": "هوية المدير",
+    };
+    const ID_LABELS = { national: "هوية وطنية", iqama: "إقامة", passport: "جواز سفر", "": "—" };
+    const docs = Array.isArray(b.docs) ? b.docs.slice(0, 40) : [];
+    const owners = Array.isArray(b.owners) ? b.owners.slice(0, 30) : [];
+    const docRows = docs.map((d) => {
+      const label = DOC_LABELS[d && d.k] || String((d && d.k) || "").slice(0, 60);
+      const parts = [];
+      if (d && d.name) parts.push(esc(String(d.name).slice(0, 160)));
+      if (d && d.idtype) parts.push(ID_LABELS[d.idtype] || esc(String(d.idtype)));
+      if (d && d.link) parts.push(`<a href="${esc(String(d.link).slice(0, 400))}">${esc(String(d.link).slice(0, 80))}</a>`);
+      return row(label, parts.join(" · ") || "✓");
+    }).join("");
+    const ownerRows = owners.map((o, i) => row(`مالك ${i + 1}`, `${ID_LABELS[(o && o.idtype) || ""] || "—"}${o && o.name ? " · " + esc(String(o.name).slice(0, 160)) : ""}`)).join("");
+    if (!docRows && !ownerRows) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_documents" })); }
+    const readyCount = docs.length + owners.length;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">مستندات منشأة ${ref}</h2><table>${row("المنشأة", company) + (cr ? row("السجل التجاري", cr) : "") + (name ? row("المسؤول", name) : "") + (email ? row("البريد", email) : "")}</table><h3 style="color:#0B1B5A">المستندات الجاهزة (${readyCount})</h3><table>${docRows}${ownerRows}</table><p>العميل سيشارك الملفات نفسها عبر واتساب — جهّز ملف المنشأة في «Sales Pipeline» / نظام الملفات.</p></div>`;
+    const notes = `مستندات المنشأة (${readyCount} جاهز): ${docs.map((d) => DOC_LABELS[d && d.k] || (d && d.k)).filter(Boolean).join("، ")}${owners.length ? ` · ملّاك: ${owners.length}` : ""}`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `مستندات منشأة ${ref} — ${company} (${readyCount})`, oHtml),
+      email && isEmail(email) ? crmLead({ title: `مستندات منشأة — ${company}`, phone: "", email, notes, ref, orderStatus: "قيد المراجعة", total: 0 }) : Promise.resolve(),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Partner offer on a client request (from the partner dashboard). Routes the
+  // partner's competing offer to the team, who coordinate with the client.
+  if (b.type === "partner-offer") {
+    const company = String(b.company || "").trim().slice(0, 200);
+    const person = String(b.person || "").trim().slice(0, 160);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const category = String(b.category || "").trim().slice(0, 120);
+    const requestRef = String(b.requestRef || "").trim().slice(0, 60);
+    const notes = String(b.notes || "").trim().slice(0, 900);
+    const priceNum = Number(b.price);
+    const price = Number.isFinite(priceNum) && priceNum > 0 ? priceNum : null;
+    const ref = "BPO-" + Date.now().toString().slice(-6);
+    if (!company) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">عرض شريك ${ref}</h2><table>${row("الشركة الشريكة", company) + (person ? row("المسؤول", person) : "") + (phone ? row("الجوال", phone) : "") + (email ? row("البريد", email) : "") + (category ? row("التصنيف", category) : "") + row("على الطلب", requestRef || "—") + (price != null ? row("السعر المعروض", price + " ﷼") : "") + (notes ? row("تفاصيل العرض", esc(notes)) : "")}</table><p>نسّق العرض مع العميل صاحب الطلب ${esc(requestRef)} وحدّث الحالة في «Sales Pipeline».</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `عرض شريك ${ref} — ${company}${price != null ? " (" + price + " ﷼)" : ""}`, oHtml),
+      email && isEmail(email) ? crmLead({ title: `عرض شريك — ${company}`, phone, email, notes: `عرض على الطلب ${requestRef} · ${category} · ${price != null ? price + " ﷼" : "بدون سعر"} · ${notes}`.slice(0, 900), ref, orderStatus: "قيد المراجعة", total: price || 0 }) : Promise.resolve(),
     ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref }));
@@ -1476,6 +1669,176 @@ export default async function handler(req, res) {
     ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Support ticket from the advisor's guided desk: the visitor gave their
+  // contact first, then picked a service (main window → sub-service). Creates a
+  // CRM ticket, emails the team + owner, fires the WhatsApp lead pipe, and shows
+  // up in the BP Inbox tagged «تذكرة». One ticket = one CRM page (ref BPT-…).
+  if (b.type === "support-ticket") {
+    const sid = String(b.sid || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+    const c = b.contact && typeof b.contact === "object" ? b.contact : {};
+    const name = String(c.name || "").trim().slice(0, 120);
+    const phone = String(c.phone || "").trim().slice(0, 40);
+    const email = String(c.email || "").trim().toLowerCase().slice(0, 160);
+    const s = b.service && typeof b.service === "object" ? b.service : {};
+    const svcAr = String(s.nameAr || s.nameEn || "طلب عام").trim().slice(0, 200);
+    const catAr = String(s.categoryAr || "").trim().slice(0, 120);
+    const svcCode = String(s.code || "").trim().slice(0, 40);
+    const note = String(b.note || "").trim().slice(0, 1200);
+    if (!name || (!phone && !isEmail(email))) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = ("BPT-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const today = new Date().toISOString().slice(0, 10);
+    const notesText = `قناة: تذكرة دعم · ${name}${phone ? " · الجوال: " + phone : ""}${email ? " · البريد: " + email : ""}\nالخدمة: ${svcAr}${catAr ? " (" + catAr + ")" : ""}${svcCode ? " [" + svcCode + "]" : ""}${note ? "\nتفاصيل: " + note : ""}`;
+    if (NOTION_TOKEN) {
+      const props = {
+        "Opportunity Name": { title: [{ text: { content: `🎫 تذكرة — ${svcAr}`.slice(0, 200) } }] },
+        "Lead Source": { select: { name: TICKET_SOURCE } },
+        "Stage": { select: { name: "مهتم" } },
+        "Human Required": { checkbox: true },
+        "Notes": { rich_text: richChunks(notesText) },
+        "Last Activity": { date: { start: today } },
+        "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
+        "حالة الطلب": { select: { name: "تذكرة دعم" } },
+      };
+      try {
+        const r = await fetch("https://api.notion.com/v1/pages", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify({ parent: { database_id: CRM_DB }, properties: props }),
+        });
+        if (!r.ok) console.error("ticket create error", r.status, (await r.text()).slice(0, 200));
+      } catch (e) { console.error("ticket create exception", String(e).slice(0, 150)); }
+    }
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🎫 تذكرة دعم جديدة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", svcAr) + row("المجال", catAr) + row("تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — والتذكرة ظاهرة في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
+    // تأكيد للعميل: فتحنا تذكرة + خيار حجز موعد أو واتساب المستشار باهر
+    const bookUrl = `${MKT_SITE_BASE}/consultation`;
+    const waAdvisor = "https://wa.me/966530540231";
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
+      <h2 style="color:#0B1B5A">استلمنا طلبك لعرض السعر ✅</h2>
+      <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وبيجهّز لك مستشارك <b>باهر</b> عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.</p>
+      <p style="margin:18px 0"><b>وتقدر تبدأ الآن مباشرة:</b></p>
+      <p><a href="${bookUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 احجز موعد استشارتك المجانية</a></p>
+      <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>
+      <p style="color:#666;margin-top:22px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
+    const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source: "support-ticket", ref, name, phone, email, transcript: `🎫 تذكرة: ${svcAr}${catAr ? " (" + catAr + ")" : ""}${note ? "\n" + note : ""}`, url: `${MKT_SITE_BASE}/monitor` }),
+    }).catch(() => {});
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml),
+      OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml) : Promise.resolve(),
+      isEmail(email) ? sendEmail(email, `فتحنا لك تذكرة دعم — بيزنس بارتنر (${ref})`, cHtml) : Promise.resolve(),
+      waNotify,
+      forwardLead({ source: "support-ticket", ref, name, phone, email, items: svcAr }),
+      email ? addToAudience(email, name) : Promise.resolve(),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // حجز استشارة من ودجت باهر — العميل يختار يوماً ووقتاً ضمن دوام بزنس بارتنر
+  // (٩ص–٦م بتوقيت الرياض، الجمعة إجازة). ننشئ رابط موعد Google Calendar، ونؤكّد
+  // للعميل ونشعر الفريق (بريد + واتساب) ونسجّل في CRM. باهر يؤكّد الموعد يدوياً.
+  if (b.type === "booking") {
+    const contact = b.contact && typeof b.contact === "object" ? b.contact : {};
+    const name = String(contact.name || "").trim().slice(0, 120);
+    const phone = String(contact.phone || "").trim().slice(0, 40);
+    const email = String(contact.email || "").trim().toLowerCase().slice(0, 160);
+    const date = String(b.date || "").trim();
+    const time = String(b.time || "").trim();
+    // تحقّق: التاريخ صحيح ومستقبلي وليس جمعة، والوقت ضمن ٩ص–٥م
+    const okDate = /^\d{4}-\d{2}-\d{2}$/.test(date);
+    const okTime = /^(0[9]|1[0-7]):00$/.test(time);
+    const d = okDate ? new Date(date + "T12:00:00Z") : null; // ظهر UTC = نفس اليوم التقويمي لكل المناطق
+    const isFriday = d && d.getUTCDay() === 5; // 5 = الجمعة
+    if (!name || !isEmail(email) || !okDate || !okTime || !d || isFriday) {
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_slot" }));
+    }
+    const ref = "BK-" + Date.now().toString().slice(-6);
+    const dt = date.replace(/-/g, "");
+    const hh = time.slice(0, 2);
+    const startG = `${dt}T${hh}0000`;
+    const endG = `${dt}T${("0" + (Number(hh) + 1)).slice(-2)}0000`;
+    const gcalUrl = "https://calendar.google.com/calendar/render?" + new URLSearchParams({
+      action: "TEMPLATE",
+      text: "استشارة Business Partner",
+      dates: `${startG}/${endG}`,
+      ctz: "Asia/Riyadh",
+      details: `استشارة مجانية مع فريق بزنس بارتنر.\nرقم المرجع: ${ref}\nمستشارك: باهر · wa.me/966530540231`,
+      location: "Business Partner — Riyadh / Online",
+    }).toString();
+    const whenTxt = `${date} · ${time} ${Number(hh) >= 12 ? "م" : "ص"} (توقيت الرياض)`;
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">📅 حجز استشارة جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الموعد", whenTxt)}</table><p>أكّد الموعد مع العميل، وهو ظاهر في «BP Inbox».</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
+      <h2 style="color:#0B1B5A">تم حجز استشارتك ✅</h2>
+      <p>مرحباً ${esc(name)}، حجزنا لك استشارة مجانية بتاريخ <b>${esc(whenTxt)}</b> (رقم المرجع <b>${ref}</b>)، وبيأكّد لك مستشارك <b>باهر</b> قريباً.</p>
+      <p style="margin:16px 0"><a href="${gcalUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أضِف الموعد إلى تقويم Google</a></p>
+      <p><a href="https://wa.me/966530540231" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر</a></p>
+      <p style="color:#666;margin-top:20px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
+    const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source: "booking", ref, name, phone, email, transcript: `📅 حجز استشارة: ${whenTxt}`, url: `${MKT_SITE_BASE}/monitor` }),
+    }).catch(() => {});
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `📅 حجز استشارة ${ref} — ${name} · ${whenTxt}`, oHtml),
+      sendEmail(email, `تم حجز استشارتك — بيزنس بارتنر (${ref})`, cHtml),
+      waNotify,
+      crmLead({ title: `📅 حجز استشارة — ${name}`, phone, email, notes: `حجز استشارة · ${whenTxt}`, ref, orderStatus: "حجز استشارة" }),
+      addToAudience(email, name),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, gcalUrl }));
+  }
+
+  // Website advisor ("باهر") conversation sync — the widget posts this in the
+  // background as the chat grows (notify:false = silent upsert for the /monitor
+  // inbox + CRM), and once, on buying intent with the visitor's contact
+  // (notify:true), it also emails the owner and fires the WhatsApp lead pipe so
+  // they can follow up. Never blocks the chat reply (that's a separate call).
+  if (b.type === "advisor-chat") {
+    const sid = String(b.sid || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+    const messages = (Array.isArray(b.messages) ? b.messages : [])
+      .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .slice(-24)
+      .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+    if (!sid || !messages.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const contact = b.contact && typeof b.contact === "object" ? b.contact : {};
+    const name = String(contact.name || "").trim().slice(0, 120);
+    const phone = String(contact.phone || "").trim().slice(0, 40);
+    const email = String(contact.email || "").trim().toLowerCase().slice(0, 160);
+    const notify = !!b.notify && (phone || isEmail(email));
+    await upsertConversation({ sid, messages, phone, email, name, hot: notify });
+    if (notify) {
+      const ref = "WEB-" + sid;
+      const bookUrl = `${MKT_SITE_BASE}/consultation`;
+      const waAdvisor = "https://wa.me/966530540231"; // واتساب المستشار باهر
+      const transcript = messages.map((m) => (m.role === "assistant" ? "باهر: " : "الزائر: ") + m.content).join("\n").slice(-3500);
+      // إشعار الشركة فقط (business@) — بلا نسخة على الإيميل الشخصي
+      const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">عميل من «المستشار» يريد المتابعة 💬</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("المرجع", ref)}</table><h3 style="color:#0B1B5A">نص المحادثة</h3><pre style="white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:8px;font-family:inherit">${esc(transcript)}</pre><p>تابع العميل عبر واتساب أو البريد أعلاه — والمحادثة كاملة في شاشة «BP Inbox» تحت وسم «المستشار».</p></div>`;
+      // تأكيد للعميل: فتحنا تذكرة + خيار حجز موعد أو واتساب المستشار
+      const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
+        <h2 style="color:#0B1B5A">استلمنا طلبك وفتحنا لك تذكرة متابعة ✅</h2>
+        <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وسيتواصل معك مستشارك <b>باهر</b> قريباً.</p>
+        <p style="margin:18px 0"><b>وتقدر تبدأ الآن مباشرة:</b></p>
+        <p><a href="${bookUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 احجز موعد استشارتك المجانية</a></p>
+        <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>
+        <p style="color:#666;margin-top:22px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
+      // إشعار واتساب لباهر عبر ورك فلو n8n (best-effort — لا يوقف شيئاً إن فشل)
+      const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source: "advisor-chat", ref, name, phone, email, transcript, url: `${MKT_SITE_BASE}/monitor` }),
+      }).catch(() => {});
+      await Promise.all([
+        sendEmail(TEAM_EMAIL, `🌐 عميل من المستشار — ${name || phone || email}`, oHtml),
+        isEmail(email) ? sendEmail(email, `تم استلام طلبك — بيزنس بارتنر (${ref})`, cHtml) : Promise.resolve(),
+        forwardLead({ source: "advisor-chat", ref, name, phone, email, items: (messages.find((m) => m.role === "user") || {}).content || "" }),
+        waNotify,
+        email ? addToAudience(email, name) : Promise.resolve(),
+      ]);
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref: "WEB-" + sid, notified: notify }));
   }
 
   // Official-quote request from the cost calculator — no payment/receipt step.
