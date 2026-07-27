@@ -57,6 +57,31 @@
           "href": "/worker-housing",
           "en": "Worker Housing",
           "ar": "تسكين العمالة"
+        },
+        {
+          "href": "/estrdad",
+          "en": "Fee refunds (Estrdad)",
+          "ar": "استرداد الرسوم"
+        },
+        {
+          "href": "/bank-account",
+          "en": "Corporate bank account",
+          "ar": "فتح حساب بنكي"
+        },
+        {
+          "href": "/formation-contract",
+          "en": "Formation with partners",
+          "ar": "تأسيس بين شركاء"
+        },
+        {
+          "href": "/data",
+          "en": "B2B Leads Database",
+          "ar": "قاعدة عملاء الأعمال"
+        },
+        {
+          "href": "/compliance-agent",
+          "en": "Compliance Agent",
+          "ar": "وكيل الامتثال"
         }
       ]
     },
@@ -83,6 +108,21 @@
           "href": "/portal",
           "en": "Smart employees portal",
           "ar": "بوابة الموظفين الأذكياء"
+        },
+        {
+          "href": "/employer-login",
+          "en": "Employers — sign in",
+          "ar": "أصحاب العمل — دخول"
+        },
+        {
+          "href": "/partner-dashboard",
+          "en": "Partner dashboard",
+          "ar": "لوحة الشريك"
+        },
+        {
+          "href": "/shared-services",
+          "en": "Shared Services Team",
+          "ar": "فريق الخدمات المشتركة"
         }
       ]
     },
@@ -124,6 +164,47 @@
           "href": "/newsletter",
           "en": "Newsletter",
           "ar": "النشرة الإخبارية"
+        },
+        {
+          "href": "/calculator",
+          "en": "Cost calculator",
+          "ar": "حاسبة التكاليف"
+        }
+      ]
+    },
+    {
+      "titleEn": "Saudi guides",
+      "titleAr": "أدلة السعودية",
+      "links": [
+        {
+          "href": "/saudi-arabia",
+          "en": "Invest in Saudi",
+          "ar": "الاستثمار في السعودية"
+        },
+        {
+          "href": "/guide/saudi-market",
+          "en": "The Saudi Market",
+          "ar": "السوق السعودي"
+        },
+        {
+          "href": "/guide/business-setup",
+          "en": "Business Setup",
+          "ar": "تأسيس الأعمال"
+        },
+        {
+          "href": "/guide/run-your-business",
+          "en": "Run Your Business",
+          "ar": "تشغيل عملك"
+        },
+        {
+          "href": "/guide/live-in-saudi",
+          "en": "Live in Saudi",
+          "ar": "الحياة في السعودية"
+        },
+        {
+          "href": "/guide/residency",
+          "en": "Residency in KSA",
+          "ar": "الإقامة في السعودية"
         }
       ]
     },
@@ -135,6 +216,11 @@
           "href": "/about",
           "en": "About us",
           "ar": "من نحن"
+        },
+        {
+          "href": "/consultation",
+          "en": "Book a consultation",
+          "ar": "احجز استشارة"
         },
         {
           "href": "/careers",
