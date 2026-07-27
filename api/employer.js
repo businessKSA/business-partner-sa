@@ -163,6 +163,42 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "server_error" }));
     }
   }
+  // «أرسل رمزي إلى بريدي» — emails the registered access code to the
+  // account's own email address. The response is identical whether or not
+  // the email exists, so this can't be used to probe which emails are
+  // registered; the code only ever travels to the address stored in Notion.
+  if (b.action === "send-code") {
+    const email = clip(b.email, 160).toLowerCase();
+    if (!isEmail(email)) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_email" }));
+    }
+    if (!NOTION_TOKEN || !DB_ID) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
+    }
+    try {
+      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+      if (q.ok) {
+        const data = await q.json();
+        const row = (data.results || [])[0];
+        const code = row ? txtProp(row.properties["رمز الوصول"]) : "";
+        const company = (row ? txtProp(row.properties["اسم الشركة"], "title") : "").replace(/[<>&]/g, "");
+        if (code) {
+          await sendMail(email, `رمز الوصول: ${code} — Business Partner`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px;margin:auto">
+            <h2 style="color:#0B1B5A">رمز الوصول للوحة التوظيف</h2>
+            <p>${company ? "حساب: " + company + "<br>" : ""}رمز الوصول الخاص بك هو:</p>
+            <p style="font-size:28px;font-weight:bold;letter-spacing:3px;color:#0B1B5A">${code}</p>
+            <p>ادخل به من صفحة <a href="https://www.businesspartner.sa/ar/employer-login">تسجيل دخول أصحاب العمل</a> لفتح لوحة التوظيف.</p>
+            <p style="color:#666">إذا لم تطلب هذا الرمز، تجاهل هذه الرسالة.</p>
+          </div>`);
+        }
+      }
+    } catch (e) { console.error("send-code error", String(e).slice(0, 200)); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, message: "إذا كان البريد مسجلاً لدينا فسيصلك رمز الوصول خلال دقائق." }));
+  }
+
   const company = clip(b.company, 200);
   const cr = clip(b.cr, 60);
   const contact = clip(b.contact, 160);

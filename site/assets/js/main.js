@@ -3126,6 +3126,38 @@ var BP_EMP_BILLING = "monthly";
       if (otpStep) otpStep.hidden = true;
       if (loginWrap) loginWrap.hidden = false;
     });
+    // «أرسله إلى بريدي» — emails the registered access code to the account's
+    // email (server responds the same whether or not the email exists).
+    var codeMail = document.getElementById("el-code-mail");
+    if (codeMail) codeMail.addEventListener("click", function (e) {
+      e.preventDefault();
+      var errC2 = document.getElementById("el-code-error");
+      var email = document.getElementById("el-email").value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        errC2.style.color = "#B91C1C";
+        errC2.textContent = T("Type your account email in the email field above first.", "اكتب بريد حسابك في خانة البريد الإلكتروني أعلاه أولاً.");
+        var emEl = document.getElementById("el-email");
+        if (emEl) emEl.focus();
+        return;
+      }
+      errC2.style.color = "";
+      errC2.textContent = T("Sending…", "جارٍ الإرسال…");
+      fetch("/api/employer", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "send-code", email: email }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.ok) {
+          errC2.style.color = "";
+          errC2.textContent = T("If this email is registered, your access code is on its way — check your inbox (and spam).", "إذا كان بريدك مسجلاً فرمز الوصول في طريقه إليك — تحقق من بريدك (ومجلد السبام).");
+        } else {
+          errC2.style.color = "#B91C1C";
+          errC2.textContent = T("Couldn't send right now. Try again shortly.", "تعذّر الإرسال الآن. حاول بعد قليل.");
+        }
+      }).catch(function () {
+        errC2.style.color = "#B91C1C";
+        errC2.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+      });
+    });
     // Alternative entry: an access code (from the activation email) instead of
     // email+password — validated the same lightweight way the dashboard does,
     // then stored so the dashboard opens already unlocked.
