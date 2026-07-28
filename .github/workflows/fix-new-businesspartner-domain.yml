@@ -1,0 +1,79 @@
+name: Fix new.businesspartner.sa domain redirect
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/fix-new-businesspartner-domain.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Vercel domain redirect
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN || secrets.VERCEL_ACCESS_TOKEN || secrets.VERCEL_API_TOKEN }}
+        run: |
+          RESULT_FILE="domain-fix-result.json"
+
+          if [ -z "$VERCEL_TOKEN" ]; then
+            printf '%s\n' '{"ok":false,"reason":"missing_vercel_token"}' > "$RESULT_FILE"
+          else
+            set +e
+            http_code=$(curl --silent --show-error \
+              -o /tmp/vercel-domain-response.json \
+              -w "%{http_code}" \
+              -X PATCH \
+              "https://api.vercel.com/v9/projects/prj_0QXlyAeL02QYYNrAQCfc6lRheTGp/domains/new.businesspartner.sa?teamId=team_qxRMfWHHubkWE0aOa5kFgNXq" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data '{"gitBranch":null,"redirect":null,"redirectStatusCode":null}')
+            curl_exit=$?
+            set -e
+
+            if [ "$curl_exit" -eq 0 ] && [ "$http_code" = "200" ]; then
+              python - <<'PY'
+import json
+from pathlib import Path
+p = Path('/tmp/vercel-domain-response.json')
+data = json.loads(p.read_text())
+out = {
+    'ok': True,
+    'name': data.get('name'),
+    'projectId': data.get('projectId'),
+    'redirect': data.get('redirect'),
+    'redirectStatusCode': data.get('redirectStatusCode'),
+    'gitBranch': data.get('gitBranch'),
+    'verified': data.get('verified'),
+}
+Path('domain-fix-result.json').write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n')
+PY
+            else
+              python - <<PY
+import json
+from pathlib import Path
+body = Path('/tmp/vercel-domain-response.json').read_text() if Path('/tmp/vercel-domain-response.json').exists() else ''
+try:
+    parsed = json.loads(body) if body else {}
+except Exception:
+    parsed = {'message': body[:500]}
+out = {'ok': False, 'reason': 'vercel_api_error', 'httpCode': '$http_code', 'response': parsed}
+Path('domain-fix-result.json').write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n')
+PY
+            fi
+          fi
+
+      - name: Save sanitized result
+        run: |
+          git config user.name "Business Partner Automation"
+          git config user.email "business@businesspartnerksa.com"
+          git add domain-fix-result.json
+          git commit -m "chore: record new domain redirect fix result" || exit 0
+          git push
