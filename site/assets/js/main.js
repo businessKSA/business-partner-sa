@@ -1336,12 +1336,13 @@ var BP = window.BP = window.BP || {};
     if (loginF) loginF.addEventListener("submit", function (e) {
       e.preventDefault();
       var email = document.getElementById("lg-email").value.trim().toLowerCase();
-      var pass = document.getElementById("lg-pass").value;
-      var u = users()[email];
-      if (!u || u.pass !== pass) { alert(BP.t("No matching account. Try registering.", "لا يوجد حساب مطابق. جرّب إنشاء حساب جديد.")); return; }
-      try { localStorage.setItem("bp_session", JSON.stringify({ email: email, name: u.name })); } catch (er) {}
-      goToRedirectTarget();
-      render();
+      if (!email) return;
+      pending = { email: email, login: true };
+      startOtp(loginF.querySelector("button[type=submit]")).then(function (sent) {
+        if (!sent) return;
+        var er = document.getElementById("otp-error"); if (er) er.hidden = true;
+        loginF.hidden = true; if (otpF) { otpF.hidden = false; var c = document.getElementById("otp-code"); if (c) { c.value = ""; c.focus(); } }
+      });
     });
 
     // After sign-in/registration, return the customer to whatever page sent
@@ -1386,10 +1387,8 @@ var BP = window.BP = window.BP || {};
       e.preventDefault();
       var name = document.getElementById("rg-name").value.trim();
       var email = document.getElementById("rg-email").value.trim().toLowerCase();
-      var pass = document.getElementById("rg-pass").value;
-      if (!name || !email || !pass) { alert(BP.t("Please fill all fields.", "الرجاء تعبئة كل الحقول.")); return; }
-      if (users()[email]) { alert(BP.t("An account with this email already exists. Please sign in.", "يوجد حساب بهذا البريد. سجّل الدخول.")); return; }
-      pending = { name: name, email: email, phone: document.getElementById("rg-phone").value.trim(), pass: pass };
+      if (!name || !email) { alert(BP.t("Please enter your name and email.", "الرجاء إدخال الاسم والبريد.")); return; }
+      pending = { name: name, email: email, phone: document.getElementById("rg-phone").value.trim() };
       startOtp(regF.querySelector("button[type=submit]")).then(function (sent) {
         if (!sent) return;
         var er = document.getElementById("otp-error"); if (er) er.hidden = true;
@@ -1417,9 +1416,11 @@ var BP = window.BP = window.BP || {};
             return;
           }
           var u = users();
-          u[pending.email] = { name: pending.name, pass: pending.pass, phone: pending.phone, verified: true };
+          var existing = u[pending.email] || {};
+          var acctName = pending.name || existing.name || pending.email.split("@")[0];
+          u[pending.email] = { name: acctName, phone: pending.phone || existing.phone || "", verified: true };
           saveUsers(u);
-          try { localStorage.setItem("bp_session", JSON.stringify({ email: pending.email, name: pending.name, verified: true })); } catch (er) {}
+          try { localStorage.setItem("bp_session", JSON.stringify({ email: pending.email, name: acctName, verified: true })); } catch (er) {}
           if (otpF) otpF.hidden = true;
           pending = null;
           goToRedirectTarget();
@@ -1432,7 +1433,9 @@ var BP = window.BP = window.BP || {};
     if (resendBtn) resendBtn.addEventListener("click", function () { if (pending) startOtp(resendBtn); });
     var backBtn = document.getElementById("otp-back");
     if (backBtn) backBtn.addEventListener("click", function () {
-      if (otpF) otpF.hidden = true; if (regF) regF.hidden = false;
+      if (otpF) otpF.hidden = true;
+      if (pending && pending.login) { if (loginF) loginF.hidden = false; }
+      else { if (regF) regF.hidden = false; }
       var er = document.getElementById("otp-error"); if (er) er.hidden = true;
     });
 
@@ -2244,16 +2247,14 @@ var BP_EMP_BILLING = "monthly";
       var company = document.getElementById("ej-company").value.trim();
       var phone = document.getElementById("ej-phone").value.trim();
       var email = document.getElementById("ej-email").value.trim();
-      var password = document.getElementById("ej-password").value;
-      if (!company || !phone || !email || !password) return; // native required attrs already cover this
-      if (password.length < 8) { resultEl.hidden = false; resultEl.innerHTML = "<p>" + T("Password must be at least 8 characters.", "كلمة المرور لازم تكون 8 أحرف على الأقل.") + "</p>"; return; }
+      if (!company || !phone || !email) return; // native required attrs already cover this
       submitBtn.disabled = true; submitBtn.textContent = T("Submitting…", "جارٍ الإرسال…");
       fetch("/api/employer", {
         method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({
           company: company, cr: document.getElementById("ej-cr").value.trim(),
           contact: document.getElementById("ej-contact").value.trim(), phone: phone,
-          email: email, password: password,
+          email: email,
           plan: planEl.value, billing: window.BP_EMP_BILLING || "monthly",
           notes: document.getElementById("ej-notes").value.trim(),
         }),
@@ -2287,37 +2288,67 @@ var BP_EMP_BILLING = "monthly";
     var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
     function T(en, ar) { return isAr ? ar : en; }
     var errEl = document.getElementById("el-error");
+    var codeField = document.getElementById("el-code-field");
+    var submitBtn = document.getElementById("el-submit");
+    var challenge = null;
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var email = document.getElementById("el-email").value.trim();
-      var password = document.getElementById("el-password").value;
-      if (!email || !password) return;
-      var submitBtn = document.getElementById("el-submit");
-      errEl.textContent = "";
+      var email = document.getElementById("el-email").value.trim().toLowerCase();
+      if (!email) return;
+      errEl.style.color = ""; errEl.textContent = "";
+      // Step 1 — request an email code.
+      if (!challenge) {
+        submitBtn.disabled = true; submitBtn.textContent = T("Sending…", "جارٍ الإرسال…");
+        fetch("/api/otp", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ action: "start", email: email }),
+        }).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+          .then(function (res) {
+            submitBtn.disabled = false;
+            if (res.status !== 200 || !res.d.ok) {
+              submitBtn.textContent = T("Send login code", "أرسل رمز الدخول");
+              errEl.style.color = "#B91C1C";
+              errEl.textContent = (res.d && res.d.message) ? res.d.message : T("Email sign-in isn't enabled yet. Contact us on WhatsApp.", "الدخول بالبريد غير مُفعّل بعد. تواصل معنا على واتساب.");
+              return;
+            }
+            challenge = res.d.challenge;
+            if (codeField) codeField.hidden = false;
+            var c = document.getElementById("el-code"); if (c) c.focus();
+            submitBtn.textContent = T("Log in", "دخول");
+            errEl.style.color = ""; errEl.textContent = T("Code sent to your email.", "تم إرسال الرمز إلى بريدك.");
+          })
+          .catch(function () { submitBtn.disabled = false; submitBtn.textContent = T("Send login code", "أرسل رمز الدخول"); errEl.style.color = "#B91C1C"; errEl.textContent = T("Network error. Try again.", "خطأ في الاتصال. حاول مجدداً."); });
+        return;
+      }
+      // Step 2 — verify the code and load the account.
+      var code = (document.getElementById("el-code").value || "").trim();
+      if (code.length !== 6) { errEl.style.color = "#B91C1C"; errEl.textContent = T("Enter the 6-digit code.", "أدخل الرمز المكوّن من 6 أرقام."); return; }
       submitBtn.disabled = true; submitBtn.textContent = T("Logging in…", "جارٍ الدخول…");
       fetch("/api/employer", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "login", email: email, password: password }),
-      }).then(function (r) { return r.json(); }).then(function (d) {
-        submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
-        if (!d || !d.ok) {
-          errEl.textContent = (d && d.error === "invalid_credentials")
-            ? T("Incorrect email or password.", "البريد أو كلمة المرور غير صحيحة.")
-            : T("Couldn't log in. Please try again.", "تعذّر تسجيل الدخول. حاول مجدداً.");
-          return;
-        }
-        try { localStorage.setItem("bp_emp_code", d.code); } catch (e2) {}
-        if (d.status && d.status !== "مفعّل") {
-          errEl.style.color = "";
-          errEl.textContent = T("Account created — payment pending. You can browse, but contacts unlock once payment is confirmed.", "تم إنشاء الحساب — بانتظار تأكيد الدفع. تقدر تتصفّح، وتفتح بيانات التواصل بعد تأكيد الدفع.");
-          setTimeout(function () { location.href = "/employer-dashboard"; }, 1800);
-          return;
-        }
-        location.href = "/employer-dashboard";
-      }).catch(function () {
-        submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
-        errEl.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
-      });
+        body: JSON.stringify({ action: "lookup", email: email, challenge: challenge, code: code }),
+      }).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول");
+          var d = res.d;
+          if (!d || !d.ok) {
+            errEl.style.color = "#B91C1C";
+            errEl.textContent = (d && d.error === "no_account") ? T("No employer account for this email. Create one first.", "لا يوجد حساب صاحب عمل بهذا البريد. أنشئ حساباً أولاً.")
+              : (d && (d.error === "wrong_code" || d.error === "expired")) ? T("Wrong or expired code. Request a new one.", "رمز خاطئ أو منتهي. اطلب رمزاً جديداً.")
+              : T("Couldn't log in. Please try again.", "تعذّر تسجيل الدخول. حاول مجدداً.");
+            if (d && d.error === "expired") { challenge = null; if (codeField) codeField.hidden = true; submitBtn.textContent = T("Send login code", "أرسل رمز الدخول"); }
+            return;
+          }
+          try { localStorage.setItem("bp_emp_code", d.code); } catch (e2) {}
+          if (d.status && d.status !== "مفعّل") {
+            errEl.style.color = "";
+            errEl.textContent = T("Signed in — payment pending. You can browse; contacts unlock after payment.", "تم الدخول — بانتظار تأكيد الدفع. تقدر تتصفّح، وتفتح بيانات التواصل بعد الدفع.");
+            setTimeout(function () { location.href = "/employer-dashboard"; }, 1800);
+            return;
+          }
+          location.href = "/employer-dashboard";
+        })
+        .catch(function () { submitBtn.disabled = false; submitBtn.textContent = T("Log in", "دخول"); errEl.style.color = "#B91C1C"; errEl.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً."); });
     });
   });
 })();

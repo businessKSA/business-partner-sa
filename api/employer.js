@@ -14,7 +14,18 @@
 // POST /api/employer                               -> { ok, ref } | { ok:false, error }   (register/signup)
 // POST /api/employer { action:"login", email, password } -> { ok, code, plan, status } | { ok:false, error }
 
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { randomBytes, scryptSync, timingSafeEqual, createHash, createDecipheriv } from "node:crypto";
+
+// Shared with api/otp.js — same OTP_SECRET seals the email code into the
+// challenge, so we can verify the code here (passwordless employer sign-in).
+const OTP_SECRET = process.env.OTP_SECRET || "";
+function otpUnseal(token) {
+  const raw = Buffer.from(String(token || ""), "base64url");
+  const iv = raw.subarray(0, 12), tag = raw.subarray(12, 28), ct = raw.subarray(28);
+  const d = createDecipheriv("aes-256-gcm", createHash("sha256").update(OTP_SECRET).digest(), iv);
+  d.setAuthTag(tag);
+  return JSON.parse(Buffer.concat([d.update(ct), d.final()]).toString("utf8"));
+}
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -129,6 +140,42 @@ export default async function handler(req, res) {
   }
 
   const b = await readBody(req);
+
+  // Passwordless sign-in: the client sends the email OTP challenge+code
+  // (obtained from /api/otp action:start). We verify the code and return the
+  // employer record by email — no password involved.
+  if (b.action === "lookup") {
+    const email = clip(b.email, 160).toLowerCase();
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "otp_not_configured" })); }
+    let ch;
+    try { ch = otpUnseal(b.challenge); }
+    catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_challenge" })); }
+    if (Date.now() > ch.exp) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "expired" })); }
+    if (String(ch.email || "").toLowerCase() !== email) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "email_mismatch" })); }
+    const code = String(b.code || "").trim();
+    const expected = String(ch.code);
+    const good = code.length === expected.length && timingSafeEqual(Buffer.from(code), Buffer.from(expected));
+    if (!good) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "wrong_code" })); }
+    if (!NOTION_TOKEN || !DB_ID) { res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    try {
+      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
+      const data = await q.json();
+      const row = (data.results || [])[0];
+      if (!row) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "no_account" })); }
+      const code2 = txtProp(row.properties["رمز الوصول"]);
+      const status = txtProp(row.properties["الحالة"], "select");
+      const plan = txtProp(row.properties["الباقة"], "select");
+      const company = txtProp(row.properties["اسم الشركة"], "title");
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, code: code2, plan, status, company }));
+    } catch (e) {
+      console.error("employer lookup error", String(e).slice(0, 200));
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
 
   if (b.action === "login") {
     const email = clip(b.email, 160).toLowerCase();

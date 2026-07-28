@@ -4130,9 +4130,10 @@ function buildEmployerLogin() {
   <section class="section"><div class="container" style="max-width:480px">
     <form id="el-form" novalidate>
       <div class="field"><label for="el-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="el-email" required></div>
-      <div class="field"><label for="el-password">${L("Password", "كلمة المرور")}</label><input type="password" id="el-password" required></div>
-      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="el-submit">${L("Log in", "دخول")}</button>
+      <div class="field" id="el-code-field" hidden><label for="el-code">${L("Verification code", "رمز التحقق")}</label><input type="text" id="el-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="______" style="letter-spacing:8px;text-align:center;font-size:1.2rem"></div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="el-submit">${L("Send login code", "أرسل رمز الدخول")}</button>
       <p class="emp-note" id="el-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+      <p class="emp-note" style="text-align:center">${L("We'll email you a 6-digit code — no password needed.", "نرسل لك رمزاً من 6 أرقام على بريدك — بدون كلمة مرور.")}</p>
     </form>
     <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/portal/join")}">${L("Create one", "أنشئ حساب")}</a></p>
     <p class="emp-note" style="text-align:center;margin-top:6px">${L("Or", "أو")} <a href="${u("/employer-join")}">${L("subscribe from our plans", "اشترك من باقاتنا")}</a></p>
@@ -4335,12 +4336,11 @@ function buildPortalJoin() {
         <div class="field"><label for="ej-contact">${L("Contact person", "اسم المسؤول")}</label><input type="text" id="ej-contact"></div>
         <div class="field"><label for="ej-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="ej-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
         <div class="field"><label for="ej-email">${L("Work email", "البريد الإلكتروني للعمل")} *</label><input type="email" id="ej-email" placeholder="name@company.com" required></div>
-        <div class="field"><label for="ej-password">${L("Password", "كلمة المرور")} *</label><input type="password" id="ej-password" minlength="8" placeholder="${Lraw("At least 8 characters", "8 أحرف على الأقل")}" required></div>
         <div class="field field-full"><label for="ej-notes">${L("Notes (roles you're hiring for, etc.)", "ملاحظات (الوظائف المطلوبة، إلخ)")}</label><textarea id="ej-notes" rows="3"></textarea></div>
       </div>
       <div class="join-actions">
         <button type="submit" class="btn btn-primary btn-lg" id="ej-submit">${L("Create account & continue to subscribe", "أنشئ حسابك وتابع الاشتراك")}</button>
-        <p class="emp-note">${L("After registering you'll complete payment (or bank transfer) and we activate your access. Use this email + password to log in any time.", "بعد التسجيل تُكمل الدفع (أو تحويل بنكي) ونفعّل وصولك. استخدم هذا البريد وكلمة المرور لتسجيل الدخول في أي وقت.")}</p>
+        <p class="emp-note">${L("After registering you'll complete payment (or bank transfer) and we activate your access. Log in any time with this email — we send you a one-time code, no password.", "بعد التسجيل تُكمل الدفع (أو تحويل بنكي) ونفعّل وصولك. سجّل الدخول في أي وقت بهذا البريد — نرسل لك رمزاً مؤقتاً، بدون كلمة مرور.")}</p>
         <p class="emp-note">${L("Already have an account?", "عندك حساب من قبل؟")} <a href="${u("/employer-login")}">${L("Log in", "سجّل الدخول")}</a></p>
       </div>
       <div class="form-success" hidden id="ej-result"></div>
@@ -5551,14 +5551,13 @@ function buildAccount() {
       </div>
       <form class="calc-form auth-form" id="login-form">
         <div class="field"><label for="lg-email">${L("Email", "البريد الإلكتروني")}</label><input id="lg-email" type="email" required></div>
-        <div class="field"><label for="lg-pass">${L("Password", "كلمة المرور")}</label><input id="lg-pass" type="password" required></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Sign in", "تسجيل الدخول")}</button>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Send login code", "أرسل رمز الدخول")}</button>
+        <p class="form-note" style="margin-top:8px">${L("We'll email you a 6-digit code — no password needed.", "نرسل لك رمزاً من 6 أرقام على بريدك — بدون كلمة مرور.")}</p>
       </form>
       <form class="calc-form auth-form" id="register-form" hidden>
         <div class="field"><label for="rg-name">${L("Full name", "الاسم الكامل")}</label><input id="rg-name" type="text" required></div>
         <div class="field"><label for="rg-email">${L("Email", "البريد الإلكتروني")}</label><input id="rg-email" type="email" required></div>
         <div class="field"><label for="rg-phone">${L("Mobile", "رقم الجوال")}</label><input id="rg-phone" type="tel"></div>
-        <div class="field"><label for="rg-pass">${L("Password", "كلمة المرور")}</label><input id="rg-pass" type="password" required></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Send verification code", "أرسل رمز التحقق")}</button>
       </form>
 
