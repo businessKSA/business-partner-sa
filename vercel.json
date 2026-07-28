@@ -18,7 +18,12 @@
     { "source": "/ar/compliance-portal", "destination": "/ar/compliance-agent", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/new-business-partner" },
+    { "source": "/", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-os" },
+    { "source": "/dashboard", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-command-center" },
+    { "source": "/client-portal", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-command-center" },
+    { "source": "/revenue-os", "destination": "/assets/data/revenue-os" },
+    { "source": "/revenue-dashboard", "destination": "/assets/data/revenue-command-center" },
+    { "source": "/client-portal", "destination": "/assets/data/revenue-command-center" },
     { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
     { "source": "/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/join" },
     { "source": "/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/dashboard" },
