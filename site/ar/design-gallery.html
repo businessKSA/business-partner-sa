@@ -1,0 +1,272 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>معرض التصاميم — 6 اتجاهات | Business Partner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&family=Almarai:wght@300;400;700;800&family=Tajawal:wght@300;400;500;700&family=Cairo:wght@400;600;700;900&family=Noto+Kufi+Arabic:wght@400;600;800&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:#0d1117;color:#1F2430;line-height:1.75}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+.proto{background:#fffbeb;color:#92400e;text-align:center;font-size:.78rem;font-weight:600;padding:.4rem}
+/* selector */
+.picker{position:sticky;top:0;z-index:99;background:#0d1117;border-bottom:1px solid #232a36;display:flex;gap:.4rem;padding:.6rem 1rem;overflow-x:auto}
+.picker a{color:#9aa4b6;font-size:.82rem;font-weight:600;padding:.4rem .9rem;border-radius:999px;border:1px solid #232a36;white-space:nowrap}
+.picker a:hover{color:#fff;border-color:#4b5563}
+.label{background:#0d1117;color:#fff;padding:2.2rem 1.5rem .9rem;max-width:1160px;margin:0 auto}
+.label b{font-size:1.05rem}
+.label span{color:#9aa4b6;font-size:.84rem;display:block}
+.frame{max-width:1160px;margin:0 auto 1rem;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.hero{padding:4.5rem 2.2rem;display:grid;grid-template-columns:7fr 5fr;gap:3rem;align-items:center;min-height:430px}
+.nav{display:flex;align-items:center;gap:1rem;padding:1.1rem 2.2rem}
+.nav .sp{flex:1}
+h1{line-height:1.35;letter-spacing:-.4px}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;padding:0 2.2rem 2.6rem}
+@media(max-width:860px){.hero{grid-template-columns:1fr;padding:2.5rem 1.3rem}.feat{grid-template-columns:1fr;padding:0 1.3rem 2rem}.nav{padding:1rem 1.3rem}}
+
+/* ===== 1) سويسري رسمي ===== */
+.v1{background:#fff;font-family:"IBM Plex Sans Arabic",sans-serif}
+.v1 .nav{border-bottom:1px solid #E3E7F2}
+.v1 .logo{font-weight:700;color:#0B1B5A}.v1 .logo i{color:#16A34A;font-style:normal}
+.v1 .btn{background:#16A34A;color:#fff;border:0;border-radius:11px;padding:.6rem 1.3rem;font-weight:700}
+.v1 h1{color:#0B1B5A;font-size:clamp(1.7rem,3.6vw,2.6rem);font-weight:700}
+.v1 h1 i{font-style:normal;color:#16A34A}
+.v1 p{color:#5b6178;margin:.8rem 0 1.4rem;max-width:32rem}
+.v1 .card{background:#F7F8FC;border:1px solid #E3E7F2;border-radius:14px;padding:1.2rem}
+.v1 .card b{color:#0B1B5A;display:block;font-size:1.25rem}
+.v1 .card span{color:#5b6178;font-size:.83rem}
+.v1 .side{background:#fff;border:1px solid #E3E7F2;border-radius:14px;box-shadow:0 14px 44px rgba(11,27,90,.08);padding:1.2rem}
+.v1 .row{display:flex;gap:.7rem;align-items:center;border:1.5px solid #E3E7F2;border-radius:11px;padding:.75rem .9rem;margin-bottom:.5rem;font-size:.9rem;color:#0B1B5A;font-weight:600}
+.v1 .row:hover{border-color:#16A34A}
+.v1 .row small{color:#5b6178;font-weight:400;display:block;font-size:.76rem}
+
+/* ===== 2) داكن زجاجي ===== */
+.v2{background:radial-gradient(1200px 600px at 85% -10%,#12328c 0%,#0A102E 55%),#0A102E;font-family:"Almarai",sans-serif;color:#fff}
+.v2 .logo{font-weight:800;color:#fff}.v2 .logo i{color:#4ade80;font-style:normal}
+.v2 .btn{background:rgba(74,222,128,.9);color:#04240f;border:0;border-radius:12px;padding:.65rem 1.4rem;font-weight:800}
+.v2 h1{font-size:clamp(1.7rem,3.6vw,2.7rem);font-weight:800}
+.v2 h1 i{font-style:normal;color:#4ade80}
+.v2 p{color:#b8c2e8;margin:.8rem 0 1.4rem;max-width:32rem}
+.v2 .glass{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(14px);border-radius:16px;padding:1.2rem}
+.v2 .feat .glass b{font-size:1.3rem;display:block;color:#4ade80}
+.v2 .feat .glass span{color:#b8c2e8;font-size:.83rem}
+.v2 .side{display:flex;flex-direction:column;gap:.6rem}
+.v2 .grow{display:flex;justify-content:space-between;align-items:center;font-size:.88rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(14px);border-radius:12px;padding:.8rem 1rem}
+.v2 .tag{font-size:.72rem;border-radius:999px;padding:.15rem .6rem;background:rgba(74,222,128,.2);color:#7ef0a8}
+.v2 .tag.y{background:rgba(245,158,11,.2);color:#fcd34d}
+
+/* ===== 3) فاخر بسيط ===== */
+.v3{background:#FAF7F0;font-family:"Tajawal",sans-serif}
+.v3 .nav{border-bottom:1px solid #e9e2d4}
+.v3 .logo{font-weight:700;color:#141414;letter-spacing:.5px}.v3 .logo i{color:#B08D2E;font-style:normal}
+.v3 .btn{background:#141414;color:#FAF7F0;border:0;border-radius:0;padding:.7rem 1.6rem;font-weight:500;letter-spacing:.5px}
+.v3 h1{color:#141414;font-size:clamp(1.8rem,3.8vw,2.9rem);font-weight:300}
+.v3 h1 b{font-weight:700}.v3 h1 i{font-style:normal;color:#B08D2E}
+.v3 p{color:#6b6558;margin:1rem 0 1.6rem;max-width:30rem;font-weight:300}
+.v3 .rule{width:64px;height:2px;background:#B08D2E;margin-bottom:1.2rem}
+.v3 .card{border-top:1px solid #d9d0bd;padding:1.1rem .2rem}
+.v3 .card b{color:#141414;font-size:1.15rem;display:block;font-weight:500}
+.v3 .card span{color:#6b6558;font-size:.83rem;font-weight:300}
+.v3 .side{border:1px solid #d9d0bd;padding:1.6rem;text-align:center}
+.v3 .side b{font-weight:500;font-size:1.05rem;color:#141414;display:block;margin-bottom:.4rem}
+.v3 .side span{color:#6b6558;font-size:.85rem;font-weight:300}
+.v3 .side .num{font-size:2.4rem;color:#B08D2E;font-weight:700;display:block;margin:.6rem 0}
+
+/* ===== 4) بينتو ===== */
+.v4{background:#F2F4F8;font-family:"Cairo",sans-serif}
+.v4 .logo{font-weight:900;color:#0B1B5A}.v4 .logo i{color:#16A34A;font-style:normal}
+.v4 .btn{background:#0B1B5A;color:#fff;border:0;border-radius:12px;padding:.6rem 1.3rem;font-weight:700}
+.v4 .bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:120px;gap:.8rem;padding:2rem 2.2rem 2.6rem}
+.v4 .b{border-radius:18px;padding:1.2rem;display:flex;flex-direction:column;justify-content:flex-end}
+.v4 .b1{grid-column:span 2;grid-row:span 2;background:#0B1B5A;color:#fff}
+.v4 .b1 h1{font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:900}
+.v4 .b1 i{font-style:normal;color:#4ade80}
+.v4 .b1 p{color:#c3cdf0;font-size:.85rem;margin-top:.4rem}
+.v4 .b2{background:#16A34A;color:#fff}.v4 .b2 b{font-size:1.7rem}
+.v4 .b3{background:#fff;border:1px solid #E3E7F2}.v4 .b3 b{color:#0B1B5A;font-size:1.7rem}
+.v4 .b4{background:#fff;border:1px solid #E3E7F2}.v4 .b4 b{color:#0B1B5A}
+.v4 .b5{grid-column:span 2;background:#DCE7FF;color:#0B1B5A}
+.v4 .b span{font-size:.78rem;opacity:.85}
+@media(max-width:860px){.v4 .bento{grid-template-columns:1fr 1fr;grid-auto-rows:auto;padding:1.3rem}}
+
+/* ===== 5) جريء كتلي ===== */
+.v5{background:#F5F1E8;font-family:"Noto Kufi Arabic",sans-serif}
+.v5 .nav{background:#0B1B5A;color:#fff}
+.v5 .logo{font-weight:800}.v5 .logo i{color:#FFD43B;font-style:normal}
+.v5 .btn{background:#FFD43B;color:#0B1B5A;border:3px solid #0B1B5A;border-radius:0;padding:.55rem 1.3rem;font-weight:800;box-shadow:4px 4px 0 #0B1B5A}
+.v5 h1{color:#0B1B5A;font-size:clamp(1.6rem,3.4vw,2.5rem);font-weight:800}
+.v5 h1 mark{background:#FFD43B;padding:0 .4rem}
+.v5 p{color:#3d4257;margin:.9rem 0 1.4rem;max-width:31rem}
+.v5 .card{background:#fff;border:3px solid #0B1B5A;box-shadow:6px 6px 0 #0B1B5A;padding:1.1rem}
+.v5 .card b{color:#0B1B5A;font-size:1.3rem;display:block}
+.v5 .card span{color:#3d4257;font-size:.8rem}
+.v5 .side{background:#16A34A;border:3px solid #0B1B5A;box-shadow:8px 8px 0 #0B1B5A;padding:1.4rem;color:#fff}
+.v5 .side b{font-size:1.15rem;display:block;margin-bottom:.5rem}
+.v5 .side .it{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);padding:.5rem .8rem;font-size:.82rem;margin-bottom:.45rem;font-weight:600}
+
+/* ===== 6) أورورا عصري ===== */
+.v6{background:linear-gradient(135deg,#0B1B5A 0%,#123c8f 45%,#0e7a52 100%);font-family:"Rubik","IBM Plex Sans Arabic",sans-serif;color:#fff;position:relative;overflow:hidden}
+.v6::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(74,222,128,.35),transparent 65%);top:-160px;left:-120px}
+.v6 .nav,.v6 .hero,.v6 .feat{position:relative}
+.v6 .logo{font-weight:700}.v6 .logo i{color:#7ef0a8;font-style:normal}
+.v6 .btn{background:#fff;color:#0B1B5A;border:0;border-radius:999px;padding:.65rem 1.5rem;font-weight:700}
+.v6 h1{font-size:clamp(1.7rem,3.6vw,2.7rem);font-weight:700}
+.v6 h1 i{font-style:normal;color:#7ef0a8}
+.v6 p{color:#d4defa;margin:.8rem 0 1.4rem;max-width:32rem}
+.v6 .pillrow{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
+.v6 .pill{border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:.3rem .9rem;font-size:.8rem;color:#eaf0ff}
+.v6 .card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:1.2rem;backdrop-filter:blur(8px)}
+.v6 .card b{font-size:1.3rem;display:block;color:#7ef0a8}
+.v6 .card span{color:#d4defa;font-size:.83rem}
+.v6 .side{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:1.4rem;backdrop-filter:blur(10px)}
+.v6 .msg{background:#fff;color:#101733;border-radius:12px;padding:.7rem .9rem;font-size:.85rem;margin-bottom:.6rem}
+.v6 .msg.me{background:rgba(255,255,255,.18);color:#fff}
+</style>
+</head>
+<body>
+<div class="proto">معرض تصاميم مقترحة — 6 اتجاهات للمقارنة، للعرض الداخلي فقط</div>
+<nav class="picker" aria-label="الانتقال بين التصاميم">
+  <a href="#d1">1 سويسري رسمي</a><a href="#d2">2 داكن زجاجي</a><a href="#d3">3 فاخر بسيط</a><a href="#d4">4 بينتو</a><a href="#d5">5 جريء كتلي</a><a href="#d6">6 أورورا</a>
+</nav>
+
+<!-- 1 -->
+<div class="label" id="d1"><b>1 — السويسري الرسمي (Swiss Modernism)</b><span>الأقرب لهويتكم الحالية مع انضباط أعلى · الأنسب للثقة الحكومية · أداء وقراءة ممتازان</span></div>
+<div class="frame v1">
+  <div class="nav"><span class="logo">Business <i>Partner</i></span><span class="sp"></span><button class="btn">استشارة مجانية</button></div>
+  <div class="hero">
+    <div>
+      <h1>شريك تشغيل واحد لكل متطلبات أعمالك <i>في السعودية</i></h1>
+      <p>من التأسيس إلى الامتثال الحكومي — ننجزها بوضوح وسرعة، ونتابعها حتى الإصدار.</p>
+      <button class="btn">احجز استشارة مجانية</button>
+    </div>
+    <div class="side">
+      <div class="row">مؤسس يبدأ شركة جديدة<small>تأسيس · سجل · حساب بنكي</small></div>
+      <div class="row">صاحب منشأة قائمة<small>امتثال · إقامات · رواتب</small></div>
+      <div class="row">مستثمر أجنبي<small>ترخيص · تملك 100% · إقامة مميزة</small></div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="card"><b>92</b><span>خدمة حكومية</span></div>
+    <div class="card"><b>24/7</b><span>رد فوري</span></div>
+    <div class="card"><b>+8</b><span>منصات حكومية نديرها</span></div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="label" id="d2"><b>2 — الداكن الزجاجي (Glassmorphism Dark)</b><span>فخامة تقنية · مثالي لعرض «فريقك» والربط الحكومي · يوحي بمنتج SaaS متقدم</span></div>
+<div class="frame v2">
+  <div class="nav"><span class="logo">Business <i>Partner</i></span><span class="sp"></span><button class="btn">ابدأ الآن</button></div>
+  <div class="hero">
+    <div>
+      <h1>حكومتك الرقمية… <i>بأمر واحد</i></h1>
+      <p>اكتب «جدد إقامات موظفيني» — فريقك الذكي ينفذ، وأنت تعتمد. 12 متخصصًا يعملون لشركتك على مدار الساعة.</p>
+      <button class="btn">جرّب فريقك الذكي</button>
+    </div>
+    <div class="side">
+      <div class="grow">واثق — السجل التجاري <span class="tag">ربط رسمي</span></div>
+      <div class="grow">نفاذ — دخول موثق <span class="tag">ربط رسمي</span></div>
+      <div class="grow">قوى — العقود والرخص <span class="tag y">عبر الفريق · 24س</span></div>
+      <div class="grow">مقيم — الإقامات <span class="tag y">عبر الفريق · 24س</span></div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="glass"><b>92</b><span>خدمة حكومية</span></div>
+    <div class="glass"><b>12</b><span>موظفًا ذكيًا في فريقك</span></div>
+    <div class="glass"><b>0</b><span>غرامات مع التنبيه الاستباقي</span></div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="label" id="d3"><b>3 — الفاخر البسيط (Luxury Minimal)</b><span>هدوء وثقل مؤسسي · مناسب للمستثمر الأجنبي والإقامة المميزة · ذهبي محايد بدل الأخضر</span></div>
+<div class="frame v3">
+  <div class="nav"><span class="logo">BUSINESS <i>PARTNER</i></span><span class="sp"></span><button class="btn">استشارة خاصة</button></div>
+  <div class="hero">
+    <div>
+      <div class="rule"></div>
+      <h1>أعمالك في السعودية،<br><b>بيدٍ <i>واحدة</i> تثق بها</b></h1>
+      <p>نرافق المستثمرين وأصحاب الأعمال من القرار الأول حتى التشغيل الكامل — بسرية واحترافية وأتعاب معلنة.</p>
+      <button class="btn">احجز استشارة خاصة</button>
+    </div>
+    <div class="side">
+      <b>مكتب واحد. كل الجهات.</b>
+      <span class="num">92</span>
+      <span>خدمة حكومية نديرها نيابة عنك، من التأسيس إلى الامتثال</span>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="card"><b>الاستثمار الأجنبي</b><span>ترخيص وتملك كامل وإقامة مميزة</span></div>
+    <div class="card"><b>تأسيس الشركات</b><span>تسليم مفتاح خلال أيام</span></div>
+    <div class="card"><b>الامتثال المستمر</b><span>تجديد قبل الموعد، لا غرامات</span></div>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="label" id="d4"><b>4 — البينتو (Bento Grid)</b><span>عصري ومنظم · يعرض كثافة خدماتكم دون فوضى · ممتاز للجوال</span></div>
+<div class="frame v4">
+  <div class="nav"><span class="logo">Business <i>Partner</i></span><span class="sp"></span><button class="btn">استشارة مجانية</button></div>
+  <div class="bento">
+    <div class="b b1"><h1>كل حكومتك في <i>صندوق واحد</i></h1><p>92 خدمة، 8 منصات، فريق ذكي — تطلب وتتابع وتستلم من مكان واحد.</p></div>
+    <div class="b b2"><b>24/7</b><span>رد فوري على طلباتك</span></div>
+    <div class="b b3"><b>92</b><span>خدمة حكومية جاهزة</span></div>
+    <div class="b b4"><b>فريقك الذكي</b><span>12 متخصصًا يعملون لك</span></div>
+    <div class="b b5"><b>الربط الحكومي المباشر</b><span>واثق ونفاذ رسميًا · وقوى ومقيم عبر فريق مرخص خلال 24 ساعة</span></div>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="label" id="d5"><b>5 — الجريء الكتلي (Bold Blocks)</b><span>شخصية قوية لا تُنسى · ممتاز للسوشال ميديا والحملات · قد يكون جريئًا زيادة للطابع الحكومي</span></div>
+<div class="frame v5">
+  <div class="nav"><span class="logo">Business <i>Partner</i></span><span class="sp"></span><button class="btn">ابدأ اليوم</button></div>
+  <div class="hero">
+    <div>
+      <h1>قوى. مقيم. التأمينات. مدد.<br><mark>خلها علينا كلها.</mark></h1>
+      <p>أنت تدير شركتك — نحن نداري حكومتك. 92 خدمة بأسعار معلنة وفريق يرد عليك في أي وقت.</p>
+      <button class="btn">أبغى أبدأ الآن</button>
+    </div>
+    <div class="side">
+      <b>وش تحتاج اليوم؟</b>
+      <div class="it">تجديد إقامات الموظفين</div>
+      <div class="it">شهادة سعودة</div>
+      <div class="it">تأسيس شركة جديدة</div>
+      <div class="it">رواتب ومدد</div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="card"><b>92</b><span>خدمة</span></div>
+    <div class="card"><b>24/7</b><span>رد فوري</span></div>
+    <div class="card"><b>0</b><span>مفاجآت بالأسعار</span></div>
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="label" id="d6"><b>6 — الأورورا العصري (Aurora Gradient)</b><span>مزيج هويتكم (كحلي→أخضر) بروح 2026 · دافئ وتقني معًا · مثالي لصفحة «فريقك»</span></div>
+<div class="frame v6">
+  <div class="nav"><span class="logo">Business <i>Partner</i></span><span class="sp"></span><button class="btn">جرّب مجانًا</button></div>
+  <div class="hero">
+    <div>
+      <h1>وظّف <i>فريقًا كاملًا</i> باشتراك واحد</h1>
+      <p>خالد يدير مكتبك، عبدالعزيز يحمي امتثالك، فرح تسوّق لك — و8 متخصصون آخرون. اطلب بالعربي وتابع كل شيء لحظيًا.</p>
+      <button class="btn">قابل فريقك</button>
+      <div class="pillrow"><span class="pill">تأسيس</span><span class="pill">امتثال</span><span class="pill">رواتب</span><span class="pill">توظيف</span><span class="pill">تسويق</span></div>
+    </div>
+    <div class="side">
+      <div class="msg me">كم موظف تنتهي إقامته خلال 60 يوم؟</div>
+      <div class="msg">3 موظفين — التكلفة التقديرية 19,650 ريال.<br>هل أجهز طلبات التجديد لاعتمادك؟</div>
+      <div class="msg me">جهزها ✓</div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="card"><b>12</b><span>موظفًا ذكيًا</span></div>
+    <div class="card"><b>8</b><span>منصات حكومية</span></div>
+    <div class="card"><b>60 ثانية</b><span>من الطلب إلى بدء التنفيذ</span></div>
+  </div>
+</div>
+
+<div class="label" style="padding-bottom:3rem"><b>كيف تختار؟</b><span>1 و3 للثقة المؤسسية · 2 و6 لمنتج «فريقك» التقني · 4 للكثافة المنظمة · 5 للحملات والسوشال. يمكن المزج: هوية رئيسية من 1 + صفحات المنتج من 6.</span></div>
+</body>
+</html>
