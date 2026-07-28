@@ -255,6 +255,7 @@
       <nav id="sideNav">
         <button data-v="home" class="on"><span>◈</span><span data-t="navHome">الرئيسية</span></button>
         <button data-v="services"><span>▣</span><span data-t="navServices">خدماتي وبواباتي</span></button>
+        <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
         <button data-v="tasks"><span>☑</span><span data-t="navTasks">المهام</span><span class="b" id="sbTasks" style="display:none"></span></button>
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
         <button data-v="payments"><span>◫</span><span data-t="navPayments">المدفوعات والفواتير</span><span class="b w" id="sbPay" style="display:none;background:var(--warn)"></span></button>
@@ -267,6 +268,7 @@
         <button data-v="alerts"><span>◉</span><span data-t="navAlerts">التنبيهات</span></button>
         <button data-v="settings"><span>⚙</span><span data-t="navSettings">الإعدادات</span></button>
       </nav>
+      <a id="backToSite" href="/ar" style="display:flex;gap:10px;align-items:center;padding:11px 18px;color:#C7D2FE;text-decoration:none;font-size:.92em"><span>🌐</span><span id="backToSiteLbl">العودة إلى الموقع</span></a>
       <div class="grow"></div>
       <div class="foot"><span id="footOrg">—</span><br /><span id="footSub" data-t="appTitle">مركز عمليات العميل</span></div>
     </aside>
@@ -448,6 +450,17 @@
               <div class="note" id="docNote" style="display:none;margin-top:8px"></div>
             </div>
             <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="docListTitle">مستنداتي</h3></div><div id="docsList" style="padding:6px 16px 12px"></div></div>
+          </div>
+        </section>
+        <section class="view" id="view-company"><div class="pagehead"><h2 id="companyHead">بيانات المنشأة</h2><p class="sub" id="companyLead">بياناتك هذه تعبّأ تلقائياً في طلباتك ونماذجك — عدّلها في أي وقت.</p></div>
+          <div class="panel"><div class="phead"><h3 id="companyFormTitle">معلومات الشركة</h3></div>
+            <div style="padding:14px 16px 18px;display:grid;gap:12px;max-width:560px">
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblNameAr">اسم المنشأة (عربي)</span><input id="orgNameAr" type="text" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit" /></label>
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblNameEn">اسم المنشأة (إنجليزي)</span><input id="orgNameEn" type="text" dir="ltr" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit" /></label>
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblCr">رقم السجل التجاري</span><input id="orgCr" type="text" dir="ltr" inputmode="numeric" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit" /></label>
+              <div><button class="btn sm" id="orgSave">💾 حفظ بيانات المنشأة</button></div>
+              <div class="note" id="orgNote" style="display:none"></div>
+            </div>
           </div>
         </section>
         <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div>
@@ -1199,6 +1212,44 @@
       else note.style.display = 'none';
     }
 
+    // ---------------- company profile (establishment record) ----------------
+    function renderCompany(){
+      var en = state.lang === 'en';
+      $('navCompanyLbl').textContent = en ? 'Company profile' : 'بيانات المنشأة';
+      $('companyHead').textContent = en ? 'Company profile' : 'بيانات المنشأة';
+      $('companyLead').textContent = en ? 'This data pre-fills your orders and forms — edit it any time.' : 'بياناتك هذه تعبّأ تلقائياً في طلباتك ونماذجك — عدّلها في أي وقت.';
+      $('companyFormTitle').textContent = en ? 'Company information' : 'معلومات الشركة';
+      $('lblNameAr').textContent = en ? 'Company name (Arabic)' : 'اسم المنشأة (عربي)';
+      $('lblNameEn').textContent = en ? 'Company name (English)' : 'اسم المنشأة (إنجليزي)';
+      $('lblCr').textContent = en ? 'Commercial Registration no.' : 'رقم السجل التجاري';
+      $('orgSave').textContent = en ? '💾 Save company profile' : '💾 حفظ بيانات المنشأة';
+      $('backToSiteLbl').textContent = en ? 'Back to the website' : 'العودة إلى الموقع';
+      $('backToSite').setAttribute('href', en ? '/' : '/ar');
+      var org = (state.overview && state.overview.organization) || {};
+      if (!$('orgNameAr').value && org.name_ar) $('orgNameAr').value = org.name_ar;
+      if (!$('orgNameEn').value && org.name_en) $('orgNameEn').value = org.name_en;
+      if (!$('orgCr').value && org.cr_number) $('orgCr').value = org.cr_number;
+    }
+    function saveCompany(){
+      var en = state.lang === 'en';
+      var body = { action: 'my-org-update', name_ar: $('orgNameAr').value.trim(), name_en: $('orgNameEn').value.trim(), cr: $('orgCr').value.trim() };
+      var note = $('orgNote');
+      if (!body.name_ar && !body.name_en && !body.cr){ note.style.display = ''; note.textContent = en ? 'Fill in at least one field.' : 'عبّئ حقلاً واحداً على الأقل.'; return; }
+      var btn = $('orgSave'); btn.disabled = true;
+      fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(o){
+          btn.disabled = false; note.style.display = '';
+          if (o && o.ok){
+            note.textContent = en ? '✅ Saved — your profile is up to date.' : '✅ تم الحفظ — بيانات منشأتك محدثة.';
+            if (o.organization){ state.overview = state.overview || {}; state.overview.organization = o.organization; renderTopbar(); }
+            try { localStorage.setItem('bp_company', JSON.stringify({ name: body.name_ar || body.name_en, cr: body.cr })); } catch (e) {}
+          } else {
+            note.textContent = en ? 'Could not save — try again or open a support ticket.' : 'تعذر الحفظ — أعد المحاولة أو افتح تذكرة دعم.';
+          }
+        })
+        .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });
+    }
     // ---------------- payments / team / reports (built from account data already loaded) ----------------
     function renderPayments(){
       var en = state.lang === 'en';
@@ -1280,12 +1331,13 @@
       renderPayments();
       renderTeam();
       renderReports();
+      renderCompany();
       if (state.db){ renderNotifs(); renderTickets(); renderDocs(); renderApprovals(); renderSrvTasks(); }
       filterSearch();
     }
 
     // ---------------- navigation + search ----------------
-    var VIEWS = ['home','services','tasks','orders','payments','wallet','approvals','documents','team','reports','tickets','alerts','settings','more'];
+    var VIEWS = ['home','services','company','tasks','orders','payments','wallet','approvals','documents','team','reports','tickets','alerts','settings','more'];
     function switchView(v){
       if (VIEWS.indexOf(v) === -1) v = 'home';
       for (var i = 0; i < VIEWS.length; i++){
@@ -1418,7 +1470,7 @@
         .then(function(out){
           if (!out || !out.ok) return;
           state.overview = out;
-          renderPayments(); renderReports();
+          renderPayments(); renderReports(); renderCompany();
           // wallet card + wallet view
           var bal = Number(out.walletBalance) || 0;
           var fmt = bal.toLocaleString(state.lang === 'ar' ? 'ar-SA-u-nu-latn' : 'en') + ' ﷼';
@@ -1728,6 +1780,7 @@
     // ---------------- wire listeners ----------------
     function wire(){
       $('gSend').onclick = function(){ sendCode(false); };
+      $('orgSave').onclick = saveCompany;
       $('gEmail').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendCode(false); });
       $('gVerify').onclick = verifyCode;
       $('gCode').addEventListener('keydown', function(e){ if (e.key === 'Enter') verifyCode(); });

@@ -4209,8 +4209,19 @@ function buildEmployerLogin() {
       <div class="field"><label for="el-password">${L("Password", "كلمة المرور")}</label><input type="password" id="el-password" required></div>
       <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="el-submit">${L("Log in", "دخول")}</button>
       <p class="emp-note" id="el-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
-      <p class="emp-note" style="text-align:center;margin-top:2px">${L("Forgot your password?", "نسيت كلمة المرور؟")} <a href="${u("/account")}?redirect=employer">${L("Sign in with an email code instead — no password needed", "ادخل برمز يوصلك على الإيميل — بدون كلمة مرور")}</a></p>
+      <p class="emp-note" style="text-align:center;margin-top:2px">${L("Forgot your password?", "نسيت كلمة المرور؟")} <a href="#" id="el-forgot">${L("Reset it with an email code", "استعدها برمز يوصلك على الإيميل")}</a></p>
     </form>
+    <div id="el-reset" hidden style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:18px;margin-top:14px">
+      <h3 style="margin:0 0 10px;font-size:1rem">${L("Reset your password", "استعادة كلمة المرور")}</h3>
+      <div class="field"><label for="elr-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="elr-email"></div>
+      <button type="button" class="btn btn-ghost" style="width:100%" id="elr-send">${L("Email me a reset code", "أرسل رمز الاستعادة إلى بريدي")}</button>
+      <div id="elr-step2" hidden style="margin-top:12px">
+        <div class="field"><label for="elr-code">${L("Reset code", "رمز الاستعادة")}</label><input id="elr-code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="text-align:center;letter-spacing:6px"></div>
+        <div class="field"><label for="elr-pass">${L("New password (8+ characters)", "كلمة المرور الجديدة (8 أحرف فأكثر)")}</label><input type="password" id="elr-pass"></div>
+        <button type="button" class="btn btn-primary" style="width:100%" id="elr-set">${L("Set the new password", "تعيين كلمة المرور الجديدة")}</button>
+      </div>
+      <p class="emp-note" id="elr-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+    </div>
     <div style="display:flex;align-items:center;gap:12px;margin:20px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">${L("or", "أو")}</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
     <form id="el-code-form" novalidate>
       <div class="field"><label for="el-code">${L("Access code", "رمز الوصول")}</label><input type="text" id="el-code" placeholder="BP-EMP-XXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>

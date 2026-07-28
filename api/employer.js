@@ -14,7 +14,7 @@
 // POST /api/employer                               -> { ok, ref } | { ok:false, error }   (register/signup)
 // POST /api/employer { action:"login", email, password } -> { ok, code, plan, status } | { ok:false, error }
 
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "node:crypto";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -131,6 +131,75 @@ export default async function handler(req, res) {
   }
 
   const b = await readBody(req);
+
+  // Stateless password reset: step 1 emails a 6-digit code and returns an
+  // HMAC-sealed token (email|code|exp — verifying requires the code, so the
+  // token is safe client-side). Step 2 verifies code+token and stores the new
+  // scrypt hash. Responses never reveal whether an email is registered.
+  if (b.action === "reset-password") {
+    const email = clip(b.email, 160).toLowerCase();
+    const SECRET = (process.env.OTP_SECRET || "").trim();
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    if (!SECRET || !NOTION_TOKEN || !DB_ID) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const sealOf = (exp, code) => createHmac("sha256", SECRET).update(`emp-reset|${email}|${code}|${exp}`).digest("hex");
+    const code = String(b.code || "").trim();
+    const token = String(b.t || "").trim();
+    const newPassword = String(b.password || "").slice(0, 200);
+    if (!code || !token) {
+      // step 1 — send the code
+      try {
+        const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+        if (q.ok) {
+          const row = ((await q.json()).results || [])[0];
+          if (row) {
+            const c = String(randomInt(100000, 1000000));
+            const exp = Date.now() + 15 * 60 * 1000;
+            await sendMail(email, `رمز استعادة كلمة المرور — Business Partner`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px;margin:auto">
+              <h2 style="color:#0B1B5A">استعادة كلمة المرور</h2>
+              <p>رمز الاستعادة الخاص بك (صالح 15 دقيقة):</p>
+              <p style="font-size:28px;font-weight:bold;letter-spacing:3px;color:#0B1B5A">${c}</p>
+              <p style="color:#666">إذا لم تطلب استعادة كلمة المرور، تجاهل هذه الرسالة.</p>
+            </div>`);
+            res.statusCode = 200;
+            return res.end(JSON.stringify({ ok: true, t: `${exp}.${sealOf(exp, c)}`, message: "إذا كان البريد مسجلاً لدينا فسيصلك رمز الاستعادة خلال دقائق." }));
+          }
+        }
+      } catch (e) { console.error("reset send error", String(e).slice(0, 200)); }
+      // same shape whether or not the account exists (dummy token)
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, t: `${Date.now() + 15 * 60 * 1000}.${randomBytes(32).toString("hex")}`, message: "إذا كان البريد مسجلاً لدينا فسيصلك رمز الاستعادة خلال دقائق." }));
+    }
+    // step 2 — verify and set the new password
+    if (!newPassword || newPassword.length < 8) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "weak_password" })); }
+    const dot = token.indexOf(".");
+    const exp = dot > 0 ? Number(token.slice(0, dot)) : 0;
+    const mac = dot > 0 ? token.slice(dot + 1) : "";
+    const expected = sealOf(exp, code);
+    const macBuf = Buffer.from(mac.padEnd(expected.length, "0").slice(0, expected.length), "utf8");
+    const expBuf = Buffer.from(expected, "utf8");
+    if (!exp || Date.now() > exp || !timingSafeEqual(macBuf, expBuf)) {
+      res.statusCode = 401;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_code", message: "الرمز غير صحيح أو انتهت صلاحيته." }));
+    }
+    try {
+      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+      if (!q.ok) throw new Error("notion_failed");
+      const row = ((await q.json()).results || [])[0];
+      if (!row) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      const u = await fetch(`https://api.notion.com/v1/pages/${row.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ properties: { "بيانات الدخول": { rich_text: rt(hashPassword(newPassword)) } } }),
+      });
+      if (!u.ok) throw new Error("notion_failed");
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, message: "تم تعيين كلمة المرور الجديدة — سجّل دخولك بها الآن." }));
+    } catch (e) {
+      console.error("reset set error", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
 
   if (b.action === "login") {
     const email = clip(b.email, 160).toLowerCase();

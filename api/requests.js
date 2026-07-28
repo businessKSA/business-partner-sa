@@ -1337,6 +1337,39 @@ export default async function handler(req, res) {
   // Order/purchase from checkout → CRM lead + team notification (lighter validation).
   // A bank receipt (PDF) is mandatory — the n8n verification agent reads it from
   // Notion and checks its amount against "إجمالي الطلب" before an order is confirmed.
+  // Client updates their own establishment record (session-scoped; creates
+  // the organization + membership on first save if the account has none).
+  if (b.action === "my-org-update") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const nameAr = String(b.name_ar || "").trim().slice(0, 200);
+    const nameEn = String(b.name_en || "").trim().slice(0, 200);
+    const crNum = String(b.cr || "").trim().slice(0, 40);
+    if (!nameAr && !nameEn && !crNum) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "empty" })); }
+    try {
+      let orgId = sess.organization && sess.organization.id;
+      if (!orgId) {
+        const orgs = await sb("organizations", { method: "POST", body: [{ name_ar: nameAr || nameEn || "منشأة" }] });
+        orgId = orgs[0].id;
+        await sb("organization_members", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, user_id: sess.user.id, role_id: "owner", status: "active" }] });
+        await sb(`user_sessions?id=eq.${sess.sessionId}`, { method: "PATCH", prefer: "return=minimal", body: { organization_id: orgId } });
+      }
+      const patch = {};
+      if (nameAr) patch.name_ar = nameAr;
+      if (nameEn) patch.name_en = nameEn;
+      if (crNum) patch.cr_number = crNum;
+      const rows = await sb(`organizations?id=eq.${orgId}`, { method: "PATCH", body: patch });
+      audit({ actor_user_id: sess.user && sess.user.id, action: "org.update", entity: "organizations", entity_id: String(orgId) });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, organization: (rows && rows[0]) || null }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
   if (b.type === "order") {
     const name = String(b.name || "").trim().slice(0, 160);
     const phone = String(b.phone || "").trim().slice(0, 40);

@@ -3126,6 +3126,48 @@ var BP_EMP_BILLING = "monthly";
       if (otpStep) otpStep.hidden = true;
       if (loginWrap) loginWrap.hidden = false;
     });
+    // Password reset — two-step email code (stateless HMAC token from the server).
+    var elForgot = document.getElementById("el-forgot");
+    var elReset = document.getElementById("el-reset");
+    if (elForgot && elReset) {
+      var elrToken = "";
+      var elrMsg = document.getElementById("elr-msg");
+      elForgot.addEventListener("click", function (e) {
+        e.preventDefault();
+        elReset.hidden = !elReset.hidden;
+        var le = document.getElementById("el-email"), re = document.getElementById("elr-email");
+        if (!elReset.hidden && le && le.value && re && !re.value) re.value = le.value;
+      });
+      document.getElementById("elr-send").addEventListener("click", function () {
+        var email = document.getElementById("elr-email").value.trim().toLowerCase();
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { elrMsg.style.color = "#B91C1C"; elrMsg.textContent = T("Enter a valid email.", "أدخل بريداً صحيحاً."); return; }
+        elrMsg.style.color = ""; elrMsg.textContent = T("Sending…", "جارٍ الإرسال…");
+        fetch("/api/employer", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "reset-password", email: email }) })
+          .then(function (r) { return r.json(); })
+          .then(function (o) {
+            if (o && o.ok) { elrToken = o.t || ""; document.getElementById("elr-step2").hidden = false; elrMsg.textContent = o.message || T("Check your inbox for the code.", "تحقق من بريدك — وصلك رمز الاستعادة."); }
+            else { elrMsg.style.color = "#B91C1C"; elrMsg.textContent = (o && o.message) || T("Could not send the code.", "تعذر إرسال الرمز."); }
+          })
+          .catch(function () { elrMsg.style.color = "#B91C1C"; elrMsg.textContent = T("Network error — try again.", "خطأ في الاتصال — أعد المحاولة."); });
+      });
+      document.getElementById("elr-set").addEventListener("click", function () {
+        var email = document.getElementById("elr-email").value.trim().toLowerCase();
+        var code = document.getElementById("elr-code").value.trim();
+        var pass = document.getElementById("elr-pass").value;
+        if (!code || pass.length < 8) { elrMsg.style.color = "#B91C1C"; elrMsg.textContent = T("Enter the code and a password of 8+ characters.", "أدخل الرمز وكلمة مرور من 8 أحرف فأكثر."); return; }
+        elrMsg.style.color = ""; elrMsg.textContent = T("Setting the new password…", "جارٍ تعيين كلمة المرور…");
+        fetch("/api/employer", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "reset-password", email: email, code: code, t: elrToken, password: pass }) })
+          .then(function (r) { return r.json(); })
+          .then(function (o) {
+            if (o && o.ok) {
+              elrMsg.style.color = "#0f9d58"; elrMsg.textContent = o.message || T("Done — sign in with your new password.", "تم — سجّل دخولك بكلمة المرور الجديدة.");
+              document.getElementById("elr-step2").hidden = true;
+              var le2 = document.getElementById("el-email"); if (le2 && !le2.value) le2.value = email;
+            } else { elrMsg.style.color = "#B91C1C"; elrMsg.textContent = (o && o.message) || T("The code is wrong or expired.", "الرمز غير صحيح أو انتهت صلاحيته."); }
+          })
+          .catch(function () { elrMsg.style.color = "#B91C1C"; elrMsg.textContent = T("Network error — try again.", "خطأ في الاتصال — أعد المحاولة."); });
+      });
+    }
     // «أرسله إلى بريدي» — emails the registered access code to the account's
     // email (server responds the same whether or not the email exists).
     var codeMail = document.getElementById("el-code-mail");
