@@ -10,6 +10,9 @@
     "api/candidate.js": { "maxDuration": 30 }
   },
   "redirects": [
+    { "source": "/", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/revenue-os", "permanent": false },
+    { "source": "/dashboard", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/revenue-dashboard", "permanent": false },
+    { "source": "/client-portal", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/revenue-dashboard", "permanent": false },
     { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },
     { "source": "/business-tourism", "destination": "/tourism", "permanent": true },
     { "source": "/lead-generation", "destination": "/data", "permanent": true },
@@ -18,9 +21,6 @@
     { "source": "/ar/compliance-portal", "destination": "/ar/compliance-agent", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/dashboard", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-command-center" },
-    { "source": "/client-portal", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-command-center" },
-    { "source": "/:path((?!assets/|api/|dashboard$|client-portal$|revenue-dashboard$|revenue-os$).*)", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-os" },
     { "source": "/revenue-os", "destination": "/assets/data/revenue-os" },
     { "source": "/revenue-dashboard", "destination": "/assets/data/revenue-command-center" },
     { "source": "/client-portal", "destination": "/assets/data/revenue-command-center" },
