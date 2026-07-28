@@ -405,7 +405,11 @@
         </section>
 
         <!-- ===== placeholders ===== -->
-        <section class="view" id="view-payments"><div class="pagehead"><h2 data-t="navPayments">المدفوعات والفواتير</h2></div><div class="ph"><div class="ic">◫</div><b data-t="navPayments">المدفوعات والفواتير</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p><p style="margin-top:10px"><a class="btn ghost" href="/ar/checkout" data-t="qaPay">دفع فاتورة</a></p></div></section>
+        <section class="view" id="view-payments"><div class="pagehead"><h2 data-t="navPayments">المدفوعات والفواتير</h2></div>
+          <div class="panel"><div class="phead"><h3 id="payDueTitle">مستحقات بانتظار الدفع</h3></div><div id="payDueList" style="padding:6px 16px 12px"></div></div>
+          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="payTxTitle">حركات المحفظة</h3></div><div id="payTxList" style="padding:6px 16px 12px"></div></div>
+          <p style="margin-top:12px"><a class="btn ghost" href="/ar/checkout" data-t="qaPay">دفع فاتورة</a></p>
+        </section>
         <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2></div>
           <div class="card" id="walletPanel" style="display:none">
             <h4 data-t="wallet">رصيد المحفظة</h4>
@@ -446,8 +450,14 @@
             <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="docListTitle">مستنداتي</h3></div><div id="docsList" style="padding:6px 16px 12px"></div></div>
           </div>
         </section>
-        <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div><div class="ph"><div class="ic">﴾﴿</div><b data-t="navTeam">الموظفون والفريق</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P4)</p></div></section>
-        <section class="view" id="view-reports"><div class="pagehead"><h2 data-t="navReports">التقارير والتحليلات</h2></div><div class="ph"><div class="ic">◔</div><b data-t="navReports">التقارير والتحليلات</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P4)</p></div></section>
+        <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div>
+          <div class="panel"><div class="phead"><h3 id="teamTitle">فريقك عبر بيزنس بارتنر</h3></div><div id="teamCards" style="padding:6px 16px 12px"></div></div>
+          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="teamTasksTitle">مهام مطلوبة منك</h3></div><div id="teamTasksList" style="padding:6px 16px 12px"></div></div>
+        </section>
+        <section class="view" id="view-reports"><div class="pagehead"><h2 data-t="navReports">التقارير والتحليلات</h2></div>
+          <div class="panel"><div class="phead"><h3 id="repTitle">ملخص حسابك</h3></div><div id="repKpis" style="padding:14px 16px 16px"></div></div>
+          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="repOrdersTitle">الطلبات حسب الحالة</h3></div><div id="repBreak" style="padding:6px 16px 12px"></div></div>
+        </section>
         <section class="view" id="view-tickets">
           <div class="pagehead"><h2 data-t="navTickets">التذاكر والدعم</h2><div class="sub" data-t="tkSub">تذاكرك تصل فريقنا فوراً بالبريد، وترد عليك هنا وعلى بريدك.</div></div>
           <div class="ph" id="tkPh"><div class="ic">◖</div><b data-t="navTickets">التذاكر والدعم</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p><p style="margin-top:10px"><a class="btn ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener" data-t="qaTicket">فتح تذكرة</a></p></div>
@@ -501,7 +511,7 @@
             </div>
             <div class="setrow">
               <span class="t" data-t="restLbl">بقية الإعدادات</span>
-              <span class="m"><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</span>
+              <span class="m">بيانات المنشأة تُدار من «خدماتي وبواباتي»، وأي تعديل حسّاس على حسابك عبر «التذاكر والدعم» — وإعدادات إضافية تصلك تباعاً.</span>
             </div>
           </div>
         </section>
@@ -1189,12 +1199,87 @@
       else note.style.display = 'none';
     }
 
+    // ---------------- payments / team / reports (built from account data already loaded) ----------------
+    function renderPayments(){
+      var en = state.lang === 'en';
+      $('payDueTitle').textContent = en ? 'Awaiting payment' : 'مستحقات بانتظار الدفع';
+      $('payTxTitle').textContent = en ? 'Wallet transactions' : 'حركات المحفظة';
+      var h = '';
+      for (var i = 0; i < state.orders.length; i++){
+        var o = state.orders[i];
+        if (!isPay(o.status)) continue;
+        h += '<div class="rowline"><span class="badge info">' + esc(statusMeta(o.status).label) + '</span><span class="t">' + esc(o.title || '') + ' <b class="ref">' + esc(o.ref) + '</b></span><a class="btn sm" href="/ar/checkout">' + (en ? 'Complete payment' : 'أكمل الدفع') + '</a></div>';
+      }
+      $('payDueList').innerHTML = h || '<div class="emptyline">' + (en ? 'Nothing awaiting payment right now.' : 'لا مستحقات بانتظار الدفع حالياً.') + '</div>';
+      var tx = (state.overview && state.overview.walletTransactions) || [];
+      var th = '';
+      for (var j = 0; j < tx.length; j++){
+        var t2 = tx[j];
+        th += '<div class="rowline"><span class="badge plain">' + esc(String(t2.type || '')) + '</span><span class="t">' + esc(String(t2.note || '')) + '</span><b>' + esc(String(t2.amount || 0)) + ' ﷼</b></div>';
+      }
+      $('payTxList').innerHTML = th || '<div class="emptyline">' + (en ? 'No wallet transactions yet — your first top-up will appear here.' : 'لا حركات محفظة بعد — أول شحن أو خصم يظهر هنا.') + '</div>';
+    }
+    function renderTeam(){
+      var en = state.lang === 'en';
+      $('teamTitle').textContent = en ? 'Your team via Business Partner' : 'فريقك عبر بيزنس بارتنر';
+      $('teamTasksTitle').textContent = en ? 'Tasks needing your action' : 'مهام مطلوبة منك';
+      var cards = [
+        ['🤖', en ? 'Smart AI employees' : 'الموظفون الأذكياء', en ? 'Your subscribed AI employees work 24/7 — open their portal with your unified session.' : 'موظفوك الأذكياء يعملون 24/7 — افتح بوابتهم بجلستك الموحدة.', '/ar/portal', en ? 'Open portal' : 'افتح البوابة'],
+        ['🧑‍💼', en ? 'Hiring dashboard' : 'لوحة التوظيف', en ? 'Post jobs, match candidates with AI and run your pipeline.' : 'انشر وظائفك وطابق المرشحين بالذكاء وأدر مسار توظيفك.', '/employer-dashboard', en ? 'Open dashboard' : 'افتح اللوحة'],
+        ['🧳', en ? 'Recruit an employee' : 'استقدم موظفاً', en ? 'Work visas, local & mass hiring, PEO/EOR.' : 'تأشيرات عمل، توظيف محلي وجماعي، وPEO/EOR.', '/ar/services/category/recruitment', en ? 'Browse services' : 'تصفح الخدمات']
+      ];
+      var h = '';
+      for (var i = 0; i < cards.length; i++){
+        var c = cards[i];
+        h += '<div class="rowline"><span class="badge plain">' + c[0] + '</span><span class="t"><b>' + c[1] + '</b><br><span style="color:#64748B;font-size:.85em">' + c[2] + '</span></span><a class="btn sm" href="' + c[3] + '">' + c[4] + '</a></div>';
+      }
+      $('teamCards').innerHTML = h;
+      var list = (typeof ops !== 'undefined' && ops.tasks) || [];
+      var th = '';
+      for (var j = 0; j < list.length && j < 8; j++){
+        var tk = list[j] || {};
+        th += '<div class="rowline"><span class="badge info">' + (en ? 'Task' : 'مهمة') + '</span><span class="t">' + esc(String(tk.title || tk.label || tk.text || '')) + '</span></div>';
+      }
+      $('teamTasksList').innerHTML = th || '<div class="emptyline">' + (en ? 'No tasks from the service team yet — anything we need from you appears here.' : 'لا مهام مطلوبة منك حالياً — أي مستند أو إجراء يطلبه فريق الخدمة يظهر هنا.') + '</div>';
+    }
+    function renderReports(){
+      var en = state.lang === 'en';
+      $('repTitle').textContent = en ? 'Account summary' : 'ملخص حسابك';
+      $('repOrdersTitle').textContent = en ? 'Orders by status' : 'الطلبات حسب الحالة';
+      var c = { active: 0, prep: 0, need: 0, buy: 0, hold: 0, ended: 0 };
+      for (var i = 0; i < state.orders.length; i++) c[svcState(state.orders[i])]++;
+      var bal = (state.overview && Number(state.overview.walletBalance)) || 0;
+      var tiles = [
+        [state.orders.length, en ? 'Total orders' : 'إجمالي الطلبات'],
+        [c.active, en ? 'Active' : 'مفعّلة'],
+        [c.prep, en ? 'In preparation' : 'جارٍ التجهيز'],
+        [c.need, en ? 'Awaiting payment' : 'بانتظار الدفع'],
+        [c.ended, en ? 'Cancelled / expired' : 'ملغاة / منتهية'],
+        [bal.toLocaleString('en') + ' ﷼', en ? 'Wallet balance' : 'رصيد المحفظة'],
+        [((typeof ops !== 'undefined' && ops.tickets) || []).length, en ? 'Support tickets' : 'التذاكر'],
+        [((typeof ops !== 'undefined' && ops.docs) || []).length, en ? 'Documents' : 'المستندات']
+      ];
+      var h = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">';
+      for (var k = 0; k < tiles.length; k++)
+        h += '<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px;text-align:center"><div style="font-size:1.3rem;font-weight:800;color:#0B1B5A">' + tiles[k][0] + '</div><div style="color:#64748B;font-size:.8rem">' + tiles[k][1] + '</div></div>';
+      h += '</div>';
+      $('repKpis').innerHTML = h;
+      var rows = '';
+      for (var m = 0; m < state.orders.length; m++){
+        var o = state.orders[m];
+        rows += '<div class="rowline"><b class="ref">' + esc(o.ref) + '</b><span class="t">' + esc(o.title || '') + '</span>' + statusChip(o.status) + '</div>';
+      }
+      $('repBreak').innerHTML = rows || '<div class="emptyline">' + (en ? 'No orders yet — your reports build up from real activity.' : 'لا طلبات بعد — تقاريرك تُبنى من نشاطك الفعلي.') + '</div>';
+    }
     function renderAll(){
       renderTopbar();
       renderHome();
       renderServices();
       renderTasks();
       renderOrders();
+      renderPayments();
+      renderTeam();
+      renderReports();
       if (state.db){ renderNotifs(); renderTickets(); renderDocs(); renderApprovals(); renderSrvTasks(); }
       filterSearch();
     }
@@ -1332,6 +1417,8 @@
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
         .then(function(out){
           if (!out || !out.ok) return;
+          state.overview = out;
+          renderPayments(); renderReports();
           // wallet card + wallet view
           var bal = Number(out.walletBalance) || 0;
           var fmt = bal.toLocaleString(state.lang === 'ar' ? 'ar-SA-u-nu-latn' : 'en') + ' ﷼';
