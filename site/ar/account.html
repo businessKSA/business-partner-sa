@@ -845,6 +845,33 @@
       }
       state.orders = list;
     }
+    // Account-linked orders: the server lists this session's CRM orders by
+    // email, so purchases appear here from any device — localStorage is only
+    // a fallback for legacy refs added by hand.
+    function fetchServerOrders(){
+      fetch('/api/requests?action=my-orders', { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
+        .then(function(d){
+          var list = (d && d.ok && d.orders) || [];
+          if (list.length){
+            var byRef = {};
+            for (var i = 0; i < state.orders.length; i++) byRef[state.orders[i].ref] = state.orders[i];
+            for (var j = 0; j < list.length; j++){
+              var o = list[j];
+              if (!o || !o.ref) continue;
+              if (byRef[o.ref]){
+                if (o.status) byRef[o.ref].status = String(o.status);
+                if (o.title && !byRef[o.ref].title) byRef[o.ref].title = String(o.title);
+              } else {
+                state.orders.push({ ref: String(o.ref), title: String(o.title || ''), status: String(o.status || ''), at: String(o.at || '') });
+              }
+            }
+            renderAll();
+          }
+        })
+        .catch(function(){})
+        .then(function(){ fetchStatuses(); });
+    }
     function fetchStatuses(){
       var refs = [];
       for (var i = 0; i < state.orders.length && refs.length < 30; i++) refs.push(state.orders[i].ref);
@@ -1555,7 +1582,7 @@
       $('limitedBanner').classList.toggle('on', !!state.limited);
       buildOrders();
       renderAll();
-      fetchStatuses();
+      fetchServerOrders();
       fetchOverview();
       fetchOps();
     }
