@@ -1576,10 +1576,37 @@
       });
     }
 
+    // One email-code gate for everything: after sign-in, honor ?redirect= so
+    // checkout returns to the cart and portal links open through the unified
+    // session (SSO) — no second login and no static access codes to remember.
+    function handleRedirect(){
+      var r = '';
+      try { r = new URLSearchParams(location.search).get('redirect') || ''; } catch (e) { return false; }
+      if (!r) return false;
+      var lang = state.lang === 'en' ? '' : '/ar';
+      var back = '';
+      try { var ru = new URL(document.referrer); if (ru.origin === location.origin && ru.pathname.indexOf('/account') === -1) back = ru.pathname; } catch (e2) {}
+      var map = {
+        checkout: lang + '/checkout',
+        quote: back || lang + '/services',
+        formation: back || lang + '/services',
+        compliance: '/ar/compliance-dashboard',
+        employees: '/ar/portal',
+        employer: '/employer-dashboard',
+        shared: '/shared-services/dashboard',
+        revenue: '/revenue-dashboard'
+      };
+      var url = map[r] || (/^\/[A-Za-z0-9/_-]*$/.test(r) ? r : '');
+      if (!url) return false;
+      try { history.replaceState(null, '', location.pathname); } catch (e3) {}
+      if (SSO_PORTALS[url]) ssoNavigate(url); else location.href = url;
+      return true;
+    }
     function enterApp(){
       $('gate').style.display = 'none';
       $('app').classList.add('on');
       $('limitedBanner').classList.toggle('on', !!state.limited);
+      if (handleRedirect()) return;
       buildOrders();
       renderAll();
       fetchServerOrders();

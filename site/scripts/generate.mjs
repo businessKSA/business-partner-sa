@@ -4209,6 +4209,7 @@ function buildEmployerLogin() {
       <div class="field"><label for="el-password">${L("Password", "كلمة المرور")}</label><input type="password" id="el-password" required></div>
       <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="el-submit">${L("Log in", "دخول")}</button>
       <p class="emp-note" id="el-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+      <p class="emp-note" style="text-align:center;margin-top:2px">${L("Forgot your password?", "نسيت كلمة المرور؟")} <a href="${u("/account")}?redirect=employer">${L("Sign in with an email code instead — no password needed", "ادخل برمز يوصلك على الإيميل — بدون كلمة مرور")}</a></p>
     </form>
     <div style="display:flex;align-items:center;gap:12px;margin:20px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">${L("or", "أو")}</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
     <form id="el-code-form" novalidate>
@@ -4217,6 +4218,7 @@ function buildEmployerLogin() {
       <p class="emp-note" id="el-code-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
       <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="el-code-mail">📧 ${L("Don't have your code? Email it to me", "ما عندك الرمز؟ أرسله إلى بريدي")}</a></p>
     </form>
+    <a class="btn btn-ghost" style="width:100%;margin-top:14px" href="${u("/account")}?redirect=employer">🔐 ${L("Sign in with an email code — Business Partner account", "الدخول برمز الإيميل — عبر حساب بيزنس بارتنر")}</a>
     <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/employer-join")}">${L("Subscribe from our plans", "اشترك من باقاتنا")}</a></p>
     </div>
     <div id="el-otp-step" hidden>
@@ -7440,6 +7442,7 @@ function buildPortal(pre = "/") {
       <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn" id="loginBtn">دخول</button>
       <div class="err" id="loginErr"></div>
+      <a class="linkbtn" style="display:block;text-align:center;margin-top:10px;text-decoration:none" href="/ar/account?redirect=employees">🔐 بدون كود — ادخل برمز يوصلك على الإيميل عبر حساب بيزنس بارتنر</a>
       <button type="button" class="bigbtn trial" id="trialBtn">🎁 جرّب الفريق كامل مجاناً (3 رسائل لكل موظف)</button>
       <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم — على نفس البريد اللي اشتريت فيه.</div>
       <button class="linkbtn" id="noCodeBtn">ما اشتريت بعد؟ اختر موظفيك وابدأ الطلب</button>
@@ -8389,6 +8392,7 @@ function buildSharedServicesPortal() {
           <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw('Access code', 'رمز الدخول')}" aria-label="${Lraw('Access code', 'رمز الدخول')}">
           <button class="btn btn-primary" type="submit">${L("Sign in", "دخول")}</button>
         </form>
+        <a class="btn btn-ghost" style="width:100%;margin-top:12px" href="${u("/account")}?redirect=shared">🔐 ${L("No code needed — sign in with an email code via your Business Partner account", "بدون رمز — ادخل برمز يوصلك على الإيميل عبر حساب بيزنس بارتنر")}</a>
         <div class="ss-note-box" id="unl-result" hidden></div>
         <div class="ss-gate-links">
           <a href="${u('/shared-services')}">${L("← Back to service info", "← عن الخدمة")}</a>
