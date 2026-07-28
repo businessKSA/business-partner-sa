@@ -8878,6 +8878,12 @@ function buildSharedServicesPortal() {
 function write(rel, html) {
   const full = path.join(ROOT, rel);
   fs.mkdirSync(path.dirname(full), { recursive: true });
+  if (!SHOW_PRICES && rel.endsWith(".html")) {
+    // Owner policy: no price is revealed anywhere, including view-source.
+    // Strip human-readable price label attributes; numeric data-amount stays
+    // for the internal quote request payload only (never rendered).
+    html = html.replace(/ data-price(?:-monthly|-yearly)?="[^"]*"/g, ' data-price=""');
+  }
   fs.writeFileSync(full, html);
 }
 

@@ -252,12 +252,12 @@
     "tiers": [
       {
         "key": "silver",
-        "name": "Silver",
-        "nameAr": "الباقة الفضية",
-        "nameEn": "Silver Package",
+        "name": "Launch",
+        "nameAr": "باقة الانطلاق",
+        "nameEn": "Launch Package",
         "code": null,
         "amount": 7500,
-        "price": "تبدأ من 7,500 ﷼ / سنويًا",
+        "price": "تبدأ من 6,000 ﷼ / سنويًا",
         "priceEn": "Starting from 7,500 SAR / yearly",
         "for": "للمنشآت الصغيرة",
         "forEn": "For small establishments",
@@ -283,12 +283,12 @@
       },
       {
         "key": "gold",
-        "name": "Gold",
-        "nameAr": "الباقة الذهبية",
-        "nameEn": "Gold Package",
+        "name": "Growth",
+        "nameAr": "باقة النمو",
+        "nameEn": "Growth Package",
         "code": null,
         "amount": 13500,
-        "price": "تبدأ من 13,500 ﷼ / سنويًا",
+        "price": "تبدأ من 10,800 ﷼ / سنويًا",
         "priceEn": "Starting from 13,500 SAR / yearly",
         "for": "للمنشآت المتوسطة",
         "forEn": "For medium establishments",
@@ -296,14 +296,14 @@
         "surcharge": "سيتم فرض رسوم إضافية قدرها 750 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
         "surchargeEn": "An extra fee of 750 SAR per additional employee applies once headcount exceeds 9 employees.",
         "features": [
-          "تشمل جميع مزايا الباقة الفضية",
+          "تشمل جميع مزايا باقة الانطلاق",
           "إدارة شؤون الموظفين والعقود",
           "إدارة وحماية الأجور",
           "متابعة دورية للالتزامات النظامية",
           "دعم تشغيلي موسّع للمنشأة"
         ],
         "featuresEn": [
-          "Everything in the Silver package",
+          "Everything in the Launch package",
           "Employee affairs & contracts management",
           "Wage management & wage protection",
           "Periodic follow-up on regulatory obligations",
@@ -314,12 +314,12 @@
       },
       {
         "key": "platinum",
-        "name": "Platinum",
-        "nameAr": "الباقة البلاتينية",
-        "nameEn": "Platinum Package",
+        "name": "Scale",
+        "nameAr": "باقة التوسّع",
+        "nameEn": "Scale Package",
         "code": null,
         "amount": 20000,
-        "price": "تبدأ من 20,000 ﷼ / سنويًا",
+        "price": "تبدأ من 16,000 ﷼ / سنويًا",
         "priceEn": "Starting from 20,000 SAR / yearly",
         "for": "للمنشآت الكبيرة",
         "forEn": "For large establishments",
@@ -327,14 +327,14 @@
         "surcharge": "سيتم فرض رسوم إضافية قدرها 1,000 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
         "surchargeEn": "An extra fee of 1,000 SAR per additional employee applies once headcount exceeds 9 employees.",
         "features": [
-          "تشمل جميع مزايا الباقة الذهبية",
+          "تشمل جميع مزايا باقة النمو",
           "إدارة متقدمة للموارد البشرية",
           "إدارة الإقرارات والمتابعة الشاملة",
           "تقارير تشغيلية وتنظيمية دورية",
           "استشارات قانونية وتشغيلية مستمرة"
         ],
         "featuresEn": [
-          "Everything in the Gold package",
+          "Everything in the Growth package",
           "Advanced HR management",
           "Filings management & comprehensive follow-up",
           "Periodic operational & regulatory reports",
@@ -347,9 +347,9 @@
       },
       {
         "key": "diamond",
-        "name": "Diamond",
-        "nameAr": "الباقة الماسية",
-        "nameEn": "Diamond Package",
+        "name": "Enterprise",
+        "nameAr": "باقة الشراكة المؤسسية",
+        "nameEn": "Enterprise Package",
         "code": null,
         "amount": null,
         "price": "باقة حسب الطلب",
@@ -360,7 +360,7 @@
         "surcharge": "سيتم فرض رسوم إضافية قدرها 1,500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 60 موظفاً.",
         "surchargeEn": "An extra fee of 1,500 SAR per additional employee applies once headcount exceeds 60 employees.",
         "features": [
-          "تشمل جميع مزايا الباقة البلاتينية",
+          "تشمل جميع مزايا باقة التوسّع",
           "مدير حساب مخصص للمنشأة",
           "أولوية تنفيذ ومتابعة فورية",
           "حلول مخصصة حسب احتياج النشاط",
@@ -369,7 +369,7 @@
           "تقارير ومؤشرات لمتابعة النشاط والأداء"
         ],
         "featuresEn": [
-          "Everything in the Platinum package",
+          "Everything in the Scale package",
           "Dedicated account manager",
           "Priority execution & instant follow-up",
           "Custom solutions tailored to your activity",
@@ -5883,36 +5883,36 @@
             "Causes beyond reasonable control, including but not limited to: fires, accidents, or new government requirements."
           ],
           [
-            "\"الباقة الفضية\"",
+            "\"باقة الانطلاق\"",
             "تتيح إدارة الخدمات الإلكترونية للمنشأة وتشمل: إدارة السجل التجاري، التسجيل والمتابعة في منصة قوى، إدارة التأمينات الاجتماعية، إدارة التأمين الطبي، والامتثال الزكوي والضريبي الأساسي.",
-            "\"Silver Package\"",
+            "\"Launch Package\"",
             "Covers Commercial Registration management, Qiwa platform registration & follow-up, GOSI management, medical insurance management, and basic Zakat & tax compliance."
           ],
           [
-            "\"الباقة الذهبية\"",
-            "تشمل جميع مزايا الباقة الفضية بالإضافة إلى: إدارة شؤون الموظفين والعقود، إدارة وحماية الأجور، المتابعة الدورية للالتزامات النظامية، ودعم تشغيلي موسّع.",
-            "\"Gold Package\"",
-            "Everything in Silver plus: employee affairs & contracts management, wage management & wage protection, periodic follow-up on regulatory obligations, and extended operational support."
+            "\"باقة النمو\"",
+            "تشمل جميع مزايا باقة الانطلاق بالإضافة إلى: إدارة شؤون الموظفين والعقود، إدارة وحماية الأجور، المتابعة الدورية للالتزامات النظامية، ودعم تشغيلي موسّع.",
+            "\"Growth Package\"",
+            "Everything in Launch plus: employee affairs & contracts management, wage management & wage protection, periodic follow-up on regulatory obligations, and extended operational support."
           ],
           [
-            "\"الباقة البلاتينية\"",
-            "تشمل جميع مزايا الباقة الذهبية بالإضافة إلى: إدارة متقدمة للموارد البشرية، إدارة الإقرارات والمتابعة الشاملة، تقارير تشغيلية وتنظيمية دورية، واستشارات قانونية وتشغيلية مستمرة.",
-            "\"Platinum Package\"",
-            "Everything in Gold plus: advanced HR management, filings management & comprehensive follow-up, periodic operational & regulatory reports, and ongoing legal & operational consultations."
+            "\"باقة التوسّع\"",
+            "تشمل جميع مزايا باقة النمو بالإضافة إلى: إدارة متقدمة للموارد البشرية، إدارة الإقرارات والمتابعة الشاملة، تقارير تشغيلية وتنظيمية دورية، واستشارات قانونية وتشغيلية مستمرة.",
+            "\"Scale Package\"",
+            "Everything in Growth plus: advanced HR management, filings management & comprehensive follow-up, periodic operational & regulatory reports, and ongoing legal & operational consultations."
           ],
           [
-            "\"الباقة الماسية\"",
-            "تشمل جميع مزايا الباقة البلاتينية بالإضافة إلى: مدير حساب مخصص، أولوية تنفيذ ومتابعة فورية، حلول مخصصة حسب احتياج النشاط، ودعم استباقي شامل. باقة حسب الطلب، تُسعَّر بعد مراجعة احتياج المنشأة.",
-            "\"Diamond Package\"",
-            "Everything in Platinum plus: a dedicated account manager, priority execution & instant follow-up, custom solutions, and comprehensive proactive support. A custom package, priced after reviewing the establishment's needs."
+            "\"باقة الشراكة المؤسسية\"",
+            "تشمل جميع مزايا باقة التوسّع بالإضافة إلى: مدير حساب مخصص، أولوية تنفيذ ومتابعة فورية، حلول مخصصة حسب احتياج النشاط، ودعم استباقي شامل. باقة حسب الطلب، تُسعَّر بعد مراجعة احتياج المنشأة.",
+            "\"Enterprise Package\"",
+            "Everything in Scale plus: a dedicated account manager, priority execution & instant follow-up, custom solutions, and comprehensive proactive support. A custom package, priced after reviewing the establishment's needs."
           ]
         ]
       },
       {
         "title": "ثانياً: فئة الاشتراك",
         "titleEn": "Second: Subscription Category",
-        "body": "يجب على المشترك تحديد فئة الاشتراك التي يرغب بها، وهي إما: الباقة الفضية، أو الباقة الذهبية، أو الباقة البلاتينية، أو الباقة الماسية، حسب ما هو موضّح في صفحة الباقات على موقع بيزنس بارتنر.",
-        "bodyEn": "The subscriber must choose their subscription tier: Silver, Gold, Platinum, or Diamond, as detailed on the Business Partner packages page."
+        "body": "يجب على المشترك تحديد فئة الاشتراك التي يرغب بها، وهي إما: باقة الانطلاق، أو باقة النمو، أو باقة التوسّع، أو باقة الشراكة المؤسسية، حسب ما هو موضّح في صفحة الباقات على موقع بيزنس بارتنر.",
+        "bodyEn": "The subscriber must choose their subscription tier: Launch, Growth, Scale, or Enterprise Partnership, as detailed on the Business Partner packages page."
       },
       {
         "title": "ثالثاً: مدة الاشتراك",
