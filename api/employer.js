@@ -65,13 +65,16 @@ async function readBody(req) {
 // A short human reference like BP-EMP-3F9K. Mixes in the current time (and a
 // random component) so repeat/duplicate registrations never collide on the
 // same code — each submission gets its own row and its own access code.
-function makeRef(seed) {
+function makeRef(_seed) {
+  // SECURITY: the access code is the sole bearer token that unlocks all
+  // candidate PII once the row is activated, so it must be unguessable. The
+  // old 4-char hash (~9.5e5 space, derived deterministically from the form
+  // fields) was brute-forceable and predictable — replaced with 12 chars of
+  // CSPRNG entropy from a 31-symbol alphabet (~2.5e17 combinations).
   const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const salted = seed + "|" + Date.now() + "|" + Math.random();
-  let h = 0;
-  for (let i = 0; i < salted.length; i++) h = (h * 31 + salted.charCodeAt(i)) >>> 0;
+  const bytes = randomBytes(12);
   let out = "";
-  for (let i = 0; i < 4; i++) { out += abc[h % abc.length]; h = Math.floor(h / abc.length) + salted.length * (i + 7); }
+  for (let i = 0; i < 12; i++) out += abc[bytes[i] % abc.length];
   return "BP-EMP-" + out;
 }
 
@@ -209,10 +212,16 @@ export default async function handler(req, res) {
   const billing = b.billing === "yearly" ? "سنوي" : "شهري";
   const notes = clip(b.notes, 600);
 
-  // Owner testing override — the owner's own registrations activate instantly
-  // (top-tier plan, no manual Notion approval) so they can test live.
-  const OWNER_EMAIL = (process.env.OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
-  const isOwner = email === OWNER_EMAIL;
+  // SECURITY: registration is fully unauthenticated, so no email value may
+  // grant an instantly-active subscription — matching a well-known owner email
+  // was a full auth bypass (anyone POSTing that email received an ACTIVE code
+  // that unlocks all candidate PII). Every registration is now created as
+  // "بانتظار الدفع" and is activated only by flipping the row to "مفعّل" in
+  // Notion (the same manual step the confirmation screen already instructs).
+  // An operator email may still be set via OWNER_EMAIL purely to auto-assign
+  // the enterprise plan LABEL — it never activates access on its own.
+  const OWNER_EMAIL = (process.env.OWNER_EMAIL || "").toLowerCase();
+  const isOwner = !!OWNER_EMAIL && email === OWNER_EMAIL;
   const planAr = isOwner ? PLAN_AR.enterprise : (PLAN_AR[planKey] || "");
 
   if (!company || !phone) {
@@ -237,7 +246,7 @@ export default async function handler(req, res) {
       const props = {
         "اسم الشركة": { title: [{ text: { content: company } }] },
         "الجوال": { phone_number: phone },
-        "الحالة": { select: { name: isOwner ? "مفعّل" : "بانتظار الدفع" } },
+        "الحالة": { select: { name: "بانتظار الدفع" } },
         "رمز الوصول": { rich_text: rt(ref) },
       };
       if (cr) props["السجل التجاري"] = { rich_text: rt(cr) };
@@ -245,7 +254,7 @@ export default async function handler(req, res) {
       if (isEmail(email)) props["البريد"] = { email };
       if (password) props["بيانات الدخول"] = { rich_text: rt(hashPassword(password)) };
       if (planAr) props["الباقة"] = { select: { name: planAr } };
-      props["ملاحظات"] = { rich_text: rt((notes ? notes + " — " : "") + `الفوترة: ${billing}` + (isOwner ? " — تفعيل تلقائي (مالك)" : "")) };
+      props["ملاحظات"] = { rich_text: rt((notes ? notes + " — " : "") + `الفوترة: ${billing}`) };
       r = await notion("pages", { parent: { database_id: DB_ID }, properties: props });
     } else {
       // No dedicated DB: create a child page under the HR center page.
@@ -261,7 +270,7 @@ export default async function handler(req, res) {
         line("الجوال", phone),
         line("البريد", email || "—"),
         line("السجل التجاري", cr || "—"),
-        line("الحالة", isOwner ? "مفعّل" : "بانتظار الدفع"),
+        line("الحالة", "بانتظار الدفع"),
       ];
       if (notes) children.push(line("ملاحظات", notes));
       r = await notion("pages", {

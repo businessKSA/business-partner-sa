@@ -179,7 +179,10 @@ function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
     props["مجلد المرشح (Drive)"] = { url: drive.candidateFolderUrl };
   }
   const ai = data.ai || {};
-  if (ai.candidate_summary) {
+  // Notes is create-only: on a resubmission (isNewCandidate false) we must not
+  // overwrite whatever the recruiter has since written into Notes, so the AI
+  // summary is folded in only for a brand-new candidate row.
+  if (isNewCandidate && ai.candidate_summary) {
     const notesSoFar = (props["Notes"]?.rich_text || []).map((t) => t.text.content).join("\n");
     props["Notes"] = { rich_text: rt([notesSoFar, `ملخص الذكاء الاصطناعي: ${ai.candidate_summary}`].filter(Boolean).join("\n\n")) };
   }
@@ -293,7 +296,9 @@ export default async function handler(req, res) {
           nationality: txt(p["Nationality"]),
           residenceStatus: txt(p["حالة الإقامة"]),
           experienceYears: txt(p["Experience Years"]),
-          expectedSalary: txt(p["Expected Salary"]),
+          // SECURITY: expected salary is deliberately NOT echoed here — this
+          // self-view is gated only by a phone+email pair (no OTP), so the
+          // most sensitive field must not be exposed on that weak check.
           pipelineStage: txt(p["Pipeline Stage"]),
           cvLink: txt(p["CV Link"]),
           atsCvLink: txt(p["ATS CV (Drive)"]),
@@ -302,9 +307,9 @@ export default async function handler(req, res) {
       }));
     }
     res.statusCode = 200;
-    // seenKeyNames helps diagnose a mis-named / wrong-project token without leaking it.
-    const seenKeyNames = Object.keys(process.env).filter((k) => /notion/i.test(k));
-    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, n8n: !!N8N_ATS_WEBHOOK, seenKeyNames }));
+    // SECURITY: never enumerate env-var names to unauthenticated callers — it
+    // hands an attacker the secret-naming scheme. Booleans only.
+    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, n8n: !!N8N_ATS_WEBHOOK }));
   }
   if (req.method !== "POST") {
     res.statusCode = 405;
@@ -398,6 +403,12 @@ export default async function handler(req, res) {
     const n8n = await forwardToN8n(n8nPayload);
     const existing = await findExisting(email, phone);
     if (existing) {
+      // SECURITY / data-integrity: a resubmission must NOT re-expose a
+      // candidate an admin deliberately hid, nor wipe recruiter notes. Both
+      // props are create-only — drop them from the update so the existing
+      // hide flag and Notes are left exactly as the recruiter left them.
+      delete props["مخفي عن الموقع"];
+      delete props["Notes"];
       applyN8nEnrichment(props, n8n, false);
       const r = await notion("pages/" + existing.id, "PATCH", { properties: props });
       if (!r.ok) {
