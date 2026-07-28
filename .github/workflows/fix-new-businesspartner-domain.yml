@@ -1,0 +1,34 @@
+name: Fix new.businesspartner.sa domain redirect
+
+on:
+  push:
+    branches:
+      - claude/bpic-marketing-site-jvrnga
+    paths:
+      - .github/workflows/fix-new-businesspartner-domain.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove Vercel domain redirect
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN || secrets.VERCEL_ACCESS_TOKEN || secrets.VERCEL_API_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "No Vercel API token secret is configured in GitHub."
+            exit 2
+          fi
+
+          response=$(curl --silent --show-error --fail-with-body \
+            -X PATCH \
+            "https://api.vercel.com/v9/projects/prj_0QXlyAeL02QYYNrAQCfc6lRheTGp/domains/new.businesspartner.sa?teamId=team_qxRMfWHHubkWE0aOa5kFgNXq" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"gitBranch":null,"redirect":null,"redirectStatusCode":null}')
+
+          echo "$response" | python -m json.tool
