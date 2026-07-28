@@ -1110,6 +1110,27 @@
           '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">/ar/services</b></div>' +
           '<div class="acts"><a class="btn sm" href="/ar/services">' + esc(t('browseServices')) + '</a></div></div>';
       }
+      // «بواباتي» — every Business Partner portal is always reachable from
+      // here, even before the first purchase (the four SSO portals open with
+      // the unified session via the click handler above).
+      if (state.svcTab === 'all'){
+        var en = state.lang === 'en';
+        var portalBadge = en ? 'Portal' : 'بوابة';
+        var openLbl = en ? 'Open portal' : 'افتح البوابة';
+        var pl = [
+          { i: '🚀', n: en ? 'Project portal — Revenue Command Center' : 'بوابة المشروع — Revenue Command Center', u: '/revenue-dashboard' },
+          { i: '🛡️', n: en ? 'Compliance dashboard' : 'لوحة الامتثال', u: '/ar/compliance-dashboard' },
+          { i: '🤖', n: en ? 'Smart employees portal' : 'بوابة الموظفين الأذكياء', u: '/ar/portal' },
+          { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
+          { i: '🤝', n: en ? 'Shared services dashboard' : 'لوحة الخدمات المشتركة', u: '/shared-services/dashboard' }
+        ];
+        for (i = 0; i < pl.length; i++){
+          cards += '<div class="svc" data-srch>' +
+            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + portalBadge + '</span></div>' +
+            '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">' + esc(pl[i].u) + '</b></div>' +
+            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + openLbl + '</a></div></div>';
+        }
+      }
       $('svcGrid').innerHTML = cards;
       var empt = $('svcEmpty');
       if (!cards){ empt.style.display = ''; empt.textContent = t('svcEmptyTab'); }
