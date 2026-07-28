@@ -14,6 +14,7 @@
 // POST /api/employer                               -> { ok, ref } | { ok:false, error }   (register/signup)
 // POST /api/employer { action:"login", email, password } -> { ok, code, plan, status } | { ok:false, error }
 
+import crypto from "node:crypto";
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
 const envFrom = (names) => {
@@ -96,6 +97,39 @@ function verifyPassword(pw, stored) {
   return timingSafeEqual(candidate, expected);
 }
 
+// ---- Passwordless email-OTP login ------------------------------------------
+// A fresh 6-digit code is emailed and sealed (AES-256-GCM) into a short-lived
+// challenge token handed to the client — no DB/session store needed (same
+// stateless pattern as api/otp.js). The employer's access code is only ever
+// returned AFTER the emailed code is verified against the sealed challenge, so
+// possession of the inbox alone gates the dashboard. Lets the owner/employers
+// sign in with just their email + a mailed code — no password, no bearer code.
+const OTP_SECRET = process.env.OTP_SECRET || "";
+const OTP_TTL_MS = 10 * 60 * 1000;
+function otpKey() { return crypto.createHash("sha256").update(String(OTP_SECRET)).digest(); }
+function sealOtp(obj) {
+  const iv = randomBytes(12);
+  const c = crypto.createCipheriv("aes-256-gcm", otpKey(), iv);
+  const enc = Buffer.concat([c.update(JSON.stringify(obj), "utf8"), c.final()]);
+  return Buffer.concat([iv, c.getAuthTag(), enc]).toString("base64url");
+}
+function unsealOtp(token) {
+  try {
+    const raw = Buffer.from(String(token || ""), "base64url");
+    if (raw.length < 29) return null;
+    const iv = raw.subarray(0, 12), tag = raw.subarray(12, 28), enc = raw.subarray(28);
+    const d = crypto.createDecipheriv("aes-256-gcm", otpKey(), iv);
+    d.setAuthTag(tag);
+    return JSON.parse(Buffer.concat([d.update(enc), d.final()]).toString("utf8"));
+  } catch { return null; }
+}
+async function findEmployerByEmail(email) {
+  const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+  if (!q.ok) return null;
+  const data = await q.json();
+  return (data.results || [])[0] || null;
+}
+
 async function notion(path, payload) {
   return fetch("https://api.notion.com/v1/" + path, {
     method: "POST",
@@ -166,6 +200,66 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "server_error" }));
     }
   }
+  // Passwordless login step 1 — email a fresh 6-digit code. The sealed
+  // challenge is returned to the client, but the code is only actually
+  // DELIVERED to a registered + ACTIVE employer; the response is identical
+  // either way so it can't enumerate accounts.
+  if (b.action === "otp-send") {
+    const email = clip(b.email, 160).toLowerCase();
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    if (!OTP_SECRET) { res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "otp_not_configured" })); }
+    const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+    const challenge = sealOtp({ email, code, exp: Date.now() + OTP_TTL_MS });
+    try {
+      if (NOTION_TOKEN && DB_ID) {
+        const row = await findEmployerByEmail(email);
+        const status = row ? txtProp(row.properties["الحالة"], "select") : "";
+        if (row && status === "مفعّل") {
+          const company = txtProp(row.properties["اسم الشركة"], "title").replace(/[<>&]/g, "");
+          await sendMail(email, `رمز الدخول: ${code} — Business Partner`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px;margin:auto">
+            <h2 style="color:#0B1B5A">رمز الدخول للوحة التوظيف</h2>
+            <p>${company ? "حساب: " + company + "<br>" : ""}رمز الدخول لمرة واحدة (صالح 10 دقائق):</p>
+            <p style="font-size:30px;font-weight:bold;letter-spacing:8px;color:#0B1B5A">${code}</p>
+            <p style="color:#666">إذا لم تطلب هذا الرمز، تجاهل هذه الرسالة.</p>
+          </div>`);
+        }
+      }
+    } catch (e) { console.error("otp-send lookup error", String(e).slice(0, 150)); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, challenge, to: email, message: "إذا كان بريدك مسجلاً ومفعّلاً فسيصلك رمز الدخول خلال دقائق." }));
+  }
+
+  // Passwordless login step 2 — verify the mailed code against the sealed
+  // challenge, then hand back the employer's access code + plan so the
+  // dashboard unlocks without the user ever seeing a bearer code.
+  if (b.action === "otp-login") {
+    const email = clip(b.email, 160).toLowerCase();
+    const code = String(b.code || "").trim();
+    const payload = unsealOtp(b.challenge);
+    if (!payload || String(payload.email) !== email) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "otp_invalid" })); }
+    if (Date.now() > Number(payload.exp || 0)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "expired" })); }
+    const want = Buffer.from(String(payload.code)); const got = Buffer.from(code);
+    if (want.length !== got.length || !timingSafeEqual(want, got)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "otp_invalid" })); }
+    if (!NOTION_TOKEN || !DB_ID) { res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    try {
+      const row = await findEmployerByEmail(email);
+      const status = row ? txtProp(row.properties["الحالة"], "select") : "";
+      if (!row || status !== "مفعّل") { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_active" })); }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        code: txtProp(row.properties["رمز الوصول"]),
+        plan: txtProp(row.properties["الباقة"], "select"),
+        status,
+        company: txtProp(row.properties["اسم الشركة"], "title"),
+      }));
+    } catch (e) {
+      console.error("otp-login error", String(e).slice(0, 200));
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
   // «أرسل رمزي إلى بريدي» — emails the registered access code to the
   // account's own email address. The response is identical whether or not
   // the email exists, so this can't be used to probe which emails are

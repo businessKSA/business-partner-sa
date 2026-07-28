@@ -3082,6 +3082,40 @@ var BP_EMP_BILLING = "monthly";
         errEl.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
       });
     });
+    // Passwordless (email-code) login: enter email → a fresh code is mailed →
+    // verifying it returns the employer's access code and opens the portal.
+    // No password and no bearer code typed by the user.
+    var passwordless = document.getElementById("el-passwordless");
+    function startPasswordless() {
+      var email = (document.getElementById("el-email").value || "").trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { errEl.textContent = T("Enter your email first.", "أدخل بريدك الإلكتروني أولاً."); return Promise.resolve(false); }
+      errEl.textContent = "";
+      pending = { mode: "passwordless", email: email.toLowerCase() };
+      return fetch("/api/employer", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "otp-send", email: pending.email }),
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (!(j && j.ok && j.challenge)) return false;
+        pending.challenge = j.challenge;
+        if (loginWrap && otpStep) {
+          loginWrap.hidden = true; otpStep.hidden = false;
+          otpNote.textContent = T("If your email is registered, a 6-digit code is on its way to ", "إذا كان بريدك مسجلاً، فرمز من 6 أرقام في طريقه إلى ") + (j.to || pending.email) + T(". Enter it to open the portal.", "، أدخله لفتح البوابة.");
+          otpErr.textContent = "";
+          var inp = document.getElementById("el-otp-code");
+          if (inp) { inp.value = ""; inp.focus(); }
+        }
+        return true;
+      });
+    }
+    if (passwordless) passwordless.addEventListener("click", function (e) {
+      e.preventDefault();
+      passwordless.style.pointerEvents = "none";
+      startPasswordless().then(function (sent) {
+        passwordless.style.pointerEvents = "";
+        if (!sent && !(pending && pending.challenge)) errEl.textContent = errEl.textContent || T("Couldn't start email sign-in. Try again.", "تعذّر بدء الدخول بالبريد. حاول مجدداً.");
+      }).catch(function () { passwordless.style.pointerEvents = ""; errEl.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً."); });
+    });
+
     var otpForm = document.getElementById("el-otp-form");
     if (otpForm) otpForm.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -3090,14 +3124,23 @@ var BP_EMP_BILLING = "monthly";
       if (code.length < 4) { otpErr.textContent = T("Enter the 6-digit code from your email.", "أدخل الرمز المكوّن من 6 أرقام من بريدك."); return; }
       var vBtn = document.getElementById("el-otp-submit");
       vBtn.disabled = true; vBtn.textContent = T("Verifying…", "جارٍ التحقق…");
-      fetch("/api/otp", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "verify", email: pending.email, code: code, challenge: pending.challenge, company: pending.company }),
-      }).then(function (r) { return r.json(); }).then(function (d) {
+      // Passwordless verifies against /api/employer (which also returns the
+      // access code); the password flow verifies the 2FA code via /api/otp.
+      var req = pending.mode === "passwordless"
+        ? fetch("/api/employer", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "otp-login", email: pending.email, code: code, challenge: pending.challenge }) })
+        : fetch("/api/otp", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "verify", email: pending.email, code: code, challenge: pending.challenge, company: pending.company }) });
+      req.then(function (r) { return r.json(); }).then(function (d) {
         vBtn.disabled = false; vBtn.textContent = T("Verify & open the portal", "تحقق وافتح البوابة");
-        if (d && d.ok) { otpErr.textContent = ""; finishLogin(otpErr); return; }
+        if (d && d.ok) {
+          otpErr.textContent = "";
+          if (pending.mode === "passwordless") { pending.code = d.code; pending.company = d.company || ""; pending.status = d.status || ""; }
+          finishLogin(otpErr);
+          return;
+        }
         otpErr.textContent = (d && d.error === "expired")
           ? T("The code expired — resend a new one.", "انتهت صلاحية الرمز — أعد إرسال رمز جديد.")
+          : (d && d.error === "not_active")
+          ? T("This account isn't active yet.", "هذا الحساب غير مفعّل بعد.")
           : T("Incorrect code. Try again.", "الرمز غير صحيح. حاول مجدداً.");
       }).catch(function () {
         vBtn.disabled = false; vBtn.textContent = T("Verify & open the portal", "تحقق وافتح البوابة");
@@ -3110,7 +3153,7 @@ var BP_EMP_BILLING = "monthly";
       if (!pending) return;
       otpErr.style.color = "";
       otpErr.textContent = T("Sending a new code…", "جارٍ إرسال رمز جديد…");
-      startOtp().then(function (sent) {
+      (pending.mode === "passwordless" ? startPasswordless() : startOtp()).then(function (sent) {
         otpErr.style.color = "#B91C1C";
         otpErr.textContent = sent ? "" : T("Couldn't send right now. Try again shortly.", "تعذّر الإرسال الآن. حاول بعد قليل.");
         if (sent) { otpErr.style.color = ""; otpErr.textContent = T("A new code was sent.", "تم إرسال رمز جديد."); }
