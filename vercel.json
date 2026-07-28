@@ -18,6 +18,7 @@
     { "source": "/ar/compliance-portal", "destination": "/ar/compliance-agent", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/new-business-partner" },
     { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
     { "source": "/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/join" },
     { "source": "/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/dashboard" },
