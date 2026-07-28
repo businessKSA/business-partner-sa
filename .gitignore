@@ -30,3 +30,4 @@ dist-portable/
 business-partner-site.zip
 business-partner-onefile.html
 *.bundle
+__pycache__/
