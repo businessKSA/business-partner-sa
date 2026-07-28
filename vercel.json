@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "echo \"no dependencies\"",
-  "buildCommand": "cp site/new-business-partner.html /tmp/new-business-partner.html && node site/scripts/generate.mjs && cp /tmp/new-business-partner.html site/new-business-partner.html",
+  "buildCommand": "node site/scripts/generate.mjs",
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
