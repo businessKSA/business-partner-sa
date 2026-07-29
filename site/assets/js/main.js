@@ -158,6 +158,7 @@ var BP = window.BP = window.BP || {};
       amount: a ? Number(a) : null,
       price: btn.getAttribute("data-price") || "",
       kind: btn.getAttribute("data-kind") || "service",
+      privatePrice: btn.getAttribute("data-private-price") === "true",
       qty: 1,
       surchargeAmount: surA ? Number(surA) : null,
       surchargeFreeCount: surF ? Number(surF) : null,
@@ -186,6 +187,9 @@ var BP = window.BP = window.BP || {};
     if (addBtn) {
       add(itemFromBtn(addBtn));
       toast(BP.t("Added to cart ✓", "أُضيفت إلى السلة ✓"));
+      if (addBtn.getAttribute("data-go-cart") === "true") {
+        location.href = BP.lang === "ar" ? "/ar/cart" : "/cart";
+      }
     }
   });
 
@@ -196,11 +200,14 @@ var BP = window.BP = window.BP || {};
     if (!wrap) return;
     var c = read();
     var empty = document.getElementById("cart-empty");
+    var signed = false; try { signed = !!JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
     if (!c.length) { wrap.innerHTML = ""; if (empty) empty.hidden = false; }
     else {
       if (empty) empty.hidden = true;
       wrap.innerHTML = c.map(function (i, idx) {
-        var priceTxt = i.amount ? BP.money(i.amount) : (i.price || BP.t("Quoted on review", "يُسعّر عند المراجعة"));
+        var priceTxt = i.privatePrice && !signed
+          ? BP.t("Shown after sign-in", "تظهر بعد تسجيل الدخول")
+          : (i.amount ? BP.money(i.amount) : (i.price || BP.t("Quoted on review", "يُسعّر عند المراجعة")));
         return '<div class="cart-item">' +
           '<div class="ci-main"><strong>' + esc(name(i)) + '</strong><span class="ci-kind">' + kindLabel(i.kind) + '</span></div>' +
           '<div class="ci-qty"><button type="button" class="ci-dec" data-i="' + idx + '">−</button><span>' + (i.qty || 1) + '</span><button type="button" class="ci-inc" data-i="' + idx + '">+</button></div>' +
@@ -209,12 +216,11 @@ var BP = window.BP = window.BP || {};
           '</div>';
       }).join("");
     }
-    renderTotals("cart-subtotal", "cart-vat", "cart-total");
+    renderTotals("cart-subtotal", "cart-vat", "cart-total", !signed && c.some(function (i) { return i.privatePrice; }));
     // Registration is required before payment: if the visitor isn't signed in,
     // the checkout button takes them to register/sign in first (then back to checkout).
     var co = document.getElementById("cart-checkout");
     if (co) {
-      var signed = false; try { signed = !!JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) {}
       var note = document.getElementById("cart-signin-note");
       if (c.length && !signed) {
         co.setAttribute("href", (BP.lang === "ar" ? "/ar/account" : "/account") + "?redirect=checkout");
@@ -234,7 +240,12 @@ var BP = window.BP = window.BP || {};
     return BP.t(p[0], p[1]);
   }
 
-  function renderTotals(subId, vatId, totId) {
+  function renderTotals(subId, vatId, totId, hiddenUntilSignIn) {
+    if (hiddenUntilSignIn) {
+      set(subId, BP.t("Shown after sign-in", "تظهر بعد تسجيل الدخول"));
+      set(vatId, "—"); set(totId, BP.t("Shown after sign-in", "تظهر بعد تسجيل الدخول"));
+      return;
+    }
     var extra = (typeof BP.extraCheckoutFee === "function") ? (BP.extraCheckoutFee() || 0) : 0;
     var sub = subtotal() + extra, vat = sub * VAT, tot = sub + vat;
     var q = hasQuoteItems();
@@ -354,7 +365,12 @@ var BP = window.BP = window.BP || {};
   });
   document.addEventListener("DOMContentLoaded", function () {
     if (isSignedIn()) { setPortalButtonsToCart(); return; }
-    serverSession().then(function (signedIn) { if (signedIn) setPortalButtonsToCart(); });
+    serverSession().then(function (signedIn) {
+      if (!signedIn) return;
+      setPortalButtonsToCart();
+      if (BP.renderCart) BP.renderCart();
+      if (BP.renderCheckout) BP.renderCheckout();
+    });
   });
 })();
 

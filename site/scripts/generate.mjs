@@ -348,7 +348,7 @@ const parseAmount = (str) => {
 const KIND_TOPIC = { package: "other", agent: "ai", misa: "misa", service: "other" };
 // Priced items → "Add to cart". Price-less items → "Book a consultation" (there is
 // no price to pay online, so we route the client to a booking + simple form).
-function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
+function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount, privatePrice = false, goCart = false }) {
   if (amount == null) {
     const topic = KIND_TOPIC[kind] || "other";
     const about = encodeURIComponent(LANG === "ar" ? nameAr : (nameEn || nameAr));
@@ -359,7 +359,9 @@ function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", gh
   // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
   const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
   const surData = surchargeAmount != null ? ` data-surcharge-amount="${surchargeAmount}" data-surcharge-free="${surchargeFreeCount || 0}"` : "";
-  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}`;
+  const privateData = privatePrice ? " data-private-price=\"true\"" : "";
+  const goCartData = goCart ? " data-go-cart=\"true\"" : "";
+  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}${privateData}${goCartData}`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
   </div>`;
@@ -1175,9 +1177,9 @@ function buildServiceDetail(s) {
     <aside class="svc-aside">
       <div class="order-box">
         ${ov && ov.purchaseMode === "portal"
-          ? `<div class="price-tailored">${L("Available in the client portal", "متاحة داخل بوابة العميل")}</div>
-        <div class="price-note">${L("Sign in to review the service fee, government fees, requirements, and start your order.", "سجّل دخولك لمراجعة أتعاب الخدمة والرسوم الحكومية والمتطلبات وبدء طلبك.")}</div>
-        <a class="btn btn-primary service-portal-start" data-service-slug="${esc(s.slug)}" href="${u("/account")}?redirect=service&amp;service=${encodeURIComponent(s.slug)}" style="width:100%">${I.user}<span>${L("Sign in to start your order", "سجّل دخولك لبدء الطلب")}</span></a>`
+          ? `<div class="price-tailored">${L("Ready to add to cart", "جاهزة للإضافة إلى السلة")}</div>
+        <div class="price-note">${L("Add the service now. Fees, government charges, and requirements appear after you sign in at checkout.", "أضف الخدمة الآن إلى السلة. تظهر الأتعاب والرسوم الحكومية والمتطلبات بعد تسجيل الدخول عند إتمام الطلب.")}</div>
+        ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service", privatePrice: true, goCart: true })}`
           : s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
           ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
         <div class="price-note">${esc(priceNote)}</div>
