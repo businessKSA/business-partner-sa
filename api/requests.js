@@ -169,11 +169,16 @@ async function listLeads(limit) {
     const notes = txt(p["Notes"] && p["Notes"].rich_text);
     const stage = (p["Stage"] && p["Stage"].select && p["Stage"].select.name) || "";
     const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
+    const total = p["إجمالي الطلب"] && typeof p["إجمالي الطلب"].number === "number" ? p["إجمالي الطلب"].number : null;
+    const receiptFiles = ((p["الإيصال البنكي"] && p["الإيصال البنكي"].files) || []).map((f) => ({
+      name: String(f.name || "إيصال التحويل"),
+      url: (f.file && f.file.url) || (f.external && f.external.url) || "",
+    }));
     const at = (p["Last Activity"] && p["Last Activity"].date && p["Last Activity"].date.start) || (pg.created_time || "").slice(0, 10);
     const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
     const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
     return {
-      title, ref, at, stage, status,
+      title, ref, at, stage, status, total, receiptFiles, notionUrl: pg.url || "", notes,
       phone: phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "",
       email: emailM ? emailM[1] : "",
     };
