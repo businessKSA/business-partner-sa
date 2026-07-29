@@ -466,6 +466,16 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   height: 560px; max-height: calc(100vh - 44px); background: #fff; border: 1px solid var(--gray-line); border-radius: 20px;
   box-shadow: var(--shadow-lg); display: flex; flex-direction: column; overflow: hidden; }
 .advisor-panel[hidden] { display: none; }
+.conversation-home { min-height: 100vh; padding: clamp(24px,5vw,64px) 20px; background: radial-gradient(1000px 600px at 20% 0%, rgba(35,75,190,.14), transparent 60%), #f6f8ff; }
+.conversation-shell { width: min(900px, 100%); margin: 0 auto; display: grid; gap: 22px; }
+.conversation-brand { display: inline-flex; width: fit-content; padding: 8px 0; }
+.conversation-brand img { display:block; object-fit:contain; }
+.conversation-intro { max-width: 720px; }
+.conversation-intro .eyebrow { margin-bottom: 12px; }
+.conversation-intro h1 { margin: 0 0 12px; color: var(--navy); font-size: clamp(2rem,5vw,3.8rem); line-height: 1.12; }
+.conversation-intro p { margin: 0; color: var(--text-soft); line-height: 1.8; font-size: 1.04rem; }
+.advisor-panel--immersive { position: relative; inset: auto; z-index: 1; width: 100%; max-width: none; height: min(620px, 64vh); max-height: none; border-radius: 24px; box-shadow: 0 18px 55px rgba(11,27,90,.16); }
+.conversation-note { margin: 0; color: var(--text-soft); text-align: center; font-size: .8rem; line-height: 1.6; }
 .advisor-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 18px;
   background: var(--navy); color: #fff; }
 .advisor-title { display: flex; align-items: center; gap: 11px; }
@@ -488,8 +498,22 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .advisor-wa { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; font-size: .84rem; font-weight: 600;
   color: #05330f; background: var(--wa); text-align: center; }
 .advisor-wa svg { width: 18px; height: 18px; }
+.advisor-actions { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #f6f8ff; border-top: 1px solid var(--gray-line); }
+.advisor-actions span { color: var(--text-soft); font-size: .75rem; line-height: 1.35; }
+.advisor-intent { border: 0; border-radius: 10px; background: var(--navy); color: #fff; padding: 9px 11px; white-space: nowrap; cursor: pointer; font: inherit; font-size: .82rem; font-weight: 700; }
+.purchase-intent { padding: 13px; border-top: 1px solid var(--gray-line); background: #fff; }
+.purchase-intent label { display: block; margin: 0 0 5px; color: var(--navy); font-size: .8rem; font-weight: 700; }
+.purchase-intent textarea, .purchase-intent input { box-sizing: border-box; width: 100%; margin: 0 0 10px; padding: 9px 10px; border: 1px solid var(--gray-line); border-radius: 9px; font: inherit; font-size: .84rem; resize: vertical; }
+.purchase-intent-actions { display: flex; gap: 8px; }
+.purchase-intent-actions button { border: 0; border-radius: 9px; padding: 9px 12px; cursor: pointer; font: inherit; font-size: .82rem; font-weight: 700; background: var(--navy); color: #fff; }
+.purchase-intent-actions .purchase-cancel { color: var(--navy); background: var(--gray-bg); }
+.purchase-intent p { margin: 9px 0 0; color: var(--text-soft); font-size: .72rem; line-height: 1.45; }
 @media (max-width: 560px) {
+  .conversation-home { padding: 20px 12px; }
+  .conversation-shell { gap: 18px; }
+  .advisor-panel--immersive { height: calc(100vh - 260px); min-height: 500px; border-radius: 18px; }
   .advisor-panel { inset-inline: 10px; width: auto; bottom: 10px; height: calc(100vh - 20px); max-height: none; border-radius: 16px; }
+  .advisor-panel--immersive { inset: auto; width: 100%; }
   .advisor-fab .lbl { display: none; }
   .advisor-fab { padding: 14px; inset-inline-start: 16px; bottom: 16px; }
   .wa-fab { inset-inline-end: 16px; bottom: 16px; }

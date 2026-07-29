@@ -535,16 +535,28 @@ function waFab() {
   return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="${Lraw("Contact on WhatsApp", "تواصل عبر واتساب")}">${I.wa}<span class="lbl">${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>`;
 }
 
-function advisorWidget() {
-  return `<button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open the smart advisor", "افتح المستشار الذكي")}">${I.robot}<span class="lbl">${L("Advisor", "المستشار")}</span></button>
-  <section class="advisor-panel" id="advisor-panel" hidden aria-label="${Lraw("Smart advisor", "المستشار الذكي")}">
+function advisorWidget({ immersive = false } = {}) {
+  return `${immersive ? "" : `<button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open the smart advisor", "افتح المستشار الذكي")}">${I.robot}<span class="lbl">${L("Advisor", "المستشار")}</span></button>`}
+  <section class="advisor-panel${immersive ? " advisor-panel--immersive" : ""}" id="advisor-panel"${immersive ? "" : " hidden"} aria-label="${Lraw("Smart advisor", "المستشار الذكي")}">
     <header class="advisor-head">
-      <div class="advisor-title">${I.robot}<div><strong>${L("Smart Advisor", "المستشار الذكي")}</strong><span>${L("Answers about services & procedures", "يجاوبك عن الخدمات والإجراءات")}</span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>
+      <div class="advisor-title">${I.robot}<div><strong>${L("Smart Advisor", "المستشار الذكي")}</strong><span>${L("Plans your request, then prepares payment", "يفهم طلبك ويجهّز لك الدفع")}</span></div></div>
+      ${immersive ? "" : `<button class="advisor-close" id="advisor-close" aria-label="${Lraw("Close", "إغلاق")}">${I.close}</button>`}
     </header>
     <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">${L("Hi 👋 I'm the Business Partner smart advisor. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "مرحباً 👋 أنا المستشار الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
+      <div class="advisor-msg bot">${L("Hi 👋 I'm the Business Partner smart advisor. Ask me about a service, or tell me what you need and I will prepare a payment-ready request.", "مرحباً 👋 أنا المستشار الذكي في بيزنس بارتنر. اسألني عن خدمة، أو اكتب طلبك وأنا أجهز لك ملخصاً جاهزاً للدفع.")}</div>
     </div>
+    <div class="advisor-actions" id="advisor-actions">
+      <button type="button" class="advisor-intent" id="advisor-intent">${L("Start a smart purchase", "ابدأ طلباً ذكياً")}</button>
+      <span>${L("You approve payment once", "توافق على الدفع مرة واحدة")}</span>
+    </div>
+    <form class="purchase-intent" id="purchase-intent" hidden>
+      <label for="purchase-description">${L("What do you need?", "ماذا تحتاج؟")}</label>
+      <textarea id="purchase-description" rows="3" placeholder="${Lraw("For example: company formation service for a Saudi LLC", "مثال: خدمة تأسيس شركة ذات مسؤولية محدودة")}" required></textarea>
+      <label for="purchase-budget">${L("Budget (SAR, optional)", "الميزانية بالريال (اختياري)")}</label>
+      <input id="purchase-budget" inputmode="decimal" placeholder="${Lraw("e.g. 5,000", "مثال: 5,000")}">
+      <div class="purchase-intent-actions"><button type="submit">${L("Prepare payment", "جهّز الدفع")}</button><button type="button" class="purchase-cancel" id="purchase-cancel">${L("Back", "رجوع")}</button></div>
+      <p>${L("No payment is made until you approve it through your payment provider.", "لن يتم أي دفع إلا بعد موافقتك النهائية عبر مزوّد الدفع.")}</p>
+    </form>
     <form class="advisor-form" id="advisor-form">
       <input id="advisor-input" type="text" autocomplete="off" placeholder="${Lraw("Type your question here…", "اكتب سؤالك هنا…")}" aria-label="${Lraw("Type your question", "اكتب سؤالك")}">
       <button type="submit" aria-label="${Lraw("Send", "إرسال")}">${I.send}</button>
@@ -715,6 +727,28 @@ function serviceQuickFacts(s, ov) {
 
 /* ---------- pages ---------- */
 function buildHome() {
+  const conversation = `
+  <main class="conversation-home">
+    <div class="conversation-shell">
+      <a class="conversation-brand" href="${u("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="168" height="32"></a>
+      <div class="conversation-intro">
+        <p class="eyebrow">${L("Business Partner AI", "بيزنس بارتنر AI")}</p>
+        <h1>${L("Tell us what you need. We handle the rest.", "قل لنا ماذا تحتاج، والباقي علينا.")}</h1>
+        <p>${L("Ask naturally. Your advisor identifies the service, prepares your request, and asks for one secure approval only when it is ready to pay.", "اطلب بطريقتك الطبيعية. المستشار يحدد الخدمة، يجهز الطلب، ولا يطلب منك إلا موافقة دفع آمنة واحدة عندما يصبح الطلب جاهزاً.")}</p>
+      </div>
+      ${advisorWidget({ immersive: true })}
+      <p class="conversation-note">${L("No card details are collected in this chat. Payment is confirmed only through a licensed payment provider.", "لا نجمع بيانات بطاقتك في المحادثة. الدفع يؤكّد فقط عبر مزوّد دفع مرخّص.")}</p>
+    </div>
+  </main>`;
+  return head(
+    Lraw("Business Partner AI", "بيزنس بارتنر AI"),
+    Lraw("A conversational way to request and purchase Business Partner services.", "طريقة محادثة لطلب وشراء خدمات بيزنس بارتنر."),
+    "/"
+  ) + conversation + `<script src="/assets/js/main.js?v=${JS_V}"></script></body></html>`;
+
+  /* Legacy rich homepage is intentionally retained below as source material.
+     The public root is now conversation-first; service routes remain available
+     internally until their conversational equivalents are validated. */
   const h = site.home;
   // Parallel English content (index-aligned with the Arabic data in site.json).
   const EN = {

@@ -1768,19 +1768,40 @@ var BP = window.BP = window.BP || {};
   "use strict";
   var fab = document.getElementById("advisor-fab");
   var panel = document.getElementById("advisor-panel");
-  if (!fab || !panel) return;
+  if (!panel) return;
+  var immersive = panel.classList.contains("advisor-panel--immersive");
   var closeBtn = document.getElementById("advisor-close");
   var msgs = document.getElementById("advisor-msgs");
   var form = document.getElementById("advisor-form");
   var input = document.getElementById("advisor-input");
   var sendBtn = form.querySelector("button");
+  var actions = document.getElementById("advisor-actions");
+  var intentBtn = document.getElementById("advisor-intent");
+  var intentForm = document.getElementById("purchase-intent");
+  var intentCancel = document.getElementById("purchase-cancel");
+  var intentDescription = document.getElementById("purchase-description");
+  var intentBudget = document.getElementById("purchase-budget");
   var history = []; // {role, content}
   var busy = false;
 
-  function open() { panel.hidden = false; fab.classList.add("hide"); setTimeout(function () { input.focus(); }, 50); }
-  function close() { panel.hidden = true; fab.classList.remove("hide"); }
-  fab.addEventListener("click", open);
-  closeBtn.addEventListener("click", close);
+  function open() { panel.hidden = false; if (fab) fab.classList.add("hide"); setTimeout(function () { input.focus(); }, 50); }
+  function close() { if (immersive) return; panel.hidden = true; if (fab) fab.classList.remove("hide"); }
+  if (fab) fab.addEventListener("click", open);
+  if (closeBtn) closeBtn.addEventListener("click", close);
+
+  function showIntent() {
+    intentForm.hidden = false;
+    actions.hidden = true;
+    form.hidden = true;
+    setTimeout(function () { intentDescription.focus(); }, 50);
+  }
+  function hideIntent() {
+    intentForm.hidden = true;
+    actions.hidden = false;
+    form.hidden = false;
+  }
+  if (intentBtn && intentForm) intentBtn.addEventListener("click", showIntent);
+  if (intentCancel) intentCancel.addEventListener("click", hideIntent);
 
   function addMsg(text, who) {
     var el = document.createElement("div");
@@ -1790,6 +1811,36 @@ var BP = window.BP = window.BP || {};
     msgs.scrollTop = msgs.scrollHeight;
     return el;
   }
+
+  if (intentForm) intentForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var description = intentDescription.value.trim();
+    if (!description) return;
+    var budget = intentBudget.value.trim();
+    var submit = intentForm.querySelector('button[type="submit"]');
+    submit.disabled = true;
+    fetch("/api/purchase-intent", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ description: description, budget: budget, source: "website_advisor" })
+    }).then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (data) {
+        hideIntent();
+        var ref = data && data.reference ? (" رقم " + data.reference + ".") : "";
+        addMsg("جهزت طلبك" + ref + " الخطوة التالية: نحدد الخدمة والسعر، ثم تظهر لك موافقة دفع واحدة فقط.", "bot");
+        var wa = document.createElement("a");
+        wa.className = "advisor-wa";
+        wa.target = "_blank";
+        wa.rel = "noopener";
+        wa.href = "https://wa.me/966507034157?text=" + encodeURIComponent("طلب ذكي من الموقع" + (budget ? " — ميزانية " + budget + " ريال" : "") + ": " + description);
+        wa.textContent = "تابع الطلب مع الوكيل على واتساب";
+        msgs.appendChild(wa);
+        msgs.scrollTop = msgs.scrollHeight;
+      }).catch(function () {
+        hideIntent();
+        addMsg("حصل تعذر مؤقت في تجهيز الطلب. تقدر تتابعه مع الوكيل على واتساب.", "bot");
+      }).finally(function () { submit.disabled = false; });
+  });
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
