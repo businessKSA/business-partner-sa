@@ -206,9 +206,17 @@
     <div class="gate-card">
       <img src="/assets/img/logo.png" alt="Business Partner" onerror="this.style.display='none'" />
       <h1>لوحة تحكم الموقع</h1>
-      <p>لوحة خاصة بمالك Business Partner — الطلبات الواردة، مؤشرات سريعة، وكل الأدوات الداخلية في مكان واحد. أدخل مفتاح الوصول.</p>
-      <input id="keyInput" type="password" placeholder="مفتاح الوصول" autocomplete="current-password" />
-      <button id="enterBtn">دخول</button>
+      <p>لوحة خاصة بمالك Business Partner — الطلبات الواردة، مؤشرات سريعة، وكل الأدوات الداخلية في مكان واحد.</p>
+      <button id="otpStartBtn">أرسل رمز الدخول إلى البريد</button>
+      <div id="otpWrap" hidden style="margin-top:12px">
+        <input id="otpCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="رمز من 6 أرقام" />
+        <button id="otpVerifyBtn">تحقق ودخول</button>
+      </div>
+      <details style="margin-top:16px;text-align:right;color:var(--soft);font-size:12px">
+        <summary style="cursor:pointer;font-weight:700">لدي مفتاح طوارئ</summary>
+        <input id="keyInput" type="password" placeholder="مفتاح الطوارئ" autocomplete="current-password" style="margin-top:10px" />
+        <button id="enterBtn">دخول بمفتاح الطوارئ</button>
+      </details>
       <div class="gate-err" id="gateErr"></div>
     </div>
   </div>
@@ -1084,6 +1092,40 @@
           : 'مفتاح غير صحيح ❌';
       });
     }
+    var otpChallenge = '';
+    function startOtp(){
+      $('gateErr').textContent = 'جاري إرسال الرمز…';
+      $('otpStartBtn').disabled = true;
+      fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify({ action:'panel-otp-start' }) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out.ok) throw new Error(out.error || 'failed');
+          otpChallenge = out.challenge;
+          $('otpWrap').hidden = false;
+          $('otpCode').focus();
+          $('gateErr').textContent = 'أرسلنا رمزاً مؤقتاً إلى بريد المالك ' + (out.destination || '') + ' — صالح 10 دقائق.';
+        }).catch(function(){
+          $('gateErr').textContent = 'تعذّر إرسال الرمز. تحقّق من إعداد البريد في Vercel ثم حاول مرة أخرى.';
+        }).finally(function(){ $('otpStartBtn').disabled = false; });
+    }
+    function verifyOtp(){
+      var code = $('otpCode').value.replace(/\s/g, '');
+      if (!otpChallenge || !/^\d{6}$/.test(code)){ $('gateErr').textContent = 'أدخل الرمز المكوّن من 6 أرقام.'; return; }
+      $('gateErr').textContent = 'جاري التحقق…';
+      $('otpVerifyBtn').disabled = true;
+      fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify({ action:'panel-otp-verify', challenge:otpChallenge, code:code }) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out.ok || !out.session) throw new Error('invalid');
+          accessKey = out.session;
+          localStorage.setItem(KEY_STORE, accessKey);
+          return fetchLeads();
+        }).then(startApp).catch(function(){
+          accessKey = '';
+          localStorage.removeItem(KEY_STORE);
+          $('gateErr').textContent = 'الرمز غير صحيح أو انتهت صلاحيته. اطلب رمزاً جديداً.';
+        }).finally(function(){ $('otpVerifyBtn').disabled = false; });
+    }
     function startApp(){
       $('gate').style.display = 'none';
       $('app').classList.add('on');
@@ -1098,6 +1140,9 @@
     }
 
     $('enterBtn').onclick = enter;
+    $('otpStartBtn').onclick = startOtp;
+    $('otpVerifyBtn').onclick = verifyOtp;
+    $('otpCode').addEventListener('keydown', function(e){ if (e.key === 'Enter') verifyOtp(); });
     $('keyInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') enter(); });
     $('logoutBtn').onclick = logout;
     $('logoutBtnM').onclick = logout;

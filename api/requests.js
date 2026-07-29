@@ -29,7 +29,16 @@ const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
 const LEADS_KEY = (process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "").trim();
 const PANEL_KEY = (process.env.PANEL_KEY || "").trim();
 const PANEL_KEYS = new Set([PANEL_KEY, LEADS_KEY].filter(Boolean));
-const panelKeyOk = (k) => PANEL_KEYS.size > 0 && PANEL_KEYS.has(String(k || "").trim());
+const ADMIN_EMAIL = (process.env.BP_OWNER_EMAIL || "dr.baher.magnas@gmail.com").trim().toLowerCase();
+const panelKeyOk = (k) => {
+  const value = String(k || "").trim();
+  if (PANEL_KEYS.size > 0 && PANEL_KEYS.has(value)) return true;
+  if (!OTP_SECRET || !value) return false;
+  try {
+    const session = ssUnseal(value);
+    return session.scope === "admin-panel" && session.email === ADMIN_EMAIL && Number(session.exp) > Date.now();
+  } catch { return false; }
+};
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -299,6 +308,7 @@ const SS_BANK = { beneficiary: process.env.BP_BANK_BENEFICIARY || "شركة بي
 const ssKey = () => crypto.createHash("sha256").update(OTP_SECRET).digest();
 function ssSeal(o) { const iv = crypto.randomBytes(12); const c = crypto.createCipheriv("aes-256-gcm", ssKey(), iv); const ct = Buffer.concat([c.update(JSON.stringify(o), "utf8"), c.final()]); return Buffer.concat([iv, c.getAuthTag(), ct]).toString("base64url"); }
 function ssUnseal(t) { const raw = Buffer.from(String(t), "base64url"); const d = crypto.createDecipheriv("aes-256-gcm", ssKey(), raw.subarray(0, 12)); d.setAuthTag(raw.subarray(12, 28)); return JSON.parse(Buffer.concat([d.update(raw.subarray(28)), d.final()]).toString("utf8")); }
+function maskEmail(email) { const [name, domain] = String(email || "").split("@"); return `${String(name || "").slice(0, 2)}•••@${domain || ""}`; }
 function ssCode(email) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET).update("shared|" + String(email).toLowerCase()).digest(); let o = ""; for (let i = 0; i < 6; i++) o += abc[h[i] % abc.length]; return "BP-SS-" + o; }
 function ssRef(email) { const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("ref|" + String(email).toLowerCase() + "|" + Date.now()).digest("hex"); return "BP-SS-" + h.slice(0, 6).toUpperCase(); }
 
@@ -913,6 +923,31 @@ export default async function handler(req, res) {
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
 
   const b = await readBody(req);
+
+  // Owner-only email code login for the admin panel. The email recipient is
+  // fixed here, so this cannot be used as a general-purpose mail endpoint.
+  if (b.action === "panel-otp-start") {
+    if (!OTP_SECRET || !RESEND_API_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "email_not_configured" })); }
+    const code = String(crypto.randomInt(100000, 1000000));
+    const challenge = ssSeal({ scope: "admin-panel-code", email: ADMIN_EMAIL, code, exp: Date.now() + (10 * 60 * 1000) });
+    const mail = await sendEmail(ADMIN_EMAIL, "رمز الدخول إلى لوحة إدارة Business Partner", `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">رمز الدخول المؤقت</h2><p>استخدم الرمز التالي للدخول إلى لوحة الإدارة. صالح لمدة 10 دقائق:</p><p style="font-size:30px;font-weight:700;letter-spacing:5px;color:#0B1B5A;direction:ltr">${code}</p><p style="color:#666;font-size:13px">إذا لم تطلب هذا الرمز، تجاهل هذه الرسالة.</p></div>`);
+    if (!mail.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: mail.error || "email_send_failed" })); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, challenge, destination: maskEmail(ADMIN_EMAIL) }));
+  }
+  if (b.action === "panel-otp-verify") {
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "email_not_configured" })); }
+    let challenge;
+    try { challenge = ssUnseal(b.challenge); } catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_code" })); }
+    const supplied = String(b.code || "").replace(/\s/g, "");
+    const expected = String(challenge.code || "");
+    if (challenge.scope !== "admin-panel-code" || challenge.email !== ADMIN_EMAIL || Number(challenge.exp) < Date.now() || !/^[0-9]{6}$/.test(supplied) || expected.length !== supplied.length || !crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))) {
+      res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "invalid_code" }));
+    }
+    const session = ssSeal({ scope: "admin-panel", email: ADMIN_EMAIL, exp: Date.now() + (8 * 60 * 60 * 1000) });
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, session }));
+  }
 
   // ---- P4: client operations actions (session cookie, POST) ----
   if (String(b.action || "").startsWith("ops-")) {
