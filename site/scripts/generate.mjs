@@ -1175,7 +1175,11 @@ function buildServiceDetail(s) {
     </div>
     <aside class="svc-aside">
       <div class="order-box">
-        ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
+        ${ov && ov.purchaseMode === "portal"
+          ? `<div class="price-tailored">${L("Available in the client portal", "متاحة داخل بوابة العميل")}</div>
+        <div class="price-note">${L("Sign in to review the service fee, government fees, requirements, and start your order.", "سجّل دخولك لمراجعة أتعاب الخدمة والرسوم الحكومية والمتطلبات وبدء طلبك.")}</div>
+        <a class="btn btn-primary" href="${u("/account")}" style="width:100%">${I.user}<span>${L("Sign in to start your order", "سجّل دخولك لبدء الطلب")}</span></a>`
+          : s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
           ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
         <div class="price-note">${esc(priceNote)}</div>
         ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}

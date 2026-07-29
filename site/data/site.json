@@ -1441,6 +1441,47 @@
     "demoNoteEn": "This is a front-end preview — the account is stored temporarily in your browser only. Integration with the partners system (Notion CRM + secure verification) is coming soon."
   },
   "overrides": {
+    "bp-chamber-01": {
+      "purchaseMode": "portal",
+      "description": "نساعد المنشأة في استخراج أو تفعيل عضوية الغرفة التجارية وربطها بالسجل التجاري عند الحاجة. تبدأ الخدمة بعد التحقق من حالة السجل والبيانات الأساسية للمنشأة، ثم نوضح لك ما يلزم قبل بدء التنفيذ.",
+      "descriptionEn": "We help your entity issue or activate its Chamber of Commerce membership and link it to the commercial registration when required. We first verify the registration and entity details, then confirm the exact requirements before work begins.",
+      "audience": "رواد الأعمال والمنشآت التي لديها سجل تجاري قائم أو معاملة تأسيس مرتبطة",
+      "audienceEn": "entrepreneurs and entities with an active commercial registration or a related incorporation transaction",
+      "documents": [
+        "السجل التجاري أو رقم معاملة التأسيس ذات العلاقة",
+        "بيانات المنشأة والعنوان الوطني عند الطلب",
+        "بيانات المفوض أو الشركاء بحسب حالة المنشأة"
+      ],
+      "documentsEn": [
+        "Commercial Registration or the related incorporation transaction number",
+        "Entity details and national address when required",
+        "Authorised representative or partner details, depending on the entity"
+      ],
+      "features": [
+        "التحقق من أهلية الطلب وحالة السجل قبل البدء",
+        "تجهيز المتطلبات وتقديمها للغرفة المختصة",
+        "متابعة حالة الطلب وإبلاغك بالنواقص إن وجدت",
+        "الرسوم الحكومية تظهر منفصلة عن أتعاب الخدمة داخل البوابة"
+      ],
+      "faq": [
+        {
+          "q": "هل هذه الخدمة مناسبة لمنشأة جديدة؟",
+          "a": "نعم، إذا كانت لديك معاملة تأسيس مرتبطة. نتحقق أولاً من حالة المعاملة ونحدد المسار الصحيح قبل بدء الطلب."
+        },
+        {
+          "q": "ما المطلوب قبل البدء؟",
+          "a": "السجل التجاري أو رقم معاملة التأسيس، وبيانات المنشأة، وبيانات المفوض أو الشركاء بحسب الحالة. تظهر القائمة النهائية داخل البوابة بعد التحقق."
+        },
+        {
+          "q": "هل الرسوم الحكومية مشمولة؟",
+          "a": "لا. أتعاب بيزنس بارتنر والرسوم الحكومية وضريبة القيمة المضافة تظهر منفصلة بوضوح داخل بوابة العميل قبل تأكيد الطلب."
+        },
+        {
+          "q": "كيف أبدأ؟",
+          "a": "سجّل دخولك إلى بوابة العميل، اختر الخدمة، ثم أكمل التحقق القصير لتظهر لك المتطلبات والتكلفة وخطوات الطلب."
+        }
+      ]
+    },
     "bp-rec-03": {
       "name": "التوظيف والتعاقد الخارجي",
       "description": "نتولّى التوظيف والتعاقد الخارجي نيابةً عنك (تشغيل الموظفين تحت مظلّتنا) — من الاستقطاب حتى المباشرة والامتثال، بأتعاب لكل مرشّح."
