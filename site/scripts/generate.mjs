@@ -1171,14 +1171,13 @@ function buildServiceDetail(s) {
       <section><h2>${L("Required documents", "المستندات المطلوبة")}</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
       <section><h2>${L("Service features with Business Partner", "مميزات الخدمة مع بيزنس بارتنر")}</h2><ul class="feat-list">${featsHtml}</ul></section>
       <section><h2>${L("Frequently asked questions", "الأسئلة الشائعة")}</h2>${faqHtml}</section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The WhatsApp smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "الوكيل الذكي على واتساب يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
     </div>
     <aside class="svc-aside">
       <div class="order-box">
         ${ov && ov.purchaseMode === "portal"
           ? `<div class="price-tailored">${L("Available in the client portal", "متاحة داخل بوابة العميل")}</div>
         <div class="price-note">${L("Sign in to review the service fee, government fees, requirements, and start your order.", "سجّل دخولك لمراجعة أتعاب الخدمة والرسوم الحكومية والمتطلبات وبدء طلبك.")}</div>
-        <a class="btn btn-primary" href="${u("/account")}" style="width:100%">${I.user}<span>${L("Sign in to start your order", "سجّل دخولك لبدء الطلب")}</span></a>`
+        <a class="btn btn-primary" href="${u("/account")}?redirect=service&amp;service=${encodeURIComponent(s.slug)}" style="width:100%">${I.user}<span>${L("Sign in to start your order", "سجّل دخولك لبدء الطلب")}</span></a>`
           : s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
           ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
         <div class="price-note">${esc(priceNote)}</div>
@@ -1191,8 +1190,6 @@ function buildServiceDetail(s) {
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
           : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}`}
-        ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
-        <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
       </div>
     </aside>
@@ -8148,6 +8145,7 @@ const catalogJson = {
     const ov = site.overrides[s.slug];
     return {
       code: s.code,
+      slug: s.slug,
       nameAr: sNameArOf(s),
       nameEn: m.en || (ov && ov.nameEn) || s.name,
       category: s.category,

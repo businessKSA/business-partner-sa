@@ -1348,9 +1348,27 @@ var BP = window.BP = window.BP || {};
     // After sign-in/registration, return the customer to whatever page sent
     // them here (e.g. checkout) instead of stranding them on the dashboard.
     function goToRedirectTarget() {
-      var target = new URLSearchParams(location.search).get("redirect");
+      var params = new URLSearchParams(location.search);
+      var target = params.get("redirect");
       if (target === "checkout") location.href = BP.lang === "ar" ? "/ar/checkout" : "/checkout";
       else if (target === "formation") location.href = (BP.lang === "ar" ? "/ar/formation-contract" : "/formation-contract") + "#fc-form";
+      else if (target === "service") {
+        var slug = params.get("service");
+        if (!slug) return;
+        fetch("/assets/data/catalog.json").then(function (r) { return r.json(); }).then(function (catalog) {
+          var service = (catalog.services || []).find(function (item) { return item.slug === slug || item.code.toLowerCase() === slug.toLowerCase(); });
+          if (!service || !service.amount) throw new Error("service_not_found");
+          var cart = BP.cart.read();
+          var id = "svc-" + slug;
+          var existing = cart.find(function (item) { return item.id === id; });
+          if (existing) existing.qty = (existing.qty || 1) + 1;
+          else cart.push({ id: id, nameEn: service.nameEn, nameAr: service.nameAr, amount: service.amount, price: service.priceLabel, kind: "service", qty: 1 });
+          BP.cart.write(cart);
+          location.href = BP.lang === "ar" ? "/ar/cart" : "/cart";
+        }).catch(function () {
+          location.href = BP.lang === "ar" ? "/ar/services" : "/services";
+        });
+      }
     }
 
     function otpErr(msg) {
@@ -1447,6 +1465,10 @@ var BP = window.BP = window.BP || {};
     }
     if (alreadyIn === "formation") {
       location.href = (BP.lang === "ar" ? "/ar/formation-contract" : "/formation-contract") + "#fc-form";
+      return;
+    }
+    if (alreadyIn === "service") {
+      goToRedirectTarget();
       return;
     }
     render();
