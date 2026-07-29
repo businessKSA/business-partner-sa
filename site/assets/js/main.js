@@ -282,6 +282,21 @@ var BP = window.BP = window.BP || {};
   document.addEventListener("bp:langchange", function () { updateBadge(); renderCart(); renderCheckout(); });
 })();
 
+/* ---------- Preserve a service selected before client sign-in ---------- */
+(function () {
+  "use strict";
+  // The customer chooses the service on its detail page, before arriving at
+  // /account, so this listener must not live inside the account-page script.
+  document.addEventListener("click", function (e) {
+    var start = e.target.closest(".service-portal-start");
+    if (!start) return;
+    var slug = start.getAttribute("data-service-slug");
+    if (slug) {
+      try { localStorage.setItem("bp_pending_service", slug); } catch (er) {}
+    }
+  });
+})();
+
 /* ---------- File-drop labels ---------- */
 (function () {
   "use strict";
@@ -1461,16 +1476,8 @@ var BP = window.BP = window.BP || {};
     var out = document.getElementById("logout-btn");
     if (out) out.addEventListener("click", function () { try { localStorage.removeItem("bp_session"); } catch (e) {} render(); });
 
-    document.addEventListener("click", function (e) {
-      var start = e.target.closest(".service-portal-start");
-      if (!start) return;
-      var slug = start.getAttribute("data-service-slug");
-      if (slug) {
-        try { localStorage.setItem("bp_pending_service", slug); } catch (er) {}
-      }
-    });
-
-    var alreadyIn = session() && (new URLSearchParams(location.search).get("redirect") || localStorage.getItem("bp_pending_service") ? "service" : "");
+    var requestedRedirect = new URLSearchParams(location.search).get("redirect");
+    var alreadyIn = session() && (requestedRedirect || (localStorage.getItem("bp_pending_service") ? "service" : ""));
     if (alreadyIn === "checkout") {
       location.href = BP.lang === "ar" ? "/ar/checkout" : "/checkout";
       return;
