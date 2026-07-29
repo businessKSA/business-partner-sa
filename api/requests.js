@@ -534,7 +534,7 @@ async function approveEmployer({ company, email, phone, plan }) {
 // GitHub content branch. The explicit environment override remains available
 // for production if a central catalog is preferred later.
 const CURRENT_DEPLOY_CATALOG_URL = process.env.VERCEL_URL
-  ? `https://${String(process.env.VERCEL_URL).replace(/^https?:\\/\\//, "")}/assets/data/catalog.json`
+  ? `https://${String(process.env.VERCEL_URL).replace(/^https?:\/\//, "")}/assets/data/catalog.json`
   : "";
 const RAW_CATALOG_URL = process.env.CATALOG_URL || CURRENT_DEPLOY_CATALOG_URL ||
   `https://raw.githubusercontent.com/${CONTENT_REPO}/${CONTENT_BRANCH}/site/assets/data/catalog.json`;
