@@ -1353,7 +1353,7 @@ var BP = window.BP = window.BP || {};
       if (target === "checkout") location.href = BP.lang === "ar" ? "/ar/checkout" : "/checkout";
       else if (target === "formation") location.href = (BP.lang === "ar" ? "/ar/formation-contract" : "/formation-contract") + "#fc-form";
       else if (target === "service") {
-        var slug = params.get("service");
+        var slug = params.get("service") || localStorage.getItem("bp_pending_service");
         if (!slug) return;
         fetch("/assets/data/catalog.json").then(function (r) { return r.json(); }).then(function (catalog) {
           var service = (catalog.services || []).find(function (item) { return item.slug === slug || item.code.toLowerCase() === slug.toLowerCase(); });
@@ -1364,9 +1364,12 @@ var BP = window.BP = window.BP || {};
           if (existing) existing.qty = (existing.qty || 1) + 1;
           else cart.push({ id: id, nameEn: service.nameEn, nameAr: service.nameAr, amount: service.amount, price: service.priceLabel, kind: "service", qty: 1 });
           BP.cart.write(cart);
+          try { localStorage.removeItem("bp_pending_service"); } catch (e) {}
           location.href = BP.lang === "ar" ? "/ar/cart" : "/cart";
         }).catch(function () {
-          location.href = BP.lang === "ar" ? "/ar/services" : "/services";
+          // Keep the intended service for a retry instead of sending the
+          // customer into a service/account loop when a transient fetch fails.
+          location.href = (BP.lang === "ar" ? "/ar/services/" : "/services/") + encodeURIComponent(slug);
         });
       }
     }
@@ -1458,7 +1461,16 @@ var BP = window.BP = window.BP || {};
     var out = document.getElementById("logout-btn");
     if (out) out.addEventListener("click", function () { try { localStorage.removeItem("bp_session"); } catch (e) {} render(); });
 
-    var alreadyIn = session() && new URLSearchParams(location.search).get("redirect");
+    document.addEventListener("click", function (e) {
+      var start = e.target.closest(".service-portal-start");
+      if (!start) return;
+      var slug = start.getAttribute("data-service-slug");
+      if (slug) {
+        try { localStorage.setItem("bp_pending_service", slug); } catch (er) {}
+      }
+    });
+
+    var alreadyIn = session() && (new URLSearchParams(location.search).get("redirect") || localStorage.getItem("bp_pending_service") ? "service" : "");
     if (alreadyIn === "checkout") {
       location.href = BP.lang === "ar" ? "/ar/checkout" : "/checkout";
       return;
