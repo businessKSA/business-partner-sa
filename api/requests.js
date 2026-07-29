@@ -693,6 +693,40 @@ export default async function handler(req, res) {
     }
   }
 
+  // The signed-in customer sees their submitted orders on every device. The
+  // identity comes only from the httpOnly session; an email in the browser is
+  // never accepted as a lookup key.
+  if ((q.action || "") === "my-orders") {
+    res.setHeader("Cache-Control", "no-store");
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    const email = String((sess && sess.user && sess.user.email) || "").toLowerCase();
+    if (!email || !NOTION_TOKEN) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ page_size: 50, sorts: [{ property: "Last Activity", direction: "descending" }], filter: { property: "Notes", rich_text: { contains: email } } }),
+      });
+      if (!r.ok) throw new Error("notion_failed");
+      const txt = (arr) => (arr || []).map((t) => t.plain_text).join("");
+      const orders = (await r.json()).results.map((pg) => {
+        const p = pg.properties || {};
+        const title = txt(p["Opportunity Name"] && p["Opportunity Name"].title).replace(/\s*\(BP-[^)]+\)\s*$/, "");
+        const ref = txt(p["رقم المرجع"] && p["رقم المرجع"].rich_text).trim();
+        const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "قيد المراجعة";
+        const at = (p["Last Activity"] && p["Last Activity"].date && p["Last Activity"].date.start) || (pg.created_time || "").slice(0, 10);
+        const total = p["إجمالي الطلب"] && p["إجمالي الطلب"].number;
+        return { ref, title, status, at, total: typeof total === "number" ? total : null };
+      }).filter((o) => o.ref);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, orders }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
   // P3 — unified portal opening: the logged-in client's own credentials are
   // looked up server-side (Notion is queried by the SESSION email only —
   // never by client input) and returned as localStorage seeds + target URL.

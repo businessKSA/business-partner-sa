@@ -1180,11 +1180,14 @@ var BP = window.BP = window.BP || {};
       BP.cart.write([]);
       var box = document.getElementById("checkout-success");
       box.hidden = false;
+      var portalUrl = (BP.lang === "ar" ? "/ar/account" : "/account") + "?panel=orders";
       box.innerHTML = "✅ <strong>" + BP.t("Order received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
-        BP.t("Your receipt is being verified against your order total. We'll confirm on WhatsApp.", "يجري التحقق من إيصالك مقابل إجمالي طلبك. سنؤكد لك عبر واتساب.");
+        BP.t("Your receipt is being verified against your order total. We'll confirm on WhatsApp.", "وصلنا طلبك وإيصال التحويل، ويجري التحقق منه الآن.") +
+        '<br><a class="btn" style="margin-top:12px" href="' + portalUrl + '">' + BP.t("Go to my client portal", "الذهاب إلى بوابة العميل") + "</a>";
       box.scrollIntoView({ behavior: "smooth", block: "center" });
       form.querySelector("button[type=submit]").disabled = true;
       BP.renderCheckout();
+      window.setTimeout(function () { location.href = portalUrl; }, 4000);
     });
   });
 })();
@@ -1265,6 +1268,7 @@ var BP = window.BP = window.BP || {};
         var av = document.getElementById("dash-avatar");
         if (av) av.textContent = (nm || "BP").trim().slice(0, 2).toUpperCase();
         renderOrders();
+        syncServerOrders();
         renderCompany();
         syncLiveOrderStatuses();
         var aiLink = document.getElementById("ai-employees-link");
@@ -1273,16 +1277,16 @@ var BP = window.BP = window.BP || {};
     }
 
     // Dashboard panel navigation
+    function showDashPanel(key) {
+      var navis = document.querySelectorAll(".dash-navi");
+      navis.forEach(function (x) { x.classList.toggle("active", x.getAttribute("data-panel") === key); });
+      document.querySelectorAll(".dash-panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + key); });
+    }
     (function () {
       var navis = document.querySelectorAll(".dash-navi");
       navis.forEach(function (b) {
         b.addEventListener("click", function () {
-          var key = b.getAttribute("data-panel");
-          navis.forEach(function (x) { x.classList.remove("active"); });
-          b.classList.add("active");
-          document.querySelectorAll(".dash-panel").forEach(function (p) { p.classList.remove("active"); });
-          var panel = document.getElementById("panel-" + key);
-          if (panel) panel.classList.add("active");
+          showDashPanel(b.getAttribute("data-panel"));
         });
       });
     })();
@@ -1408,6 +1412,31 @@ var BP = window.BP = window.BP || {};
           '<p class="text-soft">' + BP.t("Your consultant is setting up the services included in this package.", "مستشارك يجهّز الخدمات المشمولة في هذه الباقة.") + '</p>' +
           '<a class="btn btn-ghost" href="' + (BP.lang === "ar" ? "/ar" : "") + '/packages">' + BP.t("View package details", "تفاصيل الباقة") + '</a></div>';
       }
+    }
+
+    function syncServerOrders() {
+      fetch("/api/requests?action=my-orders", { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.ok || !Array.isArray(data.orders)) return;
+          var s = session();
+          var saved = ordersData();
+          var changed = false;
+          data.orders.forEach(function (remote) {
+            var found = saved.find(function (o) { return o.ref === remote.ref; });
+            if (found) {
+              if (remote.status && found.status !== remote.status) { found.status = remote.status; changed = true; }
+              return;
+            }
+            saved.unshift({
+              ref: remote.ref, name: s && s.name || "", email: s && s.email || "",
+              items: [{ name: remote.title || "طلب خدمة", qty: 1, price: remote.total || null }],
+              at: remote.at || "", status: remote.status || "قيد المراجعة",
+            });
+            changed = true;
+          });
+          if (changed) { try { localStorage.setItem("bp_orders", JSON.stringify(saved)); } catch (e) {} renderOrders(); }
+        }).catch(function () {});
     }
 
     document.addEventListener("click", function (e) {
@@ -1584,6 +1613,8 @@ var BP = window.BP = window.BP || {};
       return;
     }
     render();
+    var requestedPanel = new URLSearchParams(location.search).get("panel");
+    if (requestedPanel === "orders") showDashPanel("orders");
     document.addEventListener("bp:langchange", function () { if (session()) render(); });
   });
 })();
