@@ -288,6 +288,34 @@ var BP = window.BP = window.BP || {};
   function isSignedIn() {
     try { return !!JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) { return false; }
   }
+  function rememberServerSession(payload) {
+    var s = payload && payload.session;
+    var user = s && s.user;
+    if (!user || !user.email) return false;
+    try {
+      localStorage.setItem("bp_session", JSON.stringify({
+        email: user.email,
+        name: user.full_name || (s.organization && (s.organization.name_ar || s.organization.name_en)) || "",
+        verified: true,
+      }));
+    } catch (e) {}
+    return true;
+  }
+  function serverSession() {
+    return fetch("/api/otp", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "me" }),
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) { return data && data.ok && rememberServerSession(data); })
+      .catch(function () { return false; });
+  }
+  function setPortalButtonsToCart() {
+    document.querySelectorAll(".service-portal-start").forEach(function (button) {
+      var label = button.querySelector("span");
+      if (label) label.textContent = BP.t("Add to cart", "أضف إلى السلة");
+    });
+  }
   function addServiceAndOpenCart(slug) {
     fetch("/assets/data/catalog.json").then(function (r) {
       if (!r.ok) throw new Error("catalog_unavailable");
@@ -315,21 +343,18 @@ var BP = window.BP = window.BP || {};
     var start = e.target.closest(".service-portal-start");
     if (!start) return;
     var slug = start.getAttribute("data-service-slug");
-    if (slug) {
-      if (isSignedIn()) {
-        e.preventDefault();
-        addServiceAndOpenCart(slug);
-      } else {
-        try { localStorage.setItem("bp_pending_service", slug); } catch (er) {}
-      }
-    }
+    if (!slug) return;
+    e.preventDefault();
+    if (isSignedIn()) { addServiceAndOpenCart(slug); return; }
+    serverSession().then(function (signedIn) {
+      if (signedIn) { setPortalButtonsToCart(); addServiceAndOpenCart(slug); return; }
+      try { localStorage.setItem("bp_pending_service", slug); } catch (er) {}
+      location.href = start.href;
+    });
   });
   document.addEventListener("DOMContentLoaded", function () {
-    if (!isSignedIn()) return;
-    document.querySelectorAll(".service-portal-start").forEach(function (button) {
-      var label = button.querySelector("span");
-      if (label) label.textContent = BP.t("Add to cart", "أضف إلى السلة");
-    });
+    if (isSignedIn()) { setPortalButtonsToCart(); return; }
+    serverSession().then(function (signedIn) { if (signedIn) setPortalButtonsToCart(); });
   });
 })();
 
