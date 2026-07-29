@@ -611,6 +611,8 @@
       if (l.phone) actions += '<a target="_blank" rel="noopener" href="https://wa.me/' + esc(String(l.phone).replace(/[^\\d]/g, '')) + '">💬 واتساب العميل</a>';
       if (l.email) actions += '<a href="mailto:' + esc(l.email) + '">✉️ إرسال بريد</a><button type="button" data-copy-email="' + esc(l.email) + '">نسخ البريد</button>';
       if (l.notionUrl) actions += '<a target="_blank" rel="noopener" href="' + esc(l.notionUrl) + '">فتح سجل الطلب</a>';
+      var statusOptions = '<option value="">تغيير الحالة…</option>';
+      for (var i = 0; i < STATUSES.length; i++) statusOptions += '<option value="' + STATUSES[i] + '">' + STATUSES[i] + '</option>';
       $('orderTitle').textContent = 'تفاصيل الطلب ' + (l.ref || '');
       $('orderDetail').innerHTML =
         '<div class="order-line"><b>الخدمة / الطلب</b>' + esc(l.title || '—') + '</div>' +
@@ -618,10 +620,13 @@
         '<div class="order-line"><b>الحالة</b>' + statusHtml(l.status) + '</div>' +
         '<div class="order-line"><b>البريد والجوال</b>' + esc(l.email || '—') + (l.phone ? '<br>' + esc(l.phone) : '') + '</div>' +
         '<div class="order-line"><b>إيصال التحويل</b>' + receiptHtml + '</div>' +
+        '<div class="order-line"><b>إجراء على الطلب</b><select class="statsel" id="orderStatusSel">' + statusOptions + '</select></div>' +
         '<div class="order-actions">' + actions + '</div>';
       $('orderBack').classList.add('on');
       var cp = $('orderDetail').querySelector('[data-copy-email]');
       if (cp) cp.onclick = function(){ copyText(this.getAttribute('data-copy-email')); };
+      var statusSel = $('orderStatusSel');
+      if (statusSel) statusSel.onchange = function(){ changeStatus(l.ref, this.value, this); };
     }
     function closeOrder(){ $('orderBack').classList.remove('on'); }
     $('orderClose').onclick = closeOrder;
