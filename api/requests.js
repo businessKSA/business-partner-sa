@@ -13,7 +13,7 @@ import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign } from ".
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
-const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
+const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartnerksa.com";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
