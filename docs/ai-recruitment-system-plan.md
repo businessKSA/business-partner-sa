@@ -52,8 +52,10 @@ branch (PR #149: owner-email auto-activation removed, 12-char CSPRNG access
 codes, env-name leak + salary self-view + un-hide/notes-clobber fixed).
 Remaining: gate `/api/hire`, OTP on candidate self-view, rate-limiting,
 per-DB Notion tokens, a nightly Notion→cold-storage export, `.env.example`.
-Operational: rotate/retire the guessable hand-made active codes
-(`BP-…-2026`, demo codes).
+Operational: ✅ retired the guessable hand-made active codes (2026-07-28) —
+the three `BP-…-2026` direct-activation rows and all five `BP-*-DEMO*` demo
+rows are now suspended with their access codes cleared; only the owner's
+CSPRNG code remains active.
 
 **Phase 1 — Unify the data model (foundation).**
 1. Create the `Applications` data source with Candidate + Job relations.
@@ -90,7 +92,8 @@ entity.
   audit log of who unlocked/viewed contacts.
 
 ## Open decisions for the owner
-1. Retire the guessable active employer codes now? (`BP-…-2026`, demo rows.)
+1. ~~Retire the guessable active employer codes now? (`BP-…-2026`, demo rows.)~~
+   ✅ Done 2026-07-28 — all guessable/demo codes suspended and cleared.
 2. Stay on Notion for the unified model, or move to Supabase (schema already
    scaffolded in `api/_db.js`) for real relations + row-level security?
 3. Phase 1 start: unify candidates first, or jobs first?
