@@ -285,6 +285,30 @@ var BP = window.BP = window.BP || {};
 /* ---------- Preserve a service selected before client sign-in ---------- */
 (function () {
   "use strict";
+  function isSignedIn() {
+    try { return !!JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) { return false; }
+  }
+  function addServiceAndOpenCart(slug) {
+    fetch("/assets/data/catalog.json").then(function (r) {
+      if (!r.ok) throw new Error("catalog_unavailable");
+      return r.json();
+    }).then(function (catalog) {
+      var service = (catalog.services || []).find(function (item) {
+        return item.slug === slug || String(item.code || "").toLowerCase() === String(slug).toLowerCase();
+      });
+      if (!service || service.amount == null) throw new Error("service_not_found");
+      var cart = BP.cart.read();
+      var id = "svc-" + slug;
+      var existing = cart.find(function (item) { return item.id === id; });
+      if (existing) existing.qty = (existing.qty || 1) + 1;
+      else cart.push({ id: id, nameEn: service.nameEn, nameAr: service.nameAr, amount: service.amount, price: service.priceLabel, kind: "service", qty: 1 });
+      BP.cart.write(cart);
+      try { localStorage.removeItem("bp_pending_service"); } catch (er) {}
+      location.href = BP.lang === "ar" ? "/ar/cart" : "/cart";
+    }).catch(function () {
+      alert(BP.t("We couldn't add this service to the cart. Please try again.", "تعذّر إضافة الخدمة إلى السلة. حاول مرة أخرى."));
+    });
+  }
   // The customer chooses the service on its detail page, before arriving at
   // /account, so this listener must not live inside the account-page script.
   document.addEventListener("click", function (e) {
@@ -292,8 +316,20 @@ var BP = window.BP = window.BP || {};
     if (!start) return;
     var slug = start.getAttribute("data-service-slug");
     if (slug) {
-      try { localStorage.setItem("bp_pending_service", slug); } catch (er) {}
+      if (isSignedIn()) {
+        e.preventDefault();
+        addServiceAndOpenCart(slug);
+      } else {
+        try { localStorage.setItem("bp_pending_service", slug); } catch (er) {}
+      }
     }
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!isSignedIn()) return;
+    document.querySelectorAll(".service-portal-start").forEach(function (button) {
+      var label = button.querySelector("span");
+      if (label) label.textContent = BP.t("Add to cart", "أضف إلى السلة");
+    });
   });
 })();
 
