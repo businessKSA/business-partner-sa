@@ -168,7 +168,19 @@ var BP = window.BP = window.BP || {};
   function add(item) {
     var c = read();
     var ex = c.find(function (x) { return x.id === item.id; });
-    if (ex) ex.qty = (ex.qty || 1) + 1;
+    if (ex) {
+      ex.qty = (ex.qty || 1) + 1;
+      // Older previews could leave a cart line without its amount. Refresh it
+      // from the service button so a previous zero-value test cannot survive.
+      if (item.amount != null && (item.privatePrice || !Number(ex.amount))) {
+        ex.amount = item.amount;
+        ex.price = item.price;
+        ex.kind = item.kind;
+        ex.nameEn = item.nameEn;
+        ex.nameAr = item.nameAr;
+        ex.privatePrice = item.privatePrice;
+      }
+    }
     else c.push(item);
     write(c);
   }

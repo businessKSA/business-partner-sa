@@ -514,7 +514,14 @@ async function approveEmployer({ company, email, phone, plan }) {
 // Catalog prices are read from the deploy branch's public catalog.json on
 // GitHub raw (the repo is public; this is published content, not a secret).
 // Cached per warm instance for 10 minutes.
-const RAW_CATALOG_URL = process.env.CATALOG_URL ||
+// Prefer the catalog shipped with this exact Vercel deployment. This keeps
+// checkout pricing in lockstep with previews instead of looking at a separate
+// GitHub content branch. The explicit environment override remains available
+// for production if a central catalog is preferred later.
+const CURRENT_DEPLOY_CATALOG_URL = process.env.VERCEL_URL
+  ? `https://${String(process.env.VERCEL_URL).replace(/^https?:\\/\\//, "")}/assets/data/catalog.json`
+  : "";
+const RAW_CATALOG_URL = process.env.CATALOG_URL || CURRENT_DEPLOY_CATALOG_URL ||
   `https://raw.githubusercontent.com/${CONTENT_REPO}/${CONTENT_BRANCH}/site/assets/data/catalog.json`;
 let _catCache = null, _catAt = 0, _svcIds = null;
 async function catalogPrices() {
