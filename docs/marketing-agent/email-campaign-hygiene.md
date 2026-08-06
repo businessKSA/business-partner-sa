@@ -68,37 +68,55 @@ node docs/marketing-agent/tools/mx-check.mjs domains.txt
 | `SERVFAIL` | 8 | Broken nameservers — treat as risky |
 
 The `nxdomain` + `no_mx` + `invalid_syntax` domains became the hard-coded `DEAD_DOMAINS`
-list used by both the hygiene workflow and the send guard. Re-run the script whenever a
-new batch of leads is imported; domains die over time.
+list used by both the hygiene workflow and the send guard.
+
+**That list is a snapshot and will go stale** — it only knows the domains that existed on
+2026-08-06, and Apollo keeps adding more. It is the cheap bulk filter, not the authority.
+The authority is the live MX lookup the sender performs on every address at send time
+(§3.3), which needs no maintenance. Re-running this script is still worth doing after a
+large import, to suppress dead rows in bulk rather than discovering them one at a time.
 
 ---
 
-## 3. The three workflows
+## 3. The pipeline
 
 ```
-                    ┌──────────────────────────────┐
-   one-shot ───────▶│  BP — Sales DB Hygiene       │──▶ Suppressed / repaired
-                    │  311djGhHO9wfV6jy            │
+   every 30 min ───▶  BP — Google Places Ingest     adds companies (no email)
+   continuous ─────▶  BP — Apollo Enrich            adds EMAIL ADDRESSES  ◀── the source of new risk
+                                   │
+                                   ▼
+   03:00 daily ────▶┌──────────────────────────────┐
+                    │  BP — Sales DB Hygiene       │──▶ Suppressed / repaired
+                    │  311djGhHO9wfV6jy            │    (bulk filter, static list)
                     └──────────────────────────────┘
-
+                                   │
    10:00 daily ────▶┌──────────────────────────────┐
                     │  BP Campaign Sender          │
                     │  d7a9JhgvFRI5LXQh            │
                     │    Notion (filtered)         │
-                    │      └▶ Guard: Validate ─────┼──▶ ≤25 emails/day
-                    │           └▶ Build ─▶ Gmail  │
+                    │      └▶ Guard: Validate      │
+                    │           └▶ MX Lookup ──────┼──▶ live DNS, per address
+                    │                └▶ Build ─▶ Gmail   ≤25 emails/day
                     └──────────────────────────────┘
                                    │
                                    ▼ bounces
    every 4h ───────▶┌──────────────────────────────┐
                     │  BP — Bounce Handler         │──▶ Failed + Suppressed
-                    │  QXuY39TKC0FNQp9R            │
+                    │  QXuY39TKC0FNQp9R            │    (catches what DNS cannot)
                     └──────────────────────────────┘
 ```
 
+The list is not a fixed asset that gets cleaned once. **Apollo Enrich runs continuously and
+keeps writing new, unverified email addresses into the database.** Every defence below has
+to be continuous for that reason — a one-off cleanup is stale within a day.
+
+(The Places ingest writes no email field, so it adds inert rows. Apollo is what introduces
+sendable addresses, and therefore risk.)
+
 ### 3.1 `BP — Sales DB Hygiene` (`311djGhHO9wfV6jy`)
 
-Manual, re-runnable. Loads every record (the whole set is needed to spot duplicates),
+Runs nightly at 03:00 Asia/Riyadh, ahead of the 10:00 send, and can also be run by hand.
+Loads every record (the whole set is needed to spot duplicates),
 normalises each address, and writes back one of two outcomes:
 
 - **Suppress** — sets `Suppressed = true`, `Suppress Reason`, `Last Campaign Status = Skipped`,
@@ -123,9 +141,30 @@ domain, on a global platform, or a placeholder — then caps the run at **25 ema
 
 It also fills in `property_company_name_clean` from the record title. The original template
 read `property_company_name_clean || property_clean_name || name`, none of which this
-database populates, so `{{COMPANY_NAME}}` rendered blank in the emails already sent.
+database populates, so `{{COMPANY_NAME}}` rendered blank in the emails already sent. A dry
+run after the fix confirmed the name now renders (`مكتب أبو طافش للخدمات العامه`, `Protouch`).
 
-### 3.3 `BP — Bounce Handler` (`QXuY39TKC0FNQp9R`)
+### 3.3 `MX Lookup (dns.google)` + `Drop Domains Without MX` (inside the sender)
+
+The dead-domain list is a snapshot. Apollo keeps adding domains nobody has ever checked, so
+the sender resolves **every address live, immediately before sending**, via DNS-over-HTTPS
+at `https://dns.google/resolve?name=<domain>&type=MX`. No credential and no API key needed.
+
+| DNS result | Action |
+|---|---|
+| `NXDOMAIN` (Status 3) | drop — the domain does not exist |
+| `NOERROR` with no type-15 record | drop — no mail server; 48 confirmed bounces were exactly this |
+| `NOERROR` with an MX record | send |
+| `SERVFAIL`, timeout, request failed | **send anyway** |
+
+That last row is deliberate. A lookup we could not complete is not evidence against the
+address, and silently dropping a good lead is worse than one bounce — the bounce handler
+will judge it either way. The check only removes addresses DNS actively condemns.
+
+Results are paired back to leads by position, which is safe because the HTTP node preserves
+input order and the batch is capped at 25.
+
+### 3.4 `BP — Bounce Handler` (`QXuY39TKC0FNQp9R`)
 
 Runs every 4 hours. Reads MAILER-DAEMON / postmaster notices from
 `business@businesspartnerksa.com`, extracts the failed recipient, finds that record in
@@ -227,9 +266,10 @@ inverted.
 
 ## 7. Still open
 
-- The 116 `a_only` domains (A record, no MX) are still in the sendable pool. They are the
-  most likely source of the next wave of bounces. The bounce handler will catch them, but
-  pre-emptively suppressing them would trade ~116 records for a lower bounce rate.
+- ~~The 116 `a_only` domains (A record, no MX) are still in the sendable pool.~~
+  **Closed.** The live MX lookup in the sender now drops them at send time, so they never
+  reach Gmail. No bulk suppression was needed and no record was lost — if one of those
+  domains adds an MX record later, it simply starts passing again.
 - 33 addresses are personal Gmail accounts and 2 are Yahoo. They are deliverable and some
   are genuine KSA small-business contacts, so they were left in — but they belong in a
   separate, more personal campaign, not the corporate one.
