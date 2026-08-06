@@ -28,16 +28,25 @@ job application.
 The list was built by scraping Google Places. Scraping produces four failure modes, and
 the database had all four:
 
-| Failure mode | Example | Count found |
+| Failure mode | Example | Caught by |
 |---|---|---|
-| Domain has no mail server at all | `info@square1sa.com` (NXDOMAIN) | 95 |
-| Address belongs to a global platform, not the company | `info@booking.com`, `info@apps.apple.com`, `info@vip.com` | 51 |
-| Same address on several records | `info@al-jazera.sa` — 4 records, all mailed within 4 seconds | 60 |
-| Placeholder left in a website template | `example@gmail.com`, `info@example.com`, `your@email.com` | 17 |
-| Malformed string | `%20info@fanarmed.com`, `info@savola.com; IR@savola.com` | 10 (repaired) |
+| Domain has no mail server at all | `info@square1sa.com` (NXDOMAIN) | MX check |
+| Address belongs to a global platform, not the company | `info@booking.com`, `info@apps.apple.com`, `info@vip.com` | domain list |
+| Same address on several records | `info@al-jazera.sa` — 4 records, all mailed within 4 seconds | dedupe |
+| Placeholder left in a website template | `example@gmail.com`, `info@example.com`, `your@email.com` | domain/local-part list |
+| Malformed string | `%20info@fanarmed.com`, `info@savola.com; IR@savola.com` | normalisation (repaired) |
+| **Live domain, dead mailbox** | `info@stylishop.com`, `info@nestooffers.com`, `info@garmin.sa` | **only the bounce** |
 
-**224 records suppressed, 10 repaired.** 105 of the suppressed records had already been
-mailed — they were pure bounce fuel.
+The last row is the important one. DNS says those domains are healthy and accept mail —
+the `info@` mailbox simply does not exist, or the receiving server (Mimecast, Exchange
+Online) rejects us outright. **No amount of pre-send validation can detect this.** In a
+sample of 28 bounced addresses, 19 had passed every static check.
+
+That is why the bounce handler is not a nice-to-have layered on top of the cleanup. It is
+the only mechanism that catches the largest single category of failure.
+
+**Final tally: 337 records suppressed, 10 repaired.** Of those, 166 were confirmed
+bounces recovered from 45 days of MAILER-DAEMON history — all of them already mailed.
 
 ---
 
@@ -135,6 +144,12 @@ Extraction order: `Final-Recipient:` → `Original-Recipient:` → the human-rea
 
 Re-running is harmless; writing `Failed` twice changes nothing.
 
+A one-off backfill over 45 days of history recorded **166 bounced addresses**. When
+backfilling, note that `simple: false` makes Gmail download and parse every message in
+full — a 45-day window takes about 11 minutes, and no writes appear until every lookup
+has finished, because n8n completes each node for all items before moving on. If a wider
+window is ever needed, slice it with `after:`/`before:` rather than one large fetch.
+
 ---
 
 ## 4. New Notion fields
@@ -157,11 +172,20 @@ Added to `BP — Companies Sales DB` (`26faca27-6188-4b6a-b584-924c374f2d22`):
 |---|---|
 | Total | 2,603 |
 | No email address at all | 904 |
-| Suppressed | 224 |
-| Already mailed, address clean | 895 |
-| **Still sendable** | **580** |
+| Suppressed | 337 |
+| Already mailed, address clean | 781 |
+| **Still sendable** | **581** |
+
+Suppressed breaks down as: `Bounced` 166 · `Duplicate` 60 · `Undeliverable Domain` 51 ·
+`Global Platform` 47 · `Placeholder` 12 · `Invalid Syntax` 1. (`Bounced` takes precedence
+where a record qualified under more than one reason — a confirmed bounce is stronger
+evidence than an inferred one.)
 
 At 25/day the remaining pool is about **23 days** of sending.
+
+**166 confirmed bounces against ~1,000 sends is a 16.6% bounce rate** — and that counts
+only what the parser could attribute to a record in this database. The real figure is
+higher. Against a 5% ceiling, the earlier decision to pause was not precautionary.
 
 ---
 
@@ -188,3 +212,8 @@ At 25/day the remaining pool is about **23 days** of sending.
   separate, more personal campaign, not the corporate one.
 - The generic "we do everything" email is what produced the HR misread. Per-company,
   per-service offers are the next piece of work.
+- Two records were suppressed as `Global Platform` in error and restored by hand: **Bayut
+  KSA** and **Yaschools**. Both *are* the platform, so `info@bayut.sa` and
+  `info@yaschools.com` are their own inboxes. Worth re-checking that list by eye after any
+  future import — the rule cannot distinguish "scraped from a platform" from "is the
+  platform".
