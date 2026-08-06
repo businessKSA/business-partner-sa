@@ -1,0 +1,351 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>مفهوم Gabster-style — Business Partner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1B5A;--ink:#0e1330;--green:#16A34A;--green-dark:#128a3e;--green-soft:#e8f9ee;
+--bg:#FBFBFD;--surface:#fff;--muted:#646b83;--border:#E8EAF3;--dark:#0d1022;
+--shadow:0 24px 70px rgba(14,19,48,.10);--shadow-sm:0 8px 26px rgba(14,19,48,.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;color:var(--ink);line-height:1.75;font-size:16px;
+background:var(--bg);background-image:radial-gradient(circle,#d9ddeb 1px,transparent 1px);background-size:26px 26px}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:0 1.5rem}
+.proto{background:#fffbeb;border-bottom:1px solid #fde68a;color:#92400e;text-align:center;font-size:.78rem;font-weight:600;padding:.4rem}
+/* nav */
+header{position:sticky;top:0;z-index:60;background:rgba(251,251,253,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav{display:flex;align-items:center;gap:1.4rem;height:66px}
+.logo{font-weight:700;color:var(--navy);font-size:1.1rem}
+.logo b{color:var(--green)}
+.links{display:flex;gap:.2rem}
+.links a{font-size:.9rem;color:var(--muted);padding:.45rem .8rem;border-radius:999px;transition:.2s}
+.links a:hover{color:var(--navy);background:#eef0f8}
+.sp{flex:1}
+.pill{display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;font-weight:700;font-size:.92rem;padding:.68rem 1.5rem;border:0;transition:.2s;min-height:44px}
+.pill:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+.pill-green{background:var(--green);color:#fff;box-shadow:0 10px 26px rgba(22,163,74,.28)}
+.pill-green:hover{background:var(--green-dark);transform:translateY(-1px)}
+.pill-white{background:#fff;color:var(--ink);border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.pill-white:hover{border-color:#c9cede}
+/* hero */
+.hero{padding:5rem 0 3.5rem;text-align:center;position:relative}
+.new{display:inline-flex;align-items:center;gap:.6rem;background:#fff;border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.8rem;color:var(--muted);box-shadow:var(--shadow-sm);margin-bottom:1.6rem}
+.new b{background:var(--green-soft);color:var(--green-dark);border-radius:999px;padding:.1rem .6rem;font-size:.72rem}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.3;font-weight:700;letter-spacing:-1px;max-width:17em;margin:0 auto}
+h1 i{font-style:normal;color:var(--green)}
+.sub{color:var(--muted);font-size:1.08rem;max-width:36rem;margin:1.1rem auto 1.8rem}
+.cta-row{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
+.micro{color:var(--muted);font-size:.82rem;margin-top:.9rem}
+.micro i{font-style:normal;color:var(--green);font-weight:700}
+/* floating chips */
+.chip{position:absolute;background:#fff;border:1px solid var(--border);border-radius:999px;padding:.45rem .95rem;font-size:.8rem;font-weight:600;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:.45rem;color:var(--ink)}
+.chip .dot{width:8px;height:8px;border-radius:99px;background:var(--green)}
+.c1{top:120px;right:4%}.c2{top:270px;right:8%}.c3{top:150px;left:5%}.c4{top:300px;left:9%}
+@media(max-width:1000px){.chip{display:none}}
+/* product mock */
+.mock{max-width:960px;margin:3rem auto 0;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;text-align:right}
+.mock-bar{display:flex;align-items:center;gap:.5rem;background:#f6f7fb;border-bottom:1px solid var(--border);padding:.6rem 1rem;font-size:.8rem;color:var(--muted)}
+.mock-bar span{width:10px;height:10px;border-radius:99px;background:#e2e5f0}
+.mock-body{display:grid;grid-template-columns:230px 1fr 300px;min-height:360px}
+.m-side{border-inline-start:1px solid var(--border);padding:1rem;font-size:.83rem}
+.m-side .it{display:flex;gap:.5rem;align-items:center;padding:.5rem .6rem;border-radius:9px;color:var(--muted);margin-bottom:.15rem}
+.m-side .it.on{background:var(--green-soft);color:var(--green-dark);font-weight:700}
+.m-chat{padding:1.2rem;border-inline-start:1px solid var(--border)}
+.m-msg{max-width:85%;border-radius:12px;padding:.6rem .85rem;font-size:.86rem;margin-bottom:.6rem}
+.m-msg.me{background:var(--navy);color:#fff;margin-inline-start:auto;border-start-end-radius:3px}
+.m-msg.bot{background:#f3f4fa;border-start-start-radius:3px}
+.m-gov{padding:1.2rem;font-size:.83rem}
+.m-gov h4{font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:.7rem}
+.g-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--border)}
+.g-row:last-child{border:0}
+.badge{font-size:.7rem;font-weight:700;border-radius:999px;padding:.14rem .6rem}
+.badge.g{background:var(--green-soft);color:var(--green-dark)}
+.badge.y{background:#fef3c7;color:#b45309}
+@media(max-width:900px){.mock-body{grid-template-columns:1fr}.m-side{display:none}}
+/* trust bar */
+.trustbar{text-align:center;padding:2.6rem 0 1rem;color:var(--muted);font-size:.85rem}
+.t-logos{display:flex;gap:2.2rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;font-weight:700;color:#9aa0b5;font-size:1.02rem}
+/* stats (cream) */
+.stats{background:#FBF6EC;margin:4rem 0;padding:4rem 0}
+.stats h2{text-align:center;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;margin-bottom:2.4rem}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{border-inline-start:1px solid #eadfc8;padding:0 1.6rem}
+.stat:first-child{border:0}
+.stat b{font-size:2.1rem;color:var(--ink);display:block;line-height:1.3}
+.stat span{color:#8a8264;font-size:.85rem}
+@media(max-width:800px){.stat-grid{grid-template-columns:1fr 1fr;gap:1.4rem 0}.stat{margin-bottom:.5rem}}
+/* section head */
+.shead{text-align:center;max-width:44rem;margin:0 auto 2.6rem}
+.shead .eyebrow{color:var(--muted);font-size:.78rem;font-weight:700;letter-spacing:2px}
+.shead h2{font-size:clamp(1.6rem,3.4vw,2.5rem);font-weight:700;line-height:1.35;margin:.4rem 0 .6rem}
+.shead p{color:var(--muted)}
+/* bento features */
+.bento{display:grid;grid-template-columns:7fr 5fr;gap:1.1rem;margin-bottom:1.1rem}
+.bento2{display:grid;grid-template-columns:5fr 7fr;gap:1.1rem}
+.feat{background:#fff;border:1px solid var(--border);border-radius:18px;padding:1.8rem;box-shadow:var(--shadow-sm)}
+.feat .ic{width:44px;height:44px;border-radius:12px;background:var(--green-soft);color:var(--green-dark);display:grid;place-items:center;margin-bottom:1rem}
+.feat h3{font-size:1.25rem;margin-bottom:.4rem}
+.feat p{color:var(--muted);font-size:.92rem;margin-bottom:1.1rem}
+.feat.dark{background:var(--dark);color:#fff;border:0}
+.feat.dark p{color:#a8aec8}
+.feat.dark .ic{background:rgba(22,163,74,.2);color:#5ee49a}
+.check{display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:.6rem .9rem;font-size:.85rem;margin-bottom:.55rem}
+.check svg{color:#5ee49a;flex-shrink:0}
+.inbox{border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.ib{display:flex;gap:.7rem;align-items:center;padding:.7rem .9rem;border-bottom:1px solid var(--border);font-size:.85rem}
+.ib:last-child{border:0}
+.ib .av{width:32px;height:32px;border-radius:99px;background:#eef0f8;color:var(--navy);display:grid;place-items:center;font-weight:700;font-size:.8rem;flex-shrink:0}
+.ib small{color:var(--muted);display:block;font-size:.75rem}
+.ib .ai{margin-inline-start:auto;font-size:.68rem;font-weight:700;background:var(--green-soft);color:var(--green-dark);border-radius:999px;padding:.1rem .55rem;flex-shrink:0}
+.flow{border:1px solid var(--border);border-radius:13px;padding:1rem;font-size:.85rem}
+.f-step{display:flex;gap:.7rem;align-items:center;margin-bottom:.6rem}
+.f-step:last-child{margin-bottom:0}
+.f-tag{font-size:.68rem;font-weight:700;color:var(--muted);width:44px;flex-shrink:0}
+.f-box{background:#f3f4fa;border-radius:9px;padding:.4rem .8rem}
+.f-box.hl{background:var(--navy);color:#fff}
+@media(max-width:900px){.bento,.bento2{grid-template-columns:1fr}}
+/* testimonials */
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.q{background:#fff;border:1px solid var(--border);border-radius:18px;padding:1.6rem;box-shadow:var(--shadow-sm)}
+.q .num{font-size:1.7rem;font-weight:700;color:var(--green)}
+.q .num small{font-size:.8rem;color:var(--muted);font-weight:400}
+.q p{color:var(--ink);font-size:.92rem;margin:.7rem 0 1rem}
+.q .who{display:flex;gap:.7rem;align-items:center;font-size:.83rem}
+.q .who .av{width:34px;height:34px;border-radius:99px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700}
+.q .who small{color:var(--muted);display:block}
+@media(max-width:900px){.quotes{grid-template-columns:1fr}}
+/* dark security */
+.securewrap{padding:0 1.5rem}
+.secure{max-width:1180px;margin:4rem auto;background:var(--dark);border-radius:26px;padding:4rem 2rem;text-align:center;color:#fff}
+.secure .eyebrow{color:#8a91b4;font-size:.78rem;font-weight:700;letter-spacing:2px}
+.secure h2{font-size:clamp(1.6rem,3.4vw,2.4rem);margin:.5rem 0 .7rem}
+.secure p{color:#a8aec8;max-width:34rem;margin:0 auto 2rem}
+.s-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;max-width:820px;margin:0 auto}
+.s-item{background:#151936;border:1px solid #23284d;border-radius:14px;padding:1.2rem .8rem;font-size:.84rem}
+.s-item .ic{width:40px;height:40px;border-radius:11px;background:rgba(22,163,74,.18);color:#5ee49a;display:grid;place-items:center;margin:0 auto .6rem}
+@media(max-width:800px){.s-grid{grid-template-columns:1fr 1fr}}
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.step{background:#fff;border:1px solid var(--border);border-radius:18px;padding:1.6rem;box-shadow:var(--shadow-sm)}
+.step .n{width:34px;height:34px;border-radius:99px;background:var(--green-soft);color:var(--green-dark);display:grid;place-items:center;font-weight:700;margin-bottom:.8rem}
+.step h3{font-size:1.05rem;margin-bottom:.3rem}
+.step p{color:var(--muted);font-size:.88rem}
+@media(max-width:800px){.steps{grid-template-columns:1fr}}
+/* final CTA */
+.final{max-width:1000px;margin:4rem auto;background:linear-gradient(180deg,#fff, #f2f4fb);border:1px solid var(--border);border-radius:26px;box-shadow:var(--shadow);text-align:center;padding:4rem 2rem}
+.final .eyebrow{color:var(--muted);font-size:.78rem;font-weight:700;letter-spacing:2px}
+.final h2{font-size:clamp(1.7rem,3.6vw,2.6rem);margin:.5rem 0 .7rem;line-height:1.35}
+.final p{color:var(--muted);max-width:32rem;margin:0 auto 1.8rem}
+/* footer */
+footer{background:#fff;border-top:1px solid var(--border);padding:3rem 0;font-size:.85rem;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between}
+footer b{color:var(--navy)}
+section{padding:3.2rem 0}
+/* mobile hardening */
+html,body{overflow-x:hidden;max-width:100%}
+*{min-width:0}
+.wrap,.mock,.secure,.final{overflow-wrap:break-word}
+.mock-body{grid-template-columns:minmax(0,230px) minmax(0,1fr) minmax(0,300px)}
+@media(max-width:900px){.mock-body{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:900px){
+  .links{display:none}
+  .nav{gap:.6rem}
+  .pill{padding:.55rem 1rem;font-size:.85rem}
+  .hero{padding:3rem 0 2.5rem}
+  .mock{margin-top:2rem}
+  .m-gov{border-top:1px solid var(--border)}
+  .t-logos{gap:1.1rem;font-size:.9rem}
+  .secure{padding:2.6rem 1.2rem;border-radius:18px}
+  .final{padding:2.6rem 1.2rem;border-radius:18px}
+  .stat b{font-size:1.6rem}
+}
+@media(max-width:480px){
+  .nav{gap:.35rem}
+  .logo{font-size:.92rem}
+  .pill{padding:.5rem .75rem;font-size:.78rem;min-height:40px}
+  .new{font-size:.68rem;flex-wrap:wrap;justify-content:center;max-width:92vw}
+  .wrap{padding:0 1rem}
+  .mock-bar{font-size:.7rem}
+}
+</style>
+</head>
+<body>
+<div class="proto">مفهوم تصميم بأسلوب Gabster — للعرض الداخلي فقط</div>
+
+<header><div class="wrap nav">
+  <a class="logo" href="#">Business <b>Partner</b></a>
+  <nav class="links"><a href="#">المنصة</a><a href="#">الخدمات</a><a href="#">الأسعار</a><a href="#">قصص العملاء</a><a href="#">تواصل</a></nav>
+  <span class="sp"></span>
+  <a class="pill pill-white" href="#">دخول</a>
+  <a class="pill pill-green" href="#">ابدأ مجانًا</a>
+</div></header>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="chip c1"><span class="dot"></span> قوى · تم تجديد الرخصة</span>
+  <span class="chip c2">عبدالعزيز يجهّز الطلب…</span>
+  <span class="chip c3"><span class="dot"></span> 12 وكيلًا نشطًا الآن</span>
+  <span class="chip c4">مكالمة · رد خلال ثانية</span>
+  <div class="wrap">
+    <div class="new"><b>جديد</b> الربط الحكومي المباشر أصبح متاحًا لعملائنا</div>
+    <h1>فريق كامل يدير <i>حكومتك</i><br>وأنت تدير أعمالك</h1>
+    <p class="sub">Business Partner منصة متكاملة تجمع 92 خدمة حكومية وفريقًا ذكيًا يعمل على مدار الساعة — اطلب بالعربي، تابع لحظيًا، واعتمد بضغطة.</p>
+    <div class="cta-row">
+      <a class="pill pill-green" href="#">ابدأ مجانًا الآن ←</a>
+      <a class="pill pill-white" href="#">شاهد العرض التجريبي</a>
+    </div>
+    <div class="micro"><i>✓</i> بلا بطاقة ائتمان &nbsp;·&nbsp; جاهز خلال دقائق</div>
+
+    <!-- product mock -->
+    <div class="mock">
+      <div class="mock-bar"><span></span><span></span><span></span>&nbsp; مساحة عمل فريقك — Business Partner</div>
+      <div class="mock-body">
+        <div class="m-side">
+          <div class="it on">💬 المحادثة</div>
+          <div class="it">👥 الفريق (12)</div>
+          <div class="it">🏛️ الربط الحكومي</div>
+          <div class="it">📋 سجل الأعمال</div>
+          <div class="it">📊 التقارير</div>
+        </div>
+        <div class="m-chat">
+          <div class="m-msg me">كم موظف تنتهي إقامته خلال 60 يوم؟</div>
+          <div class="m-msg bot">3 موظفين: أحمد س. (36 يومًا)، راجيش ك. (44)، محمد ع. (53).<br>التكلفة التقديرية: 19,650 ريال. هل أجهّز طلبات التجديد لاعتمادك؟</div>
+          <div class="m-msg me">جهزها ✓</div>
+        </div>
+        <div class="m-gov">
+          <h4>الربط الحكومي</h4>
+          <div class="g-row">واثق <span class="badge g">ربط رسمي</span></div>
+          <div class="g-row">نفاذ <span class="badge g">ربط رسمي</span></div>
+          <div class="g-row">قوى <span class="badge y">عبر الفريق · 24س</span></div>
+          <div class="g-row">مقيم <span class="badge y">عبر الفريق · 24س</span></div>
+          <div class="g-row">مدد <span class="badge y">عبر الفريق</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trustbar">نُدير المنصات الحكومية التي تعتمد عليها منشأتك
+      <div class="t-logos"><span>قوى</span><span>مُقيم</span><span>التأمينات</span><span>مدد</span><span>واثق</span><span>نفاذ</span><span>أبشر أعمال</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS (cream) -->
+<div class="stats"><div class="wrap">
+  <h2>المحرك خلف كل منشأة نخدمها</h2>
+  <div class="stat-grid">
+    <div class="stat"><b>+92</b><span>خدمة حكومية جاهزة للطلب</span></div>
+    <div class="stat"><b>12</b><span>وكيلًا ذكيًا في فريقك</span></div>
+    <div class="stat"><b>24/7</b><span>استقبال وتنفيذ الطلبات</span></div>
+    <div class="stat"><b>8</b><span>منصات حكومية في نافذة واحدة</span></div>
+  </div>
+</div></div>
+
+<!-- FEATURES bento -->
+<section><div class="wrap">
+  <div class="shead">
+    <span class="eyebrow">المنصة</span>
+    <h2>كل ما تحتاجه منشأتك</h2>
+    <p>أغلب الشركات تشتّت أعمالها بين مكاتب خدمات ومنصات وجوالات. نحن نجمعها كلها — بجمال.</p>
+  </div>
+  <div class="bento">
+    <div class="feat">
+      <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+      <h3>كل طلباتك، محادثة واحدة</h3>
+      <p>تجديد إقامة، شهادة سعودة، رخصة بلدية — اكتبها بالعربي وخالد يوجهها للمتخصص المناسب فورًا.</p>
+      <div class="inbox">
+        <div class="ib"><span class="av">أ</span><div>تجديد إقامات — شركة النخبة<small>مقيم · قيد التنفيذ</small></div><span class="ai">AI ✓</span></div>
+        <div class="ib"><span class="av">س</span><div>شهادة سعودة — مؤسسة الأفق<small>التأمينات · اكتملت</small></div><span class="ai">AI ✓</span></div>
+        <div class="ib"><span class="av">م</span><div>تأسيس شركة — مستثمر أجنبي<small>وزارة الاستثمار · بانتظار اعتمادك</small></div><span class="ai">AI ✓</span></div>
+      </div>
+    </div>
+    <div class="feat dark">
+      <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+      <h3>امتثال آمن بالتصميم</h3>
+      <p>لا شيء يمس حكومتك بدون علمك — الآلة تجهّز، وأنت تعتمد.</p>
+      <div class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg> اعتماد بشري لكل إجراء ملزم</div>
+      <div class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg> التزام نظام حماية البيانات PDPL</div>
+      <div class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg> سجل تدقيق لكل خطوة</div>
+    </div>
+  </div>
+  <div class="bento2">
+    <div class="feat">
+      <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></span>
+      <h3>تنبيه قبل الغرامة، لا بعدها</h3>
+      <p>عبدالعزيز يراقب كل انتهاءات الرخص والإقامات ويجهّز التجديد قبل 60 يومًا.</p>
+      <div class="flow">
+        <div class="f-step"><span class="f-tag">متى</span><span class="f-box">رخصة تنتهي خلال 60 يومًا</span></div>
+        <div class="f-step"><span class="f-tag">AI</span><span class="f-box hl">حساب الرسوم وتجهيز المستندات</span></div>
+        <div class="f-step"><span class="f-tag">ثم</span><span class="f-box">إشعارك للاعتماد بضغطة ✓</span></div>
+      </div>
+    </div>
+    <div class="feat">
+      <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 5-6"/></svg></span>
+      <h3>اسأل منشأتك أي شيء</h3>
+      <p>«كم صرفنا على التأشيرات هذا العام؟» «متى ينتهي نطاقنا؟» — إجابات فورية من بياناتك الفعلية، وتقارير جاهزة للمشاركة.</p>
+      <div class="flow">
+        <div class="f-step"><span class="f-box" style="width:100%">🔍 اعرض التزامات أغسطس الحكومية…</span></div>
+        <div class="f-step"><span class="f-box hl" style="width:100%">3 تجديدات + مسير رواتب — الإجمالي 24,300 ريال</span></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- TESTIMONIALS -->
+<section><div class="wrap">
+  <div class="shead"><span class="eyebrow">قالوا عنا</span><h2>نتائج حقيقية من منشآت حقيقية</h2></div>
+  <div class="quotes">
+    <div class="q"><div class="num">-80% <small>وقت المتابعة</small></div><p>«كنا نطارد ثلاث منصات ومكتبين. الآن كل شيء في نافذة واحدة ونعرف حالة أي طلب لحظيًا.»</p><div class="who"><span class="av">ع</span><div>عبدالله الحربي<small>مؤسس — قطاع التجزئة</small></div></div></div>
+    <div class="q"><div class="num">0 <small>غرامات منذ الاشتراك</small></div><p>«التنبيه قبل 60 يومًا أنقذنا مرتين. أول سنة كاملة تمر بدون غرامة واحدة.»</p><div class="who"><span class="av">س</span><div>سارة القحطاني<small>مديرة عمليات — مقاولات</small></div></div></div>
+    <div class="q"><div class="num">أيام <small>بدل أسابيع للتأسيس</small></div><p>«أسسنا الكيان وفتحنا الحساب البنكي وأصدرنا التراخيص قبل الموعد الذي خططنا له.»</p><div class="who"><span class="av">م</span><div>مايكل تشين<small>مستثمر أجنبي — تقنية</small></div></div></div>
+  </div>
+</div></section>
+
+<!-- DARK SECURITY -->
+<div class="securewrap"><div class="secure">
+  <span class="eyebrow">بمستوى المؤسسات</span>
+  <h2>الأمان والامتثال، مدمجان في الأساس</h2>
+  <p>بياناتك مشفرة نقلًا وتخزينًا. الاعتمادات وسجلات التدقيق تجعل كل إجراء خاضعًا للمساءلة.</p>
+  <div class="s-grid">
+    <div class="s-item"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>تشفير كامل للبيانات</div>
+    <div class="s-item"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>التزام PDPL السعودي</div>
+    <div class="s-item"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>اعتماد بشري للإجراءات</div>
+    <div class="s-item"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6M9 8h6M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/></svg></span>سجل تدقيق شامل</div>
+  </div>
+</div></div>
+
+<!-- STEPS -->
+<section><div class="wrap">
+  <div class="shead"><span class="eyebrow">كيف تبدأ</span><h2>جاهز في ثلاث خطوات</h2></div>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><h3>عرّفنا بمنشأتك</h3><p>سجلك التجاري ورقم منشأتك — نسحب البيانات الرسمية من واثق فورًا.</p></div>
+    <div class="step"><span class="n">2</span><h3>فوّض فريقك</h3><p>تفويض رسمي واحد يتيح لفريقنا المرخص العمل نيابة عنك على المنصات.</p></div>
+    <div class="step"><span class="n">3</span><h3>اطلب وتابع واعتمد</h3><p>من اليوم الأول: طلباتك تُنفذ، والتنبيهات تصلك قبل أي التزام.</p></div>
+  </div>
+</div></section>
+
+<!-- FINAL CTA -->
+<div class="securewrap"><div class="final">
+  <span class="eyebrow">ابدأ مجانًا</span>
+  <h2>أول استشارة مجانية — اليوم</h2>
+  <p>خلال 15 دقيقة مع مستشار حقيقي تعرف طريقك كاملًا: التكاليف، والمدد، والخطوة الأولى.</p>
+  <div class="cta-row">
+    <a class="pill pill-green" href="tel:0503793356">احجز استشارتك المجانية ←</a>
+    <a class="pill pill-white" href="#">استعرض الخدمات</a>
+  </div>
+  <div class="micro">+92 خدمة جاهزة · رد خلال دقائق في أوقات العمل</div>
+</div></div>
+
+<footer><div class="wrap">
+  <div><b>Business Partner</b><br>منصة إدارة الأعمال والامتثال الحكومي<br>الرياض — حي العارض، شارع ريحانة بنت زيد</div>
+  <div><b>سجل تجاري:</b> 1009008634<br><b>الرقم الضريبي:</b> 310887376200003</div>
+  <div><b>الجوال:</b> 0503793356<br><b>البريد:</b> business@businesspartner.sa</div>
+</div></footer>
+</body>
+</html>

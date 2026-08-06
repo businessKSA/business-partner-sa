@@ -1,0 +1,215 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>مفهوم إعادة تصميم الصفحة الرئيسية | Business Partner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#0B1B5A;--on-primary:#fff;--secondary:#24409c;--accent:#16A34A;--accent-soft:#dcfce7;
+  --bg:#F7F8FC;--surface:#fff;--fg:#101733;--muted:#5b6178;--border:#E3E7F2;
+  --sp-1:.5rem;--sp-2:1rem;--sp-3:1.5rem;--sp-4:2.5rem;--sp-5:4rem;--sp-6:6rem;
+  --radius:14px;--shadow:0 14px 44px rgba(11,27,90,.08)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.75;font-size:16px}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+img,svg{max-width:100%}
+.wrap{max-width:1160px;margin:0 auto;padding:0 var(--sp-3)}
+.proto{background:#fffbeb;border-bottom:1px solid #fde68a;color:#92400e;text-align:center;font-size:.78rem;font-weight:600;padding:.4rem .8rem}
+/* ---------- nav ---------- */
+header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav{display:flex;align-items:center;gap:var(--sp-3);height:68px}
+.logo{font-weight:700;color:var(--primary);font-size:1.15rem;letter-spacing:-.3px}
+.logo span{color:var(--accent)}
+.links{display:flex;gap:var(--sp-2);margin-inline-start:var(--sp-3)}
+.links a{font-size:.9rem;color:var(--muted);padding:.45rem .7rem;border-radius:9px;transition:color .2s,background .2s}
+.links a:hover{color:var(--primary);background:var(--bg)}
+.nav .sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:11px;padding:.65rem 1.3rem;font-weight:700;font-size:.92rem;border:0;transition:transform .2s,box-shadow .2s,background .2s;min-height:44px}
+.btn:hover{transform:translateY(-1px)}
+.btn:focus-visible{outline:3px solid var(--secondary);outline-offset:2px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#128a3e;box-shadow:0 8px 22px rgba(22,163,74,.28)}
+.btn-ghost{background:none;color:var(--primary);border:1.6px solid var(--border)}
+.btn-ghost:hover{border-color:var(--primary)}
+/* ---------- hero: Enterprise Gateway ---------- */
+.hero{background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);padding:var(--sp-6) 0 var(--sp-5)}
+.hero-grid{display:grid;grid-template-columns:7fr 5fr;gap:var(--sp-5);align-items:center}
+.kicker{display:inline-flex;align-items:center;gap:.5rem;background:var(--accent-soft);color:#166534;font-size:.8rem;font-weight:700;border-radius:999px;padding:.3rem .9rem;margin-bottom:var(--sp-2)}
+h1{font-size:clamp(1.9rem,4.2vw,3rem);line-height:1.35;color:var(--primary);font-weight:700;letter-spacing:-.5px;margin-bottom:var(--sp-2)}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{color:var(--muted);font-size:1.05rem;max-width:34rem;margin-bottom:var(--sp-3)}
+.hero-cta{display:flex;gap:var(--sp-2);flex-wrap:wrap}
+/* path selection — «أنا …» */
+.paths{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:var(--sp-3)}
+.paths h2{font-size:1rem;color:var(--muted);font-weight:600;margin-bottom:var(--sp-2)}
+.path{display:flex;align-items:center;gap:var(--sp-2);border:1.6px solid var(--border);border-radius:12px;padding:var(--sp-2);margin-bottom:var(--sp-1);transition:border-color .2s,background .2s;cursor:pointer}
+.path:hover{border-color:var(--accent);background:#f6fdf8}
+.path:focus-visible{outline:3px solid var(--secondary);outline-offset:2px}
+.path .ic{width:42px;height:42px;border-radius:11px;background:var(--bg);display:grid;place-items:center;color:var(--primary);flex-shrink:0}
+.path b{color:var(--primary);font-size:.98rem;display:block}
+.path span{color:var(--muted);font-size:.8rem}
+.path .go{margin-inline-start:auto;color:var(--accent);flex-shrink:0}
+/* ---------- trust strip ---------- */
+.trust{border-block:1px solid var(--border);background:var(--surface)}
+.trust .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-3);padding-block:var(--sp-3);text-align:center}
+.t b{font-size:1.6rem;color:var(--primary);display:block;line-height:1.3}
+.t span{color:var(--muted);font-size:.83rem}
+/* ---------- sections ---------- */
+section{padding:var(--sp-5) 0}
+.head{max-width:38rem;margin-bottom:var(--sp-4)}
+.head .eyebrow{color:var(--accent);font-weight:700;font-size:.85rem;letter-spacing:.5px}
+.head h2{font-size:clamp(1.4rem,2.6vw,2rem);color:var(--primary);line-height:1.4;margin:.3rem 0 .5rem}
+.head p{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-3);transition:transform .25s,box-shadow .25s;animation:rise .5s both}
+.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}
+.card:nth-child(4){animation-delay:.18s}.card:nth-child(5){animation-delay:.24s}.card:nth-child(6){animation-delay:.3s}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.card .ic{width:46px;height:46px;border-radius:12px;background:var(--bg);color:var(--primary);display:grid;place-items:center;margin-bottom:var(--sp-2)}
+.card h3{color:var(--primary);font-size:1.05rem;margin-bottom:.3rem}
+.card p{color:var(--muted);font-size:.88rem}
+.card a{color:var(--accent);font-weight:700;font-size:.85rem;display:inline-flex;align-items:center;gap:.3rem;margin-top:var(--sp-2)}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}.btn:hover{transform:none}}
+/* ---------- فريقك band ---------- */
+.team-band{background:var(--primary);color:#fff;border-radius:calc(var(--radius) + 6px);padding:var(--sp-4);display:grid;grid-template-columns:6fr 6fr;gap:var(--sp-4);align-items:center}
+.team-band h2{font-size:clamp(1.3rem,2.4vw,1.8rem);line-height:1.45;margin-bottom:var(--sp-2)}
+.team-band p{color:#cdd7f5;font-size:.95rem;margin-bottom:var(--sp-3)}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:.35rem .85rem;font-size:.8rem}
+.chip.ok{background:rgba(22,163,74,.22);border-color:rgba(22,163,74,.45)}
+.gov-demo{background:#0e2270;border:1px solid rgba(255,255,255,.14);border-radius:var(--radius);padding:var(--sp-3)}
+.gov-row{display:flex;align-items:center;gap:.7rem;padding:.6rem .2rem;border-bottom:1px solid rgba(255,255,255,.1);font-size:.9rem}
+.gov-row:last-child{border:0}
+.gov-row .st{margin-inline-start:auto;font-size:.74rem;font-weight:700;border-radius:999px;padding:.15rem .6rem}
+.st.g{background:rgba(22,163,74,.25);color:#7ef0a8}
+.st.y{background:rgba(245,158,11,.22);color:#fcd34d}
+/* ---------- CTA ---------- */
+.cta{background:var(--surface);border-top:1px solid var(--border);text-align:center}
+.cta h2{font-size:clamp(1.4rem,2.6vw,2rem);color:var(--primary);margin-bottom:var(--sp-2)}
+.cta p{color:var(--muted);margin-bottom:var(--sp-3)}
+/* ---------- footer ---------- */
+footer{background:var(--primary);color:#cdd7f5;padding:var(--sp-4) 0;font-size:.85rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:var(--sp-3);justify-content:space-between}
+footer b{color:#fff}
+/* ---------- responsive ---------- */
+@media(max-width:980px){.hero-grid,.team-band{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.trust .wrap{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.cards{grid-template-columns:1fr}.links{display:none}}
+</style>
+</head>
+<body>
+<div class="proto">مفهوم تصميم مقترح — للعرض الداخلي فقط، ليس الموقع الفعلي</div>
+
+<header><div class="wrap nav">
+  <a class="logo" href="#">Business <span>Partner</span></a>
+  <nav class="links" aria-label="التنقل الرئيسي">
+    <a href="#services">الخدمات</a><a href="#team">فريقك الذكي</a><a href="#gov">الربط الحكومي</a><a href="#contact">تواصل</a>
+  </nav>
+  <div class="sp"></div>
+  <a class="btn btn-ghost" href="#">دخول العملاء</a>
+  <a class="btn btn-primary" href="#contact">استشارة مجانية</a>
+</div></header>
+
+<!-- Hero: Enterprise Gateway -->
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+    <span class="kicker">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+      رد فوري 24/7 · أتعاب شفافة
+    </span>
+    <h1>شريك تشغيل واحد لكل متطلبات أعمالك <em>في السعودية</em></h1>
+    <p class="sub">من تأسيس الشركات والاستثمار الأجنبي إلى التراخيص والموارد البشرية والامتثال الحكومي — ننجزها لك بوضوح وسرعة، ونتابعها حتى الإصدار.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#contact">احجز استشارة مجانية</a>
+      <a class="btn btn-ghost" href="#services">استعرض 92 خدمة</a>
+    </div>
+  </div>
+  <!-- path selection -->
+  <div class="paths" role="navigation" aria-label="اختر مسارك">
+    <h2>ابدأ من هنا — أنا…</h2>
+    <a class="path" href="#">
+      <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg></span>
+      <span><b>مؤسس يبدأ شركة جديدة</b><span>تأسيس، سجل تجاري، حساب بنكي، تراخيص</span></span>
+      <span class="go"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></span>
+    </a>
+    <a class="path" href="#">
+      <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h1m4 0h1M9 14h1m4 0h1"/></svg></span>
+      <span><b>صاحب منشأة قائمة</b><span>امتثال، إقامات، رواتب، تجديد تراخيص</span></span>
+      <span class="go"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></span>
+    </a>
+    <a class="path" href="#">
+      <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+      <span><b>مستثمر أجنبي يدخل السوق</b><span>ترخيص استثمار، إقامة مميزة، تملك 100%</span></span>
+      <span class="go"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></span>
+    </a>
+  </div>
+</div></section>
+
+<!-- trust strip -->
+<div class="trust"><div class="wrap">
+  <div class="t"><b>92</b><span>خدمة حكومية</span></div>
+  <div class="t"><b>24/7</b><span>رد فوري</span></div>
+  <div class="t"><b>+8</b><span>منصات حكومية نديرها</span></div>
+  <div class="t"><b>100%</b><span>أتعاب معلنة مسبقًا</span></div>
+</div></div>
+
+<!-- solutions -->
+<section id="services"><div class="wrap">
+  <div class="head">
+    <span class="eyebrow">الحلول حسب حاجتك</span>
+    <h2>كل ما تحتاجه منشأتك — في مكان واحد</h2>
+    <p>تسع فئات تغطي دورة حياة شركتك كاملة، بأسعار معلنة وتتبع لكل طلب.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg></span><h3>تأسيس الشركات</h3><p>سجل تجاري، عقود تأسيس، حساب بنكي — تسليم مفتاح.</p><a href="#">التفاصيل<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a></div>
+    <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6M9 8h6M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/></svg></span><h3>الامتثال الحكومي</h3><p>قوى، مقيم، التأمينات، مدد — تجديدات في موعدها وتنبيهات قبل الغرامة.</p><a href="#">التفاصيل<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a></div>
+    <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg></span><h3>الاستثمار الأجنبي</h3><p>ترخيص استثماري، تملك كامل، إقامة مميزة للمستثمرين.</p><a href="#">التفاصيل<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a></div>
+    <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><h3>الموارد البشرية والتوظيف</h3><p>استقدام، عقود، رواتب — وفريق توظيف يصل للكفاءات.</p><a href="#">التفاصيل<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a></div>
+    <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4m8-4v4M3 10h18"/></svg></span><h3>مساحات وعقارات الأعمال</h3><p>مكاتب، عنوان وطني، مقرات — ومساكن عمالة مرخصة.</p><a href="#">التفاصيل<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a></div>
+    <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.5-1.5 4.5-3 6l-1 6h-6l-1-6c-1.5-1.5-3-3.5-3-6a7 7 0 0 1 7-7z"/></svg></span><h3>الذكاء الاصطناعي والأتمتة</h3><p>وكلاء أذكياء وأتمتة لعملياتك — نفس الأدوات التي نديرها لأنفسنا.</p><a href="#">التفاصيل<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a></div>
+  </div>
+</div></section>
+
+<!-- فريقك band -->
+<section id="team"><div class="wrap">
+  <div class="team-band">
+    <div>
+      <h2>فريقك الذكي — 12 موظفًا يعملون لك على مدار الساعة</h2>
+      <p>اطلب بالعربي، يفهم خالد طلبك ويوجهه للمتخصص، وتتابع كل شيء من مكان واحد. القرارات المصيرية تبقى بيدك دائمًا.</p>
+      <div class="chips">
+        <span class="chip ok">خالد — مدير المكتب</span><span class="chip">عبدالعزيز — الامتثال</span><span class="chip">فرح — التسويق</span><span class="chip">بدر — المبيعات</span><span class="chip">+8 متخصصين</span>
+      </div>
+    </div>
+    <div class="gov-demo" id="gov" aria-label="حالة الربط الحكومي">
+      <div class="gov-row">واثق — السجل التجاري <span class="st g">ربط رسمي</span></div>
+      <div class="gov-row">نفاذ — الدخول الموثق <span class="st g">ربط رسمي</span></div>
+      <div class="gov-row">قوى — العقود والرخص <span class="st y">عبر الفريق · 24 ساعة</span></div>
+      <div class="gov-row">مقيم — الإقامات والتأشيرات <span class="st y">عبر الفريق · 24 ساعة</span></div>
+      <div class="gov-row">مدد — الرواتب وحماية الأجور <span class="st y">عبر الفريق · شهري</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta" id="contact"><div class="wrap">
+  <h2>استشارة مجانية — خلال 15 دقيقة تعرف طريقك كاملًا</h2>
+  <p>كلّمنا الآن وسيرد عليك مستشار حقيقي، ليس نموذجًا صامتًا.</p>
+  <a class="btn btn-primary" href="tel:0503793356">اتصل: 0503793356</a>
+  <a class="btn btn-ghost" href="mailto:business@businesspartner.sa">business@businesspartner.sa</a>
+</div></section>
+
+<footer><div class="wrap">
+  <div><b>Business Partner</b><br>الرياض — حي العارض، شارع ريحانة بنت زيد</div>
+  <div><b>سجل تجاري:</b> 1009008634<br><b>الرقم الضريبي:</b> 310887376200003</div>
+  <div><b>الرقم الموحد:</b> 7038696196<br><b>الجوال:</b> 0503793356</div>
+</div></footer>
+</body>
+</html>
