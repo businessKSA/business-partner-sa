@@ -187,6 +187,29 @@ At 25/day the remaining pool is about **23 days** of sending.
 only what the parser could attribute to a record in this database. The real figure is
 higher. Against a 5% ceiling, the earlier decision to pause was not precautionary.
 
+### The domain has not been blocked
+
+Classifying all 166 bounce reasons by what the receiving server actually said:
+
+| What the server said | Count |
+|---|---|
+| Address does not exist | 80 |
+| Domain has no mail server | 48 |
+| Other / unclassified | 25 |
+| Server refuses mail from outside | 10 |
+| **Policy or reputation rejection** | **3** |
+
+**Only 3 of 166 are the receiving side rejecting us on reputation** (all three Mimecast
+`554 security policies`). The other 163 are bad data — addresses that were never real.
+
+This is the difference between two very different problems. If most bounces had been
+policy rejections, `businesspartnerksa.com` would already be filtered at the large
+receivers and would need a warm-up or a fresh sending domain. They are not. The domain is
+still in good standing; the list was the problem, and the list has been fixed.
+
+The pause caught this in time. Had the campaign continued at 100/day, the ratio would have
+inverted.
+
 ---
 
 ## 6. Operating rules
