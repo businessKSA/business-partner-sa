@@ -148,6 +148,32 @@ footer{background:#fff;border-top:1px solid var(--border);padding:3rem 0;font-si
 footer .wrap{display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between}
 footer b{color:var(--navy)}
 section{padding:3.2rem 0}
+/* mobile hardening */
+html,body{overflow-x:hidden;max-width:100%}
+*{min-width:0}
+.wrap,.mock,.secure,.final{overflow-wrap:break-word}
+.mock-body{grid-template-columns:minmax(0,230px) minmax(0,1fr) minmax(0,300px)}
+@media(max-width:900px){.mock-body{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:900px){
+  .links{display:none}
+  .nav{gap:.6rem}
+  .pill{padding:.55rem 1rem;font-size:.85rem}
+  .hero{padding:3rem 0 2.5rem}
+  .mock{margin-top:2rem}
+  .m-gov{border-top:1px solid var(--border)}
+  .t-logos{gap:1.1rem;font-size:.9rem}
+  .secure{padding:2.6rem 1.2rem;border-radius:18px}
+  .final{padding:2.6rem 1.2rem;border-radius:18px}
+  .stat b{font-size:1.6rem}
+}
+@media(max-width:480px){
+  .nav{gap:.35rem}
+  .logo{font-size:.92rem}
+  .pill{padding:.5rem .75rem;font-size:.78rem;min-height:40px}
+  .new{font-size:.68rem;flex-wrap:wrap;justify-content:center;max-width:92vw}
+  .wrap{padding:0 1rem}
+  .mock-bar{font-size:.7rem}
+}
 </style>
 </head>
 <body>
