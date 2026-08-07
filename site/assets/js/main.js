@@ -1194,10 +1194,13 @@ var BP = window.BP = window.BP || {};
       var files = [];
       [docs, receipt].forEach(function (inp) { if (inp && inp.files) for (var i = 0; i < inp.files.length; i++) files.push(inp.files[i].name); });
       var surchargeFee = BP.extraCheckoutFee ? BP.extraCheckoutFee() : 0;
-      var total = (cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || 0) + surchargeFee;
+      // VAT-inclusive total — must equal the total shown on the page and the
+      // amount on the client's bank receipt, or auto-verification can't match.
+      var subTotal = (cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || 0) + surchargeFee;
+      var total = Math.round(subTotal * 1.15 * 100) / 100;
       var order = {
         ref: ref, name: name, phone: phone, email: email,
-        items: cart.map(function (i) { return { name: BP.cartName(i), qty: i.qty || 1, price: i.amount ? i.amount * (i.qty || 1) : null, priceLabel: i.price }; }),
+        items: cart.map(function (i) { return { id: i.id || "", name: BP.cartName(i), qty: i.qty || 1, price: i.amount ? i.amount * (i.qty || 1) : null, priceLabel: i.price }; }),
         files: files, receipt: receiptFile.name,
         at: new Date().toISOString().slice(0, 10), status: BP.t("Under review", "قيد المراجعة"),
       };
@@ -1226,7 +1229,7 @@ var BP = window.BP = window.BP || {};
             body: JSON.stringify({
               type: "order", ref: ref, name: name, phone: phone, email: email,
               items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
-              itemsData: order.items.map(function (i) { return { id: i.id || "", qty: i.qty || 1, price: i.price || 0 }; }),
+              itemsData: cart.map(function (i) { return { id: i.id || "", qty: i.qty || 1, price: i.amount || 0 }; }),
               total: total,
               agents: employeeSlugs,
               compliance: boughtCompliance,
@@ -1245,8 +1248,11 @@ var BP = window.BP = window.BP || {};
       BP.cart.write([]);
       var box = document.getElementById("checkout-success");
       box.hidden = false;
-      box.innerHTML = "✅ <strong>" + BP.t("Order received", "تم استلام طلبك") + " — " + ref + "</strong><br>" +
-        BP.t("Your receipt is being verified against your order total. We'll confirm on WhatsApp.", "يجري التحقق من إيصالك مقابل إجمالي طلبك. سنؤكد لك عبر واتساب.");
+      box.innerHTML = "✅ <strong>" + BP.t("Order received", "تم استلام طلبك") + "</strong><br>" +
+        BP.t("Order number: ", "رقم الطلب: ") + "<strong dir=\"ltr\">" + ref + "</strong><br>" +
+        BP.t("Status: pending verification — your receipt is being checked against your order total.", "الحالة: بانتظار التحقق — يجري فحص إيصالك ومطابقته مع إجمالي طلبك.") + "<br>" +
+        '<a class="btn btn-primary" style="margin-top:12px;display:inline-flex" href="' + (BP.lang === "ar" ? "/ar/account" : "/account") + '">' +
+        BP.t("Back to client portal", "العودة إلى بوابة العميل") + "</a>";
       box.scrollIntoView({ behavior: "smooth", block: "center" });
       form.querySelector("button[type=submit]").disabled = true;
       BP.renderCheckout();
@@ -2686,7 +2692,11 @@ var BP = window.BP = window.BP || {};
 
   // total incl. VAT; quote-only carts stay on bank transfer
   var total = 0;
-  try { var c = (BP.cart && BP.cart.read()) || []; total = c.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) * 1.15; } catch (e2) {}
+  try {
+    var c = (BP.cart && BP.cart.read()) || [];
+    var extraFee = (typeof BP.extraCheckoutFee === "function") ? (BP.extraCheckoutFee() || 0) : 0;
+    total = (c.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) + extraFee) * 1.15;
+  } catch (e2) {}
 
   if (total > 0) {
     fetch("/api/pay").then(function (r) { return r.json(); }).then(function (cfg) {

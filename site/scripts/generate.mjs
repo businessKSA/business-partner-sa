@@ -399,7 +399,7 @@ ${hreflangs}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=${CSS_V}">
-${SHOW_PRICES ? "" : '<style>/* Owner policy: never reveal any price. Safety net for pure-price elements incl. JS-populated ones. */.tr-price,.price-amt,.emp-price,.emp-price-m,.emp-price-y,.pk-per,.emp-billing-toggle,.cart-totals-block{display:none!important}</style>'}
+${SHOW_PRICES ? "" : '<style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>'}
 </head>
 <body>`;
 }
@@ -535,7 +535,7 @@ function footer() {
 }
 
 function waFab() {
-  return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="${Lraw("Contact on WhatsApp", "تواصل عبر واتساب")}">${I.wa}<span class="lbl">${L("Chat with the smart agent", "تحدث مع الوكيل الذكي")}</span></a>`;
+  return `<a class="wa-fab" href="${WA}" target="_blank" rel="noopener" aria-label="${Lraw("Contact on WhatsApp", "تواصل عبر واتساب")}">${I.wa}<span class="lbl">${L("Contact us on WhatsApp", "تواصل عبر واتساب")}</span></a>`;
 }
 
 // باهر — صورة صاحب الموقع الحقيقية (بدل الرسمة). span بنفس كلاس kh-avatar حتى
@@ -631,7 +631,8 @@ function page({ title, desc, active, path, body, script = "" }) {
     `<main>${body}</main>` +
     footer() +
     waFab() +
-    advisorWidget() +
+    // Owner request (2026-08): the floating "smart agent / Ask Baher" chat
+    // widget is removed site-wide — the green WhatsApp button is the only fab.
     `<script src="/assets/js/main.js?v=${JS_V}"></script>${script}</body></html>`
   );
 }
@@ -935,7 +936,7 @@ function buildAbout() {
     <div class="grid grid-4">${vals}</div>
   </div></section>
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Ready to start your journey?", "جاهز نبدأ رحلتك؟")}</h2><p>${L("The smart agent replies instantly and sets your next step.", "الوكيل الذكي يرد فوراً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready to start your journey?", "جاهز نبدأ رحلتك؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
   </div></section>`;
   return page({ title: Lraw("About — Business Partner", "من نحن — بيزنس بارتنر"), desc: Lraw(a.leadEn || a.lead, a.lead), active: "/about", body });
 }
@@ -1069,7 +1070,7 @@ function buildDirectory() {
     <div class="eco-grid" id="eco-grid">${orgCards}${progCards}</div>
     <p class="eco-empty" id="eco-empty" hidden>${L("No results match your filters. Try clearing the search or category.", "لا توجد نتائج مطابقة. جرّب مسح البحث أو الفئة.")}</p>
 
-    <div class="cta-band eco-cta"><h2>${L("Building or backing a startup in Saudi Arabia?", "تؤسّس أو تدعم شركة ناشئة في السعودية؟")}</h2><p>${L("We help founders and funds with licensing, MISA foreign investment, formation and compliance. Talk to the smart agent to find the right path.", "نساعد المؤسسين والصناديق في التراخيص والاستثمار الأجنبي (MISA) والتأسيس والامتثال. تحدّث مع الوكيل الذكي لتحديد المسار المناسب.")}</p>${waBtn2("Talk to us", "تواصل معنا", "btn-white", true)}</div>
+    <div class="cta-band eco-cta"><h2>${L("Building or backing a startup in Saudi Arabia?", "تؤسّس أو تدعم شركة ناشئة في السعودية؟")}</h2><p>${L("We help founders and funds with licensing, MISA foreign investment, formation and compliance. Talk to us to find the right path.", "نساعد المؤسسين والصناديق في التراخيص والاستثمار الأجنبي (MISA) والتأسيس والامتثال. تواصل معنا لتحديد المسار المناسب.")}</p>${waBtn2("Talk to us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
 
   const script = `<script>
@@ -1196,7 +1197,7 @@ function buildServiceCategory(cat) {
   <section class="section"><div class="container">
     <div class="grid grid-3">${cards}</div>
     <div class="cat-other"><h2>${L("Other categories", "تصنيفات أخرى")}</h2><div class="cc-prof-chips">${other}</div></div>
-    <div class="cta-band" style="margin-top:28px"><h2>${L("Not sure which service you need?", "محتار أي خدمة تناسبك؟")}</h2><p>${L("Ask the smart agent and get the right service for your case instantly.", "اسأل الوكيل الذكي وتوصل للخدمة المناسبة لحالتك فوراً.")}</p>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-white", true)}</div>
+    <div class="cta-band" style="margin-top:28px"><h2>${L("Not sure which service you need?", "محتار أي خدمة تناسبك؟")}</h2><p>${L("Contact us and we will point you to the right service for your case.", "تواصل معنا ونوصلك للخدمة المناسبة لحالتك مباشرة.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
   return page({
     title: `${Lraw(catEn(cat.key), cat.ar)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
@@ -1255,9 +1256,9 @@ function buildServiceDetail(s) {
     </div>
     <aside class="svc-aside">
       <div class="order-box">
-        ${SHOW_SERVICE_PRICES && s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
-          ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
-        <div class="price-note">${esc(priceNote)}</div>
+        ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
+          ? `<div class="price-tailored price-amt">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
+        ${SHOW_SERVICE_PRICES ? `<div class="price-note">${esc(priceNote)}</div>` : `<div class="price-note price-amt">${esc(priceNote)}</div><div class="price-note" ${'data-guest-note=""'}>${L("Sign in to see the service fee, requirements and timeline for your case.", "سجّل الدخول لعرض أتعاب الخدمة والمتطلبات والمدة لحالتك.")}</div>`}
         ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
         <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
           : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
@@ -1753,7 +1754,7 @@ function buildPackages() {
     </div>
   </div></section>
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Not sure which package fits you?", "محتار أي باقة تناسبك؟")}</h2><p>${L("The smart agent asks a few questions and recommends the best package in minutes.", "الوكيل الذكي يسألك بضعة أسئلة ويرشّح لك الباقة الأنسب في دقائق.")}</p>${waBtn2("Help me choose", "ساعدني أختار", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Not sure which package fits you?", "محتار أي باقة تناسبك؟")}</h2><p>${L("Answer a few questions and we recommend the best package in minutes.", "جاوب على بضعة أسئلة ونرشّح لك الباقة الأنسب في دقائق.")}</p>${waBtn2("Help me choose", "ساعدني أختار", "btn-white", true)}</div>
   </div></section>
   <script>window.BP_PKG_LANG=${JSON.stringify(LANG)};</script>
   <script>
@@ -3930,7 +3931,7 @@ function buildSaudi() {
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L(s.knowledge.eyebrowEn || s.knowledge.eyebrow, s.knowledge.eyebrow)}</span><h2>${L(s.knowledge.titleEn || s.knowledge.title, s.knowledge.title)}</h2><p>${L(s.knowledge.subtitleEn || s.knowledge.subtitle, s.knowledge.subtitle)}</p></div>
     <div class="grid grid-3">${articles}</div>
-    <div class="cta-band" style="margin-top:40px"><h2>${L("Want a detailed guide for your case?", "تبي دليلاً مفصّلاً لحالتك؟")}</h2><p>${L("The smart agent prepares your service steps and requirements instantly.", "الوكيل الذكي يجهّز لك خطوات خدمتك ومتطلباتها فوراً.")}</p>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-white", true)}</div>
+    <div class="cta-band" style="margin-top:40px"><h2>${L("Want a detailed guide for your case?", "تبي دليلاً مفصّلاً لحالتك؟")}</h2><p>${L("Our team prepares your service steps and requirements quickly.", "فريقنا يجهّز لك خطوات خدمتك ومتطلباتها سريعاً.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
   return page({ title: Lraw("Saudi Arabia — investment data & guides | Business Partner", "السعودية — بيانات وأدلة الاستثمار | بيزنس بارتنر"), desc: Lraw((s.leadEn || s.lead).slice(0, 155), s.lead.slice(0, 155)), active: "/saudi-arabia", body });
 }
@@ -3991,7 +3992,7 @@ function buildNews() {
         <div class="hub-sec" id="partners">
           <h2>${L(n.partnerships.titleEn || n.partnerships.title, n.partnerships.title)}</h2>
           <p class="hub-sub">${L(n.partnerships.noteEn || n.partnerships.note, n.partnerships.note)}</p>
-          <div class="callout"><span class="ico">🤝</span><p>${L("For collaboration or partnership, book a consultation or reach us via the smart agent.", "للتعاون أو الشراكة، احجز استشارة أو تواصل معنا عبر الوكيل الذكي.")}</p></div>
+          <div class="callout"><span class="ico">🤝</span><p>${L("For collaboration or partnership, book a consultation or contact us on WhatsApp.", "للتعاون أو الشراكة، احجز استشارة أو تواصل معنا عبر واتساب.")}</p></div>
           <div style="margin-top:14px"><a class="btn btn-primary" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a></div>
         </div>
         <div class="hub-sec" id="weekly">
@@ -4919,7 +4920,7 @@ function buildFarina() {
 
   <section class="section"><div class="container">
     <div class="cta-band" style="margin-bottom:26px"><h2>${L("Feeding workers in collective housing?", "عمالتك في سكن جماعي؟")}</h2><p>${L("Pair workforce catering with our Worker Housing solution: licensed housing, Balady license, Civil Defense, transport — one contract.", "اجمع إعاشة العمالة مع حل تسكين العمالة: سكن مرخّص، رخصة بلدي، الدفاع المدني، ونقل يومي — بعقد واحد.")}</p><a class="btn btn-white btn-lg" href="${u("/worker-housing")}">🏠 ${L("Explore Worker Housing", "استعرض تسكين العمالة")}</a></div>
-    <div class="cta-band"><h2>${L("Ready to start your establishment's hospitality program?", "جاهزين نبدأ برنامج الضيافة في منشأتكم؟")}</h2><p>${L("The smart agent replies instantly and sets your next step.", "الوكيل الذكي يرد فوراً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Request a quote", "اطلب عرض سعر", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready to start your establishment's hospitality program?", "جاهزين نبدأ برنامج الضيافة في منشأتكم؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Request a quote", "اطلب عرض سعر", "btn-white", true)}</div>
   </div></section>`;
   return page({
     title: Lraw("Catering & Hospitality for Companies — Farina × Business Partner", "التموين والضيافة للشركات — فارينا × بيزنس بارتنر"),
@@ -5035,7 +5036,7 @@ function buildWorkerHousing() {
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L("Ready to house your workers the compliant way?", "جاهز تسكّن عمالتك بشكل نظامي؟")}</h2><p>${L("The smart agent replies instantly and sets your next step.", "الوكيل الذكي يرد فوراً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Book a consultation", "احجز استشارة", "btn-white", true)}</div>
+    <div class="cta-band"><h2>${L("Ready to house your workers the compliant way?", "جاهز تسكّن عمالتك بشكل نظامي؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Book a consultation", "احجز استشارة", "btn-white", true)}</div>
   </div></section>`;
 
   const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
@@ -5236,7 +5237,7 @@ function buildInstallments() {
     <span class="eyebrow">${L("Beta service · for establishments ⚡", "خدمة تحت التجربة · للمنشآت ⚡")}</span>
     <h1>${L("Pay government fees in instalments", "قسّط رسوم خدماتك الحكومية")}</h1>
     <p class="lead">${L("Don't let a big government fee block your growth — we split it through your bank, Tabby/Tamara or e-wallets, pay it for you, and follow the service to issuance.", "لا تدع رسوماً حكومية كبيرة توقف نموك — نقسّطها لك عبر بنكك أو تابي/تمارا أو المحافظ الإلكترونية، نسددها عنك، ونتابع خدمتك حتى الإصدار.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#inst-form">${L("Request an instalment plan", "اطلب خطة تقسيط")}</a>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-ghost")}</div>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#inst-form">${L("Request an instalment plan", "اطلب خطة تقسيط")}</a>${waBtn2("Contact us", "تواصل معنا", "btn-ghost")}</div>
     <div class="hero-badges">
       <span class="hero-badge">${I.check}${L("For SMEs — not individuals", "للمنشآت الصغيرة والمتوسطة — لا للأفراد")}</span>
       <span class="hero-badge">${I.check}${L("Banks, BNPL & wallets", "بنوك وتقسيط آجل ومحافظ")}</span>
@@ -5396,10 +5397,10 @@ function guideHero({ eyebrowEn, eyebrowAr, titleEn, titleAr, leadEn, leadAr }) {
     <span class="eyebrow">${L(eyebrowEn, eyebrowAr)}</span>
     <h1>${L(titleEn, titleAr)}</h1>
     <p class="lead">${L(leadEn, leadAr)}</p>
-    <div class="hero-actions">${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-primary")}<a class="btn btn-ghost" href="${u("/consultation")}">${L("Book a consultation", "احجز استشارة")}</a></div>
+    <div class="hero-actions">${waBtn2("Contact us", "تواصل معنا", "btn-primary")}<a class="btn btn-ghost" href="${u("/consultation")}">${L("Book a consultation", "احجز استشارة")}</a></div>
   </div></section>`;
 }
-const guideDisclaimer = () => `<div class="callout" style="max-width:900px;margin:32px auto 0"><span class="ico">📌</span><p>${L("Government rules, fees and programs change often. This guide is a starting reference — always confirm current figures with the official portal or ask our smart agent before relying on a specific number.", "الأنظمة والرسوم والبرامج الحكومية تتغيّر بشكل متكرر. هذا الدليل مرجع أولي — تأكد دائماً من الأرقام الحالية عبر البوابة الرسمية أو اسأل الوكيل الذكي قبل الاعتماد على رقم محدد.")}</p></div>`;
+const guideDisclaimer = () => `<div class="callout" style="max-width:900px;margin:32px auto 0"><span class="ico">📌</span><p>${L("Government rules, fees and programs change often. This guide is a starting reference — always confirm current figures with the official portal or ask our team before relying on a specific number.", "الأنظمة والرسوم والبرامج الحكومية تتغيّر بشكل متكرر. هذا الدليل مرجع أولي — تأكد دائماً من الأرقام الحالية عبر البوابة الرسمية أو اسأل فريقنا قبل الاعتماد على رقم محدد.")}</p></div>`;
 // Sticky in-page jump-nav for the long guide pages. `items` are [id, en, ar]
 // tuples matching the `id` of each guideBlock section on the same page.
 function guideNav(items) {
@@ -5840,7 +5841,7 @@ function buildBankAccount() {
     <span class="eyebrow">${L("New service ⚡", "خدمة جديدة ⚡")}</span>
     <h1>${L("Open your company's bank account — online, partners included", "افتح الحساب البنكي لشركتك — أونلاين وبحضور كل الشركاء")}</h1>
     <p class="lead">${L("We prepare the account-opening file from your company profile, coordinate with your chosen bank, and book an online meeting with the bank officer — every partner and the manager get the appointment on their email.", "نجهّز ملف فتح الحساب من بيانات منشأتك، ننسق مع البنك الذي تختاره، ونحجز اجتماعاً أونلاين مع موظف البنك — وكل شريك والمدير يستلمون الموعد على بريدهم.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#bank-form">${L("Request account opening", "اطلب فتح الحساب")}</a>${waBtn2("Ask the smart agent", "اسأل الوكيل الذكي", "btn-ghost")}</div>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#bank-form">${L("Request account opening", "اطلب فتح الحساب")}</a>${waBtn2("Contact us", "تواصل معنا", "btn-ghost")}</div>
     <div class="hero-badges">
       <span class="hero-badge">${I.check}${L("Online meeting with the bank", "اجتماع أونلاين مع البنك")}</span>
       <span class="hero-badge">${I.check}${L("All partners notified", "إشعار جميع الشركاء")}</span>

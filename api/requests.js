@@ -172,10 +172,17 @@ async function listLeads(limit) {
     const at = (p["Last Activity"] && p["Last Activity"].date && p["Last Activity"].date.start) || (pg.created_time || "").slice(0, 10);
     const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
     const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+    const totalProp = p["إجمالي الطلب"];
+    const total = totalProp && typeof totalProp.number === "number" ? totalProp.number : null;
+    const receiptFiles = (p["الإيصال البنكي"] && p["الإيصال البنكي"].files) || [];
+    const detailsM = notes.match(/طلب\s*·\s*([^·]+)/);
     return {
       title, ref, at, stage, status,
       phone: phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "",
       email: emailM ? emailM[1] : "",
+      total,
+      hasReceipt: receiptFiles.length > 0,
+      details: detailsM ? detailsM[1].trim().slice(0, 140) : "",
     };
   });
 }
@@ -627,6 +634,15 @@ async function approveEmployer({ company, email, phone, plan }) {
 const RAW_CATALOG_URL = process.env.CATALOG_URL ||
   `https://raw.githubusercontent.com/${CONTENT_REPO}/${CONTENT_BRANCH}/site/assets/data/catalog.json`;
 let _catCache = null, _catAt = 0, _svcIds = null;
+// Cart item ids carry a kind prefix ("svc-bp-chamber-01", "pkg-silver") while
+// the catalog price map is keyed by the bare service code / package key.
+// Strip the known prefixes so server-side re-pricing actually finds the row.
+function catalogKey(id) {
+  const k = String(id || "").toLowerCase();
+  if (k.startsWith("svc-")) return k.slice(4);
+  if (k.startsWith("pkg-")) return k.slice(4);
+  return k;
+}
 async function catalogPrices() {
   if (_catCache && Date.now() - _catAt < 10 * 60 * 1000) return _catCache;
   const r = await fetch(RAW_CATALOG_URL);
@@ -670,7 +686,7 @@ async function recordOrderInDb(req, b, ref) {
   const items = Array.isArray(b.itemsData) ? b.itemsData.slice(0, 40) : [];
   let bp = 0; const itemRows = [];
   for (const it of items) {
-    const key = String(it.id || "").toLowerCase();
+    const key = catalogKey(String(it.id || "").toLowerCase());
     const cat = prices && prices[key];
     const unit = cat ? cat.amount : 0;
     const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
@@ -1377,7 +1393,35 @@ export default async function handler(req, res) {
     const ref = String(b.ref || "BP-" + Date.now().toString().slice(-6)).slice(0, 40);
     const items = (Array.isArray(b.items) ? b.items.map((x) => (typeof x === "string" ? x : (x && x.name) || "")).filter(Boolean) : [String(b.items || "")]).join("، ").slice(0, 900);
     const totalNum = Number(b.total);
-    const total = Number.isFinite(totalNum) ? totalNum : 0;
+    const clientTotal = Number.isFinite(totalNum) ? totalNum : 0;
+    // Server-side authoritative pricing: re-price the cart from the public
+    // catalog by item id so a client-side glitch can never record a 0-riyal
+    // order. The client total (subtotal + 15% VAT) is kept for comparison.
+    const itemsData = Array.isArray(b.itemsData) ? b.itemsData.slice(0, 40) : [];
+    let serverSubtotal = 0;
+    const pricedItems = [];
+    if (itemsData.length) {
+      const priceMap = await catalogPrices().catch(() => null);
+      if (priceMap) {
+        for (const it of itemsData) {
+          const rawKey = String((it && it.id) || "").toLowerCase();
+          // Cart ids are prefixed (svc-bp-chamber-01, pkg-silver) while the
+          // catalog map keys are bare codes — normalize before the lookup.
+          const key = catalogKey(rawKey);
+          const qty = Math.max(1, Math.min(99, Number(it && it.qty) || 1));
+          const cat = key && priceMap[key];
+          const unit = cat ? cat.amount : 0;
+          serverSubtotal += unit * qty;
+          if (rawKey) pricedItems.push(`${key || rawKey}×${qty}${unit ? "=" + unit * qty : ""}`);
+        }
+      }
+    }
+    const surchargeForTotal = Number.isFinite(Number(b.surchargeFee)) ? Number(b.surchargeFee) : 0;
+    const serverTotal = serverSubtotal > 0 ? Math.round((serverSubtotal + surchargeForTotal) * 1.15 * 100) / 100 : 0;
+    // Effective total: prefer the client total when present, else the server
+    // re-price — so orders never land as 0 when the catalog knows the price.
+    const total = clientTotal > 0 ? clientTotal : serverTotal;
+    const totalMismatch = clientTotal > 0 && serverTotal > 0 && Math.abs(clientTotal - serverTotal) > 1;
     const agents = Array.isArray(b.agents) ? b.agents.map((s) => String(s).toLowerCase().trim()).filter((s) => /^[a-z0-9]{1,30}$/.test(s)).slice(0, 20) : [];
     const receiptBase64 = typeof b.receiptBase64 === "string" ? b.receiptBase64.slice(0, 8_000_000) : "";
     const receiptName = String(b.receiptName || "receipt.pdf").slice(0, 100);
@@ -1418,18 +1462,26 @@ export default async function handler(req, res) {
     const pkgFieldsNote = (crNumber || headcount != null || nationalAddress)
       ? `<p>بيانات المنشأة — السجل التجاري الموحد: <strong>${esc(crNumber || "—")}</strong> · عدد الموظفين: <strong>${headcount != null ? headcount : "—"}</strong> · العنوان الوطني: <strong>${esc(nationalAddress || "—")}</strong>${surchargeFee ? ` · رسوم موظفين إضافيين مضمّنة: <strong>${surchargeFee} ﷼</strong>` : ""}</p>`
       : "";
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const mismatchNote = totalMismatch
+      ? `<p style="color:#b91c1c">⚠️ إجمالي العميل (${clientTotal} ﷼) لا يطابق إعادة التسعير من الكتالوج (${serverTotal} ﷼) — راجع المبلغ قبل الاعتماد.</p>`
+      : "";
+    const codesNote = pricedItems.length ? `<p style="color:#666;font-size:13px">أكواد الخدمات: ${esc(pricedItems.join(" · "))}</p>` : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${mismatchNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
     // Immediate acknowledgment to the client — "we received your payment, we're verifying it".
     // The n8n verification agent later sends the "confirmed / activated" email once the receipt amount matches.
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلبك ودفعتك ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك وإيصال التحويل البنكي بنجاح. فريقنا ووكيل التحقق الآلي يراجعان الإيصال الآن، وبمجرد تأكيد مطابقة المبلغ ستصلك رسالة تأكيد التفعيل مباشرةً.</p><table>${row("رقم المرجع", ref) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>يمكنك متابعة حالة طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر · محفول مكفول</p></div>`;
-    await Promise.all([
+    const [teamSent, ownerSent] = await Promise.all([
       sendEmail(TEAM_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml),
+      // Also notify the owner mailbox directly — if the team address ever has a
+      // delivery issue (e.g. unverified sender domain), the order is still seen.
+      OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml) : Promise.resolve({ ok: false }),
       isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pkgNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
+    if (!(teamSent && teamSent.ok) && !(ownerSent && ownerSent.ok)) console.error("order notification email failed for", ref);
     // P2: operational-DB dual write with server-side pricing (session-scoped).
     // Best-effort — a DB hiccup must never fail the customer's order.
     try { await recordOrderInDb(req, b, ref); } catch (e) { console.error("db order write failed", String(e).slice(0, 200)); }
