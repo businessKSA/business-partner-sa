@@ -1742,6 +1742,11 @@
       return true;
     }
     function enterApp(){
+      // Bridge to the site-wide cart/checkout (main.js reads bp_session from
+      // localStorage): without this marker, /checkout bounces back here and
+      // the purchase loop never completes.
+      try { localStorage.setItem('bp_session', JSON.stringify({ email: (state.user && state.user.email) || state.email || '', name: (state.user && state.user.name) || '' })); } catch(e){}
+      try { document.documentElement.setAttribute('data-prices', 'on'); } catch(e){}
       $('gate').style.display = 'none';
       $('app').classList.add('on');
       $('limitedBanner').classList.toggle('on', !!state.limited);
@@ -1753,6 +1758,7 @@
       fetchOps();
     }
     function doLogout(){
+      try { localStorage.removeItem('bp_session'); } catch(e){}
       otp({ action: 'logout' }).catch(function(){}).then(function(){ location.reload(); });
     }
 
