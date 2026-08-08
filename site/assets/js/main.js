@@ -1103,12 +1103,21 @@ var BP = window.BP = window.BP || {};
       location.href = (BP.lang === "ar" ? "/ar/account" : "/account") + "?redirect=checkout";
       return;
     }
-    // Name + email come from the signed-in account, not free typing, so the
-    // order is always traceable to a real registration.
+    // Name + email come from the signed-in account, phone from the saved
+    // profile of the previous order — a returning client lands on a form
+    // that is already filled and only uploads the receipt.
+    var profile = {}; try { profile = JSON.parse(localStorage.getItem("bp_profile") || "{}"); } catch (e9) {}
     if (session) {
       var nameEl = document.getElementById("co-name"), emailEl = document.getElementById("co-email");
-      if (nameEl) { nameEl.value = session.name || ""; nameEl.readOnly = true; }
+      var phonePre = document.getElementById("co-phone");
       if (emailEl) { emailEl.value = session.email || ""; emailEl.readOnly = true; }
+      if (nameEl) {
+        nameEl.value = session.name || profile.name || "";
+        // Lock the name only when the account actually has one — an empty
+        // readonly field would make checkout impossible to complete.
+        nameEl.readOnly = !!nameEl.value;
+      }
+      if (phonePre && !phonePre.value && profile.phone) phonePre.value = profile.phone;
     }
 
     // Packages need establishment details (CR number, headcount, national
@@ -1209,6 +1218,18 @@ var BP = window.BP = window.BP || {};
         orders.unshift(order);
         localStorage.setItem("bp_orders", JSON.stringify(orders));
       } catch (err) {}
+      // Remember the client's details so the next checkout is prefilled.
+      try {
+        localStorage.setItem("bp_profile", JSON.stringify({ name: name, phone: phone }));
+        var s3 = checkoutSession();
+        if (s3 && !s3.name && name) { s3.name = name; localStorage.setItem("bp_session", JSON.stringify(s3)); }
+        if (companyName) {
+          var bc = {}; try { bc = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e7) {}
+          if (!bc.name) bc.name = companyName;
+          if (!bc.cr && crNumber) bc.cr = crNumber;
+          localStorage.setItem("bp_company", JSON.stringify(bc));
+        }
+      } catch (e8) {}
       // Register the order with the team + CRM (best-effort; never blocks the client) and
       // upload the receipt PDF so the n8n verification agent can check it matches the total.
       var employeeSlugs = cart.filter(function (i) { return i.kind === "employee" && (i.id || "").indexOf("employee-") === 0; })
