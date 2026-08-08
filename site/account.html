@@ -1746,6 +1746,15 @@
       // localStorage): without this marker, /checkout bounces back here and
       // the purchase loop never completes.
       try { localStorage.setItem('bp_session', JSON.stringify({ email: (state.user && state.user.email) || state.email || '', name: (state.user && state.user.name) || '' })); } catch(e){}
+      // Seed the checkout's company prefill from the account's organization.
+      try {
+        if (state.org && (state.org.name_ar || state.org.name_en)) {
+          var bc = {}; try { bc = JSON.parse(localStorage.getItem('bp_company') || '{}'); } catch(_){}
+          if (!bc.name) bc.name = state.org.name_ar || state.org.name_en;
+          if (!bc.cr && state.org.cr_number) bc.cr = state.org.cr_number;
+          localStorage.setItem('bp_company', JSON.stringify(bc));
+        }
+      } catch(e){}
       try { document.documentElement.setAttribute('data-prices', 'on'); } catch(e){}
       $('gate').style.display = 'none';
       $('app').classList.add('on');
