@@ -1843,7 +1843,7 @@ export default async function handler(req, res) {
     const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🎫 تذكرة دعم جديدة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", svcAr) + row("المجال", catAr) + row("تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — والتذكرة ظاهرة في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
     // تأكيد للعميل: فتحنا تذكرة + خيار حجز موعد أو واتساب المستشار باهر
     const bookUrl = `${MKT_SITE_BASE}/consultation`;
-    const waAdvisor = "https://wa.me/966530540231";
+    const waAdvisor = "https://wa.me/966503793356";
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
       <h2 style="color:#0B1B5A">استلمنا طلبك لعرض السعر ✅</h2>
       <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وبيجهّز لك مستشارك <b>باهر</b> عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.</p>
@@ -1895,16 +1895,28 @@ export default async function handler(req, res) {
       text: "استشارة Business Partner",
       dates: `${startG}/${endG}`,
       ctz: "Asia/Riyadh",
-      details: `استشارة مجانية مع فريق بزنس بارتنر.\nرقم المرجع: ${ref}\nمستشارك: باهر · wa.me/966530540231`,
+      details: `استشارة مجانية مع فريق بزنس بارتنر.\nرقم المرجع: ${ref}\nمستشارك: باهر · wa.me/966503793356`,
       location: "Business Partner — Riyadh / Online",
     }).toString();
     const whenTxt = `${date} · ${time} ${Number(hh) >= 12 ? "م" : "ص"} (توقيت الرياض)`;
-    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">📅 حجز استشارة جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الموعد", whenTxt)}</table><p>أكّد الموعد مع العميل، وهو ظاهر في «BP Inbox».</p></div>`;
+    // Owner-side calendar link carries the CLIENT's details so one click puts
+    // the meeting (with who/how to reach them) on the team calendar.
+    const gcalOwner = "https://calendar.google.com/calendar/render?" + new URLSearchParams({
+      action: "TEMPLATE",
+      text: `استشارة — ${name}`,
+      dates: `${startG}/${endG}`,
+      ctz: "Asia/Riyadh",
+      details: `استشارة مجانية.\nالعميل: ${name}\nالجوال: ${phone}\nالبريد: ${email}\nرقم المرجع: ${ref}`,
+      location: "Business Partner — Riyadh / Online",
+    }).toString();
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">📅 حجز استشارة جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الموعد", whenTxt)}</table>
+      <p style="margin:16px 0"><a href="${gcalOwner}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أضِف الموعد إلى تقويم Google</a></p>
+      <p>أكّد الموعد مع العميل، وهو ظاهر في «BP Inbox».</p></div>`;
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
       <h2 style="color:#0B1B5A">تم حجز استشارتك ✅</h2>
       <p>مرحباً ${esc(name)}، حجزنا لك استشارة مجانية بتاريخ <b>${esc(whenTxt)}</b> (رقم المرجع <b>${ref}</b>)، وبيأكّد لك مستشارك <b>باهر</b> قريباً.</p>
       <p style="margin:16px 0"><a href="${gcalUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أضِف الموعد إلى تقويم Google</a></p>
-      <p><a href="https://wa.me/966530540231" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر</a></p>
+      <p><a href="https://wa.me/966503793356" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر</a></p>
       <p style="color:#666;margin-top:20px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
     const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
       method: "POST", headers: { "content-type": "application/json" },
@@ -1942,7 +1954,7 @@ export default async function handler(req, res) {
     if (notify) {
       const ref = "WEB-" + sid;
       const bookUrl = `${MKT_SITE_BASE}/consultation`;
-      const waAdvisor = "https://wa.me/966530540231"; // واتساب المستشار باهر
+      const waAdvisor = "https://wa.me/966503793356"; // واتساب المستشار باهر
       const transcript = messages.map((m) => (m.role === "assistant" ? "باهر: " : "الزائر: ") + m.content).join("\n").slice(-3500);
       // إشعار الشركة فقط (business@) — بلا نسخة على الإيميل الشخصي
       const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">عميل من «المستشار» يريد المتابعة 💬</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("المرجع", ref)}</table><h3 style="color:#0B1B5A">نص المحادثة</h3><pre style="white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:8px;font-family:inherit">${esc(transcript)}</pre><p>تابع العميل عبر واتساب أو البريد أعلاه — والمحادثة كاملة في شاشة «BP Inbox» تحت وسم «المستشار».</p></div>`;
