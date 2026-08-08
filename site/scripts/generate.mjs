@@ -55,7 +55,8 @@ const ecosystem = read("data/ecosystem.json");
 // Business Partner's own open roles — an ATS-style job board on /careers,
 // each with a single job page and an application routed through the same
 // candidate form (job context carried via ?job= and hidden fields).
-const JOBS = [
+// Kept here (not deleted) so they can be re-published later; see JOBS below.
+const JOBS_ARCHIVED = [
   {
     slug: "hr-operations-specialist",
     field: "موارد بشرية",
@@ -93,6 +94,12 @@ const JOBS = [
     },
   },
 ];
+
+// Published in-house roles shown on /careers (#open-jobs). Empty by owner
+// request (2026-08-08): the public board shows only the general candidate
+// pool + the client workshop campaign for now. To re-publish a role, move it
+// from JOBS_ARCHIVED above back into this array.
+const JOBS = [];
 
 // Client hiring campaign — events fabrication workshop for an entertainment &
 // events services provider (client kept anonymous on the public site; salaries
