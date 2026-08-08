@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-08T08:22:00.609Z",
+  "updatedAt": "2026-08-08T08:39:46.548Z",
   "currency": "SAR",
   "services": [
     {
@@ -1853,6 +1853,57 @@
         "Legal consultation to choose the right entity type"
       ],
       "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "Revenue OS",
+      "groupNameEn": "Revenue OS",
+      "code": "revos-launch",
+      "key": "revos-launch",
+      "nameAr": "Revenue OS — باقة Launch (شهري)",
+      "nameEn": "Revenue OS — Launch (monthly)",
+      "amount": 2500,
+      "priceLabel": "2,500 ﷼ / شهريًا",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "Pipeline مستهدف حتى 1M",
+        "عمولة نجاح 10% + إغلاق 2.5%"
+      ],
+      "url": "https://businesspartner.sa/revenue-os"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "Revenue OS",
+      "groupNameEn": "Revenue OS",
+      "code": "revos-growth",
+      "key": "revos-growth",
+      "nameAr": "Revenue OS — باقة Growth (شهري)",
+      "nameEn": "Revenue OS — Growth (monthly)",
+      "amount": 5000,
+      "priceLabel": "5,000 ﷼ / شهريًا",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "Pipeline مستهدف حتى 3M",
+        "عمولة نجاح 8% + إغلاق 2%"
+      ],
+      "url": "https://businesspartner.sa/revenue-os"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "Revenue OS",
+      "groupNameEn": "Revenue OS",
+      "code": "revos-professional",
+      "key": "revos-professional",
+      "nameAr": "Revenue OS — باقة Professional (شهري)",
+      "nameEn": "Revenue OS — Professional (monthly)",
+      "amount": 9500,
+      "priceLabel": "9,500 ﷼ / شهريًا",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "Pipeline مستهدف حتى 10M",
+        "عمولة نجاح 6% + إغلاق 1.5%"
+      ],
+      "url": "https://businesspartner.sa/revenue-os"
     }
   ]
 }

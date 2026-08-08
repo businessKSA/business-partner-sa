@@ -9110,23 +9110,31 @@ const catalogJson = {
     };
   }),
   categories: categories.map((c) => ({ key: c.key, nameAr: c.ar, nameEn: (CAT_META[c.key] || {}).en || c.key, count: services.filter((s) => s.category === c.key).length })),
-  packages: (site.packages.groups || []).flatMap((g) =>
-    g.tiers.map((t) => ({
-      group: g.key,
-      groupNameAr: g.ar,
-      groupNameEn: g.en,
-      code: t.code || null,
-      key: t.key,
-      nameAr: t.nameAr,
-      nameEn: t.nameEn || t.name,
-      amount: t.amount != null ? t.amount : null,
-      priceLabel: t.priceEn || t.price,
-      billingPeriod: t.price && /شهري|monthly/i.test(t.priceEn || t.price) ? "monthly" : "one_time",
-      featuresAr: t.features,
-      featuresEn: t.featuresEn,
-      url: `${base}/packages`,
-    }))
-  ),
+  packages: [
+    ...(site.packages.groups || []).flatMap((g) =>
+      g.tiers.map((t) => ({
+        group: g.key,
+        groupNameAr: g.ar,
+        groupNameEn: g.en,
+        code: t.code || null,
+        key: t.key,
+        nameAr: t.nameAr,
+        nameEn: t.nameEn || t.name,
+        amount: t.amount != null ? t.amount : null,
+        priceLabel: t.priceEn || t.price,
+        billingPeriod: t.price && /شهري|monthly/i.test(t.priceEn || t.price) ? "monthly" : "one_time",
+        featuresAr: t.features,
+        featuresEn: t.featuresEn,
+        url: `${base}/packages`,
+      }))
+    ),
+    // Revenue OS subscriptions (sold from /revenue-os): monthly fee + success
+    // commission ladder. Codes match the cart item ids so the order API's
+    // server-side re-pricing can find them.
+    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-launch", key: "revos-launch", nameAr: "Revenue OS — باقة Launch (شهري)", nameEn: "Revenue OS — Launch (monthly)", amount: 2500, priceLabel: "2,500 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 1M", "عمولة نجاح 10% + إغلاق 2.5%"], url: `${base}/revenue-os` },
+    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-growth", key: "revos-growth", nameAr: "Revenue OS — باقة Growth (شهري)", nameEn: "Revenue OS — Growth (monthly)", amount: 5000, priceLabel: "5,000 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 3M", "عمولة نجاح 8% + إغلاق 2%"], url: `${base}/revenue-os` },
+    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-professional", key: "revos-professional", nameAr: "Revenue OS — باقة Professional (شهري)", nameEn: "Revenue OS — Professional (monthly)", amount: 9500, priceLabel: "9,500 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 10M", "عمولة نجاح 6% + إغلاق 1.5%"], url: `${base}/revenue-os` },
+  ],
 };
 write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
 
