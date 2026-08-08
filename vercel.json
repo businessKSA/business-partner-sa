@@ -49,6 +49,17 @@
       "permanent": false
     },
     {
+      "source": "/:path((?!revenue-os|revenue-dashboard|client-portal|assets|api|favicon).+)",
+      "has": [
+        {
+          "type": "host",
+          "value": "new.businesspartner.sa"
+        }
+      ],
+      "destination": "https://www.businesspartner.sa/:path",
+      "permanent": false
+    },
+    {
       "source": "/blog",
       "destination": "/saudi-arabia",
       "permanent": true
@@ -137,6 +148,26 @@
       "source": "/ar/services/bp-pl-0094",
       "destination": "/ar/services/bp-pl-0019",
       "permanent": true
+    },
+    {
+      "source": "/ar/admin",
+      "destination": "/admin",
+      "permanent": false
+    },
+    {
+      "source": "/ar/monitor",
+      "destination": "/monitor",
+      "permanent": false
+    },
+    {
+      "source": "/inbox",
+      "destination": "/monitor",
+      "permanent": false
+    },
+    {
+      "source": "/ar/inbox",
+      "destination": "/monitor",
+      "permanent": false
     }
   ],
   "rewrites": [
