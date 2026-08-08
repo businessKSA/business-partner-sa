@@ -855,11 +855,13 @@ export default async function handler(req, res) {
           let title = ((p["Opportunity Name"] && p["Opportunity Name"].title) || []).map((t) => t.plain_text).join("").trim();
           if (ref && title.endsWith(`(${ref})`)) title = title.slice(0, -(ref.length + 2)).trim();
           const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
-          return { ref, title, status, at: String(pg.created_time || "").slice(0, 10) };
+          const totalProp = p["إجمالي الطلب"];
+          const total = totalProp && typeof totalProp.number === "number" ? totalProp.number : null;
+          return { ref, title, status, total, at: String(pg.created_time || "").slice(0, 10) };
         })
-        // BP-xxxxxx only: web-chat threads (WEB-<sid>) also carry the email
-        // in Notes but are conversations, not orders.
-        .filter((o) => o.ref && /^BP-/i.test(o.ref));
+        // Orders and Revenue OS requests only: web-chat threads (WEB-<sid>)
+        // also carry the email in Notes but are conversations, not orders.
+        .filter((o) => o.ref && /^(BP|RV|BPW|BPP|BPQ|BPI)-/i.test(o.ref));
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, orders }));
     } catch {
@@ -2026,6 +2028,31 @@ export default async function handler(req, res) {
       const cHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto" dir="rtl"><h2 style="color:#0B1B5A">إلغاء طلب — ${esc(ref)}</h2><table>${row("الاسم", name) + row("البريد", email)}</table><p>ألغى العميل هذا الطلب من صفحة حسابه. تأكد أنه لا يوجد تحويل بنكي مستحق قبل إقفال الصف نهائياً في Notion.</p></div>`;
       await sendEmail(TEAM_EMAIL, `إلغاء طلب ${ref}`, cHtml);
     }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // Revenue OS diagnosis-session lead from /revenue-os — lands in the CRM and
+  // notifies the team + owner immediately (this form used to be a demo stub).
+  if (b.type === "revenue-lead") {
+    const name = String(b.name || "").trim().slice(0, 160);
+    const company = String(b.company || "").trim().slice(0, 200);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const track = String(b.track || "").trim().slice(0, 80);
+    const notes = String(b.notes || "").trim().slice(0, 1500);
+    if (!name || !company || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "RV-" + Date.now().toString().slice(-6);
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب Revenue OS جديد — ${ref}</h2><table>${row("الشركة", company) + row("المسؤول", name) + row("الجوال", phone) + row("البريد", email) + row("المسار", track) + row("الوصف", notes)}</table><p>حضّر تصور التشغيل والباقة المناسبة وعد للعميل خلال يوم عمل. الطلب مسجّل في «Sales Pipeline» برقم ${ref}.</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلب جلسة التشخيص ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك لبناء الـPipeline (${esc(track)}) لشركة <strong>${esc(company)}</strong>. فريق Revenue OS يجهّز تصور التشغيل والباقة المناسبة وسيتواصل معك خلال يوم عمل.</p><table>${row("رقم المرجع", ref)}</table><p style="color:#0B1B5A">Business Partner · Revenue OS</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب Revenue OS ${ref} — ${company}`, oHtml),
+      OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب Revenue OS ${ref} — ${company}`, oHtml) : Promise.resolve(),
+      sendEmail(email, `استلمنا طلبك — Revenue OS (${ref})`, cHtml),
+      crmLead({ title: `Revenue OS — ${company}`, phone, email, notes: `Revenue OS · ${track} · ${notes}`.slice(0, 900), ref, orderStatus: "قيد المراجعة" }),
+      addToAudience(email, name),
+      forwardLead({ source: "revenue-os", ref, name, company, phone, email, notes: `${track} · ${notes}` }),
+    ]);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref }));
   }
