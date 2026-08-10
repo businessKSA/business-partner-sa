@@ -1920,7 +1920,7 @@ export default async function handler(req, res) {
       <p style="color:#666;margin-top:20px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
     const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ source: "booking", ref, name, phone, email, transcript: `📅 حجز استشارة: ${whenTxt}`, url: `${MKT_SITE_BASE}/monitor` }),
+      body: JSON.stringify({ source: "booking", ref, name, phone, email, date, time, transcript: `📅 حجز استشارة: ${whenTxt}`, url: `${MKT_SITE_BASE}/monitor` }),
     }).catch(() => {});
     await Promise.all([
       sendEmail(TEAM_EMAIL, `📅 حجز استشارة ${ref} — ${name} · ${whenTxt}`, oHtml),

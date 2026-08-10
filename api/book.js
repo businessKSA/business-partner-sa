@@ -151,6 +151,12 @@ export default async function handler(req, res) {
     crmLead({ name, phone, email, topic, date, notes, ref }),
     addToAudience(email, name),
     forwardLead({ source: "consultation", ref, name, phone, email, topic, date, notes }),
+    // n8n notify webhook: source=booking + date/time auto-creates the event
+    // on the owner's Google Calendar (workflow bldhMv0BAGs41Xqo).
+    fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source: "booking", ref, name, phone, email, date, time, topic, transcript: `📅 حجز استشارة (${topic || "عام"}): ${date} · ${time}` }),
+    }).catch(() => {}),
   ]);
 
   res.statusCode = 200;
