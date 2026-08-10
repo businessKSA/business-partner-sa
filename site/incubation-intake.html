@@ -1,0 +1,381 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>تعبئة بيانات العميل — برنامج الاحتضان | Business Partner</title>
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B1B5A; --navy-700:#16276E; --navy-soft:#EEF1F9;
+  --bg:#fff; --surface:#fff; --tint:#F8F9FC;
+  --ink:#1F2430; --muted:#6B7391; --line:#DCE0EE; --line-2:#EEF0F7;
+  --ok:#0F7A55; --warn:#8A5A00; --bad:#B3271E;
+  --shadow:0 1px 2px rgba(11,27,90,.04), 0 6px 22px rgba(11,27,90,.06);
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:var(--bg);color:var(--ink);font-size:15px;line-height:1.7}
+a{color:var(--navy)}
+:focus-visible{outline:2px solid var(--navy);outline-offset:2px;border-radius:4px}
+
+.mast{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  padding:20px 28px;border-bottom:1px solid var(--line)}
+.mark{display:flex;flex-direction:column;gap:2px}
+.mark b{font-family:"Playfair Display",serif;font-weight:600;font-size:19px;letter-spacing:.2em;direction:ltr;color:var(--navy)}
+.mark small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);direction:ltr}
+.mast .who{font-size:13px;color:var(--muted);text-align:left}
+
+.shell{max-width:1240px;margin:0 auto;padding:26px 24px 64px;display:grid;grid-template-columns:290px 1fr;gap:26px;align-items:start}
+@media (max-width:980px){.shell{grid-template-columns:1fr;padding:18px 14px 48px}}
+.rail{position:sticky;top:20px;display:flex;flex-direction:column;gap:18px}
+@media (max-width:980px){.rail{position:static}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.panel h2{padding:14px 18px;font-size:12px;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--line-2);font-weight:600}
+.panel .body{padding:16px 18px}
+
+ol.steps{list-style:none;padding:14px 18px;display:flex;flex-direction:column;gap:2px}
+ol.steps li{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;padding:7px 0;position:relative;color:var(--muted);font-size:14px}
+ol.steps li::before{content:"";position:absolute;top:34px;bottom:-4px;right:13px;width:2px;background:var(--line)}
+ol.steps li:last-child::before{display:none}
+ol.steps li .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:600;
+  background:var(--tint);border:1px solid var(--line);color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps li.done .n,ol.steps li.on .n{background:var(--navy);border-color:var(--navy);color:#fff}
+ol.steps li.done::before{background:var(--navy)}
+ol.steps li.on{color:var(--ink);font-weight:700}
+@media (max-width:980px){
+  ol.steps{flex-direction:row;overflow-x:auto;gap:14px;padding:14px}
+  ol.steps li{grid-template-columns:1fr;justify-items:center;text-align:center;min-width:104px;font-size:12px}
+  ol.steps li::before{display:none}
+}
+.clients{display:flex;flex-direction:column;gap:6px;max-height:270px;overflow:auto}
+.clients button{all:unset;cursor:pointer;padding:9px 11px;border-radius:8px;font-size:14px;
+  display:flex;justify-content:space-between;gap:8px;align-items:center;border:1px solid transparent}
+.clients button:hover{background:var(--tint)}
+.clients button[aria-current="true"]{background:var(--navy-soft);border-color:var(--navy);font-weight:600}
+.clients .tag{font-size:11px;color:var(--muted)}
+.clients .tag.sent{color:var(--ok);font-weight:700}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.card>header{padding:26px 32px 20px;border-bottom:1px solid var(--line-2)}
+.card>header .eyebrow{font-size:11px;letter-spacing:.14em;color:var(--navy);font-weight:700;margin-bottom:6px}
+.card>header h1{font-size:26px;line-height:1.35;text-wrap:balance;font-weight:700}
+.card>header p{margin-top:8px;color:var(--muted);font-size:14px;max-width:62ch}
+form{padding:26px 32px;display:grid;grid-template-columns:1fr 1fr;gap:20px 24px}
+@media (max-width:700px){form{grid-template-columns:1fr;padding:20px}.card>header{padding:20px}}
+.f{display:flex;flex-direction:column;gap:7px;min-width:0}
+.f.wide{grid-column:1/-1}
+.f>label{font-size:13.5px;font-weight:600}
+.f>label i{color:var(--bad);font-style:normal;margin-inline-start:3px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+textarea{min-height:132px;resize:vertical;line-height:1.75}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,27,90,.13)}
+.f.bad input,.f.bad select,.f.bad textarea{border-color:var(--bad)}
+.f .err{font-size:12.5px;color:var(--bad)}
+.hint{font-size:12.5px;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:9px;padding:4px 0}
+.opts label{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14.5px}
+.opts input,.terms input{width:auto;accent-color:var(--navy);margin:0}
+.terms{display:flex;align-items:center;gap:10px;font-size:14.5px;cursor:pointer}
+
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:20px 32px;border-top:1px solid var(--line-2);background:var(--tint)}
+@media (max-width:700px){.actions{padding:16px 20px}}
+button.btn{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;padding:11px 22px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.btn:hover{border-color:var(--navy);color:var(--navy)}
+button.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+button.btn.primary:hover{background:var(--navy-700);border-color:var(--navy-700)}
+button.btn[disabled]{opacity:.55;cursor:not-allowed}
+.grow{flex:1}
+
+.review{padding:26px 32px;display:grid;gap:2px}
+@media (max-width:700px){.review{padding:20px}}
+.review .row{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:16px;padding:9px 0;border-bottom:1px solid var(--line-2);font-size:14px}
+.review dt{color:var(--muted)}
+.review dd{overflow-wrap:anywhere}
+.review .sec{margin-top:20px;padding-bottom:6px;font-size:11px;letter-spacing:.13em;color:var(--navy);font-weight:700}
+.review .sec:first-child{margin-top:0}
+.msg{margin:0 32px 4px;padding:13px 16px;border-radius:8px;font-size:14px;border:1px solid}
+@media (max-width:700px){.msg{margin:0 20px 4px}}
+.msg.ok{color:var(--ok);border-color:rgba(15,122,85,.4);background:rgba(15,122,85,.07)}
+.msg.bad{color:var(--bad);border-color:rgba(179,39,30,.4);background:rgba(179,39,30,.07)}
+.msg.warn{color:var(--warn);border-color:rgba(138,90,0,.4);background:rgba(138,90,0,.07)}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid currentColor;border-top-color:transparent;
+  border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-inline-end:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="mast">
+  <div class="mark"><b>BUSINESS PARTNER</b><small>Partnering for your success</small></div>
+  <div class="who">نموذج داخلي — تعبئة بيانات العميل للتقديم على<br>برنامج الاحتضان · مركز الابتكار (منشآت)</div>
+</div>
+
+<div class="shell">
+  <aside class="rail">
+    <nav class="panel" aria-label="خطوات النموذج"><ol class="steps" id="steps"></ol></nav>
+    <section class="panel">
+      <h2>ملفات العملاء</h2>
+      <div class="body">
+        <div class="clients" id="clients"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn grow" id="btnNew" type="button">+ عميل جديد</button>
+          <button class="btn" id="btnDel" type="button">حذف</button>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <main class="card">
+    <header>
+      <div class="eyebrow" id="eyebrow"></div>
+      <h1 id="title"></h1>
+      <p id="sub"></p>
+    </header>
+    <div id="msg"></div>
+    <form id="form" autocomplete="off" novalidate></form>
+    <div class="actions" id="actions"></div>
+  </main>
+</div>
+
+<script>
+"use strict";
+var REGIONS=["الرياض","مكة المكرمة","المدينة المنورة","القصيم","المنطقة الشرقية","عسير","تبوك","حائل","الحدود الشمالية","جازان","نجران","الباحة","الجوف"];
+var CITIES=["الرياض","جدة","مكة المكرمة","المدينة المنورة","الدمام","الخبر","الظهران","بريدة","عنيزة","تبوك","حائل","أبها","خميس مشيط","نجران","جازان","الباحة","سكاكا","عرعر","الطائف","ينبع","الجبيل","الأحساء","القطيف","الخرج","حفر الباطن"];
+var COUNTRIES=["المملكة العربية السعودية","الإمارات العربية المتحدة","الكويت","قطر","البحرين","عُمان","اليمن","مصر","الأردن","السودان","سوريا","لبنان","فلسطين","العراق","المغرب","الجزائر","تونس","ليبيا","الصومال","جيبوتي","موريتانيا","باكستان","الهند","بنغلاديش","الفلبين","إندونيسيا","تركيا","أخرى"];
+
+var STEPS=[
+ {t:"المعلومات الاساسية", s:"بيانات مقدّم الطلب كما هي في الهوية.", f:[
+  {k:"name_ar",l:"الإسم الثلاثي بالعربي",r:1},
+  {k:"name_en",l:"الإسم الثلاثي بالانجليزي",r:1},
+  {k:"phone",l:"رقم الهاتف",r:1,type:"tel"},
+  {k:"email",l:"البريد الالكتروني",r:1,type:"email"},
+  {k:"benef",l:"نوع المستفيد",o:["رائد أعمال","صاحب منشأة","مستثمر","طالب","موظف","أخرى"]},
+  {k:"edu",l:"المؤهل التعليمي",o:["ثانوي","دبلوم","بكالوريوس","ماجستير","دكتوراه","أخرى"]},
+  {k:"nat",l:"الجنسية",o:COUNTRIES},
+  {k:"idtype",l:"نوع الهوية",o:["هوية وطنية","إقامة","جواز سفر"]},
+  {k:"idnum",l:"رقم الهوية الوطنية",r:1},
+  {k:"gender",l:"الجنس",type:"radio",o:["ذكر","أنثى"]},
+  {k:"dob",l:"تاريخ الميلاد",type:"date"},
+  {k:"country",l:"البلد",o:COUNTRIES},
+  {k:"region",l:"المنطقة",o:REGIONS}
+ ]},
+ {t:"معلومات الشركة", s:"بيانات المشروع أو المنشأة المتقدِّمة.", f:[
+  {k:"co_ar",l:"اسم الشركة/ المشروع بالعربي",r:1},
+  {k:"co_en",l:"اسم الشركة/ المشروع بالانجليزي",r:1},
+  {k:"d_ar",l:"وصف الشركة/المشروع بالعربي",r:1,type:"textarea",w:1},
+  {k:"d_en",l:"وصف الشركة/المشروع بالانجليزي",type:"textarea",w:1},
+  {k:"stage",l:"مرحلة الشركة/ المشروع",r:1,o:["فكرة","نموذج أولي (MVP)","مرحلة مبكرة","النمو","التوسع"]},
+  {k:"sector",l:"مجال الشركة/ المشروع",o:["Accounting/Finance","E-commerce","EdTech","HealthTech","FinTech","Logistics","Real Estate","Food & Beverage","Media & Entertainment","Tourism","Energy","Manufacturing","Retail","Agriculture","Other"]},
+  {k:"tech",l:"التقنيات المستخدمة في الشركة/المشروع",o:["الذكاء الاصطناعي","البلوك تشين","إنترنت الأشياء","الواقع المعزز/الافتراضي","الحوسبة السحابية","تحليل البيانات","الروبوتات","الطباعة ثلاثية الأبعاد","أخرى"]},
+  {k:"cr",l:"الرقم الموحد (في حال وجود سجل تجاري)"},
+  {k:"founders",l:"عدد الشركاء المؤسسين",type:"number"},
+  {k:"emps",l:"عدد الموظفين",type:"number"},
+  {k:"custs",l:"عدد العملاء",type:"number"},
+  {k:"rev",l:"عدد العوائد المالية حتى اليوم",type:"number"},
+  {k:"co_region",l:"مقر الشركة/المشروع",o:REGIONS},
+  {k:"co_city",l:"مدينة الشركة/المشروع",o:CITIES},
+  {k:"founded",l:"تاريخ إنشاء الشركة",type:"date"},
+  {k:"profile",l:"اسم الملف التعريفي للشركة",w:1,
+   hint:"اكتب اسم الملف هنا وارفعه في بوابة منشآت وقت التقديم. المسموح: pdf doc docx ppt pptx — بحد أقصى 9 ميغابايت."}
+ ]},
+ {t:"أهداف التسجيل في برنامج الاحتضان", s:"الهدف الذي يسعى العميل لتحقيقه من البرنامج.", f:[
+  {k:"goal",l:"ما الذي ترغب في تحقيقه من خلال تسجيلك في برنامج الاحتضان؟",r:1,w:1,
+   o:["تطوير فكرة مشروع تجارياً","تطوير فكرة مشروع تقنياً","فهم المتطلبات الأساسية لإطلاق المشروع","بناء خطة عمل مبدئية","التعرف على الأدوات و التقنيات اللازمة","التواصل مع مستشارين وخبراء","اخرى"]}
+ ]},
+ {t:"معلومات إضافية", s:"التفضيلات الأخيرة والموافقة على الشروط.", f:[
+  {k:"level",l:"ماهو مستواك الحالي في ريادة الاعمال؟",r:1,w:1,o:["مبتدئ","متوسط","متقدم"]},
+  {k:"mvplab",l:"هل ترغب بالاستفادة من MVPLab",type:"radio",o:["نعم","لا"],w:1},
+  {k:"site",l:"مقر برنامج الأحتضان الذي ترغب بالتقديم عليه",type:"radio",w:1,
+   o:["حاضنة مركز الابتكار - الرياض","حاضنة مركز الابتكار - الخبر"]},
+  {k:"terms",l:"موافق على الشروط والأحكام",r:1,type:"check",w:1}
+ ]},
+ {t:"تام", s:"راجع البيانات ثم أرسلها إلى Notion.", f:[], final:1}
+];
+var ALL=[]; STEPS.forEach(function(s){ ALL=ALL.concat(s.f) });
+var LS="bp_incubation_intake_v1";
+var db=load(), cur=0, step=0, busy=false;
+
+function load(){ try{ var v=JSON.parse(localStorage.getItem(LS)); if(v&&v.length) return v }catch(e){} return [fresh()] }
+function fresh(){ return {_id:"c"+Math.random().toString(36).slice(2,9)} }
+function persist(){ try{ localStorage.setItem(LS,JSON.stringify(db)) }catch(e){} }
+function $(s){ return document.querySelector(s) }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c] }) }
+function nameOf(c){ return c.name_ar || c.co_ar || "عميل بدون اسم" }
+
+function drawSteps(){
+  $("#steps").innerHTML = STEPS.map(function(s,i){
+    return '<li class="'+(i===step?"on":i<step?"done":"")+'"><span class="n">'+(i+1)+'</span><span>'+esc(s.t)+'</span></li>';
+  }).join("");
+}
+function drawClients(){
+  $("#clients").innerHTML = db.map(function(c,i){
+    return '<button type="button" data-i="'+i+'" aria-current="'+(i===cur)+'"><span>'+esc(nameOf(c))+
+      '</span><span class="tag '+(c._ref?"sent":"")+'">'+(c._ref?"أُرسل ✓":"مسودة")+'</span></button>';
+  }).join("");
+}
+function control(f,v){
+  var val = v==null ? "" : String(v);
+  if(f.type==="textarea") return '<textarea id="i_'+f.k+'" name="'+f.k+'">'+esc(val)+'</textarea>';
+  if(f.type==="radio") return '<div class="opts">'+f.o.map(function(o,j){
+    return '<label><input type="radio" name="'+f.k+'" id="i_'+f.k+(j?"_"+j:"")+'" value="'+esc(o)+'"'+(val===o?" checked":"")+'>'+esc(o)+'</label>';
+  }).join("")+'</div>';
+  if(f.o) return '<select id="i_'+f.k+'" name="'+f.k+'"><option value="">– اختر –</option>'+f.o.map(function(o){
+    return '<option'+(val===o?" selected":"")+'>'+esc(o)+'</option>'; }).join("")+'</select>';
+  return '<input type="'+(f.type||"text")+'" id="i_'+f.k+'" name="'+f.k+'" value="'+esc(val)+'"'+(f.type==="number"?' min="0"':"")+'>';
+}
+function draw(){
+  var s=STEPS[step], c=db[cur];
+  drawSteps(); drawClients();
+  $("#eyebrow").textContent = "الخطوة "+(step+1)+" من "+STEPS.length;
+  $("#title").textContent = s.t;
+  $("#sub").textContent = s.s;
+
+  if(s.final){
+    $("#form").className="review";
+    $("#form").innerHTML = summary(c);
+    $("#actions").innerHTML =
+      '<button class="btn" type="button" data-go="-1">السابق</button><span class="grow"></span>'+
+      '<button class="btn" type="button" id="btnCopy">نسخ البيانات</button>'+
+      '<button class="btn primary" type="button" id="btnSend">'+(c._ref?"إرسال مرة أخرى":"إرسال إلى Notion")+'</button>';
+    $("#btnSend").onclick = send;
+    $("#btnCopy").onclick = copy;
+  } else {
+    $("#form").className="";
+    $("#form").innerHTML = s.f.map(function(f){
+      if(f.type==="check") return '<div class="f wide" data-k="'+f.k+'"><label class="terms"><input type="checkbox" id="i_'+f.k+
+        '" name="'+f.k+'"'+(c[f.k]==="نعم"?" checked":"")+'><span>'+esc(f.l)+'<i>*</i></span></label></div>';
+      return '<div class="f'+((f.w||f.type==="textarea")?" wide":"")+'" data-k="'+f.k+'">'+
+        '<label for="i_'+f.k+'">'+esc(f.l)+(f.r?'<i>*</i>':'')+'</label>'+control(f,c[f.k])+
+        (f.hint?'<div class="hint">'+esc(f.hint)+'</div>':'')+'</div>';
+    }).join("");
+    $("#actions").innerHTML =
+      (step?'<button class="btn" type="button" data-go="-1">السابق</button>':'')+
+      '<span class="grow"></span><button class="btn primary" type="button" data-go="1">التالي</button>';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-go]"), function(b){
+    b.onclick = function(){
+      var d = +b.getAttribute("data-go");
+      if(d>0 && !grab(true)) return;
+      if(d<0) grab(false);
+      step = Math.max(0, Math.min(STEPS.length-1, step+d));
+      note(""); draw();
+    };
+  });
+  $("#form").oninput = function(){ grab(false); drawClients() };
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function summary(c){
+  var out="", n=0;
+  STEPS.forEach(function(s){
+    if(s.final) return;
+    var got = s.f.filter(function(f){ return c[f.k] });
+    n += got.length;
+    if(got.length) out += '<div class="sec">'+esc(s.t)+'</div>'+got.map(function(f){
+      return '<div class="row"><dt>'+esc(f.l)+'</dt><dd>'+esc(c[f.k])+'</dd></div>'; }).join("");
+  });
+  return n ? out : '<p class="hint">لا توجد بيانات بعد — ارجع للخطوة الأولى.</p>';
+}
+function grab(validate){
+  var c=db[cur], firstBad=null;
+  Array.prototype.forEach.call(document.querySelectorAll(".f"), function(d){
+    d.classList.remove("bad"); var e=d.querySelector(".err"); if(e) e.remove();
+  });
+  STEPS[step].f.forEach(function(f){
+    var v="", el;
+    if(f.type==="radio"){ el=document.querySelector('input[name="'+f.k+'"]:checked'); v=el?el.value:"" }
+    else if(f.type==="check"){ el=document.getElementById("i_"+f.k); v=(el&&el.checked)?"نعم":"" }
+    else { el=document.getElementById("i_"+f.k); v=el?el.value.trim():"" }
+    c[f.k]=v;
+    if(validate && f.r && !v && !firstBad) firstBad=f;
+  });
+  persist();
+  if(firstBad){
+    var d=document.querySelector('.f[data-k="'+firstBad.k+'"]');
+    d.classList.add("bad");
+    d.insertAdjacentHTML("beforeend",'<div class="err">هذا الحقل مطلوب لإكمال الطلب.</div>');
+    d.scrollIntoView({block:"center",behavior:"smooth"});
+    var i=d.querySelector("input,select,textarea"); if(i) i.focus({preventScroll:true});
+    return false;
+  }
+  return true;
+}
+function note(html,kind){
+  $("#msg").innerHTML = html ? '<div class="msg '+(kind||"ok")+'">'+html+'</div>' : "";
+}
+function payload(c){
+  var o={type:"incubation"};
+  ALL.forEach(function(f){ if(c[f.k]) o[f.k]=c[f.k] });
+  return o;
+}
+function send(){
+  if(busy) return;
+  var c=db[cur];
+  var missing = ALL.filter(function(f){ return f.r && !c[f.k] });
+  if(missing.length){
+    note("لا يمكن الإرسال — ناقص "+missing.length+" حقل مطلوب، أولها «"+esc(missing[0].l)+"».","bad");
+    return;
+  }
+  busy=true;
+  var btn=$("#btnSend"); btn.disabled=true;
+  note('<span class="spin"></span>جارٍ الحفظ في Notion…',"ok");
+  fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload(c))})
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j} }) })
+    .then(function(x){
+      if(x.ok && x.j && x.j.ok){
+        c._ref = x.j.ref; persist(); drawClients();
+        note("تم حفظ «"+esc(nameOf(c))+"» في Notion. الرقم المرجعي: <b>"+esc(x.j.ref)+"</b>"+
+          (x.j.stored ? "" : " — لكن لم يُكتب في القاعدة، راجع صلاحية التكامل في Notion."),
+          x.j.stored ? "ok" : "warn");
+        btn.textContent="إرسال مرة أخرى";
+      } else {
+        var e = (x.j && x.j.error) || "unknown";
+        note((e==="invalid_fields" ? "بيانات ناقصة أو غير صالحة." :
+              e==="notion_error"  ? "رفض Notion الحفظ — تأكد أن التكامل له صلاحية على القاعدة." :
+              "تعذّر الحفظ (" + esc(e) + ").") +
+             " بياناتك محفوظة هنا — اضغط «نسخ البيانات» كنسخة احتياطية.","bad");
+      }
+    })
+    .catch(function(){
+      note("انقطع الاتصال بالخادم. بياناتك محفوظة هنا — أعد المحاولة أو اضغط «نسخ البيانات».","bad");
+    })
+    .then(function(){ busy=false; btn.disabled=false });
+}
+function copy(){
+  var c=db[cur];
+  var text = "طلب برنامج احتضان — "+nameOf(c)+"\n"+
+    ALL.filter(function(f){ return c[f.k] }).map(function(f){ return f.l+": "+c[f.k] }).join("\n");
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(
+      function(){ note("نُسخت البيانات.","ok") },
+      function(){ note("تعذّر النسخ — حدّد بيانات المراجعة أعلاه وانسخها يدوياً.","warn") });
+  } else {
+    note("المتصفح لا يدعم النسخ التلقائي — حدّد بيانات المراجعة أعلاه وانسخها يدوياً.","warn");
+  }
+}
+$("#clients").onclick = function(e){
+  var b = e.target.closest ? e.target.closest("button[data-i]") : null;
+  if(!b) return;
+  grab(false); cur = +b.getAttribute("data-i"); step=0; note(""); draw();
+};
+$("#btnNew").onclick = function(){
+  grab(false); db.push(fresh()); cur=db.length-1; step=0; persist(); note(""); draw();
+};
+$("#btnDel").onclick = function(){
+  if(!confirm("حذف ملف «"+nameOf(db[cur])+"» نهائياً من هذا المتصفح؟")) return;
+  db.splice(cur,1); if(!db.length) db.push(fresh());
+  cur=0; step=0; persist(); note(""); draw();
+};
+draw();
+</script>
+</body>
+</html>

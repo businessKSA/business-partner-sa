@@ -19,6 +19,9 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
+// "طلبات برنامج الاحتضان — مركز الابتكار (منشآت)" — every /incubation-intake
+// submission lands here as one row (see the type:"incubation" branch below).
+const INCUBATION_DB = process.env.NOTION_INCUBATION_DB || "95b50ae4a341404e8412fec491607c6f";
 // Owner key that gates the internal dashboard's "incoming requests" list and
 // every /admin panel action. ENV-ONLY on purpose: this repo is public, so a
 // hardcoded fallback key (the old "demo123") would be a public master key to
@@ -1540,6 +1543,85 @@ export default async function handler(req, res) {
   }
 
   // Task Force intake from /task-force — a complex/multi-party executive task.
+  // Monsha'at Innovation Center incubation-programme intake (/incubation-intake).
+  // Our team fills the client's data once here instead of retyping it into the
+  // government portal's 5-step form, and every application is kept as a record
+  // in the "طلبات برنامج الاحتضان" Notion database.
+  if (b.type === "incubation") {
+    const s = (v, n = 200) => String(v || "").trim().slice(0, n);
+    const nameAr = s(b.name_ar, 160);
+    const phone = s(b.phone, 40);
+    const email = s(b.email, 160).toLowerCase();
+    const idnum = s(b.idnum, 40);
+    const coAr = s(b.co_ar, 200);
+    if (!nameAr || !phone || !isEmail(email) || !idnum || !coAr) {
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
+    }
+    const ref = "INC-" + Date.now().toString().slice(-6);
+    const title = `${nameAr} — ${coAr} (${ref})`;
+
+    // Notion property name -> value builder, driven by the form's field keys.
+    const txt = (v) => ({ rich_text: [{ text: { content: s(v, 1900) } }] });
+    const sel = (v) => ({ select: { name: s(v, 100) } });
+    const num = (v) => { const n = parseFloat(String(v).replace(/[^\d.-]/g, "")); return isFinite(n) ? { number: n } : null; };
+    const dt = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? { date: { start: v } } : null);
+    const MAP = [
+      ["الاسم بالإنجليزي", "name_en", txt], ["رقم الهوية", "idnum", txt],
+      ["نوع المستفيد", "benef", sel], ["المؤهل التعليمي", "edu", sel],
+      ["الجنسية", "nat", txt], ["نوع الهوية", "idtype", sel], ["الجنس", "gender", sel],
+      ["تاريخ الميلاد", "dob", dt], ["البلد", "country", txt], ["المنطقة", "region", txt],
+      ["اسم الشركة بالعربي", "co_ar", txt], ["اسم الشركة بالإنجليزي", "co_en", txt],
+      ["وصف المشروع بالعربي", "d_ar", txt], ["وصف المشروع بالإنجليزي", "d_en", txt],
+      ["مرحلة المشروع", "stage", sel], ["مجال المشروع", "sector", txt],
+      ["التقنيات المستخدمة", "tech", txt], ["الرقم الموحد", "cr", txt],
+      ["عدد الشركاء المؤسسين", "founders", num], ["عدد الموظفين", "emps", num],
+      ["عدد العملاء", "custs", num], ["العوائد المالية حتى اليوم", "rev", num],
+      ["مقر الشركة", "co_region", txt], ["مدينة الشركة", "co_city", txt],
+      ["تاريخ إنشاء الشركة", "founded", dt], ["الملف التعريفي", "profile", txt],
+      ["هدف التسجيل في البرنامج", "goal", sel], ["مستوى ريادة الأعمال", "level", sel],
+      ["الاستفادة من MVPLab", "mvplab", sel], ["مقر برنامج الاحتضان", "site", sel],
+    ];
+    const props = {
+      "اسم العميل": { title: [{ text: { content: title } }] },
+      "رقم الهاتف": { phone_number: phone },
+      "البريد الإلكتروني": { email },
+      "موافق على الشروط والأحكام": { checkbox: b.terms === "نعم" },
+      "حالة الطلب": { status: { name: "Not started" } },
+    };
+    for (const [prop, key, fn] of MAP) {
+      if (!b[key]) continue;
+      const v = fn(b[key]);
+      if (v) props[prop] = v;
+    }
+
+    const summary = [b.stage, b.sector, b.goal, b.level, b.site].filter(Boolean).join(" · ");
+    const teamHtml = `<div style="font-family:Arial,sans-serif" dir="rtl"><h2 style="color:#0B1B5A">طلب برنامج احتضان جديد — ${ref}</h2><table>${
+      row("مقدّم الطلب", nameAr) + row("الجوال", phone) + row("البريد", email) + row("رقم الهوية", idnum) +
+      row("المشروع", coAr) + row("المرحلة", b.stage) + row("المجال", b.sector) +
+      row("الهدف من البرنامج", b.goal) + row("مقر الحاضنة", b.site) + row("MVPLab", b.mvplab)}</table></div>`;
+
+    let stored = false, notionError = "";
+    if (NOTION_TOKEN) {
+      try {
+        const r = await fetch("https://api.notion.com/v1/pages", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify({ parent: { database_id: INCUBATION_DB }, properties: props }),
+        });
+        if (r.ok) stored = true;
+        else { notionError = (await r.text()).slice(0, 300); console.error("Notion incubation error", r.status, notionError); }
+      } catch (e) { notionError = String(e).slice(0, 200); console.error("incubation notion exception", notionError); }
+    }
+
+    const [teamSent] = await Promise.all([
+      sendEmail(TEAM_EMAIL, `طلب برنامج احتضان — ${nameAr} (${coAr})`, teamHtml),
+      crmLead({ title: `برنامج احتضان — ${coAr}`, phone, email, notes: `Incubation · ${summary}`, ref }),
+      forwardLead({ source: "incubation", ref, name: nameAr, company: coAr, phone, email, notes: summary }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, stored, emailSent: !!teamSent.ok }));
+  }
+
   if (b.type === "task-force") {
     const company = String(b.company || "").trim().slice(0, 200);
     const person = String(b.person || "").trim().slice(0, 160);

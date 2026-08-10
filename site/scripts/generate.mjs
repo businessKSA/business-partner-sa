@@ -8114,6 +8114,17 @@ write("ar/portal.html", buildPortal("/ar/"));
 // editing it in place under ar/ would be silently deleted by the next run.
 write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8"));
 
+// Internal client-intake form for the Monsha'at Innovation Center incubation
+// programme (/incubation-intake, noindex). Same assets/data pattern as the
+// compliance dashboard: the source of truth sits under assets/data, which
+// cleanHtml never touches, and is copied into both trees on every build.
+// Posts to /api/requests with type:"incubation".
+{
+  const incubation = fs.readFileSync(path.join(ROOT, "assets/data/incubation-intake.html"), "utf8");
+  write("incubation-intake.html", incubation);
+  write("ar/incubation-intake.html", incubation);
+}
+
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
 const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/directory", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/installments", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers"]
