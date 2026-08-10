@@ -427,6 +427,12 @@
     .ss-portal-entry .btn{white-space:nowrap;background:#fff;color:var(--brand,#0b1b5a)}
     .ss-portal-hero{padding:48px 0 4px;text-align:center}
     .ss-portal-hero h1{margin:8px 0 12px}
+    .ss-code-fallback{margin-top:18px;border-top:1px solid var(--gray-line,#e4e7f0);padding-top:14px;text-align:start}
+    .ss-code-fallback>summary{cursor:pointer;font-size:.86rem;color:var(--text-soft,#5b6b86);list-style:none;user-select:none}
+    .ss-code-fallback>summary::-webkit-details-marker{display:none}
+    .ss-code-fallback>summary::before{content:"＋";margin-inline-end:6px;font-weight:700}
+    .ss-code-fallback[open]>summary::before{content:"－"}
+    .ss-code-fallback .ss-access-form{margin-top:12px}
     .ss-gate-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
     .ss-gate-links a{color:var(--brand,#0b1b5a);font-weight:600;text-decoration:none;font-size:.9rem}
     .ss-gate-links a:hover{text-decoration:underline}

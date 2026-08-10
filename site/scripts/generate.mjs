@@ -8231,6 +8231,12 @@ function buildSharedServices() {
     .ss-portal-entry .btn{white-space:nowrap;background:#fff;color:var(--brand,#0b1b5a)}
     .ss-portal-hero{padding:48px 0 4px;text-align:center}
     .ss-portal-hero h1{margin:8px 0 12px}
+    .ss-code-fallback{margin-top:18px;border-top:1px solid var(--gray-line,#e4e7f0);padding-top:14px;text-align:start}
+    .ss-code-fallback>summary{cursor:pointer;font-size:.86rem;color:var(--text-soft,#5b6b86);list-style:none;user-select:none}
+    .ss-code-fallback>summary::-webkit-details-marker{display:none}
+    .ss-code-fallback>summary::before{content:"＋";margin-inline-end:6px;font-weight:700}
+    .ss-code-fallback[open]>summary::before{content:"－"}
+    .ss-code-fallback .ss-access-form{margin-top:12px}
     .ss-gate-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px}
     .ss-gate-links a{color:var(--brand,#0b1b5a);font-weight:600;text-decoration:none;font-size:.9rem}
     .ss-gate-links a:hover{text-decoration:underline}
@@ -8399,18 +8405,21 @@ function buildSharedServicesPortal() {
     <div class="wrap">
       <div class="ss-access">
         <h2>${L("Sign in to the service", "دخول الخدمة")}</h2>
-        <p>${L("Enter the access code emailed to you after payment. Not subscribed yet? Register via the client portal.", "أدخل رمز الدخول اللي وصلك على بريدك بعد الدفع. لست مشتركاً؟ سجّل عبر بوابة العميل.")}</p>
-        <form class="ss-access-form" id="ss-unlock">
-          <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw('Access code', 'رمز الدخول')}" aria-label="${Lraw('Access code', 'رمز الدخول')}">
-          <button class="btn btn-primary" type="submit">${L("Sign in", "دخول")}</button>
-        </form>
-        <a class="btn btn-ghost" style="width:100%;margin-top:12px" href="${u("/account")}?redirect=shared">🔐 ${L("No code needed — sign in with an email code via your Business Partner account", "بدون رمز — ادخل برمز يوصلك على الإيميل عبر حساب بيزنس بارتنر")}</a>
+        <p id="ss-gate-lead">${L("Your team portal opens straight from your Business Partner account — no access code needed.", "بوابة فريقك تفتح مباشرة من حساب العميل في بيزنس بارتنر — بدون أي رمز دخول.")}</p>
         <div class="ss-note-box" id="unl-result" hidden></div>
+        <a class="btn btn-primary" id="ss-account-btn" style="width:100%" href="${u("/account")}">🔐 ${L("Sign in with my client account", "ادخل بحساب العميل")}</a>
         <div class="ss-gate-links">
           <a href="${u('/shared-services')}">${L("← Back to service info", "← عن الخدمة")}</a>
           <a href="${u('/shared-services')}#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
         </div>
-        <span class="ss-demo-hint">${L("Preview with demo code: ", "معاينة برمز التجربة: ")}<code>demo123</code></span>
+        <details class="ss-code-fallback">
+          <summary>${L("Have an access code instead?", "لديك رمز دخول بدلاً من ذلك؟")}</summary>
+          <form class="ss-access-form" id="ss-unlock">
+            <input id="unl-code" type="text" autocomplete="off" placeholder="${Lraw('Access code', 'رمز الدخول')}" aria-label="${Lraw('Access code', 'رمز الدخول')}">
+            <button class="btn btn-ghost" type="submit">${L("Sign in", "دخول")}</button>
+          </form>
+          <span class="ss-demo-hint">${L("Preview with demo code: ", "معاينة برمز التجربة: ")}<code>demo123</code></span>
+        </details>
       </div>
     </div>
   </section>
@@ -8718,7 +8727,7 @@ function buildSharedServicesPortal() {
     function dispName(a){ var n=getNames()[a.slug]; return (typeof n==='string'&&n.trim())?n.trim():a.name; }
     var inited=false;
     function openService(){ if(gate)gate.hidden=true; if(dash){dash.hidden=false; if(!inited){initDash();inited=true;} greet(); dash.scrollIntoView({behavior:'smooth',block:'start'});} }
-    function greet(){ var c=getClient(); var h=document.querySelector('.ss-dash-head h2'); if(c&&h) h.textContent=${JSON.stringify(Lraw("Dashboard — ", "لوحة "))}+c.name; }
+    function greet(){ var c=getClient(); var h=document.querySelector('.ss-dash-head h2'); if(c&&h&&c.name) h.textContent=${JSON.stringify(Lraw("Dashboard — ", "لوحة "))}+c.name; }
     var unl=document.getElementById('ss-unlock');
     if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
       var code=(document.getElementById('unl-code').value||'').trim();
@@ -8881,7 +8890,37 @@ function buildSharedServicesPortal() {
 
     // ---------- init ----------
     function initDash(){buildAgents();var first=document.querySelector('.ss-ag');selectAgent(AGENTS[0],first);}
-    if(getClient()) openService();
+
+    // The portal is tied to the client account: a stored client opens straight
+    // away, otherwise we ask the server to resolve the SIGNED-IN client's own
+    // access code (sso-open reads the session cookie — never client input) and
+    // open without anyone typing a code. The code field stays as a fallback.
+    // A client seeded by SSO carries no display name yet, so hydrate it from
+    // ss-login once — that also proves the code is live before the first chat.
+    function hydrate(c,then){
+      if(!c||!c.code||c.demo||c.name){ if(then)then(); return; }
+      fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code})})
+        .then(function(r){return r.json();})
+        .then(function(d){ if(d&&d.ok){ c.name=d.name||${JSON.stringify(Lraw("Client", "عميل"))}; c.names=(d.names&&typeof d.names==='object')?d.names:{}; c.kb=d.has_profile===true; setClient(c); } })
+        .catch(function(){})
+        .then(function(){ if(then)then(); });
+    }
+    var boot=getClient();
+    if(boot){ hydrate(boot,openService); }
+    else {
+      var gl=document.getElementById('ss-gate-lead');
+      fetch('/api/requests?action=sso-open&portal=shared',{credentials:'same-origin',cache:'no-store'})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok&&d.seed&&d.seed.bp_ss_client_v1){
+            try{ localStorage.setItem('bp_ss_client_v1',d.seed.bp_ss_client_v1); }catch(e){}
+            hydrate(getClient(),openService);
+          } else if(gl){
+            gl.textContent=${JSON.stringify(Lraw("Sign in to your Business Partner account and your team portal opens automatically — no access code needed.", "سجّل الدخول في حساب العميل وتفتح لك بوابة فريقك تلقائياً — بدون أي رمز دخول."))};
+          }
+        })
+        .catch(function(){});
+    }
   })();</script>`;
   return page({
     title: Lraw("Service portal — Shared Services | Business Partner", "بوابة الخدمة — الخدمات المشتركة | بيزنس بارتنر"),

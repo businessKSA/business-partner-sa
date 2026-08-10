@@ -85,18 +85,21 @@
     <div class="wrap">
       <div class="ss-access">
         <h2>Sign in to the service</h2>
-        <p>Enter the access code emailed to you after payment. Not subscribed yet? Register via the client portal.</p>
-        <form class="ss-access-form" id="ss-unlock">
-          <input id="unl-code" type="text" autocomplete="off" placeholder="Access code" aria-label="Access code">
-          <button class="btn btn-primary" type="submit">Sign in</button>
-        </form>
-        <a class="btn btn-ghost" style="width:100%;margin-top:12px" href="/fr/account?redirect=shared">🔐 No code needed — sign in with an email code via your Business Partner account</a>
+        <p id="ss-gate-lead">Your team portal opens straight from your Business Partner account — no access code needed.</p>
         <div class="ss-note-box" id="unl-result" hidden></div>
+        <a class="btn btn-primary" id="ss-account-btn" style="width:100%" href="/fr/account">🔐 Sign in with my client account</a>
         <div class="ss-gate-links">
           <a href="/fr/shared-services">← Back to service info</a>
           <a href="/fr/shared-services#ss-subscribe">S'abonner maintenant</a>
         </div>
-        <span class="ss-demo-hint">Preview with demo code: <code>demo123</code></span>
+        <details class="ss-code-fallback">
+          <summary>Have an access code instead?</summary>
+          <form class="ss-access-form" id="ss-unlock">
+            <input id="unl-code" type="text" autocomplete="off" placeholder="Access code" aria-label="Access code">
+            <button class="btn btn-ghost" type="submit">Sign in</button>
+          </form>
+          <span class="ss-demo-hint">Preview with demo code: <code>demo123</code></span>
+        </details>
       </div>
     </div>
   </section>
@@ -486,7 +489,7 @@
     function dispName(a){ var n=getNames()[a.slug]; return (typeof n==='string'&&n.trim())?n.trim():a.name; }
     var inited=false;
     function openService(){ if(gate)gate.hidden=true; if(dash){dash.hidden=false; if(!inited){initDash();inited=true;} greet(); dash.scrollIntoView({behavior:'smooth',block:'start'});} }
-    function greet(){ var c=getClient(); var h=document.querySelector('.ss-dash-head h2'); if(c&&h) h.textContent="Dashboard — "+c.name; }
+    function greet(){ var c=getClient(); var h=document.querySelector('.ss-dash-head h2'); if(c&&h&&c.name) h.textContent="Dashboard — "+c.name; }
     var unl=document.getElementById('ss-unlock');
     if(unl) unl.addEventListener('submit',function(e){e.preventDefault();
       var code=(document.getElementById('unl-code').value||'').trim();
@@ -649,5 +652,35 @@
 
     // ---------- init ----------
     function initDash(){buildAgents();var first=document.querySelector('.ss-ag');selectAgent(AGENTS[0],first);}
-    if(getClient()) openService();
+
+    // The portal is tied to the client account: a stored client opens straight
+    // away, otherwise we ask the server to resolve the SIGNED-IN client's own
+    // access code (sso-open reads the session cookie — never client input) and
+    // open without anyone typing a code. The code field stays as a fallback.
+    // A client seeded by SSO carries no display name yet, so hydrate it from
+    // ss-login once — that also proves the code is live before the first chat.
+    function hydrate(c,then){
+      if(!c||!c.code||c.demo||c.name){ if(then)then(); return; }
+      fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code})})
+        .then(function(r){return r.json();})
+        .then(function(d){ if(d&&d.ok){ c.name=d.name||"Client"; c.names=(d.names&&typeof d.names==='object')?d.names:{}; c.kb=d.has_profile===true; setClient(c); } })
+        .catch(function(){})
+        .then(function(){ if(then)then(); });
+    }
+    var boot=getClient();
+    if(boot){ hydrate(boot,openService); }
+    else {
+      var gl=document.getElementById('ss-gate-lead');
+      fetch('/api/requests?action=sso-open&portal=shared',{credentials:'same-origin',cache:'no-store'})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok&&d.seed&&d.seed.bp_ss_client_v1){
+            try{ localStorage.setItem('bp_ss_client_v1',d.seed.bp_ss_client_v1); }catch(e){}
+            hydrate(getClient(),openService);
+          } else if(gl){
+            gl.textContent="Sign in to your Business Partner account and your team portal opens automatically — no access code needed.";
+          }
+        })
+        .catch(function(){});
+    }
   })();</script></body></html>
