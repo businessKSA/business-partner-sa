@@ -186,7 +186,7 @@ const LANG_LOCALE = { en: "en_US", ar: "ar_SA", fr: "fr_FR", es: "es_ES", zh: "z
 const EXTRA_LANG_PATHS = new Set(["/", "/about", "/services", "/packages", "/contact"]);
 // Extra languages with a complete, reviewed translation of every page —
 // added one at a time as each is finished. See docs/i18n-status.md.
-const FULLY_READY_LANGS = ["fr"];
+const FULLY_READY_LANGS = ["fr", "zh"];
 // A handful of pages (the internal AI-employee/portal tools) are hand-written
 // once for ar/en only — they're never part of the per-language build loop,
 // so even a "fully ready" language must not get a prefixed link to them.
@@ -4135,8 +4135,10 @@ function employerPlanCards({ selectable, standalone }) {
       </div>`
     : "";
   const cards = plans.map((t) => {
-    const feats = (LANG === "ar" ? t.features : (t.featuresEn || t.features)) || [];
-    const list = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
+    // Route each feature through L() so the extra languages get their
+    // translation instead of falling through to the raw English list.
+    const feats = t.features || t.featuresEn || [];
+    const list = feats.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("");
     const badge = t.popular ? `<span class="pk-badge">${L("Most popular", "الأكثر طلباً")}</span>` : "";
     const name = L(t.nameEn || t.name, t.name);
     if (standalone) {
