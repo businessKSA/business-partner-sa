@@ -290,7 +290,7 @@ function sName(s) {
   if (LANG === "en") return m.en || (ov && ov.nameEn) || s.name;
   // Extra languages: their own translated name if service-i18n.json has one
   // yet, else the English name (never Arabic — this tree is non-Arabic).
-  return m[LANG] || m.en || (ov && ov.nameEn) || s.name;
+  return m[LANG] || T(m.en || (ov && ov.nameEn) || s.name);
 }
 // Arabic name regardless of current build language (for cart data attributes).
 const sNameArOf = (s) => { const m = svcI18n[s.code] || {}; const ov = site.overrides[s.slug]; return m.ar || (ov && ov.name) || s.name; };
@@ -302,7 +302,7 @@ function sDesc(s) {
     if (ov && ov.description) return ov.description;
     return `نتولّى في بيزنس بارتنر تنفيذ خدمة «${sName(s)}» نيابةً عنك ضمن ${catAr(s.category)} — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.`;
   }
-  if (ov && ov.descriptionEn) return ov.descriptionEn;
+  if (ov && ov.descriptionEn) return Lraw(ov.descriptionEn, ov.descriptionEn);
   return Lraw("Business Partner handles “{name}” on your behalf within {category} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.", "")
     .replace("{name}", sName(s))
     .replace("{category}", Lraw(catEn(s.category), catAr(s.category)));
@@ -310,7 +310,7 @@ function sDesc(s) {
 const catEn = (key) => (CAT_META[key] ? CAT_META[key].en : key);
 const catAr = (key) => { const c = categories.find((x) => x.key === key); return c ? c.ar : key; };
 // Category label in current language.
-const catLabel = (key) => (LANG === "ar" ? catAr(key) : catEn(key));
+const catLabel = (key) => (LANG === "ar" ? catAr(key) : Lraw(catEn(key), catAr(key)));
 // Localize an Arabic price label string for the English tree (numbers + ﷼ kept).
 function localizeLabel(l) {
   l = l || "";
@@ -684,7 +684,7 @@ function audienceOf(s, ov) {
     if (s.targetClient) return s.targetClient;
     return Lraw("Individuals & businesses", "أفراد ومنشآت");
   }
-  if (ov && ov.audienceEn) return ov.audienceEn;
+  if (ov && ov.audienceEn) return Lraw(ov.audienceEn, ov.audienceEn);
   return Lraw("Individuals & businesses", "أفراد ومنشآت");
 }
 function documentsOf(s, ov) {
@@ -696,7 +696,7 @@ function documentsOf(s, ov) {
       Lraw("Payment of the fees due to the relevant authority", "سداد الرسوم المقررة للجهة المختصة"),
     ];
   }
-  if (ov && ov.documentsEn) return ov.documentsEn;
+  if (ov && ov.documentsEn) return ov.documentsEn.map((d) => Lraw(d, d));
   return [
     Lraw("Official documents (Commercial Registration or ID as applicable)", "الوثائق الرسمية (سجل تجاري أو هوية حسب الحالة)"),
     Lraw("Documents specific to your activity or request", "المستندات الخاصة بنشاطك أو بطلب الخدمة"),
@@ -736,7 +736,7 @@ function featuresOf(s, ov) {
     feats.push("دعم الوكيل الذكي على مدار الساعة");
     return feats.slice(0, 7);
   }
-  if (ov && ov.featuresEn) return ov.featuresEn;
+  if (ov && ov.featuresEn) return ov.featuresEn.map((f) => Lraw(f, f));
   return [
     Lraw("We complete the procedure on your behalf, from start to issuance", "ننجز الإجراء نيابةً عنك من البداية حتى الإصدار"),
     Lraw("Clear fees, with government fees separate and disclosed", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة"),
@@ -4691,8 +4691,8 @@ function seekerFormHtml(f, fixedJob) {
 function buildJobPage(job) {
   const f = site.careers.seeker.fields;
   const title = L(job.title.en, job.title.ar);
-  const resp = job.responsibilities[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
-  const reqs = job.requirements[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${esc(r)}</li>`).join("");
+  const resp = job.responsibilities[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${LANG === "ar" ? esc(r) : L(r, r)}</li>`).join("");
+  const reqs = job.requirements[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${LANG === "ar" ? esc(r) : L(r, r)}</li>`).join("");
   // Workshop-campaign roles (job.group set) navigate back to the campaign hub
   // and show the openings count; Business Partner's own roles keep /careers.
   const backHref = job.group ? u("/jobs/" + WORKSHOP_CAMPAIGN.slug) : `${u("/careers")}#open-jobs`;
@@ -6236,7 +6236,7 @@ const DOC_STEPS = [
 ];
 function docFileRow(it) {
   const label = LANG === "ar" ? it.ar : it.en;
-  const hint = LANG === "ar" ? it.hAr : it.hEn;
+  const hint = LANG === "ar" ? it.hAr : Lraw(it.hEn, it.hAr);
   const idSel = it.idType
     ? `<select class="doc-idtype" data-docidtype="${it.k}" aria-label="${Lraw("ID type", "نوع الهوية")}">
         <option value="">${Lraw("ID type", "نوع الهوية")}</option>
@@ -7781,7 +7781,7 @@ function buildPortal(pre = "/") {
 // Chat calls Baher's public n8n chat webhook directly from the browser.
 function buildSharedServices() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
-  const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
+  const feats = (LANG === "ar" ? shared.features : (shared.featuresEn || []).map((f) => Lraw(f, f))) || [];
   const team = [
     { e: "👑", en: "Baher — Business Advisor & Team Lead", ar: "باهر — مستشار الأعمال وقائد الفريق" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
@@ -7965,7 +7965,7 @@ function buildSharedServices() {
       <div class="ss-roster">
         ${roster.map((r) => `<article class="ss-rc">
           <div class="ss-rc-h"><span class="e">${r.e}</span><div><b>${L(r.en, r.ar)}</b><span>${L(r.enRole, r.arRole)}</span></div></div>
-          <div class="ss-rc-svc">${(LANG === "ar" ? r.svcAr : r.svcEn).map((s) => `<span>${esc(s)}</span>`).join("")}</div>
+          <div class="ss-rc-svc">${(LANG === "ar" ? r.svcAr : r.svcEn).map((s, si) => `<span>${LANG === "ar" ? esc(s) : L(r.svcEn[si], r.svcAr[si])}</span>`).join("")}</div>
           <p class="ss-rc-m"><b>${L("How they work", "طريقة العمل")}:</b> ${L(r.mEn, r.mAr)}</p>
         </article>`).join("")}
       </div>
@@ -8253,7 +8253,7 @@ function buildSharedServices() {
 
 function buildSharedServicesPortal() {
   const shared = (site.aiAgents && site.aiAgents.agents || []).find((a) => a.key === "shared") || {};
-  const feats = (LANG === "ar" ? shared.features : shared.featuresEn) || [];
+  const feats = (LANG === "ar" ? shared.features : (shared.featuresEn || []).map((f) => Lraw(f, f))) || [];
   const team = [
     { e: "👑", en: "Baher — Business Advisor & Team Lead", ar: "باهر — مستشار الأعمال وقائد الفريق" },
     { e: "🧭", en: "Mazen — Operations Manager", ar: "مازن — مدير العمليات" },
