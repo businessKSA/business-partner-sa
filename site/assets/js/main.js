@@ -470,6 +470,27 @@ var BP = window.BP = window.BP || {};
     ["Systems Analyst", "محلل أنظمة"], ["IT Project Coordinator", "منسّق مشاريع تقنية"], ["Help Desk Technician", "فنّي دعم فني"],
     ["Visual Merchandising Manager", "مدير عرض تجاري"], ["Shop Floor Supervisor", "مشرف صالة عرض"], ["Pricing Analyst", "محلل تسعير"],
     ["Textile Designer", "مصمم منسوجات"], ["Pattern Maker", "صانع باترون"],
+    // Third expansion — events/exhibitions fabrication & production trades, plus
+    // broader coverage across management, tech, finance, logistics, health,
+    // hospitality and skilled trades. Free typing is still accepted; these just
+    // widen the presets.
+    ["Exhibition Stand Builder", "فنّي ستاندات معارض"], ["Scenic Carpenter", "نجّار ديكور وفعاليات"], ["Prop Maker", "صانع إكسسوارات ومجسمات"],
+    ["Sculptor / 3D Fabricator", "نحّات / فنّي مجسمات"], ["Laser Cutting Technician", "فنّي قص ليزر"], ["Router / CNC Technician", "فنّي راوتر / CNC"],
+    ["Rigger", "فنّي رفع وتركيب"], ["Stagehand", "عامل مسرح وفعاليات"], ["Lighting Technician", "فنّي إضاءة"],
+    ["Sound Technician", "فنّي صوت"], ["AV Technician", "فنّي سمعي بصري"], ["Event Production Manager", "مدير إنتاج فعاليات"],
+    ["Fabrication Supervisor", "مشرف تصنيع وتجهيزات"], ["Spray Painter", "دهّان رش"], ["Powder Coating Technician", "فنّي طلاء بودرة"],
+    ["Acrylic / Plexiglass Fabricator", "فنّي أكريليك"], ["Signage & Vinyl Installer", "فنّي لافتات وفينيل"], ["Print Finishing Technician", "فنّي تشطيب طباعة"],
+    ["Upholstery Fabricator (Events)", "منجّد تجهيزات فعاليات"], ["Metal Fabricator", "فنّي تشكيل معادن"], ["Fiberglass Technician", "فنّي فايبر جلاس"],
+    ["Business Analyst", "محلل أعمال"], ["Program Manager", "مدير برامج"], ["Project Coordinator", "منسّق مشاريع"],
+    ["Procurement Manager", "مدير مشتريات"], ["Supply Chain Planner", "مخطط سلسلة إمداد"], ["Customer Success Manager", "مدير نجاح العملاء"],
+    ["Technical Support Engineer", "مهندس دعم فني"], ["Cloud Architect", "معماري سحابة"], ["Automation Engineer", "مهندس أتمتة"],
+    ["Mechatronics Technician", "فنّي ميكاترونكس"], ["Planning Engineer", "مهندس تخطيط"], ["Commissioning Engineer", "مهندس تشغيل وتسليم"],
+    ["Cost Estimator", "مقدّر تكاليف"], ["Site Supervisor", "مشرف موقع"], ["Interior Fit-out Supervisor", "مشرف تشطيبات داخلية"],
+    ["Tax Manager", "مدير ضرائب"], ["Legal Manager", "مدير الشؤون القانونية"], ["Executive Assistant", "مساعد تنفيذي"],
+    ["Call Center Supervisor", "مشرف مركز اتصال"], ["Field Sales Representative", "مندوب مبيعات ميداني"], ["Logistics Manager", "مدير لوجستيات"],
+    ["Warehouse Worker", "عامل مستودع"], ["Inventory Analyst", "محلل مخزون"], ["Fleet Supervisor", "مشرف أسطول"],
+    ["Pharmacy Technician", "فنّي صيدلة"], ["Dental Assistant", "مساعد طبيب أسنان"], ["Optician", "فنّي نظارات"],
+    ["Housekeeping Attendant", "عامل تدبير فندقي"], ["Steward (F&B)", "ستيوارد أغذية ومشروبات"], ["Valet Attendant", "عامل صف سيارات"],
   ];
 
   var SA_CITIES = [
