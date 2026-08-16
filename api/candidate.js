@@ -371,6 +371,9 @@ export default async function handler(req, res) {
     "Experience Years": { number: expYears },
     "Skills": { rich_text: rt([field, linkedin].filter(Boolean).join(" · ")) },
     "Source": { select: { name: "الموقع" } },
+    // Job linkage the employer console groups by — "title (id)". Notes carries
+    // the same stamp for rows created before this property existed.
+    "الوظيفة المتقدم لها": { rich_text: rt(`${jobTitle} (${jobId})`) },
     "مخفي عن الموقع": { checkbox: false },
     "حالة القراءة": { select: { name: "مكتمل" } },
     "Notes": { rich_text: rt(answerLines) },

@@ -77,13 +77,49 @@
         REAL_MODE = true;
       }).catch(function () {});
     }
+    // Real applications, grouped server-side by the job each candidate applied
+    // to on the website (?applicants=1). Mapped into the same shape as the
+    // mock applications so every page (kanban, table, dashboard funnel) works
+    // unchanged on live data.
+    var REAL_APPS = [];
+    function loadRealApps() {
+      var code = hrRealCode();
+      if (!code) return Promise.resolve();
+      return fetch("/api/candidates?applicants=1&code=" + encodeURIComponent(code))
+        .then(function (r) { return r.json(); })
+        .then(function (d2) {
+          if (!d2 || !d2.ok || !d2.jobs) return;
+          REAL_MODE = true;
+          var out = [];
+          d2.jobs.forEach(function (g) {
+            g.applicants.forEach(function (a) {
+              out.push({
+                id: a.id, jobId: g.jobId, real: true,
+                job: { id: g.jobId, title: g.jobTitle },
+                stage: a.stage || "new",
+                appliedAt: a.registered || "", unread: false, source: "الموقع",
+                aiRecommended: false, duplicate: false,
+                candidate: {
+                  id: a.id, name: a.name || "مرشّح", title: a.role || "", years: a.experience || 0,
+                  skills: a.skills ? String(a.skills).split(/[،,·|]\s*/).filter(Boolean).slice(0, 6) : [],
+                  city: a.city || "", nationality: a.nationalityType || "", source: "الموقع",
+                  match: a.score != null ? a.score : "", email: a.email || "", phone: a.phone || "",
+                  cv: a.cv || "", education: "", languages: [], salary: "", availability: "",
+                  country: "", expectedSalary: "", noticeDays: "", residency: "", summary: "", workPermit: "",
+                },
+              });
+            });
+          });
+          REAL_APPS = out;
+        }).catch(function () {});
+    }
     function ready() {
       if (DATA) return Promise.resolve(DATA);
       if (loadErr) return Promise.reject(loadErr);
       return fetch("/data/hr-mock.json").then(function (r) {
         if (!r.ok) throw new Error("load_failed");
         return r.json();
-      }).then(function (d) { DATA = d; return loadRealJobs().then(function () { return DATA; }); })
+      }).then(function (d) { DATA = d; return loadRealJobs().then(loadRealApps).then(function () { return DATA; }); })
         .catch(function (e) { loadErr = e; throw e; });
     }
     function jobs() {
@@ -98,7 +134,15 @@
     function candidates() { return DATA.candidates; }
     function candidate(id) { return DATA.candidates.filter(function (c) { return c.id === id; })[0] || null; }
     function applications() {
-      if (REAL_MODE) return []; // لا عينات في الحساب الحقيقي — المتقدمون الحقيقيون يُربطون من الموقع
+      if (REAL_MODE) {
+        // لا عينات في الحساب الحقيقي — هؤلاء متقدمون فعليون من الموقع.
+        var ovr = overlay();
+        return REAL_APPS.map(function (a) {
+          var out = Object.assign({}, a);
+          if (ovr.stages[a.id]) out.stage = ovr.stages[a.id];
+          return out;
+        });
+      }
       var ov = overlay();
       return DATA.applications.map(function (a) {
         var out = Object.assign({}, a);
@@ -130,13 +174,26 @@
       var ov = overlay();
       ov.stages[appId] = stageKey;
       saveOverlay(ov);
+      persistStage(appId, stageKey);
       logActivity("stage", "نُقل " + a.candidate.name + " إلى مرحلة «" + stageOf(stageKey).label + "» لوظيفة " + a.job.title);
       return prev;
+    }
+    // Real accounts: the stage move is also written to Notion (Pipeline Stage)
+    // so the whole team sees it, not just this browser. Keys the API doesn't
+    // map (سجلات جانبية مثل «مكرر») stay local-only.
+    var API_STAGES = { new: 1, screening: 1, review: 1, shortlist: 1, interview: 1, offer: 1, hired: 1, rejected: 1, future: 1 };
+    function persistStage(appId, stageKey) {
+      if (!REAL_MODE || !API_STAGES[stageKey]) return;
+      fetch("/api/candidates", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "update-stage", code: hrRealCode(), id: appId, stage: stageKey }),
+      }).catch(function () {});
     }
     function setStageSilent(appId, stageKey) {
       var ov = overlay();
       ov.stages[appId] = stageKey;
       saveOverlay(ov);
+      persistStage(appId, stageKey);
     }
     function markRead(appId) {
       var ov = overlay();
@@ -937,7 +994,7 @@
         '<label class="cc-check"><input type="checkbox" data-sel="' + a.id + '"' + (selected[a.id] ? " checked" : "") + "></label>" +
         '<div class="cc-top"><span class="hr-avatar" style="width:34px;height:34px;font-size:.75rem">' + esc(initials(c.name)) + '</span><div><div class="cc-name">' + esc(c.name) + (a.duplicate ? ' <span class="hr-tag t-orange">مكرر</span>' : "") + (a.aiRecommended ? ' <span class="hr-tag t-ai">AI</span>' : "") + '</div><div class="cc-sub">' + esc(c.title) + " · " + c.years + " سنة</div></div></div>" +
         '<div class="cc-tags">' + candTags(c) + "</div>" +
-        '<div class="cc-foot"><span>' + esc(c.city) + " · " + esc(a.source || c.source) + '</span><span class="hr-match">' + c.match + "%</span></div>" +
+        '<div class="cc-foot"><span>' + esc(c.city) + " · " + esc(a.source || c.source) + "</span>" + (c.match === "" ? "" : '<span class="hr-match">' + c.match + "%</span>") + "</div>" +
         '<div class="cc-foot"><span>' + fmtDate(a.appliedAt) + '</span><a class="hr-link" href="/hr/employer/applicant?id=' + a.id + '">الملف ←</a></div></div>';
     }
     function renderKanban(rows) {
@@ -956,7 +1013,7 @@
         (rows.length ? rows.map(function (a) {
           var c = a.candidate;
           var opts = HRStore.data().stages.concat(HRStore.data().sideStages).map(function (s) { return '<option value="' + s.key + '"' + (a.stage === s.key ? " selected" : "") + ">" + s.label + "</option>"; }).join("");
-          return '<tr><td><input type="checkbox" data-sel="' + a.id + '"' + (selected[a.id] ? " checked" : "") + '></td><td><a class="t-title" href="/hr/employer/applicant?id=' + a.id + '">' + esc(c.name) + '</a><div class="t-sub">' + esc(c.title) + " · " + esc(c.city) + "</div></td><td>" + esc(a.job.title) + '</td><td><select data-stage-sel="' + a.id + '" style="border:1px solid var(--hr-line);border-radius:8px;padding:4px 8px;font-size:.8rem">' + opts + '</select></td><td><span class="hr-match">' + c.match + "%</span></td><td>" + esc(a.source || c.source) + "</td><td>" + fmtDate(a.appliedAt) + '</td><td><a class="hr-btn hr-btn-sm hr-btn-ghost" href="/hr/employer/applicant?id=' + a.id + '">الملف</a></td></tr>';
+          return '<tr><td><input type="checkbox" data-sel="' + a.id + '"' + (selected[a.id] ? " checked" : "") + '></td><td><a class="t-title" href="/hr/employer/applicant?id=' + a.id + '">' + esc(c.name) + '</a><div class="t-sub">' + esc(c.title) + " · " + esc(c.city) + "</div></td><td>" + esc(a.job.title) + '</td><td><select data-stage-sel="' + a.id + '" style="border:1px solid var(--hr-line);border-radius:8px;padding:4px 8px;font-size:.8rem">' + opts + '</select></td><td>' + (c.match === "" ? "—" : '<span class="hr-match">' + c.match + "%</span>") + "</td><td>" + esc(a.source || c.source) + "</td><td>" + fmtDate(a.appliedAt) + '</td><td><a class="hr-btn hr-btn-sm hr-btn-ghost" href="/hr/employer/applicant?id=' + a.id + '">الملف</a></td></tr>';
         }).join("") : '<tr><td colspan="8"><div class="hr-empty"><b>لا نتائج مطابقة</b><p>عدّل الفلاتر.</p></div></td></tr>') +
         "</tbody></table></div></section>";
       bindCards();
@@ -1015,11 +1072,17 @@
       });
     }
     HRStore.ready().then(function () {
-      if (HRStore.isReal()) {
-        $("ap-root").insertAdjacentHTML("beforebegin", '<div class="hr-error" style="background:var(--hr-blue-bg);color:var(--hr-blue)">لا يوجد متقدمون بعد — أول متقدم حقيقي على وظائفك سيظهر هنا تلقائياً فور ربط التقديمات من الموقع. جرّب «المطابقة الذكية» الآن للبحث في قاعدة السير الجاهزة.</div>');
+      if (HRStore.isReal() && !HRStore.applications().length) {
+        $("ap-root").insertAdjacentHTML("beforebegin", '<div class="hr-error" style="background:var(--hr-blue-bg);color:var(--hr-blue)">لا يوجد متقدمون بعد — أول متقدم حقيقي على وظائفك سيظهر هنا تلقائياً فور تقديمه من الموقع. جرّب «المطابقة الذكية» الآن للبحث في قاعدة السير الجاهزة.</div>');
       }
       var jobSel = $("ap-job");
-      jobSel.innerHTML = '<option value="">كل الوظائف</option>' + HRStore.jobs().map(function (j) { return '<option value="' + j.id + '"' + (state.job === j.id ? " selected" : "") + ">" + esc(j.title) + "</option>"; }).join("");
+      // Job filter lists the console's jobs plus any job the applications
+      // actually reference (careers-campaign posts have their own ids that
+      // aren't console postings).
+      var jobOpts = {}, jobOrder = [];
+      HRStore.jobs().forEach(function (j) { if (!jobOpts[j.id]) { jobOpts[j.id] = j.title; jobOrder.push(j.id); } });
+      HRStore.applications().forEach(function (a) { if (a.job && !jobOpts[a.jobId]) { jobOpts[a.jobId] = a.job.title; jobOrder.push(a.jobId); } });
+      jobSel.innerHTML = '<option value="">كل الوظائف</option>' + jobOrder.map(function (id) { return '<option value="' + id + '"' + (state.job === id ? " selected" : "") + ">" + esc(jobOpts[id]) + "</option>"; }).join("");
       var srcs = {};
       HRStore.applications().forEach(function (a) { srcs[a.source || a.candidate.source] = 1; });
       $("ap-src").innerHTML = '<option value="">كل المصادر</option>' + Object.keys(srcs).map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("");

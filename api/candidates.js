@@ -288,7 +288,7 @@ async function handlePostings(req, res) {
   // (never overwritten on later stage changes, so it stays the true first date).
   if (b.action === "update-stage") {
     const id = String(b.id || "").trim();
-    const STAGE_MAP = { new: "جديد", screening: "فرز", interview: "مقابلة", offer: "عرض", hired: "تم التوظيف", rejected: "مرفوض" };
+    const STAGE_MAP = { new: "جديد", screening: "فرز", review: "فرز", shortlist: "قائمة مختصرة", interview: "مقابلة", offer: "عرض", hired: "تم التوظيف", rejected: "مرفوض", future: "مؤجل" };
     const stageAr = STAGE_MAP[String(b.stage || "")];
     if (!id || !stageAr) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const page = await notionFetch(`pages/${id}`, "GET");
@@ -508,6 +508,76 @@ export default async function handler(req, res) {
   if (url.searchParams.get("validate") === "1") {
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, unlocked, plan }));
+  }
+
+  // Per-job applicants for the employer console (?applicants=1&code=…).
+  // Every website application stamps its job as "title (id)" into
+  // "الوظيفة المتقدم لها" (and, for rows created before that property
+  // existed, into Notes as "تقديم عبر الموقع — الوظيفة: title (id)"), so
+  // grouping parses that stamp — it covers console postings (JOBS_DB page
+  // ids) and careers-campaign slugs alike. Contact fields ride along because
+  // reaching this branch already requires a valid employer code.
+  if (url.searchParams.get("applicants") === "1") {
+    if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
+    try {
+      let rowsRaw = [];
+      let cursor = null, guard = 0;
+      do {
+        const r = await notionFetch(`databases/${DB_ID}/query`, "POST", {
+          page_size: 100,
+          ...(cursor ? { start_cursor: cursor } : {}),
+          filter: {
+            or: [
+              { property: "الوظيفة المتقدم لها", rich_text: { is_not_empty: true } },
+              { property: "Notes", rich_text: { contains: "تقديم عبر الموقع" } },
+            ],
+          },
+          sorts: [{ timestamp: "created_time", direction: "descending" }],
+        });
+        if (!r.ok) { console.error("applicants query error", r.status, (await r.text()).slice(0, 300)); break; }
+        const d = await r.json();
+        rowsRaw = rowsRaw.concat(d.results || []);
+        cursor = d.has_more ? d.next_cursor : null;
+      } while (cursor && ++guard < 5);
+
+      const STAGE_KEY = { "جديد": "new", "فرز": "review", "قائمة مختصرة": "shortlist", "رُشّح لصاحب عمل": "shortlist", "مقابلة": "interview", "عرض": "offer", "تم التوظيف": "hired", "مرفوض": "rejected", "مؤجل": "future" };
+      const groups = {};
+      for (const pg of rowsRaw) {
+        const p = pg.properties || {};
+        if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) continue;
+        const stamp = txt(p["الوظيفة المتقدم لها"]);
+        const notes = txt(p["Notes"]);
+        let m = stamp ? stamp.match(/^(.*?)\s*\(([^()\n]+)\)\s*$/) : null;
+        if (!m) m = notes.match(/تقديم عبر الموقع — الوظيفة:\s*([^\n(]+?)\s*\(([^()\n]+)\)/);
+        if (!m) continue;
+        let jobTitle = m[1].trim(), jobId = m[2].trim();
+        if (jobId === "candidate-pool") jobTitle = "قاعدة المرشحين العامة";
+        const key = jobId || jobTitle;
+        if (!groups[key]) groups[key] = { jobId, jobTitle, applicants: [] };
+        const scoreM = notes.match(/score\s*(\d{1,3})\s*\/\s*100/i);
+        groups[key].applicants.push({
+          id: pg.id,
+          name: txt(p["Candidate Name"]),
+          role: txt(p["Target Role"]) || txt(p["Original Position"]),
+          city: txt(p["City"]),
+          nationalityType: txt(p["Nationality Type"]),
+          stage: STAGE_KEY[txt(p["Pipeline Stage"])] || "new",
+          score: scoreM ? Number(scoreM[1]) : null,
+          registered: pg.created_time,
+          experience: (p["Experience Years"] && p["Experience Years"].number) || 0,
+          skills: txt(p["Skills"]),
+          email: txt(p["Email"]),
+          phone: txt(p["Phone"]),
+          cv: (p["CV Link"] && p["CV Link"].url) || (p["ATS CV (Drive)"] && p["ATS CV (Drive)"].url) || "",
+        });
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, jobs: Object.values(groups) }));
+    } catch (e) {
+      console.error("applicants handler error", e);
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
   }
 
   // Single-candidate detail lookup for the dedicated /candidate-profile page
