@@ -40,6 +40,9 @@ async function crmLead({ name, phone, email, topic, date, notes, ref }) {
     "Human Required": { checkbox: true },
     "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · ملاحظات: " + notes : ""}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
+    // Same ref column every other handler writes, so a consultation booking is
+    // lookupable by its BC- reference (and by ?action=refs=) like any order.
+    "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (/^\d{4}-\d{2}-\d{2}$/.test(date || "")) props["Meeting Date"] = { date: { start: date } };
   try {

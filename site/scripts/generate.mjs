@@ -328,8 +328,28 @@ function localizeLabel(l) {
 const priceLabel = (s) => localizeLabel((s.price && s.price.label) || "");
 // ASCII-safe id from any string (keeps Arabic out of element ids / data-id).
 const asciiId = (pfx, str) => pfx + "-" + String(str).split("").reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) >>> 0, 5381).toString(36);
-const saudiFlag =
-  '<svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></svg>';
+// One inline flag per switcher language. Inline SVG rather than the regional-
+// indicator emoji: Windows has no flag glyphs and renders those as bare letter
+// pairs ("SA", "FR"), which reads as broken next to the language name.
+// FLAG_BODY holds the artwork; langFlag() stamps a fresh clipPath id on every
+// call so the same flag can appear twice on a page (trigger + menu row)
+// without colliding.
+const FLAG_BODY = {
+  ar: '<rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/>',
+  en: '<rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/>',
+  fr: '<rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/>',
+  zh: '<rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g>',
+  es: '<rect width="24" height="16" fill="#AA151B"/><rect y="4" width="24" height="8" fill="#F1BF00"/>',
+  ru: '<rect width="24" height="16" fill="#fff"/><rect y="5.33" width="24" height="5.33" fill="#0039A6"/><rect y="10.66" width="24" height="5.34" fill="#D52B1E"/>',
+  hi: '<rect width="24" height="16" fill="#fff"/><rect width="24" height="5.33" fill="#FF9933"/><rect y="10.66" width="24" height="5.34" fill="#138808"/><circle cx="12" cy="8" r="2.1" fill="none" stroke="#000080" stroke-width=".7"/>',
+  ko: '<rect width="24" height="16" fill="#fff"/><path d="M12 4.6a3.4 3.4 0 010 6.8 3.4 3.4 0 000-6.8z" fill="#0047A0"/><path d="M12 4.6a3.4 3.4 0 000 6.8 3.4 3.4 0 010-6.8z" fill="#CD2E3A"/><g stroke="#000" stroke-width=".7"><path d="M3.4 4.2l2.2 1.5M3.4 5.4l2.2 1.5M18.4 10.3l2.2 1.5M18.4 11.5l2.2 1.5"/></g>',
+};
+let flagSeq = 0;
+function langFlag(l) {
+  const body = FLAG_BODY[l] || FLAG_BODY.ar;
+  const id = "flg" + ++flagSeq;
+  return `<svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="${id}"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#${id})">${body}</g></svg>`;
+}
 
 // Owner policy: no WhatsApp buttons in page content — only the floating
 // bottom WhatsApp button (waFab) stays. These helpers now route to booking a
@@ -421,9 +441,12 @@ const NAV_GROUPS = Array.isArray(navData.groups) ? navData.groups : [];
 // straight to the same path in that language with no existence check.
 const VISIBLE_LANGS = ["en", "ar", ...FULLY_READY_LANGS];
 function langMenu(path) {
-  const items = VISIBLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+  // Reset per page so the stamped ids stay short and the build is reproducible;
+  // langMenu is the only flag emitter and runs once per page.
+  flagSeq = 0;
+  const items = VISIBLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === LANG ? ' class="active"' : ""}>${langFlag(l)}<span>${LANG_NAMES[l]}</span></a>`).join("");
   return `<div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة">${saudiFlag}<span class="lang-label">${LANG_NAMES[LANG]}</span>${I.chevron}</button>
+    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة">${langFlag(LANG)}<span class="lang-label">${LANG_NAMES[LANG]}</span>${I.chevron}</button>
     <div class="nav-menu">${items}</div>
   </div>`;
 }
@@ -1512,7 +1535,7 @@ function buildDeals() {
     return `<article class="card deal-ticket mo-card" data-sector="${o.sector}">
       <span class="deal-badge offer">${sec.icon} ${L(sec.en, sec.ar)}</span>
       <h3>${L(o.titleEn, o.titleAr)}</h3>
-      <div class="deal-ticket-meta"><span>${I.pin} ${L(o.regEn, o.regAr)}</span><span>${esc(L(o.projEn, o.projAr))}</span></div>
+      <div class="deal-ticket-meta"><span>${I.pin} ${L(o.regEn, o.regAr)}</span><span>${L(o.projEn, o.projAr)}</span></div>
       <p class="text-soft">${L(o.sumEn, o.sumAr)}</p>
       <div class="deal-ticket-stat"><span>${L("Est. value", "القيمة التقديرية")}</span><b>${L(o.valEn, o.valAr)}</b></div>
       <div class="mo-tags" style="margin-top:10px;font-size:13px;color:#0B1B5A;font-weight:600">${L(o.tagsEn, o.tagsAr)}</div>
@@ -1638,7 +1661,7 @@ function buildOpportunities() {
     return `<article class="card deal-ticket mo-card" data-sector="${o.sector}">
       <span class="deal-badge offer">${sec.icon} ${L(sec.en, sec.ar)}</span>
       <h3>${L(o.titleEn, o.titleAr)}</h3>
-      <div class="deal-ticket-meta"><span>${I.pin} ${L(o.regEn, o.regAr)}</span><span>${esc(L(o.projEn, o.projAr))}</span></div>
+      <div class="deal-ticket-meta"><span>${I.pin} ${L(o.regEn, o.regAr)}</span><span>${L(o.projEn, o.projAr)}</span></div>
       <p class="text-soft">${L(o.sumEn, o.sumAr)}</p>
       <div class="deal-ticket-stat"><span>${L("Est. value", "القيمة التقديرية")}</span><b>${L(o.valEn, o.valAr)}</b></div>
       <div class="mo-tags" style="margin-top:10px;font-size:13px;color:#0B1B5A;font-weight:600">${L(o.tagsEn, o.tagsAr)}</div>
@@ -1678,7 +1701,7 @@ function buildPackages() {
     const monthly = t.amount != null && isMonthly(t);
     const name = L(t.nameEn || t.name || t.nameAr, t.nameAr);
     const feats = `<ul>${t.features.map((f, i) => `<li>${I.check}<span>${L((t.featuresEn && t.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>`;
-    const badgeAttr = t.highlight ? ` data-badge="${esc(L(t.badgeEn || "Most requested", t.badgeAr || "الأكثر طلباً"))}"` : "";
+    const badgeAttr = t.highlight ? ` data-badge="${L(t.badgeEn || "Most requested", t.badgeAr || "الأكثر طلباً")}"` : "";
     if (monthly) {
       const yearly = employerYearly(t.amount, yearlyDiscount);
       const nameAr = `${t.nameAr} — اشتراك شهري`;
@@ -4591,7 +4614,7 @@ function jobCardsHtml() {
         <h3>${L("General candidate pool", "قاعدة المرشحين العامة")}</h3>
         <p>${L("Not seeing the right role? Join the pool once and we'll match you with suitable employer requests.", "إذا لم تجد وظيفة مناسبة الآن، انضم للقاعدة ونطابقك مع طلبات أصحاب العمل.")}</p>
         <div class="emp-meta">${L("All fields · Saudi Arabia · Consent-based sharing", "كل المجالات · السعودية · مشاركة بموافقتك")}</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="${esc(L("General candidate pool", "قاعدة المرشحين العامة"))}">${L("Join pool", "انضم للقاعدة")}</a></div>
+        <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="${L("General candidate pool", "قاعدة المرشحين العامة")}">${L("Join pool", "انضم للقاعدة")}</a></div>
       </article>`;
   const wc = WORKSHOP_CAMPAIGN;
   const campaignBand = `<section class="section" id="workshop-campaign"><div class="container">
@@ -4613,7 +4636,7 @@ function jobCardsHtml() {
 function applicationExtraFieldsHtml() {
   return `
         <input id="c-job-id" name="jobId" type="hidden" value="candidate-pool">
-        <input id="c-job-title" name="jobTitle" type="hidden" value="${esc(L("General candidate pool", "قاعدة المرشحين العامة"))}">
+        <input id="c-job-title" name="jobTitle" type="hidden" value="${L("General candidate pool", "قاعدة المرشحين العامة")}">
         <div class="ats-selected-job" id="ats-selected-job">${L("Applying for", "التقديم على")}: <strong>${L("General candidate pool", "قاعدة المرشحين العامة")}</strong></div>`;
 }
 function applicationQuestionsHtml() {
@@ -4702,7 +4725,7 @@ function buildJobPage(job) {
   // schema.org JobPosting structured data → Google for Jobs indexes the page
   // automatically (free syndication). Built per-language from the same content.
   const ldDesc =
-    `<p>${esc(L(job.summary.en, job.summary.ar))}</p>` +
+    `<p>${L(job.summary.en, job.summary.ar)}</p>` +
     `<p><b>${L("Responsibilities", "المهام")}:</b></p><ul>${resp}</ul>` +
     `<p><b>${L("Requirements", "المتطلبات")}:</b></p><ul>${reqs}</ul>`;
   const jobTypeLower = String(job.type.en || "").toLowerCase();
@@ -4729,13 +4752,13 @@ function buildJobPage(job) {
   <section class="hero"><div class="container hero-inner" style="max-width:960px">
     <span class="eyebrow">${L("Open job", "وظيفة مفتوحة")}</span>
     <h1>${esc(title)}</h1>
-    <p class="lead">${esc(L(job.summary.en, job.summary.ar))}</p>
+    <p class="lead">${L(job.summary.en, job.summary.ar)}</p>
     <div class="talent-actions"><a class="btn btn-primary" href="#apply-form">${L("Apply now", "قدّم الآن")}</a><a class="btn btn-ghost" href="${backHref}">${L("Back to jobs", "العودة للوظائف")}</a></div>
   </div></section>
   <section class="section"><div class="container" style="max-width:900px">
     <div class="grid grid-3" style="margin-bottom:28px">
-      <div class="card"><h3>${L("Location", "الموقع")}</h3><p>${esc(L(job.location.en, job.location.ar))}</p></div>
-      <div class="card"><h3>${L("Type", "النوع")}</h3><p>${esc(L(job.type.en, job.type.ar))}</p></div>
+      <div class="card"><h3>${L("Location", "الموقع")}</h3><p>${L(job.location.en, job.location.ar)}</p></div>
+      <div class="card"><h3>${L("Type", "النوع")}</h3><p>${L(job.type.en, job.type.ar)}</p></div>
       ${thirdCard}
     </div>
     <h2>${L("What you will do", "المهام")}</h2>
