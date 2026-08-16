@@ -515,6 +515,10 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .lang-drop:hover, .lang-drop.active { background: #eceffa; color: var(--navy); }
 .lang-drop svg:first-child { width: 20px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 .lang-group .nav-menu { min-width: 140px; max-height: 320px; overflow-y: auto; }
+/* Each switcher row carries its own flag, so the name and flag need to sit on
+   one baseline and the flag must not shrink when the name wraps. */
+.lang-group .nav-menu a { display: flex; align-items: center; gap: 8px; }
+.lang-group .nav-menu a svg { width: 20px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 .icon-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px;
   border-radius: 12px; color: var(--navy); border: 1px solid var(--gray-line); background: var(--white); }
 .icon-btn:hover { background: var(--gray-bg); color: var(--navy); }
