@@ -72,7 +72,7 @@
         if (!d2 || !d2.ok || !d2.postings || !d2.postings.length) return;
         DATA.mockJobs = DATA.jobs;
         DATA.jobs = d2.postings.map(function (pp) {
-          return { id: pp.id, companyId: "real", title: pp.title, dept: pp.field || "عام", city: pp.city || "", country: "السعودية", branch: "", type: "دوام كامل", workMode: "حضوري", openings: 1, status: pp.status === "نشطة" ? "منشورة" : pp.status === "مغلقة" ? "مغلقة" : (pp.status || "منشورة"), postedAt: "", closesAt: "", hiringManager: "", salaryVisible: false, description: pp.description || "", skills: [], mustHave: [], languages: ["العربية"], real: true };
+          return { id: pp.id, companyId: "real", title: pp.title, dept: pp.field || "عام", city: pp.city || "", country: "السعودية", branch: "", type: "دوام كامل", workMode: "حضوري", openings: 1, status: pp.status === "نشطة" ? "منشورة" : pp.status === "مغلقة" ? "مغلقة" : (pp.status || "منشورة"), postedAt: "", closesAt: "", hiringManager: "", salaryVisible: false, description: pp.description || "", skills: [], mustHave: [], languages: ["العربية"], real: true, site: !!pp.site, liveUrl: pp.url || "" };
         });
         REAL_MODE = true;
       }).catch(function () {});
@@ -426,8 +426,13 @@
       return rows;
     }
     function menuHtml(j) {
-      var items = j.real
-        ? '<a href="/hr/employer/matching">المطابقة الذكية</a>' +
+      var items = j.site
+        ? '<a href="/hr/employer/applicants?job=' + j.id + '">عرض المتقدمين</a>' +
+          '<a href="' + (j.liveUrl || "/ar/careers") + '" target="_blank" rel="noopener">فتح الإعلان في الموقع</a>' +
+          '<a href="/hr/employer/matching">المطابقة الذكية</a>'
+        : j.real
+        ? '<a href="/hr/employer/applicants?job=' + j.id + '">عرض المتقدمين</a>' +
+          '<a href="/hr/employer/matching">المطابقة الذكية</a>' +
           '<a href="/hr/employer/jobs/new?id=' + j.id + '">تعديل</a>' +
           '<a href="/hr/employer/job?id=' + j.id + '">معاينة</a>' +
           '<button data-act="copy" data-id="' + j.id + '">نسخ الوظيفة</button>' +
@@ -454,7 +459,7 @@
       } else if (view === "table") {
         wrap.innerHTML = '<div class="hr-tbl-wrap"><table class="hr-tbl"><thead><tr><th>الوظيفة</th><th>الموقع</th><th>الدوام</th><th>الشواغر</th><th>المتقدمون</th><th>مؤهلون</th><th>مدير التوظيف</th><th>النشر</th><th>الانتهاء</th><th>الحالة</th><th></th></tr></thead><tbody>' +
           slice.map(function (j) {
-            return "<tr><td><a class='t-title' href='/hr/employer/job?id=" + j.id + "'>" + esc(j.title) + "</a><div class='t-sub'>" + esc(j.dept) + "</div></td><td>" + esc(j.branch || "") + " · " + esc(j.city) + "</td><td>" + esc(j.type) + "</td><td>" + j.openings + "</td><td><a class='hr-link' href='/hr/employer/applicants?job=" + j.id + "'>" + (j.real ? "—" : j.appsCount) + "</a></td><td>" + (j.real ? "—" : (j.qualifiedCount || 0)) + "</td><td>" + esc(j.hiringManager || "—") + "</td><td>" + fmtDate(j.postedAt) + "</td><td>" + fmtDate(j.closesAt) + "</td><td>" + jobStatusTag(j.status) + "</td><td>" + menuHtml(j) + "</td></tr>";
+            return "<tr><td><a class='t-title' href='/hr/employer/job?id=" + j.id + "'>" + esc(j.title) + "</a><div class='t-sub'>" + esc(j.dept) + "</div></td><td>" + esc(j.branch || "") + " · " + esc(j.city) + "</td><td>" + esc(j.type) + "</td><td>" + j.openings + "</td><td><a class='hr-link' href='/hr/employer/applicants?job=" + j.id + "'>" + j.appsCount + "</a></td><td>" + (j.real ? "—" : (j.qualifiedCount || 0)) + "</td><td>" + esc(j.hiringManager || "—") + "</td><td>" + fmtDate(j.postedAt) + "</td><td>" + fmtDate(j.closesAt) + "</td><td>" + jobStatusTag(j.status) + "</td><td>" + menuHtml(j) + "</td></tr>";
           }).join("") + "</tbody></table></div>";
       } else {
         wrap.innerHTML = '<div class="bd"><div class="hr-grid">' + slice.map(function (j) {

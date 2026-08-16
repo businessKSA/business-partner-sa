@@ -160,7 +160,7 @@ async function resolvePlan(code) {
   // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
   // all resolve the same way, matching how the front-end already normalizes
   // its own client-only demo trigger codes.
-  if (OWNER_CODE && code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, plan: "مؤسسية" };
+  if (OWNER_CODE && code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, plan: "مؤسسية", owner: true };
   if (CODES.some((c) => c.toLowerCase() === code.toLowerCase())) return { unlocked: true, plan: "" };
   try {
     const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
@@ -179,7 +179,10 @@ async function resolvePlan(code) {
       const row = (d.results || [])[0];
       if (row) {
         const p = row.properties && row.properties["الباقة"] && row.properties["الباقة"].select;
-        return { unlocked: true, plan: (p && p.name) || "" };
+        // The platform owner's account (matched by registered email) also owns
+        // the site's own vacancies — see the SITE_ROLES append in list-postings.
+        const email = (row.properties && row.properties["البريد"] && row.properties["البريد"].email) || "";
+        return { unlocked: true, plan: (p && p.name) || "", owner: email.toLowerCase() === OWNER_EMAIL };
       }
     } else {
       console.error("employer lookup error", r.status, (await r.text()).slice(0, 200));
@@ -188,13 +191,23 @@ async function resolvePlan(code) {
   return { unlocked: false, plan: "" };
 }
 
+const OWNER_EMAIL = (process.env.OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
+// Business Partner's own careers-page roles — static pages in the generator,
+// not JOBS_DB rows. Ids are the apply slugs the application stamp uses, so
+// applicant grouping lines up with these postings in the console.
+const SITE_ROLES = [
+  { id: "hr-operations-specialist", title: "أخصائي عمليات موارد بشرية وعلاقات حكومية", city: "الرياض", field: "موارد بشرية", description: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر.", status: "نشطة", site: true, url: "/ar/careers/hr-operations-specialist" },
+  { id: "recruitment-coordinator", title: "منسق توظيف", city: "الرياض", field: "موارد بشرية", description: "تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين.", status: "نشطة", site: true, url: "/ar/careers/recruitment-coordinator" },
+  { id: "candidate-pool", title: "قاعدة المرشحين العامة", city: "", field: "عام", description: "التسجيلات العامة في قاعدة المرشحين من الموقع — مرشحون بانتظار مطابقتهم مع وظيفة مناسبة.", status: "نشطة", site: true, url: "/ar/careers#open-jobs" },
+];
+
 // Job postings: an employer can open more than one, each with its own title/
 // city/description, and pull an AI-screened shortlist against the pool from
 // that description via /api/hire (task:"match") on the client side.
 async function handlePostings(req, res) {
   const b = await readBody(req);
   const code = String(b.code || "").trim();
-  const { unlocked } = await resolvePlan(code);
+  const { unlocked, owner } = await resolvePlan(code);
   if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
 
   if (b.action === "create-posting") {
@@ -276,6 +289,10 @@ async function handlePostings(req, res) {
         status: txt(p["الحالة"]),
       };
     });
+    // The platform owner's console also lists the site's own careers-page
+    // roles (static pages, not JOBS_DB rows) so every advert with applicants
+    // is visible in one place.
+    if (owner) postings.push(...SITE_ROLES);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, postings }));
   }
