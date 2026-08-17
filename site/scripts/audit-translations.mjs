@@ -60,6 +60,46 @@ for (const lang of LANGS) {
   }
 }
 
+
+// ---- Pair-structure checks -------------------------------------------------
+// The checks above verify each value in isolation. These verify that a value
+// actually belongs to its key: a batch of translations merged one index out of
+// step leaves every value plausible on its own but attached to the wrong
+// string, which is invisible to a "did every key get a value?" check. Compare
+// language-independent structure a correct translation must preserve.
+const EMO = /^[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}]/u;
+// Han, Hangul and Kana pack an English word into roughly one to two characters,
+// so they need their own size band — the Latin band would flag every correct
+// translation. Counted together because ja mixes kanji and kana.
+const COMPACT = /[一-鿿가-힯぀-ヿ]/g;
+// Chinese and Japanese use full-width punctuation; normalise before comparing.
+const NORM_TAIL = (s) => s.trim().replace(/[：？。…、，]/g, (c) => ({ "：": ":", "？": "?", "。": ".", "…": "…", "、": ",", "，": "," }[c]));
+for (const lang of LANGS) {
+  if (lang === "ar" || lang === "en") continue;
+  for (const [en, tr] of Object.entries(TRANSLATIONS[lang])) {
+    if (typeof tr !== "string" || !tr) continue;
+    const pair = (why, note) => add(lang, "pair:" + why, en, tr, note || "");
+    // a page title stays a page title
+    if (/— Business Partner$/.test(en) !== /— Business Partner$/.test(tr)) pair("brand-suffix");
+    // a leading emoji is part of the label and must carry over
+    const em = (s) => (EMO.test(s) ? [...s][0] : "");
+    if (em(en) !== em(tr)) pair("leading-emoji");
+    // trailing affordance punctuation marks the same kind of string
+    const tail = (s) => (NORM_TAIL(s).match(/[:…?›→←↗]$/) || [""])[0];
+    if (tail(en) !== tail(tr)) pair("trailing-punct");
+    // size mismatch is the off-by-one signature
+    const words = (en.match(/[A-Za-z][A-Za-z'-]*/g) || []).length;
+    const compact = (tr.match(COMPACT) || []).length;
+    if (compact && words >= 3) {
+      const r = compact / words;
+      if (r < 0.3 || r > 5) pair("size", "compact-chars/word=" + r.toFixed(2));
+    } else if (!compact && en.length > 12) {
+      const r = tr.length / en.length;
+      if (r < 0.45 || r > 2.6) pair("size", "len-ratio=" + r.toFixed(2));
+    }
+  }
+}
+
 console.log('LANGUAGES:', LANGS.map(l => l + '=' + Object.keys(TRANSLATIONS[l]).length).join('  '));
 const byKind = {};
 for (const p of problems) (byKind[p.lang+' / '+p.kind] ||= []).push(p);
