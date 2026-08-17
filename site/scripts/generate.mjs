@@ -1297,7 +1297,7 @@ function buildServiceDetail(s) {
     </aside>
   </div></div>`;
   const desc = sDesc(s).slice(0, 155);
-  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc: esc(desc), active: "/services", path: `/services/${s.slug}`, body });
+  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
 }
 
 function buildAiAgents() {
@@ -1709,7 +1709,7 @@ function buildPackages() {
       const priceLabelM = `${fmt(t.amount)} ${L("SAR / mo", "ريال / شهرياً")}`;
       const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
       return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
-        <div class="pk-name">${esc(name)}</div>
+        <div class="pk-name">${name}</div>
         ${SHOW_PRICES ? `<div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>` : ""}
         <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
         ${feats}
@@ -1724,11 +1724,11 @@ function buildPackages() {
       </div>`;
     }
     return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
-      <div class="pk-name">${esc(name)}</div>
-      ${SHOW_PRICES && t.price ? `<div class="pk-price">${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
+      <div class="pk-name">${name}</div>
+      ${SHOW_PRICES && t.price ? `<div class="pk-price">${L(localizeLabel(Lraw(t.priceEn || t.price, t.price)), localizeLabel(t.price))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
-      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
+      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: Lraw(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
       ${SHOW_PRICES && (t.surcharge || t.surchargeEn) ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
     </div>`;
   };
@@ -4169,7 +4169,7 @@ function employerPlanCards({ selectable, standalone }) {
       // registers directly against api/employer.js rather than routing
       // through the main site's cart+checkout flow.
       return `<div class="pkg emp-plan${t.popular ? " pop" : ""}">
-        ${badge}<div class="pk-name">${esc(name)}</div>
+        ${badge}<div class="pk-name">${name}</div>
         <div class="pk-price">${priceHtml(t)}</div>
         <ul>${list}</ul>
         <button type="button" class="pk-pick emp-plan-pick" data-plan-key="${esc(t.key)}">${L("Select this plan", "اختر هذه الباقة")}</button>
@@ -4182,7 +4182,7 @@ function employerPlanCards({ selectable, standalone }) {
       const priceLabelM = t.price != null ? `${fmt(t.price)} ${L("SAR / mo", "ريال / شهرياً")}` : "";
       const priceLabelY = yearly != null ? `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}` : "";
       return `<div class="pkg emp-plan${t.popular ? " pop" : ""}">
-        ${badge}<div class="pk-name">${esc(name)}</div>
+        ${badge}<div class="pk-name">${name}</div>
         <div class="pk-price">${priceHtml(t)}</div>
         <ul>${list}</ul>
         <button type="button" class="pk-pick add-cart emp-plan-btn"
@@ -4196,7 +4196,7 @@ function employerPlanCards({ selectable, standalone }) {
       </div>`;
     }
     return `<div class="pkg${t.popular ? " pop" : ""}">
-      ${badge}<div class="pk-name">${esc(name)}</div>
+      ${badge}<div class="pk-name">${name}</div>
       <div class="pk-price">${priceHtml(t)}</div>
       <ul>${list}</ul>
       <a class="btn ${t.popular ? "btn-primary" : "btn-ghost"}" href="${u("/employer-join")}?plan=${esc(t.key)}">${L("Subscribe", "اشترك")}</a>
@@ -4713,7 +4713,7 @@ function seekerFormHtml(f, fixedJob) {
 }
 function buildJobPage(job) {
   const f = site.careers.seeker.fields;
-  const title = L(job.title.en, job.title.ar);
+  const title = Lraw(job.title.en, job.title.ar);
   const resp = job.responsibilities[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${LANG === "ar" ? esc(r) : L(r, r)}</li>`).join("");
   const reqs = job.requirements[LANG === "ar" ? "ar" : "en"].map((r) => `<li>${LANG === "ar" ? esc(r) : L(r, r)}</li>`).join("");
   // Workshop-campaign roles (job.group set) navigate back to the campaign hub
