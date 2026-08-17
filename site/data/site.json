@@ -600,6 +600,163 @@
             "surchargeFreeCount": 10
           }
         ]
+      },
+      {
+        "key": "legal",
+        "ar": "الباقات القانونية",
+        "en": "Legal Packages",
+        "descAr": "باقات استشارات وخدمات قانونية سنوية لمنشأتك.",
+        "descEn": "Annual legal consultation and services packages for your establishment.",
+        "tiers": [
+          {
+            "key": "strategic",
+            "name": "Strategic",
+            "nameAr": "الباقة الاستراتيجية",
+            "nameEn": "Strategic Package",
+            "code": null,
+            "amount": 47200,
+            "price": "تبدأ من 47,200 ﷼ / سنويًا",
+            "priceEn": "Starting from 47,200 SAR / yearly",
+            "for": "للمنشآت الكبيرة ذات الاحتياج القانوني الموسّع",
+            "forEn": "For large establishments with extensive legal needs",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 800 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 50 موظفاً.",
+            "surchargeEn": "An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 25 سنويًا",
+              "صياغة ومراجعة عقود: 20 عقداً",
+              "مذكرات ولوائح قانونية: 15",
+              "خدمات ملكية فكرية: 4",
+              "تأسيس/تحويل/اندماج كيانات: 3 خدمات",
+              "حضور اجتماعات بمحامٍ: 4 اجتماعات",
+              "تمثيل قضائي: حتى 10 قضايا عمالية سنويًا",
+              "ورشة توعية قانونية للموظفين: مرة سنويًا",
+              "خصم على خدمات التوثيق: 25%"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 25 / year",
+              "Contract drafting & review: 20 contracts",
+              "Legal memos & pleadings: 15",
+              "IP services: 4",
+              "Entity formation/conversion/merger: 3 services",
+              "Meetings with a lawyer: 4 meetings",
+              "Litigation representation: up to 10 labor cases / year",
+              "Legal awareness workshop for employees: once a year",
+              "25% discount on notarization services"
+            ],
+            "surchargeAmount": 800,
+            "surchargeFreeCount": 50
+          },
+          {
+            "key": "comprehensive",
+            "name": "Comprehensive",
+            "nameAr": "الباقة الشاملة",
+            "nameEn": "Comprehensive Package",
+            "code": null,
+            "amount": 31200,
+            "price": "تبدأ من 31,200 ﷼ / سنويًا",
+            "priceEn": "Starting from 31,200 SAR / yearly",
+            "for": "للمنشآت المتوسطة والكبيرة",
+            "forEn": "For medium and large establishments",
+            "highlight": true,
+            "badgeAr": "موصى به",
+            "badgeEn": "Recommended",
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 800 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 50 موظفاً.",
+            "surchargeEn": "An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 15 سنويًا",
+              "صياغة ومراجعة عقود: 15 عقداً",
+              "مذكرات ولوائح قانونية: 10",
+              "خدمات ملكية فكرية: 4",
+              "تأسيس/تحويل كيانات: خدمتان",
+              "حضور اجتماعات بمحامٍ: اجتماعان",
+              "تمثيل قضائي: حتى 6 قضايا عمالية",
+              "خصم على خدمات التوثيق: 20%"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 15 / year",
+              "Contract drafting & review: 15 contracts",
+              "Legal memos & pleadings: 10",
+              "IP services: 4",
+              "Entity formation/conversion: 2 services",
+              "Meetings with a lawyer: 2 meetings",
+              "Litigation representation: up to 6 labor cases",
+              "20% discount on notarization services"
+            ],
+            "surchargeAmount": 800,
+            "surchargeFreeCount": 50
+          },
+          {
+            "key": "advanced",
+            "name": "Advanced",
+            "nameAr": "الباقة المتقدمة",
+            "nameEn": "Advanced Package",
+            "code": null,
+            "amount": 15920,
+            "price": "تبدأ من 15,920 ﷼ / سنويًا",
+            "priceEn": "Starting from 15,920 SAR / yearly",
+            "for": "للمنشآت المتوسطة",
+            "forEn": "For medium establishments",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 600 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 25 موظفاً.",
+            "surchargeEn": "An extra fee of 600 SAR per additional employee applies once headcount exceeds 25 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 8 سنويًا",
+              "صياغة ومراجعة عقود: 12 عقداً",
+              "خدمات ملكية فكرية: 2",
+              "تأسيس/تعديل كيان: خدمة واحدة",
+              "تمثيل قضائي: حتى 4 قضايا عمالية سنويًا",
+              "خصم على خدمات التوثيق: 15%"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 8 / year",
+              "Contract drafting & review: 12 contracts",
+              "IP services: 2",
+              "Entity formation/amendment: 1 service",
+              "Litigation representation: up to 4 labor cases / year",
+              "15% discount on notarization services"
+            ],
+            "surchargeAmount": 600,
+            "surchargeFreeCount": 25
+          },
+          {
+            "key": "basic-legal",
+            "name": "Basic",
+            "nameAr": "الباقة الأساسية",
+            "nameEn": "Basic Package",
+            "code": null,
+            "amount": 7920,
+            "price": "تبدأ من 7,920 ﷼ / سنويًا",
+            "priceEn": "Starting from 7,920 SAR / yearly",
+            "for": "للمنشآت الصغيرة",
+            "forEn": "For small establishments",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 400 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 10 موظفين.",
+            "surchargeEn": "An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 4 سنويًا",
+              "صياغة ومراجعة عقود: 6 عقود",
+              "تمثيل قضائي: حتى قضيتين عماليتين سنويًا",
+              "خصم على خدمات التوثيق: 10%"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 4 / year",
+              "Contract drafting & review: 6 contracts",
+              "Litigation representation: up to 2 labor cases / year",
+              "10% discount on notarization services"
+            ],
+            "surchargeAmount": 400,
+            "surchargeFreeCount": 10
+          }
+        ]
       }
     ]
   },

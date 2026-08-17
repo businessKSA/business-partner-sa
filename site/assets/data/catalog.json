@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-17T15:22:39.826Z",
+  "updatedAt": "2026-08-17T15:20:43.199Z",
   "currency": "SAR",
   "services": [
     {
@@ -1851,6 +1851,136 @@
         "Registration in GOSI, Qiwa, Mudad and Muqeem",
         "Municipal license issuance (if required)",
         "Legal consultation to choose the right entity type"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "legal",
+      "groupNameAr": "الباقات القانونية",
+      "groupNameEn": "Legal Packages",
+      "code": null,
+      "key": "strategic",
+      "nameAr": "الباقة الاستراتيجية",
+      "nameEn": "Strategic Package",
+      "amount": 47200,
+      "priceLabel": "Starting from 47,200 SAR / yearly",
+      "billingPeriod": "one_time",
+      "featuresAr": [
+        "استشارات هاتفية غير محدودة",
+        "استشارات مكتوبة: 25 سنويًا",
+        "صياغة ومراجعة عقود: 20 عقداً",
+        "مذكرات ولوائح قانونية: 15",
+        "خدمات ملكية فكرية: 4",
+        "تأسيس/تحويل/اندماج كيانات: 3 خدمات",
+        "حضور اجتماعات بمحامٍ: 4 اجتماعات",
+        "تمثيل قضائي: حتى 10 قضايا عمالية سنويًا",
+        "ورشة توعية قانونية للموظفين: مرة سنويًا",
+        "خصم على خدمات التوثيق: 25%"
+      ],
+      "featuresEn": [
+        "Unlimited phone consultations",
+        "Written consultations: 25 / year",
+        "Contract drafting & review: 20 contracts",
+        "Legal memos & pleadings: 15",
+        "IP services: 4",
+        "Entity formation/conversion/merger: 3 services",
+        "Meetings with a lawyer: 4 meetings",
+        "Litigation representation: up to 10 labor cases / year",
+        "Legal awareness workshop for employees: once a year",
+        "25% discount on notarization services"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "legal",
+      "groupNameAr": "الباقات القانونية",
+      "groupNameEn": "Legal Packages",
+      "code": null,
+      "key": "comprehensive",
+      "nameAr": "الباقة الشاملة",
+      "nameEn": "Comprehensive Package",
+      "amount": 31200,
+      "priceLabel": "Starting from 31,200 SAR / yearly",
+      "billingPeriod": "one_time",
+      "featuresAr": [
+        "استشارات هاتفية غير محدودة",
+        "استشارات مكتوبة: 15 سنويًا",
+        "صياغة ومراجعة عقود: 15 عقداً",
+        "مذكرات ولوائح قانونية: 10",
+        "خدمات ملكية فكرية: 4",
+        "تأسيس/تحويل كيانات: خدمتان",
+        "حضور اجتماعات بمحامٍ: اجتماعان",
+        "تمثيل قضائي: حتى 6 قضايا عمالية",
+        "خصم على خدمات التوثيق: 20%"
+      ],
+      "featuresEn": [
+        "Unlimited phone consultations",
+        "Written consultations: 15 / year",
+        "Contract drafting & review: 15 contracts",
+        "Legal memos & pleadings: 10",
+        "IP services: 4",
+        "Entity formation/conversion: 2 services",
+        "Meetings with a lawyer: 2 meetings",
+        "Litigation representation: up to 6 labor cases",
+        "20% discount on notarization services"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "legal",
+      "groupNameAr": "الباقات القانونية",
+      "groupNameEn": "Legal Packages",
+      "code": null,
+      "key": "advanced",
+      "nameAr": "الباقة المتقدمة",
+      "nameEn": "Advanced Package",
+      "amount": 15920,
+      "priceLabel": "Starting from 15,920 SAR / yearly",
+      "billingPeriod": "one_time",
+      "featuresAr": [
+        "استشارات هاتفية غير محدودة",
+        "استشارات مكتوبة: 8 سنويًا",
+        "صياغة ومراجعة عقود: 12 عقداً",
+        "خدمات ملكية فكرية: 2",
+        "تأسيس/تعديل كيان: خدمة واحدة",
+        "تمثيل قضائي: حتى 4 قضايا عمالية سنويًا",
+        "خصم على خدمات التوثيق: 15%"
+      ],
+      "featuresEn": [
+        "Unlimited phone consultations",
+        "Written consultations: 8 / year",
+        "Contract drafting & review: 12 contracts",
+        "IP services: 2",
+        "Entity formation/amendment: 1 service",
+        "Litigation representation: up to 4 labor cases / year",
+        "15% discount on notarization services"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "legal",
+      "groupNameAr": "الباقات القانونية",
+      "groupNameEn": "Legal Packages",
+      "code": null,
+      "key": "basic-legal",
+      "nameAr": "الباقة الأساسية",
+      "nameEn": "Basic Package",
+      "amount": 7920,
+      "priceLabel": "Starting from 7,920 SAR / yearly",
+      "billingPeriod": "one_time",
+      "featuresAr": [
+        "استشارات هاتفية غير محدودة",
+        "استشارات مكتوبة: 4 سنويًا",
+        "صياغة ومراجعة عقود: 6 عقود",
+        "تمثيل قضائي: حتى قضيتين عماليتين سنويًا",
+        "خصم على خدمات التوثيق: 10%"
+      ],
+      "featuresEn": [
+        "Unlimited phone consultations",
+        "Written consultations: 4 / year",
+        "Contract drafting & review: 6 contracts",
+        "Litigation representation: up to 2 labor cases / year",
+        "10% discount on notarization services"
       ],
       "url": "https://businesspartner.sa/packages"
     },
