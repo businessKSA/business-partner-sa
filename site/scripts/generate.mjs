@@ -395,7 +395,7 @@ function pathInLang(path, lang) {
 }
 function head(title, desc, path) {
   const canonical = path || "/";
-  const langsForPage = ["en", "ar", ...EXTRA_LANGS.filter((l) => langPathReady(l, canonical))];
+  const langsForPage = VISIBLE_LANGS.filter((l) => l === "en" || l === "ar" || langPathReady(l, canonical));
   const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}"${SHOW_PRICES ? "" : ' data-prices="off"'}>
@@ -9140,7 +9140,9 @@ const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-ma
   .concat([`/jobs/${WORKSHOP_CAMPAIGN.slug}`])
   .concat(WORKSHOP_JOBS.map((j) => `/jobs/${j.slug}`));
 const urls = paths
-  .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p].concat(EXTRA_LANG_PATHS.has(p) ? EXTRA_LANGS.map((l) => (p === "/" ? `/${l}/` : `/${l}${p}`)) : []))
+  .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p].concat(
+    FULLY_READY_LANGS.filter((l) => langPathReady(l, p)).map((l) => (p === "/" ? `/${l}/` : `/${l}${p}`)),
+  ))
   .map((p) => `  <url><loc>${base}${p}</loc></url>`)
   .join("\n");
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
