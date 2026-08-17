@@ -1159,6 +1159,34 @@
           '<div class="hd"><b>' + esc(t('catalogRow')) + '</b><span class="badge plain">' + esc(t('stBuy')) + '</span></div>' +
           '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">/ar/services</b></div>' +
           '<div class="acts"><a class="btn sm" href="/ar/services">' + esc(t('browseServices')) + '</a></div></div>';
+        // «الباقات والأسعار» — package prices are public (owner directive);
+        // pulled from catalog.json so they can never drift from the site pages.
+        if (!state.catalog){
+          if (!state.catalogLoading){
+            state.catalogLoading = true;
+            fetch('/assets/data/catalog.json')
+              .then(function(r){ return r.json(); })
+              .then(function(j){ state.catalog = j; renderServices(); })
+              .catch(function(){ state.catalogLoading = false; });
+          }
+        } else {
+          var enP = state.lang === 'en';
+          var pkgs = state.catalog.packages || [];
+          if (pkgs.length){
+            cards += '<div style="grid-column:1/-1;font-weight:800;color:var(--navy);font-size:12.5px;margin-top:6px">💼 ' + (enP ? 'Packages & prices' : 'الباقات والأسعار') + '</div>';
+          }
+          for (i = 0; i < pkgs.length; i++){
+            var pk = pkgs[i];
+            var pkName = enP ? (pk.nameEn || pk.nameAr) : (pk.nameAr || pk.nameEn);
+            var pkPrice = enP ? (pk.priceLabel || '') : (pk.priceLabelAr || pk.priceLabel || '');
+            var pkGroup = enP ? (pk.groupNameEn || '') : (pk.groupNameAr || '');
+            var pkHref = pk.group === 'revenue-os' ? '/revenue-os' : (enP ? '/packages' : '/ar/packages');
+            cards += '<div class="svc" data-srch>' +
+              '<div class="hd"><b>' + esc(pkName) + '</b><span class="badge plain">' + esc(pkGroup) + '</span></div>' +
+              '<div class="kv"><span>' + (enP ? 'Price' : 'السعر') + '</span><b>' + esc(pkPrice || (enP ? 'On request' : 'حسب الطلب')) + '</b></div>' +
+              '<div class="acts"><a class="btn sm" href="' + pkHref + '">' + (enP ? 'Subscribe' : 'اشترك من صفحة الباقات') + '</a></div></div>';
+          }
+        }
       }
       // «بواباتي» — every Business Partner portal is always reachable from
       // here, even before the first purchase (the four SSO portals open with

@@ -1192,6 +1192,10 @@ function buildServicesIndex() {
 // price display at once.
 const SHOW_PRICES = false;
 const SHOW_SERVICE_PRICES = SHOW_PRICES;
+// Owner's exception (2026-08-17): package prices ARE public — shown on the
+// packages page, in catalog.json, and in the client dashboard — while every
+// other price on the site stays hidden.
+const SHOW_PACKAGE_PRICES = true;
 
 function buildServiceCategory(cat) {
   const list = services.filter((s) => s.category === cat.key);
@@ -1710,7 +1714,7 @@ function buildPackages() {
       const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
       return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
         <div class="pk-name">${name}</div>
-        ${SHOW_PRICES ? `<div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>` : ""}
+        ${SHOW_PACKAGE_PRICES ? `<div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>` : ""}
         <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
         ${feats}
         <button type="button" class="btn ${t.highlight ? "btn-primary" : "btn-ghost"} add-cart emp-plan-btn" style="width:100%"
@@ -1725,11 +1729,11 @@ function buildPackages() {
     }
     return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
       <div class="pk-name">${name}</div>
-      ${SHOW_PRICES && t.price ? `<div class="pk-price">${L(localizeLabel(Lraw(t.priceEn || t.price, t.price)), localizeLabel(t.price))}</div>` : ""}
+      ${SHOW_PACKAGE_PRICES && t.price ? `<div class="pk-price">${L(localizeLabel(Lraw(t.priceEn || t.price, t.price)), localizeLabel(t.price))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: Lraw(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
-      ${SHOW_PRICES && (t.surcharge || t.surchargeEn) ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
+      ${SHOW_PACKAGE_PRICES && (t.surcharge || t.surchargeEn) ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
     </div>`;
   };
   const tabs = groups
@@ -1737,7 +1741,7 @@ function buildPackages() {
     .join("");
   const panels = groups
     .map((g, i) => {
-      const hasMonthly = SHOW_PRICES && yearlyDiscount > 0 && g.tiers.some(isMonthly);
+      const hasMonthly = SHOW_PACKAGE_PRICES && yearlyDiscount > 0 && g.tiers.some(isMonthly);
       const billingToggle = hasMonthly
         ? `<div class="emp-billing-toggle" role="tablist">
             <button type="button" class="emp-bill-btn active" data-bill="monthly">${L("Monthly", "شهري")}</button>
@@ -9188,6 +9192,7 @@ const catalogJson = {
         nameEn: t.nameEn || t.name,
         amount: t.amount != null ? t.amount : null,
         priceLabel: t.priceEn || t.price,
+        priceLabelAr: t.price || null,
         billingPeriod: t.price && /شهري|monthly/i.test(t.priceEn || t.price) ? "monthly" : "one_time",
         featuresAr: t.features,
         featuresEn: t.featuresEn,
