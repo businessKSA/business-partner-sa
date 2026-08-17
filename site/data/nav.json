@@ -181,6 +181,43 @@
           ]
         },
         {
+          "href": "/farina",
+          "en": "Catering & Hospitality",
+          "ar": "التموين والضيافة للشركات",
+          "sub": [
+            {
+              "href": "/farina",
+              "en": "Overview",
+              "ar": "نظرة عامة"
+            },
+            {
+              "href": "/farina#coffee-break",
+              "en": "Coffee Break",
+              "ar": "الكوفي بريك"
+            },
+            {
+              "href": "/farina#vip-coffee",
+              "en": "VIP Coffee Break",
+              "ar": "كوفي بريك VIP"
+            },
+            {
+              "href": "/farina#executive-lunch",
+              "en": "Executive Lunch",
+              "ar": "الغداء التنفيذي"
+            },
+            {
+              "href": "/farina#vip-hospitality",
+              "en": "VIP Hospitality",
+              "ar": "ضيافة كبار الشخصيات"
+            },
+            {
+              "href": "/farina#workforce",
+              "en": "Workforce Catering",
+              "ar": "إعاشة العمالة"
+            }
+          ]
+        },
+        {
           "href": "/worker-housing",
           "en": "Worker Housing ⚡",
           "ar": "تسكين العمالة ⚡",

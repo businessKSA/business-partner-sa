@@ -4959,7 +4959,7 @@ function buildWorkerHousing() {
     ["🏢", L("Ready licensed housing", "سكن جاهز ومرخّص"), L("Worker housing units compliant with MoMaH requirements, close to your project sites.", "وحدات سكن عمالة مطابقة لاشتراطات وزارة البلديات والإسكان، قريبة من مواقع مشاريعك.")],
     ["📋", L("Licensing & attestation", "الترخيص والتوثيق"), L("Balady collective-housing license, Ejar contract attestation, Civil Defense certificate, and Muqeem address updates.", "رخصة السكن الجماعي من بلدي، توثيق عقد الإيجار في إيجار، شهادة الدفاع المدني، وتحديث عناوين العمالة في مقيم."), "/services/bp-housing-01", L("Service details →", "تفاصيل الخدمة ←")],
     ["🛠️", L("Operations management", "إدارة وتشغيل السكن"), L("Housing supervisor, cleaning and maintenance, resident register, signage — everything inspection committees check.", "مشرف سكن، نظافة وصيانة دورية، سجل الساكنين، لوحات إرشادية، وكل متطلبات الجولات الرقابية.")],
-    ["🍽️", L("Catering & meals", "الإعاشة والتغذية"), L("Breakfast, lunch and dinner from a licensed SFDA-compliant kitchen, with a rotating 4-week menu — priced to your headcount.", "فطور وغداء وعشاء من مطبخ مرخّص ومطابق لاشتراطات SFDA، بقائمة متجددة بدورة 4 أسابيع — بسعر حسب عدد العمالة.")],
+    ["🍽️", L("Catering — via Farina", "الإعاشة والتغذية — عبر فارينا"), L("Breakfast, lunch and dinner from Farina's licensed SFDA-compliant kitchen, rotating 4-week menu — from 8 SAR / worker / day.", "فطور وغداء وعشاء من مطبخ فارينا المرخّص والمطابق لاشتراطات SFDA، بقائمة متجددة بدورة 4 أسابيع — من 8 ريال / عامل / يوم."), "/farina#workforce", L("Workforce catering from Farina →", "خدمة إعاشة العمالة من فارينا ←")],
     ["🚌", L("Worker transport", "نقل العمالة"), L("Daily transport between housing and work sites: licensed drivers, shift-based scheduling, one monthly contract.", "نقل يومي منظّم من السكن إلى مواقع العمل والعكس: سائقون مرخصون، جدولة حسب الورديات، وعقد شهري واحد."), "/services/bp-housing-02", L("Service details →", "تفاصيل الخدمة ←")],
     ["🔔", L("Compliance monitoring", "مراقبة امتثال وتنبيهات"), L("Always ready for the quarterly inspection rounds, with alerts before every license, contract or certificate expires.", "جاهزية دائمة للجولات الرقابية الربع سنوية، وتنبيهات قبل انتهاء الرخص والعقود والشهادات.")],
   ].map(([icon, title, desc, href, cta]) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${icon}</div><h3>${title}</h3><p>${desc}</p>${href ? `<a href="${u(href)}" style="display:inline-block;margin-top:10px;font-weight:600;color:var(--navy)">${cta}</a>` : ""}</div>`).join("");
@@ -5013,7 +5013,7 @@ function buildWorkerHousing() {
   <section class="section section--gray"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("One place", "في مكان واحد")}</span><h2>${L("Everything worker housing needs", "كل احتياجات تسكين العمالة")}</h2><p>${L("Pick what you need — housing, licensing, operations, catering, transport — and we execute.", "تختار اللي تحتاجه — سكن، ترخيص، تشغيل، إعاشة، نقل — واحنا نتولى التنفيذ.")}</p></div>
     <div class="grid grid-3">${services}</div>
-    <div class="cta-band" style="margin-top:34px"><h2>${L("Housing + Catering + Transport — one contract", "سكن + إعاشة + نقل — بعقد واحد")}</h2><p>${L("The full bundle: licensed housing, three daily meals from a licensed kitchen, and daily transport to your sites — one monthly invoice.", "الباقة الكاملة: سكن مرخّص، وثلاث وجبات يومياً من مطبخ مرخّص، ونقل يومي لمواقعك — بفاتورة شهرية واحدة.")}</p><a class="btn btn-white btn-lg" href="#wh-request">${L("Request the full bundle", "اطلب الباقة الكاملة")}</a></div>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Housing + Catering + Transport — one contract", "سكن + إعاشة + نقل — بعقد واحد")}</h2><p>${L("The full bundle: licensed housing, three daily meals from Farina's licensed kitchen, and daily transport to your sites — one monthly invoice.", "الباقة الكاملة: سكن مرخّص، وثلاث وجبات يومياً من مطبخ فارينا المرخّص، ونقل يومي لمواقعك — بفاتورة شهرية واحدة.")}</p><a class="btn btn-white btn-lg" href="#wh-request">${L("Request the full bundle", "اطلب الباقة الكاملة")}</a></div>
   </div></section>
 
   <section class="section" id="wh-fines"><div class="container">
@@ -9036,7 +9036,7 @@ function writeFullSite(pre) {
   write(`${pre}portal/candidates.html`, buildPortalCandidates());
   write(`${pre}workspaces.html`, buildWorkspaces());
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
-  // /farina (Farina catering vertical) removed at owner's request — buildFarina() kept as dead code, not generated or linked.
+  write(`${pre}farina.html`, buildFarina());
   write(`${pre}worker-housing.html`, buildWorkerHousing());
   write(`${pre}contact.html`, buildContact());
   write(`${pre}cart.html`, buildCart());
@@ -9132,7 +9132,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
