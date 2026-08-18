@@ -495,7 +495,8 @@
             toast("نُسخت الوظيفة كمسودة جديدة.");
             render();
           } else if (act === "share") {
-            var link = location.origin + "/ar/careers";
+            // Per-job apply link — /ar/careers?job=<id> preselects this posting.
+            var link = location.origin + "/ar/careers?job=" + encodeURIComponent(id);
             (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { toast("نُسخ رابط التقديم إلى الحافظة."); }, function () { toast(link); });
           } else if (act === "toggle") {
             HRStore.editJob(id, { status: j.status === "منشورة" ? "متوقفة" : "منشورة" });
