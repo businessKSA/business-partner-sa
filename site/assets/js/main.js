@@ -863,6 +863,24 @@ var BP = window.BP = window.BP || {};
             (teaser ? '<p>' + esc2(teaser) + '</p>' : '') +
             '<div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
         }).join("");
+        // Deep link support: /ar/careers?job=<posting id> (the link the
+        // employer console shares) preselects that posting in the form and
+        // brings its card into view, so an ad can point at one specific job
+        // instead of the whole board.
+        try {
+          var want = new URLSearchParams(location.search || "").get("job");
+          var hit = want && jobs.filter(function (j) { return j.id === want; })[0];
+          if (hit) {
+            setSelectedJob(hit.id, hit.title);
+            var lnk = grid.querySelector('a.ats-apply-link[data-job-id="' + hit.id + '"]');
+            var card = lnk && lnk.closest(".ats-job-card");
+            if (card) {
+              card.style.outline = "2px solid var(--brand)";
+              card.style.outlineOffset = "3px";
+              card.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }
+        } catch (e2) {}
       })
       .catch(function () { status.textContent = BP.t("Couldn't load employer jobs.", "تعذّر تحميل وظائف أصحاب العمل."); });
   }
