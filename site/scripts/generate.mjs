@@ -4783,6 +4783,41 @@ function buildJobPage(job) {
 // Campaign hub: all events-workshop roles grouped by department. Lives under
 // /jobs/ beside the single job pages; each card links to that role's own page
 // where the embedded application is scoped to the posting.
+// Per-advert page for postings created in the employer console. Those live
+// as Notion rows (not generator content), so one page template renders any of
+// them client-side from /api/candidates?posting=<id> — same layout and same
+// embedded, posting-scoped application form as the static job pages.
+function buildPostingPage() {
+  const f = site.careers.seeker.fields;
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:960px">
+    <span class="eyebrow">${L("Open job", "وظيفة مفتوحة")}</span>
+    <h1 id="jp-title">${L("Loading job…", "جارٍ تحميل الوظيفة…")}</h1>
+    <p class="lead" id="jp-company"></p>
+    <div class="talent-actions"><a class="btn btn-primary" href="#apply-form">${L("Apply now", "قدّم الآن")}</a><a class="btn btn-ghost" href="${u("/careers")}#client-jobs">${L("Back to jobs", "العودة للوظائف")}</a></div>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:900px">
+    <p class="emp-note" id="jp-status">${L("Loading…", "جارٍ التحميل…")}</p>
+    <div id="jp-body" hidden>
+      <div class="grid grid-3" style="margin-bottom:28px">
+        <div class="card"><h3>${L("Location", "الموقع")}</h3><p id="jp-city">—</p></div>
+        <div class="card"><h3>${L("Field", "المجال")}</h3><p id="jp-field">—</p></div>
+        <div class="card"><h3>${L("Pipeline", "المسار")}</h3><p>${L("New → Screening → Interview → Offer", "جديد ← فرز ← مقابلة ← عرض")}</p></div>
+      </div>
+      <h2>${L("About this role", "عن الوظيفة")}</h2>
+      <div id="jp-desc"></div>
+      <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS بيزنس بارتنر وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="#apply-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
+    </div>
+  </div></section>
+  <section class="section" style="padding-top:0"><div class="container">
+    <div style="max-width:640px;margin:0 auto" id="apply-form">
+      <h2 class="center">${L("Apply for this role", "قدّم على هذه الوظيفة")}</h2>
+      ${seekerFormHtml(f, { id: "candidate-pool", title: Lraw("General candidate pool", "قاعدة المرشحين العامة") })}
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Job posting — Business Partner", "إعلان وظيفي — بيزنس بارتنر"), desc: Lraw("Open job posted through the Business Partner platform — view the details and apply.", "وظيفة منشورة عبر منصة بيزنس بارتنر — اطّلع على التفاصيل وقدّم."), active: "/careers", path: "/job", body });
+}
+
 function buildWorkshopCampaign() {
   const wc = WORKSHOP_CAMPAIGN;
   const statsHtml = wc.stats.map((s) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(s.label.en, s.label.ar)}</div></div>`).join("");
@@ -9033,6 +9068,7 @@ function writeFullSite(pre) {
   write(`${pre}employer-join.html`, buildEmployerJoin());
   write(`${pre}employer-login.html`, buildEmployerLogin());
   write(`${pre}candidate-profile.html`, buildCandidateProfile());
+  write(`${pre}job.html`, buildPostingPage());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
   write(`${pre}portal/index.html`, buildPortalHome());
   write(`${pre}portal/join.html`, buildPortalJoin());

@@ -453,6 +453,42 @@ export default async function handler(req, res) {
     }
   }
 
+  // Single public job posting (?posting=<id>) for the per-advert page
+  // (/job?id=…). Public on purpose — a job advert is public content — but
+  // only active postings resolve, and only advert fields are returned (never
+  // the employer code or anything else on the row).
+  if (url0.searchParams.get("posting")) {
+    try {
+      const pid = url0.searchParams.get("posting").trim();
+      const r = await notionFetch(`pages/${pid}`, "GET");
+      if (r.status === 404) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const pg = await r.json();
+      const p = pg.properties || {};
+      const title = txt(p["العنوان الوظيفي"]);
+      const status = txt(p["الحالة"]);
+      if (!title || !p["رمز صاحب العمل"]) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=3600");
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        posting: {
+          id: pg.id, title, status,
+          company: txt(p["الشركة"]),
+          city: txt(p["المدينة"]),
+          field: txt(p["المجال"]),
+          description: txt(p["الوصف والمتطلبات"]),
+          postedAt: pg.created_time,
+          open: status !== "مغلقة",
+        },
+      }));
+    } catch (e) {
+      console.error("posting handler error", e);
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
   // Live pool count (?count=1) — Notion has no COUNT endpoint, so this pages
   // through the visible pool with title-only payloads (filter_properties keeps
   // each response tiny) under a time budget, handing back a cursor so the

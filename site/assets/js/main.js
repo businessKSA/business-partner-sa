@@ -867,7 +867,7 @@ var BP = window.BP = window.BP || {};
           var teaser = clipTeaser(j.description || "", 140);
           return '<article class="card ats-job-card"><span class="emp-tag">' + esc2(tag) + '</span><h3>' + esc2(j.title) + '</h3>' +
             (teaser ? '<p>' + esc2(teaser) + '</p>' : '') +
-            '<div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
+            '<div class="talent-actions"><a class="btn btn-primary btn-sm" href="' + jobPageHref(j.id) + '">' + BP.t("View job", "عرض الوظيفة") + '</a><a class="btn btn-ghost btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
         }).join(""));
         // Deep link support: /ar/careers?job=<posting id> (the link the
         // employer console shares) preselects that posting in the form and
@@ -890,6 +890,43 @@ var BP = window.BP = window.BP || {};
       })
       .catch(function () { status.textContent = BP.t("Couldn't load employer jobs.", "تعذّر تحميل وظائف أصحاب العمل."); });
   }
+  // Every console posting gets its own advert page (/job?id=…) instead of only
+  // a button that jumps to the shared application form.
+  function jobPageHref(id) {
+    return (BP.lang === "ar" ? "/ar/job?id=" : "/job?id=") + encodeURIComponent(id);
+  }
+  // Renders that advert page: one template filled from the posting API, with
+  // the embedded application scoped to this posting.
+  function loadPostingPage() {
+    var titleEl = document.getElementById("jp-title");
+    if (!titleEl) return;
+    var status = document.getElementById("jp-status");
+    var id = new URLSearchParams(location.search || "").get("id") || "";
+    if (!id) { status.textContent = BP.t("No job selected.", "لم تُحدَّد وظيفة."); return; }
+    fetch("/api/candidates?posting=" + encodeURIComponent(id))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var j = d && d.ok && d.posting;
+        if (!j) { status.textContent = BP.t("This job is no longer available.", "هذه الوظيفة لم تعد متاحة."); return; }
+        status.hidden = true;
+        document.getElementById("jp-body").hidden = false;
+        titleEl.textContent = j.title;
+        document.title = j.title + (BP.lang === "ar" ? " — بيزنس بارتنر" : " — Business Partner");
+        document.getElementById("jp-company").textContent = [j.company, j.city].filter(Boolean).join(" · ");
+        document.getElementById("jp-city").textContent = j.city || "—";
+        document.getElementById("jp-field").textContent = j.field || "—";
+        // Descriptions are plain text with blank-line paragraphs.
+        document.getElementById("jp-desc").innerHTML = String(j.description || "")
+          .split(/\n\s*\n/).filter(function (x) { return x.trim(); })
+          .map(function (para) { return "<p>" + esc2(para.trim()).replace(/\n/g, "<br>") + "</p>"; }).join("");
+        setSelectedJob(j.id, j.title);
+        if (!j.open) {
+          var box = document.getElementById("apply-form");
+          if (box) box.insertAdjacentHTML("afterbegin", '<p class="emp-note" style="text-align:center">' + BP.t("This posting is closed — you can still join the candidate pool.", "هذا الإعلان مغلق — تقدر تنضم لقاعدة المرشحين.") + "</p>");
+        }
+      })
+      .catch(function () { status.textContent = BP.t("Could not load this job.", "تعذّر تحميل الوظيفة."); });
+  }
   function esc2(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   // Collapse whitespace/bullets and cut to a short teaser at a word boundary so
   // long job descriptions don't overflow the client-job cards.
@@ -903,6 +940,7 @@ var BP = window.BP = window.BP || {};
   }
   document.addEventListener("DOMContentLoaded", function () {
     loadClientJobs();
+    loadPostingPage();
     var form = document.getElementById("cv-form");
     if (!form) return;
     try {
