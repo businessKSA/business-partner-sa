@@ -851,9 +851,15 @@ var BP = window.BP = window.BP || {};
     fetch("/api/candidates?openJobs=1").then(function (r) { return r.json(); })
       .then(function (d) {
         var jobs = (d && d.ok && d.jobs) || [];
-        if (!jobs.length) { status.textContent = BP.t("No employer-posted jobs right now — check back soon.", "لا توجد وظائف من أصحاب العمل حالياً — تابع لاحقاً."); return; }
+        // The grid is server-rendered with Business Partner's own vacancies —
+        // employer postings are added alongside them, never over them.
+        if (!jobs.length) {
+          if (grid.children.length) status.hidden = true;
+          else status.textContent = BP.t("No employer-posted jobs right now — check back soon.", "لا توجد وظائف من أصحاب العمل حالياً — تابع لاحقاً.");
+          return;
+        }
         status.hidden = true;
-        grid.innerHTML = jobs.map(function (j) {
+        grid.insertAdjacentHTML("afterbegin", jobs.map(function (j) {
           var tag = [j.company, j.city].filter(Boolean).join(" · ") || (j.field || "");
           // Show a short, tidy teaser on the card only — the full description
           // is intentionally kept out of the card so every card stays uniform;
@@ -862,7 +868,7 @@ var BP = window.BP = window.BP || {};
           return '<article class="card ats-job-card"><span class="emp-tag">' + esc2(tag) + '</span><h3>' + esc2(j.title) + '</h3>' +
             (teaser ? '<p>' + esc2(teaser) + '</p>' : '') +
             '<div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
-        }).join("");
+        }).join(""));
         // Deep link support: /ar/careers?job=<posting id> (the link the
         // employer console shares) preselects that posting in the form and
         // brings its card into view, so an ad can point at one specific job
