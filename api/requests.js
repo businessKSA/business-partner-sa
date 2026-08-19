@@ -18,7 +18,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers } from "./_suppliers.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient } from "./_daftra.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -1379,6 +1379,37 @@ export default async function handler(req, res) {
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 400) }));
+      }
+    }
+
+    // Reverse an invoice with a credit note, so the wrong one stops standing
+    // as a receivable and the corrected one can replace it cleanly.
+    if (b.action === "panel-daftra-credit-note") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      const invoiceId = String(b.invoiceId || "").trim();
+      if (!invoiceId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const note = await daftraCreateCreditNote(invoiceId, { reason: String(b.reason || "") });
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, note }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 400) }));
+      }
+    }
+
+    // Which document endpoints this account actually exposes. Daftra names the
+    // credit note differently between versions and documents none of them, so
+    // the account is asked instead of a name being assumed.
+    if (b.action === "panel-daftra-probe-endpoints") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      try {
+        const out = await daftraProbeEndpoints();
+        res.statusCode = 200;
+        return res.end(JSON.stringify(out));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
       }
     }
 

@@ -480,6 +480,8 @@
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
               <button class="btn" id="fxSaveClient">💾 صحّح سجل العميل</button>
               <button class="actbtn" id="fxSaveInv">🧾 حدّث الفاتورة نفسها</button>
+              <button class="actbtn" id="fxCredit" style="border-color:#fca5a5;color:#b91c1c">↩️ إشعار دائن (مرتجع كامل)</button>
+              <button class="actbtn" id="fxProbe">🔎 افحص نقاط الإشعار الدائن</button>
             </div>
             <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
           </div>
@@ -1089,6 +1091,42 @@
             '<br><b>معناها أنها مُرحّلة.</b> الحل: من الدفترة أصدر <b>إشعار دائن</b> بكامل قيمتها، ثم أصدر فاتورة جديدة من هنا — ستخرج باسم المنشأة لأن سجل العميل صُحّح.');
         });
     };
+    // Reversing the wrong invoice. Full value only: a partial credit against an
+    // invoice that was addressed to the wrong entity would leave part of it
+    // standing against that entity, which is the problem being undone.
+    $('fxCredit').onclick = function(){
+      if (!fxInvoice){ fxNote('err', 'ابحث عن الفاتورة أولاً.'); return; }
+      if (!confirm('إصدار إشعار دائن بكامل قيمة الفاتورة ' + fxInvoice.number + ' (' + (fxInvoice.total == null ? '—' : fxInvoice.total + ' ﷼') + ')؟\n\nهذا يعكسها في الدفاتر ولا يحذفها — وهو الإجراء النظامي الصحيح.')) return;
+      var btn = this; btn.disabled = true;
+      fxNote('', '⏳ جاري إصدار الإشعار الدائن…');
+      postPanel({ action:'panel-daftra-credit-note', invoiceId: fxInvoice.id, reason: 'الفاتورة صدرت باسم غير اسم المنشأة المسجّلة' })
+        .then(function(r){
+          btn.disabled = false;
+          if (r && r.ok && r.note){
+            fxNote('ok', '✅ صدر الإشعار الدائن <b>' + esc(r.note.number) + '</b> بقيمة <b>' + r.note.net + ' ﷼</b> على ' + r.note.lines + ' بند' +
+              ' — <a href="' + esc(r.note.url) + '" target="_blank" rel="noopener" style="font-weight:700">افتحه في الدفترة ←</a>' +
+              '<br>الآن أصدر الفاتورة الصحيحة من تبويب الطلبات — ستخرج باسم المنشأة.');
+            return;
+          }
+          var er = (r && r.error) || '';
+          fxNote('err', er === 'daftra_no_credit_endpoint'
+            ? 'ما لقيت نقطة إشعار دائن في هذا الحساب — أصدره من واجهة الدفترة مباشرة. واضغط «افحص نقاط الإشعار الدائن» وأرسل لي النتيجة لأضبطها.'
+            : 'تعذّر الإصدار: ' + esc(er) + ((r && r.detail) ? '<br>' + esc(r.detail) : ''));
+        });
+    };
+    $('fxProbe').onclick = function(){
+      var btn = this; btn.disabled = true;
+      fxNote('', '⏳ جاري فحص نقاط المستندات…');
+      postPanel({ action:'panel-daftra-probe-endpoints' }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ fxNote('err', 'تعذّر الفحص: ' + esc((r && r.error) || '؟')); return; }
+        fxNote('', (r.endpoints || []).map(function(e){
+          return '<span class="kv"><i>' + (e.ok ? '✅' : '❌') + ' ' + esc(e.path) + '</i>' +
+            esc(e.ok ? ((e.rows ? e.rows + ' صف · ' : 'موجودة · ') + (e.sample || []).join(', ').slice(0, 120)) : (e.error + (e.detail ? ' — ' + e.detail : ''))) + '</span>';
+        }).join('') + '<span class="kv" style="color:#0B1B5A">أرسل لي هذي القائمة لو ما نجح الإشعار الدائن.</span>');
+      });
+    };
+
     // The same reader the invoice form uses, so the certificate fills these too.
     $('fxDoc').onchange = function(){
       var file = this.files && this.files[0];
