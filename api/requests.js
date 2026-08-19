@@ -18,7 +18,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers } from "./_suppliers.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient } from "./_daftra.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -1307,6 +1307,78 @@ export default async function handler(req, res) {
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 300) }));
+      }
+    }
+
+    // Look an invoice up by the number printed on it, so a wrong one can be
+    // corrected without hunting for internal ids.
+    if (b.action === "panel-daftra-find-invoice") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      try {
+        const hit = await daftraFindInvoice(b.q);
+        if (!hit) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const r = hit.row || {};
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true,
+          invoice: {
+            id: hit.id,
+            number: String(r.no || r.invoice_number || r.number || hit.id),
+            date: r.date || "",
+            clientId: r.client_id || "",
+            clientName: r.client_business_name || r.client_name || "",
+            total: r.summary_total ?? r.total ?? null,
+            status: r.payment_status || r.status || "",
+            draft: r.draft === 1 || r.draft === "1" || r.draft === true,
+          },
+        }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 400) }));
+      }
+    }
+
+    // Correct a client's registered details in the books — the company name,
+    // VAT number, CR and national address the buyer actually trades under.
+    // This is the half that always works and always matters: every future
+    // invoice to that client comes out right, whatever happens to the old one.
+    if (b.action === "panel-daftra-fix-client") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      const clientId = String(b.clientId || "").trim();
+      const name = String(b.name || "").trim();
+      if (!clientId || !name) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const done = await daftraUpdateClient(clientId, {
+          name,
+          taxNumber: String(b.taxNumber || "").replace(/\D/g, ""),
+          address: (b.address && typeof b.address === "object") ? b.address : {},
+          city: String((b.address && b.address.city) || "").trim(),
+          email: String(b.email || "").trim(),
+          phone: String(b.phone || "").trim(),
+        }, { rename: true });
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, updated: done }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 400) }));
+      }
+    }
+
+    // Re-point an issued invoice at a client record. Daftra decides whether an
+    // invoice is still editable; when it refuses, its own reason is shown so
+    // the owner knows a credit note is what is left, rather than retrying.
+    if (b.action === "panel-daftra-fix-invoice") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      const invoiceId = String(b.invoiceId || "").trim();
+      const clientId = String(b.clientId || "").trim();
+      if (!invoiceId || !clientId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        await daftraSetInvoiceClient(invoiceId, clientId);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 400) }));
       }
     }
 

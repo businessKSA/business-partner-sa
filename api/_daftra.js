@@ -662,6 +662,47 @@ export async function daftraPdfProbe(kind = "invoice", id = null) {
   return { ok: true, id: target, results };
 }
 
+// ---- correcting what is already in the books --------------------------------
+
+// Find an invoice by the number printed on it, or by id. The number is what
+// the owner has in front of them; the id is internal and they never see it.
+export async function daftraFindInvoice(numberOrId) {
+  const q = String(numberOrId || "").trim();
+  if (!q) return null;
+  const bare = q.replace(/^#/, "");
+  // A pure number could be either, so the id is tried first and the number
+  // scan is the fallback — a wrong hit here would edit someone else's invoice.
+  if (/^\d+$/.test(bare)) {
+    try {
+      const one = await dq(`/invoices/${bare}.json`);
+      const row = pick(one, ["Invoice"]) || pick(one, ["data"]) || one;
+      if (row && row.id) return { id: row.id, row, raw: one };
+    } catch { /* not an id — fall through to the number scan */ }
+  }
+  const want = bare.toLowerCase();
+  for (let page = 1; page <= 10; page++) {
+    const data = await dq(`/invoices.json?limit=100&page=${page}`);
+    const list = pick(data, ["data", "Invoices", "invoices"]) || data;
+    const rows = unwrap(Array.isArray(list) ? list : [], "Invoice");
+    const hit = rows.find((i) => String(i.no || i.invoice_number || i.number || "").trim().toLowerCase() === want);
+    if (hit) {
+      const one = await dq(`/invoices/${hit.id}.json`).catch(() => null);
+      return { id: hit.id, row: (one && (pick(one, ["Invoice"]) || pick(one, ["data"]))) || hit, raw: one };
+    }
+    if (rows.length < 100) break;
+  }
+  return null;
+}
+
+// Point an invoice at a different client, or at the same client whose record
+// has just been corrected. Daftra refuses this once an invoice is submitted —
+// its reason is surfaced rather than swallowed, because the remedy then is a
+// credit note, which is a decision the owner makes, not one to make for them.
+export async function daftraSetInvoiceClient(invoiceId, clientId) {
+  await dq(`/invoices/${invoiceId}.json`, { method: "PUT", body: { Invoice: { client_id: clientId } } });
+  return true;
+}
+
 export async function daftraListInvoices(limit = 10) {
   const data = await dq(`/invoices.json?limit=${Math.min(Math.max(Number(limit) || 10, 1), 50)}`);
   const list = pick(data, ["data", "Invoices", "invoices"]) || data;
