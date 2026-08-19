@@ -229,9 +229,15 @@ export async function daftraCreateClient(who) {
 // so the second invoice to a returning customer is compliant even though the
 // first one was created before we asked for those details. Best-effort: a
 // failed update must not block the invoice.
-export async function daftraUpdateClient(id, who) {
+// rename: also correct the record's business name. Off by default — an
+// invoice issued to a person should never rewrite the name of a company
+// record that happens to share their email. It is turned on only for a
+// company invoice, where the buyer supplied the registered name themselves
+// and that name is precisely what belongs on the record.
+export async function daftraUpdateClient(id, who, { rename = false } = {}) {
   const { body } = clientBody(who);
-  for (const k of ["business_name", "first_name", "last_name", "notes"]) delete body[k];
+  for (const k of ["first_name", "last_name", "notes"]) delete body[k];
+  if (!rename || !body.business_name) delete body.business_name;
   if (!Object.keys(body).some((k) => body[k])) return false;
   try { await dq(`/clients/${id}.json`, { method: "PUT", body: { Client: body } }); return true; }
   catch (e) { console.error("daftra client update skipped", String(e.message || e).slice(0, 120)); return false; }
@@ -240,7 +246,9 @@ export async function daftraUpdateClient(id, who) {
 export async function daftraFindOrCreateClient(who) {
   const found = await daftraFindClient(who);
   if (found && found.id) {
-    if (who.taxNumber || nationalAddressLine(who.address)) await daftraUpdateClient(found.id, who);
+    if (who.taxNumber || nationalAddressLine(who.address)) {
+      await daftraUpdateClient(found.id, who, { rename: !!(who.taxNumber && who.name) });
+    }
     return { client: found, created: false };
   }
   const made = await daftraCreateClient(who);

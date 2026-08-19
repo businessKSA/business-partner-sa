@@ -190,6 +190,9 @@ async function listLeads(limit) {
     const taxKind = /نوع الفاتورة:\s*منشأة/.test(notes) ? "company" : (/نوع الفاتورة:\s*شخصي/.test(notes) ? "personal" : "");
     return {
       title, ref, at, stage, status, source,
+      // Whose name the invoice belongs in, when the buyer named an
+      // establishment but did not go through the tax-profile step.
+      company: field("المنشأة"),
       tax: taxKind ? {
         kind: taxKind,
         nameAr: field("اسم المنشأة"),
@@ -1377,7 +1380,13 @@ export default async function handler(req, res) {
         let client, created = false;
         if (pickedId) {
           client = { id: pickedId };
-          if (taxNumber || nationalAddressLine(address)) { try { await daftraUpdateClient(pickedId, who); } catch {} }
+          // A company invoice carries the registered name the buyer gave, so it
+          // corrects the record too — a client first created from a personal
+          // order keeps that person's name on every later company invoice
+          // otherwise, which is exactly the defect this fixes.
+          if (taxNumber || nationalAddressLine(address)) {
+            try { await daftraUpdateClient(pickedId, who, { rename: !!(taxNumber && who.name) }); } catch {}
+          }
         } else {
           ({ client, created } = await daftraFindOrCreateClient(who));
         }
@@ -1732,6 +1741,11 @@ export default async function handler(req, res) {
     const codesNote = pricedItems.length ? `<p style="color:#666;font-size:13px">أكواد الخدمات: ${esc(pricedItems.join(" · "))}</p>` : "";
     const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${mismatchNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
+    // The establishment the buyer typed at checkout. It was only ever used for
+    // the subscription approval emails, so an order placed for a company was
+    // invoiced under the individual's name — the buyer had already said whose
+    // name it should carry and nothing carried it forward.
+    const companyNotesText = company && company !== name ? ` · المنشأة: ${company}` : "";
     // Labelled so listLeads can parse it back and the /admin invoice form
     // prefills instead of the owner re-keying it off the notification email.
     const taxNotesText = taxIsCompany
@@ -1746,7 +1760,7 @@ export default async function handler(req, res) {
       // delivery issue (e.g. unverified sender domain), the order is still seen.
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml) : Promise.resolve({ ok: false }),
       isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${taxNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
