@@ -1530,3 +1530,15 @@ textarea.adv-in { resize: vertical; }
 .sup-tab.active { background: #fff; box-shadow: 0 1px 3px rgba(11, 27, 90, .12); }
 .sup-or { display: flex; align-items: center; gap: 10px; color: #8a90a6; font-size: .82rem; margin: 4px 0 14px; }
 .sup-or::before, .sup-or::after { content: ""; flex: 1; height: 1px; background: var(--gray-line); }
+
+/* Checkout: whose name the tax invoice is issued in. The choice drives whether
+   the buyer's VAT number and national address are required — a standard tax
+   invoice cannot be corrected after issuance, so the data is collected up front. */
+.tax-choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:6px 0 18px}
+.tax-opt{display:flex;align-items:flex-start;gap:10px;border:1.5px solid var(--line,#e5e9f0);border-radius:14px;padding:14px 16px;cursor:pointer;background:#fff;transition:border-color .15s,box-shadow .15s}
+.tax-opt:hover{border-color:var(--navy,#0B1B5A)}
+.tax-opt:has(input:checked){border-color:var(--navy,#0B1B5A);box-shadow:0 0 0 3px rgba(11,27,90,.08)}
+.tax-opt input{margin-top:3px;accent-color:var(--navy,#0B1B5A);flex:none}
+.tax-opt span{display:flex;flex-direction:column;gap:3px}
+.tax-opt strong{font-size:.95rem;color:var(--navy,#0B1B5A)}
+.tax-opt small{font-size:.8rem;color:var(--text-soft,#5a6478);line-height:1.6}

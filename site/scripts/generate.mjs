@@ -6142,6 +6142,37 @@ function buildCheckout() {
             <div class="field"><label for="co-email">${L("Email *", "البريد الإلكتروني *")}</label><input id="co-email" name="email" type="email" required></div>
             <div class="field"><label for="co-entity" id="co-entity-label">${L("Company / entity (optional)", "المنشأة (اختياري)")}</label><input id="co-entity" name="entity" type="text"></div>
           </div>
+          <h2>${L("Tax invoice details", "بيانات الفاتورة الضريبية")}</h2>
+          <p class="calc-note">${L("Choose whose name the tax invoice is issued in. A company invoice needs the buyer's VAT number and national address — without them the invoice is not ZATCA-compliant and cannot be corrected after issuance.", "اختر باسم مَن تُصدَر الفاتورة الضريبية. فاتورة المنشأة تتطلب الرقم الضريبي والعنوان الوطني — بدونهما لا تكون الفاتورة مطابقة لمتطلبات هيئة الزكاة والضريبة ولا يمكن تصحيحها بعد إصدارها.")}</p>
+          <div class="tax-choice">
+            <label class="tax-opt"><input type="radio" name="taxkind" value="personal" checked><span><strong>${L("Personal invoice", "فاتورة باسم شخصي")}</strong><small>${L("Simplified tax invoice in your own name.", "فاتورة ضريبية مبسّطة باسمك الشخصي.")}</small></span></label>
+            <label class="tax-opt"><input type="radio" name="taxkind" value="company"><span><strong>${L("Company invoice", "فاتورة باسم منشأة")}</strong><small>${L("Standard tax invoice you can claim VAT on.", "فاتورة ضريبية قياسية تُمكّنك من خصم ضريبة المدخلات.")}</small></span></label>
+          </div>
+          <div id="co-tax-company" class="field-group" hidden>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="co-tax-name">${L("Company name in Arabic (as registered)", "اسم الشركة بالعربي (كما في السجل)")} <span class="req-star">*</span></label><input id="co-tax-name" name="taxName" type="text"></div>
+              <div class="field"><label for="co-tax-vat">${L("VAT number (15 digits)", "الرقم الضريبي (١٥ رقماً)")} <span class="req-star">*</span></label><input id="co-tax-vat" name="taxVat" type="text" inputmode="numeric" maxlength="15" dir="ltr"></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="co-tax-cr">${L("Commercial Registration number", "رقم السجل التجاري")}</label><input id="co-tax-cr" name="taxCr" type="text" inputmode="numeric" dir="ltr"></div>
+              <div class="field"><label for="co-tax-contact">${L("Responsible person", "اسم الشخص المسؤول")} <span class="req-star">*</span></label><input id="co-tax-contact" name="taxContact" type="text"></div>
+            </div>
+            <div class="field"><label for="co-tax-mobile">${L("Responsible person's mobile", "جوال الشخص المسؤول")} <span class="req-star">*</span></label><input id="co-tax-mobile" name="taxMobile" type="tel" dir="ltr"></div>
+            <h3 style="margin:18px 0 8px;color:var(--navy);font-size:1rem">${L("National address", "العنوان الوطني")} <span class="req-star">*</span></h3>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="co-na-bno">${L("Building number", "رقم المبنى")}</label><input id="co-na-bno" type="text" inputmode="numeric" maxlength="4" dir="ltr"></div>
+              <div class="field"><label for="co-na-street">${L("Street", "اسم الشارع")}</label><input id="co-na-street" type="text"></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="co-na-district">${L("District", "الحي")}</label><input id="co-na-district" type="text"></div>
+              <div class="field"><label for="co-na-city">${L("City", "المدينة")}</label><input id="co-na-city" type="text"></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="co-na-post">${L("Postal code", "الرمز البريدي")}</label><input id="co-na-post" type="text" inputmode="numeric" maxlength="5" dir="ltr"></div>
+              <div class="field"><label for="co-na-add">${L("Additional number", "الرقم الإضافي")}</label><input id="co-na-add" type="text" inputmode="numeric" maxlength="4" dir="ltr"></div>
+            </div>
+          </div>
+
           <div id="pkg-details-box" class="field-group" hidden>
             <h2>${L("Establishment details", "بيانات المنشأة")}</h2>
             <div class="grid grid-2" style="gap:0 20px">

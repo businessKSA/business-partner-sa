@@ -1260,6 +1260,33 @@ var BP = window.BP = window.BP || {};
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("checkout-form");
     if (!form) return;
+    // Whose name the tax invoice is issued in. A standard (company) tax invoice
+    // carries the buyer's VAT number and national address and cannot be
+    // corrected after issuance, so those fields are required up front rather
+    // than chased afterwards.
+    (function () {
+      var box = document.getElementById("co-tax-company");
+      if (!box) return;
+      var radios = form.querySelectorAll('input[name="taxkind"]');
+      function sync() {
+        var company = false;
+        for (var i = 0; i < radios.length; i++) if (radios[i].checked && radios[i].value === "company") company = true;
+        box.hidden = !company;
+      }
+      for (var i = 0; i < radios.length; i++) radios[i].addEventListener("change", sync);
+      // Prefill from the last company checkout so a returning buyer types nothing.
+      try {
+        var bc = JSON.parse(localStorage.getItem("bp_company") || "{}");
+        var set = function (id, v) { var el = document.getElementById(id); if (el && v && !el.value) el.value = v; };
+        set("co-tax-name", bc.nameAr || bc.name); set("co-tax-vat", bc.vat); set("co-tax-cr", bc.cr);
+        set("co-tax-contact", bc.contact); set("co-tax-mobile", bc.contactPhone);
+        var a = bc.address || {};
+        set("co-na-bno", a.buildingNo); set("co-na-street", a.street); set("co-na-district", a.district);
+        set("co-na-city", a.city); set("co-na-post", a.postalCode); set("co-na-add", a.additionalNo);
+        if (bc.vat) { for (var j = 0; j < radios.length; j++) if (radios[j].value === "company") radios[j].checked = true; }
+      } catch (e) {}
+      sync();
+    })();
     // Registration is mandatory before checkout — no guest purchases. Bounce
     // straight to /account and bring the customer back here once signed in.
     var session = checkoutSession();
@@ -1352,6 +1379,31 @@ var BP = window.BP = window.BP || {};
       var headcount = headcountEl ? (parseInt(headcountEl.value, 10) || 0) : 0;
       var nationalAddress = document.getElementById("co-address") ? document.getElementById("co-address").value.trim() : "";
       if (pkgVisible && (!companyName || !crNumber)) { alert(BP.t("Please enter the company name and Commercial Registration number for your package subscription.", "الرجاء إدخال اسم الشركة ورقم السجل التجاري للاشتراك في الباقة.")); return; }
+      // Tax-invoice profile. Collected here because a standard tax invoice
+      // cannot be amended once issued — a missing VAT number or national
+      // address means a void-and-reissue, not an edit.
+      var val = function (id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; };
+      var taxKind = "personal";
+      var tkRadios = form.querySelectorAll('input[name="taxkind"]');
+      for (var tk = 0; tk < tkRadios.length; tk++) if (tkRadios[tk].checked) taxKind = tkRadios[tk].value;
+      var taxProfile = { kind: taxKind };
+      if (taxKind === "company") {
+        var vatNo = val("co-tax-vat").replace(/\D/g, "");
+        var addr = {
+          buildingNo: val("co-na-bno"), street: val("co-na-street"), district: val("co-na-district"),
+          city: val("co-na-city"), postalCode: val("co-na-post"), additionalNo: val("co-na-add")
+        };
+        if (!val("co-tax-name")) { alert(BP.t("Enter the company name in Arabic as registered.", "أدخل اسم الشركة بالعربي كما هو في السجل.")); return; }
+        if (vatNo.length !== 15) { alert(BP.t("The VAT number must be exactly 15 digits.", "الرقم الضريبي يجب أن يكون ١٥ رقماً بالضبط.")); return; }
+        if (!val("co-tax-contact") || !val("co-tax-mobile")) { alert(BP.t("Enter the responsible person's name and mobile.", "أدخل اسم الشخص المسؤول ورقم جواله.")); return; }
+        if (!addr.buildingNo || !addr.street || !addr.district || !addr.city || !addr.postalCode) {
+          alert(BP.t("Complete the national address: building number, street, district, city and postal code.", "أكمل العنوان الوطني: رقم المبنى، الشارع، الحي، المدينة، والرمز البريدي.")); return;
+        }
+        taxProfile = {
+          kind: "company", nameAr: val("co-tax-name"), vat: vatNo, cr: val("co-tax-cr"),
+          contact: val("co-tax-contact"), contactPhone: val("co-tax-mobile"), address: addr
+        };
+      }
       var termsBox = document.getElementById("co-terms");
       if (termsBox && !termsBox.checked) { alert(BP.t("Please agree to the Terms & Conditions to continue.", "الرجاء الموافقة على الشروط والأحكام للمتابعة.")); return; }
       var receipt = document.getElementById("co-receipt");
@@ -1387,10 +1439,16 @@ var BP = window.BP = window.BP || {};
         localStorage.setItem("bp_profile", JSON.stringify({ name: name, phone: phone }));
         var s3 = checkoutSession();
         if (s3 && !s3.name && name) { s3.name = name; localStorage.setItem("bp_session", JSON.stringify(s3)); }
-        if (companyName) {
+        if (companyName || taxProfile.kind === "company") {
           var bc = {}; try { bc = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e7) {}
           if (!bc.name) bc.name = companyName;
           if (!bc.cr && crNumber) bc.cr = crNumber;
+          if (taxProfile.kind === "company") {
+            bc.nameAr = taxProfile.nameAr; bc.vat = taxProfile.vat;
+            if (taxProfile.cr) bc.cr = taxProfile.cr;
+            bc.contact = taxProfile.contact; bc.contactPhone = taxProfile.contactPhone;
+            bc.address = taxProfile.address;
+          }
           localStorage.setItem("bp_company", JSON.stringify(bc));
         }
       } catch (e8) {}
@@ -1421,6 +1479,7 @@ var BP = window.BP = window.BP || {};
               employerPlan: employerPlanKey, employerBilling: employerBilling,
               company: companyName || companyProfile.name || "",
               cr: crNumber, headcount: pkgVisible ? headcount : "", nationalAddress: nationalAddress, surchargeFee: surchargeFee,
+              taxProfile: taxProfile,
               receiptName: receiptFile.name, receiptType: receiptFile.type || "", receiptBase64: receiptBase64 || ""
             })
           }).catch(function () {});

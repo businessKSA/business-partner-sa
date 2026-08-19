@@ -179,8 +179,25 @@ async function listLeads(limit) {
     const total = totalProp && typeof totalProp.number === "number" ? totalProp.number : null;
     const receiptFiles = (p["الإيصال البنكي"] && p["الإيصال البنكي"].files) || [];
     const detailsM = notes.match(/طلب\s*·\s*([^·]+)/);
+    // The buyer chose their invoice type at checkout; parse it back so the
+    // panel's invoice form is prefilled rather than re-keyed from the email.
+    // Anchored on the separator so «المسؤول» cannot match inside «جوال المسؤول».
+    const field = (label) => {
+      const m = notes.match(new RegExp(`(?:^|·)\\s*${label}:\\s*([^·\\n]+)`));
+      return m ? m[1].trim() : "";
+    };
+    const taxKind = /نوع الفاتورة:\s*منشأة/.test(notes) ? "company" : (/نوع الفاتورة:\s*شخصي/.test(notes) ? "personal" : "");
     return {
       title, ref, at, stage, status, source,
+      tax: taxKind ? {
+        kind: taxKind,
+        nameAr: field("اسم المنشأة"),
+        vat: field("الرقم الضريبي").replace(/\D/g, ""),
+        cr: field("س\\.ت الضريبي"),
+        contact: field("المسؤول"),
+        contactPhone: field("جوال المسؤول"),
+        addressLine: field("العنوان الوطني"),
+      } : null,
       phone: phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "",
       email: emailM ? emailM[1] : "",
       total,
@@ -1611,6 +1628,17 @@ export default async function handler(req, res) {
     const crNumber = String(b.cr || "").trim().slice(0, 40);
     const headcount = Number.isFinite(Number(b.headcount)) && b.headcount !== "" ? Number(b.headcount) : null;
     const nationalAddress = String(b.nationalAddress || "").trim().slice(0, 200);
+    // The buyer's tax-invoice profile, chosen at checkout. A standard tax
+    // invoice cannot be amended once issued, so this travels with the order
+    // and is written into the CRM row the invoice is later issued from.
+    const tp = (b.taxProfile && typeof b.taxProfile === "object") ? b.taxProfile : {};
+    const taxIsCompany = tp.kind === "company";
+    const taxVat = String(tp.vat || "").replace(/\D/g, "").slice(0, 15);
+    const taxNameAr = String(tp.nameAr || "").trim().slice(0, 200);
+    const taxContact = String(tp.contact || "").trim().slice(0, 120);
+    const taxContactPhone = String(tp.contactPhone || "").trim().slice(0, 40);
+    const taxAddr = (tp.address && typeof tp.address === "object") ? tp.address : {};
+    const taxAddrLine = nationalAddressLine(taxAddr);
     const surchargeFeeNum = Number(b.surchargeFee);
     const surchargeFee = Number.isFinite(surchargeFeeNum) ? surchargeFeeNum : 0;
     if (!name || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
@@ -1633,12 +1661,20 @@ export default async function handler(req, res) {
     const pkgFieldsNote = (crNumber || headcount != null || nationalAddress)
       ? `<p>بيانات المنشأة — السجل التجاري الموحد: <strong>${esc(crNumber || "—")}</strong> · عدد الموظفين: <strong>${headcount != null ? headcount : "—"}</strong> · العنوان الوطني: <strong>${esc(nationalAddress || "—")}</strong>${surchargeFee ? ` · رسوم موظفين إضافيين مضمّنة: <strong>${surchargeFee} ﷼</strong>` : ""}</p>`
       : "";
+    const taxNote = taxIsCompany
+      ? `<p style="background:#f1f5f9;padding:10px 12px;border-radius:8px">🧾 <strong>فاتورة باسم منشأة</strong> — الاسم: <strong>${esc(taxNameAr)}</strong> · الرقم الضريبي: <strong>${esc(taxVat)}</strong>${tp.cr ? ` · س.ت: <strong>${esc(String(tp.cr))}</strong>` : ""}<br>المسؤول: <strong>${esc(taxContact)}</strong> — ${esc(taxContactPhone)}<br>العنوان الوطني: <strong>${esc(taxAddrLine || "—")}</strong></p>`
+      : `<p style="background:#f1f5f9;padding:10px 12px;border-radius:8px">🧾 <strong>فاتورة باسم شخصي</strong> (مبسّطة) — لا يوجد رقم ضريبي للمشتري.</p>`;
     const mismatchNote = totalMismatch
       ? `<p style="color:#b91c1c">⚠️ إجمالي العميل (${clientTotal} ﷼) لا يطابق إعادة التسعير من الكتالوج (${serverTotal} ﷼) — راجع المبلغ قبل الاعتماد.</p>`
       : "";
     const codesNote = pricedItems.length ? `<p style="color:#666;font-size:13px">أكواد الخدمات: ${esc(pricedItems.join(" · "))}</p>` : "";
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${mismatchNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${mismatchNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
+    // Labelled so listLeads can parse it back and the /admin invoice form
+    // prefills instead of the owner re-keying it off the notification email.
+    const taxNotesText = taxIsCompany
+      ? ` · نوع الفاتورة: منشأة · اسم المنشأة: ${taxNameAr} · الرقم الضريبي: ${taxVat}${tp.cr ? ` · س.ت الضريبي: ${String(tp.cr).slice(0, 40)}` : ""} · المسؤول: ${taxContact} · جوال المسؤول: ${taxContactPhone}${taxAddrLine ? ` · العنوان الوطني: ${taxAddrLine}` : ""}`
+      : " · نوع الفاتورة: شخصي";
     // Immediate acknowledgment to the client — "we received your payment, we're verifying it".
     // The n8n verification agent later sends the "confirmed / activated" email once the receipt amount matches.
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلبك ودفعتك ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك وإيصال التحويل البنكي بنجاح. فريقنا ووكيل التحقق الآلي يراجعان الإيصال الآن، وبمجرد تأكيد مطابقة المبلغ ستصلك رسالة تأكيد التفعيل مباشرةً.</p><table>${row("رقم المرجع", ref) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>يمكنك متابعة حالة طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر · محفول مكفول</p></div>`;
@@ -1648,7 +1684,7 @@ export default async function handler(req, res) {
       // delivery issue (e.g. unverified sender domain), the order is still seen.
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml) : Promise.resolve({ ok: false }),
       isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${taxNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
