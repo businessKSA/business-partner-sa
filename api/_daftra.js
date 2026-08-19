@@ -600,14 +600,20 @@ export const daftraCreatePurchaseOrder = ({ supplierId, ...rest }) => createDoc(
  */
 function pdfCandidates(view, id) {
   const root = `https://${SUBDOMAIN}.daftra.com`;
+  const one = view.replace(/s$/, "");
   return [
     `${BASE}/${view}/${id}.pdf`,
     `${BASE}/${view}/${id}.json?format=pdf`,
     `${BASE}/${view}/pdf/${id}`,
     `${root}/${view}/pdf/${id}`,
+    `${root}/${view}/download_pdf/${id}`,
     `${root}/${view}/print/${id}?pdf=1`,
     `${root}/${view}/download/${id}`,
     `${root}/${view}/view/${id}?print=1&pdf=1`,
+    `${root}/${one}/pdf/${id}`,
+    `${root}/${one}/print/${id}?pdf=1`,
+    `${root}/owner/${view}/pdf/${id}`,
+    `${root}/owner/${view}/print/${id}?pdf=1`,
   ];
 }
 
@@ -666,6 +672,23 @@ export async function daftraPdfProbe(kind = "invoice", id = null) {
 
 // Find an invoice by the number printed on it, or by id. The number is what
 // the owner has in front of them; the id is internal and they never see it.
+// The email an invoice should be sent to lives on the client record, not on
+// the invoice, so it is fetched here — retyping it by hand is how a corrected
+// invoice ends up in the wrong inbox.
+async function invoiceContext(id, row, raw) {
+  const links = docLinks("invoices", id, raw || row);
+  let email = String(row.client_email || row.email || "").trim();
+  const clientId = row.client_id || "";
+  if (!email && clientId) {
+    try {
+      const one = await dq(`/clients/${clientId}.json`);
+      const c = pick(one, ["Client"]) || pick(one, ["data"]) || one || {};
+      email = String(c.email || c.email1 || c.business_email || "").trim();
+    } catch { /* no email on file — the owner types one */ }
+  }
+  return { links, email };
+}
+
 export async function daftraFindInvoice(numberOrId) {
   const q = String(numberOrId || "").trim();
   if (!q) return null;
@@ -676,7 +699,7 @@ export async function daftraFindInvoice(numberOrId) {
     try {
       const one = await dq(`/invoices/${bare}.json`);
       const row = pick(one, ["Invoice"]) || pick(one, ["data"]) || one;
-      if (row && row.id) return { id: row.id, row, raw: one };
+      if (row && row.id) return { id: row.id, row, raw: one, ...(await invoiceContext(row.id, row, one)) };
     } catch { /* not an id — fall through to the number scan */ }
   }
   const want = bare.toLowerCase();
@@ -687,7 +710,8 @@ export async function daftraFindInvoice(numberOrId) {
     const hit = rows.find((i) => String(i.no || i.invoice_number || i.number || "").trim().toLowerCase() === want);
     if (hit) {
       const one = await dq(`/invoices/${hit.id}.json`).catch(() => null);
-      return { id: hit.id, row: (one && (pick(one, ["Invoice"]) || pick(one, ["data"]))) || hit, raw: one };
+      const row = (one && (pick(one, ["Invoice"]) || pick(one, ["data"]))) || hit;
+      return { id: hit.id, row, raw: one, ...(await invoiceContext(hit.id, row, one)) };
     }
     if (rows.length < 100) break;
   }
