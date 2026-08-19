@@ -9299,7 +9299,11 @@ write("admin.html", buildAdmin());
 // buildAccount() output for en+ar; extra languages keep the legacy page until
 // the center is translated for them.
 function buildAccountCenter() {
-  return fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8');
+  // The client id is public by design (it identifies the app, not the user),
+  // but it still comes from the environment so a deployment without Google
+  // configured simply never renders the button.
+  return fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8')
+    .replace("</head>", `<script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script><script src="https://accounts.google.com/gsi/client" async defer></script></head>`);
 }
 write("account.html", buildAccountCenter());
 write("ar/account.html", buildAccountCenter());
