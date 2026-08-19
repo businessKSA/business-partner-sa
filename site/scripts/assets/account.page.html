@@ -222,6 +222,10 @@
       <div class="gboot" id="gBoot" data-t="checking">جارٍ التحقق من الجلسة…</div>
 
       <div class="gstep" id="gStep1">
+        <div id="gGoogleWrap" style="display:none;margin-bottom:14px">
+          <div id="gGoogle" style="display:flex;justify-content:center"></div>
+          <div class="gsub" style="margin:12px 0 2px" data-t="orDivider">أو بالبريد الإلكتروني</div>
+        </div>
         <label for="gEmail" data-t="emailLabel">البريد الإلكتروني</label>
         <input id="gEmail" type="email" class="ltr" autocomplete="email" placeholder="name@company.com" />
         <button class="gbtn" id="gSend" data-t="sendCode">أرسل رمز التحقق</button>
@@ -638,6 +642,7 @@
         noOrdersRow: 'لا توجد طلبات — أول طلب تشتريه من الموقع يظهر هنا، أو أضف رقم طلبك أعلاه.',
         phLine: 'يُفعّل ضمن المرحلة القادمة',
         phEnable: 'تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة',
+        orDivider: 'أو بالبريد الإلكتروني',
         apprSub: 'لا تنفيذ لأي إجراء حساس دون موافقتك المسجلة هنا.',
         apprPendingTitle: 'بانتظار قرارك', apprHistTitle: 'قرارات سابقة',
         apprNonePending: 'لا موافقات معلقة حالياً.', apprNoneHist: 'لا قرارات سابقة.',
@@ -742,6 +747,7 @@
         noOrdersRow: 'No orders yet — your first purchase will appear here, or add your order reference above.',
         phLine: 'Activates in the next phase',
         phEnable: 'Activates automatically after signing in with a full session',
+        orDivider: 'or with your email',
         apprSub: 'No sensitive action is executed without your recorded approval here.',
         apprPendingTitle: 'Awaiting your decision', apprHistTitle: 'Past decisions',
         apprNonePending: 'No pending approvals right now.', apprNoneHist: 'No past decisions.',
@@ -1452,6 +1458,47 @@
         gateErr(fromResend ? 2 : 1, t('errGeneric'));
       });
     }
+    // Google sign-in lands on the same session the emailed code produces, so
+    // it reuses the same post-sign-in path rather than a parallel one.
+    function enterAfterAuth(out, fallbackName){
+      if (out.db){
+        state.db = true; state.limited = false;
+        state.user = { name: (out.user && out.user.name) || fallbackName || '', email: out.email || state.email };
+        otp({ action: 'me' }).then(function(me){
+          if (me.ok && me.session){
+            state.user = { name: (me.session.user && me.session.user.full_name) || state.user.name, email: (me.session.user && me.session.user.email) || state.user.email };
+            state.org = me.session.organization || null;
+          }
+          enterApp();
+        }).catch(function(){ enterApp(); });
+      } else {
+        state.db = false; state.limited = true;
+        state.user = { name: fallbackName || '', email: out.email || state.email };
+        enterApp();
+      }
+    }
+    window.bpAccountGoogle = function(resp){
+      if (!resp || !resp.credential) return;
+      gateErr(1, '');
+      otp({ action: 'google', credential: resp.credential }).then(function(out){
+        if (out && out.ok){ state.email = out.email || state.email; enterAfterAuth(out, (out.user && out.user.name) || ''); }
+        else gateErr(1, t('errGeneric'));
+      }).catch(function(){ gateErr(1, t('errGeneric')); });
+    };
+    (function initGoogle(){
+      var box = document.getElementById('gGoogle');
+      if (!box || !window.BP_GOOGLE_CLIENT_ID) return;
+      var tries = 0;
+      var iv = setInterval(function(){
+        if (window.google && google.accounts && google.accounts.id){
+          clearInterval(iv);
+          google.accounts.id.initialize({ client_id: window.BP_GOOGLE_CLIENT_ID, callback: window.bpAccountGoogle });
+          google.accounts.id.renderButton(box, { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: document.documentElement.lang || 'ar' });
+          var w = document.getElementById('gGoogleWrap'); if (w) w.style.display = '';
+        } else if (++tries > 40) clearInterval(iv);
+      }, 150);
+    })();
+
     function verifyCode(){
       var code = $('gCode').value.trim();
       if (!/^\d{6}$/.test(code)){ gateErr(2, t('errWrongCode')); return; }

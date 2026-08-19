@@ -106,7 +106,7 @@ function checkSealed(email, code, token, exp) {
 // Verify a Google ID token against Google's published keys. Done by hand
 // because google-auth-library is not a dependency and this repo deliberately
 // adds none.
-async function verifyGoogleIdToken(idToken) {
+export async function verifyGoogleIdToken(idToken) {
   if (!GOOGLE_CLIENT_ID) return null;
   const parts = String(idToken || "").split(".");
   if (parts.length !== 3) return null;

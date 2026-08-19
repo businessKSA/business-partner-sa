@@ -12,6 +12,7 @@
 // Optional:
 //   OTP_DEV_ECHO=1   returns the code in the response (TESTING ONLY — never in production)
 import crypto from "node:crypto";
+import { verifyGoogleIdToken } from "./_suppliers.js";
 
 const SECRET = process.env.OTP_SECRET || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
@@ -235,6 +236,39 @@ export default async function handler(req, res) {
   }
 
   // 2) Verify: unseal challenge, compare code + expiry.
+  // Google sign-in reaches the same place the emailed code does: Google has
+  // already verified the address, so a checked ID token stands in for the
+  // round trip and mints exactly the same session. Nothing downstream can tell
+  // the two apart, which is the point — one account, two ways in.
+  if (action === "google") {
+    let g = null;
+    try { g = await verifyGoogleIdToken(String(body.credential || "")); }
+    catch (e) { console.error("otp google verify", String(e.message || e).slice(0, 160)); }
+    if (!g || !g.email) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_token" })); }
+    const email = String(g.email).trim().toLowerCase();
+    if (DB_ON) {
+      try {
+        const { raw, user, orgId } = await createSession(req, {
+          email,
+          name: String(g.name || body.name || "").slice(0, 120),
+          company: String(body.company || "").slice(0, 160),
+        });
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true, db: true, email,
+          user: { id: user.id, email: user.email, name: user.full_name || "" },
+          organizationId: orgId,
+        }));
+      } catch {
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+      }
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+  }
+
   if (action === "verify") {
     const code = String(body.code || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
