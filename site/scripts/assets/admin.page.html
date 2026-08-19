@@ -808,6 +808,10 @@
         f('البريد', l.email || '—', true) +
         f('الجوال', l.phone || '—', true) +
         f('مصدر الطلب', l.source || '—') +
+        (l.tax ? ('<div class="f"><b>نوع الفاتورة المطلوبة</b><span>' +
+          (l.tax.kind === 'company'
+            ? '🏢 باسم منشأة · ' + esc(l.tax.nameAr || '—') + (l.tax.vat ? ' · ض: ' + esc(l.tax.vat) : '')
+            : '👤 باسم شخصي (مبسّطة)') + '</span></div>') : '') +
         f('التاريخ', fmtDate(l.at) + (l.createdAt ? ' · وصل ' + fmtDate(l.createdAt) : ''));
       $('dBody').innerHTML = notesHtml(l.notes || l.details);
       var files = l.receipts || [];
@@ -1018,6 +1022,21 @@
       $('ivTax').value = ''; $('ivBno').value = ''; $('ivStreet').value = '';
       $('ivDist').value = ''; $('ivPost').value = ''; $('ivAddNo').value = '';
       $('ivAddrCity').value = '';
+      // The buyer already chose their invoice type and gave their tax details at
+      // checkout — reuse them instead of asking for the same data twice.
+      var tx = l && l.tax;
+      if (tx && tx.kind === 'company'){
+        if (tx.nameAr) $('ivName').value = tx.nameAr;
+        if (tx.vat) $('ivTax').value = tx.vat;
+        if (tx.contactPhone) $('ivPhone').value = tx.contactPhone;
+        var a = tx.addressLine || '';
+        var g = function(re){ var m = a.match(re); return m ? m[1].trim() : ''; };
+        $('ivBno').value = g(/مبنى\s*(\d+)/);
+        $('ivPost').value = g(/الرمز البريدي\s*(\d+)/);
+        $('ivAddNo').value = g(/الرقم الإضافي\s*(\d+)/);
+        var mid = a.replace(/مبنى\s*\d+،?\s*/, '').replace(/،?\s*الرمز البريدي\s*\d+/, '').replace(/،?\s*الرقم الإضافي\s*\d+/, '').split('،').map(function(x){ return x.trim(); }).filter(Boolean);
+        $('ivStreet').value = mid[0] || ''; $('ivDist').value = mid[1] || ''; $('ivAddrCity').value = mid[2] || '';
+      }
       $('ivWarn').style.display = 'none';
       ivSetDoc(kind || 'invoice');
       $('ivNotes').value = invRef ? ('مرجع الطلب: ' + invRef) : '';
