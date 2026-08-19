@@ -483,6 +483,19 @@
               <button class="actbtn" id="fxCredit" style="border-color:#fca5a5;color:#b91c1c">↩️ إشعار دائن (مرتجع كامل)</button>
               <button class="actbtn" id="fxProbe">🔎 افحص نقاط الإشعار الدائن</button>
             </div>
+            <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px">
+              <b style="font-size:13px;color:var(--navy)">📤 أرسل الفاتورة للعميل بمرفق PDF</b>
+              <p style="color:var(--soft);font-size:12.5px;line-height:1.8;margin:4px 0 8px">
+                أحاول جلب ملف الدفترة تلقائياً. وإن كان حسابك يقدّمه للمتصفح المسجّل فقط — وهذا ما لا يغني عنه أي مفتاح API —
+                نزّله من الدفترة وارفعه هنا، فيصل العميل المستند نفسه لا رابطاً قد يطلب منه تسجيل دخول.
+              </p>
+              <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center">
+                <input id="fxEmail" type="email" dir="ltr" placeholder="بريد العميل" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:13.5px" />
+                <label class="actbtn" for="fxPdf" id="fxPdfLbl" style="cursor:pointer">📎 اختر PDF</label>
+                <button class="btn" id="fxSend">📤 أرسل</button>
+              </div>
+              <input id="fxPdf" type="file" accept="application/pdf,.pdf" style="display:none" />
+            </div>
             <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
           </div>
         </div>
@@ -1058,6 +1071,7 @@
           '<span class="kv"><i>الإجمالي:</i>' + (fxInvoice.total == null ? '—' : esc(String(fxInvoice.total)) + ' ﷼') + '</span>' +
           '<span class="kv"><i>الحالة:</i>' + esc(fxInvoice.status || '—') + (fxInvoice.draft ? ' · مسودة (قابلة للتعديل)' : '') + '</span>';
         if (!$('fxName').value) $('fxName').value = fxInvoice.clientName || '';
+        if (!$('fxEmail').value) $('fxEmail').value = fxInvoice.email || '';
       });
     };
     $('fxSaveClient').onclick = function(){
@@ -1125,6 +1139,36 @@
             esc(e.ok ? ((e.rows ? e.rows + ' صف · ' : 'موجودة · ') + (e.sample || []).join(', ').slice(0, 120)) : (e.error + (e.detail ? ' — ' + e.detail : ''))) + '</span>';
         }).join('') + '<span class="kv" style="color:#0B1B5A">أرسل لي هذي القائمة لو ما نجح الإشعار الدائن.</span>');
       });
+    };
+
+    var fxPdfB64 = '';
+    $('fxPdf').onchange = function(){
+      var f = this.files && this.files[0];
+      if (!f) return;
+      if (f.size > 12 * 1024 * 1024){ fxNote('err', 'حجم الملف يجب أن يكون أقل من ١٢ ميجابايت.'); return; }
+      var fr = new FileReader();
+      fr.onload = function(){ fxPdfB64 = String(fr.result).split(',')[1] || ''; $('fxPdfLbl').textContent = '📎 ' + f.name; };
+      fr.readAsDataURL(f);
+    };
+    $('fxSend').onclick = function(){
+      var to = $('fxEmail').value.trim();
+      if (!to || to.indexOf('@') === -1){ fxNote('err', 'أدخل بريد العميل.'); return; }
+      var btn = this; btn.disabled = true;
+      fxNote('', '⏳ جاري الإرسال…');
+      postPanel({ action:'panel-send-invoice', email: to,
+                  invoiceId: fxInvoice && fxInvoice.id, number: (fxInvoice && fxInvoice.number) || '',
+                  total: fxInvoice && fxInvoice.total, url: (fxInvoice && fxInvoice.url) || '',
+                  fileBase64: fxPdfB64 })
+        .then(function(r){
+          btn.disabled = false;
+          if (r && r.ok){
+            fxNote(r.attached ? 'ok' : 'warn', r.attached
+              ? ('✅ أُرسلت للعميل مع مرفق PDF' + (r.source === 'daftra' ? ' (جُلب من الدفترة تلقائياً)' : ' (الملف الذي رفعته)') + '.')
+              : '⚠️ أُرسلت بلا مرفق — ما قدرت أجلب الملف من الدفترة ولا رفعت واحداً. نزّل الفاتورة من الدفترة وارفعها هنا وأعد الإرسال.');
+          } else {
+            fxNote('err', 'تعذّر الإرسال: ' + esc((r && r.error) || '؟'));
+          }
+        });
     };
 
     // The same reader the invoice form uses, so the certificate fills these too.

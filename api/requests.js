@@ -1330,6 +1330,8 @@ export default async function handler(req, res) {
             total: r.summary_total ?? r.total ?? null,
             status: r.payment_status || r.status || "",
             draft: r.draft === 1 || r.draft === "1" || r.draft === true,
+            email: hit.email || "",
+            url: (hit.links && (hit.links.publicUrl || hit.links.url)) || "",
           },
         }));
       } catch (e) {
@@ -1380,6 +1382,37 @@ export default async function handler(req, res) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 400) }));
       }
+    }
+
+    // Send an invoice to the client with the PDF attached. Daftra's own file
+    // is preferred and fetched automatically; when the account serves it to a
+    // logged-in browser only — which no API key can stand in for — the owner
+    // attaches the file they already have and the client still receives the
+    // document rather than a link they may have to sign in to open.
+    if (b.action === "panel-send-invoice") {
+      const to = String(b.email || "").trim();
+      if (!isEmail(to)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_email" })); }
+      const number = String(b.number || "").trim() || "—";
+      const total = b.total == null ? null : Number(b.total);
+      const link = String(b.url || "").trim();
+      let pdf = String(b.fileBase64 || "");
+      let source = pdf ? "uploaded" : "";
+      if (!pdf && b.invoiceId && daftraConfigured()) {
+        try {
+          const got = await daftraDocPdf("invoice", String(b.invoiceId));
+          if (got) { pdf = got.base64; source = "daftra"; }
+        } catch { /* fall through to the link */ }
+      }
+      if (Buffer.byteLength(pdf || "", "base64") > 12 * 1024 * 1024) { res.statusCode = 413; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
+      const html = `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right"><h2 style="color:#0B1B5A">فاتورتك من بيزنس بارتنر</h2>
+        <p>رقم الفاتورة: <b>${esc(number)}</b>${total != null && Number.isFinite(total) ? ` · الإجمالي: <b>${total} ﷼</b>` : ""}</p>
+        ${pdf ? "<p>نسخة الفاتورة الضريبية بصيغة PDF مرفقة مع هذه الرسالة.</p>" : (link ? `<p><a href="${esc(link)}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح الفاتورة</a></p>` : "")}
+        <p style="color:#475569">للتحويل البنكي: ${esc(SS_BANK.beneficiary)} — ${esc(SS_BANK.bank)} — <span style="direction:ltr;display:inline-block">${esc(SS_BANK.iban)}</span></p>
+        <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`;
+      const sent = await sendEmail(to, `فاتورة ${number} — بيزنس بارتنر`, html,
+        pdf ? [{ filename: `TAX_Invoice-${number.replace(/[^\w-]/g, "")}.pdf`, content: pdf }] : undefined);
+      res.statusCode = (sent && sent.ok) ? 200 : 502;
+      return res.end(JSON.stringify({ ok: !!(sent && sent.ok), attached: !!pdf, source, error: (sent && sent.error) || undefined }));
     }
 
     // Reverse an invoice with a credit note, so the wrong one stops standing
