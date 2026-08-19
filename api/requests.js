@@ -17,7 +17,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers } from "./_suppliers.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf } from "./_daftra.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -1283,6 +1283,35 @@ export default async function handler(req, res) {
       }
     }
 
+    // The account's client list for the panel's picker: issuing against an id
+    // the owner picked is what stops a duplicate record being created for a
+    // customer already in the books.
+    if (b.action === "panel-daftra-clients") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      try {
+        const clients = await daftraListClients(500);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, clients }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 300) }));
+      }
+    }
+
+    // Which PDF route this account answers, with each candidate's status and
+    // content type — the API documents none, so this reports evidence.
+    if (b.action === "panel-daftra-pdf-probe") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      try {
+        const out = await daftraPdfProbe("invoice", b.id || null);
+        res.statusCode = out.ok ? 200 : 502;
+        return res.end(JSON.stringify(out));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
     // Mirror the published service catalogue into Daftra's product list, one
     // slice per call — 116 services is well past what a single invocation can
     // do inside its time limit, so the panel walks the offsets.
@@ -1324,14 +1353,25 @@ export default async function handler(req, res) {
       if (!email && !String(b.phone || "").trim()) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_contact" })); }
       const ref = String(b.ref || "").trim();
       try {
+        const pickedId = String(b.daftraClientId || "").trim();
         const address = (b.address && typeof b.address === "object") ? b.address : {};
         const taxNumber = String(b.taxNumber || "").replace(/\D/g, "");
-        const { client, created } = await daftraFindOrCreateClient({
+        const who = {
           name: String(b.clientName || "").trim(),
           email, phone: String(b.phone || "").trim(), city: String(b.city || address.city || "").trim(),
           taxNumber, address,
           notes: ref ? `طلب ${ref} — من موقع بيزنس بارتنر` : "من موقع بيزنس بارتنر",
-        });
+        };
+        // An explicitly picked client is used as-is — no lookup, no creation.
+        // Matching on email or phone is a heuristic, and a heuristic that
+        // guesses wrong either duplicates a customer or invoices the wrong one.
+        let client, created = false;
+        if (pickedId) {
+          client = { id: pickedId };
+          if (taxNumber || nationalAddressLine(address)) { try { await daftraUpdateClient(pickedId, who); } catch {} }
+        } else {
+          ({ client, created } = await daftraFindOrCreateClient(who));
+        }
         const clientId = client.id || client.client_id;
         // Repeat the buyer's tax details in the invoice notes as well. They
         // belong on the client record and Daftra prints them from there, but a

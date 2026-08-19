@@ -140,6 +140,16 @@
     .ichk{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--soft);margin-top:9px;cursor:pointer}
     .ichk input{width:auto;margin:0}
     .inv .mmsg{max-height:150px;overflow-y:auto;line-height:1.9;word-break:break-word}
+    .cpick{position:relative;margin-bottom:4px}
+    .cpick .hits{position:absolute;z-index:5;inset-inline:0;top:100%;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(8,19,69,.14);max-height:230px;overflow-y:auto;display:none}
+    .cpick .hits.on{display:block}
+    .cpick .hit{padding:9px 12px;border-bottom:1px solid #f2f4f8;cursor:pointer;font-size:13px;line-height:1.6}
+    .cpick .hit:last-child{border-bottom:0}
+    .cpick .hit:hover{background:var(--bg)}
+    .cpick .hit b{color:var(--navy)}
+    .cpick .hit span{display:block;font-size:11.5px;color:var(--soft);direction:ltr;text-align:right}
+    .cpicked{display:flex;align-items:center;gap:8px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;border-radius:11px;padding:8px 12px;font-size:12.5px;font-weight:700;margin-bottom:6px}
+    .cpicked button{margin-inline-start:auto;border:0;background:none;color:#065f46;cursor:pointer;font-size:14px}
     .iwarn{margin-top:8px;font-size:12.5px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px 11px;line-height:1.8;display:none}
     .when{color:var(--muted);font-size:12px;white-space:nowrap;direction:ltr;text-align:right}
     .status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
@@ -399,6 +409,8 @@
           <button class="actbtn" id="dfPing">🔌 اختبر الاتصال بالدفترة</button>
           <button class="actbtn" id="dfInspect">🔬 اقرأ بنية فاتورة موجودة</button>
           <button class="actbtn" id="dfSync">📦 صدّر كل الخدمات إلى الدفترة</button>
+          <button class="actbtn" id="dfClients">👥 اعرض عملاء الدفترة</button>
+          <button class="actbtn" id="dfPdf">📄 افحص مسار ملف PDF</button>
           <div id="dfSyncBar" style="display:none;margin-top:10px">
             <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden"><div id="dfSyncFill" style="height:100%;width:0;background:var(--navy);transition:width .25s"></div></div>
             <div id="dfSyncMsg" style="font-size:12.5px;color:var(--soft);margin-top:6px"></div>
@@ -451,6 +463,13 @@
         <button class="sup-tab" id="ivTabEst" type="button">📄 عرض سعر</button>
       </div>
       <div class="mnote" id="ivIntro">تُنشأ الفاتورة في حسابك على الدفترة باسم العميل (يُستخدم سجله الحالي إن كان مسجّلاً) وتُحتسب ضريبة القيمة المضافة على كل بند — فتظهر في دفاترك وفي فوترة ZATCA، لا مجرد رسالة بريد.</div>
+      <label>العميل في الدفترة</label>
+      <div class="cpicked" id="ivPickedBox" style="display:none">✅ <span id="ivPickedName"></span><button type="button" id="ivUnpick" title="إلغاء الاختيار">✕ غيّر</button></div>
+      <div class="cpick" id="ivPickWrap">
+        <input id="ivPick" type="search" placeholder="🔍 ابحث في عملاء الدفترة بالاسم أو البريد أو الجوال — أو اتركه لإنشاء عميل جديد" autocomplete="off" />
+        <div class="hits" id="ivHits"></div>
+      </div>
+      <div class="mnote" style="margin-bottom:0">اختيار عميل موجود يمنع تكرار سجله في دفاترك. اتركه فارغاً وسيُبحث عنه بالبريد أو الجوال، ويُنشأ سجل جديد إن لم يوجد.</div>
       <label>اسم العميل / المنشأة</label>
       <input id="ivName" type="text" placeholder="كما تريده أن يظهر في الفاتورة" />
       <div class="row2">
@@ -934,6 +953,118 @@
       catch(e){ this.textContent = 'حدّد النص وانسخه يدوياً'; }
     };
 
+    // The account's customers, in the site. Seeing them here is what tells the
+    // owner a client already exists before an invoice creates a second record.
+    $('dfClients').onclick = function(){
+      var out = $('dfOut'), btn = this;
+      out.style.display = 'block'; out.innerHTML = '⏳ جاري قراءة عملاء الدفترة…';
+      $('dfRaw').style.display = 'none'; $('dfCopy').style.display = 'none';
+      btn.disabled = true;
+      DF_CLIENTS = null;
+      loadDaftraClients().then(function(list){
+        btn.disabled = false;
+        if (!list.length){ out.innerHTML = '<span style="color:#b91c1c">ما رجع أي عميل — تأكد من الاتصال بالدفترة.</span>'; return; }
+        var withTax = 0;
+        for (var i = 0; i < list.length; i++) if (list[i].taxNumber) withTax++;
+        out.innerHTML = '<span class="kv" style="color:#14532d"><i>✅ ' + list.length + ' عميل في الدفترة</i>' +
+            withTax + ' منهم لديه رقم ضريبي · ' + (list.length - withTax) + ' بدون</span>' +
+          list.slice(0, 60).map(function(c){
+            return '<span class="kv"><i>' + esc(c.name || '—') + '</i>' +
+              esc([c.email, c.phone, c.taxNumber ? 'ض:' + c.taxNumber : '', c.city].filter(Boolean).join(' · ') || '—') + '</span>';
+          }).join('') +
+          (list.length > 60 ? '<span class="kv" style="color:#94a3b8">…و' + (list.length - 60) + ' غيرهم. ابحث عنهم من داخل نافذة الفاتورة.</span>' : '');
+      });
+    };
+
+    // Which PDF route this account answers — the API documents none, so the
+    // candidates are probed and reported instead of guessed at.
+    $('dfPdf').onclick = function(){
+      var out = $('dfOut'), btn = this;
+      out.style.display = 'block'; out.innerHTML = '⏳ جاري فحص مسارات ملف PDF…';
+      btn.disabled = true;
+      postPanel({ action:'panel-daftra-pdf-probe' }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){
+          out.innerHTML = '<span style="color:#b91c1c">❌ ' + esc((r && r.error) === 'no_invoices_to_probe'
+            ? 'ما فيه فواتير في الحساب لأفحص عليها — أصدر واحدة أولاً.' : ((r && r.error) || 'فشل')) + '</span>';
+          return;
+        }
+        var ok = (r.results || []).filter(function(x){ return x.isPdf; });
+        out.innerHTML = '<span class="kv"><i>الفاتورة المفحوصة:</i>' + esc(String(r.id)) + '</span>' +
+          (r.results || []).map(function(x){
+            return '<span class="kv"><i>' + (x.isPdf ? '✅' : '❌') + ' ' + esc(x.url) + '</i>' +
+              esc([x.status, x.type, x.bytes ? x.bytes + ' bytes' : '', x.error || ''].filter(Boolean).join(' · ')) + '</span>';
+          }).join('') +
+          (ok.length
+            ? '<span class="kv" style="color:#14532d">المرفق سيعمل — ' + ok.length + ' مسار يعطي PDF حقيقياً.</span>'
+            : '<span class="kv" style="color:#b91c1c">لا مسار يعطي PDF. أرسل لي هذي القائمة وأضبطها.</span>');
+      });
+    };
+
+    // ---- Daftra client picker ----
+    // Loaded once per session and searched in the browser: 500 clients is a
+    // small payload and a keystroke-by-keystroke round trip would be slower
+    // than the owner types.
+    var DF_CLIENTS = null, dfClientsLoading = null, ivPickedId = '';
+    function loadDaftraClients(){
+      if (DF_CLIENTS) return Promise.resolve(DF_CLIENTS);
+      if (dfClientsLoading) return dfClientsLoading;
+      dfClientsLoading = postPanel({ action:'panel-daftra-clients' }).then(function(r){
+        DF_CLIENTS = (r && r.ok && r.clients) ? r.clients : [];
+        dfClientsLoading = null;
+        return DF_CLIENTS;
+      });
+      return dfClientsLoading;
+    }
+    function ivPickClient(c){
+      ivPickedId = String(c.id);
+      $('ivPickedName').textContent = c.name + (c.taxNumber ? ' · ض: ' + c.taxNumber : '');
+      $('ivPickedBox').style.display = 'flex';
+      $('ivPickWrap').style.display = 'none';
+      $('ivHits').classList.remove('on');
+      if (c.name) $('ivName').value = c.name;
+      if (c.email) $('ivEmail').value = c.email;
+      if (c.phone) $('ivPhone').value = c.phone;
+      if (c.taxNumber) $('ivTax').value = c.taxNumber;
+      if (c.city && !$('ivAddrCity').value) $('ivAddrCity').value = c.city;
+    }
+    function ivUnpick(){
+      ivPickedId = '';
+      $('ivPickedBox').style.display = 'none';
+      $('ivPickWrap').style.display = 'block';
+      $('ivPick').value = '';
+      $('ivHits').classList.remove('on');
+    }
+    $('ivUnpick').onclick = ivUnpick;
+    $('ivPick').addEventListener('input', function(){
+      var q = this.value.trim().toLowerCase();
+      var box = $('ivHits');
+      if (q.length < 2){ box.classList.remove('on'); return; }
+      loadDaftraClients().then(function(list){
+        var hits = [], digits = q.replace(/\D/g, '');
+        for (var i = 0; i < list.length && hits.length < 25; i++){
+          var c = list[i];
+          var hay = (c.name + ' ' + c.email + ' ' + c.taxNumber).toLowerCase();
+          if (hay.indexOf(q) !== -1 || (digits.length >= 4 && c.phone.replace(/\D/g,'').indexOf(digits) !== -1)) hits.push(c);
+        }
+        box.innerHTML = hits.length
+          ? hits.map(function(c){
+              return '<div class="hit" data-cid="' + esc(String(c.id)) + '"><b>' + esc(c.name || '—') + '</b>' +
+                     '<span>' + esc([c.email, c.phone, c.taxNumber ? 'ض:' + c.taxNumber : ''].filter(Boolean).join(' · ') || '—') + '</span></div>';
+            }).join('')
+          : '<div class="hit" style="color:#94a3b8;cursor:default">لا يوجد عميل مطابق — أكمل البيانات بالأسفل وسيُنشأ سجل جديد.</div>';
+        box.classList.add('on');
+        var hs = box.querySelectorAll('[data-cid]');
+        for (var k = 0; k < hs.length; k++) hs[k].onclick = function(){
+          var id = this.getAttribute('data-cid');
+          for (var j = 0; j < list.length; j++) if (String(list[j].id) === id) { ivPickClient(list[j]); break; }
+        };
+      });
+    });
+    document.addEventListener('click', function(e){
+      if (!e.target.closest || !e.target.closest('#ivPickWrap')) $('ivHits').classList.remove('on');
+    });
+
     // ---- invoice modal (Daftra) ----
     var invRef = '', invTotal = null, ivDoc = 'invoice';
     function ivSetDoc(kind){
@@ -1038,7 +1169,19 @@
         $('ivStreet').value = mid[0] || ''; $('ivDist').value = mid[1] || ''; $('ivAddrCity').value = mid[2] || '';
       }
       $('ivWarn').style.display = 'none';
+      ivUnpick();
       ivSetDoc(kind || 'invoice');
+      // Preselect the matching client so a repeat customer is invoiced onto
+      // their existing record without the owner searching for them.
+      loadDaftraClients().then(function(list){
+        if (ivPickedId) return;
+        var em = ((l && l.email) || '').trim().toLowerCase();
+        var ph = ((l && l.phone) || '').replace(/\D/g, '').slice(-9);
+        for (var i = 0; i < list.length; i++){
+          var c = list[i];
+          if ((em && c.email.trim().toLowerCase() === em) || (ph && c.phone.replace(/\D/g,'').slice(-9) === ph)) { ivPickClient(c); return; }
+        }
+      });
       $('ivNotes').value = invRef ? ('مرجع الطلب: ' + invRef) : '';
       $('ivIncl').checked = false; $('ivSend').checked = true; $('ivDraft').checked = false;
       $('ivMsg').textContent = ''; $('ivMsg').style.color = '';
@@ -1096,7 +1239,7 @@
                    postalCode: $('ivPost').value.trim(), additionalNo: $('ivAddNo').value.trim() };
       var btn = $('ivGo'); btn.disabled = true;
       msg.style.color = ''; msg.textContent = ivDoc === 'estimate' ? '⏳ جاري إنشاء عرض السعر في الدفترة…' : '⏳ جاري إنشاء الفاتورة في الدفترة…';
-      postPanel({ action:'panel-invoice', docType: ivDoc, ref: invRef, clientName: $('ivName').value.trim(),
+      postPanel({ action:'panel-invoice', docType: ivDoc, ref: invRef, daftraClientId: ivPickedId, clientName: $('ivName').value.trim(),
                   email: email, phone: phone, city: addr.city,
                   taxNumber: tax, address: addr,
                   items: items, notes: $('ivNotes').value.trim(),

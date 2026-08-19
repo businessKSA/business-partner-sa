@@ -154,6 +154,28 @@ export async function daftraFindClient({ email, phone }) {
   return null;
 }
 
+// The account's client list, for the panel's picker. Issuing against an
+// existing client id is what stops a second record being created for someone
+// already in the books every time their email is typed slightly differently.
+export async function daftraListClients(max = 500) {
+  const out = [];
+  for (let page = 1; page <= Math.ceil(max / 100); page++) {
+    const rows = clientRows(await dq(`/clients.json?limit=100&page=${page}`));
+    for (const c of rows) {
+      out.push({
+        id: c.id,
+        name: String(c.business_name || [c.first_name, c.last_name].filter(Boolean).join(" ") || "").trim(),
+        email: String(c.email || "").trim(),
+        phone: String(c.phone1 || c.phone2 || c.mobile || "").trim(),
+        taxNumber: String(c.business_id || c.tax_number || "").trim(),
+        city: String(c.city || "").trim(),
+      });
+    }
+    if (rows.length < 100) break;
+  }
+  return out.filter((c) => c.id && (c.name || c.email));
+}
+
 // A ZATCA standard tax invoice carries the buyer's VAT number and national
 // address; a simplified invoice to an individual does not. Both are optional
 // here so individuals stay invoiceable, and both are written onto the client
@@ -509,31 +531,68 @@ export const daftraCreatePurchaseOrder = ({ supplierId, ...rest }) => createDoc(
  * when none answers — the caller then sends the link alone rather than
  * attaching an HTML error page named ".pdf".
  */
+function pdfCandidates(view, id) {
+  const root = `https://${SUBDOMAIN}.daftra.com`;
+  return [
+    `${BASE}/${view}/${id}.pdf`,
+    `${BASE}/${view}/${id}.json?format=pdf`,
+    `${BASE}/${view}/pdf/${id}`,
+    `${root}/${view}/pdf/${id}`,
+    `${root}/${view}/print/${id}?pdf=1`,
+    `${root}/${view}/download/${id}`,
+    `${root}/${view}/view/${id}?print=1&pdf=1`,
+  ];
+}
+
 export async function daftraDocPdf(kind, id) {
   const K = DOC_KINDS[kind] || DOC_KINDS.invoice;
-  const root = `https://${SUBDOMAIN}.daftra.com`;
-  const candidates = [
-    `${BASE}/${K.view}/${id}.pdf`,
-    `${BASE}/${K.view}/pdf/${id}`,
-    `${root}/${K.view}/pdf/${id}`,
-    `${root}/${K.view}/print/${id}?pdf=1`,
-    `${root}/${K.view}/download/${id}`,
-  ];
-  for (const url of candidates) {
+  for (const url of pdfCandidates(K.view, id)) {
     try {
       const r = await fetch(url, { headers: { APIKEY: API_KEY, accept: "application/pdf" }, redirect: "follow" });
       if (!r.ok) continue;
-      const type = String(r.headers.get("content-type") || "").toLowerCase();
       const buf = Buffer.from(await r.arrayBuffer());
-      // Check the magic bytes too: a login page served with a PDF content-type
-      // would otherwise be attached as the invoice.
-      if (buf.length > 1000 && buf.subarray(0, 5).toString("latin1") === "%PDF-" && (type.includes("pdf") || type === "application/octet-stream")) {
+      // The magic bytes decide, not the declared content type: a login page
+      // served as application/pdf would otherwise be attached as the invoice,
+      // and a real PDF served as octet-stream would be rejected.
+      if (buf.length > 1000 && buf.subarray(0, 5).toString("latin1") === "%PDF-") {
         return { base64: buf.toString("base64"), bytes: buf.length, source: url };
       }
     } catch { /* try the next candidate */ }
   }
   console.error("daftra: no PDF endpoint answered for", kind, id);
   return null;
+}
+
+// Which of the candidate PDF routes this account answers, with the status and
+// content type of each. The API documents no PDF endpoint, so this reports the
+// evidence instead of leaving the choice to guesswork.
+export async function daftraPdfProbe(kind = "invoice", id = null) {
+  let target = id;
+  if (!target) {
+    const list = await daftraListInvoices(1);
+    if (!list.length) return { ok: false, error: "no_invoices_to_probe" };
+    target = list[0].id;
+  }
+  const K = DOC_KINDS[kind] || DOC_KINDS.invoice;
+  const root = `https://${SUBDOMAIN}.daftra.com`;
+  const urls = pdfCandidates(K.view, target);
+  const results = [];
+  for (const url of urls) {
+    try {
+      const r = await fetch(url, { headers: { APIKEY: API_KEY, accept: "application/pdf" }, redirect: "follow" });
+      const buf = Buffer.from(await r.arrayBuffer());
+      results.push({
+        url: url.replace(root, "").replace(BASE, "api2"),
+        status: r.status,
+        type: String(r.headers.get("content-type") || "").split(";")[0],
+        bytes: buf.length,
+        isPdf: buf.subarray(0, 5).toString("latin1") === "%PDF-",
+      });
+    } catch (e) {
+      results.push({ url: url.replace(root, "").replace(BASE, "api2"), status: 0, error: String(e.message || e).slice(0, 80) });
+    }
+  }
+  return { ok: true, id: target, results };
 }
 
 export async function daftraListInvoices(limit = 10) {
