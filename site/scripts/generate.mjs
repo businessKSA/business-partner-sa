@@ -9263,9 +9263,9 @@ for (const lang of ["en", "ar"]) {
 // redirect between them. See site/scripts/hr-app.mjs.
 {
   const { buildHRAppPages } = await import("./hr-app.mjs");
-  for (const hrLang of ["en", "ar"]) {
+  for (const hrLang of ["en", "ar", ...FULLY_READY_LANGS]) {
     const hrPages = buildHRAppPages(hrLang);
-    for (const [rel, html] of hrPages) write(hrLang === "ar" ? "ar/" + rel : rel, html);
+    for (const [rel, html] of hrPages) write(hrLang === "en" ? rel : `${hrLang}/` + rel, html);
     pageCount += hrPages.length;
   }
 }

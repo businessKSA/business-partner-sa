@@ -19,11 +19,20 @@ const hash = (p) => {
 const CSS_V = hash(path.join(SITE, "assets/css/hr.css"));
 const JS_V = hash(path.join(SITE, "assets/js/hr-app.js"));
 
-// Language of the tree being built. L() picks a string; P() prefixes internal
-// app links so the Arabic tree stays inside /ar/hr/… .
+// Language of the tree being built. L() picks a string — Arabic and English
+// are authored inline; French/Chinese come from hr-i18n.mjs (falling back to
+// the site-wide i18n.mjs dictionary, then to English). P() prefixes internal
+// app links so each language tree stays inside its own /{lang}/hr/… prefix.
+import { TRANSLATIONS } from "./i18n.mjs";
+import { HR_TRANSLATIONS } from "./hr-i18n.mjs";
 let LANG = "ar";
-const L = (en, ar) => (LANG === "ar" ? ar : en);
-const P = (href) => (LANG === "ar" ? "/ar" + href : href);
+const L = (en, ar) => {
+  if (LANG === "ar") return ar;
+  if (LANG === "en") return en;
+  const d = HR_TRANSLATIONS[LANG], g = TRANSLATIONS[LANG];
+  return (d && d[en]) || (g && g[en]) || en;
+};
+const P = (href) => (LANG === "en" ? href : "/" + LANG + href);
 
 // Minimal Lucide-style icon set (24×24, stroke 2) — inlined, no CDN.
 const IC = {
@@ -86,10 +95,14 @@ function shell({ title, active, page, body, wide, rel }) {
   const otherLang = LANG === "ar" ? "en" : "ar";
   // Honor the stored site-wide language preference (shared with /account):
   // an English URL opened by an Arabic-preferring visitor bounces to /ar/…
-  // and vice versa. The toggle writes the preference first, so it always wins.
+  // and vice versa. The toggle writes the preference first, so it always
+  // wins. French/Chinese trees never auto-redirect — a visitor who chose
+  // that language stays in it.
   const langRedirect = LANG === "ar"
     ? '<script>try{if(localStorage.getItem("bp_lang")==="en"&&location.pathname.indexOf("/ar/")===0)location.replace(location.pathname.slice(3)+location.search)}catch(e){}</script>'
-    : '<script>try{if(localStorage.getItem("bp_lang")==="ar"&&location.pathname.indexOf("/ar/")!==0)location.replace("/ar"+location.pathname+location.search)}catch(e){}</script>';
+    : LANG === "en"
+      ? '<script>try{if(localStorage.getItem("bp_lang")==="ar"&&location.pathname.indexOf("/ar/")!==0)location.replace("/ar"+location.pathname+location.search)}catch(e){}</script>'
+      : "";
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}">
 <head>
@@ -433,7 +446,7 @@ const onboardingBody = () => `
       <div id="ob-detail"></div>`;
 
 export function buildHRAppPages(lang = "ar") {
-  LANG = lang === "en" ? "en" : "ar";
+  LANG = ["en", "fr", "zh"].includes(lang) ? lang : "ar";
   const defs = [
     ["hr/employer.html", { en: "Employer Dashboard", ar: "لوحة صاحب العمل", active: "home", page: "dashboard", body: dashboardBody }],
     ["hr/employer/jobs.html", { en: "Jobs", ar: "الوظائف", active: "jobs", page: "jobs", body: jobsBody }],
