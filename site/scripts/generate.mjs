@@ -4621,11 +4621,6 @@ function jobCardsHtml() {
         <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="${L("General candidate pool", "قاعدة المرشحين العامة")}">${L("Join pool", "انضم للقاعدة")}</a></div>
       </article>`;
   const wc = WORKSHOP_CAMPAIGN;
-  const campaignBand = `<section class="section" id="workshop-campaign"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Client hiring campaign", "حملة توظيف لعميلنا")}</span><h2>${L(wc.title.en, wc.title.ar)}</h2><p>${L(wc.intro.en, wc.intro.ar)}</p></div>
-    <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:28px">${wc.stats.map((s) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(s.label.en, s.label.ar)}</div></div>`).join("")}</div>
-    <div class="center"><a class="btn btn-primary btn-lg" href="${u("/jobs/" + wc.slug)}">${L("Browse all workshop roles", "تصفّح كل وظائف الورشة")}</a></div>
-  </div></section>`;
   return `<section class="section section--gray" id="open-jobs"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Careers / Jobs", "الوظائف")}</span><h2>${L("Open roles at Business Partner", "الوظائف المفتوحة عبر بيزنس بارتنر")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed to the right hiring stage.", "كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.")}</p></div>
     <div class="grid grid-3 ats-jobs">${poolCard}</div>
@@ -4634,8 +4629,7 @@ function jobCardsHtml() {
     <div class="section-head"><span class="eyebrow">${L("Employer clients", "عملاء بيزنس بارتنر")}</span><h2>${L("Jobs from our employer clients", "وظائف من عملائنا أصحاب العمل")}</h2><p>${L("Companies hiring through the Business Partner platform. Apply directly — your application goes straight to their pipeline.", "شركات توظّف عبر منصة بيزنس بارتنر. قدّم مباشرة — طلبك يذهب مباشرة إلى مسار توظيفهم.")}</p></div>
     <p class="emp-note" id="client-jobs-status">${L("Loading…", "جارٍ التحميل…")}</p>
     <div class="grid grid-3 ats-jobs" id="client-jobs-grid">${cards}</div>
-  </div></section>
-  ${campaignBand}`;
+  </div></section>`;
 }
 function applicationExtraFieldsHtml() {
   return `
