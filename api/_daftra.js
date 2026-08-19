@@ -62,7 +62,24 @@ function describeErrors(data) {
   walk(bag);
   const msg = String(data.message || "").trim();
   const fields = out.join(" · ");
-  return [fields, fields ? "" : msg].filter(Boolean).join("") || msg;
+  if (fields) return fields;
+  // No structured `errors` bag: the generic message alone names no field, so
+  // the raw body goes through too — it is the only thing left to diagnose from.
+  const raw = JSON.stringify(data).slice(0, 500);
+  return [msg, raw && raw !== "{}" ? `[raw] ${raw}` : ""].filter(Boolean).join(" — ");
+}
+
+// Read one existing invoice back in full. The account already contains
+// invoices that Daftra itself accepted, so their exact field names and value
+// shapes are the specification — far better than guessing at a payload the
+// API keeps rejecting without saying why.
+export async function daftraInspectInvoice() {
+  const list = await dq("/invoices.json?limit=1");
+  const rows = unwrap(Array.isArray(pick(list, ["data"]) || list) ? (pick(list, ["data"]) || list) : [], "Invoice");
+  const id = rows.length ? rows[0].id : null;
+  if (!id) return { ok: false, error: "no_invoices_to_inspect" };
+  const full = await dq(`/invoices/${id}.json`);
+  return { ok: true, id, raw: JSON.stringify(full).slice(0, 6000) };
 }
 
 async function dq(path, { method = "GET", body } = {}) {
@@ -226,34 +243,85 @@ export async function daftraCreateInvoice({ clientId, items, notes, ref, dueDays
     .filter((l) => l.unit_price > 0 || l.quantity > 0);
   if (!lines.length) throw new Error("daftra_no_items");
 
-  const out = await dq("/invoices.json", {
-    method: "POST",
-    body: {
-      Invoice: {
-        client_id: clientId,
-        date: today(),
-        due_date: plusDays(dueDays),
-        currency_code: CURRENCY,
-        draft: draft ? 1 : 0,
-        notes: String(notes || "").slice(0, 1000),
-        client_reference: String(ref || "").slice(0, 60),
-      },
-      InvoiceItem: lines,
+  // Two payloads, tried in order. The full one carries everything Daftra
+  // documents; the minimal one drops every optional field, because an account
+  // that rejects an optional field it does not recognise says only "فشل في حفظ
+  // الفاتورة" without naming it. A rejection creates nothing (result:"fail"),
+  // so the retry cannot duplicate an invoice.
+  const full = {
+    Invoice: {
+      client_id: clientId,
+      date: today(),
+      due_date: plusDays(dueDays),
+      currency_code: CURRENCY,
+      draft: draft ? 1 : 0,
+      notes: String(notes || "").slice(0, 1000),
+      client_reference: String(ref || "").slice(0, 60),
     },
-  });
+    InvoiceItem: lines,
+  };
+  const minimal = {
+    Invoice: { client_id: clientId, date: today(), notes: String(notes || "").slice(0, 1000) },
+    InvoiceItem: lines.map((l) => ({ item: l.item, unit_price: l.unit_price, quantity: l.quantity, tax1: l.tax1 })),
+  };
+  let out = null, usedFallback = false, firstError = "";
+  try {
+    out = await dq("/invoices.json", { method: "POST", body: full });
+  } catch (e) {
+    if (e.message === "daftra_unauthorized" || e.message === "daftra_unreachable") throw e;
+    firstError = String(e.detail || e.message || "");
+    try {
+      out = await dq("/invoices.json", { method: "POST", body: minimal });
+      usedFallback = true;
+    } catch (e2) {
+      const err = new Error(e2.message);
+      err.detail = `${String(e2.detail || e2.message || "")}${firstError && firstError !== String(e2.detail || "") ? ` | الكامل: ${firstError}` : ""}`;
+      throw err;
+    }
+  }
   const id = pick(out, ["id", "invoice_id"]);
   if (!id) throw new Error("daftra_invoice_create_failed");
-  const number = pick(out, ["no", "invoice_number", "number"]);
   const net = lines.reduce((s, l) => s + l.unit_price * l.quantity, 0);
   const tax = lines.reduce((s, l) => s + (l.unit_price * l.quantity * l.tax1) / 100, 0);
+  // The create response carries the id and little else. Read the invoice back
+  // for the number Daftra actually assigned and for any link it publishes —
+  // the ZATCA QR code and the printed layout are rendered by Daftra, so the
+  // document to hand the client is Daftra's, never one composed here.
+  let fetched = null;
+  try { fetched = await dq(`/invoices/${id}.json`); } catch { /* the invoice exists regardless */ }
+  const number = pick(fetched, ["no", "invoice_number", "number"]) || pick(out, ["no", "invoice_number", "number"]) || String(id);
   return {
     id,
-    number: number || String(id),
+    number: String(number),
     net: Math.round(net * 100) / 100,
     vat: Math.round(tax * 100) / 100,
     total: Math.round((net + tax) * 100) / 100,
     currency: CURRENCY,
-    url: `https://${SUBDOMAIN}.daftra.com/invoice/view/${id}`,
+    reducedPayload: usedFallback,
+    ...invoiceLinks(id, fetched),
+  };
+}
+
+// Any absolute URL Daftra itself published for this invoice wins over a path
+// composed here, since the owner-area routes differ between account versions.
+function firstHttp(obj, depth = 0) {
+  if (!obj || typeof obj !== "object" || depth > 5) return "";
+  for (const v of Array.isArray(obj) ? obj : Object.values(obj)) {
+    if (typeof v === "string" && /^https?:\/\//i.test(v) && /invoice|pdf|share|public/i.test(v)) return v;
+    const hit = firstHttp(v, depth + 1);
+    if (hit) return hit;
+  }
+  return "";
+}
+function invoiceLinks(id, fetched) {
+  const root = `https://${SUBDOMAIN}.daftra.com`;
+  const published = firstHttp(fetched);
+  const uuid = pick(fetched, ["uuid", "hash", "public_hash", "share_hash"]);
+  return {
+    url: published || `${root}/invoices/view/${id}`,
+    printUrl: `${root}/invoices/print/${id}`,
+    pdfUrl: `${root}/invoices/pdf/${id}`,
+    publicUrl: uuid ? `${root}/invoice/${uuid}` : "",
   };
 }
 
@@ -287,6 +355,17 @@ export async function daftraPing() {
     const inv = await daftraListInvoices(3);
     out.invoicesReachable = true;
     out.recentInvoices = inv;
+    // Read one invoice in full: its field names tell us which link Daftra
+    // publishes and whether the seller's VAT number is set — without that
+    // number Daftra cannot render the ZATCA QR code on the printed invoice.
+    if (inv.length) {
+      try {
+        const one = await dq(`/invoices/${inv[0].id}.json`);
+        const row = (pick(one, ["Invoice"]) && pick(one, ["Invoice"])) || pick(one, ["data"]) || one;
+        out.sampleInvoiceFields = row && typeof row === "object" ? Object.keys(row).slice(0, 40) : [];
+        out.sampleInvoiceLink = firstHttp(one) || "";
+      } catch { /* optional */ }
+    }
   } catch (e) {
     out.invoicesReachable = false;
     out.invoicesError = e.message;

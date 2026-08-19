@@ -17,7 +17,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers } from "./_suppliers.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine } from "./_daftra.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -1248,6 +1248,20 @@ export default async function handler(req, res) {
       const out = await daftraPing();
       res.statusCode = out.ok ? 200 : 502;
       return res.end(JSON.stringify(out));
+    }
+
+    // Dump one existing invoice from the account verbatim. Daftra rejects our
+    // payload without naming a field, so the shape of an invoice it already
+    // accepted is the only reliable specification available.
+    if (b.action === "panel-daftra-inspect") {
+      try {
+        const out = await daftraInspectInvoice();
+        res.statusCode = out.ok ? 200 : 502;
+        return res.end(JSON.stringify(out));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 400) }));
+      }
     }
 
     // Issue a tax invoice in Daftra for a client request, then (optionally)
