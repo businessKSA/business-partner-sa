@@ -4128,7 +4128,7 @@ function buildEmployers() {
     <h1>${L("Hire from our candidate pool", "وظّف من قاعدة مرشّحينا")}</h1>
     <p class="lead">${L("Subscribe and get access to pre-screened, Saudization-checked candidates from our ATS — browse, shortlist, and we handle interviews to onboarding.", "اشترك واحصل على مرشّحين مُصنّفين ومفحوصين للتوطين من نظام التوظيف لدينا — تصفّح، رشّح، ونحن نتولّى من المقابلات حتى التعيين.")}</p>
     <div class="talent-actions" style="margin-top:26px">
-      <a class="btn btn-primary" href="/hr/employer">${I.users}<span>${L("Open the hiring console", "ادخل لوحة التوظيف")}</span></a>
+      <a class="btn btn-primary" href="${u("/hr/employer")}">${I.users}<span>${L("Open the hiring console", "ادخل لوحة التوظيف")}</span></a>
       <a class="btn btn-ghost" href="${u("/employer-join")}">${L("Subscribe now", "اشترك الآن")}</a>
     </div>
     <p class="emp-note" style="text-align:center">${L("Already have an account?", "عندك حساب من قبل؟")} <a href="${u("/employer-login")}">${L("Log in", "سجّل الدخول")}</a></p>
@@ -4367,7 +4367,7 @@ function buildEmployerDashboard() {
       <div class="empd-welcome" style="display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 16px;margin-bottom:14px">
         <span id="empd-welcome-txt" style="font-weight:600"></span>
         <span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><span class="emp-note" style="margin:0">${L("Candidate pool:", "قاعدة المرشّحين:")} <strong data-pool-count>…</strong></span>
-        <a class="btn btn-primary btn-sm" href="/hr/employer">${L("Try the new hiring console ✨", "جرّب لوحة التوظيف الجديدة ✨")}</a></span>
+        <a class="btn btn-primary btn-sm" href="${u("/hr/employer")}">${L("Try the new hiring console ✨", "جرّب لوحة التوظيف الجديدة ✨")}</a></span>
       </div>
       <div class="empd-bar">
         <div class="empd-tabs">
@@ -9240,13 +9240,16 @@ for (const lang of ["en", "ar"]) {
   writeFullSite(lang === "ar" ? "ar/" : "");
 }
 
-// HR employer app (/hr/employer/*) — standalone Arabic-first app chrome,
-// generated once (not per language tree). See site/scripts/hr-app.mjs.
+// HR employer app — bilingual: English tree at /hr/employer/* and Arabic
+// tree at /ar/hr/employer/*, with a topbar toggle + stored-preference
+// redirect between them. See site/scripts/hr-app.mjs.
 {
   const { buildHRAppPages } = await import("./hr-app.mjs");
-  const hrPages = buildHRAppPages();
-  for (const [rel, html] of hrPages) write(rel, html);
-  pageCount += hrPages.length;
+  for (const hrLang of ["en", "ar"]) {
+    const hrPages = buildHRAppPages(hrLang);
+    for (const [rel, html] of hrPages) write(hrLang === "ar" ? "ar/" + rel : rel, html);
+    pageCount += hrPages.length;
+  }
 }
 
 // Extra world languages: languages fully translated (FULLY_READY_LANGS) get

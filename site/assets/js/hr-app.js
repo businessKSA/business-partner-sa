@@ -7,6 +7,14 @@
   "use strict";
   if (!document.body || !document.body.getAttribute("data-hr-page")) return;
   var PAGE = document.body.getAttribute("data-hr-page");
+  // Language prefix for internal navigation: the Arabic tree lives under
+  // /ar/hr/… — every hardcoded "/hr/…" link must stay inside it.
+  var HRP = window.HR_LANG === "ar" && location.pathname.indexOf("/ar/") === 0 ? "/ar" : "";
+  if (HRP) document.addEventListener("click", function (e) {
+    var t = e.target;
+    while (t && t !== document && !(t.tagName === "A" && t.getAttribute("href"))) t = t.parentNode;
+    if (t && t !== document && (t.getAttribute("href") || "").indexOf("/hr/") === 0) t.setAttribute("href", HRP + t.getAttribute("href"));
+  }, true);
 
   /* ---------- utils ---------- */
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -285,10 +293,10 @@
     if (overlayEl) overlayEl.addEventListener("click", function () { shell.classList.remove("side-open"); });
     var gq = $("hr-global-q");
     if (gq) gq.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && gq.value.trim()) location.href = "/hr/employer/applicants?q=" + encodeURIComponent(gq.value.trim());
+      if (e.key === "Enter" && gq.value.trim()) location.href = HRP + "/hr/employer/applicants?q=" + encodeURIComponent(gq.value.trim());
     });
     var nb = $("hr-notif"); if (nb) nb.addEventListener("click", function () { toast("لا إشعارات جديدة — مركز الإشعارات يتفعّل مع ربط الأحداث الحقيقية."); });
-    var mb = $("hr-msgs"); if (mb) mb.addEventListener("click", function () { location.href = "/hr/employer/messages"; });
+    var mb = $("hr-msgs"); if (mb) mb.addEventListener("click", function () { location.href = HRP + "/hr/employer/messages"; });
     if (!withData) return;
     HRStore.ready().then(function (d) {
       var ses = readLS("bp_session", null);
@@ -328,7 +336,7 @@
     HRStore.ready().then(function (d) {
       $("dash-hello").textContent = "مرحباً " + d.user.name + " 👋";
       // «من تريد توظيفه اليوم؟» — يدخل مباشرة على مسار الإنشاء بالذكاء
-      function goCreate(t) { location.href = "/hr/employer/jobs/new?title=" + encodeURIComponent(t); }
+      function goCreate(t) { location.href = HRP + "/hr/employer/jobs/new?title=" + encodeURIComponent(t); }
       var ask = $("dash-ask"), askGo = $("dash-ask-go"), chips = $("dash-ask-chips");
       if (askGo) askGo.addEventListener("click", function () { if (ask.value.trim()) goCreate(ask.value.trim()); else ask.focus(); });
       if (ask) ask.addEventListener("keydown", function (e) { if (e.key === "Enter" && ask.value.trim()) goCreate(ask.value.trim()); });
@@ -722,7 +730,7 @@
       var rc = realCode();
       var done = function (liveOk) {
         toast(liveOk ? "نُشرت الوظيفة على الموقع وبدأت المطابقة 🎉" : "نُشرت في لوحتك 🎉 (النشر على الموقع يتفعّل مع تسجيل الدخول برمزك)");
-        setTimeout(function () { location.href = "/hr/employer/jobs"; }, 900);
+        setTimeout(function () { location.href = HRP + "/hr/employer/jobs"; }, 900);
       };
       if (!rc) { done(false); return; }
       fetch("/api/candidates", {
@@ -767,7 +775,7 @@
         b.addEventListener("click", function () { toast("هذا الخيار يتفعّل قريباً — الإنشاء بالذكاء جاهز الآن."); });
       });
       var fullBtn = $("jn-full");
-      if (fullBtn) fullBtn.addEventListener("click", function () { location.href = "/hr/employer/jobs/new?mode=full"; });
+      if (fullBtn) fullBtn.addEventListener("click", function () { location.href = HRP + "/hr/employer/jobs/new?mode=full"; });
       $("qp-publish").addEventListener("click", publishNow);
       $("qp-regen").addEventListener("click", function () { if (GEN) startGeneration(GEN.parsed); });
       $("qp-edit-toggle").addEventListener("click", function () {
@@ -925,7 +933,7 @@
         toast(publish ? "نُشرت الوظيفة 🎉" : "حُفظت المسودة.");
       }
       writeLS(DRAFT_KEY, {});
-      setTimeout(function () { location.href = "/hr/employer/jobs"; }, 700);
+      setTimeout(function () { location.href = HRP + "/hr/employer/jobs"; }, 700);
     }
     HRStore.ready().then(function () {
       if (editId) {
@@ -1433,7 +1441,7 @@
           var app = HRStore.applications().filter(function (a) { return a.candidateId === cid && a.jobId === job.id; })[0];
           if (act === "profile") {
             if (c && c.real) location.href = "/ar/candidate-profile?id=" + cid;
-            else if (app) location.href = "/hr/employer/applicant?id=" + app.id;
+            else if (app) location.href = HRP + "/hr/employer/applicant?id=" + app.id;
             else toast("لا يوجد ملف تقديم لهذه الوظيفة بعد — ادعُه للتقديم أولاً.");
           } else if (act === "invite") {
             confirmModal("دعوة للتقديم", "سترسل دعوة إلى " + c.name + " للتقديم على «" + job.title + "». الإرسال الفعلي يتفعّل مع ربط قنوات التواصل — الآن تُسجل الدعوة فقط.", "تسجيل الدعوة").then(function (ok) {
