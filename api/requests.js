@@ -17,7 +17,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers } from "./_suppliers.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice } from "./_daftra.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -390,13 +390,15 @@ const FREE_DOMAINS = new Set([
 ]);
 const isCorporateEmail = (e) => isEmail(e) && !FREE_DOMAINS.has(e.split("@")[1].toLowerCase());
 
-async function sendEmail(to, subject, html) {
+// attachments: [{ filename, content }] where content is base64 — Resend's own
+// attachment shape, passed straight through.
+async function sendEmail(to, subject, html, attachments) {
   if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+      body: JSON.stringify({ from: FROM, to: [to], subject, html, ...(attachments && attachments.length ? { attachments } : {}) }),
     });
     if (!r.ok) { console.error("Resend error", r.status, await r.text()); return { ok: false, error: "email_send_failed" }; }
     return { ok: true };
@@ -1264,6 +1266,35 @@ export default async function handler(req, res) {
       }
     }
 
+    // Mirror the published service catalogue into Daftra's product list, one
+    // slice per call — 116 services is well past what a single invocation can
+    // do inside its time limit, so the panel walks the offsets.
+    if (b.action === "panel-daftra-sync-catalog") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      try {
+        const r = await fetch(RAW_CATALOG_URL, { cache: "no-store" });
+        if (!r.ok) throw new Error("catalog_unreachable");
+        const cat = await r.json();
+        // Packages are sold like services and carry their own codes, so they
+        // belong in the product list too.
+        const services = [
+          ...(Array.isArray(cat.services) ? cat.services : []),
+          ...(Array.isArray(cat.packages) ? cat.packages : []).map((p) => ({
+            code: p.code, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount,
+            categoryAr: p.groupNameAr || "الباقات", pricingModel: p.billingPeriod === "monthly" ? "Monthly" : "One Time",
+          })),
+        ].filter((x) => x && x.code);
+        if (b.offset === 0 || b.offset === undefined) daftraResetProductCache();
+        const out = await daftraSyncCatalog(services, Number(b.offset) || 0, Math.min(Math.max(Number(b.limit) || 15, 1), 25));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, ...out }));
+      } catch (e) {
+        console.error("daftra catalog sync failed", String(e.message || e).slice(0, 200));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "sync_failed"), detail: String(e.detail || "").slice(0, 300) }));
+      }
+    }
+
     // Issue a tax invoice in Daftra for a client request, then (optionally)
     // email the client the total and the invoice link. The client record is
     // reused when their email or phone already exists in the books, so
@@ -1294,7 +1325,11 @@ export default async function handler(req, res) {
           taxNumber ? `الرقم الضريبي للعميل: ${taxNumber}` : "",
           addrLine ? `العنوان الوطني للعميل: ${addrLine}` : "",
         ].filter(Boolean).join("\n");
-        const inv = await daftraCreateInvoice({
+        // Same form issues either document: a quote is what the client sees
+        // before agreeing, an invoice is what they owe after.
+        const isQuote = String(b.docType || "invoice") === "estimate";
+        const make = isQuote ? daftraCreateEstimate : daftraCreateInvoice;
+        const inv = await make({
           clientId, items,
           notes: [String(b.notes || "").trim(), taxBlock].filter(Boolean).join("\n").slice(0, 900),
           ref, dueDays: Number(b.dueDays) || 0,
@@ -1302,21 +1337,31 @@ export default async function handler(req, res) {
         });
         // Emailing the client is best-effort: the invoice exists in the books
         // either way, so a mail failure must not read as a failed issuance.
+        // The client gets Daftra's own printed document as an attachment: it is
+        // the one carrying the ZATCA QR code and the seller's tax details. A
+        // link alone puts the compliant copy behind a click that may need a login.
+        let pdf = null;
+        if (!b.draft) { try { pdf = await daftraDocPdf(isQuote ? "estimate" : "invoice", inv.id); } catch { pdf = null; } }
         let emailed = false;
         if (email && b.sendEmail !== false && !b.draft) {
+          const docAr = isQuote ? "عرض سعر" : "فاتورة";
           const rows = items.map((it) => `<tr><td style="padding:5px 10px">${esc(String(it.name || ""))}</td><td style="padding:5px 10px">${Number(it.quantity) || 1}</td><td style="padding:5px 10px">${Number(it.unitPrice) || 0} ﷼</td></tr>`).join("");
-          const r2 = await sendEmail(email, `فاتورة ${inv.number} — بيزنس بارتنر`,
-            `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right"><h2 style="color:#0B1B5A">فاتورتك من بيزنس بارتنر</h2>
-             <p>رقم الفاتورة: <b>${esc(inv.number)}</b>${ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(ref)}</b>` : ""}</p>
+          const r2 = await sendEmail(email, `${docAr} ${inv.number} — بيزنس بارتنر`,
+            `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right"><h2 style="color:#0B1B5A">${isQuote ? "عرض سعر من بيزنس بارتنر" : "فاتورتك من بيزنس بارتنر"}</h2>
+             <p>رقم ${docAr}: <b>${esc(inv.number)}</b>${ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(ref)}</b>` : ""}</p>
              <table style="border-collapse:collapse;width:100%"><thead><tr style="background:#f1f5f9"><th style="padding:6px 10px;text-align:right">البند</th><th style="padding:6px 10px;text-align:right">الكمية</th><th style="padding:6px 10px;text-align:right">السعر</th></tr></thead><tbody>${rows}</tbody></table>
-             <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${daftraVatRate()}%): <b>${inv.vat} ﷼</b><br>الإجمالي المستحق: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
+             <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${daftraVatRate()}%): <b>${inv.vat} ﷼</b><br>${isQuote ? "الإجمالي شامل الضريبة" : "الإجمالي المستحق"}: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
              <p style="color:#475569">للتحويل البنكي: ${esc(SS_BANK.beneficiary)} — ${esc(SS_BANK.bank)} — <span style="direction:ltr;display:inline-block">${esc(SS_BANK.iban)}</span></p>
-             <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`);
+             <p style="color:#0B1B5A">${pdf ? `نسخة ${docAr} بصيغة PDF مرفقة مع هذه الرسالة.` : `<a href="${esc(inv.url)}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح ${docAr}</a>`}</p>
+             <p style="color:#94a3b8;font-size:12px">${isQuote ? "عرض سعر صادر عبر نظام الدفترة — يتحول إلى فاتورة ضريبية عند الاعتماد." : "فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك."}</p></div>`,
+            pdf ? [{ filename: `${isQuote ? "Quote" : "TAX_Invoice"}-${String(inv.number).replace(/[^\w-]/g, "")}.pdf`, content: pdf.base64 }] : undefined);
           emailed = !!(r2 && r2.ok);
         }
-        if (ref) { try { await setLeadStatus(ref, "مؤكد - قيد التنفيذ"); } catch {} }
+        // A quote is an offer, not an agreement — only an invoice moves the
+        // lead to «مؤكد - قيد التنفيذ».
+        if (ref && !isQuote) { try { await setLeadStatus(ref, "مؤكد - قيد التنفيذ"); } catch {} }
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, invoice: inv, clientCreated: created, emailed }));
+        return res.end(JSON.stringify({ ok: true, invoice: inv, clientCreated: created, emailed, pdfAttached: !!pdf }));
       } catch (e) {
         console.error("daftra invoice failed", String(e.message || e).slice(0, 200));
         res.statusCode = 502;

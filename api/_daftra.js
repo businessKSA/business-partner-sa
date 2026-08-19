@@ -258,6 +258,101 @@ export async function daftraTaxId(rate = VAT_RATE) {
 }
 export function daftraResetTaxCache() { _taxCache = null; _taxAt = 0; }
 
+// ---- products (the service catalogue, mirrored into Daftra) ---------------
+
+// Invoice lines reference a product by id, and the owner wants each line to
+// carry its service code, so the 116 published services are mirrored into the
+// account's product list keyed by that code. Catalogue amounts are the
+// pre-VAT subtotal — the site's cart adds 15% on top of them — so they are
+// synced verbatim as the unit price.
+const prodCode = (p) => String(p.product_code || p.code || p.sku || p.item_code || "").trim().toUpperCase();
+let _prodCache = null, _prodAt = 0;
+
+export async function daftraProducts(force = false) {
+  if (!force && _prodCache && Date.now() - _prodAt < 10 * 60 * 1000) return _prodCache;
+  const byCode = new Map();
+  for (let page = 1; page <= 15; page++) {
+    const data = await dq(`/products.json?limit=100&page=${page}`);
+    const list = pick(data, ["data", "Products", "products"]) || data;
+    const rows = unwrap(Array.isArray(list) ? list : [], "Product");
+    for (const r of rows) { const c = prodCode(r); if (c) byCode.set(c, r); }
+    if (rows.length < 100) break;
+  }
+  _prodCache = byCode; _prodAt = Date.now();
+  return byCode;
+}
+export function daftraResetProductCache() { _prodCache = null; _prodAt = 0; }
+
+function productBody({ code, name, price, description, unit }) {
+  return {
+    name: String(name || code).slice(0, 200),
+    product_code: String(code || "").slice(0, 60),
+    // Same value under the alternate key: accounts differ on which one the
+    // code column is called, and unknown keys are ignored.
+    code: String(code || "").slice(0, 60),
+    unit_price: Number(price) || 0,
+    description: String(description || "").slice(0, 500),
+    unit: String(unit || "").slice(0, 40),
+    track_stock: 0,
+  };
+}
+
+// Create or update one catalogue service. Mirrors the invoice path: the full
+// body first, then a minimal one, because a rejected optional field is not
+// named in the response.
+async function upsertProduct(existing, fields) {
+  const body = productBody(fields);
+  const minimal = { name: body.name, product_code: body.product_code, unit_price: body.unit_price };
+  const path = existing ? `/products/${existing.id}.json` : "/products.json";
+  const method = existing ? "PUT" : "POST";
+  try {
+    const out = await dq(path, { method, body: { Product: body } });
+    return { ok: true, id: pick(out, ["id"]) || (existing && existing.id) || null };
+  } catch (e) {
+    if (e.message === "daftra_unauthorized" || e.message === "daftra_unreachable") throw e;
+    try {
+      const out = await dq(path, { method, body: { Product: minimal } });
+      return { ok: true, id: pick(out, ["id"]) || (existing && existing.id) || null, reduced: true };
+    } catch (e2) {
+      return { ok: false, error: String(e2.detail || e2.message || "failed").slice(0, 160) };
+    }
+  }
+}
+
+/**
+ * Push one slice of the catalogue into Daftra. Sliced because 116 services is
+ * far more than one serverless invocation can do inside its time limit; the
+ * panel walks the offsets and shows progress.
+ */
+export async function daftraSyncCatalog(services, offset = 0, limit = 15) {
+  const all = Array.isArray(services) ? services : [];
+  const slice = all.slice(offset, offset + limit);
+  const existing = await daftraProducts(offset === 0);
+  const out = { total: all.length, processed: 0, created: 0, updated: 0, skipped: 0, failed: [] };
+  for (const sv of slice) {
+    out.processed++;
+    const code = String(sv.code || "").trim().toUpperCase();
+    const name = sv.nameAr || sv.nameEn || code;
+    const price = Number(sv.amount);
+    if (!code || !name) { out.skipped++; continue; }
+    // Proposal-priced services carry no amount; they are still worth having in
+    // the product list so a line can reference them, priced at issue time.
+    const hit = existing.get(code) || null;
+    const r = await upsertProduct(hit, {
+      code, name,
+      price: Number.isFinite(price) ? price : 0,
+      description: [sv.nameEn && sv.nameEn !== name ? sv.nameEn : "", sv.categoryAr || sv.category || ""].filter(Boolean).join(" · "),
+      unit: sv.pricingModel === "Monthly" ? "شهرياً" : "",
+    });
+    if (!r.ok) { out.failed.push({ code, error: r.error }); continue; }
+    if (hit) out.updated++; else { out.created++; existing.set(code, { id: r.id, product_code: code }); }
+  }
+  const next = offset + slice.length;
+  out.nextOffset = next < all.length ? next : null;
+  out.done = out.nextOffset === null;
+  return out;
+}
+
 // ---- invoices ------------------------------------------------------------
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -269,32 +364,82 @@ const plusDays = (n) => new Date(Date.now() + Number(n || 0) * 86400000).toISOSt
  * computes the ZATCA-visible tax total itself rather than us sending a total
  * it would have to reverse-engineer.
  */
-export async function daftraCreateInvoice({ clientId, items, notes, ref, dueDays = 0, vatRate = VAT_RATE, draft = false }) {
+// The three sales/purchase documents share one shape: a header row plus item
+// rows, the same two-payload retry, and the same read-back for the number and
+// links Daftra assigns. Only the model names and the path differ.
+const DOC_KINDS = {
+  invoice:  { path: "/invoices.json",        head: "Invoice",       item: "InvoiceItem",       party: "client_id",   view: "invoices" },
+  estimate: { path: "/estimates.json",       head: "Estimate",      item: "EstimateItem",      party: "client_id",   view: "estimates" },
+  po:       { path: "/purchase_orders.json", head: "PurchaseOrder", item: "PurchaseOrderItem", party: "supplier_id", view: "purchase_orders" },
+};
+
+async function buildLines(items, taxId) {
+  // Each line names its service code. The code is written into the line text
+  // so it prints on the document, and the matching synced product is linked
+  // by id so the line ties back to the catalogue in the books.
+  let products = null;
+  if ((items || []).some((it) => it.code)) {
+    try { products = await daftraProducts(); } catch { products = null; }
+  }
+  return (items || [])
+    .map((it) => {
+      const code = String(it.code || "").trim().toUpperCase();
+      const name = String(it.name || "").slice(0, 180) || "خدمة";
+      const hit = code && products ? products.get(code) : null;
+      return {
+        item: code ? `${code} — ${name}`.slice(0, 200) : name,
+        description: String(it.description || "").slice(0, 500),
+        unit_price: Number(it.unitPrice) || 0,
+        quantity: Number(it.quantity) || 1,
+        ...(hit && hit.id ? { product_id: hit.id } : {}),
+        ...(it.taxable === false ? {} : { tax1: taxId }),
+      };
+    })
+    .filter((l) => l.unit_price > 0 || l.quantity > 0);
+}
+
+// Any absolute URL Daftra itself published for this document wins over a path
+// composed here, since the owner-area routes differ between account versions.
+function firstHttp(obj, depth = 0) {
+  if (!obj || typeof obj !== "object" || depth > 5) return "";
+  for (const v of Array.isArray(obj) ? obj : Object.values(obj)) {
+    if (typeof v === "string" && /^https?:\/\//i.test(v) && /invoice|estimate|order|pdf|share|public/i.test(v)) return v;
+    const hit = firstHttp(v, depth + 1);
+    if (hit) return hit;
+  }
+  return "";
+}
+function docLinks(view, id, fetched) {
+  const root = `https://${SUBDOMAIN}.daftra.com`;
+  const published = firstHttp(fetched);
+  const uuid = pick(fetched, ["uuid", "hash", "public_hash", "share_hash"]);
+  return {
+    url: published || `${root}/${view}/view/${id}`,
+    printUrl: `${root}/${view}/print/${id}`,
+    pdfUrl: `${root}/${view}/pdf/${id}`,
+    publicUrl: uuid ? `${root}/${view.replace(/s$/, "")}/${uuid}` : "",
+  };
+}
+
+async function createDoc(kind, { partyId, items, notes, ref, dueDays = 0, vatRate = VAT_RATE, draft = false }) {
+  const K = DOC_KINDS[kind];
   const taxId = await daftraTaxId(vatRate);
   if (taxId === null) {
     const err = new Error("daftra_tax_missing");
     err.detail = `لا توجد ضريبة بنسبة ${vatRate}% مفعّلة في حساب الدفترة — أنشئها من الإعدادات ← إعدادات الضرائب ثم أعد المحاولة.`;
     throw err;
   }
-  const lines = (items || [])
-    .map((it) => ({
-      item: String(it.name || "").slice(0, 200) || "خدمة",
-      description: String(it.description || "").slice(0, 500),
-      unit_price: Number(it.unitPrice) || 0,
-      quantity: Number(it.quantity) || 1,
-      ...(it.taxable === false ? {} : { tax1: taxId }),
-    }))
-    .filter((l) => l.unit_price > 0 || l.quantity > 0);
+  const lines = await buildLines(items, taxId);
   if (!lines.length) throw new Error("daftra_no_items");
 
   // Two payloads, tried in order. The full one carries everything Daftra
   // documents; the minimal one drops every optional field, because an account
-  // that rejects an optional field it does not recognise says only "فشل في حفظ
-  // الفاتورة" without naming it. A rejection creates nothing (result:"fail"),
-  // so the retry cannot duplicate an invoice.
+  // that rejects an optional field it does not recognise says only "فشل في
+  // الحفظ" without naming it. A rejection creates nothing (result:"failed"),
+  // so the retry cannot produce a duplicate document.
   const full = {
-    Invoice: {
-      client_id: clientId,
+    [K.head]: {
+      [K.party]: partyId,
       date: today(),
       due_date: plusDays(dueDays),
       currency_code: CURRENCY,
@@ -302,20 +447,23 @@ export async function daftraCreateInvoice({ clientId, items, notes, ref, dueDays
       notes: String(notes || "").slice(0, 1000),
       client_reference: String(ref || "").slice(0, 60),
     },
-    InvoiceItem: lines,
+    [K.item]: lines,
   };
   const minimal = {
-    Invoice: { client_id: clientId, date: today(), notes: String(notes || "").slice(0, 1000) },
-    InvoiceItem: lines.map((l) => ({ item: l.item, unit_price: l.unit_price, quantity: l.quantity, ...(l.tax1 === undefined ? {} : { tax1: l.tax1 }) })),
+    [K.head]: { [K.party]: partyId, date: today(), notes: String(notes || "").slice(0, 1000) },
+    // product_id is dropped in the reduced retry: it is the likeliest optional
+    // field to be refused, and the code stays visible in the line text anyway.
+    [K.item]: lines.map((l) => ({ item: l.item, unit_price: l.unit_price, quantity: l.quantity, ...(l.tax1 === undefined ? {} : { tax1: l.tax1 }) })),
   };
+
   let out = null, usedFallback = false, firstError = "";
   try {
-    out = await dq("/invoices.json", { method: "POST", body: full });
+    out = await dq(K.path, { method: "POST", body: full });
   } catch (e) {
     if (e.message === "daftra_unauthorized" || e.message === "daftra_unreachable") throw e;
     firstError = String(e.detail || e.message || "");
     try {
-      out = await dq("/invoices.json", { method: "POST", body: minimal });
+      out = await dq(K.path, { method: "POST", body: minimal });
       usedFallback = true;
     } catch (e2) {
       const err = new Error(e2.message);
@@ -323,18 +471,21 @@ export async function daftraCreateInvoice({ clientId, items, notes, ref, dueDays
       throw err;
     }
   }
-  const id = pick(out, ["id", "invoice_id"]);
-  if (!id) throw new Error("daftra_invoice_create_failed");
+  const id = pick(out, ["id", `${kind}_id`]);
+  if (!id) throw new Error("daftra_create_failed");
+
   const net = lines.reduce((s, l) => s + l.unit_price * l.quantity, 0);
   const tax = lines.reduce((s, l) => s + (l.tax1 === undefined ? 0 : (l.unit_price * l.quantity * Number(vatRate)) / 100), 0);
-  // The create response carries the id and little else. Read the invoice back
-  // for the number Daftra actually assigned and for any link it publishes —
-  // the ZATCA QR code and the printed layout are rendered by Daftra, so the
-  // document to hand the client is Daftra's, never one composed here.
+  // The create response carries the id and little else. Read the document back
+  // for the number Daftra assigned and for any link it publishes — the printed
+  // layout and its ZATCA QR code are rendered by Daftra, so the file to hand
+  // the client is Daftra's, never one composed here.
   let fetched = null;
-  try { fetched = await dq(`/invoices/${id}.json`); } catch { /* the invoice exists regardless */ }
+  const single = K.path.replace(/s\.json$/, "");
+  try { fetched = await dq(`${single}/${id}.json`); } catch { /* the document exists regardless */ }
   const number = pick(fetched, ["no", "invoice_number", "number"]) || pick(out, ["no", "invoice_number", "number"]) || String(id);
   return {
+    kind,
     id,
     number: String(number),
     net: Math.round(net * 100) / 100,
@@ -342,31 +493,47 @@ export async function daftraCreateInvoice({ clientId, items, notes, ref, dueDays
     total: Math.round((net + tax) * 100) / 100,
     currency: CURRENCY,
     reducedPayload: usedFallback,
-    ...invoiceLinks(id, fetched),
+    ...docLinks(K.view, id, fetched),
   };
 }
 
-// Any absolute URL Daftra itself published for this invoice wins over a path
-// composed here, since the owner-area routes differ between account versions.
-function firstHttp(obj, depth = 0) {
-  if (!obj || typeof obj !== "object" || depth > 5) return "";
-  for (const v of Array.isArray(obj) ? obj : Object.values(obj)) {
-    if (typeof v === "string" && /^https?:\/\//i.test(v) && /invoice|pdf|share|public/i.test(v)) return v;
-    const hit = firstHttp(v, depth + 1);
-    if (hit) return hit;
-  }
-  return "";
-}
-function invoiceLinks(id, fetched) {
+export const daftraCreateInvoice = ({ clientId, ...rest }) => createDoc("invoice", { partyId: clientId, ...rest });
+export const daftraCreateEstimate = ({ clientId, ...rest }) => createDoc("estimate", { partyId: clientId, ...rest });
+export const daftraCreatePurchaseOrder = ({ supplierId, ...rest }) => createDoc("po", { partyId: supplierId, ...rest });
+
+/**
+ * Fetch the printed document as PDF bytes so it can be attached to the email.
+ * Daftra's v2 API documents no PDF endpoint, and the owner-area print routes
+ * differ between account versions, so several candidates are tried with the
+ * API key and only a response that really is a PDF is accepted. Returns null
+ * when none answers — the caller then sends the link alone rather than
+ * attaching an HTML error page named ".pdf".
+ */
+export async function daftraDocPdf(kind, id) {
+  const K = DOC_KINDS[kind] || DOC_KINDS.invoice;
   const root = `https://${SUBDOMAIN}.daftra.com`;
-  const published = firstHttp(fetched);
-  const uuid = pick(fetched, ["uuid", "hash", "public_hash", "share_hash"]);
-  return {
-    url: published || `${root}/invoices/view/${id}`,
-    printUrl: `${root}/invoices/print/${id}`,
-    pdfUrl: `${root}/invoices/pdf/${id}`,
-    publicUrl: uuid ? `${root}/invoice/${uuid}` : "",
-  };
+  const candidates = [
+    `${BASE}/${K.view}/${id}.pdf`,
+    `${BASE}/${K.view}/pdf/${id}`,
+    `${root}/${K.view}/pdf/${id}`,
+    `${root}/${K.view}/print/${id}?pdf=1`,
+    `${root}/${K.view}/download/${id}`,
+  ];
+  for (const url of candidates) {
+    try {
+      const r = await fetch(url, { headers: { APIKEY: API_KEY, accept: "application/pdf" }, redirect: "follow" });
+      if (!r.ok) continue;
+      const type = String(r.headers.get("content-type") || "").toLowerCase();
+      const buf = Buffer.from(await r.arrayBuffer());
+      // Check the magic bytes too: a login page served with a PDF content-type
+      // would otherwise be attached as the invoice.
+      if (buf.length > 1000 && buf.subarray(0, 5).toString("latin1") === "%PDF-" && (type.includes("pdf") || type === "application/octet-stream")) {
+        return { base64: buf.toString("base64"), bytes: buf.length, source: url };
+      }
+    } catch { /* try the next candidate */ }
+  }
+  console.error("daftra: no PDF endpoint answered for", kind, id);
+  return null;
 }
 
 export async function daftraListInvoices(limit = 10) {
