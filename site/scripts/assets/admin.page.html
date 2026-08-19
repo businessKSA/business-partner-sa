@@ -1641,6 +1641,56 @@
     $('ivIncl').onchange = ivTotals;
     $('ivCancel').onclick = closeInvoice;
     $('invBack').addEventListener('click', function(e){ if (e.target === this) closeInvoice(); });
+    // The client is not emailed a link-only invoice, so when Daftra withholds
+    // the printed file the send waits here for the file itself — inside the
+    // request, not in a separate screen the owner has to go find.
+    var ivPdfB64 = '';
+    function ivAttachBox(iv, to){
+      ivPdfB64 = '';
+      var msg = $('ivMsg');
+      var box = document.createElement('div');
+      box.style.cssText = 'margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff8ed';
+      box.innerHTML =
+        '<b style="color:#b45309">📎 لم تُرسل بعد — بانتظار ملف PDF</b>' +
+        '<p style="color:var(--soft);font-size:12.5px;line-height:1.8;margin:4px 0 8px">' +
+        'الدفترة ما سلّمت الملف المطبوع (تقدّمه لجلسة متصفّح مسجّلة فقط). ما أرسلت للعميل رسالة بلا فاتورة — ' +
+        'نزّل الفاتورة من الدفترة وأرفقها هنا، فتصله الفاتورة نفسها بالباركود.</p>' +
+        '<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center">' +
+        '<input id="ivToMail" type="email" dir="ltr" value="' + esc(to || '') + '" placeholder="بريد العميل" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:13.5px" />' +
+        '<label class="actbtn" for="ivPdfFile" id="ivPdfLbl" style="cursor:pointer">📎 اختر PDF</label>' +
+        '<button class="btn" id="ivPdfSend" type="button">📤 أرسل</button></div>' +
+        '<input id="ivPdfFile" type="file" accept="application/pdf,.pdf" style="display:none" />' +
+        '<div id="ivPdfMsg" style="margin-top:8px;font-size:13px"></div>';
+      msg.appendChild(box);
+      $('ivPdfFile').onchange = function(){
+        var f = this.files && this.files[0];
+        if (!f) return;
+        if (f.size > 12 * 1024 * 1024){ $('ivPdfMsg').innerHTML = '<span style="color:#b91c1c">الملف أكبر من ١٢ ميجابايت.</span>'; return; }
+        var fr = new FileReader();
+        fr.onload = function(){ ivPdfB64 = String(fr.result).split(',')[1] || ''; $('ivPdfLbl').textContent = '📎 ' + f.name; };
+        fr.readAsDataURL(f);
+      };
+      $('ivPdfSend').onclick = function(){
+        var mail = $('ivToMail').value.trim();
+        if (!mail || mail.indexOf('@') === -1){ $('ivPdfMsg').innerHTML = '<span style="color:#b91c1c">أدخل بريد العميل.</span>'; return; }
+        var b2 = this; b2.disabled = true;
+        $('ivPdfMsg').innerHTML = '⏳ جاري الإرسال…';
+        postPanel({ action:'panel-send-invoice', email: mail, invoiceId: iv.id, number: iv.number,
+                    total: iv.total, url: iv.url || '', fileBase64: ivPdfB64 })
+          .then(function(r){
+            b2.disabled = false;
+            if (r && r.ok && r.attached){
+              $('ivPdfMsg').innerHTML = '<span style="color:#14532d">✅ وصلت العميل مع مرفق PDF' +
+                (r.source === 'daftra' ? ' (جُلب من الدفترة تلقائياً)' : '') + '.</span>';
+            } else if (r && r.ok){
+              $('ivPdfMsg').innerHTML = '<span style="color:#b45309">أُرسلت بلا مرفق — أرفق الملف أولاً.</span>';
+            } else {
+              $('ivPdfMsg').innerHTML = '<span style="color:#b91c1c">تعذّر الإرسال: ' + esc((r && r.error) || '؟') + '</span>';
+            }
+          });
+      };
+    }
+
     $('ivGo').onclick = function(){
       var items = ivItems(), msg = $('ivMsg');
       if (!items.length){ msg.style.color = '#dc2626'; msg.textContent = 'أضف بنداً واحداً على الأقل بسعر أكبر من صفر.'; return; }
@@ -1666,11 +1716,12 @@
             msg.innerHTML = (ivDoc === 'estimate' ? '✅ صدر عرض السعر <b>' : '✅ صدرت الفاتورة <b>') + esc(iv.number) + '</b> بإجمالي <b>' + iv.total + ' ﷼</b>' +
               (out.clientCreated ? ' · أُنشئ سجل عميل جديد في الدفترة' : ' · على سجل العميل الحالي') +
               (out.emailed
-                ? ' · أُرسلت للعميل' + (out.pdfAttached ? ' مع مرفق PDF' : ' <span style="color:#b45309">(بدون مرفق PDF — الدفترة ما أعطت الملف، أُرسل الرابط بدلاً منه)</span>')
-                : ($('ivSend').checked && !$('ivDraft').checked ? ' · <span style="color:#b45309">تعذّر إرسالها بالبريد</span>' : '')) +
+                ? ' · أُرسلت للعميل مع مرفق PDF'
+                : (out.pendingPdf ? '' : ($('ivSend').checked && !$('ivDraft').checked ? ' · <span style="color:#b45309">تعذّر إرسالها بالبريد</span>' : ''))) +
               '<br><a href="' + esc(iv.url) + '" target="_blank" rel="noopener" style="font-weight:700">افتحها في الدفترة ←</a>' +
               (iv.printUrl ? ' · <a href="' + esc(iv.printUrl) + '" target="_blank" rel="noopener" style="font-weight:700">اطبع/PDF بالباركود ←</a>' : '') +
               (iv.reducedPayload ? '<br><span style="color:#b45309;font-size:12px">ملاحظة: حسابك رفض بعض الحقول الاختيارية فصدرت بالحقول الأساسية — أرسل لي لقطة وأضبطها.</span>' : '');
+            if (out.pendingPdf) ivAttachBox(iv, out.email || email);
             refresh();
           } else {
             btn.disabled = false;
