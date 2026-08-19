@@ -3090,7 +3090,7 @@ var BP = window.BP = window.BP || {};
               "investor-tourism": BP.t("Business tourism — Mahfol Makfol", "سياحة أعمال — محفول مكفول"),
               "trip": BP.t("Trip — Mahfol Makfol", "رحلة — محفول مكفول"),
               "event": BP.t("Corporate event", "فعالية مؤسسية"),
-              "supplier": BP.t("Supplier registration", "تسجيل مورّد"),
+              "supplier": BP.t("Partner registration", "تسجيل شريك"),
             };
             var label = LABELS[data.type] || BP.t("Request", "طلب");
             var extra = data.dest || data.sector || data.eventType || data.category || "";
