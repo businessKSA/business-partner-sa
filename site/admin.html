@@ -121,6 +121,23 @@
     .dactions .lnk{font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 13px;text-decoration:none;cursor:pointer}
     .dactions .lnk:hover{background:var(--bg)}
     .dactions select{padding:9px 11px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:13px;background:#fff}
+
+    /* ---- invoice modal ---- */
+    .inv{max-width:640px}
+    .inv .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .ilines{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px}
+    .iline{display:grid;grid-template-columns:1fr 66px 108px 32px;gap:6px;padding:8px;border-bottom:1px solid #f2f4f8;align-items:center}
+    .iline:last-child{border-bottom:0}
+    .iline input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13px;outline:none}
+    .iline .del{border:1px solid var(--line);background:#fff;border-radius:8px;width:30px;height:30px;color:#b91c1c;cursor:pointer;font-size:14px}
+    .ihead{display:grid;grid-template-columns:1fr 66px 108px 32px;gap:6px;padding:7px 8px;background:#f8fafc;font-size:11px;font-weight:700;color:var(--soft);border-bottom:1px solid var(--line)}
+    .iadd{margin-top:8px;font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;width:100%}
+    .iadd:hover{border-color:var(--navy);background:var(--bg)}
+    .itot{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-top:12px;font-size:13.5px;line-height:2}
+    .itot b{color:var(--navy)}
+    .itot .grand{font-size:16px;font-weight:800;color:var(--navy)}
+    .ichk{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--soft);margin-top:9px;cursor:pointer}
+    .ichk input{width:auto;margin:0}
     .when{color:var(--muted);font-size:12px;white-space:nowrap;direction:ltr;text-align:right}
     .status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
     .status.good{background:var(--good-bg);color:var(--good-ink)}
@@ -373,6 +390,13 @@
           <div class="sub">كل اللوحات الداخلية وأدوات التشغيل في مكان واحد.</div>
         </div>
 
+        <div class="panel" style="margin-bottom:22px;padding:18px">
+          <h4 style="color:var(--navy);margin-bottom:4px">🧾 الربط المحاسبي — الدفترة</h4>
+          <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">الفواتير تُصدر من زر «إصدار فاتورة» داخل أي طلب في تبويب الطلبات، وتُسجَّل مباشرة في حسابك على الدفترة بضريبة قيمة مضافة على كل بند. اختبر الاتصال هنا قبل أول إصدار.</p>
+          <button class="actbtn" id="dfPing">🔌 اختبر الاتصال بالدفترة</button>
+          <div class="dbody" id="dfOut" style="display:none;margin-top:10px"></div>
+        </div>
+
         <div class="tools">
           <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🏭</span><h4>لوحة تحكم الموردين</h4><p>اعتماد الموردين الجدد وإرسال رمز الدخول، طلب عروض أسعار من عدة موردين، ترسية أوامر العمل، ومتابعة الفواتير في الاتجاهين.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">💬</span><h4>BP Inbox — مركز المحادثات</h4><p>متابعة محادثات واتساب والرد المباشر بمساعدة الذكاء، مع إيقاف/تفعيل الوكيل لكل عميل.</p><span class="go">فتح ←</span></a>
@@ -404,6 +428,41 @@
         <div class="dfiles" id="dFiles"></div>
       </div>
       <div class="dactions" id="dActions"></div>
+    </div>
+  </div>
+
+  <!-- invoice modal -->
+  <div class="modal-back" id="invBack">
+    <div class="modal inv">
+      <h3>🧾 إصدار فاتورة ضريبية في الدفترة</h3>
+      <div class="mnote">تُنشأ الفاتورة في حسابك على الدفترة باسم العميل (يُستخدم سجله الحالي إن كان مسجّلاً) وتُحتسب ضريبة القيمة المضافة على كل بند — فتظهر في دفاترك وفي فوترة ZATCA، لا مجرد رسالة بريد.</div>
+      <label>اسم العميل / المنشأة</label>
+      <input id="ivName" type="text" placeholder="كما تريده أن يظهر في الفاتورة" />
+      <div class="row2">
+        <div><label>بريد العميل</label><input id="ivEmail" type="email" dir="ltr" /></div>
+        <div><label>جوال العميل</label><input id="ivPhone" type="tel" dir="ltr" /></div>
+      </div>
+      <div class="row2">
+        <div><label>المدينة</label><input id="ivCity" type="text" /></div>
+        <div><label>مهلة السداد (أيام)</label><input id="ivDue" type="number" min="0" value="0" /></div>
+      </div>
+      <label>بنود الفاتورة (الأسعار قبل الضريبة)</label>
+      <div class="ilines">
+        <div class="ihead"><span>البند</span><span>الكمية</span><span>سعر الوحدة</span><span></span></div>
+        <div id="ivLines"></div>
+      </div>
+      <button class="iadd" id="ivAdd">＋ أضف بنداً</button>
+      <label class="ichk"><input type="checkbox" id="ivIncl" /> المبالغ المُدخلة شاملة الضريبة (١٥٪) — اقسمها قبل الإرسال</label>
+      <label>ملاحظات تظهر في الفاتورة (اختياري)</label>
+      <input id="ivNotes" type="text" placeholder="مثال: يشمل الرسوم الحكومية · المرجع BP-631464" />
+      <div class="itot" id="ivTot">—</div>
+      <label class="ichk"><input type="checkbox" id="ivSend" checked /> أرسل الفاتورة للعميل بالبريد بعد الإصدار</label>
+      <label class="ichk"><input type="checkbox" id="ivDraft" /> احفظها كمسودة في الدفترة (لا تُرسَل ولا تُرحَّل)</label>
+      <div class="mmsg" id="ivMsg"></div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn" id="ivGo" style="flex:1">🧾 أصدر الفاتورة في الدفترة</button>
+        <button class="btn btn-ghost" id="ivCancel">إلغاء</button>
+      </div>
     </div>
   </div>
 
@@ -726,8 +785,10 @@
         for (var s1 = 0; s1 < STATUSES.length; s1++) o += '<option value="' + STATUSES[s1] + '">' + STATUSES[s1] + '</option>';
         acts += '<select id="dStat">' + o + '</select>';
       }
+      acts += '<button class="lnk" id="dInv">🧾 إصدار فاتورة</button>';
       acts += '<button class="btn" id="dActv" style="margin-inline-start:auto">⚡ تفعيل وإرسال الاعتماد</button>';
       $('dActions').innerHTML = acts;
+      $('dInv').onclick = function(){ closeDetail(); openInvoice(l); };
       if ($('dStat')) $('dStat').onchange = function(){ changeStatus(l.ref, this.value, this); };
       $('dActv').onclick = function(){ closeDetail(); openModal(l); };
       $('detBack').classList.add('on');
@@ -735,7 +796,137 @@
     function closeDetail(){ $('detBack').classList.remove('on'); detLead = null; }
     $('dClose').onclick = closeDetail;
     $('detBack').addEventListener('click', function(e){ if (e.target === this) closeDetail(); });
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeDetail(); closeModal(); } });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeDetail(); closeModal(); closeInvoice(); } });
+
+    // ---- Daftra connection check ----
+    $('dfPing').onclick = function(){
+      var out = $('dfOut'), btn = this;
+      out.style.display = 'block'; out.innerHTML = '⏳ جاري الاتصال بالدفترة…';
+      btn.disabled = true;
+      postPanel({ action:'panel-daftra-ping' }).then(function(r){
+        btn.disabled = false;
+        if (r && r.ok){
+          var recent = (r.recentInvoices || []).map(function(i){
+            return '<span class="kv"><i>' + esc(i.number || '—') + '</i>' + esc((i.client || '—') + ' · ' + (i.total == null ? '—' : i.total) + ' · ' + (i.date || '')) + '</span>';
+          }).join('');
+          out.innerHTML = '<span class="kv" style="color:#14532d"><i>✅ الاتصال ناجح</i>' + esc(r.base || '') + '</span>' +
+            '<span class="kv"><i>الضريبة:</i>' + esc(String(r.vatRate)) + '% · ' + esc(r.currency || '') + '</span>' +
+            '<span class="kv"><i>قراءة العملاء:</i>' + (r.clientsReachable ? 'تعمل' : 'لا تعمل') + '</span>' +
+            '<span class="kv"><i>قراءة الفواتير:</i>' + (r.invoicesReachable ? 'تعمل' : 'لا تعمل — ' + esc(r.invoicesError || '')) + '</span>' +
+            (recent ? '<span class="kv" style="font-weight:700;color:#0B1B5A">آخر الفواتير</span>' + recent : '');
+        } else {
+          var er = (r && r.error) || '';
+          out.innerHTML = '<span style="color:#b91c1c">❌ ' + esc(
+              er === 'daftra_not_configured' ? 'الدفترة غير مربوطة — أضف DAFTRA_API_KEY (و DAFTRA_SUBDOMAIN إن اختلف) في إعدادات Vercel.'
+            : er === 'daftra_unauthorized' ? 'المفتاح مرفوض — تأكد أنه فعّال وله صلاحية العملاء والفواتير.'
+            : er === 'daftra_unreachable' ? 'ما قدرت أوصل للحساب — تحقق من اسم الحساب (subdomain).'
+            : ('فشل الاتصال: ' + er + ((r && r.detail) ? ' — ' + r.detail : ''))) + '</span>';
+        }
+      });
+    };
+
+    // ---- invoice modal (Daftra) ----
+    var invRef = '';
+    function ivRow(name, qty, price){
+      var d = document.createElement('div');
+      d.className = 'iline';
+      d.innerHTML = '<input class="i-n" type="text" placeholder="اسم البند" />' +
+                    '<input class="i-q" type="number" min="1" step="1" />' +
+                    '<input class="i-p" type="number" min="0" step="0.01" />' +
+                    '<button class="del" title="احذف البند">✕</button>';
+      d.querySelector('.i-n').value = name || '';
+      d.querySelector('.i-q').value = qty || 1;
+      d.querySelector('.i-p').value = (price == null ? '' : price);
+      d.querySelector('.del').onclick = function(){ d.remove(); ivTotals(); };
+      var ins = d.querySelectorAll('input');
+      for (var i = 0; i < ins.length; i++) ins[i].addEventListener('input', ivTotals);
+      $('ivLines').appendChild(d);
+      ivTotals();
+    }
+    function ivItems(){
+      var rows = $('ivLines').querySelectorAll('.iline'), out = [];
+      var incl = $('ivIncl').checked;
+      for (var i = 0; i < rows.length; i++){
+        var n = rows[i].querySelector('.i-n').value.trim();
+        var q = Number(rows[i].querySelector('.i-q').value) || 1;
+        var p = Number(rows[i].querySelector('.i-p').value) || 0;
+        if (!n || p <= 0) continue;
+        // The catalogue quotes VAT-inclusive prices in places, so "المبالغ شاملة
+        // الضريبة" strips the 15% back out before Daftra adds it again — otherwise
+        // the client would be charged VAT twice.
+        out.push({ name: n, quantity: q, unitPrice: incl ? Math.round((p / 1.15) * 100) / 100 : p });
+      }
+      return out;
+    }
+    function ivTotals(){
+      var it = ivItems(), net = 0;
+      for (var i = 0; i < it.length; i++) net += it[i].unitPrice * it[i].quantity;
+      var vat = net * 0.15;
+      $('ivTot').innerHTML = it.length
+        ? 'الإجمالي قبل الضريبة: <b>' + (Math.round(net * 100) / 100) + ' ﷼</b><br>' +
+          'ضريبة القيمة المضافة (١٥٪): <b>' + (Math.round(vat * 100) / 100) + ' ﷼</b><br>' +
+          '<span class="grand">الإجمالي المستحق: ' + (Math.round((net + vat) * 100) / 100) + ' ﷼</span>'
+        : '<span style="color:#94a3b8">أضف بنداً واحداً على الأقل بسعر أكبر من صفر.</span>';
+    }
+    function openInvoice(l){
+      invRef = (l && l.ref) || '';
+      var t = (l && l.title) || '';
+      // The title is «<الطلب> — <اسم العميل> (<المرجع>)»; take the name from the
+      // last dash-separated segment once the reference is stripped.
+      var name = '', m = t.replace(/\s*\([^)]*\)\s*$/, '').match(/[—–-]\s*([^—–-]+)$/);
+      if (m) name = m[1].trim();
+      $('ivName').value = name;
+      $('ivEmail').value = (l && l.email) || '';
+      $('ivPhone').value = (l && l.phone) || '';
+      $('ivCity').value = '';
+      $('ivDue').value = 0;
+      $('ivNotes').value = invRef ? ('مرجع الطلب: ' + invRef) : '';
+      $('ivIncl').checked = false; $('ivSend').checked = true; $('ivDraft').checked = false;
+      $('ivMsg').textContent = ''; $('ivMsg').style.color = '';
+      $('ivGo').disabled = false;
+      $('ivLines').innerHTML = '';
+      var svc = (l && l.details) || t.replace(/\s*\([^)]*\)\s*$/, '').split(/[—–]/)[0].trim();
+      ivRow(svc.slice(0, 120), 1, (l && l.total != null && l.total > 0) ? l.total : '');
+      $('invBack').classList.add('on');
+    }
+    function closeInvoice(){ $('invBack').classList.remove('on'); }
+    $('ivAdd').onclick = function(){ ivRow('', 1, ''); };
+    $('ivIncl').onchange = ivTotals;
+    $('ivCancel').onclick = closeInvoice;
+    $('invBack').addEventListener('click', function(e){ if (e.target === this) closeInvoice(); });
+    $('ivGo').onclick = function(){
+      var items = ivItems(), msg = $('ivMsg');
+      if (!items.length){ msg.style.color = '#dc2626'; msg.textContent = 'أضف بنداً واحداً على الأقل بسعر أكبر من صفر.'; return; }
+      var email = $('ivEmail').value.trim(), phone = $('ivPhone').value.trim();
+      if (!email && !phone){ msg.style.color = '#dc2626'; msg.textContent = 'أدخل بريد العميل أو جواله — الدفترة تحتاج وسيلة تواصل لإنشاء سجل العميل.'; return; }
+      var btn = $('ivGo'); btn.disabled = true;
+      msg.style.color = ''; msg.textContent = '⏳ جاري إنشاء الفاتورة في الدفترة…';
+      postPanel({ action:'panel-invoice', ref: invRef, clientName: $('ivName').value.trim(),
+                  email: email, phone: phone, city: $('ivCity').value.trim(),
+                  items: items, notes: $('ivNotes').value.trim(),
+                  dueDays: Number($('ivDue').value) || 0,
+                  draft: $('ivDraft').checked, sendEmail: $('ivSend').checked })
+        .then(function(out){
+          if (out && out.ok && out.invoice){
+            var iv = out.invoice;
+            msg.style.color = '#14532d';
+            msg.innerHTML = '✅ صدرت الفاتورة <b>' + esc(iv.number) + '</b> بإجمالي <b>' + iv.total + ' ﷼</b>' +
+              (out.clientCreated ? ' · أُنشئ سجل عميل جديد في الدفترة' : ' · على سجل العميل الحالي') +
+              (out.emailed ? ' · أُرسلت للعميل' : ($('ivSend').checked && !$('ivDraft').checked ? ' · <span style="color:#b45309">تعذّر إرسالها بالبريد</span>' : '')) +
+              ' — <a href="' + esc(iv.url) + '" target="_blank" rel="noopener" style="font-weight:700">افتحها في الدفترة ←</a>';
+            refresh();
+          } else {
+            btn.disabled = false;
+            msg.style.color = '#dc2626';
+            var er = (out && out.error) || '';
+            msg.textContent = er === 'daftra_not_configured'
+                ? 'الدفترة غير مربوطة بعد — أضف DAFTRA_API_KEY في إعدادات Vercel ثم أعد المحاولة.'
+              : er === 'daftra_unauthorized' ? 'المفتاح مرفوض من الدفترة — تأكد أن المفتاح فعّال وله صلاحية الفواتير.'
+              : er === 'daftra_unreachable' ? 'ما قدرت أوصل للدفترة — تحقق من اسم الحساب (subdomain).'
+              : 'تعذّر إصدار الفاتورة' + ((out && out.detail) ? ' — ' + out.detail : '') + '.';
+          }
+        });
+    };
 
     // ---- activation modal ----
     var modalRef = '';
