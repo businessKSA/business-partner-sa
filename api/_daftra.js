@@ -225,6 +225,39 @@ export async function daftraFindOrCreateClient(who) {
   return { client: made, created: true };
 }
 
+// ---- taxes ---------------------------------------------------------------
+
+// `tax1` on an invoice line is the id of a tax row in the account, not a
+// percentage — sending 15 makes Daftra look for tax #15 and answer
+// "Invalid tax: tax not found or inactive". The account's own tax table is
+// read once per warm instance and the active row matching the configured rate
+// is used.
+let _taxCache = null, _taxAt = 0;
+export async function daftraTaxId(rate = VAT_RATE) {
+  if (_taxCache !== null && Date.now() - _taxAt < 10 * 60 * 1000) return _taxCache;
+  let rows = [];
+  try {
+    const data = await dq("/taxes.json?limit=100");
+    const list = pick(data, ["data", "Taxes", "taxes"]) || data;
+    rows = unwrap(Array.isArray(list) ? list : [], "Tax");
+  } catch (e) {
+    console.error("daftra taxes read failed", String(e.message || e).slice(0, 120));
+    return null;
+  }
+  const num = (t) => Number(t.value ?? t.rate ?? t.percentage ?? t.amount ?? NaN);
+  const active = (t) => t.is_active === undefined || !!Number(t.is_active);
+  const want = Number(rate);
+  const hit =
+    rows.find((t) => active(t) && Math.abs(num(t) - want) < 0.01) ||
+    rows.find((t) => Math.abs(num(t) - want) < 0.01) ||
+    null;
+  _taxCache = hit ? (hit.id ?? null) : null;
+  _taxAt = Date.now();
+  if (_taxCache === null) console.error("daftra: no tax row matching", want, "in", rows.map((t) => `${t.id}:${num(t)}`).join(","));
+  return _taxCache;
+}
+export function daftraResetTaxCache() { _taxCache = null; _taxAt = 0; }
+
 // ---- invoices ------------------------------------------------------------
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -237,13 +270,19 @@ const plusDays = (n) => new Date(Date.now() + Number(n || 0) * 86400000).toISOSt
  * it would have to reverse-engineer.
  */
 export async function daftraCreateInvoice({ clientId, items, notes, ref, dueDays = 0, vatRate = VAT_RATE, draft = false }) {
+  const taxId = await daftraTaxId(vatRate);
+  if (taxId === null) {
+    const err = new Error("daftra_tax_missing");
+    err.detail = `لا توجد ضريبة بنسبة ${vatRate}% مفعّلة في حساب الدفترة — أنشئها من الإعدادات ← إعدادات الضرائب ثم أعد المحاولة.`;
+    throw err;
+  }
   const lines = (items || [])
     .map((it) => ({
       item: String(it.name || "").slice(0, 200) || "خدمة",
       description: String(it.description || "").slice(0, 500),
       unit_price: Number(it.unitPrice) || 0,
       quantity: Number(it.quantity) || 1,
-      tax1: it.taxable === false ? 0 : Number(vatRate) || 0,
+      ...(it.taxable === false ? {} : { tax1: taxId }),
     }))
     .filter((l) => l.unit_price > 0 || l.quantity > 0);
   if (!lines.length) throw new Error("daftra_no_items");
@@ -267,7 +306,7 @@ export async function daftraCreateInvoice({ clientId, items, notes, ref, dueDays
   };
   const minimal = {
     Invoice: { client_id: clientId, date: today(), notes: String(notes || "").slice(0, 1000) },
-    InvoiceItem: lines.map((l) => ({ item: l.item, unit_price: l.unit_price, quantity: l.quantity, tax1: l.tax1 })),
+    InvoiceItem: lines.map((l) => ({ item: l.item, unit_price: l.unit_price, quantity: l.quantity, ...(l.tax1 === undefined ? {} : { tax1: l.tax1 }) })),
   };
   let out = null, usedFallback = false, firstError = "";
   try {
@@ -287,7 +326,7 @@ export async function daftraCreateInvoice({ clientId, items, notes, ref, dueDays
   const id = pick(out, ["id", "invoice_id"]);
   if (!id) throw new Error("daftra_invoice_create_failed");
   const net = lines.reduce((s, l) => s + l.unit_price * l.quantity, 0);
-  const tax = lines.reduce((s, l) => s + (l.unit_price * l.quantity * l.tax1) / 100, 0);
+  const tax = lines.reduce((s, l) => s + (l.tax1 === undefined ? 0 : (l.unit_price * l.quantity * Number(vatRate)) / 100), 0);
   // The create response carries the id and little else. Read the invoice back
   // for the number Daftra actually assigned and for any link it publishes —
   // the ZATCA QR code and the printed layout are rendered by Daftra, so the
@@ -349,6 +388,8 @@ export async function daftraListInvoices(limit = 10) {
 export async function daftraPing() {
   if (!API_KEY) return { ok: false, error: "daftra_not_configured", base: BASE };
   const out = { ok: true, base: BASE, subdomain: SUBDOMAIN, vatRate: VAT_RATE, currency: CURRENCY };
+  daftraResetTaxCache();
+  try { out.taxId = await daftraTaxId(); } catch { out.taxId = null; }
   try {
     const rows = clientRows(await dq("/clients.json?limit=1"));
     out.clientsReachable = true;
