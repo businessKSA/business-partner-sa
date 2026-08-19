@@ -923,7 +923,6 @@ var BP = window.BP = window.BP || {};
   // languages they are machine-translated on demand and cached per browser,
   // so switching language no longer leaves the advert in Arabic.
   function pageLang() { return (document.documentElement.lang || "en").toLowerCase().split("-")[0]; }
-  var TR_SEP = "\n@@\n";
   function translateParts(parts, id) {
     var lang = pageLang();
     if (lang === "ar") return Promise.resolve(null);
@@ -934,14 +933,14 @@ var BP = window.BP = window.BP || {};
     } catch (e) {}
     return fetch("/api/hire", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ task: "translate", lang: lang, text: parts.join(TR_SEP) }),
+      body: JSON.stringify({ task: "translate", lang: lang, items: parts }),
     }).then(function (r) { return r.json(); }).then(function (d) {
-      var out = d && d.ok && d.result ? String(d.result).split(/\s*@@\s*/).map(function (x) { return x.trim(); }) : [];
-      // A mismatched split means the model dropped a separator — keep Arabic
-      // rather than showing scrambled sections.
-      if (out.length !== parts.length) return null;
-      try { localStorage.setItem(key, JSON.stringify({ n: parts.length, parts: out })); } catch (e2) {}
-      return out;
+      if (!d || !d.ok || !Array.isArray(d.items) || d.items.length !== parts.length) {
+        if (window.console) console.warn("job translation unavailable", d && d.error);
+        return null;
+      }
+      try { localStorage.setItem(key, JSON.stringify({ n: parts.length, parts: d.items })); } catch (e2) {}
+      return d.items;
     }).catch(function () { return null; });
   }
   // Splits an advert's plain text into its intro / duties / requirements /

@@ -118,6 +118,13 @@ function buildPrompt(b) {
   if (b.task === "translate") {
     const names = { en: "English", fr: "French", es: "Spanish", zh: "Chinese (Simplified)", ru: "Russian", hi: "Hindi", ko: "Korean", ja: "Japanese", ar: "Arabic" };
     const target = names[String(b.lang || "en").toLowerCase()] || "English";
+    const items = Array.isArray(b.items) ? b.items.slice(0, 60).map((x) => String(x == null ? "" : x).slice(0, 4000)) : null;
+    // JSON in, JSON out: a delimiter-based contract was unreliable — models
+    // drop or reformat separators, and a mismatched split has to be thrown
+    // away, which silently left adverts untranslated.
+    if (items) {
+      return `Translate every string in this JSON array into ${target}.\n\nRules: translate faithfully; keep job titles natural for that language's job market; add nothing and drop nothing; keep line breaks inside a string as \\n. Return ONLY a JSON array of exactly ${items.length} strings in the same order — no code fences, no commentary.\n\n${JSON.stringify(items)}`;
+    }
     return `Translate the job advert below into ${target}.\n\nRules: translate faithfully, keep the same paragraph and line breaks, keep job titles natural for that language's job market, do not add or remove any information, do not add commentary. Output only the translation.\n\n---\n${String(b.text || "").slice(0, 12000)}`;
   }
   if (b.task === "jobdesc") {
@@ -167,6 +174,16 @@ export default async function handler(req, res) {
         } catch (e) { console.error("posting relation update error", e); }
       }
       return res.end(JSON.stringify({ ok: true, task, ranked, raw: ranked.length ? undefined : out }));
+    }
+    if (task === "translate" && Array.isArray(b.items)) {
+      let arr = [];
+      try { const m = out.match(/\[[\s\S]*\]/); arr = JSON.parse(m ? m[0] : out); } catch { arr = []; }
+      if (!Array.isArray(arr) || arr.length !== b.items.length) {
+        console.error("translate mismatch", b.items.length, Array.isArray(arr) ? arr.length : "unparsed");
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: false, error: "bad_translation" }));
+      }
+      return res.end(JSON.stringify({ ok: true, task, items: arr.map((x) => String(x == null ? "" : x)) }));
     }
     return res.end(JSON.stringify({ ok: true, task, result: out }));
   } catch (e) {
