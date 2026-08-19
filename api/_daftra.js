@@ -47,6 +47,24 @@ function unwrap(rows, model) {
   return (Array.isArray(rows) ? rows : []).map((r) => (r && r[model]) || r).filter(Boolean);
 }
 
+// Flatten Daftra's nested validation payload into one readable line:
+// {errors:{Invoice:{client_id:["مطلوب"]}}} -> "client_id: مطلوب".
+function describeErrors(data) {
+  if (!data) return "";
+  const bag = data.errors || (data.data && data.data.errors) || null;
+  const out = [];
+  const walk = (node, key) => {
+    if (out.length >= 12 || node == null) return;
+    if (typeof node === "string" || typeof node === "number") { out.push(key ? `${key}: ${node}` : String(node)); return; }
+    if (Array.isArray(node)) { for (const v of node) walk(v, key); return; }
+    for (const [k, v] of Object.entries(node)) walk(v, k);
+  };
+  walk(bag);
+  const msg = String(data.message || "").trim();
+  const fields = out.join(" · ");
+  return [fields, fields ? "" : msg].filter(Boolean).join("") || msg;
+}
+
 async function dq(path, { method = "GET", body } = {}) {
   if (!API_KEY) throw new Error("daftra_not_configured");
   let r;
@@ -63,11 +81,17 @@ async function dq(path, { method = "GET", body } = {}) {
   const text = await r.text();
   let data = null;
   try { data = JSON.parse(text); } catch { /* Daftra returns HTML on auth failure */ }
-  if (!r.ok || !data) {
-    console.error("daftra error", method, path, r.status, text.slice(0, 300));
+  // Daftra answers a rejected write with 200 + result:"fail", not a 4xx, and
+  // puts the per-field reasons in `errors` while `message` stays generic
+  // ("فشل في حفظ الفاتورة، الرجاء إصلاح الأخطاء بالأسفل"). Both are treated as
+  // failures here and the field errors are flattened into the message the
+  // panel shows — the generic line alone is undiagnosable.
+  const failed = !r.ok || !data || String((data && data.result) || "").toLowerCase() === "fail";
+  if (failed) {
+    console.error("daftra error", method, path, r.status, text.slice(0, 800));
     const err = new Error(r.status === 401 || r.status === 403 ? "daftra_unauthorized" : "daftra_failed");
     err.status = r.status;
-    err.detail = (data && (data.message || data.errors)) || text.slice(0, 200);
+    err.detail = describeErrors(data) || text.slice(0, 400);
     throw err;
   }
   return data;
@@ -108,32 +132,73 @@ export async function daftraFindClient({ email, phone }) {
   return null;
 }
 
-export async function daftraCreateClient({ name, email, phone, city, notes }) {
+// A ZATCA standard tax invoice carries the buyer's VAT number and national
+// address; a simplified invoice to an individual does not. Both are optional
+// here so individuals stay invoiceable, and both are written onto the client
+// record so Daftra prints them on this and every future invoice.
+export function nationalAddressLine(a) {
+  if (!a) return "";
+  const parts = [
+    a.buildingNo && `مبنى ${a.buildingNo}`,
+    a.street, a.district, a.city,
+    a.postalCode && `الرمز البريدي ${a.postalCode}`,
+    a.additionalNo && `الرقم الإضافي ${a.additionalNo}`,
+  ].filter(Boolean);
+  return parts.join("، ");
+}
+
+function clientBody({ name, email, phone, city, notes, taxNumber, address }) {
   const full = String(name || "").trim() || String(email || "").split("@")[0] || "عميل";
   const parts = full.split(/\s+/);
-  const out = await dq("/clients.json", {
-    method: "POST",
-    body: {
-      Client: {
-        business_name: full,
-        first_name: parts[0] || full,
-        last_name: parts.slice(1).join(" ") || "",
-        email: String(email || "").trim(),
-        phone1: String(phone || "").trim(),
-        city: String(city || "").trim(),
-        notes: String(notes || "").slice(0, 500),
-        type: 1, // business
-      },
-    },
-  });
+  const a = address || {};
+  const street = [a.buildingNo, a.street].filter(Boolean).join(" ");
+  const body = {
+    business_name: full,
+    first_name: parts[0] || full,
+    last_name: parts.slice(1).join(" ") || "",
+    email: String(email || "").trim(),
+    phone1: String(phone || "").trim(),
+    city: String(a.city || city || "").trim(),
+    notes: String(notes || "").slice(0, 500),
+  };
+  const tax = String(taxNumber || "").replace(/\D/g, "");
+  // The same value under both names: accounts differ on which one the tax
+  // field is called, and Daftra ignores keys it does not recognise.
+  if (tax) { body.business_id = tax; body.tax_number = tax; }
+  if (street) body.address1 = street.slice(0, 120);
+  if (a.district) body.address2 = String(a.district).slice(0, 120);
+  if (a.postalCode) body.postal_code = String(a.postalCode).replace(/\D/g, "");
+  if (a.additionalNo) body.building_number = String(a.additionalNo).replace(/\D/g, "");
+  if (street || a.district) body.country_code = "SA";
+  return { full, body };
+}
+
+export async function daftraCreateClient(who) {
+  const { full, body } = clientBody(who);
+  const out = await dq("/clients.json", { method: "POST", body: { Client: body } });
   const id = pick(out, ["id", "client_id"]);
   if (!id) throw new Error("daftra_client_create_failed");
-  return { id, business_name: full, email, phone1: phone };
+  return { id, business_name: full, email: who.email, phone1: who.phone };
+}
+
+// Backfill VAT number / national address onto a client that already exists,
+// so the second invoice to a returning customer is compliant even though the
+// first one was created before we asked for those details. Best-effort: a
+// failed update must not block the invoice.
+export async function daftraUpdateClient(id, who) {
+  const { body } = clientBody(who);
+  for (const k of ["business_name", "first_name", "last_name", "notes"]) delete body[k];
+  if (!Object.keys(body).some((k) => body[k])) return false;
+  try { await dq(`/clients/${id}.json`, { method: "PUT", body: { Client: body } }); return true; }
+  catch (e) { console.error("daftra client update skipped", String(e.message || e).slice(0, 120)); return false; }
 }
 
 export async function daftraFindOrCreateClient(who) {
   const found = await daftraFindClient(who);
-  if (found && pick(found, ["id"])) return { client: found, created: false };
+  if (found && found.id) {
+    if (who.taxNumber || nationalAddressLine(who.address)) await daftraUpdateClient(found.id, who);
+    return { client: found, created: false };
+  }
   const made = await daftraCreateClient(who);
   return { client: made, created: true };
 }
