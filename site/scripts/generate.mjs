@@ -6673,7 +6673,7 @@ function buildSuppliers() {
   <section class="section"><div class="container">
     <div class="booking-wrap">
       <form class="calc-form" id="supplier-form" novalidate>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">${L("Partner registration", "تسجيل الشركاء")}</h2><a class="btn btn-ghost btn-sm" href="${u("/partner-dashboard")}">${L("Already a supplier? Open the portal →", "مورّد بالفعل؟ افتح البوابة ←")}</a></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">${L("Partner registration", "تسجيل الشركاء")}</h2><a class="btn btn-ghost btn-sm" href="${u("/partner-dashboard")}">${L("Already a partner? Open your dashboard →", "شريك بالفعل؟ افتح لوحتك ←")}</a></div>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="sp-company">${L("Company name", "اسم الشركة")}</label><input id="sp-company" type="text" required></div>
           <div class="field"><label for="sp-person">${L("Contact person", "الشخص المسؤول")}</label><input id="sp-person" type="text" required></div>
@@ -6690,8 +6690,8 @@ function buildSuppliers() {
         <div class="field"><label for="sp-cat">${L("Service category", "تصنيف الخدمة")}</label>
           <select id="sp-cat">${catOpts}</select></div>
         <div class="field"><label for="sp-notes">${L("Describe your services briefly", "اوصف خدماتك باختصار")}</label><textarea id="sp-notes" rows="3"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a supplier", "سجّل كمورّد")}</button>
-        <p class="form-note">${L("We review each registration. Once approved we email you an access code that opens the suppliers portal.", "نراجع كل تسجيل. بعد الاعتماد يصلك رمز دخول على بريدك تفتح به بوابة الموردين.")}</p>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a partner", "سجّل كشريك")}</button>
+        <p class="form-note">${L("Your dashboard opens as soon as you verify your email — you will see every service you can execute and what each one pays you. Approval is what lets us assign you work.", "لوحتك تفتح فور تأكيد بريدك — تشوف فيها كل خدمة تقدر تنفّذها وكم تكسب منها. والاعتماد هو ما يسمح لنا بإسناد العمل إليك.")}</p>
         <div class="form-success" id="supplier-success" hidden></div>
       </form>
       <aside class="booking-side">
@@ -6720,9 +6720,9 @@ function buildSuppliers() {
 function buildPartnerDashboard() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Suppliers portal", "بوابة الموردين")}</span>
-    <h1>${L("Supplier dashboard", "لوحة المورّد")}</h1>
-    <p class="lead">${L("Your assigned work orders from Business Partner — accept them, update progress, and upload your invoice when the job is delivered.", "أوامر العمل المُسنَدة إليك من بيزنس بارتنر — اقبلها، حدّث حالة التنفيذ، وارفع فاتورتك بعد التسليم.")}</p>
+    <span class="eyebrow">${L("Partners portal", "بوابة الشركاء")}</span>
+    <h1>${L("Partner dashboard", "لوحة الشريك")}</h1>
+    <p class="lead">${L("Every service you can execute and what it pays you, the work orders assigned to you, and your invoices — one portal.", "كل خدمة تقدر تنفّذها وكم تكسب منها، وأوامر العمل المُسنَدة إليك، وفواتيرك — في بوابة واحدة.")}</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:1000px">
 
@@ -6825,7 +6825,7 @@ function buildPartnerDashboard() {
       </form>
     </div>
   </div></div>`;
-  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_SUP_CATS=${JSON.stringify(SUPPLIER_CATS.map((c) => c.ar))};window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Supplier dashboard — Business Partner", "لوحة المورّد — بيزنس بارتنر"), desc: Lraw("Suppliers portal: see the work orders assigned to you, update progress and upload invoices.", "بوابة الموردين: تابع أوامر العمل المسندة إليك، حدّث حالتها وارفع فواتيرك."), active: "/suppliers", path: "/partner-dashboard", body });
+  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_SUP_CATS=${JSON.stringify(SUPPLIER_CATS.map((c) => c.ar))};window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Partner dashboard — Business Partner", "لوحة الشريك — بيزنس بارتنر"), desc: Lraw("Partners portal: the services you can execute, the work orders assigned to you, and your invoices.", "بوابة الشركاء: الخدمات التي تقدر تنفّذها، أوامر العمل المسندة إليك، وفواتيرك."), active: "/suppliers", path: "/partner-dashboard", body });
 }
 
 // Owner-only supplier control panel. Gated by the same PANEL_KEY/LEADS_KEY that
@@ -6834,7 +6834,7 @@ function buildSuppliersAdmin() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Owner panel", "لوحة المالك")}</span>
-    <h1>${L("Suppliers control panel", "لوحة تحكم الموردين")}</h1>
+    <h1>${L("Partners control panel", "لوحة تحكم الشركاء")}</h1>
     <p class="lead">${L("Approve suppliers, request quotations, award work orders and issue invoices — everything writes straight to your Notion registry.", "اعتمد الموردين، اطلب عروض الأسعار، أرسِ أوامر العمل وأصدر الفواتير — كل شيء يُكتب مباشرة في قواعدك في نوشن.")}</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:1180px">
@@ -6888,7 +6888,7 @@ function buildSuppliersAdmin() {
       <div id="sa-suppliers"><p class="dash-empty">${L("No suppliers yet.", "لا يوجد موردون بعد.")}</p></div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Suppliers control panel — Business Partner", "لوحة تحكم الموردين — بيزنس بارتنر"), desc: Lraw("Owner panel for the supplier network.", "لوحة المالك لشبكة الموردين."), active: "/suppliers", path: "/suppliers-admin", body, noindex: true });
+  return page({ title: Lraw("Partners control panel — Business Partner", "لوحة تحكم الشركاء — بيزنس بارتنر"), desc: Lraw("Owner panel for the partner network.", "لوحة المالك لشبكة الشركاء."), active: "/suppliers", path: "/suppliers-admin", body, noindex: true });
 }
 
 function buildMonitor() {

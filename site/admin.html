@@ -278,7 +278,7 @@
       <nav class="nav" id="navDesk">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات والموافقات</button>
-        <button data-v="suppliers">🏭 الموردون</button>
+        <button data-v="suppliers">🤝 الشركاء</button>
         <button data-v="content">📝 محتوى الموقع</button>
         <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات واللوحات</button>
@@ -299,7 +299,7 @@
       <div class="tabs" id="navMob">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات</button>
-        <button data-v="suppliers">🏭 الموردون</button>
+        <button data-v="suppliers">🤝 الشركاء</button>
         <button data-v="content">📝 المحتوى</button>
         <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات</button>
@@ -339,7 +339,7 @@
         <div class="panel">
           <div class="panel-head"><h3>وصول سريع</h3></div>
           <div class="tools" style="padding:16px 18px">
-            <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="ico">🏭</span><h4>لوحة الموردين</h4><p>اعتماد الموردين الجدد، طلب عروض الأسعار، وأوامر العمل والفواتير.</p><span class="go">فتح ←</span></a>
+            <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="ico">🏭</span><h4>لوحة الشركاء</h4><p>اعتماد الموردين الجدد، طلب عروض الأسعار، وأوامر العمل والفواتير.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="ico">💬</span><h4>BP Inbox</h4><p>محادثات واتساب المباشرة والرد بمساعدة الذكاء.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="/dashboard" target="_blank" rel="noopener"><span class="ico">🎛️</span><h4>فريق الإيجنتس</h4><p>اختبار الموظفين الأذكياء والتحكم بتفعيلهم.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener"><span class="ico">📇</span><h4>CRM — نوشن</h4><p>قاعدة العملاء والصفقات الكاملة.</p><span class="go">فتح ←</span></a>
@@ -372,21 +372,21 @@
       <!-- ============ suppliers ============ -->
       <section class="view" id="view-suppliers">
         <div class="pagehead">
-          <h2>🏭 الموردون وأوامر العمل</h2>
+          <h2>🤝 الشركاء (الموردون) وأوامر العمل</h2>
           <div class="spacer"></div>
           <span class="stamp" id="stampSup"></span>
           <button class="refresh" id="supRefresh">↻ تحديث</button>
-          <div class="sub">اعتماد الموردين الجدد وأوامر عملهم من هنا مباشرة — بلا لوحة منفصلة. المورّد يسجّل وتفتح بوابته فوراً، والاعتماد هو ما يسمح بإسناد العمل له.</div>
+          <div class="sub">الشركاء والموردون شيء واحد: من يسجّل في «بوابة الشركاء» يظهر هنا. تفتح لوحته فور تأكيد بريده، والاعتماد هو ما يسمح بإسناد العمل له.</div>
         </div>
         <div class="tiles">
-          <div class="tile"><div class="k">🏭 الموردون</div><div class="v" id="sTotal">—</div><div class="d">في السجل</div></div>
+          <div class="tile"><div class="k">🤝 الشركاء</div><div class="v" id="sTotal">—</div><div class="d">في السجل</div></div>
           <div class="tile"><div class="k">⏳ بانتظار الاعتماد</div><div class="v" id="sPending">—</div><div class="d">تحتاج قرارك</div></div>
           <div class="tile"><div class="k">✅ معتمدون</div><div class="v" id="sActive">—</div><div class="d">يمكن إسناد العمل لهم</div></div>
           <div class="tile"><div class="k">📦 أوامر العمل</div><div class="v" id="sOrders">—</div><div class="d">مفتوحة ومغلقة</div></div>
         </div>
         <div class="panel" style="margin-bottom:22px">
-          <div class="panel-head"><h3>الموردون</h3>
-            <a class="more" href="/ar/suppliers-admin" target="_blank" rel="noopener">اللوحة الكاملة (عروض أسعار وإسناد) ←</a></div>
+          <div class="panel-head"><h3>الشركاء المسجّلون</h3>
+            <a class="more" href="/ar/suppliers-admin" target="_blank" rel="noopener">لوحة الشركاء الكاملة (عروض أسعار وإسناد) ←</a></div>
           <div id="supList"><div class="empty">جاري التحميل…</div></div>
         </div>
         <div class="panel">
@@ -454,7 +454,7 @@
         </div>
 
         <div class="tools">
-          <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🏭</span><h4>لوحة تحكم الموردين</h4><p>اعتماد الموردين الجدد وإرسال رمز الدخول، طلب عروض أسعار من عدة موردين، ترسية أوامر العمل، ومتابعة الفواتير في الاتجاهين.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🏭</span><h4>لوحة تحكم الشركاء</h4><p>اعتماد الموردين الجدد وإرسال رمز الدخول، طلب عروض أسعار من عدة موردين، ترسية أوامر العمل، ومتابعة الفواتير في الاتجاهين.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">💬</span><h4>BP Inbox — مركز المحادثات</h4><p>متابعة محادثات واتساب والرد المباشر بمساعدة الذكاء، مع إيقاف/تفعيل الوكيل لكل عميل.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/dashboard" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🎛️</span><h4>لوحة فريق الإيجنتس</h4><p>اختبار كل موظف ذكي مباشرة، والتحكم في تشغيله وقفله حتى الدفع.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/ar/compliance-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🛡️</span><h4>لوحة وكيل الامتثال</h4><p>اللوحة التي يراها مشترك خدمة الامتثال — مراقبة المنصات الحكومية والتنبيهات.</p><span class="go">فتح ←</span></a>
@@ -1096,7 +1096,7 @@
         .then(function(d){
           if (!d || !d.ok){
             list.innerHTML = '<div class="empty">' + (d && d.error === 'unauthorized'
-              ? 'المفتاح مرفوض من بوابة الموردين — تأكد أن PANEL_KEY هو نفسه في Vercel.'
+              ? 'المفتاح مرفوض من بوابة الشركاء — تأكد أن PANEL_KEY هو نفسه في Vercel.'
               : 'تعذّر تحميل سجل الموردين.') + '</div>';
             orders.innerHTML = '';
             return;
@@ -1104,7 +1104,7 @@
           SUP.suppliers = d.suppliers || []; SUP.orders = d.orders || [];
           renderSuppliers();
         })
-        .catch(function(){ list.innerHTML = '<div class="empty">تعذّر الاتصال ببوابة الموردين.</div>'; });
+        .catch(function(){ list.innerHTML = '<div class="empty">تعذّر الاتصال ببوابة الشركاء.</div>'; });
     }
     function renderSuppliers(){
       var sup = SUP.suppliers, ord = SUP.orders;
@@ -1130,7 +1130,7 @@
           '<br>عمولة بيزنس بارتنر: <b>' + (x.commission != null ? x.commission : 20) + '%</b>' +
           (x.cr ? ' · س.ت: ' + esc(x.cr) : '') + (x.vat ? ' · ض: ' + esc(x.vat) : '') + '</div></div>' +
           '<div class="acts">' + (acts || '<span class="stage">—</span>') + '</div></div>';
-      }).join('') : '<div class="empty">لا يوجد موردون بعد — أول من يسجّل عبر <a href="/ar/suppliers" target="_blank" rel="noopener">صفحة الشركاء</a> يظهر هنا.</div>';
+      }).join('') : '<div class="empty">لا يوجد شركاء بعد — أول من يسجّل عبر <a href="/ar/suppliers" target="_blank" rel="noopener">بوابة الشركاء</a> يظهر هنا.</div>';
 
       $('supOrders').innerHTML = ord.length ? ord.slice(0, 40).map(function(o){
         var money = [];
