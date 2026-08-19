@@ -2022,9 +2022,16 @@ var BP = window.BP = window.BP || {};
     // Credentials, not a session flag: every call re-authenticates server-side,
     // so a stale localStorage entry can never stand in for approval.
     function creds() { try { return JSON.parse(localStorage.getItem("bp_supplier") || "null"); } catch (e) { return null; } }
+    function paneTo(name) {
+      [].slice.call(document.querySelectorAll(".sup-pane")).forEach(function (el) { el.hidden = el.getAttribute("data-pane") !== name; });
+      [].slice.call(document.querySelectorAll(".sup-tab")).forEach(function (t) { t.classList.toggle("active", t.getAttribute("data-tab") === name); });
+      var gw = document.getElementById("sup-google-wrap");
+      if (gw) gw.hidden = !(name === "login" || name === "signup") || !window.BP_GOOGLE_CLIENT_ID;
+    }
     function setCreds(c) { try { c ? localStorage.setItem("bp_supplier", JSON.stringify(c)) : localStorage.removeItem("bp_supplier"); } catch (e) {} }
 
     var state = { supplier: null, orders: [] };
+    var pending = null;
     var ACTIVE = ["أُرسل للمورّد", "قبله المورّد", "قيد التنفيذ"];
 
     function render() {
@@ -2070,7 +2077,7 @@ var BP = window.BP = window.BP || {};
     }
 
     function load(c, onFail) {
-      fetch("/api/suppliers?action=orders&email=" + encodeURIComponent(c.email) + "&code=" + encodeURIComponent(c.code), { cache: "no-store" })
+      fetch("/api/suppliers?action=orders&email=" + encodeURIComponent(c.email) + "&pw=" + encodeURIComponent(c.pw || ""), { cache: "no-store" })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) {
           if (res.d && res.d.ok) { state.supplier = res.d.supplier; state.orders = res.d.orders || []; render(); return; }
@@ -2083,38 +2090,146 @@ var BP = window.BP = window.BP || {};
     var errEl = document.getElementById("pl-error");
     function showErr(code) {
       if (!errEl) return;
-      errEl.textContent = code === "not_approved"
-        ? T("Your registration is still under review — we email your access code the moment it is approved.", "تسجيلك ما زال قيد المراجعة — يصلك رمز الدخول على بريدك فور اعتماده.")
+      errEl.textContent = code === "email_unverified"
+        ? T("Verify your email first — enter the code we sent you.", "فعّل بريدك أولاً — أدخل الرمز الذي أرسلناه لك.")
+        : code === "weak_password" ? T("Password must be at least 8 characters.", "كلمة المرور يجب أن تكون 8 أحرف فأكثر.")
+        : code === "invalid_code" ? T("The code is wrong or has expired.", "الرمز غير صحيح أو انتهت صلاحيته.")
+        : code === "google_not_configured" ? T("Google sign-in is not configured yet.", "الدخول عبر Google غير مُفعّل بعد.")
+        : code === "not_configured" ? T("Sign-up is not configured yet — contact us.", "التسجيل غير مُفعّل بعد — تواصل معنا.")
         : code === "network" ? T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى.")
-        : T("Email or access code is incorrect.", "البريد أو رمز الدخول غير صحيح.");
+        : T("Email or password is incorrect.", "البريد أو كلمة المرور غير صحيحة.");
       errEl.hidden = false;
     }
 
+    // populate the sign-up categories from the same list the registry uses
+    var catSel = document.getElementById("ps-cat");
+    if (catSel && window.BP_SUP_CATS) {
+      window.BP_SUP_CATS.forEach(function (c) { var o = document.createElement("option"); o.value = c; o.textContent = c; catSel.appendChild(o); });
+    }
+    [].slice.call(document.querySelectorAll(".sup-tab")).forEach(function (t) {
+      t.addEventListener("click", function () { if (errEl) errEl.hidden = true; paneTo(t.getAttribute("data-tab")); });
+    });
+    paneTo("login");
+
     var boot = creds();
-    if (boot && boot.email && boot.code) load(boot);
+    if (boot && boot.email && boot.pw) load(boot);
 
     var loginForm = document.getElementById("partner-login-form");
     if (loginForm) loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
       if (errEl) errEl.hidden = true;
       var email = (document.getElementById("pl-email").value || "").trim().toLowerCase();
-      var code = (document.getElementById("pl-code").value || "").trim().toUpperCase();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !code) { showErr("bad_credentials"); return; }
+      var pw = document.getElementById("pl-pw").value || "";
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !pw) { showErr("bad_credentials"); return; }
       var btn = loginForm.querySelector("button[type=submit]"), lbl = btn.textContent;
       btn.disabled = true; btn.textContent = T("Signing in…", "جارٍ الدخول…");
-      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "login", email: email, code: code }) })
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "login", email: email, password: pw }) })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           btn.disabled = false; btn.textContent = lbl;
-          if (!d || !d.ok) { showErr(d && d.error); return; }
-          setCreds({ email: email, code: code });
+          if (!d || !d.ok) {
+            if (d && d.error === "email_unverified") { pending = { email: email, pw: pw }; paneTo("verify"); }
+            showErr(d && d.error); return;
+          }
+          setCreds({ email: email, pw: pw });
           state.supplier = d.supplier; state.orders = d.orders || []; render();
         })
         .catch(function () { btn.disabled = false; btn.textContent = lbl; showErr("network"); });
     });
 
+    // ---- sign up -> e-mail code -> verified -> signed in ----
+    // `pending` (declared above) carries {email, pw, token, exp} between the
+    // sign-up POST and the verification POST.
+    var signupForm = document.getElementById("partner-signup-form");
+    if (signupForm) signupForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (errEl) errEl.hidden = true;
+      var v = function (id) { var el = document.getElementById(id); return el ? (el.value || "").trim() : ""; };
+      var email = v("ps-email").toLowerCase(), pw = document.getElementById("ps-pw").value || "";
+      if (!v("ps-company") || !v("ps-person") || !v("ps-phone") || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showErr("invalid_fields"); return; }
+      if (pw.length < 8) { showErr("weak_password"); return; }
+      var btn = signupForm.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Creating…", "جارٍ الإنشاء…");
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "signup", company: v("ps-company"), person: v("ps-person"), phone: v("ps-phone"),
+          email: email, password: pw, city: v("ps-city"), categories: [v("ps-cat")].filter(Boolean) }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          btn.disabled = false; btn.textContent = lbl;
+          if (!d || !d.ok) { showErr(d && d.error); return; }
+          pending = { email: email, pw: pw, token: d.token, exp: d.exp };
+          var note = document.getElementById("sup-verify-note");
+          if (note) note.textContent = T("We sent a 6-digit code to ", "أرسلنا رمزاً من 6 أرقام إلى ") + email;
+          paneTo("verify");
+        })
+        .catch(function () { btn.disabled = false; btn.textContent = lbl; showErr("network"); });
+    });
+
+    var verifyForm = document.getElementById("partner-verify-form");
+    if (verifyForm) verifyForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (errEl) errEl.hidden = true;
+      if (!pending) { paneTo("login"); return; }
+      var code = (document.getElementById("pv-code").value || "").trim();
+      if (!code) return;
+      var btn = verifyForm.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Verifying…", "جارٍ التحقق…");
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "verify-email", email: pending.email, code: code, token: pending.token, exp: pending.exp }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          btn.disabled = false; btn.textContent = lbl;
+          if (!d || !d.ok) { showErr(d && d.error); return; }
+          // verified — sign straight in with the password just chosen
+          setCreds({ email: pending.email, pw: pending.pw });
+          load(pending, function (err) { showErr(err); });
+        })
+        .catch(function () { btn.disabled = false; btn.textContent = lbl; showErr("network"); });
+    });
+
+    var resend = document.getElementById("pv-resend");
+    if (resend) resend.addEventListener("click", function () {
+      if (!pending) return;
+      resend.disabled = true;
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "resend-code", email: pending.email }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { resend.disabled = false; if (d && d.ok) { pending.token = d.token; pending.exp = d.exp; resend.textContent = T("Code sent", "أُرسل الرمز"); } })
+        .catch(function () { resend.disabled = false; });
+    });
+
+    // ---- Google Sign-In ----
+    // The ID token is verified server-side against Google's keys; the client id
+    // is a public identifier, so publishing it in the page is expected.
+    window.bpSupplierGoogle = function (resp) {
+      if (errEl) errEl.hidden = true;
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "google", credential: resp && resp.credential }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) { showErr(d && d.error); return; }
+          // Google accounts have no local password; the session is this flag.
+          setCreds({ email: "", pw: "", google: true });
+          state.supplier = d.supplier; state.orders = d.orders || []; render();
+        })
+        .catch(function () { showErr("network"); });
+    };
+    (function initGoogle() {
+      var box = document.getElementById("sup-google");
+      if (!box || !window.BP_GOOGLE_CLIENT_ID) return;
+      var tries = 0;
+      var t = setInterval(function () {
+        if (window.google && google.accounts && google.accounts.id) {
+          clearInterval(t);
+          google.accounts.id.initialize({ client_id: window.BP_GOOGLE_CLIENT_ID, callback: window.bpSupplierGoogle });
+          google.accounts.id.renderButton(box, { theme: "outline", size: "large", shape: "pill", text: "continue_with", locale: (document.documentElement.lang || "ar") });
+          var gw = document.getElementById("sup-google-wrap"); if (gw) gw.hidden = false;
+        } else if (++tries > 40) clearInterval(t);
+      }, 150);
+    })();
+
     var logout = document.getElementById("pt-logout");
-    if (logout) logout.addEventListener("click", function () { setCreds(null); state.supplier = null; state.orders = []; render(); });
+    if (logout) logout.addEventListener("click", function () { setCreds(null); state.supplier = null; state.orders = []; pending = null; paneTo("login"); render(); });
 
     // Work-order update modal
     var modal = document.getElementById("pt-modal");
@@ -2140,7 +2255,7 @@ var BP = window.BP = window.BP || {};
       e.preventDefault();
       var c = creds(); if (!c) return;
       var payload = {
-        type: "order-update", email: c.email, code: c.code,
+        type: "order-update", email: c.email, password: c.pw,
         orderId: document.getElementById("pt-order-id").value,
         notes: (document.getElementById("pt-offer-notes").value || "").trim(),
       };

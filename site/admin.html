@@ -87,12 +87,40 @@
     .chip .n{opacity:.75;font-size:11px;margin-inline-start:4px}
     .tbl-wrap{overflow-x:auto}
     table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:680px}
-    th{background:#f8fafc;color:var(--soft);font-size:12px;font-weight:700;text-align:right;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
-    td{padding:11px 14px;border-bottom:1px solid #f2f4f8;vertical-align:middle}
+    th{background:#f8fafc;color:var(--soft);font-size:12px;font-weight:700;text-align:right;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+    td{padding:11px 10px;border-bottom:1px solid #f2f4f8;vertical-align:middle}
     tr:last-child td{border-bottom:0}
     tbody tr:hover{background:#f8fafc}
     .ref{font-weight:700;color:var(--navy);direction:ltr;white-space:nowrap}
-    .lead-title{font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .lead-title{font-weight:600;min-width:210px;max-width:310px;line-height:1.6}
+    .lead-title .t{display:block;color:var(--navy);cursor:pointer}
+    .lead-title .t:hover{text-decoration:underline}
+    .lead-title .d{display:block;font-weight:400;font-size:12px;color:var(--soft);margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+    tbody tr{cursor:pointer}
+
+    /* ---- request detail drawer ---- */
+    .det{max-width:720px}
+    .det .dhead{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px}
+    .det .dhead h3{flex:1;min-width:200px;font-size:1.05rem;line-height:1.6}
+    .det .close{border:1px solid var(--line);background:#fff;border-radius:9px;width:30px;height:30px;font-size:15px;color:var(--soft);cursor:pointer}
+    .det .close:hover{background:var(--bg)}
+    .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:16px}
+    .dgrid .f{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:9px 12px}
+    .dgrid .f b{display:block;font-size:11px;font-weight:700;color:var(--soft);margin-bottom:3px}
+    .dgrid .f span{font-size:13.5px;color:var(--ink);word-break:break-word}
+    .dgrid .f span.ltr{direction:ltr;display:inline-block;text-align:right}
+    .dsec{font-size:12px;font-weight:700;color:var(--soft);margin:14px 0 7px}
+    .dbody{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.95;white-space:pre-wrap;word-break:break-word;max-height:340px;overflow-y:auto}
+    .dbody .kv{display:block;padding:3px 0;border-bottom:1px dashed #e3e8f0}
+    .dbody .kv:last-child{border-bottom:0}
+    .dbody .kv i{font-style:normal;color:var(--soft);font-weight:700;margin-inline-end:6px}
+    .dfiles{display:flex;flex-wrap:wrap;gap:8px}
+    .dfiles a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--navy);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:7px 12px;text-decoration:none}
+    .dfiles a:hover{border-color:var(--navy)}
+    .dactions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:14px;margin-top:16px}
+    .dactions .lnk{font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 13px;text-decoration:none;cursor:pointer}
+    .dactions .lnk:hover{background:var(--bg)}
+    .dactions select{padding:9px 11px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:13px;background:#fff}
     .when{color:var(--muted);font-size:12px;white-space:nowrap;direction:ltr;text-align:right}
     .status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
     .status.good{background:var(--good-bg);color:var(--good-ink)}
@@ -101,7 +129,8 @@
     .status.info{background:var(--info-bg);color:var(--info-ink)}
     .status.plain{background:var(--bg);color:var(--soft);border:1px solid var(--line)}
     .stage{font-size:12px;color:var(--soft);white-space:nowrap}
-    .acts{display:flex;gap:6px;justify-content:flex-start}
+    .sub2{display:block;font-size:11px;color:var(--soft);margin-top:3px;white-space:nowrap}
+    .acts{display:flex;gap:5px;justify-content:flex-start;align-items:center}
     .act{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:14px;text-decoration:none}
     .act:hover{background:var(--bg)}
     .empty{padding:34px 20px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.8}
@@ -124,7 +153,7 @@
     .btn{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700}
     .btn:hover{background:var(--navy-700)}
     .btn:disabled{opacity:.5;cursor:default}
-    .statsel{font-family:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:9px;padding:5px 7px;background:#fff;color:var(--text);max-width:135px}
+    .statsel{font-family:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:9px;padding:5px 7px;background:#fff;color:var(--text);max-width:96px}
     .actbtn{font-size:11.5px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:9px;padding:5px 9px;white-space:nowrap}
     .actbtn:hover{background:var(--bg)}
     .editor-head{display:flex;gap:8px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -273,6 +302,7 @@
         <div class="panel">
           <div class="panel-head"><h3>وصول سريع</h3></div>
           <div class="tools" style="padding:16px 18px">
+            <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="ico">🏭</span><h4>لوحة الموردين</h4><p>اعتماد الموردين الجدد، طلب عروض الأسعار، وأوامر العمل والفواتير.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="ico">💬</span><h4>BP Inbox</h4><p>محادثات واتساب المباشرة والرد بمساعدة الذكاء.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="/dashboard" target="_blank" rel="noopener"><span class="ico">🎛️</span><h4>فريق الإيجنتس</h4><p>اختبار الموظفين الأذكياء والتحكم بتفعيلهم.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener"><span class="ico">📇</span><h4>CRM — نوشن</h4><p>قاعدة العملاء والصفقات الكاملة.</p><span class="go">فتح ←</span></a>
@@ -287,7 +317,7 @@
           <div class="spacer"></div>
           <span class="stamp" id="stampLeads"></span>
           <button class="refresh" data-refresh>↻ تحديث</button>
-          <div class="sub">كل طلب يصل من الموقع يُسجّل في CRM ويظهر هنا. غيّر الحالة مباشرة من عمود «الحالة»، وزر «تفعيل» يرسل للعميل كود الوصول لاشتراكه (امتثال / توظيف / خدمات مشتركة).</div>
+          <div class="sub">كل طلب يصل من الموقع يُسجّل في CRM ويظهر هنا. اضغط على أي صف — أو زر 👁 — لفتح الطلب كاملاً بتفاصيله ومرفقاته. غيّر الحالة من عمود «الحالة»، وزر «تفعيل» يعتمد الطلب ويشعر العميل — أو يرسل كود الوصول لاشتراكات الامتثال والتوظيف والخدمات المشتركة.</div>
         </div>
 
         <div class="panel">
@@ -296,8 +326,8 @@
             <div id="statusChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
           </div>
           <div class="tbl-wrap"><table>
-            <thead><tr><th>المرجع</th><th>الطلب</th><th>الإجمالي</th><th>الإيصال</th><th>الحالة</th><th>المرحلة</th><th>التاريخ</th><th>تواصل</th><th>إجراء</th></tr></thead>
-            <tbody id="leadsBody"><tr><td colspan="9" class="empty">جاري التحميل…</td></tr></tbody>
+            <thead><tr><th>المرجع</th><th>الطلب</th><th>الإجمالي والإيصال</th><th>الحالة والمرحلة</th><th>التاريخ</th><th>تواصل</th><th>إجراء</th></tr></thead>
+            <tbody id="leadsBody"><tr><td colspan="7" class="empty">جاري التحميل…</td></tr></tbody>
           </table></div>
         </div>
       </section>
@@ -344,6 +374,7 @@
         </div>
 
         <div class="tools">
+          <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🏭</span><h4>لوحة تحكم الموردين</h4><p>اعتماد الموردين الجدد وإرسال رمز الدخول، طلب عروض أسعار من عدة موردين، ترسية أوامر العمل، ومتابعة الفواتير في الاتجاهين.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">💬</span><h4>BP Inbox — مركز المحادثات</h4><p>متابعة محادثات واتساب والرد المباشر بمساعدة الذكاء، مع إيقاف/تفعيل الوكيل لكل عميل.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/dashboard" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🎛️</span><h4>لوحة فريق الإيجنتس</h4><p>اختبار كل موظف ذكي مباشرة، والتحكم في تشغيله وقفله حتى الدفع.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/ar/compliance-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🛡️</span><h4>لوحة وكيل الامتثال</h4><p>اللوحة التي يراها مشترك خدمة الامتثال — مراقبة المنصات الحكومية والتنبيهات.</p><span class="go">فتح ←</span></a>
@@ -358,18 +389,41 @@
     </main>
   </div>
 
+  <!-- request detail drawer -->
+  <div class="modal-back" id="detBack">
+    <div class="modal det">
+      <div class="dhead">
+        <h3 id="dTitle">—</h3>
+        <button class="close" id="dClose" title="إغلاق">✕</button>
+      </div>
+      <div class="dgrid" id="dGrid"></div>
+      <div class="dsec">📄 تفاصيل الطلب كما وصلت</div>
+      <div class="dbody" id="dBody">—</div>
+      <div id="dFilesWrap" style="display:none">
+        <div class="dsec">🧾 المرفقات والإيصالات</div>
+        <div class="dfiles" id="dFiles"></div>
+      </div>
+      <div class="dactions" id="dActions"></div>
+    </div>
+  </div>
+
   <!-- activation modal -->
   <div class="modal-back" id="modalBack">
     <div class="modal">
-      <h3>⚡ تفعيل اشتراك وإرسال الكود</h3>
-      <div class="mnote">يُفعّل الاشتراك في نظامنا ويرسل للعميل بريداً فيه كود الوصول — نفس مفعول رابط الاعتماد في الإيميل. لا تفعّل إلا بعد تأكيد وصول التحويل البنكي.</div>
-      <label>نوع الاشتراك</label>
+      <h3 id="mHead">⚡ تفعيل وإرسال الاعتماد</h3>
+      <div class="mnote" id="mIntro">لا تفعّل إلا بعد تأكيد وصول التحويل البنكي.</div>
+      <label>نوع التفعيل</label>
       <select id="mKind">
-        <option value="compliance">🛡️ وكيل الامتثال</option>
-        <option value="employer">🏢 منصة التوظيف</option>
-        <option value="shared">🤝 الخدمات المشتركة</option>
+        <option value="service">✅ خدمة / طلب مدفوع — اعتماد وبدء التنفيذ</option>
+        <option value="compliance">🛡️ اشتراك وكيل الامتثال — كود دخول البوابة</option>
+        <option value="employer">🏢 اشتراك منصة التوظيف — كود دخول اللوحة</option>
+        <option value="shared">🤝 اشتراك الخدمات المشتركة — كود دخول</option>
       </select>
-      <div id="mCompanyWrap"><label>اسم المنشأة / الشركة (كما سُجّل في الطلب)</label><input id="mCompany" type="text" /></div>
+      <div id="mSvcWrap"><label>الخدمة المُفعَّلة</label>
+        <select id="mService"><option value="">جاري تحميل الخدمات…</option></select>
+        <input id="mServiceOther" type="text" placeholder="اكتب اسم الخدمة كما تريده أن يظهر للعميل" style="display:none;margin-top:8px" />
+      </div>
+      <div id="mCompanyWrap"><label id="mCompanyLbl">اسم المنشأة / الشركة (كما سُجّل في الطلب)</label><input id="mCompany" type="text" /></div>
       <div id="mPlanWrap" style="display:none"><label>الباقة</label>
         <select id="mPlan"><option value="basic">أساسية</option><option value="pro">احترافية</option><option value="enterprise">مؤسسية</option></select>
       </div>
@@ -377,9 +431,12 @@
       <input id="mEmail" type="email" dir="ltr" />
       <label>جوال العميل (اختياري)</label>
       <input id="mPhone" type="tel" dir="ltr" />
+      <div id="mNoteWrap"><label>ملاحظة تُضاف لرسالة العميل (اختياري)</label>
+        <input id="mNote" type="text" placeholder="مثال: المدة المتوقعة ٥ أيام عمل" />
+      </div>
       <div class="mmsg" id="mMsg"></div>
       <div class="rowbtns">
-        <button class="btn" id="mGo" style="flex:1">⚡ تفعيل وإرسال الكود</button>
+        <button class="btn" id="mGo" style="flex:1">⚡ تفعيل وإرسال الاعتماد</button>
         <button class="ghost" id="mCancel">إلغاء</button>
       </div>
     </div>
@@ -476,7 +533,7 @@
         var r = recent[j];
         rows += '<tr>' +
           '<td class="ref">' + esc(r.ref || '—') + '</td>' +
-          '<td class="lead-title" title="' + esc(r.title) + '">' + esc(r.title || '—') + '</td>' +
+          '<td class="lead-title"><span class="t">' + esc(r.title || '—') + '</span></td>' +
           '<td>' + statusHtml(r.status) + '</td>' +
           '<td class="when">' + fmtDate(r.at) + '</td>' +
         '</tr>';
@@ -548,27 +605,36 @@
         if (l.email) acts += '<a class="act" title="إيميل" href="mailto:' + esc(l.email) + '">✉️</a>';
         var statOpts = '<option value="" selected>🔄 تغيير الحالة…</option>';
         for (var s0 = 0; s0 < STATUSES.length; s0++) statOpts += '<option value="' + STATUSES[s0] + '">' + STATUSES[s0] + '</option>';
-        rows += '<tr>' +
+        rows += '<tr data-open="' + idx + '">' +
           '<td class="ref">' + esc(l.ref || '—') + '</td>' +
-          '<td class="lead-title" title="' + esc(l.details || l.title) + '">' + esc(l.title || '—') + '</td>' +
-          '<td class="when">' + (l.total != null && l.total > 0 ? esc(String(l.total)) + ' ﷼' : '<span style="color:#b91c1c" title="طلب بدون مبلغ — راجعه">—</span>') + '</td>' +
-          '<td class="when">' + (l.hasReceipt ? '🧾' : '<span style="color:#b91c1c" title="لا يوجد إيصال مرفق">✕</span>') + '</td>' +
-          '<td>' + statusHtml(l.status) + '</td>' +
-          '<td class="stage">' + esc(l.stage || '—') + '</td>' +
+          '<td class="lead-title"><span class="t">' + esc(l.title || '—') + '</span>' +
+            (l.details ? '<span class="d">' + esc(l.details) + '</span>' : '') + '</td>' +
+          '<td class="when">' + (l.total != null && l.total > 0 ? esc(String(l.total)) + ' ﷼' : '<span style="color:#b91c1c" title="طلب بدون مبلغ — راجعه">—</span>') +
+            '<span class="sub2">' + (l.hasReceipt ? '🧾 إيصال مرفق' : '<span style="color:#b91c1c">✕ بلا إيصال</span>') + '</span></td>' +
+          '<td>' + statusHtml(l.status) + '<span class="sub2">' + esc(l.stage || '—') + '</span></td>' +
           '<td class="when">' + fmtDate(l.at) + '</td>' +
           '<td><div class="acts">' + (acts || '<span class="stage">—</span>') + '</div></td>' +
           '<td><div class="acts">' +
-            (l.ref ? '<select class="statsel" data-i="' + idx + '">' + statOpts + '</select>' : '') +
+            '<button class="actbtn" data-det="' + idx + '" title="فتح الطلب كاملاً">👁 فتح</button>' +
             '<button class="actbtn" data-actv="' + idx + '">⚡ تفعيل</button>' +
+            (l.ref ? '<select class="statsel" data-i="' + idx + '">' + statOpts + '</select>' : '') +
           '</div></td>' +
         '</tr>';
       }
       var body = $('leadsBody');
-      body.innerHTML = rows || '<tr><td colspan="9" class="empty">لا توجد طلبات مطابقة.</td></tr>';
+      body.innerHTML = rows || '<tr><td colspan="7" class="empty">لا توجد طلبات مطابقة.</td></tr>';
       var sels = body.querySelectorAll('.statsel');
       for (var a = 0; a < sels.length; a++) sels[a].onchange = function(){ changeStatus(shownLeads[+this.getAttribute('data-i')].ref, this.value, this); };
       var actvs = body.querySelectorAll('[data-actv]');
-      for (var c = 0; c < actvs.length; c++) actvs[c].onclick = function(){ openModal(shownLeads[+this.getAttribute('data-actv')]); };
+      for (var c = 0; c < actvs.length; c++) actvs[c].onclick = function(e){ e.stopPropagation(); openModal(shownLeads[+this.getAttribute('data-actv')]); };
+      var dets = body.querySelectorAll('[data-det]');
+      for (var d0 = 0; d0 < dets.length; d0++) dets[d0].onclick = function(e){ e.stopPropagation(); openDetail(shownLeads[+this.getAttribute('data-det')]); };
+      // The whole row opens the request — the controls inside it stop the bubble.
+      var trs = body.querySelectorAll('tr[data-open]');
+      for (var e0 = 0; e0 < trs.length; e0++) trs[e0].onclick = function(ev){
+        if (ev.target.closest && ev.target.closest('a,button,select')) return;
+        openDetail(shownLeads[+this.getAttribute('data-open')]);
+      };
       $('stampLeads').textContent = lastFetch ? ('آخر تحديث: ' + lastFetch.toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' })) : '';
     }
 
@@ -606,18 +672,143 @@
 
     $('leadSearch').addEventListener('input', function(){ search = this.value; renderLeads(); });
 
+    // ---- request detail drawer ----
+    // Notes arrive from the CRM as one long «key: value · key: value» string
+    // (plus real newlines from free-text fields). Split it back apart so the
+    // owner reads a request instead of a paragraph.
+    function notesHtml(notes){
+      var raw = String(notes || '').trim();
+      if (!raw) return '<span style="color:#94a3b8">لا توجد تفاصيل إضافية مسجّلة لهذا الطلب.</span>';
+      var parts = raw.split(/\n+|\s·\s/);
+      var out = '';
+      for (var i = 0; i < parts.length; i++){
+        var seg = parts[i].trim();
+        if (!seg) continue;
+        var m = seg.match(/^([^:：]{1,28})[:：]\s*([\s\S]*)$/);
+        out += m
+          ? '<span class="kv"><i>' + esc(m[1].trim()) + ':</i>' + esc(m[2].trim() || '—') + '</span>'
+          : '<span class="kv">' + esc(seg) + '</span>';
+      }
+      return out || esc(raw);
+    }
+    var detLead = null;
+    function openDetail(l){
+      if (!l) return;
+      detLead = l;
+      $('dTitle').textContent = l.title || 'طلب بدون عنوان';
+      var f = function(label, val, ltr){
+        if (!val && val !== 0) return '';
+        return '<div class="f"><b>' + esc(label) + '</b><span' + (ltr ? ' class="ltr"' : '') + '>' + esc(String(val)) + '</span></div>';
+      };
+      $('dGrid').innerHTML =
+        f('رقم المرجع', l.ref || '—', true) +
+        '<div class="f"><b>الحالة</b><span>' + statusHtml(l.status) + '</span></div>' +
+        f('المرحلة', l.stage || '—') +
+        f('إجمالي الطلب', (l.total != null && l.total > 0) ? (l.total + ' ﷼') : 'غير محدَّد') +
+        f('البريد', l.email || '—', true) +
+        f('الجوال', l.phone || '—', true) +
+        f('مصدر الطلب', l.source || '—') +
+        f('التاريخ', fmtDate(l.at) + (l.createdAt ? ' · وصل ' + fmtDate(l.createdAt) : ''));
+      $('dBody').innerHTML = notesHtml(l.notes || l.details);
+      var files = l.receipts || [];
+      $('dFilesWrap').style.display = files.length ? 'block' : 'none';
+      if (files.length){
+        var fh = '';
+        for (var i = 0; i < files.length; i++) fh += '<a href="' + esc(files[i].url) + '" target="_blank" rel="noopener">🧾 ' + esc(files[i].name) + '</a>';
+        $('dFiles').innerHTML = fh;
+      }
+      var acts = '';
+      if (l.phone) acts += '<a class="lnk" target="_blank" rel="noopener" href="https://wa.me/' + esc(l.phone.replace(/[^\d]/g,'')) + '">💬 واتساب</a>';
+      if (l.email) acts += '<a class="lnk" href="mailto:' + esc(l.email) + '?subject=' + encodeURIComponent('بخصوص طلبك ' + (l.ref || '')) + '">✉️ إيميل</a>';
+      if (l.url) acts += '<a class="lnk" target="_blank" rel="noopener" href="' + esc(l.url) + '">📇 فتح في نوشن</a>';
+      if (l.ref){
+        var o = '<option value="" selected>🔄 تغيير الحالة…</option>';
+        for (var s1 = 0; s1 < STATUSES.length; s1++) o += '<option value="' + STATUSES[s1] + '">' + STATUSES[s1] + '</option>';
+        acts += '<select id="dStat">' + o + '</select>';
+      }
+      acts += '<button class="btn" id="dActv" style="margin-inline-start:auto">⚡ تفعيل وإرسال الاعتماد</button>';
+      $('dActions').innerHTML = acts;
+      if ($('dStat')) $('dStat').onchange = function(){ changeStatus(l.ref, this.value, this); };
+      $('dActv').onclick = function(){ closeDetail(); openModal(l); };
+      $('detBack').classList.add('on');
+    }
+    function closeDetail(){ $('detBack').classList.remove('on'); detLead = null; }
+    $('dClose').onclick = closeDetail;
+    $('detBack').addEventListener('click', function(e){ if (e.target === this) closeDetail(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeDetail(); closeModal(); } });
+
     // ---- activation modal ----
     var modalRef = '';
     function syncKind(){
       var k = $('mKind').value;
       $('mPlanWrap').style.display = k === 'employer' ? 'block' : 'none';
       $('mCompanyWrap').style.display = k === 'shared' ? 'none' : 'block';
+      var isSvc = k === 'service';
+      $('mSvcWrap').style.display = isSvc ? 'block' : 'none';
+      $('mNoteWrap').style.display = isSvc ? 'block' : 'none';
+      $('mCompanyLbl').textContent = isSvc ? 'اسم العميل / المنشأة (اختياري)' : 'اسم المنشأة / الشركة (كما سُجّل في الطلب)';
+      $('mHead').textContent = isSvc ? '✅ اعتماد الطلب وإشعار العميل' : '⚡ تفعيل اشتراك وإرسال الكود';
+      $('mIntro').textContent = isSvc
+        ? 'يرسل للعميل بريداً يؤكد اعتماد طلبه وبدء التنفيذ، ويحوّل حالة الطلب إلى «مؤكد - قيد التنفيذ». لا تعتمد إلا بعد تأكيد وصول التحويل البنكي.'
+        : 'يُفعّل الاشتراك في نظامنا ويرسل للعميل بريداً فيه كود الوصول لبوابته — نفس مفعول رابط الاعتماد في الإيميل. لا تفعّل إلا بعد تأكيد وصول التحويل البنكي.';
+      $('mGo').textContent = isSvc ? '✅ اعتماد وإشعار العميل' : '⚡ تفعيل وإرسال الكود';
+      syncSvc();
     }
+    function syncSvc(){
+      var other = $('mKind').value === 'service' && $('mService').value === '__other';
+      $('mServiceOther').style.display = other ? 'block' : 'none';
+    }
+    // Everything the owner sells, straight out of the published catalogue, so
+    // the picker never falls behind the services page. Non-catalogue items the
+    // site also takes money for are listed first; «أخرى» keeps it open-ended.
+    var EXTRA_SERVICES = [
+      ['طلبات وخدمات عامة', [
+        'استشارة أعمال',
+        'استشارة الإقامة المميزة',
+        'حجز مساحة عمل',
+        'اشتراك مساحة عمل شهري',
+        'تسجيل في دليل الشركات / المجلة',
+        'إعلان في المجلة',
+        'باقة خدمات (فضية / ذهبية / بلاتينية)',
+        'خدمة مخصّصة باتفاق منفصل'
+      ]]
+    ];
+    var svcLoaded = false;
+    function loadServices(){
+      if (svcLoaded) return Promise.resolve();
+      return fetch('/assets/data/catalog.json', { cache: 'no-store' })
+        .then(function(r){ return r.ok ? r.json() : { services: [] }; })
+        .catch(function(){ return { services: [] }; })
+        .then(function(cat){
+          var groups = [], byCat = {};
+          for (var g = 0; g < EXTRA_SERVICES.length; g++){ byCat[EXTRA_SERVICES[g][0]] = EXTRA_SERVICES[g][1].slice(); groups.push(EXTRA_SERVICES[g][0]); }
+          var list = (cat && cat.services) || [];
+          for (var i = 0; i < list.length; i++){
+            var sv = list[i];
+            var c = sv.categoryAr || sv.category || 'خدمات أخرى';
+            var nm = sv.nameAr || sv.nameEn || sv.code;
+            if (!nm) continue;
+            if (!byCat[c]){ byCat[c] = []; groups.push(c); }
+            byCat[c].push(nm + (sv.priceLabel ? ' — ' + sv.priceLabel : ''));
+          }
+          var html = '<option value="">— اختر الخدمة —</option>';
+          for (var j = 0; j < groups.length; j++){
+            var items = byCat[groups[j]];
+            html += '<option disabled style="font-weight:700">── ' + esc(groups[j]) + ' ──</option>';
+            for (var k = 0; k < items.length; k++) html += '<option value="' + esc(items[k]) + '">' + esc(items[k]) + '</option>';
+          }
+          html += '<option value="__other">✍️ أخرى — أكتبها بنفسي</option>';
+          $('mService').innerHTML = html;
+          svcLoaded = true;
+        });
+    }
+    $('mService').onchange = syncSvc;
     function openModal(l){
       modalRef = (l && l.ref) || '';
       var t = (l && l.title) || '';
-      var kind = 'compliance';
-      if (t.indexOf('توظيف') !== -1) kind = 'employer';
+      var kind = 'service';
+      if (t.indexOf('امتثال') !== -1) kind = 'compliance';
+      else if (t.indexOf('توظيف') !== -1) kind = 'employer';
       else if (t.indexOf('مشترك') !== -1) kind = 'shared';
       $('mKind').value = kind;
       var company = '';
@@ -626,10 +817,25 @@
       $('mCompany').value = company;
       $('mEmail').value = (l && l.email) || '';
       $('mPhone').value = (l && l.phone) || '';
+      $('mNote').value = '';
       $('mMsg').textContent = ''; $('mMsg').style.color = '';
       $('mGo').disabled = false;
       syncKind();
       $('modalBack').classList.add('on');
+      loadServices().then(function(){
+        // Best-effort match: the request title usually already names the service.
+        var guess = (l && (l.details || '')) || t;
+        var opts = $('mService').options, best = '';
+        for (var i = 0; i < opts.length; i++){
+          var v = opts[i].value;
+          if (!v || v === '__other') continue;
+          var bare = v.split(' — ')[0];
+          if (bare.length > 6 && guess.indexOf(bare) !== -1 && bare.length > best.split(' — ')[0].length) best = v;
+        }
+        if (best) $('mService').value = best;
+        else { $('mService').value = '__other'; $('mServiceOther').value = (guess || t).replace(/\s*\([A-Z0-9-]+\)\s*$/, '').trim().slice(0, 90); }
+        syncSvc();
+      });
     }
     function closeModal(){ $('modalBack').classList.remove('on'); }
     $('mKind').onchange = syncKind;
@@ -639,22 +845,30 @@
       var kind = $('mKind').value;
       var email = $('mEmail').value.trim();
       var company = $('mCompany').value.trim();
+      var service = $('mService').value === '__other' ? $('mServiceOther').value.trim() : $('mService').value.trim();
       var msg = $('mMsg');
       if (!email || email.indexOf('@') === -1){ msg.style.color = '#dc2626'; msg.textContent = 'أدخل بريد العميل.'; return; }
-      if (kind !== 'shared' && !company){ msg.style.color = '#dc2626'; msg.textContent = 'أدخل اسم المنشأة كما سُجّل في الطلب.'; return; }
+      if ((kind === 'compliance' || kind === 'employer') && !company){ msg.style.color = '#dc2626'; msg.textContent = 'أدخل اسم المنشأة كما سُجّل في الطلب.'; return; }
+      if (kind === 'service' && !service){ msg.style.color = '#dc2626'; msg.textContent = 'اختر الخدمة المُفعَّلة أو اكتبها.'; return; }
       var btn = $('mGo'); btn.disabled = true;
-      msg.style.color = ''; msg.textContent = '⏳ جاري التفعيل وإرسال الكود…';
-      postPanel({ action:'panel-activate', kind: kind, company: company, email: email, phone: $('mPhone').value.trim(), plan: $('mPlan').value, ref: modalRef })
+      msg.style.color = ''; msg.textContent = kind === 'service' ? '⏳ جاري الاعتماد وإشعار العميل…' : '⏳ جاري التفعيل وإرسال الكود…';
+      postPanel({ action:'panel-activate', kind: kind, company: company, email: email, phone: $('mPhone').value.trim(), plan: $('mPlan').value, service: service, note: $('mNote').value.trim(), ref: modalRef })
         .then(function(out){
           if (out && out.ok){
             msg.style.color = '#14532d';
-            msg.textContent = '✅ تم التفعيل — أُرسل الكود ' + (out.code || '') + ' إلى ' + email;
+            msg.textContent = kind === 'service'
+              ? '✅ تم اعتماد الطلب — وصل العميل إشعار «بدأ التنفيذ» على ' + email
+              : '✅ تم التفعيل — أُرسل الكود ' + (out.code || '') + ' إلى ' + email;
             refresh();
           } else {
             btn.disabled = false;
             msg.style.color = '#dc2626';
-            msg.textContent = out && out.error === 'activation_failed'
-              ? 'تعذّر التفعيل — تأكد أن اسم المنشأة مطابق لما في نوشن.'
+            var er = out && out.error;
+            msg.textContent = er === 'activation_failed'
+              ? (kind === 'service'
+                  ? 'تعذّر إرسال إشعار العميل — تأكد من صحة البريد ومن إعداد خدمة الإيميل.'
+                  : 'تعذّر التفعيل — تأكد أن اسم المنشأة مطابق لما في نوشن.')
+              : er === 'bad_email' ? 'البريد غير صحيح.'
               : 'تعذّر التفعيل — حاول مرة أخرى.';
           }
         });

@@ -1523,3 +1523,10 @@ textarea.adv-in { resize: vertical; }
 .sa-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; max-height: 240px; overflow-y: auto; padding: 10px; border: 1px solid var(--gray-line); border-radius: 10px; background: var(--gray-bg); }
 .sa-pick { display: flex; align-items: center; gap: 8px; font-size: .88rem; cursor: pointer; }
 .sa-pick input { flex-shrink: 0; }
+
+/* Suppliers portal — sign-in / sign-up tabs and the Google divider. */
+.sup-tabs { display: flex; gap: 6px; background: var(--gray-bg); border-radius: 999px; padding: 4px; margin-bottom: 16px; }
+.sup-tab { flex: 1; border: 0; background: transparent; padding: 9px 12px; border-radius: 999px; font: inherit; font-weight: 600; color: var(--navy); cursor: pointer; }
+.sup-tab.active { background: #fff; box-shadow: 0 1px 3px rgba(11, 27, 90, .12); }
+.sup-or { display: flex; align-items: center; gap: 10px; color: #8a90a6; font-size: .82rem; margin: 4px 0 14px; }
+.sup-or::before, .sup-or::after { content: ""; flex: 1; height: 1px; background: var(--gray-line); }
