@@ -1548,3 +1548,13 @@ textarea.adv-in { resize: vertical; }
 .doc-read .calc-note.ok{color:#065f46}
 .doc-read .calc-note.warn{color:#b45309}
 .doc-read .calc-note.err{color:#b91c1c}
+
+/* Supplier portal: the catalogue priced for the supplier — site price, our
+   commission, and their net side by side, so no one has to ask per job. */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--line,#e5e9f0);border-radius:14px}
+.mini-table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:560px}
+.mini-table th{background:#f8fafc;color:var(--text-soft,#5a6478);font-size:.76rem;font-weight:700;text-align:start;padding:10px 12px;border-bottom:1px solid var(--line,#e5e9f0);white-space:nowrap}
+.mini-table td{padding:10px 12px;border-bottom:1px solid #f2f4f8;vertical-align:top;line-height:1.6}
+.mini-table tbody tr:last-child td{border-bottom:0}
+.mini-table tbody tr:hover{background:#f8fafc}
+.mini-table td b{color:var(--navy,#0B1B5A)}

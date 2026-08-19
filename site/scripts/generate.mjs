@@ -6784,7 +6784,16 @@ function buildPartnerDashboard() {
         </div>
       </div>
 
-      <div class="dash-panel-head"><h2>${L("Your work orders", "أوامر العمل الخاصة بك")}</h2><p>${L("Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.", "مُسنَدة إليك من فريق بيزنس بارتنر. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.")}</p></div>
+      <div class="dash-panel-head" id="pt-cat-head"><h2>${L("Services you can execute", "الخدمات التي يمكنك تنفيذها")}</h2><p>${L("Business Partner's published catalogue. The price is what the client pays before VAT; your share is what reaches you after our commission.", "كتالوج بيزنس بارتنر المنشور. السعر هو ما يدفعه العميل قبل الضريبة، ونصيبك هو ما يصلك بعد عمولتنا.")}</p></div>
+      <div class="calc-form" style="margin-bottom:14px">
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="pt-cat-search">${L("Search a service", "ابحث عن خدمة")}</label><input id="pt-cat-search" type="search" placeholder="${Lraw("Service name…", "اسم الخدمة…")}"></div>
+          <div class="field"><label for="pt-cat-filter">${L("Category", "التصنيف")}</label><select id="pt-cat-filter"><option value="">${L("All categories", "كل التصنيفات")}</option></select></div>
+        </div>
+      </div>
+      <div id="pt-catalog"><p class="dash-empty">${L("Loading the catalogue…", "جاري تحميل الكتالوج…")}</p></div>
+
+      <div class="dash-panel-head" style="margin-top:30px"><h2>${L("Your work orders", "أوامر العمل الخاصة بك")}</h2><p>${L("Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.", "مُسنَدة إليك من فريق بيزنس بارتنر. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.")}</p></div>
       <div id="pt-feed"><p class="dash-empty">${L("No work orders yet — new assignments appear here and reach you by email.", "لا توجد أوامر عمل بعد — كل إسناد جديد يظهر هنا ويصلك على بريدك.")}</p></div>
     </div>
   </div></section>
@@ -7506,7 +7515,7 @@ function buildConnect(pre = "/") {
       empGrid.appendChild(d);
     });
   </script>
-  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/main.js?v=${JS_V}"></script>
 </body>
 </html>`;
 }

@@ -43,6 +43,13 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 const SITE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
+// Business Partner's cut of the site price on any service a supplier executes.
+// Per-supplier overrides live in «نسبة العمولة %» on their registry row.
+const DEFAULT_COMMISSION = Number(process.env.SUPPLIER_COMMISSION_PCT || 20);
+// A verified registration opens the portal straight away: the supplier can see
+// the catalogue and what each service pays them. Approval still gates being
+// awarded work — «معتمد» is what the owner grants, and only an approved
+// supplier appears in the assignment picker.
 // Signs the stateless e-mail verification token. Reuses the same secret as the
 // rest of the site so there is one secret to rotate, not two.
 const OTP_SECRET = (process.env.OTP_SECRET || "").trim();
@@ -293,7 +300,17 @@ export async function handleSuppliers(req, res) {
       if (!s) return bad("unauthorized", 401);
       if (!s.verified) return bad("email_unverified", 403);
       const orders = await ordersForSupplier(s.id);
-      return ok({ supplier: { name: s.name, code: s.code, person: s.person, city: s.city, categories: s.categories, terms: s.terms, status: s.status }, orders });
+      return ok({
+        supplier: {
+          name: s.name, code: s.code, person: s.person, city: s.city,
+          categories: s.categories, terms: s.terms, status: s.status,
+          // The portal prices the whole catalogue off this, so it is sent even
+          // when the row has no override — the supplier sees the same number
+          // the owner bills against, never a guess.
+          commission: s.commission != null ? s.commission : DEFAULT_COMMISSION,
+        },
+        orders,
+      });
     }
     // Owner: the whole registry + every work order
     if (q.action === "admin") {
