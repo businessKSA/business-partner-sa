@@ -1916,7 +1916,7 @@ var BP = window.BP = window.BP || {};
   });
 })();
 
-/* ---------- Partner dashboard (partners portal, linked to client orders) ---------- */
+/* ---------- Suppliers portal — real sign-in + assigned work orders ---------- */
 (function () {
   "use strict";
   document.addEventListener("DOMContentLoaded", function () {
@@ -1925,115 +1925,170 @@ var BP = window.BP = window.BP || {};
     if (!gate || !app) return;
     var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
     function esc4(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-    function partner() { try { return JSON.parse(localStorage.getItem("bp_partner") || "null"); } catch (e) { return null; } }
-    function ordersData() { try { return JSON.parse(localStorage.getItem("bp_orders") || "[]"); } catch (e) { return []; } }
-    function offersData() { try { return JSON.parse(localStorage.getItem("bp_partner_offers") || "[]"); } catch (e) { return []; } }
+    // Credentials, not a session flag: every call re-authenticates server-side,
+    // so a stale localStorage entry can never stand in for approval.
+    function creds() { try { return JSON.parse(localStorage.getItem("bp_supplier") || "null"); } catch (e) { return null; } }
+    function setCreds(c) { try { c ? localStorage.setItem("bp_supplier", JSON.stringify(c)) : localStorage.removeItem("bp_supplier"); } catch (e) {} }
 
-    // A client order/request becomes a partner opportunity. On this device the
-    // client's own orders (bp_orders) are the live source; in production the team/
-    // n8n route matching requests from every client to the partner network.
-    function opportunities() {
-      var orders = ordersData();
-      var opps = [];
-      orders.forEach(function (o) {
-        (o.items || []).forEach(function (it, idx) {
-          var kind = it.kind || "";
-          // Services/events/trips are partner-serviceable; packages/agents are internal.
-          if (/package|agent|employee/i.test(kind)) return;
-          opps.push({ ref: (o.ref || "REQ") + "-" + (idx + 1), title: it.name || T("Client request", "طلب عميل"), kind: kind, city: (o.city || ""), at: o.at || "" });
-        });
-      });
-      return opps;
-    }
+    var state = { supplier: null, orders: [] };
+    var ACTIVE = ["أُرسل للمورّد", "قبله المورّد", "قيد التنفيذ"];
 
     function render() {
-      var p = partner();
-      if (!p) { gate.hidden = false; app.hidden = true; return; }
+      if (!state.supplier) { gate.hidden = false; app.hidden = true; return; }
       gate.hidden = true; app.hidden = false;
-      var company = document.getElementById("pt-company");
-      var contact = document.getElementById("pt-contact");
-      var catEl = document.getElementById("pt-stat-cat");
-      if (company) company.textContent = p.company || "—";
-      if (contact) contact.textContent = [p.person, p.email, p.city].filter(Boolean).join(" · ") || "—";
-      if (catEl) catEl.textContent = p.category || T("All", "الكل");
-      var opps = opportunities();
-      var offers = offersData();
-      var openEl = document.getElementById("pt-stat-open"); if (openEl) openEl.textContent = opps.length;
-      var offEl = document.getElementById("pt-stat-offers"); if (offEl) offEl.textContent = offers.length;
+      var s = state.supplier, orders = state.orders || [];
+      var co = document.getElementById("pt-company"); if (co) co.textContent = s.name || "—";
+      var ct = document.getElementById("pt-contact");
+      if (ct) ct.textContent = [s.person, s.code, s.city, (s.categories || []).join("، ")].filter(Boolean).join(" · ") || "—";
+      var active = orders.filter(function (o) { return ACTIVE.indexOf(o.status) !== -1; });
+      var done = orders.filter(function (o) { return o.status === "تم التسليم" || o.status === "معتمد"; });
+      var due = orders.filter(function (o) { return (o.status === "تم التسليم" || o.status === "معتمد") && o.supplierInvoiceStatus === "لم تُرفع"; });
+      var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
+      set("pt-stat-open", active.length); set("pt-stat-done", done.length); set("pt-stat-due", due.length);
+
       var feed = document.getElementById("pt-feed");
-      if (feed) {
-        if (!opps.length) {
-          feed.innerHTML = '<p class="dash-empty">' + T("No open requests right now — new client requests will appear here.", "لا توجد طلبات متاحة حالياً — ستظهر طلبات العملاء الجديدة هنا.") + "</p>";
-        } else {
-          feed.innerHTML = opps.map(function (o) {
-            var sent = offers.indexOf(o.ref) !== -1;
-            return '<div class="dash-card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">' +
-              "<div><strong>" + esc4(o.title) + "</strong><br><span class=\"text-soft\" style=\"font-size:.82rem\">" + esc4([o.city, o.at, o.ref].filter(Boolean).join(" · ")) + "</span></div>" +
-              (sent ? '<span class="pkg-tag">' + T("Offer sent", "تم إرسال العرض") + "</span>"
-                    : '<button class="btn btn-primary btn-sm pt-offer-btn" data-ref="' + esc4(o.ref) + '" data-title="' + esc4(o.title) + '">' + T("Send offer", "قدّم عرضك") + "</button>") +
-              "</div>";
-          }).join("");
-        }
+      if (!feed) return;
+      if (!orders.length) {
+        feed.innerHTML = '<p class="dash-empty">' + T("No work orders yet — new assignments appear here and reach you by email.", "لا توجد أوامر عمل بعد — كل إسناد جديد يظهر هنا ويصلك على بريدك.") + "</p>";
+        return;
       }
+      feed.innerHTML = orders.map(function (o) {
+        var meta = [o.city, o.due, o.clientRef].filter(Boolean).join(" · ");
+        var money = [];
+        if (o.amount != null) money.push(T("Order value", "قيمة الأمر") + ": " + o.amount + " ﷼");
+        if (o.commission != null && o.commission > 0) money.push(T("Commission invoiced to you", "عمولة مفوترة عليك") + ": " + o.commission + " ﷼");
+        return '<div class="dash-card" style="margin-bottom:10px">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">' +
+            "<div><strong>" + esc4(o.service || o.ref) + "</strong>" +
+            '<br><span class="text-soft" style="font-size:.82rem">' + esc4(o.ref + (meta ? " · " + meta : "")) + "</span>" +
+            (o.details ? '<br><span class="text-soft" style="font-size:.82rem">' + esc4(o.details) + "</span>" : "") +
+            (money.length ? '<br><span class="text-soft" style="font-size:.82rem">' + esc4(money.join(" · ")) + "</span>" : "") +
+            "</div>" +
+            '<div style="text-align:end">' +
+              '<span class="pkg-tag">' + esc4(o.status || "—") + "</span>" +
+              '<br><span class="text-soft" style="font-size:.78rem">' + esc4(T("Invoice", "الفاتورة") + ": " + (o.supplierInvoiceStatus || "—")) + "</span>" +
+            "</div>" +
+          "</div>" +
+          '<div style="margin-top:10px"><button class="btn btn-primary btn-sm pt-offer-btn" data-id="' + esc4(o.id) + '" data-status="' + esc4(o.status) + '" data-title="' + esc4(o.service || o.ref) + '">' +
+            (o.status === "طلب عرض سعر" ? T("Submit your quote", "قدّم عرض سعرك") : T("Update / upload invoice", "تحديث / رفع فاتورة")) + "</button></div>" +
+        "</div>";
+      }).join("");
     }
 
-    // Login gate
+    function load(c, onFail) {
+      fetch("/api/suppliers?action=orders&email=" + encodeURIComponent(c.email) + "&code=" + encodeURIComponent(c.code), { cache: "no-store" })
+        .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.d && res.d.ok) { state.supplier = res.d.supplier; state.orders = res.d.orders || []; render(); return; }
+          setCreds(null); state.supplier = null; render();
+          if (onFail) onFail(res.d && res.d.error, res.s);
+        })
+        .catch(function () { if (onFail) onFail("network"); });
+    }
+
+    var errEl = document.getElementById("pl-error");
+    function showErr(code) {
+      if (!errEl) return;
+      errEl.textContent = code === "not_approved"
+        ? T("Your registration is still under review — we email your access code the moment it is approved.", "تسجيلك ما زال قيد المراجعة — يصلك رمز الدخول على بريدك فور اعتماده.")
+        : code === "network" ? T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى.")
+        : T("Email or access code is incorrect.", "البريد أو رمز الدخول غير صحيح.");
+      errEl.hidden = false;
+    }
+
+    var boot = creds();
+    if (boot && boot.email && boot.code) load(boot);
+
     var loginForm = document.getElementById("partner-login-form");
     if (loginForm) loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      var company = (document.getElementById("pl-company").value || "").trim();
-      var email = (document.getElementById("pl-email").value || "").trim();
-      if (!company || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert(T("Enter your company and a valid email.", "أدخل اسم شركتك وبريداً صحيحاً.")); return; }
-      var existing = partner() || {};
-      existing.company = company; existing.email = email;
-      try { localStorage.setItem("bp_partner", JSON.stringify(existing)); } catch (er) {}
-      render();
+      if (errEl) errEl.hidden = true;
+      var email = (document.getElementById("pl-email").value || "").trim().toLowerCase();
+      var code = (document.getElementById("pl-code").value || "").trim().toUpperCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !code) { showErr("bad_credentials"); return; }
+      var btn = loginForm.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Signing in…", "جارٍ الدخول…");
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "login", email: email, code: code }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          btn.disabled = false; btn.textContent = lbl;
+          if (!d || !d.ok) { showErr(d && d.error); return; }
+          setCreds({ email: email, code: code });
+          state.supplier = d.supplier; state.orders = d.orders || []; render();
+        })
+        .catch(function () { btn.disabled = false; btn.textContent = lbl; showErr("network"); });
     });
 
     var logout = document.getElementById("pt-logout");
-    if (logout) logout.addEventListener("click", function () { try { localStorage.removeItem("bp_partner"); } catch (e) {} render(); });
+    if (logout) logout.addEventListener("click", function () { setCreds(null); state.supplier = null; state.orders = []; render(); });
 
-    // Offer modal
+    // Work-order update modal
     var modal = document.getElementById("pt-modal");
     document.addEventListener("click", function (e) {
-      var b = e.target.closest(".pt-offer-btn");
+      var b = e.target.closest && e.target.closest(".pt-offer-btn");
       if (b && modal) {
-        document.getElementById("pt-offer-ref").value = b.getAttribute("data-ref");
-        document.getElementById("pt-offer-for").textContent = T("Request: ", "الطلب: ") + b.getAttribute("data-title");
+        document.getElementById("pt-order-id").value = b.getAttribute("data-id");
+        document.getElementById("pt-offer-for").textContent = T("Work order: ", "أمر العمل: ") + b.getAttribute("data-title");
+        var isRfq = b.getAttribute("data-status") === "طلب عرض سعر";
+        var qw = document.getElementById("pt-quote-wrap"), sw = document.getElementById("pt-status-wrap");
+        if (qw) qw.hidden = !isRfq;
+        if (sw) sw.hidden = isRfq;
+        var mt = document.getElementById("pt-modal-title");
+        if (mt) mt.textContent = isRfq ? T("Submit your quote", "قدّم عرض سعرك") : T("Update work order", "تحديث أمر العمل");
         var sent = document.getElementById("pt-offer-sent"); if (sent) sent.hidden = true;
         modal.hidden = false;
       }
       if (e.target.id === "pt-modal-x" || e.target === modal) modal.hidden = true;
     });
-    var offerForm = document.getElementById("pt-offer-form");
-    if (offerForm) offerForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var p = partner() || {};
-      var oref = document.getElementById("pt-offer-ref").value;
-      var price = document.getElementById("pt-offer-price").value;
-      var notes = document.getElementById("pt-offer-notes").value.trim();
-      var btn = offerForm.querySelector("button[type=submit]"), lbl = btn.textContent;
-      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
-      fetch("/api/requests", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ type: "partner-offer", requestRef: oref, company: p.company || "", person: p.person || "", email: p.email || "", phone: p.phone || "", category: p.category || "", price: price, notes: notes }),
-      }).then(function (r) { return r.json(); }).then(function (d) {
-        btn.disabled = false; btn.textContent = lbl;
-        var box = document.getElementById("pt-offer-sent"); box.hidden = false;
-        box.innerHTML = (d && d.ok) ? "✅ " + T("Offer sent — we'll coordinate with the client.", "تم إرسال عرضك — سننسّق مع العميل.") : "⚠️ " + T("Couldn't send — try again.", "تعذّر الإرسال — حاول مجدداً.");
-        if (d && d.ok) {
-          try { var offers = offersData(); offers.push(oref); localStorage.setItem("bp_partner_offers", JSON.stringify(offers)); } catch (er) {}
-          setTimeout(function () { if (modal) modal.hidden = true; render(); }, 1200);
-        }
-      }).catch(function () {
-        btn.disabled = false; btn.textContent = lbl;
-        var box = document.getElementById("pt-offer-sent"); box.hidden = false;
-        box.innerHTML = "⚠️ " + T("Couldn't reach the server — try again.", "تعذّر الاتصال — حاول مجدداً.");
-      });
-    });
 
-    render();
-    document.addEventListener("bp:langchange", render);
+    var form = document.getElementById("pt-offer-form");
+    if (form) form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var c = creds(); if (!c) return;
+      var payload = {
+        type: "order-update", email: c.email, code: c.code,
+        orderId: document.getElementById("pt-order-id").value,
+        notes: (document.getElementById("pt-offer-notes").value || "").trim(),
+      };
+      var qw2 = document.getElementById("pt-quote-wrap");
+      if (qw2 && !qw2.hidden) {
+        payload.quote = document.getElementById("pt-quote").value;
+        payload.leadTime = (document.getElementById("pt-lead").value || "").trim();
+        if (!payload.quote) { alert(T("Enter your price.", "أدخل سعرك.")); return; }
+      } else {
+        payload.status = document.getElementById("pt-status").value;
+      }
+      var btn = form.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Saving…", "جارٍ الحفظ…");
+      var fileEl = document.getElementById("pt-invoice");
+      var file = fileEl && fileEl.files && fileEl.files[0];
+      var go = function () {
+        fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            btn.disabled = false; btn.textContent = lbl;
+            var sent = document.getElementById("pt-offer-sent");
+            if (d && d.ok) {
+              if (sent) { sent.textContent = T("Saved — the team has been notified.", "تم الحفظ — أُشعر الفريق."); sent.hidden = false; }
+              form.reset();
+              load(c);
+              setTimeout(function () { if (modal) modal.hidden = true; }, 1200);
+            } else if (sent) { sent.textContent = T("Could not save — please try again.", "تعذّر الحفظ — حاول مرة أخرى."); sent.hidden = false; }
+          })
+          .catch(function () { btn.disabled = false; btn.textContent = lbl; });
+      };
+      if (file) {
+        if (file.size > 4 * 1024 * 1024) { alert(T("Invoice must be under 4MB.", "حجم الفاتورة يجب أن يكون أقل من 4 ميجابايت.")); btn.disabled = false; btn.textContent = lbl; return; }
+        var fr = new FileReader();
+        fr.onload = function () {
+          payload.invoiceBase64 = String(fr.result).split(",")[1] || "";
+          payload.invoiceName = file.name; payload.invoiceType = file.type;
+          go();
+        };
+        fr.onerror = function () { btn.disabled = false; btn.textContent = lbl; };
+        fr.readAsDataURL(file);
+      } else go();
+    });
   });
 })();
 
@@ -2706,28 +2761,44 @@ var BP = window.BP = window.BP || {};
       function (d, ref) { return "طلب فعالية " + ref + "\nالشركة: " + d.company + "\nالنوع: " + d.eventType + "\nالتاريخ: " + d.date + "\nالأفراد: " + d.count; },
       { register: true, prefill: { company: "ev-company", person: "ev-person", email: "ev-email", phone: "ev-phone" } });
 
-    wire("supplier-form", "supplier-success",
-      function () {
-        return { type: "supplier", company: val("sp-company"), person: val("sp-person"), phone: val("sp-phone"),
-          email: val("sp-email"), city: val("sp-city"), cr: val("sp-cr"), category: selText("sp-cat"), notes: val("sp-notes") };
-      },
-      function (d) {
-        if (!d.company || !d.person || !d.phone || !d.email)
-          return BP.t("Please fill all required fields.", "الرجاء تعبئة كل الحقول المطلوبة.");
-        return null;
-      },
-      function (d, ref) { return "تسجيل مورّد " + ref + "\nالشركة: " + d.company + "\nالتصنيف: " + d.category; });
-    // Save a partner session so the partner dashboard opens for them right away.
+    // Supplier registration writes straight into the Suppliers registry — not
+    // the customer CRM — and no session is created here: the supplier can only
+    // sign in after the owner approves them and the access code is emailed.
     var spForm = document.getElementById("supplier-form");
-    if (spForm) spForm.addEventListener("submit", function () {
-      var company = val("sp-company"), email = val("sp-email");
-      if (!company || !email) return;
-      try {
-        localStorage.setItem("bp_partner", JSON.stringify({
-          company: company, person: val("sp-person"), email: email, phone: val("sp-phone"),
-          city: val("sp-city"), cr: val("sp-cr"), category: selText("sp-cat"),
-        }));
-      } catch (e) {}
+    if (spForm) spForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var okBox = document.getElementById("supplier-success");
+      var payload = {
+        type: "register", company: val("sp-company"), person: val("sp-person"), phone: val("sp-phone"),
+        email: (val("sp-email") || "").toLowerCase(), city: val("sp-city"), cr: val("sp-cr"), vat: val("sp-vat"),
+        categories: [(document.getElementById("sp-cat") || {}).value].filter(Boolean),
+        services: val("sp-notes"),
+      };
+      if (!payload.company || !payload.person || !payload.phone || !payload.email) {
+        if (okBox) { okBox.textContent = BP.t("Please fill all required fields.", "الرجاء تعبئة كل الحقول المطلوبة."); okBox.hidden = false; }
+        return;
+      }
+      var btn = spForm.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = BP.t("Sending…", "جارٍ الإرسال…");
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          btn.disabled = false; btn.textContent = lbl;
+          if (!okBox) return;
+          if (d && d.ok) {
+            okBox.innerHTML = "✅ <strong>" + BP.t("Registered", "تم التسجيل") + (d.ref ? " — " + d.ref : "") + "</strong><br>" +
+              BP.t("We review your file and email your portal access code once approved.",
+                   "نراجع ملفك ويصلك رمز دخول البوابة على بريدك فور الاعتماد.");
+            spForm.reset();
+          } else {
+            okBox.textContent = BP.t("Could not register — please try again or contact us.", "تعذّر التسجيل — حاول مرة أخرى أو تواصل معنا.");
+          }
+          okBox.hidden = false;
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = lbl;
+          if (okBox) { okBox.textContent = BP.t("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى."); okBox.hidden = false; }
+        });
     });
 
     wire("mm-form-el", "mm-success",
@@ -5149,5 +5220,190 @@ var BP_EMP_BILLING = "monthly";
         }).catch(function () {});
     }
     step(null);
+  });
+})();
+
+
+/* ---------- Suppliers control panel (owner only) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var gate = document.getElementById("sa-gate");
+    var app = document.getElementById("sa-app");
+    if (!gate || !app) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    function e4(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    // The owner key lives in sessionStorage only: it dies with the tab and is
+    // never written into the page or localStorage.
+    function key() { try { return sessionStorage.getItem("bp_sup_key") || ""; } catch (e) { return ""; } }
+    function setKey(k) { try { k ? sessionStorage.setItem("bp_sup_key", k) : sessionStorage.removeItem("bp_sup_key"); } catch (e) {} }
+
+    var data = { suppliers: [], orders: [] };
+    var LIVE = ["أُرسل للمورّد", "قبله المورّد", "قيد التنفيذ"];
+
+    function post(body, then) {
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(Object.assign({ key: key() }, body)) })
+        .then(function (r) { return r.json(); }).then(then).catch(function () { then({ ok: false, error: "network" }); });
+    }
+
+    function load(onFail) {
+      fetch("/api/suppliers?action=admin&key=" + encodeURIComponent(key()), { cache: "no-store" })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) { setKey(""); gate.hidden = false; app.hidden = true; if (onFail) onFail(d && d.error); return; }
+          data.suppliers = d.suppliers || []; data.orders = d.orders || [];
+          gate.hidden = true; app.hidden = false;
+          render();
+        })
+        .catch(function () { if (onFail) onFail("network"); });
+    }
+
+    function render() {
+      var sup = data.suppliers, ord = data.orders;
+      var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
+      set("sa-n-sup", sup.length);
+      set("sa-n-new", sup.filter(function (s) { return s.status === "جديد"; }).length);
+      set("sa-n-quote", ord.filter(function (o) { return o.status === "عرض مُقدَّم"; }).length);
+      set("sa-n-live", ord.filter(function (o) { return LIVE.indexOf(o.status) !== -1; }).length);
+      set("sa-n-inv", ord.filter(function (o) { return o.supplierInvoiceStatus === "مرفوعة"; }).length);
+
+      // category filter + supplier picker
+      var cats = {};
+      sup.forEach(function (s) { (s.categories || []).forEach(function (c) { cats[c] = 1; }); });
+      var cf = document.getElementById("sa-cat-filter");
+      if (cf && cf.options.length <= 1) {
+        Object.keys(cats).sort().forEach(function (c) { var o = document.createElement("option"); o.value = c; o.textContent = c; cf.appendChild(o); });
+      }
+      renderPicker();
+
+      var name = function (id) { var s = sup.filter(function (x) { return x.id === id; })[0]; return s ? s.name : "—"; };
+      var ob = document.getElementById("sa-orders");
+      if (ob) {
+        ob.innerHTML = !ord.length ? '<p class="dash-empty">' + T("Nothing yet.", "لا يوجد بعد.") + "</p>" : ord.map(function (o) {
+          var bits = [];
+          if (o.quote != null) bits.push(T("Quoted", "العرض") + ": " + o.quote + " ﷼" + (o.leadTime ? " · " + o.leadTime : ""));
+          if (o.amount != null) bits.push(T("Order value", "قيمة الأمر") + ": " + o.amount + " ﷼");
+          if (o.commission != null) bits.push(T("Commission", "العمولة") + ": " + o.commission + " ﷼ (" + (o.commissionStatus || "—") + ")");
+          var btns = "";
+          if (o.status === "عرض مُقدَّم") btns += '<button class="btn btn-primary btn-sm sa-act" data-act="award" data-id="' + e4(o.id) + '">' + T("Award", "ترسية") + "</button> ";
+          if (o.status === "تم التسليم") btns += '<button class="btn btn-primary btn-sm sa-act" data-act="approve-order" data-id="' + e4(o.id) + '">' + T("Approve delivery", "اعتماد التسليم") + "</button> ";
+          if (o.supplierInvoiceStatus === "مرفوعة") btns += '<button class="btn btn-ghost btn-sm sa-act" data-act="inv-paid" data-id="' + e4(o.id) + '">' + T("Mark invoice paid", "إثبات سداد الفاتورة") + "</button> ";
+          btns += '<button class="btn btn-ghost btn-sm sa-act" data-act="commission" data-id="' + e4(o.id) + '">' + T("Issue commission invoice", "أصدر فاتورة العمولة") + "</button>";
+          return '<div class="dash-card" style="margin-bottom:10px">' +
+            '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">' +
+              "<div><strong>" + e4(o.service || o.ref) + "</strong>" +
+              '<br><span class="text-soft" style="font-size:.82rem">' + e4([o.ref, name(o.supplierId), o.client, o.city, o.due].filter(Boolean).join(" · ")) + "</span>" +
+              (bits.length ? '<br><span class="text-soft" style="font-size:.82rem">' + e4(bits.join(" · ")) + "</span>" : "") + "</div>" +
+              '<div style="text-align:end"><span class="pkg-tag">' + e4(o.status || "—") + "</span>" +
+              '<br><span class="text-soft" style="font-size:.78rem">' + e4(T("Supplier invoice", "فاتورة المورّد") + ": " + (o.supplierInvoiceStatus || "—")) + "</span>" +
+              (o.url ? '<br><a class="mini" href="' + e4(o.url) + '" target="_blank" rel="noopener">Notion ↗</a>' : "") + "</div>" +
+            "</div><div style=\"margin-top:10px\">" + btns + "</div></div>";
+        }).join("");
+      }
+
+      var sb = document.getElementById("sa-suppliers");
+      if (sb) {
+        sb.innerHTML = !sup.length ? '<p class="dash-empty">' + T("No suppliers yet.", "لا يوجد موردون بعد.") + "</p>" : sup.map(function (s) {
+          var acts = "";
+          if (s.status !== "معتمد") acts += '<button class="btn btn-primary btn-sm sa-act" data-act="approve" data-id="' + e4(s.id) + '">' + T("Approve", "اعتماد") + "</button> ";
+          if (s.status === "معتمد") acts += '<button class="btn btn-ghost btn-sm sa-act" data-act="suspend" data-id="' + e4(s.id) + '">' + T("Suspend", "إيقاف") + "</button> ";
+          return '<div class="dash-card" style="margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">' +
+            "<div><strong>" + e4(s.name) + "</strong>" +
+            '<br><span class="text-soft" style="font-size:.82rem">' + e4([s.code, s.person, s.phone, s.email, s.city].filter(Boolean).join(" · ")) + "</span>" +
+            '<br><span class="text-soft" style="font-size:.82rem">' + e4((s.categories || []).join("، ")) + "</span></div>" +
+            '<div style="text-align:end"><span class="pkg-tag">' + e4(s.status || "—") + "</span><div style=\"margin-top:8px\">" + acts +
+            (s.url ? '<a class="mini" href="' + e4(s.url) + '" target="_blank" rel="noopener">Notion ↗</a>' : "") + "</div></div></div>";
+        }).join("");
+      }
+    }
+
+    function renderPicker() {
+      var box = document.getElementById("sa-sup-picker");
+      if (!box) return;
+      var cf = document.getElementById("sa-cat-filter");
+      var filter = cf ? cf.value : "";
+      var list = data.suppliers.filter(function (s) {
+        return s.status === "معتمد" && (!filter || (s.categories || []).indexOf(filter) !== -1);
+      });
+      box.innerHTML = !list.length
+        ? '<p class="text-soft" style="margin:0">' + T("No approved suppliers in this category yet.", "لا يوجد موردون معتمدون في هذا التصنيف بعد.") + "</p>"
+        : list.map(function (s) {
+            return '<label class="sa-pick"><input type="checkbox" value="' + e4(s.id) + '"> <span>' + e4(s.name) + '</span> <span class="text-soft" style="font-size:.78rem">' + e4((s.categories || []).join("، ")) + "</span></label>";
+          }).join("");
+    }
+    var cfEl = document.getElementById("sa-cat-filter");
+    if (cfEl) cfEl.addEventListener("change", renderPicker);
+
+    var errEl = document.getElementById("sa-error");
+    var keyForm = document.getElementById("sa-key-form");
+    if (keyForm) keyForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (errEl) errEl.hidden = true;
+      setKey((document.getElementById("sa-key").value || "").trim());
+      load(function (err) {
+        if (!errEl) return;
+        errEl.textContent = err === "not_configured"
+          ? T("Set PANEL_KEY (or LEADS_KEY) in Vercel first.", "اضبط PANEL_KEY أو LEADS_KEY في Vercel أولاً.")
+          : T("Wrong key.", "المفتاح غير صحيح.");
+        errEl.hidden = false;
+      });
+    });
+    var rf = document.getElementById("sa-refresh");
+    if (rf) rf.addEventListener("click", function () { load(); });
+    if (key()) load();
+
+    // RFQ broadcast
+    var rfq = document.getElementById("sa-rfq-form");
+    if (rfq) rfq.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var picked = [].slice.call(document.querySelectorAll("#sa-sup-picker input:checked")).map(function (i) { return i.value; });
+      var service = (document.getElementById("sa-service").value || "").trim();
+      var box = document.getElementById("sa-rfq-sent");
+      if (!service || !picked.length) {
+        if (box) { box.textContent = T("Pick at least one supplier and name the service.", "اختر مورّداً واحداً على الأقل وحدّد الخدمة."); box.hidden = false; }
+        return;
+      }
+      var btn = rfq.querySelector("button[type=submit]"), lbl = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      post({
+        type: "rfq", supplierIds: picked, service: service,
+        client: (document.getElementById("sa-client").value || "").trim(),
+        clientRef: (document.getElementById("sa-clientref").value || "").trim(),
+        city: (document.getElementById("sa-city").value || "").trim(),
+        due: document.getElementById("sa-due").value,
+        details: (document.getElementById("sa-details").value || "").trim(),
+      }, function (d) {
+        btn.disabled = false; btn.textContent = lbl;
+        if (box) {
+          box.textContent = d && d.ok
+            ? "✅ " + T("Sent to", "أُرسل إلى") + " " + d.sent + " " + T("suppliers", "مورّدين") + " — " + d.ref
+            : T("Could not send — try again.", "تعذّر الإرسال — حاول مرة أخرى.");
+          box.hidden = false;
+        }
+        if (d && d.ok) { rfq.reset(); load(); }
+      });
+    });
+
+    // Row actions
+    document.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest(".sa-act");
+      if (!b) return;
+      var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
+      b.disabled = true;
+      var done = function (d) { b.disabled = false; if (d && d.ok) load(); else alert(T("Action failed.", "تعذّر تنفيذ الإجراء.")); };
+      if (act === "approve") post({ type: "approve", supplierId: id, status: "معتمد" }, done);
+      else if (act === "suspend") post({ type: "approve", supplierId: id, status: "موقوف" }, done);
+      else if (act === "approve-order") post({ type: "order-admin", orderId: id, status: "معتمد" }, done);
+      else if (act === "inv-paid") post({ type: "order-admin", orderId: id, supplierInvoiceStatus: "مدفوعة" }, done);
+      else if (act === "award") {
+        var v = prompt(T("Awarded value (SAR) — leave empty to use the quoted price:", "القيمة المعتمدة (ريال) — اتركها فارغة لاعتماد سعر العرض:"));
+        if (v === null) { b.disabled = false; return; }
+        post({ type: "award", orderId: id, amount: v === "" ? undefined : v }, done);
+      } else if (act === "commission") {
+        var c = prompt(T("Commission amount to invoice this supplier (SAR):", "مبلغ العمولة المراد فوترته على المورّد (ريال):"));
+        if (c === null || c === "") { b.disabled = false; return; }
+        post({ type: "invoice", orderId: id, amount: c }, done);
+      } else b.disabled = false;
+    });
   });
 })();

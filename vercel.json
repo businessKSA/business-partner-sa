@@ -172,6 +172,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/suppliers",
+      "destination": "/api/requests?__route=suppliers"
+    },
+    {
       "source": "/revenue-os",
       "destination": "/assets/data/revenue-os"
     },

@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>合作伙伴仪表板 — Business Partner</title>
-<meta name="description" content="合作伙伴仪表板：查看匹配的客户需求并发送报价。">
-<meta property="og:title" content="合作伙伴仪表板 — Business Partner">
-<meta property="og:description" content="合作伙伴仪表板：查看匹配的客户需求并发送报价。">
+<title>Supplier dashboard — Business Partner</title>
+<meta name="description" content="Suppliers portal: see the work orders assigned to you, update progress and upload invoices.">
+<meta property="og:title" content="Supplier dashboard — Business Partner">
+<meta property="og:description" content="Suppliers portal: see the work orders assigned to you, update progress and upload invoices.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="zh_CN">
@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=ff589f485d">
+<link rel="stylesheet" href="/assets/css/styles.css?v=c387982f56">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header"><div class="container header-inner">
@@ -79,32 +79,33 @@
   </div>
 </div></header><main>
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">合作伙伴门户</span>
-    <h1>合作伙伴仪表板</h1>
-    <p class="lead">您的客户需求实时看板。当客户在网站提交需求或下单时，匹配的机会会显示在这里，供您报价。</p>
+    <span class="eyebrow">供应商门户</span>
+    <h1>Supplier dashboard</h1>
+    <p class="lead">Your assigned work orders from Business Partner — accept them, update progress, and upload your invoice when the job is delivered.</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:1000px">
 
-    <!-- Login gate (no partner session) -->
+    <!-- Sign-in gate -->
     <div id="partner-gate">
       <div class="dash-card" style="max-width:520px;margin:0 auto">
-        <h2>合作伙伴登录</h2>
-        <p class="text-soft" style="margin-bottom:14px">输入您的公司名称与注册时使用的邮箱，即可打开仪表板。</p>
+        <h2>Supplier sign in</h2>
+        <p class="text-soft" style="margin-bottom:14px">Enter the email you registered with and the access code we emailed you once your registration was approved.</p>
         <form id="partner-login-form" class="calc-form">
-          <div class="field"><label for="pl-company">公司名称</label><input id="pl-company" type="text" required></div>
-          <div class="field"><label for="pl-email">邮箱</label><input id="pl-email" type="email" required></div>
+          <div class="field"><label for="pl-email">邮箱</label><input id="pl-email" type="email" autocomplete="email" required></div>
+          <div class="field"><label for="pl-code">访问码</label><input id="pl-code" type="text" inputmode="latin" autocapitalize="characters" placeholder="XXXXXX" required></div>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%">打开我的仪表板</button>
+          <p class="form-error" id="pl-error" hidden></p>
         </form>
-        <p class="mini" style="margin-top:12px">还未注册？ <a href="/zh/suppliers">注册为合作伙伴</a></p>
+        <p class="mini" style="margin-top:12px">还未注册？ <a href="/zh/suppliers">Register as a supplier</a></p>
       </div>
     </div>
 
-    <!-- Dashboard (has session) -->
+    <!-- Dashboard -->
     <div id="partner-app" hidden>
       <div class="dash-stats" style="margin-bottom:20px">
-        <div class="dash-stat"><div class="ds-ico">📥</div><div class="num" id="pt-stat-open">0</div><div class="lbl">待处理需求</div></div>
-        <div class="dash-stat"><div class="ds-ico">📨</div><div class="num" id="pt-stat-offers">0</div><div class="lbl">已发送报价</div></div>
-        <div class="dash-stat"><div class="ds-ico">🏷️</div><div class="num" id="pt-stat-cat" style="font-size:1rem">—</div><div class="lbl">您的类别</div></div>
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="pt-stat-open">0</div><div class="lbl">Active work orders</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="pt-stat-done">0</div><div class="lbl">Delivered</div></div>
+        <div class="dash-stat"><div class="ds-ico">🧾</div><div class="num" id="pt-stat-due" style="font-size:1.05rem">0</div><div class="lbl">Awaiting your invoice</div></div>
       </div>
 
       <div class="dash-card" style="margin-bottom:18px">
@@ -114,29 +115,36 @@
         </div>
       </div>
 
-      <div class="dash-panel-head"><h2>可承接的客户需求</h2><p>已按您的服务类别匹配。发送报价后，我们会直接与客户对接。</p></div>
-      <div id="pt-feed"><p class="dash-empty">当前暂无待处理需求——新的客户需求会显示在这里。</p></div>
-
-      <div class="callout" style="margin-top:20px"><span class="ico">🔗</span><p>本仪表板与客户端直接联动：网站上的每一笔需求或购买都会与合作伙伴进行匹配。实时推送至您 WhatsApp／邮箱的功能，将在入驻后由我们团队开启。</p></div>
+      <div class="dash-panel-head"><h2>Your work orders</h2><p>Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.</p></div>
+      <div id="pt-feed"><p class="dash-empty">No work orders yet — new assignments appear here and reach you by email.</p></div>
     </div>
   </div></section>
 
-  <!-- Offer modal -->
+  <!-- Work-order modal -->
   <div class="empd-modal" id="pt-modal" hidden><div class="empd-modal-in">
     <button class="empd-modal-x" id="pt-modal-x">✕</button>
-    <h3>发送您的报价</h3>
+    <h3 id="pt-modal-title">Update work order</h3>
     <div class="empd-modal-body">
       <form id="pt-offer-form" class="calc-form">
-        <input type="hidden" id="pt-offer-ref">
+        <input type="hidden" id="pt-order-id">
         <div class="field"><label id="pt-offer-for" style="font-weight:600"></label></div>
-        <div class="field"><label for="pt-offer-price">您的报价（里亚尔）</label><input id="pt-offer-price" type="number" min="0"></div>
-        <div class="field"><label for="pt-offer-notes">报价详情</label><textarea id="pt-offer-notes" rows="3" placeholder="包含内容、时间安排、条款…"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">发送报价</button>
+        <div class="field" id="pt-quote-wrap" hidden>
+          <label for="pt-quote">您的报价（里亚尔）</label><input id="pt-quote" type="number" min="0" step="0.01">
+          <label for="pt-lead" style="margin-top:10px">Proposed lead time</label><input id="pt-lead" type="text" placeholder="e.g. 5 working days">
+        </div>
+        <div class="field" id="pt-status-wrap"><label for="pt-status">状态</label>
+          <select id="pt-status">
+            <option value="قبله المورّد">I accept this work order</option>
+            <option value="قيد التنفيذ">进行中</option>
+            <option value="تم التسليم">Delivered</option>
+          </select></div>
+        <div class="field"><label for="pt-invoice">Your invoice (PDF or image) — optional</label><input id="pt-invoice" type="file" accept=".pdf,image/*"></div>
+        <div class="field"><label for="pt-offer-notes">Notes</label><textarea id="pt-offer-notes" rows="3" placeholder="Progress, delivery details, anything the team should know…"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Save update</button>
         <div class="form-success" id="pt-offer-sent" hidden></div>
       </form>
     </div>
-  </div></div>
-  <script>window.BP_PARTNER_CATS=["فعاليات ومؤتمرات","قاعات ومواقع","ضيافة وكيترينق","أنشطة خارجية","نقل ولوجستيات","تصوير وإعلام","رحلات شركات","أخرى"];</script></main><footer class="site-footer"><div class="container">
+  </div></div></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>订阅我们的通讯</h3>
@@ -220,4 +228,4 @@
     <span>© 2026 Business Partner · 版权所有</span>
     <span>周日至周四 · 上午 9 点 – 下午 6 点 · 智能助手全天候在线</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="通过 WhatsApp 联系"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">通过 WhatsApp 联系我们</span></a><script src="/assets/js/main.js?v=0a408fcf17"></script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="通过 WhatsApp 联系"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">通过 WhatsApp 联系我们</span></a><script src="/assets/js/main.js?v=b523230719"></script></body></html>

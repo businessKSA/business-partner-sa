@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>لوحة الشركاء — بيزنس بارتنر</title>
-<meta name="description" content="لوحة الشركاء: شاهد طلبات العملاء المطابقة وقدّم عروضك.">
-<meta property="og:title" content="لوحة الشركاء — بيزنس بارتنر">
-<meta property="og:description" content="لوحة الشركاء: شاهد طلبات العملاء المطابقة وقدّم عروضك.">
+<title>لوحة المورّد — بيزنس بارتنر</title>
+<meta name="description" content="بوابة الموردين: تابع أوامر العمل المسندة إليك، حدّث حالتها وارفع فواتيرك.">
+<meta property="og:title" content="لوحة المورّد — بيزنس بارتنر">
+<meta property="og:description" content="بوابة الموردين: تابع أوامر العمل المسندة إليك، حدّث حالتها وارفع فواتيرك.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="ar_SA">
@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=ff589f485d">
+<link rel="stylesheet" href="/assets/css/styles.css?v=c387982f56">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header"><div class="container header-inner">
@@ -79,32 +79,33 @@
   </div>
 </div></header><main>
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">بوابة الشركاء</span>
-    <h1>لوحة الشركاء</h1>
-    <p class="lead">متابعتك المباشرة لطلبات العملاء. عندما يطلب عميل أو يشتري خدمة على الموقع، تظهر الفرص المطابقة هنا لتقدّم عرضك.</p>
+    <span class="eyebrow">بوابة الموردين</span>
+    <h1>لوحة المورّد</h1>
+    <p class="lead">أوامر العمل المُسنَدة إليك من بيزنس بارتنر — اقبلها، حدّث حالة التنفيذ، وارفع فاتورتك بعد التسليم.</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:1000px">
 
-    <!-- Login gate (no partner session) -->
+    <!-- Sign-in gate -->
     <div id="partner-gate">
       <div class="dash-card" style="max-width:520px;margin:0 auto">
-        <h2>دخول الشركاء</h2>
-        <p class="text-soft" style="margin-bottom:14px">أدخل اسم شركتك والبريد الذي سجّلت به لفتح لوحتك.</p>
+        <h2>دخول الموردين</h2>
+        <p class="text-soft" style="margin-bottom:14px">أدخل البريد الذي سجّلت به ورمز الدخول الذي أرسلناه لك بعد اعتماد تسجيلك.</p>
         <form id="partner-login-form" class="calc-form">
-          <div class="field"><label for="pl-company">اسم الشركة</label><input id="pl-company" type="text" required></div>
-          <div class="field"><label for="pl-email">البريد الإلكتروني</label><input id="pl-email" type="email" required></div>
+          <div class="field"><label for="pl-email">البريد الإلكتروني</label><input id="pl-email" type="email" autocomplete="email" required></div>
+          <div class="field"><label for="pl-code">رمز الدخول</label><input id="pl-code" type="text" inputmode="latin" autocapitalize="characters" placeholder="XXXXXX" required></div>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%">افتح لوحتي</button>
+          <p class="form-error" id="pl-error" hidden></p>
         </form>
-        <p class="mini" style="margin-top:12px">لست مسجّلاً بعد؟ <a href="/ar/suppliers">سجّل كشريك</a></p>
+        <p class="mini" style="margin-top:12px">لست مسجّلاً بعد؟ <a href="/ar/suppliers">سجّل كمورّد</a></p>
       </div>
     </div>
 
-    <!-- Dashboard (has session) -->
+    <!-- Dashboard -->
     <div id="partner-app" hidden>
       <div class="dash-stats" style="margin-bottom:20px">
-        <div class="dash-stat"><div class="ds-ico">📥</div><div class="num" id="pt-stat-open">0</div><div class="lbl">طلبات متاحة</div></div>
-        <div class="dash-stat"><div class="ds-ico">📨</div><div class="num" id="pt-stat-offers">0</div><div class="lbl">عروض مُرسلة</div></div>
-        <div class="dash-stat"><div class="ds-ico">🏷️</div><div class="num" id="pt-stat-cat" style="font-size:1rem">—</div><div class="lbl">تصنيفك</div></div>
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="pt-stat-open">0</div><div class="lbl">أوامر عمل جارية</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="pt-stat-done">0</div><div class="lbl">تم تسليمها</div></div>
+        <div class="dash-stat"><div class="ds-ico">🧾</div><div class="num" id="pt-stat-due" style="font-size:1.05rem">0</div><div class="lbl">بانتظار فاتورتك</div></div>
       </div>
 
       <div class="dash-card" style="margin-bottom:18px">
@@ -114,29 +115,36 @@
         </div>
       </div>
 
-      <div class="dash-panel-head"><h2>طلبات العملاء المتاحة</h2><p>مطابقة لتصنيف خدمتك. قدّم عرضك وننسّق معك مباشرة مع العميل.</p></div>
-      <div id="pt-feed"><p class="dash-empty">لا توجد طلبات متاحة حالياً — ستظهر طلبات العملاء الجديدة هنا.</p></div>
-
-      <div class="callout" style="margin-top:20px"><span class="ico">🔗</span><p>هذه اللوحة مربوطة بجانب العملاء: كل طلب أو عملية شراء على الموقع تُطابَق مع الشركاء. التوجيه المباشر لواتسابك/بريدك يُفعّله فريقنا بعد إتمام الانضمام.</p></div>
+      <div class="dash-panel-head"><h2>أوامر العمل الخاصة بك</h2><p>مُسنَدة إليك من فريق بيزنس بارتنر. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.</p></div>
+      <div id="pt-feed"><p class="dash-empty">لا توجد أوامر عمل بعد — كل إسناد جديد يظهر هنا ويصلك على بريدك.</p></div>
     </div>
   </div></section>
 
-  <!-- Offer modal -->
+  <!-- Work-order modal -->
   <div class="empd-modal" id="pt-modal" hidden><div class="empd-modal-in">
     <button class="empd-modal-x" id="pt-modal-x">✕</button>
-    <h3>قدّم عرضك</h3>
+    <h3 id="pt-modal-title">تحديث أمر العمل</h3>
     <div class="empd-modal-body">
       <form id="pt-offer-form" class="calc-form">
-        <input type="hidden" id="pt-offer-ref">
+        <input type="hidden" id="pt-order-id">
         <div class="field"><label id="pt-offer-for" style="font-weight:600"></label></div>
-        <div class="field"><label for="pt-offer-price">سعرك (ريال)</label><input id="pt-offer-price" type="number" min="0"></div>
-        <div class="field"><label for="pt-offer-notes">تفاصيل العرض</label><textarea id="pt-offer-notes" rows="3" placeholder="ما يشمله العرض، المدة، الشروط…"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">أرسل العرض</button>
+        <div class="field" id="pt-quote-wrap" hidden>
+          <label for="pt-quote">سعرك (ريال)</label><input id="pt-quote" type="number" min="0" step="0.01">
+          <label for="pt-lead" style="margin-top:10px">مدة التنفيذ المقترحة</label><input id="pt-lead" type="text" placeholder="مثال: 5 أيام عمل">
+        </div>
+        <div class="field" id="pt-status-wrap"><label for="pt-status">الحالة</label>
+          <select id="pt-status">
+            <option value="قبله المورّد">أقبل أمر العمل</option>
+            <option value="قيد التنفيذ">قيد التنفيذ</option>
+            <option value="تم التسليم">تم التسليم</option>
+          </select></div>
+        <div class="field"><label for="pt-invoice">فاتورتك (PDF أو صورة) — اختياري</label><input id="pt-invoice" type="file" accept=".pdf,image/*"></div>
+        <div class="field"><label for="pt-offer-notes">ملاحظات</label><textarea id="pt-offer-notes" rows="3" placeholder="سير العمل، تفاصيل التسليم، أي شيء يحتاج الفريق معرفته…"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">احفظ التحديث</button>
         <div class="form-success" id="pt-offer-sent" hidden></div>
       </form>
     </div>
-  </div></div>
-  <script>window.BP_PARTNER_CATS=["فعاليات ومؤتمرات","قاعات ومواقع","ضيافة وكيترينق","أنشطة خارجية","نقل ولوجستيات","تصوير وإعلام","رحلات شركات","أخرى"];</script></main><footer class="site-footer"><div class="container">
+  </div></div></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>اشترك في نشرتنا الإخبارية</h3>
@@ -220,4 +228,4 @@
     <span>© 2026 بيزنس بارتنر · جميع الحقوق محفوظة</span>
     <span>الأحد – الخميس · 9 صباحاً – 6 مساءً · والوكيل الذكي على مدار الساعة</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="تواصل عبر واتساب"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">تواصل عبر واتساب</span></a><script src="/assets/js/main.js?v=0a408fcf17"></script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="تواصل عبر واتساب"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">تواصل عبر واتساب</span></a><script src="/assets/js/main.js?v=b523230719"></script></body></html>

@@ -16,6 +16,7 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
+import { handleSuppliers } from "./_suppliers.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -731,6 +732,12 @@ export default async function handler(req, res) {
 
   // Shared Services — owner approval link (owner clicks the emailed GET link).
   const q = req.query || {};
+
+  // /api/suppliers is rewritten here (vercel.json) rather than shipped as its
+  // own file: the plan caps serverless functions at 12 and this repo is at the
+  // cap. The supplier portal lives in ./_suppliers.js and owns the request
+  // entirely once delegated.
+  if ((q.__route || "") === "suppliers") return handleSuppliers(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
