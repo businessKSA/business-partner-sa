@@ -453,6 +453,38 @@
           <button class="actbtn" id="dfCopy" style="display:none;margin-top:8px">📋 انسخ النص وأرسله لي</button>
         </div>
 
+        <div class="panel" style="margin-bottom:22px;padding:18px">
+          <h4 style="color:var(--navy);margin-bottom:4px">🔧 تصحيح فاتورة صادرة في الدفترة</h4>
+          <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+            للفواتير التي خرجت باسم شخص بدل اسم المنشأة. صحّح <b>سجل العميل</b> أولاً — هذا يُصلح كل فواتيره القادمة —
+            ثم حاول تحديث الفاتورة نفسها. الدفترة وحدها تقرر إن كانت الفاتورة ما زالت قابلة للتعديل؛ فإن رفضت فالحل إشعار دائن وإعادة إصدار من الدفترة.
+          </p>
+          <div class="row2" style="display:grid;grid-template-columns:1fr auto;gap:8px;max-width:520px">
+            <input id="fxQ" type="text" placeholder="رقم الفاتورة كما هو مطبوع عليها" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:13.5px" />
+            <button class="actbtn" id="fxFind">🔍 ابحث</button>
+          </div>
+          <div id="fxFound" style="display:none;margin-top:14px">
+            <div class="dbody" id="fxInfo" style="margin-bottom:12px"></div>
+            <div class="dgrid">
+              <div class="f" style="grid-column:1/-1"><b>اسم المنشأة كما في السجل</b><input id="fxName" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>الرقم الضريبي (١٥)</b><input id="fxTax" type="text" dir="ltr" maxlength="15" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>رقم المبنى</b><input id="fxBno" type="text" dir="ltr" maxlength="4" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>اسم الشارع</b><input id="fxStreet" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>الحي</b><input id="fxDist" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>المدينة</b><input id="fxCity" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>الرمز البريدي</b><input id="fxPost" type="text" dir="ltr" maxlength="5" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>الرقم الإضافي</b><input id="fxAddNo" type="text" dir="ltr" maxlength="4" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+            </div>
+            <label class="file-drop-lbl" for="fxDoc" id="fxDocLbl" style="display:block;border:1px dashed var(--line);border-radius:12px;padding:11px 14px;text-align:center;font-size:12.5px;color:var(--soft);cursor:pointer;margin:10px 0">📎 ارفع شهادة الضريبة أو السجل — أقرأها وأعبّي الحقول</label>
+            <input id="fxDoc" type="file" accept=".pdf,image/*" style="display:none" />
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+              <button class="btn" id="fxSaveClient">💾 صحّح سجل العميل</button>
+              <button class="actbtn" id="fxSaveInv">🧾 حدّث الفاتورة نفسها</button>
+            </div>
+            <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
+          </div>
+        </div>
+
         <div class="tools">
           <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🏭</span><h4>لوحة تحكم الشركاء</h4><p>اعتماد الموردين الجدد وإرسال رمز الدخول، طلب عروض أسعار من عدة موردين، ترسية أوامر العمل، ومتابعة الفواتير في الاتجاهين.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">💬</span><h4>BP Inbox — مركز المحادثات</h4><p>متابعة محادثات واتساب والرد المباشر بمساعدة الذكاء، مع إيقاف/تفعيل الوكيل لكل عميل.</p><span class="go">فتح ←</span></a>
@@ -990,6 +1022,95 @@
       var t = $('dfRaw'); t.select(); t.setSelectionRange(0, 999999);
       try { document.execCommand('copy'); this.textContent = '✅ تم النسخ — أرسله لي'; }
       catch(e){ this.textContent = 'حدّد النص وانسخه يدوياً'; }
+    };
+
+    // Correcting what is already in the books. The client record is fixed
+    // first and separately: that half always works and is what makes every
+    // future invoice to this customer right, regardless of whether Daftra
+    // still lets the issued one be edited.
+    var fxInvoice = null;
+    function fxNote(kind, html){
+      var m = $('fxMsg');
+      m.style.display = 'block';
+      m.style.color = kind === 'ok' ? '#14532d' : kind === 'warn' ? '#b45309' : kind === 'err' ? '#b91c1c' : '';
+      m.innerHTML = html;
+    }
+    $('fxFind').onclick = function(){
+      var q = $('fxQ').value.trim();
+      if (!q) return;
+      var btn = this; btn.disabled = true;
+      $('fxFound').style.display = 'none'; $('fxMsg').style.display = 'none';
+      postPanel({ action:'panel-daftra-find-invoice', q: q }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){
+          fxNote('err', (r && r.error) === 'not_found'
+            ? 'ما لقيت فاتورة بهذا الرقم. تأكد من الرقم كما هو مطبوع على الفاتورة.'
+            : 'تعذّر البحث: ' + esc((r && r.error) || '؟') + ((r && r.detail) ? ' — ' + esc(r.detail) : ''));
+          return;
+        }
+        fxInvoice = r.invoice;
+        $('fxFound').style.display = 'block';
+        $('fxInfo').innerHTML =
+          '<span class="kv"><i>الفاتورة:</i>' + esc(fxInvoice.number) + (fxInvoice.date ? ' · ' + esc(fxInvoice.date) : '') + '</span>' +
+          '<span class="kv"><i>العميل الحالي:</i>' + esc(fxInvoice.clientName || '—') + '</span>' +
+          '<span class="kv"><i>الإجمالي:</i>' + (fxInvoice.total == null ? '—' : esc(String(fxInvoice.total)) + ' ﷼') + '</span>' +
+          '<span class="kv"><i>الحالة:</i>' + esc(fxInvoice.status || '—') + (fxInvoice.draft ? ' · مسودة (قابلة للتعديل)' : '') + '</span>';
+        if (!$('fxName').value) $('fxName').value = fxInvoice.clientName || '';
+      });
+    };
+    $('fxSaveClient').onclick = function(){
+      if (!fxInvoice || !fxInvoice.clientId){ fxNote('err', 'ابحث عن الفاتورة أولاً.'); return; }
+      var name = $('fxName').value.trim();
+      if (!name){ fxNote('err', 'اكتب اسم المنشأة كما تريده أن يظهر.'); return; }
+      var tax = $('fxTax').value.replace(/\D/g, '');
+      if (tax && tax.length !== 15){ fxNote('err', 'الرقم الضريبي لازم يكون ١٥ رقماً بالضبط.'); return; }
+      var btn = this; btn.disabled = true;
+      fxNote('', '⏳ جاري تصحيح سجل العميل…');
+      postPanel({ action:'panel-daftra-fix-client', clientId: fxInvoice.clientId, name: name, taxNumber: tax,
+        address: { buildingNo: $('fxBno').value.trim(), street: $('fxStreet').value.trim(), district: $('fxDist').value.trim(),
+                   city: $('fxCity').value.trim(), postalCode: $('fxPost').value.trim(), additionalNo: $('fxAddNo').value.trim() } })
+        .then(function(r){
+          btn.disabled = false;
+          if (r && r.ok) fxNote('ok', '✅ صُحّح سجل العميل إلى <b>' + esc(name) + '</b>. كل فاتورة قادمة له تخرج صحيحة. الآن جرّب «حدّث الفاتورة نفسها».');
+          else fxNote('err', 'تعذّر التصحيح: ' + esc((r && r.error) || '؟') + ((r && r.detail) ? '<br>' + esc(r.detail) : ''));
+        });
+    };
+    $('fxSaveInv').onclick = function(){
+      if (!fxInvoice || !fxInvoice.clientId){ fxNote('err', 'ابحث عن الفاتورة أولاً.'); return; }
+      var btn = this; btn.disabled = true;
+      fxNote('', '⏳ جاري تحديث الفاتورة…');
+      postPanel({ action:'panel-daftra-fix-invoice', invoiceId: fxInvoice.id, clientId: fxInvoice.clientId })
+        .then(function(r){
+          btn.disabled = false;
+          if (r && r.ok){ fxNote('ok', '✅ حُدّثت الفاتورة. افتحها في الدفترة وتأكد أن الاسم والرقم الضريبي ظهرا، ثم أعد إرسالها للعميل.'); return; }
+          // Daftra refusing an issued invoice is the expected answer, not a bug —
+          // say what it means and what is left to do.
+          fxNote('warn', '⚠️ الدفترة رفضت تعديل هذي الفاتورة: ' + esc((r && r.detail) || (r && r.error) || '؟') +
+            '<br><b>معناها أنها مُرحّلة.</b> الحل: من الدفترة أصدر <b>إشعار دائن</b> بكامل قيمتها، ثم أصدر فاتورة جديدة من هنا — ستخرج باسم المنشأة لأن سجل العميل صُحّح.');
+        });
+    };
+    // The same reader the invoice form uses, so the certificate fills these too.
+    $('fxDoc').onchange = function(){
+      var file = this.files && this.files[0];
+      if (!file) return;
+      if (file.size > 6 * 1024 * 1024){ fxNote('err', 'حجم الملف يجب أن يكون أقل من ٦ ميجابايت.'); return; }
+      $('fxDocLbl').textContent = '📎 ' + file.name;
+      fxNote('', '⏳ جاري قراءة المستند…');
+      var fr = new FileReader();
+      fr.onload = function(){
+        postPanel({ action:'panel-read-doc', fileBase64: String(fr.result).split(',')[1] || '', fileType: file.type || '' })
+          .then(function(d){
+            if (!d || !d.ok){ fxNote('err', 'ما قدرت أقرأ المستند — عبّئ الحقول يدوياً.'); return; }
+            var f = d.fields, n = 0;
+            var set = function(id, v){ var el = $(id); if (el && v){ el.value = v; n++; } };
+            set('fxName', f.companyNameAr || f.companyNameEn); set('fxTax', f.vatNumber);
+            var a = f.address || {};
+            set('fxBno', a.buildingNo); set('fxStreet', a.street); set('fxDist', a.district);
+            set('fxCity', a.city); set('fxPost', a.postalCode); set('fxAddNo', a.additionalNo);
+            fxNote(n ? 'ok' : 'warn', n ? ('✅ عبّيت ' + n + ' حقلاً — راجعها ثم اضغط «صحّح سجل العميل».') : 'ما لقيت بيانات واضحة — عبّئ الحقول يدوياً.');
+          });
+      };
+      fr.readAsDataURL(file);
     };
 
     // The account's customers, in the site. Seeing them here is what tells the
