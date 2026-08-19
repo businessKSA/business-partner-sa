@@ -7117,6 +7117,7 @@ function buildDashboard() {
       });
     }
   </script>
+<script src="/assets/js/bp-i18n.js" defer data-mode="auto" data-toggle="1"></script>
 </body>
 </html>`;
 }

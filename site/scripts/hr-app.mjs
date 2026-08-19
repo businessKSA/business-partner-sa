@@ -142,7 +142,7 @@ ${body}
 <div id="hr-toast-root"></div>
 <div id="hr-modal-root"></div>
 <script>window.HR_LANG="${LANG}";</script>
-<script src="/assets/js/hr-app.js?v=${JS_V}" defer></script>
+${LANG === "ar" ? "" : '<script src="/assets/js/bp-i18n.js" defer data-mode="always"></script>\n'}<script src="/assets/js/hr-app.js?v=${JS_V}" defer></script>
 </body>
 </html>`;
 }
