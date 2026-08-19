@@ -1549,12 +1549,17 @@ export default async function handler(req, res) {
         // Emailing the client is best-effort: the invoice exists in the books
         // either way, so a mail failure must not read as a failed issuance.
         // The client gets Daftra's own printed document as an attachment: it is
-        // the one carrying the ZATCA QR code and the seller's tax details. A
-        // link alone puts the compliant copy behind a click that may need a login.
+        // the one carrying the ZATCA QR code and the seller's tax details.
         let pdf = null;
         if (!b.draft) { try { pdf = await daftraDocPdf(isQuote ? "estimate" : "invoice", inv.id); } catch { pdf = null; } }
+        // No PDF means no email. A message whose only content is a link the
+        // client may not be able to open is a message that should not have been
+        // sent — it reads as "your invoice" and carries no invoice. The panel is
+        // told to attach the file instead, and the one email the client gets is
+        // the one with the document in it.
+        const pendingPdf = !pdf && !b.draft && !!email && b.sendEmail !== false;
         let emailed = false;
-        if (email && b.sendEmail !== false && !b.draft) {
+        if (email && b.sendEmail !== false && !b.draft && pdf) {
           const docAr = isQuote ? "عرض سعر" : "فاتورة";
           const rows = items.map((it) => `<tr><td style="padding:5px 10px">${esc(String(it.name || ""))}</td><td style="padding:5px 10px">${Number(it.quantity) || 1}</td><td style="padding:5px 10px">${Number(it.unitPrice) || 0} ﷼</td></tr>`).join("");
           const r2 = await sendEmail(email, `${docAr} ${inv.number} — بيزنس بارتنر`,
@@ -1563,7 +1568,7 @@ export default async function handler(req, res) {
              <table style="border-collapse:collapse;width:100%"><thead><tr style="background:#f1f5f9"><th style="padding:6px 10px;text-align:right">البند</th><th style="padding:6px 10px;text-align:right">الكمية</th><th style="padding:6px 10px;text-align:right">السعر</th></tr></thead><tbody>${rows}</tbody></table>
              <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${daftraVatRate()}%): <b>${inv.vat} ﷼</b><br>${isQuote ? "الإجمالي شامل الضريبة" : "الإجمالي المستحق"}: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
              <p style="color:#475569">للتحويل البنكي: ${esc(SS_BANK.beneficiary)} — ${esc(SS_BANK.bank)} — <span style="direction:ltr;display:inline-block">${esc(SS_BANK.iban)}</span></p>
-             <p style="color:#0B1B5A">${pdf ? `نسخة ${docAr} بصيغة PDF مرفقة مع هذه الرسالة.` : `<a href="${esc(inv.url)}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح ${docAr}</a>`}</p>
+             <p style="color:#0B1B5A">نسخة ${docAr} بصيغة PDF مرفقة مع هذه الرسالة.</p>
              <p style="color:#94a3b8;font-size:12px">${isQuote ? "عرض سعر صادر عبر نظام الدفترة — يتحول إلى فاتورة ضريبية عند الاعتماد." : "فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك."}</p></div>`,
             pdf ? [{ filename: `${isQuote ? "Quote" : "TAX_Invoice"}-${String(inv.number).replace(/[^\w-]/g, "")}.pdf`, content: pdf.base64 }] : undefined);
           emailed = !!(r2 && r2.ok);
@@ -1572,7 +1577,7 @@ export default async function handler(req, res) {
         // lead to «مؤكد - قيد التنفيذ».
         if (ref && !isQuote) { try { await setLeadStatus(ref, "مؤكد - قيد التنفيذ"); } catch {} }
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, invoice: inv, clientCreated: created, emailed, pdfAttached: !!pdf }));
+        return res.end(JSON.stringify({ ok: true, invoice: inv, clientCreated: created, emailed, pdfAttached: !!pdf, pendingPdf, email }));
       } catch (e) {
         console.error("daftra invoice failed", String(e.message || e).slice(0, 200));
         res.statusCode = 502;

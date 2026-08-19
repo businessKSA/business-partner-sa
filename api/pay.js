@@ -20,6 +20,8 @@
 //                            Compliance Intake row to حالة الاشتراك=نشط and
 //                            emails them that the service unlocked.
 
+import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine } from "./_daftra.js";
+
 const PK = process.env.MOYASAR_PUBLISHABLE_KEY || "";
 const SK = process.env.MOYASAR_SECRET_KEY || "";
 const MPF_JS = process.env.MOYASAR_MPF_URL || "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
@@ -43,16 +45,128 @@ const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 
-async function sendMail(to, subject, html) {
+async function sendMail(to, subject, html, attachments) {
   if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+      body: JSON.stringify({ from: FROM, to: [to], subject, html, ...(attachments && attachments.length ? { attachments } : {}) }),
     });
     return { ok: r.ok };
   } catch { return { ok: false }; }
+}
+
+// ---- automatic tax invoice on a confirmed payment ---------------------------
+// The buyer's cart arrives from their browser, so its prices are re-read from
+// the published catalogue and the re-priced total is checked against what
+// Moyasar says was actually charged. Without that check a crafted page could
+// pair a real payment id with an invented basket and mint a tax invoice.
+
+const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
+const RAW_CATALOG_URL = process.env.CATALOG_URL ||
+  "https://raw.githubusercontent.com/businessKSA/business-partner-sa/claude/bpic-marketing-site-jvrnga/site/assets/data/catalog.json";
+let _catCache = null, _catAt = 0;
+const catalogKey = (id) => {
+  const k = String(id || "").toLowerCase();
+  return k.startsWith("svc-") || k.startsWith("pkg-") ? k.slice(4) : k;
+};
+async function catalogPrices() {
+  if (_catCache && Date.now() - _catAt < 10 * 60 * 1000) return _catCache;
+  const r = await fetch(RAW_CATALOG_URL);
+  if (!r.ok) throw new Error("catalog_fetch_failed");
+  const c = await r.json();
+  const map = {};
+  for (const sv of c.services || []) if (sv.code) map[String(sv.code).toLowerCase()] = { amount: Number(sv.amount) || 0, name: sv.nameAr || sv.nameEn || sv.code, code: String(sv.code).toUpperCase() };
+  for (const pk of c.packages || []) {
+    const k = String(pk.code || pk.key || "").toLowerCase();
+    if (k) map[k] = { amount: Number(pk.amount) || 0, name: pk.nameAr || pk.nameEn || k, code: k.toUpperCase() };
+  }
+  _catCache = map; _catAt = Date.now();
+  return map;
+}
+
+const esc = (v) => String(v == null ? "" : v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// Who the invoice is made out to. A company invoice needs a 15-digit VAT
+// number; anything short of that is a personal (simplified) invoice, because
+// a standard tax invoice carrying a wrong number can only be voided.
+function billTo(order) {
+  const tp = (order && order.taxProfile) || {};
+  const company = tp.kind === "company" && String(tp.vat || "").replace(/\D/g, "").length === 15;
+  const addr = tp.address || {};
+  return {
+    name: company ? String(tp.nameAr || "").slice(0, 200) : String(order.name || "").slice(0, 200),
+    email: String(order.email || "").toLowerCase(),
+    phone: String(company ? (tp.contactPhone || order.phone) : order.phone || "").slice(0, 20),
+    city: String(addr.city || "").slice(0, 60),
+    taxNumber: company ? String(tp.vat).replace(/\D/g, "") : "",
+    address: company ? addr : null,
+    isCompany: company,
+    contact: company ? String(tp.contact || "").slice(0, 120) : "",
+  };
+}
+
+async function invoicePaidOrder(order, paidHalalas) {
+  if (!daftraConfigured()) return { invoiced: false, reason: "daftra_not_configured" };
+  const prices = await catalogPrices();
+  const rows = (Array.isArray(order.items) ? order.items : []).slice(0, 40);
+  const items = [];
+  let net = 0;
+  for (const it of rows) {
+    const hit = prices[catalogKey(it.id)];
+    if (!hit || !(hit.amount > 0)) continue;
+    const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
+    net += hit.amount * qty;
+    items.push({ code: hit.code, name: hit.name, quantity: qty, unitPrice: hit.amount });
+  }
+  if (!items.length) return { invoiced: false, reason: "no_priced_items" };
+
+  const rate = Number(daftraVatRate()) || 15;
+  const expected = Math.round(net * (1 + rate / 100) * 100);
+  // Halalas, compared with a one-riyal tolerance for the rounding the cart and
+  // the payment form each do on their own side.
+  if (Math.abs(expected - Number(paidHalalas || 0)) > 100) {
+    console.error("pay: basket does not match the charge", { expected, paid: paidHalalas, ref: order.ref });
+    return { invoiced: false, reason: "amount_mismatch", expected, paid: Number(paidHalalas || 0) };
+  }
+
+  const who = billTo(order);
+  if (!who.name || !isEmail(who.email)) return { invoiced: false, reason: "missing_buyer" };
+  const { client } = await daftraFindOrCreateClient(who);
+  if (!client || !client.id) return { invoiced: false, reason: "client_failed" };
+  const notes = [
+    order.ref ? `مرجع الطلب: ${order.ref}` : "",
+    "مدفوعة إلكترونياً عبر الموقع",
+    who.isCompany ? `الرقم الضريبي: ${who.taxNumber}` : "",
+    who.isCompany && who.address ? `العنوان الوطني: ${nationalAddressLine(who.address)}` : "",
+    who.contact ? `الشخص المسؤول: ${who.contact}` : "",
+  ].filter(Boolean).join("\n");
+  const inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: order.ref || "" });
+
+  let pdf = null;
+  try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
+
+  if (pdf) {
+    await sendMail(who.email, `فاتورة ${inv.number} — بيزنس بارتنر`,
+      `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right">
+        <h2 style="color:#0B1B5A">فاتورتك الضريبية من بيزنس بارتنر</h2>
+        <p>شكراً لك — تم استلام دفعتك بنجاح.</p>
+        <p>رقم الفاتورة: <b>${esc(inv.number)}</b>${order.ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(order.ref)}</b>` : ""}</p>
+        <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${rate}%): <b>${inv.vat} ﷼</b><br>الإجمالي المدفوع: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
+        <p style="color:#0B1B5A">الفاتورة الضريبية بصيغة PDF مرفقة مع هذه الرسالة.</p>
+        <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`,
+      [{ filename: `TAX_Invoice-${String(inv.number).replace(/[^\w-]/g, "")}.pdf`, content: pdf.base64 }]);
+  } else {
+    // The client is not sent a message with no invoice in it. The owner is,
+    // because they can attach the file from the panel in under a minute.
+    await sendMail(OWNER_EMAIL, `⚠️ فاتورة ${inv.number} تحتاج إرفاق PDF يدوياً`,
+      `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
+        <p>دفع العميل <b>${esc(who.name)}</b> (${esc(who.email)}) وصدرت الفاتورة <b>${esc(inv.number)}</b> بإجمالي <b>${inv.total} ﷼</b>.</p>
+        <p>الدفترة ما سلّمت الملف المطبوع، فما أُرسلت للعميل رسالة بلا فاتورة.</p>
+        <p><b>المطلوب:</b> افتح لوحة التحكم ← الأدوات ← «تصحيح فاتورة صادرة»، ابحث عن ${esc(inv.number)}، أرفق ملف PDF من الدفترة واضغط أرسل.</p></div>`);
+  }
+  return { invoiced: true, number: inv.number, total: inv.total, pdfAttached: !!pdf, clientEmailed: !!pdf };
 }
 
 async function notion(path, method, payload) {
@@ -276,6 +390,19 @@ export default async function handler(req, res) {
       activation = await activateCompliance(String(b.company || "").trim(), String(b.code || "").trim());
     }
 
+    // A confirmed payment issues the tax invoice by itself. Failing to invoice
+    // must not report the payment as unsuccessful — the money moved either way,
+    // and the owner can issue from the panel — so this is reported alongside.
+    let invoicing = null;
+    if (paid && b.order && typeof b.order === "object") {
+      try {
+        invoicing = await invoicePaidOrder(b.order, p.amount);
+      } catch (e) {
+        console.error("pay: automatic invoice failed", String(e.message || e).slice(0, 200), String(e.detail || "").slice(0, 200));
+        invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };
+      }
+    }
+
     res.statusCode = 200;
     return res.end(JSON.stringify({
       ok: paid,
@@ -284,6 +411,7 @@ export default async function handler(req, res) {
       currency: p.currency,
       description: p.description || "",
       ...(b.context === "compliance" ? { activated: activation.activated } : {}),
+      ...(invoicing ? { invoice: invoicing } : {}),
     }));
   } catch (e) {
     console.error("pay handler error", e);

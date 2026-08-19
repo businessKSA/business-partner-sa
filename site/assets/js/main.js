@@ -3264,6 +3264,55 @@ var BP = window.BP = window.BP || {};
     total = (c.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) + extraFee) * 1.15;
   } catch (e2) {}
 
+  // What the invoice will be made out to. Snapshotted on every edit, because
+  // Moyasar takes the buyer off-site for 3-D Secure and brings them back to a
+  // fresh page — the form's contents do not survive that trip, and an invoice
+  // issued without them is one that can only be voided, never corrected.
+  var SNAP = "bp_pay_order";
+  function fieldVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  function taxKind() {
+    var r = document.querySelectorAll('input[name="taxkind"]');
+    for (var i = 0; i < r.length; i++) if (r[i].checked) return r[i].value;
+    return "personal";
+  }
+  // A company invoice needs the full set; missing any of it means the invoice
+  // would go out in the wrong name, so online payment waits until it is there.
+  function taxGap() {
+    if (taxKind() !== "company") return "";
+    if (!fieldVal("co-tax-name")) return BP.t("company name in Arabic", "اسم الشركة بالعربي");
+    if (fieldVal("co-tax-vat").replace(/\D/g, "").length !== 15) return BP.t("a 15-digit VAT number", "الرقم الضريبي (١٥ رقماً)");
+    if (!fieldVal("co-tax-contact") || !fieldVal("co-tax-mobile")) return BP.t("the responsible person's name and mobile", "اسم الشخص المسؤول وجواله");
+    if (!fieldVal("co-na-bno") || !fieldVal("co-na-street") || !fieldVal("co-na-district") || !fieldVal("co-na-city") || !fieldVal("co-na-post"))
+      return BP.t("the full national address", "العنوان الوطني كاملاً");
+    return "";
+  }
+  function sessionOf() { try { return JSON.parse(localStorage.getItem("bp_session") || "null"); } catch (e) { return null; } }
+  function snapshot() {
+    var ses = sessionOf();
+    var cart2 = (BP.cart && BP.cart.read()) || [];
+    var tp = { kind: taxKind() };
+    if (tp.kind === "company") {
+      tp = {
+        kind: "company", nameAr: fieldVal("co-tax-name"), vat: fieldVal("co-tax-vat").replace(/\D/g, ""),
+        cr: fieldVal("co-tax-cr"), contact: fieldVal("co-tax-contact"), contactPhone: fieldVal("co-tax-mobile"),
+        address: {
+          buildingNo: fieldVal("co-na-bno"), street: fieldVal("co-na-street"), district: fieldVal("co-na-district"),
+          city: fieldVal("co-na-city"), postalCode: fieldVal("co-na-post"), additionalNo: fieldVal("co-na-add")
+        }
+      };
+    }
+    var order = {
+      ref: "BP-" + Date.now().toString().slice(-6),
+      name: (ses && ses.name) || fieldVal("co-name"),
+      email: ((ses && ses.email) || fieldVal("co-email")).toLowerCase(),
+      phone: fieldVal("co-phone"),
+      items: cart2.map(function (i) { return { id: i.id || "", qty: i.qty || 1 }; }),
+      taxProfile: tp
+    };
+    try { sessionStorage.setItem(SNAP, JSON.stringify(order)); } catch (e) {}
+    return order;
+  }
+
   if (total > 0) {
     fetch("/api/pay").then(function (r) { return r.json(); }).then(function (cfg) {
       if (!cfg || !cfg.enabled) return;
@@ -3281,29 +3330,61 @@ var BP = window.BP = window.BP || {};
             methods: ["creditcard"],
           });
           box.hidden = false;
+          gate();
         } catch (e3) {}
       };
       document.head.appendChild(s);
     }).catch(function () {});
   }
 
+  // Keep the snapshot current, and keep the pay form out of reach while the
+  // tax details are incomplete — paying first and discovering the invoice is
+  // in the wrong name afterwards costs a credit note and a reissue.
+  var gateMsg = null;
+  function gate() {
+    var gap = taxGap();
+    if (!gateMsg) {
+      gateMsg = document.createElement("div");
+      gateMsg.style.cssText = "margin:10px 0;padding:10px 12px;border-radius:10px;background:#fff8ed;color:#b45309;font-size:14px;line-height:1.8";
+      box.insertBefore(gateMsg, mount);
+    }
+    gateMsg.hidden = !gap;
+    if (gap) gateMsg.textContent = BP.t("Complete " + gap + " above to enable online payment — your tax invoice is issued from these details.",
+                                        "أكمل " + gap + " أعلاه لتفعيل الدفع الإلكتروني — فاتورتك الضريبية تُصدر من هذه البيانات.");
+    mount.style.display = gap ? "none" : "";
+    if (!gap) snapshot();
+  }
+  document.addEventListener("input", function (e) { if (e.target && e.target.closest && e.target.closest("#checkout-form, form")) gate(); });
+  document.addEventListener("change", function (e) { if (e.target && e.target.closest && e.target.closest("#checkout-form, form")) gate(); });
+
   // back from 3-D Secure: ?id=<payment_id> → verify server-side
   var params = new URLSearchParams(location.search);
   var payId = params.get("id");
   if (payId) {
-    fetch("/api/pay", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: payId }) })
+    var stashed = null;
+    try { stashed = JSON.parse(sessionStorage.getItem(SNAP) || "null"); } catch (e4) {}
+    fetch("/api/pay", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: payId, order: stashed || undefined }) })
       .then(function (r) { return r.json(); })
       .then(function (v) {
         var ok = v && v.ok;
         var el = document.getElementById("checkout-success");
         if (el) {
           el.hidden = false;
-          el.textContent = ok
-            ? BP.t("Payment received ✓ — our team will start right away.", "تم استلام الدفعة ✓ — فريقنا يبدأ التنفيذ فوراً.")
+          var inv = v && v.invoice;
+          el.innerHTML = ok
+            ? "✅ <strong>" + BP.t("Payment received", "تم استلام الدفعة") + "</strong><br>" +
+              (inv && inv.invoiced && inv.clientEmailed
+                ? BP.t("Your tax invoice (no. ", "فاتورتك الضريبية رقم ") + "<strong dir=\"ltr\">" + String(inv.number) + "</strong>" +
+                  BP.t(") has been emailed to you as a PDF.", " أُرسلت إلى بريدك بصيغة PDF.")
+                : (inv && inv.invoiced
+                    ? BP.t("Your tax invoice no. ", "فاتورتك الضريبية رقم ") + "<strong dir=\"ltr\">" + String(inv.number) + "</strong>" +
+                      BP.t(" has been issued and reaches you by email shortly.", " صدرت وتصلك على بريدك خلال دقائق.")
+                    : BP.t("Your tax invoice reaches you by email shortly.", "فاتورتك الضريبية تصلك على بريدك خلال دقائق.")))
             : BP.t("Payment not completed — you can retry or use bank transfer.", "لم تكتمل الدفعة — يمكنك المحاولة مجدداً أو استخدام التحويل البنكي.");
           el.scrollIntoView({ behavior: "smooth", block: "center" });
         }
         if (ok && BP.cart) BP.cart.write([]);
+        if (ok) { try { sessionStorage.removeItem(SNAP); } catch (e5) {} }
       }).catch(function () {});
   }
 })();
