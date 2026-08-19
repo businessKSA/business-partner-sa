@@ -313,8 +313,8 @@
             <button class="more" data-goto="leads">عرض الكل ←</button>
           </div>
           <div class="tbl-wrap"><table>
-            <thead><tr><th>المرجع</th><th>الطلب</th><th>الحالة</th><th>التاريخ</th></tr></thead>
-            <tbody id="recentBody"><tr><td colspan="4" class="empty">جاري التحميل…</td></tr></tbody>
+            <thead><tr><th>المرجع</th><th>الطلب</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+            <tbody id="recentBody"><tr><td colspan="5" class="empty">جاري التحميل…</td></tr></tbody>
           </table></div>
         </div>
 
@@ -612,14 +612,22 @@
       var recent = leads.slice(0, 6);
       for (var j = 0; j < recent.length; j++){
         var r = recent[j];
-        rows += '<tr>' +
+        rows += '<tr data-recent="' + j + '">' +
           '<td class="ref">' + esc(r.ref || '—') + '</td>' +
-          '<td class="lead-title"><span class="t">' + esc(r.title || '—') + '</span></td>' +
+          '<td class="lead-title"><span class="t">' + esc(r.title || '—') + '</span>' +
+            (r.details ? '<span class="d">' + esc(r.details) + '</span>' : '') + '</td>' +
           '<td>' + statusHtml(r.status) + '</td>' +
           '<td class="when">' + fmtDate(r.at) + '</td>' +
+          '<td><div class="acts"><button class="actbtn" data-recdet="' + j + '" title="فتح الطلب كاملاً">👁 فتح</button></div></td>' +
         '</tr>';
       }
-      $('recentBody').innerHTML = rows || '<tr><td colspan="4" class="empty">لا توجد طلبات بعد — أول ما يصل طلب من الموقع يظهر هنا.</td></tr>';
+      var rbody = $('recentBody');
+      rbody.innerHTML = rows || '<tr><td colspan="5" class="empty">لا توجد طلبات بعد — أول ما يصل طلب من الموقع يظهر هنا.</td></tr>';
+      // The overview table lists the same requests as the الطلبات tab, so it
+      // opens the same detail drawer. Without this the newest request — the one
+      // most likely to need acting on — was the only one that could not be read.
+      var rtrs = rbody.querySelectorAll('tr[data-recent]');
+      for (var q = 0; q < rtrs.length; q++) rtrs[q].onclick = function(){ openDetail(recent[+this.getAttribute('data-recent')]); };
       $('stampOverview').textContent = lastFetch ? ('آخر تحديث: ' + lastFetch.toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' })) : '';
     }
 
@@ -832,7 +840,8 @@
             return '<span class="kv"><i>' + esc(i.number || '—') + '</i>' + esc((i.client || '—') + ' · ' + (i.total == null ? '—' : i.total) + ' · ' + (i.date || '')) + '</span>';
           }).join('');
           out.innerHTML = '<span class="kv" style="color:#14532d"><i>✅ الاتصال ناجح</i>' + esc(r.base || '') + '</span>' +
-            '<span class="kv"><i>الضريبة:</i>' + esc(String(r.vatRate)) + '% · ' + esc(r.currency || '') + '</span>' +
+            '<span class="kv"><i>الضريبة:</i>' + esc(String(r.vatRate)) + '% · ' + esc(r.currency || '') +
+              (r.taxId ? ' · معرّف الضريبة في حسابك: ' + esc(String(r.taxId)) : ' · <span style="color:#b91c1c">لا توجد ضريبة بهذي النسبة في حسابك — أنشئها من الإعدادات ← إعدادات الضرائب</span>') + '</span>' +
             '<span class="kv"><i>قراءة العملاء:</i>' + (r.clientsReachable ? 'تعمل' : 'لا تعمل') + '</span>' +
             '<span class="kv"><i>قراءة الفواتير:</i>' + (r.invoicesReachable ? 'تعمل' : 'لا تعمل — ' + esc(r.invoicesError || '')) + '</span>' +
             (recent ? '<span class="kv" style="font-weight:700;color:#0B1B5A">آخر الفواتير</span>' + recent : '');
@@ -1025,6 +1034,7 @@
                 ? 'الدفترة غير مربوطة بعد — أضف DAFTRA_API_KEY في إعدادات Vercel ثم أعد المحاولة.'
               : er === 'daftra_unauthorized' ? 'المفتاح مرفوض من الدفترة — تأكد أن المفتاح فعّال وله صلاحية الفواتير.'
               : er === 'daftra_unreachable' ? 'ما قدرت أوصل للدفترة — تحقق من اسم الحساب (subdomain).'
+              : er === 'daftra_tax_missing' ? '<b>ما فيه ضريبة ١٥٪ مفعّلة في حساب الدفترة.</b><br>' + esc(det) + '<br>الإعدادات ← إعدادات الضرائب ← أضف ضريبة القيمة المضافة ١٥٪ ثم اضغط «اختبر الاتصال».'
               : '<b>الدفترة رفضت الفاتورة:</b><br>' +
                 (det ? esc(det).replace(/ · /g, '<br>• ').replace(/\[raw\]/, '<br><span style="font-size:11px;color:#64748b">الرد الخام:</span><br><span style="font-size:11px;direction:ltr;display:inline-block;text-align:left;color:#64748b">')  + '</span>'
                      : 'ما أرسلت الدفترة تفصيلاً.') +
