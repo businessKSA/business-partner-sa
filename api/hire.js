@@ -112,6 +112,14 @@ function buildPrompt(b) {
   if (b.task === "summary") return `${info}\n\nاكتب تقييماً موجزاً (3-4 أسطر): نقاط القوة، مدى الملاءمة، وأي ملاحظة توطين مهمة.`;
   if (b.task === "interview") return `${info}\n${role ? "الدور المستهدف: " + role + "\n" : ""}\nاكتب 6 أسئلة مقابلة عملية ومخصّصة لهذا المرشّح (مزيج تقني وسلوكي)، مرقّمة.`;
   if (b.task === "outreach") return `${info}\n${role ? "الفرصة: " + role + "\n" : ""}\nاكتب رسالة تواصل قصيرة ومهنية (واتساب) لدعوة المرشّح للتقدّم عبر Business Partner. ودّية ومباشرة، أقل من 60 كلمة.`;
+  // Job adverts are authored once in Arabic (Notion), so the site translates
+  // them on demand for its other languages. Structure must survive intact —
+  // the advert page splits the text back into paragraphs.
+  if (b.task === "translate") {
+    const names = { en: "English", fr: "French", es: "Spanish", zh: "Chinese (Simplified)", ru: "Russian", hi: "Hindi", ko: "Korean", ja: "Japanese", ar: "Arabic" };
+    const target = names[String(b.lang || "en").toLowerCase()] || "English";
+    return `Translate the job advert below into ${target}.\n\nRules: translate faithfully, keep the same paragraph and line breaks, keep job titles natural for that language's job market, do not add or remove any information, do not add commentary. Output only the translation.\n\n---\n${String(b.text || "").slice(0, 6000)}`;
+  }
   if (b.task === "jobdesc") {
     const title = String(b.title || "").slice(0, 200);
     const field = String(b.field || "").slice(0, 100);
@@ -130,7 +138,7 @@ export default async function handler(req, res) {
   if (!available().length) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "ai_not_configured" })); }
 
   const b = await readBody(req);
-  const task = ["match", "summary", "interview", "outreach", "jobdesc"].includes(b.task) ? b.task : "";
+  const task = ["match", "summary", "interview", "outreach", "jobdesc", "translate"].includes(b.task) ? b.task : "";
   if (!task) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_task" })); }
 
   try {

@@ -869,6 +869,23 @@ var BP = window.BP = window.BP || {};
             (teaser ? '<p>' + esc2(teaser) + '</p>' : '') +
             '<div class="talent-actions"><a class="btn btn-primary btn-sm" href="' + jobPageHref(j.id) + '">' + BP.t("View job", "عرض الوظيفة") + '</a><a class="btn btn-ghost btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
         }).join(""));
+        // The board itself is translated the same way: one request covers
+        // every card's title and teaser, cached per language.
+        if (pageLang() !== "ar") {
+          var parts = [];
+          jobs.forEach(function (j) { parts.push(j.title, clipTeaser(j.description || "", 140) || "—"); });
+          translateParts(parts, "board-" + jobs.map(function (j) { return j.id.slice(-4); }).join("")).then(function (tr) {
+            if (!tr) return;
+            jobs.forEach(function (j, i) {
+              var lnk = grid.querySelector('a.ats-apply-link[data-job-id="' + j.id + '"]');
+              var card = lnk && lnk.closest(".ats-job-card");
+              if (!card) return;
+              var h = card.querySelector("h3"); if (h) h.textContent = tr[i * 2];
+              var pEl = card.querySelector("p"); if (pEl && tr[i * 2 + 1] !== "—") pEl.textContent = tr[i * 2 + 1];
+              if (lnk) lnk.setAttribute("data-job-title", tr[i * 2]);
+            });
+          });
+        }
         // Deep link support: /ar/careers?job=<posting id> (the link the
         // employer console shares) preselects that posting in the form and
         // brings its card into view, so an ad can point at one specific job
@@ -895,8 +912,51 @@ var BP = window.BP = window.BP || {};
   function jobPageHref(id) {
     return (BP.lang === "ar" ? "/ar/job?id=" : "/job?id=") + encodeURIComponent(id);
   }
-  // Renders that advert page: one template filled from the posting API, with
-  // the embedded application scoped to this posting.
+  // Job adverts are authored once in Arabic (Notion). On the site's other
+  // languages they are machine-translated on demand and cached per browser,
+  // so switching language no longer leaves the advert in Arabic.
+  function pageLang() { return (document.documentElement.lang || "en").toLowerCase().split("-")[0]; }
+  var TR_SEP = "\n@@\n";
+  function translateParts(parts, id) {
+    var lang = pageLang();
+    if (lang === "ar") return Promise.resolve(null);
+    var key = "bp_jobtr_" + lang + "_" + id;
+    try {
+      var hit = JSON.parse(localStorage.getItem(key) || "null");
+      if (hit && hit.n === parts.length) return Promise.resolve(hit.parts);
+    } catch (e) {}
+    return fetch("/api/hire", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ task: "translate", lang: lang, text: parts.join(TR_SEP) }),
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      var out = d && d.ok && d.result ? String(d.result).split(/\s*@@\s*/).map(function (x) { return x.trim(); }) : [];
+      // A mismatched split means the model dropped a separator — keep Arabic
+      // rather than showing scrambled sections.
+      if (out.length !== parts.length) return null;
+      try { localStorage.setItem(key, JSON.stringify({ n: parts.length, parts: out })); } catch (e2) {}
+      return out;
+    }).catch(function () { return null; });
+  }
+  // Splits an advert's plain text into its intro / duties / requirements /
+  // details parts so the page can show them as separate cards instead of one
+  // wall of text.
+  function parseAdvert(text) {
+    var out = { intro: "", duties: [], reqs: [], details: "" };
+    String(text || "").split(/\n\s*\n/).forEach(function (para) {
+      var t = para.trim();
+      if (!t) return;
+      var m = t.match(/^(المهام|المسؤوليات|المتطلبات|الشروط|التفاصيل)\s*(?:والمسؤوليات)?\s*:\s*([\s\S]*)$/);
+      if (!m) { out.intro += (out.intro ? "\n" : "") + t; return; }
+      var head = m[1], rest = m[2].trim();
+      var items = rest.split(/[؛;]\s*|\n+/).map(function (x) { return x.replace(/^[-•\s]+/, "").trim(); }).filter(Boolean);
+      if (head === "المهام" || head === "المسؤوليات") out.duties = items;
+      else if (head === "المتطلبات" || head === "الشروط") out.reqs = items;
+      else out.details = rest;
+    });
+    return out;
+  }
+  // Renders the advert page: content from the posting API, laid out as cards,
+  // with the application form scoped to this posting.
   function loadPostingPage() {
     var titleEl = document.getElementById("jp-title");
     if (!titleEl) return;
@@ -910,22 +970,56 @@ var BP = window.BP = window.BP || {};
         if (!j) { status.textContent = BP.t("This job is no longer available.", "هذه الوظيفة لم تعد متاحة."); return; }
         status.hidden = true;
         document.getElementById("jp-body").hidden = false;
-        titleEl.textContent = j.title;
-        document.title = j.title + (BP.lang === "ar" ? " — بيزنس بارتنر" : " — Business Partner");
-        document.getElementById("jp-company").textContent = [j.company, j.city].filter(Boolean).join(" · ");
         document.getElementById("jp-city").textContent = j.city || "—";
         document.getElementById("jp-field").textContent = j.field || "—";
-        // Descriptions are plain text with blank-line paragraphs.
-        document.getElementById("jp-desc").innerHTML = String(j.description || "")
-          .split(/\n\s*\n/).filter(function (x) { return x.trim(); })
-          .map(function (para) { return "<p>" + esc2(para.trim()).replace(/\n/g, "<br>") + "</p>"; }).join("");
-        setSelectedJob(j.id, j.title);
-        if (!j.open) {
-          var box = document.getElementById("apply-form");
-          if (box) box.insertAdjacentHTML("afterbegin", '<p class="emp-note" style="text-align:center">' + BP.t("This posting is closed — you can still join the candidate pool.", "هذا الإعلان مغلق — تقدر تنضم لقاعدة المرشحين.") + "</p>");
-        }
+        var a = parseAdvert(j.description);
+        var labels = ["نبذة عن الوظيفة", "المهام والمسؤوليات", "المتطلبات", "تفاصيل الوظيفة"];
+        // One flat list keeps the translation to a single request: title,
+        // then the four headings, then the content in a fixed order.
+        var parts = [j.title].concat(labels, [a.intro, a.details], a.duties, a.reqs);
+        translateParts(parts, j.id).then(function (tr) {
+          var t = tr || parts;
+          var nD = a.duties.length;
+          render({
+            title: t[0], labels: t.slice(1, 5), intro: t[5], details: t[6],
+            duties: t.slice(7, 7 + nD), reqs: t.slice(7 + nD),
+            translated: !!tr,
+          }, j);
+        });
       })
       .catch(function () { status.textContent = BP.t("Could not load this job.", "تعذّر تحميل الوظيفة."); });
+
+    function render(v, j) {
+      titleEl.textContent = v.title;
+      document.title = v.title + (BP.lang === "ar" ? " — بيزنس بارتنر" : " — Business Partner");
+      document.getElementById("jp-company").textContent = [j.company, j.city].filter(Boolean).join(" · ");
+      function card(head, inner, wide) {
+        return '<section class="card" style="text-align:start' + (wide ? ";grid-column:1/-1" : "") + '">' +
+          "<h3>" + esc2(head) + "</h3>" + inner + "</section>";
+      }
+      function list(items) {
+        return '<ul class="check-list" style="margin:0">' + items.map(function (x) { return "<li>" + esc2(x) + "</li>"; }).join("") + "</ul>";
+      }
+      function paras(text) {
+        return String(text || "").split(/\n+/).filter(function (x) { return x.trim(); })
+          .map(function (x) { return "<p>" + esc2(x.trim()) + "</p>"; }).join("");
+      }
+      var cards = "";
+      if (v.intro) cards += card(v.labels[0], paras(v.intro), true);
+      if (v.duties.length) cards += card(v.labels[1], list(v.duties));
+      if (v.reqs.length) cards += card(v.labels[2], list(v.reqs));
+      if (v.details) cards += card(v.labels[3], paras(v.details), !v.duties.length && !v.reqs.length);
+      // Adverts that don't follow the sectioned format still render readably.
+      if (!cards) cards = card(v.labels[0], paras(j.description), true);
+      document.getElementById("jp-desc").innerHTML =
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start">' + cards + "</div>" +
+        (v.translated ? '<p class="emp-note" style="margin-top:10px">' + BP.t("Machine-translated from Arabic.", "ترجمة آلية من العربية.") + "</p>" : "");
+      setSelectedJob(j.id, j.title);
+      if (!j.open) {
+        var box = document.getElementById("apply-form");
+        if (box) box.insertAdjacentHTML("afterbegin", '<p class="emp-note" style="text-align:center">' + BP.t("This posting is closed — you can still join the candidate pool.", "هذا الإعلان مغلق — تقدر تنضم لقاعدة المرشحين.") + "</p>");
+      }
+    }
   }
   function esc2(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   // Collapse whitespace/bullets and cut to a short teaser at a word boundary so
