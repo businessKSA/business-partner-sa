@@ -17,7 +17,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers } from "./_suppliers.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate } from "./_daftra.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -1262,15 +1262,27 @@ export default async function handler(req, res) {
       if (!email && !String(b.phone || "").trim()) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_contact" })); }
       const ref = String(b.ref || "").trim();
       try {
+        const address = (b.address && typeof b.address === "object") ? b.address : {};
+        const taxNumber = String(b.taxNumber || "").replace(/\D/g, "");
         const { client, created } = await daftraFindOrCreateClient({
           name: String(b.clientName || "").trim(),
-          email, phone: String(b.phone || "").trim(), city: String(b.city || "").trim(),
+          email, phone: String(b.phone || "").trim(), city: String(b.city || address.city || "").trim(),
+          taxNumber, address,
           notes: ref ? `طلب ${ref} — من موقع بيزنس بارتنر` : "من موقع بيزنس بارتنر",
         });
         const clientId = client.id || client.client_id;
+        // Repeat the buyer's tax details in the invoice notes as well. They
+        // belong on the client record and Daftra prints them from there, but a
+        // field name this account does not recognise would silently drop them —
+        // and a tax invoice missing the buyer's VAT number is not compliant.
+        const addrLine = nationalAddressLine(address);
+        const taxBlock = [
+          taxNumber ? `الرقم الضريبي للعميل: ${taxNumber}` : "",
+          addrLine ? `العنوان الوطني للعميل: ${addrLine}` : "",
+        ].filter(Boolean).join("\n");
         const inv = await daftraCreateInvoice({
           clientId, items,
-          notes: String(b.notes || "").slice(0, 800),
+          notes: [String(b.notes || "").trim(), taxBlock].filter(Boolean).join("\n").slice(0, 900),
           ref, dueDays: Number(b.dueDays) || 0,
           draft: !!b.draft,
         });

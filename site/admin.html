@@ -138,6 +138,8 @@
     .itot .grand{font-size:16px;font-weight:800;color:var(--navy)}
     .ichk{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--soft);margin-top:9px;cursor:pointer}
     .ichk input{width:auto;margin:0}
+    .inv .mmsg{max-height:150px;overflow-y:auto;line-height:1.9;word-break:break-word}
+    .iwarn{margin-top:8px;font-size:12.5px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px 11px;line-height:1.8;display:none}
     .when{color:var(--muted);font-size:12px;white-space:nowrap;direction:ltr;text-align:right}
     .status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
     .status.good{background:var(--good-bg);color:var(--good-ink)}
@@ -442,11 +444,27 @@
         <div><label>بريد العميل</label><input id="ivEmail" type="email" dir="ltr" /></div>
         <div><label>جوال العميل</label><input id="ivPhone" type="tel" dir="ltr" /></div>
       </div>
+      <label>مهلة السداد (أيام)</label>
+      <input id="ivDue" type="number" min="0" value="0" />
+      <div class="dsec" style="margin-top:16px">🧾 بيانات الفاتورة الضريبية — للمنشآت (B2B)</div>
+      <div class="mnote" style="margin-bottom:0">اتركها فارغة لو العميل فرد — تصدر فاتورة ضريبية مبسّطة. الرقم الضريبي والعنوان الوطني لشركتك أنت يُضبطان مرة واحدة داخل الدفترة (الإعدادات ← معلومات الحساب) وتطبعهما على كل فاتورة تلقائياً.</div>
+      <label>الرقم الضريبي للعميل (١٥ رقماً)</label>
+      <input id="ivTax" type="text" inputmode="numeric" dir="ltr" placeholder="3XXXXXXXXXXXXX3" maxlength="15" />
+      <label>العنوان الوطني للعميل</label>
       <div class="row2">
-        <div><label>المدينة</label><input id="ivCity" type="text" /></div>
-        <div><label>مهلة السداد (أيام)</label><input id="ivDue" type="number" min="0" value="0" /></div>
+        <input id="ivBno" type="text" inputmode="numeric" dir="ltr" placeholder="رقم المبنى (٤ أرقام)" maxlength="4" />
+        <input id="ivStreet" type="text" placeholder="اسم الشارع" />
       </div>
-      <label>بنود الفاتورة (الأسعار قبل الضريبة)</label>
+      <div class="row2" style="margin-top:8px">
+        <input id="ivDist" type="text" placeholder="الحي" />
+        <input id="ivPost" type="text" inputmode="numeric" dir="ltr" placeholder="الرمز البريدي (٥ أرقام)" maxlength="5" />
+      </div>
+      <div class="row2" style="margin-top:8px">
+        <input id="ivAddNo" type="text" inputmode="numeric" dir="ltr" placeholder="الرقم الإضافي (٤ أرقام)" maxlength="4" />
+        <input id="ivAddrCity" type="text" placeholder="المدينة" />
+      </div>
+
+      <label style="margin-top:16px">بنود الفاتورة (الأسعار قبل الضريبة)</label>
       <div class="ilines">
         <div class="ihead"><span>البند</span><span>الكمية</span><span>سعر الوحدة</span><span></span></div>
         <div id="ivLines"></div>
@@ -456,6 +474,7 @@
       <label>ملاحظات تظهر في الفاتورة (اختياري)</label>
       <input id="ivNotes" type="text" placeholder="مثال: يشمل الرسوم الحكومية · المرجع BP-631464" />
       <div class="itot" id="ivTot">—</div>
+      <div class="iwarn" id="ivWarn"></div>
       <label class="ichk"><input type="checkbox" id="ivSend" checked /> أرسل الفاتورة للعميل بالبريد بعد الإصدار</label>
       <label class="ichk"><input type="checkbox" id="ivDraft" /> احفظها كمسودة في الدفترة (لا تُرسَل ولا تُرحَّل)</label>
       <div class="mmsg" id="ivMsg"></div>
@@ -826,7 +845,7 @@
     };
 
     // ---- invoice modal (Daftra) ----
-    var invRef = '';
+    var invRef = '', invTotal = null;
     function ivRow(name, qty, price){
       var d = document.createElement('div');
       d.className = 'iline';
@@ -867,9 +886,22 @@
           'ضريبة القيمة المضافة (١٥٪): <b>' + (Math.round(vat * 100) / 100) + ' ﷼</b><br>' +
           '<span class="grand">الإجمالي المستحق: ' + (Math.round((net + vat) * 100) / 100) + ' ﷼</span>'
         : '<span style="color:#94a3b8">أضف بنداً واحداً على الأقل بسعر أكبر من صفر.</span>';
+      // Catalogue prices are per service; the request total may carry government
+      // fees or a discount on top. Flag the gap rather than silently invoicing
+      // a number the client never saw.
+      var w = $('ivWarn');
+      if (it.length && invTotal != null && invTotal > 0){
+        var gross = Math.round((net + vat) * 100) / 100;
+        var gap = Math.round((gross - invTotal) * 100) / 100;
+        if (Math.abs(gap) >= 1){
+          w.style.display = 'block';
+          w.innerHTML = '⚠️ إجمالي البنود (<b>' + gross + ' ﷼</b>) يختلف عن إجمالي الطلب المسجّل (<b>' + invTotal + ' ﷼</b>) بفارق <b>' + Math.abs(gap) + ' ﷼</b>. راجع الأسعار أو أضف بند الرسوم الحكومية قبل الإصدار.';
+        } else w.style.display = 'none';
+      } else w.style.display = 'none';
     }
     function openInvoice(l){
       invRef = (l && l.ref) || '';
+      invTotal = (l && l.total != null && l.total > 0) ? Number(l.total) : null;
       var t = (l && l.title) || '';
       // The title is «<الطلب> — <اسم العميل> (<المرجع>)»; take the name from the
       // last dash-separated segment once the reference is stripped.
@@ -878,16 +910,48 @@
       $('ivName').value = name;
       $('ivEmail').value = (l && l.email) || '';
       $('ivPhone').value = (l && l.phone) || '';
-      $('ivCity').value = '';
       $('ivDue').value = 0;
+      $('ivTax').value = ''; $('ivBno').value = ''; $('ivStreet').value = '';
+      $('ivDist').value = ''; $('ivPost').value = ''; $('ivAddNo').value = '';
+      $('ivAddrCity').value = '';
+      $('ivWarn').style.display = 'none';
       $('ivNotes').value = invRef ? ('مرجع الطلب: ' + invRef) : '';
       $('ivIncl').checked = false; $('ivSend').checked = true; $('ivDraft').checked = false;
       $('ivMsg').textContent = ''; $('ivMsg').style.color = '';
       $('ivGo').disabled = false;
       $('ivLines').innerHTML = '';
-      var svc = (l && l.details) || t.replace(/\s*\([^)]*\)\s*$/, '').split(/[—–]/)[0].trim();
-      ivRow(svc.slice(0, 120), 1, (l && l.total != null && l.total > 0) ? l.total : '');
       $('invBack').classList.add('on');
+      // Requests arrive with their services run together in one string
+      // («حجز اسم شركة ×1، سجل تجاري ×1»). Split them so every service is its
+      // own invoice line — a lumped line is not an itemised tax invoice.
+      loadServices().then(function(){
+        var raw = (l && l.details) || t.replace(/\s*\([^)]*\)\s*$/, '').split(/[—–]/)[0];
+        var parts = String(raw || '').split(/[،,]|\s\+\s/);
+        var added = 0;
+        for (var i = 0; i < parts.length; i++){
+          var seg = parts[i].trim();
+          if (!seg) continue;
+          var qty = 1;
+          var qm = seg.match(/[×xX*]\s*(\d+)\s*$/);
+          if (qm){ qty = Number(qm[1]) || 1; seg = seg.slice(0, qm.index).trim(); }
+          seg = seg.replace(/[\-–—:·]+$/, '').trim();
+          if (seg.length < 3) continue;
+          var price = '';
+          for (var j = 0; j < SVC_PRICES.length; j++){
+            if (seg.indexOf(SVC_PRICES[j].name) !== -1 || SVC_PRICES[j].name.indexOf(seg) !== -1){ price = SVC_PRICES[j].amount || ''; break; }
+          }
+          ivRow(seg.slice(0, 120), qty, price);
+          added++;
+        }
+        // Nothing recognisable to split, or a single service: one line at the
+        // request total, which is what the client already agreed to pay.
+        if (!added) ivRow(String(raw || 'خدمة').trim().slice(0, 120), 1, (l && l.total != null && l.total > 0) ? l.total : '');
+        else if (added === 1 && l && l.total != null && l.total > 0){
+          var only = $('ivLines').querySelector('.i-p');
+          if (only && !only.value) { only.value = l.total; ivTotals(); }
+        }
+        ivTotals();
+      });
     }
     function closeInvoice(){ $('invBack').classList.remove('on'); }
     $('ivAdd').onclick = function(){ ivRow('', 1, ''); };
@@ -899,10 +963,16 @@
       if (!items.length){ msg.style.color = '#dc2626'; msg.textContent = 'أضف بنداً واحداً على الأقل بسعر أكبر من صفر.'; return; }
       var email = $('ivEmail').value.trim(), phone = $('ivPhone').value.trim();
       if (!email && !phone){ msg.style.color = '#dc2626'; msg.textContent = 'أدخل بريد العميل أو جواله — الدفترة تحتاج وسيلة تواصل لإنشاء سجل العميل.'; return; }
+      var tax = $('ivTax').value.replace(/\D/g, '');
+      if (tax && tax.length !== 15){ msg.style.color = '#dc2626'; msg.textContent = 'الرقم الضريبي للعميل لازم يكون ١٥ رقماً بالضبط (أو اتركه فارغاً لفاتورة مبسّطة).'; return; }
+      var addr = { buildingNo: $('ivBno').value.trim(), street: $('ivStreet').value.trim(),
+                   district: $('ivDist').value.trim(), city: $('ivAddrCity').value.trim(),
+                   postalCode: $('ivPost').value.trim(), additionalNo: $('ivAddNo').value.trim() };
       var btn = $('ivGo'); btn.disabled = true;
       msg.style.color = ''; msg.textContent = '⏳ جاري إنشاء الفاتورة في الدفترة…';
       postPanel({ action:'panel-invoice', ref: invRef, clientName: $('ivName').value.trim(),
-                  email: email, phone: phone, city: $('ivCity').value.trim(),
+                  email: email, phone: phone, city: addr.city,
+                  taxNumber: tax, address: addr,
                   items: items, notes: $('ivNotes').value.trim(),
                   dueDays: Number($('ivDue').value) || 0,
                   draft: $('ivDraft').checked, sendEmail: $('ivSend').checked })
@@ -919,11 +989,13 @@
             btn.disabled = false;
             msg.style.color = '#dc2626';
             var er = (out && out.error) || '';
-            msg.textContent = er === 'daftra_not_configured'
+            var det = (out && out.detail) ? String(out.detail) : '';
+            msg.innerHTML = er === 'daftra_not_configured'
                 ? 'الدفترة غير مربوطة بعد — أضف DAFTRA_API_KEY في إعدادات Vercel ثم أعد المحاولة.'
               : er === 'daftra_unauthorized' ? 'المفتاح مرفوض من الدفترة — تأكد أن المفتاح فعّال وله صلاحية الفواتير.'
               : er === 'daftra_unreachable' ? 'ما قدرت أوصل للدفترة — تحقق من اسم الحساب (subdomain).'
-              : 'تعذّر إصدار الفاتورة' + ((out && out.detail) ? ' — ' + out.detail : '') + '.';
+              : '<b>الدفترة رفضت الفاتورة.</b> الحقول التي اعترضت عليها:<br>' +
+                (det ? esc(det).replace(/ · /g, '<br>• ') : 'ما أرسلت الدفترة تفصيلاً — راجع سجلات Vercel.');
           }
         });
     };
@@ -964,7 +1036,7 @@
         'خدمة مخصّصة باتفاق منفصل'
       ]]
     ];
-    var svcLoaded = false;
+    var svcLoaded = false, SVC_PRICES = [];
     function loadServices(){
       if (svcLoaded) return Promise.resolve();
       return fetch('/assets/data/catalog.json', { cache: 'no-store' })
@@ -990,6 +1062,12 @@
           }
           html += '<option value="__other">✍️ أخرى — أكتبها بنفسي</option>';
           $('mService').innerHTML = html;
+          // Same fetch feeds the invoice line splitter: request titles name the
+          // services, so each one can be priced from the published catalogue
+          // instead of being lumped into a single untyped line.
+          SVC_PRICES = list.map(function(sv){
+            return { name: sv.nameAr || sv.nameEn || sv.code, amount: Number(sv.amount) || 0 };
+          }).filter(function(x){ return x.name; }).sort(function(a,b){ return b.name.length - a.name.length; });
           svcLoaded = true;
         });
     }
