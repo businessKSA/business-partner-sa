@@ -480,6 +480,9 @@
       <input id="ivDue" type="number" min="0" value="0" />
       <div class="dsec" style="margin-top:16px">🧾 بيانات الفاتورة الضريبية — للمنشآت (B2B)</div>
       <div class="mnote" style="margin-bottom:0">اتركها فارغة لو العميل فرد — تصدر فاتورة ضريبية مبسّطة. الرقم الضريبي والعنوان الوطني لشركتك أنت يُضبطان مرة واحدة داخل الدفترة (الإعدادات ← معلومات الحساب) وتطبعهما على كل فاتورة تلقائياً.</div>
+      <label class="file-drop-lbl" for="ivDoc" id="ivDocLbl" style="display:block;border:1px dashed var(--line);border-radius:12px;padding:12px 14px;text-align:center;font-size:12.5px;color:var(--soft);cursor:pointer;margin-top:8px">📎 ارفع شهادة الضريبة أو السجل التجاري — أقرأها وأعبّي الحقول</label>
+      <input id="ivDoc" type="file" accept=".pdf,image/*" style="display:none" />
+      <div id="ivDocMsg" style="display:none;font-size:12.5px;line-height:1.8;margin-top:6px"></div>
       <label>الرقم الضريبي للعميل (١٥ رقماً)</label>
       <input id="ivTax" type="text" inputmode="numeric" dir="ltr" placeholder="3XXXXXXXXXXXXX3" maxlength="15" />
       <label>العنوان الوطني للعميل</label>
@@ -1001,6 +1004,44 @@
       });
     };
 
+    // Read a certificate and fill the tax fields. What comes back is a
+    // starting point the owner confirms — a wrong VAT number on an issued tax
+    // invoice can only be voided and reissued, never edited.
+    $('ivDoc').onchange = function(){
+      var file = this.files && this.files[0], msg = $('ivDocMsg');
+      if (!file) return;
+      msg.style.display = 'block';
+      if (file.size > 6 * 1024 * 1024){ msg.style.color = '#b91c1c'; msg.textContent = 'حجم الملف يجب أن يكون أقل من ٦ ميجابايت.'; return; }
+      $('ivDocLbl').textContent = '📎 ' + file.name;
+      msg.style.color = ''; msg.textContent = '⏳ جاري قراءة المستند…';
+      var fr = new FileReader();
+      fr.onload = function(){
+        postPanel({ action:'panel-read-doc', fileBase64: String(fr.result).split(',')[1] || '', fileType: file.type || '' })
+          .then(function(d){
+            if (!d || !d.ok){
+              msg.style.color = '#b91c1c';
+              msg.textContent = (d && d.error === 'not_configured')
+                ? 'القراءة التلقائية غير مفعّلة — أضف GEMINI_API_KEY أو ANTHROPIC_API_KEY في Vercel.'
+                : 'ما قدرت أقرأ المستند — عبّئ الحقول يدوياً.';
+              return;
+            }
+            var f = d.fields, filled = [];
+            var set = function(id, v){ var el = $(id); if (el && v){ el.value = v; filled.push(id); } };
+            set('ivName', f.companyNameAr || f.companyNameEn);
+            set('ivTax', f.vatNumber);
+            if (f.contactPhone) set('ivPhone', f.contactPhone);
+            var a = f.address || {};
+            set('ivBno', a.buildingNo); set('ivStreet', a.street); set('ivDist', a.district);
+            set('ivAddrCity', a.city); set('ivPost', a.postalCode); set('ivAddNo', a.additionalNo);
+            if (!filled.length){ msg.style.color = '#b45309'; msg.textContent = 'ما لقيت بيانات واضحة في المستند — عبّئ الحقول يدوياً.'; return; }
+            msg.style.color = '#14532d';
+            msg.textContent = '✅ عبّيت ' + filled.length + ' حقلاً (' + (f.confidence === 'high' ? 'ثقة عالية' : f.confidence === 'low' ? 'ثقة منخفضة — راجعها' : 'راجعها') + ')' +
+              (f.vatSuspect ? ' · تجاهلت رقماً ليس ١٥ خانة: ' + f.vatSuspect : '');
+          });
+      };
+      fr.readAsDataURL(file);
+    };
+
     // ---- Daftra client picker ----
     // Loaded once per session and searched in the browser: 500 clients is a
     // small payload and a keystroke-by-keystroke round trip would be slower
@@ -1169,6 +1210,8 @@
         $('ivStreet').value = mid[0] || ''; $('ivDist').value = mid[1] || ''; $('ivAddrCity').value = mid[2] || '';
       }
       $('ivWarn').style.display = 'none';
+      $('ivDoc').value = ''; $('ivDocMsg').style.display = 'none';
+      $('ivDocLbl').textContent = '📎 ارفع شهادة الضريبة أو السجل التجاري — أقرأها وأعبّي الحقول';
       ivUnpick();
       ivSetDoc(kind || 'invoice');
       // Preselect the matching client so a repeat customer is invoiced onto

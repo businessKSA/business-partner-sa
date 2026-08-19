@@ -17,6 +17,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers } from "./_suppliers.js";
+import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -1283,6 +1284,14 @@ export default async function handler(req, res) {
       }
     }
 
+    // Read a client's VAT certificate / CR / national address document and
+    // return the invoice fields, so the owner does not re-key them.
+    if (b.action === "panel-read-doc") {
+      const out = await readDocument(String(b.fileBase64 || ""), String(b.fileType || ""));
+      res.statusCode = out.ok ? 200 : (out.error === "not_configured" ? 503 : 400);
+      return res.end(JSON.stringify(out));
+    }
+
     // The account's client list for the panel's picker: issuing against an id
     // the owner picked is what stops a duplicate record being created for a
     // customer already in the books.
@@ -1612,6 +1621,19 @@ export default async function handler(req, res) {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
     }
+  }
+
+  // Checkout's "upload your certificate and we fill the form" step. Public by
+  // necessity — the buyer is not signed into anything at that point — so the
+  // size and type caps are enforced before a provider is called, and the reply
+  // carries only the fixed invoice-field set.
+  if (b.type === "read-doc") {
+    res.setHeader("Cache-Control", "no-store");
+    const b64 = String(b.fileBase64 || "");
+    if (Buffer.byteLength(b64, "base64") > MAX_DOC_BYTES) { res.statusCode = 413; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
+    const out = await readDocument(b64, String(b.fileType || ""));
+    res.statusCode = out.ok ? 200 : (out.error === "not_configured" ? 503 : 400);
+    return res.end(JSON.stringify(out));
   }
 
   if (b.type === "order") {
