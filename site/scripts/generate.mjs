@@ -9316,11 +9316,14 @@ write("dashboard.html", buildDashboard());
 
 // Client product page: AI employees + connectors hub + pricing (noindex).
 // Emit under both / and /ar/ so localized nav links (u("/connect") -> /ar/connect) resolve.
-write("connect.html", buildConnect("/"));
+// The English copies of the Arabic-authored app pages get the display-layer
+// translator so their whole UI (including JS-rendered parts) shows English.
+const enApp = (html) => html.replace("</body>", '<script src="/assets/js/bp-i18n.js" defer data-mode="always"></script>\n</body>');
+write("connect.html", enApp(buildConnect("/")));
 write("ar/connect.html", buildConnect("/ar/"));
 
 // Client portal: login -> subscription gate -> pick agent -> live chat (noindex)
-write("portal.html", buildPortal("/"));
+write("portal.html", enApp(buildPortal("/")));
 write("ar/portal.html", buildPortal("/ar/"));
 
 // Compliance Agent client dashboard (email + access-code login, document
