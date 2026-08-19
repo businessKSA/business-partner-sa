@@ -505,6 +505,7 @@
       <div class="mnote" style="margin-bottom:0">اختيار عميل موجود يمنع تكرار سجله في دفاترك. اتركه فارغاً وسيُبحث عنه بالبريد أو الجوال، ويُنشأ سجل جديد إن لم يوجد.</div>
       <label>اسم العميل / المنشأة</label>
       <input id="ivName" type="text" placeholder="كما تريده أن يظهر في الفاتورة" />
+      <div id="ivWhy" class="iwarn" style="display:none;background:#eff6ff;border-color:#bfdbfe;color:#1e3a8a"></div>
       <div class="row2">
         <div><label>بريد العميل</label><input id="ivEmail" type="email" dir="ltr" /></div>
         <div><label>جوال العميل</label><input id="ivPhone" type="tel" dir="ltr" /></div>
@@ -1179,7 +1180,17 @@
       $('ivPickedBox').style.display = 'flex';
       $('ivPickWrap').style.display = 'none';
       $('ivHits').classList.remove('on');
-      if (c.name) $('ivName').value = c.name;
+      // A client record created from an earlier personal order carries that
+      // person's name. It must not overwrite an establishment the buyer named
+      // for this order — the record is what gets corrected, not the invoice.
+      if (c.name && !ivBillTo) $('ivName').value = c.name;
+      else if (c.name && ivBillTo && c.name !== ivBillTo){
+        var w = $('ivWhy');
+        if (w){
+          w.style.display = 'block';
+          w.innerHTML = '🏢 الفاتورة باسم <b>' + esc(ivBillTo) + '</b>. سجل العميل في الدفترة اسمه <b>' + esc(c.name) + '</b> — سيُصحَّح تلقائياً عند الإصدار بفاتورة منشأة.';
+        }
+      }
       if (c.email) $('ivEmail').value = c.email;
       if (c.phone) $('ivPhone').value = c.phone;
       if (c.taxNumber) $('ivTax').value = c.taxNumber;
@@ -1223,7 +1234,7 @@
     });
 
     // ---- invoice modal (Daftra) ----
-    var invRef = '', invTotal = null, ivDoc = 'invoice';
+    var invRef = '', invTotal = null, ivDoc = 'invoice', ivBillTo = '';
     function ivSetDoc(kind){
       ivDoc = kind;
       var q = kind === 'estimate';
@@ -1301,9 +1312,23 @@
       var t = (l && l.title) || '';
       // The title is «<الطلب> — <اسم العميل> (<المرجع>)»; take the name from the
       // last dash-separated segment once the reference is stripped.
-      var name = '', m = t.replace(/\s*\([^)]*\)\s*$/, '').match(/[—–-]\s*([^—–-]+)$/);
-      if (m) name = m[1].trim();
-      $('ivName').value = name;
+      // Whose name goes on the invoice, most authoritative first: the tax
+      // profile the buyer filled in, then the establishment they named at
+      // checkout, and only then the person parsed out of the request title.
+      // Falling straight to the title is what put an individual's name on a
+      // company's tax invoice.
+      var m = t.replace(/\s*\([^)]*\)\s*$/, '').match(/[—–-]\s*([^—–-]+)$/);
+      var person = m ? m[1].trim() : '';
+      var billTo = (l && l.tax && l.tax.kind === 'company' && l.tax.nameAr) || (l && l.company) || person;
+      $('ivName').value = billTo;
+      ivBillTo = billTo;
+      var why = $('ivWhy');
+      if (why){
+        why.style.display = billTo && billTo !== person ? 'block' : 'none';
+        why.innerHTML = '🏢 الفاتورة باسم المنشأة <b>' + esc(billTo) + '</b>' +
+          (person ? ' — لا باسم <b>' + esc(person) + '</b>' : '') +
+          ' (كما سجّله العميل). عدّله لو كان غير ذلك.';
+      }
       $('ivEmail').value = (l && l.email) || '';
       $('ivPhone').value = (l && l.phone) || '';
       $('ivDue').value = 0;
