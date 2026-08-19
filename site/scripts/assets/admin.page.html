@@ -160,6 +160,11 @@
     .status.plain{background:var(--bg);color:var(--soft);border:1px solid var(--line)}
     .stage{font-size:12px;color:var(--soft);white-space:nowrap}
     .sub2{display:block;font-size:11px;color:var(--soft);margin-top:3px;white-space:nowrap}
+    .scard{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center;padding:13px 18px;border-bottom:1px solid #f2f4f8}
+    .scard:last-child{border-bottom:0}
+    .scard h4{color:var(--navy);font-size:.95rem}
+    .scard .meta{font-size:12px;color:var(--soft);margin-top:3px;line-height:1.7}
+    .scard .acts{gap:6px;flex-wrap:wrap}
     .acts{display:flex;gap:5px;justify-content:flex-start;align-items:center}
     .act{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:14px;text-decoration:none}
     .act:hover{background:var(--bg)}
@@ -273,6 +278,7 @@
       <nav class="nav" id="navDesk">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات والموافقات</button>
+        <button data-v="suppliers">🏭 الموردون</button>
         <button data-v="content">📝 محتوى الموقع</button>
         <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات واللوحات</button>
@@ -293,6 +299,7 @@
       <div class="tabs" id="navMob">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات</button>
+        <button data-v="suppliers">🏭 الموردون</button>
         <button data-v="content">📝 المحتوى</button>
         <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات</button>
@@ -359,6 +366,32 @@
             <thead><tr><th>المرجع</th><th>الطلب</th><th>الإجمالي والإيصال</th><th>الحالة والمرحلة</th><th>التاريخ</th><th>تواصل</th><th>إجراء</th></tr></thead>
             <tbody id="leadsBody"><tr><td colspan="7" class="empty">جاري التحميل…</td></tr></tbody>
           </table></div>
+        </div>
+      </section>
+
+      <!-- ============ suppliers ============ -->
+      <section class="view" id="view-suppliers">
+        <div class="pagehead">
+          <h2>🏭 الموردون وأوامر العمل</h2>
+          <div class="spacer"></div>
+          <span class="stamp" id="stampSup"></span>
+          <button class="refresh" id="supRefresh">↻ تحديث</button>
+          <div class="sub">اعتماد الموردين الجدد وأوامر عملهم من هنا مباشرة — بلا لوحة منفصلة. المورّد يسجّل وتفتح بوابته فوراً، والاعتماد هو ما يسمح بإسناد العمل له.</div>
+        </div>
+        <div class="tiles">
+          <div class="tile"><div class="k">🏭 الموردون</div><div class="v" id="sTotal">—</div><div class="d">في السجل</div></div>
+          <div class="tile"><div class="k">⏳ بانتظار الاعتماد</div><div class="v" id="sPending">—</div><div class="d">تحتاج قرارك</div></div>
+          <div class="tile"><div class="k">✅ معتمدون</div><div class="v" id="sActive">—</div><div class="d">يمكن إسناد العمل لهم</div></div>
+          <div class="tile"><div class="k">📦 أوامر العمل</div><div class="v" id="sOrders">—</div><div class="d">مفتوحة ومغلقة</div></div>
+        </div>
+        <div class="panel" style="margin-bottom:22px">
+          <div class="panel-head"><h3>الموردون</h3>
+            <a class="more" href="/ar/suppliers-admin" target="_blank" rel="noopener">اللوحة الكاملة (عروض أسعار وإسناد) ←</a></div>
+          <div id="supList"><div class="empty">جاري التحميل…</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>أوامر العمل</h3></div>
+          <div id="supOrders"><div class="empty">جاري التحميل…</div></div>
         </div>
       </section>
 
@@ -776,7 +809,9 @@
     }
 
     // ---- navigation ----
+    var supLoaded = false;
     function switchView(v){
+      if (v === 'suppliers' && !supLoaded){ supLoaded = true; loadSuppliers(); }
       var views = document.querySelectorAll('.view');
       for (var i = 0; i < views.length; i++) views[i].classList.toggle('on', views[i].id === 'view-' + v);
       var btns = document.querySelectorAll('.nav button, .mobilebar .tabs button');
@@ -1041,6 +1076,87 @@
       };
       fr.readAsDataURL(file);
     };
+
+    // ---- suppliers, inside /admin ----
+    // Approving a supplier used to mean leaving for a separate panel. The same
+    // owner key opens both, so the registry and its work orders are read here
+    // and the decisions are made where the owner already is.
+    var SUP = { suppliers: [], orders: [] };
+    function supPost(body, then){
+      fetch('/api/suppliers', { method:'POST', headers:{ 'content-type':'application/json' },
+        body: JSON.stringify(Object.assign({ key: accessKey }, body)) })
+        .then(function(r){ return r.json(); }).then(then)
+        .catch(function(){ then({ ok:false, error:'network' }); });
+    }
+    function loadSuppliers(){
+      var list = $('supList'), orders = $('supOrders');
+      return fetch('/api/suppliers?action=admin&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (!d || !d.ok){
+            list.innerHTML = '<div class="empty">' + (d && d.error === 'unauthorized'
+              ? 'المفتاح مرفوض من بوابة الموردين — تأكد أن PANEL_KEY هو نفسه في Vercel.'
+              : 'تعذّر تحميل سجل الموردين.') + '</div>';
+            orders.innerHTML = '';
+            return;
+          }
+          SUP.suppliers = d.suppliers || []; SUP.orders = d.orders || [];
+          renderSuppliers();
+        })
+        .catch(function(){ list.innerHTML = '<div class="empty">تعذّر الاتصال ببوابة الموردين.</div>'; });
+    }
+    function renderSuppliers(){
+      var sup = SUP.suppliers, ord = SUP.orders;
+      var pending = 0, active = 0;
+      for (var i = 0; i < sup.length; i++){
+        if (sup[i].status === 'معتمد') active++;
+        else if (sup[i].status !== 'موقوف') pending++;
+      }
+      $('sTotal').textContent = sup.length;
+      $('sPending').textContent = pending;
+      $('sActive').textContent = active;
+      $('sOrders').textContent = ord.length;
+
+      $('supList').innerHTML = sup.length ? sup.map(function(x, i){
+        var acts = '';
+        if (x.status !== 'معتمد') acts += '<button class="actbtn" data-sup="' + i + '" data-do="approve">✅ اعتماد</button>';
+        if (x.status === 'معتمد') acts += '<button class="actbtn" data-sup="' + i + '" data-do="suspend">⛔ إيقاف</button>';
+        if (x.email) acts += '<a class="act" title="إيميل" href="mailto:' + esc(x.email) + '">✉️</a>';
+        if (x.phone) acts += '<a class="act" title="واتساب" target="_blank" rel="noopener" href="https://wa.me/' + esc(String(x.phone).replace(/[^\d]/g,'')) + '">💬</a>';
+        return '<div class="scard"><div><h4>' + esc(x.name || '—') + ' ' + statusHtml(x.status) +
+          (x.verified ? '' : ' <span class="stage">· بريد غير موثّق</span>') + '</h4>' +
+          '<div class="meta">' + esc([x.code, x.city, (x.categories || []).join('، '), x.email, x.phone].filter(Boolean).join(' · ') || '—') +
+          '<br>عمولة بيزنس بارتنر: <b>' + (x.commission != null ? x.commission : 20) + '%</b>' +
+          (x.cr ? ' · س.ت: ' + esc(x.cr) : '') + (x.vat ? ' · ض: ' + esc(x.vat) : '') + '</div></div>' +
+          '<div class="acts">' + (acts || '<span class="stage">—</span>') + '</div></div>';
+      }).join('') : '<div class="empty">لا يوجد موردون بعد — أول من يسجّل عبر <a href="/ar/suppliers" target="_blank" rel="noopener">صفحة الشركاء</a> يظهر هنا.</div>';
+
+      $('supOrders').innerHTML = ord.length ? ord.slice(0, 40).map(function(o){
+        var money = [];
+        if (o.amount != null) money.push('قيمة الأمر: ' + o.amount + ' ﷼');
+        if (o.commission != null) money.push('العمولة: ' + o.commission + ' ﷼');
+        return '<div class="scard"><div><h4>' + esc(o.service || o.ref || '—') + ' ' + statusHtml(o.status) + '</h4>' +
+          '<div class="meta">' + esc([o.ref, o.client, o.city, o.due].filter(Boolean).join(' · ') || '—') +
+          (money.length ? '<br>' + esc(money.join(' · ')) : '') +
+          '<br>فاتورة المورّد: ' + esc(o.supplierInvoiceStatus || '—') + ' · فاتورة العمولة: ' + esc(o.commissionStatus || '—') + '</div></div>' +
+          (o.url ? '<div class="acts"><a class="act" title="Notion" target="_blank" rel="noopener" href="' + esc(o.url) + '">📇</a></div>' : '') +
+        '</div>';
+      }).join('') : '<div class="empty">لا توجد أوامر عمل بعد.</div>';
+
+      var btns = $('supList').querySelectorAll('[data-sup]');
+      for (var b2 = 0; b2 < btns.length; b2++) btns[b2].onclick = function(){
+        var x = SUP.suppliers[+this.getAttribute('data-sup')], act = this.getAttribute('data-do');
+        var toStatus = act === 'approve' ? 'معتمد' : 'موقوف';
+        if (!confirm((act === 'approve' ? 'اعتماد المورّد ' : 'إيقاف المورّد ') + (x.name || '') + '؟')) return;
+        this.disabled = true;
+        supPost({ type:'approve', supplierId: x.id, status: toStatus }, function(d){
+          if (d && d.ok) loadSuppliers();
+          else alert('تعذّر تنفيذ الإجراء — ' + ((d && d.error) || '؟'));
+        });
+      };
+      $('stampSup').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' });
+    }
+    $('supRefresh').onclick = loadSuppliers;
 
     // ---- Daftra client picker ----
     // Loaded once per session and searched in the browser: 500 clients is a

@@ -2144,7 +2144,67 @@ var BP = window.BP = window.BP || {};
     var pending = null;
     var ACTIVE = ["أُرسل للمورّد", "قبله المورّد", "قيد التنفيذ"];
 
-    function render() {
+    // Everything Business Partner sells, priced for the supplier: the site
+    // price is what the client pays before VAT, and the supplier's share is
+    // that less the commission on their own registry row. Showing both is the
+    // point — a supplier who cannot see their net has to ask for every job.
+    var CATALOG = null;
+    function renderCatalog(sup) {
+      var box = document.getElementById("pt-catalog");
+      if (!box) return;
+      var pct = (sup && sup.commission != null) ? Number(sup.commission) : 20;
+      var draw = function () {
+        var q = (document.getElementById("pt-cat-search") || {}).value || "";
+        var cat = (document.getElementById("pt-cat-filter") || {}).value || "";
+        q = q.trim().toLowerCase();
+        var rows = CATALOG.filter(function (x) {
+          if (cat && (x.categoryAr || x.category) !== cat) return false;
+          if (!q) return true;
+          return ((x.nameAr || "") + " " + (x.nameEn || "") + " " + (x.code || "")).toLowerCase().indexOf(q) !== -1;
+        });
+        if (!rows.length) { box.innerHTML = '<p class="dash-empty">' + T("No matching service.", "لا توجد خدمة مطابقة.") + "</p>"; return; }
+        box.innerHTML =
+          '<p class="dash-empty" style="text-align:start;margin-bottom:10px">' +
+            T("Your commission rate: ", "نسبة عمولة بيزنس بارتنر عليك: ") + "<b>" + pct + "%</b> · " +
+            T("prices exclude VAT", "الأسعار قبل ضريبة القيمة المضافة") + "</p>" +
+          '<div class="tbl-scroll"><table class="mini-table"><thead><tr>' +
+            "<th>" + T("Code", "الكود") + "</th><th>" + T("Service", "الخدمة") + "</th>" +
+            "<th>" + T("Site price", "سعر الموقع") + "</th><th>" + T("Commission", "العمولة") + "</th>" +
+            "<th>" + T("Your share", "نصيبك") + "</th></tr></thead><tbody>" +
+          rows.map(function (x) {
+            var p = Number(x.amount) || 0;
+            var fee = Math.round(p * pct) / 100;
+            var net = Math.round((p - fee) * 100) / 100;
+            return "<tr><td style=\"direction:ltr;text-align:start\">" + esc4(x.code || "—") + "</td>" +
+              "<td>" + esc4(x.nameAr || x.nameEn || "—") +
+                '<br><span class="text-soft" style="font-size:.78rem">' + esc4(x.categoryAr || x.category || "") + "</span></td>" +
+              "<td>" + (p ? p + " ﷼" : T("On request", "حسب الطلب")) + "</td>" +
+              "<td>" + (p ? Math.round(fee * 100) / 100 + " ﷼" : "—") + "</td>" +
+              "<td><b>" + (p ? net + " ﷼" : T("Quoted", "بعرض سعر")) + "</b></td></tr>";
+          }).join("") + "</tbody></table></div>";
+      };
+      if (CATALOG) { draw(); return; }
+      fetch("/assets/data/catalog.json", { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : { services: [] }; })
+        .then(function (d) {
+          CATALOG = (d && d.services) || [];
+          var sel = document.getElementById("pt-cat-filter");
+          if (sel) {
+            var seen = {};
+            CATALOG.forEach(function (x) {
+              var c = x.categoryAr || x.category; if (!c || seen[c]) return; seen[c] = 1;
+              var o = document.createElement("option"); o.value = c; o.textContent = c; sel.appendChild(o);
+            });
+            sel.onchange = draw;
+          }
+          var srch = document.getElementById("pt-cat-search");
+          if (srch) srch.addEventListener("input", draw);
+          draw();
+        })
+        .catch(function () { box.innerHTML = '<p class="dash-empty">' + T("Couldn't load the catalogue.", "تعذّر تحميل الكتالوج.") + "</p>"; });
+    }
+
+      function render() {
       if (!state.supplier) { gate.hidden = false; app.hidden = true; return; }
       gate.hidden = true; app.hidden = false;
       var s = state.supplier, orders = state.orders || [];
@@ -2156,6 +2216,7 @@ var BP = window.BP = window.BP || {};
       var due = orders.filter(function (o) { return (o.status === "تم التسليم" || o.status === "معتمد") && o.supplierInvoiceStatus === "لم تُرفع"; });
       var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
       set("pt-stat-open", active.length); set("pt-stat-done", done.length); set("pt-stat-due", due.length);
+      renderCatalog(s);
 
       var feed = document.getElementById("pt-feed");
       if (!feed) return;
@@ -2379,7 +2440,7 @@ var BP = window.BP = window.BP || {};
       }
       var btn = form.querySelector("button[type=submit]"), lbl = btn.textContent;
       btn.disabled = true; btn.textContent = T("Saving…", "جارٍ الحفظ…");
-      var fileEl = document.getElementById("pt-invoice");
+    var fileEl = document.getElementById("pt-invoice");
       var file = fileEl && fileEl.files && fileEl.files[0];
       var go = function () {
         fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
