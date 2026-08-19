@@ -397,9 +397,25 @@ export async function handleSuppliers(req, res) {
     if (!checkSealed(email, code, b.token, b.exp)) return bad("invalid_code", 400);
     const s = await findSupplierByEmail(email);
     if (!s) return bad("invalid_code", 400);
-    const upd = await notion(`pages/${s.id}`, "PATCH", { properties: { "البريد موثّق": { checkbox: true } } });
+    const props = { "البريد موثّق": { checkbox: true } };
+    // The code was emailed to this address and came back with a token sealed
+    // over it, so the sender controls the inbox — which is exactly the proof a
+    // password reset needs. Signing up again on an existing e-mail therefore
+    // sets the new password here rather than at sign-up, where it would have
+    // let anyone overwrite an account by typing someone else's address.
+    //
+    // Without this, two accounts could never be reached at all: one registered
+    // before passwords existed (access code only, no hash to compare), and one
+    // whose owner signed up a second time — both verified fine and then failed
+    // every login with "bad credentials" and no way to recover.
+    const password = String(b.password == null ? "" : b.password);
+    if (password.length >= 8) {
+      props["بيانات الدخول"] = { rich_text: [{ text: { content: hashPassword(password) } }] };
+      props["طريقة الدخول"] = { select: { name: "كلمة مرور" } };
+    }
+    const upd = await notion(`pages/${s.id}`, "PATCH", { properties: props });
     if (!upd.ok) return bad("save_failed", 502);
-    return ok({ verified: true });
+    return ok({ verified: true, passwordSet: password.length >= 8 });
   }
 
   // ---------------- resend the verification code ----------------

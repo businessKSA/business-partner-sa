@@ -6743,6 +6743,8 @@ function buildPartnerDashboard() {
           <div class="field"><label for="pl-email">${L("Email", "البريد الإلكتروني")}</label><input id="pl-email" type="email" autocomplete="email" required></div>
           <div class="field"><label for="pl-pw">${L("Password", "كلمة المرور")}</label><input id="pl-pw" type="password" autocomplete="current-password" required></div>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Sign in", "دخول")}</button>
+          <p class="emp-note" style="text-align:center;margin-top:10px">${L("Forgot your password?", "نسيت كلمة المرور؟")}
+            <a href="#" id="pl-forgot">${L("Type your email and a new password, then get a code", "اكتب بريدك وكلمة مرور جديدة ثم اطلب الرمز")}</a></p>
         </form>
 
         <form id="partner-signup-form" class="calc-form sup-pane" data-pane="signup" hidden>
