@@ -126,7 +126,8 @@
     .inv{max-width:640px}
     .inv .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .ilines{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px}
-    .iline{display:grid;grid-template-columns:1fr 66px 108px 32px;gap:6px;padding:8px;border-bottom:1px solid #f2f4f8;align-items:center}
+    .iline{display:grid;grid-template-columns:1fr 66px 108px 32px;gap:6px;padding:8px;border-bottom:1px solid #f2f4f8;align-items:start}
+    .iline .i-q,.iline .i-p,.iline .del{margin-top:0}
     .iline:last-child{border-bottom:0}
     .iline input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13px;outline:none}
     .iline .del{border:1px solid var(--line);background:#fff;border-radius:8px;width:30px;height:30px;color:#b91c1c;cursor:pointer;font-size:14px}
@@ -397,6 +398,11 @@
           <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">الفواتير تُصدر من زر «إصدار فاتورة» داخل أي طلب في تبويب الطلبات، وتُسجَّل مباشرة في حسابك على الدفترة بضريبة قيمة مضافة على كل بند. اختبر الاتصال هنا قبل أول إصدار.</p>
           <button class="actbtn" id="dfPing">🔌 اختبر الاتصال بالدفترة</button>
           <button class="actbtn" id="dfInspect">🔬 اقرأ بنية فاتورة موجودة</button>
+          <button class="actbtn" id="dfSync">📦 صدّر كل الخدمات إلى الدفترة</button>
+          <div id="dfSyncBar" style="display:none;margin-top:10px">
+            <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden"><div id="dfSyncFill" style="height:100%;width:0;background:var(--navy);transition:width .25s"></div></div>
+            <div id="dfSyncMsg" style="font-size:12.5px;color:var(--soft);margin-top:6px"></div>
+          </div>
           <div class="dbody" id="dfOut" style="display:none;margin-top:10px"></div>
           <textarea id="dfRaw" readonly style="display:none;width:100%;margin-top:10px;height:170px;font-family:ui-monospace,Menlo,monospace;font-size:11px;direction:ltr;text-align:left;border:1px solid var(--line);border-radius:10px;padding:10px;background:#f8fafc"></textarea>
           <button class="actbtn" id="dfCopy" style="display:none;margin-top:8px">📋 انسخ النص وأرسله لي</button>
@@ -439,8 +445,12 @@
   <!-- invoice modal -->
   <div class="modal-back" id="invBack">
     <div class="modal inv">
-      <h3>🧾 إصدار فاتورة ضريبية في الدفترة</h3>
-      <div class="mnote">تُنشأ الفاتورة في حسابك على الدفترة باسم العميل (يُستخدم سجله الحالي إن كان مسجّلاً) وتُحتسب ضريبة القيمة المضافة على كل بند — فتظهر في دفاترك وفي فوترة ZATCA، لا مجرد رسالة بريد.</div>
+      <h3 id="ivHead">🧾 إصدار فاتورة ضريبية في الدفترة</h3>
+      <div class="sup-tabs" style="margin:8px 0 4px">
+        <button class="sup-tab active" id="ivTabInv" type="button">🧾 فاتورة ضريبية</button>
+        <button class="sup-tab" id="ivTabEst" type="button">📄 عرض سعر</button>
+      </div>
+      <div class="mnote" id="ivIntro">تُنشأ الفاتورة في حسابك على الدفترة باسم العميل (يُستخدم سجله الحالي إن كان مسجّلاً) وتُحتسب ضريبة القيمة المضافة على كل بند — فتظهر في دفاترك وفي فوترة ZATCA، لا مجرد رسالة بريد.</div>
       <label>اسم العميل / المنشأة</label>
       <input id="ivName" type="text" placeholder="كما تريده أن يظهر في الفاتورة" />
       <div class="row2">
@@ -468,6 +478,7 @@
       </div>
 
       <label style="margin-top:16px">بنود الفاتورة (الأسعار قبل الضريبة)</label>
+      <div class="mnote" style="margin-bottom:0">كود الخدمة يُطبع على البند في الفاتورة ويربطه بالمنتج المقابل في الدفترة. يُعبّأ تلقائياً من الكتالوج، وتقدر تعدّله.</div>
       <div class="ilines">
         <div class="ihead"><span>البند</span><span>الكمية</span><span>سعر الوحدة</span><span></span></div>
         <div id="ivLines"></div>
@@ -815,10 +826,12 @@
         for (var s1 = 0; s1 < STATUSES.length; s1++) o += '<option value="' + STATUSES[s1] + '">' + STATUSES[s1] + '</option>';
         acts += '<select id="dStat">' + o + '</select>';
       }
+      acts += '<button class="lnk" id="dEst">📄 عرض سعر</button>';
       acts += '<button class="lnk" id="dInv">🧾 إصدار فاتورة</button>';
       acts += '<button class="btn" id="dActv" style="margin-inline-start:auto">⚡ تفعيل وإرسال الاعتماد</button>';
       $('dActions').innerHTML = acts;
-      $('dInv').onclick = function(){ closeDetail(); openInvoice(l); };
+      $('dInv').onclick = function(){ closeDetail(); openInvoice(l, 'invoice'); };
+      $('dEst').onclick = function(){ closeDetail(); openInvoice(l, 'estimate'); };
       if ($('dStat')) $('dStat').onchange = function(){ changeStatus(l.ref, this.value, this); };
       $('dActv').onclick = function(){ closeDetail(); openModal(l); };
       $('detBack').classList.add('on');
@@ -856,6 +869,41 @@
       });
     };
 
+    // The catalogue is pushed in slices: 116 services is more than one
+    // serverless invocation can finish, so the panel walks the offsets and
+    // reports progress instead of appearing to hang or silently truncating.
+    $('dfSync').onclick = function(){
+      var btn = this, bar = $('dfSyncBar'), fill = $('dfSyncFill'), msg = $('dfSyncMsg');
+      if (!confirm('سيتم إنشاء/تحديث كل خدمات الكتالوج كمنتجات في الدفترة بأكوادها وأسعارها قبل الضريبة. متابعة؟')) return;
+      btn.disabled = true; bar.style.display = 'block'; fill.style.width = '0';
+      var tally = { created:0, updated:0, skipped:0, failed:[] }, total = 0;
+      function step(offset){
+        msg.textContent = '⏳ جاري التصدير… ' + (total ? (offset + ' من ' + total) : '');
+        return postPanel({ action:'panel-daftra-sync-catalog', offset: offset, limit: 15 }).then(function(r){
+          if (!r || !r.ok){
+            btn.disabled = false;
+            msg.innerHTML = '<span style="color:#b91c1c">❌ ' + esc((r && r.error) === 'daftra_not_configured'
+              ? 'الدفترة غير مربوطة.' : ((r && r.error) || 'فشل') + ((r && r.detail) ? ' — ' + r.detail : '')) + '</span>';
+            return;
+          }
+          total = r.total || total;
+          tally.created += r.created || 0; tally.updated += r.updated || 0; tally.skipped += r.skipped || 0;
+          if (r.failed && r.failed.length) tally.failed = tally.failed.concat(r.failed);
+          var doneCount = r.nextOffset == null ? total : r.nextOffset;
+          fill.style.width = (total ? Math.round((doneCount / total) * 100) : 100) + '%';
+          if (r.nextOffset != null) return step(r.nextOffset);
+          btn.disabled = false;
+          msg.innerHTML = '✅ انتهى — <b>' + tally.created + '</b> خدمة جديدة · <b>' + tally.updated + '</b> محدَّثة' +
+            (tally.skipped ? ' · ' + tally.skipped + ' متجاوَزة' : '') +
+            (tally.failed.length
+              ? '<br><span style="color:#b91c1c">فشل ' + tally.failed.length + ': ' +
+                esc(tally.failed.slice(0, 5).map(function(f){ return f.code + ' (' + f.error + ')'; }).join(' · ')) + '</span>'
+              : '');
+        });
+      }
+      step(0);
+    };
+
     // Daftra rejects our payload with a generic line and no field names, so the
     // account's own accepted invoices are read back as the specification.
     $('dfInspect').onclick = function(){
@@ -883,14 +931,31 @@
     };
 
     // ---- invoice modal (Daftra) ----
-    var invRef = '', invTotal = null;
-    function ivRow(name, qty, price){
+    var invRef = '', invTotal = null, ivDoc = 'invoice';
+    function ivSetDoc(kind){
+      ivDoc = kind;
+      var q = kind === 'estimate';
+      $('ivTabInv').classList.toggle('active', !q);
+      $('ivTabEst').classList.toggle('active', q);
+      $('ivHead').textContent = q ? '📄 إصدار عرض سعر في الدفترة' : '🧾 إصدار فاتورة ضريبية في الدفترة';
+      $('ivIntro').textContent = q
+        ? 'يُنشأ عرض سعر في حسابك على الدفترة ويُرسل للعميل. لا يُسجَّل كمستحق ولا يغيّر حالة الطلب — يتحوّل إلى فاتورة ضريبية بعد اعتماد العميل.'
+        : 'تُنشأ الفاتورة في حسابك على الدفترة باسم العميل (يُستخدم سجله الحالي إن كان مسجّلاً) وتُحتسب ضريبة القيمة المضافة على كل بند — فتظهر في دفاترك وفي فوترة ZATCA، لا مجرد رسالة بريد.';
+      $('ivGo').textContent = q ? '📄 أصدر عرض السعر' : '🧾 أصدر الفاتورة في الدفترة';
+      var d = $('ivDraft').parentNode;
+      if (d) d.lastChild.textContent = q ? ' احفظه كمسودة في الدفترة (لا يُرسَل)' : ' احفظها كمسودة في الدفترة (لا تُرسَل ولا تُرحَّل)';
+    }
+    $('ivTabInv').onclick = function(){ ivSetDoc('invoice'); };
+    $('ivTabEst').onclick = function(){ ivSetDoc('estimate'); };
+    function ivRow(name, qty, price, code){
       var d = document.createElement('div');
       d.className = 'iline';
-      d.innerHTML = '<input class="i-n" type="text" placeholder="اسم البند" />' +
+      d.innerHTML = '<div><input class="i-n" type="text" placeholder="اسم البند" />' +
+                      '<input class="i-c" type="text" placeholder="كود الخدمة" dir="ltr" style="margin-top:5px;font-size:11.5px;padding:5px 8px;color:var(--soft)" /></div>' +
                     '<input class="i-q" type="number" min="1" step="1" />' +
                     '<input class="i-p" type="number" min="0" step="0.01" />' +
                     '<button class="del" title="احذف البند">✕</button>';
+      d.querySelector('.i-c').value = code || '';
       d.querySelector('.i-n').value = name || '';
       d.querySelector('.i-q').value = qty || 1;
       d.querySelector('.i-p').value = (price == null ? '' : price);
@@ -911,7 +976,8 @@
         // The catalogue quotes VAT-inclusive prices in places, so "المبالغ شاملة
         // الضريبة" strips the 15% back out before Daftra adds it again — otherwise
         // the client would be charged VAT twice.
-        out.push({ name: n, quantity: q, unitPrice: incl ? Math.round((p / 1.15) * 100) / 100 : p });
+        var c = (rows[i].querySelector('.i-c').value || '').trim().toUpperCase();
+        out.push({ name: n, code: c, quantity: q, unitPrice: incl ? Math.round((p / 1.15) * 100) / 100 : p });
       }
       return out;
     }
@@ -937,7 +1003,7 @@
         } else w.style.display = 'none';
       } else w.style.display = 'none';
     }
-    function openInvoice(l){
+    function openInvoice(l, kind){
       invRef = (l && l.ref) || '';
       invTotal = (l && l.total != null && l.total > 0) ? Number(l.total) : null;
       var t = (l && l.title) || '';
@@ -953,6 +1019,7 @@
       $('ivDist').value = ''; $('ivPost').value = ''; $('ivAddNo').value = '';
       $('ivAddrCity').value = '';
       $('ivWarn').style.display = 'none';
+      ivSetDoc(kind || 'invoice');
       $('ivNotes').value = invRef ? ('مرجع الطلب: ' + invRef) : '';
       $('ivIncl').checked = false; $('ivSend').checked = true; $('ivDraft').checked = false;
       $('ivMsg').textContent = ''; $('ivMsg').style.color = '';
@@ -974,11 +1041,13 @@
           if (qm){ qty = Number(qm[1]) || 1; seg = seg.slice(0, qm.index).trim(); }
           seg = seg.replace(/[\-–—:·]+$/, '').trim();
           if (seg.length < 3) continue;
-          var price = '';
+          var price = '', code = '';
           for (var j = 0; j < SVC_PRICES.length; j++){
-            if (seg.indexOf(SVC_PRICES[j].name) !== -1 || SVC_PRICES[j].name.indexOf(seg) !== -1){ price = SVC_PRICES[j].amount || ''; break; }
+            if (seg.indexOf(SVC_PRICES[j].name) !== -1 || SVC_PRICES[j].name.indexOf(seg) !== -1){
+              price = SVC_PRICES[j].amount || ''; code = SVC_PRICES[j].code || ''; break;
+            }
           }
-          ivRow(seg.slice(0, 120), qty, price);
+          ivRow(seg.slice(0, 120), qty, price, code);
           added++;
         }
         // Nothing recognisable to split, or a single service: one line at the
@@ -1007,8 +1076,8 @@
                    district: $('ivDist').value.trim(), city: $('ivAddrCity').value.trim(),
                    postalCode: $('ivPost').value.trim(), additionalNo: $('ivAddNo').value.trim() };
       var btn = $('ivGo'); btn.disabled = true;
-      msg.style.color = ''; msg.textContent = '⏳ جاري إنشاء الفاتورة في الدفترة…';
-      postPanel({ action:'panel-invoice', ref: invRef, clientName: $('ivName').value.trim(),
+      msg.style.color = ''; msg.textContent = ivDoc === 'estimate' ? '⏳ جاري إنشاء عرض السعر في الدفترة…' : '⏳ جاري إنشاء الفاتورة في الدفترة…';
+      postPanel({ action:'panel-invoice', docType: ivDoc, ref: invRef, clientName: $('ivName').value.trim(),
                   email: email, phone: phone, city: addr.city,
                   taxNumber: tax, address: addr,
                   items: items, notes: $('ivNotes').value.trim(),
@@ -1018,9 +1087,11 @@
           if (out && out.ok && out.invoice){
             var iv = out.invoice;
             msg.style.color = '#14532d';
-            msg.innerHTML = '✅ صدرت الفاتورة <b>' + esc(iv.number) + '</b> بإجمالي <b>' + iv.total + ' ﷼</b>' +
+            msg.innerHTML = (ivDoc === 'estimate' ? '✅ صدر عرض السعر <b>' : '✅ صدرت الفاتورة <b>') + esc(iv.number) + '</b> بإجمالي <b>' + iv.total + ' ﷼</b>' +
               (out.clientCreated ? ' · أُنشئ سجل عميل جديد في الدفترة' : ' · على سجل العميل الحالي') +
-              (out.emailed ? ' · أُرسلت للعميل' : ($('ivSend').checked && !$('ivDraft').checked ? ' · <span style="color:#b45309">تعذّر إرسالها بالبريد</span>' : '')) +
+              (out.emailed
+                ? ' · أُرسلت للعميل' + (out.pdfAttached ? ' مع مرفق PDF' : ' <span style="color:#b45309">(بدون مرفق PDF — الدفترة ما أعطت الملف، أُرسل الرابط بدلاً منه)</span>')
+                : ($('ivSend').checked && !$('ivDraft').checked ? ' · <span style="color:#b45309">تعذّر إرسالها بالبريد</span>' : '')) +
               '<br><a href="' + esc(iv.url) + '" target="_blank" rel="noopener" style="font-weight:700">افتحها في الدفترة ←</a>' +
               (iv.printUrl ? ' · <a href="' + esc(iv.printUrl) + '" target="_blank" rel="noopener" style="font-weight:700">اطبع/PDF بالباركود ←</a>' : '') +
               (iv.reducedPayload ? '<br><span style="color:#b45309;font-size:12px">ملاحظة: حسابك رفض بعض الحقول الاختيارية فصدرت بالحقول الأساسية — أرسل لي لقطة وأضبطها.</span>' : '');
@@ -1109,7 +1180,7 @@
           // services, so each one can be priced from the published catalogue
           // instead of being lumped into a single untyped line.
           SVC_PRICES = list.map(function(sv){
-            return { name: sv.nameAr || sv.nameEn || sv.code, amount: Number(sv.amount) || 0 };
+            return { name: sv.nameAr || sv.nameEn || sv.code, amount: Number(sv.amount) || 0, code: sv.code || '' };
           }).filter(function(x){ return x.name; }).sort(function(a,b){ return b.name.length - a.name.length; });
           svcLoaded = true;
         });
