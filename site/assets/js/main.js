@@ -2346,7 +2346,7 @@ var BP = window.BP = window.BP || {};
       var btn = verifyForm.querySelector("button[type=submit]"), lbl = btn.textContent;
       btn.disabled = true; btn.textContent = T("Verifying…", "جارٍ التحقق…");
       fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ type: "verify-email", email: pending.email, code: code, token: pending.token, exp: pending.exp }) })
+        body: JSON.stringify({ type: "verify-email", email: pending.email, code: code, token: pending.token, exp: pending.exp, password: pending.pw }) })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           btn.disabled = false; btn.textContent = lbl;
@@ -2356,6 +2356,38 @@ var BP = window.BP = window.BP || {};
           load(pending, function (err) { showErr(err); });
         })
         .catch(function () { btn.disabled = false; btn.textContent = lbl; showErr("network"); });
+    });
+
+    // Forgetting a password used to be terminal: the only way in was a password
+    // the account might never have had. The emailed code already proves control
+    // of the address, so it doubles as the reset — the address and the new
+    // password are typed on the sign-in pane, the code confirms both.
+    var forgot = document.getElementById("pl-forgot");
+    if (forgot) forgot.addEventListener("click", function (e) {
+      e.preventDefault();
+      var email = (document.getElementById("pl-email").value || "").trim().toLowerCase();
+      var pw = document.getElementById("pl-pw").value || "";
+      if (!email || email.indexOf("@") === -1) { showErr("invalid_fields"); return; }
+      if (pw.length < 8) { showErr("weak_password"); return; }
+      forgot.textContent = T("Sending…", "جارٍ الإرسال…");
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "resend-code", email: email }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          forgot.textContent = T("Type your email and a new password, then get a code", "اكتب بريدك وكلمة مرور جديدة ثم اطلب الرمز");
+          if (!d || !d.ok) { showErr(d && d.error); return; }
+          // Same shape whether or not the address is registered, so this reveals
+          // nothing about who has an account.
+          pending = { email: email, pw: pw, token: d.token, exp: d.exp };
+          var note = document.getElementById("sup-verify-note");
+          if (note) note.textContent = T("We sent a 6-digit code to " + email + " — enter it to set your new password and sign in.",
+            "أرسلنا رمزاً من 6 أرقام إلى " + email + " — أدخله لتعيين كلمة المرور الجديدة والدخول.");
+          paneTo("verify");
+        })
+        .catch(function () {
+          forgot.textContent = T("Type your email and a new password, then get a code", "اكتب بريدك وكلمة مرور جديدة ثم اطلب الرمز");
+          showErr("network");
+        });
     });
 
     var resend = document.getElementById("pv-resend");
