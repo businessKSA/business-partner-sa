@@ -17,6 +17,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers } from "./_suppliers.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -1237,6 +1238,63 @@ export default async function handler(req, res) {
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
+    // ---- Daftra (الدفترة): real accounting invoices ----
+    // Connection check. Returns the field names Daftra actually sent back so a
+    // mismatch is visible in the panel instead of only in the server log.
+    if (b.action === "panel-daftra-ping") {
+      const out = await daftraPing();
+      res.statusCode = out.ok ? 200 : 502;
+      return res.end(JSON.stringify(out));
+    }
+
+    // Issue a tax invoice in Daftra for a client request, then (optionally)
+    // email the client the total and the invoice link. The client record is
+    // reused when their email or phone already exists in the books, so
+    // repeat customers do not accumulate duplicates.
+    if (b.action === "panel-invoice") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      const email = String(b.email || "").trim();
+      const items = Array.isArray(b.items) ? b.items.slice(0, 30) : [];
+      if (!items.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_items" })); }
+      if (!email && !String(b.phone || "").trim()) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_contact" })); }
+      const ref = String(b.ref || "").trim();
+      try {
+        const { client, created } = await daftraFindOrCreateClient({
+          name: String(b.clientName || "").trim(),
+          email, phone: String(b.phone || "").trim(), city: String(b.city || "").trim(),
+          notes: ref ? `طلب ${ref} — من موقع بيزنس بارتنر` : "من موقع بيزنس بارتنر",
+        });
+        const clientId = client.id || client.client_id;
+        const inv = await daftraCreateInvoice({
+          clientId, items,
+          notes: String(b.notes || "").slice(0, 800),
+          ref, dueDays: Number(b.dueDays) || 0,
+          draft: !!b.draft,
+        });
+        // Emailing the client is best-effort: the invoice exists in the books
+        // either way, so a mail failure must not read as a failed issuance.
+        let emailed = false;
+        if (email && b.sendEmail !== false && !b.draft) {
+          const rows = items.map((it) => `<tr><td style="padding:5px 10px">${esc(String(it.name || ""))}</td><td style="padding:5px 10px">${Number(it.quantity) || 1}</td><td style="padding:5px 10px">${Number(it.unitPrice) || 0} ﷼</td></tr>`).join("");
+          const r2 = await sendEmail(email, `فاتورة ${inv.number} — بيزنس بارتنر`,
+            `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right"><h2 style="color:#0B1B5A">فاتورتك من بيزنس بارتنر</h2>
+             <p>رقم الفاتورة: <b>${esc(inv.number)}</b>${ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(ref)}</b>` : ""}</p>
+             <table style="border-collapse:collapse;width:100%"><thead><tr style="background:#f1f5f9"><th style="padding:6px 10px;text-align:right">البند</th><th style="padding:6px 10px;text-align:right">الكمية</th><th style="padding:6px 10px;text-align:right">السعر</th></tr></thead><tbody>${rows}</tbody></table>
+             <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${daftraVatRate()}%): <b>${inv.vat} ﷼</b><br>الإجمالي المستحق: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
+             <p style="color:#475569">للتحويل البنكي: ${esc(SS_BANK.beneficiary)} — ${esc(SS_BANK.bank)} — <span style="direction:ltr;display:inline-block">${esc(SS_BANK.iban)}</span></p>
+             <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`);
+          emailed = !!(r2 && r2.ok);
+        }
+        if (ref) { try { await setLeadStatus(ref, "مؤكد - قيد التنفيذ"); } catch {} }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, invoice: inv, clientCreated: created, emailed }));
+      } catch (e) {
+        console.error("daftra invoice failed", String(e.message || e).slice(0, 200));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "daftra_failed"), detail: String(e.detail || "").slice(0, 200) }));
       }
     }
 
