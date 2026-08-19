@@ -4712,8 +4712,7 @@ function seekerFormHtml(f, fixedJob) {
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
         <p class="form-note" id="cv-note">${L("Upload your CV (PDF or Word) to reach our team securely.", "ارفع سيرتك (PDF أو Word) لتصل لفريقنا بأمان.")}</p>
         <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
-      </form>
-      <div class="center mt-16">${waBtn2("Book a consultation", "احجز استشارة", "btn-ghost")}</div>`;
+      </form>`;
 }
 function buildJobPage(job) {
   const f = site.careers.seeker.fields;
