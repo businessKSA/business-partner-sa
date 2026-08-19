@@ -48,10 +48,15 @@ function unwrap(rows, model) {
 }
 
 // Flatten Daftra's nested validation payload into one readable line:
-// {errors:{Invoice:{client_id:["مطلوب"]}}} -> "client_id: مطلوب".
+// {validation_errors:{Invoice:{client_id:["مطلوب"]}}} -> "client_id: مطلوب".
+// The key is `validation_errors`, not `errors` — the generic `message` says
+// "الرجاء إصلاح الأخطاء بالأسفل" and the fields it refers to live there.
 function describeErrors(data) {
   if (!data) return "";
-  const bag = data.errors || (data.data && data.data.errors) || null;
+  const d = data || {};
+  const bag = d.validation_errors || d.errors ||
+    (d.data && (d.data.validation_errors || d.data.errors)) ||
+    (d.extra_data && Object.keys(d.extra_data).length ? d.extra_data : null) || null;
   const out = [];
   const walk = (node, key) => {
     if (out.length >= 12 || node == null) return;
@@ -65,7 +70,7 @@ function describeErrors(data) {
   if (fields) return fields;
   // No structured `errors` bag: the generic message alone names no field, so
   // the raw body goes through too — it is the only thing left to diagnose from.
-  const raw = JSON.stringify(data).slice(0, 500);
+  const raw = JSON.stringify(data).slice(0, 1500);
   return [msg, raw && raw !== "{}" ? `[raw] ${raw}` : ""].filter(Boolean).join(" — ");
 }
 
@@ -103,7 +108,7 @@ async function dq(path, { method = "GET", body } = {}) {
   // ("فشل في حفظ الفاتورة، الرجاء إصلاح الأخطاء بالأسفل"). Both are treated as
   // failures here and the field errors are flattened into the message the
   // panel shows — the generic line alone is undiagnosable.
-  const failed = !r.ok || !data || String((data && data.result) || "").toLowerCase() === "fail";
+  const failed = !r.ok || !data || /^fail/i.test(String((data && data.result) || ""));
   if (failed) {
     console.error("daftra error", method, path, r.status, text.slice(0, 800));
     const err = new Error(r.status === 401 || r.status === 403 ? "daftra_unauthorized" : "daftra_failed");
