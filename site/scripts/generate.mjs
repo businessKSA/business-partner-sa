@@ -646,10 +646,10 @@ function advisorWidget() {
   </section>`;
 }
 
-function page({ title, desc, active, path, body, script = "" }) {
+function page({ title, desc, active, path, body, script = "", noindex = false }) {
   const p = path || active || "/";
   return (
-    head(title, desc, p) +
+    head(title, desc, p).replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>") +
     header(active, p) +
     `<main>${body}</main>` +
     footer() +
@@ -6610,17 +6610,27 @@ function buildConsultation() {
 }
 
 function buildSuppliers() {
+  // Must match the "التصنيف" options in the Suppliers Notion registry — the
+  // registration POST writes these straight into that multi-select.
   const cats = [
-    { en: "Events & conferences", ar: "فعاليات ومؤتمرات" },
-    { en: "Halls & venues", ar: "قاعات ومواقع" },
-    { en: "Catering & hospitality", ar: "ضيافة وكيترينق" },
-    { en: "Outdoor activities", ar: "أنشطة خارجية" },
-    { en: "Transport & logistics", ar: "نقل ولوجستيات" },
-    { en: "Photography & media", ar: "تصوير وإعلام" },
-    { en: "Corporate trips", ar: "رحلات شركات" },
+    { en: "Company formation", ar: "تأسيس الشركات" },
+    { en: "Foreign investment", ar: "الاستثمار الأجنبي" },
+    { en: "Government relations", ar: "العلاقات الحكومية" },
+    { en: "HR services", ar: "خدمات الموارد البشرية" },
+    { en: "Recruitment", ar: "الاستقدام والتوظيف" },
+    { en: "Business support", ar: "دعم الأعمال" },
+    { en: "Real estate & workspaces", ar: "العقارات والمساحات" },
+    { en: "Premium residency", ar: "الإقامة المميزة" },
+    { en: "AI & automation", ar: "الذكاء الاصطناعي والأتمتة" },
+    { en: "Events & hospitality", ar: "فعاليات وضيافة" },
+    { en: "Catering", ar: "إعاشة وتغذية" },
+    { en: "Transport", ar: "نقل ومواصلات" },
+    { en: "Worker housing", ar: "إسكان عمالة" },
+    { en: "Operations & maintenance", ar: "تشغيل وصيانة" },
+    { en: "Marketing & advertising", ar: "تسويق وإعلان" },
     { en: "Other", ar: "أخرى" },
   ];
-  const catOpts = cats.map((c2) => `<option>${L(c2.en, c2.ar)}</option>`).join("");
+  const catOpts = cats.map((c2) => `<option value="${esc(c2.ar)}">${L(c2.en, c2.ar)}</option>`).join("");
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Partners portal", "بوابة الشركاء")}</span>
@@ -6630,7 +6640,7 @@ function buildSuppliers() {
   <section class="section"><div class="container">
     <div class="booking-wrap">
       <form class="calc-form" id="supplier-form" novalidate>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">${L("Partner registration", "تسجيل الشركاء")}</h2><a class="btn btn-ghost btn-sm" href="${u("/partner-dashboard")}">${L("Already a partner? Open dashboard →", "شريك بالفعل؟ افتح اللوحة ←")}</a></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">${L("Partner registration", "تسجيل الشركاء")}</h2><a class="btn btn-ghost btn-sm" href="${u("/partner-dashboard")}">${L("Already a supplier? Open the portal →", "مورّد بالفعل؟ افتح البوابة ←")}</a></div>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="sp-company">${L("Company name", "اسم الشركة")}</label><input id="sp-company" type="text" required></div>
           <div class="field"><label for="sp-person">${L("Contact person", "الشخص المسؤول")}</label><input id="sp-person" type="text" required></div>
@@ -6642,12 +6652,13 @@ function buildSuppliers() {
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="sp-city">${L("City", "المدينة")}</label><input id="sp-city" type="text" placeholder="${Lraw("Riyadh", "الرياض")}"></div>
           <div class="field"><label for="sp-cr">${L("CR number (optional)", "رقم السجل التجاري (اختياري)")}</label><input id="sp-cr" type="text"></div>
+          <div class="field"><label for="sp-vat">${L("VAT number (optional)", "الرقم الضريبي (اختياري)")}</label><input id="sp-vat" type="text"></div>
         </div>
         <div class="field"><label for="sp-cat">${L("Service category", "تصنيف الخدمة")}</label>
           <select id="sp-cat">${catOpts}</select></div>
         <div class="field"><label for="sp-notes">${L("Describe your services briefly", "اوصف خدماتك باختصار")}</label><textarea id="sp-notes" rows="3"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a partner", "سجّل كشريك")}</button>
-        <p class="form-note">${L("We review registrations and contact you to complete onboarding.", "نراجع التسجيلات ونتواصل معك لاستكمال الانضمام.")}</p>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a supplier", "سجّل كمورّد")}</button>
+        <p class="form-note">${L("We review each registration. Once approved we email you an access code that opens the suppliers portal.", "نراجع كل تسجيل. بعد الاعتماد يصلك رمز دخول على بريدك تفتح به بوابة الموردين.")}</p>
         <div class="form-success" id="supplier-success" hidden></div>
       </form>
       <aside class="booking-side">
@@ -6674,36 +6685,35 @@ function buildSuppliers() {
 // routed by the team/n8n once the partner is activated. Submitting an offer
 // POSTs to /api/requests (type: partner-offer).
 function buildPartnerDashboard() {
-  const cats = ["فعاليات ومؤتمرات", "قاعات ومواقع", "ضيافة وكيترينق", "أنشطة خارجية", "نقل ولوجستيات", "تصوير وإعلام", "رحلات شركات", "أخرى"];
-  const catOpts = cats.map((c) => `<option>${esc(c)}</option>`).join("");
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Partners portal", "بوابة الشركاء")}</span>
-    <h1>${L("Partner dashboard", "لوحة الشركاء")}</h1>
-    <p class="lead">${L("Your live feed of client requests. When a client places a request or buys on the site, matching opportunities show up here so you can send an offer.", "متابعتك المباشرة لطلبات العملاء. عندما يطلب عميل أو يشتري خدمة على الموقع، تظهر الفرص المطابقة هنا لتقدّم عرضك.")}</p>
+    <span class="eyebrow">${L("Suppliers portal", "بوابة الموردين")}</span>
+    <h1>${L("Supplier dashboard", "لوحة المورّد")}</h1>
+    <p class="lead">${L("Your assigned work orders from Business Partner — accept them, update progress, and upload your invoice when the job is delivered.", "أوامر العمل المُسنَدة إليك من بيزنس بارتنر — اقبلها، حدّث حالة التنفيذ، وارفع فاتورتك بعد التسليم.")}</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:1000px">
 
-    <!-- Login gate (no partner session) -->
+    <!-- Sign-in gate -->
     <div id="partner-gate">
       <div class="dash-card" style="max-width:520px;margin:0 auto">
-        <h2>${L("Partner sign in", "دخول الشركاء")}</h2>
-        <p class="text-soft" style="margin-bottom:14px">${L("Enter your company and the email you registered with to open your dashboard.", "أدخل اسم شركتك والبريد الذي سجّلت به لفتح لوحتك.")}</p>
+        <h2>${L("Supplier sign in", "دخول الموردين")}</h2>
+        <p class="text-soft" style="margin-bottom:14px">${L("Enter the email you registered with and the access code we emailed you once your registration was approved.", "أدخل البريد الذي سجّلت به ورمز الدخول الذي أرسلناه لك بعد اعتماد تسجيلك.")}</p>
         <form id="partner-login-form" class="calc-form">
-          <div class="field"><label for="pl-company">${L("Company name", "اسم الشركة")}</label><input id="pl-company" type="text" required></div>
-          <div class="field"><label for="pl-email">${L("Email", "البريد الإلكتروني")}</label><input id="pl-email" type="email" required></div>
+          <div class="field"><label for="pl-email">${L("Email", "البريد الإلكتروني")}</label><input id="pl-email" type="email" autocomplete="email" required></div>
+          <div class="field"><label for="pl-code">${L("Access code", "رمز الدخول")}</label><input id="pl-code" type="text" inputmode="latin" autocapitalize="characters" placeholder="XXXXXX" required></div>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Open my dashboard", "افتح لوحتي")}</button>
+          <p class="form-error" id="pl-error" hidden></p>
         </form>
-        <p class="mini" style="margin-top:12px">${L("Not registered yet?", "لست مسجّلاً بعد؟")} <a href="${u("/suppliers")}">${L("Register as a partner", "سجّل كشريك")}</a></p>
+        <p class="mini" style="margin-top:12px">${L("Not registered yet?", "لست مسجّلاً بعد؟")} <a href="${u("/suppliers")}">${L("Register as a supplier", "سجّل كمورّد")}</a></p>
       </div>
     </div>
 
-    <!-- Dashboard (has session) -->
+    <!-- Dashboard -->
     <div id="partner-app" hidden>
       <div class="dash-stats" style="margin-bottom:20px">
-        <div class="dash-stat"><div class="ds-ico">📥</div><div class="num" id="pt-stat-open">0</div><div class="lbl">${L("Open requests", "طلبات متاحة")}</div></div>
-        <div class="dash-stat"><div class="ds-ico">📨</div><div class="num" id="pt-stat-offers">0</div><div class="lbl">${L("Offers sent", "عروض مُرسلة")}</div></div>
-        <div class="dash-stat"><div class="ds-ico">🏷️</div><div class="num" id="pt-stat-cat" style="font-size:1rem">—</div><div class="lbl">${L("Your category", "تصنيفك")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="pt-stat-open">0</div><div class="lbl">${L("Active work orders", "أوامر عمل جارية")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="pt-stat-done">0</div><div class="lbl">${L("Delivered", "تم تسليمها")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">🧾</div><div class="num" id="pt-stat-due" style="font-size:1.05rem">0</div><div class="lbl">${L("Awaiting your invoice", "بانتظار فاتورتك")}</div></div>
       </div>
 
       <div class="dash-card" style="margin-bottom:18px">
@@ -6713,30 +6723,100 @@ function buildPartnerDashboard() {
         </div>
       </div>
 
-      <div class="dash-panel-head"><h2>${L("Available client requests", "طلبات العملاء المتاحة")}</h2><p>${L("Matched to your service category. Send an offer and we coordinate directly with the client.", "مطابقة لتصنيف خدمتك. قدّم عرضك وننسّق معك مباشرة مع العميل.")}</p></div>
-      <div id="pt-feed"><p class="dash-empty">${L("No open requests right now — new client requests will appear here.", "لا توجد طلبات متاحة حالياً — ستظهر طلبات العملاء الجديدة هنا.")}</p></div>
-
-      <div class="callout" style="margin-top:20px"><span class="ico">🔗</span><p>${L("This dashboard is linked to the client side: every request or purchase on the site is matched to partners. Live routing to your WhatsApp/email is activated by our team after onboarding.", "هذه اللوحة مربوطة بجانب العملاء: كل طلب أو عملية شراء على الموقع تُطابَق مع الشركاء. التوجيه المباشر لواتسابك/بريدك يُفعّله فريقنا بعد إتمام الانضمام.")}</p></div>
+      <div class="dash-panel-head"><h2>${L("Your work orders", "أوامر العمل الخاصة بك")}</h2><p>${L("Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.", "مُسنَدة إليك من فريق بيزنس بارتنر. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.")}</p></div>
+      <div id="pt-feed"><p class="dash-empty">${L("No work orders yet — new assignments appear here and reach you by email.", "لا توجد أوامر عمل بعد — كل إسناد جديد يظهر هنا ويصلك على بريدك.")}</p></div>
     </div>
   </div></section>
 
-  <!-- Offer modal -->
+  <!-- Work-order modal -->
   <div class="empd-modal" id="pt-modal" hidden><div class="empd-modal-in">
     <button class="empd-modal-x" id="pt-modal-x">✕</button>
-    <h3>${L("Send your offer", "قدّم عرضك")}</h3>
+    <h3 id="pt-modal-title">${L("Update work order", "تحديث أمر العمل")}</h3>
     <div class="empd-modal-body">
       <form id="pt-offer-form" class="calc-form">
-        <input type="hidden" id="pt-offer-ref">
+        <input type="hidden" id="pt-order-id">
         <div class="field"><label id="pt-offer-for" style="font-weight:600"></label></div>
-        <div class="field"><label for="pt-offer-price">${L("Your price (SAR)", "سعرك (ريال)")}</label><input id="pt-offer-price" type="number" min="0"></div>
-        <div class="field"><label for="pt-offer-notes">${L("Offer details", "تفاصيل العرض")}</label><textarea id="pt-offer-notes" rows="3" placeholder="${Lraw("What's included, timeline, terms…", "ما يشمله العرض، المدة، الشروط…")}"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Send offer", "أرسل العرض")}</button>
+        <div class="field" id="pt-quote-wrap" hidden>
+          <label for="pt-quote">${L("Your price (SAR)", "سعرك (ريال)")}</label><input id="pt-quote" type="number" min="0" step="0.01">
+          <label for="pt-lead" style="margin-top:10px">${L("Proposed lead time", "مدة التنفيذ المقترحة")}</label><input id="pt-lead" type="text" placeholder="${Lraw("e.g. 5 working days", "مثال: 5 أيام عمل")}">
+        </div>
+        <div class="field" id="pt-status-wrap"><label for="pt-status">${L("Status", "الحالة")}</label>
+          <select id="pt-status">
+            <option value="قبله المورّد">${L("I accept this work order", "أقبل أمر العمل")}</option>
+            <option value="قيد التنفيذ">${L("In progress", "قيد التنفيذ")}</option>
+            <option value="تم التسليم">${L("Delivered", "تم التسليم")}</option>
+          </select></div>
+        <div class="field"><label for="pt-invoice">${L("Your invoice (PDF or image) — optional", "فاتورتك (PDF أو صورة) — اختياري")}</label><input id="pt-invoice" type="file" accept=".pdf,image/*"></div>
+        <div class="field"><label for="pt-offer-notes">${L("Notes", "ملاحظات")}</label><textarea id="pt-offer-notes" rows="3" placeholder="${Lraw("Progress, delivery details, anything the team should know…", "سير العمل، تفاصيل التسليم، أي شيء يحتاج الفريق معرفته…")}"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Save update", "احفظ التحديث")}</button>
         <div class="form-success" id="pt-offer-sent" hidden></div>
       </form>
     </div>
-  </div></div>
-  <script>window.BP_PARTNER_CATS=${JSON.stringify(cats)};</script>`;
-  return page({ title: Lraw("Partner dashboard — Business Partner", "لوحة الشركاء — بيزنس بارتنر"), desc: Lraw("Partner dashboard: see matched client requests and send offers.", "لوحة الشركاء: شاهد طلبات العملاء المطابقة وقدّم عروضك."), active: "/suppliers", path: "/partner-dashboard", body });
+  </div></div>`;
+  return page({ title: Lraw("Supplier dashboard — Business Partner", "لوحة المورّد — بيزنس بارتنر"), desc: Lraw("Suppliers portal: see the work orders assigned to you, update progress and upload invoices.", "بوابة الموردين: تابع أوامر العمل المسندة إليك، حدّث حالتها وارفع فواتيرك."), active: "/suppliers", path: "/partner-dashboard", body });
+}
+
+// Owner-only supplier control panel. Gated by the same PANEL_KEY/LEADS_KEY that
+// gates /monitor — the key is held in sessionStorage only, never in the page.
+function buildSuppliersAdmin() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Owner panel", "لوحة المالك")}</span>
+    <h1>${L("Suppliers control panel", "لوحة تحكم الموردين")}</h1>
+    <p class="lead">${L("Approve suppliers, request quotations, award work orders and issue invoices — everything writes straight to your Notion registry.", "اعتمد الموردين، اطلب عروض الأسعار، أرسِ أوامر العمل وأصدر الفواتير — كل شيء يُكتب مباشرة في قواعدك في نوشن.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:1180px">
+
+    <div id="sa-gate">
+      <div class="dash-card" style="max-width:460px;margin:0 auto">
+        <h2>${L("Owner key", "مفتاح المالك")}</h2>
+        <p class="text-soft" style="margin-bottom:14px">${L("Same key you use for BP Inbox.", "نفس المفتاح الذي تستخدمه في BP Inbox.")}</p>
+        <form id="sa-key-form" class="calc-form">
+          <div class="field"><label for="sa-key">${L("Key", "المفتاح")}</label><input id="sa-key" type="password" required></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Open the panel", "افتح اللوحة")}</button>
+          <p class="form-error" id="sa-error" hidden></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="sa-app" hidden>
+      <div class="dash-stats" style="margin-bottom:20px">
+        <div class="dash-stat"><div class="ds-ico">🏭</div><div class="num" id="sa-n-sup">0</div><div class="lbl">${L("Suppliers", "الموردون")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">⏳</div><div class="num" id="sa-n-new">0</div><div class="lbl">${L("Awaiting approval", "بانتظار الاعتماد")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📝</div><div class="num" id="sa-n-quote">0</div><div class="lbl">${L("Quotes received", "عروض واردة")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="sa-n-live">0</div><div class="lbl">${L("Live work orders", "أوامر عمل جارية")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">🧾</div><div class="num" id="sa-n-inv">0</div><div class="lbl">${L("Invoices to review", "فواتير للمراجعة")}</div></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3 style="margin:0">${L("Request quotations from your suppliers", "اطلب عروض أسعار من مورديك")}</h3>
+          <button class="btn btn-ghost btn-sm" id="sa-refresh">${L("Refresh", "تحديث")}</button>
+        </div>
+        <form id="sa-rfq-form" class="calc-form" style="margin-top:12px">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="sa-service">${L("Service needed", "الخدمة المطلوبة")} *</label><input id="sa-service" type="text" required></div>
+            <div class="field"><label for="sa-client">${L("Client", "العميل")}</label><input id="sa-client" type="text"></div>
+            <div class="field"><label for="sa-clientref">${L("Client request ref", "مرجع طلب العميل")}</label><input id="sa-clientref" type="text" placeholder="BP-… / EV-…"></div>
+            <div class="field"><label for="sa-city">${L("City", "المدينة")}</label><input id="sa-city" type="text"></div>
+            <div class="field"><label for="sa-due">${L("Needed by", "مطلوب التسليم")}</label><input id="sa-due" type="date"></div>
+            <div class="field"><label for="sa-cat-filter">${L("Filter suppliers by category", "تصفية الموردين بالتصنيف")}</label><select id="sa-cat-filter"><option value="">${L("All categories", "كل التصنيفات")}</option></select></div>
+          </div>
+          <div class="field"><label for="sa-details">${L("Details", "التفاصيل")}</label><textarea id="sa-details" rows="2"></textarea></div>
+          <div class="field"><label>${L("Send to", "أرسل إلى")}</label><div id="sa-sup-picker" class="sa-picker"></div></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Send request for quotation", "أرسل طلب عرض السعر")}</button>
+          <div class="form-success" id="sa-rfq-sent" hidden></div>
+        </form>
+      </div>
+
+      <div class="dash-panel-head"><h2>${L("Work orders & quotes", "أوامر العمل والعروض")}</h2><p>${L("Award a quote, approve delivery, mark the supplier invoice paid, or issue your commission invoice.", "أرسِ عرضاً، اعتمد التسليم، أثبت سداد فاتورة المورّد، أو أصدر فاتورة عمولتك.")}</p></div>
+      <div id="sa-orders"><p class="dash-empty">${L("Nothing yet.", "لا يوجد بعد.")}</p></div>
+
+      <div class="dash-panel-head" style="margin-top:26px"><h2>${L("Supplier registry", "سجل الموردين")}</h2><p>${L("Approve a supplier to email them their portal access code.", "اعتماد المورّد يرسل له رمز دخول البوابة على بريده.")}</p></div>
+      <div id="sa-suppliers"><p class="dash-empty">${L("No suppliers yet.", "لا يوجد موردون بعد.")}</p></div>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Suppliers control panel — Business Partner", "لوحة تحكم الموردين — بيزنس بارتنر"), desc: Lraw("Owner panel for the supplier network.", "لوحة المالك لشبكة الموردين."), active: "/suppliers", path: "/suppliers-admin", body, noindex: true });
 }
 
 function buildMonitor() {
@@ -9091,6 +9171,7 @@ function writeFullSite(pre) {
   write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
   write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
+  write(`${pre}suppliers-admin.html`, buildSuppliersAdmin());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
