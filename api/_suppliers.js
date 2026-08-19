@@ -32,6 +32,7 @@
 // /api/requests?__route=suppliers, which delegates here.
 
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "crypto";
+import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder, daftraCreateInvoice, daftraDocPdf } from "./_daftra.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -149,13 +150,14 @@ async function notion(path, method = "GET", body) {
   } catch (e) { console.error("notion exception", String(e).slice(0, 200)); return { ok: false, status: 500, json: null }; }
 }
 
-async function sendEmail(to, subject, html) {
+// attachments: [{ filename, content }] with content base64 — Resend's own shape.
+async function sendEmail(to, subject, html, attachments) {
   if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+      body: JSON.stringify({ from: FROM, to: [to], subject, html, ...(attachments && attachments.length ? { attachments } : {}) }),
     });
     if (!r.ok) console.error("Resend error", r.status, (await r.text()).slice(0, 200));
     return { ok: r.ok };
@@ -279,7 +281,7 @@ export async function handleSuppliers(req, res) {
   const url = new URL(req.url, "http://x");
   const q = Object.fromEntries(url.searchParams);
   const ok = (o) => { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, ...o })); };
-  const bad = (error, status = 400) => { res.statusCode = status; return res.end(JSON.stringify({ ok: false, error })); };
+  const bad = (error, status = 400, extra) => { res.statusCode = status; return res.end(JSON.stringify({ ok: false, error, ...(extra || {}) })); };
 
   if (!NOTION_TOKEN) return bad("not_configured", 503);
 
@@ -676,6 +678,69 @@ export async function handleSuppliers(req, res) {
         <p>تفاصيل الفاتورة وسدادها متاحة في <a href="${SITE}/partner-dashboard">بوابة الموردين</a>.</p></div>`);
     }
     return ok({ invoiceRef: invRef, amount });
+  }
+
+  // ---------------- owner: raise the work order as a purchase order in Daftra ----------------
+  // The work order already exists in Notion as the operational record; this
+  // puts the matching purchase order in the books, so what is owed to the
+  // supplier is an accounting entry rather than only a Notion row.
+  if (b.type === "daftra-po" || b.type === "daftra-commission") {
+    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!daftraConfigured()) return bad("daftra_not_configured", 503);
+    const isPo = b.type === "daftra-po";
+    const orderId = str(b.orderId, 60);
+    if (!orderId) return bad("invalid_fields");
+    const pg = await notion(`pages/${orderId}`);
+    if (!pg.ok || !pg.json) return bad("not_found", 404);
+    const o = orderOf(pg.json);
+    // A purchase order carries what we pay the supplier; the commission
+    // invoice carries what we charge them. They are opposite directions and
+    // must never be raised off the same figure.
+    const amount = num(b.amount) != null ? num(b.amount) : (isPo ? o.amount : o.commission);
+    if (amount == null || amount <= 0) return bad("no_amount");
+
+    let sup = { name: "", email: "", phone: "", taxNumber: "", city: "" };
+    if (o.supplierId) {
+      const sp = await notion(`pages/${o.supplierId}`);
+      if (sp.ok && sp.json) {
+        const S = supplierOf(sp.json);
+        sup = { name: S.name || "", email: S.email || "", phone: S.phone || "", taxNumber: S.vat || "", city: S.city || "" };
+      }
+    }
+    if (!sup.name && !sup.email) return bad("supplier_unknown");
+
+    try {
+      const party = await daftraFindOrCreateSupplier({ ...sup, notes: `مورّد بيزنس بارتنر · ${o.ref}` });
+      const items = [{ name: o.service || o.ref, code: "", quantity: 1, unitPrice: amount }];
+      const doc = isPo
+        ? await daftraCreatePurchaseOrder({ supplierId: party.id, items, ref: o.ref, notes: `أمر عمل ${o.ref}${o.client ? ` · العميل: ${o.client}` : ""}` })
+        : await daftraCreateInvoice({ clientId: party.id, items: [{ name: `عمولة بيزنس بارتنر — ${o.service || o.ref}`, quantity: 1, unitPrice: amount }], ref: o.ref, notes: `عمولة على أمر العمل ${o.ref}` });
+
+      const props = isPo
+        ? { "قيمة أمر العمل": { number: amount }, "رقم أمر الشراء": { rich_text: [{ text: { content: String(doc.number) } }] } }
+        : { "قيمة العمولة": { number: amount }, "رقم فاتورة العمولة": { rich_text: [{ text: { content: String(doc.number) } }] }, "حالة فاتورة العمولة": { select: { name: "صادرة" } } };
+      // Best-effort: the document exists in the books either way, so a Notion
+      // write-back failure must not read as a failed issuance.
+      try { await notion(`pages/${orderId}`, "PATCH", { properties: props }); } catch {}
+
+      let emailed = false;
+      if (sup.email) {
+        let pdf = null;
+        try { pdf = await daftraDocPdf(isPo ? "po" : "invoice", doc.id); } catch {}
+        const title = isPo ? "أمر شراء" : "فاتورة عمولة";
+        const r = await sendEmail(sup.email, `${title} ${doc.number} — ${o.ref}`,
+          `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px"><h2 style="color:#0B1B5A">${title} من بيزنس بارتنر</h2>
+          <table>${row("الرقم", String(doc.number)) + row("أمر العمل", o.ref) + row("الخدمة", o.service) + row("المبلغ قبل الضريبة", doc.net + " ﷼") + row("الضريبة", doc.vat + " ﷼") + row("الإجمالي", doc.total + " ﷼")}</table>
+          ${pdf ? "<p>نسخة PDF مرفقة مع هذه الرسالة.</p>" : `<p><a href="${doc.url}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح المستند</a></p>`}
+          <p>التفاصيل متاحة أيضاً في <a href="${SITE}/partner-dashboard">بوابة الموردين</a>.</p></div>`,
+          pdf ? [{ filename: `${isPo ? "PO" : "Commission"}-${String(doc.number).replace(/[^\w-]/g, "")}.pdf`, content: pdf.base64 }] : undefined);
+        emailed = !!(r && r.ok);
+      }
+      return ok({ number: doc.number, total: doc.total, url: doc.url, printUrl: doc.printUrl, emailed, supplierCreated: party.created });
+    } catch (e) {
+      console.error("daftra po/commission failed", String(e.message || e).slice(0, 200));
+      return bad(String(e.message || "daftra_failed"), 502, { detail: String(e.detail || "").slice(0, 300) });
+    }
   }
 
   // ---------------- owner: update a work order (status, payment) ----------------
