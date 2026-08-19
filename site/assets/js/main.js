@@ -5607,7 +5607,12 @@ var BP_EMP_BILLING = "monthly";
           if (o.status === "عرض مُقدَّم") btns += '<button class="btn btn-primary btn-sm sa-act" data-act="award" data-id="' + e4(o.id) + '">' + T("Award", "ترسية") + "</button> ";
           if (o.status === "تم التسليم") btns += '<button class="btn btn-primary btn-sm sa-act" data-act="approve-order" data-id="' + e4(o.id) + '">' + T("Approve delivery", "اعتماد التسليم") + "</button> ";
           if (o.supplierInvoiceStatus === "مرفوعة") btns += '<button class="btn btn-ghost btn-sm sa-act" data-act="inv-paid" data-id="' + e4(o.id) + '">' + T("Mark invoice paid", "إثبات سداد الفاتورة") + "</button> ";
-          btns += '<button class="btn btn-ghost btn-sm sa-act" data-act="commission" data-id="' + e4(o.id) + '">' + T("Issue commission invoice", "أصدر فاتورة العمولة") + "</button>";
+          btns += '<button class="btn btn-ghost btn-sm sa-act" data-act="commission" data-id="' + e4(o.id) + '">' + T("Issue commission invoice", "أصدر فاتورة العمولة") + "</button> ";
+          // Both directions, as accounting documents rather than Notion rows:
+          // the purchase order is what we owe the supplier, the commission
+          // invoice is what they owe us.
+          if (o.amount != null) btns += '<button class="btn btn-ghost btn-sm sa-act" data-act="daftra-po" data-id="' + e4(o.id) + '">' + T("Purchase order in Daftra", "أمر شراء في الدفترة") + "</button> ";
+          if (o.commission != null) btns += '<button class="btn btn-ghost btn-sm sa-act" data-act="daftra-commission" data-id="' + e4(o.id) + '">' + T("Commission invoice in Daftra", "فاتورة العمولة في الدفترة") + "</button>";
           return '<div class="dash-card" style="margin-bottom:10px">' +
             '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">' +
               "<div><strong>" + e4(o.service || o.ref) + "</strong>" +
@@ -5722,6 +5727,24 @@ var BP_EMP_BILLING = "monthly";
         var c = prompt(T("Commission amount to invoice this supplier (SAR):", "مبلغ العمولة المراد فوترته على المورّد (ريال):"));
         if (c === null || c === "") { b.disabled = false; return; }
         post({ type: "invoice", orderId: id, amount: c }, done);
+      } else if (act === "daftra-po" || act === "daftra-commission") {
+        var isPo = act === "daftra-po";
+        var a = prompt(isPo
+          ? T("Purchase order value (SAR) — leave empty to use the order value:", "قيمة أمر الشراء (ريال) — اتركها فارغة لاستخدام قيمة أمر العمل:")
+          : T("Commission amount (SAR) — leave empty to use the recorded commission:", "مبلغ العمولة (ريال) — اتركه فارغاً لاستخدام العمولة المسجّلة:"));
+        if (a === null) { b.disabled = false; return; }
+        post({ type: act, orderId: id, amount: a === "" ? undefined : a }, function (d) {
+          b.disabled = false;
+          if (d && d.ok) {
+            alert((isPo ? T("Purchase order ", "صدر أمر الشراء ") : T("Commission invoice ", "صدرت فاتورة العمولة ")) + d.number +
+              " — " + d.total + " ﷼" + (d.emailed ? T(" · sent to the supplier", " · وصلت للمورّد") : ""));
+            load();
+          } else {
+            // The reason matters here: a missing tax rate or an unknown
+            // supplier is fixed in Daftra, not by retrying.
+            alert(T("Couldn't issue it: ", "تعذّر الإصدار: ") + ((d && d.error) || "?") + ((d && d.detail) ? " — " + d.detail : ""));
+          }
+        });
       } else b.disabled = false;
     });
   });

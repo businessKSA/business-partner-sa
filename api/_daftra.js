@@ -280,6 +280,65 @@ export async function daftraTaxId(rate = VAT_RATE) {
 }
 export function daftraResetTaxCache() { _taxCache = null; _taxAt = 0; }
 
+// ---- suppliers -----------------------------------------------------------
+
+// Purchase orders are raised against a supplier record. Daftra accounts differ
+// on whether suppliers live at /suppliers.json or as clients flagged as such,
+// so the dedicated endpoint is tried first and the client list is the fallback
+// — a purchase order against the wrong kind of record is worse than a slower
+// lookup.
+let _supEndpoint = null;
+async function supplierPath() {
+  if (_supEndpoint) return _supEndpoint;
+  try {
+    await dq("/suppliers.json?limit=1");
+    _supEndpoint = "/suppliers.json";
+  } catch {
+    _supEndpoint = "/clients.json";
+  }
+  return _supEndpoint;
+}
+
+export async function daftraFindOrCreateSupplier({ name, email, phone, taxNumber, city, notes }) {
+  const path = await supplierPath();
+  const model = path === "/suppliers.json" ? "Supplier" : "Client";
+  const wantEmail = String(email || "").trim().toLowerCase();
+  const wantPhone = String(phone || "").replace(/\D/g, "").slice(-9);
+  const wantName = String(name || "").trim();
+
+  for (let page = 1; page <= 5; page++) {
+    const data = await dq(`${path}?limit=100&page=${page}`);
+    const list = pick(data, ["data"]) || data;
+    const rows = unwrap(Array.isArray(list) ? list : [], model);
+    const hit = rows.find((c) => {
+      const e = String(c.email || "").trim().toLowerCase();
+      const ph = String(c.phone1 || c.phone2 || c.mobile || "").replace(/\D/g, "").slice(-9);
+      const nm = String(c.business_name || "").trim();
+      return (wantEmail && e === wantEmail) || (wantPhone && ph && ph === wantPhone) || (wantName && nm && nm === wantName);
+    });
+    if (hit && hit.id) return { id: hit.id, created: false };
+    if (rows.length < 100) break;
+  }
+
+  const body = {
+    business_name: wantName || wantEmail || "مورّد",
+    first_name: (wantName || "مورّد").split(/\s+/)[0],
+    email: wantEmail,
+    phone1: String(phone || "").trim(),
+    city: String(city || "").trim(),
+    notes: String(notes || "").slice(0, 500),
+  };
+  const tax = String(taxNumber || "").replace(/\D/g, "");
+  if (tax) { body.business_id = tax; body.tax_number = tax; }
+  // On the shared client table a supplier must be marked as one, or the
+  // purchase order would be raised against a customer record.
+  if (model === "Client") body.type = 2;
+  const out = await dq(path, { method: "POST", body: { [model]: body } });
+  const id = pick(out, ["id"]);
+  if (!id) throw new Error("daftra_supplier_create_failed");
+  return { id, created: true };
+}
+
 // ---- products (the service catalogue, mirrored into Daftra) ---------------
 
 // Invoice lines reference a product by id, and the owner wants each line to
