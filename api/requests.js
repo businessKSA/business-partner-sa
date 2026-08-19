@@ -156,7 +156,7 @@ async function listLeads(limit) {
     method: "POST",
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
     body: JSON.stringify({
-      page_size: Math.min(Math.max(Number(limit) || 30, 1), 50),
+      page_size: Math.min(Math.max(Number(limit) || 40, 1), 100),
       sorts: [{ property: "Last Activity", direction: "descending" }],
     }),
   });
@@ -170,6 +170,7 @@ async function listLeads(limit) {
     const notes = txt(p["Notes"] && p["Notes"].rich_text);
     const stage = (p["Stage"] && p["Stage"].select && p["Stage"].select.name) || "";
     const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
+    const source = (p["Lead Source"] && p["Lead Source"].select && p["Lead Source"].select.name) || "";
     const at = (p["Last Activity"] && p["Last Activity"].date && p["Last Activity"].date.start) || (pg.created_time || "").slice(0, 10);
     const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
     const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
@@ -178,12 +179,22 @@ async function listLeads(limit) {
     const receiptFiles = (p["الإيصال البنكي"] && p["الإيصال البنكي"].files) || [];
     const detailsM = notes.match(/طلب\s*·\s*([^·]+)/);
     return {
-      title, ref, at, stage, status,
+      title, ref, at, stage, status, source,
       phone: phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "",
       email: emailM ? emailM[1] : "",
       total,
       hasReceipt: receiptFiles.length > 0,
       details: detailsM ? detailsM[1].trim().slice(0, 140) : "",
+      // Everything the owner needs to actually read a request without leaving
+      // /admin: the full note body, the attached receipts, and a deep link back
+      // to the CRM page. The table used to ship a 140-char excerpt only.
+      notes: notes.slice(0, 6000),
+      receipts: receiptFiles.map((f) => ({
+        name: String(f.name || "الإيصال"),
+        url: (f.file && f.file.url) || (f.external && f.external.url) || "",
+      })).filter((f) => f.url),
+      createdAt: pg.created_time || "",
+      url: pg.url || "",
     };
   });
 }
@@ -611,6 +622,23 @@ async function approveShared({ email, name, phone, ref }) {
   await sendEmail(email, `كود الوصول — الخدمات المشتركة (${code})`, codeHtml);
   await crmLead({ title: `تفعيل خدمات مشتركة — ${name || email}`, phone: phone || "", email, notes: `معتمد ومفعّل · ${ref}`, ref });
   return code;
+}
+// Generic activation for anything the owner sells that has no gated portal of
+// its own (the 116 catalog services, workspace bookings, magazine listings…).
+// There is no access code to hand out here, so this does the two things that
+// are actually real: it emails the client a confirmation that the paid request
+// was approved and execution has started, and it flips the CRM status.
+async function approveService({ service, company, email, phone, ref, note }) {
+  const svc = String(service || "").trim() || "طلبك";
+  const refLine = ref ? `<p style="color:#475569">رقم المرجع: <b style="direction:ltr;display:inline-block">${esc(ref)}</b></p>` : "";
+  const coLine = company ? `<p style="color:#475569">المنشأة: <b>${esc(company)}</b></p>` : "";
+  const noteLine = note ? `<p style="color:#475569">${esc(note)}</p>` : "";
+  const html = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم اعتماد طلبك وبدأ التنفيذ ✅</h2><p>الخدمة: <b>${esc(svc)}</b></p>${coLine}${refLine}${noteLine}<p style="color:#475569;line-height:1.9">فريق بيزنس بارتنر بدأ العمل على طلبك، وسنوافيك بالتحديثات أولاً بأول على هذا البريد. لأي استفسار رد على هذه الرسالة مباشرة.</p><p><a href="${SITE_BASE}/ar/contact" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">تواصل معنا</a></p></div>`;
+  const sent = await sendEmail(email, `تم اعتماد طلبك — ${svc}${ref ? ` (${ref})` : ""}`, html);
+  if (!sent || !sent.ok) return null;
+  // No portal code exists for these — the sentinel just tells the caller the
+  // confirmation went out, and /admin words the success line accordingly.
+  return "CONFIRMED";
 }
 async function approveCompliance({ company, email, phone }) {
   const code = await activateComplianceSubscription({ company, email, phone });
@@ -1193,6 +1221,11 @@ export default async function handler(req, res) {
           code = await approveCompliance({ company, email, phone: String(b.phone || "") });
         } else if (kind === "employer") {
           code = await approveEmployer({ company, email, phone: String(b.phone || ""), plan: String(b.plan || "") });
+        } else if (kind === "service") {
+          code = await approveService({
+            service: String(b.service || ""), company, email,
+            phone: String(b.phone || ""), ref: String(b.ref || ""), note: String(b.note || ""),
+          });
         } else {
           res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_kind" }));
         }

@@ -6609,27 +6609,29 @@ function buildConsultation() {
   return page({ title: Lraw("Book a consultation — Business Partner", "احجز استشارة — بيزنس بارتنر"), desc: Lraw(b.leadEn, b.lead), active: "/consultation", path: "/consultation", body });
 }
 
-function buildSuppliers() {
-  // Must match the "التصنيف" options in the Suppliers Notion registry — the
+// Must match the "التصنيف" options in the Suppliers Notion registry — the
   // registration POST writes these straight into that multi-select.
-  const cats = [
-    { en: "Company formation", ar: "تأسيس الشركات" },
-    { en: "Foreign investment", ar: "الاستثمار الأجنبي" },
-    { en: "Government relations", ar: "العلاقات الحكومية" },
-    { en: "HR services", ar: "خدمات الموارد البشرية" },
-    { en: "Recruitment", ar: "الاستقدام والتوظيف" },
-    { en: "Business support", ar: "دعم الأعمال" },
-    { en: "Real estate & workspaces", ar: "العقارات والمساحات" },
-    { en: "Premium residency", ar: "الإقامة المميزة" },
-    { en: "AI & automation", ar: "الذكاء الاصطناعي والأتمتة" },
-    { en: "Events & hospitality", ar: "فعاليات وضيافة" },
-    { en: "Catering", ar: "إعاشة وتغذية" },
-    { en: "Transport", ar: "نقل ومواصلات" },
-    { en: "Worker housing", ar: "إسكان عمالة" },
-    { en: "Operations & maintenance", ar: "تشغيل وصيانة" },
-    { en: "Marketing & advertising", ar: "تسويق وإعلان" },
-    { en: "Other", ar: "أخرى" },
-  ];
+const SUPPLIER_CATS = [
+  { en: "Company formation", ar: "تأسيس الشركات" },
+  { en: "Foreign investment", ar: "الاستثمار الأجنبي" },
+  { en: "Government relations", ar: "العلاقات الحكومية" },
+  { en: "HR services", ar: "خدمات الموارد البشرية" },
+  { en: "Recruitment", ar: "الاستقدام والتوظيف" },
+  { en: "Business support", ar: "دعم الأعمال" },
+  { en: "Real estate & workspaces", ar: "العقارات والمساحات" },
+  { en: "Premium residency", ar: "الإقامة المميزة" },
+  { en: "AI & automation", ar: "الذكاء الاصطناعي والأتمتة" },
+  { en: "Events & hospitality", ar: "فعاليات وضيافة" },
+  { en: "Catering", ar: "إعاشة وتغذية" },
+  { en: "Transport", ar: "نقل ومواصلات" },
+  { en: "Worker housing", ar: "إسكان عمالة" },
+  { en: "Operations & maintenance", ar: "تشغيل وصيانة" },
+  { en: "Marketing & advertising", ar: "تسويق وإعلان" },
+  { en: "Other", ar: "أخرى" },
+];
+
+function buildSuppliers() {
+  const cats = SUPPLIER_CATS;
   const catOpts = cats.map((c2) => `<option value="${esc(c2.ar)}">${L(c2.en, c2.ar)}</option>`).join("");
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -6693,18 +6695,46 @@ function buildPartnerDashboard() {
   </div></section>
   <section class="section"><div class="container" style="max-width:1000px">
 
-    <!-- Sign-in gate -->
+    <!-- Sign-in / sign-up gate -->
     <div id="partner-gate">
       <div class="dash-card" style="max-width:520px;margin:0 auto">
-        <h2>${L("Supplier sign in", "دخول الموردين")}</h2>
-        <p class="text-soft" style="margin-bottom:14px">${L("Enter the email you registered with and the access code we emailed you once your registration was approved.", "أدخل البريد الذي سجّلت به ورمز الدخول الذي أرسلناه لك بعد اعتماد تسجيلك.")}</p>
-        <form id="partner-login-form" class="calc-form">
+        <div class="sup-tabs">
+          <button type="button" class="sup-tab active" data-tab="login">${L("Sign in", "تسجيل الدخول")}</button>
+          <button type="button" class="sup-tab" data-tab="signup">${L("Create an account", "حساب جديد")}</button>
+        </div>
+
+        <div id="sup-google-wrap" hidden>
+          <div id="sup-google" style="display:flex;justify-content:center;margin:16px 0"></div>
+          <div class="sup-or"><span>${L("or", "أو")}</span></div>
+        </div>
+
+        <form id="partner-login-form" class="calc-form sup-pane" data-pane="login">
           <div class="field"><label for="pl-email">${L("Email", "البريد الإلكتروني")}</label><input id="pl-email" type="email" autocomplete="email" required></div>
-          <div class="field"><label for="pl-code">${L("Access code", "رمز الدخول")}</label><input id="pl-code" type="text" inputmode="latin" autocapitalize="characters" placeholder="XXXXXX" required></div>
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Open my dashboard", "افتح لوحتي")}</button>
-          <p class="form-error" id="pl-error" hidden></p>
+          <div class="field"><label for="pl-pw">${L("Password", "كلمة المرور")}</label><input id="pl-pw" type="password" autocomplete="current-password" required></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Sign in", "دخول")}</button>
         </form>
-        <p class="mini" style="margin-top:12px">${L("Not registered yet?", "لست مسجّلاً بعد؟")} <a href="${u("/suppliers")}">${L("Register as a supplier", "سجّل كمورّد")}</a></p>
+
+        <form id="partner-signup-form" class="calc-form sup-pane" data-pane="signup" hidden>
+          <div class="grid grid-2" style="gap:0 16px">
+            <div class="field"><label for="ps-company">${L("Company name", "اسم الشركة")} *</label><input id="ps-company" type="text"></div>
+            <div class="field"><label for="ps-person">${L("Contact person", "الشخص المسؤول")} *</label><input id="ps-person" type="text"></div>
+            <div class="field"><label for="ps-email">${L("Email", "البريد الإلكتروني")} *</label><input id="ps-email" type="email" autocomplete="email"></div>
+            <div class="field"><label for="ps-phone">${L("Mobile", "رقم الجوال")} *</label><input id="ps-phone" type="tel" autocomplete="tel"></div>
+            <div class="field"><label for="ps-pw">${L("Password (8+ characters)", "كلمة المرور (8 أحرف فأكثر)")} *</label><input id="ps-pw" type="password" autocomplete="new-password"></div>
+            <div class="field"><label for="ps-city">${L("City", "المدينة")}</label><input id="ps-city" type="text"></div>
+          </div>
+          <div class="field"><label for="ps-cat">${L("Service category", "تصنيف الخدمة")}</label><select id="ps-cat"></select></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Create account", "أنشئ الحساب")}</button>
+        </form>
+
+        <form id="partner-verify-form" class="calc-form sup-pane" data-pane="verify" hidden>
+          <p class="text-soft" id="sup-verify-note" style="margin-bottom:12px"></p>
+          <div class="field"><label for="pv-code">${L("Verification code", "رمز التحقق")}</label><input id="pv-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Verify & open the portal", "تحقّق وافتح البوابة")}</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="pv-resend" style="width:100%;margin-top:8px">${L("Resend the code", "أعد إرسال الرمز")}</button>
+        </form>
+
+        <p class="form-error" id="pl-error" hidden></p>
       </div>
     </div>
 
@@ -6753,7 +6783,7 @@ function buildPartnerDashboard() {
       </form>
     </div>
   </div></div>`;
-  return page({ title: Lraw("Supplier dashboard — Business Partner", "لوحة المورّد — بيزنس بارتنر"), desc: Lraw("Suppliers portal: see the work orders assigned to you, update progress and upload invoices.", "بوابة الموردين: تابع أوامر العمل المسندة إليك، حدّث حالتها وارفع فواتيرك."), active: "/suppliers", path: "/partner-dashboard", body });
+  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_SUP_CATS=${JSON.stringify(SUPPLIER_CATS.map((c) => c.ar))};window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Supplier dashboard — Business Partner", "لوحة المورّد — بيزنس بارتنر"), desc: Lraw("Suppliers portal: see the work orders assigned to you, update progress and upload invoices.", "بوابة الموردين: تابع أوامر العمل المسندة إليك، حدّث حالتها وارفع فواتيرك."), active: "/suppliers", path: "/partner-dashboard", body });
 }
 
 // Owner-only supplier control panel. Gated by the same PANEL_KEY/LEADS_KEY that
