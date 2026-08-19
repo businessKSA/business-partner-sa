@@ -703,6 +703,102 @@ export async function daftraSetInvoiceClient(invoiceId, clientId) {
   return true;
 }
 
+// ---- credit notes (إشعار دائن / مرتجع) --------------------------------------
+
+// Daftra names this document differently between account versions and the v2
+// API documents none of them, so the account is asked which it has rather
+// than one being assumed. Probing is read-only and the answer is cached for
+// the warm instance.
+const CREDIT_PATHS = ["/credit_notes.json", "/refund_receipts.json", "/invoice_refunds.json", "/returns.json"];
+let _creditPath = null;
+
+export async function daftraProbeEndpoints() {
+  const out = [];
+  for (const path of CREDIT_PATHS) {
+    try {
+      const data = await dq(`${path.replace(".json", "")}.json?limit=1`);
+      const list = pick(data, ["data"]) || data;
+      const rows = Array.isArray(list) ? list : [];
+      out.push({ path, ok: true, rows: rows.length, sample: rows.length ? Object.keys(unwrap(rows, "")[0] || {}).slice(0, 25) : [] });
+    } catch (e) {
+      out.push({ path, ok: false, error: String(e.message || e).slice(0, 80), detail: String(e.detail || "").slice(0, 120) });
+    }
+  }
+  return { ok: true, endpoints: out };
+}
+
+async function creditPath() {
+  if (_creditPath) return _creditPath;
+  for (const path of CREDIT_PATHS) {
+    try { await dq(`${path.replace(".json", "")}.json?limit=1`); _creditPath = path; return path; }
+    catch { /* try the next name */ }
+  }
+  const err = new Error("daftra_no_credit_endpoint");
+  err.detail = "لا توجد نقطة إشعار دائن مفعّلة في هذا الحساب — أصدره من واجهة الدفترة، أو فعّل «إشعارات دائنة» في إعدادات الحساب.";
+  throw err;
+}
+
+/**
+ * Reverse an invoice in full. The lines are copied from the invoice itself
+ * rather than recomputed, so the credit matches to the halala what was
+ * charged — a credit note that disagrees with its invoice leaves a residue
+ * that has to be reconciled by hand later.
+ */
+export async function daftraCreateCreditNote(invoiceId, { reason = "" } = {}) {
+  const path = await creditPath();
+  const one = await dq(`/invoices/${invoiceId}.json`);
+  const inv = pick(one, ["Invoice"]) || pick(one, ["data"]) || one;
+  const clientId = inv.client_id;
+  if (!clientId) throw new Error("daftra_invoice_has_no_client");
+
+  const rawItems = pick(one, ["InvoiceItem", "InvoiceItems", "items"]) || [];
+  const lines = unwrap(Array.isArray(rawItems) ? rawItems : [], "InvoiceItem")
+    .map((it) => ({
+      item: String(it.item || it.name || "بند").slice(0, 200),
+      unit_price: Number(it.unit_price) || 0,
+      quantity: Number(it.quantity) || 1,
+      ...(it.tax1 == null || it.tax1 === "" ? {} : { tax1: it.tax1 }),
+    }))
+    .filter((l) => l.unit_price > 0);
+
+  const head = {
+    client_id: clientId,
+    date: today(),
+    currency_code: CURRENCY,
+    notes: [`مرتجع/إشعار دائن على الفاتورة ${inv.no || inv.invoice_number || invoiceId}`, String(reason || "").slice(0, 400)].filter(Boolean).join(" — "),
+    invoice_id: invoiceId,
+  };
+  const model = path.includes("credit") ? "CreditNote" : path.includes("refund") ? "RefundReceipt" : "Return";
+  const itemModel = `${model}Item`;
+
+  const full = { [model]: head, [itemModel]: lines };
+  const minimal = { [model]: { client_id: clientId, date: today(), notes: head.notes }, [itemModel]: lines.map((l) => ({ item: l.item, unit_price: l.unit_price, quantity: l.quantity })) };
+
+  let out = null, firstError = "";
+  try {
+    out = await dq(path, { method: "POST", body: full });
+  } catch (e) {
+    if (e.message === "daftra_unauthorized" || e.message === "daftra_unreachable") throw e;
+    firstError = String(e.detail || e.message || "");
+    try {
+      out = await dq(path, { method: "POST", body: minimal });
+    } catch (e2) {
+      const err = new Error(e2.message);
+      err.detail = `${String(e2.detail || e2.message || "")}${firstError && firstError !== String(e2.detail || "") ? ` | الكامل: ${firstError}` : ""} [${path}]`;
+      throw err;
+    }
+  }
+  const id = pick(out, ["id"]);
+  const number = pick(out, ["no", "number"]) || String(id || "");
+  const net = lines.reduce((s, l) => s + l.unit_price * l.quantity, 0);
+  return {
+    id, number: String(number), path,
+    lines: lines.length,
+    net: Math.round(net * 100) / 100,
+    url: `https://${SUBDOMAIN}.daftra.com${path.replace(".json", "")}/view/${id}`,
+  };
+}
+
 export async function daftraListInvoices(limit = 10) {
   const data = await dq(`/invoices.json?limit=${Math.min(Math.max(Number(limit) || 10, 1), 50)}`);
   const list = pick(data, ["data", "Invoices", "invoices"]) || data;
