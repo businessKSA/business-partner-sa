@@ -118,7 +118,7 @@ function buildPrompt(b) {
   if (b.task === "translate") {
     const names = { en: "English", fr: "French", es: "Spanish", zh: "Chinese (Simplified)", ru: "Russian", hi: "Hindi", ko: "Korean", ja: "Japanese", ar: "Arabic" };
     const target = names[String(b.lang || "en").toLowerCase()] || "English";
-    return `Translate the job advert below into ${target}.\n\nRules: translate faithfully, keep the same paragraph and line breaks, keep job titles natural for that language's job market, do not add or remove any information, do not add commentary. Output only the translation.\n\n---\n${String(b.text || "").slice(0, 6000)}`;
+    return `Translate the job advert below into ${target}.\n\nRules: translate faithfully, keep the same paragraph and line breaks, keep job titles natural for that language's job market, do not add or remove any information, do not add commentary. Output only the translation.\n\n---\n${String(b.text || "").slice(0, 12000)}`;
   }
   if (b.task === "jobdesc") {
     const title = String(b.title || "").slice(0, 200);
@@ -142,7 +142,7 @@ export default async function handler(req, res) {
   if (!task) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_task" })); }
 
   try {
-    const out = await ai(buildPrompt(b), task === "match" ? 2000 : 900);
+    const out = await ai(buildPrompt(b), task === "match" ? 2000 : task === "translate" ? 4000 : 900);
     if (task === "match") {
       let ranked = [];
       try {

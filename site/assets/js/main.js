@@ -869,22 +869,29 @@ var BP = window.BP = window.BP || {};
             (teaser ? '<p>' + esc2(teaser) + '</p>' : '') +
             '<div class="talent-actions"><a class="btn btn-primary btn-sm" href="' + jobPageHref(j.id) + '">' + BP.t("View job", "عرض الوظيفة") + '</a><a class="btn btn-ghost btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
         }).join(""));
-        // The board itself is translated the same way: one request covers
-        // every card's title and teaser, cached per language.
+        // The board is translated in batches: one request per handful of
+        // cards keeps each payload well inside the model's input and output
+        // limits (a single request for the whole board gets truncated, and a
+        // truncated reply is discarded — leaving everything in Arabic).
         if (pageLang() !== "ar") {
-          var parts = [];
-          jobs.forEach(function (j) { parts.push(j.title, clipTeaser(j.description || "", 140) || "—"); });
-          translateParts(parts, "board-" + jobs.map(function (j) { return j.id.slice(-4); }).join("")).then(function (tr) {
-            if (!tr) return;
-            jobs.forEach(function (j, i) {
-              var lnk = grid.querySelector('a.ats-apply-link[data-job-id="' + j.id + '"]');
-              var card = lnk && lnk.closest(".ats-job-card");
-              if (!card) return;
-              var h = card.querySelector("h3"); if (h) h.textContent = tr[i * 2];
-              var pEl = card.querySelector("p"); if (pEl && tr[i * 2 + 1] !== "—") pEl.textContent = tr[i * 2 + 1];
-              if (lnk) lnk.setAttribute("data-job-title", tr[i * 2]);
-            });
-          });
+          for (var b0 = 0; b0 < jobs.length; b0 += 6) {
+            (function (batch) {
+              var parts = [];
+              batch.forEach(function (j) { parts.push(j.title, clipTeaser(j.description || "", 140) || "—", [j.company, j.city].filter(Boolean).join(" · ") || "—"); });
+              translateParts(parts, "board-" + batch.map(function (j) { return j.id.slice(-6); }).join("")).then(function (tr) {
+                if (!tr) return;
+                batch.forEach(function (j, i) {
+                  var lnk = grid.querySelector('a.ats-apply-link[data-job-id="' + j.id + '"]');
+                  var card = lnk && lnk.closest(".ats-job-card");
+                  if (!card) return;
+                  var h = card.querySelector("h3"); if (h) h.textContent = tr[i * 3];
+                  var pEl = card.querySelector("p"); if (pEl && tr[i * 3 + 1] !== "—") pEl.textContent = tr[i * 3 + 1];
+                  var tag = card.querySelector(".emp-tag"); if (tag && tr[i * 3 + 2] !== "—") tag.textContent = tr[i * 3 + 2];
+                  if (lnk) lnk.setAttribute("data-job-title", tr[i * 3]);
+                });
+              });
+            })(jobs.slice(b0, b0 + 6));
+          }
         }
         // Deep link support: /ar/careers?job=<posting id> (the link the
         // employer console shares) preselects that posting in the form and
@@ -970,19 +977,18 @@ var BP = window.BP = window.BP || {};
         if (!j) { status.textContent = BP.t("This job is no longer available.", "هذه الوظيفة لم تعد متاحة."); return; }
         status.hidden = true;
         document.getElementById("jp-body").hidden = false;
-        document.getElementById("jp-city").textContent = j.city || "—";
-        document.getElementById("jp-field").textContent = j.field || "—";
         var a = parseAdvert(j.description);
         var labels = ["نبذة عن الوظيفة", "المهام والمسؤوليات", "المتطلبات", "تفاصيل الوظيفة"];
         // One flat list keeps the translation to a single request: title,
         // then the four headings, then the content in a fixed order.
-        var parts = [j.title].concat(labels, [a.intro, a.details], a.duties, a.reqs);
+        var parts = [j.title, j.company || "—", j.city || "—", j.field || "—"].concat(labels, [a.intro, a.details], a.duties, a.reqs);
         translateParts(parts, j.id).then(function (tr) {
           var t = tr || parts;
           var nD = a.duties.length;
           render({
-            title: t[0], labels: t.slice(1, 5), intro: t[5], details: t[6],
-            duties: t.slice(7, 7 + nD), reqs: t.slice(7 + nD),
+            title: t[0], company: t[1], city: t[2], field: t[3],
+            labels: t.slice(4, 8), intro: t[8], details: t[9],
+            duties: t.slice(10, 10 + nD), reqs: t.slice(10 + nD),
             translated: !!tr,
           }, j);
         });
@@ -992,7 +998,9 @@ var BP = window.BP = window.BP || {};
     function render(v, j) {
       titleEl.textContent = v.title;
       document.title = v.title + (BP.lang === "ar" ? " — بيزنس بارتنر" : " — Business Partner");
-      document.getElementById("jp-company").textContent = [j.company, j.city].filter(Boolean).join(" · ");
+      document.getElementById("jp-company").textContent = [v.company, v.city].filter(function (x) { return x && x !== "—"; }).join(" · ");
+      document.getElementById("jp-city").textContent = v.city || "—";
+      document.getElementById("jp-field").textContent = v.field || "—";
       function card(head, inner, wide) {
         return '<section class="card" style="text-align:start' + (wide ? ";grid-column:1/-1" : "") + '">' +
           "<h3>" + esc2(head) + "</h3>" + inner + "</section>";
