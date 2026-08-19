@@ -6149,6 +6149,12 @@ function buildCheckout() {
             <label class="tax-opt"><input type="radio" name="taxkind" value="company"><span><strong>${L("Company invoice", "فاتورة باسم منشأة")}</strong><small>${L("Standard tax invoice you can claim VAT on.", "فاتورة ضريبية قياسية تُمكّنك من خصم ضريبة المدخلات.")}</small></span></label>
           </div>
           <div id="co-tax-company" class="field-group" hidden>
+            <div class="doc-read">
+              <label class="file-drop" for="co-tax-doc" id="taxdoc-drop"><span class="file-ico">${I.upload}</span>
+                <span class="file-text" id="taxdoc-filename">${L("Upload your VAT certificate or commercial registration — we read it and fill the fields below for you", "ارفع شهادة الضريبة أو السجل التجاري — نقرأها ونعبّي الحقول بالأسفل نيابةً عنك")}</span></label>
+              <input id="co-tax-doc" type="file" accept=".pdf,image/*" hidden>
+              <p class="calc-note" id="taxdoc-msg" hidden></p>
+            </div>
             <div class="grid grid-2" style="gap:0 20px">
               <div class="field"><label for="co-tax-name">${L("Company name in Arabic (as registered)", "اسم الشركة بالعربي (كما في السجل)")} <span class="req-star">*</span></label><input id="co-tax-name" name="taxName" type="text"></div>
               <div class="field"><label for="co-tax-vat">${L("VAT number (15 digits)", "الرقم الضريبي (١٥ رقماً)")} <span class="req-star">*</span></label><input id="co-tax-vat" name="taxVat" type="text" inputmode="numeric" maxlength="15" dir="ltr"></div>

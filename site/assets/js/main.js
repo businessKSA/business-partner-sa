@@ -1273,6 +1273,50 @@ var BP = window.BP = window.BP || {};
         box.hidden = !company;
       }
       for (var i = 0; i < radios.length; i++) radios[i].addEventListener("change", sync);
+
+      // Read the buyer's certificate and fill the fields. The result is a
+      // starting point they confirm, never a silent submission: a wrong VAT
+      // number on an issued tax invoice can only be voided, not corrected.
+      var docIn = document.getElementById("co-tax-doc");
+      if (docIn) docIn.addEventListener("change", function () {
+        var file = this.files && this.files[0];
+        var msg = document.getElementById("taxdoc-msg");
+        var nameEl = document.getElementById("taxdoc-filename");
+        if (!file || !msg) return;
+        if (file.size > 6 * 1024 * 1024) { msg.hidden = false; msg.className = "calc-note err"; msg.textContent = BP.t("File must be under 6MB.", "حجم الملف يجب أن يكون أقل من ٦ ميجابايت."); return; }
+        if (nameEl) nameEl.textContent = file.name;
+        msg.hidden = false; msg.className = "calc-note"; msg.textContent = BP.t("Reading the document…", "⏳ جاري قراءة المستند…");
+        var fr = new FileReader();
+        fr.onload = function () {
+          fetch("/api/requests", {
+            method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify({ type: "read-doc", fileBase64: String(fr.result).split(",")[1] || "", fileType: file.type || "" })
+          }).then(function (r) { return r.json(); }).then(function (d) {
+            if (!d || !d.ok) {
+              msg.className = "calc-note err";
+              msg.textContent = d && d.error === "not_configured"
+                ? BP.t("Automatic reading is unavailable — please fill the fields below.", "القراءة التلقائية غير متاحة — رجاءً عبّئ الحقول بالأسفل.")
+                : BP.t("Couldn't read the document — please fill the fields below.", "ما قدرت أقرأ المستند — رجاءً عبّئ الحقول بالأسفل.");
+              return;
+            }
+            var f = d.fields, filled = [], set = function (id, v) { var el = document.getElementById(id); if (el && v) { el.value = v; filled.push(id); } };
+            set("co-tax-name", f.companyNameAr || f.companyNameEn);
+            set("co-tax-vat", f.vatNumber); set("co-tax-cr", f.crNumber);
+            set("co-tax-contact", f.contactName); set("co-tax-mobile", f.contactPhone);
+            var a = f.address || {};
+            set("co-na-bno", a.buildingNo); set("co-na-street", a.street); set("co-na-district", a.district);
+            set("co-na-city", a.city); set("co-na-post", a.postalCode); set("co-na-add", a.additionalNo);
+            if (!filled.length) { msg.className = "calc-note warn"; msg.textContent = BP.t("Nothing readable was found in this document — please fill the fields below.", "ما لقيت بيانات واضحة في هذا المستند — رجاءً عبّئ الحقول بالأسفل."); return; }
+            msg.className = "calc-note ok";
+            msg.textContent = BP.t("Filled " + filled.length + " field(s) — please check them before continuing.", "عبّيت " + filled.length + " حقلاً — راجعها قبل المتابعة.")
+              + (f.vatSuspect ? BP.t(" A number that isn't 15 digits was ignored: " + f.vatSuspect, " وتجاهلت رقماً ليس 15 خانة: " + f.vatSuspect) : "");
+          }).catch(function () {
+            msg.className = "calc-note err";
+            msg.textContent = BP.t("Couldn't read the document — please fill the fields below.", "ما قدرت أقرأ المستند — رجاءً عبّئ الحقول بالأسفل.");
+          });
+        };
+        fr.readAsDataURL(file);
+      });
       // Prefill from the last company checkout so a returning buyer types nothing.
       try {
         var bc = JSON.parse(localStorage.getItem("bp_company") || "{}");
