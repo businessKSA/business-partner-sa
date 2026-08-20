@@ -520,7 +520,12 @@
               <button class="actbtn" id="dsPing">🔌 اختبر اتصال DocuSign</button>
             </div>
             <div class="dgrid">
-              <div class="f"><b>معرّف أمر العمل</b><input id="dsOrder" type="text" dir="ltr" placeholder="Notion page id" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f" style="grid-column:1/-1"><b>أمر العمل</b>
+                <div style="display:flex;gap:8px;margin-top:4px">
+                  <select id="dsOrder" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px"><option value="">— اضغط «حمّل أوامر العمل» —</option></select>
+                  <button class="actbtn" type="button" id="dsLoad">↻ حمّل أوامر العمل</button>
+                </div>
+              </div>
               <div class="f"><b>بريد العميل</b><input id="dsEmail" type="email" dir="ltr" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
               <div class="f"><b>اسم العميل كما في العقد</b><input id="dsName" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
               <div class="f"><b>الرقم الضريبي (اختياري)</b><input id="dsVat" type="text" dir="ltr" maxlength="15" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
@@ -1284,15 +1289,35 @@
       m.style.color = kind === 'ok' ? '#14532d' : kind === 'warn' ? '#b45309' : kind === 'err' ? '#b91c1c' : '';
       m.innerHTML = html;
     }
-    function supPost(payload){
+    // Named dsPost, not supPost: a second supPost already exists further down
+    // this script with a callback signature, and the later declaration wins.
+    // Calling it as a promise silently threw and nothing ever resolved — the
+    // card span for ever on «جاري…», which is the worst thing a diagnostic can
+    // do: look like it is working while telling you nothing.
+    //
+    // Every path here resolves to an object, so a failure is always visible.
+    function dsPost(payload){
       payload.key = accessKey;
-      return fetch('/api/suppliers', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) })
-        .then(function(r){ return r.json().catch(function(){ return {}; }); });
+      var ctrl = ('AbortController' in window) ? new AbortController() : null;
+      var timer = setTimeout(function(){ if (ctrl) ctrl.abort(); }, 30000);
+      return fetch('/api/suppliers', { method:'POST', headers:{ 'Content-Type':'application/json' },
+                                       body: JSON.stringify(payload), signal: ctrl ? ctrl.signal : undefined })
+        .then(function(r){
+          return r.text().then(function(t){
+            try { return JSON.parse(t); }
+            catch(e){ return { ok:false, error:'bad_response', detail:'HTTP ' + r.status + ' — ' + String(t).slice(0,200) }; }
+          });
+        })
+        .catch(function(e){
+          return { ok:false, error: (e && e.name === 'AbortError') ? 'timeout' : 'network',
+                   detail: (e && e.name === 'AbortError') ? 'تجاوز الطلب ٣٠ ثانية بلا رد.' : String((e && e.message) || e).slice(0,200) };
+        })
+        .then(function(out){ clearTimeout(timer); return out; });
     }
     $('dsPing').onclick = function(){
       var btn = this; btn.disabled = true;
       dsNote('', '⏳ أختبر الاتصال…');
-      supPost({ type:'docusign-ping' }).then(function(r){
+      dsPost({ type:'docusign-ping' }).then(function(r){
         btn.disabled = false;
         if (r && r.ok){
           dsNote('ok', '✅ متصل — الحساب: <b>' + esc(r.accountName || r.accountId) + '</b> · البيئة: ' + esc(r.env) +
@@ -1302,16 +1327,73 @@
         } else if (r && r.consentUrl){
           dsNote('warn', 'ينقص إذن الحساب لمرة واحدة. افتح هذا الرابط ووافق:<br><a href="' + esc(r.consentUrl) + '" target="_blank" rel="noopener" style="font-weight:700;direction:ltr;display:inline-block">' + esc(r.consentUrl) + '</a>');
         } else {
-          dsNote('err', 'فشل: ' + esc((r && r.error) || '؟') + ((r && r.detail) ? '<br><span style="font-size:11px;direction:ltr;display:inline-block;text-align:left;color:#64748b">' + esc(r.detail) + '</span>' : ''));
+          var extra = '';
+          if (r && r.key && r.key.present){
+            extra += '<div style="margin-top:8px;font-size:12px;color:var(--soft)">المفتاح الخاص: ' +
+              (r.key.usable ? '✅ صالح (' + esc(String(r.key.type || '')) + ' ' + esc(String(r.key.bits || '')) + ')'
+                            : '⛔ ' + esc(r.key.why || 'غير صالح')) +
+              ' · ' + r.key.lines + ' سطر · ' + r.key.chars + ' حرف</div>';
+          } else if (r && r.key && !r.key.present){
+            extra += '<div style="margin-top:8px;font-size:12px;color:#b91c1c">المفتاح الخاص غير مضبوط.</div>';
+          }
+          if (r && r.shape){
+            var bad = [];
+            if (!r.shape.userIdLooksGuid) bad.push('DOCUSIGN_USER_ID ليس بصيغة GUID');
+            if (!r.shape.accountIdLooksGuid) bad.push('DOCUSIGN_ACCOUNT_ID ليس بصيغة GUID — استخدم API Account ID لا الرقم القصير');
+            if (!r.shape.integrationKeyLooksGuid) bad.push('DOCUSIGN_INTEGRATION_KEY ليس بصيغة GUID');
+            if (bad.length) extra += '<div style="margin-top:6px;font-size:12px;color:#b45309">' + esc(bad.join(' · ')) + '</div>';
+          }
+          dsNote('err', 'فشل: ' + esc((r && r.error) || '؟') +
+            ((r && r.detail) ? '<br><span style="font-size:11px;direction:ltr;display:inline-block;text-align:left;color:#64748b">' + esc(r.detail) + '</span>' : '') + extra);
         }
       });
     };
+    // Work orders by name, not by internal id. Asking the owner to paste a
+    // Notion page id was the interface leaking its own plumbing.
+    var dsOrders = [];
+    $('dsLoad').onclick = function(){
+      var btn = this; btn.disabled = true;
+      dsNote('', '⏳ أحمّل أوامر العمل…');
+      fetch('/api/suppliers?action=admin&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+        .then(function(r){ return r.json(); })
+        .catch(function(){ return { ok:false }; })
+        .then(function(d){
+          btn.disabled = false;
+          if (!d || !d.ok){ dsNote('err', 'تعذّر تحميل أوامر العمل.'); return; }
+          dsOrders = d.orders || [];
+          // A quote the client accepted is the only one a contract may follow,
+          // so those are offered first and the rest are marked.
+          dsOrders.sort(function(a, b){
+            var A = a.status === 'مقبول من العميل' ? 0 : 1, B = b.status === 'مقبول من العميل' ? 0 : 1;
+            return A - B;
+          });
+          $('dsOrder').innerHTML = '<option value="">— اختر أمر عمل —</option>' + dsOrders.map(function(o, i){
+            var ok = o.status === 'مقبول من العميل';
+            return '<option value="' + i + '">' + (ok ? '✅ ' : '• ') + esc(o.ref || '') +
+              (o.service ? ' — ' + esc(o.service) : '') + (o.client ? ' — ' + esc(o.client) : '') +
+              ' [' + esc(o.status || '—') + ']</option>';
+          }).join('');
+          dsNote(dsOrders.length ? 'ok' : 'warn', dsOrders.length
+            ? ('حُمِّل ' + dsOrders.length + ' أمر عمل. المسبوقة بـ ✅ قَبِل عملاؤها العرض وهي وحدها الجاهزة للعقد.')
+            : 'لا توجد أوامر عمل بعد.');
+        });
+    };
+    $('dsOrder').onchange = function(){
+      var o = dsOrders[Number(this.value)];
+      if (!o) return;
+      if (!$('dsName').value) $('dsName').value = o.client || '';
+      if (o.status !== 'مقبول من العميل')
+        dsNote('warn', 'هذا الأمر حالته «' + esc(o.status || '—') + '». العقد لا يُرسل إلا بعد أن يقبل العميل عرض السعر.');
+      else dsNote('', '');
+    };
+
     $('dsSend').onclick = function(){
-      var id = $('dsOrder').value.trim(), mail = $('dsEmail').value.trim();
-      if (!id || mail.indexOf('@') === -1){ dsNote('err', 'أدخل معرّف أمر العمل وبريد العميل.'); return; }
+      var picked = dsOrders[Number($('dsOrder').value)];
+      var id = picked ? picked.id : '', mail = $('dsEmail').value.trim();
+      if (!id || mail.indexOf('@') === -1){ dsNote('err', 'اختر أمر العمل وأدخل بريد العميل.'); return; }
       var btn = this; btn.disabled = true;
       dsNote('', '⏳ أُنشئ العقد وأرسله…');
-      supPost({ type:'contract-send', orderId: id, email: mail, clientName: $('dsName').value.trim(), clientVat: $('dsVat').value.replace(/\D/g,'') })
+      dsPost({ type:'contract-send', orderId: id, email: mail, clientName: $('dsName').value.trim(), clientVat: $('dsVat').value.replace(/\D/g,'') })
         .then(function(r){
           btn.disabled = false;
           if (r && r.ok){
@@ -1331,7 +1413,7 @@
       if (!envId){ dsNote('err', 'أدخل Envelope ID.'); return; }
       var btn = this; btn.disabled = true;
       dsNote('', '⏳ أقرأ الحالة…');
-      supPost({ type:'contract-status', envelopeId: envId }).then(function(r){
+      dsPost({ type:'contract-status', envelopeId: envId }).then(function(r){
         btn.disabled = false;
         if (!r || !r.ok){ dsNote('err', 'تعذّر: ' + esc((r && r.error) || '؟')); return; }
         var e = r.envelope;
