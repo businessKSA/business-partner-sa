@@ -2211,6 +2211,16 @@ var BP = window.BP = window.BP || {};
       var co = document.getElementById("pt-company"); if (co) co.textContent = s.name || "—";
       var ct = document.getElementById("pt-contact");
       if (ct) ct.textContent = [s.person, s.code, s.city, (s.categories || []).join("، ")].filter(Boolean).join(" · ") || "—";
+      // The commission decides every number on this page, so it is stated once
+      // at the top rather than left to be inferred from the catalogue rows.
+      var rate = document.getElementById("pt-rate");
+      if (rate) {
+        var pct = Number(s.commission);
+        rate.textContent = isFinite(pct)
+          ? T("Our commission " + pct + "% · your share " + (100 - pct) + "% of the catalogue price",
+              "عمولتنا " + pct + "٪ · نصيبك " + (100 - pct) + "٪ من سعر الكتالوج")
+          : T("Commission set per order", "العمولة تُحدَّد لكل أمر");
+      }
       var active = orders.filter(function (o) { return ACTIVE.indexOf(o.status) !== -1; });
       var done = orders.filter(function (o) { return o.status === "تم التسليم" || o.status === "معتمد"; });
       var due = orders.filter(function (o) { return (o.status === "تم التسليم" || o.status === "معتمد") && o.supplierInvoiceStatus === "لم تُرفع"; });
@@ -2281,6 +2291,57 @@ var BP = window.BP = window.BP || {};
       t.addEventListener("click", function () { if (errEl) errEl.hidden = true; paneTo(t.getAttribute("data-tab")); });
     });
     paneTo("login");
+
+    // Portal sections. The work orders open first: the catalogue is 116 rows of
+    // reference material and used to push the partner's actual work off-screen.
+    [].slice.call(document.querySelectorAll("[data-pt-tab]")).forEach(function (t) {
+      t.addEventListener("click", function () {
+        var want = t.getAttribute("data-pt-tab");
+        [].slice.call(document.querySelectorAll("[data-pt-tab]")).forEach(function (o) {
+          o.setAttribute("aria-selected", String(o.getAttribute("data-pt-tab") === want));
+        });
+        [].slice.call(document.querySelectorAll("[data-pt-pane]")).forEach(function (p) {
+          p.hidden = p.getAttribute("data-pt-pane") !== want;
+        });
+      });
+    });
+
+    // A service we don't sell yet. It goes to the team for pricing — the
+    // partner is told that plainly rather than left thinking it is now live.
+    var propose = document.getElementById("pt-propose-form");
+    if (propose) propose.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var okEl = document.getElementById("pp-sent"), erEl = document.getElementById("pp-err");
+      okEl.hidden = true; erEl.hidden = true;
+      var c = creds();
+      if (!c || !c.email) { erEl.textContent = T("Sign in first.", "سجّل الدخول أولاً."); erEl.hidden = false; return; }
+      var v = function (id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; };
+      var name = v("pp-name"), price = Number(v("pp-price"));
+      if (!name || !(price > 0)) { erEl.textContent = T("Enter the service name and a price above zero.", "أدخل اسم الخدمة وسعراً أكبر من صفر."); erEl.hidden = false; return; }
+      var btn = propose.querySelector("button[type=submit]"); btn.disabled = true;
+      fetch("/api/suppliers", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "propose-service", email: c.email, pw: c.pw || "",
+                               name: name, category: v("pp-cat"), price: price, lead: v("pp-days"), notes: v("pp-notes") })
+      }).then(function (r) { return r.json(); }).then(function (r) {
+        btn.disabled = false;
+        if (r && r.ok) {
+          okEl.textContent = T("Sent ✓ — the team reviews and prices it, and we come back to you. It is not published yet.",
+                               "أُرسل ✓ — الفريق يراجعه ويسعّره ونرجع لك. لم يُنشر بعد.");
+          okEl.hidden = false;
+          propose.reset();
+        } else {
+          erEl.textContent = (r && r.error === "unauthorized")
+            ? T("Sign in again, please.", "سجّل الدخول مرة أخرى من فضلك.")
+            : T("Couldn't send it — try again.", "تعذّر الإرسال — حاول مرة أخرى.");
+          erEl.hidden = false;
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        erEl.textContent = T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى.");
+        erEl.hidden = false;
+      });
+    });
 
     var boot = creds();
     if (boot && boot.email && boot.pw) load(boot);

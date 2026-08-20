@@ -713,6 +713,42 @@ export async function handleSuppliers(req, res) {
     return ok({ invoiceRef: invRef, amount });
   }
 
+  // ---------------- partner: propose a service the catalogue does not carry ----------------
+  // Deliberately not written into the catalogue: what we sell and what we
+  // charge for it is the owner's decision, and a partner-set price appearing
+  // on the public site would be one nobody approved. This carries the proposal
+  // to the team and tells the partner exactly that.
+  if (b.type === "propose-service") {
+    const s = await authSupplier(b.email, b.pw);
+    if (!s) return bad("unauthorized", 401);
+    if (!s.verified) return bad("email_unverified", 403);
+    const name = str(b.name, 140);
+    const price = num(b.price);
+    if (!name || price == null || price <= 0) return bad("invalid_fields");
+    const category = str(b.category, 80);
+    const lead = str(b.lead, 60);
+    const notes = str(b.notes, 1200);
+    const pct = s.commission != null ? s.commission : DEFAULT_COMMISSION;
+    const listPrice = Math.round((price / (1 - pct / 100)) * 100) / 100;
+    await sendEmail(TEAM_EMAIL, `➕ اقتراح خدمة من شريك: ${name} — ${s.name}`,
+      `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;text-align:right">
+        <h2 style="color:#0B1B5A">اقتراح خدمة جديدة</h2>
+        <table>${
+          row("الشريك", `${s.name} (${s.code})`) +
+          row("المسؤول", s.person) +
+          row("البريد", s.email) +
+          row("الخدمة المقترحة", name) +
+          row("التصنيف", category) +
+          row("سعر الشريك قبل الضريبة", `${price} ﷼`) +
+          row(`سعر البيع المقترح بعمولة ${pct}٪`, `${listPrice} ﷼`) +
+          row("مدة التنفيذ", lead)
+        }</table>
+        ${notes ? `<p style="white-space:pre-wrap;line-height:1.9">${esc(notes)}</p>` : ""}
+        <p style="color:#64748b;font-size:12px">سعر البيع المقترح محسوب ليبقى نصيب الشريك كما طلبه بعد عمولتنا — رقم للاسترشاد، والتسعير قرارك.</p>
+      </div>`);
+    return ok({ proposed: true, suggestedListPrice: listPrice, commission: pct });
+  }
+
   // ---------------- owner: raise the work order as a purchase order in Daftra ----------------
   // The work order already exists in Notion as the operational record; this
   // puts the matching purchase order in the books, so what is owed to the

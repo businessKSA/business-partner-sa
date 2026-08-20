@@ -648,6 +648,13 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .dash-stat span:last-child { font-size: .82rem; color: var(--text-soft); }
 .dash-quick { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .dash-empty { color: var(--text-soft); font-size: .93rem; padding: 6px 0 14px; }
+
+/* Partner portal tabs — the work comes first, the reference material behind it. */
+.pt-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid var(--gray-line); padding-bottom: 12px; }
+.pt-tabs button { background: var(--white); border: 1px solid var(--gray-line); border-radius: 999px; padding: 9px 18px; font: inherit; font-size: .92rem; color: var(--text-soft); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+.pt-tabs button:hover { border-color: var(--navy); color: var(--navy); }
+.pt-tabs button[aria-selected="true"] { background: var(--navy); border-color: var(--navy); color: var(--white); font-weight: 600; }
+.pt-share { display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #065f46; border-radius: 999px; padding: 5px 12px; font-size: .84rem; font-weight: 600; }
 .pkg-active { border-color: var(--navy); }
 .pkg-tag { display: inline-block; background: #eaf7ef; color: #14663a; font-size: .74rem; font-weight: 700; padding: 3px 11px; border-radius: 999px; margin-bottom: 8px; }
 .dash-progress { height: 8px; background: var(--gray-bg); border-radius: 999px; overflow: hidden; margin-bottom: 6px; }

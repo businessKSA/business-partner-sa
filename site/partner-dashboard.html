@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=de055bb55b">
+<link rel="stylesheet" href="/assets/css/styles.css?v=10f1d30a99">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header"><div class="container header-inner">
@@ -140,22 +140,52 @@
 
       <div class="dash-card" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <div><h3 style="margin:0" id="pt-company">—</h3><p class="text-soft" style="margin:0" id="pt-contact">—</p></div>
+          <div>
+            <h3 style="margin:0" id="pt-company">—</h3>
+            <p class="text-soft" style="margin:0" id="pt-contact">—</p>
+            <p style="margin:8px 0 0"><span class="pt-share" id="pt-rate">—</span></p>
+          </div>
           <button class="btn btn-ghost btn-sm" id="pt-logout">Sign out</button>
         </div>
       </div>
 
-      <div class="dash-panel-head" id="pt-cat-head"><h2>Services you can execute</h2><p>Business Partner's published catalogue. The price is what the client pays before VAT; your share is what reaches you after our commission.</p></div>
-      <div class="calc-form" style="margin-bottom:14px">
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="pt-cat-search">Search a service</label><input id="pt-cat-search" type="search" placeholder="Service name…"></div>
-          <div class="field"><label for="pt-cat-filter">Category</label><select id="pt-cat-filter"><option value="">All categories</option></select></div>
-        </div>
-      </div>
-      <div id="pt-catalog"><p class="dash-empty">Loading the catalogue…</p></div>
+      <nav class="pt-tabs" role="tablist" aria-label="Partner sections">
+        <button type="button" role="tab" data-pt-tab="orders" aria-selected="true">📦 Your work orders</button>
+        <button type="button" role="tab" data-pt-tab="catalog" aria-selected="false">🗂️ Services &amp; your share</button>
+        <button type="button" role="tab" data-pt-tab="propose" aria-selected="false">➕ Propose a service</button>
+      </nav>
 
-      <div class="dash-panel-head" style="margin-top:30px"><h2>Your work orders</h2><p>Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.</p></div>
-      <div id="pt-feed"><p class="dash-empty">No work orders yet — new assignments appear here and reach you by email.</p></div>
+      <section data-pt-pane="orders">
+        <div class="dash-panel-head"><h2>Your work orders</h2><p>Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.</p></div>
+        <div id="pt-feed"><p class="dash-empty">No work orders yet — new assignments appear here and reach you by email.</p></div>
+      </section>
+
+      <section data-pt-pane="catalog" hidden>
+        <div class="dash-panel-head" id="pt-cat-head"><h2>Services you can execute</h2><p>Business Partner's published catalogue. The price is what the client pays before VAT; your share is what reaches you after our commission.</p></div>
+        <div class="calc-form" style="margin-bottom:14px">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="pt-cat-search">Search a service</label><input id="pt-cat-search" type="search" placeholder="Service name…"></div>
+            <div class="field"><label for="pt-cat-filter">Category</label><select id="pt-cat-filter"><option value="">All categories</option></select></div>
+          </div>
+        </div>
+        <div id="pt-catalog"><p class="dash-empty">Loading the catalogue…</p></div>
+      </section>
+
+      <section data-pt-pane="propose" hidden>
+        <div class="dash-panel-head"><h2>Propose a service we don't offer yet</h2><p>Something you execute that is not in the catalogue. It reaches the team for pricing and review — nothing is published until we approve it.</p></div>
+        <form id="pt-propose-form" class="calc-form">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="pp-name">Service name</label><input id="pp-name" type="text" required maxlength="140" placeholder="e.g. Trademark registration"></div>
+            <div class="field"><label for="pp-cat">Category</label><input id="pp-cat" type="text" maxlength="80" placeholder="e.g. Company formation"></div>
+            <div class="field"><label for="pp-price">Your price before VAT (SAR)</label><input id="pp-price" type="number" min="0" step="0.01" required></div>
+            <div class="field"><label for="pp-days">Delivery time</label><input id="pp-days" type="text" maxlength="60" placeholder="e.g. 5 working days"></div>
+          </div>
+          <div class="field"><label for="pp-notes">What it covers, and what you need from the client</label><textarea id="pp-notes" rows="4" maxlength="1200" placeholder="Scope, required documents, government fees if any…"></textarea></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Send the proposal</button>
+          <p class="form-success" id="pp-sent" hidden></p>
+          <p class="form-error" id="pp-err" hidden></p>
+        </form>
+      </section>
     </div>
   </div></section>
 
@@ -267,4 +297,4 @@
     <span>© 2026 Business Partner · All rights reserved</span>
     <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contact on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><script src="/assets/js/main.js?v=8d4d56a865"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_SUP_CATS=["تأسيس الشركات","الاستثمار الأجنبي","العلاقات الحكومية","خدمات الموارد البشرية","الاستقدام والتوظيف","دعم الأعمال","العقارات والمساحات","الإقامة المميزة","الذكاء الاصطناعي والأتمتة","فعاليات وضيافة","إعاشة وتغذية","نقل ومواصلات","إسكان عمالة","تشغيل وصيانة","تسويق وإعلان","أخرى"];window.BP_GOOGLE_CLIENT_ID="";</script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contact on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><script src="/assets/js/main.js?v=7eab8847fd"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_SUP_CATS=["تأسيس الشركات","الاستثمار الأجنبي","العلاقات الحكومية","خدمات الموارد البشرية","الاستقدام والتوظيف","دعم الأعمال","العقارات والمساحات","الإقامة المميزة","الذكاء الاصطناعي والأتمتة","فعاليات وضيافة","إعاشة وتغذية","نقل ومواصلات","إسكان عمالة","تشغيل وصيانة","تسويق وإعلان","أخرى"];window.BP_GOOGLE_CLIENT_ID="";</script></body></html>
