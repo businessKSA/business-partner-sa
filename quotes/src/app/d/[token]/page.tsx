@@ -32,7 +32,10 @@ export default async function PublicDocPage({ params }: { params: Promise<{ toke
   return (
     <div className="shell">
       <div className="no-print row" style={{ justifyContent: 'space-between', marginBottom: 14 }}>
-        <a className="btn ghost sm" href={`/d/${token}/pdf`}>تنزيل PDF / Download PDF</a>
+        <span className="row" style={{ gap: 8 }}>
+          <a className="btn ghost sm" href={`/d/${token}/pdf`}>تنزيل PDF / Download PDF</a>
+          <a className="btn ghost sm" href={`/d/${token}/docx`}>تنزيل DOCX / Download DOCX</a>
+        </span>
         <span className="muted">{doc.number}</span>
       </div>
 

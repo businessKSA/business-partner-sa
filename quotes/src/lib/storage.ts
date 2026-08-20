@@ -25,6 +25,11 @@ export interface StorageDriver {
   remove(key: string): Promise<void>;
   /** رابط للتنزيل — محلياً يمر عبر مسار API يتحقق من الصلاحية. */
   urlFor(key: string): string;
+  /**
+   * رابط تنزيل موقّع ينتهي بعد مدة. على S3 يوقّعه المزوّد فيصل العميل
+   * الملف مباشرة بلا مرور على خادمنا؛ محلياً يعود لمسار الـAPI المحمي.
+   */
+  signedUrl(key: string, ttlSeconds?: number): Promise<string>;
 }
 
 const ROOT = path.resolve(process.env.STORAGE_ROOT || './storage');
@@ -73,18 +78,114 @@ const localDriver: StorageDriver = {
   urlFor(key) {
     return `/api/files/${encodeURIComponent(key)}`;
   },
+  async signedUrl(key) {
+    return `/api/files/${encodeURIComponent(key)}`;
+  },
 };
 
 /**
- * سائق S3 — واجهة جاهزة. عند التفعيل ثبّت @aws-sdk/client-s3 واستبدل
- * الجسم فقط؛ لا يتغير أي كود مستدعٍ لأن التوقيع واحد.
+ * سائق S3 — التخزين المعتمد في الإنتاج.
+ * على Vercel القرص مؤقت ولا يُشارَك بين النسخ، فلا بديل عنه.
+ * يعمل مع S3 وأي خدمة متوافقة معه (Cloudflare R2 مثلاً) عبر S3_ENDPOINT.
  */
 function s3Driver(): StorageDriver {
   const bucket = process.env.S3_BUCKET;
   if (!bucket) throw new Error('S3_BUCKET غير معرّف — لا يمكن تفعيل تخزين S3');
-  throw new Error(
-    'تخزين S3 غير مفعّل بعد: ثبّت @aws-sdk/client-s3 ثم نفّذ الدوال في s3Driver().',
-  );
+
+  // الاستيراد كسول حتى لا تُحمَّل الحزمة في البيئات التي تستخدم التخزين المحلي
+  type S3Mod = typeof import('@aws-sdk/client-s3');
+  let mod: S3Mod | null = null;
+  let client: InstanceType<S3Mod['S3Client']> | null = null;
+
+  async function s3() {
+    if (!client) {
+      mod = await import('@aws-sdk/client-s3');
+      client = new mod.S3Client({
+        region: process.env.S3_REGION || 'me-south-1',
+        ...(process.env.S3_ENDPOINT ? { endpoint: process.env.S3_ENDPOINT, forcePathStyle: true } : {}),
+        ...(process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY
+          ? {
+              credentials: {
+                accessKeyId: process.env.S3_ACCESS_KEY_ID,
+                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+              },
+            }
+          : {}),
+      });
+    }
+    return { mod: mod!, client: client! };
+  }
+
+  const clean = (key: string) => key.replace(/^\/+/, '');
+
+  return {
+    name: 's3',
+    // S3 لا يعرف المجلدات — المفتاح نفسه يحمل المسار
+    async ensureDir() {},
+
+    async put(key, data, mime) {
+      const { mod: m, client: c } = await s3();
+      await c.send(
+        new m.PutObjectCommand({
+          Bucket: bucket,
+          Key: clean(key),
+          Body: typeof data === 'string' ? Buffer.from(data) : data,
+          ContentType: mime || 'application/octet-stream',
+          // تشفير المستندات في التخزين — بيانات شخصية يحكمها نظام حماية البيانات
+          ServerSideEncryption: 'AES256',
+        }),
+      );
+      return key;
+    },
+
+    async get(key) {
+      const { mod: m, client: c } = await s3();
+      const res = await c.send(new m.GetObjectCommand({ Bucket: bucket, Key: clean(key) }));
+      const body = res.Body as { transformToByteArray(): Promise<Uint8Array> } | undefined;
+      if (!body) throw new Error(`ملف غير موجود: ${key}`);
+      return Buffer.from(await body.transformToByteArray());
+    },
+
+    async exists(key) {
+      const { mod: m, client: c } = await s3();
+      try {
+        await c.send(new m.HeadObjectCommand({ Bucket: bucket, Key: clean(key) }));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+
+    async list(dir) {
+      const { mod: m, client: c } = await s3();
+      const prefix = `${clean(dir).replace(/\/+$/, '')}/`;
+      const res = await c.send(
+        new m.ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, Delimiter: '/' }),
+      );
+      return (res.Contents ?? [])
+        .map((o) => (o.Key ?? '').slice(prefix.length))
+        .filter(Boolean);
+    },
+
+    async remove(key) {
+      const { mod: m, client: c } = await s3();
+      await c.send(new m.DeleteObjectCommand({ Bucket: bucket, Key: clean(key) }));
+    },
+
+    urlFor(key) {
+      // يمر على الـAPI ليُفحص التصريح ثم يُعاد التوجيه إلى رابط موقّع
+      return `/api/files/${encodeURIComponent(key)}`;
+    },
+
+    async signedUrl(key, ttlSeconds) {
+      const { mod: m, client: c } = await s3();
+      const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
+      const ttl = ttlSeconds ?? Number(process.env.S3_SIGNED_URL_TTL || 900);
+      return getSignedUrl(c, new m.GetObjectCommand({ Bucket: bucket, Key: clean(key) }), {
+        expiresIn: ttl,
+      });
+    },
+  };
 }
 
 let cached: StorageDriver | null = null;

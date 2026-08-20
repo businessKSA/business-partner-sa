@@ -7,7 +7,7 @@
 import { PrismaClient } from '@prisma/client';
 import { createClient } from '../src/lib/clients';
 import { createQuote, generateContractFromQuote, approveDocument, acceptDocument } from '../src/lib/documents';
-import { sendDocumentEmail, prepareWhatsApp, buildAndArchivePdf } from '../src/lib/send';
+import { sendDocumentEmail, prepareWhatsApp, buildAndArchivePdf, queueDocumentBuild } from '../src/lib/send';
 import { sendForSignature } from '../src/lib/docusign/service';
 import { applyEnvelopeStatus } from '../src/lib/docusign/webhook';
 import { createInvoicesForContract, markInvoicePaid, walletSummary } from '../src/lib/billing';
@@ -20,6 +20,8 @@ import { storage } from '../src/lib/storage';
 import { hasEmoji } from '../src/lib/content-guard';
 import { fmtMoney } from '../src/lib/money';
 import { closeBrowser } from '../src/lib/pdf';
+import { resolveClient, CHANNEL, identitiesOf } from '../src/lib/identity';
+import { buildDocx } from '../src/lib/docx';
 
 const prisma = new PrismaClient();
 const ADMIN = 'Business@businesspartnerksa.com';
@@ -71,6 +73,15 @@ async function main() {
   check('مجلد العميل يحتوي المجلدات الفرعية الثلاثة', folders.every(Boolean), client.folderPath ?? '');
   check('رقم الواتساب طُبِّع لصيغة دولية', client.phone === '966501234567', client.phone);
 
+  const ids = await identitiesOf(client.id);
+  check('أُنشئت هويات القناة تلقائياً', ids.length === 2, ids.map((i) => i.channel).join(', '));
+  const byPhone = await resolveClient(CHANNEL.WHATSAPP, '0501234567');
+  check('العميل يُعرَف من رقم الواتساب بأي صيغة', byPhone?.id === client.id);
+  const byMail = await resolveClient(CHANNEL.EMAIL, 'SMOKE@example.com');
+  check('العميل يُعرَف من بريده بأي حالة أحرف', byMail?.id === client.id);
+  const unknown = await resolveClient(CHANNEL.WHATSAPP, '966500000000');
+  check('الهوية المجهولة لا تُرجع عميلاً', unknown === null);
+
   // ------------------------------------------- 2) عرض بخدمتين والحسابات
   step('2) عرض سعر بخدمتين — استثمار أجنبي 30,000 + سير ذاتية 10×100');
   const fi = await prisma.service.findUniqueOrThrow({ where: { code: 'FI-100' } });
@@ -119,6 +130,19 @@ async function main() {
   check('الـPDF مولَّد', buffer.subarray(0, 4).toString() === '%PDF', `${buffer.length} بايت`);
   check('الـPDF مؤرشف في مجلد عروض الأسعار', key.includes('/quotes/'), key);
 
+  const docx = await buildDocx(quote.id);
+  check('الـDOCX مولَّد', docx.subarray(0, 2).toString() === 'PK', `${docx.length} بايت`);
+
+  const jobs = await queueDocumentBuild(quote.id);
+  const jobRows = await prisma.job.findMany({ where: { entityType: 'document', entityId: quote.id } });
+  check('مهام التوليد سُجّلت في الطابور', jobRows.length === 2, jobRows.map((j) => j.kind).join(', '));
+  check('المهام اكتملت بلا خطأ', jobRows.every((j) => j.status === 'DONE'), jobRows.map((j) => j.status).join(', '));
+  const again = await queueDocumentBuild(quote.id);
+  const jobRows2 = await prisma.job.count({ where: { entityType: 'document', entityId: quote.id } });
+  check('مفتاح التفرّد يمنع تكرار المهمة', jobRows2 === 2, `${jobRows2} مهمة`);
+  const docxAsset = await prisma.fileAsset.findUnique({ where: { id: `docx-${quote.id}` } });
+  check('الـDOCX مؤرشف في مجلد عروض الأسعار', Boolean(docxAsset) && docxAsset!.path.includes('/quotes/'), docxAsset?.path ?? '');
+
   const mail = await sendDocumentEmail({ documentId: quote.id, includeArabic: true, attachPdf: true, actor: ADMIN });
   check('أُرسل البريد', mail.ok === true, mail.provider);
   const delivery = await prisma.delivery.findFirst({ where: { documentId: quote.id, channel: 'EMAIL' } });
@@ -142,6 +166,9 @@ async function main() {
 
   const pdfRes = await fetch(`${process.env.APP_URL}/d/${quote.publicToken}/pdf`);
   check('تنزيل PDF من الصفحة العامة يعمل', pdfRes.status === 200 && pdfRes.headers.get('content-type') === 'application/pdf');
+  const docxRes = await fetch(`${process.env.APP_URL}/d/${quote.publicToken}/docx`);
+  check('تنزيل DOCX من الصفحة العامة يعمل',
+    docxRes.status === 200 && (docxRes.headers.get('content-type') || '').includes('wordprocessingml'));
 
   const accepted = await acceptDocument(quote.publicToken, 'خالد بن سعد العتيبي', '127.0.0.1');
   check('حالة العرض أصبحت مقبول', accepted.status === 'ACCEPTED');

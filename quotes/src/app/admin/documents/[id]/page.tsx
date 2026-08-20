@@ -12,6 +12,7 @@ import { docusignStatus } from '@/lib/docusign/jwt';
 import { INVOICE_STATUS_LABEL, ENVELOPE_STATUS_LABEL, DOC_STATUS } from '@/lib/enums';
 import { storage } from '@/lib/storage';
 import DocActions from './DocActions';
+import JobsPanel from './JobsPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +32,15 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
   });
   if (!doc) notFound();
 
-  const [model, events] = await Promise.all([buildDocModel(id), timelineFor('document', id)]);
+  const [model, events, jobs] = await Promise.all([
+    buildDocModel(id),
+    timelineFor('document', id),
+    prisma.job.findMany({
+      where: { entityType: 'document', entityId: id },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    }),
+  ]);
   if (!model) notFound();
   const ds = docusignStatus();
   const s = storage();
@@ -85,6 +94,7 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
         </div>
         <div className="row">
           <a className="btn ghost sm" href={`/d/${doc.publicToken}/pdf`} target="_blank" rel="noreferrer">تنزيل PDF</a>
+          <a className="btn ghost sm" href={`/d/${doc.publicToken}/docx`}>تنزيل DOCX</a>
           {doc.pdfPath ? <a className="btn ghost sm" href={s.urlFor(doc.pdfPath)}>النسخة المؤرشفة</a> : null}
           {doc.signedPdfPath ? <a className="btn ghost sm" href={s.urlFor(doc.signedPdfPath)}>النسخة الموقّعة</a> : null}
           {doc.certPath ? <a className="btn ghost sm" href={s.urlFor(doc.certPath)}>شهادة الإتمام</a> : null}
@@ -177,6 +187,14 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
           </table>
         </div>
       ) : null}
+
+      <JobsPanel
+        documentId={doc.id}
+        jobs={jobs.map((j) => ({
+          id: j.id, kind: j.kind, status: j.status, attempts: j.attempts,
+          error: j.error, createdAt: j.createdAt.toISOString(),
+        }))}
+      />
 
       <div className="card">
         <h2>الخط الزمني</h2>

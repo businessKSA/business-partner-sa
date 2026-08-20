@@ -1,6 +1,7 @@
 // نظام عروض الأسعار والعقود — Business Partner Solutions
-// SQLite عبر Prisma. لا تدعم SQLite الـenums، لذلك تُخزَّن الحالات كنصوص
-// والقيم المسموح بها موثّقة أعلى كل حقل وتُفرض في src/lib/enums.ts
+// PostgreSQL عبر Prisma. الحالات تُخزَّن كنصوص والقيم المسموح بها موثّقة أعلى
+// كل حقل وتُفرض في src/lib/enums.ts — أبقيناها نصوصاً لأن الحالات تتغيّر مع
+// تطوّر المنتج، وتغيير enum في Postgres يتطلب ترحيلاً لكل جدول يستخدمه.
 
 generator client {
   provider = "prisma-client-js"
@@ -8,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
 // ------------------------------------------------------------------ العملاء
@@ -41,6 +43,115 @@ model Client {
   walletEntries  WalletEntry[]
   supplyRequests SupplyRequest[]
   magicLinks     MagicLink[]
+  identities     ClientIdentity[]
+  conversations  Conversation[]
+
+  @@index([email])
+  @@index([phone])
+}
+
+/// هوية العميل على قناة بعينها. نفس الشخص يصل من الواتساب برقمه ومن البريد
+/// بعنوانه ومن الموقع بجلسته — وكلها تشير إلى ملف عميل واحد.
+model ClientIdentity {
+  id       String @id @default(cuid())
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  /// WHATSAPP | EMAIL | PORTAL | NAFATH
+  channel String
+  /// الرقم بصيغة دولية بلا + ، أو البريد بحروف صغيرة
+  value   String
+
+  verifiedAt DateTime?
+  /// القناة المفضّلة للتواصل مع هذا العميل
+  primary    Boolean   @default(false)
+  meta       String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([channel, value])
+  @@index([clientId])
+}
+
+/// محادثة على قناة (واتساب أو بريد) مربوطة بملف العميل.
+model Conversation {
+  id       String  @id @default(cuid())
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  /// WHATSAPP | EMAIL
+  channel String
+  /// رقم المرسل أو بريده كما وصل
+  peer    String
+
+  /// OPEN | HUMAN_TAKEOVER | CLOSED
+  status        String    @default("OPEN")
+  /// آخر رسالة واردة — تحدد نافذة الرد الحر على واتساب (24 ساعة)
+  lastInboundAt DateTime?
+  takenOverAt   DateTime?
+  takenOverBy   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[]
+
+  @@unique([channel, peer])
+  @@index([clientId])
+  @@index([status])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  /// IN | OUT
+  direction  String
+  /// client | agent | admin | system
+  author     String
+  body       String
+  /// معرّف الرسالة لدى المزوّد
+  providerId String?
+  /// اسم القالب المعتمد إن كانت رسالة بدء محادثة
+  template   String?
+  /// QUEUED | SENT | DELIVERED | READ | FAILED
+  status     String  @default("SENT")
+  error      String?
+  meta       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+}
+
+/// دفتر المهام الخلفية. الطابور ينفّذها، وهذا السجل يجعل حالتها مرئية
+/// وقابلة لإعادة التشغيل يدوياً عند الفشل.
+model Job {
+  id         String  @id @default(cuid())
+  /// document.pdf | document.docx | document.email | file.extract | message.send
+  kind       String
+  /// معرّف الكيان الذي تخصه المهمة
+  entityType String?
+  entityId   String?
+
+  /// QUEUED | RUNNING | DONE | FAILED
+  status   String  @default("QUEUED")
+  attempts Int     @default(0)
+  payload  String
+  result   String?
+  error    String?
+
+  /// مفتاح التفرّد يمنع تكرار نفس المهمة عند إعادة الإرسال
+  dedupeKey String? @unique
+
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([status, kind])
+  @@index([entityType, entityId])
 }
 
 // ------------------------------------------------------------- كتالوج الخدمات
@@ -462,6 +573,7 @@ model FileAsset {
   createdAt DateTime @default(now())
 
   @@index([clientId, folder])
+  @@index([path])
 }
 
 // ------------------------------------------------------------ الخط الزمني
@@ -491,7 +603,8 @@ model TimelineEvent {
 
 // سجل تدقيق غير قابل للتعديل، مسلسل بسلسلة تجزئة (hash chain)
 model AuditLog {
-  seq        Int      @id @default(autoincrement())
+  id         String   @id @default(cuid())
+  seq        Int      @unique @default(autoincrement())
   action     String
   entityType String
   entityId   String

@@ -14,6 +14,7 @@ import { logEvent } from './timeline';
 import { DOC_STATUS, DOC_TYPE } from './enums';
 import { stripEmoji, checkContent } from './content-guard';
 import { storage } from './storage';
+import { queue, JOB } from './queue';
 
 interface MsgTpl {
   email: Record<
@@ -41,6 +42,35 @@ export async function getOrBuildPdf(documentId: string): Promise<{ buffer: Buffe
     return { buffer: await storage().get(doc.pdfPath), key: doc.pdfPath };
   }
   return buildAndArchivePdf(documentId);
+}
+
+/**
+ * يطلب توليد المستند في الخلفية بدل انتظاره داخل الطلب.
+ * هذه هي النقطة التي تجعل الاعتماد والإرسال يرجعان فوراً مهما كان حجم العقد.
+ */
+export async function queueDocumentBuild(documentId: string) {
+  const q = queue();
+  const [pdf, docx] = await Promise.all([
+    q.enqueue(JOB.DOCUMENT_PDF, { documentId }, {
+      dedupeKey: `pdf:${documentId}`, entityType: 'document', entityId: documentId,
+    }),
+    q.enqueue(JOB.DOCUMENT_DOCX, { documentId }, {
+      dedupeKey: `docx:${documentId}`, entityType: 'document', entityId: documentId,
+    }),
+  ]);
+  return { pdfJobId: pdf.jobId, docxJobId: docx.jobId, ranInline: pdf.ranInline };
+}
+
+/** يطلب إرسال البريد في الخلفية بعد التحقق من الاعتماد فوراً. */
+export async function queueDocumentEmail(documentId: string, includeArabic: boolean, actor: string) {
+  const doc = await prisma.document.findUniqueOrThrow({ where: { id: documentId } });
+  // الحارس يعمل قبل وضع المهمة في الطابور لا بعده، حتى يظهر الرفض للمستخدم فوراً
+  assertSendable(doc);
+  return queue().enqueue(
+    JOB.DOCUMENT_EMAIL,
+    { documentId, includeArabic, actor },
+    { entityType: 'document', entityId: documentId },
+  );
 }
 
 function templateVars(doc: {

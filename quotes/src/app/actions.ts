@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db';
 import { requireAdmin, createMagicLink, consumeMagicLink, startAdminSession, startClientSession, endSessions, adminEmail, MAGIC_LINK_TTL_MIN } from '@/lib/auth';
 import { createClient, normalizePhone } from '@/lib/clients';
 import { createQuote, generateContractFromQuote, approveDocument, acceptDocument, type ItemInput } from '@/lib/documents';
-import { sendDocumentEmail, prepareWhatsApp, buildAndArchivePdf, notifyEvent, publicUrl } from '@/lib/send';
+import { prepareWhatsApp, queueDocumentBuild, queueDocumentEmail, notifyEvent, publicUrl } from '@/lib/send';
 import { sendForSignature } from '@/lib/docusign/service';
 import { createInvoicesForContract, createInvoice, markInvoicePaid, walletSpend } from '@/lib/billing';
 import { generateQuoteAndContract, promoteAgentServiceToCatalog } from '@/lib/agent';
@@ -208,7 +208,17 @@ export async function actionApprove(id: string) {
   const admin = await requireAdmin();
   await approveDocument(id, admin);
   await promoteAgentServiceToCatalog(id, admin).catch(() => null);
+  // المستندات تُولَّد في الخلفية فور الاعتماد، فيجدها العميل جاهزة عند الفتح
+  await queueDocumentBuild(id);
   revalidatePath(`/admin/documents/${id}`);
+}
+
+/** يعيد تشغيل مهمة خلفية فاشلة من صفحة المستند. */
+export async function actionRetryJob(jobId: string, documentId: string) {
+  await requireAdmin();
+  const { retryJob } = await import('@/lib/queue');
+  await retryJob(jobId);
+  revalidatePath(`/admin/documents/${documentId}`);
 }
 
 export async function actionGenerateContract(quoteId: string) {
@@ -218,16 +228,15 @@ export async function actionGenerateContract(quoteId: string) {
   redirect(`/admin/documents/${contract.id}`);
 }
 
-export async function actionBuildPdf(id: string) {
+export async function actionBuildDocuments(id: string) {
   await requireAdmin();
-  await buildAndArchivePdf(id);
+  await queueDocumentBuild(id);
   revalidatePath(`/admin/documents/${id}`);
 }
 
 export async function actionSendEmail(id: string, includeArabic: boolean) {
   const admin = await requireAdmin();
-  const r = await sendDocumentEmail({ documentId: id, includeArabic, attachPdf: true, actor: admin });
-  if (!r.ok) throw new Error(r.error || 'فشل الإرسال');
+  await queueDocumentEmail(id, includeArabic, admin);
   revalidatePath(`/admin/documents/${id}`);
 }
 

@@ -11,19 +11,40 @@ import type { Browser } from 'playwright-core';
 
 let browserPromise: Promise<Browser> | null = null;
 
-function executablePath(): string | undefined {
+function pdfDriver(): 'local' | 'serverless' {
+  return (process.env.PDF_DRIVER || 'local').toLowerCase() === 'serverless' ? 'serverless' : 'local';
+}
+
+function localExecutablePath(): string | undefined {
   if (process.env.CHROMIUM_PATH) return process.env.CHROMIUM_PATH;
   const root = process.env.PLAYWRIGHT_BROWSERS_PATH;
   if (root) return `${root}/chromium`;
   return undefined;
 }
 
+/**
+ * دوال Vercel لا تتضمن متصفحاً، فيُحمَّل Chromium مضغوطاً من @sparticuz/chromium
+ * ويُفك داخل مجلد مؤقت عند أول استدعاء. لهذا تحديداً يعمل توليد المستندات في
+ * عامل خلفي لا داخل طلب المستخدم.
+ */
+async function serverlessLaunchArgs() {
+  const chromium = (await import('@sparticuz/chromium')).default;
+  return {
+    executablePath: await chromium.executablePath(),
+    args: [...chromium.args, '--font-render-hinting=none'],
+  };
+}
+
 async function getBrowser(): Promise<Browser> {
   if (!browserPromise) {
     browserPromise = (async () => {
       const { chromium } = await import('playwright-core');
+      if (pdfDriver() === 'serverless') {
+        const { executablePath, args } = await serverlessLaunchArgs();
+        return chromium.launch({ executablePath, args });
+      }
       return chromium.launch({
-        executablePath: executablePath(),
+        executablePath: localExecutablePath(),
         args: ['--no-sandbox', '--disable-dev-shm-usage', '--font-render-hinting=none'],
       });
     })().catch((e) => {

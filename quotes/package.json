@@ -16,7 +16,12 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
+    "@aws-sdk/client-s3": "^3.1114.0",
+    "@aws-sdk/s3-request-presigner": "^3.1114.0",
     "@prisma/client": "^6.19.0",
+    "@sparticuz/chromium": "^133.0.0",
+    "docx": "^9.7.1",
+    "inngest": "^3.54.2",
     "jsonwebtoken": "^9.0.2",
     "next": "^16.3.1",
     "nodemailer": "^9.0.5",

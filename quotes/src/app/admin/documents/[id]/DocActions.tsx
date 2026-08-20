@@ -3,7 +3,7 @@ import { useState, useTransition } from 'react';
 import {
   actionApprove,
   actionGenerateContract,
-  actionBuildPdf,
+  actionBuildDocuments,
   actionSendEmail,
   actionPrepareWhatsApp,
   actionSendForSignature,
@@ -61,9 +61,14 @@ export default function DocActions(props: {
         <button
           className="btn ghost"
           disabled={pending}
-          onClick={() => run(() => actionBuildPdf(props.id), 'وُلّد الـPDF وأُرشف في مجلد العميل.')}
+          onClick={() =>
+            run(
+              () => actionBuildDocuments(props.id),
+              'أُضيفت مهمة توليد PDF و DOCX إلى الطابور — تظهر في مجلد العميل عند اكتمالها.',
+            )
+          }
         >
-          توليد PDF وأرشفته
+          توليد PDF و DOCX
         </button>
 
         {isQuote ? (

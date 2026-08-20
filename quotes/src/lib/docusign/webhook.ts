@@ -12,6 +12,7 @@ import { sendMail } from '../mailer';
 import { loadTemplate, render } from '../templates';
 import { storage } from '../storage';
 import { downloadSignedDocuments } from './service';
+import { queue, JOB } from '../queue';
 
 export interface ConnectEvent {
   event?: string;

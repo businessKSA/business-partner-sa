@@ -2,6 +2,7 @@ import { prisma } from './db';
 import { publicToken } from './tokens';
 import { clientFolderPath, ensureClientFolders } from './storage';
 import { logEvent } from './timeline';
+import { seedIdentitiesFor } from './identity';
 
 export interface NewClient {
   nameAr: string;
@@ -65,6 +66,9 @@ export async function createClient(input: NewClient, actor = 'admin') {
     where: { id: client.id },
     data: { folderPath: folder },
   });
+
+  // هويات القناة تُنشأ مع العميل فلا يتفرّع ملفه حين يصل من الواتساب أو البريد
+  await seedIdentitiesFor(client.id);
 
   await logEvent({
     entityType: 'client',
