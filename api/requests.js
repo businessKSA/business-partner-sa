@@ -16,7 +16,7 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
-import { handleSuppliers, progressForClientRefs } from "./_suppliers.js";
+import { handleSuppliers, progressForClientRefs, quotesForClientRefs } from "./_suppliers.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -1151,10 +1151,13 @@ export default async function handler(req, res) {
       }
       // What the partner executing the work has reported, for these refs only.
       // Best-effort: a client's status must not fail because a journey lookup did.
-      let journey = {};
+      let journey = {}, quotes = {};
       try { journey = await progressForClientRefs(remaining); } catch { journey = {}; }
+      // Quotes awaiting this client's decision, so the portal can show them
+      // instead of the client having to find an email to act on their own order.
+      try { quotes = await quotesForClientRefs(remaining); } catch { quotes = {}; }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo, trial, journey }));
+      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo, trial, journey, quotes }));
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({ status: "ok", emailConfigured: !!RESEND_API_KEY }));
