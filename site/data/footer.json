@@ -24,6 +24,11 @@
           "ar": "الباقات"
         },
         {
+          "href": "/revenue-os",
+          "en": "Revenue OS",
+          "ar": "Revenue OS — تطوير الأعمال"
+        },
+        {
           "href": "/ai-agents",
           "en": "AI Agents",
           "ar": "الوكلاء الأذكياء"
@@ -98,6 +103,11 @@
           "href": "/account",
           "en": "Client portal",
           "ar": "منصّة العملاء"
+        },
+        {
+          "href": "/revenue-dashboard",
+          "en": "Revenue OS dashboard",
+          "ar": "لوحة Revenue OS"
         },
         {
           "href": "/suppliers",

@@ -23,8 +23,8 @@
           "value": "new.businesspartner.sa"
         }
       ],
-      "destination": "/revenue-os",
-      "permanent": false
+      "destination": "https://www.businesspartner.sa/revenue-os",
+      "permanent": true
     },
     {
       "source": "/dashboard",
@@ -34,8 +34,8 @@
           "value": "new.businesspartner.sa"
         }
       ],
-      "destination": "/revenue-dashboard",
-      "permanent": false
+      "destination": "https://www.businesspartner.sa/revenue-dashboard",
+      "permanent": true
     },
     {
       "source": "/client-portal",
@@ -45,11 +45,11 @@
           "value": "new.businesspartner.sa"
         }
       ],
-      "destination": "/revenue-dashboard",
-      "permanent": false
+      "destination": "https://www.businesspartner.sa/revenue-dashboard",
+      "permanent": true
     },
     {
-      "source": "/:path((?!revenue-os|revenue-dashboard|client-portal|assets|api|favicon).+)",
+      "source": "/:path((?!api).+)",
       "has": [
         {
           "type": "host",
@@ -57,7 +57,7 @@
         }
       ],
       "destination": "https://www.businesspartner.sa/:path",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/blog",
