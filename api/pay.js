@@ -8,6 +8,9 @@
 // Env vars:
 //   MOYASAR_PUBLISHABLE_KEY  pk_live_... / pk_test_...  → enables the checkout form
 //   MOYASAR_SECRET_KEY       sk_live_... / sk_test_...  → server-side payment verification
+//   MOYASAR_WEBHOOK_SECRET   any long random string; paste the SAME value into
+//                            Moyasar → Settings → Webhooks as the secret token.
+//                            Without it webhooks are refused, not trusted.
 //   MOYASAR_MPF_URL          optional override of the payment-form script URL
 //   NOTION_TOKEN / ...       Notion integration secret (see envFrom below) — only
 //                            needed for the compliance-activation path
@@ -20,12 +23,17 @@
 //                            Compliance Intake row to حالة الاشتراك=نشط and
 //                            emails them that the service unlocked.
 
+import crypto from "node:crypto";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink } from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { contactForRef } from "./_stage.js";
 
 const PK = process.env.MOYASAR_PUBLISHABLE_KEY || "";
 const SK = process.env.MOYASAR_SECRET_KEY || "";
+// Moyasar posts every payment event here and includes this token in the body.
+// Without it the endpoint refuses webhooks outright rather than trusting an
+// unauthenticated POST that claims a payment succeeded.
+const WEBHOOK_SECRET = (process.env.MOYASAR_WEBHOOK_SECRET || "").trim();
 const MPF_JS = process.env.MOYASAR_MPF_URL || "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
 const MPF_CSS = MPF_JS.replace(/\.js$/, ".css");
 
@@ -401,6 +409,68 @@ export default async function handler(req, res) {
   }
 
   const b = await readBody(req);
+
+  // ---- Moyasar webhook ----------------------------------------------------
+  // The browser callback is not a guarantee: a client who pays and closes the
+  // tab before 3-D Secure returns has paid, and the site never hears about it.
+  // The webhook is the same confirmation arriving over a channel the client
+  // cannot interrupt.
+  const isWebhook = typeof b.secret_token === "string" || (b.type && b.data && typeof b.data === "object");
+  if (isWebhook) {
+    if (!WEBHOOK_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "webhook_not_configured" })); }
+    const got = Buffer.from(String(b.secret_token || ""));
+    const want = Buffer.from(WEBHOOK_SECRET);
+    const tokenOk = got.length === want.length && crypto.timingSafeEqual(got, want);
+    if (!tokenOk) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_token" })); }
+
+    const d = b.data || {};
+    const pid = String(d.id || "").trim();
+    if (!/^[a-zA-Z0-9_-]{10,64}$/.test(pid)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_payment_id" })); }
+
+    // The body says it was paid; Moyasar's API is asked whether it was. A
+    // webhook body is still input, and money is the last thing to take on
+    // trust from a request.
+    let p = null;
+    try {
+      const r = await fetch(`https://api.moyasar.com/v1/payments/${pid}`, {
+        headers: { Authorization: "Basic " + Buffer.from(SK + ":").toString("base64") },
+      });
+      p = r.ok ? await r.json() : null;
+    } catch { p = null; }
+    if (!p || p.status !== "paid") {
+      // Acknowledge: a 200 stops Moyasar retrying an event we correctly ignored.
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, ignored: true, status: p ? p.status : "unverified" }));
+    }
+
+    const meta = p.metadata || d.metadata || {};
+    const quoteId = String(meta.quoteId || "").trim();
+    const tok = String(meta.t || "").trim();
+    const ref = String(meta.ref || "").trim();
+    // Only the quote path is settled here. It is the one with a work order
+    // behind it, and that order is what makes "already recorded" answerable —
+    // without it a webhook and a browser callback would each issue an invoice
+    // for the same payment. Cart payments stay with the browser callback, as
+    // they were, rather than being double-handled.
+    if (!quoteId || !tok) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, ignored: true, reason: "no_quote_metadata" }));
+    }
+
+    let marked = null, invoicing = null;
+    try { marked = await markOrderPaid(ref, { total: Math.round(p.amount) / 100, method: "online" }); }
+    catch (e) { console.error("pay webhook: mark failed", String(e.message || e).slice(0, 160)); }
+    if (marked && marked.recorded) {
+      try { invoicing = await invoicePaidOrder({ ref, quoteId, t: tok }, p.amount); }
+      catch (e) {
+        console.error("pay webhook: invoice failed", String(e.message || e).slice(0, 200));
+        invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };
+      }
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, handled: true, recorded: !!(marked && marked.recorded), ...(invoicing ? { invoice: invoicing } : {}) }));
+  }
+
   const id = String(b.id || "").trim();
   if (!/^[a-zA-Z0-9_-]{10,64}$/.test(id)) {
     res.statusCode = 400;
@@ -427,34 +497,37 @@ export default async function handler(req, res) {
     // A confirmed payment issues the tax invoice by itself. Failing to invoice
     // must not report the payment as unsuccessful — the money moved either way,
     // and the owner can issue from the panel — so this is reported alongside.
-    let invoicing = null;
+    // Settle in one order, for one reason: the work order is the record of
+    // whether this payment has already been handled. Marking first and
+    // invoicing only when THIS call did the marking is what stops the browser
+    // callback and the webhook — both of which fire for the same payment —
+    // from issuing the client two tax invoices for one charge.
+    let announced = null, invoicing = null;
     if (paid && b.order && typeof b.order === "object") {
+      // On the quote path the reference is read from the order itself; the
+      // page only ever hands over the link it was opened with.
+      let ref = String(b.order.ref || "");
       try {
-        invoicing = await invoicePaidOrder(b.order, p.amount);
-      } catch (e) {
-        console.error("pay: automatic invoice failed", String(e.message || e).slice(0, 200), String(e.detail || "").slice(0, 200));
-        invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };
-      }
-    }
-
-    // …and the client is told, on every channel, that the money arrived and the
-    // work has started. The tax invoice above is the document; this is the
-    // sentence a person actually waits for.
-    let announced = null;
-    if (paid && b.order && typeof b.order === "object") {
-      try {
-        // On the quote path the reference is read from the order itself; the
-        // page only ever hands over the link it was opened with.
-        let ref = String(b.order.ref || "");
         if (b.order.quoteId && b.order.t) {
           const priced = await quotePriced(String(b.order.quoteId), String(b.order.t));
           if (priced) ref = priced.order.clientRef || priced.order.ref || ref;
         }
-        if (ref) {
-          announced = await markOrderPaid(ref, { total: Math.round(p.amount) / 100, method: "online" });
-        }
+        if (ref) announced = await markOrderPaid(ref, { total: Math.round(p.amount) / 100, method: "online" });
       } catch (e) {
         console.error("pay: stage announce failed", String(e.message || e).slice(0, 160));
+      }
+      // A cart payment has no work order to ask, so it invoices as it always
+      // has — the webhook deliberately leaves that path alone.
+      const alreadySettled = announced && announced.orderFound && !announced.recorded;
+      if (alreadySettled) {
+        invoicing = { invoiced: false, reason: "already_settled" };
+      } else {
+        try {
+          invoicing = await invoicePaidOrder(b.order, p.amount);
+        } catch (e) {
+          console.error("pay: automatic invoice failed", String(e.message || e).slice(0, 200), String(e.detail || "").slice(0, 200));
+          invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };
+        }
       }
     }
 

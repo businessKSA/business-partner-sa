@@ -3602,6 +3602,7 @@ var BP = window.BP = window.BP || {};
             description: "Business Partner order",
             publishable_api_key: cfg.publishableKey,
             callback_url: location.origin + location.pathname,
+            metadata: { ref: String((snapshot() || {}).ref || "") },
             methods: ["creditcard"],
           });
           box.hidden = false;
@@ -6476,6 +6477,9 @@ var BP_EMP_BILLING = "monthly";
             description: "Business Partner — " + (state.quote.clientRef || state.quote.ref || ""),
             publishable_api_key: cfg.publishableKey,
             callback_url: location.origin + location.pathname + "?q=" + encodeURIComponent(id) + "&t=" + encodeURIComponent(t),
+            // Travels with the payment so the webhook can settle it even if
+            // this tab never comes back from 3-D Secure.
+            metadata: { quoteId: String(id), t: String(t), ref: String(state.quote.clientRef || state.quote.ref || "") },
             methods: ["creditcard"]
           });
           document.getElementById("q-epay").hidden = false;
