@@ -33,6 +33,7 @@
 
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "crypto";
 import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder, daftraCreateInvoice, daftraDocPdf } from "./_daftra.js";
+import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -95,6 +96,18 @@ function verifyPassword(pw, stored) {
 // (email, code, expiry) goes to the browser. Neither alone is enough, so no
 // pending-code table is needed.
 const sealCode = (email, code, exp) => createHmac("sha256", OTP_SECRET).update(`sup-verify|${email}|${code}|${exp}`).digest("hex");
+// A quote link is sent to one client's inbox, so holding the link is the
+// authorisation — the same model DocuSign and Stripe use for a document sent
+// by email. The token is derived from the order id, so it cannot be guessed
+// and cannot be reused for another order.
+const quoteToken = (orderId) => OTP_SECRET ? createHmac("sha256", OTP_SECRET).update(`quote|${orderId}`).digest("hex").slice(0, 32) : "";
+function quoteTokenOk(orderId, t) {
+  const want = quoteToken(orderId);
+  if (!want || !t) return false;
+  const a = Buffer.from(want), c = Buffer.from(String(t));
+  return a.length === c.length && timingSafeEqual(a, c);
+}
+const VAT_PCT = Number(process.env.DAFTRA_VAT_RATE || 15);
 function checkSealed(email, code, token, exp) {
   if (!OTP_SECRET || !code || !token || !exp) return false;
   if (Date.now() > Number(exp)) return false;
@@ -246,17 +259,34 @@ function supplierOf(pg) {
   };
 }
 
-// A quote's line items ride in the order's notes after a marker: the same
-// trick as the price list, for the same reason — the schema is what it is, and
-// the owner still reads the notes as plain text above the marker.
+// A quote's line items and the progress log ride in the order's notes after
+// markers: the same trick as the price list, for the same reason — the schema
+// is what it is, and the owner still reads plain text above the markers.
 const LINE_MARK = "---BP-LINES---";
+const LOG_MARK = "---BP-LOG---";
 function splitLines(raw) {
   const s = String(raw || "");
-  const i = s.indexOf(LINE_MARK);
-  if (i === -1) return { text: s.trim(), lines: [] };
-  let lines = [];
-  try { lines = JSON.parse(s.slice(i + LINE_MARK.length).trim()) || []; } catch { lines = []; }
-  return { text: s.slice(0, i).trim(), lines: Array.isArray(lines) ? lines : [] };
+  const iL = s.indexOf(LINE_MARK);
+  const iG = s.indexOf(LOG_MARK);
+  const cut = [iL, iG].filter((i) => i !== -1);
+  const head = cut.length ? s.slice(0, Math.min(...cut)) : s;
+  const grab = (mark) => {
+    const i = s.indexOf(mark);
+    if (i === -1) return [];
+    const rest = s.slice(i + mark.length);
+    const nextMarks = [rest.indexOf(LINE_MARK), rest.indexOf(LOG_MARK)].filter((x) => x !== -1);
+    const body = nextMarks.length ? rest.slice(0, Math.min(...nextMarks)) : rest;
+    try { const v = JSON.parse(body.trim()); return Array.isArray(v) ? v : []; } catch { return []; }
+  };
+  return { text: head.trim(), lines: grab(LINE_MARK), log: grab(LOG_MARK) };
+}
+// One place that reassembles the field, so no writer can drop another's part.
+function joinOrderNotes(text, lines, log) {
+  return [
+    String(text || "").trim(),
+    (lines || []).length ? `${LINE_MARK}\n${JSON.stringify(lines)}` : "",
+    (log || []).length ? `${LOG_MARK}\n${JSON.stringify((log || []).slice(-30))}` : "",
+  ].filter(Boolean).join("\n");
 }
 
 function orderOf(pg) {
@@ -283,6 +313,7 @@ function orderOf(pg) {
     quotedAt: (p["تاريخ تقديم العرض"] && p["تاريخ تقديم العرض"].date && p["تاريخ تقديم العرض"].date.start) || "",
     notes: n.text,
     lines: n.lines,
+    log: n.log,
     url: pg.url,
   };
 }
@@ -323,6 +354,31 @@ async function ordersForSupplier(supplierId) {
   return r.ok && r.json ? (r.json.results || []).map(orderOf) : [];
 }
 
+// The client's journey, assembled for the refs their own portal already asks
+// about. Read-only and keyed by the client's order reference, so a client sees
+// progress on their own work and nothing else.
+export async function progressForClientRefs(refs) {
+  const list = (Array.isArray(refs) ? refs : []).filter(Boolean).slice(0, 20);
+  if (!NOTION_TOKEN || !list.length) return {};
+  const r = await notion(`databases/${ORDERS_DB}/query`, "POST", {
+    page_size: 100,
+    filter: { or: list.map((ref) => ({ property: "مرجع طلب العميل", rich_text: { equals: ref } })) },
+  });
+  if (!r.ok || !r.json) return {};
+  const out = {};
+  for (const pg of r.json.results || []) {
+    const o = orderOf(pg);
+    if (!o.clientRef) continue;
+    const entries = (o.log || []).map((e) => ({ at: e.at, by: e.by, text: e.text }));
+    if (!entries.length && !o.status) continue;
+    // Several work orders can serve one client request; they merge into one
+    // journey ordered by time, because that is how the client experienced it.
+    out[o.clientRef] = (out[o.clientRef] || []).concat(entries);
+  }
+  for (const k of Object.keys(out)) out[k].sort((a, b) => String(a.at).localeCompare(String(b.at)));
+  return out;
+}
+
 export async function handleSuppliers(req, res) {
   res.setHeader("content-type", "application/json; charset=utf-8");
   res.setHeader("cache-control", "no-store");
@@ -356,6 +412,37 @@ export async function handleSuppliers(req, res) {
         orders,
       });
     }
+    // Public: one quote, opened from the link mailed to the client. No session
+    // — the token in the link is what authorises it, and it grants nothing but
+    // this one document.
+    if (q.action === "quote") {
+      const id = str(q.id, 60);
+      if (!id || !quoteTokenOk(id, q.t)) return bad("bad_link", 403);
+      const pg = await notion(`pages/${id}`);
+      if (!pg.ok || !pg.json) return bad("not_found", 404);
+      const o = orderOf(pg.json);
+      if (!o.lines.length && o.quote == null) return bad("no_quote", 404);
+      let supplier = "";
+      if (o.supplierId) {
+        const sp = await notion(`pages/${o.supplierId}`);
+        if (sp.ok && sp.json) supplier = supplierOf(sp.json).name;
+      }
+      const net = o.lines.length ? o.lines.reduce((t, l) => t + l.price * l.qty, 0) : (o.quote || 0);
+      const vat = Math.round(net * (VAT_PCT / 100) * 100) / 100;
+      return ok({
+        quote: {
+          id, ref: o.ref, service: o.service, client: o.client, clientRef: o.clientRef,
+          lines: o.lines, net: Math.round(net * 100) / 100, vatRate: VAT_PCT, vat,
+          total: Math.round((net + vat) * 100) / 100,
+          leadTime: o.leadTime, notes: o.notes, status: o.status, supplier,
+          // Business Partner is the counterparty on the client's paperwork; the
+          // partner executes. Saying so on the quote keeps the invoice, the VAT
+          // and the contract with the entity that actually issues them.
+          decided: o.status === "مقبول من العميل" || o.status === "مرفوض من العميل",
+        },
+      });
+    }
+
     // Owner: the whole registry + every work order
     if (q.action === "admin") {
       if (!ownerOk(q.key)) return bad("unauthorized", 401);
@@ -561,13 +648,18 @@ export async function handleSuppliers(req, res) {
       if (!status) props["الحالة"] = { select: { name: "عرض مُقدَّم" } };
     }
     if (b.leadTime) props["مدة التنفيذ المقترحة"] = { rich_text: [{ text: { content: str(b.leadTime, 200) } }] };
-    // Notes and lines share the field, so writing one must not erase the other.
-    if (b.notes != null || lines.length) {
-      // orderOf already separated them, so read each from its own field.
+    // A progress update the client sees on their tracking page. Dated and
+    // attributed, appended — never replacing what came before, because the
+    // journey is the record.
+    const progress = str(b.progress, 400);
+    const log = (order.log || []).slice();
+    if (progress) log.push({ at: new Date().toISOString().slice(0, 16).replace("T", " "), by: s.name || s.code, text: progress });
+
+    // Notes, lines and log share one field, so writing one must not erase the others.
+    if (b.notes != null || lines.length || progress) {
       const text = b.notes != null ? str(b.notes, 1500) : String(order.notes || "");
       const keep = lines.length ? lines : (order.lines || []);
-      const body = keep.length ? `${text}\n${LINE_MARK}\n${JSON.stringify(keep)}` : text;
-      props["ملاحظات"] = { rich_text: richChunks(body) };
+      props["ملاحظات"] = { rich_text: richChunks(joinOrderNotes(text, keep, log)) };
     }
 
     let uploaded = null;
@@ -772,6 +864,131 @@ export async function handleSuppliers(req, res) {
         <p>تفاصيل الفاتورة وسدادها متاحة في <a href="${SITE}/partner-dashboard">بوابة الموردين</a>.</p></div>`);
     }
     return ok({ invoiceRef: invRef, amount });
+  }
+
+  // ---------------- public: the client accepts or declines the quote ----------------
+  // The decision is the client's, so it is recorded on the order itself and
+  // both sides are told at once. Nothing here can change money: the amount is
+  // read from the order, never from the browser.
+  if (b.type === "quote-decision") {
+    const id = str(b.id, 60);
+    if (!id || !quoteTokenOk(id, b.t)) return bad("bad_link", 403);
+    const accept = b.decision === "accept";
+    const pg = await notion(`pages/${id}`);
+    if (!pg.ok || !pg.json) return bad("not_found", 404);
+    const o = orderOf(pg.json);
+    if (o.status === "مقبول من العميل" || o.status === "مرفوض من العميل") return bad("already_decided", 409);
+
+    const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+    const note = str(b.note, 300);
+    const log = (o.log || []).concat([{
+      at: stamp, by: "العميل",
+      text: accept ? `قَبِل عرض السعر${note ? " — " + note : ""}` : `رفض عرض السعر${note ? " — " + note : ""}`,
+    }]);
+    const upd = await notion(`pages/${id}`, "PATCH", { properties: {
+      "الحالة": { select: { name: accept ? "مقبول من العميل" : "مرفوض من العميل" } },
+      "ملاحظات": { rich_text: richChunks(joinOrderNotes(o.notes, o.lines, log)) },
+    } });
+    if (!upd.ok) return bad("save_failed", 502);
+
+    let supplierEmail = "";
+    if (o.supplierId) {
+      const sp = await notion(`pages/${o.supplierId}`);
+      if (sp.ok && sp.json) supplierEmail = supplierOf(sp.json).email;
+    }
+    const subject = `${accept ? "✅ قُبل" : "❌ رُفض"} عرض السعر ${o.ref}`;
+    const html = `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
+      <h2 style="color:#0B1B5A">${accept ? "العميل قَبِل عرض السعر" : "العميل رفض عرض السعر"}</h2>
+      <table>${row("أمر العمل", o.ref) + row("الخدمة", o.service) + row("العميل", o.client) + row("طلب العميل", o.clientRef) + row("القيمة", (o.quote != null ? o.quote + " ﷼" : "—")) + (note ? row("ملاحظة العميل", note) : "")}</table>
+      ${accept ? "<p><b>الخطوة التالية:</b> يُرسل للعميل العقد للتوقيع، ثم الفاتورة الضريبية للسداد.</p>" : ""}</div>`;
+    await sendEmail(TEAM_EMAIL, subject, html);
+    if (supplierEmail) await sendEmail(supplierEmail, subject, html);
+    return ok({ decision: accept ? "accepted" : "declined" });
+  }
+
+  // ---------------- owner: send the contract for signature ----------------
+  // Only after the client accepted the quote: a contract for terms nobody
+  // agreed to is not a contract, and sending one invites a dispute rather than
+  // settling one. The figures come from the order, never from the browser.
+  if (b.type === "contract-send") {
+    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!docusignConfigured()) return bad("docusign_not_configured", 503);
+    const id = str(b.orderId, 60);
+    if (!id) return bad("invalid_fields");
+    const pg = await notion(`pages/${id}`);
+    if (!pg.ok || !pg.json) return bad("not_found", 404);
+    const o = orderOf(pg.json);
+    if (o.status !== "مقبول من العميل" && !b.force) return bad("quote_not_accepted", 409, { status: o.status });
+    const email = str(b.email, 160).toLowerCase();
+    if (!isEmail(email)) return bad("bad_email");
+
+    const net = o.lines.length ? o.lines.reduce((t, l) => t + l.price * l.qty, 0) : (o.quote || 0);
+    const vat = Math.round(net * (VAT_PCT / 100) * 100) / 100;
+    let executor = "";
+    if (o.supplierId) {
+      const sp = await notion(`pages/${o.supplierId}`);
+      if (sp.ok && sp.json) executor = supplierOf(sp.json).name;
+    }
+    const html = contractHtml({
+      ref: o.clientRef || o.ref,
+      clientName: str(b.clientName, 200) || o.client || "العميل",
+      clientCr: str(b.clientCr, 40), clientVat: str(b.clientVat, 20),
+      service: o.service, lines: o.lines,
+      net: Math.round(net * 100) / 100, vat, total: Math.round((net + vat) * 100) / 100,
+      vatRate: VAT_PCT, leadTime: o.leadTime, executor,
+      today: new Date().toISOString().slice(0, 10),
+    });
+    try {
+      const env = await docusignSendContract({
+        ref: o.clientRef || o.ref, email,
+        clientName: str(b.clientName, 200) || o.client || "العميل",
+        subject: `عقد تقديم خدمات — ${o.clientRef || o.ref}`,
+        html,
+      });
+      const log = (o.log || []).concat([{
+        at: new Date().toISOString().slice(0, 16).replace("T", " "),
+        by: "بيزنس بارتنر", text: `أُرسل العقد للتوقيع الإلكتروني إلى ${email}`,
+      }]);
+      await notion(`pages/${id}`, "PATCH", { properties: {
+        "ملاحظات": { rich_text: richChunks(joinOrderNotes(`${o.notes}${o.notes ? "\n" : ""}DocuSign: ${env.envelopeId}`, o.lines, log)) },
+      } });
+      return ok({ envelopeId: env.envelopeId, status: env.status });
+    } catch (e) {
+      return bad(String(e.message || "docusign_failed"), 502, { detail: String(e.detail || "").slice(0, 400) });
+    }
+  }
+
+  // ---------------- owner: where the signature has got to ----------------
+  if (b.type === "contract-status") {
+    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!docusignConfigured()) return bad("docusign_not_configured", 503);
+    const envId = str(b.envelopeId, 80);
+    if (!envId) return bad("invalid_fields");
+    try { return ok({ envelope: await docusignStatus(envId) }); }
+    catch (e) { return bad(String(e.message || "docusign_failed"), 502, { detail: String(e.detail || "").slice(0, 400) }); }
+  }
+
+  // ---------------- owner: is DocuSign reachable, and which account ----------------
+  if (b.type === "docusign-ping") {
+    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    const out = await docusignPing();
+    res.statusCode = out.ok ? 200 : 200; // a configuration answer is not a server error
+    return res.end(JSON.stringify(out));
+  }
+
+  // ---------------- partner/owner: the link to send the client ----------------
+  if (b.type === "quote-link") {
+    const s = await authSupplier(b.email, b.pw || b.password);
+    const owner = ownerOk(b.key);
+    if (!s && !owner) return bad("unauthorized", 401);
+    const id = str(b.orderId, 60);
+    if (!id) return bad("invalid_fields");
+    if (s) {
+      const mine = await ordersForSupplier(s.id);
+      if (!mine.find((o) => o.id === id)) return bad("not_found", 404);
+    }
+    if (!OTP_SECRET) return bad("not_configured", 503);
+    return ok({ url: `${SITE}/ar/quote?id=${encodeURIComponent(id)}&t=${quoteToken(id)}` });
   }
 
   // ---------------- partner: their own price list ----------------

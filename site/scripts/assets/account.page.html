@@ -909,9 +909,15 @@
         .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
         .then(function(data){
           var statuses = (data && data.statuses) || {};
+          var journey = (data && data.journey) || {};
           for (var i = 0; i < state.orders.length; i++){
             var s = statuses[state.orders[i].ref];
             if (s) state.orders[i].status = String(s);
+            // What the team executing the work has reported, dated. This is the
+            // answer to "where has my order got to" — asked far more often than
+            // it is answered.
+            var j = journey[state.orders[i].ref];
+            if (j && j.length) state.orders[i].journey = j;
           }
           state.fetchFailed = false;
           renderAll();
@@ -1236,8 +1242,18 @@
       var rows = '';
       for (var i = 0; i < state.orders.length; i++){
         var o = state.orders[i];
+        var log = o.journey || [];
+        var trail = log.length
+          ? '<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px;color:var(--navy)">' +
+              esc(state.lang === 'en' ? 'Progress (' + log.length + ')' : 'سير التنفيذ (' + log.length + ')') + '</summary>' +
+              '<ul style="margin:6px 0 0;padding-inline-start:18px;line-height:1.9;font-size:12.5px">' +
+              log.map(function(e){
+                return '<li><span style="color:var(--soft);direction:ltr;display:inline-block">' + esc(e.at || '') + '</span> — ' +
+                  esc(e.text || '') + (e.by ? ' <span style="color:var(--soft)">(' + esc(e.by) + ')</span>' : '') + '</li>';
+              }).join('') + '</ul></details>'
+          : '';
         rows += '<tr data-srch><td class="ref">' + esc(o.ref) + '</td>' +
-          '<td>' + esc(o.title || t('trackedOrder')) + '</td>' +
+          '<td>' + esc(o.title || t('trackedOrder')) + trail + '</td>' +
           '<td>' + statusChip(o.status) + '</td></tr>';
       }
       $('ordersBody').innerHTML = rows || '<tr><td colspan="3" class="emptyline" style="display:table-cell">' + esc(t('noOrdersRow')) + '</td></tr>';

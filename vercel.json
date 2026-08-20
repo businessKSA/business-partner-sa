@@ -12,6 +12,9 @@
     },
     "api/chat.js": {
       "maxDuration": 60
+    },
+    "api/requests.js": {
+      "maxDuration": 30
     }
   },
   "redirects": [

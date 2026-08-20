@@ -482,6 +482,7 @@
               <button class="actbtn" id="fxSaveInv">🧾 حدّث الفاتورة نفسها</button>
               <button class="actbtn" id="fxCredit" style="border-color:#fca5a5;color:#b91c1c">↩️ إشعار دائن (مرتجع كامل)</button>
               <button class="actbtn" id="fxProbe">🔎 افحص نقاط الإشعار الدائن</button>
+              <button class="actbtn" id="fxPayProbe">💳 افحص رابط الدفع</button>
             </div>
             <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px">
               <b style="font-size:13px;color:var(--navy)">📤 أرسل الفاتورة للعميل بمرفق PDF</b>
@@ -497,6 +498,44 @@
               <input id="fxPdf" type="file" accept="application/pdf,.pdf" style="display:none" />
             </div>
             <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">🩺 حالة الخدمات — ما هو موصول فعلاً</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              يُقرأ من الخادم لحظياً: أي مفتاح موجود، وتحت أي اسم. لا تظهر القيم أبداً — الأسماء فقط.
+            </p>
+            <button class="actbtn" id="hlRun">🩺 افحص الآن</button>
+            <div class="dbody" id="hlMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">✍️ العقد والتوقيع الإلكتروني (DocuSign)</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              يُرسل العقد بعد أن <b>يقبل العميل عرض السعر</b> — عقد على بنود لم يوافق عليها أحد ليس عقداً.
+              يُولَّد بالعربية من بنود العرض نفسها، ويوقّعه العميل إلكترونياً.
+              <br><span style="color:#b45309">للمستندات التي تُقدَّم لجهة حكومية سعودية، «نفاذ» هو التوقيع المعتمد نظاماً — وهذا لا يغني عنه.</span>
+            </p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+              <button class="actbtn" id="dsPing">🔌 اختبر اتصال DocuSign</button>
+            </div>
+            <div class="dgrid">
+              <div class="f" style="grid-column:1/-1"><b>أمر العمل</b>
+                <div style="display:flex;gap:8px;margin-top:4px">
+                  <select id="dsOrder" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px"><option value="">— اضغط «حمّل أوامر العمل» —</option></select>
+                  <button class="actbtn" type="button" id="dsLoad">↻ حمّل أوامر العمل</button>
+                </div>
+              </div>
+              <div class="f"><b>بريد العميل</b><input id="dsEmail" type="email" dir="ltr" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>اسم العميل كما في العقد</b><input id="dsName" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>الرقم الضريبي (اختياري)</b><input id="dsVat" type="text" dir="ltr" maxlength="15" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+              <button class="btn" id="dsSend">✍️ أرسل العقد للتوقيع</button>
+              <input id="dsEnv" type="text" dir="ltr" placeholder="Envelope ID" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:13.5px" />
+              <button class="actbtn" id="dsStatus">🔍 حالة التوقيع</button>
+            </div>
+            <div class="dbody" id="dsMsg" style="display:none;margin-top:10px"></div>
           </div>
         </div>
 
@@ -1150,6 +1189,33 @@
       fr.onload = function(){ fxPdfB64 = String(fr.result).split(',')[1] || ''; $('fxPdfLbl').textContent = '📎 ' + f.name; };
       fr.readAsDataURL(f);
     };
+    // PayTabs / PayFort are enabled inside Daftra, so Daftra's own invoice page
+    // is the payment page. Which URL serves it differs between account versions,
+    // so the account is asked and the evidence is printed.
+    $('fxPayProbe').onclick = function(){
+      if (!fxInvoice || !fxInvoice.id){ fxNote('err', 'ابحث عن الفاتورة أولاً.'); return; }
+      var btn = this; btn.disabled = true;
+      fxNote('', '⏳ أفحص روابط الدفع لهذه الفاتورة…');
+      postPanel({ action:'panel-daftra-paylink-probe', invoiceId: fxInvoice.id }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ fxNote('err', 'تعذّر الفحص: ' + esc((r && r.error) || '؟')); return; }
+        var rows = r.probe || [];
+        var best = rows.filter(function(x){ return x.status === 200 && x.looksPayable && !x.looksLogin; });
+        fxNote(best.length ? 'ok' : 'warn',
+          '<b>الرابط الذي تنشره الدفترة:</b> <span style="direction:ltr;display:inline-block">' + esc(r.link.url) + '</span>' +
+          (r.link.published ? ' (نشرته الدفترة بنفسها)' : ' (مُركَّب — الدفترة ما نشرت رابطاً)') +
+          '<div style="margin-top:8px"><b>ما ردّت به المسارات:</b></div>' +
+          rows.map(function(x){
+            return '<div style="direction:ltr;text-align:left;font-family:monospace;font-size:11.5px">' +
+              (x.status === 200 && x.looksPayable && !x.looksLogin ? '✅ ' : x.status === 200 ? '⚠️ ' : '❌ ') +
+              esc(x.url) + ' → ' + esc([x.status, x.type, x.redirect ? '→' + x.redirect : '',
+                x.looksPayable ? 'payable' : '', x.looksLogin ? 'login-wall' : '', x.error || ''].filter(Boolean).join(' · ')) + '</div>';
+          }).join('') +
+          (best.length ? '<div style="color:#14532d;margin-top:6px">صفحة دفع تعمل — العميل يقدر يسدد منها مباشرة.</div>'
+                       : '<div style="margin-top:6px">ما لقيت صفحة دفع مفتوحة. غالباً تحتاج تفعيل «بوابة العميل» أو مشاركة الفاتورة من الدفترة. أرسل لي هذه القائمة.</div>'));
+      });
+    };
+
     // A failed automatic fetch is only useful if it says which route failed and
     // how. This probes the routes against this invoice — not some other one —
     // so the answer is about the document actually being sent.
@@ -1196,6 +1262,183 @@
             fxNote('err', 'تعذّر الإرسال: ' + esc((r && r.error) || '؟'));
           }
         });
+    };
+
+    // ---- what is actually wired ----
+    $('hlRun').onclick = function(){
+      var btn = this, m = $('hlMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أفحص…';
+      postPanel({ action:'panel-health' }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ m.innerHTML = '<span style="color:#b91c1c">تعذّر الفحص.</span>'; return; }
+        var miss = r.services.filter(function(x){ return !x.ok; });
+        m.innerHTML = r.services.map(function(x){
+          return '<span class="kv"><i>' + (x.ok ? '✅' : '⛔') + ' ' + esc(x.label) + ':</i>' +
+            (x.ok ? '<span style="direction:ltr;display:inline-block">' + esc(x.via) + '</span>' : 'غير مضبوط') +
+            (x.note ? ' <span style="color:var(--soft);font-size:11.5px">— ' + esc(x.note) + '</span>' : '') + '</span>';
+        }).join('') +
+        '<div style="margin-top:10px;font-weight:600;color:' + (miss.length ? '#b45309' : '#14532d') + '">' +
+          (miss.length ? 'الناقص: ' + esc(miss.map(function(x){ return x.label; }).join(' · ')) : 'كل شيء موصول ✓') + '</div>';
+      });
+    };
+
+    // ---- DocuSign ----
+    function dsNote(kind, html){
+      var m = $('dsMsg');
+      m.style.display = 'block';
+      m.style.color = kind === 'ok' ? '#14532d' : kind === 'warn' ? '#b45309' : kind === 'err' ? '#b91c1c' : '';
+      m.innerHTML = html;
+    }
+    // Named dsPost, not supPost: a second supPost already exists further down
+    // this script with a callback signature, and the later declaration wins.
+    // Calling it as a promise silently threw and nothing ever resolved — the
+    // card span for ever on «جاري…», which is the worst thing a diagnostic can
+    // do: look like it is working while telling you nothing.
+    //
+    // Every path here resolves to an object, so a failure is always visible.
+    function dsPost(payload){
+      payload.key = accessKey;
+      var ctrl = ('AbortController' in window) ? new AbortController() : null;
+      var timer = setTimeout(function(){ if (ctrl) ctrl.abort(); }, 30000);
+      return fetch('/api/suppliers', { method:'POST', headers:{ 'Content-Type':'application/json' },
+                                       body: JSON.stringify(payload), signal: ctrl ? ctrl.signal : undefined })
+        .then(function(r){
+          return r.text().then(function(t){
+            try { return JSON.parse(t); }
+            catch(e){ return { ok:false, error:'bad_response', detail:'HTTP ' + r.status + ' — ' + String(t).slice(0,200) }; }
+          });
+        })
+        .catch(function(e){
+          return { ok:false, error: (e && e.name === 'AbortError') ? 'timeout' : 'network',
+                   detail: (e && e.name === 'AbortError') ? 'تجاوز الطلب ٣٠ ثانية بلا رد.' : String((e && e.message) || e).slice(0,200) };
+        })
+        .then(function(out){ clearTimeout(timer); return out; });
+    }
+    $('dsPing').onclick = function(){
+      var btn = this; btn.disabled = true;
+      dsNote('', '⏳ أختبر الاتصال…');
+      dsPost({ type:'docusign-ping' }).then(function(r){
+        btn.disabled = false;
+        if (r && r.ok){
+          dsNote('ok', '✅ متصل — الحساب: <b>' + esc(r.accountName || r.accountId) + '</b> · البيئة: ' + esc(r.env) +
+            (r.env === 'demo' ? ' <span style="color:#b45309">(بيئة تجريبية — العقود منها ليست نافذة)</span>' : ''));
+        } else if (r && r.error === 'docusign_not_configured'){
+          // "Missing" is two different problems: a variable that never reached
+          // this environment, and one that arrived empty. They need different
+          // fixes, so they are named separately.
+          var rows = '', v = r.vars || {};
+          Object.keys(v).forEach(function(k){
+            var st = v[k];
+            rows += '<div style="direction:ltr;text-align:left;font-family:monospace;font-size:12px">' +
+              (st === 'set' ? '✅ ' : st === 'empty' ? '⚠️ ' : '⛔ ') + esc(k) + ' — ' +
+              (st === 'set' ? 'set' : st === 'empty' ? 'EXISTS BUT EMPTY' : 'NOT IN THIS ENVIRONMENT') + '</div>';
+          });
+          var anyEmpty = Object.keys(v).some(function(k){ return v[k] === 'empty'; });
+          var anyUnset = Object.keys(v).some(function(k){ return v[k] === 'not_set'; });
+          dsNote('warn', 'DocuSign غير مربوط بعد.<div style="margin:8px 0">' + rows + '</div>' +
+            (anyEmpty ? '<div style="color:#b45309">المتغيّر موجود لكن <b>قيمته فارغة</b> — افتحه في Vercel واضغط Edit والصق المفتاح ثم Save.</div>' : '') +
+            (anyUnset ? '<div style="color:#b45309">المتغيّر <b>غير مُتاح لبيئة Production</b> — تأكد أن الصناديق الثلاثة (Production / Preview / Development) مؤشَّرة عليه، ثم أعد النشر.</div>' : ''));
+        } else if (r && r.consentUrl){
+          dsNote('warn', 'ينقص إذن الحساب لمرة واحدة. افتح هذا الرابط ووافق:<br><a href="' + esc(r.consentUrl) + '" target="_blank" rel="noopener" style="font-weight:700;direction:ltr;display:inline-block">' + esc(r.consentUrl) + '</a>');
+        } else {
+          var extra = '';
+          if (r && r.key && r.key.present){
+            extra += '<div style="margin-top:8px;font-size:12px;color:var(--soft)">المفتاح الخاص: ' +
+              (r.key.usable ? '✅ صالح (' + esc(String(r.key.type || '')) + ' ' + esc(String(r.key.bits || '')) + ')'
+                            : '⛔ ' + esc(r.key.why || 'غير صالح')) +
+              ' · ' + r.key.lines + ' سطر · ' + r.key.chars + ' حرف</div>';
+          } else if (r && r.key && !r.key.present){
+            extra += '<div style="margin-top:8px;font-size:12px;color:#b91c1c">المفتاح الخاص غير مضبوط.</div>';
+          }
+          if (r && r.shape){
+            var bad = [];
+            if (!r.shape.userIdLooksGuid) bad.push('DOCUSIGN_USER_ID ليس بصيغة GUID');
+            if (!r.shape.accountIdLooksGuid) bad.push('DOCUSIGN_ACCOUNT_ID ليس بصيغة GUID — استخدم API Account ID لا الرقم القصير');
+            if (!r.shape.integrationKeyLooksGuid) bad.push('DOCUSIGN_INTEGRATION_KEY ليس بصيغة GUID');
+            if (bad.length) extra += '<div style="margin-top:6px;font-size:12px;color:#b45309">' + esc(bad.join(' · ')) + '</div>';
+          }
+          dsNote('err', 'فشل: ' + esc((r && r.error) || '؟') +
+            ((r && r.detail) ? '<br><span style="font-size:11px;direction:ltr;display:inline-block;text-align:left;color:#64748b">' + esc(r.detail) + '</span>' : '') + extra);
+        }
+      });
+    };
+    // Work orders by name, not by internal id. Asking the owner to paste a
+    // Notion page id was the interface leaking its own plumbing.
+    var dsOrders = [];
+    $('dsLoad').onclick = function(){
+      var btn = this; btn.disabled = true;
+      dsNote('', '⏳ أحمّل أوامر العمل…');
+      fetch('/api/suppliers?action=admin&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+        .then(function(r){ return r.json(); })
+        .catch(function(){ return { ok:false }; })
+        .then(function(d){
+          btn.disabled = false;
+          if (!d || !d.ok){ dsNote('err', 'تعذّر تحميل أوامر العمل.'); return; }
+          dsOrders = d.orders || [];
+          // A quote the client accepted is the only one a contract may follow,
+          // so those are offered first and the rest are marked.
+          dsOrders.sort(function(a, b){
+            var A = a.status === 'مقبول من العميل' ? 0 : 1, B = b.status === 'مقبول من العميل' ? 0 : 1;
+            return A - B;
+          });
+          $('dsOrder').innerHTML = '<option value="">— اختر أمر عمل —</option>' + dsOrders.map(function(o, i){
+            var ok = o.status === 'مقبول من العميل';
+            return '<option value="' + i + '">' + (ok ? '✅ ' : '• ') + esc(o.ref || '') +
+              (o.service ? ' — ' + esc(o.service) : '') + (o.client ? ' — ' + esc(o.client) : '') +
+              ' [' + esc(o.status || '—') + ']</option>';
+          }).join('');
+          dsNote(dsOrders.length ? 'ok' : 'warn', dsOrders.length
+            ? ('حُمِّل ' + dsOrders.length + ' أمر عمل. المسبوقة بـ ✅ قَبِل عملاؤها العرض وهي وحدها الجاهزة للعقد.')
+            : 'لا توجد أوامر عمل بعد.');
+        });
+    };
+    $('dsOrder').onchange = function(){
+      var o = dsOrders[Number(this.value)];
+      if (!o) return;
+      if (!$('dsName').value) $('dsName').value = o.client || '';
+      if (o.status !== 'مقبول من العميل')
+        dsNote('warn', 'هذا الأمر حالته «' + esc(o.status || '—') + '». العقد لا يُرسل إلا بعد أن يقبل العميل عرض السعر.');
+      else dsNote('', '');
+    };
+
+    $('dsSend').onclick = function(){
+      var picked = dsOrders[Number($('dsOrder').value)];
+      var id = picked ? picked.id : '', mail = $('dsEmail').value.trim();
+      if (!id || mail.indexOf('@') === -1){ dsNote('err', 'اختر أمر العمل وأدخل بريد العميل.'); return; }
+      var btn = this; btn.disabled = true;
+      dsNote('', '⏳ أُنشئ العقد وأرسله…');
+      dsPost({ type:'contract-send', orderId: id, email: mail, clientName: $('dsName').value.trim(), clientVat: $('dsVat').value.replace(/\D/g,'') })
+        .then(function(r){
+          btn.disabled = false;
+          if (r && r.ok){
+            $('dsEnv').value = r.envelopeId || '';
+            dsNote('ok', '✅ أُرسل العقد للتوقيع · الحالة: ' + esc(r.status) + '<br>Envelope: <span style="direction:ltr;display:inline-block">' + esc(r.envelopeId) + '</span>');
+          } else if (r && r.error === 'quote_not_accepted'){
+            dsNote('warn', 'العميل لم يقبل عرض السعر بعد (الحالة: ' + esc(r.status || '—') + '). العقد يُرسل بعد القبول.');
+          } else if (r && r.error === 'docusign_consent_required'){
+            dsNote('warn', 'ينقص إذن الحساب لمرة واحدة — افتح: <span style="direction:ltr;display:inline-block">' + esc(r.detail || '') + '</span>');
+          } else {
+            dsNote('err', 'تعذّر الإرسال: ' + esc((r && r.error) || '؟') + ((r && r.detail) ? '<br><span style="font-size:11px;direction:ltr;display:inline-block;text-align:left;color:#64748b">' + esc(r.detail) + '</span>' : ''));
+          }
+        });
+    };
+    $('dsStatus').onclick = function(){
+      var envId = $('dsEnv').value.trim();
+      if (!envId){ dsNote('err', 'أدخل Envelope ID.'); return; }
+      var btn = this; btn.disabled = true;
+      dsNote('', '⏳ أقرأ الحالة…');
+      dsPost({ type:'contract-status', envelopeId: envId }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ dsNote('err', 'تعذّر: ' + esc((r && r.error) || '؟')); return; }
+        var e = r.envelope;
+        dsNote(e.status === 'completed' ? 'ok' : '',
+          '<span class="kv"><i>الحالة:</i>' + esc(e.status) + '</span>' +
+          (e.sentAt ? '<span class="kv"><i>أُرسل:</i>' + esc(e.sentAt) + '</span>' : '') +
+          (e.completedAt ? '<span class="kv"><i>اكتمل:</i>' + esc(e.completedAt) + '</span>' : '') +
+          (e.signers || []).map(function(s){
+            return '<span class="kv"><i>' + esc(s.name || s.email) + ':</i>' + esc(s.status) + (s.signedAt ? ' · ' + esc(s.signedAt) : '') + '</span>';
+          }).join(''));
+      });
     };
 
     // The same reader the invoice form uses, so the certificate fills these too.
@@ -1720,7 +1963,17 @@
                 : (out.pendingPdf ? '' : ($('ivSend').checked && !$('ivDraft').checked ? ' · <span style="color:#b45309">تعذّر إرسالها بالبريد</span>' : ''))) +
               '<br><a href="' + esc(iv.url) + '" target="_blank" rel="noopener" style="font-weight:700">افتحها في الدفترة ←</a>' +
               (iv.printUrl ? ' · <a href="' + esc(iv.printUrl) + '" target="_blank" rel="noopener" style="font-weight:700">اطبع/PDF بالباركود ←</a>' : '') +
+              (out.payUrl ? '<br><span class="kv"><i>رابط الدفع:</i><a href="' + esc(out.payUrl) + '" target="_blank" rel="noopener" style="font-weight:700;direction:ltr;display:inline-block">' + esc(out.payUrl) + '</a></span>' +
+                '<button class="actbtn" type="button" id="ivPayCopy" style="margin-top:6px">📋 انسخ رابط الدفع</button>' : '') +
               (iv.reducedPayload ? '<br><span style="color:#b45309;font-size:12px">ملاحظة: حسابك رفض بعض الحقول الاختيارية فصدرت بالحقول الأساسية — أرسل لي لقطة وأضبطها.</span>' : '');
+            if (out.payUrl) {
+              var pc = $('ivPayCopy');
+              if (pc) pc.onclick = function(){
+                var ta = document.createElement('textarea'); ta.value = out.payUrl; document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); } catch(e){}
+                ta.remove(); pc.textContent = '📋 نُسخ ✓';
+              };
+            }
             if (out.pendingPdf) ivAttachBox(iv, out.email || email);
             refresh();
           } else {

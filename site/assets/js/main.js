@@ -1516,6 +1516,15 @@ var BP = window.BP = window.BP || {};
       var employerPlanKey = employerPlanItem ? employerPlanItem.id.replace("employer-plan-", "").replace(/-monthly$|-yearly$/, "") : "";
       var employerBilling = employerPlanItem && /-yearly$/.test(employerPlanItem.id) ? "yearly" : "monthly";
       var companyProfile = {}; try { companyProfile = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e0) {}
+      // Whoever sent this visitor, if anyone did. Ninety days, because a
+      // company formation is decided over weeks, not in one sitting.
+      function partnerRef() {
+        try {
+          var r = JSON.parse(localStorage.getItem("bp_partner_ref") || "null");
+          if (r && r.code && Date.now() - (r.at || 0) < 90 * 86400000) return r.code;
+        } catch (e9) {}
+        return "";
+      }
       function sendOrder(receiptBase64) {
         try {
           fetch("/api/requests", {
@@ -1530,7 +1539,7 @@ var BP = window.BP = window.BP || {};
               employerPlan: employerPlanKey, employerBilling: employerBilling,
               company: companyName || companyProfile.name || "",
               cr: crNumber, headcount: pkgVisible ? headcount : "", nationalAddress: nationalAddress, surchargeFee: surchargeFee,
-              taxProfile: taxProfile,
+              taxProfile: taxProfile, partnerRef: partnerRef(),
               receiptName: receiptFile.name, receiptType: receiptFile.type || "", receiptBase64: receiptBase64 || ""
             })
           }).catch(function () {});
@@ -1738,6 +1747,10 @@ var BP = window.BP = window.BP || {};
             var label = live && LIVE_STATUS_LABEL[live];
             var text = label ? BP.t(label[0], label[1]) : null;
             if (text && text !== o.status) { o.status = text; changed = true; }
+            // What the team executing the work has reported. Stored with the
+            // order so the journey survives a reload and an offline visit.
+            var log = d.journey && d.journey[o.ref];
+            if (log && JSON.stringify(log) !== JSON.stringify(o.journey || [])) { o.journey = log; changed = true; }
           });
           if (changed) {
             try { localStorage.setItem("bp_orders", JSON.stringify(orders)); } catch (e) {}
@@ -1759,9 +1772,21 @@ var BP = window.BP = window.BP || {};
       var cancelBtn = (!cancelled && !done)
         ? '<button type="button" class="ord-cancel" data-ref="' + esc2(o.ref) + '" data-email="' + esc2(o.email || "") + '" data-name="' + esc2(o.name || "") + '">' + BP.t("Cancel order", "إلغاء الطلب") + '</button>'
         : "";
+      // The journey, when there is one: dated entries in the order they happened,
+      // so "where has my order got to" is answered on the page rather than by
+      // asking someone.
+      var journey = (o.journey || []).length
+        ? '<details class="ord-journey" style="margin-top:8px"><summary style="cursor:pointer;font-size:.85rem;color:var(--navy)">' +
+            BP.t("Progress (" + o.journey.length + ")", "سير التنفيذ (" + o.journey.length + ")") + '</summary>' +
+            '<ul style="margin:8px 0 0;padding-inline-start:18px;line-height:1.9">' +
+            o.journey.map(function (e) {
+              return '<li style="font-size:.85rem"><span class="text-soft" style="direction:ltr;display:inline-block">' + esc2(e.at || "") + '</span> — ' +
+                esc2(e.text || "") + (e.by ? ' <span class="text-soft">(' + esc2(e.by) + ')</span>' : "") + '</li>';
+            }).join("") + '</ul></details>'
+        : "";
       return '<div class="ord"><div class="ord-main"><strong>' + esc2(o.ref) + '</strong>' +
         '<span class="text-soft"> · ' + esc2(o.at || "") + '</span>' +
-        '<div class="text-soft ord-items">' + items + '</div></div>' +
+        '<div class="text-soft ord-items">' + items + '</div>' + journey + '</div>' +
         '<div class="ord-side"><span class="ord-status ' + cls + '">' + esc2(o.status || BP.t("In review", "قيد المراجعة")) + '</span>' + waIcon + cancelBtn + '</div></div>';
     }
 
@@ -2234,6 +2259,10 @@ var BP = window.BP = window.BP || {};
       var due = orders.filter(function (o) { return (o.status === "تم التسليم" || o.status === "معتمد") && o.supplierInvoiceStatus === "لم تُرفع"; });
       var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
       set("pt-stat-open", active.length); set("pt-stat-done", done.length); set("pt-stat-due", due.length);
+      // One link the partner shares anywhere. Whoever buys through it is
+      // attributed to them, so the commission rests on evidence.
+      var rl = document.getElementById("pt-reflink");
+      if (rl && s.code) rl.textContent = location.origin + ((window.BP && BP.lang === "ar") ? "/ar/services" : "/services") + "?p=" + s.code;
       if (s.priceList && s.priceList.length && !(myList && myList.length)) myList = s.priceList.slice();
       drawMyList();
       renderCatalog(s);
@@ -2502,6 +2531,16 @@ var BP = window.BP = window.BP || {};
       }, 150);
     })();
 
+    function copyText(txt, btn) {
+      var done = function () { var o = btn.textContent; btn.textContent = T("Copied ✓", "نُسخ ✓"); setTimeout(function () { btn.textContent = o; }, 1500); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, done);
+      else { var ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); done(); }
+    }
+    var refCopy = document.getElementById("pt-refcopy");
+    if (refCopy) refCopy.addEventListener("click", function () { copyText(document.getElementById("pt-reflink").textContent, refCopy); });
+    var qlCopy = document.getElementById("pt-qlink-copy");
+    if (qlCopy) qlCopy.addEventListener("click", function () { copyText(document.getElementById("pt-qlink").value, qlCopy); });
+
     var logout = document.getElementById("pt-logout");
     if (logout) logout.addEventListener("click", function () { setCreds(null); state.supplier = null; state.orders = []; pending = null; paneTo("login"); render(); });
 
@@ -2640,6 +2679,21 @@ var BP = window.BP = window.BP || {};
         var notes = document.getElementById("pt-offer-notes"); if (notes) notes.value = (ord && ord.notes) || "";
         // Invoicing step: the approved quote is the amount, stated rather than
         // left to be remembered — this is the one-click carry-over.
+        // The link the client opens. Fetched only when there is a quote to open,
+        // so an empty order never offers a link to nothing.
+        var qw3 = document.getElementById("pt-qlink-wrap");
+        if (qw3) {
+          qw3.hidden = true;
+          if (ord && (ord.quote != null || (ord.lines && ord.lines.length))) {
+            var c3 = creds();
+            if (c3) fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+              body: JSON.stringify({ type: "quote-link", email: c3.email, pw: c3.pw || "", orderId: ord.id }) })
+              .then(function (r) { return r.json(); })
+              .then(function (d) { if (d && d.ok && d.url) { document.getElementById("pt-qlink").value = d.url; qw3.hidden = false; } })
+              .catch(function () {});
+          }
+        }
+        var prog = document.getElementById("pt-progress"); if (prog) prog.value = "";
         var hint = document.getElementById("pt-inv-hint");
         if (hint) {
           hint.textContent = (ord && ord.quote != null)
@@ -2661,6 +2715,7 @@ var BP = window.BP = window.BP || {};
         type: "order-update", email: c.email, password: c.pw,
         orderId: document.getElementById("pt-order-id").value,
         notes: (document.getElementById("pt-offer-notes").value || "").trim(),
+        progress: ((document.getElementById("pt-progress") || {}).value || "").trim(),
       };
       var qw2 = document.getElementById("pt-quote-wrap");
       if (qw2 && !qw2.hidden) {
@@ -6123,4 +6178,107 @@ var BP_EMP_BILLING = "monthly";
       } else b.disabled = false;
     });
   });
+})();
+
+/* ---------- Public quotation page (/quote?id=&t=) ---------- */
+(function () {
+  "use strict";
+  var doc = document.getElementById("q-doc");
+  if (!doc) return;
+  var isAr = (window.BP && BP.lang === "ar");
+  function T(en, ar) { return isAr ? ar : en; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var money = function (n) { return (Math.round(Number(n) * 100) / 100) + " ﷼"; };
+  var p = new URLSearchParams(location.search);
+  var id = p.get("id") || "", t = p.get("t") || "";
+  var loading = document.getElementById("q-loading"), errBox = document.getElementById("q-error");
+  function fail(msg) { loading.hidden = true; errBox.hidden = false; errBox.textContent = msg; }
+  if (!id || !t) { fail(T("This link is incomplete. Please use the link from your email.", "الرابط ناقص. افتح الرابط كما وصلك في بريدك.")); return; }
+
+  fetch("/api/suppliers?action=quote&id=" + encodeURIComponent(id) + "&t=" + encodeURIComponent(t), { cache: "no-store" })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.ok) {
+        return fail(d && d.error === "bad_link"
+          ? T("This link is not valid, or it has been replaced by a newer one.", "هذا الرابط غير صالح، أو استُبدل برابط أحدث.")
+          : d && d.error === "no_quote" ? T("No quotation has been issued on this order yet.", "لم يصدر عرض سعر على هذا الطلب بعد.")
+          : T("We could not open this quotation.", "تعذّر فتح عرض السعر."));
+      }
+      var q = d.quote;
+      loading.hidden = true; doc.hidden = false;
+      document.getElementById("q-service").textContent = q.service || q.ref;
+      document.getElementById("q-meta").textContent = [q.ref, q.clientRef, q.client].filter(Boolean).join(" · ");
+      var exec = document.getElementById("q-exec");
+      if (exec && q.supplier) exec.textContent = T("Executed by ", "ينفّذها ") + q.supplier;
+      document.getElementById("q-lines").innerHTML = (q.lines || []).length
+        ? q.lines.map(function (l) {
+            return "<tr><td style='padding:9px 12px;border-top:1px solid var(--gray-line)'>" + esc(l.name) + "</td>" +
+              "<td style='padding:9px 12px;text-align:center;border-top:1px solid var(--gray-line)'>" + (l.qty || 1) + "</td>" +
+              "<td style='padding:9px 12px;text-align:end;border-top:1px solid var(--gray-line)'>" + money(l.price * (l.qty || 1)) + "</td></tr>";
+          }).join("")
+        : "<tr><td colspan='3' style='padding:9px 12px'>" + esc(q.service || "") + "</td></tr>";
+      document.getElementById("q-net").textContent = money(q.net);
+      document.getElementById("q-rate").textContent = q.vatRate;
+      document.getElementById("q-vat").textContent = money(q.vat);
+      document.getElementById("q-total").textContent = money(q.total);
+      if (q.leadTime) document.getElementById("q-lead").textContent = T("Delivery: ", "مدة التنفيذ: ") + q.leadTime;
+      if (q.notes) document.getElementById("q-notes").textContent = q.notes;
+      // A decision already taken is shown, not offered again — re-deciding a
+      // quote that started work is not something a link should allow.
+      if (q.decided) {
+        document.getElementById("q-actions").innerHTML =
+          "<p style='margin:0;font-weight:600;color:" + (q.status === "مقبول من العميل" ? "#065f46" : "#b91c1c") + "'>" +
+          (q.status === "مقبول من العميل"
+            ? T("You have accepted this quotation. ✓", "قبلتَ عرض السعر هذا. ✓")
+            : T("You have declined this quotation.", "رفضتَ عرض السعر هذا.")) + "</p>";
+      }
+    })
+    .catch(function () { fail(T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى.")); });
+
+  function decide(decision) {
+    var ok = document.getElementById("q-done"), bad = document.getElementById("q-fail");
+    ok.hidden = true; bad.hidden = true;
+    if (decision === "decline" && !confirm(T("Decline this quotation?", "رفض عرض السعر؟"))) return;
+    var btns = [document.getElementById("q-accept"), document.getElementById("q-decline")];
+    btns.forEach(function (b) { b.disabled = true; });
+    fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type: "quote-decision", id: id, t: t, decision: decision, note: (document.getElementById("q-note").value || "").trim() }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        btns.forEach(function (b) { b.disabled = false; });
+        if (d && d.ok) {
+          ok.textContent = decision === "accept"
+            ? T("Accepted ✓ — the contract and the tax invoice reach you shortly.", "تم القبول ✓ — يصلك العقد والفاتورة الضريبية خلال وقت قصير.")
+            : T("Declined — thank you for telling us.", "تم الرفض — شكراً لإبلاغنا.");
+          ok.hidden = false;
+          btns.forEach(function (b) { b.disabled = true; });
+        } else {
+          bad.textContent = d && d.error === "already_decided"
+            ? T("A decision has already been recorded on this quotation.", "سُجِّل قرار على هذا العرض من قبل.")
+            : T("Could not record your decision — please try again.", "تعذّر تسجيل قرارك — حاول مرة أخرى.");
+          bad.hidden = false;
+        }
+      })
+      .catch(function () {
+        btns.forEach(function (b) { b.disabled = false; });
+        bad.textContent = T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى.");
+        bad.hidden = false;
+      });
+  }
+  document.getElementById("q-accept").addEventListener("click", function () { decide("accept"); });
+  document.getElementById("q-decline").addEventListener("click", function () { decide("decline"); });
+})();
+
+/* ---------- Partner referral: remember which partner sent the visitor ---------- */
+(function () {
+  "use strict";
+  // A partner shares one link. Whoever arrives through it stays attributed to
+  // them for this browser, so the order that follows carries the attribution
+  // even though the visit and the purchase are separate sessions.
+  try {
+    var code = new URLSearchParams(location.search).get("p");
+    if (code && /^[A-Za-z0-9-]{4,24}$/.test(code)) {
+      localStorage.setItem("bp_partner_ref", JSON.stringify({ code: code.toUpperCase(), at: Date.now() }));
+    }
+  } catch (e) {}
 })();

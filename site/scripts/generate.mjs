@@ -6718,6 +6718,75 @@ function buildSuppliers() {
 // device-local pattern as the client account); matched requests are also
 // routed by the team/n8n once the partner is activated. Submitting an offer
 // POSTs to /api/requests (type: partner-offer).
+// The client's side of a quote: opened from a link in their inbox, no account
+// needed. Holding the link is the authorisation — the same model DocuSign and
+// Stripe use for a document sent by email.
+function buildQuotePage() {
+  const body = `
+  <section class="section"><div class="container" style="max-width:760px">
+    <div id="q-loading" class="dash-card" style="text-align:center">${L("Opening your quote…", "جارٍ فتح عرض السعر…")}</div>
+    <div id="q-error" class="dash-card" hidden style="text-align:center;color:#b91c1c"></div>
+
+    <div id="q-doc" hidden>
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div>
+            <span class="eyebrow">${L("Quotation", "عرض سعر")}</span>
+            <h1 style="margin:6px 0 2px;font-size:1.6rem" id="q-service">—</h1>
+            <p class="text-soft" style="margin:0" id="q-meta">—</p>
+          </div>
+          <div style="text-align:end">
+            <div class="text-soft" style="font-size:.8rem">${L("From", "من")}</div>
+            <strong style="color:var(--navy)">Business Partner</strong>
+            <div class="text-soft" style="font-size:.78rem" id="q-exec"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <table style="width:100%;border-collapse:collapse" id="q-table">
+          <thead><tr style="background:#f1f5f9">
+            <th style="padding:9px 12px;text-align:start">${L("Item", "البند")}</th>
+            <th style="padding:9px 12px;text-align:center;width:70px">${L("Qty", "الكمية")}</th>
+            <th style="padding:9px 12px;text-align:end;width:130px">${L("Price", "السعر")}</th>
+          </tr></thead>
+          <tbody id="q-lines"></tbody>
+        </table>
+        <div style="border-top:1px solid var(--gray-line);margin-top:12px;padding-top:12px;line-height:2.1;text-align:end">
+          <div>${L("Subtotal", "الإجمالي قبل الضريبة")}: <b id="q-net">—</b></div>
+          <div>${L("VAT", "ضريبة القيمة المضافة")} (<span id="q-rate">15</span>%): <b id="q-vat">—</b></div>
+          <div style="font-size:1.25rem;color:var(--navy)"><b>${L("Total", "الإجمالي")}: <span id="q-total">—</span></b></div>
+        </div>
+        <p class="text-soft" style="font-size:.84rem;margin-top:10px" id="q-lead"></p>
+        <p class="text-soft" style="font-size:.84rem;white-space:pre-wrap" id="q-notes"></p>
+      </div>
+
+      <div class="dash-card" id="q-actions">
+        <h3 style="margin-top:0">${L("Your decision", "قرارك")}</h3>
+        <p class="text-soft" style="font-size:.9rem;line-height:1.9">${L("Accepting starts the work. You will then receive the contract to sign and the tax invoice to pay — both from Business Partner.", "القبول يبدأ التنفيذ. بعده يصلك العقد للتوقيع والفاتورة الضريبية للسداد — كلاهما من بيزنس بارتنر.")}</p>
+        <div class="field"><label for="q-note">${L("A note with your decision (optional)", "ملاحظة مع قرارك (اختياري)")}</label><input id="q-note" type="text" maxlength="300"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" class="btn btn-primary btn-lg" id="q-accept" style="flex:1;min-width:180px">✅ ${L("Accept the quote", "أقبل عرض السعر")}</button>
+          <button type="button" class="btn btn-ghost" id="q-decline">${L("Decline", "أرفض")}</button>
+        </div>
+        <p class="form-success" id="q-done" hidden></p>
+        <p class="form-error" id="q-fail" hidden></p>
+      </div>
+
+      <div class="dash-card" id="q-steps" style="margin-top:18px">
+        <h3 style="margin-top:0">${L("What happens next", "ما الذي يحدث بعد ذلك")}</h3>
+        <ol style="line-height:2.2;padding-inline-start:20px;margin:0" class="text-soft">
+          <li>${L("You accept this quote.", "تقبل عرض السعر.")}</li>
+          <li>${L("The contract reaches you to sign electronically.", "يصلك العقد لتوقّعه إلكترونياً.")}</li>
+          <li>${L("The tax invoice reaches you as a PDF, payable online.", "تصلك الفاتورة الضريبية PDF وتُسدَّد إلكترونياً.")}</li>
+          <li>${L("You follow the work in your client portal, updated as it progresses.", "تتابع التنفيذ في بوابة العميل، وتُحدَّث أولاً بأول.")}</li>
+        </ol>
+      </div>
+    </div>
+  </div></section>`;
+  return page({ title: L("Quotation — Business Partner", "عرض سعر — بيزنس بارتنر"), desc: Lraw("Review and accept your quotation.", "راجع عرض سعرك واقبله."), body, noindex: true });
+}
+
 function buildPartnerDashboard() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -6786,6 +6855,9 @@ function buildPartnerDashboard() {
             <h3 style="margin:0" id="pt-company">—</h3>
             <p class="text-soft" style="margin:0" id="pt-contact">—</p>
             <p style="margin:8px 0 0"><span class="pt-share" id="pt-rate">—</span></p>
+            <p style="margin:8px 0 0;font-size:.84rem" class="text-soft">${L("Your referral link", "رابط الإحالة الخاص بك")}:
+              <code id="pt-reflink" style="direction:ltr;display:inline-block;background:#f1f5f9;padding:3px 8px;border-radius:6px">—</code>
+              <button type="button" class="btn btn-ghost btn-sm" id="pt-refcopy">${L("Copy", "انسخ")}</button></p>
           </div>
           <button class="btn btn-ghost btn-sm" id="pt-logout">${L("Sign out", "خروج")}</button>
         </div>
@@ -6874,7 +6946,19 @@ function buildPartnerDashboard() {
         <div class="field" id="pt-inv-wrap"><label for="pt-invoice">${L("Your invoice (PDF or image) — optional", "فاتورتك (PDF أو صورة) — اختياري")}</label>
           <p class="text-soft" style="font-size:.84rem;margin:2px 0 6px" id="pt-inv-hint">${L("Invoice us for the approved quote once you deliver.", "فوترنا بقيمة العرض المعتمد بعد التسليم.")}</p>
           <input id="pt-invoice" type="file" accept=".pdf,image/*"></div>
-        <div class="field"><label for="pt-offer-notes">${L("Notes", "ملاحظات")}</label><textarea id="pt-offer-notes" rows="3" placeholder="${Lraw("Progress, delivery details, anything the team should know…", "سير العمل، تفاصيل التسليم، أي شيء يحتاج الفريق معرفته…")}"></textarea></div>
+        <div class="field"><label for="pt-progress">${L("Progress update the client sees", "تحديث يراه العميل")}</label>
+          <input id="pt-progress" type="text" maxlength="400" placeholder="${Lraw("e.g. Name reservation submitted to the Ministry", "مثال: قُدِّم حجز الاسم لدى الوزارة")}">
+          <p class="text-soft" style="font-size:.82rem;margin:4px 0 0">${L("Dated and added to the client's tracking page. Earlier updates stay.", "يُؤرَّخ ويُضاف لصفحة متابعة العميل. التحديثات السابقة تبقى.")}</p>
+        </div>
+        <div class="field"><label for="pt-offer-notes">${L("Internal notes", "ملاحظات داخلية")}</label><textarea id="pt-offer-notes" rows="3" placeholder="${Lraw("Workflow, delivery details, anything the team should know…", "سير العمل، تفاصيل التسليم، أي شيء يحتاج الفريق معرفته…")}"></textarea></div>
+        <div class="field" id="pt-qlink-wrap" hidden>
+          <label>${L("Client link for this quote", "رابط العميل لهذا العرض")}</label>
+          <p class="text-soft" style="font-size:.82rem;margin:2px 0 6px">${L("Send it to the client. They open it without an account, review the quote and accept it — and both of us are told.", "أرسله للعميل. يفتحه بلا حساب، يراجع العرض ويقبله — ونُبلَّغ نحن الاثنان.")}</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="pt-qlink" type="text" readonly dir="ltr" style="flex:1;min-width:200px">
+            <button type="button" class="btn btn-ghost btn-sm" id="pt-qlink-copy">${L("Copy", "انسخ")}</button>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Save update", "احفظ التحديث")}</button>
         <div class="form-success" id="pt-offer-sent" hidden></div>
       </form>
@@ -9299,6 +9383,7 @@ function writeFullSite(pre) {
   write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
   write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
+  write(`${pre}quote.html`, buildQuotePage());
   write(`${pre}suppliers-admin.html`, buildSuppliersAdmin());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
