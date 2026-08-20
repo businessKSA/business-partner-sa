@@ -1180,7 +1180,8 @@ function buildServicesIndex() {
   </div></section>
   <section class="section"><div class="container">
     <div class="grid grid-3 cat-grid">${categoryCards()}</div>
-    <div class="cta-band" style="margin-top:36px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
+    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Revenue OS — business development as a service ⚡", "Revenue OS — تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/revenue-os")}">${L("Explore Revenue OS", "استعرض Revenue OS")}</a></div>
+    <div class="cta-band" style="margin-top:20px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
   </div></section>`;
   return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
 }

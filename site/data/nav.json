@@ -55,6 +55,28 @@
           ]
         },
         {
+          "href": "/revenue-os",
+          "en": "Revenue OS ⚡",
+          "ar": "Revenue OS — تطوير الأعمال ⚡",
+          "sub": [
+            {
+              "href": "/revenue-os",
+              "en": "How it works",
+              "ar": "كيف يعمل"
+            },
+            {
+              "href": "/revenue-os#pricing",
+              "en": "Packages & pricing",
+              "ar": "الباقات والأسعار"
+            },
+            {
+              "href": "/revenue-dashboard",
+              "en": "Client dashboard",
+              "ar": "لوحة العميل"
+            }
+          ]
+        },
+        {
           "href": "/services/category/ai-automation",
           "en": "AI & Automation ⚡",
           "ar": "الأتمتة والذكاء الاصطناعي ⚡"
@@ -379,6 +401,11 @@
           "href": "/account",
           "en": "Client portal",
           "ar": "منصّة العملاء"
+        },
+        {
+          "href": "/revenue-dashboard",
+          "en": "Revenue OS dashboard",
+          "ar": "لوحة Revenue OS"
         },
         {
           "href": "/suppliers",
