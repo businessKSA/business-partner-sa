@@ -2226,6 +2226,8 @@ var BP = window.BP = window.BP || {};
       var due = orders.filter(function (o) { return (o.status === "تم التسليم" || o.status === "معتمد") && o.supplierInvoiceStatus === "لم تُرفع"; });
       var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
       set("pt-stat-open", active.length); set("pt-stat-done", done.length); set("pt-stat-due", due.length);
+      if (s.priceList && s.priceList.length && !(myList && myList.length)) myList = s.priceList.slice();
+      drawMyList();
       renderCatalog(s);
 
       var feed = document.getElementById("pt-feed");
@@ -2495,6 +2497,120 @@ var BP = window.BP = window.BP || {};
     var logout = document.getElementById("pt-logout");
     if (logout) logout.addEventListener("click", function () { setCreds(null); state.supplier = null; state.orders = []; pending = null; paneTo("login"); render(); });
 
+    // ---- the partner's own price list: build once, reuse on every quote ----
+    var myList = [];
+    function drawMyList() {
+      if (!myList) myList = [];
+      var box = document.getElementById("pm-list");
+      if (!box) return;
+      if (!myList.length) {
+        box.innerHTML = '<p class="dash-empty">' + T("No services yet — add your first one below.", "لا خدمات بعد — أضف أولى خدماتك بالأسفل.") + "</p>";
+      } else {
+        box.innerHTML = myList.map(function (it, i) {
+          return '<div class="pm-row" data-i="' + i + '" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center">' +
+            '<input class="pm-n" value="' + esc4(it.name || "") + '" placeholder="' + T("Service", "الخدمة") + '" style="padding:8px 10px;border:1px solid var(--gray-line);border-radius:8px;font-family:inherit">' +
+            '<input class="pm-p" type="number" min="0" step="0.01" value="' + (it.price == null ? "" : it.price) + '" placeholder="' + T("Price", "السعر") + '" style="padding:8px 10px;border:1px solid var(--gray-line);border-radius:8px;font-family:inherit">' +
+            '<input class="pm-l" value="' + esc4(it.lead || "") + '" placeholder="' + T("Delivery", "المدة") + '" style="padding:8px 10px;border:1px solid var(--gray-line);border-radius:8px;font-family:inherit">' +
+            '<button type="button" class="btn btn-ghost btn-sm pm-x" data-i="' + i + '">✕</button></div>';
+        }).join("");
+      }
+      fillPicker();
+    }
+    function readMyList() {
+      return [].slice.call(document.querySelectorAll("#pm-list .pm-row")).map(function (r) {
+        return { name: (r.querySelector(".pm-n").value || "").trim(),
+                 price: Number(r.querySelector(".pm-p").value),
+                 lead: (r.querySelector(".pm-l").value || "").trim() };
+      }).filter(function (it) { return it.name && isFinite(it.price) && it.price >= 0; });
+    }
+    var pmAdd = document.getElementById("pm-add");
+    if (pmAdd) pmAdd.addEventListener("click", function () { myList = readMyList().concat([{ name: "", price: "", lead: "" }]); drawMyList(); });
+    document.addEventListener("click", function (e) {
+      var x = e.target.closest && e.target.closest(".pm-x");
+      if (!x) return;
+      var i = Number(x.getAttribute("data-i"));
+      myList = [].slice.call(document.querySelectorAll("#pm-list .pm-row")).map(function (r, j) {
+        return j === i ? null : { name: (r.querySelector(".pm-n").value || "").trim(), price: Number(r.querySelector(".pm-p").value), lead: (r.querySelector(".pm-l").value || "").trim() };
+      }).filter(Boolean);
+      drawMyList();
+    });
+    var pmSave = document.getElementById("pm-save");
+    if (pmSave) pmSave.addEventListener("click", function () {
+      var c = creds(); if (!c) return;
+      var msg = document.getElementById("pm-msg");
+      var list = readMyList();
+      pmSave.disabled = true; msg.textContent = T("Saving…", "جارٍ الحفظ…"); msg.style.color = "";
+      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "my-services", email: c.email, pw: c.pw || "", services: list }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          pmSave.disabled = false;
+          if (d && d.ok) {
+            myList = d.priceList || list;
+            drawMyList();
+            msg.style.color = "#065f46";
+            msg.textContent = T("Saved ✓ — these now appear when you build a quote.", "حُفظت ✓ — تظهر الآن عند بناء عرض السعر.");
+          } else { msg.style.color = "#b91c1c"; msg.textContent = T("Could not save — try again.", "تعذّر الحفظ — حاول مرة أخرى."); }
+        })
+        .catch(function () { pmSave.disabled = false; msg.style.color = "#b91c1c"; msg.textContent = T("Connection issue.", "مشكلة في الاتصال."); });
+    });
+
+    // ---- quote line items: the same lines become the invoice, so they are
+    // built once and carried forward rather than retyped. ----
+    function fillPicker() {
+      var sel = document.getElementById("pt-pick");
+      if (!sel) return;
+      sel.innerHTML = '<option value="">' + T("Add from my services…", "أضف من خدماتي…") + "</option>" +
+        myList.map(function (it, i) { return '<option value="' + i + '">' + esc4(it.name) + " — " + it.price + " ﷼</option>"; }).join("");
+    }
+    function drawLines(lines) {
+      var box = document.getElementById("pt-lines");
+      if (!box) return;
+      box.innerHTML = (lines || []).map(function (l) {
+        return '<div class="pt-line" style="display:grid;grid-template-columns:2fr 60px 1fr auto;gap:6px;margin-bottom:6px;align-items:center">' +
+          '<input class="pl-n" value="' + esc4(l.name || "") + '" placeholder="' + T("Item", "البند") + '" style="padding:8px 10px;border:1px solid var(--gray-line);border-radius:8px;font-family:inherit">' +
+          '<input class="pl-q" type="number" min="1" value="' + (l.qty || 1) + '" style="padding:8px 6px;border:1px solid var(--gray-line);border-radius:8px;font-family:inherit;text-align:center">' +
+          '<input class="pl-p" type="number" min="0" step="0.01" value="' + (l.price == null ? "" : l.price) + '" placeholder="' + T("Price", "السعر") + '" style="padding:8px 10px;border:1px solid var(--gray-line);border-radius:8px;font-family:inherit">' +
+          '<button type="button" class="btn btn-ghost btn-sm pl-x">✕</button></div>';
+      }).join("");
+      lineTotal();
+    }
+    function readLines() {
+      return [].slice.call(document.querySelectorAll("#pt-lines .pt-line")).map(function (r) {
+        return { name: (r.querySelector(".pl-n").value || "").trim(),
+                 qty: Number(r.querySelector(".pl-q").value) || 1,
+                 price: Number(r.querySelector(".pl-p").value) || 0 };
+      });
+    }
+    function lineTotal() {
+      var el = document.getElementById("pt-lines-total");
+      if (!el) return 0;
+      var t = readLines().reduce(function (a, l) { return a + l.price * l.qty; }, 0);
+      t = Math.round(t * 100) / 100;
+      el.textContent = T("Quote total: ", "إجمالي العرض: ") + t + " ﷼";
+      var hid = document.getElementById("pt-quote"); if (hid) hid.value = t || "";
+      return t;
+    }
+    document.addEventListener("input", function (e) { if (e.target.closest && e.target.closest("#pt-lines")) lineTotal(); });
+    document.addEventListener("click", function (e) {
+      var x = e.target.closest && e.target.closest(".pl-x");
+      if (!x) return;
+      x.closest(".pt-line").remove();
+      lineTotal();
+    });
+    var lineAdd = document.getElementById("pt-line-add");
+    if (lineAdd) lineAdd.addEventListener("click", function () { drawLines(readLines().concat([{ name: "", qty: 1, price: "" }])); });
+    var picker = document.getElementById("pt-pick");
+    if (picker) picker.addEventListener("change", function () {
+      var i = Number(picker.value);
+      if (picker.value === "" || !myList[i]) return;
+      var it = myList[i];
+      // Drop the blank starter row: picking a service is the answer to it.
+      var kept = readLines().filter(function (l) { return l.name || l.price > 0; });
+      drawLines(kept.concat([{ name: it.name, qty: 1, price: it.price }]));
+      picker.value = "";
+    });
+
     // Work-order update modal
     var modal = document.getElementById("pt-modal");
     document.addEventListener("click", function (e) {
@@ -2508,6 +2624,21 @@ var BP = window.BP = window.BP || {};
         if (sw) sw.hidden = isRfq;
         var mt = document.getElementById("pt-modal-title");
         if (mt) mt.textContent = isRfq ? T("Submit your quote", "قدّم عرض سعرك") : T("Update work order", "تحديث أمر العمل");
+        // The order's own lines open in the builder, so revising a quote edits
+        // what was sent rather than starting from an empty form.
+        var ord = (state.orders || []).filter(function (o) { return o.id === b.getAttribute("data-id"); })[0];
+        drawLines((ord && ord.lines && ord.lines.length) ? ord.lines : [{ name: "", qty: 1, price: "" }]);
+        var lead = document.getElementById("pt-lead"); if (lead) lead.value = (ord && ord.leadTime) || "";
+        var notes = document.getElementById("pt-offer-notes"); if (notes) notes.value = (ord && ord.notes) || "";
+        // Invoicing step: the approved quote is the amount, stated rather than
+        // left to be remembered — this is the one-click carry-over.
+        var hint = document.getElementById("pt-inv-hint");
+        if (hint) {
+          hint.textContent = (ord && ord.quote != null)
+            ? T("Invoice us for the approved quote: " + ord.quote + " SAR — the same lines you quoted.",
+                "فوترنا بقيمة العرض المعتمد: " + ord.quote + " ﷼ — البنود نفسها التي عرضتها.")
+            : T("Invoice us for the approved quote once you deliver.", "فوترنا بقيمة العرض المعتمد بعد التسليم.");
+        }
         var sent = document.getElementById("pt-offer-sent"); if (sent) sent.hidden = true;
         modal.hidden = false;
       }
@@ -2525,9 +2656,10 @@ var BP = window.BP = window.BP || {};
       };
       var qw2 = document.getElementById("pt-quote-wrap");
       if (qw2 && !qw2.hidden) {
-        payload.quote = document.getElementById("pt-quote").value;
+        var ls = readLines().filter(function (l) { return l.name && l.price > 0; });
+        if (!ls.length) { alert(T("Add at least one line with a price above zero.", "أضف بنداً واحداً على الأقل بسعر أكبر من صفر.")); return; }
+        payload.lines = ls;
         payload.leadTime = (document.getElementById("pt-lead").value || "").trim();
-        if (!payload.quote) { alert(T("Enter your price.", "أدخل سعرك.")); return; }
       } else {
         payload.status = document.getElementById("pt-status").value;
       }

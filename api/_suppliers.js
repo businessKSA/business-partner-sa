@@ -195,6 +195,31 @@ const sel = (p) => (p && p.select && p.select.name) || "";
 const multi = (p) => ((p && p.multi_select) || []).map((o) => o.name);
 const nnum = (p) => (p && typeof p.number === "number" ? p.number : null);
 
+// The partner's own price list. It lives in the registry row's existing
+// «الخدمات» text so no schema change is needed, appended after a marker so the
+// free text they typed at registration is never overwritten by the builder.
+const SVC_MARK = "---BP-SERVICES---";
+function splitServices(raw) {
+  const s = String(raw || "");
+  const i = s.indexOf(SVC_MARK);
+  if (i === -1) return { text: s.trim(), list: [] };
+  let list = [];
+  try { list = JSON.parse(s.slice(i + SVC_MARK.length).trim()) || []; } catch { list = []; }
+  return { text: s.slice(0, i).trim(), list: Array.isArray(list) ? list : [] };
+}
+function joinServices(text, list) {
+  const body = JSON.stringify((list || []).slice(0, 40));
+  return `${String(text || "").trim()}\n${SVC_MARK}\n${body}`.trim();
+}
+// Notion caps a single rich_text object at 2000 characters, so a long list is
+// written as several — one long string silently loses its tail.
+function richChunks(v) {
+  const s = String(v == null ? "" : v);
+  const out = [];
+  for (let i = 0; i < s.length && out.length < 24; i += 1900) out.push({ text: { content: s.slice(i, i + 1900) } });
+  return out.length ? out : [{ text: { content: "" } }];
+}
+
 function supplierOf(pg) {
   const p = pg.properties || {};
   return {
@@ -209,7 +234,8 @@ function supplierOf(pg) {
     cr: txt(p["السجل التجاري"]),
     vat: txt(p["الرقم الضريبي"]),
     categories: multi(p["التصنيف"]),
-    services: txt(p["الخدمات"]),
+    services: splitServices(txt(p["الخدمات"])).text,
+    priceList: splitServices(txt(p["الخدمات"])).list,
     iban: txt(p["الآيبان"]),
     terms: sel(p["شروط السداد"]),
     commission: nnum(p["نسبة العمولة %"]),
@@ -220,8 +246,22 @@ function supplierOf(pg) {
   };
 }
 
+// A quote's line items ride in the order's notes after a marker: the same
+// trick as the price list, for the same reason — the schema is what it is, and
+// the owner still reads the notes as plain text above the marker.
+const LINE_MARK = "---BP-LINES---";
+function splitLines(raw) {
+  const s = String(raw || "");
+  const i = s.indexOf(LINE_MARK);
+  if (i === -1) return { text: s.trim(), lines: [] };
+  let lines = [];
+  try { lines = JSON.parse(s.slice(i + LINE_MARK.length).trim()) || []; } catch { lines = []; }
+  return { text: s.slice(0, i).trim(), lines: Array.isArray(lines) ? lines : [] };
+}
+
 function orderOf(pg) {
   const p = pg.properties || {};
+  const n = splitLines(txt(p["ملاحظات"]));
   return {
     id: pg.id,
     ref: title(p["أمر العمل"]),
@@ -241,7 +281,8 @@ function orderOf(pg) {
     quote: nnum(p["قيمة العرض المقدّم"]),
     leadTime: txt(p["مدة التنفيذ المقترحة"]),
     quotedAt: (p["تاريخ تقديم العرض"] && p["تاريخ تقديم العرض"].date && p["تاريخ تقديم العرض"].date.start) || "",
-    notes: txt(p["ملاحظات"]),
+    notes: n.text,
+    lines: n.lines,
     url: pg.url,
   };
 }
@@ -308,6 +349,9 @@ export async function handleSuppliers(req, res) {
           // when the row has no override — the supplier sees the same number
           // the owner bills against, never a guess.
           commission: s.commission != null ? s.commission : DEFAULT_COMMISSION,
+          // Their own price list, so a quote is assembled by picking rather
+          // than by retyping a price they already decided once.
+          priceList: s.priceList || [],
         },
         orders,
       });
@@ -499,15 +543,32 @@ export async function handleSuppliers(req, res) {
     const allowed = ["عرض مُقدَّم", "قبله المورّد", "قيد التنفيذ", "تم التسليم"];
     const status = str(b.status, 40);
     if (status && allowed.includes(status)) props["الحالة"] = { select: { name: status } };
-    // Answering a request for quotation: price + lead time, stamped with the date.
-    const quote = num(b.quote);
+
+    // A quote is line items, not one number: the owner needs to see what the
+    // price is made of, and the invoice that follows is the same lines again.
+    // The total is computed here — a client-sent total that disagrees with its
+    // own lines is a quote nobody can reconcile.
+    const lines = (Array.isArray(b.lines) ? b.lines : []).slice(0, 25).map((l) => ({
+      name: str(l && l.name, 140),
+      qty: Math.max(1, Math.min(999, Number((l && l.qty) || 1) || 1)),
+      price: num(l && l.price) || 0,
+    })).filter((l) => l.name && l.price > 0);
+    const lineTotal = lines.reduce((t, l) => t + l.price * l.qty, 0);
+    const quote = lines.length ? Math.round(lineTotal * 100) / 100 : num(b.quote);
     if (quote != null) {
       props["قيمة العرض المقدّم"] = { number: quote };
       props["تاريخ تقديم العرض"] = { date: { start: new Date().toISOString().slice(0, 10) } };
       if (!status) props["الحالة"] = { select: { name: "عرض مُقدَّم" } };
     }
     if (b.leadTime) props["مدة التنفيذ المقترحة"] = { rich_text: [{ text: { content: str(b.leadTime, 200) } }] };
-    if (b.notes) props["ملاحظات"] = { rich_text: [{ text: { content: str(b.notes, 1900) } }] };
+    // Notes and lines share the field, so writing one must not erase the other.
+    if (b.notes != null || lines.length) {
+      // orderOf already separated them, so read each from its own field.
+      const text = b.notes != null ? str(b.notes, 1500) : String(order.notes || "");
+      const keep = lines.length ? lines : (order.lines || []);
+      const body = keep.length ? `${text}\n${LINE_MARK}\n${JSON.stringify(keep)}` : text;
+      props["ملاحظات"] = { rich_text: richChunks(body) };
+    }
 
     let uploaded = null;
     if (b.invoiceBase64) {
@@ -523,7 +584,7 @@ export async function handleSuppliers(req, res) {
 
     await sendEmail(TEAM_EMAIL, `📦 تحديث أمر عمل ${order.ref} — ${s.name}`,
       `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">تحديث من المورّد</h2><table>${row("أمر العمل", order.ref) + row("المورّد", s.name) + row("الحالة الجديدة", status || order.status) + row("فاتورة مرفوعة", uploaded ? "نعم" : "لا") + row("ملاحظات", str(b.notes, 400))}</table></div>`);
-    return ok({ invoiceUploaded: !!uploaded });
+    return ok({ invoiceUploaded: !!uploaded, quote, lines });
   }
 
   // ---------------- owner: approve / suspend a supplier ----------------
@@ -711,6 +772,31 @@ export async function handleSuppliers(req, res) {
         <p>تفاصيل الفاتورة وسدادها متاحة في <a href="${SITE}/partner-dashboard">بوابة الموردين</a>.</p></div>`);
     }
     return ok({ invoiceRef: invRef, amount });
+  }
+
+  // ---------------- partner: their own price list ----------------
+  // Built once, reused on every quote. Private to the partner — it is what
+  // they charge us, not what the site publishes, so there is nothing here for
+  // the owner to approve. Publishing to the public catalogue is a separate
+  // request (propose-service below) precisely because that IS the owner's call.
+  if (b.type === "my-services") {
+    const s = await authSupplier(b.email, b.pw);
+    if (!s) return bad("unauthorized", 401);
+    if (!s.verified) return bad("email_unverified", 403);
+    const clean = (Array.isArray(b.services) ? b.services : []).slice(0, 40).map((it) => ({
+      name: str(it && it.name, 140),
+      price: num(it && it.price),
+      lead: str(it && it.lead, 60),
+      note: str(it && it.note, 400),
+    })).filter((it) => it.name && it.price != null && it.price >= 0);
+    const pg = await notion(`pages/${s.id}`);
+    if (!pg.ok || !pg.json) return bad("not_found", 404);
+    const current = splitServices(txt(pg.json.properties["الخدمات"]));
+    const upd = await notion(`pages/${s.id}`, "PATCH", {
+      properties: { "الخدمات": { rich_text: richChunks(joinServices(current.text, clean)) } },
+    });
+    if (!upd.ok) return bad("save_failed", 502);
+    return ok({ priceList: clean });
   }
 
   // ---------------- partner: propose a service the catalogue does not carry ----------------
