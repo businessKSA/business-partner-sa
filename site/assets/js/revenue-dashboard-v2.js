@@ -15,7 +15,27 @@
   try { session = JSON.parse(localStorage.getItem('bp_session') || 'null'); } catch (e) {}
   if (!session) { location.href = '/ar/account?redirect=revenue'; return; }
 
-  const money = (v) => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ريال';
+  // ---- language: the dashboard follows the site's bp_lang preference and
+  // exposes the same AR/EN switch the rest of the site has ----
+  let lang = 'ar';
+  try { lang = localStorage.getItem('bp_lang') === 'en' ? 'en' : 'ar'; } catch (e) {}
+  const L = (en, ar) => (lang === 'en' ? en : ar);
+  (function () {
+    const root = document.documentElement;
+    root.setAttribute('lang', lang);
+    root.setAttribute('dir', lang === 'en' ? 'ltr' : 'rtl');
+    const btn = document.getElementById('langBtn');
+    if (!btn) return;
+    btn.textContent = lang === 'en' ? 'AR' : 'EN';
+    btn.addEventListener('click', () => {
+      lang = lang === 'en' ? 'ar' : 'en';
+      try { localStorage.setItem('bp_lang', lang); } catch (e) {}
+      location.reload();
+    });
+  })();
+  const NAV_EN = { overview: 'Overview', accounts: 'Target accounts', leads: 'Leads', pipeline: 'Opportunities & pipeline', meetings: 'Meetings', campaigns: 'Campaigns & outreach', suppliers: 'Suppliers & requests', revenue: 'Revenue & collection', commissions: 'Commissions', tasks: 'Tasks & SLA', documents: 'Documents', reports: 'Reports' };
+
+  const money = (v) => new Intl.NumberFormat('en-US').format(Math.round(v)) + L(' SAR', ' ريال');
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const OPEN = ['قيد المراجعة', 'بانتظار الدفع', 'بانتظار التسعير'];
   const ACTIVE = ['مؤكد - قيد التنفيذ'];
@@ -55,10 +75,12 @@
   const table = (heads, rows) => `<div class="table-wrap"><table class="data-table"><thead><tr>${heads.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   const statusChip = (s) => {
     const cls = DONE.includes(s) ? 'ok' : ACTIVE.includes(s) ? 'active' : s === 'ملغي' ? 'off' : 'wait';
-    return `<span class="status-chip ${cls}" style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${cls === 'ok' ? '#E3F1E9;color:#006C35' : cls === 'active' ? '#E8EDFB;color:#0B1B5A' : cls === 'off' ? '#F3F4F6;color:#6B7280' : '#FFF7E6;color:#92600A'}">${esc(s || '—')}</span>`;
+    const label = { 'قيد المراجعة': 'Under review', 'بانتظار الدفع': 'Awaiting payment', 'بانتظار التسعير': 'Awaiting pricing', 'مؤكد - قيد التنفيذ': 'Confirmed - in progress', 'مكتمل': 'Completed', 'ملغي': 'Cancelled' }[s];
+    const shown = lang === 'en' && label ? label : s;
+    return `<span class="status-chip ${cls}" style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${cls === 'ok' ? '#E3F1E9;color:#006C35' : cls === 'active' ? '#E8EDFB;color:#0B1B5A' : cls === 'off' ? '#F3F4F6;color:#6B7280' : '#FFF7E6;color:#92600A'}">${esc(shown || '—')}</span>`;
   };
   const emptyState = (t, p, cta) => `<div class="dash-card" style="text-align:center;padding:48px 24px"><div style="font-size:2rem;margin-bottom:10px">◇</div><h3 style="margin:0 0 6px">${t}</h3><p style="color:#6B7280;max-width:46em;margin:0 auto 16px">${p}</p>${cta || ''}</div>`;
-  const pkgCta = '<a class="dash-btn primary" href="/revenue-os#pricing" style="text-decoration:none">استعرض باقات Revenue OS</a>';
+  const pkgCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/revenue-os' : '/ar/revenue-os'}#pricing" style="text-decoration:none">${L('View Revenue OS packages', 'استعرض باقات Revenue OS')}</a>`;
 
   function periodOrders() { return state.orders.filter(inPeriod); }
   function sums() {
@@ -78,64 +100,64 @@
     overview() {
       const s = sums();
       const recent = periodOrders().slice(0, 6);
-      return `${head('Revenue Overview', 'أرقامك الحقيقية — من طلباتك وفرصك المسجلة لدى Business Partner.', '<a class="dash-btn" href="/ar/account" style="text-decoration:none">منصّة العملاء</a><a class="dash-btn primary" href="/ar/services" style="text-decoration:none">+ طلب جديد</a>')}
+      return `${head('Revenue Overview', L('Your real numbers — from the orders and opportunities on record with Business Partner.', 'أرقامك الحقيقية — من طلباتك وفرصك المسجلة لدى Business Partner.'), `<a class="dash-btn" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Client portal', 'منصّة العملاء')}</a><a class="dash-btn primary" href="${lang === 'en' ? '/services' : '/ar/services'}" style="text-decoration:none">${L('+ New request', '+ طلب جديد')}</a>`)}
       <div class="dash-kpis">
-        ${kpi('Pipeline (فرص مفتوحة + قيد التنفيذ)', money(s.pipeline), s.open.length + s.active.length + ' فرصة')}
-        ${kpi('قيد التنفيذ', money(s.active.reduce((x, o) => x + (Number(o.total) || 0), 0)), s.active.length + ' طلب مؤكد')}
-        ${kpi('المكتمل (محصّل)', money(s.collected), s.done.length + ' طلب مكتمل')}
-        ${kpi('رصيد المحفظة', money(s.wallet), '')}
+        ${kpi(L('Pipeline (open + in progress)', 'Pipeline (فرص مفتوحة + قيد التنفيذ)'), money(s.pipeline), s.open.length + s.active.length + L(' opportunities', ' فرصة'))}
+        ${kpi(L('In progress', 'قيد التنفيذ'), money(s.active.reduce((x, o) => x + (Number(o.total) || 0), 0)), s.active.length + L(' confirmed orders', ' طلب مؤكد'))}
+        ${kpi(L('Completed (collected)', 'المكتمل (محصّل)'), money(s.collected), s.done.length + L(' completed orders', ' طلب مكتمل'))}
+        ${kpi(L('Wallet balance', 'رصيد المحفظة'), money(s.wallet), '')}
       </div>
       <div class="dash-grid-2">
-        <article class="dash-card"><div class="dash-card-head"><div><h3>تقدم الفرص</h3><small>حسب الحالة الفعلية</small></div></div>
+        <article class="dash-card"><div class="dash-card-head"><div><h3>${L('Opportunity progress', 'تقدم الفرص')}</h3><small>${L('by real status', 'حسب الحالة الفعلية')}</small></div></div>
           <div class="funnel">
-            ${[['قيد المراجعة', periodOrders().filter((o) => o.status === 'قيد المراجعة').length], ['بانتظار الدفع', periodOrders().filter((o) => o.status === 'بانتظار الدفع').length], ['مؤكد - قيد التنفيذ', s.active.length], ['مكتمل', s.done.length]].map(([label, n], i, all) => {
+            ${[[L('Under review', 'قيد المراجعة'), periodOrders().filter((o) => o.status === 'قيد المراجعة').length], [L('Awaiting payment', 'بانتظار الدفع'), periodOrders().filter((o) => o.status === 'بانتظار الدفع').length], [L('Confirmed - in progress', 'مؤكد - قيد التنفيذ'), s.active.length], [L('Completed', 'مكتمل'), s.done.length]].map(([label, n], i, all) => {
               const max = Math.max(1, ...all.map((x) => x[1]));
               return `<div class="funnel-row"><span>${label}</span><div class="progress"><i style="width:${Math.round((n / max) * 100)}%"></i></div><b>${n}</b></div>`;
             }).join('')}
           </div></article>
-        <article class="dash-card"><div class="dash-card-head"><div><h3>آخر الأنشطة</h3><small>أحدث طلباتك وفرصك</small></div></div>
-          ${recent.length ? table(['المرجع', 'الطلب', 'الحالة', 'المبلغ', 'التاريخ'], ordersRows(recent)) : '<p style="color:#6B7280;padding:12px">لا توجد طلبات بعد — ابدأ من صفحة الخدمات أو باقات Revenue OS.</p>'}
+        <article class="dash-card"><div class="dash-card-head"><div><h3>${L('Latest activity', 'آخر الأنشطة')}</h3><small>${L('your most recent orders and opportunities', 'أحدث طلباتك وفرصك')}</small></div></div>
+          ${recent.length ? table([L('Ref', 'المرجع'), L('Order', 'الطلب'), L('Status', 'الحالة'), L('Amount', 'المبلغ'), L('Date', 'التاريخ')], ordersRows(recent)) : `<p style="color:#6B7280;padding:12px">${L('No orders yet — start from the services page or the Revenue OS packages.', 'لا توجد طلبات بعد — ابدأ من صفحة الخدمات أو باقات Revenue OS.')}</p>`}
         </article>
       </div>`;
     },
     pipeline() {
       const s = sums();
       const list = periodOrders().filter((o) => o.status !== 'ملغي');
-      return `${head('الفرص والـPipeline', 'كل فرصك وطلباتك المفتوحة والمكتملة — بيانات حقيقية من سجلك.')}
-      <div class="dash-kpis">${kpi('إجمالي الـPipeline', money(s.pipeline))}${kpi('فرص مفتوحة', String(s.open.length))}${kpi('قيد التنفيذ', String(s.active.length))}${kpi('مكتمل', String(s.done.length))}</div>
-      ${list.length ? `<article class="dash-card">${table(['المرجع', 'الفرصة / الخدمة', 'الحالة', 'المبلغ', 'التاريخ'], ordersRows(list))}</article>` : emptyState('لا توجد فرص بعد', 'أول فرصة تظهر هنا فور تقديم طلب أو تفعيل باقة Revenue OS.', pkgCta)}`;
+      return `${head(L('Opportunities & pipeline', 'الفرص والـPipeline'), L('Every open and completed opportunity and order — real data from your record.', 'كل فرصك وطلباتك المفتوحة والمكتملة — بيانات حقيقية من سجلك.'))}
+      <div class="dash-kpis">${kpi(L('Total pipeline', 'إجمالي الـPipeline'), money(s.pipeline))}${kpi(L('Open', 'فرص مفتوحة'), String(s.open.length))}${kpi(L('In progress', 'قيد التنفيذ'), String(s.active.length))}${kpi(L('Completed', 'مكتمل'), String(s.done.length))}</div>
+      ${list.length ? `<article class="dash-card">${table([L('Ref', 'المرجع'), L('Opportunity / service', 'الفرصة / الخدمة'), L('Status', 'الحالة'), L('Amount', 'المبلغ'), L('Date', 'التاريخ')], ordersRows(list))}</article>` : emptyState(L('No opportunities yet', 'لا توجد فرص بعد'), L('Your first opportunity appears here as soon as you place an order or activate a Revenue OS package.', 'أول فرصة تظهر هنا فور تقديم طلب أو تفعيل باقة Revenue OS.'), pkgCta())}`;
     },
     revenue() {
       const s = sums();
       const tx = (state.overview && state.overview.walletTransactions) || [];
-      return `${head('الإيرادات والتحصيل', 'المبالغ المكتملة ورصيد محفظتك وحركاتها — بيانات حقيقية.')}
-      <div class="dash-kpis">${kpi('المحصّل (طلبات مكتملة)', money(s.collected))}${kpi('رصيد المحفظة', money(s.wallet))}${kpi('حركات المحفظة', String(tx.length))}</div>
-      ${tx.length ? `<article class="dash-card"><div class="dash-card-head"><div><h3>حركات المحفظة</h3></div></div>${table(['النوع', 'المبلغ', 'ملاحظة', 'التاريخ'], tx.map((t) => [esc(t.type === 'topup' ? 'شحن' : 'سداد'), money(Math.abs(Number(t.amount) || 0)), esc(t.note || '—'), esc(String(t.created_at || '').slice(0, 10))]))}</article>` : emptyState('لا توجد حركات مالية بعد', 'تظهر هنا الدفعات المحصلة وحركات محفظتك فور اعتمادها.', '')}`;
+      return `${head(L('Revenue & collection', 'الإيرادات والتحصيل'), L('Completed amounts, your wallet balance and its movements — real data.', 'المبالغ المكتملة ورصيد محفظتك وحركاتها — بيانات حقيقية.'))}
+      <div class="dash-kpis">${kpi(L('Collected (completed orders)', 'المحصّل (طلبات مكتملة)'), money(s.collected))}${kpi(L('Wallet balance', 'رصيد المحفظة'), money(s.wallet))}${kpi(L('Wallet movements', 'حركات المحفظة'), String(tx.length))}</div>
+      ${tx.length ? `<article class="dash-card"><div class="dash-card-head"><div><h3>${L('Wallet movements', 'حركات المحفظة')}</h3></div></div>${table([L('Type', 'النوع'), L('Amount', 'المبلغ'), L('Note', 'ملاحظة'), L('Date', 'التاريخ')], tx.map((t) => [esc(t.type === 'topup' ? L('Top-up', 'شحن') : L('Payment', 'سداد')), money(Math.abs(Number(t.amount) || 0)), esc(t.note || '—'), esc(String(t.created_at || '').slice(0, 10))]))}</article>` : emptyState(L('No financial movements yet', 'لا توجد حركات مالية بعد'), L('Collected payments and wallet movements appear here as soon as they are approved.', 'تظهر هنا الدفعات المحصلة وحركات محفظتك فور اعتمادها.'), '')}`;
     },
     tasks() {
       const t = state.tasks;
-      return `${head('المهام وSLA', 'المهام المطلوبة منك ومن فريقنا — من مركز عمليات العميل.')}
-      ${t.length ? `<article class="dash-card">${table(['المهمة', 'الحالة', 'الأولوية', 'الاستحقاق'], t.map((x) => [esc(x.title), statusChip(x.status === 'done' ? 'مكتمل' : 'قيد المراجعة'), esc(x.urgency || 'عادي'), esc(String(x.due_at || '—').slice(0, 10))]))}</article>` : emptyState('لا توجد مهام حالياً', 'تظهر المهام هنا عندما يسندها فريق التشغيل إليك أو لفريقنا ضمن باقتك.', '')}`;
+      return `${head(L('Tasks & SLA', 'المهام وSLA'), L('What is required from you and from our team — from the client operations center.', 'المهام المطلوبة منك ومن فريقنا — من مركز عمليات العميل.'))}
+      ${t.length ? `<article class="dash-card">${table([L('Task', 'المهمة'), L('Status', 'الحالة'), L('Priority', 'الأولوية'), L('Due', 'الاستحقاق')], t.map((x) => [esc(x.title), statusChip(x.status === 'done' ? 'مكتمل' : 'قيد المراجعة'), esc(x.urgency || L('normal', 'عادي')), esc(String(x.due_at || '—').slice(0, 10))]))}</article>` : emptyState(L('No tasks right now', 'لا توجد مهام حالياً'), L('Tasks appear here when the operations team assigns them to you or to us under your package.', 'تظهر المهام هنا عندما يسندها فريق التشغيل إليك أو لفريقنا ضمن باقتك.'), '')}`;
     },
     documents() {
       const d = state.documents;
-      return `${head('المستندات', 'مستنداتك المرفوعة في مركز عمليات العميل.')}
-      ${d.length ? `<article class="dash-card">${table(['المستند', 'التصنيف', 'حالة التحقق', 'التاريخ'], d.map((x) => [esc(x.title), esc(x.category || '—'), statusChip(x.verify_status === 'verified' ? 'مكتمل' : 'قيد المراجعة'), esc(String(x.created_at || '').slice(0, 10))]))}</article>` : emptyState('لا توجد مستندات بعد', 'ارفع مستنداتك من منصّة العملاء وتظهر هنا مباشرة.', '<a class="dash-btn primary" href="/ar/account" style="text-decoration:none">فتح منصّة العملاء</a>')}`;
+      return `${head(L('Documents', 'المستندات'), L('Your documents uploaded in the client operations center.', 'مستنداتك المرفوعة في مركز عمليات العميل.'))}
+      ${d.length ? `<article class="dash-card">${table([L('Document', 'المستند'), L('Category', 'التصنيف'), L('Verification', 'حالة التحقق'), L('Date', 'التاريخ')], d.map((x) => [esc(x.title), esc(x.category || '—'), statusChip(x.verify_status === 'verified' ? 'مكتمل' : 'قيد المراجعة'), esc(String(x.created_at || '').slice(0, 10))]))}</article>` : emptyState(L('No documents yet', 'لا توجد مستندات بعد'), L('Upload your documents from the client portal and they show up here immediately.', 'ارفع مستنداتك من منصّة العملاء وتظهر هنا مباشرة.'), `<a class="dash-btn primary" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Open the client portal', 'فتح منصّة العملاء')}</a>`)}`;
     },
   };
   // Sections that activate with a running Revenue OS package — honest empty
   // states, no invented numbers.
   const soon = {
-    accounts: ['الحسابات المستهدفة', 'قوائم الشركات المستهدفة (ICP) تُبنى وتظهر هنا مع بدء تشغيل باقتك.'],
-    leads: ['العملاء المحتملون', 'العملاء المحتملون المؤهلون يظهرون هنا مع تشغيل حملات باقتك.'],
-    meetings: ['الاجتماعات', 'اجتماعاتك مع صناع القرار تُسجّل هنا مع بدء التشغيل.'],
-    campaigns: ['الحملات والتواصل', 'حملات التواصل متعدد القنوات تظهر هنا مع بدء التشغيل.'],
-    suppliers: ['الموردون والطلبات', 'الموردون المؤهلون وطلبات RFQ تظهر هنا مع تشغيل مسار الموردين.'],
-    commissions: ['العمولات', 'عمولات النجاح والإغلاق تُحتسب على الإيراد المحصّل وتُعرض هنا مع أول صفقة.'],
-    reports: ['التقارير', 'تقاريرك الدورية تُنشر هنا حسب باقتك (شهري / أسبوعي / لوحات تنفيذية).'],
+    accounts: [L('Target accounts', 'الحسابات المستهدفة'), L('Target company lists (ICP) are built and appear here once your package starts running.', 'قوائم الشركات المستهدفة (ICP) تُبنى وتظهر هنا مع بدء تشغيل باقتك.')],
+    leads: [L('Leads', 'العملاء المحتملون'), L('Qualified leads appear here once your package campaigns are running.', 'العملاء المحتملون المؤهلون يظهرون هنا مع تشغيل حملات باقتك.')],
+    meetings: [L('Meetings', 'الاجتماعات'), L('Your meetings with decision makers are logged here once delivery starts.', 'اجتماعاتك مع صناع القرار تُسجّل هنا مع بدء التشغيل.')],
+    campaigns: [L('Campaigns & outreach', 'الحملات والتواصل'), L('Multi-channel outreach campaigns appear here once delivery starts.', 'حملات التواصل متعدد القنوات تظهر هنا مع بدء التشغيل.')],
+    suppliers: [L('Suppliers & requests', 'الموردون والطلبات'), L('Qualified suppliers and RFQs appear here once the supplier track is running.', 'الموردون المؤهلون وطلبات RFQ تظهر هنا مع تشغيل مسار الموردين.')],
+    commissions: [L('Commissions', 'العمولات'), L('Success and closing fees are calculated on collected revenue and shown here from the first deal.', 'عمولات النجاح والإغلاق تُحتسب على الإيراد المحصّل وتُعرض هنا مع أول صفقة.')],
+    reports: [L('Reports', 'التقارير'), L('Your periodic reports are published here according to your package (monthly / weekly / executive dashboards).', 'تقاريرك الدورية تُنشر هنا حسب باقتك (شهري / أسبوعي / لوحات تنفيذية).')],
   };
   Object.keys(soon).forEach((k) => {
-    views[k] = () => head(soon[k][0], 'بيانات حقيقية فقط — لا أرقام تجريبية.') + emptyState(soon[k][0], soon[k][1], pkgCta);
+    views[k] = () => head(soon[k][0], L('Real data only — no demo numbers.', 'بيانات حقيقية فقط — لا أرقام تجريبية.')) + emptyState(soon[k][0], soon[k][1], pkgCta());
   });
 
   // Seven of the twelve sections only fill up once a Revenue OS package is
@@ -146,19 +168,20 @@
       const btn = nav.querySelector('button[data-view="' + k + '"]');
       if (!btn) return;
       btn.style.opacity = "0.62";
-      btn.title = "تُفعَّل مع اشتراك Revenue OS";
+      btn.title = L("Activates with a Revenue OS subscription", "تُفعَّل مع اشتراك Revenue OS");
       const tag = document.createElement("small");
-      tag.textContent = "مع الباقة";
+      tag.textContent = L("with plan", "مع الباقة");
       tag.style.cssText = "margin-inline-start:auto;font-size:10px;font-weight:800;background:#EEF1F8;color:#0B1B5A;padding:1px 7px;border-radius:20px";
       btn.appendChild(tag);
     });
   })();
 
-  const titles = { overview: 'نظرة عامة', accounts: 'الحسابات المستهدفة', leads: 'العملاء المحتملون', pipeline: 'الفرص والـPipeline', meetings: 'الاجتماعات', campaigns: 'الحملات والتواصل', suppliers: 'الموردون والطلبات', revenue: 'الإيرادات والتحصيل', commissions: 'العمولات', tasks: 'المهام وSLA', documents: 'المستندات', reports: 'التقارير' };
+  const TITLES_AR = { overview: 'نظرة عامة', accounts: 'الحسابات المستهدفة', leads: 'العملاء المحتملون', pipeline: 'الفرص والـPipeline', meetings: 'الاجتماعات', campaigns: 'الحملات والتواصل', suppliers: 'الموردون والطلبات', revenue: 'الإيرادات والتحصيل', commissions: 'العمولات', tasks: 'المهام وSLA', documents: 'المستندات', reports: 'التقارير' };
+  const titles = new Proxy({}, { get: (_, k) => (lang === 'en' ? (NAV_EN[k] || '') : (TITLES_AR[k] || '')) });
   let current = 'overview';
   function render() {
-    if (!state.loaded && !state.error) { content.innerHTML = '<div class="dash-card" style="text-align:center;padding:60px">جارٍ تحميل بياناتك…</div>'; return; }
-    if (state.error) { content.innerHTML = emptyState('تعذّر تحميل البيانات', 'سجّل الدخول من منصّة العملاء ثم عد إلى اللوحة.', '<a class="dash-btn primary" href="/ar/account?redirect=revenue" style="text-decoration:none">تسجيل الدخول</a>'); return; }
+    if (!state.loaded && !state.error) { content.innerHTML = `<div class="dash-card" style="text-align:center;padding:60px">${L('Loading your data…', 'جارٍ تحميل بياناتك…')}</div>`; return; }
+    if (state.error) { content.innerHTML = emptyState(L('Could not load your data', 'تعذّر تحميل البيانات'), L('Sign in from the client portal, then come back to the dashboard.', 'سجّل الدخول من منصّة العملاء ثم عد إلى اللوحة.'), `<a class="dash-btn primary" href="${lang === 'en' ? '/account' : '/ar/account'}?redirect=revenue" style="text-decoration:none">${L('Sign in', 'تسجيل الدخول')}</a>`); return; }
     content.innerHTML = (views[current] || views.overview)();
     if (title) title.textContent = titles[current] || '';
   }
@@ -172,6 +195,22 @@
   });
   const drawer = document.getElementById('drawerBtn');
   if (drawer && sidebar) drawer.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+  // Localize the shell that lives in the HTML (labels, period options).
+  (function () {
+    if (lang !== 'en') return;
+    nav.querySelectorAll('button[data-view]').forEach((b) => {
+      const key = b.getAttribute('data-view');
+      const span = b.querySelector('span');
+      if (span && NAV_EN[key]) span.textContent = NAV_EN[key];
+    });
+    const sel = document.getElementById('periodSelect');
+    if (sel) ['This month', 'This quarter', 'This year'].forEach((t, i) => { if (sel.options[i]) sel.options[i].text = t; });
+    const note = document.querySelector('.prototype-note + .prototype-note') || document.querySelector('.prototype-note');
+    if (note) note.innerHTML = note.innerHTML.replace('بيانات حقيقية من حسابك', 'Real data from your account').replace('مرتبطة بمنصّة العملاء والسلة', 'connected to your client portal and cart').replace('فتح منصّة العملاء', 'Open the client portal');
+    const crumb = document.querySelector('.crumb small');
+    if (crumb) crumb.textContent = 'Business Partner / Client Workspace';
+  })();
 
   render();
   const jf = (u) => fetch(u, { credentials: 'same-origin' }).then((r) => r.json()).catch(() => null);
