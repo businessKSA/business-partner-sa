@@ -394,6 +394,13 @@
         <!-- ===== orders ===== -->
         <section class="view" id="view-orders">
           <div class="pagehead"><h2 data-t="navOrders">الطلبات</h2><div class="sub" data-t="ordersSub">طلباتك المسجلة من هذا المتصفح + أي طلب تضيف رقمه المرجعي يدوياً.</div></div>
+          <!-- Quotes waiting on this client. Shown here so a decision on their
+               own order is taken where they already are, not by hunting for an
+               email. -->
+          <div class="panel" id="quotesPanel" style="display:none;border-color:#f59e0b;background:#fffbeb;margin-bottom:16px">
+            <div class="phead"><h3 id="quotesTitle">📝 عروض أسعار بانتظار قرارك</h3></div>
+            <div id="quotesBody"></div>
+          </div>
           <div class="panel">
             <div class="phead">
               <h3 data-t="ordersTitle">سجل الطلبات</h3>
@@ -919,6 +926,11 @@
             var j = journey[state.orders[i].ref];
             if (j && j.length) state.orders[i].journey = j;
           }
+          state.quotes = [];
+          var qs = (data && data.quotes) || {};
+          Object.keys(qs).forEach(function(ref){
+            (qs[ref] || []).forEach(function(q){ q.clientRef = ref; state.quotes.push(q); });
+          });
           state.fetchFailed = false;
           renderAll();
         })
@@ -1262,6 +1274,76 @@
       else note.style.display = 'none';
     }
 
+    // A quote the client can answer here and now. The figures are read back
+    // from the server on every refresh, never trusted from this page — the
+    // decision is the client's, the amount is not.
+    function renderQuotes(){
+      var box = $('quotesBody'), panel = $('quotesPanel');
+      if (!box || !panel) return;
+      var list = state.quotes || [];
+      if (!list.length){ panel.style.display = 'none'; return; }
+      var en = state.lang === 'en';
+      $('quotesTitle').textContent = en ? '📝 Quotes awaiting your decision' : '📝 عروض أسعار بانتظار قرارك';
+      panel.style.display = '';
+      box.innerHTML = list.map(function(q, i){
+        var rows = (q.lines || []).length
+          ? q.lines.map(function(l){
+              return '<tr><td style="padding:5px 8px">' + esc(l.name) + '</td><td style="padding:5px 8px;text-align:center">' + (l.qty || 1) +
+                '</td><td style="padding:5px 8px;text-align:end">' + ((Number(l.price) || 0) * (Number(l.qty) || 1)) + ' ﷼</td></tr>';
+            }).join('')
+          : '<tr><td colspan="3" style="padding:5px 8px">' + esc(q.service || '') + '</td></tr>';
+        return '<div style="border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;margin-bottom:10px" data-q="' + i + '">' +
+          '<div style="font-weight:700;color:var(--navy)">' + esc(q.service || q.ref) + '</div>' +
+          '<div style="color:var(--soft);font-size:12.5px;margin-bottom:8px">' + esc([q.ref, q.clientRef].filter(Boolean).join(' · ')) + '</div>' +
+          '<table style="width:100%;border-collapse:collapse;font-size:13px">' + rows + '</table>' +
+          '<div style="text-align:end;line-height:2;margin-top:8px;font-size:13px">' +
+            (en ? 'Subtotal' : 'قبل الضريبة') + ': <b>' + q.net + ' ﷼</b><br>' +
+            (en ? 'VAT' : 'ضريبة القيمة المضافة') + ' (' + q.vatRate + '%): <b>' + q.vat + ' ﷼</b><br>' +
+            '<span style="font-size:17px;color:var(--navy)"><b>' + (en ? 'Total' : 'الإجمالي') + ': ' + q.total + ' ﷼</b></span></div>' +
+          (q.leadTime ? '<div style="color:var(--soft);font-size:12.5px">' + (en ? 'Delivery: ' : 'مدة التنفيذ: ') + esc(q.leadTime) + '</div>' : '') +
+          (q.notes ? '<div style="color:var(--soft);font-size:12.5px;white-space:pre-wrap">' + esc(q.notes) + '</div>' : '') +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
+            '<button class="btn" data-qa="' + i + '" style="flex:1;min-width:160px">✅ ' + (en ? 'Accept' : 'أقبل العرض') + '</button>' +
+            '<button class="btn ghost" data-qd="' + i + '">' + (en ? 'Decline' : 'أرفض') + '</button>' +
+          '</div><div style="margin-top:8px;font-size:13px" data-qm="' + i + '"></div></div>';
+      }).join('');
+      [].slice.call(box.querySelectorAll('[data-qa]')).forEach(function(b){
+        b.onclick = function(){ decideQuote(Number(b.getAttribute('data-qa')), 'accept'); };
+      });
+      [].slice.call(box.querySelectorAll('[data-qd]')).forEach(function(b){
+        b.onclick = function(){ decideQuote(Number(b.getAttribute('data-qd')), 'decline'); };
+      });
+    }
+    function decideQuote(i, decision){
+      var q = (state.quotes || [])[i];
+      if (!q) return;
+      var en = state.lang === 'en';
+      if (decision === 'decline' && !confirm(en ? 'Decline this quotation?' : 'رفض عرض السعر؟')) return;
+      var msg = $('quotesBody').querySelector('[data-qm="' + i + '"]');
+      var btns = $('quotesBody').querySelectorAll('[data-qa="' + i + '"],[data-qd="' + i + '"]');
+      [].slice.call(btns).forEach(function(b){ b.disabled = true; });
+      msg.textContent = en ? 'Sending…' : 'جارٍ الإرسال…';
+      fetch('/api/suppliers', { method:'POST', headers:{ 'content-type':'application/json' },
+        body: JSON.stringify({ type:'quote-decision', id: q.id, t: q.t, decision: decision }) })
+        .then(function(r){ return r.json(); })
+        .catch(function(){ return { ok:false, error:'network' }; })
+        .then(function(d){
+          if (d && d.ok){
+            msg.style.color = decision === 'accept' ? '#065f46' : '#b91c1c';
+            msg.textContent = decision === 'accept'
+              ? (en ? 'Accepted ✓ — the contract and the tax invoice reach you shortly.' : 'تم القبول ✓ — يصلك العقد والفاتورة الضريبية خلال وقت قصير.')
+              : (en ? 'Declined — thank you for telling us.' : 'تم الرفض — شكراً لإبلاغنا.');
+            setTimeout(fetchStatuses, 1200);
+          } else {
+            [].slice.call(btns).forEach(function(b){ b.disabled = false; });
+            msg.style.color = '#b91c1c';
+            msg.textContent = (d && d.error === 'already_decided')
+              ? (en ? 'A decision was already recorded.' : 'سُجِّل قرار على هذا العرض من قبل.')
+              : (en ? 'Could not record your decision — please try again.' : 'تعذّر تسجيل قرارك — حاول مرة أخرى.');
+          }
+        });
+    }
+
     // ---------------- company profile (establishment record) ----------------
     function renderCompany(){
       var en = state.lang === 'en';
@@ -1378,6 +1460,7 @@
       renderServices();
       renderTasks();
       renderOrders();
+      renderQuotes();
       renderPayments();
       renderTeam();
       renderReports();

@@ -379,6 +379,39 @@ export async function progressForClientRefs(refs) {
   return out;
 }
 
+// Quotes waiting on these clients' decision. The portal already asks about
+// the refs it owns, so this rides on that question — a client sees decisions
+// that belong to their own orders and nothing else.
+//
+// The token travels with the quote so the portal can act on it directly. It is
+// the same token the emailed link carries, and it grants exactly one thing:
+// deciding this one quote.
+export async function quotesForClientRefs(refs) {
+  const list = (Array.isArray(refs) ? refs : []).filter(Boolean).slice(0, 20);
+  if (!NOTION_TOKEN || !list.length || !OTP_SECRET) return {};
+  const r = await notion(`databases/${ORDERS_DB}/query`, "POST", {
+    page_size: 100,
+    filter: { or: list.map((ref) => ({ property: "مرجع طلب العميل", rich_text: { equals: ref } })) },
+  });
+  if (!r.ok || !r.json) return {};
+  const out = {};
+  for (const pg of r.json.results || []) {
+    const o = orderOf(pg);
+    if (!o.clientRef) continue;
+    // Only a quote that has been put to the client and not yet answered.
+    const pending = o.status === "عرض مُقدَّم" && (o.quote != null || (o.lines || []).length);
+    if (!pending) continue;
+    const net = (o.lines || []).length ? o.lines.reduce((t, l) => t + l.price * l.qty, 0) : (o.quote || 0);
+    const vat = Math.round(net * (VAT_PCT / 100) * 100) / 100;
+    (out[o.clientRef] = out[o.clientRef] || []).push({
+      id: o.id, t: quoteToken(o.id), ref: o.ref, service: o.service,
+      lines: o.lines || [], net: Math.round(net * 100) / 100, vatRate: VAT_PCT, vat,
+      total: Math.round((net + vat) * 100) / 100, leadTime: o.leadTime, notes: o.notes,
+    });
+  }
+  return out;
+}
+
 export async function handleSuppliers(req, res) {
   res.setHeader("content-type", "application/json; charset=utf-8");
   res.setHeader("cache-control", "no-store");
