@@ -1,8 +1,9 @@
 // Business Partner 3.0 — newsletter signup → Notion (ESM).
 // Captures an email (optionally a name) for the weekly newsletter. Stores a row
-// in NOTION_NEWSLETTER_DB if set, otherwise a child page under
-// NOTION_NEWSLETTER_PARENT (defaults to the "Business Partner 2.0" page which is
-// already shared with the site integration) so it works with zero setup.
+// in the newsletter subscribers database (NOTION_NEWSLETTER_DB, defaulting to
+// "✉ مشتركو النشرة"). A bare parent page is only used when NOTION_NEWSLETTER_PARENT
+// is set explicitly; otherwise the signup is accepted without a Notion write, so
+// signups can never scatter loose pages across the workspace root.
 //
 // Also runs the weekly newsletter SEND (merged here — not its own endpoint —
 // because Vercel Hobby caps a deployment at 12 serverless functions). Every
@@ -16,8 +17,8 @@
 //
 // Env vars:
 //   NOTION_TOKEN / BusinessPartnerSiteNotion / …  Notion integration secret
-//   NOTION_NEWSLETTER_DB       optional database id to store subscriber rows in
-//   NOTION_NEWSLETTER_PARENT   optional parent page id (default: Business Partner 2.0)
+//   NOTION_NEWSLETTER_DB       subscribers database id (defaults to the live one)
+//   NOTION_NEWSLETTER_PARENT   optional parent page id; no default, opt-in only
 //   RESEND_AUDIENCE_ID         audience the weekly digest is sent to
 //   CRON_SECRET                required for the weekly-send branch — Vercel Cron
 //                               sends this as "Authorization: Bearer <secret>"
@@ -40,8 +41,12 @@ const NOTION_TOKEN = envFrom([
   "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
   "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
 ]);
-const DB_ID = process.env.NOTION_NEWSLETTER_DB || "";
-const PARENT_PAGE = process.env.NOTION_NEWSLETTER_PARENT || "23cd108dee5c821bb7e781285c4b4323";
+// Subscribers belong in the "📧 مشتركو النشرة — Newsletter Subscribers" database.
+// PARENT_PAGE previously defaulted to the "Business Partner 2.0" home page, so every
+// signup created a loose child page at the top of the workspace. There is no page
+// fallback any more: without a database id we accept the signup and skip Notion.
+const DB_ID = process.env.NOTION_NEWSLETTER_DB || "28b7b3fa912a433091e29618545e7a40";
+const PARENT_PAGE = process.env.NOTION_NEWSLETTER_PARENT || "";
 const NOTION_VERSION = "2022-06-28";
 
 const clip = (s, n = 200) => String(s || "").trim().slice(0, n);
@@ -62,6 +67,12 @@ async function sendMail(to, subject, html) {
     });
   } catch {}
 }
+
+const welcomeHtml = (name) => `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#111">
+      <h2 style="color:#0B1B5A">تم اشتراكك بنجاح 🎉</h2>
+      <p>${name ? "مرحباً " + esc(name) + "،<br>" : ""}شكراً لاشتراكك في نشرة <strong>Business Partner</strong>. راح توصلك آخر الأخبار والأدلة وتحديثات المنصات الحكومية في السعودية.</p>
+      <p style="color:#666">إذا ما طلبت هذا الاشتراك، تجاهل الرسالة.</p>
+    </div>`;
 
 // Add the subscriber to a Resend Audience so newsletters can be sent as
 // Broadcasts from the Resend dashboard. Activates once RESEND_AUDIENCE_ID is set.
@@ -364,6 +375,12 @@ export default async function handler(req, res) {
       };
       if (name) props["الاسم"] = { rich_text: [{ text: { content: name } }] };
       r = await notion({ parent: { database_id: DB_ID }, properties: props });
+    } else if (!PARENT_PAGE) {
+      // No subscriber store configured. Accept the signup rather than writing a
+      // loose page into whichever parent happens to be the workspace root.
+      await sendMail(email, "تم اشتراكك في نشرة Business Partner ✅", welcomeHtml(name));
+      await addToAudience(email, name);
+      return res.end(JSON.stringify({ ok: true, stored: false }));
     } else {
       r = await notion({
         parent: { page_id: PARENT_PAGE },
@@ -380,11 +397,7 @@ export default async function handler(req, res) {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_error" }));
     }
-    await sendMail(email, "تم اشتراكك في نشرة Business Partner ✅", `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#111">
-      <h2 style="color:#0B1B5A">تم اشتراكك بنجاح 🎉</h2>
-      <p>${name ? "مرحباً " + name + "،<br>" : ""}شكراً لاشتراكك في نشرة <strong>Business Partner</strong>. راح توصلك آخر الأخبار والأدلة وتحديثات المنصات الحكومية في السعودية.</p>
-      <p style="color:#666">إذا ما طلبت هذا الاشتراك، تجاهل الرسالة.</p>
-    </div>`);
+    await sendMail(email, "تم اشتراكك في نشرة Business Partner ✅", welcomeHtml(name));
     await addToAudience(email, name);
     return res.end(JSON.stringify({ ok: true, stored: true }));
   } catch (e) {
