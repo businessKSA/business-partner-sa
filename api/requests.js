@@ -1496,6 +1496,32 @@ export default async function handler(req, res) {
       }
     }
 
+    // One place that says what is actually wired and what is not. Built because
+    // a diagnostic that guessed from env-var names reported a configured
+    // provider as missing, and the wrong answer was acted on more than once.
+    // Names of the satisfying variable only — never a value, not even a prefix.
+    if (b.action === "panel-health") {
+      const has = (...names) => names.find((n) => process.env[n] && String(process.env[n]).trim()) || null;
+      const svc = (label, via, note = "") => ({ label, ok: !!via, via, note });
+      const out = [
+        svc("الذكاء — Gemini (مجاني)", has("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"), "يقرأ شهادة الضريبة والسجل"),
+        svc("الذكاء — Anthropic", has("ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"), "بديل لقراءة المستندات"),
+        svc("الذكاء — Groq (مجاني)", has("GROQ_API_KEY", "GROQ_KEY", "GROQ"), "بديل سريع للمستشار"),
+        svc("الذكاء — OpenAI", has("OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"), "بديل للصور فقط"),
+        svc("الدفترة", has("DAFTRA_API_KEY"), "الفواتير وعروض الأسعار"),
+        svc("DocuSign", has("DOCUSIGN_INTEGRATION_KEY") && has("DOCUSIGN_USER_ID") && has("DOCUSIGN_ACCOUNT_ID") && has("DOCUSIGN_PRIVATE_KEY") ? "DOCUSIGN_*" : null, "العقود والتوقيع"),
+        svc("ميسر (دفع مباشر)", has("MOYASAR_SECRET_KEY"), "اختياري — بوابتك في الدفترة تغني عنه"),
+        svc("البريد — Resend", has("RESEND_API_KEY"), "كل الرسائل والمرفقات"),
+        svc("نوشن — CRM", has("NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"), "الطلبات والموردون"),
+        svc("الدخول عبر Google", has("GOOGLE_CLIENT_ID"), "اختياري"),
+        svc("رموز الدخول (OTP)", has("OTP_SECRET"), "روابط عروض الأسعار تعتمد عليه"),
+        svc("GitHub (تحرير المحتوى)", has("GITHUB_TOKEN", "GH_TOKEN"), "حفظ ونشر من اللوحة"),
+        svc("قاعدة البيانات", has("SUPABASE_URL", "DATABASE_URL"), "بوابة العميل"),
+      ];
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, services: out }));
+    }
+
     // Which client-facing route this account publishes for an invoice. The
     // gateway is enabled inside Daftra, so that page is the payment page —
     // and which URL serves it is answered by asking, not by assuming.

@@ -167,16 +167,22 @@ export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   // Lightweight health check (never exposes the keys themselves).
   if (req.method === "GET") {
-    // Names only (never values) of any AI-related env vars we can see — helps diagnose a mis-named key.
-    const seen = Object.keys(process.env)
-      .filter((k) => /GEMINI|GOOGLE|GROQ|OPENAI|ANTHROPIC|CLAUDE|API_KEY/i.test(k))
-      .sort();
+    // Which env var actually satisfied each provider — names only, never values.
+    // The previous version guessed by pattern-matching env names, which missed
+    // any key stored under a name that does not read like one (the Gemini key
+    // here lives in «BusinessPartnerGimini»). It therefore reported a
+    // configured provider as missing, and that misreading cost real time.
+    const detail = PROVIDERS.map((p) => ({
+      name: p.name,
+      configured: !p.keys || !!envFrom(p.keys),
+      via: p.keys ? (p.keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null) : "no key needed",
+    }));
     res.statusCode = 200;
     return res.end(JSON.stringify({
       status: "ok",
       providers: configured().map((p) => p.name),
       keyConfigured: configured().length > 0,
-      seenKeyNames: seen,
+      detail,
     }));
   }
   if (req.method !== "POST") {
