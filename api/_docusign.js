@@ -321,10 +321,28 @@ export function docusignKeyCheck() {
  * which account does it land in. Reports the consent URL when that is what is
  * missing, since it is the first thing that blocks a new integration.
  */
+// "Missing" hides two different problems with two different fixes: a variable
+// that never reached this environment, and one that arrived carrying nothing.
+// Telling them apart is the whole diagnosis, so it is reported rather than
+// left to be guessed at.
+const rawState = (n) => {
+  const v = process.env[n];
+  if (v === undefined) return "not_set";                  // not exposed to this environment
+  if (String(v).trim() === "") return "empty";            // exists, holds nothing
+  return "set";
+};
+
 export async function docusignPing() {
+  const vars = {
+    DOCUSIGN_INTEGRATION_KEY: rawState("DOCUSIGN_INTEGRATION_KEY"),
+    DOCUSIGN_USER_ID: rawState("DOCUSIGN_USER_ID"),
+    DOCUSIGN_ACCOUNT_ID: rawState("DOCUSIGN_ACCOUNT_ID"),
+    DOCUSIGN_PRIVATE_KEY: rawState("DOCUSIGN_PRIVATE_KEY"),
+    DOCUSIGN_ENV: rawState("DOCUSIGN_ENV"),
+  };
   if (!docusignConfigured()) {
     return {
-      ok: false, error: "docusign_not_configured",
+      ok: false, error: "docusign_not_configured", vars,
       missing: [
         !INTEGRATION_KEY && "DOCUSIGN_INTEGRATION_KEY",
         !USER_ID && "DOCUSIGN_USER_ID",
@@ -344,13 +362,13 @@ export async function docusignPing() {
     integrationKeyLooksGuid: GUID.test(INTEGRATION_KEY),
   };
   if (!key.usable) {
-    return { ok: false, error: "docusign_bad_key", key, shape, detail: key.why || "المفتاح الخاص غير صالح." };
+    return { ok: false, error: "docusign_bad_key", key, shape, vars, detail: key.why || "المفتاح الخاص غير صالح." };
   }
   try {
     await docusignToken();
     const acct = await dsFetch("");
-    return { ok: true, env: docusignEnv(), accountName: acct && acct.accountName, accountId: ACCOUNT_ID, base: API_BASE, key, shape };
+    return { ok: true, env: docusignEnv(), accountName: acct && acct.accountName, accountId: ACCOUNT_ID, base: API_BASE, key, shape, vars };
   } catch (e) {
-    return { ok: false, error: String(e.message || e), detail: String(e.detail || "").slice(0, 400), key, shape, consentUrl: e.message === "docusign_consent_required" ? consentUrl() : undefined };
+    return { ok: false, error: String(e.message || e), detail: String(e.detail || "").slice(0, 400), key, shape, vars, consentUrl: e.message === "docusign_consent_required" ? consentUrl() : undefined };
   }
 }

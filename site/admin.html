@@ -1323,7 +1323,21 @@
           dsNote('ok', '✅ متصل — الحساب: <b>' + esc(r.accountName || r.accountId) + '</b> · البيئة: ' + esc(r.env) +
             (r.env === 'demo' ? ' <span style="color:#b45309">(بيئة تجريبية — العقود منها ليست نافذة)</span>' : ''));
         } else if (r && r.error === 'docusign_not_configured'){
-          dsNote('warn', 'DocuSign غير مربوط بعد. الناقص في Vercel: <b>' + esc((r.missing || []).join('، ')) + '</b>');
+          // "Missing" is two different problems: a variable that never reached
+          // this environment, and one that arrived empty. They need different
+          // fixes, so they are named separately.
+          var rows = '', v = r.vars || {};
+          Object.keys(v).forEach(function(k){
+            var st = v[k];
+            rows += '<div style="direction:ltr;text-align:left;font-family:monospace;font-size:12px">' +
+              (st === 'set' ? '✅ ' : st === 'empty' ? '⚠️ ' : '⛔ ') + esc(k) + ' — ' +
+              (st === 'set' ? 'set' : st === 'empty' ? 'EXISTS BUT EMPTY' : 'NOT IN THIS ENVIRONMENT') + '</div>';
+          });
+          var anyEmpty = Object.keys(v).some(function(k){ return v[k] === 'empty'; });
+          var anyUnset = Object.keys(v).some(function(k){ return v[k] === 'not_set'; });
+          dsNote('warn', 'DocuSign غير مربوط بعد.<div style="margin:8px 0">' + rows + '</div>' +
+            (anyEmpty ? '<div style="color:#b45309">المتغيّر موجود لكن <b>قيمته فارغة</b> — افتحه في Vercel واضغط Edit والصق المفتاح ثم Save.</div>' : '') +
+            (anyUnset ? '<div style="color:#b45309">المتغيّر <b>غير مُتاح لبيئة Production</b> — تأكد أن الصناديق الثلاثة (Production / Preview / Development) مؤشَّرة عليه، ثم أعد النشر.</div>' : ''));
         } else if (r && r.consentUrl){
           dsNote('warn', 'ينقص إذن الحساب لمرة واحدة. افتح هذا الرابط ووافق:<br><a href="' + esc(r.consentUrl) + '" target="_blank" rel="noopener" style="font-weight:700;direction:ltr;display:inline-block">' + esc(r.consentUrl) + '</a>');
         } else {
