@@ -501,6 +501,15 @@
           </div>
 
           <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">🩺 حالة الخدمات — ما هو موصول فعلاً</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              يُقرأ من الخادم لحظياً: أي مفتاح موجود، وتحت أي اسم. لا تظهر القيم أبداً — الأسماء فقط.
+            </p>
+            <button class="actbtn" id="hlRun">🩺 افحص الآن</button>
+            <div class="dbody" id="hlMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">✍️ العقد والتوقيع الإلكتروني (DocuSign)</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               يُرسل العقد بعد أن <b>يقبل العميل عرض السعر</b> — عقد على بنود لم يوافق عليها أحد ليس عقداً.
@@ -1248,6 +1257,24 @@
             fxNote('err', 'تعذّر الإرسال: ' + esc((r && r.error) || '؟'));
           }
         });
+    };
+
+    // ---- what is actually wired ----
+    $('hlRun').onclick = function(){
+      var btn = this, m = $('hlMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أفحص…';
+      postPanel({ action:'panel-health' }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ m.innerHTML = '<span style="color:#b91c1c">تعذّر الفحص.</span>'; return; }
+        var miss = r.services.filter(function(x){ return !x.ok; });
+        m.innerHTML = r.services.map(function(x){
+          return '<span class="kv"><i>' + (x.ok ? '✅' : '⛔') + ' ' + esc(x.label) + ':</i>' +
+            (x.ok ? '<span style="direction:ltr;display:inline-block">' + esc(x.via) + '</span>' : 'غير مضبوط') +
+            (x.note ? ' <span style="color:var(--soft);font-size:11.5px">— ' + esc(x.note) + '</span>' : '') + '</span>';
+        }).join('') +
+        '<div style="margin-top:10px;font-weight:600;color:' + (miss.length ? '#b45309' : '#14532d') + '">' +
+          (miss.length ? 'الناقص: ' + esc(miss.map(function(x){ return x.label; }).join(' · ')) : 'كل شيء موصول ✓') + '</div>';
+      });
     };
 
     // ---- DocuSign ----
