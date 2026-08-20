@@ -34,6 +34,7 @@
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "crypto";
 import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder, daftraCreateInvoice, daftraDocPdf } from "./_daftra.js";
 import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
+import { announce, contactForRef, stageChannels } from "./_stage.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -412,6 +413,158 @@ export async function quotesForClientRefs(refs) {
   return out;
 }
 
+// Put the contract in front of the client. Extracted so the owner's button and
+// the automatic path that follows an acceptance send the SAME document — a
+// contract that differs depending on who triggered it is not one contract.
+// The figures come off the order; nothing here reads a price from a browser.
+async function sendContractFor(o, { email, clientName, clientCr, clientVat }) {
+  const net = o.lines.length ? o.lines.reduce((t, l) => t + l.price * l.qty, 0) : (o.quote || 0);
+  const vat = Math.round(net * (VAT_PCT / 100) * 100) / 100;
+  let executor = "";
+  if (o.supplierId) {
+    const sp = await notion(`pages/${o.supplierId}`);
+    if (sp.ok && sp.json) executor = supplierOf(sp.json).name;
+  }
+  const html = contractHtml({
+    ref: o.clientRef || o.ref,
+    clientName: str(clientName, 200) || o.client || "العميل",
+    clientCr: str(clientCr, 40), clientVat: str(clientVat, 20),
+    service: o.service, lines: o.lines,
+    net: Math.round(net * 100) / 100, vat, total: Math.round((net + vat) * 100) / 100,
+    vatRate: VAT_PCT, leadTime: o.leadTime, executor,
+    today: new Date().toISOString().slice(0, 10),
+  });
+  const env = await docusignSendContract({
+    ref: o.clientRef || o.ref, email,
+    clientName: str(clientName, 200) || o.client || "العميل",
+    subject: `عقد تقديم خدمات — ${o.clientRef || o.ref}`,
+    html,
+  });
+  const log = (o.log || []).concat([{
+    at: new Date().toISOString().slice(0, 16).replace("T", " "),
+    by: "بيزنس بارتنر", text: `أُرسل العقد للتوقيع الإلكتروني إلى ${email}`,
+  }]);
+  await notion(`pages/${o.id}`, "PATCH", { properties: {
+    "ملاحظات": { rich_text: richChunks(joinOrderNotes(`${o.notes}${o.notes ? "\n" : ""}DocuSign: ${env.envelopeId}`, o.lines, log)) },
+  } });
+  return { env, total: Math.round((net + vat) * 100) / 100 };
+}
+
+// Payment landed — online through the gateway, or a bank transfer the owner
+// confirmed. Either way the client gets the same sentence, because from where
+// they sit the money left and the work should start:
+// «استلمنا المبلغ وجاري العمل على الخدمة».
+//
+// Exported so api/pay.js (gateway webhook) and the owner's panel both call one
+// implementation; two implementations would eventually disagree about what
+// "paid" means.
+export async function markOrderPaid(clientRef, { total, method, note } = {}) {
+  const ref = str(clientRef, 60);
+  if (!ref || !NOTION_TOKEN) return { ok: false, error: "no_ref" };
+  const r = await notion(`databases/${ORDERS_DB}/query`, "POST", {
+    page_size: 1,
+    filter: { property: "مرجع طلب العميل", rich_text: { equals: ref } },
+  });
+  const pg = r.ok && r.json && (r.json.results || [])[0];
+  const how = method === "bank" ? "تحويل بنكي" : "دفع إلكتروني";
+  let orderId = "", service = "", client = "";
+  if (pg) {
+    const o = orderOf(pg);
+    orderId = o.id; service = o.service; client = o.client;
+    const already = (o.log || []).some((l) => /استلمنا المبلغ/.test(l.text || ""));
+    if (!already) {
+      const log = (o.log || []).concat([{
+        at: new Date().toISOString().slice(0, 16).replace("T", " "),
+        by: "بيزنس بارتنر",
+        text: `استلمنا المبلغ (${how}${total != null ? ` — ${total} ﷼` : ""}) وجاري العمل على الخدمة${note ? " — " + note : ""}`,
+      }]);
+      const props = { "ملاحظات": { rich_text: richChunks(joinOrderNotes(o.notes, o.lines, log)) } };
+      // Only move it forward — a delivered order does not go back to "in progress".
+      if (o.status !== "تم التسليم" && o.status !== "مكتمل") props["الحالة"] = { select: { name: "قيد التنفيذ" } };
+      await notion(`pages/${o.id}`, "PATCH", { properties: props });
+    }
+  }
+  const notified = await announce({
+    stage: "payment_received", clientRef: ref, orderId: orderId || undefined,
+    name: client, service, total,
+    extra: `طريقة السداد: ${how}`,
+  }).catch(() => null);
+  return { ok: true, orderFound: !!pg, notified };
+}
+
+// The client's decision on a quote, in one place. The portal's «الموافقات»
+// card and the emailed link both land here, so approving in the portal and
+// clicking the link do exactly the same thing to the same order.
+//
+// Nothing here can change money: the amount is read from the order, never from
+// the browser that sent the decision.
+export async function decideQuote({ id: rawId, t, decision, note: rawNote }) {
+  const id = str(rawId, 60);
+  if (!id || !quoteTokenOk(id, t)) return { error: "bad_link", status: 403 };
+  const accept = decision === "accept" || decision === "approved";
+  const pg = await notion(`pages/${id}`);
+  if (!pg.ok || !pg.json) return { error: "not_found", status: 404 };
+  const o = orderOf(pg.json);
+  if (o.status === "مقبول من العميل" || o.status === "مرفوض من العميل") return { error: "already_decided", status: 409 };
+
+  const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+  const note = str(rawNote, 300);
+  const log = (o.log || []).concat([{
+    at: stamp, by: "العميل",
+    text: accept ? `قَبِل عرض السعر${note ? " — " + note : ""}` : `رفض عرض السعر${note ? " — " + note : ""}`,
+  }]);
+  const upd = await notion(`pages/${id}`, "PATCH", { properties: {
+    "الحالة": { select: { name: accept ? "مقبول من العميل" : "مرفوض من العميل" } },
+    "ملاحظات": { rich_text: richChunks(joinOrderNotes(o.notes, o.lines, log)) },
+  } });
+  if (!upd.ok) return { error: "save_failed", status: 502 };
+
+  let supplierEmail = "";
+  if (o.supplierId) {
+    const sp = await notion(`pages/${o.supplierId}`);
+    if (sp.ok && sp.json) supplierEmail = supplierOf(sp.json).email;
+  }
+  const subject = `${accept ? "✅ قُبل" : "❌ رُفض"} عرض السعر ${o.ref}`;
+  const html = `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
+    <h2 style="color:#0B1B5A">${accept ? "العميل قَبِل عرض السعر" : "العميل رفض عرض السعر"}</h2>
+    <table>${row("أمر العمل", o.ref) + row("الخدمة", o.service) + row("العميل", o.client) + row("طلب العميل", o.clientRef) + row("القيمة", (o.quote != null ? o.quote + " ﷼" : "—")) + (note ? row("ملاحظة العميل", note) : "")}</table>
+    ${accept ? "<p><b>الخطوة التالية:</b> يُرسل للعميل العقد للتوقيع، ثم الفاتورة الضريبية للسداد.</p>" : ""}</div>`;
+  await sendEmail(TEAM_EMAIL, subject, html);
+  if (supplierEmail) await sendEmail(supplierEmail, subject, html);
+
+  // The client is told their own decision landed — silence after clicking
+  // «أوافق» is exactly what made this feel like a dead end.
+  const net = o.lines.length ? o.lines.reduce((tt, l) => tt + l.price * l.qty, 0) : (o.quote || 0);
+  const total = Math.round(net * (1 + VAT_PCT / 100) * 100) / 100;
+  const contact = await contactForRef(o.clientRef).catch(() => ({ email: "", phone: "", name: "" }));
+  const notified = await announce({
+    stage: accept ? "quote_accepted" : "quote_declined",
+    clientRef: o.clientRef, orderId: o.id, service: o.service, total,
+    name: o.client, extra: note || "",
+  }).catch(() => null);
+
+  // Acceptance is the trigger, not a to-do list for the owner: the contract
+  // goes out on its own the moment the client says yes. If DocuSign is not
+  // reachable the acceptance still stands — the contract is retried from the
+  // panel — because losing a "yes" over a signature service is unacceptable.
+  let contract = null;
+  if (accept && docusignConfigured() && isEmail(contact.email)) {
+    try {
+      const { env } = await sendContractFor(o, { email: contact.email, clientName: o.client });
+      contract = { envelopeId: env.envelopeId, status: env.status, to: contact.email };
+      await announce({
+        stage: "contract_sent", clientRef: o.clientRef, orderId: o.id,
+        email: contact.email, name: o.client, service: o.service, total,
+      }).catch(() => null);
+    } catch (e) {
+      contract = { error: String(e.message || "docusign_failed") };
+      await sendEmail(TEAM_EMAIL, `⚠️ تعذّر إرسال العقد تلقائياً — ${o.ref}`,
+        `<div dir="rtl" style="font-family:Arial"><p>العميل قَبِل العرض لكن DocuSign رفض الإرسال: <b>${esc(contract.error)}</b>.</p><p>أرسله يدوياً من لوحة /admin ← بطاقة DocuSign.</p></div>`);
+    }
+  }
+  return { ok: true, decision: accept ? "accepted" : "declined", notified, contract, clientRef: o.clientRef, ref: o.ref };
+}
+
 export async function handleSuppliers(req, res) {
   res.setHeader("content-type", "application/json; charset=utf-8");
   res.setHeader("cache-control", "no-store");
@@ -709,7 +862,35 @@ export async function handleSuppliers(req, res) {
 
     await sendEmail(TEAM_EMAIL, `📦 تحديث أمر عمل ${order.ref} — ${s.name}`,
       `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">تحديث من المورّد</h2><table>${row("أمر العمل", order.ref) + row("المورّد", s.name) + row("الحالة الجديدة", status || order.status) + row("فاتورة مرفوعة", uploaded ? "نعم" : "لا") + row("ملاحظات", str(b.notes, 400))}</table></div>`);
-    return ok({ invoiceUploaded: !!uploaded, quote, lines });
+
+    // The client is the reason any of this happened, so they are told too. A
+    // quote that only the owner can see is the gap that started all of this.
+    const newStatus = (props["الحالة"] && props["الحالة"].select.name) || order.status;
+    const keptLines = lines.length ? lines : (order.lines || []);
+    const netNow = keptLines.length ? keptLines.reduce((t, l) => t + l.price * l.qty, 0) : (quote != null ? quote : order.quote);
+    const totalNow = netNow == null ? null : Math.round(netNow * (1 + VAT_PCT / 100) * 100) / 100;
+    let notified = null;
+    if (order.clientRef && OTP_SECRET) {
+      const token = quoteToken(orderId);
+      if (newStatus === "عرض مُقدَّم" && netNow != null) {
+        notified = await announce({
+          stage: "quote_sent", clientRef: order.clientRef, orderId, token,
+          name: order.client, service: order.service, total: totalNow,
+          url: `${SITE}/ar/quote?id=${encodeURIComponent(orderId)}&t=${token}`,
+        }).catch(() => null);
+      } else if (newStatus === "تم التسليم") {
+        notified = await announce({
+          stage: "delivered", clientRef: order.clientRef, orderId,
+          name: order.client, service: order.service, extra: progress || "",
+        }).catch(() => null);
+      } else if (progress) {
+        notified = await announce({
+          stage: "work_update", clientRef: order.clientRef, orderId,
+          name: order.client, service: order.service, extra: progress,
+        }).catch(() => null);
+      }
+    }
+    return ok({ invoiceUploaded: !!uploaded, quote, lines, notified });
   }
 
   // ---------------- owner: approve / suspend a supplier ----------------
@@ -900,43 +1081,10 @@ export async function handleSuppliers(req, res) {
   }
 
   // ---------------- public: the client accepts or declines the quote ----------------
-  // The decision is the client's, so it is recorded on the order itself and
-  // both sides are told at once. Nothing here can change money: the amount is
-  // read from the order, never from the browser.
   if (b.type === "quote-decision") {
-    const id = str(b.id, 60);
-    if (!id || !quoteTokenOk(id, b.t)) return bad("bad_link", 403);
-    const accept = b.decision === "accept";
-    const pg = await notion(`pages/${id}`);
-    if (!pg.ok || !pg.json) return bad("not_found", 404);
-    const o = orderOf(pg.json);
-    if (o.status === "مقبول من العميل" || o.status === "مرفوض من العميل") return bad("already_decided", 409);
-
-    const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
-    const note = str(b.note, 300);
-    const log = (o.log || []).concat([{
-      at: stamp, by: "العميل",
-      text: accept ? `قَبِل عرض السعر${note ? " — " + note : ""}` : `رفض عرض السعر${note ? " — " + note : ""}`,
-    }]);
-    const upd = await notion(`pages/${id}`, "PATCH", { properties: {
-      "الحالة": { select: { name: accept ? "مقبول من العميل" : "مرفوض من العميل" } },
-      "ملاحظات": { rich_text: richChunks(joinOrderNotes(o.notes, o.lines, log)) },
-    } });
-    if (!upd.ok) return bad("save_failed", 502);
-
-    let supplierEmail = "";
-    if (o.supplierId) {
-      const sp = await notion(`pages/${o.supplierId}`);
-      if (sp.ok && sp.json) supplierEmail = supplierOf(sp.json).email;
-    }
-    const subject = `${accept ? "✅ قُبل" : "❌ رُفض"} عرض السعر ${o.ref}`;
-    const html = `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
-      <h2 style="color:#0B1B5A">${accept ? "العميل قَبِل عرض السعر" : "العميل رفض عرض السعر"}</h2>
-      <table>${row("أمر العمل", o.ref) + row("الخدمة", o.service) + row("العميل", o.client) + row("طلب العميل", o.clientRef) + row("القيمة", (o.quote != null ? o.quote + " ﷼" : "—")) + (note ? row("ملاحظة العميل", note) : "")}</table>
-      ${accept ? "<p><b>الخطوة التالية:</b> يُرسل للعميل العقد للتوقيع، ثم الفاتورة الضريبية للسداد.</p>" : ""}</div>`;
-    await sendEmail(TEAM_EMAIL, subject, html);
-    if (supplierEmail) await sendEmail(supplierEmail, subject, html);
-    return ok({ decision: accept ? "accepted" : "declined" });
+    const r = await decideQuote({ id: b.id, t: b.t, decision: b.decision, note: b.note });
+    if (r.error) return bad(r.error, r.status || 400);
+    return ok({ decision: r.decision, notified: r.notified, contract: r.contract });
   }
 
   // ---------------- owner: send the contract for signature ----------------
@@ -955,37 +1103,17 @@ export async function handleSuppliers(req, res) {
     const email = str(b.email, 160).toLowerCase();
     if (!isEmail(email)) return bad("bad_email");
 
-    const net = o.lines.length ? o.lines.reduce((t, l) => t + l.price * l.qty, 0) : (o.quote || 0);
-    const vat = Math.round(net * (VAT_PCT / 100) * 100) / 100;
-    let executor = "";
-    if (o.supplierId) {
-      const sp = await notion(`pages/${o.supplierId}`);
-      if (sp.ok && sp.json) executor = supplierOf(sp.json).name;
-    }
-    const html = contractHtml({
-      ref: o.clientRef || o.ref,
-      clientName: str(b.clientName, 200) || o.client || "العميل",
-      clientCr: str(b.clientCr, 40), clientVat: str(b.clientVat, 20),
-      service: o.service, lines: o.lines,
-      net: Math.round(net * 100) / 100, vat, total: Math.round((net + vat) * 100) / 100,
-      vatRate: VAT_PCT, leadTime: o.leadTime, executor,
-      today: new Date().toISOString().slice(0, 10),
-    });
     try {
-      const env = await docusignSendContract({
-        ref: o.clientRef || o.ref, email,
-        clientName: str(b.clientName, 200) || o.client || "العميل",
-        subject: `عقد تقديم خدمات — ${o.clientRef || o.ref}`,
-        html,
+      const { env, total } = await sendContractFor(o, {
+        email, clientName: str(b.clientName, 200), clientCr: str(b.clientCr, 40), clientVat: str(b.clientVat, 20),
       });
-      const log = (o.log || []).concat([{
-        at: new Date().toISOString().slice(0, 16).replace("T", " "),
-        by: "بيزنس بارتنر", text: `أُرسل العقد للتوقيع الإلكتروني إلى ${email}`,
-      }]);
-      await notion(`pages/${id}`, "PATCH", { properties: {
-        "ملاحظات": { rich_text: richChunks(joinOrderNotes(`${o.notes}${o.notes ? "\n" : ""}DocuSign: ${env.envelopeId}`, o.lines, log)) },
-      } });
-      return ok({ envelopeId: env.envelopeId, status: env.status });
+      // The client hears about it on every channel they have — DocuSign's own
+      // e-mail is one inbox, and one inbox is how a signature goes unnoticed.
+      const notified = await announce({
+        stage: "contract_sent", clientRef: o.clientRef, orderId: o.id, email,
+        name: str(b.clientName, 200) || o.client, service: o.service, total,
+      }).catch(() => null);
+      return ok({ envelopeId: env.envelopeId, status: env.status, notified });
     } catch (e) {
       return bad(String(e.message || "docusign_failed"), 502, { detail: String(e.detail || "").slice(0, 400) });
     }
@@ -997,8 +1125,36 @@ export async function handleSuppliers(req, res) {
     if (!docusignConfigured()) return bad("docusign_not_configured", 503);
     const envId = str(b.envelopeId, 80);
     if (!envId) return bad("invalid_fields");
-    try { return ok({ envelope: await docusignStatus(envId) }); }
-    catch (e) { return bad(String(e.message || "docusign_failed"), 502, { detail: String(e.detail || "").slice(0, 400) }); }
+    try {
+      const envelope = await docusignStatus(envId);
+      // Checking the signature is also how the signature gets acted on: a
+      // completed envelope moves the order and tells the client, once.
+      let notified = null;
+      const id = str(b.orderId, 60);
+      if (envelope && envelope.status === "completed" && id) {
+        const pg = await notion(`pages/${id}`);
+        if (pg.ok && pg.json) {
+          const o = orderOf(pg.json);
+          const already = (o.log || []).some((l) => /وقّع العميل العقد/.test(l.text || ""));
+          if (!already) {
+            const log = (o.log || []).concat([{
+              at: new Date().toISOString().slice(0, 16).replace("T", " "),
+              by: "العميل", text: "وقّع العميل العقد إلكترونياً عبر DocuSign",
+            }]);
+            await notion(`pages/${id}`, "PATCH", { properties: {
+              "ملاحظات": { rich_text: richChunks(joinOrderNotes(o.notes, o.lines, log)) },
+            } });
+            const net = o.lines.length ? o.lines.reduce((t, l) => t + l.price * l.qty, 0) : (o.quote || 0);
+            notified = await announce({
+              stage: "contract_signed", clientRef: o.clientRef, orderId: id,
+              name: o.client, service: o.service,
+              total: Math.round(net * (1 + VAT_PCT / 100) * 100) / 100,
+            }).catch(() => null);
+          }
+        }
+      }
+      return ok({ envelope, notified });
+    } catch (e) { return bad(String(e.message || "docusign_failed"), 502, { detail: String(e.detail || "").slice(0, 400) }); }
   }
 
   // ---------------- owner: is DocuSign reachable, and which account ----------------

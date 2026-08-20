@@ -21,6 +21,7 @@
 //                            emails them that the service unlocked.
 
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink } from "./_daftra.js";
+import { markOrderPaid } from "./_suppliers.js";
 
 const PK = process.env.MOYASAR_PUBLISHABLE_KEY || "";
 const SK = process.env.MOYASAR_SECRET_KEY || "";
@@ -407,6 +408,20 @@ export default async function handler(req, res) {
       }
     }
 
+    // …and the client is told, on every channel, that the money arrived and the
+    // work has started. The tax invoice above is the document; this is the
+    // sentence a person actually waits for.
+    let announced = null;
+    if (paid && b.order && b.order.ref) {
+      try {
+        announced = await markOrderPaid(String(b.order.ref), {
+          total: Math.round(p.amount) / 100, method: "online",
+        });
+      } catch (e) {
+        console.error("pay: stage announce failed", String(e.message || e).slice(0, 160));
+      }
+    }
+
     res.statusCode = 200;
     return res.end(JSON.stringify({
       ok: paid,
@@ -416,6 +431,7 @@ export default async function handler(req, res) {
       description: p.description || "",
       ...(b.context === "compliance" ? { activated: activation.activated } : {}),
       ...(invoicing ? { invoice: invoicing } : {}),
+      ...(announced ? { announced } : {}),
     }));
   } catch (e) {
     console.error("pay handler error", e);
