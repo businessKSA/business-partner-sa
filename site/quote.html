@@ -81,11 +81,46 @@
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header><main>
+  <style>
+    .qstep .qdot{width:44px;height:44px;border-radius:50%;border:2px solid var(--gray-line);color:#94a3b8;
+      display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 8px;background:#fff;font-size:1.05rem}
+    .qstep .qlbl{font-size:.82rem;color:#94a3b8;line-height:1.5}
+    .qstep.on .qdot{border-color:var(--navy);color:var(--navy)}
+    .qstep.on .qlbl{color:var(--navy);font-weight:700}
+    .qstep.done .qdot{border-color:#0f766e;background:#0f766e;color:#fff}
+    .qstep.done .qdot::after{content:"✓";font-size:1.15rem}
+    .qstep.done .qdot{font-size:0}
+    .qstep.done .qlbl{color:#0f766e;font-weight:700}
+    .qbar{height:2px;background:var(--gray-line);flex:1;margin-top:22px;min-width:16px}
+    .qbar.done{background:#0f766e}
+    @media print{
+      header,footer,.wa-fab,#q-steps-bar,#q-actions,#q-sign,#q-pay{display:none!important}
+      .dash-card{box-shadow:none;border:0}
+    }
+  </style>
   <section class="section"><div class="container" style="max-width:760px">
     <div id="q-loading" class="dash-card" style="text-align:center">Opening your quote…</div>
     <div id="q-error" class="dash-card" hidden style="text-align:center;color:#b91c1c"></div>
 
     <div id="q-doc" hidden>
+      <!-- The three steps, always visible. A client who can see where they are
+           and what is left does not have to be told by e-mail. -->
+      <div class="dash-card" id="q-steps-bar" style="margin-bottom:18px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">
+          <div class="qstep" data-step="1" style="flex:1;text-align:center">
+            <div class="qdot">1</div><div class="qlbl">Review the quote</div>
+          </div>
+          <div class="qbar"></div>
+          <div class="qstep" data-step="2" style="flex:1;text-align:center">
+            <div class="qdot">2</div><div class="qlbl">Verify &amp;amp; sign</div>
+          </div>
+          <div class="qbar"></div>
+          <div class="qstep" data-step="3" style="flex:1;text-align:center">
+            <div class="qdot">3</div><div class="qlbl">Contract &amp;amp; payment</div>
+          </div>
+        </div>
+      </div>
+
       <div class="dash-card" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
           <div>
@@ -131,14 +166,54 @@
         <p class="form-error" id="q-fail" hidden></p>
       </div>
 
-      <div class="dash-card" id="q-steps" style="margin-top:18px">
-        <h3 style="margin-top:0">What happens next</h3>
-        <ol style="line-height:2.2;padding-inline-start:20px;margin:0" class="text-soft">
-          <li>You accept this quote.</li>
-          <li>The contract reaches you to sign electronically.</li>
-          <li>The tax invoice reaches you as a PDF, payable online.</li>
-          <li>You follow the work in your client portal, updated as it progresses.</li>
-        </ol>
+      <!-- Step 2: identity then signature. The code goes to the address on the
+           client's own record, so holding the link is not enough to sign as
+           them — which is the one thing a signature has to rule out. -->
+      <div class="dash-card" id="q-sign" hidden style="margin-top:18px">
+        <h3 style="margin-top:0">Sign the contract electronically</h3>
+        <p class="text-soft" style="font-size:.9rem;line-height:1.9">We send a one-time code to the address on your record, then you sign here. The signed contract is issued as a PDF you can download, and your signature, the time and the document fingerprint are recorded with it.</p>
+
+        <div id="q-sign-1">
+          <button type="button" class="btn btn-primary btn-lg" id="q-code-send">Send me the code</button>
+          <p class="text-soft" style="font-size:.84rem;margin-top:8px" id="q-code-hint"></p>
+        </div>
+
+        <div id="q-sign-2" hidden>
+          <div class="field"><label for="q-code">The code we sent you</label>
+            <input id="q-code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" dir="ltr" style="letter-spacing:8px;text-align:center;font-size:1.3rem"></div>
+          <div class="field"><label for="q-name">Full name of the signatory</label><input id="q-name" type="text" maxlength="120"></div>
+          <div class="field"><label for="q-nid">National ID / CR (optional)</label><input id="q-nid" type="text" inputmode="numeric" maxlength="20" dir="ltr"></div>
+
+          <label style="display:block;font-weight:600;margin:14px 0 6px">Draw your signature</label>
+          <div style="border:1px dashed var(--gray-line);border-radius:12px;background:#fff;position:relative">
+            <canvas id="q-pad" style="width:100%;height:170px;display:block;touch-action:none;border-radius:12px"></canvas>
+            <button type="button" class="btn btn-ghost btn-sm" id="q-pad-clear" style="position:absolute;inset-inline-end:10px;top:10px">Clear</button>
+          </div>
+
+          <label style="display:flex;gap:10px;align-items:flex-start;margin:14px 0;line-height:1.9;font-size:.9rem">
+            <input type="checkbox" id="q-agree" style="margin-top:5px">
+            <span>I have read the contract and I agree to sign it electronically under the Saudi Electronic Transactions Law.</span>
+          </label>
+
+          <button type="button" class="btn btn-primary btn-lg" id="q-sign-go" style="width:100%">✍️ Sign the contract</button>
+          <p class="form-error" id="q-sign-fail" hidden></p>
+        </div>
+      </div>
+
+      <!-- Step 3: the document and the money, on one screen. -->
+      <div class="dash-card" id="q-pay" hidden style="margin-top:18px">
+        <h3 style="margin-top:0" id="q-pay-title">Your contract and payment</h3>
+        <p id="q-signed-note" class="text-soft" style="font-size:.9rem;line-height:1.9"></p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+          <a class="btn btn-ghost" id="q-dl" href="#" target="_blank" rel="noopener">⬇ Download the contract (PDF)</a>
+        </div>
+        <div id="q-epay" hidden style="margin-top:14px">
+          <h4 style="margin:0 0 6px">Pay online</h4>
+          <p class="text-soft" style="font-size:.86rem;line-height:1.9">mada, Visa, Mastercard and Apple Pay. Your tax invoice is issued and e-mailed to you the moment the payment lands.</p>
+          <div id="epay-form"></div>
+        </div>
+        <div id="q-bank" style="margin-top:12px" class="text-soft" style="font-size:.86rem"></div>
+        <p class="form-success" id="q-paid" hidden></p>
       </div>
     </div>
   </div></section></main><footer class="site-footer"><div class="container">
@@ -227,4 +302,4 @@
     <span>© 2026 Business Partner · All rights reserved</span>
     <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contact on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><script src="/assets/js/main.js?v=58780a54e9"></script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contact on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><script src="/assets/js/main.js?v=e3276ca4ab"></script></body></html>
