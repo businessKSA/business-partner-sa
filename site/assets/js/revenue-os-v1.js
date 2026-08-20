@@ -34,6 +34,21 @@
     location.href = '/ar/cart';
   });
 
+  // Track buttons preselect the matching option in the form instead of
+  // dropping everyone on the same generic contact block.
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-track]");
+    if (!t) return;
+    const sel = document.getElementById("rl-track");
+    if (sel) {
+      const want = t.getAttribute("data-track");
+      for (const o of sel.options) if (o.text.trim() === want) { sel.value = o.value; break; }
+      sel.dispatchEvent(new Event("change"));
+    }
+    const form = document.getElementById("leadForm");
+    if (form) { e.preventDefault(); form.scrollIntoView({ behavior: "smooth", block: "center" }); }
+  });
+
   // Lead form → real order in the CRM + team/owner email (no more demo).
   const form = document.getElementById('leadForm');
   if (form) form.addEventListener('submit', (e) => {

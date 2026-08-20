@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-20T01:57:15.946Z",
+  "updatedAt": "2026-08-20T03:56:47.499Z",
   "currency": "SAR",
   "services": [
     {
@@ -1993,6 +1993,25 @@
         "10% discount on notarization services"
       ],
       "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "Revenue OS",
+      "groupNameEn": "Revenue OS",
+      "code": "revos-connect",
+      "key": "revos-connect",
+      "nameAr": "Revenue OS — باقة Connect (شهري)",
+      "nameEn": "Revenue OS — Connect (monthly)",
+      "amount": 499,
+      "priceLabel": "499 ﷼ / شهريًا",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "قائمة شركات مستهدفة",
+        "التقاط عملاء وحجز مواعيد",
+        "لوحة عميل وتقرير شهري",
+        "بدون عمولة"
+      ],
+      "url": "https://businesspartner.sa/revenue-os"
     },
     {
       "group": "revenue-os",

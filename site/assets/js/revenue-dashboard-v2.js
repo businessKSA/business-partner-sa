@@ -21,7 +21,34 @@
   const ACTIVE = ['مؤكد - قيد التنفيذ'];
   const DONE = ['مكتمل'];
 
-  const state = { orders: [], overview: null, tasks: [], documents: [], loaded: false, error: false };
+  const state = { orders: [], overview: null, tasks: [], documents: [], loaded: false, error: false, period: 'month' };
+
+  // Real identity in the top bar (was a hardcoded "BM").
+  (function () {
+    const av = document.querySelector('.user-avatar');
+    if (!av) return;
+    const src = (session.name || session.email || '').trim();
+    const parts = src.replace(/@.*/, '').split(/[\s._-]+/).filter(Boolean);
+    av.textContent = (parts[0] ? parts[0][0] : '') + (parts[1] ? parts[1][0] : '');
+    av.title = session.email || '';
+  })();
+
+  // The period selector used to do nothing at all. It now filters what the
+  // views count, so changing it visibly changes the numbers.
+  (function () {
+    const sel = document.getElementById('periodSelect');
+    if (!sel) return;
+    const map = ['month', 'quarter', 'year'];
+    sel.addEventListener('change', () => { state.period = map[sel.selectedIndex] || 'month'; render(); });
+  })();
+  function inPeriod(o) {
+    if (!o || !o.at) return true;
+    const d = new Date(o.at);
+    if (isNaN(d)) return true;
+    const now = new Date();
+    const days = state.period === 'year' ? 365 : state.period === 'quarter' ? 92 : 31;
+    return (now - d) / 86400000 <= days;
+  }
 
   const head = (h, p, actions = '') => `<div class="view-head"><div><h1>${h}</h1><p>${p}</p></div><div class="head-actions">${actions}</div></div>`;
   const kpi = (label, value, note = '', down = false) => `<div class="dash-kpi"><small>${label}</small><strong>${value}</strong>${note ? `<span class="delta${down ? ' down' : ''}">${note}</span>` : ''}</div>`;
@@ -33,10 +60,11 @@
   const emptyState = (t, p, cta) => `<div class="dash-card" style="text-align:center;padding:48px 24px"><div style="font-size:2rem;margin-bottom:10px">◇</div><h3 style="margin:0 0 6px">${t}</h3><p style="color:#6B7280;max-width:46em;margin:0 auto 16px">${p}</p>${cta || ''}</div>`;
   const pkgCta = '<a class="dash-btn primary" href="/revenue-os#pricing" style="text-decoration:none">استعرض باقات Revenue OS</a>';
 
+  function periodOrders() { return state.orders.filter(inPeriod); }
   function sums() {
-    const open = state.orders.filter((o) => OPEN.includes(o.status));
-    const active = state.orders.filter((o) => ACTIVE.includes(o.status));
-    const done = state.orders.filter((o) => DONE.includes(o.status));
+    const open = periodOrders().filter((o) => OPEN.includes(o.status));
+    const active = periodOrders().filter((o) => ACTIVE.includes(o.status));
+    const done = periodOrders().filter((o) => DONE.includes(o.status));
     const sum = (arr) => arr.reduce((s, o) => s + (Number(o.total) || 0), 0);
     return { open, active, done, pipeline: sum(open) + sum(active), collected: sum(done), wallet: (state.overview && state.overview.walletBalance) || 0 };
   }
@@ -49,7 +77,7 @@
   const views = {
     overview() {
       const s = sums();
-      const recent = state.orders.slice(0, 6);
+      const recent = periodOrders().slice(0, 6);
       return `${head('Revenue Overview', 'أرقامك الحقيقية — من طلباتك وفرصك المسجلة لدى Business Partner.', '<a class="dash-btn" href="/ar/account" style="text-decoration:none">منصّة العملاء</a><a class="dash-btn primary" href="/ar/services" style="text-decoration:none">+ طلب جديد</a>')}
       <div class="dash-kpis">
         ${kpi('Pipeline (فرص مفتوحة + قيد التنفيذ)', money(s.pipeline), s.open.length + s.active.length + ' فرصة')}
@@ -60,7 +88,7 @@
       <div class="dash-grid-2">
         <article class="dash-card"><div class="dash-card-head"><div><h3>تقدم الفرص</h3><small>حسب الحالة الفعلية</small></div></div>
           <div class="funnel">
-            ${[['قيد المراجعة', state.orders.filter((o) => o.status === 'قيد المراجعة').length], ['بانتظار الدفع', state.orders.filter((o) => o.status === 'بانتظار الدفع').length], ['مؤكد - قيد التنفيذ', s.active.length], ['مكتمل', s.done.length]].map(([label, n], i, all) => {
+            ${[['قيد المراجعة', periodOrders().filter((o) => o.status === 'قيد المراجعة').length], ['بانتظار الدفع', periodOrders().filter((o) => o.status === 'بانتظار الدفع').length], ['مؤكد - قيد التنفيذ', s.active.length], ['مكتمل', s.done.length]].map(([label, n], i, all) => {
               const max = Math.max(1, ...all.map((x) => x[1]));
               return `<div class="funnel-row"><span>${label}</span><div class="progress"><i style="width:${Math.round((n / max) * 100)}%"></i></div><b>${n}</b></div>`;
             }).join('')}
@@ -72,7 +100,7 @@
     },
     pipeline() {
       const s = sums();
-      const list = state.orders.filter((o) => o.status !== 'ملغي');
+      const list = periodOrders().filter((o) => o.status !== 'ملغي');
       return `${head('الفرص والـPipeline', 'كل فرصك وطلباتك المفتوحة والمكتملة — بيانات حقيقية من سجلك.')}
       <div class="dash-kpis">${kpi('إجمالي الـPipeline', money(s.pipeline))}${kpi('فرص مفتوحة', String(s.open.length))}${kpi('قيد التنفيذ', String(s.active.length))}${kpi('مكتمل', String(s.done.length))}</div>
       ${list.length ? `<article class="dash-card">${table(['المرجع', 'الفرصة / الخدمة', 'الحالة', 'المبلغ', 'التاريخ'], ordersRows(list))}</article>` : emptyState('لا توجد فرص بعد', 'أول فرصة تظهر هنا فور تقديم طلب أو تفعيل باقة Revenue OS.', pkgCta)}`;
@@ -109,6 +137,22 @@
   Object.keys(soon).forEach((k) => {
     views[k] = () => head(soon[k][0], 'بيانات حقيقية فقط — لا أرقام تجريبية.') + emptyState(soon[k][0], soon[k][1], pkgCta);
   });
+
+  // Seven of the twelve sections only fill up once a Revenue OS package is
+  // running. Left unmarked they read as broken pages, so label them in the
+  // sidebar rather than letting the client discover seven identical blanks.
+  (function () {
+    Object.keys(soon).forEach((k) => {
+      const btn = nav.querySelector('button[data-view="' + k + '"]');
+      if (!btn) return;
+      btn.style.opacity = "0.62";
+      btn.title = "تُفعَّل مع اشتراك Revenue OS";
+      const tag = document.createElement("small");
+      tag.textContent = "مع الباقة";
+      tag.style.cssText = "margin-inline-start:auto;font-size:10px;font-weight:800;background:#EEF1F8;color:#0B1B5A;padding:1px 7px;border-radius:20px";
+      btn.appendChild(tag);
+    });
+  })();
 
   const titles = { overview: 'نظرة عامة', accounts: 'الحسابات المستهدفة', leads: 'العملاء المحتملون', pipeline: 'الفرص والـPipeline', meetings: 'الاجتماعات', campaigns: 'الحملات والتواصل', suppliers: 'الموردون والطلبات', revenue: 'الإيرادات والتحصيل', commissions: 'العمولات', tasks: 'المهام وSLA', documents: 'المستندات', reports: 'التقارير' };
   let current = 'overview';
