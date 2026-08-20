@@ -264,7 +264,7 @@
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
         <button data-v="payments"><span>◫</span><span data-t="navPayments">المدفوعات والفواتير</span><span class="b w" id="sbPay" style="display:none;background:var(--warn)"></span></button>
         <button data-v="wallet"><span>◍</span><span data-t="navWallet">المحفظة</span></button>
-        <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span></button>
+        <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span><span class="b" id="sbAppr" style="display:none"></span></button>
         <button data-v="documents"><span>⌸</span><span data-t="navDocuments">المستندات</span></button>
         <button data-v="team"><span>﴾﴿</span><span data-t="navTeam">الموظفون والفريق</span></button>
         <button data-v="reports"><span>◔</span><span data-t="navReports">التقارير والتحليلات</span></button>
@@ -290,6 +290,15 @@
       <div class="banner" id="limitedBanner">
         <span>⚠ <span data-t="limitedMsg">قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.</span></span>
         <button class="x" id="bannerClose" aria-label="close">✕</button>
+      </div>
+
+      <!-- The quote bar. A decision the client has to make is not a row in a
+           table somewhere: it follows them across every section until it is
+           answered, because a quote nobody noticed is a quote nobody accepts. -->
+      <div id="quoteBar" style="display:none;margin:0 0 14px;padding:12px 16px;border-radius:12px;background:#fffbeb;border:1px solid #f59e0b;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:20px">📝</span>
+        <b id="quoteBarText" style="color:#92400e;flex:1;min-width:180px">عرض سعر بانتظار موافقتك</b>
+        <button class="btn sm" id="quoteBarGo">راجع العرض ووافق</button>
       </div>
 
       <div class="viewwrap">
@@ -387,6 +396,10 @@
         <!-- ===== tasks ===== -->
         <section class="view" id="view-tasks">
           <div class="pagehead"><h2 data-t="navTasks">المهام</h2><div class="sub" data-t="tasksSub">مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.</div></div>
+          <div class="panel" id="quotesPanelTasks" style="display:none;border-color:#f59e0b;background:#fffbeb;margin-bottom:14px">
+            <div class="phead"><h3 id="quotesTitleTasks">📝 عروض أسعار بانتظار قرارك</h3></div>
+            <div id="quotesBodyTasks"></div>
+          </div>
           <div class="panel" id="srvTasksPanel" style="display:none;margin-bottom:14px"><div class="phead"><h3 data-t="srvTasksTitle">مهام من فريق Business Partner</h3></div><div id="srvTasksList" style="padding:6px 16px"></div></div>
           <div class="panel"><div class="phead"><h3 data-t="derivedTasksTitle">مهام من طلباتك</h3></div><div id="tasksList" style="padding:6px 16px"></div></div>
         </section>
@@ -433,6 +446,13 @@
         </section>
         <section class="view" id="view-approvals">
           <div class="pagehead"><h2 data-t="navApprovals">الموافقات</h2><div class="sub" data-t="apprSub">لا تنفيذ لأي إجراء حساس دون موافقتك المسجلة هنا.</div></div>
+          <!-- A quote is the approval a client actually has to give. It is
+               mounted before the session placeholder because the token on the
+               quote authorises the decision — no full sign-in required. -->
+          <div class="panel" id="quotesPanelAppr" style="display:none;border-color:#f59e0b;background:#fffbeb;margin-bottom:16px">
+            <div class="phead"><h3 id="quotesTitleAppr">📝 عروض أسعار بانتظار قرارك</h3></div>
+            <div id="quotesBodyAppr"></div>
+          </div>
           <div class="ph" id="apprPh"><div class="ic">✓</div><b data-t="navApprovals">الموافقات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="apprMain" style="display:none">
             <div class="panel"><div class="phead"><h3 data-t="apprPendingTitle">بانتظار قرارك</h3></div><div id="apprPending" style="padding:6px 16px 12px"></div></div>
@@ -506,6 +526,13 @@
         </section>
         <section class="view" id="view-alerts">
           <div class="pagehead"><h2 data-t="navAlerts">التنبيهات</h2><div class="sub" data-t="alSub">كل ما يخص طلباتك ومستنداتك وتذاكرك — أولاً بأول.</div></div>
+          <!-- Alerts read off the orders this browser tracks, so a client who
+               has not signed in with a full session still sees movement on
+               their own work instead of an empty "coming soon" box. -->
+          <div class="panel" id="derivedAlertsPanel" style="display:none;margin-bottom:14px">
+            <div class="phead"><h3 id="derivedAlertsTitle">تحديثات طلباتك</h3></div>
+            <div id="derivedAlerts" style="padding:6px 16px 12px"></div>
+          </div>
           <div class="ph" id="alPh"><div class="ic">◉</div><b data-t="navAlerts">التنبيهات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="alMain" style="display:none">
             <div class="panel">
@@ -1277,15 +1304,8 @@
     // A quote the client can answer here and now. The figures are read back
     // from the server on every refresh, never trusted from this page — the
     // decision is the client's, the amount is not.
-    function renderQuotes(){
-      var box = $('quotesBody'), panel = $('quotesPanel');
-      if (!box || !panel) return;
-      var list = state.quotes || [];
-      if (!list.length){ panel.style.display = 'none'; return; }
-      var en = state.lang === 'en';
-      $('quotesTitle').textContent = en ? '📝 Quotes awaiting your decision' : '📝 عروض أسعار بانتظار قرارك';
-      panel.style.display = '';
-      box.innerHTML = list.map(function(q, i){
+    function quoteCards(list, en){
+      return list.map(function(q, i){
         var rows = (q.lines || []).length
           ? q.lines.map(function(l){
               return '<tr><td style="padding:5px 8px">' + esc(l.name) + '</td><td style="padding:5px 8px;text-align:center">' + (l.qty || 1) +
@@ -1302,44 +1322,127 @@
             '<span style="font-size:17px;color:var(--navy)"><b>' + (en ? 'Total' : 'الإجمالي') + ': ' + q.total + ' ﷼</b></span></div>' +
           (q.leadTime ? '<div style="color:var(--soft);font-size:12.5px">' + (en ? 'Delivery: ' : 'مدة التنفيذ: ') + esc(q.leadTime) + '</div>' : '') +
           (q.notes ? '<div style="color:var(--soft);font-size:12.5px;white-space:pre-wrap">' + esc(q.notes) + '</div>' : '') +
+          '<div style="color:var(--soft);font-size:12px;margin-top:8px">' +
+            (en ? 'On acceptance the contract is sent for e-signature, then the payment link — and every step reaches you by e-mail and WhatsApp.'
+                : 'بقبولك يُرسل لك العقد للتوقيع الإلكتروني ثم رابط السداد — وكل خطوة توصلك على البريد والواتساب.') + '</div>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
             '<button class="btn" data-qa="' + i + '" style="flex:1;min-width:160px">✅ ' + (en ? 'Accept' : 'أقبل العرض') + '</button>' +
             '<button class="btn ghost" data-qd="' + i + '">' + (en ? 'Decline' : 'أرفض') + '</button>' +
           '</div><div style="margin-top:8px;font-size:13px" data-qm="' + i + '"></div></div>';
       }).join('');
-      [].slice.call(box.querySelectorAll('[data-qa]')).forEach(function(b){
+    }
+
+    // A quote the client can answer here and now. The figures are read back
+    // from the server on every refresh, never trusted from this page — the
+    // decision is the client's, the amount is not.
+    //
+    // The same card is mounted in الطلبات, الموافقات and المهام, and a bar
+    // rides above every section until the quote is answered: this used to live
+    // in one tab only, which is how a client could sit in their portal with a
+    // quote waiting and see nothing at all.
+    var QUOTE_MOUNTS = [
+      { body: 'quotesBody', panel: 'quotesPanel', title: 'quotesTitle' },
+      { body: 'quotesBodyAppr', panel: 'quotesPanelAppr', title: 'quotesTitleAppr' },
+      { body: 'quotesBodyTasks', panel: 'quotesPanelTasks', title: 'quotesTitleTasks' }
+    ];
+    function renderQuotes(){
+      var list = state.quotes || [];
+      var en = state.lang === 'en';
+      var heading = en ? '📝 Quotes awaiting your decision' : '📝 عروض أسعار بانتظار قرارك';
+      var html = list.length ? quoteCards(list, en) : '';
+      QUOTE_MOUNTS.forEach(function(m){
+        var panel = $(m.panel), body = $(m.body), title = $(m.title);
+        if (!panel || !body) return;
+        panel.style.display = list.length ? '' : 'none';
+        if (title) title.textContent = heading;
+        body.innerHTML = html;
+      });
+      // A real decision on screen makes "this section unlocks after sign-in"
+      // a lie, so the placeholder stands down when there is something to do.
+      var apprPh = $('apprPh');
+      if (apprPh && list.length) apprPh.style.display = 'none';
+      // Badges: the count a client sees before they open anything.
+      var n = list.length;
+      ['sbAppr', 'sbTasks', 'bnTasks'].forEach(function(id){
+        var el = $(id); if (!el) return;
+        if (id === 'sbAppr'){ el.style.display = n ? '' : 'none'; el.textContent = n || ''; }
+        else if (n){ el.style.display = ''; if (id === 'sbTasks') el.textContent = n; }
+      });
+      var bar = $('quoteBar');
+      if (bar){
+        bar.style.display = n ? 'flex' : 'none';
+        var txt = $('quoteBarText');
+        if (txt) txt.textContent = n === 1
+          ? (en ? 'A quote is waiting for your approval' : 'عرض سعر بانتظار موافقتك')
+          : (en ? n + ' quotes are waiting for your approval' : n + ' عروض أسعار بانتظار موافقتك');
+        var go = $('quoteBarGo');
+        if (go){
+          go.textContent = en ? 'Review and approve' : 'راجع العرض ووافق';
+          go.onclick = function(){ switchView('approvals'); };
+        }
+      }
+      // Wire every copy of the card, in every mount, to the same decision.
+      [].slice.call(document.querySelectorAll('[data-qa]')).forEach(function(b){
         b.onclick = function(){ decideQuote(Number(b.getAttribute('data-qa')), 'accept'); };
       });
-      [].slice.call(box.querySelectorAll('[data-qd]')).forEach(function(b){
+      [].slice.call(document.querySelectorAll('[data-qd]')).forEach(function(b){
         b.onclick = function(){ decideQuote(Number(b.getAttribute('data-qd')), 'decline'); };
       });
+      renderDerivedAlerts();
     }
+    // Alerts without a database session: what this browser already knows about
+    // its own orders, newest first. The DB-backed feed replaces this the
+    // moment a full session exists — the two never stack.
+    function renderDerivedAlerts(){
+      var panel = $('derivedAlertsPanel'), box = $('derivedAlerts');
+      if (!panel || !box) return;
+      if (state.db && (typeof ops !== 'undefined' && ops && ops.notifs || []).length){ panel.style.display = 'none'; return; }
+      var en = state.lang === 'en';
+      var items = [];
+      (state.quotes || []).forEach(function(q){
+        items.push({ at: '', icon: '📝', text: (en ? 'A quote is awaiting your approval' : 'عرض سعر بانتظار موافقتك') + ' — ' + (q.service || q.ref) + ' · ' + q.total + ' ﷼' });
+      });
+      (state.orders || []).forEach(function(o){
+        (o.journey || []).forEach(function(l){
+          items.push({ at: l.at || '', icon: '◉', text: (o.ref ? o.ref + ' — ' : '') + (l.text || '') + (l.by ? ' (' + l.by + ')' : '') });
+        });
+      });
+      items.sort(function(a, b){ return String(b.at).localeCompare(String(a.at)); });
+      if (!items.length){ panel.style.display = 'none'; return; }
+      panel.style.display = '';
+      var ph = $('alPh'); if (ph) ph.style.display = 'none';
+      $('derivedAlertsTitle').textContent = en ? 'Updates on your orders' : 'تحديثات طلباتك';
+      box.innerHTML = items.slice(0, 30).map(function(n){
+        return '<div class="rowline" data-srch><span>' + n.icon + '</span><span class="t">' + esc(n.text) + '</span><span class="m">' + esc(String(n.at).slice(0, 10)) + '</span></div>';
+      }).join('');
+    }
+
     function decideQuote(i, decision){
       var q = (state.quotes || [])[i];
       if (!q) return;
       var en = state.lang === 'en';
       if (decision === 'decline' && !confirm(en ? 'Decline this quotation?' : 'رفض عرض السعر؟')) return;
-      var msg = $('quotesBody').querySelector('[data-qm="' + i + '"]');
-      var btns = $('quotesBody').querySelectorAll('[data-qa="' + i + '"],[data-qd="' + i + '"]');
+      var msgs = [].slice.call(document.querySelectorAll('[data-qm="' + i + '"]'));
+      var btns = document.querySelectorAll('[data-qa="' + i + '"],[data-qd="' + i + '"]');
+      var say = function(text, color){ msgs.forEach(function(m){ m.textContent = text; if (color) m.style.color = color; }); };
       [].slice.call(btns).forEach(function(b){ b.disabled = true; });
-      msg.textContent = en ? 'Sending…' : 'جارٍ الإرسال…';
+      say(en ? 'Sending…' : 'جارٍ الإرسال…');
       fetch('/api/suppliers', { method:'POST', headers:{ 'content-type':'application/json' },
         body: JSON.stringify({ type:'quote-decision', id: q.id, t: q.t, decision: decision }) })
         .then(function(r){ return r.json(); })
         .catch(function(){ return { ok:false, error:'network' }; })
         .then(function(d){
           if (d && d.ok){
-            msg.style.color = decision === 'accept' ? '#065f46' : '#b91c1c';
-            msg.textContent = decision === 'accept'
-              ? (en ? 'Accepted ✓ — the contract and the tax invoice reach you shortly.' : 'تم القبول ✓ — يصلك العقد والفاتورة الضريبية خلال وقت قصير.')
-              : (en ? 'Declined — thank you for telling us.' : 'تم الرفض — شكراً لإبلاغنا.');
+            say(decision === 'accept'
+              ? (en ? 'Accepted ✓ — the contract is on its way for e-signature, then the payment link.' : 'تم القبول ✓ — العقد في طريقه إليك للتوقيع الإلكتروني، ثم رابط السداد.')
+              : (en ? 'Declined — thank you for telling us.' : 'تم الرفض — شكراً لإبلاغنا.'),
+              decision === 'accept' ? '#065f46' : '#b91c1c');
             setTimeout(fetchStatuses, 1200);
           } else {
             [].slice.call(btns).forEach(function(b){ b.disabled = false; });
-            msg.style.color = '#b91c1c';
-            msg.textContent = (d && d.error === 'already_decided')
+            say((d && d.error === 'already_decided')
               ? (en ? 'A decision was already recorded.' : 'سُجِّل قرار على هذا العرض من قبل.')
-              : (en ? 'Could not record your decision — please try again.' : 'تعذّر تسجيل قرارك — حاول مرة أخرى.');
+              : (en ? 'Could not record your decision — please try again.' : 'تعذّر تسجيل قرارك — حاول مرة أخرى.'), '#b91c1c');
           }
         });
     }

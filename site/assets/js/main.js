@@ -2267,6 +2267,24 @@ var BP = window.BP = window.BP || {};
       drawMyList();
       renderCatalog(s);
 
+      // What the client did, on the partner's own card. The acceptance and the
+      // e-signature used to live only in Notion, so a partner had no way to
+      // know their quote had been said yes to — they waited for an e-mail.
+      function ptTrail(o) {
+        var log = (o.log || []).slice(-4);
+        if (!log.length) return "";
+        var rows = log.map(function (l) {
+          var text = String(l.text || "");
+          var mine = /قَبِل عرض السعر|وقّع العميل|استلمنا المبلغ|رفض عرض السعر/.test(text);
+          return '<div style="display:flex;gap:8px;font-size:.8rem;line-height:1.7;' + (mine ? "font-weight:600;color:#065f46" : "color:#64748b") + '">' +
+            "<span>" + (mine ? "●" : "·") + "</span>" +
+            "<span style=\"flex:1\">" + esc4(text) + "</span>" +
+            '<span style="opacity:.7">' + esc4(String(l.at || "").slice(0, 10)) + "</span></div>";
+        }).join("");
+        return '<div style="margin-top:10px;padding:9px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0">' +
+          '<div style="font-size:.76rem;color:#94a3b8;margin-bottom:4px">' + T("Client activity", "حركة العميل") + "</div>" + rows + "</div>";
+      }
+
       var feed = document.getElementById("pt-feed");
       if (!feed) return;
       if (!orders.length) {
@@ -2290,6 +2308,7 @@ var BP = window.BP = window.BP || {};
               '<br><span class="text-soft" style="font-size:.78rem">' + esc4(T("Invoice", "الفاتورة") + ": " + (o.supplierInvoiceStatus || "—")) + "</span>" +
             "</div>" +
           "</div>" +
+          ptTrail(o) +
           '<div style="margin-top:10px"><button class="btn btn-primary btn-sm pt-offer-btn" data-id="' + esc4(o.id) + '" data-status="' + esc4(o.status) + '" data-title="' + esc4(o.service || o.ref) + '">' +
             (o.status === "طلب عرض سعر" ? T("Submit your quote", "قدّم عرض سعرك") : T("Update / upload invoice", "تحديث / رفع فاتورة")) + "</button></div>" +
         "</div>";
