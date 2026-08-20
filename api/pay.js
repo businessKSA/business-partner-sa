@@ -20,7 +20,7 @@
 //                            Compliance Intake row to حالة الاشتراك=نشط and
 //                            emails them that the service unlocked.
 
-import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine } from "./_daftra.js";
+import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink } from "./_daftra.js";
 
 const PK = process.env.MOYASAR_PUBLISHABLE_KEY || "";
 const SK = process.env.MOYASAR_SECRET_KEY || "";
@@ -146,6 +146,10 @@ async function invoicePaidOrder(order, paidHalalas) {
 
   let pdf = null;
   try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
+  // Already paid on this path, so no pay button — but the link is returned so
+  // the owner can open the invoice the client received.
+  let payUrl = "";
+  try { payUrl = (await daftraPayLink(inv.id)).url; } catch { payUrl = ""; }
 
   if (pdf) {
     await sendMail(who.email, `فاتورة ${inv.number} — بيزنس بارتنر`,
@@ -166,7 +170,7 @@ async function invoicePaidOrder(order, paidHalalas) {
         <p>الدفترة ما سلّمت الملف المطبوع، فما أُرسلت للعميل رسالة بلا فاتورة.</p>
         <p><b>المطلوب:</b> افتح لوحة التحكم ← الأدوات ← «تصحيح فاتورة صادرة»، ابحث عن ${esc(inv.number)}، أرفق ملف PDF من الدفترة واضغط أرسل.</p></div>`);
   }
-  return { invoiced: true, number: inv.number, total: inv.total, pdfAttached: !!pdf, clientEmailed: !!pdf };
+  return { invoiced: true, number: inv.number, total: inv.total, pdfAttached: !!pdf, clientEmailed: !!pdf, payUrl };
 }
 
 async function notion(path, method, payload) {

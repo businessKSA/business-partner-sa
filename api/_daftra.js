@@ -510,6 +510,59 @@ function docLinks(view, id, fetched) {
   };
 }
 
+// The client-facing page for an invoice. With a gateway enabled in the account
+// (PayTabs / PayFort here), that page is where the "pay now" button lives — so
+// this is the payment link, and it is Daftra's own: the payment lands against
+// the invoice in the books with no reconciliation step invented here.
+//
+// Daftra publishes the link on the invoice record when it has one. A path is
+// only composed as a fallback, because the owner-area routes differ between
+// account versions.
+export async function daftraPayLink(id) {
+  const root = `https://${SUBDOMAIN}.daftra.com`;
+  let fetched = null;
+  try { fetched = await dq(`/invoices/${id}.json`); } catch { fetched = null; }
+  const published = firstHttp(fetched);
+  const uuid = pick(fetched, ["uuid", "hash", "public_hash", "share_hash", "client_invoice_hash"]);
+  return {
+    url: published || (uuid ? `${root}/invoice/${uuid}` : `${root}/invoices/view/${id}`),
+    published: !!published,
+    hasHash: !!uuid,
+  };
+}
+
+// Which client-facing route this account answers, with each candidate's status
+// and content type. Read-only — it reports evidence rather than assuming a
+// route, the same way the PDF probe does.
+export async function daftraPayLinkProbe(id, hash = "") {
+  const root = `https://${SUBDOMAIN}.daftra.com`;
+  const cands = [
+    `${root}/invoices/view/${id}`,
+    `${root}/invoice/view/${id}`,
+    `${root}/client/invoices/view/${id}`,
+    ...(hash ? [`${root}/invoice/${hash}`, `${root}/i/${hash}`, `${root}/public/invoice/${hash}`] : []),
+  ];
+  const results = [];
+  for (const url of cands) {
+    try {
+      const r = await fetch(url, { redirect: "manual" });
+      const body = r.status === 200 ? (await r.text()).slice(0, 4000) : "";
+      results.push({
+        url: url.replace(root, ""),
+        status: r.status,
+        type: String(r.headers.get("content-type") || "").split(";")[0],
+        redirect: r.headers.get("location") || "",
+        // A page that offers payment says so; a login wall does not.
+        looksPayable: /pay|ادفع|سداد|paytabs|payfort/i.test(body),
+        looksLogin: /login|تسجيل الدخول|password/i.test(body),
+      });
+    } catch (e) {
+      results.push({ url: url.replace(root, ""), status: 0, error: String(e.message || e).slice(0, 80) });
+    }
+  }
+  return { ok: true, id, results };
+}
+
 async function createDoc(kind, { partyId, items, notes, ref, dueDays = 0, vatRate = VAT_RATE, draft = false }) {
   const K = DOC_KINDS[kind];
   const taxId = await daftraTaxId(vatRate);
