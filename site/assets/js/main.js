@@ -869,29 +869,37 @@ var BP = window.BP = window.BP || {};
             (teaser ? '<p>' + esc2(teaser) + '</p>' : '') +
             '<div class="talent-actions"><a class="btn btn-primary btn-sm" href="' + jobPageHref(j.id) + '">' + BP.t("View job", "عرض الوظيفة") + '</a><a class="btn btn-ghost btn-sm ats-apply-link" href="#seeker-form" data-job-id="' + esc2(j.id) + '" data-job-title="' + esc2(j.title) + '">' + BP.t("Apply", "تقديم") + "</a></div></article>";
         }).join(""));
-        // The board is translated in batches: one request per handful of
-        // cards keeps each payload well inside the model's input and output
-        // limits (a single request for the whole board gets truncated, and a
-        // truncated reply is discarded — leaving everything in Arabic).
+        // The board is translated in batches, one request at a time. Firing
+        // every batch at once tripped the AI provider's rate limit and the
+        // whole board fell back to Arabic, so batches run in sequence and a
+        // rate-limited batch is retried once.
         if (pageLang() !== "ar") {
-          for (var b0 = 0; b0 < jobs.length; b0 += 6) {
-            (function (batch) {
-              var parts = [];
-              batch.forEach(function (j) { parts.push(j.title, clipTeaser(j.description || "", 140) || "—", [j.company, j.city].filter(Boolean).join(" · ") || "—"); });
-              translateParts(parts, "board-" + batch.map(function (j) { return j.id.slice(-6); }).join("")).then(function (tr) {
-                if (!tr) return;
-                batch.forEach(function (j, i) {
+          var batches = [];
+          for (var b0 = 0; b0 < jobs.length; b0 += 8) batches.push(jobs.slice(b0, b0 + 8));
+          (function runNext(i) {
+            if (i >= batches.length) return;
+            var batch = batches[i];
+            var parts = [];
+            batch.forEach(function (j) { parts.push(j.title, clipTeaser(j.description || "", 140) || "—", [j.company, j.city].filter(Boolean).join(" · ") || "—"); });
+            var key = "board-" + batch.map(function (j) { return j.id.slice(-6); }).join("");
+            translateParts(parts, key).then(function (tr) {
+              if (!tr) return new Promise(function (res) { setTimeout(function () { res(translateParts(parts, key)); }, 1500); });
+              return tr;
+            }).then(function (tr) {
+              if (tr) {
+                batch.forEach(function (j, k) {
                   var lnk = grid.querySelector('a.ats-apply-link[data-job-id="' + j.id + '"]');
                   var card = lnk && lnk.closest(".ats-job-card");
                   if (!card) return;
-                  var h = card.querySelector("h3"); if (h) h.textContent = tr[i * 3];
-                  var pEl = card.querySelector("p"); if (pEl && tr[i * 3 + 1] !== "—") pEl.textContent = tr[i * 3 + 1];
-                  var tag = card.querySelector(".emp-tag"); if (tag && tr[i * 3 + 2] !== "—") tag.textContent = tr[i * 3 + 2];
-                  if (lnk) lnk.setAttribute("data-job-title", tr[i * 3]);
+                  var h = card.querySelector("h3"); if (h) h.textContent = tr[k * 3];
+                  var pEl = card.querySelector("p"); if (pEl && tr[k * 3 + 1] !== "—") pEl.textContent = tr[k * 3 + 1];
+                  var tag = card.querySelector(".emp-tag"); if (tag && tr[k * 3 + 2] !== "—") tag.textContent = tr[k * 3 + 2];
+                  if (lnk) lnk.setAttribute("data-job-title", tr[k * 3]);
                 });
-              });
-            })(jobs.slice(b0, b0 + 6));
-          }
+              }
+              runNext(i + 1);
+            });
+          })(0);
         }
         // Deep link support: /ar/careers?job=<posting id> (the link the
         // employer console shares) preselects that posting in the form and
