@@ -3603,7 +3603,12 @@ var BP = window.BP = window.BP || {};
             publishable_api_key: cfg.publishableKey,
             callback_url: location.origin + location.pathname,
             metadata: { ref: String((snapshot() || {}).ref || "") },
-            methods: ["creditcard"],
+            // Which wallets to offer is the server's answer, not this page's
+            // guess: Apple Pay only works once the domain is registered on the
+            // Moyasar side, and a wallet button that fails when tapped is
+            // worse than one that was never shown.
+            methods: (cfg.methods && cfg.methods.length) ? cfg.methods : ["creditcard"],
+            apple_pay: cfg.applePay || undefined,
           });
           box.hidden = false;
           gate();
@@ -6480,7 +6485,8 @@ var BP_EMP_BILLING = "monthly";
             // Travels with the payment so the webhook can settle it even if
             // this tab never comes back from 3-D Secure.
             metadata: { quoteId: String(id), t: String(t), ref: String(state.quote.clientRef || state.quote.ref || "") },
-            methods: ["creditcard"]
+            methods: (cfg.methods && cfg.methods.length) ? cfg.methods : ["creditcard"],
+            apple_pay: cfg.applePay || undefined
           });
           document.getElementById("q-epay").hidden = false;
         } catch (e) {}
