@@ -33,6 +33,7 @@
 
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "crypto";
 import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder, daftraCreateInvoice, daftraDocPdf } from "./_daftra.js";
+import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -903,6 +904,76 @@ export async function handleSuppliers(req, res) {
     await sendEmail(TEAM_EMAIL, subject, html);
     if (supplierEmail) await sendEmail(supplierEmail, subject, html);
     return ok({ decision: accept ? "accepted" : "declined" });
+  }
+
+  // ---------------- owner: send the contract for signature ----------------
+  // Only after the client accepted the quote: a contract for terms nobody
+  // agreed to is not a contract, and sending one invites a dispute rather than
+  // settling one. The figures come from the order, never from the browser.
+  if (b.type === "contract-send") {
+    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!docusignConfigured()) return bad("docusign_not_configured", 503);
+    const id = str(b.orderId, 60);
+    if (!id) return bad("invalid_fields");
+    const pg = await notion(`pages/${id}`);
+    if (!pg.ok || !pg.json) return bad("not_found", 404);
+    const o = orderOf(pg.json);
+    if (o.status !== "مقبول من العميل" && !b.force) return bad("quote_not_accepted", 409, { status: o.status });
+    const email = str(b.email, 160).toLowerCase();
+    if (!isEmail(email)) return bad("bad_email");
+
+    const net = o.lines.length ? o.lines.reduce((t, l) => t + l.price * l.qty, 0) : (o.quote || 0);
+    const vat = Math.round(net * (VAT_PCT / 100) * 100) / 100;
+    let executor = "";
+    if (o.supplierId) {
+      const sp = await notion(`pages/${o.supplierId}`);
+      if (sp.ok && sp.json) executor = supplierOf(sp.json).name;
+    }
+    const html = contractHtml({
+      ref: o.clientRef || o.ref,
+      clientName: str(b.clientName, 200) || o.client || "العميل",
+      clientCr: str(b.clientCr, 40), clientVat: str(b.clientVat, 20),
+      service: o.service, lines: o.lines,
+      net: Math.round(net * 100) / 100, vat, total: Math.round((net + vat) * 100) / 100,
+      vatRate: VAT_PCT, leadTime: o.leadTime, executor,
+      today: new Date().toISOString().slice(0, 10),
+    });
+    try {
+      const env = await docusignSendContract({
+        ref: o.clientRef || o.ref, email,
+        clientName: str(b.clientName, 200) || o.client || "العميل",
+        subject: `عقد تقديم خدمات — ${o.clientRef || o.ref}`,
+        html,
+      });
+      const log = (o.log || []).concat([{
+        at: new Date().toISOString().slice(0, 16).replace("T", " "),
+        by: "بيزنس بارتنر", text: `أُرسل العقد للتوقيع الإلكتروني إلى ${email}`,
+      }]);
+      await notion(`pages/${id}`, "PATCH", { properties: {
+        "ملاحظات": { rich_text: richChunks(joinOrderNotes(`${o.notes}${o.notes ? "\n" : ""}DocuSign: ${env.envelopeId}`, o.lines, log)) },
+      } });
+      return ok({ envelopeId: env.envelopeId, status: env.status });
+    } catch (e) {
+      return bad(String(e.message || "docusign_failed"), 502, { detail: String(e.detail || "").slice(0, 400) });
+    }
+  }
+
+  // ---------------- owner: where the signature has got to ----------------
+  if (b.type === "contract-status") {
+    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!docusignConfigured()) return bad("docusign_not_configured", 503);
+    const envId = str(b.envelopeId, 80);
+    if (!envId) return bad("invalid_fields");
+    try { return ok({ envelope: await docusignStatus(envId) }); }
+    catch (e) { return bad(String(e.message || "docusign_failed"), 502, { detail: String(e.detail || "").slice(0, 400) }); }
+  }
+
+  // ---------------- owner: is DocuSign reachable, and which account ----------------
+  if (b.type === "docusign-ping") {
+    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    const out = await docusignPing();
+    res.statusCode = out.ok ? 200 : 200; // a configuration answer is not a server error
+    return res.end(JSON.stringify(out));
   }
 
   // ---------------- partner/owner: the link to send the client ----------------

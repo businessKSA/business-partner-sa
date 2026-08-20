@@ -499,6 +499,30 @@
             </div>
             <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
           </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">✍️ العقد والتوقيع الإلكتروني (DocuSign)</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              يُرسل العقد بعد أن <b>يقبل العميل عرض السعر</b> — عقد على بنود لم يوافق عليها أحد ليس عقداً.
+              يُولَّد بالعربية من بنود العرض نفسها، ويوقّعه العميل إلكترونياً.
+              <br><span style="color:#b45309">للمستندات التي تُقدَّم لجهة حكومية سعودية، «نفاذ» هو التوقيع المعتمد نظاماً — وهذا لا يغني عنه.</span>
+            </p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+              <button class="actbtn" id="dsPing">🔌 اختبر اتصال DocuSign</button>
+            </div>
+            <div class="dgrid">
+              <div class="f"><b>معرّف أمر العمل</b><input id="dsOrder" type="text" dir="ltr" placeholder="Notion page id" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>بريد العميل</b><input id="dsEmail" type="email" dir="ltr" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>اسم العميل كما في العقد</b><input id="dsName" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>الرقم الضريبي (اختياري)</b><input id="dsVat" type="text" dir="ltr" maxlength="15" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+              <button class="btn" id="dsSend">✍️ أرسل العقد للتوقيع</button>
+              <input id="dsEnv" type="text" dir="ltr" placeholder="Envelope ID" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:13.5px" />
+              <button class="actbtn" id="dsStatus">🔍 حالة التوقيع</button>
+            </div>
+            <div class="dbody" id="dsMsg" style="display:none;margin-top:10px"></div>
+          </div>
         </div>
 
         <div class="tools">
@@ -1224,6 +1248,74 @@
             fxNote('err', 'تعذّر الإرسال: ' + esc((r && r.error) || '؟'));
           }
         });
+    };
+
+    // ---- DocuSign ----
+    function dsNote(kind, html){
+      var m = $('dsMsg');
+      m.style.display = 'block';
+      m.style.color = kind === 'ok' ? '#14532d' : kind === 'warn' ? '#b45309' : kind === 'err' ? '#b91c1c' : '';
+      m.innerHTML = html;
+    }
+    function supPost(payload){
+      payload.key = accessKey;
+      return fetch('/api/suppliers', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); });
+    }
+    $('dsPing').onclick = function(){
+      var btn = this; btn.disabled = true;
+      dsNote('', '⏳ أختبر الاتصال…');
+      supPost({ type:'docusign-ping' }).then(function(r){
+        btn.disabled = false;
+        if (r && r.ok){
+          dsNote('ok', '✅ متصل — الحساب: <b>' + esc(r.accountName || r.accountId) + '</b> · البيئة: ' + esc(r.env) +
+            (r.env === 'demo' ? ' <span style="color:#b45309">(بيئة تجريبية — العقود منها ليست نافذة)</span>' : ''));
+        } else if (r && r.error === 'docusign_not_configured'){
+          dsNote('warn', 'DocuSign غير مربوط بعد. الناقص في Vercel: <b>' + esc((r.missing || []).join('، ')) + '</b>');
+        } else if (r && r.consentUrl){
+          dsNote('warn', 'ينقص إذن الحساب لمرة واحدة. افتح هذا الرابط ووافق:<br><a href="' + esc(r.consentUrl) + '" target="_blank" rel="noopener" style="font-weight:700;direction:ltr;display:inline-block">' + esc(r.consentUrl) + '</a>');
+        } else {
+          dsNote('err', 'فشل: ' + esc((r && r.error) || '؟') + ((r && r.detail) ? '<br><span style="font-size:11px;direction:ltr;display:inline-block;text-align:left;color:#64748b">' + esc(r.detail) + '</span>' : ''));
+        }
+      });
+    };
+    $('dsSend').onclick = function(){
+      var id = $('dsOrder').value.trim(), mail = $('dsEmail').value.trim();
+      if (!id || mail.indexOf('@') === -1){ dsNote('err', 'أدخل معرّف أمر العمل وبريد العميل.'); return; }
+      var btn = this; btn.disabled = true;
+      dsNote('', '⏳ أُنشئ العقد وأرسله…');
+      supPost({ type:'contract-send', orderId: id, email: mail, clientName: $('dsName').value.trim(), clientVat: $('dsVat').value.replace(/\D/g,'') })
+        .then(function(r){
+          btn.disabled = false;
+          if (r && r.ok){
+            $('dsEnv').value = r.envelopeId || '';
+            dsNote('ok', '✅ أُرسل العقد للتوقيع · الحالة: ' + esc(r.status) + '<br>Envelope: <span style="direction:ltr;display:inline-block">' + esc(r.envelopeId) + '</span>');
+          } else if (r && r.error === 'quote_not_accepted'){
+            dsNote('warn', 'العميل لم يقبل عرض السعر بعد (الحالة: ' + esc(r.status || '—') + '). العقد يُرسل بعد القبول.');
+          } else if (r && r.error === 'docusign_consent_required'){
+            dsNote('warn', 'ينقص إذن الحساب لمرة واحدة — افتح: <span style="direction:ltr;display:inline-block">' + esc(r.detail || '') + '</span>');
+          } else {
+            dsNote('err', 'تعذّر الإرسال: ' + esc((r && r.error) || '؟') + ((r && r.detail) ? '<br><span style="font-size:11px;direction:ltr;display:inline-block;text-align:left;color:#64748b">' + esc(r.detail) + '</span>' : ''));
+          }
+        });
+    };
+    $('dsStatus').onclick = function(){
+      var envId = $('dsEnv').value.trim();
+      if (!envId){ dsNote('err', 'أدخل Envelope ID.'); return; }
+      var btn = this; btn.disabled = true;
+      dsNote('', '⏳ أقرأ الحالة…');
+      supPost({ type:'contract-status', envelopeId: envId }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ dsNote('err', 'تعذّر: ' + esc((r && r.error) || '؟')); return; }
+        var e = r.envelope;
+        dsNote(e.status === 'completed' ? 'ok' : '',
+          '<span class="kv"><i>الحالة:</i>' + esc(e.status) + '</span>' +
+          (e.sentAt ? '<span class="kv"><i>أُرسل:</i>' + esc(e.sentAt) + '</span>' : '') +
+          (e.completedAt ? '<span class="kv"><i>اكتمل:</i>' + esc(e.completedAt) + '</span>' : '') +
+          (e.signers || []).map(function(s){
+            return '<span class="kv"><i>' + esc(s.name || s.email) + ':</i>' + esc(s.status) + (s.signedAt ? ' · ' + esc(s.signedAt) : '') + '</span>';
+          }).join(''));
+      });
     };
 
     // The same reader the invoice form uses, so the certificate fills these too.
