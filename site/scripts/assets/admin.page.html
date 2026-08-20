@@ -510,6 +510,31 @@
           </div>
 
           <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">➕ أنشئ أمر عمل وأسنده لشريك</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              أمر العمل هو أصل السلسلة: منه يقدّم الشريك عرضه، وعليه يقبل العميل، وعنه يصدر العقد ثم الفاتورة.
+              لا يظهر شريك هنا إلا بعد اعتماده من تبويب «الشركاء».
+            </p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+              <button class="actbtn" id="woLoad">↻ حمّل الشركاء المعتمدين</button>
+            </div>
+            <div class="dgrid">
+              <div class="f" style="grid-column:1/-1"><b>الشريك المنفّذ</b>
+                <select id="woSup" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px"><option value="">— اضغط «حمّل الشركاء» —</option></select></div>
+              <div class="f" style="grid-column:1/-1"><b>الخدمة المطلوبة *</b><input id="woService" type="text" placeholder="مثال: تأسيس شركة ذات مسؤولية محدودة" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>اسم العميل</b><input id="woClient" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>مرجع طلب العميل</b><input id="woRef" type="text" dir="ltr" placeholder="BP-749804" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>قيمة أمر العمل (﷼)</b><input id="woAmount" type="number" min="0" step="0.01" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>عمولتنا (﷼)</b><input id="woComm" type="number" min="0" step="0.01" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>المدينة</b><input id="woCity" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f"><b>تاريخ التسليم</b><input id="woDue" type="date" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px" /></div>
+              <div class="f" style="grid-column:1/-1"><b>التفاصيل</b><textarea id="woDetails" rows="2" style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px"></textarea></div>
+            </div>
+            <div style="margin-top:10px"><button class="btn" id="woCreate">➕ أنشئ الأمر وأشعر الشريك</button></div>
+            <div class="dbody" id="woMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">✍️ العقد والتوقيع الإلكتروني (DocuSign)</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               يُرسل العقد بعد أن <b>يقبل العميل عرض السعر</b> — عقد على بنود لم يوافق عليها أحد ليس عقداً.
@@ -1281,6 +1306,65 @@
         '<div style="margin-top:10px;font-weight:600;color:' + (miss.length ? '#b45309' : '#14532d') + '">' +
           (miss.length ? 'الناقص: ' + esc(miss.map(function(x){ return x.label; }).join(' · ')) : 'كل شيء موصول ✓') + '</div>';
       });
+    };
+
+    // ---- create a work order: the head of the chain ----
+    // Everything downstream — the partner's quote, the client's acceptance, the
+    // contract, the invoice — hangs off this record. It existed on the server
+    // but had no way in from the panel, so the chain could never start.
+    function woNote(kind, html){
+      var m = $('woMsg');
+      m.style.display = 'block';
+      m.style.color = kind === 'ok' ? '#14532d' : kind === 'warn' ? '#b45309' : kind === 'err' ? '#b91c1c' : '';
+      m.innerHTML = html;
+    }
+    var woSuppliers = [];
+    $('woLoad').onclick = function(){
+      var btn = this; btn.disabled = true;
+      woNote('', '⏳ أحمّل الشركاء…');
+      fetch('/api/suppliers?action=admin&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+        .then(function(r){ return r.json(); }).catch(function(){ return { ok:false }; })
+        .then(function(d){
+          btn.disabled = false;
+          if (!d || !d.ok){ woNote('err', 'تعذّر تحميل الشركاء.'); return; }
+          var all = d.suppliers || [];
+          // Only approved partners may be awarded work — the server refuses the
+          // rest, so offering them here would only produce a confusing failure.
+          woSuppliers = all.filter(function(x){ return x.status === 'معتمد'; });
+          $('woSup').innerHTML = '<option value="">— اختر شريكاً —</option>' + woSuppliers.map(function(x, i){
+            return '<option value="' + i + '">' + esc(x.name || '') + (x.code ? ' — ' + esc(x.code) : '') + (x.city ? ' — ' + esc(x.city) : '') + '</option>';
+          }).join('');
+          var pending = all.length - woSuppliers.length;
+          woNote(woSuppliers.length ? 'ok' : 'warn', woSuppliers.length
+            ? ('جاهز — ' + woSuppliers.length + ' شريك معتمد.' + (pending ? ' (' + pending + ' بانتظار الاعتماد في تبويب «الشركاء».)' : ''))
+            : (all.length ? 'لا يوجد شريك معتمد. اعتمد شريكاً من تبويب «الشركاء» أولاً — ' + all.length + ' بانتظارك.'
+                          : 'لا يوجد شركاء مسجّلون بعد.'));
+        });
+    };
+    $('woCreate').onclick = function(){
+      var sup = woSuppliers[Number($('woSup').value)];
+      var service = $('woService').value.trim();
+      if (!sup){ woNote('err', 'اختر الشريك المنفّذ.'); return; }
+      if (!service){ woNote('err', 'اكتب الخدمة المطلوبة.'); return; }
+      var btn = this; btn.disabled = true;
+      woNote('', '⏳ أُنشئ أمر العمل…');
+      dsPost({ type:'assign', supplierId: sup.id, service: service,
+               client: $('woClient').value.trim(), clientRef: $('woRef').value.trim(),
+               amount: $('woAmount').value, commission: $('woComm').value,
+               city: $('woCity').value.trim(), due: $('woDue').value, details: $('woDetails').value.trim() })
+        .then(function(r){
+          btn.disabled = false;
+          if (r && r.ok){
+            woNote('ok', '✅ أُنشئ أمر العمل <b>' + esc(r.ref || '') + '</b> وأُشعر الشريك على بريده.' +
+              '<br><span style="color:var(--soft);font-size:12.5px">الخطوة التالية: الشريك يفتح لوحته ويقدّم عرض سعره ببنوده، ثم يرسل رابط العرض للعميل. وبعد قبول العميل يصبح الأمر جاهزاً للعقد.</span>');
+            $('woService').value = ''; $('woClient').value = ''; $('woRef').value = '';
+            $('woAmount').value = ''; $('woComm').value = ''; $('woDetails').value = '';
+            var dl = $('dsLoad'); if (dl) dl.click();
+          } else {
+            woNote('err', r && r.error === 'supplier_not_approved' ? 'هذا الشريك غير معتمد — اعتمده من تبويب «الشركاء» أولاً.'
+                        : 'تعذّر الإنشاء: ' + esc((r && r.error) || '؟') + ((r && r.detail) ? ' — ' + esc(r.detail) : ''));
+          }
+        });
     };
 
     // ---- DocuSign ----
