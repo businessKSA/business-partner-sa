@@ -34,6 +34,21 @@ const SK = process.env.MOYASAR_SECRET_KEY || "";
 // Without it the endpoint refuses webhooks outright rather than trusting an
 // unauthenticated POST that claims a payment succeeded.
 const WEBHOOK_SECRET = (process.env.MOYASAR_WEBHOOK_SECRET || "").trim();
+
+// Which wallets the form offers. Apple Pay and STC Pay each need enabling on
+// the Moyasar side first — Apple Pay also needs the domain registered and the
+// association file served — and a wallet button that fails when tapped is
+// worse than one that was never shown. So this is a switch the owner flips
+// once the other side is actually done, not a code change.
+//   MOYASAR_METHODS=creditcard,applepay,stcpay
+const ALLOWED_METHODS = new Set(["creditcard", "applepay", "stcpay"]);
+const METHODS = (process.env.MOYASAR_METHODS || "creditcard")
+  .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m));
+const PAY_METHODS = METHODS.length ? METHODS : ["creditcard"];
+// The name the buyer sees in the Apple Pay sheet — theirs is the last screen
+// before the money moves, so it says who is being paid.
+const APPLE_PAY_LABEL = process.env.MOYASAR_APPLE_PAY_LABEL || "Business Partner";
+const APPLE_PAY_VALIDATE_URL = process.env.MOYASAR_APPLE_PAY_VALIDATE_URL || "https://api.moyasar.com/v1/applepay/initiate";
 const MPF_JS = process.env.MOYASAR_MPF_URL || "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
 const MPF_CSS = MPF_JS.replace(/\.js$/, ".css");
 
@@ -395,6 +410,10 @@ export default async function handler(req, res) {
       scriptUrl: MPF_JS,
       cssUrl: MPF_CSS,
       currency: "SAR",
+      methods: PAY_METHODS,
+      applePay: PAY_METHODS.includes("applepay")
+        ? { country: "SA", label: APPLE_PAY_LABEL, validate_merchant_url: APPLE_PAY_VALIDATE_URL }
+        : null,
     }));
   }
 
