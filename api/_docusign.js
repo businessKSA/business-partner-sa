@@ -22,7 +22,7 @@
 // this does not substitute for it, and nothing here should be read as saying
 // it does.
 
-import { createSign } from "crypto";
+import { createSign, createPrivateKey } from "crypto";
 
 const env = (n, d = "") => (process.env[n] && String(process.env[n]).trim()) || d;
 const INTEGRATION_KEY = env("DOCUSIGN_INTEGRATION_KEY");
@@ -277,6 +277,46 @@ export async function docusignSignedPdf(envelopeId) {
 }
 
 /**
+ * Whether the private key is usable, decided by signing with it — not by
+ * looking at it. This runs entirely locally, so it separates "the key is
+ * wrong" from "consent is missing" from "the network failed", which otherwise
+ * all arrive as one indistinguishable failure.
+ *
+ * Describes shape, never content: length and structure only, never a byte of
+ * the key itself.
+ */
+export function docusignKeyCheck() {
+  const raw = PRIVATE_KEY;
+  if (!raw) return { present: false };
+  const out = {
+    present: true,
+    chars: raw.length,
+    lines: raw.split("\n").length,
+    hasBegin: /-----BEGIN [A-Z ]*PRIVATE KEY-----/.test(raw),
+    hasEnd: /-----END [A-Z ]*PRIVATE KEY-----/.test(raw),
+    // Pasting the public half is the single most common mistake here: both
+    // appear on the same DocuSign screen, seconds apart, and they look alike.
+    looksPublic: /-----BEGIN [A-Z ]*PUBLIC KEY-----/.test(raw),
+    // A key pasted into a single-line field arrives with its newlines eaten,
+    // and every parser rejects it for a reason that never mentions newlines.
+    singleLine: raw.split("\n").length <= 2 && raw.length > 200,
+  };
+  if (out.looksPublic) return { ...out, usable: false, why: "هذا هو المفتاح العام لا الخاص — انسخ الجزء الذي يبدأ بـ BEGIN RSA PRIVATE KEY." };
+  if (!out.hasBegin || !out.hasEnd) return { ...out, usable: false, why: "المفتاح ناقص — لا بد أن يشمل سطر BEGIN وسطر END وكل ما بينهما." };
+  if (out.singleLine) return { ...out, usable: false, why: "المفتاح لُصق في سطر واحد وفقد فواصل الأسطر — أعد لصقه كما هو بأسطره." };
+  try {
+    const key = createPrivateKey(raw);
+    const signer = createSign("RSA-SHA256");
+    signer.update("bp-key-check");
+    signer.end();
+    signer.sign(key);
+    return { ...out, usable: true, type: key.asymmetricKeyType, bits: key.asymmetricKeyDetails && key.asymmetricKeyDetails.modulusLength };
+  } catch (e) {
+    return { ...out, usable: false, why: `المفتاح غير مقروء: ${String(e.message || e).slice(0, 120)}` };
+  }
+}
+
+/**
  * Read-only reachability check for the panel: does the key authenticate, and
  * which account does it land in. Reports the consent URL when that is what is
  * missing, since it is the first thing that blocks a new integration.
@@ -293,11 +333,24 @@ export async function docusignPing() {
       ].filter(Boolean),
     };
   }
+  const key = docusignKeyCheck();
+  // The two GUIDs are checked for shape before anything is sent: an account id
+  // that is really the short numeric one, or an email pasted where the user
+  // GUID belongs, both fail at DocuSign with a message that names neither.
+  const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const shape = {
+    userIdLooksGuid: GUID.test(USER_ID),
+    accountIdLooksGuid: GUID.test(ACCOUNT_ID),
+    integrationKeyLooksGuid: GUID.test(INTEGRATION_KEY),
+  };
+  if (!key.usable) {
+    return { ok: false, error: "docusign_bad_key", key, shape, detail: key.why || "المفتاح الخاص غير صالح." };
+  }
   try {
     await docusignToken();
     const acct = await dsFetch("");
-    return { ok: true, env: docusignEnv(), accountName: acct && acct.accountName, accountId: ACCOUNT_ID, base: API_BASE };
+    return { ok: true, env: docusignEnv(), accountName: acct && acct.accountName, accountId: ACCOUNT_ID, base: API_BASE, key, shape };
   } catch (e) {
-    return { ok: false, error: String(e.message || e), detail: String(e.detail || "").slice(0, 400), consentUrl: e.message === "docusign_consent_required" ? consentUrl() : undefined };
+    return { ok: false, error: String(e.message || e), detail: String(e.detail || "").slice(0, 400), key, shape, consentUrl: e.message === "docusign_consent_required" ? consentUrl() : undefined };
   }
 }
