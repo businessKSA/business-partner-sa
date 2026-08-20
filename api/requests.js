@@ -18,6 +18,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
 import { stageChannels, announce } from "./_stage.js";
+import { moyasarPing } from "./_moyasar.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -1628,7 +1629,9 @@ export default async function handler(req, res) {
         svc("الذكاء — OpenAI", has("OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"), "بديل للصور فقط"),
         svc("الدفترة", has("DAFTRA_API_KEY"), "الفواتير وعروض الأسعار"),
         svc("DocuSign", has("DOCUSIGN_INTEGRATION_KEY") && has("DOCUSIGN_USER_ID") && has("DOCUSIGN_ACCOUNT_ID") && has("DOCUSIGN_PRIVATE_KEY") ? "DOCUSIGN_*" : null, "العقود والتوقيع"),
-        svc("ميسر (دفع مباشر)", has("MOYASAR_SECRET_KEY"), "اختياري — بوابتك في الدفترة تغني عنه"),
+        svc("مُيسّر — نموذج الدفع", has("MOYASAR_PUBLISHABLE_KEY"), "يظهر نموذج البطاقة للعميل"),
+        svc("مُيسّر — تأكيد الدفع", has("MOYASAR_SECRET_KEY"), "يتحقق من الدفعة ويصدر الفاتورة"),
+        svc("مُيسّر — Webhook", has("MOYASAR_WEBHOOK_SECRET"), "يلتقط الدفعة لو أغلق العميل الصفحة"),
         svc("البريد — Resend", has("RESEND_API_KEY"), "كل الرسائل والمرفقات"),
         svc("نوشن — CRM", has("NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"), "الطلبات والموردون"),
         svc("الدخول عبر Google", has("GOOGLE_CLIENT_ID"), "اختياري"),
@@ -1642,6 +1645,15 @@ export default async function handler(req, res) {
       // the portal, the e-mail, WhatsApp — so a silent client is diagnosed
       // instead of guessed at.
       return res.end(JSON.stringify({ ok: true, services: out, channels: stageChannels() }));
+    }
+
+    // Ask Moyasar whether the key works, rather than whether the variable
+    // exists. The two are not the same claim, and this project has already
+    // lost an evening to the difference.
+    if (b.action === "panel-moyasar-ping") {
+      const out = await moyasarPing();
+      res.statusCode = 200; // a configuration answer is not a server error
+      return res.end(JSON.stringify(out));
     }
 
     // Send one real stage notification, to prove the loop end to end. Uses the

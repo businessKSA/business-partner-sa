@@ -19,6 +19,9 @@ Claude Messages API.
 | `ANTHROPIC_API_KEY` | ✅ | — | Claude API key. Without it the widget shows a WhatsApp fallback. |
 | `MODEL` | optional | `claude-opus-4-8` | Set to `claude-haiku-4-5` for lower cost/latency on a high-traffic site. |
 | `WHATSAPP_URL` | optional | `https://wa.me/966507034157` | The agent WhatsApp link the advisor points to. |
+| `MOYASAR_PUBLISHABLE_KEY` | optional | — | `pk_live_…` / `pk_test_…`. Shows the card form on checkout and on step 3 of a quote. Public by design — it ships in page source. |
+| `MOYASAR_SECRET_KEY` | optional | — | `sk_live_…` / `sk_test_…`. Verifies a payment server-side and triggers the tax invoice. Must be the same environment as the publishable key. |
+| `MOYASAR_WEBHOOK_SECRET` | optional | — | Any long random string, pasted identically into Moyasar's webhook settings. Without it `/api/pay` refuses webhooks (503) rather than trusting them. |
 | `WHATSAPP_TOKEN` | optional | — | Meta WhatsApp Cloud API access token. Without it the client's WhatsApp leg of every order notification is skipped (portal + e-mail still fire) and the panel says so. |
 | `WHATSAPP_PHONE_ID` | optional | — | The Cloud API Phone Number ID that sends those notifications. |
 | `WHATSAPP_TEMPLATE_NAME` | optional | — | An approved template used as a fallback when the client is outside Meta's 24-hour session window; the template's body takes one text parameter. |
