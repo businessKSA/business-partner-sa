@@ -33,7 +33,14 @@ const ACCOUNT_ID = env("DOCUSIGN_ACCOUNT_ID");
 const PRIVATE_KEY = env("DOCUSIGN_PRIVATE_KEY").replace(/\\n/g, "\n");
 const IS_PROD = /^prod/i.test(env("DOCUSIGN_ENV", "demo"));
 const OAUTH_HOST = IS_PROD ? "account.docusign.com" : "account-d.docusign.com";
-const API_BASE = env("DOCUSIGN_BASE_URI", IS_PROD ? "https://na1.docusign.net/restapi" : "https://demo.docusign.net/restapi");
+// DocuSign's admin screen shows the Account Base URI without the /restapi
+// suffix the API needs ("https://demo.docusign.net"), so a value copied
+// straight off that screen — the obvious thing to do — would 404 every call.
+// Both forms are accepted.
+const API_BASE = (() => {
+  const raw = env("DOCUSIGN_BASE_URI", IS_PROD ? "https://na1.docusign.net" : "https://demo.docusign.net").replace(/\/+$/, "");
+  return /\/restapi$/.test(raw) ? raw : `${raw}/restapi`;
+})();
 const SITE = env("MKT_SITE_BASE", "https://www.businesspartner.sa");
 
 export const docusignConfigured = () => !!(INTEGRATION_KEY && USER_ID && ACCOUNT_ID && PRIVATE_KEY);
