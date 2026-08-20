@@ -507,11 +507,16 @@ export async function markOrderPaid(clientRef, { total, method, note } = {}) {
   const pg = r.ok && r.json && (r.json.results || [])[0];
   const how = method === "bank" ? "تحويل بنكي" : "دفع إلكتروني";
   let orderId = "", service = "", client = "";
+  // Did THIS call record the payment? The gateway's browser callback and its
+  // webhook both land here for the same payment, and the answer is what stops
+  // the second one from invoicing the client twice.
+  let recorded = false;
   if (pg) {
     const o = orderOf(pg);
     orderId = o.id; service = o.service; client = o.client;
     const already = (o.log || []).some((l) => /استلمنا المبلغ/.test(l.text || ""));
     if (!already) {
+      recorded = true;
       const log = (o.log || []).concat([{
         at: new Date().toISOString().slice(0, 16).replace("T", " "),
         by: "بيزنس بارتنر",
@@ -528,7 +533,7 @@ export async function markOrderPaid(clientRef, { total, method, note } = {}) {
     name: client, service, total,
     extra: `طريقة السداد: ${how}`,
   }).catch(() => null);
-  return { ok: true, orderFound: !!pg, notified };
+  return { ok: true, orderFound: !!pg, recorded, notified };
 }
 
 // The client's decision on a quote, in one place. The portal's «الموافقات»
