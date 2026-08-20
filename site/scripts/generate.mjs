@@ -6781,22 +6781,52 @@ function buildPartnerDashboard() {
 
       <div class="dash-card" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <div><h3 style="margin:0" id="pt-company">—</h3><p class="text-soft" style="margin:0" id="pt-contact">—</p></div>
+          <div>
+            <h3 style="margin:0" id="pt-company">—</h3>
+            <p class="text-soft" style="margin:0" id="pt-contact">—</p>
+            <p style="margin:8px 0 0"><span class="pt-share" id="pt-rate">—</span></p>
+          </div>
           <button class="btn btn-ghost btn-sm" id="pt-logout">${L("Sign out", "خروج")}</button>
         </div>
       </div>
 
-      <div class="dash-panel-head" id="pt-cat-head"><h2>${L("Services you can execute", "الخدمات التي يمكنك تنفيذها")}</h2><p>${L("Business Partner's published catalogue. The price is what the client pays before VAT; your share is what reaches you after our commission.", "كتالوج بيزنس بارتنر المنشور. السعر هو ما يدفعه العميل قبل الضريبة، ونصيبك هو ما يصلك بعد عمولتنا.")}</p></div>
-      <div class="calc-form" style="margin-bottom:14px">
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="pt-cat-search">${L("Search a service", "ابحث عن خدمة")}</label><input id="pt-cat-search" type="search" placeholder="${Lraw("Service name…", "اسم الخدمة…")}"></div>
-          <div class="field"><label for="pt-cat-filter">${L("Category", "التصنيف")}</label><select id="pt-cat-filter"><option value="">${L("All categories", "كل التصنيفات")}</option></select></div>
-        </div>
-      </div>
-      <div id="pt-catalog"><p class="dash-empty">${L("Loading the catalogue…", "جاري تحميل الكتالوج…")}</p></div>
+      <nav class="pt-tabs" role="tablist" aria-label="${Lraw("Partner sections", "أقسام بوابة الشريك")}">
+        <button type="button" role="tab" data-pt-tab="orders" aria-selected="true">📦 ${L("Your work orders", "أوامر العمل الخاصة بك")}</button>
+        <button type="button" role="tab" data-pt-tab="catalog" aria-selected="false">🗂️ ${L("Services & your share", "الخدمات وعمولتك")}</button>
+        <button type="button" role="tab" data-pt-tab="propose" aria-selected="false">➕ ${L("Propose a service", "اقترح خدمة")}</button>
+      </nav>
 
-      <div class="dash-panel-head" style="margin-top:30px"><h2>${L("Your work orders", "أوامر العمل الخاصة بك")}</h2><p>${L("Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.", "مُسنَدة إليك من فريق بيزنس بارتنر. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.")}</p></div>
-      <div id="pt-feed"><p class="dash-empty">${L("No work orders yet — new assignments appear here and reach you by email.", "لا توجد أوامر عمل بعد — كل إسناد جديد يظهر هنا ويصلك على بريدك.")}</p></div>
+      <section data-pt-pane="orders">
+        <div class="dash-panel-head"><h2>${L("Your work orders", "أوامر العمل الخاصة بك")}</h2><p>${L("Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.", "مُسنَدة إليك من فريق بيزنس بارتنر. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.")}</p></div>
+        <div id="pt-feed"><p class="dash-empty">${L("No work orders yet — new assignments appear here and reach you by email.", "لا توجد أوامر عمل بعد — كل إسناد جديد يظهر هنا ويصلك على بريدك.")}</p></div>
+      </section>
+
+      <section data-pt-pane="catalog" hidden>
+        <div class="dash-panel-head" id="pt-cat-head"><h2>${L("Services you can execute", "الخدمات التي يمكنك تنفيذها")}</h2><p>${L("Business Partner's published catalogue. The price is what the client pays before VAT; your share is what reaches you after our commission.", "كتالوج بيزنس بارتنر المنشور. السعر هو ما يدفعه العميل قبل الضريبة، ونصيبك هو ما يصلك بعد عمولتنا.")}</p></div>
+        <div class="calc-form" style="margin-bottom:14px">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="pt-cat-search">${L("Search a service", "ابحث عن خدمة")}</label><input id="pt-cat-search" type="search" placeholder="${Lraw("Service name…", "اسم الخدمة…")}"></div>
+            <div class="field"><label for="pt-cat-filter">${L("Category", "التصنيف")}</label><select id="pt-cat-filter"><option value="">${L("All categories", "كل التصنيفات")}</option></select></div>
+          </div>
+        </div>
+        <div id="pt-catalog"><p class="dash-empty">${L("Loading the catalogue…", "جاري تحميل الكتالوج…")}</p></div>
+      </section>
+
+      <section data-pt-pane="propose" hidden>
+        <div class="dash-panel-head"><h2>${L("Propose a service we don't offer yet", "اقترح خدمة غير موجودة عندنا")}</h2><p>${L("Something you execute that is not in the catalogue. It reaches the team for pricing and review — nothing is published until we approve it.", "خدمة تنفّذها ولا توجد في الكتالوج. تصل الفريق للتسعير والمراجعة — ولا يُنشر شيء قبل اعتمادنا.")}</p></div>
+        <form id="pt-propose-form" class="calc-form">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="pp-name">${L("Service name", "اسم الخدمة")}</label><input id="pp-name" type="text" required maxlength="140" placeholder="${Lraw("e.g. Trademark registration", "مثال: تسجيل علامة تجارية")}"></div>
+            <div class="field"><label for="pp-cat">${L("Category", "التصنيف")}</label><input id="pp-cat" type="text" maxlength="80" placeholder="${Lraw("e.g. Company formation", "مثال: تأسيس الشركات")}"></div>
+            <div class="field"><label for="pp-price">${L("Your price before VAT (SAR)", "سعرك قبل الضريبة (ريال)")}</label><input id="pp-price" type="number" min="0" step="0.01" required></div>
+            <div class="field"><label for="pp-days">${L("Delivery time", "مدة التنفيذ")}</label><input id="pp-days" type="text" maxlength="60" placeholder="${Lraw("e.g. 5 working days", "مثال: ٥ أيام عمل")}"></div>
+          </div>
+          <div class="field"><label for="pp-notes">${L("What it covers, and what you need from the client", "ما تشمله الخدمة، وما تحتاجه من العميل")}</label><textarea id="pp-notes" rows="4" maxlength="1200" placeholder="${Lraw("Scope, required documents, government fees if any…", "نطاق الخدمة، المستندات المطلوبة، الرسوم الحكومية إن وُجدت…")}"></textarea></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Send the proposal", "أرسل الاقتراح")}</button>
+          <p class="form-success" id="pp-sent" hidden></p>
+          <p class="form-error" id="pp-err" hidden></p>
+        </form>
+      </section>
     </div>
   </div></section>
 
