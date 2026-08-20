@@ -6792,6 +6792,7 @@ function buildPartnerDashboard() {
 
       <nav class="pt-tabs" role="tablist" aria-label="${Lraw("Partner sections", "أقسام بوابة الشريك")}">
         <button type="button" role="tab" data-pt-tab="orders" aria-selected="true">📦 ${L("Your work orders", "أوامر العمل الخاصة بك")}</button>
+        <button type="button" role="tab" data-pt-tab="mine" aria-selected="false">🧰 ${L("My services & prices", "خدماتي وأسعاري")}</button>
         <button type="button" role="tab" data-pt-tab="catalog" aria-selected="false">🗂️ ${L("Services & your share", "الخدمات وعمولتك")}</button>
         <button type="button" role="tab" data-pt-tab="propose" aria-selected="false">➕ ${L("Propose a service", "اقترح خدمة")}</button>
       </nav>
@@ -6799,6 +6800,19 @@ function buildPartnerDashboard() {
       <section data-pt-pane="orders">
         <div class="dash-panel-head"><h2>${L("Your work orders", "أوامر العمل الخاصة بك")}</h2><p>${L("Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.", "مُسنَدة إليك من فريق بيزنس بارتنر. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.")}</p></div>
         <div id="pt-feed"><p class="dash-empty">${L("No work orders yet — new assignments appear here and reach you by email.", "لا توجد أوامر عمل بعد — كل إسناد جديد يظهر هنا ويصلك على بريدك.")}</p></div>
+      </section>
+
+      <section data-pt-pane="mine" hidden>
+        <div class="dash-panel-head"><h2>${L("My services & prices", "خدماتي وأسعاري")}</h2><p>${L("Build each service once with your price and delivery time. Every quote is then assembled by picking from this list — you never retype a price you already decided.", "ابنِ كل خدمة مرة واحدة بسعرك ومدة تنفيذك. بعدها كل عرض سعر يُبنى بالاختيار من هذه القائمة — ولا تعيد كتابة سعر قرّرته من قبل.")}</p></div>
+        <div class="dash-card" style="margin-bottom:14px">
+          <p class="text-soft" style="font-size:.86rem;margin:0 0 10px">${L("This is your price list with us — what you charge Business Partner. It is not published on the site; publishing is a separate proposal.", "هذه قائمة أسعارك معنا — ما تتقاضاه من بيزنس بارتنر. لا تُنشر على الموقع؛ النشر طلب منفصل.")}</p>
+          <div id="pm-list"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="pm-add">＋ ${L("Add a service", "أضف خدمة")}</button>
+          <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button type="button" class="btn btn-primary" id="pm-save">${L("Save my list", "احفظ قائمتي")}</button>
+            <span id="pm-msg" style="font-size:.88rem"></span>
+          </div>
+        </div>
       </section>
 
       <section data-pt-pane="catalog" hidden>
@@ -6839,8 +6853,16 @@ function buildPartnerDashboard() {
         <input type="hidden" id="pt-order-id">
         <div class="field"><label id="pt-offer-for" style="font-weight:600"></label></div>
         <div class="field" id="pt-quote-wrap" hidden>
-          <label for="pt-quote">${L("Your price (SAR)", "سعرك (ريال)")}</label><input id="pt-quote" type="number" min="0" step="0.01">
-          <label for="pt-lead" style="margin-top:10px">${L("Proposed lead time", "مدة التنفيذ المقترحة")}</label><input id="pt-lead" type="text" placeholder="${Lraw("e.g. 5 working days", "مثال: 5 أيام عمل")}">
+          <label style="font-weight:600">${L("Your quote", "عرض سعرك")}</label>
+          <p class="text-soft" style="font-size:.84rem;margin:2px 0 8px">${L("Line items, not one number — the owner sees what the price is made of, and the invoice that follows is these same lines.", "بنود لا رقماً واحداً — يرى المالك ممّ يتكوّن السعر، والفاتورة التي تليه هي البنود نفسها.")}</p>
+          <div id="pt-lines"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+            <select id="pt-pick" style="flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--gray-line);border-radius:8px;font-family:inherit"><option value="">${L("Add from my services…", "أضف من خدماتي…")}</option></select>
+            <button type="button" class="btn btn-ghost btn-sm" id="pt-line-add">＋ ${L("Blank line", "بند فارغ")}</button>
+          </div>
+          <div id="pt-lines-total" style="font-weight:700;color:var(--navy);text-align:end;margin:6px 0 12px">—</div>
+          <label for="pt-lead">${L("Proposed lead time", "مدة التنفيذ المقترحة")}</label><input id="pt-lead" type="text" placeholder="${Lraw("e.g. 5 working days", "مثال: 5 أيام عمل")}">
+          <input id="pt-quote" type="hidden">
         </div>
         <div class="field" id="pt-status-wrap"><label for="pt-status">${L("Status", "الحالة")}</label>
           <select id="pt-status">
@@ -6848,7 +6870,9 @@ function buildPartnerDashboard() {
             <option value="قيد التنفيذ">${L("In progress", "قيد التنفيذ")}</option>
             <option value="تم التسليم">${L("Delivered", "تم التسليم")}</option>
           </select></div>
-        <div class="field"><label for="pt-invoice">${L("Your invoice (PDF or image) — optional", "فاتورتك (PDF أو صورة) — اختياري")}</label><input id="pt-invoice" type="file" accept=".pdf,image/*"></div>
+        <div class="field" id="pt-inv-wrap"><label for="pt-invoice">${L("Your invoice (PDF or image) — optional", "فاتورتك (PDF أو صورة) — اختياري")}</label>
+          <p class="text-soft" style="font-size:.84rem;margin:2px 0 6px" id="pt-inv-hint">${L("Invoice us for the approved quote once you deliver.", "فوترنا بقيمة العرض المعتمد بعد التسليم.")}</p>
+          <input id="pt-invoice" type="file" accept=".pdf,image/*"></div>
         <div class="field"><label for="pt-offer-notes">${L("Notes", "ملاحظات")}</label><textarea id="pt-offer-notes" rows="3" placeholder="${Lraw("Progress, delivery details, anything the team should know…", "سير العمل، تفاصيل التسليم، أي شيء يحتاج الفريق معرفته…")}"></textarea></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Save update", "احفظ التحديث")}</button>
         <div class="form-success" id="pt-offer-sent" hidden></div>
