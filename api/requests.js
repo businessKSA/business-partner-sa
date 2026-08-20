@@ -18,7 +18,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs } from "./_suppliers.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints } from "./_daftra.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -464,6 +464,15 @@ async function readBody(req) {
 }
 
 const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666">${k}</td><td style="padding:4px 10px"><b>${esc(v || "—")}</b></td></tr>`;
+
+// The gateway is enabled inside Daftra (PayTabs / PayFort), so Daftra's own
+// invoice page is the payment page. Linking to it means the payment lands
+// against the invoice in the books — no reconciliation step invented here.
+// The PDF stays attached: the document is the document, the link is to pay.
+const payButton = (url) => url
+  ? `<p style="margin:18px 0"><a href="${esc(url)}" style="background:#0B1B5A;color:#fff;padding:12px 26px;border-radius:10px;text-decoration:none;font-weight:bold;display:inline-block">💳 ادفع الآن</a></p>
+     <p style="color:#94a3b8;font-size:12px">أو حوّل بنكياً على الحساب أدناه.</p>`
+  : "";
 
 // ---- Shared Services: subscribe → owner approval → emailed access code → unlock ----
 const OTP_SECRET = process.env.OTP_SECRET || "";
@@ -1442,15 +1451,18 @@ export default async function handler(req, res) {
         } catch { /* fall through to the link */ }
       }
       if (Buffer.byteLength(pdf || "", "base64") > 12 * 1024 * 1024) { res.statusCode = 413; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
+      let payUrl = "";
+      if (b.invoiceId && daftraConfigured()) { try { payUrl = (await daftraPayLink(String(b.invoiceId))).url; } catch { payUrl = ""; } }
       const html = `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right"><h2 style="color:#0B1B5A">فاتورتك من بيزنس بارتنر</h2>
         <p>رقم الفاتورة: <b>${esc(number)}</b>${total != null && Number.isFinite(total) ? ` · الإجمالي: <b>${total} ﷼</b>` : ""}</p>
-        ${pdf ? "<p>نسخة الفاتورة الضريبية بصيغة PDF مرفقة مع هذه الرسالة.</p>" : (link ? `<p><a href="${esc(link)}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح الفاتورة</a></p>` : "")}
+        ${pdf ? "<p>نسخة الفاتورة الضريبية بصيغة PDF مرفقة مع هذه الرسالة.</p>" : ""}
+        ${payButton(payUrl || link)}
         <p style="color:#475569">للتحويل البنكي: ${esc(SS_BANK.beneficiary)} — ${esc(SS_BANK.bank)} — <span style="direction:ltr;display:inline-block">${esc(SS_BANK.iban)}</span></p>
         <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`;
       const sent = await sendEmail(to, `فاتورة ${number} — بيزنس بارتنر`, html,
         pdf ? [{ filename: `TAX_Invoice-${number.replace(/[^\w-]/g, "")}.pdf`, content: pdf }] : undefined);
       res.statusCode = (sent && sent.ok) ? 200 : 502;
-      return res.end(JSON.stringify({ ok: !!(sent && sent.ok), attached: !!pdf, source, error: (sent && sent.error) || undefined }));
+      return res.end(JSON.stringify({ ok: !!(sent && sent.ok), attached: !!pdf, source, payUrl, error: (sent && sent.error) || undefined }));
     }
 
     // Reverse an invoice with a credit note, so the wrong one stops standing
@@ -1478,6 +1490,24 @@ export default async function handler(req, res) {
         const out = await daftraProbeEndpoints();
         res.statusCode = 200;
         return res.end(JSON.stringify(out));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
+    // Which client-facing route this account publishes for an invoice. The
+    // gateway is enabled inside Daftra, so that page is the payment page —
+    // and which URL serves it is answered by asking, not by assuming.
+    if (b.action === "panel-daftra-paylink-probe") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      try {
+        const id = String(b.invoiceId || "").trim();
+        if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const link = await daftraPayLink(id);
+        const probe = await daftraPayLinkProbe(id, link.hasHash ? String(link.url).split("/").pop() : "");
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, link, probe: probe.results }));
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
@@ -1590,6 +1620,10 @@ export default async function handler(req, res) {
         // the one carrying the ZATCA QR code and the seller's tax details.
         let pdf = null;
         if (!b.draft) { try { pdf = await daftraDocPdf(isQuote ? "estimate" : "invoice", inv.id); } catch { pdf = null; } }
+        // Where the client pays. Best-effort: a missing link must not stop an
+        // invoice that already exists in the books from reaching them.
+        let payUrl = "";
+        if (!isQuote && !b.draft) { try { payUrl = (await daftraPayLink(inv.id)).url; } catch { payUrl = inv.publicUrl || inv.url || ""; } }
         // No PDF means no email. A message whose only content is a link the
         // client may not be able to open is a message that should not have been
         // sent — it reads as "your invoice" and carries no invoice. The panel is
@@ -1607,6 +1641,7 @@ export default async function handler(req, res) {
              <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${daftraVatRate()}%): <b>${inv.vat} ﷼</b><br>${isQuote ? "الإجمالي شامل الضريبة" : "الإجمالي المستحق"}: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
              <p style="color:#475569">للتحويل البنكي: ${esc(SS_BANK.beneficiary)} — ${esc(SS_BANK.bank)} — <span style="direction:ltr;display:inline-block">${esc(SS_BANK.iban)}</span></p>
              <p style="color:#0B1B5A">نسخة ${docAr} بصيغة PDF مرفقة مع هذه الرسالة.</p>
+             ${isQuote ? "" : payButton(payUrl)}
              <p style="color:#94a3b8;font-size:12px">${isQuote ? "عرض سعر صادر عبر نظام الدفترة — يتحول إلى فاتورة ضريبية عند الاعتماد." : "فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك."}</p></div>`,
             pdf ? [{ filename: `${isQuote ? "Quote" : "TAX_Invoice"}-${String(inv.number).replace(/[^\w-]/g, "")}.pdf`, content: pdf.base64 }] : undefined);
           emailed = !!(r2 && r2.ok);
@@ -1615,7 +1650,7 @@ export default async function handler(req, res) {
         // lead to «مؤكد - قيد التنفيذ».
         if (ref && !isQuote) { try { await setLeadStatus(ref, "مؤكد - قيد التنفيذ"); } catch {} }
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, invoice: inv, clientCreated: created, emailed, pdfAttached: !!pdf, pendingPdf, email }));
+        return res.end(JSON.stringify({ ok: true, invoice: inv, clientCreated: created, emailed, pdfAttached: !!pdf, pendingPdf, email, payUrl }));
       } catch (e) {
         console.error("daftra invoice failed", String(e.message || e).slice(0, 200));
         res.statusCode = 502;

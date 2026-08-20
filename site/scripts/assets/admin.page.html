@@ -482,6 +482,7 @@
               <button class="actbtn" id="fxSaveInv">🧾 حدّث الفاتورة نفسها</button>
               <button class="actbtn" id="fxCredit" style="border-color:#fca5a5;color:#b91c1c">↩️ إشعار دائن (مرتجع كامل)</button>
               <button class="actbtn" id="fxProbe">🔎 افحص نقاط الإشعار الدائن</button>
+              <button class="actbtn" id="fxPayProbe">💳 افحص رابط الدفع</button>
             </div>
             <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px">
               <b style="font-size:13px;color:var(--navy)">📤 أرسل الفاتورة للعميل بمرفق PDF</b>
@@ -1150,6 +1151,33 @@
       fr.onload = function(){ fxPdfB64 = String(fr.result).split(',')[1] || ''; $('fxPdfLbl').textContent = '📎 ' + f.name; };
       fr.readAsDataURL(f);
     };
+    // PayTabs / PayFort are enabled inside Daftra, so Daftra's own invoice page
+    // is the payment page. Which URL serves it differs between account versions,
+    // so the account is asked and the evidence is printed.
+    $('fxPayProbe').onclick = function(){
+      if (!fxInvoice || !fxInvoice.id){ fxNote('err', 'ابحث عن الفاتورة أولاً.'); return; }
+      var btn = this; btn.disabled = true;
+      fxNote('', '⏳ أفحص روابط الدفع لهذه الفاتورة…');
+      postPanel({ action:'panel-daftra-paylink-probe', invoiceId: fxInvoice.id }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ fxNote('err', 'تعذّر الفحص: ' + esc((r && r.error) || '؟')); return; }
+        var rows = r.probe || [];
+        var best = rows.filter(function(x){ return x.status === 200 && x.looksPayable && !x.looksLogin; });
+        fxNote(best.length ? 'ok' : 'warn',
+          '<b>الرابط الذي تنشره الدفترة:</b> <span style="direction:ltr;display:inline-block">' + esc(r.link.url) + '</span>' +
+          (r.link.published ? ' (نشرته الدفترة بنفسها)' : ' (مُركَّب — الدفترة ما نشرت رابطاً)') +
+          '<div style="margin-top:8px"><b>ما ردّت به المسارات:</b></div>' +
+          rows.map(function(x){
+            return '<div style="direction:ltr;text-align:left;font-family:monospace;font-size:11.5px">' +
+              (x.status === 200 && x.looksPayable && !x.looksLogin ? '✅ ' : x.status === 200 ? '⚠️ ' : '❌ ') +
+              esc(x.url) + ' → ' + esc([x.status, x.type, x.redirect ? '→' + x.redirect : '',
+                x.looksPayable ? 'payable' : '', x.looksLogin ? 'login-wall' : '', x.error || ''].filter(Boolean).join(' · ')) + '</div>';
+          }).join('') +
+          (best.length ? '<div style="color:#14532d;margin-top:6px">صفحة دفع تعمل — العميل يقدر يسدد منها مباشرة.</div>'
+                       : '<div style="margin-top:6px">ما لقيت صفحة دفع مفتوحة. غالباً تحتاج تفعيل «بوابة العميل» أو مشاركة الفاتورة من الدفترة. أرسل لي هذه القائمة.</div>'));
+      });
+    };
+
     // A failed automatic fetch is only useful if it says which route failed and
     // how. This probes the routes against this invoice — not some other one —
     // so the answer is about the document actually being sent.
@@ -1720,7 +1748,17 @@
                 : (out.pendingPdf ? '' : ($('ivSend').checked && !$('ivDraft').checked ? ' · <span style="color:#b45309">تعذّر إرسالها بالبريد</span>' : ''))) +
               '<br><a href="' + esc(iv.url) + '" target="_blank" rel="noopener" style="font-weight:700">افتحها في الدفترة ←</a>' +
               (iv.printUrl ? ' · <a href="' + esc(iv.printUrl) + '" target="_blank" rel="noopener" style="font-weight:700">اطبع/PDF بالباركود ←</a>' : '') +
+              (out.payUrl ? '<br><span class="kv"><i>رابط الدفع:</i><a href="' + esc(out.payUrl) + '" target="_blank" rel="noopener" style="font-weight:700;direction:ltr;display:inline-block">' + esc(out.payUrl) + '</a></span>' +
+                '<button class="actbtn" type="button" id="ivPayCopy" style="margin-top:6px">📋 انسخ رابط الدفع</button>' : '') +
               (iv.reducedPayload ? '<br><span style="color:#b45309;font-size:12px">ملاحظة: حسابك رفض بعض الحقول الاختيارية فصدرت بالحقول الأساسية — أرسل لي لقطة وأضبطها.</span>' : '');
+            if (out.payUrl) {
+              var pc = $('ivPayCopy');
+              if (pc) pc.onclick = function(){
+                var ta = document.createElement('textarea'); ta.value = out.payUrl; document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); } catch(e){}
+                ta.remove(); pc.textContent = '📋 نُسخ ✓';
+              };
+            }
             if (out.pendingPdf) ivAttachBox(iv, out.email || email);
             refresh();
           } else {
