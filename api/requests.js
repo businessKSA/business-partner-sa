@@ -16,7 +16,7 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
-import { handleSuppliers } from "./_suppliers.js";
+import { handleSuppliers, progressForClientRefs } from "./_suppliers.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -1140,8 +1140,12 @@ export default async function handler(req, res) {
           return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
         }
       }
+      // What the partner executing the work has reported, for these refs only.
+      // Best-effort: a client's status must not fail because a journey lookup did.
+      let journey = {};
+      try { journey = await progressForClientRefs(remaining); } catch { journey = {}; }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo, trial }));
+      return res.end(JSON.stringify({ ok: true, statuses, agents, emails, demo, trial, journey }));
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({ status: "ok", emailConfigured: !!RESEND_API_KEY }));
@@ -1926,6 +1930,10 @@ export default async function handler(req, res) {
     const taxNotesText = taxIsCompany
       ? ` · نوع الفاتورة: منشأة · اسم المنشأة: ${taxNameAr} · الرقم الضريبي: ${taxVat}${tp.cr ? ` · س.ت الضريبي: ${String(tp.cr).slice(0, 40)}` : ""} · المسؤول: ${taxContact} · جوال المسؤول: ${taxContactPhone}${taxAddrLine ? ` · العنوان الوطني: ${taxAddrLine}` : ""}`
       : " · نوع الفاتورة: شخصي";
+    // Which partner sent this buyer, when one did. Recorded on the row so the
+    // commission is settled against evidence rather than a claim after the fact.
+    const partnerRefCode = String(b.partnerRef || "").trim().toUpperCase().slice(0, 24);
+    const partnerRefText = /^[A-Z0-9-]{4,24}$/.test(partnerRefCode) ? ` · عبر الشريك: ${partnerRefCode}` : "";
     // Immediate acknowledgment to the client — "we received your payment, we're verifying it".
     // The n8n verification agent later sends the "confirmed / activated" email once the receipt amount matches.
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلبك ودفعتك ✅</h2><p>مرحباً ${esc(name)},</p><p>وصلنا طلبك وإيصال التحويل البنكي بنجاح. فريقنا ووكيل التحقق الآلي يراجعان الإيصال الآن، وبمجرد تأكيد مطابقة المبلغ ستصلك رسالة تأكيد التفعيل مباشرةً.</p><table>${row("رقم المرجع", ref) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>يمكنك متابعة حالة طلبك في لوحتك: <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">${MKT_SITE_BASE}/account</a></p><p style="color:#0B1B5A">بزنس بارتنر · محفول مكفول</p></div>`;
@@ -1935,7 +1943,7 @@ export default async function handler(req, res) {
       // delivery issue (e.g. unverified sender domain), the order is still seen.
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml) : Promise.resolve({ ok: false }),
       isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
