@@ -510,6 +510,16 @@
           </div>
 
           <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">💳 مُيسّر — جاهزية الدفع الإلكتروني</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              نسأل مُيسّر نفسه: هل المفتاح يعمل؟ «موجود في Vercel» شيء و«يشتغل» شيء ثاني.
+              لا يظهر هنا أي مفتاح ولا جزء منه — فقط هل نجح الاتصال، وفي أي بيئة (حقيقي أم تجريبي).
+            </p>
+            <button class="actbtn" id="myPing">💳 افحص الاتصال بمُيسّر</button>
+            <div class="dbody" id="myMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">🔔 إشعارات العميل — كل خطوة على البوابة والبريد والواتساب</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               كل انتقال في الطلب (عرض سعر ← موافقة ← عقد ← توقيع ← سداد ← تنفيذ ← تسليم) يُرسل تلقائياً:
@@ -1371,6 +1381,39 @@
           (r.channels.missing && r.channels.missing.length ? '<div style="color:#b45309;margin-top:4px">ينقص في Vercel: <span style="direction:ltr;display:inline-block">' + esc(r.channels.missing.join(' · ')) + '</span></div>' : '') +
           '</div>' : '');
       });
+    };
+
+    // ---- is Moyasar actually connected ----
+    $('myPing').onclick = function(){
+      var btn = this, m = $('myMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أسأل مُيسّر…';
+      postPanel({ action: 'panel-moyasar-ping' }).then(function(r){
+        btn.disabled = false;
+        if (!r){ m.innerHTML = '<span style="color:#b91c1c">تعذّر الفحص.</span>'; return; }
+        var v = r.vars || {};
+        var modeAr = function(x){ return x === 'live' ? 'حقيقي (Live)' : x === 'test' ? 'تجريبي (Test)' : x === 'unknown' ? 'صيغة غير معروفة' : '—'; };
+        var line = function(ok, label, extra){
+          return '<span class="kv"><i>' + (ok ? '✅' : '⛔') + ' ' + label + ':</i>' + (extra || (ok ? 'مضبوط' : 'ناقص')) + '</span>';
+        };
+        var html =
+          line(v.publishable && v.publishable.set, 'نموذج الدفع (Publishable)', v.publishable && v.publishable.set ? modeAr(v.publishable.mode) : 'ناقص') +
+          line(v.secret && v.secret.set, 'تأكيد الدفع (Secret)', v.secret && v.secret.set ? modeAr(v.secret.mode) : 'ناقص') +
+          line(v.webhook && v.webhook.set, 'رمز الـ Webhook', v.webhook && v.webhook.set ? 'مضبوط (' + v.webhook.length + ' حرف)' : 'ناقص');
+        if (v.modeMatch === false)
+          html += '<div style="margin-top:8px;color:#b91c1c;font-weight:600">⚠ المفتاحان من بيئتين مختلفتين — لازم يكونان الاثنان Live أو الاثنان Test، وإلا النموذج والتحقق يتكلمان عن حسابين.</div>';
+        if (r.ok){
+          html += '<div style="margin-top:10px;font-weight:700;color:#14532d">✅ مُيسّر متصل — البيئة: ' + modeAr(r.mode) +
+            (typeof r.paymentsSoFar === 'number' ? ' · عدد الدفعات حتى الآن: ' + r.paymentsSoFar : '') + '</div>';
+        } else {
+          var why = r.error === 'secret_key_missing' ? 'المفتاح السري غير مضاف في Vercel بعد.'
+            : r.error === 'unauthorized' ? 'مُيسّر رفض المفتاح (401) — المفتاح غير صحيح أو من حساب آخر.'
+            : 'تعذّر الاتصال: ' + esc(r.error || '');
+          html += '<div style="margin-top:10px;font-weight:700;color:#b45309">⛔ ' + why + '</div>';
+        }
+        if (v.missing && v.missing.length)
+          html += '<div style="margin-top:8px;color:#b45309">ينقص في Vercel: <span style="direction:ltr;display:inline-block">' + esc(v.missing.join(' · ')) + '</span></div>';
+        m.innerHTML = html;
+      }).catch(function(){ btn.disabled = false; m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال.</span>'; });
     };
 
     // ---- prove the notification loop, end to end ----
