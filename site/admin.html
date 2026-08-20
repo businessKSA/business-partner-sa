@@ -510,6 +510,34 @@
           </div>
 
           <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">🔔 إشعارات العميل — كل خطوة على البوابة والبريد والواتساب</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              كل انتقال في الطلب (عرض سعر ← موافقة ← عقد ← توقيع ← سداد ← تنفيذ ← تسليم) يُرسل تلقائياً:
+              إشعار ومهمة وموافقة في لوحة العميل، ورسالة بريد، ورسالة واتساب.
+              اختبر هنا برقم مرجع حقيقي — يُستخدم نفس المسار الذي تستخدمه الطلبات الحيّة.
+            </p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px">
+              <label>رقم مرجع العميل<input id="nfRef" placeholder="RFQ-302385" /></label>
+              <label>الخطوة
+                <select id="nfStage">
+                  <option value="quote_sent">عرض سعر بانتظار الموافقة</option>
+                  <option value="quote_accepted">تم قبول العرض</option>
+                  <option value="contract_sent">أُرسل العقد للتوقيع</option>
+                  <option value="contract_signed">تم توقيع العقد</option>
+                  <option value="invoice_issued">الفاتورة جاهزة للسداد</option>
+                  <option value="payment_received">استلمنا المبلغ وجاري العمل</option>
+                  <option value="work_update">تحديث تنفيذ</option>
+                  <option value="delivered">تم التسليم</option>
+                </select>
+              </label>
+              <label>بريد العميل (اختياري — يُقرأ من CRM)<input id="nfEmail" placeholder="client@example.com" /></label>
+              <label>جوال العميل (اختياري — يُقرأ من CRM)<input id="nfPhone" placeholder="05xxxxxxxx" /></label>
+            </div>
+            <button class="actbtn" id="nfSend" style="margin-top:10px">🔔 أرسل إشعار تجريبي</button>
+            <div class="dbody" id="nfMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">➕ أنشئ أمر عمل وأسنده لشريك</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               أمر العمل هو أصل السلسلة: منه يقدّم الشريك عرضه، وعليه يقبل العميل، وعنه يصدر العقد ثم الفاتورة.
@@ -1304,8 +1332,48 @@
             (x.note ? ' <span style="color:var(--soft);font-size:11.5px">— ' + esc(x.note) + '</span>' : '') + '</span>';
         }).join('') +
         '<div style="margin-top:10px;font-weight:600;color:' + (miss.length ? '#b45309' : '#14532d') + '">' +
-          (miss.length ? 'الناقص: ' + esc(miss.map(function(x){ return x.label; }).join(' · ')) : 'كل شيء موصول ✓') + '</div>';
+          (miss.length ? 'الناقص: ' + esc(miss.map(function(x){ return x.label; }).join(' · ')) : 'كل شيء موصول ✓') + '</div>' +
+        (r.channels ? '<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line)">' +
+          '<b>قنوات إشعار العميل:</b> ' +
+          (r.channels.portal ? '✅ البوابة' : '⛔ البوابة') + ' · ' +
+          (r.channels.email ? '✅ البريد' : '⛔ البريد') + ' · ' +
+          (r.channels.whatsapp ? '✅ واتساب' : '⛔ واتساب') +
+          (r.channels.whatsapp && !r.channels.whatsappTemplate ? ' <span style="color:var(--soft);font-size:11.5px">(بدون قالب معتمد: الرسالة تصل فقط خلال ٢٤ ساعة من آخر رسالة من العميل)</span>' : '') +
+          (r.channels.missing && r.channels.missing.length ? '<div style="color:#b45309;margin-top:4px">ينقص في Vercel: <span style="direction:ltr;display:inline-block">' + esc(r.channels.missing.join(' · ')) + '</span></div>' : '') +
+          '</div>' : '');
       });
+    };
+
+    // ---- prove the notification loop, end to end ----
+    // Same code path a live order uses: if this arrives, a real stage arrives.
+    $('nfSend').onclick = function(){
+      var btn = this, m = $('nfMsg');
+      var ref = ($('nfRef').value || '').trim();
+      m.style.display = 'block';
+      if (!ref){ m.innerHTML = '<span style="color:#b91c1c">اكتب رقم مرجع العميل أولاً.</span>'; return; }
+      btn.disabled = true; m.innerHTML = '⏳ أُرسل…';
+      postPanel({
+        action: 'panel-stage-test', ref: ref, stage: $('nfStage').value,
+        email: ($('nfEmail').value || '').trim(), phone: ($('nfPhone').value || '').trim(),
+        service: 'اختبار الإشعارات', total: 483
+      }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ m.innerHTML = '<span style="color:#b91c1c">تعذّر الإرسال' + (r && r.error ? ': ' + esc(r.error) : '') + '</span>'; return; }
+        var x = r.report || {};
+        var line = function(ok, label, err){
+          return '<span class="kv"><i>' + (ok ? '✅' : '⛔') + ' ' + label + ':</i>' + (ok ? 'وصل' : 'لم يُرسل' + (err ? ' — ' + esc(err) : '')) + '</span>';
+        };
+        m.innerHTML =
+          line(x.inapp, 'إشعار في لوحة العميل') +
+          line(x.task, 'مهمة في لوحة العميل') +
+          line(x.approval, 'موافقة في لوحة العميل') +
+          line(x.email, 'بريد إلكتروني', x.emailError) +
+          line(x.wa, 'واتساب العميل', x.waError) +
+          line(x.owner, 'واتساب المالك') +
+          '<div style="margin-top:8px;color:var(--soft);font-size:12px">وُجّه إلى: ' +
+          esc((x.to && x.to.email) || '—') + ' · <span style="direction:ltr;display:inline-block">' + esc((x.to && x.to.phone) || '—') + '</span></div>' +
+          (!x.inapp ? '<div style="margin-top:6px;color:var(--soft);font-size:12px">إشعار اللوحة يظهر فقط إذا كان بريد العميل مسجّلاً في قاعدة بوابة العملاء.</div>' : '');
+      }).catch(function(){ btn.disabled = false; m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال.</span>'; });
     };
 
     // ---- create a work order: the head of the chain ----

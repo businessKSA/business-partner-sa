@@ -16,7 +16,8 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
-import { handleSuppliers, progressForClientRefs, quotesForClientRefs } from "./_suppliers.js";
+import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
+import { stageChannels, announce } from "./_stage.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -1239,12 +1240,29 @@ export default async function handler(req, res) {
         const decision = b.decision === "approved" ? "approved" : "rejected";
         const comment = String(b.comment || "").trim().slice(0, 500);
         if (!aid || (decision === "rejected" && !comment)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "comment_required" })); }
-        const rows = await sb(`approvals?id=eq.${aid}&organization_id=eq.${orgId}&status=eq.pending&select=id,title&limit=1`);
+        const rows = await sb(`approvals?id=eq.${aid}&organization_id=eq.${orgId}&status=eq.pending&select=id,title,target_entity&limit=1`);
         if (!rows.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        // An approval that only records itself is a second inbox, not a gate.
+        // When it points at a quote, approving it IS accepting the quote:
+        // the order moves, the contract goes out, the client is told.
+        let acted = null;
+        const target = String(rows[0].target_entity || "");
+        if (target.startsWith("quote:")) {
+          const [, quoteId, token] = target.split(":");
+          try {
+            const r = await decideQuote({ id: quoteId, t: token, decision: decision === "approved" ? "accept" : "decline", note: comment });
+            acted = r.error ? { ok: false, error: r.error } : { ok: true, decision: r.decision, contract: r.contract };
+          } catch (e) { acted = { ok: false, error: String(e.message || "quote_failed").slice(0, 80) }; }
+          // A quote the portal could not act on must not be marked decided —
+          // otherwise the client sees "approved" and nothing ever happens.
+          if (acted && !acted.ok && acted.error !== "already_decided") {
+            res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: acted.error }));
+          }
+        }
         await sb(`approvals?id=eq.${aid}`, { method: "PATCH", prefer: "return=minimal", body: { status: decision, decided_by: userId, decided_at: new Date().toISOString(), decision_comment: comment || null } });
         await audit({ organization_id: orgId, actor_user_id: userId, action: `approval.${decision}`, entity_type: "approval", entity_id: aid, after: { comment } });
         await sendEmail(TEAM_EMAIL, `قرار العميل: ${decision === "approved" ? "موافقة ✅" : "رفض ❌"} — ${rows[0].title}`, `<div dir="rtl" style="font-family:Arial"><p><b>${esc(email)}</b> ${decision === "approved" ? "وافق على" : "رفض"}: ${esc(rows[0].title)}</p>${comment ? `<p>التعليق: ${esc(comment)}</p>` : ""}</div>`);
-        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, acted }));
       }
       if (b.action === "ops-task-done") {
         const tid = String(b.id || "");
@@ -1270,8 +1288,16 @@ export default async function handler(req, res) {
       if (!ref || !PANEL_STATUSES.has(status)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
       try {
         await setLeadStatus(ref, status);
+        // Confirming a bank transfer is a payment like any other, so it says
+        // the same thing to the client as the gateway does — and starts the
+        // work order rather than leaving it parked on "بانتظار الدفع".
+        let announced = null;
+        if (status === "مؤكد - قيد التنفيذ") {
+          try { announced = await markOrderPaid(ref, { method: "bank", total: b.total == null ? null : Number(b.total) }); }
+          catch (e2) { console.error("panel-status announce failed", String(e2.message || e2).slice(0, 160)); }
+        }
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true }));
+        return res.end(JSON.stringify({ ok: true, ...(announced ? { announced } : {}) }));
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
@@ -1520,9 +1546,36 @@ export default async function handler(req, res) {
         svc("رموز الدخول (OTP)", has("OTP_SECRET"), "روابط عروض الأسعار تعتمد عليه"),
         svc("GitHub (تحرير المحتوى)", has("GITHUB_TOKEN", "GH_TOKEN"), "حفظ ونشر من اللوحة"),
         svc("قاعدة البيانات", has("SUPABASE_URL", "DATABASE_URL"), "بوابة العميل"),
+        svc("واتساب العميل (Cloud API)", has("WHATSAPP_TOKEN", "WHATSAPP_ACCESS_TOKEN", "META_WHATSAPP_TOKEN") && has("WHATSAPP_PHONE_ID", "WHATSAPP_PHONE_NUMBER_ID") ? "WHATSAPP_*" : null, "إشعار العميل بكل خطوة على واتساب"),
       ];
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, services: out }));
+      // channels says which legs of the client's notification actually fire —
+      // the portal, the e-mail, WhatsApp — so a silent client is diagnosed
+      // instead of guessed at.
+      return res.end(JSON.stringify({ ok: true, services: out, channels: stageChannels() }));
+    }
+
+    // Send one real stage notification, to prove the loop end to end. Uses the
+    // same code path a live order uses; nothing about it is a special case.
+    if (b.action === "panel-stage-test") {
+      const stage = String(b.stage || "quote_sent");
+      const ref = String(b.ref || "").trim();
+      if (!ref) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const report = await announce({
+          stage, clientRef: ref,
+          email: String(b.email || "").trim() || undefined,
+          phone: String(b.phone || "").trim() || undefined,
+          service: String(b.service || "خدمة تجريبية"),
+          total: b.total == null ? null : Number(b.total),
+          extra: String(b.note || "").slice(0, 300) || undefined,
+        });
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, report, channels: stageChannels() }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
     }
 
     // Which client-facing route this account publishes for an invoice. The
