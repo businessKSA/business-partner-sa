@@ -1,0 +1,25 @@
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# البيئة والأسرار
+.env
+.env.local
+.env*.local
+secrets/
+
+# قاعدة البيانات المحلية
+prisma/*.db
+prisma/*.db-journal
+prisma/*.db-shm
+prisma/*.db-wal
+
+# ملفات العملاء المؤرشفة — لا تُرفع إلى المستودع إطلاقاً
+storage/
+
+# مخرجات مؤقتة
+*.log
+sample*.pdf

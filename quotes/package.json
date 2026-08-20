@@ -1,0 +1,38 @@
+{
+  "name": "bp-quotes-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "prisma generate && prisma db push --skip-generate && tsx prisma/seed.ts",
+    "dev": "next dev -p 3000",
+    "build": "prisma generate && next build",
+    "start": "next start -p 3000",
+    "seed": "tsx prisma/seed.ts",
+    "studio": "prisma studio",
+    "smoke": "tsx scripts/smoke.ts",
+    "agent:check": "tsx scripts/agent-check.ts",
+    "pdf:sample": "tsx scripts/pdf-sample.ts",
+    "demo": "tsx scripts/demo-seed.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.0",
+    "@prisma/client": "^6.19.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "^16.3.1",
+    "nodemailer": "^9.0.5",
+    "playwright-core": "^1.56.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.18.0",
+    "@types/nodemailer": "^7.0.4",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "prisma": "^6.19.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
