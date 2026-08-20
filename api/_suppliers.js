@@ -31,10 +31,11 @@
 // function — the plan caps at 12. /api/suppliers is rewritten to
 // /api/requests?__route=suppliers, which delegates here.
 
-import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "crypto";
+import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt, createHash } from "crypto";
 import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder, daftraCreateInvoice, daftraDocPdf } from "./_daftra.js";
 import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
-import { announce, contactForRef, stageChannels } from "./_stage.js";
+import { announce, contactForRef, stageChannels, waSend } from "./_stage.js";
+import { DB_ON, storagePut, storageSign } from "./_db.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -107,6 +108,44 @@ function quoteTokenOk(orderId, t) {
   if (!want || !t) return false;
   const a = Buffer.from(want), c = Buffer.from(String(t));
   return a.length === c.length && timingSafeEqual(a, c);
+}
+// Signing identity check. Same stateless model as the e-mail verification
+// above: the code goes to the address on the CRM record, an HMAC over
+// (order, code, expiry) goes to the browser. Holding one without the other
+// proves nothing, so no pending-code table is needed — and the code can only
+// ever sign the order it was issued for.
+const sealSign = (orderId, code, exp) => createHmac("sha256", OTP_SECRET).update(`sign|${orderId}|${code}|${exp}`).digest("hex");
+function signSealOk(orderId, code, token, exp) {
+  if (!OTP_SECRET || !orderId || !code || !token || !exp) return false;
+  if (Date.now() > Number(exp)) return false;
+  const expected = Buffer.from(sealSign(orderId, String(code), String(exp)));
+  const got = Buffer.from(String(token));
+  return expected.length === got.length && timingSafeEqual(expected, got);
+}
+// The signature block appended to the contract. Kept in one place so the
+// document the client sees, the document that is hashed and the document that
+// is downloaded are the same bytes — a contract that renders differently on
+// two screens is not evidence of anything.
+const SIGN_MARK = "---BP-SIGNED---";
+function signatureBlock(sig) {
+  return `<hr style="margin:28px 0;border:0;border-top:1px solid #cbd5e1">
+  <div style="font-family:Arial,sans-serif;direction:rtl;text-align:right">
+    <h3 style="color:#0B1B5A;margin:0 0 10px">التوقيع الإلكتروني</h3>
+    <table style="border-collapse:collapse;font-size:13px">
+      <tr><td style="padding:4px 10px;color:#64748b">الموقِّع</td><td style="padding:4px 10px"><b>${esc(sig.fullName)}</b></td></tr>
+      ${sig.nationalId ? `<tr><td style="padding:4px 10px;color:#64748b">رقم الهوية / السجل</td><td style="padding:4px 10px"><b>${esc(sig.nationalId)}</b></td></tr>` : ""}
+      <tr><td style="padding:4px 10px;color:#64748b">تاريخ التوقيع</td><td style="padding:4px 10px"><b>${esc(sig.at)}</b> (بتوقيت الرياض)</td></tr>
+      <tr><td style="padding:4px 10px;color:#64748b">تحقُّق الهوية</td><td style="padding:4px 10px"><b>رمز لمرة واحدة أُرسل إلى ${esc(sig.emailMasked)}</b></td></tr>
+      <tr><td style="padding:4px 10px;color:#64748b">بصمة المستند (SHA-256)</td><td style="padding:4px 10px;direction:ltr;text-align:left;font-family:monospace;font-size:11px">${esc(sig.hash)}</td></tr>
+      ${sig.ip ? `<tr><td style="padding:4px 10px;color:#64748b">عنوان الشبكة</td><td style="padding:4px 10px;direction:ltr;text-align:left;font-family:monospace;font-size:11px">${esc(sig.ip)}</td></tr>` : ""}
+    </table>
+    ${sig.image ? `<div style="margin-top:12px"><div style="color:#64748b;font-size:12px;margin-bottom:4px">التوقيع:</div><img src="${esc(sig.image)}" alt="التوقيع" style="max-width:280px;border-bottom:1px solid #94a3b8"></div>` : ""}
+    <p style="color:#64748b;font-size:11.5px;line-height:1.9;margin-top:14px">
+      وُقِّع هذا المستند إلكترونياً وفق نظام التعاملات الإلكترونية السعودي. تحقُّق الهوية تمّ عبر رمز لمرة واحدة
+      أُرسل إلى العنوان المسجَّل للعميل، وسُجِّلت بصمة المستند وتاريخ التوقيع وعنوان الشبكة لحظة التوقيع.
+      أي تعديل لاحق على نص العقد يغيّر البصمة أعلاه ويكشف نفسه.
+    </p>
+  </div>`;
 }
 const VAT_PCT = Number(process.env.DAFTRA_VAT_RATE || 15);
 function checkSealed(email, code, token, exp) {
@@ -407,7 +446,7 @@ export async function quotesForClientRefs(refs) {
     (out[o.clientRef] = out[o.clientRef] || []).push({
       id: o.id, t: quoteToken(o.id), ref: o.ref, service: o.service,
       lines: o.lines || [], net: Math.round(net * 100) / 100, vatRate: VAT_PCT, vat,
-      total: Math.round((net + vat) * 100) / 100, leadTime: o.leadTime, notes: o.notes,
+      total: Math.round((net + vat) * 100) / 100, leadTime: o.leadTime, notes: publicNotes(o.notes),
     });
   }
   return out;
@@ -541,6 +580,9 @@ export async function decideQuote({ id: rawId, t, decision, note: rawNote }) {
     stage: accept ? "quote_accepted" : "quote_declined",
     clientRef: o.clientRef, orderId: o.id, service: o.service, total,
     name: o.client, extra: note || "",
+    // Straight back to the page they accepted on, which is where the signature
+    // and the payment now live — not to a portal they have to navigate.
+    url: accept && OTP_SECRET ? `${SITE}/ar/quote?id=${encodeURIComponent(o.id)}&t=${quoteToken(o.id)}` : undefined,
   }).catch(() => null);
 
   // Acceptance is the trigger, not a to-do list for the owner: the contract
@@ -564,6 +606,55 @@ export async function decideQuote({ id: rawId, t, decision, note: rawNote }) {
   }
   return { ok: true, decision: accept ? "accepted" : "declined", notified, contract, clientRef: o.clientRef, ref: o.ref };
 }
+
+// One priced view of a quote, read from the order and nothing else. Used by
+// the signing page, the contract document and the payment verification, so
+// all three agree on the figure by construction rather than by luck.
+export async function quotePriced(id, t) {
+  if (!id || !quoteTokenOk(id, t)) return null;
+  const pg = await notion(`pages/${id}`);
+  if (!pg.ok || !pg.json) return null;
+  const o = orderOf(pg.json);
+  if (!o.lines.length && o.quote == null) return null;
+  const net = o.lines.length ? o.lines.reduce((tt, l) => tt + l.price * l.qty, 0) : (o.quote || 0);
+  const vat = Math.round(net * (VAT_PCT / 100) * 100) / 100;
+  return {
+    order: o,
+    net: Math.round(net * 100) / 100, vatRate: VAT_PCT, vat,
+    total: Math.round((net + vat) * 100) / 100,
+  };
+}
+
+// What was signed, pulled back out. The frozen HTML is authoritative: it is
+// the bytes that were hashed, so re-rendering from live data would be a
+// different document with the same name.
+function readSigned(notes) {
+  const i = String(notes || "").indexOf(SIGN_MARK);
+  if (i === -1) return null;
+  try { return JSON.parse(String(notes).slice(i + SIGN_MARK.length).trim().split("\n")[0]); }
+  catch { return null; }
+}
+function writeSigned(notes, rec) {
+  const i = String(notes || "").indexOf(SIGN_MARK);
+  const head = i === -1 ? String(notes || "") : String(notes).slice(0, i);
+  return `${head}${head && !head.endsWith("\n") ? "\n" : ""}${SIGN_MARK}\n${JSON.stringify(rec)}`;
+}
+
+// The signature record rides in the notes field, so anything shown to a
+// client is cut at the marker: a page that renders its own audit JSON back to
+// the reader is leaking plumbing, and the record is not theirs to edit.
+const publicNotes = (notes) => {
+  const i = String(notes || "").indexOf(SIGN_MARK);
+  return (i === -1 ? String(notes || "") : String(notes).slice(0, i)).trim();
+};
+
+const maskEmail = (e) => {
+  const [u, d] = String(e || "").split("@");
+  if (!d) return "";
+  return `${u.slice(0, 2)}${"•".repeat(Math.max(1, u.length - 2))}@${d}`;
+};
+const clientIp = (req) => String(req.headers["x-forwarded-for"] || req.headers["x-real-ip"] || "").split(",")[0].trim().slice(0, 45);
+const riyadhStamp = () => new Date(Date.now() + 3 * 3600 * 1000).toISOString().slice(0, 16).replace("T", " ");
 
 export async function handleSuppliers(req, res) {
   res.setHeader("content-type", "application/json; charset=utf-8");
@@ -620,11 +711,47 @@ export async function handleSuppliers(req, res) {
           id, ref: o.ref, service: o.service, client: o.client, clientRef: o.clientRef,
           lines: o.lines, net: Math.round(net * 100) / 100, vatRate: VAT_PCT, vat,
           total: Math.round((net + vat) * 100) / 100,
-          leadTime: o.leadTime, notes: o.notes, status: o.status, supplier,
+          leadTime: o.leadTime, notes: publicNotes(o.notes), status: o.status, supplier,
           // Business Partner is the counterparty on the client's paperwork; the
           // partner executes. Saying so on the quote keeps the invoice, the VAT
           // and the contract with the entity that actually issues them.
-          decided: o.status === "مقبول من العميل" || o.status === "مرفوض من العميل",
+          decided: o.status === "مقبول من العميل" || o.status === "مرفوض من العميل" || o.status === "موقّع من العميل",
+          accepted: o.status === "مقبول من العميل" || o.status === "موقّع من العميل",
+          // Which step the client is actually on, decided by the record rather
+          // than by what the browser remembers from last time.
+          signed: (() => { const r = readSigned(o.notes); return r ? { at: r.at, by: r.fullName, hash: r.hash } : null; })(),
+          paid: (o.log || []).some((l) => /استلمنا المبلغ/.test(l.text || "")),
+        },
+      });
+    }
+
+    // Public: the signed contract, for the client to read and save as PDF.
+    // Serves the frozen bytes that were hashed — a contract re-rendered from
+    // live data would carry the same name and a different meaning.
+    if (q.action === "contract") {
+      const id = str(q.id, 60);
+      if (!id || !quoteTokenOk(id, q.t)) return bad("bad_link", 403);
+      const priced = await quotePriced(id, q.t);
+      if (!priced) return bad("not_found", 404);
+      const o = priced.order;
+      const rec = readSigned(o.notes);
+      if (!rec) return bad("not_signed", 409);
+      let html = "";
+      if (rec.docKey && DB_ON) {
+        try {
+          const url = await storageSign(rec.docKey, 300);
+          if (url) { const r = await fetch(url); if (r.ok) html = await r.text(); }
+        } catch { html = ""; }
+      }
+      return ok({
+        contract: {
+          ref: o.clientRef || o.ref, service: o.service,
+          total: priced.total, net: priced.net, vat: priced.vat, vatRate: priced.vatRate,
+          signedAt: rec.at, signedBy: rec.fullName, hash: rec.hash,
+          html: html || "",
+          // No stored copy (storage off, or an older signature) — the page says
+          // so rather than showing a document that was never the signed one.
+          stored: !!html,
         },
       });
     }
@@ -1085,6 +1212,126 @@ export async function handleSuppliers(req, res) {
     const r = await decideQuote({ id: b.id, t: b.t, decision: b.decision, note: b.note });
     if (r.error) return bad(r.error, r.status || 400);
     return ok({ decision: r.decision, notified: r.notified, contract: r.contract });
+  }
+
+  // ---------------- public: step 2 — prove it is you ----------------
+  // The code goes to the address on the client's own CRM record, never to an
+  // address typed into this page: otherwise anyone holding the link could sign
+  // as the client, which is the one thing a signature has to rule out.
+  if (b.type === "sign-start") {
+    const id = str(b.id, 60);
+    if (!id || !quoteTokenOk(id, b.t)) return bad("bad_link", 403);
+    if (!OTP_SECRET) return bad("not_configured", 503);
+    const priced = await quotePriced(id, b.t);
+    if (!priced) return bad("not_found", 404);
+    const o = priced.order;
+    if (o.status === "مرفوض من العميل") return bad("declined", 409);
+    const contact = await contactForRef(o.clientRef).catch(() => ({ email: "", phone: "" }));
+    if (!isEmail(contact.email)) return bad("no_contact", 409);
+
+    const code = String(randomInt(100000, 1000000));
+    const exp = Date.now() + CODE_TTL_MS;
+    const token = sealSign(id, code, exp);
+    const html = `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:center">
+      <h2 style="color:#0B1B5A">رمز توقيع العقد</h2>
+      <p style="color:#334155">استخدم هذا الرمز لإتمام توقيع عقد <b>${esc(o.service || o.ref)}</b> (${esc(o.clientRef || o.ref)}).</p>
+      <p style="font-size:34px;letter-spacing:10px;font-weight:700;color:#0B1B5A;margin:18px 0">${code}</p>
+      <p style="color:#666">صالح ١٥ دقيقة. إن لم تكن أنت من طلب التوقيع، تجاهل هذه الرسالة ولا تشارك الرمز مع أحد.</p></div>`;
+    await sendEmail(contact.email, `رمز توقيع العقد — ${code}`, html);
+    if (contact.phone) {
+      await waSend(contact.phone, `رمز توقيع عقدك مع بيزنس بارتنر: ${code}\nصالح ١٥ دقيقة. لا تشاركه مع أحد.`).catch(() => {});
+    }
+    return ok({ token, exp, sentTo: maskEmail(contact.email), phone: !!contact.phone });
+  }
+
+  // ---------------- public: step 2 — sign ----------------
+  // The document is built here from the order, hashed, and stored exactly as
+  // signed. Nothing about the figures comes from the browser; what the browser
+  // contributes is the name, the drawn signature and the one-time code.
+  if (b.type === "sign-submit") {
+    const id = str(b.id, 60);
+    if (!id || !quoteTokenOk(id, b.t)) return bad("bad_link", 403);
+    if (!signSealOk(id, b.code, b.token, b.exp)) return bad("bad_code", 403);
+    if (b.agree !== true) return bad("consent_required");
+    const fullName = str(b.fullName, 120);
+    if (fullName.length < 4) return bad("name_required");
+    const nationalId = str(b.nationalId, 20).replace(/[^\d]/g, "");
+    const priced = await quotePriced(id, b.t);
+    if (!priced) return bad("not_found", 404);
+    const o = priced.order;
+    const already = readSigned(o.notes);
+    if (already) return ok({ alreadySigned: true, at: already.at, hash: already.hash });
+
+    let executor = "";
+    if (o.supplierId) {
+      const sp = await notion(`pages/${o.supplierId}`);
+      if (sp.ok && sp.json) executor = supplierOf(sp.json).name;
+    }
+    const contact = await contactForRef(o.clientRef).catch(() => ({ email: "", phone: "" }));
+    const body = contractHtml({
+      ref: o.clientRef || o.ref, clientName: fullName,
+      clientCr: str(b.clientCr, 40), clientVat: str(b.clientVat, 20),
+      service: o.service, lines: o.lines,
+      net: priced.net, vat: priced.vat, total: priced.total,
+      vatRate: priced.vatRate, leadTime: o.leadTime, executor,
+      today: new Date().toISOString().slice(0, 10),
+    });
+    // The hash covers the contract text, not the signature block that carries
+    // the hash — otherwise it would have to contain itself.
+    const hash = createHash("sha256").update(body, "utf8").digest("hex");
+    const at = riyadhStamp();
+    const ip = clientIp(req);
+    // A drawn signature is optional: a typed name plus a verified one-time code
+    // is already a valid electronic signature. The drawing is what makes the
+    // document look like the thing people expect to see.
+    const raw = String(b.signature || "");
+    const dataUrl = /^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(raw) && raw.length < 400000 ? raw : "";
+
+    let imageUrl = "";
+    if (dataUrl && DB_ON) {
+      try {
+        const buf = Buffer.from(dataUrl.split(",")[1], "base64");
+        const key = `signatures/${id}/${Date.now()}.png`;
+        await storagePut(key, buf, "image/png");
+        imageUrl = await storageSign(key, 60 * 60 * 24 * 365);
+      } catch { imageUrl = ""; }
+    }
+    const signed = signatureBlock({
+      fullName, nationalId, at, hash, ip,
+      emailMasked: maskEmail(contact.email),
+      image: imageUrl || dataUrl,
+    });
+    const full = body + signed;
+
+    // The frozen document, kept where a year-old contract can still be fetched.
+    let docKey = "";
+    if (DB_ON) {
+      try {
+        docKey = `contracts/${id}/${hash.slice(0, 12)}.html`;
+        await storagePut(docKey, Buffer.from(full, "utf8"), "text/html; charset=utf-8");
+      } catch { docKey = ""; }
+    }
+    const rec = { at, hash, fullName, nationalId, ip, docKey, image: imageUrl, email: contact.email };
+
+    const log = (o.log || []).concat([{ at, by: "العميل", text: `وقّع العميل العقد إلكترونياً — ${fullName} (بصمة ${hash.slice(0, 10)}…)` }]);
+    const props = { "ملاحظات": { rich_text: richChunks(joinOrderNotes(writeSigned(o.notes, rec), o.lines, log)) } };
+    let upd = await notion(`pages/${id}`, "PATCH", { properties: { ...props, "الحالة": { select: { name: "موقّع من العميل" } } } });
+    // A Notion database that has never seen this option rejects it; the
+    // signature is the record either way, so the status is not worth losing it.
+    if (!upd.ok) upd = await notion(`pages/${id}`, "PATCH", { properties: props });
+    if (!upd.ok) return bad("save_failed", 502);
+
+    const notified = await announce({
+      stage: "contract_signed", clientRef: o.clientRef, orderId: id,
+      name: fullName, service: o.service, total: priced.total,
+      url: `${SITE}/ar/contract?id=${encodeURIComponent(id)}&t=${quoteToken(id)}`,
+    }).catch(() => null);
+    await sendEmail(TEAM_EMAIL, `✍️ وقّع العميل العقد — ${o.ref}`,
+      `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><h2 style="color:#0B1B5A">توقيع إلكتروني مكتمل</h2>
+       <table>${row("أمر العمل", o.ref) + row("طلب العميل", o.clientRef) + row("الموقِّع", fullName) + row("التاريخ", at) + row("الإجمالي", priced.total + " ﷼")}</table>
+       <p style="direction:ltr;font-family:monospace;font-size:11px">SHA-256: ${esc(hash)}</p></div>`);
+
+    return ok({ signed: true, at, hash, total: priced.total, notified });
   }
 
   // ---------------- owner: send the contract for signature ----------------

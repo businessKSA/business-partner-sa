@@ -6904,13 +6904,80 @@ function buildSuppliers() {
 // The client's side of a quote: opened from a link in their inbox, no account
 // needed. Holding the link is the authorisation — the same model DocuSign and
 // Stripe use for a document sent by email.
+// The signed contract, on its own page, ready to be saved as a PDF. The
+// browser's own print engine is what makes the PDF: it lays Arabic out
+// correctly, costs nothing, and keeps the text selectable and searchable in
+// the saved file — which a rasterised server-side render would not.
+function buildContractPage() {
+  const body = `
+  <style>
+    #c-paper{background:#fff;padding:34px 30px;border-radius:14px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
+    #c-paper table{border-collapse:collapse}
+    @media print{
+      header,footer,.wa-fab,#c-bar,#c-loading,#c-error{display:none!important}
+      #c-paper{box-shadow:none;padding:0;border-radius:0}
+      .section{padding:0!important}
+      .container{max-width:none!important;padding:0!important}
+      @page{margin:16mm}
+    }
+  </style>
+  <section class="section"><div class="container" style="max-width:820px">
+    <div id="c-loading" class="dash-card" style="text-align:center">${L("Opening your contract…", "جارٍ فتح عقدك…")}</div>
+    <div id="c-error" class="dash-card" hidden style="text-align:center;color:#b91c1c"></div>
+    <div id="c-bar" class="dash-card" hidden style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div>
+        <strong style="color:var(--navy)" id="c-title">—</strong>
+        <div class="text-soft" style="font-size:.83rem" id="c-meta"></div>
+      </div>
+      <button type="button" class="btn btn-primary" id="c-print">⬇ ${L("Save as PDF", "احفظ بصيغة PDF")}</button>
+    </div>
+    <div id="c-paper" hidden></div>
+  </div></section>`;
+  return page({ title: L("Signed contract — Business Partner", "العقد الموقّع — بيزنس بارتنر"), desc: Lraw("Your signed contract.", "عقدك الموقّع."), body, noindex: true });
+}
+
 function buildQuotePage() {
   const body = `
+  <style>
+    .qstep .qdot{width:44px;height:44px;border-radius:50%;border:2px solid var(--gray-line);color:#94a3b8;
+      display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 8px;background:#fff;font-size:1.05rem}
+    .qstep .qlbl{font-size:.82rem;color:#94a3b8;line-height:1.5}
+    .qstep.on .qdot{border-color:var(--navy);color:var(--navy)}
+    .qstep.on .qlbl{color:var(--navy);font-weight:700}
+    .qstep.done .qdot{border-color:#0f766e;background:#0f766e;color:#fff}
+    .qstep.done .qdot::after{content:"✓";font-size:1.15rem}
+    .qstep.done .qdot{font-size:0}
+    .qstep.done .qlbl{color:#0f766e;font-weight:700}
+    .qbar{height:2px;background:var(--gray-line);flex:1;margin-top:22px;min-width:16px}
+    .qbar.done{background:#0f766e}
+    @media print{
+      header,footer,.wa-fab,#q-steps-bar,#q-actions,#q-sign,#q-pay{display:none!important}
+      .dash-card{box-shadow:none;border:0}
+    }
+  </style>
   <section class="section"><div class="container" style="max-width:760px">
     <div id="q-loading" class="dash-card" style="text-align:center">${L("Opening your quote…", "جارٍ فتح عرض السعر…")}</div>
     <div id="q-error" class="dash-card" hidden style="text-align:center;color:#b91c1c"></div>
 
     <div id="q-doc" hidden>
+      <!-- The three steps, always visible. A client who can see where they are
+           and what is left does not have to be told by e-mail. -->
+      <div class="dash-card" id="q-steps-bar" style="margin-bottom:18px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">
+          <div class="qstep" data-step="1" style="flex:1;text-align:center">
+            <div class="qdot">1</div><div class="qlbl">${L("Review the quote", "مراجعة العرض")}</div>
+          </div>
+          <div class="qbar"></div>
+          <div class="qstep" data-step="2" style="flex:1;text-align:center">
+            <div class="qdot">2</div><div class="qlbl">${L("Verify &amp; sign", "التحقق والتوقيع")}</div>
+          </div>
+          <div class="qbar"></div>
+          <div class="qstep" data-step="3" style="flex:1;text-align:center">
+            <div class="qdot">3</div><div class="qlbl">${L("Contract &amp; payment", "العقد والدفع")}</div>
+          </div>
+        </div>
+      </div>
+
       <div class="dash-card" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
           <div>
@@ -6956,14 +7023,54 @@ function buildQuotePage() {
         <p class="form-error" id="q-fail" hidden></p>
       </div>
 
-      <div class="dash-card" id="q-steps" style="margin-top:18px">
-        <h3 style="margin-top:0">${L("What happens next", "ما الذي يحدث بعد ذلك")}</h3>
-        <ol style="line-height:2.2;padding-inline-start:20px;margin:0" class="text-soft">
-          <li>${L("You accept this quote.", "تقبل عرض السعر.")}</li>
-          <li>${L("The contract reaches you to sign electronically.", "يصلك العقد لتوقّعه إلكترونياً.")}</li>
-          <li>${L("The tax invoice reaches you as a PDF, payable online.", "تصلك الفاتورة الضريبية PDF وتُسدَّد إلكترونياً.")}</li>
-          <li>${L("You follow the work in your client portal, updated as it progresses.", "تتابع التنفيذ في بوابة العميل، وتُحدَّث أولاً بأول.")}</li>
-        </ol>
+      <!-- Step 2: identity then signature. The code goes to the address on the
+           client's own record, so holding the link is not enough to sign as
+           them — which is the one thing a signature has to rule out. -->
+      <div class="dash-card" id="q-sign" hidden style="margin-top:18px">
+        <h3 style="margin-top:0">${L("Sign the contract electronically", "وقّع العقد إلكترونياً")}</h3>
+        <p class="text-soft" style="font-size:.9rem;line-height:1.9">${L("We send a one-time code to the address on your record, then you sign here. The signed contract is issued as a PDF you can download, and your signature, the time and the document fingerprint are recorded with it.", "نرسل رمزاً لمرة واحدة إلى العنوان المسجَّل باسمك، ثم توقّع هنا. يصدر العقد الموقّع بصيغة PDF تقدر تحمّله، ويُسجَّل معه توقيعك ووقت التوقيع وبصمة المستند.")}</p>
+
+        <div id="q-sign-1">
+          <button type="button" class="btn btn-primary btn-lg" id="q-code-send">${L("Send me the code", "أرسل لي الرمز")}</button>
+          <p class="text-soft" style="font-size:.84rem;margin-top:8px" id="q-code-hint"></p>
+        </div>
+
+        <div id="q-sign-2" hidden>
+          <div class="field"><label for="q-code">${L("The code we sent you", "الرمز الذي أرسلناه لك")}</label>
+            <input id="q-code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" dir="ltr" style="letter-spacing:8px;text-align:center;font-size:1.3rem"></div>
+          <div class="field"><label for="q-name">${L("Full name of the signatory", "الاسم الكامل للموقِّع")}</label><input id="q-name" type="text" maxlength="120"></div>
+          <div class="field"><label for="q-nid">${L("National ID / CR (optional)", "رقم الهوية / السجل التجاري (اختياري)")}</label><input id="q-nid" type="text" inputmode="numeric" maxlength="20" dir="ltr"></div>
+
+          <label style="display:block;font-weight:600;margin:14px 0 6px">${L("Draw your signature", "ارسم توقيعك")}</label>
+          <div style="border:1px dashed var(--gray-line);border-radius:12px;background:#fff;position:relative">
+            <canvas id="q-pad" style="width:100%;height:170px;display:block;touch-action:none;border-radius:12px"></canvas>
+            <button type="button" class="btn btn-ghost btn-sm" id="q-pad-clear" style="position:absolute;inset-inline-end:10px;top:10px">${L("Clear", "مسح")}</button>
+          </div>
+
+          <label style="display:flex;gap:10px;align-items:flex-start;margin:14px 0;line-height:1.9;font-size:.9rem">
+            <input type="checkbox" id="q-agree" style="margin-top:5px">
+            <span>${L("I have read the contract and I agree to sign it electronically under the Saudi Electronic Transactions Law.", "قرأت العقد وأوافق على توقيعه إلكترونياً وفق نظام التعاملات الإلكترونية السعودي.")}</span>
+          </label>
+
+          <button type="button" class="btn btn-primary btn-lg" id="q-sign-go" style="width:100%">✍️ ${L("Sign the contract", "وقّع العقد")}</button>
+          <p class="form-error" id="q-sign-fail" hidden></p>
+        </div>
+      </div>
+
+      <!-- Step 3: the document and the money, on one screen. -->
+      <div class="dash-card" id="q-pay" hidden style="margin-top:18px">
+        <h3 style="margin-top:0" id="q-pay-title">${L("Your contract and payment", "عقدك والسداد")}</h3>
+        <p id="q-signed-note" class="text-soft" style="font-size:.9rem;line-height:1.9"></p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+          <a class="btn btn-ghost" id="q-dl" href="#" target="_blank" rel="noopener">⬇ ${L("Download the contract (PDF)", "تحميل العقد (PDF)")}</a>
+        </div>
+        <div id="q-epay" hidden style="margin-top:14px">
+          <h4 style="margin:0 0 6px">${L("Pay online", "ادفع أونلاين")}</h4>
+          <p class="text-soft" style="font-size:.86rem;line-height:1.9">${L("mada, Visa, Mastercard and Apple Pay. Your tax invoice is issued and e-mailed to you the moment the payment lands.", "مدى وفيزا وماستركارد وآبل باي. فاتورتك الضريبية تصدر وتوصلك على بريدك لحظة وصول السداد.")}</p>
+          <div id="epay-form"></div>
+        </div>
+        <div id="q-bank" style="margin-top:12px" class="text-soft" style="font-size:.86rem"></div>
+        <p class="form-success" id="q-paid" hidden></p>
       </div>
     </div>
   </div></section>`;
@@ -9568,13 +9675,14 @@ function writeFullSite(pre) {
   write(`${pre}suppliers.html`, buildSuppliers());
   write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
   write(`${pre}quote.html`, buildQuotePage());
+  write(`${pre}contract.html`, buildContractPage());
   write(`${pre}suppliers-admin.html`, buildSuppliersAdmin());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
   write(`${pre}jobs/${WORKSHOP_CAMPAIGN.slug}.html`, buildWorkshopCampaign());
   WORKSHOP_JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 17 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
+  pageCount += 18 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
 }
 
 for (const lang of ["en", "ar"]) {

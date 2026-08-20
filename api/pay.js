@@ -21,7 +21,8 @@
 //                            emails them that the service unlocked.
 
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink } from "./_daftra.js";
-import { markOrderPaid } from "./_suppliers.js";
+import { markOrderPaid, quotePriced } from "./_suppliers.js";
+import { contactForRef } from "./_stage.js";
 
 const PK = process.env.MOYASAR_PUBLISHABLE_KEY || "";
 const SK = process.env.MOYASAR_SECRET_KEY || "";
@@ -110,16 +111,36 @@ function billTo(order) {
 
 async function invoicePaidOrder(order, paidHalalas) {
   if (!daftraConfigured()) return { invoiced: false, reason: "daftra_not_configured" };
-  const prices = await catalogPrices();
-  const rows = (Array.isArray(order.items) ? order.items : []).slice(0, 40);
   const items = [];
   let net = 0;
-  for (const it of rows) {
-    const hit = prices[catalogKey(it.id)];
-    if (!hit || !(hit.amount > 0)) continue;
-    const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
-    net += hit.amount * qty;
-    items.push({ code: hit.code, name: hit.name, quantity: qty, unitPrice: hit.amount });
+  // A bespoke quote is not in the published catalogue: its lines are the price
+  // list. They are re-read from the order with the link's own token, so the
+  // figure still comes from the server and never from the browser.
+  if (order.quoteId && order.t) {
+    const priced = await quotePriced(String(order.quoteId), String(order.t));
+    if (!priced) return { invoiced: false, reason: "quote_not_found" };
+    // The order reference belongs to the record, not to the page that posted:
+    // a browser that could name the reference could invoice someone else's job.
+    order = { ...order, ref: priced.order.clientRef || priced.order.ref || order.ref || "" };
+    for (const l of priced.order.lines || []) {
+      const qty = Math.max(1, Math.min(999, Number(l.qty) || 1));
+      net += l.price * qty;
+      items.push({ name: String(l.name).slice(0, 140), quantity: qty, unitPrice: l.price });
+    }
+    if (!items.length && priced.net > 0) {
+      net = priced.net;
+      items.push({ name: String(priced.order.service || "خدمة").slice(0, 140), quantity: 1, unitPrice: priced.net });
+    }
+  } else {
+    const prices = await catalogPrices();
+    const rows = (Array.isArray(order.items) ? order.items : []).slice(0, 40);
+    for (const it of rows) {
+      const hit = prices[catalogKey(it.id)];
+      if (!hit || !(hit.amount > 0)) continue;
+      const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
+      net += hit.amount * qty;
+      items.push({ code: hit.code, name: hit.name, quantity: qty, unitPrice: hit.amount });
+    }
   }
   if (!items.length) return { invoiced: false, reason: "no_priced_items" };
 
@@ -132,7 +153,15 @@ async function invoicePaidOrder(order, paidHalalas) {
     return { invoiced: false, reason: "amount_mismatch", expected, paid: Number(paidHalalas || 0) };
   }
 
-  const who = billTo(order);
+  // Who the invoice belongs to. On the quote path the buyer is whoever the CRM
+  // says owns that reference — the signing page never collects it again, and a
+  // page that could name its own buyer could name someone else's.
+  let buyer = order;
+  if (order.quoteId && (!order.email || !order.name)) {
+    const c = await contactForRef(String(order.ref || "")).catch(() => null);
+    if (c) buyer = { ...order, name: order.name || c.name, email: order.email || c.email, phone: order.phone || c.phone };
+  }
+  const who = billTo(buyer);
   if (!who.name || !isEmail(who.email)) return { invoiced: false, reason: "missing_buyer" };
   const { client } = await daftraFindOrCreateClient(who);
   if (!client || !client.id) return { invoiced: false, reason: "client_failed" };
@@ -412,11 +441,18 @@ export default async function handler(req, res) {
     // work has started. The tax invoice above is the document; this is the
     // sentence a person actually waits for.
     let announced = null;
-    if (paid && b.order && b.order.ref) {
+    if (paid && b.order && typeof b.order === "object") {
       try {
-        announced = await markOrderPaid(String(b.order.ref), {
-          total: Math.round(p.amount) / 100, method: "online",
-        });
+        // On the quote path the reference is read from the order itself; the
+        // page only ever hands over the link it was opened with.
+        let ref = String(b.order.ref || "");
+        if (b.order.quoteId && b.order.t) {
+          const priced = await quotePriced(String(b.order.quoteId), String(b.order.t));
+          if (priced) ref = priced.order.clientRef || priced.order.ref || ref;
+        }
+        if (ref) {
+          announced = await markOrderPaid(ref, { total: Math.round(p.amount) / 100, method: "online" });
+        }
       } catch (e) {
         console.error("pay: stage announce failed", String(e.message || e).slice(0, 160));
       }

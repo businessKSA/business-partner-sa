@@ -1326,7 +1326,9 @@
             (en ? 'On acceptance the contract is sent for e-signature, then the payment link — and every step reaches you by e-mail and WhatsApp.'
                 : 'بقبولك يُرسل لك العقد للتوقيع الإلكتروني ثم رابط السداد — وكل خطوة توصلك على البريد والواتساب.') + '</div>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
-            '<button class="btn" data-qa="' + i + '" style="flex:1;min-width:160px">✅ ' + (en ? 'Accept' : 'أقبل العرض') + '</button>' +
+            '<a class="btn" href="' + (state.lang === 'en' ? '' : '/ar') + '/quote?id=' + encodeURIComponent(q.id) + '&t=' + encodeURIComponent(q.t) + '" style="flex:1;min-width:180px;text-align:center;text-decoration:none">' +
+              (en ? '📄 Open, sign and pay' : '📄 افتح ووقّع وادفع') + '</a>' +
+            '<button class="btn ghost" data-qa="' + i + '">' + (en ? 'Accept here' : 'أقبل من هنا') + '</button>' +
             '<button class="btn ghost" data-qd="' + i + '">' + (en ? 'Decline' : 'أرفض') + '</button>' +
           '</div><div style="margin-top:8px;font-size:13px" data-qm="' + i + '"></div></div>';
       }).join('');
@@ -1433,10 +1435,16 @@
         .catch(function(){ return { ok:false, error:'network' }; })
         .then(function(d){
           if (d && d.ok){
-            say(decision === 'accept'
-              ? (en ? 'Accepted ✓ — the contract is on its way for e-signature, then the payment link.' : 'تم القبول ✓ — العقد في طريقه إليك للتوقيع الإلكتروني، ثم رابط السداد.')
-              : (en ? 'Declined — thank you for telling us.' : 'تم الرفض — شكراً لإبلاغنا.'),
-              decision === 'accept' ? '#065f46' : '#b91c1c');
+            if (decision === 'accept'){
+              var href = (state.lang === 'en' ? '' : '/ar') + '/quote?id=' + encodeURIComponent(q.id) + '&t=' + encodeURIComponent(q.t);
+              msgs.forEach(function(m){
+                m.style.color = '#065f46';
+                m.innerHTML = esc(en ? 'Accepted ✓ — sign the contract to continue.' : 'تم القبول ✓ — وقّع العقد لتكمل.') +
+                  ' <a href="' + href + '" style="font-weight:700">' + esc(en ? 'Sign now →' : 'وقّع الآن ←') + '</a>';
+              });
+            } else {
+              say(en ? 'Declined — thank you for telling us.' : 'تم الرفض — شكراً لإبلاغنا.', '#b91c1c');
+            }
             setTimeout(fetchStatuses, 1200);
           } else {
             [].slice.call(btns).forEach(function(b){ b.disabled = false; });

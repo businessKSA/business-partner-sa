@@ -6209,7 +6209,11 @@ var BP_EMP_BILLING = "monthly";
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   var money = function (n) { return (Math.round(Number(n) * 100) / 100) + " ﷼"; };
   var p = new URLSearchParams(location.search);
-  var id = p.get("id") || "", t = p.get("t") || "";
+  // Moyasar appends its own ?id=<payment> to whatever callback URL it is given,
+  // so the payment round-trip carries the order as ?q= instead. Two things
+  // called "id" in one query string is a bug waiting for a real payment.
+  var id = p.get("q") || p.get("id") || "", t = p.get("t") || "";
+  var payId = p.get("q") ? (p.get("id") || "") : "";
   var loading = document.getElementById("q-loading"), errBox = document.getElementById("q-error");
   function fail(msg) { loading.hidden = true; errBox.hidden = false; errBox.textContent = msg; }
   if (!id || !t) { fail(T("This link is incomplete. Please use the link from your email.", "الرابط ناقص. افتح الرابط كما وصلك في بريدك.")); return; }
@@ -6246,11 +6250,15 @@ var BP_EMP_BILLING = "monthly";
       // quote that started work is not something a link should allow.
       if (q.decided) {
         document.getElementById("q-actions").innerHTML =
-          "<p style='margin:0;font-weight:600;color:" + (q.status === "مقبول من العميل" ? "#065f46" : "#b91c1c") + "'>" +
-          (q.status === "مقبول من العميل"
+          "<p style='margin:0;font-weight:600;color:" + (q.accepted ? "#065f46" : "#b91c1c") + "'>" +
+          (q.accepted
             ? T("You have accepted this quotation. ✓", "قبلتَ عرض السعر هذا. ✓")
             : T("You have declined this quotation.", "رفضتَ عرض السعر هذا.")) + "</p>";
       }
+      state.quote = q;
+      if (q.accepted && !q.signed) { paint(2); }
+      else if (q.signed) { showPay(); paint(3); }
+      else { paint(1); }
     })
     .catch(function () { fail(T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى.")); });
 
@@ -6267,10 +6275,16 @@ var BP_EMP_BILLING = "monthly";
         btns.forEach(function (b) { b.disabled = false; });
         if (d && d.ok) {
           ok.textContent = decision === "accept"
-            ? T("Accepted ✓ — the contract and the tax invoice reach you shortly.", "تم القبول ✓ — يصلك العقد والفاتورة الضريبية خلال وقت قصير.")
+            ? T("Accepted ✓ — now sign the contract below.", "تم القبول ✓ — الحين وقّع العقد بالأسفل.")
             : T("Declined — thank you for telling us.", "تم الرفض — شكراً لإبلاغنا.");
           ok.hidden = false;
           btns.forEach(function (b) { b.disabled = true; });
+          if (decision === "accept" && state.quote) {
+            state.quote.accepted = true;
+            paint(2);
+            var sc = document.getElementById("q-sign");
+            if (sc) sc.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
         } else {
           bad.textContent = d && d.error === "already_decided"
             ? T("A decision has already been recorded on this quotation.", "سُجِّل قرار على هذا العرض من قبل.")
@@ -6286,6 +6300,254 @@ var BP_EMP_BILLING = "monthly";
   }
   document.getElementById("q-accept").addEventListener("click", function () { decide("accept"); });
   document.getElementById("q-decline").addEventListener("click", function () { decide("decline"); });
+
+  // ---- the three steps -------------------------------------------------
+  // Which step the client is on is decided by the record, never by what this
+  // browser remembers: the same link opened on a phone must land in the same
+  // place it left off on a laptop.
+  var state = { quote: null, step: 1 };
+  function paint(step) {
+    state.step = step;
+    var steps = document.querySelectorAll(".qstep");
+    var bars = document.querySelectorAll(".qbar");
+    for (var i = 0; i < steps.length; i++) {
+      var n = i + 1;
+      steps[i].className = "qstep" + (n < step ? " done" : n === step ? " on" : "");
+    }
+    for (var j = 0; j < bars.length; j++) bars[j].className = "qbar" + (j + 1 < step ? " done" : "");
+    var sign = document.getElementById("q-sign"), pay = document.getElementById("q-pay");
+    var act = document.getElementById("q-actions");
+    if (act) act.hidden = step !== 1;
+    if (sign) sign.hidden = step !== 2;
+    if (pay) pay.hidden = step !== 3;
+  }
+  function stepFor(q) {
+    if (q.signed) return 3;
+    if (q.accepted) return 2;
+    return 1;
+  }
+
+  // ---- signature pad ---------------------------------------------------
+  // Plain canvas, pointer events, no library: it has to work on a phone in a
+  // car park, which is where people actually sign things.
+  var pad = null, padCtx = null, padDrawn = false;
+  function initPad() {
+    pad = document.getElementById("q-pad");
+    if (!pad || padCtx) return;
+    var ratio = window.devicePixelRatio || 1;
+    var rect = pad.getBoundingClientRect();
+    pad.width = Math.round(rect.width * ratio);
+    pad.height = Math.round(rect.height * ratio);
+    padCtx = pad.getContext("2d");
+    padCtx.scale(ratio, ratio);
+    padCtx.lineWidth = 2.2; padCtx.lineCap = "round"; padCtx.lineJoin = "round"; padCtx.strokeStyle = "#0B1B5A";
+    var drawing = false;
+    function pt(e) { var r = pad.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    pad.addEventListener("pointerdown", function (e) {
+      drawing = true; padDrawn = true; pad.setPointerCapture(e.pointerId);
+      var q = pt(e); padCtx.beginPath(); padCtx.moveTo(q.x, q.y);
+    });
+    pad.addEventListener("pointermove", function (e) {
+      if (!drawing) return;
+      e.preventDefault();
+      var q = pt(e); padCtx.lineTo(q.x, q.y); padCtx.stroke();
+    });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) {
+      pad.addEventListener(ev, function () { drawing = false; });
+    });
+    document.getElementById("q-pad-clear").addEventListener("click", function () {
+      padCtx.clearRect(0, 0, pad.width, pad.height); padDrawn = false;
+    });
+  }
+  function padData() {
+    if (!pad || !padDrawn) return "";
+    try { return pad.toDataURL("image/png"); } catch (e) { return ""; }
+  }
+
+  // ---- step 2: the one-time code --------------------------------------
+  var sealed = null;
+  var codeBtn = document.getElementById("q-code-send");
+  if (codeBtn) codeBtn.addEventListener("click", function () {
+    var hint = document.getElementById("q-code-hint");
+    codeBtn.disabled = true;
+    hint.textContent = T("Sending…", "جارٍ الإرسال…");
+    fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type: "sign-start", id: id, t: t }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        codeBtn.disabled = false;
+        if (d && d.ok) {
+          sealed = { token: d.token, exp: d.exp };
+          hint.textContent = T("Code sent to ", "أُرسل الرمز إلى ") + (d.sentTo || "") +
+            (d.phone ? T(" and to your WhatsApp.", " وإلى واتسابك.") : ".");
+          document.getElementById("q-sign-1").hidden = true;
+          document.getElementById("q-sign-2").hidden = false;
+          initPad();
+          document.getElementById("q-code").focus();
+        } else {
+          hint.textContent = d && d.error === "no_contact"
+            ? T("We do not have a verified e-mail on this order — reply to your quote e-mail and we will fix it.", "ما عندنا بريد موثّق على هذا الطلب — رد على رسالة العرض ونعالجها فوراً.")
+            : T("Could not send the code — please try again.", "تعذّر إرسال الرمز — حاول مرة أخرى.");
+        }
+      })
+      .catch(function () { codeBtn.disabled = false; hint.textContent = T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى."); });
+  });
+
+  var signBtn = document.getElementById("q-sign-go");
+  if (signBtn) signBtn.addEventListener("click", function () {
+    var bad = document.getElementById("q-sign-fail");
+    bad.hidden = true;
+    var code = (document.getElementById("q-code").value || "").replace(/\D/g, "");
+    var name = (document.getElementById("q-name").value || "").trim();
+    var nid = (document.getElementById("q-nid").value || "").trim();
+    var agree = document.getElementById("q-agree").checked;
+    function stop(msg) { bad.textContent = msg; bad.hidden = false; }
+    if (!sealed) return stop(T("Send yourself the code first.", "أرسل لنفسك الرمز أولاً."));
+    if (code.length !== 6) return stop(T("Enter the 6-digit code.", "أدخل الرمز المكوّن من ٦ أرقام."));
+    if (name.length < 4) return stop(T("Enter the full name of the signatory.", "اكتب الاسم الكامل للموقِّع."));
+    if (!agree) return stop(T("Tick the box to sign.", "علّم على الموافقة لتتمكن من التوقيع."));
+    signBtn.disabled = true;
+    signBtn.textContent = T("Signing…", "جارٍ التوقيع…");
+    fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: "sign-submit", id: id, t: t, code: code, token: sealed.token, exp: sealed.exp,
+        fullName: name, nationalId: nid, agree: true, signature: padData()
+      }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        signBtn.disabled = false;
+        signBtn.textContent = "✍️ " + T("Sign the contract", "وقّع العقد");
+        if (d && d.ok) {
+          state.quote.signed = { at: d.at, by: name, hash: d.hash };
+          showPay();
+          paint(3);
+          document.getElementById("q-pay").scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          stop(d && d.error === "bad_code" ? T("That code is wrong or has expired.", "الرمز غير صحيح أو انتهت صلاحيته.")
+            : d && d.error === "name_required" ? T("Enter the full name of the signatory.", "اكتب الاسم الكامل للموقِّع.")
+            : T("Could not record the signature — please try again.", "تعذّر تسجيل التوقيع — حاول مرة أخرى."));
+        }
+      })
+      .catch(function () {
+        signBtn.disabled = false;
+        signBtn.textContent = "✍️ " + T("Sign the contract", "وقّع العقد");
+        stop(T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى."));
+      });
+  });
+
+  // ---- step 3: the document and the money ------------------------------
+  function showPay() {
+    var q = state.quote;
+    var note = document.getElementById("q-signed-note");
+    if (q.signed) {
+      note.textContent = T("Signed on ", "وُقِّع بتاريخ ") + q.signed.at +
+        T(" by ", " من ") + (q.signed.by || "") +
+        T(". Document fingerprint: ", ". بصمة المستند: ") + String(q.signed.hash || "").slice(0, 16) + "…";
+    }
+    var dl = document.getElementById("q-dl");
+    dl.href = (isAr ? "/ar" : "") + "/contract?id=" + encodeURIComponent(id) + "&t=" + encodeURIComponent(t);
+    var bank = document.getElementById("q-bank");
+    if (bank) bank.innerHTML = T("Prefer a transfer? Pay to the account on your invoice and upload the receipt from your client portal — we confirm it the same working day.",
+      "تفضّل التحويل؟ حوّل على الحساب الموضّح في فاتورتك وارفع الإيصال من لوحة العميل — نعتمده في نفس يوم العمل.");
+    if (q.paid) {
+      document.getElementById("q-paid").textContent = T("Payment received — work is under way. ✓", "استلمنا المبلغ وجاري العمل على الخدمة ✓");
+      document.getElementById("q-paid").hidden = false;
+      return;
+    }
+    mountPay(q.total);
+  }
+
+  // The same hosted payment form the checkout uses, with the amount read from
+  // the quote on the server — this page never names its own price.
+  var payMounted = false;
+  function mountPay(total) {
+    if (payMounted || !(total > 0)) return;
+    payMounted = true;
+    fetch("/api/pay").then(function (r) { return r.json(); }).then(function (cfg) {
+      if (!cfg || !cfg.enabled) return;
+      var link = document.createElement("link"); link.rel = "stylesheet"; link.href = cfg.cssUrl; document.head.appendChild(link);
+      var sc = document.createElement("script"); sc.src = cfg.scriptUrl;
+      sc.onload = function () {
+        try {
+          window.Moyasar.init({
+            element: "#epay-form",
+            amount: Math.round(total * 100),
+            currency: cfg.currency || "SAR",
+            description: "Business Partner — " + (state.quote.clientRef || state.quote.ref || ""),
+            publishable_api_key: cfg.publishableKey,
+            callback_url: location.origin + location.pathname + "?q=" + encodeURIComponent(id) + "&t=" + encodeURIComponent(t),
+            methods: ["creditcard"]
+          });
+          document.getElementById("q-epay").hidden = false;
+        } catch (e) {}
+      };
+      document.head.appendChild(sc);
+    }).catch(function () {});
+  }
+
+  // Back from 3-D Secure: verify server-side, which is also what issues the
+  // tax invoice and moves the order to "paid — work under way".
+  if (payId) {
+    fetch("/api/pay", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id: payId, order: { ref: "", quoteId: id, t: t } }) })
+      .then(function (r) { return r.json(); })
+      .then(function (v) {
+        var el = document.getElementById("q-paid");
+        if (!el) return;
+        el.hidden = false;
+        el.textContent = v && v.ok
+          ? T("Payment received — work is under way. Your tax invoice is on its way to your inbox. ✓", "استلمنا المبلغ وجاري العمل على الخدمة — وفاتورتك الضريبية في طريقها لبريدك ✓")
+          : T("The payment did not complete. Nothing was charged.", "لم يكتمل الدفع. لم يُخصم أي مبلغ.");
+      })
+      .catch(function () {});
+  }
+})();
+
+/* ---------- Signed contract page (/contract?id=&t=) ---------- */
+(function () {
+  "use strict";
+  var paper = document.getElementById("c-paper");
+  if (!paper) return;
+  var isAr = (window.BP && BP.lang === "ar");
+  function T(en, ar) { return isAr ? ar : en; }
+  var p = new URLSearchParams(location.search);
+  var id = p.get("id") || "", t = p.get("t") || "";
+  var loading = document.getElementById("c-loading"), errBox = document.getElementById("c-error");
+  function fail(msg) { loading.hidden = true; errBox.hidden = false; errBox.textContent = msg; }
+  if (!id || !t) return fail(T("This link is incomplete.", "الرابط ناقص."));
+
+  fetch("/api/suppliers?action=contract&id=" + encodeURIComponent(id) + "&t=" + encodeURIComponent(t), { cache: "no-store" })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.ok) {
+        return fail(d && d.error === "not_signed"
+          ? T("This contract has not been signed yet.", "هذا العقد لم يُوقَّع بعد.")
+          : d && d.error === "bad_link" ? T("This link is not valid.", "هذا الرابط غير صالح.")
+          : T("We could not open this contract.", "تعذّر فتح العقد."));
+      }
+      var c = d.contract;
+      loading.hidden = true;
+      document.getElementById("c-bar").hidden = false;
+      paper.hidden = false;
+      document.getElementById("c-title").textContent = (c.service || "") + " — " + (c.ref || "");
+      document.getElementById("c-meta").textContent =
+        T("Signed on ", "وُقِّع بتاريخ ") + (c.signedAt || "") + T(" by ", " من ") + (c.signedBy || "") +
+        " · " + T("Total ", "الإجمالي ") + c.total + " ﷼";
+      if (c.stored && c.html) {
+        // The frozen bytes that were hashed. Injected as the document body
+        // because that is what the signature covers — re-rendering it from
+        // live figures would be a different document under the same name.
+        paper.innerHTML = c.html;
+      } else {
+        paper.innerHTML = "<p style='color:#b45309;line-height:1.9'>" +
+          T("The stored copy of this contract is not available right now, so it is not shown rather than shown wrongly. The signature record stands: signed on ",
+            "النسخة المحفوظة من هذا العقد غير متاحة الآن، فلم نعرض بديلاً عنها بدل عرض مستند مختلف. سجل التوقيع قائم: وُقِّع بتاريخ ") +
+          (c.signedAt || "") + T(", fingerprint ", "، البصمة ") + String(c.hash || "").slice(0, 24) + "…</p>";
+      }
+    })
+    .catch(function () { fail(T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى.")); });
+
+  document.getElementById("c-print").addEventListener("click", function () { window.print(); });
 })();
 
 /* ---------- Partner referral: remember which partner sent the visitor ---------- */
