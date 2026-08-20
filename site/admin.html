@@ -595,6 +595,15 @@
         <div class="dsec">🧾 المرفقات والإيصالات</div>
         <div class="dfiles" id="dFiles"></div>
       </div>
+      <div class="dsec">✍️ ملاحظة للعميل</div>
+      <div style="padding:0 18px 14px">
+        <textarea id="dNote" rows="3" placeholder="اكتب ما تريد أن يعرفه العميل عن طلبه — يصله بالبريد ويظهر في لوحته، ويُحفظ على الطلب." style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit"></textarea>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+          <select id="dNoteStatus"><option value="">— بدون تغيير الحالة —</option></select>
+          <button class="btn" id="dNoteSend">📨 أرسل الملاحظة للعميل</button>
+          <span id="dNoteOut" class="mnote" style="margin:0"></span>
+        </div>
+      </div>
       <div class="dactions" id="dActions"></div>
     </div>
   </div>
@@ -1008,6 +1017,26 @@
       $('dEst').onclick = function(){ closeDetail(); openInvoice(l, 'estimate'); };
       if ($('dStat')) $('dStat').onchange = function(){ changeStatus(l.ref, this.value, this); };
       $('dActv').onclick = function(){ closeDetail(); openModal(l); };
+      // ---- note to the client: email + portal notification + on the record ----
+      var nsel = $('dNoteStatus');
+      nsel.innerHTML = '<option value="">— بدون تغيير الحالة —</option>';
+      for (var s2 = 0; s2 < STATUSES.length; s2++) nsel.innerHTML += '<option value="' + STATUSES[s2] + '">' + STATUSES[s2] + '</option>';
+      $('dNote').value = '';
+      $('dNoteOut').textContent = l.email ? '' : 'لا يوجد بريد على هذا الطلب — الملاحظة ستُحفظ على السجل فقط.';
+      $('dNoteSend').onclick = function(){
+        var btn = this, note = $('dNote').value.trim(), out = $('dNoteOut');
+        if (!note){ out.textContent = 'اكتب نص الملاحظة أولاً.'; return; }
+        if (!l.ref){ out.textContent = 'هذا الطلب بلا رقم مرجع.'; return; }
+        btn.disabled = true; out.textContent = 'جارٍ الإرسال…';
+        postPanel({ action:'panel-note', ref: l.ref, note: note, status: nsel.value || '' })
+          .then(function(r){
+            out.textContent = '✅ أُرسلت' + (r && r.emailed ? ' بالبريد إلى ' + (r.to || '') : '') + (r && r.notified ? ' وظهرت في لوحة العميل' : '') + '.';
+            $('dNote').value = '';
+            if (nsel.value) refresh();
+          })
+          .catch(function(e){ out.textContent = 'تعذّر الإرسال: ' + (e && e.message ? e.message : 'خطأ'); })
+          .then(function(){ btn.disabled = false; });
+      };
       $('detBack').classList.add('on');
     }
     function closeDetail(){ $('detBack').classList.remove('on'); detLead = null; }

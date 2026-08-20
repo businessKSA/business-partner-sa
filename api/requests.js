@@ -656,6 +656,49 @@ async function setLeadStatus(ref, status) {
   if (!u.ok) { console.error("panel status error", u.status, (await u.text()).slice(0, 300)); throw new Error("notion_failed"); }
 }
 
+// Fetch one CRM row by its BP-xxxxxx reference — the whole order as the owner
+// needs to see it: amount, contact, receipt files and the notes trail.
+async function findLeadByRef(ref) {
+  if (!NOTION_TOKEN) throw new Error("notion_not_configured");
+  const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+  });
+  if (!r.ok) throw new Error("notion_failed");
+  return ((await r.json()).results || [])[0] || null;
+}
+
+// The bits of a CRM row the note flow needs: who to tell, and the current state.
+function leadContact(pg) {
+  const p = pg.properties || {};
+  const txt = (arr) => (arr || []).map((t) => t.plain_text).join("");
+  const notes = txt(p["Notes"] && p["Notes"].rich_text);
+  const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+  return {
+    ref: txt(p["رقم المرجع"] && p["رقم المرجع"].rich_text).trim(),
+    email: emailM ? emailM[1] : "",
+    status: (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "",
+  };
+}
+
+// Append a line to the row's Notes so the note the client received is part of
+// the order's record, not only in their inbox.
+async function appendLeadNote(pg, line) {
+  const p = pg.properties || {};
+  const existing = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
+  const merged = (existing ? existing + " · " : "") + line;
+  const r = await fetch(`https://api.notion.com/v1/pages/${pg.id}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ properties: {
+      "Notes": { rich_text: [{ text: { content: merged.slice(-1900) } }] },
+      "Last Activity": { date: { start: new Date().toISOString().slice(0, 10) } },
+    } }),
+  });
+  if (!r.ok) { console.error("append note error", r.status, (await r.text()).slice(0, 200)); throw new Error("notion_failed"); }
+}
+
 const GH_HEADERS = () => ({ Authorization: `Bearer ${GH_TOKEN}`, Accept: "application/vnd.github+json", "User-Agent": "bp-admin-panel", "content-type": "application/json" });
 // Returns null when the file doesn't exist on that branch yet (a newly
 // data-driven file that hasn't reached the deploy branch) — a subsequent
@@ -1272,6 +1315,52 @@ export default async function handler(req, res) {
         await setLeadStatus(ref, status);
         res.statusCode = 200;
         return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
+      }
+    }
+
+    // Write a note to the client: it reaches their inbox, shows up in their
+    // portal notifications, and stays on the order's record in the CRM.
+    if (b.action === "panel-note") {
+      const ref = String(b.ref || "").trim();
+      const note = String(b.note || "").trim().slice(0, 1500);
+      const newStatus = String(b.status || "").trim();
+      if (!ref || !note) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      if (newStatus && !PANEL_STATUSES.has(newStatus)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_status" })); }
+      try {
+        const pg = await findLeadByRef(ref);
+        if (!pg) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "ref_not_found" })); }
+        const d = leadContact(pg);
+        const emailed = isEmail(d.email)
+          ? await sendEmail(d.email, `تحديث على طلبك ${ref} — Business Partner`,
+              `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تحديث على طلبك ${esc(ref)}</h2>` +
+              `<p>${esc(note).replace(/\n/g, "<br>")}</p>` +
+              `<table>${row("رقم المرجع", ref) + row("الحالة", newStatus || d.status)}</table>` +
+              `<p>تابع طلبك في لوحتك: <a href="${MKT_SITE_BASE}/ar/account" style="color:#0B1B5A">${MKT_SITE_BASE}/ar/account</a></p>` +
+              `<p style="color:#0B1B5A">بزنس بارتنر</p></div>`)
+          : { ok: false };
+        // in-app notification when the client has an operational account
+        let notified = false;
+        if (DB_ON && isEmail(d.email)) {
+          try {
+            const users = await sb(`users?email=eq.${encodeURIComponent(d.email)}&select=id&limit=1`);
+            if (users.length) {
+              const mem = await sb(`organization_members?user_id=eq.${users[0].id}&status=eq.active&select=organization_id&limit=1`);
+              if (mem.length) {
+                await notify({ organization_id: mem[0].organization_id, event: "order_note", channel: "inapp",
+                  title: `تحديث على طلبك ${ref}: ${note.slice(0, 120)}`,
+                  idempotency_key: `order_note:${ref}:${Date.now()}` });
+                notified = true;
+              }
+            }
+          } catch (e) { console.error("note notify failed", String(e).slice(0, 120)); }
+        }
+        await appendLeadNote(pg, `ملاحظة للعميل: ${note}`);
+        if (newStatus && newStatus !== d.status) { try { await setLeadStatus(ref, newStatus); } catch (e) { console.error("note status failed", String(e).slice(0, 120)); } }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, emailed: !!(emailed && emailed.ok), notified, to: d.email || null }));
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
