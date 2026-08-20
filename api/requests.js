@@ -297,21 +297,49 @@ async function uploadFileToNotion(base64, filename, contentType) {
   } catch (e) { console.error("uploadFileToNotion exception", String(e).slice(0, 200)); return null; }
 }
 
+// The CRM's own pipeline is what makes follow-up possible: the board groups by
+// Stage and the "New Leads" view filters on it. Writing only «حالة الطلب» left
+// every row in "New" forever — cancelled ones, finished ones, all of them — so
+// the board was one column and the follow-up view never emptied. The order
+// status the owner already sets is mapped onto the stage it means.
+const STAGE_OF = {
+  "قيد المراجعة": "Qualified",
+  "بانتظار الدفع": "Proposal Sent",
+  "مؤكد - قيد التنفيذ": "Won",
+  "مكتمل": "Won",
+  "ملغي": "Lost",
+  "حجز استشارة": "Meeting",
+};
+// Conversations and tickets are not deals; moving them through a sales board
+// would only add noise to it.
+const CLOSED = new Set(["مكتمل", "ملغي"]);
+const plusDaysISO = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+
 async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
   const props = {
     "Opportunity Name": { title: [{ text: { content: `${title} (${ref})`.slice(0, 200) } }] },
-    "Stage": { select: { name: "New" } },
+    // A paid order arriving from the site is a qualified opportunity, not an
+    // unsorted lead. Landing everything in "New" is what made the board
+    // useless: the follow-up view could never tell a real request from noise.
+    "Stage": { select: { name: orderStatus && STAGE_OF[orderStatus] ? STAGE_OF[orderStatus] : "New" } },
     "Lead Source": { select: { name: "Website" } },
     "Human Required": { checkbox: true },
     "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}${agentsTag}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
+    // Every open row carries a date, so nothing depends on being remembered.
+    "Next Follow Up": { date: { start: plusDaysISO(2) } },
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
-  if (typeof total === "number" && !Number.isNaN(total)) props["إجمالي الطلب"] = { number: total };
+  if (typeof total === "number" && !Number.isNaN(total)) {
+    props["إجمالي الطلب"] = { number: total };
+    // The board and every pipeline roll-up read Estimated Value, so a request
+    // worth 2,712 riyals stopped showing as worth nothing.
+    props["Estimated Value"] = { number: total };
+  }
   const fileList = [];
   if (receiptUploadId) fileList.push({ type: "file_upload", file_upload: { id: receiptUploadId }, name: (receiptName || "receipt.pdf").slice(0, 100) });
   for (const uEntry of Array.isArray(uploads) ? uploads : []) {
@@ -608,6 +636,12 @@ async function setLeadStatus(ref, status) {
     body: JSON.stringify({ properties: {
       "حالة الطلب": { select: { name: status } },
       "Last Activity": { date: { start: new Date().toISOString().slice(0, 10) } },
+      ...(STAGE_OF[status] ? { "Stage": { select: { name: STAGE_OF[status] } } } : {}),
+      // A closed row needs no human and no next date; an open one gets a date
+      // so it surfaces in a follow-up view instead of waiting to be remembered.
+      ...(CLOSED.has(status)
+        ? { "Human Required": { checkbox: false }, "Next Follow Up": { date: null } }
+        : (STAGE_OF[status] ? { "Next Follow Up": { date: { start: plusDaysISO(2) } } } : {})),
     } }),
   });
   if (!u.ok) { console.error("panel status error", u.status, (await u.text()).slice(0, 300)); throw new Error("notion_failed"); }
