@@ -89,9 +89,13 @@ export const STAGE = {
     ownerNote: "أُرسل العقد للتوقيع",
   },
   contract_signed: {
-    title: "تم توقيع العقد ✓",
-    line: "استلمنا عقدك موقّعاً. الخطوة الأخيرة هي السداد، وبعدها نبدأ التنفيذ فوراً.",
-    cta: "ادفع الآن",
+    title: "تم إكمال مستندك ✓",
+    line: "اكتمل توقيع العقد. تقدر تعرض المستند المكتمل وتحفظه بصيغة PDF من الزر أدناه، ونسخته محفوظة لك دائماً. الخطوة الأخيرة هي السداد، وبعدها يبدأ التنفيذ فوراً.",
+    // The button has to say where it goes. It used to read «ادفع الآن» while
+    // pointing at the contract — a label that lies about its destination is
+    // worse than no button.
+    cta: "عرض المستند المكتمل",
+    note: "لا تشارك هذه الرسالة — تحتوي على رابط آمن لمستندك. لا تشارك الرابط ولا رمز التحقق مع أحد.",
     task: "سدّد قيمة الخدمة",
     urgency: "high",
     ownerNote: "العميل وقّع العقد",
@@ -245,7 +249,7 @@ async function ownerPing(payload) {
 // ---------------------------------------------------------------------------
 // The announcement itself
 // ---------------------------------------------------------------------------
-function emailHtml({ title, line, cta, url, ref, service, total, extra }) {
+function emailHtml({ title, line, cta, url, ref, service, total, extra, note }) {
   return `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px;margin:auto;text-align:right">
     <h2 style="color:#0B1B5A;margin:0 0 6px">${esc(title)}</h2>
     ${line ? `<p style="line-height:1.9;color:#334155">${esc(line)}</p>` : ""}
@@ -256,6 +260,7 @@ function emailHtml({ title, line, cta, url, ref, service, total, extra }) {
       ${total ? `<tr><td style="padding:4px 10px;color:#64748b">الإجمالي شامل الضريبة</td><td style="padding:4px 10px"><b>${esc(total)}</b></td></tr>` : ""}
     </table>
     ${url ? `<p style="margin:20px 0"><a href="${esc(url)}" style="background:#0B1B5A;color:#fff;padding:13px 28px;border-radius:10px;text-decoration:none;font-weight:bold;display:inline-block">${esc(cta || "افتح لوحة العميل")}</a></p>` : ""}
+    ${note ? `<p style="color:#64748b;font-size:12px;line-height:1.9;border-top:1px solid #e2e8f0;padding-top:12px;margin-top:18px"><b style="color:#334155">تنبيه أمني</b><br>${esc(note)}</p>` : ""}
     <p style="color:#94a3b8;font-size:12px;margin-top:24px">بيزنس بارتنر · الرياض · <a href="${esc(SITE)}" style="color:#94a3b8">businesspartner.sa</a></p>
   </div>`;
 }
@@ -351,7 +356,7 @@ export async function announce(ev) {
     const sent = await sendEmail(
       email,
       `${title}${clientRef ? ` — ${clientRef}` : ""}`,
-      emailHtml({ title, line, cta: meta.cta, url, ref: clientRef, service: ev.service, total, extra: ev.extra }),
+      emailHtml({ title, line, cta: meta.cta, url, ref: clientRef, service: ev.service, total, extra: ev.extra, note: meta.note }),
     );
     report.email = !!sent.ok;
     if (!sent.ok) report.emailError = sent.error;
