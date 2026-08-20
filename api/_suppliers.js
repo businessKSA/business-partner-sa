@@ -1321,15 +1321,30 @@ export async function handleSuppliers(req, res) {
     if (!upd.ok) upd = await notion(`pages/${id}`, "PATCH", { properties: props });
     if (!upd.ok) return bad("save_failed", 502);
 
+    const contractUrl = `${SITE}/ar/contract?id=${encodeURIComponent(id)}&t=${quoteToken(id)}`;
     const notified = await announce({
       stage: "contract_signed", clientRef: o.clientRef, orderId: id,
       name: fullName, service: o.service, total: priced.total,
-      url: `${SITE}/ar/contract?id=${encodeURIComponent(id)}&t=${quoteToken(id)}`,
+      url: contractUrl,
+      // The fingerprint is the verification code: anyone can re-hash the
+      // document they hold and check it against this, which is the whole
+      // point of printing it on the notice.
+      extra: `رمز التحقق من المستند: ${hash.slice(0, 32).toUpperCase()}`,
     }).catch(() => null);
-    await sendEmail(TEAM_EMAIL, `✍️ وقّع العميل العقد — ${o.ref}`,
-      `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><h2 style="color:#0B1B5A">توقيع إلكتروني مكتمل</h2>
-       <table>${row("أمر العمل", o.ref) + row("طلب العميل", o.clientRef) + row("الموقِّع", fullName) + row("التاريخ", at) + row("الإجمالي", priced.total + " ﷼")}</table>
-       <p style="direction:ltr;font-family:monospace;font-size:11px">SHA-256: ${esc(hash)}</p></div>`);
+    // Everyone with a stake sees the completion, not just the client: the
+    // partner executing the work had no way to know their quote had been
+    // signed, which is the same gap the acceptance had.
+    const completionHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+      <h2 style="color:#0B1B5A">تم إكمال المستند ✓ — توقيع إلكتروني مكتمل</h2>
+      <table>${row("أمر العمل", o.ref) + row("طلب العميل", o.clientRef) + row("الموقِّع", fullName) + row("التاريخ", at) + row("الإجمالي", priced.total + " ﷼")}</table>
+      <p style="margin:18px 0"><a href="${contractUrl}" style="background:#0B1B5A;color:#fff;padding:12px 26px;border-radius:10px;text-decoration:none;font-weight:bold;display:inline-block">عرض المستند المكتمل</a></p>
+      <p style="direction:ltr;font-family:monospace;font-size:11px;color:#64748b">SHA-256: ${esc(hash)}</p></div>`;
+    await sendEmail(TEAM_EMAIL, `✍️ وقّع العميل العقد — ${o.ref}`, completionHtml);
+    if (o.supplierId) {
+      const sp = await notion(`pages/${o.supplierId}`);
+      const se = sp.ok && sp.json ? supplierOf(sp.json).email : "";
+      if (se) await sendEmail(se, `✍️ وقّع العميل العقد — ${o.ref}`, completionHtml);
+    }
 
     return ok({ signed: true, at, hash, total: priced.total, notified });
   }
