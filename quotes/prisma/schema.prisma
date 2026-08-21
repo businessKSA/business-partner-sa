@@ -1,0 +1,647 @@
+// نظام عروض الأسعار والعقود — Business Partner Solutions
+// PostgreSQL عبر Prisma. الحالات تُخزَّن كنصوص والقيم المسموح بها موثّقة أعلى
+// كل حقل وتُفرض في src/lib/enums.ts — أبقيناها نصوصاً لأن الحالات تتغيّر مع
+// تطوّر المنتج، وتغيير enum في Postgres يتطلب ترحيلاً لكل جدول يستخدمه.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// ------------------------------------------------------------------ العملاء
+model Client {
+  id          String   @id @default(cuid())
+  nameAr      String
+  nameEn      String?
+  companyAr   String?
+  companyEn   String?
+  crNumber    String?
+  vatNumber   String?
+  email       String
+  phone       String // رقم واتساب بصيغة دولية بدون +
+  country     String   @default("SA")
+  city        String?
+  addressAr   String?
+  addressEn   String?
+  repName     String?
+  repTitle    String?
+  notes       String?
+  folderPath  String? // مجلد العميل داخل طبقة التخزين
+  portalToken String   @unique // توكن ثابت لبوابة العميل
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  documents      Document[]
+  files          FileAsset[]
+  invoices       Invoice[]
+  walletEntries  WalletEntry[]
+  supplyRequests SupplyRequest[]
+  magicLinks     MagicLink[]
+  identities     ClientIdentity[]
+  conversations  Conversation[]
+
+  @@index([email])
+  @@index([phone])
+}
+
+/// هوية العميل على قناة بعينها. نفس الشخص يصل من الواتساب برقمه ومن البريد
+/// بعنوانه ومن الموقع بجلسته — وكلها تشير إلى ملف عميل واحد.
+model ClientIdentity {
+  id       String @id @default(cuid())
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  /// WHATSAPP | EMAIL | PORTAL | NAFATH
+  channel String
+  /// الرقم بصيغة دولية بلا + ، أو البريد بحروف صغيرة
+  value   String
+
+  verifiedAt DateTime?
+  /// القناة المفضّلة للتواصل مع هذا العميل
+  primary    Boolean   @default(false)
+  meta       String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([channel, value])
+  @@index([clientId])
+}
+
+/// محادثة على قناة (واتساب أو بريد) مربوطة بملف العميل.
+model Conversation {
+  id       String  @id @default(cuid())
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  /// WHATSAPP | EMAIL
+  channel String
+  /// رقم المرسل أو بريده كما وصل
+  peer    String
+
+  /// OPEN | HUMAN_TAKEOVER | CLOSED
+  status        String    @default("OPEN")
+  /// آخر رسالة واردة — تحدد نافذة الرد الحر على واتساب (24 ساعة)
+  lastInboundAt DateTime?
+  takenOverAt   DateTime?
+  takenOverBy   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[]
+
+  @@unique([channel, peer])
+  @@index([clientId])
+  @@index([status])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  /// IN | OUT
+  direction  String
+  /// client | agent | admin | system
+  author     String
+  body       String
+  /// معرّف الرسالة لدى المزوّد
+  providerId String?
+  /// اسم القالب المعتمد إن كانت رسالة بدء محادثة
+  template   String?
+  /// QUEUED | SENT | DELIVERED | READ | FAILED
+  status     String  @default("SENT")
+  error      String?
+  meta       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+}
+
+/// دفتر المهام الخلفية. الطابور ينفّذها، وهذا السجل يجعل حالتها مرئية
+/// وقابلة لإعادة التشغيل يدوياً عند الفشل.
+model Job {
+  id         String  @id @default(cuid())
+  /// document.pdf | document.docx | document.email | file.extract | message.send
+  kind       String
+  /// معرّف الكيان الذي تخصه المهمة
+  entityType String?
+  entityId   String?
+
+  /// QUEUED | RUNNING | DONE | FAILED
+  status   String  @default("QUEUED")
+  attempts Int     @default(0)
+  payload  String
+  result   String?
+  error    String?
+
+  /// مفتاح التفرّد يمنع تكرار نفس المهمة عند إعادة الإرسال
+  dedupeKey String? @unique
+
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([status, kind])
+  @@index([entityType, entityId])
+}
+
+// ------------------------------------------------------------- كتالوج الخدمات
+model Service {
+  id        String  @id @default(cuid())
+  code      String  @unique // FI-100 / QW-EST / CV-10 ...
+  category  String  @default("general")
+  nameAr    String
+  nameEn    String
+  descAr    String?
+  descEn    String?
+  unitPrice Float   @default(0) // بالريال، غير شامل ضريبة القيمة المضافة
+  unitAr    String  @default("خدمة")
+  unitEn    String  @default("service")
+  minQty    Int     @default(1)
+  openPrice Boolean @default(false) // السعر يُدخل يدوياً عند إنشاء العرض
+
+  paymentTermsAr String  @default("")
+  paymentTermsEn String  @default("")
+  deliveryAr     String  @default("")
+  deliveryEn     String  @default("")
+  notesAr        String?
+  notesEn        String?
+
+  // ملحق الرسوم الحكومية المقدّرة يُدرج تلقائياً في عرض/عقد هذه الخدمة
+  attachGovFees Boolean @default(false)
+  govFeeGroup   String?
+  // صلاحية العرض بالأيام إن اختلفت عن الافتراضي (قوى = 15)
+  validityDays  Int?
+
+  active    Boolean  @default(true)
+  aiCreated Boolean  @default(false) // أُضيفت عبر الوكيل الذكي بعد الاعتماد
+  sortOrder Int      @default(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items DocumentItem[]
+}
+
+// جدول الرسوم الحكومية المقدّرة (تُسدَّد للجهات مباشرة بالتكلفة الفعلية)
+model GovFee {
+  id           String  @id @default(cuid())
+  group        String  @default("foreign-investment")
+  labelAr      String
+  labelEn      String
+  amount       Float? // null = بدون رسوم / حسب الحالة
+  amountNoteAr String?
+  amountNoteEn String?
+  noteAr       String?
+  noteEn       String?
+  included     Boolean @default(true) // false = غير مشمولة (مثل تأشيرة بلد المنشأ)
+  sortOrder    Int     @default(100)
+}
+
+// ------------------------------------------------------- العروض والعقود
+model Document {
+  id     String @id @default(cuid())
+  // QUOTE | CONTRACT | SUPPLY_AGREEMENT
+  type   String
+  number String @unique // BP-FI-2026-001
+  // DRAFT | APPROVED | SENT | ACCEPTED | SIGNING | SIGNED | IN_PROGRESS
+  // | REJECTED | EXPIRED | CANCELLED
+  status String @default("DRAFT")
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // العقد المولَّد من عرض يحمل مرجع العرض الأصلي
+  sourceQuoteId String?   @unique
+  sourceQuote   Document? @relation("QuoteToContract", fields: [sourceQuoteId], references: [id])
+  contract      Document? @relation("QuoteToContract")
+
+  supplyRequestId String?
+  supplyRequest   SupplyRequest? @relation(fields: [supplyRequestId], references: [id])
+
+  publicToken String @unique // رابط عام غير قابل للتخمين
+
+  titleAr String
+  titleEn String
+  introAr String?
+  introEn String?
+  notesAr String?
+  notesEn String?
+
+  currency       String  @default("SAR")
+  vatRate        Float   @default(0.15)
+  subtotal       Float   @default(0)
+  vatAmount      Float   @default(0)
+  total          Float   @default(0)
+  includeGovFees Boolean @default(false)
+  govFeeGroup    String?
+
+  // نص العقد المولَّد (بنود قانونية) — يُخزَّن لحظة التوليد ليثبت المحتوى
+  bodyAr String?
+  bodyEn String?
+
+  aiGenerated  Boolean @default(false)
+  aiSourceNote String?
+
+  issuedAt       DateTime  @default(now())
+  validUntil     DateTime?
+  approvedAt     DateTime?
+  approvedBy     String?
+  sentAt         DateTime?
+  firstViewedAt  DateTime?
+  acceptedAt     DateTime?
+  acceptedByName String?
+  acceptedByIp   String?
+  rejectedAt     DateTime?
+  rejectReason   String?
+  signedAt       DateTime?
+
+  pdfPath       String?
+  signedPdfPath String?
+  certPath      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items      DocumentItem[]
+  deliveries Delivery[]
+  envelopes  Envelope[]
+  invoices   Invoice[]
+  files      FileAsset[]
+
+  @@index([clientId])
+  @@index([status])
+  @@index([type])
+}
+
+model DocumentItem {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+
+  code   String  @default("CUSTOM")
+  nameAr String
+  nameEn String
+  descAr String?
+  descEn String?
+
+  qty       Float  @default(1)
+  unitPrice Float  @default(0)
+  lineTotal Float  @default(0)
+  unitAr    String @default("خدمة")
+  unitEn    String @default("service")
+
+  paymentTermsAr String @default("")
+  paymentTermsEn String @default("")
+  deliveryAr     String @default("")
+  deliveryEn     String @default("")
+
+  sortOrder Int @default(0)
+
+  @@index([documentId])
+}
+
+// ------------------------------------------------------------- سجل الإرسال
+model Delivery {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  // EMAIL | WHATSAPP | DOCUSIGN | PORTAL
+  channel    String
+  toName     String?
+  toAddress  String
+  subject    String?
+  body       String?
+  // QUEUED | SENT | FAILED | PREPARED
+  status     String   @default("SENT")
+  error      String?
+  meta       String? // JSON
+  sentAt     DateTime @default(now())
+  actor      String?
+
+  @@index([documentId])
+}
+
+// ------------------------------------------------------- DocuSign envelopes
+model Envelope {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  envelopeId String  @unique
+  // created | sent | delivered | completed | declined | voided
+  status     String  @default("created")
+  provider   String  @default("docusign")
+  demo       Boolean @default(true)
+
+  clientEmail String
+  clientName  String
+  bpEmail     String
+  bpName      String
+
+  clientClientUserId String? // للتوقيع المدمج
+  bpClientUserId     String?
+
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  completedAt   DateTime?
+  declinedAt    DateTime?
+  voidedAt      DateTime?
+  declineReason String?
+
+  signedPdfPath String?
+  certPath      String?
+  lastEventRaw  String? // JSON آخر تحديث من Connect
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([documentId])
+}
+
+// ------------------------------------------------- الفواتير والدفع الإلكتروني
+model Invoice {
+  id       String @id @default(cuid())
+  number   String @unique // INV-2026-001
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id])
+
+  titleAr String
+  titleEn String
+
+  amountExclVat Float
+  vatRate       Float @default(0.15)
+  vatAmount     Float
+  total         Float
+
+  // DUE | PAID | CANCELLED | REFUNDED
+  status   String    @default("DUE")
+  dueDate  DateTime?
+  // موضع الدفعة في جدول الدفعات (1 = الدفعة الأولى)
+  sequence Int       @default(1)
+
+  provider    String? // moyasar | mock
+  providerRef String?
+  method      String? // mada | visa | applepay | transfer
+  paidAt      DateTime?
+  payToken    String    @unique // رابط الدفع من بوابة العميل
+
+  // إيداع في المحفظة وليس إيراداً — لا تُحتسب عليه ضريبة القيمة المضافة
+  isGovFeeDeposit Boolean @default(false)
+  // نوع الإيداع: GOV_FEE (عهدة رسوم حكومية) | SUPPLY (قيمة توريد) | null = أتعاب
+  depositKind     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  walletEntries WalletEntry[]
+
+  @@index([clientId])
+  @@index([status])
+}
+
+// --------------------------------------------------------- محفظة العميل
+// دفتر حركات (append-only). الرصيد مشتق دائماً ولا يُخزَّن.
+model WalletEntry {
+  id       String @id @default(cuid())
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // IN | OUT
+  direction String
+  // PAYMENT | GOV_FEE_DEPOSIT | GOV_FEE_SPEND | SUPPLIER_PAYOUT
+  // | REFUND | ADJUSTMENT
+  kind      String
+  amount    Float
+
+  descAr String
+  descEn String
+
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+
+  milestoneId String?
+  milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+
+  receiptPath String?
+  actor       String?
+  createdAt   DateTime @default(now())
+
+  @@index([clientId])
+}
+
+// -------------------------------------------------------------- الموردون
+model Supplier {
+  id         String  @id @default(cuid())
+  nameAr     String
+  nameEn     String?
+  crNumber   String?
+  activityAr String?
+  activityEn String?
+  iban       String?
+  bankName   String?
+  email      String?
+  phone      String?
+  notes      String?
+  active     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bids  SupplierBid[]
+  files FileAsset[]
+}
+
+model SupplyRequest {
+  id       String @id @default(cuid())
+  number   String @unique // SR-2026-001
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  titleAr String
+  titleEn String
+  scopeAr String?
+  scopeEn String?
+
+  // DRAFT | QUOTING | SELECTED | AGREEMENT | FUNDED | IN_PROGRESS | COMPLETED | CANCELLED
+  status String @default("DRAFT")
+
+  // نسبة/رسوم تنسيق بزنس بارتنر
+  coordinationFee Float @default(0)
+
+  selectedBidId String?      @unique
+  selectedBid   SupplierBid? @relation("SelectedBid", fields: [selectedBidId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bids       SupplierBid[] @relation("RequestBids")
+  milestones Milestone[]
+  documents  Document[]
+  files      FileAsset[]
+
+  @@index([clientId])
+}
+
+model SupplierBid {
+  id              String        @id @default(cuid())
+  supplyRequestId String
+  supplyRequest   SupplyRequest @relation("RequestBids", fields: [supplyRequestId], references: [id], onDelete: Cascade)
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+
+  amount     Float
+  vatRate    Float   @default(0.15)
+  deliveryAr String?
+  deliveryEn String?
+  notesAr    String?
+  notesEn    String?
+  filePath   String?
+  // RECEIVED | SHORTLISTED | SELECTED | REJECTED
+  status     String  @default("RECEIVED")
+
+  createdAt DateTime @default(now())
+
+  selectedFor SupplyRequest? @relation("SelectedBid")
+
+  @@index([supplyRequestId])
+}
+
+model Milestone {
+  id              String        @id @default(cuid())
+  supplyRequestId String
+  supplyRequest   SupplyRequest @relation(fields: [supplyRequestId], references: [id], onDelete: Cascade)
+
+  titleAr String
+  titleEn String
+  amount  Float
+  // PENDING | APPROVED | PAID
+  status  String @default("PENDING")
+
+  approvedAt DateTime?
+  approvedBy String?
+  paidAt     DateTime?
+  sortOrder  Int       @default(0)
+
+  createdAt DateTime @default(now())
+
+  walletEntries WalletEntry[]
+
+  @@index([supplyRequestId])
+}
+
+// -------------------------------------------------------- الملفات والمرفقات
+model FileAsset {
+  id       String  @id @default(cuid())
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id])
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  supplyRequestId String?
+  supplyRequest   SupplyRequest? @relation(fields: [supplyRequestId], references: [id])
+
+  // quotes | contracts | attachments
+  folder     String
+  name       String
+  path       String
+  mime       String  @default("application/octet-stream")
+  size       Int     @default(0)
+  uploadedBy String?
+  // client | admin | system
+  source     String  @default("system")
+
+  createdAt DateTime @default(now())
+
+  @@index([clientId, folder])
+  @@index([path])
+}
+
+// ------------------------------------------------------------ الخط الزمني
+model TimelineEvent {
+  id         String @id @default(cuid())
+  // client | document | invoice | supply_request | envelope | supplier
+  entityType String
+  entityId   String
+
+  clientId String? // لتجميع رحلة العميل كاملة
+
+  code          String // CREATED | APPROVED | SENT | VIEWED | ACCEPTED | SIGNED ...
+  titleAr       String
+  titleEn       String
+  actor         String  @default("system")
+  // admin | client | system | docusign | payment
+  actorKind     String  @default("system")
+  meta          String? // JSON
+  // هل يظهر للعميل في بوابته
+  clientVisible Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([clientId])
+}
+
+// سجل تدقيق غير قابل للتعديل، مسلسل بسلسلة تجزئة (hash chain)
+model AuditLog {
+  id         String   @id @default(cuid())
+  seq        Int      @unique @default(autoincrement())
+  action     String
+  entityType String
+  entityId   String
+  actor      String   @default("system")
+  amount     Float?
+  payload    String? // JSON
+  prevHash   String
+  hash       String
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}
+
+// ---------------------------------------------------------- الدخول والروابط
+model MagicLink {
+  id       String  @id @default(cuid())
+  token    String  @unique
+  email    String
+  // ADMIN | CLIENT
+  purpose  String
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+// عدّاد الترقيم التسلسلي لكل (نطاق، سنة)
+model Counter {
+  id    String @id // مثال: DOC:FI:2026
+  value Int    @default(0)
+}
+
+// إعدادات قابلة للتعديل من لوحة التحكم دون لمس الكود
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,266 @@
+/* خط Tajawal يُحمَّل عبر <link> في layout.tsx من public/fonts/tajawal.css (مستضاف محلياً) */
+
+:root {
+  --navy: #0B1B5A;
+  --ink: #1F2430;
+  --muted: #5B6172;
+  --line: #D9DDE7;
+  --paper: #FFFFFF;
+  --wash: #F5F7FB;
+  --ok: #1B7F4B;
+  --warn: #9A6A05;
+  --bad: #A3282A;
+  --font-ar: 'Tajawal', sans-serif;
+  --font-en: Inter, Arial, 'Helvetica Neue', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--wash);
+  color: var(--ink);
+  font-family: var(--font-ar);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+body[dir='rtl'] { text-align: right; }
+
+a { color: var(--navy); }
+
+/* ------------------------------------------------------------ التخطيط العام */
+.shell { max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+.bar {
+  background: var(--navy); color: #fff;
+  padding: 12px 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+.bar img { height: 30px; filter: brightness(0) invert(1); }
+.bar a { color: #fff; text-decoration: none; font-size: 14px; opacity: .88; }
+.bar a:hover { opacity: 1; text-decoration: underline; }
+.bar .spacer { margin-inline-start: auto; }
+
+.card {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+  padding: 20px; margin-bottom: 18px;
+}
+.card h2 { margin: 0 0 14px; font-size: 18px; color: var(--navy); }
+.card h3 { margin: 18px 0 8px; font-size: 15px; color: var(--navy); }
+
+h1 { font-size: 22px; color: var(--navy); margin: 0 0 6px; }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+
+.grid { display: grid; gap: 16px; }
+.grid.c2 { grid-template-columns: 1fr 1fr; }
+.grid.c3 { grid-template-columns: repeat(3, 1fr); }
+.grid.c4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 860px) { .grid.c2, .grid.c3, .grid.c4 { grid-template-columns: 1fr; } }
+
+/* ------------------------------------------------------------------ الجداول */
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+th { background: var(--wash); color: var(--navy); font-weight: 700; text-align: inherit; }
+td.num, th.num { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+tbody tr:nth-child(even) td { background: #FCFDFF; }
+
+/* ------------------------------------------------------------- عناصر التحكم */
+label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+input, select, textarea {
+  width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 7px;
+  font-family: inherit; font-size: 14px; background: #fff; color: var(--ink);
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--navy); outline-offset: -1px; }
+textarea { min-height: 80px; resize: vertical; }
+
+.btn {
+  display: inline-block; padding: 9px 18px; border-radius: 7px; border: 1px solid var(--navy);
+  background: var(--navy); color: #fff; font-family: inherit; font-size: 14px;
+  cursor: pointer; text-decoration: none; line-height: 1.5;
+}
+.btn:hover { background: #09164a; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn.ghost { background: #fff; color: var(--navy); }
+.btn.ghost:hover { background: var(--wash); }
+.btn.danger { background: var(--bad); border-color: var(--bad); }
+.btn.sm { padding: 5px 12px; font-size: 13px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.pill {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 12px; border: 1px solid var(--line); background: var(--wash); color: var(--muted);
+  white-space: nowrap;
+}
+.pill.st-DRAFT { background: #F2F3F6; color: #55596A; }
+.pill.st-APPROVED { background: #EAF0FF; color: var(--navy); border-color: #C3D2FA; }
+.pill.st-SENT { background: #EAF0FF; color: var(--navy); border-color: #C3D2FA; }
+.pill.st-ACCEPTED, .pill.st-SIGNED, .pill.st-PAID, .pill.st-IN_PROGRESS {
+  background: #E7F5EC; color: var(--ok); border-color: #B9E2C9;
+}
+.pill.st-SIGNING, .pill.st-DUE { background: #FDF3DF; color: var(--warn); border-color: #EDD9A5; }
+.pill.st-REJECTED, .pill.st-EXPIRED, .pill.st-CANCELLED {
+  background: #FBECEC; color: var(--bad); border-color: #EFC4C4;
+}
+
+.notice {
+  border: 1px solid var(--line); border-inline-start: 4px solid var(--navy);
+  background: var(--wash); padding: 12px 14px; border-radius: 8px; font-size: 13.5px; margin: 12px 0;
+}
+.notice.ok { border-inline-start-color: var(--ok); background: #F1FAF4; }
+.notice.bad { border-inline-start-color: var(--bad); background: #FDF3F3; }
+.notice.warn { border-inline-start-color: var(--warn); background: #FDF9EF; }
+
+.muted { color: var(--muted); font-size: 13px; }
+.mono { font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 12.5px; word-break: break-all; }
+
+/* ======================================================= المستند ثنائي اللغة */
+.doc {
+  background: #fff; color: var(--ink);
+  max-width: 900px; margin: 0 auto; padding: 0;
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+}
+
+.doc-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  padding: 22px 26px 16px; border-bottom: 3px solid var(--navy);
+}
+.doc-head img { height: 44px; }
+.doc-head .meta { text-align: end; font-size: 12px; color: var(--muted); line-height: 1.9; }
+.doc-head .meta b { color: var(--navy); }
+
+.doc-title {
+  text-align: center; padding: 16px 26px 6px;
+}
+.doc-title .en { font-family: var(--font-en); font-size: 17px; color: var(--navy); font-weight: 700; letter-spacing: .2px; }
+.doc-title .ar { font-size: 19px; color: var(--navy); font-weight: 700; }
+.doc-title .num { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.doc-title .num[dir='ltr'] { font-family: var(--font-en); }
+
+.doc-body { padding: 8px 26px 26px; }
+
+/* عمودان متقابلان: الإنجليزي يسار والعربي يمين */
+.bi {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 14px 0;
+}
+.bi > .en {
+  direction: ltr; text-align: left; padding: 14px 16px;
+  font-family: var(--font-en); font-size: 13px; line-height: 1.75;
+  border-inline-end: 1px solid var(--line);
+}
+.bi > .ar {
+  direction: rtl; text-align: right; padding: 14px 16px;
+  font-family: var(--font-ar); font-size: 13.5px; line-height: 1.9;
+}
+.bi h4 {
+  margin: 0 0 6px; font-size: 13.5px; color: var(--navy); font-weight: 700;
+}
+.bi .en h4 { font-family: var(--font-en); }
+.bi p { margin: 0 0 8px; white-space: pre-line; }
+.bi p:last-child { margin-bottom: 0; }
+.bi ol, .bi ul { margin: 0; padding-inline-start: 18px; }
+.bi li { margin-bottom: 6px; }
+@media (max-width: 760px) {
+  .bi { grid-template-columns: 1fr; }
+  .bi > .en { border-inline-end: 0; border-bottom: 1px solid var(--line); }
+}
+
+.sec-title {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--navy); color: #fff; border-radius: 8px 8px 0 0;
+  margin: 20px 0 0; overflow: hidden;
+}
+.sec-title .en { direction: ltr; text-align: left; padding: 8px 16px; font-family: var(--font-en); font-size: 13px; font-weight: 700; }
+.sec-title .ar { direction: rtl; text-align: right; padding: 8px 16px; font-size: 14px; font-weight: 700; }
+.sec-title + .bi { margin-top: 0; border-radius: 0 0 8px 8px; }
+@media (max-width: 760px) { .sec-title { grid-template-columns: 1fr; } }
+
+/* جدول البنود ثنائي اللغة */
+.items { margin: 14px 0; }
+.items table { font-size: 12.5px; }
+.items th { font-size: 12px; }
+.items th .en { display: block; direction: ltr; font-family: var(--font-en); font-weight: 600; font-size: 11px; opacity: .85; }
+.items th.num .en, .items td.num .en { text-align: center; }
+.items td .en { display: block; direction: ltr; text-align: left; font-family: var(--font-en); font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+.items td .ar { direction: rtl; text-align: right; }
+
+.totals { margin: 12px auto 0; max-width: 480px; }
+.totals table { font-size: 13.5px; }
+.totals td { padding: 7px 12px; }
+.totals tr.grand td { background: var(--navy); color: #fff; font-weight: 700; border-color: var(--navy); }
+.totals .lbl .en { display: block; direction: ltr; text-align: left; font-family: var(--font-en); font-size: 11.5px; color: var(--muted); }
+.totals tr.grand .lbl .en { color: #D6DEF7; }
+
+.sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 22px; }
+.sign-box { border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-height: 150px; }
+.sign-box .role { font-size: 12px; color: var(--muted); }
+.sign-box .who { font-weight: 700; color: var(--navy); margin: 4px 0 2px; }
+.sign-box .who-en { font-family: var(--font-en); font-size: 12px; color: var(--muted); direction: ltr; }
+.sign-line { margin-top: 34px; border-top: 1px solid var(--ink); padding-top: 6px; font-size: 12px; color: var(--muted); }
+/* علامات الربط لحقول DocuSign — مخفية بلون أبيض داخل الـPDF.
+   direction:ltr + unicode-bidi:isolate يمنعان خوارزم الاتجاهين من فصل
+   الشرطتين المائلتين عن الاسم، فتبقى السلسلة متصلة حرفياً وتلتقطها DocuSign. */
+.anchor {
+  color: #FFFFFF; font-size: 7px; line-height: 1.6; user-select: none;
+  direction: ltr; unicode-bidi: isolate; text-align: left;
+  font-family: var(--font-en); white-space: nowrap;
+}
+
+.doc-foot {
+  border-top: 1px solid var(--line); margin-top: 22px; padding-top: 12px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 11.5px; color: var(--muted);
+}
+.doc-foot .en { direction: ltr; text-align: left; font-family: var(--font-en); }
+.doc-foot .ar { direction: rtl; text-align: right; }
+
+.stamp {
+  margin: 16px 0; border: 1px solid var(--ok); background: #F1FAF4; color: var(--ok);
+  border-radius: 8px; padding: 10px 14px; font-size: 13px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.stamp .en { direction: ltr; text-align: left; font-family: var(--font-en); font-size: 12px; }
+.stamp .ar { direction: rtl; text-align: right; }
+
+/* ------------------------------------------------------------------ الطباعة */
+@page { size: A4; margin: 14mm 12mm 16mm; }
+
+@media print {
+  html, body { background: #fff; }
+  .no-print, .bar { display: none !important; }
+  .shell { padding: 0; max-width: none; }
+  .doc { border: 0; border-radius: 0; max-width: none; }
+  .doc-head { padding-inline: 0; }
+  .doc-body { padding-inline: 0; }
+  /* الكتل القصيرة لا تُقسَّم، أما الجداول الطويلة فتُقسَّم عند حدود الصفوف
+     مع تكرار رأس الجدول في كل صفحة حتى لا تبقى صفحات نصف فارغة */
+  .bi, .sec-title, .sign-box, .totals { break-inside: avoid; page-break-inside: avoid; }
+  .sec-title { break-after: avoid; page-break-after: avoid; }
+  tr, td, th { break-inside: avoid; page-break-inside: avoid; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  .sign-grid { break-inside: avoid; page-break-inside: avoid; }
+  .appendix { break-before: page; page-break-before: always; }
+  a { color: var(--ink); text-decoration: none; }
+}
+
+/* ------------------------------------------------------- الخط الزمني والرحلة */
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li {
+  position: relative; padding-inline-start: 22px; padding-bottom: 14px;
+  border-inline-start: 2px solid var(--line); margin-inline-start: 6px;
+}
+.timeline li:last-child { border-inline-start-color: transparent; padding-bottom: 0; }
+.timeline li::before {
+  content: ''; position: absolute; inset-inline-start: -7px; top: 5px;
+  width: 12px; height: 12px; border-radius: 50%; background: var(--navy); border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.timeline .t-title { font-size: 14px; }
+.timeline .t-meta { font-size: 11.5px; color: var(--muted); font-family: var(--font-en); direction: ltr; }
+.timeline .t-en { font-size: 11.5px; color: var(--muted); direction: ltr; font-family: var(--font-en); }
+
+.kpi { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.kpi .label { font-size: 12.5px; color: var(--muted); }
+.kpi .value { font-size: 21px; color: var(--navy); font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi .value.neg { color: var(--bad); }
