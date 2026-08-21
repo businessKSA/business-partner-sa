@@ -6378,11 +6378,17 @@ function buildCheckout() {
               <span class="file-text" id="docs-filename">${L("Required documents for your service (PDF/images) — optional now", "المستندات المطلوبة لخدمتك (PDF/صور) — اختياري الآن")}</span></label>
             <input id="co-docs" name="docs" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple hidden>
           </div>
+          <h2>${L("How would you like to pay?", "كيف تحب تدفع؟")}</h2>
+          <div class="tax-choice" id="pay-choice">
+            <label class="tax-opt" id="pay-opt-online"><input type="radio" name="paymethod" value="online" checked><span><strong>${L("Pay online", "الدفع الإلكتروني")}</strong><small>${L("mada / Visa / Apple Pay — confirmed instantly, and your tax invoice follows straight away.", "مدى / فيزا / Apple Pay — يتأكد فوراً وتصلك فاتورتك الضريبية مباشرة.")}</small></span></label>
+            <label class="tax-opt" id="pay-opt-bank"><input type="radio" name="paymethod" value="bank"><span><strong>${L("Bank transfer", "تحويل بنكي")}</strong><small>${L("Transfer to our account and upload the receipt — we verify it and activate your order.", "حوّل على حسابنا وارفع الإيصال — نتحقق منه ونفعّل طلبك.")}</small></span></label>
+          </div>
           <div id="epay-box" class="bank-box" hidden>
             <div class="bank-head">${I.shield}<strong>${L("Pay online (mada / Visa / Apple Pay)", "ادفع إلكترونياً (مدى / فيزا / أبل باي)")}</strong></div>
             <div id="epay-form"></div>
-            <p class="calc-note">${L("Secure payment. Or transfer manually using the bank details below.", "دفع آمن. أو حوّل يدوياً باستخدام بيانات الحساب أدناه.")}</p>
+            <p class="calc-note" id="epay-help">${L("Secure payment. Nothing is charged until you confirm.", "دفع آمن. لا يُخصم أي مبلغ حتى تؤكد.")}</p>
           </div>
+          <div id="bank-pay">
           <div class="bank-box">
             <div class="bank-head">${I.bank}<strong>${L("Bank transfer details", "بيانات التحويل البنكي")}</strong></div>
             <ul class="bank-list">
@@ -6400,8 +6406,10 @@ function buildCheckout() {
             <input id="co-receipt" name="receipt" type="file" accept=".pdf,application/pdf,.jpg,.jpeg,.png,.webp,image/*" required hidden>
           </div>
           <p class="calc-note" id="receipt-required-note">${L("Required: a bank receipt (image or PDF) showing a transfer of the exact order total. An image (screenshot) is verified automatically in minutes; PDF may need a short manual check. Orders without a matching receipt won't be activated.", "إلزامي: إيصال تحويل بنكي (صورة أو PDF) يوضح تحويل مبلغ يطابق إجمالي الطلب تماماً. الصورة (لقطة الشاشة) يتم التحقق منها تلقائياً خلال دقائق، أما PDF فقد يحتاج مراجعة يدوية سريعة. الطلبات بدون إيصال مطابق لن تُفعّل.")}</p>
+          </div>
           <label class="req-checkbox"><input type="checkbox" id="co-terms" required><span>${L("I acknowledge and agree to the", "أقر وأوافق على")} <a href="${u("/terms")}" target="_blank" rel="noopener">${L("Terms & Conditions", "الشروط والأحكام")}</a></span></label>
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Submit order", "أرسل الطلب")}</button>
+          <button type="submit" class="btn btn-primary btn-lg" id="co-submit" style="width:100%">${L("Submit order", "أرسل الطلب")}</button>
+          <p class="calc-note" id="online-submit-note" hidden>${L("Complete your payment in the card form above — your order is recorded the moment the payment succeeds.", "أكمل الدفع من نموذج البطاقة أعلاه — يُسجَّل طلبك لحظة نجاح الدفع.")}</p>
           <p class="form-note">${L("On submit we save your order to your account on this device, upload your receipt to our team's system for verification, and open WhatsApp to notify our team.", "عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز، ونرفع إيصالك لنظام فريقنا للتحقق، ونفتح واتساب لإشعار فريقنا.")}</p>
           <div class="form-success" id="checkout-success" hidden></div>
         </form>
