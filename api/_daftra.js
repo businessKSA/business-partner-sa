@@ -721,6 +721,53 @@ export async function daftraPdfProbe(kind = "invoice", id = null) {
   return { ok: true, id: target, results };
 }
 
+// ---- asking Daftra to deliver its own invoice -------------------------------
+
+// The PDF cannot be fetched from this account — twelve routes were tried and
+// none answered. But the document does not have to travel through us at all:
+// Daftra can e-mail its own invoice, with its own numbering and its own PDF,
+// which is the only arrangement that keeps one numbering series and one set of
+// books. The API documents no such endpoint, so the account is asked which of
+// the plausible ones it answers, exactly as the PDF probe does.
+//
+// SENDING IS NOT A DRY RUN: a route that works will really deliver. Probe
+// against an invoice raised for yourself, never a client's.
+export async function daftraSendProbe(invoiceId) {
+  const id = String(invoiceId || "").trim();
+  if (!id) return { ok: false, error: "no_invoice_id" };
+  const root = `https://${SUBDOMAIN}.daftra.com`;
+  const attempts = [
+    { m: "POST", url: `${BASE}/invoices/${id}/send.json` },
+    { m: "POST", url: `${BASE}/invoices/send/${id}.json` },
+    { m: "POST", url: `${BASE}/invoice_send/${id}.json` },
+    { m: "POST", url: `${BASE}/invoices/${id}/email.json` },
+    { m: "POST", url: `${BASE}/invoices/${id}/send_email.json` },
+    { m: "POST", url: `${root}/invoices/send/${id}` },
+    { m: "POST", url: `${root}/owner/invoices/send/${id}` },
+    { m: "PUT",  url: `${BASE}/invoices/${id}.json`, body: { Invoice: { send_email: 1 } } },
+  ];
+  const results = [];
+  for (const a of attempts) {
+    try {
+      const r = await fetch(a.url, {
+        method: a.m,
+        headers: { APIKEY: API_KEY, "content-type": "application/json", accept: "application/json" },
+        body: a.body ? JSON.stringify(a.body) : undefined,
+      });
+      const text = (await r.text()).slice(0, 200);
+      let verdict = "no";
+      // Daftra answers a rejected write with HTTP 200 and result:"failed", so
+      // the status code alone decides nothing here.
+      if (r.ok && !/"result"\s*:\s*"failed"/.test(text) && !/Invalid Endpoint/i.test(text)) verdict = "maybe";
+      results.push({ route: `${a.m} ${a.url.replace(root, "").replace(BASE, "")}`, status: r.status, verdict, body: text });
+    } catch (e) {
+      results.push({ route: `${a.m} ${a.url}`, status: 0, verdict: "error", body: String(e.message || "").slice(0, 90) });
+    }
+  }
+  const winner = results.find((x) => x.verdict === "maybe") || null;
+  return { ok: true, invoiceId: id, winner: winner ? winner.route : null, results };
+}
+
 // ---- correcting what is already in the books --------------------------------
 
 // Find an invoice by the number printed on it, or by id. The number is what

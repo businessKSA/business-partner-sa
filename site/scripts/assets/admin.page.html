@@ -516,6 +516,22 @@
               لا يظهر هنا أي مفتاح ولا جزء منه — فقط هل نجح الاتصال، وفي أي بيئة (حقيقي أم تجريبي).
             </p>
             <button class="actbtn" id="myPing">💳 افحص الاتصال بمُيسّر</button>
+          </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">📧 هل تستطيع الدفترة إرسال فاتورتها بنفسها؟</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              الدفترة لا تسلّم ملف الفاتورة عبر الـ API (جُرّب ١٢ مساراً). الحل الأنظف محاسبياً ألا يمر المستند
+              علينا أصلاً: تُرسل الدفترة فاتورتها بترقيمها وملفها، فتبقى سلسلة ترقيم واحدة ودفاتر واحدة.
+              نسأل حسابك أي المسارات يستجيب.
+              <br><b style="color:#b45309">تنبيه: هذا ليس فحصاً جافاً — المسار الناجح سيُرسل فعلاً.
+              جرّبه على فاتورة أصدرتها لنفسك، لا لعميل.</b>
+            </p>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:8px;max-width:520px">
+              <input id="dsendId" placeholder="رقم الفاتورة الداخلي (id) — مثال 18" />
+              <button class="actbtn" id="dsendRun">📧 افحص مسارات الإرسال</button>
+            </div>
+            <div class="dbody" id="dsendMsg" style="display:none;margin-top:10px"></div>
             <div class="dbody" id="myMsg" style="display:none;margin-top:10px"></div>
           </div>
 
@@ -1381,6 +1397,28 @@
           (r.channels.missing && r.channels.missing.length ? '<div style="color:#b45309;margin-top:4px">ينقص في Vercel: <span style="direction:ltr;display:inline-block">' + esc(r.channels.missing.join(' · ')) + '</span></div>' : '') +
           '</div>' : '');
       });
+    };
+
+    // ---- can Daftra send its own invoice ----
+    $('dsendRun').onclick = function(){
+      var btn = this, m = $('dsendMsg');
+      var id = ($('dsendId').value || '').trim();
+      m.style.display = 'block';
+      if (!id){ m.innerHTML = '<span style="color:#b91c1c">اكتب رقم الفاتورة الداخلي أولاً.</span>'; return; }
+      if (!confirm('تنبيه: المسار الناجح سيرسل الفاتورة فعلاً بالبريد. هل الفاتورة ' + id + ' مُصدَرة لك أنت وليست لعميل؟')) return;
+      btn.disabled = true; m.innerHTML = '⏳ أسأل الدفترة…';
+      postPanel({ action: 'panel-daftra-send-probe', invoiceId: id }).then(function(r){
+        btn.disabled = false;
+        if (!r || !r.ok){ m.innerHTML = '<span style="color:#b91c1c">تعذّر الفحص' + (r && r.error ? ': ' + esc(r.error) : '') + '</span>'; return; }
+        var rows = (r.results || []).map(function(x){
+          var ic = x.verdict === 'maybe' ? '✅' : x.verdict === 'error' ? '⚠' : '⛔';
+          return '<span class="kv"><i>' + ic + ' <span style="direction:ltr;display:inline-block">' + esc(x.route) + '</span></i>' +
+            'HTTP ' + x.status + ' — <span style="direction:ltr;display:inline-block;font-size:11px">' + esc((x.body || '').slice(0, 90)) + '</span></span>';
+        }).join('');
+        m.innerHTML = rows + '<div style="margin-top:10px;font-weight:700;color:' + (r.winner ? '#14532d' : '#b45309') + '">' +
+          (r.winner ? '✅ مسار مستجيب: <span style="direction:ltr;display:inline-block">' + esc(r.winner) + '</span> — تحقق من وصول الفاتورة لبريدك، ولو وصلت أربطه ليعمل تلقائياً بعد كل دفعة.'
+                    : '⛔ لا مسار استجاب. الخطوة التالية: افتح تذكرة مع دعم الدفترة واسألهم عن مسار إرسال الفاتورة بالبريد عبر الـ API لحسابك.') + '</div>';
+      }).catch(function(){ btn.disabled = false; m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال.</span>'; });
     };
 
     // ---- is Moyasar actually connected ----
