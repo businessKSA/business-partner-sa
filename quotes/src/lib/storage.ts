@@ -32,7 +32,15 @@ export interface StorageDriver {
   signedUrl(key: string, ttlSeconds?: number): Promise<string>;
 }
 
-const ROOT = path.resolve(process.env.STORAGE_ROOT || './storage');
+/**
+ * جذر التخزين المحلي. على Vercel قرص التطبيق للقراءة فقط ولا يُكتب إلا في
+ * /tmp، فالافتراض هناك مجلد مؤقت — وإلا فشل إنشاء أول عميل بخطأ ENOENT.
+ * المجلد المؤقت يُمحى مع كل استدعاء، فهو للتجربة لا للأرشفة: التخزين الدائم
+ * على السائق S3 عبر STORAGE_DRIVER=s3.
+ */
+const ROOT = path.resolve(
+  process.env.STORAGE_ROOT || (process.env.VERCEL ? '/tmp/storage' : './storage'),
+);
 
 /** يمنع الخروج من جذر التخزين عبر مسارات مثل ../../etc/passwd */
 function safeJoin(key: string): string {
