@@ -534,6 +534,32 @@ export async function daftraPayLink(id) {
 // Which client-facing route this account answers, with each candidate's status
 // and content type. Read-only — it reports evidence rather than assuming a
 // route, the same way the PDF probe does.
+// The invoice's own page on Daftra, but only if a client can actually open it.
+// A link that lands on a login wall is worse than no link: the client is sent
+// somewhere they cannot go, for a document they already paid for. So it is
+// fetched here with no credentials — the way the client's browser would — and
+// returned only when it renders something other than a sign-in page.
+export async function daftraPublicInvoiceLink(id, publicUrl = "") {
+  const root = `https://${SUBDOMAIN}.daftra.com`;
+  const cands = [
+    // Whatever Daftra itself published on the record comes first: a link the
+    // account advertises beats one this code composed from a path pattern.
+    ...(publicUrl ? [String(publicUrl)] : []),
+    `${root}/invoices/view/${id}`,
+  ];
+  for (const url of cands) {
+    try {
+      const r = await fetch(url, { redirect: "manual" });
+      if (r.status !== 200) continue;
+      const body = (await r.text()).slice(0, 6000);
+      const login = /login|تسجيل الدخول|password|كلمة المرور/i.test(body);
+      const invoiceish = /invoice|فاتورة|الرقم الضريبي|VAT/i.test(body);
+      if (!login && invoiceish) return { url, checked: true };
+    } catch { /* try the next candidate */ }
+  }
+  return null;
+}
+
 export async function daftraPayLinkProbe(id, hash = "") {
   const root = `https://${SUBDOMAIN}.daftra.com`;
   const cands = [
