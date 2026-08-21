@@ -1406,6 +1406,10 @@
         html += '<span class="kv"><i>💳 وسائل الدفع المعروضة للعميل:</i>' + esc(ms || '—') + '</span>';
         if (!v.applePayOn)
           html += '<div style="margin-top:6px;color:var(--soft);font-size:12px">Apple Pay مطفأ. لتشغيله بعد تسجيل النطاق في مُيسّر: أضف <span style="direction:ltr;display:inline-block">MOYASAR_METHODS=creditcard,applepay</span> في Vercel ثم Redeploy.</div>';
+        else
+          // Apple hides its own button on non-Apple browsers. Without this the
+          // obvious test — open the site on the laptop — looks like a failure.
+          html += '<div style="margin-top:6px;color:var(--soft);font-size:12px">Apple Pay مُفعّل ✓ — لكنه <b>لا يظهر إلا على أجهزة آبل</b> (آيفون/آيباد أو سفاري على ماك). فتحه من كروم أو أندرويد لن يُظهر الزر، وهذا سلوك آبل لا خلل في الربط.</div>';
         if (v.modeMatch === false)
           html += '<div style="margin-top:8px;color:#b91c1c;font-weight:600">⚠ المفتاحان من بيئتين مختلفتين — لازم يكونان الاثنان Live أو الاثنان Test، وإلا النموذج والتحقق يتكلمان عن حسابين.</div>';
         if (r.ok){
