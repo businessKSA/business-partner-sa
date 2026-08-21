@@ -21,7 +21,7 @@ import { stageChannels, announce } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { sellerProfile } from "./_zatca.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe } from "./_daftra.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -1602,6 +1602,24 @@ export default async function handler(req, res) {
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed"), detail: String(e.detail || "").slice(0, 400) }));
+      }
+    }
+
+    // Which route, if any, makes Daftra e-mail its own invoice. Answering this
+    // is what lets the tax invoice stay in one numbering series and one set of
+    // books — the alternative is a second invoice issued by us, which is how
+    // accounting drifts apart.
+    if (b.action === "panel-daftra-send-probe") {
+      if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
+      const id = String(b.invoiceId || "").trim();
+      if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      try {
+        const out = await daftraSendProbe(id);
+        res.statusCode = 200;
+        return res.end(JSON.stringify(out));
+      } catch (e) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
       }
     }
 
