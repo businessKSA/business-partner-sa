@@ -19,6 +19,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
 import { stageChannels, announce } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
+import { sellerProfile } from "./_zatca.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -1642,6 +1643,9 @@ export default async function handler(req, res) {
         svc("رموز الدخول (OTP)", has("OTP_SECRET"), "روابط عروض الأسعار تعتمد عليه"),
         svc("GitHub (تحرير المحتوى)", has("GITHUB_TOKEN", "GH_TOKEN"), "حفظ ونشر من اللوحة"),
         svc("قاعدة البيانات", has("SUPABASE_URL", "DATABASE_URL"), "بوابة العميل"),
+        // A tax invoice we render ourselves is only worth sending if it can
+        // carry the seller's registration — without it there is no lawful QR.
+        svc("هوية البائع الضريبية", sellerProfile().ready ? "COMPANY_VAT_NUMBER" : null, "مطلوبة لإصدار فاتورة ضريبية من موقعنا"),
         svc("واتساب العميل (Cloud API)", has("WHATSAPP_TOKEN", "WHATSAPP_ACCESS_TOKEN", "META_WHATSAPP_TOKEN") && has("WHATSAPP_PHONE_ID", "WHATSAPP_PHONE_NUMBER_ID") ? "WHATSAPP_*" : null, "إشعار العميل بكل خطوة على واتساب"),
       ];
       res.statusCode = 200;
