@@ -498,7 +498,6 @@ export default async function handler(req, res) {
   const ALLOWED_ORIGINS = new Set([
     "https://www.businesspartner.sa",
     "https://businesspartner.sa",
-    "https://new.businesspartner.sa",
   ]);
   const origin = req.headers.origin || "";
   if (ALLOWED_ORIGINS.has(origin)) res.setHeader("Access-Control-Allow-Origin", origin);
