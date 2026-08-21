@@ -3594,7 +3594,13 @@ var BP = window.BP = window.BP || {};
       var link = document.createElement("link"); link.rel = "stylesheet"; link.href = cfg.cssUrl; document.head.appendChild(link);
       var s = document.createElement("script"); s.src = cfg.scriptUrl;
       s.onload = function () {
-        try {
+        // Which wallets to offer is the server's answer, not this page's
+        // guess: Apple Pay only works once the domain is registered on the
+        // Moyasar side, and a wallet button that fails when tapped is worse
+        // than one that was never shown.
+        var wanted = (cfg.methods && cfg.methods.length) ? cfg.methods : ["creditcard"];
+        function boot(methods, applePay) {
+          if (mount) mount.innerHTML = "";
           window.Moyasar.init({
             element: "#epay-form",
             amount: Math.round(total * 100),
@@ -3603,16 +3609,21 @@ var BP = window.BP = window.BP || {};
             publishable_api_key: cfg.publishableKey,
             callback_url: location.origin + location.pathname,
             metadata: { ref: String((snapshot() || {}).ref || "") },
-            // Which wallets to offer is the server's answer, not this page's
-            // guess: Apple Pay only works once the domain is registered on the
-            // Moyasar side, and a wallet button that fails when tapped is
-            // worse than one that was never shown.
-            methods: (cfg.methods && cfg.methods.length) ? cfg.methods : ["creditcard"],
-            apple_pay: cfg.applePay || undefined,
+            methods: methods,
+            apple_pay: applePay || undefined
           });
           box.hidden = false;
           gate();
-        } catch (e3) {}
+        }
+        // A wallet this browser cannot render must not take the card form down
+        // with it. Swallowing the failure silently is how a buyer ends up
+        // staring at an empty box with nothing to report and nothing to fix.
+        try { boot(wanted, cfg.applePay); }
+        catch (e3) {
+          if (window.console) console.warn("Moyasar init failed for", wanted, "— retrying with card only:", e3);
+          try { boot(["creditcard"], null); }
+          catch (e4) { if (window.console) console.error("Moyasar card form failed to mount:", e4); }
+        }
       };
       document.head.appendChild(s);
     }).catch(function () {});
@@ -6474,7 +6485,10 @@ var BP_EMP_BILLING = "monthly";
       var link = document.createElement("link"); link.rel = "stylesheet"; link.href = cfg.cssUrl; document.head.appendChild(link);
       var sc = document.createElement("script"); sc.src = cfg.scriptUrl;
       sc.onload = function () {
-        try {
+        var wanted = (cfg.methods && cfg.methods.length) ? cfg.methods : ["creditcard"];
+        function boot(methods, applePay) {
+          var el = document.getElementById("epay-form");
+          if (el) el.innerHTML = "";
           window.Moyasar.init({
             element: "#epay-form",
             amount: Math.round(total * 100),
@@ -6485,11 +6499,19 @@ var BP_EMP_BILLING = "monthly";
             // Travels with the payment so the webhook can settle it even if
             // this tab never comes back from 3-D Secure.
             metadata: { quoteId: String(id), t: String(t), ref: String(state.quote.clientRef || state.quote.ref || "") },
-            methods: (cfg.methods && cfg.methods.length) ? cfg.methods : ["creditcard"],
-            apple_pay: cfg.applePay || undefined
+            methods: methods,
+            apple_pay: applePay || undefined
           });
           document.getElementById("q-epay").hidden = false;
-        } catch (e) {}
+        }
+        // Same rule as checkout: a wallet that cannot render here must not
+        // cost this client the ability to pay at all.
+        try { boot(wanted, cfg.applePay); }
+        catch (e) {
+          if (window.console) console.warn("Moyasar init failed for", wanted, "— retrying with card only:", e);
+          try { boot(["creditcard"], null); }
+          catch (e2) { if (window.console) console.error("Moyasar card form failed to mount:", e2); }
+        }
       };
       document.head.appendChild(sc);
     }).catch(function () {});
