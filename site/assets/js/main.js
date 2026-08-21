@@ -1463,8 +1463,14 @@ var BP = window.BP = window.BP || {};
         receiptFile.type === "application/pdf" || /\.pdf$/i.test(receiptFile.name || "") ||
         /^image\//.test(receiptFile.type || "") || /\.(jpe?g|png|webp)$/i.test(receiptFile.name || "")
       );
-      if (!receiptFile) { alert(BP.t("A bank transfer receipt (image or PDF) is required to submit your order.", "إيصال التحويل البنكي (صورة أو PDF) إلزامي لإرسال الطلب.")); return; }
-      if (!okReceipt) { alert(BP.t("The receipt must be an image or PDF file matching your order total.", "يجب أن يكون الإيصال صورة أو ملف PDF ويطابق إجمالي طلبك.")); return; }
+      // The receipt proves a bank transfer. Demanding one from a buyer paying
+      // by card is what made online payment impossible to finish: the form
+      // refused to submit no matter what the card did.
+      var payingByBank = !BP.payMethod || BP.payMethod() === "bank";
+      if (payingByBank) {
+        if (!receiptFile) { alert(BP.t("A bank transfer receipt (image or PDF) is required to submit your order.", "إيصال التحويل البنكي (صورة أو PDF) إلزامي لإرسال الطلب.")); return; }
+        if (!okReceipt) { alert(BP.t("The receipt must be an image or PDF file matching your order total.", "يجب أن يكون الإيصال صورة أو ملف PDF ويطابق إجمالي طلبك.")); return; }
+      }
       var ref = "BP-" + Date.now().toString().slice(-6);
       var docs = document.getElementById("co-docs");
       var files = [];
@@ -1477,7 +1483,7 @@ var BP = window.BP = window.BP || {};
       var order = {
         ref: ref, name: name, phone: phone, email: email,
         items: cart.map(function (i) { return { id: i.id || "", name: BP.cartName(i), qty: i.qty || 1, price: i.amount ? i.amount * (i.qty || 1) : null, priceLabel: i.price }; }),
-        files: files, receipt: receiptFile.name,
+        files: files, receipt: receiptFile ? receiptFile.name : "",
         at: new Date().toISOString().slice(0, 10), status: BP.t("Under review", "قيد المراجعة"),
       };
       try {
@@ -1540,15 +1546,19 @@ var BP = window.BP = window.BP || {};
               company: companyName || companyProfile.name || "",
               cr: crNumber, headcount: pkgVisible ? headcount : "", nationalAddress: nationalAddress, surchargeFee: surchargeFee,
               taxProfile: taxProfile, partnerRef: partnerRef(),
-              receiptName: receiptFile.name, receiptType: receiptFile.type || "", receiptBase64: receiptBase64 || ""
+              receiptName: receiptFile ? receiptFile.name : "", receiptType: (receiptFile && receiptFile.type) || "", receiptBase64: receiptBase64 || ""
             })
           }).catch(function () {});
         } catch (e) {}
       }
-      var reader = new FileReader();
-      reader.onload = function () { sendOrder(String(reader.result || "").split(",").pop()); };
-      reader.onerror = function () { sendOrder(""); };
-      reader.readAsDataURL(receiptFile);
+      if (receiptFile) {
+        var reader = new FileReader();
+        reader.onload = function () { sendOrder(String(reader.result || "").split(",").pop()); };
+        reader.onerror = function () { sendOrder(""); };
+        reader.readAsDataURL(receiptFile);
+      } else {
+        sendOrder("");
+      }
       BP.cart.write([]);
       var box = document.getElementById("checkout-success");
       box.hidden = false;
@@ -3588,9 +3598,51 @@ var BP = window.BP = window.BP || {};
     return order;
   }
 
+  // ---- how the buyer pays ----
+  // The page used to be a bank-transfer form with a card box bolted on, and
+  // the receipt was required to submit — so a buyer who paid by card could
+  // never finish the order. Payment is a choice now, and each choice shows
+  // only what it needs.
+  var payChoice = document.getElementById("pay-choice");
+  var bankPay = document.getElementById("bank-pay");
+  var submitBtn = document.getElementById("co-submit");
+  var onlineNote = document.getElementById("online-submit-note");
+  var receiptInput = document.getElementById("co-receipt");
+  var onlineReady = false;      // Moyasar mounted successfully
+  function payMethod() {
+    var r = document.querySelector('input[name="paymethod"]:checked');
+    var v = r ? r.value : "online";
+    return (v === "online" && !onlineReady) ? "bank" : v;
+  }
+  BP.payMethod = payMethod;
+  function applyPayMethod() {
+    var m = payMethod();
+    if (bankPay) bankPay.style.display = m === "bank" ? "" : "none";
+    if (box) box.hidden = !(m === "online" && onlineReady);
+    // A required field inside a hidden block blocks submit with a message the
+    // buyer cannot see, so the requirement moves with the choice.
+    if (receiptInput) receiptInput.required = (m === "bank");
+    if (submitBtn) submitBtn.style.display = m === "bank" ? "" : "none";
+    if (onlineNote) onlineNote.hidden = (m !== "online");
+    if (typeof gate === "function") gate();
+  }
+  if (payChoice) {
+    payChoice.addEventListener("change", applyPayMethod);
+    applyPayMethod();
+  }
+
   if (total > 0) {
     fetch("/api/pay").then(function (r) { return r.json(); }).then(function (cfg) {
-      if (!cfg || !cfg.enabled) return;
+      // No gateway configured: online is not an option, and offering it would
+      // be a dead end. Bank transfer becomes the only choice, silently.
+      if (!cfg || !cfg.enabled) {
+        var oo = document.getElementById("pay-opt-online");
+        if (oo) oo.style.display = "none";
+        var br = document.querySelector('input[name="paymethod"][value="bank"]');
+        if (br) { br.checked = true; }
+        applyPayMethod();
+        return;
+      }
       var link = document.createElement("link"); link.rel = "stylesheet"; link.href = cfg.cssUrl; document.head.appendChild(link);
       var s = document.createElement("script"); s.src = cfg.scriptUrl;
       s.onload = function () {
@@ -3612,8 +3664,8 @@ var BP = window.BP = window.BP || {};
             methods: methods,
             apple_pay: applePay || undefined
           });
-          box.hidden = false;
-          gate();
+          onlineReady = true;
+          applyPayMethod();
         }
         // A wallet this browser cannot render must not take the card form down
         // with it. Swallowing the failure silently is how a buyer ends up
@@ -3622,7 +3674,23 @@ var BP = window.BP = window.BP || {};
         catch (e3) {
           if (window.console) console.warn("Moyasar init failed for", wanted, "— retrying with card only:", e3);
           try { boot(["creditcard"], null); }
-          catch (e4) { if (window.console) console.error("Moyasar card form failed to mount:", e4); }
+          catch (e4) {
+            if (window.console) console.error("Moyasar card form failed to mount:", e4);
+            // Say it on the page, not only in a console the buyer will never
+            // open, and put them on the path that still works.
+            onlineReady = false;
+            var oo2 = document.getElementById("pay-opt-online");
+            if (oo2) oo2.style.display = "none";
+            var br2 = document.querySelector('input[name="paymethod"][value="bank"]');
+            if (br2) br2.checked = true;
+            applyPayMethod();
+            var warn = document.getElementById("epay-help");
+            if (warn) {
+              warn.textContent = BP.t("Online payment could not load right now — use the bank transfer below and we will activate your order as soon as the receipt is verified.",
+                                      "تعذّر تحميل الدفع الإلكتروني الآن — استخدم التحويل البنكي أدناه ونفعّل طلبك فور التحقق من الإيصال.");
+              warn.style.color = "#b45309";
+            }
+          }
         }
       };
       document.head.appendChild(s);
@@ -3634,7 +3702,13 @@ var BP = window.BP = window.BP || {};
   // in the wrong name afterwards costs a credit note and a reissue.
   var gateMsg = null;
   function gate() {
-    var gap = taxGap();
+    // Paying online skips the submit button, so the terms checkbox next to it
+    // would never be answered. The card form waits for it instead — consent
+    // has to happen before the money moves, not beside it.
+    var terms = document.getElementById("co-terms");
+    var gap = (terms && !terms.checked && BP.payMethod && BP.payMethod() === "online")
+      ? BP.t("agreement to the Terms & Conditions", "الموافقة على الشروط والأحكام")
+      : taxGap();
     if (!gateMsg) {
       gateMsg = document.createElement("div");
       gateMsg.style.cssText = "margin:10px 0;padding:10px 12px;border-radius:10px;background:#fff8ed;color:#b45309;font-size:14px;line-height:1.8";
