@@ -3645,6 +3645,34 @@ var BP = window.BP = window.BP || {};
       }
       var link = document.createElement("link"); link.rel = "stylesheet"; link.href = cfg.cssUrl; document.head.appendChild(link);
       var s = document.createElement("script"); s.src = cfg.scriptUrl;
+      // When online payment fails there is exactly one question worth
+      // answering: did the library load, did its stylesheet load, and which
+      // build was it. Printing that where the owner can screenshot it turns a
+      // round of "try this" into one look.
+      function payDiag(code) {
+        var v = "?";
+        try { v = (String(cfg.scriptUrl).match(/mpf\/([^\/]+)\//) || [])[1] || "?"; } catch (e) {}
+        var lib = !!(window.Moyasar && typeof window.Moyasar.init === "function");
+        return code + " \u00b7 v" + v + " \u00b7 lib:" + (lib ? "yes" : "no");
+      }
+      function payFailed(code) {
+        onlineReady = false;
+        var oo = document.getElementById("pay-opt-online");
+        if (oo) oo.style.display = "none";
+        var br = document.querySelector('input[name="paymethod"][value="bank"]');
+        if (br) br.checked = true;
+        applyPayMethod();
+        if (window.console) console.error("Moyasar payment form unavailable:", payDiag(code));
+        var w = document.getElementById("epay-help");
+        if (!w) return;
+        w.textContent = BP.t("Online payment could not load right now — use the bank transfer below and we will activate your order as soon as the receipt is verified.",
+                             "\u062a\u0639\u0630\u0651\u0631 \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062f\u0641\u0639 \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0627\u0644\u0622\u0646 \u2014 \u0627\u0633\u062a\u062e\u062f\u0645 \u0627\u0644\u062a\u062d\u0648\u064a\u0644 \u0627\u0644\u0628\u0646\u0643\u064a \u0623\u062f\u0646\u0627\u0647 \u0648\u0646\u0641\u0639\u0651\u0644 \u0637\u0644\u0628\u0643 \u0641\u0648\u0631 \u0627\u0644\u062a\u062d\u0642\u0642 \u0645\u0646 \u0627\u0644\u0625\u064a\u0635\u0627\u0644.");
+        w.style.color = "#b45309";
+        var d = document.createElement("span");
+        d.style.cssText = "display:block;margin-top:4px;font-size:11px;opacity:.65;direction:ltr;text-align:start";
+        d.textContent = payDiag(code);
+        w.appendChild(d);
+      }
       s.onload = function () {
         // Which wallets to offer is the server's answer, not this page's
         // guess: Apple Pay only works once the domain is registered on the
@@ -3670,21 +3698,7 @@ var BP = window.BP = window.BP || {};
           // screen. The failure that stranded a buyer was exactly this: no
           // exception, no form, an empty box and no way to pay.
           setTimeout(function () {
-            if (mount && mount.children && mount.children.length === 0) {
-              if (window.console) console.error("Moyasar init returned but rendered nothing into #epay-form");
-              onlineReady = false;
-              var oo3 = document.getElementById("pay-opt-online");
-              if (oo3) oo3.style.display = "none";
-              var br3 = document.querySelector('input[name="paymethod"][value="bank"]');
-              if (br3) br3.checked = true;
-              applyPayMethod();
-              var w3 = document.getElementById("epay-help");
-              if (w3) {
-                w3.textContent = BP.t("Online payment could not load right now — use the bank transfer below and we will activate your order as soon as the receipt is verified.",
-                                      "تعذّر تحميل الدفع الإلكتروني الآن — استخدم التحويل البنكي أدناه ونفعّل طلبك فور التحقق من الإيصال.");
-                w3.style.color = "#b45309";
-              }
-            }
+            if (mount && mount.children && mount.children.length === 0) payFailed("MPF-EMPTY");
           }, 2500);
         }
         // A wallet this browser cannot render must not take the card form down
@@ -3696,20 +3710,7 @@ var BP = window.BP = window.BP || {};
           try { boot(["creditcard"], null); }
           catch (e4) {
             if (window.console) console.error("Moyasar card form failed to mount:", e4);
-            // Say it on the page, not only in a console the buyer will never
-            // open, and put them on the path that still works.
-            onlineReady = false;
-            var oo2 = document.getElementById("pay-opt-online");
-            if (oo2) oo2.style.display = "none";
-            var br2 = document.querySelector('input[name="paymethod"][value="bank"]');
-            if (br2) br2.checked = true;
-            applyPayMethod();
-            var warn = document.getElementById("epay-help");
-            if (warn) {
-              warn.textContent = BP.t("Online payment could not load right now — use the bank transfer below and we will activate your order as soon as the receipt is verified.",
-                                      "تعذّر تحميل الدفع الإلكتروني الآن — استخدم التحويل البنكي أدناه ونفعّل طلبك فور التحقق من الإيصال.");
-              warn.style.color = "#b45309";
-            }
+            payFailed("MPF-THROW");
           }
         }
       };
