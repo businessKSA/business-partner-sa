@@ -3359,7 +3359,7 @@ function buildMahfolTrips() {
       hlEn: ["Farasan Islands — coral & wildlife archipelago", "Fifa mountains & terraced farms", "Coast, boats & fresh seafood"], hlAr: ["جزر فرسان — أرخبيل المرجان والحياة الفطرية", "جبال فيفاء والمدرجات الزراعية", "الساحل والقوارب والمأكولات البحرية"] },
     { ic: "🌹", k: "taif", price: 2700, en: "Taif & AlBaha", ar: "الطائف والباحة", te: "City of roses & summer retreat", ta: "مدينة الورد ومصيف العرب", pe: "from 2,700 SAR / person", pa: "من 2,700 ر.س للشخص", img: "1bs1EA0iu73SUtSwKSWCuBQyB89qt_S2W", mx: 291, my: 619,
       hlEn: ["Rose farms & the old souq", "Al-Hada mountains & cable car", "Al-Shafa greenery & Al-Baha forests"], hlAr: ["مزارع الورد والسوق القديم", "جبال الهدا والتلفريك", "خضرة الشفا وغابات الباحة"] },
-    { ic: "🐪", k: "hail", price: null, en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291,
+    { ic: "🐪", k: "hail", price: 3000, en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "from 3,000 SAR / person", pa: "من 3,000 ر.س للشخص", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291,
       hlEn: ["Aja & Salma mountains and Hail heritage", "Jubbah rock art — UNESCO", "AlAhsa oasis & a Madinah add-on"], hlAr: ["جبال أجا وسلمى وتراث حائل", "نقوش جبة الصخرية — يونسكو", "واحة الأحساء وإضافة المدينة المنورة"] },
   ];
   // Purchasable trip card: priced → Add to cart (per-person; qty = travellers) →
