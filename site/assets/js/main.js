@@ -3666,6 +3666,26 @@ var BP = window.BP = window.BP || {};
           });
           onlineReady = true;
           applyPayMethod();
+          // init returning without throwing is not the same as a form on the
+          // screen. The failure that stranded a buyer was exactly this: no
+          // exception, no form, an empty box and no way to pay.
+          setTimeout(function () {
+            if (mount && mount.children && mount.children.length === 0) {
+              if (window.console) console.error("Moyasar init returned but rendered nothing into #epay-form");
+              onlineReady = false;
+              var oo3 = document.getElementById("pay-opt-online");
+              if (oo3) oo3.style.display = "none";
+              var br3 = document.querySelector('input[name="paymethod"][value="bank"]');
+              if (br3) br3.checked = true;
+              applyPayMethod();
+              var w3 = document.getElementById("epay-help");
+              if (w3) {
+                w3.textContent = BP.t("Online payment could not load right now — use the bank transfer below and we will activate your order as soon as the receipt is verified.",
+                                      "تعذّر تحميل الدفع الإلكتروني الآن — استخدم التحويل البنكي أدناه ونفعّل طلبك فور التحقق من الإيصال.");
+                w3.style.color = "#b45309";
+              }
+            }
+          }, 2500);
         }
         // A wallet this browser cannot render must not take the card form down
         // with it. Swallowing the failure silently is how a buyer ends up

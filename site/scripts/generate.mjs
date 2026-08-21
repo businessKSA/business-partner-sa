@@ -6385,7 +6385,7 @@ function buildCheckout() {
           </div>
           <div id="epay-box" class="bank-box" hidden>
             <div class="bank-head">${I.shield}<strong>${L("Pay online (mada / Visa / Apple Pay)", "ادفع إلكترونياً (مدى / فيزا / أبل باي)")}</strong></div>
-            <div id="epay-form"></div>
+            <div id="epay-form" class="mysr-form"></div>
             <p class="calc-note" id="epay-help">${L("Secure payment. Nothing is charged until you confirm.", "دفع آمن. لا يُخصم أي مبلغ حتى تؤكد.")}</p>
           </div>
           <div id="bank-pay">
@@ -7075,7 +7075,7 @@ function buildQuotePage() {
         <div id="q-epay" hidden style="margin-top:14px">
           <h4 style="margin:0 0 6px">${L("Pay online", "ادفع أونلاين")}</h4>
           <p class="text-soft" style="font-size:.86rem;line-height:1.9">${L("mada, Visa, Mastercard and Apple Pay. Your tax invoice is issued and e-mailed to you the moment the payment lands.", "مدى وفيزا وماستركارد وآبل باي. فاتورتك الضريبية تصدر وتوصلك على بريدك لحظة وصول السداد.")}</p>
-          <div id="epay-form"></div>
+          <div id="epay-form" class="mysr-form"></div>
         </div>
         <div id="q-bank" style="margin-top:12px" class="text-soft" style="font-size:.86rem"></div>
         <p class="form-success" id="q-paid" hidden></p>

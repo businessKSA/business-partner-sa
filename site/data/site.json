@@ -1391,8 +1391,8 @@
   "commerce": {
     "cartTitle": "سلة الطلبات",
     "cartEmpty": "سلتك فارغة حالياً. تصفّح الخدمات والباقات وأضِف ما يناسبك.",
-    "checkoutTitle": "إتمام الطلب — تحويل بنكي",
-    "checkoutIntro": "حالياً الدفع يتم عبر التحويل البنكي. أدخل بياناتك، أرسل الطلب، ثم حوّل المبلغ على الحساب البنكي وارفع صورة الإيصال ليُعتمد طلبك ويبدأ التنفيذ. (الدفع الإلكتروني قيد الربط قريباً.)",
+    "checkoutTitle": "إتمام الطلب",
+    "checkoutIntro": "اختر طريقة الدفع التي تناسبك: ادفع إلكترونياً ببطاقة مدى أو فيزا أو Apple Pay ويتأكد طلبك فوراً وتصلك فاتورتك الضريبية مباشرة — أو حوّل بنكياً وارفع صورة الإيصال ونفعّل طلبك بعد التحقق منه.",
     "steps": [
       {
         "n": "1",
@@ -1426,8 +1426,8 @@
     "vatNote": "الأسعار المعروضة أتعاب بيزنس بارتنر. تُضاف ضريبة القيمة المضافة (15%)، والرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.",
     "cartTitleEn": "Your cart",
     "cartEmptyEn": "Your cart is empty. Browse services and packages and add what suits you.",
-    "checkoutTitleEn": "Checkout — bank transfer",
-    "checkoutIntroEn": "For now, payment is by bank transfer. Enter your details, submit the order, then transfer the amount to the bank account and upload the receipt so your order is approved and execution begins. (Online payment is being integrated soon.)",
+    "checkoutTitleEn": "Checkout",
+    "checkoutIntroEn": "Choose how you'd like to pay: online with mada, Visa or Apple Pay — confirmed instantly, with your tax invoice following straight away — or by bank transfer, uploading the receipt so we can verify it and activate your order.",
     "vatNoteEn": "Displayed prices are Business Partner fees. VAT (15%) is added, and government fees (where applicable) are separate and announced before starting."
   },
   "account": {
