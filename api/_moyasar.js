@@ -13,6 +13,12 @@
 const PK = (process.env.MOYASAR_PUBLISHABLE_KEY || "").trim();
 const SK = (process.env.MOYASAR_SECRET_KEY || "").trim();
 const WEBHOOK_SECRET = (process.env.MOYASAR_WEBHOOK_SECRET || "").trim();
+// Read the same way api/pay.js reads it, so the panel reports the list the
+// payment form actually gets rather than a second opinion about it.
+const ALLOWED_METHODS = new Set(["creditcard", "applepay", "stcpay"]);
+const RAW_METHODS = (process.env.MOYASAR_METHODS || "creditcard")
+  .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m));
+const PAY_METHODS = RAW_METHODS.length ? RAW_METHODS : ["creditcard"];
 const API = "https://api.moyasar.com/v1";
 
 // A Moyasar key names its own environment: pk_live_/sk_live_ vs pk_test_/sk_test_.
@@ -32,6 +38,12 @@ export function moyasarVars() {
     publishable: { set: !!PK, mode: modeOf(PK), name: "MOYASAR_PUBLISHABLE_KEY" },
     secret: { set: !!SK, mode: modeOf(SK), name: "MOYASAR_SECRET_KEY" },
     webhook: { set: !!WEBHOOK_SECRET, length: WEBHOOK_SECRET.length, name: "MOYASAR_WEBHOOK_SECRET" },
+    // Which wallets the buyer is actually offered. Apple Pay only shows on
+    // Apple devices, so "is it on?" cannot be answered by looking at the site
+    // from a laptop running Chrome — it is answered here.
+    methods: PAY_METHODS,
+    applePayOn: PAY_METHODS.includes("applepay"),
+    stcPayOn: PAY_METHODS.includes("stcpay"),
     missing: [
       PK ? null : "MOYASAR_PUBLISHABLE_KEY",
       SK ? null : "MOYASAR_SECRET_KEY",

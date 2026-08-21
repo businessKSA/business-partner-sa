@@ -1399,6 +1399,13 @@
           line(v.publishable && v.publishable.set, 'نموذج الدفع (Publishable)', v.publishable && v.publishable.set ? modeAr(v.publishable.mode) : 'ناقص') +
           line(v.secret && v.secret.set, 'تأكيد الدفع (Secret)', v.secret && v.secret.set ? modeAr(v.secret.mode) : 'ناقص') +
           line(v.webhook && v.webhook.set, 'رمز الـ Webhook', v.webhook && v.webhook.set ? 'مضبوط (' + v.webhook.length + ' حرف)' : 'ناقص');
+        // Apple Pay only renders on Apple devices, so "is it on?" cannot be
+        // answered by opening the site on a laptop running Chrome.
+        var nameAr = { creditcard: 'البطاقات (مدى/فيزا/ماستر)', applepay: 'Apple Pay', stcpay: 'STC Pay' };
+        var ms = (v.methods || []).map(function(m){ return nameAr[m] || m; }).join(' · ');
+        html += '<span class="kv"><i>💳 وسائل الدفع المعروضة للعميل:</i>' + esc(ms || '—') + '</span>';
+        if (!v.applePayOn)
+          html += '<div style="margin-top:6px;color:var(--soft);font-size:12px">Apple Pay مطفأ. لتشغيله بعد تسجيل النطاق في مُيسّر: أضف <span style="direction:ltr;display:inline-block">MOYASAR_METHODS=creditcard,applepay</span> في Vercel ثم Redeploy.</div>';
         if (v.modeMatch === false)
           html += '<div style="margin-top:8px;color:#b91c1c;font-weight:600">⚠ المفتاحان من بيئتين مختلفتين — لازم يكونان الاثنان Live أو الاثنان Test، وإلا النموذج والتحقق يتكلمان عن حسابين.</div>';
         if (r.ok){
