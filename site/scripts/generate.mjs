@@ -55,7 +55,8 @@ const ecosystem = read("data/ecosystem.json");
 // Business Partner's own open roles — an ATS-style job board on /careers,
 // each with a single job page and an application routed through the same
 // candidate form (job context carried via ?job= and hidden fields).
-const JOBS = [
+// Kept here (not deleted) so they can be re-published later; see JOBS below.
+const JOBS_ARCHIVED = [
   {
     slug: "hr-operations-specialist",
     field: "موارد بشرية",
@@ -90,6 +91,57 @@ const JOBS = [
     requirements: {
       en: ["Prior recruitment or talent acquisition coordination experience.", "Strong communication in Arabic and English.", "Detail-oriented, comfortable juggling multiple open roles at once."],
       ar: ["خبرة سابقة في تنسيق التوظيف أو استقطاب المواهب.", "تواصل قوي بالعربية والإنجليزية.", "دقة في التفاصيل والقدرة على متابعة أكثر من وظيفة مفتوحة في آن واحد."],
+    },
+  },
+];
+
+// Published roles shown on /careers (#open-jobs) and at /jobs/<slug>. The two
+// Business Partner in-house recruiter roles were unpublished on 2026-08-08
+// (kept in JOBS_ARCHIVED above); this list now carries live client vacancies.
+const JOBS = [
+  {
+    slug: "housekeeping-madinah",
+    field: "ضيافة وسياحة",
+    tag: { en: "Madinah · Hospitality", ar: "المدينة المنورة · ضيافة وفنادق" },
+    title: { en: "Housekeeping Attendant — Madinah", ar: "موظف/ة تدبير فندقي (هاوسكيبنج) — المدينة المنورة" },
+    summary: {
+      en: "Keep guest rooms and public areas spotless at a hospitality property in Madinah. Working English is essential, and candidates ready for immediate transfer of sponsorship (Naql Kafala) inside Saudi Arabia are preferred.",
+      ar: "الحفاظ على نظافة غرف النزلاء والمناطق العامة في منشأة ضيافة بالمدينة المنورة. الإنجليزية العملية أساسية، ويُفضّل الجاهزون لنقل الكفالة فورًا داخل السعودية.",
+    },
+    meta: { en: "Full-time · English essential · Transfer of sponsorship available", ar: "دوام كامل · الإنجليزية أساسية · نقل كفالة متاح" },
+    location: { en: "Madinah, Saudi Arabia", ar: "المدينة المنورة، السعودية" },
+    type: { en: "Full-time", ar: "دوام كامل" },
+    responsibilities: {
+      en: [
+        "Clean and service guest rooms, bathrooms, corridors and public areas to hotel standards.",
+        "Make beds, replace linen and towels, and restock room amenities and supplies.",
+        "Report maintenance issues, lost-and-found items and safety hazards to the supervisor.",
+        "Handle cleaning chemicals and equipment safely and follow hygiene and health procedures.",
+        "Respond to guest requests politely in English and deliver friendly, professional service.",
+      ],
+      ar: [
+        "تنظيف وتجهيز غرف النزلاء ودورات المياه والممرات والمناطق العامة وفق معايير الفنادق.",
+        "ترتيب الأسرّة وتبديل المفروشات والمناشف وإعادة تعبئة مستلزمات الغرف.",
+        "الإبلاغ عن أعطال الصيانة والمفقودات ومخاطر السلامة للمشرف.",
+        "التعامل الآمن مع مواد ومعدّات التنظيف واتباع إجراءات النظافة والصحة.",
+        "الرد على طلبات النزلاء بالإنجليزية بأسلوب مهذّب وتقديم خدمة احترافية.",
+      ],
+    },
+    requirements: {
+      en: [
+        "Working English is essential — understanding and responding to guests and supervisors.",
+        "Ready for immediate transfer of sponsorship (Naql Kafala) inside Saudi Arabia.",
+        "Based in Madinah or able to relocate there.",
+        "Previous housekeeping or cleaning experience preferred; hotel experience is a plus.",
+        "Physically fit, reliable, and comfortable with shift work including weekends.",
+      ],
+      ar: [
+        "الإنجليزية العملية أساسية — فهم النزلاء والمشرفين والرد عليهم.",
+        "الجاهزية لنقل الكفالة فورًا داخل السعودية.",
+        "الإقامة في المدينة المنورة أو القدرة على الانتقال إليها.",
+        "خبرة سابقة في التدبير الفندقي أو التنظيف مفضّلة، وخبرة الفنادق ميزة إضافية.",
+        "لياقة بدنية جيدة والتزام والقدرة على العمل بنظام الورديات بما فيها نهاية الأسبوع.",
+      ],
     },
   },
 ];
