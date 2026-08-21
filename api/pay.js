@@ -695,6 +695,38 @@ export default async function handler(req, res) {
       }
     }
 
+    // A paid order that recorded nothing must never pass in silence. The money
+    // has moved; if the CRM row, the activation or the invoice did not happen,
+    // the only acceptable outcome is that a person is told immediately, with
+    // everything needed to finish it by hand.
+    if (paid) {
+      const settleMissing = !b.order || !settle || (!settle.ok && !settle.already);
+      const invoiceMissing = !invoicing || (invoicing.invoiced === false && invoicing.reason !== "already_settled");
+      if (settleMissing || invoiceMissing) {
+        const why = [
+          settleMissing ? `التسجيل في CRM: ${settle ? (settle.error || settle.skipped || "لم يكتمل") : "لم يُستدعَ"}` : "",
+          invoiceMissing ? `الفاتورة: ${(invoicing && (invoicing.reason || invoicing.error)) || "لم تُصدر"}` : "",
+        ].filter(Boolean).join(" · ");
+        const o = b.order || {};
+        console.error("pay: PAID BUT INCOMPLETE", String(p.id || ""), why);
+        try {
+          await sendMail(OWNER_EMAIL, `⚠️ دفعة وصلت ولم يكتمل تسجيلها — ${String(o.ref || p.id || "")}`,
+            `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+              <h2 style="color:#b91c1c">دفعة مؤكدة لم يكتمل تسجيلها</h2>
+              <p>المبلغ وصل فعلاً إلى مُيسّر، لكن خطوة أو أكثر بعده لم تكتمل. أكملها يدوياً من لوحة /admin.</p>
+              <table>
+                <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(String(p.id || ""))}</b></td></tr>
+                <tr><td style="padding:4px 10px;color:#666">المبلغ</td><td style="padding:4px 10px"><b>${Math.round(Number(p.amount || 0)) / 100} ﷼</b></td></tr>
+                <tr><td style="padding:4px 10px;color:#666">المرجع</td><td style="padding:4px 10px"><b>${esc(String(o.ref || "—"))}</b></td></tr>
+                <tr><td style="padding:4px 10px;color:#666">العميل</td><td style="padding:4px 10px">${esc(String(o.name || "—"))} · ${esc(String(o.email || "—"))} · ${esc(String(o.phone || "—"))}</td></tr>
+                <tr><td style="padding:4px 10px;color:#666">ما الذي لم يكتمل</td><td style="padding:4px 10px"><b>${esc(why)}</b></td></tr>
+              </table>
+              <p style="color:#64748b;font-size:12px">هذه الرسالة تُرسل تلقائياً عند كل دفعة مؤكدة لم تُسجَّل بالكامل — حتى لا تمر دفعة دون أن يعلم بها أحد.</p>
+            </div>`);
+        } catch (e) { console.error("pay: incomplete-alert email failed", String(e.message || e).slice(0, 120)); }
+      }
+    }
+
     res.statusCode = 200;
     return res.end(JSON.stringify({
       ok: paid,

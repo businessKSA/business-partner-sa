@@ -20,6 +20,10 @@ const RAW_METHODS = (process.env.MOYASAR_METHODS || "creditcard")
   .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m));
 const PAY_METHODS = RAW_METHODS.length ? RAW_METHODS : ["creditcard"];
 const API = "https://api.moyasar.com/v1";
+// The payment form's own script. Fetched from the server rather than trusted,
+// because the browser cannot tell us anything useful about it: a build that
+// 404s into an HTML error page still executes silently and draws nothing.
+const MPF_JS = process.env.MOYASAR_MPF_URL || "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
 
 // A Moyasar key names its own environment: pk_live_/sk_live_ vs pk_test_/sk_test_.
 // That prefix is not a secret — it is the part printed in their dashboard —
@@ -55,6 +59,30 @@ export function moyasarVars() {
   };
 }
 
+// Is the payment-form build we point browsers at actually a payment form?
+// This runs on the server, where the network is open — the one question the
+// browser genuinely cannot answer for us.
+export async function mpfCheck() {
+  const url = MPF_JS;
+  const version = (String(url).match(/mpf\/([^/]+)\//) || [])[1] || "?";
+  try {
+    const r = await fetch(url);
+    const body = r.ok ? await r.text() : "";
+    const head = body.slice(0, 400);
+    return {
+      url, version, ok: r.ok, status: r.status,
+      bytes: body.length,
+      contentType: (r.headers.get("content-type") || "").split(";")[0],
+      // An error page served with status 200 is the failure that looks like
+      // success: the script tag loads, onload fires, and nothing is defined.
+      looksHtml: /^\s*(<!doctype|<html)/i.test(head),
+      definesMoyasar: /Moyasar/.test(body.slice(0, 400000)),
+    };
+  } catch (e) {
+    return { url, version, ok: false, error: String(e.message || "fetch_failed").slice(0, 90) };
+  }
+}
+
 // Ask Moyasar whether this secret key is real. A listing of one payment is the
 // cheapest authenticated call their API offers; the payment itself is thrown
 // away — only the status code is the answer.
@@ -65,11 +93,11 @@ export async function moyasarPing() {
     const r = await fetch(`${API}/payments?limit=1`, {
       headers: { Authorization: `Basic ${Buffer.from(`${SK}:`).toString("base64")}` },
     });
-    if (r.status === 401) return { ok: false, error: "unauthorized", status: 401, vars };
+    if (r.status === 401) return { ok: false, error: "unauthorized", status: 401, vars, mpf: await mpfCheck() };
     if (!r.ok) return { ok: false, error: `http_${r.status}`, status: r.status, vars };
     let count = null;
     try { const d = await r.json(); count = d && d.meta && typeof d.meta.total_count === "number" ? d.meta.total_count : null; } catch {}
-    return { ok: true, status: r.status, mode: vars.secret.mode, paymentsSoFar: count, vars };
+    return { ok: true, status: r.status, mode: vars.secret.mode, paymentsSoFar: count, vars, mpf: await mpfCheck() };
   } catch (e) {
     return { ok: false, error: String(e.message || "network_failed").slice(0, 80), vars };
   }
