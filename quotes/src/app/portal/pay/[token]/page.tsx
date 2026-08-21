@@ -32,7 +32,7 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
     amount: invoice.total,
     description: `${invoice.number} — ${invoice.titleEn}`,
     callbackUrl: `${base}/api/payments/webhook?invoice=${invoice.id}`,
-    metadata: { invoiceId: invoice.id, clientId: invoice.clientId },
+    metadata: { invoiceId: invoice.id, clientId: invoice.clientId, payToken: token },
   });
 
   return (

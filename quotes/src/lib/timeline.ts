@@ -56,31 +56,43 @@ export interface AuditInput {
   payload?: unknown;
 }
 
-/** يُستدعى لكل حركة مالية. الإضافة فقط — لا تحديث ولا حذف. */
+/**
+ * يُستدعى لكل حركة مالية. الإضافة فقط — لا تحديث ولا حذف.
+ *
+ * القيد مسلسل بقفل استشاري على مستوى قاعدة البيانات: كل قيد يقرأ تجزئة القيد
+ * السابق ثم يبني عليها، فلو كتب نداءان معاً لقرآ نفس السابق وانكسرت السلسلة.
+ * وهذا ليس احتمالاً نظرياً — بوابة الدفع ترسل نداء الرجوع وwebhook في اللحظة
+ * نفسها. القفل يُحرَّر بانتهاء المعاملة تلقائياً حتى لو فشلت.
+ */
+const AUDIT_LOCK = 728314159;
+
 export async function audit(a: AuditInput) {
-  const last = await prisma.auditLog.findFirst({ orderBy: { seq: 'desc' } });
-  const prevHash = last?.hash ?? 'GENESIS';
-  const payload = a.payload ? JSON.stringify(a.payload) : null;
-  const body = [
-    a.action,
-    a.entityType,
-    a.entityId,
-    a.actor ?? 'system',
-    a.amount ?? '',
-    payload ?? '',
-    prevHash,
-  ].join('|');
-  return prisma.auditLog.create({
-    data: {
-      action: a.action,
-      entityType: a.entityType,
-      entityId: a.entityId,
-      actor: a.actor ?? 'system',
-      amount: a.amount ?? null,
-      payload,
+  return prisma.$transaction(async (tx) => {
+    await tx.$executeRawUnsafe(`SELECT pg_advisory_xact_lock(${AUDIT_LOCK})`);
+    const last = await tx.auditLog.findFirst({ orderBy: { seq: 'desc' } });
+    const prevHash = last?.hash ?? 'GENESIS';
+    const payload = a.payload ? JSON.stringify(a.payload) : null;
+    const body = [
+      a.action,
+      a.entityType,
+      a.entityId,
+      a.actor ?? 'system',
+      a.amount ?? '',
+      payload ?? '',
       prevHash,
-      hash: sha256(body),
-    },
+    ].join('|');
+    return tx.auditLog.create({
+      data: {
+        action: a.action,
+        entityType: a.entityType,
+        entityId: a.entityId,
+        actor: a.actor ?? 'system',
+        amount: a.amount ?? null,
+        payload,
+        prevHash,
+        hash: sha256(body),
+      },
+    });
   });
 }
 

@@ -133,8 +133,11 @@ export async function markInvoicePaid(
   });
   if (invoice.status === 'PAID') return invoice;
 
-  const paid = await prisma.invoice.update({
-    where: { id: invoiceId },
+  // نداء الرجوع من المتصفح وwebhook المزوّد قد يصلان معاً على نفس الدفعة.
+  // الانتقال إلى «مدفوعة» مشروط بالحالة نفسها، فمن يفوز به وحده يقيّد الحركة
+  // في المحفظة — وإلا قُيّد المبلغ مرتين وارتفع رصيد العميل بلا سداد.
+  const claimed = await prisma.invoice.updateMany({
+    where: { id: invoiceId, status: { not: 'PAID' } },
     data: {
       status: 'PAID',
       paidAt: new Date(),
@@ -143,6 +146,8 @@ export async function markInvoicePaid(
       method: info.method ?? null,
     },
   });
+  if (claimed.count === 0) return prisma.invoice.findUniqueOrThrow({ where: { id: invoiceId } });
+  const paid = await prisma.invoice.findUniqueOrThrow({ where: { id: invoiceId } });
 
   await prisma.walletEntry.create({
     data: {

@@ -15,13 +15,14 @@ import {
   createSupplier, createSupplyRequest, addSupplierBid, selectBid,
   createSupplyAgreement, createFundingInvoice, addMilestones, approveMilestone, payMilestone,
 } from '../src/lib/suppliers';
-import { clientJourney, journeyStatus, verifyAuditChain } from '../src/lib/timeline';
+import { clientJourney, journeyStatus, verifyAuditChain, audit } from '../src/lib/timeline';
 import { storage } from '../src/lib/storage';
 import { hasEmoji } from '../src/lib/content-guard';
 import { fmtMoney } from '../src/lib/money';
 import { closeBrowser } from '../src/lib/pdf';
 import { resolveClient, CHANNEL, identitiesOf } from '../src/lib/identity';
 import { buildDocx } from '../src/lib/docx';
+import { moyasarProvider } from '../src/lib/payments/moyasar';
 
 const prisma = new PrismaClient();
 const ADMIN = 'Business@businesspartnerksa.com';
@@ -337,6 +338,61 @@ async function main() {
   // النسخة العامة للعقد الموقّع
   const cPub = await fetch(`${process.env.APP_URL}/d/${contract.publicToken}`);
   check('صفحة العقد العامة تعمل', cPub.status === 200);
+
+  // ---------------------------------------------------------------- 11
+  console.log('\n=== 11) بوابة الدفع — التحقق من نداءات Moyasar ===');
+  const H = (h: Record<string, string> = {}) => new Headers(h);
+  const evt = (token: string | null, status = 'paid') =>
+    JSON.stringify({
+      type: 'payment_paid',
+      ...(token === null ? {} : { secret_token: token }),
+      data: { id: 'pay_1', status, amount: 17250, metadata: { invoiceId: 'inv_1' } },
+    });
+
+  const prevSecret = process.env.MOYASAR_WEBHOOK_SECRET;
+  delete process.env.MOYASAR_WEBHOOK_SECRET;
+  check('بلا رمز سرّي مضبوط تُرفض كل النداءات', !moyasarProvider.verifyWebhook(evt('x'), H()));
+
+  process.env.MOYASAR_WEBHOOK_SECRET = 'wh_secret_value';
+  check('يُقبل النداء بالرمز السرّي الصحيح داخل الجسم', moyasarProvider.verifyWebhook(evt('wh_secret_value'), H()));
+  check('يُرفض الرمز السرّي الخاطئ', !moyasarProvider.verifyWebhook(evt('wrong_value_here'), H()));
+  check('يُرفض نداء بلا رمز ولا ترويسة توقيع', !moyasarProvider.verifyWebhook(evt(null), H()));
+  check('يُرفض جسم غير قابل للتحليل', !moyasarProvider.verifyWebhook('not json', H()));
+  if (prevSecret === undefined) delete process.env.MOYASAR_WEBHOOK_SECRET;
+  else process.env.MOYASAR_WEBHOOK_SECRET = prevSecret;
+
+  const intent = await moyasarProvider.createPayment({
+    amount: 17250, description: 'BP-FI-2026-001', callbackUrl: 'https://x/cb',
+    metadata: { invoiceId: 'inv_1', payToken: 'tok_abc' },
+  });
+  check('رابط السداد يحمل رمز الفاتورة لا المبلغ',
+    intent.url === '/portal/pay/tok_abc/checkout', intent.url);
+  check('لا يظهر المبلغ في رابط السداد', !/amount/i.test(intent.url));
+
+  // تقييد السداد مرة واحدة مهما تكرر النداء
+  const dueInvoice = await prisma.invoice.findFirst({ where: { clientId: client.id, status: 'DUE' } });
+  if (dueInvoice) {
+    const before = await walletSummary(client.id);
+    await Promise.all([
+      markInvoicePaid(dueInvoice.id, { provider: 'moyasar', ref: 'pay_dup', method: 'mada' }),
+      markInvoicePaid(dueInvoice.id, { provider: 'moyasar', ref: 'pay_dup', method: 'mada' }),
+    ]);
+    const entries = await prisma.walletEntry.count({ where: { invoiceId: dueInvoice.id } });
+    check('نداءان متزامنان على نفس الفاتورة يقيّدان حركة واحدة', entries === 1, `${entries} حركة`);
+    const after = await walletSummary(client.id);
+    check('المدفوع ارتفع بقيمة الفاتورة مرة واحدة',
+      Math.round((after.paid - before.paid) * 100) === Math.round(dueInvoice.total * 100),
+      fmtMoney(after.paid - before.paid));
+  }
+
+  // خمسة قيود تدقيق متزامنة — السلسلة تبقى سليمة تحت الضغط
+  await Promise.all(
+    Array.from({ length: 5 }, (_, i) =>
+      audit({ action: 'CONCURRENCY_PROBE', entityType: 'invoice', entityId: `probe_${i}`, actor: 'system' })),
+  );
+  const chainAfter = await verifyAuditChain();
+  check('سلسلة التدقيق تصمد أمام خمسة قيود متزامنة', chainAfter.ok,
+    chainAfter.ok ? `${chainAfter.count} قيد` : `انكسرت عند ${chainAfter.brokenAt}`);
 
   console.log(`\n${'='.repeat(60)}\nنجح: ${passed}   فشل: ${failed}`);
   if (fails.length) console.log(`الفاشل:\n - ${fails.join('\n - ')}`);

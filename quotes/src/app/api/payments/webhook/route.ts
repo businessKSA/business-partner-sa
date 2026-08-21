@@ -52,21 +52,33 @@ export async function POST(req: Request) {
   if (!provider.verifyWebhook(raw, req.headers)) {
     return NextResponse.json({ error: 'توقيع غير صالح' }, { status: 401 });
   }
-  let body: { id?: string; status?: string; metadata?: { invoiceId?: string }; source?: { type?: string } };
+
+  /**
+   * Moyasar يغلّف الدفعة داخل `data` ويضع نوع الحدث في `type`.
+   * نقبل الشكلين — المغلَّف والمسطَّح — حتى لا يكسرنا اختلاف نسخة المزوّد.
+   */
+  type Payment = {
+    id?: string;
+    status?: string;
+    metadata?: { invoiceId?: string };
+    source?: { type?: string; company?: string };
+  };
+  let envelope: Payment & { type?: string; data?: Payment };
   try {
-    body = JSON.parse(raw);
+    envelope = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: 'حمولة غير صالحة' }, { status: 400 });
   }
+  const payment: Payment = envelope.data ?? envelope;
 
-  const invoiceId = body.metadata?.invoiceId;
+  const invoiceId = payment.metadata?.invoiceId;
   if (!invoiceId) return NextResponse.json({ error: 'لا يوجد معرّف فاتورة' }, { status: 400 });
-  if (body.status !== 'paid') return NextResponse.json({ ok: true, message: 'حالة غير مدفوعة — تُجوهلت' });
+  if (payment.status !== 'paid') return NextResponse.json({ ok: true, message: 'حالة غير مدفوعة — تُجوهلت' });
 
   await markInvoicePaid(invoiceId, {
     provider: provider.name,
-    ref: body.id || '',
-    method: body.source?.type,
+    ref: payment.id || '',
+    method: payment.source?.type === 'creditcard' ? payment.source?.company : payment.source?.type,
   });
   return NextResponse.json({ ok: true });
 }
