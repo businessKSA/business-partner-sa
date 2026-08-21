@@ -83,12 +83,16 @@
   const pkgCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/revenue-os' : '/ar/revenue-os'}#pricing" style="text-decoration:none">${L('View Revenue OS packages', 'استعرض باقات Revenue OS')}</a>`;
 
   function periodOrders() { return state.orders.filter(inPeriod); }
-  function sums() {
-    const open = periodOrders().filter((o) => OPEN.includes(o.status));
-    const active = periodOrders().filter((o) => ACTIVE.includes(o.status));
-    const done = periodOrders().filter((o) => DONE.includes(o.status));
-    const sum = (arr) => arr.reduce((s, o) => s + (Number(o.total) || 0), 0);
-    return { open, active, done, pipeline: sum(open) + sum(active), collected: sum(done), wallet: (state.overview && state.overview.walletBalance) || 0 };
+  // The client's own orders with us. Deliberately NOT called a pipeline: these
+  // are services they bought from Business Partner, not opportunities we
+  // generated for them, and showing them as "فرص" misrepresents both.
+  function orderSummary() {
+    const list = periodOrders();
+    return {
+      count: list.length,
+      open: list.filter((o) => OPEN.includes(o.status)).length,
+      wallet: (state.overview && state.overview.walletBalance) || 0,
+    };
   }
 
   const ordersRows = (list) => list.map((o) => [
@@ -96,43 +100,62 @@
     o.total ? money(o.total) : '—', esc(o.at || '—'),
   ]);
 
+  // A Revenue OS subscription is what makes this workspace fill up. Detect it
+  // from the client's own confirmed orders.
+  function revosPlan() {
+    const hit = state.orders.find((o) => /revenue\s*os/i.test((o.title || '') + ' ' + (o.ref || '')) && (ACTIVE.includes(o.status) || DONE.includes(o.status)));
+    return hit || null;
+  }
+
   const views = {
     overview() {
-      const s = sums();
-      const recent = periodOrders().slice(0, 6);
-      return `${head('Revenue Overview', L('Your real numbers — from the orders and opportunities on record with Business Partner.', 'أرقامك الحقيقية — من طلباتك وفرصك المسجلة لدى Business Partner.'), `<a class="dash-btn" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Client portal', 'منصّة العملاء')}</a><a class="dash-btn primary" href="${lang === 'en' ? '/services' : '/ar/services'}" style="text-decoration:none">${L('+ New request', '+ طلب جديد')}</a>`)}
-      <div class="dash-kpis">
-        ${kpi(L('Pipeline (open + in progress)', 'Pipeline (فرص مفتوحة + قيد التنفيذ)'), money(s.pipeline), s.open.length + s.active.length + L(' opportunities', ' فرصة'))}
-        ${kpi(L('In progress', 'قيد التنفيذ'), money(s.active.reduce((x, o) => x + (Number(o.total) || 0), 0)), s.active.length + L(' confirmed orders', ' طلب مؤكد'))}
-        ${kpi(L('Completed (collected)', 'المكتمل (محصّل)'), money(s.collected), s.done.length + L(' completed orders', ' طلب مكتمل'))}
-        ${kpi(L('Wallet balance', 'رصيد المحفظة'), money(s.wallet), '')}
+      const plan = revosPlan();
+      const o = orderSummary();
+      const banner = plan
+        ? `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid #168A5B"><b>${L('Revenue OS is active', 'اشتراك Revenue OS مفعّل')}</b><br><small style="color:#6B7280">${esc(plan.title || '')} · ${L('your pipeline fills as the team runs it', 'يمتلئ الـPipeline مع تشغيل الفريق لباقتك')}</small></div>`
+        : `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid #B7791F"><b>${L('This workspace is ready — Revenue OS is not subscribed yet', 'مساحتك جاهزة — اشتراك Revenue OS غير مفعّل بعد')}</b><br><small style="color:#6B7280">${L('Opportunities, meetings and commissions appear here once a package is running.', 'الفرص والاجتماعات والعمولات تظهر هنا بمجرد تشغيل باقتك.')}</small><div style="margin-top:10px">${pkgCta()}</div></div>`;
+
+      // These are Revenue OS numbers — opportunities generated FOR the client.
+      // They are not the client's own purchases from us; those live below.
+      const note = L('starts when your package runs', 'تبدأ مع تشغيل باقتك');
+      return `${head('Revenue Overview', L('Opportunities Business Partner generates for you — and where they stand.', 'الفرص التي يبنيها لك Business Partner — وأين وصلت.'), `<a class="dash-btn" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Client portal', 'منصّة العملاء')}</a>`)}
+      ${banner}
+      <div class="dash-kpis" style="margin-top:14px">
+        ${kpi(L('Opportunities generated', 'فرص مولّدة لك'), '0', note)}
+        ${kpi(L('Meetings booked', 'اجتماعات محجوزة'), '0', note)}
+        ${kpi(L('Proposals out', 'عروض مقدَّمة'), '0', note)}
+        ${kpi(L('Revenue collected from these deals', 'إيراد محصّل من هذه الصفقات'), money(0), note)}
       </div>
       <div class="dash-grid-2">
-        <article class="dash-card"><div class="dash-card-head"><div><h3>${L('Opportunity progress', 'تقدم الفرص')}</h3><small>${L('by real status', 'حسب الحالة الفعلية')}</small></div></div>
+        <article class="dash-card"><div class="dash-card-head"><div><h3>${L('Pipeline stages', 'مراحل الـPipeline')}</h3><small>${L('opportunities we generate for you', 'الفرص التي نولّدها لك')}</small></div></div>
           <div class="funnel">
-            ${[[L('Under review', 'قيد المراجعة'), periodOrders().filter((o) => o.status === 'قيد المراجعة').length], [L('Awaiting payment', 'بانتظار الدفع'), periodOrders().filter((o) => o.status === 'بانتظار الدفع').length], [L('Confirmed - in progress', 'مؤكد - قيد التنفيذ'), s.active.length], [L('Completed', 'مكتمل'), s.done.length]].map(([label, n], i, all) => {
-              const max = Math.max(1, ...all.map((x) => x[1]));
-              return `<div class="funnel-row"><span>${label}</span><div class="progress"><i style="width:${Math.round((n / max) * 100)}%"></i></div><b>${n}</b></div>`;
-            }).join('')}
-          </div></article>
-        <article class="dash-card"><div class="dash-card-head"><div><h3>${L('Latest activity', 'آخر الأنشطة')}</h3><small>${L('your most recent orders and opportunities', 'أحدث طلباتك وفرصك')}</small></div></div>
-          ${recent.length ? table([L('Ref', 'المرجع'), L('Order', 'الطلب'), L('Status', 'الحالة'), L('Amount', 'المبلغ'), L('Date', 'التاريخ')], ordersRows(recent)) : `<p style="color:#6B7280;padding:12px">${L('No orders yet — start from the services page or the Revenue OS packages.', 'لا توجد طلبات بعد — ابدأ من صفحة الخدمات أو باقات Revenue OS.')}</p>`}
+            ${[[L('Research', 'بحث'), 0], [L('Qualified', 'مؤهلة'), 0], [L('Meetings', 'اجتماعات'), 0], [L('Proposals', 'عروض'), 0], [L('Won', 'مكتسبة'), 0]].map(([label, n]) =>
+              `<div class="funnel-row"><span>${label}</span><div class="progress"><i style="width:0%"></i></div><b>${n}</b></div>`).join('')}
+          </div>
+          <p style="color:#6B7280;padding:0 4px;margin:6px 0 0;font-size:13px">${L('Empty until your package is running — we show nothing we have not actually done.', 'فارغة حتى تشغيل باقتك — لا نعرض شيئًا لم ننفّذه فعلاً.')}</p>
+        </article>
+        <article class="dash-card"><div class="dash-card-head"><div><h3>${L('Your account with Business Partner', 'حسابك لدى Business Partner')}</h3><small>${L('your service orders and wallet — not part of the pipeline above', 'طلبات خدماتك ومحفظتك — ليست جزءًا من الـPipeline أعلاه')}</small></div></div>
+          <div class="dash-kpis" style="padding:0">
+            ${kpi(L('Service orders', 'طلبات خدمات'), String(o.count))}
+            ${kpi(L('Open orders', 'طلبات مفتوحة'), String(o.open))}
+            ${kpi(L('Wallet balance', 'رصيد المحفظة'), money(o.wallet))}
+          </div>
+          <div style="padding:10px 4px 0"><a class="dash-btn" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Open them in the client portal', 'افتحها في منصّة العملاء')}</a></div>
         </article>
       </div>`;
     },
     pipeline() {
-      const s = sums();
-      const list = periodOrders().filter((o) => o.status !== 'ملغي');
-      return `${head(L('Opportunities & pipeline', 'الفرص والـPipeline'), L('Every open and completed opportunity and order — real data from your record.', 'كل فرصك وطلباتك المفتوحة والمكتملة — بيانات حقيقية من سجلك.'))}
-      <div class="dash-kpis">${kpi(L('Total pipeline', 'إجمالي الـPipeline'), money(s.pipeline))}${kpi(L('Open', 'فرص مفتوحة'), String(s.open.length))}${kpi(L('In progress', 'قيد التنفيذ'), String(s.active.length))}${kpi(L('Completed', 'مكتمل'), String(s.done.length))}</div>
-      ${list.length ? `<article class="dash-card">${table([L('Ref', 'المرجع'), L('Opportunity / service', 'الفرصة / الخدمة'), L('Status', 'الحالة'), L('Amount', 'المبلغ'), L('Date', 'التاريخ')], ordersRows(list))}</article>` : emptyState(L('No opportunities yet', 'لا توجد فرص بعد'), L('Your first opportunity appears here as soon as you place an order or activate a Revenue OS package.', 'أول فرصة تظهر هنا فور تقديم طلب أو تفعيل باقة Revenue OS.'), pkgCta())}`;
+      return `${head(L('Opportunities & pipeline', 'الفرص والـPipeline'), L('Opportunities Business Partner generates for you — never your own orders with us.', 'الفرص التي يبنيها لك Business Partner — وليست طلباتك لدينا.'))}
+      ${emptyState(L('No opportunities generated yet', 'لا توجد فرص مولّدة بعد'),
+        L('Once a Revenue OS package is running, every account we target, qualify and take to a meeting shows up here with its value, stage and next action. Your own service orders with Business Partner live in the client portal.',
+          'بمجرد تشغيل باقة Revenue OS، يظهر هنا كل حساب نستهدفه ونؤهله ونصل به إلى اجتماع، بقيمته ومرحلته والإجراء التالي. أما طلبات خدماتك لدى Business Partner فمكانها منصّة العملاء.'),
+        pkgCta())}`;
     },
     revenue() {
-      const s = sums();
-      const tx = (state.overview && state.overview.walletTransactions) || [];
-      return `${head(L('Revenue & collection', 'الإيرادات والتحصيل'), L('Completed amounts, your wallet balance and its movements — real data.', 'المبالغ المكتملة ورصيد محفظتك وحركاتها — بيانات حقيقية.'))}
-      <div class="dash-kpis">${kpi(L('Collected (completed orders)', 'المحصّل (طلبات مكتملة)'), money(s.collected))}${kpi(L('Wallet balance', 'رصيد المحفظة'), money(s.wallet))}${kpi(L('Wallet movements', 'حركات المحفظة'), String(tx.length))}</div>
-      ${tx.length ? `<article class="dash-card"><div class="dash-card-head"><div><h3>${L('Wallet movements', 'حركات المحفظة')}</h3></div></div>${table([L('Type', 'النوع'), L('Amount', 'المبلغ'), L('Note', 'ملاحظة'), L('Date', 'التاريخ')], tx.map((t) => [esc(t.type === 'topup' ? L('Top-up', 'شحن') : L('Payment', 'سداد')), money(Math.abs(Number(t.amount) || 0)), esc(t.note || '—'), esc(String(t.created_at || '').slice(0, 10))]))}</article>` : emptyState(L('No financial movements yet', 'لا توجد حركات مالية بعد'), L('Collected payments and wallet movements appear here as soon as they are approved.', 'تظهر هنا الدفعات المحصلة وحركات محفظتك فور اعتمادها.'), '')}`;
+      const o = orderSummary();
+      return `${head(L('Revenue & collection', 'الإيرادات والتحصيل'), L('Revenue collected from the deals we generate for you, and the commission due on it.', 'الإيراد المحصّل من الصفقات التي نولّدها لك، والعمولة المستحقة عليه.'))}
+      <div class="dash-kpis">${kpi(L('Collected from generated deals', 'محصّل من الصفقات المولّدة'), money(0), L('starts when your package runs', 'تبدأ مع تشغيل باقتك'))}${kpi(L('Commission due', 'عمولة مستحقة'), money(0))}${kpi(L('Your wallet at Business Partner', 'رصيد محفظتك لدى Business Partner'), money(o.wallet))}</div>
+      ${emptyState(L('No collections yet', 'لا توجد تحصيلات بعد'), L('Revenue is recorded here only when a deal we generated is actually collected — that is also what commission is calculated on.', 'يُسجَّل الإيراد هنا فقط عند تحصيل صفقة ولّدناها فعلاً — وهو نفسه ما تُحتسب عليه العمولة.'), pkgCta())}`;
     },
     tasks() {
       const t = state.tasks;
