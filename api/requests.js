@@ -18,7 +18,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
 import { stageChannels, announce } from "./_stage.js";
-import { moyasarPing } from "./_moyasar.js";
+import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe } from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -1648,7 +1648,7 @@ export default async function handler(req, res) {
       // channels says which legs of the client's notification actually fire —
       // the portal, the e-mail, WhatsApp — so a silent client is diagnosed
       // instead of guessed at.
-      return res.end(JSON.stringify({ ok: true, services: out, channels: stageChannels() }));
+      return res.end(JSON.stringify({ ok: true, services: out, channels: stageChannels(), mpf: await mpfCheck() }));
     }
 
     // Ask Moyasar whether the key works, rather than whether the variable

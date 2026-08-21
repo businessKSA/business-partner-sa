@@ -1421,6 +1421,21 @@
             : 'تعذّر الاتصال: ' + esc(r.error || '');
           html += '<div style="margin-top:10px;font-weight:700;color:#b45309">⛔ ' + why + '</div>';
         }
+        // The payment form's own script, fetched by our server. A build that
+        // 404s into an error page still loads silently in a browser and draws
+        // nothing — which is exactly the symptom we are chasing.
+        if (r.mpf) {
+          var m = r.mpf;
+          var mOk = m.ok && m.definesMoyasar && !m.looksHtml;
+          html += '<span class="kv"><i>' + (mOk ? '✅' : '⛔') + ' نموذج الدفع (سكربت مُيسّر):</i>' +
+            (m.error ? 'تعذّر الجلب — ' + esc(m.error)
+              : 'HTTP ' + m.status + ' · ' + (m.bytes || 0) + ' بايت · ' + esc(m.contentType || '—') +
+                (m.definesMoyasar ? ' · يعرّف Moyasar ✓' : ' · لا يعرّف Moyasar ✗') +
+                (m.looksHtml ? ' · صفحة HTML وليست سكربت ⚠' : '')) + '</span>';
+          html += '<div style="margin-top:4px;font-size:11.5px;color:var(--soft);direction:ltr;text-align:start">' + esc(m.url || '') + '</div>';
+          if (!mOk)
+            html += '<div style="margin-top:6px;color:#b91c1c;font-weight:600">⚠ هذا سبب كافٍ لظهور صندوق دفع فارغ: المتصفح يحمّل الملف بلا خطأ ولا يرسم شيئاً. عالجه بضبط <span style="direction:ltr;display:inline-block">MOYASAR_MPF_URL</span> في Vercel على إصدار صالح.</div>';
+        }
         if (v.missing && v.missing.length)
           html += '<div style="margin-top:8px;color:#b45309">ينقص في Vercel: <span style="direction:ltr;display:inline-block">' + esc(v.missing.join(' · ')) + '</span></div>';
         m.innerHTML = html;
