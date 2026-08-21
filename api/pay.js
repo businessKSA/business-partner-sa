@@ -24,7 +24,7 @@
 //                            emails them that the service unlocked.
 
 import crypto from "node:crypto";
-import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink } from "./_daftra.js";
+import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { contactForRef } from "./_stage.js";
 
@@ -307,6 +307,22 @@ async function invoicePaidOrder(order, paidHalalas) {
         <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`,
       [{ filename: `TAX_Invoice-${String(inv.number).replace(/[^\w-]/g, "")}.pdf`, content: pdf.base64 }]);
   } else {
+    // No PDF. Before falling back to a manual step, try Daftra's own page for
+    // this invoice — same document, same numbering, same books, and nothing
+    // issued by us. It is only used when a client can actually open it.
+    let pub = null;
+    try { pub = await daftraPublicInvoiceLink(inv.id, inv.publicUrl || inv.url || ""); } catch { pub = null; }
+    if (pub && pub.url) {
+      await sendMail(who.email, `فاتورة ${inv.number} — بيزنس بارتنر`,
+        `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right">
+          <h2 style="color:#0B1B5A">فاتورتك الضريبية من بيزنس بارتنر</h2>
+          <p>شكراً لك — تم استلام دفعتك بنجاح.</p>
+          <p>رقم الفاتورة: <b>${esc(inv.number)}</b>${order.ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(order.ref)}</b>` : ""}</p>
+          <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${rate}%): <b>${inv.vat} ﷼</b><br>الإجمالي المدفوع: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
+          <p style="margin:18px 0"><a href="${esc(pub.url)}" style="background:#0B1B5A;color:#fff;padding:12px 26px;border-radius:10px;text-decoration:none;font-weight:bold;display:inline-block">افتح فاتورتك الضريبية</a></p>
+          <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`);
+      return { invoiced: true, number: inv.number, total: inv.total, pdfAttached: false, clientEmailed: true, deliveredBy: "daftra_link", payUrl };
+    }
     // The client is not sent a message with no invoice in it. The owner is,
     // because they can attach the file from the panel in under a minute.
     await sendMail(OWNER_EMAIL, `⚠️ فاتورة ${inv.number} تحتاج إرفاق PDF يدوياً`,
