@@ -20,10 +20,10 @@ A complete bilingual (Arabic/English) landing page for Business Partner Services
 - **Phone**: 0503793356
 - **Email**: business@businesspartner.sa
 - **Website**: www.businesspartner.sa
-- **Address**: الرياض – حي العارض – شارع ريحانة بنت زيد
-- **CR**: 1009008634
-- **VAT**: 310887376200003
-- **Unified**: 7038696196
+- **Address**: الرياض – حي الملقا – شارع الأمير محمد بن سعد – مجمع طوق ورد
+- **CR**: 7038825860
+- **VAT**: 310887376200003 _(unverified — no official source on record)_
+- **Unified**: 7038696196 _(unverified — no official source on record)_
 
 ### Services & Pricing
 
