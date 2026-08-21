@@ -1392,7 +1392,11 @@
     "cartTitle": "سلة الطلبات",
     "cartEmpty": "سلتك فارغة حالياً. تصفّح الخدمات والباقات وأضِف ما يناسبك.",
     "checkoutTitle": "إتمام الطلب",
+<<<<<<< HEAD
     "checkoutIntro": "اختر طريقة الدفع التي تناسبك: ادفع إلكترونياً ببطاقة مدى أو فيزا أو Apple Pay ويتأكد طلبك فوراً وتصلك فاتورتك الضريبية مباشرة — أو حوّل بنكياً وارفع صورة الإيصال ونفعّل طلبك بعد التحقق منه.",
+=======
+    "checkoutIntro": "ادفع إلكترونياً (مدى / فيزا / ماستركارد) ويتفعّل طلبك تلقائياً فور تأكيد الدفع — أو حوّل بنكياً وارفع الإيصال ونفعّل طلبك فور التحقق منه.",
+>>>>>>> 1a1abb304 (Make a confirmed online payment activate everything by itself)
     "steps": [
       {
         "n": "1",
@@ -1427,7 +1431,11 @@
     "cartTitleEn": "Your cart",
     "cartEmptyEn": "Your cart is empty. Browse services and packages and add what suits you.",
     "checkoutTitleEn": "Checkout",
+<<<<<<< HEAD
     "checkoutIntroEn": "Choose how you'd like to pay: online with mada, Visa or Apple Pay — confirmed instantly, with your tax invoice following straight away — or by bank transfer, uploading the receipt so we can verify it and activate your order.",
+=======
+    "checkoutIntroEn": "Pay online (mada / Visa / Mastercard) and your order activates automatically the moment the payment is confirmed — or pay by bank transfer, upload the receipt, and we activate it as soon as it is verified.",
+>>>>>>> 1a1abb304 (Make a confirmed online payment activate everything by itself)
     "vatNoteEn": "Displayed prices are Business Partner fees. VAT (15%) is added, and government fees (where applicable) are separate and announced before starting."
   },
   "account": {

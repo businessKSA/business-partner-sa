@@ -1955,8 +1955,8 @@ function buildPackages() {
     <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to activation", "أربع خطوات من التسجيل إلى التفعيل")}</h2></div>
     <div class="steps-grid">${[
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site.", "أنشئ حسابك في الموقع.")],
-      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
-      [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, your subscription is activated and you're notified.", "بمجرد التأكيد، يُفعَّل اشتراكك ويصلك إشعار.")],
+      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then pay online (mada / Visa) or by bank transfer.", "ثم ادفع إلكترونياً (مدى / فيزا) أو بتحويل بنكي.")],
+      [L("Payment is confirmed", "يتأكد الدفع"), L("Online payment activates your subscription instantly; a bank transfer activates it as soon as the receipt is verified.", "الدفع الإلكتروني يفعّل اشتراكك فوراً؛ والتحويل البنكي يفعّله فور التحقق من الإيصال.")],
       [L("We start managing your account", "نبدأ إدارة حسابك"), L("Your dedicated team starts work on the platforms covered by your package.", "فريقك المخصّص يبدأ العمل على المنصات المشمولة بباقتك.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
     <div class="hero-actions" style="margin-top:1.4rem">
@@ -2471,8 +2471,8 @@ function buildComplianceAgent() {
     <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to opening your dashboard", "أربع خطوات من التسجيل إلى فتح لوحتك")}</h2></div>
     <div class="steps-grid">${[
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
-      [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then complete checkout by bank transfer.", "ثم أكمل الدفع عبر تحويل بنكي.")],
-      [L("We confirm your transfer", "نتحقق من تحويلك"), L("Once confirmed, we email you an access code.", "بمجرد التأكيد، يصلك بريد فيه رمز الدخول.")],
+      [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then pay online (mada / Visa) or by bank transfer.", "ثم ادفع إلكترونياً (مدى / فيزا) أو بتحويل بنكي.")],
+      [L("Payment is confirmed", "يتأكد الدفع"), L("Pay online and your access code is emailed to you instantly — a bank transfer is confirmed first.", "ادفع إلكترونياً ويصلك رمز الدخول على بريدك فوراً — والتحويل البنكي يُعتمد أولاً.")],
       [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your compliance dashboard with your email and the access code — your establishment file, alerts and document upload are all there.", "ادخل لوحة الامتثال ببريدك ورمز الدخول — ملف منشأتك وتنبيهاتك ورفع مستنداتك كلها هناك.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
   </div></section>
@@ -4404,7 +4404,7 @@ function buildEmployerJoin() {
   <section class="section"><div class="container">
     <div class="section-head" style="margin-bottom:22px"><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
     ${employerPlanCards({ selectable: true })}
-    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay by bank transfer at checkout — we activate your access right after.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع بالتحويل البنكي عند إتمام الطلب — نفعّل وصولك مباشرة بعدها.")}</p>
+    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online for instant activation — or by bank transfer and we activate right after verifying it.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع إلكترونياً فيتفعّل وصولك فوراً — أو بالتحويل البنكي ونفعّله فور التحقق منه.")}</p>
   </div></section>`;
   return page({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
 }
@@ -6289,7 +6289,7 @@ function buildCart() {
           </div>
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
           <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
-          <p class="mini">${L("Payment is by bank transfer: you upload the transfer receipt at checkout and we activate right after confirming it.", "الدفع بالتحويل البنكي: ترفع إيصال التحويل عند إتمام الطلب ونفعّل خدمتك فور تأكيده.")}</p>
+          <p class="mini">${L("Pay online (mada / Visa / Mastercard) and your order activates automatically — or pay by bank transfer and we activate it right after verifying the receipt.", "ادفع إلكترونياً (مدى / فيزا / ماستركارد) ويتفعّل طلبك تلقائياً — أو حوّل بنكياً ونفعّله فور التحقق من الإيصال.")}</p>
           <p class="mini">💳 <a href="${u("/account")}">${L("Pay from your wallet", "اسدد من محفظتك")}</a></p>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
           <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
@@ -6309,8 +6309,8 @@ function buildCheckout() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Checkout", "إتمام الطلب")}</span>
-    <h1>${L("Checkout — bank transfer", cm.checkoutTitle)}</h1>
-    <p class="lead">${L("Bank transfer for now. Enter your details, upload your documents, transfer the amount and upload the receipt to confirm your order. (Online payment coming soon.)", cm.checkoutIntro)}</p>
+    <h1>${L("Checkout", cm.checkoutTitle)}</h1>
+    <p class="lead">${L("Pay online (mada / Visa / Mastercard) and your order activates automatically the moment the payment is confirmed — or pay by bank transfer, upload the receipt, and we activate it as soon as it is verified.", cm.checkoutIntro)}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="steps-grid" style="margin-bottom:36px">${steps}</div>
@@ -8694,7 +8694,7 @@ function buildSharedServices() {
       <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from subscription to opening your dashboard.", "رحلة واضحة من الاشتراك حتى فتح لوحتك.")}</p></div>
       <div class="ss-steps">
         <div class="ss-step"><span class="n">1</span><b>${L("Add to cart", "أضف للسلة")}</b><p>${L("Add the shared-services subscription to your cart from this page.", "أضف اشتراك الخدمات المشتركة لسلتك من هذه الصفحة.")}</p></div>
-        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Complete checkout with a bank transfer and upload the receipt.", "أكمل الطلب بالتحويل البنكي وارفع الإيصال.")}</p></div>
+        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Pay online for instant activation, or by bank transfer with the receipt.", "ادفع إلكترونياً فيتفعّل فوراً، أو بتحويل بنكي مع رفع الإيصال.")}</p></div>
         <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("Once payment is confirmed, your access code is emailed to your registered address.", "بعد تأكيد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
         <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter your code in the service portal and your team dashboard opens.", "أدخل رمزك في بوابة الخدمة فتفتح لوحة فريقك.")}</p></div>
       </div>

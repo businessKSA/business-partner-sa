@@ -3586,16 +3586,44 @@ var BP = window.BP = window.BP || {};
         }
       };
     }
+    // The reference survives re-snapshots: it is the activation key the client
+    // receives by email, so it must not change between mounting the form and
+    // coming back from 3-D Secure.
+    var prevRef = "";
+    try { prevRef = (JSON.parse(sessionStorage.getItem(SNAP) || "{}") || {}).ref || ""; } catch (e9) {}
+    var comp = {}; try { comp = JSON.parse(localStorage.getItem("bp_company") || "{}"); } catch (e10) {}
     var order = {
-      ref: "BP-" + Date.now().toString().slice(-6),
+      ref: prevRef || "BP-" + Date.now().toString().slice(-6),
       name: (ses && ses.name) || fieldVal("co-name"),
       email: ((ses && ses.email) || fieldVal("co-email")).toLowerCase(),
       phone: fieldVal("co-phone"),
       items: cart2.map(function (i) { return { id: i.id || "", qty: i.qty || 1 }; }),
+      company: fieldVal("co-entity") || comp.name || "",
+      surchargeFee: (typeof BP.extraCheckoutFee === "function") ? (BP.extraCheckoutFee() || 0) : 0,
       taxProfile: tp
     };
     try { sessionStorage.setItem(SNAP, JSON.stringify(order)); } catch (e) {}
     return order;
+  }
+  // The basket, compact enough to ride in the payment's own metadata — that is
+  // what lets the server webhook activate everything even when the buyer pays
+  // and never comes back from 3-D Secure.
+  function payMetadata() {
+    var snap = snapshot() || {};
+    var items = "";
+    try {
+      items = (snap.items || []).map(function (i) { return i.id + "~" + (i.qty || 1); }).join(",");
+      if (items.length > 400) items = "";
+    } catch (eM) { items = ""; }
+    return {
+      ref: String(snap.ref || ""),
+      email: String(snap.email || "").slice(0, 120),
+      name: String(snap.name || "").slice(0, 60),
+      phone: String(snap.phone || "").slice(0, 30),
+      co: String(snap.company || "").slice(0, 80),
+      items: items,
+      tax: (snap.taxProfile && snap.taxProfile.kind) === "company" ? "company" : "personal"
+    };
   }
 
   // ---- how the buyer pays ----
@@ -3688,7 +3716,11 @@ var BP = window.BP = window.BP || {};
             description: "Business Partner order",
             publishable_api_key: cfg.publishableKey,
             callback_url: location.origin + location.pathname,
-            metadata: { ref: String((snapshot() || {}).ref || "") },
+            metadata: payMetadata(),
+            // Refresh the metadata at the moment of payment — the buyer types
+            // their email after the form mounts, and the webhook needs the
+            // final basket + contact, not the empty mount-time one.
+            on_initiating: function () { return { metadata: payMetadata() }; },
             methods: methods,
             apple_pay: applePay || undefined
           });
@@ -3758,6 +3790,13 @@ var BP = window.BP = window.BP || {};
         if (el) {
           el.hidden = false;
           var inv = v && v.invoice;
+          var st = v && v.settle;
+          var actLine = "";
+          if (ok && st && st.ok) {
+            actLine = st.verified
+              ? "<br>⚡ " + BP.t("Your services are activated automatically — any access codes are already on their way to your email.", "تم تفعيل خدماتك تلقائياً — أكواد الوصول (إن وجدت) في طريقها إلى بريدك الآن.")
+              : "<br>🕐 " + BP.t("Your payment is confirmed; activation completes within working hours.", "دفعتك مؤكدة وجاري تفعيل خدمتك خلال ساعات العمل.");
+          }
           el.innerHTML = ok
             ? "✅ <strong>" + BP.t("Payment received", "تم استلام الدفعة") + "</strong><br>" +
               (inv && inv.invoiced && inv.clientEmailed
@@ -3766,7 +3805,8 @@ var BP = window.BP = window.BP || {};
                 : (inv && inv.invoiced
                     ? BP.t("Your tax invoice no. ", "فاتورتك الضريبية رقم ") + "<strong dir=\"ltr\">" + String(inv.number) + "</strong>" +
                       BP.t(" has been issued and reaches you by email shortly.", " صدرت وتصلك على بريدك خلال دقائق.")
-                    : BP.t("Your tax invoice reaches you by email shortly.", "فاتورتك الضريبية تصلك على بريدك خلال دقائق.")))
+                    : BP.t("Your tax invoice reaches you by email shortly.", "فاتورتك الضريبية تصلك على بريدك خلال دقائق."))) +
+              actLine
             : BP.t("Payment not completed — you can retry or use bank transfer.", "لم تكتمل الدفعة — يمكنك المحاولة مجدداً أو استخدام التحويل البنكي.");
           el.scrollIntoView({ behavior: "smooth", block: "center" });
         }

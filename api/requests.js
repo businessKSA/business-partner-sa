@@ -795,8 +795,12 @@ async function catalogPrices() {
     map[String(s.code).toLowerCase()] = { amount: Number(s.amount) || 0, name: s.nameAr || s.nameEn || s.code };
   }
   for (const p of c.packages || []) {
-    const k = String(p.code || p.key || "").toLowerCase();
-    if (k) map[k] = { amount: Number(p.amount) || 0, name: p.nameAr || p.nameEn || k };
+    // The cart names a package by its key ("pkg-silver") while the invoice
+    // names it by code (BP-PKG-LAUNCH) — index both so either resolves.
+    const entry = { amount: Number(p.amount) || 0, name: p.nameAr || p.nameEn || p.code || p.key };
+    for (const k of [p.code, p.key].map((x) => String(x || "").toLowerCase()).filter(Boolean)) {
+      if (!map[k]) map[k] = entry;
+    }
   }
   _catCache = map; _catAt = Date.now();
   return map;
@@ -2040,6 +2044,134 @@ export default async function handler(req, res) {
     const out = await readDocument(b64, String(b.fileType || ""));
     res.statusCode = out.ok ? 200 : (out.error === "not_configured" ? 503 : 400);
     return res.end(JSON.stringify(out));
+  }
+
+  // ---- Confirmed online payment → automatic activation ----------------------
+  // POSTed server-to-server by api/pay.js after Moyasar confirms a cart
+  // payment. The payload arrives sealed with OTP_SECRET, so only code that
+  // holds the server secret — never a browser — can declare an order paid.
+  // Everything the owner used to do by hand after checking a bank receipt
+  // happens here in one pass: the CRM row lands already confirmed, the gated
+  // portals activate, and the client's access codes go out by email.
+  if (b.action === "paid-order") {
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    let d; try { d = ssUnseal(b.t); } catch { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_seal" })); }
+    // A seal older than half an hour is a replay, not a payment settling.
+    if (!d || !d.ref || !(Date.now() - (Number(d.at) || 0) < 30 * 60 * 1000)) {
+      res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "expired" }));
+    }
+    const ref = String(d.ref).slice(0, 40);
+    const name = String(d.name || "").trim().slice(0, 160);
+    const email = String(d.email || "").trim().toLowerCase().slice(0, 160);
+    const phone = String(d.phone || "").trim().slice(0, 40);
+    const company = String(d.company || "").trim().slice(0, 200) || name;
+    const total = Number(d.total) || 0;
+    const payId = String(d.payId || "").slice(0, 64);
+    const verified = !!d.verified;
+    const ids = (Array.isArray(d.ids) ? d.ids : []).slice(0, 40)
+      .map((x) => ({ id: String((x && x.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(x && x.qty) || 1)) }))
+      .filter((x) => x.id);
+    // Entitlements come from the paid item ids themselves, not from flags a
+    // page could claim — the same ids the amount was verified against.
+    const lower = (s) => String(s || "").toLowerCase();
+    const agents = ids.filter((x) => lower(x.id).indexOf("employee-") === 0).map((x) => x.id.slice("employee-".length).toLowerCase()).filter((s) => /^[a-z0-9]{1,30}$/.test(s));
+    const boughtShared = ids.some((x) => lower(x.id).indexOf("agent-shared-services") === 0);
+    if (boughtShared) agents.push("all");
+    const boughtCompliance = ids.some((x) => lower(x.id).indexOf("agent-compliance") === 0);
+    const empItem = ids.map((x) => lower(x.id)).find((id) => id.indexOf("employer-plan-") === 0) || "";
+    const employerPlan = empItem ? empItem.replace("employer-plan-", "").replace(/-monthly$|-yearly$/, "") : "";
+    const boughtData = ids.some((x) => lower(x.id) === "companies-data-access");
+    const gatedCount = (boughtCompliance ? 1 : 0) + (employerPlan ? 1 : 0) + (boughtShared ? 1 : 0) + (boughtData ? 1 : 0) + agents.filter((a) => a !== "all").length;
+    const plainItems = ids.filter((x) => {
+      const id = lower(x.id);
+      return !(id.indexOf("employee-") === 0 || id.indexOf("agent-") === 0 || id.indexOf("employer-plan-") === 0 || id === "companies-data-access");
+    });
+    const itemsText = (Array.isArray(d.items) && d.items.length ? d.items.map(String) : ids.map((x) => x.id + " ×" + x.qty)).join("، ").slice(0, 900);
+
+    // Idempotent: the browser callback and the Moyasar webhook both land here
+    // for the same payment; the CRM row records which one arrived first. The
+    // payment id is checked too — one paid charge must not activate twice
+    // under two invented references.
+    let dup = null;
+    try { dup = await findConvPage(ref); } catch { dup = null; }
+    if (!dup && payId && NOTION_TOKEN) {
+      try {
+        const rq = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify({ page_size: 1, filter: { property: "Notes", rich_text: { contains: "PAYID:" + payId } } }),
+        });
+        if (rq.ok) dup = (((await rq.json()) || {}).results || [])[0] || null;
+      } catch { /* best-effort */ }
+    }
+    if (dup) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+
+    // The companies-data portal has no per-account backend, so its access code
+    // is minted here and written on the CRM row — /api/pay?resource=leads
+    // accepts it by looking the row up (status must stay confirmed).
+    const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const dh = crypto.createHmac("sha256", OTP_SECRET).update("data|" + ref + "|" + email).digest();
+    let dataCode = ""; if (boughtData) { let o = ""; for (let i = 0; i < 6; i++) o += abc[dh[i] % abc.length]; dataCode = "BP-DATA-" + o; }
+
+    const statusForRow = verified ? "مؤكد - قيد التنفيذ" : "قيد المراجعة";
+    await crmLead({
+      title: `💳 طلب مدفوع إلكترونياً — ${name || email}`,
+      phone, email,
+      notes: `دفع إلكتروني (ميسر) مؤكد · PAYID:${payId} · ${itemsText}${dataCode ? ` · DATACODE:${dataCode}` : ""}${company && company !== name ? ` · المنشأة: ${company}` : ""}${verified ? "" : " · ⚠️ المبلغ لم يُطابَق آلياً مع الكتالوج"}`,
+      ref, orderStatus: statusForRow, agents, total,
+    });
+
+    const activated = {};
+    if (verified) {
+      if (boughtCompliance && isEmail(email)) {
+        try { activated.compliance = !!(await approveCompliance({ company, email, phone })); } catch (e) { console.error("paid-order compliance", String(e).slice(0, 120)); activated.compliance = false; }
+      }
+      if (employerPlan && isEmail(email)) {
+        try { activated.employer = !!(await approveEmployer({ company, email, phone, plan: employerPlan })); } catch (e) { console.error("paid-order employer", String(e).slice(0, 120)); activated.employer = false; }
+      }
+      if (boughtShared && isEmail(email)) {
+        try { activated.shared = !!(await approveShared({ email, name, phone, ref })); } catch (e) { console.error("paid-order shared", String(e).slice(0, 120)); activated.shared = false; }
+      }
+      if (boughtData && isEmail(email)) {
+        try {
+          const dHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك — قاعدة بيانات الشركات 🎉</h2><p>كود الوصول الخاص بك:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(dataCode)}</p><p><a href="${MKT_SITE_BASE}/data" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح قاعدة البيانات</a> — أدخل الكود أعلاه.</p></div>`;
+          activated.data = !!(await sendEmail(email, `كود الوصول — قاعدة بيانات الشركات (${dataCode})`, dHtml)).ok;
+        } catch { activated.data = false; }
+      }
+      if (agents.length && !boughtShared && isEmail(email)) {
+        try {
+          const aHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل موظفيك الأذكياء 🎉</h2><p>بوابتك مفتوحة الآن. رمز الدخول هو <b>رقم مرجع طلبك</b>:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px;color:#0B1B5A">${esc(ref)}</p><p><a href="${MKT_SITE_BASE}/ar/connect" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة الموظفين الأذكياء</a> — أدخل الرمز أعلاه مع بريدك (${esc(email)}).</p></div>`;
+          activated.agents = !!(await sendEmail(email, `تم تفعيل موظفيك الأذكياء — رمز الدخول ${ref}`, aHtml)).ok;
+        } catch { activated.agents = false; }
+      }
+      if (plainItems.length && isEmail(email)) {
+        try { activated.service = !!(await approveService({ service: itemsText, company: company !== name ? company : "", email, phone, ref, note: "تم تأكيد دفعتك الإلكترونية وبدأ التنفيذ مباشرة." })); } catch { activated.service = false; }
+      }
+    }
+
+    // The owner hears about it, but as news — not as a task. Unless the amount
+    // could not be matched to the catalogue, in which case the old approval
+    // links are attached and nothing gated activates until one is clicked.
+    const doneList = Object.keys(activated).filter((k) => activated[k]);
+    const okHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId)}</table><p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
+    const reviewLinks = [
+      boughtCompliance && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-compliance&t=${encodeURIComponent(ssSeal({ company, email, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل وكيل الامتثال</a></p>` : "",
+      employerPlan && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-employer&t=${encodeURIComponent(ssSeal({ company, email, phone, ref, plan: employerPlan }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل منصة التوظيف</a></p>` : "",
+      boughtShared && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve&t=${encodeURIComponent(ssSeal({ email, name, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ اعتماد الخدمات المشتركة</a></p>` : "",
+    ].filter(Boolean).join("");
+    const reviewHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#b45309">💳 دفعة إلكترونية ${esc(ref)} تحتاج مراجعة سريعة</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId)}</table><p>الدفع نفسه مؤكد من ميسر، لكن المبلغ لم يُطابَق آلياً مع أسعار الكتالوج، فلم نفعّل البوابات تلقائياً.</p><p>بعد مراجعة المبلغ: افتح صف الطلب (رقم المرجع ${esc(ref)}) وغيّر حالة الطلب إلى «مؤكد - قيد التنفيذ»${reviewLinks ? "، وفعّل الاشتراكات:" : "."}</p>${reviewLinks}</div>`;
+    const ownerSubject = verified ? `💳 طلب مدفوع إلكترونياً ${ref} — مفعّل تلقائياً` : `⚠️ دفعة إلكترونية ${ref} تحتاج مراجعة`;
+    const ownerHtml2 = verified ? okHtml : reviewHtml;
+    const cHtml2 = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم استلام دفعتك${verified ? " وتفعيل خدمتك" : ""} ✅</h2><p>مرحباً ${esc(name || "")}،</p><p>${verified ? "وصلتنا دفعتك الإلكترونية بنجاح وبدأ التنفيذ مباشرة — أي أكواد وصول لخدماتك تصلك في رسائل منفصلة على هذا البريد." : "وصلتنا دفعتك الإلكترونية بنجاح، وجاري تفعيل خدمتك — يصلك تأكيد التفعيل خلال ساعات العمل."}</p><table>${row("رقم المرجع", ref) + row("الخدمات", itemsText) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>تابع حالة طلبك من لوحتك: <a href="${MKT_SITE_BASE}/ar/account" style="color:#0B1B5A">${MKT_SITE_BASE}/ar/account</a></p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, ownerSubject, ownerHtml2),
+      OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, ownerSubject, ownerHtml2) : Promise.resolve(),
+      isEmail(email) ? sendEmail(email, verified ? `تم الدفع وتفعيل خدمتك — ${ref}` : `تم استلام دفعتك — ${ref}`, cHtml2) : Promise.resolve(),
+      addToAudience(email, name),
+      forwardLead({ source: "paid-order", ref, name, phone, email, items: itemsText, total }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, already: false, verified, activated, ...(gatedCount ? { gated: gatedCount } : {}) }));
   }
 
   if (b.type === "order") {

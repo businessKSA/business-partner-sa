@@ -89,6 +89,86 @@ async function sendMail(to, subject, html, attachments) {
 // pair a real payment id with an invented basket and mint a tax invoice.
 
 const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
+
+// ---- confirmed payment → automatic activation (via api/requests) ------------
+// A verified cart payment is handed to /api/requests {action:"paid-order"},
+// sealed with OTP_SECRET so only this server — never a browser — can declare
+// an order paid. That endpoint owns the CRM write and every activation email
+// (agents portal, compliance, employer plans, shared services, data access),
+// so paying online activates everything with no owner click. The seal format
+// is ssSeal's, byte for byte, because ssUnseal on the other side is the lock.
+const OTP_SECRET = process.env.OTP_SECRET || "";
+const SELF_BASE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
+const sealKey = () => crypto.createHash("sha256").update(OTP_SECRET).digest();
+function seal(o) {
+  const iv = crypto.randomBytes(12);
+  const c = crypto.createCipheriv("aes-256-gcm", sealKey(), iv);
+  const ct = Buffer.concat([c.update(JSON.stringify(o), "utf8"), c.final()]);
+  return Buffer.concat([iv, c.getAuthTag(), ct]).toString("base64url");
+}
+// Server-side copy of the prices printed on the pages for gated SKUs that live
+// outside catalog.json. Activation is amount-gated: what cannot be re-priced
+// here falls back to owner review instead of activating on a client's word.
+const FIXED_SKUS = {
+  "agent-compliance-agent": 250,
+  "agent-shared-services-team": 1500,
+  "companies-data-access": 375,
+  "lead-generation": 375,
+  "employer-plan-basic-monthly": 500, "employer-plan-basic-yearly": 4200,
+  "employer-plan-pro-monthly": 1000, "employer-plan-pro-yearly": 8400,
+  "employer-plan-enterprise-monthly": 2500, "employer-plan-enterprise-yearly": 21000,
+};
+function skuAmount(rawId, priceMap) {
+  const id = String(rawId || "").toLowerCase();
+  if (FIXED_SKUS[id] != null) return FIXED_SKUS[id];
+  if (id.indexOf("employee-") === 0) return 500;
+  const hit = priceMap[catalogKey(id)];
+  return hit && hit.amount > 0 ? hit.amount : null;
+}
+async function settlePaidOrder(order, p) {
+  if (!OTP_SECRET) return { ok: false, skipped: "no_otp_secret" };
+  const ids = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
+    .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
+    .filter((x) => x.id);
+  if (!ids.length) return { ok: false, skipped: "no_items" };
+  let priceMap = {};
+  try { priceMap = await catalogPrices(); } catch { priceMap = {}; }
+  let net = 0, unknown = false;
+  const names = [];
+  for (const x of ids) {
+    const a = skuAmount(x.id, priceMap);
+    if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
+    net += a * x.qty;
+    const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
+    names.push((cat ? cat.name : x.id) + " ×" + x.qty);
+  }
+  net += Number(order.surchargeFee) || 0;
+  // Two riyals of tolerance for the rounding the cart and the form each do.
+  const verified = !unknown && net > 0 && Math.abs(Math.round(net * 1.15 * 100) - Number(p.amount || 0)) <= 200;
+  const payload = {
+    v: 1, at: Date.now(), payId: String(p.id || ""), verified,
+    ref: String(order.ref || "").slice(0, 40) || ("BP-" + String(p.id || "").replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()),
+    name: String(order.name || "").slice(0, 160),
+    email: String(order.email || "").toLowerCase().slice(0, 160),
+    phone: String(order.phone || "").slice(0, 40),
+    company: String(order.company || (order.taxProfile && order.taxProfile.nameAr) || "").slice(0, 200),
+    total: Math.round(Number(p.amount || 0)) / 100,
+    ids, items: names,
+  };
+  try {
+    const r = await fetch(SELF_BASE + "/api/requests", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "paid-order", t: seal(payload) }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified };
+    return { ok: true, already: !!j.already, verified, activated: j.activated || null };
+  } catch (e) {
+    console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
+    return { ok: false, error: "settle_unreachable", verified };
+  }
+}
 const RAW_CATALOG_URL = process.env.CATALOG_URL ||
   "https://raw.githubusercontent.com/businessKSA/business-partner-sa/claude/bpic-marketing-site-jvrnga/site/assets/data/catalog.json";
 let _catCache = null, _catAt = 0;
@@ -104,8 +184,13 @@ async function catalogPrices() {
   const map = {};
   for (const sv of c.services || []) if (sv.code) map[String(sv.code).toLowerCase()] = { amount: Number(sv.amount) || 0, name: sv.nameAr || sv.nameEn || sv.code, code: String(sv.code).toUpperCase() };
   for (const pk of c.packages || []) {
-    const k = String(pk.code || pk.key || "").toLowerCase();
-    if (k) map[k] = { amount: Number(pk.amount) || 0, name: pk.nameAr || pk.nameEn || k, code: k.toUpperCase() };
+    // The cart names a package by its key ("pkg-silver") while the invoice
+    // names it by code (BP-PKG-LAUNCH) — index both so either resolves.
+    const codeK = String(pk.code || pk.key || "").toLowerCase();
+    const entry = { amount: Number(pk.amount) || 0, name: pk.nameAr || pk.nameEn || codeK, code: codeK.toUpperCase() };
+    for (const k of [pk.code, pk.key].map((x) => String(x || "").toLowerCase()).filter(Boolean)) {
+      if (!map[k]) map[k] = entry;
+    }
   }
   _catCache = map; _catAt = Date.now();
   return map;
@@ -306,6 +391,25 @@ const leadsCodeOk = (code) => {
   const c = String(code || "").trim();
   return !!c && leadsCodes().some((k) => k.toLowerCase() === c.toLowerCase());
 };
+// Codes minted automatically on a confirmed online payment (BP-DATA-XXXXXX,
+// written on the CRM row by /api/requests {action:"paid-order"}). Valid while
+// the order's status stays confirmed — cancelling the row revokes the code.
+const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
+const CONFIRMED_STATUSES = new Set(["مؤكد - قيد التنفيذ", "مكتمل"]);
+async function dataCodeOk(code) {
+  const c = String(code || "").trim().toUpperCase();
+  if (!/^BP-DATA-[A-Z2-9]{6}$/.test(c) || !NOTION_TOKEN) return false;
+  try {
+    const r = await notion(`databases/${CRM_DB}/query`, "POST", {
+      page_size: 1,
+      filter: { property: "Notes", rich_text: { contains: "DATACODE:" + c } },
+    });
+    if (!r.ok) return false;
+    const pg = (((await r.json()) || {}).results || [])[0];
+    const st = pg && pg.properties && pg.properties["حالة الطلب"] && pg.properties["حالة الطلب"].select && pg.properties["حالة الطلب"].select.name;
+    return CONFIRMED_STATUSES.has(st || "");
+  } catch { return false; }
+}
 const lTitle = (p) => ((p && p.title) || []).map((t) => t.plain_text).join("").trim();
 const lText = (p) => ((p && p.rich_text) || []).map((t) => t.plain_text).join("").trim();
 const lSel = (p) => (p && p.select && p.select.name) || "";
@@ -353,7 +457,7 @@ async function handleLeads(req, res) {
       },
     }));
   }
-  if (!leadsCodeOk(code)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "invalid_code" })); }
+  if (!leadsCodeOk(code) && !(await dataCodeOk(code))) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "invalid_code" })); }
   if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
   try {
     const and = [];
@@ -466,14 +570,49 @@ export default async function handler(req, res) {
     const quoteId = String(meta.quoteId || "").trim();
     const tok = String(meta.t || "").trim();
     const ref = String(meta.ref || "").trim();
-    // Only the quote path is settled here. It is the one with a work order
-    // behind it, and that order is what makes "already recorded" answerable —
-    // without it a webhook and a browser callback would each issue an invoice
-    // for the same payment. Cart payments stay with the browser callback, as
-    // they were, rather than being double-handled.
+    // Cart payments carry the basket in the payment's own metadata, so a
+    // client who pays and closes the tab before 3-D Secure returns still gets
+    // recorded, activated and (when the invoice can be issued safely) invoiced.
+    // The paid-order endpoint is idempotent on the reference, so whichever of
+    // the webhook and the browser callback arrives second is a no-op.
     if (!quoteId || !tok) {
+      const cartItems = String(meta.items || "").trim();
+      if (ref && cartItems) {
+        const order = {
+          ref,
+          name: String(meta.name || ""), email: String(meta.email || ""), phone: String(meta.phone || ""),
+          company: String(meta.co || ""),
+          items: cartItems.split(",").map((s) => {
+            const m = s.split("~");
+            return { id: String(m[0] || "").trim(), qty: Math.max(1, Math.min(99, Number(m[1]) || 1)) };
+          }).filter((x) => x.id),
+        };
+        let cartSettle = null;
+        try { cartSettle = await settlePaidOrder(order, p); }
+        catch (e) { console.error("pay webhook: cart settle failed", String(e.message || e).slice(0, 160)); }
+        let cartInvoice = null;
+        if (cartSettle && cartSettle.ok && !cartSettle.already) {
+          if (String(meta.tax || "") === "company") {
+            // A standard (company) tax invoice needs the full tax profile,
+            // which never fits in payment metadata — issuing a personal one
+            // instead would mean a void and a reissue. The owner issues it
+            // from the panel; the client's money and activation are not held.
+            await sendMail(OWNER_EMAIL, `🧾 فاتورة منشأة تصدر يدوياً — ${ref}`,
+              `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>دفعة إلكترونية مؤكدة (${Math.round(p.amount) / 100} ﷼) على الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> والعميل طلب فاتورة باسم منشأة، لكن الدفع اكتمل دون رجوع المتصفح فلم تصلنا بيانات المنشأة الضريبية كاملة.</p><p><b>المطلوب:</b> افتح لوحة التحكم ← الفواتير، وأصدر الفاتورة يدوياً ببيانات المنشأة من صف الطلب ${esc(ref)}.</p></div>`);
+            cartInvoice = { invoiced: false, reason: "company_invoice_manual" };
+          } else {
+            try { cartInvoice = await invoicePaidOrder(order, p.amount); }
+            catch (e) {
+              console.error("pay webhook: cart invoice failed", String(e.message || e).slice(0, 200));
+              cartInvoice = { invoiced: false, reason: String(e.message || "invoice_failed") };
+            }
+          }
+        }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, handled: true, cart: true, settled: !!(cartSettle && cartSettle.ok), already: !!(cartSettle && cartSettle.already), ...(cartInvoice ? { invoice: cartInvoice } : {}) }));
+      }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, ignored: true, reason: "no_quote_metadata" }));
+      return res.end(JSON.stringify({ ok: true, ignored: true, reason: "no_settle_metadata" }));
     }
 
     let marked = null, invoicing = null;
@@ -521,7 +660,7 @@ export default async function handler(req, res) {
     // invoicing only when THIS call did the marking is what stops the browser
     // callback and the webhook — both of which fire for the same payment —
     // from issuing the client two tax invoices for one charge.
-    let announced = null, invoicing = null;
+    let announced = null, invoicing = null, settle = null;
     if (paid && b.order && typeof b.order === "object") {
       // On the quote path the reference is read from the order itself; the
       // page only ever hands over the link it was opened with.
@@ -535,9 +674,15 @@ export default async function handler(req, res) {
       } catch (e) {
         console.error("pay: stage announce failed", String(e.message || e).slice(0, 160));
       }
-      // A cart payment has no work order to ask, so it invoices as it always
-      // has — the webhook deliberately leaves that path alone.
-      const alreadySettled = announced && announced.orderFound && !announced.recorded;
+      // A cart payment settles through /api/requests {action:"paid-order"}:
+      // CRM row lands confirmed and every gated portal the basket contains is
+      // activated automatically, with the client's codes emailed. Idempotent —
+      // if the webhook already settled this payment, nothing repeats here.
+      if (!b.order.quoteId && Array.isArray(b.order.items) && b.order.items.length) {
+        try { settle = await settlePaidOrder(b.order, p); }
+        catch (e) { console.error("pay: settle failed", String(e.message || e).slice(0, 160)); }
+      }
+      const alreadySettled = (announced && announced.orderFound && !announced.recorded) || (settle && settle.already);
       if (alreadySettled) {
         invoicing = { invoiced: false, reason: "already_settled" };
       } else {
@@ -560,6 +705,7 @@ export default async function handler(req, res) {
       ...(b.context === "compliance" ? { activated: activation.activated } : {}),
       ...(invoicing ? { invoice: invoicing } : {}),
       ...(announced ? { announced } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
     }));
   } catch (e) {
     console.error("pay handler error", e);
