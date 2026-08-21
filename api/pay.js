@@ -126,11 +126,18 @@ function skuAmount(rawId, priceMap) {
   return hit && hit.amount > 0 ? hit.amount : null;
 }
 async function settlePaidOrder(order, p) {
-  if (!OTP_SECRET) return { ok: false, skipped: "no_otp_secret" };
+  if (!OTP_SECRET) {
+    console.error("pay: settle skipped — OTP_SECRET is not set, so the sealed paid-order call cannot be made");
+    return { ok: false, skipped: "no_otp_secret" };
+  }
   const ids = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
     .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
     .filter((x) => x.id);
-  if (!ids.length) return { ok: false, skipped: "no_items" };
+  if (!ids.length) {
+    console.error("pay: settle skipped — no basket item carried an id; order.items was",
+      JSON.stringify((Array.isArray(order.items) ? order.items : []).slice(0, 8)));
+    return { ok: false, skipped: "no_items" };
+  }
   let priceMap = {};
   try { priceMap = await catalogPrices(); } catch { priceMap = {}; }
   let net = 0, unknown = false;
@@ -678,6 +685,10 @@ export default async function handler(req, res) {
       // CRM row lands confirmed and every gated portal the basket contains is
       // activated automatically, with the client's codes emailed. Idempotent —
       // if the webhook already settled this payment, nothing repeats here.
+      if (!b.order.quoteId && !(Array.isArray(b.order.items) && b.order.items.length)) {
+        console.error("pay: settle not attempted — the order snapshot carried no items; keys were",
+          JSON.stringify(Object.keys(b.order || {})));
+      }
       if (!b.order.quoteId && Array.isArray(b.order.items) && b.order.items.length) {
         try { settle = await settlePaidOrder(b.order, p); }
         catch (e) { console.error("pay: settle failed", String(e.message || e).slice(0, 160)); }
