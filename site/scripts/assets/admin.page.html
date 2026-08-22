@@ -262,9 +262,27 @@
     <div class="gate-card">
       <img src="/assets/img/logo.png" alt="Business Partner" onerror="this.style.display='none'" />
       <h1>لوحة تحكم الموقع</h1>
-      <p>لوحة خاصة بمالك Business Partner — الطلبات الواردة، مؤشرات سريعة، وكل الأدوات الداخلية في مكان واحد. أدخل مفتاح الوصول.</p>
-      <input id="keyInput" type="password" placeholder="مفتاح الوصول" autocomplete="current-password" />
-      <button id="enterBtn">دخول</button>
+      <p>لوحة خاصة بمالك Business Partner — الطلبات الواردة، مؤشرات سريعة، وكل الأدوات الداخلية في مكان واحد.</p>
+
+      <div id="nfBox" style="display:none;text-align:start;margin-bottom:16px">
+        <div id="nfStep1">
+          <label for="nfId" style="display:block;font-size:12.5px;font-weight:700;margin-bottom:6px">الدخول بهويتك عبر نفاذ</label>
+          <input id="nfId" type="text" inputmode="numeric" maxlength="10" placeholder="رقم الهوية الوطنية" style="direction:ltr;text-align:center;letter-spacing:2px" />
+          <button id="nfBtn" style="margin-top:8px">🪪 تحقّق عبر نفاذ</button>
+        </div>
+        <div id="nfStep2" style="display:none;text-align:center">
+          <div style="font-size:12.5px;color:#64748b;margin-bottom:8px">افتح تطبيق نفاذ واختر هذا الرقم</div>
+          <div id="nfNum" style="font-size:46px;font-weight:800;letter-spacing:6px;color:#0B1B5A;line-height:1.1"></div>
+          <div id="nfWait" style="font-size:12px;color:#64748b;margin-top:10px">بانتظار موافقتك على التطبيق…</div>
+          <button id="nfCancel" style="margin-top:10px;background:#e2e8f0;color:#0f172a">إلغاء</button>
+        </div>
+        <div id="nfOr" style="text-align:center;font-size:11.5px;color:#94a3b8;margin:14px 0 2px">أو بمفتاح الوصول</div>
+      </div>
+
+      <div id="keyBox">
+        <input id="keyInput" type="password" placeholder="مفتاح الوصول" autocomplete="current-password" />
+        <button id="enterBtn">دخول</button>
+      </div>
       <div class="gate-err" id="gateErr"></div>
     </div>
   </div>
@@ -773,6 +791,12 @@
     var STATUSES = ['قيد المراجعة', 'بانتظار الدفع', 'مؤكد - قيد التنفيذ', 'مكتمل', 'ملغي'];
 
     var accessKey = localStorage.getItem(KEY_STORE) || '';
+    // A Nafath ticket is the other way in. It is minted server-side only after
+    // an identity on the owner list approved the request in the app, carries a
+    // digest rather than the national id, and expires on its own.
+    var TICKET_STORE = 'bp_admin_ticket';
+    var accessTicket = localStorage.getItem(TICKET_STORE) || '';
+    function authQS(){ return authQS() + '&ticket=' + encodeURIComponent(accessTicket); }
     var leads = [];
     var lastFetch = null;
     var pollTimer = null;
@@ -817,7 +841,7 @@
     }
 
     function fetchLeads(){
-      return fetch(LEADS_URL + '&limit=50&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+      return fetch(LEADS_URL + '&limit=50' + authQS(), { cache:'no-store' })
         .then(function(r){
           if (r.status === 401) throw new Error('unauthorized');
           if (r.status === 503) throw new Error('not_configured');
@@ -899,7 +923,7 @@
     }
 
     function postPanel(payload){
-      payload.key = accessKey;
+      payload.key = accessKey; payload.ticket = accessTicket;
       return fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify(payload) })
         .then(function(r){ return r.json().catch(function(){ return {}; }); });
     }
@@ -1541,7 +1565,7 @@
     $('woLoad').onclick = function(){
       var btn = this; btn.disabled = true;
       woNote('', '⏳ أحمّل الشركاء…');
-      fetch('/api/suppliers?action=admin&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+      fetch('/api/suppliers?action=admin' + authQS(), { cache:'no-store' })
         .then(function(r){ return r.json(); }).catch(function(){ return { ok:false }; })
         .then(function(d){
           btn.disabled = false;
@@ -1601,7 +1625,7 @@
     //
     // Every path here resolves to an object, so a failure is always visible.
     function dsPost(payload){
-      payload.key = accessKey;
+      payload.key = accessKey; payload.ticket = accessTicket;
       var ctrl = ('AbortController' in window) ? new AbortController() : null;
       var timer = setTimeout(function(){ if (ctrl) ctrl.abort(); }, 30000);
       return fetch('/api/suppliers', { method:'POST', headers:{ 'Content-Type':'application/json' },
@@ -1672,7 +1696,7 @@
     $('dsLoad').onclick = function(){
       var btn = this; btn.disabled = true;
       dsNote('', '⏳ أحمّل أوامر العمل…');
-      fetch('/api/suppliers?action=admin&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+      fetch('/api/suppliers?action=admin' + authQS(), { cache:'no-store' })
         .then(function(r){ return r.json(); })
         .catch(function(){ return { ok:false }; })
         .then(function(d){
@@ -1862,13 +1886,13 @@
     var SUP = { suppliers: [], orders: [] };
     function supPost(body, then){
       fetch('/api/suppliers', { method:'POST', headers:{ 'content-type':'application/json' },
-        body: JSON.stringify(Object.assign({ key: accessKey }, body)) })
+        body: JSON.stringify(Object.assign({ key: accessKey, ticket: accessTicket }, body)) })
         .then(function(r){ return r.json(); }).then(then)
         .catch(function(){ then({ ok:false, error:'network' }); });
     }
     function loadSuppliers(){
       var list = $('supList'), orders = $('supOrders');
-      return fetch('/api/suppliers?action=admin&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+      return fetch('/api/suppliers?action=admin' + authQS(), { cache:'no-store' })
         .then(function(r){ return r.json(); })
         .then(function(d){
           if (!d || !d.ok){
@@ -2651,7 +2675,7 @@
       $('edStamp').textContent = '';
       $('edBox').value = '';
       edNote('info', '⏳ جاري تحميل الملف…');
-      fetch(API_URL + '?action=panel-content&file=' + encodeURIComponent(def.id) + '&key=' + encodeURIComponent(accessKey), { cache:'no-store' })
+      fetch(API_URL + '?action=panel-content&file=' + encodeURIComponent(def.id) + authQS(), { cache:'no-store' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
         .then(function(out){
           edLoading = false;
@@ -2816,11 +2840,82 @@
     }
     function logout(){
       localStorage.removeItem(KEY_STORE);
+      localStorage.removeItem(TICKET_STORE);
       if (pollTimer) clearInterval(pollTimer);
       location.reload();
     }
 
+    /* ---- Nafath: open the panel with an identity, not a shared secret ------
+     * The two-digit number is the point of the whole exchange: the server got
+     * it from Nafath when it created the request, and the owner picks the
+     * matching one inside the app. A page that did not really create a request
+     * cannot show the right number.
+     */
+    var nfTimer = null, nfChallenge = '';
+    function nfStop(){ if (nfTimer) clearInterval(nfTimer); nfTimer = null; }
+    function nfReset(msg){
+      nfStop(); nfChallenge = '';
+      $('nfStep2').style.display = 'none';
+      $('nfStep1').style.display = '';
+      if (msg) $('gateErr').textContent = msg;
+    }
+    function nfPost(body){
+      return fetch('/api/otp', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); });
+    }
+    function nfStart(){
+      var id = ($('nfId').value || '').replace(/\D/g, '');
+      $('gateErr').textContent = '';
+      if (id.length !== 10){ $('gateErr').textContent = 'رقم الهوية عشرة أرقام.'; return; }
+      $('nfBtn').disabled = true;
+      nfPost({ action:'nafath-start', purpose:'panel', nationalId:id }).then(function(out){
+        $('nfBtn').disabled = false;
+        if (!out || !out.ok){ $('gateErr').textContent = (out && out.message) || 'تعذّر بدء التحقق.'; return; }
+        nfChallenge = out.challenge;
+        $('nfNum').textContent = out.random || '—';
+        $('nfStep1').style.display = 'none';
+        $('nfStep2').style.display = '';
+        var tries = 0;
+        nfTimer = setInterval(function(){
+          if (++tries > 60){ nfReset('انتهت المهلة دون موافقة.'); return; }
+          nfPost({ action:'nafath-poll', challenge: nfChallenge }).then(function(p){
+            if (!p) return;
+            if (p.status === 'WAITING') return;
+            if (p.ok && p.ticket){
+              nfStop();
+              accessTicket = p.ticket;
+              localStorage.setItem(TICKET_STORE, p.ticket);
+              $('gateErr').textContent = 'تم التحقق ✓';
+              fetchLeads().then(startApp).catch(function(){
+                accessTicket = ''; localStorage.removeItem(TICKET_STORE);
+                nfReset('تم التحقق من هويتك، لكن اللوحة رفضت الجلسة.');
+              });
+              return;
+            }
+            nfReset((p && p.message) || 'لم يكتمل التحقق.');
+          });
+        }, 3000);
+      }).catch(function(){ $('nfBtn').disabled = false; $('gateErr').textContent = 'تعذّر الاتصال.'; });
+    }
+
     $('enterBtn').onclick = enter;
+    $('nfBtn').onclick = nfStart;
+    $('nfCancel').onclick = function(){ nfReset(''); };
+    $('nfId').addEventListener('keydown', function(e){ if (e.key === 'Enter') nfStart(); });
+
+    // The gate shows only the doors that are actually open. Asking for a key
+    // that the server no longer accepts, or offering نفاذ before it is set up,
+    // would both be lies told by a login screen.
+    fetch('/api/otp', { cache:'no-store' }).then(function(r){ return r.json(); }).then(function(cfg){
+      var nf = cfg && cfg.nafath;
+      var on = !!(nf && nf.configured && nf.serviceConfigured && nf.owners > 0);
+      if (on) $('nfBox').style.display = '';
+      if (cfg && cfg.panelRequiresNafath){
+        $('keyBox').style.display = 'none';
+        var or = $('nfOr'); if (or) or.style.display = 'none';
+        if (!on) $('gateErr').textContent = 'اللوحة مضبوطة على الدخول بنفاذ، لكن نفاذ غير مكتمل الإعداد.';
+      }
+    }).catch(function(){});
     $('keyInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') enter(); });
     $('logoutBtn').onclick = logout;
     $('logoutBtnM').onclick = logout;

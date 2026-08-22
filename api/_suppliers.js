@@ -36,6 +36,7 @@ import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder
 import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
 import { announce, contactForRef, stageChannels, waSend } from "./_stage.js";
 import { DB_ON, storagePut, storageSign } from "./_db.js";
+import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -62,7 +63,16 @@ const CODE_TTL_MS = 15 * 60 * 1000;
 // Same owner key that gates /monitor. ENV-ONLY: this repo is public, so a
 // hardcoded fallback would be a public master key to the supplier registry.
 const OWNER_KEYS = new Set([process.env.PANEL_KEY, process.env.LEADS_KEY, process.env.DASHBOARD_KEY].map((k) => String(k || "").trim()).filter(Boolean));
-const ownerOk = (k) => OWNER_KEYS.size > 0 && OWNER_KEYS.has(String(k || "").trim());
+// Same gate as /api/requests: a Nafath ticket always opens it, the shared key
+// only while PANEL_REQUIRE_NAFATH is off. Leaving this endpoint on the key
+// alone would have made the identity requirement decorative — the supplier
+// actions reach the same data by another route.
+const ownerOk = (src) => {
+  const s = src && typeof src === "object" ? src : { key: src };
+  if (ownerTicketOk(s.ticket)) return true;
+  if (panelRequiresNafath()) return false;
+  return OWNER_KEYS.size > 0 && OWNER_KEYS.has(String(s.key || "").trim());
+};
 
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -763,7 +773,7 @@ export async function handleSuppliers(req, res) {
 
     // Owner: the whole registry + every work order
     if (q.action === "admin") {
-      if (!ownerOk(q.key)) return bad("unauthorized", 401);
+      if (!ownerOk(q)) return bad("unauthorized", 401);
       const [sr, or_] = await Promise.all([
         notion(`databases/${SUPPLIERS_DB}/query`, "POST", { page_size: 100, sorts: [{ property: "آخر نشاط", direction: "descending" }] }),
         notion(`databases/${ORDERS_DB}/query`, "POST", { page_size: 100, sorts: [{ property: "آخر تحديث", direction: "descending" }] }),
@@ -1027,7 +1037,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: approve / suspend a supplier ----------------
   if (b.type === "approve") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const id = str(b.supplierId, 60);
     const status = str(b.status, 20);
     if (!id || !["معتمد", "موقوف", "مرفوض", "جديد"].includes(status)) return bad("invalid_fields");
@@ -1058,7 +1068,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: assign a work order to a supplier ----------------
   if (b.type === "assign") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const supplierId = str(b.supplierId, 60);
     const service = str(b.service, 200);
     if (!supplierId || !service) return bad("invalid_fields");
@@ -1099,7 +1109,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: request quotations from several suppliers ----------------
   if (b.type === "rfq") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const ids = (Array.isArray(b.supplierIds) ? b.supplierIds : []).map((i) => str(i, 60)).filter(Boolean).slice(0, 20);
     const service = str(b.service, 200);
     if (!ids.length || !service) return bad("invalid_fields");
@@ -1139,7 +1149,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: award an RFQ to one supplier ----------------
   if (b.type === "award") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const orderId = str(b.orderId, 60);
     if (!orderId) return bad("invalid_fields");
     const pg = await notion(`pages/${orderId}`);
@@ -1181,7 +1191,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: issue the commission invoice on the supplier ----------------
   if (b.type === "invoice") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const orderId = str(b.orderId, 60);
     if (!orderId) return bad("invalid_fields");
     const pg = await notion(`pages/${orderId}`);
@@ -1359,7 +1369,7 @@ export async function handleSuppliers(req, res) {
   // agreed to is not a contract, and sending one invites a dispute rather than
   // settling one. The figures come from the order, never from the browser.
   if (b.type === "contract-send") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     if (!docusignConfigured()) return bad("docusign_not_configured", 503);
     const id = str(b.orderId, 60);
     if (!id) return bad("invalid_fields");
@@ -1388,7 +1398,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: where the signature has got to ----------------
   if (b.type === "contract-status") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     if (!docusignConfigured()) return bad("docusign_not_configured", 503);
     const envId = str(b.envelopeId, 80);
     if (!envId) return bad("invalid_fields");
@@ -1426,7 +1436,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: is DocuSign reachable, and which account ----------------
   if (b.type === "docusign-ping") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const out = await docusignPing();
     res.statusCode = out.ok ? 200 : 200; // a configuration answer is not a server error
     return res.end(JSON.stringify(out));
@@ -1435,7 +1445,7 @@ export async function handleSuppliers(req, res) {
   // ---------------- partner/owner: the link to send the client ----------------
   if (b.type === "quote-link") {
     const s = await authSupplier(b.email, b.pw || b.password);
-    const owner = ownerOk(b.key);
+    const owner = ownerOk(b);
     if (!s && !owner) return bad("unauthorized", 401);
     const id = str(b.orderId, 60);
     if (!id) return bad("invalid_fields");
@@ -1513,7 +1523,7 @@ export async function handleSuppliers(req, res) {
   // puts the matching purchase order in the books, so what is owed to the
   // supplier is an accounting entry rather than only a Notion row.
   if (b.type === "daftra-po" || b.type === "daftra-commission") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     if (!daftraConfigured()) return bad("daftra_not_configured", 503);
     const isPo = b.type === "daftra-po";
     const orderId = str(b.orderId, 60);
@@ -1573,7 +1583,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: update a work order (status, payment) ----------------
   if (b.type === "order-admin") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const orderId = str(b.orderId, 60);
     if (!orderId) return bad("invalid_fields");
     const props = {};

@@ -19,7 +19,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
 import { stageChannels, announce } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
-import { nafathPing } from "./_nafath.js";
+import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sellerProfile } from "./_zatca.js";
 import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
@@ -36,7 +36,16 @@ const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
 const LEADS_KEY = (process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "").trim();
 const PANEL_KEY = (process.env.PANEL_KEY || "").trim();
 const PANEL_KEYS = new Set([PANEL_KEY, LEADS_KEY].filter(Boolean));
-const panelKeyOk = (k) => PANEL_KEYS.size > 0 && PANEL_KEYS.has(String(k || "").trim());
+// Two ways through the same door, and they are not equivalent. A key proves
+// someone knows a secret — which is forwardable, copyable and anonymous. A
+// Nafath ticket proves an identity on the OWNER_NATIONAL_IDS list actually
+// approved this session on their own phone. With PANEL_REQUIRE_NAFATH=1 only
+// the second is accepted.
+const panelKeyOk = (k) => !panelRequiresNafath() && PANEL_KEYS.size > 0 && PANEL_KEYS.has(String(k || "").trim());
+const panelOk = (src) => {
+  const s = src && typeof src === "object" ? src : { key: src };
+  return ownerTicketOk(s.ticket) || panelKeyOk(s.key);
+};
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -918,7 +927,7 @@ export default async function handler(req, res) {
   // Internal dashboard — list recent incoming requests (gated by LEADS_KEY).
   if ((q.action || "") === "leads") {
     res.setHeader("Cache-Control", "no-store");
-    if (!panelKeyOk(q.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     try {
       const leads = await listLeads(q.limit);
       res.statusCode = 200;
@@ -1159,7 +1168,7 @@ export default async function handler(req, res) {
   // /admin panel — read an editable content file (site/data/*.json) from GitHub.
   if ((q.action || "") === "panel-content") {
     res.setHeader("Cache-Control", "no-store");
-    if (!panelKeyOk(q.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     const filePath = CONTENT_FILES[q.file || ""];
     if (!filePath) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
     if (!GH_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "content_not_configured" })); }
@@ -1355,7 +1364,7 @@ export default async function handler(req, res) {
   // ---- /admin panel actions (owner key, POST) ----
   if (String(b.action || "").startsWith("panel-")) {
     res.setHeader("Cache-Control", "no-store");
-    if (!panelKeyOk(b.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelOk(b)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
 
     // Change a CRM lead's حالة الطلب (approve / complete / cancel …).
     if (b.action === "panel-status") {
@@ -1697,7 +1706,15 @@ export default async function handler(req, res) {
         // Nafath is Elm's; it needs both an app id and the service name they
         // registered for us. Either one missing means the flow cannot start,
         // so the line names which.
-        (() => { const n = nafathPing(); return svc("نفاذ — التحقق من الهوية", n.configured && n.serviceConfigured ? "NAFATH_*" : null, n.missing.length ? `ينقص: ${n.missing.join("، ")}` : `جاهز — بيئة ${n.environment === "production" ? "الإنتاج" : "الاختبار"}`); })(),
+        (() => {
+          const n = nafathPing();
+          const ready = n.configured && n.serviceConfigured && n.hashSecret;
+          const note = !ready ? `ينقص: ${n.missing.join("، ")}`
+            : !n.owners ? "جاهز — لكن لا هوية مصرّح لها بعد. أضف OWNER_NATIONAL_IDS"
+            : `جاهز — بيئة ${n.environment === "production" ? "الإنتاج" : "الاختبار"} · ${n.owners} هوية مصرّح لها` +
+              (panelRequiresNafath() ? " · اللوحة تفتح بنفاذ فقط 🔒" : " · مفتاح الوصول ما زال يفتح اللوحة");
+          return svc("نفاذ — التحقق من الهوية", ready ? "NAFATH_*" : null, note);
+        })(),
         svc("واتساب العميل (Cloud API)", has("WHATSAPP_TOKEN", "WHATSAPP_ACCESS_TOKEN", "META_WHATSAPP_TOKEN") && has("WHATSAPP_PHONE_ID", "WHATSAPP_PHONE_NUMBER_ID") ? "WHATSAPP_*" : null, "إشعار العميل بكل خطوة على واتساب"),
       ];
       res.statusCode = 200;
