@@ -65,22 +65,42 @@ export function moyasarVars() {
 export async function mpfCheck() {
   const url = MPF_JS;
   const version = (String(url).match(/mpf\/([^/]+)\//) || [])[1] || "?";
-  try {
-    const r = await fetch(url);
-    const body = r.ok ? await r.text() : "";
-    const head = body.slice(0, 400);
-    return {
-      url, version, ok: r.ok, status: r.status,
-      bytes: body.length,
-      contentType: (r.headers.get("content-type") || "").split(";")[0],
-      // An error page served with status 200 is the failure that looks like
-      // success: the script tag loads, onload fires, and nothing is defined.
-      looksHtml: /^\s*(<!doctype|<html)/i.test(head),
-      definesMoyasar: /Moyasar/.test(body.slice(0, 400000)),
-    };
-  } catch (e) {
-    return { url, version, ok: false, error: String(e.message || "fetch_failed").slice(0, 90) };
+  const one = async (u) => {
+    try {
+      const r = await fetch(u);
+      const body = r.ok ? await r.text() : "";
+      return {
+        url: u, ok: r.ok, status: r.status, bytes: body.length,
+        contentType: (r.headers.get("content-type") || "").split(";")[0],
+        // An error page served with status 200 is the failure that looks like
+        // success: the tag loads, onload fires, and nothing is defined.
+        looksHtml: /^\s*(<!doctype|<html)/i.test(body.slice(0, 400)),
+        definesMoyasar: /Moyasar/.test(body.slice(0, 400000)),
+      };
+    } catch (e) { return { url: u, ok: false, error: String(e.message || "fetch_failed").slice(0, 90) }; }
+  };
+  const js = await one(url);
+  // The card fields are drawn by Moyasar and styled entirely by its stylesheet,
+  // while the Apple Pay button is drawn and styled by Apple. A missing
+  // stylesheet therefore looks exactly like "Apple Pay works, cards do not" —
+  // which is the symptom in front of us, so it is checked separately.
+  const css = await one(String(url).replace(/\.js$/, ".css"));
+  // If the pinned build is dead, knowing which builds are alive is the whole
+  // fix: MOYASAR_MPF_URL is pinned to a working one and nothing else changes.
+  const others = [];
+  for (const v of ["2.0.0", "1.18.0", "1.17.0", "1.16.0", "1.15.0", "1.14.0"]) {
+    if (v === version) continue;
+    const probe = await one(`https://cdn.moyasar.com/mpf/${v}/moyasar.js`);
+    others.push({ version: v, ok: !!probe.ok && !probe.looksHtml && !!probe.definesMoyasar, status: probe.status, bytes: probe.bytes || 0 });
   }
+  return {
+    url, version,
+    ok: !!js.ok && !js.looksHtml && !!js.definesMoyasar,
+    status: js.status, bytes: js.bytes, contentType: js.contentType,
+    looksHtml: js.looksHtml, definesMoyasar: js.definesMoyasar, error: js.error,
+    css: { ok: !!css.ok, status: css.status, bytes: css.bytes || 0, contentType: css.contentType, error: css.error },
+    alternatives: others,
+  };
 }
 
 // Ask Moyasar whether this secret key is real. A listing of one payment is the

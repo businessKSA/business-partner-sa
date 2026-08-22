@@ -516,6 +516,7 @@
               لا يظهر هنا أي مفتاح ولا جزء منه — فقط هل نجح الاتصال، وفي أي بيئة (حقيقي أم تجريبي).
             </p>
             <button class="actbtn" id="myPing">💳 افحص الاتصال بمُيسّر</button>
+            <div class="dbody" id="myMsg" style="display:none;margin-top:10px"></div>
           </div>
 
           <div class="panel" style="margin-bottom:22px;padding:18px">
@@ -532,7 +533,6 @@
               <button class="actbtn" id="dsendRun">📧 افحص مسارات الإرسال</button>
             </div>
             <div class="dbody" id="dsendMsg" style="display:none;margin-top:10px"></div>
-            <div class="dbody" id="myMsg" style="display:none;margin-top:10px"></div>
           </div>
 
           <div class="panel" style="margin-bottom:22px;padding:18px">
@@ -1471,6 +1471,21 @@
                 (m.definesMoyasar ? ' · يعرّف Moyasar ✓' : ' · لا يعرّف Moyasar ✗') +
                 (m.looksHtml ? ' · صفحة HTML وليست سكربت ⚠' : '')) + '</span>';
           html += '<div style="margin-top:4px;font-size:11.5px;color:var(--soft);direction:ltr;text-align:start">' + esc(m.url || '') + '</div>';
+          // Cards are drawn by Moyasar and styled by its stylesheet; Apple Pay
+          // is drawn and styled by Apple. A missing stylesheet looks exactly
+          // like "Apple Pay works, cards do not".
+          if (m.css)
+            html += '<span class="kv"><i>' + (m.css.ok ? '✅' : '⛔') + ' ملف تنسيق النموذج (CSS):</i>' +
+              (m.css.error ? 'تعذّر — ' + esc(m.css.error) : 'HTTP ' + m.css.status + ' · ' + (m.css.bytes || 0) + ' بايت') + '</span>';
+          if (m.css && !m.css.ok)
+            html += '<div style="margin-top:6px;color:#b91c1c;font-weight:600">⚠ هذا يفسّر تماماً ما تراه: زر Apple Pay ترسمه آبل فيظهر، وحقول البطاقة تنسّقها مُيسّر فتختفي بلا تنسيق.</div>';
+          if (m.alternatives && m.alternatives.length){
+            var live = m.alternatives.filter(function(a){ return a.ok; });
+            html += '<div style="margin-top:8px;font-size:12px;color:var(--soft)">إصدارات أخرى: ' +
+              m.alternatives.map(function(a){ return (a.ok?'✅':'⛔') + ' ' + a.version; }).join(' · ') + '</div>';
+            if (!m.ok && live.length)
+              html += '<div style="margin-top:6px;color:#14532d;font-weight:600">✅ الحل: ضع في Vercel <span style="direction:ltr;display:inline-block">MOYASAR_MPF_URL=https://cdn.moyasar.com/mpf/' + esc(live[0].version) + '/moyasar.js</span> ثم Redeploy.</div>';
+          }
           if (!mOk)
             html += '<div style="margin-top:6px;color:#b91c1c;font-weight:600">⚠ هذا سبب كافٍ لظهور صندوق دفع فارغ: المتصفح يحمّل الملف بلا خطأ ولا يرسم شيئاً. عالجه بضبط <span style="direction:ltr;display:inline-block">MOYASAR_MPF_URL</span> في Vercel على إصدار صالح.</div>';
         }
