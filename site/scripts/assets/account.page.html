@@ -224,8 +224,22 @@
       <div class="gstep" id="gStep1">
         <div id="gGoogleWrap" style="display:none;margin-bottom:14px">
           <div id="gGoogle" style="display:flex;justify-content:center"></div>
-          <div class="gsub" style="margin:12px 0 2px" data-t="orDivider">أو بالبريد الإلكتروني</div>
         </div>
+
+        <div id="gNafathWrap" style="display:none;margin-bottom:14px">
+          <div id="gNfStep1">
+            <input id="gNfId" type="text" inputmode="numeric" maxlength="10" class="ltr" placeholder="رقم الهوية أو الإقامة" style="text-align:center;letter-spacing:2px" />
+            <button class="gbtn" id="gNfBtn" data-t="nafathBtn">🪪 الدخول عبر نفاذ</button>
+          </div>
+          <div id="gNfStep2" style="display:none;text-align:center">
+            <div class="gsub" data-t="nafathPick">افتح تطبيق نفاذ واختر هذا الرقم</div>
+            <div id="gNfNum" style="font-size:42px;font-weight:800;letter-spacing:6px;color:var(--navy,#0B1B5A);line-height:1.2"></div>
+            <div class="gsub" data-t="nafathWait">بانتظار موافقتك على التطبيق…</div>
+            <button class="gbtn ghost" id="gNfCancel" data-t="back">رجوع</button>
+          </div>
+        </div>
+
+        <div id="gOrWrap" class="gsub" style="display:none;margin:12px 0 2px" data-t="orDivider">أو بالبريد الإلكتروني</div>
         <label for="gEmail" data-t="emailLabel">البريد الإلكتروني</label>
         <input id="gEmail" type="email" class="ltr" autocomplete="email" placeholder="name@company.com" />
         <button class="gbtn" id="gSend" data-t="sendCode">أرسل رمز التحقق</button>
@@ -1729,6 +1743,9 @@
     // Google sign-in lands on the same session the emailed code produces, so
     // it reuses the same post-sign-in path rather than a parallel one.
     function enterAfterAuth(out, fallbackName){
+      // A نفاذ verification may be waiting for exactly this: the session it
+      // needed in order to attach itself to an account.
+      if (out && out.db) setTimeout(nfFinishLink, 0);
       if (out.db){
         state.db = true; state.limited = false;
         state.user = { name: (out.user && out.user.name) || fallbackName || '', email: out.email || state.email };
@@ -1763,9 +1780,85 @@
           google.accounts.id.initialize({ client_id: window.BP_GOOGLE_CLIENT_ID, callback: window.bpAccountGoogle });
           google.accounts.id.renderButton(box, { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: document.documentElement.lang || 'ar' });
           var w = document.getElementById('gGoogleWrap'); if (w) w.style.display = '';
+          var o = document.getElementById('gOrWrap'); if (o) o.style.display = '';
         } else if (++tries > 40) clearInterval(iv);
       }, 150);
     })();
+
+    /* ---------------- Nafath: sign in with the identity itself --------------
+     * Nafath proves who someone is. It does not prove which mailbox is theirs,
+     * and our accounts are keyed by e-mail — so the first time, نفاذ verifies
+     * and the client signs in once the ordinary way; the two are joined at
+     * that moment and every later visit needs نفاذ alone.
+     */
+    var nfTimer = null, nfChallenge = '';
+    // One short confirmation, shown after the app is already open.
+    function nfNote(msg){
+      var d = document.createElement('div');
+      d.textContent = msg;
+      d.setAttribute('style', 'position:fixed;z-index:9999;inset-inline-start:50%;transform:translateX(-50%);bottom:22px;'
+        + 'background:#0B1B5A;color:#fff;font-size:12.5px;font-weight:700;padding:10px 16px;border-radius:10px;'
+        + 'box-shadow:0 8px 24px rgba(0,0,0,.22);max-width:90vw;text-align:center');
+      document.body.appendChild(d);
+      setTimeout(function(){ d.remove(); }, 5000);
+    }
+    function nfStop(){ if (nfTimer) clearInterval(nfTimer); nfTimer = null; }
+    function nfBack(msg){
+      nfStop(); nfChallenge = '';
+      $('gNfStep2').style.display = 'none';
+      $('gNfStep1').style.display = '';
+      if (msg) gateErr(1, msg);
+    }
+    // Held between "verified" and "signed in", so the binding can finish by
+    // itself the moment a session exists.
+    function nfPendingLink(v){
+      if (v === undefined) { try { return sessionStorage.getItem('bp_nf_link') || ''; } catch(e){ return ''; } }
+      try { v ? sessionStorage.setItem('bp_nf_link', v) : sessionStorage.removeItem('bp_nf_link'); } catch(e){}
+      return v;
+    }
+    function nfFinishLink(){
+      var proof = nfPendingLink();
+      if (!proof) return;
+      nfPendingLink('');
+      otp({ action: 'nafath-link', link: proof }).then(function(out){
+        if (out && out.ok) nfNote(out.message || 'تم توثيق هويتك عبر نفاذ ✓');
+      }).catch(function(){});
+    }
+    function nfStart(){
+      var id = ($('gNfId').value || '').replace(/\D/g, '');
+      gateErr(1, '');
+      if (id.length !== 10){ gateErr(1, 'رقم الهوية أو الإقامة عشرة أرقام.'); return; }
+      var btn = $('gNfBtn'); btn.disabled = true;
+      otp({ action: 'nafath-start', purpose: 'portal', nationalId: id, locale: state.lang }).then(function(out){
+        btn.disabled = false;
+        if (!out || !out.ok){ gateErr(1, (out && out.message) || t('errGeneric')); return; }
+        nfChallenge = out.challenge;
+        $('gNfNum').textContent = out.random || '—';
+        $('gNfStep1').style.display = 'none';
+        $('gNfStep2').style.display = '';
+        var tries = 0;
+        nfTimer = setInterval(function(){
+          if (++tries > 60){ nfBack('انتهت المهلة دون موافقة.'); return; }
+          otp({ action: 'nafath-poll', challenge: nfChallenge }).then(function(p){
+            if (!p || p.status === 'WAITING') return;
+            nfStop();
+            if (p.ok && p.status === 'COMPLETED'){
+              state.email = p.email || state.email;
+              enterAfterAuth(p, (p.user && p.user.name) || '');
+              return;
+            }
+            if (p.error === 'identity_not_linked'){
+              // Verified, but this identity has never been attached to an
+              // account. Keep the proof and let them sign in normally once.
+              nfPendingLink(p.link || '');
+              nfBack(p.message || '');
+              return;
+            }
+            nfBack((p && p.message) || t('errGeneric'));
+          });
+        }, 3000);
+      }).catch(function(){ btn.disabled = false; gateErr(1, t('errGeneric')); });
+    }
 
     function verifyCode(){
       var code = $('gCode').value.trim();
@@ -2240,6 +2333,18 @@
     // ---------------- wire listeners ----------------
     function wire(){
       $('gSend').onclick = function(){ sendCode(false); };
+      $('gNfBtn').onclick = nfStart;
+      $('gNfCancel').onclick = function(){ nfBack(''); };
+      $('gNfId').addEventListener('keydown', function(e){ if (e.key === 'Enter') nfStart(); });
+      // Offer نفاذ only where it actually works. A button that answers "not
+      // configured" is worse than no button.
+      fetch('/api/otp', { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(cfg){
+        var nf = cfg && cfg.nafath;
+        if (nf && nf.configured && nf.serviceConfigured){
+          $('gNafathWrap').style.display = '';
+          var o = document.getElementById('gOrWrap'); if (o) o.style.display = '';
+        }
+      }).catch(function(){});
       $('orgSave').onclick = saveCompany;
       $('gEmail').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendCode(false); });
       $('gVerify').onclick = verifyCode;

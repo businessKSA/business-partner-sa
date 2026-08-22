@@ -161,6 +161,113 @@ export function nafathPing() {
     base: BASE,
     serviceConfigured: !!SERVICE,
     appKeySent: !!APP_KEY,
-    missing: [APP_ID ? null : "NAFATH_APP_ID", SERVICE ? null : "NAFATH_SERVICE"].filter(Boolean),
+    // How many identities may open the owner's panels — the count, never the ids.
+    owners: ownerIdsConfigured(),
+    hashSecret: !!HASH_SECRET,
+    missing: [APP_ID ? null : "NAFATH_APP_ID", SERVICE ? null : "NAFATH_SERVICE", HASH_SECRET ? null : "OTP_SECRET"].filter(Boolean),
   };
 }
+
+/* ---------------------------------------------------------------------------
+ * Who is allowed where.
+ *
+ * OWNER_NATIONAL_IDS lists the identities that may open the owner's panels —
+ * /admin and anything else private to him. It is deliberately an allowlist of
+ * people, not a password: a shared key can be forwarded, copied out of a
+ * browser, or pasted into a chat, and it says nothing about who used it.
+ * ------------------------------------------------------------------------- */
+
+// The secret that makes the stored identity unreadable. A plain SHA-256 of a
+// national id is not a hash in any useful sense — there are only ten billion
+// of them, so the whole space can be enumerated on a laptop. Keyed with a
+// server secret, the digest is worthless to anyone who does not hold the key.
+const HASH_SECRET = env("NAFATH_HASH_SECRET") || env("OTP_SECRET");
+
+/** A stable, non-reversible handle for a national id. Never store the raw. */
+export function nafathIdHash(nationalId) {
+  const v = String(nationalId || "").replace(/\D/g, "");
+  if (!v || !HASH_SECRET) return "";
+  return crypto.createHmac("sha256", HASH_SECRET).update("nafath:" + v).digest("base64url");
+}
+
+function ownerIds() {
+  return env("OWNER_NATIONAL_IDS").split(/[\s,;]+/).map((s) => s.replace(/\D/g, "")).filter((s) => /^\d{10}$/.test(s));
+}
+
+export const ownerIdsConfigured = () => ownerIds().length;
+
+/** Is this national id one of the owner's? Compared as digests, never logged. */
+export function isOwnerId(nationalId) {
+  const h = nafathIdHash(nationalId);
+  if (!h) return false;
+  return ownerIds().some((id) => {
+    const a = Buffer.from(nafathIdHash(id)), b = Buffer.from(h);
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
+  });
+}
+
+/* --- Sealed state -----------------------------------------------------------
+ * Two things travel through the browser and must not be trusted on the way
+ * back: the pending verification (which national id is being checked) and the
+ * proof that it succeeded. Both are sealed with AES-256-GCM under the server
+ * secret, so the browser carries them but cannot read or forge either. In
+ * particular the national id never reaches the client, and the ticket that
+ * opens the panel carries only a digest.
+ * -------------------------------------------------------------------------- */
+const sealKey = () => crypto.createHash("sha256").update(HASH_SECRET).digest();
+
+export function nafathSeal(obj) {
+  if (!HASH_SECRET) throw new Error("nafath_secret_missing");
+  const iv = crypto.randomBytes(12);
+  const c = crypto.createCipheriv("aes-256-gcm", sealKey(), iv);
+  const ct = Buffer.concat([c.update(JSON.stringify(obj), "utf8"), c.final()]);
+  return Buffer.concat([iv, c.getAuthTag(), ct]).toString("base64url");
+}
+
+export function nafathUnseal(token) {
+  if (!HASH_SECRET) return null;
+  try {
+    const raw = Buffer.from(String(token || ""), "base64url");
+    if (raw.length < 29) return null;
+    const d = crypto.createDecipheriv("aes-256-gcm", sealKey(), raw.subarray(0, 12));
+    d.setAuthTag(raw.subarray(12, 28));
+    const obj = JSON.parse(Buffer.concat([d.update(raw.subarray(28)), d.final()]).toString("utf8"));
+    if (obj && obj.exp && Date.now() > Number(obj.exp)) return null;
+    return obj;
+  } catch { return null; }
+}
+
+// How long a panel session lasts before the owner verifies again.
+const TICKET_TTL_MS = Number(env("PANEL_TICKET_HOURS", "12")) * 60 * 60 * 1000;
+
+export function mintOwnerTicket(nationalId) {
+  if (!isOwnerId(nationalId)) return null;
+  return nafathSeal({ t: "panel", nid: nafathIdHash(nationalId), exp: Date.now() + TICKET_TTL_MS });
+}
+
+/**
+ * Does this ticket open the owner's panels?
+ *
+ * The allowlist is consulted again here, not only when the ticket was minted.
+ * Removing an identity from OWNER_NATIONAL_IDS therefore shuts the door on the
+ * next request rather than whenever the outstanding tickets happen to expire.
+ */
+export function ownerTicketOk(ticket) {
+  const t = nafathUnseal(ticket);
+  if (!t || t.t !== "panel" || !t.nid) return false;
+  return ownerIds().some((id) => {
+    const a = Buffer.from(nafathIdHash(id)), b = Buffer.from(String(t.nid));
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
+  });
+}
+
+/**
+ * Should the owner's panels refuse a bare key?
+ *
+ * Off by default, and that default is deliberate: turning identity on before
+ * a real Nafath verification has ever succeeded would lock the owner out of
+ * his own panel with no way back in except a Vercel env edit. He flips this to
+ * 1 once he has seen his own identity open the door, and from that moment the
+ * shared key stops being a way in.
+ */
+export const panelRequiresNafath = () => /^(1|true|yes)$/i.test(env("PANEL_REQUIRE_NAFATH"));
