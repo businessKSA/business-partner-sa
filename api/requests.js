@@ -1677,7 +1677,10 @@ export default async function handler(req, res) {
         svc("الذكاء — Groq (مجاني)", has("GROQ_API_KEY", "GROQ_KEY", "GROQ"), "بديل سريع للمستشار"),
         svc("الذكاء — OpenAI", has("OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"), "بديل للصور فقط"),
         svc("الدفترة", has("DAFTRA_API_KEY"), "الفواتير وعروض الأسعار"),
-        svc("DocuSign", has("DOCUSIGN_INTEGRATION_KEY") && has("DOCUSIGN_USER_ID") && has("DOCUSIGN_ACCOUNT_ID") && has("DOCUSIGN_PRIVATE_KEY") ? "DOCUSIGN_*" : null, "العقود والتوقيع"),
+        svc("DocuSign", has("DOCUSIGN_INTEGRATION_KEY") && has("DOCUSIGN_USER_ID") && has("DOCUSIGN_ACCOUNT_ID") && has("DOCUSIGN_PRIVATE_KEY") ? "DOCUSIGN_*" : null,
+          /^prod/i.test(String(process.env.DOCUSIGN_ENV || "demo"))
+            ? "العقود والتوقيع — بيئة الإنتاج ✓"
+            : "⚠ بيئة تجريبية (demo): التوقيعات الصادرة منها غير ملزمة قانوناً. اضبط DOCUSIGN_ENV=production"),
         svc("مُيسّر — نموذج الدفع", has("MOYASAR_PUBLISHABLE_KEY"), "يظهر نموذج البطاقة للعميل"),
         svc("مُيسّر — تأكيد الدفع", has("MOYASAR_SECRET_KEY"), "يتحقق من الدفعة ويصدر الفاتورة"),
         svc("مُيسّر — Webhook", has("MOYASAR_WEBHOOK_SECRET"), "يلتقط الدفعة لو أغلق العميل الصفحة"),
