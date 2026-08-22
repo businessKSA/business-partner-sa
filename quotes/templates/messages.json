@@ -34,8 +34,19 @@
       "bodyAr": "السادة / {{clientName}} المحترمين\n\nتم توقيع العقد رقم {{number}} من الطرفين. مرفق مع هذه الرسالة النسخة الموقّعة النهائية وشهادة الإتمام، وقد حُفظت نسخة منهما في مجلد العميل.\n\nوتفضلوا بقبول فائق الاحترام،\nشركة بزنس بارتنر سلوشنز"
     },
     "adminNotice": {
-      "subject": { "en": "[Business Partner] {{event}} — {{number}}", "ar": "[بزنس بارتنر] {{event}} — {{number}}" },
+      "subject": {
+        "en": "[Business Partner] {{event}} — {{number}}",
+        "ar": "[بزنس بارتنر] {{event}} — {{number}}"
+      },
       "bodyEn": "Event: {{event}}\nDocument: {{number}}\nClient: {{clientName}}\nTime: {{time}}\nDetails: {{details}}\n\nOpen: {{link}}"
+    },
+    "invoice": {
+      "subject": {
+        "en": "Invoice {{number}} — Business Partner Solutions Company",
+        "ar": "فاتورة رقم {{number}} — شركة بزنس بارتنر سلوشنز"
+      },
+      "bodyEn": "Dear {{clientName}},\n\nPlease find invoice {{number}} for {{title}}.\n\nAmount excluding VAT: SAR {{amount}}\nValue Added Tax 15%: SAR {{vat}}\nTotal due: SAR {{total}}\n\nPay online using the secure link below:\n{{link}}\n\nA bank transfer option is available on the same page.\n\nBusiness Partner Solutions Company",
+      "bodyAr": "السادة / {{clientName}} المحترمين\n\nتحية طيبة وبعد،\n\nنرفق لكم الفاتورة رقم {{number}} عن {{title}}.\n\nالمبلغ غير شامل الضريبة: {{amount}} ريال\nضريبة القيمة المضافة 15%: {{vat}} ريال\nالإجمالي المستحق: {{total}} ريال\n\nيمكنكم السداد إلكترونياً عبر الرابط الآمن التالي:\n{{link}}\n\nوخيار التحويل البنكي متاح في الصفحة نفسها.\n\nشركة بزنس بارتنر سلوشنز"
     }
   },
   "whatsapp": {
@@ -46,6 +57,10 @@
     "contract": {
       "ar": "السادة {{clientName}} المحترمين\nتحية طيبة، نرفق لكم عقد الخدمات رقم {{number}} من شركة بزنس بارتنر سلوشنز.\nالإجمالي شامل ضريبة القيمة المضافة: {{total}} ريال سعودي.\nالاطلاع على العقد عبر الرابط:\n{{link}}",
       "en": "Dear {{clientName}},\nPlease find services agreement {{number}} from Business Partner Solutions Company.\nTotal including VAT: SAR {{total}}.\nReview the agreement here:\n{{link}}"
+    },
+    "invoice": {
+      "ar": "السادة {{clientName}} المحترمين\nتحية طيبة، نرفق لكم الفاتورة رقم {{number}} عن {{title}}.\nالإجمالي المستحق شامل ضريبة القيمة المضافة: {{total}} ريال سعودي.\nالسداد إلكترونياً عبر الرابط:\n{{link}}",
+      "en": "Dear {{clientName}},\nPlease find invoice {{number}} for {{title}}.\nTotal due including VAT: SAR {{total}}.\nPay online:\n{{link}}"
     }
   }
 }

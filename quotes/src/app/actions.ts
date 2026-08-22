@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db';
 import { requireAdmin, createMagicLink, consumeMagicLink, startAdminSession, startClientSession, endSessions, adminEmail, MAGIC_LINK_TTL_MIN } from '@/lib/auth';
 import { createClient, normalizePhone } from '@/lib/clients';
 import { createQuote, generateContractFromQuote, approveDocument, acceptDocument, type ItemInput } from '@/lib/documents';
-import { prepareWhatsApp, queueDocumentBuild, queueDocumentEmail, notifyEvent, publicUrl } from '@/lib/send';
+import { prepareWhatsApp, queueDocumentBuild, queueDocumentEmail, notifyEvent, publicUrl, payUrl } from '@/lib/send';
 import { sendForSignature } from '@/lib/docusign/service';
 import { createInvoicesForContract, createInvoice, markInvoicePaid, walletSpend } from '@/lib/billing';
 import { generateQuoteAndContract, promoteAgentServiceToCatalog } from '@/lib/agent';
@@ -16,12 +16,108 @@ import { sendMail } from '@/lib/mailer';
 import { loadTemplate, render } from '@/lib/templates';
 import { storage, fileKey, clientFolderPath, type ClientFolder } from '@/lib/storage';
 import { logEvent } from '@/lib/timeline';
-import { round2 } from '@/lib/money';
+import { round2, fmtMoney } from '@/lib/money';
 
 type State = { error?: string; ok?: string; link?: string };
 
 const s = (fd: FormData, k: string) => (fd.get(k) as string | null)?.trim() || '';
 const n = (fd: FormData, k: string) => Number(fd.get(k) || 0);
+
+// ----------------------------------------------------------------- الفواتير
+/**
+ * فاتورة مستقلة لأي عميل — غير مرتبطة بعقد.
+ * تُستخدم للخدمات المباشرة والدفعات الإضافية، وينتج عنها رابط سداد فوري.
+ */
+export async function actionCreateInvoice(_prev: State, fd: FormData): Promise<State> {
+  const actor = await requireAdmin();
+  const clientId = s(fd, 'clientId');
+  const titleAr = s(fd, 'titleAr');
+  const amountExclVat = n(fd, 'amountExclVat');
+  if (!clientId) return { error: 'اختر العميل' };
+  if (!titleAr) return { error: 'أدخل وصف الفاتورة بالعربي' };
+  if (!(amountExclVat > 0)) return { error: 'أدخل مبلغاً أكبر من صفر' };
+
+  const dueRaw = s(fd, 'dueDate');
+  const kind = s(fd, 'depositKind');
+  const invoice = await createInvoice(
+    {
+      clientId,
+      titleAr,
+      titleEn: s(fd, 'titleEn') || titleAr,
+      amountExclVat: round2(amountExclVat),
+      dueDate: dueRaw ? new Date(dueRaw) : null,
+      // العهدة ليست إيراداً ولا تخضع للضريبة — تُصرف للجهات أو للموردين بإيصالاتها
+      isGovFeeDeposit: kind === 'GOV_FEE',
+      depositKind: kind === 'GOV_FEE' || kind === 'SUPPLY' ? kind : null,
+    },
+    actor,
+  );
+
+  revalidatePath('/admin/invoices');
+  redirect(`/admin/invoices?created=${invoice.number}`);
+}
+
+/** يرسل رابط السداد للعميل بالبريد، ويجهّز نص واتساب جاهزاً للإرسال. */
+export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise<State> {
+  const actor = await requireAdmin();
+  const invoiceId = s(fd, 'invoiceId');
+  const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId }, include: { client: true } });
+  if (!invoice) return { error: 'الفاتورة غير موجودة' };
+  if (invoice.status === 'PAID') return { error: 'الفاتورة مسددة — لا داعي لإرسال رابط سداد' };
+
+  const link = payUrl(invoice.payToken);
+  const vars = {
+    clientName: invoice.client.companyAr || invoice.client.nameAr,
+    number: invoice.number,
+    title: invoice.titleAr,
+    amount: fmtMoney(invoice.amountExclVat),
+    vat: fmtMoney(invoice.vatAmount),
+    total: fmtMoney(invoice.total),
+    link,
+  };
+
+  const tpl = loadTemplate<{
+    email: Record<string, { subject: { ar: string; en: string }; bodyAr: string; bodyEn: string }>;
+    whatsapp: Record<string, { ar: string; en: string }>;
+  }>('messages.json');
+
+  const mail = await sendMail({
+    to: invoice.client.email,
+    subject: render(tpl.email.invoice.subject.ar, vars),
+    text: render(tpl.email.invoice.bodyAr, vars),
+  });
+
+  await prisma.delivery.create({
+    data: {
+      invoiceId: invoice.id,
+      channel: 'EMAIL',
+      toName: invoice.client.nameAr,
+      toAddress: invoice.client.email,
+      body: render(tpl.email.invoice.bodyAr, vars),
+      status: mail.ok ? 'SENT' : 'FAILED',
+      actor,
+    },
+  });
+
+  await logEvent({
+    entityType: 'invoice',
+    entityId: invoice.id,
+    clientId: invoice.clientId,
+    code: 'INVOICE_LINK_SENT',
+    titleAr: `أُرسل رابط سداد الفاتورة ${invoice.number} إلى ${invoice.client.email}`,
+    titleEn: `Payment link for invoice ${invoice.number} sent to ${invoice.client.email}`,
+    actor,
+    actorKind: 'admin',
+  });
+
+  const wa = render(tpl.whatsapp.invoice.ar, vars);
+  const phone = normalizePhone(invoice.client.phone).replace(/^\+/, '');
+  revalidatePath('/admin/invoices');
+  return {
+    ok: `أُرسل رابط السداد إلى ${invoice.client.email}`,
+    link: `https://wa.me/${phone}?text=${encodeURIComponent(wa)}`,
+  };
+}
 
 // ------------------------------------------------------------------- الدخول
 export async function requestAdminLink(_prev: State, fd: FormData): Promise<State> {

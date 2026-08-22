@@ -1,6 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { guardClient } from '@/lib/guard';
 import { fmtMoney, fmtDate } from '@/lib/money';
 import { payments } from '@/lib/payments';
 import { COMPANY } from '@config/company';
@@ -8,10 +7,9 @@ import { COMPANY } from '@config/company';
 export const dynamic = 'force-dynamic';
 
 export default async function PayPage({ params }: { params: Promise<{ token: string }> }) {
-  const clientId = await guardClient();
   const { token } = await params;
   const invoice = await prisma.invoice.findUnique({ where: { payToken: token }, include: { client: true } });
-  if (!invoice || invoice.clientId !== clientId) notFound();
+  if (!invoice) notFound();
 
   if (invoice.status === 'PAID') {
     return (
@@ -21,7 +19,7 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
           سُددت هذه الفاتورة بتاريخ {fmtDate(invoice.paidAt, 'en')}
           {invoice.method ? ` عبر ${invoice.method}` : ''}.
         </div>
-        <a className="btn" href="/portal">العودة إلى البوابة</a>
+        <a className="btn" href="/portal">بوابة العميل</a>
       </div>
     );
   }
@@ -60,7 +58,7 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
         <a className="btn" href={intent.url}>
           ادفع الآن {provider.supportsApplePay ? '— مدى، فيزا، آبل باي' : '(بيئة اختبار)'}
         </a>
-        <a className="btn ghost" href="/portal">لاحقاً</a>
+        
       </div>
 
       <h3>التحويل البنكي</h3>
