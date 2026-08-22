@@ -1,0 +1,57 @@
+{
+  "_readme": "قالب عرض السعر: العناوين والأحكام العامة. عدّل النصوص هنا دون لمس الكود.",
+  "docTitle": { "ar": "عرض سعر", "en": "Quotation" },
+  "sections": {
+    "subject": { "ar": "الموضوع", "en": "Subject" },
+    "to": { "ar": "إلى", "en": "To" },
+    "scope": { "ar": "نطاق الخدمات", "en": "Scope of Services" },
+    "pricing": { "ar": "الأسعار وشروط الدفع", "en": "Pricing and Payment Terms" },
+    "delivery": { "ar": "مدة التنفيذ", "en": "Delivery Period" },
+    "bank": { "ar": "البيانات البنكية", "en": "Bank Details" },
+    "terms": { "ar": "الأحكام والشروط", "en": "Terms and Conditions" },
+    "company": { "ar": "بيانات الشركة", "en": "Company Details" },
+    "acceptance": { "ar": "القبول", "en": "Acceptance" }
+  },
+  "subjectDefault": {
+    "ar": "عرض سعر للخدمات المبينة أدناه",
+    "en": "Quotation for the services set out below"
+  },
+  "terms": [
+    {
+      "ar": "جميع الأسعار الواردة في هذا العرض غير شاملة ضريبة القيمة المضافة، وتُضاف الضريبة بنسبة 15% وتظهر في سطر مستقل ضمن الإجمالي.",
+      "en": "All prices in this quotation are exclusive of value added tax. Tax at 15% is added and shown as a separate line within the total."
+    },
+    {
+      "ar": "الرسوم الحكومية مستثناة من هذا العرض وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية.",
+      "en": "Government fees are excluded from this quotation and are paid directly to the competent authorities at actual cost."
+    },
+    {
+      "ar": "هذا العرض صالح حتى تاريخ {{validUntil}}، وبعده يخضع لإعادة التسعير.",
+      "en": "This quotation is valid until {{validUntil}}, after which it is subject to re-pricing."
+    },
+    {
+      "ar": "مدد التنفيذ تقديرية بأيام العمل الرسمية وتبدأ من تاريخ استلام كامل المستندات والبيانات المطلوبة وسداد الدفعة المستحقة.",
+      "en": "Delivery periods are estimates in official working days, commencing from receipt of all required documents and information and payment of the instalment due."
+    },
+    {
+      "ar": "لا يشمل هذا العرض أي خدمة غير مذكورة صراحةً في جدول البنود أعلاه، وأي خدمة إضافية تتطلب عرضاً مستقلاً.",
+      "en": "This quotation does not include any service not expressly stated in the items table above; any additional service requires a separate quotation."
+    },
+    {
+      "ar": "التزام الشركة التزام ببذل عناية لا بتحقيق نتيجة فيما يتعلق بقرارات الجهات الحكومية.",
+      "en": "The Company's obligation is one of means and not of result in respect of decisions of government authorities."
+    },
+    {
+      "ar": "قبول هذا العرض إلكترونياً عبر الرابط المرسل يُعد قبولاً معتبراً ومنتجاً لآثاره، ويُتبع بعقد خدمات موقّع من الطرفين.",
+      "en": "Electronic acceptance of this quotation through the link provided constitutes valid and effective acceptance, and is followed by a services agreement signed by both Parties."
+    }
+  ],
+  "acceptanceNote": {
+    "ar": "للموافقة على هذا العرض، اضغط زر «قبول العرض» في الصفحة الإلكترونية للعرض. يُسجَّل الاسم وتاريخ ووقت القبول تلقائياً.",
+    "en": "To approve this quotation, press the \"Accept\" button on the quotation web page. The name, date and time of acceptance are recorded automatically."
+  },
+  "govFeesTitle": {
+    "ar": "ملحق — جدول الرسوم الحكومية المقدّرة",
+    "en": "Appendix — Estimated Government Fees"
+  }
+}

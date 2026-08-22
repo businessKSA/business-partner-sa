@@ -1,0 +1,48 @@
+/**
+ * تهيئة قاعدة البيانات عند النشر — تُستدعى من `vercel-build` قبل البناء.
+ *
+ * ثلاث قواعد تحكمها:
+ *
+ * 1) لا تُلمس قاعدة البيانات إلا في نشرة الإنتاج. نشرات المعاينة تُبنى من كل
+ *    طلب مراجعة، ولو طبّقت المخطط لكان كل طلب مفتوح يعدّل قاعدة الإنتاج.
+ * 2) المخطط يُطبَّق بـ `prisma db push` فتُنشأ الجداول في أول نشرة بلا أوامر يدوية.
+ * 3) البذرة تعمل مرة واحدة فقط. البذرة تستخدم upsert، فبذرٌ في كل نشرة يُرجع
+ *    أي تعديل يدوي على أسعار الكتالوج إلى قيمه الأصلية دون أن ينتبه أحد.
+ */
+import { execSync } from 'node:child_process';
+import { PrismaClient } from '@prisma/client';
+
+async function main() {
+  const env = process.env.VERCEL_ENV;
+  if (env && env !== 'production') {
+    console.log(`نشرة ${env} — لا تُمَسّ قاعدة البيانات، يُكتفى بالبناء.`);
+    return;
+  }
+
+  if (!process.env.DATABASE_URL || !process.env.DIRECT_DATABASE_URL) {
+    throw new Error(
+      'DATABASE_URL و DIRECT_DATABASE_URL مطلوبان لتهيئة قاعدة البيانات. ' +
+        'اضبطهما في متغيرات بيئة المشروع ثم أعد النشر.',
+    );
+  }
+
+  console.log('تطبيق المخطط على قاعدة البيانات...');
+  execSync('prisma db push --skip-generate', { stdio: 'inherit' });
+
+  const prisma = new PrismaClient();
+  const count = await prisma.service.count();
+  await prisma.$disconnect();
+
+  if (count > 0) {
+    console.log(`الكتالوج موجود (${count} خدمة) — تُتجاوز البذرة.`);
+    return;
+  }
+
+  console.log('الكتالوج فارغ — تُبذَر البيانات الأولية.');
+  await import('./seed');
+}
+
+main().catch((e) => {
+  console.error('فشلت تهيئة قاعدة البيانات:', e instanceof Error ? e.message : e);
+  process.exit(1);
+});

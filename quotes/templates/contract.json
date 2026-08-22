@@ -1,0 +1,123 @@
+{
+  "_readme": "بنود العقد المعتمدة. عدّل النصوص هنا دون لمس الكود. المتغيرات بين {{ }}. ممنوع الإيموجي والأيقونات. أسماء الجهات الحكومية كاملة.",
+  "preamble": {
+    "ar": "إنه في يوم {{contractDate}} الموافق بمدينة الرياض، المملكة العربية السعودية، تم الاتفاق بين كل من:",
+    "en": "On {{contractDate}}, in the city of Riyadh, Kingdom of Saudi Arabia, this Agreement is entered into by and between:"
+  },
+  "partyFirstLabel": { "ar": "الطرف الأول", "en": "First Party" },
+  "partySecondLabel": { "ar": "الطرف الثاني", "en": "Second Party" },
+  "partyFirstRole": { "ar": "مقدّم الخدمة", "en": "Service Provider" },
+  "partySecondRole": { "ar": "العميل", "en": "Client" },
+  "recitalsTitle": { "ar": "تمهيد", "en": "Recitals" },
+  "recitals": [
+    {
+      "ar": "حيث إن الطرف الأول شركة مرخّصة في المملكة العربية السعودية وتزاول تقديم خدمات تأسيس الشركات والاستثمار الأجنبي والموارد البشرية والمعاملات الحكومية والاستشارات، ويملك الخبرة والكوادر اللازمة لتنفيذ نطاق العمل الموضح في هذا العقد.",
+      "en": "Whereas the First Party is a company licensed in the Kingdom of Saudi Arabia engaged in company formation, foreign investment, human resources, government transactions and advisory services, and possesses the expertise and personnel required to perform the scope of work set out in this Agreement."
+    },
+    {
+      "ar": "وحيث إن الطرف الثاني يرغب في التعاقد مع الطرف الأول لتنفيذ الخدمات المبينة في البند (2) وملحق الأتعاب المرفق، ووافق الطرف الأول على ذلك.",
+      "en": "And whereas the Second Party wishes to engage the First Party to perform the services set out in Clause (2) and the attached Fee Schedule, and the First Party has agreed thereto."
+    },
+    {
+      "ar": "وحيث إن الطرفين يقران بأهليتهما النظامية الكاملة للتعاقد، فقد اتفقا على ما يلي:",
+      "en": "And whereas both Parties acknowledge their full legal capacity to contract, the Parties have agreed as follows:"
+    }
+  ],
+  "clauses": [
+    {
+      "key": "appointment",
+      "title": { "ar": "التعيين والمدة", "en": "Appointment and Term" },
+      "body": {
+        "ar": "1.1 يعيّن الطرف الثاني الطرف الأول لتنفيذ الخدمات المبينة في البند (2)، ويقبل الطرف الأول هذا التعيين.\n1.2 يعتبر التمهيد أعلاه وملحق الأتعاب وملحق الرسوم الحكومية — إن وجد — جزءاً لا يتجزأ من هذا العقد ومكملاً لأحكامه.\n1.3 يبدأ سريان هذا العقد من تاريخ توقيعه من الطرفين وسداد الدفعة الأولى المستحقة، ويستمر حتى إتمام الخدمات محل التعاقد أو إنهائه وفق البند (5).\n1.4 مدد التنفيذ المذكورة في جدول الخدمات مدد تقديرية تُحتسب بأيام العمل الرسمية، وتبدأ من تاريخ استلام الطرف الأول كامل المستندات والبيانات المطلوبة من الطرف الثاني، ولا يُسأل الطرف الأول عن أي تأخير يعود إلى الجهات الحكومية أو إلى تأخر الطرف الثاني في تزويده بالمستندات.",
+        "en": "1.1 The Second Party appoints the First Party to perform the services described in Clause (2), and the First Party accepts such appointment.\n1.2 The Recitals above, the Fee Schedule and the Government Fees Schedule — where applicable — form an integral part of this Agreement.\n1.3 This Agreement takes effect from the date of its signature by both Parties and payment of the first instalment due, and continues until completion of the contracted services or its termination pursuant to Clause (5).\n1.4 The delivery periods stated in the services table are estimates calculated in official working days, commencing from the date the First Party receives all required documents and information from the Second Party. The First Party shall not be liable for any delay attributable to government authorities or to the Second Party's delay in providing documents."
+      }
+    },
+    {
+      "key": "services",
+      "title": { "ar": "الخدمات ونطاق العمل", "en": "Services and Scope of Work" },
+      "body": {
+        "ar": "2.1 يلتزم الطرف الأول بتنفيذ الخدمات المبينة في الجدول أدناه وفق الكميات والأسعار الموضحة.\n2.2 يقتصر نطاق العمل على ما ورد في الجدول صراحةً، وأي خدمة إضافية تتطلب اتفاقاً مكتوباً منفصلاً وأتعاباً مستقلة.\n2.3 يلتزم الطرف الثاني بتزويد الطرف الأول بكل المستندات والبيانات والتفويضات اللازمة وبصحتها، ويتحمل وحده مسؤولية صحة ما يقدمه.",
+        "en": "2.1 The First Party shall perform the services set out in the table below in accordance with the quantities and prices stated.\n2.2 The scope of work is limited to what is expressly stated in the table; any additional service requires a separate written agreement and separate fees.\n2.3 The Second Party shall provide the First Party with all required documents, information and authorisations and warrants their accuracy, bearing sole responsibility for the correctness of what it submits."
+      },
+      "renderItemsTable": true
+    },
+    {
+      "key": "fees",
+      "title": { "ar": "الأتعاب وطريقة الدفع", "en": "Fees and Payment" },
+      "body": {
+        "ar": "3.1 إجمالي أتعاب الخدمات محل هذا العقد مبلغ وقدره {{subtotal}} ريال سعودي غير شامل ضريبة القيمة المضافة.\n3.2 تُضاف ضريبة القيمة المضافة بنسبة 15% بمبلغ {{vatAmount}} ريال سعودي، ليصبح الإجمالي شاملاً الضريبة {{total}} ريال سعودي.\n3.3 تُسدَّد الأتعاب وفق شروط الدفع الموضحة أمام كل بند في جدول الخدمات وملحق الأتعاب.\n3.4 جميع الرسوم الحكومية مستثناة من الأتعاب أعلاه وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية، ولا يتحمل الطرف الأول أي جزء منها.\n3.5 تتم المدفوعات لحساب الطرف الأول: {{bankName}} — المستفيد {{bankBeneficiary}} — رقم الحساب {{bankAccount}} — الآيبان {{bankIban}}، أو عبر بوابة الدفع الإلكتروني المتاحة في بوابة العميل.\n3.6 لا يبدأ الطرف الأول بتنفيذ أي مرحلة قبل تحصيل الدفعة الخاصة بها.",
+        "en": "3.1 The total fees for the services under this Agreement amount to SAR {{subtotal}}, exclusive of value added tax.\n3.2 Value added tax at 15% is added in the amount of SAR {{vatAmount}}, bringing the total inclusive of tax to SAR {{total}}.\n3.3 Fees are payable in accordance with the payment terms stated against each item in the services table and the Fee Schedule.\n3.4 All government fees are excluded from the above fees and are paid directly to the competent authorities at actual cost; the First Party bears no part thereof.\n3.5 Payments shall be made to the First Party's account: {{bankName}} — Beneficiary {{bankBeneficiary}} — Account {{bankAccount}} — IBAN {{bankIban}}, or through the electronic payment gateway available in the client portal.\n3.6 The First Party shall not commence any phase before collecting the instalment relating to it."
+      }
+    },
+    {
+      "key": "refund",
+      "title": { "ar": "سياسة الاسترداد", "en": "Refund Policy" },
+      "body": {
+        "ar": "4.1 المبالغ المسددة عن أي مرحلة بُوشر في تنفيذها غير قابلة للاسترداد.\n4.2 إذا تعذّر تنفيذ الخدمة لسبب يعود إلى الطرف الأول وحده، يُرد للطرف الثاني ما سُدِّد عن المراحل التي لم يُباشر فيها، خلال ثلاثين يوماً من تاريخ الطلب المكتوب.\n4.3 الرسوم الحكومية المسددة للجهات المختصة غير قابلة للاسترداد من الطرف الأول في جميع الأحوال، وتخضع لأنظمة تلك الجهات.\n4.4 رفض أي جهة حكومية للطلب لأسباب تتعلق بالطرف الثاني أو بمستنداته لا يُنشئ حقاً في استرداد الأتعاب.",
+        "en": "4.1 Amounts paid for any phase that has commenced are non-refundable.\n4.2 If performance becomes impossible for reasons attributable solely to the First Party, amounts paid for phases not yet commenced shall be refunded to the Second Party within thirty days of a written request.\n4.3 Government fees paid to the competent authorities are non-refundable by the First Party in all cases and are governed by the regulations of those authorities.\n4.4 Rejection of an application by any government authority for reasons relating to the Second Party or its documents does not create any right to a refund of fees."
+      }
+    },
+    {
+      "key": "termination",
+      "title": { "ar": "الإنهاء وآثاره", "en": "Termination and Its Effects" },
+      "body": {
+        "ar": "5.1 يجوز لأي من الطرفين إنهاء هذا العقد بإشعار كتابي مسبق مدته خمسة عشر يوماً.\n5.2 يجوز للطرف الأول إنهاء العقد فوراً عند تأخر الطرف الثاني في السداد أكثر من ثلاثين يوماً من تاريخ الاستحقاق، أو عند تقديمه مستندات غير صحيحة أو مخالفة للأنظمة.\n5.3 عند الإنهاء يستحق الطرف الأول أتعاب الأعمال المنجزة فعلاً حتى تاريخ الإنهاء، ويسلّم الطرف الثاني ما أُنجز من مستندات.\n5.4 لا يُخلّ الإنهاء بالحقوق الناشئة قبل تاريخه، وتبقى بنود السرية وحدود المسؤولية والقانون الواجب التطبيق سارية بعده.",
+        "en": "5.1 Either Party may terminate this Agreement upon fifteen days' prior written notice.\n5.2 The First Party may terminate immediately if the Second Party delays payment by more than thirty days from the due date, or submits incorrect or non-compliant documents.\n5.3 Upon termination the First Party is entitled to fees for work actually performed up to the termination date, and shall hand over the documents completed.\n5.4 Termination does not prejudice rights accrued prior to its date; the clauses on confidentiality, limitation of liability and governing law survive termination."
+      }
+    },
+    {
+      "key": "confidentiality",
+      "title": { "ar": "السرية", "en": "Confidentiality" },
+      "body": {
+        "ar": "6.1 يلتزم كل طرف بالمحافظة على سرية كل المعلومات والمستندات التي يطّلع عليها بمناسبة هذا العقد، وعدم إفشائها للغير دون موافقة كتابية من الطرف الآخر.\n6.2 يُستثنى من ذلك ما يُفصح عنه بموجب أمر من جهة قضائية أو نظامية مختصة، أو ما يكون متاحاً للعموم دون مخالفة.\n6.3 يستمر التزام السرية لمدة ثلاث سنوات من تاريخ انتهاء العقد أو إنهائه.",
+        "en": "6.1 Each Party shall maintain the confidentiality of all information and documents it accesses in connection with this Agreement and shall not disclose them to third parties without the other Party's written consent.\n6.2 Excluded from the foregoing is any disclosure required by order of a competent judicial or regulatory authority, or information available to the public without breach.\n6.3 The confidentiality obligation continues for three years from the expiry or termination of this Agreement."
+      }
+    },
+    {
+      "key": "liability",
+      "title": { "ar": "حدود المسؤولية", "en": "Limitation of Liability" },
+      "body": {
+        "ar": "7.1 تقتصر مسؤولية الطرف الأول في جميع الأحوال على قيمة المبالغ المستلمة فعلياً من الطرف الثاني بموجب هذا العقد، ولا تتجاوزها بأي حال.\n7.2 لا يُسأل الطرف الأول عن أي أضرار غير مباشرة أو تبعية أو فوات كسب أو خسارة فرصة.\n7.3 لا يضمن الطرف الأول نتيجة قرارات الجهات الحكومية، والتزامه التزام ببذل عناية لا بتحقيق نتيجة، ويشمل ذلك دون حصر وزارة الاستثمار ووزارة التجارة ووزارة الموارد البشرية والتنمية الاجتماعية والمؤسسة العامة للتأمينات الاجتماعية وهيئة الزكاة والضريبة والجمارك ووزارة الخارجية والبريد السعودي.",
+        "en": "7.1 The First Party's liability shall in all cases be limited to the amounts actually received from the Second Party under this Agreement and shall not exceed them under any circumstances.\n7.2 The First Party shall not be liable for any indirect or consequential damages, loss of profit or loss of opportunity.\n7.3 The First Party does not guarantee the outcome of decisions of government authorities; its obligation is one of means and not of result, including without limitation the Ministry of Investment, the Ministry of Commerce, the Ministry of Human Resources and Social Development, the General Organization for Social Insurance, the Zakat, Tax and Customs Authority, the Ministry of Foreign Affairs and Saudi Post."
+      }
+    },
+    {
+      "key": "force-majeure",
+      "title": { "ar": "القوة القاهرة", "en": "Force Majeure" },
+      "body": {
+        "ar": "8.1 لا يُسأل أي طرف عن الإخلال بالتزاماته إذا كان ذلك ناتجاً عن قوة قاهرة خارجة عن إرادته، ومنها الكوارث الطبيعية والأوبئة والقرارات الحكومية المانعة وانقطاع الأنظمة الحكومية الإلكترونية.\n8.2 يلتزم الطرف المتأثر بإشعار الطرف الآخر خلال سبعة أيام من وقوع الحدث، وتُعلَّق الالتزامات مدة استمراره.\n8.3 إذا استمرت القوة القاهرة أكثر من تسعين يوماً جاز لأي طرف إنهاء العقد دون تعويض.",
+        "en": "8.1 Neither Party shall be liable for breach of its obligations where such breach results from force majeure beyond its control, including natural disasters, epidemics, prohibitive government decisions and outages of government electronic systems.\n8.2 The affected Party shall notify the other Party within seven days of the event, and obligations are suspended for its duration.\n8.3 If force majeure continues for more than ninety days, either Party may terminate this Agreement without compensation."
+      }
+    },
+    {
+      "key": "general",
+      "title": { "ar": "أحكام عامة", "en": "General Provisions" },
+      "body": {
+        "ar": "9.1 لا يجوز لأي طرف التنازل عن هذا العقد أو أي جزء منه للغير دون موافقة كتابية مسبقة من الطرف الآخر.\n9.2 لا يُعد أي تعديل على هذا العقد نافذاً ما لم يكن مكتوباً وموقعاً من الطرفين.\n9.3 يمثل هذا العقد وملاحقه كامل الاتفاق بين الطرفين ويحل محل أي تفاهمات أو مراسلات سابقة.\n9.4 إذا بطل أي بند من بنود هذا العقد بقي باقي البنود صحيحاً ونافذاً.\n9.5 العلاقة بين الطرفين علاقة تعاقد مستقل، ولا تُنشئ وكالة أو شراكة أو علاقة عمل.\n9.6 تكون المراسلات على العناوين ووسائل الاتصال المدونة في هذا العقد، ويُعد الإشعار عبر البريد الإلكتروني إشعاراً صحيحاً.\n9.7 حُرّر هذا العقد باللغتين العربية والإنجليزية، وعند الاختلاف في التفسير يُعتد بالنص العربي.\n9.8 وقّع الطرفان هذا العقد إلكترونياً، ويُعد التوقيع الإلكتروني معتبراً ومنتجاً لآثاره وفق نظام التعاملات الإلكترونية في المملكة العربية السعودية.",
+        "en": "9.1 Neither Party may assign this Agreement or any part of it to a third party without the other Party's prior written consent.\n9.2 No amendment to this Agreement is effective unless made in writing and signed by both Parties.\n9.3 This Agreement and its schedules constitute the entire agreement between the Parties and supersede any prior understandings or correspondence.\n9.4 If any provision of this Agreement is held invalid, the remaining provisions remain valid and effective.\n9.5 The relationship between the Parties is that of independent contracting and does not create an agency, partnership or employment relationship.\n9.6 Notices shall be sent to the addresses and contact details stated in this Agreement, and notice by electronic mail constitutes valid notice.\n9.7 This Agreement is executed in Arabic and English; in the event of a discrepancy in interpretation, the Arabic text prevails.\n9.8 The Parties have signed this Agreement electronically, and the electronic signature is valid and effective pursuant to the Electronic Transactions Law of the Kingdom of Saudi Arabia."
+      }
+    },
+    {
+      "key": "law",
+      "title": { "ar": "القانون الواجب التطبيق والاختصاص القضائي", "en": "Governing Law and Jurisdiction" },
+      "body": {
+        "ar": "10.1 يخضع هذا العقد في تفسيره وتنفيذه لأنظمة المملكة العربية السعودية.\n10.2 يسعى الطرفان لتسوية أي نزاع ودياً خلال ثلاثين يوماً، فإن تعذّر ذلك ينعقد الاختصاص للمحاكم المختصة بمدينة الرياض.",
+        "en": "10.1 This Agreement is governed and construed in accordance with the laws of the Kingdom of Saudi Arabia.\n10.2 The Parties shall seek to settle any dispute amicably within thirty days; failing which, jurisdiction lies with the competent courts in the city of Riyadh."
+      }
+    }
+  ],
+  "signatureTitle": { "ar": "التوقيعات", "en": "Signatures" },
+  "signatureNote": {
+    "ar": "وقّع الطرفان على هذا العقد إقراراً بقبول كل ما ورد فيه.",
+    "en": "The Parties have signed this Agreement in acknowledgement of their acceptance of all its provisions."
+  },
+  "feeAppendixTitle": { "ar": "ملحق (أ) — ملحق الأتعاب", "en": "Schedule (A) — Fee Schedule" },
+  "govAppendixTitle": {
+    "ar": "ملحق (ب) — جدول الرسوم الحكومية المقدّرة",
+    "en": "Schedule (B) — Estimated Government Fees"
+  },
+  "govAppendixNote": {
+    "ar": "الرسوم أدناه تقديرية وصادرة عن الجهات الحكومية المختصة، وهي مستثناة من أتعاب الطرف الأول وتُسدَّد للجهات مباشرة بالتكلفة الفعلية، وتخضع للتغيير وفق ما تقرره تلك الجهات.",
+    "en": "The fees below are estimates set by the competent government authorities. They are excluded from the First Party's fees, are paid directly to those authorities at actual cost, and are subject to change as those authorities determine."
+  }
+}
