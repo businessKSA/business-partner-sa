@@ -504,3 +504,11 @@ alter table plan_items enable row level security;
 create policy services_public on services for select using (true);
 create policy plans_public on plans for select using (true);
 create policy plan_items_public on plan_items for select using (true);
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-22: automatic document reading. The upload endpoint now runs the
+-- same extraction agent the checkout uses and stores what it read, so the
+-- client's dashboard shows every document parsed (dates, entity, numbers)
+-- and services can be bought with the company's own data pre-filled.
+alter table documents add column if not exists issue_date date;
+alter table documents add column if not exists extracted jsonb;

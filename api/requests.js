@@ -20,7 +20,7 @@ import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuot
 import { stageChannels, announce } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { sellerProfile } from "./_zatca.js";
-import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
+import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -1121,7 +1121,14 @@ export default async function handler(req, res) {
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
       if (what === "documents") {
-        const items = await sb(`documents?organization_id=eq.${orgId}&select=id,category,title,expiry_date,verify_status,created_at,document_versions(id,version_no,file_name,storage_key,uploaded_at)&order=created_at.desc&limit=60`);
+        // The read-out columns are a later migration; fall back to the older
+        // shape on a database that has not run it yet.
+        let items;
+        try {
+          items = await sb(`documents?organization_id=eq.${orgId}&select=id,category,title,expiry_date,issue_date,extracted,verify_status,created_at,document_versions(id,version_no,file_name,storage_key,uploaded_at)&order=created_at.desc&limit=60`);
+        } catch {
+          items = await sb(`documents?organization_id=eq.${orgId}&select=id,category,title,expiry_date,verify_status,created_at,document_versions(id,version_no,file_name,storage_key,uploaded_at)&order=created_at.desc&limit=60`);
+        }
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
       if (what === "doc-link") {
@@ -1279,10 +1286,29 @@ export default async function handler(req, res) {
         const key = `${orgId}/${docId}/v${vno}-${Date.now()}-${fileName.replace(/[^\w.\-]+/g, "_")}`;
         await storagePut(key, buf, mime);
         const vrow = await sb("document_versions", { method: "POST", body: [{ document_id: docId, version_no: vno, storage_key: key, file_name: fileName, mime, size_bytes: buf.length, sha256: crypto.createHash("sha256").update(buf).digest("hex"), malware_scan: "skipped", uploaded_by: userId }] });
-        await sb(`documents?id=eq.${docId}`, { method: "PATCH", prefer: "return=minimal", body: { current_version_id: vrow[0].id, ...(expiry ? { expiry_date: expiry } : {}), verify_status: "pending" } });
-        await notify({ organization_id: orgId, event: "document_uploaded", channel: "inapp", title: `رُفع المستند «${title}» (نسخة ${vno}) — قيد التحقق`, idempotency_key: `doc_up:${docId}:${vno}` });
-        await audit({ organization_id: orgId, actor_user_id: userId, action: "document.uploaded", entity_type: "document", entity_id: docId, after: { version: vno, file: fileName } });
-        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, documentId: docId, version: vno }));
+        // The extraction agent reads the document the moment it lands: type,
+        // entity, numbers, and the issue/expiry dates — so the client never
+        // types what their own papers already say. Best-effort: a provider
+        // hiccup stores the file exactly as before, just unread.
+        let extracted = null;
+        if (DOC_MIME_OK.test(mime) && buf.length <= MAX_DOC_BYTES) {
+          try {
+            const read = await readDocument(base64, mime);
+            if (read.ok) extracted = read.fields;
+          } catch (e) { console.error("doc-upload extract", String(e.message || e).slice(0, 120)); }
+        }
+        const effectiveExpiry = expiry || (extracted && extracted.expiryDate) || null;
+        const basePatch = { current_version_id: vrow[0].id, ...(effectiveExpiry ? { expiry_date: effectiveExpiry } : {}), verify_status: extracted ? "verified" : "pending" };
+        // The extracted/issue_date columns are a later migration; a database
+        // that has not run it yet gets the patch without them, never an error.
+        try {
+          await sb(`documents?id=eq.${docId}`, { method: "PATCH", prefer: "return=minimal", body: { ...basePatch, ...(extracted ? { extracted, ...(extracted.issueDate ? { issue_date: extracted.issueDate } : {}) } : {}) } });
+        } catch {
+          await sb(`documents?id=eq.${docId}`, { method: "PATCH", prefer: "return=minimal", body: basePatch });
+        }
+        await notify({ organization_id: orgId, event: "document_uploaded", channel: "inapp", title: extracted ? `رُفع المستند «${title}» (نسخة ${vno}) وقُرئ آلياً ✓` : `رُفع المستند «${title}» (نسخة ${vno}) — قيد التحقق`, idempotency_key: `doc_up:${docId}:${vno}` });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "document.uploaded", entity_type: "document", entity_id: docId, after: { version: vno, file: fileName, read: !!extracted } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, documentId: docId, version: vno, ...(extracted ? { extracted } : {}) }));
       }
       if (b.action === "ops-approval-decide") {
         const aid = String(b.id || "");
@@ -2024,6 +2050,145 @@ export default async function handler(req, res) {
   // Notion and checks its amount against "إجمالي الطلب" before an order is confirmed.
   // Client updates their own establishment record (session-scoped; creates
   // the organization + membership on first save if the account has none).
+  // ---- the client's own control over their orders --------------------------
+  // Cancelling from the dashboard: allowed while the order is still under
+  // review or awaiting payment. Once it is confirmed and work has started,
+  // cancellation is a conversation, not a button — the client is told to open
+  // a ticket so nobody discards half-done government work with one tap.
+  if (b.action === "my-order-cancel") {
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "notion_not_configured" })); }
+    const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
+    const ref = String(b.ref || "").trim().slice(0, 40);
+    if (!ref || !/^(BP|RV|BPW|BPP|BPQ|BPI)-/i.test(ref)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_ref" })); }
+    try {
+      const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+      });
+      if (!r.ok) throw new Error("notion_failed");
+      const pg = ((await r.json()).results || [])[0];
+      if (!pg) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      const p = pg.properties || {};
+      const notes = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("").toLowerCase();
+      // The order must belong to the person cancelling it.
+      if (!myEmail || !notes.includes(myEmail)) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_yours" })); }
+      const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
+      if (status === "ملغي") { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+      if (!["قيد المراجعة", "بانتظار الدفع"].includes(status)) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "in_progress", message: "بدأ العمل على هذا الطلب — لإلغائه افتح تذكرة دعم ويرجع لك الفريق بالتفاصيل." }));
+      }
+      await setLeadStatus(ref, "ملغي");
+      try { await appendLeadNote(pg, `ألغاه العميل بنفسه من لوحته (${myEmail}) في ${new Date().toISOString().slice(0, 16).replace("T", " ")}`); } catch {}
+      sendEmail(OWNER_EMAIL, `🚫 العميل ألغى الطلب ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>العميل <b>${esc(myEmail)}</b> ألغى الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> من لوحته وكانت حالته «${esc(status)}». لا يلزمك إجراء — الحالة صارت «ملغي».</p></div>`).catch(() => {});
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "cancel_failed" }));
+    }
+  }
+
+  // The client composes the service they actually need, in their own words —
+  // and the existing quote machinery takes it from there: the team prices it,
+  // the client gets the quotation link, accepts, signs the contract and pays
+  // online, and the invoice issues itself. This is just the front door.
+  if (b.action === "custom-request") {
+    let sess = null;
+    try { sess = await getSession(req); } catch { sess = null; }
+    const email = String((sess && sess.user && sess.user.email) || b.email || "").toLowerCase().slice(0, 160);
+    const name = String(b.name || (sess && sess.user && sess.user.full_name) || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const need = String(b.need || "").trim().slice(0, 2000);
+    const details = String(b.details || "").trim().slice(0, 2000);
+    const budget = String(b.budget || "").trim().slice(0, 60);
+    const deadline = String(b.deadline || "").trim().slice(0, 40);
+    const company = String(b.company || "").trim().slice(0, 200);
+    if (!need || need.length < 10) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "need_required" })); }
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "email_required" })); }
+    const ref = "BPQ-" + Date.now().toString().slice(-6);
+    const lines = [
+      `طلب مخصص من العميل — بانتظار التسعير`,
+      `الاحتياج: ${need}`,
+      details ? `تفاصيل: ${details}` : "",
+      company ? `المنشأة: ${company}` : "",
+      budget ? `ميزانية تقريبية: ${budget}` : "",
+      deadline ? `الموعد المطلوب: ${deadline}` : "",
+    ].filter(Boolean).join(" · ");
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🧩 طلب خدمة مخصص ${esc(ref)} — يحتاج تسعير</h2><table>${row("الاسم", name) + row("البريد", email) + row("الجوال", phone) + row("المنشأة", company)}</table><p style="background:#f1f5f9;padding:12px;border-radius:10px;line-height:1.9"><b>ما يحتاجه العميل:</b><br>${esc(need)}${details ? `<br><b>تفاصيل:</b> ${esc(details)}` : ""}${budget ? `<br><b>ميزانية تقريبية:</b> ${esc(budget)}` : ""}${deadline ? `<br><b>الموعد:</b> ${esc(deadline)}` : ""}</p><p><b>الخطوة التالية:</b> أنشئ أمر العمل وأصدر عرض السعر من اللوحة — يصل العميل رابط العرض فيوافق ويوقّع العقد ويدفع إلكترونياً وتصدر فاتورته وحدها.</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلبك المخصص ✅</h2><p>مرحباً ${esc(name || "")}،</p><p>وصلنا وصف احتياجك وفريقنا يسعّره الآن. يصلك <b>عرض السعر</b> على هذا البريد وفي لوحتك — وبمجرد موافقتك توقّع العقد إلكترونياً وتدفع أونلاين ويبدأ التنفيذ فوراً.</p><table>${row("رقم المرجع", ref)}</table><p>تابع طلبك من لوحتك: <a href="${MKT_SITE_BASE}/ar/account" style="color:#0B1B5A">${MKT_SITE_BASE}/ar/account</a></p></div>`;
+    await Promise.all([
+      crmLead({ title: `🧩 طلب مخصص — ${name || email}`, phone, email, notes: lines, ref, orderStatus: "قيد المراجعة" }),
+      sendEmail(TEAM_EMAIL, `🧩 طلب مخصص ${ref} — يحتاج تسعير`, oHtml),
+      OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🧩 طلب مخصص ${ref} — يحتاج تسعير`, oHtml) : Promise.resolve(),
+      sendEmail(email, `استلمنا طلبك المخصص — ${ref}`, cHtml),
+      addToAudience(email, name),
+      forwardLead({ source: "custom-request", ref, name, phone, email, items: need.slice(0, 200) }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // ---- multiple establishments per account ---------------------------------
+  // A client manages every company they own from one login: list them, switch
+  // the session's active one, add another. Documents, orders and purchases all
+  // key off the session's organization_id, so switching company switches the
+  // whole dashboard with it.
+  if (b.action === "my-orgs") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const rows = await sb(`organization_members?user_id=eq.${sess.user.id}&status=eq.active&select=organization_id,role_id,organizations(id,name_ar,name_en,cr_number)`);
+      const orgs = rows.map((r) => r.organizations).filter(Boolean);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, activeId: (sess.organization && sess.organization.id) || null, orgs }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+  if (b.action === "my-org-switch") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = String(b.orgId || "").trim();
+    if (!/^[0-9a-f-]{36}$/i.test(orgId)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_org" })); }
+    try {
+      // Membership is the authorization: a session can only point at a
+      // company its user actually belongs to.
+      const m = await sb(`organization_members?user_id=eq.${sess.user.id}&organization_id=eq.${orgId}&status=eq.active&select=organization_id&limit=1`);
+      if (!m.length) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_member" })); }
+      await sb(`user_sessions?id=eq.${sess.sessionId}`, { method: "PATCH", prefer: "return=minimal", body: { organization_id: orgId } });
+      const orgs = await sb(`organizations?id=eq.${orgId}&select=id,name_ar,name_en,cr_number&limit=1`);
+      audit({ actor_user_id: sess.user.id, action: "org.switch", entity_type: "organization", entity_id: orgId });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, organization: orgs[0] || null }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+  if (b.action === "my-org-create") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const nameAr = String(b.name_ar || "").trim().slice(0, 200);
+    const nameEn = String(b.name_en || "").trim().slice(0, 200);
+    const crNum = String(b.cr || "").trim().slice(0, 40);
+    if (!nameAr && !nameEn) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "name_required" })); }
+    try {
+      const orgs = await sb("organizations", { method: "POST", body: [{ name_ar: nameAr || nameEn, ...(nameEn ? { name_en: nameEn } : {}), ...(crNum ? { cr_number: crNum } : {}) }] });
+      const orgId = orgs[0].id;
+      await sb("organization_members", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, user_id: sess.user.id, role_id: "owner", status: "active" }] });
+      await sb(`user_sessions?id=eq.${sess.sessionId}`, { method: "PATCH", prefer: "return=minimal", body: { organization_id: orgId } });
+      audit({ actor_user_id: sess.user.id, action: "org.create", entity_type: "organization", entity_id: String(orgId) });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, organization: orgs[0] }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
   if (b.action === "my-org-update") {
     if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
     let sess = null;
