@@ -5,6 +5,7 @@
  */
 import { loadTemplate, render } from './templates';
 import { stripEmoji } from './content-guard';
+import { normalizePhone } from './phone';
 
 export interface WhatsAppMessage {
   phone: string;
@@ -26,10 +27,11 @@ export function buildWhatsAppMessage(
   const tpl = loadTemplate<MsgTpl>('messages.json');
   const raw = tpl.whatsapp[kind]?.[lang] ?? '';
   const text = stripEmoji(render(raw, vars));
+  const to = normalizePhone(phone);
   return {
-    phone,
+    phone: to,
     text,
-    href: `https://wa.me/${phone}?text=${encodeURIComponent(text)}`,
+    href: `https://wa.me/${to}?text=${encodeURIComponent(text)}`,
   };
 }
 
@@ -45,7 +47,7 @@ export async function sendViaBusinessApi(phone: string, text: string): Promise<{
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messaging_product: 'whatsapp',
-      to: phone,
+      to: normalizePhone(phone),
       type: 'text',
       text: { preview_url: true, body: text },
     }),
