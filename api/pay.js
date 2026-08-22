@@ -24,7 +24,7 @@
 //                            emails them that the service unlocked.
 
 import crypto from "node:crypto";
-import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
+import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { contactForRef } from "./_stage.js";
 
@@ -229,7 +229,7 @@ function billTo(order) {
   };
 }
 
-async function invoicePaidOrder(order, paidHalalas) {
+async function invoicePaidOrder(order, paidHalalas, payId = "") {
   if (!daftraConfigured()) return { invoiced: false, reason: "daftra_not_configured" };
   const items = [];
   let net = 0;
@@ -294,6 +294,20 @@ async function invoicePaidOrder(order, paidHalalas) {
   ].filter(Boolean).join("\n");
   const inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: order.ref || "" });
 
+  // Settle the invoice in the books with the money Moyasar took, under the
+  // gateway's own transaction id — so the invoice reads «مدفوعة», not
+  // «مستحقة», with no hand-recording. A failure here never voids the sale:
+  // the invoice stands and the owner gets one email naming what to record.
+  let paymentRecorded = false;
+  try {
+    await daftraRecordPayment({ invoiceId: inv.id, amount: inv.total, transactionId: payId, method: "Moyasar" });
+    paymentRecorded = true;
+  } catch (e) {
+    console.error("pay: daftra payment record failed", String(e.message || e).slice(0, 160), String(e.detail || "").slice(0, 160));
+    await sendMail(OWNER_EMAIL, `⚠️ فاتورة ${inv.number} صدرت والدفعة لم تُسجَّل في الدفترة`,
+      `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>الفاتورة <b>${esc(inv.number)}</b> صدرت بنجاح بإجمالي <b>${inv.total} ﷼</b> بعد دفعة ميسر مؤكدة${payId ? ` (رقم العملية <b style="direction:ltr;display:inline-block">${esc(payId)}</b>)` : ""}، لكن تسجيل السداد على الفاتورة في الدفترة تعذّر آلياً.</p><p><b>المطلوب:</b> افتح الفاتورة في الدفترة وسجّل عليها دفعة بقيمة ${inv.total} ﷼ بطريقة «Moyasar».</p></div>`);
+  }
+
   let pdf = null;
   try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
   // Already paid on this path, so no pay button — but the link is returned so
@@ -336,7 +350,7 @@ async function invoicePaidOrder(order, paidHalalas) {
         <p>الدفترة ما سلّمت الملف المطبوع، فما أُرسلت للعميل رسالة بلا فاتورة.</p>
         <p><b>المطلوب:</b> افتح لوحة التحكم ← الأدوات ← «تصحيح فاتورة صادرة»، ابحث عن ${esc(inv.number)}، أرفق ملف PDF من الدفترة واضغط أرسل.</p></div>`);
   }
-  return { invoiced: true, number: inv.number, total: inv.total, pdfAttached: !!pdf, clientEmailed: !!pdf, payUrl };
+  return { invoiced: true, number: inv.number, total: inv.total, paymentRecorded, pdfAttached: !!pdf, clientEmailed: !!pdf, payUrl };
 }
 
 async function notion(path, method, payload) {
@@ -628,7 +642,7 @@ export default async function handler(req, res) {
               `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>دفعة إلكترونية مؤكدة (${Math.round(p.amount) / 100} ﷼) على الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> والعميل طلب فاتورة باسم منشأة، لكن الدفع اكتمل دون رجوع المتصفح فلم تصلنا بيانات المنشأة الضريبية كاملة.</p><p><b>المطلوب:</b> افتح لوحة التحكم ← الفواتير، وأصدر الفاتورة يدوياً ببيانات المنشأة من صف الطلب ${esc(ref)}.</p></div>`);
             cartInvoice = { invoiced: false, reason: "company_invoice_manual" };
           } else {
-            try { cartInvoice = await invoicePaidOrder(order, p.amount); }
+            try { cartInvoice = await invoicePaidOrder(order, p.amount, pid); }
             catch (e) {
               console.error("pay webhook: cart invoice failed", String(e.message || e).slice(0, 200));
               cartInvoice = { invoiced: false, reason: String(e.message || "invoice_failed") };
@@ -646,7 +660,7 @@ export default async function handler(req, res) {
     try { marked = await markOrderPaid(ref, { total: Math.round(p.amount) / 100, method: "online" }); }
     catch (e) { console.error("pay webhook: mark failed", String(e.message || e).slice(0, 160)); }
     if (marked && marked.recorded) {
-      try { invoicing = await invoicePaidOrder({ ref, quoteId, t: tok }, p.amount); }
+      try { invoicing = await invoicePaidOrder({ ref, quoteId, t: tok }, p.amount, pid); }
       catch (e) {
         console.error("pay webhook: invoice failed", String(e.message || e).slice(0, 200));
         invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };
@@ -718,7 +732,7 @@ export default async function handler(req, res) {
         invoicing = { invoiced: false, reason: "already_settled" };
       } else {
         try {
-          invoicing = await invoicePaidOrder(b.order, p.amount);
+          invoicing = await invoicePaidOrder(b.order, p.amount, String(p.id || ""));
         } catch (e) {
           console.error("pay: automatic invoice failed", String(e.message || e).slice(0, 200), String(e.detail || "").slice(0, 200));
           invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };

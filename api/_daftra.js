@@ -666,6 +666,37 @@ async function createDoc(kind, { partyId, items, notes, ref, dueDays = 0, vatRat
 }
 
 export const daftraCreateInvoice = ({ clientId, ...rest }) => createDoc("invoice", { partyId: clientId, ...rest });
+
+// A gateway charge that issued an invoice must also settle it in the books:
+// without a payment row the invoice sits «مستحقة» in Daftra and the owner
+// re-records by hand what Moyasar already confirmed. Same two-payload rule as
+// createDoc — the full row carries the transaction id, the minimal retry drops
+// every optional field an account might refuse without naming it.
+export async function daftraRecordPayment({ invoiceId, amount, transactionId = "", method = "Moyasar", date = "" } = {}) {
+  const amt = Math.round(Number(amount) * 100) / 100;
+  if (!invoiceId || !(amt > 0)) throw new Error("daftra_payment_invalid");
+  const when = (date || new Date().toISOString().slice(0, 19).replace("T", " ")).slice(0, 19);
+  const full = { InvoicePayment: {
+    invoice_id: invoiceId,
+    amount: amt,
+    date: when,
+    payment_method: String(method).slice(0, 60),
+    transaction_id: String(transactionId).slice(0, 80),
+    currency_code: CURRENCY,
+    status: 1,
+  } };
+  const minimal = { InvoicePayment: { invoice_id: invoiceId, amount: amt, date: when } };
+  let out = null;
+  try {
+    out = await dq("/invoice_payments.json", { method: "POST", body: full });
+  } catch (e) {
+    if (e.message === "daftra_unauthorized" || e.message === "daftra_unreachable") throw e;
+    out = await dq("/invoice_payments.json", { method: "POST", body: minimal });
+  }
+  const id = pick(out, ["id", "invoice_payment_id"]);
+  if (!id) throw new Error("daftra_payment_failed");
+  return { id };
+}
 export const daftraCreateEstimate = ({ clientId, ...rest }) => createDoc("estimate", { partyId: clientId, ...rest });
 export const daftraCreatePurchaseOrder = ({ supplierId, ...rest }) => createDoc("po", { partyId: supplierId, ...rest });
 
