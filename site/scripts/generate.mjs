@@ -656,8 +656,10 @@ function page({ title, desc, active, path, body, script = "", noindex = false, e
     `<main>${body}</main>` +
     footer() +
     waFab() +
-    // Owner request (2026-08): the floating "smart agent / Ask Baher" chat
-    // widget is removed site-wide — the green WhatsApp button is the only fab.
+    // Owner request (2026-08): restore the floating "Ask Baher" widget
+    // (guided desk: services → quote, book a consultation, and live chat)
+    // alongside the green WhatsApp button.
+    advisorWidget() +
     `<script src="/assets/js/main.js?v=${JS_V}"></script>${script}</body></html>`
   );
 }
