@@ -63,7 +63,7 @@ export function agentReady(): boolean {
 }
 
 export function agentModel(): string {
-  return process.env.AGENT_MODEL || 'claude-sonnet-4-6';
+  return process.env.AGENT_MODEL || 'claude-opus-5';
 }
 
 function userMessage(i: AgentInput): string {
