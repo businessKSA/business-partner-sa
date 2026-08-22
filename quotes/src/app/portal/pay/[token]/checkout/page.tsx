@@ -1,6 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { guardClient } from '@/lib/guard';
 import { fmtMoney } from '@/lib/money';
 import { COMPANY } from '@config/company';
 import MoyasarForm from './MoyasarForm';
@@ -12,11 +11,10 @@ export const dynamic = 'force-dynamic';
  * على الخادم، ثم تسلّمه لنموذج Moyasar. لا يصل أي مبلغ من عنوان الصفحة.
  */
 export default async function CheckoutPage({ params }: { params: Promise<{ token: string }> }) {
-  const clientId = await guardClient();
   const { token } = await params;
 
   const invoice = await prisma.invoice.findUnique({ where: { payToken: token } });
-  if (!invoice || invoice.clientId !== clientId) notFound();
+  if (!invoice) notFound();
   if (invoice.status === 'PAID') redirect(`/portal/pay/${token}`);
 
   const key = process.env.MOYASAR_PUBLISHABLE_KEY;
@@ -61,7 +59,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ token
         <br />
         الآيبان <span dir="ltr">{COMPANY.bank.iban}</span>
       </p>
-      <a className="btn ghost" href="/portal" style={{ marginTop: 16 }}>العودة إلى البوابة</a>
+      
     </div>
   );
 }

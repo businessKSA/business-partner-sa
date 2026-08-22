@@ -27,6 +27,11 @@ export function publicUrl(token: string): string {
   return `${process.env.APP_URL || 'http://localhost:3000'}/d/${token}`;
 }
 
+/** رابط سداد الفاتورة — يُفتح برمز الفاتورة وحده بلا تسجيل دخول. */
+export function payUrl(payToken: string): string {
+  return `${process.env.APP_URL || 'http://localhost:3000'}/portal/pay/${payToken}`;
+}
+
 /** يولّد الـPDF ويؤرشفه في مجلد العميل الصحيح، ويعيد المحتوى. */
 export async function buildAndArchivePdf(documentId: string): Promise<{ buffer: Buffer; key: string }> {
   const doc = await prisma.document.findUniqueOrThrow({ where: { id: documentId } });
