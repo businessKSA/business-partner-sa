@@ -3,6 +3,9 @@ import { publicToken } from './tokens';
 import { clientFolderPath, ensureClientFolders } from './storage';
 import { logEvent } from './timeline';
 import { seedIdentitiesFor } from './identity';
+import { normalizePhone } from './phone';
+
+export { normalizePhone };
 
 export interface NewClient {
   nameAr: string;
@@ -23,16 +26,6 @@ export interface NewClient {
 }
 
 /** رقم واتساب بصيغة دولية بدون + وبدون فواصل. */
-export function normalizePhone(raw: string, country = 'SA'): string {
-  let p = (raw || '').replace(/[^\d+]/g, '');
-  if (p.startsWith('+')) p = p.slice(1);
-  if (p.startsWith('00')) p = p.slice(2);
-  if (country === 'SA') {
-    if (p.startsWith('0')) p = `966${p.slice(1)}`;
-    else if (p.length === 9 && p.startsWith('5')) p = `966${p}`;
-  }
-  return p;
-}
 
 /**
  * إنشاء عميل + إنشاء مجلده تلقائياً بثلاثة مجلدات فرعية:
