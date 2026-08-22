@@ -58,6 +58,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
         <div className="row" style={{ marginBottom: 10 }}>
           <Link className="btn sm" href={`/admin/documents/new?client=${client.id}`}>عرض سعر جديد لهذا العميل</Link>
           <Link className="btn ghost sm" href={`/admin/agent?client=${client.id}`}>توليد بالوكيل الذكي</Link>
+          <Link className="btn ghost sm" href={`/admin/clients/${client.id}/edit`}>تعديل بيانات العميل</Link>
         </div>
         <table>
           <thead>
