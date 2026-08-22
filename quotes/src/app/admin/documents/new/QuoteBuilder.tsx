@@ -64,6 +64,71 @@ function emptyRow(key: number): Row {
   };
 }
 
+/**
+ * ترويسة العرض تُشتق من البنود.
+ *
+ * كانت تُكتب يدوياً بينما اسم الخدمة ووصفها وشروطها موجودة في السلة أصلاً —
+ * فيُعاد كتابة الشيء نفسه مرتين، ويختلف الاثنان متى نُسي أحدهما. الاشتقاق
+ * هنا افتراضي لا إلزام: أول تعديل يدوي على أي حقل يوقف اشتقاقه وحده.
+ */
+function named(rows: Row[]): Row[] {
+  return rows.filter((r) => r.nameAr.trim());
+}
+
+function deriveTitleAr(rows: Row[]): string {
+  const n = named(rows);
+  if (!n.length) return '';
+  return n.length === 1 ? `عرض سعر — ${n[0].nameAr}` : `عرض سعر — ${n.length} خدمات`;
+}
+
+function deriveTitleEn(rows: Row[]): string {
+  const n = named(rows);
+  if (!n.length) return '';
+  const one = n[0].nameEn.trim() || n[0].nameAr;
+  return n.length === 1 ? `Quotation — ${one}` : `Quotation — ${n.length} services`;
+}
+
+function deriveIntroAr(rows: Row[]): string {
+  const n = named(rows);
+  if (!n.length) return '';
+  if (n.length === 1) return `تقديم خدمة ${n[0].nameAr}.`;
+  return `تقديم الخدمات التالية: ${n.map((r) => r.nameAr).join('، ')}.`;
+}
+
+function deriveIntroEn(rows: Row[]): string {
+  const n = named(rows);
+  if (!n.length) return '';
+  const names = n.map((r) => r.nameEn.trim() || r.nameAr);
+  if (n.length === 1) return `Provision of ${names[0]}.`;
+  return `Provision of the following services: ${names.join(', ')}.`;
+}
+
+function deriveNotesAr(rows: Row[]): string {
+  return named(rows)
+    .map((r) => {
+      const parts = [`- ${r.nameAr}`];
+      if (r.descAr.trim()) parts.push(`  ${r.descAr.trim()}`);
+      if (r.deliveryAr.trim()) parts.push(`  مدة التنفيذ: ${r.deliveryAr.trim()}`);
+      if (r.paymentTermsAr.trim()) parts.push(`  شروط الدفع: ${r.paymentTermsAr.trim()}`);
+      return parts.join('\n');
+    })
+    .join('\n');
+}
+
+function deriveNotesEn(rows: Row[]): string {
+  return named(rows)
+    .map((r) => {
+      const parts = [`- ${r.nameEn.trim() || r.nameAr}`];
+      if (r.descEn.trim()) parts.push(`  ${r.descEn.trim()}`);
+      if (r.deliveryEn.trim()) parts.push(`  Delivery: ${r.deliveryEn.trim()}`);
+      if (r.paymentTermsEn.trim()) parts.push(`  Payment terms: ${r.paymentTermsEn.trim()}`);
+      return parts.join('\n');
+    })
+    .join('\n');
+}
+
+type HeaderField = 'titleAr' | 'titleEn' | 'introAr' | 'introEn' | 'notesAr' | 'notesEn';
+
 export default function QuoteBuilder({
   clients,
   services,
@@ -76,6 +141,8 @@ export default function QuoteBuilder({
   const [state, action, pending] = useActionState(actionCreateQuote, {});
   const [rows, setRows] = useState<Row[]>([emptyRow(1)]);
   const [nextKey, setNextKey] = useState(2);
+  // القيم التي كتبها المستخدم بيده — تتقدّم على المشتق، ولها وحدها.
+  const [manual, setManual] = useState<Partial<Record<HeaderField, string>>>({});
 
   const update = (key: number, patch: Partial<Row>) =>
     setRows((r) => r.map((x) => (x.key === key ? { ...x, ...patch } : x)));
@@ -101,6 +168,25 @@ export default function QuoteBuilder({
       deliveryEn: s.deliveryEn,
     });
   };
+
+  const derived: Record<HeaderField, string> = {
+    titleAr: deriveTitleAr(rows),
+    titleEn: deriveTitleEn(rows),
+    introAr: deriveIntroAr(rows),
+    introEn: deriveIntroEn(rows),
+    notesAr: deriveNotesAr(rows),
+    notesEn: deriveNotesEn(rows),
+  };
+  const field = (k: HeaderField) => manual[k] ?? derived[k];
+  const onField = (k: HeaderField) => (e: { target: { value: string } }) =>
+    setManual((m) => ({ ...m, [k]: e.target.value }));
+  const resetField = (k: HeaderField) =>
+    setManual((m) => {
+      const next = { ...m };
+      delete next[k];
+      return next;
+    });
+  const edited = (Object.keys(manual) as HeaderField[]).filter((k) => manual[k] !== undefined);
 
   const subtotal = rows.reduce((a, r) => a + (Number(r.qty) || 0) * (Number(r.unitPrice) || 0), 0);
   const vat = subtotal * VAT;
@@ -133,29 +219,52 @@ export default function QuoteBuilder({
               <label htmlFor="validityDays">صلاحية العرض بالأيام (فارغ = افتراضي الخدمة أو 30)</label>
               <input id="validityDays" name="validityDays" type="number" min="1" placeholder="30" />
             </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="row" style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <h2>ترويسة العرض</h2>
+            {edited.length ? (
+              <button type="button" className="btn ghost sm" onClick={() => setManual({})}>
+                إعادة الاشتقاق من البنود
+              </button>
+            ) : null}
+          </div>
+          <p className="sub">
+            تُكتب تلقائياً من الخدمات التي تختارها في سلة البنود. عدّل أي حقل متى شئت — الحقل
+            المعدَّل يتوقف عن التحديث التلقائي وحده دون بقية الحقول.
+          </p>
+          <div className="grid c2">
             <div>
-              <label htmlFor="titleAr">عنوان العرض بالعربي</label>
-              <input id="titleAr" name="titleAr" placeholder="عرض سعر" />
+              <label htmlFor="titleAr">عنوان العرض بالعربي{manual.titleAr !== undefined ? ' (معدَّل يدوياً)' : ''}</label>
+              <input id="titleAr" name="titleAr" placeholder="عرض سعر" value={field('titleAr')} onChange={onField('titleAr')} />
+              {manual.titleAr !== undefined ? (
+                <button type="button" className="btn ghost sm" style={{ marginTop: 6 }} onClick={() => resetField('titleAr')}>استرجاع التلقائي</button>
+              ) : null}
             </div>
             <div>
-              <label htmlFor="titleEn">عنوان العرض بالإنجليزي</label>
-              <input id="titleEn" name="titleEn" placeholder="Quotation" dir="ltr" />
+              <label htmlFor="titleEn">عنوان العرض بالإنجليزي{manual.titleEn !== undefined ? ' (معدَّل يدوياً)' : ''}</label>
+              <input id="titleEn" name="titleEn" placeholder="Quotation" dir="ltr" value={field('titleEn')} onChange={onField('titleEn')} />
+              {manual.titleEn !== undefined ? (
+                <button type="button" className="btn ghost sm" style={{ marginTop: 6 }} onClick={() => resetField('titleEn')}>استرجاع التلقائي</button>
+              ) : null}
             </div>
             <div>
-              <label htmlFor="introAr">الموضوع بالعربي</label>
-              <textarea id="introAr" name="introAr" />
+              <label htmlFor="introAr">الموضوع بالعربي{manual.introAr !== undefined ? ' (معدَّل يدوياً)' : ''}</label>
+              <textarea id="introAr" name="introAr" rows={3} value={field('introAr')} onChange={onField('introAr')} />
             </div>
             <div>
-              <label htmlFor="introEn">الموضوع بالإنجليزي</label>
-              <textarea id="introEn" name="introEn" dir="ltr" />
+              <label htmlFor="introEn">الموضوع بالإنجليزي{manual.introEn !== undefined ? ' (معدَّل يدوياً)' : ''}</label>
+              <textarea id="introEn" name="introEn" rows={3} dir="ltr" value={field('introEn')} onChange={onField('introEn')} />
             </div>
             <div>
-              <label htmlFor="notesAr">نطاق الخدمات / ملاحظات بالعربي</label>
-              <textarea id="notesAr" name="notesAr" />
+              <label htmlFor="notesAr">نطاق الخدمات / ملاحظات بالعربي{manual.notesAr !== undefined ? ' (معدَّل يدوياً)' : ''}</label>
+              <textarea id="notesAr" name="notesAr" rows={6} value={field('notesAr')} onChange={onField('notesAr')} />
             </div>
             <div>
-              <label htmlFor="notesEn">نطاق الخدمات / ملاحظات بالإنجليزي</label>
-              <textarea id="notesEn" name="notesEn" dir="ltr" />
+              <label htmlFor="notesEn">نطاق الخدمات / ملاحظات بالإنجليزي{manual.notesEn !== undefined ? ' (معدَّل يدوياً)' : ''}</label>
+              <textarea id="notesEn" name="notesEn" rows={6} dir="ltr" value={field('notesEn')} onChange={onField('notesEn')} />
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 import { useActionState } from 'react';
 import { actionUpdateOwnProfile } from '@/app/actions';
+import PhoneField from '@/components/PhoneField';
 
 export interface OwnProfile {
   nameAr: string;
@@ -48,10 +49,7 @@ export default function ProfileForm({ profile }: { profile: OwnProfile }) {
           <label htmlFor="nameEn">اسم مسؤول التواصل بالإنجليزي</label>
           <input id="nameEn" name="nameEn" dir="ltr" defaultValue={v(profile.nameEn)} />
         </div>
-        <div>
-          <label htmlFor="phone">جوال واتساب *</label>
-          <input id="phone" name="phone" required dir="ltr" defaultValue={profile.phone} placeholder="0555123456" />
-        </div>
+        <PhoneField name="phone" required defaultValue={profile.phone} />
         <div>
           <label htmlFor="city">المدينة</label>
           <input id="city" name="city" defaultValue={v(profile.city)} />
