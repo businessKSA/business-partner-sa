@@ -49,7 +49,12 @@ const PAY_METHODS = METHODS.length ? METHODS : ["creditcard"];
 // before the money moves, so it says who is being paid.
 const APPLE_PAY_LABEL = process.env.MOYASAR_APPLE_PAY_LABEL || "Business Partner";
 const APPLE_PAY_VALIDATE_URL = process.env.MOYASAR_APPLE_PAY_VALIDATE_URL || "https://api.moyasar.com/v1/applepay/initiate";
-const MPF_JS = process.env.MOYASAR_MPF_URL || "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
+// The form library is served from this site's own /assets — the pinned CDN
+// copy (mpf 1.15) mounted an empty box with no exception on live checkouts,
+// and the current 2.x build ships on npm under the MIT licence, so the exact
+// bytes we tested are the exact bytes the buyer runs. MOYASAR_MPF_URL still
+// overrides for experiments.
+const MPF_JS = process.env.MOYASAR_MPF_URL || "/assets/vendor/moyasar-2.2.10.js";
 const MPF_CSS = MPF_JS.replace(/\.js$/, ".css");
 
 const envFrom = (names) => {

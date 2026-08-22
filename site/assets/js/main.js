@@ -3719,8 +3719,9 @@ var BP = window.BP = window.BP || {};
             metadata: payMetadata(),
             // Refresh the metadata at the moment of payment — the buyer types
             // their email after the form mounts, and the webhook needs the
-            // final basket + contact, not the empty mount-time one.
-            on_initiating: function () { return { metadata: payMetadata() }; },
+            // final basket + contact, not the empty mount-time one. The form
+            // library requires this callback to be promise-based.
+            on_initiating: async function () { return { metadata: payMetadata() }; },
             methods: methods,
             apple_pay: applePay || undefined
           });
