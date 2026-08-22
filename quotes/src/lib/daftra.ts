@@ -29,13 +29,13 @@ export type DaftraProbeRow = {
 };
 
 /** ترويسة المصادقة الموثّقة لدى دفترة، ثم بدائل احتياطية. */
-const AUTH_HEADERS = ['apikey', 'APIKEY', 'X-API-KEY', 'Authorization'] as const;
+const AUTH_HEADERS = ['APIKEY', 'apikey', 'X-API-KEY', 'Authorization'] as const;
 /** جذر الواجهة الموثّق. */
 const API_BASES = ['/api2'] as const;
-/** التوثيق يذكر daftara.com بينما لوحة الحساب على daftra.com — يُجرَّب الاثنان. */
-const API_HOSTS = ['daftara.com', 'daftra.com'] as const;
+/** النطاق العامل المثبت من تكامل الموقع القائم: daftra.com لا daftara.com. */
+const API_HOSTS = ['daftra.com'] as const;
 /** نقطة قراءة غير مؤثّرة — للفحص فقط. */
-const PROBE_PATHS = ['/clients'] as const;
+const PROBE_PATHS = ['/clients.json?limit=1'] as const;
 
 const TIMEOUT_MS = 12_000;
 
@@ -210,7 +210,7 @@ export type DaftraInvoiceInput = {
 /** قائمة الضرائب المعرّفة في الحساب — لاستخراج معرّف ضريبة القيمة المضافة. */
 export async function listDaftraTaxes(): Promise<unknown> {
   if (!daftraConfigured()) throw new Error('مفاتيح دفترة غير مضبوطة.');
-  return json('/taxes');
+  return json('/taxes.json?limit=100');
 }
 
 /** يبحث عن العميل بالبريد ثم ينشئه إن لم يوجد. يُرجع معرّفه في دفترة. */
@@ -219,7 +219,7 @@ export async function findOrCreateDaftraClient(input: DaftraClientInput): Promis
 
   if (input.email) {
     const found = await json<{ data?: Array<{ Client?: { id?: number | string }; id?: number | string }> }>(
-      `/clients?email=${encodeURIComponent(input.email)}&limit=1`,
+      `/clients.json?filter[email]=${encodeURIComponent(input.email)}&limit=20`,
     ).catch(() => null);
     const hit = found?.data?.[0];
     const id = hit?.Client?.id ?? hit?.id;
@@ -238,7 +238,7 @@ export async function findOrCreateDaftraClient(input: DaftraClientInput): Promis
       country_code: 'SA',
     },
   };
-  const created = await json<{ id?: number | string }>('/clients', {
+  const created = await json<{ id?: number | string }>('/clients.json', {
     method: 'POST',
     body: JSON.stringify(body),
   });
@@ -276,10 +276,10 @@ export async function createDaftraInvoice(
     })),
   };
 
-  const res = await json<{ code?: number; result?: string; id?: number | string }>('/invoices', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
+  const res = await json<{ code?: number; result?: string; id?: number | string }>(
+    '/invoices.json',
+    { method: 'POST', body: JSON.stringify(payload) },
+  );
   if (!res.id) throw new Error('دفترة لم تُعِد معرّف الفاتورة بعد الإنشاء.');
   return { id: String(res.id) };
 }

@@ -90,7 +90,17 @@ function extractJson(text: string): AgentOutput {
   const start = raw.indexOf('{');
   const end = raw.lastIndexOf('}');
   if (start === -1 || end === -1) throw new Error('لم يُرجع الوكيل كائن JSON صالحاً');
-  return JSON.parse(raw.slice(start, end + 1)) as AgentOutput;
+  try {
+    return JSON.parse(raw.slice(start, end + 1)) as AgentOutput;
+  } catch (e) {
+    // رسالة المحلّل وحدها («Expected , or }») لا تدل على شيء لمن يقرأها في
+    // الشاشة. يُذكر الموضع وطول النص ليتبيّن أن الرد مبتور لا معطوب.
+    const why = e instanceof Error ? e.message : String(e);
+    throw new Error(
+      `تعذّر تحليل مخرجات الوكيل: ${why}. طول الرد ${raw.length} حرفاً — ` +
+        'إن كان مبتوراً فالسبب طول المطلوب، فاختصر الوصف وأعد المحاولة.',
+    );
+  }
 }
 
 export async function generateServiceContent(input: AgentInput): Promise<AgentOutput> {
@@ -104,10 +114,19 @@ export async function generateServiceContent(input: AgentInput): Promise<AgentOu
 
   const res = await client.messages.create({
     model: agentModel(),
-    max_tokens: 4000,
+    // العرض والعقد بالعربية والإنجليزية معاً يتجاوزان أربعة آلاف رمز بسهولة،
+    // والنص العربي مكلف بالرموز. السقف المنخفض كان يقطع الرد في منتصف الكائن
+    // فيظهر للمستخدم خطأ تحليل JSON بدل السبب الحقيقي.
+    max_tokens: 16000,
     system,
     messages: [{ role: 'user', content: userMessage(input) }],
   });
+
+  if (res.stop_reason === 'max_tokens') {
+    throw new Error(
+      'رد الوكيل قُطع قبل اكتماله لبلوغه حد الطول. اختصر الوصف الموجز ثم أعد المحاولة.',
+    );
+  }
 
   const text = res.content
     .filter((b): b is Anthropic.TextBlock => b.type === 'text')
