@@ -19,6 +19,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
 import { stageChannels, announce } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
+import { nafathPing } from "./_nafath.js";
 import { sellerProfile } from "./_zatca.js";
 import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
@@ -1693,6 +1694,10 @@ export default async function handler(req, res) {
         // A tax invoice we render ourselves is only worth sending if it can
         // carry the seller's registration — without it there is no lawful QR.
         svc("هوية البائع الضريبية", sellerProfile().ready ? "COMPANY_VAT_NUMBER" : null, "مطلوبة لإصدار فاتورة ضريبية من موقعنا"),
+        // Nafath is Elm's; it needs both an app id and the service name they
+        // registered for us. Either one missing means the flow cannot start,
+        // so the line names which.
+        (() => { const n = nafathPing(); return svc("نفاذ — التحقق من الهوية", n.configured && n.serviceConfigured ? "NAFATH_*" : null, n.missing.length ? `ينقص: ${n.missing.join("، ")}` : `جاهز — بيئة ${n.environment === "production" ? "الإنتاج" : "الاختبار"}`); })(),
         svc("واتساب العميل (Cloud API)", has("WHATSAPP_TOKEN", "WHATSAPP_ACCESS_TOKEN", "META_WHATSAPP_TOKEN") && has("WHATSAPP_PHONE_ID", "WHATSAPP_PHONE_NUMBER_ID") ? "WHATSAPP_*" : null, "إشعار العميل بكل خطوة على واتساب"),
       ];
       res.statusCode = 200;
