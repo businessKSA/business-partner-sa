@@ -46,12 +46,29 @@ export function priceShort(service) {
   return p.amount ? `تبدأ من ${riyals(p.amount)}` : "اطلب عرض سعر";
 }
 
+// Every link a campaign emits is tagged, because the pipeline currently shows
+// 52 leads and effectively all of them attributed to "Website" — 1,000 outbound
+// emails produced no attributable lead. Untagged links make a channel invisible
+// rather than ineffective, and the two are indistinguishable without this.
+const MEDIUM = { email: "email", whatsapp: "messaging", telegram: "messaging" };
+
+export function trackedUrl(service, channel, campaign = "service-always-on") {
+  const u = new URL(`${BRAND.site}/service/${service.slug}`);
+  u.searchParams.set("utm_source", channel);
+  u.searchParams.set("utm_medium", MEDIUM[channel] ?? "organic-social");
+  u.searchParams.set("utm_campaign", campaign);
+  u.searchParams.set("utm_content", service.code);
+  return u.toString();
+}
+
 export function landingUrl(service) {
   return `${BRAND.site}/service/${service.slug}`;
 }
 
-function waLink(service) {
-  const msg = `مرحباً، أرغب بالاستفسار عن: ${serviceTitle(service)}`;
+// The service code travels inside the WhatsApp first message so a chat lead can
+// be attributed to the exact service and channel that produced it.
+function waLink(service, channel = "direct") {
+  const msg = `مرحباً، أرغب بالاستفسار عن: ${serviceTitle(service)}\n[${service.code}/${channel}]`;
   return `${BRAND.whatsapp}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -80,7 +97,8 @@ export function buildCopy(service) {
   const price = priceLine(service);
   const priceTag = priceShort(service);
   const url = landingUrl(service);
-  const wa = waLink(service);
+  const link = (ch) => trackedUrl(service, ch);
+  const wa = (ch) => waLink(service, ch);
   const govRaw = clean(service.govPlatform);
   // "عضوية الغرفة التجارية (الغرفة التجارية)" reads as a mistake — drop the
   // platform whenever the service name already contains it.
@@ -99,8 +117,11 @@ export function buildCopy(service) {
     price,
     priceTag,
     proof: pb.proof,
-    url,
-    whatsappLink: wa,
+    url: link("email"),
+    landingUrl: url,
+    whatsappLink: wa("email"),
+    links: { whatsapp: link("whatsapp"), linkedin: link("linkedin"), instagram: link("instagram"), tiktok: link("tiktok"), x: link("x"), email: link("email") },
+    whatsappLinks: { whatsapp: wa("whatsapp"), instagram: wa("instagram"), email: wa("email") },
 
     // ── Email ───────────────────────────────────────────────────────────────
     email: {
@@ -118,8 +139,8 @@ export function buildCopy(service) {
       ...steps.map((s) => `✅ ${s}`),
       "",
       price ? `💠 ${price}` : null,
-      `للاستفسار: ${wa}`,
-      url,
+      `للاستفسار: ${wa("whatsapp")}`,
+      link("whatsapp"),
     ].filter(keep).join("\n"),
 
     // ── LinkedIn: problem-led, professional, no hashtag spam ────────────────
@@ -131,7 +152,7 @@ export function buildCopy(service) {
       "",
       price ? `${price}.` : null,
       `${pb.proof}`,
-      url,
+      link("linkedin"),
       "",
       hashtags(service).slice(0, 3).join(" "),
     ].filter(keep).join("\n"),
@@ -160,6 +181,6 @@ export function buildCopy(service) {
     },
 
     // ── X: one line ─────────────────────────────────────────────────────────
-    x: `${pb.outcome}.\n${title}${price ? ` — ${price}` : ""}.\n${url}`,
+    x: `${pb.outcome}.\n${title}${price ? ` — ${price}` : ""}.\n${link("x")}`,
   };
 }

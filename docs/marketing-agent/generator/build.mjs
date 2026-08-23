@@ -55,7 +55,8 @@ for (const service of picked) {
     code: c.code, slug: c.slug, title: c.title, category: c.category,
     subject: c.email.subject, preheader: c.email.preheader,
     whatsapp: c.whatsapp, linkedin: c.linkedin, instagram: c.instagram,
-    tiktok: c.tiktok, x: c.x, url: c.url, whatsappLink: c.whatsappLink,
+    tiktok: c.tiktok, x: c.x, url: c.url, landingUrl: c.landingUrl, whatsappLink: c.whatsappLink,
+    links: c.links, whatsappLinks: c.whatsappLinks,
   }, null, 2));
 
   for (const [variant, w, h] of [["instagram",1080,1350],["story",1080,1920],["linkedin",1200,627]]) {
