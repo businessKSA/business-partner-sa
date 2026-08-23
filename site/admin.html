@@ -528,6 +528,16 @@
           </div>
 
           <div class="panel" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">🏛 اعتماد — واجهة العقود الحكومية</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              نطلب من اعتماد رمز دخول ببيانات الاعتماد المحفوظة. «المتغيّر موجود» شيء و«السرّ صحيح» شيء آخر —
+              هذا الفحص يفعل التبادل الحقيقي ويقول ماذا ردّ اعتماد. لا يظهر الرمز ولا السرّ ولا جزء منهما.
+            </p>
+            <button class="actbtn" id="etPing">🏛 افحص الاتصال باعتماد</button>
+            <div class="dbody" id="etMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <div class="panel" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">💳 مُيسّر — جاهزية الدفع الإلكتروني</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               نسأل مُيسّر نفسه: هل المفتاح يعمل؟ «موجود في Vercel» شيء و«يشتغل» شيء ثاني.
@@ -1442,6 +1452,36 @@
         m.innerHTML = rows + '<div style="margin-top:10px;font-weight:700;color:' + (r.winner ? '#14532d' : '#b45309') + '">' +
           (r.winner ? '✅ مسار مستجيب: <span style="direction:ltr;display:inline-block">' + esc(r.winner) + '</span> — تحقق من وصول الفاتورة لبريدك، ولو وصلت أربطه ليعمل تلقائياً بعد كل دفعة.'
                     : '⛔ لا مسار استجاب. الخطوة التالية: افتح تذكرة مع دعم الدفترة واسألهم عن مسار إرسال الفاتورة بالبريد عبر الـ API لحسابك.') + '</div>';
+      }).catch(function(){ btn.disabled = false; m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال.</span>'; });
+    };
+
+    // ---- does the Etimad credential actually work ----
+    $('etPing').onclick = function(){
+      var btn = this, m = $('etMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أطلب رمز دخول من اعتماد…';
+      postPanel({ action: 'panel-etimad-ping' }).then(function(r){
+        btn.disabled = false;
+        if (!r){ m.innerHTML = '<span style="color:#b91c1c">تعذّر الفحص.</span>'; return; }
+        var kv = function(label, val){ return '<span class="kv"><i>' + label + ':</i><span style="direction:ltr;display:inline-block">' + esc(val || '—') + '</span></span>'; };
+        var html = kv('البيئة', r.environment === 'production' ? 'الإنتاج' : 'الاختبار (Sandbox)') +
+                   kv('نطاق الصلاحية (scope)', r.scope) +
+                   kv('عنوان الرمز', r.tokenUrl) +
+                   kv('عنوان الواجهة', r.base);
+        if (r.missing && r.missing.length)
+          html += '<div style="margin-top:8px;color:#b45309;font-weight:600">⚠ ينقص في Vercel: <span style="direction:ltr;display:inline-block">' + esc(r.missing.join(' · ')) + '</span></div>';
+        if (r.ok){
+          html += '<div style="margin-top:10px;font-weight:700;color:#14532d">✅ اعتماد أصدر رمز دخول — صالح ' +
+            Math.round((r.expiresInSeconds || 0) / 60) + ' دقيقة، وطريقة الإرسال المقبولة: ' + esc(r.auth) + '</div>' +
+            '<div style="margin-top:6px;color:var(--soft);font-size:12px">هذا يثبت أن بيانات الاعتماد صحيحة. يبقى مسار الاستعلام نفسه — أرسل لي مجموعة Postman أو صورة نقطة <span style="direction:ltr;display:inline-block">contracts</span> مفتوحة.</div>';
+        } else {
+          var why = r.error === 'not_configured' ? 'لم تُضبط بيانات الاعتماد بعد.'
+            : r.error === 'etimad_unreachable' ? 'تعذّر الوصول إلى خادم اعتماد.'
+            : r.error === 'etimad_token_rejected' ? 'اعتماد رفض بيانات الاعتماد — تحقق من client id والسر ومن مطابقة البيئة.'
+            : 'فشل غير متوقع.';
+          html += '<div style="margin-top:10px;font-weight:700;color:#b91c1c">⛔ ' + esc(why) + '</div>';
+          if (r.detail) html += '<div style="margin-top:6px;color:var(--soft);font-size:11.5px;direction:ltr;text-align:left">' + esc(String(r.detail).slice(0, 200)) + '</div>';
+        }
+        m.innerHTML = html;
       }).catch(function(){ btn.disabled = false; m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال.</span>'; });
     };
 
