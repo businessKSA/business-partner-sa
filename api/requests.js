@@ -1424,7 +1424,11 @@ export default async function handler(req, res) {
           catch (e2) { console.error("panel-status announce failed", String(e2.message || e2).slice(0, 160)); }
         }
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, ...(announced ? { announced } : {}) }));
+        // Flipping a status is not issuing an invoice, and an agent who does
+        // only this leaves a paid client without a tax invoice. Say so here
+        // rather than letting the silence read as "done".
+        return res.end(JSON.stringify({ ok: true, ...(announced ? { announced } : {}),
+          ...(status === "مؤكد - قيد التنفيذ" ? { invoiceIssued: false, hint: "لم تصدر فاتورة بهذا الإجراء — للتحويل البنكي استخدم «تأكيد تحويل بنكي» ليصدر المستند." } : {}) }));
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
@@ -1872,6 +1876,67 @@ export default async function handler(req, res) {
     // email the client the total and the invoice link. The client record is
     // reused when their email or phone already exists in the books, so
     // repeat customers do not accumulate duplicates.
+    /* ---- Bank transfer: no invoice without a person ------------------------
+     * An online card payment is confirmed by the gateway: the money is
+     * verifiably in the account before anything is issued, so the invoice is
+     * automatic. A bank transfer has no such confirmation — a receipt is an
+     * image the buyer produced, and an image is not money in the account.
+     *
+     * So this path requires a human to state two separate things: that they
+     * read the receipt, and that they saw the funds arrive. They are asked
+     * apart because they fail apart — a receipt can be genuine for a transfer
+     * that was later reversed, and money can arrive against a receipt that
+     * shows a different amount.
+     *
+     * Once satisfied, this deliberately falls through to panel-invoice rather
+     * than issuing anything itself: both payment routes must produce the same
+     * document from the same code, or the books end up with two kinds of
+     * invoice that only differ by how they were triggered.
+     */
+    if (b.action === "panel-confirm-transfer") {
+      const missing = [];
+      if (b.receiptRead !== true) missing.push("قراءة الإيصال");
+      if (b.fundsArrived !== true) missing.push("تأكيد وصول المبلغ للحساب البنكي");
+      if (missing.length) {
+        res.statusCode = 400;
+        return res.end(JSON.stringify({ ok: false, error: "confirmation_required", missing,
+          message: `لم تُؤكَّد بعد: ${missing.join(" · ")}` }));
+      }
+      // Typed by the person, not carried over from the order. Reading the
+      // figure off the receipt is the act that catches a short transfer.
+      const received = Number(b.amountReceived);
+      if (!(received > 0)) {
+        res.statusCode = 400;
+        return res.end(JSON.stringify({ ok: false, error: "amount_required",
+          message: "أدخل المبلغ الذي وصل فعلاً كما هو في الإيصال." }));
+      }
+      const expected = Number(b.expectedTotal) || 0;
+      // Half a riyal of tolerance covers rounding, nothing else. A real
+      // difference is shown and must be accepted explicitly — invoicing the
+      // full amount against a short transfer puts the books out by the gap.
+      if (expected > 0 && Math.abs(expected - received) > 0.5 && b.acceptMismatch !== true) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "amount_mismatch",
+          expected, received, difference: Math.round((received - expected) * 100) / 100,
+          message: received < expected
+            ? `وصل ${received} ﷼ والمطلوب ${expected} ﷼ — ناقص ${Math.round((expected - received) * 100) / 100} ﷼.`
+            : `وصل ${received} ﷼ والمطلوب ${expected} ﷼ — زائد ${Math.round((received - expected) * 100) / 100} ﷼.` }));
+      }
+      // Who stood behind this. A Nafath ticket names an identity from
+      // OWNER_NATIONAL_IDS; a shared key names only that someone knew it, and
+      // the record should not pretend otherwise.
+      const by = ownerTicketOk(b.ticket) ? "هوية موثّقة عبر نفاذ" : "مفتاح وصول (بلا هوية)";
+      const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+      b.notes = [
+        String(b.notes || "").trim(),
+        `تحويل بنكي مؤكَّد يدوياً — المبلغ المستلم ${received} ﷼${expected && Math.abs(expected - received) > 0.5 ? ` (المطلوب ${expected} ﷼)` : ""}`,
+        `تأكيد قراءة الإيصال ووصول المبلغ · ${by} · ${stamp} UTC`,
+      ].filter(Boolean).join("\n");
+      console.log("panel-confirm-transfer", String(b.ref || ""), received, by);
+      // Fall through to panel-invoice with the confirmation recorded on it.
+      b.action = "panel-invoice";
+    }
+
     if (b.action === "panel-invoice") {
       if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
       const email = String(b.email || "").trim();
