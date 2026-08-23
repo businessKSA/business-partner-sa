@@ -4566,12 +4566,20 @@ function buildAgencyPortal() {
 
   <section class="section"><div class="container" style="max-width:960px">
     <div id="ap-login" style="max-width:440px;margin:0 auto">
+      <div id="ap-google-wrap" style="margin-bottom:6px" hidden>
+        <div id="ap-google" style="display:flex;justify-content:center"></div>
+        <p class="emp-note" style="text-align:center;margin:8px 0">${L("Sign in with the Google account whose address you registered.", "ادخل بحساب جوجل الذي سجّلت ببريده.")}</p>
+        <div style="display:flex;align-items:center;gap:12px;margin:14px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">${L("or", "أو")}</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
+      </div>
       <form id="ap-login-form" novalidate>
         <div class="field"><label for="ap-email">${L("Email", "البريد الإلكتروني")}</label><input id="ap-email" type="email" required></div>
-        <div class="field"><label for="ap-code">${L("Access code", "رمز الوصول")}</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
+        <div class="field" id="ap-code-field"><label for="ap-code">${L("Access code", "رمز الوصول")}</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
+        <div class="field" id="ap-otp-field" hidden><label for="ap-otp">${L("Code sent to your email", "الرمز المرسل إلى بريدك")}</label><input id="ap-otp" type="text" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:1.3rem;font-weight:700" autocomplete="one-time-code"></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-login-btn">${L("Sign in", "دخول")}</button>
         <p class="emp-note" id="ap-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
       </form>
+      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="ap-use-email">${L("Don't have your access code? Email me a sign-in code", "ما عندك رمز الوصول؟ أرسل لي رمز دخول على بريدي")}</a></p>
+      <p class="emp-note" style="text-align:center;margin-top:14px;opacity:.75">🪪 ${L("Nafath sign-in — coming soon for offices with a Saudi representative.", "الدخول عبر نفاذ — قريباً للمكاتب التي لديها ممثل سعودي.")}</p>
       <p class="emp-note" style="text-align:center;margin-top:16px">${L("Not registered yet?", "لم تسجّل بعد؟")} <a href="${u("/recruitment-agencies")}#agency-form">${L("Register your office", "سجّل مكتبك")}</a></p>
     </div>
 
@@ -4581,6 +4589,9 @@ function buildAgencyPortal() {
 
       <div class="section-head" style="text-align:start"><h2>${L("Open requests for you", "الطلبات المفتوحة لك")}</h2><p>${L("Requirements addressed to your office, plus requests open to the whole network.", "الطلبات الموجّهة لمكتبك، إضافة للطلبات المتاحة لكل الشبكة.")}</p></div>
       <div id="ap-requests"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
+
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("All open jobs", "كل الوظائف المفتوحة")}</h2><p>${L("Every job open on the platform — submit a candidate against any of them.", "كل وظيفة مفتوحة على المنصة — ترشّح عليها مباشرة.")}</p></div>
+      <div id="ap-jobs"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
 
       <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("Your submitted candidates", "مرشحوك المرسلون")}</h2></div>
       <div id="ap-submissions"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
@@ -4604,7 +4615,16 @@ function buildAgencyPortal() {
           <div class="field"><label for="ap-c-phone">${L("Phone", "الجوال")}</label><input id="ap-c-phone" type="tel"></div>
           <div class="field"><label for="ap-c-email">${L("Email", "البريد")}</label><input id="ap-c-email" type="email"></div>
         </div>
-        <div class="field"><label for="ap-c-cv">${L("CV link (Drive / Dropbox)", "رابط السيرة الذاتية (درايف / دروب بوكس)")}</label><input id="ap-c-cv" type="url" placeholder="https://"></div>
+        <div class="field">
+          <label>${L("Attach the CV — PDF or Word", "أرفق السيرة الذاتية — PDF أو Word")}</label>
+          <label class="file-drop" for="ap-c-file" id="ap-c-drop">
+            <span class="file-ico">${I.upload}</span>
+            <span class="file-text" id="ap-c-filename">${L("Drag the CV here or click to choose", "اسحب السيرة هنا أو اضغط للاختيار")}</span>
+          </label>
+          <input id="ap-c-file" type="file" accept=".pdf,.doc,.docx" hidden>
+          <p class="emp-note" style="margin:6px 0 0">${L("We read it, file it on Drive and produce an ATS-friendly CV automatically.", "نقرأها ونحفظها في درايف ونصدر نسخة ATS تلقائياً.")}</p>
+        </div>
+        <div class="field"><label for="ap-c-cv">${L("Or a CV link (Drive / Dropbox)", "أو رابط السيرة الذاتية (درايف / دروب بوكس)")}</label><input id="ap-c-cv" type="url" placeholder="https://"></div>
         <div class="field"><label for="ap-c-skills">${L("Skills", "المهارات")}</label><input id="ap-c-skills" type="text"></div>
         <div class="field"><label for="ap-c-notes">${L("Notes", "ملاحظات")}</label><textarea id="ap-c-notes" rows="3"></textarea></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-c-submit">${L("Send candidate", "أرسل المرشّح")}</button>
@@ -4612,7 +4632,7 @@ function buildAgencyPortal() {
       </form>
     </div>
   </div></div>`;
-  return page({ title: Lraw("Agency portal — Business Partner", "بوابة مكاتب الاستقدام — بيزنس بارتنر"), desc: Lraw("Approved recruitment offices sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام المعتمدة لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
+  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Agency portal — Business Partner", "بوابة مكاتب الاستقدام — بيزنس بارتنر"), desc: Lraw("Approved recruitment offices sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام المعتمدة لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
 }
 
 // A dedicated, full page for one candidate (instead of the old in-modal

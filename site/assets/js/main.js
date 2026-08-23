@@ -6913,6 +6913,7 @@ var BP_EMP_BILLING = "monthly";
       var box = document.getElementById("ap-requests");
       fetch(api("action=requests")).then(function (r) { return r.json(); }).then(function (d) {
         if (!d || !d.ok) { box.innerHTML = '<p class="emp-note">' + T("Couldn't load requests.", "تعذّر تحميل الطلبات.") + "</p>"; return; }
+        renderJobs(d.jobs || []);
         if (!d.requests.length) { box.innerHTML = '<p class="emp-note">' + T("No open requests for your office right now — we'll notify you when one is published.", "لا توجد طلبات مفتوحة لمكتبك حالياً — سنشعرك فور نشر طلب جديد.") + "</p>"; return; }
         box.innerHTML = '<div class="grid grid-3">' + d.requests.map(function (q) {
           var meta = [q.profession, q.city, q.nationalities, q.gender].filter(Boolean).join(" · ");
@@ -6926,6 +6927,43 @@ var BP_EMP_BILLING = "monthly";
         }).join("") + "</div>";
       }).catch(function () { box.innerHTML = '<p class="emp-note">' + T("Network error.", "خطأ في الاتصال.") + "</p>"; });
     }
+    // Every open posting on the platform, so an office can supply against the
+    // whole board and not only the demand routed to it.
+    function renderJobs(jobs) {
+      var box = document.getElementById("ap-jobs");
+      if (!box) return;
+      if (!jobs.length) { box.innerHTML = '<p class="emp-note">' + T("No open jobs right now.", "لا توجد وظائف مفتوحة حالياً.") + "</p>"; return; }
+      box.innerHTML = '<div class="grid grid-3">' + jobs.map(function (j) {
+        var tag = [j.company, j.city].filter(Boolean).join(" · ") || j.field || "";
+        return '<article class="card"><span class="emp-tag">' + esc(tag) + "</span><h3>" + esc(j.title) + "</h3>" +
+          (j.description ? '<p class="emp-note">' + esc(String(j.description).slice(0, 130)) + "…</p>" : "") +
+          '<div class="talent-actions"><button type="button" class="btn btn-primary btn-sm" data-ap-submit="' + esc(j.id) + '" data-ap-title="' + esc(j.title) + '">' + T("Submit a candidate", "ارفع مرشّحاً") + "</button></div></article>";
+      }).join("") + "</div>";
+    }
+
+    // The attached CV is sent as base64 in the same shape the careers form
+    // uses, so it runs through the identical Drive + ATS-CV pipeline.
+    var cvFile = null;
+    var fileInput = document.getElementById("ap-c-file");
+    if (fileInput) fileInput.addEventListener("change", function () {
+      var f = fileInput.files && fileInput.files[0];
+      var label = document.getElementById("ap-c-filename");
+      cvFile = null;
+      if (!f) { label.textContent = T("Drag the CV here or click to choose", "اسحب السيرة هنا أو اضغط للاختيار"); return; }
+      if (f.size > 4 * 1024 * 1024) {
+        label.textContent = T("File is larger than 4MB — please attach a smaller one.", "الملف أكبر من 4 ميجابايت — أرفق ملفاً أصغر.");
+        fileInput.value = "";
+        return;
+      }
+      label.textContent = f.name;
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = String(reader.result || "");
+        cvFile = { name: f.name, size: f.size, type: f.type || "application/octet-stream", base64: result.split(",")[1] || "" };
+      };
+      reader.readAsDataURL(f);
+    });
+
     function loadSubmissions() {
       var box = document.getElementById("ap-submissions");
       fetch(api("action=submissions")).then(function (r) { return r.json(); }).then(function (d) {
@@ -6940,27 +6978,126 @@ var BP_EMP_BILLING = "monthly";
       }).catch(function () { box.innerHTML = ""; });
     }
 
+    // Three ways in: the permanent access code, a one-time code emailed to the
+    // registered address, or Google. All three end at the same approval check
+    // server-side, and all three hand back the office's access code so the
+    // portal's data calls keep one shape.
+    var mode = "code", otp = null;
+    function signedIn(d, email, code) {
+      creds = { email: email, code: code || (d && d.code) || "" };
+      try { localStorage.setItem(SESSION, JSON.stringify(creds)); } catch (e2) {}
+      show(d.agency);
+    }
+    var useEmail = document.getElementById("ap-use-email");
+    if (useEmail) useEmail.addEventListener("click", function (e) {
+      e.preventDefault();
+      mode = "otp-request"; otp = null;
+      document.getElementById("ap-code-field").hidden = true;
+      document.getElementById("ap-otp-field").hidden = true;
+      document.getElementById("ap-error").style.color = "";
+      document.getElementById("ap-error").textContent = T("Enter your registered email, then press Sign in to receive a code.", "اكتب بريدك المسجّل ثم اضغط دخول ليصلك رمز.");
+      document.getElementById("ap-login-btn").textContent = T("Email me a code", "أرسل لي الرمز");
+    });
+
     loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      var email = val("ap-email"), code = val("ap-code");
+      var email = val("ap-email");
       var btn = document.getElementById("ap-login-btn");
-      document.getElementById("ap-error").textContent = "";
-      if (!email || !code) return;
+      var err = document.getElementById("ap-error");
+      err.style.color = "#B91C1C"; err.textContent = "";
+      if (!email) return;
+
+      // step 1 of the emailed-code flow — ask for the code
+      if (mode === "otp-request") {
+        btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+        fetch("/api/agencies", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "email-code", email: email }) })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            btn.disabled = false;
+            if (d && d.ok && d.t) {
+              otp = { t: d.t, exp: d.exp };
+              mode = "otp-verify";
+              document.getElementById("ap-otp-field").hidden = false;
+              btn.textContent = T("Sign in", "دخول");
+              err.style.color = "";
+              err.textContent = T("We sent a code to your email — it's valid for 15 minutes.", "أرسلنا رمزاً إلى بريدك — صالح لمدة 15 دقيقة.");
+            } else {
+              // A registered, approved office always gets a code; anything else
+              // gets the same reply, so this never reveals who is registered.
+              btn.textContent = T("Email me a code", "أرسل لي الرمز");
+              err.textContent = T("If this office is registered and approved, a code is on its way.", "إذا كان هذا المكتب مسجلاً ومعتمداً فسيصلك رمز خلال لحظات.");
+            }
+          }).catch(function () {
+            btn.disabled = false; btn.textContent = T("Email me a code", "أرسل لي الرمز");
+            err.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+          });
+        return;
+      }
+
+      // step 2 — verify the emailed code
+      if (mode === "otp-verify") {
+        var typed = val("ap-otp");
+        if (!typed || !otp) return;
+        btn.disabled = true; btn.textContent = T("Signing in…", "جارٍ الدخول…");
+        fetch("/api/agencies", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "email-verify", email: email, code: typed, t: otp.t, exp: otp.exp }) })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            btn.disabled = false; btn.textContent = T("Sign in", "دخول");
+            if (!d || !d.ok) { fail(d && d.error); return; }
+            signedIn(d, email);
+          }).catch(function () {
+            btn.disabled = false; btn.textContent = T("Sign in", "دخول");
+            err.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+          });
+        return;
+      }
+
+      // default — the permanent access code
+      var code = val("ap-code");
+      if (!code) return;
       btn.disabled = true; btn.textContent = T("Signing in…", "جارٍ الدخول…");
       fetch("/api/agencies", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "login", email: email, code: code }) })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           btn.disabled = false; btn.textContent = T("Sign in", "دخول");
           if (!d || !d.ok) { fail(d && d.error); return; }
-          creds = { email: email, code: code };
-          try { localStorage.setItem(SESSION, JSON.stringify(creds)); } catch (e2) {}
-          show(d.agency);
+          signedIn(d, email, code);
         })
         .catch(function () {
           btn.disabled = false; btn.textContent = T("Sign in", "دخول");
-          document.getElementById("ap-error").textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+          err.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
         });
     });
+
+    // Google Identity — rendered only when a client id is configured.
+    (function google() {
+      var cid = window.BP_GOOGLE_CLIENT_ID;
+      if (!cid) return;
+      var wrap = document.getElementById("ap-google-wrap");
+      var tries = 0;
+      (function ready() {
+        if (!(window.google && google.accounts && google.accounts.id)) {
+          if (++tries > 40) return;
+          return setTimeout(ready, 150);
+        }
+        wrap.hidden = false;
+        google.accounts.id.initialize({
+          client_id: cid,
+          callback: function (resp) {
+            var err = document.getElementById("ap-error");
+            err.style.color = "#B91C1C"; err.textContent = "";
+            fetch("/api/agencies", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "google", credential: resp.credential }) })
+              .then(function (r) { return r.json(); }).then(function (d) {
+                if (d && d.ok) return signedIn(d, d.email, d.code);
+                if (d && d.error === "not_registered") {
+                  err.textContent = T("This Google account isn't registered — register your office first.", "حساب جوجل هذا غير مسجّل — سجّل مكتبك أولاً.");
+                  return;
+                }
+                fail(d && d.error);
+              }).catch(function () { err.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً."); });
+          },
+        });
+        google.accounts.id.renderButton(document.getElementById("ap-google"), { theme: "outline", size: "large", text: "signin_with", locale: (document.documentElement.lang || "ar") });
+      })();
+    })();
 
     var logout = document.getElementById("ap-logout");
     if (logout) logout.addEventListener("click", function () {
@@ -6998,14 +7135,19 @@ var BP_EMP_BILLING = "monthly";
           requestId: current ? current.id : "", requestTitle: current ? current.title : "",
           candidateName: val("ap-c-name"), role: val("ap-c-role"), nationality: val("ap-c-nat"),
           experience: val("ap-c-exp"), candidatePhone: val("ap-c-phone"), candidateEmail: val("ap-c-email"),
-          cvUrl: val("ap-c-cv"), skills: val("ap-c-skills"), notes: val("ap-c-notes"),
+          cvUrl: val("ap-c-cv"), skills: val("ap-c-skills"), notes: val("ap-c-notes"), cvFile: cvFile,
         }),
       }).then(function (r) { return r.json(); }).then(function (d) {
         btn.disabled = false; btn.textContent = T("Send candidate", "أرسل المرشّح");
         if (d && d.ok) {
           msg.style.color = "";
-          msg.textContent = T("Candidate sent ✓", "تم إرسال المرشّح ✓");
+          msg.textContent = d.cvProcessed
+            ? T("Candidate sent ✓ — the CV was filed and an ATS version generated.", "تم إرسال المرشّح ✓ — حُفظت السيرة وأُنشئت نسخة ATS.")
+            : T("Candidate sent ✓", "تم إرسال المرشّح ✓");
           candForm.reset();
+          cvFile = null;
+          var fn = document.getElementById("ap-c-filename");
+          if (fn) fn.textContent = T("Drag the CV here or click to choose", "اسحب السيرة هنا أو اضغط للاختيار");
           loadSubmissions();
           setTimeout(function () { modal.hidden = true; }, 1200);
         } else {
