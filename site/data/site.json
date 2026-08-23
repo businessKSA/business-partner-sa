@@ -1428,7 +1428,16 @@
     "cartEmptyEn": "Your cart is empty. Browse services and packages and add what suits you.",
     "checkoutTitleEn": "Checkout",
     "checkoutIntroEn": "Choose how you'd like to pay: online with mada or Visa — your order activates automatically the moment the payment is confirmed, with your tax invoice following straight away — or by bank transfer, uploading the receipt so we can verify it and activate your order.",
-    "vatNoteEn": "Displayed prices are Business Partner fees. VAT (15%) is added, and government fees (where applicable) are separate and announced before starting."
+    "vatNoteEn": "Displayed prices are Business Partner fees. VAT (15%) is added, and government fees (where applicable) are separate and announced before starting.",
+    "discounts": [
+      {
+        "code": "WELCOME10",
+        "percent": 10,
+        "note": "خصم ترحيبي 10%",
+        "active": true,
+        "expires": ""
+      }
+    ]
   },
   "account": {
     "title": "منصّة العملاء والشركاء",

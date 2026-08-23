@@ -239,6 +239,54 @@ var BP = window.BP = window.BP || {};
     return BP.t(p[0], p[1]);
   }
 
+  // ---- discount codes -------------------------------------------------
+  // The applied code lives in sessionStorage and every money calculation on
+  // this page asks for it in one place. The server re-validates the same code
+  // against the published catalog, so the browser can display but never decide.
+  function bpDiscount() {
+    try {
+      var d = JSON.parse(sessionStorage.getItem("bp_discount") || "null");
+      if (!d || !d.code) return null;
+      if (d.expires && new Date(d.expires + "T23:59:59") < new Date()) return null;
+      return d;
+    } catch (e) { return null; }
+  }
+  function bpDiscountCut(sub) {
+    var d = bpDiscount();
+    if (!d || !(sub > 0)) return 0;
+    var cut = d.percent ? (sub * d.percent) / 100 : Math.min(sub, Number(d.amount) || 0);
+    return Math.round(cut * 100) / 100;
+  }
+  BP.discount = bpDiscount;
+  BP.discountCut = bpDiscountCut;
+  function wireDiscountBox() {
+    var inp = document.getElementById("disc-code"), btn = document.getElementById("disc-apply"), msg = document.getElementById("disc-msg");
+    if (!inp || !btn) return;
+    var cur = bpDiscount();
+    if (cur) {
+      inp.value = cur.code; inp.disabled = true;
+      btn.textContent = BP.t("Remove", "إزالة");
+      if (msg) { msg.style.display = ""; msg.style.color = "#047857"; msg.textContent = BP.t("Code applied ✓", "الكود مفعّل ✓") + (cur.note ? " — " + cur.note : ""); }
+      btn.onclick = function () { try { sessionStorage.removeItem("bp_discount"); } catch (e) {} location.reload(); };
+      return;
+    }
+    btn.onclick = function () {
+      var code = (inp.value || "").trim().toUpperCase();
+      if (!code) return;
+      var list = window.BP_DISCOUNTS || [];
+      var hit = null;
+      for (var i = 0; i < list.length; i++) if (list[i].code === code) { hit = list[i]; break; }
+      var expired = hit && hit.expires && new Date(hit.expires + "T23:59:59") < new Date();
+      if (!hit || expired) {
+        if (msg) { msg.style.display = ""; msg.style.color = "#b91c1c"; msg.textContent = expired ? BP.t("This code has expired.", "هذا الكود منتهي الصلاحية.") : BP.t("Invalid code.", "الكود غير صحيح."); }
+        return;
+      }
+      try { sessionStorage.setItem("bp_discount", JSON.stringify(hit)); } catch (e) {}
+      location.reload();
+    };
+  }
+  document.addEventListener("DOMContentLoaded", wireDiscountBox);
+
   function renderTotals(subId, vatId, totId) {
     function set0(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
     if (!PRICES_ON) {
@@ -247,7 +295,18 @@ var BP = window.BP = window.BP || {};
       return;
     }
     var extra = (typeof BP.extraCheckoutFee === "function") ? (BP.extraCheckoutFee() || 0) : 0;
-    var sub = subtotal() + extra, vat = sub * VAT, tot = sub + vat;
+    var sub = subtotal() + extra;
+    var cut = bpDiscountCut(sub);
+    var dRow = document.getElementById("co-disc-row");
+    if (dRow) {
+      dRow.style.display = cut > 0 ? "" : "none";
+      var dCode = document.getElementById("co-disc-code"), dVal = document.getElementById("co-discount");
+      var dObj = bpDiscount();
+      if (dCode && dObj) dCode.textContent = "(" + dObj.code + ")";
+      if (dVal && cut > 0) dVal.textContent = "− " + BP.money(cut);
+    }
+    sub -= cut;
+    var vat = sub * VAT, tot = sub + vat;
     var q = hasQuoteItems();
     var suffix = q ? (" + " + BP.t("quoted items", "بنود تُسعّر")) : "";
     set(subId, sub ? BP.money(sub) : (q ? BP.t("Quoted", "تُسعّر") : "—"));
@@ -1479,6 +1538,8 @@ var BP = window.BP = window.BP || {};
       // VAT-inclusive total — must equal the total shown on the page and the
       // amount on the client's bank receipt, or auto-verification can't match.
       var subTotal = (cart.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) || 0) + surchargeFee;
+      var bankCut = (BP.discountCut ? BP.discountCut(subTotal) : 0);
+      subTotal -= bankCut;
       var total = Math.round(subTotal * 1.15 * 100) / 100;
       var order = {
         ref: ref, name: name, phone: phone, email: email,
@@ -1546,6 +1607,7 @@ var BP = window.BP = window.BP || {};
               company: companyName || companyProfile.name || "",
               cr: crNumber, headcount: pkgVisible ? headcount : "", nationalAddress: nationalAddress, surchargeFee: surchargeFee,
               taxProfile: taxProfile, partnerRef: partnerRef(),
+              discountCode: (BP.discount && BP.discount()) ? BP.discount().code : "",
               receiptName: receiptFile ? receiptFile.name : "", receiptType: (receiptFile && receiptFile.type) || "", receiptBase64: receiptBase64 || ""
             })
           }).catch(function () {});
@@ -3546,7 +3608,9 @@ var BP = window.BP = window.BP || {};
   try {
     var c = (BP.cart && BP.cart.read()) || [];
     var extraFee = (typeof BP.extraCheckoutFee === "function") ? (BP.extraCheckoutFee() || 0) : 0;
-    total = (c.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) + extraFee) * 1.15;
+    var subT = c.reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0) + extraFee;
+    subT -= (BP.discountCut ? BP.discountCut(subT) : 0);
+    total = subT * 1.15;
   } catch (e2) {}
 
   // What the invoice will be made out to. Snapshotted on every edit, because
@@ -3600,6 +3664,7 @@ var BP = window.BP = window.BP || {};
       items: cart2.map(function (i) { return { id: i.id || "", qty: i.qty || 1 }; }),
       company: fieldVal("co-entity") || comp.name || "",
       surchargeFee: (typeof BP.extraCheckoutFee === "function") ? (BP.extraCheckoutFee() || 0) : 0,
+      discountCode: (BP.discount && BP.discount()) ? BP.discount().code : "",
       taxProfile: tp
     };
     try { sessionStorage.setItem(SNAP, JSON.stringify(order)); } catch (e) {}
@@ -3622,6 +3687,7 @@ var BP = window.BP = window.BP || {};
       phone: String(snap.phone || "").slice(0, 30),
       co: String(snap.company || "").slice(0, 80),
       items: items,
+      disc: String(snap.discountCode || ""),
       tax: (snap.taxProfile && snap.taxProfile.kind) === "company" ? "company" : "personal"
     };
   }

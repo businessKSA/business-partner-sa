@@ -6302,6 +6302,19 @@ function buildCart() {
   return page({ title: Lraw("Cart — Business Partner", "السلة — بيزنس بارتنر"), desc: Lraw("Your cart of Business Partner services and packages.", "سلة طلباتك من خدمات وباقات بيزنس بارتنر."), active: "/cart", path: "/cart", body });
 }
 
+// Same normalization the published catalog applies — one source, two readers.
+function catalogDiscounts() {
+  return (site.commerce.discounts || [])
+    .filter((d) => d && d.code && d.active !== false)
+    .map((d) => ({
+      code: String(d.code).trim().toUpperCase(),
+      percent: Number(d.percent) > 0 ? Math.min(90, Number(d.percent)) : 0,
+      amount: Number(d.amount) > 0 ? Number(d.amount) : 0,
+      expires: /^\d{4}-\d{2}-\d{2}$/.test(String(d.expires || "")) ? d.expires : "",
+      note: String(d.note || "").slice(0, 120),
+    }))
+    .filter((d) => d.percent > 0 || d.amount > 0);
+}
 function buildCheckout() {
   const cm = site.commerce;
   const bank = site.bank;
@@ -6420,8 +6433,16 @@ function buildCheckout() {
         <div class="order-box">
           <h3>${L("Order summary", "ملخص الطلب")}</h3>
           <div id="checkout-items"></div>
+          <div class="disc-box" style="margin:10px 0 4px">
+            <div style="display:flex;gap:6px">
+              <input id="disc-code" placeholder="${L("Discount code", "كود الخصم")}" autocomplete="off" style="flex:1;min-width:0;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit" />
+              <button type="button" class="btn btn-ghost" id="disc-apply" style="white-space:nowrap">${L("Apply", "تطبيق")}</button>
+            </div>
+            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
+          </div>
           <div class="cart-totals-block">
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="co-subtotal">—</span></div>
+          <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">${L("Discount", "الخصم")} <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="co-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="co-total">—</span></div>
           </div>
@@ -6430,7 +6451,8 @@ function buildCheckout() {
       </aside>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body });
+  const bodyWithCodes = body + `<script>window.BP_DISCOUNTS=${JSON.stringify(catalogDiscounts())};</script>`;
+  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body: bodyWithCodes });
 }
 
 function buildTerms() {
@@ -9803,6 +9825,11 @@ write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 const catalogJson = {
   updatedAt: new Date().toISOString(),
   currency: "SAR",
+  // Active discount codes, published so the payment endpoints re-verify a
+  // discounted charge against the same source the checkout applied it from.
+  // Codes are marketing artifacts — public by nature — managed in
+  // site.json → commerce.discounts (editable from /admin → content → site).
+  discounts: catalogDiscounts(),
   services: services.map((s) => {
     const m = svcI18n[s.code] || {};
     const ov = site.overrides[s.slug];

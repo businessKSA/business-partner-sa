@@ -155,6 +155,9 @@ async function settlePaidOrder(order, p) {
     names.push((cat ? cat.name : x.id) + " ×" + x.qty);
   }
   net += Number(order.surchargeFee) || 0;
+  const disc = await catalogDiscount(order.discountCode);
+  const cut = discountCut(net, disc);
+  net -= cut;
   // Two riyals of tolerance for the rounding the cart and the form each do.
   const verified = !unknown && net > 0 && Math.abs(Math.round(net * 1.15 * 100) - Number(p.amount || 0)) <= 200;
   const payload = {
@@ -165,6 +168,7 @@ async function settlePaidOrder(order, p) {
     phone: String(order.phone || "").slice(0, 40),
     company: String(order.company || (order.taxProfile && order.taxProfile.nameAr) || "").slice(0, 200),
     total: Math.round(Number(p.amount || 0)) / 100,
+    ...(disc ? { disc: disc.code } : {}),
     ids, items: names,
   };
   try {
@@ -205,7 +209,29 @@ async function catalogPrices() {
     }
   }
   _catCache = map; _catAt = Date.now();
+  _catDiscounts = Array.isArray(c.discounts) ? c.discounts : [];
   return map;
+}
+// The discount the checkout applied, re-read from the published catalog — the
+// browser names the code, this names the numbers. Returns null for anything
+// unknown, inactive or expired, so an invented code discounts nothing.
+let _catDiscounts = [];
+async function catalogDiscount(code) {
+  const c = String(code || "").trim().toUpperCase();
+  if (!c) return null;
+  try { await catalogPrices(); } catch { return null; }
+  const hit = _catDiscounts.find((d) => String(d.code || "").toUpperCase() === c);
+  if (!hit) return null;
+  if (hit.expires && new Date(hit.expires + "T23:59:59Z") < new Date()) return null;
+  const percent = Number(hit.percent) > 0 ? Math.min(90, Number(hit.percent)) : 0;
+  const amount = Number(hit.amount) > 0 ? Number(hit.amount) : 0;
+  if (!percent && !amount) return null;
+  return { code: c, percent, amount };
+}
+function discountCut(net, d) {
+  if (!d || !(net > 0)) return 0;
+  const cut = d.percent ? (net * d.percent) / 100 : Math.min(net, d.amount);
+  return Math.round(cut * 100) / 100;
 }
 
 const esc = (v) => String(v == null ? "" : v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -260,6 +286,20 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
       const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
       net += hit.amount * qty;
       items.push({ code: hit.code, name: hit.name, quantity: qty, unitPrice: hit.amount });
+    }
+    // A discount the checkout applied scales every line, so the tax invoice
+    // states the prices the buyer actually paid and its total matches the
+    // charge to the halala — a negative "discount line" is what Daftra rejects.
+    const invDisc = await catalogDiscount(order.discountCode);
+    const invCut = discountCut(net, invDisc);
+    if (invCut > 0 && net > 0) {
+      const factor = (net - invCut) / net;
+      net = 0;
+      for (const it of items) {
+        it.unitPrice = Math.round(it.unitPrice * factor * 100) / 100;
+        it.name = String(it.name).slice(0, 120) + ` (بعد خصم ${invDisc.code})`;
+        net += it.unitPrice * it.quantity;
+      }
     }
   }
   if (!items.length) return { invoiced: false, reason: "no_priced_items" };
@@ -623,6 +663,7 @@ export default async function handler(req, res) {
           ref,
           name: String(meta.name || ""), email: String(meta.email || ""), phone: String(meta.phone || ""),
           company: String(meta.co || ""),
+          discountCode: String(meta.disc || ""),
           items: cartItems.split(",").map((s) => {
             const m = s.split("~");
             return { id: String(m[0] || "").trim(), qty: Math.max(1, Math.min(99, Number(m[1]) || 1)) };

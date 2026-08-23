@@ -1,6 +1,15 @@
 {
-  "updatedAt": "2026-08-23T08:41:45.327Z",
+  "updatedAt": "2026-08-23T08:48:28.361Z",
   "currency": "SAR",
+  "discounts": [
+    {
+      "code": "WELCOME10",
+      "percent": 10,
+      "amount": 0,
+      "expires": "",
+      "note": "خصم ترحيبي 10%"
+    }
+  ],
   "services": [
     {
       "code": "BP-CHAMBER-01",

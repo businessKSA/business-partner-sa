@@ -815,7 +815,22 @@ async function catalogPrices() {
     }
   }
   _catCache = map; _catAt = Date.now();
+  _catDiscounts = Array.isArray(c.discounts) ? c.discounts : [];
   return map;
+}
+// Published discount codes — validated server-side so a typed code can only
+// ever mean what the catalog says it means.
+let _catDiscounts = [];
+function catalogDiscountSync(code) {
+  const c = String(code || "").trim().toUpperCase();
+  if (!c) return null;
+  const hit = _catDiscounts.find((d) => String(d.code || "").toUpperCase() === c);
+  if (!hit) return null;
+  if (hit.expires && new Date(hit.expires + "T23:59:59Z") < new Date()) return null;
+  const percent = Number(hit.percent) > 0 ? Math.min(90, Number(hit.percent)) : 0;
+  const amount = Number(hit.amount) > 0 ? Number(hit.amount) : 0;
+  if (!percent && !amount) return null;
+  return { code: c, percent, amount };
 }
 // Sync the catalog read-model into the services table (once per warm
 // instance) and return code(lower) → row id for order_items FKs.
@@ -2339,7 +2354,7 @@ export default async function handler(req, res) {
     await crmLead({
       title: `💳 طلب مدفوع إلكترونياً — ${name || email}`,
       phone, email,
-      notes: `دفع إلكتروني (ميسر) مؤكد · PAYID:${payId} · ${itemsText}${dataCode ? ` · DATACODE:${dataCode}` : ""}${company && company !== name ? ` · المنشأة: ${company}` : ""}${verified ? "" : " · ⚠️ المبلغ لم يُطابَق آلياً مع الكتالوج"}`,
+      notes: `دفع إلكتروني (ميسر) مؤكد · PAYID:${payId}${d.disc ? ` · كود خصم: ${String(d.disc).slice(0, 30)}` : ""} · ${itemsText}${dataCode ? ` · DATACODE:${dataCode}` : ""}${company && company !== name ? ` · المنشأة: ${company}` : ""}${verified ? "" : " · ⚠️ المبلغ لم يُطابَق آلياً مع الكتالوج"}`,
       ref, orderStatus: statusForRow, agents, total,
     });
 
@@ -2427,7 +2442,15 @@ export default async function handler(req, res) {
       }
     }
     const surchargeForTotal = Number.isFinite(Number(b.surchargeFee)) ? Number(b.surchargeFee) : 0;
-    const serverTotal = serverSubtotal > 0 ? Math.round((serverSubtotal + surchargeForTotal) * 1.15 * 100) / 100 : 0;
+    // The same discount the checkout showed, re-derived from the catalog: the
+    // receipt's amount is compared against a figure the client cannot invent.
+    const orderDisc = catalogDiscountSync(b.discountCode);
+    let discCut = 0;
+    if (orderDisc && serverSubtotal + surchargeForTotal > 0) {
+      const preNet = serverSubtotal + surchargeForTotal;
+      discCut = orderDisc.percent ? Math.round(((preNet * orderDisc.percent) / 100) * 100) / 100 : Math.min(preNet, orderDisc.amount);
+    }
+    const serverTotal = serverSubtotal > 0 ? Math.round((serverSubtotal + surchargeForTotal - discCut) * 1.15 * 100) / 100 : 0;
     // Effective total: prefer the client total when present, else the server
     // re-price — so orders never land as 0 when the catalog knows the price.
     const total = clientTotal > 0 ? clientTotal : serverTotal;
@@ -2490,7 +2513,8 @@ export default async function handler(req, res) {
       ? `<p style="color:#b91c1c">⚠️ إجمالي العميل (${clientTotal} ﷼) لا يطابق إعادة التسعير من الكتالوج (${serverTotal} ﷼) — راجع المبلغ قبل الاعتماد.</p>`
       : "";
     const codesNote = pricedItems.length ? `<p style="color:#666;font-size:13px">أكواد الخدمات: ${esc(pricedItems.join(" · "))}</p>` : "";
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${mismatchNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const discNote = orderDisc ? `<p style="color:#047857">🎟️ كود خصم مطبق: <b>${esc(orderDisc.code)}</b>${discCut ? ` (−${discCut} ﷼ قبل الضريبة)` : ""}</p>` : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${discNote}${mismatchNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
     // The establishment the buyer typed at checkout. It was only ever used for
     // the subscription approval emails, so an order placed for a company was
@@ -2515,7 +2539,7 @@ export default async function handler(req, res) {
       // delivery issue (e.g. unverified sender domain), the order is still seen.
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml) : Promise.resolve({ ok: false }),
       isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${orderDisc ? " · كود خصم: " + orderDisc.code : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);
