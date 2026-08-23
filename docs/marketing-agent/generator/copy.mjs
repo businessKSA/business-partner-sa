@@ -182,5 +182,63 @@ export function buildCopy(service) {
 
     // ── X: one line ─────────────────────────────────────────────────────────
     x: `${pb.outcome}.\n${title}${price ? ` — ${price}` : ""}.\n${link("x")}`,
+
+    // ── Facebook: Instagram's audience, but the link is clickable here ──────
+    // So the CTA is the tracked link rather than "الرابط في البايو", and the
+    // hashtag block is trimmed — Facebook reach is not hashtag-driven.
+    facebook: [
+      `${pb.outcome} \u2728`,
+      "",
+      pb.pain,
+      "",
+      `${title}${gov ? ` (${gov})` : ""}:`,
+      ...steps.map((s) => `\u2714\ufe0e ${s}`),
+      "",
+      price ? `${price}` : null,
+      pb.proof,
+      link("facebook"),
+      "",
+      hashtags(service).slice(0, 2).join(" "),
+    ].filter(keep).join("\n"),
+
+    // ── Snapchat: a story frame, read in about three seconds ────────────────
+    // No link list: the swipe-up carries the URL, so the caption stays a hook.
+    snapchat: {
+      onScreen: pb.outcome,
+      caption: [
+        pb.outcome,
+        title,
+        priceTag,
+        `اسحب للأعلى أو واتساب ${BRAND.phone}`,
+      ].filter(keep).join(" · "),
+      swipeUrl: link("snapchat"),
+    },
+
+    // ── Telegram channel: same short format as WhatsApp ─────────────────────
+    // Both are messaging surfaces read in a feed of chats, so the shape is the
+    // same; only the tracked link differs, which is what keeps the two channels
+    // separable in attribution.
+    telegram: [
+      `*${pb.outcome}*`,
+      "",
+      pb.pain,
+      "",
+      `*${title}*${gov ? ` — عبر ${gov}` : ""}`,
+      ...steps.map((s) => `\u2705 ${s}`),
+      "",
+      price ? `\ud83d\udca0 ${price}` : null,
+      `للاستفسار: ${wa("telegram")}`,
+      link("telegram"),
+    ].filter(keep).join("\n"),
+
+    // ── What the designer (or the renderer) has to produce ──────────────────
+    designBrief: [
+      `بطاقة خدمة واحدة — ${title}.`,
+      `العنوان: «${pb.outcome}»، وتحته سطر الألم بخط أصغر.`,
+      steps.length ? `قائمة من ${steps.length} بنود بعلامة \u2713.` : null,
+      priceTag ? `شارة سعر: ${priceTag}.` : null,
+      `الهوية: كحلي ${BRAND.navy} وذهبي ${BRAND.gold}، خط Noto Kufi Arabic، اتجاه RTL.`,
+      `الأصل الجاهز: docs/marketing-agent/content-packs/${service.slug}/`,
+    ].filter(keep).join(" "),
   };
 }
