@@ -10,8 +10,15 @@
 //
 // Underscore-prefixed: a shared module, not a 13th serverless function.
 
-const PK = (process.env.MOYASAR_PUBLISHABLE_KEY || "").trim();
-const SK = (process.env.MOYASAR_SECRET_KEY || "").trim();
+const PK_RAW = process.env.MOYASAR_PUBLISHABLE_KEY || "";
+const SK_RAW = process.env.MOYASAR_SECRET_KEY || "";
+const PK = PK_RAW.trim();
+const SK = SK_RAW.trim();
+// This panel trimmed while api/pay.js did not, so a key with a stray newline
+// passed the check here and failed every real payment. Trimming is now done in
+// both places — and the discrepancy itself is reported, because a key that
+// only works after trimming is a key someone should fix at the source.
+const PK_PADDED = PK_RAW !== PK, SK_PADDED = SK_RAW !== SK;
 const WEBHOOK_SECRET = (process.env.MOYASAR_WEBHOOK_SECRET || "").trim();
 // Read the same way api/pay.js reads it, so the panel reports the list the
 // payment form actually gets rather than a second opinion about it.
@@ -39,8 +46,8 @@ function modeOf(key) {
 // The three variables, reported by presence and shape only.
 export function moyasarVars() {
   return {
-    publishable: { set: !!PK, mode: modeOf(PK), name: "MOYASAR_PUBLISHABLE_KEY" },
-    secret: { set: !!SK, mode: modeOf(SK), name: "MOYASAR_SECRET_KEY" },
+    publishable: { set: !!PK, mode: modeOf(PK), name: "MOYASAR_PUBLISHABLE_KEY", padded: PK_PADDED },
+    secret: { set: !!SK, mode: modeOf(SK), name: "MOYASAR_SECRET_KEY", padded: SK_PADDED },
     webhook: { set: !!WEBHOOK_SECRET, length: WEBHOOK_SECRET.length, name: "MOYASAR_WEBHOOK_SECRET" },
     // Which wallets the buyer is actually offered. Apple Pay only shows on
     // Apple devices, so "is it on?" cannot be answered by looking at the site

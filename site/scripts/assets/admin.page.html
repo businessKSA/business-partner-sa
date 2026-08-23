@@ -1557,6 +1557,10 @@
           // Apple hides its own button on non-Apple browsers. Without this the
           // obvious test — open the site on the laptop — looks like a failure.
           html += '<div style="margin-top:6px;color:var(--soft);font-size:12px">Apple Pay مُفعّل ✓ — لكنه <b>لا يظهر إلا على أجهزة آبل</b> (آيفون/آيباد أو سفاري على ماك). فتحه من كروم أو أندرويد لن يُظهر الزر، وهذا سلوك آبل لا خلل في الربط.</div>';
+        // A key that only works after trimming is a key to fix at the source:
+        // it works here and can still break somewhere that forgets to trim.
+        if ((v.secret && v.secret.padded) || (v.publishable && v.publishable.padded))
+          html += '<div style="margin-top:8px;color:#b45309;font-weight:600">⚠ المفتاح فيه مسافة أو سطر زائد في Vercel (أزلناه هنا قبل الاستخدام). افتح المتغيّر واحذف الفراغ من أوله وآخره ثم Redeploy.</div>';
         if (v.modeMatch === false)
           html += '<div style="margin-top:8px;color:#b91c1c;font-weight:600">⚠ المفتاحان من بيئتين مختلفتين — لازم يكونان الاثنان Live أو الاثنان Test، وإلا النموذج والتحقق يتكلمان عن حسابين.</div>';
         if (r.ok){
