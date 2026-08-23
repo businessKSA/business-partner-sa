@@ -6284,8 +6284,16 @@ function buildCart() {
       <aside class="cart-aside">
         <div class="order-box">
           <h3>${L("Summary", "الملخص")}</h3>
+          <div class="disc-box" style="margin:6px 0 10px">
+            <div style="display:flex;gap:6px">
+              <input id="disc-code" placeholder="${L("Discount code", "كود الخصم")}" autocomplete="off" style="flex:1;min-width:0;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit" />
+              <button type="button" class="btn btn-ghost" id="disc-apply" style="white-space:nowrap">${L("Apply", "تطبيق")}</button>
+            </div>
+            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
+          </div>
           <div class="cart-totals-block">
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="cart-subtotal">—</span></div>
+          <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">${L("Discount", "الخصم")} <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="cart-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
           </div>

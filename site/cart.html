@@ -96,8 +96,16 @@
       <aside class="cart-aside">
         <div class="order-box">
           <h3>Summary</h3>
+          <div class="disc-box" style="margin:6px 0 10px">
+            <div style="display:flex;gap:6px">
+              <input id="disc-code" placeholder="Discount code" autocomplete="off" style="flex:1;min-width:0;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit" />
+              <button type="button" class="btn btn-ghost" id="disc-apply" style="white-space:nowrap">Apply</button>
+            </div>
+            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
+          </div>
           <div class="cart-totals-block">
           <div class="calc-line"><span class="k">Subtotal (fees)</span><span class="v" id="cart-subtotal">—</span></div>
+          <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">Discount <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>
           <div class="calc-line"><span class="k">VAT 15%</span><span class="v" id="cart-vat">—</span></div>
           <div class="calc-total"><span class="k">Total</span><span class="v" id="cart-total">—</span></div>
           </div>
@@ -271,4 +279,4 @@
         <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=d5605c339b"></script></body></html>
+  </section><script src="/assets/js/main.js?v=c945f3fc74"></script></body></html>

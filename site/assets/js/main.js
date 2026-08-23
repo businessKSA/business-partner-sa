@@ -273,16 +273,22 @@ var BP = window.BP = window.BP || {};
     btn.onclick = function () {
       var code = (inp.value || "").trim().toUpperCase();
       if (!code) return;
-      var list = window.BP_DISCOUNTS || [];
-      var hit = null;
-      for (var i = 0; i < list.length; i++) if (list[i].code === code) { hit = list[i]; break; }
-      var expired = hit && hit.expires && new Date(hit.expires + "T23:59:59") < new Date();
-      if (!hit || expired) {
-        if (msg) { msg.style.display = ""; msg.style.color = "#b91c1c"; msg.textContent = expired ? BP.t("This code has expired.", "هذا الكود منتهي الصلاحية.") : BP.t("Invalid code.", "الكود غير صحيح."); }
-        return;
+      function judge(list) {
+        var hit = null;
+        for (var i = 0; i < list.length; i++) if (list[i].code === code) { hit = list[i]; break; }
+        var expired = hit && hit.expires && new Date(hit.expires + "T23:59:59") < new Date();
+        if (!hit || expired) {
+          if (msg) { msg.style.display = ""; msg.style.color = "#b91c1c"; msg.textContent = expired ? BP.t("This code has expired.", "هذا الكود منتهي الصلاحية.") : BP.t("Invalid code.", "الكود غير صحيح."); }
+          return;
+        }
+        try { sessionStorage.setItem("bp_discount", JSON.stringify(hit)); } catch (e) {}
+        location.reload();
       }
-      try { sessionStorage.setItem("bp_discount", JSON.stringify(hit)); } catch (e) {}
-      location.reload();
+      if (window.BP_DISCOUNTS) return judge(window.BP_DISCOUNTS);
+      // Pages without the baked list (the cart) ask the published catalog.
+      fetch("/assets/data/catalog.json").then(function (r) { return r.json(); })
+        .then(function (j) { judge((j && j.discounts) || []); })
+        .catch(function () { judge([]); });
     };
   }
   document.addEventListener("DOMContentLoaded", wireDiscountBox);
