@@ -492,6 +492,24 @@
           </div>
         </div>
 
+        <div class="panel" id="escPanel" style="margin-bottom:22px;padding:18px">
+          <h4 style="color:var(--navy);margin-bottom:4px">🛡️ الضمانات ومحافظ الموردين</h4>
+          <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">العميل يحجز المبلغ من محفظته، وأنت الضامن: يتحرر للمورد باعتماد العميل، وعند النزاع تقرر أنت من هنا. سجّل سحب المورد بعد تنفيذ التحويل البنكي فعلياً.</p>
+          <button class="actbtn" id="escLoad">↻ حمّل الضمانات والأرصدة</button>
+          <div class="edmsg" id="escAdminMsg"></div>
+          <div id="escAdminList" style="margin-top:10px"></div>
+          <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+            <b style="font-size:13px">💸 تسجيل سحب مورد (بعد التحويل البنكي)</b>
+            <div style="display:grid;grid-template-columns:1.4fr .8fr 1.4fr auto;gap:8px;margin-top:8px;align-items:end">
+              <div><label style="display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px">بريد المورد</label><input id="poEmail" dir="ltr" placeholder="supplier@co.com" style="width:100%" /></div>
+              <div><label style="display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px">المبلغ ﷼</label><input id="poAmount" type="number" min="1" dir="ltr" style="width:100%" /></div>
+              <div><label style="display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px">ملاحظة (اختياري)</label><input id="poNote" placeholder="رقم الحوالة مثلاً" style="width:100%" /></div>
+              <button class="actbtn" id="poSend">سجّل السحب</button>
+            </div>
+            <div id="escBalances" style="margin-top:10px;font-size:12.5px;color:var(--soft)"></div>
+          </div>
+        </div>
+
         <div class="panel" style="margin-bottom:22px;padding:18px">
           <h4 style="color:var(--navy);margin-bottom:4px">🧾 الربط المحاسبي — الدفترة</h4>
           <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">الفواتير تُصدر من زر «إصدار فاتورة» داخل أي طلب في تبويب الطلبات، وتُسجَّل مباشرة في حسابك على الدفترة بضريبة قيمة مضافة على كل بند. اختبر الاتصال هنا قبل أول إصدار.</p>
@@ -2832,6 +2850,65 @@
           if (out && out.ok) discNote('ok', '✅ حُفظت الأكواد — تكون شغالة في السلة وصفحة الدفع خلال دقيقتين تقريباً.');
           else discNote('err', 'تعذّر الحفظ — حاول مرة أخرى.');
         });
+    };
+
+    // ===== escrow + supplier wallet oversight =====
+    function escANote(cls, text){ var m = $('escAdminMsg'); if (m){ m.className = 'edmsg' + (text ? ' ' + cls : ''); m.textContent = text || ''; } }
+    var ESC_ST = {
+      held: ['محجوز', '#2563eb'], released: ['تحرر للمورد ✓', '#047857'],
+      refund_requested: ['⚠️ طلب استرجاع — قرارك مطلوب', '#b45309'],
+      refunded: ['أُرجع للعميل ✓', '#047857'], cancelled: ['ملغي', '#64748b']
+    };
+    function escLoadAll(){
+      escANote('info', '⏳ جاري التحميل…');
+      postPanel({ action: 'panel-escrows' }).then(function(out){
+        if (!out || !out.ok){ escANote('err', out && out.error === 'db_not_configured' ? 'قاعدة البيانات التشغيلية (Supabase) غير مهيأة.' : 'تعذّر التحميل.'); return; }
+        escANote('', '');
+        var list = out.escrows || [];
+        $('escAdminList').innerHTML = list.length ? list.map(function(e){
+          var st = ESC_ST[e.status] || [e.status, '#64748b'];
+          var act = (e.status === 'held' || e.status === 'refund_requested');
+          return '<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:' + (e.status === 'refund_requested' ? '#fffbeb' : '#fff') + '">' +
+            '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">' +
+              '<div><b>' + esc(e.title || e.ref) + '</b><br><span style="font-size:11.5px;color:#64748b">' + esc(e.ref) + ' · عميل: ' + esc(e.client_email) + ' · مورد: ' + esc(e.supplier_name || '') + ' ' + esc(e.supplier_email) + (e.note ? ' · السبب: ' + esc(e.note) : '') + '</span></div>' +
+              '<div style="text-align:left"><b>' + e.amount + ' ﷼</b><br><span style="font-size:11.5px;font-weight:700;color:' + st[1] + '">' + st[0] + '</span></div>' +
+            '</div>' +
+            (act ? '<div style="display:flex;gap:8px;margin-top:8px">' +
+              '<button class="actbtn" data-escd="release:' + esc(e.id) + '">✅ حرّر للمورد</button>' +
+              '<button class="actbtn" data-escd="refund:' + esc(e.id) + '">↩️ أرجع للعميل</button>' +
+            '</div>' : '') +
+          '</div>';
+        }).join('') : '<div style="color:#94a3b8;font-size:13px">لا ضمانات بعد.</div>';
+        var bl = out.supplierBalances || [];
+        $('escBalances').innerHTML = bl.length
+          ? '<b>أرصدة الموردين المتاحة:</b> ' + bl.map(function(x){ return esc(x.supplier_email) + ' = <b>' + x.balance + ' ﷼</b>'; }).join(' · ')
+          : 'لا أرصدة موردين بعد.';
+        var btns = $('escAdminList').querySelectorAll('[data-escd]');
+        for (var i = 0; i < btns.length; i++) btns[i].onclick = function(){
+          var parts = this.getAttribute('data-escd').split(':');
+          var decision = parts[0], id = parts.slice(1).join(':');
+          if (!confirm(decision === 'release' ? 'تحرير المبلغ إلى محفظة المورد؟' : 'إرجاع المبلغ إلى محفظة العميل؟')) return;
+          this.disabled = true;
+          postPanel({ action: 'panel-escrow-decide', id: id, decision: decision }).then(function(out2){
+            if (out2 && out2.ok){ escANote('ok', '✅ نُفّذ القرار وأُبلغ الطرفان.'); escLoadAll(); }
+            else escANote('err', 'تعذّر التنفيذ — حدّث القائمة وحاول مرة أخرى.');
+          });
+        };
+      });
+    }
+    $('escLoad').onclick = escLoadAll;
+    $('poSend').onclick = function(){
+      var email = ($('poEmail').value || '').trim().toLowerCase();
+      var amount = Number($('poAmount').value);
+      if (!email || !(amount > 0)){ escANote('err', 'أدخل بريد المورد ومبلغاً أكبر من صفر.'); return; }
+      if (!confirm('تأكيد: نفّذت التحويل البنكي فعلاً بمبلغ ' + amount + ' ﷼ لهذا المورد؟ هذا القيد يخصم من رصيده.')) return;
+      var btn = $('poSend'); btn.disabled = true;
+      postPanel({ action: 'panel-supplier-payout', email: email, amount: amount, note: ($('poNote').value || '').trim() }).then(function(out){
+        btn.disabled = false;
+        if (out && out.ok){ escANote('ok', '✅ سُجّل السحب — رصيد المورد الآن ' + out.balance + ' ﷼.'); $('poAmount').value = ''; $('poNote').value = ''; escLoadAll(); }
+        else if (out && out.error === 'insufficient_funds') escANote('err', 'المبلغ أكبر من رصيد المورد المتاح (' + (out.balance || 0) + ' ﷼).');
+        else escANote('err', 'تعذّر التسجيل — حاول مرة أخرى.');
+      });
     };
 
     // ===== admin AI assistant =====

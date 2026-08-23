@@ -7410,6 +7410,7 @@ function buildPartnerDashboard() {
         <button type="button" role="tab" data-pt-tab="mine" aria-selected="false">🧰 ${L("My services & prices", "خدماتي وأسعاري")}</button>
         <button type="button" role="tab" data-pt-tab="catalog" aria-selected="false">🗂️ ${L("Services & your share", "الخدمات وعمولتك")}</button>
         <button type="button" role="tab" data-pt-tab="propose" aria-selected="false">➕ ${L("Propose a service", "اقترح خدمة")}</button>
+        <button type="button" role="tab" data-pt-tab="wallet" aria-selected="false">💰 ${L("My wallet", "محفظتي")}</button>
       </nav>
 
       <section data-pt-pane="orders">
@@ -7455,6 +7456,36 @@ function buildPartnerDashboard() {
           <p class="form-success" id="pp-sent" hidden></p>
           <p class="form-error" id="pp-err" hidden></p>
         </form>
+      </section>
+
+      <section data-pt-pane="wallet" hidden>
+        <div class="dash-panel-head"><h2>💰 ${L("My wallet", "محفظتي")}</h2><p>${L("Escrow amounts clients are holding for you release here the moment the client approves delivery — then you request a bank withdrawal.", "مبالغ الضمان التي يحجزها العملاء لصالحك تتحرر هنا فور اعتماد العميل للتسليم — ثم تطلب سحبها بتحويل بنكي.")}</p></div>
+        <div class="dash-stats" style="margin-bottom:16px">
+          <div class="dash-stat"><div class="ds-ico">🔒</div><div class="num" id="pw-held">—</div><div class="lbl">${L("Held in escrow for you (SAR)", "محجوز ضماناً لصالحك (﷼)")}</div></div>
+          <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="pw-balance">—</div><div class="lbl">${L("Available balance (SAR)", "رصيد متاح للسحب (﷼)")}</div></div>
+        </div>
+        <div class="dash-card" style="margin-bottom:14px">
+          <h3 style="margin:0 0 8px">${L("Escrows held for you", "ضمانات محجوزة لصالحك")}</h3>
+          <p class="text-soft" style="font-size:.84rem;margin:0 0 10px">${L("The client funded these with Business Partner as the guarantor. Each releases to your balance when the client approves delivery.", "موّلها العميل وبيزنس بارتنر هو الضامن. كل مبلغ يتحرر إلى رصيدك عندما يعتمد العميل التسليم.")}</p>
+          <div id="pw-escrows"><p class="dash-empty">${L("Sign in to see your escrows.", "سجّل الدخول لعرض ضماناتك.")}</p></div>
+        </div>
+        <div class="dash-card" style="margin-bottom:14px">
+          <h3 style="margin:0 0 8px">${L("Request a withdrawal", "اطلب سحب رصيدك")}</h3>
+          <p class="text-soft" style="font-size:.84rem;margin:0 0 10px">${L("We transfer your available balance to your bank and confirm by email.", "نحوّل رصيدك المتاح إلى حسابك البنكي ونؤكد لك بالبريد.")}</p>
+          <form id="pw-withdraw-form" class="calc-form" style="margin:0">
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="pw-amount">${L("Amount (SAR)", "المبلغ (﷼)")}</label><input id="pw-amount" type="number" min="1" step="0.01" required></div>
+              <div class="field"><label for="pw-iban">${L("IBAN", "الآيبان IBAN")}</label><input id="pw-iban" type="text" dir="ltr" maxlength="34" placeholder="SA.............................."></div>
+            </div>
+            <button type="submit" class="btn btn-primary">${L("Request withdrawal", "اطلب السحب")}</button>
+            <p class="form-success" id="pw-sent" hidden></p>
+            <p class="form-error" id="pw-err" hidden></p>
+          </form>
+        </div>
+        <div class="dash-card">
+          <h3 style="margin:0 0 8px">${L("Wallet movements", "حركات المحفظة")}</h3>
+          <div id="pw-tx"><p class="dash-empty">—</p></div>
+        </div>
       </section>
     </div>
   </div></section>

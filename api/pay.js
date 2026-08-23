@@ -198,6 +198,36 @@ async function settlePaidOrder(order, p) {
     return { ok: false, error: "settle_unreachable", verified };
   }
 }
+// A verified wallet top-up is handed to /api/requests {action:"wallet-paid"}
+// under the same seal the cart settle uses: the browser names an amount, the
+// gateway confirms it, and only the sealed server call can credit the ledger.
+// Idempotent on the payment id, so webhook + callback credit exactly once.
+async function settleWalletTopup(p) {
+  if (!OTP_SECRET) return { ok: false, skipped: "no_otp_secret" };
+  const meta = p.metadata || {};
+  const payload = {
+    v: 1, at: Date.now(), payId: String(p.id || ""),
+    email: String(meta.email || "").toLowerCase().slice(0, 160),
+    name: String(meta.name || "").slice(0, 160),
+    ref: String(meta.ref || "").slice(0, 40),
+    org: String(meta.org || "").slice(0, 60),
+    amount: Math.round(Number(p.amount || 0)) / 100,
+  };
+  if (!payload.email || !(payload.amount > 0)) return { ok: false, skipped: "no_email_or_amount" };
+  try {
+    const r = await fetch(SELF_BASE + "/api/requests", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "wallet-paid", t: seal(payload) }),
+    });
+    const j = await r.json().catch(() => ({}));
+    return r.ok && j.ok ? { ok: true, already: !!j.already, credited: !!j.credited, balance: j.balance } : { ok: false, error: j.error || ("http_" + r.status) };
+  } catch (e) {
+    console.error("pay: wallet settle call failed", String(e.message || e).slice(0, 160));
+    return { ok: false, error: "settle_unreachable" };
+  }
+}
+
 const RAW_CATALOG_URL = process.env.CATALOG_URL ||
   "https://raw.githubusercontent.com/businessKSA/business-partner-sa/claude/bpic-marketing-site-jvrnga/site/assets/data/catalog.json";
 let _catCache = null, _catAt = 0;
@@ -724,6 +754,13 @@ export default async function handler(req, res) {
     // recorded, activated and (when the invoice can be issued safely) invoiced.
     // The paid-order endpoint is idempotent on the reference, so whichever of
     // the webhook and the browser callback arrives second is a no-op.
+    // Wallet top-ups settle through their own sealed call — the money becomes
+    // ledger balance, not an order.
+    if (String(meta.wallet || "") === "topup") {
+      const w = await settleWalletTopup(p);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, handled: true, wallet: true, credited: !!(w && w.credited), already: !!(w && w.already) }));
+    }
     if (!quoteId || !tok) {
       const cartItems = String(meta.items || "").trim();
       if (ref && cartItems) {
@@ -823,6 +860,18 @@ export default async function handler(req, res) {
     let activation = { activated: false };
     if (paid && b.context === "compliance") {
       activation = await activateCompliance(String(b.company || "").trim(), String(b.code || "").trim());
+    }
+
+    // Wallet top-up verified from the browser callback. The metadata read from
+    // Moyasar's own record (never the request body) names the payer; the
+    // sealed settle is idempotent with the webhook's.
+    if (paid && (b.context === "wallet" || String((p.metadata || {}).wallet || "") === "topup")) {
+      const w = await settleWalletTopup(p);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true, status: p.status, amount: p.amount, currency: p.currency, wallet: true,
+        credited: !!(w && w.credited), already: !!(w && w.already), balance: w && w.balance != null ? w.balance : null,
+      }));
     }
 
     // A confirmed payment issues the tax invoice by itself. Failing to invoice

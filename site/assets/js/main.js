@@ -2462,11 +2462,74 @@ var BP = window.BP = window.BP || {};
     });
     paneTo("login");
 
+    // Supplier wallet: escrows held for them, released balance, withdrawals.
+    // Loaded on first open of the wallet tab, refreshed after a withdrawal.
+    var walletLoaded = false;
+    function loadWallet() {
+      var c = creds(); if (!c || !c.email) return;
+      fetch("/api/suppliers?action=wallet&email=" + encodeURIComponent(c.email) + "&pw=" + encodeURIComponent(c.pw || ""), { cache: "no-store" })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) return;
+          var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
+          set("pw-held", (Number(d.heldTotal) || 0).toLocaleString("en"));
+          set("pw-balance", (Number(d.balance) || 0).toLocaleString("en"));
+          var esBox = document.getElementById("pw-escrows");
+          if (esBox) {
+            var held = d.held || [];
+            esBox.innerHTML = held.length ? held.map(function (e) {
+              var warn = e.status === "refund_requested";
+              return '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid #eef1f6">' +
+                "<div><b>" + esc4(e.title || e.ref) + '</b><br><span class="text-soft" style="font-size:.8rem">' + esc4(e.ref + " · " + String(e.created_at || "").slice(0, 10)) + "</span></div>" +
+                '<div style="text-align:end"><b>' + e.amount + ' ﷼</b><br><span style="font-size:.78rem;color:' + (warn ? "#b45309" : "#2563eb") + '">' +
+                (warn ? T("Refund requested — under review", "طلب استرجاع — قيد المراجعة") : T("Held — releases on client approval", "محجوز — يتحرر باعتماد العميل")) + "</span></div></div>";
+            }).join("") : '<p class="dash-empty">' + T("No escrows held for you yet.", "لا ضمانات محجوزة لصالحك حالياً.") + "</p>";
+          }
+          var txBox = document.getElementById("pw-tx");
+          if (txBox) {
+            var tx = d.transactions || [];
+            txBox.innerHTML = tx.length ? tx.map(function (t2) {
+              var amt = Number(t2.amount) || 0;
+              return '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #eef1f6;font-size:.86rem">' +
+                "<span>" + esc4(t2.note || t2.type) + '<br><span class="text-soft" style="font-size:.76rem">' + esc4(String(t2.created_at || "").slice(0, 10)) + "</span></span>" +
+                '<b style="color:' + (amt >= 0 ? "#047857" : "#b91c1c") + '">' + (amt >= 0 ? "+" : "") + amt + " ﷼</b></div>";
+            }).join("") : '<p class="dash-empty">' + T("No movements yet.", "لا حركات بعد.") + "</p>";
+          }
+        }).catch(function () {});
+    }
+    var wForm = document.getElementById("pw-withdraw-form");
+    if (wForm) wForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var okEl = document.getElementById("pw-sent"), erEl = document.getElementById("pw-err");
+      okEl.hidden = true; erEl.hidden = true;
+      var c = creds();
+      if (!c || !c.email) { erEl.textContent = T("Sign in first.", "سجّل الدخول أولاً."); erEl.hidden = false; return; }
+      var amount = Number((document.getElementById("pw-amount") || {}).value);
+      if (!(amount > 0)) { erEl.textContent = T("Enter an amount above zero.", "أدخل مبلغاً أكبر من صفر."); erEl.hidden = false; return; }
+      var btn = wForm.querySelector("button[type=submit]"); btn.disabled = true;
+      fetch("/api/suppliers", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "withdraw", email: c.email, password: c.pw || "", amount: amount, iban: (document.getElementById("pw-iban") || {}).value || "" })
+      }).then(function (r) { return r.json(); }).then(function (r) {
+        btn.disabled = false;
+        if (r && r.ok) {
+          okEl.textContent = T("Request received ✓ — we transfer to your bank and confirm by email.", "استلمنا طلبك ✓ — ننفذ التحويل البنكي ونؤكد لك بالبريد.");
+          okEl.hidden = false; wForm.reset(); loadWallet();
+        } else {
+          erEl.textContent = r && r.error === "insufficient_funds"
+            ? T("Amount exceeds your available balance (" + (r.balance || 0) + " SAR).", "المبلغ أكبر من رصيدك المتاح (" + (r.balance || 0) + " ﷼).")
+            : T("Couldn't send the request — try again.", "تعذّر إرسال الطلب — حاول مرة أخرى.");
+          erEl.hidden = false;
+        }
+      }).catch(function () { btn.disabled = false; erEl.textContent = T("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى."); erEl.hidden = false; });
+    });
+
     // Portal sections. The work orders open first: the catalogue is 116 rows of
     // reference material and used to push the partner's actual work off-screen.
     [].slice.call(document.querySelectorAll("[data-pt-tab]")).forEach(function (t) {
       t.addEventListener("click", function () {
         var want = t.getAttribute("data-pt-tab");
+        if (want === "wallet" && !walletLoaded) { walletLoaded = true; loadWallet(); }
         [].slice.call(document.querySelectorAll("[data-pt-tab]")).forEach(function (o) {
           o.setAttribute("aria-selected", String(o.getAttribute("data-pt-tab") === want));
         });

@@ -388,7 +388,7 @@
                 <a href="/ar/services" data-t="qaRequest">طلب خدمة</a>
                 <a href="/ar/packages" data-t="qaUpgrade">ترقية باقة</a>
                 <a href="/ar/checkout" data-t="qaPay">دفع فاتورة</a>
-                <span class="dis"><span data-t="qaWallet">شحن المحفظة</span><small data-t="soonShort">قريباً</small></span>
+                <a href="#" data-goto="wallet" data-t="qaWallet">شحن المحفظة</a>
                 <a href="#" data-goto="documents" data-t="qaDoc">رفع مستند</a>
                 <span class="dis"><span data-t="qaUser">إضافة مستخدم</span><small data-t="soonShort">قريباً</small></span>
                 <a href="#" data-goto="tickets" data-t="qaTicket">فتح تذكرة</a>
@@ -450,13 +450,60 @@
           <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="payTxTitle">حركات المحفظة</h3></div><div id="payTxList" style="padding:6px 16px 12px"></div></div>
           <p style="margin-top:12px"><a class="btn ghost" href="/ar/checkout" data-t="qaPay">دفع فاتورة</a></p>
         </section>
-        <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2></div>
+        <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2><div class="sub">اشحن رصيدك إلكترونياً أو بتحويل بنكي، واستخدمه للسداد أو كضمان تنفيذ مع الموردين — بيزنس بارتنر هو الضامن.</div></div>
           <div class="card" id="walletPanel" style="display:none">
             <h4 data-t="wallet">رصيد المحفظة</h4>
             <div class="kpi" id="walletBig">0 ﷼</div>
             <div id="walletTx" style="margin-top:8px"></div>
           </div>
           <div class="ph" id="walletPh"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div>
+
+          <div class="card" id="wtopCard" style="margin-top:14px">
+            <h4>⚡ شحن المحفظة</h4>
+            <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">
+              <button type="button" class="btn" id="wtopTabOnline">💳 دفع إلكتروني (بطاقة / مدى / Apple Pay)</button>
+              <button type="button" class="btn ghost" id="wtopTabBank">🏦 تحويل بنكي + إيصال</button>
+            </div>
+            <div id="wtopOnline">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+                <div style="flex:1 1 140px"><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">المبلغ (﷼)</label>
+                  <input id="wtopAmount" type="number" min="10" step="1" placeholder="مثال: 1000" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+                <button type="button" class="btn" id="wtopPayBtn" style="white-space:nowrap">ادفع الآن</button>
+              </div>
+              <div id="wtopMsg" style="font-size:12.5px;margin-top:8px;display:none"></div>
+              <div id="wtop-epay" style="margin-top:12px"></div>
+              <p style="font-size:11.5px;color:var(--soft);margin-top:8px">الدفع عبر ميسر — يُقيَّد الرصيد في محفظتك تلقائياً لحظة نجاح الدفع.</p>
+            </div>
+            <div id="wtopBank" style="display:none">
+              <div style="display:grid;gap:8px">
+                <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">المبلغ المحوَّل (﷼)</label>
+                  <input id="wbankAmount" type="number" min="10" step="1" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">إيصال التحويل (صورة أو PDF)</label>
+                  <input id="wbankReceipt" type="file" accept="image/*,.pdf" style="width:100%"></div>
+                <button type="button" class="btn" id="wbankSend">أرسل طلب الشحن</button>
+                <div id="wbankMsg" style="font-size:12.5px;display:none"></div>
+                <p style="font-size:11.5px;color:var(--soft);margin:0">يتحقق الفريق من الإيصال ثم يظهر الرصيد في محفظتك — يصلك تأكيد بالبريد.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="escrowCard" style="margin-top:14px">
+            <h4>🛡️ ضمان تنفيذ مع مورد</h4>
+            <p style="font-size:12.5px;color:var(--soft);margin:6px 0 10px">احجز مبلغاً من محفظتك كضمان لدى بيزنس بارتنر لأي اتفاق مع مورد — المبلغ لا يصل للمورد إلا بعد اعتمادك للتسليم من هنا، وإن تعثر التنفيذ تطلب استرجاعه ويفصل فريقنا بين الطرفين.</p>
+            <div style="display:grid;gap:8px;grid-template-columns:1fr 1fr">
+              <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">بريد المورد</label>
+                <input id="escSupEmail" type="email" dir="ltr" placeholder="supplier@company.com" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+              <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">اسم المورد</label>
+                <input id="escSupName" placeholder="اسم المنشأة أو الشخص" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+              <div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">موضوع الاتفاق</label>
+                <input id="escTitle" placeholder="مثال: تصميم هوية بصرية كاملة — تسليم خلال أسبوعين" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+              <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">مبلغ الضمان (﷼)</label>
+                <input id="escAmount" type="number" min="1" step="1" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+              <div style="display:flex;align-items:flex-end"><button type="button" class="btn" id="escCreate" style="width:100%">🔒 احجز الضمان من محفظتي</button></div>
+            </div>
+            <div id="escMsg" style="font-size:12.5px;margin-top:8px;display:none"></div>
+            <div id="escList" style="margin-top:14px"></div>
+          </div>
         </section>
         <section class="view" id="view-approvals">
           <div class="pagehead"><h2 data-t="navApprovals">الموافقات</h2><div class="sub" data-t="apprSub">لا تنفيذ لأي إجراء حساس دون موافقتك المسجلة هنا.</div></div>
@@ -1955,6 +2002,208 @@
       return fetch('/api/requests?action=my-ops&what=' + what + (extra || ''), { credentials: 'same-origin', cache: 'no-store' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); });
     }
+    // ===== wallet: online top-up (Moyasar), bank top-up, supplier escrow =====
+    function wnote(id, cls, msg){
+      var el = $(id); if (!el) return;
+      el.style.display = msg ? '' : 'none';
+      el.style.color = cls === 'err' ? '#b91c1c' : cls === 'ok' ? '#047857' : '#64748b';
+      el.textContent = msg || '';
+    }
+    // Top-up method tabs
+    (function(){
+      var tOn = $('wtopTabOnline'), tBk = $('wtopTabBank');
+      if (!tOn || !tBk) return;
+      function pick(online){
+        $('wtopOnline').style.display = online ? '' : 'none';
+        $('wtopBank').style.display = online ? 'none' : '';
+        tOn.className = online ? 'btn' : 'btn ghost';
+        tBk.className = online ? 'btn ghost' : 'btn';
+      }
+      tOn.onclick = function(){ pick(true); };
+      tBk.onclick = function(){ pick(false); };
+    })();
+    // Online top-up: mount the same Moyasar form the checkout uses, with the
+    // wallet metadata that lets the server credit the ledger automatically.
+    var wtopAssets = null;
+    function wtopLoadAssets(cfg){
+      if (wtopAssets) return wtopAssets;
+      wtopAssets = new Promise(function(resolve, reject){
+        var link = document.createElement('link'); link.rel = 'stylesheet'; link.href = cfg.cssUrl; document.head.appendChild(link);
+        var s = document.createElement('script'); s.src = cfg.scriptUrl;
+        s.onload = function(){ resolve(); };
+        s.onerror = function(){ wtopAssets = null; reject(new Error('mpf_load')); };
+        document.head.appendChild(s);
+      });
+      return wtopAssets;
+    }
+    var wtopBtn = $('wtopPayBtn');
+    if (wtopBtn) wtopBtn.onclick = function(){
+      var amount = Number(($('wtopAmount') || {}).value);
+      if (!(amount >= 10)) { wnote('wtopMsg', 'err', 'أدخل مبلغاً من 10 ﷼ فأكثر.'); return; }
+      wnote('wtopMsg', '', 'جاري تجهيز نموذج الدفع…');
+      wtopBtn.disabled = true;
+      fetch('/api/pay').then(function(r){ return r.json(); }).then(function(cfg){
+        if (!cfg || !cfg.enabled) { wtopBtn.disabled = false; wnote('wtopMsg', 'err', 'الدفع الإلكتروني غير مفعّل حالياً — استخدم التحويل البنكي.'); return; }
+        return wtopLoadAssets(cfg).then(function(){
+          var mountEl = $('wtop-epay'); mountEl.innerHTML = '';
+          var ref = 'BPW-' + Date.now().toString().slice(-6);
+          var meta = {
+            wallet: 'topup', ref: ref,
+            email: String(state.email || (state.user && state.user.email) || '').toLowerCase().slice(0, 120),
+            name: String((state.user && state.user.name) || '').slice(0, 60),
+            org: String((state.overview && state.overview.organization && state.overview.organization.id) || '').slice(0, 60)
+          };
+          function boot(methods, applePay){
+            window.Moyasar.init({
+              element: '#wtop-epay',
+              amount: Math.round(amount * 100),
+              currency: cfg.currency || 'SAR',
+              description: 'شحن محفظة بيزنس بارتنر — ' + ref,
+              publishable_api_key: cfg.publishableKey,
+              callback_url: location.origin + location.pathname + '?wpaid=1',
+              metadata: meta,
+              on_initiating: async function(){ return { metadata: meta }; },
+              methods: methods,
+              apple_pay: applePay || undefined
+            });
+          }
+          var wanted = (cfg.methods && cfg.methods.length) ? cfg.methods : ['creditcard'];
+          try { boot(wanted, cfg.applePay); } catch (e1) { try { boot(['creditcard'], null); } catch (e2) { wnote('wtopMsg', 'err', 'تعذّر تحميل نموذج الدفع — جرّب التحويل البنكي.'); wtopBtn.disabled = false; return; } }
+          wtopBtn.disabled = false;
+          wnote('wtopMsg', 'ok', 'أكمل بيانات البطاقة أدناه — الرصيد يُقيَّد تلقائياً فور نجاح الدفع.');
+          setTimeout(function(){ var m = $('wtop-epay'); if (m && !m.children.length) wnote('wtopMsg', 'err', 'تعذّر عرض نموذج الدفع — جرّب التحويل البنكي.'); }, 2500);
+        });
+      }).catch(function(){ wtopBtn.disabled = false; wnote('wtopMsg', 'err', 'مشكلة في الاتصال — حاول مرة أخرى.'); });
+    };
+    // Returning from 3-D Secure: ?wpaid=1&id=… — verify with the server (it
+    // credits the ledger, idempotent with the webhook) then show the balance.
+    (function(){
+      var qs = new URLSearchParams(location.search);
+      if (qs.get('wpaid') !== '1' || !qs.get('id')) return;
+      var pid = qs.get('id');
+      try { history.replaceState({}, '', location.pathname); } catch(e){}
+      switchView('wallet');
+      wnote('wtopMsg', '', 'جاري التحقق من الدفع…');
+      fetch('/api/pay', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: pid, context: 'wallet' }) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (out && out.ok && out.wallet) {
+            wnote('wtopMsg', 'ok', '✅ تم الدفع وشُحنت محفظتك' + (out.balance != null ? ' — رصيدك الآن ' + out.balance + ' ﷼' : '') + '.');
+            fetchOverview(); loadEscrows();
+          } else if (out && out.status && out.status !== 'paid') {
+            wnote('wtopMsg', 'err', 'لم يكتمل الدفع (' + out.status + ') — حاول مرة أخرى.');
+          } else {
+            wnote('wtopMsg', 'err', 'تعذّر التحقق من الدفع — إن خُصم المبلغ فسيُقيَّد تلقائياً خلال دقائق.');
+          }
+        }).catch(function(){ wnote('wtopMsg', 'err', 'تعذّر التحقق — إن خُصم المبلغ فسيُقيَّد تلقائياً خلال دقائق.'); });
+    })();
+    // Bank-transfer top-up (existing server flow: receipt reviewed by the team)
+    var wbankBtn = $('wbankSend');
+    if (wbankBtn) wbankBtn.onclick = function(){
+      var amount = Number(($('wbankAmount') || {}).value);
+      var f = ($('wbankReceipt') || {}).files;
+      if (!(amount >= 10)) { wnote('wbankMsg', 'err', 'أدخل مبلغاً من 10 ﷼ فأكثر.'); return; }
+      if (!f || !f.length) { wnote('wbankMsg', 'err', 'أرفق إيصال التحويل.'); return; }
+      var file = f[0];
+      if (file.size > 6 * 1024 * 1024) { wnote('wbankMsg', 'err', 'حجم الملف كبير — الحد 6MB.'); return; }
+      wbankBtn.disabled = true; wnote('wbankMsg', '', 'جاري الإرسال…');
+      var rd = new FileReader();
+      rd.onload = function(){
+        var b64 = String(rd.result || '').split(',')[1] || '';
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+          type: 'wallet-topup', name: (state.user && state.user.name) || '', phone: '',
+          email: state.email || (state.user && state.user.email) || '', amount: amount,
+          receiptBase64: b64, receiptName: file.name, receiptType: file.type
+        }) }).then(function(r){ return r.json().catch(function(){ return {}; }); }).then(function(out){
+          wbankBtn.disabled = false;
+          if (out && out.ok) { wnote('wbankMsg', 'ok', '✅ استلمنا طلبك (' + (out.ref || '') + ') — يظهر الرصيد فور تحقق الفريق من الإيصال.'); $('wbankAmount').value = ''; $('wbankReceipt').value = ''; }
+          else wnote('wbankMsg', 'err', 'تعذّر الإرسال — حاول مرة أخرى.');
+        }).catch(function(){ wbankBtn.disabled = false; wnote('wbankMsg', 'err', 'مشكلة في الاتصال — حاول مرة أخرى.'); });
+      };
+      rd.readAsDataURL(file);
+    };
+    // ---- escrow: create / list / release / refund ----
+    var escrows = [];
+    function loadEscrows(){
+      fetch('/api/requests?action=my-escrows', { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok) return;
+          escrows = out.escrows || [];
+          renderEscrows();
+        }).catch(function(){});
+    }
+    function escStatusChip(s){
+      var m = {
+        held: ['محجوز — بانتظار اعتمادك للتسليم', '#2563eb', '#eff6ff'],
+        released: ['تحرر للمورد ✓', '#047857', '#ecfdf5'],
+        refund_requested: ['طلب استرجاع — قيد المراجعة', '#b45309', '#fffbeb'],
+        refunded: ['أُرجع لمحفظتك ✓', '#047857', '#ecfdf5'],
+        cancelled: ['ملغي', '#64748b', '#f1f5f9']
+      }[s] || [s, '#64748b', '#f1f5f9'];
+      return '<span style="font-size:11.5px;font-weight:700;color:' + m[1] + ';background:' + m[2] + ';border-radius:99px;padding:3px 10px;white-space:nowrap">' + m[0] + '</span>';
+    }
+    function renderEscrows(){
+      var box = $('escList'); if (!box) return;
+      if (!escrows.length) { box.innerHTML = '<div class="emptyline">لا ضمانات بعد — أول ضمان تحجزه يظهر هنا.</div>'; return; }
+      box.innerHTML = escrows.map(function(e2){
+        var canAct = e2.status === 'held';
+        return '<div style="border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:8px">' +
+          '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">' +
+            '<div><b>' + esc(e2.title || e2.ref) + '</b><br><span style="font-size:11.5px;color:#64748b">' + esc(e2.ref) + ' · ' + esc(e2.supplier_name || e2.supplier_email) + ' · ' + dts(e2.created_at) + '</span></div>' +
+            '<div style="text-align:left"><b>' + e2.amount + ' ﷼</b><br>' + escStatusChip(e2.status) + '</div>' +
+          '</div>' +
+          (canAct ? '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">' +
+            '<button type="button" class="btn" data-esc-release="' + esc(e2.id) + '" style="font-size:12.5px">✅ استلمت العمل — حرّر المبلغ للمورد</button>' +
+            '<button type="button" class="btn ghost" data-esc-refund="' + esc(e2.id) + '" style="font-size:12.5px">↩️ اطلب استرجاع المبلغ</button>' +
+          '</div>' : '') +
+        '</div>';
+      }).join('');
+      [].slice.call(box.querySelectorAll('[data-esc-release]')).forEach(function(b){
+        b.onclick = function(){
+          if (!confirm('تأكيد: استلمت العمل كاملاً وتريد تحويل المبلغ للمورد؟ لا يمكن التراجع بعد التحرير.')) return;
+          b.disabled = true;
+          opsPost({ action: 'escrow-release', id: b.getAttribute('data-esc-release') }).then(function(out){
+            if (out && out.ok) { wnote('escMsg', 'ok', '✅ تحرر المبلغ إلى محفظة المورد وأُبلغ بالبريد.'); loadEscrows(); }
+            else { b.disabled = false; wnote('escMsg', 'err', 'تعذّر التحرير — حدّث الصفحة وحاول مرة أخرى.'); }
+          });
+        };
+      });
+      [].slice.call(box.querySelectorAll('[data-esc-refund]')).forEach(function(b){
+        b.onclick = function(){
+          var reason = prompt('اذكر سبب طلب الاسترجاع (يساعد فريقنا في الفصل بسرعة):') || '';
+          if (!reason.trim()) return;
+          b.disabled = true;
+          opsPost({ action: 'escrow-refund', id: b.getAttribute('data-esc-refund'), reason: reason }).then(function(out){
+            if (out && out.ok) { wnote('escMsg', 'ok', 'وصل طلب الاسترجاع — يراجعه فريقنا مع الطرفين ويرد عليك بالبريد.'); loadEscrows(); }
+            else { b.disabled = false; wnote('escMsg', 'err', 'تعذّر الإرسال — حاول مرة أخرى.'); }
+          });
+        };
+      });
+    }
+    var escBtn = $('escCreate');
+    if (escBtn) escBtn.onclick = function(){
+      var supEmail = String(($('escSupEmail') || {}).value || '').trim().toLowerCase();
+      var supName = String(($('escSupName') || {}).value || '').trim();
+      var title = String(($('escTitle') || {}).value || '').trim();
+      var amount = Number(($('escAmount') || {}).value);
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(supEmail)) { wnote('escMsg', 'err', 'أدخل بريد المورد بشكل صحيح.'); return; }
+      if (!title) { wnote('escMsg', 'err', 'اكتب موضوع الاتفاق.'); return; }
+      if (!(amount > 0)) { wnote('escMsg', 'err', 'أدخل مبلغاً أكبر من صفر.'); return; }
+      escBtn.disabled = true; wnote('escMsg', '', 'جاري حجز الضمان…');
+      opsPost({ action: 'escrow-create', supplierEmail: supEmail, supplierName: supName, title: title, amount: amount }).then(function(out){
+        escBtn.disabled = false;
+        if (out && out.ok) {
+          wnote('escMsg', 'ok', '✅ حُجز الضمان (' + (out.escrow && out.escrow.ref || '') + ') وأُبلغ المورد بالبريد — رصيدك الآن ' + (out.balance != null ? out.balance + ' ﷼' : '') + '.');
+          ['escSupEmail','escSupName','escTitle','escAmount'].forEach(function(id){ var el = $(id); if (el) el.value = ''; });
+          fetchOverview(); loadEscrows();
+        }
+        else if (out && out.error === 'insufficient_funds') wnote('escMsg', 'err', 'رصيد محفظتك (' + (out.balance || 0) + ' ﷼) لا يكفي — اشحن المحفظة أولاً من الأعلى.');
+        else if (out && out.error === 'no_org') wnote('escMsg', 'err', 'أضف منشأتك أولاً من قسم «شركتي» ثم اشحن المحفظة.');
+        else wnote('escMsg', 'err', 'تعذّر حجز الضمان — حاول مرة أخرى.');
+      });
+    };
+
     var ops = { notifs: [], unread: 0, tickets: [], docs: [], approvals: [], tasks: [] };
     function fetchOps(){
       if (!state.db) return;
@@ -2303,6 +2552,7 @@
       fetchServerOrders();
       fetchOverview();
       fetchOps();
+      loadEscrows();
     }
     function doLogout(){
       try { localStorage.removeItem('bp_session'); } catch(e){}

@@ -35,7 +35,7 @@ import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt, create
 import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder, daftraCreateInvoice, daftraDocPdf } from "./_daftra.js";
 import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
 import { announce, contactForRef, stageChannels, waSend } from "./_stage.js";
-import { DB_ON, storagePut, storageSign } from "./_db.js";
+import { DB_ON, sb, storagePut, storageSign } from "./_db.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -771,6 +771,33 @@ export async function handleSuppliers(req, res) {
       });
     }
 
+    // Supplier: my wallet — escrows clients are holding for me, the balance
+    // already released to me, and my movements. Same login the orders use.
+    if (q.action === "wallet") {
+      const s = await authSupplier(q.email, q.pw);
+      if (!s) return bad("unauthorized", 401);
+      if (!s.verified) return bad("email_unverified", 403);
+      if (!DB_ON) return ok({ enabled: false, held: [], balance: 0, transactions: [] });
+      const em = String(q.email || "").trim().toLowerCase();
+      try {
+        const [held, bal, tx] = await Promise.all([
+          sb(`escrows?supplier_email=eq.${encodeURIComponent(em)}&status=in.(held,refund_requested)&select=ref,title,amount,status,created_at&order=created_at.desc&limit=50`),
+          sb(`supplier_wallet_balances?supplier_email=eq.${encodeURIComponent(em)}&select=balance`),
+          sb(`supplier_wallet_transactions?supplier_email=eq.${encodeURIComponent(em)}&select=type,amount,note,created_at&order=created_at.desc&limit=20`),
+        ]);
+        return ok({
+          enabled: true,
+          held: held || [],
+          heldTotal: (held || []).reduce((t, e) => t + Number(e.amount || 0), 0),
+          balance: (bal && bal[0] && Number(bal[0].balance)) || 0,
+          transactions: tx || [],
+        });
+      } catch (e) {
+        console.error("supplier wallet read failed", String(e).slice(0, 160));
+        return bad("db_failed", 502);
+      }
+    }
+
     // Owner: the whole registry + every work order
     if (q.action === "admin") {
       if (!ownerOk(q)) return bad("unauthorized", 401);
@@ -938,6 +965,31 @@ export async function handleSuppliers(req, res) {
     if (!s.verified) return bad("email_unverified", 403);
     const orders = await ordersForSupplier(s.id);
     return ok({ supplier: { name: s.name, code: s.code, person: s.person, city: s.city, categories: s.categories, terms: s.terms, status: s.status }, orders });
+  }
+
+  // ---------------- supplier asks to withdraw released balance ----------------
+  // The request goes to the owner, who transfers by bank and then records the
+  // debit from the panel — the ledger mirrors money that actually moved.
+  if (b.type === "withdraw") {
+    const s = await authSupplier(b.email, b.password || b.pw);
+    if (!s) return bad("unauthorized", 401);
+    if (!s.verified) return bad("email_unverified", 403);
+    const em = String(b.email || "").trim().toLowerCase();
+    const amountNum = Math.abs(Number(b.amount));
+    const iban = str(b.iban, 40);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) return bad("invalid_fields");
+    if (!DB_ON) return bad("db_not_configured", 503);
+    let balance = 0;
+    try {
+      const bal = await sb(`supplier_wallet_balances?supplier_email=eq.${encodeURIComponent(em)}&select=balance`);
+      balance = (bal[0] && Number(bal[0].balance)) || 0;
+    } catch { return bad("db_failed", 502); }
+    if (balance < amountNum) return bad("insufficient_funds", 400, { balance });
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `💸 طلب سحب من محفظة مورد — ${s.name} (${amountNum} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>طلب المورد سحب مبلغ من رصيده المتاح. حوّل بنكياً ثم سجّل السحب من لوحة /admin ← الأدوات ← الضمانات والمحافظ.</p><table>${row("المورد", s.name)}${row("البريد", em)}${row("المبلغ", amountNum + " ﷼")}${row("الرصيد المتاح", balance + " ﷼")}${row("IBAN", iban || "—")}</table></div>`),
+      sendEmail(em, `استلمنا طلب السحب ✅ (${amountNum} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>وصلنا طلب سحب <strong>${amountNum} ﷼</strong> من محفظتك. ننفذ التحويل البنكي ونؤكد لك بالبريد.</p></div>`),
+    ]).catch(() => {});
+    return ok({ requested: amountNum, balance });
   }
 
   // ---------------- supplier updates a work order ----------------

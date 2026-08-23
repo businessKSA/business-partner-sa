@@ -512,3 +512,40 @@ create policy plan_items_public on plan_items for select using (true);
 -- and services can be bought with the company's own data pre-filled.
 alter table documents add column if not exists issue_date date;
 alter table documents add column if not exists extracted jsonb;
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-23: escrow between client and supplier + supplier wallet.
+-- The client funds an escrow from their wallet (a signed 'payment' ledger row
+-- keyed by the escrow ref); when the client approves delivery, the amount is
+-- credited to the supplier's own ledger. Balances stay derived, never stored.
+create table if not exists escrows (
+  id uuid primary key default gen_random_uuid(),
+  ref text not null unique,
+  organization_id uuid not null references organizations(id) on delete cascade,
+  client_email text not null,
+  supplier_email text not null,
+  supplier_name text,
+  title text not null,
+  amount numeric(12,2) not null check (amount > 0),
+  status text not null default 'held' check (status in ('held','released','refund_requested','refunded','cancelled')),
+  note text,
+  created_at timestamptz not null default now(),
+  released_at timestamptz
+);
+create index if not exists escrows_org_idx on escrows(organization_id);
+create index if not exists escrows_supplier_idx on escrows(supplier_email);
+alter table escrows enable row level security;
+
+create table if not exists supplier_wallet_transactions (
+  id uuid primary key default gen_random_uuid(),
+  supplier_email text not null,
+  type text not null check (type in ('escrow_release','withdrawal','adjustment')),
+  amount numeric(12,2) not null,      -- signed: release > 0, withdrawal < 0
+  note text,
+  created_at timestamptz not null default now()
+);
+create index if not exists supplier_tx_email_idx on supplier_wallet_transactions(supplier_email);
+alter table supplier_wallet_transactions enable row level security;
+create or replace view supplier_wallet_balances as
+  select supplier_email, coalesce(sum(amount),0)::numeric(14,2) as balance
+  from supplier_wallet_transactions group by supplier_email;

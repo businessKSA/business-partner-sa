@@ -1010,6 +1010,25 @@ export default async function handler(req, res) {
     }
   }
 
+  // Escrows the session's active organization opened — shown in the client's
+  // wallet view alongside the balance they draw from.
+  if ((q.action || "") === "my-escrows") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    try {
+      const [escrows, bal] = await Promise.all([
+        orgId ? sb(`escrows?organization_id=eq.${orgId}&select=id,ref,supplier_email,supplier_name,title,amount,status,created_at,released_at&order=created_at.desc&limit=50`) : [],
+        orgId ? sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`) : [],
+      ]);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, escrows: escrows || [], walletBalance: (bal && bal[0] && Number(bal[0].balance)) || 0, hasOrg: !!orgId }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
   // P4 — orders belong to the ACCOUNT, not the browser: list the session
   // email's CRM orders so cart purchases show up in the client ops center
   // from any device (localStorage stays only as a legacy-refs fallback).
@@ -1980,6 +1999,66 @@ export default async function handler(req, res) {
       }
     }
 
+    // Owner: escrow oversight. List everything, decide refund requests, and
+    // record a supplier payout after the bank transfer is made.
+    if (b.action === "panel-escrows") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      try {
+        const [escrows, balances] = await Promise.all([
+          sb("escrows?select=id,ref,client_email,supplier_email,supplier_name,title,amount,status,note,created_at&order=created_at.desc&limit=100"),
+          sb("supplier_wallet_balances?select=supplier_email,balance&order=balance.desc&limit=100"),
+        ]);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, escrows: escrows || [], supplierBalances: balances || [] }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+    if (b.action === "panel-escrow-decide") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const id = String(b.id || "").slice(0, 60);
+      const decision = b.decision === "release" ? "release" : "refund";
+      if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "id_required" })); }
+      try {
+        if (decision === "release") {
+          const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=in.(held,refund_requested)`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
+          if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_releasable" })); }
+          const e2 = rows[0];
+          await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: e2.supplier_email, type: "escrow_release", amount: Number(e2.amount), note: `تحرير ضمان ${e2.ref} (قرار الإدارة)` }] });
+          await sendEmail(e2.supplier_email, `✅ تحرّر ضمانك — ${e2.ref} (${e2.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>قررت إدارة بيزنس بارتنر تحرير الضمان <b>${e2.ref}</b> (${e2.amount} ﷼) إلى محفظتك في لوحة الشريك.</p></div>`).catch(() => {});
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ ok: true, escrow: e2 }));
+        }
+        const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=in.(held,refund_requested)`, { method: "PATCH", body: { status: "refunded" } });
+        if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_refundable" })); }
+        const e2 = rows[0];
+        await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: e2.organization_id, type: "refund", amount: Number(e2.amount), note: `استرجاع ضمان ${e2.ref}` }] });
+        await notify({ organization_id: e2.organization_id, event: "escrow_refunded", channel: "inapp", title: `أُرجع ضمان ${e2.ref} (+${e2.amount} ﷼) إلى محفظتك`, idempotency_key: `escrow_refund:${e2.ref}` }).catch(() => {});
+        await Promise.all([
+          sendEmail(e2.client_email, `تم استرجاع الضمان ${e2.ref} إلى محفظتك ✅`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>أُعيد مبلغ <strong>${e2.amount} ﷼</strong> من الضمان <b>${e2.ref}</b> إلى محفظتك في <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">لوحتك</a>.</p></div>`),
+          sendEmail(e2.supplier_email, `قرار الضمان ${e2.ref}: استرجاع للعميل`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>بعد المراجعة قررت إدارة بيزنس بارتنر إرجاع مبلغ الضمان <b>${e2.ref}</b> للعميل.</p></div>`),
+        ]).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, escrow: e2 }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+    // Records the debit AFTER the owner has actually transferred the money to
+    // the supplier's bank — the ledger mirrors reality, it never causes it.
+    if (b.action === "panel-supplier-payout") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const email = String(b.email || "").trim().toLowerCase();
+      const amountNum = Math.abs(Number(b.amount));
+      const note = String(b.note || "").slice(0, 300);
+      if (!isEmail(email) || !Number.isFinite(amountNum) || amountNum <= 0) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      try {
+        const bal = await sb(`supplier_wallet_balances?supplier_email=eq.${encodeURIComponent(email)}&select=balance`);
+        const balance = (bal[0] && Number(bal[0].balance)) || 0;
+        if (balance < amountNum) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "insufficient_funds", balance })); }
+        await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: email, type: "withdrawal", amount: -amountNum, note: note || "تحويل بنكي للمورد" }] });
+        await sendEmail(email, `تم تحويل ${amountNum} ﷼ من محفظتك ✅`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>حوّلنا لك مبلغ <strong>${amountNum} ﷼</strong> من محفظتك في بيزنس بارتنر.${note ? "<br>" + esc(note) : ""}</p></div>`).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, balance: Math.round((balance - amountNum) * 100) / 100 }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+
     // P4 owner-side: find an org by client email (shared helper for the three
     // actions below).
     const orgByEmail = async (em) => {
@@ -2277,6 +2356,77 @@ export default async function handler(req, res) {
     }
   }
 
+  // ---- escrow: wallet money held between client and supplier ---------------
+  // The client funds the guarantee from their wallet; the amount leaves the
+  // balance the moment the escrow opens and reaches the supplier's ledger only
+  // when the client approves delivery. Refunds go through the owner.
+  if (b.action === "escrow-create" || b.action === "escrow-release" || b.action === "escrow-refund") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
+    const myName = String((sess.user && sess.user.full_name) || "").trim() || myEmail;
+    if (!orgId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_org" })); }
+    try {
+      if (b.action === "escrow-create") {
+        const supplierEmail = String(b.supplierEmail || "").trim().toLowerCase().slice(0, 160);
+        const supplierName = String(b.supplierName || "").trim().slice(0, 160);
+        const title = String(b.title || "").trim().slice(0, 300);
+        const amount = Math.round((Number(b.amount) || 0) * 100) / 100;
+        if (!isEmail(supplierEmail) || !title || !(amount > 0)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`);
+        const balance = (bal[0] && Number(bal[0].balance)) || 0;
+        if (balance < amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "insufficient_funds", balance })); }
+        const ref = "BPE-" + crypto.randomInt(100000, 999999);
+        const rows = await sb("escrows", { method: "POST", body: [{ ref, organization_id: orgId, client_email: myEmail, supplier_email: supplierEmail, supplier_name: supplierName, title, amount, status: "held" }] });
+        await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, type: "payment", amount: -amount, note: `حجز ضمان ${ref} — ${supplierName || supplierEmail}` }] });
+        await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "escrow.create", entity_type: "escrow", entity_id: String(rows[0].id), after: { amount, supplierEmail } }).catch(() => {});
+        await notify({ organization_id: orgId, event: "escrow_held", channel: "inapp", title: `تم حجز ${amount} ﷼ ضمان تنفيذ (${ref})`, idempotency_key: `escrow_held:${ref}` }).catch(() => {});
+        await Promise.all([
+          sendEmail(supplierEmail, `💼 ضمان تنفيذ محجوز لصالحك — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">مبلغ ضمان محجوز لصالحك</h2><p>حجز العميل <b>${esc(myName)}</b> مبلغ <strong>${amount} ﷼</strong> ضمان تنفيذ عبر منصة بيزنس بارتنر:</p><table>${row("المرجع", ref) + row("موضوع الاتفاق", title) + row("المبلغ", amount + " ﷼")}</table><p>المبلغ محجوز لدى بيزنس بارتنر ويُحرَّر إلى محفظتك في <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك</a> فور اعتماد العميل للتسليم.</p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`),
+          sendEmail(myEmail, `تم حجز الضمان ✅ — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم حجز الضمان ✅</h2><p>خُصم <strong>${amount} ﷼</strong> من محفظتك وحُجز كضمان تنفيذ لدى بيزنس بارتنر — لا يصل للمورد إلا بعد اعتمادك للتسليم من لوحتك.</p><table>${row("المرجع", ref) + row("المورد", supplierName || supplierEmail) + row("الموضوع", title)}</table></div>`),
+          sendEmail(TEAM_EMAIL, `💼 ضمان جديد ${ref} — ${myName} ← ${supplierName || supplierEmail} (${amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>ضمان تنفيذ فُتح من محفظة العميل — لا إجراء مطلوب حتى يعتمد العميل أو يطلب استرجاعاً.</p><table>${row("العميل", myName + " · " + myEmail) + row("المورد", (supplierName || "") + " · " + supplierEmail) + row("الموضوع", title) + row("المبلغ", amount + " ﷼")}</table></div>`),
+          crmLead({ title: `ضمان تنفيذ — ${myName} ← ${supplierName || supplierEmail}`, phone: "", email: myEmail, notes: `ضمان · ${title} · ${amount} ﷼ · المورد: ${supplierEmail}`, ref, orderStatus: "مؤكد - قيد التنفيذ", total: amount }),
+        ]).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, escrow: rows[0], balance: Math.round((balance - amount) * 100) / 100 }));
+      }
+      // release / refund-request act on one escrow this org owns.
+      const id = String(b.id || "").slice(0, 60);
+      if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "id_required" })); }
+      if (b.action === "escrow-release") {
+        // The status filter makes this idempotent: a second click updates 0 rows.
+        const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&status=in.(held,refund_requested)`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
+        if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_releasable" })); }
+        const e2 = rows[0];
+        await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: e2.supplier_email, type: "escrow_release", amount: Number(e2.amount), note: `تحرير ضمان ${e2.ref} — ${e2.title}`.slice(0, 300) }] });
+        await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "escrow.release", entity_type: "escrow", entity_id: id }).catch(() => {});
+        await Promise.all([
+          sendEmail(e2.supplier_email, `✅ تحرّر ضمانك — ${e2.ref} (${e2.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#047857">اعتمد العميل التسليم ✅</h2><p>تحرّر مبلغ <strong>${e2.amount} ﷼</strong> إلى محفظتك في <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك</a> — اطلب السحب من هناك متى شئت.</p><table>${row("المرجع", e2.ref) + row("الموضوع", e2.title)}</table></div>`),
+          sendEmail(TEAM_EMAIL, `✅ تحرير ضمان ${e2.ref} — إلى ${e2.supplier_email} (${e2.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>اعتمد العميل التسليم وتحرّر الضمان إلى محفظة المورد. حوّل للمورد بنكياً عندما يطلب السحب (يصلك طلبه بالبريد).</p><table>${row("المورد", e2.supplier_email) + row("المبلغ", e2.amount + " ﷼")}</table></div>`),
+        ]).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, escrow: e2 }));
+      }
+      // escrow-refund: the client asks for the money back — the owner decides.
+      const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&status=eq.held`, { method: "PATCH", body: { status: "refund_requested", note: String(b.reason || "").slice(0, 400) } });
+      if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_refundable" })); }
+      const e3 = rows[0];
+      await Promise.all([
+        sendEmail(TEAM_EMAIL, `⚠️ طلب استرجاع ضمان ${e3.ref} — ${myName} (${e3.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>طلب العميل استرجاع مبلغ الضمان. راجع الحالة مع الطرفين ثم قرر من لوحة /admin ← الأدوات ← الضمانات (استرجاع للعميل أو تحرير للمورد).</p><table>${row("العميل", myName + " · " + myEmail) + row("المورد", e3.supplier_email) + row("الموضوع", e3.title) + row("المبلغ", e3.amount + " ﷼") + row("سبب الطلب", String(b.reason || "—").slice(0, 400))}</table></div>`),
+        sendEmail(e3.supplier_email, `⚠️ طلب استرجاع على الضمان ${e3.ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>طلب العميل استرجاع مبلغ الضمان <b>${e3.ref}</b> (${e3.amount} ﷼). سيتواصل معكما فريق بيزنس بارتنر للفصل في الطلب — المبلغ يبقى محجوزاً حتى القرار.</p></div>`),
+      ]).catch(() => {});
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, escrow: e3 }));
+    } catch (e) {
+      console.error("escrow action failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
   // Checkout's "upload your certificate and we fill the form" step. Public by
   // necessity — the buyer is not signed into anything at that point — so the
   // size and type caps are enforced before a provider is called, and the reply
@@ -2297,6 +2447,65 @@ export default async function handler(req, res) {
   // Everything the owner used to do by hand after checking a bank receipt
   // happens here in one pass: the CRM row lands already confirmed, the gated
   // portals activate, and the client's access codes go out by email.
+  // A confirmed Moyasar wallet top-up, sealed by /api/pay with the server
+  // secret — the browser can never credit a wallet; only the payment gateway's
+  // verified confirmation can. Idempotent on the payment id, so the webhook
+  // and the browser callback (both fire for one charge) credit exactly once.
+  if (b.action === "wallet-paid") {
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    let d; try { d = ssUnseal(b.t); } catch { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_seal" })); }
+    if (!d || !(Date.now() - (Number(d.at) || 0) < 30 * 60 * 1000)) {
+      res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "expired" }));
+    }
+    const email = String(d.email || "").trim().toLowerCase().slice(0, 160);
+    const name = String(d.name || "").trim().slice(0, 160);
+    const amount = Math.round((Number(d.amount) || 0) * 100) / 100;
+    const payId = String(d.payId || "").slice(0, 64);
+    const ref = String(d.ref || "BPW-" + Date.now().toString().slice(-6)).slice(0, 40);
+    if (!isEmail(email) || !(amount > 0) || !payId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+    let credited = false, already = false, balance = null;
+    if (DB_ON) {
+      try {
+        const dup = await sb(`wallet_transactions?note=like.*PAYID:${encodeURIComponent(payId)}*&select=id&limit=1`);
+        if (dup.length) { already = true; }
+        else {
+          // Resolve the wallet's organization from the payer's account —
+          // metadata may nominate one of their orgs, never someone else's.
+          let users = await sb(`users?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+          if (!users.length) users = await sb("users", { method: "POST", body: [{ email, ...(name ? { full_name: name } : {}) }] });
+          const uid = users[0].id;
+          const mems = await sb(`organization_members?user_id=eq.${uid}&status=eq.active&select=organization_id`);
+          const wanted = String(d.org || "").trim();
+          let orgId = (mems.find((m) => m.organization_id === wanted) || mems[0] || {}).organization_id;
+          if (!orgId) {
+            const orgs = await sb("organizations", { method: "POST", body: [{ name_ar: name || email }] });
+            orgId = orgs[0].id;
+            await sb("organization_members", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, user_id: uid, role_id: "owner", status: "active" }] });
+          }
+          await sb("wallet_accounts?on_conflict=organization_id", { method: "POST", prefer: "resolution=ignore-duplicates,return=minimal", body: [{ organization_id: orgId }] });
+          await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, type: "topup", amount, note: `شحن إلكتروني (ميسر) · PAYID:${payId} · ${ref}` }] });
+          await sb("payments", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, method: "moyasar", status: "paid", amount, gateway_ref: payId }] }).catch(() => {});
+          const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`);
+          balance = (bal[0] && Number(bal[0].balance)) || 0;
+          credited = true;
+          await audit({ organization_id: orgId, actor_label: "moyasar:webhook", action: "wallet.topup", entity_type: "wallet", after: { amount, payId } }).catch(() => {});
+          await notify({ organization_id: orgId, event: "wallet_topup_paid", channel: "inapp", title: `تم شحن محفظتك إلكترونياً (+${amount} ﷼)`, idempotency_key: `wallet_paid:${payId}` }).catch(() => {});
+        }
+      } catch (e) { console.error("wallet-paid credit failed", String(e).slice(0, 200)); }
+    }
+    if (!already) {
+      await Promise.all([
+        crmLead({ title: `شحن محفظة (إلكتروني) — ${name || email}`, phone: "", email, notes: `محفظة · شحن إلكتروني ${amount} ﷼ · PAYID:${payId}${credited ? "" : " · ⚠️ لم يُقيَّد في قاعدة البيانات — قيّده يدوياً"}`, ref, orderStatus: credited ? "مكتمل" : "قيد المراجعة", total: amount }),
+        sendEmail(email, `تم شحن محفظتك ✅ — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم شحن محفظتك ✅</h2><p>وصل مبلغ <strong>${amount} ﷼</strong> إلى محفظتك ورصيدك محدث الآن في لوحتك.</p><table>${row("رقم المرجع", ref) + row("المبلغ", amount + " ﷼")}</table><p><a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">افتح لوحتك</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`),
+        credited
+          ? sendEmail(TEAM_EMAIL, `💰 شحن محفظة إلكتروني ${ref} — ${name || email} (${amount} ﷼) — لا إجراء مطلوب`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>دفعة ميسر مؤكدة قُيّدت تلقائياً في محفظة العميل.</p><table>${row("العميل", name || email) + row("البريد", email) + row("المبلغ", amount + " ﷼") + row("رقم الدفعة", payId)}</table></div>`)
+          : sendEmail(TEAM_EMAIL, `⚠️ شحن محفظة إلكتروني ${ref} لم يُقيَّد — ${email} (${amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>الدفعة مؤكدة في ميسر لكن القيد في قاعدة البيانات لم يكتمل — قيّده يدوياً من لوحة /admin (إدخال محفظة).</p><table>${row("البريد", email) + row("المبلغ", amount + " ﷼") + row("رقم الدفعة", payId)}</table></div>`),
+      ]).catch(() => {});
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, already, credited, balance }));
+  }
+
   if (b.action === "paid-order") {
     if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
     let d; try { d = ssUnseal(b.t); } catch { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_seal" })); }
