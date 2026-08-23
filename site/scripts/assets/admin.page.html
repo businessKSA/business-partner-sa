@@ -819,7 +819,12 @@
     // digest rather than the national id, and expires on its own.
     var TICKET_STORE = 'bp_admin_ticket';
     var accessTicket = localStorage.getItem(TICKET_STORE) || '';
-    function authQS(){ return authQS() + '&ticket=' + encodeURIComponent(accessTicket); }
+    // The key and the Nafath ticket ride the same query string; the server
+    // accepts either. (A previous edit made this function call itself — every
+    // authenticated call then died in a stack overflow and the login hung.)
+    function authQS(){
+      return '&key=' + encodeURIComponent(accessKey) + (accessTicket ? '&ticket=' + encodeURIComponent(accessTicket) : '');
+    }
     var leads = [];
     var lastFetch = null;
     var pollTimer = null;
