@@ -422,25 +422,6 @@
           <div class="sub">عدّل محتوى الموقع وانشره بنفسك — عند الحفظ يُحدَّث الموقع تلقائياً خلال دقيقتين تقريباً.</div>
         </div>
         <div class="tools" id="contentFiles" style="margin-bottom:22px"></div>
-        <div class="panel" id="discPanel" style="display:none;margin-bottom:22px">
-          <div class="editor-head">
-            <span class="file-lbl">🎟️ أكواد الخصم</span>
-            <span class="stamp" id="discStamp"></span>
-            <button class="refresh" id="discReload">↻ استرجاع</button>
-            <button class="btn" id="discSave">💾 حفظ ونشر</button>
-          </div>
-          <div class="edmsg" id="discMsg"></div>
-          <div id="discRows" style="padding:12px 16px;display:grid;gap:10px"></div>
-          <div style="padding:0 16px 16px"><button class="refresh" id="discAdd">＋ أضف كود خصم</button>
-            <div style="font-size:12.5px;color:#475569;margin-top:10px;line-height:2;background:#f1f5f9;border-radius:10px;padding:12px 14px">
-              <b>كيف تعمل الأكواد؟</b><br>
-              1️⃣ أنشئ الكود هنا بأي اسم (مثال: RAMADAN25) وحدّد قيمته: <b>نسبة %</b> تُخصم من المجموع قبل الضريبة، <b>أو مبلغاً ثابتاً بالريال</b> — لا تحتاج تعبئة الاثنين.<br>
-              2️⃣ حدّد نطاقه في خانة «الخدمات المشمولة»: اكتب أكواد الخدمات أو الباقات مفصولة بفواصل (تجدها في محرر «الخدمات» — مثل BP-SBC-01، ولباقات التأسيس silver / gold / platinum)، أو اتركها <b>فارغة ليشمل الخصم كل الخدمات</b>.<br>
-              3️⃣ اضغط «حفظ ونشر» — خلال دقيقتين يصير الكود شغالاً: العميل يكتبه في خانة «عندك كود خصم؟» في السلة أو صفحة الدفع، فينخصم المبلغ من الفاتورة تلقائياً قبل الضريبة، والخادم يتحقق من الكود بنفسه فلا يمكن التلاعب به.<br>
-              4️⃣ اترك تاريخ الانتهاء فارغاً لكود دائم، وأطفئ «مفعّل» لإيقاف الكود مؤقتاً دون حذفه — الخصم يظهر باسمه في الفاتورة الضريبية وفي سجل الطلب.
-            </div>
-          </div>
-        </div>
         <div class="panel" id="editorPanel" style="display:none">
           <div class="editor-head">
             <span class="file-lbl" id="edLabel">—</span>
@@ -489,6 +470,26 @@
         <div class="pagehead">
           <h2>🧰 الأدوات واللوحات</h2>
           <div class="sub">كل اللوحات الداخلية وأدوات التشغيل في مكان واحد.</div>
+        </div>
+
+        <div class="panel" id="discPanel" style="margin-bottom:22px">
+          <div class="editor-head">
+            <span class="file-lbl">🎟️ أكواد الخصم</span>
+            <span class="stamp" id="discStamp"></span>
+            <button class="refresh" id="discReload">↻ استرجاع</button>
+            <button class="btn" id="discSave">💾 حفظ ونشر</button>
+          </div>
+          <div class="edmsg" id="discMsg"></div>
+          <div id="discRows" style="padding:12px 16px;display:grid;gap:10px"></div>
+          <div style="padding:0 16px 16px"><button class="refresh" id="discAdd">＋ أضف كود خصم</button>
+            <div style="font-size:12.5px;color:#475569;margin-top:10px;line-height:2;background:#f1f5f9;border-radius:10px;padding:12px 14px">
+              <b>كيف تعمل الأكواد؟</b><br>
+              1️⃣ أنشئ الكود هنا بأي اسم (مثال: RAMADAN25) وحدّد قيمته: <b>نسبة %</b> تُخصم من المجموع قبل الضريبة، <b>أو مبلغاً ثابتاً بالريال</b> — لا تحتاج تعبئة الاثنين.<br>
+              2️⃣ حدّد نطاقه في خانة «الخدمات المشمولة»: اكتب أكواد الخدمات أو الباقات مفصولة بفواصل (تجدها في محرر «الخدمات» — مثل BP-SBC-01، ولباقات التأسيس silver / gold / platinum)، أو اتركها <b>فارغة ليشمل الخصم كل الخدمات</b>.<br>
+              3️⃣ اضغط «حفظ ونشر» — خلال دقيقتين يصير الكود شغالاً: العميل يكتبه في خانة «عندك كود خصم؟» في السلة أو صفحة الدفع، فينخصم المبلغ من الفاتورة تلقائياً قبل الضريبة، والخادم يتحقق من الكود بنفسه فلا يمكن التلاعب به.<br>
+              4️⃣ اترك تاريخ الانتهاء فارغاً لكود دائم، وأطفئ «مفعّل» لإيقاف الكود مؤقتاً دون حذفه — الخصم يظهر باسمه في الفاتورة الضريبية وفي سجل الطلب.
+            </div>
+          </div>
         </div>
 
         <div class="panel" style="margin-bottom:22px;padding:18px">
@@ -1061,9 +1062,11 @@
     }
 
     // ---- navigation ----
-    var supLoaded = false;
+    var supLoaded = false, discLoaded = false;
     function switchView(v){
       if (v === 'suppliers' && !supLoaded){ supLoaded = true; loadSuppliers(); }
+      // The discounts manager lives in the tools view — load it on first visit.
+      if (v === 'tools' && !discLoaded){ discLoaded = true; loadDiscounts(); }
       var views = document.querySelectorAll('.view');
       for (var i = 0; i < views.length; i++) views[i].classList.toggle('on', views[i].id === 'view-' + v);
       var btns = document.querySelectorAll('.nav button, .mobilebar .tabs button');
@@ -2744,17 +2747,23 @@
     // all see the same list.
     var discSite = null, discBusy = false;
     function discNote(cls, text){ var m = $('discMsg'); m.className = 'edmsg' + (text ? ' ' + cls : ''); m.textContent = text || ''; }
+    // Every cell carries its own label above the input — the owner asked for
+    // named fields, and placeholders vanish the moment a value is typed.
+    function discCell(label, inner, span){
+      return '<div' + (span ? ' style="grid-column:1/-1"' : '') + '><label style="display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px">' + label + '</label>' + inner + '</div>';
+    }
     function discRowHtml(d, i){
       d = d || {};
-      return '<div class="disc-row" data-i="' + i + '" style="display:grid;grid-template-columns:1.2fr .7fr .7fr 1.2fr .9fr auto auto;gap:8px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px">' +
-        '<input data-k="code" value="' + String(d.code || '').replace(/"/g, '&quot;') + '" placeholder="الكود (مثال: RAMADAN25)" style="font-weight:700;letter-spacing:1px;text-transform:uppercase" dir="ltr" />' +
-        '<input data-k="percent" type="number" min="0" max="90" value="' + (d.percent || '') + '" placeholder="نسبة %" dir="ltr" />' +
-        '<input data-k="amount" type="number" min="0" value="' + (d.amount || '') + '" placeholder="مبلغ ﷼" dir="ltr" />' +
-        '<input data-k="note" value="' + String(d.note || '').replace(/"/g, '&quot;') + '" placeholder="وصف يظهر للعميل" />' +
-        '<input data-k="expires" type="date" value="' + String(d.expires || '') + '" title="تاريخ الانتهاء (اختياري)" />' +
-        '<label style="display:flex;gap:4px;align-items:center;font-size:12px;white-space:nowrap"><input data-k="active" type="checkbox"' + (d.active === false ? '' : ' checked') + ' /> مفعّل</label>' +
-        '<button class="refresh" data-del="' + i + '" title="حذف">🗑️</button>' +
-        '<input data-k="services" value="' + String(Array.isArray(d.services) ? d.services.join(', ') : (d.services || '')).replace(/"/g, '&quot;') + '" placeholder="الخدمات المشمولة: أكواد مفصولة بفواصل (مثال: BP-SBC-01, silver) — اتركه فارغاً ليشمل كل الخدمات" dir="ltr" style="grid-column:1/-1;font-size:12px" /></div>';
+      return '<div class="disc-row" data-i="' + i + '" style="display:grid;grid-template-columns:1.2fr .7fr .7fr 1.2fr .9fr auto auto;gap:8px;align-items:end;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px">' +
+        discCell('🏷️ اسم الكود', '<input data-k="code" value="' + String(d.code || '').replace(/"/g, '&quot;') + '" placeholder="مثال: RAMADAN25" style="width:100%;font-weight:700;letter-spacing:1px;text-transform:uppercase" dir="ltr" />') +
+        discCell('نسبة الخصم %', '<input data-k="percent" type="number" min="0" max="90" value="' + (d.percent || '') + '" placeholder="10" style="width:100%" dir="ltr" />') +
+        discCell('أو مبلغ ثابت ﷼', '<input data-k="amount" type="number" min="0" value="' + (d.amount || '') + '" placeholder="50" style="width:100%" dir="ltr" />') +
+        discCell('الوصف (يظهر للعميل)', '<input data-k="note" value="' + String(d.note || '').replace(/"/g, '&quot;') + '" placeholder="مثال: خصم ترحيبي 10%" style="width:100%" />') +
+        discCell('تاريخ الانتهاء (اختياري)', '<input data-k="expires" type="date" value="' + String(d.expires || '') + '" style="width:100%" />') +
+        discCell('الحالة', '<label style="display:flex;gap:4px;align-items:center;font-size:12px;white-space:nowrap;padding:8px 0 6px"><input data-k="active" type="checkbox"' + (d.active === false ? '' : ' checked') + ' /> مفعّل</label>') +
+        discCell('حذف', '<button class="refresh" data-del="' + i + '" title="حذف الكود">🗑️</button>') +
+        discCell('🎯 الخدمات المشمولة — اكتب أكواد الخدمات أو الباقات مفصولة بفواصل، أو اتركها فارغة ليشمل الخصم كل الخدمات', '<input data-k="services" value="' + String(Array.isArray(d.services) ? d.services.join(', ') : (d.services || '')).replace(/"/g, '&quot;') + '" placeholder="مثال: BP-SBC-01, silver — فارغ = كل الخدمات" dir="ltr" style="width:100%;font-size:12px" />', true) +
+        '</div>';
     }
     function discRender(list){
       var box = $('discRows');
@@ -2781,9 +2790,6 @@
       return out;
     }
     function loadDiscounts(){
-      switchView('content');
-      $('discPanel').style.display = 'block';
-      $('editorPanel').style.display = 'none';
       discNote('info', '⏳ جاري التحميل…');
       $('discStamp').textContent = '';
       fetch(API_URL + '?action=panel-content&file=site' + authQS(), { cache:'no-store' })
@@ -2794,7 +2800,6 @@
             $('discStamp').textContent = out.path + ' ← ' + out.branch;
             discRender((discSite.commerce && discSite.commerce.discounts) || []);
             discNote('', '');
-            $('discPanel').scrollIntoView({ behavior:'smooth', block:'start' });
           } else if (out && out.error === 'content_not_configured'){
             discNote('err', 'إدارة الأكواد تحتاج GITHUB_TOKEN في إعدادات Vercel (نفس متطلب تحرير المحتوى).');
           } else {
@@ -2908,10 +2913,12 @@
 
     function renderContentCards(){
       var box = $('contentFiles'); box.innerHTML = '';
+      // A pointer card only — the discounts manager itself lives in the tools
+      // view, where the owner asked for it.
       var dc = document.createElement('a');
       dc.className = 'tool'; dc.href = 'javascript:void(0)';
-      dc.innerHTML = '<span class="ico">🎟️</span><h4>أكواد الخصم</h4><p>أنشئ أي كود بأي اسم — نسبة أو مبلغ ثابت، لكل الخدمات أو لخدمات محددة، بتاريخ انتهاء أو دائم — ويشتغل فوراً في السلة وصفحة الدفع.</p><span class="go">إدارة ←</span>';
-      dc.onclick = loadDiscounts;
+      dc.innerHTML = '<span class="ico">🎟️</span><h4>أكواد الخصم</h4><p>انتقلت إدارة أكواد الخصم إلى تبويب «الأدوات واللوحات».</p><span class="go">افتحها من الأدوات ←</span>';
+      dc.onclick = function(){ switchView('tools'); $('discPanel').scrollIntoView({ behavior:'smooth', block:'start' }); };
       box.appendChild(dc);
       for (var i = 0; i < CONTENT_DEFS.length; i++){
         (function(def){
@@ -2926,7 +2933,6 @@
     function loadContent(def){
       curDef = def; edLoading = true;
       switchView('content');
-      $('discPanel').style.display = 'none';
       $('editorPanel').style.display = 'block';
       $('edLabel').textContent = def.icon + ' ' + def.name;
       $('edStamp').textContent = '';
