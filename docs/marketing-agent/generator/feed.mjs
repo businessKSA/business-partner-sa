@@ -11,7 +11,7 @@
 // Notion rows.
 import fs from "node:fs";
 import path from "node:path";
-import { buildCopy, hashtags, priceLine, priceShort, landingUrl, trackedUrl } from "./copy.mjs";
+import { buildCopy, hashtags, priceLine, priceShort, landingUrl, trackedUrl, waLink } from "./copy.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "../../..");
 const services = JSON.parse(fs.readFileSync(path.join(ROOT, "site/data/services.json"), "utf8"));
@@ -90,6 +90,20 @@ for (const service of services) {
     priceTag: priceShort(service),
     landingUrl: landingUrl(service),
     whatsappLink: c.whatsappLink,
+    // The WhatsApp deep link has to name the channel the reader came from, the
+    // same way the tracked links do. One shared link tagged "email" would file
+    // every chat — from LinkedIn, from a story, from anywhere — under email.
+    whatsappLinks: {
+      linkedin: waLink(service, "linkedin"),
+      instagram: waLink(service, "instagram"),
+      whatsapp: waLink(service, "whatsapp"),
+      telegram: waLink(service, "telegram"),
+      facebook: waLink(service, "facebook"),
+      snapchat: waLink(service, "snapchat"),
+      tiktok: waLink(service, "tiktok"),
+      x: waLink(service, "x"),
+      email: waLink(service, "email"),
+    },
     hashtags: hashtags(service).join(" "),
     designBrief: c.designBrief,
     pack: `docs/marketing-agent/content-packs/${c.slug}/`,

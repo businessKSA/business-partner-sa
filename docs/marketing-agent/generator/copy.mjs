@@ -67,7 +67,7 @@ export function landingUrl(service) {
 
 // The service code travels inside the WhatsApp first message so a chat lead can
 // be attributed to the exact service and channel that produced it.
-function waLink(service, channel = "direct") {
+export function waLink(service, channel = "direct") {
   const msg = `مرحباً، أرغب بالاستفسار عن: ${serviceTitle(service)}\n[${service.code}/${channel}]`;
   return `${BRAND.whatsapp}?text=${encodeURIComponent(msg)}`;
 }
