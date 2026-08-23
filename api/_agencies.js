@@ -29,7 +29,7 @@
 // function — the plan caps at 12 and this repo is at the cap.
 
 import { randomBytes, timingSafeEqual, createHmac, randomInt } from "crypto";
-import { verifyGoogleIdToken } from "./_suppliers.js";
+import { verifyGoogleIdToken, uploadToNotion } from "./_suppliers.js";
 import { nafathPing } from "./_nafath.js";
 // The agency portal runs candidates through the SAME pipeline as the site's own
 // intake — n8n reads the attached CV, files it on Drive, writes an ATS-friendly
@@ -389,6 +389,14 @@ export async function handleAgencies(req, res) {
     if (Number.isFinite(capacity) && capacity > 0) props["الطاقة الشهرية"] = { number: Math.round(capacity) };
     const years = Number(b.years);
     if (Number.isFinite(years) && years >= 0) props["سنوات الخبرة"] = { number: Math.round(years) };
+
+    // The company profile is filed onto the registry row itself, so the owner
+    // reviews the licence and the profile in one place.
+    const pf = b.profileFile && typeof b.profileFile === "object" ? b.profileFile : null;
+    if (pf && typeof pf.base64 === "string" && pf.base64 && Number(pf.size) <= 8 * 1024 * 1024) {
+      const uploadId = await uploadToNotion(pf.base64, clip(pf.name, 200) || "company-profile.pdf", clip(pf.type, 120));
+      if (uploadId) props["المستندات"] = { files: [{ type: "file_upload", file_upload: { id: uploadId }, name: clip(pf.name, 100) || "company-profile" }] };
+    }
 
     let r;
     if (dupe) {

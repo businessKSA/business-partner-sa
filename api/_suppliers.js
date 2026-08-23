@@ -234,7 +234,7 @@ async function sendEmail(to, subject, html, attachments) {
   } catch (e) { console.error("email exception", String(e).slice(0, 150)); return { ok: false }; }
 }
 
-async function uploadToNotion(base64, filename, contentType) {
+export async function uploadToNotion(base64, filename, contentType) {
   if (!NOTION_TOKEN || !base64) return null;
   try {
     const created = await notion("file_uploads", "POST", {});
