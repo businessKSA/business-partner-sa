@@ -3914,7 +3914,15 @@ var BP = window.BP = window.BP || {};
                       BP.t(" has been issued and reaches you by email shortly.", " صدرت وتصلك على بريدك خلال دقائق.")
                     : BP.t("Your tax invoice reaches you by email shortly.", "فاتورتك الضريبية تصلك على بريدك خلال دقائق."))) +
               actLine
-            : BP.t("Payment not completed — you can retry or use bank transfer.", "لم تكتمل الدفعة — يمكنك المحاولة مجدداً أو استخدام التحويل البنكي.");
+            // Two very different outcomes were sharing one sentence. A declined
+            // card should be retried; a charge we merely could not read back
+            // must NOT be, or the buyer pays twice for one order.
+            : (v && v.error === "verify_unavailable")
+              ? "🕐 <strong>" + BP.t("Your payment went through", "دفعتك تمّت") + "</strong><br>" +
+                BP.t("We could not confirm it automatically just now, and our team has already been alerted. Do not pay again — your invoice follows shortly.",
+                     "لم نتمكّن من تأكيدها آلياً في هذه اللحظة، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.") +
+                (v.paymentId ? "<br><span style=\"font-size:11px;opacity:.7;direction:ltr;display:inline-block\">" + String(v.paymentId) + "</span>" : "")
+              : BP.t("Payment not completed — you can retry or use bank transfer.", "لم تكتمل الدفعة — يمكنك المحاولة مجدداً أو استخدام التحويل البنكي.");
           el.scrollIntoView({ behavior: "smooth", block: "center" });
         }
         if (ok && BP.cart) BP.cart.write([]);

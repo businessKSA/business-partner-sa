@@ -28,8 +28,15 @@ import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftra
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { contactForRef } from "./_stage.js";
 
-const PK = process.env.MOYASAR_PUBLISHABLE_KEY || "";
-const SK = process.env.MOYASAR_SECRET_KEY || "";
+// Trimmed, like every other secret this project reads. A newline pasted into
+// the Vercel env box is invisible in that UI and turns the verification call
+// into "Invalid authorization credentials" — while the payment itself has
+// already succeeded, because the publishable key travelled to the browser and
+// worked. The buyer is charged and the site tells them it failed. This cost a
+// live customer, and api/_moyasar.js trimmed while this file did not, so the
+// admin panel reported the key as working at the same moment payments broke.
+const PK = (process.env.MOYASAR_PUBLISHABLE_KEY || "").trim();
+const SK = (process.env.MOYASAR_SECRET_KEY || "").trim();
 // Moyasar posts every payment event here and includes this token in the body.
 // Without it the endpoint refuses webhooks outright rather than trusting an
 // unauthenticated POST that claims a payment succeeded.
@@ -744,9 +751,32 @@ export default async function handler(req, res) {
       headers: { Authorization: "Basic " + Buffer.from(SK + ":").toString("base64") },
     });
     if (!r.ok) {
-      console.error("Moyasar verify error", r.status, (await r.text()).slice(0, 300));
+      const detail = (await r.text()).slice(0, 300);
+      console.error("Moyasar verify error", r.status, detail);
+      // This is the one failure that takes the customer's money and tells
+      // nobody: the charge went through at Moyasar, and our side could not
+      // read it back. Silence here means the owner learns about it from the
+      // customer, which is how this was found.
+      try {
+        await sendMail(OWNER_EMAIL, `🚨 دفعة لم نستطع التحقق منها — ${id}`,
+          `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+            <h2 style="color:#b91c1c">دفعة تمّت عند مُيسّر ولم نتمكّن من قراءتها</h2>
+            <p>العميل دُفع منه فعلاً، لكن مُيسّر رفض طلب التحقق من خادمنا. لم تصدر فاتورة ولم يُسجَّل الطلب.</p>
+            <table>
+              <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(id)}</b></td></tr>
+              <tr><td style="padding:4px 10px;color:#666">ردّ مُيسّر</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">HTTP ${r.status}</b></td></tr>
+            </table>
+            <p><b>الأرجح:</b> ${r.status === 401
+              ? "مفتاح <span style=\"direction:ltr;display:inline-block\">MOYASAR_SECRET_KEY</span> غير صحيح أو فيه مسافة/سطر زائد. افتح /admin ← «افحص الاتصال بمُيسّر»."
+              : "عطل مؤقت عند مُيسّر."}</p>
+            <p style="color:#b45309"><b>افعل الآن:</b> افتح لوحة مُيسّر، تأكّد من الدفعة بالرقم أعلاه، وأصدر الفاتورة يدوياً — العميل دفع.</p>
+          </div>`);
+      } catch (e) { console.error("pay: verify-failure alert email failed", String(e.message || e).slice(0, 120)); }
       res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: "verify_failed" }));
+      // Named apart from a declined card on purpose. The page must not tell a
+      // buyer whose card was charged that the payment did not go through —
+      // that invites a second charge for the same order.
+      return res.end(JSON.stringify({ ok: false, error: "verify_unavailable", paymentId: id }));
     }
     const p = await r.json();
     const paid = p.status === "paid";
