@@ -26,7 +26,7 @@ export function serviceTitleEn(service) {
 
 export function checklist(service) {
   const own = (service.deliverables ?? []).map(clean).filter(Boolean).map(toArabicDeliverable);
-  return own.length ? own.slice(0, 5) : playbookFor(service).steps;
+  return own.length ? own.slice(0, 5) : playbookFor(service, serviceTitle(service)).steps;
 }
 
 // U+FDFC (﷼) is missing from the Noto Arabic faces used for rendering and comes out
@@ -91,8 +91,10 @@ export function hashtags(service) {
 }
 
 export function buildCopy(service) {
-  const pb = playbookFor(service);
   const title = serviceTitle(service);
+  // The title is what states the intent, so the playbook is picked from it — not
+  // from the category alone.
+  const pb = playbookFor(service, title);
   const steps = checklist(service);
   const price = priceLine(service);
   const priceTag = priceShort(service);

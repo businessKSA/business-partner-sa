@@ -104,5 +104,62 @@ export const DEFAULT_PLAYBOOK = {
   audience: "المنشآت في السعودية",
 };
 
-export const playbookFor = (service) =>
-  PLAYBOOKS[service.categoryAr] ?? PLAYBOOKS[service.category] ?? DEFAULT_PLAYBOOK;
+// Some services are the inverse of their own category. "شطب سجل تجاري" sits under
+// تأسيس الشركات, so the category angle sold closing a registration with the headline
+// "أسّس كيانك وأنت في مكانك" — an ad for shutting a company down that promises to
+// open one. The intent stated in the service name outranks the category it is filed
+// under, so it overrides the angle (pain / outcome / proof) while the category keeps
+// the parts that are still true: the engagement steps and the audience.
+//
+// Order matters: "تجديد سجل تجاري" must not be read as an amendment, and only
+// sponsorship transfer counts as a transfer — "نقل العمالة من السكن إلى مواقع العمل"
+// is transport, not a change of sponsor.
+export const INTENTS = [
+  {
+    id: "closure",
+    match: /شطب|تصفية|إلغاء السجل|إغلاق/,
+    pain: "الشطب غير المكتمل لا يُنهي شيئاً: الاشتراكات تتجدّد، والغرامات تتراكم على كيان توقّف فعلاً عن العمل.",
+    outcome: "أغلق الكيان نظاميّاً وبذمّة بريئة",
+    proof: "نتابع حتى صدور الشهادة وإبراء الذمّة.",
+  },
+  {
+    id: "renewal",
+    match: /تجديد/,
+    pain: "التجديد المتأخر يوماً واحداً يتحوّل إلى غرامة، وأحياناً إلى إيقاف خدمات.",
+    outcome: "جدّد قبل الغرامة لا بعدها",
+    proof: "ننبّهك قبل انتهاء المدة وننجز التجديد عنك.",
+  },
+  {
+    id: "sponsorship-transfer",
+    match: /نقل كفالة|نقل خدمة/,
+    pain: "نقل الخدمة يتعطّل عند شرط لم ينتبه له أحد: النطاقات، أو موافقة ناقصة، أو مستند غير مطابق.",
+    outcome: "نقل الخدمة يكتمل دون تعطيل العامل",
+    proof: "نتحقق من الاشتراطات قبل بدء الطلب.",
+  },
+  {
+    id: "amendment",
+    match: /تعديل|تحديث|تغيير/,
+    pain: "بيانات غير محدّثة في سجل أو منصة تُوقف معاملة في أسوأ وقت ممكن.",
+    outcome: "عدّل بياناتك دون توقف في العمليات",
+    proof: "نراجع الأثر النظامي للتعديل قبل رفعه.",
+  },
+  {
+    id: "enrolment",
+    match: /إضافة|اضافة/,
+    pain: "التأخر في إضافة موظف أو مفوّض يعطّل معاملات لا علاقة لها بالموضوع.",
+    outcome: "الإضافة تُعتمد من أول محاولة",
+    proof: "نتحقق من المتطلبات قبل الرفع، فلا يُرفض الطلب.",
+  },
+];
+
+export function intentFor(title) {
+  return INTENTS.find((i) => i.match.test(title)) ?? null;
+}
+
+export function playbookFor(service, title = "") {
+  const base = PLAYBOOKS[service.categoryAr] ?? PLAYBOOKS[service.category] ?? DEFAULT_PLAYBOOK;
+  const intent = intentFor(title || service.nameAr || service.name || "");
+  return intent
+    ? { ...base, pain: intent.pain, outcome: intent.outcome, proof: intent.proof, intent: intent.id }
+    : base;
+}
