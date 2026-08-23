@@ -663,17 +663,56 @@ export default async function handler(req, res) {
     // The body says it was paid; Moyasar's API is asked whether it was. A
     // webhook body is still input, and money is the last thing to take on
     // trust from a request.
-    let p = null;
+    let p = null, verifyFailed = "";
     try {
       const r = await fetch(`https://api.moyasar.com/v1/payments/${pid}`, {
         headers: { Authorization: "Basic " + Buffer.from(SK + ":").toString("base64") },
       });
-      p = r.ok ? await r.json() : null;
-    } catch { p = null; }
-    if (!p || p.status !== "paid") {
+      if (r.ok) p = await r.json();
+      else verifyFailed = `http_${r.status}`;
+    } catch (e) { verifyFailed = "unreachable"; }
+
+    // "Moyasar says this was not paid" and "we could not ask Moyasar" were
+    // sharing one branch, and both answered 200. A 200 tells Moyasar the event
+    // was handled and it stops retrying — so a broken key did not merely make
+    // the safety net fail, it destroyed the redelivery that would have caught
+    // the payment once the key was fixed. This is the second half of the
+    // outage that reached a live customer: the browser said the payment
+    // failed, and the webhook that should have saved it threw it away.
+    if (verifyFailed) {
+      console.error("pay webhook: could not verify a paid event", pid, verifyFailed);
+      // One alert per payment per instance — Moyasar's retries must not turn
+      // into a mailbox full of the same warning.
+      const seen = (globalThis.__bpWebhookAlerted ||= new Set());
+      if (!seen.has(pid)) {
+        seen.add(pid);
+        try {
+          await sendMail(OWNER_EMAIL, `🚨 إشعار دفعة من مُيسّر تعذّر التحقق منه — ${pid}`,
+            `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+              <h2 style="color:#b91c1c">وصل إشعار دفعة ولم نتمكّن من تأكيده</h2>
+              <p>مُيسّر أبلغنا بدفعة، وحين سألناه عنها رفض الطلب. لم نسجّل الطلب ولم نصدر فاتورة.</p>
+              <table>
+                <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(pid)}</b></td></tr>
+                <tr><td style="padding:4px 10px;color:#666">سبب الفشل</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(verifyFailed)}</b></td></tr>
+              </table>
+              <p><b>الأرجح:</b> ${verifyFailed === "http_401"
+                ? "مفتاح <span style=\"direction:ltr;display:inline-block\">MOYASAR_SECRET_KEY</span> غير صحيح أو فيه فراغ زائد."
+                : "تعذّر الوصول إلى مُيسّر مؤقتاً."}</p>
+              <p style="color:#166534">طلبنا من مُيسّر إعادة إرسال الإشعار، فمتى صحّ المفتاح سيُلتقط تلقائياً.</p>
+            </div>`);
+        } catch (e) { console.error("pay webhook: alert email failed", String(e.message || e).slice(0, 120)); }
+      }
+      // Refuse the delivery on purpose: Moyasar retries a failed webhook, and
+      // a retry after the key is fixed is the difference between a payment
+      // that recovers itself and one lost for good.
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ ok: false, error: "verify_unavailable", retry: true }));
+    }
+
+    if (p.status !== "paid") {
       // Acknowledge: a 200 stops Moyasar retrying an event we correctly ignored.
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, ignored: true, status: p ? p.status : "unverified" }));
+      return res.end(JSON.stringify({ ok: true, ignored: true, status: p.status }));
     }
 
     const meta = p.metadata || d.metadata || {};
