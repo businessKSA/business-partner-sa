@@ -251,10 +251,28 @@ var BP = window.BP = window.BP || {};
       return d;
     } catch (e) { return null; }
   }
+  // A code scoped to specific services (d.services non-empty) discounts only
+  // the matching cart lines; an unscoped code discounts the whole subtotal.
+  function discKey(s) {
+    s = String(s || "").toLowerCase();
+    return s.indexOf("svc-") === 0 || s.indexOf("pkg-") === 0 ? s.slice(4) : s;
+  }
+  function bpEligibleSub(d) {
+    if (!d || !d.services || !d.services.length) return null;
+    var set = {};
+    for (var i = 0; i < d.services.length; i++) set[discKey(d.services[i])] = 1;
+    return read().reduce(function (s, it) {
+      return s + (it.amount && set[discKey(it.id)] ? it.amount * (it.qty || 1) : 0);
+    }, 0);
+  }
   function bpDiscountCut(sub) {
     var d = bpDiscount();
     if (!d || !(sub > 0)) return 0;
-    var cut = d.percent ? (sub * d.percent) / 100 : Math.min(sub, Number(d.amount) || 0);
+    var base = bpEligibleSub(d);
+    if (base === null) base = sub;
+    if (base > sub) base = sub;
+    if (!(base > 0)) return 0;
+    var cut = d.percent ? (base * d.percent) / 100 : Math.min(base, Number(d.amount) || 0);
     return Math.round(cut * 100) / 100;
   }
   BP.discount = bpDiscount;
@@ -266,7 +284,11 @@ var BP = window.BP = window.BP || {};
     if (cur) {
       inp.value = cur.code; inp.disabled = true;
       btn.textContent = BP.t("Remove", "إزالة");
-      if (msg) { msg.style.display = ""; msg.style.color = "#047857"; msg.textContent = BP.t("Code applied ✓", "الكود مفعّل ✓") + (cur.note ? " — " + cur.note : ""); }
+      if (msg) {
+        msg.style.display = ""; msg.style.color = "#047857";
+        var scopeNote = (cur.services && cur.services.length) ? " (" + BP.t("applies to specific services only", "يسري على خدمات محددة فقط") + ")" : "";
+        msg.textContent = BP.t("Code applied ✓", "الكود مفعّل ✓") + (cur.note ? " — " + cur.note : "") + scopeNote;
+      }
       btn.onclick = function () { try { sessionStorage.removeItem("bp_discount"); } catch (e) {} location.reload(); };
       return;
     }
@@ -279,6 +301,12 @@ var BP = window.BP = window.BP || {};
         var expired = hit && hit.expires && new Date(hit.expires + "T23:59:59") < new Date();
         if (!hit || expired) {
           if (msg) { msg.style.display = ""; msg.style.color = "#b91c1c"; msg.textContent = expired ? BP.t("This code has expired.", "هذا الكود منتهي الصلاحية.") : BP.t("Invalid code.", "الكود غير صحيح."); }
+          return;
+        }
+        // A scoped code that matches nothing in this cart is refused up front,
+        // instead of applying and silently discounting nothing.
+        if (hit.services && hit.services.length && !(bpEligibleSub(hit) > 0)) {
+          if (msg) { msg.style.display = ""; msg.style.color = "#b91c1c"; msg.textContent = BP.t("This code applies to specific services that are not in your cart.", "هذا الكود خاص بخدمات محددة غير موجودة في سلتك."); }
           return;
         }
         try { sessionStorage.setItem("bp_discount", JSON.stringify(hit)); } catch (e) {}

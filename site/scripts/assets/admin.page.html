@@ -300,6 +300,7 @@
         <button data-v="content">📝 محتوى الموقع</button>
         <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات واللوحات</button>
+        <button data-v="ai">🤖 المساعد الذكي</button>
       </nav>
       <div class="grow"></div>
       <div class="foot">
@@ -321,6 +322,7 @@
         <button data-v="content">📝 المحتوى</button>
         <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات</button>
+        <button data-v="ai">🤖 المساعد</button>
       </div>
     </div>
 
@@ -430,7 +432,13 @@
           <div class="edmsg" id="discMsg"></div>
           <div id="discRows" style="padding:12px 16px;display:grid;gap:10px"></div>
           <div style="padding:0 16px 16px"><button class="refresh" id="discAdd">＋ أضف كود خصم</button>
-            <div style="font-size:12px;color:#64748b;margin-top:8px;line-height:1.9">الكود يظهر للعميل في السلة وصفحة الدفع فوراً بعد النشر. النسبة تُخصم قبل الضريبة، أو حدّد مبلغاً ثابتاً بالريال. اترك تاريخ الانتهاء فارغاً لكود دائم، وأطفئ «مفعّل» لإيقافه دون حذفه.</div>
+            <div style="font-size:12.5px;color:#475569;margin-top:10px;line-height:2;background:#f1f5f9;border-radius:10px;padding:12px 14px">
+              <b>كيف تعمل الأكواد؟</b><br>
+              1️⃣ أنشئ الكود هنا بأي اسم (مثال: RAMADAN25) وحدّد قيمته: <b>نسبة %</b> تُخصم من المجموع قبل الضريبة، <b>أو مبلغاً ثابتاً بالريال</b> — لا تحتاج تعبئة الاثنين.<br>
+              2️⃣ حدّد نطاقه في خانة «الخدمات المشمولة»: اكتب أكواد الخدمات أو الباقات مفصولة بفواصل (تجدها في محرر «الخدمات» — مثل BP-SBC-01، ولباقات التأسيس silver / gold / platinum)، أو اتركها <b>فارغة ليشمل الخصم كل الخدمات</b>.<br>
+              3️⃣ اضغط «حفظ ونشر» — خلال دقيقتين يصير الكود شغالاً: العميل يكتبه في خانة «عندك كود خصم؟» في السلة أو صفحة الدفع، فينخصم المبلغ من الفاتورة تلقائياً قبل الضريبة، والخادم يتحقق من الكود بنفسه فلا يمكن التلاعب به.<br>
+              4️⃣ اترك تاريخ الانتهاء فارغاً لكود دائم، وأطفئ «مفعّل» لإيقاف الكود مؤقتاً دون حذفه — الخصم يظهر باسمه في الفاتورة الضريبية وفي سجل الطلب.
+            </div>
           </div>
         </div>
         <div class="panel" id="editorPanel" style="display:none">
@@ -448,6 +456,22 @@
           <div class="edmsg" id="edMsg"></div>
           <div class="edform" id="edForm"></div>
           <textarea class="jsonbox" id="edBox" spellcheck="false" dir="ltr" style="display:none"></textarea>
+        </div>
+      </section>
+
+      <!-- ============ ai assistant ============ -->
+      <section class="view" id="view-ai">
+        <div class="pagehead">
+          <h2>🤖 المساعد الذكي</h2>
+          <div class="sub">مساعدك الخاص داخل اللوحة — يكتب ويحسّن نصوص الموقع والرسائل التسويقية، يشرح لك أدوات اللوحة وآلية أكواد الخصم، ويقترح حملات وعروضاً.</div>
+        </div>
+        <div class="panel" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 240px);min-height:420px">
+          <div id="aiLog" style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px"></div>
+          <div id="aiHints" style="padding:0 18px 10px;display:flex;gap:8px;flex-wrap:wrap"></div>
+          <form id="aiForm" style="display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line);align-items:flex-end">
+            <textarea id="aiInput" rows="2" placeholder="اكتب طلبك… مثال: اكتب لي وصفاً تسويقياً لخدمة تعديل السجل التجاري" style="flex:1;resize:none;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13.5px;line-height:1.7"></textarea>
+            <button class="actbtn" id="aiSend" type="submit" style="white-space:nowrap">إرسال ↵</button>
+          </form>
         </div>
       </section>
 
@@ -2729,7 +2753,8 @@
         '<input data-k="note" value="' + String(d.note || '').replace(/"/g, '&quot;') + '" placeholder="وصف يظهر للعميل" />' +
         '<input data-k="expires" type="date" value="' + String(d.expires || '') + '" title="تاريخ الانتهاء (اختياري)" />' +
         '<label style="display:flex;gap:4px;align-items:center;font-size:12px;white-space:nowrap"><input data-k="active" type="checkbox"' + (d.active === false ? '' : ' checked') + ' /> مفعّل</label>' +
-        '<button class="refresh" data-del="' + i + '" title="حذف">🗑️</button></div>';
+        '<button class="refresh" data-del="' + i + '" title="حذف">🗑️</button>' +
+        '<input data-k="services" value="' + String(Array.isArray(d.services) ? d.services.join(', ') : (d.services || '')).replace(/"/g, '&quot;') + '" placeholder="الخدمات المشمولة: أكواد مفصولة بفواصل (مثال: BP-SBC-01, silver) — اتركه فارغاً ليشمل كل الخدمات" dir="ltr" style="grid-column:1/-1;font-size:12px" /></div>';
     }
     function discRender(list){
       var box = $('discRows');
@@ -2749,7 +2774,8 @@
           amount: Number(g('amount')) > 0 ? Number(g('amount')) : 0,
           note: String(g('note') || '').trim(),
           expires: String(g('expires') || ''),
-          active: !!g('active')
+          active: !!g('active'),
+          services: String(g('services') || '').split(/[,،\s]+/).map(function(s){ return s.trim(); }).filter(Boolean)
         });
       }
       return out;
@@ -2799,11 +2825,92 @@
         });
     };
 
+    // ===== admin AI assistant =====
+    // Same /api/chat endpoint the public advisor uses, in mode:"admin" — the
+    // key/ticket this panel already holds unlocks the owner persona, so no
+    // extra serverless function is spent (Hobby caps at 12).
+    var aiMsgs = [], aiBusy = false;
+    var AI_HINTS = [
+      'اكتب لي وصفاً تسويقياً لخدمة من خدماتنا',
+      'كيف أنشئ كود خصم لخدمة محددة؟',
+      'اقترح لي عرضاً موسمياً مع كود خصم',
+      'صغ رسالة بريد ترحيبية لعميل جديد'
+    ];
+    function aiBubble(m){
+      var user = m.role === 'user';
+      return '<div style="max-width:85%;align-self:' + (user ? 'flex-end' : 'flex-start') + ';background:' + (user ? 'var(--navy)' : '#f1f5f9') + ';color:' + (user ? '#fff' : 'var(--ink)') + ';border-radius:14px;padding:10px 14px;font-size:13.5px;line-height:1.9;white-space:pre-wrap;word-break:break-word">' + esc(m.content) +
+        (user ? '' : '<div style="margin-top:6px"><button type="button" class="ai-copy" style="border:0;background:transparent;color:#64748b;font-size:11.5px;cursor:pointer;padding:0">📋 نسخ النص</button></div>') + '</div>';
+    }
+    function aiRender(typing){
+      var log = $('aiLog');
+      if (!log) return;
+      var greet = { role: 'assistant', content: 'أهلاً! أنا مساعدك داخل اللوحة. أكتب لك المحتوى والرسائل التسويقية، وأشرح لك أدوات اللوحة — اسألني مثلاً عن آلية أكواد الخصم — وأقترح عليك حملات وعروضاً. وش تحتاج؟' };
+      var list = aiMsgs.length ? aiMsgs : [greet];
+      log.innerHTML = list.map(aiBubble).join('') +
+        (typing ? '<div style="align-self:flex-start;background:#f1f5f9;border-radius:14px;padding:10px 16px;color:#94a3b8;font-size:13px">⏳ يكتب…</div>' : '');
+      var copies = log.querySelectorAll('.ai-copy');
+      for (var i = 0; i < copies.length; i++) copies[i].onclick = function(){
+        var txt = this.parentNode.parentNode.textContent.replace(/📋 نسخ النص\s*$/, '').trim();
+        var self = this;
+        (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+          .then(function(){ self.textContent = '✅ نُسخ'; setTimeout(function(){ self.textContent = '📋 نسخ النص'; }, 1500); })
+          .catch(function(){});
+      };
+      log.scrollTop = log.scrollHeight;
+      var hints = $('aiHints');
+      if (hints){
+        if (aiMsgs.length){ hints.innerHTML = ''; }
+        else {
+          hints.innerHTML = AI_HINTS.map(function(h, i){
+            return '<button type="button" class="ai-hint" data-h="' + i + '" style="border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font-size:12px;color:var(--navy);cursor:pointer;font-family:inherit">' + esc(h) + '</button>';
+          }).join('');
+          var hs = hints.querySelectorAll('.ai-hint');
+          for (var j = 0; j < hs.length; j++) hs[j].onclick = function(){ aiSubmit(AI_HINTS[+this.getAttribute('data-h')]); };
+        }
+      }
+    }
+    function aiSubmit(text){
+      text = String(text || '').trim();
+      if (!text || aiBusy) return;
+      aiMsgs.push({ role: 'user', content: text });
+      if (aiMsgs.length > 24) aiMsgs = aiMsgs.slice(-24);
+      aiBusy = true; $('aiSend').disabled = true;
+      aiRender(true);
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mode: 'admin', key: accessKey, ticket: accessTicket, messages: aiMsgs })
+      })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          aiBusy = false; $('aiSend').disabled = false;
+          if (out && out.reply) aiMsgs.push({ role: 'assistant', content: out.reply });
+          else if (out && out.error === 'unauthorized') aiMsgs.push({ role: 'assistant', content: 'انتهت صلاحية الدخول — سجّل خروجاً وادخل من جديد.' });
+          else aiMsgs.push({ role: 'assistant', content: 'صار خلل بسيط — جرّب مرة ثانية.' });
+          aiRender();
+          $('aiInput').focus();
+        })
+        .catch(function(){
+          aiBusy = false; $('aiSend').disabled = false;
+          aiMsgs.push({ role: 'assistant', content: 'تعذّر الاتصال — تأكد من الشبكة وجرّب مرة ثانية.' });
+          aiRender();
+        });
+    }
+    $('aiForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var t = $('aiInput').value; $('aiInput').value = '';
+      aiSubmit(t);
+    });
+    $('aiInput').addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); $('aiForm').dispatchEvent(new Event('submit', { cancelable: true })); }
+    });
+    aiRender();
+
     function renderContentCards(){
       var box = $('contentFiles'); box.innerHTML = '';
       var dc = document.createElement('a');
       dc.className = 'tool'; dc.href = 'javascript:void(0)';
-      dc.innerHTML = '<span class="ico">🎟️</span><h4>أكواد الخصم</h4><p>أنشئ أي كود بأي اسم — نسبة أو مبلغ ثابت، بتاريخ انتهاء أو دائم — ويشتغل فوراً في السلة وصفحة الدفع.</p><span class="go">إدارة ←</span>';
+      dc.innerHTML = '<span class="ico">🎟️</span><h4>أكواد الخصم</h4><p>أنشئ أي كود بأي اسم — نسبة أو مبلغ ثابت، لكل الخدمات أو لخدمات محددة، بتاريخ انتهاء أو دائم — ويشتغل فوراً في السلة وصفحة الدفع.</p><span class="go">إدارة ←</span>';
       dc.onclick = loadDiscounts;
       box.appendChild(dc);
       for (var i = 0; i < CONTENT_DEFS.length; i++){

@@ -6284,13 +6284,7 @@ function buildCart() {
       <aside class="cart-aside">
         <div class="order-box">
           <h3>${L("Summary", "الملخص")}</h3>
-          <div class="disc-box" style="margin:6px 0 10px">
-            <div style="display:flex;gap:6px">
-              <input id="disc-code" placeholder="${L("Discount code", "كود الخصم")}" autocomplete="off" style="flex:1;min-width:0;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit" />
-              <button type="button" class="btn btn-ghost" id="disc-apply" style="white-space:nowrap">${L("Apply", "تطبيق")}</button>
-            </div>
-            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
-          </div>
+          ${discBoxHtml("margin:6px 0 12px")}
           <div class="cart-totals-block">
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="cart-subtotal">—</span></div>
           <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">${L("Discount", "الخصم")} <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>
@@ -6310,7 +6304,41 @@ function buildCart() {
   return page({ title: Lraw("Cart — Business Partner", "السلة — بيزنس بارتنر"), desc: Lraw("Your cart of Business Partner services and packages.", "سلة طلباتك من خدمات وباقات بيزنس بارتنر."), active: "/cart", path: "/cart", body });
 }
 
+// The discount box the cart and checkout asides share. The aside's stylesheet
+// forces every .btn to width:100% (right for the checkout button, fatal here:
+// it crushed the code input to nothing) — the inline width:auto wins over it.
+function discBoxHtml(margin) {
+  return `<div class="disc-box" style="${margin};padding:10px 12px;border:1.5px dashed #CBD5E1;border-radius:12px;background:#F8FAFC">
+            <label for="disc-code" style="display:block;font-size:.82rem;font-weight:700;margin-bottom:6px">🎟️ ${L("Have a discount code?", "عندك كود خصم؟")}</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <input id="disc-code" placeholder="${L("e.g. WELCOME10", "مثال: WELCOME10")}" autocomplete="off" style="flex:1 1 140px;min-width:140px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit;text-transform:uppercase;background:#fff" />
+              <button type="button" class="btn btn-ghost" id="disc-apply" style="width:auto;flex:0 0 auto;margin-bottom:0;white-space:nowrap">${L("Apply", "تطبيق")}</button>
+            </div>
+            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
+          </div>`;
+}
 // Same normalization the published catalog applies — one source, two readers.
+// A code may be scoped to specific catalog codes via `services` (an array or a
+// comma-separated string; empty means it discounts everything). Package tiers
+// are known by two names — key ("silver") in the cart, code (BP-PKG-LAUNCH) on
+// the invoice — so each named package is published under both aliases and every
+// reader can match with a plain lookup.
+function discountServiceKeys(raw) {
+  const norm = (s) => {
+    s = String(s || "").trim().toLowerCase();
+    return s.startsWith("svc-") || s.startsWith("pkg-") ? s.slice(4) : s;
+  };
+  const wanted = (Array.isArray(raw) ? raw : String(raw || "").split(/[,،\s]+/)).map(norm).filter(Boolean);
+  if (!wanted.length) return [];
+  const out = new Set(wanted);
+  for (const g of site.packages.groups || []) {
+    for (const t of g.tiers || []) {
+      const k = norm(t.key), c = norm(t.code);
+      if (out.has(k) || (c && out.has(c))) { if (k) out.add(k); if (c) out.add(c); }
+    }
+  }
+  return [...out].slice(0, 60);
+}
 function catalogDiscounts() {
   return (site.commerce.discounts || [])
     .filter((d) => d && d.code && d.active !== false)
@@ -6320,6 +6348,7 @@ function catalogDiscounts() {
       amount: Number(d.amount) > 0 ? Number(d.amount) : 0,
       expires: /^\d{4}-\d{2}-\d{2}$/.test(String(d.expires || "")) ? d.expires : "",
       note: String(d.note || "").slice(0, 120),
+      services: discountServiceKeys(d.services),
     }))
     .filter((d) => d.percent > 0 || d.amount > 0);
 }
@@ -6441,13 +6470,7 @@ function buildCheckout() {
         <div class="order-box">
           <h3>${L("Order summary", "ملخص الطلب")}</h3>
           <div id="checkout-items"></div>
-          <div class="disc-box" style="margin:10px 0 4px">
-            <div style="display:flex;gap:6px">
-              <input id="disc-code" placeholder="${L("Discount code", "كود الخصم")}" autocomplete="off" style="flex:1;min-width:0;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit" />
-              <button type="button" class="btn btn-ghost" id="disc-apply" style="white-space:nowrap">${L("Apply", "تطبيق")}</button>
-            </div>
-            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
-          </div>
+          ${discBoxHtml("margin:10px 0 6px")}
           <div class="cart-totals-block">
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="co-subtotal">—</span></div>
           <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">${L("Discount", "الخصم")} <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>

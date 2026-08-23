@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-23T10:27:34.375Z",
+  "updatedAt": "2026-08-23T11:12:38.321Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -7,7 +7,8 @@
       "percent": 10,
       "amount": 0,
       "expires": "",
-      "note": "خصم ترحيبي 10%"
+      "note": "خصم ترحيبي 10%",
+      "services": []
     }
   ],
   "services": [

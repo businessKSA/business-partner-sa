@@ -146,17 +146,23 @@ async function settlePaidOrder(order, p) {
   let priceMap = {};
   try { priceMap = await catalogPrices(); } catch { priceMap = {}; }
   let net = 0, unknown = false;
-  const names = [];
+  const names = [], lines = [];
   for (const x of ids) {
     const a = skuAmount(x.id, priceMap);
     if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
     net += a * x.qty;
+    lines.push({ id: x.id, line: a * x.qty });
     const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
     names.push((cat ? cat.name : x.id) + " ×" + x.qty);
   }
   net += Number(order.surchargeFee) || 0;
   const disc = await catalogDiscount(order.discountCode);
-  const cut = discountCut(net, disc);
+  // A scoped code cuts only from its own lines (never from the surcharge);
+  // an unscoped code cuts from the whole net, exactly as the checkout showed.
+  const discBase = disc && disc.services.length
+    ? lines.reduce((s, l) => s + (discAppliesTo(disc, l.id) ? l.line : 0), 0)
+    : net;
+  const cut = discountCut(Math.min(discBase, net), disc);
   net -= cut;
   // Two riyals of tolerance for the rounding the cart and the form each do.
   const verified = !unknown && net > 0 && Math.abs(Math.round(net * 1.15 * 100) - Number(p.amount || 0)) <= 200;
@@ -226,7 +232,17 @@ async function catalogDiscount(code) {
   const percent = Number(hit.percent) > 0 ? Math.min(90, Number(hit.percent)) : 0;
   const amount = Number(hit.amount) > 0 ? Number(hit.amount) : 0;
   if (!percent && !amount) return null;
-  return { code: c, percent, amount };
+  const services = Array.isArray(hit.services)
+    ? hit.services.map((s) => catalogKey(String(s).toLowerCase())).filter(Boolean).slice(0, 60)
+    : [];
+  return { code: c, percent, amount, services };
+}
+// Does this discount reach this basket line? A code published with a services
+// list discounts only those codes; an unscoped code discounts everything.
+function discAppliesTo(d, idOrCode) {
+  if (!d) return false;
+  if (!Array.isArray(d.services) || !d.services.length) return true;
+  return d.services.includes(catalogKey(String(idOrCode || "").toLowerCase()));
 }
 function discountCut(net, d) {
   if (!d || !(net > 0)) return 0;
@@ -291,13 +307,19 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
     // states the prices the buyer actually paid and its total matches the
     // charge to the halala — a negative "discount line" is what Daftra rejects.
     const invDisc = await catalogDiscount(order.discountCode);
-    const invCut = discountCut(net, invDisc);
-    if (invCut > 0 && net > 0) {
-      const factor = (net - invCut) / net;
+    // A scoped code discounts only its own lines; the others keep list price.
+    const eligNet = invDisc && invDisc.services.length
+      ? items.reduce((s, it) => s + (discAppliesTo(invDisc, it.code) ? it.unitPrice * it.quantity : 0), 0)
+      : net;
+    const invCut = discountCut(Math.min(eligNet, net), invDisc);
+    if (invCut > 0 && eligNet > 0) {
+      const factor = (eligNet - invCut) / eligNet;
       net = 0;
       for (const it of items) {
-        it.unitPrice = Math.round(it.unitPrice * factor * 100) / 100;
-        it.name = String(it.name).slice(0, 120) + ` (بعد خصم ${invDisc.code})`;
+        if (discAppliesTo(invDisc, it.code)) {
+          it.unitPrice = Math.round(it.unitPrice * factor * 100) / 100;
+          it.name = String(it.name).slice(0, 120) + ` (بعد خصم ${invDisc.code})`;
+        }
         net += it.unitPrice * it.quantity;
       }
     }

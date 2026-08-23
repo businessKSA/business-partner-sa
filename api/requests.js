@@ -830,7 +830,10 @@ function catalogDiscountSync(code) {
   const percent = Number(hit.percent) > 0 ? Math.min(90, Number(hit.percent)) : 0;
   const amount = Number(hit.amount) > 0 ? Number(hit.amount) : 0;
   if (!percent && !amount) return null;
-  return { code: c, percent, amount };
+  const services = Array.isArray(hit.services)
+    ? hit.services.map((s) => catalogKey(String(s).toLowerCase())).filter(Boolean).slice(0, 60)
+    : [];
+  return { code: c, percent, amount, services };
 }
 // Sync the catalog read-model into the services table (once per warm
 // instance) and return code(lower) → row id for order_items FKs.
@@ -2424,7 +2427,7 @@ export default async function handler(req, res) {
     // order. The client total (subtotal + 15% VAT) is kept for comparison.
     const itemsData = Array.isArray(b.itemsData) ? b.itemsData.slice(0, 40) : [];
     let serverSubtotal = 0;
-    const pricedItems = [];
+    const pricedItems = [], pricedRows = [];
     if (itemsData.length) {
       const priceMap = await catalogPrices().catch(() => null);
       if (priceMap) {
@@ -2437,6 +2440,7 @@ export default async function handler(req, res) {
           const cat = key && priceMap[key];
           const unit = cat ? cat.amount : 0;
           serverSubtotal += unit * qty;
+          pricedRows.push({ key, line: unit * qty });
           if (rawKey) pricedItems.push(`${key || rawKey}×${qty}${unit ? "=" + unit * qty : ""}`);
         }
       }
@@ -2444,10 +2448,13 @@ export default async function handler(req, res) {
     const surchargeForTotal = Number.isFinite(Number(b.surchargeFee)) ? Number(b.surchargeFee) : 0;
     // The same discount the checkout showed, re-derived from the catalog: the
     // receipt's amount is compared against a figure the client cannot invent.
+    // A code scoped to specific services cuts only from its own lines.
     const orderDisc = catalogDiscountSync(b.discountCode);
     let discCut = 0;
     if (orderDisc && serverSubtotal + surchargeForTotal > 0) {
-      const preNet = serverSubtotal + surchargeForTotal;
+      const preNet = orderDisc.services.length
+        ? pricedRows.reduce((s, r) => s + (orderDisc.services.includes(r.key) ? r.line : 0), 0)
+        : serverSubtotal + surchargeForTotal;
       discCut = orderDisc.percent ? Math.round(((preNet * orderDisc.percent) / 100) * 100) / 100 : Math.min(preNet, orderDisc.amount);
     }
     const serverTotal = serverSubtotal > 0 ? Math.round((serverSubtotal + surchargeForTotal - discCut) * 1.15 * 100) / 100 : 0;
