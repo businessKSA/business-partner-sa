@@ -106,8 +106,8 @@
         <div class="field"><label for="ag-kind">نوع الجهة</label><select id="ag-kind"><option value="مكتب استقدام">مكتب استقدام</option><option value="وكالة توظيف">وكالة توظيف</option><option value="الاثنان">الاثنان</option></select></div>
       </div>
       <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="ag-country">الدولة *</label><input id="ag-country" type="text" placeholder="مثال: الفلبين" required></div>
-        <div class="field"><label for="ag-city">المدينة</label><input id="ag-city" type="text" placeholder=""></div>
+        <div class="field"><label for="ag-country">الدولة *</label><select id="ag-country" required><option value="">اختر الدولة</option></select></div>
+        <div class="field"><label for="ag-city">المدينة</label><input id="ag-city" type="text" list="ag-cities" placeholder="اختر أو اكتب المدينة"><datalist id="ag-cities"></datalist></div>
       </div>
       <div class="grid grid-2" style="gap:0 20px">
         <div class="field"><label for="ag-license">رقم الترخيص</label><input id="ag-license" type="text" placeholder=""></div>
@@ -123,10 +123,20 @@
       </div>
       <div class="grid grid-2" style="gap:0 20px">
         <div class="field"><label for="ag-email">البريد الإلكتروني *</label><input id="ag-email" type="email" placeholder="" required></div>
-        <div class="field"><label for="ag-phone">الهاتف (مع رمز الدولة) *</label><input id="ag-phone" type="tel" placeholder="+63…" required></div>
+        <div class="field"><label for="ag-phone">الهاتف *</label>
+          <div style="display:flex;gap:8px">
+            <select id="ag-phone-code" style="max-width:145px" aria-label="رمز الدولة"></select>
+            <input id="ag-phone" type="tel" required placeholder="5XXXXXXXX" style="flex:1">
+          </div>
+        </div>
       </div>
       <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="ag-whatsapp">واتساب</label><input id="ag-whatsapp" type="text" placeholder=""></div>
+        <div class="field"><label for="ag-whatsapp">واتساب</label>
+          <div style="display:flex;gap:8px">
+            <select id="ag-whatsapp-code" style="max-width:145px" aria-label="رمز الدولة"></select>
+            <input id="ag-whatsapp" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+          </div>
+        </div>
         <div class="field"><label for="ag-website">الموقع الإلكتروني</label><input id="ag-website" type="url" placeholder="https://"></div>
       </div>
       <div class="grid grid-2" style="gap:0 20px">
@@ -136,6 +146,15 @@
       <div class="field"><label for="ag-nationalities">الجنسيات التي توفرها</label><input id="ag-nationalities" type="text" placeholder="مثال: فلبيني، هندي، بنجلاديشي"></div>
       <div class="field"><label for="ag-professions">المهن والتخصصات</label><textarea id="ag-professions" rows="3" placeholder="مثال: عمالة منزلية، سائقون، فنيون، ممرضات"></textarea></div>
       <div class="field"><label for="ag-about">نبذة عن مكتبك</label><textarea id="ag-about" rows="4" placeholder=""></textarea></div>
+      <div class="field">
+        <label>بروفايل الشركة — PDF أو Word أو PowerPoint</label>
+        <label class="file-drop" for="ag-profile" id="ag-profile-drop">
+          <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
+          <span class="file-text" id="ag-profile-name">اسحب البروفايل هنا أو اضغط للاختيار</span>
+        </label>
+        <input id="ag-profile" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden>
+        <p class="emp-note" style="margin:6px 0 0">اختياري، حتى 8 ميجابايت. أرفق الترخيص معه إن كان في نفس الملف.</p>
+      </div>
       <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="ag-submit">أرسل طلب التسجيل</button>
       <p class="emp-note" id="ag-msg" style="text-align:center;min-height:20px;margin-top:12px"></p>
       <p class="emp-note" style="text-align:center">لا ننشر مستندات ترخيصك أو بيانات تواصلك — تُستخدم للاعتماد فقط.</p>
@@ -301,4 +320,4 @@
         <button type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=5d1232e46a"></script></body></html>
+  </section><script src="/assets/js/main.js?v=bfcab848b5"></script></body></html>

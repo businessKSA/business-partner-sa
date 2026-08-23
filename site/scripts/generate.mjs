@@ -4515,8 +4515,8 @@ function buildRecruitmentAgencies() {
         ${field("ag-kind", L("Entity type", "نوع الجهة"), { select: [["مكتب استقدام", Lraw("Recruitment office (deployment)", "مكتب استقدام")], ["وكالة توظيف", Lraw("Recruitment agency", "وكالة توظيف")], ["الاثنان", Lraw("Both", "الاثنان")]] })}
       </div>
       <div class="grid grid-2" style="gap:0 20px">
-        ${field("ag-country", L("Country", "الدولة"), { req: true, ph: Lraw("e.g. Philippines", "مثال: الفلبين") })}
-        ${field("ag-city", L("City", "المدينة"))}
+        <div class="field"><label for="ag-country">${L("Country", "الدولة")} *</label><select id="ag-country" required><option value="">${L("Choose a country", "اختر الدولة")}</option></select></div>
+        <div class="field"><label for="ag-city">${L("City", "المدينة")}</label><input id="ag-city" type="text" list="ag-cities" placeholder="${Lraw("Pick or type a city", "اختر أو اكتب المدينة")}"><datalist id="ag-cities"></datalist></div>
       </div>
       <div class="grid grid-2" style="gap:0 20px">
         ${field("ag-license", L("Licence number", "رقم الترخيص"))}
@@ -4532,10 +4532,20 @@ function buildRecruitmentAgencies() {
       </div>
       <div class="grid grid-2" style="gap:0 20px">
         ${field("ag-email", L("Email", "البريد الإلكتروني"), { req: true, type: "email" })}
-        ${field("ag-phone", L("Phone (with country code)", "الهاتف (مع رمز الدولة)"), { req: true, type: "tel", ph: "+63…" })}
+        <div class="field"><label for="ag-phone">${L("Phone", "الهاتف")} *</label>
+          <div style="display:flex;gap:8px">
+            <select id="ag-phone-code" style="max-width:145px" aria-label="${Lraw("Country code", "رمز الدولة")}"></select>
+            <input id="ag-phone" type="tel" required placeholder="5XXXXXXXX" style="flex:1">
+          </div>
+        </div>
       </div>
       <div class="grid grid-2" style="gap:0 20px">
-        ${field("ag-whatsapp", L("WhatsApp", "واتساب"))}
+        <div class="field"><label for="ag-whatsapp">${L("WhatsApp", "واتساب")}</label>
+          <div style="display:flex;gap:8px">
+            <select id="ag-whatsapp-code" style="max-width:145px" aria-label="${Lraw("Country code", "رمز الدولة")}"></select>
+            <input id="ag-whatsapp" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+          </div>
+        </div>
         ${field("ag-website", L("Website", "الموقع الإلكتروني"), { type: "url", ph: "https://" })}
       </div>
       <div class="grid grid-2" style="gap:0 20px">
@@ -4545,6 +4555,15 @@ function buildRecruitmentAgencies() {
       ${field("ag-nationalities", L("Nationalities you supply", "الجنسيات التي توفرها"), { ph: Lraw("e.g. Filipino, Indian, Bangladeshi", "مثال: فلبيني، هندي، بنجلاديشي") })}
       ${field("ag-professions", L("Professions & specialities", "المهن والتخصصات"), { textarea: true, ph: Lraw("e.g. domestic workers, drivers, technicians, nurses", "مثال: عمالة منزلية، سائقون، فنيون، ممرضات") })}
       ${field("ag-about", L("About your office", "نبذة عن مكتبك"), { textarea: true, rows: 4 })}
+      <div class="field">
+        <label>${L("Company profile — PDF, Word or PowerPoint", "بروفايل الشركة — PDF أو Word أو PowerPoint")}</label>
+        <label class="file-drop" for="ag-profile" id="ag-profile-drop">
+          <span class="file-ico">${I.upload}</span>
+          <span class="file-text" id="ag-profile-name">${L("Drag your profile here or click to choose", "اسحب البروفايل هنا أو اضغط للاختيار")}</span>
+        </label>
+        <input id="ag-profile" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden>
+        <p class="emp-note" style="margin:6px 0 0">${L("Optional, up to 8MB. Attach the licence too if it's in the same file.", "اختياري، حتى 8 ميجابايت. أرفق الترخيص معه إن كان في نفس الملف.")}</p>
+      </div>
       <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="ag-submit">${L("Submit registration", "أرسل طلب التسجيل")}</button>
       <p class="emp-note" id="ag-msg" style="text-align:center;min-height:20px;margin-top:12px"></p>
       <p class="emp-note" style="text-align:center">${L("We never publish your licence documents or contacts — they are used for accreditation only.", "لا ننشر مستندات ترخيصك أو بيانات تواصلك — تُستخدم للاعتماد فقط.")}</p>

@@ -811,6 +811,12 @@ var BP = window.BP = window.BP || {};
     ["Vanuatu", "فانواتو"],
     ["Other / not listed", "أخرى / غير مدرجة"],
   ];
+  // Country dial codes, keyed by the English name above — used by any form
+  // that offers a country-code picker instead of a free-typed prefix.
+  var DIAL_CODES = {"Saudi Arabia": "+966", "United Arab Emirates": "+971", "Qatar": "+974", "Bahrain": "+973", "Kuwait": "+965", "Oman": "+968", "Egypt": "+20", "Jordan": "+962", "Lebanon": "+961", "Syria": "+963", "Iraq": "+964", "Yemen": "+967", "Palestine": "+970", "Sudan": "+249", "Libya": "+218", "Tunisia": "+216", "Algeria": "+213", "Morocco": "+212", "Mauritania": "+222", "Somalia": "+252", "Djibouti": "+253", "Comoros": "+269", "Turkey": "+90", "Iran": "+98", "Afghanistan": "+93", "India": "+91", "Pakistan": "+92", "Bangladesh": "+880", "Sri Lanka": "+94", "Nepal": "+977", "Bhutan": "+975", "Maldives": "+960", "Philippines": "+63", "Indonesia": "+62", "Malaysia": "+60", "Thailand": "+66", "Vietnam": "+84", "Myanmar": "+95", "Cambodia": "+855", "Laos": "+856", "Singapore": "+65", "Brunei": "+673", "Timor-Leste": "+670", "China": "+86", "Japan": "+81", "South Korea": "+82", "North Korea": "+850", "Mongolia": "+976", "Taiwan": "+886", "Hong Kong": "+852", "Kazakhstan": "+7", "Uzbekistan": "+998", "Turkmenistan": "+993", "Tajikistan": "+992", "Kyrgyzstan": "+996", "Azerbaijan": "+994", "Armenia": "+374", "Georgia": "+995", "United Kingdom": "+44", "Ireland": "+353", "France": "+33", "Germany": "+49", "Netherlands": "+31", "Belgium": "+32", "Luxembourg": "+352", "Switzerland": "+41", "Austria": "+43", "Spain": "+34", "Portugal": "+351", "Italy": "+39", "Greece": "+30", "Cyprus": "+357", "Malta": "+356", "Sweden": "+46", "Norway": "+47", "Denmark": "+45", "Finland": "+358", "Iceland": "+354", "Poland": "+48", "Czech Republic": "+420", "Slovakia": "+421", "Hungary": "+36", "Romania": "+40", "Bulgaria": "+359", "Croatia": "+385", "Serbia": "+381", "Bosnia and Herzegovina": "+387", "North Macedonia": "+389", "Albania": "+355", "Slovenia": "+386", "Montenegro": "+382", "Kosovo": "+383", "Moldova": "+373", "Ukraine": "+380", "Belarus": "+375", "Russia": "+7", "Estonia": "+372", "Latvia": "+371", "Lithuania": "+370", "United States": "+1", "Canada": "+1", "Mexico": "+52", "Brazil": "+55", "Argentina": "+54", "Chile": "+56", "Colombia": "+57", "Peru": "+51", "Venezuela": "+58", "Ecuador": "+593", "Bolivia": "+591", "Uruguay": "+598", "Paraguay": "+595", "Panama": "+507", "Costa Rica": "+506", "Cuba": "+53", "Dominican Republic": "+1", "Jamaica": "+1", "Guatemala": "+502", "Honduras": "+504", "El Salvador": "+503", "Nicaragua": "+505", "Nigeria": "+234", "Kenya": "+254", "Ethiopia": "+251", "Ghana": "+233", "Uganda": "+256", "Tanzania": "+255", "South Africa": "+27", "Senegal": "+221", "Ivory Coast": "+225", "Cameroon": "+237", "Zambia": "+260", "Zimbabwe": "+263", "Rwanda": "+250", "Mali": "+223", "Niger": "+227", "Chad": "+235", "Angola": "+244", "Mozambique": "+258", "Botswana": "+267", "Namibia": "+264", "Malawi": "+265", "Gabon": "+241", "Australia": "+61", "New Zealand": "+64", "Fiji": "+679", "Papua New Guinea": "+675", "Andorra": "+376", "Liechtenstein": "+423", "Monaco": "+377", "San Marino": "+378", "Vatican City": "+379", "Bahamas": "+1", "Barbados": "+1", "Belize": "+501", "Antigua and Barbuda": "+1", "Dominica": "+1", "Grenada": "+1", "Guyana": "+592", "Haiti": "+509", "Saint Kitts and Nevis": "+1", "Saint Lucia": "+1", "Saint Vincent and the Grenadines": "+1", "Suriname": "+597", "Trinidad and Tobago": "+1", "Benin": "+229", "Burkina Faso": "+226", "Burundi": "+257", "Cabo Verde": "+238", "Central African Republic": "+236", "Republic of the Congo": "+242", "Democratic Republic of the Congo": "+243", "Equatorial Guinea": "+240", "Eritrea": "+291", "Eswatini": "+268", "Gambia": "+220", "Guinea": "+224", "Guinea-Bissau": "+245", "Lesotho": "+266", "Liberia": "+231", "Madagascar": "+261", "Mauritius": "+230", "Sao Tome and Principe": "+239", "Seychelles": "+248", "Sierra Leone": "+232", "South Sudan": "+211", "Togo": "+228", "Kiribati": "+686", "Marshall Islands": "+692", "Micronesia": "+691", "Nauru": "+674", "Palau": "+680", "Samoa": "+685", "Solomon Islands": "+677", "Tonga": "+676", "Tuvalu": "+688", "Vanuatu": "+678"};
+  // Shared with other forms on the site (the agency registration form needs
+  // the same country, city and dial-code lists).
+  try { window.BP = window.BP || {}; BP.COUNTRIES = COUNTRIES; BP.SA_CITIES = SA_CITIES; BP.WORLD_CITIES = WORLD_CITIES; BP.DIAL_CODES = DIAL_CODES; } catch (e) {}
 
   function jobTitleOptions(lang) {
     return JOB_TITLES.map(function (t) { return lang === "ar" ? t[1] : t[0]; });
@@ -6843,6 +6849,82 @@ var BP_EMP_BILLING = "monthly";
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("ag-form");
     if (!form) return;
+    var isAr = (document.documentElement.lang || "ar").toLowerCase().indexOf("ar") === 0;
+    // Labels carry both scripts so the list reads the same to an Arabic office
+    // and to one working in English.
+    function bothNames(en, ar) { return isAr ? ar + " — " + en : en + " — " + ar; }
+
+    // Countries, cities and dial codes come from the site's shared lists.
+    var COUNTRIES = (window.BP && BP.COUNTRIES) || [];
+    var WORLD_CITIES = (window.BP && BP.WORLD_CITIES) || [];
+    var SA_CITIES = (window.BP && BP.SA_CITIES) || [];
+    var DIAL = (window.BP && BP.DIAL_CODES) || {};
+    var countrySel = document.getElementById("ag-country");
+    var phoneCode = document.getElementById("ag-phone-code");
+    var waCode = document.getElementById("ag-whatsapp-code");
+    var cityList = document.getElementById("ag-cities");
+
+    COUNTRIES.forEach(function (c) {
+      var en = c[0], ar = c[1];
+      if (countrySel) {
+        var o = document.createElement("option");
+        o.value = en; o.textContent = bothNames(en, ar);
+        countrySel.appendChild(o);
+      }
+      if (DIAL[en]) {
+        [phoneCode, waCode].forEach(function (sel) {
+          if (!sel) return;
+          var d = document.createElement("option");
+          d.value = DIAL[en];
+          d.textContent = DIAL[en] + " " + (isAr ? ar : en);
+          d.setAttribute("data-country", en);
+          sel.appendChild(d);
+        });
+      }
+    });
+
+    // Picking a country fills the city suggestions and pre-selects the dial
+    // codes, which is right far more often than not — both stay editable.
+    function syncCountry() {
+      var en = countrySel ? countrySel.value : "";
+      if (cityList) {
+        var cities = en === "Saudi Arabia"
+          ? SA_CITIES.map(function (c) { return [c, c]; })
+          : WORLD_CITIES.filter(function (w) { return w[1] === en; }).map(function (w) { return [w[0], w[2]]; });
+        cityList.innerHTML = cities.map(function (c) {
+          return '<option value="' + String(isAr ? c[1] : c[0]).replace(/"/g, "&quot;") + '">';
+        }).join("");
+      }
+      var code = DIAL[en];
+      if (!code) return;
+      [phoneCode, waCode].forEach(function (sel) { if (sel && !sel.dataset.touched) sel.value = code; });
+    }
+    if (countrySel) countrySel.addEventListener("change", syncCountry);
+    [phoneCode, waCode].forEach(function (sel) {
+      if (sel) sel.addEventListener("change", function () { sel.dataset.touched = "1"; });
+    });
+
+    // Company profile attachment.
+    var profile = null;
+    var profileInput = document.getElementById("ag-profile");
+    if (profileInput) profileInput.addEventListener("change", function () {
+      var f = profileInput.files && profileInput.files[0];
+      var label = document.getElementById("ag-profile-name");
+      profile = null;
+      if (!f) { label.textContent = T("Drag your profile here or click to choose", "اسحب البروفايل هنا أو اضغط للاختيار"); return; }
+      if (f.size > 8 * 1024 * 1024) {
+        label.textContent = T("File is larger than 8MB — please attach a smaller one.", "الملف أكبر من 8 ميجابايت — أرفق ملفاً أصغر.");
+        profileInput.value = "";
+        return;
+      }
+      label.textContent = f.name;
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = String(reader.result || "");
+        profile = { name: f.name, size: f.size, type: f.type || "application/octet-stream", base64: result.split(",")[1] || "" };
+      };
+      reader.readAsDataURL(f);
+    });
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var msg = document.getElementById("ag-msg"), btn = document.getElementById("ag-submit");
@@ -6851,7 +6933,10 @@ var BP_EMP_BILLING = "monthly";
         name: val("ag-name"), kind: val("ag-kind"), country: val("ag-country"), city: val("ag-city"),
         license: val("ag-license"), licenseBy: val("ag-license-by"), musaned: val("ag-musaned"),
         ksaExperience: val("ag-ksa"), contact: val("ag-contact"), role: val("ag-role"),
-        email: val("ag-email"), phone: val("ag-phone"), whatsapp: val("ag-whatsapp"),
+        email: val("ag-email"),
+        phone: val("ag-phone") ? (val("ag-phone-code") + " " + val("ag-phone")).trim() : "",
+        whatsapp: val("ag-whatsapp") ? (val("ag-whatsapp-code") + " " + val("ag-whatsapp")).trim() : "",
+        profileFile: profile,
         website: val("ag-website"), capacity: val("ag-capacity"), years: val("ag-years"),
         nationalities: val("ag-nationalities"), professions: val("ag-professions"), about: val("ag-about"),
       };
@@ -6871,6 +6956,9 @@ var BP_EMP_BILLING = "monthly";
               ? T("Your registration was updated — we'll be in touch after review.", "تم تحديث بيانات تسجيلك — سنتواصل معك بعد المراجعة.")
               : T("Registration received. We'll review your licence and email you an access code once approved.", "تم استلام التسجيل. سنراجع ترخيصك ونرسل رمز الدخول على بريدك عند الاعتماد.");
             form.reset();
+            profile = null;
+            var pn = document.getElementById("ag-profile-name");
+            if (pn) pn.textContent = T("Drag your profile here or click to choose", "اسحب البروفايل هنا أو اضغط للاختيار");
           } else {
             msg.style.color = "#B91C1C";
             msg.textContent = T("Couldn't send the registration. Please try again.", "تعذّر إرسال التسجيل. حاول مجدداً.");
