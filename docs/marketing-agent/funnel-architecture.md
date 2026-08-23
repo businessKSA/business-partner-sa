@@ -10,10 +10,55 @@ remembering to do it. This document starts from what the pipeline actually shows
 
 ## 1. What the pipeline says right now
 
-`Sales Pipeline` (`d9a342be24774be3b4095d439d21fc90`) — 52 opportunities:
+`Sales Pipeline` (`d9a342be24774be3b4095d439d21fc90`) holds 52 opportunities. Stage
+counts alone are misleading, because the pipeline mixes several different populations.
+After classifying every row (`BP — Classify Leads`, `VIxYiIVltjVwZyKw`):
 
-| Stage | Count |
+| Lead type | Count |
 |---|---|
+| **اختبار داخلي** — the owner's own test submissions | **22** |
+| **عميل محتمل** — real prospects | **14** |
+| غير مصنّف — ambiguous, needs a human | 11 |
+| تحميل محتوى — magazine PDF downloads | 2 |
+| باحث عن عمل — job seeker from the careers pages | 1 |
+
+**42% of the "pipeline" is test data.** The real prospect count is 14, not 52.
+
+### Correcting an earlier reading
+
+An earlier version of this document said *"23 of 52 leads (44%) sit unworked in New, so
+the largest leak is the first follow-up."* That came from stage counts without reading
+the rows, and it was wrong. Most of those 23 were test submissions. The true figure is
+**6 real prospects sitting unworked** — a smaller number, but a far more urgent one,
+because each is identifiable and worth chasing today:
+
+| Prospect | Waiting since | Why it matters |
+|---|---|---|
+| طلب مساحة عمل — Riyadh | Aug 17 | 40,000 m², 3,000 seats, for a government entity |
+| مريم عبدالله · afaaq-sa.com | Aug 6 | **Explicitly asked for pricing** and never received a reply |
+| Meshari Almutiri · workforcesa.com | Aug 23 | Factory setup + industrial licensing |
+| خالد كحي الدين · rayacorp.com | Jul 30 | Two tickets: HR services and Premium Residency |
+| زياد الخلف · alruwais.com.sa | Jul 22 | Website chat, corporate domain |
+
+### Why a blanket nurture sequence would have caused harm
+
+The pipeline contains at least one confirmed job seeker — someone who wrote *"I am
+actively looking for HR operations and Recruitment roles in Riyadh"* — filed under an
+"HR & recruitment consultation" title that looks identical to a buyer's request. Running
+one sequence across every `New` row would have sent a services pitch to a job applicant.
+
+That is precisely the failure the last email campaign produced, when a recipient replied
+redirecting us to their HR department. **Nurture must be gated on lead type**, which is
+why `Nurture Safe` exists and why only the 14 confirmed prospects carry it.
+
+### Attribution
+
+Every lead is attributed to the website; none to the ~1,000 outbound emails or to social.
+Nothing outbound carried a tagged link, so "zero leads from email" cannot yet be
+separated from "leads we could not see". Fixing that is a precondition for trusting any
+channel number, and is now done for everything the generator emits.
+
+---|---|
 | New (unworked) | 23 |
 | Qualified | 12 |
 | مهتم | 7 |
@@ -131,15 +176,19 @@ never re-enter a sequence.
 Ordered by what the pipeline data says is costing the most.
 
 1. **Attribution** — tagged links on everything the generator emits. ✅ done
-2. **Work the 23 `New` leads** — the nurture sequence, pointed at existing leads first.
-3. **Capture on the calculators** — email-gate the full result.
-4. **One CRM** — repoint the Email CRM Router at Sales Pipeline.
-5. **Scheduling** — the weekly per-service calendar across platforms.
-6. **Publishing** — LinkedIn first (credential exists); the rest as ready-to-post packs
+2. **Classify before nurturing** — separate buyers from job seekers, downloads and test
+   data, so no sequence can pitch the wrong person. ✅ done
+3. **Work the 6 real unworked prospects** — by hand, today. These are named individuals,
+   not a segment; the workspace request and the unanswered pricing question in particular
+   should not wait for an automation.
+4. **Capture on the calculators** — email-gate the full result.
+5. **One CRM** — repoint the Email CRM Router at Sales Pipeline.
+6. **Scheduling** — the weekly per-service calendar across platforms.
+7. **Publishing** — LinkedIn first (credential exists); the rest as ready-to-post packs
    until their APIs are connected.
-7. **Replies** — auto-answer the common questions, hand off the rest.
+8. **Replies** — auto-answer the common questions, hand off the rest.
 
-Note on 6: **no social platform is connected yet.** Instagram, TikTok, and the
+Note on 7: **no social platform is connected yet.** Instagram, TikTok, and the
 WhatsApp channel need API access that takes weeks to obtain (Meta review). Generation,
 scheduling, and approval are automatic today; publishing to those three is not, and
 nothing in this document should be read as claiming otherwise.
