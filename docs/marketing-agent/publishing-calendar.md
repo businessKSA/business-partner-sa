@@ -6,7 +6,8 @@ platform — and nothing reaches a platform without a person approving it first.
 - **Feed:** `site/data/marketing-content.json` (generated, committed, served at
   `businesspartner.sa/data/marketing-content.json`)
 - **Generator:** `docs/marketing-agent/generator/feed.mjs`
-- **Planner:** n8n `BP — Weekly Content Planner` (`JkXJJMwKqQ7TPMqx`)
+- **Planner:** n8n `BP — Weekly Content Planner` (`JkXJJMwKqQ7TPMqx`, active)
+- **Reset:** n8n `BP — Reset Planned Week` (`cRnUgcqXa6tCm2hR`, manual)
 - **Calendar:** Notion `📅 Marketing Content Calendar`
   (`d258f8b2-3503-4ff4-adf5-ec15dfd7519a`)
 
@@ -45,8 +46,10 @@ digest of the week's five, so a follower who missed a day still sees the range.
 
 ## What the planner does, and what it deliberately does not
 
-The planner runs Thursday morning and plans the week starting the coming Sunday,
-so there are three days to review before anything is due.
+The planner runs Thursday 04:00 UTC — 07:00 Riyadh; the n8n instance's own
+timezone is UTC, so every time this workflow cares about is computed from a UTC
+offset rather than trusted to the instance — and plans the week starting the
+coming Sunday, leaving three days to review before anything is due.
 
 It writes every row at `Status = Ready for Review`. It does not publish, schedule
 into a platform, or send anything. That is not a limitation of this design — no
@@ -95,15 +98,44 @@ nothing and a channel whose results were never recorded look identical — which
 exactly what happened to the first email campaign: 1,000 sends, no attributable
 lead, and no way to tell which of those two it was.
 
-## Re-running
+## Re-running and rebuilding
 
 `Plan Now` is a manual trigger for the same chain. The planner first asks Notion
 whether any row already carries this `Plan Week`; if one does, it stops without
 writing. A second run does not double the week.
 
-## Not yet true
+That guard also means an already-planned week cannot be refreshed in place. When
+the copy changes, clear the week first: set the Sunday date in `BP — Reset
+Planned Week`, run it, then run `Plan Now`. The reset skips any row at
+`Status = Published` — a published post is a record of something that happened.
+
+## The intent layer
+
+Category alone is the wrong unit for deciding what a service promises. "شطب سجل
+تجاري" is filed under تأسيس الشركات, and the first calendar row the planner ever
+wrote sold deregistering a company under the headline "أسّس كيانك وأنت في مكانك".
+
+`playbooks.mjs` now reads the intent stated in the service title — closure,
+renewal, amendment, enrolment, sponsorship transfer — and that overrides the
+category's angle, while the category keeps what stays true for the whole family:
+the engagement steps and the audience. Twelve services changed. The matching is
+deliberately narrow: "نقل العمالة من السكن إلى مواقع العمل" is transport, not a
+change of sponsor, so it keeps the HR angle.
+
+## Verified, and not yet true
+
+Verified against the live instance: `Compute Plan Week` returns `2026-08-30 /
+index 34`, the Notion lookup and guard work, and a full run wrote all 26 rows
+with every field populated — caption, hashtags, design brief, tracked landing
+link, per-channel WhatsApp link, service code, slot key. **The week of
+2026-08-30 is in the calendar now, at Ready for Review, waiting on a person.**
+
+Not yet true:
 
 - The feed URL resolves only once this branch merges to `master` — Vercel serves
-  `site/` from the default branch. Until then the planner's fetch 404s.
+  `site/` from the default branch, and preview deployments sit behind Vercel SSO.
+  The end-to-end run above was proved by pointing the planner at the raw file on
+  this branch, then pointing it back. Until the merge, any week not already
+  planned will fail at the fetch.
 - No platform is connected, so `Approved` is where a row stops. Moving it to
   `Published` is a person doing it by hand.
