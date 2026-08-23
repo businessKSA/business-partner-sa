@@ -35,7 +35,7 @@ import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt, create
 import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder, daftraCreateInvoice, daftraDocPdf } from "./_daftra.js";
 import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
 import { announce, contactForRef, stageChannels, waSend } from "./_stage.js";
-import { DB_ON, sb, storagePut, storageSign } from "./_db.js";
+import { DB_ON, sb, notify, storagePut, storageSign } from "./_db.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -781,7 +781,7 @@ export async function handleSuppliers(req, res) {
       const em = String(q.email || "").trim().toLowerCase();
       try {
         const [held, bal, tx] = await Promise.all([
-          sb(`escrows?supplier_email=eq.${encodeURIComponent(em)}&status=in.(held,refund_requested)&select=ref,title,amount,status,created_at&order=created_at.desc&limit=50`),
+          sb(`escrows?supplier_email=eq.${encodeURIComponent(em)}&status=in.(held,delivered,refund_requested)&select=ref,title,amount,status,created_at,delivered_at&order=created_at.desc&limit=50`),
           sb(`supplier_wallet_balances?supplier_email=eq.${encodeURIComponent(em)}&select=balance`),
           sb(`supplier_wallet_transactions?supplier_email=eq.${encodeURIComponent(em)}&select=type,amount,note,created_at&order=created_at.desc&limit=20`),
         ]);
@@ -965,6 +965,65 @@ export async function handleSuppliers(req, res) {
     if (!s.verified) return bad("email_unverified", 403);
     const orders = await ordersForSupplier(s.id);
     return ok({ supplier: { name: s.name, code: s.code, person: s.person, city: s.city, categories: s.categories, terms: s.terms, status: s.status }, orders });
+  }
+
+  // ---------------- escrow handshake: the supplier's half ----------------
+  // "سلّمت المشروع": stamps delivered_at and tells the client to review and
+  // approve — the money moves only when BOTH halves exist, like the freelance
+  // marketplaces. Every step is stamped so each side's record protects them.
+  if (b.type === "escrow-deliver") {
+    const s = await authSupplier(b.email, b.password || b.pw);
+    if (!s) return bad("unauthorized", 401);
+    if (!s.verified) return bad("email_unverified", 403);
+    if (!DB_ON) return bad("db_not_configured", 503);
+    const em = String(b.email || "").trim().toLowerCase();
+    const ref = str(b.ref, 40);
+    const note = str(b.note, 300);
+    if (!ref) return bad("invalid_fields");
+    let rows = [];
+    try {
+      rows = await sb(`escrows?ref=eq.${encodeURIComponent(ref)}&supplier_email=eq.${encodeURIComponent(em)}&status=eq.held`, {
+        method: "PATCH",
+        body: { status: "delivered", delivered_at: new Date().toISOString(), ...(note ? { supplier_note: note } : {}) },
+      });
+    } catch { return bad("db_failed", 502); }
+    if (!rows.length) return bad("not_deliverable", 409);
+    const e = rows[0];
+    try { await notify({ organization_id: e.organization_id, event: "escrow_delivered", channel: "inapp", title: `أعلن المورد تسليم «${String(e.title).slice(0, 60)}» — راجع واعتمد الاستلام (${e.ref})`, idempotency_key: `escrow_delivered:${e.ref}` }); } catch {}
+    await Promise.all([
+      sendEmail(e.client_email, `📦 أعلن المورد التسليم — ${e.ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">أعلن المورد تسليم العمل</h2><p>أعلن <b>${esc(s.name)}</b> تسليم: <b>${esc(e.title)}</b>${note ? `<br>ملاحظة المورد: ${esc(note)}` : ""}</p><p>راجع العمل، وإن كان مطابقاً اعتمد الاستلام من <a href="${SITE}/account" style="color:#0B1B5A">لوحتك ← المحفظة</a> ليتحرر مبلغ الضمان (${e.amount} ﷼) للمورد. وإن كان هناك خلل فاطلب الاسترجاع من نفس المكان.</p></div>`),
+      sendEmail(TEAM_EMAIL, `📦 تسليم معلن على الضمان ${e.ref} — ${s.name}`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>أعلن المورد التسليم — بانتظار اعتماد العميل. لا إجراء مطلوب.</p><table>${row("المورد", s.name)}${row("العميل", e.client_email)}${row("المبلغ", e.amount + " ﷼")}</table></div>`),
+    ]).catch(() => {});
+    return ok({ escrow: { ref: e.ref, status: e.status, delivered_at: e.delivered_at } });
+  }
+  // "أوافق على الإرجاع": the supplier consents to the client's refund request
+  // (or cancels an undelivered job) — that consent is what moves the money
+  // back; the client's request alone never does.
+  if (b.type === "escrow-agree-refund") {
+    const s = await authSupplier(b.email, b.password || b.pw);
+    if (!s) return bad("unauthorized", 401);
+    if (!s.verified) return bad("email_unverified", 403);
+    if (!DB_ON) return bad("db_not_configured", 503);
+    const em = String(b.email || "").trim().toLowerCase();
+    const ref = str(b.ref, 40);
+    if (!ref) return bad("invalid_fields");
+    let rows = [];
+    try {
+      rows = await sb(`escrows?ref=eq.${encodeURIComponent(ref)}&supplier_email=eq.${encodeURIComponent(em)}&status=in.(held,delivered,refund_requested)`, {
+        method: "PATCH", body: { status: "refunded" },
+      });
+    } catch { return bad("db_failed", 502); }
+    if (!rows.length) return bad("not_refundable", 409);
+    const e = rows[0];
+    try {
+      await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: e.organization_id, type: "refund", amount: Number(e.amount), note: `استرجاع ضمان ${e.ref} بموافقة المورد` }] });
+      await notify({ organization_id: e.organization_id, event: "escrow_refunded", channel: "inapp", title: `وافق المورد — أُرجع ضمان ${e.ref} (+${e.amount} ﷼) إلى محفظتك`, idempotency_key: `escrow_refund:${e.ref}` });
+    } catch (err) { console.error("escrow refund credit failed", String(err).slice(0, 160)); }
+    await Promise.all([
+      sendEmail(e.client_email, `↩️ وافق المورد — أُرجع الضمان ${e.ref} إلى محفظتك`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>وافق المورد <b>${esc(s.name)}</b> على إرجاع مبلغ الضمان <b>${e.ref}</b> (${e.amount} ﷼) — عاد المبلغ إلى محفظتك في <a href="${SITE}/account" style="color:#0B1B5A">لوحتك</a>.</p></div>`),
+      sendEmail(TEAM_EMAIL, `↩️ استرجاع ضمان بموافقة المورد — ${e.ref} (${e.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>وافق المورد على الإرجاع وأُعيد المبلغ لمحفظة العميل تلقائياً. لا إجراء مطلوب.</p><table>${row("المورد", s.name)}${row("العميل", e.client_email)}${row("المبلغ", e.amount + " ﷼")}</table></div>`),
+    ]).catch(() => {});
+    return ok({ escrow: { ref: e.ref, status: "refunded" } });
   }
 
   // ---------------- supplier asks to withdraw released balance ----------------

@@ -549,3 +549,14 @@ alter table supplier_wallet_transactions enable row level security;
 create or replace view supplier_wallet_balances as
   select supplier_email, coalesce(sum(amount),0)::numeric(14,2) as balance
   from supplier_wallet_transactions group by supplier_email;
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-23 (b): escrow becomes a two-sided handshake, like freelance
+-- marketplaces. The supplier declares delivery (delivered_at), the client
+-- approves receipt to release; a refund reaches the client only with the
+-- supplier's consent or a Business Partner decision. Every step is stamped.
+alter table escrows drop constraint if exists escrows_status_check;
+alter table escrows add constraint escrows_status_check
+  check (status in ('held','delivered','refund_requested','released','refunded','cancelled'));
+alter table escrows add column if not exists delivered_at timestamptz;
+alter table escrows add column if not exists supplier_note text;

@@ -2478,12 +2478,45 @@ var BP = window.BP = window.BP || {};
           if (esBox) {
             var held = d.held || [];
             esBox.innerHTML = held.length ? held.map(function (e) {
-              var warn = e.status === "refund_requested";
-              return '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid #eef1f6">' +
+              var st = e.status === "refund_requested"
+                ? [T("Client asked for a refund — your consent or BP's decision settles it", "طلب العميل الاسترجاع — يُحسم بموافقتك أو بقرار بيزنس بارتنر"), "#b45309"]
+                : e.status === "delivered"
+                ? [T("You declared delivery — awaiting the client's approval", "أعلنتَ التسليم — بانتظار اعتماد العميل للاستلام"), "#7c3aed"]
+                : [T("Held — declare delivery when the work is done", "محجوز — أعلن التسليم عند إتمام العمل"), "#2563eb"];
+              var actions = "";
+              if (e.status === "held") actions = '<button type="button" class="btn btn-sm" data-esc-deliver="' + esc4(e.ref) + '" style="font-size:.8rem">📦 ' + T("I delivered the work", "سلّمت المشروع") + "</button>";
+              if (e.status === "refund_requested") actions =
+                '<button type="button" class="btn btn-ghost btn-sm" data-esc-agree="' + esc4(e.ref) + '" style="font-size:.8rem">↩️ ' + T("I agree to refund the client", "أوافق على إرجاع المبلغ للعميل") + "</button>" +
+                '<span class="text-soft" style="font-size:.74rem">' + T("Object? Do nothing — BP arbitrates and the money stays held.", "معترض؟ لا تضغط شيئاً — يفصل فريق بيزنس بارتنر والمبلغ يبقى محجوزاً.") + "</span>";
+              return '<div style="padding:9px 0;border-bottom:1px solid #eef1f6">' +
+                '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
                 "<div><b>" + esc4(e.title || e.ref) + '</b><br><span class="text-soft" style="font-size:.8rem">' + esc4(e.ref + " · " + String(e.created_at || "").slice(0, 10)) + "</span></div>" +
-                '<div style="text-align:end"><b>' + e.amount + ' ﷼</b><br><span style="font-size:.78rem;color:' + (warn ? "#b45309" : "#2563eb") + '">' +
-                (warn ? T("Refund requested — under review", "طلب استرجاع — قيد المراجعة") : T("Held — releases on client approval", "محجوز — يتحرر باعتماد العميل")) + "</span></div></div>";
+                '<div style="text-align:end"><b>' + e.amount + ' ﷼</b><br><span style="font-size:.78rem;color:' + st[1] + '">' + st[0] + "</span></div></div>" +
+                (actions ? '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">' + actions + "</div>" : "") +
+                "</div>";
             }).join("") : '<p class="dash-empty">' + T("No escrows held for you yet.", "لا ضمانات محجوزة لصالحك حالياً.") + "</p>";
+            function escAct(sel, mkBody, confirmMsg, promptMsg) {
+              [].slice.call(esBox.querySelectorAll(sel)).forEach(function (btn) {
+                btn.onclick = function () {
+                  var note = "";
+                  if (promptMsg) { var p2 = prompt(promptMsg); if (p2 === null) return; note = p2; }
+                  else if (confirmMsg && !confirm(confirmMsg)) return;
+                  var c2 = creds(); if (!c2) return;
+                  btn.disabled = true;
+                  fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" },
+                    body: JSON.stringify(mkBody(c2, btn, note)) })
+                    .then(function (r) { return r.json(); })
+                    .then(function (r) { if (r && r.ok) loadWallet(); else { btn.disabled = false; alert(T("Could not complete — refresh and try again.", "تعذّر التنفيذ — حدّث الصفحة وحاول مرة أخرى.")); } })
+                    .catch(function () { btn.disabled = false; });
+                };
+              });
+            }
+            escAct('[data-esc-deliver]', function (c2, btn, note) {
+              return { type: "escrow-deliver", email: c2.email, password: c2.pw || "", ref: btn.getAttribute("data-esc-deliver"), note: note };
+            }, null, T("Confirm delivery — add a note the client will see (what was delivered, links…):", "تأكيد التسليم — أضف ملاحظة يراها العميل (ماذا سلّمت، روابط…):"));
+            escAct('[data-esc-agree]', function (c2, btn) {
+              return { type: "escrow-agree-refund", email: c2.email, password: c2.pw || "", ref: btn.getAttribute("data-esc-agree") };
+            }, T("Confirm: return the full amount to the client's wallet? This cannot be undone.", "تأكيد: إرجاع كامل المبلغ إلى محفظة العميل؟ لا يمكن التراجع."));
           }
           var txBox = document.getElementById("pw-tx");
           if (txBox) {

@@ -2855,8 +2855,10 @@
     // ===== escrow + supplier wallet oversight =====
     function escANote(cls, text){ var m = $('escAdminMsg'); if (m){ m.className = 'edmsg' + (text ? ' ' + cls : ''); m.textContent = text || ''; } }
     var ESC_ST = {
-      held: ['محجوز', '#2563eb'], released: ['تحرر للمورد ✓', '#047857'],
-      refund_requested: ['⚠️ طلب استرجاع — قرارك مطلوب', '#b45309'],
+      held: ['محجوز — بانتظار تسليم المورد', '#2563eb'],
+      delivered: ['📦 سلّم المورد — بانتظار اعتماد العميل', '#7c3aed'],
+      released: ['تحرر للمورد ✓', '#047857'],
+      refund_requested: ['⚠️ طلب استرجاع — بانتظار موافقة المورد أو قرارك', '#b45309'],
       refunded: ['أُرجع للعميل ✓', '#047857'], cancelled: ['ملغي', '#64748b']
     };
     function escLoadAll(){
@@ -2867,7 +2869,7 @@
         var list = out.escrows || [];
         $('escAdminList').innerHTML = list.length ? list.map(function(e){
           var st = ESC_ST[e.status] || [e.status, '#64748b'];
-          var act = (e.status === 'held' || e.status === 'refund_requested');
+          var act = (e.status === 'held' || e.status === 'delivered' || e.status === 'refund_requested');
           return '<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:' + (e.status === 'refund_requested' ? '#fffbeb' : '#fff') + '">' +
             '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">' +
               '<div><b>' + esc(e.title || e.ref) + '</b><br><span style="font-size:11.5px;color:#64748b">' + esc(e.ref) + ' · عميل: ' + esc(e.client_email) + ' · مورد: ' + esc(e.supplier_name || '') + ' ' + esc(e.supplier_email) + (e.note ? ' · السبب: ' + esc(e.note) : '') + '</span></div>' +

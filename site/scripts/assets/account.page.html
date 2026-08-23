@@ -489,7 +489,7 @@
 
           <div class="card" id="escrowCard" style="margin-top:14px">
             <h4>🛡️ ضمان تنفيذ مع مورد</h4>
-            <p style="font-size:12.5px;color:var(--soft);margin:6px 0 10px">احجز مبلغاً من محفظتك كضمان لدى بيزنس بارتنر لأي اتفاق مع مورد — المبلغ لا يصل للمورد إلا بعد اعتمادك للتسليم من هنا، وإن تعثر التنفيذ تطلب استرجاعه ويفصل فريقنا بين الطرفين.</p>
+            <p style="font-size:12.5px;color:var(--soft);margin:6px 0 10px">احجز مبلغاً من محفظتك كضمان لدى بيزنس بارتنر لأي اتفاق مع مورد — <b>بتعميد الطرفين مثل منصات العمل الحر</b>: المورد يعلن التسليم من لوحته، ثم تعتمد أنت الاستلام فيتحرر المبلغ له. ولا يُسترجع المبلغ لمحفظتك إلا بموافقة المورد أو بقرار من فريقنا عند النزاع — حقوق الطرفين محفوظة وكل خطوة موثقة بتاريخها.</p>
             <div style="display:grid;gap:8px;grid-template-columns:1fr 1fr">
               <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">بريد المورد</label>
                 <input id="escSupEmail" type="email" dir="ltr" placeholder="supplier@company.com" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
@@ -2135,9 +2135,10 @@
     }
     function escStatusChip(s){
       var m = {
-        held: ['محجوز — بانتظار اعتمادك للتسليم', '#2563eb', '#eff6ff'],
-        released: ['تحرر للمورد ✓', '#047857', '#ecfdf5'],
-        refund_requested: ['طلب استرجاع — قيد المراجعة', '#b45309', '#fffbeb'],
+        held: ['محجوز — بانتظار إعلان المورد للتسليم', '#2563eb', '#eff6ff'],
+        delivered: ['📦 أعلن المورد التسليم — اعتمادك مطلوب', '#7c3aed', '#f5f3ff'],
+        released: ['تحرر للمورد ✓ (بتعميد الطرفين)', '#047857', '#ecfdf5'],
+        refund_requested: ['طلب استرجاع — بانتظار موافقة المورد أو قرار الإدارة', '#b45309', '#fffbeb'],
         refunded: ['أُرجع لمحفظتك ✓', '#047857', '#ecfdf5'],
         cancelled: ['ملغي', '#64748b', '#f1f5f9']
       }[s] || [s, '#64748b', '#f1f5f9'];
@@ -2147,15 +2148,19 @@
       var box = $('escList'); if (!box) return;
       if (!escrows.length) { box.innerHTML = '<div class="emptyline">لا ضمانات بعد — أول ضمان تحجزه يظهر هنا.</div>'; return; }
       box.innerHTML = escrows.map(function(e2){
-        var canAct = e2.status === 'held';
+        // The release button appears only after the supplier declared delivery
+        // — money moves with BOTH signatures, never one.
+        var canRelease = e2.status === 'delivered' || (e2.status === 'refund_requested' && e2.delivered_at);
+        var canRefund = e2.status === 'held' || e2.status === 'delivered';
+        var noteLine = e2.supplier_note ? '<div style="font-size:12px;color:#475569;background:#f8fafc;border-radius:8px;padding:6px 10px;margin-top:6px">📦 ملاحظة المورد عند التسليم: ' + esc(e2.supplier_note) + '</div>' : '';
         return '<div style="border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:8px">' +
           '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">' +
-            '<div><b>' + esc(e2.title || e2.ref) + '</b><br><span style="font-size:11.5px;color:#64748b">' + esc(e2.ref) + ' · ' + esc(e2.supplier_name || e2.supplier_email) + ' · ' + dts(e2.created_at) + '</span></div>' +
+            '<div><b>' + esc(e2.title || e2.ref) + '</b><br><span style="font-size:11.5px;color:#64748b">' + esc(e2.ref) + ' · ' + esc(e2.supplier_name || e2.supplier_email) + ' · ' + dts(e2.created_at) + (e2.delivered_at ? ' · سلّم: ' + dts(e2.delivered_at) : '') + '</span></div>' +
             '<div style="text-align:left"><b>' + e2.amount + ' ﷼</b><br>' + escStatusChip(e2.status) + '</div>' +
-          '</div>' +
-          (canAct ? '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">' +
-            '<button type="button" class="btn" data-esc-release="' + esc(e2.id) + '" style="font-size:12.5px">✅ استلمت العمل — حرّر المبلغ للمورد</button>' +
-            '<button type="button" class="btn ghost" data-esc-refund="' + esc(e2.id) + '" style="font-size:12.5px">↩️ اطلب استرجاع المبلغ</button>' +
+          '</div>' + noteLine +
+          ((canRelease || canRefund) ? '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">' +
+            (canRelease ? '<button type="button" class="btn" data-esc-release="' + esc(e2.id) + '" style="font-size:12.5px">✅ أعتمد الاستلام — حرّر المبلغ للمورد</button>' : '<span style="font-size:11.5px;color:#64748b">زر الاعتماد يظهر بعد إعلان المورد التسليم من لوحته</span>') +
+            (canRefund ? '<button type="button" class="btn ghost" data-esc-refund="' + esc(e2.id) + '" style="font-size:12.5px">↩️ اطلب استرجاع المبلغ</button>' : '') +
           '</div>' : '') +
         '</div>';
       }).join('');
@@ -2164,7 +2169,8 @@
           if (!confirm('تأكيد: استلمت العمل كاملاً وتريد تحويل المبلغ للمورد؟ لا يمكن التراجع بعد التحرير.')) return;
           b.disabled = true;
           opsPost({ action: 'escrow-release', id: b.getAttribute('data-esc-release') }).then(function(out){
-            if (out && out.ok) { wnote('escMsg', 'ok', '✅ تحرر المبلغ إلى محفظة المورد وأُبلغ بالبريد.'); loadEscrows(); }
+            if (out && out.ok) { wnote('escMsg', 'ok', '✅ اعتمدت الاستلام وتحرر المبلغ إلى محفظة المورد — أُبلغ الطرفان بالبريد.'); loadEscrows(); }
+            else if (out && out.error === 'not_delivered_yet') { b.disabled = false; wnote('escMsg', 'err', 'المورد لم يعلن التسليم بعد — الاعتماد يكون بعد إعلانه من لوحته.'); }
             else { b.disabled = false; wnote('escMsg', 'err', 'تعذّر التحرير — حدّث الصفحة وحاول مرة أخرى.'); }
           });
         };

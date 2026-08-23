@@ -1021,7 +1021,7 @@ export default async function handler(req, res) {
     const orgId = sess.organization && sess.organization.id;
     try {
       const [escrows, bal] = await Promise.all([
-        orgId ? sb(`escrows?organization_id=eq.${orgId}&select=id,ref,supplier_email,supplier_name,title,amount,status,created_at,released_at&order=created_at.desc&limit=50`) : [],
+        orgId ? sb(`escrows?organization_id=eq.${orgId}&select=id,ref,supplier_email,supplier_name,title,amount,status,created_at,released_at,delivered_at,supplier_note&order=created_at.desc&limit=50`) : [],
         orgId ? sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`) : [],
       ]);
       res.statusCode = 200;
@@ -2019,7 +2019,7 @@ export default async function handler(req, res) {
       if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "id_required" })); }
       try {
         if (decision === "release") {
-          const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=in.(held,refund_requested)`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
+          const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=in.(held,delivered,refund_requested)`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
           if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_releasable" })); }
           const e2 = rows[0];
           await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: e2.supplier_email, type: "escrow_release", amount: Number(e2.amount), note: `تحرير ضمان ${e2.ref} (قرار الإدارة)` }] });
@@ -2027,7 +2027,7 @@ export default async function handler(req, res) {
           res.statusCode = 200;
           return res.end(JSON.stringify({ ok: true, escrow: e2 }));
         }
-        const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=in.(held,refund_requested)`, { method: "PATCH", body: { status: "refunded" } });
+        const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=in.(held,delivered,refund_requested)`, { method: "PATCH", body: { status: "refunded" } });
         if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_refundable" })); }
         const e2 = rows[0];
         await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: e2.organization_id, type: "refund", amount: Number(e2.amount), note: `استرجاع ضمان ${e2.ref}` }] });
@@ -2385,8 +2385,8 @@ export default async function handler(req, res) {
         await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "escrow.create", entity_type: "escrow", entity_id: String(rows[0].id), after: { amount, supplierEmail } }).catch(() => {});
         await notify({ organization_id: orgId, event: "escrow_held", channel: "inapp", title: `تم حجز ${amount} ﷼ ضمان تنفيذ (${ref})`, idempotency_key: `escrow_held:${ref}` }).catch(() => {});
         await Promise.all([
-          sendEmail(supplierEmail, `💼 ضمان تنفيذ محجوز لصالحك — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">مبلغ ضمان محجوز لصالحك</h2><p>حجز العميل <b>${esc(myName)}</b> مبلغ <strong>${amount} ﷼</strong> ضمان تنفيذ عبر منصة بيزنس بارتنر:</p><table>${row("المرجع", ref) + row("موضوع الاتفاق", title) + row("المبلغ", amount + " ﷼")}</table><p>المبلغ محجوز لدى بيزنس بارتنر ويُحرَّر إلى محفظتك في <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك</a> فور اعتماد العميل للتسليم.</p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`),
-          sendEmail(myEmail, `تم حجز الضمان ✅ — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم حجز الضمان ✅</h2><p>خُصم <strong>${amount} ﷼</strong> من محفظتك وحُجز كضمان تنفيذ لدى بيزنس بارتنر — لا يصل للمورد إلا بعد اعتمادك للتسليم من لوحتك.</p><table>${row("المرجع", ref) + row("المورد", supplierName || supplierEmail) + row("الموضوع", title)}</table></div>`),
+          sendEmail(supplierEmail, `💼 ضمان تنفيذ محجوز لصالحك — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">مبلغ ضمان محجوز لصالحك</h2><p>حجز العميل <b>${esc(myName)}</b> مبلغ <strong>${amount} ﷼</strong> ضمان تنفيذ عبر منصة بيزنس بارتنر:</p><table>${row("المرجع", ref) + row("موضوع الاتفاق", title) + row("المبلغ", amount + " ﷼")}</table><p>المبلغ محجوز لدى بيزنس بارتنر بضمان الطرفين. عند إتمام العمل اضغط <b>«سلّمت المشروع»</b> من <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك ← محفظتي</a>، وبعد اعتماد العميل للاستلام يتحرر المبلغ إلى محفظتك فوراً.</p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`),
+          sendEmail(myEmail, `تم حجز الضمان ✅ — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم حجز الضمان ✅</h2><p>خُصم <strong>${amount} ﷼</strong> من محفظتك وحُجز كضمان تنفيذ لدى بيزنس بارتنر — بتعميد الطرفين: المورد يعلن التسليم أولاً، ثم تعتمد أنت الاستلام فيتحرر المبلغ. ولا يُسترجع المبلغ إلا بموافقة المورد أو بقرار من فريقنا.</p><table>${row("المرجع", ref) + row("المورد", supplierName || supplierEmail) + row("الموضوع", title)}</table></div>`),
           sendEmail(TEAM_EMAIL, `💼 ضمان جديد ${ref} — ${myName} ← ${supplierName || supplierEmail} (${amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>ضمان تنفيذ فُتح من محفظة العميل — لا إجراء مطلوب حتى يعتمد العميل أو يطلب استرجاعاً.</p><table>${row("العميل", myName + " · " + myEmail) + row("المورد", (supplierName || "") + " · " + supplierEmail) + row("الموضوع", title) + row("المبلغ", amount + " ﷼")}</table></div>`),
           crmLead({ title: `ضمان تنفيذ — ${myName} ← ${supplierName || supplierEmail}`, phone: "", email: myEmail, notes: `ضمان · ${title} · ${amount} ﷼ · المورد: ${supplierEmail}`, ref, orderStatus: "مؤكد - قيد التنفيذ", total: amount }),
         ]).catch(() => {});
@@ -2397,8 +2397,19 @@ export default async function handler(req, res) {
       const id = String(b.id || "").slice(0, 60);
       if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "id_required" })); }
       if (b.action === "escrow-release") {
-        // The status filter makes this idempotent: a second click updates 0 rows.
-        const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&status=in.(held,refund_requested)`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
+        // Two-sided handshake, like the freelance marketplaces: the money moves
+        // to the supplier only after the supplier has declared delivery AND the
+        // client approves receipt — this call is the client's half only.
+        const cur = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&select=id,status,delivered_at`);
+        const e0 = cur[0];
+        if (!e0) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const releasable = e0.status === "delivered" || (e0.status === "refund_requested" && e0.delivered_at);
+        if (!releasable) {
+          res.statusCode = 409;
+          return res.end(JSON.stringify({ ok: false, error: e0.status === "held" ? "not_delivered_yet" : "not_releasable" }));
+        }
+        // The status guard makes this idempotent: a raced second click updates 0 rows.
+        const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=eq.${encodeURIComponent(e0.status)}`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
         if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_releasable" })); }
         const e2 = rows[0];
         await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: e2.supplier_email, type: "escrow_release", amount: Number(e2.amount), note: `تحرير ضمان ${e2.ref} — ${e2.title}`.slice(0, 300) }] });
@@ -2410,13 +2421,15 @@ export default async function handler(req, res) {
         res.statusCode = 200;
         return res.end(JSON.stringify({ ok: true, escrow: e2 }));
       }
-      // escrow-refund: the client asks for the money back — the owner decides.
-      const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&status=eq.held`, { method: "PATCH", body: { status: "refund_requested", note: String(b.reason || "").slice(0, 400) } });
+      // escrow-refund: the client asks for the money back. It reaches their
+      // wallet only when the SUPPLIER consents (from the partner dashboard) or
+      // Business Partner arbitrates — never on the client's word alone.
+      const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&status=in.(held,delivered)`, { method: "PATCH", body: { status: "refund_requested", note: String(b.reason || "").slice(0, 400) } });
       if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_refundable" })); }
       const e3 = rows[0];
       await Promise.all([
-        sendEmail(TEAM_EMAIL, `⚠️ طلب استرجاع ضمان ${e3.ref} — ${myName} (${e3.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>طلب العميل استرجاع مبلغ الضمان. راجع الحالة مع الطرفين ثم قرر من لوحة /admin ← الأدوات ← الضمانات (استرجاع للعميل أو تحرير للمورد).</p><table>${row("العميل", myName + " · " + myEmail) + row("المورد", e3.supplier_email) + row("الموضوع", e3.title) + row("المبلغ", e3.amount + " ﷼") + row("سبب الطلب", String(b.reason || "—").slice(0, 400))}</table></div>`),
-        sendEmail(e3.supplier_email, `⚠️ طلب استرجاع على الضمان ${e3.ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>طلب العميل استرجاع مبلغ الضمان <b>${e3.ref}</b> (${e3.amount} ﷼). سيتواصل معكما فريق بيزنس بارتنر للفصل في الطلب — المبلغ يبقى محجوزاً حتى القرار.</p></div>`),
+        sendEmail(TEAM_EMAIL, `⚠️ طلب استرجاع ضمان ${e3.ref} — ${myName} (${e3.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>طلب العميل استرجاع مبلغ الضمان. إن وافق المورد من لوحته يُسترجع تلقائياً؛ وإن اعترض فافصل أنت من لوحة /admin ← الأدوات ← الضمانات (استرجاع للعميل أو تحرير للمورد).</p><table>${row("العميل", myName + " · " + myEmail) + row("المورد", e3.supplier_email) + row("الموضوع", e3.title) + row("المبلغ", e3.amount + " ﷼") + row("سبب الطلب", String(b.reason || "—").slice(0, 400))}</table></div>`),
+        sendEmail(e3.supplier_email, `⚠️ طلب استرجاع على الضمان ${e3.ref} — موافقتك مطلوبة`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>طلب العميل استرجاع مبلغ الضمان <b>${e3.ref}</b> (${e3.amount} ﷼).</p><p>السبب المذكور: ${esc(String(b.reason || "—").slice(0, 400))}</p><p>من <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك ← محفظتي</a>: إن كنت موافقاً اضغط «أوافق على الإرجاع» ويعود المبلغ للعميل فوراً، وإن كنت معترضاً فلا تضغط شيئاً — يفصل فريق بيزنس بارتنر بينكما ويبقى المبلغ محجوزاً حتى القرار.</p></div>`),
       ]).catch(() => {});
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, escrow: e3 }));
