@@ -20,6 +20,7 @@ import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuot
 import { stageChannels, announce } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
+import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
 import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
@@ -1715,6 +1716,7 @@ export default async function handler(req, res) {
               (panelRequiresNafath() ? " · اللوحة تفتح بنفاذ فقط 🔒" : " · مفتاح الوصول ما زال يفتح اللوحة");
           return svc("نفاذ — التحقق من الهوية", ready ? "NAFATH_*" : null, note);
         })(),
+        svc("اعتماد — واجهة العقود الحكومية", etimadConfigured() ? "ETIMAD_*" : null, "استعلام العقود والمستخلصات — افحص الاتصال من بطاقة اعتماد"),
         svc("واتساب العميل (Cloud API)", has("WHATSAPP_TOKEN", "WHATSAPP_ACCESS_TOKEN", "META_WHATSAPP_TOKEN") && has("WHATSAPP_PHONE_ID", "WHATSAPP_PHONE_NUMBER_ID") ? "WHATSAPP_*" : null, "إشعار العميل بكل خطوة على واتساب"),
       ];
       res.statusCode = 200;
@@ -1727,6 +1729,14 @@ export default async function handler(req, res) {
     // Ask Moyasar whether the key works, rather than whether the variable
     // exists. The two are not the same claim, and this project has already
     // lost an evening to the difference.
+    // Ask Etimad for a token with the credential we hold. A variable that is
+    // merely set proves nothing — a wrong secret sets it just as well.
+    if (b.action === "panel-etimad-ping") {
+      const out = await etimadPing();
+      res.statusCode = 200; // a configuration answer is not a server error
+      return res.end(JSON.stringify(out));
+    }
+
     if (b.action === "panel-moyasar-ping") {
       const out = await moyasarPing();
       res.statusCode = 200; // a configuration answer is not a server error
