@@ -6831,3 +6831,200 @@ var BP_EMP_BILLING = "monthly";
     }
   } catch (e) {}
 })();
+
+/* ---------- Recruitment agencies: registration + agency portal ---------- */
+(function () {
+  "use strict";
+  var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+  function val(id) { var el = document.getElementById(id); return el ? String(el.value || "").trim() : ""; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  // ---- public registration form (/recruitment-agencies) ----
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("ag-form");
+    if (!form) return;
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var msg = document.getElementById("ag-msg"), btn = document.getElementById("ag-submit");
+      var payload = {
+        type: "register",
+        name: val("ag-name"), kind: val("ag-kind"), country: val("ag-country"), city: val("ag-city"),
+        license: val("ag-license"), licenseBy: val("ag-license-by"), musaned: val("ag-musaned"),
+        ksaExperience: val("ag-ksa"), contact: val("ag-contact"), role: val("ag-role"),
+        email: val("ag-email"), phone: val("ag-phone"), whatsapp: val("ag-whatsapp"),
+        website: val("ag-website"), capacity: val("ag-capacity"), years: val("ag-years"),
+        nationalities: val("ag-nationalities"), professions: val("ag-professions"), about: val("ag-about"),
+      };
+      if (!payload.name || !payload.country || !payload.phone || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(payload.email)) {
+        msg.style.color = "#B91C1C";
+        msg.textContent = T("Please fill in the office name, country, email and phone.", "الرجاء تعبئة اسم المكتب والدولة والبريد والهاتف.");
+        return;
+      }
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      fetch("/api/agencies", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          btn.disabled = false; btn.textContent = T("Submit registration", "أرسل طلب التسجيل");
+          if (d && d.ok) {
+            msg.style.color = "";
+            msg.textContent = d.updated
+              ? T("Your registration was updated — we'll be in touch after review.", "تم تحديث بيانات تسجيلك — سنتواصل معك بعد المراجعة.")
+              : T("Registration received. We'll review your licence and email you an access code once approved.", "تم استلام التسجيل. سنراجع ترخيصك ونرسل رمز الدخول على بريدك عند الاعتماد.");
+            form.reset();
+          } else {
+            msg.style.color = "#B91C1C";
+            msg.textContent = T("Couldn't send the registration. Please try again.", "تعذّر إرسال التسجيل. حاول مجدداً.");
+          }
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = T("Submit registration", "أرسل طلب التسجيل");
+          msg.style.color = "#B91C1C";
+          msg.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+        });
+    });
+  });
+
+  // ---- portal (/agency-portal) ----
+  document.addEventListener("DOMContentLoaded", function () {
+    var loginForm = document.getElementById("ap-login-form");
+    if (!loginForm) return;
+    var SESSION = "bp_agency";
+    var creds = null;
+    try { creds = JSON.parse(localStorage.getItem(SESSION) || "null"); } catch (e) {}
+
+    function api(qs) { return "/api/agencies?" + qs + "&email=" + encodeURIComponent(creds.email) + "&code=" + encodeURIComponent(creds.code); }
+    function show(agency) {
+      document.getElementById("ap-login").hidden = true;
+      document.getElementById("ap-app").hidden = false;
+      document.getElementById("ap-agency-name").textContent = agency.name || "";
+      document.getElementById("ap-agency-meta").textContent =
+        [agency.kind, agency.country, agency.city].filter(Boolean).join(" · ") +
+        (agency.nationalities ? " · " + agency.nationalities : "");
+      loadRequests();
+      loadSubmissions();
+    }
+    function fail(err, status) {
+      var el = document.getElementById("ap-error");
+      el.textContent = err === "not_approved"
+        ? T("Your office isn't approved yet — we'll email your access code once the review is done.", "مكتبك غير معتمد بعد — سنرسل رمز الدخول على بريدك فور انتهاء المراجعة.")
+        : T("Incorrect email or access code.", "البريد أو رمز الوصول غير صحيح.");
+    }
+    function loadRequests() {
+      var box = document.getElementById("ap-requests");
+      fetch(api("action=requests")).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) { box.innerHTML = '<p class="emp-note">' + T("Couldn't load requests.", "تعذّر تحميل الطلبات.") + "</p>"; return; }
+        if (!d.requests.length) { box.innerHTML = '<p class="emp-note">' + T("No open requests for your office right now — we'll notify you when one is published.", "لا توجد طلبات مفتوحة لمكتبك حالياً — سنشعرك فور نشر طلب جديد.") + "</p>"; return; }
+        box.innerHTML = '<div class="grid grid-3">' + d.requests.map(function (q) {
+          var meta = [q.profession, q.city, q.nationalities, q.gender].filter(Boolean).join(" · ");
+          return '<article class="card"><span class="emp-tag">' + esc(q.status) + (q.count ? " · " + esc(q.count) + " " + T("needed", "مطلوب") : "") + '</span>' +
+            "<h3>" + esc(q.title) + "</h3>" +
+            (meta ? '<p class="emp-note">' + esc(meta) + "</p>" : "") +
+            (q.salary ? "<p>" + T("Salary", "الراتب") + ": " + esc(q.salary) + "</p>" : "") +
+            (q.experience ? '<p class="emp-note">' + T("Experience", "الخبرة") + ": " + esc(q.experience) + "</p>" : "") +
+            (q.extra ? '<p class="emp-note">' + esc(q.extra) + "</p>" : "") +
+            '<div class="talent-actions"><button type="button" class="btn btn-primary btn-sm" data-ap-submit="' + esc(q.id) + '" data-ap-title="' + esc(q.title) + '">' + T("Submit a candidate", "ارفع مرشّحاً") + "</button></div></article>";
+        }).join("") + "</div>";
+      }).catch(function () { box.innerHTML = '<p class="emp-note">' + T("Network error.", "خطأ في الاتصال.") + "</p>"; });
+    }
+    function loadSubmissions() {
+      var box = document.getElementById("ap-submissions");
+      fetch(api("action=submissions")).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) { box.innerHTML = ""; return; }
+        if (!d.submissions.length) { box.innerHTML = '<p class="emp-note">' + T("You haven't submitted any candidates yet.", "لم ترفع أي مرشّح بعد.") + "</p>"; return; }
+        box.innerHTML = '<div class="emp-grid">' + d.submissions.map(function (c) {
+          return '<article class="card"><h3>' + esc(c.name) + "</h3>" +
+            '<p class="emp-note">' + [c.role, c.nationality].filter(Boolean).map(esc).join(" · ") + "</p>" +
+            '<p><span class="emp-tag">' + esc(c.stage || "—") + "</span></p>" +
+            (c.job ? '<p class="emp-note">' + esc(c.job) + "</p>" : "") + "</article>";
+        }).join("") + "</div>";
+      }).catch(function () { box.innerHTML = ""; });
+    }
+
+    loginForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = val("ap-email"), code = val("ap-code");
+      var btn = document.getElementById("ap-login-btn");
+      document.getElementById("ap-error").textContent = "";
+      if (!email || !code) return;
+      btn.disabled = true; btn.textContent = T("Signing in…", "جارٍ الدخول…");
+      fetch("/api/agencies", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "login", email: email, code: code }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          btn.disabled = false; btn.textContent = T("Sign in", "دخول");
+          if (!d || !d.ok) { fail(d && d.error); return; }
+          creds = { email: email, code: code };
+          try { localStorage.setItem(SESSION, JSON.stringify(creds)); } catch (e2) {}
+          show(d.agency);
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = T("Sign in", "دخول");
+          document.getElementById("ap-error").textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+        });
+    });
+
+    var logout = document.getElementById("ap-logout");
+    if (logout) logout.addEventListener("click", function () {
+      try { localStorage.removeItem(SESSION); } catch (e) {}
+      location.reload();
+    });
+
+    // Candidate submission modal, opened from a specific request.
+    var modal = document.getElementById("ap-modal"), current = null;
+    document.addEventListener("click", function (e) {
+      var open = e.target.closest ? e.target.closest("[data-ap-submit]") : null;
+      if (open) {
+        current = { id: open.getAttribute("data-ap-submit"), title: open.getAttribute("data-ap-title") };
+        document.getElementById("ap-modal-title").textContent = T("Submit a candidate for: ", "رفع مرشّح على: ") + current.title;
+        document.getElementById("ap-c-msg").textContent = "";
+        modal.hidden = false;
+        return;
+      }
+      if (e.target.id === "ap-modal-x" || e.target === modal) modal.hidden = true;
+    });
+    var candForm = document.getElementById("ap-cand-form");
+    if (candForm) candForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var msg = document.getElementById("ap-c-msg"), btn = document.getElementById("ap-c-submit");
+      if (!val("ap-c-name") || !val("ap-c-role")) {
+        msg.style.color = "#B91C1C";
+        msg.textContent = T("Candidate name and profession are required.", "اسم المرشّح والمهنة إلزاميان.");
+        return;
+      }
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      fetch("/api/agencies", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          type: "submit-candidate", email: creds.email, code: creds.code,
+          requestId: current ? current.id : "", requestTitle: current ? current.title : "",
+          candidateName: val("ap-c-name"), role: val("ap-c-role"), nationality: val("ap-c-nat"),
+          experience: val("ap-c-exp"), candidatePhone: val("ap-c-phone"), candidateEmail: val("ap-c-email"),
+          cvUrl: val("ap-c-cv"), skills: val("ap-c-skills"), notes: val("ap-c-notes"),
+        }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false; btn.textContent = T("Send candidate", "أرسل المرشّح");
+        if (d && d.ok) {
+          msg.style.color = "";
+          msg.textContent = T("Candidate sent ✓", "تم إرسال المرشّح ✓");
+          candForm.reset();
+          loadSubmissions();
+          setTimeout(function () { modal.hidden = true; }, 1200);
+        } else {
+          msg.style.color = "#B91C1C";
+          msg.textContent = T("Couldn't send the candidate. Please try again.", "تعذّر إرسال المرشّح. حاول مجدداً.");
+        }
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = T("Send candidate", "أرسل المرشّح");
+        msg.style.color = "#B91C1C";
+        msg.textContent = T("Network error.", "خطأ في الاتصال.");
+      });
+    });
+
+    // A stored session signs straight back in; a rejected one falls back to the form.
+    if (creds && creds.email && creds.code) {
+      fetch("/api/agencies", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "login", email: creds.email, code: creds.code }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && d.ok) show(d.agency); else { try { localStorage.removeItem(SESSION); } catch (e) {} } })
+        .catch(function () {});
+    }
+  });
+})();
