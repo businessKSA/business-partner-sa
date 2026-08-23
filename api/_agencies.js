@@ -28,7 +28,14 @@
 // Underscore-prefixed so Vercel treats it as a module, not another serverless
 // function — the plan caps at 12 and this repo is at the cap.
 
-import { randomBytes, timingSafeEqual } from "crypto";
+import { randomBytes, timingSafeEqual, createHmac, randomInt } from "crypto";
+import { verifyGoogleIdToken } from "./_suppliers.js";
+import { nafathPing } from "./_nafath.js";
+// The agency portal runs candidates through the SAME pipeline as the site's own
+// intake — n8n reads the attached CV, files it on Drive, writes an ATS-friendly
+// version and screens it — so an agency profile lands in the pool as clean,
+// structured data rather than a hand-typed row.
+import { forwardToN8n, applyN8nEnrichment, findExisting, guessField } from "./candidate.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -46,14 +53,35 @@ const NOTION_VERSION = "2022-06-28";
 const AGENCIES_DB = process.env.NOTION_AGENCIES_DB || "32f564a5c1dd4370b5af6567c27eee40";
 const REQUESTS_DB = process.env.NOTION_AGENCY_REQUESTS_DB || "9023896619e24c7592d97fbd43dda7f9";
 const ATS_DB = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
+const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
 const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const NOTIFY = process.env.BP_NOTIFY_EMAIL || "business@businesspartner.sa";
 const OWNER_KEY = envFrom(["PANEL_KEY", "LEADS_KEY"]);
+const OTP_SECRET = (process.env.OTP_SECRET || "").trim();
+const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || "").trim();
+
+// Stateless e-mail sign-in: the code goes to the office's inbox, an HMAC over
+// (email, code, expiry) goes to its browser. Neither alone is enough, so no
+// pending-code table is needed — the same scheme the supplier portal uses.
+const sealCode = (email, code, exp) => createHmac("sha256", OTP_SECRET).update(`ag-verify|${email}|${code}|${exp}`).digest("hex");
+function sealOk(email, code, token, exp) {
+  if (!OTP_SECRET || !email || !code || !token || !exp) return false;
+  if (Date.now() > Number(exp)) return false;
+  const want = Buffer.from(sealCode(email, code, exp)), got = Buffer.from(String(token));
+  return want.length === got.length && timingSafeEqual(want, got);
+}
 
 const clip = (s, n = 300) => String(s == null ? "" : s).trim().slice(0, n);
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const rt = (v) => (v ? [{ text: { content: clip(v, 1900) } }] : []);
+function rtChunks(v, maxChars = 1900, maxChunks = 6) {
+  const str = String(v || "").trim();
+  if (!str) return [];
+  const chunks = [];
+  for (let i = 0; i < str.length && chunks.length < maxChunks; i += maxChars) chunks.push({ text: { content: str.slice(i, i + maxChars) } });
+  return chunks;
+}
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function txt(p) {
@@ -153,6 +181,28 @@ function mapAgency(pg) {
   };
 }
 
+// Look up the registry row for an email, regardless of how the office proved
+// it owns that address.
+async function agencyByEmail(email) {
+  const mail = clip(email, 160).toLowerCase();
+  if (!isEmail(mail)) return null;
+  const q = await notion(`databases/${AGENCIES_DB}/query`, "POST", {
+    page_size: 1, filter: { property: "البريد", email: { equals: mail } },
+  });
+  if (!q.ok) return null;
+  const row = ((q.json && q.json.results) || [])[0];
+  return row ? { row, agency: mapAgency(row) } : null;
+}
+
+// Every sign-in path — access code, Google, or an emailed code — ends here:
+// proving the address is not enough, the owner must also have approved the
+// office, so a pending or suspended agency still sees nothing.
+function gateApproved(agency) {
+  if (!agency) return { ok: false, error: "invalid_credentials" };
+  if (agency.status !== "معتمد") return { ok: false, error: "not_approved", status: 403, agencyStatus: agency.status };
+  return { ok: true, agency };
+}
+
 // Resolve an agency by email, and only treat it as signed in when the code
 // matches AND the owner has approved it — a pending or suspended agency can
 // hold a code and still see nothing.
@@ -234,8 +284,27 @@ export async function handleAgencies(req, res) {
           status: txt(p["الحالة"]),
         };
       });
+      // Approved offices also see every open job on the platform, so they can
+      // supply against the whole board rather than only the demand routed to
+      // them.
+      const jr = await notion(`databases/${JOBS_DB}/query`, "POST", {
+        page_size: 100,
+        filter: { property: "الحالة", select: { equals: "نشطة" } },
+        sorts: [{ timestamp: "created_time", direction: "descending" }],
+      });
+      const jobs = (((jr.json || {}).results) || []).map((pg) => {
+        const p = pg.properties || {};
+        return {
+          id: pg.id,
+          title: txt(p["العنوان الوظيفي"]),
+          company: txt(p["الشركة"]),
+          city: txt(p["المدينة"]),
+          field: txt(p["المجال"]),
+          description: txt(p["الوصف والمتطلبات"]).slice(0, 400),
+        };
+      }).filter((j) => j.title);
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, agency: auth.agency, requests }));
+      return res.end(JSON.stringify({ ok: true, agency: auth.agency, requests, jobs }));
     }
 
     // ---- agency: the candidates it has submitted ----
@@ -265,7 +334,12 @@ export async function handleAgencies(req, res) {
     }
 
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, status: "ok", configured: !!NOTION_TOKEN }));
+    return res.end(JSON.stringify({
+      ok: true, status: "ok", configured: !!NOTION_TOKEN,
+      // The portal renders only the sign-in methods that are actually usable.
+      methods: { code: true, google: !!GOOGLE_CLIENT_ID, email: !!OTP_SECRET && !!RESEND_API_KEY, nafath: false },
+      nafath: nafathPing ? "soon" : "soon",
+    }));
   }
 
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ ok: false, error: "method_not_allowed" })); }
@@ -360,9 +434,40 @@ export async function handleAgencies(req, res) {
     const role = clip(b.role, 160);
     if (!name || !role) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
 
+    const candEmail = isEmail(clip(b.candidateEmail, 160)) ? clip(b.candidateEmail, 160).toLowerCase() : "";
+    const candPhone = clip(b.candidatePhone, 40);
+    const jobTitle = clip(b.requestTitle, 200);
+    const jobId = clip(b.requestId, 120) || "agency-submission";
+    const cvFile = b.cvFile && typeof b.cvFile === "object" ? {
+      name: clip(b.cvFile.name, 220),
+      type: clip(b.cvFile.type, 120),
+      size: Number(b.cvFile.size) || 0,
+      base64: typeof b.cvFile.base64 === "string" ? b.cvFile.base64 : "",
+    } : null;
+
+    // Same payload shape the careers form sends, so the n8n workflow needs no
+    // special case: it reads the CV, files it on Drive, builds the ATS-friendly
+    // version and returns the screening result.
+    const n8n = await forwardToN8n({
+      source: "agency-portal",
+      receivedAt: new Date().toISOString(),
+      agency: { id: auth.agency.id, name: auth.agency.name, country: auth.agency.country },
+      candidate: {
+        name, phone: candPhone, email: candEmail, field: role,
+        fieldCategory: guessField(role), experience: clip(b.experience, 40),
+        city: clip(b.city, 80), country: clip(b.country, 80) || auth.agency.country,
+        nationality: clip(b.nationality, 80), residenceStatus: "خارج السعودية",
+        salary: clip(b.salary, 80), linkedin: "", consent: true,
+      },
+      job: { id: jobId, title: jobTitle || "طلب استقدام" },
+      questions: {},
+      cvFile,
+      ats: { notionDatabaseId: ATS_DB },
+    });
+
     const notes = [
       `مرشّح مقدَّم من مكتب: ${auth.agency.name} (${auth.agency.country})`,
-      clip(b.requestTitle, 200) ? `على الطلب: ${clip(b.requestTitle, 200)}` : "",
+      jobTitle ? `على الطلب/الوظيفة: ${jobTitle}` : "",
       clip(b.notes, 900) ? `ملاحظات المكتب: ${clip(b.notes, 900)}` : "",
     ].filter(Boolean).join("\n");
 
@@ -370,32 +475,114 @@ export async function handleAgencies(req, res) {
       "Candidate Name": { title: [{ text: { content: name } }] },
       "Target Role": { rich_text: rt(role) },
       "Source": { select: { name: "ترشيح" } },
-      "Pipeline Stage": { select: { name: "جديد" } },
       "Matched Employer": { rich_text: rt(auth.agency.name) },
       "Notes": { rich_text: rt(notes) },
       "مخفي عن الموقع": { checkbox: false },
+      // Agency candidates are overseas by definition — the employer console
+      // reads these two to show them as ready for interview and deployment.
+      "حالة الإقامة": { select: { name: "خارج السعودية" } },
+      "Nationality Type": { select: { name: "غير سعودي" } },
+      "الوظيفة المتقدم لها": { rich_text: rt(`${jobTitle || "طلب استقدام"} (${jobId})`) },
     };
-    if (clip(b.candidatePhone, 40)) props["Phone"] = { phone_number: clip(b.candidatePhone, 40) };
-    if (isEmail(clip(b.candidateEmail, 160))) props["Email"] = { email: clip(b.candidateEmail, 160).toLowerCase() };
-    if (clip(b.nationality, 80)) {
-      props["Nationality"] = { rich_text: rt(b.nationality) };
-      props["Nationality Type"] = { select: { name: "غير سعودي" } };
-    }
+    if (candPhone) props["Phone"] = { phone_number: candPhone };
+    if (candEmail) props["Email"] = { email: candEmail };
+    if (clip(b.nationality, 80)) props["Nationality"] = { rich_text: rt(b.nationality) };
     if (clip(b.city, 80)) props["City"] = { rich_text: rt(b.city) };
+    if (clip(b.country, 80) || auth.agency.country) props["Country"] = { rich_text: rt(clip(b.country, 80) || auth.agency.country) };
     if (clip(b.skills, 900)) props["Skills"] = { rich_text: rt(b.skills) };
+    const fieldCat = guessField(role);
+    if (fieldCat) props["Field"] = { select: { name: fieldCat } };
     const exp = Number(b.experience);
     if (Number.isFinite(exp) && exp >= 0) props["Experience Years"] = { number: Math.round(exp) };
     if (/^https?:\/\//i.test(clip(b.cvUrl, 500))) props["CV Link"] = { url: clip(b.cvUrl, 500) };
-    if (clip(b.requestTitle, 200)) props["الوظيفة المتقدم لها"] = { rich_text: rt(`${clip(b.requestTitle, 180)} (${clip(b.requestId, 60) || "agency"})`) };
 
-    const r = await notion("pages", "POST", { parent: { database_id: ATS_DB }, properties: props });
+    // De-duplicate against the pool exactly like the public form does, so a
+    // candidate already known to us is updated rather than doubled.
+    const existing = await findExisting(candEmail, candPhone).catch(() => null);
+    let r;
+    if (existing) {
+      applyN8nEnrichment(props, n8n, false);
+      r = await notion(`pages/${existing.id}`, "PATCH", { properties: props });
+    } else {
+      props["Pipeline Stage"] = { select: { name: "جديد" } };
+      props["حالة القراءة"] = { select: { name: "مكتمل" } };
+      applyN8nEnrichment(props, n8n, true);
+      r = await notion("pages", "POST", { parent: { database_id: ATS_DB }, properties: props });
+    }
     if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+
+    const enriched = n8n && n8n.ok && n8n.data ? n8n.data : null;
     await sendEmail(NOTIFY, `👤 مرشّح جديد من ${auth.agency.name} — ${name}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
-      <p>رفع مكتب <b>${esc(auth.agency.name)}</b> مرشّحاً جديداً:</p>
+      <p>رفع مكتب <b>${esc(auth.agency.name)}</b> مرشّحاً${cvFile && cvFile.name ? " مع سيرة ذاتية مرفقة" : ""}:</p>
       <p><b>${esc(name)}</b> — ${esc(role)}${b.nationality ? " · " + esc(clip(b.nationality, 80)) : ""}</p>
-      <p style="color:#666">${esc(clip(b.requestTitle, 200) || "بدون طلب محدد")}</p></div>`);
+      <p style="color:#666">${esc(jobTitle || "بدون طلب محدد")}</p>
+      ${enriched && enriched.drive && enriched.drive.atsCvDocUrl ? `<p><a href="${esc(enriched.drive.atsCvDocUrl)}">السيرة الذاتية ATS</a></p>` : ""}</div>`);
+
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, id: r.json && r.json.id }));
+    return res.end(JSON.stringify({
+      ok: true,
+      id: r.json && r.json.id,
+      updated: !!existing,
+      // Tell the office what actually happened to the file it attached.
+      cvProcessed: !!(enriched && enriched.drive && (enriched.drive.atsCvDocUrl || enriched.drive.originalCvUrl)),
+      atsCv: enriched && enriched.drive ? enriched.drive.atsCvDocUrl || "" : "",
+    }));
+  }
+
+  // ---------------- sign in with Google ----------------
+  // The office's Google account must carry the same address it registered
+  // with; a verified Google email replaces the access code, it never creates
+  // an account and never bypasses approval.
+  if (type === "google") {
+    if (!GOOGLE_CLIENT_ID) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "google_not_configured" })); }
+    const g = await verifyGoogleIdToken(b.credential);
+    if (!g) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_google_token" })); }
+    const hit = await agencyByEmail(g.email);
+    if (!hit) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_registered", email: g.email })); }
+    const gate = gateApproved(hit.agency);
+    if (!gate.ok) { res.statusCode = gate.status || 401; return res.end(JSON.stringify({ ok: false, error: gate.error, agencyStatus: gate.agencyStatus })); }
+    // Hand back the office's own access code so the portal can keep using the
+    // existing session shape for its data calls.
+    const code = txt(hit.row.properties["رمز الوصول"]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, agency: gate.agency, email: g.email, code }));
+  }
+
+  // ---------------- sign in with an emailed code ----------------
+  if (type === "email-code") {
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const email = clip(b.email, 160).toLowerCase();
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    const hit = await agencyByEmail(email);
+    // The response never reveals whether an address is registered; a code is
+    // only actually sent to a registered, approved office.
+    if (hit && hit.agency.status === "معتمد") {
+      const code = String(randomInt(100000, 1000000));
+      const exp = Date.now() + 15 * 60 * 1000;
+      await sendEmail(email, `رمز الدخول لبوابة المكاتب: ${code}`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px">
+        <h2 style="color:#0B1B5A">رمز الدخول</h2>
+        <p>رمز دخولك إلى بوابة مكاتب الاستقدام (صالح 15 دقيقة):</p>
+        <p style="font-size:30px;font-weight:bold;letter-spacing:6px;color:#0B1B5A">${esc(code)}</p>
+        <p style="color:#666">إذا لم تطلبه، تجاهل هذه الرسالة.</p></div>`);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, sent: true, t: sealCode(email, code, exp), exp }));
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, sent: true }));
+  }
+
+  if (type === "email-verify") {
+    const email = clip(b.email, 160).toLowerCase();
+    if (!sealOk(email, clip(b.code, 10), clip(b.t, 200), b.exp)) {
+      res.statusCode = 401;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_credentials" }));
+    }
+    const hit = await agencyByEmail(email);
+    const gate = gateApproved(hit && hit.agency);
+    if (!gate.ok) { res.statusCode = gate.status || 401; return res.end(JSON.stringify({ ok: false, error: gate.error, agencyStatus: gate.agencyStatus })); }
+    const code = txt(hit.row.properties["رمز الوصول"]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, agency: gate.agency, email, code }));
   }
 
   // ---------------- owner: approve / suspend, issuing the access code ----------------

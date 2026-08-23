@@ -108,7 +108,7 @@ const FIELD_RULES = [
   [/تجميل|مكياج|سبا|تدليك|يوغا|حلاق|مصفف|beauty|makeup|spa|massage|yoga|barber|hairstylist|esthetician|salon/i, "تجميل وعناية"],
   [/عاملة منزلية|مربية|جليسة|طباخ منزلي|بستاني|خادم|مرافق كبار سن|domestic worker|nanny|babysitter|private driver|private chef|butler|elderly caregiver/i, "خدمات منزلية"],
 ];
-function guessField(title) {
+export function guessField(title) {
   const t = String(title || "");
   for (const [re, cat] of FIELD_RULES) if (re.test(t)) return cat;
   return "";
@@ -139,7 +139,7 @@ async function notion(path, method, payload) {
 // even though the full n8n chain (PDF parse + AI + Drive + emails) can run
 // close to that; on timeout/failure we just skip enrichment and continue —
 // the candidate record still gets created from the form fields alone.
-async function forwardToN8n(payload) {
+export async function forwardToN8n(payload) {
   if (!N8N_ATS_WEBHOOK) return { configured: false, ok: false };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 25000);
@@ -165,7 +165,7 @@ async function forwardToN8n(payload) {
 // into the Notion properties this handler is about to write. Safe no-op when
 // n8n didn't respond in time or found nothing — the base form-field record
 // still gets created either way.
-function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
+export function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
   const data = n8nResult && n8nResult.ok ? n8nResult.data : null;
   if (!data) return;
   const drive = data.drive || {};
@@ -207,7 +207,7 @@ function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
 // different device, etc). Match by email OR phone against the same DB
 // employers browse, so a repeat submission updates the existing row instead
 // of creating a duplicate candidate.
-async function findExisting(email, phone) {
+export async function findExisting(email, phone) {
   const or = [];
   if (isEmail(email)) or.push({ property: "Email", email: { equals: email } });
   if (phone) or.push({ property: "Phone", phone_number: { equals: phone } });
