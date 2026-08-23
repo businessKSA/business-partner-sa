@@ -1433,9 +1433,10 @@
       {
         "code": "WELCOME10",
         "percent": 10,
+        "amount": 0,
         "note": "خصم ترحيبي 10%",
-        "active": true,
-        "expires": ""
+        "expires": "",
+        "active": true
       }
     ]
   },
