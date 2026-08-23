@@ -110,6 +110,16 @@
               "href": "/careers",
               "en": "Open jobs",
               "ar": "الوظائف المتاحة"
+            },
+            {
+              "href": "/recruitment-agencies",
+              "en": "Recruitment agencies",
+              "ar": "مكاتب الاستقدام ووكالات التوظيف"
+            },
+            {
+              "href": "/agency-portal",
+              "en": "Agency portal",
+              "ar": "بوابة المكاتب"
             }
           ]
         },

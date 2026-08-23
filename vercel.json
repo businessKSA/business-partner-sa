@@ -135,6 +135,10 @@
       "destination": "/api/requests?__route=suppliers"
     },
     {
+      "source": "/api/agencies",
+      "destination": "/api/requests?__route=agencies"
+    },
+    {
       "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-dashboard",
       "destination": "/assets/data/revenue-command-center"
     },
