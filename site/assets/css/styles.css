@@ -1565,3 +1565,31 @@ textarea.adv-in { resize: vertical; }
 .mini-table tbody tr:last-child td{border-bottom:0}
 .mini-table tbody tr:hover{background:#f8fafc}
 .mini-table td b{color:var(--navy,#0B1B5A)}
+
+/* ---- one-box multi-select (BP.chips): nationalities, professions ---- */
+.bp-chips{position:relative}
+.bp-chips-box{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:48px;padding:8px 12px;border:1px solid var(--line,#e5e9f0);border-radius:12px;background:#fff;cursor:text;transition:border-color .15s,box-shadow .15s}
+.bp-chips-box:focus-within{border-color:var(--navy,#0B1B5A);box-shadow:0 0 0 3px rgba(11,27,90,.08)}
+.bp-chips-tags{display:contents}
+.bp-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;background:#eef2ff;color:var(--navy,#0B1B5A);border-radius:999px;font-size:.82rem;font-weight:600;line-height:1.4}
+.bp-chip button{border:0;background:rgba(11,27,90,.1);color:inherit;width:18px;height:18px;border-radius:50%;font-size:.62rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.bp-chip button:hover{background:rgba(185,28,28,.15);color:#B91C1C}
+.bp-chips-input{flex:1;min-width:130px;border:0;outline:0;padding:4px 0;font:inherit;background:transparent;color:inherit}
+.bp-chips-menu{position:absolute;z-index:30;inset-inline:0;top:calc(100% + 4px);max-height:264px;overflow-y:auto;background:#fff;border:1px solid var(--line,#e5e9f0);border-radius:12px;box-shadow:0 12px 32px rgba(11,27,90,.12);padding:6px}
+.bp-chips-opt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;padding:8px 10px;border:0;background:transparent;border-radius:8px;text-align:start;cursor:pointer;font:inherit}
+.bp-chips-opt b{color:var(--navy,#0B1B5A);font-size:.9rem;font-weight:600}
+.bp-chips-opt span{color:var(--text-soft,#5a6478);font-size:.74rem}
+.bp-chips-opt:hover,.bp-chips-opt:focus{background:#eef2ff}
+.bp-chips-hint{margin:6px 0 0;font-size:.76rem;color:var(--text-soft,#5a6478)}
+
+/* ---- provider onboarding wizard ---- */
+.wiz-steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.wiz-step{flex:1;min-width:130px;padding:10px 12px;border-radius:10px;background:#f5f7fb;color:var(--text-soft,#5a6478);font-size:.82rem;font-weight:600;border:1px solid transparent}
+.wiz-step.is-active{background:#eef2ff;color:var(--navy,#0B1B5A);border-color:rgba(11,27,90,.18)}
+.wiz-step.is-done{background:#ecfdf5;color:#047857}
+.wiz-step .n{display:inline-flex;width:20px;height:20px;border-radius:50%;background:#fff;align-items:center;justify-content:center;font-size:.72rem;margin-inline-end:6px}
+.wiz-pane[hidden]{display:none}
+.wiz-nav{display:flex;gap:10px;justify-content:space-between;margin-top:22px}
+.auth-tabs{display:flex;gap:6px;background:#f5f7fb;padding:5px;border-radius:12px;margin-bottom:18px}
+.auth-tabs button{flex:1;padding:10px;border:0;background:transparent;border-radius:9px;font:inherit;font-weight:600;color:var(--text-soft,#5a6478);cursor:pointer}
+.auth-tabs button.is-active{background:#fff;color:var(--navy,#0B1B5A);box-shadow:0 1px 3px rgba(11,27,90,.1)}

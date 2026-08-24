@@ -4470,18 +4470,62 @@ function buildEmployerLogin() {
 // for /agency-portal. Nothing on this page is public-facing candidate data.
 function buildRecruitmentAgencies() {
   const perks = [
+    ["⚡", L("Open your panel in a minute", "لوحتك تفتح خلال دقيقة"), L("Create an account with your email or Google and your provider dashboard opens immediately — no waiting for anyone to approve you.", "أنشئ حسابك بالبريد أو عبر Google وتفتح لوحة المزوّد فوراً — بدون انتظار موافقة من أحد.")],
     ["📋", L("Real hiring demand", "طلبات توظيف فعلية"), L("See the requirements our Saudi clients are hiring for — profession, headcount, nationalities and salary — instead of chasing leads.", "اطّلع على متطلبات عملائنا في السعودية — المهنة والعدد والجنسيات والراتب — بدل البحث العشوائي عن فرص.")],
-    ["👤", L("Submit candidates directly", "ارفع مرشحيك مباشرة"), L("Send profiles into the Business Partner ATS from your portal and follow each candidate's stage.", "أرسل ملفات مرشحيك إلى نظام التوظيف من بوابتك وتابع مرحلة كل مرشح.")],
-    ["🤝", L("One accredited channel", "قناة واحدة معتمدة"), L("Work with one Saudi partner that handles the employer side, the paperwork and the follow-up.", "تعامل مع شريك سعودي واحد يتولى جانب صاحب العمل والإجراءات والمتابعة.")],
+    ["👤", L("Your own candidate database", "قاعدة بيانات مرشحيك"), L("Every office gets a private candidate database. Attach a CV and we read it, file it and produce an ATS-ready version automatically.", "لكل مكتب قاعدة بيانات مرشحين خاصة به. أرفق السيرة الذاتية فنقرأها ونحفظها ونصدر نسخة ATS تلقائياً.")],
     ["🔒", L("Your data stays yours", "بياناتك تبقى لك"), L("Licence documents and contacts are used for accreditation only, never published on the site.", "مستندات الترخيص وبيانات التواصل تُستخدم للاعتماد فقط ولا تُنشر على الموقع.")],
   ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
   const steps = [
-    [L("Register your office", "سجّل مكتبك"), L("Fill in the form below with your licence and the nationalities and professions you supply.", "عبّئ النموذج أدناه ببيانات الترخيص والجنسيات والمهن التي توفرها.")],
-    [L("We verify the licence", "نتحقق من الترخيص"), L("Our team reviews your accreditation in your country and contacts you for anything missing.", "يراجع فريقنا اعتمادك في بلدك ويتواصل معك لأي بيانات ناقصة.")],
-    [L("You get portal access", "تحصل على دخول البوابة"), L("On approval we email you an access code for the agency portal.", "عند الاعتماد نرسل لك رمز دخول لبوابة المكاتب على بريدك.")],
-    [L("Receive demand & send candidates", "استقبل الطلبات وأرسل مرشحيك"), L("Open requests appear in your portal and you submit candidates against them.", "تظهر الطلبات المفتوحة في بوابتك وترفع مرشحيك عليها.")],
+    [L("Create your account", "أنشئ حسابك"), L("Email and a password, or one click with Google. That's the whole sign-up.", "بريد وكلمة مرور، أو نقرة واحدة عبر Google. هذا كل التسجيل.")],
+    [L("Answer the profile questions", "أجب أسئلة الملف"), L("Inside your panel: licence, nationalities, professions and your fees. Save and you're done.", "داخل لوحتك: الترخيص والجنسيات والمهن ورسومك. احفظ وانتهيت.")],
+    [L("Receive demand & submit candidates", "استقبل الطلبات وارفع مرشحيك"), L("Open requests and every open job appear in your panel — submit candidates against any of them.", "تظهر الطلبات المفتوحة وكل الوظائف في لوحتك — رشّح عليها مباشرة.")],
+    [L("Follow every candidate", "تابع كل مرشح"), L("Each profile you send is tracked to its stage, and reaches the employer as an overseas candidate ready for interview.", "كل ملف ترسله يُتابع بمرحلته، ويصل لصاحب العمل كمرشّح من خارج السعودية جاهز للمقابلة.")],
   ].map((x, i) => `<div class="card"><div class="card-icon">${i + 1}</div><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join("");
-  const field = (id, label, opts = {}) =>
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:860px">
+    <span class="eyebrow">${L("Recruitment partners", "شركاء التوظيف")}</span>
+    <h1>${L("Recruitment offices & agencies — register as a provider", "مكاتب الاستقدام ووكالات التوظيف — سجّل كمزوّد خدمة")}</h1>
+    <p class="lead">${L("Join Business Partner's provider network: create your account in a minute, receive real hiring demand from Saudi employers, and submit your candidates through your own panel.", "انضم لشبكة مزوّدي التوظيف لدى بيزنس بارتنر: أنشئ حسابك خلال دقيقة، واستقبل طلبات توظيف فعلية من أصحاب عمل سعوديين، وارفع مرشحيك من لوحتك الخاصة.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agency-form">${L("Create a provider account", "أنشئ حساب مزوّد")}</a><a class="btn btn-ghost btn-lg" href="${u("/agency-portal")}">${L("Sign in to your panel", "دخول لوحتك")}</a></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Why register", "لماذا التسجيل")}</span><h2>${L("What a registered provider gets", "ماذا يحصل عليه المزوّد المسجّل")}</h2></div>
+    <div class="grid grid-4">${perks}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تتم العملية")}</span><h2>${L("Four steps, and none of them is waiting", "أربع خطوات، ولا واحدة منها انتظار")}</h2></div>
+    <div class="grid grid-4">${steps}</div>
+  </div></section>
+
+  <section class="section"><div class="container" style="max-width:520px">
+    <div class="section-head" id="agency-form"><span class="eyebrow">${L("Sign up", "التسجيل")}</span><h2>${L("Create your provider account", "أنشئ حساب المزوّد")}</h2><p>${L("Your panel opens straight away. The office details, nationalities, professions and fees are asked inside it.", "تفتح لوحتك مباشرة. بيانات المكتب والجنسيات والمهن والرسوم تُسأل داخلها.")}</p></div>
+    <div class="dash-card">
+      <div id="ag-google-wrap" hidden>
+        <div id="ag-google" style="display:flex;justify-content:center"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin:16px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">${L("or", "أو")}</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
+      </div>
+      <form id="ag-signup" novalidate>
+        <div class="field"><label for="ag-name">${L("Office / agency name", "اسم المكتب أو الوكالة")} *</label><input id="ag-name" type="text" required autocomplete="organization"></div>
+        <div class="field"><label for="ag-email">${L("Work email", "البريد الإلكتروني للعمل")} *</label><input id="ag-email" type="email" required autocomplete="email"></div>
+        <div class="field"><label for="ag-password">${L("Password", "كلمة المرور")} *</label><input id="ag-password" type="password" required minlength="8" autocomplete="new-password"><p class="emp-note" style="margin:6px 0 0">${L("At least 8 characters.", "٨ أحرف على الأقل.")}</p></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:6px" id="ag-submit">${L("Create account & open my panel", "أنشئ الحساب وافتح لوحتي")}</button>
+        <p class="emp-note" id="ag-msg" style="text-align:center;min-height:20px;margin-top:12px"></p>
+      </form>
+      <p class="emp-note" style="text-align:center;margin:0">${L("Already registered?", "مسجّل من قبل؟")} <a href="${u("/agency-portal")}">${L("Sign in", "سجّل الدخول")}</a></p>
+    </div>
+    <p class="emp-note" style="text-align:center;margin-top:14px">${L("We never publish your licence documents or contacts — they are used for accreditation only.", "لا ننشر مستندات ترخيصك أو بيانات تواصلك — تُستخدم للاعتماد فقط.")}</p>
+  </div></section>`;
+  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Recruitment offices & agencies — Business Partner", "مكاتب الاستقدام ووكالات التوظيف — بيزنس بارتنر"), desc: Lraw("Register your recruitment office or agency with Business Partner: create an account, receive Saudi hiring demand and submit candidates from your own panel.", "سجّل مكتب الاستقدام أو وكالة التوظيف لديك مع بيزنس بارتنر: أنشئ حسابك، واستقبل طلبات التوظيف السعودية، وارفع مرشحيك من لوحتك."), active: "/hr", path: "/recruitment-agencies", body });
+}
+
+// The provider panel. Sign-up and sign-in live on the same screen (password or
+// Google), the office answers the profile questions inside the panel the first
+// time it lands here, and from then on it sees demand, every open job, and the
+// candidates it has supplied. Content is filled by main.js.
+function buildAgencyPortal() {
+  const f = (id, label, opts = {}) =>
     `<div class="field"><label for="${id}">${label}${opts.req ? " *" : ""}</label>${
       opts.textarea
         ? `<textarea id="${id}" rows="${opts.rows || 3}" placeholder="${opts.ph || ""}"></textarea>`
@@ -4490,121 +4534,149 @@ function buildRecruitmentAgencies() {
           : `<input id="${id}" type="${opts.type || "text"}" placeholder="${opts.ph || ""}"${opts.req ? " required" : ""}>`
     }</div>`;
   const body = `
-  <section class="hero"><div class="container hero-inner" style="max-width:860px">
-    <span class="eyebrow">${L("Recruitment partners", "شركاء التوظيف")}</span>
-    <h1>${L("Recruitment offices & agencies outside Saudi Arabia", "مكاتب الاستقدام ووكالات التوظيف من خارج المملكة")}</h1>
-    <p class="lead">${L("Join Business Partner's accredited network: receive real hiring demand from Saudi employers, submit your candidates through one portal, and follow every profile to placement.", "انضم لشبكة بيزنس بارتنر المعتمدة: استقبل طلبات توظيف فعلية من أصحاب عمل سعوديين، وارفع مرشحيك عبر بوابة واحدة، وتابع كل ملف حتى التوظيف.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agency-form">${L("Register your office", "سجّل مكتبك")}</a><a class="btn btn-ghost btn-lg" href="${u("/agency-portal")}">${L("Agency portal login", "دخول المكاتب المسجلة")}</a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Why register", "لماذا التسجيل")}</span><h2>${L("What accredited offices get", "ماذا يحصل عليه المكتب المعتمد")}</h2></div>
-    <div class="grid grid-4">${perks}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تتم العملية")}</span><h2>${L("Four steps from registration to placement", "أربع خطوات من التسجيل حتى التوظيف")}</h2></div>
-    <div class="grid grid-4">${steps}</div>
-  </div></section>
-
-  <section class="section"><div class="container" style="max-width:760px">
-    <div class="section-head" id="agency-form"><span class="eyebrow">${L("Registration", "التسجيل")}</span><h2>${L("Register your recruitment office", "سجّل مكتب الاستقدام أو وكالة التوظيف")}</h2><p>${L("Fields marked * are required. We review every registration before granting portal access.", "الحقول المعلّمة بـ * إلزامية. نراجع كل تسجيل قبل منح صلاحية الدخول للبوابة.")}</p></div>
-    <form id="ag-form" novalidate>
-      <div class="grid grid-2" style="gap:0 20px">
-        ${field("ag-name", L("Office / agency name", "اسم المكتب أو الوكالة"), { req: true })}
-        ${field("ag-kind", L("Entity type", "نوع الجهة"), { select: [["مكتب استقدام", Lraw("Recruitment office (deployment)", "مكتب استقدام")], ["وكالة توظيف", Lraw("Recruitment agency", "وكالة توظيف")], ["الاثنان", Lraw("Both", "الاثنان")]] })}
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="ag-country">${L("Country", "الدولة")} *</label><select id="ag-country" required><option value="">${L("Choose a country", "اختر الدولة")}</option></select></div>
-        <div class="field"><label for="ag-city">${L("City", "المدينة")}</label><input id="ag-city" type="text" list="ag-cities" placeholder="${Lraw("Pick or type a city", "اختر أو اكتب المدينة")}"><datalist id="ag-cities"></datalist></div>
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        ${field("ag-license", L("Licence number", "رقم الترخيص"))}
-        ${field("ag-license-by", L("Licensing authority", "جهة الترخيص"), { ph: Lraw("Ministry / authority name", "اسم الوزارة أو الجهة") })}
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        ${field("ag-musaned", L("Registered on Musaned", "مسجل في مساند"), { select: [["لا", Lraw("No", "لا")], ["نعم", Lraw("Yes", "نعم")], ["قيد التسجيل", Lraw("In progress", "قيد التسجيل")]] })}
-        ${field("ag-ksa", L("Worked with Saudi employers before", "تعامل سابق مع السعودية"), { select: [["نعم", Lraw("Yes", "نعم")], ["لا", Lraw("No", "لا")]] })}
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        ${field("ag-contact", L("Contact person", "جهة الاتصال"))}
-        ${field("ag-role", L("Job title", "المنصب"))}
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        ${field("ag-email", L("Email", "البريد الإلكتروني"), { req: true, type: "email" })}
-        <div class="field"><label for="ag-phone">${L("Phone", "الهاتف")} *</label>
-          <div style="display:flex;gap:8px">
-            <select id="ag-phone-code" style="max-width:145px" aria-label="${Lraw("Country code", "رمز الدولة")}"></select>
-            <input id="ag-phone" type="tel" required placeholder="5XXXXXXXX" style="flex:1">
-          </div>
-        </div>
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        <div class="field"><label for="ag-whatsapp">${L("WhatsApp", "واتساب")}</label>
-          <div style="display:flex;gap:8px">
-            <select id="ag-whatsapp-code" style="max-width:145px" aria-label="${Lraw("Country code", "رمز الدولة")}"></select>
-            <input id="ag-whatsapp" type="tel" placeholder="5XXXXXXXX" style="flex:1">
-          </div>
-        </div>
-        ${field("ag-website", L("Website", "الموقع الإلكتروني"), { type: "url", ph: "https://" })}
-      </div>
-      <div class="grid grid-2" style="gap:0 20px">
-        ${field("ag-capacity", L("Monthly capacity (workers)", "الطاقة الشهرية (عدد العمالة)"), { type: "number" })}
-        ${field("ag-years", L("Years in business", "سنوات الخبرة"), { type: "number" })}
-      </div>
-      ${field("ag-nationalities", L("Nationalities you supply", "الجنسيات التي توفرها"), { ph: Lraw("e.g. Filipino, Indian, Bangladeshi", "مثال: فلبيني، هندي، بنجلاديشي") })}
-      ${field("ag-professions", L("Professions & specialities", "المهن والتخصصات"), { textarea: true, ph: Lraw("e.g. domestic workers, drivers, technicians, nurses", "مثال: عمالة منزلية، سائقون، فنيون، ممرضات") })}
-      ${field("ag-about", L("About your office", "نبذة عن مكتبك"), { textarea: true, rows: 4 })}
-      <div class="field">
-        <label>${L("Company profile — PDF, Word or PowerPoint", "بروفايل الشركة — PDF أو Word أو PowerPoint")}</label>
-        <label class="file-drop" for="ag-profile" id="ag-profile-drop">
-          <span class="file-ico">${I.upload}</span>
-          <span class="file-text" id="ag-profile-name">${L("Drag your profile here or click to choose", "اسحب البروفايل هنا أو اضغط للاختيار")}</span>
-        </label>
-        <input id="ag-profile" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden>
-        <p class="emp-note" style="margin:6px 0 0">${L("Optional, up to 8MB. Attach the licence too if it's in the same file.", "اختياري، حتى 8 ميجابايت. أرفق الترخيص معه إن كان في نفس الملف.")}</p>
-      </div>
-      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:10px" id="ag-submit">${L("Submit registration", "أرسل طلب التسجيل")}</button>
-      <p class="emp-note" id="ag-msg" style="text-align:center;min-height:20px;margin-top:12px"></p>
-      <p class="emp-note" style="text-align:center">${L("We never publish your licence documents or contacts — they are used for accreditation only.", "لا ننشر مستندات ترخيصك أو بيانات تواصلك — تُستخدم للاعتماد فقط.")}</p>
-    </form>
-  </div></section>`;
-  return page({ title: Lraw("Recruitment offices & agencies — Business Partner", "مكاتب الاستقدام ووكالات التوظيف — بيزنس بارتنر"), desc: Lraw("Register your overseas recruitment office or agency with Business Partner: receive Saudi hiring demand and submit candidates through one portal.", "سجّل مكتب الاستقدام أو وكالة التوظيف لديك مع بيزنس بارتنر: استقبل طلبات التوظيف السعودية وارفع مرشحيك عبر بوابة واحدة."), active: "/hr", path: "/recruitment-agencies", body });
-}
-
-// The portal itself: an approved office signs in with its email + the access
-// code emailed on approval, sees the demand addressed to it, and submits
-// candidates against a request. Content is filled by main.js.
-function buildAgencyPortal() {
-  const body = `
-  <section class="hero"><div class="container hero-inner" style="max-width:560px">
-    <span class="eyebrow">${L("Agency portal", "بوابة المكاتب")}</span>
-    <h1 id="ap-title">${L("Recruitment office portal", "بوابة مكاتب الاستقدام")}</h1>
-    <p class="lead" id="ap-sub">${L("Sign in with the email you registered and the access code we sent on approval.", "سجّل الدخول بالبريد الذي سجّلت به ورمز الوصول الذي أرسلناه عند الاعتماد.")}</p>
+  <section class="hero hero--sm"><div class="container hero-inner" style="max-width:600px">
+    <span class="eyebrow">${L("Provider panel", "لوحة المزوّد")}</span>
+    <h1 id="ap-title">${L("Recruitment provider panel", "لوحة مزوّدي التوظيف والاستقدام")}</h1>
+    <p class="lead" id="ap-sub">${L("Sign in — or create an account in a minute and your panel opens immediately.", "سجّل الدخول — أو أنشئ حساباً خلال دقيقة وتفتح لوحتك فوراً.")}</p>
   </div></section>
 
   <section class="section"><div class="container" style="max-width:960px">
     <div id="ap-login" style="max-width:440px;margin:0 auto">
+      <div class="auth-tabs">
+        <button type="button" id="ap-tab-in" class="is-active">${L("Sign in", "تسجيل الدخول")}</button>
+        <button type="button" id="ap-tab-up">${L("Create an account", "إنشاء حساب")}</button>
+      </div>
       <div id="ap-google-wrap" style="margin-bottom:6px" hidden>
         <div id="ap-google" style="display:flex;justify-content:center"></div>
-        <p class="emp-note" style="text-align:center;margin:8px 0">${L("Sign in with the Google account whose address you registered.", "ادخل بحساب جوجل الذي سجّلت ببريده.")}</p>
+        <p class="emp-note" style="text-align:center;margin:8px 0">${L("One click with Google — it signs you in, or creates your account if you're new.", "نقرة واحدة عبر Google — تدخلك، أو تنشئ حسابك إن كنت جديداً.")}</p>
         <div style="display:flex;align-items:center;gap:12px;margin:14px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">${L("or", "أو")}</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
       </div>
       <form id="ap-login-form" novalidate>
-        <div class="field"><label for="ap-email">${L("Email", "البريد الإلكتروني")}</label><input id="ap-email" type="email" required></div>
-        <div class="field" id="ap-code-field"><label for="ap-code">${L("Access code", "رمز الوصول")}</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
+        <div class="field" id="ap-name-field" hidden><label for="ap-name">${L("Office / agency name", "اسم المكتب أو الوكالة")}</label><input id="ap-name" type="text" autocomplete="organization"></div>
+        <div class="field"><label for="ap-email">${L("Email", "البريد الإلكتروني")}</label><input id="ap-email" type="email" required autocomplete="email"></div>
+        <div class="field" id="ap-pass-field"><label for="ap-password">${L("Password", "كلمة المرور")}</label><input id="ap-password" type="password" autocomplete="current-password"></div>
+        <div class="field" id="ap-code-field" hidden><label for="ap-code">${L("Access code", "رمز الوصول")}</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
         <div class="field" id="ap-otp-field" hidden><label for="ap-otp">${L("Code sent to your email", "الرمز المرسل إلى بريدك")}</label><input id="ap-otp" type="text" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:1.3rem;font-weight:700" autocomplete="one-time-code"></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-login-btn">${L("Sign in", "دخول")}</button>
         <p class="emp-note" id="ap-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
       </form>
-      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="ap-use-email">${L("Don't have your access code? Email me a sign-in code", "ما عندك رمز الوصول؟ أرسل لي رمز دخول على بريدي")}</a></p>
+      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="ap-use-email">${L("Forgot your password? Email me a sign-in code", "نسيت كلمة المرور؟ أرسل لي رمز دخول على بريدي")}</a> · <a href="#" id="ap-use-code">${L("Use an access code", "استخدم رمز وصول")}</a></p>
       <p class="emp-note" style="text-align:center;margin-top:14px;opacity:.75">🪪 ${L("Nafath sign-in — coming soon for offices with a Saudi representative.", "الدخول عبر نفاذ — قريباً للمكاتب التي لديها ممثل سعودي.")}</p>
-      <p class="emp-note" style="text-align:center;margin-top:16px">${L("Not registered yet?", "لم تسجّل بعد؟")} <a href="${u("/recruitment-agencies")}#agency-form">${L("Register your office", "سجّل مكتبك")}</a></p>
+    </div>
+
+    <div id="ap-onboard" hidden style="max-width:720px;margin:0 auto">
+      <div class="section-head" style="text-align:start"><span class="eyebrow" id="ap-ob-eyebrow">${L("Set up your profile", "إعداد ملف مكتبك")}</span><h2 id="ap-ob-title">${L("Tell us what your office supplies", "عرّفنا بما يوفّره مكتبك")}</h2><p>${L("Four short steps. Employers see this profile when they pick a provider — and you can edit it any time from your panel.", "أربع خطوات قصيرة. أصحاب العمل يرون هذا الملف عند اختيار المزوّد — وتقدر تعدّله في أي وقت من لوحتك.")}</p></div>
+      <div class="wiz-steps">
+        <div class="wiz-step is-active" data-wiz-tab="1"><span class="n">1</span>${L("Your office", "بيانات المكتب")}</div>
+        <div class="wiz-step" data-wiz-tab="2"><span class="n">2</span>${L("Licence & contact", "الترخيص والتواصل")}</div>
+        <div class="wiz-step" data-wiz-tab="3"><span class="n">3</span>${L("What you supply", "ما الذي توفره")}</div>
+        <div class="wiz-step" data-wiz-tab="4"><span class="n">4</span>${L("Fees & documents", "الرسوم والمستندات")}</div>
+      </div>
+      <form id="ap-profile-form" novalidate>
+        <div class="dash-card wiz-pane" data-wiz-pane="1">
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-name", L("Office / agency name", "اسم المكتب أو الوكالة"), { req: true })}
+            ${f("ob-kind", L("Entity type", "نوع الجهة"), { select: [["مكتب استقدام", Lraw("Recruitment office (deployment)", "مكتب استقدام")], ["وكالة توظيف", Lraw("Recruitment agency", "وكالة توظيف")], ["الاثنان", Lraw("Both", "الاثنان")]] })}
+          </div>
+          <div class="field"><label for="ob-scope">${L("What do you do?", "ماذا تقدّم؟")}</label>
+            <select id="ob-scope">
+              <option value="كلاهما">${L("Both sourcing and deployment", "استقطاب واستقدام معاً")}</option>
+              <option value="استقطاب">${L("Sourcing only (finding candidates)", "استقطاب فقط (إيجاد المرشحين)")}</option>
+              <option value="استقدام">${L("Deployment only (visas & mobilisation)", "استقدام فقط (التأشيرات والإجراءات)")}</option>
+            </select>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-country">${L("Country", "الدولة")} *</label><select id="ob-country" required><option value="">${L("Choose a country", "اختر الدولة")}</option></select></div>
+            <div class="field"><label for="ob-city">${L("City", "المدينة")}</label><input id="ob-city" type="text" list="ob-cities" placeholder="${Lraw("Pick or type a city", "اختر أو اكتب المدينة")}"><datalist id="ob-cities"></datalist></div>
+          </div>
+          ${f("ob-website", L("Website", "الموقع الإلكتروني"), { type: "url", ph: "https://" })}
+          ${f("ob-about", L("About your office", "نبذة عن مكتبك"), { textarea: true, rows: 4 })}
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="2" hidden>
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-license", L("Licence number", "رقم الترخيص"))}
+            ${f("ob-license-by", L("Licensing authority", "جهة الترخيص"), { ph: Lraw("Ministry / authority name", "اسم الوزارة أو الجهة") })}
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-musaned", L("Registered on Musaned", "مسجل في مساند"), { select: [["لا", Lraw("No", "لا")], ["نعم", Lraw("Yes", "نعم")], ["قيد التسجيل", Lraw("In progress", "قيد التسجيل")]] })}
+            ${f("ob-ksa", L("Worked with Saudi employers before", "تعامل سابق مع السعودية"), { select: [["نعم", Lraw("Yes", "نعم")], ["لا", Lraw("No", "لا")]] })}
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-contact", L("Contact person", "جهة الاتصال"))}
+            ${f("ob-role", L("Job title", "المنصب"))}
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-phone">${L("Phone", "الهاتف")}</label>
+              <div style="display:flex;gap:8px">
+                <select id="ob-phone-code" style="max-width:145px" aria-label="${Lraw("Country code", "رمز الدولة")}"></select>
+                <input id="ob-phone" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+              </div>
+            </div>
+            <div class="field"><label for="ob-whatsapp">${L("WhatsApp", "واتساب")}</label>
+              <div style="display:flex;gap:8px">
+                <select id="ob-whatsapp-code" style="max-width:145px" aria-label="${Lraw("Country code", "رمز الدولة")}"></select>
+                <input id="ob-whatsapp" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="3" hidden>
+          <div class="field"><label>${L("Nationalities you supply", "الجنسيات التي توفرها")}</label><div id="ob-nationalities"></div></div>
+          <div class="field"><label>${L("Professions & specialities", "المهن والتخصصات")}</label><div id="ob-professions"></div></div>
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-capacity", L("Monthly capacity (workers)", "الطاقة الشهرية (عدد العمالة)"), { type: "number" })}
+            ${f("ob-years", L("Years in business", "سنوات الخبرة"), { type: "number" })}
+          </div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="4" hidden>
+          <p class="emp-note" style="margin-top:0">${L("Employers compare providers on price. State what you charge for each service you offer — leave the other one empty.", "أصحاب العمل يقارنون المزوّدين بالسعر. اذكر رسومك لكل خدمة تقدّمها — واترك الأخرى فارغة.")}</p>
+          ${f("ob-fee-model", L("Fee model", "نموذج الرسوم"), { select: [["حسب الاتفاق", Lraw("By agreement", "حسب الاتفاق")], ["رسوم ثابتة لكل مرشح", Lraw("Flat fee per candidate", "رسوم ثابتة لكل مرشح")], ["نسبة من الراتب السنوي", Lraw("% of annual salary", "نسبة من الراتب السنوي")], ["نسبة من الراتب الشهري", Lraw("% of monthly salary", "نسبة من الراتب الشهري")], ["بدون رسوم على المرشح", Lraw("No fee charged to the candidate", "بدون رسوم على المرشح")]] })}
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-fee-sourcing", L("Sourcing fee", "رسوم الاستقطاب"), { ph: Lraw("e.g. 1,500 per hired candidate", "مثال: ١٥٠٠ لكل مرشح يتم توظيفه") })}
+            ${f("ob-fee-deployment", L("Deployment fee", "رسوم الاستقدام"), { ph: Lraw("e.g. 4,000 all-in incl. visa & ticket", "مثال: ٤٠٠٠ شاملة التأشيرة والتذكرة") })}
+          </div>
+          ${f("ob-fee-currency", L("Currency", "العملة"), { select: [["SAR", "SAR — ريال سعودي"], ["USD", "USD"], ["EUR", "EUR"], ["أخرى", Lraw("Other", "أخرى")]] })}
+          <div class="field">
+            <label>${L("Company profile — PDF, Word or PowerPoint", "بروفايل الشركة — PDF أو Word أو PowerPoint")}</label>
+            <label class="file-drop" for="ob-profile" id="ob-profile-drop">
+              <span class="file-ico">${I.upload}</span>
+              <span class="file-text" id="ob-profile-name">${L("Drag your profile here or click to choose", "اسحب البروفايل هنا أو اضغط للاختيار")}</span>
+            </label>
+            <input id="ob-profile" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden>
+            <p class="emp-note" style="margin:6px 0 0">${L("Optional, up to 8MB. Attach the licence too if it's in the same file.", "اختياري، حتى 8 ميجابايت. أرفق الترخيص معه إن كان في نفس الملف.")}</p>
+          </div>
+        </div>
+
+        <div class="wiz-nav">
+          <button type="button" class="btn btn-ghost" id="ap-ob-back" hidden>${L("Back", "السابق")}</button>
+          <div style="display:flex;gap:10px;margin-inline-start:auto">
+            <button type="button" class="btn btn-ghost" id="ap-ob-skip">${L("Skip for now", "لاحقاً")}</button>
+            <button type="button" class="btn btn-primary" id="ap-ob-next">${L("Next", "التالي")}</button>
+            <button type="submit" class="btn btn-primary" id="ap-ob-save" hidden>${L("Save & open my panel", "احفظ وافتح لوحتي")}</button>
+          </div>
+        </div>
+        <p class="emp-note" id="ap-ob-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
     </div>
 
     <div id="ap-app" hidden>
-      <div class="card" style="margin-bottom:20px"><h3 id="ap-agency-name"></h3><p class="emp-note" id="ap-agency-meta"></p>
-        <button type="button" class="btn btn-ghost btn-sm" id="ap-logout">${L("Sign out", "تسجيل الخروج")}</button></div>
+      <div class="dash-card" style="margin-bottom:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <div><h3 id="ap-agency-name" style="margin:0"></h3><p class="emp-note" id="ap-agency-meta" style="margin:6px 0 0"></p><p class="emp-note" id="ap-agency-fees" style="margin:2px 0 0"></p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-ghost btn-sm" id="ap-edit-profile">${L("Edit profile", "تعديل الملف")}</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="ap-logout">${L("Sign out", "تسجيل الخروج")}</button>
+        </div>
+      </div>
+
+      <div class="dash-stats" style="margin-bottom:22px">
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="ap-n-req">0</div><div class="lbl">${L("Requests for you", "طلبات موجّهة لك")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">💼</div><div class="num" id="ap-n-jobs">0</div><div class="lbl">${L("Open jobs", "وظائف مفتوحة")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">👤</div><div class="num" id="ap-n-cand">0</div><div class="lbl">${L("Candidates you sent", "مرشحون أرسلتهم")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="ap-n-status">—</div><div class="lbl">${L("Account status", "حالة الحساب")}</div></div>
+      </div>
 
       <div class="section-head" style="text-align:start"><h2>${L("Open requests for you", "الطلبات المفتوحة لك")}</h2><p>${L("Requirements addressed to your office, plus requests open to the whole network.", "الطلبات الموجّهة لمكتبك، إضافة للطلبات المتاحة لكل الشبكة.")}</p></div>
       <div id="ap-requests"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
@@ -4612,7 +4684,7 @@ function buildAgencyPortal() {
       <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("All open jobs", "كل الوظائف المفتوحة")}</h2><p>${L("Every job open on the platform — submit a candidate against any of them.", "كل وظيفة مفتوحة على المنصة — ترشّح عليها مباشرة.")}</p></div>
       <div id="ap-jobs"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
 
-      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("Your submitted candidates", "مرشحوك المرسلون")}</h2></div>
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("Your candidate database", "قاعدة بيانات مرشحيك")}</h2><p>${L("Everyone your office has supplied, with the stage each one reached in the employer's pipeline.", "كل من رفعهم مكتبك، ومرحلة كل واحد منهم في مسار صاحب العمل.")}</p></div>
       <div id="ap-submissions"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
     </div>
   </div></section>
@@ -4624,10 +4696,10 @@ function buildAgencyPortal() {
       <form id="ap-cand-form" novalidate>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="ap-c-name">${L("Candidate name", "اسم المرشّح")} *</label><input id="ap-c-name" type="text" required></div>
-          <div class="field"><label for="ap-c-role">${L("Profession", "المهنة")} *</label><input id="ap-c-role" type="text" required></div>
+          <div class="field"><label for="ap-c-role">${L("Profession", "المهنة")} *</label><input id="ap-c-role" type="text" list="ap-c-professions" required><datalist id="ap-c-professions"></datalist></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="ap-c-nat">${L("Nationality", "الجنسية")}</label><input id="ap-c-nat" type="text"></div>
+          <div class="field"><label for="ap-c-nat">${L("Nationality", "الجنسية")}</label><input id="ap-c-nat" type="text" list="ap-c-nationalities"><datalist id="ap-c-nationalities"></datalist></div>
           <div class="field"><label for="ap-c-exp">${L("Years of experience", "سنوات الخبرة")}</label><input id="ap-c-exp" type="number" min="0"></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
@@ -4651,7 +4723,7 @@ function buildAgencyPortal() {
       </form>
     </div>
   </div></div>`;
-  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Agency portal — Business Partner", "بوابة مكاتب الاستقدام — بيزنس بارتنر"), desc: Lraw("Approved recruitment offices sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام المعتمدة لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
+  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Provider panel — Business Partner", "لوحة مزوّدي التوظيف — بيزنس بارتنر"), desc: Lraw("Recruitment offices and agencies sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام ووكالات التوظيف لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
 }
 
 // A dedicated, full page for one candidate (instead of the old in-modal
@@ -7542,6 +7614,79 @@ function buildPartnerDashboard() {
 
 // Owner-only supplier control panel. Gated by the same PANEL_KEY/LEADS_KEY that
 // gates /monitor — the key is held in sessionStorage only, never in the page.
+// Owner panel for the recruitment-provider network. Offices activate
+// themselves, so this is not an approval queue — it is where the owner reads
+// the registry (profiles, fees, how many candidates each office supplied),
+// marks an office as verified or suspends it, and publishes demand orders to
+// the network. Same key gate as the partners panel.
+function buildAgenciesAdmin() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Owner panel", "لوحة المالك")}</span>
+    <h1>${L("Recruitment agencies control panel", "لوحة تحكم مكاتب الاستقدام")}</h1>
+    <p class="lead">${L("Every registered provider, what it supplies and what it charges, how many candidates it has sent, and the demand you've published to the network — writing straight to your Notion registry.", "كل مزوّد مسجّل، وماذا يوفّر وبكم، وكم مرشحاً رفع، والطلبات التي نشرتها للشبكة — كل شيء يُكتب مباشرة في قواعدك في نوشن.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:1180px">
+
+    <div id="aa-gate">
+      <div class="dash-card" style="max-width:460px;margin:0 auto">
+        <h2>${L("Owner key", "مفتاح المالك")}</h2>
+        <p class="text-soft" style="margin-bottom:14px">${L("Same key you use for BP Inbox and the partners panel.", "نفس المفتاح الذي تستخدمه في BP Inbox ولوحة الشركاء.")}</p>
+        <form id="aa-key-form" class="calc-form">
+          <div class="field"><label for="aa-key">${L("Key", "المفتاح")}</label><input id="aa-key" type="password" required></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Open the panel", "افتح اللوحة")}</button>
+          <p class="form-error" id="aa-error" hidden></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="aa-app" hidden>
+      <div class="dash-stats" style="margin-bottom:20px">
+        <div class="dash-stat"><div class="ds-ico">🌍</div><div class="num" id="aa-n-all">0</div><div class="lbl">${L("Offices", "المكاتب")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">⏳</div><div class="num" id="aa-n-new">0</div><div class="lbl">${L("Profile incomplete", "ملف غير مكتمل")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="aa-n-ok">0</div><div class="lbl">${L("Verified", "موثّقة")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="aa-n-req">0</div><div class="lbl">${L("Open requests", "طلبات مفتوحة")}</div></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3 style="margin:0">${L("Publish a hiring request to the network", "انشر طلب توظيف للشبكة")}</h3>
+          <button class="btn btn-ghost btn-sm" id="aa-refresh">${L("Refresh", "تحديث")}</button>
+        </div>
+        <form id="aa-req-form" class="calc-form" style="margin-top:12px">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="aa-title">${L("Request title", "عنوان الطلب")} *</label><input id="aa-title" type="text" required placeholder="${Lraw("e.g. 5 private drivers — Riyadh", "مثال: ٥ سائقين خصوصي — الرياض")}"></div>
+            <div class="field"><label for="aa-profession">${L("Profession", "المهنة")}</label><input id="aa-profession" type="text"></div>
+            <div class="field"><label for="aa-count">${L("Headcount", "العدد المطلوب")}</label><input id="aa-count" type="number" min="1"></div>
+            <div class="field"><label for="aa-nats">${L("Nationalities", "الجنسيات المطلوبة")}</label><input id="aa-nats" type="text"></div>
+            <div class="field"><label for="aa-gender">${L("Gender", "الجنس")}</label><select id="aa-gender"><option value="كلاهما">${L("Both", "كلاهما")}</option><option value="ذكر">${L("Male", "ذكر")}</option><option value="أنثى">${L("Female", "أنثى")}</option></select></div>
+            <div class="field"><label for="aa-city">${L("City", "المدينة")}</label><input id="aa-city" type="text"></div>
+            <div class="field"><label for="aa-salary">${L("Salary offered", "الراتب المعروض")}</label><input id="aa-salary" type="text"></div>
+            <div class="field"><label for="aa-exp">${L("Experience required", "الخبرة المطلوبة")}</label><input id="aa-exp" type="text"></div>
+            <div class="field"><label for="aa-client">${L("Client", "العميل")}</label><input id="aa-client" type="text"></div>
+            <div class="field"><label for="aa-deadline">${L("Needed by", "موعد التسليم")}</label><input id="aa-deadline" type="date"></div>
+          </div>
+          <div class="field"><label for="aa-extra">${L("Extra requirements", "متطلبات إضافية")}</label><textarea id="aa-extra" rows="2"></textarea></div>
+          <div class="field"><label>${L("Send to", "أرسل إلى")}</label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="aa-toall" checked> ${L("Every active office", "كل المكاتب النشطة")}</label>
+            <div id="aa-picker" class="sa-picker" hidden></div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Publish the request", "انشر الطلب")}</button>
+          <div class="form-success" id="aa-req-sent" hidden></div>
+        </form>
+      </div>
+
+      <div class="dash-panel-head"><h2>${L("Open requests", "الطلبات المنشورة")}</h2><p>${L("Close a request once it's filled — offices stop seeing it immediately.", "أغلق الطلب عند اكتماله — يختفي فوراً من بوابات المكاتب.")}</p></div>
+      <div id="aa-requests"><p class="dash-empty">${L("Nothing yet.", "لا يوجد بعد.")}</p></div>
+
+      <div class="dash-panel-head" style="margin-top:26px"><h2>${L("Provider registry", "سجل المزوّدين")}</h2><p>${L("Offices sign themselves up and start working immediately. Verifying one marks its licence as checked; suspending it blocks the portal without deleting anything.", "المكاتب تسجّل نفسها وتبدأ العمل فوراً. التوثيق يعني أننا راجعنا ترخيصها، والإيقاف يمنع الدخول دون حذف أي بيانات.")}</p></div>
+      <div id="aa-agencies"><p class="dash-empty">${L("No offices registered yet.", "لا توجد مكاتب مسجلة بعد.")}</p></div>
+      <p class="emp-note" style="margin-top:14px">${L("Every candidate an office submits lands in the same ATS pool, tagged with the office name, its contact person and the profession it nominated them for — see the “🌍 مرشحو المكاتب” views in Notion. None of those columns is shown on the public site.", "كل مرشح يرفعه أي مكتب يدخل نفس قاعدة ATS، موسوماً باسم المكتب والشخص المسؤول والمهنة التي رشّحه عليها — راجع فيوهات «🌍 مرشحو المكاتب» في نوشن. ولا يظهر أي من هذه الأعمدة على الموقع.")}</p>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Recruitment providers panel — Business Partner", "لوحة مزوّدي التوظيف — بيزنس بارتنر"), desc: Lraw("Owner panel for the recruitment agency network.", "لوحة المالك لشبكة مكاتب الاستقدام."), active: "/hr", path: "/agencies-admin", body, noindex: true });
+}
+
 function buildSuppliersAdmin() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -9963,6 +10108,7 @@ function writeFullSite(pre) {
   write(`${pre}quote.html`, buildQuotePage());
   write(`${pre}contract.html`, buildContractPage());
   write(`${pre}suppliers-admin.html`, buildSuppliersAdmin());
+  write(`${pre}agencies-admin.html`, buildAgenciesAdmin());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
