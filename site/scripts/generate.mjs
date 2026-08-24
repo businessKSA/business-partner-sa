@@ -1911,6 +1911,7 @@ function buildPackages() {
           data-amount-monthly="${t.amount}" data-amount-yearly="${yearly}"
           data-price-monthly="${esc(priceLabelM)}" data-price-yearly="${esc(priceLabelY)}"
         >🛒 ${L("Add to cart", "أضف إلى السلة")}</button>
+        ${SHOW_PACKAGE_PRICES && (t.surcharge || t.surchargeEn) ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
       </div>`;
     }
     return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>

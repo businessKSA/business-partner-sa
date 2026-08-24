@@ -500,6 +500,11 @@
           <div class="sub">عدّل محتوى الموقع وانشره بنفسك — عند الحفظ يُحدَّث الموقع تلقائياً خلال دقيقتين تقريباً.</div>
         </div>
         <div class="tools" id="contentFiles" style="margin-bottom:22px"></div>
+        <div class="toolbar" id="contentBar" style="display:none">
+          <button class="back" id="contentBack" type="button">← كل ملفات المحتوى</button>
+          <span class="ttl" id="contentTitle">—</span>
+          <span class="dsc" id="contentDesc"></span>
+        </div>
         <div class="panel" id="editorPanel" style="display:none">
           <div class="editor-head">
             <span class="file-lbl" id="edLabel">—</span>
@@ -1448,11 +1453,7 @@
           if (!d) return;
           contentJump = true;
           switchView('content');
-          var grid = $('contentFiles'); if (grid) grid.style.display = 'none';
           loadContent(d);
-          var act = box.querySelectorAll('button.active');
-          for (var k = 0; k < act.length; k++) act[k].classList.remove('active');
-          this.classList.add('active');
         };
     }
 
@@ -1534,11 +1535,7 @@
       if (v === 'tools' && !toolJump) showToolIndex();
       toolJump = false;
       // Same for content: the file grid comes back when you enter it directly.
-      if (v === 'content' && !contentJump){
-        var cg = $('contentFiles'); if (cg) cg.style.display = '';
-        var ca = document.querySelectorAll('#subContent button.active');
-        for (var c = 0; c < ca.length; c++) ca[c].classList.remove('active');
-      }
+      if (v === 'content' && !contentJump) contentIndex();
       contentJump = false;
       var views = document.querySelectorAll('.view');
       for (var i = 0; i < views.length; i++) views[i].classList.toggle('on', views[i].id === 'view-' + v);
@@ -1565,6 +1562,7 @@
       $('grpPages').onclick = function(){ toggleGroup('Pages'); };
       $('grpSvc').onclick = function(){ toggleGroup('Svc'); };
       $('toolBack').onclick = showToolIndex;
+      $('contentBack').onclick = contentIndex;
       $('boardBack').onclick = function(){ switchView('tools'); };
       showToolIndex();
       $('navFind').addEventListener('input', function(){ filterNav(this.value); });
@@ -3584,7 +3582,34 @@
         })(CONTENT_DEFS[i]);
       }
     }
+    function contentIndex(){
+      var g = $('contentFiles'); if (g) g.style.display = '';
+      var bar = $('contentBar'); if (bar) bar.style.display = 'none';
+      var ed = $('editorPanel'); if (ed) ed.style.display = 'none';
+      var act = document.querySelectorAll('#subContent button.active');
+      for (var i = 0; i < act.length; i++) act[i].classList.remove('active');
+    }
+
     function loadContent(def){
+      // One file per screen, like the tools. The grid is an index to come back
+      // to, not something to scroll past while editing.
+      //
+      // This flag is set before anything else because loadContent calls
+      // switchView('content') further down, and switchView returns the view to
+      // its index unless it is told a specific file was chosen. Without it,
+      // opening a file hid the grid and then immediately showed it again.
+      contentJump = true;
+      var g = $('contentFiles'); if (g) g.style.display = 'none';
+      var bar = $('contentBar');
+      if (bar && def){
+        bar.style.display = '';
+        $('contentTitle').textContent = (def.icon || '') + ' ' + (def.name || '');
+        $('contentDesc').textContent = def.desc || '';
+      }
+      var subs = document.querySelectorAll('#subContent button');
+      for (var s2 = 0; s2 < subs.length; s2++)
+        subs[s2].classList.toggle('active', def && subs[s2].getAttribute('data-content') === def.id);
+
       curDef = def; edLoading = true;
       switchView('content');
       $('editorPanel').style.display = 'block';
