@@ -337,6 +337,24 @@
           <div class="sub">مؤشرات محسوبة من أحدث الطلبات في نظام CRM (آخر ٥٠ طلباً).</div>
         </div>
 
+        <!-- site analytics: first thing the owner sees -->
+        <div class="panel" id="anaPanel" style="margin-bottom:18px">
+          <div class="panel-head"><h3>📈 إحصائيات الموقع</h3><span class="stamp" id="anaStamp"></span></div>
+          <div class="tiles" style="padding:14px 18px 0">
+            <div class="tile"><div class="k">👁️ زيارات اليوم</div><div class="v" id="aToday">—</div><div class="d" id="aTodayV">—</div></div>
+            <div class="tile"><div class="k">🗓️ آخر ٧ أيام</div><div class="v" id="aWeek">—</div><div class="d" id="aWeekV">—</div></div>
+            <div class="tile"><div class="k">📆 آخر ٣٠ يوماً</div><div class="v" id="aMonth">—</div><div class="d" id="aMonthV">—</div></div>
+            <div class="tile"><div class="k">🖱️ نقرات (٧ أيام)</div><div class="v" id="aClicks">—</div><div class="d">على أزرار الشراء والتواصل</div></div>
+            <div class="tile"><div class="k">⚠️ أخطاء الموقع</div><div class="v" id="aErrs" style="color:#b91c1c">—</div><div class="d">آخر ٧ أيام — تفاصيلها بالأسفل</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:14px 18px 18px">
+            <div><h4 style="font-size:13px;color:#0B1B5A;margin-bottom:6px">🔝 أكثر الصفحات زيارة (٧ أيام)</h4><div id="aPages" style="font-size:12.5px;line-height:2">—</div></div>
+            <div><h4 style="font-size:13px;color:#0B1B5A;margin-bottom:6px">🖱️ أكثر الأزرار نقراً (٧ أيام)</h4><div id="aClickList" style="font-size:12.5px;line-height:2">—</div></div>
+            <div><h4 style="font-size:13px;color:#0B1B5A;margin-bottom:6px">🌐 مصادر الزيارات (٧ أيام)</h4><div id="aRefs" style="font-size:12.5px;line-height:2">—</div></div>
+            <div><h4 style="font-size:13px;color:#b91c1c;margin-bottom:6px">⚠️ أحدث الأخطاء المرصودة</h4><div id="aErrList" style="font-size:12px;line-height:1.9;direction:ltr;text-align:left">—</div></div>
+          </div>
+        </div>
+
         <div class="tiles">
           <div class="tile"><div class="k">📥 أحدث الطلبات</div><div class="v" id="tTotal">—</div><div class="d">آخر ما وصل من الموقع</div></div>
           <div class="tile"><div class="k">☀️ اليوم</div><div class="v" id="tToday">—</div><div class="d">طلبات وصلت اليوم</div></div>
@@ -1080,9 +1098,45 @@
 
     function renderAll(){ renderOverview(); renderLeads(); }
 
+    // ===== site analytics (first-party: page_hits/site_errors in the ops DB) =====
+    function loadAnalytics(){
+      fetch(API_URL + '?action=panel-analytics' + authQS(), { cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){
+            $('anaStamp').textContent = out && out.error === 'db_not_configured' ? 'تحتاج قاعدة البيانات التشغيلية (Supabase)' : 'تعذّر التحميل';
+            return;
+          }
+          var daily = out.daily || [];
+          var todayKey = new Date().toISOString().slice(0, 10);
+          var today = daily.find(function(d){ return String(d.d).slice(0, 10) === todayKey; }) || { views:0, visitors:0, clicks:0 };
+          function sumN(n, k){ return daily.slice(0, n).reduce(function(s, d){ return s + Number(d[k] || 0); }, 0); }
+          $('aToday').textContent = Number(today.views).toLocaleString('en');
+          $('aTodayV').textContent = today.visitors + ' زائر';
+          $('aWeek').textContent = sumN(7, 'views').toLocaleString('en');
+          $('aWeekV').textContent = sumN(7, 'visitors') + ' زائر';
+          $('aMonth').textContent = sumN(30, 'views').toLocaleString('en');
+          $('aMonthV').textContent = sumN(30, 'visitors') + ' زائر';
+          $('aClicks').textContent = sumN(7, 'clicks').toLocaleString('en');
+          var errs = out.errors || [];
+          $('aErrs').textContent = errs.length ? String(errs.length) : '0 ✓';
+          function list(el, rows, fmt){
+            $(el).innerHTML = rows.length ? rows.slice(0, 8).map(fmt).join('') : '<span style="color:#94a3b8">لا بيانات بعد — تبدأ بالتجمع مع أول زيارة.</span>';
+          }
+          list('aPages', out.pages || [], function(p){ return '<div style="display:flex;justify-content:space-between;gap:8px"><span style="direction:ltr;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.path) + '</span><b>' + p.views + '</b></div>'; });
+          list('aClickList', out.clicks || [], function(c){ return '<div style="display:flex;justify-content:space-between;gap:8px"><span>' + esc(c.name) + '</span><b>' + c.clicks + '</b></div>'; });
+          list('aRefs', out.refs || [], function(r2){ return '<div style="display:flex;justify-content:space-between;gap:8px"><span style="direction:ltr;text-align:left">' + esc(r2.ref) + '</span><b>' + r2.views + '</b></div>'; });
+          list('aErrList', errs, function(e2){ return '<div style="border-bottom:1px dashed #fee2e2;padding:2px 0"><b style="color:#b91c1c">' + esc(String(e2.message || '').slice(0, 80)) + '</b><br><span style="color:#64748b">' + esc(e2.path || '') + ' · ' + esc(String(e2.at || '').slice(0, 16).replace('T', ' ')) + '</span></div>'; });
+          if (!errs.length) $('aErrList').innerHTML = '<span style="color:#047857">لا أخطاء مرصودة ✓</span>';
+          $('anaStamp').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' });
+        })
+        .catch(function(){ $('anaStamp').textContent = 'تعذّر التحميل'; });
+    }
+
     function refresh(btns){
       var list = document.querySelectorAll('[data-refresh]');
       for (var i = 0; i < list.length; i++) list[i].disabled = true;
+      try { loadAnalytics(); } catch (e) {}
       return fetchLeads().then(renderAll)
         .catch(function(e){
           if (String(e.message) === 'unauthorized'){ logout(); return; }

@@ -2487,7 +2487,7 @@ var BP = window.BP = window.BP || {};
               if (e.status === "held") actions = '<button type="button" class="btn btn-sm" data-esc-deliver="' + esc4(e.ref) + '" style="font-size:.8rem">📦 ' + T("I delivered the work", "سلّمت المشروع") + "</button>";
               if (e.status === "refund_requested") actions =
                 '<button type="button" class="btn btn-ghost btn-sm" data-esc-agree="' + esc4(e.ref) + '" style="font-size:.8rem">↩️ ' + T("I agree to refund the client", "أوافق على إرجاع المبلغ للعميل") + "</button>" +
-                '<span class="text-soft" style="font-size:.74rem">' + T("Object? Do nothing — BP arbitrates and the money stays held.", "معترض؟ لا تضغط شيئاً — يفصل فريق بيزنس بارتنر والمبلغ يبقى محجوزاً.") + "</span>";
+                '<span class="text-soft" style="font-size:.74rem">' + T("Delivered and object? Do nothing — BP arbitrates. Not delivered? Declare delivery now or the money auto-returns to the client.", "سلّمت ومعترض؟ لا تضغط شيئاً — يفصل فريق المنصة. لم تسلّم؟ أعلن التسليم الآن وإلا يُرجع المبلغ للعميل تلقائياً بعد انتهاء المهلة.") + "</span>";
               return '<div style="padding:9px 0;border-bottom:1px solid #eef1f6">' +
                 '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
                 "<div><b>" + esc4(e.title || e.ref) + '</b><br><span class="text-soft" style="font-size:.8rem">' + esc4(e.ref + " · " + String(e.created_at || "").slice(0, 10)) + "</span></div>" +
@@ -7360,5 +7360,45 @@ var BP_EMP_BILLING = "monthly";
         .then(function (d) { if (d && d.ok) show(d.agency); else { try { localStorage.removeItem(SESSION); } catch (e) {} } })
         .catch(function () {});
     }
+  });
+})();
+
+/* ---------- first-party analytics beacon ---------- */
+// One view per page load, CTA clicks and JS errors — sent fire-and-forget to
+// the site's own API so the /admin overview can show traffic, top pages and
+// where the site breaks, with nothing shared with third parties.
+(function () {
+  "use strict";
+  if (navigator.webdriver) return; // skip automation/bots
+  var vid = "";
+  try {
+    vid = localStorage.getItem("bp_vid") || "";
+    if (!vid) { vid = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("bp_vid", vid); }
+  } catch (e) {}
+  function send(payload) {
+    payload.action = "hit"; payload.visitor = vid;
+    try {
+      var body = JSON.stringify(payload);
+      if (navigator.sendBeacon) navigator.sendBeacon("/api/requests", new Blob([body], { type: "application/json" }));
+      else fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: body, keepalive: true }).catch(function () {});
+    } catch (e) {}
+  }
+  var refHost = "";
+  try { if (document.referrer) { var u = new URL(document.referrer); if (u.host !== location.host) refHost = u.host; } } catch (e) {}
+  send({ kind: "view", path: location.pathname, ref: refHost, lang: document.documentElement.lang || "", device: window.innerWidth < 768 ? "mobile" : "desktop" });
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest(".add-cart,#cart-checkout,#co-submit,#disc-apply,a[href*='wa.me'],a[href*='whatsapp'],[data-track]");
+    if (!t) return;
+    var name = t.getAttribute("data-track") ||
+      (t.classList && t.classList.contains("add-cart") ? "أضف للسلة"
+        : t.id === "cart-checkout" ? "إتمام الطلب"
+        : t.id === "co-submit" ? "إرسال الطلب"
+        : t.id === "disc-apply" ? "تطبيق كود خصم" : "واتساب");
+    send({ kind: "click", path: location.pathname, name: name });
+  }, true);
+  var errCount = 0;
+  window.addEventListener("error", function (ev) {
+    if (errCount++ >= 3) return; // a broken loop must not flood the log
+    send({ kind: "err", path: location.pathname, name: String(ev.message || "").slice(0, 200), source: String((ev.filename || "") + ":" + (ev.lineno || 0)).slice(0, 120) });
   });
 })();

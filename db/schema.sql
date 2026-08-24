@@ -560,3 +560,8 @@ alter table escrows add constraint escrows_status_check
   check (status in ('held','delivered','refund_requested','released','refunded','cancelled'));
 alter table escrows add column if not exists delivered_at timestamptz;
 alter table escrows add column if not exists supplier_note text;
+
+-- 2026-08-24: n8n-driven automation timers. refund_requested_at anchors the
+-- auto-refund deadline (supplier silence on an UNDELIVERED job = consent);
+-- delivered_at already anchors auto-release (client silence = acceptance).
+alter table escrows add column if not exists refund_requested_at timestamptz;

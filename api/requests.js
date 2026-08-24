@@ -1010,6 +1010,92 @@ export default async function handler(req, res) {
     }
   }
 
+  // First-party analytics feed for the /admin overview: daily series, top
+  // pages, top clicked CTAs, referrers, and the latest client-side errors.
+  if ((q.action || "") === "panel-analytics") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    try {
+      const [daily, pages, clicks, refs, errors] = await Promise.all([
+        sb("analytics_daily?select=*"),
+        sb("analytics_top_pages?select=*"),
+        sb("analytics_top_clicks?select=*"),
+        sb("analytics_top_refs?select=*"),
+        sb("site_errors?select=at,path,message,source&order=at.desc&limit=20"),
+      ]);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, daily: daily || [], pages: pages || [], clicks: clicks || [], refs: refs || [], errors: errors || [] }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
+  // Automation sweep, called by the n8n daily schedule — no human in the loop.
+  // Deliberately keyless: it takes no input and performs only deterministic,
+  // deadline-based transitions that were announced to both parties up front,
+  // so an outside caller can only make the schedule run early, never choose an
+  // outcome. The rules (the same ones the freelance marketplaces use):
+  //   * delivered + client silent for ESCROW_AUTO_RELEASE_DAYS → release to
+  //     the supplier (silence = acceptance).
+  //   * refund requested on an UNDELIVERED job + supplier silent for
+  //     ESCROW_AUTO_REFUND_DAYS → refund the client (silence = consent).
+  //   * a refund dispute over CLAIMED-delivered work is the one case left to
+  //     Business Partner — arbitration is the product there, not overhead.
+  // Reminder emails go out in the final two days before each deadline.
+  if ((q.action || "") === "escrow-sweep") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    const relDays = Number(process.env.ESCROW_AUTO_RELEASE_DAYS) > 0 ? Number(process.env.ESCROW_AUTO_RELEASE_DAYS) : 7;
+    const refDays = Number(process.env.ESCROW_AUTO_REFUND_DAYS) > 0 ? Number(process.env.ESCROW_AUTO_REFUND_DAYS) : 7;
+    const now = Date.now(), DAY = 864e5;
+    let released = 0, refunded = 0, reminders = 0;
+    try {
+      const open = await sb("escrows?status=in.(delivered,refund_requested)&select=*&order=created_at.asc&limit=200");
+      for (const e of open || []) {
+        const amount = Number(e.amount);
+        if (e.status === "delivered" && e.delivered_at) {
+          const left = relDays - (now - Date.parse(e.delivered_at)) / DAY;
+          if (left <= 0) {
+            const rows = await sb(`escrows?id=eq.${e.id}&status=eq.delivered`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
+            if (!rows.length) continue;
+            released++;
+            await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: e.supplier_email, type: "escrow_release", amount, note: `تحرير تلقائي لضمان ${e.ref} — مضت ${relDays} أيام على إعلان التسليم دون اعتراض العميل` }] });
+            await notify({ organization_id: e.organization_id, event: "escrow_auto_released", channel: "inapp", title: `تحرر ضمان ${e.ref} تلقائياً للمورد (مضت ${relDays} أيام على التسليم دون اعتراض)`, idempotency_key: `escrow_auto_rel:${e.ref}` }).catch(() => {});
+            await Promise.all([
+              sendEmail(e.supplier_email, `✅ تحرر ضمانك تلقائياً — ${e.ref} (${amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>مضت ${relDays} أيام على إعلانك التسليم دون اعتراض من العميل، فتحرر مبلغ <strong>${amount} ﷼</strong> تلقائياً إلى محفظتك في <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك</a>.</p></div>`),
+              sendEmail(e.client_email, `تحرر الضمان ${e.ref} تلقائياً`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>مضت ${relDays} أيام على إعلان المورد تسليم «${esc(e.title)}» دون اعتراض منك، فتحرر مبلغ الضمان (${amount} ﷼) للمورد تلقائياً وفق آلية المنصة المعلنة.</p></div>`),
+            ]).catch(() => {});
+          } else if (left <= 2) {
+            reminders++;
+            await sendEmail(e.client_email, `⏰ تذكير: اعتمد استلام «${String(e.title).slice(0, 60)}» — ${e.ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>أعلن المورد تسليم <b>${esc(e.title)}</b> ولم تعتمد الاستلام بعد. أمامك <b>${Math.ceil(left)} يوم${Math.ceil(left) > 1 ? "ين" : ""}</b> — بعدها يتحرر المبلغ (${amount} ﷼) للمورد تلقائياً. اعتمد أو اطلب الاسترجاع من <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">لوحتك ← المحفظة</a>.</p></div>`).catch(() => {});
+          }
+        }
+        if (e.status === "refund_requested" && !e.delivered_at && e.refund_requested_at) {
+          const left = refDays - (now - Date.parse(e.refund_requested_at)) / DAY;
+          if (left <= 0) {
+            const rows = await sb(`escrows?id=eq.${e.id}&status=eq.refund_requested`, { method: "PATCH", body: { status: "refunded" } });
+            if (!rows.length) continue;
+            refunded++;
+            await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: e.organization_id, type: "refund", amount, note: `استرجاع تلقائي لضمان ${e.ref} — لم يرد المورد على طلب الاسترجاع خلال ${refDays} أيام ولم يعلن أي تسليم` }] });
+            await notify({ organization_id: e.organization_id, event: "escrow_auto_refunded", channel: "inapp", title: `أُرجع ضمان ${e.ref} (+${amount} ﷼) لمحفظتك تلقائياً`, idempotency_key: `escrow_auto_ref:${e.ref}` }).catch(() => {});
+            await Promise.all([
+              sendEmail(e.client_email, `↩️ أُرجع الضمان ${e.ref} إلى محفظتك تلقائياً`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>لم يرد المورد على طلب الاسترجاع خلال ${refDays} أيام ولم يعلن أي تسليم، فعاد مبلغ <strong>${amount} ﷼</strong> إلى محفظتك تلقائياً وفق آلية المنصة.</p></div>`),
+              sendEmail(e.supplier_email, `الضمان ${e.ref} أُرجع للعميل تلقائياً`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>مضت ${refDays} أيام على طلب العميل الاسترجاع دون رد منك ودون إعلان تسليم، فأُرجع المبلغ للعميل تلقائياً وفق آلية المنصة المعلنة.</p></div>`),
+            ]).catch(() => {});
+          } else if (left <= 2) {
+            reminders++;
+            await sendEmail(e.supplier_email, `⏰ تذكير: طلب استرجاع على الضمان ${e.ref} — أمامك ${Math.ceil(left)} يوم`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>طلب العميل استرجاع الضمان <b>${e.ref}</b> (${Number(e.amount)} ﷼) ولم تسلّم العمل بعد. إن كنت أنجزت العمل فأعلن التسليم الآن من <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك</a>، وإلا يُرجع المبلغ للعميل تلقائياً بعد <b>${Math.ceil(left)} يوم${Math.ceil(left) > 1 ? "ين" : ""}</b>.</p></div>`).catch(() => {});
+          }
+        }
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, released, refunded, reminders, rules: { autoReleaseDays: relDays, autoRefundDays: refDays } }));
+    } catch (e) {
+      console.error("escrow sweep failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "db_failed", released, refunded }));
+    }
+  }
+
   // Escrows the session's active organization opened — shown in the client's
   // wallet view alongside the balance they draw from.
   if ((q.action || "") === "my-escrows") {
@@ -2421,6 +2507,27 @@ export default async function handler(req, res) {
     }
   }
 
+  // Analytics beacon: one page view / CTA click / client error per call, sent
+  // by every page via sendBeacon. Public and fire-and-forget by design — it
+  // always answers ok fast and stores nothing identifying beyond a random
+  // per-browser token, so it can never block or slow a real page.
+  if (b.action === "hit") {
+    res.statusCode = 200;
+    const done = () => res.end(JSON.stringify({ ok: true }));
+    if (!DB_ON) return done();
+    const kind = b.kind === "click" ? "click" : b.kind === "err" ? "err" : "view";
+    const path = String(b.path || "").slice(0, 200);
+    if (path.charAt(0) !== "/") return done();
+    try {
+      if (kind === "err") {
+        await sb("site_errors", { method: "POST", prefer: "return=minimal", body: [{ path, message: String(b.name || "").slice(0, 300), source: String(b.source || "").slice(0, 160), ua: String(req.headers["user-agent"] || "").slice(0, 200) }] });
+      } else {
+        await sb("page_hits", { method: "POST", prefer: "return=minimal", body: [{ kind, path, name: kind === "click" ? String(b.name || "").slice(0, 80) : null, ref: String(b.ref || "").slice(0, 120), lang: String(b.lang || "").slice(0, 8), device: String(b.device || "").slice(0, 12), visitor: String(b.visitor || "").slice(0, 48) }] });
+      }
+    } catch {}
+    return done();
+  }
+
   // ---- escrow: wallet money held between client and supplier ---------------
   // The client funds the guarantee from their wallet; the amount leaves the
   // balance the moment the escrow opens and reaches the supplier's ledger only
@@ -2489,12 +2596,14 @@ export default async function handler(req, res) {
       // escrow-refund: the client asks for the money back. It reaches their
       // wallet only when the SUPPLIER consents (from the partner dashboard) or
       // Business Partner arbitrates — never on the client's word alone.
-      const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&status=in.(held,delivered)`, { method: "PATCH", body: { status: "refund_requested", note: String(b.reason || "").slice(0, 400) } });
+      const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&status=in.(held,delivered)`, { method: "PATCH", body: { status: "refund_requested", note: String(b.reason || "").slice(0, 400), refund_requested_at: new Date().toISOString() } });
       if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_refundable" })); }
       const e3 = rows[0];
       await Promise.all([
         sendEmail(TEAM_EMAIL, `⚠️ طلب استرجاع ضمان ${e3.ref} — ${myName} (${e3.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>طلب العميل استرجاع مبلغ الضمان. إن وافق المورد من لوحته يُسترجع تلقائياً؛ وإن اعترض فافصل أنت من لوحة /admin ← الأدوات ← الضمانات (استرجاع للعميل أو تحرير للمورد).</p><table>${row("العميل", myName + " · " + myEmail) + row("المورد", e3.supplier_email) + row("الموضوع", e3.title) + row("المبلغ", e3.amount + " ﷼") + row("سبب الطلب", String(b.reason || "—").slice(0, 400))}</table></div>`),
-        sendEmail(e3.supplier_email, `⚠️ طلب استرجاع على الضمان ${e3.ref} — موافقتك مطلوبة`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>طلب العميل استرجاع مبلغ الضمان <b>${e3.ref}</b> (${e3.amount} ﷼).</p><p>السبب المذكور: ${esc(String(b.reason || "—").slice(0, 400))}</p><p>من <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك ← محفظتي</a>: إن كنت موافقاً اضغط «أوافق على الإرجاع» ويعود المبلغ للعميل فوراً، وإن كنت معترضاً فلا تضغط شيئاً — يفصل فريق بيزنس بارتنر بينكما ويبقى المبلغ محجوزاً حتى القرار.</p></div>`),
+        sendEmail(e3.supplier_email, `⚠️ طلب استرجاع على الضمان ${e3.ref} — موافقتك مطلوبة`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>طلب العميل استرجاع مبلغ الضمان <b>${e3.ref}</b> (${e3.amount} ﷼).</p><p>السبب المذكور: ${esc(String(b.reason || "—").slice(0, 400))}</p><p>من <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك ← محفظتي</a>: إن كنت موافقاً اضغط «أوافق على الإرجاع» ويعود المبلغ للعميل فوراً.</p><p>${e3.delivered_at
+          ? "وإن كنت معترضاً وقد سلّمت العمل فعلاً فلا تضغط شيئاً — يفصل فريق بيزنس بارتنر بينكما ويبقى المبلغ محجوزاً حتى القرار."
+          : "⏳ تنبيه: لم يُسجَّل أي تسليم على هذا الضمان — إن كنت أنجزت العمل فأعلن التسليم الآن من لوحتك، وإلا فسيُرجَع المبلغ للعميل <b>تلقائياً</b> إذا مضت المهلة المعلنة دون رد منك."}</p></div>`),
       ]).catch(() => {});
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, escrow: e3 }));
