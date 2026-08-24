@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-24T04:02:23.785Z",
+  "updatedAt": "2026-08-24T04:04:16.204Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -62,8 +62,8 @@
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
-      "amount": 85,
-      "priceLabel": "85 ﷼",
+      "amount": 250,
+      "priceLabel": "250 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-sbc-02"
@@ -160,8 +160,8 @@
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
-      "amount": 39,
-      "priceLabel": "39 ﷼",
+      "amount": 100,
+      "priceLabel": "100 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-sbc-09"
@@ -188,8 +188,8 @@
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
-      "amount": 39,
-      "priceLabel": "39 ﷼",
+      "amount": 100,
+      "priceLabel": "100 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-sbc-11"
@@ -202,8 +202,8 @@
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
-      "amount": 65,
-      "priceLabel": "65 ﷼",
+      "amount": 180,
+      "priceLabel": "180 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-sbc-12"
@@ -216,8 +216,8 @@
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
-      "amount": 49,
-      "priceLabel": "49 ﷼",
+      "amount": 100,
+      "priceLabel": "100 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-sbc-13"
@@ -272,8 +272,8 @@
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
-      "amount": 19,
-      "priceLabel": "19 ﷼",
+      "amount": 100,
+      "priceLabel": "100 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-sbc-17"
@@ -300,8 +300,8 @@
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
-      "amount": 70,
-      "priceLabel": "70 ﷼",
+      "amount": 180,
+      "priceLabel": "180 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-sbc-19"
@@ -384,8 +384,8 @@
       "categoryAr": "الاستثمار الأجنبي",
       "govPlatform": "وزارة الاستثمار MISA",
       "pricingModel": "One Time",
-      "amount": 40000,
-      "priceLabel": "40,000 ﷼",
+      "amount": 30000,
+      "priceLabel": "30,000 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-fi-05"
@@ -734,8 +734,8 @@
       "categoryAr": "العلاقات الحكومية",
       "govPlatform": "الزكاة والضريبة ZATCA",
       "pricingModel": "One Time",
-      "amount": 39,
-      "priceLabel": "39 ﷼",
+      "amount": 100,
+      "priceLabel": "100 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-zatca-05"
@@ -748,8 +748,8 @@
       "categoryAr": "الموارد البشرية",
       "govPlatform": "وزارة الموارد البشرية",
       "pricingModel": "One Time",
-      "amount": 99,
-      "priceLabel": "99 ﷼",
+      "amount": 250,
+      "priceLabel": "250 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-hr-01"
@@ -790,8 +790,8 @@
       "categoryAr": "الموارد البشرية",
       "govPlatform": "مدد",
       "pricingModel": "One Time",
-      "amount": 79,
-      "priceLabel": "79 ﷼",
+      "amount": 180,
+      "priceLabel": "180 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-mudad-02"
