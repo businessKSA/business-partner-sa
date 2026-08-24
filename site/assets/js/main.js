@@ -3997,7 +3997,9 @@ var BP = window.BP = window.BP || {};
   var submitBtn = document.getElementById("co-submit");
   var onlineNote = document.getElementById("online-submit-note");
   var receiptInput = document.getElementById("co-receipt");
+  var bnplBox = document.getElementById("bnpl-box");
   var onlineReady = false;      // Moyasar mounted successfully
+  var bnplCfg = { tabby: false, tamara: false };   // flips when /api/pay says the keys are in
   function payMethod() {
     var r = document.querySelector('input[name="paymethod"]:checked');
     var v = r ? r.value : "online";
@@ -4008,6 +4010,7 @@ var BP = window.BP = window.BP || {};
     var m = payMethod();
     if (bankPay) bankPay.style.display = m === "bank" ? "" : "none";
     if (box) box.hidden = !(m === "online" && onlineReady);
+    if (bnplBox) bnplBox.hidden = (m !== "bnpl");
     // A required field inside a hidden block blocks submit with a message the
     // buyer cannot see, so the requirement moves with the choice.
     if (receiptInput) receiptInput.required = (m === "bank");
@@ -4015,6 +4018,64 @@ var BP = window.BP = window.BP || {};
     if (onlineNote) onlineNote.hidden = (m !== "online");
     if (typeof gate === "function") gate();
   }
+  // ---- installments (Tabby / Tamara) ----
+  // The buttons exist from day one; each one is «قريباً» until /api/pay says
+  // that provider's keys are configured, then it goes live with no code change.
+  function bnplButtons() {
+    ["tabby", "tamara"].forEach(function (prov) {
+      var btn = document.getElementById("bnpl-" + prov);
+      if (!btn) return;
+      var on = !!bnplCfg[prov];
+      btn.disabled = !on;
+      btn.style.opacity = on ? "1" : ".45";
+      btn.style.cursor = on ? "pointer" : "not-allowed";
+      var badge = btn.querySelector(".soon-badge");
+      if (!on && !badge) {
+        badge = document.createElement("span");
+        badge.className = "soon-badge";
+        badge.style.cssText = "background:rgba(0,0,0,.25);color:#fff;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:700";
+        badge.textContent = BP.t("soon", "قريباً");
+        btn.appendChild(badge);
+      } else if (on && badge) badge.remove();
+    });
+  }
+  function bnplGo(prov) {
+    if (!bnplCfg[prov]) return;
+    var help = document.getElementById("bnpl-help");
+    var terms = document.getElementById("co-terms");
+    var gap = (terms && !terms.checked)
+      ? BP.t("agreement to the Terms & Conditions", "الموافقة على الشروط والأحكام")
+      : taxGap();
+    var snap = snapshot();
+    if (!gap && !(snap.email && snap.name && snap.phone)) gap = BP.t("your name, mobile and email above", "الاسم والجوال والبريد أعلاه");
+    if (gap) {
+      if (help) { help.style.color = "#b45309"; help.textContent = BP.t("Complete ", "أكمل ") + gap + BP.t(" to continue to installments.", " للمتابعة إلى التقسيط."); }
+      return;
+    }
+    var btn = document.getElementById("bnpl-" + prov);
+    if (btn) btn.disabled = true;
+    if (help) { help.style.color = ""; help.textContent = BP.t("Preparing your installment plan…", "جاري تجهيز خطة التقسيط…"); }
+    fetch("/api/pay", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "bnpl-checkout", provider: prov, lang: BP.lang, order: snap }) })
+      .then(function (r) { return r.json(); })
+      .then(function (out) {
+        if (out && out.ok && out.url) { location.href = out.url; return; }
+        if (btn) btn.disabled = false;
+        if (help) {
+          help.style.color = "#b91c1c";
+          help.textContent = out && out.error === "quote_only_items"
+            ? BP.t("Some items in your cart are quoted on review — installments need fixed-price items only.", "بعض بنود سلتك تُسعّر عند المراجعة — التقسيط متاح للبنود محددة السعر فقط.")
+            : out && out.error === "rejected"
+            ? BP.t("The provider could not approve this order — you can pay by card or bank transfer.", "لم يوافق المزود على هذا الطلب — تقدر تدفع بالبطاقة أو التحويل البنكي.")
+            : BP.t("Could not start the installment plan — try again or pay by card.", "تعذّر بدء خطة التقسيط — حاول مرة أخرى أو ادفع بالبطاقة.");
+        }
+      })
+      .catch(function () { if (btn) btn.disabled = false; });
+  }
+  var tb = document.getElementById("bnpl-tabby"), tm = document.getElementById("bnpl-tamara");
+  if (tb) tb.addEventListener("click", function () { bnplGo("tabby"); });
+  if (tm) tm.addEventListener("click", function () { bnplGo("tamara"); });
+  bnplButtons();
   if (payChoice) {
     payChoice.addEventListener("change", applyPayMethod);
     applyPayMethod();
@@ -4022,6 +4083,9 @@ var BP = window.BP = window.BP || {};
 
   if (total > 0) {
     fetch("/api/pay").then(function (r) { return r.json(); }).then(function (cfg) {
+      // Installment providers ride the same config: each button goes live the
+      // day its keys are configured, independently of the card gateway.
+      if (cfg && cfg.bnpl) { bnplCfg = cfg.bnpl; bnplButtons(); }
       // No gateway configured: online is not an option, and offering it would
       // be a dead end. Bank transfer becomes the only choice, silently.
       if (!cfg || !cfg.enabled) {
@@ -4138,13 +4202,32 @@ var BP = window.BP = window.BP || {};
   document.addEventListener("input", function (e) { if (e.target && e.target.closest && e.target.closest("#checkout-form, form")) gate(); });
   document.addEventListener("change", function (e) { if (e.target && e.target.closest && e.target.closest("#checkout-form, form")) gate(); });
 
-  // back from 3-D Secure: ?id=<payment_id> → verify server-side
+  // back from 3-D Secure (?id=) or from a Tabby/Tamara approval page
+  // (?bnpl=tabby&payment_id= / ?bnpl=tamara&orderId=) → verify server-side.
+  // Both paths end in the same renderer: one payment, one story.
   var params = new URLSearchParams(location.search);
   var payId = params.get("id");
+  var bnplProv = params.get("bnpl");
+  var bnplId = params.get("payment_id") || params.get("paymentId") || params.get("orderId") || params.get("order_id") || "";
+  var verifyBody = null;
   if (payId) {
+    verifyBody = { id: payId };
+  } else if (bnplProv && (params.get("bnpl_status") || "success") === "success" && bnplId) {
+    verifyBody = { action: "bnpl-verify", provider: bnplProv === "tamara" ? "tamara" : "tabby", id: bnplId };
+  } else if (bnplProv && params.get("bnpl_status") && params.get("bnpl_status") !== "success") {
+    var cel = document.getElementById("checkout-success");
+    if (cel) {
+      cel.hidden = false;
+      cel.innerHTML = BP.t("Installment payment was not completed — you can retry, pay by card, or use bank transfer.",
+                           "لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة أو بالتحويل البنكي.");
+      cel.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+  if (verifyBody) {
     var stashed = null;
     try { stashed = JSON.parse(sessionStorage.getItem(SNAP) || "null"); } catch (e4) {}
-    fetch("/api/pay", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: payId, order: stashed || undefined }) })
+    verifyBody.order = stashed || undefined;
+    fetch("/api/pay", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(verifyBody) })
       .then(function (r) { return r.json(); })
       .then(function (v) {
         var ok = v && v.ok;

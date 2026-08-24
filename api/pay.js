@@ -26,6 +26,7 @@
 import crypto from "node:crypto";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
+import { tabbyConfigured, tamaraConfigured, createTabbySession, createTamaraSession, verifyTabbyPayment, verifyTamaraOrder } from "./_bnpl.js";
 import { contactForRef } from "./_stage.js";
 
 // Trimmed, like every other secret this project reads. A newline pasted into
@@ -668,6 +669,9 @@ export default async function handler(req, res) {
       applePay: PAY_METHODS.includes("applepay")
         ? { country: "SA", label: APPLE_PAY_LABEL, validate_merchant_url: APPLE_PAY_VALIDATE_URL }
         : null,
+      // Installments (BNPL): each provider flips on the day its keys land in
+      // Vercel — until then the checkout shows its button as «قريباً».
+      bnpl: { tabby: tabbyConfigured(), tamara: tamaraConfigured() },
     }));
   }
 
@@ -824,6 +828,112 @@ export default async function handler(req, res) {
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, handled: true, recorded: !!(marked && marked.recorded), ...(invoicing ? { invoice: invoicing } : {}) }));
+  }
+
+  // ---- BNPL (Tabby / Tamara): create a hosted-checkout session -------------
+  // The basket is re-priced from the catalog server-side — the browser names
+  // items, never amounts — and the buyer is redirected to the provider's page.
+  if (b.action === "bnpl-checkout") {
+    const provider = b.provider === "tamara" ? "tamara" : "tabby";
+    const enabled = provider === "tamara" ? tamaraConfigured() : tabbyConfigured();
+    if (!enabled) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const order = (b.order && typeof b.order === "object") ? b.order : {};
+    const rawItems = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
+      .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
+      .filter((x) => x.id);
+    if (!rawItems.length || !isEmail(String(order.email || ""))) {
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_order" }));
+    }
+    let priceMap = {}; try { priceMap = await catalogPrices(); } catch {}
+    let net = 0, unknown = false; const items = []; const lines = [];
+    for (const x of rawItems) {
+      const a = skuAmount(x.id, priceMap);
+      if (a == null) { unknown = true; continue; }
+      const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
+      net += a * x.qty;
+      lines.push({ id: x.id, line: a * x.qty });
+      items.push({ id: x.id, name: cat ? cat.name : x.id, qty: x.qty, unit: a });
+    }
+    net += Number(order.surchargeFee) || 0;
+    if (unknown || !(net > 0)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "quote_only_items" })); }
+    const disc = await catalogDiscount(order.discountCode);
+    const discBase = disc && disc.services.length
+      ? lines.reduce((s, l) => s + (discAppliesTo(disc, l.id) ? l.line : 0), 0)
+      : net;
+    const cut = discountCut(Math.min(discBase, net), disc);
+    if (cut > 0 && net > 0) {
+      // Scale the provider's line items too, so their page shows the same
+      // numbers our invoice will carry.
+      const factor = (net - cut) / net;
+      for (const it of items) it.unit = Math.round(it.unit * factor * 100) / 100;
+      net -= cut;
+    }
+    const totalSar = Math.round(net * 1.15 * 100) / 100;
+    const ref = String(order.ref || "BP-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const back = `${SELF_BASE}/${String(b.lang || "") === "en" ? "" : "ar/"}checkout`;
+    const urls = {
+      success: `${back}?bnpl=${provider}&bnpl_status=success`,
+      cancel: `${back}?bnpl=${provider}&bnpl_status=cancel`,
+      failure: `${back}?bnpl=${provider}&bnpl_status=failure`,
+      notification: `${SELF_BASE}/api/pay`,
+    };
+    try {
+      const sess = provider === "tamara"
+        ? await createTamaraSession({ order: { ...order, ref }, totalSar, items, urls })
+        : await createTabbySession({ order: { ...order, ref }, totalSar, items, urls });
+      if (!sess.ok) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: sess.rejected ? "rejected" : (sess.error || "session_failed"), reason: sess.reason || "" }));
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, url: sess.url, ref, total: totalSar, provider }));
+    } catch (e) {
+      console.error("bnpl session failed", provider, String(e.message || e), String(e.detail || "").slice(0, 300));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "session_failed" }));
+    }
+  }
+
+  // ---- BNPL: the buyer is back — verify with the provider, capture, settle.
+  // The verified amount feeds the exact same sealed pipeline the card path
+  // uses, so activation + CRM + tax invoice all run with no owner click.
+  if (b.action === "bnpl-verify") {
+    const provider = b.provider === "tamara" ? "tamara" : "tabby";
+    const enabled = provider === "tamara" ? tamaraConfigured() : tabbyConfigured();
+    if (!enabled) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    let v = null;
+    try {
+      v = provider === "tamara" ? await verifyTamaraOrder(b.id) : await verifyTabbyPayment(b.id);
+    } catch (e) {
+      console.error("bnpl verify failed", provider, String(e.message || e), String(e.detail || "").slice(0, 300));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "verify_failed" }));
+    }
+    if (!v || !v.paid) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, status: (v && v.status) || "unpaid" })); }
+    const p = { id: `${provider}_${v.id}`, amount: Math.round(v.amountSar * 100) };
+    let settle = null, invoicing = null;
+    const order = (b.order && typeof b.order === "object") ? b.order : null;
+    if (order && Array.isArray(order.items) && order.items.length) {
+      try { settle = await settlePaidOrder(order, p); }
+      catch (e) { console.error("bnpl settle failed", String(e.message || e).slice(0, 160)); }
+      // The snapshot carries the full tax profile (same as the card path), so
+      // billTo decides company vs simplified invoice on its own.
+      if (settle && settle.already) invoicing = { invoiced: false, reason: "already_settled" };
+      else {
+        try { invoicing = await invoicePaidOrder(order, p.amount, p.id); }
+        catch (e) { invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") }; }
+      }
+    }
+    if (!v.captured) {
+      await sendMail(OWNER_EMAIL, `⚠️ دفعة أقساط (${provider}) مؤكدة لكن لم تُقبض — أكمل القبض يدوياً`,
+        `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>الموافقة تمت والعميل أنهى الدفع، لكن نداء القبض (capture) لم يكتمل. ادخل لوحة ${provider === "tamara" ? "تمارا" : "تابي"} واقبض العملية يدوياً.</p><p>المعرف: <b style="direction:ltr;display:inline-block">${esc(String(v.id))}</b> · المبلغ: <b>${v.amountSar} ﷼</b>${v.captureError ? `<br>الخطأ: ${esc(v.captureError)}` : ""}</p></div>`).catch(() => {});
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true, provider, amount: p.amount, captured: !!v.captured,
+      ...(invoicing ? { invoice: invoicing } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
+    }));
   }
 
   const id = String(b.id || "").trim();

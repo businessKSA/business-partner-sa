@@ -6695,6 +6695,19 @@ function buildCheckout() {
           <div class="tax-choice" id="pay-choice">
             <label class="tax-opt" id="pay-opt-online"><input type="radio" name="paymethod" value="online" checked><span><strong>${L("Pay online", "الدفع الإلكتروني")}</strong><small>${L("mada / Visa / Apple Pay — confirmed instantly, and your tax invoice follows straight away.", "مدى / فيزا / Apple Pay — يتأكد فوراً وتصلك فاتورتك الضريبية مباشرة.")}</small></span></label>
             <label class="tax-opt" id="pay-opt-bank"><input type="radio" name="paymethod" value="bank"><span><strong>${L("Bank transfer", "تحويل بنكي")}</strong><small>${L("Transfer to our account and upload the receipt — we verify it and activate your order.", "حوّل على حسابنا وارفع الإيصال — نتحقق منه ونفعّل طلبك.")}</small></span></label>
+            <label class="tax-opt" id="pay-opt-bnpl"><input type="radio" name="paymethod" value="bnpl"><span><strong>${L("Installments — Tabby or Tamara", "قسّطها — تابي أو تمارا")} <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-inline-start:4px"><span style="background:#3BEDC0;color:#292929;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tabby</span><span style="background:#2E1657;color:#fff;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tamara</span></span></strong><small>${L("Split into 4 interest-free payments — instant activation once approved.", "قسّم المبلغ على 4 دفعات بدون فوائد أو رسوم — وتفعيل فوري بعد الموافقة.")}</small></span></label>
+          </div>
+          <div id="bnpl-box" class="bank-box" hidden>
+            <div class="bank-head">${I.shield}<strong>${L("Pay in installments", "الدفع بالأقساط")}</strong></div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 2px">
+              <button type="button" id="bnpl-tabby" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #3BEDC0;background:#3BEDC0;color:#292929;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
+                <span style="font-size:1.05rem;direction:ltr">tabby</span><span style="font-weight:600;font-size:.85rem">${L("· 4 payments, no fees", "· ٤ دفعات بلا رسوم")}</span>
+              </button>
+              <button type="button" id="bnpl-tamara" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #2E1657;background:#2E1657;color:#fff;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
+                <span style="font-size:1.05rem;direction:ltr">tamara</span><span style="font-weight:600;font-size:.85rem">${L("· split it your way", "· قسّمها على راحتك")}</span>
+              </button>
+            </div>
+            <p class="calc-note" id="bnpl-help">${L("You are redirected to the provider's secure page to approve the plan — your order activates automatically the moment the payment succeeds.", "تُحوَّل لصفحة المزود الآمنة لاعتماد خطة التقسيط — ويتفعّل طلبك تلقائياً لحظة نجاح الدفع، مثل الدفع بالبطاقة تماماً.")}</p>
           </div>
           <div id="epay-box" class="bank-box" hidden>
             <div class="bank-head">${I.shield}<strong>${L("Pay online (mada / Visa / Apple Pay)", "ادفع إلكترونياً (مدى / فيزا / أبل باي)")}</strong></div>
