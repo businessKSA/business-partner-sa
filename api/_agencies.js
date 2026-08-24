@@ -325,6 +325,198 @@ async function authAgency(email, code) {
   return { ok: true, agency, row };
 }
 
+
+// The five residence states the ATS recognises, and the coarse "where has this
+// person actually worked" bucket the employer console filters on. An office
+// supplies both: the first decides whether the employer is hiring locally or
+// deploying from abroad, the second is what they sort candidates by.
+const RESIDENCE_OPTIONS = ["مواطن سعودي", "مقيم بإقامة نظامية قابلة للنقل", "مقيم بإقامة غير قابلة للنقل", "خارج السعودية", "أخرى"];
+const REGION_OPTIONS = ["خبرة سعودية", "خبرة خليجية", "خبرة عربية", "خبرة دولية", "بدون خبرة إقليمية"];
+const GULF = ["الإمارات", "الكويت", "قطر", "البحرين", "عُمان", "عمان"];
+
+// Work out the regional-experience bucket from the countries ticked, unless
+// the office set it explicitly — so an office that only fills in the country
+// list still gets a filterable candidate.
+function regionFromCountries(countries, explicit) {
+  if (REGION_OPTIONS.includes(explicit)) return explicit;
+  const list = (countries || []).map((x) => clip(x, 60)).filter(Boolean);
+  if (!list.length) return "";
+  if (list.includes("السعودية")) return "خبرة سعودية";
+  if (list.some((c) => GULF.includes(c))) return "خبرة خليجية";
+  if (list.some((c) => ["الأردن", "مصر", "لبنان", "سوريا", "العراق", "اليمن", "السودان", "المغرب", "تونس", "الجزائر", "ليبيا"].includes(c))) return "خبرة عربية";
+  return "خبرة دولية";
+}
+
+// One candidate, mapped onto a master ATS row. Shared by the single-candidate
+// form and the sheet importer so both produce rows the employer console reads
+// identically. The office columns are internal: the public pool and the
+// employer console both render the candidate with no trace of who supplied them.
+function candidateProps(agency, c, opts = {}) {
+  const name = clip(c.name, 200);
+  const role = clip(c.role, 160);
+  const jobTitle = clip(c.jobTitle, 200);
+  const jobId = clip(c.jobId, 120);
+  const residence = RESIDENCE_OPTIONS.includes(c.residence) ? c.residence : "خارج السعودية";
+  const countries = Array.isArray(c.experienceCountries) ? c.experienceCountries.slice(0, 20).map((x) => clip(x, 60)).filter(Boolean) : [];
+  const region = regionFromCountries(countries, c.regionExperience);
+
+  const notes = [
+    `مرشّح مقدَّم من مكتب: ${agency.name}${agency.country ? ` (${agency.country})` : ""}`,
+    jobTitle ? `على الطلب/الوظيفة: ${jobTitle}` : "مرشّح من قاعدة المكتب — بدون طلب محدد",
+    countries.length ? `دول الخبرة: ${countries.join("، ")}` : "",
+    clip(c.notes, 900) ? `ملاحظات المكتب: ${clip(c.notes, 900)}` : "",
+  ].filter(Boolean).join("\n");
+
+  const props = {
+    "Candidate Name": { title: [{ text: { content: name } }] },
+    "Target Role": { rich_text: rt(role) },
+    "Source": { select: { name: opts.bulk ? "استيراد مكتب" : "مكتب توظيف" } },
+    "مكتب الاستقدام": { select: { name: clip(agency.name, 90).replace(/,/g, "،") } },
+    "مسؤول المكتب": { rich_text: rt(agency.contact || agency.name) },
+    "بريد المكتب": { email: agency.email || null },
+    "دولة المكتب": { rich_text: rt(agency.country) },
+    "مدينة المكتب": { rich_text: rt(agency.city) },
+    "مهنة الترشيح": { rich_text: rt(role) },
+    "تاريخ الترشيح": { date: { start: new Date().toISOString().slice(0, 10) } },
+    "Notes": { rich_text: rt(notes) },
+    "مخفي عن الموقع": { checkbox: false },
+    "حالة الإقامة": { select: { name: residence } },
+    "Nationality Type": { select: { name: residence === "مواطن سعودي" ? "سعودي" : "غير سعودي" } },
+    "الوظيفة المتقدم لها": { rich_text: rt(jobTitle ? `${jobTitle}${jobId ? ` (${jobId})` : ""}` : "قاعدة المكتب") },
+  };
+  if (countries.length) props["دول الخبرة"] = { multi_select: countries.map((n) => ({ name: n })) };
+  if (region) props["الخبرة الإقليمية"] = { select: { name: region } };
+  if (clip(c.phone, 40)) props["Phone"] = { phone_number: clip(c.phone, 40) };
+  if (isEmail(clip(c.email, 160))) props["Email"] = { email: clip(c.email, 160).toLowerCase() };
+  if (clip(c.nationality, 80)) props["Nationality"] = { rich_text: rt(c.nationality) };
+  if (clip(c.city, 80)) props["City"] = { rich_text: rt(c.city) };
+  if (clip(c.country, 80) || agency.country) props["Country"] = { rich_text: rt(clip(c.country, 80) || agency.country) };
+  if (clip(c.skills, 900)) props["Skills"] = { rich_text: rt(c.skills) };
+  if (clip(c.education, 400)) props["Education"] = { rich_text: rt(c.education) };
+  const fieldCat = guessField(role);
+  if (fieldCat) props["Field"] = { select: { name: fieldCat } };
+  const exp = Number(c.experience);
+  if (Number.isFinite(exp) && exp >= 0) props["Experience Years"] = { number: Math.round(exp) };
+  const salary = Number(String(c.salary || "").replace(/[^\d.]/g, ""));
+  if (Number.isFinite(salary) && salary > 0) props["Expected Salary"] = { number: Math.round(salary) };
+  if (/^https?:\/\//i.test(clip(c.cvUrl, 500))) props["CV Link"] = { url: clip(c.cvUrl, 500) };
+  const AVAIL = ["فوري", "خلال شهر", "خلال 3 أشهر"];
+  if (AVAIL.includes(c.availability)) props["Availability"] = { select: { name: c.availability } };
+  return props;
+}
+
+// The office's private mirror row for the same candidate.
+function mirrorProps(c, atsUrl, atsCvUrl) {
+  const m = {
+    "اسم المرشح": { title: [{ text: { content: clip(c.name, 200) } }] },
+    "المهنة": { rich_text: rt(c.role) },
+    "المرحلة": { select: { name: "جديد" } },
+    "الطلب / الوظيفة": { rich_text: rt(clip(c.jobTitle, 200) || "قاعدة المكتب") },
+  };
+  if (clip(c.nationality, 80)) m["الجنسية"] = { rich_text: rt(c.nationality) };
+  if (clip(c.phone, 40)) m["الجوال"] = { rich_text: rt(c.phone) };
+  if (isEmail(clip(c.email, 160))) m["البريد"] = { email: clip(c.email, 160).toLowerCase() };
+  const exp = Number(c.experience);
+  if (Number.isFinite(exp) && exp >= 0) m["سنوات الخبرة"] = { number: Math.round(exp) };
+  if (clip(c.notes, 900)) m["ملاحظات"] = { rich_text: rt(c.notes) };
+  if (/^https?:\/\//i.test(clip(c.cvUrl, 500))) m["رابط السيرة"] = { url: clip(c.cvUrl, 500) };
+  if (atsCvUrl) m["سيرة ATS (Drive)"] = { url: atsCvUrl };
+  if (atsUrl) m["الملف في ATS"] = { url: atsUrl };
+  return m;
+}
+
+// One ATS row as the office sees it: its own candidate, with the stage the
+// employer moved them to and whatever interview has been asked for or booked.
+function mapSubmission(pg) {
+  const p = pg.properties || {};
+  const iv = p["Interview Date"] && p["Interview Date"].date ? p["Interview Date"].date.start : "";
+  return {
+    id: pg.id,
+    name: txt(p["Candidate Name"]),
+    role: txt(p["مهنة الترشيح"]) || txt(p["Target Role"]),
+    nationality: txt(p["Nationality"]),
+    residence: txt(p["حالة الإقامة"]),
+    region: txt(p["الخبرة الإقليمية"]),
+    countries: (p["دول الخبرة"] && p["دول الخبرة"].multi_select ? p["دول الخبرة"].multi_select : []).map((o) => o.name),
+    years: txt(p["Experience Years"]),
+    stage: txt(p["Pipeline Stage"]),
+    job: txt(p["الوظيفة المتقدم لها"]),
+    atsCv: txt(p["ATS CV (Drive)"]),
+    interviewStatus: txt(p["Interview Status"]),
+    interviewMode: txt(p["Interview Mode"]),
+    interviewAt: iv,
+    interviewLink: txt(p["رابط المقابلة"]),
+    interviewPlace: txt(p["مكان المقابلة"]),
+    requestedBy: txt(p["طالب المقابلة"]),
+    submitted: pg.created_time || "",
+  };
+}
+
+// Write one candidate into the pool: de-duplicate, run the attached CV through
+// the shared n8n pipeline, write the ATS row, mirror it into the office's own
+// database and bump the office's running total.
+async function intakeCandidate(agency, c, opts = {}) {
+  const name = clip(c.name, 200);
+  const role = clip(c.role, 160);
+  if (!name || !role) return { ok: false, error: "invalid_fields" };
+  const candEmail = isEmail(clip(c.email, 160)) ? clip(c.email, 160).toLowerCase() : "";
+  const candPhone = clip(c.phone, 40);
+
+  // Only a real attachment is worth a pipeline round-trip; a bulk sheet row
+  // has no file, so it skips straight to the write.
+  const cvFile = c.cvFile && typeof c.cvFile === "object" && typeof c.cvFile.base64 === "string" && c.cvFile.base64 ? {
+    name: clip(c.cvFile.name, 220), type: clip(c.cvFile.type, 120),
+    size: Number(c.cvFile.size) || 0, base64: c.cvFile.base64,
+  } : null;
+
+  let n8n = null;
+  if (cvFile || /^https?:\/\//i.test(clip(c.cvUrl, 500))) {
+    n8n = await forwardToN8n({
+      source: opts.bulk ? "agency-import" : "agency-portal",
+      receivedAt: new Date().toISOString(),
+      agency: { id: agency.id, name: agency.name, country: agency.country },
+      candidate: {
+        name, phone: candPhone, email: candEmail, field: role,
+        fieldCategory: guessField(role), experience: clip(c.experience, 40),
+        city: clip(c.city, 80), country: clip(c.country, 80) || agency.country,
+        nationality: clip(c.nationality, 80),
+        residenceStatus: RESIDENCE_OPTIONS.includes(c.residence) ? c.residence : "خارج السعودية",
+        salary: clip(c.salary, 80), cvUrl: clip(c.cvUrl, 500), linkedin: "", consent: true,
+      },
+      job: { id: clip(c.jobId, 120) || "agency-pool", title: clip(c.jobTitle, 200) || "قاعدة المكتب" },
+      questions: {}, cvFile, ats: { notionDatabaseId: ATS_DB },
+    }).catch(() => null);
+  }
+
+  const props = candidateProps(agency, c, opts);
+  const existing = await findExisting(candEmail, candPhone).catch(() => null);
+  let r;
+  if (existing) {
+    applyN8nEnrichment(props, n8n, false);
+    r = await notion(`pages/${existing.id}`, "PATCH", { properties: props });
+  } else {
+    props["Pipeline Stage"] = { select: { name: "جديد" } };
+    props["حالة القراءة"] = { select: { name: n8n ? "مكتمل" : "ناقص - بيانات غير كافية" } };
+    applyN8nEnrichment(props, n8n, true);
+    r = await notion("pages", "POST", { parent: { database_id: ATS_DB }, properties: props });
+  }
+  if (!r.ok) return { ok: false, error: "notion_failed" };
+
+  const enriched = n8n && n8n.ok && n8n.data ? n8n.data : null;
+  const atsCv = enriched && enriched.drive ? enriched.drive.atsCvDocUrl || "" : "";
+  if (opts.officeDb) {
+    await notion("pages", "POST", {
+      parent: { database_id: opts.officeDb },
+      properties: mirrorProps(c, (r.json && r.json.url) || "", atsCv),
+    });
+  }
+  return {
+    ok: true, id: r.json && r.json.id, url: (r.json && r.json.url) || "",
+    updated: !!existing, atsCv,
+    cvProcessed: !!(enriched && enriched.drive && (enriched.drive.atsCvDocUrl || enriched.drive.originalCvUrl)),
+  };
+}
+
 export async function handleAgencies(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
@@ -427,20 +619,32 @@ export async function handleAgencies(req, res) {
         sorts: [{ timestamp: "created_time", direction: "descending" }],
       });
       if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-      const submissions = (((r.json || {}).results) || []).map((pg) => {
-        const p = pg.properties || {};
-        return {
-          id: pg.id,
-          name: txt(p["Candidate Name"]),
-          role: txt(p["مهنة الترشيح"]) || txt(p["Target Role"]),
-          nationality: txt(p["Nationality"]),
-          stage: txt(p["Pipeline Stage"]),
-          job: txt(p["الوظيفة المتقدم لها"]),
-          submitted: pg.created_time || "",
-        };
+      const submissions = (((r.json || {}).results) || []).map(mapSubmission);
+      return send(200, { ok: true, submissions });
+    }
+
+    // The office's interview inbox: everyone an employer has asked to meet,
+    // plus the ones already booked so the office can see its own diary.
+    if (action === "interview-requests") {
+      const auth = await authAgency(q.get("email"), q.get("code"));
+      if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
+      const r = await notion(`databases/${ATS_DB}/query`, "POST", {
+        page_size: 100,
+        filter: {
+          and: [
+            { property: "مكتب الاستقدام", select: { equals: clip(auth.agency.name, 90).replace(/,/g, "،") } },
+            { or: [
+              { property: "Interview Status", select: { equals: "مطلوبة من صاحب العمل" } },
+              { property: "Interview Status", select: { equals: "بانتظار جدولة المكتب" } },
+              { property: "Interview Status", select: { equals: "مجدول" } },
+              { property: "Interview Status", select: { equals: "أُعيدت الجدولة" } },
+            ] },
+          ],
+        },
+        sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
       });
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, submissions }));
+      if (!r.ok) return send(502, { ok: false, error: "notion_failed" });
+      return send(200, { ok: true, requests: (((r.json || {}).results) || []).map(mapSubmission) });
     }
 
     res.statusCode = 200;
@@ -619,140 +823,113 @@ export async function handleAgencies(req, res) {
   // ---------------- agency submits a candidate ----------------
   if (type === "submit-candidate") {
     const auth = await authAgency(b.email, b.code);
-    if (!auth.ok) { res.statusCode = auth.status || 401; return res.end(JSON.stringify({ ok: false, error: auth.error, agencyStatus: auth.agencyStatus })); }
-    const name = clip(b.candidateName, 200);
-    const role = clip(b.role, 160);
-    if (!name || !role) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
 
-    const candEmail = isEmail(clip(b.candidateEmail, 160)) ? clip(b.candidateEmail, 160).toLowerCase() : "";
-    const candPhone = clip(b.candidatePhone, 40);
-    const jobTitle = clip(b.requestTitle, 200);
-    const jobId = clip(b.requestId, 120) || "agency-submission";
-    const cvFile = b.cvFile && typeof b.cvFile === "object" ? {
-      name: clip(b.cvFile.name, 220),
-      type: clip(b.cvFile.type, 120),
-      size: Number(b.cvFile.size) || 0,
-      base64: typeof b.cvFile.base64 === "string" ? b.cvFile.base64 : "",
-    } : null;
-
-    // Same payload shape the careers form sends, so the n8n workflow needs no
-    // special case: it reads the CV, files it on Drive, builds the ATS-friendly
-    // version and returns the screening result.
-    const n8n = await forwardToN8n({
-      source: "agency-portal",
-      receivedAt: new Date().toISOString(),
-      agency: { id: auth.agency.id, name: auth.agency.name, country: auth.agency.country },
-      candidate: {
-        name, phone: candPhone, email: candEmail, field: role,
-        fieldCategory: guessField(role), experience: clip(b.experience, 40),
-        city: clip(b.city, 80), country: clip(b.country, 80) || auth.agency.country,
-        nationality: clip(b.nationality, 80), residenceStatus: "خارج السعودية",
-        salary: clip(b.salary, 80), linkedin: "", consent: true,
-      },
-      job: { id: jobId, title: jobTitle || "طلب استقدام" },
-      questions: {},
-      cvFile,
-      ats: { notionDatabaseId: ATS_DB },
-    });
-
-    const notes = [
-      `مرشّح مقدَّم من مكتب: ${auth.agency.name} (${auth.agency.country})`,
-      jobTitle ? `على الطلب/الوظيفة: ${jobTitle}` : "",
-      clip(b.notes, 900) ? `ملاحظات المكتب: ${clip(b.notes, 900)}` : "",
-    ].filter(Boolean).join("\n");
-
-    const props = {
-      "Candidate Name": { title: [{ text: { content: name } }] },
-      "Target Role": { rich_text: rt(role) },
-      "Source": { select: { name: "ترشيح" } },
-      // Who supplied this candidate. These columns are internal only — the
-      // public talent pool renders none of them, so a candidate shows on the
-      // site without any trace of the office behind them.
-      "مكتب الاستقدام": { select: { name: clip(auth.agency.name, 90).replace(/,/g, "،") } },
-      "مسؤول المكتب": { rich_text: rt(auth.agency.contact || auth.agency.name) },
-      "بريد المكتب": { email: auth.agency.email || null },
-      "دولة المكتب": { rich_text: rt(auth.agency.country) },
-      "مهنة الترشيح": { rich_text: rt(role) },
-      "تاريخ الترشيح": { date: { start: new Date().toISOString().slice(0, 10) } },
-      "Notes": { rich_text: rt(notes) },
-      "مخفي عن الموقع": { checkbox: false },
-      // Agency candidates are overseas by definition — the employer console
-      // reads these two to show them as ready for interview and deployment.
-      "حالة الإقامة": { select: { name: "خارج السعودية" } },
-      "Nationality Type": { select: { name: "غير سعودي" } },
-      "الوظيفة المتقدم لها": { rich_text: rt(`${jobTitle || "طلب استقدام"} (${jobId})`) },
+    const c = {
+      name: b.candidateName, role: b.role, nationality: b.nationality, experience: b.experience,
+      phone: b.candidatePhone, email: b.candidateEmail, city: b.city, country: b.country,
+      skills: b.skills, education: b.education, salary: b.salary, availability: b.availability,
+      notes: b.notes, cvUrl: b.cvUrl, cvFile: b.cvFile,
+      residence: b.residence, regionExperience: b.regionExperience,
+      experienceCountries: b.experienceCountries,
+      // A candidate from the office's own pool carries no request — the fields
+      // are simply absent, and the row says "قاعدة المكتب" instead.
+      jobId: b.requestId, jobTitle: b.requestTitle,
     };
-    if (candPhone) props["Phone"] = { phone_number: candPhone };
-    if (candEmail) props["Email"] = { email: candEmail };
-    if (clip(b.nationality, 80)) props["Nationality"] = { rich_text: rt(b.nationality) };
-    if (clip(b.city, 80)) props["City"] = { rich_text: rt(b.city) };
-    if (clip(b.country, 80) || auth.agency.country) props["Country"] = { rich_text: rt(clip(b.country, 80) || auth.agency.country) };
-    if (clip(b.skills, 900)) props["Skills"] = { rich_text: rt(b.skills) };
-    const fieldCat = guessField(role);
-    if (fieldCat) props["Field"] = { select: { name: fieldCat } };
-    const exp = Number(b.experience);
-    if (Number.isFinite(exp) && exp >= 0) props["Experience Years"] = { number: Math.round(exp) };
-    if (/^https?:\/\//i.test(clip(b.cvUrl, 500))) props["CV Link"] = { url: clip(b.cvUrl, 500) };
+    if (!clip(c.name, 200) || !clip(c.role, 160)) return send(400, { ok: false, error: "invalid_fields" });
 
-    // De-duplicate against the pool exactly like the public form does, so a
-    // candidate already known to us is updated rather than doubled.
-    const existing = await findExisting(candEmail, candPhone).catch(() => null);
-    let r;
-    if (existing) {
-      applyN8nEnrichment(props, n8n, false);
-      r = await notion(`pages/${existing.id}`, "PATCH", { properties: props });
-    } else {
-      props["Pipeline Stage"] = { select: { name: "جديد" } };
-      props["حالة القراءة"] = { select: { name: "مكتمل" } };
-      applyN8nEnrichment(props, n8n, true);
-      r = await notion("pages", "POST", { parent: { database_id: ATS_DB }, properties: props });
-    }
-    if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const officeDb = await ensureCandidatesDb(auth.agency, auth.agency.id);
+    const out = await intakeCandidate(auth.agency, c, { officeDb });
+    if (!out.ok) return send(out.error === "invalid_fields" ? 400 : 502, { ok: false, error: out.error });
 
-    const enriched = n8n && n8n.ok && n8n.data ? n8n.data : null;
-
-    // Running total per office, so the registry answers "how many has each
-    // office supplied" without counting 24k ATS rows on every panel load.
-    if (!existing) await notion(`pages/${auth.agency.id}`, "PATCH", { properties: { "عدد المرشحين": { number: (auth.agency.candidates || 0) + 1 } } });
-
-    // Mirror into the office's own candidates database: the office keeps a
-    // private register of everyone it supplied, while the master ATS row above
-    // is what the employer console reads. Failure here never fails the
-    // submission — the candidate is already in the pool.
-    if (officeDb) {
-      const mirror = {
-        "اسم المرشح": { title: [{ text: { content: name } }] },
-        "المهنة": { rich_text: rt(role) },
-        "المرحلة": { select: { name: "جديد" } },
-        "الطلب / الوظيفة": { rich_text: rt(jobTitle || "طلب استقدام") },
-      };
-      if (clip(b.nationality, 80)) mirror["الجنسية"] = { rich_text: rt(b.nationality) };
-      if (candPhone) mirror["الجوال"] = { rich_text: rt(candPhone) };
-      if (candEmail) mirror["البريد"] = { email: candEmail };
-      if (Number.isFinite(exp) && exp >= 0) mirror["سنوات الخبرة"] = { number: Math.round(exp) };
-      if (clip(b.notes, 900)) mirror["ملاحظات"] = { rich_text: rt(b.notes) };
-      if (/^https?:\/\//i.test(clip(b.cvUrl, 500))) mirror["رابط السيرة"] = { url: clip(b.cvUrl, 500) };
-      if (enriched && enriched.drive && enriched.drive.atsCvDocUrl) mirror["سيرة ATS (Drive)"] = { url: enriched.drive.atsCvDocUrl };
-      if (r.json && r.json.url) mirror["الملف في ATS"] = { url: r.json.url };
-      await notion("pages", "POST", { parent: { database_id: officeDb }, properties: mirror });
-      if (!existing) await notion(`pages/${auth.agency.id}`, "PATCH", { properties: { "عدد المرشحين": { number: (auth.agency.candidates || 0) + 1 } } });
+    if (!out.updated) {
+      await notion(`pages/${auth.agency.id}`, "PATCH", { properties: { "عدد المرشحين": { number: (auth.agency.candidates || 0) + 1 } } });
     }
 
-    await sendEmail(NOTIFY, `👤 مرشّح جديد من ${auth.agency.name} — ${name}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
-      <p>رفع مكتب <b>${esc(auth.agency.name)}</b> مرشّحاً${cvFile && cvFile.name ? " مع سيرة ذاتية مرفقة" : ""}:</p>
-      <p><b>${esc(name)}</b> — ${esc(role)}${b.nationality ? " · " + esc(clip(b.nationality, 80)) : ""}</p>
-      <p style="color:#666">${esc(jobTitle || "بدون طلب محدد")}</p>
-      ${enriched && enriched.drive && enriched.drive.atsCvDocUrl ? `<p><a href="${esc(enriched.drive.atsCvDocUrl)}">السيرة الذاتية ATS</a></p>` : ""}</div>`);
+    await sendEmail(NOTIFY, `👤 مرشّح جديد من ${auth.agency.name} — ${clip(c.name, 200)}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
+      <p>رفع مكتب <b>${esc(auth.agency.name)}</b> مرشّحاً${c.cvFile && c.cvFile.name ? " مع سيرة ذاتية مرفقة" : ""}:</p>
+      <p><b>${esc(clip(c.name, 200))}</b> — ${esc(clip(c.role, 160))}${c.nationality ? " · " + esc(clip(c.nationality, 80)) : ""}</p>
+      <p style="color:#666">${esc(clip(c.jobTitle, 200) || "من قاعدة المكتب — بدون طلب محدد")}</p>
+      ${out.atsCv ? `<p><a href="${esc(out.atsCv)}">السيرة الذاتية ATS</a></p>` : ""}</div>`);
 
-    res.statusCode = 200;
-    return res.end(JSON.stringify({
-      ok: true,
-      id: r.json && r.json.id,
-      updated: !!existing,
-      // Tell the office what actually happened to the file it attached.
-      cvProcessed: !!(enriched && enriched.drive && (enriched.drive.atsCvDocUrl || enriched.drive.originalCvUrl)),
-      atsCv: enriched && enriched.drive ? enriched.drive.atsCvDocUrl || "" : "",
-    }));
+    return send(200, { ok: true, id: out.id, updated: out.updated, cvProcessed: out.cvProcessed, atsCv: out.atsCv });
+  }
+
+  // ---------------- office imports a sheet of candidates ----------------
+  // The browser parses the .xlsx/.csv and posts plain rows, so the function
+  // never has to unzip a spreadsheet. Rows are written one at a time against
+  // the same de-duplication the single form uses; a bad row is reported back
+  // by line number rather than failing the whole import.
+  if (type === "bulk-import") {
+    const auth = await authAgency(b.email, b.code);
+    if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
+    const rows = Array.isArray(b.rows) ? b.rows.slice(0, 60) : [];
+    if (!rows.length) return send(400, { ok: false, error: "no_rows" });
+
+    const officeDb = await ensureCandidatesDb(auth.agency, auth.agency.id);
+    const errors = [];
+    let created = 0, updated = 0;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i] && typeof rows[i] === "object" ? rows[i] : {};
+      const line = Number(row.line) || i + 1;
+      if (!clip(row.name, 200) || !clip(row.role, 160)) { errors.push({ line, error: "missing_name_or_role" }); continue; }
+      const out = await intakeCandidate(auth.agency, row, { officeDb, bulk: true });
+      if (!out.ok) { errors.push({ line, error: out.error }); continue; }
+      if (out.updated) updated++; else created++;
+    }
+    if (created) {
+      await notion(`pages/${auth.agency.id}`, "PATCH", { properties: { "عدد المرشحين": { number: (auth.agency.candidates || 0) + created } } });
+    }
+    if (created || updated) {
+      await sendEmail(NOTIFY, `📥 استيراد ${created + updated} مرشّحاً من ${auth.agency.name}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
+        <p>استورد مكتب <b>${esc(auth.agency.name)}</b> قائمة مرشحين:</p>
+        <p>جديد: <b>${created}</b> · محدَّث: <b>${updated}</b>${errors.length ? ` · متجاوَز: <b>${errors.length}</b>` : ""}</p></div>`);
+    }
+    return send(200, { ok: true, created, updated, skipped: errors.length, errors: errors.slice(0, 25) });
+  }
+
+  // ---------------- office schedules a requested interview ----------------
+  if (type === "interview-schedule") {
+    const auth = await authAgency(b.email, b.code);
+    if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
+    const id = clip(b.candidateId, 60);
+    const date = clip(b.date, 10);
+    const time = clip(b.time, 5);
+    const MODES = ["حضوري", "أونلاين", "هاتف"];
+    const mode = MODES.includes(b.mode) ? b.mode : "أونلاين";
+    if (!id || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return send(400, { ok: false, error: "invalid_fields" });
+
+    // The row must belong to this office — an id alone must never let one
+    // office write onto another office's candidate.
+    const page = await notion(`pages/${id}`, "GET");
+    if (!page.ok) return send(404, { ok: false, error: "not_found" });
+    const owner = txt(page.json.properties["مكتب الاستقدام"]);
+    if (owner !== clip(auth.agency.name, 90).replace(/,/g, "،")) return send(403, { ok: false, error: "forbidden" });
+
+    const startsAt = /^\d{2}:\d{2}$/.test(time) ? `${date}T${time}:00` : date;
+    const props = {
+      "Interview Status": { select: { name: "مجدول" } },
+      "Interview Mode": { select: { name: mode } },
+      "Interview Date": { date: { start: startsAt } },
+      "Pipeline Stage": { select: { name: "مقابلة" } },
+    };
+    if (/^https?:\/\//i.test(clip(b.link, 500))) props["رابط المقابلة"] = { url: clip(b.link, 500) };
+    if (clip(b.location, 400)) props["مكان المقابلة"] = { rich_text: rt(b.location) };
+    if (clip(b.notes, 900)) props["ملاحظات المقابلة"] = { rich_text: rt(b.notes) };
+    const r = await notion(`pages/${id}`, "PATCH", { properties: props });
+    if (!r.ok) return send(502, { ok: false, error: "notion_failed" });
+
+    const candidate = txt(page.json.properties["Candidate Name"]);
+    const requester = txt(page.json.properties["طالب المقابلة"]);
+    const when = /^\d{2}:\d{2}$/.test(time) ? `${date} الساعة ${time}` : date;
+    await sendEmail(NOTIFY, `📅 موعد مقابلة مؤكَّد — ${candidate}`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:520px">
+      <h2 style="color:#0B1B5A">تم تأكيد موعد المقابلة</h2>
+      <p><b>${esc(candidate)}</b> — ${esc(txt(page.json.properties["Target Role"]))}</p>
+      <p>الموعد: <b>${esc(when)}</b> · النوع: <b>${esc(mode)}</b></p>
+      ${clip(b.location, 400) ? `<p>المكان: ${esc(clip(b.location, 400))}</p>` : ""}
+      ${/^https?:\/\//i.test(clip(b.link, 500)) ? `<p><a href="${esc(clip(b.link, 500))}">رابط المقابلة</a></p>` : ""}
+      <p style="color:#666">جدوَلها مكتب ${esc(auth.agency.name)}${requester ? ` بناءً على طلب ${esc(requester)}` : ""}.</p></div>`);
+    return send(200, { ok: true, when: startsAt, mode });
   }
 
   // ---------------- sign in with Google ----------------

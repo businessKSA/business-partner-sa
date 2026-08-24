@@ -18,6 +18,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
 import { handleAgencies } from "./_agencies.js";
+import { handleJobhunt } from "./_jobhunt.js";
 import { stageChannels, announce } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -916,6 +917,9 @@ export default async function handler(req, res) {
   // Same reason for /api/agencies — the overseas recruitment-agency registry
   // and portal live in ./_agencies.js.
   if ((q.__route || "") === "agencies") return handleAgencies(req, res);
+  // Same reason for /api/jobhunt — the candidate-side job-search service and
+  // the agent that runs it live in ./_jobhunt.js.
+  if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }

@@ -119,6 +119,14 @@ function mapCandidate(pg, unlocked, opts) {
     nationalityType: txt(p["Nationality Type"]),
     availability: txt(p["Availability"]),
     languages: txt(p["Languages"]),
+    // Where this person has actually worked, so the console can sort a pool of
+    // thousands into "has Saudi experience" / "Gulf" / "international".
+    region: txt(p["الخبرة الإقليمية"]),
+    countries: (p["دول الخبرة"] && p["دول الخبرة"].multi_select ? p["دول الخبرة"].multi_select : []).map((o) => o.name),
+    // Whether a partner office supplied this candidate — a boolean only. The
+    // office's name, contact and e-mail stay internal and are never sent to a
+    // client, on the site or in the console.
+    viaPartner: !!txt(p["مكتب الاستقدام"]),
     skills: opts.full ? txt(p["Skills"]) : txt(p["Skills"]).slice(0, 160),
     saudization: txt(p["التوطين Saudization"]),
   };
@@ -127,6 +135,10 @@ function mapCandidate(pg, unlocked, opts) {
     rec.interviewDate = p["Interview Date"] && p["Interview Date"].date ? p["Interview Date"].date.start : "";
     rec.hiredDate = p["Hired Date"] && p["Hired Date"].date ? p["Hired Date"].date.start : "";
     rec.pipelineStage = txt(p["Pipeline Stage"]);
+    rec.interviewStatus = txt(p["Interview Status"]);
+    rec.interviewMode = txt(p["Interview Mode"]);
+    rec.interviewLink = txt(p["رابط المقابلة"]);
+    rec.interviewPlace = txt(p["مكان المقابلة"]);
   }
   if (unlocked) {
     rec.name = primary;
@@ -325,8 +337,74 @@ async function handlePostings(req, res) {
     return res.end(JSON.stringify({ ok: true }));
   }
 
+  // An employer asks to meet a candidate. When a partner office supplied that
+  // candidate the request is routed to the office to arrange — the employer
+  // never learns which office it is, and the office never sees the rest of the
+  // employer's pipeline. Both sides only ever see this one candidate.
+  if (b.action === "request-interview") {
+    const id = String(b.id || "").trim();
+    if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const page = await notionFetch(`pages/${id}`, "GET");
+    if (!page.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+    const pdata = await page.json();
+    const props = pdata.properties || {};
+    const office = txt(props["مكتب الاستقدام"]);
+    const officeEmail = txt(props["بريد المكتب"]);
+    const candidate = txt(props["Candidate Name"]) || txt(props["Name (EN)"]);
+    const role = txt(props["Target Role"]) || txt(props["مهنة الترشيح"]);
+    const requester = String(b.employer || "").trim().slice(0, 160) || "صاحب عمل";
+
+    const patch = {
+      // Routed to the office when one supplied the candidate; otherwise it
+      // sits on our own desk to arrange.
+      "Interview Status": { select: { name: office ? "بانتظار جدولة المكتب" : "مطلوبة من صاحب العمل" } },
+      "طالب المقابلة": { rich_text: [{ text: { content: requester } }] },
+    };
+    const prefer = String(b.preferred || "").trim().slice(0, 300);
+    if (prefer) patch["ملاحظات المقابلة"] = { rich_text: [{ text: { content: `تفضيل صاحب العمل: ${prefer}` } }] };
+    const MODES = ["حضوري", "أونلاين", "هاتف"];
+    if (MODES.includes(b.mode)) patch["Interview Mode"] = { select: { name: b.mode } };
+    const r = await notionFetch(`pages/${id}`, "PATCH", { properties: patch });
+    if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+
+    const inbox = office && officeEmail ? officeEmail : NOTIFY_EMAIL;
+    await sendMail(inbox, `📅 طلب مقابلة — ${candidate}`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px">
+      <h2 style="color:#0B1B5A">صاحب عمل يريد مقابلة مرشّحك</h2>
+      <p><b>${htmlEsc(candidate)}</b>${role ? ` — ${htmlEsc(role)}` : ""}</p>
+      ${prefer ? `<p>التوقيت المفضّل لصاحب العمل: <b>${htmlEsc(prefer)}</b></p>` : ""}
+      <p>جهّز المرشّح واحجز الموعد من بوابتك: <a href="https://businesspartner.sa/ar/agency-portal">بوابة المزوّد</a> ← «طلبات المقابلات».</p>
+      <p style="color:#666">لا تشارك بيانات تواصل المرشّح خارج المنصة.</p></div>`);
+    if (inbox !== NOTIFY_EMAIL) {
+      await sendMail(NOTIFY_EMAIL, `📅 طلب مقابلة أُرسل للمكتب — ${candidate}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
+        <p>طلب <b>${htmlEsc(requester)}</b> مقابلة <b>${htmlEsc(candidate)}</b>، وأُشعر مكتب <b>${htmlEsc(office)}</b> بالجدولة.</p></div>`);
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, routed: office ? "office" : "internal" }));
+  }
+
   res.statusCode = 400;
   return res.end(JSON.stringify({ ok: false, error: "bad_action" }));
+}
+
+// Small Resend wrapper — this endpoint only sends interview notifications, so
+// it does not need the full mailer the portals share.
+const RESEND_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
+const MAIL_FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
+const NOTIFY_EMAIL = process.env.BP_NOTIFY_EMAIL || "business@businesspartner.sa";
+const htmlEsc = (x) => String(x == null ? "" : x).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+async function sendMail(to, subject, html) {
+  if (!RESEND_KEY || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(to || ""))) return false;
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: MAIL_FROM, to: [to], subject, html }),
+    });
+    return r.ok;
+  } catch (e) {
+    console.error("candidates sendMail", String(e).slice(0, 160));
+    return false;
+  }
 }
 
 // ---- Indeed XML job feed (?feed=jobs, also served at /jobs-feed.xml, /indeed.xml) ----
@@ -548,6 +626,11 @@ export default async function handler(req, res) {
   const qCity = (url.searchParams.get("city") || "").trim().toLowerCase();
   const qCountry = (url.searchParams.get("country") || "").trim().toLowerCase();
   const qNat = (url.searchParams.get("nat") || "").trim();
+  // Where the candidate is right now, and where they have actually worked —
+  // the two dimensions an employer sorts a pool of thousands by when deciding
+  // between hiring locally and deploying from abroad.
+  const qRes = (url.searchParams.get("res") || "").trim();
+  const qRegion = (url.searchParams.get("region") || "").trim();
   const qText = (url.searchParams.get("q") || "").trim().toLowerCase();
   const code = (url.searchParams.get("code") || "").trim();
   // Resume a previous, still-in-progress scan (see the time-budget note below)
@@ -688,6 +771,11 @@ export default async function handler(req, res) {
   if (qCity) andFilters.push({ property: "City", rich_text: { contains: qCity } });
   if (qCountry) andFilters.push({ property: "Country", rich_text: { contains: qCountry } });
   if (qNat) andFilters.push({ property: "Nationality Type", select: { equals: qNat } });
+  // "inside" is every residence state that isn't "outside" — an employer
+  // thinking "already here" doesn't care which iqama class it is.
+  if (qRes === "داخل السعودية") andFilters.push({ property: "حالة الإقامة", select: { does_not_equal: "خارج السعودية" } });
+  else if (qRes) andFilters.push({ property: "حالة الإقامة", select: { equals: qRes } });
+  if (qRegion) andFilters.push({ property: "الخبرة الإقليمية", select: { equals: qRegion } });
   const base = {
     page_size: 100,
     sorts: [{ property: "Candidate ID", direction: "descending" }],

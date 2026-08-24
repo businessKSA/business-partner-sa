@@ -1333,6 +1333,15 @@ var BP = window.BP = window.BP || {};
         salary: val("c-salary"),
         linkedin: val("c-linkedin"), consent: consentEl ? consentEl.checked : false,
         jobId: val("c-job-id"), jobTitle: val("c-job-title"),
+        // Opting in here records the intent and the plan only; the service is
+        // activated by a human afterwards, so nothing is ever charged from the
+        // application form.
+        jobSearch: (function () {
+          var box = document.getElementById("c-jobsearch");
+          if (!box || !box.checked) return null;
+          var plan = document.getElementById("c-jss-plan");
+          return { interested: true, plan: plan ? plan.value : "" };
+        })(),
         questions: {
           interest: val("c-q1"),
           strengths: val("c-q2"),
@@ -1379,6 +1388,17 @@ var BP = window.BP = window.BP || {};
         })
         .catch(function () { btn.textContent = lbl; fallback(); });
     });
+  });
+})();
+
+/* ---------- Careers: reveal the job-search plan picker on opt-in ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var box = document.getElementById("c-jobsearch");
+    var plan = document.getElementById("c-jobsearch-plan");
+    if (!box || !plan) return;
+    box.addEventListener("change", function () { plan.hidden = !box.checked; });
   });
 })();
 
@@ -5990,8 +6010,11 @@ var BP_EMP_BILLING = "monthly";
       var q = document.getElementById("empd-q").value.trim(), f = document.getElementById("empd-field").value.trim(),
         ci = document.getElementById("empd-city").value.trim(), co = document.getElementById("empd-country").value.trim(),
         n = document.getElementById("empd-nat").value;
+      var resEl = document.getElementById("empd-res"), regEl = document.getElementById("empd-region");
+      var res = resEl ? resEl.value : "", region = regEl ? regEl.value : "";
       var params = { code: CODE };
       if (q) params.q = q; var fv = resolveField(f); if (fv) params.field = fv; if (ci) params.city = ci; if (co) params.country = co; if (n) params.nat = n;
+      if (res) params.res = res; if (region) params.region = region;
       var loadSeq = (load.seq = (load.seq || 0) + 1); // cancels a stale in-flight auto-continuation if filters change mid-scan
       CANDS = [];
       var scanning = 0; // number of rows fetched so far, for the "N and counting…" status
@@ -6074,17 +6097,59 @@ var BP_EMP_BILLING = "monthly";
       // The role/title heading is itself a click target into the profile — not
       // just the "View profile" button and the name — since it's the most
       // prominent element on the card and users expect clicking it to work.
+      // Residence and regional experience read as tags rather than buried in
+      // the meta line — they are the first thing an employer sorts on, and
+      // "outside Saudi" changes what hiring this person actually involves.
+      var tags = [
+        c.residenceStatus === "خارج السعودية" ? '<span class="emp-tag t-out">🛫 ' + T("Outside Saudi", "خارج السعودية") + "</span>"
+          : c.residenceStatus ? '<span class="emp-tag t-in">🇸🇦 ' + T("In Saudi Arabia", "داخل السعودية") + "</span>" : "",
+        c.region ? '<span class="emp-tag">' + esc(c.region) + "</span>" : "",
+        c.countries && c.countries.length ? '<span class="emp-tag">' + esc(c.countries.slice(0, 3).join("، ")) + "</span>" : "",
+      ].filter(Boolean).join(" ");
       return '<div class="emp-card" data-id="' + esc(c.id) + '">' + badge + '<div class="emp-card-top"><strong class="emp-role-link" data-id="' + esc(c.id) + '">' + esc(c.role || c.field || "—") + '</strong>' + (c.field ? '<span class="emp-tag">' + esc(c.field) + "</span>" : "") + "</div>" +
         (c.city ? '<div class="emp-role">📍 ' + esc([c.city, c.country].filter(Boolean).join(", ")) + "</div>" : "") +
+        (tags ? '<div class="emp-badges">' + tags + "</div>" : "") +
         (c.skills ? '<div class="emp-skills">' + esc(c.skills) + "</div>" : "") +
         (meta ? '<div class="emp-meta">' + esc(meta) + "</div>" : "") +
         contacts(c) +
         '<div class="empd-actions"><button class="empd-view" data-id="' + esc(c.id) + '">👤 ' + T("View profile", "عرض الملف") + '</button>' +
         '<button class="empd-save' + (inShort(c.id) ? " on" : "") + '" data-id="' + esc(c.id) + '">' + (inShort(c.id) ? "★ " + T("Saved", "محفوظ") : "☆ " + T("Shortlist", "حفظ")) + "</button>" +
+        '<button class="empd-iv" data-id="' + esc(c.id) + '">📅 ' + T("Request interview", "اطلب مقابلة") + "</button>" +
         (opts.removeShort ? '<button class="empd-rm" data-id="' + esc(c.id) + '">' + T("Remove", "إزالة") + "</button>" : "") + "</div>" +
         aiBtns(c.id) + stageBtns(c.id) + "</div>";
     }
+    // Asking to meet someone is one click. If a partner office supplied the
+    // candidate the request is routed to them to arrange and confirm; who that
+    // office is stays on our side.
+    function requestInterview(btn) {
+      var id = btn.getAttribute("data-id");
+      if (btn.dataset.sent) return;
+      var when = window.prompt(T("When would suit you? (e.g. Sunday morning, or a date)", "ما التوقيت المناسب لك؟ (مثال: صباح الأحد، أو تاريخ محدد)"), "");
+      if (when === null) return;
+      var label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      fetch("/api/candidates", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "request-interview", id: id, code: CODE, preferred: when, employer: (window.BP_EMP_NAME || "") }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false;
+        if (!d || !d.ok) { btn.textContent = label; return alert(T("Couldn't send the request. Please try again.", "تعذّر إرسال الطلب. حاول مجدداً.")); }
+        btn.dataset.sent = "1";
+        btn.classList.add("on");
+        btn.textContent = "✓ " + T("Interview requested", "طُلبت المقابلة");
+        alert(d.routed === "office"
+          ? T("Sent. The partner office is preparing the candidate and will confirm a slot.", "تم الإرسال. المكتب الشريك يجهّز المرشّح وسيؤكد الموعد.")
+          : T("Sent. Our team will arrange the interview and confirm with you.", "تم الإرسال. فريقنا سيرتب المقابلة ويؤكد لك الموعد."));
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = label;
+        alert(T("Network error.", "خطأ في الاتصال."));
+      });
+    }
     function bindCard(scope) {
+      scope.querySelectorAll(".empd-iv").forEach(function (b) {
+        b.addEventListener("click", function () { requestInterview(b); });
+      });
       scope.querySelectorAll(".empd-view, .emp-name-link, .emp-role-link").forEach(function (b) {
         b.addEventListener("click", function () { viewProfile(b.getAttribute("data-id")); });
       });
@@ -7183,6 +7248,400 @@ var BP_EMP_BILLING = "monthly";
     }
   } catch (e) {}
 })();
+/* ---------- Job-search service: owner panel (/jobsearch-admin) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var gate = document.getElementById("js-gate");
+    if (!gate) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    var esc = function (x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    var KEY = "";
+    // The key lives in sessionStorage only — never in the page, never in a URL.
+    try { KEY = sessionStorage.getItem("bp_panel_key") || ""; } catch (e) {}
+
+    function post(payload) {
+      return fetch("/api/jobhunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); });
+    }
+    function setNum(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+
+    function render(d) {
+      var t = d.totals || {};
+      setNum("js-n-all", t.all || 0);
+      setNum("js-n-wait", t.waiting || 0);
+      setNum("js-n-active", t.active || 0);
+      setNum("js-n-collected", Math.round(t.collected || 0).toLocaleString("en-US"));
+      setNum("js-n-committed", Math.round(t.committed || 0).toLocaleString("en-US"));
+
+      var box = document.getElementById("js-list");
+      var subs = d.subscribers || [];
+      if (!subs.length) { box.innerHTML = '<p class="dash-empty">' + T("Nobody has asked for the service yet.", "لم يطلب أحد الخدمة بعد.") + "</p>"; return; }
+      box.innerHTML = subs.map(function (c) {
+        var live = c.service === "مفعّلة";
+        var owed = Math.max(0, (c.commission || 0) - (c.collected || 0));
+        return '<div class="ap-iv-card' + (live ? " is-booked" : "") + '">' +
+          "<h4>" + esc(c.name || "—") + (c.role ? " — " + esc(c.role) : "") + "</h4>" +
+          '<p class="meta">' + [
+            esc(c.service || ""),
+            c.plan ? esc(c.plan) : T("no plan chosen", "بدون باقة"),
+            c.email ? esc(c.email) : esc(c.phone || ""),
+            c.since ? T("since ", "منذ ") + esc(c.since) : "",
+            c.lastRun ? T("last search ", "آخر بحث ") + esc(c.lastRun) : "",
+          ].filter(Boolean).join(" · ") + "</p>" +
+          (c.commission ? '<p class="meta">' + T("Commission ", "العمولة ") + Math.round(c.commission).toLocaleString("en-US") +
+            " · " + T("collected ", "المحصّل ") + Math.round(c.collected || 0).toLocaleString("en-US") +
+            (owed ? " · " + T("outstanding ", "المتبقي ") + Math.round(owed).toLocaleString("en-US") : " ✓") + "</p>" : "") +
+          (c.suggestions ? '<details class="meta"><summary style="cursor:pointer">' + T("Latest matches", "آخر الوظائف المقترحة") + "</summary><pre style=\"white-space:pre-wrap;font:inherit;margin:6px 0 0\">" + esc(c.suggestions) + "</pre></details>" : "") +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
+          (live
+            ? '<button class="btn btn-ghost btn-sm" data-js-act="موقوفة" data-js-id="' + esc(c.id) + '">' + T("Pause", "أوقف") + "</button>"
+            : '<button class="btn btn-primary btn-sm" data-js-act="مفعّلة" data-js-id="' + esc(c.id) + '">' + T("Activate", "فعّل") + "</button>") +
+          '<button class="btn btn-ghost btn-sm" data-js-pay="' + esc(c.id) + '">' + T("Record a payment", "سجّل دفعة") + "</button>" +
+          '<button class="btn btn-ghost btn-sm" data-js-act="منتهية" data-js-id="' + esc(c.id) + '">' + T("Close", "إنهاء") + "</button>" +
+          "</div></div>";
+      }).join("");
+    }
+
+    function load() {
+      return fetch("/api/jobhunt?action=subscribers&key=" + encodeURIComponent(KEY))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) throw new Error("forbidden");
+          gate.hidden = true;
+          document.getElementById("js-app").hidden = false;
+          try { sessionStorage.setItem("bp_panel_key", KEY); } catch (e) {}
+          render(d);
+        });
+    }
+
+    document.getElementById("js-key-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      KEY = document.getElementById("js-key").value.trim();
+      var err = document.getElementById("js-error");
+      err.hidden = true;
+      load().catch(function () {
+        err.hidden = false;
+        err.textContent = T("That key didn't work.", "المفتاح غير صحيح.");
+      });
+    });
+
+    document.getElementById("js-refresh").addEventListener("click", function () { load().catch(function () {}); });
+
+    document.getElementById("js-run").addEventListener("click", function () {
+      var btn = this, msg = document.getElementById("js-run-msg");
+      var limit = document.getElementById("js-run-limit").value;
+      btn.disabled = true; btn.textContent = T("Searching…", "الوكيل يبحث…");
+      msg.style.color = "";
+      msg.textContent = T("Reading every open posting against each subscriber — this takes a moment.", "يقرأ كل وظيفة مفتوحة مقابل كل مشترك — يستغرق لحظات.");
+      fetch("/api/jobhunt?action=run&limit=" + encodeURIComponent(limit) + "&key=" + encodeURIComponent(KEY))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          btn.disabled = false; btn.textContent = "🤖 " + T("Run the agent", "شغّل الوكيل");
+          if (!d || !d.ok) { msg.style.color = "#B91C1C"; msg.textContent = T("The run failed.", "فشلت الجولة."); return; }
+          if (d.note === "no_open_jobs") { msg.textContent = T("No open postings to match against right now.", "لا توجد وظائف مفتوحة للمطابقة حالياً."); return; }
+          var found = (d.report || []).reduce(function (n, x) { return n + x.matches; }, 0);
+          msg.textContent = T("Searched for ", "بحثنا لـ ") + d.ran + T(" subscribers across ", " مشتركاً في ") + d.jobs +
+            T(" open jobs — ", " وظيفة مفتوحة — ") + found + T(" matches sent.", " وظيفة مناسبة أُرسلت.");
+          load().catch(function () {});
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = "🤖 " + T("Run the agent", "شغّل الوكيل");
+          msg.style.color = "#B91C1C"; msg.textContent = T("Network error.", "خطأ في الاتصال.");
+        });
+    });
+
+    document.addEventListener("click", function (e) {
+      var act = e.target.closest ? e.target.closest("[data-js-act]") : null;
+      if (act) {
+        var state = act.getAttribute("data-js-act");
+        act.disabled = true;
+        return post({ type: "activate", key: KEY, id: act.getAttribute("data-js-id"), state: state })
+          .then(function () { load().catch(function () {}); })
+          .catch(function () { act.disabled = false; });
+      }
+      var pay = e.target.closest ? e.target.closest("[data-js-pay]") : null;
+      if (!pay) return;
+      var stage = window.prompt(T("Which instalment? (deposit / 1 / 2 / 3)", "أي دفعة؟ (مقدمة / 1 / 2 / 3)"), "1");
+      if (stage === null) return;
+      var STAGES = { "مقدمة": "دفعة مقدمة", deposit: "دفعة مقدمة", "1": "القسط الأول", "2": "القسط الثاني", "3": "القسط الثالث" };
+      var stageAr = STAGES[String(stage).trim()];
+      if (!stageAr) return alert(T("Unrecognised instalment.", "دفعة غير معروفة."));
+      var amount = window.prompt(T("Amount received (SAR)", "المبلغ المستلم (ريال)"), "");
+      if (amount === null) return;
+      var salary = window.prompt(T("Agreed monthly salary (SAR) — leave blank if already recorded", "الراتب الشهري المتفق عليه (ريال) — اتركه فارغاً إن كان مسجلاً"), "");
+      post({ type: "payment", key: KEY, id: pay.getAttribute("data-js-pay"), stage: stageAr, amount: amount, salary: salary })
+        .then(function (d) {
+          if (d && d.ok) alert(T("Recorded. Outstanding: ", "تم التسجيل. المتبقي: ") + Math.round(d.remaining || 0).toLocaleString("en-US"));
+          load().catch(function () {});
+        })
+        .catch(function () { alert(T("Network error.", "خطأ في الاتصال.")); });
+    });
+
+    if (KEY) load().catch(function () {});
+  });
+})();
+
+/* ---------- Job-search service: candidate opt-in (/job-search-service) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("jss-signup");
+    if (!form) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    var val = function (id) { var e = document.getElementById(id); return e ? String(e.value || "").trim() : ""; };
+    var isAr = (document.documentElement.lang || "ar").toLowerCase().indexOf("ar") === 0;
+
+    // The professions list the provider portal uses, so a candidate picks the
+    // same vocabulary an office would — which is what the matcher reads.
+    var dl = document.getElementById("jss-professions");
+    if (dl && window.BP && BP.PROFESSIONS) {
+      dl.innerHTML = BP.PROFESSIONS.map(function (p) {
+        return '<option value="' + String(isAr ? p[1] : p[0]).replace(/"/g, "&quot;") + '">';
+      }).join("");
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var msg = document.getElementById("jss-msg"), btn = document.getElementById("jss-submit");
+      var name = val("jss-name"), email = val("jss-email"), phone = val("jss-phone");
+      if (!name || (!email && !phone)) {
+        msg.style.color = "#B91C1C";
+        msg.textContent = T("Please add your name and either an email or a mobile number.", "أضف اسمك وبريدك الإلكتروني أو رقم جوالك.");
+        return;
+      }
+      var label = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      fetch("/api/jobhunt", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          type: "opt-in", name: name, email: email, phone: phone,
+          role: val("jss-role"), city: val("jss-city"), plan: val("jss-plan"),
+        }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false; btn.textContent = label;
+        if (!d || !d.ok) {
+          msg.style.color = "#B91C1C";
+          msg.textContent = T("Couldn't send that. Please try again.", "تعذّر الإرسال. حاول مجدداً.");
+          return;
+        }
+        msg.style.color = "";
+        msg.textContent = d.existing
+          ? T("Got it ✓ — we found your file and we'll start searching. Watch your inbox.", "تم ✓ — وجدنا ملفك وسنبدأ البحث. تابع بريدك.")
+          : T("Got it ✓ — we've opened your file and we'll be in touch to start.", "تم ✓ — فتحنا ملفك وسنتواصل معك للبدء.");
+        form.reset();
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = label;
+        msg.style.color = "#B91C1C";
+        msg.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+      });
+    });
+  });
+})();
+
+/* ---------- Spreadsheet reader: .xlsx and .csv, no dependencies ---------- */
+// An .xlsx is a ZIP of XML. Browsers inflate raw deflate streams natively
+// (DecompressionStream), so the whole reader is about a hundred lines and the
+// site ships no spreadsheet library. Falls back to CSV/TSV parsing by
+// extension. Returns { headers, mapped, rows } with rows as plain objects.
+(function () {
+  "use strict";
+  var rd2 = function (a, o) { return a[o] | (a[o + 1] << 8); };
+  var rd4 = function (a, o) { return (a[o] | (a[o + 1] << 8) | (a[o + 2] << 16) | (a[o + 3] << 24)) >>> 0; };
+
+  // Central directory -> { filename: {lho, method, csize} }
+  function zipIndex(a) {
+    var eocd = -1;
+    for (var i = a.length - 22; i >= 0 && i > a.length - 66000; i--) {
+      if (a[i] === 0x50 && a[i + 1] === 0x4b && a[i + 2] === 0x05 && a[i + 3] === 0x06) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error("not_a_zip");
+    var count = rd2(a, eocd + 10), o = rd4(a, eocd + 16), out = {};
+    for (var n = 0; n < count; n++) {
+      if (rd4(a, o) !== 0x02014b50) break;
+      var method = rd2(a, o + 10), csize = rd4(a, o + 20);
+      var nameLen = rd2(a, o + 28), extraLen = rd2(a, o + 30), cmtLen = rd2(a, o + 32);
+      var lho = rd4(a, o + 42), name = "";
+      for (var k = 0; k < nameLen; k++) name += String.fromCharCode(a[o + 46 + k]);
+      out[name] = { lho: lho, method: method, csize: csize };
+      o += 46 + nameLen + extraLen + cmtLen;
+    }
+    return out;
+  }
+
+  function inflateEntry(a, e) {
+    // The local header carries its own name/extra lengths, which differ from
+    // the central directory copy — the data starts after those, not before.
+    var o = e.lho;
+    if (rd4(a, o) !== 0x04034b50) return Promise.reject(new Error("bad_entry"));
+    var start = o + 30 + rd2(a, o + 26) + rd2(a, o + 28);
+    var data = a.subarray(start, start + e.csize);
+    if (e.method === 0) return Promise.resolve(new TextDecoder("utf-8").decode(data));
+    if (typeof DecompressionStream !== "function") return Promise.reject(new Error("no_inflate"));
+    var stream = new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    return new Response(stream).text();
+  }
+
+  function xmlTags(xml, tag) {
+    var out = [], re = new RegExp("<" + tag + "(?:\\s[^>]*)?(?:/>|>([\\s\\S]*?)</" + tag + ">)", "g"), m;
+    while ((m = re.exec(xml))) out.push({ attrs: m[0].slice(0, m[0].indexOf(">") + 1), inner: m[1] || "" });
+    return out;
+  }
+  var unesc = function (t) {
+    return String(t || "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'").replace(/&#(\d+);/g, function (_, d) { return String.fromCharCode(+d); })
+      .replace(/&amp;/g, "&");
+  };
+  var colIndex = function (ref) {
+    var m = /^([A-Z]+)/.exec(String(ref || "").toUpperCase());
+    if (!m) return 0;
+    var n = 0;
+    for (var i = 0; i < m[1].length; i++) n = n * 26 + (m[1].charCodeAt(i) - 64);
+    return n - 1;
+  };
+
+  function parseXlsx(buf) {
+    var a = new Uint8Array(buf), idx = zipIndex(a);
+    var sheetName = idx["xl/worksheets/sheet1.xml"] ? "xl/worksheets/sheet1.xml"
+      : Object.keys(idx).filter(function (k) { return /^xl\/worksheets\/.*\.xml$/.test(k); }).sort()[0];
+    if (!sheetName) throw new Error("no_sheet");
+    var shared = [];
+    var pShared = idx["xl/sharedStrings.xml"]
+      ? inflateEntry(a, idx["xl/sharedStrings.xml"]).then(function (xml) {
+          shared = xmlTags(xml, "si").map(function (si) {
+            return xmlTags(si.inner, "t").map(function (t) { return unesc(t.inner); }).join("");
+          });
+        })
+      : Promise.resolve();
+    return pShared.then(function () { return inflateEntry(a, idx[sheetName]); }).then(function (xml) {
+      return xmlTags(xml, "row").map(function (row) {
+        var cells = [];
+        xmlTags(row.inner, "c").forEach(function (c) {
+          var ref = (/r="([A-Z]+\d+)"/.exec(c.attrs) || [])[1];
+          var type = (/t="([^"]+)"/.exec(c.attrs) || [])[1] || "n";
+          var v = "";
+          if (type === "inlineStr") {
+            v = xmlTags(c.inner, "t").map(function (t) { return unesc(t.inner); }).join("");
+          } else {
+            var raw = (xmlTags(c.inner, "v")[0] || {}).inner;
+            v = raw == null ? "" : unesc(raw);
+            if (type === "s") v = shared[Number(v)] || "";
+          }
+          // Address by column letter, so an empty cell doesn't shift the row.
+          cells[ref ? colIndex(ref) : cells.length] = String(v).trim();
+        });
+        for (var i = 0; i < cells.length; i++) if (cells[i] == null) cells[i] = "";
+        return cells;
+      });
+    });
+  }
+
+  function parseDelimited(text) {
+    var delim = text.indexOf("\t") > -1 && text.indexOf(",") < 0 ? "\t" : ",";
+    var rows = [], row = [], cur = "", q = false;
+    text = text.replace(/^﻿/, "");
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (q) {
+        if (ch === '"' && text[i + 1] === '"') { cur += '"'; i++; }
+        else if (ch === '"') q = false;
+        else cur += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === delim) { row.push(cur.trim()); cur = ""; }
+      else if (ch === "\n") { row.push(cur.trim()); rows.push(row); row = []; cur = ""; }
+      else if (ch !== "\r") cur += ch;
+    }
+    if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
+    return rows;
+  }
+
+  // Column aliases, Arabic and English, so an office can upload the sheet it
+  // already keeps instead of retyping everything into ours.
+  var ALIASES = {
+    name: ["الاسم", "اسم المرشح", "اسم المرشّح", "الاسم الكامل", "name", "candidate", "candidate name", "full name"],
+    role: ["المهنة", "الوظيفة", "التخصص", "المسمى الوظيفي", "role", "profession", "job", "job title", "position"],
+    nationality: ["الجنسية", "nationality"],
+    phone: ["الجوال", "الهاتف", "رقم الجوال", "الموبايل", "phone", "mobile", "contact"],
+    email: ["البريد", "البريد الإلكتروني", "الايميل", "الإيميل", "email", "e-mail"],
+    experience: ["الخبرة", "سنوات الخبرة", "experience", "years", "years of experience"],
+    city: ["المدينة", "city"],
+    country: ["الدولة", "country"],
+    residence: ["الإقامة", "حالة الإقامة", "residence", "residence status"],
+    regionExperience: ["الخبرة الإقليمية", "region", "regional experience"],
+    experienceCountries: ["دول الخبرة", "دول العمل السابقة", "countries", "experience countries"],
+    skills: ["المهارات", "skills"],
+    education: ["التعليم", "المؤهل", "المؤهل العلمي", "education", "qualification"],
+    salary: ["الراتب", "الراتب المتوقع", "salary", "expected salary"],
+    availability: ["الجاهزية", "التوفر", "availability"],
+    cvUrl: ["رابط السيرة", "السيرة الذاتية", "رابط السيرة الذاتية", "cv", "cv link", "resume"],
+    notes: ["ملاحظات", "notes", "comments"],
+  };
+  var norm = function (h) {
+    return String(h || "").trim().toLowerCase()
+      .replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/[_\-]+/g, " ").replace(/\s+/g, " ");
+  };
+  function mapHeaders(headerRow) {
+    var map = {};
+    headerRow.forEach(function (h, i) {
+      var n = norm(h);
+      if (!n) return;
+      Object.keys(ALIASES).forEach(function (key) {
+        if (map[key] != null) return;
+        if (ALIASES[key].some(function (a) { return norm(a) === n; })) map[key] = i;
+      });
+    });
+    return map;
+  }
+
+  function toRows(grid) {
+    var start = 0;
+    while (start < grid.length && !grid[start].some(function (c) { return String(c || "").trim(); })) start++;
+    var headers = grid[start] || [];
+    var map = mapHeaders(headers);
+    var rows = [];
+    for (var i = start + 1; i < grid.length; i++) {
+      var line = grid[i] || [];
+      if (!line.some(function (c) { return String(c || "").trim(); })) continue;
+      var obj = { line: i + 1 };
+      Object.keys(map).forEach(function (key) {
+        var v = String(line[map[key]] == null ? "" : line[map[key]]).trim();
+        if (!v) return;
+        obj[key] = key === "experienceCountries"
+          ? v.split(/[،,;|]/).map(function (x) { return x.trim(); }).filter(Boolean)
+          : v;
+      });
+      if (obj.name || obj.role) rows.push(obj);
+    }
+    return { headers: headers, mapped: Object.keys(map), rows: rows };
+  }
+
+  function readSheet(file) {
+    var isText = /\.(csv|tsv|txt)$/i.test(file.name || "");
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onerror = function () { reject(new Error("read_failed")); };
+      reader.onload = function () {
+        try {
+          if (isText) return resolve(toRows(parseDelimited(String(reader.result || ""))));
+          parseXlsx(reader.result).then(function (grid) { resolve(toRows(grid)); }).catch(reject);
+        } catch (e) { reject(e); }
+      };
+      if (isText) reader.readAsText(file, "utf-8");
+      else reader.readAsArrayBuffer(file);
+    });
+  }
+
+  // A ready-made sheet the office can fill in, offered next to the upload box.
+  function templateCsv() {
+    var cols = ["الاسم", "المهنة", "الجنسية", "الجوال", "البريد", "سنوات الخبرة", "المدينة", "الدولة", "حالة الإقامة", "دول الخبرة", "المهارات", "المؤهل", "الراتب المتوقع", "رابط السيرة", "ملاحظات"];
+    var sample = ["أحمد حسن", "سائق خصوصي", "مصري", "+201000000000", "ahmed@example.com", "6", "القاهرة", "مصر", "خارج السعودية", "السعودية، الإمارات", "رخصة قيادة، إنجليزية", "ثانوية", "3000", "", ""];
+    var line = function (a) { return a.map(function (v) { return /[",]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(","); };
+    return "﻿" + line(cols) + "\n" + line(sample) + "\n";
+  }
+
+  try { window.BP = window.BP || {}; BP.readSheet = readSheet; BP.sheetTemplateCsv = templateCsv; } catch (e) {}
+})();
+
 /* ---------- Recruitment providers: sign-up, provider panel, owner panel ---------- */
 (function () {
   "use strict";
@@ -7511,6 +7970,7 @@ var BP_EMP_BILLING = "monthly";
       fillPickerLists();
       loadRequests();
       loadSubmissions();
+      loadInterviews();
     }
 
     // The candidate form suggests the office's own nationalities/professions
@@ -7563,18 +8023,86 @@ var BP_EMP_BILLING = "monthly";
       }).join("") + "</div>";
     }
 
-    function loadSubmissions() {
+    // The office's own pool, filtered in the browser: the list is at most a
+    // few hundred rows, so re-querying the API on every keystroke would be
+    // slower than filtering what we already hold.
+    var submissions = [];
+    function renderSubmissions() {
       var box = document.getElementById("ap-submissions");
+      if (!box) return;
+      var q = (val("ap-sub-q") || "").toLowerCase();
+      var res = val("ap-sub-res"), region = val("ap-sub-region");
+      var list = submissions.filter(function (c) {
+        if (res && c.residence !== res) return false;
+        if (region && c.region !== region) return false;
+        if (!q) return true;
+        return (c.name + " " + c.role + " " + (c.nationality || "")).toLowerCase().indexOf(q) > -1;
+      });
+      if (!submissions.length) {
+        box.innerHTML = '<p class="emp-note">' + T("No candidates yet — add one from your pool or import a sheet.", "لا يوجد مرشحون بعد — أضف واحداً من قاعدتك أو استورد ملفاً.") + "</p>";
+        return;
+      }
+      if (!list.length) {
+        box.innerHTML = '<p class="emp-note">' + T("No candidate matches these filters.", "لا يوجد مرشّح مطابق لهذه الفلاتر.") + "</p>";
+        return;
+      }
+      box.innerHTML = '<div class="emp-grid">' + list.map(function (c) {
+        var badges = [c.residence, c.region].filter(Boolean)
+          .map(function (b) { return '<span class="emp-tag">' + esc(b) + "</span>"; }).join(" ");
+        return '<article class="card"><h3>' + esc(c.name) + "</h3>" +
+          '<p class="emp-note">' + [c.role, c.nationality, c.years ? c.years + " " + T("yrs", "سنة") : ""].filter(Boolean).map(esc).join(" · ") + "</p>" +
+          '<p><span class="emp-tag">' + esc(c.stage || "—") + "</span> " + badges + "</p>" +
+          (c.countries && c.countries.length ? '<p class="emp-note">' + T("Worked in: ", "عمل في: ") + esc(c.countries.join("، ")) + "</p>" : "") +
+          (c.interviewStatus ? '<p class="emp-note">📅 ' + esc(c.interviewStatus) + (c.interviewAt ? " · " + esc(String(c.interviewAt).replace("T", " ").slice(0, 16)) : "") + "</p>" : "") +
+          (c.atsCv ? '<p class="emp-note"><a href="' + esc(c.atsCv) + '" target="_blank" rel="noopener">' + T("ATS CV", "السيرة بصيغة ATS") + "</a></p>" : "") +
+          "</article>";
+      }).join("") + "</div>";
+    }
+    function loadSubmissions() {
       fetch(api("action=submissions")).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) return;
+        submissions = d.submissions || [];
+        document.getElementById("ap-n-cand").textContent = submissions.length;
+        renderSubmissions();
+      }).catch(function () {});
+    }
+    ["ap-sub-q", "ap-sub-res", "ap-sub-region"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener("input", renderSubmissions);
+    });
+
+    /* ------------------------- interview requests ------------------------- */
+    // An employer asked to meet someone this office supplied. The office never
+    // sees the employer's pipeline — only this one candidate and the ask.
+    function loadInterviews() {
+      var box = document.getElementById("ap-interviews");
+      if (!box) return;
+      fetch(api("action=interview-requests")).then(function (r) { return r.json(); }).then(function (d) {
         if (!d || !d.ok) { box.innerHTML = ""; return; }
-        if (!d.submissions.length) { box.innerHTML = '<p class="emp-note">' + T("You haven't submitted any candidates yet.", "لم ترفع أي مرشّح بعد.") + "</p>"; return; }
-        document.getElementById("ap-n-cand").textContent = d.submissions.length;
-        box.innerHTML = '<div class="emp-grid">' + d.submissions.map(function (c) {
-          return '<article class="card"><h3>' + esc(c.name) + "</h3>" +
-            '<p class="emp-note">' + [c.role, c.nationality].filter(Boolean).map(esc).join(" · ") + "</p>" +
-            '<p><span class="emp-tag">' + esc(c.stage || "—") + "</span></p>" +
-            (c.job ? '<p class="emp-note">' + esc(c.job) + "</p>" : "") + "</article>";
-        }).join("") + "</div>";
+        var list = d.requests || [];
+        var pending = list.filter(function (c) { return c.interviewStatus !== "مجدول"; });
+        var el = document.getElementById("ap-n-iv");
+        if (el) el.textContent = pending.length;
+        if (!list.length) {
+          box.innerHTML = '<p class="emp-note">' + T("No interview requests yet. When an employer wants to meet one of your candidates, it lands here.", "لا توجد طلبات مقابلة بعد. عندما يطلب صاحب عمل مقابلة أحد مرشحيك سيظهر الطلب هنا.") + "</p>";
+          return;
+        }
+        box.innerHTML = list.map(function (c) {
+          var booked = c.interviewStatus === "مجدول";
+          var when = c.interviewAt ? String(c.interviewAt).replace("T", " ").slice(0, 16) : "";
+          return '<div class="ap-iv-card' + (booked ? " is-booked" : "") + '">' +
+            "<h4>" + esc(c.name) + (c.role ? " — " + esc(c.role) : "") + "</h4>" +
+            '<p class="meta">' + [
+              esc(c.interviewStatus || ""),
+              booked && when ? T("on ", "بتاريخ ") + esc(when) : "",
+              c.interviewMode ? esc(c.interviewMode) : "",
+              c.requestedBy ? T("requested by ", "بطلب من ") + esc(c.requestedBy) : "",
+            ].filter(Boolean).join(" · ") + "</p>" +
+            (c.interviewPlace ? '<p class="meta">📍 ' + esc(c.interviewPlace) + "</p>" : "") +
+            (c.interviewLink ? '<p class="meta">🔗 <a href="' + esc(c.interviewLink) + '" target="_blank" rel="noopener">' + T("Meeting link", "رابط الاجتماع") + "</a></p>" : "") +
+            '<button type="button" class="btn ' + (booked ? "btn-ghost" : "btn-primary") + ' btn-sm" data-ap-iv="' + esc(c.id) + '" data-ap-iv-name="' + esc(c.name) + '" data-ap-iv-role="' + esc(c.role || "") + '">' +
+            (booked ? T("Reschedule", "أعد الجدولة") : T("Book the interview", "احجز الموعد")) + "</button></div>";
+        }).join("");
       }).catch(function () { box.innerHTML = ""; });
     }
 
@@ -7700,16 +8228,35 @@ var BP_EMP_BILLING = "monthly";
       reader.readAsDataURL(f);
     });
 
+    // Countries the candidate has worked in — the same one-box multi-select
+    // the office used for its own profile.
+    var candCountries = null;
+    (function () {
+      var host = document.getElementById("ap-c-countries");
+      if (!host || !(window.BP && BP.chips)) return;
+      var opts = (BP.COUNTRIES || []).map(function (c) { return [c[0], c[1]]; });
+      candCountries = BP.chips(host, opts, {
+        placeholder: T("Add a country…", "أضف دولة…"),
+        hint: T("Every country they have actually worked in — this is what employers filter on.", "كل دولة عمل فيها فعلياً — هذا ما يفلتر عليه أصحاب العمل."),
+      });
+    })();
+
     var modal = document.getElementById("ap-modal"), target = null;
+    function openCandidateModal(t) {
+      target = t;
+      document.getElementById("ap-modal-title").textContent = t
+        ? T("Submit a candidate for: ", "رفع مرشّح على: ") + t.title
+        : T("Add a candidate from your pool", "أضف مرشّحاً من قاعدتك");
+      document.getElementById("ap-c-msg").textContent = "";
+      modal.hidden = false;
+    }
     document.addEventListener("click", function (e) {
       var open = e.target.closest ? e.target.closest("[data-ap-submit]") : null;
       if (open) {
-        target = { id: open.getAttribute("data-ap-submit"), title: open.getAttribute("data-ap-title") };
-        document.getElementById("ap-modal-title").textContent = T("Submit a candidate for: ", "رفع مرشّح على: ") + target.title;
-        document.getElementById("ap-c-msg").textContent = "";
-        modal.hidden = false;
-        return;
+        return openCandidateModal({ id: open.getAttribute("data-ap-submit"), title: open.getAttribute("data-ap-title") });
       }
+      // No job attached: a candidate the office simply has on its books.
+      if (e.target.id === "ap-add-candidate") return openCandidateModal(null);
       if (e.target.id === "ap-modal-x" || e.target === modal) modal.hidden = true;
     });
 
@@ -7729,6 +8276,9 @@ var BP_EMP_BILLING = "monthly";
         candidateName: val("ap-c-name"), role: val("ap-c-role"), nationality: val("ap-c-nat"),
         experience: val("ap-c-exp"), candidatePhone: val("ap-c-phone"), candidateEmail: val("ap-c-email"),
         cvUrl: val("ap-c-cv"), skills: val("ap-c-skills"), notes: val("ap-c-notes"), cvFile: cvFile,
+        residence: val("ap-c-residence"), availability: val("ap-c-avail"),
+        education: val("ap-c-education"), salary: val("ap-c-salary"),
+        experienceCountries: candCountries ? candCountries.value() : [],
       }).then(function (d) {
         btn.disabled = false; btn.textContent = T("Send candidate", "أرسل المرشّح");
         if (d && d.ok) {
@@ -7738,6 +8288,7 @@ var BP_EMP_BILLING = "monthly";
             : T("Candidate sent ✓", "تم إرسال المرشّح ✓");
           candForm.reset();
           cvFile = null;
+          if (candCountries) candCountries.clear();
           var fn = document.getElementById("ap-c-filename");
           if (fn) fn.textContent = T("Drag the CV here or click to choose", "اسحب السيرة هنا أو اضغط للاختيار");
           loadSubmissions();
@@ -7752,6 +8303,160 @@ var BP_EMP_BILLING = "monthly";
         msg.textContent = T("Network error.", "خطأ في الاتصال.");
       });
     });
+
+    /* ---------------------------- sheet import ---------------------------- */
+    // The file never leaves the browser until the office presses Import: we
+    // parse it here, show exactly what we understood, and only then post rows.
+    (function sheetImport() {
+      var panel = document.getElementById("ap-import");
+      if (!panel) return;
+      var input = document.getElementById("ap-sheet");
+      var label = document.getElementById("ap-sheet-name");
+      var preview = document.getElementById("ap-sheet-preview");
+      var goBtn = document.getElementById("ap-import-go");
+      var msg = document.getElementById("ap-import-msg");
+      var parsed = null;
+
+      document.getElementById("ap-import-open").addEventListener("click", function () {
+        panel.hidden = false;
+        panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+      document.getElementById("ap-import-close").addEventListener("click", function () { panel.hidden = true; });
+
+      document.getElementById("ap-template").addEventListener("click", function (e) {
+        e.preventDefault();
+        var blob = new Blob([BP.sheetTemplateCsv()], { type: "text/csv;charset=utf-8" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "business-partner-candidates.csv";
+        document.body.appendChild(a); a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+      });
+
+      input.addEventListener("change", function () {
+        var f = input.files && input.files[0];
+        parsed = null; goBtn.hidden = true; preview.innerHTML = ""; msg.textContent = "";
+        if (!f) { label.textContent = T("Drag the sheet here or click to choose", "اسحب الملف هنا أو اضغط للاختيار"); return; }
+        label.textContent = f.name;
+        BP.readSheet(f).then(function (out) {
+          if (!out.rows.length) {
+            msg.style.color = "#B91C1C";
+            msg.textContent = T("No candidate rows found. The first row must be the column titles.", "لم نجد صفوف مرشحين. الصف الأول يجب أن يحتوي عناوين الأعمدة.");
+            return;
+          }
+          parsed = out;
+          var cols = ["name", "role", "nationality", "phone", "experience", "residence"];
+          var head = { name: T("Name", "الاسم"), role: T("Profession", "المهنة"), nationality: T("Nationality", "الجنسية"), phone: T("Phone", "الجوال"), experience: T("Years", "الخبرة"), residence: T("Residence", "الإقامة") };
+          preview.innerHTML =
+            '<p class="emp-note">' + T("Understood columns: ", "الأعمدة التي فهمناها: ") + esc(out.mapped.join("، ")) + "</p>" +
+            '<div style="overflow-x:auto"><table class="mini-table"><thead><tr>' +
+            cols.map(function (c) { return "<th>" + esc(head[c]) + "</th>"; }).join("") +
+            "</tr></thead><tbody>" +
+            out.rows.slice(0, 8).map(function (r) {
+              return "<tr>" + cols.map(function (c) { return "<td>" + esc(r[c] || "—") + "</td>"; }).join("") + "</tr>";
+            }).join("") + "</tbody></table></div>" +
+            '<p class="emp-note">' + T("Total rows read: ", "عدد الصفوف المقروءة: ") + out.rows.length +
+            (out.rows.length > 60 ? " · " + T("we import the first 60 per run — upload the rest in a second file.", "نستورد أول ٦٠ في كل مرة — ارفع البقية في ملف ثانٍ.") : "") + "</p>";
+          goBtn.hidden = false;
+        }).catch(function (err) {
+          msg.style.color = "#B91C1C";
+          msg.textContent = String(err && err.message) === "no_inflate"
+            ? T("This browser can't open .xlsx files — please save the sheet as CSV and try again.", "متصفحك لا يفتح ملفات .xlsx — احفظ الملف بصيغة CSV وحاول مجدداً.")
+            : T("Couldn't read this file. Make sure it's a valid .xlsx or .csv sheet.", "تعذّرت قراءة الملف. تأكد أنه ملف .xlsx أو .csv صالح.");
+        });
+      });
+
+      goBtn.addEventListener("click", function () {
+        if (!parsed) return;
+        goBtn.disabled = true; goBtn.textContent = T("Importing…", "جارٍ الاستيراد…");
+        msg.style.color = ""; msg.textContent = T("This can take a moment — we read every CV link as we go.", "قد يستغرق لحظات — نقرأ كل رابط سيرة أثناء الاستيراد.");
+        post({ type: "bulk-import", email: creds.email, code: creds.code, rows: parsed.rows.slice(0, 60) })
+          .then(function (d) {
+            goBtn.disabled = false; goBtn.textContent = T("Import these candidates", "استورد هؤلاء المرشحين");
+            if (!d || !d.ok) {
+              msg.style.color = "#B91C1C";
+              msg.textContent = T("Import failed. Please try again.", "فشل الاستيراد. حاول مجدداً.");
+              return;
+            }
+            msg.style.color = "";
+            msg.textContent = T("Imported ", "تم استيراد ") + d.created + T(" new, ", " جديد، ") + d.updated + T(" updated", " محدَّث") +
+              (d.skipped ? " · " + d.skipped + T(" skipped (missing name or profession)", " متجاوَز (بدون اسم أو مهنة)") : "");
+            goBtn.hidden = true;
+            parsed = null;
+            input.value = "";
+            label.textContent = T("Drag the sheet here or click to choose", "اسحب الملف هنا أو اضغط للاختيار");
+            loadSubmissions();
+          })
+          .catch(function () {
+            goBtn.disabled = false; goBtn.textContent = T("Import these candidates", "استورد هؤلاء المرشحين");
+            msg.style.color = "#B91C1C";
+            msg.textContent = T("Network error.", "خطأ في الاتصال.");
+          });
+      });
+    })();
+
+    /* -------------------------- interview booking -------------------------- */
+    (function interviewBooking() {
+      var ivModal = document.getElementById("ap-iv-modal");
+      if (!ivModal) return;
+      var current = null;
+      var modeSel = document.getElementById("ap-iv-mode");
+
+      function syncMode() {
+        var inPerson = modeSel.value === "حضوري";
+        document.getElementById("ap-iv-link-field").hidden = inPerson;
+        document.getElementById("ap-iv-place-field").hidden = !inPerson;
+      }
+      modeSel.addEventListener("change", syncMode);
+      syncMode();
+
+      document.addEventListener("click", function (e) {
+        var open = e.target.closest ? e.target.closest("[data-ap-iv]") : null;
+        if (open) {
+          current = { id: open.getAttribute("data-ap-iv") };
+          document.getElementById("ap-iv-who").textContent =
+            open.getAttribute("data-ap-iv-name") + (open.getAttribute("data-ap-iv-role") ? " — " + open.getAttribute("data-ap-iv-role") : "");
+          document.getElementById("ap-iv-msg").textContent = "";
+          ivModal.hidden = false;
+          return;
+        }
+        if (e.target.id === "ap-iv-x" || e.target === ivModal) ivModal.hidden = true;
+      });
+
+      document.getElementById("ap-iv-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!current) return;
+        var msg = document.getElementById("ap-iv-msg"), btn = document.getElementById("ap-iv-submit");
+        if (!val("ap-iv-date")) {
+          msg.style.color = "#B91C1C";
+          msg.textContent = T("Pick a date first.", "اختر التاريخ أولاً.");
+          return;
+        }
+        btn.disabled = true; btn.textContent = T("Booking…", "جارٍ الحجز…");
+        post({
+          type: "interview-schedule", email: creds.email, code: creds.code,
+          candidateId: current.id, date: val("ap-iv-date"), time: val("ap-iv-time"),
+          mode: val("ap-iv-mode"), link: val("ap-iv-link"), location: val("ap-iv-place"),
+          notes: val("ap-iv-notes"),
+        }).then(function (d) {
+          btn.disabled = false; btn.textContent = T("Confirm the booking", "أكّد الحجز");
+          if (!d || !d.ok) {
+            msg.style.color = "#B91C1C";
+            msg.textContent = T("Couldn't save the booking. Please try again.", "تعذّر حفظ الموعد. حاول مجدداً.");
+            return;
+          }
+          msg.style.color = "";
+          msg.textContent = T("Booked ✓ — the employer has been notified.", "تم الحجز ✓ — أُشعر صاحب العمل.");
+          loadInterviews();
+          loadSubmissions();
+          setTimeout(function () { ivModal.hidden = true; }, 1200);
+        }).catch(function () {
+          btn.disabled = false; btn.textContent = T("Confirm the booking", "أكّد الحجز");
+          msg.style.color = "#B91C1C";
+          msg.textContent = T("Network error.", "خطأ في الاتصال.");
+        });
+      });
+    })();
 
     setMode("in");
     // A stored session signs straight back in; a rejected one falls back to the form.
