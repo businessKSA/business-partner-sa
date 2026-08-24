@@ -349,13 +349,17 @@
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات والموافقات</button>
         <button data-v="suppliers">🤝 الشركاء</button>
-        <button data-v="content">📝 محتوى الموقع</button>
-        <button data-v="pages">📄 الصفحات</button>
+        <button class="grp" id="grpContent"><span>📝</span><span>محتوى الموقع</span><span class="caret">▾</span></button>
+        <div class="sub" id="subContent"></div>
+        <button class="grp" id="grpPages"><span>📄</span><span>الصفحات</span><span class="caret">▾</span></button>
+        <div class="sub" id="subPages"></div>
         <div class="filter"><input id="navFind" type="search" placeholder="🔎 ابحث عن أداة أو لوحة…" /></div>
         <button class="grp" id="grpTools" data-grp="tools"><span>🧰</span><span>الأدوات</span><span class="caret">▾</span></button>
         <div class="sub" id="subTools"></div>
-        <button class="grp" id="grpBoards" data-grp="boards"><span>🚀</span><span>اللوحات والخدمات</span><span class="caret">▾</span></button>
+        <button class="grp" id="grpBoards" data-grp="boards"><span>🚀</span><span>لوحاتنا</span><span class="caret">▾</span></button>
         <div class="sub" id="subBoards"></div>
+        <button class="grp" id="grpSvc"><span>🔌</span><span>الخدمات المتصلة</span><span class="caret">▾</span></button>
+        <div class="sub" id="subSvc"></div>
       </nav>
       <div class="grow"></div>
       <div class="foot">
@@ -534,14 +538,44 @@
         <div id="pagesList"></div>
       </section>
 
+      <!-- ============ a single board, inside the panel ============ -->
+      <section class="view" id="view-board">
+        <div class="boardhead">
+          <button class="back" id="boardBack" type="button">← رجوع</button>
+          <span class="ttl" id="boardTitle">—</span>
+          <span class="sp"><a class="actbtn" id="boardExt" href="#" target="_blank" rel="noopener">↗ افتح في تبويب</a></span>
+        </div>
+        <iframe id="boardFrame" title="لوحة" referrerpolicy="same-origin"></iframe>
+        <div id="boardBlocked"></div>
+      </section>
+
       <!-- ============ tools ============ -->
       <section class="view" id="view-tools">
-        <div class="pagehead">
+        <div class="toolbar" id="toolBar" style="display:none">
+          <button class="back" id="toolBack" type="button">← كل الأدوات</button>
+          <span class="ttl" id="toolTitle">—</span>
+          <span class="dsc" id="toolDesc"></span>
+        </div>
+        <div class="tools" id="toolIndex" style="margin-bottom:22px"></div>
+        <div class="pagehead" id="toolsHead">
           <h2>🧰 الأدوات واللوحات</h2>
           <div class="sub">كل اللوحات الداخلية وأدوات التشغيل في مكان واحد.</div>
         </div>
 
-        <div class="panel" id="discPanel" data-tool="discounts" style="margin-bottom:22px">
+        <div class="panel" data-tool="reconcile" style="margin-bottom:22px;padding:18px">
+          <h4 style="color:var(--navy);margin-bottom:4px">🔄 استرجاع المدفوعات غير المسجّلة</h4>
+          <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+            يسأل مُيسّر عن سجلّه هو: ماذا دُفع فعلاً. كل دفعة ناجحة لم تُسجَّل عندنا تُعاد عبر نفس مسار
+            الدفعة الحيّة — يُسجَّل الطلب، وتُفعَّل الخدمة، وتصدر الفاتورة الضريبية، ويصل العميل إشعاره.
+            <b>ابدأ بالفحص</b> ليخبرك ماذا اشترى العملاء فعلاً قبل أن تغيّر شيئاً؛ كل خطوة بعده لا تتكرر
+            مرتين على نفس الطلب.
+          </p>
+          <button class="actbtn" id="rcScan">🔍 افحص: ماذا دُفع ولم يُسجَّل؟</button>
+          <button class="actbtn" id="rcApply" style="display:none;background:var(--navy);color:#fff">✅ استرجعها الآن</button>
+          <div class="dbody" id="rcMsg" style="display:none;margin-top:10px"></div>
+        </div>
+
+<div class="panel" id="discPanel" data-tool="discounts" style="margin-bottom:22px">
           <div class="editor-head">
             <span class="file-lbl">🎟️ أكواد الخصم</span>
             <span class="stamp" id="discStamp"></span>
@@ -642,6 +676,7 @@
             </div>
             <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
           </div>
+
 
           <div class="panel" data-tool="health" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">🩺 حالة الخدمات — ما هو موصول فعلاً</h4>
@@ -771,7 +806,7 @@
           </div>
         </div>
 
-        <div class="tools">
+        <div class="tools" id="boardGrid">
           <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🏭</span><h4>لوحة تحكم الشركاء</h4><p>اعتماد الموردين الجدد وإرسال رمز الدخول، طلب عروض أسعار من عدة موردين، ترسية أوامر العمل، ومتابعة الفواتير في الاتجاهين.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">💬</span><h4>BP Inbox — مركز المحادثات</h4><p>متابعة محادثات واتساب والرد المباشر بمساعدة الذكاء، مع إيقاف/تفعيل الوكيل لكل عميل.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/dashboard" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🎛️</span><h4>لوحة فريق الإيجنتس</h4><p>اختبار كل موظف ذكي مباشرة، والتحكم في تشغيله وقفله حتى الدفع.</p><span class="go">فتح ←</span></a>
@@ -784,6 +819,38 @@
           <a class="tool" href="https://businesspartnerai.app.n8n.cloud" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">⚙️</span><h4>n8n — الأتمتة</h4><p>سيناريوهات الوكلاء وواتساب — التوكنات، الاعتمادات، وسجل التشغيل.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="https://vercel.com" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">▲</span><h4>Vercel — الاستضافة</h4><p>نشر الموقع، السجلات، ومتغيرات البيئة (المفاتيح والتوكنات).</p><span class="go">فتح ←</span></a>
         </div>
+        <div class="pagehead" style="margin-top:26px"><h2>🔌 الخدمات المتصلة</h2><div class="sub">كل ما هو مربوط بالموقع فعلاً — بما فيها كل قاعدة نوشن يكتب فيها. هذه خدمات خارجية تمنع العرض داخل إطار، فتُفتح في تبويب؛ أما لوحاتنا فتفتح داخل اللوحة.</div></div>
+        <div class="tools" id="svcGrid">
+          <a class="tool" href="https://claude.ai" target="_blank" rel="noopener"><span class="tag ext">ذكاء اصطناعي</span><span class="ico">🤖</span><h4>Claude</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://chatgpt.com" target="_blank" rel="noopener"><span class="tag ext">ذكاء اصطناعي</span><span class="ico">💬</span><h4>ChatGPT</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://mail.google.com" target="_blank" rel="noopener"><span class="tag ext">بريد</span><span class="ico">✉️</span><h4>Gmail — بريد الشركة</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://businesspartnerai.app.n8n.cloud" target="_blank" rel="noopener"><span class="tag ext">أتمتة</span><span class="ico">⚙️</span><h4>n8n — الأتمتة</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://vercel.com/bahers-projects-291a34d3" target="_blank" rel="noopener"><span class="tag ext">استضافة</span><span class="ico">▲</span><h4>Vercel — الاستضافة والمفاتيح</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://supabase.com/dashboard" target="_blank" rel="noopener"><span class="tag ext">قاعدة بيانات</span><span class="ico">🗄️</span><h4>Supabase — قاعدة البيانات</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://dashboard.moyasar.com" target="_blank" rel="noopener"><span class="tag ext">مدفوعات</span><span class="ico">💳</span><h4>مُيسّر — بوابة الدفع</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://businesspartner.daftra.com" target="_blank" rel="noopener"><span class="tag ext">محاسبة</span><span class="ico">🧾</span><h4>الدفترة — المحاسبة</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://app.docusign.com" target="_blank" rel="noopener"><span class="tag ext">توقيع</span><span class="ico">✍️</span><h4>DocuSign — التوقيع</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://resend.com/emails" target="_blank" rel="noopener"><span class="tag ext">بريد</span><span class="ico">📨</span><h4>Resend — إرسال البريد</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://github.com/businessKSA/business-partner-sa" target="_blank" rel="noopener"><span class="tag ext">كود</span><span class="ico">🐙</span><h4>GitHub — كود الموقع</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://business.facebook.com/wa/manage/" target="_blank" rel="noopener"><span class="tag ext">واتساب</span><span class="ico">🟢</span><h4>WhatsApp Manager</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://apiportal.etimad.sa" target="_blank" rel="noopener"><span class="tag ext">حكومي</span><span class="ico">🏛</span><h4>اعتماد — بوابة المطورين</h4><p>خدمة متصلة — تُفتح في تبويب لأنها تمنع العرض داخل إطار.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/d9a342be24774be3b4095d439d21fc90" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — CRM — العملاء والصفقات</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/26faca2761884b6ab584924c374f2d22" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — العملاء المحتملون (Leads)</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/d60933ed446e40ee8bcb8a640d5bcb52" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — الموردون والشركاء</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/fde498d5974c48f5a0ca9f21de4c0caf" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — أوامر عمل الموردين</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/71792742873e4de398135c7855542b95" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — المرشحون (ATS)</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/260d76959d464631943f79f313fbf3c9" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — الوظائف</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/f1104f8bcc3d4beb84accdbda0aa8322" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — أصحاب العمل</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/32f564a5c1dd4370b5af6567c27eee40" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — مكاتب الاستقدام</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/9023896619e24c7592d97fbd43dda7f9" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — طلبات المكاتب</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/5d570a75009b41019857060d0670642f" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — الامتثال</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/f416606b4fab4cbb80ced171f75e0a3b" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — لوحة المهام</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/644ac54670e44fdb8f03904fe9eed362" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — التوريد</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/f83bce33eab7481a8b803495c6cd7619" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — الورشة</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/396d108dee5c813cbac6c269c47d0b4f" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — نشرة الأخبار اليومية</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+          <a class="tool" href="https://www.notion.so/398d108dee5c815189ddd26523be6631" target="_blank" rel="noopener"><span class="tag ext">نوشن</span><span class="ico">📇</span><h4>نوشن — مسودة النشرة البريدية</h4><p>قاعدة يكتب فيها الموقع مباشرة.</p><span class="go">فتح ↗</span></a>
+        </div>
+
       </section>
     </main>
   </div>
@@ -1205,6 +1272,7 @@
      * one-line description, and its own shortcut.
      */
     var TOOLS = [
+      { s:'reconcile',  i:'🔄', n:'استرجاع المدفوعات',       d:'دفعات وصلت ولم تُسجَّل — استردادها بالفاتورة والتفعيل' },
       { s:'health',     i:'🩺', n:'حالة الخدمات',            d:'أي مفتاح موصول فعلاً — الأسماء فقط، بلا قيم' },
       { s:'moyasar',    i:'💳', n:'جاهزية الدفع (مُيسّر)',    d:'نسأل مُيسّر نفسه: هل المفتاح يعمل، وفي أي بيئة' },
       { s:'daftra',     i:'🧾', n:'الربط المحاسبي',           d:'اختبار الاتصال بالدفترة ومزامنة الخدمات' },
@@ -1218,22 +1286,61 @@
       { s:'notify',     i:'🔔', n:'إشعارات العميل',           d:'تجربة كل خطوة على البوابة والبريد والواتساب' }
     ];
 
-    function toolPanel(slug){ return document.querySelector('[data-tool="' + slug + '"]'); }
+    /* ---------------- one thing per screen --------------------------------
+     * Every tool used to be mounted at once in one long column. Reaching the
+     * eighth meant scrolling past seven others, and the ones you were not
+     * using were still in front of you. Each now gets the screen to itself,
+     * with an index to come back to.
+     */
+    function showToolIndex(){
+      $('toolBar').style.display = 'none';
+      $('toolIndex').style.display = '';
+      var head = $('toolsHead'); if (head) head.style.display = '';
+      var grid = $('boardGrid'); if (grid) grid.style.display = '';
+      var sgrid = $('svcGrid'); if (sgrid) sgrid.style.display = '';
+      var panels = document.querySelectorAll('#view-tools [data-tool]');
+      for (var i = 0; i < panels.length; i++) panels[i].style.display = 'none';
+      var act = document.querySelectorAll('#subTools button.active');
+      for (var j = 0; j < act.length; j++) act[j].classList.remove('active');
+    }
+
+    function buildToolIndex(){
+      $('toolIndex').innerHTML = TOOLS.map(function(t){
+        return '<a class="tool" href="#" data-tool-card="' + t.s + '"><span class="ico">' + t.i + '</span>' +
+               '<h4>' + esc(t.n) + '</h4><p>' + esc(t.d) + '</p><span class="go">افتح ←</span></a>';
+      }).join('');
+      var cards = $('toolIndex').querySelectorAll('[data-tool-card]');
+      for (var i = 0; i < cards.length; i++)
+        cards[i].onclick = function(e){ e.preventDefault(); gotoTool(this.getAttribute('data-tool-card')); };
+    }
+
+    function toolDef(slug){ for (var i = 0; i < TOOLS.length; i++) if (TOOLS[i].s === slug) return TOOLS[i]; return null; }
+
+    // Scoped to the tools view on purpose: the sidebar rows carry the same
+    // data-tool attribute and sit earlier in the document, so an unscoped
+    // querySelector returned the menu button and never the card — which made
+    // «show only this one» hide everything, including the one asked for.
+    function toolPanel(slug){ return document.querySelector('#view-tools [data-tool="' + slug + '"]'); }
 
     // Arriving at a tool should feel like being taken to it, not dropped near
     // it: the card is outlined for a moment so the eye lands on the right one.
     function gotoTool(slug){
+      toolJump = true;
       switchView('tools');
-      var el = toolPanel(slug);
-      if (!el) return;
-      setTimeout(function(){
-        el.scrollIntoView({ behavior:'smooth', block:'start' });
-        el.classList.remove('tool-fade'); el.classList.add('tool-hit');
-        setTimeout(function(){ el.classList.add('tool-fade'); }, 900);
-        setTimeout(function(){ el.classList.remove('tool-hit','tool-fade'); }, 2600);
-      }, 60);
+      var el = toolPanel(slug), def = toolDef(slug);
+      if (!el) return showToolIndex();
+      $('toolIndex').style.display = 'none';
+      var head = $('toolsHead'); if (head) head.style.display = 'none';
+      var grid = $('boardGrid'); if (grid) grid.style.display = 'none';
+      var sgrid = $('svcGrid'); if (sgrid) sgrid.style.display = 'none';
+      var panels = document.querySelectorAll('#view-tools [data-tool]');
+      for (var i = 0; i < panels.length; i++) panels[i].style.display = (panels[i] === el ? '' : 'none');
+      $('toolBar').style.display = '';
+      $('toolTitle').textContent = (def ? def.i + ' ' + def.n : '');
+      $('toolDesc').textContent = def ? def.d : '';
+      window.scrollTo(0, 0);
       var subs = document.querySelectorAll('#subTools button');
-      for (var i = 0; i < subs.length; i++) subs[i].classList.toggle('active', subs[i].getAttribute('data-tool') === slug);
+      for (var k = 0; k < subs.length; k++) subs[k].classList.toggle('active', subs[k].getAttribute('data-tool') === slug);
     }
 
     function buildSidebar(){
@@ -1248,17 +1355,120 @@
 
       // The dashboards are read from the cards already on the page rather than
       // listed twice — a second list is a list that goes out of date.
-      var sb = $('subBoards'), links = document.querySelectorAll('#view-tools a.tool');
+      var sb = $('subBoards'), links = document.querySelectorAll('#boardGrid a.tool');
       var html = '';
       for (var j = 0; j < links.length; j++){
         var a = links[j];
         var h4 = a.querySelector('h4'), ico = a.querySelector('.ico'), tag = a.querySelector('.tag');
         if (!h4) continue;
-        html += '<a href="' + a.getAttribute('href') + '" target="_blank" rel="noopener" data-find="' +
+        html += '<button type="button" data-board="' + esc(a.getAttribute('href')) + '" data-find="' +
           esc(h4.textContent + ' ' + (tag ? tag.textContent : '')) + '"><span>' + (ico ? ico.textContent : '↗') +
-          '</span><span class="nm">' + esc(h4.textContent) + '<small>' + esc(tag ? tag.textContent : 'لوحة') + '</small></span></a>';
+          '</span><span class="nm">' + esc(h4.textContent) + '<small>' + esc(tag ? tag.textContent : 'لوحة') + '</small></span></button>';
       }
       sb.innerHTML = html;
+      var bb = sb.querySelectorAll('button');
+      for (var k = 0; k < bb.length; k++)
+        bb[k].onclick = function(){
+          openBoard(this.getAttribute('data-board'), this.querySelector('.nm').childNodes[0].nodeValue);
+        };
+
+      // our own boards open in-panel; the cards behave like the menu rows
+      for (var m = 0; m < links.length; m++){
+        (function(a){
+          var h = a.querySelector('h4');
+          a.onclick = function(e){ e.preventDefault(); openBoard(a.getAttribute('href'), h ? h.textContent : ''); };
+        })(links[m]);
+      }
+
+      // Connected services stay plain links. Every one of them — Claude,
+      // ChatGPT, Gmail, Notion, n8n, Vercel, Supabase — refuses to be framed,
+      // so routing them through the in-panel view would only add a screen that
+      // explains that before handing over the same link. The ↗ on the row says
+      // where it goes, once, instead.
+      var sv = $('subSvc'), svc = document.querySelectorAll('#svcGrid a.tool');
+      var shtml = '';
+      for (var n = 0; n < svc.length; n++){
+        var c = svc[n], ch = c.querySelector('h4'), ci = c.querySelector('.ico'), ct = c.querySelector('.tag');
+        if (!ch) continue;
+        shtml += '<a href="' + c.getAttribute('href') + '" target="_blank" rel="noopener" data-find="' +
+          esc(ch.textContent + ' ' + (ct ? ct.textContent : '')) + '"><span>' + (ci ? ci.textContent : '↗') +
+          '</span><span class="nm">' + esc(ch.textContent) + ' ↗<small>' + esc(ct ? ct.textContent : 'خدمة') +
+          '</small></span></a>';
+      }
+      sv.innerHTML = shtml;
+    }
+
+    /* ---------------- boards open here, not in another tab ------------------
+     * A dashboard that opens a new window loses the panel around it. These now
+     * load inside it.
+     *
+     * The honest limit: a site can refuse to be framed, and Notion, n8n and
+     * Vercel all do. There is nothing to be done about that from our side — so
+     * rather than showing a white rectangle that reads as a bug, anything not
+     * served from this origin says plainly that it refuses embedding and gives
+     * you the button.
+     */
+    function sameOrigin(url){ return /^\//.test(url); }
+
+    function openBoard(url, title){
+      switchView('board');
+      $('boardTitle').textContent = title || '';
+      $('boardExt').href = url;
+      var frame = $('boardFrame'), blocked = $('boardBlocked');
+      if (sameOrigin(url)){
+        blocked.style.display = 'none';
+        frame.style.display = '';
+        frame.src = url;
+      } else {
+        frame.style.display = 'none';
+        frame.removeAttribute('src');
+        blocked.style.display = '';
+        blocked.innerHTML = '<b>هذه خدمة خارجية ترفض العرض داخل إطار.</b><br>' +
+          'نوشن وn8n وفيرسل تمنع تضمين صفحاتها في مواقع أخرى (سياسة أمنية عندهم، لا خلل عندنا) — ' +
+          'فلا يمكن فتحها داخل اللوحة.<br><br>' +
+          '<a class="actbtn" href="' + esc(url) + '" target="_blank" rel="noopener">↗ افتح ' + esc(title || '') + '</a>';
+      }
+      window.scrollTo(0, 0);
+    }
+
+    // Content files and page groups get the same treatment: each addressable
+    // by name, and each opening on its own rather than in a wall of cards.
+    function buildContentNav(){
+      var box = $('subContent');
+      box.innerHTML = CONTENT_DEFS.map(function(d){
+        return '<button type="button" data-content="' + d.id + '" data-find="' + esc(d.name + ' ' + d.desc) + '">' +
+               '<span>' + d.icon + '</span><span class="nm">' + esc(d.name) +
+               '<small>' + esc(String(d.desc).slice(0, 70)) + '</small></span></button>';
+      }).join('');
+      var b = box.querySelectorAll('button');
+      for (var i = 0; i < b.length; i++)
+        b[i].onclick = function(){
+          var d = contentDefById(this.getAttribute('data-content'));
+          if (!d) return;
+          contentJump = true;
+          switchView('content');
+          var grid = $('contentFiles'); if (grid) grid.style.display = 'none';
+          loadContent(d);
+          var act = box.querySelectorAll('button.active');
+          for (var k = 0; k < act.length; k++) act[k].classList.remove('active');
+          this.classList.add('active');
+        };
+    }
+
+    function buildPagesNav(){
+      var box = $('subPages');
+      box.innerHTML = PAGES.map(function(g, i){
+        return '<button type="button" data-pgrp="' + i + '" data-find="' + esc(g.g) + '">' +
+               '<span>•</span><span class="nm">' + esc(g.g) + '<small>' + g.items.length + ' صفحة</small></span></button>';
+      }).join('');
+      var b = box.querySelectorAll('button');
+      for (var i = 0; i < b.length; i++)
+        b[i].onclick = function(){
+          switchView('pages');
+          var idx = Number(this.getAttribute('data-pgrp'));
+          var panels = $('pagesList').querySelectorAll('.panel');
+          if (panels[idx]) setTimeout(function(){ panels[idx].scrollIntoView({ behavior:'smooth', block:'start' }); }, 60);
+        };
     }
 
     function toggleGroup(id, force){
@@ -1272,13 +1482,13 @@
     // which group something lives in is work the panel should do.
     function filterNav(q){
       q = String(q || '').trim();
-      var rows = document.querySelectorAll('#subTools button, #subBoards a'), hits = 0;
+      var rows = document.querySelectorAll('#subTools button, #subBoards button, #subContent button, #subPages button, #subSvc a'), hits = 0;
       for (var i = 0; i < rows.length; i++){
         var show = !q || (rows[i].getAttribute('data-find') || '').indexOf(q) !== -1;
         rows[i].style.display = show ? '' : 'none';
         if (show && q) hits++;
       }
-      if (q){ toggleGroup('Tools', true); toggleGroup('Boards', true); }
+      if (q){ toggleGroup('Tools', true); toggleGroup('Boards', true); toggleGroup('Content', true); toggleGroup('Pages', true); toggleGroup('Svc', true); }
       return hits;
     }
 
@@ -1313,11 +1523,22 @@
     }
 
     // ---- navigation ----
-    var supLoaded = false, discLoaded = false;
+    var supLoaded = false, discLoaded = false, toolJump = false, contentJump = false;
     function switchView(v){
       if (v === 'suppliers' && !supLoaded){ supLoaded = true; loadSuppliers(); }
       // The discounts manager lives in the tools view — load it on first visit.
       if (v === 'tools' && !discLoaded){ discLoaded = true; loadDiscounts(); }
+      // Arriving at the tools view by any route other than picking a tool
+      // starts at the index — never at eleven panels stacked together.
+      if (v === 'tools' && !toolJump) showToolIndex();
+      toolJump = false;
+      // Same for content: the file grid comes back when you enter it directly.
+      if (v === 'content' && !contentJump){
+        var cg = $('contentFiles'); if (cg) cg.style.display = '';
+        var ca = document.querySelectorAll('#subContent button.active');
+        for (var c = 0; c < ca.length; c++) ca[c].classList.remove('active');
+      }
+      contentJump = false;
       var views = document.querySelectorAll('.view');
       for (var i = 0; i < views.length; i++) views[i].classList.toggle('on', views[i].id === 'view-' + v);
       var btns = document.querySelectorAll('.nav button[data-v], .mobilebar .tabs button');
@@ -1335,9 +1556,16 @@
       for (var i = 0; i < btns.length; i++) btns[i].onclick = function(){ switchView(this.getAttribute('data-v')); };
 
       buildSidebar();
+      buildToolIndex();
       aiDockInit();
       $('grpTools').onclick = function(){ toggleGroup('Tools'); };
       $('grpBoards').onclick = function(){ toggleGroup('Boards'); };
+      $('grpContent').onclick = function(){ toggleGroup('Content'); };
+      $('grpPages').onclick = function(){ toggleGroup('Pages'); };
+      $('grpSvc').onclick = function(){ toggleGroup('Svc'); };
+      $('toolBack').onclick = showToolIndex;
+      $('boardBack').onclick = function(){ switchView('tools'); };
+      showToolIndex();
       $('navFind').addEventListener('input', function(){ filterNav(this.value); });
       $('aiFab').onclick = function(){ aiOpen(true); };
       $('aiClose').onclick = function(){ aiOpen(false); };
@@ -1766,6 +1994,53 @@
           (r.winner ? '✅ مسار مستجيب: <span style="direction:ltr;display:inline-block">' + esc(r.winner) + '</span> — تحقق من وصول الفاتورة لبريدك، ولو وصلت أربطه ليعمل تلقائياً بعد كل دفعة.'
                     : '⛔ لا مسار استجاب. الخطوة التالية: افتح تذكرة مع دعم الدفترة واسألهم عن مسار إرسال الفاتورة بالبريد عبر الـ API لحسابك.') + '</div>';
       }).catch(function(){ btn.disabled = false; m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال.</span>'; });
+    };
+
+    // ---- recover payments the site never recorded ----
+    var rcRows = [];
+    function rcRender(r, applied){
+      var m = $('rcMsg');
+      if (!r || !r.ok){
+        m.innerHTML = '<span style="color:#b91c1c">تعذّر الفحص' +
+          (r && r.error ? ' — ' + esc(r.error) : '') + '</span>';
+        return;
+      }
+      rcRows = r.rows || [];
+      var act = { recovered:'✅ استُرجعت', already_settled:'• مسجّلة أصلاً', would_recover:'⚠ لم تُسجَّل',
+                  skipped_not_paid:'— لم تُدفع', settle_failed:'⛔ فشل التسجيل', failed:'⛔ فشل',
+                  no_order_metadata:'؟ بلا بيانات طلب', quote_payment_not_handled_here:'— دفعة عرض سعر',
+                  wallet_topup_not_handled_here:'— شحن محفظة' };
+      var html = rcRows.map(function(x){
+        return '<span class="kv"><i>' + (act[x.action] || esc(x.action)) + '</i>' +
+          '<b>' + x.amount + ' ﷼</b> · ' + esc(x.ref || '—') +
+          (x.items && x.items.length ? ' · ' + esc(x.items.join(' + ')) : '') +
+          (x.buyer ? ' · ' + esc(x.buyer) : '') +
+          (x.invoice ? ' · فاتورة ' + esc(x.invoice) : '') +
+          '<span style="display:block;font-size:10.5px;opacity:.6;direction:ltr">' + esc(x.id) + ' · ' + esc(String(x.at).slice(0,16).replace('T',' ')) + '</span></span>';
+      }).join('');
+      var pending = rcRows.filter(function(x){ return x.action === 'would_recover'; }).length;
+      html += '<div style="margin-top:10px;font-weight:700;color:' + (pending ? '#b45309' : '#14532d') + '">' +
+        (applied
+          ? '✅ استُرجعت ' + r.recovered + ' دفعة — الطلبات سُجّلت والفواتير صدرت وأُشعر العملاء.'
+          : (pending
+              ? '⚠ ' + pending + ' دفعة وصلت ولم تُسجَّل. اضغط «استرجعها الآن».'
+              : '✅ لا توجد دفعة غير مسجّلة — كل ما دفعه العملاء مسجّل.')) + '</div>';
+      m.innerHTML = html;
+      $('rcApply').style.display = (!applied && pending) ? '' : 'none';
+    }
+    function rcRun(apply){
+      var btn = apply ? $('rcApply') : $('rcScan'), m = $('rcMsg');
+      btn.disabled = true; m.style.display = 'block';
+      m.innerHTML = apply ? '⏳ أسترجع الدفعات…' : '⏳ أسأل مُيسّر عمّا دُفع…';
+      postPanel({ action:'reconcile', apply: !!apply, limit: 50 }).then(function(r){
+        btn.disabled = false; rcRender(r, !!apply);
+        if (apply) refresh();
+      }).catch(function(){ btn.disabled = false; m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال.</span>'; });
+    }
+    $('rcScan').onclick = function(){ rcRun(false); };
+    $('rcApply').onclick = function(){
+      if (!confirm('استرجاع الدفعات: ستُسجَّل الطلبات وتصدر الفواتير الضريبية وتصل العملاء إشعاراتهم. متابعة؟')) return;
+      rcRun(true);
     };
 
     // ---- does the Etimad credential actually work ----
@@ -3455,6 +3730,10 @@
     }
     renderContentCards();
     renderPages();
+    // Built here, not in the boot block above: CONTENT_DEFS and PAGES are
+    // declared below it, and `var` hoists the name without the value.
+    buildContentNav();
+    buildPagesNav();
 
     // ---- gate / session ----
     function enter(){
