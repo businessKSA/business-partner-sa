@@ -1,6 +1,8 @@
 'use client';
 import { useActionState } from 'react';
 import { actionCreateClient } from '@/app/actions';
+import PhoneField from '@/components/PhoneField';
+import { COUNTRIES } from '@/lib/countries';
 
 export default function NewClient() {
   const [state, action, pending] = useActionState(actionCreateClient, {});
@@ -38,13 +40,14 @@ export default function NewClient() {
             <label htmlFor="email">البريد الإلكتروني *</label>
             <input id="email" name="email" type="email" required dir="ltr" />
           </div>
-          <div>
-            <label htmlFor="phone">جوال واتساب *</label>
-            <input id="phone" name="phone" required dir="ltr" placeholder="0555123456 أو 966555123456" />
-          </div>
+          <PhoneField name="phone" required />
           <div>
             <label htmlFor="country">الدولة</label>
-            <input id="country" name="country" defaultValue="SA" dir="ltr" />
+            <select id="country" name="country" defaultValue="SA">
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.ar}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label htmlFor="city">المدينة</label>

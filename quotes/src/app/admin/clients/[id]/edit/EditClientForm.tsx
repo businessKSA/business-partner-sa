@@ -1,6 +1,8 @@
 'use client';
 import { useActionState } from 'react';
 import { actionUpdateClient } from '@/app/actions';
+import PhoneField from '@/components/PhoneField';
+import { COUNTRIES } from '@/lib/countries';
 
 export interface EditableClient {
   id: string;
@@ -56,13 +58,14 @@ export default function EditClientForm({ client }: { client: EditableClient }) {
           <label htmlFor="email">البريد الإلكتروني *</label>
           <input id="email" name="email" type="email" required dir="ltr" defaultValue={client.email} />
         </div>
-        <div>
-          <label htmlFor="phone">جوال واتساب *</label>
-          <input id="phone" name="phone" required dir="ltr" defaultValue={client.phone} placeholder="0555123456 أو 966555123456" />
-        </div>
+        <PhoneField name="phone" required defaultValue={client.phone} />
         <div>
           <label htmlFor="country">الدولة</label>
-          <input id="country" name="country" dir="ltr" defaultValue={client.country} />
+          <select id="country" name="country" defaultValue={client.country}>
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>{c.ar}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="city">المدينة</label>
