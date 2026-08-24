@@ -475,9 +475,17 @@ async function buildLines(items, taxId) {
       const code = String(it.code || "").trim().toUpperCase();
       const name = String(it.name || "").slice(0, 180) || "خدمة";
       const hit = code && products ? products.get(code) : null;
+      // The name goes in twice, on purpose. `item` is the field Daftra's API
+      // documents, but this account's printed template renders البند from the
+      // linked product and الوصف from `description` — so an unlinked line came
+      // out with both columns blank while price and quantity printed fine.
+      // A tax invoice whose line does not name what was bought is not one a
+      // buyer can check, so the description carries the code and the name
+      // whenever the caller has not written its own.
+      const label = code ? `${code} — ${name}` : name;
       return {
-        item: code ? `${code} — ${name}`.slice(0, 200) : name,
-        description: String(it.description || "").slice(0, 500),
+        item: label.slice(0, 200),
+        description: (String(it.description || "").trim() || label).slice(0, 500),
         unit_price: Number(it.unitPrice) || 0,
         quantity: Number(it.quantity) || 1,
         ...(hit && hit.id ? { product_id: hit.id } : {}),
