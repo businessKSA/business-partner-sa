@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>بوابة مكاتب الاستقدام — بيزنس بارتنر</title>
-<meta name="description" content="تسجيل دخول مكاتب الاستقدام المعتمدة لمتابعة طلبات التوظيف ورفع المرشحين.">
-<meta property="og:title" content="بوابة مكاتب الاستقدام — بيزنس بارتنر">
-<meta property="og:description" content="تسجيل دخول مكاتب الاستقدام المعتمدة لمتابعة طلبات التوظيف ورفع المرشحين.">
+<title>لوحة مزوّدي التوظيف — بيزنس بارتنر</title>
+<meta name="description" content="تسجيل دخول مكاتب الاستقدام ووكالات التوظيف لمتابعة طلبات التوظيف ورفع المرشحين.">
+<meta property="og:title" content="لوحة مزوّدي التوظيف — بيزنس بارتنر">
+<meta property="og:description" content="تسجيل دخول مكاتب الاستقدام ووكالات التوظيف لمتابعة طلبات التوظيف ورفع المرشحين.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="ar_SA">
@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=10f1d30a99">
+<link rel="stylesheet" href="/assets/css/styles.css?v=df7ff80d38">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header"><div class="container header-inner">
@@ -81,34 +81,149 @@
     <button class="nav-toggle" aria-label="القائمة" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header><main>
-  <section class="hero"><div class="container hero-inner" style="max-width:560px">
-    <span class="eyebrow">بوابة المكاتب</span>
-    <h1 id="ap-title">بوابة مكاتب الاستقدام</h1>
-    <p class="lead" id="ap-sub">سجّل الدخول بالبريد الذي سجّلت به ورمز الوصول الذي أرسلناه عند الاعتماد.</p>
+  <section class="hero hero--sm"><div class="container hero-inner" style="max-width:600px">
+    <span class="eyebrow">لوحة المزوّد</span>
+    <h1 id="ap-title">لوحة مزوّدي التوظيف والاستقدام</h1>
+    <p class="lead" id="ap-sub">سجّل الدخول — أو أنشئ حساباً خلال دقيقة وتفتح لوحتك فوراً.</p>
   </div></section>
 
   <section class="section"><div class="container" style="max-width:960px">
     <div id="ap-login" style="max-width:440px;margin:0 auto">
+      <div class="auth-tabs">
+        <button type="button" id="ap-tab-in" class="is-active">تسجيل الدخول</button>
+        <button type="button" id="ap-tab-up">إنشاء حساب</button>
+      </div>
       <div id="ap-google-wrap" style="margin-bottom:6px" hidden>
         <div id="ap-google" style="display:flex;justify-content:center"></div>
-        <p class="emp-note" style="text-align:center;margin:8px 0">ادخل بحساب جوجل الذي سجّلت ببريده.</p>
+        <p class="emp-note" style="text-align:center;margin:8px 0">نقرة واحدة عبر Google — تدخلك، أو تنشئ حسابك إن كنت جديداً.</p>
         <div style="display:flex;align-items:center;gap:12px;margin:14px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">أو</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
       </div>
       <form id="ap-login-form" novalidate>
-        <div class="field"><label for="ap-email">البريد الإلكتروني</label><input id="ap-email" type="email" required></div>
-        <div class="field" id="ap-code-field"><label for="ap-code">رمز الوصول</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
+        <div class="field" id="ap-name-field" hidden><label for="ap-name">اسم المكتب أو الوكالة</label><input id="ap-name" type="text" autocomplete="organization"></div>
+        <div class="field"><label for="ap-email">البريد الإلكتروني</label><input id="ap-email" type="email" required autocomplete="email"></div>
+        <div class="field" id="ap-pass-field"><label for="ap-password">كلمة المرور</label><input id="ap-password" type="password" autocomplete="current-password"></div>
+        <div class="field" id="ap-code-field" hidden><label for="ap-code">رمز الوصول</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
         <div class="field" id="ap-otp-field" hidden><label for="ap-otp">الرمز المرسل إلى بريدك</label><input id="ap-otp" type="text" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:1.3rem;font-weight:700" autocomplete="one-time-code"></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-login-btn">دخول</button>
         <p class="emp-note" id="ap-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
       </form>
-      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="ap-use-email">ما عندك رمز الوصول؟ أرسل لي رمز دخول على بريدي</a></p>
+      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="ap-use-email">نسيت كلمة المرور؟ أرسل لي رمز دخول على بريدي</a> · <a href="#" id="ap-use-code">استخدم رمز وصول</a></p>
       <p class="emp-note" style="text-align:center;margin-top:14px;opacity:.75">🪪 الدخول عبر نفاذ — قريباً للمكاتب التي لديها ممثل سعودي.</p>
-      <p class="emp-note" style="text-align:center;margin-top:16px">لم تسجّل بعد؟ <a href="/ar/recruitment-agencies#agency-form">سجّل مكتبك</a></p>
+    </div>
+
+    <div id="ap-onboard" hidden style="max-width:720px;margin:0 auto">
+      <div class="section-head" style="text-align:start"><span class="eyebrow" id="ap-ob-eyebrow">إعداد ملف مكتبك</span><h2 id="ap-ob-title">عرّفنا بما يوفّره مكتبك</h2><p>أربع خطوات قصيرة. أصحاب العمل يرون هذا الملف عند اختيار المزوّد — وتقدر تعدّله في أي وقت من لوحتك.</p></div>
+      <div class="wiz-steps">
+        <div class="wiz-step is-active" data-wiz-tab="1"><span class="n">1</span>بيانات المكتب</div>
+        <div class="wiz-step" data-wiz-tab="2"><span class="n">2</span>الترخيص والتواصل</div>
+        <div class="wiz-step" data-wiz-tab="3"><span class="n">3</span>ما الذي توفره</div>
+        <div class="wiz-step" data-wiz-tab="4"><span class="n">4</span>الرسوم والمستندات</div>
+      </div>
+      <form id="ap-profile-form" novalidate>
+        <div class="dash-card wiz-pane" data-wiz-pane="1">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-name">اسم المكتب أو الوكالة *</label><input id="ob-name" type="text" placeholder="" required></div>
+            <div class="field"><label for="ob-kind">نوع الجهة</label><select id="ob-kind"><option value="مكتب استقدام">مكتب استقدام</option><option value="وكالة توظيف">وكالة توظيف</option><option value="الاثنان">الاثنان</option></select></div>
+          </div>
+          <div class="field"><label for="ob-scope">ماذا تقدّم؟</label>
+            <select id="ob-scope">
+              <option value="كلاهما">استقطاب واستقدام معاً</option>
+              <option value="استقطاب">استقطاب فقط (إيجاد المرشحين)</option>
+              <option value="استقدام">استقدام فقط (التأشيرات والإجراءات)</option>
+            </select>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-country">الدولة *</label><select id="ob-country" required><option value="">اختر الدولة</option></select></div>
+            <div class="field"><label for="ob-city">المدينة</label><input id="ob-city" type="text" list="ob-cities" placeholder="اختر أو اكتب المدينة"><datalist id="ob-cities"></datalist></div>
+          </div>
+          <div class="field"><label for="ob-website">الموقع الإلكتروني</label><input id="ob-website" type="url" placeholder="https://"></div>
+          <div class="field"><label for="ob-about">نبذة عن مكتبك</label><textarea id="ob-about" rows="4" placeholder=""></textarea></div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="2" hidden>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-license">رقم الترخيص</label><input id="ob-license" type="text" placeholder=""></div>
+            <div class="field"><label for="ob-license-by">جهة الترخيص</label><input id="ob-license-by" type="text" placeholder="اسم الوزارة أو الجهة"></div>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-musaned">مسجل في مساند</label><select id="ob-musaned"><option value="لا">لا</option><option value="نعم">نعم</option><option value="قيد التسجيل">قيد التسجيل</option></select></div>
+            <div class="field"><label for="ob-ksa">تعامل سابق مع السعودية</label><select id="ob-ksa"><option value="نعم">نعم</option><option value="لا">لا</option></select></div>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-contact">جهة الاتصال</label><input id="ob-contact" type="text" placeholder=""></div>
+            <div class="field"><label for="ob-role">المنصب</label><input id="ob-role" type="text" placeholder=""></div>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-phone">الهاتف</label>
+              <div style="display:flex;gap:8px">
+                <select id="ob-phone-code" style="max-width:145px" aria-label="رمز الدولة"></select>
+                <input id="ob-phone" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+              </div>
+            </div>
+            <div class="field"><label for="ob-whatsapp">واتساب</label>
+              <div style="display:flex;gap:8px">
+                <select id="ob-whatsapp-code" style="max-width:145px" aria-label="رمز الدولة"></select>
+                <input id="ob-whatsapp" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="3" hidden>
+          <div class="field"><label>الجنسيات التي توفرها</label><div id="ob-nationalities"></div></div>
+          <div class="field"><label>المهن والتخصصات</label><div id="ob-professions"></div></div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-capacity">الطاقة الشهرية (عدد العمالة)</label><input id="ob-capacity" type="number" placeholder=""></div>
+            <div class="field"><label for="ob-years">سنوات الخبرة</label><input id="ob-years" type="number" placeholder=""></div>
+          </div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="4" hidden>
+          <p class="emp-note" style="margin-top:0">أصحاب العمل يقارنون المزوّدين بالسعر. اذكر رسومك لكل خدمة تقدّمها — واترك الأخرى فارغة.</p>
+          <div class="field"><label for="ob-fee-model">نموذج الرسوم</label><select id="ob-fee-model"><option value="حسب الاتفاق">حسب الاتفاق</option><option value="رسوم ثابتة لكل مرشح">رسوم ثابتة لكل مرشح</option><option value="نسبة من الراتب السنوي">نسبة من الراتب السنوي</option><option value="نسبة من الراتب الشهري">نسبة من الراتب الشهري</option><option value="بدون رسوم على المرشح">بدون رسوم على المرشح</option></select></div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-fee-sourcing">رسوم الاستقطاب</label><input id="ob-fee-sourcing" type="text" placeholder="مثال: ١٥٠٠ لكل مرشح يتم توظيفه"></div>
+            <div class="field"><label for="ob-fee-deployment">رسوم الاستقدام</label><input id="ob-fee-deployment" type="text" placeholder="مثال: ٤٠٠٠ شاملة التأشيرة والتذكرة"></div>
+          </div>
+          <div class="field"><label for="ob-fee-currency">العملة</label><select id="ob-fee-currency"><option value="SAR">SAR — ريال سعودي</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="أخرى">أخرى</option></select></div>
+          <div class="field">
+            <label>بروفايل الشركة — PDF أو Word أو PowerPoint</label>
+            <label class="file-drop" for="ob-profile" id="ob-profile-drop">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
+              <span class="file-text" id="ob-profile-name">اسحب البروفايل هنا أو اضغط للاختيار</span>
+            </label>
+            <input id="ob-profile" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden>
+            <p class="emp-note" style="margin:6px 0 0">اختياري، حتى 8 ميجابايت. أرفق الترخيص معه إن كان في نفس الملف.</p>
+          </div>
+        </div>
+
+        <div class="wiz-nav">
+          <button type="button" class="btn btn-ghost" id="ap-ob-back" hidden>السابق</button>
+          <div style="display:flex;gap:10px;margin-inline-start:auto">
+            <button type="button" class="btn btn-ghost" id="ap-ob-skip">لاحقاً</button>
+            <button type="button" class="btn btn-primary" id="ap-ob-next">التالي</button>
+            <button type="submit" class="btn btn-primary" id="ap-ob-save" hidden>احفظ وافتح لوحتي</button>
+          </div>
+        </div>
+        <p class="emp-note" id="ap-ob-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
     </div>
 
     <div id="ap-app" hidden>
-      <div class="card" style="margin-bottom:20px"><h3 id="ap-agency-name"></h3><p class="emp-note" id="ap-agency-meta"></p>
-        <button type="button" class="btn btn-ghost btn-sm" id="ap-logout">تسجيل الخروج</button></div>
+      <div class="dash-card" style="margin-bottom:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <div><h3 id="ap-agency-name" style="margin:0"></h3><p class="emp-note" id="ap-agency-meta" style="margin:6px 0 0"></p><p class="emp-note" id="ap-agency-fees" style="margin:2px 0 0"></p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-ghost btn-sm" id="ap-edit-profile">تعديل الملف</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="ap-logout">تسجيل الخروج</button>
+        </div>
+      </div>
+
+      <div class="dash-stats" style="margin-bottom:22px">
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="ap-n-req">0</div><div class="lbl">طلبات موجّهة لك</div></div>
+        <div class="dash-stat"><div class="ds-ico">💼</div><div class="num" id="ap-n-jobs">0</div><div class="lbl">وظائف مفتوحة</div></div>
+        <div class="dash-stat"><div class="ds-ico">👤</div><div class="num" id="ap-n-cand">0</div><div class="lbl">مرشحون أرسلتهم</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="ap-n-status">—</div><div class="lbl">حالة الحساب</div></div>
+      </div>
 
       <div class="section-head" style="text-align:start"><h2>الطلبات المفتوحة لك</h2><p>الطلبات الموجّهة لمكتبك، إضافة للطلبات المتاحة لكل الشبكة.</p></div>
       <div id="ap-requests"><p class="emp-note">جارٍ التحميل…</p></div>
@@ -116,7 +231,7 @@
       <div class="section-head" style="text-align:start;margin-top:34px"><h2>كل الوظائف المفتوحة</h2><p>كل وظيفة مفتوحة على المنصة — ترشّح عليها مباشرة.</p></div>
       <div id="ap-jobs"><p class="emp-note">جارٍ التحميل…</p></div>
 
-      <div class="section-head" style="text-align:start;margin-top:34px"><h2>مرشحوك المرسلون</h2></div>
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>قاعدة بيانات مرشحيك</h2><p>كل من رفعهم مكتبك، ومرحلة كل واحد منهم في مسار صاحب العمل.</p></div>
       <div id="ap-submissions"><p class="emp-note">جارٍ التحميل…</p></div>
     </div>
   </div></section>
@@ -128,10 +243,10 @@
       <form id="ap-cand-form" novalidate>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="ap-c-name">اسم المرشّح *</label><input id="ap-c-name" type="text" required></div>
-          <div class="field"><label for="ap-c-role">المهنة *</label><input id="ap-c-role" type="text" required></div>
+          <div class="field"><label for="ap-c-role">المهنة *</label><input id="ap-c-role" type="text" list="ap-c-professions" required><datalist id="ap-c-professions"></datalist></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="ap-c-nat">الجنسية</label><input id="ap-c-nat" type="text"></div>
+          <div class="field"><label for="ap-c-nat">الجنسية</label><input id="ap-c-nat" type="text" list="ap-c-nationalities"><datalist id="ap-c-nationalities"></datalist></div>
           <div class="field"><label for="ap-c-exp">سنوات الخبرة</label><input id="ap-c-exp" type="number" min="0"></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
@@ -315,4 +430,4 @@
         <button type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=b3736de959"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID="";</script></body></html>
+  </section><script src="/assets/js/main.js?v=b25deff439"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID="";</script></body></html>

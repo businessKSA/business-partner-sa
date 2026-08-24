@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agency portal — Business Partner</title>
-<meta name="description" content="Approved recruitment offices sign in to see hiring demand and submit candidates.">
-<meta property="og:title" content="Agency portal — Business Partner">
-<meta property="og:description" content="Approved recruitment offices sign in to see hiring demand and submit candidates.">
+<title>Provider panel — Business Partner</title>
+<meta name="description" content="Recruitment offices and agencies sign in to see hiring demand and submit candidates.">
+<meta property="og:title" content="Provider panel — Business Partner">
+<meta property="og:description" content="Recruitment offices and agencies sign in to see hiring demand and submit candidates.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="en_US">
@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=10f1d30a99">
+<link rel="stylesheet" href="/assets/css/styles.css?v=df7ff80d38">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header"><div class="container header-inner">
@@ -81,34 +81,149 @@
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header><main>
-  <section class="hero"><div class="container hero-inner" style="max-width:560px">
-    <span class="eyebrow">Agency portal</span>
-    <h1 id="ap-title">Recruitment office portal</h1>
-    <p class="lead" id="ap-sub">Sign in with the email you registered and the access code we sent on approval.</p>
+  <section class="hero hero--sm"><div class="container hero-inner" style="max-width:600px">
+    <span class="eyebrow">Provider panel</span>
+    <h1 id="ap-title">Recruitment provider panel</h1>
+    <p class="lead" id="ap-sub">Sign in — or create an account in a minute and your panel opens immediately.</p>
   </div></section>
 
   <section class="section"><div class="container" style="max-width:960px">
     <div id="ap-login" style="max-width:440px;margin:0 auto">
+      <div class="auth-tabs">
+        <button type="button" id="ap-tab-in" class="is-active">Sign in</button>
+        <button type="button" id="ap-tab-up">Create an account</button>
+      </div>
       <div id="ap-google-wrap" style="margin-bottom:6px" hidden>
         <div id="ap-google" style="display:flex;justify-content:center"></div>
-        <p class="emp-note" style="text-align:center;margin:8px 0">Sign in with the Google account whose address you registered.</p>
+        <p class="emp-note" style="text-align:center;margin:8px 0">One click with Google — it signs you in, or creates your account if you're new.</p>
         <div style="display:flex;align-items:center;gap:12px;margin:14px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">or</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
       </div>
       <form id="ap-login-form" novalidate>
-        <div class="field"><label for="ap-email">Email</label><input id="ap-email" type="email" required></div>
-        <div class="field" id="ap-code-field"><label for="ap-code">Access code</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
+        <div class="field" id="ap-name-field" hidden><label for="ap-name">Office / agency name</label><input id="ap-name" type="text" autocomplete="organization"></div>
+        <div class="field"><label for="ap-email">Email</label><input id="ap-email" type="email" required autocomplete="email"></div>
+        <div class="field" id="ap-pass-field"><label for="ap-password">Password</label><input id="ap-password" type="password" autocomplete="current-password"></div>
+        <div class="field" id="ap-code-field" hidden><label for="ap-code">Access code</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
         <div class="field" id="ap-otp-field" hidden><label for="ap-otp">Code sent to your email</label><input id="ap-otp" type="text" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:1.3rem;font-weight:700" autocomplete="one-time-code"></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-login-btn">Sign in</button>
         <p class="emp-note" id="ap-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
       </form>
-      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="ap-use-email">Don't have your access code? Email me a sign-in code</a></p>
+      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="ap-use-email">Forgot your password? Email me a sign-in code</a> · <a href="#" id="ap-use-code">Use an access code</a></p>
       <p class="emp-note" style="text-align:center;margin-top:14px;opacity:.75">🪪 Nafath sign-in — coming soon for offices with a Saudi representative.</p>
-      <p class="emp-note" style="text-align:center;margin-top:16px">Not registered yet? <a href="/recruitment-agencies#agency-form">Register your office</a></p>
+    </div>
+
+    <div id="ap-onboard" hidden style="max-width:720px;margin:0 auto">
+      <div class="section-head" style="text-align:start"><span class="eyebrow" id="ap-ob-eyebrow">Set up your profile</span><h2 id="ap-ob-title">Tell us what your office supplies</h2><p>Four short steps. Employers see this profile when they pick a provider — and you can edit it any time from your panel.</p></div>
+      <div class="wiz-steps">
+        <div class="wiz-step is-active" data-wiz-tab="1"><span class="n">1</span>Your office</div>
+        <div class="wiz-step" data-wiz-tab="2"><span class="n">2</span>Licence &amp; contact</div>
+        <div class="wiz-step" data-wiz-tab="3"><span class="n">3</span>What you supply</div>
+        <div class="wiz-step" data-wiz-tab="4"><span class="n">4</span>Fees &amp; documents</div>
+      </div>
+      <form id="ap-profile-form" novalidate>
+        <div class="dash-card wiz-pane" data-wiz-pane="1">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-name">Office / agency name *</label><input id="ob-name" type="text" placeholder="" required></div>
+            <div class="field"><label for="ob-kind">Entity type</label><select id="ob-kind"><option value="مكتب استقدام">Recruitment office (deployment)</option><option value="وكالة توظيف">Recruitment agency</option><option value="الاثنان">Both</option></select></div>
+          </div>
+          <div class="field"><label for="ob-scope">What do you do?</label>
+            <select id="ob-scope">
+              <option value="كلاهما">Both sourcing and deployment</option>
+              <option value="استقطاب">Sourcing only (finding candidates)</option>
+              <option value="استقدام">Deployment only (visas &amp; mobilisation)</option>
+            </select>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-country">Country *</label><select id="ob-country" required><option value="">Choose a country</option></select></div>
+            <div class="field"><label for="ob-city">City</label><input id="ob-city" type="text" list="ob-cities" placeholder="Pick or type a city"><datalist id="ob-cities"></datalist></div>
+          </div>
+          <div class="field"><label for="ob-website">Website</label><input id="ob-website" type="url" placeholder="https://"></div>
+          <div class="field"><label for="ob-about">About your office</label><textarea id="ob-about" rows="4" placeholder=""></textarea></div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="2" hidden>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-license">Licence number</label><input id="ob-license" type="text" placeholder=""></div>
+            <div class="field"><label for="ob-license-by">Licensing authority</label><input id="ob-license-by" type="text" placeholder="Ministry / authority name"></div>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-musaned">Registered on Musaned</label><select id="ob-musaned"><option value="لا">No</option><option value="نعم">Yes</option><option value="قيد التسجيل">In progress</option></select></div>
+            <div class="field"><label for="ob-ksa">Worked with Saudi employers before</label><select id="ob-ksa"><option value="نعم">Yes</option><option value="لا">No</option></select></div>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-contact">Contact person</label><input id="ob-contact" type="text" placeholder=""></div>
+            <div class="field"><label for="ob-role">Job title</label><input id="ob-role" type="text" placeholder=""></div>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-phone">Phone</label>
+              <div style="display:flex;gap:8px">
+                <select id="ob-phone-code" style="max-width:145px" aria-label="Country code"></select>
+                <input id="ob-phone" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+              </div>
+            </div>
+            <div class="field"><label for="ob-whatsapp">WhatsApp</label>
+              <div style="display:flex;gap:8px">
+                <select id="ob-whatsapp-code" style="max-width:145px" aria-label="Country code"></select>
+                <input id="ob-whatsapp" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="3" hidden>
+          <div class="field"><label>Nationalities you supply</label><div id="ob-nationalities"></div></div>
+          <div class="field"><label>Professions &amp; specialities</label><div id="ob-professions"></div></div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-capacity">Monthly capacity (workers)</label><input id="ob-capacity" type="number" placeholder=""></div>
+            <div class="field"><label for="ob-years">Years in business</label><input id="ob-years" type="number" placeholder=""></div>
+          </div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="4" hidden>
+          <p class="emp-note" style="margin-top:0">Employers compare providers on price. State what you charge for each service you offer — leave the other one empty.</p>
+          <div class="field"><label for="ob-fee-model">Fee model</label><select id="ob-fee-model"><option value="حسب الاتفاق">By agreement</option><option value="رسوم ثابتة لكل مرشح">Flat fee per candidate</option><option value="نسبة من الراتب السنوي">% of annual salary</option><option value="نسبة من الراتب الشهري">% of monthly salary</option><option value="بدون رسوم على المرشح">No fee charged to the candidate</option></select></div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-fee-sourcing">Sourcing fee</label><input id="ob-fee-sourcing" type="text" placeholder="e.g. 1,500 per hired candidate"></div>
+            <div class="field"><label for="ob-fee-deployment">Deployment fee</label><input id="ob-fee-deployment" type="text" placeholder="e.g. 4,000 all-in incl. visa & ticket"></div>
+          </div>
+          <div class="field"><label for="ob-fee-currency">Currency</label><select id="ob-fee-currency"><option value="SAR">SAR — ريال سعودي</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="أخرى">Other</option></select></div>
+          <div class="field">
+            <label>Company profile — PDF, Word or PowerPoint</label>
+            <label class="file-drop" for="ob-profile" id="ob-profile-drop">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
+              <span class="file-text" id="ob-profile-name">Drag your profile here or click to choose</span>
+            </label>
+            <input id="ob-profile" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden>
+            <p class="emp-note" style="margin:6px 0 0">Optional, up to 8MB. Attach the licence too if it's in the same file.</p>
+          </div>
+        </div>
+
+        <div class="wiz-nav">
+          <button type="button" class="btn btn-ghost" id="ap-ob-back" hidden>Back</button>
+          <div style="display:flex;gap:10px;margin-inline-start:auto">
+            <button type="button" class="btn btn-ghost" id="ap-ob-skip">Skip for now</button>
+            <button type="button" class="btn btn-primary" id="ap-ob-next">Next</button>
+            <button type="submit" class="btn btn-primary" id="ap-ob-save" hidden>Save &amp; open my panel</button>
+          </div>
+        </div>
+        <p class="emp-note" id="ap-ob-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
     </div>
 
     <div id="ap-app" hidden>
-      <div class="card" style="margin-bottom:20px"><h3 id="ap-agency-name"></h3><p class="emp-note" id="ap-agency-meta"></p>
-        <button type="button" class="btn btn-ghost btn-sm" id="ap-logout">Sign out</button></div>
+      <div class="dash-card" style="margin-bottom:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <div><h3 id="ap-agency-name" style="margin:0"></h3><p class="emp-note" id="ap-agency-meta" style="margin:6px 0 0"></p><p class="emp-note" id="ap-agency-fees" style="margin:2px 0 0"></p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-ghost btn-sm" id="ap-edit-profile">Edit profile</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="ap-logout">Sign out</button>
+        </div>
+      </div>
+
+      <div class="dash-stats" style="margin-bottom:22px">
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="ap-n-req">0</div><div class="lbl">Requests for you</div></div>
+        <div class="dash-stat"><div class="ds-ico">💼</div><div class="num" id="ap-n-jobs">0</div><div class="lbl">Open jobs</div></div>
+        <div class="dash-stat"><div class="ds-ico">👤</div><div class="num" id="ap-n-cand">0</div><div class="lbl">Candidates you sent</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="ap-n-status">—</div><div class="lbl">Account status</div></div>
+      </div>
 
       <div class="section-head" style="text-align:start"><h2>Open requests for you</h2><p>Requirements addressed to your office, plus requests open to the whole network.</p></div>
       <div id="ap-requests"><p class="emp-note">Loading…</p></div>
@@ -116,7 +231,7 @@
       <div class="section-head" style="text-align:start;margin-top:34px"><h2>All open jobs</h2><p>Every job open on the platform — submit a candidate against any of them.</p></div>
       <div id="ap-jobs"><p class="emp-note">Loading…</p></div>
 
-      <div class="section-head" style="text-align:start;margin-top:34px"><h2>Your submitted candidates</h2></div>
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>Your candidate database</h2><p>Everyone your office has supplied, with the stage each one reached in the employer's pipeline.</p></div>
       <div id="ap-submissions"><p class="emp-note">Loading…</p></div>
     </div>
   </div></section>
@@ -128,10 +243,10 @@
       <form id="ap-cand-form" novalidate>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="ap-c-name">Candidate name *</label><input id="ap-c-name" type="text" required></div>
-          <div class="field"><label for="ap-c-role">Profession *</label><input id="ap-c-role" type="text" required></div>
+          <div class="field"><label for="ap-c-role">Profession *</label><input id="ap-c-role" type="text" list="ap-c-professions" required><datalist id="ap-c-professions"></datalist></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="ap-c-nat">Nationality</label><input id="ap-c-nat" type="text"></div>
+          <div class="field"><label for="ap-c-nat">Nationality</label><input id="ap-c-nat" type="text" list="ap-c-nationalities"><datalist id="ap-c-nationalities"></datalist></div>
           <div class="field"><label for="ap-c-exp">Years of experience</label><input id="ap-c-exp" type="number" min="0"></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
@@ -315,4 +430,4 @@
         <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=b3736de959"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID="";</script></body></html>
+  </section><script src="/assets/js/main.js?v=b25deff439"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID="";</script></body></html>
