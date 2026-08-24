@@ -967,8 +967,13 @@ export default async function handler(req, res) {
   // monitor merges them into one list, tagged «المستشار».
   if ((q.action || "") === "advisor-inbox") {
     res.setHeader("Cache-Control", "no-store");
-    if (!LEADS_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
-    if ((q.key || "") !== LEADS_KEY) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    // The same gate as every other owner surface. This one endpoint used to
+    // demand LEADS_KEY specifically, so an owner who set PANEL_KEY — which
+    // opens everything else — got 503 "not_configured" here every seven
+    // seconds, and the inbox showed the website's own conversations as simply
+    // absent. A second key name for one endpoint was never a security
+    // boundary; it was a way to lose messages.
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     try {
       const messages = await listConversations(q.limit);
       res.statusCode = 200;
