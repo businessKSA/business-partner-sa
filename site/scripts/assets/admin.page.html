@@ -49,6 +49,48 @@
     .nav button{display:flex;align-items:center;gap:10px;background:none;border:0;color:rgba(255,255,255,.82);border-radius:11px;padding:11px 12px;font-size:14px;font-weight:600;text-align:right;width:100%}
     .nav button:hover{background:rgba(255,255,255,.08);color:#fff}
     .nav button.active{background:rgba(255,255,255,.16);color:#fff}
+    /* Collapsible sidebar groups. Eleven tools and eleven dashboards behind one
+       «الأدوات» button was a drawer you had to empty onto the floor to find
+       anything; each one is now addressable by name. */
+    .nav .grp{display:flex;align-items:center;gap:10px;width:100%}
+    .nav .grp .caret{margin-inline-start:auto;font-size:11px;opacity:.7;transition:transform .18s}
+    .nav .grp.open .caret{transform:rotate(-90deg)}
+    .nav .sub{display:none;flex-direction:column;gap:2px;margin:2px 0 6px;padding-inline-start:10px;
+      border-inline-start:1px solid rgba(255,255,255,.16)}
+    .nav .sub.open{display:flex}
+    .nav .sub button,.nav .sub a{display:flex;align-items:flex-start;gap:8px;background:none;border:0;
+      color:rgba(255,255,255,.72);border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:600;
+      text-align:right;width:100%;text-decoration:none;line-height:1.5}
+    .nav .sub button:hover,.nav .sub a:hover{background:rgba(255,255,255,.09);color:#fff}
+    .nav .sub button.active{background:rgba(255,255,255,.16);color:#fff}
+    .nav .sub .nm{display:flex;flex-direction:column;gap:1px}
+    .nav .sub .nm small{font-weight:400;font-size:10.5px;opacity:.62;line-height:1.5}
+    .nav .filter{margin:6px 0 8px}
+    .nav .filter input{width:100%;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);
+      color:#fff;border-radius:9px;padding:7px 10px;font-family:inherit;font-size:12.5px;outline:none}
+    .nav .filter input::placeholder{color:rgba(255,255,255,.5)}
+    /* A tool arrived at from the sidebar says so for a moment, otherwise the
+       page just scrolls and you are left guessing which card you asked for. */
+    .panel.tool-hit{outline:2px solid var(--navy);outline-offset:3px;transition:outline-color 1.6s}
+    .panel.tool-fade{outline-color:transparent}
+    /* The assistant follows you instead of being a place you navigate to. */
+    #aiFab{position:fixed;inset-inline-start:22px;bottom:22px;z-index:60;display:flex;align-items:center;gap:9px;
+      background:var(--navy);color:#fff;border:0;border-radius:99px;padding:13px 18px;font-family:inherit;
+      font-size:13.5px;font-weight:700;box-shadow:0 10px 30px rgba(11,27,90,.34);cursor:pointer}
+    #aiFab:hover{transform:translateY(-1px)}
+    #aiDock{position:fixed;inset-inline-start:22px;bottom:22px;z-index:61;width:min(460px,calc(100vw - 44px));
+      display:none;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;
+      box-shadow:0 24px 60px rgba(15,23,42,.28);overflow:hidden;max-height:min(78vh,720px)}
+    #aiDock.on{display:flex}
+    #aiDock .dockhead{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--navy);color:#fff}
+    #aiDock .dockhead .t{font-weight:700;font-size:14px}
+    #aiDock .dockhead .x{margin-inline-start:auto;background:none;border:0;color:#fff;font-size:18px;
+      font-weight:700;padding:0 4px;cursor:pointer}
+    #aiDock .dockhead .ctx{font-size:10.5px;opacity:.8;font-weight:400}
+    @media (max-width:860px){
+      #aiDock{inset-inline-start:12px;inset-inline-end:12px;width:auto;bottom:12px;max-height:80vh}
+      #aiFab{inset-inline-start:12px;bottom:12px;padding:11px 15px;font-size:12.5px}
+    }
     .side .grow{flex:1}
     .side .foot{border-top:1px solid rgba(255,255,255,.14);padding-top:12px;display:flex;flex-direction:column;gap:8px}
     .side .foot a,.side .foot button{display:flex;align-items:center;gap:9px;background:none;border:0;color:rgba(255,255,255,.75);font-size:13px;font-weight:600;padding:8px 12px;border-radius:10px;text-decoration:none}
@@ -287,6 +329,16 @@
     </div>
   </div>
 
+  <button id="aiFab" type="button" title="المساعد الذكي">🤖 <span>المساعد</span></button>
+  <div id="aiDock" aria-live="polite">
+    <div class="dockhead">
+      <span>🤖</span>
+      <span class="t">المساعد الذكي<br><span class="ctx" id="aiCtx">داخل اللوحة</span></span>
+      <button class="x" id="aiClose" type="button" aria-label="إغلاق">×</button>
+    </div>
+    <div id="aiDockBody" style="display:flex;flex-direction:column;min-height:0;flex:1"></div>
+  </div>
+
   <div id="app">
     <aside class="side">
       <div class="logo">
@@ -299,8 +351,11 @@
         <button data-v="suppliers">🤝 الشركاء</button>
         <button data-v="content">📝 محتوى الموقع</button>
         <button data-v="pages">📄 الصفحات</button>
-        <button data-v="tools">🧰 الأدوات واللوحات</button>
-        <button data-v="ai">🤖 المساعد الذكي</button>
+        <div class="filter"><input id="navFind" type="search" placeholder="🔎 ابحث عن أداة أو لوحة…" /></div>
+        <button class="grp" id="grpTools" data-grp="tools"><span>🧰</span><span>الأدوات</span><span class="caret">▾</span></button>
+        <div class="sub" id="subTools"></div>
+        <button class="grp" id="grpBoards" data-grp="boards"><span>🚀</span><span>اللوحات والخدمات</span><span class="caret">▾</span></button>
+        <div class="sub" id="subBoards"></div>
       </nav>
       <div class="grow"></div>
       <div class="foot">
@@ -322,7 +377,6 @@
         <button data-v="content">📝 المحتوى</button>
         <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات</button>
-        <button data-v="ai">🤖 المساعد</button>
       </div>
     </div>
 
@@ -460,11 +514,7 @@
       </section>
 
       <!-- ============ ai assistant ============ -->
-      <section class="view" id="view-ai">
-        <div class="pagehead">
-          <h2>🤖 المساعد الذكي</h2>
-          <div class="sub">مساعدك الخاص داخل اللوحة — يكتب ويحسّن نصوص الموقع والرسائل التسويقية، يشرح لك أدوات اللوحة وآلية أكواد الخصم، ويقترح حملات وعروضاً.</div>
-        </div>
+      <section class="view" id="view-ai" style="display:none">
         <div class="panel" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 240px);min-height:420px">
           <div id="aiLog" style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px"></div>
           <div id="aiHints" style="padding:0 18px 10px;display:flex;gap:8px;flex-wrap:wrap"></div>
@@ -491,7 +541,7 @@
           <div class="sub">كل اللوحات الداخلية وأدوات التشغيل في مكان واحد.</div>
         </div>
 
-        <div class="panel" id="discPanel" style="margin-bottom:22px">
+        <div class="panel" id="discPanel" data-tool="discounts" style="margin-bottom:22px">
           <div class="editor-head">
             <span class="file-lbl">🎟️ أكواد الخصم</span>
             <span class="stamp" id="discStamp"></span>
@@ -511,7 +561,7 @@
           </div>
         </div>
 
-        <div class="panel" id="escPanel" style="margin-bottom:22px;padding:18px">
+        <div class="panel" data-tool="escrow" id="escPanel" style="margin-bottom:22px;padding:18px">
           <h4 style="color:var(--navy);margin-bottom:4px">🛡️ الضمانات ومحافظ الموردين</h4>
           <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">العميل يحجز المبلغ من محفظته، وأنت الضامن: يتحرر للمورد باعتماد العميل، وعند النزاع تقرر أنت من هنا. سجّل سحب المورد بعد تنفيذ التحويل البنكي فعلياً.</p>
           <button class="actbtn" id="escLoad">↻ حمّل الضمانات والأرصدة</button>
@@ -529,7 +579,7 @@
           </div>
         </div>
 
-        <div class="panel" style="margin-bottom:22px;padding:18px">
+        <div class="panel" data-tool="daftra" style="margin-bottom:22px;padding:18px">
           <h4 style="color:var(--navy);margin-bottom:4px">🧾 الربط المحاسبي — الدفترة</h4>
           <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">الفواتير تُصدر من زر «إصدار فاتورة» داخل أي طلب في تبويب الطلبات، وتُسجَّل مباشرة في حسابك على الدفترة بضريبة قيمة مضافة على كل بند. اختبر الاتصال هنا قبل أول إصدار.</p>
           <button class="actbtn" id="dfPing">🔌 اختبر الاتصال بالدفترة</button>
@@ -546,7 +596,7 @@
           <button class="actbtn" id="dfCopy" style="display:none;margin-top:8px">📋 انسخ النص وأرسله لي</button>
         </div>
 
-        <div class="panel" style="margin-bottom:22px;padding:18px">
+        <div class="panel" data-tool="fixinv" style="margin-bottom:22px;padding:18px">
           <h4 style="color:var(--navy);margin-bottom:4px">🔧 تصحيح فاتورة صادرة في الدفترة</h4>
           <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
             للفواتير التي خرجت باسم شخص بدل اسم المنشأة. صحّح <b>سجل العميل</b> أولاً — هذا يُصلح كل فواتيره القادمة —
@@ -593,7 +643,7 @@
             <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
           </div>
 
-          <div class="panel" style="margin-bottom:22px;padding:18px">
+          <div class="panel" data-tool="health" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">🩺 حالة الخدمات — ما هو موصول فعلاً</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               يُقرأ من الخادم لحظياً: أي مفتاح موجود، وتحت أي اسم. لا تظهر القيم أبداً — الأسماء فقط.
@@ -602,7 +652,7 @@
             <div class="dbody" id="hlMsg" style="display:none;margin-top:10px"></div>
           </div>
 
-          <div class="panel" style="margin-bottom:22px;padding:18px">
+          <div class="panel" data-tool="etimad" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">🏛 اعتماد — واجهة العقود الحكومية</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               نطلب من اعتماد رمز دخول ببيانات الاعتماد المحفوظة. «المتغيّر موجود» شيء و«السرّ صحيح» شيء آخر —
@@ -612,7 +662,7 @@
             <div class="dbody" id="etMsg" style="display:none;margin-top:10px"></div>
           </div>
 
-          <div class="panel" style="margin-bottom:22px;padding:18px">
+          <div class="panel" data-tool="moyasar" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">💳 مُيسّر — جاهزية الدفع الإلكتروني</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               نسأل مُيسّر نفسه: هل المفتاح يعمل؟ «موجود في Vercel» شيء و«يشتغل» شيء ثاني.
@@ -622,7 +672,7 @@
             <div class="dbody" id="myMsg" style="display:none;margin-top:10px"></div>
           </div>
 
-          <div class="panel" style="margin-bottom:22px;padding:18px">
+          <div class="panel" data-tool="daftrasend" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">📧 هل تستطيع الدفترة إرسال فاتورتها بنفسها؟</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               الدفترة لا تسلّم ملف الفاتورة عبر الـ API (جُرّب ١٢ مساراً). الحل الأنظف محاسبياً ألا يمر المستند
@@ -638,7 +688,7 @@
             <div class="dbody" id="dsendMsg" style="display:none;margin-top:10px"></div>
           </div>
 
-          <div class="panel" style="margin-bottom:22px;padding:18px">
+          <div class="panel" data-tool="notify" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">🔔 إشعارات العميل — كل خطوة على البوابة والبريد والواتساب</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               كل انتقال في الطلب (عرض سعر ← موافقة ← عقد ← توقيع ← سداد ← تنفيذ ← تسليم) يُرسل تلقائياً:
@@ -666,7 +716,7 @@
             <div class="dbody" id="nfMsg" style="display:none;margin-top:10px"></div>
           </div>
 
-          <div class="panel" style="margin-bottom:22px;padding:18px">
+          <div class="panel" data-tool="workorder" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">➕ أنشئ أمر عمل وأسنده لشريك</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               أمر العمل هو أصل السلسلة: منه يقدّم الشريك عرضه، وعليه يقبل العميل، وعنه يصدر العقد ثم الفاتورة.
@@ -691,7 +741,7 @@
             <div class="dbody" id="woMsg" style="display:none;margin-top:10px"></div>
           </div>
 
-          <div class="panel" style="margin-bottom:22px;padding:18px">
+          <div class="panel" data-tool="docusign" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">✍️ العقد والتوقيع الإلكتروني (DocuSign)</h4>
             <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
               يُرسل العقد بعد أن <b>يقبل العميل عرض السعر</b> — عقد على بنود لم يوافق عليها أحد ليس عقداً.
@@ -1148,6 +1198,120 @@
         .then(function(){ for (var i = 0; i < list.length; i++) list[i].disabled = false; });
     }
 
+    /* ---------------- sidebar: every tool addressable by name ----------------
+     * Eleven tools and eleven dashboards were stacked in one «الأدوات» view.
+     * Nothing was missing — everything was simply unfindable, which for a
+     * control panel is the same defect. Each one now has its own row, its own
+     * one-line description, and its own shortcut.
+     */
+    var TOOLS = [
+      { s:'health',     i:'🩺', n:'حالة الخدمات',            d:'أي مفتاح موصول فعلاً — الأسماء فقط، بلا قيم' },
+      { s:'moyasar',    i:'💳', n:'جاهزية الدفع (مُيسّر)',    d:'نسأل مُيسّر نفسه: هل المفتاح يعمل، وفي أي بيئة' },
+      { s:'daftra',     i:'🧾', n:'الربط المحاسبي',           d:'اختبار الاتصال بالدفترة ومزامنة الخدمات' },
+      { s:'fixinv',     i:'🔧', n:'تصحيح فاتورة صادرة',       d:'فاتورة خرجت باسم خاطئ — تصحيح أو إشعار دائن' },
+      { s:'daftrasend', i:'📧', n:'إرسال الدفترة لفاتورتها',  d:'هل يستطيع حسابك إرسال الفاتورة بنفسه' },
+      { s:'etimad',     i:'🏛', n:'اعتماد — العقود الحكومية', d:'فحص بيانات الاعتماد بتبادل رمز حقيقي' },
+      { s:'discounts',  i:'🎟️', n:'أكواد الخصم',              d:'إنشاء الأكواد وتحديد نسبها وصلاحيتها' },
+      { s:'escrow',     i:'🛡️', n:'الضمانات والمحافظ',        d:'أرصدة الموردين وحركات الضمان' },
+      { s:'workorder',  i:'➕', n:'أمر عمل جديد',             d:'أنشئ أمر عمل وأسنده لشريك' },
+      { s:'docusign',   i:'✍️', n:'العقود والتوقيع',           d:'إرسال عقد للتوقيع الإلكتروني ومتابعته' },
+      { s:'notify',     i:'🔔', n:'إشعارات العميل',           d:'تجربة كل خطوة على البوابة والبريد والواتساب' }
+    ];
+
+    function toolPanel(slug){ return document.querySelector('[data-tool="' + slug + '"]'); }
+
+    // Arriving at a tool should feel like being taken to it, not dropped near
+    // it: the card is outlined for a moment so the eye lands on the right one.
+    function gotoTool(slug){
+      switchView('tools');
+      var el = toolPanel(slug);
+      if (!el) return;
+      setTimeout(function(){
+        el.scrollIntoView({ behavior:'smooth', block:'start' });
+        el.classList.remove('tool-fade'); el.classList.add('tool-hit');
+        setTimeout(function(){ el.classList.add('tool-fade'); }, 900);
+        setTimeout(function(){ el.classList.remove('tool-hit','tool-fade'); }, 2600);
+      }, 60);
+      var subs = document.querySelectorAll('#subTools button');
+      for (var i = 0; i < subs.length; i++) subs[i].classList.toggle('active', subs[i].getAttribute('data-tool') === slug);
+    }
+
+    function buildSidebar(){
+      var st = $('subTools');
+      st.innerHTML = TOOLS.map(function(t){
+        return '<button type="button" data-tool="' + t.s + '" data-find="' + esc(t.n + ' ' + t.d) + '">' +
+               '<span>' + t.i + '</span><span class="nm">' + esc(t.n) + '<small>' + esc(t.d) + '</small></span></button>';
+      }).join('');
+      var tb = st.querySelectorAll('button');
+      for (var i = 0; i < tb.length; i++)
+        tb[i].onclick = function(){ gotoTool(this.getAttribute('data-tool')); };
+
+      // The dashboards are read from the cards already on the page rather than
+      // listed twice — a second list is a list that goes out of date.
+      var sb = $('subBoards'), links = document.querySelectorAll('#view-tools a.tool');
+      var html = '';
+      for (var j = 0; j < links.length; j++){
+        var a = links[j];
+        var h4 = a.querySelector('h4'), ico = a.querySelector('.ico'), tag = a.querySelector('.tag');
+        if (!h4) continue;
+        html += '<a href="' + a.getAttribute('href') + '" target="_blank" rel="noopener" data-find="' +
+          esc(h4.textContent + ' ' + (tag ? tag.textContent : '')) + '"><span>' + (ico ? ico.textContent : '↗') +
+          '</span><span class="nm">' + esc(h4.textContent) + '<small>' + esc(tag ? tag.textContent : 'لوحة') + '</small></span></a>';
+      }
+      sb.innerHTML = html;
+    }
+
+    function toggleGroup(id, force){
+      var g = $('grp' + id), sub = $('sub' + id);
+      var open = force === undefined ? !sub.classList.contains('open') : force;
+      sub.classList.toggle('open', open);
+      g.classList.toggle('open', open);
+    }
+
+    // One search box over both groups. With twenty-two entries, remembering
+    // which group something lives in is work the panel should do.
+    function filterNav(q){
+      q = String(q || '').trim();
+      var rows = document.querySelectorAll('#subTools button, #subBoards a'), hits = 0;
+      for (var i = 0; i < rows.length; i++){
+        var show = !q || (rows[i].getAttribute('data-find') || '').indexOf(q) !== -1;
+        rows[i].style.display = show ? '' : 'none';
+        if (show && q) hits++;
+      }
+      if (q){ toggleGroup('Tools', true); toggleGroup('Boards', true); }
+      return hits;
+    }
+
+    /* ---------------- the assistant follows you -----------------------------
+     * It was a seventh destination: to ask about the screen you were on, you
+     * had to leave it. The panel it lived in is moved into a floating dock —
+     * moved, not rebuilt, so the whole conversation, its hints and its history
+     * keep working untouched.
+     */
+    function aiDockInit(){
+      var src = document.querySelector('#view-ai .panel');
+      if (!src) return;
+      src.style.height = 'auto'; src.style.minHeight = '0'; src.style.border = '0';
+      src.style.borderRadius = '0'; src.style.boxShadow = 'none'; src.style.flex = '1';
+      src.style.minHeight = '260px';
+      $('aiDockBody').appendChild(src);
+    }
+    function aiOpen(on){
+      var d = $('aiDock');
+      var open = on === undefined ? !d.classList.contains('on') : on;
+      d.classList.toggle('on', open);
+      $('aiFab').style.display = open ? 'none' : '';
+      if (open){
+        // Tell it which screen the question is about — an assistant that has to
+        // ask "where are you?" is one more thing to explain.
+        var active = document.querySelector('.view.on');
+        var lbl = { 'view-overview':'نظرة عامة', 'view-leads':'الطلبات والموافقات', 'view-suppliers':'الشركاء',
+                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات' };
+        $('aiCtx').textContent = 'أنت في: ' + ((active && lbl[active.id]) || 'اللوحة');
+        try { $('aiInput').focus(); } catch (e) {}
+      }
+    }
+
     // ---- navigation ----
     var supLoaded = false, discLoaded = false;
     function switchView(v){
@@ -1156,13 +1320,30 @@
       if (v === 'tools' && !discLoaded){ discLoaded = true; loadDiscounts(); }
       var views = document.querySelectorAll('.view');
       for (var i = 0; i < views.length; i++) views[i].classList.toggle('on', views[i].id === 'view-' + v);
-      var btns = document.querySelectorAll('.nav button, .mobilebar .tabs button');
+      var btns = document.querySelectorAll('.nav button[data-v], .mobilebar .tabs button');
       for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('active', btns[j].getAttribute('data-v') === v);
+      // Leaving the tools view clears the "you asked for this one" highlight.
+      if (v !== 'tools'){
+        var act = document.querySelectorAll('#subTools button.active');
+        for (var k = 0; k < act.length; k++) act[k].classList.remove('active');
+      }
       window.scrollTo(0, 0);
     }
     (function(){
-      var btns = document.querySelectorAll('.nav button, .mobilebar .tabs button');
+      // Group headers are not destinations — skip them when wiring view buttons.
+      var btns = document.querySelectorAll('.nav button[data-v], .mobilebar .tabs button');
       for (var i = 0; i < btns.length; i++) btns[i].onclick = function(){ switchView(this.getAttribute('data-v')); };
+
+      buildSidebar();
+      aiDockInit();
+      $('grpTools').onclick = function(){ toggleGroup('Tools'); };
+      $('grpBoards').onclick = function(){ toggleGroup('Boards'); };
+      $('navFind').addEventListener('input', function(){ filterNav(this.value); });
+      $('aiFab').onclick = function(){ aiOpen(true); };
+      $('aiClose').onclick = function(){ aiOpen(false); };
+      // Escape closes the dock — it floats over the work, so it needs a way out
+      // that does not require aiming at a button.
+      document.addEventListener('keydown', function(e){ if (e.key === 'Escape') aiOpen(false); });
       var gotos = document.querySelectorAll('[data-goto]');
       for (var j = 0; j < gotos.length; j++) gotos[j].onclick = function(){ switchView(this.getAttribute('data-goto')); };
       var refs = document.querySelectorAll('[data-refresh]');
@@ -3115,7 +3296,7 @@
       var dc = document.createElement('a');
       dc.className = 'tool'; dc.href = 'javascript:void(0)';
       dc.innerHTML = '<span class="ico">🎟️</span><h4>أكواد الخصم</h4><p>انتقلت إدارة أكواد الخصم إلى تبويب «الأدوات واللوحات».</p><span class="go">افتحها من الأدوات ←</span>';
-      dc.onclick = function(){ switchView('tools'); $('discPanel').scrollIntoView({ behavior:'smooth', block:'start' }); };
+      dc.onclick = function(){ gotoTool('discounts'); };
       box.appendChild(dc);
       for (var i = 0; i < CONTENT_DEFS.length; i++){
         (function(def){
