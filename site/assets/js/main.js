@@ -1333,6 +1333,15 @@ var BP = window.BP = window.BP || {};
         salary: val("c-salary"),
         linkedin: val("c-linkedin"), consent: consentEl ? consentEl.checked : false,
         jobId: val("c-job-id"), jobTitle: val("c-job-title"),
+        // Opting in here records the intent and the plan only; the service is
+        // activated by a human afterwards, so nothing is ever charged from the
+        // application form.
+        jobSearch: (function () {
+          var box = document.getElementById("c-jobsearch");
+          if (!box || !box.checked) return null;
+          var plan = document.getElementById("c-jss-plan");
+          return { interested: true, plan: plan ? plan.value : "" };
+        })(),
         questions: {
           interest: val("c-q1"),
           strengths: val("c-q2"),
@@ -1379,6 +1388,17 @@ var BP = window.BP = window.BP || {};
         })
         .catch(function () { btn.textContent = lbl; fallback(); });
     });
+  });
+})();
+
+/* ---------- Careers: reveal the job-search plan picker on opt-in ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var box = document.getElementById("c-jobsearch");
+    var plan = document.getElementById("c-jobsearch-plan");
+    if (!box || !plan) return;
+    box.addEventListener("change", function () { plan.hidden = !box.checked; });
   });
 })();
 
@@ -7228,6 +7248,197 @@ var BP_EMP_BILLING = "monthly";
     }
   } catch (e) {}
 })();
+/* ---------- Job-search service: owner panel (/jobsearch-admin) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var gate = document.getElementById("js-gate");
+    if (!gate) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    var esc = function (x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    var KEY = "";
+    // The key lives in sessionStorage only — never in the page, never in a URL.
+    try { KEY = sessionStorage.getItem("bp_panel_key") || ""; } catch (e) {}
+
+    function post(payload) {
+      return fetch("/api/jobhunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); });
+    }
+    function setNum(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+
+    function render(d) {
+      var t = d.totals || {};
+      setNum("js-n-all", t.all || 0);
+      setNum("js-n-wait", t.waiting || 0);
+      setNum("js-n-active", t.active || 0);
+      setNum("js-n-collected", Math.round(t.collected || 0).toLocaleString("en-US"));
+      setNum("js-n-committed", Math.round(t.committed || 0).toLocaleString("en-US"));
+
+      var box = document.getElementById("js-list");
+      var subs = d.subscribers || [];
+      if (!subs.length) { box.innerHTML = '<p class="dash-empty">' + T("Nobody has asked for the service yet.", "لم يطلب أحد الخدمة بعد.") + "</p>"; return; }
+      box.innerHTML = subs.map(function (c) {
+        var live = c.service === "مفعّلة";
+        var owed = Math.max(0, (c.commission || 0) - (c.collected || 0));
+        return '<div class="ap-iv-card' + (live ? " is-booked" : "") + '">' +
+          "<h4>" + esc(c.name || "—") + (c.role ? " — " + esc(c.role) : "") + "</h4>" +
+          '<p class="meta">' + [
+            esc(c.service || ""),
+            c.plan ? esc(c.plan) : T("no plan chosen", "بدون باقة"),
+            c.email ? esc(c.email) : esc(c.phone || ""),
+            c.since ? T("since ", "منذ ") + esc(c.since) : "",
+            c.lastRun ? T("last search ", "آخر بحث ") + esc(c.lastRun) : "",
+          ].filter(Boolean).join(" · ") + "</p>" +
+          (c.commission ? '<p class="meta">' + T("Commission ", "العمولة ") + Math.round(c.commission).toLocaleString("en-US") +
+            " · " + T("collected ", "المحصّل ") + Math.round(c.collected || 0).toLocaleString("en-US") +
+            (owed ? " · " + T("outstanding ", "المتبقي ") + Math.round(owed).toLocaleString("en-US") : " ✓") + "</p>" : "") +
+          (c.suggestions ? '<details class="meta"><summary style="cursor:pointer">' + T("Latest matches", "آخر الوظائف المقترحة") + "</summary><pre style=\"white-space:pre-wrap;font:inherit;margin:6px 0 0\">" + esc(c.suggestions) + "</pre></details>" : "") +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
+          (live
+            ? '<button class="btn btn-ghost btn-sm" data-js-act="موقوفة" data-js-id="' + esc(c.id) + '">' + T("Pause", "أوقف") + "</button>"
+            : '<button class="btn btn-primary btn-sm" data-js-act="مفعّلة" data-js-id="' + esc(c.id) + '">' + T("Activate", "فعّل") + "</button>") +
+          '<button class="btn btn-ghost btn-sm" data-js-pay="' + esc(c.id) + '">' + T("Record a payment", "سجّل دفعة") + "</button>" +
+          '<button class="btn btn-ghost btn-sm" data-js-act="منتهية" data-js-id="' + esc(c.id) + '">' + T("Close", "إنهاء") + "</button>" +
+          "</div></div>";
+      }).join("");
+    }
+
+    function load() {
+      return fetch("/api/jobhunt?action=subscribers&key=" + encodeURIComponent(KEY))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) throw new Error("forbidden");
+          gate.hidden = true;
+          document.getElementById("js-app").hidden = false;
+          try { sessionStorage.setItem("bp_panel_key", KEY); } catch (e) {}
+          render(d);
+        });
+    }
+
+    document.getElementById("js-key-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      KEY = document.getElementById("js-key").value.trim();
+      var err = document.getElementById("js-error");
+      err.hidden = true;
+      load().catch(function () {
+        err.hidden = false;
+        err.textContent = T("That key didn't work.", "المفتاح غير صحيح.");
+      });
+    });
+
+    document.getElementById("js-refresh").addEventListener("click", function () { load().catch(function () {}); });
+
+    document.getElementById("js-run").addEventListener("click", function () {
+      var btn = this, msg = document.getElementById("js-run-msg");
+      var limit = document.getElementById("js-run-limit").value;
+      btn.disabled = true; btn.textContent = T("Searching…", "الوكيل يبحث…");
+      msg.style.color = "";
+      msg.textContent = T("Reading every open posting against each subscriber — this takes a moment.", "يقرأ كل وظيفة مفتوحة مقابل كل مشترك — يستغرق لحظات.");
+      fetch("/api/jobhunt?action=run&limit=" + encodeURIComponent(limit) + "&key=" + encodeURIComponent(KEY))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          btn.disabled = false; btn.textContent = "🤖 " + T("Run the agent", "شغّل الوكيل");
+          if (!d || !d.ok) { msg.style.color = "#B91C1C"; msg.textContent = T("The run failed.", "فشلت الجولة."); return; }
+          if (d.note === "no_open_jobs") { msg.textContent = T("No open postings to match against right now.", "لا توجد وظائف مفتوحة للمطابقة حالياً."); return; }
+          var found = (d.report || []).reduce(function (n, x) { return n + x.matches; }, 0);
+          msg.textContent = T("Searched for ", "بحثنا لـ ") + d.ran + T(" subscribers across ", " مشتركاً في ") + d.jobs +
+            T(" open jobs — ", " وظيفة مفتوحة — ") + found + T(" matches sent.", " وظيفة مناسبة أُرسلت.");
+          load().catch(function () {});
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = "🤖 " + T("Run the agent", "شغّل الوكيل");
+          msg.style.color = "#B91C1C"; msg.textContent = T("Network error.", "خطأ في الاتصال.");
+        });
+    });
+
+    document.addEventListener("click", function (e) {
+      var act = e.target.closest ? e.target.closest("[data-js-act]") : null;
+      if (act) {
+        var state = act.getAttribute("data-js-act");
+        act.disabled = true;
+        return post({ type: "activate", key: KEY, id: act.getAttribute("data-js-id"), state: state })
+          .then(function () { load().catch(function () {}); })
+          .catch(function () { act.disabled = false; });
+      }
+      var pay = e.target.closest ? e.target.closest("[data-js-pay]") : null;
+      if (!pay) return;
+      var stage = window.prompt(T("Which instalment? (deposit / 1 / 2 / 3)", "أي دفعة؟ (مقدمة / 1 / 2 / 3)"), "1");
+      if (stage === null) return;
+      var STAGES = { "مقدمة": "دفعة مقدمة", deposit: "دفعة مقدمة", "1": "القسط الأول", "2": "القسط الثاني", "3": "القسط الثالث" };
+      var stageAr = STAGES[String(stage).trim()];
+      if (!stageAr) return alert(T("Unrecognised instalment.", "دفعة غير معروفة."));
+      var amount = window.prompt(T("Amount received (SAR)", "المبلغ المستلم (ريال)"), "");
+      if (amount === null) return;
+      var salary = window.prompt(T("Agreed monthly salary (SAR) — leave blank if already recorded", "الراتب الشهري المتفق عليه (ريال) — اتركه فارغاً إن كان مسجلاً"), "");
+      post({ type: "payment", key: KEY, id: pay.getAttribute("data-js-pay"), stage: stageAr, amount: amount, salary: salary })
+        .then(function (d) {
+          if (d && d.ok) alert(T("Recorded. Outstanding: ", "تم التسجيل. المتبقي: ") + Math.round(d.remaining || 0).toLocaleString("en-US"));
+          load().catch(function () {});
+        })
+        .catch(function () { alert(T("Network error.", "خطأ في الاتصال.")); });
+    });
+
+    if (KEY) load().catch(function () {});
+  });
+})();
+
+/* ---------- Job-search service: candidate opt-in (/job-search-service) ---------- */
+(function () {
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("jss-signup");
+    if (!form) return;
+    var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    var val = function (id) { var e = document.getElementById(id); return e ? String(e.value || "").trim() : ""; };
+    var isAr = (document.documentElement.lang || "ar").toLowerCase().indexOf("ar") === 0;
+
+    // The professions list the provider portal uses, so a candidate picks the
+    // same vocabulary an office would — which is what the matcher reads.
+    var dl = document.getElementById("jss-professions");
+    if (dl && window.BP && BP.PROFESSIONS) {
+      dl.innerHTML = BP.PROFESSIONS.map(function (p) {
+        return '<option value="' + String(isAr ? p[1] : p[0]).replace(/"/g, "&quot;") + '">';
+      }).join("");
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var msg = document.getElementById("jss-msg"), btn = document.getElementById("jss-submit");
+      var name = val("jss-name"), email = val("jss-email"), phone = val("jss-phone");
+      if (!name || (!email && !phone)) {
+        msg.style.color = "#B91C1C";
+        msg.textContent = T("Please add your name and either an email or a mobile number.", "أضف اسمك وبريدك الإلكتروني أو رقم جوالك.");
+        return;
+      }
+      var label = btn.textContent;
+      btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
+      fetch("/api/jobhunt", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          type: "opt-in", name: name, email: email, phone: phone,
+          role: val("jss-role"), city: val("jss-city"), plan: val("jss-plan"),
+        }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false; btn.textContent = label;
+        if (!d || !d.ok) {
+          msg.style.color = "#B91C1C";
+          msg.textContent = T("Couldn't send that. Please try again.", "تعذّر الإرسال. حاول مجدداً.");
+          return;
+        }
+        msg.style.color = "";
+        msg.textContent = d.existing
+          ? T("Got it ✓ — we found your file and we'll start searching. Watch your inbox.", "تم ✓ — وجدنا ملفك وسنبدأ البحث. تابع بريدك.")
+          : T("Got it ✓ — we've opened your file and we'll be in touch to start.", "تم ✓ — فتحنا ملفك وسنتواصل معك للبدء.");
+        form.reset();
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = label;
+        msg.style.color = "#B91C1C";
+        msg.textContent = T("Network error. Please try again.", "خطأ في الاتصال. حاول مجدداً.");
+      });
+    });
+  });
+})();
+
 /* ---------- Spreadsheet reader: .xlsx and .csv, no dependencies ---------- */
 // An .xlsx is a ZIP of XML. Browsers inflate raw deflate streams natively
 // (DecompressionStream), so the whole reader is about a hundred lines and the

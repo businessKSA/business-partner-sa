@@ -4468,6 +4468,89 @@ function buildEmployerLogin() {
 // Overseas recruitment offices and agencies register here; the owner reviews
 // the licence details in Notion and approval emails the office an access code
 // for /agency-portal. Nothing on this page is public-facing candidate data.
+// The candidate side of the marketplace: we go and look for work on their
+// behalf. Two ways to pay, and the second one costs nothing unless it works —
+// which is the whole pitch, so the page leads with it.
+function buildJobSearchService() {
+  const steps = [
+    [L("Tell us what you're looking for", "قل لنا عمّا تبحث"), L("Your profession, your experience and where you want to work. If you've applied through us before, we already have your CV.", "مهنتك وخبرتك وأين تريد أن تعمل. إن كنت قد تقدّمت عبرنا من قبل فسيرتك الذاتية موجودة لدينا.")],
+    [L("Pick how you pay", "اختر طريقة الدفع"), L("A flat 100 SAR a month while we search — or nothing at all until you accept an offer.", "١٠٠ ريال شهرياً طوال فترة البحث — أو لا شيء إطلاقاً حتى تقبل عرضاً وظيفياً.")],
+    [L("We search, every week", "نبحث لك أسبوعياً"), L("Our agent reads every new opening against your profile and sends you only the ones that genuinely fit.", "وكيلنا يقرأ كل وظيفة جديدة مقابل ملفك ويرسل لك ما يناسبك فعلاً فقط.")],
+    [L("We put you forward", "نرشّحك بأنفسنا"), L("We nominate you to the employer, arrange the interview and follow it through to the offer.", "نرشّحك لصاحب العمل، ونرتّب المقابلة، ونتابع حتى العرض الوظيفي.")],
+  ].map((x, i) => `<div class="card"><div class="card-icon">${i + 1}</div><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:840px">
+    <span class="eyebrow">${L("For candidates", "للباحثين عن عمل")}</span>
+    <h1>${L("Let us look for the job — on your behalf", "خلّنا ندوّر لك على الوظيفة — بالنيابة عنك")}</h1>
+    <p class="lead">${L("You keep applying and waiting. We already sit between thousands of candidates and the employers hiring them — so put your file in our hands and we'll do the searching, the nominating and the follow-up for you.", "أنت تقدّم وتنتظر. نحن أصلاً بين آلاف المرشحين وأصحاب العمل الذين يوظّفون — سلّمنا ملفك ونتولّى عنك البحث والترشيح والمتابعة.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#jss-form">${L("Start the search", "ابدأ البحث")}</a><a class="btn btn-ghost btn-lg" href="#jss-plans">${L("See the pricing", "شوف الأسعار")}</a></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تعمل الخدمة")}</span><h2>${L("Four steps, and we do three of them", "أربع خطوات، ننفّذ ثلاثاً منها")}</h2></div>
+    <div class="grid grid-4">${steps}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container" style="max-width:900px">
+    <div class="section-head" id="jss-plans"><span class="eyebrow">${L("Pricing", "الأسعار")}</span><h2>${L("Pick whichever suits you", "اختر ما يناسبك")}</h2><p>${L("Same service either way. The difference is only when you pay.", "الخدمة نفسها في الحالتين. الفرق فقط في وقت الدفع.")}</p></div>
+    <div class="grid grid-2">
+      <div class="card jss-plan">
+        <span class="emp-tag">${L("Pay as we search", "ادفع أثناء البحث")}</span>
+        <h3>${L("100 SAR a month", "١٠٠ ريال شهرياً")}</h3>
+        <p>${L("A flat monthly subscription for as long as you want us searching. Stop it whenever you like — there's no commitment and no commission at the end.", "اشتراك شهري ثابت ما دمت تريدنا نبحث لك. أوقفه متى شئت — بدون التزام وبدون أي عمولة في النهاية.")}</p>
+        <ul class="jss-list">
+          <li>${L("Weekly matches sent to you", "وظائف مناسبة تصلك أسبوعياً")}</li>
+          <li>${L("We nominate you directly to employers", "نرشّحك مباشرة لأصحاب العمل")}</li>
+          <li>${L("Your CV rewritten in ATS format", "سيرتك الذاتية بصيغة ATS")}</li>
+          <li>${L("Nothing owed when you get hired", "لا شيء مستحق عند التوظيف")}</li>
+        </ul>
+      </div>
+      <div class="card jss-plan jss-plan--featured">
+        <span class="emp-tag t-in">${L("Pay only if it works", "ادفع فقط إذا نجحت")}</span>
+        <h3>${L("One month's salary, over 3 instalments", "راتب شهر واحد على ٣ دفعات")}</h3>
+        <p>${L("Nothing at all while we search. The moment you accept an offer, our fee is one month of your new salary — a deposit when you sign, then the rest monthly, three instalments at most.", "لا شيء إطلاقاً أثناء البحث. لحظة قبولك العرض تكون أتعابنا راتب شهر واحد من راتبك الجديد — دفعة مقدمة عند التوقيع ثم الباقي شهرياً، بحد أقصى ثلاث دفعات.")}</p>
+        <ul class="jss-list">
+          <li>${L("Zero cost until you're hired", "بدون أي تكلفة حتى توظَّف")}</li>
+          <li>${L("Never more than one month's salary in total", "لا تتجاوز أتعابنا راتب شهر واحد إجمالاً")}</li>
+          <li>${L("Split over three months, never more", "مقسّمة على ثلاثة أشهر، ولا تزيد")}</li>
+          <li>${L("If you're not hired, you owe nothing", "إن لم توظَّف فلا تدفع شيئاً")}</li>
+        </ul>
+      </div>
+    </div>
+    <p class="emp-note" style="text-align:center;margin-top:18px">${L("Nothing is charged when you sign up. We review your file, agree the plan with you, and only then does the service start.", "لا يُخصم أي مبلغ عند التسجيل. نراجع ملفك ونتفق معك على الباقة، وبعدها فقط تبدأ الخدمة.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container" style="max-width:560px">
+    <div class="section-head" id="jss-form"><span class="eyebrow">${L("Start", "ابدأ")}</span><h2>${L("Put your file in our hands", "سلّمنا ملفك")}</h2></div>
+    <div class="dash-card">
+      <form id="jss-signup" novalidate>
+        <div class="field"><label for="jss-name">${L("Your full name", "اسمك الكامل")} *</label><input id="jss-name" type="text" required autocomplete="name"></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="jss-email">${L("Email", "البريد الإلكتروني")}</label><input id="jss-email" type="email" autocomplete="email"></div>
+          <div class="field"><label for="jss-phone">${L("Mobile", "الجوال")}</label><input id="jss-phone" type="tel" autocomplete="tel" placeholder="+9665XXXXXXXX"></div>
+        </div>
+        <p class="emp-note" style="margin:-6px 0 14px">${L("Either one is enough — we use it to find your existing file.", "أحدهما يكفي — نستخدمه للعثور على ملفك لدينا.")}</p>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="jss-role">${L("The job you want", "الوظيفة التي تريدها")}</label><input id="jss-role" type="text" list="jss-professions"><datalist id="jss-professions"></datalist></div>
+          <div class="field"><label for="jss-city">${L("Where you want to work", "أين تريد أن تعمل")}</label><input id="jss-city" type="text"></div>
+        </div>
+        <div class="field"><label for="jss-plan">${L("Which plan suits you?", "أي باقة تناسبك؟")}</label>
+          <select id="jss-plan">
+            <option value="راتب شهر على 3 دفعات">${L("Pay only if hired — one month's salary over 3 instalments", "ادفع فقط إذا وُظّفت — راتب شهر على ٣ دفعات")}</option>
+            <option value="اشتراك شهري 100 ريال">${L("100 SAR a month while you search for me", "١٠٠ ريال شهرياً طوال البحث")}</option>
+            <option value="">${L("Not sure yet — talk to me first", "لست متأكداً — تواصلوا معي أولاً")}</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="jss-submit">${L("Start searching for me", "ابدأوا البحث لي")}</button>
+        <p class="emp-note" id="jss-msg" style="text-align:center;min-height:20px;margin-top:12px"></p>
+      </form>
+    </div>
+    <p class="emp-note" style="text-align:center;margin-top:14px">${L("Already signed up? We email you every time we find something — no login needed.", "سجّلت من قبل؟ يصلك بريد كلما وجدنا لك وظيفة — بدون تسجيل دخول.")}</p>
+  </div></section>`;
+  return page({ title: Lraw("We search for the job on your behalf — Business Partner", "نبحث لك عن الوظيفة بالنيابة عنك — بيزنس بارتنر"), desc: Lraw("Business Partner searches for jobs on your behalf: 100 SAR a month, or one month's salary over three instalments paid only once you're hired.", "بيزنس بارتنر يبحث لك عن وظيفة بالنيابة عنك: ١٠٠ ريال شهرياً، أو راتب شهر على ثلاث دفعات تُدفع فقط بعد توظيفك."), active: "/careers", path: "/job-search-service", body });
+}
+
 function buildRecruitmentAgencies() {
   const perks = [
     ["⚡", L("Open your panel in a minute", "لوحتك تفتح خلال دقيقة"), L("Create an account with your email or Google and your provider dashboard opens immediately — no waiting for anyone to approve you.", "أنشئ حسابك بالبريد أو عبر Google وتفتح لوحة المزوّد فوراً — بدون انتظار موافقة من أحد.")],
@@ -5249,6 +5332,19 @@ function seekerFormHtml(f, fixedJob) {
           <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
         </div>
         <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
+        <div class="jss-offer">
+          <label class="consent-row"><input type="checkbox" id="c-jobsearch"><span><b>${L("Would you like us to search for a job on your behalf?", "هل ترغب بأن نبحث لك عن وظيفة بالنيابة عنك؟")}</b> ${L("We look every week, nominate you ourselves and follow it through to the offer.", "نبحث لك أسبوعياً، ونرشّحك بأنفسنا، ونتابع حتى العرض الوظيفي.")}</span></label>
+          <div id="c-jobsearch-plan" hidden>
+            <div class="field"><label for="c-jss-plan">${L("How would you like to pay?", "كيف تفضّل الدفع؟")}</label>
+              <select id="c-jss-plan" name="jobSearchPlan">
+                <option value="راتب شهر على 3 دفعات">${L("Only if you find me a job — one month's salary over 3 instalments", "فقط إذا وجدتم لي وظيفة — راتب شهر على ٣ دفعات")}</option>
+                <option value="اشتراك شهري 100 ريال">${L("100 SAR a month while you search", "١٠٠ ريال شهرياً طوال البحث")}</option>
+                <option value="">${L("Explain it to me first", "اشرحوا لي أولاً")}</option>
+              </select>
+            </div>
+            <p class="form-note" style="margin:0">${L("Nothing is charged now. We agree the plan with you before the service starts.", "لا يُخصم أي مبلغ الآن. نتفق معك على الباقة قبل بدء الخدمة.")} <a href="${u("/job-search-service")}" target="_blank" rel="noopener">${L("Read the details", "اقرأ التفاصيل")}</a></p>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
         <p class="form-note" id="cv-note">${L("Upload your CV (PDF or Word) to reach our team securely.", "ارفع سيرتك (PDF أو Word) لتصل لفريقنا بأمان.")}</p>
         <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
@@ -7731,6 +7827,64 @@ function buildPartnerDashboard() {
 // the registry (profiles, fees, how many candidates each office supplied),
 // marks an office as verified or suspends it, and publishes demand orders to
 // the network. Same key gate as the partners panel.
+// Owner panel for the job-search service: who has asked for it, who is live,
+// what has been committed and collected, and the button that sends the agent
+// round the subscribers. Same key gate as the other owner panels.
+function buildJobSearchAdmin() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Owner panel", "لوحة المالك")}</span>
+    <h1>${L("Job-search service", "خدمة البحث عن وظيفة")}</h1>
+    <p class="lead">${L("Candidates who asked us to search on their behalf — activate the service, run the agent, and record what each one pays.", "المرشحون الذين طلبوا أن نبحث لهم عن وظيفة — فعّل الخدمة، شغّل الوكيل، وسجّل ما يدفعه كل واحد.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:1120px">
+
+    <div id="js-gate">
+      <div class="dash-card" style="max-width:460px;margin:0 auto">
+        <h2>${L("Owner key", "مفتاح المالك")}</h2>
+        <form id="js-key-form" class="calc-form">
+          <div class="field"><label for="js-key">${L("Key", "المفتاح")}</label><input id="js-key" type="password" required></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Open the panel", "افتح اللوحة")}</button>
+          <p class="form-error" id="js-error" hidden></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="js-app" hidden>
+      <div class="dash-stats" style="margin-bottom:20px">
+        <div class="dash-stat"><div class="ds-ico">👥</div><div class="num" id="js-n-all">0</div><div class="lbl">${L("Enrolled", "مسجّلون")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">⏳</div><div class="num" id="js-n-wait">0</div><div class="lbl">${L("Awaiting activation", "بانتظار التفعيل")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">🔎</div><div class="num" id="js-n-active">0</div><div class="lbl">${L("Searching now", "البحث جارٍ")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">💰</div><div class="num" id="js-n-collected">0</div><div class="lbl">${L("Collected (SAR)", "المحصّل (ريال)")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📊</div><div class="num" id="js-n-committed">0</div><div class="lbl">${L("Committed (SAR)", "الملتزم به (ريال)")}</div></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0">${L("The agent", "الوكيل")}</h3>
+            <p class="emp-note" style="margin:4px 0 0">${L("Matches active subscribers against every open posting and emails each one their shortlist. Longest-waiting subscribers go first.", "يطابق المشتركين النشطين مع كل الوظائف المفتوحة ويرسل لكل واحد قائمته بالبريد. الأقدم انتظاراً أولاً.")}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="js-run-limit" class="ap-filter" style="min-width:120px">
+              <option value="5">${L("5 candidates", "٥ مرشحين")}</option>
+              <option value="8" selected>${L("8 candidates", "٨ مرشحين")}</option>
+              <option value="15">${L("15 candidates", "١٥ مرشحاً")}</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="js-run">🤖 ${L("Run the agent", "شغّل الوكيل")}</button>
+            <button class="btn btn-ghost btn-sm" id="js-refresh">${L("Refresh", "تحديث")}</button>
+          </div>
+        </div>
+        <p class="emp-note" id="js-run-msg" style="min-height:18px;margin:10px 0 0"></p>
+      </div>
+
+      <div class="dash-panel-head"><h2>${L("Subscribers", "المشتركون")}</h2><p>${L("Activating a subscriber starts the search and emails them. Record each instalment as it lands — the salary plan stops itself at one month's salary.", "تفعيل المشترك يبدأ البحث ويرسل له بريداً. سجّل كل دفعة عند استلامها — باقة الراتب تتوقف تلقائياً عند راتب شهر واحد.")}</p></div>
+      <div id="js-list"><p class="dash-empty">${L("Nothing yet.", "لا يوجد بعد.")}</p></div>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Job-search service — Business Partner", "خدمة البحث عن وظيفة — بيزنس بارتنر"), desc: Lraw("Owner panel for the candidate job-search service.", "لوحة المالك لخدمة البحث عن وظيفة."), active: "/hr", path: "/jobsearch-admin", body, noindex: true });
+}
+
 function buildAgenciesAdmin() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -10192,6 +10346,7 @@ function writeFullSite(pre) {
   write(`${pre}employer-login.html`, buildEmployerLogin());
   write(`${pre}candidate-profile.html`, buildCandidateProfile());
   write(`${pre}recruitment-agencies.html`, buildRecruitmentAgencies());
+  write(`${pre}job-search-service.html`, buildJobSearchService());
   write(`${pre}agency-portal.html`, buildAgencyPortal());
   write(`${pre}job.html`, buildPostingPage());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
@@ -10221,6 +10376,7 @@ function writeFullSite(pre) {
   write(`${pre}contract.html`, buildContractPage());
   write(`${pre}suppliers-admin.html`, buildSuppliersAdmin());
   write(`${pre}agencies-admin.html`, buildAgenciesAdmin());
+  write(`${pre}jobsearch-admin.html`, buildJobSearchAdmin());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));

@@ -378,6 +378,17 @@ export default async function handler(req, res) {
     "حالة القراءة": { select: { name: "مكتمل" } },
     "Notes": { rich_text: rt(answerLines) },
   };
+
+  // "Search for a job on my behalf" — ticked on the application form. This
+  // records the intent and the chosen plan; the service is activated by a
+  // human afterwards, so submitting an application never starts any billing.
+  const js = b.jobSearch && typeof b.jobSearch === "object" ? b.jobSearch : null;
+  if (js && js.interested) {
+    const PLANS = ["اشتراك شهري 100 ريال", "راتب شهر على 3 دفعات"];
+    props["خدمة البحث عن وظيفة"] = { select: { name: "مهتم — بانتظار الاختيار" } };
+    props["حالة الدفع"] = { select: { name: "لم يبدأ" } };
+    if (PLANS.includes(js.plan)) props["باقة الخدمة"] = { select: { name: js.plan } };
+  }
   if (isEmail(email)) props["Email"] = { email };
   if (fieldCat) props["Field"] = { select: { name: fieldCat } };
   if (expectedSalary != null) props["Expected Salary"] = { number: expectedSalary };
