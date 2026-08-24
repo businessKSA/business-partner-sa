@@ -182,6 +182,11 @@ const COMPLIANCE_PORTAL_URL = "/ar/compliance-dashboard";
 // السلة شراء فوري، والبوابة مستند رسمي موقّع. النطاق من البيئة ليُبدَّل
 // إلى نطاق فرعي من businesspartner.sa دون تعديل الشيفرة.
 const CLIENT_PORTAL_URL = (process.env.PORTAL_URL || "https://bp-quotes-three.vercel.app").replace(/\/+$/, "");
+// سحب أسعار الكتالوج الحيّة من لوحة التحكم عند البناء. مغلق افتراضياً:
+// الأسعار مُعدَّلة يدوياً في الجهتين، فلا يُكتب فوق سعر منشور قبل أن يُرى
+// جدول الفروقات (site/scripts/compare-prices.mjs) ويُختار أيّهما يسود.
+// شغّله بـ CATALOG_FROM_PANEL=1 بعد الاختيار.
+const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL === "1";
 const portalQuoteUrl = (code) =>
   `${CLIENT_PORTAL_URL}/portal/services${code ? "?code=" + encodeURIComponent(code) : ""}`;
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
