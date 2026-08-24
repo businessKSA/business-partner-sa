@@ -28,6 +28,7 @@ import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftra
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { tabbyConfigured, tamaraConfigured, createTabbySession, createTamaraSession, verifyTabbyPayment, verifyTamaraOrder } from "./_bnpl.js";
 import { contactForRef } from "./_stage.js";
+import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
 // Trimmed, like every other secret this project reads. A newline pasted into
 // the Vercel env box is invisible in that UI and turns the verification call
@@ -102,6 +103,14 @@ async function sendMail(to, subject, html, attachments) {
 // pair a real payment id with an invented basket and mint a tax invoice.
 
 const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
+// Same owner gate the panel uses everywhere else.
+const PANEL_KEYS = new Set([process.env.PANEL_KEY, process.env.LEADS_KEY, process.env.DASHBOARD_KEY]
+  .map((k) => String(k || "").trim()).filter(Boolean));
+const panelOk = (b) => {
+  if (ownerTicketOk(b && b.ticket)) return true;
+  if (panelRequiresNafath()) return false;
+  return PANEL_KEYS.size > 0 && PANEL_KEYS.has(String((b && b.key) || "").trim());
+};
 
 // ---- confirmed payment → automatic activation (via api/requests) ------------
 // A verified cart payment is handed to /api/requests {action:"paid-order"},
@@ -686,6 +695,119 @@ export default async function handler(req, res) {
   }
 
   const b = await readBody(req);
+
+  /* ---- recover payments the site never recorded ---------------------------
+   * While MOYASAR_SECRET_KEY was wrong, three things failed together for every
+   * card payment: the browser could not confirm it, the webhook discarded the
+   * event, and the webhook's 200 told Moyasar to stop retrying. So the money
+   * moved, the orders sat at «قيد المراجعة», and nothing will ever arrive on
+   * its own to fix that — the redelivery that would have has been cancelled.
+   *
+   * This asks Moyasar for its own record of what was paid and replays each one
+   * through the exact path a live payment takes. Every step it calls is
+   * idempotent on the order reference, so a payment already settled is
+   * reported as such and touched no further: running this twice cannot double
+   * an invoice or an activation.
+   */
+  if (b.action === "reconcile") {
+    if (!panelOk(b)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!SK) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "no_secret_key" })); }
+    const limit = Math.min(100, Math.max(1, Number(b.limit) || 50));
+    // A dry run answers "what was actually bought?" without changing anything —
+    // worth having separately, because the first question after an outage is
+    // what happened, not what to do about it.
+    const dry = b.apply !== true;
+
+    let payments = [];
+    try {
+      const r = await fetch(`https://api.moyasar.com/v1/payments?limit=${limit}`, {
+        headers: { Authorization: "Basic " + Buffer.from(SK + ":").toString("base64") },
+      });
+      const text = await r.text();
+      if (!r.ok) {
+        console.error("reconcile: moyasar list failed", r.status, text.slice(0, 200));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: `moyasar_http_${r.status}`, detail: text.slice(0, 200) }));
+      }
+      const data = JSON.parse(text);
+      payments = Array.isArray(data.payments) ? data.payments : [];
+    } catch (e) {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "moyasar_unreachable", detail: String(e.message || e).slice(0, 140) }));
+    }
+
+    const rows = [];
+    for (const p of payments) {
+      const meta = p.metadata || {};
+      const ref = String(meta.ref || "").trim();
+      const itemsRaw = String(meta.items || "").trim();
+      const row = {
+        id: p.id,
+        at: p.created_at || p.updated_at || "",
+        amount: Math.round(Number(p.amount) || 0) / 100,
+        currency: p.currency || "SAR",
+        status: p.status,
+        ref,
+        buyer: String(meta.email || meta.name || "").slice(0, 80),
+        description: String(p.description || "").slice(0, 120),
+        items: itemsRaw ? itemsRaw.split(",").map((x) => String(x.split("~")[0] || "").trim()).filter(Boolean) : [],
+      };
+      if (p.status !== "paid") { row.action = "skipped_not_paid"; rows.push(row); continue; }
+      if (!ref || !itemsRaw) {
+        // A quote payment or a wallet top-up carries different metadata; those
+        // are named rather than guessed at, so nothing is settled on a shape
+        // this was not written for.
+        row.action = meta.quoteId ? "quote_payment_not_handled_here"
+          : String(meta.wallet || "") === "topup" ? "wallet_topup_not_handled_here"
+          : "no_order_metadata";
+        rows.push(row); continue;
+      }
+      if (dry) { row.action = "would_recover"; rows.push(row); continue; }
+
+      const order = {
+        ref,
+        name: String(meta.name || ""), email: String(meta.email || ""), phone: String(meta.phone || ""),
+        company: String(meta.co || ""), discountCode: String(meta.disc || ""),
+        items: itemsRaw.split(",").map((x) => {
+          const m = x.split("~");
+          return { id: String(m[0] || "").trim(), qty: Math.max(1, Math.min(99, Number(m[1]) || 1)) };
+        }).filter((x) => x.id),
+      };
+      try {
+        const settle = await settlePaidOrder(order, p);
+        row.settled = !!(settle && settle.ok);
+        row.already = !!(settle && settle.already);
+        if (settle && settle.ok && !settle.already) {
+          try { await markOrderPaid(ref, { total: row.amount, method: "online" }); } catch (e) {
+            console.error("reconcile: announce failed", ref, String(e.message || e).slice(0, 120));
+          }
+          try {
+            const inv = await invoicePaidOrder(order, p.amount, p.id);
+            row.invoice = inv && inv.number ? String(inv.number) : null;
+            row.invoiced = !!(inv && inv.invoiced);
+          } catch (e) {
+            row.invoiced = false;
+            row.invoiceError = String(e.message || e).slice(0, 120);
+          }
+        }
+        row.action = row.already ? "already_settled" : (row.settled ? "recovered" : "settle_failed");
+      } catch (e) {
+        row.action = "failed";
+        row.error = String(e.message || e).slice(0, 140);
+      }
+      rows.push(row);
+    }
+
+    const recovered = rows.filter((r) => r.action === "recovered").length;
+    console.log("reconcile", dry ? "(dry)" : "(applied)", "checked", rows.length, "recovered", recovered);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true, dryRun: dry, checked: rows.length,
+      paid: rows.filter((r) => r.status === "paid").length,
+      pending: rows.filter((r) => r.action === "would_recover").length,
+      recovered, rows,
+    }));
+  }
 
   // ---- Moyasar webhook ----------------------------------------------------
   // The browser callback is not a guarantee: a client who pays and closes the
