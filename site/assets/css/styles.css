@@ -1593,3 +1593,20 @@ textarea.adv-in { resize: vertical; }
 .auth-tabs{display:flex;gap:6px;background:#f5f7fb;padding:5px;border-radius:12px;margin-bottom:18px}
 .auth-tabs button{flex:1;padding:10px;border:0;background:transparent;border-radius:9px;font:inherit;font-weight:600;color:var(--text-soft,#5a6478);cursor:pointer}
 .auth-tabs button.is-active{background:#fff;color:var(--navy,#0B1B5A);box-shadow:0 1px 3px rgba(11,27,90,.1)}
+
+/* ---- provider panel: candidate toolbar and filters ---- */
+.ap-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 16px}
+.ap-filter{padding:9px 12px;border:1px solid var(--line,#e5e9f0);border-radius:10px;background:#fff;font:inherit;font-size:.86rem;min-width:150px;color:inherit}
+.ap-filter:focus{outline:0;border-color:var(--navy,#0B1B5A);box-shadow:0 0 0 3px rgba(11,27,90,.08)}
+.ap-iv-card{border:1px solid var(--line,#e5e9f0);border-inline-start:3px solid #B91C1C;border-radius:12px;padding:14px 16px;margin-bottom:10px;background:#fff}
+.ap-iv-card.is-booked{border-inline-start-color:#047857}
+.ap-iv-card h4{margin:0 0 4px;font-size:1rem;color:var(--navy,#0B1B5A)}
+.ap-iv-card .meta{margin:0 0 10px;font-size:.82rem;color:var(--text-soft,#5a6478)}
+
+/* ---- employer console: residence / experience badges, interview action ---- */
+.emp-badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.emp-tag.t-out{background:#fef3c7;color:#92400e}
+.emp-tag.t-in{background:#dcfce7;color:#166534}
+.empd-iv{border:1px solid var(--line,#e5e9f0);background:#fff;border-radius:9px;padding:7px 11px;font:inherit;font-size:.8rem;font-weight:600;color:var(--navy,#0B1B5A);cursor:pointer}
+.empd-iv:hover{background:#eef2ff}
+.empd-iv.on{background:#dcfce7;color:#166534;border-color:#bbf7d0;cursor:default}

@@ -4675,6 +4675,7 @@ function buildAgencyPortal() {
         <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="ap-n-req">0</div><div class="lbl">${L("Requests for you", "طلبات موجّهة لك")}</div></div>
         <div class="dash-stat"><div class="ds-ico">💼</div><div class="num" id="ap-n-jobs">0</div><div class="lbl">${L("Open jobs", "وظائف مفتوحة")}</div></div>
         <div class="dash-stat"><div class="ds-ico">👤</div><div class="num" id="ap-n-cand">0</div><div class="lbl">${L("Candidates you sent", "مرشحون أرسلتهم")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📅</div><div class="num" id="ap-n-iv">0</div><div class="lbl">${L("Interview requests", "طلبات مقابلات")}</div></div>
         <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="ap-n-status">—</div><div class="lbl">${L("Account status", "حالة الحساب")}</div></div>
       </div>
 
@@ -4684,7 +4685,48 @@ function buildAgencyPortal() {
       <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("All open jobs", "كل الوظائف المفتوحة")}</h2><p>${L("Every job open on the platform — submit a candidate against any of them.", "كل وظيفة مفتوحة على المنصة — ترشّح عليها مباشرة.")}</p></div>
       <div id="ap-jobs"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
 
-      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("Your candidate database", "قاعدة بيانات مرشحيك")}</h2><p>${L("Everyone your office has supplied, with the stage each one reached in the employer's pipeline.", "كل من رفعهم مكتبك، ومرحلة كل واحد منهم في مسار صاحب العمل.")}</p></div>
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("Interview requests", "طلبات المقابلات")}</h2><p>${L("An employer asked to meet these candidates. Prepare the candidate, then book the slot — the employer is notified the moment you do.", "أصحاب عمل طلبوا مقابلة هؤلاء المرشحين. جهّز المرشّح ثم احجز الموعد — يصل الإشعار لصاحب العمل فور الحجز.")}</p></div>
+      <div id="ap-interviews"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
+
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("Your candidate database", "قاعدة بيانات مرشحيك")}</h2><p>${L("Everyone your office has supplied — add them from your own pool with no job attached, one by one or as a sheet.", "كل من رفعهم مكتبك — أضِفهم من قاعدتك بدون ربطهم بوظيفة، واحداً واحداً أو دفعة واحدة من ملف.")}</p></div>
+
+      <div class="ap-toolbar">
+        <button type="button" class="btn btn-primary btn-sm" id="ap-add-candidate">＋ ${L("Add a candidate", "أضف مرشّحاً")}</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="ap-import-open">📥 ${L("Import a sheet", "استيراد ملف")}</button>
+        <input type="search" id="ap-sub-q" class="ap-filter" placeholder="${Lraw("Search name or profession…", "ابحث بالاسم أو المهنة…")}">
+        <select id="ap-sub-res" class="ap-filter">
+          <option value="">${L("Any residence", "كل حالات الإقامة")}</option>
+          <option value="خارج السعودية">${L("Outside Saudi Arabia", "خارج السعودية")}</option>
+          <option value="مقيم بإقامة نظامية قابلة للنقل">${L("Inside — transferable iqama", "داخل — إقامة قابلة للنقل")}</option>
+          <option value="مقيم بإقامة غير قابلة للنقل">${L("Inside — non-transferable", "داخل — غير قابلة للنقل")}</option>
+          <option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>
+        </select>
+        <select id="ap-sub-region" class="ap-filter">
+          <option value="">${L("Any experience", "كل الخبرات")}</option>
+          <option value="خبرة سعودية">${L("Saudi experience", "خبرة سعودية")}</option>
+          <option value="خبرة خليجية">${L("Gulf experience", "خبرة خليجية")}</option>
+          <option value="خبرة عربية">${L("Arab-region experience", "خبرة عربية")}</option>
+          <option value="خبرة دولية">${L("International experience", "خبرة دولية")}</option>
+        </select>
+      </div>
+
+      <div class="dash-card" id="ap-import" hidden style="margin-bottom:18px">
+        <h3 style="margin-top:0">${L("Import candidates from a sheet", "استيراد مرشحين من ملف")}</h3>
+        <p class="emp-note">${L("Excel (.xlsx) or CSV. Arabic or English column titles both work — we match them for you. The file is read in your browser; nothing is uploaded until you confirm.", "ملف Excel (.xlsx) أو CSV. عناوين الأعمدة بالعربية أو الإنجليزية — نطابقها لك تلقائياً. يُقرأ الملف في متصفحك ولا يُرفع شيء قبل تأكيدك.")}</p>
+        <label class="file-drop" for="ap-sheet" id="ap-sheet-drop">
+          <span class="file-ico">${I.upload}</span>
+          <span class="file-text" id="ap-sheet-name">${L("Drag the sheet here or click to choose", "اسحب الملف هنا أو اضغط للاختيار")}</span>
+        </label>
+        <input id="ap-sheet" type="file" accept=".xlsx,.csv,.tsv" hidden>
+        <p class="emp-note" style="margin:8px 0"><a href="#" id="ap-template">⬇︎ ${L("Download a template sheet", "نزّل ملفاً جاهزاً للتعبئة")}</a></p>
+        <div id="ap-sheet-preview"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+          <button type="button" class="btn btn-primary" id="ap-import-go" hidden>${L("Import these candidates", "استورد هؤلاء المرشحين")}</button>
+          <button type="button" class="btn btn-ghost" id="ap-import-close">${L("Close", "إغلاق")}</button>
+        </div>
+        <p class="emp-note" id="ap-import-msg" style="min-height:18px;margin-top:8px"></p>
+      </div>
+
       <div id="ap-submissions"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
     </div>
   </div></section>
@@ -4701,6 +4743,25 @@ function buildAgencyPortal() {
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="ap-c-nat">${L("Nationality", "الجنسية")}</label><input id="ap-c-nat" type="text" list="ap-c-nationalities"><datalist id="ap-c-nationalities"></datalist></div>
           <div class="field"><label for="ap-c-exp">${L("Years of experience", "سنوات الخبرة")}</label><input id="ap-c-exp" type="number" min="0"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-c-residence">${L("Where is the candidate now?", "أين المرشّح الآن؟")}</label>
+            <select id="ap-c-residence">
+              <option value="خارج السعودية">${L("Outside Saudi Arabia — needs deployment", "خارج السعودية — يحتاج استقدام")}</option>
+              <option value="مقيم بإقامة نظامية قابلة للنقل">${L("Inside Saudi — transferable iqama", "داخل السعودية — إقامة قابلة للنقل")}</option>
+              <option value="مقيم بإقامة غير قابلة للنقل">${L("Inside Saudi — non-transferable iqama", "داخل السعودية — إقامة غير قابلة للنقل")}</option>
+              <option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>
+              <option value="أخرى">${L("Other", "أخرى")}</option>
+            </select>
+          </div>
+          <div class="field"><label for="ap-c-avail">${L("Availability", "الجاهزية")}</label>
+            <select id="ap-c-avail"><option value="">—</option><option value="فوري">${L("Immediate", "فوري")}</option><option value="خلال شهر">${L("Within a month", "خلال شهر")}</option><option value="خلال 3 أشهر">${L("Within 3 months", "خلال 3 أشهر")}</option></select>
+          </div>
+        </div>
+        <div class="field"><label>${L("Countries they have worked in", "الدول التي عمل فيها")}</label><div id="ap-c-countries"></div></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-c-education">${L("Education", "المؤهل العلمي")}</label><input id="ap-c-education" type="text"></div>
+          <div class="field"><label for="ap-c-salary">${L("Expected salary (SAR)", "الراتب المتوقع (ريال)")}</label><input id="ap-c-salary" type="number" min="0"></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="ap-c-phone">${L("Phone", "الجوال")}</label><input id="ap-c-phone" type="tel"></div>
@@ -4720,6 +4781,32 @@ function buildAgencyPortal() {
         <div class="field"><label for="ap-c-notes">${L("Notes", "ملاحظات")}</label><textarea id="ap-c-notes" rows="3"></textarea></div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-c-submit">${L("Send candidate", "أرسل المرشّح")}</button>
         <p class="emp-note" id="ap-c-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
+    </div>
+  </div></div>
+
+  <div class="empd-modal" id="ap-iv-modal" hidden><div class="empd-modal-in">
+    <button class="empd-modal-x" id="ap-iv-x">✕</button>
+    <h3 id="ap-iv-title">${L("Book the interview", "احجز موعد المقابلة")}</h3>
+    <div class="empd-modal-body">
+      <p class="emp-note" id="ap-iv-who" style="margin-top:0"></p>
+      <form id="ap-iv-form" novalidate>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-iv-date">${L("Date", "التاريخ")} *</label><input id="ap-iv-date" type="date" required></div>
+          <div class="field"><label for="ap-iv-time">${L("Time", "الساعة")}</label><input id="ap-iv-time" type="time"></div>
+        </div>
+        <div class="field"><label for="ap-iv-mode">${L("How will it happen?", "كيف ستتم المقابلة؟")}</label>
+          <select id="ap-iv-mode">
+            <option value="أونلاين">${L("Online — video call", "أونلاين — مكالمة مرئية")}</option>
+            <option value="حضوري">${L("In person — at the employer's site", "حضوري — في مقر صاحب العمل")}</option>
+            <option value="هاتف">${L("Phone call", "مكالمة هاتفية")}</option>
+          </select>
+        </div>
+        <div class="field" id="ap-iv-link-field"><label for="ap-iv-link">${L("Meeting link — Google Meet, Zoom or your Calendly slot", "رابط الاجتماع — Google Meet أو Zoom أو رابط Calendly")}</label><input id="ap-iv-link" type="url" placeholder="https://"></div>
+        <div class="field" id="ap-iv-place-field" hidden><label for="ap-iv-place">${L("Address of the meeting", "عنوان المقابلة")}</label><input id="ap-iv-place" type="text" placeholder="${Lraw("Building, district, city", "المبنى، الحي، المدينة")}"></div>
+        <div class="field"><label for="ap-iv-notes">${L("Anything the employer should know", "ما يجب أن يعرفه صاحب العمل")}</label><textarea id="ap-iv-notes" rows="2"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-iv-submit">${L("Confirm the booking", "أكّد الحجز")}</button>
+        <p class="emp-note" id="ap-iv-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
       </form>
     </div>
   </div></div>`;
@@ -4792,6 +4879,10 @@ function fieldOptionsHtml() {
 
 function buildEmployerDashboard() {
   const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
+  // Where the candidate is now, and where they've actually worked — the two
+  // questions an employer asks before deciding to hire locally or deploy.
+  const residences = `<option value="">${L("Anywhere", "أي مكان")}</option><option value="داخل السعودية">${L("Already in Saudi Arabia", "داخل السعودية")}</option><option value="خارج السعودية">${L("Outside Saudi Arabia", "خارج السعودية")}</option><option value="مقيم بإقامة نظامية قابلة للنقل">${L("Transferable iqama", "إقامة قابلة للنقل")}</option><option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>`;
+  const regions = `<option value="">${L("Any experience", "أي خبرة")}</option><option value="خبرة سعودية">${L("Saudi experience", "خبرة سعودية")}</option><option value="خبرة خليجية">${L("Gulf experience", "خبرة خليجية")}</option><option value="خبرة عربية">${L("Arab-region experience", "خبرة عربية")}</option><option value="خبرة دولية">${L("International experience", "خبرة دولية")}</option>`;
   const body = `
   <section class="hero"><div class="container hero-inner" style="max-width:1080px">
     <span class="eyebrow">${L("AI Hiring OS", "نظام التوظيف الذكي")}</span>
@@ -4863,6 +4954,8 @@ function buildEmployerDashboard() {
           <input type="text" id="empd-country" placeholder="${Lraw("All countries", "كل الدول")}">
           <input type="text" id="empd-city" placeholder="${Lraw("All cities", "كل المدن")}">
           <select id="empd-nat">${nats}</select>
+          <select id="empd-res">${residences}</select>
+          <select id="empd-region">${regions}</select>
           <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
         </div></div>
         <p class="emp-note" id="empd-status"></p>
@@ -4956,6 +5049,10 @@ function buildPortalJoin() {
 
 function buildPortalDashboard() {
   const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
+  // Where the candidate is now, and where they've actually worked — the two
+  // questions an employer asks before deciding to hire locally or deploy.
+  const residences = `<option value="">${L("Anywhere", "أي مكان")}</option><option value="داخل السعودية">${L("Already in Saudi Arabia", "داخل السعودية")}</option><option value="خارج السعودية">${L("Outside Saudi Arabia", "خارج السعودية")}</option><option value="مقيم بإقامة نظامية قابلة للنقل">${L("Transferable iqama", "إقامة قابلة للنقل")}</option><option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>`;
+  const regions = `<option value="">${L("Any experience", "أي خبرة")}</option><option value="خبرة سعودية">${L("Saudi experience", "خبرة سعودية")}</option><option value="خبرة خليجية">${L("Gulf experience", "خبرة خليجية")}</option><option value="خبرة عربية">${L("Arab-region experience", "خبرة عربية")}</option><option value="خبرة دولية">${L("International experience", "خبرة دولية")}</option>`;
   const body = `
   <section class="hero"><div class="container hero-inner" style="max-width:1080px">
     <span class="eyebrow">${L("AI Hiring OS", "نظام التوظيف الذكي")}</span>
@@ -5024,6 +5121,8 @@ function buildPortalDashboard() {
           <input type="text" id="empd-country" placeholder="${Lraw("All countries", "كل الدول")}">
           <input type="text" id="empd-city" placeholder="${Lraw("All cities", "كل المدن")}">
           <select id="empd-nat">${nats}</select>
+          <select id="empd-res">${residences}</select>
+          <select id="empd-region">${regions}</select>
           <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
         </div></div>
         <p class="emp-note" id="empd-status"></p>
