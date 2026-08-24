@@ -11,8 +11,13 @@ export const dynamic = 'force-dynamic';
  * العميل هنا هو نفسه في العرض، فلا شيء يُراجَع. والخدمة مفتوحة السعر تصل
  * كطلب تسعير لأنه لا يوجد رقم بعد.
  */
-export default async function PortalServicesPage() {
+export default async function PortalServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string }>;
+}) {
   await guardClient();
+  const { code } = await searchParams;
   const services = await prisma.service.findMany({
     where: { active: true },
     orderBy: [{ sortOrder: 'asc' }, { nameAr: 'asc' }],
@@ -30,7 +35,7 @@ export default async function PortalServicesPage() {
         اختر الخدمة ويصدر عرض السعر فوراً ويصلك على بريدك. كل الأسعار غير شاملة ضريبة
         القيمة المضافة، والرسوم الحكومية مستثناة وتُحصَّل بقيمتها الفعلية.
       </p>
-      <ServicePicker services={services} />
+      <ServicePicker services={services} preselectCode={(code || '').toUpperCase()} />
     </>
   );
 }

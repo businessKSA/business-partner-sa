@@ -178,6 +178,12 @@ const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
 // this site — a hardcoded absolute link here used to land compliance clients
 // in the specialized-team portal with a code it didn't recognize.)
 const COMPLIANCE_PORTAL_URL = "/ar/compliance-dashboard";
+// بوابة العميل: عرض سعر رسمي وعقد وفاتورة ضريبية. مسار موازٍ للسلة —
+// السلة شراء فوري، والبوابة مستند رسمي موقّع. النطاق من البيئة ليُبدَّل
+// إلى نطاق فرعي من businesspartner.sa دون تعديل الشيفرة.
+const CLIENT_PORTAL_URL = (process.env.PORTAL_URL || "https://bp-quotes-three.vercel.app").replace(/\/+$/, "");
+const portalQuoteUrl = (code) =>
+  `${CLIENT_PORTAL_URL}/portal/services${code ? "?code=" + encodeURIComponent(code) : ""}`;
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -1231,14 +1237,19 @@ function buildServiceDetail(s) {
           ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
         <div class="price-note">${esc(priceNote)}</div>
         ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
+        <a class="btn btn-ghost" href="${portalQuoteUrl(s.code)}" style="width:100%">${I.doc || ""}<span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
+        <p class="mini">${L("Quotation, contract and tax invoice — issued instantly in your client portal.", "عرض سعر وعقد وفاتورة ضريبية — تصدر فوراً في بوابة العميل.")}</p>
         <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
           : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
         ${s.category === "Real Estate" && !s.ctaConsultation
-          ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
+          ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>
+        <a class="btn btn-ghost" href="${portalQuoteUrl(s.code)}" style="width:100%"><span>${L("Request an official quotation", "اطلب عرض سعر رسمي")}</span></a>`
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
-          : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}`}
+          : `<a class="btn btn-primary" href="${portalQuoteUrl(s.code)}" style="width:100%"><span>${L("Request an official quotation", "اطلب عرض سعر رسمي")}</span></a>
+        <p class="mini">${L("Priced case by case — your request reaches us and the quotation follows in your client portal.", "تُسعَّر حسب حالتك — يصلنا طلبك ويصلك العرض في بوابة العميل.")}</p>
+        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`}`}
         ${waBtn2("Chat with the smart agent", "تحدث مع الوكيل الذكي", "btn-ghost")}
         <p class="mini">${L("Instant reply from the smart agent 24/7", "رد فوري من الوكيل الذكي 24/7")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
@@ -1642,6 +1653,7 @@ function buildPackages() {
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
       ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
+      <a class="btn btn-ghost" href="${portalQuoteUrl(t.key ? "PKG-" + String(t.key).toUpperCase() : "")}" style="width:100%"><span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
       ${t.surcharge || t.surchargeEn ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
     </div>`;
   };

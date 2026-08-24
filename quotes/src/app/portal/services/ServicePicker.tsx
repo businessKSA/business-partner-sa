@@ -20,10 +20,20 @@ export interface PortalService {
 const money = (n: number) =>
   new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 
-export default function ServicePicker({ services }: { services: PortalService[] }) {
+export default function ServicePicker({
+  services,
+  preselectCode = '',
+}: {
+  services: PortalService[];
+  preselectCode?: string;
+}) {
   const [state, action, pending] = useActionState(actionRequestQuote, {});
   const [q, setQ] = useState('');
-  const [picked, setPicked] = useState<PortalService | null>(null);
+  // القادم من صفحة الخدمة في الموقع يصل ومعه رمزها، فيفتح على خدمته مباشرة
+  // بدل أن يبحث عنها من جديد بين مئة خدمة.
+  const [picked, setPicked] = useState<PortalService | null>(
+    () => services.find((x) => x.code.toUpperCase() === preselectCode) ?? null,
+  );
 
   const shown = useMemo(() => {
     const t = q.trim();
