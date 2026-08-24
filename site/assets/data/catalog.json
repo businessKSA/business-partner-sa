@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-24T04:27:45.664Z",
+  "updatedAt": "2026-08-24T10:11:35.891Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -1920,9 +1920,9 @@
       "key": "basic-legal",
       "nameAr": "الباقة الأساسية",
       "nameEn": "Basic Package",
-      "amount": 660,
-      "priceLabel": "From 660 SAR / monthly",
-      "priceLabelAr": "تبدأ من 660 ﷼ / شهرياً",
+      "amount": 8000,
+      "priceLabel": "8,000 SAR / monthly",
+      "priceLabelAr": "8,000 ﷼ / شهرياً",
       "billingPeriod": "monthly",
       "featuresAr": [
         "استشارات هاتفية غير محدودة",
@@ -1950,9 +1950,9 @@
       "key": "advanced",
       "nameAr": "الباقة المتقدمة",
       "nameEn": "Advanced Package",
-      "amount": 1327,
-      "priceLabel": "From 1,327 SAR / monthly",
-      "priceLabelAr": "تبدأ من 1,327 ﷼ / شهرياً",
+      "amount": 15000,
+      "priceLabel": "15,000 SAR / monthly",
+      "priceLabelAr": "15,000 ﷼ / شهرياً",
       "billingPeriod": "monthly",
       "featuresAr": [
         "استشارات هاتفية غير محدودة",
@@ -1984,9 +1984,9 @@
       "key": "comprehensive",
       "nameAr": "الباقة الشاملة",
       "nameEn": "Comprehensive Package",
-      "amount": 2600,
-      "priceLabel": "From 2,600 SAR / monthly",
-      "priceLabelAr": "تبدأ من 2,600 ﷼ / شهرياً",
+      "amount": 30000,
+      "priceLabel": "30,000 SAR / monthly",
+      "priceLabelAr": "30,000 ﷼ / شهرياً",
       "billingPeriod": "monthly",
       "featuresAr": [
         "استشارات هاتفية غير محدودة",
@@ -2022,9 +2022,9 @@
       "key": "strategic",
       "nameAr": "الباقة الاستراتيجية",
       "nameEn": "Strategic Package",
-      "amount": 3933,
-      "priceLabel": "From 3,933 SAR / monthly",
-      "priceLabelAr": "تبدأ من 3,933 ﷼ / شهرياً",
+      "amount": 50000,
+      "priceLabel": "50,000 SAR / monthly",
+      "priceLabelAr": "50,000 ﷼ / شهرياً",
       "billingPeriod": "monthly",
       "featuresAr": [
         "استشارات هاتفية غير محدودة",
