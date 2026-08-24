@@ -4152,6 +4152,13 @@ var BP = window.BP = window.BP || {};
         // Moyasar side, and a wallet button that fails when tapped is worse
         // than one that was never shown.
         var wanted = (cfg.methods && cfg.methods.length) ? cfg.methods : ["creditcard"];
+        // Apple Pay only where this browser can actually complete it — on
+        // Chrome/Android the button is a dead end and its failed merchant
+        // validation paints an error over a perfectly working card form.
+        var canAP = false;
+        try { canAP = !!(window.ApplePaySession && window.ApplePaySession.canMakePayments && window.ApplePaySession.canMakePayments()); } catch (eAP) {}
+        if (!canAP) wanted = wanted.filter(function (m) { return m !== "applepay"; });
+        if (!wanted.length) wanted = ["creditcard"];
         function boot(methods, applePay) {
           if (mount) mount.innerHTML = "";
           window.Moyasar.init({
@@ -4182,7 +4189,7 @@ var BP = window.BP = window.BP || {};
         // A wallet this browser cannot render must not take the card form down
         // with it. Swallowing the failure silently is how a buyer ends up
         // staring at an empty box with nothing to report and nothing to fix.
-        try { boot(wanted, cfg.applePay); }
+        try { boot(wanted, canAP ? cfg.applePay : null); }
         catch (e3) {
           if (window.console) console.warn("Moyasar init failed for", wanted, "— retrying with card only:", e3);
           try { boot(["creditcard"], null); }

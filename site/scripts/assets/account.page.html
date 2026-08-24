@@ -2068,7 +2068,13 @@
             });
           }
           var wanted = (cfg.methods && cfg.methods.length) ? cfg.methods : ['creditcard'];
-          try { boot(wanted, cfg.applePay); } catch (e1) { try { boot(['creditcard'], null); } catch (e2) { wnote('wtopMsg', 'err', 'تعذّر تحميل نموذج الدفع — جرّب التحويل البنكي.'); wtopBtn.disabled = false; return; } }
+          // Apple Pay only where the browser can complete it — elsewhere the
+          // dead button and its failed validation just scare the payer off.
+          var canAP = false;
+          try { canAP = !!(window.ApplePaySession && window.ApplePaySession.canMakePayments && window.ApplePaySession.canMakePayments()); } catch (eAP) {}
+          if (!canAP) wanted = wanted.filter(function(m){ return m !== 'applepay'; });
+          if (!wanted.length) wanted = ['creditcard'];
+          try { boot(wanted, canAP ? cfg.applePay : null); } catch (e1) { try { boot(['creditcard'], null); } catch (e2) { wnote('wtopMsg', 'err', 'تعذّر تحميل نموذج الدفع — جرّب التحويل البنكي.'); wtopBtn.disabled = false; return; } }
           wtopBtn.disabled = false;
           wnote('wtopMsg', 'ok', 'أكمل بيانات البطاقة أدناه — الرصيد يُقيَّد تلقائياً فور نجاح الدفع.');
           setTimeout(function(){ var m = $('wtop-epay'); if (m && !m.children.length) wnote('wtopMsg', 'err', 'تعذّر عرض نموذج الدفع — جرّب التحويل البنكي.'); }, 2500);
