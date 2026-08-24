@@ -339,13 +339,26 @@
           return res.json();
         });
       }
-      // Advisor feed is best-effort: if the key doesn't match LEADS_KEY (or it's
-      // unset) we simply show no website threads — the WhatsApp inbox is unaffected.
+      // The advisor feed must not fail silently. It did: any non-200 became an
+      // empty array, so a misconfigured gate and "no one wrote to us today"
+      // looked identical — for seven seconds at a time, indefinitely. The
+      // WhatsApp inbox still works when this fails, but the failure is now
+      // stated instead of being read as absence.
+      var advisorProblem = '';
       function fetchAdvisor() {
         return fetch(ADVISOR_URL + '&key=' + encodeURIComponent(accessKey), { cache: 'no-store' })
-          .then(function (res) { return res.ok ? res.json() : null; })
-          .then(function (d) { return (d && d.ok && d.messages) || []; })
-          .catch(function () { return []; });
+          .then(function (res) {
+            if (res.ok) return res.json();
+            advisorProblem = res.status === 401
+              ? 'محادثات الموقع محجوبة: مفتاح الوصول لا يفتحها.'
+              : 'محادثات الموقع لا تصل (HTTP ' + res.status + ').';
+            return null;
+          })
+          .then(function (d) {
+            if (d && d.ok) advisorProblem = '';
+            return (d && d.ok && d.messages) || [];
+          })
+          .catch(function () { advisorProblem = 'تعذّر الوصول إلى محادثات الموقع.'; return []; });
       }
 
       function groupByPhone() {
@@ -534,7 +547,20 @@
         if (nearBottom) area.scrollTop = area.scrollHeight;
       }
 
-      function render() { renderSidebar(); renderChat(); }
+      function render() {
+        renderSidebar(); renderChat();
+        var box = document.getElementById('advWarn');
+        if (!box) {
+          box = document.createElement('div');
+          box.id = 'advWarn';
+          box.setAttribute('style', 'display:none;margin:0 0 8px;padding:8px 11px;border-radius:9px;'
+            + 'background:#fffbeb;border:1px solid #fcd34d;color:#92400e;font-size:11.5px;font-weight:600;line-height:1.7');
+          var list = document.getElementById('convList');
+          if (list && list.parentNode) list.parentNode.insertBefore(box, list);
+        }
+        box.textContent = advisorProblem;
+        box.style.display = advisorProblem ? 'block' : 'none';
+      }
 
       function beep() {
         try { var c = new (window.AudioContext || window.webkitAudioContext)(); var o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = .05; o.start(); o.stop(c.currentTime + .12); } catch (e) {}
