@@ -1608,27 +1608,32 @@
         // 404s into an error page still loads silently in a browser and draws
         // nothing — which is exactly the symptom we are chasing.
         if (r.mpf) {
-          var m = r.mpf;
-          var mOk = m.ok && m.definesMoyasar && !m.looksHtml;
+          // Named apart from the message element. `var` is function-scoped, so a
+          // second `var m` here was the SAME binding as the outer m = $('myMsg'):
+          // the finished diagnosis was written onto this plain object instead of
+          // onto the page, and the spinner sat there forever while the server had
+          // already answered 200.
+          var mpf = r.mpf;
+          var mOk = mpf.ok && mpf.definesMoyasar && !mpf.looksHtml;
           html += '<span class="kv"><i>' + (mOk ? '✅' : '⛔') + ' نموذج الدفع (سكربت مُيسّر):</i>' +
-            (m.error ? 'تعذّر الجلب — ' + esc(m.error)
-              : 'HTTP ' + m.status + ' · ' + (m.bytes || 0) + ' بايت · ' + esc(m.contentType || '—') +
-                (m.definesMoyasar ? ' · يعرّف Moyasar ✓' : ' · لا يعرّف Moyasar ✗') +
-                (m.looksHtml ? ' · صفحة HTML وليست سكربت ⚠' : '')) + '</span>';
-          html += '<div style="margin-top:4px;font-size:11.5px;color:var(--soft);direction:ltr;text-align:start">' + esc(m.url || '') + '</div>';
+            (mpf.error ? 'تعذّر الجلب — ' + esc(mpf.error)
+              : 'HTTP ' + mpf.status + ' · ' + (mpf.bytes || 0) + ' بايت · ' + esc(mpf.contentType || '—') +
+                (mpf.definesMoyasar ? ' · يعرّف Moyasar ✓' : ' · لا يعرّف Moyasar ✗') +
+                (mpf.looksHtml ? ' · صفحة HTML وليست سكربت ⚠' : '')) + '</span>';
+          html += '<div style="margin-top:4px;font-size:11.5px;color:var(--soft);direction:ltr;text-align:start">' + esc(mpf.url || '') + '</div>';
           // Cards are drawn by Moyasar and styled by its stylesheet; Apple Pay
           // is drawn and styled by Apple. A missing stylesheet looks exactly
           // like "Apple Pay works, cards do not".
-          if (m.css)
-            html += '<span class="kv"><i>' + (m.css.ok ? '✅' : '⛔') + ' ملف تنسيق النموذج (CSS):</i>' +
-              (m.css.error ? 'تعذّر — ' + esc(m.css.error) : 'HTTP ' + m.css.status + ' · ' + (m.css.bytes || 0) + ' بايت') + '</span>';
-          if (m.css && !m.css.ok)
+          if (mpf.css)
+            html += '<span class="kv"><i>' + (mpf.css.ok ? '✅' : '⛔') + ' ملف تنسيق النموذج (CSS):</i>' +
+              (mpf.css.error ? 'تعذّر — ' + esc(mpf.css.error) : 'HTTP ' + mpf.css.status + ' · ' + (mpf.css.bytes || 0) + ' بايت') + '</span>';
+          if (mpf.css && !mpf.css.ok)
             html += '<div style="margin-top:6px;color:#b91c1c;font-weight:600">⚠ هذا يفسّر تماماً ما تراه: زر Apple Pay ترسمه آبل فيظهر، وحقول البطاقة تنسّقها مُيسّر فتختفي بلا تنسيق.</div>';
-          if (m.alternatives && m.alternatives.length){
-            var live = m.alternatives.filter(function(a){ return a.ok; });
+          if (mpf.alternatives && mpf.alternatives.length){
+            var live = mpf.alternatives.filter(function(a){ return a.ok; });
             html += '<div style="margin-top:8px;font-size:12px;color:var(--soft)">إصدارات أخرى: ' +
-              m.alternatives.map(function(a){ return (a.ok?'✅':'⛔') + ' ' + a.version; }).join(' · ') + '</div>';
-            if (!m.ok && live.length)
+              mpf.alternatives.map(function(a){ return (a.ok?'✅':'⛔') + ' ' + a.version; }).join(' · ') + '</div>';
+            if (!mpf.ok && live.length)
               html += '<div style="margin-top:6px;color:#14532d;font-weight:600">✅ الحل: ضع في Vercel <span style="direction:ltr;display:inline-block">MOYASAR_MPF_URL=https://cdn.moyasar.com/mpf/' + esc(live[0].version) + '/moyasar.js</span> ثم Redeploy.</div>';
           }
           if (!mOk)
