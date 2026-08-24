@@ -73,8 +73,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "85 ﷼",
-      "amount": 85
+      "label": "250 ﷼",
+      "amount": 250
     }
   },
   {
@@ -205,8 +205,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "39 ﷼",
-      "amount": 39
+      "label": "100 ﷼",
+      "amount": 100
     }
   },
   {
@@ -241,8 +241,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "39 ﷼",
-      "amount": 39
+      "label": "100 ﷼",
+      "amount": 100
     }
   },
   {
@@ -259,8 +259,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "65 ﷼",
-      "amount": 65
+      "label": "180 ﷼",
+      "amount": 180
     }
   },
   {
@@ -277,8 +277,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "49 ﷼",
-      "amount": 49
+      "label": "100 ﷼",
+      "amount": 100
     }
   },
   {
@@ -353,8 +353,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "19 ﷼",
-      "amount": 19
+      "label": "100 ﷼",
+      "amount": 100
     }
   },
   {
@@ -389,8 +389,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "70 ﷼",
-      "amount": 70
+      "label": "180 ﷼",
+      "amount": 180
     }
   },
   {
@@ -514,8 +514,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "40,000 ﷼",
-      "amount": 40000
+      "label": "30,000 ﷼",
+      "amount": 30000
     }
   },
   {
@@ -971,8 +971,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "39 ﷼",
-      "amount": 39
+      "label": "100 ﷼",
+      "amount": 100
     }
   },
   {
@@ -991,8 +991,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "99 ﷼",
-      "amount": 99
+      "label": "250 ﷼",
+      "amount": 250
     }
   },
   {
@@ -1045,8 +1045,8 @@
     "govFeesSeparate": true,
     "requiresProposal": true,
     "price": {
-      "label": "79 ﷼",
-      "amount": 79
+      "label": "180 ﷼",
+      "amount": 180
     }
   },
   {
