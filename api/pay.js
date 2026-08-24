@@ -650,6 +650,16 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({
       enabled: !!PK,
       provider: "moyasar",
+      // Whether this deployment can verify a payment at all. Booleans only —
+      // no key, no prefix, no length. Without it, "the variable is not set in
+      // production" and "the key is set but wrong" produce the identical 401
+      // and are indistinguishable from outside, which is how a broken payment
+      // path stayed broken across a fix that could never have addressed it.
+      canVerify: !!SK,
+      // Both keys must describe the same Moyasar environment: a live form
+      // charging real cards while verification asks a test account is a 401
+      // that looks like a bad key and is not one.
+      modeMatch: !PK || !SK || /^pk_live_/.test(PK) === /^sk_live_/.test(SK),
       publishableKey: PK || null,
       scriptUrl: MPF_JS,
       cssUrl: MPF_CSS,
