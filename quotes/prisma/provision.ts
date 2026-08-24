@@ -34,12 +34,42 @@ async function main() {
   await prisma.$disconnect();
 
   if (count > 0) {
-    console.log(`الكتالوج موجود (${count} خدمة) — تُتجاوز البذرة.`);
+    // الكتالوج مبذور من قبل. البذرة الكاملة تُرجع أي سعر عدّله المستخدم يدوياً،
+    // فلا تُشغَّل — لكن البنود الجديدة تُضاف وإلا بقيت حبيسة المستودع.
+    const added = await addNewServices();
+    console.log(
+      added
+        ? `الكتالوج موجود (${count} خدمة) — أُضيف ${added} بنداً جديداً.`
+        : `الكتالوج موجود (${count} خدمة) ولا بنود جديدة — تُتجاوز البذرة.`,
+    );
     return;
   }
 
   console.log('الكتالوج فارغ — تُبذَر البيانات الأولية.');
   await import('./seed');
+}
+
+/**
+ * تُضيف بنود الكتالوج التي لا وجود لها في قاعدة البيانات، ولا تمسّ الموجود منها
+ * بحرف. تُستورد البذرة بـ `SEED_IMPORT_ONLY` فتُقرأ بياناتها دون أن تعمل.
+ */
+async function addNewServices(): Promise<number> {
+  process.env.SEED_IMPORT_ONLY = '1';
+  const { ALL_SERVICES, serviceRow } = await import('./seed');
+
+  const prisma = new PrismaClient();
+  try {
+    const existing = await prisma.service.findMany({ select: { code: true } });
+    const have = new Set(existing.map((s) => s.code));
+    const missing = ALL_SERVICES.filter((s) => !have.has(s.code));
+    for (const s of missing) {
+      await prisma.service.create({ data: serviceRow(s) });
+      console.log(`  + ${s.code} — ${s.nameAr}`);
+    }
+    return missing.length;
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
 main().catch((e) => {

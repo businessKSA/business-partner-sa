@@ -342,34 +342,41 @@ const GOV_FEES = [
   ['التسجيل في هيئة الزكاة والضريبة والجمارك', 'Registration with the Zakat, Tax and Customs Authority', null, 'بدون رسوم', 'no fees'],
 ] as [string, string, number | null, string | null, string | null][];
 
+/** كل بنود الكتالوج في مصفوفة واحدة — تستوردها `provision.ts` لإضافة الجديد فقط. */
+export const ALL_SERVICES: S[] = [...FULL_PRICED, ...REVENUE, ...OPEN_PRICE];
+
+/** صف قاعدة البيانات المقابل لبند الكتالوج. */
+export function serviceRow(s: S) {
+  return {
+    code: s.code,
+    category: s.category,
+    nameAr: s.nameAr,
+    nameEn: s.nameEn,
+    descAr: s.descAr ?? null,
+    descEn: s.descEn ?? null,
+    unitPrice: s.unitPrice ?? 0,
+    unitAr: s.unitAr ?? 'خدمة',
+    unitEn: s.unitEn ?? 'service',
+    minQty: s.minQty ?? 1,
+    openPrice: s.openPrice ?? false,
+    paymentTermsAr: s.paymentTermsAr ?? '',
+    paymentTermsEn: s.paymentTermsEn ?? '',
+    deliveryAr: s.deliveryAr ?? '',
+    deliveryEn: s.deliveryEn ?? '',
+    notesAr: s.notesAr ?? null,
+    notesEn: s.notesEn ?? null,
+    attachGovFees: s.attachGovFees ?? false,
+    govFeeGroup: s.govFeeGroup ?? null,
+    validityDays: s.validityDays ?? null,
+    sortOrder: s.sortOrder ?? 100,
+  };
+}
+
 async function main() {
-  const all = [...FULL_PRICED, ...REVENUE, ...OPEN_PRICE];
-  for (const s of all) {
+  for (const s of ALL_SERVICES) {
     await prisma.service.upsert({
       where: { code: s.code },
-      create: {
-        code: s.code,
-        category: s.category,
-        nameAr: s.nameAr,
-        nameEn: s.nameEn,
-        descAr: s.descAr ?? null,
-        descEn: s.descEn ?? null,
-        unitPrice: s.unitPrice ?? 0,
-        unitAr: s.unitAr ?? 'خدمة',
-        unitEn: s.unitEn ?? 'service',
-        minQty: s.minQty ?? 1,
-        openPrice: s.openPrice ?? false,
-        paymentTermsAr: s.paymentTermsAr ?? '',
-        paymentTermsEn: s.paymentTermsEn ?? '',
-        deliveryAr: s.deliveryAr ?? '',
-        deliveryEn: s.deliveryEn ?? '',
-        notesAr: s.notesAr ?? null,
-        notesEn: s.notesEn ?? null,
-        attachGovFees: s.attachGovFees ?? false,
-        govFeeGroup: s.govFeeGroup ?? null,
-        validityDays: s.validityDays ?? null,
-        sortOrder: s.sortOrder ?? 100,
-      },
+      create: serviceRow(s),
       // التحديث لا يمس السعر إن عدّله المستخدم من صفحة إدارة الكتالوج
       update: {
         category: s.category,
@@ -418,10 +425,13 @@ async function main() {
   console.log(`الكتالوج: ${svc} خدمة — الرسوم الحكومية: ${fees} بند`);
 }
 
-main()
-  .then(() => prisma.$disconnect())
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+// تُستورد من `provision.ts` لقراءة البيانات وحدها، فلا تُشغَّل البذرة الكاملة حينها.
+if (!process.env.SEED_IMPORT_ONLY) {
+  main()
+    .then(() => prisma.$disconnect())
+    .catch(async (e) => {
+      console.error(e);
+      await prisma.$disconnect();
+      process.exit(1);
+    });
+}
