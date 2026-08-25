@@ -182,6 +182,19 @@ model Service {
   // صلاحية العرض بالأيام إن اختلفت عن الافتراضي (قوى = 15)
   validityDays  Int?
 
+  // وسائل السداد المسموحة لهذه الخدمة، مفصولة بفواصل.
+  // فارغة = كل الوسائل المفعّلة في النظام.
+  paymentMethods String @default("")
+
+  // روابط الخدمة في المصادر الأخرى — تُملأ من المزامنة وتُعرض في خريطة الكتالوج.
+  notionPageId String? // معرّف صفحة الخدمة في كتالوج نوشن الرسمي
+  siteSlug     String? // مسار صفحة الخدمة على الموقع التعريفي
+  govPlatform  String? // الجهة الحكومية كما هي معلنة على الموقع وفي نوشن
+
+  // أثر آخر مزامنة: من أين جاء آخر تعديل ومتى.
+  syncSource String? // panel | notion | site
+  syncedAt   DateTime?
+
   active    Boolean  @default(true)
   aiCreated Boolean  @default(false) // أُضيفت عبر الوكيل الذكي بعد الاعتماد
   sortOrder Int      @default(100)

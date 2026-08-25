@@ -382,5 +382,17 @@
   "BP-HOUSING-02": {
     "en": "Worker transport — housing to work sites",
     "ar": "نقل العمالة — من السكن إلى مواقع العمل"
+  },
+  "BP-AI-03": {
+    "en": "Compliance & obligations agent",
+    "ar": "وكيل الامتثال والالتزام"
+  },
+  "BP-AI-SMART-EMPLOYEE": {
+    "en": "Specialist smart employee",
+    "ar": "الموظف الذكي المتخصص"
+  },
+  "BP-AI-04": {
+    "en": "Shared services team",
+    "ar": "فريق الخدمات المشتركة"
   }
 }

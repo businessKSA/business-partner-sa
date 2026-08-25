@@ -15,8 +15,9 @@ import { createSupplier, createSupplyRequest, addSupplierBid, selectBid, createS
 import { sendMail } from '@/lib/mailer';
 import { loadTemplate, render } from '@/lib/templates';
 import { storage, fileKey, clientFolderPath, type ClientFolder } from '@/lib/storage';
-import { logEvent } from '@/lib/timeline';
+import { logEvent, audit } from '@/lib/timeline';
 import { round2, fmtMoney } from '@/lib/money';
+import { notifyCatalogChanged } from '@/lib/catalog-sync';
 
 type State = { error?: string; ok?: string; link?: string };
 
@@ -373,6 +374,13 @@ export async function actionSaveService(_prev: State, fd: FormData): Promise<Sta
     govFeeGroup: fd.get('attachGovFees') === 'on' ? 'foreign-investment' : null,
     validityDays: n(fd, 'validityDays') || null,
     active: fd.get('active') === 'on',
+    // روابط المصادر الأخرى — تُحرَّر هنا فتصير خريطة الكتالوج كاملة.
+    paymentMethods: s(fd, 'paymentMethods'),
+    notionPageId: s(fd, 'notionPageId') || null,
+    siteSlug: s(fd, 'siteSlug') || null,
+    govPlatform: s(fd, 'govPlatform') || null,
+    syncSource: 'panel',
+    syncedAt: new Date(),
   };
   if (!data.code || !data.nameAr || !data.nameEn) return { error: 'الكود والاسم بالعربي والإنجليزي حقول مطلوبة' };
   try {
@@ -381,8 +389,50 @@ export async function actionSaveService(_prev: State, fd: FormData): Promise<Sta
   } catch (e) {
     return { error: e instanceof Error ? e.message : String(e) };
   }
+  // إشعار n8n ليحدّث صف نوشن ويعيد نشر الموقع. لا يُفشِل الحفظ عند تعذّره —
+  // السعر استقرّ في مخزن الحقيقة، وتراجعُه لأن سير عمل خارجي متوقف أسوأ.
+  const hook = await notifyCatalogChanged({ codes: [data.code], source: 'panel', actor: 'admin' });
   revalidatePath('/admin/catalog');
-  return { ok: 'حُفظت الخدمة' };
+  revalidatePath('/admin/catalog/map');
+  return { ok: hook.sent ? 'حُفظت الخدمة وأُبلغت المصادر الأخرى' : 'حُفظت الخدمة' };
+}
+
+/**
+ * تثبيت الأسعار المعلنة: كل خدمة عليها رقم فعلي يتوقف عندها «السعر المفتوح».
+ *
+ * كانت خدمات «يبدأ من» تُستورد كسعر مفتوح، فيصل طلب العميل إلى المالك ليسعّره
+ * رغم أن الرقم منشور على الموقع أصلاً. بقرار المالك (٢٥ أغسطس ٢٠٢٦) صار الرقم
+ * المنشور سعراً نهائياً، والزيادة — إن وُجدت — بنداً مستقلاً في العرض.
+ *
+ * لا يلمس خدمة بلا رقم: تلك تبقى مفتوحة لأن لا سعر لها يُثبَّت.
+ */
+export async function actionFixOpenPrices(): Promise<State> {
+  await requireAdmin();
+  const targets = await prisma.service.findMany({
+    where: { openPrice: true, unitPrice: { gt: 0 } },
+    select: { id: true, code: true, unitPrice: true },
+  });
+  if (!targets.length) return { ok: 'لا توجد أسعار معلّقة — كل خدمة مسعّرة صارت ثابتة.' };
+
+  await prisma.service.updateMany({
+    where: { id: { in: targets.map((t) => t.id) } },
+    data: { openPrice: false, syncSource: 'panel', syncedAt: new Date() },
+  });
+  await audit({
+    action: 'CATALOG_PRICES_FIXED',
+    entityType: 'Service',
+    entityId: 'catalog',
+    actor: 'admin',
+    payload: { count: targets.length, codes: targets.map((t) => t.code) },
+  });
+  await notifyCatalogChanged({
+    codes: targets.map((t) => t.code),
+    source: 'panel',
+    actor: 'admin',
+  });
+  revalidatePath('/admin/catalog');
+  revalidatePath('/admin/catalog/map');
+  return { ok: `ثُبِّت سعر ${targets.length} خدمة: ${targets.map((t) => t.code).join('، ')}` };
 }
 
 export async function actionToggleService(id: string, active: boolean) {

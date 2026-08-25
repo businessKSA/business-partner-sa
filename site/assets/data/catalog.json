@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-24T23:54:53.500Z",
+  "updatedAt": "2026-08-25T02:51:38.973Z",
   "currency": "SAR",
   "services": [
     {
@@ -1331,6 +1331,48 @@
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-ai-02"
+    },
+    {
+      "code": "BP-AI-03",
+      "nameAr": "وكيل الامتثال والالتزام",
+      "nameEn": "Compliance & obligations agent",
+      "category": "AI Automation",
+      "categoryAr": "الأتمتة والذكاء الاصطناعي",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 250,
+      "priceLabel": "250 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ai-03"
+    },
+    {
+      "code": "BP-AI-SMART-EMPLOYEE",
+      "nameAr": "الموظف الذكي المتخصص",
+      "nameEn": "Specialist smart employee",
+      "category": "AI Automation",
+      "categoryAr": "الأتمتة والذكاء الاصطناعي",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 500,
+      "priceLabel": "500 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ai-smart-employee"
+    },
+    {
+      "code": "BP-AI-04",
+      "nameAr": "فريق الخدمات المشتركة",
+      "nameEn": "Shared services team",
+      "category": "AI Automation",
+      "categoryAr": "الأتمتة والذكاء الاصطناعي",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 1500,
+      "priceLabel": "1,500 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ai-04"
     }
   ],
   "categories": [
@@ -1386,7 +1428,7 @@
       "key": "AI Automation",
       "nameAr": "الأتمتة والذكاء الاصطناعي",
       "nameEn": "AI & Automation",
-      "count": 2
+      "count": 5
     }
   ],
   "packages": [

@@ -256,7 +256,7 @@
         "nameAr": "باقة الانطلاق",
         "nameEn": "Launch Package",
         "code": null,
-        "amount": 7500,
+        "amount": 6000,
         "price": "تبدأ من 6,000 ﷼ / سنويًا",
         "priceEn": "Starting from 7,500 SAR / yearly",
         "for": "للمنشآت الصغيرة",
@@ -278,7 +278,7 @@
           "Medical insurance management",
           "Basic Zakat & tax compliance"
         ],
-        "surchargeAmount": 500,
+        "surchargeAmount": 400,
         "surchargeFreeCount": 4
       },
       {
@@ -287,7 +287,7 @@
         "nameAr": "باقة النمو",
         "nameEn": "Growth Package",
         "code": null,
-        "amount": 13500,
+        "amount": 10800,
         "price": "تبدأ من 10,800 ﷼ / سنويًا",
         "priceEn": "Starting from 13,500 SAR / yearly",
         "for": "للمنشآت المتوسطة",
@@ -309,7 +309,7 @@
           "Periodic follow-up on regulatory obligations",
           "Extended operational support"
         ],
-        "surchargeAmount": 750,
+        "surchargeAmount": 600,
         "surchargeFreeCount": 9
       },
       {
@@ -318,7 +318,7 @@
         "nameAr": "باقة التوسّع",
         "nameEn": "Scale Package",
         "code": null,
-        "amount": 20000,
+        "amount": 16000,
         "price": "تبدأ من 16,000 ﷼ / سنويًا",
         "priceEn": "Starting from 20,000 SAR / yearly",
         "for": "للمنشآت الكبيرة",
@@ -342,7 +342,7 @@
         ],
         "badgeAr": "موصى به",
         "badgeEn": "Recommended",
-        "surchargeAmount": 1000,
+        "surchargeAmount": 800,
         "surchargeFreeCount": 9
       },
       {
@@ -377,7 +377,7 @@
           "Dedicated operational support team & platform follow-up",
           "Reports & KPIs to track activity and performance"
         ],
-        "surchargeAmount": 1500,
+        "surchargeAmount": 1200,
         "surchargeFreeCount": 60
       }
     ],
