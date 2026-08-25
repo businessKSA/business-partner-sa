@@ -1192,7 +1192,7 @@
         var l = leads[i];
         if (statusFilter !== 'all' && statusMeta(l.status).cls !== statusFilter) continue;
         if (search){
-          var hay = (l.ref + ' ' + l.title + ' ' + l.phone + ' ' + l.email + ' ' + l.status + ' ' + l.stage).toLowerCase();
+          var hay = (l.ref + ' ' + l.title + ' ' + l.phone + ' ' + l.email + ' ' + l.status + ' ' + l.stage + ' ' + (l.channel ? l.channel.label : '')).toLowerCase();
           if (hay.indexOf(search.toLowerCase()) === -1) continue;
         }
         shownLeads.push(l);
@@ -1204,7 +1204,9 @@
         for (var s0 = 0; s0 < STATUSES.length; s0++) statOpts += '<option value="' + STATUSES[s0] + '">' + STATUSES[s0] + '</option>';
         rows += '<tr data-open="' + idx + '">' +
           '<td class="ref">' + esc(l.ref || '—') + '</td>' +
-          '<td class="lead-title"><span class="t">' + esc(l.title || '—') + '</span>' +
+          '<td class="lead-title">' +
+            (l.channel ? '<span style="background:' + l.channel.color + '14;color:' + l.channel.color + ';border:1px solid ' + l.channel.color + '33;border-radius:12px;padding:0 8px;font-size:11px;white-space:nowrap;display:inline-block;margin-bottom:2px">' + l.channel.icon + ' ' + esc(l.channel.label) + '</span> ' : '') +
+            '<span class="t">' + esc(l.title || '—') + '</span>' +
             (l.details ? '<span class="d">' + esc(l.details) + '</span>' : '') + '</td>' +
           '<td class="when">' + (l.total != null && l.total > 0 ? esc(String(l.total)) + ' ﷼' : '<span style="color:#b91c1c" title="طلب بدون مبلغ — راجعه">—</span>') +
             '<span class="sub2">' + (l.hasReceipt ? '🧾 إيصال مرفق' : '<span style="color:#b91c1c">✕ بلا إيصال</span>') + '</span></td>' +
@@ -1292,8 +1294,11 @@
             var contact = '';
             if (digits) contact += '<a href="https://wa.me/' + digits + '" target="_blank" rel="noopener" style="background:#25D366;color:#fff;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">💬 واتساب</a> <a href="tel:+' + digits + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">📞 اتصال</a>';
             if (f.email) contact += ' <a href="mailto:' + esc(f.email) + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">✉️ بريد</a>';
+            var ch = f.channel || { icon:'🌐', label:'الموقع', color:'#334155' };
             return '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;border-bottom:1px dashed #E2E8F0;padding:9px 0">'
-              + '<div style="min-width:220px"><b>' + esc(f.title) + '</b>'
+              + '<div style="min-width:220px">'
+              + '<span style="background:' + ch.color + '14;color:' + ch.color + ';border:1px solid ' + ch.color + '33;border-radius:12px;padding:1px 9px;font-size:11px;margin-left:6px;white-space:nowrap">' + ch.icon + ' ' + esc(ch.label) + '</span>'
+              + '<b>' + esc(f.title) + '</b>'
               + (f.human ? ' <span style="background:#FEE2E2;color:#b91c1c;border-radius:6px;padding:1px 7px;font-size:11px">يحتاج ردّك</span>' : '')
               + '<br><span style="color:#64748b;font-size:12px">' + esc([f.ref, f.stage, f.order].filter(Boolean).join(' · ')) + '</span></div>'
               + '<div style="flex:1;min-width:180px;color:#0B1B5A;font-size:12.5px">← ' + esc(f.action) + '</div>'

@@ -206,6 +206,7 @@ async function listLeads(limit) {
     const taxKind = /نوع الفاتورة:\s*منشأة/.test(notes) ? "company" : (/نوع الفاتورة:\s*شخصي/.test(notes) ? "personal" : "");
     return {
       title, ref, at, stage, status, source,
+      channel: channelOf({ ref, source, order: status, title }),
       // Whose name the invoice belongs in, when the buyer named an
       // establishment but did not go through the tax-profile step.
       company: field("المنشأة"),
@@ -341,7 +342,14 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     // unsorted lead. Landing everything in "New" is what made the board
     // useless: the follow-up view could never tell a real request from noise.
     "Stage": { select: { name: orderStatus && STAGE_OF[orderStatus] ? STAGE_OF[orderStatus] : "New" } },
-    "Lead Source": { select: { name: "Website" } },
+    // Lead Source names the actual channel, not a generic "Website" — the same
+    // vocabulary channelOf() uses, so Notion, the panel and the digests agree.
+    "Lead Source": { select: { name:
+      orderStatus === "حجز استشارة" ? "حجز استشارة"
+      : String(ref || "").startsWith("MAG-") ? "تحميل مجلة"
+      : String(ref || "").startsWith("BP-WS") ? "مساحة عمل"
+      : (typeof total === "number" && total > 0) || String(ref || "").startsWith("BPB-") ? "شراء خدمة"
+      : "نموذج الموقع" } },
     "Human Required": { checkbox: true },
     "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}${agentsTag}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
@@ -415,6 +423,23 @@ function propAny(p) {
   return Array.isArray(arr) ? arr.map((t) => t.plain_text || "").join("") : "";
 }
 
+// One source-of-truth channel classifier: WHERE did this client come from?
+// The same labels appear in Notion (Lead Source), the admin panel, the
+// WhatsApp digest and the e-mail report — one vocabulary everywhere.
+function channelOf({ ref, source, order, title }) {
+  const r = String(ref || ""), s = String(source || ""), o = String(order || ""), t = String(title || "");
+  if (s === "WhatsApp" || r.startsWith("WA-")) return { key: "whatsapp", label: "واتساب", icon: "📱", color: "#128C7E" };
+  if (s === CONV_SOURCE || r.startsWith("WEB-")) return { key: "advisor", label: "مستشار الموقع", icon: "🤖", color: "#7C3AED" };
+  if (s === TICKET_SOURCE || r.startsWith("BPT-")) return { key: "ticket", label: "تذكرة دعم", icon: "🎫", color: "#B45309" };
+  if (o === "حجز استشارة" || s === "حجز استشارة" || r.startsWith("BC-")) return { key: "consult", label: "حجز استشارة", icon: "📅", color: "#0E7490" };
+  if (s === "تحميل مجلة" || r.startsWith("MAG-")) return { key: "magazine", label: "تحميل مجلة", icon: "📰", color: "#64748B" };
+  if (s === "مساحة عمل" || r.startsWith("BP-WS")) return { key: "workspace", label: "مساحة عمل", icon: "🏢", color: "#4338CA" };
+  if (s === "شراء خدمة") return { key: "purchase", label: "شراء خدمة", icon: "🛒", color: "#0B1B5A" };
+  if (/^(🛒|طلب\/شراء|طلب مدفوع)/.test(t) || r.startsWith("BPB-") || r.startsWith("BPW-") || r.startsWith("RFQ-")) return { key: "purchase", label: "شراء خدمة", icon: "🛒", color: "#0B1B5A" };
+  if (r.startsWith("BP-") && o && o !== "محادثة موقع") return { key: "purchase", label: "شراء خدمة", icon: "🛒", color: "#0B1B5A" };
+  return { key: "website", label: "نموذج الموقع", icon: "🌐", color: "#334155" };
+}
+
 // One row of «متابعات اليوم»: who, how to reach them, and the single next
 // step — the owner asked to always know «ايش المطلوب عشان اتواصل مع العميل».
 function followupRow(pg) {
@@ -432,13 +457,16 @@ function followupRow(pg) {
   else if (stage === "Proposal Needed") action = "جهّز له عرض السعر وأرسله";
   else if (stage === "Proposal Sent" || stage === "Negotiation") action = "اسأله عن رأيه في العرض المرسل";
   else if (stage === "New" || stage === "مهتم") action = "تواصل أول: اتصال أو رسالة واتساب";
+  const ref = propAny(pr["رقم المرجع"]);
+  const title = (propAny(pr["Opportunity Name"]) || "عميل بلا اسم").slice(0, 120);
   return {
     id: pg.id,
-    title: (propAny(pr["Opportunity Name"]) || "عميل بلا اسم").slice(0, 120),
+    title,
     phone, email, stage, order,
-    ref: propAny(pr["رقم المرجع"]),
+    ref,
     due: propAny(pr["Next Follow Up"]),
     human, action,
+    channel: channelOf({ ref, source: propAny(pr["Lead Source"]), order, title }),
     url: pg.url || "",
   };
 }
@@ -1242,16 +1270,29 @@ export default async function handler(req, res) {
           if (prior && prior.length) { fresh = false; waRetryOnly = !!(OWNER_WA && prior[0].after && prior[0].after.waNotified === false); }
         } catch {}
       }
+      // Per-channel tallies drive the summary line and the report sections.
+      const byChannel = {};
+      for (const f of due) { (byChannel[f.channel.key] = byChannel[f.channel.key] || { ch: f.channel, rows: [] }).rows.push(f); }
+      const chGroups = Object.values(byChannel).sort((a, b) => b.rows.length - a.rows.length);
+      const chSummary = chGroups.map((g) => `${g.ch.icon} ${g.ch.label} ${g.rows.length}`).join(" · ");
       const items = due.slice(0, 12);
       const waText = [
         `📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك:`,
-        ...items.map((f, i) => `${i + 1}) ${f.title}${f.phone ? " · " + f.phone : f.email ? " · " + f.email : ""}\n← ${f.action}`),
+        chSummary,
+        ...items.map((f, i) => `${i + 1}) ${f.channel.icon} ${f.channel.label} · ${f.title}${f.phone ? " · " + f.phone : f.email ? " · " + f.email : ""}\n← ${f.action}`),
         due.length > items.length ? `…و ${due.length - items.length} آخرون.` : "",
         `القائمة كاملة بأزرار الاتصال: ${MKT_SITE_BASE}/admin`,
       ].filter(Boolean).join("\n").slice(0, 3400);
       if (fresh) {
-        const rowsHtml = due.map((f) => `<tr><td style="padding:8px;border-bottom:1px solid #eee"><b>${esc(f.title)}</b><br><span style="color:#666;font-size:12px">${esc(f.ref || "")}${f.stage ? " · " + esc(f.stage) : ""}${f.order ? " · " + esc(f.order) : ""}</span></td><td style="padding:8px;border-bottom:1px solid #eee">${f.phone ? `<a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="color:#128C7E">واتساب ${esc(f.phone)}</a>` : ""}${f.email ? `<br><a href="mailto:${esc(f.email)}" style="color:#0B1B5A">${esc(f.email)}</a>` : ""}</td><td style="padding:8px;border-bottom:1px solid #eee">${esc(f.action)}</td></tr>`).join("");
-        const digestHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:640px"><h2 style="color:#0B1B5A">📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك</h2><table style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr style="background:#F4F6FB"><th style="padding:8px;text-align:right">العميل</th><th style="padding:8px;text-align:right">التواصل</th><th style="padding:8px;text-align:right">المطلوب</th></tr></thead><tbody>${rowsHtml}</tbody></table><p style="margin-top:16px"><a href="${MKT_SITE_BASE}/admin" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none">افتح لوحة التحكم</a></p><p style="color:#666;font-size:12px">تُرسل هذه الخلاصة تلقائياً مرة واحدة يومياً من نظام المتابعة — حتى لا يضيع عميل.</p></div>`;
+        // A real report, not a wall of text: date header, per-channel counter
+        // chips, then one section per channel with its own accent colour.
+        const today2 = new Date().toLocaleDateString("ar-SA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        const chips = chGroups.map((g) => `<td style="padding:0 4px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:${g.ch.color}14;border:1px solid ${g.ch.color}33;border-radius:20px;padding:6px 14px;font-size:13px;color:${g.ch.color};white-space:nowrap">${g.ch.icon} ${esc(g.ch.label)} <b>${g.rows.length}</b></td></tr></table></td>`).join("");
+        const sections = chGroups.map((g) => {
+          const rowsHtml = g.rows.map((f) => `<tr><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7"><b style="color:#1F2430">${esc(f.title)}</b><br><span style="color:#8A93A6;font-size:12px">${esc([f.ref, f.stage, f.order].filter(Boolean).join(" · "))}</span></td><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7;white-space:nowrap">${f.phone ? `<a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="background:#25D366;color:#fff;padding:5px 12px;border-radius:6px;text-decoration:none;font-size:12px">💬 واتساب</a> <a href="tel:${esc(f.phone)}" style="color:#0B1B5A;font-size:12px">📞 ${esc(f.phone)}</a>` : ""}${f.email ? `<br><a href="mailto:${esc(f.email)}" style="color:#0B1B5A;font-size:12px">✉️ ${esc(f.email)}</a>` : ""}${!f.phone && !f.email ? `<span style="color:#B91C1C;font-size:12px">لا وسيلة تواصل</span>` : ""}</td><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7;color:#0B1B5A;font-size:13px">← ${esc(f.action)}</td></tr>`).join("");
+          return `<tr><td style="padding:22px 24px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-right:4px solid ${g.ch.color};padding-right:10px;font-size:16px;font-weight:bold;color:${g.ch.color}">${g.ch.icon} ${esc(g.ch.label)} — ${g.rows.length} عميل</td></tr></table><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px;margin-top:8px"><thead><tr style="background:#F4F6FB"><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">العميل</th><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">التواصل</th><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">المطلوب</th></tr></thead><tbody>${rowsHtml}</tbody></table></td></tr>`;
+        }).join("");
+        const digestHtml = `<div dir="rtl" style="font-family:Arial,'Segoe UI',Tahoma,sans-serif;background:#F2F4FA;padding:24px 10px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;border:1px solid #E2E7F2"><tr><td style="background:#0B1B5A;padding:22px 26px"><span style="color:#fff;font-size:20px;font-weight:bold">📋 تقرير متابعات اليوم</span><br><span style="color:#B9C4E8;font-size:13px">${esc(today2)} · ${due.length} عميل يحتاج تواصلك — مصنّفون حسب مصدر الوصول</span></td></tr><tr><td style="padding:18px 20px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr>${chips}</tr></table></td></tr>${sections}<tr><td style="padding:24px;text-align:center"><a href="${MKT_SITE_BASE}/admin" style="background:#0B1B5A;color:#fff;padding:12px 26px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">افتح لوحة التحكم — بأزرار الاتصال</a><p style="color:#8A93A6;font-size:12px;margin-top:14px">تقرير آلي يومي من نظام المتابعة الموحّد · بيزنس بارتنر — حتى لا يضيع عميل.</p></td></tr></table></div>`;
         try {
           const [waRes] = await Promise.all([
             OWNER_WA ? waSend(OWNER_WA, waText) : Promise.resolve({ ok: false, error: "no_owner_number" }),
