@@ -16,10 +16,13 @@
 
   var AR = (document.documentElement.getAttribute("lang") || "ar").indexOf("ar") === 0;
   var RIYAL = "﷼";
+  var UNIT_AR = { "شهر": "شهرياً", "سنة": "سنوياً", "شهري": "شهرياً" };
 
-  function money(n) {
+  // بطاقة الباقة تطبع أرقاماً عربية والخدمة أرقاماً لاتينية — يُتَّبع كلٌّ في موضعه
+  // حتى لا يقلب التحديث شكل الرقم على الزائر.
+  function money(n, locale) {
     try {
-      return new Intl.NumberFormat("en-US").format(n);
+      return new Intl.NumberFormat(locale || "en-US").format(n);
     } catch (e) {
       return String(n);
     }
@@ -30,10 +33,34 @@
     var n = money(row.unitPrice);
     var unit = AR ? (row.unitAr || "") : (row.unitEn || "");
     unit = String(unit).trim();
+    if (AR) unit = UNIT_AR[unit] || unit;
     if (!unit || unit === "خدمة" || unit === "service") {
       return AR ? n + " " + RIYAL : n + " SAR";
     }
     return AR ? n + " " + RIYAL + " / " + unit : n + " SAR / " + unit;
+  }
+
+  // قراءة الرقم المبني من العنصر مهما كانت أرقامه عربية أو لاتينية.
+  function digits(el) {
+    if (!el || !el.firstChild) return 0;
+    var t = String(el.firstChild.nodeValue || "").replace(/[\u066C,\u060C\s]/g, "");
+    var out = "";
+    for (var i = 0; i < t.length; i++) {
+      var c = t.charCodeAt(i);
+      if (c >= 48 && c <= 57) out += t[i];
+      else if (c >= 0x0660 && c <= 0x0669) out += String(c - 0x0660);
+      else if (c >= 0x06f0 && c <= 0x06f9) out += String(c - 0x06f0);
+    }
+    return out ? parseInt(out, 10) : 0;
+  }
+
+  // زر «أضف إلى السلة» في بطاقة الباقة يحمل الرقمين، فيُحدَّثان معاً.
+  function setBtn(card, monthly, yearly) {
+    var btn = card.parentElement && card.parentElement.querySelector(".emp-plan-btn");
+    if (!btn) return;
+    btn.setAttribute("data-amount", String(monthly));
+    btn.setAttribute("data-amount-monthly", String(monthly));
+    btn.setAttribute("data-amount-yearly", String(yearly));
   }
 
   function apply(byCode) {
@@ -41,9 +68,22 @@
       var row = byCode[el.getAttribute("data-bp-price")];
       if (!row || row.openPrice || !(row.unitPrice > 0)) return;
       // بطاقة الباقة تحمل وحدتها في عنصر مستقل، فيُبدَّل الرقم وحده.
+      //
+      // ولها رقم سنوي مخفي خلف زر التبديل. نسبة الخصم السنوي محسوبة عند البناء
+      // ولا تصلنا من اللوحة، فتُشتق من الرقمين المبنيين وتُطبَّق على الجديد —
+      // وإلا بقي السنوي على السعر القديم بينما تغيّر الشهري.
       if (el.hasAttribute("data-bp-keep-unit")) {
-        var num = el.querySelector(".emp-price-m");
-        if (num && num.firstChild) num.firstChild.nodeValue = money(row.unitPrice) + " ";
+        var loc = AR ? "ar-SA" : "en-US";
+        var m = el.querySelector(".emp-price-m");
+        var y = el.querySelector(".emp-price-y");
+        var builtM = digits(m);
+        var builtY = digits(y);
+        if (m && m.firstChild) m.firstChild.nodeValue = money(row.unitPrice, loc) + " ";
+        if (y && y.firstChild && builtM > 0 && builtY > 0) {
+          var yearly = Math.round((row.unitPrice * builtY) / builtM);
+          y.firstChild.nodeValue = money(yearly, loc) + " ";
+          setBtn(el, row.unitPrice, yearly);
+        }
         return;
       }
       var next = label(row);

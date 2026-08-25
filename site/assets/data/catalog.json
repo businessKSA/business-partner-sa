@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-25T03:24:35.848Z",
+  "updatedAt": "2026-08-25T04:20:12.580Z",
   "currency": "SAR",
   "services": [
     {
@@ -1373,6 +1373,300 @@
       "govFeesSeparate": false,
       "requiresProposal": false,
       "url": "https://businesspartner.sa/services/bp-ai-04"
+    },
+    {
+      "code": "AI-GEN",
+      "nameAr": "الأتمتة بالذكاء الاصطناعي — خدمة حسب الطلب",
+      "nameEn": "Artificial Intelligence Automation — Bespoke Service",
+      "category": "AI Automation",
+      "categoryAr": "الأتمتة والذكاء الاصطناعي",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/ai-gen"
+    },
+    {
+      "code": "CF-GEN",
+      "nameAr": "تأسيس الشركات — خدمة حسب الطلب",
+      "nameEn": "Company Formation — Bespoke Service",
+      "category": "Company Formation",
+      "categoryAr": "تأسيس الشركات",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/cf-gen"
+    },
+    {
+      "code": "GOV-GEN",
+      "nameAr": "المعاملات الحكومية — خدمة حسب الطلب",
+      "nameEn": "Government Transactions — Bespoke Service",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/gov-gen"
+    },
+    {
+      "code": "GR-GEN",
+      "nameAr": "مندوب العلاقات الحكومية",
+      "nameEn": "Government Relations Representative",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/gr-gen"
+    },
+    {
+      "code": "HR-GEN",
+      "nameAr": "الموارد البشرية — خدمة حسب الطلب",
+      "nameEn": "Human Resources — Bespoke Service",
+      "category": "HR Services",
+      "categoryAr": "الموارد البشرية",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/hr-gen"
+    },
+    {
+      "code": "PR-GEN",
+      "nameAr": "الإقامة المميزة — خدمة حسب الطلب",
+      "nameEn": "Premium Residency — Bespoke Service",
+      "category": "Premium Residency",
+      "categoryAr": "الإقامة المميزة",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/pr-gen"
+    },
+    {
+      "code": "RE-GEN",
+      "nameAr": "العقارات — خدمة حسب الطلب",
+      "nameEn": "Real Estate — Bespoke Service",
+      "category": "Real Estate",
+      "categoryAr": "المكاتب ومساحات العمل",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/re-gen"
+    },
+    {
+      "code": "REC-GEN",
+      "nameAr": "التوظيف والاستقدام — خدمة حسب الطلب",
+      "nameEn": "Recruitment and Manpower — Bespoke Service",
+      "category": "Recruitment",
+      "categoryAr": "التوظيف والاستقدام",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/rec-gen"
+    },
+    {
+      "code": "SBC-GEN",
+      "nameAr": "الخدمات المشتركة — خدمة حسب الطلب",
+      "nameEn": "Shared Services — Bespoke Service",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/sbc-gen"
+    },
+    {
+      "code": "SUP-GEN",
+      "nameAr": "الدعم والاستشارات — خدمة حسب الطلب",
+      "nameEn": "Support and Advisory — Bespoke Service",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/sup-gen"
+    },
+    {
+      "code": "TR-GEN",
+      "nameAr": "السياحة — خدمة حسب الطلب",
+      "nameEn": "Tourism — Bespoke Service",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/tr-gen"
+    },
+    {
+      "code": "CV-10",
+      "nameAr": "توفير سير ذاتية لمرشحين",
+      "nameEn": "Candidate CV Sourcing",
+      "category": "Recruitment",
+      "categoryAr": "التوظيف والاستقدام",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": 100,
+      "priceLabel": "100 ﷼ / سيرة ذاتية",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/cv-10"
+    },
+    {
+      "code": "MA-BRK",
+      "nameAr": "وساطة اندماج واستحواذ",
+      "nameEn": "Mergers and Acquisitions Brokerage",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/ma-brk"
+    },
+    {
+      "code": "FI-100",
+      "nameAr": "تأسيس كيان استثمار أجنبي — شركة مملوكة ⁦100%⁩ لمستثمر أجنبي",
+      "nameEn": "Foreign Investment Setup — 100% Foreign Owned Company",
+      "category": "Foreign Investment",
+      "categoryAr": "الاستثمار الأجنبي",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": 30000,
+      "priceLabel": "30,000 ﷼ / كيان",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/fi-100"
+    },
+    {
+      "code": "QW-EST",
+      "nameAr": "مهمة منصة قوى وفتح ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية",
+      "nameEn": "Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development",
+      "category": "HR Services",
+      "categoryAr": "الموارد البشرية",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "One Time",
+      "amount": 70000,
+      "priceLabel": "70,000 ﷼ / منشأة",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/qw-est"
+    },
+    {
+      "code": "REV-LAUNCH",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الانطلاق",
+      "nameEn": "Business Development — Revenue Operating System — Launch Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 2500,
+      "priceLabel": "2,500 ﷼ / شهر",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/rev-launch"
+    },
+    {
+      "code": "REV-START",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة البداية",
+      "nameEn": "Business Development — Revenue Operating System — Starter Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/rev-start"
+    },
+    {
+      "code": "REV-GROWTH",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة النمو",
+      "nameEn": "Business Development — Revenue Operating System — Growth Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 5000,
+      "priceLabel": "5,000 ﷼ / شهر",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/rev-growth"
+    },
+    {
+      "code": "REV-PRO",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الاحترافية",
+      "nameEn": "Business Development — Revenue Operating System — Professional Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 9500,
+      "priceLabel": "9,500 ﷼ / شهر",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/rev-pro"
+    },
+    {
+      "code": "REV-TEAM",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الفريق المخصص",
+      "nameEn": "Business Development — Revenue Operating System — Dedicated Team Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/rev-team"
+    },
+    {
+      "code": "REV-ENT",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة المنشآت الكبرى",
+      "nameEn": "Business Development — Revenue Operating System — Enterprise Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/rev-ent"
     }
   ],
   "categories": [
@@ -1380,55 +1674,55 @@
       "key": "Company Formation",
       "nameAr": "تأسيس الشركات",
       "nameEn": "Company Formation",
-      "count": 23
+      "count": 24
     },
     {
       "key": "Foreign Investment",
       "nameAr": "الاستثمار الأجنبي",
       "nameEn": "Foreign Investment",
-      "count": 7
+      "count": 8
     },
     {
       "key": "Premium Residency",
       "nameAr": "الإقامة المميزة",
       "nameEn": "Premium Residency",
-      "count": 2
+      "count": 3
     },
     {
       "key": "Government Relations",
       "nameAr": "العلاقات الحكومية",
       "nameEn": "Government Relations",
-      "count": 23
+      "count": 25
     },
     {
       "key": "HR Services",
       "nameAr": "الموارد البشرية",
       "nameEn": "HR Services",
-      "count": 10
+      "count": 12
     },
     {
       "key": "Recruitment",
       "nameAr": "التوظيف والاستقدام",
       "nameEn": "Recruitment & Hiring",
-      "count": 6
+      "count": 8
     },
     {
       "key": "Business Support",
       "nameAr": "دعم الأعمال",
       "nameEn": "Business Support",
-      "count": 16
+      "count": 26
     },
     {
       "key": "Real Estate",
       "nameAr": "المكاتب ومساحات العمل",
       "nameEn": "Real Estate",
-      "count": 6
+      "count": 7
     },
     {
       "key": "AI Automation",
       "nameAr": "الأتمتة والذكاء الاصطناعي",
       "nameEn": "AI & Automation",
-      "count": 5
+      "count": 6
     }
   ],
   "packages": [
@@ -1729,6 +2023,85 @@
         "Contract drafting & review: 6 contracts",
         "Litigation representation: up to 2 labor cases / year",
         "10% discount on notarization services"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "monthly",
+      "groupNameAr": "الباقات الشهرية",
+      "groupNameEn": "Monthly packages",
+      "code": "PKG-S",
+      "key": "s",
+      "nameAr": "باقة البداية الشهرية",
+      "nameEn": "Starter — Monthly",
+      "amount": 3500,
+      "priceLabel": "3,500 SAR / monthly",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "إدارة المعاملات الحكومية الدورية",
+        "متابعة المهل والتجديدات",
+        "تقرير شهري بحالة المنشأة",
+        "قناة تواصل مباشرة مع فريقك"
+      ],
+      "featuresEn": [
+        "Routine government transactions handled",
+        "Deadline and renewal follow-up",
+        "Monthly entity status report",
+        "A direct channel to your team"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "monthly",
+      "groupNameAr": "الباقات الشهرية",
+      "groupNameEn": "Monthly packages",
+      "code": "PKG-G",
+      "key": "g",
+      "nameAr": "باقة النمو الشهرية",
+      "nameEn": "Growth — Monthly",
+      "amount": 7500,
+      "priceLabel": "7,500 SAR / monthly",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "كل ما في باقة البداية",
+        "تغطية أوسع للمنصات الحكومية",
+        "أولوية في التنفيذ",
+        "استشارات تشغيلية دورية",
+        "متابعة الامتثال والالتزام"
+      ],
+      "featuresEn": [
+        "Everything in Starter",
+        "Wider government-platform coverage",
+        "Priority execution",
+        "Periodic operational consulting",
+        "Compliance and obligations follow-up"
+      ],
+      "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "monthly",
+      "groupNameAr": "الباقات الشهرية",
+      "groupNameEn": "Monthly packages",
+      "code": "PKG-P",
+      "key": "p",
+      "nameAr": "الباقة الاحترافية الشهرية",
+      "nameEn": "Professional — Monthly",
+      "amount": 15000,
+      "priceLabel": "15,000 SAR / monthly",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "كل ما في باقة النمو",
+        "فريق مخصص لمنشأتك",
+        "تغطية كاملة لكل المنصات الحكومية",
+        "تقارير تفصيلية ومؤشرات أداء",
+        "دعم على مدار أيام العمل"
+      ],
+      "featuresEn": [
+        "Everything in Growth",
+        "A dedicated team for your entity",
+        "Full coverage across all government platforms",
+        "Detailed reports and KPIs",
+        "Support across business days"
       ],
       "url": "https://businesspartner.sa/packages"
     }

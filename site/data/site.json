@@ -757,6 +757,94 @@
             "surchargeFreeCount": 10
           }
         ]
+      },
+      {
+        "key": "monthly",
+        "ar": "الباقات الشهرية",
+        "en": "Monthly packages",
+        "descAr": "إدارة تشغيلية شهرية بأتعاب ثابتة — بديلاً عن تسعير كل معاملة على حدة.",
+        "descEn": "Monthly operational management at a fixed fee — instead of pricing each transaction separately.",
+        "tiers": [
+          {
+            "key": "s",
+            "name": "Starter",
+            "nameAr": "باقة البداية الشهرية",
+            "nameEn": "Starter — Monthly",
+            "code": "PKG-S",
+            "amount": 3500,
+            "price": "3,500 ﷼ / شهرياً",
+            "priceEn": "3,500 SAR / monthly",
+            "for": "للمنشآت الناشئة التي تريد تشغيلاً منتظماً بأتعاب ثابتة",
+            "forEn": "For new businesses that want steady operations at a fixed monthly fee",
+            "highlight": false,
+            "features": [
+              "إدارة المعاملات الحكومية الدورية",
+              "متابعة المهل والتجديدات",
+              "تقرير شهري بحالة المنشأة",
+              "قناة تواصل مباشرة مع فريقك"
+            ],
+            "featuresEn": [
+              "Routine government transactions handled",
+              "Deadline and renewal follow-up",
+              "Monthly entity status report",
+              "A direct channel to your team"
+            ]
+          },
+          {
+            "key": "g",
+            "name": "Growth",
+            "nameAr": "باقة النمو الشهرية",
+            "nameEn": "Growth — Monthly",
+            "code": "PKG-G",
+            "amount": 7500,
+            "price": "7,500 ﷼ / شهرياً",
+            "priceEn": "7,500 SAR / monthly",
+            "for": "للمنشآت النامية التي تحتاج تغطية أوسع وأولوية في التنفيذ",
+            "forEn": "For growing businesses needing wider coverage and priority execution",
+            "highlight": true,
+            "features": [
+              "كل ما في باقة البداية",
+              "تغطية أوسع للمنصات الحكومية",
+              "أولوية في التنفيذ",
+              "استشارات تشغيلية دورية",
+              "متابعة الامتثال والالتزام"
+            ],
+            "featuresEn": [
+              "Everything in Starter",
+              "Wider government-platform coverage",
+              "Priority execution",
+              "Periodic operational consulting",
+              "Compliance and obligations follow-up"
+            ]
+          },
+          {
+            "key": "p",
+            "name": "Professional",
+            "nameAr": "الباقة الاحترافية الشهرية",
+            "nameEn": "Professional — Monthly",
+            "code": "PKG-P",
+            "amount": 15000,
+            "price": "15,000 ﷼ / شهرياً",
+            "priceEn": "15,000 SAR / monthly",
+            "for": "للمنشآت التي تريد فريقاً مخصصاً يدير تشغيلها الحكومي كاملاً",
+            "forEn": "For businesses wanting a dedicated team running their government operations",
+            "highlight": false,
+            "features": [
+              "كل ما في باقة النمو",
+              "فريق مخصص لمنشأتك",
+              "تغطية كاملة لكل المنصات الحكومية",
+              "تقارير تفصيلية ومؤشرات أداء",
+              "دعم على مدار أيام العمل"
+            ],
+            "featuresEn": [
+              "Everything in Growth",
+              "A dedicated team for your entity",
+              "Full coverage across all government platforms",
+              "Detailed reports and KPIs",
+              "Support across business days"
+            ]
+          }
+        ]
       }
     ]
   },

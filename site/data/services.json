@@ -1864,5 +1864,383 @@
       "label": "1,500 ﷼ / شهرياً",
       "amount": 1500
     }
+  },
+  {
+    "code": "AI-GEN",
+    "slug": "ai-gen",
+    "name": "Artificial Intelligence Automation — Bespoke Service",
+    "category": "AI Automation",
+    "categoryAr": "الأتمتة والذكاء الاصطناعي",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "CF-GEN",
+    "slug": "cf-gen",
+    "name": "Company Formation — Bespoke Service",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "GOV-GEN",
+    "slug": "gov-gen",
+    "name": "Government Transactions — Bespoke Service",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "GR-GEN",
+    "slug": "gr-gen",
+    "name": "Government Relations Representative",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "HR-GEN",
+    "slug": "hr-gen",
+    "name": "Human Resources — Bespoke Service",
+    "category": "HR Services",
+    "categoryAr": "الموارد البشرية",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "PR-GEN",
+    "slug": "pr-gen",
+    "name": "Premium Residency — Bespoke Service",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "RE-GEN",
+    "slug": "re-gen",
+    "name": "Real Estate — Bespoke Service",
+    "category": "Real Estate",
+    "categoryAr": "المكاتب ومساحات العمل",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "REC-GEN",
+    "slug": "rec-gen",
+    "name": "Recruitment and Manpower — Bespoke Service",
+    "category": "Recruitment",
+    "categoryAr": "التوظيف والاستقدام",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "SBC-GEN",
+    "slug": "sbc-gen",
+    "name": "Shared Services — Bespoke Service",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "SUP-GEN",
+    "slug": "sup-gen",
+    "name": "Support and Advisory — Bespoke Service",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "TR-GEN",
+    "slug": "tr-gen",
+    "name": "Tourism — Bespoke Service",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "يُحدَّد النطاق والسعر عند إنشاء العرض حسب متطلبات العميل.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "CV-10",
+    "slug": "cv-10",
+    "name": "Candidate CV Sourcing",
+    "category": "Recruitment",
+    "categoryAr": "التوظيف والاستقدام",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "ترشيح وتصفية سير ذاتية مطابقة للوصف الوظيفي المعتمد من العميل. الحد الأدنى عشر سير ذاتية.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "100 ﷼ / سيرة ذاتية",
+      "amount": 100
+    }
+  },
+  {
+    "code": "MA-BRK",
+    "slug": "ma-brk",
+    "name": "Mergers and Acquisitions Brokerage",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "تمثيل العميل في صفقة اندماج أو استحواذ: إعداد الملف، الوصول للأطراف، التفاوض، ومتابعة الإغلاق.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "FI-100",
+    "slug": "fi-100",
+    "name": "Foreign Investment Setup — 100% Foreign Owned Company",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "إنهاء إجراءات التأسيس كاملة: حجز الاسم التجاري، إصدار رخصة الاستثمار من وزارة الاستثمار، السجل التجاري لدى وزارة التجارة، عقد التأسيس وتوثيقه، العنوان الوطني لدى البريد السعودي، الغرفة التجارية، فتح ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية والتسجيل في المؤسسة العامة للتأمينات الاجتماعية وهيئة الزكاة والضريبة والجمارك، وتفعيل منصات قوى ومقيم ومدد، وإصدار تأشيرة وإقامة المدير العام.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "30,000 ﷼ / كيان",
+      "amount": 30000
+    }
+  },
+  {
+    "code": "QW-EST",
+    "slug": "qw-est",
+    "name": "Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development",
+    "category": "HR Services",
+    "categoryAr": "الموارد البشرية",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "فتح وتفعيل ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية، وربطه بمنصة قوى، وضبط بيانات المنشأة والنطاق ومتطلبات التوطين.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "70,000 ﷼ / منشأة",
+      "amount": 70000
+    }
+  },
+  {
+    "code": "REV-LAUNCH",
+    "slug": "rev-launch",
+    "name": "Business Development — Revenue Operating System — Launch Package",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "رسوم شهرية 2,500 ريال، وعمولات 10% + 2.5% على الإيراد المحصّل فعلياً.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "2,500 ﷼ / شهر",
+      "amount": 2500
+    }
+  },
+  {
+    "code": "REV-START",
+    "slug": "rev-start",
+    "name": "Business Development — Revenue Operating System — Starter Package",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "رسوم شهرية 0 ريال، وعمولات 12% من الإيراد المحصّل + 3% على الإيراد المحصّل فعلياً.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "REV-GROWTH",
+    "slug": "rev-growth",
+    "name": "Business Development — Revenue Operating System — Growth Package",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "رسوم شهرية 5,000 ريال، وعمولات 8% + 2% على الإيراد المحصّل فعلياً.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "5,000 ﷼ / شهر",
+      "amount": 5000
+    }
+  },
+  {
+    "code": "REV-PRO",
+    "slug": "rev-pro",
+    "name": "Business Development — Revenue Operating System — Professional Package",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "رسوم شهرية 9,500 ريال، وعمولات 6% + 1.5% على الإيراد المحصّل فعلياً.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "9,500 ﷼ / شهر",
+      "amount": 9500
+    }
+  },
+  {
+    "code": "REV-TEAM",
+    "slug": "rev-team",
+    "name": "Business Development — Revenue Operating System — Dedicated Team Package",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "رسوم شهرية تبدأ من 20,000 ريال، وعمولات 3% + 1% على الإيراد المحصّل فعلياً.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
+  },
+  {
+    "code": "REV-ENT",
+    "slug": "rev-ent",
+    "name": "Business Development — Revenue Operating System — Enterprise Package",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بدون جهة حكومية",
+    "description": "رسوم شهرية تبدأ من 15,000 ريال، وعمولات 4% + 1% على الإيراد المحصّل فعلياً.",
+    "deliverables": [],
+    "targetClient": "",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": false,
+    "requiresProposal": true,
+    "price": {
+      "label": "سعر حسب حالتك",
+      "amount": null
+    }
   }
 ]

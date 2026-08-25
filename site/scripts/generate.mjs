@@ -217,10 +217,15 @@ if (CATALOG_FROM_PANEL) {
 }
 
 // صيغة السعر تُبنى من الرقم والوحدة، فلا يبقى نص قديم يناقض رقماً جديداً.
+// وحدات اللوحة كُتبت بصيغ متفاوتة («شهر» و«شهرياً»)، وتُقرأ في جملة سعر
+// فتُوحَّد هنا بدل أن يظهر «2,500 ﷼ / شهر» للزائر.
+const UNIT_AR = { "شهر": "شهرياً", "سنة": "سنوياً", "شهري": "شهرياً" };
+
 function panelLabel(row, fallback) {
   if (row.openPrice || !(row.unitPrice > 0)) return fallback;
   const n = new Intl.NumberFormat("en-US").format(row.unitPrice);
-  const unit = String(row.unitAr || "").trim();
+  const raw = String(row.unitAr || "").trim();
+  const unit = UNIT_AR[raw] || raw;
   return unit && unit !== "خدمة" ? `${n} ﷼ / ${unit}` : `${n} ﷼`;
 }
 
