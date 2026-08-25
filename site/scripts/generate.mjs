@@ -1320,7 +1320,7 @@ function buildRevenueOS() {
   // (success + closing) which nobody could tell apart and which read as ~12.5%.
   const feeLine = (rate) =>
     rate === 0
-      ? `<div class="fee">${L("No commission", "بدون عمولة")} — <strong>${L("a fixed monthly price", "سعر شهري ثابت")}</strong>, ${L("whatever you close.", "مهما أغلقت.")}</div>`
+      ? `<div class="fee">${L("No commission", "بدون عمولة")} — <strong>${L("a fixed monthly price", "سعر شهري ثابت")}</strong>${L(", whatever you close.", "، مهما أغلقت.")}</div>`
       : `<div class="fee">${L("Success fee", "عمولة نجاح")} <strong>${rate}%</strong> — ${L("on revenue you actually collect from the deals we generate.", "على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.")}</div>`;
   // The line that makes the ladder make sense: paying a commission is what buys
   // our closing team. Below it, we generate and qualify and the client closes.
