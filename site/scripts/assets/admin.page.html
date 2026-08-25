@@ -415,8 +415,26 @@
 
         <!-- follow-ups: the ONE list that keeps clients from being forgotten -->
         <div class="panel" id="fupPanel" style="margin-bottom:18px;border:1px solid #C7D2FE">
-          <div class="panel-head"><h3>📞 متابعات اليوم — حتى لا يضيع عميل</h3><span class="stamp" id="fupCount"></span></div>
-          <div style="padding:0 18px 4px;color:#64748b;font-size:12.5px">نفس القائمة التي تصلك يومياً على واتساب والإيميل — من قاعدة CRM الموحّدة (Sales Pipeline). كل صف يقول لك بالضبط ما المطلوب.</div>
+          <div class="panel-head"><h3>📞 متابعات اليوم — حتى لا يضيع عميل</h3><button class="actbtn" id="fupAddToggle" style="background:#0B1B5A;color:#fff;border-color:#0B1B5A">➕ عميل جديد (اتصال مباشر)</button><span class="stamp" id="fupCount"></span></div>
+          <div style="padding:0 18px 4px;color:#64748b;font-size:12.5px">سي آر إم تفاعلي: اضغط «✅ تم التواصل» أو أضف ملاحظة أو أجّل — يُحفظ مباشرة في نوشن، ويتوقف تذكير الواتساب (كل ٣٠ دقيقة) عن هذا العميل فوراً.</div>
+          <div id="fupAddForm" style="display:none;margin:8px 18px;padding:14px;border:1px dashed #C7D2FE;border-radius:10px;background:#F8FAFF">
+            <div style="font-weight:700;color:#0B1B5A;margin-bottom:8px">➕ تسجيل عميل وصلك مباشرة (اتصال / زيارة) — يتولّد له رقم مرجع تلقائياً</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
+              <label style="font-size:12px;color:#475569">الاسم *<input id="mlName" type="text" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px" placeholder="اسم العميل أو الشركة"></label>
+              <label style="font-size:12px;color:#475569">الجوال<input id="mlPhone" type="tel" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px" placeholder="05xxxxxxxx"></label>
+              <label style="font-size:12px;color:#475569">البريد<input id="mlEmail" type="email" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px" placeholder="اختياري إذا كتبت الجوال"></label>
+              <label style="font-size:12px;color:#475569">النوع
+                <select id="mlKind" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px">
+                  <option value="ticket">🎫 تذكرة دعم</option>
+                  <option value="order">🛒 طلب خدمة</option>
+                  <option value="consult">📅 حجز استشارة</option>
+                </select></label>
+              <label style="font-size:12px;color:#475569">الموضوع / الخدمة *<input id="mlSubject" type="text" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px" placeholder="مثال: تأسيس شركة"></label>
+              <label style="font-size:12px;color:#475569">المبلغ ﷼ (اختياري)<input id="mlTotal" type="number" min="0" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+            </div>
+            <label style="font-size:12px;color:#475569;display:block;margin-top:8px">ملاحظات<textarea id="mlNote" rows="2" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px" placeholder="ماذا طلب العميل بالضبط؟"></textarea></label>
+            <button class="actbtn" id="fupAddSubmit" style="margin-top:8px;background:#047857;color:#fff;border-color:#047857">➕ إنشاء السجل</button>
+          </div>
           <div id="fupList" style="padding:4px 18px 14px;font-size:13.5px">جاري التحميل…</div>
         </div>
 
@@ -1274,7 +1292,25 @@
         .catch(function(){ $('anaStamp').textContent = 'تعذّر التحميل'; });
     }
 
-    // ===== متابعات اليوم — the "don't lose a client" list from the master CRM =====
+    // ===== متابعات اليوم — an ACTIVE CRM surface: every row writes back =====
+    // ✅ تم التواصل / 📝 ملاحظة / ⏰ تأجيل PATCH the Notion master directly, so
+    // the row disappears from tomorrow's digest and the 30-minute WhatsApp
+    // reminders stop the moment the work is actually done.
+    function fupAct(id, payload, btn){
+      if (btn){ btn.disabled = true; btn.textContent = '…'; }
+      payload = payload || {};
+      payload.action = 'panel-followup-update';
+      payload.id = id;
+      payload.key = accessKey; payload.ticket = accessTicket;
+      fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify(payload) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){ alert('تعذّر الحفظ — أعد المحاولة.'); if (btn){ btn.disabled = false; } return; }
+          loadFollowups();
+        })
+        .catch(function(){ alert('تعذّر الاتصال — أعد المحاولة.'); if (btn){ btn.disabled = false; } });
+    }
+    var fupRows = [];
     function loadFollowups(){
       fetch(API_URL + '?action=panel-followups' + authQS(), { cache:'no-store' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
@@ -1284,29 +1320,94 @@
             return;
           }
           var rows = out.followups || [];
+          fupRows = rows;
           $('fupCount').textContent = rows.length ? rows.length + ' عميل يحتاج تواصلك' : '';
+          try { document.title = (rows.length ? '(' + rows.length + ') ' : '') + 'لوحة تحكم الموقع — Business Partner'; } catch (eT) {}
           if (!rows.length){
-            $('fupList').innerHTML = '<div style="color:#047857;padding:10px 0">✓ لا متابعات معلّقة — كل العملاء متابَعون.</div>';
+            $('fupList').innerHTML = '<div style="color:#047857;padding:10px 0">✓ لا متابعات معلّقة — كل العملاء متابَعون، والتذكيرات متوقفة.</div>';
             return;
           }
-          $('fupList').innerHTML = rows.map(function(f){
+          var todayISO = new Date().toISOString().slice(0, 10);
+          $('fupList').innerHTML = rows.map(function(f, i){
             var digits = String(f.phone || '').replace(/\D/g, '');
+            if (digits.indexOf('05') === 0) digits = '966' + digits.slice(1);
             var contact = '';
-            if (digits) contact += '<a href="https://wa.me/' + digits + '" target="_blank" rel="noopener" style="background:#25D366;color:#fff;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">💬 واتساب</a> <a href="tel:+' + digits + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">📞 اتصال</a>';
-            if (f.email) contact += ' <a href="mailto:' + esc(f.email) + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">✉️ بريد</a>';
+            if (digits) contact += '<a href="https://wa.me/' + digits + '" target="_blank" rel="noopener" style="background:#25D366;color:#fff;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">💬 واتساب</a> <a href="tel:+' + digits + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">📞</a>';
+            if (f.email) contact += ' <a href="mailto:' + esc(f.email) + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">✉️</a>';
             var ch = f.channel || { icon:'🌐', label:'الموقع', color:'#334155' };
-            return '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;border-bottom:1px dashed #E2E8F0;padding:9px 0">'
-              + '<div style="min-width:220px">'
+            var overdue = f.due && f.due <= todayISO;
+            return '<div style="border-bottom:1px dashed #E2E8F0;padding:10px 0">'
+              + '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">'
+              + '<div style="min-width:230px">'
               + '<span style="background:' + ch.color + '14;color:' + ch.color + ';border:1px solid ' + ch.color + '33;border-radius:12px;padding:1px 9px;font-size:11px;margin-left:6px;white-space:nowrap">' + ch.icon + ' ' + esc(ch.label) + '</span>'
               + '<b>' + esc(f.title) + '</b>'
               + (f.human ? ' <span style="background:#FEE2E2;color:#b91c1c;border-radius:6px;padding:1px 7px;font-size:11px">يحتاج ردّك</span>' : '')
-              + '<br><span style="color:#64748b;font-size:12px">' + esc([f.ref, f.stage, f.order].filter(Boolean).join(' · ')) + '</span></div>'
-              + '<div style="flex:1;min-width:180px;color:#0B1B5A;font-size:12.5px">← ' + esc(f.action) + '</div>'
-              + '<div style="display:flex;gap:4px;align-items:center">' + (contact || '<span style="color:#94a3b8;font-size:12px">لا وسيلة تواصل مسجّلة</span>') + '</div>'
-              + '</div>';
+              + '<br><span style="color:#64748b;font-size:12px">' + esc([f.ref, f.stage, f.order].filter(Boolean).join(' · ')) + '</span>'
+              + '<br><span style="color:#94a3b8;font-size:11.5px">📆 وصل ' + esc(f.created || '—') + ' · آخر نشاط ' + esc(f.last || '—') + ' · متابعته '
+              + (f.due ? '<b style="color:' + (overdue ? '#b91c1c' : '#64748b') + '">' + esc(f.due) + (overdue ? ' (مستحق)' : '') + '</b>' : '<b style="color:#b91c1c">اليوم</b>') + '</span></div>'
+              + '<div style="flex:1;min-width:170px;color:#0B1B5A;font-size:12.5px">← ' + esc(f.action) + '</div>'
+              + '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">' + (contact || '<span style="color:#94a3b8;font-size:12px">لا وسيلة تواصل</span>') + '</div>'
+              + '</div>'
+              + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">'
+              + '<button class="actbtn" data-fdone="' + i + '" style="background:#047857;color:#fff;border-color:#047857">✅ تم التواصل</button>'
+              + '<button class="actbtn" data-fnote="' + i + '">📝 ملاحظة</button>'
+              + '<button class="actbtn" data-fsnooze="' + i + '" data-days="1">⏰ غداً</button>'
+              + '<button class="actbtn" data-fsnooze="' + i + '" data-days="7">🗓 بعد أسبوع</button>'
+              + '</div></div>';
           }).join('');
+          var dns = $('fupList').querySelectorAll('[data-fdone]');
+          for (var d1 = 0; d1 < dns.length; d1++) dns[d1].onclick = function(){
+            var f = fupRows[+this.getAttribute('data-fdone')];
+            var n = prompt('✅ تم التواصل مع «' + f.title + '».\nملاحظة تُحفظ في CRM (اختياري):', '');
+            if (n === null) return;
+            fupAct(f.id, { done: true, note: n }, this);
+          };
+          var nts = $('fupList').querySelectorAll('[data-fnote]');
+          for (var n1 = 0; n1 < nts.length; n1++) nts[n1].onclick = function(){
+            var f = fupRows[+this.getAttribute('data-fnote')];
+            var n = prompt('📝 ملاحظة على «' + f.title + '» — تُضاف لسجل العميل في نوشن:', '');
+            if (n === null || !n.trim()) return;
+            fupAct(f.id, { note: n }, this);
+          };
+          var szs = $('fupList').querySelectorAll('[data-fsnooze]');
+          for (var s1 = 0; s1 < szs.length; s1++) szs[s1].onclick = function(){
+            var f = fupRows[+this.getAttribute('data-fsnooze')];
+            fupAct(f.id, { snoozeDays: +this.getAttribute('data-days') }, this);
+          };
         })
         .catch(function(){ $('fupCount').textContent = 'تعذّر التحميل'; });
+    }
+
+    // ➕ direct-contact client: generates a typed reference (BPT/BC/BP) and a
+    // full CRM record, exactly like leads that arrive through the channels.
+    function wireManualLead(){
+      var tg = $('fupAddToggle'), fm = $('fupAddForm');
+      if (!tg || !fm) return;
+      tg.onclick = function(){ fm.style.display = fm.style.display === 'none' ? 'block' : 'none'; };
+      $('fupAddSubmit').onclick = function(){
+        var btn = this;
+        var payload = {
+          action: 'panel-manual-lead',
+          name: $('mlName').value.trim(), phone: $('mlPhone').value.trim(), email: $('mlEmail').value.trim(),
+          kind: $('mlKind').value, subject: $('mlSubject').value.trim(), note: $('mlNote').value.trim(),
+          total: $('mlTotal').value ? +$('mlTotal').value : undefined,
+          key: accessKey, ticket: accessTicket,
+        };
+        if (!payload.name || (!payload.phone && !payload.email) || !payload.subject){ alert('املأ الاسم والموضوع ووسيلة تواصل واحدة على الأقل.'); return; }
+        btn.disabled = true; btn.textContent = 'جاري الإنشاء…';
+        fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify(payload) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(out){
+            btn.disabled = false; btn.textContent = '➕ إنشاء السجل';
+            if (!out || !out.ok){ alert('تعذّر الإنشاء — راجع الحقول وأعد المحاولة.'); return; }
+            alert('✅ أُنشئ السجل برقم مرجع: ' + out.ref + '\nظهر الآن في CRM وفي قائمة المتابعات.');
+            fm.style.display = 'none';
+            ['mlName','mlPhone','mlEmail','mlSubject','mlNote','mlTotal'].forEach(function(id){ $(id).value = ''; });
+            loadFollowups();
+            try { refresh(); } catch (eR) {}
+          })
+          .catch(function(){ btn.disabled = false; btn.textContent = '➕ إنشاء السجل'; alert('تعذّر الاتصال.'); });
+      };
     }
 
     function refresh(btns){
@@ -1314,6 +1415,7 @@
       for (var i = 0; i < list.length; i++) list[i].disabled = true;
       try { loadAnalytics(); } catch (e) {}
       try { loadFollowups(); } catch (e) {}
+      try { if (!wireManualLead._done){ wireManualLead(); wireManualLead._done = true; } } catch (eW) {}
       return fetchLeads().then(renderAll)
         .catch(function(e){
           if (String(e.message) === 'unauthorized'){ logout(); return; }

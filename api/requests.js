@@ -332,7 +332,7 @@ const STAGE_OF = {
 const CLOSED = new Set(["مكتمل", "ملغي"]);
 const plusDaysISO = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads }) {
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads, leadSource }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
@@ -345,7 +345,8 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     // Lead Source names the actual channel, not a generic "Website" — the same
     // vocabulary channelOf() uses, so Notion, the panel and the digests agree.
     "Lead Source": { select: { name:
-      orderStatus === "حجز استشارة" ? "حجز استشارة"
+      leadSource ? String(leadSource).slice(0, 60)
+      : orderStatus === "حجز استشارة" ? "حجز استشارة"
       : String(ref || "").startsWith("MAG-") ? "تحميل مجلة"
       : String(ref || "").startsWith("BP-WS") ? "مساحة عمل"
       : (typeof total === "number" && total > 0) || String(ref || "").startsWith("BPB-") ? "شراء خدمة"
@@ -431,6 +432,7 @@ function channelOf({ ref, source, order, title }) {
   // Older rows keep the reference only inside the title «… (BC-039919)».
   if (!r) { const m = t.match(/\(([A-Z]{2,4}-[A-Za-z0-9-]+)\)\s*$/); if (m) r = m[1]; }
   if (s === "WhatsApp" || r.startsWith("WA-")) return { key: "whatsapp", label: "واتساب", icon: "📱", color: "#128C7E" };
+  if (s === "إدخال يدوي") return { key: "manual", label: "إدخال يدوي", icon: "📞", color: "#0F766E" };
   if (r.startsWith("SP-") || /تسجيل مورّ?د/.test(t)) return { key: "supplier", label: "تسجيل مورّد", icon: "🏭", color: "#92400E" };
   if (r.startsWith("BPI-") || /طلب تقسيط/.test(t)) return { key: "installment", label: "طلب تقسيط", icon: "💳", color: "#BE185D" };
   if (r.startsWith("DL-")) return { key: "deal", label: "صفقة", icon: "🤝", color: "#166534" };
@@ -472,6 +474,8 @@ function followupRow(pg) {
     phone, email, stage, order,
     ref,
     due: propAny(pr["Next Follow Up"]),
+    last: propAny(pr["Last Activity"]),
+    created: String(pg.created_time || "").slice(0, 10),
     human, action,
     channel: channelOf({ ref, source: propAny(pr["Lead Source"]), order, title }),
     url: pg.url || "",
@@ -1296,7 +1300,7 @@ export default async function handler(req, res) {
         const today2 = new Date().toLocaleDateString("ar-SA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
         const chips = chGroups.map((g) => `<td style="padding:0 4px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:${g.ch.color}14;border:1px solid ${g.ch.color}33;border-radius:20px;padding:6px 14px;font-size:13px;color:${g.ch.color};white-space:nowrap">${g.ch.icon} ${esc(g.ch.label)} <b>${g.rows.length}</b></td></tr></table></td>`).join("");
         const sections = chGroups.map((g) => {
-          const rowsHtml = g.rows.map((f) => `<tr><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7"><b style="color:#1F2430">${esc(f.title)}</b><br><span style="color:#8A93A6;font-size:12px">${esc([f.ref, f.stage, f.order].filter(Boolean).join(" · "))}</span></td><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7;white-space:nowrap">${f.phone ? `<a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="background:#25D366;color:#fff;padding:5px 12px;border-radius:6px;text-decoration:none;font-size:12px">💬 واتساب</a> <a href="tel:${esc(f.phone)}" style="color:#0B1B5A;font-size:12px">📞 ${esc(f.phone)}</a>` : ""}${f.email ? `<br><a href="mailto:${esc(f.email)}" style="color:#0B1B5A;font-size:12px">✉️ ${esc(f.email)}</a>` : ""}${!f.phone && !f.email ? `<span style="color:#B91C1C;font-size:12px">لا وسيلة تواصل</span>` : ""}</td><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7;color:#0B1B5A;font-size:13px">← ${esc(f.action)}</td></tr>`).join("");
+          const rowsHtml = g.rows.map((f) => `<tr><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7"><b style="color:#1F2430">${esc(f.title)}</b><br><span style="color:#8A93A6;font-size:12px">${esc([f.ref, f.stage, f.order].filter(Boolean).join(" · "))}</span><br><span style="color:#8A93A6;font-size:11.5px">📆 وصل: ${esc(f.created || "—")} · آخر نشاط: ${esc(f.last || "—")} · متابعته: ${f.due ? `<span style="color:${f.due <= new Date().toISOString().slice(0, 10) ? "#B91C1C" : "#8A93A6"}">${esc(f.due)}</span>` : "اليوم"}</span></td><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7;white-space:nowrap">${f.phone ? `<a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="background:#25D366;color:#fff;padding:5px 12px;border-radius:6px;text-decoration:none;font-size:12px">💬 واتساب</a> <a href="tel:${esc(f.phone)}" style="color:#0B1B5A;font-size:12px">📞 ${esc(f.phone)}</a>` : ""}${f.email ? `<br><a href="mailto:${esc(f.email)}" style="color:#0B1B5A;font-size:12px">✉️ ${esc(f.email)}</a>` : ""}${!f.phone && !f.email ? `<span style="color:#B91C1C;font-size:12px">لا وسيلة تواصل</span>` : ""}</td><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7;color:#0B1B5A;font-size:13px">← ${esc(f.action)}</td></tr>`).join("");
           return `<tr><td style="padding:22px 24px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-right:4px solid ${g.ch.color};padding-right:10px;font-size:16px;font-weight:bold;color:${g.ch.color}">${g.ch.icon} ${esc(g.ch.label)} — ${g.rows.length} عميل</td></tr></table><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px;margin-top:8px"><thead><tr style="background:#F4F6FB"><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">العميل</th><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">التواصل</th><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">المطلوب</th></tr></thead><tbody>${rowsHtml}</tbody></table></td></tr>`;
         }).join("");
         const digestHtml = `<div dir="rtl" style="font-family:Arial,'Segoe UI',Tahoma,sans-serif;background:#F2F4FA;padding:24px 10px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;border:1px solid #E2E7F2"><tr><td style="background:#0B1B5A;padding:22px 26px"><span style="color:#fff;font-size:20px;font-weight:bold">📋 تقرير متابعات اليوم</span><br><span style="color:#B9C4E8;font-size:13px">${esc(today2)} · ${due.length} عميل يحتاج تواصلك — مصنّفون حسب مصدر الوصول</span></td></tr><tr><td style="padding:18px 20px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr>${chips}</tr></table></td></tr>${sections}<tr><td style="padding:24px;text-align:center"><a href="${MKT_SITE_BASE}/admin" style="background:#0B1B5A;color:#fff;padding:12px 26px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">افتح لوحة التحكم — بأزرار الاتصال</a><p style="color:#8A93A6;font-size:12px;margin-top:14px">تقرير آلي يومي من نظام المتابعة الموحّد · بيزنس بارتنر — حتى لا يضيع عميل.</p></td></tr></table></div>`;
@@ -1787,6 +1791,90 @@ export default async function handler(req, res) {
   if (String(b.action || "").startsWith("panel-")) {
     res.setHeader("Cache-Control", "no-store");
     if (!panelOk(b)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+
+    // «سي آر إم أكتف»: the متابعات اليوم rows in /admin write straight back to
+    // the master pipeline — mark contacted, add a note, or snooze — so the
+    // half-hour WhatsApp reminders stop the moment the work is actually done.
+    if (b.action === "panel-followup-update") {
+      if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+      const pid = String(b.id || "").replace(/[^a-fA-F0-9-]/g, "").slice(0, 40);
+      if (!pid) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      const today = new Date().toISOString().slice(0, 10);
+      const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+      const props = { "Last Activity": { date: { start: today } } };
+      let line = "";
+      if (b.done) {
+        const days = Number(b.followupDays) > 0 ? Math.min(Number(b.followupDays), 60) : 3;
+        props["Human Required"] = { checkbox: false };
+        props["Next Follow Up"] = { date: { start: plusDaysISO(days) } };
+        line = `✅ تم التواصل (${stamp} UTC)`;
+      }
+      const snooze = Number(b.snoozeDays);
+      if (!b.done && snooze > 0) {
+        props["Next Follow Up"] = { date: { start: plusDaysISO(Math.min(snooze, 60)) } };
+        line = `⏰ تأجيل المتابعة إلى ${plusDaysISO(Math.min(snooze, 60))} (${stamp} UTC)`;
+      }
+      const noteTxt = String(b.note || "").trim().slice(0, 800);
+      if (noteTxt) line = (line ? line + " — " : `📝 ملاحظة (${stamp} UTC): `) + noteTxt;
+      try {
+        if (line) {
+          const pg = await fetch(`https://api.notion.com/v1/pages/${pid}`, { headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION } });
+          if (pg.ok) {
+            const pj = await pg.json();
+            const existing = (((pj.properties || {}).Notes || {}).rich_text || []).map((t) => t.plain_text || "").join("");
+            props["Notes"] = { rich_text: richChunks((existing + "\n" + line).slice(-6000)) };
+          }
+        }
+        const r = await fetch(`https://api.notion.com/v1/pages/${pid}`, {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify({ properties: props }),
+        });
+        if (!r.ok) { console.error("followup update error", r.status, (await r.text()).slice(0, 200)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "crm_failed" })); }
+        audit({ action: "crm.followup_update", actor_label: "panel", after: { pid, done: !!b.done, snooze: snooze > 0 ? snooze : null } }).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        console.error("followup update exception", String(e).slice(0, 150));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+      }
+    }
+
+    // Direct-contact clients (a phone call, a walk-in) get a real record with
+    // a generated reference — typed like every other channel so classification
+    // and follow-up treat them identically. Lead Source = «إدخال يدوي».
+    if (b.action === "panel-manual-lead") {
+      const name = String(b.name || "").trim().slice(0, 120);
+      const phone = String(b.phone || "").trim().slice(0, 40);
+      const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+      const kind = ["ticket", "consult", "order"].includes(b.kind) ? b.kind : "ticket";
+      const subject = String(b.subject || "").trim().slice(0, 200);
+      const note = String(b.note || "").trim().slice(0, 1200);
+      const total = Number(b.total);
+      if (!name || (!phone && !isEmail(email)) || !subject) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      const prefix = kind === "consult" ? "BC" : kind === "order" ? "BP" : "BPT";
+      const ref = `${prefix}-${Date.now().toString().slice(-6)}`;
+      const orderStatus = kind === "consult" ? "حجز استشارة" : kind === "order" ? "قيد المراجعة" : "تذكرة دعم";
+      const icon = kind === "consult" ? "📅" : kind === "order" ? "🛒" : "🎫";
+      try {
+        await crmLead({
+          title: `${icon} ${subject} — ${name}`,
+          phone, email,
+          notes: `قناة: إدخال يدوي (اتصال مباشر)${note ? " · " + note : ""}`,
+          ref, orderStatus,
+          total: Number.isFinite(total) && total > 0 ? total : undefined,
+          leadSource: "إدخال يدوي",
+        });
+        audit({ action: "crm.manual_lead", actor_label: "panel", after: { ref, kind } }).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, ref }));
+      } catch (e) {
+        console.error("manual lead exception", String(e).slice(0, 150));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+      }
+    }
 
     // Change a CRM lead's حالة الطلب (approve / complete / cancel …).
     if (b.action === "panel-status") {
