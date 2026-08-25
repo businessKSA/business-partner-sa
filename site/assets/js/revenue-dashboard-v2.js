@@ -80,7 +80,7 @@
     return `<span class="status-chip ${cls}" style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${cls === 'ok' ? '#E3F1E9;color:#006C35' : cls === 'active' ? '#E8EDFB;color:#0B1B5A' : cls === 'off' ? '#F3F4F6;color:#6B7280' : '#FFF7E6;color:#92600A'}">${esc(shown || '—')}</span>`;
   };
   const emptyState = (t, p, cta) => `<div class="dash-card" style="text-align:center;padding:48px 24px"><div style="font-size:2rem;margin-bottom:10px">◇</div><h3 style="margin:0 0 6px">${t}</h3><p style="color:#6B7280;max-width:46em;margin:0 auto 16px">${p}</p>${cta || ''}</div>`;
-  const pkgCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/revenue-os' : '/ar/revenue-os'}#pricing" style="text-decoration:none">${L('View BD as a Service packages', 'استعرض باقات تطوير الأعمال كخدمة')}</a>`;
+  const pkgCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/business-development' : '/ar/business-development'}#pricing" style="text-decoration:none">${L('View BD as a Service packages', 'استعرض باقات تطوير الأعمال كخدمة')}</a>`;
 
   function periodOrders() { return state.orders.filter(inPeriod); }
   // The client's own orders with us. Deliberately NOT called a pipeline: these

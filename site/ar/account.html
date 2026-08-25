@@ -1317,7 +1317,7 @@
             var pkName = enP ? (pk.nameEn || pk.nameAr) : (pk.nameAr || pk.nameEn);
             var pkPrice = enP ? (pk.priceLabel || '') : (pk.priceLabelAr || pk.priceLabel || '');
             var pkGroup = enP ? (pk.groupNameEn || '') : (pk.groupNameAr || '');
-            var pkHref = pk.group === 'revenue-os' ? '/revenue-os' : (enP ? '/packages' : '/ar/packages');
+            var pkHref = pk.group === 'revenue-os' ? '/business-development' : (enP ? '/packages' : '/ar/packages');
             cards += '<div class="svc" data-srch>' +
               '<div class="hd"><b>' + esc(pkName) + '</b><span class="badge plain">' + esc(pkGroup) + '</span></div>' +
               '<div class="kv"><span>' + (enP ? 'Price' : 'السعر') + '</span><b>' + esc(pkPrice || (enP ? 'On request' : 'حسب الطلب')) + '</b></div>' +
@@ -1333,7 +1333,7 @@
         var portalBadge = en ? 'Portal' : 'بوابة';
         var openLbl = en ? 'Open portal' : 'افتح البوابة';
         var pl = [
-          { i: '🚀', n: en ? 'BD as a Service dashboard' : 'لوحة تطوير الأعمال كخدمة', u: '/revenue-dashboard' },
+          { i: '🚀', n: en ? 'BD as a Service dashboard' : 'لوحة تطوير الأعمال كخدمة', u: '/business-development-dashboard' },
           { i: '🛡️', n: en ? 'Compliance dashboard' : 'لوحة الامتثال', u: '/ar/compliance-dashboard' },
           { i: '🤖', n: en ? 'Smart employees portal' : 'بوابة الموظفين الأذكياء', u: '/ar/portal' },
           { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
@@ -2532,7 +2532,7 @@
         employees: '/ar/portal',
         employer: '/employer-dashboard',
         shared: '/shared-services/dashboard',
-        revenue: '/revenue-dashboard'
+        revenue: '/business-development-dashboard'
       };
       var url = map[r] || (/^\/[A-Za-z0-9/_-]*$/.test(r) ? r : '');
       if (!url) return false;

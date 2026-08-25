@@ -1184,7 +1184,7 @@ function buildServicesIndex() {
   </div></section>
   <section class="section"><div class="container">
     <div class="grid grid-3 cat-grid">${categoryCards()}</div>
-    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/revenue-os")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>
+    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/business-development")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>
     <div class="cta-band" style="margin-top:20px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
   </div></section>`;
   return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
@@ -1309,7 +1309,7 @@ function buildServiceDetail(s) {
   return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
 }
 
-/* ---------- Business Development as a Service (/revenue-os) ----------
+/* ---------- Business Development as a Service (/business-development) ----------
    Built through the site's own page() so it carries the real header (with the
    language switcher), footer and WhatsApp button like every other page. Its
    own visual language lives in revenue-os-page.css, scoped under .revos so it
@@ -1338,7 +1338,7 @@ function buildRevenueOS() {
     <span class="eyebrow">${L("Business Partner · BD as a Service", "بيزنس بارتنر · تطوير الأعمال كخدمة")}</span>
     <h1>${L("We build the customer and supplier base", "نبني لك قاعدة العملاء والموردين")} <span>${L("your business grows on.", "التي ينمو عليها عملك.")}</span></h1>
     <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل داخل Pipeline واحد قابل للقياس.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary" href="#leadForm">${L("Start building your pipeline →", "ابدأ بناء الـPipeline ←")}</a><a class="btn" href="${u("/revenue-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a></div>
+    <div class="hero-actions"><a class="btn btn-primary" href="#leadForm">${L("Start building your pipeline →", "ابدأ بناء الـPipeline ←")}</a><a class="btn" href="${u("/business-development-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a></div>
     <div class="proof"><span>${L("Without hiring a full team", "بدون توظيف فريق كامل")}</span><span>${L("CRM and live reports", "CRM وتقارير مباشرة")}</span><span>${L("Customers, suppliers and partners", "عملاء وموردون وشركاء")}</span></div>
   </div></section>
 
@@ -1350,7 +1350,7 @@ function buildRevenueOS() {
     <a class="sector-chip" href="#pricing">${L("Packages", "الباقات")}</a>
     <a class="sector-chip" href="#results">${L("Reports", "التقارير")}</a>
     <a class="sector-chip" href="#faq">${L("FAQ", "الأسئلة")}</a>
-    <a class="sector-chip" href="${u("/revenue-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a>
+    <a class="sector-chip" href="${u("/business-development-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a>
   </div></nav>
 
   <section class="trust-strip"><div class="container">
@@ -1497,8 +1497,8 @@ function buildRevenueOS() {
   return page({
     title: Lraw("Business Development as a Service — customers, suppliers and revenue | Business Partner", "تطوير الأعمال كخدمة — العملاء والموردون والإيرادات | بيزنس بارتنر"),
     desc: Lraw("Business Development as a Service by Business Partner: we build your customer, supplier and partner base and run opportunities through to revenue and collection.", "تطوير الأعمال كخدمة من بيزنس بارتنر: نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
-    active: "/revenue-os",
-    path: "/revenue-os",
+    active: "/business-development",
+    path: "/business-development",
     body,
     extraHead: `<link rel="stylesheet" href="/assets/css/revenue-os-page.css?v=${REVOS_CSS_V}">`,
     script: `<script src="/assets/js/revenue-os-v1.js?v=${REVOS_JS_V}"></script>`,
@@ -10345,7 +10345,7 @@ function writeFullSite(pre) {
   write(`${pre}index.html`, buildHome());
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
-  write(`${pre}revenue-os.html`, buildRevenueOS());
+  write(`${pre}business-development.html`, buildRevenueOS());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
@@ -10574,7 +10574,7 @@ const catalogJson = {
         url: `${base}/packages`,
       }))
     ),
-    // BD-as-a-Service subscriptions (sold from /revenue-os). Owner-approved ladder
+    // BD-as-a-Service subscriptions (sold from /business-development). Owner-approved ladder
     // (2026-08): ONE success-fee number, charged on collected revenue only, and
     // the rate buys our closing team — pay a monthly fee alone and the client
     // closes; pay a commission and we close with them. Codes match the cart item
@@ -10604,7 +10604,7 @@ const catalogJson = {
         : "بدون عمولة — سعر شهري ثابت",
       closingByBusinessPartner: p.closedByUs,
       featuresAr: p.featuresAr,
-      url: `${base}/revenue-os`,
+      url: `${base}/business-development`,
     })),
   ],
 };

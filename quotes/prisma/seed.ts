@@ -254,34 +254,65 @@ const FULL_PRICED: S[] = [
   },
 ];
 
-// تطوير الأعمال — نظام تشغيل الإيرادات (6 باقات: رسوم شهرية + عمولات)
+// تطوير الأعمال كخدمة — Business Development as a Service.
+// السلّم المعتمد من المالك 2026-08-25: عمولة نجاح واحدة على الإيراد المحصّل
+// فقط، بدل عمولتَي «نجاح + إغلاق» اللتين لم يكن أحد يفرّق بينهما. والنسبة
+// تشتري فريق الإغلاق: من يدفع رسوماً شهرية فقط يُغلق بنفسه، ومن يدفع عمولة
+// نُغلق معه — ولهذا تصح باقة النمو بلا عمولة إطلاقاً.
+// أكواد REV-* محفوظة كما هي لأن عروضاً وعقوداً صادرة تشير إليها؛ تغييرها
+// ييتّم تلك المستندات. أكواد باقات الموقع (revos-*) مذكورة في الملاحظات
+// ليطابق العرضُ ما اشتراه العميل من السلة.
 const REVENUE: S[] = [
-  ['REV-START', 'البداية', 'Starter', 0, '12% من الإيراد المحصّل + 3%', '12% of collected revenue + 3%'],
-  ['REV-LAUNCH', 'الانطلاق', 'Launch', 2500, '10% + 2.5%', '10% + 2.5%'],
-  ['REV-GROWTH', 'النمو', 'Growth', 5000, '8% + 2%', '8% + 2%'],
-  ['REV-PRO', 'الاحترافية', 'Professional', 9500, '6% + 1.5%', '6% + 1.5%'],
-  ['REV-ENT', 'المنشآت الكبرى', 'Enterprise', 15000, '4% + 1%', '4% + 1%'],
-  ['REV-TEAM', 'الفريق المخصص', 'Dedicated Team', 20000, '3% + 1%', '3% + 1%'],
+  ['REV-START', 'أداء فقط', 'Performance Only', 0, 18, 'revos-starter', true],
+  ['REV-CONNECT-INTRO', 'Connect — أول شهر', 'Connect — First Month', 249, 12, 'revos-connect-intro', false],
+  ['REV-CONNECT', 'Connect', 'Connect', 499, 12, 'revos-connect', false],
+  ['REV-LAUNCH', 'Launch', 'Launch', 2500, 8, 'revos-launch', false],
+  ['REV-GROWTH', 'Growth', 'Growth', 5000, 0, 'revos-growth', false],
+  ['REV-PRO', 'Professional', 'Professional', 9500, 5, 'revos-professional', true],
+  ['REV-ENT', 'Enterprise', 'Enterprise', 15000, 3, 'revos-enterprise', true],
+  ['REV-TEAM', 'Dedicated Team', 'Dedicated Team', 20000, 2, 'revos-dedicated', true],
 ].map((r, i) => {
-  const [code, ar, en, price, comAr, comEn] = r as [string, string, string, number, string, string];
+  const [code, ar, en, price, commission, siteCode, weClose] = r as
+    [string, string, string, number, number, string, boolean];
   const isFrom = code === 'REV-ENT' || code === 'REV-TEAM';
+  const isIntro = code === 'REV-CONNECT-INTRO';
+  const feeAr = commission
+    ? `عمولة نجاح ${commission}% على الإيراد المحصّل فعلياً`
+    : 'بدون أي عمولة — سعر شهري ثابت';
+  const feeEn = commission
+    ? `success fee of ${commission}% on revenue actually collected`
+    : 'no commission at all — a fixed monthly price';
+  const closerAr = weClose
+    ? 'يشارك الطرف الأول في الإغلاق: العروض والتفاوض ومتابعة التحصيل.'
+    : 'يتولى العميل الإغلاق، ويتولى الطرف الأول التوليد والتأهيل وحجز الاجتماعات.';
+  const closerEn = weClose
+    ? 'The First Party participates in closing: proposals, negotiation and collection follow-up.'
+    : 'The client closes; the First Party generates, qualifies and books the meetings.';
   return {
     code,
     category: 'revenue-os',
-    nameAr: `تطوير الأعمال — نظام تشغيل الإيرادات — باقة ${ar}`,
-    nameEn: `Business Development — Revenue Operating System — ${en} Package`,
-    descAr: `رسوم شهرية${isFrom ? ' تبدأ من' : ''} ${price.toLocaleString('en-US')} ريال، وعمولات ${comAr} على الإيراد المحصّل فعلياً.`,
-    descEn: `Monthly fee${isFrom ? ' starting from' : ''} SAR ${price.toLocaleString('en-US')}, with commissions of ${comEn} on revenue actually collected.`,
+    nameAr: `تطوير الأعمال كخدمة — باقة ${ar}`,
+    nameEn: `Business Development as a Service — ${en}`,
+    descAr: `${isIntro ? 'سعر الشهر الأول' : 'رسوم شهرية'}${isFrom ? ' تبدأ من' : ''} ${price.toLocaleString('en-US')} ريال، و${feeAr}. ${closerAr}`,
+    descEn: `${isIntro ? 'First-month price' : 'Monthly fee'}${isFrom ? ' starting from' : ''} SAR ${price.toLocaleString('en-US')}, with ${feeEn}. ${closerEn}`,
     unitPrice: price,
     openPrice: isFrom,
     unitAr: 'شهر',
     unitEn: 'month',
-    paymentTermsAr:
-      'الرسوم الشهرية مقدماً في بداية كل شهر؛ والعمولات على الإيراد المحصّل فعلياً وتُسدَّد خلال 5 أيام عمل من تاريخ التحصيل',
-    paymentTermsEn:
-      'Monthly fees in advance at the beginning of each month; commissions on revenue actually collected, payable within 5 working days of collection',
-    deliveryAr: 'اشتراك شهري',
-    deliveryEn: 'Monthly subscription',
+    paymentTermsAr: isIntro
+      ? 'سعر تعريفي للشهر الأول يُسدَّد مقدماً، ثم يتجدد الاشتراك بـ 499 ريال شهرياً؛ والعمولة على الإيراد المحصّل فعلياً وتُسدَّد خلال 15 يوماً من التحصيل'
+      : commission
+        ? 'الرسوم الشهرية مقدماً في بداية كل شهر؛ والعمولة على الإيراد المحصّل فعلياً وتُسدَّد خلال 15 يوماً من تاريخ التحصيل'
+        : 'الرسوم الشهرية مقدماً في بداية كل شهر؛ ولا تستحق أي عمولة على أي إيراد',
+    paymentTermsEn: isIntro
+      ? 'Introductory first-month price payable in advance, renewing at SAR 499 per month; the success fee is on revenue actually collected and payable within 15 days of collection'
+      : commission
+        ? 'Monthly fees in advance at the beginning of each month; the success fee is on revenue actually collected and payable within 15 days of collection'
+        : 'Monthly fees in advance at the beginning of each month; no commission is due on any revenue',
+    deliveryAr: 'اشتراك شهري يتجدد تلقائياً حتى الإلغاء',
+    deliveryEn: 'Monthly subscription renewing automatically until cancelled',
+    notesAr: `كود الباقة في متجر الموقع: ${siteCode}. العمولة لا تُحتسب على عملاء الطرف الثاني القائمين قبل بدء الاشتراك، ولا على فرص لم يولّدها الطرف الأول — راجع بندَي عمولة النجاح والصفقات المشمولة في العقد.`,
+    notesEn: `Website store code: ${siteCode}. The success fee does not apply to the Second Party's clients existing before the subscription began, nor to opportunities not generated by the First Party — see the success fee and covered deals clauses in the contract.`,
     sortOrder: 30 + i,
   } as S;
 });

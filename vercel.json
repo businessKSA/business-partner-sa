@@ -19,23 +19,33 @@
   },
   "redirects": [
     {
-      "source": "/bdaas",
-      "destination": "/revenue-os",
-      "permanent": false
+      "source": "/revenue-os",
+      "destination": "/business-development",
+      "permanent": true
     },
     {
-      "source": "/business-development",
-      "destination": "/revenue-os",
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-os",
+      "destination": "/:lang/business-development",
+      "permanent": true
+    },
+    {
+      "source": "/revenue-dashboard",
+      "destination": "/business-development-dashboard",
+      "permanent": true
+    },
+    {
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-dashboard",
+      "destination": "/:lang/business-development-dashboard",
+      "permanent": true
+    },
+    {
+      "source": "/bdaas",
+      "destination": "/business-development",
       "permanent": false
     },
     {
       "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/bdaas",
-      "destination": "/:lang/revenue-os",
-      "permanent": false
-    },
-    {
-      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development",
-      "destination": "/:lang/revenue-os",
+      "destination": "/:lang/business-development",
       "permanent": false
     },
     {
@@ -151,6 +161,14 @@
   ],
   "rewrites": [
     {
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development-dashboard",
+      "destination": "/assets/data/revenue-command-center"
+    },
+    {
+      "source": "/business-development-dashboard",
+      "destination": "/assets/data/revenue-command-center"
+    },
+    {
       "source": "/api/suppliers",
       "destination": "/api/requests?__route=suppliers"
     },
@@ -163,15 +181,7 @@
       "destination": "/api/requests?__route=jobhunt"
     },
     {
-      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-dashboard",
-      "destination": "/assets/data/revenue-command-center"
-    },
-    {
       "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal",
-      "destination": "/assets/data/revenue-command-center"
-    },
-    {
-      "source": "/revenue-dashboard",
       "destination": "/assets/data/revenue-command-center"
     },
     {

@@ -16,7 +16,7 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
-import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
+import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
@@ -168,19 +168,6 @@ async function complianceByCode(refs) {
 // List the most recent leads from the CRM (for the internal dashboard's
 // "incoming requests" view). Returns lightweight rows the dashboard renders,
 // including the phone (parsed from Notes) so the team can WhatsApp the lead.
-// A monthly package writes its accepted terms into the CRM note as
-// "اشتراك شهري: <name> (يتجدد <n> ﷼/شهر · عمولة <p>%) ، …". Both the admin panel
-// and the client's own dashboard need those terms back out of it, so the parse
-// lives in one place rather than being re-guessed at each call site.
-function parseSubsFromNotes(notes) {
-  return String((String(notes || "").match(/اشتراك شهري:\s*([^·]+)/) || [, ""])[1] || "")
-    .split("،").map((s) => s.trim()).filter(Boolean)
-    .map((s) => {
-      const m = s.match(/^(.*?)\s*\(يتجدد\s*([\d.]+)\s*﷼\/شهر\s*·\s*عمولة\s*([\d.]+)%\)/);
-      return m ? { name: m[1].trim(), renewsAt: Number(m[2]), commissionPercent: Number(m[3]) } : null;
-    }).filter(Boolean);
-}
-
 async function listLeads(limit) {
   if (!NOTION_TOKEN) return [];
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
