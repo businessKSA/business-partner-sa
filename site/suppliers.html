@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Partners portal — Business Partner</title>
+<title>Partner registration — Business Partner</title>
 <meta name="description" content="Register as a Business Partner partner and receive matching client requests.">
-<meta property="og:title" content="Partners portal — Business Partner">
+<meta property="og:title" content="Partner registration — Business Partner">
 <meta property="og:description" content="Register as a Business Partner partner and receive matching client requests.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
@@ -66,9 +66,9 @@
     <button type="button" class="nav-drop" aria-expanded="false">Tools &amp; calculators <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/tools-and-calculators">All tools</a><a href="/calculator">Cost calculator</a><a href="/calculators/government-cost">Government cost</a><a href="/calculators/profession-checker">Profession checker</a><a href="/calculators/end-of-service">End of service</a><a href="/calculators/annual-leave">Annual leave</a><a href="/calculators/overtime">Overtime</a><a href="/calculators/gosi">GOSI calculator</a></div>
   </div><a href="/magazine">Magazine (PDF)</a></div>
-    </div><div class="nav-group active">
-      <button type="button" class="nav-drop active" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/account">Client portal</a><a href="/revenue-dashboard">Revenue OS dashboard</a><a href="/suppliers" class="active">Partners portal</a><a href="/partner-dashboard">Partner dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
+    </div><div class="nav-group">
+      <button type="button" class="nav-drop" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="nav-menu"><a href="/account">Client portal</a><a href="/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
     </div><a href="/contact">Contact us</a></nav>
   <div class="header-cta">
     <div class="nav-group lang-group">
@@ -82,45 +82,63 @@
   </div>
 </div></header><main>
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">Partners portal</span>
+    <span class="eyebrow">Partners</span>
     <h1>Join the Business Partner network</h1>
-    <p class="lead">We send our clients' event and service requests to registered suppliers and collect competing offers. Register once — receive matching requests.</p>
+    <p class="lead">We send our clients' service and event requests to registered partners and collect competing offers. Register once — matching requests reach you, and your dashboard opens straight away.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="/partner-dashboard#signup">Create your partner account</a>
+      <a class="btn btn-ghost btn-lg" href="/partner-dashboard#login">Already a partner? Sign in</a>
+    </div>
   </div></section>
+
   <section class="section"><div class="container">
-    <div class="booking-wrap">
-      <form class="calc-form" id="supplier-form" novalidate>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">Partner registration</h2><a class="btn btn-ghost btn-sm" href="/partner-dashboard">Already a partner? Open your dashboard →</a></div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-company">Company name</label><input id="sp-company" type="text" required></div>
-          <div class="field"><label for="sp-person">Contact person</label><input id="sp-person" type="text" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-phone">Mobile</label><input id="sp-phone" type="tel" required placeholder="05xxxxxxxx"></div>
-          <div class="field"><label for="sp-email">Email</label><input id="sp-email" type="email" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-city">City</label><input id="sp-city" type="text" placeholder="Riyadh"></div>
-          <div class="field"><label for="sp-cr">CR number (optional)</label><input id="sp-cr" type="text"></div>
-          <div class="field"><label for="sp-vat">VAT number (optional)</label><input id="sp-vat" type="text"></div>
-        </div>
-        <div class="field"><label for="sp-cat">Service category</label>
-          <select id="sp-cat"><option value="تأسيس الشركات">Company formation</option><option value="الاستثمار الأجنبي">Foreign investment</option><option value="العلاقات الحكومية">Government relations</option><option value="خدمات الموارد البشرية">HR services</option><option value="الاستقدام والتوظيف">Recruitment</option><option value="دعم الأعمال">Business support</option><option value="العقارات والمساحات">Real estate &amp; workspaces</option><option value="الإقامة المميزة">Premium residency</option><option value="الذكاء الاصطناعي والأتمتة">AI &amp; automation</option><option value="فعاليات وضيافة">Events &amp; hospitality</option><option value="إعاشة وتغذية">Catering</option><option value="نقل ومواصلات">Transport</option><option value="إسكان عمالة">Worker housing</option><option value="تشغيل وصيانة">Operations &amp; maintenance</option><option value="تسويق وإعلان">Marketing &amp; advertising</option><option value="أخرى">Other</option></select></div>
-        <div class="field"><label for="sp-notes">Describe your services briefly</label><textarea id="sp-notes" rows="3"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Register as a partner</button>
-        <p class="form-note">Your dashboard opens as soon as you verify your email — you will see every service you can execute and what each one pays you. Approval is what lets us assign you work.</p>
-        <div class="form-success" id="supplier-success" hidden></div>
-      </form>
-      <aside class="booking-side">
-        <div class="order-box">
-          <h3>Why join?</h3>
-          <ul class="feat-list">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Ready corporate demand from our clients</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>You compete on clear, scoped requests</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>No registration fees</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Direct WhatsApp/email coordination</span></li>
-          </ul>
-        </div>
-      </aside>
+    <div class="section-head"><h2>Three steps, no fees</h2>
+      <p>Registration takes a couple of minutes and costs nothing.</p></div>
+    <div class="grid grid-3">
+      <div class="step"><div class="step-n">1</div><div>
+        <h3>Create your account</h3>
+        <p class="text-soft">Company name, contact person, mobile, e-mail, a password and your service category.</p></div></div>
+      <div class="step"><div class="step-n">2</div><div>
+        <h3>Verify your e-mail</h3>
+        <p class="text-soft">A six-digit code reaches your inbox and is valid for fifteen minutes.</p></div></div>
+      <div class="step"><div class="step-n">3</div><div>
+        <h3>Your dashboard opens</h3>
+        <p class="text-soft">You see every service you can execute and what each pays you. Approval by our team is what lets us assign you work.</p></div></div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="grid grid-2" style="gap:28px;align-items:start">
+      <div class="order-box">
+        <h3>Why join?</h3>
+        <ul class="feat-list" style="grid-template-columns:1fr">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Ready corporate demand from our clients</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>You compete on clear, scoped requests</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>No registration fees</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Direct WhatsApp and e-mail coordination</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Your own referral link — you earn on what you bring in</span></li>
+        </ul>
+      </div>
+      <div class="order-box">
+        <h3>What your dashboard gives you</h3>
+        <ul class="feat-list" style="grid-template-columns:1fr">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Work orders assigned to you, with their status</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Your own services and prices</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Every catalogue service and your share of it</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Propose a service we do not offer yet</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Your wallet: what is held for you and what is released</span></li>
+        </ul>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><h2>Categories we register</h2>
+      <p>Pick yours while creating the account.</p></div>
+    <div class="chip-row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center"><span class="chip">Company formation</span><span class="chip">Foreign investment</span><span class="chip">Government relations</span><span class="chip">HR services</span><span class="chip">Recruitment</span><span class="chip">Business support</span><span class="chip">Real estate &amp; workspaces</span><span class="chip">Premium residency</span><span class="chip">AI &amp; automation</span><span class="chip">Events &amp; hospitality</span><span class="chip">Catering</span><span class="chip">Transport</span><span class="chip">Worker housing</span><span class="chip">Operations &amp; maintenance</span><span class="chip">Marketing &amp; advertising</span><span class="chip">Other</span></div>
+    <div class="cta-band" style="margin-top:36px">
+      <h2>Register once — the requests come to you</h2>
+      <a class="btn btn-white btn-lg" href="/partner-dashboard#signup">Create your partner account</a>
     </div>
   </div></section></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
@@ -161,11 +179,10 @@
     <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
       <li><a href="/account">Client portal</a></li>
       <li><a href="/revenue-dashboard">Revenue OS dashboard</a></li>
-      <li><a href="/suppliers">Partners portal</a></li>
+      <li><a href="/suppliers">Partner registration</a></li>
       <li><a href="/employer-join">For employers</a></li>
       <li><a href="/portal">Smart employees portal</a></li>
       <li><a href="/employer-login">Employers — sign in</a></li>
-      <li><a href="/partner-dashboard">Partner dashboard</a></li>
       <li><a href="/shared-services">Shared Services Team</a></li>
     </ul></div>
     <div class="footer-col"><h4>Knowledge Center</h4><ul>
@@ -283,4 +300,4 @@
         <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=629293ae20"></script></body></html>
+  </section><script src="/assets/js/main.js?v=d3a4f77f1d"></script></body></html>
