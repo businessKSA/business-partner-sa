@@ -1,0 +1,16 @@
+{
+  "name": "بوابة بزنس بارتنر — فريقك التنفيذي الذكي",
+  "short_name": "BP بوابتي",
+  "description": "لوحة فريق الخدمات المشتركة: 13 متخصصاً ينفّذون بحوكمة — محادثات، خدمات، تقارير، امتثال.",
+  "id": "/ar/shared-services/dashboard",
+  "start_url": "/ar/shared-services/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#ffffff",
+  "theme_color": "#0b1b5a",
+  "icons": [
+    { "src": "/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

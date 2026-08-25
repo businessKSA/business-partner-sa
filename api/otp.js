@@ -12,6 +12,8 @@
 // Optional:
 //   OTP_DEV_ECHO=1   returns the code in the response (TESTING ONLY — never in production)
 import crypto from "node:crypto";
+import { verifyGoogleIdToken } from "./_suppliers.js";
+import { nafathRequest, nafathStatus, nationalIdState, nafathPing, nafathIdHash, nafathSeal, nafathUnseal, isOwnerId, mintOwnerTicket } from "./_nafath.js";
 
 const SECRET = process.env.OTP_SECRET || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
@@ -178,6 +180,10 @@ export default async function handler(req, res) {
       usersCount,
       // Non-sensitive booleans so the owner can verify /admin gating without
       // exposing any value: is a panel key set, and did it need trimming?
+      // Nafath: whether the login screens should offer it at all, and whether
+      // the owner's panels are set to demand it.
+      nafath: nafathPing(),
+      panelRequiresNafath: /^(1|true|yes)$/i.test(String(process.env.PANEL_REQUIRE_NAFATH || "")),
       panelKeyConfigured: !!(process.env.PANEL_KEY || "").trim(),
       panelKeyHadWhitespace: (process.env.PANEL_KEY || "") !== (process.env.PANEL_KEY || "").trim(),
     }));
@@ -235,6 +241,234 @@ export default async function handler(req, res) {
   }
 
   // 2) Verify: unseal challenge, compare code + expiry.
+  // Google sign-in reaches the same place the emailed code does: Google has
+  // already verified the address, so a checked ID token stands in for the
+  // round trip and mints exactly the same session. Nothing downstream can tell
+  // the two apart, which is the point — one account, two ways in.
+  if (action === "google") {
+    let g = null;
+    try { g = await verifyGoogleIdToken(String(body.credential || "")); }
+    catch (e) { console.error("otp google verify", String(e.message || e).slice(0, 160)); }
+    if (!g || !g.email) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_token" })); }
+    const email = String(g.email).trim().toLowerCase();
+    if (DB_ON) {
+      try {
+        const { raw, user, orgId } = await createSession(req, {
+          email,
+          name: String(g.name || body.name || "").slice(0, 120),
+          company: String(body.company || "").slice(0, 160),
+        });
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true, db: true, email,
+          user: { id: user.id, email: user.email, name: user.full_name || "" },
+          organizationId: orgId,
+        }));
+      } catch {
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+      }
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+  }
+
+  /* ---------------- Nafath: prove who you are, not what you know -----------
+   * Two purposes share one mechanism.
+   *
+   *   purpose "panel"  — the owner's own screens. Success is checked against
+   *                      OWNER_NATIONAL_IDS and answers with a sealed ticket.
+   *                      No account, no cookie: it is a door, not a login.
+   *   purpose "portal" — a client signing in. Nafath does not return an email
+   *                      and our accounts are keyed by one, so the first
+   *                      verification binds the identity to an account; every
+   *                      one after that is enough on its own.
+   *
+   * The national id never travels back to the browser. It goes out once, and
+   * what the browser holds afterwards is a sealed blob it cannot read.
+   */
+
+  // Nafath pushes a notification to a real person's phone. Anyone could
+  // therefore use this endpoint to pester an id they do not own, so the same
+  // id cannot be started twice in a minute and one address cannot start many.
+  // This counter lives in the lambda instance: it blunts a casual flood, and
+  // does nothing against a distributed one — Elm's own limits are the backstop.
+  const nafathSeen = (globalThis.__bpNafathSeen ||= new Map());
+  function nafathThrottle(key, windowMs, max) {
+    const now = Date.now();
+    for (const [k, v] of nafathSeen) if (now - v.at > 10 * 60 * 1000) nafathSeen.delete(k);
+    const hit = nafathSeen.get(key);
+    if (!hit || now - hit.at > windowMs) { nafathSeen.set(key, { at: now, n: 1 }); return true; }
+    hit.n += 1;
+    return hit.n <= max;
+  }
+
+  if (action === "nafath-start") {
+    const id = nationalIdState(body.nationalId);
+    if (!id.ok) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: id.reason, message:
+        id.reason === "must_be_10_digits" ? "رقم الهوية أو الإقامة عشرة أرقام."
+        : id.reason === "unsupported_prefix_9" ? "هذا الرقم لا تدعمه خدمة نفاذ للتحقق."
+        : "رقم الهوية غير صحيح." }));
+    }
+    const purpose = body.purpose === "panel" ? "panel" : "portal";
+    const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "?";
+    if (!nafathThrottle("id:" + id.value, 60 * 1000, 1) || !nafathThrottle("ip:" + ip, 10 * 60 * 1000, 5)) {
+      res.statusCode = 429;
+      return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. انتظر دقيقة ثم أعد المحاولة." }));
+    }
+    // An id that could never open the panel should not ring anyone's phone.
+    if (purpose === "panel" && !isOwnerId(id.value)) {
+      res.statusCode = 403;
+      return res.end(JSON.stringify({ ok: false, error: "not_owner", message: "هذه الهوية غير مصرّح لها بفتح هذه اللوحة." }));
+    }
+    let started;
+    try {
+      started = await nafathRequest({ nationalId: id.value, locale: body.locale === "en" ? "en" : "ar" });
+    } catch (e) {
+      const why = String(e.message || e);
+      console.error("nafath start", why, String(e.detail || "").slice(0, 200));
+      res.statusCode = why === "nafath_not_configured" || why === "nafath_service_not_configured" ? 503 : 502;
+      return res.end(JSON.stringify({ ok: false, error: why, message:
+        why === "nafath_not_configured" || why === "nafath_service_not_configured" ? "الدخول عبر نفاذ غير مُفعّل بعد."
+        : why === "nafath_unauthorized" ? "بيانات الاتصال بنفاذ مرفوضة."
+        : "تعذّر الوصول إلى نفاذ الآن." }));
+    }
+    if (!started.transId) {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "no_transaction", message: "لم تُنشئ نفاذ طلباً. حاول مرة أخرى." }));
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true,
+      // The number the user must pick inside the Nafath app. Showing it is the
+      // whole anti-phishing device: a fake site cannot know the number the
+      // real request produced.
+      random: started.random,
+      challenge: nafathSeal({
+        t: "pending", nid: id.value, transId: started.transId, random: started.random,
+        purpose, exp: Date.now() + 10 * 60 * 1000,
+      }),
+    }));
+  }
+
+  if (action === "nafath-poll") {
+    const p = nafathUnseal(String(body.challenge || ""));
+    if (!p || p.t !== "pending") {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "expired_challenge", message: "انتهت مهلة الطلب. ابدأ من جديد." }));
+    }
+    let st;
+    try { st = await nafathStatus({ nationalId: p.nid, transId: p.transId, random: p.random }); }
+    catch (e) {
+      console.error("nafath poll", String(e.message || e), String(e.detail || "").slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "status_failed", message: "تعذّر قراءة حالة الطلب." }));
+    }
+    if (st.status === "WAITING") { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, status: "WAITING" })); }
+    if (st.status !== "COMPLETED") {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, status: st.status, message:
+        st.status === "REJECTED" ? "رُفض الطلب من تطبيق نفاذ." : "انتهت صلاحية الطلب. ابدأ من جديد." }));
+    }
+
+    // ---- verified from here on ----
+    if (p.purpose === "panel") {
+      const ticket = mintOwnerTicket(p.nid);
+      if (!ticket) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_owner" })); }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, status: "COMPLETED", ticket }));
+    }
+
+    if (!DB_ON) {
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ ok: false, error: "db_off", message: "تم التحقق، لكن قاعدة الحسابات غير مهيأة." }));
+    }
+    const hash = nafathIdHash(p.nid);
+    try {
+      // Returning by identity alone: this id has been bound to an account
+      // before, so there is nothing left to ask for.
+      const known = await sb(`users?nafath_id=eq.${encodeURIComponent(hash)}&select=id,email&limit=1`);
+      if (known.length) {
+        const { raw, user, orgId } = await createSession(req, { email: String(known[0].email) });
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true, status: "COMPLETED", db: true, email: user.email, verified: true,
+          user: { id: user.id, email: user.email, name: user.full_name || "" },
+          organizationId: orgId,
+        }));
+      }
+
+      // First time. Nafath proves WHO someone is; it says nothing about which
+      // mailbox is theirs. Opening a session on an address typed at this point
+      // would let anyone with a valid Nafath identity sign in as any client by
+      // typing that client's e-mail — so the binding attaches to a session the
+      // person already holds, and never creates one from an unproven address.
+      const sess = await dbGetSession(req);
+      if (!sess || !sess.user || !sess.user.id) {
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: false, status: "COMPLETED", error: "identity_not_linked",
+          // The verification really did happen, so it is not thrown away: this
+          // is our own sealed note that this identity passed, good for ten
+          // minutes. The client signs in the ordinary way and hands it back,
+          // and the binding completes without troubling Nafath again.
+          link: nafathSeal({ t: "verified", hash, exp: Date.now() + 10 * 60 * 1000 }),
+          message: "تم التحقق من هويتك عبر نفاذ ✓ — ادخل مرة واحدة بالبريد أو بحساب جوجل، وسنربط هويتك بحسابك تلقائياً." }));
+      }
+      try {
+        await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: hash } });
+      } catch (e) {
+        // A unique index guards the column, so the likeliest cause is that
+        // another account already claimed this identity between the lookup
+        // above and this write. The reason is logged; the client is not told
+        // which account, because that would leak one.
+        console.error("nafath bind", String(e.message || e).slice(0, 160));
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "bind_failed",
+          message: "تعذّر ربط الهوية بهذا الحساب. تواصل معنا إن تكرر." }));
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true, status: "COMPLETED", db: true, linked: true, verified: true,
+        email: sess.user.email || "",
+        message: "تم ربط هويتك الوطنية بحسابك ✓ — تقدر تدخل بنفاذ مباشرة بعد الآن.",
+      }));
+    } catch (e) {
+      console.error("nafath session", String(e.message || e).slice(0, 160));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "session_failed", message: "تم التحقق، لكن تعذّر فتح الجلسة." }));
+    }
+  }
+
+  // Finish a binding that was verified before the client had a session.
+  if (action === "nafath-link") {
+    const v = nafathUnseal(String(body.link || ""));
+    if (!v || v.t !== "verified" || !v.hash) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "expired_proof" }));
+    }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off" })); }
+    try {
+      const sess = await dbGetSession(req);
+      if (!sess || !sess.user || !sess.user.id) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "no_session" })); }
+      const taken = await sb(`users?nafath_id=eq.${encodeURIComponent(v.hash)}&select=id&limit=1`);
+      if (taken.length && taken[0].id !== sess.user.id) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "identity_already_linked", message: "هذه الهوية مرتبطة بحساب آخر." }));
+      }
+      if (!taken.length) await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: v.hash } });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, linked: true, message: "تم توثيق هويتك عبر نفاذ ✓" }));
+    } catch (e) {
+      console.error("nafath link", String(e.message || e).slice(0, 160));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "link_failed" }));
+    }
+  }
+
   if (action === "verify") {
     const code = String(body.code || "").trim();
     const email = String(body.email || "").trim().toLowerCase();

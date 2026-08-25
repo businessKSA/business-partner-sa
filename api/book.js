@@ -40,6 +40,9 @@ async function crmLead({ name, phone, email, topic, date, notes, ref }) {
     "Human Required": { checkbox: true },
     "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · ملاحظات: " + notes : ""}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
+    // Same ref column every other handler writes, so a consultation booking is
+    // lookupable by its BC- reference (and by ?action=refs=) like any order.
+    "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (/^\d{4}-\d{2}-\d{2}$/.test(date || "")) props["Meeting Date"] = { date: { start: date } };
   try {
@@ -151,6 +154,12 @@ export default async function handler(req, res) {
     crmLead({ name, phone, email, topic, date, notes, ref }),
     addToAudience(email, name),
     forwardLead({ source: "consultation", ref, name, phone, email, topic, date, notes }),
+    // n8n notify webhook: source=booking + date/time auto-creates the event
+    // on the owner's Google Calendar (workflow bldhMv0BAGs41Xqo).
+    fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source: "booking", ref, name, phone, email, date, time, topic, transcript: `📅 حجز استشارة (${topic || "عام"}): ${date} · ${time}` }),
+    }).catch(() => {}),
   ]);
 
   res.statusCode = 200;

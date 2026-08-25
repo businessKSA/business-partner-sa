@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Jobs for job seekers — HR portal</title>
-<meta name="description" content="Join Business Partner's candidate pool and get matched to suitable roles.">
-<meta property="og:title" content="Jobs for job seekers — HR portal">
-<meta property="og:description" content="Join Business Partner's candidate pool and get matched to suitable roles.">
+<title>Offres pour les chercheurs d'emploi — portail RH</title>
+<meta name="description" content="Rejoignez le vivier de candidats de Business Partner et soyez mis en relation avec des postes adaptés.">
+<meta property="og:title" content="Offres pour les chercheurs d'emploi — portail RH">
+<meta property="og:description" content="Rejoignez le vivier de candidats de Business Partner et soyez mis en relation avec des postes adaptés.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="fr_FR">
@@ -15,109 +15,123 @@
 <link rel="alternate" hreflang="en" href="/portal/candidates">
 <link rel="alternate" hreflang="ar" href="/ar/portal/candidates">
 <link rel="alternate" hreflang="fr" href="/fr/portal/candidates">
+<link rel="alternate" hreflang="zh" href="/zh/portal/candidates">
 <link rel="alternate" hreflang="x-default" href="/portal/candidates">
 <script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=332165c7de">
+<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header portal-header"><div class="container header-inner">
   <a class="logo" href="https://hr.businesspartner.sa/en" aria-label="Business Partner HR" style="display:flex;align-items:center;gap:10px">
     <img src="/assets/img/logo.png" alt="Business Partner" width="150" height="28">
-    <span style="font-size:.78rem;font-weight:700;color:var(--brand);background:var(--bg-soft);padding:3px 10px;border-radius:999px">HR Portal</span>
+    <span style="font-size:.78rem;font-weight:700;color:var(--brand);background:var(--bg-soft);padding:3px 10px;border-radius:999px">Portail RH</span>
   </a>
-  <nav class="nav" aria-label="Portal navigation"><a href="https://hr.businesspartner.sa/en">Accueil</a><a href="https://hr.businesspartner.sa/en/join">For Employers</a><a href="https://hr.businesspartner.sa/en/dashboard">Dashboard</a><a href="https://hr.businesspartner.sa/en/candidates" class="active">For Candidates</a></nav>
+  <nav class="nav" aria-label="Portal navigation"><a href="https://hr.businesspartner.sa/en">Accueil</a><a href="https://hr.businesspartner.sa/en/join">Pour les employeurs</a><a href="https://hr.businesspartner.sa/en/dashboard">Tableau de bord</a><a href="https://hr.businesspartner.sa/en/candidates" class="active">Pour les candidats</a></nav>
   <div class="header-cta"><a class="lang-toggle" href="https://hr.businesspartner.sa/candidates">العربية</a></div>
 </div></header><main>
   <section class="hero"><div class="container hero-inner" style="max-width:960px">
-    <span class="eyebrow">For job seekers</span>
-    <h1>Find your next opportunity</h1>
-    <p class="lead">Join our candidate pool once — employers hiring through Business Partner reach you when a suitable role opens.</p>
+    <span class="eyebrow">Pour les chercheurs d'emploi</span>
+    <h1>Trouvez votre prochaine opportunité</h1>
+    <p class="lead">Rejoignez notre vivier de candidats une seule fois — les employeurs qui recrutent via Business Partner vous contactent dès qu'un poste adapté s'ouvre.</p>
     <div class="talent-actions" style="margin-top:22px">
-      <a class="btn btn-primary" href="#seeker-form"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg><span>Submit your CV</span></a>
-      <a class="btn btn-ghost" href="https://hr.businesspartner.sa/en/join">I'm an employer →</a>
+      <a class="btn btn-primary" href="#seeker-form"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg><span>Envoyer votre CV</span></a>
+      <a class="btn btn-ghost" href="https://hr.businesspartner.sa/en/join">Je suis employeur →</a>
     </div>
   </div></section>
   <section class="section"><div class="container">
-    <div class="grid grid-3" style="margin-bottom:36px"><div class="card"><div class="card-icon" style="font-size:1.5rem">📄</div><h3>One CV, many opportunities</h3><p>Join the pool once; we match you whenever a fitting role opens.</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🤝</div><h3>Employers reach you</h3><p>Companies hiring through us see your profile for suitable roles.</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🔒</div><h3>Your data is protected</h3><p>We never share your CV without your consent (PDPL).</p></div></div>
+    <div class="grid grid-3" style="margin-bottom:36px"><div class="card"><div class="card-icon" style="font-size:1.5rem">📄</div><h3>Un seul CV, de nombreuses opportunités</h3><p>Rejoignez le vivier une seule fois ; nous vous mettons en relation dès qu'un poste adapté s'ouvre.</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🤝</div><h3>Les employeurs vous contactent</h3><p>Les sociétés qui recrutent via nous consultent votre profil pour les postes adaptés.</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🔒</div><h3>Vos données sont protégées</h3><p>Nous ne transmettons jamais votre CV sans votre consentement (PDPL).</p></div></div>
     <div style="max-width:640px;margin:0 auto" id="seeker-form">
       
       <form class="calc-form cv-form" id="cv-form" novalidate>
         
         <input id="c-job-id" name="jobId" type="hidden" value="candidate-pool">
-        <input id="c-job-title" name="jobTitle" type="hidden" value="General candidate pool">
-        <div class="ats-selected-job" id="ats-selected-job">Applying for: <strong>General candidate pool</strong></div>
+        <input id="c-job-title" name="jobTitle" type="hidden" value="Vivier de candidats général">
+        <div class="ats-selected-job" id="ats-selected-job">Candidature pour: <strong>Vivier de candidats général</strong></div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-name">Full name</label><input id="c-name" name="name" type="text" required></div>
-          <div class="field"><label for="c-phone">Mobile (with country code)</label><input id="c-phone" name="phone" type="tel" required placeholder="+9665XXXXXXXX"></div>
+          <div class="field"><label for="c-name">Nom complet</label><input id="c-name" name="name" type="text" required></div>
+          <div class="field"><label for="c-phone">Mobile (avec indicatif pays)</label><input id="c-phone" name="phone" type="tel" required placeholder="+9665XXXXXXXX"></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
           <div class="field"><label for="c-email">E-mail *</label><input id="c-email" name="email" type="email" required></div>
-          <div class="field"><label for="c-exp">Years of experience *</label><input id="c-exp" name="experience" type="text" required placeholder="Type or pick, e.g. 5+ years"></div>
+          <div class="field"><label for="c-exp">Années d'expérience *</label><input id="c-exp" name="experience" type="text" required placeholder="Saisissez ou choisissez, ex. 5 ans et plus"></div>
         </div>
-        <div class="field"><label for="c-field">Field / target roles *</label><input id="c-field" name="field" type="text" required placeholder="Type or pick, e.g. Accountant"></div>
+        <div class="field"><label for="c-field">Domaine / postes visés *</label><input id="c-field" name="field" type="text" required placeholder="Saisissez ou choisissez, ex. Comptable"></div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-nationality">Nationality *</label><input id="c-nationality" name="nationality" type="text" required placeholder="Type or pick a country"></div>
-          <div class="field"><label for="c-residence">Residence status *</label>
+          <div class="field"><label for="c-nationality">Nationalité *</label><input id="c-nationality" name="nationality" type="text" required placeholder="Saisissez ou choisissez un pays"></div>
+          <div class="field"><label for="c-residence">Statut de résidence *</label>
             <select id="c-residence" name="residenceStatus" required>
-              <option value="">Choose…</option>
-              <option value="مواطن سعودي">Saudi national</option>
-              <option value="مقيم بإقامة نظامية قابلة للنقل">Resident in KSA — transferable iqama</option>
-              <option value="مقيم بإقامة غير قابلة للنقل">Resident in KSA — non-transferable iqama</option>
-              <option value="خارج السعودية">Outside Saudi Arabia</option>
-              <option value="أخرى">Other</option>
+              <option value="">Choisir…</option>
+              <option value="مواطن سعودي">Ressortissant saoudien</option>
+              <option value="مقيم بإقامة نظامية قابلة للنقل">Résident en Arabie saoudite — iqama transférable</option>
+              <option value="مقيم بإقامة غير قابلة للنقل">Résident en Arabie saoudite — iqama non transférable</option>
+              <option value="خارج السعودية">Hors d'Arabie saoudite</option>
+              <option value="أخرى">Autre</option>
             </select>
           </div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-country">Country (current location) *</label><input id="c-country" name="country" type="text" required placeholder="Type or pick a country"></div>
-          <div class="field"><label for="c-city">City *</label><input id="c-city" name="city" type="text" required placeholder="Type or pick a city"></div>
+          <div class="field"><label for="c-country">Pays (lieu actuel) *</label><input id="c-country" name="country" type="text" required placeholder="Saisissez ou choisissez un pays"></div>
+          <div class="field"><label for="c-city">Ville *</label><input id="c-city" name="city" type="text" required placeholder="Saisissez ou choisissez une ville"></div>
         </div>
         <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="c-salary">Expected salary range *</label><input id="c-salary" name="salary" type="text" required placeholder="e.g. 8,000–12,000"></div>
-          <div class="field"><label for="c-notice">Notice period</label>
+          <div class="field"><label for="c-salary">Fourchette de salaire souhaitée *</label><input id="c-salary" name="salary" type="text" required placeholder="ex. 8 000–12 000"></div>
+          <div class="field"><label for="c-notice">Préavis</label>
             <select id="c-notice" name="notice">
-              <option value="">Choose…</option>
-              <option value="فوري">Immediate</option>
-              <option value="أسبوعين">2 weeks</option>
-              <option value="شهر">1 month</option>
-              <option value="شهرين">2 months</option>
-              <option value="3 أشهر فأكثر">3+ months</option>
+              <option value="">Choisir…</option>
+              <option value="فوري">Immédiat</option>
+              <option value="أسبوعين">2 semaines</option>
+              <option value="شهر">1 mois</option>
+              <option value="شهرين">2 mois</option>
+              <option value="3 أشهر فأكثر">3 mois et plus</option>
             </select>
           </div>
         </div>
-        <div class="field"><label for="c-linkedin">LinkedIn profile (optional)</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
+        <div class="field"><label for="c-linkedin">Profil LinkedIn (facultatif)</label><input id="c-linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…"></div>
         
-        <div class="field"><label for="c-q1">Why are you interested in this role?</label><textarea id="c-q1" name="question1" rows="3" placeholder="Briefly explain your interest and fit."></textarea></div>
-        <div class="field"><label for="c-q2">What are your strongest relevant skills?</label><textarea id="c-q2" name="question2" rows="3" placeholder="Systems, tools, sectors, or achievements."></textarea></div>
+        <div class="field"><label for="c-q1">Pourquoi ce poste vous intéresse-t-il ?</label><textarea id="c-q1" name="question1" rows="3" placeholder="Expliquez brièvement votre motivation et votre adéquation."></textarea></div>
+        <div class="field"><label for="c-q2">Quelles sont vos compétences les plus pertinentes ?</label><textarea id="c-q2" name="question2" rows="3" placeholder="Systèmes, outils, secteurs ou réalisations."></textarea></div>
         <div class="field">
-          <label>CV — PDF or Word</label>
+          <label>CV — PDF ou Word</label>
           <label class="file-drop" for="c-cv" id="cv-drop">
             <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
-            <span class="file-text" id="cv-filename">Drag your CV here or click to choose — PDF or Word</span>
+            <span class="file-text" id="cv-filename">Glissez votre CV ici ou cliquez pour le choisir — PDF ou Word</span>
           </label>
           <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
         </div>
-        <label class="consent-row"><input type="checkbox" id="c-consent"><span>I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.</span></label>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg><span>Submit application</span></button>
-        <p class="form-note" id="cv-note">Upload your CV (PDF or Word) to reach our team securely.</p>
-        <div class="form-success" id="cv-success" hidden>✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.</div>
+        <label class="consent-row"><input type="checkbox" id="c-consent"><span>J'accepte que Business Partner m'ajoute à son vivier de candidats et me contacte au sujet de postes adaptés.</span></label>
+        <div class="jss-offer">
+          <label class="consent-row"><input type="checkbox" id="c-jobsearch"><span><b>Would you like us to search for a job on your behalf?</b> We look every week, nominate you ourselves and follow it through to the offer.</span></label>
+          <div id="c-jobsearch-plan" hidden>
+            <div class="field"><label for="c-jss-plan">How would you like to pay?</label>
+              <select id="c-jss-plan" name="jobSearchPlan">
+                <option value="راتب شهر على 3 دفعات">Only if you find me a job — one month's salary over 3 instalments</option>
+                <option value="اشتراك شهري 100 ريال">100 SAR a month while you search</option>
+                <option value="">Explain it to me first</option>
+              </select>
+            </div>
+            <p class="form-note" style="margin:0">Nothing is charged now. We agree the plan with you before the service starts. <a href="/fr/job-search-service" target="_blank" rel="noopener">Read the details</a></p>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg><span>Envoyer ma candidature</span></button>
+        <p class="form-note" id="cv-note">Téléversez votre CV (PDF ou Word) pour le transmettre à notre équipe en toute sécurité.</p>
+        <div class="form-success" id="cv-success" hidden>✅ Votre candidature a bien été reçue. Nous l'examinerons et reviendrons vers vous dès qu'une opportunité adaptée se présentera.</div>
       </form>
-      <div class="center mt-16"><a class="btn btn-ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Or send it via WhatsApp</span></a></div>
     </div>
   </div></section>
 
   
   <section class="section section--gray"><div class="container">
     <div style="max-width:520px;margin:0 auto">
-      <h2 class="center">Track your application</h2>
-      <p class="center text-soft">Enter the phone and email you applied with to see your current status.</p>
+      <h2 class="center">Suivre votre candidature</h2>
+      <p class="center text-soft">Saisissez le téléphone et l'e-mail utilisés lors de votre candidature pour connaître son statut actuel.</p>
       <form id="track-form" novalidate class="grid grid-2" style="gap:0 20px;margin-top:16px">
         <div class="field"><label for="tr-phone">Mobile</label><input id="tr-phone" type="tel" required></div>
         <div class="field"><label for="tr-email">E-mail</label><input id="tr-email" type="email" required></div>
-        <div class="field field-full"><button type="submit" class="btn btn-primary" style="width:100%">Check status</button></div>
+        <div class="field field-full"><button type="submit" class="btn btn-primary" style="width:100%">Vérifier le statut</button></div>
       </form>
       <div id="track-result" hidden style="margin-top:20px"></div>
     </div>
@@ -125,12 +139,11 @@
   <div class="footer-grid" style="grid-template-columns:1fr auto;gap:24px">
     <div>
       <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="140" height="26"></div>
-      <p>HR by Business Partner — a standalone recruitment portal.</p>
+      <p>RH par Business Partner — un portail de recrutement autonome.</p>
     </div>
     <div class="footer-col"><h4>Contact</h4><ul>
-      <li><a href="https://wa.me/966507034157" target="_blank" rel="noopener">WhatsApp</a></li>
       <li><a href="mailto:business@businesspartner.sa">business@businesspartner.sa</a></li>
     </ul></div>
   </div>
-  <div class="footer-bottom"><span>© 2026 Business Partner · All rights reserved</span></div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contacter sur WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Discuter avec l'agent intelligent</span></a><script src="/assets/js/main.js?v=d7a28639aa"></script></body></html>
+  <div class="footer-bottom"><span>© 2026 Business Partner · Tous droits réservés</span></div>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contacter sur WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contactez-nous sur WhatsApp</span></a><script src="/assets/js/main.js?v=d3a4f77f1d"></script></body></html>

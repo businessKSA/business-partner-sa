@@ -100,6 +100,14 @@
       .btn-toggle { font-size: 12.5px; font-weight: 700; border: 0; border-radius: 9px; padding: 8px 12px; }
       .btn-toggle.pause { background: #fef3c7; color: #92400e; }
       .btn-toggle.resume { background: var(--wa-bubble); color: #14532d; }
+      /* one-tap contact buttons (WhatsApp / call / email) */
+      .contact-btns { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .cbtn { font-size: 12.5px; font-weight: 700; border: 0; border-radius: 9px; padding: 7px 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+      .cbtn.wa { background: var(--wa); color: #fff; }
+      .cbtn.call { background: #e6e0ff; color: #4c1d95; }
+      .cbtn.mail { background: var(--bg); color: var(--navy); border: 1px solid var(--line); }
+      .cp-contact { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+      .cp-contact .cbtn { flex: 1; justify-content: center; }
       select.tagsel { font-family: inherit; font-size: 12.5px; font-weight: 600; border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; color: var(--text); background: #fff; }
 
       #chatArea { flex: 1; overflow-y: auto; background: var(--chat-bg); background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,.035) 1px, transparent 0); background-size: 22px 22px; padding: 16px 7%; display: flex; flex-direction: column; gap: 7px; }
@@ -222,6 +230,7 @@
               </div>
               <div class="head-actions">
                 <span class="ai-badge on" id="aiBadge">🟢 الوكيل يرد</span>
+                <span class="contact-btns" id="contactBtns" style="display:none"></span>
                 <button class="btn-toggle pause" id="aiToggle">⏸️ أوقف الوكيل</button>
                 <select class="tagsel" id="tagSel" title="مرحلة العميل"></select>
                 <button class="btn-ghost" id="contactToggle" title="بطاقة العميل">👤 بطاقة العميل</button>
@@ -236,6 +245,7 @@
               <div class="cp-head">
                 <div class="cp-av" id="cpAv">--</div>
                 <div class="cp-phone" id="cpPhone">+—</div>
+                <div class="cp-contact" id="cpContact"></div>
                 <div class="cp-stage"><select class="tagsel" id="cpStage" style="width:100%"></select></div>
               </div>
               <div class="cp-row"><span class="k">💬 عدد الرسائل</span><span class="v" id="cpCount">0</span></div>
@@ -279,6 +289,10 @@
       var SEND_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-send-x7k2m9';
       var SUGGEST_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-suggest-x7k2m9';
       var MEDIA_URL = 'https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-media-x7k2m9';
+      // Website advisor («باهر») conversations — served by the site itself
+      // (same key you type below = LEADS_KEY in Vercel). Read-only threads
+      // merged into this inbox and tagged «المستشار».
+      var ADVISOR_URL = '/api/requests?action=advisor-inbox';
       var POLL_MS = 7000;
       var KEY_STORE = 'bp_inbox_key';
       var TAG_STORE = 'bp_inbox_tags';
@@ -334,6 +348,27 @@
           if (!res.ok) throw new Error('http ' + res.status);
           return res.json();
         });
+      }
+      // The advisor feed must not fail silently. It did: any non-200 became an
+      // empty array, so a misconfigured gate and "no one wrote to us today"
+      // looked identical — for seven seconds at a time, indefinitely. The
+      // WhatsApp inbox still works when this fails, but the failure is now
+      // stated instead of being read as absence.
+      var advisorProblem = '';
+      function fetchAdvisor() {
+        return fetch(ADVISOR_URL + '&key=' + encodeURIComponent(accessKey), { cache: 'no-store' })
+          .then(function (res) {
+            if (res.ok) return res.json();
+            advisorProblem = res.status === 401
+              ? 'محادثات الموقع محجوبة: مفتاح الوصول لا يفتحها.'
+              : 'محادثات الموقع لا تصل (HTTP ' + res.status + ').';
+            return null;
+          })
+          .then(function (d) {
+            if (d && d.ok) advisorProblem = '';
+            return (d && d.ok && d.messages) || [];
+          })
+          .catch(function () { advisorProblem = 'تعذّر الوصول إلى محادثات الموقع.'; return []; });
       }
 
       function groupByPhone() {
@@ -411,19 +446,23 @@
             var un = unread(phone, msgs);
             var tag = tags[phone] || '';
             var tagObj = null; for (var t = 0; t < TAGS.length; t++) if (TAGS[t].k === tag) tagObj = TAGS[t];
+            var wsrc = msgs[0] && msgs[0].source;
+            var web = wsrc === 'المستشار' || wsrc === 'تذكرة';
+            var ticket = wsrc === 'تذكرة';
             var div = document.createElement('div');
             div.className = 'conv' + (phone === activePhone ? ' active' : '');
-            var initials = phone.slice(-2);
+            var initials = ticket ? '🎫' : (web ? '🌐' : phone.slice(-2));
             var pre = last.sender === 'العميل' ? '' : (last.sender === 'المالك' ? '↩ ' : (last.sender === 'تنبيه' ? '🔔 ' : '🤖 '));
-            var av = document.createElement('div'); av.className = 'avatar'; av.style.background = avColor(phone); av.textContent = initials;
+            var av = document.createElement('div'); av.className = 'avatar'; av.style.background = web ? '#0B1B5A' : avColor(phone); av.textContent = initials;
             var meta = document.createElement('div'); meta.className = 'meta';
             var r1 = document.createElement('div'); r1.className = 'row1';
-            var nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = '+' + phone;
+            var nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = web ? ((msgs[0].name || 'زائر الموقع')) : ('+' + phone);
             var wh = document.createElement('div'); wh.className = 'when'; wh.textContent = fmtTime(last.time);
             r1.appendChild(nm); r1.appendChild(wh);
             var r2 = document.createElement('div'); r2.className = 'row2';
             var lastEl = document.createElement('div'); lastEl.className = 'last'; lastEl.textContent = pre + (last.text || '').slice(0, 48);
             r2.appendChild(lastEl);
+            if (web) { var wp = document.createElement('span'); wp.className = 'pill'; wp.style.background = '#0B1B5A'; wp.textContent = ticket ? '🎫 تذكرة' : '🌐 المستشار'; r2.appendChild(wp); }
             if (tagObj) { var pill = document.createElement('span'); pill.className = 'pill'; pill.style.background = tagObj.c; pill.textContent = tagObj.k; r2.appendChild(pill); }
             if (needsHuman(msgs) && un === 0) { var adot = document.createElement('span'); adot.className = 'adot'; r2.appendChild(adot); }
             if (un > 0) { var b = document.createElement('span'); b.className = 'badge'; b.textContent = un > 99 ? '99+' : un; r2.appendChild(b); }
@@ -451,31 +490,69 @@
         sel.onchange = function () { if (this.value) tags[activePhone] = this.value; else delete tags[activePhone]; saveTags(); render(); };
       }
 
+      // Normalize any Saudi number to wa.me digits (9665XXXXXXXX).
+      function waDigits(p) {
+        var d = String(p || '').replace(/[^0-9]/g, '');
+        if (!d) return '';
+        if (d.indexOf('00') === 0) d = d.slice(2);
+        if (d.indexOf('966') === 0) return d;
+        if (d.charAt(0) === '0') d = d.slice(1);
+        if (d.charAt(0) === '5' && d.length === 9) return '966' + d;
+        return d;
+      }
+      // Render one-tap WhatsApp / call / email buttons for the active client.
+      function renderContactBtns(phone, email, box) {
+        box = box || $('contactBtns'); box.innerHTML = '';
+        var wa = waDigits(phone), html = '';
+        if (wa) {
+          html += '<a class="cbtn wa" target="_blank" rel="noopener" href="https://wa.me/' + wa + '">💬 واتساب</a>';
+          html += '<a class="cbtn call" href="tel:+' + wa + '">📞 اتصال</a>';
+        }
+        if (email) html += '<a class="cbtn mail" href="mailto:' + esc(email) + '">✉️ إيميل</a>';
+        box.innerHTML = html;
+        box.style.display = html ? 'inline-flex' : 'none';
+      }
+
       function renderChat() {
         if (!activePhone) { $('noConv').style.display = 'flex'; $('chatMain').style.display = 'none'; return; }
         $('noConv').style.display = 'none'; $('chatMain').style.display = 'flex';
         var msgs = groupByPhone().get(activePhone) || [];
-        $('chatName').textContent = '+' + activePhone;
+        var wsrc = msgs[0] && msgs[0].source;
+        var web = wsrc === 'المستشار' || wsrc === 'تذكرة';
+        var ticket = wsrc === 'تذكرة';
         var crm = null; for (var i = msgs.length - 1; i >= 0; i--) { if (msgs[i].crm) { crm = msgs[i].crm; break; } }
         var crmB = $('crmBtn'); if (crm) { crmB.href = crm; crmB.style.display = 'inline-flex'; } else { crmB.style.display = 'none'; }
-        $('chatSub').textContent = msgs.length + ' رسالة';
-
-        var paused = isPaused(msgs);
         var badge = $('aiBadge'), toggle = $('aiToggle');
-        if (paused) {
-          badge.className = 'ai-badge off'; badge.textContent = '🔴 أنت المتحكم';
-          toggle.className = 'btn-toggle resume'; toggle.textContent = '▶️ فعّل الوكيل';
-          toggle.onclick = function () { setAgent('resume'); };
+        if (web) {
+          // Website advisor / ticket thread: read-only. Follow up via the shown contact.
+          var w0 = msgs[0];
+          $('chatName').textContent = (ticket ? '🎫 ' : '🌐 ') + (w0.name || 'زائر الموقع');
+          var cc = []; if (w0.contactPhone) cc.push('📱 ' + w0.contactPhone); if (w0.contactEmail) cc.push('✉️ ' + w0.contactEmail);
+          $('chatSub').textContent = (ticket ? 'تذكرة دعم' : 'من المستشار (الموقع)') + (cc.length ? ' · ' + cc.join(' · ') : '') + ' · ' + msgs.length + ' رسالة';
+          badge.className = 'ai-badge on'; badge.textContent = ticket ? '🎫 تذكرة دعم' : '🌐 من المستشار'; toggle.style.display = 'none';
+          renderContactBtns(w0.contactPhone, w0.contactEmail);
+          buildTagSelect(); renderContactPanel(msgs);
+          $('msgInput').disabled = true; $('msgInput').placeholder = 'محادثة من الموقع — تابع العميل عبر واتساب/البريد المعروض أعلاه';
+          $('sendBtn').disabled = true; $('suggestAr').disabled = true; $('suggestEn').disabled = true;
         } else {
-          badge.className = 'ai-badge on'; badge.textContent = '🟢 الوكيل يرد';
-          toggle.className = 'btn-toggle pause'; toggle.textContent = '⏸️ أوقف الوكيل';
-          toggle.onclick = function () { setAgent('pause'); };
+          toggle.style.display = '';
+          $('chatName').textContent = '+' + activePhone;
+          $('chatSub').textContent = msgs.length + ' رسالة';
+          var paused = isPaused(msgs);
+          if (paused) {
+            badge.className = 'ai-badge off'; badge.textContent = '🔴 أنت المتحكم';
+            toggle.className = 'btn-toggle resume'; toggle.textContent = '▶️ فعّل الوكيل';
+            toggle.onclick = function () { setAgent('resume'); };
+          } else {
+            badge.className = 'ai-badge on'; badge.textContent = '🟢 الوكيل يرد';
+            toggle.className = 'btn-toggle pause'; toggle.textContent = '⏸️ أوقف الوكيل';
+            toggle.onclick = function () { setAgent('pause'); };
+          }
+          renderContactBtns(activePhone, '');
+          buildTagSelect(); renderContactPanel(msgs);
+          $('msgInput').disabled = false; $('msgInput').placeholder = 'اكتب ردك للعميل…'; $('sendBtn').disabled = false;
+          $('suggestAr').disabled = false; $('suggestEn').disabled = false;
         }
-        buildTagSelect();
-        renderContactPanel(msgs);
-
-        $('msgInput').disabled = false; $('sendBtn').disabled = false;
-        $('suggestAr').disabled = false; $('suggestEn').disabled = false;
 
         var area = $('chatArea');
         var nearBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 140;
@@ -505,7 +582,20 @@
         if (nearBottom) area.scrollTop = area.scrollHeight;
       }
 
-      function render() { renderSidebar(); renderChat(); }
+      function render() {
+        renderSidebar(); renderChat();
+        var box = document.getElementById('advWarn');
+        if (!box) {
+          box = document.createElement('div');
+          box.id = 'advWarn';
+          box.setAttribute('style', 'display:none;margin:0 0 8px;padding:8px 11px;border-radius:9px;'
+            + 'background:#fffbeb;border:1px solid #fcd34d;color:#92400e;font-size:11.5px;font-weight:600;line-height:1.7');
+          var list = document.getElementById('convList');
+          if (list && list.parentNode) list.parentNode.insertBefore(box, list);
+        }
+        box.textContent = advisorProblem;
+        box.style.display = advisorProblem ? 'block' : 'none';
+      }
 
       function beep() {
         try { var c = new (window.AudioContext || window.webkitAudioContext)(); var o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = .05; o.start(); o.stop(c.currentTime + .12); } catch (e) {}
@@ -519,12 +609,14 @@
       window.addEventListener('focus', stopFlash);
 
       function poll() {
-        return fetchFeed().then(function (data) {
+        return Promise.all([fetchFeed(), fetchAdvisor()]).then(function (r) {
+          var data = r[0], web = r[1] || [];
           if (data && data.ok) {
-            var grew = data.count > lastCount && lastCount > 0;
-            lastCount = data.count;
-            messages = data.messages || [];
-            if (grew) { beep(); if (document.hidden) { flashTitle(data.count); } }
+            var total = (data.count || 0) + web.length;
+            var grew = total > lastCount && lastCount > 0;
+            lastCount = total;
+            messages = (data.messages || []).concat(web);
+            if (grew) { beep(); if (document.hidden) { flashTitle(total); } }
             render();
             $('connDot').className = 'dot'; $('connText').textContent = 'متصل';
           }
@@ -658,8 +750,14 @@
 
       function renderContactPanel(msgs) {
         var ph = activePhone; if (!ph) return;
-        $('cpAv').style.background = avColor(ph); $('cpAv').textContent = ph.slice(-2);
-        $('cpPhone').textContent = '+' + ph;
+        var w0 = msgs[0] || {};
+        var web = w0.source === 'المستشار' || w0.source === 'تذكرة';
+        var cPhone = web ? (w0.contactPhone || '') : ph;
+        var cEmail = web ? (w0.contactEmail || '') : '';
+        $('cpAv').style.background = web ? '#0B1B5A' : avColor(ph);
+        $('cpAv').textContent = web ? (w0.source === 'تذكرة' ? '🎫' : '🌐') : ph.slice(-2);
+        $('cpPhone').textContent = web ? ((w0.name || 'زائر الموقع') + (cPhone ? ' · ' + cPhone : '')) : ('+' + ph);
+        renderContactBtns(cPhone, cEmail, $('cpContact'));
         $('cpCount').textContent = msgs.length;
         var reals = msgs.filter(function (m) { return m.sender !== 'تنبيه'; });
         $('cpFirst').textContent = reals.length ? fmtTime(reals[0].time) : '—';
@@ -717,5 +815,6 @@
           .catch(function () { $('gate').style.display = 'flex'; localStorage.removeItem(KEY_STORE); accessKey = ''; });
       }
     </script>
+<script src="/assets/js/bp-i18n.js" defer data-mode="auto" data-toggle="1"></script>
   </body>
 </html>

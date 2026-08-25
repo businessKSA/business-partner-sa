@@ -125,7 +125,7 @@
 <body>
   <div class="topbar">
     <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
-    <a class="tb-link" href="/connect">الأدوات والباقات</a>
+    <a class="tb-link" href="/connect">الأدوات ورحلة العميل</a>
     <a class="tb-link" href="/">الموقع</a>
     <div class="sp"></div>
     <a id="subscribeNow" href="/connect" style="display:none;background:var(--green);color:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;margin-inline-end:8px">🚀 اشترك الآن</a>
@@ -140,6 +140,7 @@
       <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn" id="loginBtn">دخول</button>
       <div class="err" id="loginErr"></div>
+      <a class="linkbtn" style="display:block;text-align:center;margin-top:10px;text-decoration:none" href="/ar/account?redirect=employees">🔐 بدون كود — ادخل برمز يوصلك على الإيميل عبر حساب بيزنس بارتنر</a>
       <button type="button" class="bigbtn trial" id="trialBtn">🎁 جرّب الفريق كامل مجاناً (3 رسائل لكل موظف)</button>
       <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم — على نفس البريد اللي اشتريت فيه.</div>
       <button class="linkbtn" id="noCodeBtn">ما اشتريت بعد؟ اختر موظفيك وابدأ الطلب</button>
@@ -401,12 +402,13 @@
       }
       var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
       var agentAtSend=cur, histRef=chatHist;
+      var hist=histRef.slice(-12).map(function(h){return {role:(h.cls==='me'?'user':'assistant'),text:String(h.text||'').slice(0,500)};});
       if(isTrial){ trialInc(agentAtSend.slug); updateTrialBadge(agentAtSend.slug); }
       inp.value=''; push(m,'me');
       histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
       var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
       var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},60000);
-      fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m}),signal:ctrl.signal})
+      fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m,history:hist}),signal:ctrl.signal})
         .then(function(r){return r.text();})
         .then(function(t){ clearTimeout(timer); var d={}; try{d=JSON.parse(t);}catch(e){d={reply:t};} var reply=d.reply||'لا يوجد رد.'; think.textContent=reply; histRef.push({text:reply,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
         .catch(function(e){ clearTimeout(timer); var msg=(e&&e.name==='AbortError')?'انتهت المهلة — حاول مرة أخرى.':'تعذّر الاتصال مؤقتاً — حاول مرة أخرى.'; think.textContent=msg; histRef.push({text:msg,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
@@ -454,5 +456,6 @@
     function helpTool(t){ alert('🛠️ طلب إعداد «'+t.name+'» — نركّب لك الأداة ونسلّمك الموظف جاهز مقابل رسوم إعداد.'); }
     route();
   </script>
+<script src="/assets/js/bp-i18n.js" defer data-mode="always"></script>
 </body>
 </html>

@@ -209,7 +209,7 @@
       .qa{grid-template-columns:repeat(3,1fr)}
     }
   </style>
-</head>
+<script>window.BP_GOOGLE_CLIENT_ID="";</script><script src="https://accounts.google.com/gsi/client" async defer></script></head>
 <body>
 
   <!-- ================= GATE ================= -->
@@ -222,6 +222,24 @@
       <div class="gboot" id="gBoot" data-t="checking">جارٍ التحقق من الجلسة…</div>
 
       <div class="gstep" id="gStep1">
+        <div id="gGoogleWrap" style="display:none;margin-bottom:14px">
+          <div id="gGoogle" style="display:flex;justify-content:center"></div>
+        </div>
+
+        <div id="gNafathWrap" style="display:none;margin-bottom:14px">
+          <div id="gNfStep1">
+            <input id="gNfId" type="text" inputmode="numeric" maxlength="10" class="ltr" placeholder="رقم الهوية أو الإقامة" style="text-align:center;letter-spacing:2px" />
+            <button class="gbtn" id="gNfBtn" data-t="nafathBtn">🪪 الدخول عبر نفاذ</button>
+          </div>
+          <div id="gNfStep2" style="display:none;text-align:center">
+            <div class="gsub" data-t="nafathPick">افتح تطبيق نفاذ واختر هذا الرقم</div>
+            <div id="gNfNum" style="font-size:42px;font-weight:800;letter-spacing:6px;color:var(--navy,#0B1B5A);line-height:1.2"></div>
+            <div class="gsub" data-t="nafathWait">بانتظار موافقتك على التطبيق…</div>
+            <button class="gbtn ghost" id="gNfCancel" data-t="back">رجوع</button>
+          </div>
+        </div>
+
+        <div id="gOrWrap" class="gsub" style="display:none;margin:12px 0 2px" data-t="orDivider">أو بالبريد الإلكتروني</div>
         <label for="gEmail" data-t="emailLabel">البريد الإلكتروني</label>
         <input id="gEmail" type="email" class="ltr" autocomplete="email" placeholder="name@company.com" />
         <button class="gbtn" id="gSend" data-t="sendCode">أرسل رمز التحقق</button>
@@ -255,11 +273,12 @@
       <nav id="sideNav">
         <button data-v="home" class="on"><span>◈</span><span data-t="navHome">الرئيسية</span></button>
         <button data-v="services"><span>▣</span><span data-t="navServices">خدماتي وبواباتي</span></button>
+        <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
         <button data-v="tasks"><span>☑</span><span data-t="navTasks">المهام</span><span class="b" id="sbTasks" style="display:none"></span></button>
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
         <button data-v="payments"><span>◫</span><span data-t="navPayments">المدفوعات والفواتير</span><span class="b w" id="sbPay" style="display:none;background:var(--warn)"></span></button>
         <button data-v="wallet"><span>◍</span><span data-t="navWallet">المحفظة</span></button>
-        <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span></button>
+        <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span><span class="b" id="sbAppr" style="display:none"></span></button>
         <button data-v="documents"><span>⌸</span><span data-t="navDocuments">المستندات</span></button>
         <button data-v="team"><span>﴾﴿</span><span data-t="navTeam">الموظفون والفريق</span></button>
         <button data-v="reports"><span>◔</span><span data-t="navReports">التقارير والتحليلات</span></button>
@@ -267,6 +286,7 @@
         <button data-v="alerts"><span>◉</span><span data-t="navAlerts">التنبيهات</span></button>
         <button data-v="settings"><span>⚙</span><span data-t="navSettings">الإعدادات</span></button>
       </nav>
+      <a id="backToSite" href="/ar" style="display:flex;gap:10px;align-items:center;padding:11px 18px;color:#C7D2FE;text-decoration:none;font-size:.92em"><span>🌐</span><span id="backToSiteLbl">العودة إلى الموقع</span></a>
       <div class="grow"></div>
       <div class="foot"><span id="footOrg">—</span><br /><span id="footSub" data-t="appTitle">مركز عمليات العميل</span></div>
     </aside>
@@ -284,6 +304,15 @@
       <div class="banner" id="limitedBanner">
         <span>⚠ <span data-t="limitedMsg">قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.</span></span>
         <button class="x" id="bannerClose" aria-label="close">✕</button>
+      </div>
+
+      <!-- The quote bar. A decision the client has to make is not a row in a
+           table somewhere: it follows them across every section until it is
+           answered, because a quote nobody noticed is a quote nobody accepts. -->
+      <div id="quoteBar" style="display:none;margin:0 0 14px;padding:12px 16px;border-radius:12px;background:#fffbeb;border:1px solid #f59e0b;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:20px">📝</span>
+        <b id="quoteBarText" style="color:#92400e;flex:1;min-width:180px">عرض سعر بانتظار موافقتك</b>
+        <button class="btn sm" id="quoteBarGo">راجع العرض ووافق</button>
       </div>
 
       <div class="viewwrap">
@@ -359,7 +388,7 @@
                 <a href="/ar/services" data-t="qaRequest">طلب خدمة</a>
                 <a href="/ar/packages" data-t="qaUpgrade">ترقية باقة</a>
                 <a href="/ar/checkout" data-t="qaPay">دفع فاتورة</a>
-                <span class="dis"><span data-t="qaWallet">شحن المحفظة</span><small data-t="soonShort">قريباً</small></span>
+                <a href="#" data-goto="wallet" data-t="qaWallet">شحن المحفظة</a>
                 <a href="#" data-goto="documents" data-t="qaDoc">رفع مستند</a>
                 <span class="dis"><span data-t="qaUser">إضافة مستخدم</span><small data-t="soonShort">قريباً</small></span>
                 <a href="#" data-goto="tickets" data-t="qaTicket">فتح تذكرة</a>
@@ -381,6 +410,10 @@
         <!-- ===== tasks ===== -->
         <section class="view" id="view-tasks">
           <div class="pagehead"><h2 data-t="navTasks">المهام</h2><div class="sub" data-t="tasksSub">مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.</div></div>
+          <div class="panel" id="quotesPanelTasks" style="display:none;border-color:#f59e0b;background:#fffbeb;margin-bottom:14px">
+            <div class="phead"><h3 id="quotesTitleTasks">📝 عروض أسعار بانتظار قرارك</h3></div>
+            <div id="quotesBodyTasks"></div>
+          </div>
           <div class="panel" id="srvTasksPanel" style="display:none;margin-bottom:14px"><div class="phead"><h3 data-t="srvTasksTitle">مهام من فريق Business Partner</h3></div><div id="srvTasksList" style="padding:6px 16px"></div></div>
           <div class="panel"><div class="phead"><h3 data-t="derivedTasksTitle">مهام من طلباتك</h3></div><div id="tasksList" style="padding:6px 16px"></div></div>
         </section>
@@ -388,6 +421,13 @@
         <!-- ===== orders ===== -->
         <section class="view" id="view-orders">
           <div class="pagehead"><h2 data-t="navOrders">الطلبات</h2><div class="sub" data-t="ordersSub">طلباتك المسجلة من هذا المتصفح + أي طلب تضيف رقمه المرجعي يدوياً.</div></div>
+          <!-- Quotes waiting on this client. Shown here so a decision on their
+               own order is taken where they already are, not by hunting for an
+               email. -->
+          <div class="panel" id="quotesPanel" style="display:none;border-color:#f59e0b;background:#fffbeb;margin-bottom:16px">
+            <div class="phead"><h3 id="quotesTitle">📝 عروض أسعار بانتظار قرارك</h3></div>
+            <div id="quotesBody"></div>
+          </div>
           <div class="panel">
             <div class="phead">
               <h3 data-t="ordersTitle">سجل الطلبات</h3>
@@ -405,17 +445,75 @@
         </section>
 
         <!-- ===== placeholders ===== -->
-        <section class="view" id="view-payments"><div class="pagehead"><h2 data-t="navPayments">المدفوعات والفواتير</h2></div><div class="ph"><div class="ic">◫</div><b data-t="navPayments">المدفوعات والفواتير</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p><p style="margin-top:10px"><a class="btn ghost" href="/ar/checkout" data-t="qaPay">دفع فاتورة</a></p></div></section>
-        <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2></div>
+        <section class="view" id="view-payments"><div class="pagehead"><h2 data-t="navPayments">المدفوعات والفواتير</h2></div>
+          <div class="panel"><div class="phead"><h3 id="payDueTitle">مستحقات بانتظار الدفع</h3></div><div id="payDueList" style="padding:6px 16px 12px"></div></div>
+          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="payTxTitle">حركات المحفظة</h3></div><div id="payTxList" style="padding:6px 16px 12px"></div></div>
+          <p style="margin-top:12px"><a class="btn ghost" href="/ar/checkout" data-t="qaPay">دفع فاتورة</a></p>
+        </section>
+        <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2><div class="sub">اشحن رصيدك إلكترونياً أو بتحويل بنكي، واستخدمه للسداد أو كضمان تنفيذ مع الموردين — بيزنس بارتنر هو الضامن.</div></div>
           <div class="card" id="walletPanel" style="display:none">
             <h4 data-t="wallet">رصيد المحفظة</h4>
             <div class="kpi" id="walletBig">0 ﷼</div>
             <div id="walletTx" style="margin-top:8px"></div>
           </div>
           <div class="ph" id="walletPh"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div>
+
+          <div class="card" id="wtopCard" style="margin-top:14px">
+            <h4>⚡ شحن المحفظة</h4>
+            <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">
+              <button type="button" class="btn" id="wtopTabOnline">💳 دفع إلكتروني (بطاقة / مدى / Apple Pay)</button>
+              <button type="button" class="btn ghost" id="wtopTabBank">🏦 تحويل بنكي + إيصال</button>
+            </div>
+            <div id="wtopOnline">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+                <div style="flex:1 1 140px"><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">المبلغ (﷼)</label>
+                  <input id="wtopAmount" type="number" min="10" step="1" placeholder="مثال: 1000" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+                <button type="button" class="btn" id="wtopPayBtn" style="white-space:nowrap">ادفع الآن</button>
+              </div>
+              <div id="wtopMsg" style="font-size:12.5px;margin-top:8px;display:none"></div>
+              <div id="wtop-epay" style="margin-top:12px"></div>
+              <p style="font-size:11.5px;color:var(--soft);margin-top:8px">الدفع عبر ميسر — يُقيَّد الرصيد في محفظتك تلقائياً لحظة نجاح الدفع.</p>
+            </div>
+            <div id="wtopBank" style="display:none">
+              <div style="display:grid;gap:8px">
+                <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">المبلغ المحوَّل (﷼)</label>
+                  <input id="wbankAmount" type="number" min="10" step="1" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">إيصال التحويل (صورة أو PDF)</label>
+                  <input id="wbankReceipt" type="file" accept="image/*,.pdf" style="width:100%"></div>
+                <button type="button" class="btn" id="wbankSend">أرسل طلب الشحن</button>
+                <div id="wbankMsg" style="font-size:12.5px;display:none"></div>
+                <p style="font-size:11.5px;color:var(--soft);margin:0">يتحقق الفريق من الإيصال ثم يظهر الرصيد في محفظتك — يصلك تأكيد بالبريد.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="escrowCard" style="margin-top:14px">
+            <h4>🛡️ ضمان تنفيذ مع مورد</h4>
+            <p style="font-size:12.5px;color:var(--soft);margin:6px 0 10px">احجز مبلغاً من محفظتك كضمان لدى بيزنس بارتنر لأي اتفاق مع مورد — <b>بتعميد الطرفين مثل منصات العمل الحر</b>: المورد يعلن التسليم من لوحته، ثم تعتمد أنت الاستلام فيتحرر المبلغ له. ولا يُسترجع المبلغ لمحفظتك إلا بموافقة المورد أو بقرار من فريقنا عند النزاع. <b>وبأتمتة كاملة:</b> إن أعلن المورد التسليم ولم ترد خلال 7 أيام يتحرر المبلغ تلقائياً، وإن طلبت الاسترجاع على عمل لم يُسلَّم ولم يرد المورد خلال 7 أيام يعود المبلغ لمحفظتك تلقائياً — وكل خطوة موثقة بتاريخها.</p>
+            <div style="display:grid;gap:8px;grid-template-columns:1fr 1fr">
+              <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">بريد المورد</label>
+                <input id="escSupEmail" type="email" dir="ltr" placeholder="supplier@company.com" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+              <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">اسم المورد</label>
+                <input id="escSupName" placeholder="اسم المنشأة أو الشخص" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+              <div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">موضوع الاتفاق</label>
+                <input id="escTitle" placeholder="مثال: تصميم هوية بصرية كاملة — تسليم خلال أسبوعين" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+              <div><label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">مبلغ الضمان (﷼)</label>
+                <input id="escAmount" type="number" min="1" step="1" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit"></div>
+              <div style="display:flex;align-items:flex-end"><button type="button" class="btn" id="escCreate" style="width:100%">🔒 احجز الضمان من محفظتي</button></div>
+            </div>
+            <div id="escMsg" style="font-size:12.5px;margin-top:8px;display:none"></div>
+            <div id="escList" style="margin-top:14px"></div>
+          </div>
         </section>
         <section class="view" id="view-approvals">
           <div class="pagehead"><h2 data-t="navApprovals">الموافقات</h2><div class="sub" data-t="apprSub">لا تنفيذ لأي إجراء حساس دون موافقتك المسجلة هنا.</div></div>
+          <!-- A quote is the approval a client actually has to give. It is
+               mounted before the session placeholder because the token on the
+               quote authorises the decision — no full sign-in required. -->
+          <div class="panel" id="quotesPanelAppr" style="display:none;border-color:#f59e0b;background:#fffbeb;margin-bottom:16px">
+            <div class="phead"><h3 id="quotesTitleAppr">📝 عروض أسعار بانتظار قرارك</h3></div>
+            <div id="quotesBodyAppr"></div>
+          </div>
           <div class="ph" id="apprPh"><div class="ic">✓</div><b data-t="navApprovals">الموافقات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="apprMain" style="display:none">
             <div class="panel"><div class="phead"><h3 data-t="apprPendingTitle">بانتظار قرارك</h3></div><div id="apprPending" style="padding:6px 16px 12px"></div></div>
@@ -446,8 +544,32 @@
             <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="docListTitle">مستنداتي</h3></div><div id="docsList" style="padding:6px 16px 12px"></div></div>
           </div>
         </section>
-        <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div><div class="ph"><div class="ic">﴾﴿</div><b data-t="navTeam">الموظفون والفريق</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P4)</p></div></section>
-        <section class="view" id="view-reports"><div class="pagehead"><h2 data-t="navReports">التقارير والتحليلات</h2></div><div class="ph"><div class="ic">◔</div><b data-t="navReports">التقارير والتحليلات</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P4)</p></div></section>
+        <section class="view" id="view-company"><div class="pagehead"><h2 id="companyHead">بيانات المنشأة</h2><p class="sub" id="companyLead">بياناتك هذه تعبّأ تلقائياً في طلباتك ونماذجك — عدّلها في أي وقت.</p></div>
+          <div class="panel" id="orgSwitchPanel" style="display:none;margin-bottom:14px"><div class="phead"><h3 id="orgSwitchTitle">شركاتي</h3></div>
+            <div style="padding:12px 16px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <select id="orgPick" style="flex:2;min-width:220px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.6rem .8rem;font:inherit"></select>
+              <button class="btn sm ghost" id="orgAdd">＋ <span id="orgAddLbl">أضف شركة أخرى</span></button>
+              <div style="flex-basis:100%;font-size:11.5px;color:var(--soft)" id="orgSwitchHint">كل شركة لها مستنداتها وطلباتها ومحفظتها — التبديل هنا يبدّل اللوحة كاملة، وبيانات الشركة النشطة تتعبأ تلقائياً عند شراء أي خدمة.</div>
+            </div>
+          </div>
+          <div class="panel"><div class="phead"><h3 id="companyFormTitle">معلومات الشركة</h3></div>
+            <div style="padding:14px 16px 18px;display:grid;gap:12px;max-width:560px">
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblNameAr">اسم المنشأة (عربي)</span><input id="orgNameAr" type="text" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit" /></label>
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblNameEn">اسم المنشأة (إنجليزي)</span><input id="orgNameEn" type="text" dir="ltr" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit" /></label>
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblCr">رقم السجل التجاري</span><input id="orgCr" type="text" dir="ltr" inputmode="numeric" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit" /></label>
+              <div><button class="btn sm" id="orgSave">💾 حفظ بيانات المنشأة</button></div>
+              <div class="note" id="orgNote" style="display:none"></div>
+            </div>
+          </div>
+        </section>
+        <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div>
+          <div class="panel"><div class="phead"><h3 id="teamTitle">فريقك عبر بيزنس بارتنر</h3></div><div id="teamCards" style="padding:6px 16px 12px"></div></div>
+          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="teamTasksTitle">مهام مطلوبة منك</h3></div><div id="teamTasksList" style="padding:6px 16px 12px"></div></div>
+        </section>
+        <section class="view" id="view-reports"><div class="pagehead"><h2 data-t="navReports">التقارير والتحليلات</h2></div>
+          <div class="panel"><div class="phead"><h3 id="repTitle">ملخص حسابك</h3></div><div id="repKpis" style="padding:14px 16px 16px"></div></div>
+          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="repOrdersTitle">الطلبات حسب الحالة</h3></div><div id="repBreak" style="padding:6px 16px 12px"></div></div>
+        </section>
         <section class="view" id="view-tickets">
           <div class="pagehead"><h2 data-t="navTickets">التذاكر والدعم</h2><div class="sub" data-t="tkSub">تذاكرك تصل فريقنا فوراً بالبريد، وترد عليك هنا وعلى بريدك.</div></div>
           <div class="ph" id="tkPh"><div class="ic">◖</div><b data-t="navTickets">التذاكر والدعم</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p><p style="margin-top:10px"><a class="btn ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener" data-t="qaTicket">فتح تذكرة</a></p></div>
@@ -472,6 +594,13 @@
         </section>
         <section class="view" id="view-alerts">
           <div class="pagehead"><h2 data-t="navAlerts">التنبيهات</h2><div class="sub" data-t="alSub">كل ما يخص طلباتك ومستنداتك وتذاكرك — أولاً بأول.</div></div>
+          <!-- Alerts read off the orders this browser tracks, so a client who
+               has not signed in with a full session still sees movement on
+               their own work instead of an empty "coming soon" box. -->
+          <div class="panel" id="derivedAlertsPanel" style="display:none;margin-bottom:14px">
+            <div class="phead"><h3 id="derivedAlertsTitle">تحديثات طلباتك</h3></div>
+            <div id="derivedAlerts" style="padding:6px 16px 12px"></div>
+          </div>
           <div class="ph" id="alPh"><div class="ic">◉</div><b data-t="navAlerts">التنبيهات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="alMain" style="display:none">
             <div class="panel">
@@ -501,7 +630,7 @@
             </div>
             <div class="setrow">
               <span class="t" data-t="restLbl">بقية الإعدادات</span>
-              <span class="m"><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</span>
+              <span class="m">بيانات المنشأة تُدار من «خدماتي وبواباتي»، وأي تعديل حسّاس على حسابك عبر «التذاكر والدعم» — وإعدادات إضافية تصلك تباعاً.</span>
             </div>
           </div>
         </section>
@@ -615,6 +744,7 @@
         noOrdersRow: 'لا توجد طلبات — أول طلب تشتريه من الموقع يظهر هنا، أو أضف رقم طلبك أعلاه.',
         phLine: 'يُفعّل ضمن المرحلة القادمة',
         phEnable: 'تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة',
+        orDivider: 'أو بالبريد الإلكتروني',
         apprSub: 'لا تنفيذ لأي إجراء حساس دون موافقتك المسجلة هنا.',
         apprPendingTitle: 'بانتظار قرارك', apprHistTitle: 'قرارات سابقة',
         apprNonePending: 'لا موافقات معلقة حالياً.', apprNoneHist: 'لا قرارات سابقة.',
@@ -719,6 +849,7 @@
         noOrdersRow: 'No orders yet — your first purchase will appear here, or add your order reference above.',
         phLine: 'Activates in the next phase',
         phEnable: 'Activates automatically after signing in with a full session',
+        orDivider: 'or with your email',
         apprSub: 'No sensitive action is executed without your recorded approval here.',
         apprPendingTitle: 'Awaiting your decision', apprHistTitle: 'Past decisions',
         apprNonePending: 'No pending approvals right now.', apprNoneHist: 'No past decisions.',
@@ -845,6 +976,33 @@
       }
       state.orders = list;
     }
+    // Account-linked orders: the server lists this session's CRM orders by
+    // email, so purchases appear here from any device — localStorage is only
+    // a fallback for legacy refs added by hand.
+    function fetchServerOrders(){
+      fetch('/api/requests?action=my-orders', { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
+        .then(function(d){
+          var list = (d && d.ok && d.orders) || [];
+          if (list.length){
+            var byRef = {};
+            for (var i = 0; i < state.orders.length; i++) byRef[state.orders[i].ref] = state.orders[i];
+            for (var j = 0; j < list.length; j++){
+              var o = list[j];
+              if (!o || !o.ref) continue;
+              if (byRef[o.ref]){
+                if (o.status) byRef[o.ref].status = String(o.status);
+                if (o.title && !byRef[o.ref].title) byRef[o.ref].title = String(o.title);
+              } else {
+                state.orders.push({ ref: String(o.ref), title: String(o.title || ''), status: String(o.status || ''), at: String(o.at || '') });
+              }
+            }
+            renderAll();
+          }
+        })
+        .catch(function(){})
+        .then(function(){ fetchStatuses(); });
+    }
     function fetchStatuses(){
       var refs = [];
       for (var i = 0; i < state.orders.length && refs.length < 30; i++) refs.push(state.orders[i].ref);
@@ -853,10 +1011,21 @@
         .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
         .then(function(data){
           var statuses = (data && data.statuses) || {};
+          var journey = (data && data.journey) || {};
           for (var i = 0; i < state.orders.length; i++){
             var s = statuses[state.orders[i].ref];
             if (s) state.orders[i].status = String(s);
+            // What the team executing the work has reported, dated. This is the
+            // answer to "where has my order got to" — asked far more often than
+            // it is answered.
+            var j = journey[state.orders[i].ref];
+            if (j && j.length) state.orders[i].journey = j;
           }
+          state.quotes = [];
+          var qs = (data && data.quotes) || {};
+          Object.keys(qs).forEach(function(ref){
+            (qs[ref] || []).forEach(function(q){ q.clientRef = ref; state.quotes.push(q); });
+          });
           state.fetchFailed = false;
           renderAll();
         })
@@ -1097,6 +1266,11 @@
         else if (st === 'ended'){ badge = '<span class="badge bad">' + esc(statusMeta(o.status).label) + '</span>'; }
         else { badge = statusChip(o.status); }
         acts += '<a class="btn sm ghost" href="' + esc(WA) + '?text=' + encodeURIComponent(t('agentPrefill') + o.ref) + '" target="_blank" rel="noopener">' + esc(t('qaTicket')) + '</a>';
+        // The client's own kill switch — while the order is still under
+        // review or awaiting payment. After work starts the server refuses
+        // and points them at support, so no half-done work is discarded.
+        if (o.status === 'قيد المراجعة' || o.status === 'بانتظار الدفع')
+          acts += '<button class="btn sm ghost" style="color:#b91c1c" data-cancel="' + esc(o.ref) + '">' + (state.lang === 'en' ? 'Cancel order' : 'إلغاء الطلب') + '</button>';
         cards += '<div class="svc' + (st === 'need' ? ' need' : '') + '" data-srch>' +
           '<div class="hd"><b>' + esc(title) + '</b>' + badge + '</div>' +
           '<div class="kv"><span>' + esc(t('kvRef')) + '</span><b class="ref">' + esc(o.ref) + '</b></div>' +
@@ -1105,12 +1279,106 @@
           '<div class="acts">' + acts + '</div></div>';
       }
       if (state.svcTab === 'all' || state.svcTab === 'buy'){
+        // Build-your-own service: the client describes the need, the team
+        // prices it, and the existing quote flow does the rest — quotation,
+        // e-signature, online payment, automatic invoice.
+        var enB = state.lang === 'en';
+        cards += '<div class="svc" data-srch style="grid-column:1/-1">' +
+          '<div class="hd"><b>🧩 ' + (enB ? 'Build your own service' : 'اصنع طلبك بنفسك') + '</b><span class="badge plain">' + (enB ? 'Custom quote' : 'تسعير مخصص') + '</span></div>' +
+          '<div style="font-size:12px;color:var(--soft);margin:4px 0 8px">' + (enB ? 'Describe what you need — we price it, you get a quotation, sign the contract and pay online.' : 'اكتب وش تحتاج بالضبط — نسعّره لك، يوصلك عرض سعر، توقّع العقد وتدفع أونلاين ويبدأ التنفيذ.') + '</div>' +
+          '<textarea id="crNeed" rows="3" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:.6rem .8rem;font:inherit" placeholder="' + (enB ? 'Example: transfer sponsorship of 3 employees + renew CR + open a Qiwa file…' : 'مثال: نقل كفالة ٣ موظفين + تجديد السجل التجاري + فتح ملف في قوى…') + '"></textarea>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
+          '<input id="crBudget" placeholder="' + (enB ? 'Approx. budget (optional)' : 'ميزانية تقريبية (اختياري)') + '" style="flex:1;min-width:140px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .8rem;font:inherit" />' +
+          '<input id="crDeadline" placeholder="' + (enB ? 'Needed by (optional)' : 'متى تحتاجه؟ (اختياري)') + '" style="flex:1;min-width:140px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .8rem;font:inherit" />' +
+          '<button class="btn sm" id="crSend">' + (enB ? 'Send for pricing' : 'أرسل للتسعير') + '</button></div>' +
+          '<div class="note" id="crNote" style="display:none;margin-top:8px"></div></div>';
         cards += '<div class="svc" data-srch>' +
           '<div class="hd"><b>' + esc(t('catalogRow')) + '</b><span class="badge plain">' + esc(t('stBuy')) + '</span></div>' +
           '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">/ar/services</b></div>' +
           '<div class="acts"><a class="btn sm" href="/ar/services">' + esc(t('browseServices')) + '</a></div></div>';
+        // «الباقات والأسعار» — package prices are public (owner directive);
+        // pulled from catalog.json so they can never drift from the site pages.
+        if (!state.catalog){
+          if (!state.catalogLoading){
+            state.catalogLoading = true;
+            fetch('/assets/data/catalog.json')
+              .then(function(r){ return r.json(); })
+              .then(function(j){ state.catalog = j; renderServices(); })
+              .catch(function(){ state.catalogLoading = false; });
+          }
+        } else {
+          var enP = state.lang === 'en';
+          var pkgs = state.catalog.packages || [];
+          if (pkgs.length){
+            cards += '<div style="grid-column:1/-1;font-weight:800;color:var(--navy);font-size:12.5px;margin-top:6px">💼 ' + (enP ? 'Packages & prices' : 'الباقات والأسعار') + '</div>';
+          }
+          for (i = 0; i < pkgs.length; i++){
+            var pk = pkgs[i];
+            var pkName = enP ? (pk.nameEn || pk.nameAr) : (pk.nameAr || pk.nameEn);
+            var pkPrice = enP ? (pk.priceLabel || '') : (pk.priceLabelAr || pk.priceLabel || '');
+            var pkGroup = enP ? (pk.groupNameEn || '') : (pk.groupNameAr || '');
+            var pkHref = pk.group === 'revenue-os' ? '/revenue-os' : (enP ? '/packages' : '/ar/packages');
+            cards += '<div class="svc" data-srch>' +
+              '<div class="hd"><b>' + esc(pkName) + '</b><span class="badge plain">' + esc(pkGroup) + '</span></div>' +
+              '<div class="kv"><span>' + (enP ? 'Price' : 'السعر') + '</span><b>' + esc(pkPrice || (enP ? 'On request' : 'حسب الطلب')) + '</b></div>' +
+              '<div class="acts"><a class="btn sm" href="' + pkHref + '">' + (enP ? 'Subscribe' : 'اشترك من صفحة الباقات') + '</a></div></div>';
+          }
+        }
+      }
+      // «بواباتي» — every Business Partner portal is always reachable from
+      // here, even before the first purchase (the four SSO portals open with
+      // the unified session via the click handler above).
+      if (state.svcTab === 'all'){
+        var en = state.lang === 'en';
+        var portalBadge = en ? 'Portal' : 'بوابة';
+        var openLbl = en ? 'Open portal' : 'افتح البوابة';
+        var pl = [
+          { i: '🚀', n: en ? 'Revenue OS dashboard' : 'لوحة Revenue OS', u: '/revenue-dashboard' },
+          { i: '🛡️', n: en ? 'Compliance dashboard' : 'لوحة الامتثال', u: '/ar/compliance-dashboard' },
+          { i: '🤖', n: en ? 'Smart employees portal' : 'بوابة الموظفين الأذكياء', u: '/ar/portal' },
+          { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
+          { i: '🤝', n: en ? 'Shared services dashboard' : 'لوحة الخدمات المشتركة', u: '/shared-services/dashboard' }
+        ];
+        for (i = 0; i < pl.length; i++){
+          cards += '<div class="svc" data-srch>' +
+            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + portalBadge + '</span></div>' +
+            '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">' + esc(pl[i].u) + '</b></div>' +
+            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + openLbl + '</a></div></div>';
+        }
       }
       $('svcGrid').innerHTML = cards;
+      var cbs = document.querySelectorAll('[data-cancel]');
+      for (i = 0; i < cbs.length; i++) cbs[i].onclick = function(){
+        var ref = this.getAttribute('data-cancel');
+        if (!confirm(state.lang === 'en' ? 'Cancel order ' + ref + '?' : 'إلغاء الطلب ' + ref + '؟')) return;
+        var self = this; self.disabled = true;
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-cancel', ref: ref }) })
+          .then(function(r){ return r.json(); })
+          .then(function(o){
+            if (o.ok){ fetchServerOrders(); }
+            else { self.disabled = false; alert(o.message || (state.lang === 'en' ? 'Could not cancel — open a ticket and the team will handle it.' : 'تعذّر الإلغاء — افتح تذكرة ويتولاها الفريق.')); }
+          }).catch(function(){ self.disabled = false; });
+      };
+      var crBtn = $('crSend');
+      if (crBtn) crBtn.onclick = function(){
+        var need = ($('crNeed').value || '').trim();
+        var note = $('crNote');
+        note.style.display = ''; note.className = 'note';
+        if (need.length < 10){ note.className = 'note err'; note.textContent = state.lang === 'en' ? 'Describe what you need first.' : 'اكتب وصف احتياجك أولاً.'; return; }
+        crBtn.disabled = true;
+        note.textContent = state.lang === 'en' ? 'Sending…' : 'جارٍ الإرسال…';
+        var comp = {}; try { comp = JSON.parse(localStorage.getItem('bp_company') || '{}'); } catch(e){}
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+          action: 'custom-request', need: need, budget: ($('crBudget').value || '').trim(), deadline: ($('crDeadline').value || '').trim(),
+          email: state.email || '', name: (state.user && state.user.name) || '', company: comp.nameAr || comp.name || ''
+        }) })
+          .then(function(r){ return r.json(); })
+          .then(function(o){
+            crBtn.disabled = false;
+            if (o.ok){ note.textContent = (state.lang === 'en' ? 'Received ✓ — your quotation reaches your email and this dashboard. Ref: ' : 'استلمناه ✓ — يوصلك عرض السعر على بريدك وهنا في لوحتك. المرجع: ') + o.ref; $('crNeed').value = ''; fetchServerOrders(); }
+            else { note.className = 'note err'; note.textContent = state.lang === 'en' ? 'Could not send — try again.' : 'تعذّر الإرسال — حاول مرة أخرى.'; }
+          }).catch(function(){ crBtn.disabled = false; note.className = 'note err'; note.textContent = state.lang === 'en' ? 'Connection issue.' : 'مشكلة اتصال.'; });
+      };
       var empt = $('svcEmpty');
       if (!cards){ empt.style.display = ''; empt.textContent = t('svcEmptyTab'); }
       else empt.style.display = 'none';
@@ -1131,8 +1399,18 @@
       var rows = '';
       for (var i = 0; i < state.orders.length; i++){
         var o = state.orders[i];
+        var log = o.journey || [];
+        var trail = log.length
+          ? '<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px;color:var(--navy)">' +
+              esc(state.lang === 'en' ? 'Progress (' + log.length + ')' : 'سير التنفيذ (' + log.length + ')') + '</summary>' +
+              '<ul style="margin:6px 0 0;padding-inline-start:18px;line-height:1.9;font-size:12.5px">' +
+              log.map(function(e){
+                return '<li><span style="color:var(--soft);direction:ltr;display:inline-block">' + esc(e.at || '') + '</span> — ' +
+                  esc(e.text || '') + (e.by ? ' <span style="color:var(--soft)">(' + esc(e.by) + ')</span>' : '') + '</li>';
+              }).join('') + '</ul></details>'
+          : '';
         rows += '<tr data-srch><td class="ref">' + esc(o.ref) + '</td>' +
-          '<td>' + esc(o.title || t('trackedOrder')) + '</td>' +
+          '<td>' + esc(o.title || t('trackedOrder')) + trail + '</td>' +
           '<td>' + statusChip(o.status) + '</td></tr>';
       }
       $('ordersBody').innerHTML = rows || '<tr><td colspan="3" class="emptyline" style="display:table-cell">' + esc(t('noOrdersRow')) + '</td></tr>';
@@ -1141,18 +1419,288 @@
       else note.style.display = 'none';
     }
 
+    // A quote the client can answer here and now. The figures are read back
+    // from the server on every refresh, never trusted from this page — the
+    // decision is the client's, the amount is not.
+    function quoteCards(list, en){
+      return list.map(function(q, i){
+        var rows = (q.lines || []).length
+          ? q.lines.map(function(l){
+              return '<tr><td style="padding:5px 8px">' + esc(l.name) + '</td><td style="padding:5px 8px;text-align:center">' + (l.qty || 1) +
+                '</td><td style="padding:5px 8px;text-align:end">' + ((Number(l.price) || 0) * (Number(l.qty) || 1)) + ' ﷼</td></tr>';
+            }).join('')
+          : '<tr><td colspan="3" style="padding:5px 8px">' + esc(q.service || '') + '</td></tr>';
+        return '<div style="border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;margin-bottom:10px" data-q="' + i + '">' +
+          '<div style="font-weight:700;color:var(--navy)">' + esc(q.service || q.ref) + '</div>' +
+          '<div style="color:var(--soft);font-size:12.5px;margin-bottom:8px">' + esc([q.ref, q.clientRef].filter(Boolean).join(' · ')) + '</div>' +
+          '<table style="width:100%;border-collapse:collapse;font-size:13px">' + rows + '</table>' +
+          '<div style="text-align:end;line-height:2;margin-top:8px;font-size:13px">' +
+            (en ? 'Subtotal' : 'قبل الضريبة') + ': <b>' + q.net + ' ﷼</b><br>' +
+            (en ? 'VAT' : 'ضريبة القيمة المضافة') + ' (' + q.vatRate + '%): <b>' + q.vat + ' ﷼</b><br>' +
+            '<span style="font-size:17px;color:var(--navy)"><b>' + (en ? 'Total' : 'الإجمالي') + ': ' + q.total + ' ﷼</b></span></div>' +
+          (q.leadTime ? '<div style="color:var(--soft);font-size:12.5px">' + (en ? 'Delivery: ' : 'مدة التنفيذ: ') + esc(q.leadTime) + '</div>' : '') +
+          (q.notes ? '<div style="color:var(--soft);font-size:12.5px;white-space:pre-wrap">' + esc(q.notes) + '</div>' : '') +
+          '<div style="color:var(--soft);font-size:12px;margin-top:8px">' +
+            (en ? 'On acceptance the contract is sent for e-signature, then the payment link — and every step reaches you by e-mail and WhatsApp.'
+                : 'بقبولك يُرسل لك العقد للتوقيع الإلكتروني ثم رابط السداد — وكل خطوة توصلك على البريد والواتساب.') + '</div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
+            '<a class="btn" href="' + (state.lang === 'en' ? '' : '/ar') + '/quote?id=' + encodeURIComponent(q.id) + '&t=' + encodeURIComponent(q.t) + '" style="flex:1;min-width:180px;text-align:center;text-decoration:none">' +
+              (en ? '📄 Open, sign and pay' : '📄 افتح ووقّع وادفع') + '</a>' +
+            '<button class="btn ghost" data-qa="' + i + '">' + (en ? 'Accept here' : 'أقبل من هنا') + '</button>' +
+            '<button class="btn ghost" data-qd="' + i + '">' + (en ? 'Decline' : 'أرفض') + '</button>' +
+          '</div><div style="margin-top:8px;font-size:13px" data-qm="' + i + '"></div></div>';
+      }).join('');
+    }
+
+    // A quote the client can answer here and now. The figures are read back
+    // from the server on every refresh, never trusted from this page — the
+    // decision is the client's, the amount is not.
+    //
+    // The same card is mounted in الطلبات, الموافقات and المهام, and a bar
+    // rides above every section until the quote is answered: this used to live
+    // in one tab only, which is how a client could sit in their portal with a
+    // quote waiting and see nothing at all.
+    var QUOTE_MOUNTS = [
+      { body: 'quotesBody', panel: 'quotesPanel', title: 'quotesTitle' },
+      { body: 'quotesBodyAppr', panel: 'quotesPanelAppr', title: 'quotesTitleAppr' },
+      { body: 'quotesBodyTasks', panel: 'quotesPanelTasks', title: 'quotesTitleTasks' }
+    ];
+    function renderQuotes(){
+      var list = state.quotes || [];
+      var en = state.lang === 'en';
+      var heading = en ? '📝 Quotes awaiting your decision' : '📝 عروض أسعار بانتظار قرارك';
+      var html = list.length ? quoteCards(list, en) : '';
+      QUOTE_MOUNTS.forEach(function(m){
+        var panel = $(m.panel), body = $(m.body), title = $(m.title);
+        if (!panel || !body) return;
+        panel.style.display = list.length ? '' : 'none';
+        if (title) title.textContent = heading;
+        body.innerHTML = html;
+      });
+      // A real decision on screen makes "this section unlocks after sign-in"
+      // a lie, so the placeholder stands down when there is something to do.
+      var apprPh = $('apprPh');
+      if (apprPh && list.length) apprPh.style.display = 'none';
+      // Badges: the count a client sees before they open anything.
+      var n = list.length;
+      ['sbAppr', 'sbTasks', 'bnTasks'].forEach(function(id){
+        var el = $(id); if (!el) return;
+        if (id === 'sbAppr'){ el.style.display = n ? '' : 'none'; el.textContent = n || ''; }
+        else if (n){ el.style.display = ''; if (id === 'sbTasks') el.textContent = n; }
+      });
+      var bar = $('quoteBar');
+      if (bar){
+        bar.style.display = n ? 'flex' : 'none';
+        var txt = $('quoteBarText');
+        if (txt) txt.textContent = n === 1
+          ? (en ? 'A quote is waiting for your approval' : 'عرض سعر بانتظار موافقتك')
+          : (en ? n + ' quotes are waiting for your approval' : n + ' عروض أسعار بانتظار موافقتك');
+        var go = $('quoteBarGo');
+        if (go){
+          go.textContent = en ? 'Review and approve' : 'راجع العرض ووافق';
+          go.onclick = function(){ switchView('approvals'); };
+        }
+      }
+      // Wire every copy of the card, in every mount, to the same decision.
+      [].slice.call(document.querySelectorAll('[data-qa]')).forEach(function(b){
+        b.onclick = function(){ decideQuote(Number(b.getAttribute('data-qa')), 'accept'); };
+      });
+      [].slice.call(document.querySelectorAll('[data-qd]')).forEach(function(b){
+        b.onclick = function(){ decideQuote(Number(b.getAttribute('data-qd')), 'decline'); };
+      });
+      renderDerivedAlerts();
+    }
+    // Alerts without a database session: what this browser already knows about
+    // its own orders, newest first. The DB-backed feed replaces this the
+    // moment a full session exists — the two never stack.
+    function renderDerivedAlerts(){
+      var panel = $('derivedAlertsPanel'), box = $('derivedAlerts');
+      if (!panel || !box) return;
+      if (state.db && (typeof ops !== 'undefined' && ops && ops.notifs || []).length){ panel.style.display = 'none'; return; }
+      var en = state.lang === 'en';
+      var items = [];
+      (state.quotes || []).forEach(function(q){
+        items.push({ at: '', icon: '📝', text: (en ? 'A quote is awaiting your approval' : 'عرض سعر بانتظار موافقتك') + ' — ' + (q.service || q.ref) + ' · ' + q.total + ' ﷼' });
+      });
+      (state.orders || []).forEach(function(o){
+        (o.journey || []).forEach(function(l){
+          items.push({ at: l.at || '', icon: '◉', text: (o.ref ? o.ref + ' — ' : '') + (l.text || '') + (l.by ? ' (' + l.by + ')' : '') });
+        });
+      });
+      items.sort(function(a, b){ return String(b.at).localeCompare(String(a.at)); });
+      if (!items.length){ panel.style.display = 'none'; return; }
+      panel.style.display = '';
+      var ph = $('alPh'); if (ph) ph.style.display = 'none';
+      $('derivedAlertsTitle').textContent = en ? 'Updates on your orders' : 'تحديثات طلباتك';
+      box.innerHTML = items.slice(0, 30).map(function(n){
+        return '<div class="rowline" data-srch><span>' + n.icon + '</span><span class="t">' + esc(n.text) + '</span><span class="m">' + esc(String(n.at).slice(0, 10)) + '</span></div>';
+      }).join('');
+    }
+
+    function decideQuote(i, decision){
+      var q = (state.quotes || [])[i];
+      if (!q) return;
+      var en = state.lang === 'en';
+      if (decision === 'decline' && !confirm(en ? 'Decline this quotation?' : 'رفض عرض السعر؟')) return;
+      var msgs = [].slice.call(document.querySelectorAll('[data-qm="' + i + '"]'));
+      var btns = document.querySelectorAll('[data-qa="' + i + '"],[data-qd="' + i + '"]');
+      var say = function(text, color){ msgs.forEach(function(m){ m.textContent = text; if (color) m.style.color = color; }); };
+      [].slice.call(btns).forEach(function(b){ b.disabled = true; });
+      say(en ? 'Sending…' : 'جارٍ الإرسال…');
+      fetch('/api/suppliers', { method:'POST', headers:{ 'content-type':'application/json' },
+        body: JSON.stringify({ type:'quote-decision', id: q.id, t: q.t, decision: decision }) })
+        .then(function(r){ return r.json(); })
+        .catch(function(){ return { ok:false, error:'network' }; })
+        .then(function(d){
+          if (d && d.ok){
+            if (decision === 'accept'){
+              var href = (state.lang === 'en' ? '' : '/ar') + '/quote?id=' + encodeURIComponent(q.id) + '&t=' + encodeURIComponent(q.t);
+              msgs.forEach(function(m){
+                m.style.color = '#065f46';
+                m.innerHTML = esc(en ? 'Accepted ✓ — sign the contract to continue.' : 'تم القبول ✓ — وقّع العقد لتكمل.') +
+                  ' <a href="' + href + '" style="font-weight:700">' + esc(en ? 'Sign now →' : 'وقّع الآن ←') + '</a>';
+              });
+            } else {
+              say(en ? 'Declined — thank you for telling us.' : 'تم الرفض — شكراً لإبلاغنا.', '#b91c1c');
+            }
+            setTimeout(fetchStatuses, 1200);
+          } else {
+            [].slice.call(btns).forEach(function(b){ b.disabled = false; });
+            say((d && d.error === 'already_decided')
+              ? (en ? 'A decision was already recorded.' : 'سُجِّل قرار على هذا العرض من قبل.')
+              : (en ? 'Could not record your decision — please try again.' : 'تعذّر تسجيل قرارك — حاول مرة أخرى.'), '#b91c1c');
+          }
+        });
+    }
+
+    // ---------------- company profile (establishment record) ----------------
+    function renderCompany(){
+      var en = state.lang === 'en';
+      $('navCompanyLbl').textContent = en ? 'Company profile' : 'بيانات المنشأة';
+      $('companyHead').textContent = en ? 'Company profile' : 'بيانات المنشأة';
+      $('companyLead').textContent = en ? 'This data pre-fills your orders and forms — edit it any time.' : 'بياناتك هذه تعبّأ تلقائياً في طلباتك ونماذجك — عدّلها في أي وقت.';
+      $('companyFormTitle').textContent = en ? 'Company information' : 'معلومات الشركة';
+      $('lblNameAr').textContent = en ? 'Company name (Arabic)' : 'اسم المنشأة (عربي)';
+      $('lblNameEn').textContent = en ? 'Company name (English)' : 'اسم المنشأة (إنجليزي)';
+      $('lblCr').textContent = en ? 'Commercial Registration no.' : 'رقم السجل التجاري';
+      $('orgSave').textContent = en ? '💾 Save company profile' : '💾 حفظ بيانات المنشأة';
+      $('backToSiteLbl').textContent = en ? 'Back to the website' : 'العودة إلى الموقع';
+      $('backToSite').setAttribute('href', en ? '/' : '/ar');
+      var org = (state.overview && state.overview.organization) || {};
+      if (!$('orgNameAr').value && org.name_ar) $('orgNameAr').value = org.name_ar;
+      if (!$('orgNameEn').value && org.name_en) $('orgNameEn').value = org.name_en;
+      if (!$('orgCr').value && org.cr_number) $('orgCr').value = org.cr_number;
+    }
+    function saveCompany(){
+      var en = state.lang === 'en';
+      var body = { action: 'my-org-update', name_ar: $('orgNameAr').value.trim(), name_en: $('orgNameEn').value.trim(), cr: $('orgCr').value.trim() };
+      window.__bpOrgSaved = true;
+      var note = $('orgNote');
+      if (!body.name_ar && !body.name_en && !body.cr){ note.style.display = ''; note.textContent = en ? 'Fill in at least one field.' : 'عبّئ حقلاً واحداً على الأقل.'; return; }
+      var btn = $('orgSave'); btn.disabled = true;
+      fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(o){
+          btn.disabled = false; note.style.display = '';
+          if (o && o.ok){
+            note.textContent = en ? '✅ Saved — your profile is up to date.' : '✅ تم الحفظ — بيانات منشأتك محدثة.';
+            if (o.organization){ state.overview = state.overview || {}; state.overview.organization = o.organization; renderTopbar(); }
+            try { localStorage.setItem('bp_company', JSON.stringify({ name: body.name_ar || body.name_en, cr: body.cr })); } catch (e) {}
+          } else {
+            note.textContent = en ? 'Could not save — try again or open a support ticket.' : 'تعذر الحفظ — أعد المحاولة أو افتح تذكرة دعم.';
+          }
+        })
+        .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });
+    }
+    // ---------------- payments / team / reports (built from account data already loaded) ----------------
+    function renderPayments(){
+      var en = state.lang === 'en';
+      $('payDueTitle').textContent = en ? 'Awaiting payment' : 'مستحقات بانتظار الدفع';
+      $('payTxTitle').textContent = en ? 'Wallet transactions' : 'حركات المحفظة';
+      var h = '';
+      for (var i = 0; i < state.orders.length; i++){
+        var o = state.orders[i];
+        if (!isPay(o.status)) continue;
+        h += '<div class="rowline"><span class="badge info">' + esc(statusMeta(o.status).label) + '</span><span class="t">' + esc(o.title || '') + ' <b class="ref">' + esc(o.ref) + '</b></span><a class="btn sm" href="/ar/checkout">' + (en ? 'Complete payment' : 'أكمل الدفع') + '</a></div>';
+      }
+      $('payDueList').innerHTML = h || '<div class="emptyline">' + (en ? 'Nothing awaiting payment right now.' : 'لا مستحقات بانتظار الدفع حالياً.') + '</div>';
+      var tx = (state.overview && state.overview.walletTransactions) || [];
+      var th = '';
+      for (var j = 0; j < tx.length; j++){
+        var t2 = tx[j];
+        th += '<div class="rowline"><span class="badge plain">' + esc(String(t2.type || '')) + '</span><span class="t">' + esc(String(t2.note || '')) + '</span><b>' + esc(String(t2.amount || 0)) + ' ﷼</b></div>';
+      }
+      $('payTxList').innerHTML = th || '<div class="emptyline">' + (en ? 'No wallet transactions yet — your first top-up will appear here.' : 'لا حركات محفظة بعد — أول شحن أو خصم يظهر هنا.') + '</div>';
+    }
+    function renderTeam(){
+      var en = state.lang === 'en';
+      $('teamTitle').textContent = en ? 'Your team via Business Partner' : 'فريقك عبر بيزنس بارتنر';
+      $('teamTasksTitle').textContent = en ? 'Tasks needing your action' : 'مهام مطلوبة منك';
+      var cards = [
+        ['🤖', en ? 'Smart AI employees' : 'الموظفون الأذكياء', en ? 'Your subscribed AI employees work 24/7 — open their portal with your unified session.' : 'موظفوك الأذكياء يعملون 24/7 — افتح بوابتهم بجلستك الموحدة.', '/ar/portal', en ? 'Open portal' : 'افتح البوابة'],
+        ['🧑‍💼', en ? 'Hiring dashboard' : 'لوحة التوظيف', en ? 'Post jobs, match candidates with AI and run your pipeline.' : 'انشر وظائفك وطابق المرشحين بالذكاء وأدر مسار توظيفك.', '/employer-dashboard', en ? 'Open dashboard' : 'افتح اللوحة'],
+        ['🧳', en ? 'Recruit an employee' : 'استقدم موظفاً', en ? 'Work visas, local & mass hiring, PEO/EOR.' : 'تأشيرات عمل، توظيف محلي وجماعي، وPEO/EOR.', '/ar/services/category/recruitment', en ? 'Browse services' : 'تصفح الخدمات']
+      ];
+      var h = '';
+      for (var i = 0; i < cards.length; i++){
+        var c = cards[i];
+        h += '<div class="rowline"><span class="badge plain">' + c[0] + '</span><span class="t"><b>' + c[1] + '</b><br><span style="color:#64748B;font-size:.85em">' + c[2] + '</span></span><a class="btn sm" href="' + c[3] + '">' + c[4] + '</a></div>';
+      }
+      $('teamCards').innerHTML = h;
+      var list = (typeof ops !== 'undefined' && ops.tasks) || [];
+      var th = '';
+      for (var j = 0; j < list.length && j < 8; j++){
+        var tk = list[j] || {};
+        th += '<div class="rowline"><span class="badge info">' + (en ? 'Task' : 'مهمة') + '</span><span class="t">' + esc(String(tk.title || tk.label || tk.text || '')) + '</span></div>';
+      }
+      $('teamTasksList').innerHTML = th || '<div class="emptyline">' + (en ? 'No tasks from the service team yet — anything we need from you appears here.' : 'لا مهام مطلوبة منك حالياً — أي مستند أو إجراء يطلبه فريق الخدمة يظهر هنا.') + '</div>';
+    }
+    function renderReports(){
+      var en = state.lang === 'en';
+      $('repTitle').textContent = en ? 'Account summary' : 'ملخص حسابك';
+      $('repOrdersTitle').textContent = en ? 'Orders by status' : 'الطلبات حسب الحالة';
+      var c = { active: 0, prep: 0, need: 0, buy: 0, hold: 0, ended: 0 };
+      for (var i = 0; i < state.orders.length; i++) c[svcState(state.orders[i])]++;
+      var bal = (state.overview && Number(state.overview.walletBalance)) || 0;
+      var tiles = [
+        [state.orders.length, en ? 'Total orders' : 'إجمالي الطلبات'],
+        [c.active, en ? 'Active' : 'مفعّلة'],
+        [c.prep, en ? 'In preparation' : 'جارٍ التجهيز'],
+        [c.need, en ? 'Awaiting payment' : 'بانتظار الدفع'],
+        [c.ended, en ? 'Cancelled / expired' : 'ملغاة / منتهية'],
+        [bal.toLocaleString('en') + ' ﷼', en ? 'Wallet balance' : 'رصيد المحفظة'],
+        [((typeof ops !== 'undefined' && ops.tickets) || []).length, en ? 'Support tickets' : 'التذاكر'],
+        [((typeof ops !== 'undefined' && ops.docs) || []).length, en ? 'Documents' : 'المستندات']
+      ];
+      var h = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">';
+      for (var k = 0; k < tiles.length; k++)
+        h += '<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px;text-align:center"><div style="font-size:1.3rem;font-weight:800;color:#0B1B5A">' + tiles[k][0] + '</div><div style="color:#64748B;font-size:.8rem">' + tiles[k][1] + '</div></div>';
+      h += '</div>';
+      $('repKpis').innerHTML = h;
+      var rows = '';
+      for (var m = 0; m < state.orders.length; m++){
+        var o = state.orders[m];
+        rows += '<div class="rowline"><b class="ref">' + esc(o.ref) + '</b><span class="t">' + esc(o.title || '') + '</span>' + statusChip(o.status) + '</div>';
+      }
+      $('repBreak').innerHTML = rows || '<div class="emptyline">' + (en ? 'No orders yet — your reports build up from real activity.' : 'لا طلبات بعد — تقاريرك تُبنى من نشاطك الفعلي.') + '</div>';
+    }
     function renderAll(){
       renderTopbar();
       renderHome();
       renderServices();
       renderTasks();
       renderOrders();
-      if (state.db){ renderNotifs(); renderTickets(); renderDocs(); renderApprovals(); renderSrvTasks(); }
+      renderQuotes();
+      renderPayments();
+      renderTeam();
+      renderReports();
+      renderCompany();
+      if (state.db){ renderNotifs(); renderTickets(); renderDocs(); renderApprovals(); renderSrvTasks(); loadMyOrgs(); }
       filterSearch();
     }
 
     // ---------------- navigation + search ----------------
-    var VIEWS = ['home','services','tasks','orders','payments','wallet','approvals','documents','team','reports','tickets','alerts','settings','more'];
+    var VIEWS = ['home','services','company','tasks','orders','payments','wallet','approvals','documents','team','reports','tickets','alerts','settings','more'];
     function switchView(v){
       if (VIEWS.indexOf(v) === -1) v = 'home';
       for (var i = 0; i < VIEWS.length; i++){
@@ -1239,6 +1787,126 @@
         gateErr(fromResend ? 2 : 1, t('errGeneric'));
       });
     }
+    // Google sign-in lands on the same session the emailed code produces, so
+    // it reuses the same post-sign-in path rather than a parallel one.
+    function enterAfterAuth(out, fallbackName){
+      // A نفاذ verification may be waiting for exactly this: the session it
+      // needed in order to attach itself to an account.
+      if (out && out.db) setTimeout(nfFinishLink, 0);
+      if (out.db){
+        state.db = true; state.limited = false;
+        state.user = { name: (out.user && out.user.name) || fallbackName || '', email: out.email || state.email };
+        otp({ action: 'me' }).then(function(me){
+          if (me.ok && me.session){
+            state.user = { name: (me.session.user && me.session.user.full_name) || state.user.name, email: (me.session.user && me.session.user.email) || state.user.email };
+            state.org = me.session.organization || null;
+          }
+          enterApp();
+        }).catch(function(){ enterApp(); });
+      } else {
+        state.db = false; state.limited = true;
+        state.user = { name: fallbackName || '', email: out.email || state.email };
+        enterApp();
+      }
+    }
+    window.bpAccountGoogle = function(resp){
+      if (!resp || !resp.credential) return;
+      gateErr(1, '');
+      otp({ action: 'google', credential: resp.credential }).then(function(out){
+        if (out && out.ok){ state.email = out.email || state.email; enterAfterAuth(out, (out.user && out.user.name) || ''); }
+        else gateErr(1, t('errGeneric'));
+      }).catch(function(){ gateErr(1, t('errGeneric')); });
+    };
+    (function initGoogle(){
+      var box = document.getElementById('gGoogle');
+      if (!box || !window.BP_GOOGLE_CLIENT_ID) return;
+      var tries = 0;
+      var iv = setInterval(function(){
+        if (window.google && google.accounts && google.accounts.id){
+          clearInterval(iv);
+          google.accounts.id.initialize({ client_id: window.BP_GOOGLE_CLIENT_ID, callback: window.bpAccountGoogle });
+          google.accounts.id.renderButton(box, { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: document.documentElement.lang || 'ar' });
+          var w = document.getElementById('gGoogleWrap'); if (w) w.style.display = '';
+          var o = document.getElementById('gOrWrap'); if (o) o.style.display = '';
+        } else if (++tries > 40) clearInterval(iv);
+      }, 150);
+    })();
+
+    /* ---------------- Nafath: sign in with the identity itself --------------
+     * Nafath proves who someone is. It does not prove which mailbox is theirs,
+     * and our accounts are keyed by e-mail — so the first time, نفاذ verifies
+     * and the client signs in once the ordinary way; the two are joined at
+     * that moment and every later visit needs نفاذ alone.
+     */
+    var nfTimer = null, nfChallenge = '';
+    // One short confirmation, shown after the app is already open.
+    function nfNote(msg){
+      var d = document.createElement('div');
+      d.textContent = msg;
+      d.setAttribute('style', 'position:fixed;z-index:9999;inset-inline-start:50%;transform:translateX(-50%);bottom:22px;'
+        + 'background:#0B1B5A;color:#fff;font-size:12.5px;font-weight:700;padding:10px 16px;border-radius:10px;'
+        + 'box-shadow:0 8px 24px rgba(0,0,0,.22);max-width:90vw;text-align:center');
+      document.body.appendChild(d);
+      setTimeout(function(){ d.remove(); }, 5000);
+    }
+    function nfStop(){ if (nfTimer) clearInterval(nfTimer); nfTimer = null; }
+    function nfBack(msg){
+      nfStop(); nfChallenge = '';
+      $('gNfStep2').style.display = 'none';
+      $('gNfStep1').style.display = '';
+      if (msg) gateErr(1, msg);
+    }
+    // Held between "verified" and "signed in", so the binding can finish by
+    // itself the moment a session exists.
+    function nfPendingLink(v){
+      if (v === undefined) { try { return sessionStorage.getItem('bp_nf_link') || ''; } catch(e){ return ''; } }
+      try { v ? sessionStorage.setItem('bp_nf_link', v) : sessionStorage.removeItem('bp_nf_link'); } catch(e){}
+      return v;
+    }
+    function nfFinishLink(){
+      var proof = nfPendingLink();
+      if (!proof) return;
+      nfPendingLink('');
+      otp({ action: 'nafath-link', link: proof }).then(function(out){
+        if (out && out.ok) nfNote(out.message || 'تم توثيق هويتك عبر نفاذ ✓');
+      }).catch(function(){});
+    }
+    function nfStart(){
+      var id = ($('gNfId').value || '').replace(/\D/g, '');
+      gateErr(1, '');
+      if (id.length !== 10){ gateErr(1, 'رقم الهوية أو الإقامة عشرة أرقام.'); return; }
+      var btn = $('gNfBtn'); btn.disabled = true;
+      otp({ action: 'nafath-start', purpose: 'portal', nationalId: id, locale: state.lang }).then(function(out){
+        btn.disabled = false;
+        if (!out || !out.ok){ gateErr(1, (out && out.message) || t('errGeneric')); return; }
+        nfChallenge = out.challenge;
+        $('gNfNum').textContent = out.random || '—';
+        $('gNfStep1').style.display = 'none';
+        $('gNfStep2').style.display = '';
+        var tries = 0;
+        nfTimer = setInterval(function(){
+          if (++tries > 60){ nfBack('انتهت المهلة دون موافقة.'); return; }
+          otp({ action: 'nafath-poll', challenge: nfChallenge }).then(function(p){
+            if (!p || p.status === 'WAITING') return;
+            nfStop();
+            if (p.ok && p.status === 'COMPLETED'){
+              state.email = p.email || state.email;
+              enterAfterAuth(p, (p.user && p.user.name) || '');
+              return;
+            }
+            if (p.error === 'identity_not_linked'){
+              // Verified, but this identity has never been attached to an
+              // account. Keep the proof and let them sign in normally once.
+              nfPendingLink(p.link || '');
+              nfBack(p.message || '');
+              return;
+            }
+            nfBack((p && p.message) || t('errGeneric'));
+          });
+        }, 3000);
+      }).catch(function(){ btn.disabled = false; gateErr(1, t('errGeneric')); });
+    }
+
     function verifyCode(){
       var code = $('gCode').value.trim();
       if (!/^\d{6}$/.test(code)){ gateErr(2, t('errWrongCode')); return; }
@@ -1284,6 +1952,8 @@
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
         .then(function(out){
           if (!out || !out.ok) return;
+          state.overview = out;
+          renderPayments(); renderReports(); renderCompany();
           // wallet card + wallet view
           var bal = Number(out.walletBalance) || 0;
           var fmt = bal.toLocaleString(state.lang === 'ar' ? 'ar-SA-u-nu-latn' : 'en') + ' ﷼';
@@ -1332,6 +2002,220 @@
       return fetch('/api/requests?action=my-ops&what=' + what + (extra || ''), { credentials: 'same-origin', cache: 'no-store' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); });
     }
+    // ===== wallet: online top-up (Moyasar), bank top-up, supplier escrow =====
+    function wnote(id, cls, msg){
+      var el = $(id); if (!el) return;
+      el.style.display = msg ? '' : 'none';
+      el.style.color = cls === 'err' ? '#b91c1c' : cls === 'ok' ? '#047857' : '#64748b';
+      el.textContent = msg || '';
+    }
+    // Top-up method tabs
+    (function(){
+      var tOn = $('wtopTabOnline'), tBk = $('wtopTabBank');
+      if (!tOn || !tBk) return;
+      function pick(online){
+        $('wtopOnline').style.display = online ? '' : 'none';
+        $('wtopBank').style.display = online ? 'none' : '';
+        tOn.className = online ? 'btn' : 'btn ghost';
+        tBk.className = online ? 'btn ghost' : 'btn';
+      }
+      tOn.onclick = function(){ pick(true); };
+      tBk.onclick = function(){ pick(false); };
+    })();
+    // Online top-up: mount the same Moyasar form the checkout uses, with the
+    // wallet metadata that lets the server credit the ledger automatically.
+    var wtopAssets = null;
+    function wtopLoadAssets(cfg){
+      if (wtopAssets) return wtopAssets;
+      wtopAssets = new Promise(function(resolve, reject){
+        var link = document.createElement('link'); link.rel = 'stylesheet'; link.href = cfg.cssUrl; document.head.appendChild(link);
+        var s = document.createElement('script'); s.src = cfg.scriptUrl;
+        s.onload = function(){ resolve(); };
+        s.onerror = function(){ wtopAssets = null; reject(new Error('mpf_load')); };
+        document.head.appendChild(s);
+      });
+      return wtopAssets;
+    }
+    var wtopBtn = $('wtopPayBtn');
+    if (wtopBtn) wtopBtn.onclick = function(){
+      var amount = Number(($('wtopAmount') || {}).value);
+      if (!(amount >= 10)) { wnote('wtopMsg', 'err', 'أدخل مبلغاً من 10 ﷼ فأكثر.'); return; }
+      wnote('wtopMsg', '', 'جاري تجهيز نموذج الدفع…');
+      wtopBtn.disabled = true;
+      fetch('/api/pay').then(function(r){ return r.json(); }).then(function(cfg){
+        if (!cfg || !cfg.enabled) { wtopBtn.disabled = false; wnote('wtopMsg', 'err', 'الدفع الإلكتروني غير مفعّل حالياً — استخدم التحويل البنكي.'); return; }
+        return wtopLoadAssets(cfg).then(function(){
+          var mountEl = $('wtop-epay'); mountEl.innerHTML = '';
+          var ref = 'BPW-' + Date.now().toString().slice(-6);
+          var meta = {
+            wallet: 'topup', ref: ref,
+            email: String(state.email || (state.user && state.user.email) || '').toLowerCase().slice(0, 120),
+            name: String((state.user && state.user.name) || '').slice(0, 60),
+            org: String((state.overview && state.overview.organization && state.overview.organization.id) || '').slice(0, 60)
+          };
+          function boot(methods, applePay){
+            window.Moyasar.init({
+              element: '#wtop-epay',
+              amount: Math.round(amount * 100),
+              currency: cfg.currency || 'SAR',
+              description: 'شحن محفظة بيزنس بارتنر — ' + ref,
+              publishable_api_key: cfg.publishableKey,
+              callback_url: location.origin + location.pathname + '?wpaid=1',
+              metadata: meta,
+              on_initiating: async function(){ return { metadata: meta }; },
+              methods: methods,
+              apple_pay: applePay || undefined
+            });
+          }
+          var wanted = (cfg.methods && cfg.methods.length) ? cfg.methods : ['creditcard'];
+          // Apple Pay only where the browser can complete it — elsewhere the
+          // dead button and its failed validation just scare the payer off.
+          var canAP = false;
+          try { canAP = !!(window.ApplePaySession && window.ApplePaySession.canMakePayments && window.ApplePaySession.canMakePayments()); } catch (eAP) {}
+          if (!canAP) wanted = wanted.filter(function(m){ return m !== 'applepay'; });
+          if (!wanted.length) wanted = ['creditcard'];
+          try { boot(wanted, canAP ? cfg.applePay : null); } catch (e1) { try { boot(['creditcard'], null); } catch (e2) { wnote('wtopMsg', 'err', 'تعذّر تحميل نموذج الدفع — جرّب التحويل البنكي.'); wtopBtn.disabled = false; return; } }
+          wtopBtn.disabled = false;
+          wnote('wtopMsg', 'ok', 'أكمل بيانات البطاقة أدناه — الرصيد يُقيَّد تلقائياً فور نجاح الدفع.');
+          setTimeout(function(){ var m = $('wtop-epay'); if (m && !m.children.length) wnote('wtopMsg', 'err', 'تعذّر عرض نموذج الدفع — جرّب التحويل البنكي.'); }, 2500);
+        });
+      }).catch(function(){ wtopBtn.disabled = false; wnote('wtopMsg', 'err', 'مشكلة في الاتصال — حاول مرة أخرى.'); });
+    };
+    // Returning from 3-D Secure: ?wpaid=1&id=… — verify with the server (it
+    // credits the ledger, idempotent with the webhook) then show the balance.
+    (function(){
+      var qs = new URLSearchParams(location.search);
+      if (qs.get('wpaid') !== '1' || !qs.get('id')) return;
+      var pid = qs.get('id');
+      try { history.replaceState({}, '', location.pathname); } catch(e){}
+      switchView('wallet');
+      wnote('wtopMsg', '', 'جاري التحقق من الدفع…');
+      fetch('/api/pay', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: pid, context: 'wallet' }) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (out && out.ok && out.wallet) {
+            wnote('wtopMsg', 'ok', '✅ تم الدفع وشُحنت محفظتك' + (out.balance != null ? ' — رصيدك الآن ' + out.balance + ' ﷼' : '') + '.');
+            fetchOverview(); loadEscrows();
+          } else if (out && out.status && out.status !== 'paid') {
+            wnote('wtopMsg', 'err', 'لم يكتمل الدفع (' + out.status + ') — حاول مرة أخرى.');
+          } else {
+            wnote('wtopMsg', 'err', 'تعذّر التحقق من الدفع — إن خُصم المبلغ فسيُقيَّد تلقائياً خلال دقائق.');
+          }
+        }).catch(function(){ wnote('wtopMsg', 'err', 'تعذّر التحقق — إن خُصم المبلغ فسيُقيَّد تلقائياً خلال دقائق.'); });
+    })();
+    // Bank-transfer top-up (existing server flow: receipt reviewed by the team)
+    var wbankBtn = $('wbankSend');
+    if (wbankBtn) wbankBtn.onclick = function(){
+      var amount = Number(($('wbankAmount') || {}).value);
+      var f = ($('wbankReceipt') || {}).files;
+      if (!(amount >= 10)) { wnote('wbankMsg', 'err', 'أدخل مبلغاً من 10 ﷼ فأكثر.'); return; }
+      if (!f || !f.length) { wnote('wbankMsg', 'err', 'أرفق إيصال التحويل.'); return; }
+      var file = f[0];
+      if (file.size > 6 * 1024 * 1024) { wnote('wbankMsg', 'err', 'حجم الملف كبير — الحد 6MB.'); return; }
+      wbankBtn.disabled = true; wnote('wbankMsg', '', 'جاري الإرسال…');
+      var rd = new FileReader();
+      rd.onload = function(){
+        var b64 = String(rd.result || '').split(',')[1] || '';
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+          type: 'wallet-topup', name: (state.user && state.user.name) || '', phone: '',
+          email: state.email || (state.user && state.user.email) || '', amount: amount,
+          receiptBase64: b64, receiptName: file.name, receiptType: file.type
+        }) }).then(function(r){ return r.json().catch(function(){ return {}; }); }).then(function(out){
+          wbankBtn.disabled = false;
+          if (out && out.ok) { wnote('wbankMsg', 'ok', '✅ استلمنا طلبك (' + (out.ref || '') + ') — يظهر الرصيد فور تحقق الفريق من الإيصال.'); $('wbankAmount').value = ''; $('wbankReceipt').value = ''; }
+          else wnote('wbankMsg', 'err', 'تعذّر الإرسال — حاول مرة أخرى.');
+        }).catch(function(){ wbankBtn.disabled = false; wnote('wbankMsg', 'err', 'مشكلة في الاتصال — حاول مرة أخرى.'); });
+      };
+      rd.readAsDataURL(file);
+    };
+    // ---- escrow: create / list / release / refund ----
+    var escrows = [];
+    function loadEscrows(){
+      fetch('/api/requests?action=my-escrows', { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok) return;
+          escrows = out.escrows || [];
+          renderEscrows();
+        }).catch(function(){});
+    }
+    function escStatusChip(s){
+      var m = {
+        held: ['محجوز — بانتظار إعلان المورد للتسليم', '#2563eb', '#eff6ff'],
+        delivered: ['📦 أعلن المورد التسليم — اعتمادك مطلوب', '#7c3aed', '#f5f3ff'],
+        released: ['تحرر للمورد ✓ (بتعميد الطرفين)', '#047857', '#ecfdf5'],
+        refund_requested: ['طلب استرجاع — بانتظار موافقة المورد أو قرار الإدارة', '#b45309', '#fffbeb'],
+        refunded: ['أُرجع لمحفظتك ✓', '#047857', '#ecfdf5'],
+        cancelled: ['ملغي', '#64748b', '#f1f5f9']
+      }[s] || [s, '#64748b', '#f1f5f9'];
+      return '<span style="font-size:11.5px;font-weight:700;color:' + m[1] + ';background:' + m[2] + ';border-radius:99px;padding:3px 10px;white-space:nowrap">' + m[0] + '</span>';
+    }
+    function renderEscrows(){
+      var box = $('escList'); if (!box) return;
+      if (!escrows.length) { box.innerHTML = '<div class="emptyline">لا ضمانات بعد — أول ضمان تحجزه يظهر هنا.</div>'; return; }
+      box.innerHTML = escrows.map(function(e2){
+        // The release button appears only after the supplier declared delivery
+        // — money moves with BOTH signatures, never one.
+        var canRelease = e2.status === 'delivered' || (e2.status === 'refund_requested' && e2.delivered_at);
+        var canRefund = e2.status === 'held' || e2.status === 'delivered';
+        var noteLine = e2.supplier_note ? '<div style="font-size:12px;color:#475569;background:#f8fafc;border-radius:8px;padding:6px 10px;margin-top:6px">📦 ملاحظة المورد عند التسليم: ' + esc(e2.supplier_note) + '</div>' : '';
+        return '<div style="border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:8px">' +
+          '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">' +
+            '<div><b>' + esc(e2.title || e2.ref) + '</b><br><span style="font-size:11.5px;color:#64748b">' + esc(e2.ref) + ' · ' + esc(e2.supplier_name || e2.supplier_email) + ' · ' + dts(e2.created_at) + (e2.delivered_at ? ' · سلّم: ' + dts(e2.delivered_at) : '') + '</span></div>' +
+            '<div style="text-align:left"><b>' + e2.amount + ' ﷼</b><br>' + escStatusChip(e2.status) + '</div>' +
+          '</div>' + noteLine +
+          ((canRelease || canRefund) ? '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">' +
+            (canRelease ? '<button type="button" class="btn" data-esc-release="' + esc(e2.id) + '" style="font-size:12.5px">✅ أعتمد الاستلام — حرّر المبلغ للمورد</button>' : '<span style="font-size:11.5px;color:#64748b">زر الاعتماد يظهر بعد إعلان المورد التسليم من لوحته</span>') +
+            (canRefund ? '<button type="button" class="btn ghost" data-esc-refund="' + esc(e2.id) + '" style="font-size:12.5px">↩️ اطلب استرجاع المبلغ</button>' : '') +
+          '</div>' : '') +
+        '</div>';
+      }).join('');
+      [].slice.call(box.querySelectorAll('[data-esc-release]')).forEach(function(b){
+        b.onclick = function(){
+          if (!confirm('تأكيد: استلمت العمل كاملاً وتريد تحويل المبلغ للمورد؟ لا يمكن التراجع بعد التحرير.')) return;
+          b.disabled = true;
+          opsPost({ action: 'escrow-release', id: b.getAttribute('data-esc-release') }).then(function(out){
+            if (out && out.ok) { wnote('escMsg', 'ok', '✅ اعتمدت الاستلام وتحرر المبلغ إلى محفظة المورد — أُبلغ الطرفان بالبريد.'); loadEscrows(); }
+            else if (out && out.error === 'not_delivered_yet') { b.disabled = false; wnote('escMsg', 'err', 'المورد لم يعلن التسليم بعد — الاعتماد يكون بعد إعلانه من لوحته.'); }
+            else { b.disabled = false; wnote('escMsg', 'err', 'تعذّر التحرير — حدّث الصفحة وحاول مرة أخرى.'); }
+          });
+        };
+      });
+      [].slice.call(box.querySelectorAll('[data-esc-refund]')).forEach(function(b){
+        b.onclick = function(){
+          var reason = prompt('اذكر سبب طلب الاسترجاع (يساعد فريقنا في الفصل بسرعة):') || '';
+          if (!reason.trim()) return;
+          b.disabled = true;
+          opsPost({ action: 'escrow-refund', id: b.getAttribute('data-esc-refund'), reason: reason }).then(function(out){
+            if (out && out.ok) { wnote('escMsg', 'ok', 'وصل طلب الاسترجاع — يراجعه فريقنا مع الطرفين ويرد عليك بالبريد.'); loadEscrows(); }
+            else { b.disabled = false; wnote('escMsg', 'err', 'تعذّر الإرسال — حاول مرة أخرى.'); }
+          });
+        };
+      });
+    }
+    var escBtn = $('escCreate');
+    if (escBtn) escBtn.onclick = function(){
+      var supEmail = String(($('escSupEmail') || {}).value || '').trim().toLowerCase();
+      var supName = String(($('escSupName') || {}).value || '').trim();
+      var title = String(($('escTitle') || {}).value || '').trim();
+      var amount = Number(($('escAmount') || {}).value);
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(supEmail)) { wnote('escMsg', 'err', 'أدخل بريد المورد بشكل صحيح.'); return; }
+      if (!title) { wnote('escMsg', 'err', 'اكتب موضوع الاتفاق.'); return; }
+      if (!(amount > 0)) { wnote('escMsg', 'err', 'أدخل مبلغاً أكبر من صفر.'); return; }
+      escBtn.disabled = true; wnote('escMsg', '', 'جاري حجز الضمان…');
+      opsPost({ action: 'escrow-create', supplierEmail: supEmail, supplierName: supName, title: title, amount: amount }).then(function(out){
+        escBtn.disabled = false;
+        if (out && out.ok) {
+          wnote('escMsg', 'ok', '✅ حُجز الضمان (' + (out.escrow && out.escrow.ref || '') + ') وأُبلغ المورد بالبريد — رصيدك الآن ' + (out.balance != null ? out.balance + ' ﷼' : '') + '.');
+          ['escSupEmail','escSupName','escTitle','escAmount'].forEach(function(id){ var el = $(id); if (el) el.value = ''; });
+          fetchOverview(); loadEscrows();
+        }
+        else if (out && out.error === 'insufficient_funds') wnote('escMsg', 'err', 'رصيد محفظتك (' + (out.balance || 0) + ' ﷼) لا يكفي — اشحن المحفظة أولاً من الأعلى.');
+        else if (out && out.error === 'no_org') wnote('escMsg', 'err', 'أضف منشأتك أولاً من قسم «شركتي» ثم اشحن المحفظة.');
+        else wnote('escMsg', 'err', 'تعذّر حجز الضمان — حاول مرة أخرى.');
+      });
+    };
+
     var ops = { notifs: [], unread: 0, tickets: [], docs: [], approvals: [], tasks: [] };
     function fetchOps(){
       if (!state.db) return;
@@ -1395,6 +2279,67 @@
         });
       };
     }
+    // ---- multiple companies: one login, every establishment -------------
+    // The active company is the session's organization: switching swaps the
+    // documents vault, orders and wallet with it, and rewrites bp_company so
+    // checkout buys in the right company's name.
+    function orgToLocal(org){
+      try {
+        var bc = JSON.parse(localStorage.getItem('bp_company') || '{}');
+        bc.name = org.name_ar || org.name_en || bc.name || '';
+        bc.nameAr = org.name_ar || bc.nameAr || '';
+        if (org.cr_number) bc.cr = org.cr_number;
+        localStorage.setItem('bp_company', JSON.stringify(bc));
+      } catch(e){}
+    }
+    function loadMyOrgs(){
+      fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-orgs' }) })
+        .then(function(r){ return r.json(); })
+        .then(function(o){
+          if (!o.ok) return;
+          var enO = state.lang === 'en';
+          var tEl = $('orgSwitchTitle'); if (tEl) tEl.textContent = enO ? 'My companies' : 'شركاتي';
+          var aEl = $('orgAddLbl'); if (aEl) aEl.textContent = enO ? 'Add another company' : 'أضف شركة أخرى';
+          var hEl = $('orgSwitchHint'); if (hEl) hEl.textContent = enO ? 'Each company has its own documents, orders and wallet — switching here switches the whole dashboard, and the active company\'s data auto-fills every purchase.' : 'كل شركة لها مستنداتها وطلباتها ومحفظتها — التبديل هنا يبدّل اللوحة كاملة، وبيانات الشركة النشطة تتعبأ تلقائياً عند شراء أي خدمة.';
+          var pick = $('orgPick'), panel = $('orgSwitchPanel');
+          if (!pick || !panel) return;
+          var orgs = o.orgs || [];
+          panel.style.display = '';
+          var h = '';
+          for (var i = 0; i < orgs.length; i++){
+            var g = orgs[i];
+            h += '<option value="' + esc(g.id) + '"' + (g.id === o.activeId ? ' selected' : '') + '>' + esc(g.name_ar || g.name_en || (enO ? 'Company' : 'منشأة')) + (g.cr_number ? ' — ' + esc(g.cr_number) : '') + '</option>';
+          }
+          if (!orgs.length) h = '<option value="">' + (enO ? 'No company yet — save your company data below' : 'لا شركة بعد — احفظ بيانات منشأتك بالأسفل') + '</option>';
+          pick.innerHTML = h;
+          var active = null;
+          for (var j = 0; j < orgs.length; j++) if (orgs[j].id === o.activeId) active = orgs[j];
+          if (active) orgToLocal(active);
+          pick.onchange = function(){
+            var id = pick.value;
+            if (!id || id === o.activeId) return;
+            pick.disabled = true;
+            fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-org-switch', orgId: id }) })
+              .then(function(r){ return r.json(); })
+              .then(function(x){
+                if (x.ok && x.organization){ orgToLocal(x.organization); location.reload(); }
+                else pick.disabled = false;
+              }).catch(function(){ pick.disabled = false; });
+          };
+          var add = $('orgAdd');
+          if (add) add.onclick = function(){
+            var nm = prompt(enO ? 'New company name (Arabic):' : 'اسم الشركة الجديدة (بالعربي):');
+            if (!nm || !nm.trim()) return;
+            add.disabled = true;
+            fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-org-create', name_ar: nm.trim() }) })
+              .then(function(r){ return r.json(); })
+              .then(function(x){
+                if (x.ok && x.organization){ orgToLocal(x.organization); location.reload(); }
+                else add.disabled = false;
+              }).catch(function(){ add.disabled = false; });
+          };
+        }).catch(function(){});
+    }
     function renderDocs(){
       var h = '';
       var vst = { pending: ['docStPending', 'warn'], verified: ['docStVerified', 'ok'], rejected: ['docStRejected', 'warn'] };
@@ -1409,8 +2354,30 @@
             '<span class="m">' + dts(vers[j].uploaded_at) + '</span>' +
             '<button class="btn ghost sm" data-dl="' + esc(vers[j].id) + '">' + esc(t('docDownload')) + '</button></div>';
         }
-        h += '<div class="card c12" data-srch style="margin:8px 0"><h4>' + esc(d.title || '') + ' <span class="badge ' + vs[1] + '">' + esc(t(vs[0])) + '</span>' +
-          (d.expiry_date ? ' <span style="font-size:10.5px;color:var(--soft)">' + esc(t('docExpiryLbl')) + ' ' + dts(d.expiry_date) + '</span>' : '') + '</h4>' + vh + '</div>';
+        // What the reading agent extracted, shown on the card: the client
+        // sees their paper is understood — dates, entity, numbers — not just stored.
+        var enD = state.lang === 'en';
+        var ex = d.extracted || null;
+        var readBadge = ex ? ' <span class="badge ok">' + (enD ? 'Read ✓' : 'مقروء آلياً ✓') + '</span>' : '';
+        var exh = '';
+        if (ex){
+          var bits = [];
+          if (ex.companyNameAr || ex.companyNameEn) bits.push((enD ? 'Entity: ' : 'المنشأة: ') + esc(ex.companyNameAr || ex.companyNameEn));
+          if (ex.crNumber) bits.push((enD ? 'CR: ' : 'س.ت: ') + esc(ex.crNumber));
+          if (ex.vatNumber) bits.push((enD ? 'VAT: ' : 'الرقم الضريبي: ') + esc(ex.vatNumber));
+          if (d.issue_date || ex.issueDate) bits.push((enD ? 'Issued: ' : 'الإصدار: ') + dts(d.issue_date || ex.issueDate));
+          if (ex.issueDateHijri && !(d.issue_date || ex.issueDate)) bits.push((enD ? 'Issued (H): ' : 'الإصدار (هـ): ') + esc(ex.issueDateHijri));
+          if (ex.expiryDateHijri && !d.expiry_date && !ex.expiryDate) bits.push((enD ? 'Expiry (H): ' : 'الانتهاء (هـ): ') + esc(ex.expiryDateHijri));
+          if (bits.length) exh = '<div style="font-size:11.5px;color:var(--soft);margin:2px 0 6px;line-height:1.9">🤖 ' + bits.join(' · ') + '</div>';
+        }
+        var expWarn = '';
+        if (d.expiry_date){
+          var days = Math.round((new Date(d.expiry_date) - new Date()) / 86400000);
+          if (days < 0) expWarn = ' <span class="badge bad">' + (enD ? 'Expired' : 'منتهي') + '</span>';
+          else if (days <= 30) expWarn = ' <span class="badge warn">' + (enD ? days + ' days left' : 'باقي ' + days + ' يوم') + '</span>';
+        }
+        h += '<div class="card c12" data-srch style="margin:8px 0"><h4>' + esc(d.title || '') + ' <span class="badge ' + vs[1] + '">' + esc(t(vs[0])) + '</span>' + readBadge + expWarn +
+          (d.expiry_date ? ' <span style="font-size:10.5px;color:var(--soft)">' + esc(t('docExpiryLbl')) + ' ' + dts(d.expiry_date) + '</span>' : '') + '</h4>' + exh + vh + '</div>';
       }
       $('docsList').innerHTML = h || '<div class="emptyline">' + esc(t('docNone')) + '</div>';
       var dls = document.querySelectorAll('[data-dl]');
@@ -1440,7 +2407,26 @@
         }).then(function(o){
           $('docSend').disabled = false;
           if (o.ok){
-            note.textContent = t('docUploaded');
+            var exU = o.extracted || null;
+            if (exU){
+              var enU = state.lang === 'en';
+              var msg = [];
+              if (exU.companyNameAr || exU.companyNameEn) msg.push(exU.companyNameAr || exU.companyNameEn);
+              if (exU.expiryDate) msg.push((enU ? 'expires ' : 'ينتهي ') + exU.expiryDate);
+              note.textContent = (enU ? 'Uploaded and read automatically ✓ ' : 'رُفع وقُرئ آلياً ✓ ') + (msg.length ? '— ' + msg.join(' · ') : '');
+              // The paper's own data becomes the buying profile: name, CR,
+              // VAT, address flow into checkout with nothing retyped.
+              try {
+                var bc = JSON.parse(localStorage.getItem('bp_company') || '{}');
+                if (exU.companyNameAr && !bc.nameAr) bc.nameAr = exU.companyNameAr;
+                if ((exU.companyNameAr || exU.companyNameEn) && !bc.name) bc.name = exU.companyNameAr || exU.companyNameEn;
+                if (exU.crNumber && !bc.cr) bc.cr = exU.crNumber;
+                if (exU.vatNumber && !bc.vat) bc.vat = exU.vatNumber;
+                if (exU.contactPhone && !bc.contactPhone) bc.contactPhone = exU.contactPhone;
+                if (exU.address && exU.address.city && !(bc.address && bc.address.city)) bc.address = exU.address;
+                localStorage.setItem('bp_company', JSON.stringify(bc));
+              } catch(e){}
+            } else { note.textContent = t('docUploaded'); }
             $('docTitle').value = ''; $('docFile').value = ''; $('docExpiry').value = '';
             opsGet('documents').then(function(x){ if (x.ok){ ops.docs = x.items || []; renderDocs(); } });
           } else { note.className = 'note err'; note.textContent = t('opsFail'); }
@@ -1528,17 +2514,60 @@
       });
     }
 
+    // One email-code gate for everything: after sign-in, honor ?redirect= so
+    // checkout returns to the cart and portal links open through the unified
+    // session (SSO) — no second login and no static access codes to remember.
+    function handleRedirect(){
+      var r = '';
+      try { r = new URLSearchParams(location.search).get('redirect') || ''; } catch (e) { return false; }
+      if (!r) return false;
+      var lang = state.lang === 'en' ? '' : '/ar';
+      var back = '';
+      try { var ru = new URL(document.referrer); if (ru.origin === location.origin && ru.pathname.indexOf('/account') === -1) back = ru.pathname; } catch (e2) {}
+      var map = {
+        checkout: lang + '/checkout',
+        quote: back || lang + '/services',
+        formation: back || lang + '/services',
+        compliance: '/ar/compliance-dashboard',
+        employees: '/ar/portal',
+        employer: '/employer-dashboard',
+        shared: '/shared-services/dashboard',
+        revenue: '/revenue-dashboard'
+      };
+      var url = map[r] || (/^\/[A-Za-z0-9/_-]*$/.test(r) ? r : '');
+      if (!url) return false;
+      try { history.replaceState(null, '', location.pathname); } catch (e3) {}
+      if (SSO_PORTALS[url]) ssoNavigate(url); else location.href = url;
+      return true;
+    }
     function enterApp(){
+      // Bridge to the site-wide cart/checkout (main.js reads bp_session from
+      // localStorage): without this marker, /checkout bounces back here and
+      // the purchase loop never completes.
+      try { localStorage.setItem('bp_session', JSON.stringify({ email: (state.user && state.user.email) || state.email || '', name: (state.user && state.user.name) || '' })); } catch(e){}
+      // Seed the checkout's company prefill from the account's organization.
+      try {
+        if (state.org && (state.org.name_ar || state.org.name_en)) {
+          var bc = {}; try { bc = JSON.parse(localStorage.getItem('bp_company') || '{}'); } catch(_){}
+          if (!bc.name) bc.name = state.org.name_ar || state.org.name_en;
+          if (!bc.cr && state.org.cr_number) bc.cr = state.org.cr_number;
+          localStorage.setItem('bp_company', JSON.stringify(bc));
+        }
+      } catch(e){}
+      try { document.documentElement.setAttribute('data-prices', 'on'); } catch(e){}
       $('gate').style.display = 'none';
       $('app').classList.add('on');
       $('limitedBanner').classList.toggle('on', !!state.limited);
+      if (handleRedirect()) return;
       buildOrders();
       renderAll();
-      fetchStatuses();
+      fetchServerOrders();
       fetchOverview();
       fetchOps();
+      loadEscrows();
     }
     function doLogout(){
+      try { localStorage.removeItem('bp_session'); } catch(e){}
       otp({ action: 'logout' }).catch(function(){}).then(function(){ location.reload(); });
     }
 
@@ -1566,6 +2595,19 @@
     // ---------------- wire listeners ----------------
     function wire(){
       $('gSend').onclick = function(){ sendCode(false); };
+      $('gNfBtn').onclick = nfStart;
+      $('gNfCancel').onclick = function(){ nfBack(''); };
+      $('gNfId').addEventListener('keydown', function(e){ if (e.key === 'Enter') nfStart(); });
+      // Offer نفاذ only where it actually works. A button that answers "not
+      // configured" is worse than no button.
+      fetch('/api/otp', { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(cfg){
+        var nf = cfg && cfg.nafath;
+        if (nf && nf.configured && nf.serviceConfigured){
+          $('gNafathWrap').style.display = '';
+          var o = document.getElementById('gOrWrap'); if (o) o.style.display = '';
+        }
+      }).catch(function(){});
+      $('orgSave').onclick = saveCompany;
       $('gEmail').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendCode(false); });
       $('gVerify').onclick = verifyCode;
       $('gCode').addEventListener('keydown', function(e){ if (e.key === 'Enter') verifyCode(); });

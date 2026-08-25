@@ -251,134 +251,172 @@
     "note": "الأسعار أعلاه من الكتالوج الرسمي وتشمل أتعاب بيزنس بارتنر فقط ما لم يُذكر غير ذلك — الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء. لأي مزيج مخصص من الخدمات، استخدم حاسبة التكلفة.",
     "tiers": [
       {
+        "key": "starter-4",
+        "name": "Small Establishment",
+        "nameAr": "باقة المنشآت الصغيرة",
+        "nameEn": "Small Establishment Package",
+        "code": "BP-PKG-SVC-STARTER",
+        "amount": 2500,
+        "price": "2,500 ﷼ / شهرياً",
+        "priceEn": "2,500 SAR / monthly",
+        "for": "للمنشآت من موظف واحد إلى 4 موظفين",
+        "forEn": "For establishments with 1–4 employees",
+        "highlight": false,
+        "features": [
+          "تشغيل وإدارة السجل التجاري ومتابعة تجديده",
+          "تفعيل حساب المنشأة في منصة قوى ومتابعته",
+          "إدارة اشتراك التأمينات الاجتماعية",
+          "تنظيم التأمين الطبي للموظفين",
+          "متابعة الالتزام الزكوي والضريبي الأساسي",
+          "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
+        ],
+        "featuresEn": [
+          "Commercial registration management and renewal",
+          "Qiwa establishment account activation and follow-up",
+          "GOSI subscription management",
+          "Employee medical insurance arrangement",
+          "Core zakat and tax compliance follow-up",
+          "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
+        ],
+        "surcharge": "الموظف الإضافي بعد 4 موظفاً: 300 ﷼ شهرياً.",
+        "surchargeAmount": 300,
+        "surchargeFreeCount": 4,
+        "surchargeEn": "Each employee beyond 4: 300 SAR monthly."
+      },
+      {
         "key": "silver",
         "name": "Launch",
         "nameAr": "باقة الانطلاق",
         "nameEn": "Launch Package",
-        "code": null,
-        "amount": 7500,
-        "price": "تبدأ من 6,000 ﷼ / سنويًا",
-        "priceEn": "Starting from 7,500 SAR / yearly",
-        "for": "للمنشآت الصغيرة",
-        "forEn": "For small establishments",
+        "code": "BP-PKG-LAUNCH",
+        "amount": 6000,
+        "price": "6,000 ﷼ / شهرياً",
+        "priceEn": "6,000 SAR / monthly",
+        "for": "للمنشآت من 5 إلى 49 موظفاً",
+        "forEn": "For establishments with 5–49 employees",
         "highlight": false,
-        "surcharge": "سيتم فرض رسوم إضافية قدرها 500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 4 موظفين.",
-        "surchargeEn": "An extra fee of 500 SAR per additional employee applies once headcount exceeds 4 employees.",
+        "surcharge": "الموظف الإضافي بعد 49 موظفاً: 300 ﷼ شهرياً.",
+        "surchargeEn": "Each employee beyond 49: 300 SAR monthly.",
         "features": [
-          "إدارة السجل التجاري",
-          "التسجيل والمتابعة في منصة قوى",
-          "إدارة التأمينات الاجتماعية",
-          "إدارة التأمين الطبي",
-          "الامتثال الزكوي والضريبي الأساسي"
+          "تشغيل وإدارة السجل التجاري ومتابعة تجديده",
+          "تفعيل حساب المنشأة في منصة قوى ومتابعته",
+          "إدارة اشتراك التأمينات الاجتماعية",
+          "تنظيم التأمين الطبي للموظفين",
+          "متابعة الالتزام الزكوي والضريبي الأساسي",
+          "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
         ],
         "featuresEn": [
-          "Commercial Registration management",
-          "Qiwa platform registration & follow-up",
-          "Social insurance (GOSI) management",
-          "Medical insurance management",
-          "Basic Zakat & tax compliance"
+          "Commercial Registration operation & renewal follow-up",
+          "Activating & monitoring your Qiwa establishment account",
+          "GOSI subscription management",
+          "Employee medical insurance setup",
+          "Follow-up on core Zakat & tax compliance",
+          "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
         ],
-        "surchargeAmount": 500,
-        "surchargeFreeCount": 4
+        "surchargeAmount": 300,
+        "surchargeFreeCount": 49
       },
       {
         "key": "gold",
         "name": "Growth",
         "nameAr": "باقة النمو",
         "nameEn": "Growth Package",
-        "code": null,
-        "amount": 13500,
-        "price": "تبدأ من 10,800 ﷼ / سنويًا",
-        "priceEn": "Starting from 13,500 SAR / yearly",
-        "for": "للمنشآت المتوسطة",
-        "forEn": "For medium establishments",
-        "highlight": false,
-        "surcharge": "سيتم فرض رسوم إضافية قدرها 750 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
-        "surchargeEn": "An extra fee of 750 SAR per additional employee applies once headcount exceeds 9 employees.",
+        "code": "BP-PKG-GROWTH",
+        "amount": 10000,
+        "price": "10,000 ﷼ / شهرياً",
+        "priceEn": "10,000 SAR / monthly",
+        "for": "للمنشآت من 50 إلى 200 موظف",
+        "forEn": "For establishments with 50–200 employees",
+        "highlight": true,
+        "surcharge": "الموظف الإضافي بعد 200 موظفاً: 300 ﷼ شهرياً.",
+        "surchargeEn": "Each employee beyond 200: 300 SAR monthly.",
         "features": [
-          "تشمل جميع مزايا باقة الانطلاق",
-          "إدارة شؤون الموظفين والعقود",
-          "إدارة وحماية الأجور",
-          "متابعة دورية للالتزامات النظامية",
-          "دعم تشغيلي موسّع للمنشأة"
+          "كل ما في باقة الانطلاق",
+          "إدارة ملفات الموظفين والعقود إلكترونياً",
+          "إدارة الأجور والتسجيل في نظام حماية الأجور",
+          "متابعة دورية لالتزامات المنشأة النظامية",
+          "دعم تشغيلي موسّع طوال فترة الاشتراك",
+          "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
         ],
         "featuresEn": [
           "Everything in the Launch package",
-          "Employee affairs & contracts management",
-          "Wage management & wage protection",
-          "Periodic follow-up on regulatory obligations",
-          "Extended operational support"
+          "Digital employee files & contracts management",
+          "Payroll management & Wage Protection System enrollment",
+          "Periodic follow-up on your regulatory obligations",
+          "Extended operational support throughout the subscription",
+          "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
         ],
-        "surchargeAmount": 750,
-        "surchargeFreeCount": 9
+        "surchargeAmount": 300,
+        "surchargeFreeCount": 200
       },
       {
         "key": "platinum",
         "name": "Scale",
         "nameAr": "باقة التوسّع",
         "nameEn": "Scale Package",
-        "code": null,
+        "code": "BP-PKG-SCALE",
         "amount": 20000,
-        "price": "تبدأ من 16,000 ﷼ / سنويًا",
-        "priceEn": "Starting from 20,000 SAR / yearly",
-        "for": "للمنشآت الكبيرة",
-        "forEn": "For large establishments",
-        "highlight": true,
-        "surcharge": "سيتم فرض رسوم إضافية قدرها 1,000 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
-        "surchargeEn": "An extra fee of 1,000 SAR per additional employee applies once headcount exceeds 9 employees.",
+        "price": "20,000 ﷼ / شهرياً",
+        "priceEn": "20,000 SAR / monthly",
+        "for": "للمنشآت من 201 إلى 500 موظف",
+        "forEn": "For establishments with 201–500 employees",
+        "highlight": false,
+        "surcharge": "الموظف الإضافي بعد 500 موظفاً: 300 ﷼ شهرياً.",
+        "surchargeEn": "Each employee beyond 500: 300 SAR monthly.",
         "features": [
-          "تشمل جميع مزايا باقة النمو",
-          "إدارة متقدمة للموارد البشرية",
-          "إدارة الإقرارات والمتابعة الشاملة",
+          "كل ما في باقة النمو",
+          "إدارة متقدمة لملف الموارد البشرية",
+          "إعداد ومتابعة الإقرارات والالتزامات الشاملة",
           "تقارير تشغيلية وتنظيمية دورية",
-          "استشارات قانونية وتشغيلية مستمرة"
+          "استشارات قانونية وتشغيلية مستمرة",
+          "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
         ],
         "featuresEn": [
           "Everything in the Growth package",
-          "Advanced HR management",
-          "Filings management & comprehensive follow-up",
+          "Advanced HR file management",
+          "Preparing & tracking filings and full compliance",
           "Periodic operational & regulatory reports",
-          "Ongoing legal & operational consultations"
+          "Ongoing legal & operational consultations",
+          "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
         ],
         "badgeAr": "موصى به",
         "badgeEn": "Recommended",
-        "surchargeAmount": 1000,
-        "surchargeFreeCount": 9
+        "surchargeAmount": 300,
+        "surchargeFreeCount": 500
       },
       {
         "key": "diamond",
         "name": "Enterprise",
         "nameAr": "باقة الشراكة المؤسسية",
         "nameEn": "Enterprise Package",
-        "code": null,
+        "code": "BP-PKG-ENTERPRISE",
         "amount": null,
         "price": "باقة حسب الطلب",
-        "priceEn": "Custom package, priced on request",
-        "for": "للمنشآت الكبرى ذات الاحتياجات الخاصة",
-        "forEn": "For large establishments with custom needs",
+        "priceEn": "Custom package",
+        "for": "للمنشآت أكثر من 500 موظف",
+        "forEn": "For establishments with 501+ employees",
         "highlight": false,
-        "surcharge": "سيتم فرض رسوم إضافية قدرها 1,500 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 60 موظفاً.",
-        "surchargeEn": "An extra fee of 1,500 SAR per additional employee applies once headcount exceeds 60 employees.",
+        "surchargeEn": "An extra fee of 1,200 SAR per additional employee applies once headcount exceeds 60 employees.",
         "features": [
-          "تشمل جميع مزايا باقة التوسّع",
-          "مدير حساب مخصص للمنشأة",
-          "أولوية تنفيذ ومتابعة فورية",
-          "حلول مخصصة حسب احتياج النشاط",
-          "دعم استباقي شامل دون تدخل العميل",
-          "دعم فريق الدعم التشغيلي ومتابعة المنصات",
-          "تقارير ومؤشرات لمتابعة النشاط والأداء"
+          "كل ما في باقة التوسّع",
+          "مدير حساب مخصّص لمنشأتك",
+          "أولوية في التنفيذ ومتابعة فورية",
+          "حلول مصمّمة حسب نشاط منشأتك",
+          "دعم استباقي شامل دون الحاجة لمتابعة من العميل",
+          "فريق دعم تشغيلي مخصّص لمتابعة المنصّات",
+          "تقارير ومؤشرات أداء لمتابعة نشاطك",
+          "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
         ],
         "featuresEn": [
           "Everything in the Scale package",
-          "Dedicated account manager",
+          "Dedicated account manager for your establishment",
           "Priority execution & instant follow-up",
-          "Custom solutions tailored to your activity",
-          "Comprehensive proactive support, no client follow-up needed",
-          "Dedicated operational support team & platform follow-up",
-          "Reports & KPIs to track activity and performance"
-        ],
-        "surchargeAmount": 1500,
-        "surchargeFreeCount": 60
+          "Solutions tailored to your business activity",
+          "Comprehensive proactive support with no client follow-up needed",
+          "Dedicated operational support team monitoring your platforms",
+          "Reports & KPIs to track your activity and performance",
+          "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
+        ]
       }
     ],
     "titleEn": "Packages",
@@ -393,35 +431,70 @@
         "descEn": "Four annual packages to manage your government platforms and establishment.",
         "tiers": [
           {
+            "key": "starter-4",
+            "name": "Small Establishment",
+            "nameAr": "باقة المنشآت الصغيرة",
+            "nameEn": "Small Establishment Package",
+            "code": "BP-PKG-SVC-STARTER",
+            "amount": 2500,
+            "price": "2,500 ﷼ / شهرياً",
+            "priceEn": "2,500 SAR / monthly",
+            "for": "للمنشآت من موظف واحد إلى 4 موظفين",
+            "forEn": "For establishments with 1–4 employees",
+            "highlight": false,
+            "features": [
+              "تشغيل وإدارة السجل التجاري ومتابعة تجديده",
+              "تفعيل حساب المنشأة في منصة قوى ومتابعته",
+              "إدارة اشتراك التأمينات الاجتماعية",
+              "تنظيم التأمين الطبي للموظفين",
+              "متابعة الالتزام الزكوي والضريبي الأساسي",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
+            ],
+            "featuresEn": [
+              "Commercial registration management and renewal",
+              "Qiwa establishment account activation and follow-up",
+              "GOSI subscription management",
+              "Employee medical insurance arrangement",
+              "Core zakat and tax compliance follow-up",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
+            ],
+            "surcharge": "الموظف الإضافي بعد 4 موظفاً: 300 ﷼ شهرياً.",
+            "surchargeAmount": 300,
+            "surchargeFreeCount": 4,
+            "surchargeEn": "Each employee beyond 4: 300 SAR monthly."
+          },
+          {
             "key": "silver",
             "name": "Launch",
             "nameAr": "باقة الانطلاق",
             "nameEn": "Launch Package",
             "code": "BP-PKG-LAUNCH",
             "amount": 6000,
-            "price": "تبدأ من 6,000 ﷼ / سنويًا",
-            "priceEn": "Starting from 6,000 SAR / yearly",
-            "for": "للمنشآت الصغيرة",
-            "forEn": "For small establishments",
+            "price": "6,000 ﷼ / شهرياً",
+            "priceEn": "6,000 SAR / monthly",
+            "for": "للمنشآت من 5 إلى 49 موظفاً",
+            "forEn": "For establishments with 5–49 employees",
             "highlight": false,
-            "surcharge": "سيتم فرض رسوم إضافية قدرها 400 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 4 موظفين.",
-            "surchargeEn": "An extra fee of 400 SAR per additional employee applies once headcount exceeds 4 employees.",
+            "surcharge": "الموظف الإضافي بعد 49 موظفاً: 300 ﷼ شهرياً.",
+            "surchargeEn": "Each employee beyond 49: 300 SAR monthly.",
             "features": [
               "تشغيل وإدارة السجل التجاري ومتابعة تجديده",
               "تفعيل حساب المنشأة في منصة قوى ومتابعته",
               "إدارة اشتراك التأمينات الاجتماعية",
               "تنظيم التأمين الطبي للموظفين",
-              "متابعة الالتزام الزكوي والضريبي الأساسي"
+              "متابعة الالتزام الزكوي والضريبي الأساسي",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Commercial Registration operation & renewal follow-up",
               "Activating & monitoring your Qiwa establishment account",
               "GOSI subscription management",
               "Employee medical insurance setup",
-              "Follow-up on core Zakat & tax compliance"
+              "Follow-up on core Zakat & tax compliance",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
             ],
-            "surchargeAmount": 400,
-            "surchargeFreeCount": 4
+            "surchargeAmount": 300,
+            "surchargeFreeCount": 49
           },
           {
             "key": "gold",
@@ -429,30 +502,32 @@
             "nameAr": "باقة النمو",
             "nameEn": "Growth Package",
             "code": "BP-PKG-GROWTH",
-            "amount": 10800,
-            "price": "تبدأ من 10,800 ﷼ / سنويًا",
-            "priceEn": "Starting from 10,800 SAR / yearly",
-            "for": "للمنشآت المتوسطة",
-            "forEn": "For medium establishments",
-            "highlight": false,
-            "surcharge": "سيتم فرض رسوم إضافية قدرها 600 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
-            "surchargeEn": "An extra fee of 600 SAR per additional employee applies once headcount exceeds 9 employees.",
+            "amount": 10000,
+            "price": "10,000 ﷼ / شهرياً",
+            "priceEn": "10,000 SAR / monthly",
+            "for": "للمنشآت من 50 إلى 200 موظف",
+            "forEn": "For establishments with 50–200 employees",
+            "highlight": true,
+            "surcharge": "الموظف الإضافي بعد 200 موظفاً: 300 ﷼ شهرياً.",
+            "surchargeEn": "Each employee beyond 200: 300 SAR monthly.",
             "features": [
               "كل ما في باقة الانطلاق",
               "إدارة ملفات الموظفين والعقود إلكترونياً",
               "إدارة الأجور والتسجيل في نظام حماية الأجور",
               "متابعة دورية لالتزامات المنشأة النظامية",
-              "دعم تشغيلي موسّع طوال فترة الاشتراك"
+              "دعم تشغيلي موسّع طوال فترة الاشتراك",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Everything in the Launch package",
               "Digital employee files & contracts management",
               "Payroll management & Wage Protection System enrollment",
               "Periodic follow-up on your regulatory obligations",
-              "Extended operational support throughout the subscription"
+              "Extended operational support throughout the subscription",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
             ],
-            "surchargeAmount": 600,
-            "surchargeFreeCount": 9
+            "surchargeAmount": 300,
+            "surchargeFreeCount": 200
           },
           {
             "key": "platinum",
@@ -460,46 +535,47 @@
             "nameAr": "باقة التوسّع",
             "nameEn": "Scale Package",
             "code": "BP-PKG-SCALE",
-            "amount": 16000,
-            "price": "تبدأ من 16,000 ﷼ / سنويًا",
-            "priceEn": "Starting from 16,000 SAR / yearly",
-            "for": "للمنشآت الكبيرة",
-            "forEn": "For large establishments",
-            "highlight": true,
-            "surcharge": "سيتم فرض رسوم إضافية قدرها 800 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 9 موظفين.",
-            "surchargeEn": "An extra fee of 800 SAR per additional employee applies once headcount exceeds 9 employees.",
+            "amount": 20000,
+            "price": "20,000 ﷼ / شهرياً",
+            "priceEn": "20,000 SAR / monthly",
+            "for": "للمنشآت من 201 إلى 500 موظف",
+            "forEn": "For establishments with 201–500 employees",
+            "highlight": false,
+            "surcharge": "الموظف الإضافي بعد 500 موظفاً: 300 ﷼ شهرياً.",
+            "surchargeEn": "Each employee beyond 500: 300 SAR monthly.",
             "features": [
               "كل ما في باقة النمو",
               "إدارة متقدمة لملف الموارد البشرية",
               "إعداد ومتابعة الإقرارات والالتزامات الشاملة",
               "تقارير تشغيلية وتنظيمية دورية",
-              "استشارات قانونية وتشغيلية مستمرة"
+              "استشارات قانونية وتشغيلية مستمرة",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Everything in the Growth package",
               "Advanced HR file management",
               "Preparing & tracking filings and full compliance",
               "Periodic operational & regulatory reports",
-              "Ongoing legal & operational consultations"
+              "Ongoing legal & operational consultations",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
             ],
             "badgeAr": "موصى به",
             "badgeEn": "Recommended",
-            "surchargeAmount": 800,
-            "surchargeFreeCount": 9
+            "surchargeAmount": 300,
+            "surchargeFreeCount": 500
           },
           {
             "key": "diamond",
             "name": "Enterprise",
             "nameAr": "باقة الشراكة المؤسسية",
-            "nameEn": "Enterprise Partnership",
+            "nameEn": "Enterprise Package",
             "code": "BP-PKG-ENTERPRISE",
             "amount": null,
             "price": "باقة حسب الطلب",
-            "priceEn": "Custom package, priced on request",
-            "for": "للمنشآت الكبرى ذات الاحتياجات الخاصة",
-            "forEn": "For large establishments with custom needs",
+            "priceEn": "Custom package",
+            "for": "للمنشآت أكثر من 500 موظف",
+            "forEn": "For establishments with 501+ employees",
             "highlight": false,
-            "surcharge": "سيتم فرض رسوم إضافية قدرها 1,200 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 60 موظفاً.",
             "surchargeEn": "An extra fee of 1,200 SAR per additional employee applies once headcount exceeds 60 employees.",
             "features": [
               "كل ما في باقة التوسّع",
@@ -508,7 +584,8 @@
               "حلول مصمّمة حسب نشاط منشأتك",
               "دعم استباقي شامل دون الحاجة لمتابعة من العميل",
               "فريق دعم تشغيلي مخصّص لمتابعة المنصّات",
-              "تقارير ومؤشرات أداء لمتابعة نشاطك"
+              "تقارير ومؤشرات أداء لمتابعة نشاطك",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Everything in the Scale package",
@@ -517,10 +594,9 @@
               "Solutions tailored to your business activity",
               "Comprehensive proactive support with no client follow-up needed",
               "Dedicated operational support team monitoring your platforms",
-              "Reports & KPIs to track your activity and performance"
-            ],
-            "surchargeAmount": 1200,
-            "surchargeFreeCount": 60
+              "Reports & KPIs to track your activity and performance",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
+            ]
           }
         ]
       },
@@ -537,9 +613,9 @@
             "nameAr": "باقة تأسيس الشركات الأجنبية",
             "nameEn": "Foreign Companies Formation Package",
             "code": "BP-PKG-FORM-FOREIGN",
-            "amount": 46000,
-            "price": "تبدأ من 46,000 ﷼ / سنويًا",
-            "priceEn": "Starting from 46,000 SAR / yearly",
+            "amount": 30000,
+            "price": "تبدأ من 30,000 ﷼ / سنويًا",
+            "priceEn": "From 30,000 SAR / year",
             "for": "للمستثمرين والشركات الأجنبية",
             "forEn": "For foreign investors and companies",
             "highlight": true,
@@ -553,7 +629,8 @@
               "إصدار السجل التجاري",
               "التسجيل في الزكاة والضريبة والتأمينات وقوى ومدد ومقيم",
               "متابعة الإجراءات حتى اكتمال التأسيس",
-              "استخراج تأشيرات للإدارة — عدد 3"
+              "استخراج تأشيرات للإدارة — عدد 3",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Application for the foreign investment license",
@@ -561,7 +638,8 @@
               "Commercial Registration issuance",
               "Registration in Zakat/tax, GOSI, Qiwa, Mudad and Muqeem",
               "Follow-up on procedures until formation is complete",
-              "Issuance of 3 management visas"
+              "Issuance of 3 management visas",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
             ],
             "surchargeAmount": 320,
             "surchargeFreeCount": 25
@@ -572,9 +650,9 @@
             "nameAr": "باقة تأسيس الشركات السعودية والخليجية",
             "nameEn": "Saudi & Gulf Companies Formation Package",
             "code": "BP-PKG-FORM-SAUDI",
-            "amount": 18400,
-            "price": "تبدأ من 18,400 ﷼ / سنويًا",
-            "priceEn": "Starting from 18,400 SAR / yearly",
+            "amount": 15000,
+            "price": "تبدأ من 15,000 ﷼ / سنويًا",
+            "priceEn": "From 15,000 SAR / year",
             "for": "لرواد الأعمال السعوديين والخليجيين",
             "forEn": "For Saudi & Gulf entrepreneurs",
             "highlight": false,
@@ -586,7 +664,8 @@
               "التسجيل في الزكاة والضريبة",
               "التسجيل في التأمينات الاجتماعية ومنصة قوى ومدد ومقيم",
               "إصدار الرخصة البلدية (إن لزم)",
-              "استشارة قانونية لاختيار الكيان المناسب"
+              "استشارة قانونية لاختيار الكيان المناسب",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Drafting & notarizing the articles of association",
@@ -594,7 +673,8 @@
               "Zakat/tax registration",
               "Registration in GOSI, Qiwa, Mudad and Muqeem",
               "Municipal license issuance (if required)",
-              "Legal consultation to choose the right entity type"
+              "Legal consultation to choose the right entity type",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
             ],
             "surchargeAmount": 320,
             "surchargeFreeCount": 10
@@ -605,49 +685,78 @@
         "key": "legal",
         "ar": "الباقات القانونية",
         "en": "Legal Packages",
-        "descAr": "باقات استشارات وخدمات قانونية سنوية لمنشأتك.",
-        "descEn": "Annual legal consultation and services packages for your establishment.",
+        "descAr": "باقات استشارات وخدمات قانونية شهرية لمنشأتك.",
+        "descEn": "Monthly legal consultation and services packages for your establishment.",
         "tiers": [
           {
-            "key": "strategic",
-            "name": "Strategic",
-            "nameAr": "الباقة الاستراتيجية",
-            "nameEn": "Strategic Package",
-            "code": "BP-PKG-LEGAL-STRAT",
-            "amount": 47200,
-            "price": "تبدأ من 47,200 ﷼ / سنويًا",
-            "priceEn": "Starting from 47,200 SAR / yearly",
-            "for": "للمنشآت الكبيرة ذات الاحتياج القانوني الموسّع",
-            "forEn": "For large establishments with extensive legal needs",
+            "key": "basic-legal",
+            "name": "Basic",
+            "nameAr": "الباقة الأساسية",
+            "nameEn": "Basic Package",
+            "code": "BP-PKG-LEGAL-BASIC",
+            "amount": 8000,
+            "price": "8,000 ﷼ / شهرياً",
+            "priceEn": "8,000 SAR / monthly",
+            "for": "للمنشآت الصغيرة",
+            "forEn": "For small establishments",
             "highlight": false,
-            "surcharge": "سيتم فرض رسوم إضافية قدرها 800 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 50 موظفاً.",
-            "surchargeEn": "An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.",
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 400 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 10 موظفين.",
+            "surchargeEn": "An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.",
             "features": [
               "استشارات هاتفية غير محدودة",
-              "استشارات مكتوبة: 25 سنويًا",
-              "صياغة ومراجعة عقود: 20 عقداً",
-              "مذكرات ولوائح قانونية: 15",
-              "خدمات ملكية فكرية: 4",
-              "تأسيس/تحويل/اندماج كيانات: 3 خدمات",
-              "حضور اجتماعات بمحامٍ: 4 اجتماعات",
-              "تمثيل قضائي: حتى 10 قضايا عمالية سنويًا",
-              "ورشة توعية قانونية للموظفين: مرة سنويًا",
-              "خصم على خدمات التوثيق: 25%"
+              "استشارات مكتوبة: 4 سنويًا",
+              "صياغة ومراجعة عقود: 6 عقود",
+              "تمثيل قضائي: حتى قضيتين عماليتين سنويًا",
+              "خصم على خدمات التوثيق: 10%",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Unlimited phone consultations",
-              "Written consultations: 25 / year",
-              "Contract drafting & review: 20 contracts",
-              "Legal memos & pleadings: 15",
-              "IP services: 4",
-              "Entity formation/conversion/merger: 3 services",
-              "Meetings with a lawyer: 4 meetings",
-              "Litigation representation: up to 10 labor cases / year",
-              "Legal awareness workshop for employees: once a year",
-              "25% discount on notarization services"
+              "Written consultations: 4 / year",
+              "Contract drafting & review: 6 contracts",
+              "Litigation representation: up to 2 labor cases / year",
+              "10% discount on notarization services",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
             ],
-            "surchargeAmount": 800,
-            "surchargeFreeCount": 50
+            "surchargeAmount": 400,
+            "surchargeFreeCount": 10
+          },
+          {
+            "key": "advanced",
+            "name": "Advanced",
+            "nameAr": "الباقة المتقدمة",
+            "nameEn": "Advanced Package",
+            "code": "BP-PKG-LEGAL-ADV",
+            "amount": 15000,
+            "price": "15,000 ﷼ / شهرياً",
+            "priceEn": "15,000 SAR / monthly",
+            "for": "للمنشآت المتوسطة",
+            "forEn": "For medium establishments",
+            "highlight": false,
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 600 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 25 موظفاً.",
+            "surchargeEn": "An extra fee of 600 SAR per additional employee applies once headcount exceeds 25 employees.",
+            "features": [
+              "استشارات هاتفية غير محدودة",
+              "استشارات مكتوبة: 8 سنويًا",
+              "صياغة ومراجعة عقود: 12 عقداً",
+              "خدمات ملكية فكرية: 2",
+              "تأسيس/تعديل كيان: خدمة واحدة",
+              "تمثيل قضائي: حتى 4 قضايا عمالية سنويًا",
+              "خصم على خدمات التوثيق: 15%",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
+            ],
+            "featuresEn": [
+              "Unlimited phone consultations",
+              "Written consultations: 8 / year",
+              "Contract drafting & review: 12 contracts",
+              "IP services: 2",
+              "Entity formation/amendment: 1 service",
+              "Litigation representation: up to 4 labor cases / year",
+              "15% discount on notarization services",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
+            ],
+            "surchargeAmount": 600,
+            "surchargeFreeCount": 25
           },
           {
             "key": "comprehensive",
@@ -655,9 +764,9 @@
             "nameAr": "الباقة الشاملة",
             "nameEn": "Comprehensive Package",
             "code": "BP-PKG-LEGAL-COMP",
-            "amount": 31200,
-            "price": "تبدأ من 31,200 ﷼ / سنويًا",
-            "priceEn": "Starting from 31,200 SAR / yearly",
+            "amount": 30000,
+            "price": "30,000 ﷼ / شهرياً",
+            "priceEn": "30,000 SAR / monthly",
             "for": "للمنشآت المتوسطة والكبيرة",
             "forEn": "For medium and large establishments",
             "highlight": true,
@@ -674,7 +783,8 @@
               "تأسيس/تحويل كيانات: خدمتان",
               "حضور اجتماعات بمحامٍ: اجتماعان",
               "تمثيل قضائي: حتى 6 قضايا عمالية",
-              "خصم على خدمات التوثيق: 20%"
+              "خصم على خدمات التوثيق: 20%",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Unlimited phone consultations",
@@ -685,76 +795,54 @@
               "Entity formation/conversion: 2 services",
               "Meetings with a lawyer: 2 meetings",
               "Litigation representation: up to 6 labor cases",
-              "20% discount on notarization services"
+              "20% discount on notarization services",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
             ],
             "surchargeAmount": 800,
             "surchargeFreeCount": 50
           },
           {
-            "key": "advanced",
-            "name": "Advanced",
-            "nameAr": "الباقة المتقدمة",
-            "nameEn": "Advanced Package",
-            "code": "BP-PKG-LEGAL-ADV",
-            "amount": 15920,
-            "price": "تبدأ من 15,920 ﷼ / سنويًا",
-            "priceEn": "Starting from 15,920 SAR / yearly",
-            "for": "للمنشآت المتوسطة",
-            "forEn": "For medium establishments",
+            "key": "strategic",
+            "name": "Strategic",
+            "nameAr": "الباقة الاستراتيجية",
+            "nameEn": "Strategic Package",
+            "code": "BP-PKG-LEGAL-STRAT",
+            "amount": 50000,
+            "price": "50,000 ﷼ / شهرياً",
+            "priceEn": "50,000 SAR / monthly",
+            "for": "للمنشآت الكبيرة ذات الاحتياج القانوني الموسّع",
+            "forEn": "For large establishments with extensive legal needs",
             "highlight": false,
-            "surcharge": "سيتم فرض رسوم إضافية قدرها 600 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 25 موظفاً.",
-            "surchargeEn": "An extra fee of 600 SAR per additional employee applies once headcount exceeds 25 employees.",
+            "surcharge": "سيتم فرض رسوم إضافية قدرها 800 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 50 موظفاً.",
+            "surchargeEn": "An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.",
             "features": [
               "استشارات هاتفية غير محدودة",
-              "استشارات مكتوبة: 8 سنويًا",
-              "صياغة ومراجعة عقود: 12 عقداً",
-              "خدمات ملكية فكرية: 2",
-              "تأسيس/تعديل كيان: خدمة واحدة",
-              "تمثيل قضائي: حتى 4 قضايا عمالية سنويًا",
-              "خصم على خدمات التوثيق: 15%"
+              "استشارات مكتوبة: 25 سنويًا",
+              "صياغة ومراجعة عقود: 20 عقداً",
+              "مذكرات ولوائح قانونية: 15",
+              "خدمات ملكية فكرية: 4",
+              "تأسيس/تحويل/اندماج كيانات: 3 خدمات",
+              "حضور اجتماعات بمحامٍ: 4 اجتماعات",
+              "تمثيل قضائي: حتى 10 قضايا عمالية سنويًا",
+              "ورشة توعية قانونية للموظفين: مرة سنويًا",
+              "خصم على خدمات التوثيق: 25%",
+              "متابعة الامتثال والالتزام على كل المنصات — تنبيه قبل أي مخالفة فلا تصلك غرامات"
             ],
             "featuresEn": [
               "Unlimited phone consultations",
-              "Written consultations: 8 / year",
-              "Contract drafting & review: 12 contracts",
-              "IP services: 2",
-              "Entity formation/amendment: 1 service",
-              "Litigation representation: up to 4 labor cases / year",
-              "15% discount on notarization services"
+              "Written consultations: 25 / year",
+              "Contract drafting & review: 20 contracts",
+              "Legal memos & pleadings: 15",
+              "IP services: 4",
+              "Entity formation/conversion/merger: 3 services",
+              "Meetings with a lawyer: 4 meetings",
+              "Litigation representation: up to 10 labor cases / year",
+              "Legal awareness workshop for employees: once a year",
+              "25% discount on notarization services",
+              "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
             ],
-            "surchargeAmount": 600,
-            "surchargeFreeCount": 25
-          },
-          {
-            "key": "basic-legal",
-            "name": "Basic",
-            "nameAr": "الباقة الأساسية",
-            "nameEn": "Basic Package",
-            "code": "BP-PKG-LEGAL-BASIC",
-            "amount": 7920,
-            "price": "تبدأ من 7,920 ﷼ / سنويًا",
-            "priceEn": "Starting from 7,920 SAR / yearly",
-            "for": "للمنشآت الصغيرة",
-            "forEn": "For small establishments",
-            "highlight": false,
-            "surcharge": "سيتم فرض رسوم إضافية قدرها 400 ريال لكل موظف إضافي في حال تجاوز عدد الموظفين 10 موظفين.",
-            "surchargeEn": "An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.",
-            "features": [
-              "استشارات هاتفية غير محدودة",
-              "استشارات مكتوبة: 4 سنويًا",
-              "صياغة ومراجعة عقود: 6 عقود",
-              "تمثيل قضائي: حتى قضيتين عماليتين سنويًا",
-              "خصم على خدمات التوثيق: 10%"
-            ],
-            "featuresEn": [
-              "Unlimited phone consultations",
-              "Written consultations: 4 / year",
-              "Contract drafting & review: 6 contracts",
-              "Litigation representation: up to 2 labor cases / year",
-              "10% discount on notarization services"
-            ],
-            "surchargeAmount": 400,
-            "surchargeFreeCount": 10
+            "surchargeAmount": 800,
+            "surchargeFreeCount": 50
           }
         ]
       }

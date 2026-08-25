@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,70 +15,79 @@
 <link rel="alternate" hreflang="en" href="/team/strategy">
 <link rel="alternate" hreflang="ar" href="/ar/team/strategy">
 <link rel="alternate" hreflang="fr" href="/fr/team/strategy">
+<link rel="alternate" hreflang="zh" href="/zh/team/strategy">
 <link rel="alternate" hreflang="x-default" href="/team/strategy">
 <script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=332165c7de">
+<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/fr/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="nav" aria-label="Main navigation"><a href="/fr/">Accueil</a><a href="/fr/about">À propos de nous</a><div class="nav-group active">
       <button type="button" class="nav-drop active" aria-expanded="false">Nos services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/services">All services (95)</a><a href="/fr/services/category/company-formation">🏢 Création d'entreprise</a><a href="/fr/services/category/foreign-investment">🌍 Investissement étranger</a><a href="/fr/services/category/premium-residency">🪪 Résidence Premium</a><a href="/fr/services/category/government-relations">🏛️ Relations gouvernementales</a><a href="/fr/services/category/hr-services">👥 Services RH</a><a href="/fr/services/category/recruitment">🧑‍💼 Recrutement et embauche</a><a href="/fr/services/category/business-support">📊 Business Support</a><a href="/fr/services/category/real-estate">🏗️ Real Estate</a><a href="/fr/services/category/ai-automation">🤖 AI &amp; Automation</a></div>
+    <button type="button" class="nav-drop" aria-expanded="false">Services de conseil administratif <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/services">Tous les services (116)</a><a href="/fr/services/category/company-formation">🏢 Création d'entreprise</a><a href="/fr/services/category/foreign-investment">🌍 Investissement étranger</a><a href="/fr/services/category/premium-residency">🪪 Résidence Premium</a><a href="/fr/services/category/government-relations">🏛️ Relations gouvernementales</a><a href="/fr/services/category/hr-services">👥 Services RH</a><a href="/fr/services/category/recruitment">🧑‍💼 Recrutement et embauche</a><a href="/fr/services/category/business-support">📊 Support aux entreprises</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Forfaits <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/packages">All packages</a><a href="/fr/packages#pkg-management">Service packages</a><a href="/fr/packages#pkg-formation">Création d'entreprise</a><a href="/fr/packages#pkg-legal">Legal Packages</a></div>
+    <div class="nav-menu"><a href="/fr/packages">Toutes les formules</a><a href="/fr/packages#pkg-management">Formules de services</a><a href="/fr/packages#pkg-formation">Création d'entreprise</a><a href="/fr/packages#pkg-legal">Formules juridiques</a></div>
   </div><div class="nav-group nested active">
     <button type="button" class="nav-drop active" aria-expanded="false">Agents IA ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/ai-agents" class="active">All AI Agents</a><a href="/fr/compliance-agent">Compliance</a><a href="/portal">Smart Employees</a><a href="/fr/shared-services">Shared Services Team</a></div>
-  </div><a href="/fr/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/fr/task-force">Cellule d'intervention ⚡</a><a href="/fr/data">B2B Leads Database ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/hr">Recruitment services</a><a href="/fr/employers">Pour les employeurs</a><a href="/fr/careers">Open jobs</a></div>
-  </div><a href="/fr/deals">Deals ⚡</a><a href="/fr/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/fr/bank-account">Corporate bank account ⚡</a><a href="/fr/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Tourism <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/mahfol-makfol">For investors</a><a href="/fr/mahfol-makfol/trips">Trips &amp; experiences</a><a href="/fr/tourism">Corporate events</a></div>
+    <div class="nav-menu"><a href="/fr/ai-agents" class="active">Tous les agents IA</a><a href="/fr/compliance-agent">Conformité</a><a href="/portal">Collaborateurs intelligents</a><a href="/fr/shared-services">Équipe de services partagés</a></div>
   </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Spaces <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/workspaces">Browse spaces</a><a href="/fr/workspace-request">Request a workspace</a><a href="/fr/services/bp-re-01">Private office</a><a href="/fr/services/bp-re-02">Coworking space</a><a href="/fr/services/bp-re-03">Virtual office + National Address</a><a href="/fr/services/bp-re-04">Dedicated desk</a><a href="/fr/services/bp-re-05">Office search service</a><a href="/fr/services/bp-re-06">Foreign property ownership</a></div>
+    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/revenue-os">Comment ça marche</a><a href="/fr/revenue-os#pricing">Offres et tarifs</a><a href="/fr/revenue-dashboard">Client dashboard</a></div>
+  </div><a href="/fr/services/category/ai-automation">IA et automatisation ⚡</a><a href="/fr/task-force">Cellule d'intervention ⚡</a><a href="/fr/data">Base de prospects B2B ⚡</a><div class="nav-group nested">
+    <button type="button" class="nav-drop" aria-expanded="false">Recrutement <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/hr">Services de recrutement</a><a href="/fr/employers">Pour les employeurs</a><a href="/fr/careers">Offres ouvertes</a><a href="/fr/job-search-service">We search for a job for you</a><a href="/fr/recruitment-agencies">Recruitment agencies</a><a href="/fr/agency-portal">Agency portal</a></div>
+  </div><a href="/fr/deals">Affaires ⚡</a><a href="/fr/estrdad">Remboursement des frais (Estrdad) ⚡</a><a href="/fr/bank-account">Compte bancaire d'entreprise ⚡</a><a href="/fr/formation-contract">Création avec associés ⚡</a><div class="nav-group nested">
+    <button type="button" class="nav-drop" aria-expanded="false">Tourisme d'affaires <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/mahfol-makfol">Pour les investisseurs</a><a href="/fr/mahfol-makfol/trips">Voyages et expériences</a><a href="/fr/tourism">Événements d'entreprise</a></div>
   </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/worker-housing">Overview</a><a href="/fr/worker-housing#wh-request">Request housing</a><a href="/fr/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/fr/services/bp-housing-01">Licensing service</a><a href="/fr/services/bp-housing-02">Worker transport</a></div>
+    <button type="button" class="nav-drop" aria-expanded="false">Espaces professionnels <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/workspaces">Parcourir les espaces</a><a href="/fr/workspace-request">Demander un espace de travail</a><a href="/fr/services/bp-re-01">Bureau privatif</a><a href="/fr/services/bp-re-02">Espace de coworking</a><a href="/fr/services/bp-re-03">Bureau virtuel + adresse nationale</a><a href="/fr/services/bp-re-04">Poste de travail dédié</a><a href="/fr/services/bp-re-05">Service de recherche de bureaux</a><a href="/fr/services/bp-re-06">Propriété immobilière étrangère</a></div>
+  </div><div class="nav-group nested">
+    <button type="button" class="nav-drop" aria-expanded="false">Traiteur et accueil <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/farina">Vue d'ensemble</a><a href="/fr/farina#coffee-break">Pause café</a><a href="/fr/farina#vip-coffee">Pause café VIP</a><a href="/fr/farina#executive-lunch">Déjeuner de direction</a><a href="/fr/farina#vip-hospitality">Accueil VIP</a><a href="/fr/farina#workforce">Restauration des équipes</a></div>
+  </div><div class="nav-group nested">
+    <button type="button" class="nav-drop" aria-expanded="false">Logement des travailleurs ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/worker-housing">Vue d'ensemble</a><a href="/fr/worker-housing#wh-request">Demander un logement</a><a href="/fr/worker-housing#wh-fines">Réglementation et amendes</a><a href="/fr/services/bp-housing-01">Service de licences</a><a href="/fr/services/bp-housing-02">Transport des travailleurs</a></div>
   </div><a href="/fr/consultation">Réserver une consultation gratuite</a></div>
     </div><div class="nav-group">
       <button type="button" class="nav-drop" aria-expanded="false">Centre de connaissances <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Saudi Guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/saudi-arabia">Investir en Arabie saoudite</a><a href="/fr/guide/saudi-market">The Saudi Market</a><a href="/fr/guide/business-setup">Business Setup</a><a href="/fr/guide/run-your-business">Run Your Business</a><a href="/fr/directory">Entrepreneurship guide</a><a href="/fr/guide/live-in-saudi">Live in Saudi</a><a href="/fr/guide/residency">Residency in KSA</a></div>
-  </div><a href="/fr/opportunities">Investment Opportunities</a><a href="/fr/news">Actualités et analyses</a><a href="/fr/newsletter">Newsletter</a><div class="nav-group nested">
+    <button type="button" class="nav-drop" aria-expanded="false">Guide Arabie saoudite <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/fr/saudi-arabia">Investir en Arabie saoudite</a><a href="/fr/guide/saudi-market">Le marché saoudien</a><a href="/fr/guide/business-setup">Créer son entreprise</a><a href="/fr/guide/run-your-business">Gérer votre entreprise</a><a href="/fr/directory">Guide de l'entrepreneuriat</a><a href="/fr/guide/live-in-saudi">Vivre en Arabie saoudite</a><a href="/fr/guide/residency">La résidence en Arabie saoudite</a></div>
+  </div><a href="/fr/opportunities">Opportunités d'investissement</a><a href="/fr/news">Actualités et analyses</a><a href="/fr/newsletter">Newsletter</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Outils et calculateurs <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/tools-and-calculators">All tools</a><a href="/fr/calculator">Cost calculator</a><a href="/fr/calculators/government-cost">Government cost</a><a href="/fr/calculators/profession-checker">Profession checker</a><a href="/fr/calculators/end-of-service">End of service</a><a href="/fr/calculators/annual-leave">Annual leave</a><a href="/fr/calculators/overtime">Overtime</a><a href="/fr/calculators/gosi">GOSI calculator</a></div>
+    <div class="nav-menu"><a href="/fr/tools-and-calculators">Tous les outils</a><a href="/fr/calculator">Calculateur de coûts</a><a href="/fr/calculators/government-cost">Coûts gouvernementaux</a><a href="/fr/calculators/profession-checker">Vérificateur de professions</a><a href="/fr/calculators/end-of-service">Fin de service</a><a href="/fr/calculators/annual-leave">Congé annuel</a><a href="/fr/calculators/overtime">Heures supplémentaires</a><a href="/fr/calculators/gosi">Calculateur GOSI</a></div>
   </div><a href="/fr/magazine">Magazine (PDF)</a></div>
     </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/fr/account">Espace client</a><a href="/fr/suppliers">Partners portal</a><a href="/fr/partner-dashboard">Partner dashboard</a><a href="/portal">Smart employees portal</a><a href="/fr/employer-join">Employers — join</a><a href="/fr/employer-login">Employers — sign in</a></div>
+      <button type="button" class="nav-drop" aria-expanded="false">Plateformes et portails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="nav-menu"><a href="/fr/account">Espace client</a><a href="/fr/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Portail des collaborateurs intelligents</a><a href="/fr/employer-join">Employeurs — nous rejoindre</a><a href="/fr/employer-login">Employeurs — se connecter</a></div>
     </div><a href="/fr/contact">Contactez-nous</a></nav>
   <div class="header-cta">
     <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></svg><span class="lang-label">Français</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/team/strategy" data-lang="en">English</a><a href="/ar/team/strategy" data-lang="ar">العربية</a><a href="/fr/team/strategy" data-lang="fr" class="active">Français</a></div>
+    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span class="lang-label">Français</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/team/strategy" data-lang="en"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/team/strategy" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/team/strategy" data-lang="fr" class="active"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/team/strategy" data-lang="zh"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
   </div>
-    <a class="icon-btn" href="/fr/account" aria-label="Compte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></a>
+    <a class="hdr-btn" data-account-link href="/fr/account" aria-label="Se connecter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Se connecter</span></a>
+    <a class="hdr-btn hdr-btn--partners" href="/fr/suppliers" aria-label="Inscription des associés"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Associés</span></a>
     <a class="icon-btn cart-link" href="/fr/cart" aria-label="Panier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header><main>
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">Smart Specialized Agent</span>
-    <h1>📈 Ahmed — Strategic Planning Manager</h1>
+    <span class="eyebrow">Agent intelligent spécialisé</span>
+    <h1>📈 Ahmed — Responsable de la planification stratégique</h1>
     <p class="lead">Builds your vision, annual and quarterly plans, and tracks execution with clear metrics.</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="#pricing">🚀 Subscribe now</a>
-      <a class="btn btn-ghost btn-lg" href="/portal">🔐 Already subscribed? Sign in</a>
+      <a class="btn btn-primary btn-lg" href="#pricing">🚀 S'abonner maintenant</a>
+      <a class="btn btn-ghost btn-lg" href="/portal">🔐 Déjà abonné ? Connectez-vous</a>
     </div>
   </div></section>
 
@@ -91,10 +100,10 @@
 
   <section class="section" style="padding-top:0" id="pricing"><div class="container">
     <div class="price-box">
-      <div><div class="price-amt">500 <small>SAR / monthly</small></div>
-      <div class="text-soft">Part of the Smart Specialized Agents team — subscribe to one employee or several from the same cart.</div></div>
-      <button type="button" class="btn btn-primary btn-lg add-cart" data-id="employee-strategy" data-name-en="Ahmed — Strategic Planning Manager" data-name-ar="أحمد — مدير التخطيط الاستراتيجي" data-amount="500" data-price="500 ﷼ / monthly" data-kind="employee">🛒 Add to cart — 500 SAR/mo</button>
-      <a class="btn btn-ghost" href="/connect">Browse the full team</a>
+      <div>
+      <div class="text-soft">Fait partie de l'équipe des agents intelligents spécialisés — abonnez-vous à un collaborateur ou à plusieurs depuis le même panier.</div></div>
+      <button type="button" class="btn btn-primary btn-lg add-cart" data-id="employee-strategy" data-name-en="Ahmed — Strategic Planning Manager" data-name-ar="أحمد — مدير التخطيط الاستراتيجي" data-amount="500" data-price="" data-kind="employee">🛒 Ajouter au panier</button>
+      <a class="btn btn-ghost" href="/connect">Découvrir toute l'équipe</a>
     </div>
   </div></section>
 
@@ -110,7 +119,7 @@
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>Abonnez-vous à notre newsletter</h3>
-      <p>The latest business &amp; regulatory news in Saudi Arabia — weekly, in both Arabic and English, straight to your inbox.</p>
+      <p>L'actualité économique et réglementaire de l'Arabie saoudite — chaque semaine, en arabe et en anglais, directement dans votre boîte de réception.</p>
     </div>
     <form class="newsletter-form" data-nl>
       <input type="email" placeholder="Votre e-mail" aria-label="E-mail" data-nl-email required>
@@ -127,59 +136,59 @@
     <div class="footer-col"><h4>Nos services</h4><ul>
       <li><a href="/fr/services">Tous les services</a></li>
       <li><a href="/fr/packages">Forfaits</a></li>
-      <li><a href="/fr/ai-agents">AI Agents</a></li>
+      <li><a href="/fr/revenue-os">Revenue OS</a></li>
+      <li><a href="/fr/ai-agents">Agents IA</a></li>
       <li><a href="/fr/task-force">Task Force</a></li>
-      <li><a href="/fr/hr">Recruitment</a></li>
-      <li><a href="/fr/deals">Deals</a></li>
-      <li><a href="/fr/mahfol-makfol">Business Tourism</a></li>
-      <li><a href="/fr/workspaces">Business Spaces</a></li>
-      <li><a href="/fr/worker-housing">Worker Housing</a></li>
-      <li><a href="/fr/estrdad">Fee refunds (Estrdad)</a></li>
-      <li><a href="/fr/bank-account">Corporate bank account</a></li>
-      <li><a href="/fr/formation-contract">Formation with partners</a></li>
-      <li><a href="/fr/data">B2B Leads Database</a></li>
-      <li><a href="/fr/compliance-agent">Compliance Agent</a></li>
+      <li><a href="/fr/hr">Recrutement</a></li>
+      <li><a href="/fr/deals">Affaires</a></li>
+      <li><a href="/fr/mahfol-makfol">Tourisme d'affaires</a></li>
+      <li><a href="/fr/workspaces">Espaces professionnels</a></li>
+      <li><a href="/fr/farina">Traiteur et accueil</a></li>
+      <li><a href="/fr/worker-housing">Logement des travailleurs</a></li>
+      <li><a href="/fr/estrdad">Remboursement des frais (Estrdad)</a></li>
+      <li><a href="/fr/bank-account">Compte bancaire d'entreprise</a></li>
+      <li><a href="/fr/formation-contract">Création avec associés</a></li>
+      <li><a href="/fr/data">Base de prospects B2B</a></li>
+      <li><a href="/fr/compliance-agent">Agent de conformité</a></li>
     </ul></div>
-    <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
+    <div class="footer-col"><h4>Plateformes et portails</h4><ul>
       <li><a href="/fr/account">Espace client</a></li>
-      <li><a href="/fr/suppliers">Partners portal</a></li>
+      <li><a href="/fr/revenue-dashboard">Revenue OS dashboard</a></li>
+      <li><a href="/fr/suppliers">Inscription des partenaires</a></li>
       <li><a href="/fr/employer-join">Pour les employeurs</a></li>
-      <li><a href="/portal">Smart employees portal</a></li>
-      <li><a href="/fr/employer-login">Employers — sign in</a></li>
-      <li><a href="/fr/partner-dashboard">Partner dashboard</a></li>
-      <li><a href="/fr/shared-services">Shared Services Team</a></li>
+      <li><a href="/portal">Portail des collaborateurs intelligents</a></li>
+      <li><a href="/fr/employer-login">Employeurs — se connecter</a></li>
+      <li><a href="/fr/shared-services">Équipe de services partagés</a></li>
     </ul></div>
     <div class="footer-col"><h4>Centre de connaissances</h4><ul>
       <li><a href="/fr/saudi-arabia">Investir en Arabie saoudite</a></li>
-      <li><a href="/fr/opportunities">Investment Opportunities</a></li>
-      <li><a href="/fr/directory">Startup Ecosystem Directory</a></li>
+      <li><a href="/fr/opportunities">Opportunités d'investissement</a></li>
+      <li><a href="/fr/directory">Annuaire de l'écosystème des startups</a></li>
       <li><a href="/fr/tools-and-calculators">Outils et calculateurs</a></li>
       <li><a href="/fr/news">Actualités et analyses</a></li>
       <li><a href="/fr/magazine">Magazine (PDF)</a></li>
       <li><a href="/fr/newsletter">Newsletter</a></li>
-      <li><a href="/fr/calculator">Cost calculator</a></li>
+      <li><a href="/fr/calculator">Calculateur de coûts</a></li>
     </ul></div>
-    <div class="footer-col"><h4>Saudi guides</h4><ul>
+    <div class="footer-col"><h4>Guides sur l'Arabie saoudite</h4><ul>
       <li><a href="/fr/saudi-arabia">Investir en Arabie saoudite</a></li>
-      <li><a href="/fr/guide/saudi-market">The Saudi Market</a></li>
-      <li><a href="/fr/guide/business-setup">Business Setup</a></li>
-      <li><a href="/fr/guide/run-your-business">Run Your Business</a></li>
-      <li><a href="/fr/guide/live-in-saudi">Live in Saudi</a></li>
-      <li><a href="/fr/guide/residency">Residency in KSA</a></li>
+      <li><a href="/fr/guide/saudi-market">Le marché saoudien</a></li>
+      <li><a href="/fr/guide/business-setup">Créer son entreprise</a></li>
+      <li><a href="/fr/guide/run-your-business">Gérer votre entreprise</a></li>
+      <li><a href="/fr/guide/live-in-saudi">Vivre en Arabie saoudite</a></li>
+      <li><a href="/fr/guide/residency">La résidence en Arabie saoudite</a></li>
     </ul></div>
-    <div class="footer-col"><h4>Company</h4><ul>
+    <div class="footer-col"><h4>Société</h4><ul>
       <li><a href="/fr/about">À propos de nous</a></li>
       <li><a href="/fr/consultation">Réserver une consultation</a></li>
       <li><a href="/fr/careers">Carrières</a></li>
-      <li><a href="/fr/terms">Terms &amp; Conditions</a></li>
+      <li><a href="/fr/terms">Conditions générales</a></li>
       <li><a href="/fr/contact">Contactez-nous</a></li>
     </ul></div>
     <div class="footer-col"><h4>Contact</h4><ul class="footer-contact">
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex</span></li>
-      <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><a href="https://wa.me/966507034157" target="_blank" rel="noopener">Agent intelligent sur WhatsApp</a></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg><a href="https://whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X" target="_blank" rel="noopener">Suivez notre chaîne WhatsApp</a></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyad — quartier Al Malqa — rue Prince Mohammed bin Saad — complexe Touq Ward</span></li>
     </ul>
     <div class="footer-social" aria-label="Réseaux sociaux">
       <a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
@@ -188,21 +197,82 @@
     </div></div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 Business Partner · All rights reserved</span>
-    <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
+    <span>© 2026 Business Partner · Tous droits réservés</span>
+    <span>Dim.–jeu. · 9h – 18h · et l'agent intelligent 24h/24</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contacter sur WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Discuter avec l'agent intelligent</span></a><button class="advisor-fab" id="advisor-fab" aria-label="Ouvrir le conseiller intelligent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg><span class="lbl">Conseiller</span></button>
-  <section class="advisor-panel" id="advisor-panel" hidden aria-label="Conseiller intelligent">
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contacter sur WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contactez-nous sur WhatsApp</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
+    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="Fermer">✕</button>
+    <p>Bonjour 👋 Je suis Baher, votre assistant intelligent. Des questions sur la création d'entreprise ou les plateformes gouvernementales ?</p>
+  </div>
+  <button class="advisor-fab" id="advisor-fab" aria-label="Ouvrir la discussion avec Baher, l'assistant intelligent">
+    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
+    <span class="lbl">Demander à Baher</span>
+  </button>
+  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Demander à Baher">
     <header class="advisor-head">
-      <div class="advisor-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg><div><strong>Conseiller Intelligent</strong><span>Répond à vos questions sur les services et procédures</span></div></div>
+      <button class="advisor-back" id="advisor-back" aria-label="Retour" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Votre partenaire intelligent — en ligne maintenant</span></span></div></div>
       <button class="advisor-close" id="advisor-close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </header>
-    <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">Bonjour 👋 Je suis le conseiller intelligent de Business Partner. Posez-moi vos questions sur la création d'entreprise, l'investissement étranger, les licences ou toute procédure gouvernementale — je vous orienterai vers le bon service.</div>
+
+    <!-- Step 1: contact intake (required first) -->
+    <div class="advisor-view" id="advisor-intake">
+      <div class="adv-intake-hd">Bienvenue 👋 Pour commencer, présentez-vous afin que nous puissions vous servir et suivre votre demande.</div>
+      <input class="adv-in" id="adv-in-name" type="text" placeholder="Nom complet *" autocomplete="name">
+      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
+      <input class="adv-in" id="adv-in-email" type="email" placeholder="E-mail *" autocomplete="email">
+      <button type="button" class="adv-primary" id="advisor-intake-go">Commencer ›</button>
+      <div class="adv-err" id="adv-intake-err" hidden></div>
+      <p class="adv-note">🔒 Vos coordonnées servent uniquement à vous servir et à suivre votre demande.</p>
     </div>
-    <form class="advisor-form" id="advisor-form">
-      <input id="advisor-input" type="text" autocomplete="off" placeholder="Écrivez votre question ici…" aria-label="Écrivez votre question">
-      <button type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-    </form>
-    <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Vous préférez discuter avec notre équipe sur WhatsApp ?</span></a>
-  </section><script src="/assets/js/main.js?v=d7a28639aa"></script></body></html>
+
+    <!-- Step 2: home — service windows (main → sub) -->
+    <div class="advisor-view" id="advisor-home" hidden>
+      <div class="adv-home-hd" id="advisor-hello"></div>
+      <div class="adv-home-sub">Choisissez le service dont vous avez besoin :</div>
+      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Chargement des services…</div></div>
+      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Réserver une consultation gratuite</button>
+      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 Ou demandez directement à Baher</button>
+    </div>
+
+    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
+    <div class="advisor-view" id="advisor-book" hidden>
+      <div class="adv-book-hd">📅 Réserver une consultation gratuite</div>
+      <div class="adv-book-sub">Choisissez un jour et une heure (Riyad · 9h–18h · fermé le vendredi) :</div>
+      <div class="adv-book-days" id="advisor-book-days"></div>
+      <div class="adv-book-slots" id="advisor-book-slots"></div>
+      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirmer le rendez-vous</button>
+      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
+    </div>
+
+    <!-- Step 2b: sub-services of a chosen category -->
+    <div class="advisor-view" id="advisor-sub" hidden>
+      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
+      <div class="adv-svcs" id="advisor-svcs"></div>
+    </div>
+
+    <!-- Step 3: open a support ticket for the chosen service -->
+    <div class="advisor-view" id="advisor-ticket" hidden>
+      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
+      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Décrivez votre demande (facultatif)"></textarea>
+      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Demander un devis</button>
+      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
+    </div>
+
+    <!-- Chat with Baher (available after intake) -->
+    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
+      <div class="advisor-msgs" id="advisor-msgs">
+        <div class="advisor-msg bot">Bonjour 👋 Je suis Baher, votre assistant intelligent chez Business Partner. Posez-moi vos questions sur la création d'entreprise, l'investissement étranger, les licences ou toute démarche administrative — et je vous orienterai vers le bon service.</div>
+      </div>
+      <div class="advisor-chips" id="advisor-chips">
+        <button type="button" class="advisor-chip" data-q="Création d'une société à investissement étranger">🏢 Création à investissement étranger</button>
+        <button type="button" class="advisor-chip" data-q="Gestion des plateformes gouvernementales">💼 Plateformes gouvernementales</button>
+        <button type="button" class="advisor-chip" data-q="Offres et tarifs">💰 Offres et tarifs</button>
+        <button type="button" class="advisor-chip" data-q="Je souhaite une consultation gratuite">📞 Consultation gratuite</button>
+      </div>
+      <form class="advisor-form" id="advisor-form">
+        <input id="advisor-input" type="text" autocomplete="off" placeholder="Écrivez votre question ici…" aria-label="Écrivez votre question">
+        <button type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+      </form>
+    </div>
+  </section><script src="/assets/js/main.js?v=d3a4f77f1d"></script></body></html>
