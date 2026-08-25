@@ -24,12 +24,21 @@
 //                            emails them that the service unlocked.
 
 import crypto from "node:crypto";
-import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
+import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
+import { tabbyConfigured, tamaraConfigured, createTabbySession, createTamaraSession, verifyTabbyPayment, verifyTamaraOrder } from "./_bnpl.js";
 import { contactForRef } from "./_stage.js";
+import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
-const PK = process.env.MOYASAR_PUBLISHABLE_KEY || "";
-const SK = process.env.MOYASAR_SECRET_KEY || "";
+// Trimmed, like every other secret this project reads. A newline pasted into
+// the Vercel env box is invisible in that UI and turns the verification call
+// into "Invalid authorization credentials" — while the payment itself has
+// already succeeded, because the publishable key travelled to the browser and
+// worked. The buyer is charged and the site tells them it failed. This cost a
+// live customer, and api/_moyasar.js trimmed while this file did not, so the
+// admin panel reported the key as working at the same moment payments broke.
+const PK = (process.env.MOYASAR_PUBLISHABLE_KEY || "").trim();
+const SK = (process.env.MOYASAR_SECRET_KEY || "").trim();
 // Moyasar posts every payment event here and includes this token in the body.
 // Without it the endpoint refuses webhooks outright rather than trusting an
 // unauthenticated POST that claims a payment succeeded.
@@ -49,7 +58,12 @@ const PAY_METHODS = METHODS.length ? METHODS : ["creditcard"];
 // before the money moves, so it says who is being paid.
 const APPLE_PAY_LABEL = process.env.MOYASAR_APPLE_PAY_LABEL || "Business Partner";
 const APPLE_PAY_VALIDATE_URL = process.env.MOYASAR_APPLE_PAY_VALIDATE_URL || "https://api.moyasar.com/v1/applepay/initiate";
-const MPF_JS = process.env.MOYASAR_MPF_URL || "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
+// The form library is served from this site's own /assets — the pinned CDN
+// copy (mpf 1.15) mounted an empty box with no exception on live checkouts,
+// and the current 2.x build ships on npm under the MIT licence, so the exact
+// bytes we tested are the exact bytes the buyer runs. MOYASAR_MPF_URL still
+// overrides for experiments.
+const MPF_JS = process.env.MOYASAR_MPF_URL || "/assets/vendor/moyasar-2.2.10.js";
 const MPF_CSS = MPF_JS.replace(/\.js$/, ".css");
 
 const envFrom = (names) => {
@@ -89,6 +103,14 @@ async function sendMail(to, subject, html, attachments) {
 // pair a real payment id with an invented basket and mint a tax invoice.
 
 const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
+// Same owner gate the panel uses everywhere else.
+const PANEL_KEYS = new Set([process.env.PANEL_KEY, process.env.LEADS_KEY, process.env.DASHBOARD_KEY]
+  .map((k) => String(k || "").trim()).filter(Boolean));
+const panelOk = (b) => {
+  if (ownerTicketOk(b && b.ticket)) return true;
+  if (panelRequiresNafath()) return false;
+  return PANEL_KEYS.size > 0 && PANEL_KEYS.has(String((b && b.key) || "").trim());
+};
 
 // ---- confirmed payment → automatic activation (via api/requests) ------------
 // A verified cart payment is handed to /api/requests {action:"paid-order"},
@@ -141,15 +163,24 @@ async function settlePaidOrder(order, p) {
   let priceMap = {};
   try { priceMap = await catalogPrices(); } catch { priceMap = {}; }
   let net = 0, unknown = false;
-  const names = [];
+  const names = [], lines = [];
   for (const x of ids) {
     const a = skuAmount(x.id, priceMap);
     if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
     net += a * x.qty;
+    lines.push({ id: x.id, line: a * x.qty });
     const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
     names.push((cat ? cat.name : x.id) + " ×" + x.qty);
   }
   net += Number(order.surchargeFee) || 0;
+  const disc = await catalogDiscount(order.discountCode);
+  // A scoped code cuts only from its own lines (never from the surcharge);
+  // an unscoped code cuts from the whole net, exactly as the checkout showed.
+  const discBase = disc && disc.services.length
+    ? lines.reduce((s, l) => s + (discAppliesTo(disc, l.id) ? l.line : 0), 0)
+    : net;
+  const cut = discountCut(Math.min(discBase, net), disc);
+  net -= cut;
   // Two riyals of tolerance for the rounding the cart and the form each do.
   const verified = !unknown && net > 0 && Math.abs(Math.round(net * 1.15 * 100) - Number(p.amount || 0)) <= 200;
   const payload = {
@@ -160,6 +191,7 @@ async function settlePaidOrder(order, p) {
     phone: String(order.phone || "").slice(0, 40),
     company: String(order.company || (order.taxProfile && order.taxProfile.nameAr) || "").slice(0, 200),
     total: Math.round(Number(p.amount || 0)) / 100,
+    ...(disc ? { disc: disc.code } : {}),
     ids, items: names,
   };
   try {
@@ -176,6 +208,36 @@ async function settlePaidOrder(order, p) {
     return { ok: false, error: "settle_unreachable", verified };
   }
 }
+// A verified wallet top-up is handed to /api/requests {action:"wallet-paid"}
+// under the same seal the cart settle uses: the browser names an amount, the
+// gateway confirms it, and only the sealed server call can credit the ledger.
+// Idempotent on the payment id, so webhook + callback credit exactly once.
+async function settleWalletTopup(p) {
+  if (!OTP_SECRET) return { ok: false, skipped: "no_otp_secret" };
+  const meta = p.metadata || {};
+  const payload = {
+    v: 1, at: Date.now(), payId: String(p.id || ""),
+    email: String(meta.email || "").toLowerCase().slice(0, 160),
+    name: String(meta.name || "").slice(0, 160),
+    ref: String(meta.ref || "").slice(0, 40),
+    org: String(meta.org || "").slice(0, 60),
+    amount: Math.round(Number(p.amount || 0)) / 100,
+  };
+  if (!payload.email || !(payload.amount > 0)) return { ok: false, skipped: "no_email_or_amount" };
+  try {
+    const r = await fetch(SELF_BASE + "/api/requests", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "wallet-paid", t: seal(payload) }),
+    });
+    const j = await r.json().catch(() => ({}));
+    return r.ok && j.ok ? { ok: true, already: !!j.already, credited: !!j.credited, balance: j.balance } : { ok: false, error: j.error || ("http_" + r.status) };
+  } catch (e) {
+    console.error("pay: wallet settle call failed", String(e.message || e).slice(0, 160));
+    return { ok: false, error: "settle_unreachable" };
+  }
+}
+
 const RAW_CATALOG_URL = process.env.CATALOG_URL ||
   "https://raw.githubusercontent.com/businessKSA/business-partner-sa/claude/bpic-marketing-site-jvrnga/site/assets/data/catalog.json";
 let _catCache = null, _catAt = 0;
@@ -200,7 +262,39 @@ async function catalogPrices() {
     }
   }
   _catCache = map; _catAt = Date.now();
+  _catDiscounts = Array.isArray(c.discounts) ? c.discounts : [];
   return map;
+}
+// The discount the checkout applied, re-read from the published catalog — the
+// browser names the code, this names the numbers. Returns null for anything
+// unknown, inactive or expired, so an invented code discounts nothing.
+let _catDiscounts = [];
+async function catalogDiscount(code) {
+  const c = String(code || "").trim().toUpperCase();
+  if (!c) return null;
+  try { await catalogPrices(); } catch { return null; }
+  const hit = _catDiscounts.find((d) => String(d.code || "").toUpperCase() === c);
+  if (!hit) return null;
+  if (hit.expires && new Date(hit.expires + "T23:59:59Z") < new Date()) return null;
+  const percent = Number(hit.percent) > 0 ? Math.min(90, Number(hit.percent)) : 0;
+  const amount = Number(hit.amount) > 0 ? Number(hit.amount) : 0;
+  if (!percent && !amount) return null;
+  const services = Array.isArray(hit.services)
+    ? hit.services.map((s) => catalogKey(String(s).toLowerCase())).filter(Boolean).slice(0, 60)
+    : [];
+  return { code: c, percent, amount, services };
+}
+// Does this discount reach this basket line? A code published with a services
+// list discounts only those codes; an unscoped code discounts everything.
+function discAppliesTo(d, idOrCode) {
+  if (!d) return false;
+  if (!Array.isArray(d.services) || !d.services.length) return true;
+  return d.services.includes(catalogKey(String(idOrCode || "").toLowerCase()));
+}
+function discountCut(net, d) {
+  if (!d || !(net > 0)) return 0;
+  const cut = d.percent ? (net * d.percent) / 100 : Math.min(net, d.amount);
+  return Math.round(cut * 100) / 100;
 }
 
 const esc = (v) => String(v == null ? "" : v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -224,7 +318,7 @@ function billTo(order) {
   };
 }
 
-async function invoicePaidOrder(order, paidHalalas) {
+async function invoicePaidOrder(order, paidHalalas, payId = "") {
   if (!daftraConfigured()) return { invoiced: false, reason: "daftra_not_configured" };
   const items = [];
   let net = 0;
@@ -255,6 +349,26 @@ async function invoicePaidOrder(order, paidHalalas) {
       const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
       net += hit.amount * qty;
       items.push({ code: hit.code, name: hit.name, quantity: qty, unitPrice: hit.amount });
+    }
+    // A discount the checkout applied scales every line, so the tax invoice
+    // states the prices the buyer actually paid and its total matches the
+    // charge to the halala — a negative "discount line" is what Daftra rejects.
+    const invDisc = await catalogDiscount(order.discountCode);
+    // A scoped code discounts only its own lines; the others keep list price.
+    const eligNet = invDisc && invDisc.services.length
+      ? items.reduce((s, it) => s + (discAppliesTo(invDisc, it.code) ? it.unitPrice * it.quantity : 0), 0)
+      : net;
+    const invCut = discountCut(Math.min(eligNet, net), invDisc);
+    if (invCut > 0 && eligNet > 0) {
+      const factor = (eligNet - invCut) / eligNet;
+      net = 0;
+      for (const it of items) {
+        if (discAppliesTo(invDisc, it.code)) {
+          it.unitPrice = Math.round(it.unitPrice * factor * 100) / 100;
+          it.name = String(it.name).slice(0, 120) + ` (بعد خصم ${invDisc.code})`;
+        }
+        net += it.unitPrice * it.quantity;
+      }
     }
   }
   if (!items.length) return { invoiced: false, reason: "no_priced_items" };
@@ -288,6 +402,20 @@ async function invoicePaidOrder(order, paidHalalas) {
     who.contact ? `الشخص المسؤول: ${who.contact}` : "",
   ].filter(Boolean).join("\n");
   const inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: order.ref || "" });
+
+  // Settle the invoice in the books with the money Moyasar took, under the
+  // gateway's own transaction id — so the invoice reads «مدفوعة», not
+  // «مستحقة», with no hand-recording. A failure here never voids the sale:
+  // the invoice stands and the owner gets one email naming what to record.
+  let paymentRecorded = false;
+  try {
+    await daftraRecordPayment({ invoiceId: inv.id, amount: inv.total, transactionId: payId, method: "Moyasar" });
+    paymentRecorded = true;
+  } catch (e) {
+    console.error("pay: daftra payment record failed", String(e.message || e).slice(0, 160), String(e.detail || "").slice(0, 160));
+    await sendMail(OWNER_EMAIL, `⚠️ فاتورة ${inv.number} صدرت والدفعة لم تُسجَّل في الدفترة`,
+      `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>الفاتورة <b>${esc(inv.number)}</b> صدرت بنجاح بإجمالي <b>${inv.total} ﷼</b> بعد دفعة ميسر مؤكدة${payId ? ` (رقم العملية <b style="direction:ltr;display:inline-block">${esc(payId)}</b>)` : ""}، لكن تسجيل السداد على الفاتورة في الدفترة تعذّر آلياً.</p><p><b>المطلوب:</b> افتح الفاتورة في الدفترة وسجّل عليها دفعة بقيمة ${inv.total} ﷼ بطريقة «Moyasar».</p></div>`);
+  }
 
   let pdf = null;
   try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
@@ -331,7 +459,7 @@ async function invoicePaidOrder(order, paidHalalas) {
         <p>الدفترة ما سلّمت الملف المطبوع، فما أُرسلت للعميل رسالة بلا فاتورة.</p>
         <p><b>المطلوب:</b> افتح لوحة التحكم ← الأدوات ← «تصحيح فاتورة صادرة»، ابحث عن ${esc(inv.number)}، أرفق ملف PDF من الدفترة واضغط أرسل.</p></div>`);
   }
-  return { invoiced: true, number: inv.number, total: inv.total, pdfAttached: !!pdf, clientEmailed: !!pdf, payUrl };
+  return { invoiced: true, number: inv.number, total: inv.total, paymentRecorded, pdfAttached: !!pdf, clientEmailed: !!pdf, payUrl };
 }
 
 async function notion(path, method, payload) {
@@ -532,6 +660,16 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({
       enabled: !!PK,
       provider: "moyasar",
+      // Whether this deployment can verify a payment at all. Booleans only —
+      // no key, no prefix, no length. Without it, "the variable is not set in
+      // production" and "the key is set but wrong" produce the identical 401
+      // and are indistinguishable from outside, which is how a broken payment
+      // path stayed broken across a fix that could never have addressed it.
+      canVerify: !!SK,
+      // Both keys must describe the same Moyasar environment: a live form
+      // charging real cards while verification asks a test account is a 401
+      // that looks like a bad key and is not one.
+      modeMatch: !PK || !SK || /^pk_live_/.test(PK) === /^sk_live_/.test(SK),
       publishableKey: PK || null,
       scriptUrl: MPF_JS,
       cssUrl: MPF_CSS,
@@ -540,6 +678,9 @@ export default async function handler(req, res) {
       applePay: PAY_METHODS.includes("applepay")
         ? { country: "SA", label: APPLE_PAY_LABEL, validate_merchant_url: APPLE_PAY_VALIDATE_URL }
         : null,
+      // Installments (BNPL): each provider flips on the day its keys land in
+      // Vercel — until then the checkout shows its button as «قريباً».
+      bnpl: { tabby: tabbyConfigured(), tamara: tamaraConfigured() },
     }));
   }
 
@@ -554,6 +695,119 @@ export default async function handler(req, res) {
   }
 
   const b = await readBody(req);
+
+  /* ---- recover payments the site never recorded ---------------------------
+   * While MOYASAR_SECRET_KEY was wrong, three things failed together for every
+   * card payment: the browser could not confirm it, the webhook discarded the
+   * event, and the webhook's 200 told Moyasar to stop retrying. So the money
+   * moved, the orders sat at «قيد المراجعة», and nothing will ever arrive on
+   * its own to fix that — the redelivery that would have has been cancelled.
+   *
+   * This asks Moyasar for its own record of what was paid and replays each one
+   * through the exact path a live payment takes. Every step it calls is
+   * idempotent on the order reference, so a payment already settled is
+   * reported as such and touched no further: running this twice cannot double
+   * an invoice or an activation.
+   */
+  if (b.action === "reconcile") {
+    if (!panelOk(b)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!SK) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "no_secret_key" })); }
+    const limit = Math.min(100, Math.max(1, Number(b.limit) || 50));
+    // A dry run answers "what was actually bought?" without changing anything —
+    // worth having separately, because the first question after an outage is
+    // what happened, not what to do about it.
+    const dry = b.apply !== true;
+
+    let payments = [];
+    try {
+      const r = await fetch(`https://api.moyasar.com/v1/payments?limit=${limit}`, {
+        headers: { Authorization: "Basic " + Buffer.from(SK + ":").toString("base64") },
+      });
+      const text = await r.text();
+      if (!r.ok) {
+        console.error("reconcile: moyasar list failed", r.status, text.slice(0, 200));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: `moyasar_http_${r.status}`, detail: text.slice(0, 200) }));
+      }
+      const data = JSON.parse(text);
+      payments = Array.isArray(data.payments) ? data.payments : [];
+    } catch (e) {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "moyasar_unreachable", detail: String(e.message || e).slice(0, 140) }));
+    }
+
+    const rows = [];
+    for (const p of payments) {
+      const meta = p.metadata || {};
+      const ref = String(meta.ref || "").trim();
+      const itemsRaw = String(meta.items || "").trim();
+      const row = {
+        id: p.id,
+        at: p.created_at || p.updated_at || "",
+        amount: Math.round(Number(p.amount) || 0) / 100,
+        currency: p.currency || "SAR",
+        status: p.status,
+        ref,
+        buyer: String(meta.email || meta.name || "").slice(0, 80),
+        description: String(p.description || "").slice(0, 120),
+        items: itemsRaw ? itemsRaw.split(",").map((x) => String(x.split("~")[0] || "").trim()).filter(Boolean) : [],
+      };
+      if (p.status !== "paid") { row.action = "skipped_not_paid"; rows.push(row); continue; }
+      if (!ref || !itemsRaw) {
+        // A quote payment or a wallet top-up carries different metadata; those
+        // are named rather than guessed at, so nothing is settled on a shape
+        // this was not written for.
+        row.action = meta.quoteId ? "quote_payment_not_handled_here"
+          : String(meta.wallet || "") === "topup" ? "wallet_topup_not_handled_here"
+          : "no_order_metadata";
+        rows.push(row); continue;
+      }
+      if (dry) { row.action = "would_recover"; rows.push(row); continue; }
+
+      const order = {
+        ref,
+        name: String(meta.name || ""), email: String(meta.email || ""), phone: String(meta.phone || ""),
+        company: String(meta.co || ""), discountCode: String(meta.disc || ""),
+        items: itemsRaw.split(",").map((x) => {
+          const m = x.split("~");
+          return { id: String(m[0] || "").trim(), qty: Math.max(1, Math.min(99, Number(m[1]) || 1)) };
+        }).filter((x) => x.id),
+      };
+      try {
+        const settle = await settlePaidOrder(order, p);
+        row.settled = !!(settle && settle.ok);
+        row.already = !!(settle && settle.already);
+        if (settle && settle.ok && !settle.already) {
+          try { await markOrderPaid(ref, { total: row.amount, method: "online" }); } catch (e) {
+            console.error("reconcile: announce failed", ref, String(e.message || e).slice(0, 120));
+          }
+          try {
+            const inv = await invoicePaidOrder(order, p.amount, p.id);
+            row.invoice = inv && inv.number ? String(inv.number) : null;
+            row.invoiced = !!(inv && inv.invoiced);
+          } catch (e) {
+            row.invoiced = false;
+            row.invoiceError = String(e.message || e).slice(0, 120);
+          }
+        }
+        row.action = row.already ? "already_settled" : (row.settled ? "recovered" : "settle_failed");
+      } catch (e) {
+        row.action = "failed";
+        row.error = String(e.message || e).slice(0, 140);
+      }
+      rows.push(row);
+    }
+
+    const recovered = rows.filter((r) => r.action === "recovered").length;
+    console.log("reconcile", dry ? "(dry)" : "(applied)", "checked", rows.length, "recovered", recovered);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true, dryRun: dry, checked: rows.length,
+      paid: rows.filter((r) => r.status === "paid").length,
+      pending: rows.filter((r) => r.action === "would_recover").length,
+      recovered, rows,
+    }));
+  }
 
   // ---- Moyasar webhook ----------------------------------------------------
   // The browser callback is not a guarantee: a client who pays and closes the
@@ -575,17 +829,56 @@ export default async function handler(req, res) {
     // The body says it was paid; Moyasar's API is asked whether it was. A
     // webhook body is still input, and money is the last thing to take on
     // trust from a request.
-    let p = null;
+    let p = null, verifyFailed = "";
     try {
       const r = await fetch(`https://api.moyasar.com/v1/payments/${pid}`, {
         headers: { Authorization: "Basic " + Buffer.from(SK + ":").toString("base64") },
       });
-      p = r.ok ? await r.json() : null;
-    } catch { p = null; }
-    if (!p || p.status !== "paid") {
+      if (r.ok) p = await r.json();
+      else verifyFailed = `http_${r.status}`;
+    } catch (e) { verifyFailed = "unreachable"; }
+
+    // "Moyasar says this was not paid" and "we could not ask Moyasar" were
+    // sharing one branch, and both answered 200. A 200 tells Moyasar the event
+    // was handled and it stops retrying — so a broken key did not merely make
+    // the safety net fail, it destroyed the redelivery that would have caught
+    // the payment once the key was fixed. This is the second half of the
+    // outage that reached a live customer: the browser said the payment
+    // failed, and the webhook that should have saved it threw it away.
+    if (verifyFailed) {
+      console.error("pay webhook: could not verify a paid event", pid, verifyFailed);
+      // One alert per payment per instance — Moyasar's retries must not turn
+      // into a mailbox full of the same warning.
+      const seen = (globalThis.__bpWebhookAlerted ||= new Set());
+      if (!seen.has(pid)) {
+        seen.add(pid);
+        try {
+          await sendMail(OWNER_EMAIL, `🚨 إشعار دفعة من مُيسّر تعذّر التحقق منه — ${pid}`,
+            `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+              <h2 style="color:#b91c1c">وصل إشعار دفعة ولم نتمكّن من تأكيده</h2>
+              <p>مُيسّر أبلغنا بدفعة، وحين سألناه عنها رفض الطلب. لم نسجّل الطلب ولم نصدر فاتورة.</p>
+              <table>
+                <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(pid)}</b></td></tr>
+                <tr><td style="padding:4px 10px;color:#666">سبب الفشل</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(verifyFailed)}</b></td></tr>
+              </table>
+              <p><b>الأرجح:</b> ${verifyFailed === "http_401"
+                ? "مفتاح <span style=\"direction:ltr;display:inline-block\">MOYASAR_SECRET_KEY</span> غير صحيح أو فيه فراغ زائد."
+                : "تعذّر الوصول إلى مُيسّر مؤقتاً."}</p>
+              <p style="color:#166534">طلبنا من مُيسّر إعادة إرسال الإشعار، فمتى صحّ المفتاح سيُلتقط تلقائياً.</p>
+            </div>`);
+        } catch (e) { console.error("pay webhook: alert email failed", String(e.message || e).slice(0, 120)); }
+      }
+      // Refuse the delivery on purpose: Moyasar retries a failed webhook, and
+      // a retry after the key is fixed is the difference between a payment
+      // that recovers itself and one lost for good.
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ ok: false, error: "verify_unavailable", retry: true }));
+    }
+
+    if (p.status !== "paid") {
       // Acknowledge: a 200 stops Moyasar retrying an event we correctly ignored.
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, ignored: true, status: p ? p.status : "unverified" }));
+      return res.end(JSON.stringify({ ok: true, ignored: true, status: p.status }));
     }
 
     const meta = p.metadata || d.metadata || {};
@@ -597,6 +890,13 @@ export default async function handler(req, res) {
     // recorded, activated and (when the invoice can be issued safely) invoiced.
     // The paid-order endpoint is idempotent on the reference, so whichever of
     // the webhook and the browser callback arrives second is a no-op.
+    // Wallet top-ups settle through their own sealed call — the money becomes
+    // ledger balance, not an order.
+    if (String(meta.wallet || "") === "topup") {
+      const w = await settleWalletTopup(p);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, handled: true, wallet: true, credited: !!(w && w.credited), already: !!(w && w.already) }));
+    }
     if (!quoteId || !tok) {
       const cartItems = String(meta.items || "").trim();
       if (ref && cartItems) {
@@ -604,6 +904,7 @@ export default async function handler(req, res) {
           ref,
           name: String(meta.name || ""), email: String(meta.email || ""), phone: String(meta.phone || ""),
           company: String(meta.co || ""),
+          discountCode: String(meta.disc || ""),
           items: cartItems.split(",").map((s) => {
             const m = s.split("~");
             return { id: String(m[0] || "").trim(), qty: Math.max(1, Math.min(99, Number(m[1]) || 1)) };
@@ -623,7 +924,7 @@ export default async function handler(req, res) {
               `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>دفعة إلكترونية مؤكدة (${Math.round(p.amount) / 100} ﷼) على الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> والعميل طلب فاتورة باسم منشأة، لكن الدفع اكتمل دون رجوع المتصفح فلم تصلنا بيانات المنشأة الضريبية كاملة.</p><p><b>المطلوب:</b> افتح لوحة التحكم ← الفواتير، وأصدر الفاتورة يدوياً ببيانات المنشأة من صف الطلب ${esc(ref)}.</p></div>`);
             cartInvoice = { invoiced: false, reason: "company_invoice_manual" };
           } else {
-            try { cartInvoice = await invoicePaidOrder(order, p.amount); }
+            try { cartInvoice = await invoicePaidOrder(order, p.amount, pid); }
             catch (e) {
               console.error("pay webhook: cart invoice failed", String(e.message || e).slice(0, 200));
               cartInvoice = { invoiced: false, reason: String(e.message || "invoice_failed") };
@@ -641,7 +942,7 @@ export default async function handler(req, res) {
     try { marked = await markOrderPaid(ref, { total: Math.round(p.amount) / 100, method: "online" }); }
     catch (e) { console.error("pay webhook: mark failed", String(e.message || e).slice(0, 160)); }
     if (marked && marked.recorded) {
-      try { invoicing = await invoicePaidOrder({ ref, quoteId, t: tok }, p.amount); }
+      try { invoicing = await invoicePaidOrder({ ref, quoteId, t: tok }, p.amount, pid); }
       catch (e) {
         console.error("pay webhook: invoice failed", String(e.message || e).slice(0, 200));
         invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };
@@ -649,6 +950,112 @@ export default async function handler(req, res) {
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, handled: true, recorded: !!(marked && marked.recorded), ...(invoicing ? { invoice: invoicing } : {}) }));
+  }
+
+  // ---- BNPL (Tabby / Tamara): create a hosted-checkout session -------------
+  // The basket is re-priced from the catalog server-side — the browser names
+  // items, never amounts — and the buyer is redirected to the provider's page.
+  if (b.action === "bnpl-checkout") {
+    const provider = b.provider === "tamara" ? "tamara" : "tabby";
+    const enabled = provider === "tamara" ? tamaraConfigured() : tabbyConfigured();
+    if (!enabled) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const order = (b.order && typeof b.order === "object") ? b.order : {};
+    const rawItems = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
+      .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
+      .filter((x) => x.id);
+    if (!rawItems.length || !isEmail(String(order.email || ""))) {
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_order" }));
+    }
+    let priceMap = {}; try { priceMap = await catalogPrices(); } catch {}
+    let net = 0, unknown = false; const items = []; const lines = [];
+    for (const x of rawItems) {
+      const a = skuAmount(x.id, priceMap);
+      if (a == null) { unknown = true; continue; }
+      const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
+      net += a * x.qty;
+      lines.push({ id: x.id, line: a * x.qty });
+      items.push({ id: x.id, name: cat ? cat.name : x.id, qty: x.qty, unit: a });
+    }
+    net += Number(order.surchargeFee) || 0;
+    if (unknown || !(net > 0)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "quote_only_items" })); }
+    const disc = await catalogDiscount(order.discountCode);
+    const discBase = disc && disc.services.length
+      ? lines.reduce((s, l) => s + (discAppliesTo(disc, l.id) ? l.line : 0), 0)
+      : net;
+    const cut = discountCut(Math.min(discBase, net), disc);
+    if (cut > 0 && net > 0) {
+      // Scale the provider's line items too, so their page shows the same
+      // numbers our invoice will carry.
+      const factor = (net - cut) / net;
+      for (const it of items) it.unit = Math.round(it.unit * factor * 100) / 100;
+      net -= cut;
+    }
+    const totalSar = Math.round(net * 1.15 * 100) / 100;
+    const ref = String(order.ref || "BP-" + Date.now().toString().slice(-6)).slice(0, 40);
+    const back = `${SELF_BASE}/${String(b.lang || "") === "en" ? "" : "ar/"}checkout`;
+    const urls = {
+      success: `${back}?bnpl=${provider}&bnpl_status=success`,
+      cancel: `${back}?bnpl=${provider}&bnpl_status=cancel`,
+      failure: `${back}?bnpl=${provider}&bnpl_status=failure`,
+      notification: `${SELF_BASE}/api/pay`,
+    };
+    try {
+      const sess = provider === "tamara"
+        ? await createTamaraSession({ order: { ...order, ref }, totalSar, items, urls })
+        : await createTabbySession({ order: { ...order, ref }, totalSar, items, urls });
+      if (!sess.ok) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: sess.rejected ? "rejected" : (sess.error || "session_failed"), reason: sess.reason || "" }));
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, url: sess.url, ref, total: totalSar, provider }));
+    } catch (e) {
+      console.error("bnpl session failed", provider, String(e.message || e), String(e.detail || "").slice(0, 300));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "session_failed" }));
+    }
+  }
+
+  // ---- BNPL: the buyer is back — verify with the provider, capture, settle.
+  // The verified amount feeds the exact same sealed pipeline the card path
+  // uses, so activation + CRM + tax invoice all run with no owner click.
+  if (b.action === "bnpl-verify") {
+    const provider = b.provider === "tamara" ? "tamara" : "tabby";
+    const enabled = provider === "tamara" ? tamaraConfigured() : tabbyConfigured();
+    if (!enabled) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    let v = null;
+    try {
+      v = provider === "tamara" ? await verifyTamaraOrder(b.id) : await verifyTabbyPayment(b.id);
+    } catch (e) {
+      console.error("bnpl verify failed", provider, String(e.message || e), String(e.detail || "").slice(0, 300));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "verify_failed" }));
+    }
+    if (!v || !v.paid) { res.statusCode = 200; return res.end(JSON.stringify({ ok: false, status: (v && v.status) || "unpaid" })); }
+    const p = { id: `${provider}_${v.id}`, amount: Math.round(v.amountSar * 100) };
+    let settle = null, invoicing = null;
+    const order = (b.order && typeof b.order === "object") ? b.order : null;
+    if (order && Array.isArray(order.items) && order.items.length) {
+      try { settle = await settlePaidOrder(order, p); }
+      catch (e) { console.error("bnpl settle failed", String(e.message || e).slice(0, 160)); }
+      // The snapshot carries the full tax profile (same as the card path), so
+      // billTo decides company vs simplified invoice on its own.
+      if (settle && settle.already) invoicing = { invoiced: false, reason: "already_settled" };
+      else {
+        try { invoicing = await invoicePaidOrder(order, p.amount, p.id); }
+        catch (e) { invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") }; }
+      }
+    }
+    if (!v.captured) {
+      await sendMail(OWNER_EMAIL, `⚠️ دفعة أقساط (${provider}) مؤكدة لكن لم تُقبض — أكمل القبض يدوياً`,
+        `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>الموافقة تمت والعميل أنهى الدفع، لكن نداء القبض (capture) لم يكتمل. ادخل لوحة ${provider === "tamara" ? "تمارا" : "تابي"} واقبض العملية يدوياً.</p><p>المعرف: <b style="direction:ltr;display:inline-block">${esc(String(v.id))}</b> · المبلغ: <b>${v.amountSar} ﷼</b>${v.captureError ? `<br>الخطأ: ${esc(v.captureError)}` : ""}</p></div>`).catch(() => {});
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true, provider, amount: p.amount, captured: !!v.captured,
+      ...(invoicing ? { invoice: invoicing } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
+    }));
   }
 
   const id = String(b.id || "").trim();
@@ -662,9 +1069,32 @@ export default async function handler(req, res) {
       headers: { Authorization: "Basic " + Buffer.from(SK + ":").toString("base64") },
     });
     if (!r.ok) {
-      console.error("Moyasar verify error", r.status, (await r.text()).slice(0, 300));
+      const detail = (await r.text()).slice(0, 300);
+      console.error("Moyasar verify error", r.status, detail);
+      // This is the one failure that takes the customer's money and tells
+      // nobody: the charge went through at Moyasar, and our side could not
+      // read it back. Silence here means the owner learns about it from the
+      // customer, which is how this was found.
+      try {
+        await sendMail(OWNER_EMAIL, `🚨 دفعة لم نستطع التحقق منها — ${id}`,
+          `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+            <h2 style="color:#b91c1c">دفعة تمّت عند مُيسّر ولم نتمكّن من قراءتها</h2>
+            <p>العميل دُفع منه فعلاً، لكن مُيسّر رفض طلب التحقق من خادمنا. لم تصدر فاتورة ولم يُسجَّل الطلب.</p>
+            <table>
+              <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(id)}</b></td></tr>
+              <tr><td style="padding:4px 10px;color:#666">ردّ مُيسّر</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">HTTP ${r.status}</b></td></tr>
+            </table>
+            <p><b>الأرجح:</b> ${r.status === 401
+              ? "مفتاح <span style=\"direction:ltr;display:inline-block\">MOYASAR_SECRET_KEY</span> غير صحيح أو فيه مسافة/سطر زائد. افتح /admin ← «افحص الاتصال بمُيسّر»."
+              : "عطل مؤقت عند مُيسّر."}</p>
+            <p style="color:#b45309"><b>افعل الآن:</b> افتح لوحة مُيسّر، تأكّد من الدفعة بالرقم أعلاه، وأصدر الفاتورة يدوياً — العميل دفع.</p>
+          </div>`);
+      } catch (e) { console.error("pay: verify-failure alert email failed", String(e.message || e).slice(0, 120)); }
       res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: "verify_failed" }));
+      // Named apart from a declined card on purpose. The page must not tell a
+      // buyer whose card was charged that the payment did not go through —
+      // that invites a second charge for the same order.
+      return res.end(JSON.stringify({ ok: false, error: "verify_unavailable", paymentId: id }));
     }
     const p = await r.json();
     const paid = p.status === "paid";
@@ -672,6 +1102,18 @@ export default async function handler(req, res) {
     let activation = { activated: false };
     if (paid && b.context === "compliance") {
       activation = await activateCompliance(String(b.company || "").trim(), String(b.code || "").trim());
+    }
+
+    // Wallet top-up verified from the browser callback. The metadata read from
+    // Moyasar's own record (never the request body) names the payer; the
+    // sealed settle is idempotent with the webhook's.
+    if (paid && (b.context === "wallet" || String((p.metadata || {}).wallet || "") === "topup")) {
+      const w = await settleWalletTopup(p);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true, status: p.status, amount: p.amount, currency: p.currency, wallet: true,
+        credited: !!(w && w.credited), already: !!(w && w.already), balance: w && w.balance != null ? w.balance : null,
+      }));
     }
 
     // A confirmed payment issues the tax invoice by itself. Failing to invoice
@@ -713,7 +1155,7 @@ export default async function handler(req, res) {
         invoicing = { invoiced: false, reason: "already_settled" };
       } else {
         try {
-          invoicing = await invoicePaidOrder(b.order, p.amount);
+          invoicing = await invoicePaidOrder(b.order, p.amount, String(p.id || ""));
         } catch (e) {
           console.error("pay: automatic invoice failed", String(e.message || e).slice(0, 200), String(e.detail || "").slice(0, 200));
           invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };

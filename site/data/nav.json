@@ -110,6 +110,21 @@
               "href": "/careers",
               "en": "Open jobs",
               "ar": "الوظائف المتاحة"
+            },
+            {
+              "href": "/job-search-service",
+              "en": "We search for a job for you",
+              "ar": "نبحث لك عن وظيفة"
+            },
+            {
+              "href": "/recruitment-agencies",
+              "en": "Recruitment agencies",
+              "ar": "مكاتب الاستقدام ووكالات التوظيف"
+            },
+            {
+              "href": "/agency-portal",
+              "en": "Agency portal",
+              "ar": "بوابة المكاتب"
             }
           ]
         },
@@ -406,16 +421,6 @@
           "href": "/revenue-dashboard",
           "en": "Revenue OS dashboard",
           "ar": "لوحة Revenue OS"
-        },
-        {
-          "href": "/suppliers",
-          "en": "Partners portal",
-          "ar": "بوابة الشركاء"
-        },
-        {
-          "href": "/partner-dashboard",
-          "en": "Partner dashboard",
-          "ar": "لوحة الشريك"
         },
         {
           "href": "/portal",

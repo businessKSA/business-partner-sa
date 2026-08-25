@@ -18,14 +18,19 @@ const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
 export const MAX_DOC_BYTES = 6 * 1024 * 1024;
 export const DOC_MIME_OK = /^(image\/(jpeg|jpg|png|webp|heic|heif)|application\/pdf)$/i;
 
-const PROMPT = `أنت مساعد يقرأ مستندات سعودية رسمية ويستخرج منها بيانات الفوترة الضريبية.
-المستند قد يكون: شهادة تسجيل في ضريبة القيمة المضافة، أو سجلاً تجارياً، أو وثيقة العنوان الوطني، أو صورة منها.
+const PROMPT = `أنت مساعد يقرأ مستندات سعودية رسمية ويستخرج منها بيانات المنشأة وبيانات الفوترة الضريبية وتواريخ الصلاحية.
+المستند قد يكون: شهادة تسجيل في ضريبة القيمة المضافة، أو سجلاً تجارياً، أو وثيقة العنوان الوطني، أو رخصة بلدية أو مهنية، أو شهادة التأمينات (GOSI)، أو شهادة الزكاة، أو هوية/إقامة، أو عقداً، أو صورة من أي منها.
 
 استخرج ما يظهر فعلاً في المستند فقط. لا تخمّن ولا تُكمل ناقصاً — أي حقل غير ظاهر اتركه نصاً فارغاً "".
 
 أعِد JSON فقط، بلا أي شرح وبلا علامات تنسيق، بهذا الشكل بالضبط:
 {
-  "docType": "vat_certificate" أو "cr" أو "national_address" أو "other",
+  "docType": "vat_certificate" أو "cr" أو "national_address" أو "license" أو "gosi" أو "zakat" أو "id" أو "contract" أو "other",
+  "docTitle": "اسم المستند كما يظهر في عنوانه (مثال: شهادة تسجيل في ضريبة القيمة المضافة)",
+  "issueDate": "تاريخ إصدار المستند بالميلادي بصيغة YYYY-MM-DD إن ظهر",
+  "expiryDate": "تاريخ انتهاء/نهاية صلاحية المستند بالميلادي بصيغة YYYY-MM-DD إن ظهر",
+  "issueDateHijri": "تاريخ الإصدار الهجري نصاً كما هو مكتوب إن ظهر هجرياً فقط",
+  "expiryDateHijri": "تاريخ الانتهاء الهجري نصاً كما هو مكتوب إن ظهر هجرياً فقط",
   "companyNameAr": "اسم المنشأة بالعربي كما هو مكتوب",
   "companyNameEn": "الاسم بالإنجليزي إن وُجد",
   "vatNumber": "الرقم الضريبي — 15 رقماً بالضبط، أرقام فقط",
@@ -43,7 +48,8 @@ const PROMPT = `أنت مساعد يقرأ مستندات سعودية رسمي�
   "confidence": "high" أو "medium" أو "low"
 }
 
-انتبه: الرقم الضريبي في السعودية 15 خانة ويبدأ وينتهي بالرقم 3. رقم السجل التجاري عادة 10 خانات. لا تخلط بينهما.`;
+انتبه: الرقم الضريبي في السعودية 15 خانة ويبدأ وينتهي بالرقم 3. رقم السجل التجاري عادة 10 خانات. لا تخلط بينهما.
+التواريخ: إن ظهر التاريخ ميلادياً وهجرياً معاً فأعد الميلادي في issueDate/expiryDate. وإن ظهر هجرياً فقط فلا تحوّله بنفسك — ضعه نصاً في الحقل الهجري واترك الميلادي فارغاً.`;
 
 function parseJson(text) {
   const raw = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
@@ -124,8 +130,14 @@ const txt = (v, max = 160) => String(v == null ? "" : v).trim().slice(0, max);
 function clean(raw) {
   const a = (raw && raw.address) || {};
   const vat = digits(raw && raw.vatNumber);
+  const isoDate = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || "").trim()) ? String(v).trim() : "");
   return {
-    docType: ["vat_certificate", "cr", "national_address", "other"].includes(raw && raw.docType) ? raw.docType : "other",
+    docType: ["vat_certificate", "cr", "national_address", "license", "gosi", "zakat", "id", "contract", "other"].includes(raw && raw.docType) ? raw.docType : "other",
+    docTitle: txt(raw && raw.docTitle, 160),
+    issueDate: isoDate(raw && raw.issueDate),
+    expiryDate: isoDate(raw && raw.expiryDate),
+    issueDateHijri: txt(raw && raw.issueDateHijri, 40),
+    expiryDateHijri: txt(raw && raw.expiryDateHijri, 40),
     companyNameAr: txt(raw && raw.companyNameAr, 200),
     companyNameEn: txt(raw && raw.companyNameEn, 200),
     vatNumber: vat.length === 15 ? vat : "",

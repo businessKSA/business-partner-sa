@@ -35,7 +35,8 @@ import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt, create
 import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder, daftraCreateInvoice, daftraDocPdf } from "./_daftra.js";
 import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
 import { announce, contactForRef, stageChannels, waSend } from "./_stage.js";
-import { DB_ON, storagePut, storageSign } from "./_db.js";
+import { DB_ON, sb, notify, storagePut, storageSign } from "./_db.js";
+import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -62,7 +63,16 @@ const CODE_TTL_MS = 15 * 60 * 1000;
 // Same owner key that gates /monitor. ENV-ONLY: this repo is public, so a
 // hardcoded fallback would be a public master key to the supplier registry.
 const OWNER_KEYS = new Set([process.env.PANEL_KEY, process.env.LEADS_KEY, process.env.DASHBOARD_KEY].map((k) => String(k || "").trim()).filter(Boolean));
-const ownerOk = (k) => OWNER_KEYS.size > 0 && OWNER_KEYS.has(String(k || "").trim());
+// Same gate as /api/requests: a Nafath ticket always opens it, the shared key
+// only while PANEL_REQUIRE_NAFATH is off. Leaving this endpoint on the key
+// alone would have made the identity requirement decorative — the supplier
+// actions reach the same data by another route.
+const ownerOk = (src) => {
+  const s = src && typeof src === "object" ? src : { key: src };
+  if (ownerTicketOk(s.ticket)) return true;
+  if (panelRequiresNafath()) return false;
+  return OWNER_KEYS.size > 0 && OWNER_KEYS.has(String(s.key || "").trim());
+};
 
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -224,7 +234,7 @@ async function sendEmail(to, subject, html, attachments) {
   } catch (e) { console.error("email exception", String(e).slice(0, 150)); return { ok: false }; }
 }
 
-async function uploadToNotion(base64, filename, contentType) {
+export async function uploadToNotion(base64, filename, contentType) {
   if (!NOTION_TOKEN || !base64) return null;
   try {
     const created = await notion("file_uploads", "POST", {});
@@ -761,9 +771,36 @@ export async function handleSuppliers(req, res) {
       });
     }
 
+    // Supplier: my wallet — escrows clients are holding for me, the balance
+    // already released to me, and my movements. Same login the orders use.
+    if (q.action === "wallet") {
+      const s = await authSupplier(q.email, q.pw);
+      if (!s) return bad("unauthorized", 401);
+      if (!s.verified) return bad("email_unverified", 403);
+      if (!DB_ON) return ok({ enabled: false, held: [], balance: 0, transactions: [] });
+      const em = String(q.email || "").trim().toLowerCase();
+      try {
+        const [held, bal, tx] = await Promise.all([
+          sb(`escrows?supplier_email=eq.${encodeURIComponent(em)}&status=in.(held,delivered,refund_requested)&select=ref,title,amount,status,created_at,delivered_at&order=created_at.desc&limit=50`),
+          sb(`supplier_wallet_balances?supplier_email=eq.${encodeURIComponent(em)}&select=balance`),
+          sb(`supplier_wallet_transactions?supplier_email=eq.${encodeURIComponent(em)}&select=type,amount,note,created_at&order=created_at.desc&limit=20`),
+        ]);
+        return ok({
+          enabled: true,
+          held: held || [],
+          heldTotal: (held || []).reduce((t, e) => t + Number(e.amount || 0), 0),
+          balance: (bal && bal[0] && Number(bal[0].balance)) || 0,
+          transactions: tx || [],
+        });
+      } catch (e) {
+        console.error("supplier wallet read failed", String(e).slice(0, 160));
+        return bad("db_failed", 502);
+      }
+    }
+
     // Owner: the whole registry + every work order
     if (q.action === "admin") {
-      if (!ownerOk(q.key)) return bad("unauthorized", 401);
+      if (!ownerOk(q)) return bad("unauthorized", 401);
       const [sr, or_] = await Promise.all([
         notion(`databases/${SUPPLIERS_DB}/query`, "POST", { page_size: 100, sorts: [{ property: "آخر نشاط", direction: "descending" }] }),
         notion(`databases/${ORDERS_DB}/query`, "POST", { page_size: 100, sorts: [{ property: "آخر تحديث", direction: "descending" }] }),
@@ -930,6 +967,90 @@ export async function handleSuppliers(req, res) {
     return ok({ supplier: { name: s.name, code: s.code, person: s.person, city: s.city, categories: s.categories, terms: s.terms, status: s.status }, orders });
   }
 
+  // ---------------- escrow handshake: the supplier's half ----------------
+  // "سلّمت المشروع": stamps delivered_at and tells the client to review and
+  // approve — the money moves only when BOTH halves exist, like the freelance
+  // marketplaces. Every step is stamped so each side's record protects them.
+  if (b.type === "escrow-deliver") {
+    const s = await authSupplier(b.email, b.password || b.pw);
+    if (!s) return bad("unauthorized", 401);
+    if (!s.verified) return bad("email_unverified", 403);
+    if (!DB_ON) return bad("db_not_configured", 503);
+    const em = String(b.email || "").trim().toLowerCase();
+    const ref = str(b.ref, 40);
+    const note = str(b.note, 300);
+    if (!ref) return bad("invalid_fields");
+    let rows = [];
+    try {
+      rows = await sb(`escrows?ref=eq.${encodeURIComponent(ref)}&supplier_email=eq.${encodeURIComponent(em)}&status=eq.held`, {
+        method: "PATCH",
+        body: { status: "delivered", delivered_at: new Date().toISOString(), ...(note ? { supplier_note: note } : {}) },
+      });
+    } catch { return bad("db_failed", 502); }
+    if (!rows.length) return bad("not_deliverable", 409);
+    const e = rows[0];
+    try { await notify({ organization_id: e.organization_id, event: "escrow_delivered", channel: "inapp", title: `أعلن المورد تسليم «${String(e.title).slice(0, 60)}» — راجع واعتمد الاستلام (${e.ref})`, idempotency_key: `escrow_delivered:${e.ref}` }); } catch {}
+    await Promise.all([
+      sendEmail(e.client_email, `📦 أعلن المورد التسليم — ${e.ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">أعلن المورد تسليم العمل</h2><p>أعلن <b>${esc(s.name)}</b> تسليم: <b>${esc(e.title)}</b>${note ? `<br>ملاحظة المورد: ${esc(note)}` : ""}</p><p>راجع العمل، وإن كان مطابقاً اعتمد الاستلام من <a href="${SITE}/account" style="color:#0B1B5A">لوحتك ← المحفظة</a> ليتحرر مبلغ الضمان (${e.amount} ﷼) للمورد. وإن كان هناك خلل فاطلب الاسترجاع من نفس المكان.</p></div>`),
+      sendEmail(TEAM_EMAIL, `📦 تسليم معلن على الضمان ${e.ref} — ${s.name}`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>أعلن المورد التسليم — بانتظار اعتماد العميل. لا إجراء مطلوب.</p><table>${row("المورد", s.name)}${row("العميل", e.client_email)}${row("المبلغ", e.amount + " ﷼")}</table></div>`),
+    ]).catch(() => {});
+    return ok({ escrow: { ref: e.ref, status: e.status, delivered_at: e.delivered_at } });
+  }
+  // "أوافق على الإرجاع": the supplier consents to the client's refund request
+  // (or cancels an undelivered job) — that consent is what moves the money
+  // back; the client's request alone never does.
+  if (b.type === "escrow-agree-refund") {
+    const s = await authSupplier(b.email, b.password || b.pw);
+    if (!s) return bad("unauthorized", 401);
+    if (!s.verified) return bad("email_unverified", 403);
+    if (!DB_ON) return bad("db_not_configured", 503);
+    const em = String(b.email || "").trim().toLowerCase();
+    const ref = str(b.ref, 40);
+    if (!ref) return bad("invalid_fields");
+    let rows = [];
+    try {
+      rows = await sb(`escrows?ref=eq.${encodeURIComponent(ref)}&supplier_email=eq.${encodeURIComponent(em)}&status=in.(held,delivered,refund_requested)`, {
+        method: "PATCH", body: { status: "refunded" },
+      });
+    } catch { return bad("db_failed", 502); }
+    if (!rows.length) return bad("not_refundable", 409);
+    const e = rows[0];
+    try {
+      await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: e.organization_id, type: "refund", amount: Number(e.amount), note: `استرجاع ضمان ${e.ref} بموافقة المورد` }] });
+      await notify({ organization_id: e.organization_id, event: "escrow_refunded", channel: "inapp", title: `وافق المورد — أُرجع ضمان ${e.ref} (+${e.amount} ﷼) إلى محفظتك`, idempotency_key: `escrow_refund:${e.ref}` });
+    } catch (err) { console.error("escrow refund credit failed", String(err).slice(0, 160)); }
+    await Promise.all([
+      sendEmail(e.client_email, `↩️ وافق المورد — أُرجع الضمان ${e.ref} إلى محفظتك`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>وافق المورد <b>${esc(s.name)}</b> على إرجاع مبلغ الضمان <b>${e.ref}</b> (${e.amount} ﷼) — عاد المبلغ إلى محفظتك في <a href="${SITE}/account" style="color:#0B1B5A">لوحتك</a>.</p></div>`),
+      sendEmail(TEAM_EMAIL, `↩️ استرجاع ضمان بموافقة المورد — ${e.ref} (${e.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>وافق المورد على الإرجاع وأُعيد المبلغ لمحفظة العميل تلقائياً. لا إجراء مطلوب.</p><table>${row("المورد", s.name)}${row("العميل", e.client_email)}${row("المبلغ", e.amount + " ﷼")}</table></div>`),
+    ]).catch(() => {});
+    return ok({ escrow: { ref: e.ref, status: "refunded" } });
+  }
+
+  // ---------------- supplier asks to withdraw released balance ----------------
+  // The request goes to the owner, who transfers by bank and then records the
+  // debit from the panel — the ledger mirrors money that actually moved.
+  if (b.type === "withdraw") {
+    const s = await authSupplier(b.email, b.password || b.pw);
+    if (!s) return bad("unauthorized", 401);
+    if (!s.verified) return bad("email_unverified", 403);
+    const em = String(b.email || "").trim().toLowerCase();
+    const amountNum = Math.abs(Number(b.amount));
+    const iban = str(b.iban, 40);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) return bad("invalid_fields");
+    if (!DB_ON) return bad("db_not_configured", 503);
+    let balance = 0;
+    try {
+      const bal = await sb(`supplier_wallet_balances?supplier_email=eq.${encodeURIComponent(em)}&select=balance`);
+      balance = (bal[0] && Number(bal[0].balance)) || 0;
+    } catch { return bad("db_failed", 502); }
+    if (balance < amountNum) return bad("insufficient_funds", 400, { balance });
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `💸 طلب سحب من محفظة مورد — ${s.name} (${amountNum} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>طلب المورد سحب مبلغ من رصيده المتاح. حوّل بنكياً ثم سجّل السحب من لوحة /admin ← الأدوات ← الضمانات والمحافظ.</p><table>${row("المورد", s.name)}${row("البريد", em)}${row("المبلغ", amountNum + " ﷼")}${row("الرصيد المتاح", balance + " ﷼")}${row("IBAN", iban || "—")}</table></div>`),
+      sendEmail(em, `استلمنا طلب السحب ✅ (${amountNum} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>وصلنا طلب سحب <strong>${amountNum} ﷼</strong> من محفظتك. ننفذ التحويل البنكي ونؤكد لك بالبريد.</p></div>`),
+    ]).catch(() => {});
+    return ok({ requested: amountNum, balance });
+  }
+
   // ---------------- supplier updates a work order ----------------
   if (b.type === "order-update") {
     const s = await authSupplier(b.email, b.password);
@@ -1027,7 +1148,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: approve / suspend a supplier ----------------
   if (b.type === "approve") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const id = str(b.supplierId, 60);
     const status = str(b.status, 20);
     if (!id || !["معتمد", "موقوف", "مرفوض", "جديد"].includes(status)) return bad("invalid_fields");
@@ -1058,7 +1179,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: assign a work order to a supplier ----------------
   if (b.type === "assign") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const supplierId = str(b.supplierId, 60);
     const service = str(b.service, 200);
     if (!supplierId || !service) return bad("invalid_fields");
@@ -1099,7 +1220,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: request quotations from several suppliers ----------------
   if (b.type === "rfq") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const ids = (Array.isArray(b.supplierIds) ? b.supplierIds : []).map((i) => str(i, 60)).filter(Boolean).slice(0, 20);
     const service = str(b.service, 200);
     if (!ids.length || !service) return bad("invalid_fields");
@@ -1139,7 +1260,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: award an RFQ to one supplier ----------------
   if (b.type === "award") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const orderId = str(b.orderId, 60);
     if (!orderId) return bad("invalid_fields");
     const pg = await notion(`pages/${orderId}`);
@@ -1181,7 +1302,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: issue the commission invoice on the supplier ----------------
   if (b.type === "invoice") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const orderId = str(b.orderId, 60);
     if (!orderId) return bad("invalid_fields");
     const pg = await notion(`pages/${orderId}`);
@@ -1359,7 +1480,7 @@ export async function handleSuppliers(req, res) {
   // agreed to is not a contract, and sending one invites a dispute rather than
   // settling one. The figures come from the order, never from the browser.
   if (b.type === "contract-send") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     if (!docusignConfigured()) return bad("docusign_not_configured", 503);
     const id = str(b.orderId, 60);
     if (!id) return bad("invalid_fields");
@@ -1388,7 +1509,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: where the signature has got to ----------------
   if (b.type === "contract-status") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     if (!docusignConfigured()) return bad("docusign_not_configured", 503);
     const envId = str(b.envelopeId, 80);
     if (!envId) return bad("invalid_fields");
@@ -1426,7 +1547,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: is DocuSign reachable, and which account ----------------
   if (b.type === "docusign-ping") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const out = await docusignPing();
     res.statusCode = out.ok ? 200 : 200; // a configuration answer is not a server error
     return res.end(JSON.stringify(out));
@@ -1435,7 +1556,7 @@ export async function handleSuppliers(req, res) {
   // ---------------- partner/owner: the link to send the client ----------------
   if (b.type === "quote-link") {
     const s = await authSupplier(b.email, b.pw || b.password);
-    const owner = ownerOk(b.key);
+    const owner = ownerOk(b);
     if (!s && !owner) return bad("unauthorized", 401);
     const id = str(b.orderId, 60);
     if (!id) return bad("invalid_fields");
@@ -1513,7 +1634,7 @@ export async function handleSuppliers(req, res) {
   // puts the matching purchase order in the books, so what is owed to the
   // supplier is an accounting entry rather than only a Notion row.
   if (b.type === "daftra-po" || b.type === "daftra-commission") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     if (!daftraConfigured()) return bad("daftra_not_configured", 503);
     const isPo = b.type === "daftra-po";
     const orderId = str(b.orderId, 60);
@@ -1573,7 +1694,7 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- owner: update a work order (status, payment) ----------------
   if (b.type === "order-admin") {
-    if (!ownerOk(b.key)) return bad("unauthorized", 401);
+    if (!ownerOk(b)) return bad("unauthorized", 401);
     const orderId = str(b.orderId, 60);
     if (!orderId) return bad("invalid_fields");
     const props = {};

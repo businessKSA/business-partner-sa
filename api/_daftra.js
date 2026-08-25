@@ -475,9 +475,17 @@ async function buildLines(items, taxId) {
       const code = String(it.code || "").trim().toUpperCase();
       const name = String(it.name || "").slice(0, 180) || "خدمة";
       const hit = code && products ? products.get(code) : null;
+      // The name goes in twice, on purpose. `item` is the field Daftra's API
+      // documents, but this account's printed template renders البند from the
+      // linked product and الوصف from `description` — so an unlinked line came
+      // out with both columns blank while price and quantity printed fine.
+      // A tax invoice whose line does not name what was bought is not one a
+      // buyer can check, so the description carries the code and the name
+      // whenever the caller has not written its own.
+      const label = code ? `${code} — ${name}` : name;
       return {
-        item: code ? `${code} — ${name}`.slice(0, 200) : name,
-        description: String(it.description || "").slice(0, 500),
+        item: label.slice(0, 200),
+        description: (String(it.description || "").trim() || label).slice(0, 500),
         unit_price: Number(it.unitPrice) || 0,
         quantity: Number(it.quantity) || 1,
         ...(hit && hit.id ? { product_id: hit.id } : {}),
@@ -666,6 +674,37 @@ async function createDoc(kind, { partyId, items, notes, ref, dueDays = 0, vatRat
 }
 
 export const daftraCreateInvoice = ({ clientId, ...rest }) => createDoc("invoice", { partyId: clientId, ...rest });
+
+// A gateway charge that issued an invoice must also settle it in the books:
+// without a payment row the invoice sits «مستحقة» in Daftra and the owner
+// re-records by hand what Moyasar already confirmed. Same two-payload rule as
+// createDoc — the full row carries the transaction id, the minimal retry drops
+// every optional field an account might refuse without naming it.
+export async function daftraRecordPayment({ invoiceId, amount, transactionId = "", method = "Moyasar", date = "" } = {}) {
+  const amt = Math.round(Number(amount) * 100) / 100;
+  if (!invoiceId || !(amt > 0)) throw new Error("daftra_payment_invalid");
+  const when = (date || new Date().toISOString().slice(0, 19).replace("T", " ")).slice(0, 19);
+  const full = { InvoicePayment: {
+    invoice_id: invoiceId,
+    amount: amt,
+    date: when,
+    payment_method: String(method).slice(0, 60),
+    transaction_id: String(transactionId).slice(0, 80),
+    currency_code: CURRENCY,
+    status: 1,
+  } };
+  const minimal = { InvoicePayment: { invoice_id: invoiceId, amount: amt, date: when } };
+  let out = null;
+  try {
+    out = await dq("/invoice_payments.json", { method: "POST", body: full });
+  } catch (e) {
+    if (e.message === "daftra_unauthorized" || e.message === "daftra_unreachable") throw e;
+    out = await dq("/invoice_payments.json", { method: "POST", body: minimal });
+  }
+  const id = pick(out, ["id", "invoice_payment_id"]);
+  if (!id) throw new Error("daftra_payment_failed");
+  return { id };
+}
 export const daftraCreateEstimate = ({ clientId, ...rest }) => createDoc("estimate", { partyId: clientId, ...rest });
 export const daftraCreatePurchaseOrder = ({ supplierId, ...rest }) => createDoc("po", { partyId: supplierId, ...rest });
 

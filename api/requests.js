@@ -17,10 +17,14 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
-import { stageChannels, announce } from "./_stage.js";
+import { handleAgencies } from "./_agencies.js";
+import { handleJobhunt } from "./_jobhunt.js";
+import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
+import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
+import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
-import { readDocument, MAX_DOC_BYTES } from "./_docread.js";
+import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -35,7 +39,16 @@ const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
 const LEADS_KEY = (process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "").trim();
 const PANEL_KEY = (process.env.PANEL_KEY || "").trim();
 const PANEL_KEYS = new Set([PANEL_KEY, LEADS_KEY].filter(Boolean));
-const panelKeyOk = (k) => PANEL_KEYS.size > 0 && PANEL_KEYS.has(String(k || "").trim());
+// Two ways through the same door, and they are not equivalent. A key proves
+// someone knows a secret — which is forwardable, copyable and anonymous. A
+// Nafath ticket proves an identity on the OWNER_NATIONAL_IDS list actually
+// approved this session on their own phone. With PANEL_REQUIRE_NAFATH=1 only
+// the second is accepted.
+const panelKeyOk = (k) => !panelRequiresNafath() && PANEL_KEYS.size > 0 && PANEL_KEYS.has(String(k || "").trim());
+const panelOk = (src) => {
+  const s = src && typeof src === "object" ? src : { key: src };
+  return ownerTicketOk(s.ticket) || panelKeyOk(s.key);
+};
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -193,6 +206,7 @@ async function listLeads(limit) {
     const taxKind = /نوع الفاتورة:\s*منشأة/.test(notes) ? "company" : (/نوع الفاتورة:\s*شخصي/.test(notes) ? "personal" : "");
     return {
       title, ref, at, stage, status, source,
+      channel: channelOf({ ref, source, order: status, title }),
       // Whose name the invoice belongs in, when the buyer named an
       // establishment but did not go through the tax-profile step.
       company: field("المنشأة"),
@@ -318,7 +332,7 @@ const STAGE_OF = {
 const CLOSED = new Set(["مكتمل", "ملغي"]);
 const plusDaysISO = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads }) {
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads, leadSource }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
@@ -328,7 +342,15 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     // unsorted lead. Landing everything in "New" is what made the board
     // useless: the follow-up view could never tell a real request from noise.
     "Stage": { select: { name: orderStatus && STAGE_OF[orderStatus] ? STAGE_OF[orderStatus] : "New" } },
-    "Lead Source": { select: { name: "Website" } },
+    // Lead Source names the actual channel, not a generic "Website" — the same
+    // vocabulary channelOf() uses, so Notion, the panel and the digests agree.
+    "Lead Source": { select: { name:
+      leadSource ? String(leadSource).slice(0, 60)
+      : orderStatus === "حجز استشارة" ? "حجز استشارة"
+      : String(ref || "").startsWith("MAG-") ? "تحميل مجلة"
+      : String(ref || "").startsWith("BP-WS") ? "مساحة عمل"
+      : (typeof total === "number" && total > 0) || String(ref || "").startsWith("BPB-") ? "شراء خدمة"
+      : "نموذج الموقع" } },
     "Human Required": { checkbox: true },
     "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}${agentsTag}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
@@ -337,6 +359,10 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
+  // The pipeline has dedicated Phone/Email columns; burying contact info only
+  // inside Notes made every row unreadable at a glance and unfilterable.
+  if (phone) props["Phone"] = { phone_number: String(phone).slice(0, 40) };
+  if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) props["Email"] = { email: String(email).slice(0, 160) };
   if (typeof total === "number" && !Number.isNaN(total)) {
     props["إجمالي الطلب"] = { number: total };
     // The board and every pipeline roll-up read Estimated Value, so a request
@@ -360,6 +386,187 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     });
     if (!r.ok) console.error("CRM lead error", r.status, (await r.text()).slice(0, 300));
   } catch (e) { console.error("CRM lead exception", String(e).slice(0, 150)); }
+}
+
+// ---- Unified CRM: ONE master board (Sales Pipeline), everything feeds it ----
+// The owner was juggling a WhatsApp leads database, a Sales Pipeline, the BP
+// Inbox and e-mail alerts — and losing clients between them. The rule now:
+// the Sales Pipeline in Notion is the single record; the WhatsApp
+// qualification database (written by the n8n orchestrator) is mirrored into
+// it, and a daily sweep turns whatever needs attention into ONE digest sent
+// to the owner on WhatsApp + e-mail, with the same list shown at the top of
+// /admin as «متابعات اليوم».
+const WA_CRM_DB = process.env.NOTION_WA_CRM_DB || "b322a7ec23a94ceb875e52c07b00eadf";
+// The owner's WhatsApp — same number published on the site as the advisor
+// line. Digits only, and overridable without a deploy.
+const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966503793356").replace(/\D/g, "");
+
+async function notionQuery(db, body) {
+  const r = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify(body || {}),
+  });
+  if (!r.ok) { const t = (await r.text()).slice(0, 200); throw new Error(`notion_query_${r.status}:${t}`); }
+  return r.json();
+}
+// One reader for every Notion property flavour we touch — the WhatsApp
+// database mixes rich_text/phone_number/select for what is logically "text".
+function propAny(p) {
+  if (!p) return "";
+  if (p.type === "phone_number") return p.phone_number || "";
+  if (p.type === "email") return p.email || "";
+  if (p.type === "select") return (p.select && p.select.name) || "";
+  if (p.type === "number") return p.number == null ? "" : String(p.number);
+  if (p.type === "date") return (p.date && p.date.start) || "";
+  if (p.type === "checkbox") return p.checkbox ? "yes" : "";
+  const arr = p[p.type];
+  return Array.isArray(arr) ? arr.map((t) => t.plain_text || "").join("") : "";
+}
+
+// One source-of-truth channel classifier: WHERE did this client come from?
+// The same labels appear in Notion (Lead Source), the admin panel, the
+// WhatsApp digest and the e-mail report — one vocabulary everywhere.
+function channelOf({ ref, source, order, title }) {
+  let r = String(ref || ""), s = String(source || ""), o = String(order || ""), t = String(title || "");
+  // Older rows keep the reference only inside the title «… (BC-039919)».
+  if (!r) { const m = t.match(/\(([A-Z]{2,4}-[A-Za-z0-9-]+)\)\s*$/); if (m) r = m[1]; }
+  if (s === "WhatsApp" || r.startsWith("WA-")) return { key: "whatsapp", label: "واتساب", icon: "📱", color: "#128C7E" };
+  if (s === "إدخال يدوي") return { key: "manual", label: "إدخال يدوي", icon: "📞", color: "#0F766E" };
+  if (r.startsWith("SP-") || /تسجيل مورّ?د/.test(t)) return { key: "supplier", label: "تسجيل مورّد", icon: "🏭", color: "#92400E" };
+  if (r.startsWith("BPI-") || /طلب تقسيط/.test(t)) return { key: "installment", label: "طلب تقسيط", icon: "💳", color: "#BE185D" };
+  if (r.startsWith("DL-")) return { key: "deal", label: "صفقة", icon: "🤝", color: "#166534" };
+  if (r.startsWith("MM-")) return { key: "tourism", label: "سياحة أعمال", icon: "✈️", color: "#1D4ED8" };
+  if (r.startsWith("BK-")) return { key: "consult", label: "حجز استشارة", icon: "📅", color: "#0E7490" };
+  if (s === CONV_SOURCE || r.startsWith("WEB-")) return { key: "advisor", label: "مستشار الموقع", icon: "🤖", color: "#7C3AED" };
+  if (s === TICKET_SOURCE || r.startsWith("BPT-")) return { key: "ticket", label: "تذكرة دعم", icon: "🎫", color: "#B45309" };
+  if (o === "حجز استشارة" || s === "حجز استشارة" || r.startsWith("BC-")) return { key: "consult", label: "حجز استشارة", icon: "📅", color: "#0E7490" };
+  if (s === "تحميل مجلة" || r.startsWith("MAG-")) return { key: "magazine", label: "تحميل مجلة", icon: "📰", color: "#64748B" };
+  if (s === "مساحة عمل" || r.startsWith("BP-WS")) return { key: "workspace", label: "مساحة عمل", icon: "🏢", color: "#4338CA" };
+  if (s === "شراء خدمة") return { key: "purchase", label: "شراء خدمة", icon: "🛒", color: "#0B1B5A" };
+  if (/^(🛒|طلب\/شراء|طلب مدفوع)/.test(t) || r.startsWith("BPB-") || r.startsWith("BPW-") || r.startsWith("RFQ-")) return { key: "purchase", label: "شراء خدمة", icon: "🛒", color: "#0B1B5A" };
+  if (r.startsWith("BP-") && o && o !== "محادثة موقع") return { key: "purchase", label: "شراء خدمة", icon: "🛒", color: "#0B1B5A" };
+  return { key: "website", label: "نموذج الموقع", icon: "🌐", color: "#334155" };
+}
+
+// One row of «متابعات اليوم»: who, how to reach them, and the single next
+// step — the owner asked to always know «ايش المطلوب عشان اتواصل مع العميل».
+function followupRow(pg) {
+  const pr = pg.properties || {};
+  const notes = propAny(pr["Notes"]);
+  const phone = (propAny(pr["Phone"]) || (notes.match(/الجوال:\s*([+\d][\d\s-]{6,})/) || [])[1] || "").trim();
+  const email = (propAny(pr["Email"]) || (notes.match(/البريد:\s*([^\s·]+@[^\s·،]+)/) || [])[1] || "").trim();
+  const stage = propAny(pr["Stage"]);
+  const order = propAny(pr["حالة الطلب"]);
+  const human = !!(pr["Human Required"] && pr["Human Required"].checkbox);
+  let action = "تابع العميل واسأله عن قراره";
+  if (order === "بانتظار الدفع") action = "ذكّره بالدفع وأرسل له رابط السداد";
+  else if (order === "حجز استشارة" || stage === "Meeting") action = "أكّد معه موعد الاستشارة";
+  else if (human) action = "يحتاج ردّك الآن — افتح المحادثة من BP Inbox";
+  else if (stage === "Proposal Needed") action = "جهّز له عرض السعر وأرسله";
+  else if (stage === "Proposal Sent" || stage === "Negotiation") action = "اسأله عن رأيه في العرض المرسل";
+  else if (stage === "New" || stage === "مهتم") action = "تواصل أول: اتصال أو رسالة واتساب";
+  const ref = propAny(pr["رقم المرجع"]);
+  const title = (propAny(pr["Opportunity Name"]) || "عميل بلا اسم").slice(0, 120);
+  return {
+    id: pg.id,
+    title,
+    phone, email, stage, order,
+    ref,
+    due: propAny(pr["Next Follow Up"]),
+    last: propAny(pr["Last Activity"]),
+    created: String(pg.created_time || "").slice(0, 10),
+    human, action,
+    channel: channelOf({ ref, source: propAny(pr["Lead Source"]), order, title }),
+    url: pg.url || "",
+  };
+}
+
+// Everything that must not be forgotten today: due/overdue follow-ups, rows
+// flagged for a human, and orders parked on «بانتظار الدفع». Won/Lost rows
+// are closed — chasing them is noise.
+async function collectFollowups(limit) {
+  if (!NOTION_TOKEN) return [];
+  const today = new Date().toISOString().slice(0, 10);
+  const data = await notionQuery(CRM_DB, {
+    page_size: Math.min(Math.max(Number(limit) || 60, 1), 100),
+    filter: {
+      and: [
+        { or: [
+          { property: "Next Follow Up", date: { on_or_before: today } },
+          { property: "Human Required", checkbox: { equals: true } },
+          { property: "حالة الطلب", select: { equals: "بانتظار الدفع" } },
+        ] },
+        { property: "Stage", select: { does_not_equal: "Won" } },
+        { property: "Stage", select: { does_not_equal: "Lost" } },
+      ],
+    },
+    sorts: [{ property: "Next Follow Up", direction: "ascending" }],
+  });
+  return (data.results || []).map(followupRow);
+}
+
+// Mirror fresh WhatsApp-qualification rows into the master pipeline, keyed by
+// «رقم المرجع» = WA-<digits>. Create sets a next-day follow-up; update never
+// clobbers a follow-up date the owner set by hand.
+const WA_STAGE_OF = {
+  "New Lead": "New", "Contacted": "مهتم", "Qualified": "Qualified",
+  "Discovery Scheduled": "Meeting", "Discovery Complete": "Meeting",
+  "Proposal Draft": "Proposal Needed", "Proposal Sent": "Proposal Sent",
+  "Negotiation": "Negotiation", "Won": "Won", "Lost": "Lost", "Nurture": "مهتم",
+};
+async function syncWhatsappLeads() {
+  if (!NOTION_TOKEN) return { synced: 0, skipped: 0 };
+  const since = new Date(Date.now() - 3 * 864e5).toISOString();
+  const today = new Date().toISOString().slice(0, 10);
+  let synced = 0, skipped = 0;
+  const data = await notionQuery(WA_CRM_DB, {
+    page_size: 50,
+    filter: { timestamp: "last_edited_time", last_edited_time: { on_or_after: since } },
+    sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
+  });
+  for (const pg of data.results || []) {
+    const pr = pg.properties || {};
+    const status = propAny(pr["Status"]);
+    if (status === "Duplicate") { skipped++; continue; }
+    const phone = (propAny(pr["WhatsApp Phone"]) || propAny(pr["WhatsApp"])).replace(/[^\d+]/g, "");
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 8) { skipped++; continue; }
+    const ref = ("WA-" + digits).slice(0, 60);
+    const name = (propAny(pr["title"]) || "").replace(/^WhatsApp\s*-\s*/i, "").trim();
+    const email = propAny(pr["Email"]).trim();
+    const lines = [`قناة: واتساب · الجوال: ${phone}${email ? " · البريد: " + email : ""}`];
+    const svc = propAny(pr["Service Required"]) || propAny(pr["Selected Service Path"]);
+    if (svc) lines.push("الخدمة المطلوبة: " + svc);
+    const nx = propAny(pr["Next Action"]);
+    if (nx) lines.push("الإجراء التالي: " + nx);
+    const lastMsg = propAny(pr["Last WhatsApp Message"]);
+    if (lastMsg) lines.push("آخر رسالة: " + String(lastMsg).replace(/\s+/g, " ").slice(0, 300));
+    const comp = propAny(pr["Company Name"]);
+    if (comp) lines.push("الشركة: " + comp);
+    const props = {
+      "Opportunity Name": { title: [{ text: { content: `📱 واتساب — ${name || phone}`.slice(0, 200) } }] },
+      "Lead Source": { select: { name: "WhatsApp" } },
+      "Stage": { select: { name: WA_STAGE_OF[status] || "New" } },
+      "Human Required": { checkbox: !!(pr["Human Required"] && pr["Human Required"].checkbox) },
+      "Phone": { phone_number: phone.slice(0, 40) },
+      "Notes": { rich_text: richChunks(lines.join("\n")) },
+      "Last Activity": { date: { start: today } },
+      "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
+    };
+    if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) props["Email"] = { email: email.slice(0, 160) };
+    try {
+      const existing = await findConvPage(ref);
+      if (!existing) props["Next Follow Up"] = { date: { start: plusDaysISO(1) } };
+      const r = await fetch(existing ? `https://api.notion.com/v1/pages/${existing}` : "https://api.notion.com/v1/pages", {
+        method: existing ? "PATCH" : "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify(existing ? { properties: props } : { parent: { database_id: CRM_DB }, properties: props }),
+      });
+      if (r.ok) synced++; else { skipped++; console.error("wa sync error", r.status, (await r.text()).slice(0, 200)); }
+    } catch (e) { skipped++; console.error("wa sync exception", String(e).slice(0, 150)); }
+  }
+  return { synced, skipped };
 }
 
 // ---- Website advisor ("باهر") conversations ----
@@ -804,7 +1011,25 @@ async function catalogPrices() {
     }
   }
   _catCache = map; _catAt = Date.now();
+  _catDiscounts = Array.isArray(c.discounts) ? c.discounts : [];
   return map;
+}
+// Published discount codes — validated server-side so a typed code can only
+// ever mean what the catalog says it means.
+let _catDiscounts = [];
+function catalogDiscountSync(code) {
+  const c = String(code || "").trim().toUpperCase();
+  if (!c) return null;
+  const hit = _catDiscounts.find((d) => String(d.code || "").toUpperCase() === c);
+  if (!hit) return null;
+  if (hit.expires && new Date(hit.expires + "T23:59:59Z") < new Date()) return null;
+  const percent = Number(hit.percent) > 0 ? Math.min(90, Number(hit.percent)) : 0;
+  const amount = Number(hit.amount) > 0 ? Number(hit.amount) : 0;
+  if (!percent && !amount) return null;
+  const services = Array.isArray(hit.services)
+    ? hit.services.map((s) => catalogKey(String(s).toLowerCase())).filter(Boolean).slice(0, 60)
+    : [];
+  return { code: c, percent, amount, services };
 }
 // Sync the catalog read-model into the services table (once per warm
 // instance) and return code(lower) → row id for order_items FKs.
@@ -883,6 +1108,12 @@ export default async function handler(req, res) {
   // cap. The supplier portal lives in ./_suppliers.js and owns the request
   // entirely once delegated.
   if ((q.__route || "") === "suppliers") return handleSuppliers(req, res);
+  // Same reason for /api/agencies — the overseas recruitment-agency registry
+  // and portal live in ./_agencies.js.
+  if ((q.__route || "") === "agencies") return handleAgencies(req, res);
+  // Same reason for /api/jobhunt — the candidate-side job-search service and
+  // the agent that runs it live in ./_jobhunt.js.
+  if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
@@ -917,7 +1148,7 @@ export default async function handler(req, res) {
   // Internal dashboard — list recent incoming requests (gated by LEADS_KEY).
   if ((q.action || "") === "leads") {
     res.setHeader("Cache-Control", "no-store");
-    if (!panelKeyOk(q.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     try {
       const leads = await listLeads(q.limit);
       res.statusCode = 200;
@@ -934,8 +1165,13 @@ export default async function handler(req, res) {
   // monitor merges them into one list, tagged «المستشار».
   if ((q.action || "") === "advisor-inbox") {
     res.setHeader("Cache-Control", "no-store");
-    if (!LEADS_KEY) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
-    if ((q.key || "") !== LEADS_KEY) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    // The same gate as every other owner surface. This one endpoint used to
+    // demand LEADS_KEY specifically, so an owner who set PANEL_KEY — which
+    // opens everything else — got 503 "not_configured" here every seven
+    // seconds, and the inbox showed the website's own conversations as simply
+    // absent. A second key name for one endpoint was never a security
+    // boundary; it was a way to lose messages.
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     try {
       const messages = await listConversations(q.limit);
       res.statusCode = 200;
@@ -975,6 +1211,206 @@ export default async function handler(req, res) {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
     }
+  }
+
+  // First-party analytics feed for the /admin overview: daily series, top
+  // pages, top clicked CTAs, referrers, and the latest client-side errors.
+  if ((q.action || "") === "panel-analytics") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    try {
+      const [daily, pages, clicks, refs, errors] = await Promise.all([
+        sb("analytics_daily?select=*"),
+        sb("analytics_top_pages?select=*"),
+        sb("analytics_top_clicks?select=*"),
+        sb("analytics_top_refs?select=*"),
+        sb("site_errors?select=at,path,message,source&order=at.desc&limit=20"),
+      ]);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, daily: daily || [], pages: pages || [], clicks: clicks || [], refs: refs || [], errors: errors || [] }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
+  // «متابعات اليوم» feed for the /admin overview — the same list the daily
+  // digest is built from, so the panel and the WhatsApp message never disagree.
+  if ((q.action || "") === "panel-followups") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+    try {
+      const followups = await collectFollowups(q.limit);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, followups }));
+    } catch (e) {
+      console.error("panel-followups failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+    }
+  }
+
+  // Daily CRM sweep, called by the n8n schedule — no human in the loop.
+  // Keyless like escrow-sweep, and safe to be: it only (1) mirrors the
+  // WhatsApp leads database into the master pipeline (idempotent upserts keyed
+  // by رقم المرجع) and (2) sends the owner's own follow-up digest to the
+  // owner's own addresses — at most once per day, enforced through an
+  // audit_logs stamp, so hammering the URL cannot spam anyone.
+  if ((q.action || "") === "crm-followup-sweep") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+    let synced = 0, waSkipped = 0, syncError = null;
+    try { const s = await syncWhatsappLeads(); synced = s.synced; waSkipped = s.skipped; }
+    catch (e) { syncError = String(e && e.message || e).slice(0, 120); console.error("wa lead sync failed", syncError); }
+    let due = [];
+    try { due = await collectFollowups(60); }
+    catch (e) {
+      console.error("followup collect failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "crm_failed", synced, syncError }));
+    }
+    let digestSent = false, waNotified = false, waError = null;
+    if (due.length) {
+      const day = new Date().toISOString().slice(0, 10);
+      // Once-per-day stamp. If today's stamp says the WhatsApp leg failed, a
+      // rerun retries ONLY WhatsApp (never the e-mail) and re-stamps on
+      // success — a failed send delivers nothing, so retries cannot spam.
+      let fresh = true, waRetryOnly = false;
+      if (DB_ON) {
+        try {
+          const prior = await sb(`audit_logs?action=eq.crm.digest&created_at=gte.${day}T00:00:00Z&select=id,after&order=created_at.desc&limit=1`);
+          if (prior && prior.length) { fresh = false; waRetryOnly = !!(OWNER_WA && prior[0].after && prior[0].after.waNotified === false); }
+        } catch {}
+      }
+      // Per-channel tallies drive the summary line and the report sections.
+      const byChannel = {};
+      for (const f of due) { (byChannel[f.channel.key] = byChannel[f.channel.key] || { ch: f.channel, rows: [] }).rows.push(f); }
+      const chGroups = Object.values(byChannel).sort((a, b) => b.rows.length - a.rows.length);
+      const chSummary = chGroups.map((g) => `${g.ch.icon} ${g.ch.label} ${g.rows.length}`).join(" · ");
+      const items = due.slice(0, 12);
+      const waText = [
+        `📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك:`,
+        chSummary,
+        ...items.map((f, i) => `${i + 1}) ${f.channel.icon} ${f.channel.label} · ${f.title}${f.phone ? " · " + f.phone : f.email ? " · " + f.email : ""}\n← ${f.action}`),
+        due.length > items.length ? `…و ${due.length - items.length} آخرون.` : "",
+        `القائمة كاملة بأزرار الاتصال: ${MKT_SITE_BASE}/admin`,
+      ].filter(Boolean).join("\n").slice(0, 3400);
+      if (fresh) {
+        // A real report, not a wall of text: date header, per-channel counter
+        // chips, then one section per channel with its own accent colour.
+        const today2 = new Date().toLocaleDateString("ar-SA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        const chips = chGroups.map((g) => `<td style="padding:0 4px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:${g.ch.color}14;border:1px solid ${g.ch.color}33;border-radius:20px;padding:6px 14px;font-size:13px;color:${g.ch.color};white-space:nowrap">${g.ch.icon} ${esc(g.ch.label)} <b>${g.rows.length}</b></td></tr></table></td>`).join("");
+        const sections = chGroups.map((g) => {
+          const rowsHtml = g.rows.map((f) => `<tr><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7"><b style="color:#1F2430">${esc(f.title)}</b><br><span style="color:#8A93A6;font-size:12px">${esc([f.ref, f.stage, f.order].filter(Boolean).join(" · "))}</span><br><span style="color:#8A93A6;font-size:11.5px">📆 وصل: ${esc(f.created || "—")} · آخر نشاط: ${esc(f.last || "—")} · متابعته: ${f.due ? `<span style="color:${f.due <= new Date().toISOString().slice(0, 10) ? "#B91C1C" : "#8A93A6"}">${esc(f.due)}</span>` : "اليوم"}</span></td><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7;white-space:nowrap">${f.phone ? `<a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="background:#25D366;color:#fff;padding:5px 12px;border-radius:6px;text-decoration:none;font-size:12px">💬 واتساب</a> <a href="tel:${esc(f.phone)}" style="color:#0B1B5A;font-size:12px">📞 ${esc(f.phone)}</a>` : ""}${f.email ? `<br><a href="mailto:${esc(f.email)}" style="color:#0B1B5A;font-size:12px">✉️ ${esc(f.email)}</a>` : ""}${!f.phone && !f.email ? `<span style="color:#B91C1C;font-size:12px">لا وسيلة تواصل</span>` : ""}</td><td style="padding:10px 8px;border-bottom:1px solid #EEF1F7;color:#0B1B5A;font-size:13px">← ${esc(f.action)}</td></tr>`).join("");
+          return `<tr><td style="padding:22px 24px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-right:4px solid ${g.ch.color};padding-right:10px;font-size:16px;font-weight:bold;color:${g.ch.color}">${g.ch.icon} ${esc(g.ch.label)} — ${g.rows.length} عميل</td></tr></table><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px;margin-top:8px"><thead><tr style="background:#F4F6FB"><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">العميل</th><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">التواصل</th><th style="padding:8px;text-align:right;color:#5B6478;font-size:12px">المطلوب</th></tr></thead><tbody>${rowsHtml}</tbody></table></td></tr>`;
+        }).join("");
+        const digestHtml = `<div dir="rtl" style="font-family:Arial,'Segoe UI',Tahoma,sans-serif;background:#F2F4FA;padding:24px 10px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;border:1px solid #E2E7F2"><tr><td style="background:#0B1B5A;padding:22px 26px"><span style="color:#fff;font-size:20px;font-weight:bold">📋 تقرير متابعات اليوم</span><br><span style="color:#B9C4E8;font-size:13px">${esc(today2)} · ${due.length} عميل يحتاج تواصلك — مصنّفون حسب مصدر الوصول</span></td></tr><tr><td style="padding:18px 20px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr>${chips}</tr></table></td></tr>${sections}<tr><td style="padding:24px;text-align:center"><a href="${MKT_SITE_BASE}/admin" style="background:#0B1B5A;color:#fff;padding:12px 26px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">افتح لوحة التحكم — بأزرار الاتصال</a><p style="color:#8A93A6;font-size:12px;margin-top:14px">تقرير آلي يومي من نظام المتابعة الموحّد · بيزنس بارتنر — حتى لا يضيع عميل.</p></td></tr></table></div>`;
+        try {
+          const [waRes] = await Promise.all([
+            OWNER_WA ? waSend(OWNER_WA, waText) : Promise.resolve({ ok: false, error: "no_owner_number" }),
+            sendEmail(TEAM_EMAIL, `📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك`, digestHtml),
+          ]);
+          waNotified = !!(waRes && waRes.ok);
+          waError = waNotified ? null : String((waRes && waRes.error) || "wa_failed").slice(0, 160);
+          digestSent = true;
+          await audit({ action: "crm.digest", actor_label: "n8n", after: { day, due: due.length, synced, waNotified, waError } });
+        } catch (e) { console.error("digest send failed", String(e).slice(0, 200)); }
+      } else if (waRetryOnly) {
+        try {
+          const w = await waSend(OWNER_WA, waText);
+          waNotified = !!(w && w.ok);
+          waError = waNotified ? null : String((w && w.error) || "wa_failed").slice(0, 160);
+          if (waNotified) await audit({ action: "crm.digest", actor_label: "n8n", after: { day, due: due.length, waNotified: true, retry: true } });
+        } catch (e) { waError = String(e).slice(0, 160); }
+      }
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, due: due.length, synced, waSkipped, digestSent, waNotified, waError, syncError }));
+  }
+
+  // Automation sweep, called by the n8n daily schedule — no human in the loop.
+  // Deliberately keyless: it takes no input and performs only deterministic,
+  // deadline-based transitions that were announced to both parties up front,
+  // so an outside caller can only make the schedule run early, never choose an
+  // outcome. The rules (the same ones the freelance marketplaces use):
+  //   * delivered + client silent for ESCROW_AUTO_RELEASE_DAYS → release to
+  //     the supplier (silence = acceptance).
+  //   * refund requested on an UNDELIVERED job + supplier silent for
+  //     ESCROW_AUTO_REFUND_DAYS → refund the client (silence = consent).
+  //   * a refund dispute over CLAIMED-delivered work is the one case left to
+  //     Business Partner — arbitration is the product there, not overhead.
+  // Reminder emails go out in the final two days before each deadline.
+  if ((q.action || "") === "escrow-sweep") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    const relDays = Number(process.env.ESCROW_AUTO_RELEASE_DAYS) > 0 ? Number(process.env.ESCROW_AUTO_RELEASE_DAYS) : 7;
+    const refDays = Number(process.env.ESCROW_AUTO_REFUND_DAYS) > 0 ? Number(process.env.ESCROW_AUTO_REFUND_DAYS) : 7;
+    const now = Date.now(), DAY = 864e5;
+    let released = 0, refunded = 0, reminders = 0;
+    try {
+      const open = await sb("escrows?status=in.(delivered,refund_requested)&select=*&order=created_at.asc&limit=200");
+      for (const e of open || []) {
+        const amount = Number(e.amount);
+        if (e.status === "delivered" && e.delivered_at) {
+          const left = relDays - (now - Date.parse(e.delivered_at)) / DAY;
+          if (left <= 0) {
+            const rows = await sb(`escrows?id=eq.${e.id}&status=eq.delivered`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
+            if (!rows.length) continue;
+            released++;
+            await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: e.supplier_email, type: "escrow_release", amount, note: `تحرير تلقائي لضمان ${e.ref} — مضت ${relDays} أيام على إعلان التسليم دون اعتراض العميل` }] });
+            await notify({ organization_id: e.organization_id, event: "escrow_auto_released", channel: "inapp", title: `تحرر ضمان ${e.ref} تلقائياً للمورد (مضت ${relDays} أيام على التسليم دون اعتراض)`, idempotency_key: `escrow_auto_rel:${e.ref}` }).catch(() => {});
+            await Promise.all([
+              sendEmail(e.supplier_email, `✅ تحرر ضمانك تلقائياً — ${e.ref} (${amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>مضت ${relDays} أيام على إعلانك التسليم دون اعتراض من العميل، فتحرر مبلغ <strong>${amount} ﷼</strong> تلقائياً إلى محفظتك في <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك</a>.</p></div>`),
+              sendEmail(e.client_email, `تحرر الضمان ${e.ref} تلقائياً`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>مضت ${relDays} أيام على إعلان المورد تسليم «${esc(e.title)}» دون اعتراض منك، فتحرر مبلغ الضمان (${amount} ﷼) للمورد تلقائياً وفق آلية المنصة المعلنة.</p></div>`),
+            ]).catch(() => {});
+          } else if (left <= 2) {
+            reminders++;
+            await sendEmail(e.client_email, `⏰ تذكير: اعتمد استلام «${String(e.title).slice(0, 60)}» — ${e.ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>أعلن المورد تسليم <b>${esc(e.title)}</b> ولم تعتمد الاستلام بعد. أمامك <b>${Math.ceil(left)} يوم${Math.ceil(left) > 1 ? "ين" : ""}</b> — بعدها يتحرر المبلغ (${amount} ﷼) للمورد تلقائياً. اعتمد أو اطلب الاسترجاع من <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">لوحتك ← المحفظة</a>.</p></div>`).catch(() => {});
+          }
+        }
+        if (e.status === "refund_requested" && !e.delivered_at && e.refund_requested_at) {
+          const left = refDays - (now - Date.parse(e.refund_requested_at)) / DAY;
+          if (left <= 0) {
+            const rows = await sb(`escrows?id=eq.${e.id}&status=eq.refund_requested`, { method: "PATCH", body: { status: "refunded" } });
+            if (!rows.length) continue;
+            refunded++;
+            await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: e.organization_id, type: "refund", amount, note: `استرجاع تلقائي لضمان ${e.ref} — لم يرد المورد على طلب الاسترجاع خلال ${refDays} أيام ولم يعلن أي تسليم` }] });
+            await notify({ organization_id: e.organization_id, event: "escrow_auto_refunded", channel: "inapp", title: `أُرجع ضمان ${e.ref} (+${amount} ﷼) لمحفظتك تلقائياً`, idempotency_key: `escrow_auto_ref:${e.ref}` }).catch(() => {});
+            await Promise.all([
+              sendEmail(e.client_email, `↩️ أُرجع الضمان ${e.ref} إلى محفظتك تلقائياً`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>لم يرد المورد على طلب الاسترجاع خلال ${refDays} أيام ولم يعلن أي تسليم، فعاد مبلغ <strong>${amount} ﷼</strong> إلى محفظتك تلقائياً وفق آلية المنصة.</p></div>`),
+              sendEmail(e.supplier_email, `الضمان ${e.ref} أُرجع للعميل تلقائياً`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>مضت ${refDays} أيام على طلب العميل الاسترجاع دون رد منك ودون إعلان تسليم، فأُرجع المبلغ للعميل تلقائياً وفق آلية المنصة المعلنة.</p></div>`),
+            ]).catch(() => {});
+          } else if (left <= 2) {
+            reminders++;
+            await sendEmail(e.supplier_email, `⏰ تذكير: طلب استرجاع على الضمان ${e.ref} — أمامك ${Math.ceil(left)} يوم`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>طلب العميل استرجاع الضمان <b>${e.ref}</b> (${Number(e.amount)} ﷼) ولم تسلّم العمل بعد. إن كنت أنجزت العمل فأعلن التسليم الآن من <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك</a>، وإلا يُرجع المبلغ للعميل تلقائياً بعد <b>${Math.ceil(left)} يوم${Math.ceil(left) > 1 ? "ين" : ""}</b>.</p></div>`).catch(() => {});
+          }
+        }
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, released, refunded, reminders, rules: { autoReleaseDays: relDays, autoRefundDays: refDays } }));
+    } catch (e) {
+      console.error("escrow sweep failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "db_failed", released, refunded }));
+    }
+  }
+
+  // Escrows the session's active organization opened — shown in the client's
+  // wallet view alongside the balance they draw from.
+  if ((q.action || "") === "my-escrows") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    try {
+      const [escrows, bal] = await Promise.all([
+        orgId ? sb(`escrows?organization_id=eq.${orgId}&select=id,ref,supplier_email,supplier_name,title,amount,status,created_at,released_at,delivered_at,supplier_note&order=created_at.desc&limit=50`) : [],
+        orgId ? sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`) : [],
+      ]);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, escrows: escrows || [], walletBalance: (bal && bal[0] && Number(bal[0].balance)) || 0, hasOrg: !!orgId }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
   }
 
   // P4 — orders belong to the ACCOUNT, not the browser: list the session
@@ -1121,7 +1557,14 @@ export default async function handler(req, res) {
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
       if (what === "documents") {
-        const items = await sb(`documents?organization_id=eq.${orgId}&select=id,category,title,expiry_date,verify_status,created_at,document_versions(id,version_no,file_name,storage_key,uploaded_at)&order=created_at.desc&limit=60`);
+        // The read-out columns are a later migration; fall back to the older
+        // shape on a database that has not run it yet.
+        let items;
+        try {
+          items = await sb(`documents?organization_id=eq.${orgId}&select=id,category,title,expiry_date,issue_date,extracted,verify_status,created_at,document_versions(id,version_no,file_name,storage_key,uploaded_at)&order=created_at.desc&limit=60`);
+        } catch {
+          items = await sb(`documents?organization_id=eq.${orgId}&select=id,category,title,expiry_date,verify_status,created_at,document_versions(id,version_no,file_name,storage_key,uploaded_at)&order=created_at.desc&limit=60`);
+        }
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
       if (what === "doc-link") {
@@ -1151,7 +1594,7 @@ export default async function handler(req, res) {
   // /admin panel — read an editable content file (site/data/*.json) from GitHub.
   if ((q.action || "") === "panel-content") {
     res.setHeader("Cache-Control", "no-store");
-    if (!panelKeyOk(q.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     const filePath = CONTENT_FILES[q.file || ""];
     if (!filePath) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
     if (!GH_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "content_not_configured" })); }
@@ -1279,10 +1722,29 @@ export default async function handler(req, res) {
         const key = `${orgId}/${docId}/v${vno}-${Date.now()}-${fileName.replace(/[^\w.\-]+/g, "_")}`;
         await storagePut(key, buf, mime);
         const vrow = await sb("document_versions", { method: "POST", body: [{ document_id: docId, version_no: vno, storage_key: key, file_name: fileName, mime, size_bytes: buf.length, sha256: crypto.createHash("sha256").update(buf).digest("hex"), malware_scan: "skipped", uploaded_by: userId }] });
-        await sb(`documents?id=eq.${docId}`, { method: "PATCH", prefer: "return=minimal", body: { current_version_id: vrow[0].id, ...(expiry ? { expiry_date: expiry } : {}), verify_status: "pending" } });
-        await notify({ organization_id: orgId, event: "document_uploaded", channel: "inapp", title: `رُفع المستند «${title}» (نسخة ${vno}) — قيد التحقق`, idempotency_key: `doc_up:${docId}:${vno}` });
-        await audit({ organization_id: orgId, actor_user_id: userId, action: "document.uploaded", entity_type: "document", entity_id: docId, after: { version: vno, file: fileName } });
-        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, documentId: docId, version: vno }));
+        // The extraction agent reads the document the moment it lands: type,
+        // entity, numbers, and the issue/expiry dates — so the client never
+        // types what their own papers already say. Best-effort: a provider
+        // hiccup stores the file exactly as before, just unread.
+        let extracted = null;
+        if (DOC_MIME_OK.test(mime) && buf.length <= MAX_DOC_BYTES) {
+          try {
+            const read = await readDocument(base64, mime);
+            if (read.ok) extracted = read.fields;
+          } catch (e) { console.error("doc-upload extract", String(e.message || e).slice(0, 120)); }
+        }
+        const effectiveExpiry = expiry || (extracted && extracted.expiryDate) || null;
+        const basePatch = { current_version_id: vrow[0].id, ...(effectiveExpiry ? { expiry_date: effectiveExpiry } : {}), verify_status: extracted ? "verified" : "pending" };
+        // The extracted/issue_date columns are a later migration; a database
+        // that has not run it yet gets the patch without them, never an error.
+        try {
+          await sb(`documents?id=eq.${docId}`, { method: "PATCH", prefer: "return=minimal", body: { ...basePatch, ...(extracted ? { extracted, ...(extracted.issueDate ? { issue_date: extracted.issueDate } : {}) } : {}) } });
+        } catch {
+          await sb(`documents?id=eq.${docId}`, { method: "PATCH", prefer: "return=minimal", body: basePatch });
+        }
+        await notify({ organization_id: orgId, event: "document_uploaded", channel: "inapp", title: extracted ? `رُفع المستند «${title}» (نسخة ${vno}) وقُرئ آلياً ✓` : `رُفع المستند «${title}» (نسخة ${vno}) — قيد التحقق`, idempotency_key: `doc_up:${docId}:${vno}` });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "document.uploaded", entity_type: "document", entity_id: docId, after: { version: vno, file: fileName, read: !!extracted } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, documentId: docId, version: vno, ...(extracted ? { extracted } : {}) }));
       }
       if (b.action === "ops-approval-decide") {
         const aid = String(b.id || "");
@@ -1328,7 +1790,91 @@ export default async function handler(req, res) {
   // ---- /admin panel actions (owner key, POST) ----
   if (String(b.action || "").startsWith("panel-")) {
     res.setHeader("Cache-Control", "no-store");
-    if (!panelKeyOk(b.key)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!panelOk(b)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+
+    // «سي آر إم أكتف»: the متابعات اليوم rows in /admin write straight back to
+    // the master pipeline — mark contacted, add a note, or snooze — so the
+    // half-hour WhatsApp reminders stop the moment the work is actually done.
+    if (b.action === "panel-followup-update") {
+      if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+      const pid = String(b.id || "").replace(/[^a-fA-F0-9-]/g, "").slice(0, 40);
+      if (!pid) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      const today = new Date().toISOString().slice(0, 10);
+      const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+      const props = { "Last Activity": { date: { start: today } } };
+      let line = "";
+      if (b.done) {
+        const days = Number(b.followupDays) > 0 ? Math.min(Number(b.followupDays), 60) : 3;
+        props["Human Required"] = { checkbox: false };
+        props["Next Follow Up"] = { date: { start: plusDaysISO(days) } };
+        line = `✅ تم التواصل (${stamp} UTC)`;
+      }
+      const snooze = Number(b.snoozeDays);
+      if (!b.done && snooze > 0) {
+        props["Next Follow Up"] = { date: { start: plusDaysISO(Math.min(snooze, 60)) } };
+        line = `⏰ تأجيل المتابعة إلى ${plusDaysISO(Math.min(snooze, 60))} (${stamp} UTC)`;
+      }
+      const noteTxt = String(b.note || "").trim().slice(0, 800);
+      if (noteTxt) line = (line ? line + " — " : `📝 ملاحظة (${stamp} UTC): `) + noteTxt;
+      try {
+        if (line) {
+          const pg = await fetch(`https://api.notion.com/v1/pages/${pid}`, { headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION } });
+          if (pg.ok) {
+            const pj = await pg.json();
+            const existing = (((pj.properties || {}).Notes || {}).rich_text || []).map((t) => t.plain_text || "").join("");
+            props["Notes"] = { rich_text: richChunks((existing + "\n" + line).slice(-6000)) };
+          }
+        }
+        const r = await fetch(`https://api.notion.com/v1/pages/${pid}`, {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify({ properties: props }),
+        });
+        if (!r.ok) { console.error("followup update error", r.status, (await r.text()).slice(0, 200)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "crm_failed" })); }
+        audit({ action: "crm.followup_update", actor_label: "panel", after: { pid, done: !!b.done, snooze: snooze > 0 ? snooze : null } }).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        console.error("followup update exception", String(e).slice(0, 150));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+      }
+    }
+
+    // Direct-contact clients (a phone call, a walk-in) get a real record with
+    // a generated reference — typed like every other channel so classification
+    // and follow-up treat them identically. Lead Source = «إدخال يدوي».
+    if (b.action === "panel-manual-lead") {
+      const name = String(b.name || "").trim().slice(0, 120);
+      const phone = String(b.phone || "").trim().slice(0, 40);
+      const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+      const kind = ["ticket", "consult", "order"].includes(b.kind) ? b.kind : "ticket";
+      const subject = String(b.subject || "").trim().slice(0, 200);
+      const note = String(b.note || "").trim().slice(0, 1200);
+      const total = Number(b.total);
+      if (!name || (!phone && !isEmail(email)) || !subject) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+      const prefix = kind === "consult" ? "BC" : kind === "order" ? "BP" : "BPT";
+      const ref = `${prefix}-${Date.now().toString().slice(-6)}`;
+      const orderStatus = kind === "consult" ? "حجز استشارة" : kind === "order" ? "قيد المراجعة" : "تذكرة دعم";
+      const icon = kind === "consult" ? "📅" : kind === "order" ? "🛒" : "🎫";
+      try {
+        await crmLead({
+          title: `${icon} ${subject} — ${name}`,
+          phone, email,
+          notes: `قناة: إدخال يدوي (اتصال مباشر)${note ? " · " + note : ""}`,
+          ref, orderStatus,
+          total: Number.isFinite(total) && total > 0 ? total : undefined,
+          leadSource: "إدخال يدوي",
+        });
+        audit({ action: "crm.manual_lead", actor_label: "panel", after: { ref, kind } }).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, ref }));
+      } catch (e) {
+        console.error("manual lead exception", String(e).slice(0, 150));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+      }
+    }
 
     // Change a CRM lead's حالة الطلب (approve / complete / cancel …).
     if (b.action === "panel-status") {
@@ -1346,7 +1892,11 @@ export default async function handler(req, res) {
           catch (e2) { console.error("panel-status announce failed", String(e2.message || e2).slice(0, 160)); }
         }
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, ...(announced ? { announced } : {}) }));
+        // Flipping a status is not issuing an invoice, and an agent who does
+        // only this leaves a paid client without a tax invoice. Say so here
+        // rather than letting the silence read as "done".
+        return res.end(JSON.stringify({ ok: true, ...(announced ? { announced } : {}),
+          ...(status === "مؤكد - قيد التنفيذ" ? { invoiceIssued: false, hint: "لم تصدر فاتورة بهذا الإجراء — للتحويل البنكي استخدم «تأكيد تحويل بنكي» ليصدر المستند." } : {}) }));
       } catch (e) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: String(e.message || "failed") }));
@@ -1651,7 +2201,10 @@ export default async function handler(req, res) {
         svc("الذكاء — Groq (مجاني)", has("GROQ_API_KEY", "GROQ_KEY", "GROQ"), "بديل سريع للمستشار"),
         svc("الذكاء — OpenAI", has("OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"), "بديل للصور فقط"),
         svc("الدفترة", has("DAFTRA_API_KEY"), "الفواتير وعروض الأسعار"),
-        svc("DocuSign", has("DOCUSIGN_INTEGRATION_KEY") && has("DOCUSIGN_USER_ID") && has("DOCUSIGN_ACCOUNT_ID") && has("DOCUSIGN_PRIVATE_KEY") ? "DOCUSIGN_*" : null, "العقود والتوقيع"),
+        svc("DocuSign", has("DOCUSIGN_INTEGRATION_KEY") && has("DOCUSIGN_USER_ID") && has("DOCUSIGN_ACCOUNT_ID") && has("DOCUSIGN_PRIVATE_KEY") ? "DOCUSIGN_*" : null,
+          /^prod/i.test(String(process.env.DOCUSIGN_ENV || "demo"))
+            ? "العقود والتوقيع — بيئة الإنتاج ✓"
+            : "⚠ بيئة تجريبية (demo): التوقيعات الصادرة منها غير ملزمة قانوناً. اضبط DOCUSIGN_ENV=production"),
         svc("مُيسّر — نموذج الدفع", has("MOYASAR_PUBLISHABLE_KEY"), "يظهر نموذج البطاقة للعميل"),
         svc("مُيسّر — تأكيد الدفع", has("MOYASAR_SECRET_KEY"), "يتحقق من الدفعة ويصدر الفاتورة"),
         svc("مُيسّر — Webhook", has("MOYASAR_WEBHOOK_SECRET"), "يلتقط الدفعة لو أغلق العميل الصفحة"),
@@ -1664,6 +2217,19 @@ export default async function handler(req, res) {
         // A tax invoice we render ourselves is only worth sending if it can
         // carry the seller's registration — without it there is no lawful QR.
         svc("هوية البائع الضريبية", sellerProfile().ready ? "COMPANY_VAT_NUMBER" : null, "مطلوبة لإصدار فاتورة ضريبية من موقعنا"),
+        // Nafath is Elm's; it needs both an app id and the service name they
+        // registered for us. Either one missing means the flow cannot start,
+        // so the line names which.
+        (() => {
+          const n = nafathPing();
+          const ready = n.configured && n.serviceConfigured && n.hashSecret;
+          const note = !ready ? `ينقص: ${n.missing.join("، ")}`
+            : !n.owners ? "جاهز — لكن لا هوية مصرّح لها بعد. أضف OWNER_NATIONAL_IDS"
+            : `جاهز — بيئة ${n.environment === "production" ? "الإنتاج" : "الاختبار"} · ${n.owners} هوية مصرّح لها` +
+              (panelRequiresNafath() ? " · اللوحة تفتح بنفاذ فقط 🔒" : " · مفتاح الوصول ما زال يفتح اللوحة");
+          return svc("نفاذ — التحقق من الهوية", ready ? "NAFATH_*" : null, note);
+        })(),
+        svc("اعتماد — واجهة العقود الحكومية", etimadConfigured() ? "ETIMAD_*" : null, "استعلام العقود والمستخلصات — افحص الاتصال من بطاقة اعتماد"),
         svc("واتساب العميل (Cloud API)", has("WHATSAPP_TOKEN", "WHATSAPP_ACCESS_TOKEN", "META_WHATSAPP_TOKEN") && has("WHATSAPP_PHONE_ID", "WHATSAPP_PHONE_NUMBER_ID") ? "WHATSAPP_*" : null, "إشعار العميل بكل خطوة على واتساب"),
       ];
       res.statusCode = 200;
@@ -1676,6 +2242,14 @@ export default async function handler(req, res) {
     // Ask Moyasar whether the key works, rather than whether the variable
     // exists. The two are not the same claim, and this project has already
     // lost an evening to the difference.
+    // Ask Etimad for a token with the credential we hold. A variable that is
+    // merely set proves nothing — a wrong secret sets it just as well.
+    if (b.action === "panel-etimad-ping") {
+      const out = await etimadPing();
+      res.statusCode = 200; // a configuration answer is not a server error
+      return res.end(JSON.stringify(out));
+    }
+
     if (b.action === "panel-moyasar-ping") {
       const out = await moyasarPing();
       res.statusCode = 200; // a configuration answer is not a server error
@@ -1770,6 +2344,67 @@ export default async function handler(req, res) {
     // email the client the total and the invoice link. The client record is
     // reused when their email or phone already exists in the books, so
     // repeat customers do not accumulate duplicates.
+    /* ---- Bank transfer: no invoice without a person ------------------------
+     * An online card payment is confirmed by the gateway: the money is
+     * verifiably in the account before anything is issued, so the invoice is
+     * automatic. A bank transfer has no such confirmation — a receipt is an
+     * image the buyer produced, and an image is not money in the account.
+     *
+     * So this path requires a human to state two separate things: that they
+     * read the receipt, and that they saw the funds arrive. They are asked
+     * apart because they fail apart — a receipt can be genuine for a transfer
+     * that was later reversed, and money can arrive against a receipt that
+     * shows a different amount.
+     *
+     * Once satisfied, this deliberately falls through to panel-invoice rather
+     * than issuing anything itself: both payment routes must produce the same
+     * document from the same code, or the books end up with two kinds of
+     * invoice that only differ by how they were triggered.
+     */
+    if (b.action === "panel-confirm-transfer") {
+      const missing = [];
+      if (b.receiptRead !== true) missing.push("قراءة الإيصال");
+      if (b.fundsArrived !== true) missing.push("تأكيد وصول المبلغ للحساب البنكي");
+      if (missing.length) {
+        res.statusCode = 400;
+        return res.end(JSON.stringify({ ok: false, error: "confirmation_required", missing,
+          message: `لم تُؤكَّد بعد: ${missing.join(" · ")}` }));
+      }
+      // Typed by the person, not carried over from the order. Reading the
+      // figure off the receipt is the act that catches a short transfer.
+      const received = Number(b.amountReceived);
+      if (!(received > 0)) {
+        res.statusCode = 400;
+        return res.end(JSON.stringify({ ok: false, error: "amount_required",
+          message: "أدخل المبلغ الذي وصل فعلاً كما هو في الإيصال." }));
+      }
+      const expected = Number(b.expectedTotal) || 0;
+      // Half a riyal of tolerance covers rounding, nothing else. A real
+      // difference is shown and must be accepted explicitly — invoicing the
+      // full amount against a short transfer puts the books out by the gap.
+      if (expected > 0 && Math.abs(expected - received) > 0.5 && b.acceptMismatch !== true) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "amount_mismatch",
+          expected, received, difference: Math.round((received - expected) * 100) / 100,
+          message: received < expected
+            ? `وصل ${received} ﷼ والمطلوب ${expected} ﷼ — ناقص ${Math.round((expected - received) * 100) / 100} ﷼.`
+            : `وصل ${received} ﷼ والمطلوب ${expected} ﷼ — زائد ${Math.round((received - expected) * 100) / 100} ﷼.` }));
+      }
+      // Who stood behind this. A Nafath ticket names an identity from
+      // OWNER_NATIONAL_IDS; a shared key names only that someone knew it, and
+      // the record should not pretend otherwise.
+      const by = ownerTicketOk(b.ticket) ? "هوية موثّقة عبر نفاذ" : "مفتاح وصول (بلا هوية)";
+      const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+      b.notes = [
+        String(b.notes || "").trim(),
+        `تحويل بنكي مؤكَّد يدوياً — المبلغ المستلم ${received} ﷼${expected && Math.abs(expected - received) > 0.5 ? ` (المطلوب ${expected} ﷼)` : ""}`,
+        `تأكيد قراءة الإيصال ووصول المبلغ · ${by} · ${stamp} UTC`,
+      ].filter(Boolean).join("\n");
+      console.log("panel-confirm-transfer", String(b.ref || ""), received, by);
+      // Fall through to panel-invoice with the confirmation recorded on it.
+      b.action = "panel-invoice";
+    }
+
     if (b.action === "panel-invoice") {
       if (!daftraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "daftra_not_configured" })); }
       const email = String(b.email || "").trim();
@@ -1895,6 +2530,66 @@ export default async function handler(req, res) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
       }
+    }
+
+    // Owner: escrow oversight. List everything, decide refund requests, and
+    // record a supplier payout after the bank transfer is made.
+    if (b.action === "panel-escrows") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      try {
+        const [escrows, balances] = await Promise.all([
+          sb("escrows?select=id,ref,client_email,supplier_email,supplier_name,title,amount,status,note,created_at&order=created_at.desc&limit=100"),
+          sb("supplier_wallet_balances?select=supplier_email,balance&order=balance.desc&limit=100"),
+        ]);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, escrows: escrows || [], supplierBalances: balances || [] }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+    if (b.action === "panel-escrow-decide") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const id = String(b.id || "").slice(0, 60);
+      const decision = b.decision === "release" ? "release" : "refund";
+      if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "id_required" })); }
+      try {
+        if (decision === "release") {
+          const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=in.(held,delivered,refund_requested)`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
+          if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_releasable" })); }
+          const e2 = rows[0];
+          await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: e2.supplier_email, type: "escrow_release", amount: Number(e2.amount), note: `تحرير ضمان ${e2.ref} (قرار الإدارة)` }] });
+          await sendEmail(e2.supplier_email, `✅ تحرّر ضمانك — ${e2.ref} (${e2.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>قررت إدارة بيزنس بارتنر تحرير الضمان <b>${e2.ref}</b> (${e2.amount} ﷼) إلى محفظتك في لوحة الشريك.</p></div>`).catch(() => {});
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ ok: true, escrow: e2 }));
+        }
+        const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=in.(held,delivered,refund_requested)`, { method: "PATCH", body: { status: "refunded" } });
+        if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_refundable" })); }
+        const e2 = rows[0];
+        await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: e2.organization_id, type: "refund", amount: Number(e2.amount), note: `استرجاع ضمان ${e2.ref}` }] });
+        await notify({ organization_id: e2.organization_id, event: "escrow_refunded", channel: "inapp", title: `أُرجع ضمان ${e2.ref} (+${e2.amount} ﷼) إلى محفظتك`, idempotency_key: `escrow_refund:${e2.ref}` }).catch(() => {});
+        await Promise.all([
+          sendEmail(e2.client_email, `تم استرجاع الضمان ${e2.ref} إلى محفظتك ✅`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>أُعيد مبلغ <strong>${e2.amount} ﷼</strong> من الضمان <b>${e2.ref}</b> إلى محفظتك في <a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">لوحتك</a>.</p></div>`),
+          sendEmail(e2.supplier_email, `قرار الضمان ${e2.ref}: استرجاع للعميل`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>بعد المراجعة قررت إدارة بيزنس بارتنر إرجاع مبلغ الضمان <b>${e2.ref}</b> للعميل.</p></div>`),
+        ]).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, escrow: e2 }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    }
+    // Records the debit AFTER the owner has actually transferred the money to
+    // the supplier's bank — the ledger mirrors reality, it never causes it.
+    if (b.action === "panel-supplier-payout") {
+      if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+      const email = String(b.email || "").trim().toLowerCase();
+      const amountNum = Math.abs(Number(b.amount));
+      const note = String(b.note || "").slice(0, 300);
+      if (!isEmail(email) || !Number.isFinite(amountNum) || amountNum <= 0) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      try {
+        const bal = await sb(`supplier_wallet_balances?supplier_email=eq.${encodeURIComponent(email)}&select=balance`);
+        const balance = (bal[0] && Number(bal[0].balance)) || 0;
+        if (balance < amountNum) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "insufficient_funds", balance })); }
+        await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: email, type: "withdrawal", amount: -amountNum, note: note || "تحويل بنكي للمورد" }] });
+        await sendEmail(email, `تم تحويل ${amountNum} ﷼ من محفظتك ✅`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>حوّلنا لك مبلغ <strong>${amountNum} ﷼</strong> من محفظتك في بيزنس بارتنر.${note ? "<br>" + esc(note) : ""}</p></div>`).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, balance: Math.round((balance - amountNum) * 100) / 100 }));
+      } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
     }
 
     // P4 owner-side: find an org by client email (shared helper for the three
@@ -2024,6 +2719,145 @@ export default async function handler(req, res) {
   // Notion and checks its amount against "إجمالي الطلب" before an order is confirmed.
   // Client updates their own establishment record (session-scoped; creates
   // the organization + membership on first save if the account has none).
+  // ---- the client's own control over their orders --------------------------
+  // Cancelling from the dashboard: allowed while the order is still under
+  // review or awaiting payment. Once it is confirmed and work has started,
+  // cancellation is a conversation, not a button — the client is told to open
+  // a ticket so nobody discards half-done government work with one tap.
+  if (b.action === "my-order-cancel") {
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "notion_not_configured" })); }
+    const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
+    const ref = String(b.ref || "").trim().slice(0, 40);
+    if (!ref || !/^(BP|RV|BPW|BPP|BPQ|BPI)-/i.test(ref)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_ref" })); }
+    try {
+      const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+      });
+      if (!r.ok) throw new Error("notion_failed");
+      const pg = ((await r.json()).results || [])[0];
+      if (!pg) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      const p = pg.properties || {};
+      const notes = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("").toLowerCase();
+      // The order must belong to the person cancelling it.
+      if (!myEmail || !notes.includes(myEmail)) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_yours" })); }
+      const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
+      if (status === "ملغي") { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+      if (!["قيد المراجعة", "بانتظار الدفع"].includes(status)) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "in_progress", message: "بدأ العمل على هذا الطلب — لإلغائه افتح تذكرة دعم ويرجع لك الفريق بالتفاصيل." }));
+      }
+      await setLeadStatus(ref, "ملغي");
+      try { await appendLeadNote(pg, `ألغاه العميل بنفسه من لوحته (${myEmail}) في ${new Date().toISOString().slice(0, 16).replace("T", " ")}`); } catch {}
+      sendEmail(OWNER_EMAIL, `🚫 العميل ألغى الطلب ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>العميل <b>${esc(myEmail)}</b> ألغى الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> من لوحته وكانت حالته «${esc(status)}». لا يلزمك إجراء — الحالة صارت «ملغي».</p></div>`).catch(() => {});
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "cancel_failed" }));
+    }
+  }
+
+  // The client composes the service they actually need, in their own words —
+  // and the existing quote machinery takes it from there: the team prices it,
+  // the client gets the quotation link, accepts, signs the contract and pays
+  // online, and the invoice issues itself. This is just the front door.
+  if (b.action === "custom-request") {
+    let sess = null;
+    try { sess = await getSession(req); } catch { sess = null; }
+    const email = String((sess && sess.user && sess.user.email) || b.email || "").toLowerCase().slice(0, 160);
+    const name = String(b.name || (sess && sess.user && sess.user.full_name) || "").trim().slice(0, 160);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const need = String(b.need || "").trim().slice(0, 2000);
+    const details = String(b.details || "").trim().slice(0, 2000);
+    const budget = String(b.budget || "").trim().slice(0, 60);
+    const deadline = String(b.deadline || "").trim().slice(0, 40);
+    const company = String(b.company || "").trim().slice(0, 200);
+    if (!need || need.length < 10) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "need_required" })); }
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "email_required" })); }
+    const ref = "BPQ-" + Date.now().toString().slice(-6);
+    const lines = [
+      `طلب مخصص من العميل — بانتظار التسعير`,
+      `الاحتياج: ${need}`,
+      details ? `تفاصيل: ${details}` : "",
+      company ? `المنشأة: ${company}` : "",
+      budget ? `ميزانية تقريبية: ${budget}` : "",
+      deadline ? `الموعد المطلوب: ${deadline}` : "",
+    ].filter(Boolean).join(" · ");
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🧩 طلب خدمة مخصص ${esc(ref)} — يحتاج تسعير</h2><table>${row("الاسم", name) + row("البريد", email) + row("الجوال", phone) + row("المنشأة", company)}</table><p style="background:#f1f5f9;padding:12px;border-radius:10px;line-height:1.9"><b>ما يحتاجه العميل:</b><br>${esc(need)}${details ? `<br><b>تفاصيل:</b> ${esc(details)}` : ""}${budget ? `<br><b>ميزانية تقريبية:</b> ${esc(budget)}` : ""}${deadline ? `<br><b>الموعد:</b> ${esc(deadline)}` : ""}</p><p><b>الخطوة التالية:</b> أنشئ أمر العمل وأصدر عرض السعر من اللوحة — يصل العميل رابط العرض فيوافق ويوقّع العقد ويدفع إلكترونياً وتصدر فاتورته وحدها.</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">استلمنا طلبك المخصص ✅</h2><p>مرحباً ${esc(name || "")}،</p><p>وصلنا وصف احتياجك وفريقنا يسعّره الآن. يصلك <b>عرض السعر</b> على هذا البريد وفي لوحتك — وبمجرد موافقتك توقّع العقد إلكترونياً وتدفع أونلاين ويبدأ التنفيذ فوراً.</p><table>${row("رقم المرجع", ref)}</table><p>تابع طلبك من لوحتك: <a href="${MKT_SITE_BASE}/ar/account" style="color:#0B1B5A">${MKT_SITE_BASE}/ar/account</a></p></div>`;
+    await Promise.all([
+      crmLead({ title: `🧩 طلب مخصص — ${name || email}`, phone, email, notes: lines, ref, orderStatus: "قيد المراجعة" }),
+      sendEmail(TEAM_EMAIL, `🧩 طلب مخصص ${ref} — يحتاج تسعير`, oHtml),
+      OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🧩 طلب مخصص ${ref} — يحتاج تسعير`, oHtml) : Promise.resolve(),
+      sendEmail(email, `استلمنا طلبك المخصص — ${ref}`, cHtml),
+      addToAudience(email, name),
+      forwardLead({ source: "custom-request", ref, name, phone, email, items: need.slice(0, 200) }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // ---- multiple establishments per account ---------------------------------
+  // A client manages every company they own from one login: list them, switch
+  // the session's active one, add another. Documents, orders and purchases all
+  // key off the session's organization_id, so switching company switches the
+  // whole dashboard with it.
+  if (b.action === "my-orgs") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const rows = await sb(`organization_members?user_id=eq.${sess.user.id}&status=eq.active&select=organization_id,role_id,organizations(id,name_ar,name_en,cr_number)`);
+      const orgs = rows.map((r) => r.organizations).filter(Boolean);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, activeId: (sess.organization && sess.organization.id) || null, orgs }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+  if (b.action === "my-org-switch") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = String(b.orgId || "").trim();
+    if (!/^[0-9a-f-]{36}$/i.test(orgId)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_org" })); }
+    try {
+      // Membership is the authorization: a session can only point at a
+      // company its user actually belongs to.
+      const m = await sb(`organization_members?user_id=eq.${sess.user.id}&organization_id=eq.${orgId}&status=eq.active&select=organization_id&limit=1`);
+      if (!m.length) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_member" })); }
+      await sb(`user_sessions?id=eq.${sess.sessionId}`, { method: "PATCH", prefer: "return=minimal", body: { organization_id: orgId } });
+      const orgs = await sb(`organizations?id=eq.${orgId}&select=id,name_ar,name_en,cr_number&limit=1`);
+      audit({ actor_user_id: sess.user.id, action: "org.switch", entity_type: "organization", entity_id: orgId });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, organization: orgs[0] || null }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+  if (b.action === "my-org-create") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const nameAr = String(b.name_ar || "").trim().slice(0, 200);
+    const nameEn = String(b.name_en || "").trim().slice(0, 200);
+    const crNum = String(b.cr || "").trim().slice(0, 40);
+    if (!nameAr && !nameEn) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "name_required" })); }
+    try {
+      const orgs = await sb("organizations", { method: "POST", body: [{ name_ar: nameAr || nameEn, ...(nameEn ? { name_en: nameEn } : {}), ...(crNum ? { cr_number: crNum } : {}) }] });
+      const orgId = orgs[0].id;
+      await sb("organization_members", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, user_id: sess.user.id, role_id: "owner", status: "active" }] });
+      await sb(`user_sessions?id=eq.${sess.sessionId}`, { method: "PATCH", prefer: "return=minimal", body: { organization_id: orgId } });
+      audit({ actor_user_id: sess.user.id, action: "org.create", entity_type: "organization", entity_id: String(orgId) });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, organization: orgs[0] }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
   if (b.action === "my-org-update") {
     if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
     let sess = null;
@@ -2055,6 +2889,113 @@ export default async function handler(req, res) {
     }
   }
 
+  // Analytics beacon: one page view / CTA click / client error per call, sent
+  // by every page via sendBeacon. Public and fire-and-forget by design — it
+  // always answers ok fast and stores nothing identifying beyond a random
+  // per-browser token, so it can never block or slow a real page.
+  if (b.action === "hit") {
+    res.statusCode = 200;
+    const done = () => res.end(JSON.stringify({ ok: true }));
+    if (!DB_ON) return done();
+    const kind = b.kind === "click" ? "click" : b.kind === "err" ? "err" : "view";
+    const path = String(b.path || "").slice(0, 200);
+    if (path.charAt(0) !== "/") return done();
+    try {
+      if (kind === "err") {
+        await sb("site_errors", { method: "POST", prefer: "return=minimal", body: [{ path, message: String(b.name || "").slice(0, 300), source: String(b.source || "").slice(0, 160), ua: String(req.headers["user-agent"] || "").slice(0, 200) }] });
+      } else {
+        await sb("page_hits", { method: "POST", prefer: "return=minimal", body: [{ kind, path, name: kind === "click" ? String(b.name || "").slice(0, 80) : null, ref: String(b.ref || "").slice(0, 120), lang: String(b.lang || "").slice(0, 8), device: String(b.device || "").slice(0, 12), visitor: String(b.visitor || "").slice(0, 48) }] });
+      }
+    } catch {}
+    return done();
+  }
+
+  // ---- escrow: wallet money held between client and supplier ---------------
+  // The client funds the guarantee from their wallet; the amount leaves the
+  // balance the moment the escrow opens and reaches the supplier's ledger only
+  // when the client approves delivery. Refunds go through the owner.
+  if (b.action === "escrow-create" || b.action === "escrow-release" || b.action === "escrow-refund") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const orgId = sess.organization && sess.organization.id;
+    const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
+    const myName = String((sess.user && sess.user.full_name) || "").trim() || myEmail;
+    if (!orgId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_org" })); }
+    try {
+      if (b.action === "escrow-create") {
+        const supplierEmail = String(b.supplierEmail || "").trim().toLowerCase().slice(0, 160);
+        const supplierName = String(b.supplierName || "").trim().slice(0, 160);
+        const title = String(b.title || "").trim().slice(0, 300);
+        const amount = Math.round((Number(b.amount) || 0) * 100) / 100;
+        if (!isEmail(supplierEmail) || !title || !(amount > 0)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`);
+        const balance = (bal[0] && Number(bal[0].balance)) || 0;
+        if (balance < amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "insufficient_funds", balance })); }
+        const ref = "BPE-" + crypto.randomInt(100000, 999999);
+        const rows = await sb("escrows", { method: "POST", body: [{ ref, organization_id: orgId, client_email: myEmail, supplier_email: supplierEmail, supplier_name: supplierName, title, amount, status: "held" }] });
+        await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, type: "payment", amount: -amount, note: `حجز ضمان ${ref} — ${supplierName || supplierEmail}` }] });
+        await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "escrow.create", entity_type: "escrow", entity_id: String(rows[0].id), after: { amount, supplierEmail } }).catch(() => {});
+        await notify({ organization_id: orgId, event: "escrow_held", channel: "inapp", title: `تم حجز ${amount} ﷼ ضمان تنفيذ (${ref})`, idempotency_key: `escrow_held:${ref}` }).catch(() => {});
+        await Promise.all([
+          sendEmail(supplierEmail, `💼 ضمان تنفيذ محجوز لصالحك — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">مبلغ ضمان محجوز لصالحك</h2><p>حجز العميل <b>${esc(myName)}</b> مبلغ <strong>${amount} ﷼</strong> ضمان تنفيذ عبر منصة بيزنس بارتنر:</p><table>${row("المرجع", ref) + row("موضوع الاتفاق", title) + row("المبلغ", amount + " ﷼")}</table><p>المبلغ محجوز لدى بيزنس بارتنر بضمان الطرفين. عند إتمام العمل اضغط <b>«سلّمت المشروع»</b> من <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك ← محفظتي</a>، وبعد اعتماد العميل للاستلام يتحرر المبلغ إلى محفظتك فوراً.</p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`),
+          sendEmail(myEmail, `تم حجز الضمان ✅ — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم حجز الضمان ✅</h2><p>خُصم <strong>${amount} ﷼</strong> من محفظتك وحُجز كضمان تنفيذ لدى بيزنس بارتنر — بتعميد الطرفين: المورد يعلن التسليم أولاً، ثم تعتمد أنت الاستلام فيتحرر المبلغ. ولا يُسترجع المبلغ إلا بموافقة المورد أو بقرار من فريقنا.</p><table>${row("المرجع", ref) + row("المورد", supplierName || supplierEmail) + row("الموضوع", title)}</table></div>`),
+          sendEmail(TEAM_EMAIL, `💼 ضمان جديد ${ref} — ${myName} ← ${supplierName || supplierEmail} (${amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>ضمان تنفيذ فُتح من محفظة العميل — لا إجراء مطلوب حتى يعتمد العميل أو يطلب استرجاعاً.</p><table>${row("العميل", myName + " · " + myEmail) + row("المورد", (supplierName || "") + " · " + supplierEmail) + row("الموضوع", title) + row("المبلغ", amount + " ﷼")}</table></div>`),
+          crmLead({ title: `ضمان تنفيذ — ${myName} ← ${supplierName || supplierEmail}`, phone: "", email: myEmail, notes: `ضمان · ${title} · ${amount} ﷼ · المورد: ${supplierEmail}`, ref, orderStatus: "مؤكد - قيد التنفيذ", total: amount }),
+        ]).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, escrow: rows[0], balance: Math.round((balance - amount) * 100) / 100 }));
+      }
+      // release / refund-request act on one escrow this org owns.
+      const id = String(b.id || "").slice(0, 60);
+      if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "id_required" })); }
+      if (b.action === "escrow-release") {
+        // Two-sided handshake, like the freelance marketplaces: the money moves
+        // to the supplier only after the supplier has declared delivery AND the
+        // client approves receipt — this call is the client's half only.
+        const cur = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&select=id,status,delivered_at`);
+        const e0 = cur[0];
+        if (!e0) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const releasable = e0.status === "delivered" || (e0.status === "refund_requested" && e0.delivered_at);
+        if (!releasable) {
+          res.statusCode = 409;
+          return res.end(JSON.stringify({ ok: false, error: e0.status === "held" ? "not_delivered_yet" : "not_releasable" }));
+        }
+        // The status guard makes this idempotent: a raced second click updates 0 rows.
+        const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&status=eq.${encodeURIComponent(e0.status)}`, { method: "PATCH", body: { status: "released", released_at: new Date().toISOString() } });
+        if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_releasable" })); }
+        const e2 = rows[0];
+        await sb("supplier_wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ supplier_email: e2.supplier_email, type: "escrow_release", amount: Number(e2.amount), note: `تحرير ضمان ${e2.ref} — ${e2.title}`.slice(0, 300) }] });
+        await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "escrow.release", entity_type: "escrow", entity_id: id }).catch(() => {});
+        await Promise.all([
+          sendEmail(e2.supplier_email, `✅ تحرّر ضمانك — ${e2.ref} (${e2.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#047857">اعتمد العميل التسليم ✅</h2><p>تحرّر مبلغ <strong>${e2.amount} ﷼</strong> إلى محفظتك في <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك</a> — اطلب السحب من هناك متى شئت.</p><table>${row("المرجع", e2.ref) + row("الموضوع", e2.title)}</table></div>`),
+          sendEmail(TEAM_EMAIL, `✅ تحرير ضمان ${e2.ref} — إلى ${e2.supplier_email} (${e2.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>اعتمد العميل التسليم وتحرّر الضمان إلى محفظة المورد. حوّل للمورد بنكياً عندما يطلب السحب (يصلك طلبه بالبريد).</p><table>${row("المورد", e2.supplier_email) + row("المبلغ", e2.amount + " ﷼")}</table></div>`),
+        ]).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, escrow: e2 }));
+      }
+      // escrow-refund: the client asks for the money back. It reaches their
+      // wallet only when the SUPPLIER consents (from the partner dashboard) or
+      // Business Partner arbitrates — never on the client's word alone.
+      const rows = await sb(`escrows?id=eq.${encodeURIComponent(id)}&organization_id=eq.${orgId}&status=in.(held,delivered)`, { method: "PATCH", body: { status: "refund_requested", note: String(b.reason || "").slice(0, 400), refund_requested_at: new Date().toISOString() } });
+      if (!rows.length) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_refundable" })); }
+      const e3 = rows[0];
+      await Promise.all([
+        sendEmail(TEAM_EMAIL, `⚠️ طلب استرجاع ضمان ${e3.ref} — ${myName} (${e3.amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>طلب العميل استرجاع مبلغ الضمان. إن وافق المورد من لوحته يُسترجع تلقائياً؛ وإن اعترض فافصل أنت من لوحة /admin ← الأدوات ← الضمانات (استرجاع للعميل أو تحرير للمورد).</p><table>${row("العميل", myName + " · " + myEmail) + row("المورد", e3.supplier_email) + row("الموضوع", e3.title) + row("المبلغ", e3.amount + " ﷼") + row("سبب الطلب", String(b.reason || "—").slice(0, 400))}</table></div>`),
+        sendEmail(e3.supplier_email, `⚠️ طلب استرجاع على الضمان ${e3.ref} — موافقتك مطلوبة`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><p>طلب العميل استرجاع مبلغ الضمان <b>${e3.ref}</b> (${e3.amount} ﷼).</p><p>السبب المذكور: ${esc(String(b.reason || "—").slice(0, 400))}</p><p>من <a href="${MKT_SITE_BASE}/partner-dashboard" style="color:#0B1B5A">لوحة الشريك ← محفظتي</a>: إن كنت موافقاً اضغط «أوافق على الإرجاع» ويعود المبلغ للعميل فوراً.</p><p>${e3.delivered_at
+          ? "وإن كنت معترضاً وقد سلّمت العمل فعلاً فلا تضغط شيئاً — يفصل فريق بيزنس بارتنر بينكما ويبقى المبلغ محجوزاً حتى القرار."
+          : "⏳ تنبيه: لم يُسجَّل أي تسليم على هذا الضمان — إن كنت أنجزت العمل فأعلن التسليم الآن من لوحتك، وإلا فسيُرجَع المبلغ للعميل <b>تلقائياً</b> إذا مضت المهلة المعلنة دون رد منك."}</p></div>`),
+      ]).catch(() => {});
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, escrow: e3 }));
+    } catch (e) {
+      console.error("escrow action failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
   // Checkout's "upload your certificate and we fill the form" step. Public by
   // necessity — the buyer is not signed into anything at that point — so the
   // size and type caps are enforced before a provider is called, and the reply
@@ -2075,6 +3016,65 @@ export default async function handler(req, res) {
   // Everything the owner used to do by hand after checking a bank receipt
   // happens here in one pass: the CRM row lands already confirmed, the gated
   // portals activate, and the client's access codes go out by email.
+  // A confirmed Moyasar wallet top-up, sealed by /api/pay with the server
+  // secret — the browser can never credit a wallet; only the payment gateway's
+  // verified confirmation can. Idempotent on the payment id, so the webhook
+  // and the browser callback (both fire for one charge) credit exactly once.
+  if (b.action === "wallet-paid") {
+    if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    let d; try { d = ssUnseal(b.t); } catch { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_seal" })); }
+    if (!d || !(Date.now() - (Number(d.at) || 0) < 30 * 60 * 1000)) {
+      res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "expired" }));
+    }
+    const email = String(d.email || "").trim().toLowerCase().slice(0, 160);
+    const name = String(d.name || "").trim().slice(0, 160);
+    const amount = Math.round((Number(d.amount) || 0) * 100) / 100;
+    const payId = String(d.payId || "").slice(0, 64);
+    const ref = String(d.ref || "BPW-" + Date.now().toString().slice(-6)).slice(0, 40);
+    if (!isEmail(email) || !(amount > 0) || !payId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+    let credited = false, already = false, balance = null;
+    if (DB_ON) {
+      try {
+        const dup = await sb(`wallet_transactions?note=like.*PAYID:${encodeURIComponent(payId)}*&select=id&limit=1`);
+        if (dup.length) { already = true; }
+        else {
+          // Resolve the wallet's organization from the payer's account —
+          // metadata may nominate one of their orgs, never someone else's.
+          let users = await sb(`users?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+          if (!users.length) users = await sb("users", { method: "POST", body: [{ email, ...(name ? { full_name: name } : {}) }] });
+          const uid = users[0].id;
+          const mems = await sb(`organization_members?user_id=eq.${uid}&status=eq.active&select=organization_id`);
+          const wanted = String(d.org || "").trim();
+          let orgId = (mems.find((m) => m.organization_id === wanted) || mems[0] || {}).organization_id;
+          if (!orgId) {
+            const orgs = await sb("organizations", { method: "POST", body: [{ name_ar: name || email }] });
+            orgId = orgs[0].id;
+            await sb("organization_members", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, user_id: uid, role_id: "owner", status: "active" }] });
+          }
+          await sb("wallet_accounts?on_conflict=organization_id", { method: "POST", prefer: "resolution=ignore-duplicates,return=minimal", body: [{ organization_id: orgId }] });
+          await sb("wallet_transactions", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, type: "topup", amount, note: `شحن إلكتروني (ميسر) · PAYID:${payId} · ${ref}` }] });
+          await sb("payments", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, method: "moyasar", status: "paid", amount, gateway_ref: payId }] }).catch(() => {});
+          const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`);
+          balance = (bal[0] && Number(bal[0].balance)) || 0;
+          credited = true;
+          await audit({ organization_id: orgId, actor_label: "moyasar:webhook", action: "wallet.topup", entity_type: "wallet", after: { amount, payId } }).catch(() => {});
+          await notify({ organization_id: orgId, event: "wallet_topup_paid", channel: "inapp", title: `تم شحن محفظتك إلكترونياً (+${amount} ﷼)`, idempotency_key: `wallet_paid:${payId}` }).catch(() => {});
+        }
+      } catch (e) { console.error("wallet-paid credit failed", String(e).slice(0, 200)); }
+    }
+    if (!already) {
+      await Promise.all([
+        crmLead({ title: `شحن محفظة (إلكتروني) — ${name || email}`, phone: "", email, notes: `محفظة · شحن إلكتروني ${amount} ﷼ · PAYID:${payId}${credited ? "" : " · ⚠️ لم يُقيَّد في قاعدة البيانات — قيّده يدوياً"}`, ref, orderStatus: credited ? "مكتمل" : "قيد المراجعة", total: amount }),
+        sendEmail(email, `تم شحن محفظتك ✅ — ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم شحن محفظتك ✅</h2><p>وصل مبلغ <strong>${amount} ﷼</strong> إلى محفظتك ورصيدك محدث الآن في لوحتك.</p><table>${row("رقم المرجع", ref) + row("المبلغ", amount + " ﷼")}</table><p><a href="${MKT_SITE_BASE}/account" style="color:#0B1B5A">افتح لوحتك</a></p><p style="color:#0B1B5A">بزنس بارتنر</p></div>`),
+        credited
+          ? sendEmail(TEAM_EMAIL, `💰 شحن محفظة إلكتروني ${ref} — ${name || email} (${amount} ﷼) — لا إجراء مطلوب`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>دفعة ميسر مؤكدة قُيّدت تلقائياً في محفظة العميل.</p><table>${row("العميل", name || email) + row("البريد", email) + row("المبلغ", amount + " ﷼") + row("رقم الدفعة", payId)}</table></div>`)
+          : sendEmail(TEAM_EMAIL, `⚠️ شحن محفظة إلكتروني ${ref} لم يُقيَّد — ${email} (${amount} ﷼)`, `<div dir="rtl" style="font-family:Arial,sans-serif"><p>الدفعة مؤكدة في ميسر لكن القيد في قاعدة البيانات لم يكتمل — قيّده يدوياً من لوحة /admin (إدخال محفظة).</p><table>${row("البريد", email) + row("المبلغ", amount + " ﷼") + row("رقم الدفعة", payId)}</table></div>`),
+      ]).catch(() => {});
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, already, credited, balance }));
+  }
+
   if (b.action === "paid-order") {
     if (!OTP_SECRET) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
     let d; try { d = ssUnseal(b.t); } catch { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_seal" })); }
@@ -2139,7 +3139,7 @@ export default async function handler(req, res) {
     await crmLead({
       title: `💳 طلب مدفوع إلكترونياً — ${name || email}`,
       phone, email,
-      notes: `دفع إلكتروني (ميسر) مؤكد · PAYID:${payId} · ${itemsText}${dataCode ? ` · DATACODE:${dataCode}` : ""}${company && company !== name ? ` · المنشأة: ${company}` : ""}${verified ? "" : " · ⚠️ المبلغ لم يُطابَق آلياً مع الكتالوج"}`,
+      notes: `دفع إلكتروني (ميسر) مؤكد · PAYID:${payId}${d.disc ? ` · كود خصم: ${String(d.disc).slice(0, 30)}` : ""} · ${itemsText}${dataCode ? ` · DATACODE:${dataCode}` : ""}${company && company !== name ? ` · المنشأة: ${company}` : ""}${verified ? "" : " · ⚠️ المبلغ لم يُطابَق آلياً مع الكتالوج"}`,
       ref, orderStatus: statusForRow, agents, total,
     });
 
@@ -2209,7 +3209,7 @@ export default async function handler(req, res) {
     // order. The client total (subtotal + 15% VAT) is kept for comparison.
     const itemsData = Array.isArray(b.itemsData) ? b.itemsData.slice(0, 40) : [];
     let serverSubtotal = 0;
-    const pricedItems = [];
+    const pricedItems = [], pricedRows = [];
     if (itemsData.length) {
       const priceMap = await catalogPrices().catch(() => null);
       if (priceMap) {
@@ -2222,12 +3222,24 @@ export default async function handler(req, res) {
           const cat = key && priceMap[key];
           const unit = cat ? cat.amount : 0;
           serverSubtotal += unit * qty;
+          pricedRows.push({ key, line: unit * qty });
           if (rawKey) pricedItems.push(`${key || rawKey}×${qty}${unit ? "=" + unit * qty : ""}`);
         }
       }
     }
     const surchargeForTotal = Number.isFinite(Number(b.surchargeFee)) ? Number(b.surchargeFee) : 0;
-    const serverTotal = serverSubtotal > 0 ? Math.round((serverSubtotal + surchargeForTotal) * 1.15 * 100) / 100 : 0;
+    // The same discount the checkout showed, re-derived from the catalog: the
+    // receipt's amount is compared against a figure the client cannot invent.
+    // A code scoped to specific services cuts only from its own lines.
+    const orderDisc = catalogDiscountSync(b.discountCode);
+    let discCut = 0;
+    if (orderDisc && serverSubtotal + surchargeForTotal > 0) {
+      const preNet = orderDisc.services.length
+        ? pricedRows.reduce((s, r) => s + (orderDisc.services.includes(r.key) ? r.line : 0), 0)
+        : serverSubtotal + surchargeForTotal;
+      discCut = orderDisc.percent ? Math.round(((preNet * orderDisc.percent) / 100) * 100) / 100 : Math.min(preNet, orderDisc.amount);
+    }
+    const serverTotal = serverSubtotal > 0 ? Math.round((serverSubtotal + surchargeForTotal - discCut) * 1.15 * 100) / 100 : 0;
     // Effective total: prefer the client total when present, else the server
     // re-price — so orders never land as 0 when the catalog knows the price.
     const total = clientTotal > 0 ? clientTotal : serverTotal;
@@ -2290,7 +3302,8 @@ export default async function handler(req, res) {
       ? `<p style="color:#b91c1c">⚠️ إجمالي العميل (${clientTotal} ﷼) لا يطابق إعادة التسعير من الكتالوج (${serverTotal} ﷼) — راجع المبلغ قبل الاعتماد.</p>`
       : "";
     const codesNote = pricedItems.length ? `<p style="color:#666;font-size:13px">أكواد الخدمات: ${esc(pricedItems.join(" · "))}</p>` : "";
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${mismatchNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    const discNote = orderDisc ? `<p style="color:#047857">🎟️ كود خصم مطبق: <b>${esc(orderDisc.code)}</b>${discCut ? ` (−${discCut} ﷼ قبل الضريبة)` : ""}</p>` : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${discNote}${mismatchNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
     // The establishment the buyer typed at checkout. It was only ever used for
     // the subscription approval emails, so an order placed for a company was
@@ -2315,7 +3328,7 @@ export default async function handler(req, res) {
       // delivery issue (e.g. unverified sender domain), the order is still seen.
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml) : Promise.resolve({ ok: false }),
       isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${orderDisc ? " · كود خصم: " + orderDisc.code : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);

@@ -656,8 +656,10 @@ function page({ title, desc, active, path, body, script = "", noindex = false, e
     `<main>${body}</main>` +
     footer() +
     waFab() +
-    // Owner request (2026-08): the floating "smart agent / Ask Baher" chat
-    // widget is removed site-wide — the green WhatsApp button is the only fab.
+    // Owner request (2026-08): restore the floating "Ask Baher" widget
+    // (guided desk: services → quote, book a consultation, and live chat)
+    // alongside the green WhatsApp button.
+    advisorWidget() +
     `<script src="/assets/js/main.js?v=${JS_V}"></script>${script}</body></html>`
   );
 }
@@ -1909,6 +1911,7 @@ function buildPackages() {
           data-amount-monthly="${t.amount}" data-amount-yearly="${yearly}"
           data-price-monthly="${esc(priceLabelM)}" data-price-yearly="${esc(priceLabelY)}"
         >🛒 ${L("Add to cart", "أضف إلى السلة")}</button>
+        ${SHOW_PACKAGE_PRICES && (t.surcharge || t.surchargeEn) ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
       </div>`;
     }
     return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
@@ -3228,7 +3231,7 @@ function buildTourism() {
           <h3>${L("How it works", "كيف تعمل")}</h3>
           <ul class="feat-list">${evFeats}</ul>
           <p class="mini">${L("Are you an events supplier?", "هل أنت مورّد فعاليات؟")}</p>
-          <a class="btn btn-ghost" href="${u("/suppliers")}">${L("Join our partners portal", "سجّل في بوابة الشركاء")}</a>
+          <a class="btn btn-ghost" href="${u("/suppliers")}">${L("Register as a partner", "سجّل كشريك")}</a>
         </div>
       </aside>
     </div>
@@ -4463,6 +4466,437 @@ function buildEmployerLogin() {
   return page({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
 }
 
+// Overseas recruitment offices and agencies register here; the owner reviews
+// the licence details in Notion and approval emails the office an access code
+// for /agency-portal. Nothing on this page is public-facing candidate data.
+// The candidate side of the marketplace: we go and look for work on their
+// behalf. Two ways to pay, and the second one costs nothing unless it works —
+// which is the whole pitch, so the page leads with it.
+function buildJobSearchService() {
+  const steps = [
+    [L("Tell us what you're looking for", "قل لنا عمّا تبحث"), L("Your profession, your experience and where you want to work. If you've applied through us before, we already have your CV.", "مهنتك وخبرتك وأين تريد أن تعمل. إن كنت قد تقدّمت عبرنا من قبل فسيرتك الذاتية موجودة لدينا.")],
+    [L("Pick how you pay", "اختر طريقة الدفع"), L("A flat 100 SAR a month while we search — or nothing at all until you accept an offer.", "١٠٠ ريال شهرياً طوال فترة البحث — أو لا شيء إطلاقاً حتى تقبل عرضاً وظيفياً.")],
+    [L("We search, every week", "نبحث لك أسبوعياً"), L("Our agent reads every new opening against your profile and sends you only the ones that genuinely fit.", "وكيلنا يقرأ كل وظيفة جديدة مقابل ملفك ويرسل لك ما يناسبك فعلاً فقط.")],
+    [L("We put you forward", "نرشّحك بأنفسنا"), L("We nominate you to the employer, arrange the interview and follow it through to the offer.", "نرشّحك لصاحب العمل، ونرتّب المقابلة، ونتابع حتى العرض الوظيفي.")],
+  ].map((x, i) => `<div class="card"><div class="card-icon">${i + 1}</div><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:840px">
+    <span class="eyebrow">${L("For candidates", "للباحثين عن عمل")}</span>
+    <h1>${L("Let us look for the job — on your behalf", "خلّنا ندوّر لك على الوظيفة — بالنيابة عنك")}</h1>
+    <p class="lead">${L("You keep applying and waiting. We already sit between thousands of candidates and the employers hiring them — so put your file in our hands and we'll do the searching, the nominating and the follow-up for you.", "أنت تقدّم وتنتظر. نحن أصلاً بين آلاف المرشحين وأصحاب العمل الذين يوظّفون — سلّمنا ملفك ونتولّى عنك البحث والترشيح والمتابعة.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#jss-form">${L("Start the search", "ابدأ البحث")}</a><a class="btn btn-ghost btn-lg" href="#jss-plans">${L("See the pricing", "شوف الأسعار")}</a></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تعمل الخدمة")}</span><h2>${L("Four steps, and we do three of them", "أربع خطوات، ننفّذ ثلاثاً منها")}</h2></div>
+    <div class="grid grid-4">${steps}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container" style="max-width:900px">
+    <div class="section-head" id="jss-plans"><span class="eyebrow">${L("Pricing", "الأسعار")}</span><h2>${L("Pick whichever suits you", "اختر ما يناسبك")}</h2><p>${L("Same service either way. The difference is only when you pay.", "الخدمة نفسها في الحالتين. الفرق فقط في وقت الدفع.")}</p></div>
+    <div class="grid grid-2">
+      <div class="card jss-plan">
+        <span class="emp-tag">${L("Pay as we search", "ادفع أثناء البحث")}</span>
+        <h3>${L("100 SAR a month", "١٠٠ ريال شهرياً")}</h3>
+        <p>${L("A flat monthly subscription for as long as you want us searching. Stop it whenever you like — there's no commitment and no commission at the end.", "اشتراك شهري ثابت ما دمت تريدنا نبحث لك. أوقفه متى شئت — بدون التزام وبدون أي عمولة في النهاية.")}</p>
+        <ul class="jss-list">
+          <li>${L("Weekly matches sent to you", "وظائف مناسبة تصلك أسبوعياً")}</li>
+          <li>${L("We nominate you directly to employers", "نرشّحك مباشرة لأصحاب العمل")}</li>
+          <li>${L("Your CV rewritten in ATS format", "سيرتك الذاتية بصيغة ATS")}</li>
+          <li>${L("Nothing owed when you get hired", "لا شيء مستحق عند التوظيف")}</li>
+        </ul>
+      </div>
+      <div class="card jss-plan jss-plan--featured">
+        <span class="emp-tag t-in">${L("Pay only if it works", "ادفع فقط إذا نجحت")}</span>
+        <h3>${L("One month's salary, over 3 instalments", "راتب شهر واحد على ٣ دفعات")}</h3>
+        <p>${L("Nothing at all while we search. The moment you accept an offer, our fee is one month of your new salary — a deposit when you sign, then the rest monthly, three instalments at most.", "لا شيء إطلاقاً أثناء البحث. لحظة قبولك العرض تكون أتعابنا راتب شهر واحد من راتبك الجديد — دفعة مقدمة عند التوقيع ثم الباقي شهرياً، بحد أقصى ثلاث دفعات.")}</p>
+        <ul class="jss-list">
+          <li>${L("Zero cost until you're hired", "بدون أي تكلفة حتى توظَّف")}</li>
+          <li>${L("Never more than one month's salary in total", "لا تتجاوز أتعابنا راتب شهر واحد إجمالاً")}</li>
+          <li>${L("Split over three months, never more", "مقسّمة على ثلاثة أشهر، ولا تزيد")}</li>
+          <li>${L("If you're not hired, you owe nothing", "إن لم توظَّف فلا تدفع شيئاً")}</li>
+        </ul>
+      </div>
+    </div>
+    <p class="emp-note" style="text-align:center;margin-top:18px">${L("Nothing is charged when you sign up. We review your file, agree the plan with you, and only then does the service start.", "لا يُخصم أي مبلغ عند التسجيل. نراجع ملفك ونتفق معك على الباقة، وبعدها فقط تبدأ الخدمة.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container" style="max-width:560px">
+    <div class="section-head" id="jss-form"><span class="eyebrow">${L("Start", "ابدأ")}</span><h2>${L("Put your file in our hands", "سلّمنا ملفك")}</h2></div>
+    <div class="dash-card">
+      <form id="jss-signup" novalidate>
+        <div class="field"><label for="jss-name">${L("Your full name", "اسمك الكامل")} *</label><input id="jss-name" type="text" required autocomplete="name"></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="jss-email">${L("Email", "البريد الإلكتروني")}</label><input id="jss-email" type="email" autocomplete="email"></div>
+          <div class="field"><label for="jss-phone">${L("Mobile", "الجوال")}</label><input id="jss-phone" type="tel" autocomplete="tel" placeholder="+9665XXXXXXXX"></div>
+        </div>
+        <p class="emp-note" style="margin:-6px 0 14px">${L("Either one is enough — we use it to find your existing file.", "أحدهما يكفي — نستخدمه للعثور على ملفك لدينا.")}</p>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="jss-role">${L("The job you want", "الوظيفة التي تريدها")}</label><input id="jss-role" type="text" list="jss-professions"><datalist id="jss-professions"></datalist></div>
+          <div class="field"><label for="jss-city">${L("Where you want to work", "أين تريد أن تعمل")}</label><input id="jss-city" type="text"></div>
+        </div>
+        <div class="field"><label for="jss-plan">${L("Which plan suits you?", "أي باقة تناسبك؟")}</label>
+          <select id="jss-plan">
+            <option value="راتب شهر على 3 دفعات">${L("Pay only if hired — one month's salary over 3 instalments", "ادفع فقط إذا وُظّفت — راتب شهر على ٣ دفعات")}</option>
+            <option value="اشتراك شهري 100 ريال">${L("100 SAR a month while you search for me", "١٠٠ ريال شهرياً طوال البحث")}</option>
+            <option value="">${L("Not sure yet — talk to me first", "لست متأكداً — تواصلوا معي أولاً")}</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="jss-submit">${L("Start searching for me", "ابدأوا البحث لي")}</button>
+        <p class="emp-note" id="jss-msg" style="text-align:center;min-height:20px;margin-top:12px"></p>
+      </form>
+    </div>
+    <p class="emp-note" style="text-align:center;margin-top:14px">${L("Already signed up? We email you every time we find something — no login needed.", "سجّلت من قبل؟ يصلك بريد كلما وجدنا لك وظيفة — بدون تسجيل دخول.")}</p>
+  </div></section>`;
+  return page({ title: Lraw("We search for the job on your behalf — Business Partner", "نبحث لك عن الوظيفة بالنيابة عنك — بيزنس بارتنر"), desc: Lraw("Business Partner searches for jobs on your behalf: 100 SAR a month, or one month's salary over three instalments paid only once you're hired.", "بيزنس بارتنر يبحث لك عن وظيفة بالنيابة عنك: ١٠٠ ريال شهرياً، أو راتب شهر على ثلاث دفعات تُدفع فقط بعد توظيفك."), active: "/careers", path: "/job-search-service", body });
+}
+
+function buildRecruitmentAgencies() {
+  const perks = [
+    ["⚡", L("Open your panel in a minute", "لوحتك تفتح خلال دقيقة"), L("Create an account with your email or Google and your provider dashboard opens immediately — no waiting for anyone to approve you.", "أنشئ حسابك بالبريد أو عبر Google وتفتح لوحة المزوّد فوراً — بدون انتظار موافقة من أحد.")],
+    ["📋", L("Real hiring demand", "طلبات توظيف فعلية"), L("See the requirements our Saudi clients are hiring for — profession, headcount, nationalities and salary — instead of chasing leads.", "اطّلع على متطلبات عملائنا في السعودية — المهنة والعدد والجنسيات والراتب — بدل البحث العشوائي عن فرص.")],
+    ["👤", L("Your own candidate database", "قاعدة بيانات مرشحيك"), L("Every office gets a private candidate database. Attach a CV and we read it, file it and produce an ATS-ready version automatically.", "لكل مكتب قاعدة بيانات مرشحين خاصة به. أرفق السيرة الذاتية فنقرأها ونحفظها ونصدر نسخة ATS تلقائياً.")],
+    ["🔒", L("Your data stays yours", "بياناتك تبقى لك"), L("Licence documents and contacts are used for accreditation only, never published on the site.", "مستندات الترخيص وبيانات التواصل تُستخدم للاعتماد فقط ولا تُنشر على الموقع.")],
+  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
+  const steps = [
+    [L("Create your account", "أنشئ حسابك"), L("Email and a password, or one click with Google. That's the whole sign-up.", "بريد وكلمة مرور، أو نقرة واحدة عبر Google. هذا كل التسجيل.")],
+    [L("Answer the profile questions", "أجب أسئلة الملف"), L("Inside your panel: licence, nationalities, professions and your fees. Save and you're done.", "داخل لوحتك: الترخيص والجنسيات والمهن ورسومك. احفظ وانتهيت.")],
+    [L("Receive demand & submit candidates", "استقبل الطلبات وارفع مرشحيك"), L("Open requests and every open job appear in your panel — submit candidates against any of them.", "تظهر الطلبات المفتوحة وكل الوظائف في لوحتك — رشّح عليها مباشرة.")],
+    [L("Follow every candidate", "تابع كل مرشح"), L("Each profile you send is tracked to its stage, and reaches the employer as an overseas candidate ready for interview.", "كل ملف ترسله يُتابع بمرحلته، ويصل لصاحب العمل كمرشّح من خارج السعودية جاهز للمقابلة.")],
+  ].map((x, i) => `<div class="card"><div class="card-icon">${i + 1}</div><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join("");
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:860px">
+    <span class="eyebrow">${L("Recruitment partners", "شركاء التوظيف")}</span>
+    <h1>${L("Recruitment offices & agencies — register as a provider", "مكاتب الاستقدام ووكالات التوظيف — سجّل كمزوّد خدمة")}</h1>
+    <p class="lead">${L("Join Business Partner's provider network: create your account in a minute, receive real hiring demand from Saudi employers, and submit your candidates through your own panel.", "انضم لشبكة مزوّدي التوظيف لدى بيزنس بارتنر: أنشئ حسابك خلال دقيقة، واستقبل طلبات توظيف فعلية من أصحاب عمل سعوديين، وارفع مرشحيك من لوحتك الخاصة.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agency-form">${L("Create a provider account", "أنشئ حساب مزوّد")}</a><a class="btn btn-ghost btn-lg" href="${u("/agency-portal")}">${L("Sign in to your panel", "دخول لوحتك")}</a></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Why register", "لماذا التسجيل")}</span><h2>${L("What a registered provider gets", "ماذا يحصل عليه المزوّد المسجّل")}</h2></div>
+    <div class="grid grid-4">${perks}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تتم العملية")}</span><h2>${L("Four steps, and none of them is waiting", "أربع خطوات، ولا واحدة منها انتظار")}</h2></div>
+    <div class="grid grid-4">${steps}</div>
+  </div></section>
+
+  <section class="section"><div class="container" style="max-width:520px">
+    <div class="section-head" id="agency-form"><span class="eyebrow">${L("Sign up", "التسجيل")}</span><h2>${L("Create your provider account", "أنشئ حساب المزوّد")}</h2><p>${L("Your panel opens straight away. The office details, nationalities, professions and fees are asked inside it.", "تفتح لوحتك مباشرة. بيانات المكتب والجنسيات والمهن والرسوم تُسأل داخلها.")}</p></div>
+    <div class="dash-card">
+      <div id="ag-google-wrap" hidden>
+        <div id="ag-google" style="display:flex;justify-content:center"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin:16px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">${L("or", "أو")}</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
+      </div>
+      <form id="ag-signup" novalidate>
+        <div class="field"><label for="ag-name">${L("Office / agency name", "اسم المكتب أو الوكالة")} *</label><input id="ag-name" type="text" required autocomplete="organization"></div>
+        <div class="field"><label for="ag-email">${L("Work email", "البريد الإلكتروني للعمل")} *</label><input id="ag-email" type="email" required autocomplete="email"></div>
+        <div class="field"><label for="ag-password">${L("Password", "كلمة المرور")} *</label><input id="ag-password" type="password" required minlength="8" autocomplete="new-password"><p class="emp-note" style="margin:6px 0 0">${L("At least 8 characters.", "٨ أحرف على الأقل.")}</p></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:6px" id="ag-submit">${L("Create account & open my panel", "أنشئ الحساب وافتح لوحتي")}</button>
+        <p class="emp-note" id="ag-msg" style="text-align:center;min-height:20px;margin-top:12px"></p>
+      </form>
+      <p class="emp-note" style="text-align:center;margin:0">${L("Already registered?", "مسجّل من قبل؟")} <a href="${u("/agency-portal")}">${L("Sign in", "سجّل الدخول")}</a></p>
+    </div>
+    <p class="emp-note" style="text-align:center;margin-top:14px">${L("We never publish your licence documents or contacts — they are used for accreditation only.", "لا ننشر مستندات ترخيصك أو بيانات تواصلك — تُستخدم للاعتماد فقط.")}</p>
+  </div></section>`;
+  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Recruitment offices & agencies — Business Partner", "مكاتب الاستقدام ووكالات التوظيف — بيزنس بارتنر"), desc: Lraw("Register your recruitment office or agency with Business Partner: create an account, receive Saudi hiring demand and submit candidates from your own panel.", "سجّل مكتب الاستقدام أو وكالة التوظيف لديك مع بيزنس بارتنر: أنشئ حسابك، واستقبل طلبات التوظيف السعودية، وارفع مرشحيك من لوحتك."), active: "/hr", path: "/recruitment-agencies", body });
+}
+
+// The provider panel. Sign-up and sign-in live on the same screen (password or
+// Google), the office answers the profile questions inside the panel the first
+// time it lands here, and from then on it sees demand, every open job, and the
+// candidates it has supplied. Content is filled by main.js.
+function buildAgencyPortal() {
+  const f = (id, label, opts = {}) =>
+    `<div class="field"><label for="${id}">${label}${opts.req ? " *" : ""}</label>${
+      opts.textarea
+        ? `<textarea id="${id}" rows="${opts.rows || 3}" placeholder="${opts.ph || ""}"></textarea>`
+        : opts.select
+          ? `<select id="${id}">${opts.select.map((o) => `<option value="${esc(o[0])}">${esc(o[1])}</option>`).join("")}</select>`
+          : `<input id="${id}" type="${opts.type || "text"}" placeholder="${opts.ph || ""}"${opts.req ? " required" : ""}>`
+    }</div>`;
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner" style="max-width:600px">
+    <span class="eyebrow">${L("Provider panel", "لوحة المزوّد")}</span>
+    <h1 id="ap-title">${L("Recruitment provider panel", "لوحة مزوّدي التوظيف والاستقدام")}</h1>
+    <p class="lead" id="ap-sub">${L("Sign in — or create an account in a minute and your panel opens immediately.", "سجّل الدخول — أو أنشئ حساباً خلال دقيقة وتفتح لوحتك فوراً.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container" style="max-width:960px">
+    <div id="ap-login" style="max-width:440px;margin:0 auto">
+      <div class="auth-tabs">
+        <button type="button" id="ap-tab-in" class="is-active">${L("Sign in", "تسجيل الدخول")}</button>
+        <button type="button" id="ap-tab-up">${L("Create an account", "إنشاء حساب")}</button>
+      </div>
+      <div id="ap-google-wrap" style="margin-bottom:6px" hidden>
+        <div id="ap-google" style="display:flex;justify-content:center"></div>
+        <p class="emp-note" style="text-align:center;margin:8px 0">${L("One click with Google — it signs you in, or creates your account if you're new.", "نقرة واحدة عبر Google — تدخلك، أو تنشئ حسابك إن كنت جديداً.")}</p>
+        <div style="display:flex;align-items:center;gap:12px;margin:14px 0"><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"><span class="emp-note" style="margin:0">${L("or", "أو")}</span><hr style="flex:1;border:none;border-top:1px solid #E2E8F0"></div>
+      </div>
+      <form id="ap-login-form" novalidate>
+        <div class="field" id="ap-name-field" hidden><label for="ap-name">${L("Office / agency name", "اسم المكتب أو الوكالة")}</label><input id="ap-name" type="text" autocomplete="organization"></div>
+        <div class="field"><label for="ap-email">${L("Email", "البريد الإلكتروني")}</label><input id="ap-email" type="email" required autocomplete="email"></div>
+        <div class="field" id="ap-pass-field"><label for="ap-password">${L("Password", "كلمة المرور")}</label><input id="ap-password" type="password" autocomplete="current-password"></div>
+        <div class="field" id="ap-code-field" hidden><label for="ap-code">${L("Access code", "رمز الوصول")}</label><input id="ap-code" type="text" placeholder="BP-AG-XXXXXXXXXX" style="text-align:center;letter-spacing:1px" autocomplete="off"></div>
+        <div class="field" id="ap-otp-field" hidden><label for="ap-otp">${L("Code sent to your email", "الرمز المرسل إلى بريدك")}</label><input id="ap-otp" type="text" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:1.3rem;font-weight:700" autocomplete="one-time-code"></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-login-btn">${L("Sign in", "دخول")}</button>
+        <p class="emp-note" id="ap-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
+      <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="ap-use-email">${L("Forgot your password? Email me a sign-in code", "نسيت كلمة المرور؟ أرسل لي رمز دخول على بريدي")}</a> · <a href="#" id="ap-use-code">${L("Use an access code", "استخدم رمز وصول")}</a></p>
+      <p class="emp-note" style="text-align:center;margin-top:14px;opacity:.75">🪪 ${L("Nafath sign-in — coming soon for offices with a Saudi representative.", "الدخول عبر نفاذ — قريباً للمكاتب التي لديها ممثل سعودي.")}</p>
+    </div>
+
+    <div id="ap-onboard" hidden style="max-width:720px;margin:0 auto">
+      <div class="section-head" style="text-align:start"><span class="eyebrow" id="ap-ob-eyebrow">${L("Set up your profile", "إعداد ملف مكتبك")}</span><h2 id="ap-ob-title">${L("Tell us what your office supplies", "عرّفنا بما يوفّره مكتبك")}</h2><p>${L("Four short steps. Employers see this profile when they pick a provider — and you can edit it any time from your panel.", "أربع خطوات قصيرة. أصحاب العمل يرون هذا الملف عند اختيار المزوّد — وتقدر تعدّله في أي وقت من لوحتك.")}</p></div>
+      <div class="wiz-steps">
+        <div class="wiz-step is-active" data-wiz-tab="1"><span class="n">1</span>${L("Your office", "بيانات المكتب")}</div>
+        <div class="wiz-step" data-wiz-tab="2"><span class="n">2</span>${L("Licence & contact", "الترخيص والتواصل")}</div>
+        <div class="wiz-step" data-wiz-tab="3"><span class="n">3</span>${L("What you supply", "ما الذي توفره")}</div>
+        <div class="wiz-step" data-wiz-tab="4"><span class="n">4</span>${L("Fees & documents", "الرسوم والمستندات")}</div>
+      </div>
+      <form id="ap-profile-form" novalidate>
+        <div class="dash-card wiz-pane" data-wiz-pane="1">
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-name", L("Office / agency name", "اسم المكتب أو الوكالة"), { req: true })}
+            ${f("ob-kind", L("Entity type", "نوع الجهة"), { select: [["مكتب استقدام", Lraw("Recruitment office (deployment)", "مكتب استقدام")], ["وكالة توظيف", Lraw("Recruitment agency", "وكالة توظيف")], ["الاثنان", Lraw("Both", "الاثنان")]] })}
+          </div>
+          <div class="field"><label for="ob-scope">${L("What do you do?", "ماذا تقدّم؟")}</label>
+            <select id="ob-scope">
+              <option value="كلاهما">${L("Both sourcing and deployment", "استقطاب واستقدام معاً")}</option>
+              <option value="استقطاب">${L("Sourcing only (finding candidates)", "استقطاب فقط (إيجاد المرشحين)")}</option>
+              <option value="استقدام">${L("Deployment only (visas & mobilisation)", "استقدام فقط (التأشيرات والإجراءات)")}</option>
+            </select>
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-country">${L("Country", "الدولة")} *</label><select id="ob-country" required><option value="">${L("Choose a country", "اختر الدولة")}</option></select></div>
+            <div class="field"><label for="ob-city">${L("City", "المدينة")}</label><input id="ob-city" type="text" list="ob-cities" placeholder="${Lraw("Pick or type a city", "اختر أو اكتب المدينة")}"><datalist id="ob-cities"></datalist></div>
+          </div>
+          ${f("ob-website", L("Website", "الموقع الإلكتروني"), { type: "url", ph: "https://" })}
+          ${f("ob-about", L("About your office", "نبذة عن مكتبك"), { textarea: true, rows: 4 })}
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="2" hidden>
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-license", L("Licence number", "رقم الترخيص"))}
+            ${f("ob-license-by", L("Licensing authority", "جهة الترخيص"), { ph: Lraw("Ministry / authority name", "اسم الوزارة أو الجهة") })}
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-musaned", L("Registered on Musaned", "مسجل في مساند"), { select: [["لا", Lraw("No", "لا")], ["نعم", Lraw("Yes", "نعم")], ["قيد التسجيل", Lraw("In progress", "قيد التسجيل")]] })}
+            ${f("ob-ksa", L("Worked with Saudi employers before", "تعامل سابق مع السعودية"), { select: [["نعم", Lraw("Yes", "نعم")], ["لا", Lraw("No", "لا")]] })}
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-contact", L("Contact person", "جهة الاتصال"))}
+            ${f("ob-role", L("Job title", "المنصب"))}
+          </div>
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="ob-phone">${L("Phone", "الهاتف")}</label>
+              <div style="display:flex;gap:8px">
+                <select id="ob-phone-code" style="max-width:145px" aria-label="${Lraw("Country code", "رمز الدولة")}"></select>
+                <input id="ob-phone" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+              </div>
+            </div>
+            <div class="field"><label for="ob-whatsapp">${L("WhatsApp", "واتساب")}</label>
+              <div style="display:flex;gap:8px">
+                <select id="ob-whatsapp-code" style="max-width:145px" aria-label="${Lraw("Country code", "رمز الدولة")}"></select>
+                <input id="ob-whatsapp" type="tel" placeholder="5XXXXXXXX" style="flex:1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="3" hidden>
+          <div class="field"><label>${L("Nationalities you supply", "الجنسيات التي توفرها")}</label><div id="ob-nationalities"></div></div>
+          <div class="field"><label>${L("Professions & specialities", "المهن والتخصصات")}</label><div id="ob-professions"></div></div>
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-capacity", L("Monthly capacity (workers)", "الطاقة الشهرية (عدد العمالة)"), { type: "number" })}
+            ${f("ob-years", L("Years in business", "سنوات الخبرة"), { type: "number" })}
+          </div>
+        </div>
+
+        <div class="dash-card wiz-pane" data-wiz-pane="4" hidden>
+          <p class="emp-note" style="margin-top:0">${L("Employers compare providers on price. State what you charge for each service you offer — leave the other one empty.", "أصحاب العمل يقارنون المزوّدين بالسعر. اذكر رسومك لكل خدمة تقدّمها — واترك الأخرى فارغة.")}</p>
+          ${f("ob-fee-model", L("Fee model", "نموذج الرسوم"), { select: [["حسب الاتفاق", Lraw("By agreement", "حسب الاتفاق")], ["رسوم ثابتة لكل مرشح", Lraw("Flat fee per candidate", "رسوم ثابتة لكل مرشح")], ["نسبة من الراتب السنوي", Lraw("% of annual salary", "نسبة من الراتب السنوي")], ["نسبة من الراتب الشهري", Lraw("% of monthly salary", "نسبة من الراتب الشهري")], ["بدون رسوم على المرشح", Lraw("No fee charged to the candidate", "بدون رسوم على المرشح")]] })}
+          <div class="grid grid-2" style="gap:0 20px">
+            ${f("ob-fee-sourcing", L("Sourcing fee", "رسوم الاستقطاب"), { ph: Lraw("e.g. 1,500 per hired candidate", "مثال: ١٥٠٠ لكل مرشح يتم توظيفه") })}
+            ${f("ob-fee-deployment", L("Deployment fee", "رسوم الاستقدام"), { ph: Lraw("e.g. 4,000 all-in incl. visa & ticket", "مثال: ٤٠٠٠ شاملة التأشيرة والتذكرة") })}
+          </div>
+          ${f("ob-fee-currency", L("Currency", "العملة"), { select: [["SAR", "SAR — ريال سعودي"], ["USD", "USD"], ["EUR", "EUR"], ["أخرى", Lraw("Other", "أخرى")]] })}
+          <div class="field">
+            <label>${L("Company profile — PDF, Word or PowerPoint", "بروفايل الشركة — PDF أو Word أو PowerPoint")}</label>
+            <label class="file-drop" for="ob-profile" id="ob-profile-drop">
+              <span class="file-ico">${I.upload}</span>
+              <span class="file-text" id="ob-profile-name">${L("Drag your profile here or click to choose", "اسحب البروفايل هنا أو اضغط للاختيار")}</span>
+            </label>
+            <input id="ob-profile" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden>
+            <p class="emp-note" style="margin:6px 0 0">${L("Optional, up to 8MB. Attach the licence too if it's in the same file.", "اختياري، حتى 8 ميجابايت. أرفق الترخيص معه إن كان في نفس الملف.")}</p>
+          </div>
+        </div>
+
+        <div class="wiz-nav">
+          <button type="button" class="btn btn-ghost" id="ap-ob-back" hidden>${L("Back", "السابق")}</button>
+          <div style="display:flex;gap:10px;margin-inline-start:auto">
+            <button type="button" class="btn btn-ghost" id="ap-ob-skip">${L("Skip for now", "لاحقاً")}</button>
+            <button type="button" class="btn btn-primary" id="ap-ob-next">${L("Next", "التالي")}</button>
+            <button type="submit" class="btn btn-primary" id="ap-ob-save" hidden>${L("Save & open my panel", "احفظ وافتح لوحتي")}</button>
+          </div>
+        </div>
+        <p class="emp-note" id="ap-ob-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
+    </div>
+
+    <div id="ap-app" hidden>
+      <div class="dash-card" style="margin-bottom:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <div><h3 id="ap-agency-name" style="margin:0"></h3><p class="emp-note" id="ap-agency-meta" style="margin:6px 0 0"></p><p class="emp-note" id="ap-agency-fees" style="margin:2px 0 0"></p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-ghost btn-sm" id="ap-edit-profile">${L("Edit profile", "تعديل الملف")}</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="ap-logout">${L("Sign out", "تسجيل الخروج")}</button>
+        </div>
+      </div>
+
+      <div class="dash-stats" style="margin-bottom:22px">
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="ap-n-req">0</div><div class="lbl">${L("Requests for you", "طلبات موجّهة لك")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">💼</div><div class="num" id="ap-n-jobs">0</div><div class="lbl">${L("Open jobs", "وظائف مفتوحة")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">👤</div><div class="num" id="ap-n-cand">0</div><div class="lbl">${L("Candidates you sent", "مرشحون أرسلتهم")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📅</div><div class="num" id="ap-n-iv">0</div><div class="lbl">${L("Interview requests", "طلبات مقابلات")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="ap-n-status">—</div><div class="lbl">${L("Account status", "حالة الحساب")}</div></div>
+      </div>
+
+      <div class="section-head" style="text-align:start"><h2>${L("Open requests for you", "الطلبات المفتوحة لك")}</h2><p>${L("Requirements addressed to your office, plus requests open to the whole network.", "الطلبات الموجّهة لمكتبك، إضافة للطلبات المتاحة لكل الشبكة.")}</p></div>
+      <div id="ap-requests"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
+
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("All open jobs", "كل الوظائف المفتوحة")}</h2><p>${L("Every job open on the platform — submit a candidate against any of them.", "كل وظيفة مفتوحة على المنصة — ترشّح عليها مباشرة.")}</p></div>
+      <div id="ap-jobs"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
+
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("Interview requests", "طلبات المقابلات")}</h2><p>${L("An employer asked to meet these candidates. Prepare the candidate, then book the slot — the employer is notified the moment you do.", "أصحاب عمل طلبوا مقابلة هؤلاء المرشحين. جهّز المرشّح ثم احجز الموعد — يصل الإشعار لصاحب العمل فور الحجز.")}</p></div>
+      <div id="ap-interviews"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
+
+      <div class="section-head" style="text-align:start;margin-top:34px"><h2>${L("Your candidate database", "قاعدة بيانات مرشحيك")}</h2><p>${L("Everyone your office has supplied — add them from your own pool with no job attached, one by one or as a sheet.", "كل من رفعهم مكتبك — أضِفهم من قاعدتك بدون ربطهم بوظيفة، واحداً واحداً أو دفعة واحدة من ملف.")}</p></div>
+
+      <div class="ap-toolbar">
+        <button type="button" class="btn btn-primary btn-sm" id="ap-add-candidate">＋ ${L("Add a candidate", "أضف مرشّحاً")}</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="ap-import-open">📥 ${L("Import a sheet", "استيراد ملف")}</button>
+        <input type="search" id="ap-sub-q" class="ap-filter" placeholder="${Lraw("Search name or profession…", "ابحث بالاسم أو المهنة…")}">
+        <select id="ap-sub-res" class="ap-filter">
+          <option value="">${L("Any residence", "كل حالات الإقامة")}</option>
+          <option value="خارج السعودية">${L("Outside Saudi Arabia", "خارج السعودية")}</option>
+          <option value="مقيم بإقامة نظامية قابلة للنقل">${L("Inside — transferable iqama", "داخل — إقامة قابلة للنقل")}</option>
+          <option value="مقيم بإقامة غير قابلة للنقل">${L("Inside — non-transferable", "داخل — غير قابلة للنقل")}</option>
+          <option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>
+        </select>
+        <select id="ap-sub-region" class="ap-filter">
+          <option value="">${L("Any experience", "كل الخبرات")}</option>
+          <option value="خبرة سعودية">${L("Saudi experience", "خبرة سعودية")}</option>
+          <option value="خبرة خليجية">${L("Gulf experience", "خبرة خليجية")}</option>
+          <option value="خبرة عربية">${L("Arab-region experience", "خبرة عربية")}</option>
+          <option value="خبرة دولية">${L("International experience", "خبرة دولية")}</option>
+        </select>
+      </div>
+
+      <div class="dash-card" id="ap-import" hidden style="margin-bottom:18px">
+        <h3 style="margin-top:0">${L("Import candidates from a sheet", "استيراد مرشحين من ملف")}</h3>
+        <p class="emp-note">${L("Excel (.xlsx) or CSV. Arabic or English column titles both work — we match them for you. The file is read in your browser; nothing is uploaded until you confirm.", "ملف Excel (.xlsx) أو CSV. عناوين الأعمدة بالعربية أو الإنجليزية — نطابقها لك تلقائياً. يُقرأ الملف في متصفحك ولا يُرفع شيء قبل تأكيدك.")}</p>
+        <label class="file-drop" for="ap-sheet" id="ap-sheet-drop">
+          <span class="file-ico">${I.upload}</span>
+          <span class="file-text" id="ap-sheet-name">${L("Drag the sheet here or click to choose", "اسحب الملف هنا أو اضغط للاختيار")}</span>
+        </label>
+        <input id="ap-sheet" type="file" accept=".xlsx,.csv,.tsv" hidden>
+        <p class="emp-note" style="margin:8px 0"><a href="#" id="ap-template">⬇︎ ${L("Download a template sheet", "نزّل ملفاً جاهزاً للتعبئة")}</a></p>
+        <div id="ap-sheet-preview"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+          <button type="button" class="btn btn-primary" id="ap-import-go" hidden>${L("Import these candidates", "استورد هؤلاء المرشحين")}</button>
+          <button type="button" class="btn btn-ghost" id="ap-import-close">${L("Close", "إغلاق")}</button>
+        </div>
+        <p class="emp-note" id="ap-import-msg" style="min-height:18px;margin-top:8px"></p>
+      </div>
+
+      <div id="ap-submissions"><p class="emp-note">${L("Loading…", "جارٍ التحميل…")}</p></div>
+    </div>
+  </div></section>
+
+  <div class="empd-modal" id="ap-modal" hidden><div class="empd-modal-in">
+    <button class="empd-modal-x" id="ap-modal-x">✕</button>
+    <h3 id="ap-modal-title">${L("Submit a candidate", "رفع مرشّح")}</h3>
+    <div class="empd-modal-body">
+      <form id="ap-cand-form" novalidate>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-c-name">${L("Candidate name", "اسم المرشّح")} *</label><input id="ap-c-name" type="text" required></div>
+          <div class="field"><label for="ap-c-role">${L("Profession", "المهنة")} *</label><input id="ap-c-role" type="text" list="ap-c-professions" required><datalist id="ap-c-professions"></datalist></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-c-nat">${L("Nationality", "الجنسية")}</label><input id="ap-c-nat" type="text" list="ap-c-nationalities"><datalist id="ap-c-nationalities"></datalist></div>
+          <div class="field"><label for="ap-c-exp">${L("Years of experience", "سنوات الخبرة")}</label><input id="ap-c-exp" type="number" min="0"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-c-residence">${L("Where is the candidate now?", "أين المرشّح الآن؟")}</label>
+            <select id="ap-c-residence">
+              <option value="خارج السعودية">${L("Outside Saudi Arabia — needs deployment", "خارج السعودية — يحتاج استقدام")}</option>
+              <option value="مقيم بإقامة نظامية قابلة للنقل">${L("Inside Saudi — transferable iqama", "داخل السعودية — إقامة قابلة للنقل")}</option>
+              <option value="مقيم بإقامة غير قابلة للنقل">${L("Inside Saudi — non-transferable iqama", "داخل السعودية — إقامة غير قابلة للنقل")}</option>
+              <option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>
+              <option value="أخرى">${L("Other", "أخرى")}</option>
+            </select>
+          </div>
+          <div class="field"><label for="ap-c-avail">${L("Availability", "الجاهزية")}</label>
+            <select id="ap-c-avail"><option value="">—</option><option value="فوري">${L("Immediate", "فوري")}</option><option value="خلال شهر">${L("Within a month", "خلال شهر")}</option><option value="خلال 3 أشهر">${L("Within 3 months", "خلال 3 أشهر")}</option></select>
+          </div>
+        </div>
+        <div class="field"><label>${L("Countries they have worked in", "الدول التي عمل فيها")}</label><div id="ap-c-countries"></div></div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-c-education">${L("Education", "المؤهل العلمي")}</label><input id="ap-c-education" type="text"></div>
+          <div class="field"><label for="ap-c-salary">${L("Expected salary (SAR)", "الراتب المتوقع (ريال)")}</label><input id="ap-c-salary" type="number" min="0"></div>
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-c-phone">${L("Phone", "الجوال")}</label><input id="ap-c-phone" type="tel"></div>
+          <div class="field"><label for="ap-c-email">${L("Email", "البريد")}</label><input id="ap-c-email" type="email"></div>
+        </div>
+        <div class="field">
+          <label>${L("Attach the CV — PDF or Word", "أرفق السيرة الذاتية — PDF أو Word")}</label>
+          <label class="file-drop" for="ap-c-file" id="ap-c-drop">
+            <span class="file-ico">${I.upload}</span>
+            <span class="file-text" id="ap-c-filename">${L("Drag the CV here or click to choose", "اسحب السيرة هنا أو اضغط للاختيار")}</span>
+          </label>
+          <input id="ap-c-file" type="file" accept=".pdf,.doc,.docx" hidden>
+          <p class="emp-note" style="margin:6px 0 0">${L("We read it, file it on Drive and produce an ATS-friendly CV automatically.", "نقرأها ونحفظها في درايف ونصدر نسخة ATS تلقائياً.")}</p>
+        </div>
+        <div class="field"><label for="ap-c-cv">${L("Or a CV link (Drive / Dropbox)", "أو رابط السيرة الذاتية (درايف / دروب بوكس)")}</label><input id="ap-c-cv" type="url" placeholder="https://"></div>
+        <div class="field"><label for="ap-c-skills">${L("Skills", "المهارات")}</label><input id="ap-c-skills" type="text"></div>
+        <div class="field"><label for="ap-c-notes">${L("Notes", "ملاحظات")}</label><textarea id="ap-c-notes" rows="3"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-c-submit">${L("Send candidate", "أرسل المرشّح")}</button>
+        <p class="emp-note" id="ap-c-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
+    </div>
+  </div></div>
+
+  <div class="empd-modal" id="ap-iv-modal" hidden><div class="empd-modal-in">
+    <button class="empd-modal-x" id="ap-iv-x">✕</button>
+    <h3 id="ap-iv-title">${L("Book the interview", "احجز موعد المقابلة")}</h3>
+    <div class="empd-modal-body">
+      <p class="emp-note" id="ap-iv-who" style="margin-top:0"></p>
+      <form id="ap-iv-form" novalidate>
+        <div class="grid grid-2" style="gap:0 20px">
+          <div class="field"><label for="ap-iv-date">${L("Date", "التاريخ")} *</label><input id="ap-iv-date" type="date" required></div>
+          <div class="field"><label for="ap-iv-time">${L("Time", "الساعة")}</label><input id="ap-iv-time" type="time"></div>
+        </div>
+        <div class="field"><label for="ap-iv-mode">${L("How will it happen?", "كيف ستتم المقابلة؟")}</label>
+          <select id="ap-iv-mode">
+            <option value="أونلاين">${L("Online — video call", "أونلاين — مكالمة مرئية")}</option>
+            <option value="حضوري">${L("In person — at the employer's site", "حضوري — في مقر صاحب العمل")}</option>
+            <option value="هاتف">${L("Phone call", "مكالمة هاتفية")}</option>
+          </select>
+        </div>
+        <div class="field" id="ap-iv-link-field"><label for="ap-iv-link">${L("Meeting link — Google Meet, Zoom or your Calendly slot", "رابط الاجتماع — Google Meet أو Zoom أو رابط Calendly")}</label><input id="ap-iv-link" type="url" placeholder="https://"></div>
+        <div class="field" id="ap-iv-place-field" hidden><label for="ap-iv-place">${L("Address of the meeting", "عنوان المقابلة")}</label><input id="ap-iv-place" type="text" placeholder="${Lraw("Building, district, city", "المبنى، الحي، المدينة")}"></div>
+        <div class="field"><label for="ap-iv-notes">${L("Anything the employer should know", "ما يجب أن يعرفه صاحب العمل")}</label><textarea id="ap-iv-notes" rows="2"></textarea></div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="ap-iv-submit">${L("Confirm the booking", "أكّد الحجز")}</button>
+        <p class="emp-note" id="ap-iv-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
+    </div>
+  </div></div>`;
+  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Provider panel — Business Partner", "لوحة مزوّدي التوظيف — بيزنس بارتنر"), desc: Lraw("Recruitment offices and agencies sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام ووكالات التوظيف لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
+}
+
 // A dedicated, full page for one candidate (instead of the old in-modal
 // preview) — content is filled client-side from /api/candidates?id=… by the
 // #cp-app IIFE in main.js, laid out like a profile page (header, badges,
@@ -4529,6 +4963,10 @@ function fieldOptionsHtml() {
 
 function buildEmployerDashboard() {
   const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
+  // Where the candidate is now, and where they've actually worked — the two
+  // questions an employer asks before deciding to hire locally or deploy.
+  const residences = `<option value="">${L("Anywhere", "أي مكان")}</option><option value="داخل السعودية">${L("Already in Saudi Arabia", "داخل السعودية")}</option><option value="خارج السعودية">${L("Outside Saudi Arabia", "خارج السعودية")}</option><option value="مقيم بإقامة نظامية قابلة للنقل">${L("Transferable iqama", "إقامة قابلة للنقل")}</option><option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>`;
+  const regions = `<option value="">${L("Any experience", "أي خبرة")}</option><option value="خبرة سعودية">${L("Saudi experience", "خبرة سعودية")}</option><option value="خبرة خليجية">${L("Gulf experience", "خبرة خليجية")}</option><option value="خبرة عربية">${L("Arab-region experience", "خبرة عربية")}</option><option value="خبرة دولية">${L("International experience", "خبرة دولية")}</option>`;
   const body = `
   <section class="hero"><div class="container hero-inner" style="max-width:1080px">
     <span class="eyebrow">${L("AI Hiring OS", "نظام التوظيف الذكي")}</span>
@@ -4600,6 +5038,8 @@ function buildEmployerDashboard() {
           <input type="text" id="empd-country" placeholder="${Lraw("All countries", "كل الدول")}">
           <input type="text" id="empd-city" placeholder="${Lraw("All cities", "كل المدن")}">
           <select id="empd-nat">${nats}</select>
+          <select id="empd-res">${residences}</select>
+          <select id="empd-region">${regions}</select>
           <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
         </div></div>
         <p class="emp-note" id="empd-status"></p>
@@ -4693,6 +5133,10 @@ function buildPortalJoin() {
 
 function buildPortalDashboard() {
   const nats = `<option value="">${L("Any nationality", "أي جنسية")}</option><option value="سعودي">${L("Saudi", "سعودي")}</option><option value="غير سعودي">${L("Non-Saudi", "غير سعودي")}</option>`;
+  // Where the candidate is now, and where they've actually worked — the two
+  // questions an employer asks before deciding to hire locally or deploy.
+  const residences = `<option value="">${L("Anywhere", "أي مكان")}</option><option value="داخل السعودية">${L("Already in Saudi Arabia", "داخل السعودية")}</option><option value="خارج السعودية">${L("Outside Saudi Arabia", "خارج السعودية")}</option><option value="مقيم بإقامة نظامية قابلة للنقل">${L("Transferable iqama", "إقامة قابلة للنقل")}</option><option value="مواطن سعودي">${L("Saudi national", "مواطن سعودي")}</option>`;
+  const regions = `<option value="">${L("Any experience", "أي خبرة")}</option><option value="خبرة سعودية">${L("Saudi experience", "خبرة سعودية")}</option><option value="خبرة خليجية">${L("Gulf experience", "خبرة خليجية")}</option><option value="خبرة عربية">${L("Arab-region experience", "خبرة عربية")}</option><option value="خبرة دولية">${L("International experience", "خبرة دولية")}</option>`;
   const body = `
   <section class="hero"><div class="container hero-inner" style="max-width:1080px">
     <span class="eyebrow">${L("AI Hiring OS", "نظام التوظيف الذكي")}</span>
@@ -4761,6 +5205,8 @@ function buildPortalDashboard() {
           <input type="text" id="empd-country" placeholder="${Lraw("All countries", "كل الدول")}">
           <input type="text" id="empd-city" placeholder="${Lraw("All cities", "كل المدن")}">
           <select id="empd-nat">${nats}</select>
+          <select id="empd-res">${residences}</select>
+          <select id="empd-region">${regions}</select>
           <button type="button" class="btn btn-primary" id="empd-load">${L("Refresh", "تحديث")}</button>
         </div></div>
         <p class="emp-note" id="empd-status"></p>
@@ -4887,6 +5333,19 @@ function seekerFormHtml(f, fixedJob) {
           <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
         </div>
         <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
+        <div class="jss-offer">
+          <label class="consent-row"><input type="checkbox" id="c-jobsearch"><span><b>${L("Would you like us to search for a job on your behalf?", "هل ترغب بأن نبحث لك عن وظيفة بالنيابة عنك؟")}</b> ${L("We look every week, nominate you ourselves and follow it through to the offer.", "نبحث لك أسبوعياً، ونرشّحك بأنفسنا، ونتابع حتى العرض الوظيفي.")}</span></label>
+          <div id="c-jobsearch-plan" hidden>
+            <div class="field"><label for="c-jss-plan">${L("How would you like to pay?", "كيف تفضّل الدفع؟")}</label>
+              <select id="c-jss-plan" name="jobSearchPlan">
+                <option value="راتب شهر على 3 دفعات">${L("Only if you find me a job — one month's salary over 3 instalments", "فقط إذا وجدتم لي وظيفة — راتب شهر على ٣ دفعات")}</option>
+                <option value="اشتراك شهري 100 ريال">${L("100 SAR a month while you search", "١٠٠ ريال شهرياً طوال البحث")}</option>
+                <option value="">${L("Explain it to me first", "اشرحوا لي أولاً")}</option>
+              </select>
+            </div>
+            <p class="form-note" style="margin:0">${L("Nothing is charged now. We agree the plan with you before the service starts.", "لا يُخصم أي مبلغ الآن. نتفق معك على الباقة قبل بدء الخدمة.")} <a href="${u("/job-search-service")}" target="_blank" rel="noopener">${L("Read the details", "اقرأ التفاصيل")}</a></p>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${I.upload}<span>${L("Submit application", "أرسل الطلب")}</span></button>
         <p class="form-note" id="cv-note">${L("Upload your CV (PDF or Word) to reach our team securely.", "ارفع سيرتك (PDF أو Word) لتصل لفريقنا بأمان.")}</p>
         <div class="form-success" id="cv-success" hidden>${L("✅ Your application has been received. We'll review it and reach out when there's a suitable opportunity.", "✅ تم استلام طلبك. سنراجعه ونتواصل معك عند توفّر فرصة مناسبة.")}</div>
@@ -6282,8 +6741,10 @@ function buildCart() {
       <aside class="cart-aside">
         <div class="order-box">
           <h3>${L("Summary", "الملخص")}</h3>
+          ${discBoxHtml("margin:6px 0 12px")}
           <div class="cart-totals-block">
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="cart-subtotal">—</span></div>
+          <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">${L("Discount", "الخصم")} <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="cart-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="cart-total">—</span></div>
           </div>
@@ -6300,6 +6761,54 @@ function buildCart() {
   return page({ title: Lraw("Cart — Business Partner", "السلة — بيزنس بارتنر"), desc: Lraw("Your cart of Business Partner services and packages.", "سلة طلباتك من خدمات وباقات بيزنس بارتنر."), active: "/cart", path: "/cart", body });
 }
 
+// The discount box the cart and checkout asides share. The aside's stylesheet
+// forces every .btn to width:100% (right for the checkout button, fatal here:
+// it crushed the code input to nothing) — the inline width:auto wins over it.
+function discBoxHtml(margin) {
+  return `<div class="disc-box" style="${margin};padding:10px 12px;border:1.5px dashed #CBD5E1;border-radius:12px;background:#F8FAFC">
+            <label for="disc-code" style="display:block;font-size:.82rem;font-weight:700;margin-bottom:6px">🎟️ ${L("Have a discount code?", "عندك كود خصم؟")}</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <input id="disc-code" placeholder="${L("e.g. WELCOME10", "مثال: WELCOME10")}" autocomplete="off" style="flex:1 1 140px;min-width:140px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit;text-transform:uppercase;background:#fff" />
+              <button type="button" class="btn btn-ghost" id="disc-apply" style="width:auto;flex:0 0 auto;margin-bottom:0;white-space:nowrap">${L("Apply", "تطبيق")}</button>
+            </div>
+            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
+          </div>`;
+}
+// Same normalization the published catalog applies — one source, two readers.
+// A code may be scoped to specific catalog codes via `services` (an array or a
+// comma-separated string; empty means it discounts everything). Package tiers
+// are known by two names — key ("silver") in the cart, code (BP-PKG-LAUNCH) on
+// the invoice — so each named package is published under both aliases and every
+// reader can match with a plain lookup.
+function discountServiceKeys(raw) {
+  const norm = (s) => {
+    s = String(s || "").trim().toLowerCase();
+    return s.startsWith("svc-") || s.startsWith("pkg-") ? s.slice(4) : s;
+  };
+  const wanted = (Array.isArray(raw) ? raw : String(raw || "").split(/[,،\s]+/)).map(norm).filter(Boolean);
+  if (!wanted.length) return [];
+  const out = new Set(wanted);
+  for (const g of site.packages.groups || []) {
+    for (const t of g.tiers || []) {
+      const k = norm(t.key), c = norm(t.code);
+      if (out.has(k) || (c && out.has(c))) { if (k) out.add(k); if (c) out.add(c); }
+    }
+  }
+  return [...out].slice(0, 60);
+}
+function catalogDiscounts() {
+  return (site.commerce.discounts || [])
+    .filter((d) => d && d.code && d.active !== false)
+    .map((d) => ({
+      code: String(d.code).trim().toUpperCase(),
+      percent: Number(d.percent) > 0 ? Math.min(90, Number(d.percent)) : 0,
+      amount: Number(d.amount) > 0 ? Number(d.amount) : 0,
+      expires: /^\d{4}-\d{2}-\d{2}$/.test(String(d.expires || "")) ? d.expires : "",
+      note: String(d.note || "").slice(0, 120),
+      services: discountServiceKeys(d.services),
+    }))
+    .filter((d) => d.percent > 0 || d.amount > 0);
+}
 function buildCheckout() {
   const cm = site.commerce;
   const bank = site.bank;
@@ -6382,6 +6891,19 @@ function buildCheckout() {
           <div class="tax-choice" id="pay-choice">
             <label class="tax-opt" id="pay-opt-online"><input type="radio" name="paymethod" value="online" checked><span><strong>${L("Pay online", "الدفع الإلكتروني")}</strong><small>${L("mada / Visa / Apple Pay — confirmed instantly, and your tax invoice follows straight away.", "مدى / فيزا / Apple Pay — يتأكد فوراً وتصلك فاتورتك الضريبية مباشرة.")}</small></span></label>
             <label class="tax-opt" id="pay-opt-bank"><input type="radio" name="paymethod" value="bank"><span><strong>${L("Bank transfer", "تحويل بنكي")}</strong><small>${L("Transfer to our account and upload the receipt — we verify it and activate your order.", "حوّل على حسابنا وارفع الإيصال — نتحقق منه ونفعّل طلبك.")}</small></span></label>
+            <label class="tax-opt" id="pay-opt-bnpl"><input type="radio" name="paymethod" value="bnpl"><span><strong>${L("Installments — Tabby or Tamara", "قسّطها — تابي أو تمارا")} <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-inline-start:4px"><span style="background:#3BEDC0;color:#292929;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tabby</span><span style="background:#2E1657;color:#fff;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tamara</span></span></strong><small>${L("Split into 4 interest-free payments — instant activation once approved.", "قسّم المبلغ على 4 دفعات بدون فوائد أو رسوم — وتفعيل فوري بعد الموافقة.")}</small></span></label>
+          </div>
+          <div id="bnpl-box" class="bank-box" hidden>
+            <div class="bank-head">${I.shield}<strong>${L("Pay in installments", "الدفع بالأقساط")}</strong></div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 2px">
+              <button type="button" id="bnpl-tabby" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #3BEDC0;background:#3BEDC0;color:#292929;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
+                <span style="font-size:1.05rem;direction:ltr">tabby</span><span style="font-weight:600;font-size:.85rem">${L("· 4 payments, no fees", "· ٤ دفعات بلا رسوم")}</span>
+              </button>
+              <button type="button" id="bnpl-tamara" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #2E1657;background:#2E1657;color:#fff;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
+                <span style="font-size:1.05rem;direction:ltr">tamara</span><span style="font-weight:600;font-size:.85rem">${L("· split it your way", "· قسّمها على راحتك")}</span>
+              </button>
+            </div>
+            <p class="calc-note" id="bnpl-help">${L("You are redirected to the provider's secure page to approve the plan — your order activates automatically the moment the payment succeeds.", "تُحوَّل لصفحة المزود الآمنة لاعتماد خطة التقسيط — ويتفعّل طلبك تلقائياً لحظة نجاح الدفع، مثل الدفع بالبطاقة تماماً.")}</p>
           </div>
           <div id="epay-box" class="bank-box" hidden>
             <div class="bank-head">${I.shield}<strong>${L("Pay online (mada / Visa / Apple Pay)", "ادفع إلكترونياً (مدى / فيزا / أبل باي)")}</strong></div>
@@ -6418,8 +6940,10 @@ function buildCheckout() {
         <div class="order-box">
           <h3>${L("Order summary", "ملخص الطلب")}</h3>
           <div id="checkout-items"></div>
+          ${discBoxHtml("margin:10px 0 6px")}
           <div class="cart-totals-block">
           <div class="calc-line"><span class="k">${L("Subtotal (fees)", "المجموع (الأتعاب)")}</span><span class="v" id="co-subtotal">—</span></div>
+          <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">${L("Discount", "الخصم")} <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>
           <div class="calc-line"><span class="k">${L("VAT 15%", "ضريبة القيمة المضافة 15%")}</span><span class="v" id="co-vat">—</span></div>
           <div class="calc-total"><span class="k">${L("Total", "الإجمالي")}</span><span class="v" id="co-total">—</span></div>
           </div>
@@ -6428,7 +6952,8 @@ function buildCheckout() {
       </aside>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body });
+  const bodyWithCodes = body + `<script>window.BP_DISCOUNTS=${JSON.stringify(catalogDiscounts())};</script>`;
+  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body: bodyWithCodes });
 }
 
 function buildTerms() {
@@ -6660,7 +7185,7 @@ function buildAccount() {
               <a class="portal-card" href="${u(COMPLIANCE_PORTAL_URL)}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
-              <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Partners portal", "بوابة الشركاء")}</strong></a>
+              <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Partner registration", "تسجيل الشركاء")}</strong></a>
               <a class="portal-card" id="ai-employees-link" href="${u("/portal")}"><span>🤖</span><strong>${L("Smart Specialized Agent", "الموظف المتخصص")}</strong></a>
               <a class="portal-card" href="${u("/shared-services")}"><span>🤝</span><strong>${L("Shared Services", "الخدمات المشتركة")}</strong></a>
               <a class="portal-card" href="${u("/bank-account")}"><span>🏦</span><strong>${L("Open a bank account", "فتح حساب بنكي")}</strong></a>
@@ -6855,51 +7380,74 @@ const SUPPLIER_CATS = [
 
 function buildSuppliers() {
   const cats = SUPPLIER_CATS;
-  const catOpts = cats.map((c2) => `<option value="${esc(c2.ar)}">${L(c2.en, c2.ar)}</option>`).join("");
+  // One registration, not two. The sign-up that actually works lives on the
+  // partner dashboard — password, e-mailed code, then the portal opens. This
+  // page is the pitch and the door to it; it used to carry a second form of
+  // its own that posted without a password and so could never register anyone.
+  const joinHref = `${u("/partner-dashboard")}#signup`;
+  const loginHref = `${u("/partner-dashboard")}#login`;
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Partners portal", "بوابة الشركاء")}</span>
+    <span class="eyebrow">${L("Partners", "الشركاء")}</span>
     <h1>${L("Join the Business Partner network", "انضم كشريك لدى بيزنس بارتنر")}</h1>
-    <p class="lead">${L("We send our clients' event and service requests to registered suppliers and collect competing offers. Register once — receive matching requests.", "نرسل طلبات عملائنا (فعاليات وخدمات) للموردين المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — وتصلك الطلبات المناسبة لنشاطك.")}</p>
+    <p class="lead">${L("We send our clients' service and event requests to registered partners and collect competing offers. Register once — matching requests reach you, and your dashboard opens straight away.", "نرسل طلبات عملائنا (خدمات وفعاليات) للشركاء المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — تصلك الطلبات المناسبة لنشاطك وتفتح لوحتك فوراً.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${loginHref}">${L("Already a partner? Sign in", "شريك بالفعل؟ سجّل الدخول")}</a>
+    </div>
   </div></section>
+
   <section class="section"><div class="container">
-    <div class="booking-wrap">
-      <form class="calc-form" id="supplier-form" novalidate>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">${L("Partner registration", "تسجيل الشركاء")}</h2><a class="btn btn-ghost btn-sm" href="${u("/partner-dashboard")}">${L("Already a partner? Open your dashboard →", "شريك بالفعل؟ افتح لوحتك ←")}</a></div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-company">${L("Company name", "اسم الشركة")}</label><input id="sp-company" type="text" required></div>
-          <div class="field"><label for="sp-person">${L("Contact person", "الشخص المسؤول")}</label><input id="sp-person" type="text" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-phone">${L("Mobile", "رقم الجوال")}</label><input id="sp-phone" type="tel" required placeholder="05xxxxxxxx"></div>
-          <div class="field"><label for="sp-email">${L("Email", "البريد الإلكتروني")}</label><input id="sp-email" type="email" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-city">${L("City", "المدينة")}</label><input id="sp-city" type="text" placeholder="${Lraw("Riyadh", "الرياض")}"></div>
-          <div class="field"><label for="sp-cr">${L("CR number (optional)", "رقم السجل التجاري (اختياري)")}</label><input id="sp-cr" type="text"></div>
-          <div class="field"><label for="sp-vat">${L("VAT number (optional)", "الرقم الضريبي (اختياري)")}</label><input id="sp-vat" type="text"></div>
-        </div>
-        <div class="field"><label for="sp-cat">${L("Service category", "تصنيف الخدمة")}</label>
-          <select id="sp-cat">${catOpts}</select></div>
-        <div class="field"><label for="sp-notes">${L("Describe your services briefly", "اوصف خدماتك باختصار")}</label><textarea id="sp-notes" rows="3"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a partner", "سجّل كشريك")}</button>
-        <p class="form-note">${L("Your dashboard opens as soon as you verify your email — you will see every service you can execute and what each one pays you. Approval is what lets us assign you work.", "لوحتك تفتح فور تأكيد بريدك — تشوف فيها كل خدمة تقدر تنفّذها وكم تكسب منها. والاعتماد هو ما يسمح لنا بإسناد العمل إليك.")}</p>
-        <div class="form-success" id="supplier-success" hidden></div>
-      </form>
-      <aside class="booking-side">
-        <div class="order-box">
-          <h3>${L("Why join?", "ليش تنضم؟")}</h3>
-          <ul class="feat-list">
-            <li>${I.check}<span>${L("Ready corporate demand from our clients", "طلبات جاهزة من عملائنا (شركات)")}</span></li>
-            <li>${I.check}<span>${L("You compete on clear, scoped requests", "تنافس على طلبات واضحة ومحددة")}</span></li>
-            <li>${I.check}<span>${L("No registration fees", "بدون رسوم تسجيل")}</span></li>
-            <li>${I.check}<span>${L("Direct WhatsApp/email coordination", "تنسيق مباشر عبر واتساب والبريد")}</span></li>
-          </ul>
-        </div>
-      </aside>
+    <div class="section-head"><h2>${L("Three steps, no fees", "ثلاث خطوات، وبدون رسوم")}</h2>
+      <p>${L("Registration takes a couple of minutes and costs nothing.", "التسجيل يأخذ دقيقتين ولا يكلّفك شيئاً.")}</p></div>
+    <div class="grid grid-3">
+      <div class="step"><div class="step-n">1</div><div>
+        <h3>${L("Create your account", "أنشئ حسابك")}</h3>
+        <p class="text-soft">${L("Company name, contact person, mobile, e-mail, a password and your service category.", "اسم الشركة، الشخص المسؤول، الجوال، البريد، كلمة مرور، وتصنيف خدمتك.")}</p></div></div>
+      <div class="step"><div class="step-n">2</div><div>
+        <h3>${L("Verify your e-mail", "أكّد بريدك")}</h3>
+        <p class="text-soft">${L("A six-digit code reaches your inbox and is valid for fifteen minutes.", "يصلك رمز من ستة أرقام على بريدك، صالح لخمس عشرة دقيقة.")}</p></div></div>
+      <div class="step"><div class="step-n">3</div><div>
+        <h3>${L("Your dashboard opens", "تفتح لوحتك")}</h3>
+        <p class="text-soft">${L("You see every service you can execute and what each pays you. Approval by our team is what lets us assign you work.", "تشوف كل خدمة تقدر تنفّذها وكم تكسب منها. واعتماد فريقنا هو ما يسمح لنا بإسناد العمل إليك.")}</p></div></div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="grid grid-2" style="gap:28px;align-items:start">
+      <div class="order-box">
+        <h3>${L("Why join?", "ليش تنضم؟")}</h3>
+        <ul class="feat-list" style="grid-template-columns:1fr">
+          <li>${I.check}<span>${L("Ready corporate demand from our clients", "طلبات جاهزة من عملائنا (شركات)")}</span></li>
+          <li>${I.check}<span>${L("You compete on clear, scoped requests", "تنافس على طلبات واضحة ومحددة")}</span></li>
+          <li>${I.check}<span>${L("No registration fees", "بدون رسوم تسجيل")}</span></li>
+          <li>${I.check}<span>${L("Direct WhatsApp and e-mail coordination", "تنسيق مباشر عبر واتساب والبريد")}</span></li>
+          <li>${I.check}<span>${L("Your own referral link — you earn on what you bring in", "رابط إحالة خاص بك — تكسب على ما تجلبه")}</span></li>
+        </ul>
+      </div>
+      <div class="order-box">
+        <h3>${L("What your dashboard gives you", "وش تلقى في لوحتك")}</h3>
+        <ul class="feat-list" style="grid-template-columns:1fr">
+          <li>${I.check}<span>${L("Work orders assigned to you, with their status", "أوامر العمل المُسنَدة إليك وحالاتها")}</span></li>
+          <li>${I.check}<span>${L("Your own services and prices", "خدماتك وأسعارك")}</span></li>
+          <li>${I.check}<span>${L("Every catalogue service and your share of it", "كل خدمات الكتالوج وعمولتك من كل واحدة")}</span></li>
+          <li>${I.check}<span>${L("Propose a service we do not offer yet", "اقترح خدمة غير موجودة عندنا")}</span></li>
+          <li>${I.check}<span>${L("Your wallet: what is held for you and what is released", "محفظتك: المحتجز لك والمُفرَج عنه")}</span></li>
+        </ul>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><h2>${L("Categories we register", "التصنيفات التي نسجّلها")}</h2>
+      <p>${L("Pick yours while creating the account.", "تختار تصنيفك أثناء إنشاء الحساب.")}</p></div>
+    <div class="chip-row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">${cats.map((c2) => `<span class="chip">${L(c2.en, c2.ar)}</span>`).join("")}</div>
+    <div class="cta-band" style="margin-top:36px">
+      <h2>${L("Register once — the requests come to you", "سجّل مرة واحدة — والطلبات تجيك")}</h2>
+      <a class="btn btn-white btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Partners portal — Business Partner", "بوابة الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
+  return page({ title: Lraw("Partner registration — Business Partner", "تسجيل الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
 }
 
 // Partner dashboard — the operational side of the partners portal, wired to the
@@ -7166,6 +7714,7 @@ function buildPartnerDashboard() {
         <button type="button" role="tab" data-pt-tab="mine" aria-selected="false">🧰 ${L("My services & prices", "خدماتي وأسعاري")}</button>
         <button type="button" role="tab" data-pt-tab="catalog" aria-selected="false">🗂️ ${L("Services & your share", "الخدمات وعمولتك")}</button>
         <button type="button" role="tab" data-pt-tab="propose" aria-selected="false">➕ ${L("Propose a service", "اقترح خدمة")}</button>
+        <button type="button" role="tab" data-pt-tab="wallet" aria-selected="false">💰 ${L("My wallet", "محفظتي")}</button>
       </nav>
 
       <section data-pt-pane="orders">
@@ -7211,6 +7760,36 @@ function buildPartnerDashboard() {
           <p class="form-success" id="pp-sent" hidden></p>
           <p class="form-error" id="pp-err" hidden></p>
         </form>
+      </section>
+
+      <section data-pt-pane="wallet" hidden>
+        <div class="dash-panel-head"><h2>💰 ${L("My wallet", "محفظتي")}</h2><p>${L("Escrow amounts clients are holding for you release here the moment the client approves delivery — then you request a bank withdrawal.", "مبالغ الضمان التي يحجزها العملاء لصالحك تتحرر هنا فور اعتماد العميل للتسليم — ثم تطلب سحبها بتحويل بنكي.")}</p></div>
+        <div class="dash-stats" style="margin-bottom:16px">
+          <div class="dash-stat"><div class="ds-ico">🔒</div><div class="num" id="pw-held">—</div><div class="lbl">${L("Held in escrow for you (SAR)", "محجوز ضماناً لصالحك (﷼)")}</div></div>
+          <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="pw-balance">—</div><div class="lbl">${L("Available balance (SAR)", "رصيد متاح للسحب (﷼)")}</div></div>
+        </div>
+        <div class="dash-card" style="margin-bottom:14px">
+          <h3 style="margin:0 0 8px">${L("Escrows held for you", "ضمانات محجوزة لصالحك")}</h3>
+          <p class="text-soft" style="font-size:.84rem;margin:0 0 10px">${L("The client funded these with Business Partner as the guarantor. Each releases to your balance when the client approves delivery.", "موّلها العميل وبيزنس بارتنر هو الضامن. كل مبلغ يتحرر إلى رصيدك عندما يعتمد العميل التسليم.")}</p>
+          <div id="pw-escrows"><p class="dash-empty">${L("Sign in to see your escrows.", "سجّل الدخول لعرض ضماناتك.")}</p></div>
+        </div>
+        <div class="dash-card" style="margin-bottom:14px">
+          <h3 style="margin:0 0 8px">${L("Request a withdrawal", "اطلب سحب رصيدك")}</h3>
+          <p class="text-soft" style="font-size:.84rem;margin:0 0 10px">${L("We transfer your available balance to your bank and confirm by email.", "نحوّل رصيدك المتاح إلى حسابك البنكي ونؤكد لك بالبريد.")}</p>
+          <form id="pw-withdraw-form" class="calc-form" style="margin:0">
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="pw-amount">${L("Amount (SAR)", "المبلغ (﷼)")}</label><input id="pw-amount" type="number" min="1" step="0.01" required></div>
+              <div class="field"><label for="pw-iban">${L("IBAN", "الآيبان IBAN")}</label><input id="pw-iban" type="text" dir="ltr" maxlength="34" placeholder="SA.............................."></div>
+            </div>
+            <button type="submit" class="btn btn-primary">${L("Request withdrawal", "اطلب السحب")}</button>
+            <p class="form-success" id="pw-sent" hidden></p>
+            <p class="form-error" id="pw-err" hidden></p>
+          </form>
+        </div>
+        <div class="dash-card">
+          <h3 style="margin:0 0 8px">${L("Wallet movements", "حركات المحفظة")}</h3>
+          <div id="pw-tx"><p class="dash-empty">—</p></div>
+        </div>
       </section>
     </div>
   </div></section>
@@ -7267,6 +7846,137 @@ function buildPartnerDashboard() {
 
 // Owner-only supplier control panel. Gated by the same PANEL_KEY/LEADS_KEY that
 // gates /monitor — the key is held in sessionStorage only, never in the page.
+// Owner panel for the recruitment-provider network. Offices activate
+// themselves, so this is not an approval queue — it is where the owner reads
+// the registry (profiles, fees, how many candidates each office supplied),
+// marks an office as verified or suspends it, and publishes demand orders to
+// the network. Same key gate as the partners panel.
+// Owner panel for the job-search service: who has asked for it, who is live,
+// what has been committed and collected, and the button that sends the agent
+// round the subscribers. Same key gate as the other owner panels.
+function buildJobSearchAdmin() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Owner panel", "لوحة المالك")}</span>
+    <h1>${L("Job-search service", "خدمة البحث عن وظيفة")}</h1>
+    <p class="lead">${L("Candidates who asked us to search on their behalf — activate the service, run the agent, and record what each one pays.", "المرشحون الذين طلبوا أن نبحث لهم عن وظيفة — فعّل الخدمة، شغّل الوكيل، وسجّل ما يدفعه كل واحد.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:1120px">
+
+    <div id="js-gate">
+      <div class="dash-card" style="max-width:460px;margin:0 auto">
+        <h2>${L("Owner key", "مفتاح المالك")}</h2>
+        <form id="js-key-form" class="calc-form">
+          <div class="field"><label for="js-key">${L("Key", "المفتاح")}</label><input id="js-key" type="password" required></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Open the panel", "افتح اللوحة")}</button>
+          <p class="form-error" id="js-error" hidden></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="js-app" hidden>
+      <div class="dash-stats" style="margin-bottom:20px">
+        <div class="dash-stat"><div class="ds-ico">👥</div><div class="num" id="js-n-all">0</div><div class="lbl">${L("Enrolled", "مسجّلون")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">⏳</div><div class="num" id="js-n-wait">0</div><div class="lbl">${L("Awaiting activation", "بانتظار التفعيل")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">🔎</div><div class="num" id="js-n-active">0</div><div class="lbl">${L("Searching now", "البحث جارٍ")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">💰</div><div class="num" id="js-n-collected">0</div><div class="lbl">${L("Collected (SAR)", "المحصّل (ريال)")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📊</div><div class="num" id="js-n-committed">0</div><div class="lbl">${L("Committed (SAR)", "الملتزم به (ريال)")}</div></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0">${L("The agent", "الوكيل")}</h3>
+            <p class="emp-note" style="margin:4px 0 0">${L("Matches active subscribers against every open posting and emails each one their shortlist. Longest-waiting subscribers go first.", "يطابق المشتركين النشطين مع كل الوظائف المفتوحة ويرسل لكل واحد قائمته بالبريد. الأقدم انتظاراً أولاً.")}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="js-run-limit" class="ap-filter" style="min-width:120px">
+              <option value="5">${L("5 candidates", "٥ مرشحين")}</option>
+              <option value="8" selected>${L("8 candidates", "٨ مرشحين")}</option>
+              <option value="15">${L("15 candidates", "١٥ مرشحاً")}</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="js-run">🤖 ${L("Run the agent", "شغّل الوكيل")}</button>
+            <button class="btn btn-ghost btn-sm" id="js-refresh">${L("Refresh", "تحديث")}</button>
+          </div>
+        </div>
+        <p class="emp-note" id="js-run-msg" style="min-height:18px;margin:10px 0 0"></p>
+      </div>
+
+      <div class="dash-panel-head"><h2>${L("Subscribers", "المشتركون")}</h2><p>${L("Activating a subscriber starts the search and emails them. Record each instalment as it lands — the salary plan stops itself at one month's salary.", "تفعيل المشترك يبدأ البحث ويرسل له بريداً. سجّل كل دفعة عند استلامها — باقة الراتب تتوقف تلقائياً عند راتب شهر واحد.")}</p></div>
+      <div id="js-list"><p class="dash-empty">${L("Nothing yet.", "لا يوجد بعد.")}</p></div>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Job-search service — Business Partner", "خدمة البحث عن وظيفة — بيزنس بارتنر"), desc: Lraw("Owner panel for the candidate job-search service.", "لوحة المالك لخدمة البحث عن وظيفة."), active: "/hr", path: "/jobsearch-admin", body, noindex: true });
+}
+
+function buildAgenciesAdmin() {
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner">
+    <span class="eyebrow">${L("Owner panel", "لوحة المالك")}</span>
+    <h1>${L("Recruitment agencies control panel", "لوحة تحكم مكاتب الاستقدام")}</h1>
+    <p class="lead">${L("Every registered provider, what it supplies and what it charges, how many candidates it has sent, and the demand you've published to the network — writing straight to your Notion registry.", "كل مزوّد مسجّل، وماذا يوفّر وبكم، وكم مرشحاً رفع، والطلبات التي نشرتها للشبكة — كل شيء يُكتب مباشرة في قواعدك في نوشن.")}</p>
+  </div></section>
+  <section class="section"><div class="container" style="max-width:1180px">
+
+    <div id="aa-gate">
+      <div class="dash-card" style="max-width:460px;margin:0 auto">
+        <h2>${L("Owner key", "مفتاح المالك")}</h2>
+        <p class="text-soft" style="margin-bottom:14px">${L("Same key you use for BP Inbox and the partners panel.", "نفس المفتاح الذي تستخدمه في BP Inbox ولوحة الشركاء.")}</p>
+        <form id="aa-key-form" class="calc-form">
+          <div class="field"><label for="aa-key">${L("Key", "المفتاح")}</label><input id="aa-key" type="password" required></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Open the panel", "افتح اللوحة")}</button>
+          <p class="form-error" id="aa-error" hidden></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="aa-app" hidden>
+      <div class="dash-stats" style="margin-bottom:20px">
+        <div class="dash-stat"><div class="ds-ico">🌍</div><div class="num" id="aa-n-all">0</div><div class="lbl">${L("Offices", "المكاتب")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">⏳</div><div class="num" id="aa-n-new">0</div><div class="lbl">${L("Profile incomplete", "ملف غير مكتمل")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="aa-n-ok">0</div><div class="lbl">${L("Verified", "موثّقة")}</div></div>
+        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="aa-n-req">0</div><div class="lbl">${L("Open requests", "طلبات مفتوحة")}</div></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3 style="margin:0">${L("Publish a hiring request to the network", "انشر طلب توظيف للشبكة")}</h3>
+          <button class="btn btn-ghost btn-sm" id="aa-refresh">${L("Refresh", "تحديث")}</button>
+        </div>
+        <form id="aa-req-form" class="calc-form" style="margin-top:12px">
+          <div class="grid grid-2" style="gap:0 20px">
+            <div class="field"><label for="aa-title">${L("Request title", "عنوان الطلب")} *</label><input id="aa-title" type="text" required placeholder="${Lraw("e.g. 5 private drivers — Riyadh", "مثال: ٥ سائقين خصوصي — الرياض")}"></div>
+            <div class="field"><label for="aa-profession">${L("Profession", "المهنة")}</label><input id="aa-profession" type="text"></div>
+            <div class="field"><label for="aa-count">${L("Headcount", "العدد المطلوب")}</label><input id="aa-count" type="number" min="1"></div>
+            <div class="field"><label for="aa-nats">${L("Nationalities", "الجنسيات المطلوبة")}</label><input id="aa-nats" type="text"></div>
+            <div class="field"><label for="aa-gender">${L("Gender", "الجنس")}</label><select id="aa-gender"><option value="كلاهما">${L("Both", "كلاهما")}</option><option value="ذكر">${L("Male", "ذكر")}</option><option value="أنثى">${L("Female", "أنثى")}</option></select></div>
+            <div class="field"><label for="aa-city">${L("City", "المدينة")}</label><input id="aa-city" type="text"></div>
+            <div class="field"><label for="aa-salary">${L("Salary offered", "الراتب المعروض")}</label><input id="aa-salary" type="text"></div>
+            <div class="field"><label for="aa-exp">${L("Experience required", "الخبرة المطلوبة")}</label><input id="aa-exp" type="text"></div>
+            <div class="field"><label for="aa-client">${L("Client", "العميل")}</label><input id="aa-client" type="text"></div>
+            <div class="field"><label for="aa-deadline">${L("Needed by", "موعد التسليم")}</label><input id="aa-deadline" type="date"></div>
+          </div>
+          <div class="field"><label for="aa-extra">${L("Extra requirements", "متطلبات إضافية")}</label><textarea id="aa-extra" rows="2"></textarea></div>
+          <div class="field"><label>${L("Send to", "أرسل إلى")}</label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="aa-toall" checked> ${L("Every active office", "كل المكاتب النشطة")}</label>
+            <div id="aa-picker" class="sa-picker" hidden></div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Publish the request", "انشر الطلب")}</button>
+          <div class="form-success" id="aa-req-sent" hidden></div>
+        </form>
+      </div>
+
+      <div class="dash-panel-head"><h2>${L("Open requests", "الطلبات المنشورة")}</h2><p>${L("Close a request once it's filled — offices stop seeing it immediately.", "أغلق الطلب عند اكتماله — يختفي فوراً من بوابات المكاتب.")}</p></div>
+      <div id="aa-requests"><p class="dash-empty">${L("Nothing yet.", "لا يوجد بعد.")}</p></div>
+
+      <div class="dash-panel-head" style="margin-top:26px"><h2>${L("Provider registry", "سجل المزوّدين")}</h2><p>${L("Offices sign themselves up and start working immediately. Verifying one marks its licence as checked; suspending it blocks the portal without deleting anything.", "المكاتب تسجّل نفسها وتبدأ العمل فوراً. التوثيق يعني أننا راجعنا ترخيصها، والإيقاف يمنع الدخول دون حذف أي بيانات.")}</p></div>
+      <div id="aa-agencies"><p class="dash-empty">${L("No offices registered yet.", "لا توجد مكاتب مسجلة بعد.")}</p></div>
+      <p class="emp-note" style="margin-top:14px">${L("Every candidate an office submits lands in the same ATS pool, tagged with the office name, its contact person and the profession it nominated them for — see the “🌍 مرشحو المكاتب” views in Notion. None of those columns is shown on the public site.", "كل مرشح يرفعه أي مكتب يدخل نفس قاعدة ATS، موسوماً باسم المكتب والشخص المسؤول والمهنة التي رشّحه عليها — راجع فيوهات «🌍 مرشحو المكاتب» في نوشن. ولا يظهر أي من هذه الأعمدة على الموقع.")}</p>
+    </div>
+  </div></section>`;
+  return page({ title: Lraw("Recruitment providers panel — Business Partner", "لوحة مزوّدي التوظيف — بيزنس بارتنر"), desc: Lraw("Owner panel for the recruitment agency network.", "لوحة المالك لشبكة مكاتب الاستقدام."), active: "/hr", path: "/agencies-admin", body, noindex: true });
+}
+
 function buildSuppliersAdmin() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -8369,12 +9079,13 @@ function buildPortal(pre = "/") {
       }
       var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
       var agentAtSend=cur, histRef=chatHist;
+      var hist=histRef.slice(-12).map(function(h){return {role:(h.cls==='me'?'user':'assistant'),text:String(h.text||'').slice(0,500)};});
       if(isTrial){ trialInc(agentAtSend.slug); updateTrialBadge(agentAtSend.slug); }
       inp.value=''; push(m,'me');
       histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
       var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
       var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},60000);
-      fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m}),signal:ctrl.signal})
+      fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m,history:hist}),signal:ctrl.signal})
         .then(function(r){return r.text();})
         .then(function(t){ clearTimeout(timer); var d={}; try{d=JSON.parse(t);}catch(e){d={reply:t};} var reply=d.reply||'لا يوجد رد.'; think.textContent=reply; histRef.push({text:reply,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
         .catch(function(e){ clearTimeout(timer); var msg=(e&&e.name==='AbortError')?'انتهت المهلة — حاول مرة أخرى.':'تعذّر الاتصال مؤقتاً — حاول مرة أخرى.'; think.textContent=msg; histRef.push({text:msg,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
@@ -9658,6 +10369,9 @@ function writeFullSite(pre) {
   write(`${pre}employer-join.html`, buildEmployerJoin());
   write(`${pre}employer-login.html`, buildEmployerLogin());
   write(`${pre}candidate-profile.html`, buildCandidateProfile());
+  write(`${pre}recruitment-agencies.html`, buildRecruitmentAgencies());
+  write(`${pre}job-search-service.html`, buildJobSearchService());
+  write(`${pre}agency-portal.html`, buildAgencyPortal());
   write(`${pre}job.html`, buildPostingPage());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
   write(`${pre}portal/index.html`, buildPortalHome());
@@ -9685,6 +10399,8 @@ function writeFullSite(pre) {
   write(`${pre}quote.html`, buildQuotePage());
   write(`${pre}contract.html`, buildContractPage());
   write(`${pre}suppliers-admin.html`, buildSuppliersAdmin());
+  write(`${pre}agencies-admin.html`, buildAgenciesAdmin());
+  write(`${pre}jobsearch-admin.html`, buildJobSearchAdmin());
   services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
@@ -9775,7 +10491,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
@@ -9800,6 +10516,11 @@ write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 const catalogJson = {
   updatedAt: new Date().toISOString(),
   currency: "SAR",
+  // Active discount codes, published so the payment endpoints re-verify a
+  // discounted charge against the same source the checkout applied it from.
+  // Codes are marketing artifacts — public by nature — managed in
+  // site.json → commerce.discounts (editable from /admin → content → site).
+  discounts: catalogDiscounts(),
   services: services.map((s) => {
     const m = svcI18n[s.code] || {};
     const ov = site.overrides[s.slug];

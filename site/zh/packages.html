@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=10f1d30a99">
+<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header"><div class="container header-inner">
@@ -43,7 +43,7 @@
     <div class="nav-menu"><a href="/zh/revenue-os">服务流程</a><a href="/zh/revenue-os#pricing">套餐与价格</a><a href="/zh/revenue-dashboard">Client dashboard</a></div>
   </div><a href="/zh/services/category/ai-automation">AI 与自动化 ⚡</a><a href="/zh/task-force">专项工作组 ⚡</a><a href="/zh/data">B2B 线索数据库 ⚡</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">招聘 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/hr">招聘服务</a><a href="/zh/employers">雇主专区</a><a href="/zh/careers">在招职位</a></div>
+    <div class="nav-menu"><a href="/zh/hr">招聘服务</a><a href="/zh/employers">雇主专区</a><a href="/zh/careers">在招职位</a><a href="/zh/job-search-service">We search for a job for you</a><a href="/zh/recruitment-agencies">Recruitment agencies</a><a href="/zh/agency-portal">Agency portal</a></div>
   </div><a href="/zh/deals">项目撮合 ⚡</a><a href="/zh/estrdad">规费退还（استرداد）⚡</a><a href="/zh/bank-account">企业银行开户 ⚡</a><a href="/zh/formation-contract">合伙人公司注册 ⚡</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">商务旅行 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/zh/mahfol-makfol">投资者专区</a><a href="/zh/mahfol-makfol/trips">旅程与体验</a><a href="/zh/tourism">公司活动</a></div>
@@ -68,7 +68,7 @@
   </div><a href="/zh/magazine">电子杂志（PDF）</a></div>
     </div><div class="nav-group">
       <button type="button" class="nav-drop" aria-expanded="false">平台与门户 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/zh/account">客户门户</a><a href="/zh/revenue-dashboard">Revenue OS dashboard</a><a href="/zh/suppliers">合作伙伴门户</a><a href="/zh/partner-dashboard">合作伙伴仪表板</a><a href="/portal">智能员工门户</a><a href="/zh/employer-join">雇主 —— 加入</a><a href="/zh/employer-login">雇主 —— 登录</a></div>
+      <div class="nav-menu"><a href="/zh/account">客户门户</a><a href="/zh/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">智能员工门户</a><a href="/zh/employer-join">雇主 —— 加入</a><a href="/zh/employer-login">雇主 —— 登录</a></div>
     </div><a href="/zh/contact">联系我们</a></nav>
   <div class="header-cta">
     <div class="nav-group lang-group">
@@ -91,41 +91,73 @@
     <div class="pk-tabs" role="tablist"><button type="button" class="pk-tab active" data-group="management">服务套餐</button><button type="button" class="pk-tab" data-group="formation">公司注册</button><button type="button" class="pk-tab" data-group="legal">法务套餐</button></div>
     <div class="pk-panel active" id="pkg-management">
       <p class="pk-group-desc">四款年度套餐，为您管理政府平台与企业事务。</p>
-      
+      <div class="emp-billing-toggle" role="tablist">
+            <button type="button" class="emp-bill-btn active" data-bill="monthly">按月</button>
+            <button type="button" class="emp-bill-btn" data-bill="yearly">按年 <span class="emp-save">Save 30%</span></button>
+          </div>
       <div class="grid grid-4"><div class="pkg">
-      <div class="pk-name">Launch 套餐</div>
-      <div class="pk-price">Starting from 6,000 SAR / yearly</div>
-      <p class="pk-for">适用于小型企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>营业执照的运营与续期跟进</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Qiwa 企业账户的开通与监控</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>GOSI 社保登记管理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>员工医疗保险的开通</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>核心 zakat 与税务合规跟进</span></li></ul>
+        <div class="pk-name">Small Establishment Package</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">2,500 <span class="pk-per">里亚尔 / 月</span></span><span class="emp-price emp-price-y" hidden>21,000 <span class="pk-per">里亚尔 / 年</span></span></div>
+        <p class="pk-for">For establishments with 1–4 employees</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial registration management and renewal</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Qiwa establishment account activation and follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>GOSI 社保登记管理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Employee medical insurance arrangement</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Core zakat and tax compliance follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-starter-4-monthly" data-kind="package"
+          data-name-ar="باقة المنشآت الصغيرة — اشتراك شهري" data-name-en="Small Establishment Package — Monthly subscription"
+          data-amount="2500" data-price=""
+          data-id-monthly="pkg-starter-4-monthly" data-id-yearly="pkg-starter-4-yearly"
+          data-amount-monthly="2500" data-amount-yearly="21000"
+          data-price="" data-price=""
+        >🛒 加入购物车</button>
+        <p class="pk-surcharge">Each employee beyond 4: 300 SAR monthly.</p>
+      </div><div class="pkg">
+        <div class="pk-name">Launch 套餐</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">6,000 <span class="pk-per">里亚尔 / 月</span></span><span class="emp-price emp-price-y" hidden>50,400 <span class="pk-per">里亚尔 / 年</span></span></div>
+        <p class="pk-for">For establishments with 5–49 employees</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>营业执照的运营与续期跟进</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Qiwa 企业账户的开通与监控</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>GOSI 社保登记管理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>员工医疗保险的开通</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>核心 zakat 与税务合规跟进</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-silver-monthly" data-kind="package"
+          data-name-ar="باقة الانطلاق — اشتراك شهري" data-name-en="Launch Package — Monthly subscription"
+          data-amount="6000" data-price=""
+          data-id-monthly="pkg-silver-monthly" data-id-yearly="pkg-silver-yearly"
+          data-amount-monthly="6000" data-amount-yearly="50400"
+          data-price="" data-price=""
+        >🛒 加入购物车</button>
+        <p class="pk-surcharge">Each employee beyond 49: 300 SAR monthly.</p>
+      </div><div class="pkg pop" data-badge="Most requested">
+        <div class="pk-name">Growth 套餐</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">10,000 <span class="pk-per">里亚尔 / 月</span></span><span class="emp-price emp-price-y" hidden>84,000 <span class="pk-per">里亚尔 / 年</span></span></div>
+        <p class="pk-for">For establishments with 50–200 employees</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>包含 Launch 套餐全部内容</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>员工电子档案与合同管理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>薪酬管理与工资保护系统登记</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>对贵企业监管义务的定期跟进</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>整个订阅期内的延伸运营支持</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-primary add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-gold-monthly" data-kind="package"
+          data-name-ar="باقة النمو — اشتراك شهري" data-name-en="Growth Package — Monthly subscription"
+          data-amount="10000" data-price=""
+          data-id-monthly="pkg-gold-monthly" data-id-yearly="pkg-gold-yearly"
+          data-amount-monthly="10000" data-amount-yearly="84000"
+          data-price="" data-price=""
+        >🛒 加入购物车</button>
+        <p class="pk-surcharge">Each employee beyond 200: 300 SAR monthly.</p>
+      </div><div class="pkg">
+        <div class="pk-name">Scale 套餐</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">20,000 <span class="pk-per">里亚尔 / 月</span></span><span class="emp-price emp-price-y" hidden>168,000 <span class="pk-per">里亚尔 / 年</span></span></div>
+        <p class="pk-for">For establishments with 201–500 employees</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>包含 Growth 套餐全部内容</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>高级人力资源档案管理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>各类申报的准备、跟踪与全面合规</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>定期运营与合规报告</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>持续的法务与运营咨询</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-platinum-monthly" data-kind="package"
+          data-name-ar="باقة التوسّع — اشتراك شهري" data-name-en="Scale Package — Monthly subscription"
+          data-amount="20000" data-price=""
+          data-id-monthly="pkg-platinum-monthly" data-id-yearly="pkg-platinum-yearly"
+          data-amount-monthly="20000" data-amount-yearly="168000"
+          data-price="" data-price=""
+        >🛒 加入购物车</button>
+        <p class="pk-surcharge">Each employee beyond 500: 300 SAR monthly.</p>
+      </div><div class="pkg">
+      <div class="pk-name">Enterprise Package</div>
+      <div class="pk-price">Custom package</div>
+      <p class="pk-for">For establishments with 501+ employees</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>包含 Scale 套餐全部内容</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>为贵企业配备专属客户经理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>优先办理与即时跟进</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>贴合贵企业业务活动的解决方案</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>全面主动的支持，无需客户催办</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>专属运营支持团队监控您的各类平台</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>用于追踪贵企业活动与绩效的报告与关键指标</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
       <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-silver" data-name-en="Launch Package" data-name-ar="باقة الانطلاق" data-amount="6000" data-price="" data-kind="package" data-surcharge-amount="400" data-surcharge-free="4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
-  </div>
-      <p class="pk-surcharge">An extra fee of 400 SAR per additional employee applies once headcount exceeds 4 employees.</p>
-    </div><div class="pkg">
-      <div class="pk-name">Growth 套餐</div>
-      <div class="pk-price">Starting from 10,800 SAR / yearly</div>
-      <p class="pk-for">适用于中型企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>包含 Launch 套餐全部内容</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>员工电子档案与合同管理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>薪酬管理与工资保护系统登记</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>对贵企业监管义务的定期跟进</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>整个订阅期内的延伸运营支持</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-gold" data-name-en="Growth Package" data-name-ar="باقة النمو" data-amount="10800" data-price="" data-kind="package" data-surcharge-amount="600" data-surcharge-free="9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
-  </div>
-      <p class="pk-surcharge">An extra fee of 600 SAR per additional employee applies once headcount exceeds 9 employees.</p>
-    </div><div class="pkg pop" data-badge="Recommended">
-      <div class="pk-name">Scale 套餐</div>
-      <div class="pk-price">Starting from 16,000 SAR / yearly</div>
-      <p class="pk-for">适用于大型企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>包含 Growth 套餐全部内容</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>高级人力资源档案管理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>各类申报的准备、跟踪与全面合规</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>定期运营与合规报告</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>持续的法务与运营咨询</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-primary add-cart" data-id="pkg-platinum" data-name-en="Scale Package" data-name-ar="باقة التوسّع" data-amount="16000" data-price="" data-kind="package" data-surcharge-amount="800" data-surcharge-free="9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
-  </div>
-      <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 9 employees.</p>
-    </div><div class="pkg">
-      <div class="pk-name">Enterprise Partnership</div>
-      <div class="pk-price">Custom package, priced on request</div>
-      <p class="pk-for">适用于有定制化需求的大型企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>包含 Scale 套餐全部内容</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>为贵企业配备专属客户经理</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>优先办理与即时跟进</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>贴合贵企业业务活动的解决方案</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>全面主动的支持，无需客户催办</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>专属运营支持团队监控您的各类平台</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>用于追踪贵企业活动与绩效的报告与关键指标</span></li></ul>
-      <div class="buy-row">
-    <a class="btn btn-ghost" href="/zh/consultation?topic=other&about=Enterprise%20Partnership"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>预约咨询</span></a>
+    <a class="btn btn-ghost" href="/zh/consultation?topic=other&about=Enterprise%20Package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>预约咨询</span></a>
   </div>
       <p class="pk-surcharge">An extra fee of 1,200 SAR per additional employee applies once headcount exceeds 60 employees.</p>
     </div></div>
@@ -134,63 +166,86 @@
       
       <div class="grid grid-2"><div class="pkg pop" data-badge="Recommended">
       <div class="pk-name">外商公司设立套餐</div>
-      <div class="pk-price">Starting from 46,000 SAR / yearly</div>
+      <div class="pk-price">From 30,000 SAR / year</div>
       <p class="pk-for">适用于外国投资者与企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>外商投资许可证申请</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公司章程的起草与公证</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>营业执照的核发</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>在 zakat/税务、GOSI、Qiwa、Mudad 与 Muqeem 完成登记</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>各项手续的跟进直至设立完成</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>3 个管理层签证的核发</span></li></ul>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>外商投资许可证申请</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公司章程的起草与公证</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>营业执照的核发</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>在 zakat/税务、GOSI、Qiwa、Mudad 与 Muqeem 完成登记</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>各项手续的跟进直至设立完成</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>3 个管理层签证的核发</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
       <div class="buy-row">
-    <button type="button" class="btn btn-primary add-cart" data-id="pkg-foreign-formation" data-name-en="Foreign Companies Formation Package" data-name-ar="باقة تأسيس الشركات الأجنبية" data-amount="46000" data-price="" data-kind="package" data-surcharge-amount="320" data-surcharge-free="25"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
+    <button type="button" class="btn btn-primary add-cart" data-id="pkg-foreign-formation" data-name-en="Foreign Companies Formation Package" data-name-ar="باقة تأسيس الشركات الأجنبية" data-amount="30000" data-price="" data-kind="package" data-surcharge-amount="320" data-surcharge-free="25"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
   </div>
       <p class="pk-surcharge">An extra fee of 320 SAR per additional employee applies once headcount exceeds 25 employees.</p>
     </div><div class="pkg">
       <div class="pk-name">沙特与海湾国家公司设立套餐</div>
-      <div class="pk-price">Starting from 18,400 SAR / yearly</div>
+      <div class="pk-price">From 15,000 SAR / year</div>
       <p class="pk-for">适用于沙特与海湾国家的创业者</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公司章程的起草与公证</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>营业执照的核发</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>zakat/税务登记</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>在 GOSI、Qiwa、Mudad 与 Muqeem 完成登记</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>市政许可证核发（如需）</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>选择合适法律形式的法务咨询</span></li></ul>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公司章程的起草与公证</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>营业执照的核发</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>zakat/税务登记</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>在 GOSI、Qiwa、Mudad 与 Muqeem 完成登记</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>市政许可证核发（如需）</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>选择合适法律形式的法务咨询</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
       <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-saudi-gulf-formation" data-name-en="Saudi &amp; Gulf Companies Formation Package" data-name-ar="باقة تأسيس الشركات السعودية والخليجية" data-amount="18400" data-price="" data-kind="package" data-surcharge-amount="320" data-surcharge-free="10"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-saudi-gulf-formation" data-name-en="Saudi &amp; Gulf Companies Formation Package" data-name-ar="باقة تأسيس الشركات السعودية والخليجية" data-amount="15000" data-price="" data-kind="package" data-surcharge-amount="320" data-surcharge-free="10"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
   </div>
       <p class="pk-surcharge">An extra fee of 320 SAR per additional employee applies once headcount exceeds 10 employees.</p>
     </div></div>
     </div><div class="pk-panel" id="pkg-legal">
-      <p class="pk-group-desc">为贵企业提供的年度法务咨询与服务套餐。</p>
-      
+      <p class="pk-group-desc">Monthly legal consultation and services packages for your establishment.</p>
+      <div class="emp-billing-toggle" role="tablist">
+            <button type="button" class="emp-bill-btn active" data-bill="monthly">按月</button>
+            <button type="button" class="emp-bill-btn" data-bill="yearly">按年 <span class="emp-save">Save 30%</span></button>
+          </div>
       <div class="grid grid-4"><div class="pkg">
-      <div class="pk-name">Strategic 套餐</div>
-      <div class="pk-price">Starting from 47,200 SAR / yearly</div>
-      <p class="pk-for">适用于法务需求繁重的大型企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>电话咨询不限次数</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>书面咨询：每年 25 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>合同起草与审阅：20 份合同</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>法律意见书与诉状：15 份</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>知识产权服务：4 项</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>实体设立/转换/合并：3 项服务</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>与律师会面：4 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>诉讼代理：每年至多 10 起劳动争议案件</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>面向员工的法律意识培训：每年 1 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公证服务 25% 折扣</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-strategic" data-name-en="Strategic Package" data-name-ar="الباقة الاستراتيجية" data-amount="47200" data-price="" data-kind="package" data-surcharge-amount="800" data-surcharge-free="50"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
-  </div>
-      <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.</p>
-    </div><div class="pkg pop" data-badge="Recommended">
-      <div class="pk-name">Comprehensive 套餐</div>
-      <div class="pk-price">Starting from 31,200 SAR / yearly</div>
-      <p class="pk-for">适用于中型与大型企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>电话咨询不限次数</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>书面咨询：每年 15 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>合同起草与审阅：15 份合同</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>法律意见书与诉状：10 份</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>知识产权服务：4 项</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>实体设立/转换：2 项服务</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>与律师会面：2 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>诉讼代理：至多 6 起劳动争议案件</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公证服务 20% 折扣</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-primary add-cart" data-id="pkg-comprehensive" data-name-en="Comprehensive Package" data-name-ar="الباقة الشاملة" data-amount="31200" data-price="" data-kind="package" data-surcharge-amount="800" data-surcharge-free="50"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
-  </div>
-      <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.</p>
-    </div><div class="pkg">
-      <div class="pk-name">Advanced 套餐</div>
-      <div class="pk-price">Starting from 15,920 SAR / yearly</div>
-      <p class="pk-for">适用于中型企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>电话咨询不限次数</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>书面咨询：每年 8 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>合同起草与审阅：12 份合同</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>知识产权服务：2 项</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>实体设立/变更：1 项服务</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>诉讼代理：每年至多 4 起劳动争议案件</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公证服务 15% 折扣</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-advanced" data-name-en="Advanced Package" data-name-ar="الباقة المتقدمة" data-amount="15920" data-price="" data-kind="package" data-surcharge-amount="600" data-surcharge-free="25"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
-  </div>
-      <p class="pk-surcharge">An extra fee of 600 SAR per additional employee applies once headcount exceeds 25 employees.</p>
-    </div><div class="pkg">
-      <div class="pk-name">Basic 套餐</div>
-      <div class="pk-price">Starting from 7,920 SAR / yearly</div>
-      <p class="pk-for">适用于小型企业</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>电话咨询不限次数</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>书面咨询：每年 4 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>合同起草与审阅：6 份合同</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>诉讼代理：每年至多 2 起劳动争议案件</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公证服务 10% 折扣</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-basic-legal" data-name-en="Basic Package" data-name-ar="الباقة الأساسية" data-amount="7920" data-price="" data-kind="package" data-surcharge-amount="400" data-surcharge-free="10"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
-  </div>
-      <p class="pk-surcharge">An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.</p>
-    </div></div>
+        <div class="pk-name">Basic 套餐</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">8,000 <span class="pk-per">里亚尔 / 月</span></span><span class="emp-price emp-price-y" hidden>67,200 <span class="pk-per">里亚尔 / 年</span></span></div>
+        <p class="pk-for">适用于小型企业</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>电话咨询不限次数</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>书面咨询：每年 4 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>合同起草与审阅：6 份合同</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>诉讼代理：每年至多 2 起劳动争议案件</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公证服务 10% 折扣</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-basic-legal-monthly" data-kind="package"
+          data-name-ar="الباقة الأساسية — اشتراك شهري" data-name-en="Basic Package — Monthly subscription"
+          data-amount="8000" data-price=""
+          data-id-monthly="pkg-basic-legal-monthly" data-id-yearly="pkg-basic-legal-yearly"
+          data-amount-monthly="8000" data-amount-yearly="67200"
+          data-price="" data-price=""
+        >🛒 加入购物车</button>
+        <p class="pk-surcharge">An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.</p>
+      </div><div class="pkg">
+        <div class="pk-name">Advanced 套餐</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">15,000 <span class="pk-per">里亚尔 / 月</span></span><span class="emp-price emp-price-y" hidden>126,000 <span class="pk-per">里亚尔 / 年</span></span></div>
+        <p class="pk-for">适用于中型企业</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>电话咨询不限次数</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>书面咨询：每年 8 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>合同起草与审阅：12 份合同</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>知识产权服务：2 项</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>实体设立/变更：1 项服务</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>诉讼代理：每年至多 4 起劳动争议案件</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公证服务 15% 折扣</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-advanced-monthly" data-kind="package"
+          data-name-ar="الباقة المتقدمة — اشتراك شهري" data-name-en="Advanced Package — Monthly subscription"
+          data-amount="15000" data-price=""
+          data-id-monthly="pkg-advanced-monthly" data-id-yearly="pkg-advanced-yearly"
+          data-amount-monthly="15000" data-amount-yearly="126000"
+          data-price="" data-price=""
+        >🛒 加入购物车</button>
+        <p class="pk-surcharge">An extra fee of 600 SAR per additional employee applies once headcount exceeds 25 employees.</p>
+      </div><div class="pkg pop" data-badge="Recommended">
+        <div class="pk-name">Comprehensive 套餐</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">30,000 <span class="pk-per">里亚尔 / 月</span></span><span class="emp-price emp-price-y" hidden>252,000 <span class="pk-per">里亚尔 / 年</span></span></div>
+        <p class="pk-for">适用于中型与大型企业</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>电话咨询不限次数</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>书面咨询：每年 15 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>合同起草与审阅：15 份合同</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>法律意见书与诉状：10 份</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>知识产权服务：4 项</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>实体设立/转换：2 项服务</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>与律师会面：2 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>诉讼代理：至多 6 起劳动争议案件</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公证服务 20% 折扣</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-primary add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-comprehensive-monthly" data-kind="package"
+          data-name-ar="الباقة الشاملة — اشتراك شهري" data-name-en="Comprehensive Package — Monthly subscription"
+          data-amount="30000" data-price=""
+          data-id-monthly="pkg-comprehensive-monthly" data-id-yearly="pkg-comprehensive-yearly"
+          data-amount-monthly="30000" data-amount-yearly="252000"
+          data-price="" data-price=""
+        >🛒 加入购物车</button>
+        <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.</p>
+      </div><div class="pkg">
+        <div class="pk-name">Strategic 套餐</div>
+        <div class="pk-price"><span class="emp-price emp-price-m">50,000 <span class="pk-per">里亚尔 / 月</span></span><span class="emp-price emp-price-y" hidden>420,000 <span class="pk-per">里亚尔 / 年</span></span></div>
+        <p class="pk-for">适用于法务需求繁重的大型企业</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>电话咨询不限次数</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>书面咨询：每年 25 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>合同起草与审阅：20 份合同</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>法律意见书与诉状：15 份</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>知识产权服务：4 项</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>实体设立/转换/合并：3 项服务</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>与律师会面：4 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>诉讼代理：每年至多 10 起劳动争议案件</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>面向员工的法律意识培训：每年 1 次</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>公证服务 25% 折扣</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-strategic-monthly" data-kind="package"
+          data-name-ar="الباقة الاستراتيجية — اشتراك شهري" data-name-en="Strategic Package — Monthly subscription"
+          data-amount="50000" data-price=""
+          data-id-monthly="pkg-strategic-monthly" data-id-yearly="pkg-strategic-yearly"
+          data-amount-monthly="50000" data-amount-yearly="420000"
+          data-price="" data-price=""
+        >🛒 加入购物车</button>
+        <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.</p>
+      </div></div>
     </div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>上述价格来自官方目录，除另有说明外仅涵盖 Business Partner 的服务费；政府规费（如适用）另计，并在开始前告知。如需自行组合服务，请使用成本计算器。</p></div>
   </div></section>
@@ -260,11 +315,10 @@
     <div class="footer-col"><h4>平台与门户</h4><ul>
       <li><a href="/zh/account">客户门户</a></li>
       <li><a href="/zh/revenue-dashboard">Revenue OS dashboard</a></li>
-      <li><a href="/zh/suppliers">合作伙伴门户</a></li>
+      <li><a href="/zh/suppliers">合作伙伴注册</a></li>
       <li><a href="/zh/employer-join">雇主专区</a></li>
       <li><a href="/portal">智能员工门户</a></li>
       <li><a href="/zh/employer-login">雇主 —— 登录</a></li>
-      <li><a href="/zh/partner-dashboard">合作伙伴仪表板</a></li>
       <li><a href="/zh/shared-services">共享服务团队</a></li>
     </ul></div>
     <div class="footer-col"><h4>知识中心</h4><ul>
@@ -307,4 +361,79 @@
     <span>© 2026 Business Partner · 版权所有</span>
     <span>周日至周四 · 上午 9 点 – 下午 6 点 · 智能助手全天候在线</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="通过 WhatsApp 联系"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">通过 WhatsApp 联系我们</span></a><script src="/assets/js/main.js?v=6442e52edb"></script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="通过 WhatsApp 联系"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">通过 WhatsApp 联系我们</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
+    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="关闭">✕</button>
+    <p>您好 👋 我是巴希尔，您的智能助手。关于公司注册或政府平台有疑问吗？</p>
+  </div>
+  <button class="advisor-fab" id="advisor-fab" aria-label="与智能助手巴希尔开始对话">
+    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
+    <span class="lbl">咨询巴希尔</span>
+  </button>
+  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="咨询巴希尔">
+    <header class="advisor-head">
+      <button class="advisor-back" id="advisor-back" aria-label="返回" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>巴希尔</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">您的智能伙伴 —— 现在在线</span></span></div></div>
+      <button class="advisor-close" id="advisor-close" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </header>
+
+    <!-- Step 1: contact intake (required first) -->
+    <div class="advisor-view" id="advisor-intake">
+      <div class="adv-intake-hd">欢迎 👋 请先留下您的信息，以便我们为您服务并跟进您的申请。</div>
+      <input class="adv-in" id="adv-in-name" type="text" placeholder="全名 *" autocomplete="name">
+      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="手机号 05XXXXXXXX *" autocomplete="tel">
+      <input class="adv-in" id="adv-in-email" type="email" placeholder="电子邮箱 *" autocomplete="email">
+      <button type="button" class="adv-primary" id="advisor-intake-go">开始 ›</button>
+      <div class="adv-err" id="adv-intake-err" hidden></div>
+      <p class="adv-note">🔒 您的信息仅用于为您服务及跟进您的申请。</p>
+    </div>
+
+    <!-- Step 2: home — service windows (main → sub) -->
+    <div class="advisor-view" id="advisor-home" hidden>
+      <div class="adv-home-hd" id="advisor-hello"></div>
+      <div class="adv-home-sub">请选择您需要的服务：</div>
+      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">正在加载服务…</div></div>
+      <button type="button" class="adv-book-open" id="advisor-book-open">📅 预约免费咨询</button>
+      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 或直接咨询巴希尔</button>
+    </div>
+
+    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
+    <div class="advisor-view" id="advisor-book" hidden>
+      <div class="adv-book-hd">📅 预约免费咨询</div>
+      <div class="adv-book-sub">请选择日期与时间（利雅得 · 上午9点–下午6点 · 周五休息）：</div>
+      <div class="adv-book-days" id="advisor-book-days"></div>
+      <div class="adv-book-slots" id="advisor-book-slots"></div>
+      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ 确认预约</button>
+      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
+    </div>
+
+    <!-- Step 2b: sub-services of a chosen category -->
+    <div class="advisor-view" id="advisor-sub" hidden>
+      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
+      <div class="adv-svcs" id="advisor-svcs"></div>
+    </div>
+
+    <!-- Step 3: open a support ticket for the chosen service -->
+    <div class="advisor-view" id="advisor-ticket" hidden>
+      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
+      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="描述您的需求（选填）"></textarea>
+      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 申请报价</button>
+      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
+    </div>
+
+    <!-- Chat with Baher (available after intake) -->
+    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
+      <div class="advisor-msgs" id="advisor-msgs">
+        <div class="advisor-msg bot">您好 👋 我是 Business Partner 的智能助手巴希尔。公司注册、外商投资、许可证或任何政府手续，尽管问我——我会为您指引合适的服务。</div>
+      </div>
+      <div class="advisor-chips" id="advisor-chips">
+        <button type="button" class="advisor-chip" data-q="外商投资公司注册">🏢 外商投资注册</button>
+        <button type="button" class="advisor-chip" data-q="政府平台管理">💼 政府平台</button>
+        <button type="button" class="advisor-chip" data-q="套餐与价格">💰 套餐与价格</button>
+        <button type="button" class="advisor-chip" data-q="我想要免费咨询">📞 免费咨询</button>
+      </div>
+      <form class="advisor-form" id="advisor-form">
+        <input id="advisor-input" type="text" autocomplete="off" placeholder="在此输入您的问题…" aria-label="输入您的问题">
+        <button type="submit" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+      </form>
+    </div>
+  </section><script src="/assets/js/main.js?v=d3a4f77f1d"></script></body></html>

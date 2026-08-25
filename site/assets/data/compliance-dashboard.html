@@ -1,110 +1,512 @@
-<!DOCTYPE html><html lang="ar" dir="rtl" data-astro-cid-4en3bvu3> <head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/logo.svg"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="noindex, nofollow"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>لوحة العميل | وكيل الامتثال — شريك الأعمال</title><link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet"><link rel="stylesheet" href="/_astro/deals.BzyxNlwf.css">
-<link rel="stylesheet" href="/_astro/portal.dUaarGIX.css"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
-/* توحيد الهوية مع الموقع الرئيسي */
-:root{--navy:#0B1B5A;--gray-bg:#F5F6FA;--gray-line:#E4E7F0;--shadow:0 8px 30px rgba(11,27,90,.08);--radius-lg:22px}
-body{font-family:"IBM Plex Sans Arabic","Tajawal",system-ui,-apple-system,"Segoe UI",sans-serif !important;background:var(--gray-bg) !important;color:#1F2430}
-#dash .top{background:var(--navy) !important;box-shadow:0 8px 30px rgba(11,27,90,.2)}
-#dash .top .brand img{height:40px}
-.tabs{background:#fff;border-radius:999px;box-shadow:var(--shadow);padding:.4rem}
-.tabs .tab{border-radius:999px;font-weight:600}
-.tabs .tab.active{background:var(--navy) !important;color:#fff !important}
-.card{border-radius:var(--radius-lg) !important;box-shadow:var(--shadow) !important;border:1px solid var(--gray-line)}
-.entity{border-radius:var(--radius-lg) !important;box-shadow:var(--shadow) !important;border:1px solid var(--gray-line);padding:1.2rem 1rem}
-.icon-btn,.btn-navy{border-radius:999px !important}
-.btn-navy{background:var(--navy) !important}
-h1,h2,h3,.sec{color:var(--navy) !important}
-.login-card{border-radius:var(--radius-lg);box-shadow:0 20px 50px rgba(11,27,90,.14)}
-.qtile{border-radius:var(--radius-lg) !important;box-shadow:var(--shadow) !important;border:1px solid var(--gray-line)}
-/* الشعارات الرسمية — أكبر وأوضح */
-.badge-logo{width:68px !important;height:68px !important;border-radius:16px !important;display:flex;align-items:center;justify-content:center;margin-inline:auto}
-.badge-logo.logo-real{background:#fff !important;border:1px solid var(--gray-line);box-shadow:0 1px 3px rgba(11,27,90,.06)}
-.badge-logo.logo-real svg{display:none}
-.badge-logo .real-logo{width:54px;height:54px;object-fit:contain;border-radius:10px}
-.badge-logo svg{width:34px;height:34px}
-.side-drawer{position:fixed;top:0;left:0;height:100%;width:min(520px,94vw);background:#f7f9fc;box-shadow:8px 0 30px rgba(15,23,42,.25);transform:translateX(-105%);transition:transform .3s ease;z-index:1000;overflow-y:auto;padding:1.2rem}
-.side-drawer.open{transform:none}
-.drawer-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;z-index:999}
-.drawer-overlay.show{display:block}</style></head> <body data-astro-cid-4en3bvu3> <div id="login-screen" data-astro-cid-4en3bvu3> <form class="login-card" id="login-form" data-astro-cid-4en3bvu3> <img src="/logo.svg" alt="" data-astro-cid-4en3bvu3> <h1 data-astro-cid-4en3bvu3>لوحة الامتثال</h1> <p data-astro-cid-4en3bvu3>ادخل بريدك الإلكتروني ورمز الدخول المرسل إليه لمتابعة حالة الامتثال يومياً.</p> <div class="field" data-astro-cid-4en3bvu3><label data-astro-cid-4en3bvu3>البريد الإلكتروني</label><input type="email" id="in-email" required autocomplete="email" data-astro-cid-4en3bvu3></div> <div class="field" data-astro-cid-4en3bvu3><label data-astro-cid-4en3bvu3>رمز الدخول</label><input type="text" id="in-code" required autocomplete="off" data-astro-cid-4en3bvu3></div> <button type="submit" class="btn btn-navy btn-block" id="login-btn" data-astro-cid-4en3bvu3>دخول</button> <div class="login-err" id="login-err" data-astro-cid-4en3bvu3></div> <a href="https://www.businesspartner.sa/ar/account?redirect=compliance" style="display:block;text-align:center;margin-top:10px;color:#0B1B5A;font-weight:700;text-decoration:none" data-astro-cid-4en3bvu3>🔐 بدون رمز — ادخل برمز يوصلك على الإيميل عبر حساب بيزنس بارتنر</a> <div class="hint" data-astro-cid-4en3bvu3>ما وصلك كود؟ اشترك عبر www.businesspartner.sa/ar/compliance-agent — يصلك الكود بعد تأكيد الاشتراك.</div> </form> </div> <div id="locked-screen" style="display:none" data-astro-cid-4en3bvu3> <div class="login-card" style="max-width:440px" data-astro-cid-4en3bvu3> <img src="/logo.svg" alt="" data-astro-cid-4en3bvu3> <h1 data-astro-cid-4en3bvu3>🔒 أكمل الدفع لتفعيل الخدمة</h1> <p id="locked-company-name" style="font-weight:700;color:var(--navy)" data-astro-cid-4en3bvu3></p> <p data-astro-cid-4en3bvu3>سجّلنا بيانات منشأتك بنجاح، لكن لوحة الامتثال تُفتح فور تأكيد الدفع. أكمل الاشتراك وستُفعَّل الخدمة تلقائياً خلال دقائق.</p> <a class="btn btn-navy btn-block" id="locked-pay-btn" href="https://www.businesspartner.sa/ar/compliance-agent#pricing" target="_blank" rel="noopener" data-astro-cid-4en3bvu3>إكمال الدفع الآن</a> <button type="button" class="btn btn-ghost-light" style="width:100%;margin-top:.6rem;background:#eef2fb;color:var(--navy);border-color:#dbe4f5" id="locked-logout-btn" data-astro-cid-4en3bvu3>تسجيل خروج</button> <div class="hint" data-astro-cid-4en3bvu3>بعد تأكيد الدفع تصلك رسالة بريد بأن الخدمة فُتحت — سجّل الدخول من جديد بنفس الرمز.</div> </div> </div> <div id="dash" data-astro-cid-4en3bvu3> <header class="top" data-astro-cid-4en3bvu3> <div class="wrap" data-astro-cid-4en3bvu3> <div class="brand" data-astro-cid-4en3bvu3><img src="/logo.svg" alt="" data-astro-cid-4en3bvu3><span id="company-name" data-astro-cid-4en3bvu3>لوحة الامتثال</span></div> <div class="actions" data-astro-cid-4en3bvu3> <button class="icon-btn" id="open-upload-btn" style="background:var(--brand,#0f9d8c);border-color:transparent" data-astro-cid-4en3bvu3>📤 رفع الملفات</button> <select id="company-select" class="icon-btn" style="display:none;max-width:200px;cursor:pointer" data-astro-cid-4en3bvu3></select> <button class="icon-btn" id="add-company-btn" style="display:none" data-astro-cid-4en3bvu3>＋ منشأة</button> <button class="icon-btn" id="refresh-btn" data-astro-cid-4en3bvu3>↻ تحديث الآن</button> <button class="icon-btn" id="logout-btn" data-astro-cid-4en3bvu3>خروج</button> </div> </div> </header> <div class="wrap" data-astro-cid-4en3bvu3> <div class="err-banner" id="dash-err" data-astro-cid-4en3bvu3></div> <div class="tabs" data-astro-cid-4en3bvu3> <button class="tab active" data-tab="overview" data-astro-cid-4en3bvu3>نظرة عامة</button> <button class="tab" data-tab="upload" data-astro-cid-4en3bvu3>📤 رفع الملفات</button> <button class="tab" data-tab="entities" data-astro-cid-4en3bvu3>الجهات الحكومية</button> <button class="tab" data-tab="alerts" data-astro-cid-4en3bvu3>التنبيهات والبنود</button> <button class="tab" data-tab="costs" data-astro-cid-4en3bvu3>التكاليف</button> <button class="tab" data-tab="calcs" data-astro-cid-4en3bvu3>الحاسبات</button> </div> <!-- OVERVIEW --> <div class="panel active" id="panel-overview" data-astro-cid-4en3bvu3> <div class="card score-card" data-astro-cid-4en3bvu3> <div class="score-ring" id="score-ring" data-astro-cid-4en3bvu3>--</div> <div class="score-meta" data-astro-cid-4en3bvu3> <h2 id="score-title" data-astro-cid-4en3bvu3>🎯 درجة الامتثال</h2> <div id="score-band" data-astro-cid-4en3bvu3>—</div> <div id="last-analysis" style="font-size:.78rem;color:#9aa3b2;margin-top:.3rem;" data-astro-cid-4en3bvu3></div> </div> </div> <div class="qgrid" data-astro-cid-4en3bvu3> <div class="qtile" data-astro-cid-4en3bvu3><div class="qicon red" data-astro-cid-4en3bvu3>🔴</div><div class="qn" id="cnt-red" data-astro-cid-4en3bvu3>0</div><div class="ql" data-astro-cid-4en3bvu3>حرجة</div></div> <div class="qtile" data-astro-cid-4en3bvu3><div class="qicon yellow" data-astro-cid-4en3bvu3>🟡</div><div class="qn" id="cnt-yellow" data-astro-cid-4en3bvu3>0</div><div class="ql" data-astro-cid-4en3bvu3>متوسطة</div></div> <div class="qtile" data-astro-cid-4en3bvu3><div class="qicon green" data-astro-cid-4en3bvu3>🟢</div><div class="qn" id="cnt-green" data-astro-cid-4en3bvu3>0</div><div class="ql" data-astro-cid-4en3bvu3>منخفضة</div></div> <div class="qtile" data-astro-cid-4en3bvu3><div class="qicon blue" data-astro-cid-4en3bvu3>👥</div><div class="qn" id="qi-employees" data-astro-cid-4en3bvu3>—</div><div class="ql" data-astro-cid-4en3bvu3>الموظفون</div></div> <div class="qtile" data-astro-cid-4en3bvu3><div class="qicon gold" data-astro-cid-4en3bvu3>💰</div><div class="qn small" id="qi-cost" data-astro-cid-4en3bvu3>—</div><div class="ql" data-astro-cid-4en3bvu3>التكلفة ربعياً</div></div> <div class="qtile" data-astro-cid-4en3bvu3><div class="qicon navy" data-astro-cid-4en3bvu3>🏷️</div><div class="qn small" id="qi-band" data-astro-cid-4en3bvu3>—</div><div class="ql" data-astro-cid-4en3bvu3>النطاق</div></div> </div> <h3 class="sec" style="margin-top:1.6rem" data-astro-cid-4en3bvu3>🚨 أبرز التنبيهات</h3> <div class="card" id="top-alerts" data-astro-cid-4en3bvu3><div class="empty" data-astro-cid-4en3bvu3>جارٍ التحميل...</div></div> <h3 class="sec" style="margin-top:1.6rem" data-astro-cid-4en3bvu3>⏳ البنود والاستحقاقات</h3> <div class="card" data-astro-cid-4en3bvu3> <table class="reg" data-astro-cid-4en3bvu3> <thead data-astro-cid-4en3bvu3><tr data-astro-cid-4en3bvu3><th data-astro-cid-4en3bvu3>المنصة</th><th data-astro-cid-4en3bvu3>الموضوع</th><th data-astro-cid-4en3bvu3>الإجراء</th><th data-astro-cid-4en3bvu3>الانتهاء</th><th data-astro-cid-4en3bvu3>الأيام</th></tr></thead> <tbody id="reg-body-home" data-astro-cid-4en3bvu3><tr data-astro-cid-4en3bvu3><td colspan="5" class="empty" data-astro-cid-4en3bvu3>جارٍ التحميل...</td></tr></tbody> </table> </div> <h3 class="sec" style="margin-top:1.6rem" data-astro-cid-4en3bvu3>📁 ملفاتك المرفوعة</h3> <div class="card files-list-target" data-astro-cid-4en3bvu3><div class="empty" data-astro-cid-4en3bvu3>جارٍ التحميل...</div></div> </div> <!-- UPLOAD WIZARD --> <div class="panel" id="panel-upload" data-astro-cid-4en3bvu3> <h3 class="sec" data-astro-cid-4en3bvu3>📤 رفع ملفات الامتثال</h3> <p style="color:#667;font-size:.85rem;margin-bottom:1rem" data-astro-cid-4en3bvu3>ارفع مستنداتك خطوة بخطوة — يقرأها وكيل الامتثال ويرتّبها تلقائياً تحت كل منصة. لو ملف غير جاهز الآن اضغط «تخطي» وارجع له لاحقاً.</p> <div class="card" id="upload-wizard" data-astro-cid-4en3bvu3> <div id="upload-progress" style="font-size:.82rem;color:#667;margin-bottom:.6rem" data-astro-cid-4en3bvu3></div> <div style="background:#eef1f7;border-radius:8px;height:6px;margin-bottom:1.1rem;overflow:hidden" data-astro-cid-4en3bvu3><div id="upload-bar" style="height:100%;background:var(--brand);width:0%;transition:width .25s" data-astro-cid-4en3bvu3></div></div> <h4 id="upload-step-title" style="color:var(--navy);font-size:1.05rem;margin-bottom:.3rem" data-astro-cid-4en3bvu3></h4> <p id="upload-step-desc" style="color:#667;font-size:.85rem;margin-bottom:.9rem" data-astro-cid-4en3bvu3></p> <input type="file" id="upload-step-file" style="margin-bottom:1rem" data-astro-cid-4en3bvu3> <div id="upload-step-msg" style="display:none;border-radius:8px;padding:.6rem .8rem;font-size:.85rem;margin-bottom:.9rem" data-astro-cid-4en3bvu3></div> <div style="display:flex;gap:.6rem;flex-wrap:wrap" data-astro-cid-4en3bvu3> <button type="button" id="upload-back" style="background:#fff;color:var(--navy);border:1px solid var(--navy);padding:.5rem 1rem;border-radius:8px;font-size:.85rem;cursor:pointer" data-astro-cid-4en3bvu3>← السابق</button> <button type="button" id="upload-skip" style="background:#fff;color:#667;border:1px solid #ccd2e0;padding:.5rem 1rem;border-radius:8px;font-size:.85rem;cursor:pointer" data-astro-cid-4en3bvu3>تخطي</button> <button type="button" class="btn btn-navy" id="upload-next" style="margin-inline-start:auto" data-astro-cid-4en3bvu3>التالي ←</button> </div> </div> <div class="card" id="upload-done" style="display:none;text-align:center" data-astro-cid-4en3bvu3> <h3 style="color:var(--navy)" data-astro-cid-4en3bvu3>✅ تم استلام ملفاتك</h3> <p style="color:#667;font-size:.9rem;margin:.6rem 0" data-astro-cid-4en3bvu3>وكيل الامتثال يراجع ملفاتك الآن ويحدّث لوحتك خلال دقائق — يصلك إيميل بكل تحديث. اضغط تحديث بعد قليل لمشاهدة التحليل.</p> <button type="button" class="btn btn-navy" id="upload-refresh-after" data-astro-cid-4en3bvu3>↻ تحديث اللوحة الآن</button> <button type="button" id="upload-restart" style="margin-top:.7rem;display:block;margin-inline:auto;background:#fff;color:var(--navy);border:1px solid var(--navy);padding:.5rem 1rem;border-radius:8px;font-size:.85rem;cursor:pointer" data-astro-cid-4en3bvu3>✏️ الرجوع لقائمة الملفات لتعديل أو إضافة مستند</button> </div> <h3 class="sec" style="margin-top:1.6rem" data-astro-cid-4en3bvu3>📁 ملفاتك المرفوعة</h3> <div class="card" id="files-list" data-astro-cid-4en3bvu3><div class="empty" data-astro-cid-4en3bvu3>جارٍ التحميل...</div></div> </div> <!-- ENTITIES --> <div class="panel" id="panel-entities" data-astro-cid-4en3bvu3> <h3 class="sec" data-astro-cid-4en3bvu3>🏛️ الجهات الحكومية المرتبطة بمنشأتك</h3> <p style="color:#667;font-size:.85rem;margin-bottom:1rem" data-astro-cid-4en3bvu3>اضغط أي جهة لعرض تنبيهاتها وبنودها. الربط المباشر (API) قادم لكل جهة تباعاً — البيانات حالياً من ملفاتك المرفوعة.</p> <div class="grid cols-auto" id="entity-grid" data-astro-cid-4en3bvu3></div> </div> <!-- ALERTS + REGISTER --> <div class="panel" id="panel-alerts" data-astro-cid-4en3bvu3> <div id="platform-filter-chip" style="display:none" data-astro-cid-4en3bvu3></div> <h3 class="sec" data-astro-cid-4en3bvu3>🚨 التنبيهات</h3> <div class="card" id="alerts-list" data-astro-cid-4en3bvu3><div class="empty" data-astro-cid-4en3bvu3>جارٍ التحميل...</div></div> <h3 class="sec" style="margin-top:1.4rem" data-astro-cid-4en3bvu3>⏳ البنود والاستحقاقات</h3> <div class="card" data-astro-cid-4en3bvu3> <table class="reg" data-astro-cid-4en3bvu3> <thead data-astro-cid-4en3bvu3><tr data-astro-cid-4en3bvu3><th data-astro-cid-4en3bvu3>المنصة</th><th data-astro-cid-4en3bvu3>الموظف/الموضوع</th><th data-astro-cid-4en3bvu3>نوع الإجراء</th><th data-astro-cid-4en3bvu3>تاريخ الانتهاء</th><th data-astro-cid-4en3bvu3>الأيام</th></tr></thead> <tbody id="reg-body" data-astro-cid-4en3bvu3><tr data-astro-cid-4en3bvu3><td colspan="5" class="empty" data-astro-cid-4en3bvu3>جارٍ التحميل...</td></tr></tbody> </table> </div> </div> <!-- COSTS --> <div class="panel" id="panel-costs" data-astro-cid-4en3bvu3> <h3 class="sec" data-astro-cid-4en3bvu3>💰 التكلفة الحكومية التقديرية</h3> <div class="grid cols-3" data-astro-cid-4en3bvu3> <div class="card" data-astro-cid-4en3bvu3><div style="color:#667;font-size:.85rem" data-astro-cid-4en3bvu3>ربعياً</div><div style="font-size:1.4rem;font-weight:800;color:var(--navy)" id="cost-q" data-astro-cid-4en3bvu3>—</div></div> <div class="card" data-astro-cid-4en3bvu3><div style="color:#667;font-size:.85rem" data-astro-cid-4en3bvu3>سنوياً</div><div style="font-size:1.4rem;font-weight:800;color:var(--navy)" id="cost-a" data-astro-cid-4en3bvu3>—</div></div> <div class="card" data-astro-cid-4en3bvu3><div style="color:#667;font-size:.85rem" data-astro-cid-4en3bvu3>الموظفون / السعوديون</div><div style="font-size:1.4rem;font-weight:800;color:var(--navy)" id="emp-info" data-astro-cid-4en3bvu3>—</div></div> </div> <div class="note-box" data-astro-cid-4en3bvu3>💡 التكلفة أعلاه تقديرية إجمالية (رخص العمل + الإقامات + التأمين الطبي + الغرامات المحتملة) مبنية على عدد الموظفين. لحساب دقيق لكل موظف حسب مهنته وحالته، أضف بيانات المهن — والوكيل يقدر يفصّلها لك عند الطلب في المحادثة.</div> <h3 class="sec" style="margin-top:1.4rem" data-astro-cid-4en3bvu3>🏛️ الرسوم الحكومية الرسمية (2025–2026)</h3> <div class="card" data-astro-cid-4en3bvu3> <div class="alert-table-wrap" data-astro-cid-4en3bvu3><table class="alert-table" data-astro-cid-4en3bvu3><thead data-astro-cid-4en3bvu3><tr data-astro-cid-4en3bvu3><th data-astro-cid-4en3bvu3>البند</th><th data-astro-cid-4en3bvu3>الجهة</th><th data-astro-cid-4en3bvu3>الرسوم (ريال)</th><th data-astro-cid-4en3bvu3>الدورية</th><th data-astro-cid-4en3bvu3>يدفعها</th></tr></thead><tbody data-astro-cid-4en3bvu3> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>المقابل المالي للعمالة الوافدة</td><td data-astro-cid-4en3bvu3>قوى / الموارد البشرية</td><td data-astro-cid-4en3bvu3>700/شهر إذا الوافدون ≤ السعوديين، و800/شهر لمن زاد (أي 8,400 – 9,600 سنوياً للعامل). المنشآت الصناعية المرخّصة معفاة (قرار 17/12/2025)</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>صاحب العمل</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>إصدار / تجديد رخصة العمل</td><td data-astro-cid-4en3bvu3>قوى</td><td data-astro-cid-4en3bvu3>100</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>صاحب العمل</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>الإقامة (هوية مقيم)</td><td data-astro-cid-4en3bvu3>مقيم / أبشر أعمال</td><td data-astro-cid-4en3bvu3>650</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>صاحب العمل</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>رسوم المرافقين</td><td data-astro-cid-4en3bvu3>أبشر</td><td data-astro-cid-4en3bvu3>400/شهر لكل مرافق (4,800 سنوياً)</td><td data-astro-cid-4en3bvu3>شهري</td><td data-astro-cid-4en3bvu3>العامل الوافد</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>تأشيرة خروج وعودة</td><td data-astro-cid-4en3bvu3>أبشر / مقيم</td><td data-astro-cid-4en3bvu3>مفردة 200 (شهران) + 100 لكل شهر إضافي · متعددة 500 (3 أشهر) + 200 لكل شهر</td><td data-astro-cid-4en3bvu3>لكل تأشيرة</td><td data-astro-cid-4en3bvu3>صاحب العمل</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>التأمينات الاجتماعية GOSI</td><td data-astro-cid-4en3bvu3>gosi.gov.sa</td><td data-astro-cid-4en3bvu3>السعودي: 21.5% من الأجر (11.75% منشأة + 9.75% موظف) · الوافد: أخطار مهنية 2% على المنشأة فقط</td><td data-astro-cid-4en3bvu3>شهري</td><td data-astro-cid-4en3bvu3>مشترك</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>مدد — حماية الأجور</td><td data-astro-cid-4en3bvu3>mudad.com.sa</td><td data-astro-cid-4en3bvu3>نظام الالتزام مجاني · باقات إدارة الرواتب اختيارية مدفوعة</td><td data-astro-cid-4en3bvu3>—</td><td data-astro-cid-4en3bvu3>—</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>السجل التجاري</td><td data-astro-cid-4en3bvu3>وزارة التجارة</td><td data-astro-cid-4en3bvu3>200 (تأكيد سنوي للبيانات)</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>المنشأة</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>اشتراك الغرفة التجارية</td><td data-astro-cid-4en3bvu3>الغرف التجارية</td><td data-astro-cid-4en3bvu3>500 – 10,000 حسب الدرجة ورأس المال</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>المنشأة</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>العنوان الوطني للأعمال</td><td data-astro-cid-4en3bvu3>سبل — البريد السعودي</td><td data-astro-cid-4en3bvu3>500 للمؤسسات · 1,000 للشركات (السنة الأولى مجانية)</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>المنشأة</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>الزكاة والضريبة (زاتكا)</td><td data-astro-cid-4en3bvu3>zatca.gov.sa</td><td data-astro-cid-4en3bvu3>التسجيل والشهادة مجاناً · غرامات تأخير الإقرار 5% – 25% وتأخير السداد 5%/شهر</td><td data-astro-cid-4en3bvu3>—</td><td data-astro-cid-4en3bvu3>—</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>الرخصة البلدية</td><td data-astro-cid-4en3bvu3>بلدي</td><td data-astro-cid-4en3bvu3>تُحسب حسب النشاط والموقع والمساحة — حاسبة بلدي الرسمية</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>المنشأة</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>رخصة سلامة (الدفاع المدني)</td><td data-astro-cid-4en3bvu3>سلامة 998</td><td data-astro-cid-4en3bvu3>≈ 86 فوري · ≈ 173 غير فوري (المتطلبات الفنية حسب النشاط)</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>المنشأة</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>توثيق عقد الإيجار التجاري</td><td data-astro-cid-4en3bvu3>إيجار</td><td data-astro-cid-4en3bvu3>200 للسنة الأولى · 400 لكل سنة إضافية</td><td data-astro-cid-4en3bvu3>لكل عقد</td><td data-astro-cid-4en3bvu3>المؤجّر</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>رخصة الاستثمار الأجنبي MISA</td><td data-astro-cid-4en3bvu3>misa.gov.sa</td><td data-astro-cid-4en3bvu3>2,000 سنوياً + اشتراك علاقات المستثمرين 10,000 أول سنة ثم 60,000/سنة</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>المنشأة</td></tr> <tr data-astro-cid-4en3bvu3><td data-astro-cid-4en3bvu3>التأمين الطبي الإلزامي</td><td data-astro-cid-4en3bvu3>مجلس الضمان الصحي</td><td data-astro-cid-4en3bvu3>سعر سوقي: ≈ 450 – 1,200 للعامل الأساسي (يرتفع بالفئة والعمر)</td><td data-astro-cid-4en3bvu3>سنوي</td><td data-astro-cid-4en3bvu3>صاحب العمل</td></tr> </tbody></table></div> <div class="note-box" style="margin-top:.9rem" data-astro-cid-4en3bvu3>📌 أرقام رسمية محدّثة (يوليو 2026) من مواقع الجهات: hrsd.gov.sa · muqeem.sa · gosi.gov.sa · mc.gov.sa · zatca.gov.sa · balady.gov.sa · ejar.sa · misa.gov.sa. <b data-astro-cid-4en3bvu3>خلاصة مهمة:</b> تكلفة العامل الوافد سنوياً ≈ <b data-astro-cid-4en3bvu3>12,300 ريال</b> (مقابل مالي 9,600 + رخصة عمل 100 + إقامة 650 + خروج وعودة 200 + تأمين طبي ≈ 800 + أخطار مهنية 2% من الراتب) — والتقدير أعلاه في البطاقات مبني على هذه الأرقام إن لم يُدخل الوكيل حساباً مفصّلاً.</div> </div> </div> <!-- CALCULATORS --> <div class="panel" id="panel-calcs" data-astro-cid-4en3bvu3> <h3 class="sec" data-astro-cid-4en3bvu3>🧮 حاسبات الامتثال</h3> <p style="color:#667;font-size:.85rem;margin-bottom:1rem" data-astro-cid-4en3bvu3>تفتح في تبويب جديد وتبقى داشبوردك مفتوح هنا.</p> <div class="grid cols-3" data-astro-cid-4en3bvu3> <a class="calc-card" href="https://www.businesspartner.sa/ar/calculators/nitaqat" target="_blank" rel="noopener" data-astro-cid-4en3bvu3> <div class="cicon" data-astro-cid-4en3bvu3>🟢</div> <div data-astro-cid-4en3bvu3><div class="ct" data-astro-cid-4en3bvu3>حاسبة النطاقات</div><div class="cd" data-astro-cid-4en3bvu3>نسبة التوطين والنطاق المتوقع (قوى)</div></div> <div class="go" data-astro-cid-4en3bvu3>←</div> </a> <a class="calc-card" href="https://www.businesspartner.sa/ar/calculators/government-cost" target="_blank" rel="noopener" data-astro-cid-4en3bvu3> <div class="cicon" data-astro-cid-4en3bvu3>💰</div> <div data-astro-cid-4en3bvu3><div class="ct" data-astro-cid-4en3bvu3>حاسبة التكاليف الحكومية</div><div class="cd" data-astro-cid-4en3bvu3>رخص العمل + الإقامات + التأمين لكل عامل</div></div> <div class="go" data-astro-cid-4en3bvu3>←</div> </a> <a class="calc-card" href="https://www.businesspartner.sa/ar/calculators/profession-checker" target="_blank" rel="noopener" data-astro-cid-4en3bvu3> <div class="cicon" data-astro-cid-4en3bvu3>🧑‍💼</div> <div data-astro-cid-4en3bvu3><div class="ct" data-astro-cid-4en3bvu3>فاحص المهن</div><div class="cd" data-astro-cid-4en3bvu3>تحقق من المهن المُوطّنة أو المقيّدة على نشاطك</div></div> <div class="go" data-astro-cid-4en3bvu3>←</div> </a> <a class="calc-card" href="https://www.businesspartner.sa/ar/tools-and-calculators" target="_blank" rel="noopener" data-astro-cid-4en3bvu3> <div class="cicon" data-astro-cid-4en3bvu3>🧮</div> <div data-astro-cid-4en3bvu3><div class="ct" data-astro-cid-4en3bvu3>كل الأدوات والحاسبات</div><div class="cd" data-astro-cid-4en3bvu3>مكافأة نهاية الخدمة، الإجازة السنوية، العمل الإضافي، اشتراك التأمينات، والمزيد</div></div> <div class="go" data-astro-cid-4en3bvu3>←</div> </a> </div> </div> <div style="height:5rem" data-astro-cid-4en3bvu3></div> </div> </div> <button id="chat-toggle" data-astro-cid-4en3bvu3>💬 اسأل وكيل الامتثال</button> <div id="chat-frame-wrap" data-astro-cid-4en3bvu3><div id="n8n-chat-widget" data-astro-cid-4en3bvu3></div></div> <script>(function(){const API_URL = "https://businesspartnerai.app.n8n.cloud/webhook/bp3-portal-9kq4z";const INTAKE_URL = "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/logo.svg"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="noindex, nofollow"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>لوحة العميل | وكيل الامتثال — شريك الأعمال</title><link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1B5A; --navy-deep:#060F35; --navy-soft:#122570;
+    --ink:#1A2247; --muted:#5A6285; --faint:#8B92B3;
+    --paper:#F4F6FB; --card:#FFFFFF; --line:#E2E6F3;
+    --gold:#C9A227; --gold-deep:#9A7A14;
+    --green:#0E6B3C; --green-bg:#E9F5EE;
+    --amber:#D79A1E; --amber-text:#9A6B0D; --amber-bg:#FCF3DF;
+    --red:#B3372B; --red-bg:#FBEBE9;
+    --r-lg:22px; --r-md:14px;
+    --shadow:0 8px 30px rgba(11,27,90,.08);
+    --shadow-lift:0 14px 40px rgba(11,27,90,.14);
+    --font:'IBM Plex Sans Arabic','Tajawal','Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important} }
+  body{font-family:var(--font);background:var(--paper);color:var(--ink);direction:rtl;line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  button,select,input{font-family:inherit}
+  button{cursor:pointer}
+  :focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
 
-    // Branded badges (colored word-marks) instead of generic emoji or scraped
-    // trademarked logos — each authority gets a distinct, recognizable color chip.
+  /* ===== Login / Locked ===== */
+  .gate{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(1100px 600px at 80% -10%, #1D3AA0 0%, var(--navy) 45%, var(--navy-deep) 100%);padding:1.2rem}
+  .gate-card{background:#fff;border-radius:var(--r-lg);box-shadow:0 24px 60px rgba(6,15,53,.4);padding:2rem 1.8rem;max-width:420px;width:100%;text-align:center}
+  .gate-card img{height:52px;margin-bottom:.8rem}
+  .gate-card h1{font-size:1.35rem;color:var(--navy);margin-bottom:.4rem}
+  .gate-card p{color:var(--muted);font-size:.9rem;margin-bottom:1.1rem}
+  .gate-card .field{text-align:start;margin-bottom:.9rem}
+  .gate-card label{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:.3rem}
+  .gate-card input{width:100%;border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;font-size:.95rem;background:var(--paper);color:var(--ink)}
+  .gate-card input:focus{outline:2px solid var(--navy);background:#fff}
+  .btn-navy{display:inline-block;background:var(--navy);color:#fff;border:none;border-radius:999px;padding:.75rem 1.4rem;font-weight:800;font-size:.95rem;width:100%;text-decoration:none}
+  .btn-navy:hover{background:var(--navy-soft)}
+  .btn-ghost{width:100%;margin-top:.6rem;background:#EEF2FB;color:var(--navy);border:1px solid #DBE4F5;border-radius:999px;padding:.65rem;font-weight:700}
+  .login-err{display:none;background:var(--red-bg);color:var(--red);border-radius:10px;padding:.6rem .8rem;font-size:.85rem;margin-top:.8rem}
+  .hint{color:var(--faint);font-size:.76rem;margin-top:.9rem}
+  .gate-link{display:block;margin-top:.7rem;color:var(--navy);font-weight:700;text-decoration:none;font-size:.86rem}
+
+  /* ===== Hero ===== */
+  #dash{display:none}
+  .hero{background:radial-gradient(1200px 600px at 85% -10%, #1D3AA0 0%, var(--navy) 45%, var(--navy-deep) 100%);color:#fff;padding:0 0 3.4rem;position:relative;overflow:hidden}
+  .topbar{max-width:1180px;margin:0 auto;padding:1rem 1.4rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1rem;min-width:0}
+  .brand img{height:38px}
+  .brand span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw}
+  .top-actions{margin-inline-start:auto;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+  .chip-btn{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:.48rem 1rem;font-size:.84rem;font-weight:600;transition:background .18s}
+  .chip-btn:hover{background:rgba(255,255,255,.18)}
+  .chip-btn.gold{background:var(--gold);border-color:var(--gold);color:#241B00;font-weight:800}
+  .chip-btn.gold:hover{background:#D9B23A}
+  #company-select{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:.48rem .9rem;font-size:.84rem;max-width:210px;cursor:pointer}
+  #company-select option{color:var(--ink)}
+  .err-banner{display:none;max-width:1180px;margin:0 auto 0;padding:.6rem 1.4rem;color:#FFD7D0;font-size:.85rem}
+
+  .hero-grid{max-width:1180px;margin:1.2rem auto 0;padding:0 1.4rem;display:grid;grid-template-columns:minmax(280px,400px) 1fr;gap:2.2rem;align-items:center;position:relative;z-index:2}
+  @media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:1.6rem}}
+  .gauge-wrap{display:grid;place-items:center;position:relative}
+  .gauge{width:min(310px,74vw);height:auto;display:block}
+  .gauge .track{stroke:rgba(255,255,255,.13)}
+  .gauge .arc{stroke:url(#scoreGrad);stroke-linecap:round;transition:stroke-dasharray 1.4s cubic-bezier(.22,.9,.32,1)}
+  .gauge-center{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+  .gauge-center .num{font-size:4rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .gauge-center .band{margin-top:.3rem;display:inline-block;border-radius:999px;padding:.26rem 1rem;font-weight:800;font-size:.9rem;background:var(--red);color:#fff}
+  .gauge-center .band.b-good{background:var(--green)} .gauge-center .band.b-mid{background:#0066cc} .gauge-center .band.b-warn{background:var(--amber);color:#241B00}
+  .gauge-center .sub{margin-top:.45rem;font-size:.76rem;color:rgba(255,255,255,.65)}
+  .hero-copy .eyebrow{color:var(--gold);font-weight:800;font-size:.8rem;letter-spacing:.1em}
+  .hero-copy h1{font-size:clamp(1.35rem,2.8vw,2.1rem);font-weight:800;line-height:1.35;margin:.45rem 0 .35rem;text-wrap:balance}
+  .hero-copy .lede{color:rgba(255,255,255,.75);max-width:56ch;font-size:.94rem}
+  .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-top:1.2rem;max-width:540px}
+  .kpi{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:var(--r-md);padding:.75rem .9rem}
+  .kpi .v{font-size:1.75rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+  .kpi.red .v{color:#FF9C8F}.kpi.amber .v{color:#F3C766}.kpi.green .v{color:#8CD9AE}
+  .kpi .l{font-size:.78rem;color:rgba(255,255,255,.7)}
+  .deadline-pill{margin-top:1.1rem;display:none;align-items:center;gap:.7rem;background:rgba(201,162,39,.14);border:1px solid rgba(201,162,39,.5);border-radius:var(--r-md);padding:.6rem 1rem}
+  .deadline-pill .dnum{font-size:1.5rem;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .deadline-pill .dl{font-size:.82rem;color:rgba(255,255,255,.85)}
+
+  /* ===== Sticky nav ===== */
+  .snav{position:sticky;top:0;z-index:40;background:rgba(244,246,251,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .snav-in{max-width:1180px;margin:0 auto;padding:.5rem 1.4rem;display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none}
+  .snav-in::-webkit-scrollbar{display:none}
+  .snav a{white-space:nowrap;text-decoration:none;font-size:.85rem;font-weight:700;color:var(--muted);border-radius:999px;padding:.4rem .95rem;border:1px solid transparent}
+  .snav a.on{background:var(--navy);color:#fff}
+  .snav a:not(.on):hover{border-color:var(--line);background:#fff}
+
+  /* ===== Sections ===== */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 1.4rem}
+  section.block{padding:2.2rem 0 .4rem}
+  .sec-head{display:flex;align-items:baseline;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap}
+  .sec-head h2{font-size:1.22rem;font-weight:800;color:var(--navy)}
+  .sec-head .cnt{color:var(--faint);font-size:.82rem;font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:1.2rem 1.3rem}
+  .empty{color:var(--faint);text-align:center;padding:1rem;font-size:.9rem}
+
+  /* Timeline */
+  .tl-row{display:grid;grid-template-columns:200px 1fr 104px;align-items:center;gap:.9rem;padding:.5rem 0;border-bottom:1px dashed var(--line)}
+  .tl-row:last-child{border-bottom:none}
+  @media (max-width:640px){.tl-row{grid-template-columns:126px 1fr 80px}}
+  .tl-name{font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:.5rem;min-width:0}
+  .tl-name>span{min-width:0;overflow:hidden}
+  .tl-name small{display:block;color:var(--faint);font-weight:500;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tl-track{position:relative;height:24px;background:var(--paper);border-radius:6px;overflow:hidden}
+  .tl-bar{position:absolute;inset-inline-start:0;top:4px;bottom:4px;border-radius:5px;width:0;transition:width 1s cubic-bezier(.22,.9,.32,1)}
+  .tl-bar.red{background:var(--red)} .tl-bar.amber{background:var(--amber)} .tl-bar.green{background:var(--green)}
+  .tl-days{font-size:.84rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .tl-days.red{color:var(--red)} .tl-days.amber{color:var(--amber-text)} .tl-days.green{color:var(--green)}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .dot.red{background:var(--red)}.dot.amber{background:var(--amber)}.dot.green{background:var(--green)}
+  .tip{position:fixed;z-index:90;background:var(--navy);color:#fff;border-radius:10px;padding:.5rem .8rem;font-size:.78rem;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;box-shadow:var(--shadow-lift);max-width:250px}
+  .tip.show{opacity:1;transform:none}
+
+  /* Entities */
+  .ent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.85rem}
+  .ent{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:1rem .8rem;text-align:center;transition:transform .18s,box-shadow .18s,border-color .18s;position:relative;cursor:pointer}
+  .ent:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:#C7CFEA}
+  .ent.sel{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy) inset}
+  .ent .logo{width:60px;height:60px;border-radius:16px;margin:0 auto .5rem;display:grid;place-items:center;font-weight:800;font-size:.68rem;color:#fff;overflow:hidden}
+  .ent .logo.logo-real{background:#fff;border:1px solid var(--line)}
+  .ent .logo img{width:78%;height:78%;object-fit:contain;border-radius:10px}
+  .ent .nm{font-size:.85rem;font-weight:800}
+  .ent .auth{font-size:.68rem;color:var(--faint)}
+  .ent .st{font-size:.72rem;margin-top:.25rem;font-weight:700}
+  .ent .st.red{color:var(--red)} .ent .st.amber{color:var(--amber-text)} .ent .st.green{color:var(--green)} .ent .st.na{color:var(--faint);font-weight:500}
+  .ent .pulse{position:absolute;top:9px;inset-inline-end:9px;width:9px;height:9px;border-radius:50%}
+  .ent .pulse.red{background:var(--red);box-shadow:0 0 0 0 rgba(179,55,43,.5);animation:pulse 1.8s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 9px rgba(179,55,43,0)}100%{box-shadow:0 0 0 0 rgba(179,55,43,0)}}
+
+  /* Obligations & alerts */
+  .toolbar{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center;margin-bottom:.9rem}
+  .search{flex:1;min-width:200px;display:flex;align-items:center;gap:.5rem;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.45rem 1rem}
+  .search input{border:none;outline:none;flex:1;font-size:.88rem;background:transparent;color:var(--ink)}
+  .fchip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:.42rem .9rem;font-size:.8rem;font-weight:700;color:var(--muted)}
+  .fchip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  .filter-chip{display:inline-flex;align-items:center;gap:.5rem;background:var(--navy);color:#fff;border-radius:999px;padding:.4rem 1rem;font-size:.82rem;font-weight:700;margin-bottom:.8rem}
+  .filter-chip button{background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:.75rem}
+  .tblwrap{overflow-x:auto}
+  table.obl{width:100%;border-collapse:separate;border-spacing:0 .45rem;font-size:.88rem}
+  .obl th{font-size:.74rem;color:var(--faint);font-weight:700;text-align:start;padding:0 .75rem}
+  .obl td{background:var(--paper);padding:.65rem .75rem;vertical-align:middle}
+  .obl tr.r td:first-child{border-inline-start:4px solid var(--red);border-start-start-radius:12px;border-end-start-radius:12px}
+  .obl tr.y td:first-child{border-inline-start:4px solid var(--amber);border-start-start-radius:12px;border-end-start-radius:12px}
+  .obl tr.g td:first-child{border-inline-start:4px solid var(--green);border-start-start-radius:12px;border-end-start-radius:12px}
+  .obl tr.n td:first-child{border-inline-start:4px solid var(--line);border-start-start-radius:12px;border-end-start-radius:12px}
+  .obl td:last-child{border-start-end-radius:12px;border-end-end-radius:12px}
+  .badge{display:inline-block;border-radius:999px;padding:.18rem .65rem;font-size:.73rem;font-weight:800;white-space:nowrap}
+  .badge.r{background:var(--red-bg);color:var(--red)} .badge.y{background:var(--amber-bg);color:var(--amber-text)} .badge.g{background:var(--green-bg);color:var(--green)} .badge.n{background:var(--paper);color:var(--faint)}
+  .rowbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:.3rem .65rem;font-size:.74rem;font-weight:700;color:var(--navy);white-space:nowrap}
+  .rowbtn:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+  /* Files */
+  .filegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:.85rem}
+  .fcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:.95rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.45rem}
+  .fcard .ft{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.86rem;min-width:0}
+  .fcard .ft a{color:var(--navy);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fcard .ficon{width:38px;height:38px;border-radius:10px;background:var(--paper);display:grid;place-items:center;font-size:1.05rem;flex:none}
+  .fmeta{font-size:.74rem;color:var(--muted);display:flex;gap:.8rem;flex-wrap:wrap}
+  .qr-ok{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:800;color:var(--green);background:var(--green-bg);border-radius:999px;padding:.16rem .6rem;align-self:flex-start}
+  .qr-warn{color:var(--amber-text);background:var(--amber-bg)}
+  .facts{display:flex;gap:.45rem;margin-top:.15rem}
+  .facts button{flex:1;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:.38rem;font-size:.76rem;font-weight:700;color:var(--muted)}
+  .facts .fdel:hover{color:var(--red);border-color:var(--red)}
+  .facts .frep{color:var(--navy)} .facts .frep:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+  /* Costs */
+  .cost-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.85rem;margin-bottom:1rem}
+  .ctile{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:1rem}
+  .ctile .l{color:var(--muted);font-size:.8rem}
+  .ctile .v{font-size:1.35rem;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+  .calc{display:grid;grid-template-columns:1.1fr .9fr;gap:1.4rem;align-items:center}
+  @media (max-width:800px){.calc{grid-template-columns:1fr}}
+  .sliders label{display:flex;justify-content:space-between;font-size:.86rem;font-weight:700;margin:.8rem 0 .3rem}
+  .sliders label b{font-variant-numeric:tabular-nums;color:var(--navy)}
+  input[type=range]{width:100%;accent-color:var(--navy)}
+  .cost-out{background:linear-gradient(135deg,var(--navy),var(--navy-soft));color:#fff;border-radius:var(--r-lg);padding:1.4rem;text-align:center}
+  .cost-out .big{font-size:2.3rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+  .cost-out .big small{font-size:.95rem;font-weight:600;color:rgba(255,255,255,.7)}
+  .cost-out .per{margin-top:.35rem;font-size:.82rem;color:rgba(255,255,255,.75)}
+  .cost-break{margin-top:.9rem;display:grid;gap:.32rem;font-size:.78rem;text-align:start;color:rgba(255,255,255,.85)}
+  .cost-break div{display:flex;justify-content:space-between;border-bottom:1px dashed rgba(255,255,255,.18);padding-bottom:.28rem}
+  .cost-note{font-size:.75rem;color:var(--faint);margin-top:.7rem}
+  .fees-note{background:#FDF9EC;border:1px solid #EFE2B8;border-radius:var(--r-md);padding:.85rem 1rem;font-size:.82rem;color:#6B5A17;margin-top:.9rem}
+  table.fees{width:100%;border-collapse:collapse;font-size:.84rem}
+  .fees th{font-size:.74rem;color:var(--faint);text-align:start;padding:.45rem .6rem;border-bottom:1px solid var(--line)}
+  .fees td{padding:.55rem .6rem;border-bottom:1px solid var(--paper);vertical-align:top}
+  .fees tr:hover td{background:var(--paper)}
+
+  /* Calculators links */
+  .calc-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.85rem}
+  .calc-card{display:flex;align-items:center;gap:.8rem;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:1rem;text-decoration:none;transition:transform .16s}
+  .calc-card:hover{transform:translateY(-3px)}
+  .calc-card .cicon{font-size:1.5rem}
+  .calc-card .ct{font-weight:800;font-size:.9rem;color:var(--navy)}
+  .calc-card .cd{font-size:.75rem;color:var(--muted)}
+  .calc-card .go{margin-inline-start:auto;color:var(--faint)}
+
+  /* Drawer */
+  .drawer-overlay{position:fixed;inset:0;background:rgba(6,15,53,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
+  .drawer-overlay.show{opacity:1;pointer-events:auto}
+  .side-drawer{position:fixed;top:0;bottom:0;inset-inline-start:0;width:min(500px,94vw);background:var(--paper);z-index:70;box-shadow:var(--shadow-lift);transform:translateX(105%);transition:transform .3s cubic-bezier(.22,.9,.32,1);display:flex;flex-direction:column}
+  .side-drawer.open{transform:none}
+  .drawer-h{background:var(--navy);color:#fff;padding:1rem 1.2rem;display:flex;align-items:center;gap:.8rem}
+  .drawer-h h3{font-size:1rem;flex:1}
+  .drawer-h button{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:9px;font-size:1rem}
+  .drawer-b{padding:1.1rem 1.2rem;overflow-y:auto;flex:1}
+  .wizard-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:1.1rem}
+  .wizard-card h4{color:var(--navy);font-size:1rem;margin-bottom:.25rem}
+  .wizard-card .desc{color:var(--muted);font-size:.83rem;margin-bottom:.8rem}
+  .wprog{font-size:.78rem;color:var(--muted);margin-bottom:.5rem}
+  .wbar{background:var(--paper);border-radius:8px;height:6px;margin-bottom:1rem;overflow:hidden}
+  .wbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--navy));width:0;transition:width .25s}
+  #upload-step-file{margin-bottom:.9rem;width:100%;font-size:.85rem}
+  #upload-step-msg{display:none;border-radius:8px;padding:.55rem .8rem;font-size:.83rem;margin-bottom:.8rem}
+  .wnav{display:flex;gap:.5rem;flex-wrap:wrap}
+  .wnav .back,.wnav .skip{background:#fff;border:1px solid var(--line);padding:.45rem .95rem;border-radius:8px;font-size:.83rem;color:var(--muted)}
+  .wnav .back{color:var(--navy);border-color:var(--navy)}
+  .wnav .next{margin-inline-start:auto;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:.45rem 1.2rem;font-weight:700;font-size:.85rem}
+  #upload-done{display:none;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:1.3rem}
+  #upload-done h3{color:var(--navy)}
+  #upload-done p{color:var(--muted);font-size:.87rem;margin:.5rem 0 .9rem}
+
+  /* FABs */
+  .fab{position:fixed;bottom:1.2rem;inset-inline-start:1.2rem;z-index:50;display:flex;flex-direction:column;gap:.55rem}
+  .fab button{display:flex;align-items:center;gap:.5rem;border:none;border-radius:999px;padding:.75rem 1.15rem;font-weight:800;font-size:.87rem;box-shadow:var(--shadow-lift)}
+  .fab .chat{background:var(--gold);color:#241B00}
+  .fab .up{background:var(--navy);color:#fff}
+  #chat-frame-wrap{display:none;position:fixed;bottom:5.6rem;inset-inline-start:1.2rem;width:min(400px,92vw);height:min(560px,72vh);z-index:55;border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lift);background:#fff}
+  #n8n-chat-widget{width:100%;height:100%}
+
+  footer.foot{margin-top:2.6rem;padding:1.6rem 1.4rem;text-align:center;color:var(--faint);font-size:.78rem;border-top:1px solid var(--line)}
+</style></head>
+<body>
+
+<div id="login-screen" class="gate">
+  <form class="gate-card" id="login-form">
+    <img src="/logo.svg" alt="">
+    <h1>لوحة الامتثال</h1>
+    <p>ادخل بريدك الإلكتروني ورمز الدخول المرسل إليه لمتابعة حالة الامتثال يومياً.</p>
+    <div class="field"><label>البريد الإلكتروني</label><input type="email" id="in-email" required autocomplete="email"></div>
+    <div class="field"><label>رمز الدخول</label><input type="text" id="in-code" required autocomplete="off"></div>
+    <button type="submit" class="btn-navy" id="login-btn">دخول</button>
+    <div class="login-err" id="login-err"></div>
+    <a class="gate-link" href="https://www.businesspartner.sa/ar/account?redirect=compliance">🔐 بدون رمز — ادخل برمز يوصلك على الإيميل عبر حساب بيزنس بارتنر</a>
+    <div class="hint">ما وصلك كود؟ اشترك عبر www.businesspartner.sa/ar/compliance-agent — يصلك الكود بعد تأكيد الاشتراك.</div>
+  </form>
+</div>
+
+<div id="locked-screen" class="gate" style="display:none">
+  <div class="gate-card">
+    <img src="/logo.svg" alt="">
+    <h1>🔒 أكمل الدفع لتفعيل الخدمة</h1>
+    <p id="locked-company-name" style="font-weight:700;color:var(--navy)"></p>
+    <p>سجّلنا بيانات منشأتك بنجاح، لكن لوحة الامتثال تُفتح فور تأكيد الدفع. أكمل الاشتراك وستُفعَّل الخدمة تلقائياً خلال دقائق.</p>
+    <a class="btn-navy" id="locked-pay-btn" href="https://www.businesspartner.sa/ar/compliance-agent#pricing" target="_blank" rel="noopener">إكمال الدفع الآن</a>
+    <button type="button" class="btn-ghost" id="locked-logout-btn">تسجيل خروج</button>
+    <div class="hint">بعد تأكيد الدفع تصلك رسالة بريد بأن الخدمة فُتحت — سجّل الدخول من جديد بنفس الرمز.</div>
+  </div>
+</div>
+
+<div id="dash">
+  <header class="hero">
+    <div class="topbar">
+      <div class="brand"><img src="/logo.svg" alt=""><span id="company-name">لوحة الامتثال</span></div>
+      <div class="top-actions">
+        <select id="company-select" style="display:none" aria-label="اختيار المنشأة"></select>
+        <button class="chip-btn" id="add-company-btn" style="display:none">＋ منشأة</button>
+        <button class="chip-btn gold" id="open-upload-btn">📤 رفع الملفات</button>
+        <button class="chip-btn" id="refresh-btn">↻ تحديث</button>
+        <button class="chip-btn" id="logout-btn">خروج</button>
+      </div>
+    </div>
+    <div class="err-banner" id="dash-err"></div>
+    <div class="hero-grid">
+      <div class="gauge-wrap" id="gauge-wrap" aria-label="درجة الامتثال">
+        <svg class="gauge" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="scoreGrad" x1="0" y1="1" x2="1" y2="0">
+              <stop id="grad-a" offset="0%" stop-color="#E4574A"/><stop id="grad-b" offset="100%" stop-color="#C9A227"/>
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="100" cy="100" r="84" fill="none" stroke-width="14" stroke-dasharray="396 132" stroke-dashoffset="-66" transform="rotate(90 100 100)"/>
+          <circle class="arc" id="score-arc" cx="100" cy="100" r="84" fill="none" stroke-width="14" stroke-dasharray="0 528" stroke-dashoffset="-66" transform="rotate(90 100 100)"/>
+        </svg>
+        <div class="gauge-center">
+          <div>
+            <div class="num" id="score-num">—</div>
+            <div class="band" id="score-band-pill">…</div>
+            <div class="sub" id="last-analysis"></div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-copy">
+        <div class="eyebrow" id="hero-eyebrow">لوحة الامتثال الحكومي</div>
+        <h1 id="hero-headline">جارٍ تحميل حالة منشأتك…</h1>
+        <p class="lede" id="hero-lede">وكيل الامتثال يتابع ١٤ جهة حكومية، يقرأ باركود شهاداتك، ويحدّث هذه اللوحة تلقائياً.</p>
+        <div class="kpis">
+          <div class="kpi red"><div class="v" id="cnt-red">0</div><div class="l">حرجة / منتهية</div></div>
+          <div class="kpi amber"><div class="v" id="cnt-yellow">0</div><div class="l">تنتهي قريباً</div></div>
+          <div class="kpi green"><div class="v" id="cnt-green">0</div><div class="l">سليمة</div></div>
+        </div>
+        <div class="deadline-pill" id="deadline-pill">
+          <span class="dnum" id="cdown">—</span>
+          <span class="dl" id="cdown-label"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="snav" aria-label="أقسام اللوحة">
+    <div class="snav-in">
+      <a href="#sec-timeline" class="on">⏳ الاستحقاقات</a>
+      <a href="#sec-entities">🏛️ الجهات</a>
+      <a href="#sec-obligations">📋 الالتزامات</a>
+      <a href="#sec-files">📁 الملفات</a>
+      <a href="#sec-costs">💰 التكاليف</a>
+      <a href="#sec-calcs">🧮 الحاسبات</a>
+    </div>
+  </nav>
+
+  <section class="block" id="sec-timeline">
+    <div class="wrap">
+      <div class="sec-head"><h2>⏳ خط الاستحقاقات</h2><span class="cnt">مرتّبة بالأقرب — مرّر على أي شريط للتفاصيل</span></div>
+      <div class="card" id="tl-card"><div class="empty">جارٍ التحميل…</div></div>
+    </div>
+  </section>
+
+  <section class="block" id="sec-entities">
+    <div class="wrap">
+      <div class="sec-head"><h2>🏛️ جدار الجهات</h2><span class="cnt">اضغط جهة لتصفية الالتزامات — الربط المباشر (API) قادم تباعاً</span></div>
+      <div class="ent-grid" id="entity-grid"></div>
+    </div>
+  </section>
+
+  <section class="block" id="sec-obligations">
+    <div class="wrap">
+      <div class="sec-head"><h2>📋 الالتزامات والتنبيهات</h2><span class="cnt" id="obl-count"></span></div>
+      <div id="platform-filter-chip" style="display:none"></div>
+      <div class="toolbar">
+        <div class="search">🔎 <input id="obl-q" type="search" placeholder="ابحث: زكاة، تأمينات، توطين…" aria-label="بحث في الالتزامات"></div>
+        <button class="fchip on" data-f="all">الكل</button>
+        <button class="fchip" data-f="r">🔴 منتهية</button>
+        <button class="fchip" data-f="y">🟡 قريبة</button>
+        <button class="fchip" data-f="g">🟢 سليمة</button>
+      </div>
+      <div class="card tblwrap" style="padding:.6rem .9rem">
+        <table class="obl">
+          <thead><tr><th>البند</th><th>الجهة</th><th>الإجراء</th><th>الانتهاء</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="reg-body"><tr class="n"><td colspan="6" class="empty">جارٍ التحميل…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="sec-head" style="margin-top:1.4rem"><h2>🚨 تنبيهات الوكيل</h2></div>
+      <div class="card" id="alerts-list"><div class="empty">جارٍ التحميل…</div></div>
+    </div>
+  </section>
+
+  <section class="block" id="sec-files">
+    <div class="wrap">
+      <div class="sec-head"><h2>📁 ملفاتك المرفوعة</h2><span class="cnt">✓ التحقق يعني أن الوكيل قرأ باركود الشهادة إلكترونياً</span></div>
+      <div id="files-list"><div class="empty">جارٍ التحميل…</div></div>
+    </div>
+  </section>
+
+  <section class="block" id="sec-costs">
+    <div class="wrap">
+      <div class="sec-head"><h2>💰 التكاليف الحكومية</h2><span class="cnt">بالأرقام الرسمية ٢٠٢٥–٢٠٢٦</span></div>
+      <div class="cost-tiles">
+        <div class="ctile"><div class="l">ربعياً</div><div class="v" id="cost-q">—</div></div>
+        <div class="ctile"><div class="l">سنوياً</div><div class="v" id="cost-a">—</div></div>
+        <div class="ctile"><div class="l">الموظفون / السعوديون</div><div class="v" id="emp-info">—</div></div>
+      </div>
+      <div class="card">
+        <div class="calc">
+          <div class="sliders">
+            <label>عدد الموظفين الوافدين <b id="exp-v">0</b></label>
+            <input type="range" id="calc-exp" min="0" max="100" value="0" aria-label="عدد الوافدين">
+            <label>عدد الموظفين السعوديين <b id="sau-v">0</b></label>
+            <input type="range" id="calc-sau" min="0" max="100" value="0" aria-label="عدد السعوديين">
+            <label>متوسط راتب الوافد (ريال) <b id="sal-v">4,000</b></label>
+            <input type="range" id="calc-sal" min="2000" max="15000" step="500" value="4000" aria-label="متوسط الراتب">
+            <p class="cost-note">المعادلة لكل وافد: المقابل المالي (٧٠٠ أو ٨٠٠/شهر حسب نسبة التوطين) + رخصة عمل ١٠٠ + إقامة ٦٥٠ + خروج وعودة ٢٠٠ + تأمين طبي ≈٨٠٠ + أخطار مهنية ٢٪ من الراتب. المنشآت الصناعية المرخّصة معفاة من المقابل المالي.</p>
+          </div>
+          <div class="cost-out">
+            <div style="font-size:.82rem;color:rgba(255,255,255,.7)">التكلفة الحكومية السنوية التقديرية</div>
+            <div class="big"><span id="calc-total">0</span> <small>ريال</small></div>
+            <div class="per">≈ <span id="calc-per">0</span> ريال لكل عامل وافد</div>
+            <div class="cost-break">
+              <div><span>المقابل المالي</span><b id="b-levy">—</b></div>
+              <div><span>رخص العمل + الإقامات</span><b id="b-permits">—</b></div>
+              <div><span>خروج وعودة + تأمين طبي</span><b id="b-misc">—</b></div>
+              <div><span>أخطار مهنية (٢٪)</span><b id="b-gosi">—</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-head" style="margin-top:1.5rem"><h2>🏛️ الرسوم الحكومية الرسمية</h2></div>
+      <div class="card tblwrap">
+        <table class="fees"><thead><tr><th>البند</th><th>الجهة</th><th>الرسوم (ريال)</th><th>الدورية</th><th>يدفعها</th></tr></thead><tbody>
+          <tr><td>المقابل المالي للعمالة الوافدة</td><td>قوى / الموارد البشرية</td><td>700/شهر إذا الوافدون ≤ السعوديين، و800/شهر لمن زاد (8,400 – 9,600 سنوياً للعامل). المنشآت الصناعية المرخّصة معفاة (قرار 17/12/2025)</td><td>سنوي</td><td>صاحب العمل</td></tr>
+          <tr><td>إصدار / تجديد رخصة العمل</td><td>قوى</td><td>100</td><td>سنوي</td><td>صاحب العمل</td></tr>
+          <tr><td>الإقامة (هوية مقيم)</td><td>مقيم / أبشر أعمال</td><td>650</td><td>سنوي</td><td>صاحب العمل</td></tr>
+          <tr><td>رسوم المرافقين</td><td>أبشر</td><td>400/شهر لكل مرافق (4,800 سنوياً)</td><td>شهري</td><td>العامل الوافد</td></tr>
+          <tr><td>تأشيرة خروج وعودة</td><td>أبشر / مقيم</td><td>مفردة 200 (شهران) + 100 لكل شهر إضافي · متعددة 500 (3 أشهر) + 200 لكل شهر</td><td>لكل تأشيرة</td><td>صاحب العمل</td></tr>
+          <tr><td>التأمينات الاجتماعية GOSI</td><td>gosi.gov.sa</td><td>السعودي: 21.5% من الأجر (11.75% منشأة + 9.75% موظف) · الوافد: أخطار مهنية 2% على المنشأة فقط</td><td>شهري</td><td>مشترك</td></tr>
+          <tr><td>مدد — حماية الأجور</td><td>mudad.com.sa</td><td>نظام الالتزام مجاني · باقات إدارة الرواتب اختيارية مدفوعة</td><td>—</td><td>—</td></tr>
+          <tr><td>السجل التجاري</td><td>وزارة التجارة</td><td>200 (تأكيد سنوي للبيانات)</td><td>سنوي</td><td>المنشأة</td></tr>
+          <tr><td>اشتراك الغرفة التجارية</td><td>الغرف التجارية</td><td>500 – 10,000 حسب الدرجة ورأس المال</td><td>سنوي</td><td>المنشأة</td></tr>
+          <tr><td>العنوان الوطني للأعمال</td><td>سبل — البريد السعودي</td><td>500 للمؤسسات · 1,000 للشركات (السنة الأولى مجانية)</td><td>سنوي</td><td>المنشأة</td></tr>
+          <tr><td>الزكاة والضريبة (زاتكا)</td><td>zatca.gov.sa</td><td>التسجيل والشهادة مجاناً · غرامات تأخير الإقرار 5% – 25% وتأخير السداد 5%/شهر</td><td>—</td><td>—</td></tr>
+          <tr><td>الرخصة البلدية</td><td>بلدي</td><td>تُحسب حسب النشاط والموقع والمساحة — حاسبة بلدي الرسمية</td><td>سنوي</td><td>المنشأة</td></tr>
+          <tr><td>رخصة سلامة (الدفاع المدني)</td><td>سلامة 998</td><td>≈ 86 فوري · ≈ 173 غير فوري (المتطلبات الفنية حسب النشاط)</td><td>سنوي</td><td>المنشأة</td></tr>
+          <tr><td>توثيق عقد الإيجار التجاري</td><td>إيجار</td><td>200 للسنة الأولى · 400 لكل سنة إضافية</td><td>لكل عقد</td><td>المؤجّر</td></tr>
+          <tr><td>رخصة الاستثمار الأجنبي MISA</td><td>misa.gov.sa</td><td>2,000 سنوياً + اشتراك علاقات المستثمرين 10,000 أول سنة ثم 60,000/سنة</td><td>سنوي</td><td>المنشأة</td></tr>
+          <tr><td>التأمين الطبي الإلزامي</td><td>مجلس الضمان الصحي</td><td>سعر سوقي: ≈ 450 – 1,200 للعامل الأساسي (يرتفع بالفئة والعمر)</td><td>سنوي</td><td>صاحب العمل</td></tr>
+        </tbody></table>
+        <div class="fees-note">📌 أرقام رسمية محدّثة (يوليو 2026) من مواقع الجهات: hrsd.gov.sa · muqeem.sa · gosi.gov.sa · mc.gov.sa · zatca.gov.sa · balady.gov.sa · ejar.sa · misa.gov.sa. <b>خلاصة مهمة:</b> تكلفة العامل الوافد سنوياً ≈ <b>12,300 ريال</b> — والتقدير أعلاه في البطاقات مبني على هذه الأرقام إن لم يُدخل الوكيل حساباً مفصّلاً.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="sec-calcs">
+    <div class="wrap">
+      <div class="sec-head"><h2>🧮 حاسبات الامتثال</h2><span class="cnt">تفتح في تبويب جديد وتبقى لوحتك مفتوحة هنا</span></div>
+      <div class="calc-cards">
+        <a class="calc-card" href="https://www.businesspartner.sa/ar/calculators/nitaqat" target="_blank" rel="noopener"><div class="cicon">🟢</div><div><div class="ct">حاسبة النطاقات</div><div class="cd">نسبة التوطين والنطاق المتوقع (قوى)</div></div><div class="go">←</div></a>
+        <a class="calc-card" href="https://www.businesspartner.sa/ar/calculators/government-cost" target="_blank" rel="noopener"><div class="cicon">💰</div><div><div class="ct">حاسبة التكاليف الحكومية</div><div class="cd">رخص العمل + الإقامات + التأمين لكل عامل</div></div><div class="go">←</div></a>
+        <a class="calc-card" href="https://www.businesspartner.sa/ar/calculators/profession-checker" target="_blank" rel="noopener"><div class="cicon">🧑‍💼</div><div><div class="ct">فاحص المهن</div><div class="cd">تحقق من المهن المُوطّنة أو المقيّدة على نشاطك</div></div><div class="go">←</div></a>
+        <a class="calc-card" href="https://www.businesspartner.sa/ar/tools-and-calculators" target="_blank" rel="noopener"><div class="cicon">🧮</div><div><div class="ct">كل الأدوات والحاسبات</div><div class="cd">نهاية الخدمة، الإجازات، العمل الإضافي، والمزيد</div></div><div class="go">←</div></a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">لوحة الامتثال — بزنس بارتنر © ٢٠٢٦ · تُحدَّث تلقائياً من ملفاتك المرفوعة وتحليلات وكيل الامتثال</footer>
+</div>
+
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<aside class="side-drawer" id="upload-drawer" aria-label="رفع مستند">
+  <div class="drawer-h">
+    <h3>📤 رفع ملفات الامتثال</h3>
+    <button id="close-upload-btn" aria-label="إغلاق">✕</button>
+  </div>
+  <div class="drawer-b">
+    <p style="color:var(--muted);font-size:.83rem;margin-bottom:.9rem">ارفع مستنداتك خطوة بخطوة — يقرأها وكيل الامتثال (مع باركود التحقق) ويرتّبها تلقائياً تحت كل جهة. لو ملف غير جاهز اضغط «تخطي» وارجع له لاحقاً.</p>
+    <div class="wizard-card" id="upload-wizard">
+      <div class="wprog" id="upload-progress"></div>
+      <div class="wbar"><i id="upload-bar"></i></div>
+      <h4 id="upload-step-title"></h4>
+      <p class="desc" id="upload-step-desc"></p>
+      <input type="file" id="upload-step-file">
+      <div id="upload-step-msg"></div>
+      <div class="wnav">
+        <button type="button" class="back" id="upload-back">← السابق</button>
+        <button type="button" class="skip" id="upload-skip">تخطي</button>
+        <button type="button" class="next" id="upload-next">التالي ←</button>
+      </div>
+    </div>
+    <div id="upload-done">
+      <h3>✅ تم استلام ملفاتك</h3>
+      <p>وكيل الامتثال يراجع ملفاتك الآن ويحدّث لوحتك خلال دقائق — يصلك إيميل بكل تحديث.</p>
+      <button type="button" class="btn-navy" id="upload-refresh-after" style="width:auto;padding:.6rem 1.4rem">↻ تحديث اللوحة الآن</button>
+      <button type="button" class="btn-ghost" id="upload-restart">✏️ الرجوع لقائمة الملفات لتعديل أو إضافة مستند</button>
+    </div>
+  </div>
+</aside>
+
+<div class="fab" id="fab-wrap" style="display:none">
+  <button class="chat" id="chat-toggle">💬 اسأل وكيل الامتثال</button>
+  <button class="up" id="fab-upload">📤 رفع الملفات</button>
+</div>
+<div id="chat-frame-wrap"><div id="n8n-chat-widget"></div></div>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>(function(){const API_URL = "https://businesspartnerai.app.n8n.cloud/webhook/bp3-portal-9kq4z";const INTAKE_URL = "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";
+    const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DEMO = new URLSearchParams(location.search).get('demo') === '1';
+
+    // رقاقات ملونة كبديل عند تعذر تحميل الشعار الرسمي
     const ENTITY_BADGES = {
-      sbc:          { bg:'#0B1B5A', label:'مركز الأعمال' },
-      cr:           { bg:'#334155', label:'السجل التجاري' },
-      chamber:      { bg:'#B7791F', label:'الغرفة' },
-      address:      { bg:'#475569', label:'العنوان الوطني' },
-      qiwa:         { bg:'#0F9D8C', label:'قوى' },
-      muqeem:       { bg:'#15803D', label:'مقيم' },
-      mudad:        { bg:'#7C3AED', label:'مدد' },
-      gosi:         { bg:'#9F1239', label:'التأمينات' },
-      zatca:        { bg:'#166534', label:'الزكاة والضريبة' },
-      customs:      { bg:'#78350F', label:'الجمارك' },
-      balady:       { bg:'#CA8A04', label:'بلدي' },
-      civildefense: { bg:'#B91C1C', label:'الدفاع المدني' },
-      ejar:         { bg:'#1D4ED8', label:'إيجار' },
-      misa:         { bg:'#0369A1', label:'MISA' },
+      sbc:{bg:'#0B1B5A',label:'مركز الأعمال'}, cr:{bg:'#334155',label:'السجل التجاري'},
+      chamber:{bg:'#B7791F',label:'الغرفة'}, address:{bg:'#475569',label:'العنوان الوطني'},
+      qiwa:{bg:'#0F9D8C',label:'قوى'}, muqeem:{bg:'#15803D',label:'مقيم'},
+      mudad:{bg:'#7C3AED',label:'مدد'}, gosi:{bg:'#9F1239',label:'التأمينات'},
+      zatca:{bg:'#166534',label:'الزكاة والضريبة'}, customs:{bg:'#78350F',label:'الجمارك'},
+      balady:{bg:'#CA8A04',label:'بلدي'}, civildefense:{bg:'#B91C1C',label:'الدفاع المدني'},
+      ejar:{bg:'#1D4ED8',label:'إيجار'}, misa:{bg:'#0369A1',label:'MISA'},
     };
-
-    // One distinct pictogram per government entity (simple generic icons, not
-    // scraped official emblems — same rationale as the color chips above).
-    const ENTITY_ICONS = {
-      sbc:          '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg>',
-      cr:           '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h6"/></svg>',
-      chamber:      '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10M19 21V10M9 21V10M15 21V10"/><path d="M3 10l9-6 9 6"/></svg>',
-      address:      '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>',
-      qiwa:         '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>',
-      muqeem:       '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M6 16c0-1.7 1.3-3 3-3s3 1.3 3 3"/><path d="M14 9h4M14 13h4"/></svg>',
-      mudad:        '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="7" cy="14.5" r="1"/></svg>',
-      gosi:         '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
-      zatca:        '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M9 17l6-6M10 12h.01M15 15h.01"/></svg>',
-      customs:      '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-4 9 4-9 4-9-4z"/><path d="M3 8v9l9 4 9-4V8"/><path d="M12 12v9"/></svg>',
-      balady:       '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V10l5-4 5 4v11"/><path d="M14 21v-7l4-3 3 3v7z"/><path d="M8 21v-4M8 13h.01"/></svg>',
-      civildefense: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/><path d="M12 8c1.5 2 1.5 3.5 0 5.5-1.5-2-1.5-3.5 0-5.5z"/></svg>',
-      ejar:         '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><circle cx="14.5" cy="15.5" r="1.5"/><path d="M14.5 17v2"/></svg>',
-      misa:         '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.8 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.8-4-9s1.5-6.5 4-9z"/></svg>',
-    };
-
-    // Real official logos, loaded in the client's browser via Google's
-    // faviconV2 service against each authority's own domain(s) (the build
-    // sandbox can't fetch them, the visitor's browser can). fallback_opts
-    // deliberately omits URL so a missing icon 404s instead of returning the
-    // generic globe — onerror then tries the next domain, and finally falls
-    // back to the colored chip + generic pictogram.
+    // الشعارات الرسمية تُحمَّل في متصفح الزائر من خدمة أيقونات جوجل ضد نطاق كل جهة؛
+    // fallback_opts بلا URL حتى يرجع 404 (لا كرة أرضية عامة) فيجرب onerror النطاق التالي ثم الرقاقة الملونة.
     const ENTITY_DOMAINS = {
-      sbc:          ['business.sa', 'mc.gov.sa'],
-      cr:           ['mc.gov.sa', 'mci.gov.sa'],
-      chamber:      ['riyadhchamber.sa', 'riyadhchamber.com'],
-      address:      ['address.gov.sa', 'splonline.com.sa'],
-      qiwa:         ['qiwa.sa'],
-      muqeem:       ['muqeem.sa', 'elm.sa'],
-      mudad:        ['mudad.com.sa', 'hrsd.gov.sa'],
-      gosi:         ['gosi.gov.sa'],
-      zatca:        ['zatca.gov.sa'],
-      customs:      ['fasah.sa', 'customs.gov.sa'],
-      balady:       ['balady.gov.sa', 'momrah.gov.sa'],
-      civildefense: ['998.gov.sa', 'moi.gov.sa'],
-      ejar:         ['ejar.sa', 'rega.gov.sa'],
-      misa:         ['misa.gov.sa', 'invest.gov.sa'],
+      sbc:['business.sa','mc.gov.sa'], cr:['mc.gov.sa','mci.gov.sa'],
+      chamber:['riyadhchamber.sa','riyadhchamber.com'], address:['address.gov.sa','splonline.com.sa'],
+      qiwa:['qiwa.sa'], muqeem:['muqeem.sa','elm.sa'], mudad:['mudad.com.sa','hrsd.gov.sa'],
+      gosi:['gosi.gov.sa'], zatca:['zatca.gov.sa'], customs:['fasah.sa','customs.gov.sa'],
+      balady:['balady.gov.sa','momrah.gov.sa'], civildefense:['998.gov.sa','moi.gov.sa'],
+      ejar:['ejar.sa','rega.gov.sa'], misa:['misa.gov.sa','invest.gov.sa'],
     };
     const favSrc = (d) => 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE&url=https%3A%2F%2F' + d + '&size=128';
     window.bpLogoErr = function (img) {
       const alts = (img.dataset.alts || '').split(',').filter(Boolean);
-      if (alts.length) {
-        const next = alts.shift();
-        img.dataset.alts = alts.join(',');
-        img.src = favSrc(next);
-      } else {
-        const box = img.closest('.badge-logo');
-        if (box) box.classList.remove('logo-real');
+      if (alts.length) { const next = alts.shift(); img.dataset.alts = alts.join(','); img.src = favSrc(next); }
+      else {
+        const box = img.closest('.logo');
+        if (box) { box.classList.remove('logo-real'); box.style.background = img.dataset.bg || 'var(--navy)'; box.textContent = img.dataset.label || ''; }
         img.remove();
       }
     };
 
-    // Step-by-step compliance document checklist — one document per step,
-    // submitted immediately to the same intake pipeline used for new
-    // registrations. Passing notion_page_id + code (both already known from
-    // this authenticated session) routes it into an update of THIS client's
-    // existing record instead of creating a duplicate/new one.
+    /* ===== معالج الرفع — نفس مسار الاستقبال، notion_page_id + code يوجهان التحديث لسجل هذا العميل ===== */
     const DOC_STEPS = [
       { key:'cr', label:'السجل التجاري', desc:'ارفع صورة أو PDF للسجل التجاري (اسم المنشأة والرقم الموحّد يجب أن يظهرا بوضوح).' },
       { key:'gosi', label:'برنت التأمينات الاجتماعية (Excel)', desc:'صادر من موقع التأمينات — ملف Excel بقائمة المشتركين.' },
@@ -119,8 +521,8 @@ h1,h2,h3,.sec{color:var(--navy) !important}
       { key:'gosi', label:'شهادة الاشتراك (التأمينات)', desc:'شهادة اشتراك سارية من التأمينات الاجتماعية.' },
       { key:'mudad', label:'شهادة الالتزام بحماية الأجور (مدد)', desc:'شهادة الالتزام الصادرة من منصة مدد.' },
       { key:'gosi', label:'بوليصة التأمين الطبي لجميع الموظفين (Excel)', desc:'كشف بوليصة التأمين الطبي بجميع الموظفين المؤمّن عليهم — ملف Excel.' },
-      { key:'', label:'لقطة شاشة لكل منصة حكومية', desc:'لقطة شاشة لصفحة حسابك في كل منصة (قوى، التأمينات، المركز السعودي للأعمال...) لتوثيق تاريخ التسجيل — يمكنك اختيار أكثر من صورة دفعة واحدة.', multiple:true },
-      { key:'qiwa', label:'عقود قوى لكل الموظفين (PDF)', desc:'ملفات PDF لعقود العمل من قوى — لاستخراج البنود وتاريخ المباشرة والانتهاء لكل موظف.', multiple:true },
+      { key:'', label:'لقطة شاشة لكل منصة حكومية', desc:'لقطة شاشة لصفحة حسابك في كل منصة لتوثيق تاريخ التسجيل — يمكنك اختيار أكثر من صورة دفعة واحدة.', multiple:true },
+      { key:'qiwa', label:'عقود قوى لكل الموظفين (PDF)', desc:'ملفات PDF لعقود العمل من قوى — لاستخراج البنود والتواريخ لكل موظف.', multiple:true },
     ];
     let uploadStep = 0;
     function renderUploadStep() {
@@ -171,7 +573,7 @@ h1,h2,h3,.sec{color:var(--navy) !important}
     document.getElementById('upload-skip').addEventListener('click', finishUploadStep);
     document.getElementById('upload-back').addEventListener('click', function () { if (uploadStep > 0) { uploadStep--; renderUploadStep(); } });
     document.getElementById('upload-restart').addEventListener('click', function () { renderUploadStep(); });
-    document.getElementById('upload-refresh-after').addEventListener('click', function () { closeUploadDrawer(); switchTab('overview'); document.getElementById('refresh-btn').click(); });
+    document.getElementById('upload-refresh-after').addEventListener('click', function () { closeUploadDrawer(); document.getElementById('refresh-btn').click(); });
     renderUploadStep();
 
     const loginScreen = document.getElementById('login-screen');
@@ -185,20 +587,25 @@ h1,h2,h3,.sec{color:var(--navy) !important}
     let activePlatformFilter = null;
     let selectedCompanyId = null;
     let autoOpenedUpload = false;
+    let statusFilter = 'all';
+    let searchQuery = '';
 
-    function riskDot(r){ return r === 'أحمر' ? 'red' : (r === 'أصفر' ? 'yellow' : 'green'); }
-    const RISK_EMOJI = { red:'🔴', yellow:'🟡', green:'🟢' };
     const LABEL_COLORS = {};
     Object.values(ENTITY_BADGES).forEach(b => { LABEL_COLORS[b.label] = b.bg; });
-    function dayBadge(d){
-      if (d === null || d === undefined) return '<span class="badge dok">—</span>';
-      if (d <= 0) return '<span class="badge d0">منتهي</span>';
-      if (d <= 7) return '<span class="badge d0">' + d + ' يوم</span>';
-      if (d <= 30) return '<span class="badge d7">' + d + ' يوم</span>';
-      return '<span class="badge dok">' + d + ' يوم</span>';
+    function riskDot(r){ return r === 'أحمر' ? 'red' : (r === 'أصفر' ? 'yellow' : 'green'); }
+    const RISK_EMOJI = { red:'🔴', yellow:'🟡', green:'🟢' };
+    function itemStatus(d){ if (d === null || d === undefined) return 'n'; if (d <= 0) return 'r'; if (d <= 30) return 'y'; return 'g'; }
+    function statusBadge(d){
+      const st = itemStatus(d);
+      if (st === 'n') return '<span class="badge n">—</span>';
+      if (st === 'r') return '<span class="badge r">منتهية' + (d < 0 ? ' منذ ' + Math.abs(d) + ' يوم' : '') + '</span>';
+      if (st === 'y') return '<span class="badge y">قريبة · ' + d + ' يوم</span>';
+      return '<span class="badge g">سليمة · ' + d + ' يوم</span>';
     }
     function fmtMoney(n){ return (typeof n === 'number') ? n.toLocaleString('ar-SA') + ' ريال' : '—'; }
-    // الرسوم الرسمية 2025–2026 (قوى/مقيم/أبشر) لتقدير التكلفة عند غياب حساب الوكيل
+    function esc(s){ return String(s == null ? '' : s).replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+    const fmtN = n => n.toLocaleString('ar-SA');
+    // الرسوم الرسمية 2025–2026 لتقدير التكلفة عند غياب حساب الوكيل
     const OFFICIAL_RATES = { levyLow: 8400, levyHigh: 9600, workPermit: 100, iqama: 650, exitReentry: 200, medical: 800 };
     function estimateCosts(data) {
       if (!data || (typeof data.annualCost === 'number' && data.annualCost > 0)) return data;
@@ -215,8 +622,6 @@ h1,h2,h3,.sec{color:var(--navy) !important}
       return data;
     }
     function shortText(s, n) { s = (s || '').trim(); return s.length > n ? s.slice(0, n).trim() + '…' : s; }
-    // Alert titles/actions from Notion sometimes carry a full narrative sentence
-    // (legacy fallback text) instead of a short label — clean + dedupe for display.
     function cleanTitle(t) {
       t = (t || '').trim();
       const cut = t.search(/[:.]|\s-\s/);
@@ -224,8 +629,7 @@ h1,h2,h3,.sec{color:var(--navy) !important}
       return shortText(t, 90);
     }
     function dedupeAlerts(alerts) {
-      const groups = {};
-      const order = [];
+      const groups = {}; const order = [];
       alerts.forEach(a => {
         const key = (a.platform || '') + '|' + cleanTitle(a.title).replace(/[-−]?\s*\d+\s*يوم/g, '').trim();
         if (!groups[key]) { groups[key] = { ...a, count: 1 }; order.push(key); }
@@ -239,156 +643,216 @@ h1,h2,h3,.sec{color:var(--navy) !important}
       });
       return order.map(k => groups[k]);
     }
-
-    function switchTab(name) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+    function countUp(el, to, ms){
+      if (RM || !ms) { el.textContent = to; return; }
+      const t0 = performance.now();
+      (function tick(t){
+        const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(to * e);
+        if (p < 1) requestAnimationFrame(tick);
+      })(t0);
     }
-    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+    /* ===== تلميح (Tooltip) ===== */
+    const tip = document.getElementById('tip');
+    document.addEventListener('pointermove', function (e) {
+      const t = e.target.closest('[data-tip]');
+      if (!t) { tip.classList.remove('show'); return; }
+      tip.textContent = t.dataset.tip;
+      tip.classList.add('show');
+      const w = tip.offsetWidth;
+      tip.style.left = Math.min(innerWidth - w - 12, Math.max(8, e.clientX - w / 2)) + 'px';
+      tip.style.top = (e.clientY - tip.offsetHeight - 14) + 'px';
+    });
+
+    /* ===== الواجهة العلوية ===== */
+    function renderHero(data) {
+      const score = typeof data.healthScore === 'number' ? data.healthScore : 0;
+      const SWEEP = 396, CIRC = 528;
+      const arc = document.getElementById('score-arc');
+      const ga = document.getElementById('grad-a'), gb = document.getElementById('grad-b');
+      if (score >= 85) { ga.setAttribute('stop-color', '#1FA75C'); gb.setAttribute('stop-color', '#8CD9AE'); }
+      else if (score >= 65) { ga.setAttribute('stop-color', '#0066cc'); gb.setAttribute('stop-color', '#6FB4FF'); }
+      else if (score >= 40) { ga.setAttribute('stop-color', '#D79A1E'); gb.setAttribute('stop-color', '#F3C766'); }
+      else { ga.setAttribute('stop-color', '#E4574A'); gb.setAttribute('stop-color', '#C9A227'); }
+      requestAnimationFrame(function () { setTimeout(function () {
+        const len = Math.max(4, SWEEP * score / 100);
+        arc.setAttribute('stroke-dasharray', len + ' ' + (CIRC - len));
+      }, RM ? 0 : 200); });
+      countUp(document.getElementById('score-num'), score, 1200);
+      const pill = document.getElementById('score-band-pill');
+      pill.textContent = data.healthBand || '—';
+      pill.className = 'band ' + (score >= 85 ? 'b-good' : score >= 65 ? 'b-mid' : score >= 40 ? 'b-warn' : '');
+      document.getElementById('last-analysis').textContent = data.lastAnalysis ? ('آخر تحليل: ' + data.lastAnalysis) : '';
+
+      const c = data.counts || {};
+      countUp(document.getElementById('cnt-red'), c.red || 0, 900);
+      countUp(document.getElementById('cnt-yellow'), c.yellow || 0, 900);
+      countUp(document.getElementById('cnt-green'), c.green || 0, 900);
+
+      const reg = data.register || [];
+      const expired = reg.filter(r => r.daysRemaining !== null && r.daysRemaining <= 0);
+      const soon = reg.filter(r => r.daysRemaining !== null && r.daysRemaining > 0 && r.daysRemaining <= 30);
+      document.getElementById('hero-eyebrow').textContent = 'أهلاً — ' + (data.company || 'منشأتك');
+      const h = document.getElementById('hero-headline');
+      const l = document.getElementById('hero-lede');
+      if (expired.length) {
+        h.textContent = 'منشأتك تحتاج تدخلاً اليوم — ' + expired.length + ' من شهاداتك منتهية';
+        l.textContent = 'المنتهي يجمّد خدماتك الحكومية ويعرّضك للغرامات. ابدأ بالأقدم في خط الاستحقاقات بالأسفل، أو اضغط «اطلب التجديد» وخلّها علينا.';
+      } else if (soon.length) {
+        h.textContent = soon.length + ' من التزاماتك تنتهي خلال ٣٠ يوماً — جدّدها قبل الموعد';
+        l.textContent = 'وكيل الامتثال يراقب المواعيد أولاً بأول — جدّد مبكراً وتجنّب أي انقطاع في الخدمات.';
+      } else if (reg.length) {
+        h.textContent = 'كل التزاماتك تحت السيطرة ✅';
+        l.textContent = 'وكيل الامتثال يتابع ' + reg.length + ' بنداً عبر الجهات الحكومية وينبهك قبل أي استحقاق.';
+      } else {
+        h.textContent = 'ابدأ برفع ملفاتك — والوكيل يبني لوحتك تلقائياً';
+        l.textContent = 'ارفع شهاداتك (سجل، تأمينات، قوى، زكاة…) ويقرأها الوكيل بباركود التحقق ويجهز التزاماتك ومواعيدك.';
+      }
+      const upcoming = reg.filter(r => r.daysRemaining !== null && r.daysRemaining > 0).sort((a, b) => a.daysRemaining - b.daysRemaining)[0];
+      const dp = document.getElementById('deadline-pill');
+      if (upcoming) {
+        dp.style.display = 'inline-flex';
+        document.getElementById('cdown').textContent = upcoming.daysRemaining;
+        document.getElementById('cdown-label').innerHTML = 'يوماً على أقرب استحقاق<br><b>' + esc(shortText((upcoming.actionType ? upcoming.actionType + ' — ' : '') + (upcoming.subject || upcoming.platform || ''), 60)) + '</b>';
+      } else { dp.style.display = 'none'; }
+    }
+
+    /* ===== خط الاستحقاقات ===== */
+    function renderTimeline(data) {
+      const card = document.getElementById('tl-card');
+      const reg = (data.register || []).filter(r => r.daysRemaining !== null && r.daysRemaining !== undefined);
+      if (!reg.length) { card.innerHTML = '<div class="empty">لا توجد بنود بتواريخ بعد — ارفع شهاداتك وسيستخرجها الوكيل تلقائياً.</div>'; return; }
+      const maxAbs = Math.max.apply(null, reg.map(r => Math.abs(r.daysRemaining)).concat([30]));
+      card.innerHTML = reg.map(function (it) {
+        const st = itemStatus(it.daysRemaining);
+        const cls = st === 'r' ? 'red' : st === 'y' ? 'amber' : 'green';
+        const w = Math.min(96, Math.max(4, Math.abs(it.daysRemaining) / maxAbs * 100));
+        const lbl = it.daysRemaining <= 0 ? 'منتهية منذ ' + Math.abs(it.daysRemaining) + ' يوم' : 'باقي ' + it.daysRemaining + ' يوم';
+        const name = esc(shortText((it.actionType ? it.actionType + ' — ' : '') + (it.subject || ''), 48) || it.platform || 'بند');
+        return '<div class="tl-row"><div class="tl-name"><span class="dot ' + cls + '"></span><span>' + name +
+          '<small>' + esc(it.platform || '') + (it.expiry ? ' · ' + it.expiry : '') + '</small></span></div>' +
+          '<div class="tl-track" data-tip="' + name + ' — ' + lbl + (it.expiry ? ' (' + it.expiry + ')' : '') + '"><div class="tl-bar ' + cls + '" data-w="' + w + '"></div></div>' +
+          '<div class="tl-days ' + cls + '">' + (it.daysRemaining <= 0 ? '−' + Math.abs(it.daysRemaining) : it.daysRemaining) + ' يوم</div></div>';
+      }).join('');
+      const grow = () => card.querySelectorAll('.tl-bar').forEach(b => b.style.width = b.dataset.w + '%');
+      if (RM) grow(); else setTimeout(grow, 150);
+    }
+
+    /* ===== جدار الجهات ===== */
+    function renderEntityGrid(platforms) {
+      const grid = document.getElementById('entity-grid');
+      grid.innerHTML = platforms.map(function (p) {
+        let stCls = 'na', stTxt = '— لا بيانات';
+        if (p.red > 0) { stCls = 'red'; stTxt = '⚠️ ' + p.red + ' حرج'; }
+        else if (p.yellow > 0) { stCls = 'amber'; stTxt = '⏳ ' + p.yellow + ' قريب'; }
+        else if (p.hasData) { stCls = 'green'; stTxt = '✓ سليمة'; }
+        const badge = ENTITY_BADGES[p.key] || { bg:'#0B1B5A', label: p.label };
+        const doms = ENTITY_DOMAINS[p.key] || [];
+        const logo = doms.length
+          ? '<span class="logo logo-real"><img src="' + favSrc(doms[0]) + '" data-alts="' + doms.slice(1).join(',') + '" data-bg="' + badge.bg + '" data-label="' + esc(badge.label) + '" alt="' + esc(p.label) + '" loading="lazy" onerror="bpLogoErr(this)"></span>'
+          : '<span class="logo" style="background:' + badge.bg + '">' + esc(badge.label) + '</span>';
+        return '<div class="ent' + (activePlatformFilter === p.label ? ' sel' : '') + '" data-label="' + esc(p.label) + '">' +
+          (p.red > 0 ? '<span class="pulse red"></span>' : '') + logo +
+          '<div class="nm">' + esc(p.label) + '</div><div class="auth">' + esc(p.authority || '') + '</div>' +
+          '<div class="st ' + stCls + '">' + stTxt + '</div></div>';
+      }).join('');
+      grid.querySelectorAll('.ent').forEach(function (el) {
+        el.addEventListener('click', function () {
+          applyPlatformFilter(activePlatformFilter === el.dataset.label ? null : el.dataset.label);
+          renderAll(lastData);
+          if (activePlatformFilter) document.getElementById('sec-obligations').scrollIntoView({ behavior: RM ? 'auto' : 'smooth' });
+        });
+      });
+    }
+    function applyPlatformFilter(entityLabel) {
+      activePlatformFilter = entityLabel;
+      const chip = document.getElementById('platform-filter-chip');
+      if (entityLabel) {
+        chip.style.display = 'block';
+        chip.innerHTML = '<div class="filter-chip">مفلتر حسب: ' + esc(entityLabel) + ' <button id="clear-filter">✕</button></div>';
+        document.getElementById('clear-filter').addEventListener('click', function () { applyPlatformFilter(null); renderAll(lastData); });
+      } else { chip.style.display = 'none'; chip.innerHTML = ''; }
+    }
+
+    /* ===== الالتزامات ===== */
+    function renderRegister(data) {
+      const allReg = data.register || [];
+      let rows = activePlatformFilter ? allReg.filter(r => r.platform === activePlatformFilter) : allReg;
+      if (statusFilter !== 'all') rows = rows.filter(r => itemStatus(r.daysRemaining) === statusFilter);
+      if (searchQuery) rows = rows.filter(r => ((r.platform || '') + (r.subject || '') + (r.actionType || '')).includes(searchQuery));
+      const body = document.getElementById('reg-body');
+      body.innerHTML = rows.length ? rows.map(function (r) {
+        const st = itemStatus(r.daysRemaining);
+        const renewMsg = encodeURIComponent('أبغى تجديد: ' + (r.actionType || '') + ' — ' + (r.subject || '') + ' (' + (r.platform || '') + ') لمنشأة ' + ((lastData && lastData.company) || ''));
+        return '<tr class="' + st + '"><td><b>' + esc(r.subject || '—') + '</b></td><td>' + esc(r.platform || '—') + '</td><td>' + esc(r.actionType || '—') + '</td>' +
+          '<td style="font-variant-numeric:tabular-nums;white-space:nowrap">' + (r.expiry || '—') + '</td>' +
+          '<td>' + statusBadge(r.daysRemaining) + '</td>' +
+          '<td><a class="rowbtn" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + renewMsg + '">🚀 اطلب التجديد</a></td></tr>';
+      }).join('') : '<tr class="n"><td colspan="6" class="empty">لا نتائج مطابقة</td></tr>';
+      document.getElementById('obl-count').textContent = rows.length + ' من ' + allReg.length + ' بنداً' + (activePlatformFilter ? ' · مصفّى بجهة' : '');
+    }
+    document.querySelectorAll('.fchip').forEach(function (c) {
+      c.addEventListener('click', function () {
+        document.querySelectorAll('.fchip').forEach(x => x.classList.remove('on'));
+        c.classList.add('on'); statusFilter = c.dataset.f;
+        if (lastData) renderRegister(lastData);
+      });
+    });
+    document.getElementById('obl-q').addEventListener('input', function () { searchQuery = this.value.trim(); if (lastData) renderRegister(lastData); });
 
     function renderAlertsList(el, alertsRaw, opts) {
       opts = opts || {};
       const limit = opts.limit || 0;
       const deduped = dedupeAlerts(alertsRaw || []);
       const shown = limit ? deduped.slice(0, limit) : deduped;
-      const rowHtml = (a) => {
+      const rowHtml = function (a) {
         const risk = riskDot(a.risk);
-        const days = (a.daysRemaining !== null && a.daysRemaining !== undefined)
-          ? (a.daysRemaining <= 0 ? 'منتهي' : a.daysRemaining + ' يوم') : '—';
-        const countBadge = a.count > 1 ? (' <span class="badge d7">×' + a.count + '</span>') : '';
+        const countBadge = a.count > 1 ? (' <span class="badge y">×' + a.count + '</span>') : '';
         const color = LABEL_COLORS[a.platform] || '#0B1B5A';
-        return '<tr class="arow risk-' + risk + '">' +
-          '<td><span class="risk-emoji">' + RISK_EMOJI[risk] + '</span></td>' +
-          '<td>' + (a.platform ? '<span class="platform-chip" style="background:' + color + '">' + a.platform + '</span>' : '—') + '</td>' +
-          '<td><div class="t">' + cleanTitle(a.title) + countBadge + '</div>' + (a.action ? '<div class="m">' + shortText(a.action, 70) + '</div>' : '') + '</td>' +
-          '<td>' + dayBadge(a.daysRemaining) + '</td>' +
-        '</tr>';
+        const st = risk === 'red' ? 'r' : risk === 'yellow' ? 'y' : 'g';
+        return '<tr class="' + st + '"><td>' + RISK_EMOJI[risk] + '</td>' +
+          '<td>' + (a.platform ? '<span class="badge" style="background:' + color + ';color:#fff">' + esc(a.platform) + '</span>' : '—') + '</td>' +
+          '<td><b>' + esc(cleanTitle(a.title)) + '</b>' + countBadge + (a.action ? '<div style="color:var(--muted);font-size:.78rem">' + esc(shortText(a.action, 70)) + '</div>' : '') + '</td>' +
+          '<td>' + statusBadge(a.daysRemaining) + '</td></tr>';
       };
-      let html = '<div class="alert-table-wrap"><table class="alert-table"><thead><tr><th></th><th>الجهة</th><th>البند</th><th>الأيام</th></tr></thead><tbody>' +
-        (shown.length ? shown.map(rowHtml).join('') : '<tr><td colspan="4" class="empty">لا توجد تنبيهات حالياً ✅</td></tr>') +
+      let html = '<div class="tblwrap"><table class="obl"><thead><tr><th></th><th>الجهة</th><th>التنبيه</th><th>الحالة</th></tr></thead><tbody>' +
+        (shown.length ? shown.map(rowHtml).join('') : '<tr class="n"><td colspan="4" class="empty">لا توجد تنبيهات حالياً ✅</td></tr>') +
         '</tbody></table></div>';
       if (limit && !opts.noMore && deduped.length > limit) {
-        html += '<button class="tab" style="width:100%;margin-top:.6rem;color:var(--navy)" id="alerts-showmore">عرض الكل (' + deduped.length + ')</button>';
+        html += '<button class="fchip" style="width:100%;margin-top:.6rem;color:var(--navy)" id="alerts-showmore">عرض الكل (' + deduped.length + ')</button>';
       }
       el.innerHTML = html;
       const moreBtn = document.getElementById('alerts-showmore');
-      if (moreBtn) moreBtn.addEventListener('click', () => renderAlertsList(el, alertsRaw, {}));
+      if (moreBtn) moreBtn.addEventListener('click', function () { renderAlertsList(el, alertsRaw, {}); });
     }
 
-    function applyPlatformFilter(entityLabel) {
-      activePlatformFilter = entityLabel;
-      const chip = document.getElementById('platform-filter-chip');
-      if (entityLabel) {
-        chip.style.display = 'block';
-        chip.innerHTML = '<div class="filter-chip">مفلتر حسب: ' + entityLabel + ' <button id="clear-filter">✕</button></div>';
-        document.getElementById('clear-filter').addEventListener('click', () => { applyPlatformFilter(null); renderAll(lastData); });
-      } else {
-        chip.style.display = 'none';
-        chip.innerHTML = '';
-      }
-    }
-
-    function renderEntityGrid(platforms) {
-      const grid = document.getElementById('entity-grid');
-      grid.innerHTML = platforms.map(p => {
-        let statusClass = 'nodata', statusText = 'بحاجة بيانات';
-        if (p.red > 0) { statusClass = 'crit'; statusText = p.red + ' حرج'; }
-        else if (p.yellow > 0) { statusClass = 'warn'; statusText = p.yellow + ' تنبيه'; }
-        else if (p.hasData) { statusClass = 'ok'; statusText = 'سليم'; }
-        const badge = ENTITY_BADGES[p.key] || { bg:'#0B1B5A', label: p.label };
-        const icon = ENTITY_ICONS[p.key] || badge.label;
-        const doms = ENTITY_DOMAINS[p.key] || [];
-        const logoImg = doms.length ? '<img class="real-logo" src="' + favSrc(doms[0]) + '" data-alts="' + doms.slice(1).join(',') + '" alt="' + badge.label + '" loading="lazy" onerror="bpLogoErr(this)">' : '';
-        return '<div class="entity" data-label="' + p.label + '"><div class="badge-logo' + (doms.length ? ' logo-real' : '') + '" style="background:' + badge.bg + '" title="' + badge.label + '">' + logoImg + icon + '</div>' +
-          '<div class="label">' + p.label + '</div><div class="authority">' + p.authority + '</div>' +
-          '<div class="status ' + statusClass + '">' + statusText + '</div>' +
-          '<div class="api-note">🔌 ربط مباشر قريباً</div></div>';
-      }).join('');
-      grid.querySelectorAll('.entity').forEach(el => el.addEventListener('click', () => {
-        applyPlatformFilter(el.dataset.label);
-        switchTab('alerts');
-        renderAll(lastData);
-      }));
-    }
-
-    function renderAll(data) {
-      if (!data) return;
-      data = estimateCosts(data);
-      const costPrefix = data.costEstimated ? '≈ ' : '';
-      document.getElementById('company-name').textContent = data.company || '—';
-      const ring = document.getElementById('score-ring');
-      const score = typeof data.healthScore === 'number' ? data.healthScore : 0;
-      ring.textContent = score;
-      ring.style.background = score >= 85 ? 'linear-gradient(135deg,#16a34a,#22c55e)' : score >= 65 ? 'linear-gradient(135deg,#0066cc,#3b82f6)' : score >= 40 ? 'linear-gradient(135deg,#d97706,#f59e0b)' : 'linear-gradient(135deg,#dc2626,#ef4444)';
-      document.getElementById('score-band').textContent = 'الحالة: ' + (data.healthBand || '—') + (data.status ? (' · ' + data.status) : '');
-      document.getElementById('last-analysis').textContent = data.lastAnalysis ? ('آخر تحليل: ' + data.lastAnalysis) : '';
-
-      const c = data.counts || {};
-      document.getElementById('cnt-red').textContent = c.red || 0;
-      document.getElementById('cnt-yellow').textContent = c.yellow || 0;
-      document.getElementById('cnt-green').textContent = c.green || 0;
-
-      document.getElementById('qi-employees').textContent = (data.employees ?? '—') + (data.saudis !== null && data.saudis !== undefined ? (' / ' + data.saudis) : '');
-      document.getElementById('qi-cost').textContent = costPrefix + fmtMoney(data.quarterlyCost);
-      document.getElementById('qi-band').textContent = data.band || '—';
-
-      const allAlerts = data.alerts || [];
-      let highlight = allAlerts;
-      if (!highlight.length) {
-        highlight = (data.register || []).filter(r => r.daysRemaining !== null && r.daysRemaining <= 30).slice(0, 6).map(r => ({
-          title: (r.actionType ? (r.actionType + ' — ') : '') + (r.subject || ''),
-          risk: (r.daysRemaining <= 7 ? 'أحمر' : 'أصفر'),
-          platform: r.platform, daysRemaining: r.daysRemaining, action: '', expiry: r.expiry
-        }));
-      }
-      renderAlertsList(document.getElementById('top-alerts'), highlight, { limit: 5, noMore: true });
-
-      const filteredAlerts = activePlatformFilter ? allAlerts.filter(a => a.platform === activePlatformFilter) : allAlerts;
-      renderAlertsList(document.getElementById('alerts-list'), filteredAlerts, { limit: 10 });
-
-      const allReg = data.register || [];
-      const filteredReg = activePlatformFilter ? allReg.filter(r => r.platform === activePlatformFilter) : allReg;
-      const regBody = document.getElementById('reg-body');
-      regBody.innerHTML = filteredReg.length ? filteredReg.map(r =>
-        '<tr><td>' + (r.platform || '—') + '</td><td>' + (r.subject || '—') + '</td><td>' + (r.actionType || '—') + '</td><td>' +
-        (r.expiry || '—') + '</td><td>' + dayBadge(r.daysRemaining) + '</td></tr>'
-      ).join('') : '<tr><td colspan="5" class="empty">لا توجد بنود مسجّلة بعد</td></tr>';
-      const regHome = document.getElementById('reg-body-home');
-      if (regHome) regHome.innerHTML = regBody.innerHTML;
-
-      renderEntityGrid(data.platforms || []);
-
-      document.getElementById('cost-q').textContent = costPrefix + fmtMoney(data.quarterlyCost);
-      document.getElementById('cost-a').textContent = costPrefix + fmtMoney(data.annualCost);
-      document.getElementById('emp-info').textContent = (data.employees ?? '—') + ' / ' + (data.saudis ?? '—') + (data.band ? (' (' + data.band + ')') : '');
-      renderCompanies(data);
-      renderFiles(data);
-    }
-
+    /* ===== الملفات ===== */
     const FILE_TYPE_AR = { 'CR':'السجل التجاري', 'Saudi Business Center':'المركز السعودي للأعمال', 'Qiwa':'قوى', 'Muqeem':'مقيم', 'GOSI':'التأمينات', 'Mudad':'مدد', 'ZATCA/VAT':'ضريبة القيمة المضافة', 'Zakat':'الزكاة', 'Chamber':'الغرفة التجارية', 'National Address':'العنوان الوطني', 'Balady':'بلدي', 'Civil Defense':'الدفاع المدني', 'Ejar':'إيجار', 'MISA':'MISA', 'Insurance Policy':'بوليصة التأمين', 'Other':'أخرى' };
     function renderFiles(data) {
-      const targets = [document.getElementById('files-list')].concat(Array.prototype.slice.call(document.querySelectorAll('.files-list-target'))).filter(Boolean);
-      if (!targets.length) return;
-      const setAll = function (h) { targets.forEach(function (t) { t.innerHTML = h; }); };
+      const el = document.getElementById('files-list');
+      if (!el) return;
       const files = (data && data.files) || [];
-      if (!files.length) { setAll('<div class="empty">لا توجد ملفات مرفوعة بعد — اضغط «📤 رفع الملفات» وارفع أول مستند.</div>'); return; }
-      setAll('<div class="alert-table-wrap"><table class="alert-table"><thead><tr><th>الملف</th><th>النوع</th><th>تاريخ الرفع</th><th>الانتهاء</th><th></th></tr></thead><tbody>' + files.map(function (f) {
-        const safeName = (f.name || 'ملف').replace(/</g, '&lt;');
-        return '<tr><td><a href="' + (f.url || '#') + '" target="_blank" rel="noopener" style="color:var(--navy);font-weight:600;text-decoration:none">📄 ' + safeName + '</a>' + (f.needsReview ? ' <span class="badge d7">مراجعة</span>' : '') + '</td>' +
-          '<td>' + (FILE_TYPE_AR[f.type] || f.type || '—') + '</td>' +
-          '<td>' + (f.uploaded || '—') + '</td>' +
-          '<td>' + (f.expiry || '—') + '</td>' +
-          '<td><button type="button" class="file-del" data-doc="' + f.docId + '" data-drive="' + f.driveFileId + '" data-name="' + safeName.replace(/"/g, '') + '" style="background:#fee2e2;color:#991b1b;border:none;border-radius:8px;padding:.35rem .7rem;font-size:.8rem;cursor:pointer">🗑 حذف</button></td></tr>';
-      }).join('') + '</tbody></table></div><p style="color:#94a3b8;font-size:.75rem;margin-top:.6rem">لاستبدال ملف: احذفه ثم ارفع النسخة الجديدة من المعالج أعلاه — وكيل الامتثال يعيد التحليل ويحدّث لوحتك تلقائياً.</p>');
+      if (!files.length) { el.innerHTML = '<div class="card"><div class="empty">لا توجد ملفات مرفوعة بعد — اضغط «📤 رفع الملفات» وارفع أول مستند.</div></div>'; return; }
+      el.innerHTML = '<div class="filegrid">' + files.map(function (f) {
+        const safeName = esc(f.name || 'ملف');
+        const verified = (typeof f.confidence === 'number' && f.confidence >= 0.9 && !f.needsReview);
+        const badge = verified
+          ? '<span class="qr-ok">✓ تم التحقق إلكترونياً</span>'
+          : (f.needsReview ? '<span class="qr-ok qr-warn">بحاجة مراجعة يدوية</span>' : '<span class="qr-ok qr-warn">قيد المعالجة</span>');
+        return '<div class="fcard"><div class="ft"><span class="ficon">📄</span><a href="' + (f.url || '#') + '" target="_blank" rel="noopener">' + safeName + '</a></div>' +
+          '<div class="fmeta"><span>' + esc(FILE_TYPE_AR[f.type] || f.type || '—') + '</span><span>رُفع ' + (f.uploaded || '—') + '</span>' + (f.expiry ? '<span>ينتهي ' + f.expiry + '</span>' : '') + '</div>' +
+          badge +
+          '<div class="facts"><button type="button" class="frep">📤 استبدال</button><button type="button" class="fdel file-del" data-doc="' + esc(f.docId) + '" data-drive="' + esc(f.driveFileId) + '" data-name="' + safeName + '">🗑 حذف</button></div></div>';
+      }).join('') + '</div><p style="color:var(--faint);font-size:.75rem;margin-top:.6rem">للاستبدال: احذف الملف ثم ارفع النسخة الجديدة من لوحة الرفع — الوكيل يعيد التحليل ويحدّث لوحتك تلقائياً.</p>';
     }
-    function reloadData(after) {
-      const email = localStorage.getItem('bp_portal_email');
-      const code = localStorage.getItem('bp_portal_code');
-      if (!email || !code) return;
-      loadDashboard(email, code).then(function (d) { lastData = d; if (after) after(d); }).catch(function () {});
-    }
+    document.getElementById('files-list').addEventListener('click', function (e) {
+      const del = e.target.closest('.file-del');
+      if (del) { deleteClientFile(del.dataset.doc, del.dataset.drive, del.dataset.name); return; }
+      if (e.target.closest('.frep')) openUploadDrawer();
+    });
     function deleteClientFile(docId, driveId, name) {
-      if (!confirm('حذف الملف "' + name + '"؟ تقدر ترفع بديله من المعالج بعد الحذف.')) return;
+      if (!confirm('حذف الملف "' + name + '"؟ تقدر ترفع بديله من لوحة الرفع بعد الحذف.')) return;
       const fd = new FormData();
       fd.append('action', 'delete_file');
       fd.append('email', localStorage.getItem('bp_portal_email') || '');
@@ -400,10 +864,47 @@ h1,h2,h3,.sec{color:var(--navy) !important}
         .then(function () { reloadData(function (d) { renderAll(d); }); })
         .catch(function () {});
     }
-    document.getElementById('files-list').addEventListener('click', function (e) {
-      const b = e.target.closest('.file-del');
-      if (b) deleteClientFile(b.dataset.doc, b.dataset.drive, b.dataset.name);
+
+    /* ===== التكاليف ===== */
+    function renderCosts(data) {
+      const costPrefix = data.costEstimated ? '≈ ' : '';
+      document.getElementById('cost-q').textContent = costPrefix + fmtMoney(data.quarterlyCost);
+      document.getElementById('cost-a').textContent = costPrefix + fmtMoney(data.annualCost);
+      document.getElementById('emp-info').textContent = (data.employees ?? '—') + ' / ' + (data.saudis ?? '—') + (data.band ? (' (' + data.band + ')') : '');
+      if (typeof data.employees === 'number' && !calcTouched) {
+        const sa = (typeof data.saudis === 'number') ? data.saudis : 0;
+        document.getElementById('calc-exp').value = Math.max(0, data.employees - sa);
+        document.getElementById('calc-sau').value = sa;
+        runCalc();
+      }
+    }
+    let calcTouched = false;
+    function runCalc() {
+      const ex = +document.getElementById('calc-exp').value;
+      const sa = +document.getElementById('calc-sau').value;
+      const sal = +document.getElementById('calc-sal').value;
+      document.getElementById('exp-v').textContent = ex;
+      document.getElementById('sau-v').textContent = sa;
+      document.getElementById('sal-v').textContent = fmtN(sal);
+      const levyPer = ex > sa ? OFFICIAL_RATES.levyHigh : OFFICIAL_RATES.levyLow;
+      const levy = ex * levyPer;
+      const permits = ex * (OFFICIAL_RATES.workPermit + OFFICIAL_RATES.iqama);
+      const misc = ex * (OFFICIAL_RATES.exitReentry + OFFICIAL_RATES.medical);
+      const gosi = Math.round(ex * sal * .02 * 12);
+      const total = levy + permits + misc + gosi;
+      document.getElementById('calc-total').textContent = fmtN(total);
+      document.getElementById('calc-per').textContent = ex ? fmtN(Math.round(total / ex)) : '0';
+      document.getElementById('b-levy').textContent = fmtN(levy);
+      document.getElementById('b-permits').textContent = fmtN(permits);
+      document.getElementById('b-misc').textContent = fmtN(misc);
+      document.getElementById('b-gosi').textContent = fmtN(gosi);
+    }
+    ['calc-exp','calc-sau','calc-sal'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', function () { calcTouched = true; runCalc(); });
     });
+    runCalc();
+
+    /* ===== المنشآت المتعددة ===== */
     function renderCompanies(data) {
       const sel = document.getElementById('company-select');
       const addBtn = document.getElementById('add-company-btn');
@@ -412,7 +913,7 @@ h1,h2,h3,.sec{color:var(--navy) !important}
       const list = (data && data.companies) || [];
       if (list.length > 1) {
         sel.style.display = 'inline-block';
-        sel.innerHTML = list.map(function (c) { return '<option value="' + c.pageId + '"' + (c.pageId === data.pageId ? ' selected' : '') + '>🏢 ' + (c.name || 'منشأة').replace(/</g, '&lt;') + '</option>'; }).join('');
+        sel.innerHTML = list.map(function (c) { return '<option value="' + c.pageId + '"' + (c.pageId === data.pageId ? ' selected' : '') + '>🏢 ' + esc(c.name || 'منشأة') + '</option>'; }).join('');
       } else { sel.style.display = 'none'; }
     }
     document.getElementById('company-select').addEventListener('change', function () {
@@ -439,24 +940,53 @@ h1,h2,h3,.sec{color:var(--navy) !important}
         .catch(function () {});
     });
 
-    // لوحة الرفع الجانبية — كل الرفع صار فيها، واللوحة الرئيسية تعرض كل شيء
-    const drawerOverlay = document.createElement('div');
-    drawerOverlay.className = 'drawer-overlay';
-    document.body.appendChild(drawerOverlay);
-    const uploadDrawer = document.createElement('div');
-    uploadDrawer.className = 'side-drawer';
-    uploadDrawer.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem"><h3 style="margin:0">📤 رفع ملفات الامتثال</h3><button id="close-upload-btn" style="background:#eef2fb;border:none;border-radius:999px;padding:.45rem .9rem;cursor:pointer;font-size:1rem">✕ إغلاق</button></div>';
-    document.body.appendChild(uploadDrawer);
-    const uploadPanel = document.getElementById('panel-upload');
-    while (uploadPanel && uploadPanel.firstChild) uploadDrawer.appendChild(uploadPanel.firstChild);
-    const uploadTabBtn = document.querySelector('.tab[data-tab="upload"]');
-    if (uploadTabBtn) uploadTabBtn.remove();
+    /* ===== لوحة الرفع الجانبية ===== */
+    const uploadDrawer = document.getElementById('upload-drawer');
+    const drawerOverlay = document.getElementById('drawer-overlay');
     function openUploadDrawer() { uploadDrawer.classList.add('open'); drawerOverlay.classList.add('show'); }
     function closeUploadDrawer() { uploadDrawer.classList.remove('open'); drawerOverlay.classList.remove('show'); }
     document.getElementById('open-upload-btn').addEventListener('click', openUploadDrawer);
+    document.getElementById('fab-upload').addEventListener('click', openUploadDrawer);
     drawerOverlay.addEventListener('click', closeUploadDrawer);
     document.getElementById('close-upload-btn').addEventListener('click', closeUploadDrawer);
+    addEventListener('keydown', function (e) { if (e.key === 'Escape') closeUploadDrawer(); });
 
+    /* ===== التمرير والتظليل ===== */
+    const navLinks = Array.prototype.slice.call(document.querySelectorAll('.snav a'));
+    navLinks.forEach(function (a) {
+      const sec = document.querySelector(a.getAttribute('href'));
+      if (!sec) return;
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting) navLinks.forEach(x => x.classList.toggle('on', x === a));
+        });
+      }, { rootMargin: '-30% 0px -60% 0px' }).observe(sec);
+    });
+
+    /* ===== renderAll ===== */
+    function renderAll(data) {
+      if (!data) return;
+      data = estimateCosts(data);
+      document.getElementById('company-name').textContent = data.company || 'لوحة الامتثال';
+      renderHero(data);
+      renderTimeline(data);
+      renderEntityGrid(data.platforms || []);
+      renderRegister(data);
+      const allAlerts = data.alerts || [];
+      const filteredAlerts = activePlatformFilter ? allAlerts.filter(a => a.platform === activePlatformFilter) : allAlerts;
+      renderAlertsList(document.getElementById('alerts-list'), filteredAlerts, { limit: 10 });
+      renderCosts(data);
+      renderCompanies(data);
+      renderFiles(data);
+    }
+
+    /* ===== الدخول والتحميل ===== */
+    function reloadData(after) {
+      const email = localStorage.getItem('bp_portal_email');
+      const code = localStorage.getItem('bp_portal_code');
+      if (!email || !code) return;
+      loadDashboard(email, code).then(function (d) { lastData = d; if (after) after(d); }).catch(function () {});
+    }
     async function loadDashboard(email, code) {
       const url = API_URL + '?email=' + encodeURIComponent(email) + '&code=' + encodeURIComponent(code) + (selectedCompanyId ? ('&company=' + encodeURIComponent(selectedCompanyId)) : '');
       const res = await fetch(url);
@@ -465,23 +995,23 @@ h1,h2,h3,.sec{color:var(--navy) !important}
       if (!data || data.ok === false) throw new Error(data && data.error || 'error');
       return data;
     }
-
     function showApp(data) {
       loginScreen.style.display = 'none';
       if (data.locked) {
         lockedScreen.style.display = 'flex';
         dash.style.display = 'none';
+        document.getElementById('fab-wrap').style.display = 'none';
         document.getElementById('locked-company-name').textContent = data.company || '';
       } else {
         lockedScreen.style.display = 'none';
         dash.style.display = 'block';
+        document.getElementById('fab-wrap').style.display = 'flex';
         if (!autoOpenedUpload && !((data && data.files) || []).length) {
           autoOpenedUpload = true;
-          setTimeout(openUploadDrawer, 700);
+          setTimeout(openUploadDrawer, 900);
         }
       }
     }
-
     loginForm.addEventListener('submit', function (e) {
       e.preventDefault();
       const email = document.getElementById('in-email').value.trim().toLowerCase();
@@ -502,17 +1032,16 @@ h1,h2,h3,.sec{color:var(--navy) !important}
         loginBtn.disabled = false; loginBtn.textContent = 'دخول';
       });
     });
-
     function doLogout() {
       localStorage.removeItem('bp_portal_email');
       localStorage.removeItem('bp_portal_code');
       dash.style.display = 'none';
       lockedScreen.style.display = 'none';
+      document.getElementById('fab-wrap').style.display = 'none';
       loginScreen.style.display = 'flex';
     }
     document.getElementById('logout-btn').addEventListener('click', doLogout);
     document.getElementById('locked-logout-btn').addEventListener('click', doLogout);
-
     document.getElementById('refresh-btn').addEventListener('click', function () {
       const email = localStorage.getItem('bp_portal_email');
       const code = localStorage.getItem('bp_portal_code');
@@ -527,7 +1056,7 @@ h1,h2,h3,.sec{color:var(--navy) !important}
         dashErr.textContent = 'تعذّر التحديث. حاول مرة أخرى.';
         dashErr.style.display = 'block';
       }).finally(function () {
-        btn.disabled = false; btn.textContent = '↻ تحديث الآن';
+        btn.disabled = false; btn.textContent = '↻ تحديث';
       });
     });
 
@@ -537,7 +1066,56 @@ h1,h2,h3,.sec{color:var(--navy) !important}
       chatWrap.style.display = chatWrap.style.display === 'block' ? 'none' : 'block';
     });
 
+    /* وضع المعاينة (?demo=1) — بيانات تجريبية بهيكل البيانات الحقيقي، بدون دخول */
+    function demoData() {
+      return {
+        ok: true, locked: false, company: 'مؤسسة النخبة للتجارة', pageId: 'demo',
+        companies: [{ pageId: 'demo', name: 'مؤسسة النخبة للتجارة' }, { pageId: 'demo2', name: 'شركة النخبة للمقاولات' }],
+        employees: 11, saudis: 3, band: 'أخضر منخفض', quarterlyCost: null, annualCost: null,
+        lastAnalysis: '2026-08-20', healthScore: 24, healthBand: 'خطر',
+        counts: { red: 3, yellow: 2, green: 3 },
+        alerts: [
+          { title: 'شهادة التأمينات منتهية — سداد فوري مطلوب', risk: 'أحمر', platform: 'التأمينات (GOSI)', daysRemaining: -320, action: 'سدّد المستحقات وجدّد الشهادة من موقع التأمينات', expiry: '2025-09-26' },
+          { title: 'شهادة حماية الأجور منتهية', risk: 'أحمر', platform: 'مدد', daysRemaining: -172, action: 'ارفع ملف الأجور في مدد لهذا الشهر', expiry: '2026-02-21' },
+          { title: 'شهادة الزكاة تنتهي قريباً', risk: 'أصفر', platform: 'الزكاة والضريبة', daysRemaining: 12, action: 'قدّم الإقرار وجدّد الشهادة', expiry: '2026-08-24' },
+        ],
+        register: [
+          { platform: 'التأمينات (GOSI)', subject: 'شهادة التأمينات الاجتماعية', actionType: 'تجديد شهادة', expiry: '2025-09-26', daysRemaining: -320 },
+          { platform: 'مدد', subject: 'شهادة التزام حماية الأجور', actionType: 'تجديد شهادة', expiry: '2026-02-21', daysRemaining: -172 },
+          { platform: 'قوى', subject: 'شهادة التوطين', actionType: 'تجديد شهادة', expiry: '2026-04-21', daysRemaining: -113 },
+          { platform: 'الزكاة والضريبة (ZATCA)', subject: 'شهادة الزكاة', actionType: 'تجديد شهادة', expiry: '2026-08-24', daysRemaining: 12 },
+          { platform: 'الغرفة التجارية', subject: 'اشتراك الغرفة', actionType: 'تجديد اشتراك', expiry: '2026-09-07', daysRemaining: 26 },
+          { platform: 'بلدي', subject: 'الرخصة البلدية', actionType: 'تجديد رخصة', expiry: '2027-01-07', daysRemaining: 148 },
+          { platform: 'السجل التجاري', subject: 'السجل التجاري', actionType: 'تأكيد سنوي', expiry: '2027-03-24', daysRemaining: 224 },
+          { platform: 'العنوان الوطني', subject: 'اشتراك العنوان الوطني', actionType: 'تجديد اشتراك', expiry: '2027-05-30', daysRemaining: 291 },
+        ],
+        platforms: [
+          { key:'qiwa', label:'قوى', authority:'HRSD', itemCount:1, red:1, yellow:0, green:0, hasData:true },
+          { key:'gosi', label:'التأمينات (GOSI)', authority:'GOSI', itemCount:1, red:1, yellow:0, green:0, hasData:true },
+          { key:'mudad', label:'مدد', authority:'HRSD', itemCount:1, red:1, yellow:0, green:0, hasData:true },
+          { key:'zatca', label:'الزكاة والضريبة', authority:'ZATCA', itemCount:1, red:0, yellow:1, green:0, hasData:true },
+          { key:'chamber', label:'الغرفة التجارية', authority:'الغرف التجارية', itemCount:1, red:0, yellow:1, green:0, hasData:true },
+          { key:'cr', label:'السجل التجاري', authority:'وزارة التجارة', itemCount:1, red:0, yellow:0, green:1, hasData:true },
+          { key:'balady', label:'بلدي', authority:'الشؤون البلدية', itemCount:1, red:0, yellow:0, green:1, hasData:true },
+          { key:'address', label:'العنوان الوطني', authority:'البريد السعودي', itemCount:1, red:0, yellow:0, green:1, hasData:true },
+          { key:'muqeem', label:'مقيم', authority:'الجوازات', itemCount:0, red:0, yellow:0, green:0, hasData:false },
+          { key:'sbc', label:'المركز السعودي للأعمال', authority:'وزارة التجارة', itemCount:0, red:0, yellow:0, green:0, hasData:false },
+          { key:'civildefense', label:'الدفاع المدني', authority:'الدفاع المدني', itemCount:0, red:0, yellow:0, green:0, hasData:false },
+          { key:'ejar', label:'إيجار', authority:'REGA', itemCount:0, red:0, yellow:0, green:0, hasData:false },
+          { key:'misa', label:'MISA الاستثمار', authority:'MISA', itemCount:0, red:0, yellow:0, green:0, hasData:false },
+          { key:'customs', label:'الجمارك (فسح)', authority:'الجمارك السعودية', itemCount:0, red:0, yellow:0, green:0, hasData:false },
+        ],
+        files: [
+          { docId:'d1', name:'شهادة التأمينات.pdf', type:'GOSI', uploaded:'2026-07-20', expiry:'2025-09-26', confidence:1, needsReview:false, driveFileId:'x1', url:'#' },
+          { docId:'d2', name:'شهادة الزكاة 1446.pdf', type:'Zakat', uploaded:'2026-07-20', expiry:'2026-08-24', confidence:0.95, needsReview:false, driveFileId:'x2', url:'#' },
+          { docId:'d3', name:'شهادة التوطين.pdf', type:'Qiwa', uploaded:'2026-07-19', expiry:'2026-04-21', confidence:1, needsReview:false, driveFileId:'x3', url:'#' },
+          { docId:'d4', name:'اشتراك الغرفة.jpg', type:'Chamber', uploaded:'2026-07-18', expiry:'2026-09-07', confidence:0.6, needsReview:true, driveFileId:'x4', url:'#' },
+        ],
+      };
+    }
+
     (function init() {
+      if (DEMO) { lastData = demoData(); showApp(lastData); renderAll(lastData); return; }
       const e = localStorage.getItem('bp_portal_email');
       const k = localStorage.getItem('bp_portal_code');
       if (e && k) {
@@ -555,10 +1133,9 @@ h1,h2,h3,.sec{color:var(--navy) !important}
     })();
   })();</script> <script type="module">const CHAT_URL = "https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-465c-aa1f-69773ea1f86d/chat";
 
-    // n8n's hosted-chat webhook page can't be embedded via a raw <iframe> (it
-    // isn't served with iframe-friendly framing), so we mount the official
-    // @n8n/chat widget in fullscreen mode inside our own toggleable wrapper
-    // instead — it talks to the webhook via fetch, not by navigating a frame.
+    // n8n's hosted-chat webhook page can't be embedded via a raw <iframe>, so we
+    // mount the official @n8n/chat widget in fullscreen mode inside our own
+    // toggleable wrapper — it talks to the webhook via fetch.
     import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
     createChat({
       webhookUrl: CHAT_URL,

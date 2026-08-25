@@ -402,12 +402,13 @@
       }
       var inp=$('msg'); var m=(inp.value||'').trim(); if(!m) return;
       var agentAtSend=cur, histRef=chatHist;
+      var hist=histRef.slice(-12).map(function(h){return {role:(h.cls==='me'?'user':'assistant'),text:String(h.text||'').slice(0,500)};});
       if(isTrial){ trialInc(agentAtSend.slug); updateTrialBadge(agentAtSend.slug); }
       inp.value=''; push(m,'me');
       histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
       var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
       var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},60000);
-      fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m}),signal:ctrl.signal})
+      fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m,history:hist}),signal:ctrl.signal})
         .then(function(r){return r.text();})
         .then(function(t){ clearTimeout(timer); var d={}; try{d=JSON.parse(t);}catch(e){d={reply:t};} var reply=d.reply||'لا يوجد رد.'; think.textContent=reply; histRef.push({text:reply,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
         .catch(function(e){ clearTimeout(timer); var msg=(e&&e.name==='AbortError')?'انتهت المهلة — حاول مرة أخرى.':'تعذّر الاتصال مؤقتاً — حاول مرة أخرى.'; think.textContent=msg; histRef.push({text:msg,cls:'bot'}); saveChat(agentAtSend.slug,histRef); })
