@@ -34,6 +34,10 @@ export default async function PortalHome() {
   return (
     <>
       <h1>مرحباً، {client.companyAr || client.nameAr}</h1>
+      <div className="row" style={{ marginBottom: 12 }}>
+        <Link className="btn sm" href="/portal/services">اطلب خدمة</Link>
+        <Link className="btn ghost sm" href="/portal/profile">بيانات منشأتي</Link>
+      </div>
       <p className="sub">عروضك وعقودك ومرفقاتك ومدفوعاتك ومحفظتك في مكان واحد.</p>
 
       <div className="notice"><b>أين وصلنا:</b> {status.ar}</div>

@@ -251,7 +251,41 @@ export async function generateContractFromQuote(quoteId: string, actor = 'admin'
 }
 
 /** الاعتماد البشري — الشرط الوحيد الذي يفتح باب الإرسال. */
-export async function approveDocument(id: string, actor: string) {
+/**
+ * هل يجوز إصدار هذا المستند تلقائياً بلا مراجعة بشرية؟
+ *
+ * نعم متى كان كل بند خدمةً من الكتالوج بسعر منشور نهائي، وبالسعر المنشور
+ * نفسه. حينها لا يوجد ما يُراجَع: الرقم الذي يراه العميل في الموقع هو الرقم
+ * الذي في العرض.
+ *
+ * ولا متى وُجد بند واحد مفتوح السعر أو مخصص أو بسعر يخالف الكتالوج — لأن
+ * السعر النهائي لم يُحدَّد بعد، وإصدار عرض بسعر مبدئي يعني عقداً موقّعاً على
+ * رقم ليس رقمك.
+ */
+export async function autoIssueEligible(items: ItemInput[]): Promise<boolean> {
+  if (!items.length) return false;
+  const ids = items.map((i) => i.serviceId).filter(Boolean) as string[];
+  if (ids.length !== items.length) return false;
+
+  const services = await prisma.service.findMany({ where: { id: { in: ids } } });
+  const byId = new Map(services.map((x) => [x.id, x]));
+
+  return items.every((i) => {
+    const svc = byId.get(i.serviceId as string);
+    if (!svc || !svc.active || svc.openPrice || svc.unitPrice <= 0) return false;
+    // سعر يدوي يخالف الكتالوج يخرج المستند من الإصدار التلقائي.
+    if (i.unitPrice !== undefined && i.unitPrice !== null) {
+      if (round2(Number(i.unitPrice)) !== round2(svc.unitPrice)) return false;
+    }
+    return true;
+  });
+}
+
+export async function approveDocument(
+  id: string,
+  actor: string,
+  actorKind: 'admin' | 'system' = 'admin',
+) {
   const doc = await prisma.document.findUniqueOrThrow({ where: { id } });
   if (doc.status !== DOC_STATUS.DRAFT) {
     throw new Error(`لا يمكن اعتماد مستند حالته ${doc.status}`);
@@ -261,18 +295,29 @@ export async function approveDocument(id: string, actor: string) {
     data: { status: DOC_STATUS.APPROVED, approvedAt: new Date(), approvedBy: actor },
   });
 
+  const auto = actorKind === 'system';
   await logEvent({
     entityType: 'document',
     entityId: id,
     clientId: doc.clientId,
     code: 'APPROVED',
-    titleAr: `اعتُمد المستند ${doc.number} — أصبح الإرسال متاحاً`,
-    titleEn: `Document ${doc.number} approved — sending is now permitted`,
+    titleAr: auto
+      ? `صدر المستند ${doc.number} تلقائياً — كل بنوده بسعر كتالوج منشور`
+      : `اعتُمد المستند ${doc.number} — أصبح الإرسال متاحاً`,
+    titleEn: auto
+      ? `Document ${doc.number} issued automatically — all lines at published catalogue prices`
+      : `Document ${doc.number} approved — sending is now permitted`,
     actor,
-    actorKind: 'admin',
+    actorKind,
     clientVisible: false,
   });
-  await audit({ action: 'DOCUMENT_APPROVED', entityType: 'document', entityId: id, actor, amount: doc.total });
+  await audit({
+    action: auto ? 'DOCUMENT_AUTO_ISSUED' : 'DOCUMENT_APPROVED',
+    entityType: 'document',
+    entityId: id,
+    actor,
+    amount: doc.total,
+  });
 
   return updated;
 }

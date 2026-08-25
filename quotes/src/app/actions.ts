@@ -4,9 +4,9 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { requireAdmin, createMagicLink, consumeMagicLink, startAdminSession, startClientSession, endSessions, adminEmail, MAGIC_LINK_TTL_MIN } from '@/lib/auth';
-import { createClient, normalizePhone } from '@/lib/clients';
-import { createQuote, generateContractFromQuote, approveDocument, acceptDocument, type ItemInput } from '@/lib/documents';
+import { requireAdmin, requireClient, createMagicLink, consumeMagicLink, startAdminSession, startClientSession, endSessions, adminEmail, MAGIC_LINK_TTL_MIN } from '@/lib/auth';
+import { createClient, updateClient, normalizePhone } from '@/lib/clients';
+import { createQuote, generateContractFromQuote, approveDocument, acceptDocument, autoIssueEligible, type ItemInput } from '@/lib/documents';
 import { prepareWhatsApp, queueDocumentBuild, queueDocumentEmail, notifyEvent, publicUrl, payUrl } from '@/lib/send';
 import { sendForSignature } from '@/lib/docusign/service';
 import { createInvoicesForContract, createInvoice, markInvoicePaid, walletSpend } from '@/lib/billing';
@@ -202,6 +202,149 @@ export async function actionCreateClient(_prev: State, fd: FormData): Promise<St
     redirect(`/admin/clients/${client.id}`);
   } catch (e) {
     if (e && typeof e === 'object' && 'digest' in e) throw e;
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+/** تعديل بيانات عميل من لوحة التحكم. */
+export async function actionUpdateClient(_prev: State, fd: FormData): Promise<State> {
+  const admin = await requireAdmin();
+  const id = s(fd, 'id');
+  if (!id) return { error: 'معرّف العميل مفقود.' };
+  try {
+    await updateClient(
+      id,
+      {
+        nameAr: s(fd, 'nameAr'),
+        nameEn: s(fd, 'nameEn'),
+        companyAr: s(fd, 'companyAr'),
+        companyEn: s(fd, 'companyEn'),
+        crNumber: s(fd, 'crNumber'),
+        vatNumber: s(fd, 'vatNumber'),
+        email: s(fd, 'email'),
+        phone: s(fd, 'phone'),
+        country: s(fd, 'country') || 'SA',
+        city: s(fd, 'city'),
+        addressAr: s(fd, 'addressAr'),
+        addressEn: s(fd, 'addressEn'),
+        repName: s(fd, 'repName'),
+        repTitle: s(fd, 'repTitle'),
+        notes: s(fd, 'notes'),
+      },
+      admin,
+      'admin',
+    );
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+  revalidatePath('/admin/clients');
+  revalidatePath(`/admin/clients/${id}`);
+  redirect(`/admin/clients/${id}`);
+}
+
+/**
+ * العميل يكتب بياناته بنفسه من بوابته.
+ *
+ * المعرّف يؤخذ من الجلسة لا من النموذج: لو قُرئ من حقل مرسل لأمكن لعميل أن
+ * يعدّل بيانات عميل آخر بتغيير قيمة في المتصفح. ولا يُسمح له بتعديل بريده،
+ * لأنه مفتاح دخوله إلى البوابة — تغييره من هنا يطرده من حسابه.
+ */
+export async function actionUpdateOwnProfile(_prev: State, fd: FormData): Promise<State> {
+  const clientId = await requireClient();
+  try {
+    await updateClient(
+      clientId,
+      {
+        nameAr: s(fd, 'nameAr'),
+        nameEn: s(fd, 'nameEn'),
+        companyAr: s(fd, 'companyAr'),
+        companyEn: s(fd, 'companyEn'),
+        crNumber: s(fd, 'crNumber'),
+        vatNumber: s(fd, 'vatNumber'),
+        phone: s(fd, 'phone'),
+        city: s(fd, 'city'),
+        addressAr: s(fd, 'addressAr'),
+        addressEn: s(fd, 'addressEn'),
+        repName: s(fd, 'repName'),
+        repTitle: s(fd, 'repTitle'),
+      },
+      'client',
+      'client',
+    );
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+  revalidatePath('/portal');
+  revalidatePath('/portal/profile');
+  return { ok: 'حُفظت بياناتك. تُستخدم في عروض الأسعار والعقود والفواتير الصادرة لك.' };
+}
+
+/**
+ * العميل يطلب خدمة من بوابته.
+ *
+ * إن كانت الخدمة بسعر كتالوج منشور فالعرض يصدر ويصله فوراً بلا تدخّل — لا شيء
+ * يُراجَع حين يكون الرقم في العرض هو الرقم المعلن على الموقع. وإن كانت مفتوحة
+ * السعر فلا رقم بعد، فيبقى المستند مسودة ويصلك أنت لتسعّره.
+ */
+export async function actionRequestQuote(_prev: State, fd: FormData): Promise<State> {
+  const clientId = await requireClient();
+  const serviceId = s(fd, 'serviceId');
+  if (!serviceId) return { error: 'اختر الخدمة أولاً.' };
+
+  const service = await prisma.service.findUnique({ where: { id: serviceId } });
+  if (!service || !service.active) return { error: 'هذه الخدمة غير متاحة حالياً.' };
+
+  const qty = Math.max(service.minQty, n(fd, 'qty') || service.minQty);
+  const items: ItemInput[] = [
+    {
+      serviceId,
+      code: service.code,
+      nameAr: service.nameAr,
+      nameEn: service.nameEn,
+      descAr: service.descAr,
+      descEn: service.descEn,
+      qty,
+      unitPrice: service.unitPrice,
+      unitAr: service.unitAr,
+      unitEn: service.unitEn,
+      paymentTermsAr: service.paymentTermsAr,
+      paymentTermsEn: service.paymentTermsEn,
+      deliveryAr: service.deliveryAr,
+      deliveryEn: service.deliveryEn,
+    },
+  ];
+
+  try {
+    const auto = await autoIssueEligible(items);
+    const doc = await createQuote({
+      clientId,
+      items,
+      notesAr: s(fd, 'noteAr') || null,
+    });
+
+    if (!auto) {
+      await notifyEvent(
+        'طلب تسعير',
+        doc.number,
+        service.nameAr,
+        'الخدمة مفتوحة السعر — يحتاج العرض تسعيراً منك قبل إرساله.',
+        `${process.env.APP_URL || ''}/admin/documents/${doc.id}`,
+      );
+      return {
+        ok: 'وصلنا طلبك. هذه الخدمة تُسعَّر حسب الحالة، وسيصلك العرض بعد إعداده.',
+      };
+    }
+
+    await approveDocument(doc.id, 'auto', 'system');
+    await queueDocumentBuild(doc.id);
+    await queueDocumentEmail(doc.id, true, 'auto');
+
+    revalidatePath('/portal');
+    return {
+      ok: `صدر عرض السعر ${doc.number} ووصلك على بريدك.`,
+      link: publicUrl(doc.publicToken),
+    };
+  } catch (e) {
     return { error: e instanceof Error ? e.message : String(e) };
   }
 }

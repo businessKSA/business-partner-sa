@@ -19,7 +19,11 @@ export default async function CheckoutPage({ params }: { params: Promise<{ token
 
   const key = process.env.MOYASAR_PUBLISHABLE_KEY;
   const base = process.env.APP_URL || 'http://localhost:3000';
+  // مدى وفيزا وماستركارد كلها تمر عبر creditcard في نموذج ميسر — بطاقة مدى
+  // تُعرَف من رقمها ولا تحتاج طريقة منفصلة. آبل باي وSTC Pay طريقتان مستقلتان،
+  // وآبل باي تحديداً لا تعمل قبل توثيق النطاق لدى ميسر، فتبقى خلف مفتاح.
   const methods = ['creditcard'];
+  if (process.env.MOYASAR_STC_PAY !== '0') methods.push('stcpay');
   if (process.env.MOYASAR_APPLE_PAY === '1') methods.push('applepay');
 
   return (
@@ -54,6 +58,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ token
       )}
 
       <h3>التحويل البنكي</h3>
+      <p className="muted" style={{ marginTop: -6 }}>
+        لمن يفضّل التحويل بدل البطاقة. أرسل إشعار التحويل بعد السداد ليُقيَّد على الفاتورة.
+      </p>
       <p className="muted">
         {COMPANY.bank.name.ar} — المستفيد {COMPANY.bank.beneficiary.ar}
         <br />

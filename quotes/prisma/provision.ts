@@ -1,13 +1,16 @@
 /**
  * تهيئة قاعدة البيانات عند النشر — تُستدعى من `vercel-build` قبل البناء.
  *
- * ثلاث قواعد تحكمها:
+ * أربع قواعد تحكمها:
  *
  * 1) لا تُلمس قاعدة البيانات إلا في نشرة الإنتاج. نشرات المعاينة تُبنى من كل
  *    طلب مراجعة، ولو طبّقت المخطط لكان كل طلب مفتوح يعدّل قاعدة الإنتاج.
  * 2) المخطط يُطبَّق بـ `prisma db push` فتُنشأ الجداول في أول نشرة بلا أوامر يدوية.
  * 3) البذرة تعمل مرة واحدة فقط. البذرة تستخدم upsert، فبذرٌ في كل نشرة يُرجع
  *    أي تعديل يدوي على أسعار الكتالوج إلى قيمه الأصلية دون أن ينتبه أحد.
+ * 4) كتالوج الموقع يُستورد في كل نشرة إنتاج، لكن استيراداً آمناً: يُنشئ
+ *    الناقص ولا يكتب فوق سعر خدمة قائمة. فما يُنشر على الموقع يصير قابلاً
+ *    لعرض سعر وعقد وفاتورة، دون أن يضيع تسعير يدوي.
  */
 import { execSync } from 'node:child_process';
 import { PrismaClient } from '@prisma/client';
@@ -31,44 +34,28 @@ async function main() {
 
   const prisma = new PrismaClient();
   const count = await prisma.service.count();
-  await prisma.$disconnect();
 
-  if (count > 0) {
-    // الكتالوج مبذور من قبل. البذرة الكاملة تُرجع أي سعر عدّله المستخدم يدوياً،
-    // فلا تُشغَّل — لكن البنود الجديدة تُضاف وإلا بقيت حبيسة المستودع.
-    const added = await addNewServices();
-    console.log(
-      added
-        ? `الكتالوج موجود (${count} خدمة) — أُضيف ${added} بنداً جديداً.`
-        : `الكتالوج موجود (${count} خدمة) ولا بنود جديدة — تُتجاوز البذرة.`,
-    );
-    return;
+  if (count === 0) {
+    await prisma.$disconnect();
+    console.log('الكتالوج فارغ — تُبذَر البيانات الأولية.');
+    await import('./seed');
+  } else {
+    console.log(`الكتالوج موجود (${count} خدمة) — تُتجاوز البذرة.`);
+    await prisma.$disconnect();
   }
 
-  console.log('الكتالوج فارغ — تُبذَر البيانات الأولية.');
-  await import('./seed');
-}
-
-/**
- * تُضيف بنود الكتالوج التي لا وجود لها في قاعدة البيانات، ولا تمسّ الموجود منها
- * بحرف. تُستورد البذرة بـ `SEED_IMPORT_ONLY` فتُقرأ بياناتها دون أن تعمل.
- */
-async function addNewServices(): Promise<number> {
-  process.env.SEED_IMPORT_ONLY = '1';
-  const { ALL_SERVICES, serviceRow } = await import('./seed');
-
-  const prisma = new PrismaClient();
+  const client = new PrismaClient();
   try {
-    const existing = await prisma.service.findMany({ select: { code: true } });
-    const have = new Set(existing.map((s) => s.code));
-    const missing = ALL_SERVICES.filter((s) => !have.has(s.code));
-    for (const s of missing) {
-      await prisma.service.create({ data: serviceRow(s) });
-      console.log(`  + ${s.code} — ${s.nameAr}`);
-    }
-    return missing.length;
+    const { importCatalog } = await import('./catalog-import');
+    const r = await importCatalog(client);
+    console.log(
+      `كتالوج الموقع: ${r.total} عنصراً — أُنشئ ${r.created}، حُدّث ${r.updated} دون المساس بالأسعار.`,
+    );
+  } catch (e) {
+    // الاستيراد إضافة لا شرط للنشر: فشله يُسجَّل ولا يُسقط البناء.
+    console.error('تعذّر استيراد كتالوج الموقع:', e instanceof Error ? e.message : e);
   } finally {
-    await prisma.$disconnect();
+    await client.$disconnect();
   }
 }
 

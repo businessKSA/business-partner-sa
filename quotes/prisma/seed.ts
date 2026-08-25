@@ -91,9 +91,9 @@ const FULL_PRICED: S[] = [
   {
     code: 'PKG-S',
     category: 'packages',
-    nameAr: 'الباقة الشهرية — المنشآت الصغيرة (1–4 موظفين)',
-    nameEn: 'Monthly Package — Small (1–4 employees)',
-    unitPrice: 2500,
+    nameAr: 'الباقة الشهرية — البداية',
+    nameEn: 'Monthly Package — Starter',
+    unitPrice: 3500,
     unitAr: 'شهر',
     unitEn: 'month',
     paymentTermsAr: 'مقدماً في بداية كل شهر',
@@ -105,9 +105,9 @@ const FULL_PRICED: S[] = [
   {
     code: 'PKG-G',
     category: 'packages',
-    nameAr: 'الباقة الشهرية — الانطلاق (5–49 موظفاً)',
-    nameEn: 'Monthly Package — Launch (5–49 employees)',
-    unitPrice: 6000,
+    nameAr: 'الباقة الشهرية — النمو',
+    nameEn: 'Monthly Package — Growth',
+    unitPrice: 7500,
     unitAr: 'شهر',
     unitEn: 'month',
     paymentTermsAr: 'مقدماً في بداية كل شهر',
@@ -119,77 +119,8 @@ const FULL_PRICED: S[] = [
   {
     code: 'PKG-P',
     category: 'packages',
-    nameAr: 'الباقة الشهرية — النمو (50–200 موظف)',
-    nameEn: 'Monthly Package — Growth (50–200 employees)',
-    unitPrice: 10000,
-    unitAr: 'شهر',
-    unitEn: 'month',
-    paymentTermsAr: 'مقدماً في بداية كل شهر',
-    paymentTermsEn: 'In advance at the beginning of each month',
-    deliveryAr: 'اشتراك شهري',
-    deliveryEn: 'Monthly subscription',
-    sortOrder: 12,
-  },
-  {
-    code: 'PKG-E',
-    category: 'packages',
-    nameAr: 'الباقة الشهرية — التوسّع (201–500 موظف)',
-    nameEn: 'Monthly Package — Scale (201–500 employees)',
-    unitPrice: 20000,
-    unitAr: 'شهر',
-    unitEn: 'month',
-    paymentTermsAr: 'مقدماً في بداية كل شهر',
-    paymentTermsEn: 'In advance at the beginning of each month',
-    deliveryAr: 'اشتراك شهري',
-    deliveryEn: 'Monthly subscription',
-    notesAr: 'الموظف الإضافي بعد 500 موظف: 300 ﷼ شهرياً.',
-    notesEn: 'Each employee beyond 500: 300 SAR monthly.',
-    sortOrder: 13,
-  },
-  {
-    code: 'PKG-X',
-    category: 'packages',
-    nameAr: 'الباقة الشهرية — الشراكة المؤسسية (أكثر من 500 موظف)',
-    nameEn: 'Monthly Package — Enterprise (501+ employees)',
-    unitPrice: 0,
-    openPrice: true,
-    unitAr: 'شهر',
-    unitEn: 'month',
-    paymentTermsAr: 'حسب الاتفاقية',
-    paymentTermsEn: 'Per agreement',
-    deliveryAr: 'اشتراك شهري',
-    deliveryEn: 'Monthly subscription',
-    sortOrder: 14,
-  },
-  {
-    code: 'BP-PKG-LEGAL-BASIC',
-    category: 'packages',
-    nameAr: 'الباقة القانونية الأساسية — للمنشآت الصغيرة',
-    nameEn: 'Basic Legal Package — Small establishments',
-    descAr:
-      'استشارات هاتفية غير محدودة، 4 استشارات مكتوبة سنوياً، صياغة ومراجعة 6 عقود، تمثيل قضائي حتى قضيتين عماليتين سنوياً، خصم 10% على خدمات التوثيق، ومتابعة الامتثال والالتزام على كل المنصات الحكومية مع التنبيه قبل وقوع أي مخالفة.',
-    descEn:
-      'Unlimited phone consultations, 4 written consultations per year, drafting and review of 6 contracts, litigation representation for up to 2 labour cases per year, 10% discount on notarisation services, and compliance monitoring across every government platform with a warning before any breach.',
-    unitPrice: 8000,
-    unitAr: 'شهر',
-    unitEn: 'month',
-    paymentTermsAr: 'مقدماً في بداية كل شهر',
-    paymentTermsEn: 'In advance at the beginning of each month',
-    deliveryAr: 'اشتراك شهري',
-    deliveryEn: 'Monthly subscription',
-    notesAr: 'رسوم إضافية 400 ﷼ لكل موظف إضافي بعد 10 موظفين.',
-    notesEn: 'An extra SAR 400 per additional employee beyond 10 employees.',
-    sortOrder: 30,
-  },
-  {
-    code: 'BP-PKG-LEGAL-ADV',
-    category: 'packages',
-    nameAr: 'الباقة القانونية المتقدمة — للمنشآت المتوسطة',
-    nameEn: 'Advanced Legal Package — Medium establishments',
-    descAr:
-      'استشارات هاتفية غير محدودة، 8 استشارات مكتوبة سنوياً، صياغة ومراجعة 12 عقداً، خدمات ملكية فكرية، تمثيل قضائي موسّع، ومتابعة الامتثال والالتزام على كل المنصات الحكومية مع التنبيه قبل وقوع أي مخالفة.',
-    descEn:
-      'Unlimited phone consultations, 8 written consultations per year, drafting and review of 12 contracts, intellectual property services, extended litigation representation, and compliance monitoring across every government platform with a warning before any breach.',
+    nameAr: 'الباقة الشهرية — الاحترافية',
+    nameEn: 'Monthly Package — Professional',
     unitPrice: 15000,
     unitAr: 'شهر',
     unitEn: 'month',
@@ -197,37 +128,7 @@ const FULL_PRICED: S[] = [
     paymentTermsEn: 'In advance at the beginning of each month',
     deliveryAr: 'اشتراك شهري',
     deliveryEn: 'Monthly subscription',
-    notesAr: 'رسوم إضافية 600 ﷼ لكل موظف إضافي بعد 25 موظفاً.',
-    notesEn: 'An extra SAR 600 per additional employee beyond 25 employees.',
-    sortOrder: 31,
-  },
-  {
-    code: 'BP-PKG-LEGAL-COMP',
-    category: 'packages',
-    nameAr: 'الباقة القانونية الشاملة — للمنشآت الكبيرة',
-    nameEn: 'Comprehensive Legal Package — Large establishments',
-    unitPrice: 30000,
-    unitAr: 'شهر',
-    unitEn: 'month',
-    paymentTermsAr: 'مقدماً في بداية كل شهر',
-    paymentTermsEn: 'In advance at the beginning of each month',
-    deliveryAr: 'اشتراك شهري',
-    deliveryEn: 'Monthly subscription',
-    sortOrder: 32,
-  },
-  {
-    code: 'BP-PKG-LEGAL-STRAT',
-    category: 'packages',
-    nameAr: 'الباقة القانونية الاستراتيجية — للمجموعات والشركات القابضة',
-    nameEn: 'Strategic Legal Package — Groups and holding companies',
-    unitPrice: 50000,
-    unitAr: 'شهر',
-    unitEn: 'month',
-    paymentTermsAr: 'مقدماً في بداية كل شهر',
-    paymentTermsEn: 'In advance at the beginning of each month',
-    deliveryAr: 'اشتراك شهري',
-    deliveryEn: 'Monthly subscription',
-    sortOrder: 33,
+    sortOrder: 12,
   },
   {
     code: 'MA-BRK',
@@ -373,41 +274,34 @@ const GOV_FEES = [
   ['التسجيل في هيئة الزكاة والضريبة والجمارك', 'Registration with the Zakat, Tax and Customs Authority', null, 'بدون رسوم', 'no fees'],
 ] as [string, string, number | null, string | null, string | null][];
 
-/** كل بنود الكتالوج في مصفوفة واحدة — تستوردها `provision.ts` لإضافة الجديد فقط. */
-export const ALL_SERVICES: S[] = [...FULL_PRICED, ...REVENUE, ...OPEN_PRICE];
-
-/** صف قاعدة البيانات المقابل لبند الكتالوج. */
-export function serviceRow(s: S) {
-  return {
-    code: s.code,
-    category: s.category,
-    nameAr: s.nameAr,
-    nameEn: s.nameEn,
-    descAr: s.descAr ?? null,
-    descEn: s.descEn ?? null,
-    unitPrice: s.unitPrice ?? 0,
-    unitAr: s.unitAr ?? 'خدمة',
-    unitEn: s.unitEn ?? 'service',
-    minQty: s.minQty ?? 1,
-    openPrice: s.openPrice ?? false,
-    paymentTermsAr: s.paymentTermsAr ?? '',
-    paymentTermsEn: s.paymentTermsEn ?? '',
-    deliveryAr: s.deliveryAr ?? '',
-    deliveryEn: s.deliveryEn ?? '',
-    notesAr: s.notesAr ?? null,
-    notesEn: s.notesEn ?? null,
-    attachGovFees: s.attachGovFees ?? false,
-    govFeeGroup: s.govFeeGroup ?? null,
-    validityDays: s.validityDays ?? null,
-    sortOrder: s.sortOrder ?? 100,
-  };
-}
-
 async function main() {
-  for (const s of ALL_SERVICES) {
+  const all = [...FULL_PRICED, ...REVENUE, ...OPEN_PRICE];
+  for (const s of all) {
     await prisma.service.upsert({
       where: { code: s.code },
-      create: serviceRow(s),
+      create: {
+        code: s.code,
+        category: s.category,
+        nameAr: s.nameAr,
+        nameEn: s.nameEn,
+        descAr: s.descAr ?? null,
+        descEn: s.descEn ?? null,
+        unitPrice: s.unitPrice ?? 0,
+        unitAr: s.unitAr ?? 'خدمة',
+        unitEn: s.unitEn ?? 'service',
+        minQty: s.minQty ?? 1,
+        openPrice: s.openPrice ?? false,
+        paymentTermsAr: s.paymentTermsAr ?? '',
+        paymentTermsEn: s.paymentTermsEn ?? '',
+        deliveryAr: s.deliveryAr ?? '',
+        deliveryEn: s.deliveryEn ?? '',
+        notesAr: s.notesAr ?? null,
+        notesEn: s.notesEn ?? null,
+        attachGovFees: s.attachGovFees ?? false,
+        govFeeGroup: s.govFeeGroup ?? null,
+        validityDays: s.validityDays ?? null,
+        sortOrder: s.sortOrder ?? 100,
+      },
       // التحديث لا يمس السعر إن عدّله المستخدم من صفحة إدارة الكتالوج
       update: {
         category: s.category,
@@ -456,13 +350,10 @@ async function main() {
   console.log(`الكتالوج: ${svc} خدمة — الرسوم الحكومية: ${fees} بند`);
 }
 
-// تُستورد من `provision.ts` لقراءة البيانات وحدها، فلا تُشغَّل البذرة الكاملة حينها.
-if (!process.env.SEED_IMPORT_ONLY) {
-  main()
-    .then(() => prisma.$disconnect())
-    .catch(async (e) => {
-      console.error(e);
-      await prisma.$disconnect();
-      process.exit(1);
-    });
-}
+main()
+  .then(() => prisma.$disconnect())
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

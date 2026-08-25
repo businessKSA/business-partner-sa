@@ -405,6 +405,39 @@ const WA_CRM_DB = process.env.NOTION_WA_CRM_DB || "b322a7ec23a94ceb875e52c07b00e
 // line. Digits only, and overridable without a deploy.
 const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966503793356").replace(/\D/g, "");
 
+// Databases the in-panel Notion viewer may read AND write. Notion refuses to
+// be iframed, so /admin gets a live API-backed mirror instead: these are the
+// workspaces the site itself already works with, nothing else is reachable.
+const NOTION_PANEL_DBS = {
+  pipeline: { id: CRM_DB, title: "📈 Sales Pipeline — السي آر إم الرئيسي" },
+  wacrm: { id: WA_CRM_DB, title: "📱 عملاء الواتساب" },
+  consultations: { id: process.env.NOTION_CONSULT_DB || "912dceb1d8c345b1b8d4ca1f6cd76fb3", title: "📅 الاستشارات القادمة" },
+  companies: { id: process.env.NOTION_COMPANIES_DB || "26faca2761884b6ab584924c374f2d22", title: "🏢 قاعدة الشركات — مبيعات" },
+};
+// Human-readable value for ANY Notion property type (viewer display only).
+function propDisplay(p) {
+  if (!p) return "";
+  switch (p.type) {
+    case "title": case "rich_text": return (p[p.type] || []).map((t) => t.plain_text || "").join("");
+    case "select": return (p.select && p.select.name) || "";
+    case "status": return (p.status && p.status.name) || "";
+    case "multi_select": return (p.multi_select || []).map((o) => o.name).join("، ");
+    case "number": return p.number == null ? "" : String(p.number);
+    case "checkbox": return p.checkbox ? "✓" : "";
+    case "date": return (p.date && (p.date.start + (p.date.end ? " ← " + p.date.end : ""))) || "";
+    case "email": return p.email || "";
+    case "phone_number": return p.phone_number || "";
+    case "url": return p.url || "";
+    case "people": return (p.people || []).map((u) => u.name || "").join("، ");
+    case "files": return (p.files || []).length ? `${p.files.length} ملف` : "";
+    case "formula": { const f = p.formula || {}; return f.type === "string" ? (f.string || "") : f.type === "number" ? String(f.number == null ? "" : f.number) : f.type === "boolean" ? (f.boolean ? "✓" : "") : ((f.date && f.date.start) || ""); }
+    case "created_time": return String(p.created_time || "").slice(0, 10);
+    case "last_edited_time": return String(p.last_edited_time || "").slice(0, 10);
+    case "relation": return (p.relation || []).length ? `${(p.relation || []).length} مرتبط` : "";
+    default: return "";
+  }
+}
+
 async function notionQuery(db, body) {
   const r = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
     method: "POST",
@@ -1236,6 +1269,56 @@ export default async function handler(req, res) {
     } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
   }
 
+  // The in-panel Notion viewer: which databases it may open…
+  if ((q.action || "") === "panel-notion-sources") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, sources: Object.entries(NOTION_PANEL_DBS).map(([key, s]) => ({ key, title: s.title })) }));
+  }
+
+  // …and one database's live rows + schema (select options included, so the
+  // panel can render real dropdowns that write straight back to Notion).
+  if ((q.action || "") === "panel-notion-db") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+    const src = NOTION_PANEL_DBS[String(q.db || "")];
+    if (!src) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_db" })); }
+    try {
+      const hdrs = { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION };
+      const [meta, data] = await Promise.all([
+        fetch(`https://api.notion.com/v1/databases/${src.id}`, { headers: hdrs }).then((r) => (r.ok ? r.json() : null)),
+        notionQuery(src.id, { page_size: Math.min(Math.max(Number(q.limit) || 60, 1), 100), sorts: [{ timestamp: "last_edited_time", direction: "descending" }] }),
+      ]);
+      const schema = {};
+      for (const [name, def] of Object.entries((meta && meta.properties) || {})) {
+        schema[name] = {
+          type: def.type,
+          options: def.type === "select" ? (def.select.options || []).map((o) => o.name)
+            : def.type === "status" ? (def.status.options || []).map((o) => o.name)
+            : def.type === "multi_select" ? (def.multi_select.options || []).map((o) => o.name)
+            : undefined,
+        };
+      }
+      const rows = (data.results || []).map((pg) => {
+        const props = {}; let title = "";
+        for (const [name, p] of Object.entries(pg.properties || {})) {
+          const v = propDisplay(p);
+          if (p.type === "title") title = v;
+          props[name] = v;
+        }
+        return { id: pg.id, url: pg.url, edited: String(pg.last_edited_time || "").slice(0, 16).replace("T", " "), title: title || "بدون عنوان", props };
+      });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, title: src.title, notionUrl: `https://www.notion.so/${String(src.id).replace(/-/g, "")}`, schema, rows }));
+    } catch (e) {
+      console.error("panel-notion-db failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+    }
+  }
+
   // «متابعات اليوم» feed for the /admin overview — the same list the daily
   // digest is built from, so the panel and the WhatsApp message never disagree.
   if ((q.action || "") === "panel-followups") {
@@ -1885,6 +1968,48 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ ok: true, ref }));
       } catch (e) {
         console.error("manual lead exception", String(e).slice(0, 150));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+      }
+    }
+
+    // One edit from the in-panel Notion viewer: a single property on a single
+    // page. The page must belong to a whitelisted database — verified against
+    // its parent, so a leaked page id from elsewhere cannot be written to.
+    if (b.action === "panel-notion-update") {
+      if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+      const src = NOTION_PANEL_DBS[String(b.db || "")];
+      const pid = String(b.id || "").replace(/[^a-fA-F0-9-]/g, "").slice(0, 40);
+      const prop = String(b.prop || "").slice(0, 80);
+      const type = String(b.type || "");
+      if (!src || !pid || !prop) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      const hdrs = { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" };
+      try {
+        const pgRes = await fetch(`https://api.notion.com/v1/pages/${pid}`, { headers: hdrs });
+        if (!pgRes.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "page_not_found" })); }
+        const pj = await pgRes.json();
+        const parent = String((pj.parent && pj.parent.database_id) || "").replace(/-/g, "");
+        if (parent !== String(src.id).replace(/-/g, "")) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "wrong_db" })); }
+        const raw = b.value == null ? "" : String(b.value).slice(0, 1900);
+        let value;
+        if (type === "select") value = raw ? { select: { name: raw } } : { select: null };
+        else if (type === "status") value = raw ? { status: { name: raw } } : { status: null };
+        else if (type === "checkbox") value = { checkbox: raw === "true" || raw === "1" };
+        else if (type === "date") value = raw ? { date: { start: raw } } : { date: null };
+        else if (type === "number") value = { number: raw === "" ? null : Number(raw) };
+        else if (type === "email") value = { email: raw || null };
+        else if (type === "phone_number") value = { phone_number: raw || null };
+        else if (type === "url") value = { url: raw || null };
+        else if (type === "rich_text") value = { rich_text: richChunks(raw) };
+        else if (type === "title") value = { title: [{ text: { content: raw.slice(0, 200) } }] };
+        else { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_type" })); }
+        const r = await fetch(`https://api.notion.com/v1/pages/${pid}`, { method: "PATCH", headers: hdrs, body: JSON.stringify({ properties: { [prop]: value } }) });
+        if (!r.ok) { console.error("notion update error", r.status, (await r.text()).slice(0, 200)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_rejected" })); }
+        audit({ action: "crm.notion_edit", actor_label: "panel", after: { db: String(b.db || ""), pid, prop, type } }).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        console.error("notion update exception", String(e).slice(0, 150));
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
       }
