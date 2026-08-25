@@ -1229,37 +1229,50 @@ export default async function handler(req, res) {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "crm_failed", synced, syncError }));
     }
-    let digestSent = false, waNotified = false;
+    let digestSent = false, waNotified = false, waError = null;
     if (due.length) {
       const day = new Date().toISOString().slice(0, 10);
-      let fresh = true;
+      // Once-per-day stamp. If today's stamp says the WhatsApp leg failed, a
+      // rerun retries ONLY WhatsApp (never the e-mail) and re-stamps on
+      // success — a failed send delivers nothing, so retries cannot spam.
+      let fresh = true, waRetryOnly = false;
       if (DB_ON) {
-        try { const prior = await sb(`audit_logs?action=eq.crm.digest&created_at=gte.${day}T00:00:00Z&select=id&limit=1`); fresh = !(prior && prior.length); }
-        catch {}
+        try {
+          const prior = await sb(`audit_logs?action=eq.crm.digest&created_at=gte.${day}T00:00:00Z&select=id,after&order=created_at.desc&limit=1`);
+          if (prior && prior.length) { fresh = false; waRetryOnly = !!(OWNER_WA && prior[0].after && prior[0].after.waNotified === false); }
+        } catch {}
       }
+      const items = due.slice(0, 12);
+      const waText = [
+        `📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك:`,
+        ...items.map((f, i) => `${i + 1}) ${f.title}${f.phone ? " · " + f.phone : f.email ? " · " + f.email : ""}\n← ${f.action}`),
+        due.length > items.length ? `…و ${due.length - items.length} آخرون.` : "",
+        `القائمة كاملة بأزرار الاتصال: ${MKT_SITE_BASE}/admin`,
+      ].filter(Boolean).join("\n").slice(0, 3400);
       if (fresh) {
-        const items = due.slice(0, 12);
-        const waText = [
-          `📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك:`,
-          ...items.map((f, i) => `${i + 1}) ${f.title}${f.phone ? " · " + f.phone : f.email ? " · " + f.email : ""}\n← ${f.action}`),
-          due.length > items.length ? `…و ${due.length - items.length} آخرون.` : "",
-          `القائمة كاملة بأزرار الاتصال: ${MKT_SITE_BASE}/admin`,
-        ].filter(Boolean).join("\n").slice(0, 3400);
         const rowsHtml = due.map((f) => `<tr><td style="padding:8px;border-bottom:1px solid #eee"><b>${esc(f.title)}</b><br><span style="color:#666;font-size:12px">${esc(f.ref || "")}${f.stage ? " · " + esc(f.stage) : ""}${f.order ? " · " + esc(f.order) : ""}</span></td><td style="padding:8px;border-bottom:1px solid #eee">${f.phone ? `<a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="color:#128C7E">واتساب ${esc(f.phone)}</a>` : ""}${f.email ? `<br><a href="mailto:${esc(f.email)}" style="color:#0B1B5A">${esc(f.email)}</a>` : ""}</td><td style="padding:8px;border-bottom:1px solid #eee">${esc(f.action)}</td></tr>`).join("");
         const digestHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:640px"><h2 style="color:#0B1B5A">📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك</h2><table style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr style="background:#F4F6FB"><th style="padding:8px;text-align:right">العميل</th><th style="padding:8px;text-align:right">التواصل</th><th style="padding:8px;text-align:right">المطلوب</th></tr></thead><tbody>${rowsHtml}</tbody></table><p style="margin-top:16px"><a href="${MKT_SITE_BASE}/admin" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none">افتح لوحة التحكم</a></p><p style="color:#666;font-size:12px">تُرسل هذه الخلاصة تلقائياً مرة واحدة يومياً من نظام المتابعة — حتى لا يضيع عميل.</p></div>`;
         try {
           const [waRes] = await Promise.all([
-            OWNER_WA ? waSend(OWNER_WA, waText) : Promise.resolve({ ok: false }),
+            OWNER_WA ? waSend(OWNER_WA, waText) : Promise.resolve({ ok: false, error: "no_owner_number" }),
             sendEmail(TEAM_EMAIL, `📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك`, digestHtml),
           ]);
           waNotified = !!(waRes && waRes.ok);
+          waError = waNotified ? null : String((waRes && waRes.error) || "wa_failed").slice(0, 160);
           digestSent = true;
-          await audit({ action: "crm.digest", actor_label: "n8n", after: { day, due: due.length, synced, waNotified } });
+          await audit({ action: "crm.digest", actor_label: "n8n", after: { day, due: due.length, synced, waNotified, waError } });
         } catch (e) { console.error("digest send failed", String(e).slice(0, 200)); }
+      } else if (waRetryOnly) {
+        try {
+          const w = await waSend(OWNER_WA, waText);
+          waNotified = !!(w && w.ok);
+          waError = waNotified ? null : String((w && w.error) || "wa_failed").slice(0, 160);
+          if (waNotified) await audit({ action: "crm.digest", actor_label: "n8n", after: { day, due: due.length, waNotified: true, retry: true } });
+        } catch (e) { waError = String(e).slice(0, 160); }
       }
     }
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, due: due.length, synced, waSkipped, digestSent, waNotified, syncError }));
+    return res.end(JSON.stringify({ ok: true, due: due.length, synced, waSkipped, digestSent, waNotified, waError, syncError }));
   }
 
   // Automation sweep, called by the n8n daily schedule — no human in the loop.
