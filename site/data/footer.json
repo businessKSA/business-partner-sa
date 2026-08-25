@@ -24,6 +24,11 @@
           "ar": "الباقات"
         },
         {
+          "href": "/revenue-os",
+          "en": "Revenue OS",
+          "ar": "Revenue OS — تطوير الأعمال"
+        },
+        {
           "href": "/ai-agents",
           "en": "AI Agents",
           "ar": "الوكلاء الأذكياء"
@@ -52,6 +57,11 @@
           "href": "/workspaces",
           "en": "Business Spaces",
           "ar": "مساحات الأعمال"
+        },
+        {
+          "href": "/farina",
+          "en": "Catering & Hospitality",
+          "ar": "التموين والضيافة للشركات"
         },
         {
           "href": "/worker-housing",
@@ -95,9 +105,14 @@
           "ar": "منصّة العملاء"
         },
         {
+          "href": "/revenue-dashboard",
+          "en": "Revenue OS dashboard",
+          "ar": "لوحة Revenue OS"
+        },
+        {
           "href": "/suppliers",
-          "en": "Partners portal",
-          "ar": "بوابة الشركاء"
+          "en": "Partner registration",
+          "ar": "تسجيل الشركاء"
         },
         {
           "href": "/employer-join",
@@ -113,11 +128,6 @@
           "href": "/employer-login",
           "en": "Employers — sign in",
           "ar": "أصحاب العمل — دخول"
-        },
-        {
-          "href": "/partner-dashboard",
-          "en": "Partner dashboard",
-          "ar": "لوحة الشريك"
         },
         {
           "href": "/shared-services",

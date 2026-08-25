@@ -2,12 +2,18 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "echo \"no dependencies\"",
-  "buildCommand": "cp site/new-business-partner.html /tmp/new-business-partner.html && node site/scripts/generate.mjs && cp /tmp/new-business-partner.html site/new-business-partner.html",
+  "buildCommand": "node site/scripts/generate.mjs",
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
     "api/candidate.js": {
+      "maxDuration": 30
+    },
+    "api/chat.js": {
+      "maxDuration": 60
+    },
+    "api/requests.js": {
       "maxDuration": 30
     }
   },
@@ -41,6 +47,86 @@
       "source": "/ar/compliance-portal",
       "destination": "/ar/compliance-agent",
       "permanent": true
+    },
+    {
+      "source": "/installments",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/ar/installments",
+      "destination": "/ar",
+      "permanent": true
+    },
+    {
+      "source": "/services/bp-pl-0001",
+      "destination": "/services/bp-sbc-01",
+      "permanent": true
+    },
+    {
+      "source": "/ar/services/bp-pl-0001",
+      "destination": "/ar/services/bp-sbc-01",
+      "permanent": true
+    },
+    {
+      "source": "/services/bp-pl-0067",
+      "destination": "/services/bp-fi-02",
+      "permanent": true
+    },
+    {
+      "source": "/ar/services/bp-pl-0067",
+      "destination": "/ar/services/bp-fi-02",
+      "permanent": true
+    },
+    {
+      "source": "/services/bp-pl-0075",
+      "destination": "/services/bp-pl-0051",
+      "permanent": true
+    },
+    {
+      "source": "/ar/services/bp-pl-0075",
+      "destination": "/ar/services/bp-pl-0051",
+      "permanent": true
+    },
+    {
+      "source": "/services/bp-gosi-04",
+      "destination": "/services/bp-gosi-01",
+      "permanent": true
+    },
+    {
+      "source": "/ar/services/bp-gosi-04",
+      "destination": "/ar/services/bp-gosi-01",
+      "permanent": true
+    },
+    {
+      "source": "/services/bp-pl-0094",
+      "destination": "/services/bp-pl-0019",
+      "permanent": true
+    },
+    {
+      "source": "/ar/services/bp-pl-0094",
+      "destination": "/ar/services/bp-pl-0019",
+      "permanent": true
+    },
+    {
+      "source": "/ar/admin",
+      "destination": "/admin",
+      "permanent": false
+    },
+    {
+      "source": "/ar/monitor",
+      "destination": "/monitor",
+      "permanent": false
+    },
+    {
+      "source": "/inbox",
+      "destination": "/monitor",
+      "permanent": false
+    },
+    {
+      "source": "/ar/inbox",
+      "destination": "/monitor",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -49,38 +135,24 @@
       "destination": "https://bp-quotes-three.vercel.app/api/catalog"
     },
     {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "new.businesspartner.sa"
-        }
-      ],
-      "destination": "/assets/data/revenue-os"
+      "source": "/api/suppliers",
+      "destination": "/api/requests?__route=suppliers"
     },
     {
-      "source": "/dashboard",
-      "has": [
-        {
-          "type": "host",
-          "value": "new.businesspartner.sa"
-        }
-      ],
+      "source": "/api/agencies",
+      "destination": "/api/requests?__route=agencies"
+    },
+    {
+      "source": "/api/jobhunt",
+      "destination": "/api/requests?__route=jobhunt"
+    },
+    {
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-dashboard",
       "destination": "/assets/data/revenue-command-center"
     },
     {
-      "source": "/client-portal",
-      "has": [
-        {
-          "type": "host",
-          "value": "new.businesspartner.sa"
-        }
-      ],
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal",
       "destination": "/assets/data/revenue-command-center"
-    },
-    {
-      "source": "/revenue-os",
-      "destination": "/assets/data/revenue-os"
     },
     {
       "source": "/revenue-dashboard",
@@ -169,9 +241,30 @@
         }
       ],
       "destination": "/portal/candidates"
+    },
+    {
+      "source": "/jobs-feed.xml",
+      "destination": "/api/candidates?feed=jobs"
+    },
+    {
+      "source": "/indeed.xml",
+      "destination": "/api/candidates?feed=jobs"
     }
   ],
   "headers": [
+    {
+      "source": "/.well-known/apple-developer-merchantid-domain-association",
+      "headers": [
+        {
+          "key": "content-type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "cache-control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [
@@ -186,6 +279,10 @@
     {
       "path": "/api/newsletter",
       "schedule": "0 6 * * 0"
+    },
+    {
+      "path": "/api/requests?__route=jobhunt&action=run&limit=15",
+      "schedule": "0 5 * * 1"
     }
   ]
 }

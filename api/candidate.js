@@ -32,6 +32,25 @@ const DB_ID = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
 const NOTION_VERSION = "2022-06-28";
 const N8N_ATS_WEBHOOK = envFrom(["N8N_ATS_WEBHOOK", "N8N_CANDIDATE_WEBHOOK", "BP_ATS_WEBHOOK"])
   || "https://businesspartnerai.app.n8n.cloud/webhook/bp-ats-application";
+// Job postings + employer subscriptions DBs — used to look up who owns a
+// posting so we can email them when a candidate applies to it.
+const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
+const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
+
+// Email (Resend) — optional; activates once RESEND_API_KEY is set in Vercel.
+const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
+const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
+async function sendMail(to, subject, html) {
+  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    });
+    return { ok: r.ok };
+  } catch { return { ok: false }; }
+}
 
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
@@ -89,7 +108,7 @@ const FIELD_RULES = [
   [/تجميل|مكياج|سبا|تدليك|يوغا|حلاق|مصفف|beauty|makeup|spa|massage|yoga|barber|hairstylist|esthetician|salon/i, "تجميل وعناية"],
   [/عاملة منزلية|مربية|جليسة|طباخ منزلي|بستاني|خادم|مرافق كبار سن|domestic worker|nanny|babysitter|private driver|private chef|butler|elderly caregiver/i, "خدمات منزلية"],
 ];
-function guessField(title) {
+export function guessField(title) {
   const t = String(title || "");
   for (const [re, cat] of FIELD_RULES) if (re.test(t)) return cat;
   return "";
@@ -120,7 +139,7 @@ async function notion(path, method, payload) {
 // even though the full n8n chain (PDF parse + AI + Drive + emails) can run
 // close to that; on timeout/failure we just skip enrichment and continue —
 // the candidate record still gets created from the form fields alone.
-async function forwardToN8n(payload) {
+export async function forwardToN8n(payload) {
   if (!N8N_ATS_WEBHOOK) return { configured: false, ok: false };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 25000);
@@ -146,7 +165,7 @@ async function forwardToN8n(payload) {
 // into the Notion properties this handler is about to write. Safe no-op when
 // n8n didn't respond in time or found nothing — the base form-field record
 // still gets created either way.
-function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
+export function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
   const data = n8nResult && n8nResult.ok ? n8nResult.data : null;
   if (!data) return;
   const drive = data.drive || {};
@@ -160,7 +179,10 @@ function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
     props["مجلد المرشح (Drive)"] = { url: drive.candidateFolderUrl };
   }
   const ai = data.ai || {};
-  if (ai.candidate_summary) {
+  // Notes is create-only: on a resubmission (isNewCandidate false) we must not
+  // overwrite whatever the recruiter has since written into Notes, so the AI
+  // summary is folded in only for a brand-new candidate row.
+  if (isNewCandidate && ai.candidate_summary) {
     const notesSoFar = (props["Notes"]?.rich_text || []).map((t) => t.text.content).join("\n");
     props["Notes"] = { rich_text: rt([notesSoFar, `ملخص الذكاء الاصطناعي: ${ai.candidate_summary}`].filter(Boolean).join("\n\n")) };
   }
@@ -185,7 +207,7 @@ function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
 // different device, etc). Match by email OR phone against the same DB
 // employers browse, so a repeat submission updates the existing row instead
 // of creating a duplicate candidate.
-async function findExisting(email, phone) {
+export async function findExisting(email, phone) {
   const or = [];
   if (isEmail(email)) or.push({ property: "Email", email: { equals: email } });
   if (phone) or.push({ property: "Phone", phone_number: { equals: phone } });
@@ -207,6 +229,38 @@ const txt = (p) => {
   if (p.type === "url") return p.url || "";
   return "";
 };
+
+// Best-effort — never throws, never blocks the candidate's own submission
+// from succeeding. jobId is the JOBS_DB page id the "Apply" button set, or
+// the "candidate-pool" placeholder for a general (not job-specific) signup,
+// which has no owner to notify.
+async function notifyEmployerOfApplication(jobId, jobTitle, candidate) {
+  if (!jobId || jobId === "candidate-pool" || !RESEND_API_KEY) return;
+  try {
+    const jobPage = await notion(`pages/${jobId}`, "GET");
+    if (!jobPage.ok) return;
+    const jobData = await jobPage.json();
+    const employerCode = txt(jobData.properties && jobData.properties["رمز صاحب العمل"]);
+    if (!employerCode) return;
+    const empR = await notion(`databases/${EMP_DB}/query`, "POST", {
+      page_size: 1,
+      filter: { property: "رمز الوصول", rich_text: { equals: employerCode } },
+    });
+    if (!empR.ok) return;
+    const empData = await empR.json();
+    const empRow = (empData.results || [])[0];
+    if (!empRow) return;
+    const employerEmail = txt(empRow.properties && empRow.properties["البريد"]);
+    if (!isEmail(employerEmail)) return;
+    const esc = (s) => String(s || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const html = `<p>مرشّح جديد تقدّم على وظيفة <strong>${esc(jobTitle)}</strong> اللي نشرتها في نظام التوظيف.</p>
+      <p><strong>الاسم:</strong> ${esc(candidate.name)}<br><strong>الجوال:</strong> ${esc(candidate.phone)}${candidate.field ? `<br><strong>المجال:</strong> ${esc(candidate.field)}` : ""}${candidate.city ? `<br><strong>المدينة:</strong> ${esc(candidate.city)}` : ""}</p>
+      <p>سجّل الدخول للوحة التوظيف لمراجعة الملف الكامل والتواصل معه.</p>`;
+    await sendMail(employerEmail, `مرشّح جديد تقدّم على وظيفة ${jobTitle}`, html);
+  } catch (e) {
+    console.error("employer application notify error", String(e).slice(0, 200));
+  }
+}
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -242,7 +296,9 @@ export default async function handler(req, res) {
           nationality: txt(p["Nationality"]),
           residenceStatus: txt(p["حالة الإقامة"]),
           experienceYears: txt(p["Experience Years"]),
-          expectedSalary: txt(p["Expected Salary"]),
+          // SECURITY: expected salary is deliberately NOT echoed here — this
+          // self-view is gated only by a phone+email pair (no OTP), so the
+          // most sensitive field must not be exposed on that weak check.
           pipelineStage: txt(p["Pipeline Stage"]),
           cvLink: txt(p["CV Link"]),
           atsCvLink: txt(p["ATS CV (Drive)"]),
@@ -251,9 +307,9 @@ export default async function handler(req, res) {
       }));
     }
     res.statusCode = 200;
-    // seenKeyNames helps diagnose a mis-named / wrong-project token without leaking it.
-    const seenKeyNames = Object.keys(process.env).filter((k) => /notion/i.test(k));
-    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, n8n: !!N8N_ATS_WEBHOOK, seenKeyNames }));
+    // SECURITY: never enumerate env-var names to unauthenticated callers — it
+    // hands an attacker the secret-naming scheme. Booleans only.
+    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, n8n: !!N8N_ATS_WEBHOOK }));
   }
   if (req.method !== "POST") {
     res.statusCode = 405;
@@ -315,10 +371,24 @@ export default async function handler(req, res) {
     "Experience Years": { number: expYears },
     "Skills": { rich_text: rt([field, linkedin].filter(Boolean).join(" · ")) },
     "Source": { select: { name: "الموقع" } },
+    // Job linkage the employer console groups by — "title (id)". Notes carries
+    // the same stamp for rows created before this property existed.
+    "الوظيفة المتقدم لها": { rich_text: rt(`${jobTitle} (${jobId})`) },
     "مخفي عن الموقع": { checkbox: false },
     "حالة القراءة": { select: { name: "مكتمل" } },
     "Notes": { rich_text: rt(answerLines) },
   };
+
+  // "Search for a job on my behalf" — ticked on the application form. This
+  // records the intent and the chosen plan; the service is activated by a
+  // human afterwards, so submitting an application never starts any billing.
+  const js = b.jobSearch && typeof b.jobSearch === "object" ? b.jobSearch : null;
+  if (js && js.interested) {
+    const PLANS = ["اشتراك شهري 100 ريال", "راتب شهر على 3 دفعات"];
+    props["خدمة البحث عن وظيفة"] = { select: { name: "مهتم — بانتظار الاختيار" } };
+    props["حالة الدفع"] = { select: { name: "لم يبدأ" } };
+    if (PLANS.includes(js.plan)) props["باقة الخدمة"] = { select: { name: js.plan } };
+  }
   if (isEmail(email)) props["Email"] = { email };
   if (fieldCat) props["Field"] = { select: { name: fieldCat } };
   if (expectedSalary != null) props["Expected Salary"] = { number: expectedSalary };
@@ -347,6 +417,12 @@ export default async function handler(req, res) {
     const n8n = await forwardToN8n(n8nPayload);
     const existing = await findExisting(email, phone);
     if (existing) {
+      // SECURITY / data-integrity: a resubmission must NOT re-expose a
+      // candidate an admin deliberately hid, nor wipe recruiter notes. Both
+      // props are create-only — drop them from the update so the existing
+      // hide flag and Notes are left exactly as the recruiter left them.
+      delete props["مخفي عن الموقع"];
+      delete props["Notes"];
       applyN8nEnrichment(props, n8n, false);
       const r = await notion("pages/" + existing.id, "PATCH", { properties: props });
       if (!r.ok) {
@@ -354,6 +430,7 @@ export default async function handler(req, res) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
       }
+      await notifyEmployerOfApplication(jobId, jobTitle, { name, phone, field, city });
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, ref: "CV-" + existing.id.slice(-6), updated: true, n8n }));
     }
@@ -369,6 +446,7 @@ export default async function handler(req, res) {
     }
     const page = await r.json();
     const ref = "CV-" + page.id.slice(-6);
+    await notifyEmployerOfApplication(jobId, jobTitle, { name, phone, field, city });
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, updated: false, n8n }));
   } catch (e) {

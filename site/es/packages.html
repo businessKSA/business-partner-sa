@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es" dir="ltr">
+<html lang="es" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Packages — Business Partner</title>
+<title>Paquetes — Business Partner</title>
 <meta name="description" content="Three packages that cover your journey — from first idea to expansion. Pick the closest one, and the smart agent tailors it to your case.">
-<meta property="og:title" content="Packages — Business Partner">
+<meta property="og:title" content="Paquetes — Business Partner">
 <meta property="og:description" content="Three packages that cover your journey — from first idea to expansion. Pick the closest one, and the smart agent tailors it to your case.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
@@ -15,19 +15,15 @@
 <link rel="alternate" hreflang="en" href="/packages">
 <link rel="alternate" hreflang="ar" href="/ar/packages">
 <link rel="alternate" hreflang="fr" href="/fr/packages">
-<link rel="alternate" hreflang="es" href="/es/packages">
 <link rel="alternate" hreflang="zh" href="/zh/packages">
-<link rel="alternate" hreflang="ru" href="/ru/packages">
-<link rel="alternate" hreflang="hi" href="/hi/packages">
-<link rel="alternate" hreflang="ko" href="/ko/packages">
-<link rel="alternate" hreflang="ja" href="/ja/packages">
 <link rel="alternate" hreflang="x-default" href="/packages">
 <script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=332165c7de">
+<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 </head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/es/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
@@ -35,240 +31,253 @@
       <button type="button" class="nav-drop active" aria-expanded="false">Nuestros servicios <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="nav-menu"><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/es/services">All services (119)</a><a href="/services/category/company-formation">🏢 Constitución de empresas</a><a href="/services/category/foreign-investment">🌍 Inversión extranjera</a><a href="/services/category/premium-residency">🪪 Residencia Premium</a><a href="/services/category/government-relations">🏛️ Relaciones gubernamentales</a><a href="/services/category/hr-services">👥 Servicios de RRHH</a><a href="/services/category/recruitment">🧑‍💼 Reclutamiento y contratación</a><a href="/services/category/business-support">📊 Business Support</a><a href="/services/category/real-estate">🏗️ Real Estate</a><a href="/services/category/ai-automation">🤖 AI &amp; Automation</a></div>
+    <div class="nav-menu"><a href="/es/services">All services (140)</a><a href="/services/category/company-formation">🏢 Constitución de empresas</a><a href="/services/category/foreign-investment">🌍 Inversión extranjera</a><a href="/services/category/premium-residency">🪪 Residencia Premium</a><a href="/services/category/government-relations">🏛️ Relaciones gubernamentales</a><a href="/services/category/hr-services">👥 Servicios de RRHH</a><a href="/services/category/recruitment">🧑‍💼 Reclutamiento y contratación</a><a href="/services/category/business-support">📊 Business Support</a></div>
   </div><div class="nav-group nested active">
     <button type="button" class="nav-drop active" aria-expanded="false">Paquetes <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/es/packages">All packages</a><a href="/es/packages#pkg-management">Service packages</a><a href="/es/packages#pkg-formation">Constitución de empresas</a><a href="/es/packages#pkg-legal">Legal Packages</a><a href="/es/packages#pkg-monthly">Monthly packages</a></div>
+    <div class="nav-menu"><a href="/es/packages">All packages</a><a href="/es/packages#pkg-management">Service packages</a><a href="/es/packages#pkg-formation">Constitución de empresas</a><a href="/es/packages#pkg-legal">Legal Packages</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Agentes de IA ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/ai-agents">All AI Agents</a><a href="/compliance-agent">Compliance</a><a href="/portal">Smart Employees</a><a href="/shared-services">Shared Services Team</a></div>
+    <div class="nav-menu"><a href="/ai-agents">All AI Agents</a><a href="/compliance-agent">Cumplimiento</a><a href="/portal">Smart Employees</a><a href="/shared-services">Shared Services Team</a></div>
+  </div><div class="nav-group nested">
+    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/revenue-os">Cómo funciona</a><a href="/revenue-os#pricing">Paquetes y precios</a><a href="/revenue-dashboard">Client dashboard</a></div>
   </div><a href="/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/task-force">Equipo de Acción ⚡</a><a href="/data">B2B Leads Database ⚡</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/hr">Recruitment services</a><a href="/employers">Para empleadores</a><a href="/careers">Open jobs</a></div>
+    <div class="nav-menu"><a href="/hr">Recruitment services</a><a href="/employers">Para empleadores</a><a href="/careers">Open jobs</a><a href="/job-search-service">We search for a job for you</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/agency-portal">Agency portal</a></div>
   </div><a href="/deals">Deals ⚡</a><a href="/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/bank-account">Corporate bank account ⚡</a><a href="/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Business Tourism <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/mahfol-makfol">For investors</a><a href="/mahfol-makfol/trips">Trips &amp; experiences</a><a href="/tourism">Corporate events</a></div>
+    <div class="nav-menu"><a href="/mahfol-makfol">For investors</a><a href="/mahfol-makfol/trips">Viajes y experiencias</a><a href="/tourism">Corporate events</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Business Spaces <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/workspaces">Browse spaces</a><a href="/workspace-request">Request a workspace</a><a href="/services/bp-re-01">Private office</a><a href="/services/bp-re-02">Coworking space</a><a href="/services/bp-re-03">Virtual office + National Address</a><a href="/services/bp-re-04">Dedicated desk</a><a href="/services/bp-re-05">Office search service</a><a href="/services/bp-re-06">Foreign property ownership</a></div>
+    <div class="nav-menu"><a href="/workspaces">Ver espacios</a><a href="/workspace-request">Solicitar un espacio de trabajo</a><a href="/services/bp-re-01">Private office</a><a href="/services/bp-re-02">Coworking space</a><a href="/services/bp-re-03">Virtual office + National Address</a><a href="/services/bp-re-04">Dedicated desk</a><a href="/services/bp-re-05">Office search service</a><a href="/services/bp-re-06">Foreign property ownership</a></div>
+  </div><div class="nav-group nested">
+    <button type="button" class="nav-drop" aria-expanded="false">Catering &amp; Hospitality <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/farina">Resumen</a><a href="/farina#coffee-break">Coffee Break</a><a href="/farina#vip-coffee">VIP Coffee Break</a><a href="/farina#executive-lunch">Executive Lunch</a><a href="/farina#vip-hospitality">VIP Hospitality</a><a href="/farina#workforce">Workforce Catering</a></div>
   </div><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/worker-housing">Overview</a><a href="/worker-housing#wh-request">Request housing</a><a href="/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/services/bp-housing-01">Licensing service</a><a href="/services/bp-housing-02">Worker transport</a></div>
+    <div class="nav-menu"><a href="/worker-housing">Resumen</a><a href="/worker-housing#wh-request">Solicitar alojamiento</a><a href="/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/services/bp-housing-01">Licensing service</a><a href="/services/bp-housing-02">Transporte de trabajadores</a></div>
   </div><a href="/consultation">Reservar una consulta gratuita</a></div>
     </div><div class="nav-group">
       <button type="button" class="nav-drop" aria-expanded="false">Centro de conocimiento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Saudi Guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <button type="button" class="nav-drop" aria-expanded="false">Guía de Arabia Saudí <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/saudi-arabia">Invertir en Arabia Saudita</a><a href="/guide/saudi-market">The Saudi Market</a><a href="/guide/business-setup">Business Setup</a><a href="/guide/run-your-business">Run Your Business</a><a href="/directory">Entrepreneurship guide</a><a href="/guide/live-in-saudi">Live in Saudi</a><a href="/guide/residency">Residency in KSA</a></div>
   </div><a href="/opportunities">Investment Opportunities</a><a href="/news">Noticias y análisis</a><a href="/newsletter">Boletín</a><div class="nav-group nested">
     <button type="button" class="nav-drop" aria-expanded="false">Herramientas y calculadoras <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/tools-and-calculators">All tools</a><a href="/calculator">Cost calculator</a><a href="/calculators/government-cost">Government cost</a><a href="/calculators/profession-checker">Profession checker</a><a href="/calculators/end-of-service">End of service</a><a href="/calculators/annual-leave">Annual leave</a><a href="/calculators/overtime">Overtime</a><a href="/calculators/gosi">GOSI calculator</a></div>
+    <div class="nav-menu"><a href="/tools-and-calculators">All tools</a><a href="/calculator">Calculadora de costes</a><a href="/calculators/government-cost">Government cost</a><a href="/calculators/profession-checker">Verificador de profesiones</a><a href="/calculators/end-of-service">End of service</a><a href="/calculators/annual-leave">Vacaciones anuales</a><a href="/calculators/overtime">Horas extra</a><a href="/calculators/gosi">GOSI calculator</a></div>
   </div><a href="/magazine">Revista (PDF)</a></div>
     </div><div class="nav-group">
       <button type="button" class="nav-drop" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/account">Portal del cliente</a><a href="/suppliers">Partners portal</a><a href="/partner-dashboard">Partner dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
+      <div class="nav-menu"><a href="/account">Portal del cliente</a><a href="/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
     </div><a href="/es/contact">Contáctanos</a></nav>
   <div class="header-cta">
     <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></svg><span class="lang-label">Español</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/packages" data-lang="en">English</a><a href="/ar/packages" data-lang="ar">العربية</a><a href="/fr/packages" data-lang="fr">Français</a></div>
+    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#AA151B"/><rect y="4" width="24" height="8" fill="#F1BF00"/></g></svg><span class="lang-label">Español</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="nav-menu"><a href="/packages" data-lang="en"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/packages" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/packages" data-lang="fr"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/packages" data-lang="zh"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
   </div>
-    <a class="icon-btn" href="/account" aria-label="Cuenta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></a>
+    <a class="hdr-btn" data-account-link href="/account" aria-label="Iniciar sesión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Iniciar sesión</span></a>
+    <a class="hdr-btn hdr-btn--partners" href="/suppliers" aria-label="Registro de socios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Socios</span></a>
     <a class="icon-btn cart-link" href="/cart" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
     <button class="nav-toggle" aria-label="Menú" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header><main>
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">Paquetes</span>
-    <h1>Choose the package that fits your establishment</h1>
-    <p class="lead">Four annual service packages, plus one-time company-formation and investment services — all from our official catalog.</p>
-    <p style="margin-top:14px"><a class="btn btn-ghost" href="/calculator">🧮 Or design your own basket from the full catalog →</a></p>
+    <h1>Elija el paquete que se ajuste a su establecimiento</h1>
+    <p class="lead">Cuatro paquetes anuales de servicios, más servicios puntuales de constitución de empresas e inversión, todos de nuestro catálogo oficial.</p>
+    <p style="margin-top:14px"><a class="btn btn-ghost" href="/calculator">🧮 O diseñe su propia cesta a partir del catálogo completo →</a></p>
   </div></section>
   <section class="section"><div class="container">
-    <div class="pk-tabs" role="tablist"><button type="button" class="pk-tab active" data-group="management">Service packages</button><button type="button" class="pk-tab" data-group="formation">Constitución de empresas</button><button type="button" class="pk-tab" data-group="legal">Legal Packages</button><button type="button" class="pk-tab" data-group="monthly">Monthly packages</button></div>
+    <div class="pk-tabs" role="tablist"><button type="button" class="pk-tab active" data-group="management">Service packages</button><button type="button" class="pk-tab" data-group="formation">Constitución de empresas</button><button type="button" class="pk-tab" data-group="legal">Legal Packages</button></div>
     <div class="pk-panel active" id="pkg-management">
       <p class="pk-group-desc">Four annual packages to manage your government platforms and establishment.</p>
-      
+      <div class="emp-billing-toggle" role="tablist">
+            <button type="button" class="emp-bill-btn active" data-bill="monthly">Mensual</button>
+            <button type="button" class="emp-bill-btn" data-bill="yearly">Anual <span class="emp-save">Save 30%</span></button>
+          </div>
       <div class="grid grid-4"><div class="pkg">
-      <div class="pk-name">Launch Package</div>
-      <div class="pk-price" data-bp-price="PKG-SILVER">6,000 SAR / yearly</div>
-      <p class="pk-for">For small establishments</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial Registration operation &amp; renewal follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Activating &amp; monitoring your Qiwa establishment account</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>GOSI subscription management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Employee medical insurance setup</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Follow-up on core Zakat &amp; tax compliance</span></li></ul>
+        <div class="pk-name">Small Establishment Package</div>
+        <div class="pk-price" data-bp-price="BP-PKG-SVC-STARTER" data-bp-keep-unit="1"><span class="emp-price emp-price-m">2,500 <span class="pk-per">SAR / mes</span></span><span class="emp-price emp-price-y" hidden>21,000 <span class="pk-per">SAR / año</span></span></div>
+        <p class="pk-for">For establishments with 1–4 employees</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial registration management and renewal</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Qiwa establishment account activation and follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>GOSI subscription management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Employee medical insurance arrangement</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Core zakat and tax compliance follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-starter-4-monthly" data-kind="package"
+          data-name-ar="باقة المنشآت الصغيرة — اشتراك شهري" data-name-en="Small Establishment Package — Monthly subscription"
+          data-amount="2500" data-price=""
+          data-id-monthly="pkg-starter-4-monthly" data-id-yearly="pkg-starter-4-yearly"
+          data-amount-monthly="2500" data-amount-yearly="21000"
+          data-price="" data-price=""
+        >🛒 Añadir al carrito</button>
+        <p class="pk-surcharge">Each employee beyond 4: 300 SAR monthly.</p>
+      </div><div class="pkg">
+        <div class="pk-name">Launch Package</div>
+        <div class="pk-price" data-bp-price="BP-PKG-LAUNCH" data-bp-keep-unit="1"><span class="emp-price emp-price-m">6,000 <span class="pk-per">SAR / mes</span></span><span class="emp-price emp-price-y" hidden>50,400 <span class="pk-per">SAR / año</span></span></div>
+        <p class="pk-for">For establishments with 5–49 employees</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial Registration operation &amp; renewal follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Activating &amp; monitoring your Qiwa establishment account</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>GOSI subscription management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Employee medical insurance setup</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Follow-up on core Zakat &amp; tax compliance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-silver-monthly" data-kind="package"
+          data-name-ar="باقة الانطلاق — اشتراك شهري" data-name-en="Launch Package — Monthly subscription"
+          data-amount="6000" data-price=""
+          data-id-monthly="pkg-silver-monthly" data-id-yearly="pkg-silver-yearly"
+          data-amount-monthly="6000" data-amount-yearly="50400"
+          data-price="" data-price=""
+        >🛒 Añadir al carrito</button>
+        <p class="pk-surcharge">Each employee beyond 49: 300 SAR monthly.</p>
+      </div><div class="pkg pop" data-badge="Most requested">
+        <div class="pk-name">Growth Package</div>
+        <div class="pk-price" data-bp-price="BP-PKG-GROWTH" data-bp-keep-unit="1"><span class="emp-price emp-price-m">10,000 <span class="pk-per">SAR / mes</span></span><span class="emp-price emp-price-y" hidden>84,000 <span class="pk-per">SAR / año</span></span></div>
+        <p class="pk-for">For establishments with 50–200 employees</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Launch package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Digital employee files &amp; contracts management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Payroll management &amp; Wage Protection System enrollment</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic follow-up on your regulatory obligations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Extended operational support throughout the subscription</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-primary add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-gold-monthly" data-kind="package"
+          data-name-ar="باقة النمو — اشتراك شهري" data-name-en="Growth Package — Monthly subscription"
+          data-amount="10000" data-price=""
+          data-id-monthly="pkg-gold-monthly" data-id-yearly="pkg-gold-yearly"
+          data-amount-monthly="10000" data-amount-yearly="84000"
+          data-price="" data-price=""
+        >🛒 Añadir al carrito</button>
+        <p class="pk-surcharge">Each employee beyond 200: 300 SAR monthly.</p>
+      </div><div class="pkg">
+        <div class="pk-name">Scale Package</div>
+        <div class="pk-price" data-bp-price="BP-PKG-SCALE" data-bp-keep-unit="1"><span class="emp-price emp-price-m">20,000 <span class="pk-per">SAR / mes</span></span><span class="emp-price emp-price-y" hidden>168,000 <span class="pk-per">SAR / año</span></span></div>
+        <p class="pk-for">For establishments with 201–500 employees</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Growth package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Advanced HR file management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Preparing &amp; tracking filings and full compliance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic operational &amp; regulatory reports</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Ongoing legal &amp; operational consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-platinum-monthly" data-kind="package"
+          data-name-ar="باقة التوسّع — اشتراك شهري" data-name-en="Scale Package — Monthly subscription"
+          data-amount="20000" data-price=""
+          data-id-monthly="pkg-platinum-monthly" data-id-yearly="pkg-platinum-yearly"
+          data-amount-monthly="20000" data-amount-yearly="168000"
+          data-price="" data-price=""
+        >🛒 Añadir al carrito</button>
+        <p class="pk-surcharge">Each employee beyond 500: 300 SAR monthly.</p>
+      </div><div class="pkg">
+      <div class="pk-name">Enterprise Package</div>
+      <div class="pk-price" data-bp-price="BP-PKG-ENTERPRISE">Custom package</div>
+      <p class="pk-for">For establishments with 501+ employees</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Scale package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Dedicated account manager for your establishment</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Priority execution &amp; instant follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Solutions tailored to your business activity</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Comprehensive proactive support with no client follow-up needed</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Dedicated operational support team monitoring your platforms</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Reports &amp; KPIs to track your activity and performance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
       <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-silver" data-name-en="Launch Package" data-name-ar="باقة الانطلاق" data-amount="6000" data-price="6,000 SAR / yearly" data-kind="package" data-surcharge-amount="400" data-surcharge-free="4" data-bp-code="PKG-SILVER"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
+    <a class="btn btn-ghost" href="/consultation?topic=other&about=Enterprise%20Package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Reservar una consulta</span></a>
   </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-SILVER" style="width:100%"><span>Get an official quotation</span></a>
-      <p class="pk-surcharge">An extra fee of 400 SAR per additional employee applies once headcount exceeds 4 employees.</p>
-    </div><div class="pkg">
-      <div class="pk-name">Growth Package</div>
-      <div class="pk-price" data-bp-price="PKG-GOLD">10,800 SAR / yearly</div>
-      <p class="pk-for">For medium establishments</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Launch package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Digital employee files &amp; contracts management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Payroll management &amp; Wage Protection System enrollment</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic follow-up on your regulatory obligations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Extended operational support throughout the subscription</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-gold" data-name-en="Growth Package" data-name-ar="باقة النمو" data-amount="10800" data-price="10,800 SAR / yearly" data-kind="package" data-surcharge-amount="600" data-surcharge-free="9" data-bp-code="PKG-GOLD"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-GOLD" style="width:100%"><span>Get an official quotation</span></a>
-      <p class="pk-surcharge">An extra fee of 600 SAR per additional employee applies once headcount exceeds 9 employees.</p>
-    </div><div class="pkg pop" data-badge="Recommended">
-      <div class="pk-name">Scale Package</div>
-      <div class="pk-price" data-bp-price="PKG-PLATINUM">16,000 SAR / yearly</div>
-      <p class="pk-for">For large establishments</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Growth package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Advanced HR file management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Preparing &amp; tracking filings and full compliance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic operational &amp; regulatory reports</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Ongoing legal &amp; operational consultations</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-primary add-cart" data-id="pkg-platinum" data-name-en="Scale Package" data-name-ar="باقة التوسّع" data-amount="16000" data-price="16,000 SAR / yearly" data-kind="package" data-surcharge-amount="800" data-surcharge-free="9" data-bp-code="PKG-PLATINUM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-PLATINUM" style="width:100%"><span>Get an official quotation</span></a>
-      <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 9 employees.</p>
-    </div><div class="pkg">
-      <div class="pk-name">Enterprise Partnership</div>
-      <div class="pk-price" data-bp-price="PKG-DIAMOND">Custom package, priced on request</div>
-      <p class="pk-for">For large establishments with custom needs</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in the Scale package</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Dedicated account manager for your establishment</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Priority execution &amp; instant follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Solutions tailored to your business activity</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Comprehensive proactive support with no client follow-up needed</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Dedicated operational support team monitoring your platforms</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Reports &amp; KPIs to track your activity and performance</span></li></ul>
-      <div class="buy-row">
-    <a class="btn btn-ghost" href="/consultation?topic=other&about=Enterprise%20Partnership"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Reservar una consulta</span></a>
-  </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-DIAMOND" style="width:100%"><span>Get an official quotation</span></a>
       <p class="pk-surcharge">An extra fee of 1,200 SAR per additional employee applies once headcount exceeds 60 employees.</p>
+      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=BP-PKG-ENTERPRISE" style="width:100%"><span>Get an official quotation</span></a>
     </div></div>
     </div><div class="pk-panel" id="pkg-formation">
       <p class="pk-group-desc">Set up your company locally or as a foreign investor.</p>
       
       <div class="grid grid-2"><div class="pkg pop" data-badge="Recommended">
       <div class="pk-name">Foreign Companies Formation Package</div>
-      <div class="pk-price" data-bp-price="PKG-FOREIGN-FORMATION">46,000 SAR / yearly</div>
+      <div class="pk-price" data-bp-price="BP-PKG-FORM-FOREIGN">From 30,000 SAR / year</div>
       <p class="pk-for">For foreign investors and companies</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Application for the foreign investment license</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Drafting &amp; notarizing the articles of association</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial Registration issuance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Registration in Zakat/tax, GOSI, Qiwa, Mudad and Muqeem</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Follow-up on procedures until formation is complete</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Issuance of 3 management visas</span></li></ul>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Application for the foreign investment license</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Drafting &amp; notarizing the articles of association</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial Registration issuance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Registration in Zakat/tax, GOSI, Qiwa, Mudad and Muqeem</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Follow-up on procedures until formation is complete</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Issuance of 3 management visas</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
       <div class="buy-row">
-    <button type="button" class="btn btn-primary add-cart" data-id="pkg-foreign-formation" data-name-en="Foreign Companies Formation Package" data-name-ar="باقة تأسيس الشركات الأجنبية" data-amount="46000" data-price="46,000 SAR / yearly" data-kind="package" data-surcharge-amount="320" data-surcharge-free="25" data-bp-code="PKG-FOREIGN-FORMATION"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
+    <button type="button" class="btn btn-primary add-cart" data-id="pkg-foreign-formation" data-name-en="Foreign Companies Formation Package" data-name-ar="باقة تأسيس الشركات الأجنبية" data-amount="30000" data-price="" data-kind="package" data-surcharge-amount="320" data-surcharge-free="25" data-bp-code="BP-PKG-FORM-FOREIGN"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Añadir al carrito</span></button>
   </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-FOREIGN-FORMATION" style="width:100%"><span>Get an official quotation</span></a>
       <p class="pk-surcharge">An extra fee of 320 SAR per additional employee applies once headcount exceeds 25 employees.</p>
+      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=BP-PKG-FORM-FOREIGN" style="width:100%"><span>Get an official quotation</span></a>
     </div><div class="pkg">
-      <div class="pk-name">Saudi &amp;amp; Gulf Companies Formation Package</div>
-      <div class="pk-price" data-bp-price="PKG-SAUDI-GULF-FORMATION">18,400 SAR / yearly</div>
+      <div class="pk-name">Saudi &amp; Gulf Companies Formation Package</div>
+      <div class="pk-price" data-bp-price="BP-PKG-FORM-SAUDI">From 15,000 SAR / year</div>
       <p class="pk-for">For Saudi &amp; Gulf entrepreneurs</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Drafting &amp; notarizing the articles of association</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial Registration issuance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Zakat/tax registration</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Registration in GOSI, Qiwa, Mudad and Muqeem</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Municipal license issuance (if required)</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Legal consultation to choose the right entity type</span></li></ul>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Drafting &amp; notarizing the articles of association</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Commercial Registration issuance</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Zakat/tax registration</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Registration in GOSI, Qiwa, Mudad and Muqeem</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Municipal license issuance (if required)</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Legal consultation to choose the right entity type</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
       <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-saudi-gulf-formation" data-name-en="Saudi &amp; Gulf Companies Formation Package" data-name-ar="باقة تأسيس الشركات السعودية والخليجية" data-amount="18400" data-price="18,400 SAR / yearly" data-kind="package" data-surcharge-amount="320" data-surcharge-free="10" data-bp-code="PKG-SAUDI-GULF-FORMATION"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
+    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-saudi-gulf-formation" data-name-en="Saudi &amp; Gulf Companies Formation Package" data-name-ar="باقة تأسيس الشركات السعودية والخليجية" data-amount="15000" data-price="" data-kind="package" data-surcharge-amount="320" data-surcharge-free="10" data-bp-code="BP-PKG-FORM-SAUDI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Añadir al carrito</span></button>
   </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-SAUDI-GULF-FORMATION" style="width:100%"><span>Get an official quotation</span></a>
       <p class="pk-surcharge">An extra fee of 320 SAR per additional employee applies once headcount exceeds 10 employees.</p>
+      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=BP-PKG-FORM-SAUDI" style="width:100%"><span>Get an official quotation</span></a>
     </div></div>
     </div><div class="pk-panel" id="pkg-legal">
-      <p class="pk-group-desc">Annual legal consultation and services packages for your establishment.</p>
-      
-      <div class="grid grid-4"><div class="pkg">
-      <div class="pk-name">Strategic Package</div>
-      <div class="pk-price" data-bp-price="PKG-STRATEGIC">47,200 SAR / yearly</div>
-      <p class="pk-for">For large establishments with extensive legal needs</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Unlimited phone consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Written consultations: 25 / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Contract drafting &amp; review: 20 contracts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Legal memos &amp; pleadings: 15</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>IP services: 4</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Entity formation/conversion/merger: 3 services</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Meetings with a lawyer: 4 meetings</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Litigation representation: up to 10 labor cases / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Legal awareness workshop for employees: once a year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>25% discount on notarization services</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-strategic" data-name-en="Strategic Package" data-name-ar="الباقة الاستراتيجية" data-amount="47200" data-price="47,200 SAR / yearly" data-kind="package" data-surcharge-amount="800" data-surcharge-free="50" data-bp-code="PKG-STRATEGIC"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-STRATEGIC" style="width:100%"><span>Get an official quotation</span></a>
-      <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.</p>
-    </div><div class="pkg pop" data-badge="Recommended">
-      <div class="pk-name">Comprehensive Package</div>
-      <div class="pk-price" data-bp-price="PKG-COMPREHENSIVE">31,200 SAR / yearly</div>
-      <p class="pk-for">For medium and large establishments</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Unlimited phone consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Written consultations: 15 / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Contract drafting &amp; review: 15 contracts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Legal memos &amp; pleadings: 10</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>IP services: 4</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Entity formation/conversion: 2 services</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Meetings with a lawyer: 2 meetings</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Litigation representation: up to 6 labor cases</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>20% discount on notarization services</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-primary add-cart" data-id="pkg-comprehensive" data-name-en="Comprehensive Package" data-name-ar="الباقة الشاملة" data-amount="31200" data-price="31,200 SAR / yearly" data-kind="package" data-surcharge-amount="800" data-surcharge-free="50" data-bp-code="PKG-COMPREHENSIVE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-COMPREHENSIVE" style="width:100%"><span>Get an official quotation</span></a>
-      <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.</p>
-    </div><div class="pkg">
-      <div class="pk-name">Advanced Package</div>
-      <div class="pk-price" data-bp-price="PKG-ADVANCED">15,920 SAR / yearly</div>
-      <p class="pk-for">For medium establishments</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Unlimited phone consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Written consultations: 8 / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Contract drafting &amp; review: 12 contracts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>IP services: 2</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Entity formation/amendment: 1 service</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Litigation representation: up to 4 labor cases / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>15% discount on notarization services</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-advanced" data-name-en="Advanced Package" data-name-ar="الباقة المتقدمة" data-amount="15920" data-price="15,920 SAR / yearly" data-kind="package" data-surcharge-amount="600" data-surcharge-free="25" data-bp-code="PKG-ADVANCED"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-ADVANCED" style="width:100%"><span>Get an official quotation</span></a>
-      <p class="pk-surcharge">An extra fee of 600 SAR per additional employee applies once headcount exceeds 25 employees.</p>
-    </div><div class="pkg">
-      <div class="pk-name">Basic Package</div>
-      <div class="pk-price" data-bp-price="PKG-BASIC-LEGAL">7,920 SAR / yearly</div>
-      <p class="pk-for">For small establishments</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Unlimited phone consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Written consultations: 4 / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Contract drafting &amp; review: 6 contracts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Litigation representation: up to 2 labor cases / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>10% discount on notarization services</span></li></ul>
-      <div class="buy-row">
-    <button type="button" class="btn btn-ghost add-cart" data-id="pkg-basic-legal" data-name-en="Basic Package" data-name-ar="الباقة الأساسية" data-amount="7920" data-price="7,920 SAR / yearly" data-kind="package" data-surcharge-amount="400" data-surcharge-free="10" data-bp-code="PKG-BASIC-LEGAL"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-      <a class="btn btn-ghost" href="https://bp-quotes-three.vercel.app/portal/services?code=PKG-BASIC-LEGAL" style="width:100%"><span>Get an official quotation</span></a>
-      <p class="pk-surcharge">An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.</p>
-    </div></div>
-    </div><div class="pk-panel" id="pkg-monthly">
-      <p class="pk-group-desc">Monthly operational management at a fixed fee — instead of pricing each transaction separately.</p>
+      <p class="pk-group-desc">Monthly legal consultation and services packages for your establishment.</p>
       <div class="emp-billing-toggle" role="tablist">
-            <button type="button" class="emp-bill-btn active" data-bill="monthly">Monthly</button>
-            <button type="button" class="emp-bill-btn" data-bill="yearly">Yearly <span class="emp-save">Save 30%</span></button>
+            <button type="button" class="emp-bill-btn active" data-bill="monthly">Mensual</button>
+            <button type="button" class="emp-bill-btn" data-bill="yearly">Anual <span class="emp-save">Save 30%</span></button>
           </div>
-      <div class="grid grid-3"><div class="pkg">
-        <div class="pk-name">Starter — Monthly</div>
-        <div class="pk-price" data-bp-price="PKG-S" data-bp-keep-unit="1"><span class="emp-price emp-price-m">3,500 <span class="pk-per">SAR / mo</span></span><span class="emp-price emp-price-y" hidden>29,400 <span class="pk-per">SAR / yr</span></span></div>
-        <p class="pk-for">For new businesses that want steady operations at a fixed monthly fee</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Routine government transactions handled</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Deadline and renewal follow-up</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Monthly entity status report</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>A direct channel to your team</span></li></ul>
+      <div class="grid grid-4"><div class="pkg">
+        <div class="pk-name">Basic Package</div>
+        <div class="pk-price" data-bp-price="BP-PKG-LEGAL-BASIC" data-bp-keep-unit="1"><span class="emp-price emp-price-m">8,000 <span class="pk-per">SAR / mes</span></span><span class="emp-price emp-price-y" hidden>67,200 <span class="pk-per">SAR / año</span></span></div>
+        <p class="pk-for">For small establishments</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Unlimited phone consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Written consultations: 4 / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Contract drafting &amp; review: 6 contracts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Litigation representation: up to 2 labor cases / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>10% discount on notarization services</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
         <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-s-monthly" data-kind="package"
-          data-name-ar="باقة البداية الشهرية — اشتراك شهري" data-name-en="Starter — Monthly — Monthly subscription"
-          data-amount="3500" data-price="3,500 SAR / mo"
-          data-id-monthly="pkg-s-monthly" data-id-yearly="pkg-s-yearly"
-          data-amount-monthly="3500" data-amount-yearly="29400"
-          data-price-monthly="3,500 SAR / mo" data-price-yearly="29,400 SAR / yr"
-        >🛒 Add to cart</button>
-      </div><div class="pkg pop" data-badge="Most requested">
-        <div class="pk-name">Growth — Monthly</div>
-        <div class="pk-price" data-bp-price="PKG-G" data-bp-keep-unit="1"><span class="emp-price emp-price-m">7,500 <span class="pk-per">SAR / mo</span></span><span class="emp-price emp-price-y" hidden>63,000 <span class="pk-per">SAR / yr</span></span></div>
-        <p class="pk-for">For growing businesses needing wider coverage and priority execution</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in Starter</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Wider government-platform coverage</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Priority execution</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic operational consulting</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance and obligations follow-up</span></li></ul>
-        <button type="button" class="btn btn-primary add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-g-monthly" data-kind="package"
-          data-name-ar="باقة النمو الشهرية — اشتراك شهري" data-name-en="Growth — Monthly — Monthly subscription"
-          data-amount="7500" data-price="7,500 SAR / mo"
-          data-id-monthly="pkg-g-monthly" data-id-yearly="pkg-g-yearly"
-          data-amount-monthly="7500" data-amount-yearly="63000"
-          data-price-monthly="7,500 SAR / mo" data-price-yearly="63,000 SAR / yr"
-        >🛒 Add to cart</button>
+          data-id="pkg-basic-legal-monthly" data-kind="package"
+          data-name-ar="الباقة الأساسية — اشتراك شهري" data-name-en="Basic Package — Monthly subscription"
+          data-amount="8000" data-price=""
+          data-id-monthly="pkg-basic-legal-monthly" data-id-yearly="pkg-basic-legal-yearly"
+          data-amount-monthly="8000" data-amount-yearly="67200"
+          data-price="" data-price=""
+        >🛒 Añadir al carrito</button>
+        <p class="pk-surcharge">An extra fee of 400 SAR per additional employee applies once headcount exceeds 10 employees.</p>
       </div><div class="pkg">
-        <div class="pk-name">Professional — Monthly</div>
-        <div class="pk-price" data-bp-price="PKG-P" data-bp-keep-unit="1"><span class="emp-price emp-price-m">15,000 <span class="pk-per">SAR / mo</span></span><span class="emp-price emp-price-y" hidden>126,000 <span class="pk-per">SAR / yr</span></span></div>
-        <p class="pk-for">For businesses wanting a dedicated team running their government operations</p>
-        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Everything in Growth</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>A dedicated team for your entity</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Full coverage across all government platforms</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Detailed reports and KPIs</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Support across business days</span></li></ul>
+        <div class="pk-name">Advanced Package</div>
+        <div class="pk-price" data-bp-price="BP-PKG-LEGAL-ADV" data-bp-keep-unit="1"><span class="emp-price emp-price-m">15,000 <span class="pk-per">SAR / mes</span></span><span class="emp-price emp-price-y" hidden>126,000 <span class="pk-per">SAR / año</span></span></div>
+        <p class="pk-for">For medium establishments</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Unlimited phone consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Written consultations: 8 / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Contract drafting &amp; review: 12 contracts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>IP services: 2</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Entity formation/amendment: 1 service</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Litigation representation: up to 4 labor cases / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>15% discount on notarization services</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
         <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
-          data-id="pkg-p-monthly" data-kind="package"
-          data-name-ar="الباقة الاحترافية الشهرية — اشتراك شهري" data-name-en="Professional — Monthly — Monthly subscription"
-          data-amount="15000" data-price="15,000 SAR / mo"
-          data-id-monthly="pkg-p-monthly" data-id-yearly="pkg-p-yearly"
+          data-id="pkg-advanced-monthly" data-kind="package"
+          data-name-ar="الباقة المتقدمة — اشتراك شهري" data-name-en="Advanced Package — Monthly subscription"
+          data-amount="15000" data-price=""
+          data-id-monthly="pkg-advanced-monthly" data-id-yearly="pkg-advanced-yearly"
           data-amount-monthly="15000" data-amount-yearly="126000"
-          data-price-monthly="15,000 SAR / mo" data-price-yearly="126,000 SAR / yr"
-        >🛒 Add to cart</button>
+          data-price="" data-price=""
+        >🛒 Añadir al carrito</button>
+        <p class="pk-surcharge">An extra fee of 600 SAR per additional employee applies once headcount exceeds 25 employees.</p>
+      </div><div class="pkg pop" data-badge="Recommended">
+        <div class="pk-name">Comprehensive Package</div>
+        <div class="pk-price" data-bp-price="BP-PKG-LEGAL-COMP" data-bp-keep-unit="1"><span class="emp-price emp-price-m">30,000 <span class="pk-per">SAR / mes</span></span><span class="emp-price emp-price-y" hidden>252,000 <span class="pk-per">SAR / año</span></span></div>
+        <p class="pk-for">For medium and large establishments</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Unlimited phone consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Written consultations: 15 / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Contract drafting &amp; review: 15 contracts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Legal memos &amp; pleadings: 10</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>IP services: 4</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Entity formation/conversion: 2 services</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Meetings with a lawyer: 2 meetings</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Litigation representation: up to 6 labor cases</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>20% discount on notarization services</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-primary add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-comprehensive-monthly" data-kind="package"
+          data-name-ar="الباقة الشاملة — اشتراك شهري" data-name-en="Comprehensive Package — Monthly subscription"
+          data-amount="30000" data-price=""
+          data-id-monthly="pkg-comprehensive-monthly" data-id-yearly="pkg-comprehensive-yearly"
+          data-amount-monthly="30000" data-amount-yearly="252000"
+          data-price="" data-price=""
+        >🛒 Añadir al carrito</button>
+        <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.</p>
+      </div><div class="pkg">
+        <div class="pk-name">Strategic Package</div>
+        <div class="pk-price" data-bp-price="BP-PKG-LEGAL-STRAT" data-bp-keep-unit="1"><span class="emp-price emp-price-m">50,000 <span class="pk-per">SAR / mes</span></span><span class="emp-price emp-price-y" hidden>420,000 <span class="pk-per">SAR / año</span></span></div>
+        <p class="pk-for">For large establishments with extensive legal needs</p>
+        <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Unlimited phone consultations</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Written consultations: 25 / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Contract drafting &amp; review: 20 contracts</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Legal memos &amp; pleadings: 15</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>IP services: 4</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Entity formation/conversion/merger: 3 services</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Meetings with a lawyer: 4 meetings</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Litigation representation: up to 10 labor cases / year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Legal awareness workshop for employees: once a year</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>25% discount on notarization services</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Compliance monitoring across every government platform — warned before a breach, so no fines reach you</span></li></ul>
+        <button type="button" class="btn btn-ghost add-cart emp-plan-btn" style="width:100%"
+          data-id="pkg-strategic-monthly" data-kind="package"
+          data-name-ar="الباقة الاستراتيجية — اشتراك شهري" data-name-en="Strategic Package — Monthly subscription"
+          data-amount="50000" data-price=""
+          data-id-monthly="pkg-strategic-monthly" data-id-yearly="pkg-strategic-yearly"
+          data-amount-monthly="50000" data-amount-yearly="420000"
+          data-price="" data-price=""
+        >🛒 Añadir al carrito</button>
+        <p class="pk-surcharge">An extra fee of 800 SAR per additional employee applies once headcount exceeds 50 employees.</p>
       </div></div>
     </div>
     <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>Prices above are from the official catalog and cover Business Partner fees only unless stated otherwise — government fees (where applicable) are separate and announced before starting. For a custom mix of services, use the cost calculator.</p></div>
   </div></section>
   <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">How to subscribe</span><h2>Four steps from registering to activation</h2></div>
-    <div class="steps-grid"><div class="step"><div class="step-n">1</div><div><h3>Register / log in</h3><p>Create your account on the site.</p></div></div><div class="step"><div class="step-n">2</div><div><h3>Add the package to your cart</h3><p>Then complete checkout by bank transfer.</p></div></div><div class="step"><div class="step-n">3</div><div><h3>We confirm your transfer</h3><p>Once confirmed, your subscription is activated and you're notified.</p></div></div><div class="step"><div class="step-n">4</div><div><h3>We start managing your account</h3><p>Your dedicated team starts work on the platforms covered by your package.</p></div></div></div>
+    <div class="section-head"><span class="eyebrow">Cómo suscribirse</span><h2>Cuatro pasos, del registro a la activación</h2></div>
+    <div class="steps-grid"><div class="step"><div class="step-n">1</div><div><h3>Regístrese o inicie sesión</h3><p>Cree su cuenta en el sitio.</p></div></div><div class="step"><div class="step-n">2</div><div><h3>Añada el paquete al carrito</h3><p>Then pay online (mada / Visa) or by bank transfer.</p></div></div><div class="step"><div class="step-n">3</div><div><h3>Payment is confirmed</h3><p>Online payment activates your subscription instantly; a bank transfer activates it as soon as the receipt is verified.</p></div></div><div class="step"><div class="step-n">4</div><div><h3>Empezamos a gestionar su cuenta</h3><p>Su equipo dedicado empieza a trabajar en las plataformas que cubre su paquete.</p></div></div></div>
     <div class="hero-actions" style="margin-top:1.4rem">
-      <a class="btn btn-primary btn-lg" href="/account">Register / log in</a>
-      <a class="btn btn-ghost btn-lg" href="/account">🔐 Already subscribed? Open your dashboard</a>
+      <a class="btn btn-primary btn-lg" href="/account">Regístrese o inicie sesión</a>
+      <a class="btn btn-ghost btn-lg" href="/account">🔐 ¿Ya está suscrito? Abra su panel</a>
     </div>
   </div></section>
   <section class="section"><div class="container">
-    <div class="cta-band"><h2>Not sure which package fits you?</h2><p>The smart agent asks a few questions and recommends the best package in minutes.</p><a class="btn btn-white btn-lg" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>Help me choose</span></a></div>
+    <div class="cta-band"><h2>¿No sabe qué paquete le conviene?</h2><p>Responda unas preguntas y le recomendaremos el mejor paquete en minutos.</p><a class="btn btn-white btn-lg" href="/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Help me choose</span></a></div>
   </div></section>
   <script>window.BP_PKG_LANG="es";</script>
   <script>
   (function(){
     var tabs=document.querySelectorAll(".pk-tab");
-    tabs.forEach(function(t){t.addEventListener("click",function(){
+    function activate(group){
       tabs.forEach(function(x){x.classList.remove("active");});
       document.querySelectorAll(".pk-panel").forEach(function(x){x.classList.remove("active");});
-      t.classList.add("active");
-      var el=document.getElementById("pkg-"+t.dataset.group);
-      if(el)el.classList.add("active");
-    });});
+      var tab=document.querySelector('.pk-tab[data-group="'+group+'"]');
+      var panel=document.getElementById("pkg-"+group);
+      if(tab)tab.classList.add("active");
+      if(panel)panel.classList.add("active");
+    }
+    tabs.forEach(function(t){t.addEventListener("click",function(){activate(t.dataset.group);});});
+    var hashGroup=(location.hash||"").replace("#pkg-","");
+    if(hashGroup)activate(hashGroup);
   })();
   </script></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
@@ -291,26 +300,28 @@
     <div class="footer-col"><h4>Nuestros servicios</h4><ul>
       <li><a href="/es/services">Todos los servicios</a></li>
       <li><a href="/es/packages">Paquetes</a></li>
-      <li><a href="/ai-agents">AI Agents</a></li>
+      <li><a href="/revenue-os">Revenue OS</a></li>
+      <li><a href="/ai-agents">Agentes de IA</a></li>
       <li><a href="/task-force">Task Force</a></li>
       <li><a href="/hr">Recruitment</a></li>
       <li><a href="/deals">Deals</a></li>
       <li><a href="/mahfol-makfol">Business Tourism</a></li>
       <li><a href="/workspaces">Business Spaces</a></li>
-      <li><a href="/worker-housing">Worker Housing</a></li>
-      <li><a href="/estrdad">Fee refunds (Estrdad)</a></li>
+      <li><a href="/farina">Catering &amp; Hospitality</a></li>
+      <li><a href="/worker-housing">Alojamiento de Trabajadores</a></li>
+      <li><a href="/estrdad">Reembolso de tasas (Estrdad)</a></li>
       <li><a href="/bank-account">Corporate bank account</a></li>
       <li><a href="/formation-contract">Formation with partners</a></li>
       <li><a href="/data">B2B Leads Database</a></li>
-      <li><a href="/compliance-agent">Compliance Agent</a></li>
+      <li><a href="/compliance-agent">Agente de Cumplimiento</a></li>
     </ul></div>
     <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
       <li><a href="/account">Portal del cliente</a></li>
-      <li><a href="/suppliers">Partners portal</a></li>
+      <li><a href="/revenue-dashboard">Revenue OS dashboard</a></li>
+      <li><a href="/suppliers">Registro de socios</a></li>
       <li><a href="/employer-join">Para empleadores</a></li>
       <li><a href="/portal">Smart employees portal</a></li>
       <li><a href="/employer-login">Employers — sign in</a></li>
-      <li><a href="/partner-dashboard">Partner dashboard</a></li>
       <li><a href="/shared-services">Shared Services Team</a></li>
     </ul></div>
     <div class="footer-col"><h4>Centro de conocimiento</h4><ul>
@@ -321,7 +332,7 @@
       <li><a href="/news">Noticias y análisis</a></li>
       <li><a href="/magazine">Revista (PDF)</a></li>
       <li><a href="/newsletter">Boletín</a></li>
-      <li><a href="/calculator">Cost calculator</a></li>
+      <li><a href="/calculator">Calculadora de costes</a></li>
     </ul></div>
     <div class="footer-col"><h4>Saudi guides</h4><ul>
       <li><a href="/saudi-arabia">Invertir en Arabia Saudita</a></li>
@@ -331,19 +342,17 @@
       <li><a href="/guide/live-in-saudi">Live in Saudi</a></li>
       <li><a href="/guide/residency">Residency in KSA</a></li>
     </ul></div>
-    <div class="footer-col"><h4>Company</h4><ul>
+    <div class="footer-col"><h4>Empresa</h4><ul>
       <li><a href="/es/about">Sobre nosotros</a></li>
       <li><a href="/consultation">Reservar una consulta</a></li>
       <li><a href="/careers">Empleo</a></li>
-      <li><a href="/terms">Terms &amp; Conditions</a></li>
+      <li><a href="/terms">Términos y condiciones</a></li>
       <li><a href="/es/contact">Contáctanos</a></li>
     </ul></div>
     <div class="footer-col"><h4>Contacto</h4><ul class="footer-contact">
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex</span></li>
-      <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><a href="https://wa.me/966507034157" target="_blank" rel="noopener">Agente inteligente en WhatsApp</a></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg><a href="https://whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X" target="_blank" rel="noopener">Sigue nuestro canal de WhatsApp</a></li>
     </ul>
     <div class="footer-social" aria-label="Redes sociales">
       <a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
@@ -355,18 +364,79 @@
     <span>© 2026 Business Partner · All rights reserved</span>
     <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Chatear con el agente inteligente</span></a><button class="advisor-fab" id="advisor-fab" aria-label="Abrir el asesor inteligente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg><span class="lbl">Asesor</span></button>
-  <section class="advisor-panel" id="advisor-panel" hidden aria-label="Asesor inteligente">
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contáctenos por WhatsApp</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
+    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="Cerrar">✕</button>
+    <p>Hola 👋 Soy Baher, su asistente inteligente. ¿Preguntas sobre constitución de empresas o plataformas gubernamentales?</p>
+  </div>
+  <button class="advisor-fab" id="advisor-fab" aria-label="Abrir el chat con Baher, el asistente inteligente">
+    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
+    <span class="lbl">Pregunte a Baher</span>
+  </button>
+  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Pregunte a Baher">
     <header class="advisor-head">
-      <div class="advisor-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg><div><strong>Asesor Inteligente</strong><span>Responde preguntas sobre servicios y trámites</span></div></div>
+      <button class="advisor-back" id="advisor-back" aria-label="Atrás" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Su socio inteligente — en línea ahora</span></span></div></div>
       <button class="advisor-close" id="advisor-close" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </header>
-    <div class="advisor-msgs" id="advisor-msgs">
-      <div class="advisor-msg bot">Hola 👋 Soy el asesor inteligente de Business Partner. Pregúntame sobre constitución de empresas, inversión extranjera, licencias o cualquier trámite gubernamental — y te dirigiré al servicio correcto.</div>
+
+    <!-- Step 1: contact intake (required first) -->
+    <div class="advisor-view" id="advisor-intake">
+      <div class="adv-intake-hd">Bienvenido 👋 Primero, cuéntenos sobre usted para poder atenderle y dar seguimiento a su solicitud.</div>
+      <input class="adv-in" id="adv-in-name" type="text" placeholder="Nombre completo *" autocomplete="name">
+      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Móvil 05XXXXXXXX *" autocomplete="tel">
+      <input class="adv-in" id="adv-in-email" type="email" placeholder="Correo electrónico *" autocomplete="email">
+      <button type="button" class="adv-primary" id="advisor-intake-go">Comenzar ›</button>
+      <div class="adv-err" id="adv-intake-err" hidden></div>
+      <p class="adv-note">🔒 Sus datos se usan únicamente para atenderle y dar seguimiento a su solicitud.</p>
     </div>
-    <form class="advisor-form" id="advisor-form">
-      <input id="advisor-input" type="text" autocomplete="off" placeholder="Escribe tu pregunta aquí…" aria-label="Escribe tu pregunta">
-      <button type="submit" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-    </form>
-    <a class="advisor-wa" href="https://wa.me/966507034157" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>¿Prefieres hablar con nuestro equipo por WhatsApp?</span></a>
-  </section><script src="/assets/js/main.js?v=d7a28639aa"></script><script src="/assets/js/live-prices.js?v=b9350cfbab" defer></script></body></html>
+
+    <!-- Step 2: home — service windows (main → sub) -->
+    <div class="advisor-view" id="advisor-home" hidden>
+      <div class="adv-home-hd" id="advisor-hello"></div>
+      <div class="adv-home-sub">Elija el servicio que necesita:</div>
+      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Cargando servicios…</div></div>
+      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Reservar una consulta gratuita</button>
+      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 O pregunte directamente a Baher</button>
+    </div>
+
+    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
+    <div class="advisor-view" id="advisor-book" hidden>
+      <div class="adv-book-hd">📅 Reservar una consulta gratuita</div>
+      <div class="adv-book-sub">Elija día y hora (Riad · 9:00–18:00 · cerrado los viernes):</div>
+      <div class="adv-book-days" id="advisor-book-days"></div>
+      <div class="adv-book-slots" id="advisor-book-slots"></div>
+      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirmar la cita</button>
+      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
+    </div>
+
+    <!-- Step 2b: sub-services of a chosen category -->
+    <div class="advisor-view" id="advisor-sub" hidden>
+      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
+      <div class="adv-svcs" id="advisor-svcs"></div>
+    </div>
+
+    <!-- Step 3: open a support ticket for the chosen service -->
+    <div class="advisor-view" id="advisor-ticket" hidden>
+      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
+      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Describa su solicitud (opcional)"></textarea>
+      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Solicitar un presupuesto</button>
+      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
+    </div>
+
+    <!-- Chat with Baher (available after intake) -->
+    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
+      <div class="advisor-msgs" id="advisor-msgs">
+        <div class="advisor-msg bot">Hola 👋 Soy Baher, su asistente inteligente en Business Partner. Pregúnteme sobre constitución de empresas, inversión extranjera, licencias o cualquier trámite gubernamental, y le indicaré el servicio adecuado.</div>
+      </div>
+      <div class="advisor-chips" id="advisor-chips">
+        <button type="button" class="advisor-chip" data-q="Constitución de empresa con inversión extranjera">🏢 Constitución con inversión extranjera</button>
+        <button type="button" class="advisor-chip" data-q="Gestión de plataformas gubernamentales">💼 Plataformas gubernamentales</button>
+        <button type="button" class="advisor-chip" data-q="Paquetes y precios">💰 Paquetes y precios</button>
+        <button type="button" class="advisor-chip" data-q="Quiero una consulta gratuita">📞 Consulta gratuita</button>
+      </div>
+      <form class="advisor-form" id="advisor-form">
+        <input id="advisor-input" type="text" autocomplete="off" placeholder="Escribe tu pregunta aquí…" aria-label="Escribe tu pregunta">
+        <button type="submit" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+      </form>
+    </div>
+  </section><script src="/assets/js/main.js?v=d3a4f77f1d"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>

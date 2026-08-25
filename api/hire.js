@@ -8,6 +8,13 @@
 // GET  /api/hire  -> { status, providers }
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
+// Notion access — used to persist per-posting AI matches into the Job Postings
+// DB's "المرشحون المطابقون" relation (postings ↔ ATS candidates).
+const NOTION_TOKEN = envFrom([
+  "NOTION_TOKEN", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY",
+  "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
+  "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
+]);
 const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
 const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
 const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
@@ -47,7 +54,7 @@ async function callAnthropic(prompt, maxTokens) {
     // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — a generic name here
     // is a confirmed collision risk with another integration on the same
     // Vercel project, which broke every Anthropic call in production before.
-    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8", max_tokens: maxTokens || 1200, system: SYSTEM, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5", max_tokens: maxTokens || 1200, system: SYSTEM, messages: [{ role: "user", content: prompt }] }),
   });
   if (!r.ok) throw new Error(`anthropic ${r.status}`);
   const d = await r.json();
@@ -105,6 +112,27 @@ function buildPrompt(b) {
   if (b.task === "summary") return `${info}\n\nاكتب تقييماً موجزاً (3-4 أسطر): نقاط القوة، مدى الملاءمة، وأي ملاحظة توطين مهمة.`;
   if (b.task === "interview") return `${info}\n${role ? "الدور المستهدف: " + role + "\n" : ""}\nاكتب 6 أسئلة مقابلة عملية ومخصّصة لهذا المرشّح (مزيج تقني وسلوكي)، مرقّمة.`;
   if (b.task === "outreach") return `${info}\n${role ? "الفرصة: " + role + "\n" : ""}\nاكتب رسالة تواصل قصيرة ومهنية (واتساب) لدعوة المرشّح للتقدّم عبر Business Partner. ودّية ومباشرة، أقل من 60 كلمة.`;
+  // Job adverts are authored once in Arabic (Notion), so the site translates
+  // them on demand for its other languages. Structure must survive intact —
+  // the advert page splits the text back into paragraphs.
+  if (b.task === "translate") {
+    const names = { en: "English", fr: "French", es: "Spanish", zh: "Chinese (Simplified)", ru: "Russian", hi: "Hindi", ko: "Korean", ja: "Japanese", ar: "Arabic" };
+    const target = names[String(b.lang || "en").toLowerCase()] || "English";
+    const items = Array.isArray(b.items) ? b.items.slice(0, 60).map((x) => String(x == null ? "" : x).slice(0, 4000)) : null;
+    // JSON in, JSON out: a delimiter-based contract was unreliable — models
+    // drop or reformat separators, and a mismatched split has to be thrown
+    // away, which silently left adverts untranslated.
+    if (items) {
+      return `Translate every string in this JSON array into ${target}.\n\nRules: translate faithfully; keep job titles natural for that language's job market; add nothing and drop nothing; keep line breaks inside a string as \\n. Return ONLY a JSON array of exactly ${items.length} strings in the same order — no code fences, no commentary.\n\n${JSON.stringify(items)}`;
+    }
+    return `Translate the job advert below into ${target}.\n\nRules: translate faithfully, keep the same paragraph and line breaks, keep job titles natural for that language's job market, do not add or remove any information, do not add commentary. Output only the translation.\n\n---\n${String(b.text || "").slice(0, 12000)}`;
+  }
+  if (b.task === "jobdesc") {
+    const title = String(b.title || "").slice(0, 200);
+    const field = String(b.field || "").slice(0, 100);
+    const city = String(b.city || "").slice(0, 100);
+    return `اكتب وصفاً وظيفياً احترافياً وجاهزاً للنشر لهذه الوظيفة:\nالمسمى الوظيفي: ${title || "-"}${field ? "\nالمجال: " + field : ""}${city ? "\nالموقع: " + city : ""}\n\nيشمل: نبذة قصيرة عن الدور، المهام والمسؤوليات (نقاط)، المؤهلات والخبرة المطلوبة (نقاط). لا تُدرج اسم شركة أو راتب. أعِد النص فقط بدون عناوين Markdown مثل ## — فقرات ونقاط عادية.`;
+  }
   return info;
 }
 
@@ -117,18 +145,45 @@ export default async function handler(req, res) {
   if (!available().length) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "ai_not_configured" })); }
 
   const b = await readBody(req);
-  const task = ["match", "summary", "interview", "outreach"].includes(b.task) ? b.task : "";
+  const task = ["match", "summary", "interview", "outreach", "jobdesc", "translate"].includes(b.task) ? b.task : "";
   if (!task) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_task" })); }
 
   try {
-    const out = await ai(buildPrompt(b), task === "match" ? 2000 : 900);
+    const out = await ai(buildPrompt(b), task === "match" ? 2000 : task === "translate" ? 4000 : 900);
     if (task === "match") {
       let ranked = [];
       try {
         const m = out.match(/\[[\s\S]*\]/);
         ranked = JSON.parse(m ? m[0] : out);
       } catch { ranked = []; }
+      // When screening a published posting, mirror the shortlist into Notion:
+      // the posting's "المرشحون المطابقون" relation links to the matched ATS
+      // candidate pages (candidate ids ARE Notion page ids). Non-fatal — the
+      // dashboard still gets its live results even if the relation write fails.
+      if (b.postingId && Array.isArray(ranked) && ranked.length && NOTION_TOKEN) {
+        try {
+          const ids = ranked.slice(0, 12).map((m) => String(m.id || "").trim()).filter((s) => /^[0-9a-f]{8}-?[0-9a-f-]{20,28}$/i.test(s));
+          if (ids.length) {
+            const pr = await fetch(`https://api.notion.com/v1/pages/${String(b.postingId).trim()}`, {
+              method: "PATCH",
+              headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": "2022-06-28", "content-type": "application/json" },
+              body: JSON.stringify({ properties: { "المرشحون المطابقون": { relation: ids.map((id) => ({ id })) } } }),
+            });
+            if (!pr.ok) console.error("posting relation update failed", pr.status, (await pr.text()).slice(0, 200));
+          }
+        } catch (e) { console.error("posting relation update error", e); }
+      }
       return res.end(JSON.stringify({ ok: true, task, ranked, raw: ranked.length ? undefined : out }));
+    }
+    if (task === "translate" && Array.isArray(b.items)) {
+      let arr = [];
+      try { const m = out.match(/\[[\s\S]*\]/); arr = JSON.parse(m ? m[0] : out); } catch { arr = []; }
+      if (!Array.isArray(arr) || arr.length !== b.items.length) {
+        console.error("translate mismatch", b.items.length, Array.isArray(arr) ? arr.length : "unparsed");
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: false, error: "bad_translation" }));
+      }
+      return res.end(JSON.stringify({ ok: true, task, items: arr.map((x) => String(x == null ? "" : x)) }));
     }
     return res.end(JSON.stringify({ ok: true, task, result: out }));
   } catch (e) {

@@ -16,6 +16,21 @@
 
   var AR = (document.documentElement.getAttribute("lang") || "ar").indexOf("ar") === 0;
   var RIYAL = "﷼";
+  // الباقة تحمل كود نوشن بينما تحمله اللوحة بكودها القديم — جسر صريح.
+  var PKG_ALIAS = {
+    "BP-PKG-LAUNCH": "PKG-SILVER",
+  "BP-PKG-GROWTH": "PKG-GOLD",
+  "BP-PKG-SCALE": "PKG-PLATINUM",
+  "BP-PKG-ENTERPRISE": "PKG-DIAMOND",
+  "BP-PKG-FORM-FOREIGN": "PKG-FOREIGN-FORMATION",
+  "BP-PKG-FORM-SAUDI": "PKG-SAUDI-GULF-FORMATION",
+  "BP-PKG-LEGAL-STRAT": "PKG-STRATEGIC",
+  "BP-PKG-LEGAL-COMP": "PKG-COMPREHENSIVE",
+  "BP-PKG-LEGAL-ADV": "PKG-ADVANCED",
+  "BP-PKG-LEGAL-BASIC": "PKG-BASIC-LEGAL",
+  "BP-PKG-SVC-STARTER": "PKG-S"
+  };
+
   var UNIT_AR = { "شهر": "شهرياً", "سنة": "سنوياً", "شهري": "شهرياً" };
 
   // بطاقة الباقة تطبع أرقاماً عربية والخدمة أرقاماً لاتينية — يُتَّبع كلٌّ في موضعه
@@ -65,7 +80,8 @@
 
   function apply(byCode) {
     document.querySelectorAll("[data-bp-price]").forEach(function (el) {
-      var row = byCode[el.getAttribute("data-bp-price")];
+      var code = el.getAttribute("data-bp-price");
+      var row = byCode[code] || byCode[PKG_ALIAS[code]];
       if (!row || row.openPrice || !(row.unitPrice > 0)) return;
       // بطاقة الباقة تحمل وحدتها في عنصر مستقل، فيُبدَّل الرقم وحده.
       //
@@ -91,7 +107,8 @@
     });
 
     document.querySelectorAll("[data-bp-code]").forEach(function (el) {
-      var row = byCode[el.getAttribute("data-bp-code")];
+      var c2 = el.getAttribute("data-bp-code");
+      var row = byCode[c2] || byCode[PKG_ALIAS[c2]];
       if (!row || row.openPrice || !(row.unitPrice > 0)) return;
       el.setAttribute("data-amount", String(row.unitPrice));
       el.setAttribute("data-price", label(row));

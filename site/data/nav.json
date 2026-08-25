@@ -55,6 +55,28 @@
           ]
         },
         {
+          "href": "/revenue-os",
+          "en": "Revenue OS ⚡",
+          "ar": "Revenue OS — تطوير الأعمال ⚡",
+          "sub": [
+            {
+              "href": "/revenue-os",
+              "en": "How it works",
+              "ar": "كيف يعمل"
+            },
+            {
+              "href": "/revenue-os#pricing",
+              "en": "Packages & pricing",
+              "ar": "الباقات والأسعار"
+            },
+            {
+              "href": "/revenue-dashboard",
+              "en": "Client dashboard",
+              "ar": "لوحة العميل"
+            }
+          ]
+        },
+        {
           "href": "/services/category/ai-automation",
           "en": "AI & Automation ⚡",
           "ar": "الأتمتة والذكاء الاصطناعي ⚡"
@@ -88,6 +110,21 @@
               "href": "/careers",
               "en": "Open jobs",
               "ar": "الوظائف المتاحة"
+            },
+            {
+              "href": "/job-search-service",
+              "en": "We search for a job for you",
+              "ar": "نبحث لك عن وظيفة"
+            },
+            {
+              "href": "/recruitment-agencies",
+              "en": "Recruitment agencies",
+              "ar": "مكاتب الاستقدام ووكالات التوظيف"
+            },
+            {
+              "href": "/agency-portal",
+              "en": "Agency portal",
+              "ar": "بوابة المكاتب"
             }
           ]
         },
@@ -177,6 +214,43 @@
               "href": "/services/bp-re-06",
               "en": "Foreign property ownership",
               "ar": "تملّك العقار للأجانب"
+            }
+          ]
+        },
+        {
+          "href": "/farina",
+          "en": "Catering & Hospitality",
+          "ar": "التموين والضيافة للشركات",
+          "sub": [
+            {
+              "href": "/farina",
+              "en": "Overview",
+              "ar": "نظرة عامة"
+            },
+            {
+              "href": "/farina#coffee-break",
+              "en": "Coffee Break",
+              "ar": "الكوفي بريك"
+            },
+            {
+              "href": "/farina#vip-coffee",
+              "en": "VIP Coffee Break",
+              "ar": "كوفي بريك VIP"
+            },
+            {
+              "href": "/farina#executive-lunch",
+              "en": "Executive Lunch",
+              "ar": "الغداء التنفيذي"
+            },
+            {
+              "href": "/farina#vip-hospitality",
+              "en": "VIP Hospitality",
+              "ar": "ضيافة كبار الشخصيات"
+            },
+            {
+              "href": "/farina#workforce",
+              "en": "Workforce Catering",
+              "ar": "إعاشة العمالة"
             }
           ]
         },
@@ -344,14 +418,9 @@
           "ar": "منصّة العملاء"
         },
         {
-          "href": "/suppliers",
-          "en": "Partners portal",
-          "ar": "بوابة الشركاء"
-        },
-        {
-          "href": "/partner-dashboard",
-          "en": "Partner dashboard",
-          "ar": "لوحة الشريك"
+          "href": "/revenue-dashboard",
+          "en": "Revenue OS dashboard",
+          "ar": "لوحة Revenue OS"
         },
         {
           "href": "/portal",
