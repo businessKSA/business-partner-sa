@@ -100,6 +100,14 @@
       .btn-toggle { font-size: 12.5px; font-weight: 700; border: 0; border-radius: 9px; padding: 8px 12px; }
       .btn-toggle.pause { background: #fef3c7; color: #92400e; }
       .btn-toggle.resume { background: var(--wa-bubble); color: #14532d; }
+      /* one-tap contact buttons (WhatsApp / call / email) */
+      .contact-btns { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .cbtn { font-size: 12.5px; font-weight: 700; border: 0; border-radius: 9px; padding: 7px 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+      .cbtn.wa { background: var(--wa); color: #fff; }
+      .cbtn.call { background: #e6e0ff; color: #4c1d95; }
+      .cbtn.mail { background: var(--bg); color: var(--navy); border: 1px solid var(--line); }
+      .cp-contact { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+      .cp-contact .cbtn { flex: 1; justify-content: center; }
       select.tagsel { font-family: inherit; font-size: 12.5px; font-weight: 600; border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; color: var(--text); background: #fff; }
 
       #chatArea { flex: 1; overflow-y: auto; background: var(--chat-bg); background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,.035) 1px, transparent 0); background-size: 22px 22px; padding: 16px 7%; display: flex; flex-direction: column; gap: 7px; }
@@ -222,6 +230,7 @@
               </div>
               <div class="head-actions">
                 <span class="ai-badge on" id="aiBadge">🟢 الوكيل يرد</span>
+                <span class="contact-btns" id="contactBtns" style="display:none"></span>
                 <button class="btn-toggle pause" id="aiToggle">⏸️ أوقف الوكيل</button>
                 <select class="tagsel" id="tagSel" title="مرحلة العميل"></select>
                 <button class="btn-ghost" id="contactToggle" title="بطاقة العميل">👤 بطاقة العميل</button>
@@ -236,6 +245,7 @@
               <div class="cp-head">
                 <div class="cp-av" id="cpAv">--</div>
                 <div class="cp-phone" id="cpPhone">+—</div>
+                <div class="cp-contact" id="cpContact"></div>
                 <div class="cp-stage"><select class="tagsel" id="cpStage" style="width:100%"></select></div>
               </div>
               <div class="cp-row"><span class="k">💬 عدد الرسائل</span><span class="v" id="cpCount">0</span></div>
@@ -480,6 +490,29 @@
         sel.onchange = function () { if (this.value) tags[activePhone] = this.value; else delete tags[activePhone]; saveTags(); render(); };
       }
 
+      // Normalize any Saudi number to wa.me digits (9665XXXXXXXX).
+      function waDigits(p) {
+        var d = String(p || '').replace(/[^0-9]/g, '');
+        if (!d) return '';
+        if (d.indexOf('00') === 0) d = d.slice(2);
+        if (d.indexOf('966') === 0) return d;
+        if (d.charAt(0) === '0') d = d.slice(1);
+        if (d.charAt(0) === '5' && d.length === 9) return '966' + d;
+        return d;
+      }
+      // Render one-tap WhatsApp / call / email buttons for the active client.
+      function renderContactBtns(phone, email, box) {
+        box = box || $('contactBtns'); box.innerHTML = '';
+        var wa = waDigits(phone), html = '';
+        if (wa) {
+          html += '<a class="cbtn wa" target="_blank" rel="noopener" href="https://wa.me/' + wa + '">💬 واتساب</a>';
+          html += '<a class="cbtn call" href="tel:+' + wa + '">📞 اتصال</a>';
+        }
+        if (email) html += '<a class="cbtn mail" href="mailto:' + esc(email) + '">✉️ إيميل</a>';
+        box.innerHTML = html;
+        box.style.display = html ? 'inline-flex' : 'none';
+      }
+
       function renderChat() {
         if (!activePhone) { $('noConv').style.display = 'flex'; $('chatMain').style.display = 'none'; return; }
         $('noConv').style.display = 'none'; $('chatMain').style.display = 'flex';
@@ -497,6 +530,7 @@
           var cc = []; if (w0.contactPhone) cc.push('📱 ' + w0.contactPhone); if (w0.contactEmail) cc.push('✉️ ' + w0.contactEmail);
           $('chatSub').textContent = (ticket ? 'تذكرة دعم' : 'من المستشار (الموقع)') + (cc.length ? ' · ' + cc.join(' · ') : '') + ' · ' + msgs.length + ' رسالة';
           badge.className = 'ai-badge on'; badge.textContent = ticket ? '🎫 تذكرة دعم' : '🌐 من المستشار'; toggle.style.display = 'none';
+          renderContactBtns(w0.contactPhone, w0.contactEmail);
           buildTagSelect(); renderContactPanel(msgs);
           $('msgInput').disabled = true; $('msgInput').placeholder = 'محادثة من الموقع — تابع العميل عبر واتساب/البريد المعروض أعلاه';
           $('sendBtn').disabled = true; $('suggestAr').disabled = true; $('suggestEn').disabled = true;
@@ -514,6 +548,7 @@
             toggle.className = 'btn-toggle pause'; toggle.textContent = '⏸️ أوقف الوكيل';
             toggle.onclick = function () { setAgent('pause'); };
           }
+          renderContactBtns(activePhone, '');
           buildTagSelect(); renderContactPanel(msgs);
           $('msgInput').disabled = false; $('msgInput').placeholder = 'اكتب ردك للعميل…'; $('sendBtn').disabled = false;
           $('suggestAr').disabled = false; $('suggestEn').disabled = false;
@@ -715,8 +750,14 @@
 
       function renderContactPanel(msgs) {
         var ph = activePhone; if (!ph) return;
-        $('cpAv').style.background = avColor(ph); $('cpAv').textContent = ph.slice(-2);
-        $('cpPhone').textContent = '+' + ph;
+        var w0 = msgs[0] || {};
+        var web = w0.source === 'المستشار' || w0.source === 'تذكرة';
+        var cPhone = web ? (w0.contactPhone || '') : ph;
+        var cEmail = web ? (w0.contactEmail || '') : '';
+        $('cpAv').style.background = web ? '#0B1B5A' : avColor(ph);
+        $('cpAv').textContent = web ? (w0.source === 'تذكرة' ? '🎫' : '🌐') : ph.slice(-2);
+        $('cpPhone').textContent = web ? ((w0.name || 'زائر الموقع') + (cPhone ? ' · ' + cPhone : '')) : ('+' + ph);
+        renderContactBtns(cPhone, cEmail, $('cpContact'));
         $('cpCount').textContent = msgs.length;
         var reals = msgs.filter(function (m) { return m.sender !== 'تنبيه'; });
         $('cpFirst').textContent = reals.length ? fmtTime(reals[0].time) : '—';
