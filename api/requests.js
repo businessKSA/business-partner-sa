@@ -427,8 +427,15 @@ function propAny(p) {
 // The same labels appear in Notion (Lead Source), the admin panel, the
 // WhatsApp digest and the e-mail report — one vocabulary everywhere.
 function channelOf({ ref, source, order, title }) {
-  const r = String(ref || ""), s = String(source || ""), o = String(order || ""), t = String(title || "");
+  let r = String(ref || ""), s = String(source || ""), o = String(order || ""), t = String(title || "");
+  // Older rows keep the reference only inside the title «… (BC-039919)».
+  if (!r) { const m = t.match(/\(([A-Z]{2,4}-[A-Za-z0-9-]+)\)\s*$/); if (m) r = m[1]; }
   if (s === "WhatsApp" || r.startsWith("WA-")) return { key: "whatsapp", label: "واتساب", icon: "📱", color: "#128C7E" };
+  if (r.startsWith("SP-") || /تسجيل مورّ?د/.test(t)) return { key: "supplier", label: "تسجيل مورّد", icon: "🏭", color: "#92400E" };
+  if (r.startsWith("BPI-") || /طلب تقسيط/.test(t)) return { key: "installment", label: "طلب تقسيط", icon: "💳", color: "#BE185D" };
+  if (r.startsWith("DL-")) return { key: "deal", label: "صفقة", icon: "🤝", color: "#166534" };
+  if (r.startsWith("MM-")) return { key: "tourism", label: "سياحة أعمال", icon: "✈️", color: "#1D4ED8" };
+  if (r.startsWith("BK-")) return { key: "consult", label: "حجز استشارة", icon: "📅", color: "#0E7490" };
   if (s === CONV_SOURCE || r.startsWith("WEB-")) return { key: "advisor", label: "مستشار الموقع", icon: "🤖", color: "#7C3AED" };
   if (s === TICKET_SOURCE || r.startsWith("BPT-")) return { key: "ticket", label: "تذكرة دعم", icon: "🎫", color: "#B45309" };
   if (o === "حجز استشارة" || s === "حجز استشارة" || r.startsWith("BC-")) return { key: "consult", label: "حجز استشارة", icon: "📅", color: "#0E7490" };
