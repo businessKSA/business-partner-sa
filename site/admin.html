@@ -365,6 +365,7 @@
       <nav class="nav" id="navDesk">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات والموافقات</button>
+        <button data-v="notion">📇 نوشن — مباشر</button>
         <button data-v="suppliers">🤝 الشركاء</button>
         <button class="grp" id="grpContent"><span>📝</span><span>محتوى الموقع</span><span class="caret">▾</span></button>
         <div class="sub" id="subContent"></div>
@@ -592,6 +593,30 @@
           <div class="sub">كل صفحات الموقع الرئيسية — افتح أي صفحة، وإذا كان محتواها قابلاً للتعديل من اللوحة تلقى زر «عدّل المحتوى» يوديك له مباشرة.</div>
         </div>
         <div id="pagesList"></div>
+      </section>
+
+      <!-- ============ Notion, live inside the panel ============ -->
+      <!-- Notion blocks iframes, so this is an API-backed mirror: real rows,
+           real dropdowns, and every edit lands in Notion the moment it's made. -->
+      <section class="view" id="view-notion">
+        <div class="pagehead">
+          <h2>📇 نوشن — مباشر داخل اللوحة</h2>
+          <div class="spacer"></div>
+          <span class="stamp" id="ntStamp"></span>
+          <button class="refresh" id="ntRefresh">↻ تحديث</button>
+          <div class="sub">قواعد نوشن الفعلية، تُقرأ وتُحرَّر من هنا: غيّر حالة، عدّل ملاحظة، حدّد تاريخاً — يُحفظ في نوشن فوراً. اضغط أي صف لفتح كامل خصائصه وتحريرها.</div>
+        </div>
+        <div id="ntTabs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+        <div class="panel">
+          <div class="filters">
+            <input id="ntSearch" type="search" placeholder="🔍 ابحث في الصفوف بالاسم أو أي قيمة" />
+            <a id="ntOpenNotion" class="actbtn" href="#" target="_blank" rel="noopener" style="text-decoration:none">↗ افتحها في نوشن</a>
+          </div>
+          <div class="tbl-wrap"><table>
+            <thead id="ntHead"></thead>
+            <tbody id="ntBody"><tr><td class="empty">جاري التحميل…</td></tr></tbody>
+          </table></div>
+        </div>
       </section>
 
       <!-- ============ a single board, inside the panel ============ -->
@@ -1701,16 +1726,142 @@
         // ask "where are you?" is one more thing to explain.
         var active = document.querySelector('.view.on');
         var lbl = { 'view-overview':'نظرة عامة', 'view-leads':'الطلبات والموافقات', 'view-suppliers':'الشركاء',
-                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات' };
+                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات', 'view-notion':'نوشن — مباشر' };
         $('aiCtx').textContent = 'أنت في: ' + ((active && lbl[active.id]) || 'اللوحة');
         try { $('aiInput').focus(); } catch (e) {}
       }
+    }
+
+    // ===== نوشن — مباشر: API-backed live mirror (Notion refuses iframes) =====
+    var NT = { loaded:false, src:'', rows:[], schema:{}, cols:[], q:'' };
+    function ntPost(payload, then){
+      payload.key = accessKey; payload.ticket = accessTicket;
+      fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify(payload) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); }).then(then)
+        .catch(function(){ then({ ok:false }); });
+    }
+    function ntInit(){
+      fetch(API_URL + '?action=panel-notion-sources' + authQS(), { cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){ $('ntStamp').textContent = 'تعذّر التحميل'; return; }
+          $('ntTabs').innerHTML = (out.sources || []).map(function(s){
+            return '<button class="actbtn" data-ntsrc="' + esc(s.key) + '" style="font-size:13px">' + esc(s.title) + '</button>';
+          }).join('');
+          var tabs = document.querySelectorAll('[data-ntsrc]');
+          for (var i = 0; i < tabs.length; i++) tabs[i].onclick = function(){ ntLoad(this.getAttribute('data-ntsrc')); };
+          ntLoad('pipeline');
+        })
+        .catch(function(){ $('ntStamp').textContent = 'تعذّر التحميل'; });
+    }
+    function ntLoad(key){
+      NT.src = key;
+      var tabs = document.querySelectorAll('[data-ntsrc]');
+      for (var i = 0; i < tabs.length; i++){
+        var on = tabs[i].getAttribute('data-ntsrc') === key;
+        tabs[i].style.background = on ? '#0B1B5A' : '';
+        tabs[i].style.color = on ? '#fff' : '';
+      }
+      $('ntBody').innerHTML = '<tr><td class="empty">جاري تحميل القاعدة من نوشن…</td></tr>';
+      fetch(API_URL + '?action=panel-notion-db&db=' + encodeURIComponent(key) + authQS(), { cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){ $('ntBody').innerHTML = '<tr><td class="empty">تعذّر التحميل — حدّث الصفحة.</td></tr>'; return; }
+          NT.rows = out.rows || []; NT.schema = out.schema || {};
+          $('ntOpenNotion').href = out.notionUrl || '#';
+          // Columns: the most-filled non-title properties earn the four slots.
+          var fill = {};
+          Object.keys(NT.schema).forEach(function(name){
+            if (NT.schema[name].type === 'title') return;
+            fill[name] = NT.rows.reduce(function(s, r){ return s + (r.props[name] ? 1 : 0); }, 0);
+          });
+          NT.cols = Object.keys(fill).sort(function(a, b){ return fill[b] - fill[a]; }).slice(0, 4);
+          $('ntStamp').textContent = NT.rows.length + ' صف · ' + (out.title || '');
+          ntRender();
+        })
+        .catch(function(){ $('ntBody').innerHTML = '<tr><td class="empty">تعذّر الاتصال.</td></tr>'; });
+    }
+    function ntRender(){
+      var q = NT.q.toLowerCase();
+      var rows = NT.rows.filter(function(r){
+        if (!q) return true;
+        if (r.title.toLowerCase().indexOf(q) !== -1) return true;
+        return NT.cols.concat(Object.keys(r.props)).some(function(c){ return String(r.props[c] || '').toLowerCase().indexOf(q) !== -1; });
+      });
+      $('ntHead').innerHTML = '<tr><th>العنوان</th>' + NT.cols.map(function(c){ return '<th>' + esc(c) + '</th>'; }).join('') + '<th>آخر تعديل</th></tr>';
+      $('ntBody').innerHTML = rows.length ? rows.map(function(r){
+        var i = NT.rows.indexOf(r);
+        return '<tr data-ntrow="' + i + '" style="cursor:pointer"><td><b>' + esc(r.title) + '</b></td>' +
+          NT.cols.map(function(c){ return '<td>' + esc(String(r.props[c] || '—').slice(0, 60)) + '</td>'; }).join('') +
+          '<td class="when">' + esc(r.edited) + '</td></tr>';
+      }).join('') : '<tr><td class="empty">لا صفوف مطابقة.</td></tr>';
+      var trs = $('ntBody').querySelectorAll('[data-ntrow]');
+      for (var i = 0; i < trs.length; i++) trs[i].onclick = function(){ ntOpen(+this.getAttribute('data-ntrow')); };
+    }
+    // The row drawer: every property, editable where Notion allows it.
+    function ntOpen(i){
+      var r = NT.rows[i]; if (!r) return;
+      var old = $('ntDrawer'); if (old) old.remove();
+      var d = document.createElement('div');
+      d.id = 'ntDrawer';
+      d.style.cssText = 'position:fixed;top:0;bottom:0;inset-inline-end:0;width:min(440px,94vw);background:#fff;box-shadow:0 0 50px rgba(15,23,42,.3);z-index:80;overflow-y:auto;padding:20px 22px;direction:rtl';
+      var editable = { select:1, status:1, checkbox:1, date:1, number:1, email:1, phone_number:1, url:1, rich_text:1, title:1 };
+      var h = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">' +
+        '<button class="actbtn" id="ntClose">✕ إغلاق</button>' +
+        '<a class="actbtn" style="text-decoration:none" target="_blank" rel="noopener" href="' + esc(r.url) + '">↗ في نوشن</a>' +
+        '<span id="ntSaved" style="color:#047857;font-size:12px;font-weight:700"></span></div>' +
+        '<h3 style="color:#0B1B5A;margin:0 0 14px;font-size:16px">' + esc(r.title) + '</h3>';
+      Object.keys(NT.schema).forEach(function(name){
+        var def = NT.schema[name], val = r.props[name] || '';
+        var id = 'ntf_' + Math.random().toString(36).slice(2, 8);
+        h += '<div style="margin-bottom:12px"><div style="font-size:11.5px;color:#64748b;margin-bottom:3px">' + esc(name) + ' <span style="opacity:.5">(' + esc(def.type) + ')</span></div>';
+        if (def.type === 'select' || def.type === 'status'){
+          var opts = (def.options || []).slice();
+          if (val && opts.indexOf(val) === -1) opts.unshift(val);
+          h += '<select class="ntEdit" data-prop="' + esc(name) + '" data-type="' + esc(def.type) + '" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"><option value="">—</option>' +
+            opts.map(function(o){ return '<option' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
+        } else if (def.type === 'checkbox'){
+          h += '<label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox" class="ntEdit" data-prop="' + esc(name) + '" data-type="checkbox"' + (val === '✓' ? ' checked' : '') + '> نعم</label>';
+        } else if (def.type === 'date'){
+          h += '<input type="date" class="ntEdit" data-prop="' + esc(name) + '" data-type="date" value="' + esc(String(val).slice(0, 10)) + '" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px">';
+        } else if (def.type === 'rich_text'){
+          h += '<textarea class="ntEditTxt" data-prop="' + esc(name) + '" data-type="rich_text" rows="3" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px;font-family:inherit">' + esc(val) + '</textarea><button class="actbtn ntSaveTxt" data-for="' + id + '" style="margin-top:4px">💾 حفظ</button>';
+        } else if (def.type === 'title' || def.type === 'number' || def.type === 'email' || def.type === 'phone_number' || def.type === 'url'){
+          h += '<input type="text" class="ntEditTxt" data-prop="' + esc(name) + '" data-type="' + esc(def.type) + '" value="' + esc(val) + '" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"><button class="actbtn ntSaveTxt" style="margin-top:4px">💾 حفظ</button>';
+        } else {
+          h += '<div style="font-size:13px;color:#334155">' + (esc(val) || '—') + ' <span style="color:#94a3b8;font-size:11px">(للقراءة)</span></div>';
+        }
+        h += '</div>';
+      });
+      d.innerHTML = h;
+      document.body.appendChild(d);
+      $('ntClose').onclick = function(){ d.remove(); };
+      function saved(ok){ $('ntSaved').textContent = ok ? '✓ حُفظ في نوشن' : '✕ تعذّر الحفظ'; $('ntSaved').style.color = ok ? '#047857' : '#b91c1c'; setTimeout(function(){ var s = $('ntSaved'); if (s) s.textContent = ''; }, 2500); }
+      function push(prop, type, value){
+        ntPost({ action:'panel-notion-update', db: NT.src, id: r.id, prop: prop, type: type, value: value }, function(out){
+          saved(out && out.ok);
+          if (out && out.ok){ r.props[prop] = type === 'checkbox' ? (value === 'true' ? '✓' : '') : value; if (type === 'title') r.title = value; ntRender(); }
+        });
+      }
+      var sels = d.querySelectorAll('select.ntEdit, input[type=date].ntEdit');
+      for (var s2 = 0; s2 < sels.length; s2++) sels[s2].onchange = function(){ push(this.getAttribute('data-prop'), this.getAttribute('data-type'), this.value); };
+      var cbs = d.querySelectorAll('input[type=checkbox].ntEdit');
+      for (var c2 = 0; c2 < cbs.length; c2++) cbs[c2].onchange = function(){ push(this.getAttribute('data-prop'), 'checkbox', this.checked ? 'true' : 'false'); };
+      var svs = d.querySelectorAll('.ntSaveTxt');
+      for (var v2 = 0; v2 < svs.length; v2++) svs[v2].onclick = function(){
+        var inp = this.previousElementSibling;
+        push(inp.getAttribute('data-prop'), inp.getAttribute('data-type'), inp.value);
+      };
     }
 
     // ---- navigation ----
     var supLoaded = false, discLoaded = false, toolJump = false, contentJump = false;
     function switchView(v){
       if (v === 'suppliers' && !supLoaded){ supLoaded = true; loadSuppliers(); }
+      if (v === 'notion' && !NT.loaded){ NT.loaded = true; ntInit();
+        $('ntRefresh').onclick = function(){ if (NT.src) ntLoad(NT.src); };
+        $('ntSearch').oninput = function(){ NT.q = this.value.trim(); ntRender(); };
+      }
       // The discounts manager lives in the tools view — load it on first visit.
       if (v === 'tools' && !discLoaded){ discLoaded = true; loadDiscounts(); }
       // Arriving at the tools view by any route other than picking a tool
