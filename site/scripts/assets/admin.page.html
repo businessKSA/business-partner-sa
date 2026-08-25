@@ -413,6 +413,13 @@
           </div>
         </div>
 
+        <!-- follow-ups: the ONE list that keeps clients from being forgotten -->
+        <div class="panel" id="fupPanel" style="margin-bottom:18px;border:1px solid #C7D2FE">
+          <div class="panel-head"><h3>📞 متابعات اليوم — حتى لا يضيع عميل</h3><span class="stamp" id="fupCount"></span></div>
+          <div style="padding:0 18px 4px;color:#64748b;font-size:12.5px">نفس القائمة التي تصلك يومياً على واتساب والإيميل — من قاعدة CRM الموحّدة (Sales Pipeline). كل صف يقول لك بالضبط ما المطلوب.</div>
+          <div id="fupList" style="padding:4px 18px 14px;font-size:13.5px">جاري التحميل…</div>
+        </div>
+
         <div class="tiles">
           <div class="tile"><div class="k">📥 أحدث الطلبات</div><div class="v" id="tTotal">—</div><div class="d">آخر ما وصل من الموقع</div></div>
           <div class="tile"><div class="k">☀️ اليوم</div><div class="v" id="tToday">—</div><div class="d">طلبات وصلت اليوم</div></div>
@@ -433,14 +440,22 @@
         </div>
 
         <div class="panel">
-          <div class="panel-head"><h3>وصول سريع</h3></div>
+          <div class="panel-head"><h3>👥 التواصل والعملاء</h3></div>
+          <div style="padding:0 18px;color:#64748b;font-size:12.5px">مكان واحد لكل التواصل: الرد من BP Inbox، والسجل الكامل في CRM الموحّد، والمتابعات أعلى هذه الصفحة.</div>
+          <div class="tools" style="padding:12px 18px 16px">
+            <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="ico">💬</span><h4>BP Inbox — الرد على العملاء</h4><p>محادثات واتساب ومستشار الموقع والتذاكر — الرد المباشر بمساعدة الذكاء.</p><span class="go">فتح ←</span></a>
+            <a class="tool" href="https://www.notion.so/d9a342be24774be3b4095d439d21fc90" target="_blank" rel="noopener"><span class="ico">📇</span><h4>CRM الموحّد — Sales Pipeline</h4><p>القاعدة الرئيسية الوحيدة: كل طلبات الموقع والواتساب والاستشارات والتذاكر تصب فيها.</p><span class="go">فتح ←</span></a>
+            <a class="tool" href="#" data-goto="leads"><span class="ico">📥</span><h4>الطلبات والموافقات</h4><p>تغيير حالة الطلبات، التفعيل، وإشعار العميل — داخل اللوحة.</p><span class="go">فتح ←</span></a>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>⚙️ التشغيل والشركاء</h3></div>
           <div class="tools" style="padding:16px 18px">
             <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="ico">🏭</span><h4>لوحة الشركاء</h4><p>اعتماد الموردين الجدد، طلب عروض الأسعار، وأوامر العمل والفواتير.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="/ar/agencies-admin" target="_blank" rel="noopener"><span class="ico">🌍</span><h4>لوحة مزوّدي التوظيف</h4><p>مكاتب ووكالات الاستقدام المسجّلة، رسومها وعدد مرشحيها، ونشر طلبات التوظيف للشبكة.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="/ar/jobsearch-admin" target="_blank" rel="noopener"><span class="ico">🔎</span><h4>خدمة البحث عن وظيفة</h4><p>المرشحون الذين طلبوا أن نبحث لهم عن عمل — التفعيل، تشغيل الوكيل، وتحصيل الدفعات.</p><span class="go">فتح ←</span></a>
-            <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="ico">💬</span><h4>BP Inbox</h4><p>محادثات واتساب المباشرة والرد بمساعدة الذكاء.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="/dashboard" target="_blank" rel="noopener"><span class="ico">🎛️</span><h4>فريق الإيجنتس</h4><p>اختبار الموظفين الأذكياء والتحكم بتفعيلهم.</p><span class="go">فتح ←</span></a>
-            <a class="tool" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener"><span class="ico">📇</span><h4>CRM — نوشن</h4><p>قاعدة العملاء والصفقات الكاملة.</p><span class="go">فتح ←</span></a>
           </div>
         </div>
       </section>
@@ -1257,10 +1272,43 @@
         .catch(function(){ $('anaStamp').textContent = 'تعذّر التحميل'; });
     }
 
+    // ===== متابعات اليوم — the "don't lose a client" list from the master CRM =====
+    function loadFollowups(){
+      fetch(API_URL + '?action=panel-followups' + authQS(), { cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){
+            $('fupCount').textContent = out && out.error === 'crm_not_configured' ? 'يحتاج ربط نوشن' : 'تعذّر التحميل';
+            return;
+          }
+          var rows = out.followups || [];
+          $('fupCount').textContent = rows.length ? rows.length + ' عميل يحتاج تواصلك' : '';
+          if (!rows.length){
+            $('fupList').innerHTML = '<div style="color:#047857;padding:10px 0">✓ لا متابعات معلّقة — كل العملاء متابَعون.</div>';
+            return;
+          }
+          $('fupList').innerHTML = rows.map(function(f){
+            var digits = String(f.phone || '').replace(/\D/g, '');
+            var contact = '';
+            if (digits) contact += '<a href="https://wa.me/' + digits + '" target="_blank" rel="noopener" style="background:#25D366;color:#fff;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">💬 واتساب</a> <a href="tel:+' + digits + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">📞 اتصال</a>';
+            if (f.email) contact += ' <a href="mailto:' + esc(f.email) + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">✉️ بريد</a>';
+            return '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;border-bottom:1px dashed #E2E8F0;padding:9px 0">'
+              + '<div style="min-width:220px"><b>' + esc(f.title) + '</b>'
+              + (f.human ? ' <span style="background:#FEE2E2;color:#b91c1c;border-radius:6px;padding:1px 7px;font-size:11px">يحتاج ردّك</span>' : '')
+              + '<br><span style="color:#64748b;font-size:12px">' + esc([f.ref, f.stage, f.order].filter(Boolean).join(' · ')) + '</span></div>'
+              + '<div style="flex:1;min-width:180px;color:#0B1B5A;font-size:12.5px">← ' + esc(f.action) + '</div>'
+              + '<div style="display:flex;gap:4px;align-items:center">' + (contact || '<span style="color:#94a3b8;font-size:12px">لا وسيلة تواصل مسجّلة</span>') + '</div>'
+              + '</div>';
+          }).join('');
+        })
+        .catch(function(){ $('fupCount').textContent = 'تعذّر التحميل'; });
+    }
+
     function refresh(btns){
       var list = document.querySelectorAll('[data-refresh]');
       for (var i = 0; i < list.length; i++) list[i].disabled = true;
       try { loadAnalytics(); } catch (e) {}
+      try { loadFollowups(); } catch (e) {}
       return fetchLeads().then(renderAll)
         .catch(function(e){
           if (String(e.message) === 'unauthorized'){ logout(); return; }
@@ -1572,7 +1620,7 @@
       // that does not require aiming at a button.
       document.addEventListener('keydown', function(e){ if (e.key === 'Escape') aiOpen(false); });
       var gotos = document.querySelectorAll('[data-goto]');
-      for (var j = 0; j < gotos.length; j++) gotos[j].onclick = function(){ switchView(this.getAttribute('data-goto')); };
+      for (var j = 0; j < gotos.length; j++) gotos[j].onclick = function(ev){ if (ev && ev.preventDefault) ev.preventDefault(); switchView(this.getAttribute('data-goto')); };
       var refs = document.querySelectorAll('[data-refresh]');
       for (var k = 0; k < refs.length; k++) refs[k].onclick = function(){ refresh(); };
     })();

@@ -19,7 +19,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
-import { stageChannels, announce } from "./_stage.js";
+import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
@@ -350,6 +350,10 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
+  // The pipeline has dedicated Phone/Email columns; burying contact info only
+  // inside Notes made every row unreadable at a glance and unfilterable.
+  if (phone) props["Phone"] = { phone_number: String(phone).slice(0, 40) };
+  if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) props["Email"] = { email: String(email).slice(0, 160) };
   if (typeof total === "number" && !Number.isNaN(total)) {
     props["إجمالي الطلب"] = { number: total };
     // The board and every pipeline roll-up read Estimated Value, so a request
@@ -373,6 +377,157 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     });
     if (!r.ok) console.error("CRM lead error", r.status, (await r.text()).slice(0, 300));
   } catch (e) { console.error("CRM lead exception", String(e).slice(0, 150)); }
+}
+
+// ---- Unified CRM: ONE master board (Sales Pipeline), everything feeds it ----
+// The owner was juggling a WhatsApp leads database, a Sales Pipeline, the BP
+// Inbox and e-mail alerts — and losing clients between them. The rule now:
+// the Sales Pipeline in Notion is the single record; the WhatsApp
+// qualification database (written by the n8n orchestrator) is mirrored into
+// it, and a daily sweep turns whatever needs attention into ONE digest sent
+// to the owner on WhatsApp + e-mail, with the same list shown at the top of
+// /admin as «متابعات اليوم».
+const WA_CRM_DB = process.env.NOTION_WA_CRM_DB || "b322a7ec23a94ceb875e52c07b00eadf";
+// The owner's WhatsApp — same number published on the site as the advisor
+// line. Digits only, and overridable without a deploy.
+const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966503793356").replace(/\D/g, "");
+
+async function notionQuery(db, body) {
+  const r = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify(body || {}),
+  });
+  if (!r.ok) { const t = (await r.text()).slice(0, 200); throw new Error(`notion_query_${r.status}:${t}`); }
+  return r.json();
+}
+// One reader for every Notion property flavour we touch — the WhatsApp
+// database mixes rich_text/phone_number/select for what is logically "text".
+function propAny(p) {
+  if (!p) return "";
+  if (p.type === "phone_number") return p.phone_number || "";
+  if (p.type === "email") return p.email || "";
+  if (p.type === "select") return (p.select && p.select.name) || "";
+  if (p.type === "number") return p.number == null ? "" : String(p.number);
+  if (p.type === "date") return (p.date && p.date.start) || "";
+  if (p.type === "checkbox") return p.checkbox ? "yes" : "";
+  const arr = p[p.type];
+  return Array.isArray(arr) ? arr.map((t) => t.plain_text || "").join("") : "";
+}
+
+// One row of «متابعات اليوم»: who, how to reach them, and the single next
+// step — the owner asked to always know «ايش المطلوب عشان اتواصل مع العميل».
+function followupRow(pg) {
+  const pr = pg.properties || {};
+  const notes = propAny(pr["Notes"]);
+  const phone = (propAny(pr["Phone"]) || (notes.match(/الجوال:\s*([+\d][\d\s-]{6,})/) || [])[1] || "").trim();
+  const email = (propAny(pr["Email"]) || (notes.match(/البريد:\s*([^\s·]+@[^\s·،]+)/) || [])[1] || "").trim();
+  const stage = propAny(pr["Stage"]);
+  const order = propAny(pr["حالة الطلب"]);
+  const human = !!(pr["Human Required"] && pr["Human Required"].checkbox);
+  let action = "تابع العميل واسأله عن قراره";
+  if (order === "بانتظار الدفع") action = "ذكّره بالدفع وأرسل له رابط السداد";
+  else if (order === "حجز استشارة" || stage === "Meeting") action = "أكّد معه موعد الاستشارة";
+  else if (human) action = "يحتاج ردّك الآن — افتح المحادثة من BP Inbox";
+  else if (stage === "Proposal Needed") action = "جهّز له عرض السعر وأرسله";
+  else if (stage === "Proposal Sent" || stage === "Negotiation") action = "اسأله عن رأيه في العرض المرسل";
+  else if (stage === "New" || stage === "مهتم") action = "تواصل أول: اتصال أو رسالة واتساب";
+  return {
+    id: pg.id,
+    title: (propAny(pr["Opportunity Name"]) || "عميل بلا اسم").slice(0, 120),
+    phone, email, stage, order,
+    ref: propAny(pr["رقم المرجع"]),
+    due: propAny(pr["Next Follow Up"]),
+    human, action,
+    url: pg.url || "",
+  };
+}
+
+// Everything that must not be forgotten today: due/overdue follow-ups, rows
+// flagged for a human, and orders parked on «بانتظار الدفع». Won/Lost rows
+// are closed — chasing them is noise.
+async function collectFollowups(limit) {
+  if (!NOTION_TOKEN) return [];
+  const today = new Date().toISOString().slice(0, 10);
+  const data = await notionQuery(CRM_DB, {
+    page_size: Math.min(Math.max(Number(limit) || 60, 1), 100),
+    filter: {
+      and: [
+        { or: [
+          { property: "Next Follow Up", date: { on_or_before: today } },
+          { property: "Human Required", checkbox: { equals: true } },
+          { property: "حالة الطلب", select: { equals: "بانتظار الدفع" } },
+        ] },
+        { property: "Stage", select: { does_not_equal: "Won" } },
+        { property: "Stage", select: { does_not_equal: "Lost" } },
+      ],
+    },
+    sorts: [{ property: "Next Follow Up", direction: "ascending" }],
+  });
+  return (data.results || []).map(followupRow);
+}
+
+// Mirror fresh WhatsApp-qualification rows into the master pipeline, keyed by
+// «رقم المرجع» = WA-<digits>. Create sets a next-day follow-up; update never
+// clobbers a follow-up date the owner set by hand.
+const WA_STAGE_OF = {
+  "New Lead": "New", "Contacted": "مهتم", "Qualified": "Qualified",
+  "Discovery Scheduled": "Meeting", "Discovery Complete": "Meeting",
+  "Proposal Draft": "Proposal Needed", "Proposal Sent": "Proposal Sent",
+  "Negotiation": "Negotiation", "Won": "Won", "Lost": "Lost", "Nurture": "مهتم",
+};
+async function syncWhatsappLeads() {
+  if (!NOTION_TOKEN) return { synced: 0, skipped: 0 };
+  const since = new Date(Date.now() - 3 * 864e5).toISOString();
+  const today = new Date().toISOString().slice(0, 10);
+  let synced = 0, skipped = 0;
+  const data = await notionQuery(WA_CRM_DB, {
+    page_size: 50,
+    filter: { timestamp: "last_edited_time", last_edited_time: { on_or_after: since } },
+    sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
+  });
+  for (const pg of data.results || []) {
+    const pr = pg.properties || {};
+    const status = propAny(pr["Status"]);
+    if (status === "Duplicate") { skipped++; continue; }
+    const phone = (propAny(pr["WhatsApp Phone"]) || propAny(pr["WhatsApp"])).replace(/[^\d+]/g, "");
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 8) { skipped++; continue; }
+    const ref = ("WA-" + digits).slice(0, 60);
+    const name = (propAny(pr["title"]) || "").replace(/^WhatsApp\s*-\s*/i, "").trim();
+    const email = propAny(pr["Email"]).trim();
+    const lines = [`قناة: واتساب · الجوال: ${phone}${email ? " · البريد: " + email : ""}`];
+    const svc = propAny(pr["Service Required"]) || propAny(pr["Selected Service Path"]);
+    if (svc) lines.push("الخدمة المطلوبة: " + svc);
+    const nx = propAny(pr["Next Action"]);
+    if (nx) lines.push("الإجراء التالي: " + nx);
+    const lastMsg = propAny(pr["Last WhatsApp Message"]);
+    if (lastMsg) lines.push("آخر رسالة: " + String(lastMsg).replace(/\s+/g, " ").slice(0, 300));
+    const comp = propAny(pr["Company Name"]);
+    if (comp) lines.push("الشركة: " + comp);
+    const props = {
+      "Opportunity Name": { title: [{ text: { content: `📱 واتساب — ${name || phone}`.slice(0, 200) } }] },
+      "Lead Source": { select: { name: "WhatsApp" } },
+      "Stage": { select: { name: WA_STAGE_OF[status] || "New" } },
+      "Human Required": { checkbox: !!(pr["Human Required"] && pr["Human Required"].checkbox) },
+      "Phone": { phone_number: phone.slice(0, 40) },
+      "Notes": { rich_text: richChunks(lines.join("\n")) },
+      "Last Activity": { date: { start: today } },
+      "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
+    };
+    if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) props["Email"] = { email: email.slice(0, 160) };
+    try {
+      const existing = await findConvPage(ref);
+      if (!existing) props["Next Follow Up"] = { date: { start: plusDaysISO(1) } };
+      const r = await fetch(existing ? `https://api.notion.com/v1/pages/${existing}` : "https://api.notion.com/v1/pages", {
+        method: existing ? "PATCH" : "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify(existing ? { properties: props } : { parent: { database_id: CRM_DB }, properties: props }),
+      });
+      if (r.ok) synced++; else { skipped++; console.error("wa sync error", r.status, (await r.text()).slice(0, 200)); }
+    } catch (e) { skipped++; console.error("wa sync exception", String(e).slice(0, 150)); }
+  }
+  return { synced, skipped };
 }
 
 // ---- Website advisor ("باهر") conversations ----
@@ -1036,6 +1191,75 @@ export default async function handler(req, res) {
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, daily: daily || [], pages: pages || [], clicks: clicks || [], refs: refs || [], errors: errors || [] }));
     } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
+  // «متابعات اليوم» feed for the /admin overview — the same list the daily
+  // digest is built from, so the panel and the WhatsApp message never disagree.
+  if ((q.action || "") === "panel-followups") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+    try {
+      const followups = await collectFollowups(q.limit);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, followups }));
+    } catch (e) {
+      console.error("panel-followups failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+    }
+  }
+
+  // Daily CRM sweep, called by the n8n schedule — no human in the loop.
+  // Keyless like escrow-sweep, and safe to be: it only (1) mirrors the
+  // WhatsApp leads database into the master pipeline (idempotent upserts keyed
+  // by رقم المرجع) and (2) sends the owner's own follow-up digest to the
+  // owner's own addresses — at most once per day, enforced through an
+  // audit_logs stamp, so hammering the URL cannot spam anyone.
+  if ((q.action || "") === "crm-followup-sweep") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+    let synced = 0, waSkipped = 0, syncError = null;
+    try { const s = await syncWhatsappLeads(); synced = s.synced; waSkipped = s.skipped; }
+    catch (e) { syncError = String(e && e.message || e).slice(0, 120); console.error("wa lead sync failed", syncError); }
+    let due = [];
+    try { due = await collectFollowups(60); }
+    catch (e) {
+      console.error("followup collect failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "crm_failed", synced, syncError }));
+    }
+    let digestSent = false, waNotified = false;
+    if (due.length) {
+      const day = new Date().toISOString().slice(0, 10);
+      let fresh = true;
+      if (DB_ON) {
+        try { const prior = await sb(`audit_logs?action=eq.crm.digest&created_at=gte.${day}T00:00:00Z&select=id&limit=1`); fresh = !(prior && prior.length); }
+        catch {}
+      }
+      if (fresh) {
+        const items = due.slice(0, 12);
+        const waText = [
+          `📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك:`,
+          ...items.map((f, i) => `${i + 1}) ${f.title}${f.phone ? " · " + f.phone : f.email ? " · " + f.email : ""}\n← ${f.action}`),
+          due.length > items.length ? `…و ${due.length - items.length} آخرون.` : "",
+          `القائمة كاملة بأزرار الاتصال: ${MKT_SITE_BASE}/admin`,
+        ].filter(Boolean).join("\n").slice(0, 3400);
+        const rowsHtml = due.map((f) => `<tr><td style="padding:8px;border-bottom:1px solid #eee"><b>${esc(f.title)}</b><br><span style="color:#666;font-size:12px">${esc(f.ref || "")}${f.stage ? " · " + esc(f.stage) : ""}${f.order ? " · " + esc(f.order) : ""}</span></td><td style="padding:8px;border-bottom:1px solid #eee">${f.phone ? `<a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="color:#128C7E">واتساب ${esc(f.phone)}</a>` : ""}${f.email ? `<br><a href="mailto:${esc(f.email)}" style="color:#0B1B5A">${esc(f.email)}</a>` : ""}</td><td style="padding:8px;border-bottom:1px solid #eee">${esc(f.action)}</td></tr>`).join("");
+        const digestHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:640px"><h2 style="color:#0B1B5A">📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك</h2><table style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr style="background:#F4F6FB"><th style="padding:8px;text-align:right">العميل</th><th style="padding:8px;text-align:right">التواصل</th><th style="padding:8px;text-align:right">المطلوب</th></tr></thead><tbody>${rowsHtml}</tbody></table><p style="margin-top:16px"><a href="${MKT_SITE_BASE}/admin" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none">افتح لوحة التحكم</a></p><p style="color:#666;font-size:12px">تُرسل هذه الخلاصة تلقائياً مرة واحدة يومياً من نظام المتابعة — حتى لا يضيع عميل.</p></div>`;
+        try {
+          const [waRes] = await Promise.all([
+            OWNER_WA ? waSend(OWNER_WA, waText) : Promise.resolve({ ok: false }),
+            sendEmail(TEAM_EMAIL, `📋 متابعات اليوم — ${due.length} عميل يحتاج تواصلك`, digestHtml),
+          ]);
+          waNotified = !!(waRes && waRes.ok);
+          digestSent = true;
+          await audit({ action: "crm.digest", actor_label: "n8n", after: { day, due: due.length, synced, waNotified } });
+        } catch (e) { console.error("digest send failed", String(e).slice(0, 200)); }
+      }
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, due: due.length, synced, waSkipped, digestSent, waNotified, syncError }));
   }
 
   // Automation sweep, called by the n8n daily schedule — no human in the loop.
