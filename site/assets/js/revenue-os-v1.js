@@ -85,7 +85,7 @@
     }).then((r) => r.json()).then((out) => {
       if (out && out.ok) {
         if (sent) {
-          sent.textContent = '✅ استلمنا طلبك — رقم المرجع: ' + (out.ref || '') + '. سيتواصل معك فريق Revenue OS خلال يوم عمل.';
+          sent.textContent = '✅ استلمنا طلبك — رقم المرجع: ' + (out.ref || '') + '. سيتواصل معك فريق تطوير الأعمال خلال يوم عمل.';
           sent.hidden = false;
         }
         form.querySelectorAll('input,textarea').forEach((el) => { el.value = ''; });

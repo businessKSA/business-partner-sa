@@ -1,4 +1,4 @@
-// Revenue Command Center v2 — REAL client data, no demo numbers.
+// Business Development as a Service — client workspace. REAL client data, no demo numbers.
 // Auth = the client-portal session (bp_session marker + the httpOnly server
 // cookie the /account OTP login sets). Data = the client's own CRM orders
 // (/api/requests?action=my-orders), operational overview (my-overview) and
@@ -80,7 +80,7 @@
     return `<span class="status-chip ${cls}" style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${cls === 'ok' ? '#E3F1E9;color:#006C35' : cls === 'active' ? '#E8EDFB;color:#0B1B5A' : cls === 'off' ? '#F3F4F6;color:#6B7280' : '#FFF7E6;color:#92600A'}">${esc(shown || '—')}</span>`;
   };
   const emptyState = (t, p, cta) => `<div class="dash-card" style="text-align:center;padding:48px 24px"><div style="font-size:2rem;margin-bottom:10px">◇</div><h3 style="margin:0 0 6px">${t}</h3><p style="color:#6B7280;max-width:46em;margin:0 auto 16px">${p}</p>${cta || ''}</div>`;
-  const pkgCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/revenue-os' : '/ar/revenue-os'}#pricing" style="text-decoration:none">${L('View Revenue OS packages', 'استعرض باقات Revenue OS')}</a>`;
+  const pkgCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/revenue-os' : '/ar/revenue-os'}#pricing" style="text-decoration:none">${L('View BD as a Service packages', 'استعرض باقات تطوير الأعمال كخدمة')}</a>`;
 
   function periodOrders() { return state.orders.filter(inPeriod); }
   // The client's own orders with us. Deliberately NOT called a pipeline: these
@@ -100,14 +100,18 @@
     o.total ? money(o.total) : '—', esc(o.at || '—'),
   ]);
 
-  // A Revenue OS subscription is what makes this workspace fill up. Detect it
+  // A subscription is what makes this workspace fill up. Detect it
   // from the client's own orders — matching on what they actually bought (the
   // note items and the recorded subscription terms), not on the CRM opportunity
   // title, which is generic and never names the package.
+  // The service was renamed to Business Development as a Service in 2026-08.
+  // Orders placed before the rename carry the old name and must keep working,
+  // so both names match; the internal "revos-" product codes never changed.
+  const PLAN_NAME = /revenue\s*os|revos|bd\s*as\s*a\s*service|bdaas|business development as a service|تطوير الأعمال كخدمة/i;
   function isRevos(o) {
     if (!o) return false;
     const hay = [o.title, o.ref, o.items, (o.subscriptions || []).map((s) => s.name).join(' ')].join(' ');
-    return /revenue\s*os|revos/i.test(hay);
+    return PLAN_NAME.test(hay);
   }
   // Three states, not two. A client who paid an hour ago is "being activated",
   // not "not subscribed" — telling them otherwise reads as if the payment was
@@ -138,18 +142,18 @@
         `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid ${color}"><b>${head}</b><br><small style="color:#6B7280">${sub}</small>${cta ? `<div style="margin-top:10px">${cta}</div>` : ''}</div>`;
       const banner =
         plan.state === 'active'
-          ? bar('#168A5B', L('Revenue OS is active', 'اشتراك Revenue OS مفعّل'),
+          ? bar('#168A5B', L('BD as a Service is active', 'اشتراك تطوير الأعمال كخدمة مفعّل'),
               [esc(plan.order.items || plan.order.title || ''), planTerms(plan.order),
                L('your pipeline fills as the team runs it', 'يمتلئ الـPipeline مع تشغيل الفريق لباقتك')].filter(Boolean).join(' · '))
           : plan.state === 'pending'
           ? bar('#0B1B5A', L('Your subscription was received — being activated', 'استلمنا اشتراكك — قيد التفعيل'),
               [`<b dir="ltr">${esc(plan.order.ref)}</b>`, esc(plan.order.items || ''), planTerms(plan.order),
                L('we are verifying your transfer; the workspace opens as soon as it is confirmed.', 'نتحقق من تحويلك الآن، وتُفتح مساحتك فور التأكيد.')].filter(Boolean).join(' · '))
-          : bar('#B7791F', L('This workspace is ready — Revenue OS is not subscribed yet', 'مساحتك جاهزة — اشتراك Revenue OS غير مفعّل بعد'),
+          : bar('#B7791F', L('This workspace is ready — BD as a Service is not subscribed yet', 'مساحتك جاهزة — اشتراك تطوير الأعمال كخدمة غير مفعّل بعد'),
               L('Opportunities, meetings and commissions appear here once a package is running.', 'الفرص والاجتماعات والعمولات تظهر هنا بمجرد تشغيل باقتك.'),
               pkgCta());
 
-      // These are Revenue OS numbers — opportunities generated FOR the client.
+      // These are BD-as-a-Service numbers — opportunities generated FOR the client.
       // They are not the client's own purchases from us; those live below.
       const note = L('starts when your package runs', 'تبدأ مع تشغيل باقتك');
       return `${head('Revenue Overview', L('Opportunities Business Partner generates for you — and where they stand.', 'الفرص التي يبنيها لك Business Partner — وأين وصلت.'), `<a class="dash-btn" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Client portal', 'منصّة العملاء')}</a>`)}
@@ -181,8 +185,8 @@
     pipeline() {
       return `${head(L('Opportunities & pipeline', 'الفرص والـPipeline'), L('Opportunities Business Partner generates for you — never your own orders with us.', 'الفرص التي يبنيها لك Business Partner — وليست طلباتك لدينا.'))}
       ${emptyState(L('No opportunities generated yet', 'لا توجد فرص مولّدة بعد'),
-        L('Once a Revenue OS package is running, every account we target, qualify and take to a meeting shows up here with its value, stage and next action. Your own service orders with Business Partner live in the client portal.',
-          'بمجرد تشغيل باقة Revenue OS، يظهر هنا كل حساب نستهدفه ونؤهله ونصل به إلى اجتماع، بقيمته ومرحلته والإجراء التالي. أما طلبات خدماتك لدى Business Partner فمكانها منصّة العملاء.'),
+        L('Once a BD as a Service package is running, every account we target, qualify and take to a meeting shows up here with its value, stage and next action. Your own service orders with Business Partner live in the client portal.',
+          'بمجرد تشغيل باقة تطوير الأعمال كخدمة، يظهر هنا كل حساب نستهدفه ونؤهله ونصل به إلى اجتماع، بقيمته ومرحلته والإجراء التالي. أما طلبات خدماتك لدى Business Partner فمكانها منصّة العملاء.'),
         pkgCta())}`;
     },
     revenue() {
@@ -202,7 +206,7 @@
       ${d.length ? `<article class="dash-card">${table([L('Document', 'المستند'), L('Category', 'التصنيف'), L('Verification', 'حالة التحقق'), L('Date', 'التاريخ')], d.map((x) => [esc(x.title), esc(x.category || '—'), statusChip(x.verify_status === 'verified' ? 'مكتمل' : 'قيد المراجعة'), esc(String(x.created_at || '').slice(0, 10))]))}</article>` : emptyState(L('No documents yet', 'لا توجد مستندات بعد'), L('Upload your documents from the client portal and they show up here immediately.', 'ارفع مستنداتك من منصّة العملاء وتظهر هنا مباشرة.'), `<a class="dash-btn primary" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Open the client portal', 'فتح منصّة العملاء')}</a>`)}`;
     },
   };
-  // Sections that activate with a running Revenue OS package — honest empty
+  // Sections that activate with a running BD-as-a-Service package — honest empty
   // states, no invented numbers.
   const soon = {
     accounts: [L('Target accounts', 'الحسابات المستهدفة'), L('Target company lists (ICP) are built and appear here once your package starts running.', 'قوائم الشركات المستهدفة (ICP) تُبنى وتظهر هنا مع بدء تشغيل باقتك.')],
@@ -217,7 +221,7 @@
     views[k] = () => head(soon[k][0], L('Real data only — no demo numbers.', 'بيانات حقيقية فقط — لا أرقام تجريبية.')) + emptyState(soon[k][0], soon[k][1], pkgCta());
   });
 
-  // Seven of the twelve sections only fill up once a Revenue OS package is
+  // Seven of the twelve sections only fill up once a BD-as-a-Service package is
   // running. Left unmarked they read as broken pages, so label them in the
   // sidebar rather than letting the client discover seven identical blanks.
   (function () {
@@ -225,7 +229,7 @@
       const btn = nav.querySelector('button[data-view="' + k + '"]');
       if (!btn) return;
       btn.style.opacity = "0.62";
-      btn.title = L("Activates with a Revenue OS subscription", "تُفعَّل مع اشتراك Revenue OS");
+      btn.title = L("Activates with a BD as a Service subscription", "تُفعَّل مع اشتراك تطوير الأعمال كخدمة");
       const tag = document.createElement("small");
       tag.textContent = L("with plan", "مع الباقة");
       tag.style.cssText = "margin-inline-start:auto;font-size:10px;font-weight:800;background:#EEF1F8;color:#0B1B5A;padding:1px 7px;border-radius:20px";
@@ -266,7 +270,7 @@
     const note = document.querySelector('.prototype-note + .prototype-note') || document.querySelector('.prototype-note');
     if (note) note.innerHTML = note.innerHTML.replace('بيانات حقيقية من حسابك', 'Real data from your account').replace('مرتبطة بمنصّة العملاء والسلة', 'connected to your client portal and cart').replace('فتح منصّة العملاء', 'Open the client portal');
     const crumb = document.querySelector('.crumb small');
-    if (crumb) crumb.textContent = 'Business Partner / Client Workspace';
+    if (crumb) crumb.textContent = 'Business Partner / BD as a Service';
   })();
 
   render();

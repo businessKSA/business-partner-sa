@@ -19,6 +19,26 @@
   },
   "redirects": [
     {
+      "source": "/bdaas",
+      "destination": "/revenue-os",
+      "permanent": false
+    },
+    {
+      "source": "/business-development",
+      "destination": "/revenue-os",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/bdaas",
+      "destination": "/:lang/revenue-os",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development",
+      "destination": "/:lang/revenue-os",
+      "permanent": false
+    },
+    {
       "source": "/blog",
       "destination": "/saudi-arabia",
       "permanent": true

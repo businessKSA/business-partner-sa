@@ -141,9 +141,9 @@ var BP = window.BP = window.BP || {};
   BP.cart = { read: read, write: write };
 
   // "Hide prices from visitors" is a policy about the service catalogue. A
-  // Revenue OS package quotes its own price on a public marketing page, so
-  // hiding it one click later in the cart just looks broken. Items that carry
-  // pricePublic keep their amount visible whatever the page-level setting says.
+  // Business-development package quotes its own price on a public marketing
+  // page, so hiding it one click later in the cart just looks broken. Items
+  // carrying pricePublic keep their amount whatever the page setting says.
   function priceShown(i) { return !!(i && i.amount && (PRICES_ON || i.pricePublic)); }
   function allPublicPriced() { var c = read(); return c.length > 0 && c.every(priceShown); }
 

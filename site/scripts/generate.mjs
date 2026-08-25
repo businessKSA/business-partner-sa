@@ -1184,7 +1184,7 @@ function buildServicesIndex() {
   </div></section>
   <section class="section"><div class="container">
     <div class="grid grid-3 cat-grid">${categoryCards()}</div>
-    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Revenue OS — business development as a service ⚡", "Revenue OS — تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/revenue-os")}">${L("Explore Revenue OS", "استعرض Revenue OS")}</a></div>
+    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/revenue-os")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>
     <div class="cta-band" style="margin-top:20px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
   </div></section>`;
   return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
@@ -1309,7 +1309,7 @@ function buildServiceDetail(s) {
   return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
 }
 
-/* ---------- Revenue OS (/revenue-os) ----------
+/* ---------- Business Development as a Service (/revenue-os) ----------
    Built through the site's own page() so it carries the real header (with the
    language switcher), footer and WhatsApp button like every other page. Its
    own visual language lives in revenue-os-page.css, scoped under .revos so it
@@ -1335,7 +1335,7 @@ function buildRevenueOS() {
 
   const body = `<div class="revos">
   <section class="hero dot-bg"><div class="container hero-inner">
-    <span class="eyebrow">Business Partner Revenue OS</span>
+    <span class="eyebrow">${L("Business Partner · BD as a Service", "بيزنس بارتنر · تطوير الأعمال كخدمة")}</span>
     <h1>${L("We build the customer and supplier base", "نبني لك قاعدة العملاء والموردين")} <span>${L("your business grows on.", "التي ينمو عليها عملك.")}</span></h1>
     <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل داخل Pipeline واحد قابل للقياس.")}</p>
     <div class="hero-actions"><a class="btn btn-primary" href="#leadForm">${L("Start building your pipeline →", "ابدأ بناء الـPipeline ←")}</a><a class="btn" href="${u("/revenue-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a></div>
@@ -1398,7 +1398,7 @@ function buildRevenueOS() {
   </div></section>
 
   <section class="section-sm dot-bg" id="method"><div class="container">
-    <div class="section-head"><span class="eyebrow">Business Partner Revenue OS</span><h2>${L("From market to revenue in one journey", "من السوق إلى الإيراد في رحلة واحدة")}</h2></div>
+    <div class="section-head"><span class="eyebrow">${L("Business Partner · BD as a Service", "بيزنس بارتنر · تطوير الأعمال كخدمة")}</span><h2>${L("From market to revenue in one journey", "من السوق إلى الإيراد في رحلة واحدة")}</h2></div>
     <div class="journey">${[["Targeting", "استهداف"], ["Research", "بحث"], ["Qualification", "تأهيل"], ["Outreach", "تواصل"], ["Meeting", "اجتماع"], ["Contract", "عقد"], ["Collection", "تحصيل"]].map(([en, ar]) => `<div class="journey-step"><strong>${L(en, ar)}</strong><small>${en}</small></div>`).join("")}</div>
   </div></section>
 
@@ -1420,22 +1420,22 @@ function buildRevenueOS() {
         <p class="intro-offer">${L("First month 249 SAR", "أول شهر 249 ﷼")}</p>
         <ul class="clean-list"><li>${L("Target company list by sector and city", "قائمة شركات مستهدفة بالقطاع والمدينة")}</li><li>${L("Lead capture and booking on your website", "التقاط عملاء وحجز مواعيد على موقعك")}</li><li>${L("Client dashboard and a monthly report", "لوحة عميل وتقرير شهري")}</li></ul>
         ${closer(false)}${feeLine(12)}
-        ${pkgBtn("revos-connect-intro", 249, "Revenue OS — Connect (first month)", "Revenue OS — باقة Connect (أول شهر)", L("Start Connect for 249", "ابدأ Connect بـ 249"), false, 12, 499)}</article>
+        ${pkgBtn("revos-connect-intro", 249, "BD as a Service — Connect (first month)", "تطوير الأعمال كخدمة — باقة Connect (أول شهر)", L("Start Connect for 249", "ابدأ Connect بـ 249"), false, 12, 499)}</article>
 
       <article class="price-card"><h3>Launch</h3><p class="muted">${L("For a structured trial.", "للتجربة المنظمة.")}</p>
         <div class="amount">2,500 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
         <ul class="clean-list"><li>${L("Target pipeline up to 1M", "Pipeline مستهدف حتى 1M")}</li><li>${L("A defined database", "قاعدة بيانات محددة")}</li><li>${L("Qualification and a monthly report", "تأهيل وتقرير شهري")}</li></ul>
-        ${closer(false)}${feeLine(8)}${pkgBtn("revos-launch", 2500, "Revenue OS — Launch (monthly)", "Revenue OS — باقة Launch (شهري)", L("Subscribe to Launch", "اشترك في Launch"), false, 8)}</article>
+        ${closer(false)}${feeLine(8)}${pkgBtn("revos-launch", 2500, "BD as a Service — Launch (monthly)", "تطوير الأعمال كخدمة — باقة Launch (شهري)", L("Subscribe to Launch", "اشترك في Launch"), false, 8)}</article>
 
       <article class="price-card featured"><span class="price-badge">${L("Most chosen", "الأكثر اختيارًا")}</span><h3>Growth</h3><p class="muted">${L("A fixed price with no surprises.", "سعر ثابت بلا مفاجآت.")}</p>
         <div class="amount">5,000 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
         <ul class="clean-list"><li>${L("Target pipeline up to 3M", "Pipeline مستهدف حتى 3M")}</li><li>${L("CRM and weekly reports", "CRM وتقارير أسبوعية")}</li><li>${L("Multi-channel campaigns", "حملات متعددة القنوات")}</li></ul>
-        ${closer(false)}${feeLine(0)}${pkgBtn("revos-growth", 5000, "Revenue OS — Growth (monthly)", "Revenue OS — باقة Growth (شهري)", L("Subscribe to Growth", "اشترك في Growth"), true, 0)}</article>
+        ${closer(false)}${feeLine(0)}${pkgBtn("revos-growth", 5000, "BD as a Service — Growth (monthly)", "تطوير الأعمال كخدمة — باقة Growth (شهري)", L("Subscribe to Growth", "اشترك في Growth"), true, 0)}</article>
 
       <article class="price-card"><h3>Professional</h3><p class="muted">${L("For higher-value deals.", "للصفقات الأعلى قيمة.")}</p>
         <div class="amount">9,500 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
         <ul class="clean-list"><li>${L("Target pipeline up to 10M", "Pipeline مستهدف حتى 10M")}</li><li>${L("Forecast and proposal management", "Forecast وإدارة عروض")}</li><li>${L("Negotiation support", "دعم التفاوض")}</li></ul>
-        ${closer(true)}${feeLine(5)}${pkgBtn("revos-professional", 9500, "Revenue OS — Professional (monthly)", "Revenue OS — باقة Professional (شهري)", L("Subscribe to Professional", "اشترك في Professional"), false, 5)}</article>
+        ${closer(true)}${feeLine(5)}${pkgBtn("revos-professional", 9500, "BD as a Service — Professional (monthly)", "تطوير الأعمال كخدمة — باقة Professional (شهري)", L("Subscribe to Professional", "اشترك في Professional"), false, 5)}</article>
 
       <article class="price-card"><h3>Enterprise</h3><p class="muted">${L("For multiple markets and sectors.", "لأسواق وقطاعات متعددة.")}</p>
         <div class="amount">${L("From 15,000 SAR", "يبدأ من 15,000 ﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
@@ -1495,8 +1495,8 @@ function buildRevenueOS() {
   </div>`;
 
   return page({
-    title: Lraw("Revenue OS — customers, suppliers and revenue | Business Partner", "Revenue OS — العملاء والموردون والإيرادات | بيزنس بارتنر"),
-    desc: Lraw("Business Partner Revenue OS: we build your customer, supplier and partner base and run opportunities through to revenue and collection.", "Business Partner Revenue OS: نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
+    title: Lraw("Business Development as a Service — customers, suppliers and revenue | Business Partner", "تطوير الأعمال كخدمة — العملاء والموردون والإيرادات | بيزنس بارتنر"),
+    desc: Lraw("Business Development as a Service by Business Partner: we build your customer, supplier and partner base and run opportunities through to revenue and collection.", "تطوير الأعمال كخدمة من بيزنس بارتنر: نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
     active: "/revenue-os",
     path: "/revenue-os",
     body,
@@ -10574,25 +10574,25 @@ const catalogJson = {
         url: `${base}/packages`,
       }))
     ),
-    // Revenue OS subscriptions (sold from /revenue-os). Owner-approved ladder
+    // BD-as-a-Service subscriptions (sold from /revenue-os). Owner-approved ladder
     // (2026-08): ONE success-fee number, charged on collected revenue only, and
     // the rate buys our closing team — pay a monthly fee alone and the client
     // closes; pay a commission and we close with them. Codes match the cart item
     // ids so the order API's server-side re-pricing can find them. The Connect
     // intro month is its own code so 249 re-prices as 249, not as 499.
     ...[
-      { code: "revos-connect-intro", nameAr: "Revenue OS — باقة Connect (أول شهر)", nameEn: "Revenue OS — Connect (first month)", amount: 249, commission: 12, closedByUs: false,
+      { code: "revos-connect-intro", nameAr: "تطوير الأعمال كخدمة — باقة Connect (أول شهر)", nameEn: "BD as a Service — Connect (first month)", amount: 249, commission: 12, closedByUs: false,
         featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري", "عرض تعريفي: أول شهر 249 ﷼ ثم 499 ﷼ شهريًا"] },
-      { code: "revos-connect", nameAr: "Revenue OS — باقة Connect (شهري)", nameEn: "Revenue OS — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
+      { code: "revos-connect", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)", nameEn: "BD as a Service — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
         featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري"] },
-      { code: "revos-launch", nameAr: "Revenue OS — باقة Launch (شهري)", nameEn: "Revenue OS — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
+      { code: "revos-launch", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)", nameEn: "BD as a Service — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
         featuresAr: ["Pipeline مستهدف حتى 1M", "قاعدة بيانات محددة", "تأهيل وتقرير شهري"] },
-      { code: "revos-growth", nameAr: "Revenue OS — باقة Growth (شهري)", nameEn: "Revenue OS — Growth (monthly)", amount: 5000, commission: 0, closedByUs: false,
+      { code: "revos-growth", nameAr: "تطوير الأعمال كخدمة — باقة Growth (شهري)", nameEn: "BD as a Service — Growth (monthly)", amount: 5000, commission: 0, closedByUs: false,
         featuresAr: ["Pipeline مستهدف حتى 3M", "CRM وتقارير أسبوعية", "حملات متعددة القنوات", "سعر ثابت بدون أي عمولة"] },
-      { code: "revos-professional", nameAr: "Revenue OS — باقة Professional (شهري)", nameEn: "Revenue OS — Professional (monthly)", amount: 9500, commission: 5, closedByUs: true,
+      { code: "revos-professional", nameAr: "تطوير الأعمال كخدمة — باقة Professional (شهري)", nameEn: "BD as a Service — Professional (monthly)", amount: 9500, commission: 5, closedByUs: true,
         featuresAr: ["Pipeline مستهدف حتى 10M", "Forecast وإدارة عروض", "دعم التفاوض والإغلاق"] },
     ].map((p) => ({
-      group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS",
+      group: "revenue-os", groupNameAr: "تطوير الأعمال كخدمة", groupNameEn: "Business Development as a Service",
       code: p.code, key: p.code, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount,
       priceLabel: `${p.amount.toLocaleString("en-US")} ﷼ / شهريًا`,
       billingPeriod: "monthly",
