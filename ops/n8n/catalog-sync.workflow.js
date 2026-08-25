@@ -213,8 +213,10 @@ const unlinked = [];
 
 for (const s of all) {
   if (wanted.size && !wanted.has(String(s.code).toUpperCase())) continue;
-  const pageId = s.links && s.links.notion ? String(s.links.notion).split("/").pop() : null;
+  const links = s.links || {};
+  const pageId = links.notion ? String(links.notion).split("/").pop() : null;
   if (!pageId) { unlinked.push(s.code); continue; }
+  const methods = (s.paymentMethods || []).map((m) => m.ar).join(" · ");
   rows.push({ json: {
     code: s.code,
     notionPageId: pageId,
@@ -222,6 +224,11 @@ for (const s of all) {
     priceInclVat: s.priceInclVat,
     active: s.active,
     openPrice: s.openPrice,
+    autoIssue: s.autoIssue === true,
+    siteUrl: links.site || "",
+    panelUrl: links.panel || "",
+    quoteUrl: links.portal || "",
+    paymentMethods: methods,
     unlinkedInThisRun: unlinked,
   } });
 }
@@ -251,8 +258,15 @@ const writeNotion = node({
         propertyValues: [
           { key: 'Minimum Price|number', numberValue: expr('{{ $json.priceExclVat }}') },
           { key: 'Active|checkbox', checkboxValue: expr('{{ $json.active }}') },
+          { key: 'Auto Issue|checkbox', checkboxValue: expr('{{ $json.autoIssue }}') },
+          { key: 'Panel Code|rich_text', textContent: expr('{{ $json.code }}') },
+          { key: 'Site URL|url', urlValue: expr('{{ $json.siteUrl }}'), ignoreIfEmpty: true },
+          { key: 'Panel URL|url', urlValue: expr('{{ $json.panelUrl }}'), ignoreIfEmpty: true },
+          { key: 'Quote URL|url', urlValue: expr('{{ $json.quoteUrl }}'), ignoreIfEmpty: true },
+          { key: 'Payment Methods|rich_text', textContent: expr('{{ $json.paymentMethods }}') },
+          { key: 'Sync Source|select', selectValue: 'panel' },
           { key: 'Last Updated|date', includeTime: false, date: expr('{{ $now.toISO() }}') },
-          { key: 'Internal Notes|rich_text', textContent: expr('حُدِّث من لوحة العروض — {{ $json.code }} — {{ $now.toFormat("yyyy-MM-dd HH:mm") }}') },
+          { key: 'Internal Notes|rich_text', textContent: expr('حُدِّث من لوحة العروض — {{ $json.code }} — السعر شامل الضريبة {{ $json.priceInclVat }} — {{ $now.toFormat("yyyy-MM-dd HH:mm") }}') },
         ],
       },
       options: {},

@@ -17,6 +17,10 @@ export default function FixPrices({ pending: count }: { pending: number }) {
       <div className="notice warn">
         <b>{count}</b> خدمة عليها سعر معلن لكنها ما زالت «سعراً مفتوحاً»، فطلب العميل
         يصلك لتسعّرها بدل أن يصدر عرضها وحده.
+        <br />
+        <b>قبل الضغط:</b> السعر الذي سيُثبَّت هو سعر هذه اللوحة، لا سعر الموقع. شغّل{' '}
+        <code>node site/scripts/compare-prices.mjs</code> وتأكد أنهما متطابقان —
+        وإلا وصل العميل عرضٌ يخالف الرقم المنشور له.
       </div>
       <button className="btn" type="submit" disabled={busy}>
         {busy ? 'جارٍ التثبيت' : `ثبّت سعر ${count} خدمة`}
