@@ -14,11 +14,27 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
   if (invoice.status === 'PAID') {
     return (
       <div className="card" style={{ maxWidth: 620, margin: '40px auto' }}>
-        <h1>الفاتورة {invoice.number}</h1>
+        <h1>مطالبة السداد {invoice.number}</h1>
         <div className="notice ok">
-          سُددت هذه الفاتورة بتاريخ {fmtDate(invoice.paidAt, 'en')}
+          سُددت بتاريخ {fmtDate(invoice.paidAt, 'en')}
           {invoice.method ? ` عبر ${invoice.method}` : ''}.
         </div>
+        {/* الرقم أعلاه رقم المطالبة في هذه اللوحة، والفاتورة الضريبية المعتمدة
+            تصدر من نظام الدفترة بتسلسلها الواحد. عرضهما مفصولين يمنع أن يُقدَّم
+            رقم داخلي للعميل — أو لهيئة الزكاة والضريبة — على أنه رقم ضريبي. */}
+        {invoice.daftraNumber ? (
+          <p className="sub">
+            الفاتورة الضريبية: <b>{invoice.daftraNumber}</b>
+            {invoice.daftraPdfUrl ? (
+              <>
+                {' — '}
+                <a href={invoice.daftraPdfUrl} target="_blank" rel="noreferrer">افتحها</a>
+              </>
+            ) : null}
+          </p>
+        ) : (
+          <p className="sub">الفاتورة الضريبية تصلك على بريدك فور صدورها.</p>
+        )}
         <a className="btn" href="/portal">بوابة العميل</a>
       </div>
     );
@@ -35,7 +51,7 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
 
   return (
     <div className="card" style={{ maxWidth: 620, margin: '40px auto' }}>
-      <h1>سداد الفاتورة {invoice.number}</h1>
+      <h1>سداد المطالبة {invoice.number}</h1>
       <p className="sub">{invoice.titleAr}</p>
       <table>
         <tbody>

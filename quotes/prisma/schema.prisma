@@ -424,6 +424,15 @@ model Invoice {
   // نوع الإيداع: GOV_FEE (عهدة رسوم حكومية) | SUPPLY (قيمة توريد) | null = أتعاب
   depositKind     String?
 
+  // الفاتورة الضريبية المعتمدة تصدر من الدفترة، لا من هنا. `number` أعلاه رقم
+  // مطالبة السداد في هذه اللوحة؛ والرقم الضريبي هو `daftraNumber` — تسلسل واحد
+  // للمنشأة كما تشترط هيئة الزكاة والضريبة، لا تسلسلان.
+  daftraId       String?
+  daftraNumber   String?
+  daftraPdfUrl   String? // رابط الفاتورة في الدفترة حين لا يُسلَّم الملف
+  daftraIssuedAt DateTime?
+  daftraError    String? // آخر سبب تعذّر، ليُرى في اللوحة بدل أن يُبتلع
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

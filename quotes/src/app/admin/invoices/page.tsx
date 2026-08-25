@@ -61,7 +61,7 @@ export default async function InvoicesPage({
         <table>
           <thead>
             <tr>
-              <th>الفاتورة</th>
+              <th>المطالبة</th>
               <th>العميل</th>
               <th className="num">غير شامل الضريبة</th>
               <th className="num">الضريبة</th>
@@ -77,6 +77,15 @@ export default async function InvoicesPage({
                 <td>
                   <b>{inv.number}</b>
                   <div className="sub">{inv.titleAr}</div>
+                  {/* رقم المنشأة الضريبي من الدفترة، وسبب التعذّر إن وُجد —
+                      يُعرض هنا بدل أن يُبتلع في السجلات. */}
+                  {inv.daftraNumber ? (
+                    <div className="sub">الفاتورة الضريبية <b className="mono">{inv.daftraNumber}</b></div>
+                  ) : inv.daftraError ? (
+                    <div className="sub" style={{ color: 'var(--bad, #9C4620)' }}>
+                      تعذّر إصدار الفاتورة الضريبية: {inv.daftraError}
+                    </div>
+                  ) : null}
                 </td>
                 <td>{inv.client.companyAr || inv.client.nameAr}</td>
                 <td className="num">{fmtMoney(inv.amountExclVat)}</td>
