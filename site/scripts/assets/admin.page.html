@@ -40,7 +40,12 @@
     /* ---- app shell ---- */
     #app{display:none;min-height:100dvh}
     #app.on{display:flex}
-    .side{width:250px;flex-shrink:0;background:linear-gradient(180deg,var(--navy) 0%,var(--navy-900) 100%);color:#fff;display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:100dvh}
+    /* The sidebar scrolls INSIDE itself — before, its long list overflowed an
+       invisible 100dvh box and you had to scroll the whole page to reach the
+       lower items while the content area sat empty. */
+    .side{width:250px;flex-shrink:0;background:linear-gradient(180deg,var(--navy) 0%,var(--navy-900) 100%);color:#fff;display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:100dvh;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.28) transparent}
+    .side::-webkit-scrollbar{width:6px}
+    .side::-webkit-scrollbar-thumb{background:rgba(255,255,255,.22);border-radius:99px}
     .side .logo{display:flex;flex-direction:column;gap:8px;padding:0 8px 16px;border-bottom:1px solid rgba(255,255,255,.14);margin-bottom:16px;overflow:hidden}
     .side .logo img{max-width:150px;height:auto;align-self:flex-start}
     .side .logo .t{font-weight:700;font-size:14.5px;line-height:1.3}
@@ -59,12 +64,12 @@
       border-inline-start:1px solid rgba(255,255,255,.16)}
     .nav .sub.open{display:flex}
     .nav .sub button,.nav .sub a{display:flex;align-items:flex-start;gap:8px;background:none;border:0;
-      color:rgba(255,255,255,.72);border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:600;
+      color:rgba(255,255,255,.88);border-radius:9px;padding:7px 10px;font-size:13px;font-weight:600;
       text-align:right;width:100%;text-decoration:none;line-height:1.5}
     .nav .sub button:hover,.nav .sub a:hover{background:rgba(255,255,255,.09);color:#fff}
     .nav .sub button.active{background:rgba(255,255,255,.16);color:#fff}
     .nav .sub .nm{display:flex;flex-direction:column;gap:1px}
-    .nav .sub .nm small{font-weight:400;font-size:10.5px;opacity:.62;line-height:1.5}
+    .nav .sub .nm small{font-weight:400;font-size:10.5px;opacity:.72;line-height:1.5}
     .nav .filter{margin:6px 0 8px}
     .nav .filter input{width:100%;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);
       color:#fff;border-radius:9px;padding:7px 10px;font-family:inherit;font-size:12.5px;outline:none}
@@ -225,6 +230,18 @@
 
     .view{display:none}
     .view.on{display:block}
+    /* ===== embedded board view — the iframe fills the workspace =====
+       These rules were missing entirely, so the iframe fell back to the
+       browser default 300×150px box floating over a blank page. */
+    .boardhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .boardhead .ttl{font-weight:800;font-size:18px;color:var(--navy)}
+    .boardhead .sp{margin-inline-start:auto}
+    .back{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);cursor:pointer;text-decoration:none}
+    .back:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+    #boardFrame{display:block;width:100%;height:calc(100dvh - 150px);min-height:540px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 26px rgba(15,23,42,.08)}
+    #boardBlocked{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:30px;line-height:2.1;font-size:14px;max-width:560px}
+    #boardBlocked:empty{display:none}
+    @media (max-width:860px){ #boardFrame{height:calc(100dvh - 190px);min-height:420px} }
 
     /* ---- buttons / status select / editor / modal ---- */
     .btn{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700}
